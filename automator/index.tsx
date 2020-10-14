@@ -1,9 +1,9 @@
-import * as React from "react";
-
 const fs = require("fs");
 const mathjax = require("mathjax-node");
-const { propagateUpdate } = require("../react-renderer/src/PropagateUpdate");
-const Canvas = require("../react-renderer/src/Canvas");
+const {
+  propagateUpdate,
+} = require("../react-renderer/src/engine/PropagateUpdate");
+const Canvas = require("../react-renderer/src/ui/Canvas");
 const Packets = require("../react-renderer/src/packets");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
@@ -31,8 +31,13 @@ const nonZeroConstraints = (
   threshold: number
 ) => {
   const constrFns = state.constrFns;
-  const fnsWithVals = constrFns.map((f, i) => [f, constrVals[i]]);
-  const nonzeroConstr = fnsWithVals.filter((c) => +c[1] > threshold);
+  const fnsWithVals = constrFns.map((f: any, i: string | number) => [
+    f,
+    constrVals[i],
+  ]);
+  const nonzeroConstr = fnsWithVals.filter(
+    (c: (string | number)[]) => +c[1] > threshold
+  );
   return nonzeroConstr;
 };
 
@@ -46,10 +51,10 @@ const runPenrose = (packet: object) =>
     penrose.stdin.setEncoding("utf-8");
     penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
-    penrose.stdout.on("data", async (d) => {
+    penrose.stdout.on("data", async (d: { toString: () => string }) => {
       data += d.toString();
     });
-    penrose.stdout.on("close", async (cl) => {
+    penrose.stdout.on("close", async (cl: any) => {
       resolve(data);
     });
 
@@ -69,7 +74,7 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
   const allShapes = state.shapesr;
 
   const collected = await Promise.all(
-    allShapes.map(async ([type, obj]) => {
+    allShapes.map(async ([type, obj]: [string, any]) => {
       if (type === "Text" || type === "TextTransform") {
         const data = await mathjax.typeset({
           math: obj.string.contents,
@@ -128,8 +133,8 @@ const toMs = (hr: any) => hr[1] / 1000000;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
-  sub,
-  sty,
+  sub: any,
+  sty: any,
   dsl: string,
   folders: boolean,
   out: string,
@@ -235,8 +240,8 @@ const singleProcess = async (
 
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
 const batchProcess = async (
-  sublib,
-  stylib,
+  sublib: any,
+  stylib: any,
   dsllib: string,
   folders: boolean,
   out: string,

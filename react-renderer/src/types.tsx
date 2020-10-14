@@ -1,3 +1,5 @@
+// TODO: move into the `types` folder?
+
 export interface IGPIProps {
   shape: any;
   canvasSize: [number, number];

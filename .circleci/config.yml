@@ -1,8 +1,31 @@
 version: 2.1
-orbs:
-  aws-ecr: circleci/aws-ecr@3.0.0
-  aws-ecs: circleci/aws-ecs@0.0.6
 jobs:
+  docs-deploy:
+    docker:
+      - image: circleci/node:11.10.1
+    working_directory: ~/penrose/react-renderer
+    steps:
+      - checkout:
+          path: ~/penrose
+      - run:
+          name: Install deps
+          command: |
+            sudo npm install -g --silent gh-pages
+            npm install
+            git config user.email "ci-build@penrose.ink"
+            git config user.name "ci-build"
+      - add_ssh_keys:
+          fingerprints:
+            - "e0:22:08:03:8f:eb:1c:b7:59:4e:48:00:6d:2d:a7:be"
+      - run:
+          name: Generate docs
+          command: npm run docs
+      - run:
+          name: Add nojekyll
+          command: touch docs/.nojekyll
+      - run:
+          name: Deploy to gh-pages
+          command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
   build_frontend:
     docker:
       - image: circleci/node:11.10.1
@@ -145,6 +168,10 @@ workflows:
                 - master
   build_master_deploy:
     jobs:
+      - docs-deploy:
+          filters:
+            branches:
+              only: master
       - build_frontend:
           filters:
             branches:
@@ -159,27 +186,3 @@ workflows:
           filters:
             branches:
               only: master
-      - aws-ecr/build_and_push_image:
-          filters:
-            branches:
-              only: master
-          requires:
-            - build
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: AWS_REGION
-          repo: penrose
-          dockerfile: Dockerfile.circleci
-          attach-workspace: true
-#       - aws-ecs/deploy-service-update:
-#           requires:
-#             - aws-ecr/build_and_push_image
-#           family: penrose-service
-#           cluster-name: penrose-cluster
-#           aws-access-key-id: $AWS_ACCESS_KEY
-#           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-#           aws-region: $AWS_REGION
-#           filters:
-#             branches:
-#               only: master

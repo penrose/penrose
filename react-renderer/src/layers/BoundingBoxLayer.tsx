@@ -1,6 +1,6 @@
 import * as React from "react";
-import { ILayerProps } from "../types";
-import { toScreen } from "../Util";
+import { ILayerProps } from "types";
+import { toScreen } from "utils/Util";
 
 class BoundingBoxLayer extends React.Component<ILayerProps> {
   public render() {

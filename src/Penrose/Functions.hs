@@ -136,6 +136,7 @@ compDict =
     , ("mirrorPosX", constComp mirrorPosX)
     , ("mirrorPosY", constComp mirrorPosY)
     , ("average", constComp average)
+    , ("average2", constComp average2)
     , ("len", constComp len)
     , ("lineLength", constComp lineLength)
     , ("lineLeft", constComp lineLeft)
@@ -351,6 +352,7 @@ objFuncDict :: forall a. (Autofloat a) => M.Map String (ObjFnOn a)
 objFuncDict =
   M.fromList
     [ ("near", near)
+    , ("nearPt", nearPt)
     , ("center", center)
     , ("centerX", centerX)
     , ("centerLabel", centerLabel)
@@ -763,6 +765,11 @@ midpointY [GPI l] =
     then let (y0, y1) = (getNum l "startY", getNum l "endY")
          in Val $ FloatV $ (y1 + y0) / 2
     else error "GPI type must be line-like"
+
+average2 :: ConstCompFn
+average2 [Val (FloatV x), Val (FloatV y)] =
+  let res = (x + y) / 2
+  in Val $ FloatV res
 
 average :: ConstCompFn
 average [Val (FloatV x), Val (FloatV y)] =
@@ -1715,6 +1722,10 @@ concat strs = toVal $ concatMap rawString strs
 
 --------------------------------------------------------------------------------
 -- Objective Functions
+
+nearPt :: ObjFn
+nearPt [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
+
 -- TODO: this should take into account the boundaries / thicknesses of all the objects
 near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
@@ -2429,13 +2440,17 @@ pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _), Val (Float
 atDistFn :: (Autofloat a) => Pt2 a -> Shape a -> a -> a
 atDistFn oPt txt offset =
   -- TODO: also account for boundary/radius of `o`, rather than just using center
-  let ([textPts], _, textBbox, _) = getPolygon txt
-  in if isInB' textPts oPt -- The point is inside the box, so push it outside
-     then noIntersect [[getX txt, getY txt, getNum txt "w"], [fst oPt, snd oPt, 2.0]] -- TODO use better sizes for each object
-     else let dsq_res = dsqBP textPts oPt -- Note this does NOT use the signed distance
-              constrEnergy = equal' dsq_res (offset * offset)
-          in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
-                    "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
+  let (textPtss, _, textBbox, _) = getPolygon txt
+  in case textPtss of
+     [] -> 0.0
+     [textPts] -> 
+               if isInB' textPts oPt -- The point is inside the box, so push it outside
+               then noIntersect [[getX txt, getY txt, getNum txt "w"], [fst oPt, snd oPt, 2.0]]
+                                -- TODO use better sizes for each object
+               else let dsq_res = dsqBP textPts oPt -- Note this does NOT use the signed distance
+                        constrEnergy = equal' dsq_res (offset * offset)
+                    in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
+                              "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
 -- Uses the closest distance between object center and text bbox
 atDist :: ConstrFn

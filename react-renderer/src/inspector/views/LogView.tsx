@@ -1,6 +1,6 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
-import { ConnectionStatus } from "src/module";
+import { ConnectionStatus } from "Protocol";
 import styled from "styled-components";
 
 const LogLine = styled.li`

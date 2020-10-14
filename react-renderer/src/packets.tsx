@@ -1,6 +1,6 @@
 // import memoize from "fast-memoize";
 
-import { encodeState } from "./Evaluator";
+import { encodeState } from "engine/Evaluator";
 // const memoized = (p: any) =>
 // memoize((...args: any) => JSON.stringify(p(...args)));
 export const Step = (steps: number, data: any) => ({
