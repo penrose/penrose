@@ -771,6 +771,7 @@ const noWeight: MaybeVal<VarAD> = { tag: "Nothing" };
 const genEnergyFn = (xs: VarAD[], z: IVarAD, weight: MaybeVal<VarAD>): any => genCode(xs, [z], "energy", weight);
 
 // Generate code for multi-output function, given its computational graph and a setting for its outputs
+// NOTE: Generates a function that expects inputs to be passed in the same order as here, and the inputs should be sorted by their index
 // NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
 const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode: MaybeVal<VarAD>): any => {
   let counter = 0;
@@ -788,13 +789,13 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
     inputsNew = [weightNode.contents].concat(inputs);
   }
 
-  // Just traverse + name the inputs first, then work backward from the outputs
+  // Just traverse + name the inputs first (they have no children, so the traversal stops there), then work backward from the outputs
   // The inputs are the EP weight + original xsVars (if it's energy) or just the xsVars (if it's gradient)
   for (const x of inputsNew) {
     const res = traverseGraph(counter, x);
 
-    const resInputsSorted = _.sortBy(res.inputs, e => e.index).map(e => e.name);
-    progInputs = progInputs.concat(resInputsSorted);
+    if (res.inputs.length !== 1) { throw Error("expected one input from an input var traversal"); }
+    progInputs = progInputs.concat(res.inputs.map((e: any) => e.name));
     progStmts = progStmts.concat(res.prog);
     progOutputs = progOutputs.concat(res.output);
 
@@ -812,7 +813,6 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
     counter = res.counter + 1;
 
     // console.error("output node traversed", z);
-    // console.error("res inputs", resInputsSorted);
     // console.error("res stmts", res.prog);
     // console.error("res output", res.output);
   }
@@ -1274,6 +1274,7 @@ const testGradFiniteDiff = () => {
 
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
+// TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
   // Synthesize energy and gradient code
