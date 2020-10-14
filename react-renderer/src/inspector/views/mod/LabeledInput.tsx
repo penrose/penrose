@@ -82,13 +82,13 @@ class LabeledInput extends React.Component<IProps> {
     // when an input corresponding to a part of an attribute is modified instead of an entire attribute
     public handleSubChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const ptinfo = event.target.id.split("_");
-        const xory = (ptinfo[3] === "x" ? 0 : 1);
+        const xory = (ptinfo[2] === "x" ? 0 : 1);
         const teval = (isNaN(Number(event.target.value))) ? event.target.value : +event.target.value;
         const subpaths = _.cloneDeep(this.props.eValue.contents);
         const subpath = subpaths[+ptinfo[1]];   // get specific subpath
-        const pt = subpath.contents[+ptinfo[4]];    // get specific point
+        const pt = subpath.contents[+ptinfo[3]];    // get specific point
         pt.contents[xory] = teval;
-        this.updateAttr(ptinfo[2], subpaths);
+        this.updateAttr(ptinfo[4], subpaths);
     }
     public handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.updateAttr(event.target.id, event.target.checked);
@@ -102,9 +102,19 @@ class LabeledInput extends React.Component<IProps> {
     }
     public handleColor = (event: React.ChangeEvent<HTMLInputElement>) => {
         const hex = event.target.value;
-        this.updateAttr(event.target.id, {
+        const eattr = event.target.id.slice(2);
+        this.updateAttr(eattr, {
             tag: "RGBA",
             contents: this.toRGBA(hex)
+        })
+    }
+    public handleOpacity = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const eattr = event.target.id.slice(2);
+        const colorobj = [...this.props.eValue.contents.contents] as [number, number, number, number];   // make copy
+        colorobj[3] = +event.target.value / 100.0;
+        this.updateAttr(eattr, {
+            tag: "RGBA",
+            contents: colorobj
         })
     }
     // https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
@@ -112,11 +122,7 @@ class LabeledInput extends React.Component<IProps> {
         const r = parseInt(hex.slice(1, 3), 16) / 255,
             g = parseInt(hex.slice(3, 5), 16) / 255,
             b = parseInt(hex.slice(5, 7), 16) / 255;
-        return ([r, g, b, this.props.eValue.contents[3]] as [number, number, number, number])
-        
-        // this will destroy alpha specified in style.
-        // todo - pass over alpha from style specification? either way color picker prevents alpha styling
-        // maybe there is a custom color picker somewhere that uses alpha... 
+        return ([r, g, b, this.props.eValue.contents.contents[3]] as [number, number, number, number])
     }
     // todo - maybe make toCanvas definable in JSON? range doesn't cover all possible use cases for toCanvas
     public makeRange = () => {  
@@ -124,53 +130,54 @@ class LabeledInput extends React.Component<IProps> {
         return (<input id={eAttr} type= "range" onChange={this.handleChange} min= {toCanvas(inputProps.min!)} max={toCanvas(inputProps.max!)
         } value={_.round(this.props.eValue.contents)} />)
     }
-    // for use in makePointRange or potentially other multi-input attributes (would need to be modified)
-    public makeSublabel = (id: string) => {
-        const itemprops = id.split("_");
-        const subindex = itemprops[4];
-        const ptindex = itemprops[3] === "x" ? 0 : 1;
-        console.log(this.state.eValue.contents[+itemprops[1]].contents[+subindex].contents[ptindex]);
-        if (this.props.inputProps.showValue) {
+    public makeSubLabel = (id: string, spanval: string, ltxt: string, showValue: boolean) => {
+        if (showValue) {
             return (<label htmlFor={id}>
-            <span>{this.state.eValue.contents[+itemprops[1]].contents[+subindex].contents[ptindex].toString()}</span>
-            {itemprops[0] + itemprops[1] + itemprops[3] + itemprops[4]}</label>) // e.g. "S1y1"
+                <span>{spanval}</span>
+                {ltxt}
+            </label>)
         }
-        else return (<label htmlFor={id}> {itemprops[0] + itemprops[1] + itemprops[3] + itemprops[4]}</label>); 
+        else return (<label htmlFor={id}>{ltxt}</label>)
     }
     public makePointRange = () => {
-        const {inputProps, eAttr} = this.props;
-        const subpaths = this.props.eValue.contents;
-        // todo - refactor the whole file so you can call makerange() and makelabel() with params
-        return (
-        <React.Fragment>
-            {subpaths.map((subpath: SubPath<number>, index: number) => {
-                const ptarray = subpath.contents;
-                // note - prob will crash on bezier stuff
-                return (
-                <React.Fragment key={"S" + index}>
-                {ptarray.map((pt: Elem<number>, subindex: number)=> {
-                    if (pt.tag !== "Pt") throw new Error('No current support for Bezier curves!');
-                    const xid = ["S", index.toString(), eAttr, "x", subindex.toString()].join("_");
-                    const yid = ["S", index.toString(), eAttr, "y", subindex.toString()].join("_");
+            const {inputProps, eAttr} = this.props;
+            const subpaths = this.props.eValue.contents;
+            // todo - refactor the whole file so you can call makerange() and makelabel() with params
+            return (
+            <React.Fragment>
+                {subpaths.map((subpath: SubPath<number>, index: number) => {
+                    const ptarray = subpath.contents;
+                    // note - prob will crash on bezier stuff
                     return (
-                        <React.Fragment key={"S" + index + "pt" + subindex}>
-                        <div style={{display: "inline-block"}} className="sublabinput">
-                            <input id={xid} type="range" onChange={this.handleSubChange} min={toCanvas(inputProps.minX!)}
-                            max={toCanvas(inputProps.maxX!)} value={_.round(pt.contents[0] as number)}/>
-                            {this.makeSublabel(xid)}
-                        </div>
-                        <div className="sublabinput" style={{display: "inline-block"}} >
-                            <input id={yid} type="range" onChange={this.handleSubChange} min={toCanvas(inputProps.minY!)}
-                            max={toCanvas(inputProps.maxY!)} value={_.round(pt.contents[1] as number)}/>
-                            {this.makeSublabel(yid)}
-                        </div>
-                        </React.Fragment>
-                    )
-                    })} </React.Fragment>)
-            })}
-        </React.Fragment>)
-        
-    }
+                    <React.Fragment key={"S" + index}>
+                    {ptarray.map((pt: Elem<number>, subindex: number)=> {
+                        // todo clean up following lines
+                        if (pt.tag !== "Pt") throw new Error('No current support for Bezier curves!');
+                        const xid = ["S", index.toString(), "x", subindex.toString(), eAttr].join("_");
+                        const xltxt = "S" + index.toString() + "x" + subindex.toString();
+                        const xspan = this.state.eValue.contents[index].contents[subindex].contents[0].toString();
+                        const yspan = this.state.eValue.contents[index].contents[subindex].contents[1].toString();
+                        const yid = ["S", index.toString(), "y", subindex.toString(), eAttr].join("_");
+                        const yltxt = "S" + index.toString() + "y" + subindex.toString();
+                        return (
+                            <React.Fragment key={"S" + index + "pt" + subindex}>
+                            <div style={{display: "inline-block"}} className="sublabinput">
+                                <input id={xid} type="range" onChange={this.handleSubChange} min={toCanvas(inputProps.minX!)}
+                                max={toCanvas(inputProps.maxX!)} value={_.round(pt.contents[0] as number)}/>
+                                {this.makeSubLabel(xid, xspan, xltxt, (inputProps.showValue === "true"))}
+                            </div>
+                            <div className="sublabinput" style={{display: "inline-block"}} >
+                                <input id={yid} type="range" onChange={this.handleSubChange} min={toCanvas(inputProps.minY!)}
+                                max={toCanvas(inputProps.maxY!)} value={_.round(pt.contents[1] as number)}/>
+                                {this.makeSubLabel(yid, yspan, yltxt, (inputProps.showValue === "true"))}
+                            </div>
+                            </React.Fragment>
+                        )
+                        })} </React.Fragment>)
+                })}
+            </React.Fragment>)
+            
+        }
     public makeText = () => {
         const {eAttr} = this.props;
         // set up to only trigger on enter
@@ -195,8 +202,22 @@ class LabeledInput extends React.Component<IProps> {
         return (<input type="checkbox" id={eAttr} checked={this.props.eValue.contents} onChange={this.handleCheck}/>)
     }
     public makeColor = () => {
-        const {eAttr} = this.props;
-        return (<input type= "color" id={eAttr} value={toHex(this.props.eValue.contents)} onChange={this.handleColor} />)
+        // todo check to make sure it won't break if opacity has more than two sig figs 
+        const {eAttr, inputProps} = this.props;
+        const cid = "c_" + eAttr;
+        const oid = "o_" + eAttr;
+        return (
+            <React.Fragment>
+                <div className="sublabinput" style={{display: "inline-block"}}>
+                    <input type= "color" id={cid} value={toHex(this.props.eValue.contents)} onChange={this.handleColor} />
+                    {this.makeSubLabel(cid, this.getSpan(), eAttr, (inputProps.showValue === "true"))}
+                </div>
+                <div className="sublabinput" style={{display: "inline-block"}}>
+                    <input type= "number" id={oid} style={{height: "21px", marginLeft: "5px"}} min="0" max="100" value={_.round(100 * this.props.eValue.contents.contents[3])} onChange={this.handleOpacity}/>
+                    {this.makeSubLabel(oid, this.getSpan(), "opacity", false)}
+                </div>
+            </React.Fragment>
+        )
     }
     public makeSelect = () => {
         const {inputProps, eAttr} = this.props;
@@ -205,6 +226,7 @@ class LabeledInput extends React.Component<IProps> {
             {inputProps.options!.map((option: string) => (<option key={option} value={option}>{option}</option>))} value={this.props.eValue.contents} </select>)
     }
     // does necessary conversions to display value
+    // todo refactor to take params
     public getSpan = () => {
         const {inputType} = this.props.inputProps;
         if (inputType === "color") return toHex(this.state.eValue.contents)
@@ -220,6 +242,7 @@ class LabeledInput extends React.Component<IProps> {
         if (this.props.inputProps.inputType === "ptrange") return     // don't need to return anything b/c we need to make individual labels
         // nb - this is a quick fix while we have only one input type that has multiple subinputs
         // if this changes we may want to refactor so this doesn't become a wall of if statements.
+        else if (this.props.inputProps.inputType === "color") return
         else if (this.props.inputProps.showValue === "true") return (<label htmlFor={this.props.eAttr}>{this.makeSpan()}{this.props.eAttr}</label>)
         else return (<label htmlFor={this.props.eAttr}>{this.props.eAttr}</label>)
     }
@@ -230,7 +253,6 @@ class LabeledInput extends React.Component<IProps> {
             case ("range") :
                 return (this.makeRange())
             case ("ptrange") :
-                console.log(this.makePointRange());
                 return (this.makePointRange())
             case ("color") :
                 return (this.makeColor())
@@ -248,11 +270,24 @@ class LabeledInput extends React.Component<IProps> {
                 throw new Error("Invalid input type " + inputType + " .");
         }
     }
-    public render() {
-        return <div style={{display: "inline-block"}} className="labinput">
+    public makeInputAndLabel = () => {
+        if (this.props.inputProps.inputType === "ptrange") {
+            return (
+                <React.Fragment>
+                    {this.makeInput()}
+                    {this.makeLabel()}
+                </React.Fragment>
+            )
+        }
+        else {
+            return (<div style={{display: "inline-block"}} className="labinput">
             {this.makeInput()}
             {this.makeLabel()}
-        </div>
+            </div>)
+        }
+    }
+    public render() {
+        return this.makeInputAndLabel();
     }
 }
 export default LabeledInput;
