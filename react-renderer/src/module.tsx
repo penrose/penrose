@@ -1,6 +1,13 @@
 import Canvas from "ui/Canvas";
 import * as Packets from "./packets";
-import { ILayer } from "./types";
+
+import * as Types from "./types";
+
+export type ILayer = Types.ILayer;
+
+import * as ProtocolTypes from "./Protocol";
+export type IRendererEvents = ProtocolTypes.IRendererEvents;
+export type IEditorEvents = ProtocolTypes.IEditorEvents;
+
 import { Protocol, ConnectionStatus } from "./Protocol";
-export { IRendererEvents, IEditorEvents } from "./Protocol";
-export { Canvas, Packets, ILayer, Protocol, ConnectionStatus };
+export { Canvas, Packets, Protocol, ConnectionStatus };
