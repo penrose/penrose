@@ -22,7 +22,7 @@ const toCmdString = (cmd: any, canvasSize: [number, number]) => {
 
 const pathCommandString = (
   command: string,
-  pts: number[][],
+  pts: [number, number][],
   canvasSize: [number, number]
 ) =>
   command +

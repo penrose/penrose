@@ -41,7 +41,7 @@ export const insertPending = (state: State) => {
       .map((p: Path) => [p, findShapeProperty(state.shapes, p).updated])
       // .updated is from `collectLabels` updating pending properties
       .reduce(
-        (trans: Translation, [path, v]: [Path, Value<number>]) =>
+        (trans: any, [path, v]: any[]) =>
           insertExpr(
             path,
             { tag: "Done", contents: valueNumberToAutodiff(v) },

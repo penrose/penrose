@@ -9,6 +9,7 @@
     "@penrose/linear-algebra": "^1.0.0",
     "@reach/tabs": "^0.9.0",
     "@types/seedrandom": "^2.4.28",
+    "@typescript-eslint/parser": "^4.4.1",
     "console-feed": "^2.8.11",
     "debug": "^4.1.1",
     "fast-memoize": "^2.5.2",
@@ -19,22 +20,22 @@
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",
     "react-inspector": "^4.0.1",
-    "react-scripts-ts": "^4.0.8",
-    "svg2pdf.js": "^1.5.0",
-    "tslib": "^2.0.3",
+    "react-scripts": "^3.4.3",
     "react-split-pane": "^0.1.89",
     "react-styled-flexboxgrid": "^3.2.1",
     "rfdc": "^1.1.4",
     "seedrandom": "^3.0.5",
-    "styled-components": "^5.0.1"
+    "styled-components": "^5.0.1",
+    "svg2pdf.js": "^1.5.0",
+    "tslib": "^2.0.3"
   },
   "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "build-lib": "tsc",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
-    "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
@@ -52,9 +53,10 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "enzyme-to-json": "^3.4.4",
     "prettier": "^1.19.1",
-    "tslint": "^5.20.1",
+    "ttypescript": "^1.5.12",
     "typedoc": "^0.19.2",
-    "typescript": "^4.0.3"
+    "typescript": "^3.9.5",
+    "typescript-transform-paths": "^2.0.1"
   },
   "browserslist": [
     ">0.2%",

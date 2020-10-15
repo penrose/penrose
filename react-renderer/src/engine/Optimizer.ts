@@ -8,7 +8,7 @@ import {
   mul,
   varOf,
   markInput,
-  differentiable
+  differentiable,
 } from "engine/Autodiff";
 import { normList } from "utils/OtherUtils";
 import {
@@ -20,15 +20,20 @@ import {
 } from "engine/Evaluator";
 
 import * as _ from "lodash";
+import { constrDict, objDict } from "contrib/Constraints";
 import {
-  constrDict,
-  objDict,
-} from "contrib/Constraints";
-import { scalev, addv, subv, negv, dot, prettyPrintFns, prettyPrintProperty } from "utils/OtherUtils";
+  scalev,
+  addv,
+  subv,
+  negv,
+  dot,
+  prettyPrintFns,
+  prettyPrintProperty,
+} from "utils/OtherUtils";
 import Log from "utils/Log";
 
 // For deep-cloning the translation
-const clone = require('rfdc')({ proto: false, circles: true });
+const clone = require("rfdc")({ proto: false, circles: true });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -78,14 +83,24 @@ const unconstrainedConverged2 = (normGrad: number): boolean => {
   return normGrad < uoStop;
 };
 
-const epConverged2 = (xs0: number[], xs1: number[], fxs0: number, fxs1: number): boolean => {
+const epConverged2 = (
+  xs0: number[],
+  xs1: number[],
+  fxs0: number,
+  fxs1: number
+): boolean => {
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = normList(subv(xs1, xs0));
   const energyChange = Math.abs(fxs1 - fxs0);
-  console.log("epConverged?: stateChange: ", stateChange, " | energyChange: ", energyChange);
+  console.log(
+    "epConverged?: stateChange: ",
+    stateChange,
+    " | energyChange: ",
+    energyChange
+  );
 
   return stateChange < epStop || energyChange < epStop;
-}
+};
 
 const applyFn = (f: FnDone<VarAD>, dict: any) => {
   if (dict[f.name]) {
@@ -97,14 +112,13 @@ const applyFn = (f: FnDone<VarAD>, dict: any) => {
   }
 };
 
-const defaultLbfgsParams: LbfgsParams =
-{
+const defaultLbfgsParams: LbfgsParams = {
   lastState: { tag: "Nothing" },
   lastGrad: { tag: "Nothing" },
   s_list: [],
   y_list: [],
   numUnconstrSteps: 0,
-  memSize: defaultLbfgsMemSize
+  memSize: defaultLbfgsMemSize,
 };
 
 /**
@@ -117,7 +131,7 @@ const defaultLbfgsParams: LbfgsParams =
 
 // TODO. Annotate the return type: a new (copied?) state with the varyingState and opt params set?
 
-// NOTE: `stepEP` implements the exterior point method as described here: 
+// NOTE: `stepEP` implements the exterior point method as described here:
 // https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf (p7)
 
 // Things that we should do programmatically improve the conditioning of the objective function:
@@ -132,11 +146,21 @@ export const step = (state: State, steps: number, evaluate = true) => {
   let xs: number[] = state.varyingValues;
 
   console.log("===============");
-  console.log("step | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
+  console.log(
+    "step | weight: ",
+    weight,
+    "| EP round: ",
+    optParams.EPround,
+    " | UO round: ",
+    optParams.UOround
+  );
   console.log("params: ", optParams);
   // console.log("state: ", state);
   console.log("fns: ", prettyPrintFns(state));
-  console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+  console.log(
+    "variables: ",
+    state.varyingPaths.map((p) => prettyPrintProperty(p))
+  );
 
   switch (optStatus.tag) {
     case "NewIter": {
@@ -148,7 +172,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         // Compile objective and gradient
         console.log("Compiling objective and gradient");
 
-        // `overallEnergy` is a partially applied function, waiting for an input. 
+        // `overallEnergy` is a partially applied function, waiting for an input.
         // When applied, it will interpret the energy via lookups on the computational graph
         // TODO: Could save the interpreted energy graph across amples
         const overallObjective = evalEnergyOnCustom(state);
@@ -158,14 +182,20 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
         console.log("interpreted energy graph", res.energyGraph);
 
-        const weightInfo = { // TODO: factor out
+        const weightInfo = {
+          // TODO: factor out
           constrWeightNode: res.constrWeightNode,
           epWeightNode: res.epWeightNode,
           constrWeight: constraintWeight,
-          epWeight: initConstraintWeight
+          epWeight: initConstraintWeight,
         };
 
-        const { graphs, f, gradf } = energyAndGradCompiled(xs, xsVars, res.energyGraph, weightInfo);
+        const { graphs, f, gradf } = energyAndGradCompiled(
+          xs,
+          xsVars,
+          res.energyGraph,
+          weightInfo
+        );
 
         memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
 
@@ -221,10 +251,12 @@ export const step = (state: State, steps: number, evaluate = true) => {
       // NOTE: use cached varying values
       console.log("step step, xs", xs);
 
-      const res = minimize(xs,
+      const res = minimize(
+        xs,
         state.params.currObjective,
         state.params.currGradient,
-        state.params.lbfgsInfo);
+        state.params.lbfgsInfo
+      );
       xs = res.xs;
 
       // the new `xs` is put into the `newState`, which is returned at end of function
@@ -243,11 +275,21 @@ export const step = (state: State, steps: number, evaluate = true) => {
         optParams.optStatus.tag = "UnconstrainedConverged";
         memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
         optParams.lbfgsInfo = defaultLbfgsParams;
-        console.log("Unconstrained converged with energy", energyVal, "gradient norm", normGrad);
+        console.log(
+          "Unconstrained converged with energy",
+          energyVal,
+          "gradient norm",
+          normGrad
+        );
       } else {
         optParams.optStatus.tag = "UnconstrainedRunning";
         // Note that lbfgs prams have already been updated
-        console.log(`Took ${steps} steps. Current energy`, energyVal, "gradient norm", normGrad);
+        console.log(
+          `Took ${steps} steps. Current energy`,
+          energyVal,
+          "gradient norm",
+          normGrad
+        );
       }
 
       break;
@@ -265,16 +307,23 @@ export const step = (state: State, steps: number, evaluate = true) => {
       console.log("step: unconstrained converged", optParams);
 
       // We force EP to run at least two rounds (State 0 -> State 1 -> State 2; the first check is only between States 1 and 2)
-      if (optParams.EPround > 1 &&
-        epConverged2(optParams._lastEPstate, optParams._lastUOstate, optParams._lastEPenergy, optParams._lastUOenergy)) {
-
+      if (
+        optParams.EPround > 1 &&
+        epConverged2(
+          optParams._lastEPstate,
+          optParams._lastUOstate,
+          optParams._lastEPenergy,
+          optParams._lastUOenergy
+        )
+      ) {
         optParams.optStatus.tag = "EPConverged";
         console.log("EP converged with energy", optParams._lastUOenergy);
-
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
-        console.log("step: UO converged but EP did not converge; starting next round");
+        console.log(
+          "step: UO converged but EP did not converge; starting next round"
+        );
         optParams.optStatus.tag = "UnconstrainedRunning";
 
         optParams.weight = weightGrowthFactor * weight;
@@ -284,7 +333,11 @@ export const step = (state: State, steps: number, evaluate = true) => {
         optParams.currObjective = optParams.objective(optParams.weight);
         optParams.currGradient = optParams.gradient(optParams.weight);
 
-        console.log("increased EP weight to", optParams.weight, "in compiled energy and gradient");
+        console.log(
+          "increased EP weight to",
+          optParams.weight,
+          "in compiled energy and gradient"
+        );
       }
 
       // Done with EP check, so save the curr EP state as the last EP state for the future.
@@ -294,7 +347,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
       break;
     }
 
-    case "EPConverged": { // do nothing if converged
+    case "EPConverged": {
+      // do nothing if converged
       console.log("step: EP converged");
       return state;
     }
@@ -308,7 +362,10 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
     newState.translation = insertVaryings(
       state.translation,
-      _.zip(state.varyingPaths, varyingValues.map(differentiable)) as [Path, VarAD][]
+      _.zip(state.varyingPaths, varyingValues.map(differentiable)) as [
+        Path,
+        VarAD
+      ][]
     );
 
     newState.varyingValues = varyingValues;
@@ -318,7 +375,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
-// Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might 
+// Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might
 
 const awLineSearch2 = (
   xs0: number[],
@@ -329,7 +386,6 @@ const awLineSearch2 = (
   fxs0: number,
   maxSteps = 10
 ) => {
-
   const descentDir = negv(gradfxs0); // This is preconditioned by L-BFGS
 
   const duf = (u: number[]) => {
@@ -384,11 +440,15 @@ const awLineSearch2 = (
     const intervalTooSmall = Math.abs(bi - ai) < minInterval;
     const tooManySteps = numUpdates > maxSteps;
 
-    if (intervalTooSmall && DEBUG_LINE_SEARCH) { console.error("line search stopping: interval too small"); }
-    if (tooManySteps && DEBUG_LINE_SEARCH) { console.error("line search stopping: step count exceeded"); }
+    if (intervalTooSmall && DEBUG_LINE_SEARCH) {
+      console.error("line search stopping: interval too small");
+    }
+    if (tooManySteps && DEBUG_LINE_SEARCH) {
+      console.error("line search stopping: step count exceeded");
+    }
 
     return intervalTooSmall || tooManySteps;
-  }
+  };
 
   // Consts / initial values
   // TODO: port comments from original
@@ -485,7 +545,11 @@ const colVec = (xs: number[]): any => {
 };
 
 // v is a col vec, w is a col vec, they need to be the same size, returns v dot w (removed from its container)
-const dotVec = (v: any, w: any): number => v.transpose().timesDense(w).get(0, 0);
+const dotVec = (v: any, w: any): number =>
+  v
+    .transpose()
+    .timesDense(w)
+    .get(0, 0);
 
 // Precondition the gradient:
 // Approximate the inverse of the Hessian times the gradient
@@ -502,7 +566,10 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   };
 
   // `any` = column vec
-  const pull_q_back = (acc: [any, number[]], curr: [number, any, any]): [any, number[]] => {
+  const pull_q_back = (
+    acc: [any, number[]],
+    curr: [number, any, any]
+  ): [any, number[]] => {
     const [q_i_plus_1, alphas2] = acc; // alphas2 is the same stuff as alphas, just renamed to avoid shadowing
     const [rho_i, s_i, y_i] = curr;
 
@@ -520,7 +587,10 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   };
 
   // `any` = column vec
-  const push_r_forward = (r_i: any, curr: [[number, number], [any, any]]): any => {
+  const push_r_forward = (
+    r_i: any,
+    curr: [[number, number], [any, any]]
+  ): any => {
     const [[rho_i, alpha_i], [s_i, y_i]] = curr;
     const beta_i: number = rho_i * dotVec(y_i, r_i);
     const r_i_plus_1 = r_i.plus(s_i.timesReal(alpha_i - beta_i));
@@ -531,9 +601,12 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   // The length of any list should be the number of stored vectors
   const rhos = _.zip(ss, ys).map(([s, y]) => calculate_rho(s, y));
   const q_k = grad_fx_k;
-  // Note the order of alphas will be from k-1 through k-m for the push_r_forward loop  
+  // Note the order of alphas will be from k-1 through k-m for the push_r_forward loop
   // (Note that `reduce` is a left fold)
-  const [q_k_minus_m, alphas] = _.zip(rhos, ss, ys).reduce(pull_q_back, [q_k, []]);
+  const [q_k_minus_m, alphas] = (_.zip(rhos, ss, ys) as any).reduce(
+    pull_q_back,
+    [q_k, []]
+  );
 
   const h_0_k = estimate_hess(ys[0], ss[0]); // nxn matrix, according to Nocedal p226, eqn 9.6
 
@@ -542,7 +615,7 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   const r_k_minus_m = h_0_k.timesDense(q_k_minus_m);
   // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
   // NOTE: `reverse` mutates the array in-place, which is fine because we don't need it later
-  const inputs = _.zip(_.zip(rhos, alphas), _.zip(ss, ys)).reverse();
+  const inputs = _.zip(_.zip(rhos, alphas), _.zip(ss, ys)).reverse() as any;
   const r_k = inputs.reduce(push_r_forward, r_k_minus_m);
 
   // result r_k is H_k * grad f(x_k)
@@ -565,7 +638,14 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
   // y_0 = grad f(x_1) - grad f(x_0)
 
   if (DEBUG_LBFGS) {
-    console.log("Starting lbfgs calculation with xs", xs, "gradfxs", gradfxs, "lbfgs params", lbfgsInfo);
+    console.log(
+      "Starting lbfgs calculation with xs",
+      xs,
+      "gradfxs",
+      gradfxs,
+      "lbfgs params",
+      lbfgsInfo
+    );
   }
 
   if (lbfgsInfo.numUnconstrSteps === 0) {
@@ -581,10 +661,13 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         lastGrad: { tag: "Just", contents: colVec(gradfxs) },
         s_list: [],
         y_list: [],
-        numUnconstrSteps: 1
-      }
+        numUnconstrSteps: 1,
+      },
     };
-  } else if (lbfgsInfo.lastState.tag === "Just" && lbfgsInfo.lastGrad.tag === "Just") {
+  } else if (
+    lbfgsInfo.lastState.tag === "Just" &&
+    lbfgsInfo.lastGrad.tag === "Just"
+  ) {
     // Our current step is k; the last step is km1 (k_minus_1)
     const x_k = colVec(xs);
     const grad_fx_k = colVec(gradfxs);
@@ -610,14 +693,17 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const gradPreconditioned = lbfgsInner(grad_fx_k, ss_km1, ys_km1);
 
     // Reset L-BFGS if the result is not a descent direction, and use steepest descent direction
-    // https://github.com/JuliaNLSolvers/Optim.jl/issues/143 
+    // https://github.com/JuliaNLSolvers/Optim.jl/issues/143
     // https://github.com/JuliaNLSolvers/Optim.jl/pull/144
     // A descent direction is a vector p s.t. <p `dot` grad_fx_k> < 0
     // If P is a positive definite matrix, then p = -P grad f(x) is a descent dir at x
     const descentDirCheck = -1.0 * dotVec(gradPreconditioned, grad_fx_k);
 
     if (descentDirCheck > 0.0) {
-      console.error("L-BFGS did not find a descent direction. Resetting correction vectors.", lbfgsInfo);
+      console.error(
+        "L-BFGS did not find a descent direction. Resetting correction vectors.",
+        lbfgsInfo
+      );
       return {
         gradfxsPreconditioned: gradfxs,
         updatedLbfgsInfo: {
@@ -626,8 +712,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
           lastGrad: { tag: "Just", contents: grad_fx_k },
           s_list: [],
           y_list: [],
-          numUnconstrSteps: 1
-        }
+          numUnconstrSteps: 1,
+        },
       };
     }
 
@@ -646,10 +732,9 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         lastGrad: { tag: "Just", contents: grad_fx_k },
         s_list: ss_km1,
         y_list: ys_km1,
-        numUnconstrSteps: km1 + 1
-      }
+        numUnconstrSteps: km1 + 1,
+      },
     };
-
   } else {
     console.error("State:", lbfgsInfo);
     throw Error("Invalid L-BFGS state");
@@ -689,11 +774,22 @@ const minimize = (
     gradfxs = gradf(xs);
     normGradfxs = normList(gradfxs);
 
-    const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(xs, gradfxs, newLbfgsInfo);
+    const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(
+      xs,
+      gradfxs,
+      newLbfgsInfo
+    );
     newLbfgsInfo = updatedLbfgsInfo;
 
-    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) { // This is on the original gradient, not the preconditioned one
-      console.log("descent converged early, on step", i, "of", numSteps, "(per display cycle); stopping early");
+    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
+      // This is on the original gradient, not the preconditioned one
+      console.log(
+        "descent converged early, on step",
+        i,
+        "of",
+        numSteps,
+        "(per display cycle); stopping early"
+      );
       break;
     }
 
@@ -736,7 +832,7 @@ const minimize = (
     xs,
     energyVal: fxs,
     normGrad: normGradfxs,
-    newLbfgsInfo
+    newLbfgsInfo,
   };
 };
 
@@ -756,14 +852,18 @@ export const evalEnergyOnCustom = (state: State) => {
     const translation = clone(state.translation);
 
     // construct a new varying map
-    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;
+    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
+      VarAD
+    >;
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
     const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: VarAD[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
+    const constrEngs: VarAD[] = constrEvaled.map((c) =>
+      fns.toPenalty(applyFn(c, constrDict))
+    );
 
     // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // The energies are in the val field of the results (w/o grads)
@@ -771,20 +871,30 @@ export const evalEnergyOnCustom = (state: State) => {
     // console.log("vars", varyingValuesTF);
 
     // TODO make this check more robust to empty lists of objectives/constraints
-    if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
+    if (!objEngs[0] && !constrEngs[0]) {
+      throw Error("no objectives and no constraints");
+    }
 
     // This is fixed during the whole optimization
-    const constrWeightNode = varOf(constraintWeight, String(constraintWeight), "constraintWeight");
+    const constrWeightNode = varOf(
+      constraintWeight,
+      String(constraintWeight),
+      "constraintWeight"
+    );
     // This changes with the EP round, gets bigger to weight the constraints
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight (-1 is an index; means it appears as the first argument)
-    const epWeightNode = markInput(varOf(state.params.weight, String(state.params.weight), "epWeight"), -1);
+    const epWeightNode = markInput(
+      varOf(state.params.weight, String(state.params.weight), "epWeight"),
+      -1
+    );
 
     const objEng: VarAD = ops.vsum(objEngs);
     const constrEng: VarAD = ops.vsum(constrEngs);
     // F(x) = o(x) + c0 * penalty * c(x)
-    const overallEng: VarAD = add(objEng,
-      mul(constrEng,
-        mul(constrWeightNode, epWeightNode)));
+    const overallEng: VarAD = add(
+      objEng,
+      mul(constrEng, mul(constrWeightNode, epWeightNode))
+    );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
     overallEng.gradVal = { tag: "Just", contents: 1.0 };
@@ -793,7 +903,7 @@ export const evalEnergyOnCustom = (state: State) => {
     return {
       energyGraph: overallEng,
       constrWeightNode,
-      epWeightNode
+      epWeightNode,
     };
   };
 };
