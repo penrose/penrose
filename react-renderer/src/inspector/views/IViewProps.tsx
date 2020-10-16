@@ -7,6 +7,6 @@ export interface IViewProps {
   frame: State | null;
   // Either a valid index in History
   frameIndex: number;
-  modShapes?(state: IState): void; // todo - null check
+  modShapes(state: IState): void; // todo - null check
 }
 export default IViewProps;

@@ -11,7 +11,7 @@
         },
         "arrowheadStyle": {
             "inputType": "select",
-            "options": ["arrowhead-1", "arrowhead-2"],
+            "options": ["arrowhead-2", "arrowhead-1"],
             "showValue": "false"
         },
         "effect": {

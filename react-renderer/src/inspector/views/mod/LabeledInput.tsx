@@ -54,18 +54,8 @@ class LabeledInput extends React.Component<IProps> {
                 eValue: this.props.eValue
             });
         };
-    } // todo - will subpath<x> always have x = number?
+    } // todo - will subpath<x> always have typeof x = number?
     public updateAttr = (id: string, evalue: string | number | Color<number> | boolean | SubPath<number>[]) => {
-        // this.setState((prevState) => ({
-        //     eValue: {
-        //         ...prevState.eValue,
-        //         contents: evalue
-        //     }
-        // }))
-        
-        // this way is not safe apparently. https://stackoverflow.com/questions/43638938/updating-an-object-with-setstate-in-react
-        // however, the alternative is above and gives an error!!! 
-        // anyway, this is a possible source of a bug
         const newstate = {
             eValue: {
                 ...this.state.eValue,
@@ -75,41 +65,39 @@ class LabeledInput extends React.Component<IProps> {
         this.setState(newstate);  // will update span values - could be phased out if spans are set manually
         this.props.modAttr(id, newstate.eValue as Value<any>);
     }
-    public handleChange = (event: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
+    public handleChange = (eattr: string, event: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
         const teval = (isNaN(Number(event.target.value))) ? event.target.value : +event.target.value; // convert to number if necessary
-        this.updateAttr(event.target.id, teval); // a little hacky - id is name of property
+        this.updateAttr(eattr, teval); // a little hacky - id is name of property
     }
     // when an input corresponding to a part of an attribute is modified instead of an entire attribute
-    public handleSubChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const ptinfo = event.target.id.split("_");
-        const xory = (ptinfo[2] === "x" ? 0 : 1);
+    public handleSubChange = (eAttr: string, pathIndex: number, subpathIndex: number, pointIndex: number, event: React.ChangeEvent<HTMLInputElement>) => {
+        // const ptinfo = event.target.id.split("_");
+        // const xory = (ptinfo[2] === "x" ? 0 : 1);
         const teval = (isNaN(Number(event.target.value))) ? event.target.value : +event.target.value;
-        const subpaths = _.cloneDeep(this.props.eValue.contents);
-        const subpath = subpaths[+ptinfo[1]];   // get specific subpath
-        const pt = subpath.contents[+ptinfo[3]];    // get specific point
-        pt.contents[xory] = teval;
-        this.updateAttr(ptinfo[4], subpaths);
+        const path = _.cloneDeep(this.props.eValue.contents);
+        const subpath = path[pathIndex];   // get specific subpath
+        const pt = subpath.contents[subpathIndex];    // get specific point
+        pt.contents[pointIndex] = teval;
+        this.updateAttr(eAttr, path);
     }
-    public handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.updateAttr(event.target.id, event.target.checked);
+    public handleCheck = (eattr: string, event: React.ChangeEvent<HTMLInputElement>) => {
+        this.updateAttr(eattr, event.target.checked);
     }
-    public keyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    public keyDown = (eattr: string, event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.keyCode === 13) {
             const etgt = (event.target) as HTMLInputElement;
             const teval = (isNaN(Number(etgt.value))) ? etgt.value : +etgt.value; // convert to number if necessary
-            this.updateAttr(etgt.id, teval);
+            this.updateAttr(eattr, teval);
         }
     }
-    public handleColor = (event: React.ChangeEvent<HTMLInputElement>) => {
+    public handleColor = (eattr: string, event: React.ChangeEvent<HTMLInputElement>) => {
         const hex = event.target.value;
-        const eattr = event.target.id.slice(2);
         this.updateAttr(eattr, {
             tag: "RGBA",
             contents: this.toRGBA(hex)
         })
     }
-    public handleOpacity = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const eattr = event.target.id.slice(2);
+    public handleOpacity = (eattr: string, event: React.ChangeEvent<HTMLInputElement>) => {
         const colorobj = [...this.props.eValue.contents.contents] as [number, number, number, number];   // make copy
         colorobj[3] = +event.target.value / 100.0;
         this.updateAttr(eattr, {
@@ -127,7 +115,7 @@ class LabeledInput extends React.Component<IProps> {
     // todo - maybe make toCanvas definable in JSON? range doesn't cover all possible use cases for toCanvas
     public makeRange = () => {  
         const {inputProps, eAttr} = this.props;
-        return (<input id={eAttr} type= "range" onChange={this.handleChange} min= {toCanvas(inputProps.min!)} max={toCanvas(inputProps.max!)
+        return (<input id={eAttr} type= "range" onChange={(e) => this.handleChange(eAttr, e)} min= {toCanvas(inputProps.min!)} max={toCanvas(inputProps.max!)
         } value={_.round(this.props.eValue.contents)} />)
     }
     public makeSubLabel = (id: string, spanval: string, ltxt: string, showValue: boolean) => {
@@ -162,12 +150,12 @@ class LabeledInput extends React.Component<IProps> {
                         return (
                             <React.Fragment key={"S" + index + "pt" + subindex}>
                             <div style={{display: "inline-block"}} className="sublabinput">
-                                <input id={xid} type="range" onChange={this.handleSubChange} min={toCanvas(inputProps.minX!)}
+                                <input id={xid} type="range" onChange={(e) => this.handleSubChange(eAttr, index, subindex, 0, e)} min={toCanvas(inputProps.minX!)}
                                 max={toCanvas(inputProps.maxX!)} value={_.round(pt.contents[0] as number)}/>
                                 {this.makeSubLabel(xid, xspan, xltxt, (inputProps.showValue === "true"))}
                             </div>
                             <div className="sublabinput" style={{display: "inline-block"}} >
-                                <input id={yid} type="range" onChange={this.handleSubChange} min={toCanvas(inputProps.minY!)}
+                                <input id={yid} type="range" onChange={(e) => this.handleSubChange(eAttr, index, subindex, 1, e)} min={toCanvas(inputProps.minY!)}
                                 max={toCanvas(inputProps.maxY!)} value={_.round(pt.contents[1] as number)}/>
                                 {this.makeSubLabel(yid, yspan, yltxt, (inputProps.showValue === "true"))}
                             </div>
@@ -184,22 +172,22 @@ class LabeledInput extends React.Component<IProps> {
         // known bug: setting customizable Text/Label string ppty will not work
         // This is because MathJax is only run once, according to Katherine.
         // don't think this can be fixed here.
-        return (<input type="text" id={eAttr} defaultValue={this.props.eValue.contents} onKeyDown={this.keyDown}/>)
+        return (<input type="text" id={eAttr} defaultValue={this.props.eValue.contents} onKeyDown={(e) => this.keyDown(eAttr, e)}/>)
     }
     // can be used in images
     public makeURL = () => {
         const {eAttr} = this.props;
         // set up to only trigger on enter
-        return (<input type="url" id={eAttr} defaultValue={this.props.eValue.contents} onKeyDown={this.keyDown}/>)
+        return (<input type="url" id={eAttr} defaultValue={this.props.eValue.contents} onKeyDown={(e) => this.keyDown(eAttr, e)}/>)
     }
     public makeNumber = () => {
         const {inputProps, eAttr} = this.props;
-        return (<input type="number" id={eAttr}  onChange={this.handleChange} min={(inputProps.min) ? toCanvas(inputProps.min) : ""}
+        return (<input type="number" id={eAttr}  onChange={(e) => this.handleChange(eAttr, e)} min={(inputProps.min) ? toCanvas(inputProps.min) : ""}
          max={(inputProps.max) ? toCanvas(inputProps.max) : ""} value={this.props.eValue.contents}/>)
     }
     public makeCheckbox = () => {
         const {eAttr} = this.props;
-        return (<input type="checkbox" id={eAttr} checked={this.props.eValue.contents} onChange={this.handleCheck}/>)
+        return (<input type="checkbox" id={eAttr} checked={this.props.eValue.contents} onChange={(e) => this.handleCheck(eAttr, e)}/>)
     }
     public makeColor = () => {
         // todo check to make sure it won't break if opacity has more than two sig figs 
@@ -209,11 +197,12 @@ class LabeledInput extends React.Component<IProps> {
         return (
             <React.Fragment>
                 <div className="sublabinput" style={{display: "inline-block"}}>
-                    <input type= "color" id={cid} value={toHex(this.props.eValue.contents)} onChange={this.handleColor} />
+                    <input type= "color" id={cid} value={toHex(this.props.eValue.contents)} onChange={(e) => this.handleColor(eAttr, e)} />
                     {this.makeSubLabel(cid, this.getSpan(), eAttr, (inputProps.showValue === "true"))}
                 </div>
                 <div className="sublabinput" style={{display: "inline-block"}}>
-                    <input type= "number" id={oid} style={{height: "21px", marginLeft: "5px"}} min="0" max="100" value={_.round(100 * this.props.eValue.contents.contents[3])} onChange={this.handleOpacity}/>
+                    <input type= "number" id={oid} style={{height: "21px", marginLeft: "5px"}} min="0" max="100" 
+                    value={_.round(100 * this.props.eValue.contents.contents[3])} onChange={(e) => this.handleOpacity(eAttr, e)}/>
                     {this.makeSubLabel(oid, this.getSpan(), "opacity", false)}
                 </div>
             </React.Fragment>
@@ -222,7 +211,7 @@ class LabeledInput extends React.Component<IProps> {
     public makeSelect = () => {
         const {inputProps, eAttr} = this.props;
         if (!inputProps.hasOwnProperty("options")) throw new Error("Select input type must have enumerated options.")
-        return (<select id={eAttr} onChange={this.handleChange}>
+        return (<select id={eAttr} onChange={(e) => this.handleChange(eAttr, e)}>
             {inputProps.options!.map((option: string) => (<option key={option} value={option}>{option}</option>))} value={this.props.eValue.contents} </select>)
     }
     // does necessary conversions to display value

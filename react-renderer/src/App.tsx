@@ -68,7 +68,6 @@ class App extends React.Component<any, ICanvasState> {
 
     await this.setState({
       data: canvasState,
-      history: [...this.state.history],
       processedInitial: true,
     });
   }

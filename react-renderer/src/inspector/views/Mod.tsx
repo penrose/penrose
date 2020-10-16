@@ -4,6 +4,7 @@ import AttrPicker from "./mod/AttrPicker";
 import { staticMap } from "src/componentMap";
 import styled from "styled-components";
 import defmap from "./mod/defmap";
+import * as _ from "lodash";
 
 const ShapeItem = styled.li<any>`
   display: block;
@@ -33,13 +34,22 @@ class Mod extends React.Component<IViewProps, IState> {
     const {frame, modShapes, frameIndex, history} = this.props;
     const {selectedShape} = this.state;
     if (frameIndex === -1 || frameIndex === history.length - 1) { // make it only work on last frame
+      // const shapeIndex = selectedShape === -1 ? 0 : selectedShape;
+      // const newShapes = _.cloneDeep(frame!.shapes);
+      // let shape = newShapes[shapeIndex];
+      // shape.properties[attrname] = attrval;
+      // const newFrame = {
+      //   ...frame,
+      //   shapes: newShapes
+      // } as IState;
+      // modShapes(newFrame);
       const shap = frame!.shapes[(selectedShape === -1 ? 0 : selectedShape)]; // the -1 index behaves weirdly so workaround
       if (shap.properties.hasOwnProperty(attrname)) {
         shap.properties[attrname] = attrval;
       }
-      else throw new Error("Shape does not have property " + attrname + " .");
-      if (modShapes) modShapes(frame!);
     }
+    else throw new Error("Shape does not have property " + attrname + " .");
+    if (modShapes) modShapes(frame!);
   }
   public render() {
     const { frame } = this.props;
@@ -150,7 +160,6 @@ class Mod extends React.Component<IViewProps, IState> {
             boxSizing: "border-box"
           }}
         >
-          {/* todo enable only on last frame */}
           {frame.shapes[selectedShape] && (<AttrPicker shape={frame.shapes[selectedShape]} sAttrs={defmap[frame.shapes[selectedShape].shapeType]} modAttr={this.modAttr}/>)}
         </div>
       </div>

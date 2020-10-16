@@ -160,15 +160,10 @@ function update(id, val) {
   }
   calcval();
 
-    // Note: If your code isn't working, try googling more specific search terms (I got here by searching "d3 update selection svg", since it seemed like the update selection for existing elements in the svg wasn't working)
-    // https://www.d3indepth.com/enterexit/
-    // https://stackoverflow.com/questions/22621865/how-to-update-an-svg-path-with-d3-js/22622385
-
     var update = svg.selectAll("path")
         .data(contours(values));
 
     // UPDATE -- update existing data attributes of elements (paths)
-    // The problem was that earlier, I guess you were not updating the data attribute for paths whose data had changed; the code was only binding data without updating the paths
     update
         .attr("d", d3.geoPath(d3.geoIdentity().scale(width / n)))
         .attr("fill", function(d) { return color(d.value); });
@@ -183,7 +178,6 @@ function update(id, val) {
     update.exit()
         .remove();
 
-    // In conclusion: I still think d3 does not have the most intuitive API :-) Actually this particular API is poorly designed for most users who are not power users because if new data is bound, the view should automatically update via a function, rather than having to state it imperatively
 
     // TODO: Note how the slider drags are pretty laggy
     // Maybe update the contour on mouseup, or per slider segment (every 1/100)
