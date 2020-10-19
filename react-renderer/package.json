@@ -34,11 +34,11 @@
   },
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "build": "CI=false && react-scripts --max_old_space_size=4096 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
-    "lint": "eslint src",
+    "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
