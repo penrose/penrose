@@ -331,6 +331,10 @@ export function mapTranslation<T, S>(
 };
 
 // TODO: Check the input type?
-export const walkTranslationConvert = (trans: any): Translation => {
+export const makeTranslationDifferentiable = (trans: any): Translation => {
   return mapTranslation(varOf, trans);
+};
+
+export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
+  return mapTranslation(numOf, trans);
 };

@@ -32,7 +32,8 @@ import {
 } from "./Autodiff";
 
 // For deep-cloning the translation
-const clone = require('rfdc')({ proto: false, circles: true });
+// Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
+const clone = require('rfdc')({ proto: false, circles: false });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator

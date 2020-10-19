@@ -7,7 +7,7 @@ import { loadImages } from "utils/Util";
 import { insertPending } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
 import { evalShapes, decodeState } from "engine/Evaluator";
-import { walkTranslationConvert } from "engine/EngineUtils";
+import { makeTranslationDifferentiable } from "engine/EngineUtils";
 
 interface ICanvasProps {
   lock: boolean;
@@ -49,7 +49,7 @@ class Canvas extends React.Component<ICanvasProps> {
 
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
     // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
-    const translationAD = walkTranslationConvert(state.translation);
+    const translationAD = makeTranslationDifferentiable(state.translation);
     const stateAD = {
       ...state,
       translation: translationAD
@@ -309,8 +309,7 @@ class Canvas extends React.Component<ICanvasProps> {
         viewBox={`0 0 ${canvasSize[0]} ${canvasSize[1]}`}
       >
         <desc>
-          {`This diagram was created with Penrose (https://penrose.ink)${
-            penroseVersion ? " version " + penroseVersion : ""
+          {`This diagram was created with Penrose (https://penrose.ink)${penroseVersion ? " version " + penroseVersion : ""
             } on ${new Date()
               .toISOString()
               .slice(

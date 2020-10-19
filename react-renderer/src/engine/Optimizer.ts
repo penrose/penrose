@@ -10,6 +10,7 @@ import {
   markInput,
   differentiable
 } from "engine/Autodiff";
+import { makeTranslationDifferentiable, makeTranslationNumeric } from "engine/EngineUtils";
 import { normList } from "utils/OtherUtils";
 import {
   argValue,
@@ -28,7 +29,7 @@ import { scalev, addv, subv, negv, dot, prettyPrintFns, prettyPrintProperty } fr
 import Log from "utils/Log";
 
 // For deep-cloning the translation
-const clone = require('rfdc')({ proto: false, circles: true });
+const clone = require('rfdc')({ proto: false, circles: false });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -752,8 +753,9 @@ export const evalEnergyOnCustom = (state: State) => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
-    // Clone this to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
-    const translation = clone(state.translation);
+    // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
+    // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
+    const translation = makeTranslationDifferentiable(clone(makeTranslationNumeric(state.translation)));
 
     // construct a new varying map
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;
