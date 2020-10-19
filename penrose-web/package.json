@@ -1,6 +1,6 @@
 {
-  "name": "react-renderer",
-  "version": "0.1.0",
+  "name": "penrose-web",
+  "version": "1.0.0",
   "main": "build/dist/module.js",
   "module": "build/dist/module.js",
   "types": "build/dist/types.js",

@@ -1,8 +1,8 @@
 const fs = require("fs");
 const mathjax = require("mathjax-node");
-const PropagateUpdate = require("react-renderer");
-const Canvas = require("react-renderer");
-const Packets = require("react-renderer");
+const PropagateUpdate = require("penrose-web");
+const Canvas = require("penrose-web");
+const Packets = require("penrose-web");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 const chalk = require("chalk");
