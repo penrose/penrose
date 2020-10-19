@@ -34,8 +34,8 @@ class Canvas extends React.Component<ICanvasProps> {
     ); // assumes that all names are unique
   };
 
-  public static notEmptyLabel = ({ properties }: any) => {
-    return name === "Text" ? !(properties.string.contents === "") : true;
+  public static notEmptyLabel = ({ shapeType, properties }: any) => {
+    return shapeType === "Text" ? !(properties.string.contents === "") : true;
   };
 
   /**
@@ -52,7 +52,7 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = walkTranslationConvert(state.translation);
     const stateAD = {
       ...state,
-      translation: translationAD
+      translation: translationAD,
     };
 
     console.log("processData varyingValues", state.varyingValues);
@@ -311,12 +311,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
