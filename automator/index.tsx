@@ -1,10 +1,8 @@
 const fs = require("fs");
 const mathjax = require("mathjax-node");
-const {
-  propagateUpdate,
-} = require("../react-renderer/src/engine/PropagateUpdate");
-const Canvas = require("../react-renderer/src/ui/Canvas");
-const Packets = require("../react-renderer/src/packets");
+const PropagateUpdate = require("react-renderer");
+const Canvas = require("react-renderer");
+const Packets = require("react-renderer");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 const chalk = require("chalk");
@@ -48,7 +46,7 @@ const nonZeroConstraints = (
 const runPenrose = (packet: object) =>
   new Promise((resolve, reject) => {
     const penrose = spawn("penrose", ["runAPI"]);
-    penrose.stdin.setEncoding("utf-8");
+    // penrose.stdin.setEncoding("utf-8");
     penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
     penrose.stdout.on("data", async (d: { toString: () => string }) => {
@@ -120,12 +118,12 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
     })
   );
   // TODO: images (see prepareSVG method in canvas)
-  const sortedShapes = await Canvas.default.sortShapes(
-    collected,
-    state.shapeOrdering
-  );
+  const sortedShapes = await Canvas.sortShapes(collected, state.shapeOrdering);
   // update the state with newly generated labels and label dimensions
-  const updated = await propagateUpdate({ ...state, shapes: sortedShapes });
+  const updated = await PropagateUpdate.insertPending({
+    ...state,
+    shapes: sortedShapes,
+  });
   return updated;
 };
 
@@ -185,7 +183,7 @@ const singleProcess = async (
   // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
   const canvas = ReactDOMServer.renderToString(
-    <Canvas.default data={state} lock={true} />
+    <Canvas data={state} lock={true} />
   );
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);

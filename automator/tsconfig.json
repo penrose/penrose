@@ -1,14 +1,13 @@
 {
-  "extends": "../react-renderer/tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
     "esModuleInterop": true,
-    "target": "es6",
+    "target": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
     "jsx": "react",
-    "typeRoots": [ "../react-renderer/src/types"]
+    "typeRoots": ["./node_modules/@types"]
   },
   "lib": ["es2015", "es7"],
 }
