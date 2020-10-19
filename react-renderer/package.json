@@ -30,8 +30,8 @@
     "tslib": "^2.0.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
