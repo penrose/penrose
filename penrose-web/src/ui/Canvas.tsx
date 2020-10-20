@@ -6,8 +6,11 @@ import Log from "utils/Log";
 import { loadImages } from "utils/Util";
 import { insertPending } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
-import { evalShapes, decodeState } from "engine/Evaluator";
-import { walkTranslationConvert } from "engine/EngineUtils";
+import {
+  walkTranslationConvert,
+  evalShapes,
+  decodeState,
+} from "engine/Evaluator";
 
 interface ICanvasProps {
   lock: boolean;
@@ -54,8 +57,6 @@ class Canvas extends React.Component<ICanvasProps> {
       ...state,
       translation: translationAD,
     };
-
-    console.log("processData varyingValues", state.varyingValues);
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
@@ -322,7 +323,7 @@ class Canvas extends React.Component<ICanvasProps> {
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes.map(this.renderGPI)}
+        {shapes && shapes.map(this.renderGPI)}
       </svg>
     );
   }

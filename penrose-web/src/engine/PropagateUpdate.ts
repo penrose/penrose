@@ -16,6 +16,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
       field,
       prop,
     ] = (path as IPropertyPath).contents;
+
     const shape = shapes.find(
       (s: any) => s.properties.name.contents === `${subName}.${field}`
     );

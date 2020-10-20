@@ -1,4 +1,11 @@
-import { PropagateUpdate, Canvas, Packets, ILayer } from "src/module";
+import {
+  PropagateUpdate,
+  Canvas,
+  Packets,
+  ILayer,
+  Optimizer,
+  Evaluator,
+} from "src/module";
 import {
   Protocol,
   IRendererEvents as RendererEvents,
@@ -9,4 +16,13 @@ import {
 declare module "mathjax";
 export type IRendererEvents = RendererEvents;
 export type IEditorEvents = EditorEvents;
-export { Canvas, Packets, Protocol, ILayer, ConnectionStatus, PropagateUpdate };
+export {
+  Optimizer,
+  Canvas,
+  Packets,
+  Protocol,
+  ILayer,
+  ConnectionStatus,
+  PropagateUpdate,
+  Evaluator,
+};

@@ -30,7 +30,9 @@
     "seedrandom": "^3.0.5",
     "styled-components": "^5.0.1",
     "svg2pdf.js": "^1.5.0",
-    "tslib": "^2.0.3"
+    "ts-node": "^9.0.0",
+    "tslib": "^2.0.3",
+    "tslog": "^2.9.1"
   },
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",
@@ -39,7 +41,8 @@
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",

@@ -1,5 +1,12 @@
 import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
+import { Logger } from "tslog";
+
+const log: Logger = new Logger({
+  name: "optimizer",
+  minLevel: "warn",
+  displayLoggerName: true,
+});
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
@@ -19,15 +26,19 @@ export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 // ----- Core AD code
 
 // Grad var, level 1
-export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata, false);
+export const gvarOf = (x: number, vname = "", metadata = ""): VarAD =>
+  variableAD(x, vname, metadata, false);
 
-export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata);
+export const varOf = (x: number, vname = "", metadata = ""): VarAD =>
+  variableAD(x, vname, metadata);
 
 // TODO: Use this consistently
 export const constOf = (x: number): VarAD => variableAD(x, String(x), "const");
 
 export const constOfIf = (x: number | VarAD): VarAD => {
-  if (typeof x === "number") { return variableAD(x, String(x), "const"); }
+  if (typeof x === "number") {
+    return variableAD(x, String(x), "const");
+  }
 
   return x;
 };
@@ -37,9 +48,14 @@ export const numOf = (x: VarAD): number => x.val;
 export const differentiable = (e: number): VarAD => {
   // console.error("making it differentiable", e);
   return varOf(e);
-}
+};
 
-export const variableAD = (x: number, vname = "", metadata = "", isCompNode = true): VarAD => {
+export const variableAD = (
+  x: number,
+  vname = "",
+  metadata = "",
+  isCompNode = true
+): VarAD => {
   const opName = vname ? vname : String(x);
 
   return {
@@ -94,7 +110,7 @@ export const makeADInputVars = (xs: number[]): VarAD[] => {
 //              ^   ^
 //  dz1/dv = ... \ / dz2/dv = ...
 //               (v) = ...
-//          
+//
 //  ds/dv = ds/sz1 * dz1/dv + ds/dz2 * dz2/dv + ...
 // The recursive parts are ds/dzi (the parents further up)
 
@@ -111,11 +127,19 @@ const gradADSymbolic = (v: VarAD): VarAD => {
   if (v.parents.length === 0) {
     // node has no parents, so setting grad to 0 (it doesn't influence the output)
     res = gvarOf(0, "0", "no gradient");
-  } else { // normal reverse-mode AD chain rule
+  } else {
+    // normal reverse-mode AD chain rule
     // The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
-    res = addN(v.parents.map(parent =>
-      mul(fromJust(parent.sensitivityNode), gradADSymbolic(parent.node), false)),
-      false);
+    res = addN(
+      v.parents.map((parent) =>
+        mul(
+          fromJust(parent.sensitivityNode),
+          gradADSymbolic(parent.node),
+          false
+        )
+      ),
+      false
+    );
   }
 
   // Mark node as done
@@ -138,16 +162,15 @@ const gradFiniteDiff = (f: (args: number[]) => number) => {
 
     const xsDiff = xs.map((e, i) => {
       const xsLeft = [...xs];
-      xsLeft[i] = xsLeft[i] - EPSG / 2.;
+      xsLeft[i] = xsLeft[i] - EPSG / 2;
       const xsRight = [...xs];
-      xsRight[i] = xsRight[i] + EPSG / 2.;
+      xsRight[i] = xsRight[i] + EPSG / 2;
       return (f(xsRight) - f(xsLeft)) / EPSG;
     });
 
     return xsDiff;
   };
 };
-
 
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
   energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
@@ -180,7 +203,10 @@ const just = (v: VarAD): MaybeVal<VarAD> => {
 
 const none: MaybeVal<VarAD> = { tag: "Nothing" };
 
-const check = (isCompNode: boolean, sensitivityNode: VarAD): MaybeVal<VarAD> => {
+const check = (
+  isCompNode: boolean,
+  sensitivityNode: VarAD
+): MaybeVal<VarAD> => {
   return isCompNode ? just(sensitivityNode) : none;
 };
 
@@ -205,7 +231,8 @@ export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
-export const addN = (xs: VarAD[], isCompNode = true): VarAD => { // N-way add
+export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
+  // N-way add
   // TODO: Do argument list length checking for other ops generically
   if (xs.length === 0) {
     console.error("node", xs);
@@ -215,7 +242,7 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => { // N-way add
   } else if (xs.length === 2) {
     return add(xs[0], xs[1], isCompNode);
   } else {
-    const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
+    const z = variableAD(_.sum(_.map(xs, (x) => x.val)), "+ list");
     z.isCompNode = isCompNode;
 
     if (isCompNode) {
@@ -277,7 +304,9 @@ export const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
-  if (Math.abs(w.val) < 10e-10) { throw Error("divide by zero"); }
+  if (Math.abs(w.val) < 10e-10) {
+    throw Error("divide by zero");
+  }
 
   const z = variableAD(v.val / w.val, "/");
   z.isCompNode = isCompNode;
@@ -445,15 +474,21 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   const dzDv = (arg: "unit"): number => {
-    if (v.val < 0) { console.error(`negative arg ${v.val} in sqrt`); }
-    return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM))
+    if (v.val < 0) {
+      console.error(`negative arg ${v.val} in sqrt`);
+    }
+    return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM));
   };
 
   // TODO: How to do the checks in this graph? I guess sqrt should have a special evaluation/gradient rule?
 
   // It's important to only construct gradNode if this is a compnode, otherwise it will make recursive calls to the function ops and blow the stack
   if (isCompNode) {
-    const gradNode = div(gvarOf(1.0), mul(gvarOf(2.0), max(gvarOf(0.0), sqrt(v, false), false), false), false);
+    const gradNode = div(
+      gvarOf(1.0),
+      mul(gvarOf(2.0), max(gvarOf(0.0), sqrt(v, false), false), false),
+      false
+    );
     v.parents.push({ node: z, sensitivityNode: just(gradNode) });
     z.children.push({ node: v, sensitivityNode: just(gradNode) });
   } else {
@@ -473,12 +508,9 @@ export const inverse = (v: VarAD, isCompNode = true): VarAD => {
   if (isCompNode) {
     const node = just(
       neg(
-        inverse(
-          add(
-            squared(v, false),
-            gvarOf(EPS_DENOM), false),
-          false),
-        false)
+        inverse(add(squared(v, false), gvarOf(EPS_DENOM), false), false),
+        false
+      )
     );
     v.parents.push({ node: z, sensitivityNode: node });
 
@@ -499,12 +531,7 @@ export const absVal = (v: VarAD, isCompNode = true): VarAD => {
   if (isCompNode) {
     // x / (|x| + epsilon)
     const node = just(
-      div(v,
-        add(
-          absVal(v, false),
-          gvarOf(EPS_DENOM),
-          false),
-        false)
+      div(v, add(absVal(v, false), gvarOf(EPS_DENOM), false), false)
     );
     v.parents.push({ node: z, sensitivityNode: node });
 
@@ -566,7 +593,12 @@ export const lt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
-export const ifCond = (cond: VarAD, v: VarAD, w: VarAD, isCompNode = true): VarAD => {
+export const ifCond = (
+  cond: VarAD,
+  v: VarAD,
+  w: VarAD,
+  isCompNode = true
+): VarAD => {
   // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
 
   const z = variableAD(0.0, "ifCond"); // No value?
@@ -611,51 +643,53 @@ const opMap = {
   "/": {
     fn: (x: number, y: number): number => x / y,
   },
-  "max": {
+  max: {
     fn: (x: number, y: number): number => Math.max(x, y),
   },
-  "min": {
+  min: {
     fn: (x: number, y: number): number => Math.min(x, y),
   },
-  "sin": {
+  sin: {
     fn: (x: number): number => Math.sin(x),
   },
-  "cos": {
+  cos: {
     fn: (x: number): number => Math.cos(x),
   },
   "- (unary)": {
     fn: (x: number): number => -x,
   },
-  "squared": {
+  squared: {
     fn: (x: number): number => x * x,
   },
-  "sqrt": {
+  sqrt: {
     fn: (x: number): number => {
-      if (x < 0) { console.error(`negative arg ${x} in sqrt`); }
+      if (x < 0) {
+        console.error(`negative arg ${x} in sqrt`);
+      }
       return Math.sqrt(Math.max(0, x));
     },
   },
-  "inverse": {
+  inverse: {
     fn: (x: number): number => {
       return 1 / (x + EPS_DENOM);
     },
   },
-  "abs": {
+  abs: {
     fn: (x: number): number => {
       return x / Math.abs(x + EPS_DENOM);
     },
   },
   // Note that these functions treat booleans as numbers: 1.0 = True, 0.0 = False
-  "gt": {
-    fn: (x: number, y: number): number => x > y ? 1.0 : 0.0,
+  gt: {
+    fn: (x: number, y: number): number => (x > y ? 1.0 : 0.0),
   },
-  "lt": {
-    fn: (x: number, y: number): number => x < y ? 1.0 : 0.0,
+  lt: {
+    fn: (x: number, y: number): number => (x < y ? 1.0 : 0.0),
   },
-  "ifCond": {
-    fn: (cond: number, x: number, y: number): number => (cond > 0.0) ? x : y,
+  ifCond: {
+    fn: (cond: number, x: number, y: number): number => (cond > 0.0 ? x : y),
   },
-}
+};
 
 // Useful constants
 
@@ -675,7 +709,7 @@ export const negoneG: VarAD = gvarOf(1.0);
 
 export const epsdg: VarAD = gvarOf(10e-10);
 
-// ----------------- Other ops 
+// ----------------- Other ops
 
 // Note that these ops MUST use the custom var ops for grads
 // Note that these ops are hardcoded to assume they are not applied to grad nodes
@@ -695,8 +729,8 @@ export const ops = {
   },
 
   vnormsq: (v: VarAD[]): VarAD => {
-    const res = v.map(e => squared(e));
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
+    const res = v.map((e) => squared(e));
+    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
@@ -706,11 +740,11 @@ export const ops = {
   },
 
   vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
-    return v.map(e => mul(c, e));
+    return v.map((e) => mul(c, e));
   },
 
   vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
-    return v.map(e => div(e, c));
+    return v.map((e) => div(e, c));
   },
 
   vnormalize: (v: VarAD[]): VarAD[] => {
@@ -722,10 +756,9 @@ export const ops = {
     return ops.vnorm(ops.vsub(v, w));
   },
 
-  vdistsq:
-    (v: VarAD[], w: VarAD[]): VarAD => {
-      return ops.vnormsq(ops.vsub(v, w));
-    },
+  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
+    return ops.vnormsq(ops.vsub(v, w));
+  },
 
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
@@ -735,12 +768,10 @@ export const ops = {
 
   vsum: (v: VarAD[]): VarAD => {
     return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
-  }
-
+  },
 };
 
 export const fns = {
-
   toPenalty: (x: VarAD): VarAD => {
     return squared(max(x, variableAD(0.0)));
   },
@@ -748,7 +779,6 @@ export const fns = {
   center: (props: any): VarAD[] => {
     return [props.x.contents, props.y.contents];
   },
-
 };
 
 // ----- Codegen
@@ -760,7 +790,7 @@ export const fns = {
 // const args = ["x0", "x1", "x2"];
 // const inputs = [0, 1, 2];
 // const f = new Function(...args, 'return x0 + x1 + x2');
-// console.log(f(...inputs));
+// log.trace(f(...inputs));
 
 // (Returns `3`)
 
@@ -768,21 +798,33 @@ export const fns = {
 
 const noWeight: MaybeVal<VarAD> = { tag: "Nothing" };
 
-const genEnergyFn = (xs: VarAD[], z: IVarAD, weight: MaybeVal<VarAD>): any => genCode(xs, [z], "energy", weight);
+const genEnergyFn = (xs: VarAD[], z: IVarAD, weight: MaybeVal<VarAD>): any =>
+  genCode(xs, [z], "energy", weight);
 
 // Generate code for multi-output function, given its computational graph and a setting for its outputs
 // NOTE: Generates a function that expects inputs to be passed in the same order as here, and the inputs should be sorted by their index
 // NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
-const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode: MaybeVal<VarAD>): any => {
+const genCode = (
+  inputs: VarAD[],
+  outputs: IVarAD[],
+  setting: string,
+  weightNode: MaybeVal<VarAD>
+): any => {
   let counter = 0;
   let progInputs: string[] = [];
   let progStmts: string[] = [];
   let progOutputs: string[] = [];
 
-  console.log("genCode inputs, outputs, weightNode, setting", inputs, outputs, weightNode, setting);
+  log.trace(
+    "genCode inputs, outputs, weightNode, setting",
+    inputs,
+    outputs,
+    weightNode,
+    setting
+  );
 
   let inputsNew;
-  console.log("has weight?", weightNode.tag === "Just");
+  log.trace("has weight?", weightNode.tag === "Just");
   if (weightNode.tag === "Nothing") {
     inputsNew = inputs;
   } else {
@@ -794,7 +836,9 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
   for (const x of inputsNew) {
     const res = traverseGraph(counter, x);
 
-    if (res.inputs.length !== 1) { throw Error("expected one input from an input var traversal"); }
+    if (res.inputs.length !== 1) {
+      throw Error("expected one input from an input var traversal");
+    }
     progInputs = progInputs.concat(res.inputs.map((e: any) => e.name));
     progStmts = progStmts.concat(res.prog);
     progOutputs = progOutputs.concat(res.output);
@@ -819,10 +863,14 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
 
   let returnStmt: string = "";
 
-  if (setting === "energy") { // Return single scalar
-    if (!progOutputs || !progOutputs[0]) { throw Error("not enough energy outputs -- need exactly 1"); }
+  if (setting === "energy") {
+    // Return single scalar
+    if (!progOutputs || !progOutputs[0]) {
+      throw Error("not enough energy outputs -- need exactly 1");
+    }
     returnStmt = `return ${progOutputs[0]};`;
-  } else if (setting === "grad") { // Return list of scalars
+  } else if (setting === "grad") {
+    // Return list of scalars
     const outputNamesStr = progOutputs.join(", ");
     returnStmt = `return [${outputNamesStr}];`;
   }
@@ -831,7 +879,7 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
   console.error("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
-  console.log('generated f\n', f)
+  log.trace("generated f\n", f);
 
   let g;
   if (weightNode.tag === "Nothing") {
@@ -847,7 +895,7 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
       };
     };
   }
-  console.log("overall function generated (g):", g);
+  log.trace("overall function generated (g):", g);
 
   for (const x of inputsNew) {
     clearVisitedNodesInput(x);
@@ -874,7 +922,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       prog: [],
       inputs: [],
       output: [],
-      references: [z.name]
+      references: [z.name],
     };
   }
 
@@ -887,13 +935,14 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     z.name = leafName;
 
     // Distinguish between inputs and constants
-    if (z.isInput) { // Just return self name for function binding
+    if (z.isInput) {
+      // Just return self name for function binding
       return {
         counter: i,
         prog: [],
         inputs: [{ name: leafName, index: z.index }],
         output: [],
-        references: []
+        references: [],
       };
     }
 
@@ -910,10 +959,10 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       prog: [stmt],
       inputs: [],
       output: leafName,
-      references: []
+      references: [],
     };
-
-  } else if (z[childType].length === 1) { // Unary op
+  } else if (z[childType].length === 1) {
+    // Unary op
     // debugger;
 
     const child = z[childType][0].node;
@@ -966,10 +1015,10 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       prog: res.prog.concat([stmt]),
       inputs: res.inputs,
       output: parName,
-      references: []
+      references: [],
     };
-
-  } else if (z[childType].length === 2) { // Binary op
+  } else if (z[childType].length === 2) {
+    // Binary op
     // TODO: refactor repeated code below into the for loop as in ternary
     const child0 = z[childType][0].node;
     const child1 = z[childType][1].node;
@@ -1027,11 +1076,11 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       prog: res0.prog.concat(res1.prog).concat([stmt]),
       inputs: res0.inputs.concat(res1.inputs),
       output: parName,
-      references: []
+      references: [],
     };
-
-  } else { // N-ary node
-    const childNodes = z[childType].map(e => e.node);
+  } else {
+    // N-ary node
+    const childNodes = z[childType].map((e) => e.node);
 
     const childNames = [];
     let prog: string[] = [];
@@ -1088,7 +1137,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       prog: prog.concat([stmt]),
       inputs,
       output: parName,
-      references: []
+      references: [],
     };
   }
 };
@@ -1098,18 +1147,18 @@ const traverseGraph = (i: number, z: IVarAD): any => {
 const clearVisitedNodesOutput = (z: VarAD) => {
   z.nodeVisited = false;
   // z.name = "";
-  z.children.forEach(e => clearVisitedNodesOutput(e.node));
-  z.childrenGrad.forEach(e => clearVisitedNodesOutput(e.node));
+  z.children.forEach((e) => clearVisitedNodesOutput(e.node));
+  z.childrenGrad.forEach((e) => clearVisitedNodesOutput(e.node));
   // NOTE: This does NOT clear it for z.childrenGrad
-}
+};
 
 // Bottom-up
 const clearVisitedNodesInput = (x: VarAD) => {
   x.nodeVisited = false;
   // x.name = "";
-  x.parents.forEach(e => clearVisitedNodesInput(e.node));
-  x.parentsGrad.forEach(e => clearVisitedNodesInput(e.node));
-}
+  x.parents.forEach((e) => clearVisitedNodesInput(e.node));
+  x.parentsGrad.forEach((e) => clearVisitedNodesInput(e.node));
+};
 
 // Mutates z (top node) to clear all vals and gradients of its children
 // NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
@@ -1117,15 +1166,15 @@ const clearGraphTopDown = (z: VarAD) => {
   z.val = 0;
   z.valDone = false; // This is necessary so we can cache energy values in comp graph
   z.gradVal = { tag: "Nothing" };
-  z.children.forEach(e => clearGraphTopDown(e.node));
-}
+  z.children.forEach((e) => clearGraphTopDown(e.node));
+};
 
 const clearGraphBottomUp = (xs: VarAD[]) => {
-  xs.forEach(x => {
+  xs.forEach((x) => {
     x.val = 0;
     x.valDone = false; // This is necessary so we can cache energy values in comp graph
     x.gradVal = { tag: "Nothing" };
-    clearGraphBottomUp(x.parents.map(p => p.node));
+    clearGraphBottomUp(x.parents.map((p) => p.node));
   });
 };
 
@@ -1149,7 +1198,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
   // TODO: Make this code more generic/neater over the # children
   if (z.valDone || !z.children || !z.children.length) {
     if (DEBUG_ENERGY) {
-      console.log("z.result", z.val);
+      log.trace("z.result", z.val);
     }
     return z.val;
   }
@@ -1167,7 +1216,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      console.log("z result:", z.op, childVal, "=", z.val);
+      log.trace("z result:", z.op, childVal, "=", z.val);
     }
     return z.val;
   } else if (z.children.length === 2) {
@@ -1178,7 +1227,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      console.log("z result:", z.op, childVal0, childVal1, "=", z.val);
+      log.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
     }
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
@@ -1194,8 +1243,13 @@ const setWeights = (info: WeightInfo) => {
 
 // Given an energyGraph of f, clears the graph and returns the compiled energy and gradient of f as functions
 // xsVars are the leaves, energyGraph is the topmost parent of the computational graph
-export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
-
+export const energyAndGradCompiled = (
+  xs: number[],
+  xsVars: VarAD[],
+  energyGraph: VarAD,
+  weightInfo: WeightInfo,
+  debug = false
+) => {
   // Zero xsvars vals, gradients, and caching setting
   clearGraphBottomUp(xsVars);
   clearVisitedNodesOutput(energyGraph);
@@ -1214,21 +1268,26 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
     inputs: xsVars,
     energyOutput: energyGraph,
     gradOutputs: gradGraph,
-    weight: { tag: "Just", contents: weightInfo.epWeightNode }
+    weight: { tag: "Just", contents: weightInfo.epWeightNode },
   };
 
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
-  const gradGen = genCode(graphs.inputs, graphs.gradOutputs, "grad", graphs.weight);
+  const gradGen = genCode(
+    graphs.inputs,
+    graphs.gradOutputs,
+    "grad",
+    graphs.weight
+  );
 
   if (DEBUG_GRADIENT_UNIT_TESTS) {
-    console.log("Running gradient unit tests", graphs);
+    log.trace("Running gradient unit tests", graphs);
     testGradSymbolicAll();
     // throw Error("done with gradient unit tests");
   }
 
   if (DEBUG_GRADIENT) {
-    console.log("Testing real gradient on these graphs", graphs);
+    log.trace("Testing real gradient on these graphs", graphs);
     testGradSymbolic(0, graphs);
     // throw Error("done with testGradSymbolic");
   }
@@ -1237,7 +1296,7 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
   return {
     graphs,
     f: f0,
-    gradf: gradGen
+    gradf: gradGen,
   };
 };
 
@@ -1247,10 +1306,10 @@ const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
   if (PRINT_TEST_RESULTS) {
     console.assert(b);
-    console.log("Assertion", res, ": ", ...s);
+    log.trace("Assertion", res, ": ", ...s);
   }
   return b;
-}
+};
 
 const testGradFiniteDiff = () => {
   // Only tests with hardcoded functions
@@ -1263,30 +1322,41 @@ const testGradFiniteDiff = () => {
     const xs = randList(4);
     const gradEstRes = gradFiniteDiff(f)(xs);
     const expectedRes = df(xs);
-    const testRes = assert(eqList(gradEstRes, expectedRes),
-      ["test grad finite diff (grad res, expected res)", gradEstRes, expectedRes]);
+    const testRes = assert(eqList(gradEstRes, expectedRes), [
+      "test grad finite diff (grad res, expected res)",
+      gradEstRes,
+      expectedRes,
+    ]);
     testResults.push(testRes);
   }
 
-  const testOverall = assert(all(testResults),
-    ["all tests passed? test results:", testResults]);
+  const testOverall = assert(all(testResults), [
+    "all tests passed? test results:",
+    testResults,
+  ]);
 };
 
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
-  console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+  log.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
-  const gradGen0 = genCode(graphs.inputs, graphs.gradOutputs, "grad", graphs.weight);
+  const gradGen0 = genCode(
+    graphs.inputs,
+    graphs.gradOutputs,
+    "grad",
+    graphs.weight
+  );
 
   const weight = 1; // TODO: Test with several weights
   let f;
   let gradGen;
-  console.log("testGradSymbolic has weight?", graphs.weight);
+  log.trace("testGradSymbolic has weight?", graphs.weight);
 
-  if (graphs.weight.tag === "Just") { // Partially apply with weight
+  if (graphs.weight.tag === "Just") {
+    // Partially apply with weight
     f = f0(weight);
     gradGen = gradGen0(weight);
   } else {
@@ -1304,21 +1374,27 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
-    console.log("----");
-    console.log("test", i);
-    console.log("energy at x", xsTest, "=", energyRes);
-    console.log("estimated gradient at", xsTest, "=", gradEstRes);
-    console.log("analytic gradient at", xsTest, "=", gradGenRes);
+    log.trace("----");
+    log.trace("test", i);
+    log.trace("energy at x", xsTest, "=", energyRes);
+    log.trace("estimated gradient at", xsTest, "=", gradEstRes);
+    log.trace("analytic gradient at", xsTest, "=", gradGenRes);
 
-    const testRes = assert(eqList(gradEstRes, gradGenRes), ["estimated, analytic gradients:", gradEstRes, gradGenRes]);
+    const testRes = assert(eqList(gradEstRes, gradGenRes), [
+      "estimated, analytic gradients:",
+      gradEstRes,
+      gradGenRes,
+    ]);
     testResults.push(testRes);
   }
 
-  const testOverall = assert(all(testResults),
-    ["all tests passed? test results:", testResults]);
+  const testOverall = assert(all(testResults), [
+    "all tests passed? test results:",
+    testResults,
+  ]);
 
   // TODO: Visualize both of them
-  console.log(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+  log.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
 
   return testOverall;
 };
@@ -1336,15 +1412,20 @@ const gradGraph0 = (): GradGraphs => {
   const dRef = gradADSymbolic(ref);
 
   // Print results
-  console.log("computational graphs for test 1 (input, output, gradient)", ref, head, dRef);
+  log.trace(
+    "computational graphs for test 1 (input, output, gradient)",
+    ref,
+    head,
+    dRef
+  );
 
   return {
     inputs: [ref],
     energyOutput: head,
     gradOutputs: [dRef],
-    weight: { tag: "Nothing" }
+    weight: { tag: "Nothing" },
   };
-}
+};
 
 // See codegen-results.md for description
 const gradGraph1 = (): GradGraphs => {
@@ -1366,9 +1447,9 @@ const gradGraph1 = (): GradGraphs => {
     inputs: [x0, x1],
     energyOutput: z,
     gradOutputs: [dx0, dx1],
-    weight: { tag: "Nothing" }
+    weight: { tag: "Nothing" },
   };
-}
+};
 
 // Test addition of consts to graph (`c`)
 const gradGraph2 = (): GradGraphs => {
@@ -1389,9 +1470,9 @@ const gradGraph2 = (): GradGraphs => {
     inputs: [x0, x1],
     energyOutput: z,
     gradOutputs: [dx0, dx1],
-    weight: { tag: "Nothing" }
+    weight: { tag: "Nothing" },
   };
-}
+};
 
 // Test vars w/ no grad
 const gradGraph3 = (): GradGraphs => {
@@ -1409,9 +1490,9 @@ const gradGraph3 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" }
+    weight: { tag: "Nothing" },
   };
-}
+};
 
 // Test toPenalty
 const gradGraph4 = (): GradGraphs => {
@@ -1428,12 +1509,12 @@ const gradGraph4 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" }
+    weight: { tag: "Nothing" },
   };
-}
+};
 
 export const testGradSymbolicAll = () => {
-  console.log("testing symbolic gradients");
+  log.trace("testing symbolic gradients");
 
   testGradFiniteDiff();
 
@@ -1442,7 +1523,7 @@ export const testGradSymbolicAll = () => {
     gradGraph1(),
     gradGraph2(),
     gradGraph3(),
-    gradGraph4()
+    gradGraph4(),
   ];
 
   const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
