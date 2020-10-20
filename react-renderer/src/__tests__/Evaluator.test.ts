@@ -1,3 +1,5 @@
+// TODO: rewrite all tests to not use tfjs
+
 import {
   decodeState,
   findExpr,
@@ -8,7 +10,7 @@ import {
   evalTranslation,
   encodeState,
   evalFns,
-} from "../Evaluator";
+} from "engine/Evaluator";
 import * as stateJSON from "./state.json";
 import { find, keys } from "lodash";
 
@@ -174,7 +176,5 @@ describe("evaluation opt functions tests", () => {
       state.translation,
       state.varyingMap as any
     );
-    // objEvaled.map((f) => console.log(f));
-    // constrEvaled.map((f) => console.log(f));
   });
 });

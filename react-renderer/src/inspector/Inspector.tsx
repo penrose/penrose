@@ -1,12 +1,9 @@
-import * as React from "react";
-
-import { IRendererEvents, EventHandler } from "../Protocol";
-import Timeline from "./views/Timeline";
-import { ConnectionStatus } from "src/module";
-import viewMap from "./views/viewMap";
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 import "@reach/tabs/styles.css";
+import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
+import Timeline from "./views/Timeline";
+import viewMap from "./views/viewMap";
 
 interface IProps {
   history: State[];

@@ -1,7 +1,7 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
 import { ObjectInspector } from "react-inspector";
-import { makeViewBoxes } from 'src/Util';
+import { makeViewBoxes } from 'utils/Util';
 
 
 interface IState {
@@ -37,7 +37,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
             overflow: "auto",
             height: "100%",
             flexGrow: 1,
-            boxSizing: "border-box"
+            boxSizing: "border-box",
           }}
         >
           {frame.shapes[selectedShape] && (
