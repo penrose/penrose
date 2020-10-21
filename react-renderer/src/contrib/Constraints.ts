@@ -111,6 +111,9 @@ export const objDict = {
 
 };
 
+// constrDict is the dictionary of all constraints available in Style These are
+// called by the key of the dictionary (e.g., maxSize is called via the string
+// "maxSize" in Style)
 export const constrDict = {
   maxSize: ([shapeType, props]: [string, any]) => {
     const limit = Math.max(...canvasSize);
@@ -209,9 +212,16 @@ export const constrDict = {
   },
 
   smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    // s1 is smaller than s2
-    const offset = mul(varOf(0.4), s2.r.contents);
-    return sub(sub(s1.r.contents, s2.r.contents), offset);
+
+     if(t1 === "Circle" && t2 === "Circle") {
+        // s1 is smaller than s2
+        const offset = mul(varOf(0.4), s2.r.contents);
+        return sub(sub(s1.r.contents, s2.r.contents), offset);
+     } else throw new Error(`${[t1, t2]} not supported for smallerThan`);
+  },
+
+  inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
+     return mul(sub(x,x0),sub(x,x1));
   },
 
   outsideOf: (

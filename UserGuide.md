@@ -11,12 +11,18 @@ https://js.tensorflow.org/api/latest/#Operations
 
 First, add the function definitions here:
 
-* `src/react-renderer/Constraints.ts`
+* `penrose/react-renderer/src/contrib/Constraints.ts`
 * `src/Penrose/Functions.hs`
 
 Next, rebuild Penrose by typing `stack build` in `penrose/`
 
-Note: constraints are treated as inequality constraints f(x) ≥ 0; to get equality, you must have two inequality constraints.
+Note: constraints are treated as inequality constraints f(x) ≥ 0; to get equality, you must have two inequality constraints.  More explicitly, if we define a function f(x), then the solver will add the penalty
+
+   φ(x) = { f(x)^2, if f(x) > 0,
+                 0, if f(x) ≤ 0
+          }
+
+Note that the definition in `Constraints.ts` is the one really used for optimization; the definition in `Functions.hs` is used to sample initial values.
 
 # Adding new functions
 
@@ -75,4 +81,40 @@ Penrose IDE (use.penrose): [ can we put more of this in a build script? ]
 npm install
 npm run build-lib
 npm start
+
+# To try (running faster)
+
+True, we usually run penrose with npm run start which has heavy debugging tools attached (edited) 
+11:35
+And it indeed can be a lot faster in production build (for "normal apps", not sure about our case) (edited) 
+11:37
+To try it, just do npm run build and find the folder it's building to (build/ I think) and you can run npx serve in there
+:+1:
+1
+
+
+katherine  11:49 AM
+Just tried it but it's serving the build folder, rather than our app. Looks like to make that work, we need an index.html:
+npm run build creates a build directory with a production build of your app. Set up your favorite HTTP server so that a visitor to your site is served index.html, and requests to static paths like /static/js/main.<hash>.js are served with the contents of the /static/js/main.<hash>.js file.
+https://create-react-app.dev/docs/deployment/
+
+nimoni:paperclip:  12:29 PM
+serve -s build -l 4000 worked for me
+12:29
+Running in react-renderer
+
+nimoni:paperclip:  12:35 PM
+Hard to tell if it’s much faster visually. Lmk if you have trouble setting it up @katherine
+
+katherine  1:07 PM
+Is there an index.html that I should be landing on?
+1:08
+I installed serve, ran serve -s build -l 4000 in react-renderer, same result as before
+1:08
+(Just shows "index of build/")
+
+nimoni:paperclip:  1:13 PM
+There should be one. Delete build and rerun npm run build and see what happens.
+1:13
+FYI I’m on master
 
