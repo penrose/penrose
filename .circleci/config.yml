@@ -122,14 +122,18 @@ jobs:
           working_directory: ~/penrose/penrose-web
       - run:
           name: Create link penrose-web
-          command: npm link
+          command: sudo npm link
           working_directory: ~/penrose/penrose-web
+      - run:
+          name: Link to penrose-web in automator
+          command: npm link penrose-web
+          working_directory: ~/penrose/automator
       - run:
           name: Install deps for automator
           command: npm install
           working_directory: ~/penrose/automator
       - run:
-          name: Link to penrose-web in automator
+          name: Link to penrose-web in automator again
           command: npm link penrose-web
           working_directory: ~/penrose/automator
       - save_cache:
