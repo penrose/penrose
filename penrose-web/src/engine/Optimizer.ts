@@ -145,10 +145,10 @@ const defaultLbfgsParams: LbfgsParams = {
 // 2) fix initial value of the penalty parameter so that the magnitude of the penalty term is not much smaller than the magnitude of objective function
 
 export const stepUntilConvergence = async (state: State) => {
-  let newState;
   // Step until convergence w/o rendering
+  let newState = state;
   while (true) {
-    newState = step(state!, 1, false);
+    newState = step(newState, 1, true);
     if (newState.params.optStatus.tag === "EPConverged") {
       return newState;
     }
@@ -175,11 +175,11 @@ export const step = (state: State, steps: number, evaluate = true) => {
   );
   log.trace("params: ", optParams);
   // log.trace("state: ", state);
-  log.trace("fns: ", prettyPrintFns(state));
-  log.trace(
-    "variables: ",
-    state.varyingPaths.map((p) => prettyPrintProperty(p))
-  );
+  // log.trace("fns: ", prettyPrintFns(state));
+  // log.trace(
+  //   "variables: ",
+  //   state.varyingPaths.map((p) => prettyPrintProperty(p))
+  // );
 
   switch (optStatus.tag) {
     case "NewIter": {

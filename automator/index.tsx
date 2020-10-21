@@ -197,15 +197,11 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  // const optimizedState = await Optimizer.stepUntilConvergence(initialState);
-  // COMBAK: revert
-  const optimizedState = initialState;
-
-  const labeledState: any = await collectLabels(optimizedState, true);
+  const optimizedState = await Optimizer.stepUntilConvergence(initialState);
   const convergeEnd = process.hrtime(convergeStart);
 
   // We don't time this individually since it's usually memoized anyway
-  // const state = await collectLabels(optimizedState, true);
+  const labeledState: any = await collectLabels(optimizedState, true);
 
   // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();

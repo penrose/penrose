@@ -4,7 +4,7 @@ import { Logger } from "tslog";
 
 const log: Logger = new Logger({
   name: "optimizer",
-  minLevel: "warn",
+  minLevel: "error",
   displayLoggerName: true,
 });
 
@@ -46,7 +46,7 @@ export const constOfIf = (x: number | VarAD): VarAD => {
 export const numOf = (x: VarAD): number => x.val;
 
 export const differentiable = (e: number): VarAD => {
-  // console.error("making it differentiable", e);
+  // log.warn("making it differentiable", e);
   return varOf(e);
 };
 
@@ -235,7 +235,7 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   // N-way add
   // TODO: Do argument list length checking for other ops generically
   if (xs.length === 0) {
-    console.error("node", xs);
+    log.warn("node", xs);
     throw Error("argument list to addN is empty; expected 1+ elements");
   } else if (xs.length === 1) {
     return xs[0];
@@ -475,7 +475,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
 
   const dzDv = (arg: "unit"): number => {
     if (v.val < 0) {
-      console.error(`negative arg ${v.val} in sqrt`);
+      log.warn(`negative arg ${v.val} in sqrt`);
     }
     return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM));
   };
@@ -664,7 +664,7 @@ const opMap = {
   sqrt: {
     fn: (x: number): number => {
       if (x < 0) {
-        console.error(`negative arg ${x} in sqrt`);
+        log.warn(`negative arg ${x} in sqrt`);
       }
       return Math.sqrt(Math.max(0, x));
     },
@@ -856,9 +856,9 @@ const genCode = (
     // For any code generated for the next output, start on fresh index
     counter = res.counter + 1;
 
-    // console.error("output node traversed", z);
-    // console.error("res stmts", res.prog);
-    // console.error("res output", res.output);
+    // log.warn("output node traversed", z);
+    // log.warn("res stmts", res.prog);
+    // log.warn("res output", res.output);
   }
 
   let returnStmt: string = "";
@@ -876,7 +876,7 @@ const genCode = (
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
-  console.error("progInputs", "progStr", progInputs, progStr);
+  log.warn("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
   log.trace("generated f\n", f);
@@ -1119,7 +1119,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {
-        console.error("args", childNames);
+        log.warn("args", childNames);
         throw Error("expected three args to if cond");
       }
 
@@ -1128,7 +1128,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       const childList = "[".concat(childNames.join(", ")).concat("]");
       stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
     } else {
-      console.error("node", z, z.op);
+      log.warn("node", z, z.op);
       throw Error("unknown n-ary operation");
     }
 
@@ -1305,7 +1305,7 @@ export const energyAndGradCompiled = (
 const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
   if (PRINT_TEST_RESULTS) {
-    console.assert(b);
+    // console.assert(b);
     log.trace("Assertion", res, ": ", ...s);
   }
   return b;
@@ -1528,5 +1528,5 @@ export const testGradSymbolicAll = () => {
 
   const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 
-  console.error(`All grad symbolic tests passed?: ${all(testResults)}`);
+  log.warn(`All grad symbolic tests passed?: ${all(testResults)}`);
 };
