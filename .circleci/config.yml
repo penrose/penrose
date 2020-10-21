@@ -121,6 +121,10 @@ jobs:
           command: npm install
           working_directory: ~/penrose/penrose-web
       - run:
+          name: Build penrose-web as a library
+          command: npm run build-lib
+          working_directory: ~/penrose/penrose-web
+      - run:
           name: Create link penrose-web
           command: sudo npm link
           working_directory: ~/penrose/penrose-web
