@@ -1,7 +1,7 @@
 import * as React from "react";
-import { toScreen, toPointListString, penroseToSVG } from "../Util";
+import { toScreen, toPointListString, penroseToSVG } from "utils/Util";
 import memoize from "fast-memoize";
-import { ILayerProps } from "../types";
+import { ILayerProps } from "types";
 
 const toPointListStringOld = memoize(
   (ptList: any[], canvasSize: [number, number]) =>
@@ -22,12 +22,12 @@ class PolygonLayer extends React.Component<ILayerProps> {
       <g>
         {shapes.map(({ shapeType, properties }: Shape, key: number) => {
           // This will show both polyline and polygon for curves w/ both
-          console.log(
-            "shape",
-            shapeType,
-            properties,
-            properties.hasOwnProperty("polygon")
-          );
+          // console.log(
+          //   "shape",
+          //   shapeType,
+          //   properties,
+          //   properties.hasOwnProperty("polygon")
+          // );
 
           // This code only returns ONE group per shape
           // Note: this does not distinguish open and closed curves! So a polyline may show as a polygon

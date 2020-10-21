@@ -1,3 +1,5 @@
+// TODO: rewrite all tests to not use tfjs
+
 import {
   minimize,
   gradF,
@@ -31,9 +33,9 @@ describe("Whole optimizer pipeline tests", () => {
     const f = evalEnergyOn(vennState);
     const xs = vennState.varyingValues.map(differentiable);
 
-    console.log("Overall energy of the state is:");
+    console.debug("Overall energy of the state is:");
     f(...xs).print();
-    console.log("Gradients: ");
+    console.debug("Gradients: ");
     // variableGrads(f, xs);
     const gf = gradF(f);
     tf.stack(gf(xs)).print();
@@ -48,11 +50,11 @@ describe("minimize a simple function", () => {
     // expect(tf.lessStrict(tfVar(20), tfVar(100))).toBe(true);
   });
   it("evaluate a single energy function f(x)", () => {
-    console.log("The value of the function is: ", fn(...state).toString());
+    console.debug("The value of the function is: ", fn(...state).toString());
   });
   it("minimize a simple state with L2 norm", () => {
     const { energy, normGrad, i } = minimize(fn, gradF(fn) as any, state);
-    console.log(
+    console.debug(
       "converged after",
       i,
       "steps with energy",
@@ -60,7 +62,7 @@ describe("minimize a simple function", () => {
       "and grad norm",
       normGrad
     );
-    console.log("state (varyingMap): ", tfsStr(state));
+    console.debug("state (varyingMap): ", tfsStr(state));
   });
 });
 

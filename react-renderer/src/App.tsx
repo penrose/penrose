@@ -1,15 +1,15 @@
 import * as React from "react";
-import Log from "./Log";
-import Canvas from "./Canvas";
-import ButtonBar from "./ButtonBar";
+import Log from "utils/Log";
+import Canvas from "ui/Canvas";
+import ButtonBar from "ui/ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
-import { evalTranslation, decodeState } from "./Evaluator";
-import { step, stepEP } from "./Optimizer";
-import { collectLabels } from "./utils/CollectLabels";
-import * as tf from "@tensorflow/tfjs";
+import { decodeState } from "engine/Evaluator";
+import { step } from "engine/Optimizer";
+import { unwatchFile } from "fs";
+import { collectLabels } from "utils/CollectLabels";
 import SplitPane from "react-split-pane";
-import Inspector from "./inspector/Inspector";
+import Inspector from "inspector/Inspector";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -19,19 +19,24 @@ interface ICanvasState {
   history: State[];
   showInspector: boolean;
 }
+
 const socketAddress = "ws://localhost:9160";
 
+const stepUntilConvergence = async (state: State) => {
+  let newState;
+  // Step until convergence w/o rendering
+  while (true) {
+    newState = step(state!, 1, false);
+    if (newState.params.optStatus.tag === "EPConverged") {
+      break;
+    }
+  }
+};
+
 const stepState = async (state: State, onUpdate: any) => {
-  // NOTE: this will greatly improve the performance of the optmizer
-  // TODO: where's the right place to put this? Is there an "on start up" place?
-  tf.setBackend("cpu");
-  tf.enableProdMode();
+  const numSteps = 1;
+  const newState = step(state!, numSteps);
 
-  const numSteps = 10;
-  // const numSteps = 2;
-
-  // const newState = step(state!, numSteps);
-  const newState = stepEP(state!, numSteps);
   // onUpdate(newState);
   const labeledShapes: any = await collectLabels(newState.shapes);
   onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
@@ -98,9 +103,9 @@ class App extends React.Component<any, ICanvasState> {
     // this.protocol.sendPacket(Step(1, this.state.data));
     stepState(this.state.data!, this.onCanvasState);
   };
-
   public resample = async () => {
     const NUM_SAMPLES = 50;
+    // resampled = true;
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
@@ -158,6 +163,7 @@ class App extends React.Component<any, ICanvasState> {
           <ButtonBar
             downloadPDF={this.downloadPDF}
             downloadSVG={this.downloadSVG}
+            // stepUntilConvergence={stepUntilConvergence}
             autostep={autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}

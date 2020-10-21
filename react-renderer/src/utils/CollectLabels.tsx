@@ -13,7 +13,14 @@ const AllPackages = require("mathjax-full/js/input/tex/AllPackages.js")
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 const adaptor = chooseAdaptor();
 RegisterHTMLHandler(adaptor);
-const tex = new TeX({ packages: AllPackages });
+const tex = new TeX({
+  packages: AllPackages,
+  inlineMath: [
+    ["$", "$"],
+    ["\\(", "\\)"],
+  ],
+  processEscapes: true,
+});
 const svg = new SVG({ fontCache: "none" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
