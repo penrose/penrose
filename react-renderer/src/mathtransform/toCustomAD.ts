@@ -1,6 +1,6 @@
 
 module.exports = function(fileInfo: any, api: any) {
-    const KWTYPS = [ // Define all the simple keyword types.
+    const KWTYPS: string[] = [ // Define all the simple keyword types.
         "TSAnyKeyword",
         "TSBigIntKeyword",
         "TSBooleanKeyword",
@@ -68,8 +68,10 @@ module.exports = function(fileInfo: any, api: any) {
             return transformData ? transformData[1](transformData[0], node) : node;
         })
     };
-    const MARKTAG = "mathtrans";
-    const j = api.jscodeshift;
+    const MARKTAG = "autodiff";
+    const j = api.jscodeshift;  
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
+    // The AST explorer (https://astexplorer.net/) with typescript-eslint parser is also extremely helpful for figuring out parses.
     
     const isMarked = (comment: any) => comment.value.trim() === MARKTAG;
     const needsTransform = (nodePath: any) : boolean => {

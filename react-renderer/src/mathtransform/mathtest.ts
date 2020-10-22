@@ -6,19 +6,19 @@ const DEBUG_ENERGY = false;
 
 export const objDict = {
   // (x - y)^2
-  // mathtrans
+  // autodiff
   equal: (x: number, y: number) => squared(x - y),
 
-  // mathtrans
+  // autodiff
   above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
     // (getY top - getY bottom - offset) ^ 2
     squared(top.y.contents - bottom.y.contents - varOf(offset)),
 
-  // mathtrans
+  // autodiff
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
     ops.vdistsq(fns.center(s1), fns.center(s2)),
 
-  // mathtrans
+  // autodiff
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
@@ -41,7 +41,7 @@ export const objDict = {
     return res * constOf(repelWeight);
   },
  
-  // mathtrans
+  // autodiff
   centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): number => {
     const spacing = varOf(1.1); // arbitrary
 
@@ -56,11 +56,11 @@ export const objDict = {
   },
 
   // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
-  // mathtrans
+  // autodiff
   below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
     squared(top.y.contents - bottom.y.contents - constOfIf(offset)),
 
-    // mathtrans
+    // autodiff
   centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): number => {
     if (typesAre([t1, t2], ["Arrow", "Text"])) {
       const mx = (arr.startX.contents + arr.endX.contents) / constOf(2.0);
@@ -72,11 +72,11 @@ export const objDict = {
       return (lh + rh) * constOfIf(w);
     } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
   },
-  // mathtrans
+  // autodiff
   negTest: ([t1, s1]: [string, any]): number => -s1,
 
 };
-// mathtrans
+// autodiff
 const looseIntersect = (center1: number[], r1: number, center2: number[], r2: number, padding: number): number => {
   const res = r1 + r2 - padding;
   return ops.vdist(center1, center2) - res;

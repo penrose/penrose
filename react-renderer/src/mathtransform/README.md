@@ -1,5 +1,10 @@
 # Math Transformer
 
+## Prerequisities
+You must install [jscodeshift](https://www.npmjs.com/package/jscodeshift).
+
+## Current functionality
+
 Currently the program only transforms binary operators (`+ - * /`) and unary operators (`-`) to call expressions, as well as any type to any other type. 
 
 |Original   | AD |
@@ -19,7 +24,7 @@ To add more code modifications, just add the appropriate functions and call them
 
 ## Marking nodes to transform
 
-To mark an AST node (basically any unit in TS, e.g. function, string, variable, type, etc.) to be transformed, comment `// mathtrans` immediately above the line containing your node. It will transform that node and any subnodes. For example, to transform all binary operations inside a function, commment `// mathtrans` directly above the function definition. Your nodes can be as little or as big as you'd like. If you'd like to transform all functions inside a map of functions, for instance, comment right above the dictionary's definition. If you'd only like to transform certain functions within the map, commment above each individual function.
+To mark an AST node (basically any unit in TS, e.g. function, string, variable, type, etc.) to be transformed, comment `// autodiff` immediately above the line containing your node. It will transform that node and any subnodes. For example, to transform all binary operations inside a function, commment `// autodiff` directly above the function definition. Your nodes can be as little or as big as you'd like. If you'd like to transform all functions inside a map of functions, for instance, comment right above the dictionary's definition. If you'd only like to transform certain functions within the map, commment above each individual function. Again, your desired nodes to transform DO NOT have to be top-level function definitions.
 
 ## Testing Paths
 
@@ -38,10 +43,10 @@ JSCodeshift will modify your input file in place. If this is undesirable behavio
 ## Sample Input
 
     export const objDict = {
-        // mathtrans
+        // autodiff
         equal: (x: number, y: number) => squared(x - y),
 
-        // mathtrans
+        // autodiff
         above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
             // (getY top - getY bottom - offset) ^ 2
             squared(top.y.contents - bottom.y.contents - varOf(offset))
@@ -49,10 +54,10 @@ JSCodeshift will modify your input file in place. If this is undesirable behavio
 
 ## Sample Output
     export const objDict = {
-        // mathtrans
+        // autodiff
         equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
 
-        // mathtrans
+        // autodiff
         above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
             // (getY top - getY bottom - offset) ^ 2
             squared(sub(sub(top.y.contents, bottom.y.contents), varOf(offset)))
