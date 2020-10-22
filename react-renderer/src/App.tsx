@@ -104,7 +104,7 @@ class App extends React.Component<any, ICanvasState> {
     stepState(this.state.data!, this.onCanvasState);
   };
   public resample = async () => {
-    const NUM_SAMPLES = 50;
+    const NUM_SAMPLES = 1;
     // resampled = true;
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
