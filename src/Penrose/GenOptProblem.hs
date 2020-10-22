@@ -1559,16 +1559,20 @@ lessEnergyOn f ((_, vs1, _), _) ((_, vs2, _), _) = compare (f vs1) (f vs2)
 resampleBest :: Int -> State -> State
 resampleBest n s =
   let optInfo = paramsr s
-              -- Take out the relevant information for resampling
+      -- Take out the relevant information for resampling
       f = evalEnergyOn s
       (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
-              -- Partially apply resampleVState with the params that don't change over a resampling
+      -- Partially apply resampleVState with the params that don't change over a resampling
       resampleVStateConst = resampleVState varyPaths shapes
       sampledResults = take n $ iterateS resampleVStateConst g
       res = minimumBy (lessEnergyOn f) sampledResults
-              {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
-        --   in initPolicy $ updateVState s res
   in updateVState s res
+
+resampleOne :: State -> State
+resampleOne s = 
+  let (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
+      resampleVStateConst = resampleVState varyPaths shapes
+  in updateVState s $ resampleVStateConst g
 
 ------- Other possibly-useful utility functions (not currently used)
 -- TODO: rewrite these functions to not use the lambdaized overallObjFN

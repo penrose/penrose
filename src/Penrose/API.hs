@@ -127,7 +127,8 @@ resample ::
   -> Int -- ^ number of samples to choose from (> 0). If it's 1, no selection will occur
   -> Either RuntimeError State -- ^ if the number of samples requested is smaller than 1, return error, else return the resulting state
 resample initState numSamples
-  | numSamples >= 1 =
+  | numSamples == 1 = Right $ resampleOne initState 
+  | numSamples > 1 =
      -- NOTE: resampling will not work if the frontend has a new function name (issue #352) because of evalEnergyOn for resampling
     let newState = resampleBest numSamples initState
         (newShapes, _, _) = evalTranslation newState
