@@ -28,8 +28,8 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
  * Take all pending paths in the state, find values for them from shapes in the state, insert these values in the translation, and finally clear pending paths.
  * @param state initial state with pending values
  *
- * TODO: state shouldn't have the type `State` yet because the shapes are augumented with extra properties.
- * TODO: test with an initial state that has pending values
+ * @todo state shouldn't have the type `State` yet because the shapes are augumented with extra properties.
+ * @todo: test with an initial state that has pending values
  */
 export const insertPending = (state: State) => {
   return {
@@ -37,12 +37,12 @@ export const insertPending = (state: State) => {
     // clear up pending paths now that they are updated properly
     pendingPaths: [],
     // for each of the pending paths, update the translation using the updated shapes with new label dimensions etc.
-
     translation: state.pendingPaths
       .map((p: Path) => [p, findShapeProperty(state.shapes, p).updated])
-      // .updated is from `collectLabels` updating pending properties
+      // .updated is from `collectLabels` updating pending properties.
+      // TODO: `v` can only be any for now due to `updated`
       .reduce(
-        (trans: any, [path, v]: any[]) =>
+        (trans: Translation, [path, v]: any) =>
           insertExpr(
             path,
             { tag: "Done", contents: valueNumberToAutodiff(v) },
