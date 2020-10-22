@@ -278,3 +278,12 @@ export function mapTranslation<T, S>(
     trMap: Object.fromEntries(newTrMap),
   };
 }
+
+// TODO: Check the input type?
+export const makeTranslationDifferentiable = (trans: any): Translation => {
+  return mapTranslation(varOf, trans);
+};
+
+export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
+  return mapTranslation(numOf, trans);
+};

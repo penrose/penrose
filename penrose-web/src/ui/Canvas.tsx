@@ -6,11 +6,8 @@ import Log from "utils/Log";
 import { loadImages } from "utils/Util";
 import { insertPending } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
-import {
-  walkTranslationConvert,
-  evalShapes,
-  decodeState,
-} from "engine/Evaluator";
+import { evalShapes, decodeState } from "engine/Evaluator";
+import { makeTranslationDifferentiable } from "engine/EngineUtils";
 
 interface ICanvasProps {
   lock: boolean;
@@ -52,7 +49,7 @@ class Canvas extends React.Component<ICanvasProps> {
 
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
     // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
-    const translationAD = walkTranslationConvert(state.translation);
+    const translationAD = makeTranslationDifferentiable(state.translation);
     const stateAD = {
       ...state,
       translation: translationAD,
