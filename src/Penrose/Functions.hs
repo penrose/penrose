@@ -196,6 +196,7 @@ compDict =
     , ("sampleUniform", sampleUniformFn)
     , ("makePalette", constComp makePalette)
     , ("unitMark", constComp unitMark)
+    , ("unitMark2", constComp unitMark2)
     , ("midpointOffset", constComp midpointOffset)
 
   , ("calcZSphere", constComp calcZSphere)
@@ -1393,21 +1394,20 @@ unitMark [GPI v@("Arrow", _), GPI w@("Arrow", _), Val (StrV "body"), Val (FloatV
       markEnd = end +: padding *: normalDir
   in Val $ PtListV [markStart, markEnd]
 
-unitMark [Val (PtListV [start, end]), Val (StrV "start"), Val (FloatV padding), Val (FloatV size)] =
+unitMark2 :: ConstCompFn
+unitMark2 [Val (PtListV [start, end]), Val (StrV "start"), Val (FloatV padding), Val (FloatV size)] =
   let dir = normalize' $ end -: start
       normalDir = rot90 dir
       markStart = start +: size *: normalDir
       markEnd = start -: size *: normalDir
-      path = Open $ [Pt markStart, Pt markEnd]
-  in Val $ PathDataV [path]
+  in Val $ PtListV [markStart, markEnd]
 
-unitMark [Val (PtListV [start, end]), Val (StrV "end"), Val (FloatV padding), Val (FloatV size)] =
+unitMark2 [Val (PtListV [start, end]), Val (StrV "end"), Val (FloatV padding), Val (FloatV size)] =
   let dir = normalize' $ end -: start
       normalDir = rot90 dir
       markStart = end +: size *: normalDir
       markEnd = end -: size *: normalDir
-      path = Open $ [Pt markStart, Pt markEnd]
-  in Val $ PathDataV [path]
+  in Val $ PtListV [markStart, markEnd]
 
 midpointOffset :: ConstCompFn
 -- TODO: Factor out the repeated computations below

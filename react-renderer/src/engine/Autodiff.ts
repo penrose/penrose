@@ -709,6 +709,10 @@ export const ops = {
     return v.map(e => mul(c, e));
   },
 
+  vneg: (v: VarAD[]): VarAD[] => {
+    return ops.vmul(constOf(-1.0), v);
+  },
+
   vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
     return v.map(e => div(e, c));
   },
@@ -735,7 +739,12 @@ export const ops = {
 
   vsum: (v: VarAD[]): VarAD => {
     return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
-  }
+  },
+
+  // v + c * u
+  vmove: (v: VarAD[], c: VarAD, u: VarAD[]) => {
+    return ops.vadd(v, ops.vmul(c, u));
+  },
 
 };
 

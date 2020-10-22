@@ -121,46 +121,48 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
 -- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
 
--- Vector v
--- with VectorSpace U; Vector w
--- where In(v, U); Unit(v); Orthogonal(v, w) {
+Vector v
+with VectorSpace U; Vector w
+where In(v, U); Unit(v); Orthogonal(v, w) {
 
---       -- The start and end of the body of the unit marker line
---       v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
---       v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+      -- The start and end of the body of the unit marker line
+      v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
+      v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
 
---       v.unitMarkerLine = Curve {
---           pathData : pathFromPoints(v.offsetVec)
--- 	  strokeWidth : 2.0
--- 	  color : Colors.black
--- 	  fill : Colors.none
---       }
+      v.unitMarkerLine = Curve {
+          pathData : pathFromPoints(v.offsetVec)
+	  strokeWidth : 2.0
+	  color : Colors.black
+	  fill : Colors.none
+      }
 
---       v.unitMarkerEnd1 = Curve {
---           pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
---       	  strokeWidth : 2.0
---       	  color : Colors.black
---       	  fill : Colors.none
---       }
+      v.unitMarkerEnd1 = Curve {
+          pathData : pathFromPoints(unitMark2(v.offsetVec, "start", const.markerPadding, const.barSize))
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
 
---       v.unitMarkerEnd2 = Curve {
---           pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
---       	  strokeWidth : 2.0
---       	  color : Colors.black
---       	  fill : Colors.none
---       }
+      v.unitMarkerEnd2 = Curve {
+          pathData : pathFromPoints(unitMark2(v.offsetVec, "end", const.markerPadding, const.barSize))
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
 
---       v.unitMarkerText = Text {
---           string : "1"
--- 	  x : get(v.labelPosition, 0)
--- 	  y : get(v.labelPosition, 1)
--- 	  color : Colors.black
---       }
+      v.unitMarkerText = Text {
+          string : "1"
+          x : get(v.labelPosition, 0)
+          y : get(v.labelPosition, 1)
+          color : Colors.black
+      }
 
---       layer v.unitMarkerLine above U.xAxis
---       layer v.unitMarkerLine above U.yAxis
---       -- encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
--- }
+      layer v.unitMarkerLine above U.xAxis
+      layer v.unitMarkerLine above U.yAxis
+
+      -- This was commented out originally
+      -- encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
+}
 
 Vector `x2` {
        override `x2`.shape.color = Colors.green
