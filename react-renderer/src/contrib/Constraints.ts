@@ -182,10 +182,33 @@ export const constrDict = {
       //   getNum l "w" / 2 + padding
 
       const a1 = ops.vdist(fns.center(s1), fns.center(s2));
-      const a2 = div(s1.w.contents, varOf(2.0));
-      const a3 = div(s2.w.contents, varOf(2.0));
-      return add(add(sub(a1, a2), a3), offset);
+      const a2 = div(s1.w.contents, constOf(2.0));
+      const a3 = div(s2.w.contents, constOf(2.0));
+      const c = offset ? offset : constOf(0.0);
+      return add(add(sub(a1, a2), a3), c);
 
+    } else if (t1 === "Square" && t2 === "Text") {
+      const a1 = ops.vdist(fns.center(s1), fns.center(s2));
+      const a2 = div(s1.side.contents, constOf(2.0));
+      const a3 = div(s2.w.contents, constOf(2.0)); // TODO: Implement w/ exact text dims
+      const c = offset ? offset : constOf(0.0);
+      return add(add(sub(a1, a2), a3), c);
+
+    } else if (t1 === "Square" && t2 === "Arrow") {
+      const [[startX, startY], [endX, endY]] = linePts(s2);
+      const [x, y] = fns.center(s1);
+      const r = div(s1.side.contents, constOf(2.0));
+      const f = constOf(0.75); // 0.25 padding
+      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+      //    inRange endY ly ry
+      const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
+      const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
+      return addN([constrDict.inRange(startX, lx, rx),
+      constrDict.inRange(startY, ly, ry),
+      constrDict.inRange(endX, lx, rx),
+      constrDict.inRange(endY, ly, ry)]);
     } else throw new Error(`${[t1, t2]} not supported for contains`);
 
   },
@@ -257,6 +280,13 @@ export const constrDict = {
     // TODO: Account for the size/radius of the initial point, rather than just the center
 
     if (t2 === "Text") {
+      let pt;
+      if (t1 === "Arrow") { // Position label close to the arrow's end
+        pt = { x: s1.endX.contents, y: s1.endY.contents };
+      } else { // Only assume shape1 has a center
+        pt = { x: s1.x.contents, y: s1.y.contents };
+      }
+
       // Get polygon of text (box)
       // TODO: Make this a GPI property
       // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
@@ -273,7 +303,6 @@ export const constrDict = {
       const textPts = [[halfWidth, halfHeight], [nhalfWidth, halfHeight],
       [nhalfWidth, nhalfHeight], [halfWidth, nhalfHeight]].map(p => ops.vadd(textCenter, p));
 
-      const pt = { x: s1.x.contents, y: s1.y.contents };
       const rect = {
         minX: textPts[1][0], maxX: textPts[0][0],
         minY: textPts[2][1], maxY: textPts[0][1]
@@ -299,6 +328,10 @@ export const constrDict = {
     const v2 = ops.vsub(r.contents, p.contents);
     const dotProd = ops.vdot(v1, v2);
     return equalHard(dotProd, constOf(0.0));
+  },
+
+  inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
+    return mul(sub(x, x0), sub(x, x1));
   },
 
 };

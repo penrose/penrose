@@ -83,17 +83,24 @@ export const compDict = {
     };
   },
 
-  orientedSquare: (arr1: any, arr2: any, pt: any, len: VarAD): IPathDataV<VarAD> => {
-    // TODO: Write the full function; this is just a fixed path for testing
-    checkFloat(len);
+  // Given two orthogonal segments that intersect at startR (or startL, should be the same point)
+  // and a size, make three points that describe a perpendicular mark at the angle where the segments intersect.
+  orientedSquare: ([t1, s1]: [string, any], [t2, s2]: [string, any], intersection: Pt2, len: VarAD): IPathDataV<VarAD> => {
+    if ((t1 === "Arrow" || t1 === "Line") && (t2 === "Arrow" || t2 === "Line")) {
+      const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
+      const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
 
-    const elems: Elem<VarAD>[] =
-      [{ tag: "Pt", contents: mapTup2(constOf, [100, 100]) },
-      { tag: "Pt", contents: mapTup2(constOf, [200, 200]) },
-      { tag: "Pt", contents: mapTup2(constOf, [300, 150]) }];
-    const path: SubPath<VarAD> = { tag: "Open", contents: elems };
+      const elems: Elem<VarAD>[] =
+        [{ tag: "Pt", contents: toPt(ptL) },
+        { tag: "Pt", contents: toPt(ptLR) },
+        { tag: "Pt", contents: toPt(ptR) },
+        { tag: "Pt", contents: intersection }];
+      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 
-    return { tag: "PathDataV", contents: [path] };
+      return { tag: "PathDataV", contents: [path] };
+    } else {
+      throw Error("orientedSquare undefined for types ${t1}, ${t2}");
+    }
   },
 
   triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
@@ -179,6 +186,30 @@ const checkFloat = (x: any) => {
     throw Error("expected float converted to VarAD; got number (int?)");
   }
 }
+
+const toPt = (v: VecAD): Pt2 => {
+  if (v.length !== 2) {
+    throw Error("expected vector of length 2");
+  }
+  return [v[0], v[1]];
+};
+
+const perpPathFlat = (len: VarAD, [startR, endR]: [VecAD, VecAD], [startL, endL]: [VecAD, VecAD]): [VecAD, VecAD, VecAD] => {
+  // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
+  // perpPathFlat size (startR, endR) (startL, endL) =
+  //   let dirR = normalize' $ endR -: startR
+  //       dirL = normalize' $ endL -: startL
+  //       ptL = startR +: (size *: dirL)
+  //       ptR = startR +: (size *: dirR)
+  //       ptLR = startR +: (size *: dirL) +: (size *: dirR)
+  //   in (ptL, ptLR, ptR)
+  const dirR = ops.vnormalize(ops.vsub(endR, startR));
+  const dirL = ops.vnormalize(ops.vsub(endL, startL));
+  const ptL = ops.vadd(startR, ops.vmul(len, dirL));
+  const ptR = ops.vadd(startR, ops.vmul(len, dirR));
+  const ptLR = ops.vadd(ptL, ops.vmul(len, dirR));
+  return [ptL, ptLR, ptR];
+};
 
 // returns the point in `candidates` farthest from the points in `pts` (by sum)
 // Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation

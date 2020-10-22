@@ -69,9 +69,6 @@ VectorSpace U {
         y : U.shape.y + const.axisSize
         color : U.axisColor
     }
-
-    -- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
-    -- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
 }
 
 Vector v
@@ -93,15 +90,9 @@ where In(v,U) {
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
    v.angle = angle(v.vector)
 
-   -- v.containFn = ensure contains(U.shape, v.shape)
-   -- v.containLabel = ensure contains(U.shape, v.text)
-   -- v.labelLocation = ensure nearHead(v.shape, v.text, 20.0, 20.0)
-
-   -- TODO: Put these back in
-
-   -- ensure contains(U.shape, v.shape)
-   -- ensure contains(U.shape, v.text)
-   -- ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
+   ensure contains(U.shape, v.shape)
+   ensure contains(U.shape, v.text)
+   ensure atDist(v.shape, v.text, 5.0)
 
    -- This objective gives better visual results but causes vectors to be the same length?
    -- v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
@@ -122,15 +113,13 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       }
 
       -- Make sure vectors are orthogonal
-      -- encourage equal(dot(u.vector, v.vector), 0.0)
+      encourage equal(dot(u.vector, v.vector), 0.0)
 
       layer v.shape above LOCAL.perpMark
       layer u.shape above LOCAL.perpMark
 }
 
 -- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
-
--- TODO: Put this back in
 
 -- Vector v
 -- with VectorSpace U; Vector w

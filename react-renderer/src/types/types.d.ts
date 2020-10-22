@@ -620,13 +620,9 @@ type VarAD = IVarAD;
 
 // ----- Types for generalizing our system autodiff
 
-// This (IVecAD) type is unused, but could be useful at some point
-interface IVecAD {
-  tag: "VecAD";
-  contents: VarAD[];
-}
+type VecAD = VarAD[];
 
-type VecAD = IVecAD;
+type Pt2 = [VarAD, VarAD];
 
 type GradGraphs = IGradGraphs;
 
