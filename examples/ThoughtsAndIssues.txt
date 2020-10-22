@@ -48,4 +48,10 @@ Add verbose comments explaining "obvious" system implementation details througho
 
 Constraints are expressed in terms of inequalities, but equality constraints are super common.  The hack around this is currently to define some nonnegative function that's zero only at the equality.  E.g., to enforce the condition x == y, we'd have a function f(x,y) = |x-y|.  This is fine if you know what you're doing.  But might there be a more natural way to express equality constraints, so that they are automatically translated into equality constraints?  For instance, we could have `inequalityConstrDict`, which works like the current `constrDict`, and `equalityConstrDict`, where every function is passed through `abs()` when called.
 
+The compiler doesn't print a warning for something like this:
+```
+forall Geodesic g; IdealPoint p0; IdealPoint p1
+where PassesThrough( g, p, q ) {
+```
+(The problem here is that p and q are not named in the pattern match!)
 

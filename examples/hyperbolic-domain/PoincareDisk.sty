@@ -91,7 +91,8 @@ forall Geodesic g; HyperbolicPlane `H` {
    ensure inRange( g.shape.r, Global.planeSize*0.1, Global.planeSize*0.4 )
 }
 
-forall Geodesic g; IdealPoint p0; IdealPoint p1 {
+forall Geodesic g; IdealPoint p0; IdealPoint p1; HyperbolicPlane `H`
+where PassesThrough( g, p0, p1 ) {
    LOCAL.cx = g.shape.x
    LOCAL.cy = g.shape.y
 
@@ -100,17 +101,32 @@ forall Geodesic g; IdealPoint p0; IdealPoint p1 {
    LOCAL.p0y = p0.dotShape.y
    LOCAL.u0x = LOCAL.cx - LOCAL.p0x
    LOCAL.u0y = LOCAL.cy - LOCAL.p0y
-   LOCAL.r0 = sqrt( u0x*u0x + u0y*u0y )
+   LOCAL.r0 = sqrt( LOCAL.u0x*LOCAL.u0x + LOCAL.u0y*LOCAL.u0y )
 
-   -- r1 is distance from p0 to center of g's circle
-   LOCAL.p1x = p1.dotShape.x
-   LOCAL.p1y = p1.dotShape.y
-   LOCAL.u1x = LOCAL.cx - LOCAL.p1x
-   LOCAL.u1y = LOCAL.cy - LOCAL.p1y
-   LOCAL.r1 = sqrt( u1x*u1x + u1y*u1y )
-
-   -- ensure both r0 and r1 equal the radius of g's circle
+   -- Make sure the first point is on the geodesic's circle by
+   -- setting its distance to the circle equal to the radius
+   -- of the circle.
    ensure equalTo( LOCAL.r0, g.shape.r )
-   ensure equalTo( LOCAL.r1, g.shape.r )
+
+   -- Set the location of the second point to the reflection
+   -- of the first point across the line between the geodesic's
+   -- circle center, and the center of the Poincare disc
+
+   -- First, compute the unit vector u in the direction of c
+   LOCAL.magV = sqrt( LOCAL.cx*LOCAL.cx + LOCAL.cy*LOCAL.cy )
+   LOCAL.ux = LOCAL.cx/LOCAL.magV
+   LOCAL.uy = LOCAL.cy/LOCAL.magV
+
+   -- Next, reflect p0 around u to get p1
+   LOCAL.p0DotU = LOCAL.cx*LOCAL.p0x + LOCAL.cy*LOCAL.p0y
+   -- Penrose gripes about the next two lines:
+   -- argument of type BinOp not yet handled in pretty-printer;
+   -- returning stopgap {"tag":"BinOp","contents":["Multiply",{"tag":"EPath","contents":{"tag":"FieldPath","contents":[{"tag":"BStyVar","contents":"Global"},"planeSize"]}},{"tag":"AFloat","contents":{"tag":"Fix","contents":0.1}}]}
+   override p1.dotShape.x = LOCAL.p0DotU*LOCAL.ux
+   override p1.dotShape.y = LOCAL.p0DotU*LOCAL.uy
+
+   -- This is what I really want to do, but I can't get the multiply above to work:
+   --override p1.dotShape.x = 2.0*LOCAL.p0DotU*LOCAL.ux - LOCAL.p0x
+   --override p1.dotShape.y = 2.0*LOCAL.p0DotU*LOCAL.uy - LOCAL.p0y
 }
 

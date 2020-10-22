@@ -24,6 +24,10 @@ Note: constraints are treated as inequality constraints f(x) ≥ 0; to get equal
 
 Note that the definition in `Constraints.ts` is the one really used for optimization; the definition in `Functions.hs` is used to sample initial values.
 
+# Error message
+
+Error reporting is really not great yet; probably best to ignore the actual error messages (which may point you in the wrong direction) and just read the line it points to.
+
 # Adding new functions
 
 In Computations.ts, copy-paste something like cosine, and modify for whatever function you want
@@ -81,6 +85,18 @@ Penrose IDE (use.penrose): [ can we put more of this in a build script? ]
 npm install
 npm run build-lib
 npm start
+
+# Adding shapes
+
+Some related notes:
+- https://github.com/penrose/penrose/wiki/React-Rendering-Frontend
+
+In front end: files for each shape
+Each file takes JSON for shape
+Read properties from there, direct to an SVG element
+
+Compiler produces JSON
+Files translate JSON to SVG
 
 # To try (running faster)
 

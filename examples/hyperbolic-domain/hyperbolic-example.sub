@@ -1,13 +1,7 @@
 HyperbolicPlane H
-IdealPoint p, q, r
-Horocycle g, h
-Geodesic l1, l2, l3;
-
+IdealPoint p, q
 p ∈ H
 q ∈ H
-r ∈ H
+Geodesic g
+PassesThrough( g, p, q )
 
-IsCenter( p, g )
-IsCenter( q, h )
-
-PassesThrough( l1, p, q )

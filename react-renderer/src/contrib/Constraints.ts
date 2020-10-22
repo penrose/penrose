@@ -221,7 +221,6 @@ export const constrDict = {
   },
 
   equalTo: (x: VarAD, y: VarAD) => {
-     return mul(sub(x,x0),sub(x,x1));
      return absVal(sub(x, y));
   },
 
