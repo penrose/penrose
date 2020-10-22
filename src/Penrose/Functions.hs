@@ -461,6 +461,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("nearHead", nearHead)
       , ("smallerThan", smallerThan)
       , ("tangentTo", tangentTo)
+      , ("equalTo", equalTo)
       , ("orthogonalCircles", orthogonalCircles)
       , ("minSize", minSize)
       , ("maxSize", maxSize)
@@ -2025,6 +2026,12 @@ lessThanSq [Val (FloatV x), Val (FloatV y)] =
 tangentTo :: ConstrFn
 tangentTo [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
   (dist (getX o1, getY o1) (getX o2, getY o2)) ^ 2 - ((getNum o1 "r") ^ 2 + (getNum o2 "r") ^ 2)
+
+equalTo :: ConstrFn
+equalTo [Val (FloatV x), Val (FloatV y)]
+  | x < y = x - y
+  | y > x = y - x
+  | otherwise = 0
 
 orthogonalCircles :: ConstrFn
 orthogonalCircles [GPI o1@("Circle", _), GPI o2@("Circle", _)] =

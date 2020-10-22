@@ -88,6 +88,29 @@ forall Geodesic g; HyperbolicPlane `H` {
    }
 
    ensure orthogonalCircles( g.shape, H.diskShape )
-   ensure inRange( g.shape.r, Global.planeSize*0.2, Global.planeSize*0.4 )
+   ensure inRange( g.shape.r, Global.planeSize*0.1, Global.planeSize*0.4 )
+}
+
+forall Geodesic g; IdealPoint p0; IdealPoint p1 {
+   LOCAL.cx = g.shape.x
+   LOCAL.cy = g.shape.y
+
+   -- r0 is distance from p0 to center of g's circle
+   LOCAL.p0x = p0.dotShape.x
+   LOCAL.p0y = p0.dotShape.y
+   LOCAL.u0x = LOCAL.cx - LOCAL.p0x
+   LOCAL.u0y = LOCAL.cy - LOCAL.p0y
+   LOCAL.r0 = sqrt( u0x*u0x + u0y*u0y )
+
+   -- r1 is distance from p0 to center of g's circle
+   LOCAL.p1x = p1.dotShape.x
+   LOCAL.p1y = p1.dotShape.y
+   LOCAL.u1x = LOCAL.cx - LOCAL.p1x
+   LOCAL.u1y = LOCAL.cy - LOCAL.p1y
+   LOCAL.r1 = sqrt( u1x*u1x + u1y*u1y )
+
+   -- ensure both r0 and r1 equal the radius of g's circle
+   ensure equalTo( LOCAL.r0, g.shape.r )
+   ensure equalTo( LOCAL.r1, g.shape.r )
 }
 

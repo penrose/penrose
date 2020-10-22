@@ -220,6 +220,11 @@ export const constrDict = {
      } else throw new Error(`${[t1, t2]} not supported for smallerThan`);
   },
 
+  equalTo: (x: VarAD, y: VarAD) => {
+     return mul(sub(x,x0),sub(x,x1));
+     return absVal(sub(x, y));
+  },
+
   inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
      return mul(sub(x,x0),sub(x,x1));
   },

@@ -46,3 +46,6 @@ Typecheck functions called from Style (types and number of arguments) and throw 
 
 Add verbose comments explaining "obvious" system implementation details throughout Penrose
 
+Constraints are expressed in terms of inequalities, but equality constraints are super common.  The hack around this is currently to define some nonnegative function that's zero only at the equality.  E.g., to enforce the condition x == y, we'd have a function f(x,y) = |x-y|.  This is fine if you know what you're doing.  But might there be a more natural way to express equality constraints, so that they are automatically translated into equality constraints?  For instance, we could have `inequalityConstrDict`, which works like the current `constrDict`, and `equalityConstrDict`, where every function is passed through `abs()` when called.
+
+
