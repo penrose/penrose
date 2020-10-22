@@ -121,7 +121,10 @@ where PassesThrough( g, p0, p1 ) {
    LOCAL.p0DotU = LOCAL.cx*LOCAL.p0x + LOCAL.cy*LOCAL.p0y
    -- Penrose gripes about the next two lines:
    -- argument of type BinOp not yet handled in pretty-printer;
-   -- returning stopgap {"tag":"BinOp","contents":["Multiply",{"tag":"EPath","contents":{"tag":"FieldPath","contents":[{"tag":"BStyVar","contents":"Global"},"planeSize"]}},{"tag":"AFloat","contents":{"tag":"Fix","contents":0.1}}]}
+   -- returning stopgap {"tag":"BinOp","contents":["Multiply",
+   -- {"tag":"EPath","contents":{"tag":"FieldPath","contents":
+   -- [{"tag":"BStyVar","contents":"Global"},"planeSize"]}},
+   -- {"tag":"AFloat","contents":{"tag":"Fix","contents":0.1}}]}
    override p1.dotShape.x = LOCAL.p0DotU*LOCAL.ux
    override p1.dotShape.y = LOCAL.p0DotU*LOCAL.uy
 
