@@ -16,7 +16,7 @@ syn keyword styKeywords import
 
 " Comments
 syn keyword styTodo TODO FIXME XXX NOTE
-syn match styComment "--.*$" contains=styTodo
+syn match styComment "--.*$" contains=styTodo,@Spell
 
 " Types and values
 syn keyword styTypes rgba vec2 vec3
