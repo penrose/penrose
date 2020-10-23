@@ -41,7 +41,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       return [(x - ctm.e) / ctm.a, (y - ctm.f) / ctm.d];
     };
 
-    public handleMouseMove = (e: PointerEvent) => {
+    public handleMouseMove = (e: { clientX: number; clientY: number }) => {
       const [x, y] = this.getPosition(e.clientX, e.clientY);
       const { tempX, tempY } = this.state;
       const dx = tempX - x;

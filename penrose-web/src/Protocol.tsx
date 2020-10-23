@@ -6,7 +6,7 @@ export enum ConnectionStatus {
   socketOpen = "SOCKET_OPEN",
   penroseConnected = "PENROSE_CONNECTED",
   ready = "PENROSE_READY",
-  socketError = "SOCKET_ERR"
+  socketError = "SOCKET_ERR",
 }
 export interface ICoreEvents {
   onConnectionStatus(status: ConnectionStatus): void;
@@ -26,14 +26,11 @@ type EventHandlers = IEditorEvents[] | IRendererEvents[];
 
 export class Protocol {
   private addr: string;
-  private ws: WebSocket;
-  private connectionStatus: ConnectionStatus;
+  private ws!: WebSocket;
+  private connectionStatus!: ConnectionStatus;
   private eventHandlers: EventHandlers;
 
-  constructor(
-    addr: string,
-    eventHandlers: EventHandlers,
-  ) {
+  constructor(addr: string, eventHandlers: EventHandlers) {
     this.addr = addr;
     this.eventHandlers = eventHandlers;
   }
@@ -41,7 +38,7 @@ export class Protocol {
     this.eventHandlers.push(handler as any);
     this.setupSockets();
   };
-  
+
   public setupSockets = () => {
     this.ws = new WebSocket(this.addr);
     this.ws.onopen = this.onSocketOpen;

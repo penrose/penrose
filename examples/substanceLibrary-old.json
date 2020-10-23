@@ -1,0 +1,107 @@
+[
+  {
+    "substanceURI": "set-theory-domain/tree.sub",
+    "element": 0,
+    "style": 1,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/fc58026213eb9509398ee85472e38af5/raw/d7293f6324feac2819dc689b3892890949ffe0de/tree.svg?sanitize=true",
+    "name": "tree"
+  },
+  {
+    "substanceURI": "set-theory-domain/tree.sub",
+    "element": 0,
+    "style": 0,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/5c9977899f12bd46eff63ae1f0a86583/raw/babe7528e161fde4993440e5e15cdf23105a12af/venn.svg?sanitize=true",
+    "name": "larger venn"
+  },
+  {
+    "substanceURI": "set-theory-domain/nested.sub",
+    "element": 0,
+    "style": 0,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/b91450f8c0cc3df6085c40ecf4ad888f/raw/11a7c69a2890a99e14ae6cb6cc7b341d9be7430d/nested.svg?sanitize=true",
+    "name": "nested"
+  },
+  {
+    "substanceURI": "linear-algebra-domain/determinants.sub",
+    "element": 1,
+    "style": 3,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/d35c29c82a21ef53f05e475cec085277/raw/62ce1c4ea019ed4be84385ac77cf8f3b4cb14225/det.svg?sanitize=true",
+    "name": "determinant"
+  },
+  {
+    "substanceURI": "linear-algebra-domain/norm.sub",
+    "element": 1,
+    "style": 3,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/ac55dc843f0973ca18daa9a8f179cf8f/raw/90dd912c6f1a17d671cbda41a42411a251be07a5/norm.svg?sanitize=true",
+    "name": "norm"
+  },
+  {
+    "substanceURI": "real-analysis-domain/spec-RA-sugared.sub",
+    "element": 2,
+    "style": 4,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/c59e3e46ceabe62e6a77fbb2bfbba8d2/raw/e60a8834e23cb0e9af15c5f97b31792657f09688/perp-ra.svg?sanitize=true",
+    "name": "spec"
+  },
+  {
+    "substanceURI": "real-analysis-domain/spec-RA-sugared.sub",
+    "element": 2,
+    "style": 6,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/540c534b8e9e0f7f8f5fe3d0499172b4/raw/484f70b4394af350da93b5b1de1d5f654df054ea/parallel.svg?sanitize=true",
+    "name": "spec"
+  },
+  {
+    "substanceURI": "set-theory-domain/continuousmap.sub",
+    "element": 0,
+    "style": 7,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/24b3981a868daa6ed1742af764287def/raw/2fd1dd42b08a5d87c481f2eaf406302e59a21f94/continuousmap.svg?sanitize=true",
+    "name": "continuous map"
+  },
+  {
+    "substanceURI": "geometry-domain/teaser.sub",
+    "element": 3,
+    "style": 8,
+    "previewURI": "https://gist.githubusercontent.com/hypotext/e3fbd524578cc04fc2b680f73bc2fa11/raw/a4df1b95c7e7d33b65c1b2fd657efa5c89c7cbc9/eu-1.svg?sanitize=true",
+    "name": "euclidean geometry"
+  },
+  {
+    "substanceURI": "geometry-domain/teaser.sub",
+    "element": 3,
+    "style": 9,
+    "previewURI": "https://gist.githubusercontent.com/hypotext/ef228bf1e8299f3d0f01ff442874f570/raw/e1955e4fc4a8bb4c73e2cb21630d4d0306a2546d/sphere6.svg?sanitize=true",
+    "name": "spherical geometry"
+  },
+  {
+    "substanceURI": "geometry-domain/teaser.sub",
+    "element": 3,
+    "style": 10,
+    "previewURI": "https://gist.githubusercontent.com/hypotext/1acfa5d09624ad75216f1278fde68343/raw/f679ce75e99c337faf4abfd048cbcf014ab5832c/hyp1.svg?sanitize=true",
+    "name": "hyperbolic geometry"
+  },
+  {
+    "substanceURI": "set-theory-domain/tree.sub",
+    "element": 0,
+    "style": 11,
+    "previewURI": "https://gist.githubusercontent.com/wodeni/54fdcafc3cf9cf0c14b68868893db1dd/raw/80976b0fd68ee2dac52bdc17d107104dde14d3c1/sets-3d.svg?sanitize=true",
+    "name": "venn 3d"
+  },
+  {
+    "substanceURI": "functions-domain/spec-function.sub",
+    "element": 4,
+    "style": 12,
+    "previewURI": "https://gist.githubusercontent.com/wodeni/67aabcfeffbe6685bdc0675ffd92fab6/raw/8c9ca7e8e546f5dbc222473c95b18bc96dd7269b/discrete-function.svg?sanitize=true",
+    "name": "discrete function"
+  },
+  {
+    "substanceURI": "functions-domain/spec-function.sub",
+    "element": 4,
+    "style": 13,
+    "previewURI": "https://gist.githubusercontent.com/wodeni/e79dcfc82504796cd169ad5e44c7c970/raw/fc9f3008643839dcf284b45b251915366ea98eed/continuous-function.svg?sanitize=true",
+    "name": "continuous function"
+  },
+  {
+    "substanceURI": "raytracing-domain/spec-raytra.sub",
+    "element": 5,
+    "style": 14,
+    "previewURI": "https://gist.githubusercontent.com/wodeni/54fdcafc3cf9cf0c14b68868893db1dd/raw/80976b0fd68ee2dac52bdc17d107104dde14d3c1/sets-3d.svg?sanitize=true",
+    "name": "Ray tracing"
+  }
+]
