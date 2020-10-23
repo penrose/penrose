@@ -16,4 +16,3 @@ constructor MakeGeodesic: IdealPoint endpoint1 * IdealPoint endpoint2 -> Geodesi
 
 notation "{ a, b }" ~ "MakeSegment( a, b )"
 notation "p ∈ H" ~ "In( p, H )"
-

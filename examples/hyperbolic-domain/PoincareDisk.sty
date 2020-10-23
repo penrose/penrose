@@ -7,7 +7,7 @@ Global {
 }
 
 Colors {
-  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+   Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
    Colors.black = rgba( 0.0, 0.0, 0.0, 1.0 )
    Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
    Colors.darkBlue = rgba( 0.2, 0.3, 0.6, 0.5 )
@@ -93,6 +93,7 @@ forall Geodesic g; HyperbolicPlane `H` {
 
 forall Geodesic g; IdealPoint p0; IdealPoint p1; HyperbolicPlane `H`
 where PassesThrough( g, p0, p1 ) {
+
    LOCAL.cx = g.shape.x
    LOCAL.cy = g.shape.y
 
@@ -108,28 +109,17 @@ where PassesThrough( g, p0, p1 ) {
    -- of the circle.
    ensure equalTo( LOCAL.r0, g.shape.r )
 
-   -- Set the location of the second point to the reflection
-   -- of the first point across the line between the geodesic's
-   -- circle center, and the center of the Poincare disc
+
+   -- Reflect the first point across the geodesic center to get the second point
 
    -- First, compute the unit vector u in the direction of c
-   LOCAL.magV = sqrt( LOCAL.cx*LOCAL.cx + LOCAL.cy*LOCAL.cy )
-   LOCAL.ux = LOCAL.cx/LOCAL.magV
-   LOCAL.uy = LOCAL.cy/LOCAL.magV
+   LOCAL.m = sqrt( LOCAL.cx*LOCAL.cx + LOCAL.cy*LOCAL.cy )
+   LOCAL.ux = LOCAL.cx/LOCAL.m
+   LOCAL.uy = LOCAL.cy/LOCAL.m
 
-   -- Next, reflect p0 around u to get p1
-   LOCAL.p0DotU = LOCAL.cx*LOCAL.p0x + LOCAL.cy*LOCAL.p0y
-   -- Penrose gripes about the next two lines:
-   -- argument of type BinOp not yet handled in pretty-printer;
-   -- returning stopgap {"tag":"BinOp","contents":["Multiply",
-   -- {"tag":"EPath","contents":{"tag":"FieldPath","contents":
-   -- [{"tag":"BStyVar","contents":"Global"},"planeSize"]}},
-   -- {"tag":"AFloat","contents":{"tag":"Fix","contents":0.1}}]}
-   override p1.dotShape.x = LOCAL.p0DotU*LOCAL.ux
-   override p1.dotShape.y = LOCAL.p0DotU*LOCAL.uy
+   LOCAL.uDotP0 = LOCAL.ux*LOCAL.p0x + LOCAL.uy*LOCAL.p0y
+   override p1.dotShape.x = 2.0*LOCAL.uDotP0*LOCAL.ux - LOCAL.p0x
+   override p1.dotShape.y = 2.0*LOCAL.uDotP0*LOCAL.uy - LOCAL.p0y
 
-   -- This is what I really want to do, but I can't get the multiply above to work:
-   --override p1.dotShape.x = 2.0*LOCAL.p0DotU*LOCAL.ux - LOCAL.p0x
-   --override p1.dotShape.y = 2.0*LOCAL.p0DotU*LOCAL.uy - LOCAL.p0y
 }
 

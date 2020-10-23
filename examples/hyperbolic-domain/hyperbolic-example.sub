@@ -1,7 +1,9 @@
 HyperbolicPlane H
-IdealPoint p, q
-p ∈ H
-q ∈ H
-Geodesic g
-PassesThrough( g, p, q )
+IdealPoint a, b, c
+a ∈ H
+b ∈ H
+c ∈ H
+Geodesic u, v, w
+PassesThrough( u, a, b )
+PassesThrough( v, a, c )
 

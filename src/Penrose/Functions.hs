@@ -118,6 +118,7 @@ compDict =
     , ("cos", constComp cosine)
     , ("sin", constComp sine)
     , ("sqrt", constComp squareRoot)
+    , ("sqr", constComp square)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
@@ -661,6 +662,9 @@ sine [Val (FloatV d)] = Val (FloatV $ sin (d * pi / 180))
 
 squareRoot :: ConstCompFn
 squareRoot [Val (FloatV x)] = Val (FloatV $ sqrt x)
+
+square :: ConstCompFn
+square [Val (FloatV x)] = Val (FloatV $ x * x)
 
 calcVectorsAngle :: ConstCompFn
 calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2), Val (FloatV ex2), Val (FloatV ey2)] =

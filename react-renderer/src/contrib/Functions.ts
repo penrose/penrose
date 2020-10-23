@@ -69,6 +69,13 @@ export const compDict = {
     };
   },
 
+  sqr: (d: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: mul(d,d)
+    };
+  },
+
   dot: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
