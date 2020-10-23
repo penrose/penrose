@@ -5,6 +5,7 @@ import {
   ILayer,
   Optimizer,
   Evaluator,
+  EngineUtils,
 } from "src/module";
 import {
   Protocol,
@@ -25,4 +26,5 @@ export {
   ConnectionStatus,
   PropagateUpdate,
   Evaluator,
+  EngineUtils,
 };

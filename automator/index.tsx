@@ -3,8 +3,8 @@ import * as React from "react";
 const fs = require("fs");
 const mathjax = require("mathjax-node");
 const {
-  decodeState,
   Canvas,
+  EngineUtils,
   Packets,
   PropagateUpdate,
   Optimizer,
@@ -185,7 +185,9 @@ const singleProcess = async (
   const decodedState = Evaluator.decodeState(compiledState.contents[0]);
   const stateAD = {
     ...decodedState,
-    translation: Evaluator.walkTranslationConvert(decodedState.translation),
+    translation: EngineUtils.makeTranslationDifferentiable(
+      decodedState.translation
+    ),
   };
   const stateEvaled = Evaluator.evalShapes(stateAD);
 

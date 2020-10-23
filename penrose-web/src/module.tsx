@@ -4,6 +4,7 @@ import * as Types from "./types";
 import * as ProtocolTypes from "./Protocol";
 import * as PropagateUpdate from "engine/PropagateUpdate";
 import * as Optimizer from "engine/Optimizer";
+import * as EngineUtils from "engine/EngineUtils";
 import * as Evaluator from "engine/Evaluator";
 import { Protocol, ConnectionStatus } from "./Protocol";
 
@@ -18,4 +19,5 @@ export {
   ConnectionStatus,
   PropagateUpdate,
   Evaluator,
+  EngineUtils, // TODO: package this with the optimizer
 };
