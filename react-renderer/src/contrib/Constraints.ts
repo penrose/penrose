@@ -253,6 +253,18 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for overlapping`);
   },
 
+  // Essentially just repel by a different name.  (Doesn't work great, though.)
+  distinct: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
+      const repelWeight = 1e4;
+      return mul( inverse(d), constOf(repelWeight ) );
+    } else throw new Error(`${[t1, t2]} not supported for distinct`);
+  },
+
   tangentTo: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any]

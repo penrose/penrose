@@ -4,6 +4,7 @@ Global {
    Global.pointSize = Global.width/100.0
    Global.thinStroke = Global.width/200.0
    Global.planeSize = 0.9*Global.height
+   Global.labelSize = 32.0
 }
 
 Colors {
@@ -12,6 +13,7 @@ Colors {
    Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
    Colors.darkBlue = rgba( 0.2, 0.3, 0.6, 0.5 )
    Colors.red = rgba( 1.0, 0.0, 0.0, 0.5 )
+   Colors.none = rgba( 0.0, 0.0, 0.0, 0.0 )
 }
 
 forall HyperbolicPlane H {
@@ -36,6 +38,17 @@ where In( p, H ) {
    }
 
    p.inDiskConstraint = ensure contains( H.diskShape, p.dotShape )
+
+   LOCAL.ux = p.dotShape.x / H.diskShape.r
+   LOCAL.uy = p.dotShape.y / H.diskShape.r
+
+   p.text = Text {
+      string: p.label
+      x: p.dotShape.x + 1.1*Global.labelSize*LOCAL.ux
+      y: p.dotShape.y + 1.1*Global.labelSize*LOCAL.uy
+      color: Colors.black
+      fontSize: Global.labelSize
+   }
 }
 
 -- TODO: Fix that we can't add new functions with new names w/o backend complaining
@@ -57,69 +70,100 @@ where In( p, H ) {
 
 forall Horocycle h; IdealPoint p; HyperbolicPlane H
 where IsCenter( p, h ); In( p, H ) {
+
+   h.r = ?
+   LOCAL.R = Global.planeSize/2.0
+   LOCAL.px = p.dotShape.x
+   LOCAL.py = p.dotShape.y
+   LOCAL.m = sqrt( LOCAL.px*LOCAL.px + LOCAL.py*LOCAL.py )
+   LOCAL.ux = LOCAL.px/LOCAL.m
+   LOCAL.uy = LOCAL.py/LOCAL.m
+
    h.circleShape = Circle {
-      r : Global.planeSize/4.0
+      r : h.r
       color : rgba( 1.0, 1.0, 1.0, 0.4 )
       strokeColor : Colors.black
       strokeWidth : Global.thinStroke
    }
-
-   -- u = (h.center - H.center)/norm( h.center - H.center)
-   LOCAL.R = H.diskShape.r
-   LOCAL.c0x = H.diskShape.x
-   LOCAL.c0y = H.diskShape.y
-   LOCAL.c1x = h.circleShape.x
-   LOCAL.c1y = h.circleShape.y
-   LOCAL.ux = LOCAL.c1x - LOCAL.c0x
-   LOCAL.uy = LOCAL.c1y - LOCAL.c0y
-   LOCAL.m = sqrt( LOCAL.ux*LOCAL.ux + LOCAL.uy*LOCAL.uy )
-   override p.dotShape.x = LOCAL.R * LOCAL.ux / LOCAL.m
-   override p.dotShape.y = LOCAL.R * LOCAL.uy / LOCAL.m
-
-   ensure tangentTo( H.diskShape, h.circleShape )
+   h.circleShape.x = ( LOCAL.R - h.r )*LOCAL.ux
+   h.circleShape.y = ( LOCAL.R - h.r )*LOCAL.uy
    layer h.circleShape above H.diskShape
+   ensure inRange( h.r, 0.1*LOCAL.R, 0.5*LOCAL.R )
 }
 
 forall Geodesic g; HyperbolicPlane `H` {
    g.shape = Circle {
-      color : rgba( 1.0, 1.0, 1.0, 0.0 )
+      color : Colors.none
       strokeColor: Colors.darkBlue
       strokeWidth: Global.thinStroke
    }
 
-   ensure orthogonalCircles( g.shape, H.diskShape )
-   ensure inRange( g.shape.r, Global.planeSize*0.1, Global.planeSize*0.4 )
+   g.orthogonalConstraint = ensure orthogonalCircles( g.shape, H.diskShape )
+   ensure inRange( g.shape.r, Global.planeSize*0.1, Global.planeSize )
 }
 
 forall Geodesic g; IdealPoint p0; IdealPoint p1; HyperbolicPlane `H`
 where PassesThrough( g, p0, p1 ) {
 
-   LOCAL.cx = g.shape.x
-   LOCAL.cy = g.shape.y
+   -- Given the locations of two points p0, p1 on the boundary of
+   -- the Poincare disk, we'll explicitly compute the center and
+   -- radius of the circle orthogonal to the disk boundary, passing
+   -- through these two points.
 
-   -- r0 is distance from p0 to center of g's circle
+   -- remove the constraint that g should be orthogonal to H;
+   -- orthogonality will be enforced by construction here
+   delete g.orthogonalConstraint
+
+   -- First, get some short names
+   -- R = radius of Poincare disk
+   LOCAL.R = H.diskShape.r
+   -- p0 = center of first point
    LOCAL.p0x = p0.dotShape.x
    LOCAL.p0y = p0.dotShape.y
-   LOCAL.u0x = LOCAL.cx - LOCAL.p0x
-   LOCAL.u0y = LOCAL.cy - LOCAL.p0y
-   LOCAL.r0 = sqrt( LOCAL.u0x*LOCAL.u0x + LOCAL.u0y*LOCAL.u0y )
+   -- p1 = center of second point
+   LOCAL.p1x = p1.dotShape.x
+   LOCAL.p1y = p1.dotShape.y
 
-   -- Make sure the first point is on the geodesic's circle by
-   -- setting its distance to the circle equal to the radius
-   -- of the circle.
-   ensure equalTo( LOCAL.r0, g.shape.r )
+   -- Compute distance b from center of H to center of g
+   LOCAL.dotP0P1 = LOCAL.p0x*LOCAL.p1x + LOCAL.p0y*LOCAL.p1y
+   LOCAL.b = LOCAL.R/sqrt((1.0+LOCAL.dotP0P1/(LOCAL.R*LOCAL.R))/2.0)
 
+   -- Compute unit vector u between p and q
+   LOCAL.vx = LOCAL.p0x + LOCAL.p1x
+   LOCAL.vy = LOCAL.p0y + LOCAL.p1y
+   LOCAL.m = sqrt( LOCAL.vx*LOCAL.vx + LOCAL.vy*LOCAL.vy )
+   LOCAL.ux = LOCAL.vx / LOCAL.m
+   LOCAL.uy = LOCAL.vy / LOCAL.m
 
-   -- Reflect the first point across the geodesic center to get the second point
+   -- Set center of g's circle
+   g.shape.x = LOCAL.b * LOCAL.ux
+   g.shape.y = LOCAL.b * LOCAL.uy
 
-   -- First, compute the unit vector u in the direction of c
-   LOCAL.m = sqrt( LOCAL.cx*LOCAL.cx + LOCAL.cy*LOCAL.cy )
-   LOCAL.ux = LOCAL.cx/LOCAL.m
-   LOCAL.uy = LOCAL.cy/LOCAL.m
+   -- Set radius of g's circle
+   LOCAL.wx = g.shape.x - LOCAL.p0x
+   LOCAL.wy = g.shape.y - LOCAL.p0y
+   g.shape.r = sqrt( LOCAL.wx*LOCAL.wx + LOCAL.wy*LOCAL.wy )
+}
 
-   LOCAL.uDotP0 = LOCAL.ux*LOCAL.p0x + LOCAL.uy*LOCAL.p0y
-   override p1.dotShape.x = 2.0*LOCAL.uDotP0*LOCAL.ux - LOCAL.p0x
-   override p1.dotShape.y = 2.0*LOCAL.uDotP0*LOCAL.uy - LOCAL.p0y
+-- Diagram-specific constants
 
+IdealPoint `pi` {
+   override `pi`.angle = -80.0
+}
+
+IdealPoint `pj` {
+   override `pj`.angle = 80.0
+}
+
+IdealPoint `pk` {
+   override `pk`.angle = 170.0
+}
+
+IdealPoint `pl` {
+   override `pl`.angle = -20.0
+}
+
+Geodesic `gkl` {
+   `gkl`.shape.strokeStyle = "dashed"
 }
 

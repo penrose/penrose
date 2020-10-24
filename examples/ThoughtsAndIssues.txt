@@ -55,3 +55,20 @@ where PassesThrough( g, p, q ) {
 ```
 (The problem here is that p and q are not named in the pattern match!)
 
+The compiler doesn't issue a clear warning if we define something in local scope, but use it for something that will need to persist.  E.g., the Style code
+
+LOCAL.r = ?
+x.shape = Circle {
+   radius: LOCAL.r
+}
+
+causes the frontend to crash, whereas
+
+x.r = ?
+x.shape = Circle {
+   radius: x.r
+}
+
+works fine.  But the compiler doesn't complain about the former.
+
+

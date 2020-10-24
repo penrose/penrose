@@ -62,6 +62,13 @@ export const compDict = {
     };
   },
 
+  // arccos: (d: VarAD): IFloatV<VarAD> => {
+  //   return {
+  //     tag: "FloatV",
+  //     contents: acos(d)
+  //   };
+  // },
+
   sqrt: (d: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",

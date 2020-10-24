@@ -1,9 +1,24 @@
 HyperbolicPlane H
-IdealPoint a, b, c
-a ∈ H
-b ∈ H
-c ∈ H
-Geodesic u, v, w
-PassesThrough( u, a, b )
-PassesThrough( v, a, c )
+IdealPoint pi, pj, pk, pl
+Horocycle hi, hj, hk, hl
+pi ∈ H
+pj ∈ H
+pk ∈ H
+pl ∈ H
+Geodesic gij, gjk, gki, gil, glj, gkl
+PassesThrough( gij, pi, pj )
+PassesThrough( gjk, pj, pk )
+PassesThrough( gki, pk, pi )
+PassesThrough( gil, pi, pl )
+PassesThrough( glj, pl, pj )
+PassesThrough( gkl, pk, pl )
+IsCenter( pi, hi )
+IsCenter( pj, hj )
+IsCenter( pk, hk )
+IsCenter( pl, hl )
+
+Label pi $i$
+Label pj $j$
+Label pk $k$
+Label pl $l$
 

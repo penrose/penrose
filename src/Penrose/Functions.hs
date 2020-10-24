@@ -117,6 +117,7 @@ compDict =
     , ("atan2", constComp arctangent2)
     , ("cos", constComp cosine)
     , ("sin", constComp sine)
+    , ("arccos", constComp arccos)
     , ("sqrt", constComp squareRoot)
     , ("sqr", constComp square)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
@@ -462,6 +463,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("nearHead", nearHead)
       , ("smallerThan", smallerThan)
       , ("tangentTo", tangentTo)
+      , ("distinct", distinct)
       , ("equalTo", equalTo)
       , ("orthogonalCircles", orthogonalCircles)
       , ("minSize", minSize)
@@ -659,6 +661,9 @@ cosine :: ConstCompFn
 cosine [Val (FloatV d)] = Val (FloatV $ cos (d * pi / 180))
 sine :: ConstCompFn
 sine [Val (FloatV d)] = Val (FloatV $ sin (d * pi / 180))
+
+arccos :: ConstCompFn
+arccos [Val (FloatV x)] = Val (FloatV $ acos(x))
 
 squareRoot :: ConstCompFn
 squareRoot [Val (FloatV x)] = Val (FloatV $ sqrt x)
@@ -2030,6 +2035,10 @@ lessThanSq [Val (FloatV x), Val (FloatV y)] =
 tangentTo :: ConstrFn
 tangentTo [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
   (dist (getX o1, getY o1) (getX o2, getY o2)) ^ 2 - ((getNum o1 "r") ^ 2 + (getNum o2 "r") ^ 2)
+
+distinct :: ConstrFn
+distinct [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
+  1/sqrt(dist (getX o1, getY o1) (getX o2, getY o2))
 
 equalTo :: ConstrFn
 equalTo [Val (FloatV x), Val (FloatV y)]
