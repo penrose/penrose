@@ -2048,7 +2048,7 @@ equalTo [Val (FloatV x), Val (FloatV y)]
 
 orthogonalCircles :: ConstrFn
 orthogonalCircles [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
-  dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o1 "r" - getNum o2 "r")
+  dist (getX o1, getY o1) (getX o2, getY o2) ^ 2 - ((getNum o1 "r") ^ 2 - (getNum o2 "r") ^ 2)
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =

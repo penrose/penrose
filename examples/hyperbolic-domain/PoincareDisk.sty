@@ -27,6 +27,14 @@ forall HyperbolicPlane H {
       strokeStyle : "dashed"
       strokeDashArray : "10,10"
    }
+
+   H.text = Text {
+      string: "H^2"
+      x: 0.8*H.diskShape.r
+      y: 0.8*H.diskShape.r
+      color: Colors.black
+      fontSize: Global.labelSize
+   }
 }
 
 forall Point p; HyperbolicPlane H
@@ -145,22 +153,39 @@ where PassesThrough( g, p0, p1 ) {
    g.shape.r = sqrt( LOCAL.wx*LOCAL.wx + LOCAL.wy*LOCAL.wy )
 }
 
+forall Geodesic g; Geodesic h; IdealPoint p
+where PerpendicularTo( g, h, p ) {
+
+   LOCAL.cx = g.shape.x
+   LOCAL.cy = g.shape.y
+   LOCAL.px = p.dotShape.x
+   LOCAL.py = p.dotShape.y
+   LOCAL.ux = LOCAL.cx - LOCAL.px
+   LOCAL.uy = LOCAL.cy - LOCAL.py
+   LOCAL.d = sqrt( LOCAL.ux*LOCAL.ux + LOCAL.uy*LOCAL.uy )
+
+   g.shape.strokeColor = Colors.red
+   
+   encourage equal( g.shape.r, LOCAL.d )
+   ensure orthogonalCircles( g.shape, h.shape )
+}
+
 -- Diagram-specific constants
 
 IdealPoint `pi` {
-   override `pi`.angle = -80.0
+   override `pi`.angle = -130.0
 }
 
 IdealPoint `pj` {
-   override `pj`.angle = 80.0
+   override `pj`.angle = 110.0
 }
 
 IdealPoint `pk` {
-   override `pk`.angle = 170.0
+   override `pk`.angle = 140.0
 }
 
 IdealPoint `pl` {
-   override `pl`.angle = -20.0
+   override `pl`.angle = 10.0
 }
 
 Geodesic `gkl` {
