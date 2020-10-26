@@ -1,4 +1,4 @@
-# React-Renderer
+# penrose-web
 
 See the wiki for more details.
 

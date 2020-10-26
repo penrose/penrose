@@ -16,7 +16,7 @@
 
 * Run `make start-dev` if you haven't already.
 
-* Wait for `make start-dev` to finish such that you see the message `You can now view react-renderer in the browser`.
+* Wait for `make start-dev` to finish such that you see the message `You can now view penrose-web in the browser`.
 
 * Enter `make shell-dev` in another terminal and run your desired domain.
 

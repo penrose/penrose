@@ -1,10 +1,15 @@
+import * as React from "react";
+
 const fs = require("fs");
 const mathjax = require("mathjax-node");
 const {
-  propagateUpdate,
-} = require("../react-renderer/src/engine/PropagateUpdate");
-const Canvas = require("../react-renderer/src/ui/Canvas");
-const Packets = require("../react-renderer/src/packets");
+  Canvas,
+  EngineUtils,
+  Packets,
+  PropagateUpdate,
+  Optimizer,
+  Evaluator,
+} = require("penrose-web");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 const chalk = require("chalk");
@@ -22,6 +27,7 @@ Usage:
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
+  "type": "module"
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
 `;
 
@@ -48,7 +54,7 @@ const nonZeroConstraints = (
 const runPenrose = (packet: object) =>
   new Promise((resolve, reject) => {
     const penrose = spawn("penrose", ["runAPI"]);
-    penrose.stdin.setEncoding("utf-8");
+    // penrose.stdin.setEncoding("utf-8");
     penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
     penrose.stdout.on("data", async (d: { toString: () => string }) => {
@@ -67,17 +73,17 @@ const runPenrose = (packet: object) =>
  * @param includeRendered whether to include the rendered SVG nodes in the output state
  */
 const collectLabels = async (state: any, includeRendered: boolean) => {
-  if (!state.shapesr) {
-    console.error(`Could not find shapesr key in returned state: ${state}`);
+  if (!state.shapes) {
+    console.error(`Could not find shapes key in returned state: ${state}`);
     return;
   }
-  const allShapes = state.shapesr;
+  const allShapes = state.shapes;
 
   const collected = await Promise.all(
-    allShapes.map(async ([type, obj]: [string, any]) => {
-      if (type === "Text" || type === "TextTransform") {
+    allShapes.map(async ({ shapeType, properties }: any) => {
+      if (shapeType === "Text" || shapeType === "TextTransform") {
         const data = await mathjax.typeset({
-          math: obj.string.contents,
+          math: properties.string.contents,
           format: "TeX",
           svg: true,
           svgNode: true,
@@ -87,45 +93,49 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
         });
         if (data.errors) {
           console.error(
-            `Could not render ${obj.string.contents}: `,
+            `Could not render ${properties.string.contents}: `,
             data.errors
           );
           return;
         }
         const { width, height } = data;
-        const textGPI = { ...obj };
+        const textGPI = { ...properties };
         const SCALE_FACTOR = 7; // HACK: empirically determined conversion factor from em to Penrose unit
-
-        // Take substring to omit `ex`
-        textGPI.w.updated =
+        const computedWidth =
           +width.substring(0, width.length - 2) * SCALE_FACTOR;
-        textGPI.h.updated =
+        const computedHeight =
           +height.substring(0, height.length - 2) * SCALE_FACTOR;
 
-        data.svgNode.setAttribute("width", textGPI.w.updated);
-        data.svgNode.setAttribute("height", textGPI.h.updated);
+        // Take substring to omit `ex`
+        textGPI.w.updated = { tag: "FloatV", contents: computedWidth };
+        textGPI.h.updated = { tag: "FloatV", contents: computedHeight };
+
         data.svgNode.setAttribute(
           "style",
-          `font-size: ${obj.fontSize.contents}`
+          `font-size: ${properties.fontSize.contents}`
         );
+        // TODO: this is not setting the width and height correctly, why?
+        data.svgNode.setAttribute("width", computedWidth.toString());
+        data.svgNode.setAttribute("height", computedHeight.toString());
 
         if (includeRendered) {
           textGPI.rendered = {
             contents: data.svgNode,
           };
         }
-        return [type, textGPI];
+        return { shapeType, properties: textGPI };
       }
-      return [type, obj];
+      return { shapeType, properties };
     })
   );
   // TODO: images (see prepareSVG method in canvas)
-  const sortedShapes = await Canvas.default.sortShapes(
-    collected,
-    state.shapeOrdering
-  );
+  const sortedShapes = await Canvas.sortShapes(collected, state.shapeOrdering);
+  const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
   // update the state with newly generated labels and label dimensions
-  const updated = await propagateUpdate({ ...state, shapes: sortedShapes });
+  const updated = await PropagateUpdate.insertPending({
+    ...state,
+    shapes: nonEmpties,
+  });
   return updated;
 };
 
@@ -150,6 +160,8 @@ const singleProcess = async (
   const trio = [sub, sty, dsl].map((arg) =>
     fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
   );
+
+  // Compilation
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
   const compilePacket = Packets.CompileTrio(...trio);
@@ -168,24 +180,36 @@ const singleProcess = async (
     console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
     process.exit(1);
   }
+
+  // State preparation: decode, autodiff types, and evaluation
+  const decodedState = Evaluator.decodeState(compiledState.contents[0]);
+  const stateAD = {
+    ...decodedState,
+    translation: EngineUtils.makeTranslationDifferentiable(
+      decodedState.translation
+    ),
+  };
+  const stateEvaled = Evaluator.evalShapes(stateAD);
+
+  // Labeling and resolving pending vars
   const labelStart = process.hrtime();
-  const initialState = await collectLabels(compiledState.contents[0], false);
+  const initialState = await collectLabels(stateEvaled, false);
   const labelEnd = process.hrtime(labelStart);
 
   console.log(`Stepping for ${out} ...`);
-  const convergePacket = Packets.StepUntilConvergence(initialState);
+
   const convergeStart = process.hrtime();
-  const optimizerOutput = await runPenrose(convergePacket);
+  const optimizedState = await Optimizer.stepUntilConvergence(initialState);
   const convergeEnd = process.hrtime(convergeStart);
 
-  const optimizedState = JSON.parse(optimizerOutput).contents;
   // We don't time this individually since it's usually memoized anyway
-  const state = await collectLabels(optimizedState, true);
+  const labeledState: any = await collectLabels(optimizedState, true);
 
   // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
+
   const canvas = ReactDOMServer.renderToString(
-    <Canvas.default data={state} lock={true} />
+    <Canvas data={labeledState} lock={true} />
   );
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);

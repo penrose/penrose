@@ -34,8 +34,8 @@ class Canvas extends React.Component<ICanvasProps> {
     ); // assumes that all names are unique
   };
 
-  public static notEmptyLabel = ({ properties }: any) => {
-    return name === "Text" ? !(properties.string.contents === "") : true;
+  public static notEmptyLabel = ({ shapeType, properties }: any) => {
+    return shapeType === "Text" ? !(properties.string.contents === "") : true;
   };
 
   /**
@@ -52,10 +52,8 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = makeTranslationDifferentiable(state.translation);
     const stateAD = {
       ...state,
-      translation: translationAD
+      translation: translationAD,
     };
-
-    console.log("processData varyingValues", state.varyingValues);
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
@@ -309,19 +307,20 @@ class Canvas extends React.Component<ICanvasProps> {
         viewBox={`0 0 ${canvasSize[0]} ${canvasSize[1]}`}
       >
         <desc>
-          {`This diagram was created with Penrose (https://penrose.ink)${penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          {`This diagram was created with Penrose (https://penrose.ink)${
+            penroseVersion ? " version " + penroseVersion : ""
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes.map(this.renderGPI)}
+        {shapes && shapes.map(this.renderGPI)}
       </svg>
     );
   }

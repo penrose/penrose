@@ -3,7 +3,7 @@ jobs:
   docs-deploy:
     docker:
       - image: circleci/node:11.10.1
-    working_directory: ~/penrose/react-renderer
+    working_directory: ~/penrose/penrose-web
     steps:
       - checkout:
           path: ~/penrose
@@ -33,26 +33,26 @@ jobs:
       - checkout:
           path: ~/penrose
       - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ arch }}
+          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ arch }}
       - run:
           name: Install npm deps
           command: npm install
-          working_directory: ~/penrose/react-renderer
+          working_directory: ~/penrose/penrose-web
       - save_cache:
-          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ arch }}
+          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ arch }}
           paths:
-            - ~/penrose/react-renderer/node_modules
+            - ~/penrose/penrose-web/node_modules
       - run:
           name: Build normally
           command: npm run build
-          working_directory: ~/penrose/react-renderer
+          working_directory: ~/penrose/penrose-web
       - run:
           name: Build-lib
           command: npm run build-lib
-          working_directory: ~/penrose/react-renderer
+          working_directory: ~/penrose/penrose-web
       - store_artifacts:
-          path: ~/penrose/react-renderer/build
-          destination: react-renderer-built
+          path: ~/penrose/penrose-web/build
+          destination: penrose-web-built
   build:
     docker:
       - image: fpco/stack-build:lts-13.24
@@ -115,19 +115,35 @@ jobs:
       - attach_workspace:
           at: ~/.local/bin
       - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
+          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
       - run:
-          name: Install deps for react-renderer
+          name: Install deps for penrose-web
           command: npm install
-          working_directory: ~/penrose/react-renderer
+          working_directory: ~/penrose/penrose-web
+      - run:
+          name: Build penrose-web as a library
+          command: npm run build-lib
+          working_directory: ~/penrose/penrose-web
+      - run:
+          name: Create link penrose-web
+          command: sudo npm link
+          working_directory: ~/penrose/penrose-web
+      - run:
+          name: Link to penrose-web in automator
+          command: npm link penrose-web
+          working_directory: ~/penrose/automator
       - run:
           name: Install deps for automator
           command: npm install
           working_directory: ~/penrose/automator
+      - run:
+          name: Link to penrose-web in automator again
+          command: npm link penrose-web
+          working_directory: ~/penrose/automator
       - save_cache:
-          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
+          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
           paths:
-            - ~/penrose/react-renderer/node_modules
+            - ~/penrose/penrose-web/node_modules
             - ~/penrose/automator/node_modules
       - run:
           name: Make output dir
