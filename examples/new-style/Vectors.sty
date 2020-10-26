@@ -42,7 +42,7 @@ Vectors {
     forall VectorSpace U {
         scalar axisSize = const.vectorSpaceSize / 2 -- This should get promoted to float
         vec2 U.origin = (?, ?)
-        shorthand o = U.origin
+        vec2 o = U.origin
 
         U.shape = Square {
             center : U.origin
@@ -94,7 +94,7 @@ Vectors {
 
        vec2 u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
 
-       shorthand contains = functions.contains
+       function contains = functions.contains
        ensure contains(U.shape, u.shape)
        ensure contains(U.shape, u.text)
        ensure Constraints.atDist(u.shape, u.text, 5.0)

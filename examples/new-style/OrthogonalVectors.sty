@@ -34,7 +34,7 @@ OrthogonalVectors {
           vec2 ptLR = ptL + len * dirR
           vec2[] pts = [ptL, ptLR, ptR]
 
-          shorthand toPath = functions.pathFromPoints
+          function toPath = functions.pathFromPoints
 
           -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
           shape perpMark = Curve {
@@ -45,7 +45,7 @@ OrthogonalVectors {
           }
 
           -- Make sure vectors are orthogonal (use ensure?)
-          shorthand eq = functions.equal
+          function eq = functions.equal
           encourage eq(M.dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
           layer v.shape above LOCAL.perpMark
@@ -58,7 +58,8 @@ OrthogonalVectors {
           -- Usually, the unit vector shouldn't need to know about orthogonal vectors
           -- but we need to position the unit mark so it doesn't overlap with the "inside" of the two vectors
 
-          vec2 strokeWidth = 2
+          scalar strokeWidth = 2
+          function toPath = functions.pathFromPoints
 
           -- The start and end of the body of the unit marker line
           -- NOTE: We need to have lists of vectors
@@ -77,7 +78,7 @@ OrthogonalVectors {
 
           matrix2x2 rot90CW = ((0, 1), (-1, 0))
           vec2 markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
-          shorthand c = const.barSize
+          function c = const.barSize
           vec2 halfvec = c * markNormal
 
           shape v.unitMarkerEnd1 = Curve {
