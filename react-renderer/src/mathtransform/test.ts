@@ -1,23 +1,29 @@
-import {TSArrayType} from 'jscodeshift'
+import {ASTNode, ASTPath, BinaryExpression, Collection, JSCodeshift, Node, TSAnyKeyword, TSBooleanKeyword, TSNeverKeyword, TSNullKeyword, TSNumberKeyword, TSObjectKeyword, TSStringKeyword, TSSymbolKeyword, TSThisType, TSTypeReference, TSUndefinedKeyword, TSUnknownKeyword, TSVoidKeyword, UnaryExpression} from 'jscodeshift'
+import {CommentKind, IdentifierKind} from "./node_modules/ast-types/gen/kinds" // todo update PATH!!  
 
 module.exports = function(fileInfo: any, api: any) {
-    const KWTYPS: string[] = [ // Define all the simple keyword types.
-        "TSAnyKeyword",
-        "TSBigIntKeyword",
-        "TSBooleanKeyword",
-        "TSNeverKeyword",
-        "TSNullKeyword",
-        "TSNumberKeyword",
-        "TSObjectKeyword",
-        "TSStringKeyword",
-        "TSSymbolKeyword",
-        "TSUndefinedKeyword",
-        "TSUnknownKeyword",
-        "TSVoidKeyword",
-        "TSThisType",
-      ] // from https://github.com/benjamn/ast-types/blob/90a8e63d77fc6134bfd5bfcca793146259219246/def/typescript.ts
+    // const KWTYPS: string[] = [ // Define all the simple keyword types.
+    //     "TSAnyKeyword",
+    //     "TSBigIntKeyword",
+    //     "TSBooleanKeyword",
+    //     "TSNeverKeyword",
+    //     "TSNullKeyword",
+    //     "TSNumberKeyword",
+    //     "TSObjectKeyword",
+    //     "TSStringKeyword",
+    //     "TSSymbolKeyword",
+    //     "TSUndefinedKeyword",
+    //     "TSUnknownKeyword",
+    //     "TSVoidKeyword",
+    //     "TSThisType",
+    //   ] // from https://github.com/benjamn/ast-types/blob/90a8e63d77fc6134bfd5bfcca793146259219246/def/typescript.ts
+    // IMPORTANT: the types module for jscodeshift doesn't include the bigint typing, so I excluded it in the above array. If someone
+    // tries to transform it it will break, but I don't think this is likely at all.
+    type KWTYP = TSAnyKeyword | TSBooleanKeyword | TSNeverKeyword | TSNullKeyword | TSNumberKeyword |
+        TSObjectKeyword | TSStringKeyword | TSStringKeyword | TSUndefinedKeyword | TSUnknownKeyword |
+        TSVoidKeyword | TSThisType;
     // transforms binary op to call expression - essentially deconstructs and reconstructs the node
-    const BO2CE = (target: string, node: any) => {
+    const BO2CE = (target: string, node: BinaryExpression) => {
         const newCallee = j.identifier(target); // get new name of function
         const newArgs = [node.left, node.right];    // reorder arguments
         node.callee = newCallee;
@@ -59,8 +65,8 @@ module.exports = function(fileInfo: any, api: any) {
         
     }
     // find how a node should be translated and return the translated node
-    const transNodes = (nodes: any) => {
-        nodes.replaceWith((nodePath: any) => {
+    const transNodes = (nodes: Collection) => {
+        nodes.replaceWith((nodePath: ASTPath<Node>) => {
             const {node} = nodePath;
             const transformData = getTransformData(node);
 
@@ -70,25 +76,27 @@ module.exports = function(fileInfo: any, api: any) {
         })
     };
     const MARKTAG = "autodiff";
-    const j = api.jscodeshift;  
+    const j : JSCodeshift = api.jscodeshift;  
     // https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
-    // The AST explorer (https://astexplorer.net/) with typescript-eslint parser is also extremely helpful for figuring out parses.
+    // The AST explorer (https://astexplorer.net/) with typescript-eslint parser is also helpful for figuring out parses.
     
-    const isMarked = (comment: any) => comment.value.trim() === MARKTAG;
-    const needsTransform = (nodePath: any) : boolean => {
-        return (nodePath.value.leadingComments) && (nodePath.value.leadingComments.some(isMarked)); // if it is marked it needs transform
+    const isMarked = (comment: CommentKind) : boolean => comment.leading && comment.value.trim() === MARKTAG;
+    const needsTransform = (nodePath: ASTPath<Node>) : boolean => {
+        if ((nodePath.value.comments)) return nodePath.value.comments.some(isMarked); // if it is marked it needs transform
+        return false;
     }
     // which operation to transform it to, and how to transform it - e.g. binary op to call expression? unary op to call expression? etc.
-    const getTransformData = (node: any): any[] => {
-        if (node.type === "BinaryExpression") return BOPS[node.operator]
-        else if (node.type === "UnaryExpression") return UOPS[node.operator]
-        else if (node.type === "TSTypeReference") return TYPS[node.typeName.name]
+    const getTransformData = (node: Node): any[] => {
+        if (node.type === "BinaryExpression") return BOPS[(node as BinaryExpression).operator]
+        else if (node.type === "UnaryExpression") return UOPS[(node as UnaryExpression).operator]
+        // todo the next line excludes qualified types e.g. Foo.Bar as a type. need to fix it 
+        else if (node.type === "TSTypeReference") return TYPS[(((node as TSTypeReference).typeName) as IdentifierKind).name]
         else if (node.type in TYPS) return TYPS[node.type]
         else throw new Error("Error: Following node does not have transformable property: \n" + node);
     };
 
     const root = j(fileInfo.source);
-    const tNodes = root.find(j.Node).filter((nodePath: any) => needsTransform(nodePath));
+    const tNodes = root.find(j.Node).filter((nodePath: ASTPath<Node>) => needsTransform(nodePath));
     
     // translate all bops
     const bopNodes = tNodes.find(j.BinaryExpression);

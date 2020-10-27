@@ -1,6 +1,7 @@
 export const objDict = {
-  // autodiff
-    above: (x: number[]): number =>
-      // (getY top - getY bottom - offset) ^ 2
-      t2 - x * 34 + (2 / 4)
+    above: (x: number[]): number => {
+      //autodiff
+      x = t2 - z * 34 + (2 / 4)
+      y = a + bigint
+    }
 }
