@@ -5,19 +5,22 @@ import Penrose.Math as M -- Can you import a specific name, like "dot"?
 OrthogonalVectors {
     const {
       scalar perpLen = 25.0
+      scalar[] perpLenList = [2.0, 3.0]
       -- For unit mark
       scalar markerPadding = 15.0
       scalar barSize = 5.0
     }
 
     functions {
-        objective equal = << (x: VarAD, y: VarAD) => squared(sub(x, y)) >>
+        objective equal = {{ (x: VarAD, y: VarAD) => squared(sub(x, y)) }}
 
-        function pathFromPoints = << (setting: string, pts: [Pt2]): IPathDataV<VarAD> => {
-              const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
-              const path: SubPath<VarAD> = { tag: setting, contents: elems };
-              return { tag: "PathDataV", contents: [path] };
-            } >>
+        function pathFromPoints = {{
+            (setting: string, pts: [Pt2]): IPathDataV<VarAD> => {
+                const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
+                const path: SubPath<VarAD> = { tag: setting, contents: elems };
+                return { tag: "PathDataV", contents: [path] };
+            } 
+        }} 
     }
 
     forall Vector u; Vector v

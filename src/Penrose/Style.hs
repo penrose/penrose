@@ -38,6 +38,27 @@ import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer       as L
 import           Text.Show.Pretty                 (ppShow)
 
+--------------------------------------------------------------------------------
+-- Plugin Parser
+
+-- Module name, optional alias
+data Import = Import ModulePath (Maybe String)
+data ModulePath = ModulePath String (Maybe String)
+type Imports = [Import]
+
+-- parseImports :: String -> String -> VarEnv -> Either CompilerError Imports
+
+importStmt :: Parser Import
+importStmt = symbol "import" >> (Import <$> modulePath <*> optional importAlias) 
+
+importAlias :: Parser String
+importAlias = symbol "as" >> identifier
+
+imports :: Parser Imports
+imports = importStmt `endBy` newline' -- zero or multiple instantiators
+
+modulePath :: Parser ModulePath
+modulePath = ModulePath <$> identifier <*> optional dotId
 
 --------------------------------------------------------------------------------
 -- Plugin Parser
@@ -92,8 +113,14 @@ data Header = Select Selector | Namespace StyVar
 -- | A Style block contains a list of statements
 type Block = [Stmt]
 
+-- | A block with a header
+type HeaderBlock = (Header, Block)
+
+-- | A top-level module in Style that contains multiple header blocks
+data ModuleBlock = Module String [HeaderBlock]
+
 -- | A Style program is a collection of (header, block) pairs
-type StyProg = [(Header, Block)]
+type StyProg = [ModuleBlock]
 
 -------------------- Style selector grammar
 -- TODO: write a NOTE about the namespace situation between Substance and Style.
@@ -166,6 +193,8 @@ data Selector = Selector {
 
 type Field = String
 
+data StyType = TypeOf String | ListOf String deriving (Show, Eq, Typeable)
+
 -- | A path consist of a Substance or Style id, a shape name, and (optionally)
 -- a property name
 data Path
@@ -176,7 +205,8 @@ data Path
 
 -- | A statement in the Style language
 data Stmt
-    = Assign Path Expr
+    = PathAssign StyType Path Expr
+    | VarAssign StyType String Expr
     | Override Path Expr
     | Delete Path
     | AnonAssign Expr -- Anonymous statement; expression which is automatically given a name by the compiler (LOCAL.id)
@@ -223,6 +253,31 @@ data BinaryOp = BPlus | BMinus | Multiply | Divide | Exp
 
 --------------------------------------------------------------------------------
 -- Style Parser
+styleTypes :: [String] 
+styleTypes 
+    = [
+        "scalar",
+        "int",
+        "bool",
+        "string",
+        "path",
+        "color",
+        "file",
+        "style",
+        "shape",
+        "vec2",
+        "vec3",
+        "vec4",
+        "mat2x2",
+        "mat3x3",
+        "mat4x4",
+        "function",
+        "objective",
+        "constraint"
+        ]
+
+styleType :: Parser StyType
+styleType = TypeOf <$> lowerId <|> ListOf <$> lowerId <* symbol "[]"
 
 -- | 'parseStyle' runs the actual parser function: 'styleParser', taking in a program String and parse it into an AST.
 parseStyle :: String -> String -> VarEnv -> Either CompilerError StyProg
@@ -241,8 +296,14 @@ styleParser' = between scn eof styProg
 styProg :: Parser StyProg
 styProg =
     plugins >>  -- ignore plugin statements
-    some headerBlock
-    where headerBlock = (,) <$> header <*> braces block <* scn
+    imports >>  -- ignore import statements
+    some moduleBlock
+
+moduleBlock :: Parser ModuleBlock
+moduleBlock = Module <$> upperId <*> braces (some headerBlock)
+
+headerBlock :: Parser HeaderBlock
+headerBlock = (,) <$> header <*> braces block <* scn
 
 header :: Parser Header
 header = tryChoice [Select <$> selector, Namespace <$> styVar]
@@ -265,6 +326,7 @@ selector = do
           namespace = rword "as" >> identifier
           withAndWhere = runPermutation $ (,) <$> toPermutationWithDefault [] wth <*> toPermutationWithDefault [] whr
 
+-- TODO: uppercase only?
 styVar :: Parser StyVar
 styVar = StyVar <$> identifier
 
@@ -341,15 +403,16 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [assign, anonAssign, override, delete]
+stmt = tryChoice [pathAssign, anonAssign, override, delete]
 
 -- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
 anonExpr :: Parser Expr
 anonExpr = tryChoice [layeringExpr, objFn, constrFn]
 
-anonAssign, assign, override, delete :: Parser Stmt
+anonAssign, pathAssign, varAssign, override, delete :: Parser Stmt
 anonAssign = AnonAssign <$> anonExpr
-assign   = Assign   <$> path <*> (eq >> expr)
+pathAssign = PathAssign <$> styleType <*> path <*> (eq >> expr)
+varAssign = VarAssign <$> styleType <*> identifier <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 
@@ -450,7 +513,9 @@ tOperators =
 path :: Parser Path
 path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
        FieldPath <$> bindingForm <*> dotId
-       where dotId = dot >> identifier
+
+dotId :: Parser String
+dotId = dot >> identifier
 
 compFn, objFn, constrFn :: Parser Expr
 compFn   = CompApp <$> identifier <*> exprsInParens
@@ -877,7 +942,7 @@ substituteBlockExpr lv subst expr =
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
     case line of
-    Assign   path expr -> Assign (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
+    PathAssign t path expr -> PathAssign t (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
     Override path expr -> Override (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
     Delete   path      -> Delete $ substitutePath lv subst path
 
@@ -1325,7 +1390,7 @@ addPaths override = foldM (\trans (p, e) -> addPath override trans p e)
 translateLine :: (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
 translateLine trans stmt =
     case stmt of
-    Assign path expr   -> addPath False trans path (OptEval expr)
+    PathAssign _ path expr   -> addPath False trans path (OptEval expr)
     Override path expr -> addPath True trans path (OptEval expr)
     Delete path        -> deletePath trans path
 
@@ -1512,7 +1577,7 @@ nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                          -- Assign the path "local.ANON_$counter" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
                                            let path = FieldPath (BStyVar (StyVar localKeyword)) (anonKeyword ++ "_" ++ show i)
-                                               stmt = Assign path e in
+                                               stmt = PathAssign (TypeOf "auto") path e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])
 
