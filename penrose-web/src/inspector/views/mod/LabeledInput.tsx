@@ -1,5 +1,5 @@
 import * as React from "react";
-import {toHex} from "../../../Util";
+import {toHex} from "../../../utils/Util"
 import * as _ from "lodash";
 
 interface IProps {
