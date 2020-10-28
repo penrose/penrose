@@ -80,8 +80,8 @@ const prettyPrintExpr = (arg: Expr): string => {
   } else {
     // TODO: Finish writing pretty-printer for rest of expressions (UOp, BinOp)
     const res = JSON.stringify(arg);
-    console.error("arg", arg);
-    console.error(`argument of type ${arg.tag} not yet handled in pretty-printer; returning stopgap`, res);
+    // log.trace("arg", arg);
+    // log.trace(`warning: argument of type ${arg.tag} not yet handled in pretty-printer; returning stopgap`, res);
     return res;
   }
 };

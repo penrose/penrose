@@ -898,7 +898,7 @@ export const evalEnergyOnCustom = (state: State) => {
 
     // TODO make this check more robust to empty lists of objectives/constraints
     if (!objEngs[0] && !constrEngs[0]) {
-      throw Error("no objectives and no constraints");
+      log.trace("WARNING: no objectives and no constraints");
     }
 
     // This is fixed during the whole optimization
