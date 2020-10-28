@@ -178,6 +178,17 @@ export const constrDict = {
       const d = ops.vdist(sq, fns.center(s2));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
 
+    // } else if (t1 === "Rectangle" && t2 === "Circle") {
+    //    // rectangle center (px,py) and width/height
+    //    const px = s1.x.contents;
+    //    const py = s1.y.contents;
+    //    const w = s1.w.contents;
+    //    const h = s1.h.contents;
+    //    // circle center (cx,cy) and radius r
+    //    const cx = s2.x.contents;
+    //    const cy = s2.y.contents;
+    //    const r = s2.r.contents;
+    //    return max( absVal( cx-px ) - w/2.0, absVal( cy-py ) - h/2.0 );
     } else if (t1 === "Rectangle" && t2 === "Text") {
       // contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
       // TODO: implement precisely, max (w, h)? How about diagonal case?
@@ -218,6 +229,10 @@ export const constrDict = {
         const offset = mul(varOf(0.4), s2.r.contents);
         return sub(sub(s1.r.contents, s2.r.contents), offset);
      } else throw new Error(`${[t1, t2]} not supported for smallerThan`);
+  },
+
+  lessThan: (x: VarAD, y: VarAD) => {
+     return squared(sub(x, y));
   },
 
   equalTo: (x: VarAD, y: VarAD) => {

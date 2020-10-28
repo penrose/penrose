@@ -71,4 +71,11 @@ x.shape = Circle {
 
 works fine.  But the compiler doesn't complain about the former.
 
+It's really weird that you have to specify a polygon like this:
+    pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
+Doesn't having a special function "triangle" defeat the purpose of having generic lists?
+
+What's the point of having constructors with named parameters if those parameters can't be accessed from the object itself?  E.g., to write a run for a triangle that gets constructed from three points, I have to name all three points again.  Don't see how this is any better/different from a predicate (just slightly different syntax).
+
+
 

@@ -41,3 +41,16 @@ Label pi $i$
 Label pj $j$
 Label pk $k$
 
+-- HyperbolicPlane H
+-- IdealPoint i, j, k
+-- i ∈ H
+-- j ∈ H
+-- k ∈ H
+-- Geodesic gij, a
+-- 
+-- PassesThrough( gij, i, j )
+-- PerpendicularTo( a, gij, k )
+-- 
+-- Label i $p_i$
+-- Label j $p_j$
+-- Label k $p_k$
