@@ -39,7 +39,7 @@ import qualified Text.Megaparsec.Char.Lexer       as L
 import           Text.Show.Pretty                 (ppShow)
 
 --------------------------------------------------------------------------------
--- Plugin Parser
+-- Import Parser
 
 -- Module name, optional alias
 data Import = Import ModulePath (Maybe String)
@@ -48,14 +48,14 @@ type Imports = [Import]
 
 -- parseImports :: String -> String -> VarEnv -> Either CompilerError Imports
 
+imports :: Parser Imports
+imports = importStmt `endBy` newline' -- zero or multiple import statements
+
 importStmt :: Parser Import
 importStmt = symbol "import" >> (Import <$> modulePath <*> optional importAlias) 
 
 importAlias :: Parser String
 importAlias = symbol "as" >> identifier
-
-imports :: Parser Imports
-imports = importStmt `endBy` newline' -- zero or multiple instantiators
 
 modulePath :: Parser ModulePath
 modulePath = ModulePath <$> identifier <*> optional dotId
@@ -116,8 +116,11 @@ type Block = [Stmt]
 -- | A block with a header
 type HeaderBlock = (Header, Block)
 
+-- | Blocks with headers
+type HeaderBlocks = [HeaderBlock]
+
 -- | A top-level module in Style that contains multiple header blocks
-data ModuleBlock = Module String [HeaderBlock]
+data ModuleBlock = Module String HeaderBlocks deriving (Show, Eq, Typeable)
 
 -- | A Style program is a collection of (header, block) pairs
 type StyProg = [ModuleBlock]
@@ -200,6 +203,7 @@ data StyType = TypeOf String | ListOf String deriving (Show, Eq, Typeable)
 data Path
     = FieldPath BindingForm Field                 -- example: x.val
     | PropertyPath BindingForm Field Property     -- example: x.shape.center
+    | TypePropertyPath 
     -- NOTE: Style writer must use backticks in the block to indicate Substance variables
     deriving (Show, Eq, Typeable, Ord)
 
@@ -289,10 +293,10 @@ parseStyle styFile styIn env =
 -- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: VarEnv -> BaseParser StyProg
 styleParser env = evalStateT styleParser' $ Just env
-styleParser' = between scn eof styProg
+    where styleParser' = between scn eof styProg
 
 -- | `styProg` parses a Style program, consisting of a collection of one or
--- more blocks
+-- more module bolocks
 styProg :: Parser StyProg
 styProg =
     plugins >>  -- ignore plugin statements
@@ -403,7 +407,7 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [pathAssign, anonAssign, override, delete]
+stmt = tryChoice [pathAssign, varAssign, anonAssign, override, delete]
 
 -- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
 anonExpr :: Parser Expr
@@ -769,7 +773,7 @@ checkNamespace name varEnv =
 
 -- Returns a sel env for each selector in the Style program, in the same order
 -- TODO: add these judgments to the paper
-checkSels :: VarEnv -> StyProg -> [SelEnv]
+checkSels :: VarEnv -> HeaderBlocks -> [SelEnv]
 checkSels varEnv prog =
           let selEnvs = map (checkPair varEnv) prog in
           let errors = concatMap sErrors selEnvs in
@@ -1131,7 +1135,7 @@ find_substs_sel _ _ _ (Namespace _, _) = [] -- No substitutions for a namespace 
 
 -- TODO: add note on prog, header judgment to paper?
 -- Find a list of substitutions for each selector in the Sty program.
-find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> [SelEnv] -> [[Subst]]
+find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> HeaderBlocks -> [SelEnv] -> [[Subst]]
 find_substs_prog varEnv subEnv subProg styProg selEnvs =
     let sels = map fst styProg in
     let selsWithEnvs = zip sels selEnvs in
@@ -1546,7 +1550,7 @@ evalPluginAccess valMap trans =
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
 translateStyProg :: forall a . (Autofloat a) =>
-    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap -> [J.StyVal] ->
+    VarEnv -> C.SubEnv -> C.SubProg -> HeaderBlocks -> C.LabelMap -> [J.StyVal] ->
     Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg labelMap styVals =
     let numberedProg = zip styProg [0..] in -- For creating unique local var names
@@ -1568,7 +1572,7 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
 anonKeyword :: String
 anonKeyword = "ANON"
 
-nameAnonStatements :: StyProg -> StyProg
+nameAnonStatements :: HeaderBlocks -> HeaderBlocks
 nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                    where nameAnonBlock :: Block -> Block
                          nameAnonBlock b = let (count, res) = foldl nameAnonStatement (0, []) b in res
@@ -1638,6 +1642,7 @@ lookupStyVal subName propName vmap =
          Nothing -> error ("plugin accessors in style: for access " ++ toAccess subName propName ++ ", property does not exist")
          Just val -> val
     where toAccess s1 s2 = s1 ++ "." ++ s2
+
 
 --------------------------------------------------------------------------------
 -- Debugging

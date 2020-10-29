@@ -1302,7 +1302,7 @@ genOptProblemAndState trans optConfig
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- TODO: enable logger
 compileStyle ::
-     StyProg
+     HeaderBlocks
   -> C.SubOut
   -> [J.StyVal]
   -> OptConfig
