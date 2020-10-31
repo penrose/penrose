@@ -278,7 +278,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
         xs,
         state.params.currObjective,
         state.params.currGradient,
-        state.params.lbfgsInfo
+        state.params.lbfgsInfo,
+        state.varyingPaths.map(p => prettyPrintProperty(p))
       );
       xs = res.xs;
 
@@ -768,7 +769,8 @@ const minimize = (
   xs0: number[],
   f: (zs: number[]) => number,
   gradf: (zs: number[]) => number[],
-  lbfgsInfo: LbfgsParams
+  lbfgsInfo: LbfgsParams,
+  varyingPaths: string[]
 ) => {
   // const numSteps = 1;
   // const numSteps = 1e2;
@@ -837,6 +839,16 @@ const minimize = (
 
     if (isNaN(fxs) || isNaN(normGrad)) {
       console.error("-----");
+
+      const pathMap = _.zip(varyingPaths, xs, gradfxs) as [String, number, number][];
+      console.log("[varying paths, current val, gradient of val]", pathMap);
+
+      for (let [name, x, dx] of pathMap) {
+        if (isNaN(dx)) {
+          console.error("NaN in varying val's gradient", name, "(current val):", x);
+        }
+      }
+
       console.error("i", i);
       console.error("num steps per display cycle", numSteps);
       console.error("input (xs):", xs);
