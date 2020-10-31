@@ -795,7 +795,6 @@ const minimize = (
   while (i < numSteps) {
     fxs = f(xs);
     gradfxs = gradf(xs);
-    normGradfxs = normList(gradfxs);
 
     const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(
       xs,
@@ -803,6 +802,9 @@ const minimize = (
       newLbfgsInfo
     );
     newLbfgsInfo = updatedLbfgsInfo;
+
+    // Don't take the Euclidean norm. According to Boyd (485), we should use the Newton descent check, with the norm of the gradient pulled back to the nicer space. 
+    normGradfxs = dot(gradfxs, gradfxsPreconditioned);
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       // This is on the original gradient, not the preconditioned one
