@@ -1,6 +1,4 @@
 import { Packets, Canvas } from "./module";
-import Inspector from "./inspector/Inspector";
-import * as React from "react";
 
 export enum ConnectionStatus {
   socketOpen = "SOCKET_OPEN",
