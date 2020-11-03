@@ -103,7 +103,11 @@ stringLiteral = doubleQuotedString
 -------------------- Style Program grammar
 
 -- | A variable in Style
-newtype StyVar  = StyVar String
+newtype StyVar = StyVar String
+    deriving (Show, Eq, Ord, Typeable)
+
+-- | A local variable in Style blocks
+newtype LocalVar = LocalVar String
     deriving (Show, Eq, Ord, Typeable)
 
 -- | A header of a block is either a selector or a namespace declaration
@@ -123,7 +127,8 @@ type HeaderBlocks = [HeaderBlock]
 data ModuleBlock = Module String HeaderBlocks deriving (Show, Eq, Typeable)
 
 -- | A Style program is a collection of (header, block) pairs
-type StyProg = [ModuleBlock]
+type StyProg = HeaderBlocks
+-- type StyProg = [ModuleBlock]
 
 -------------------- Style selector grammar
 -- TODO: write a NOTE about the namespace situation between Substance and Style.
@@ -209,8 +214,8 @@ data Path
 
 -- | A statement in the Style language
 data Stmt
-    = PathAssign StyType Path Expr
-    | VarAssign StyType String Expr
+    = PathAssign (Maybe StyType) Path Expr
+    | VarAssign (Maybe StyType) LocalVar Expr
     | Override Path Expr
     | Delete Path
     | AnonAssign Expr -- Anonymous statement; expression which is automatically given a name by the compiler (LOCAL.id)
@@ -230,6 +235,7 @@ data Expr
     | AFloat AnnoFloat
     | StringLit String
     | BoolLit Bool
+    | EVar LocalVar
     | EPath Path
     | CompApp String [Expr]
     | ObjFn String [Expr]
@@ -239,6 +245,10 @@ data Expr
     | UOp UnaryOp Expr
     | List [Expr]
     | Tuple Expr Expr
+    | Vector [Expr]
+    | Matrix [Expr]
+    | VectorAccess Expr Expr -- ^ Reference to vector, index
+    | MatrixAccess Expr Expr Expr -- ^ Reference to vector, index, index
     | ListAccess Path Integer
     | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
@@ -280,14 +290,20 @@ styleTypes
         "constraint"
         ]
 
+styleTypeWord :: Parser String
+styleTypeWord = (lexeme . try) (lowerId >>= check)
+  where
+    check t = if t `elem` styleTypes
+              then return t
+              else fail $ "type " ++ show t ++ " is not a valid Style type" 
 styleType :: Parser StyType
-styleType = TypeOf <$> lowerId <|> ListOf <$> lowerId <* symbol "[]"
+styleType = TypeOf <$> styleTypeWord <|> ListOf <$> styleTypeWord <* symbol "[]"
 
 -- | 'parseStyle' runs the actual parser function: 'styleParser', taking in a program String and parse it into an AST.
 parseStyle :: String -> String -> VarEnv -> Either CompilerError StyProg
 parseStyle styFile styIn env =
   case runParser (styleParser env) styFile styIn of
-    Left err  -> Left $ StyleParse $ (errorBundlePretty err)
+    Left err  -> Left $ StyleParse $ errorBundlePretty err
     Right res -> Right res
 
 -- | 'styleParser' is the top-level function that parses a Style proram
@@ -301,7 +317,8 @@ styProg :: Parser StyProg
 styProg =
     plugins >>  -- ignore plugin statements
     imports >>  -- ignore import statements
-    some moduleBlock
+    some headerBlock
+    -- some moduleBlock
 
 moduleBlock :: Parser ModuleBlock
 moduleBlock = Module <$> upperId <*> braces (some headerBlock)
@@ -333,6 +350,9 @@ selector = do
 -- TODO: uppercase only?
 styVar :: Parser StyVar
 styVar = StyVar <$> identifier
+
+styLocalVar :: Parser LocalVar
+styLocalVar = LocalVar <$> identifier
 
 declPattern :: Parser [DeclPattern]
 declPattern = do
@@ -407,7 +427,7 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [pathAssign, varAssign, anonAssign, override, delete]
+stmt = tryChoice [varAssign, pathAssign, anonAssign, override, delete]
 
 -- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
 anonExpr :: Parser Expr
@@ -415,8 +435,8 @@ anonExpr = tryChoice [layeringExpr, objFn, constrFn]
 
 anonAssign, pathAssign, varAssign, override, delete :: Parser Stmt
 anonAssign = AnonAssign <$> anonExpr
-pathAssign = PathAssign <$> styleType <*> path <*> (eq >> expr)
-varAssign = VarAssign <$> styleType <*> identifier <*> (eq >> expr)
+pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
+varAssign = VarAssign <$> optional styleType <*> styLocalVar <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 
@@ -431,17 +451,23 @@ expr = tryChoice [
            compFn,
            list,
            tuple,
+           vector,
+           matrix,
            stringLit,
            boolLit
        ]
 
 pluginAccess :: Parser Expr
-pluginAccess = do
-    plugin <- identifier
-    name   <- bExpr
-    key    <- bExpr
-    return $ PluginAccess plugin name key
-    where bExpr = brackets expr
+pluginAccess = PluginAccess <$> quotes identifier <*> bExpr <*> bExpr
+
+vectorAccess :: Parser Expr
+vectorAccess = VectorAccess <$> pathOrVar <*> bExpr 
+
+matrixAccess :: Parser Expr
+matrixAccess = MatrixAccess <$> pathOrVar <*> bExpr <*> bExpr
+
+bExpr :: Parser Expr
+bExpr = brackets expr
 
 arithmeticExpr :: Parser Expr
 arithmeticExpr = makeExprParser aTerm aOperators
@@ -451,9 +477,14 @@ aTerm = tryChoice
     [
         compFn,
         pluginAccess,
+        matrixAccess,
+        vectorAccess,
         parens arithmeticExpr,
+        vector,
+        matrix,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
+        EVar   <$> styLocalVar,
         IntLit . fromIntegral <$> integer
     ]
 
@@ -518,6 +549,9 @@ path :: Parser Path
 path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
        FieldPath <$> bindingForm <*> dotId
 
+pathOrVar :: Parser Expr
+pathOrVar = try (EPath <$> path) <|> (EVar <$> styLocalVar)
+
 dotId :: Parser String
 dotId = dot >> identifier
 
@@ -529,9 +563,11 @@ constrFn = ConstrFn <$> (rword "ensure" >> identifier) <*> exprsInParens
 exprsInParens :: Parser [Expr]
 exprsInParens = parens $ expr `sepBy` comma
 
-list, tuple :: Parser Expr
+list, tuple, vector, matrix :: Parser Expr
 list = List <$> brackets (expr `sepBy1` comma)
-tuple = parens (Tuple <$> expr <*> (comma >> expr))
+tuple = braces (Tuple <$> expr <*> (comma >> expr))
+vector = Vector <$> parens (expr `sepBy1` comma)
+matrix = Matrix <$> parens (vector `sepBy1` comma)
 
 constructor :: Parser Expr
 constructor = do
@@ -551,7 +587,12 @@ stringLit :: Parser Expr
 stringLit = StringLit <$> (symbol "\"" >> manyTill L.charLiteral (try (symbol "\"")))
 
 annotatedFloat :: Parser AnnoFloat
-annotatedFloat = (question *> pure Vary) <|> Fix <$> float
+annotatedFloat = tryChoice [vary, floatNum, trailingFloat]
+    where 
+        vary = question *> pure Vary
+        floatNum = Fix <$> float
+        trailingFloat = Fix <$> (fromIntegral <$> integer) <* dot
+
 
 ------------------------------------------------------------------------
 -------- STYLE COMPILER
@@ -1581,7 +1622,7 @@ nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                          -- Assign the path "local.ANON_$counter" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
                                            let path = FieldPath (BStyVar (StyVar localKeyword)) (anonKeyword ++ "_" ++ show i)
-                                               stmt = PathAssign (TypeOf "auto") path e in
+                                               stmt = PathAssign Nothing path e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])
 

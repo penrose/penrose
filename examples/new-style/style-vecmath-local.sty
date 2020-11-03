@@ -1,16 +1,4 @@
-Colors {
-    black = #000000
-    white = rgba(1, 1, 1, 1)
-    lightBlue = rgba(1e-1, 0.1, 0.9, 1e-1)
-    darkBlue = rgba(lightBlue.r / 2, lightBlue.g / 2, lightBlue.b / 2, 0.5)
-    darkGray = rgba(0.4, 0.4, 0.4, 1)
-    gray = rgba(0.6, 0.6, 0.6, 1)
-    green = rgba(0, 0.8, 0, 1.)
-    blue = #0000ff
-    none = rgba(0, 0, 0, 0)
-}
-
-const {
+Const {
   perpLen = 25.0
   -- For unit mark
   markerPadding = 15.0
@@ -21,14 +9,27 @@ const {
   lineThickness = 1
 }
 
+Colors {
+    -- black = #000000
+    white = rgba(1, 1, 1, 1)
+    lightBlue = rgba(1e-1, 0.1, 0.9, 1e-1)
+    darkBlue = rgba(lightBlue.r / 2, lightBlue.g / 2, lightBlue.b / 2, 0.5)
+    darkGray = rgba(0.4, 0.4, 0.4, 1)
+    gray = rgba(0.6, 0.6, 0.6, 1)
+    green = rgba(0, 0.8, 0, 1)
+    -- blue = #0000ff
+    none = rgba(0, 0, 0, 0)
+}
+
 -- Just some weird definitions to test parser. Not used in rest of program
 testing {
-        a = (-1.0, ?)
-        v = (a + (2, 900)) / (4.0 + 3)
-        m = (a, (-1., 2.))
         x = { 1, {2, 3} }
         y = [-2., const.perpLen, const.markerPadding + 3]
-        z = Colors.black.g
+        a = (-1.0, ?)
+        a1 = (-1.0, 2.) + (1e5, 2.0)
+        m = (a, (-1., 2.))
+        v = (a + (2, 900)) / (4.0 + 3)
+        -- z = Colors.black.g
         asum = a[1] + a[0]
         c = 0
         b = 1
@@ -74,7 +75,7 @@ forall VectorSpace U {
     }
 }
 
-forall Vector u, VectorSpace U
+forall Vector u; VectorSpace U
 where In(u,U) {
   u.text = Text {
     -- center : (?, ?) -- This should be done automatically
@@ -95,7 +96,7 @@ where In(u,U) {
    contains = functions.contains
    ensure contains(U.shape, u.shape)
    ensure contains(U.shape, u.text)
-   ensure Constraints.atDist(u.shape, u.text, 5.0)
+   ensure atDist(u.shape, u.text, 5.0)
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -127,10 +128,10 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
       -- Make sure vectors are orthogonal (use ensure?)
       eq = functions.equal
-      encourage eq(M.dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
+      encourage eq(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
-      layer v.above LOCAL.perpMark
-      layer u.above LOCAL.perpMark
+      layer v.shape above LOCAL.perpMark
+      layer u.shape above LOCAL.perpMark
 }
 
 forall Vector v
