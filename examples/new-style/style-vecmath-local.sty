@@ -1,3 +1,4 @@
+
 Const {
   perpLen = 25.0
   -- For unit mark
@@ -23,6 +24,7 @@ Colors {
 
 -- Just some weird definitions to test parser. Not used in rest of program
 testing {
+  pluginVar = "ddg"["a"]["length"]
         x = { 1, {2, 3} }
         y = [-2., const.perpLen, const.markerPadding + 3]
         a = (-1.0, ?)
@@ -51,7 +53,7 @@ forall VectorSpace U {
     }
 
     U.xAxis = Arrow {
-           start : (o.x - axisSize, o.y)
+           start : (o[0] - axisSize, o[1])
              end : (o.x + axisSize, o.y)
        thickness : const.lineThickness
            style : "solid"

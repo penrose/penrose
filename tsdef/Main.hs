@@ -42,6 +42,8 @@ $(deriveTypeScript defaultOptions ''FieldExpr)
 -- $(deriveTypeScript defaultOptions ''Name)
 $(deriveTypeScript defaultOptions ''TagExpr)
 
+$(deriveTypeScript defaultOptions ''LocalVar)
+
 $(deriveTypeScript defaultOptions ''Expr)
 
 $(deriveTypeScript defaultOptions ''AnnoFloat)
@@ -103,6 +105,7 @@ main =
      (getTypeScriptDeclarations (Proxy :: Proxy Var)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy BindingForm)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy StyVar)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy LocalVar)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy Value)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy SubPath)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy HMatrix)) <>

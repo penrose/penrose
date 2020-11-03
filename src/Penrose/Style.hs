@@ -452,7 +452,7 @@ expr = tryChoice [
            list,
            tuple,
            vector,
-           matrix,
+        --    matrix, -- TODO: will never get to this case because vector and matrix have the same types
            stringLit,
            boolLit
        ]
