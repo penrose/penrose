@@ -611,6 +611,9 @@ interface IVarAD {
   gradNode: MaybeVal<VarAD>;
   index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
 
+  debug: boolean; // If true, this prints node debug info on evaluation
+  debugInfo: string;
+
   nodeVisited: boolean;
   // Now used to track whether this node (and its children) has already been computed in the codegen
   name: string; // Name of cached value for this node in codegen (e.g. `const x3 = x1 + x2;` <-- name of node is `x3`)
