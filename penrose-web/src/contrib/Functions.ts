@@ -14,6 +14,51 @@ import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin } f
 // These all return a Value<VarAD>
 export const compDict = {
 
+  // TODO: Refactoe derivative + derivativePre to be inlined as one case in evaluator
+  // NOTE: This is a special system function. Don't change it!
+  derivative: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
+    if (!optDebugInfo || !('gradient' in optDebugInfo) || !(optDebugInfo.gradient.size)) {
+      console.log("optDebugInfo", optDebugInfo);
+      console.error(`no derivative found for '${varName}'; returning 0`);
+      return {
+        tag: "FloatV",
+        contents: constOf(0.0)
+      };
+    }
+
+    if (optDebugInfo.gradient.has(varName)) {
+      return {
+        tag: "FloatV",
+        // TODO: Improve error if varName is not in map
+        contents: constOf(optDebugInfo.gradient.get(varName) as number)
+      };
+    }
+
+    throw Error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+  },
+
+  // NOTE: This is a special system function. Don't change it!
+  derivativePreconditioned: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
+    if (!optDebugInfo || !('gradientPreconditioned' in optDebugInfo) || !(optDebugInfo.gradientPreconditioned.size)) {
+      console.log("optDebugInfo", optDebugInfo);
+      console.error(`no derivative found for '${varName}'; returning 0`);
+      return {
+        tag: "FloatV",
+        contents: constOf(0.0)
+      };
+    }
+
+    if (optDebugInfo.gradientPreconditioned.has(varName)) {
+      return {
+        tag: "FloatV",
+        // TODO: Improve error if varName is not in map
+        contents: constOf(optDebugInfo.gradientPreconditioned.get(varName) as number)
+      };
+    }
+
+    throw Error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+  },
+
   // Assuming lists only hold floats
   get: (xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];

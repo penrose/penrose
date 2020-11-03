@@ -52,11 +52,19 @@ export const evalShapes = (s: State): State => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
   const varyingValuesDiff = s.varyingValues.map(differentiable);
-  s.varyingMap = genVaryMap(s.varyingPaths, varyingValuesDiff);
+  s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
+
   const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [
     Path,
     VarAD
   ][];
+
+  const optDebugInfo = {
+    gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
+    gradientPreconditioned: genPathMap(s.varyingPaths, s.params.lastGradientPreconditioned),
+  };
+
+  console.log("optDebugInfo", optDebugInfo); // COMBAK: Remove
 
   // Insert all varying vals
   const transWithVarying = insertVaryings(s.translation, varyingMapList);
@@ -72,7 +80,7 @@ export const evalShapes = (s: State): State => {
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
-      evalShape(e, tr, s.varyingMap, currShapes),
+      evalShape(e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
 
@@ -127,9 +135,12 @@ const evalFn = (
   trans: Translation,
   varyingMap: VaryMap<VarAD>
 ): FnDone<VarAD> => {
+
+  const noOptDebugInfo = { gradient: new Map(), gradientPreconditioned: new Map() };
+
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap) as ArgVal<VarAD>[],
+    args: evalExprs(fn.fargs, trans, varyingMap, noOptDebugInfo) as ArgVal<VarAD>[],
     optType: fn.optType,
   };
 };
@@ -146,7 +157,8 @@ export const evalShape = (
   shapeExpr: IFGPI<VarAD>, // <number>?
   trans: Translation,
   varyingVars: VaryMap,
-  shapes: Shape[]
+  shapes: Shape[],
+  optDebugInfo: OptDebugInfo
 ): [Shape[], Translation] => {
   const [shapeType, propExprs] = shapeExpr.contents;
 
@@ -161,7 +173,8 @@ export const evalShape = (
         const res: Value<VarAD> = (evalExpr(
           prop.contents,
           trans,
-          varyingVars
+          varyingVars,
+          optDebugInfo
         ) as IVal<VarAD>).contents;
         const resDisplay: Value<number> = valueAutodiffToNumber(res);
         return resDisplay;
@@ -189,8 +202,9 @@ export const evalShape = (
 export const evalExprs = (
   es: Expr[],
   trans: Translation,
-  varyingVars?: VaryMap<VarAD>
-): ArgVal<VarAD>[] => es.map((e) => evalExpr(e, trans, varyingVars));
+  varyingVars?: VaryMap<VarAD>,
+  optDebugInfo?: OptDebugInfo
+): ArgVal<VarAD>[] => es.map((e) => evalExpr(e, trans, varyingVars, optDebugInfo));
 
 function toFloatVal<T>(a: ArgVal<T>): T {
   if (a.tag === "Val") {
@@ -220,7 +234,8 @@ function toFloatVal<T>(a: ArgVal<T>): T {
 export const evalExpr = (
   e: Expr,
   trans: Translation,
-  varyingVars?: VaryMap<VarAD>
+  varyingVars?: VaryMap<VarAD>,
+  optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
   switch (e.tag) {
     case "IntLit": {
@@ -254,7 +269,7 @@ export const evalExpr = (
 
     case "Tuple": {
       const [e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, optDebugInfo);
 
       // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
       if (val1.tag === "Val" && val2.tag === "Val") {
@@ -280,7 +295,7 @@ export const evalExpr = (
         contents: [uOp, expr],
       } = e as IUOp;
       // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(expr, trans, varyingVars).contents;
+      const arg = evalExpr(expr, trans, varyingVars, optDebugInfo).contents;
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -290,7 +305,7 @@ export const evalExpr = (
 
     case "BinOp": {
       const [binOp, e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, optDebugInfo);
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -302,7 +317,7 @@ export const evalExpr = (
       };
     }
     case "Tuple": {
-      const argVals = evalExprs(e.contents, trans, varyingVars);
+      const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
       if (argVals.length !== 2) {
         console.log(argVals);
         throw Error("Expected tuple of length 2");
@@ -316,7 +331,7 @@ export const evalExpr = (
       };
     }
     case "List": {
-      const argVals = evalExprs(e.contents, trans, varyingVars);
+      const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
       return {
         tag: "Val",
         contents: {
@@ -329,13 +344,34 @@ export const evalExpr = (
       throw Error("List access expression not (yet) supported");
     }
     case "EPath":
-      return resolvePath(e.contents, trans, varyingVars);
+      return resolvePath(e.contents, trans, varyingVars, optDebugInfo);
     case "CompApp": {
       const [fnName, argExprs] = e.contents;
+
+      if (fnName === "derivative" || fnName === "derivativePreconditioned") {
+        // Special function: don't look up the path's value, but its gradient's value
+
+        if (argExprs.length !== 1) {
+          throw Error(`expected 1 argument to ${fnName}; got ${argExprs.length}`);
+        }
+
+        if (argExprs[0].tag !== "EPath") {
+          throw Error(`expected 1 path as argument to ${fnName}; got ${argExprs[0].tag}`);
+        }
+
+        console.error("argExprs", argExprs);
+
+        return {
+          tag: "Val",
+          contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(argExprs[0].contents))
+        };
+      }
+
       // eval all args
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<VarAD>[];
+      const args = evalExprs(argExprs, trans, varyingVars, optDebugInfo) as ArgVal<VarAD>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
+
       // retrieve comp function from a global dict and call the function
       return { tag: "Val", contents: compDict[fnName](...argValues) };
     }
@@ -357,7 +393,8 @@ export const evalExpr = (
 export const resolvePath = (
   path: Path,
   trans: Translation,
-  varyingMap?: VaryMap<VarAD>
+  varyingMap?: VaryMap<VarAD>,
+  optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
@@ -393,7 +430,8 @@ export const resolvePath = (
             const val: Value<VarAD> = (evalExpr(
               propertyPathExpr,
               trans,
-              varyingMap
+              varyingMap,
+              optDebugInfo
             ) as IVal<VarAD>).contents;
             const transNew = insertExpr(
               propertyPath,
@@ -425,7 +463,7 @@ export const resolvePath = (
 
         if (expr.tag === "OptEval") {
           // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-          const res: ArgVal<VarAD> = evalExpr(expr.contents, trans, varyingMap);
+          const res: ArgVal<VarAD> = evalExpr(expr.contents, trans, varyingMap, optDebugInfo);
 
           if (res.tag === "Val") {
             const transNew = insertExpr(
@@ -640,7 +678,7 @@ export const decodeState = (json: any): State => {
     shapes: json.shapesr.map(([n, props]: any) => {
       return { shapeType: n, properties: props };
     }),
-    varyingMap: genVaryMap(json.varyingPaths, json.varyingState),
+    varyingMap: genPathMap(json.varyingPaths, json.varyingState),
     params: json.paramsr,
   };
   // cache energy function
@@ -678,22 +716,27 @@ export const encodeState = (state: State): any => {
   return json;
 };
 
-export const genVaryMap = (
-  varyingPaths: Path[],
-  varyingValues: VarAD[] // TODO: Distinguish between VarAD variables and constants?
-) => {
-  if (varyingValues.length !== varyingPaths.length) {
-    console.log(varyingPaths, varyingValues);
+// Generate a map from paths to values, where the key is the JSON stringified version of the path
+export function genPathMap<T>(
+  paths: Path[],
+  vals: T[] // TODO: Distinguish between VarAD variables and constants?
+): Map<string, T> {
+  if (!paths || !vals) {
+    return new Map(); // Empty, e.g. when the state is decoded, there is no gradient
+  }
+
+  if (vals.length !== paths.length) {
+    console.log(paths, vals);
     throw new Error(
       "Different numbers of varying vars vs. paths: " +
-        varyingPaths.length +
-        ", " +
-        varyingValues.length
+      paths.length +
+      ", " +
+      vals.length
     );
   }
   const res = new Map();
-  varyingPaths.forEach((path, index) =>
-    res.set(JSON.stringify(path), varyingValues[index])
+  paths.forEach((path, index) =>
+    res.set(JSON.stringify(path), vals[index])
   );
   return res;
 };

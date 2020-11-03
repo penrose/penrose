@@ -64,17 +64,14 @@ export const objDict = {
   },
 
   centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): VarAD => {
-    const spacing = debug(varOf(1.1)); // arbitrary
+    const spacing = varOf(1.1); // arbitrary
 
     if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-
-      const c = debug(mul(spacing, text1.h.contents), "c from centerArrow");
-
       return centerArrow2(arr, fns.center(text1), fns.center(text2),
-        [c,
-          neg(mul(text2.h.contents, spacing))]);
+        [mul(spacing, text1.h.contents),
+        neg(mul(text2.h.contents, spacing))]);
 
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
@@ -159,8 +156,7 @@ export const constrDict = {
     } else if (t1 === "Circle" && t2 === "Text") {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const textR = max((s2.w.contents), s2.h.contents);
-      const res = add(sub(d, s1.r.contents), textR);
-      return debug(res, "circle/text containment energy");
+      return add(sub(d, s1.r.contents), textR);
     } else if (t1 === "Rectangle" && t2 === "Circle") {
       // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
       // -- HACK: reusing test impl, revert later

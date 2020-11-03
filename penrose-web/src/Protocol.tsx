@@ -59,7 +59,6 @@ export class Protocol {
     console.log("warning: clearing AD state from packet", packet);
     params.energyGraph = {};
     params.xsVars = [];
-    params.mutableUOstate = [];
     params.constrWeightNode = undefined;
     params.epWeightNode = undefined;
     params.graphs = undefined;

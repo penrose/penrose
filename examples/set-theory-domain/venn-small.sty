@@ -11,6 +11,32 @@ forall Set x {
         string : x.label
     }
 
+    LOCAL.c = 20.0
+
+    x.debugShape = Arrow {
+        startX: x.text.x
+        startY: x.text.y
+        endX: x.text.x + LOCAL.c * derivative(x.text.x)
+        endY: x.text.y + LOCAL.c * derivative(x.text.y)
+        color: rgba(1.0, 0.0, 0.0, 0.5)
+        arrowheadSize: 0.5
+        thickness: 3.0
+        style: "dashed"
+    }
+
+    LOCAL.d = 20.0
+
+    x.debugShape2 = Arrow {
+        startX: x.text.x
+        startY: x.text.y
+        endX: x.text.x + LOCAL.d * derivativePreconditioned(x.text.x)
+        endY: x.text.y + LOCAL.d * derivativePreconditioned(x.text.y)
+        color: rgba(0.0, 0.0, 1.0, 0.5)
+        arrowheadSize: 0.5
+        thickness: 3.0
+        style: "dashed"
+    }
+
     ensure contains(x.shape, x.text) -- NEW
     encourage sameCenter(x.text, x.shape) -- OLD
 

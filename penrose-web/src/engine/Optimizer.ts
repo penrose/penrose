@@ -15,12 +15,12 @@ import {
   makeTranslationDifferentiable,
   makeTranslationNumeric,
 } from "engine/EngineUtils";
-import { normList } from "utils/OtherUtils";
+import { normList, repeat } from "utils/OtherUtils";
 import {
   argValue,
   evalShapes,
   insertVaryings,
-  genVaryMap,
+  genPathMap,
   evalFns,
 } from "engine/Evaluator";
 
@@ -77,7 +77,7 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = false;
+const DEBUG_GRAD_DESCENT = true; // COMBAK: revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -224,8 +224,10 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
         const newParams: Params = {
           ...state.params,
-          mutableUOstate: xsVars, // TODO: Unused; remove
           xsVars,
+
+          lastGradient: repeat(xs.length, 0),
+          lastGradientPreconditioned: repeat(xs.length, 0),
 
           graphs,
           objective: f,
@@ -257,6 +259,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
         const newParams: Params = {
           ...params,
+          lastGradient: repeat(xs.length, 0),
+          lastGradientPreconditioned: repeat(xs.length, 0),
           currObjective: params.objective(initConstraintWeight),
           currGradient: params.gradient(initConstraintWeight),
           weight: initConstraintWeight,
@@ -284,12 +288,16 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
       // the new `xs` is put into the `newState`, which is returned at end of function
       // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
-      const { energyVal, normGrad, newLbfgsInfo } = res;
+      const { energyVal, normGrad, newLbfgsInfo, gradient, gradientPreconditioned } = res;
 
-      optParams._lastUOstate = xs;
-      optParams._lastUOenergy = energyVal;
+      optParams.lastUOstate = xs;
+      optParams.lastUOenergy = energyVal;
       optParams.UOround = optParams.UOround + 1;
       optParams.lbfgsInfo = newLbfgsInfo;
+      optParams.lastGradient = gradient;
+      optParams.lastGradientPreconditioned = gradientPreconditioned;
+
+      console.error("res", gradient, gradientPreconditioned);
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
@@ -333,14 +341,14 @@ export const step = (state: State, steps: number, evaluate = true) => {
       if (
         optParams.EPround > 1 &&
         epConverged2(
-          optParams._lastEPstate,
-          optParams._lastUOstate,
-          optParams._lastEPenergy,
-          optParams._lastUOenergy
+          optParams.lastEPstate,
+          optParams.lastUOstate,
+          optParams.lastEPenergy,
+          optParams.lastUOenergy
         )
       ) {
         optParams.optStatus.tag = "EPConverged";
-        log.trace("EP converged with energy", optParams._lastUOenergy);
+        log.trace("EP converged with energy", optParams.lastUOenergy);
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
@@ -364,8 +372,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
       }
 
       // Done with EP check, so save the curr EP state as the last EP state for the future.
-      optParams._lastEPstate = optParams._lastUOstate;
-      optParams._lastEPenergy = optParams._lastUOenergy;
+      optParams.lastEPstate = optParams.lastUOstate;
+      optParams.lastEPenergy = optParams.lastUOenergy;
 
       break;
     }
@@ -769,7 +777,7 @@ const minimize = (
   f: (zs: number[]) => number,
   gradf: (zs: number[]) => number[],
   lbfgsInfo: LbfgsParams
-) => {
+): OptInfo => {
   // const numSteps = 1;
   // const numSteps = 1e2;
   // const numSteps = 100;
@@ -785,7 +793,8 @@ const minimize = (
 
   let xs = [...xs0]; // Don't use xs
   let fxs = 0.0;
-  let gradfxs = [...xs0];
+  let gradfxs = repeat(xs0.length, 0);
+  let gradientPreconditioned = [...gradfxs];
   let normGradfxs = 0.0;
   let i = 0;
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
@@ -803,6 +812,7 @@ const minimize = (
       newLbfgsInfo
     );
     newLbfgsInfo = updatedLbfgsInfo;
+    gradientPreconditioned = gradfxsPreconditioned;
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       // This is on the original gradient, not the preconditioned one
@@ -856,6 +866,8 @@ const minimize = (
     energyVal: fxs,
     normGrad: normGradfxs,
     newLbfgsInfo,
+    gradient: gradfxs,
+    gradientPreconditioned
   };
 };
 
@@ -878,7 +890,7 @@ export const evalEnergyOnCustom = (state: State) => {
     );
 
     // construct a new varying map
-    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
+    const varyingMap = genPathMap(varyingPaths, varyingValuesTF) as VaryMap<
       VarAD
     >;
 
