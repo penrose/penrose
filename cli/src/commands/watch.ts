@@ -36,15 +36,10 @@ export default class Watch extends Command {
 
   wss: WebSocket.Server | null = null;
 
-  compile = () => {
+  runPenrose = (packet: any) => {
     const penrose = spawn("penrose", ["runAPI"]);
-    const { substance, style, domain } = this.current;
-    penrose.stdin.write(
-      JSON.stringify({
-        tag: "CompileTrio",
-        contents: [substance, style, domain],
-      }) + "\n"
-    );
+
+    penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
     penrose.stdout.on("data", async (d: { toString: () => string }) => {
       data += d.toString();
@@ -93,6 +88,8 @@ export default class Watch extends Command {
           }:`
         );
         console.error(parsed.contents.contents);
+      } else {
+        console.log(parsed);
       }
     });
 
@@ -110,7 +107,12 @@ export default class Watch extends Command {
   };
 
   watchFile = async (fileName: string, type: string) => {
-    const watcher = chokidar.watch(fileName, { awaitWriteFinish: true });
+    const watcher = chokidar.watch(fileName, {
+      awaitWriteFinish: {
+        pollInterval: 100,
+        stabilityThreshold: 300, // increase to make file listen faster
+      },
+    });
     this.currentFilenames[type] = fileName;
     watcher.on("error", (err: Error) => {
       console.error(`Could not open ${fileName} ${type}: ${err}`);
@@ -124,7 +126,12 @@ export default class Watch extends Command {
           chalk.whiteBright(` ${fileName}`) +
           chalk.blueBright(` updated, recompiling...`)
       );
-      this.compile();
+      const { substance, style, domain } = this.current;
+      const packet = {
+        tag: "CompileTrio",
+        contents: [substance, style, domain],
+      };
+      this.runPenrose(packet);
     });
     const str = await this.readFile(fileName);
     this.current[type] = str;
@@ -148,10 +155,17 @@ export default class Watch extends Command {
         ws.send(JSON.stringify(this.currentState));
       }
       ws.on("message", (m) => {
-        console.log(`got message ${m}`);
+        const parsed = JSON.parse(m as string);
+        if (parsed.call && parsed.call.tag === "Resample") {
+          this.runPenrose(parsed);
+        }
       });
     });
-
-    this.compile();
+    const { substance, style, domain } = this.current;
+    const packet = {
+      tag: "CompileTrio",
+      contents: [substance, style, domain],
+    };
+    this.runPenrose(packet);
   }
 }
