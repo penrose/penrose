@@ -77,7 +77,7 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = true; // COMBAK: revert
+const DEBUG_GRAD_DESCENT = false; // COMBAK: revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -282,7 +282,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
         xs,
         state.params.currObjective,
         state.params.currGradient,
-        state.params.lbfgsInfo
+        state.params.lbfgsInfo,
+        state.varyingPaths.map(p => prettyPrintProperty(p))
       );
       xs = res.xs;
 
@@ -776,7 +777,8 @@ const minimize = (
   xs0: number[],
   f: (zs: number[]) => number,
   gradf: (zs: number[]) => number[],
-  lbfgsInfo: LbfgsParams
+  lbfgsInfo: LbfgsParams,
+  varyingPaths: string[]
 ): OptInfo => {
   // const numSteps = 1;
   // const numSteps = 1e2;
@@ -804,7 +806,6 @@ const minimize = (
   while (i < numSteps) {
     fxs = f(xs);
     gradfxs = gradf(xs);
-    normGradfxs = normList(gradfxs);
 
     const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(
       xs,
@@ -813,6 +814,9 @@ const minimize = (
     );
     newLbfgsInfo = updatedLbfgsInfo;
     gradientPreconditioned = gradfxsPreconditioned;
+
+    // Don't take the Euclidean norm. According to Boyd (485), we should use the Newton descent check, with the norm of the gradient pulled back to the nicer space. 
+    normGradfxs = dot(gradfxs, gradfxsPreconditioned);
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       // This is on the original gradient, not the preconditioned one
@@ -845,6 +849,16 @@ const minimize = (
 
     if (isNaN(fxs) || isNaN(normGrad)) {
       console.error("-----");
+
+      const pathMap = _.zip(varyingPaths, xs, gradfxs) as [String, number, number][];
+      console.log("[varying paths, current val, gradient of val]", pathMap);
+
+      for (let [name, x, dx] of pathMap) {
+        if (isNaN(dx)) {
+          console.error("NaN in varying val's gradient", name, "(current val):", x);
+        }
+      }
+
       console.error("i", i);
       console.error("num steps per display cycle", numSteps);
       console.error("input (xs):", xs);

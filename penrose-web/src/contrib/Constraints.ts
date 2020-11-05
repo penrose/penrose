@@ -367,7 +367,7 @@ const pointInBox = (p: any, rect: any): boolean => {
 const dsqBP = (p: any, rect: any): VarAD => {
   const dx = max(max(sub(rect.minX, p.x), constOf(0.0)), sub(p.x, rect.maxX));
   const dy = max(max(sub(rect.minY, p.y), constOf(0.0)), sub(p.y, rect.maxY));
-  return sqrt(add(squared(dx), squared(dy)));
+  return add(squared(dx), squared(dy));
 };
 
 // TODO: Rewrite the lerp code to be more concise
