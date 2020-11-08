@@ -49,6 +49,8 @@ const clone = require('rfdc')({ proto: false, circles: false });
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalShapes = (s: State): State => {
+  console.log("state", s); // COMBAK: revert
+
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
   const varyingValuesDiff = s.varyingValues.map(differentiable);

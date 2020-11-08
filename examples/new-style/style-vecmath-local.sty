@@ -1,5 +1,4 @@
-
-Const {
+const {
   perpLen = 25.0
   -- For unit mark
   markerPadding = 15.0
@@ -10,8 +9,9 @@ Const {
   lineThickness = 1
 }
 
-Colors {
+C {
     -- black = #000000
+    black = rgba(0,0,0,1)
     white = rgba(1, 1, 1, 1)
     lightBlue = rgba(1e-1, 0.1, 0.9, 1e-1)
     darkBlue = rgba(lightBlue.r / 2, lightBlue.g / 2, lightBlue.b / 2, 0.5)
@@ -24,7 +24,8 @@ Colors {
 
 -- Just some weird definitions to test parser. Not used in rest of program
 testing {
-  pluginVar = "ddg"["a"]["length"]
+-- COMBAK: Test that plugins still run
+  -- pluginVar = "ddg"["a"]["length"]
         x = { 1, {2, 3} }
         y = [-2., const.perpLen, const.markerPadding + 3]
         a = (-1.0, ?)
@@ -132,8 +133,9 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       eq = functions.equal
       encourage eq(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
-      layer v.shape above LOCAL.perpMark
-      layer u.shape above LOCAL.perpMark
+-- COMBAK: Test parsing the expressions that involve local vars 
+      -- layer v.shape above perpMark
+      -- layer u.shape above perpMark
 }
 
 forall Vector v

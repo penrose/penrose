@@ -842,7 +842,7 @@ type LocalVarId = (Int, Int)
 -- Should be unique across blocks and substitutions
 
 localKeyword :: String
-localKeyword = "LOCAL"
+localKeyword = "$LOCAL"
 
 mkLocalVarName :: LocalVarId -> String
 mkLocalVarName (blockNum, substNum) = localKeyword ++ "_b" ++ show blockNum ++ "_s" ++ show substNum
@@ -899,16 +899,9 @@ substituteBform :: Maybe LocalVarId -> Subst -> BindingForm -> BindingForm
 -- Variable in backticks in block or selector (e.g. `X`)
 substituteBform _ subst sv@(BSubVar _) = sv
 
--- If the Style variable is "LOCAL", then resolve it to a unique id for the block and selector
--- Otherwise, look up the substitution for the Style variable and return a Substance variable
+-- Look up the substitution for the Style variable and return a Substance variable
 substituteBform lv subst sv@(BStyVar sv'@(StyVar vn)) =
-   if vn == localKeyword
-   then case lv of
-        -- lv = Nothing: substituting into selector, so local vars don't matter
-        -- lv = Just (i, j): substituting into block, so local vars matter
-        Nothing -> error "LOCAL keyword found without a subst/block id. It should not be used in a selector."
-        Just localVarId -> BSubVar $ VarConst $ mkLocalVarName localVarId
-   else case M.lookup sv' subst of
+        case M.lookup sv' subst of
         Just subVar -> BSubVar subVar -- Returns result of mapping if it exists (y -> x)
         Nothing     -> sv -- error $ "No subst found for Sty var '" ++ vn ++ "'"
                        -- TODO: no substitutions for namespaces
@@ -960,9 +953,15 @@ substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substi
 -- substituteLayering lv subst (LayeringOp op lex1 lex2) =
 --                    LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
 
+-- Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
+-- where <ids> is a string generated to be unique to this selector match for this block
+substituteLocalVar :: LocalVarId -> Subst -> LocalVar -> Path
+substituteLocalVar lv subst (LocalVar v) = FieldPath (BSubVar $ VarConst $ mkLocalVarName lv) v
+
 substituteBlockExpr :: LocalVarId -> Subst -> Expr -> Expr
 substituteBlockExpr lv subst expr =
     case expr of
+    EVar v            -> EPath $ substituteLocalVar lv subst v -- Note that the local var becomes a path
     EPath path        -> EPath $ substitutePath lv subst path
     CompApp f es      -> CompApp f $ map (substituteBlockExpr lv subst) es
     ObjFn   f es      -> ObjFn   f $ map (substituteBlockExpr lv subst) es
@@ -983,13 +982,19 @@ substituteBlockExpr lv subst expr =
     PluginAccess pluginName e1 e2 -> PluginAccess pluginName (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
     Tuple e1 e2 -> Tuple (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
     ThenOp e1 e2 -> ThenOp (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    Vector es           -> Vector $ map (substituteBlockExpr lv subst) es
+    Matrix es           -> Matrix $ map (substituteBlockExpr lv subst) es
+    VectorAccess e1 e2 -> VectorAccess (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    MatrixAccess e1 e2 e3 -> MatrixAccess (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2) (substituteBlockExpr lv subst e3)
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
     case line of
     PathAssign t path expr -> PathAssign t (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
+    VarAssign t v expr -> PathAssign t (substituteLocalVar lv subst v) (substituteBlockExpr lv subst expr) -- Note that the local var becomes a path
     Override path expr -> Override (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
     Delete   path      -> Delete $ substitutePath lv subst path
+    _ -> error "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
 
 -- Assumes a full substitution
 substituteBlock :: (Subst, Int) -> (Block, Int) -> Block
@@ -1566,6 +1571,10 @@ evalPluginAccess valMap trans =
                   evalPluginExpr vmap (List es) = List $ map (evalPluginExpr vmap) es
                   evalPluginExpr vmap (Tuple e1 e2) = Tuple (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (ThenOp e1 e2) = ThenOp (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (Vector es) = Vector $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (Matrix es) = Matrix $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (MatrixAccess e1 e2 e3) = MatrixAccess (evalPluginExpr vmap e1) (evalPluginExpr vmap e2) (evalPluginExpr vmap e3)
 
                   -- Leaves (no strings should be involved)
                   evalPluginExpr _ e@(IntLit _) = e
@@ -1576,6 +1585,7 @@ evalPluginAccess valMap trans =
                   evalPluginExpr _ e@(ListAccess _ _) = e
                   evalPluginExpr _ e@(Ctor _ _) = e
                   evalPluginExpr _ e@(Layering _ _) = e
+                  evalPluginExpr _ e@(EVar _) = e
 
                   evalStatic :: Expr -> String
                   evalStatic (StringLit s) = s
@@ -1611,7 +1621,7 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
 -- Leave all other statements unchanged
 
 anonKeyword :: String
-anonKeyword = "ANON"
+anonKeyword = "$ANON"
 
 nameAnonStatements :: HeaderBlocks -> HeaderBlocks
 nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
@@ -1619,10 +1629,9 @@ nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                          nameAnonBlock b = let (count, res) = foldl nameAnonStatement (0, []) b in res
 
                          nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
-                         -- Assign the path "local.ANON_$counter" and increment counter
+                         -- Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
-                                           let path = FieldPath (BStyVar (StyVar localKeyword)) (anonKeyword ++ "_" ++ show i)
-                                               stmt = PathAssign Nothing path e in
+                                           let stmt = VarAssign Nothing (LocalVar $ anonKeyword ++ "_" ++ show i) e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])
 
