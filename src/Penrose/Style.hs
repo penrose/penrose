@@ -837,15 +837,22 @@ checkSels varEnv prog =
 -- A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
 type Subst = M.Map StyVar Var
 
-type LocalVarId = (Int, Int)
--- Index of the block, paired with the index of the current substitution
--- Should be unique across blocks and substitutions
+type NamespaceName = String
+
+data LocalVarSubst = 
+     LocalVarId (Int, Int)
+     -- Index of the block, paired with the index of the current substitution
+     -- Should be unique across blocks and substitutions
+     | NamespaceId NamespaceName
+     -- Namespace's name, e.g. things that are parsed as local vars (e.g. Const { red ... }) get turned into paths "Const.red"
 
 localKeyword :: String
 localKeyword = "$LOCAL"
 
-mkLocalVarName :: LocalVarId -> String
-mkLocalVarName (blockNum, substNum) = localKeyword ++ "_b" ++ show blockNum ++ "_s" ++ show substNum
+-- Local 
+mkLocalVarName :: LocalVarSubst -> String
+mkLocalVarName (LocalVarId (blockNum, substNum)) = localKeyword ++ "_block" ++ show blockNum ++ "_subst" ++ show substNum
+mkLocalVarName (NamespaceId namespace) = namespace
 
 ----- Substitution helper functions
 
@@ -895,7 +902,7 @@ uniqueKeysAndVals subst =
 
 -- TODO: return "maybe" if a substitution fails?
 
-substituteBform :: Maybe LocalVarId -> Subst -> BindingForm -> BindingForm
+substituteBform :: Maybe LocalVarSubst -> Subst -> BindingForm -> BindingForm
 -- Variable in backticks in block or selector (e.g. `X`)
 substituteBform _ subst sv@(BSubVar _) = sv
 
@@ -936,18 +943,18 @@ substituteRels subst rels = map (substituteRel subst) rels
 
 ----- Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
 
-substitutePath :: LocalVarId -> Subst -> Path -> Path
+substitutePath :: LocalVarSubst -> Subst -> Path -> Path
 substitutePath lv subst path =
     case path of
     FieldPath    bVar field      -> FieldPath    (substituteBform (Just lv) subst bVar) field
     PropertyPath bVar field prop -> PropertyPath (substituteBform (Just lv) subst bVar) field prop
 
-substituteField :: LocalVarId -> Subst -> PropertyDecl -> PropertyDecl
+substituteField :: LocalVarSubst -> Subst -> PropertyDecl -> PropertyDecl
 substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr lv subst expr
 
 
 -- DEPRECATED
--- substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
+-- substituteLayering :: LocalVarSubst -> Subst -> LExpr -> LExpr
 -- substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
 -- substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
 -- substituteLayering lv subst (LayeringOp op lex1 lex2) =
@@ -955,10 +962,10 @@ substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substi
 
 -- Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
 -- where <ids> is a string generated to be unique to this selector match for this block
-substituteLocalVar :: LocalVarId -> Subst -> LocalVar -> Path
+substituteLocalVar :: LocalVarSubst -> Subst -> LocalVar -> Path
 substituteLocalVar lv subst (LocalVar v) = FieldPath (BSubVar $ VarConst $ mkLocalVarName lv) v
 
-substituteBlockExpr :: LocalVarId -> Subst -> Expr -> Expr
+substituteBlockExpr :: LocalVarSubst -> Subst -> Expr -> Expr
 substituteBlockExpr lv subst expr =
     case expr of
     EVar v            -> EPath $ substituteLocalVar lv subst v -- Note that the local var becomes a path
@@ -987,7 +994,7 @@ substituteBlockExpr lv subst expr =
     VectorAccess e1 e2 -> VectorAccess (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
     MatrixAccess e1 e2 e3 -> MatrixAccess (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2) (substituteBlockExpr lv subst e3)
 
-substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
+substituteLine :: LocalVarSubst -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
     case line of
     PathAssign t path expr -> PathAssign t (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
@@ -997,8 +1004,12 @@ substituteLine lv subst line =
     _ -> error "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
 
 -- Assumes a full substitution
-substituteBlock :: (Subst, Int) -> (Block, Int) -> Block
-substituteBlock (subst, substNum) (block, blockNum) = map (substituteLine (blockNum, substNum) subst) block
+substituteBlock :: (Subst, Int) -> (Block, Int) -> Maybe NamespaceName -> Block
+substituteBlock (subst, substNum) (block, blockNum) name = 
+                let lvsubst = case name of
+                              Nothing -> LocalVarId (blockNum, substNum)
+                              Just nm -> NamespaceId nm
+                in map (substituteLine lvsubst subst) block
 
 ----- Filter with relational statements
 
@@ -1445,26 +1456,28 @@ translateLine trans stmt =
     Delete path        -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-translateBlock :: (Autofloat a) => (Block, Int) -> Translation a -> (Subst, Int) ->
+translateBlock :: (Autofloat a) => Maybe NamespaceName -> (Block, Int) -> Translation a -> (Subst, Int) -> 
                                                                Either [Error] (Translation a)
-translateBlock blockWithNum trans substNum =
-    let block' = substituteBlock substNum blockWithNum in
+translateBlock name blockWithNum trans substWithNum =
+    let block' = substituteBlock substWithNum blockWithNum name in
     foldM translateLine trans block'
 
 -- Judgment 24. [theta]; D |- |B ~> D'
+-- This is a selector, not a namespace, so we substitute local vars with the subst/block IDs
 translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] ->
                                                      (Block, Int) -> Either [Error] (Translation a)
-translateSubstsBlock trans substsNum blockWithNum = foldM (translateBlock blockWithNum) trans substsNum
+translateSubstsBlock trans substsNum blockWithNum = foldM (translateBlock Nothing blockWithNum) trans substsNum
 
 -- Judgment 23, contd.
 translatePair :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg ->
                                   Translation a -> ((Header, Block), Int) -> Either [Error] (Translation a)
-translatePair varEnv subEnv subProg trans ((Namespace styVar, block), blockNum) =
+translatePair varEnv subEnv subProg trans ((Namespace (StyVar name), block), blockNum) =
     let selEnv = initSelEnv
         bErrs  = checkBlock selEnv block in
     if null (sErrors selEnv) && null bErrs
         then let subst = M.empty in -- is this the correct empty?
-             translateBlock (block, blockNum) trans (subst, 0) -- skip transSubstsBlock; only one subst
+             -- This is a namespace, not selector, so we substitute local vars with the namespace's name
+             translateBlock (Just name) (block, blockNum) trans (subst, 0) -- skip transSubstsBlock; only one subst
         else Left $ sErrors selEnv ++ bErrs
 
 translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNum) =

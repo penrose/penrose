@@ -83,7 +83,7 @@ where In(u,U) {
   u.text = Text {
     -- center : (?, ?) -- This should be done automatically
     string : u.label
-    color : u.shape.color
+    color : u.arrow.color
   }
 
   u.arrow = Arrow {
@@ -97,9 +97,9 @@ where In(u,U) {
    u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
 
    contains = functions.contains
-   ensure contains(U.shape, u.shape)
-   ensure contains(U.shape, u.text)
-   ensure atDist(u.shape, u.text, 5.0)
+   ensure contains(u.arrow, u.arrow)
+   ensure contains(u.arrow, u.text)
+   ensure atDist(u.arrow, u.text, 5.0)
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -108,8 +108,8 @@ where In(u,U) {
 forall Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
-      startR = u.shape.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.shape.start, u.shape.end]
-      endR = u.shape.end
+      startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
+      endR = u.arrow.end
       startL = v.shape.start
       endL = v.shape.end
       dirR = normalize(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
@@ -135,7 +135,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
 -- COMBAK: Test parsing the expressions that involve local vars 
       -- layer v.shape above perpMark
-      -- layer u.shape above perpMark
+      -- layer u.arrow above perpMark
 }
 
 forall Vector v
@@ -151,8 +151,8 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       -- NOTE: We need to have lists of vectors
       dir = normalize(w.shape.end - w.shape.start)
       normal = -dir
-      markStart = v.shape.start + padding * normal
-      markEnd = v.shape.end + padding * normal
+      markStart = v.arrow.start + padding * normal
+      markEnd = v.arrow.end + padding * normal
       v.markerLine = [markStart, markEnd]
 
       v.unitMarkerLine = Curve {
