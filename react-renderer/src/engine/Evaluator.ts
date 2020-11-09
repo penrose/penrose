@@ -218,6 +218,8 @@ export const evalExpr = (
   varyingVars?: VaryMap<VarAD>
 ): ArgVal<VarAD> => {
 
+  console.log("evalExpr", e);
+
   switch (e.tag) {
     case "IntLit": {
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } }
@@ -233,6 +235,7 @@ export const evalExpr = (
 
     case "AFloat": {
       if (e.contents.tag === "Vary") {
+        console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
         throw new Error("encountered an unsubstituted varying value");
       } else {
         const val = e.contents.contents;
@@ -519,7 +522,7 @@ export const evalBinOp = (
     returnType = "IntV";
   }
   else {
-    throw new Error(`the types of two operands to ${op} must match`);
+    throw new Error(`the types of two operands to ${op} must match: ${v1.tag}, ${v2.tag}`);
   }
 
   return v1; // TODO hack
@@ -607,6 +610,15 @@ export const findExpr = (
   }
 };
 
+const floatValToExpr = (e: Value<VarAD>): Expr => {
+  if (e.tag !== "FloatV") {
+    throw Error("expected to insert vector elem of type float");
+  }
+  return {
+    tag: "AFloat", contents: { tag: "Fix", contents: e.contents }
+  };
+};
+
 /**
  * Insert an expression into the translation (mutating it), returning a reference to the mutated translation for convenience
  * @param path path to a field or property
@@ -622,20 +634,53 @@ export const insertExpr = (
   const trans = initTrans;
   let name, field, prop;
   switch (path.tag) {
-    case "FieldPath":
+    case "FieldPath": {
       [name, field] = path.contents;
       // NOTE: this will overwrite existing expressions
       trans.trMap[name.contents][field] = { tag: "FExpr", contents: expr };
       return trans;
-    case "PropertyPath":
+    } case "PropertyPath": {
       // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
       [name, field, prop] = (path as IPropertyPath).contents;
       const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
       const [, properties] = gpi.contents;
       properties[prop] = expr;
       return trans;
-    case "AccessPath":
-      throw Error("TODO");
+    } case "AccessPath": {
+      const [innerPath, indices] = path.contents;
+
+      switch (innerPath.tag) {
+        case "FieldPath": { // a.x[0] = e
+          [name, field] = innerPath.contents;
+          const res = trans.trMap[name.contents][field];
+          if (res.tag !== "FExpr") { throw Error("did not expect GPI in vector access"); }
+          const res2 = res.contents;
+          if (res2.tag !== "OptEval") { throw Error("expected OptEval"); }
+          const res3 = res2.contents;
+          if (res3.tag !== "Vector") { throw Error("expected Vector"); }
+          const res4 = res3.contents;
+          res4[indices[0]] = floatValToExpr(expr.contents);
+          return trans;
+        }
+
+        case "PropertyPath": { // a.x.y[0] = e
+          [name, field, prop] = (innerPath as IPropertyPath).contents;
+          const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
+          const [, properties] = gpi.contents;
+          const res = properties[prop];
+          if (res.tag !== "OptEval") { throw Error("expected OptEval"); }
+          const res2 = res.contents;
+          if (res2.tag !== "Vector") { throw Error("expected Vector"); }
+          const res3 = res2.contents;
+          res3[indices[0]] = floatValToExpr(expr.contents);
+
+          return trans;
+        }
+
+        default:
+          throw Error("should not have nested AccessPath in AccessPath");
+      }
+    }
   }
 };
 

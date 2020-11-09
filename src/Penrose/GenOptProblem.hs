@@ -429,6 +429,17 @@ lookupPropertyWithVarying bvar field property trans varyMap =
 lookupPaths :: (Autofloat a) => [Path] -> Translation a -> [a]
 lookupPaths paths trans = map lookupPath paths
   where
+    -- Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves 
+    lookupPath p@(AccessPath (FieldPath b f) [i]) =
+       case lookupField b f trans of
+         FExpr (OptEval (Vector es)) -> r2f $ floatOf $ es !! i
+         xs -> error ("varying path \"" ++
+             pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
+    lookupPath p@(AccessPath (PropertyPath b f pr) [i]) =
+       case lookupProperty b f pr trans of
+         OptEval (Vector es) -> r2f $ floatOf $ es !! i
+         xs -> error ("varying path \"" ++
+             pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
     lookupPath p@(FieldPath v field) =
       case lookupField v field trans of
         FExpr (OptEval (AFloat (Fix n))) -> r2f n
@@ -444,16 +455,6 @@ lookupPaths paths trans = map lookupPath paths
         xs ->
           error
             ("varying path \"" ++
-             pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
-    lookupPath p@(AccessPath (FieldPath b f) [i]) =
-       case lookupField b f trans of
-         FExpr (OptEval (Vector es)) -> r2f $ floatOf $ es !! i
-         xs -> error ("varying path \"" ++
-             pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
-    lookupPath p@(AccessPath (PropertyPath b f pr) [i]) =
-       case lookupProperty b f pr trans of
-         OptEval (Vector es) -> r2f $ floatOf $ es !! i
-         xs -> error ("varying path \"" ++
              pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
     floatOf (AFloat (Fix f)) = f
 
@@ -524,6 +525,9 @@ unoptimizedFloatProperties =
   , "finalW"
   , "finalH"
   , "arrowheadSize"
+  , "start" -- COMBAK: Remove vector properties here
+  , "end"
+  , "center"
   ]
 
 -- Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
@@ -548,13 +552,13 @@ findPropertyVarying ::
 findPropertyVarying name field properties floatProperty acc =
   case M.lookup floatProperty properties of
     Nothing ->
-      if floatProperty `elem` unoptimizedFloatProperties
+      if floatProperty `elem` unoptimizedFloatProperties -- Includes vector properties, which are unoptimized for now, in favor of optimizing their base attributes if vectors not set. COMBAK: When startX, etc are phased out, these vector properties should be optimized by default
         then acc
         else mkPath [name, field, floatProperty] : acc
     Just expr ->
       if declaredVarying expr
         then mkPath [name, field, floatProperty] : acc
-        else let paths = findNestedVarying expr (mkPath [name, field, floatProperty])
+        else let paths = findNestedVarying expr (mkPath [name, field, floatProperty]) -- Handles vectors
              in paths ++ acc
 
 findFieldVarying ::
@@ -565,8 +569,9 @@ findFieldVarying name field (FExpr expr) acc =
     else let paths = findNestedVarying expr (mkPath [name, field])
          in paths ++ acc
 findFieldVarying name field (FGPI typ properties) acc =
-  let ctorFloats = propertiesOf FloatT typ
+  let ctorFloats = propertiesOf FloatT typ ++ propertiesOf VectorT typ
       varyingFloats = filter (not . isPending typ) ctorFloats
+      -- This splits up vector-typed properties into one path for each element
       vs = foldr (findPropertyVarying name field properties) [] varyingFloats
   in vs ++ acc
 

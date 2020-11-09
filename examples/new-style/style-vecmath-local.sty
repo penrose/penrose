@@ -110,8 +110,8 @@ with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
       startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
       endR = u.arrow.end
-      startL = v.shape.start
-      endL = v.shape.end
+      startL = v.arrow.start
+      endL = v.arrow.end
       dirR = normalize(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
       dirL = normalize(endL - startL)
       ptL = startR + const.perpLen * dirL
@@ -134,7 +134,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       encourage eq(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
 -- COMBAK: Test parsing the expressions that involve local vars 
-      -- layer v.shape above perpMark
+      -- layer v.arrow above perpMark
       -- layer u.arrow above perpMark
 }
 
