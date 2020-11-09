@@ -106,10 +106,6 @@ stringLiteral = doubleQuotedString
 newtype StyVar = StyVar String
     deriving (Show, Eq, Ord, Typeable)
 
--- | A local variable in Style blocks
-newtype LocalVar = LocalVar String
-    deriving (Show, Eq, Ord, Typeable)
-
 -- | A header of a block is either a selector or a namespace declaration
 data Header = Select Selector | Namespace StyVar
     deriving (Show, Eq, Typeable)
@@ -208,6 +204,7 @@ data StyType = TypeOf String | ListOf String deriving (Show, Eq, Typeable)
 data Path
     = FieldPath BindingForm Field                 -- example: x.val
     | PropertyPath BindingForm Field Property     -- example: x.shape.center
+    | LocalVar String -- example: x (declared locally in the same block)
     | AccessPath Path [Int] -- COMBAK: Hack so we can refer to anonymous varying vars within structures (vectors, matrices, tuples, lists) -- e.g. `$LOCAL_<id>.o [0]` or `V.shape.center [1]`. This is only used internally; Style doesn't parse into it. Currently only implemented for 2-vectors.
     -- NOTE: Style writer must use backticks in the block to indicate Substance variables
     deriving (Show, Eq, Typeable, Ord)
@@ -215,7 +212,6 @@ data Path
 -- | A statement in the Style language
 data Stmt
     = PathAssign (Maybe StyType) Path Expr
-    | VarAssign (Maybe StyType) LocalVar Expr
     | Override Path Expr
     | Delete Path
     | AnonAssign Expr -- Anonymous statement; expression which is automatically given a name by the compiler (LOCAL.id)
@@ -235,7 +231,6 @@ data Expr
     | AFloat AnnoFloat
     | StringLit String
     | BoolLit Bool
-    | EVar LocalVar
     | EPath Path
     | CompApp String [Expr]
     | ObjFn String [Expr]
@@ -247,8 +242,8 @@ data Expr
     | Tuple Expr Expr
     | Vector [Expr]
     | Matrix [Expr]
-    | VectorAccess Expr Expr -- ^ Reference to vector, index
-    | MatrixAccess Expr Expr Expr -- ^ Reference to vector, index, index
+    | VectorAccess Path Expr -- ^ Reference to vector, index
+    | MatrixAccess Path [Expr] -- ^ Reference to vector, index, index
     | ListAccess Path Integer
     | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
@@ -351,9 +346,6 @@ selector = do
 styVar :: Parser StyVar
 styVar = StyVar <$> identifier
 
-styLocalVar :: Parser LocalVar
-styLocalVar = LocalVar <$> identifier
-
 declPattern :: Parser [DeclPattern]
 declPattern = do
     t  <- styType
@@ -433,10 +425,9 @@ stmt = tryChoice [varAssign, pathAssign, anonAssign, override, delete]
 anonExpr :: Parser Expr
 anonExpr = tryChoice [layeringExpr, objFn, constrFn]
 
-anonAssign, pathAssign, varAssign, override, delete :: Parser Stmt
+anonAssign, pathAssign, override, delete :: Parser Stmt
 anonAssign = AnonAssign <$> anonExpr
 pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
-varAssign = VarAssign <$> optional styleType <*> styLocalVar <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 
@@ -461,10 +452,10 @@ pluginAccess :: Parser Expr
 pluginAccess = PluginAccess <$> quotes identifier <*> bExpr <*> bExpr
 
 vectorAccess :: Parser Expr
-vectorAccess = VectorAccess <$> pathOrVar <*> bExpr 
+vectorAccess = VectorAccess <$> path <*> bExpr 
 
 matrixAccess :: Parser Expr
-matrixAccess = MatrixAccess <$> pathOrVar <*> bExpr <*> bExpr
+matrixAccess = MatrixAccess <$> path <*> some bExpr
 
 bExpr :: Parser Expr
 bExpr = brackets expr
@@ -484,7 +475,6 @@ aTerm = tryChoice
         matrix,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
-        EVar   <$> styLocalVar,
         IntLit . fromIntegral <$> integer
     ]
 
@@ -545,12 +535,11 @@ tOperators =
         -- Lowest precedence
     ]
 
-path :: Parser Path
-path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
-       FieldPath <$> bindingForm <*> dotId
-
-pathOrVar :: Parser Expr
-pathOrVar = try (EPath <$> path) <|> (EVar <$> styLocalVar)
+path, propertyPath, fieldPath, localVar :: Parser Path
+path = tryChoice [propertyPath, fieldPath, localVar]
+propertyPath = PropertyPath <$> bindingForm <*> dotId <*> dotId
+fieldPath = FieldPath <$> bindingForm <*> dotId
+localVar = LocalVar <$> identifier
 
 dotId :: Parser String
 dotId = dot >> identifier
