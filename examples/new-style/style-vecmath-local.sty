@@ -55,7 +55,7 @@ forall VectorSpace U {
 
     U.xAxis = Arrow {
            start : (o[0] - axisSize, o[1])
-             end : (o.x + axisSize, o.y)
+             end : (o[0] + axisSize, o[1])
        thickness : const.lineThickness
            style : "solid"
            color : U.axisColor
@@ -63,8 +63,8 @@ forall VectorSpace U {
     }
 
     U.yAxis = Arrow {
-           start : (o.x, o.y + axisSize)
-             end : (o.x, o.y + axisSize)
+           start : (o[0], o[1] + axisSize)
+             end : (o[0], o[1] + axisSize)
        thickness : const.lineThickness
            style : "solid"
            color : U.axisColor
@@ -73,7 +73,7 @@ forall VectorSpace U {
 
     U.text = Text {
         string : U.label
-        center : (U.origin.x - axisSize, U.origin.y + axisSize)
+        center : (U.origin[0] - axisSize, U.origin[1] + axisSize)
         color : U.axisColor
     }
 }

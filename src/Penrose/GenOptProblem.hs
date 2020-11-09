@@ -281,6 +281,10 @@ declaredVarying :: (Autofloat a) => TagExpr a -> Bool
 declaredVarying (OptEval (AFloat Vary)) = True
 declaredVarying _                       = False
 
+isVarying :: (Autofloat a) => Expr -> Bool
+isVarying (AFloat Vary) = True
+isVarying _ = False
+
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
 sumMap f l = sum $ map f l
 
@@ -296,9 +300,11 @@ pathToList (PropertyPath (BSubVar (VarConst name)) field property) =
   [name, field, property]
 pathToList _ = error "pathToList should not handle Sty vars"
 
-isFieldPath :: Path -> Bool
-isFieldPath (FieldPath _ _)      = True
-isFieldPath (PropertyPath _ _ _) = False
+isFieldOrAccessPath :: Path -> Bool
+isFieldOrAccessPath (FieldPath _ _)      = True
+isFieldOrAccessPath (AccessPath (FieldPath _ _) _) = True
+isFieldOrAccessPath (AccessPath (PropertyPath _ _ _) _) = True
+isFieldOrAccessPath (PropertyPath _ _ _) = False
 
 bvarToString :: BindingForm -> String
 bvarToString (BSubVar (VarConst s)) = s
@@ -420,41 +426,6 @@ lookupPropertyWithVarying bvar field property trans varyMap =
     Just varyVal -> varyVal
     Nothing      -> lookupProperty bvar field property trans
 
-lookupProperty ::
-     (Autofloat a)
-  => BindingForm
-  -> Field
-  -> Property
-  -> Translation a
-  -> TagExpr a
-lookupProperty bvar field property trans =
-  let name = trName bvar
-  in case lookupField bvar field trans of
-       FExpr e
-        -- to deal with path synonyms, e.g. `y.f = some GPI with property p; z.f = y.f; z.f.p = some value`
-        -- if we're looking for `z.f.p` and we find out that `z.f = y.f`, then look for `y.f.p` instead
-        -- NOTE: this makes a recursive call!
-        ->
-         case e of
-           OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) ->
-             if bvar == bvarSynonym && field == fieldSynonym
-               then error
-                      ("nontermination in lookupProperty with path '" ++
-                       pathStr3 name field property ++ "' set to itself")
-               else lookupProperty bvarSynonym fieldSynonym property trans
-        -- the only thing that might have properties is another field path
-           _ ->
-             error
-               ("path '" ++
-                pathStr3 name field property ++ "' has no properties")
-       FGPI ctor properties ->
-         case M.lookup property properties of
-           Nothing ->
-             error
-               ("path '" ++
-                pathStr3 name field property ++ "'s property does not exist")
-           Just texpr -> texpr
-
 lookupPaths :: (Autofloat a) => [Path] -> Translation a -> [a]
 lookupPaths paths trans = map lookupPath paths
   where
@@ -474,6 +445,17 @@ lookupPaths paths trans = map lookupPath paths
           error
             ("varying path \"" ++
              pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
+    lookupPath p@(AccessPath (FieldPath b f) [i]) =
+       case lookupField b f trans of
+         FExpr (OptEval (Vector es)) -> r2f $ floatOf $ es !! i
+         xs -> error ("varying path \"" ++
+             pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
+    lookupPath p@(AccessPath (PropertyPath b f pr) [i]) =
+       case lookupProperty b f pr trans of
+         OptEval (Vector es) -> r2f $ floatOf $ es !! i
+         xs -> error ("varying path \"" ++
+             pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
+    floatOf (AFloat (Fix f)) = f
 
 -- TODO: resolve label logic here?
 shapeExprsToVals ::
@@ -544,6 +526,15 @@ unoptimizedFloatProperties =
   , "arrowheadSize"
   ]
 
+-- Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
+findNestedVarying :: (Autofloat a) => TagExpr a -> Path -> [Path]
+findNestedVarying (OptEval (Vector es)) p = map (\(e, i) -> AccessPath p [i]) $ filter (\(e, i) -> isVarying e) $ zip es ([0..] :: [Int])
+-- COMBAK: This should search, but for now we just don't handle nested varying vars in these
+findNestedVarying (OptEval (Matrix _)) p = []
+findNestedVarying (OptEval (List _)) p = []
+findNestedVarying (OptEval (Tuple _ _)) p = []
+findNestedVarying _ _ = []
+
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
 findPropertyVarying ::
@@ -563,14 +554,16 @@ findPropertyVarying name field properties floatProperty acc =
     Just expr ->
       if declaredVarying expr
         then mkPath [name, field, floatProperty] : acc
-        else acc
+        else let paths = findNestedVarying expr (mkPath [name, field, floatProperty])
+             in paths ++ acc
 
 findFieldVarying ::
      (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
 findFieldVarying name field (FExpr expr) acc =
   if declaredVarying expr
     then mkPath [name, field] : acc -- TODO: deal with StyVars
-    else acc
+    else let paths = findNestedVarying expr (mkPath [name, field])
+         in paths ++ acc
 findFieldVarying name field (FGPI typ properties) acc =
   let ctorFloats = propertiesOf FloatT typ
       varyingFloats = filter (not . isPending typ) ctorFloats
@@ -1226,11 +1219,13 @@ initShapes trans shapePaths gen = foldl' initShape (trans, gen) shapePaths
 
 resampleFields :: (Autofloat a) => [Path] -> StdGen -> ([a], StdGen)
 resampleFields varyingPaths g =
-  let varyingFields = filter isFieldPath varyingPaths
+  let varyingFields = filter isFieldOrAccessPath varyingPaths
   in randomsIn g (fromIntegral $ length varyingFields) canvasDims
 
 -- sample varying fields only (from the range defined by canvas dims) and store them in the translation
 -- example: A.val = OPTIMIZED
+-- This also samples varying access paths, e.g.
+-- Circle { center : (1.1, ?) ... } <-- the latter is an access path that gets initialized here
 initFields ::
      (Autofloat a)
   => [Path]
@@ -1238,7 +1233,7 @@ initFields ::
   -> StdGen
   -> (Translation a, StdGen)
 initFields varyingPaths trans g =
-  let varyingFields = filter isFieldPath varyingPaths
+  let varyingFields = filter isFieldOrAccessPath varyingPaths
       (sampledVals, g') =
         randomsIn g (fromIntegral $ length varyingFields) canvasDims
       trans' = insertPaths varyingFields (map (Done . FloatV) sampledVals) trans
@@ -1462,7 +1457,7 @@ resampleVState varyPaths shapes g =
   let (resampledShapes, rng') = sampleShapes g shapes
       (resampledFields, rng'') = resampleFields varyPaths rng'
         -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
-      varyMapNew = mkVaryMap (filter isFieldPath $ varyPaths) resampledFields
+      varyMapNew = mkVaryMap (filter isFieldOrAccessPath $ varyPaths) resampledFields
       varyingState = shapes2floats resampledShapes varyMapNew $ varyPaths
   in ((resampledShapes, varyingState, resampledFields), rng'')
 
@@ -1473,7 +1468,7 @@ updateVState s ((resampledShapes, varyingState', fields'), g) =
       uninitVals = map toTagExpr $ shapes2vals polyShapes $ uninitializedPaths s
       trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
                     -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
-      varyMapNew = mkVaryMap (filter isFieldPath $ varyingPaths s) fields'
+      varyMapNew = mkVaryMap (filter isFieldOrAccessPath $ varyingPaths s) fields'
         -- TODO: this is not necessary for now since the label dimensions do not change, but added for completeness
       pendingPaths = findPending trans'
   in s

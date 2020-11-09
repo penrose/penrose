@@ -137,6 +137,7 @@ type Expr =
   | IAFloat
   | IStringLit
   | IBoolLit
+  | IEvar
   | IEPath
   | ICompApp
   | IObjFn
@@ -146,6 +147,10 @@ type Expr =
   | IUOp
   | IList
   | ITuple
+  | IVector
+  | IMatrix
+  | IVectorAccess
+  | IMatrixAccess
   | IListAccess
   | ICtor
   | ILayering
@@ -170,6 +175,11 @@ interface IStringLit {
 interface IBoolLit {
   tag: "BoolLit";
   contents: boolean;
+}
+
+interface IEVar {
+  tag: "EVar";
+  contents: LocalVar;
 }
 
 interface IEPath {
@@ -218,6 +228,26 @@ interface ITuple {
   contents: [Expr, Expr];
 }
 
+interface IVector {
+  tag: "Vector";
+  contents: Expr[];
+}
+
+interface IMatrix {
+  tag: "Matrix";
+  contents: Expr[];
+}
+
+interface IVectorAccess {
+  tag: "VectorAccess";
+  contents: [Expr, Expr];
+}
+
+interface IMatrixAccess {
+  tag: "MatrixAccess";
+  contents: [Expr, Expr, Expr];
+}
+
 interface IListAccess {
   tag: "ListAccess";
   contents: [Path, number];
@@ -262,7 +292,9 @@ type PropertyDecl = IPropertyDecl;
 
 type IPropertyDecl = [string, Expr];
 
-type Path = IFieldPath | IPropertyPath;
+type Path = IFieldPath | IPropertyPath | IAccessPath;
+// Unused
+// | ITypePropertyPath;
 
 interface IFieldPath {
   tag: "FieldPath";
@@ -273,6 +305,16 @@ interface IPropertyPath {
   tag: "PropertyPath";
   contents: [BindingForm, string, string];
 }
+
+interface IAccessPath {
+  tag: "AccessPath";
+  contents: [Path, number[]];
+}
+
+// Unused
+// interface ITypePropertyPath {
+//   tag: "TypePropertyPath";
+// }
 
 type Var = IVarConst;
 
@@ -294,6 +336,10 @@ type StyVar = IStyVar;
 
 type IStyVar = string;
 
+type LocalVar = ILocalVar;
+
+type ILocalVar = string;
+
 type Value<T> =
   | IFloatV<T>
   | IIntV<T>
@@ -307,6 +353,8 @@ type Value<T> =
   | IFileV<T>
   | IStyleV<T>
   | IListV<T>
+  | IVectorV<T>
+  | IMatrixV<T>
   | ITupV<T>
   | ILListV<T>
   | IHMatrixV<T>
@@ -369,6 +417,16 @@ interface IStyleV<T> {
 
 interface IListV<T> {
   tag: "ListV";
+  contents: T[];
+}
+
+interface IVectorV<T> {
+  tag: "VectorV";
+  contents: T[];
+}
+
+interface IMatrixV<T> {
+  tag: "MatrixV";
   contents: T[];
 }
 

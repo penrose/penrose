@@ -208,7 +208,7 @@ data StyType = TypeOf String | ListOf String deriving (Show, Eq, Typeable)
 data Path
     = FieldPath BindingForm Field                 -- example: x.val
     | PropertyPath BindingForm Field Property     -- example: x.shape.center
-    | TypePropertyPath 
+    | AccessPath Path [Int] -- COMBAK: Hack so we can refer to anonymous varying vars within structures (vectors, matrices, tuples, lists) -- e.g. `$LOCAL_<id>.o [0]` or `V.shape.center [1]`. This is only used internally; Style doesn't parse into it. Currently only implemented for 2-vectors.
     -- NOTE: Style writer must use backticks in the block to indicate Substance variables
     deriving (Show, Eq, Typeable, Ord)
 
@@ -1431,6 +1431,27 @@ addPath override trans path expr =
        let name   = trName bvar
            trans' = addProperty override trans name field property expr in
        Right trans'
+    -- a.x[0] = e
+    AccessPath (FieldPath bvar field) [i] -> 
+        case (lookupField bvar field trans, expr) of
+        (FExpr (OptEval (Vector es)), Done (FloatV n)) -> 
+              let es' = replaceAtIndex i (AFloat $ Fix $ r2f n) es
+                  name   = trName bvar
+                  trans' = addField override trans name field (OptEval (Vector es')) in
+                  Right trans'
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
+    -- a.x.y[0] = e
+    AccessPath (PropertyPath bvar field property) [i] -> 
+        case (lookupProperty bvar field property trans, expr) of
+        (OptEval (Vector es), Done (FloatV n)) -> 
+              let es' = replaceAtIndex i (AFloat $ Fix $ r2f n) es
+                  name   = trName bvar
+                  trans' = addProperty override trans name field property (OptEval (Vector es')) in
+                  Right trans'
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
+
+replaceAtIndex :: Int -> a -> [a] -> [a]
+replaceAtIndex n item ls = a ++ (item:b) where (a, (_:b)) = splitAt n ls
 
 addPaths :: (Autofloat a) => OverrideFlag -> Translation a -> [(Path, TagExpr a)] -> Either [Error] (Translation a)
 addPaths override = foldM (\trans (p, e) -> addPath override trans p e) 
@@ -1683,6 +1704,41 @@ lookupField bvar field trans =
               --   then error ("nontermination in lookupField with path '" ++ pathStr2 name field ++ "' set to itself")
               --   else trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) lookupField bvarSynonym fieldSynonym trans
               -- _ -> fexpr
+
+lookupProperty ::
+     (Autofloat a)
+  => BindingForm
+  -> Field
+  -> Property
+  -> Translation a
+  -> TagExpr a
+lookupProperty bvar field property trans =
+  let name = trName bvar
+  in case lookupField bvar field trans of
+       FExpr e
+        -- to deal with path synonyms, e.g. `y.f = some GPI with property p; z.f = y.f; z.f.p = some value`
+        -- if we're looking for `z.f.p` and we find out that `z.f = y.f`, then look for `y.f.p` instead
+        -- NOTE: this makes a recursive call!
+        ->
+         case e of
+           OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) ->
+             if bvar == bvarSynonym && field == fieldSynonym
+               then error
+                      ("nontermination in lookupProperty with path '" ++
+                       pathStr3 name field property ++ "' set to itself")
+               else lookupProperty bvarSynonym fieldSynonym property trans
+        -- the only thing that might have properties is another field path
+           _ ->
+             error
+               ("path '" ++
+                pathStr3 name field property ++ "' has no properties")
+       FGPI ctor properties ->
+         case M.lookup property properties of
+           Nothing ->
+             error
+               ("path '" ++
+                pathStr3 name field property ++ "'s property does not exist")
+           Just texpr -> texpr
 
 shapeType :: (Autofloat a) => BindingForm -> Field -> Translation a -> ShapeTypeStr
 shapeType bvar field trans =

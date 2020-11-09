@@ -100,6 +100,9 @@ export const insertVaryings = (
   trans: Translation,
   varyingMap: [Path, VarAD][]
 ): Translation => {
+
+  console.error("insertVaryings", trans, varyingMap); // COMBAK remove
+
   return varyingMap.reduce(
     (tr: Translation, [path, val]: [Path, VarAD]) =>
       insertExpr(path, doneFloat(val), tr),
@@ -294,6 +297,18 @@ export const evalExpr = (
         ),
       };
     };
+    case "EPath":
+      return resolvePath(e.contents, trans, varyingVars);
+    case "CompApp": {
+      const [fnName, argExprs] = e.contents;
+      // eval all args
+      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<VarAD>[];
+      const argValues = args.map((a) => argValue(a));
+      checkComp(fnName, args);
+      // retrieve comp function from a global dict and call the function
+      return { tag: "Val", contents: compDict[fnName](...argValues) };
+    }
+
     case "Tuple": {
       const argVals = evalExprs(e.contents, trans, varyingVars);
       if (argVals.length !== 2) {
@@ -308,6 +323,7 @@ export const evalExpr = (
         }
       };
     };
+
     case "List": {
       const argVals = evalExprs(e.contents, trans, varyingVars);
       return {
@@ -318,19 +334,32 @@ export const evalExpr = (
         }
       };
     };
+
     case "ListAccess": {
       throw Error("List access expression not (yet) supported");
     };
-    case "EPath":
-      return resolvePath(e.contents, trans, varyingVars);
-    case "CompApp": {
-      const [fnName, argExprs] = e.contents;
-      // eval all args
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<VarAD>[];
-      const argValues = args.map((a) => argValue(a));
-      checkComp(fnName, args);
-      // retrieve comp function from a global dict and call the function
-      return { tag: "Val", contents: compDict[fnName](...argValues) };
+
+    case "Vector": {
+      const argVals = evalExprs(e.contents, trans, varyingVars);
+      return {
+        tag: "Val",
+        contents: {
+          tag: "VectorV",
+          contents: argVals.map(toFloatVal)
+        }
+      };
+    }
+
+    case "Matrix": {
+      throw new Error(`cannot evaluate expression of type ${e.tag}`);
+    }
+
+    case "VectorAccess": {
+      throw new Error(`cannot evaluate expression of type ${e.tag}`);
+    }
+
+    case "MatrixAccess": {
+      throw new Error(`cannot evaluate expression of type ${e.tag}`);
     }
 
     default: {
@@ -358,6 +387,11 @@ export const resolvePath = (
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
+
+    if (path.tag === "AccessPath") {
+      throw Error("TODO");
+    }
+
     const gpiOrExpr = findExpr(trans, path);
 
     switch (gpiOrExpr.tag) {
@@ -566,6 +600,10 @@ export const findExpr = (
           const [, propDict] = gpi.contents;
           return propDict[prop];
       }
+
+    case "AccessPath":
+      throw Error("TODO");
+
   }
 };
 
@@ -596,6 +634,8 @@ export const insertExpr = (
       const [, properties] = gpi.contents;
       properties[prop] = expr;
       return trans;
+    case "AccessPath":
+      throw Error("TODO");
   }
 };
 
