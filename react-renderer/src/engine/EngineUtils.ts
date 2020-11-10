@@ -84,6 +84,16 @@ function mapList<T, S>(
   };
 };
 
+function mapVector<T, S>(
+  f: (arg: T) => S,
+  v: IVectorV<T>
+): IVectorV<S> {
+  return {
+    tag: "VectorV",
+    contents: v.contents.map(f)
+  };
+};
+
 function mapTup<T, S>(
   f: (arg: T) => S,
   v: ITupV<T>
@@ -100,6 +110,16 @@ function mapLList<T, S>(
 ): ILListV<S> {
   return {
     tag: "LListV",
+    contents: v.contents.map(e => e.map(f))
+  };
+};
+
+function mapMatrix<T, S>(
+  f: (arg: T) => S,
+  v: IMatrixV<T>
+): IMatrixV<S> {
+  return {
+    tag: "MatrixV",
     contents: v.contents.map(e => e.map(f))
   };
 };
@@ -240,6 +260,10 @@ export function mapValueNumeric<T, S>(
     return mapPtList(f, v);
   } else if (v.tag === "ListV") {
     return mapList(f, v);
+  } else if (v.tag === "VectorV") {
+    return mapVector(f, v);
+  } else if (v.tag === "MatrixV") {
+    return mapMatrix(f, v);
   } else if (v.tag === "TupV") {
     return mapTup(f, v);
   } else if (v.tag === "LListV") {

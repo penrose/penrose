@@ -187,14 +187,31 @@ export const evalExprs = (
 ): ArgVal<VarAD>[] =>
   es.map((e) => evalExpr(e, trans, varyingVars));
 
-function toFloatVal<T>(a: ArgVal<T>): T {
+function toFloatVal<VarAD>(a: ArgVal<VarAD>): VarAD {
   if (a.tag === "Val") {
     const res = a.contents;
     if (res.tag === "FloatV") {
       return res.contents;
+    } else if (res.tag === "IntV") {
+      return constOf(res.contents) as unknown as VarAD; // Not sure why TS compiler has problem here
     } else {
       console.log("res", res);
       throw Error("Expected floating type in list");
+    }
+  } else {
+    console.log("res", a);
+    throw Error("Expected value (non-GPI) type in list");
+  }
+};
+
+function toVecVal<T>(a: ArgVal<T>): T[] {
+  if (a.tag === "Val") {
+    const res = a.contents;
+    if (res.tag === "VectorV") {
+      return res.contents;
+    } else {
+      console.log("res", res);
+      throw Error("Expected vector type in list");
     }
   } else {
     console.log("res", a);
@@ -240,12 +257,13 @@ export const evalExpr = (
       } else {
         const val = e.contents.contents;
 
+        // Don't convert to VarAD if it's already been converted
         return {
           tag: "Val",
           // Fixed number is stored in translation as number, made differentiable when encountered
           contents: {
             tag: "FloatV",
-            contents: constOf(val),
+            contents: val.tag ? val : constOf(val),
           },
         };
       }
@@ -329,13 +347,40 @@ export const evalExpr = (
 
     case "List": {
       const argVals = evalExprs(e.contents, trans, varyingVars);
-      return {
-        tag: "Val",
-        contents: {
-          tag: "ListV",
-          contents: argVals.map(toFloatVal)
+
+      // Is there a better way to implement parametric lists in typescript... this makes a type assumption about the whole list, based on the first elements
+      if (!argVals[0]) {
+        return {
+          tag: "Val",
+          contents: {
+            tag: "ListV",
+            contents: [] as VarAD[]
+          }
+        };
+      }
+
+      if (argVals[0].tag === "Val") {
+        if (argVals[0].contents.tag === "FloatV") {
+          return {
+            tag: "Val",
+            contents: {
+              tag: "ListV",
+              contents: argVals.map(toFloatVal) as VarAD[]
+            }
+          };
+        } else if (argVals[0].contents.tag === "VectorV") {
+          return {
+            tag: "Val",
+            contents: {
+              tag: "LListV", // NOTE: The type has changed from ListV to LListV! That's because ListV's `T` is "not parametric enough" to represent a list of elements
+              contents: argVals.map(toVecVal) as VarAD[][]
+            } as ILListV<VarAD>
+          };
         }
-      };
+      } else {
+        console.error("list elems", argVals);
+        throw Error("unsupported element in list");
+      }
     };
 
     case "ListAccess": {
@@ -344,6 +389,7 @@ export const evalExpr = (
 
     case "Vector": {
       const argVals = evalExprs(e.contents, trans, varyingVars);
+
       return {
         tag: "Val",
         contents: {
@@ -351,6 +397,8 @@ export const evalExpr = (
           contents: argVals.map(toFloatVal)
         }
       };
+
+      // COMBAK: Check for matrix, which is parsed as a list of vectors
     }
 
     case "Matrix": {
@@ -358,7 +406,23 @@ export const evalExpr = (
     }
 
     case "VectorAccess": {
-      throw new Error(`cannot evaluate expression of type ${e.tag}`);
+      const [e1, e2] = e.contents;
+      const [v1, v2] = evalExprs([e1, e2], trans, varyingVars);
+
+      if (v1.tag !== "Val") { throw Error("expected val"); }
+      if (v1.contents.tag !== "VectorV") { throw Error("expected Vector"); }
+
+      if (v2.tag !== "Val") { throw Error("expected val"); }
+      if (v2.contents.tag !== "IntV") { throw Error("expected int"); }
+
+      const vec = v1.contents.contents;
+      const i = v2.contents.contents as number;
+      if (i < 0 || i > vec.length) throw Error("access out of bounds");
+
+      return {
+        tag: "Val",
+        contents: { tag: "FloatV", contents: vec[i] as VarAD }
+      };
     }
 
     case "MatrixAccess": {
@@ -472,6 +536,10 @@ export const argValue = (e: ArgVal<VarAD>) => {
   }
 };
 
+export const intToFloat = (v: IIntV<number>): IFloatV<VarAD> => {
+  return { tag: "FloatV", contents: constOf(v.contents) };
+};
+
 /**
  * Evaluate a binary operation such as +, -, *, /, or ^.
  * @param op a binary operater
@@ -483,45 +551,115 @@ export const evalBinOp = (
   v2: Value<VarAD>
 ): Value<VarAD> => {
 
-  let returnType: "FloatV" | "IntV";
-  // TODO: deal with Int ops/conversion for binops
-  // res = returnType === "IntV" ? Math.floor(res) : res;
+  console.log('binop', op, v1, v2);
+
+  // Promote int to float
+  if (v1.tag === "IntV" && v2.tag === "FloatV") {
+    return evalBinOp(op, intToFloat(v1), v2);
+  } else if (v1.tag === "FloatV" && v2.tag === "IntV") {
+    return evalBinOp(op, v1, intToFloat(v2));
+  }
 
   // NOTE: need to explicitly check the types so the compiler will understand
   if (v1.tag === "FloatV" && v2.tag === "FloatV") {
     let res;
 
     switch (op) {
-      case "BPlus":
+      case "BPlus": {
         res = add(v1.contents, v2.contents);
         break;
+      }
 
-      case "BMinus":
+      case "BMinus": {
         res = sub(v1.contents, v2.contents);
         break;
+      }
 
-      case "Multiply":
+      case "Multiply": {
         res = mul(v1.contents, v2.contents);
         break;
+      }
 
-      case "Divide":
+      case "Divide": {
         res = div(v1.contents, v2.contents);
         break;
+      }
 
-      case "Exp":
+      case "Exp": {
         throw Error("Pow op unimplemented");
         // res = v1.contents.powStrict(v2.contents);
         break;
+      }
     }
 
-    returnType = "FloatV";
-    return { tag: returnType, contents: res };
-  }
+    return { tag: "FloatV", contents: res };
 
-  else if (v1.tag === "IntV" && v2.tag === "IntV") {
-    returnType = "IntV";
-  }
-  else {
+  } else if (v1.tag === "IntV" && v2.tag === "IntV") {
+    const returnType = "IntV";
+    let res;
+
+    switch (op) {
+      case "BPlus": {
+        res = v1.contents + v2.contents;
+        break;
+      }
+
+      case "BMinus": {
+        res = v1.contents - v2.contents;
+        break;
+      }
+
+      case "Multiply": {
+        res = v1.contents * v2.contents;
+        break;
+      }
+
+      case "Divide": {
+        res = v1.contents / v2.contents;
+        break;
+      }
+
+      case "Exp": {
+        res = Math.pow(v1.contents, v2.contents);
+        break;
+      }
+    }
+
+    return { tag: "IntV", contents: res };
+
+  } else if (v1.tag === "VectorV" && v2.tag === "VectorV") {
+    let res;
+
+    switch (op) {
+      case "BPlus": {
+        res = ops.vadd(v1.contents, v2.contents);
+        break;
+      }
+
+      case "BMinus": {
+        res = ops.vsub(v1.contents, v2.contents);
+        break;
+      }
+    }
+
+    return { tag: "VectorV", contents: res as VarAD[] };
+  } else if (v1.tag === "FloatV" && v2.tag === "VectorV") {
+    let res;
+
+    switch (op) {
+      case "Multiply": {
+        res = ops.vmul(v1.contents, v2.contents);
+        break;
+      }
+
+      case "Divide": {
+        res = ops.vdiv(v2.contents, v1.contents); // Note swapped arg order
+        break;
+      }
+    }
+
+    return { tag: "VectorV", contents: res as VarAD[] };
+  } else {
     throw new Error(`the types of two operands to ${op} must match: ${v1.tag}, ${v2.tag}`);
   }
 
@@ -535,7 +673,7 @@ export const evalBinOp = (
  */
 export const evalUOp = (
   op: UnaryOp,
-  arg: IFloatV<VarAD> | IIntV<VarAD>
+  arg: IFloatV<VarAD> | IIntV<VarAD> | IVectorV<VarAD>
 ): Value<VarAD> => {
 
   if (arg.tag === "FloatV") {
@@ -545,13 +683,22 @@ export const evalUOp = (
       case "UMinus":
         return { ...arg, contents: neg(arg.contents) };
     }
-  } else { // IntV
+  } else if (arg.tag === "IntV") {
     switch (op) {
       case "UPlus":
         throw new Error("unary plus is undefined");
       case "UMinus":
         return { ...arg, contents: -arg.contents };
     }
+  } else if (arg.tag === "VectorV") {
+    switch (op) {
+      case "UPlus":
+        throw new Error("unary plus is undefined");
+      case "UMinus":
+        return { ...arg, contents: ops.vneg(arg.contents) };
+    }
+  } else {
+    throw Error("unary op undefined on type ${arg.tag}, op ${op}");
   }
 
 };
