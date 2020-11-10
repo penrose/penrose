@@ -419,7 +419,7 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [varAssign, pathAssign, anonAssign, override, delete]
+stmt = tryChoice [pathAssign, anonAssign, override, delete]
 
 -- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
 anonExpr :: Parser Expr
@@ -937,10 +937,13 @@ substitutePath lv subst path =
     case path of
     FieldPath    bVar field      -> FieldPath    (substituteBform (Just lv) subst bVar) field
     PropertyPath bVar field prop -> PropertyPath (substituteBform (Just lv) subst bVar) field prop
+    LocalVar v -> FieldPath (BSubVar $ VarConst $ mkLocalVarName lv) v
+    -- Note that the local var becomes a path
+    -- Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
+    -- where <ids> is a string generated to be unique to this selector match for this block
 
 substituteField :: LocalVarSubst -> Subst -> PropertyDecl -> PropertyDecl
 substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr lv subst expr
-
 
 -- DEPRECATED
 -- substituteLayering :: LocalVarSubst -> Subst -> LExpr -> LExpr
@@ -949,15 +952,9 @@ substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substi
 -- substituteLayering lv subst (LayeringOp op lex1 lex2) =
 --                    LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
 
--- Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
--- where <ids> is a string generated to be unique to this selector match for this block
-substituteLocalVar :: LocalVarSubst -> Subst -> LocalVar -> Path
-substituteLocalVar lv subst (LocalVar v) = FieldPath (BSubVar $ VarConst $ mkLocalVarName lv) v
-
 substituteBlockExpr :: LocalVarSubst -> Subst -> Expr -> Expr
 substituteBlockExpr lv subst expr =
     case expr of
-    EVar v            -> EPath $ substituteLocalVar lv subst v -- Note that the local var becomes a path
     EPath path        -> EPath $ substitutePath lv subst path
     CompApp f es      -> CompApp f $ map (substituteBlockExpr lv subst) es
     ObjFn   f es      -> ObjFn   f $ map (substituteBlockExpr lv subst) es
@@ -980,14 +977,13 @@ substituteBlockExpr lv subst expr =
     ThenOp e1 e2 -> ThenOp (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
     Vector es           -> Vector $ map (substituteBlockExpr lv subst) es
     Matrix es           -> Matrix $ map (substituteBlockExpr lv subst) es
-    VectorAccess e1 e2 -> VectorAccess (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
-    MatrixAccess e1 e2 e3 -> MatrixAccess (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2) (substituteBlockExpr lv subst e3)
+    VectorAccess e1 e2 -> VectorAccess (substitutePath lv subst e1) (substituteBlockExpr lv subst e2)
+    MatrixAccess e1 es -> MatrixAccess (substitutePath lv subst e1) (map (substituteBlockExpr lv subst) es)
 
 substituteLine :: LocalVarSubst -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
     case line of
     PathAssign t path expr -> PathAssign t (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
-    VarAssign t v expr -> PathAssign t (substituteLocalVar lv subst v) (substituteBlockExpr lv subst expr) -- Note that the local var becomes a path
     Override path expr -> Override (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
     Delete   path      -> Delete $ substitutePath lv subst path
     _ -> error "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
@@ -1596,8 +1592,12 @@ evalPluginAccess valMap trans =
                   evalPluginExpr vmap (ThenOp e1 e2) = ThenOp (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (Vector es) = Vector $ map (evalPluginExpr vmap) es
                   evalPluginExpr vmap (Matrix es) = Matrix $ map (evalPluginExpr vmap) es
-                  evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
-                  evalPluginExpr vmap (MatrixAccess e1 e2 e3) = MatrixAccess (evalPluginExpr vmap e1) (evalPluginExpr vmap e2) (evalPluginExpr vmap e3)
+                  -- evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  -- evalPluginExpr vmap (MatrixAccess e1 es) = MatrixAccess (evalPluginExpr vmap e1) (map (evalPluginExpr vmap) es)
+
+                  -- COMBAK: Should the first elements have plugin access evaluated? Probably not?
+                  evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess e1 (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (MatrixAccess e1 es) = MatrixAccess e1 (map (evalPluginExpr vmap) es)
 
                   -- Leaves (no strings should be involved)
                   evalPluginExpr _ e@(IntLit _) = e
@@ -1608,7 +1608,6 @@ evalPluginAccess valMap trans =
                   evalPluginExpr _ e@(ListAccess _ _) = e
                   evalPluginExpr _ e@(Ctor _ _) = e
                   evalPluginExpr _ e@(Layering _ _) = e
-                  evalPluginExpr _ e@(EVar _) = e
 
                   evalStatic :: Expr -> String
                   evalStatic (StringLit s) = s
@@ -1654,7 +1653,7 @@ nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                          nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
                          -- Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
-                                           let stmt = VarAssign Nothing (LocalVar $ anonKeyword ++ "_" ++ show i) e in
+                                           let stmt = PathAssign Nothing (LocalVar $ anonKeyword ++ "_" ++ show i) e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])
 

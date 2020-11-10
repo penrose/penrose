@@ -197,6 +197,9 @@ export const constrDict = {
     } else if (t1 === "Square" && t2 === "Arrow") {
       const [[startX, startY], [endX, endY]] = linePts(s2);
       const [x, y] = fns.center(s1);
+
+      console.log("s1", s1, s1.side.contents, "s2", s2);
+
       const r = div(s1.side.contents, constOf(2.0));
       const f = constOf(0.75); // 0.25 padding
       //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)

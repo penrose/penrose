@@ -3,7 +3,7 @@ const {
   -- For unit mark
   markerPadding = 15.0
   barSize = 5.0
-  vectorSpaceSize = 350
+  vectorSpaceSize = 350.0
   repelWeight = 0.7
   arrowheadSize = 0.6
   lineThickness = 1
@@ -36,15 +36,16 @@ testing {
         asum = a[1] + a[0]
         c = 0
         b = 1
-        msum = m[1][0] + m[c][b]
+        msum = m[1][0] + m[c][b] -- COMBAK test matrix access
         nv = -v
-        t1 = x[1][b]
+        t1 = x[1][b]  -- COMBAK test matrix access
 }
 
 forall VectorSpace U {
-    axisSize = const.vectorSpaceSize / 2 -- This should get promoted to float
+    axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
     U.origin = (?, ?)
     o = U.origin
+    U.axisColor = C.gray
 
     U.shape = Square {
         center : U.origin
@@ -54,7 +55,7 @@ forall VectorSpace U {
     }
 
     U.xAxis = Arrow {
-           start : (o[0] - axisSize, o[1])
+           start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
              end : (o[0] + axisSize, o[1])
        thickness : const.lineThickness
            style : "solid"
@@ -90,15 +91,14 @@ where In(u,U) {
     start : U.origin
     end : (?, ?)
     thickness : 3.0
-    color : C.blue
+    color : C.lightBlue
     arrowheadSize : const.arrowheadSize
   }
 
    u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
 
-   contains = functions.contains
-   ensure contains(u.arrow, u.arrow)
-   ensure contains(u.arrow, u.text)
+   ensure contains(U.shape, u.arrow)
+   ensure contains(U.shape, u.text)
    ensure atDist(u.arrow, u.text, 5.0)
 
   layer u.text above U.xAxis
@@ -116,26 +116,26 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       dirL = normalize(endL - startL)
       ptL = startR + const.perpLen * dirL
       ptR = startR + const.perpLen * dirR
-      ptLR = ptL + len * dirR
+      ptLR = ptL + const.perpLen * dirR
       pts = [ptL, ptLR, ptR]
 
-      toPath = functions.pathFromPoints
+      -- toPath = functions.pathFromPoints -- COMBAK: Add ability to alias function names
 
       -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
       perpMark = Curve {
-           pathData : toPath("closed", pts)
+           pathData : pathFromPoints("closed", pts)
            strokeWidth : 2.0
            color : C.black
            fill : C.white
       }
 
       -- Make sure vectors are orthogonal (use ensure?)
-      eq = functions.equal
-      encourage eq(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
+      -- eq = functions.equal
+      encourage equal(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
 -- COMBAK: Test parsing the expressions that involve local vars 
-      -- layer v.arrow above perpMark
-      -- layer u.arrow above perpMark
+      layer v.arrow above perpMark
+      layer u.arrow above perpMark
 }
 
 forall Vector v
@@ -145,22 +145,25 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       -- but we need to position the unit mark so it doesn't overlap with the "inside" of the two vectors
 
       strokeWidth = 2
-      toPath = functions.pathFromPoints
+      padding = 5.0 -- COMBAK: What is this?
+      -- toPath = functions.pathFromPoints -- COMBAK
 
       -- The start and end of the body of the unit marker line
       -- NOTE: We need to have lists of vectors
-      dir = normalize(w.shape.end - w.shape.start)
+      dir = normalize(w.arrow.end - w.arrow.start)
       normal = -dir
       markStart = v.arrow.start + padding * normal
       markEnd = v.arrow.end + padding * normal
       v.markerLine = [markStart, markEnd]
 
       v.unitMarkerLine = Curve {
-          pathData : toPath("open", v.markerLine)
+          pathData : pathFromPoints("open", v.markerLine)
           strokeWidth : strokeWidth
           color : C.black
           fill : C.none
       }
+
+-- COMBAK: Implement matrices
 
       rot90CW = ((0, 1), (-1, 0))
       markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
@@ -168,14 +171,14 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       halfvec = c * markNormal
 
       v.unitMarkerEnd1 = Curve {
-          pathData : toPath("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+          pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           strokeWidth : strokeWidth
           color : C.black
           fill : C.none
       }
 
       v.unitMarkerEnd2 = Curve {
-          pathData : toPath("open", [markEnd - halfvec, markEnd + halfvec])
+          pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           strokeWidth : strokeWidth
           color : C.black
           fill : C.none
@@ -195,5 +198,5 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 }
 
 forall Vector `x2` {
-       override `x2`.shape.color = C.green
+       override `x2`.arrow.color = C.green
 }

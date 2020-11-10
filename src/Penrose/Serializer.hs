@@ -101,7 +101,7 @@ deriveJSON defaultOptions ''BindingForm
 
 deriveJSON defaultOptions ''StyVar
 
-deriveJSON defaultOptions ''LocalVar
+-- deriveJSON defaultOptions ''LocalVar
 
 deriveJSON defaultOptions ''VarEnv
 

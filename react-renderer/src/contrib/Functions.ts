@@ -83,9 +83,17 @@ export const compDict = {
     };
   },
 
-  pathFromPoints: (pts: [Pt2]): IPathDataV<VarAD> => {
+  normalize: (v: VarAD[]): IVectorV<VarAD> => {
+    return {
+      tag: "VectorV",
+      contents: ops.vnormalize(v)
+    }
+  },
+
+  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<VarAD> => {
+    const pathTypeStr = pathType === 'closed' ? "Closed" : "Open";
     const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
-    const path: SubPath<VarAD> = { tag: "Open", contents: elems };
+    const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
     return { tag: "PathDataV", contents: [path] };
   },
 

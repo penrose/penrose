@@ -427,7 +427,7 @@ interface IVectorV<T> {
 
 interface IMatrixV<T> {
   tag: "MatrixV";
-  contents: T[];
+  contents: T[][];
 }
 
 interface ITupV<T> {
