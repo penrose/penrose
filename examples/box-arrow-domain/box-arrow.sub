@@ -1,0 +1,4 @@
+Node Foo, Bar
+DirectedEdge Baz := Foo -> Bar
+
+AutoLabel All
