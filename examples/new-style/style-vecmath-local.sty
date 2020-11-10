@@ -36,9 +36,9 @@ testing {
         asum = a[1] + a[0]
         c = 0
         b = 1
-        msum = m[1][0] + m[c][b]
+        msum = m[1][0] + m[c][b] -- COMBAK test matrix access
         nv = -v
-        t1 = x[1][b]
+        t1 = x[1][b]  -- COMBAK test matrix access
 }
 
 forall VectorSpace U {
@@ -55,7 +55,7 @@ forall VectorSpace U {
     }
 
     U.xAxis = Arrow {
-           start : (o[0] - axisSize, o[1])
+           start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
              end : (o[0] + axisSize, o[1])
        thickness : const.lineThickness
            style : "solid"
@@ -134,8 +134,8 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       encourage equal(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
 -- COMBAK: Test parsing the expressions that involve local vars 
-      -- layer v.arrow above perpMark
-      -- layer u.arrow above perpMark
+      layer v.arrow above perpMark
+      layer u.arrow above perpMark
 }
 
 forall Vector v
@@ -165,36 +165,36 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
 -- COMBAK: Implement matrices
 
-      -- rot90CW = ((0, 1), (-1, 0))
-      -- markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
-      -- c = const.barSize
-      -- halfvec = c * markNormal
+      rot90CW = ((0, 1), (-1, 0))
+      markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+      c = const.barSize
+      halfvec = c * markNormal
 
-      -- v.unitMarkerEnd1 = Curve {
-      --     pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
-      --     strokeWidth : strokeWidth
-      --     color : C.black
-      --     fill : C.none
-      -- }
+      v.unitMarkerEnd1 = Curve {
+          pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+          strokeWidth : strokeWidth
+          color : C.black
+          fill : C.none
+      }
 
-      -- v.unitMarkerEnd2 = Curve {
-      --     pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
-      --     strokeWidth : strokeWidth
-      --     color : C.black
-      --     fill : C.none
-      -- }
+      v.unitMarkerEnd2 = Curve {
+          pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
+          strokeWidth : strokeWidth
+          color : C.black
+          fill : C.none
+      }
 
-      -- midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2
-      -- labelPos = midpointLoc + const.markerPadding * normal
+      midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2
+      labelPos = midpointLoc + const.markerPadding * normal
 
-      -- v.unitMarkerText = Text {
-      --     string : "1"
-      --     center : labelPos
-      --     color : C.black
-      -- }
+      v.unitMarkerText = Text {
+          string : "1"
+          center : labelPos
+          color : C.black
+      }
 
-      -- layer v.unitMarkerLine above U.xAxis
-      -- layer v.unitMarkerLine above U.yAxis
+      layer v.unitMarkerLine above U.xAxis
+      layer v.unitMarkerLine above U.yAxis
 }
 
 forall Vector `x2` {

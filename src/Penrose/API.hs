@@ -35,6 +35,7 @@ import           Penrose.Substance
 import           Penrose.Sugarer
 import           Penrose.Util
 import           System.IO.Unsafe           (unsafePerformIO)
+import           Text.Show.Pretty      (pPrint, ppShow)
 
 --------------------------------------------------------------------------------
 -- Types for decoding API calls
@@ -88,9 +89,9 @@ compileTrio substance style element
   -- Compilation phase
   let optConfig = defaultOptConfig
   -- COMBAK: revert
-  state <- compileStyle styProg subOut' styVals optConfig
-  return (state, env)
-  -- error $ "Style AST: \n" ++ show styProg
+  -- state <- compileStyle styProg subOut' styVals optConfig
+  -- return (state, env)
+  error $ "Style AST: \n" ++ ppShow styProg
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
 getEnv ::
