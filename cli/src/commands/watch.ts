@@ -13,7 +13,11 @@ export default class Watch extends Command {
 
   static flags = {
     help: flags.help({ char: "h" }),
-    port: flags.integer({ char: "p" }),
+    port: flags.integer({
+      char: "p",
+      description: "websocket port to serve to frontend",
+      default: 9160,
+    }),
   };
 
   static args = [
@@ -152,14 +156,14 @@ export default class Watch extends Command {
   async run() {
     const { args, flags } = this.parse(Watch);
 
-    console.info("starting...");
+    console.info(chalk.blue(`starting on port ${flags.port}...`));
 
     await this.watchFile(args.substance, "substance");
     await this.watchFile(args.style, "style");
     await this.watchFile(args.domain, "domain");
 
     this.wss = new WebSocket.Server({
-      port: 9160,
+      port: flags.port,
     });
 
     this.wss.on("connection", (ws) => {

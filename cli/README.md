@@ -28,28 +28,8 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`penrose-cli hello [FILE]`](#penrose-cli-hello-file)
 * [`penrose-cli help [COMMAND]`](#penrose-cli-help-command)
-
-## `penrose-cli hello [FILE]`
-
-describe the command here
-
-```
-USAGE
-  $ penrose-cli hello [FILE]
-
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ penrose-cli hello
-  hello world from ./src/hello.ts!
-```
-
-_See code: [src/commands/hello.ts](https://github.com/penrose/penrose/blob/v0.0.0/src/commands/hello.ts)_
+* [`penrose-cli watch SUBSTANCE STYLE DOMAIN`](#penrose-cli-watch-substance-style-domain)
 
 ## `penrose-cli help [COMMAND]`
 
@@ -67,4 +47,19 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
+
+## `penrose-cli watch SUBSTANCE STYLE DOMAIN`
+
+watches files for changes
+
+```
+USAGE
+  $ penrose-cli watch SUBSTANCE STYLE DOMAIN
+
+OPTIONS
+  -h, --help       show CLI help
+  -p, --port=port  [default: 9160] websocket port to serve to frontend
+```
+
+_See code: [src/commands/watch.ts](https://github.com/penrose/penrose/blob/v0.0.0/src/commands/watch.ts)_
 <!-- commandsstop -->
