@@ -455,7 +455,7 @@ vectorAccess :: Parser Expr
 vectorAccess = VectorAccess <$> path <*> bExpr 
 
 matrixAccess :: Parser Expr
-matrixAccess = MatrixAccess <$> path <*> some bExpr
+matrixAccess = MatrixAccess <$> path <*> ((:) <$> bExpr <*> some bExpr)
 
 bExpr :: Parser Expr
 bExpr = brackets expr
