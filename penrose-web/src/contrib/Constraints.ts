@@ -22,6 +22,7 @@ import {
   ops,
   fns,
   epsd,
+  debug,
   EPS_DENOM
 } from "engine/Autodiff";
 import { linePts } from "utils/OtherUtils";
@@ -69,7 +70,7 @@ export const objDict = {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, fns.center(text1), fns.center(text2),
-        [mul(spacing, (text1.h.contents)),
+        [mul(spacing, text1.h.contents),
         neg(mul(text2.h.contents, spacing))]);
 
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);

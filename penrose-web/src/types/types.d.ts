@@ -501,24 +501,25 @@ type Params = IParams;
 interface IParams {
   optStatus: OptStatus;
   weight: number; // Constraint weight for exterior point method
-  mutableUOstate: VarAD[]; // Don't forget... it's mutable!
 
   // Info for unconstrained optimization
   UOround: number;
-  lastUOstate: VarAD;
-  lastUOenergy: VarAD;
+  lastUOstate: number[];
+  lastUOenergy: number;
 
   // Info for exterior point method
   EPround: number;
-  lastEPstate: VarAD;
-  lastEPenergy: VarAD;
+  lastEPstate: number[];
+  lastEPenergy: number;
 
-  // For L-BFGS (TODO)
+  lastGradient: number[]; // Value of gradient evaluated at the last state
+  lastGradientPreconditioned: number[]; // Value of gradient evaluated at the last state, preconditioned by LBFGS
+  // ^ Those two are stored to make them available to Style later
+
+  // For L-BFGS
   lbfgsInfo: LbfgsParams;
 
-  // ------- Forked vars for new AD
-
-  xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
+  xsVars: VarAD[]; // Computational graph (leaf vars), from the bottom up
 
   // For energy/gradient compilation
   graphs: GradGraphs;
@@ -537,11 +538,6 @@ interface IParams {
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
   constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
   epWeightNode: VarAD; // similar to constrWeightNode
-
-  _lastUOstate: number[];
-  _lastUOenergy: number;
-  _lastEPstate: number[];
-  _lastEPenergy: number;
 }
 
 type WeightInfo = IWeightInfo;
@@ -611,6 +607,9 @@ interface IVarAD {
   gradNode: MaybeVal<VarAD>;
   index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
 
+  debug: boolean; // If true, this prints node debug info on evaluation
+  debugInfo: string;
+
   nodeVisited: boolean;
   // Now used to track whether this node (and its children) has already been computed in the codegen
   name: string; // Name of cached value for this node in codegen (e.g. `const x3 = x1 + x2;` <-- name of node is `x3`)
@@ -636,4 +635,25 @@ interface IGradGraphs {
   // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
   gradOutputs: VarAD[]
   weight: MaybeVal<VarAD>, // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
+}
+
+type OptInfo = IOptInfo;
+// Returned after a call to `minimize`
+
+interface IOptInfo {
+  xs: number[],
+  energyVal: number,
+  normGrad: number,
+  newLbfgsInfo: LbfgsParams,
+  gradient: number[],
+  gradientPreconditioned: number[]
+}
+
+type OptDebugInfo = IOptDebugInfo;
+
+type NumMap = Map<string, number>;
+
+interface IOptDebugInfo {
+  gradient: NumMap,
+  gradientPreconditioned: NumMap,
 }

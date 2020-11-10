@@ -1,8 +1,9 @@
 import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
 import { Logger } from "tslog";
+import { settings } from 'cluster';
 
-const log: Logger = new Logger({
+const logger: Logger = new Logger({
   name: "optimizer",
   minLevel: "error",
   displayLoggerName: true,
@@ -73,6 +74,9 @@ export const variableAD = (
     gradVal: { tag: "Nothing" },
     gradNode: { tag: "Nothing" },
     index: -100,
+
+    debug: false,
+    debugInfo: "",
 
     nodeVisited: false,
     name: "",
@@ -235,7 +239,7 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   // N-way add
   // TODO: Do argument list length checking for other ops generically
   if (xs.length === 0) {
-    log.warn("node", xs);
+    logger.warn("node", xs);
     throw Error("argument list to addN is empty; expected 1+ elements");
   } else if (xs.length === 1) {
     return xs[0];
@@ -475,7 +479,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
 
   const dzDv = (arg: "unit"): number => {
     if (v.val < 0) {
-      log.warn(`negative arg ${v.val} in sqrt`);
+      logger.warn(`negative arg ${v.val} in sqrt`);
     }
     return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM));
   };
@@ -625,6 +629,16 @@ export const ifCond = (
   return z;
 };
 
+// ------------ Meta / debug ops
+
+// Mutates a node to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
+// For more documentation on how to use this function, see the Penrose wiki page.
+export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
+  v.debug = true;
+  v.debugInfo = debugInfo;
+  return v;
+}
+
 const opMap = {
   "+": {
     fn: (x: number, y: number): number => x + y,
@@ -664,7 +678,7 @@ const opMap = {
   sqrt: {
     fn: (x: number): number => {
       if (x < 0) {
-        log.warn(`negative arg ${x} in sqrt`);
+        logger.warn(`negative arg ${x} in sqrt`);
       }
       return Math.sqrt(Math.max(0, x));
     },
@@ -815,7 +829,7 @@ const genCode = (
   let progStmts: string[] = [];
   let progOutputs: string[] = [];
 
-  log.trace(
+  logger.trace(
     "genCode inputs, outputs, weightNode, setting",
     inputs,
     outputs,
@@ -824,7 +838,7 @@ const genCode = (
   );
 
   let inputsNew;
-  log.trace("has weight?", weightNode.tag === "Just");
+  logger.trace("has weight?", weightNode.tag === "Just");
   if (weightNode.tag === "Nothing") {
     inputsNew = inputs;
   } else {
@@ -834,7 +848,7 @@ const genCode = (
   // Just traverse + name the inputs first (they have no children, so the traversal stops there), then work backward from the outputs
   // The inputs are the EP weight + original xsVars (if it's energy) or just the xsVars (if it's gradient)
   for (const x of inputsNew) {
-    const res = traverseGraph(counter, x);
+    const res = traverseGraph(counter, x, setting);
 
     if (res.inputs.length !== 1) {
       throw Error("expected one input from an input var traversal");
@@ -849,7 +863,7 @@ const genCode = (
 
   // For each output, traverse the graph and combine the results sequentially
   for (const z of outputs) {
-    const res = traverseGraph(counter, z);
+    const res = traverseGraph(counter, z, setting);
     progStmts = progStmts.concat(res.prog);
     progOutputs = progOutputs.concat(res.output);
 
@@ -876,10 +890,10 @@ const genCode = (
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
-  log.warn("progInputs", "progStr", progInputs, progStr);
+  logger.warn("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
-  log.trace("generated f\n", f);
+  logger.trace("generated f\n", f);
 
   let g;
   if (weightNode.tag === "Nothing") {
@@ -895,7 +909,7 @@ const genCode = (
       };
     };
   }
-  log.trace("overall function generated (g):", g);
+  logger.trace("overall function generated (g):", g);
 
   for (const x of inputsNew) {
     clearVisitedNodesInput(x);
@@ -911,8 +925,8 @@ const genCode = (
 // NOTE: Mutates z to store that the node was visited, and what its name is
 // `i` is the counter, the initial parameter for generating var names
 // `i` starts with 0 for the frst call, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
-const traverseGraph = (i: number, z: IVarAD): any => {
-  const c = "x";
+const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
+  const c = "x"; // Base character for var names
   const childType = z.isCompNode ? "children" : "childrenGrad";
 
   // If this node was already visited, return its name (cached), and counter should not increment
@@ -946,6 +960,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       };
     }
 
+    let stmts = [];
     let stmt;
     // Otherwise bind const in body
     if (z.op === "noGrad") {
@@ -954,9 +969,16 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       stmt = `const ${leafName} = ${z.op};`;
     }
 
+    stmts.push(stmt);
+
+    if (z.debug) {
+      const stmt2 = `console.log("${z.debugInfo} (var ${leafName}) | value: ", ${leafName}, "during ${setting} evaluation");`;
+      stmts.push(stmt2);
+    }
+
     return {
       counter: i,
-      prog: [stmt],
+      prog: stmts,
       inputs: [],
       output: leafName,
       references: [],
@@ -966,7 +988,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     // debugger;
 
     const child = z[childType][0].node;
-    const res = traverseGraph(i, child);
+    const res = traverseGraph(i, child, setting);
 
     let childName;
     let parCounter;
@@ -987,6 +1009,8 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     z.name = parName;
 
     const op = z.op;
+
+    let stmts = [];
     let stmt;
 
     if (z.op === "squared") {
@@ -1010,9 +1034,16 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       stmt = `const ${parName} = (${op})(${childName});`;
     }
 
+    stmts.push(stmt);
+
+    if (z.debug) {
+      const stmt2 = `console.log("${z.debugInfo} (var ${parName}) | value: ", ${parName}, "during ${setting} evaluation");`;
+      stmts.push(stmt2);
+    }
+
     return {
       counter: parCounter,
-      prog: res.prog.concat([stmt]),
+      prog: res.prog.concat(stmts),
       inputs: res.inputs,
       output: parName,
       references: [],
@@ -1023,7 +1054,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     const child0 = z[childType][0].node;
     const child1 = z[childType][1].node;
 
-    const res0 = traverseGraph(i, child0);
+    const res0 = traverseGraph(i, child0, setting);
     let childName0;
     let nextCounter;
     if (res0.references[0]) {
@@ -1034,7 +1065,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       nextCounter = res0.counter + 1;
     }
 
-    const res1 = traverseGraph(nextCounter, child1);
+    const res1 = traverseGraph(nextCounter, child1, setting);
     let childName1;
     let parCounter;
     if (res1.references[0]) {
@@ -1053,6 +1084,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     z.name = parName;
 
     const op = z.op;
+    let stmts = [];
     let stmt;
     if (op === "max") {
       stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
@@ -1070,10 +1102,17 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
     }
 
+    stmts.push(stmt);
+
+    if (z.debug) {
+      const stmt2 = `console.log("${z.debugInfo} (var ${parName}) | value: ", ${parName}, "during ${setting} evaluation");`;
+      stmts.push(stmt2);
+    }
+
     // Array efficiency?
     return {
       counter: parCounter,
-      prog: res0.prog.concat(res1.prog).concat([stmt]),
+      prog: res0.prog.concat(res1.prog).concat(stmts),
       inputs: res0.inputs.concat(res1.inputs),
       output: parName,
       references: [],
@@ -1089,7 +1128,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
 
     // Evaluate each child and get its generated code, inputs, and name first
     for (const childNode of childNodes) {
-      const res = traverseGraph(counter, childNode);
+      const res = traverseGraph(counter, childNode, setting);
       prog = prog.concat(res.prog);
       inputs = inputs.concat(res.inputs);
 
@@ -1111,6 +1150,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     z.name = parName;
 
     const op = z.op;
+    let stmts = [];
     let stmt;
 
     // Deals with ifCond nodes (ternary)
@@ -1119,7 +1159,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {
-        log.warn("args", childNames);
+        logger.warn("args", childNames);
         throw Error("expected three args to if cond");
       }
 
@@ -1128,13 +1168,21 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       const childList = "[".concat(childNames.join(", ")).concat("]");
       stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
     } else {
-      log.warn("node", z, z.op);
+      logger.warn("node", z, z.op);
       throw Error("unknown n-ary operation");
+    }
+
+    stmts.push(stmt);
+
+    // TODO: Factor out this code, which is repeated 3 times
+    if (z.debug) {
+      const stmt2 = `console.log("${z.debugInfo} (var ${parName}) | value: ", ${parName}, "during ${setting} evaluation");`;
+      stmts.push(stmt2);
     }
 
     return {
       counter,
-      prog: prog.concat([stmt]),
+      prog: prog.concat(stmts),
       inputs,
       output: parName,
       references: [],
@@ -1198,7 +1246,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
   // TODO: Make this code more generic/neater over the # children
   if (z.valDone || !z.children || !z.children.length) {
     if (DEBUG_ENERGY) {
-      log.trace("z.result", z.val);
+      logger.trace("z.result", z.val);
     }
     return z.val;
   }
@@ -1216,7 +1264,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      log.trace("z result:", z.op, childVal, "=", z.val);
+      logger.trace("z result:", z.op, childVal, "=", z.val);
     }
     return z.val;
   } else if (z.children.length === 2) {
@@ -1227,7 +1275,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      log.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
+      logger.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
     }
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
@@ -1281,13 +1329,13 @@ export const energyAndGradCompiled = (
   );
 
   if (DEBUG_GRADIENT_UNIT_TESTS) {
-    log.trace("Running gradient unit tests", graphs);
+    logger.trace("Running gradient unit tests", graphs);
     testGradSymbolicAll();
     // throw Error("done with gradient unit tests");
   }
 
   if (DEBUG_GRADIENT) {
-    log.trace("Testing real gradient on these graphs", graphs);
+    logger.trace("Testing real gradient on these graphs", graphs);
     testGradSymbolic(0, graphs);
     // throw Error("done with testGradSymbolic");
   }
@@ -1306,7 +1354,7 @@ const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
   if (PRINT_TEST_RESULTS) {
     // console.assert(b);
-    log.trace("Assertion", res, ": ", ...s);
+    logger.trace("Assertion", res, ": ", ...s);
   }
   return b;
 };
@@ -1340,7 +1388,7 @@ const testGradFiniteDiff = () => {
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
-  log.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+  logger.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = genCode(
@@ -1353,7 +1401,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   const weight = 1; // TODO: Test with several weights
   let f;
   let gradGen;
-  log.trace("testGradSymbolic has weight?", graphs.weight);
+  logger.trace("testGradSymbolic has weight?", graphs.weight);
 
   if (graphs.weight.tag === "Just") {
     // Partially apply with weight
@@ -1374,11 +1422,11 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
-    log.trace("----");
-    log.trace("test", i);
-    log.trace("energy at x", xsTest, "=", energyRes);
-    log.trace("estimated gradient at", xsTest, "=", gradEstRes);
-    log.trace("analytic gradient at", xsTest, "=", gradGenRes);
+    logger.trace("----");
+    logger.trace("test", i);
+    logger.trace("energy at x", xsTest, "=", energyRes);
+    logger.trace("estimated gradient at", xsTest, "=", gradEstRes);
+    logger.trace("analytic gradient at", xsTest, "=", gradGenRes);
 
     const testRes = assert(eqList(gradEstRes, gradGenRes), [
       "estimated, analytic gradients:",
@@ -1394,7 +1442,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   ]);
 
   // TODO: Visualize both of them
-  log.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+  logger.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
 
   return testOverall;
 };
@@ -1412,7 +1460,7 @@ const gradGraph0 = (): GradGraphs => {
   const dRef = gradADSymbolic(ref);
 
   // Print results
-  log.trace(
+  logger.trace(
     "computational graphs for test 1 (input, output, gradient)",
     ref,
     head,
@@ -1514,7 +1562,7 @@ const gradGraph4 = (): GradGraphs => {
 };
 
 export const testGradSymbolicAll = () => {
-  log.trace("testing symbolic gradients");
+  logger.trace("testing symbolic gradients");
 
   testGradFiniteDiff();
 
@@ -1528,5 +1576,5 @@ export const testGradSymbolicAll = () => {
 
   const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 
-  log.warn(`All grad symbolic tests passed?: ${all(testResults)}`);
+  logger.warn(`All grad symbolic tests passed?: ${all(testResults)}`);
 };

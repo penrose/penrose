@@ -1,6 +1,4 @@
 import { Packets, Canvas } from "./module";
-import Inspector from "./inspector/Inspector";
-import * as React from "react";
 
 export enum ConnectionStatus {
   socketOpen = "SOCKET_OPEN",
@@ -55,14 +53,16 @@ export class Protocol {
     // TODO: Remove these hacks when we sample shapes in the frontend
     // TODO: Make this more principled (clear it in the right place, rather than right before the point of failure)
     // This should probably be done in encodeState
-    const params = packet.contents[1].paramsr;
-    console.log("warning: clearing AD state from packet", packet);
-    params.energyGraph = {};
-    params.xsVars = [];
-    params.mutableUOstate = [];
-    params.constrWeightNode = undefined;
-    params.epWeightNode = undefined;
-    params.graphs = undefined;
+    // TODO: what's your packet type?
+    if (packet.tag === "Resample") {
+      const params = packet.contents[1].paramsr;
+      console.log("warning: clearing AD state from packet", packet);
+      params.energyGraph = {};
+      params.xsVars = [];
+      params.constrWeightNode = undefined;
+      params.epWeightNode = undefined;
+      params.graphs = undefined;
+    }
   };
 
   public sendPacket = async (packet: any, id?: string) => {
@@ -84,9 +84,12 @@ export class Protocol {
   };
   private setConnectionStatus = (status: ConnectionStatus) => {
     this.connectionStatus = status;
-    this.eventHandlers.forEach((events: EventHandler) =>
-      events.onConnectionStatus(status)
-    );
+    console.log(this, this.eventHandlers);
+    if (this.eventHandlers) {
+      this.eventHandlers.forEach((events: EventHandler) =>
+        events.onConnectionStatus(status)
+      );
+    }
   };
 
   private sendProcessedCanvasState = async (

@@ -6,6 +6,7 @@ const TOL = 1e-3;
 export const normList = (xs: number[]) =>
   Math.sqrt(_.sum(xs.map(e => e * e)));
 
+// Repeat `x`, `i` times
 export function repeat<T>(i: number, x: T) {
   const xs = [];
 
