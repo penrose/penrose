@@ -240,12 +240,12 @@ interface IMatrix {
 
 interface IVectorAccess {
   tag: "VectorAccess";
-  contents: [Expr, Expr];
+  contents: [Path, Expr];
 }
 
 interface IMatrixAccess {
   tag: "MatrixAccess";
-  contents: [Expr, Expr, Expr];
+  contents: [Path, Expr[]];
 }
 
 interface IListAccess {

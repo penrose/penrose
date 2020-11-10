@@ -31,7 +31,7 @@ testing {
         a = (-1.0, ?)
         a1 = (-1.0, 2.) + (1e5, 2.0)
         m = (a, (-1., 2.))
-        v = (a + (2, 900)) / (4.0 + 3)
+        v = (a + (2., 900.)) / (4.0 + 3.)
         -- z = Colors.black.g
         asum = a[1] + a[0]
         c = 0
@@ -39,9 +39,11 @@ testing {
         msum = m[1][0] + m[c][b] -- COMBAK test matrix access
         nv = -v
         t1 = x[1][b]  -- COMBAK test matrix access
-        test0 = f(0)[1]
-        test1 = makeMatrix((1, 0.0, 5.0), (-1, -9., -4.))[2][0]
-        test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
+        -- COMBAK test parser access of matrix
+
+        -- test0 = f(0)[1]
+        -- test1 = makeMatrix((1, 0.0, 5.0), (-1, -9., -4.))[2][0]
+        -- test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
 }
 
 forall VectorSpace U {
@@ -168,7 +170,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
 -- COMBAK: Implement matrices
 
-      rot90CW = ((0, 1), (-1, 0))
+      rot90CW = ((0., 1.), (-1., 0.))
       markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
       c = const.barSize
       halfvec = c * markNormal

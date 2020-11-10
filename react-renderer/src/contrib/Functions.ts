@@ -230,6 +230,15 @@ export const compDict = {
     };
   },
 
+  mul: (m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
+    console.error("COMBAK: Implement mul", m, v);
+
+    return {
+      tag: "VectorV",
+      contents: v
+    };
+  },
+
 };
 
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {

@@ -397,6 +397,22 @@ export const evalExpr = (
     case "Vector": {
       const argVals = evalExprs(e.contents, trans, varyingVars);
 
+      // Matrices are parsed as a list of vectors, so when we encounter vectors as elements, we assume it's a matrix, and convert it to a matrix of lists
+      console.log("vector", argVals);
+      if (argVals[0].tag !== "Val") { throw Error("expected val"); }
+      if (argVals[0].contents.tag === "VectorV") {
+        return {
+          tag: "Val",
+          contents: {
+            tag: "MatrixV",
+            contents: argVals.map(toVecVal)
+          }
+        };
+      }
+      // COMBAK: Deal with matrix contents properly as it will be nested vectors, not a list of expressions?
+      // COMBAK: Deal with matrix access returning a vector, or wrapping it correctly?
+
+      // Otherwise return vec (list of nums)
       return {
         tag: "Val",
         contents: {
@@ -404,17 +420,17 @@ export const evalExpr = (
           contents: argVals.map(toFloatVal)
         }
       };
-
-      // COMBAK: Check for matrix, which is parsed as a list of vectors
     }
 
     case "Matrix": {
+      console.log("matrix e", e);
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
     }
 
     case "VectorAccess": {
       const [e1, e2] = e.contents;
-      const [v1, v2] = evalExprs([e1, e2], trans, varyingVars);
+      const v1 = resolvePath(e1, trans, varyingVars);
+      const v2 = evalExpr(e2, trans, varyingVars);
 
       if (v1.tag !== "Val") { throw Error("expected val"); }
       if (v1.contents.tag !== "VectorV") { throw Error("expected Vector"); }
@@ -433,7 +449,39 @@ export const evalExpr = (
     }
 
     case "MatrixAccess": {
-      throw new Error(`cannot evaluate expression of type ${e.tag}`);
+      console.log("matrix access e", e);
+      const [e1, e2] = e.contents;
+      const v1 = resolvePath(e1, trans, varyingVars);
+      const v2s = evalExprs(e2, trans, varyingVars);
+
+      const indices: number[] = v2s.map(v2 => {
+        if (v2.tag !== "Val") { throw Error("expected val"); }
+        if (v2.contents.tag !== "IntV") { throw Error("expected int"); }
+        return v2.contents.contents;
+      });
+
+      if (v1.tag !== "Val") { throw Error("expected val"); }
+      console.log("matrix access", v1, indices, v1.contents.contents[indices[0]]);
+
+      // COMBAK: Temp hack for parse, do vector access
+      if (indices.length === 1) { return { tag: "Val", contents: { tag: "FloatV", contents: v1.contents.contents[indices[0]] as any as VarAD } } }
+
+      if (v1.contents.tag !== "MatrixV") { throw Error("expected Matrix"); }
+
+      // m[i][j] <-- m's ith row, jth column
+      const mat = v1.contents.contents;
+      // TODO: Currently only supports 2D matrices
+      if (!indices.length || indices.length !== 2) { throw Error("expected 2 indices to access matrix"); }
+
+      const [i, j] = indices;
+      if (i < 0 || (i > (mat.length - 1))) throw Error("`i` access out of bounds");
+      const vec = mat[i];
+      if (j < 0 || (j > (vec.length - 1))) throw Error("`j` access out of bounds");
+
+      return {
+        tag: "Val",
+        contents: { tag: "FloatV", contents: vec[j] as VarAD }
+      };
     }
 
     default: {
