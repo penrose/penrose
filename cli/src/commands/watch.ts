@@ -45,12 +45,22 @@ export default class Watch extends Command {
 
     penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
+    let err = "";
     penrose.stdout.on("data", async (d: { toString: () => string }) => {
       data += d.toString();
     });
+    penrose.stderr.on("data", async (d: any) => {
+      err += d.toString();
+    });
+    penrose.stderr.on("close", async () => {
+      if (err !== "") {
+        console.error(chalk.red(`failed to compile:`));
+        console.error(err);
+        return;
+      }
+    });
     penrose.stdout.on("close", async (cl: any) => {
-      if (data === "") {
-        console.error(chalk.red(`unknown compile error`));
+      if (data === "" || err !== "") {
         return;
       }
       const parsed = JSON.parse(data) as any;
