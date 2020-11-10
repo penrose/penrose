@@ -50,46 +50,58 @@ export default class Watch extends Command {
         return;
       }
       const parsed = JSON.parse(data) as any;
-      if (parsed.type === "compilerOutput") {
-        console.info(chalk.green(`successfully compiled`));
-        this.currentState = { type: "state", contents: parsed.contents[0] };
-        this.wss?.clients.forEach((ws) => {
-          ws.send(JSON.stringify(this.currentState));
-        });
-      } else if (parsed.type === "error") {
-        const errColorMap = {
-          SubstanceParse:
-            chalk.cyanBright(`parse substance`) +
-            chalk.red(` (${this.currentFilenames.substance})`),
-          SubstanceTypecheck:
-            chalk.bgRedBright(`typecheck substance`) +
-            chalk.red(` (${this.currentFilenames.substance})`),
-          StyleParse:
-            chalk.blueBright(`parse style`) +
-            chalk.red(` (${this.currentFilenames.style})`),
-          StyleLayering:
-            chalk.bgBlueBright(`layer style`) +
-            chalk.red(` (${this.currentFilenames.style})`),
-          StyleTypecheck:
-            chalk.bgBlueBright(`typecheck style`) +
-            chalk.red(` (${this.currentFilenames.style})`),
-          ElementParse:
-            chalk.magentaBright(`parse domain`) +
-            chalk.red(` (${this.currentFilenames.domain})`),
-          ElementTypecheck:
-            chalk.magentaBright(`typecheck domain`) +
-            chalk.red(` (${this.currentFilenames.domain})`),
-          PluginParse: chalk.yellowBright(`parse plugin`),
-          PluginRun: chalk.yellowBright(`run plugin`),
-        } as any;
-        console.error(
-          `${chalk.red("error: failed to")} ${
-            errColorMap[parsed.contents.tag] || "unknown error: check cli code"
-          }:`
-        );
-        console.error(parsed.contents.contents);
-      } else {
-        console.log(parsed);
+      switch (parsed.type) {
+        case "compilerOutput":
+          console.info(chalk.green(`successfully compiled`));
+          this.currentState = { type: "state", contents: parsed.contents[0] };
+          this.wss?.clients.forEach((ws) => {
+            ws.send(JSON.stringify(this.currentState));
+          });
+          break;
+        case "state":
+          console.info(chalk.green(`successfully resampled`));
+          this.currentState = parsed;
+          this.wss?.clients.forEach((ws) => {
+            ws.send(JSON.stringify(this.currentState));
+          });
+          break;
+        case "error":
+          const errColorMap = {
+            SubstanceParse:
+              chalk.cyanBright(`parse substance`) +
+              chalk.red(` (${this.currentFilenames.substance})`),
+            SubstanceTypecheck:
+              chalk.bgRedBright(`typecheck substance`) +
+              chalk.red(` (${this.currentFilenames.substance})`),
+            StyleParse:
+              chalk.blueBright(`parse style`) +
+              chalk.red(` (${this.currentFilenames.style})`),
+            StyleLayering:
+              chalk.bgBlueBright(`layer style`) +
+              chalk.red(` (${this.currentFilenames.style})`),
+            StyleTypecheck:
+              chalk.bgBlueBright(`typecheck style`) +
+              chalk.red(` (${this.currentFilenames.style})`),
+            ElementParse:
+              chalk.magentaBright(`parse domain`) +
+              chalk.red(` (${this.currentFilenames.domain})`),
+            ElementTypecheck:
+              chalk.magentaBright(`typecheck domain`) +
+              chalk.red(` (${this.currentFilenames.domain})`),
+            PluginParse: chalk.yellowBright(`parse plugin`),
+            PluginRun: chalk.yellowBright(`run plugin`),
+          } as any;
+          console.error(
+            `${chalk.red("error: failed to")} ${
+              errColorMap[parsed.contents.tag] ||
+              "unknown error: check cli code"
+            }:`
+          );
+          console.error(parsed.contents.contents);
+          break;
+        default:
+          console.log(parsed);
+          break;
       }
     });
 
@@ -157,7 +169,7 @@ export default class Watch extends Command {
       ws.on("message", (m) => {
         const parsed = JSON.parse(m as string);
         if (parsed.call && parsed.call.tag === "Resample") {
-          this.runPenrose(parsed);
+          this.runPenrose(parsed.call);
         }
       });
     });
