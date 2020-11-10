@@ -79,6 +79,8 @@ export const evalShapes = (s: State): State => {
   const sortedShapesEvaled = s.shapeOrdering.map((name) =>
     shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
 
+  console.log("results of evalShapes", sortedShapesEvaled); // COMBAK: revert
+
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
   return { ...s, shapes: sortedShapesEvaled };
@@ -308,14 +310,19 @@ export const evalExpr = (
     case "BinOp": {
       const [binOp, e1, e2] = e.contents;
       const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+
+      const res = evalBinOp(
+        binOp,
+        val1.contents as Value<VarAD>,
+        val2.contents as Value<VarAD>
+      );
+
+      console.log("binop res", res);
+
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp(
-          binOp,
-          val1.contents as Value<VarAD>,
-          val2.contents as Value<VarAD>
-        ),
+        contents: res
       };
     };
     case "EPath":
@@ -616,7 +623,7 @@ export const evalBinOp = (
 
       case "Divide": {
         res = v1.contents / v2.contents;
-        break;
+        return { tag: "FloatV", contents: constOf(res) };
       }
 
       case "Exp": {

@@ -54,6 +54,16 @@ function mapFloat<T, S>(
   };
 };
 
+function mapInt<T, S>(
+  f: (arg: T) => S,
+  v: IIntV<T>
+): IFloatV<S> {
+  return {
+    tag: "FloatV",
+    contents: f(v.contents as unknown as T) as S // Hack because we know that Ints only contain `number`s
+  };
+};
+
 function mapPt<T, S>(
   f: (arg: T) => S,
   v: IPtV<T>
@@ -250,10 +260,14 @@ export function mapValueNumeric<T, S>(
   f: (arg: T) => S,
   v: Value<T>
 ): Value<S> {
-  const nonnumericValueTypes = ["IntV", "BoolV", "StrV", "ColorV", "PaletteV", "FileV", "StyleV"];
+  const nonnumericValueTypes = ["BoolV", "StrV", "ColorV", "PaletteV", "FileV", "StyleV"];
 
   if (v.tag === "FloatV") {
     return mapFloat(f, v);
+  } else if (v.tag === "IntV") {
+    // TODO: only convert ints if they are used in place of floats (e.g. shape properties that have float type)
+    // This converts ints to floats, losing the int information (e.g. on roundtrip)
+    return mapInt(f, v);
   } else if (v.tag === "PtV") {
     return mapPt(f, v);
   } else if (v.tag === "PtListV") {

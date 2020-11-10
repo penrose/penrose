@@ -3,7 +3,7 @@ const {
   -- For unit mark
   markerPadding = 15.0
   barSize = 5.0
-  vectorSpaceSize = 350
+  vectorSpaceSize = 350.0
   repelWeight = 0.7
   arrowheadSize = 0.6
   lineThickness = 1
@@ -42,7 +42,7 @@ testing {
 }
 
 forall VectorSpace U {
-    axisSize = const.vectorSpaceSize / 2 -- This should get promoted to float
+    axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
     U.origin = (?, ?)
     o = U.origin
     U.axisColor = C.gray
