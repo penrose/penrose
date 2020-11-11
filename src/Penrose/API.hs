@@ -130,9 +130,11 @@ resample initState numSamples
   | numSamples == 1 = Right $ resampleOne initState 
   | numSamples > 1 =
      -- NOTE: resampling will not work if the frontend has a new function name (issue #352) because of evalEnergyOn for resampling
-    let newState = resampleBest numSamples initState
-        (newShapes, _, _) = evalTranslation newState
-    in Right $ newState {shapesr = newShapes}
+    Left $ RuntimeError "Only 1 resample supported."
+    -- NOTE: Deprecated since we've deprecated backend `evalExpr`
+    -- let newState = resampleBest numSamples initState
+    --     (newShapes, _, _) = evalTranslation newState
+    -- in Right $ newState {shapesr = newShapes}
   | otherwise = Left $ RuntimeError "At least 1 sample should be requested."
 
 getVersion :: String -- ^ the current version of the Penrose binary

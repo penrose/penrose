@@ -987,7 +987,7 @@ evalExpr (i, n) arg trans varyMap g =
           error "avoidfn should not be an objfn arg (or in the children of one)"
         PluginAccess _ _ _ ->
           error "plugin access should not be evaluated at runtime"
-            -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
+        xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
 checkListElemType :: (Autofloat a) => ArgVal a -> a
 checkListElemType (Val (FloatV x)) = x
