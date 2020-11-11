@@ -1349,6 +1349,12 @@ setX v shape              = set shape "x" v
 setY v shape@("Arrow", _) = set shape "startY" v
 setY v shape              = set shape "y" v
 
+getVec :: (Autofloat a) => Shape a -> PropID -> [a]
+getVec shape prop =
+  case shape .: prop of
+    VectorV x -> x
+    res -> error ("getVec: expected float but got something else: " ++ show res)
+
 getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop =
   case shape .: prop of

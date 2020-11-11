@@ -502,10 +502,36 @@ shapes2floats shapes varyMap varyingPaths =
   where
     lookupPathFloat ::
          (Autofloat a) => [Shape a] -> VaryMap a -> [a] -> Path -> [a]
+
+    lookupPathFloat shapes varyMap acc p@(AccessPath fp@(FieldPath b f) [i]) =
+      case M.lookup p varyMap of
+        Just (Done (FloatV num)) -> num : acc
+        Just _ ->
+          error
+            ("wrong type for varying field path (expected float): " ++ show fp)
+        Nothing ->
+          error
+            ("could not find varying field path '" ++ show fp ++ "' in varyMap: " ++ show varyMap)
+                    
+      -- case M.lookup p varyMap of
+      --   Just (OptEval (Vector es)) -> if es !! i == AFloat (Vary) 
+      --                                  then error ("expected non-?: " ++ show p ++ ", " ++ show es)
+      --                                  else (r2f $ floatOf $ es !! i) : acc
+      --   Just (Done (VectorV es)) -> (es !! i) : acc
+      --   Just _ -> error ("wrong type for varying field path (expected float): " ++ show fp)
+      --   Nothing -> error ("could not find varying field path '" ++ show fp ++ "' in varyMap")
+
+    lookupPathFloat shapes varyMap acc p@(AccessPath (PropertyPath s field property) [i]) =
+      let subID = bvarToString s
+          shapeName = getShapeName subID field
+          res = getVec (findShape shapeName shapes) property
+      in (res !! i) : acc
+
     lookupPathFloat shapes _ acc (PropertyPath s field property) =
       let subID = bvarToString s
           shapeName = getShapeName subID field
       in getNum (findShape shapeName shapes) property : acc
+
     lookupPathFloat _ varyMap acc fp@(FieldPath _ _) =
       case M.lookup fp varyMap of
         Just (Done (FloatV num)) -> num : acc
@@ -514,7 +540,10 @@ shapes2floats shapes varyMap varyingPaths =
             ("wrong type for varying field path (expected float): " ++ show fp)
         Nothing ->
           error
-            ("could not find varying field path '" ++ show fp ++ "' in varyMap")
+            ("could not find varying field path '" ++ show fp ++ "' in varyMap: " ++ show varyMap)
+
+    floatOf (AFloat (Fix f)) = f
+
 
 --------------------------------- Analyzing the translation
 --- Find varying (float) paths
@@ -1426,6 +1455,10 @@ castTranslation t =
               FloatV x -> FloatV (r2f x)
               PtV (x, y) -> PtV (r2f x, r2f y)
               PtListV pts -> PtListV $ castPtList pts
+              VectorV xs -> VectorV $ map r2f xs
+              MatrixV xs -> MatrixV $ map (map r2f) xs
+              TupV x -> TupV $ r2 x
+              LListV xs -> LListV $ map (map r2f) xs
               PathDataV d -> PathDataV $ map castPath d
                           -- More boilerplate not involving floats
               IntV x -> IntV x
@@ -1442,6 +1475,7 @@ castTranslation t =
                   , (app2 r2f p1, app2 r2f p2)
                   , castPtList samples)
       in res
+      where r2 (x, y) = (r2f x, r2f y)
     castPath ::
          SubPath Double
       -> (forall a. Autofloat a =>
