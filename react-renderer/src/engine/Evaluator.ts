@@ -39,10 +39,7 @@ export const evalShapes = (s: State): State => {
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genVaryMap(s.varyingPaths, varyingValuesDiff);
-  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [
-    Path,
-    VarAD
-  ][];
+  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [Path, VarAD][];
 
   // Insert all varying vals
   const transWithVarying = insertVaryings(s.translation, varyingMapList);
@@ -506,6 +503,9 @@ export const resolvePath = (
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
 
+  console.log("resolve path", path, varyingVal, varyingMap);
+  // throw Error("TODO");
+
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
@@ -953,6 +953,7 @@ export const decodeState = (json: any): State => {
     varyingState: json.varyingState,
     // translation: decodeTranslation(json.transr),
     translation: json.transr,
+    originalTranslation: clone(json.transr),
     shapes: json.shapesr.map(([n, props]: any) => {
       return { shapeType: n, properties: props };
     }),
@@ -975,11 +976,16 @@ export const decodeState = (json: any): State => {
  * @param state typed `State` object
  */
 export const encodeState = (state: State): any => {
+
+  console.log("mapped translation", mapTranslation(numOf, state.translation));
+  console.log("original translation", state.originalTranslation);
+
   const json = {
     ...state,
     varyingState: state.varyingValues,
     paramsr: state.params, // TODO: careful about the list of variables
-    transr: mapTranslation(numOf, state.translation), // Only send numbers to backend
+    // transr: mapTranslation(numOf, state.translation), // Only send numbers to backend
+    transr: state.originalTranslation, // Only send numbers to backend
     // NOTE: clean up all additional props and turn objects into lists
     shapesr: state.shapes
       .map(values)

@@ -42,6 +42,7 @@ interface IState {
   pendingPaths: Path[];
   varyingValues: number[];
   translation: Translation;
+  originalTranslation: Translation;
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;

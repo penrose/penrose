@@ -17,7 +17,7 @@ import {
   evalShapes,
   insertVaryings,
   genVaryMap,
-  evalFns,
+  evalFns
 } from "engine/Evaluator";
 
 import * as _ from "lodash";
@@ -63,7 +63,7 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = true;
+const DEBUG_GRAD_DESCENT = true; // COMBAK: Revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -159,6 +159,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         // `energyGraph` is a VarAD that is a handle to the top of the graph
 
         console.log("interpreted energy graph", res.energyGraph);
+        console.log("input vars", xsVars);
 
         const weightInfo = { // TODO: factor out
           constrWeightNode: res.constrWeightNode,
@@ -750,16 +751,22 @@ const minimize = (
  */
 export const evalEnergyOnCustom = (state: State) => {
   // TODO: types
-  return (...varyingValuesTF: VarAD[]): any => {
+  return (...xsVars: VarAD[]): any => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
     // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-    const translation = makeTranslationDifferentiable(clone(makeTranslationNumeric(state.translation)));
+    const translationInit = makeTranslationDifferentiable(clone(makeTranslationNumeric(state.translation)));
+
+    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    // Insert all varying vals
+    const translation = insertVaryings(translationInit, varyingMapList);
 
     // construct a new varying map
-    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;
+    const varyingMap = genVaryMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+
+    // TODO: Do the varying vars need to be inserted into the translation...? How was this style program working before? How is there an energy but no gradient? Does varyMap matter? Looks like the energy is applied from the top down, but not on the right varying vars -- are those just made from scratch in the translation?
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(objFns, translation, varyingMap);

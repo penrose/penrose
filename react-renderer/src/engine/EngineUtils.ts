@@ -321,7 +321,8 @@ export function mapTagExpr<T, S>(
       contents: mapValueNumeric(f, e.contents)
     };
   } else if (e.tag === "OptEval") {
-    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator as needed
+    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
+    // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
     return e;
   } else {
     throw Error("unrecognized tag");

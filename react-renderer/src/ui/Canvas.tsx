@@ -52,6 +52,7 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = makeTranslationDifferentiable(state.translation);
     const stateAD = {
       ...state,
+      originalTranslation: state.originalTranslation,
       translation: translationAD
     };
 
