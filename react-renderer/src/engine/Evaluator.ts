@@ -887,16 +887,20 @@ export const insertExpr = (
             throw Error("did not expect GPI in vector access");
           }
           const res2 = res.contents;
-          if (res2.tag !== "OptEval") {
-            throw Error("expected OptEval");
-          }
-          const res3 = res2.contents;
-          if (res3.tag !== "Vector") {
-            throw Error("expected Vector");
-          }
-          const res4 = res3.contents;
-          res4[indices[0]] = floatValToExpr(expr.contents);
-          return trans;
+          // Deal with vector expressions
+          if (res2.tag === "OptEval") {
+            const res3 = res2.contents;
+            if (res3.tag !== "Vector") { throw Error("expected Vector"); }
+            const res4 = res3.contents;
+            res4[indices[0]] = floatValToExpr(expr.contents);
+            return trans;
+          } else if (res2.tag === "Done") { // Deal with vector values
+            const res3 = res2.contents;
+            if (res3.tag !== "VectorV") { throw Error("expected Vector"); }
+            const res4 = res3.contents;
+            res4[indices[0]] = expr.contents.contents;
+            return trans;
+          } else { throw Error("unexpected tag"); }
         }
 
         case "PropertyPath": {
@@ -905,17 +909,29 @@ export const insertExpr = (
           const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
           const [, properties] = gpi.contents;
           const res = properties[prop];
-          if (res.tag !== "OptEval") {
-            throw Error("expected OptEval");
-          }
-          const res2 = res.contents;
-          if (res2.tag !== "Vector") {
-            throw Error("expected Vector");
-          }
-          const res3 = res2.contents;
-          res3[indices[0]] = floatValToExpr(expr.contents);
 
-          return trans;
+          if (res.tag === "OptEval") { // Deal with vector expresions
+            const res2 = res.contents;
+            if (res2.tag !== "Vector") {
+              throw Error("expected Vector");
+            }
+            const res3 = res2.contents;
+            res3[indices[0]] = floatValToExpr(expr.contents);
+            return trans;
+          } else if (res.tag === "Done") { // Deal with vector values
+            const res2 = res.contents;
+            if (res2.tag !== "VectorV") {
+              throw Error("expected Vector");
+            }
+            const res3 = res2.contents;
+            res3[indices[0]] = expr.contents.contents; // TODO: Does this actually leave a gradient trail, though?
+            // COMBAK: Why does the metadata contain extraneous elements???
+
+            console.error("propertypath", indices, indices[0], res3, expr.contents.contents);
+
+            // throw Error("TODO");
+            return trans;
+          } else { throw Error("unexpected tag"); }
         }
 
         default:

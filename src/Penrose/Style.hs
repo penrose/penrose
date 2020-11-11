@@ -1255,6 +1255,7 @@ addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
 pathStr :: Path -> String
 pathStr (FieldPath bvar field) = intercalate "." [show bvar, field]
 pathStr (PropertyPath bvar field property) = intercalate "." [show bvar, field, property]
+pathStr (AccessPath p indices) = pathStr p ++ "[" ++ intercalate "," (map show indices) ++ "]"
 
 pathStr2 :: Name -> Field -> String
 pathStr2 name field = intercalate "." [name, field]

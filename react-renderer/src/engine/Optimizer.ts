@@ -63,7 +63,7 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = false;
+const DEBUG_GRAD_DESCENT = true;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -137,7 +137,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
   console.log("params: ", optParams);
   // console.log("state: ", state);
   console.log("fns: ", prettyPrintFns(state));
-  console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+  // console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+  console.log("variables: ", state.varyingPaths.map(p => JSON.stringify(p)));
 
   switch (optStatus.tag) {
     case "NewIter": {

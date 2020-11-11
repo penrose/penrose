@@ -49,7 +49,7 @@ testing {
 
 forall VectorSpace U {
     axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
-    U.origin = (?, ?)
+    U.origin = (0., 0.)
     o = U.origin
     U.axisColor = C.gray
 
@@ -58,6 +58,7 @@ forall VectorSpace U {
         side : const.vectorSpaceSize
         color : C.none
         stroke : C.black
+        strokeWidth : 2.0
     }
 
     U.xAxis = Arrow {
@@ -70,7 +71,7 @@ forall VectorSpace U {
     }
 
     U.yAxis = Arrow {
-           start : (o[0], o[1] + axisSize)
+           start : (o[0], o[1] - axisSize)
              end : (o[0], o[1] + axisSize)
        thickness : const.lineThickness
            style : "solid"
@@ -123,7 +124,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       ptL = startR + const.perpLen * dirL
       ptR = startR + const.perpLen * dirR
       ptLR = ptL + const.perpLen * dirR
-      pts = [ptL, ptLR, ptR]
+      pts = [startR, ptL, ptLR, ptR]
 
       -- toPath = functions.pathFromPoints -- COMBAK: Add ability to alias function names
 
@@ -151,7 +152,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       -- but we need to position the unit mark so it doesn't overlap with the "inside" of the two vectors
 
       strokeWidth = 2.0
-      padding = 5.0 -- COMBAK: What is this?
+      padding = 15.0 -- COMBAK: What is this?
       -- toPath = functions.pathFromPoints -- COMBAK
 
       -- The start and end of the body of the unit marker line

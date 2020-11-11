@@ -198,8 +198,6 @@ export const constrDict = {
       const [[startX, startY], [endX, endY]] = linePts(s2);
       const [x, y] = fns.center(s1);
 
-      console.log("s1", s1, s1.side.contents, "s2", s2);
-
       const r = div(s1.side.contents, constOf(2.0));
       const f = constOf(0.75); // 0.25 padding
       //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
@@ -285,9 +283,9 @@ export const constrDict = {
     if (t2 === "Text") {
       let pt;
       if (t1 === "Arrow") { // Position label close to the arrow's end
-        pt = { x: s1.endX.contents, y: s1.endY.contents };
+        pt = { x: s1.end.contents[0], y: s1.end.contents[1] };
       } else { // Only assume shape1 has a center
-        pt = { x: s1.x.contents, y: s1.y.contents };
+        pt = { x: s1.center.contents[0], y: s1.center.contents[1] };
       }
 
       // Get polygon of text (box)
@@ -311,6 +309,7 @@ export const constrDict = {
         minY: textPts[2][1], maxY: textPts[0][1]
       };
 
+      // TODO: Rewrite this with `ifCond`
       // If the point is inside the box, push it outside w/ `noIntersect`
       if (pointInBox(pt, rect)) {
         return noIntersect(textCenter, text.w.contents, fns.center(s1), constOf(2.0));

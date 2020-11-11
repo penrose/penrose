@@ -230,12 +230,14 @@ export const compDict = {
     };
   },
 
+  // Matrix-vector multiplication (where `v` is implicitly treated as a column vector)
   mul: (m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
-    console.error("COMBAK: Implement mul", m, v);
+    if (!m.length) { throw Error("empty matrix"); }
+    if (!v.length) { throw Error("empty vector"); }
 
     return {
       tag: "VectorV",
-      contents: v
+      contents: m.map(row => ops.vdot(row, v))
     };
   },
 

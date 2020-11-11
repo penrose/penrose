@@ -303,7 +303,7 @@ pathToList _ = error "pathToList should not handle Sty vars"
 isFieldOrAccessPath :: Path -> Bool
 isFieldOrAccessPath (FieldPath _ _)      = True
 isFieldOrAccessPath (AccessPath (FieldPath _ _) _) = True
-isFieldOrAccessPath (AccessPath (PropertyPath _ _ _) _) = True
+isFieldOrAccessPath (AccessPath (PropertyPath _ _ _) _) = False
 isFieldOrAccessPath (PropertyPath _ _ _) = False
 
 bvarToString :: BindingForm -> String
@@ -432,12 +432,18 @@ lookupPaths paths trans = map lookupPath paths
     -- Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves 
     lookupPath p@(AccessPath (FieldPath b f) [i]) =
        case lookupField b f trans of
-         FExpr (OptEval (Vector es)) -> r2f $ floatOf $ es !! i
+         FExpr (OptEval (Vector es)) -> if es !! i == AFloat (Vary) 
+                                        then error ("expected non-?: " ++ show p ++ ", " ++ show es)
+                                        else r2f $ floatOf $ es !! i
+         FExpr (Done (VectorV es)) -> es !! i
          xs -> error ("varying path \"" ++
              pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
     lookupPath p@(AccessPath (PropertyPath b f pr) [i]) =
        case lookupProperty b f pr trans of
-         OptEval (Vector es) -> r2f $ floatOf $ es !! i
+         OptEval (Vector es) -> if es !! i == AFloat (Vary) 
+                                then error ("expected non-?: " ++ show p ++ ", " ++ show es)
+                                else r2f $ floatOf $ es !! i
+         Done (VectorV es) -> es !! i
          xs -> error ("varying path \"" ++
              pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
     lookupPath p@(FieldPath v field) =
@@ -525,7 +531,11 @@ unoptimizedFloatProperties =
   , "finalW"
   , "finalH"
   , "arrowheadSize"
-  , "start" -- COMBAK: Remove vector properties here
+  ]
+
+optimizedVectorProperties :: [String]
+optimizedVectorProperties =
+  [ "start"
   , "end"
   , "center"
   ]
@@ -552,8 +562,12 @@ findPropertyVarying ::
 findPropertyVarying name field properties floatProperty acc =
   case M.lookup floatProperty properties of
     Nothing ->
-      if floatProperty `elem` unoptimizedFloatProperties -- Includes vector properties, which are unoptimized for now, in favor of optimizing their base attributes if vectors not set. COMBAK: When startX, etc are phased out, these vector properties should be optimized by default
+      if floatProperty `elem` unoptimizedFloatProperties
         then acc
+        else if floatProperty `elem` optimizedVectorProperties
+        then let paths = findNestedVarying (OptEval $ Vector [AFloat Vary, AFloat Vary]) (mkPath [name, field, floatProperty]) 
+             -- Return paths for both elements, COMBAK: This hardcodes that unset vectors have 2 elements, need to generalize
+             in paths ++ acc
         else mkPath [name, field, floatProperty] : acc
     Just expr ->
       if declaredVarying expr
@@ -1187,6 +1201,8 @@ initProperty shapeType (properties, g) pID (typ, sampleF) =
       autoRndVal = Done v
   in case M.lookup pID properties of
        Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
+       -- TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
+       Just (OptEval (Vector [AFloat Vary, AFloat Vary])) -> (M.insert pID autoRndVal properties, g')
        Just (OptEval e) -> (properties, g)
        Just (Done v) -> (properties, g)
        -- TODO: pending properties are only marked if the Style source does not set them explicitly
@@ -1195,6 +1211,7 @@ initProperty shapeType (properties, g) pID (typ, sampleF) =
          if isPending shapeType pID
            then (M.insert pID (Pending v) properties, g')
            else (M.insert pID autoRndVal properties, g')
+       _ -> error ("not handled: " ++ pID ++ ", " ++ show (M.lookup pID properties))
 
 initShape ::
      (Autofloat a)
@@ -1249,7 +1266,7 @@ genOptProblemAndState :: Translation Double -> OptConfig -> State
 genOptProblemAndState trans optConfig
     -- Save information about the translation
  =
-  let varyingPaths = findVarying trans
+  let varyingPaths = (traceShowId $ findVarying trans) -- COMBAK revert
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
       uninitializedPaths = findUninitialized trans
       shapePathList = findShapeNames trans
@@ -1258,7 +1275,7 @@ genOptProblemAndState trans optConfig
       (transInitFields, g') = initFields varyingPaths trans initRng
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
       (transInit, g'') = initShapes transInitFields shapePathList g'
-      shapeProperties = findShapesProperties transInit
+      shapeProperties = findShapesProperties (trace (ppShow $ transInit) transInit) -- COMBAK revert
       (objfns, constrfns) =
         (toFns . partitionEithers . findObjfnsConstrs) transInit
       (defaultObjFns, defaultConstrs) =

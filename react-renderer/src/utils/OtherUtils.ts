@@ -168,11 +168,9 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
 //   return (...args: any[]) => toPenalty(constrDict[name]);
 // };
 
-export const linePts = ({ startX, startY, endX, endY }: any): [VarAD[], VarAD[]] =>
-  [[startX.contents, startY.contents], [endX.contents, endY.contents]];
+export const linePts = ({ start, end }: any): [VarAD[], VarAD[]] =>
+  [start.contents, end.contents];
 
-export const getStart = ({ startX, startY }: any): VarAD[] =>
-  [startX.contents, startY.contents];
+export const getStart = ({ start }: any): VarAD[] => start.contents;
 
-export const getEnd = ({ endX, endY }: any): VarAD[] =>
-  [endX.contents, endY.contents];
+export const getEnd = ({ end }: any): VarAD[] => end.contents;

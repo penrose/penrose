@@ -65,16 +65,13 @@ class ShapeView extends React.Component<IViewProps, IState> {
                 if (shapeType === "Circle") {
                   [w, h] =
                     [(properties.r.contents as number) * 2,
-                      (properties.r.contents as number) * 2];
+                    (properties.r.contents as number) * 2];
                 } else if (shapeType === "Square") {
                   [w, h] =
                     [properties.side.contents as number,
-                      properties.side.contents as number];
+                    properties.side.contents as number];
                 } else if (shapeType === "Arrow" || shapeType === "Line") {
-                  const [sx, sy, ex, ey] = [properties.startX.contents as number,
-                  properties.startY.contents as number,
-                  properties.endX.contents as number,
-                  properties.endY.contents as number];
+                  const [[sx, sy], [ex, ey]] = [properties.start.contents as [number, number], properties.end.contents as [number, number]];
 
                   const padding = 50; // Because arrow/line may be horizontal or vertical, and we don't want the size to be zero in that case
                   // size of bbox of arrow/line

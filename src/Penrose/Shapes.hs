@@ -670,6 +670,13 @@ samplePointIn (interval1, interval2) g =
       (n2, g2) = randomR interval2 g1
   in (PtV (r2f n1, r2f n2), g2)
 
+sampleVectorIn ::
+     (Autofloat a) => (FloatInterval, FloatInterval) -> SampledValue a
+sampleVectorIn (interval1, interval2) g =
+  let (n1, g1) = randomR interval1 g
+      (n2, g2) = randomR interval2 g1
+  in (VectorV [r2f n1, r2f n2], g2)
+
 sampleColor :: (Autofloat a) => SampledValue a
 sampleColor rng =
   let interval = (0.1, 0.9)
@@ -737,7 +744,7 @@ stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
 vector_sampler :: (Autofloat a) => SampledValue a
-vector_sampler = samplePointIn (canvasDims, canvasDims)
+vector_sampler = sampleVectorIn (canvasDims, canvasDims)
 
 anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, ellipseTransformType, parallelogramTransformType, textTransformType ::
      (Autofloat a) => ShapeDef a
@@ -787,9 +794,7 @@ ellipseType =
 textType =
   ( "Text"
   , M.fromList
-      [ ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)))
-      , ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)))
-      , ("center", (VectorT, vector_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("fontSize", (StrT, constValue $ StrV "12pt"))
@@ -805,11 +810,7 @@ textType =
 arrowType =
   ( "Arrow"
   , M.fromList
-      [ ("startX", (FloatT, x_sampler))
-      , ("startY", (FloatT, y_sampler))
-      , ("endX", (FloatT, x_sampler))
-      , ("endY", (FloatT, y_sampler))
-      , ("start", (VectorT, vector_sampler))
+      [ ("start", (VectorT, vector_sampler))
       , ("end", (VectorT, vector_sampler))
       , ("thickness", (FloatT, sampleFloatIn (5, 15)))
       , ("style", (StrT, constValue $ StrV "straight"))
@@ -896,9 +897,7 @@ rectType =
 squareType =
   ( "Square"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
-      , ("center", (VectorT, vector_sampler))
+      [("center", (VectorT, vector_sampler))
       , ("side", (FloatT, width_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
         -- TODO: distinguish between stroke color and fill color everywhere
