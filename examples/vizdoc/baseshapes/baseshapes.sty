@@ -1,0 +1,108 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.lightblue = rgba(0.580, 0.910, 1.0, 1.0)
+    Colors.darkblue = rgba(0.078, 0.255, 0.788, 1.0)
+    Colors.lightgreen = rgba(0.718, 0.988, 0.584, 1.0)
+    Colors.pink = rgba(1.0, 0.533, 0.490, 1.0)
+    Colors.yellow = rgba(0.980, 1.0, 0.490, 1.0)
+    Colors.darkyellow = rgba(0.929, 0.820, 0.0, 1.0)
+}
+Lin x {
+    x.shape = Line {
+        leftArrowhead : True
+        rightArrowhead : True
+        startX: -100.0
+        startY: -200.0
+        endX: 100.0
+        endY: 200.0
+        color: Colors.black
+        thickness: 1.0
+    }
+}
+
+Arr x {
+  x.shape = Arrow {
+    startX : -150.0
+    endX: 300.0
+    startY : 0.0
+    endY : 0.0
+    color: Colors.black
+    style: "solid"
+    thickness: 20.0
+    arrowheadSize: 1.0
+    arrowheadStyle: "arrowhead-2"
+  }
+}
+
+Circ x {
+  x.shape = Circle {
+    strokeWidth : 2.0
+    strokeColor : Colors.darkblue
+    strokeStyle : "solid"
+    x: 0.0
+    y: 0.0
+    r: 100.0
+    color: Colors.lightblue
+  }
+}
+
+Ell x {
+  x.shape = Ellipse {
+    strokeWidth : 2.0
+    strokeColor : Colors.gray
+    strokeStyle : "dashed"
+    x: 0.0
+    y: 0.0
+    rx: 100.0
+    ry: 1.5 * x.shape.rx
+    color: Colors.lightgreen
+  }
+}
+
+Rect x {
+  x.shape = Rectangle {
+    strokeWidth : 2.0
+    strokeColor : Colors.red
+    strokeStyle : "solid"
+    x: 0.0
+    y: 0.0
+    w: 150.0
+    h: 100.0
+    color: Colors.pink
+  }
+}
+
+Sq x {
+  x.shape = Square {
+    strokeWidth : 2.0
+    strokeColor : Colors.darkyellow
+    strokeStyle : "solid"
+    x: 0.0
+    y: 0.0
+    side: 150.0
+    color: Colors.yellow
+  }
+}
+
+Img x {
+  x.shape = Image {
+    x: 0.0
+    y: 0.0
+    w: 200.0
+    h: 200.0
+    path : "HyperbolicBackground.svg"
+  }
+}
+
+Txt x {
+  x.shape = Text {
+    x: 0.0
+    y: 0.0
+    color: Colors.black
+    string: "\\text{string}"
+    fontSize: "14pt"
+  }
+}

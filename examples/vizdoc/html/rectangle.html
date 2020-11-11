@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Rectangle</title>
+  
+<p>
+  <label for="x" 
+     style="display: inline; text-align: right">
+     x-coordinate = <span id="x-val">0</span>
+  </label>
+  <input type="range" min="-300" max="300" id="x" value="0">
+  <label for="y" 
+     style="display: inline; text-align: right">
+     y-coordinate = <span id="y-val">0</span>
+  </label>
+  <input type="range" min="-150" max="150" id="y" value="0">
+</p>
+<p>
+  <label for="width" 
+     style="display: inline; text-align: right">
+     width = <span id="width-val">250</span>
+  </label>
+  <input type="range" min="1" max="400" id="width" value="250">
+  <label for="height" 
+     style="display: inline; text-align: right">
+     height = <span id="height-val">150</span>
+  </label>
+  <input type="range" min="1" max="400" id="height" value="150">
+
+</p>
+<p>
+    <label for="fill" 
+        style="display: inline; text-align: right">color
+    </label>
+ <input type="color" id="fill" value="#ff887d">
+  <label for="stroke-width" 
+     style="display: inline; text-align: right">
+     strokeWidth = <span id="stroke-width-val">2</span>
+  </label>
+</p>
+<p>
+    <input type="range" min="0" max="50" id="stroke-width" value="2">
+    <label for="stroke" 
+       style="display: inline; text-align: right">
+       strokeColor
+    </label>
+    <input type="color" id="stroke" value="#ff0000">
+  <label for="stroke-dasharray" 
+     style="display: inline; text-align: right">
+     strokeStyle
+  </label>
+  <select id="stroke-dasharray">
+    <option value="solid">solid</option>
+    <option value="dashed">dashed</option>
+  </select>
+</p>
+
+<div id="viz"
+    style= "border-style: solid; width: 600px; height: 300px; margin: auto; margin-top: 30px; border-width: thin;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script>
+
+var width = 600;
+var height = 300;
+  
+  
+var holder = d3.select("#viz")
+      .append("svg:svg")
+      .attr("width", width)  
+      .attr("height", height); 
+
+holder.append("rect")
+  .attr("x", 175)
+  .attr("y", 75)
+  .attr("width", 250)
+  .attr("height", 150)
+  .attr("id", "rectangle")
+  .attr("fill", d3.select("#fill").attr("value"))
+  .attr("stroke", d3.select("#stroke").attr("value"))
+  .attr("stroke-width", d3.select("#stroke-width").attr("value"))
+
+
+// todo: combine two cases?
+d3.selectAll("input").on("input", function() {
+  update(this.id, this.value);
+});
+d3.select("select").on("change", function() {
+  update(this.id, this.value);
+});
+
+// // Initial starting angle of the hexagon 
+// update(0);
+
+function update(id, val) {
+  var shape = holder.select("#rectangle")
+  switch (id) {
+    case "x":
+      shape.attr(id, +val + width / 2.0 - shape.attr("width")/ 2.0);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "y":
+      shape.attr(id, -(+val) + height / 2.0 - shape.attr("height")/ 2.0); 
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "width":
+      shape.attr(id, +val);
+      d3.select("#" + id + "-val").text(val); // TODO - how to tune this so it grows from center?
+      break;
+    case "height":
+      shape.attr(id, +val);
+      d3.select("#" + id + "-val").text(val); // TODO - how to tune this so it grows from center?
+      break;
+    case "fill":
+      shape.attr("fill", val);
+      break;
+    case "stroke-width":
+      shape.attr(id, +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "stroke":
+      shape.attr(id, val);
+      break;
+    case "stroke-dasharray":
+      if (val == "solid") shape.attr(id, "1, 0")
+      else shape.attr(id, "7, 5");
+      break;
+
+  }
+}
+
+</script>

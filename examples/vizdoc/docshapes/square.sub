@@ -1,0 +1,6 @@
+Sq A
+Point p
+Box B
+
+AutoLabel A, B
+Label p $(x, y)$
