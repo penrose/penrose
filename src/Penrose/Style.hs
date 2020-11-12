@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs #-}
 -- | The "Style" module contains the compiler for the Style language,
 -- and functions to traverse the Style AST.
 
@@ -25,7 +26,44 @@ import           Data.Maybe                       (catMaybes, fromMaybe,
 import           Data.Tuple                       (swap)
 import           Data.Typeable
 import           Debug.Trace
-import           Penrose.Env
+import Penrose.Env
+    (validChar,  aps,
+      backticks,
+      braces,
+      brackets,
+      checkT,
+      colon,
+      comma,
+      def,
+      dot,
+      doubleQuotedString,
+      eq,
+      float,
+      integer,
+      isSubtype,
+      isSubtypeArrow,
+      lexeme,
+      newline',
+      parens,
+      question,
+      quotes,
+      rword,
+      scn,
+      semi',
+      symbol,
+      tryChoice,
+      typesEq,
+      var,
+      Arg(..),
+      BaseParser,
+      Parser,
+      ParserError(StyleError),
+      T(..),
+      TypeCtorApp(TypeCtorApp, constructorInvokerPos, argCons, nameCons),
+      TypeVar(TypeVar, typeVarPos, typeVarName),
+      ValConstructor(tvc, tlsvc),
+      Var(..),
+      VarEnv(errors, varMap, operators, valConstructors) )
 import           Penrose.Functions
 import           Penrose.Shapes                   hiding (get)
 import qualified Penrose.Substance                as C
@@ -262,7 +300,11 @@ data BinaryOp = BPlus | BMinus | Multiply | Divide | Exp
 
 --------------------------------------------------------------------------------
 -- Style Parser
-styleTypes :: [String] 
+
+
+rws, styleTypes, styleLits :: [String] 
+rws = styleLits
+styleLits = ["True", "False"]
 styleTypes 
     = [
         "scalar",
@@ -284,6 +326,25 @@ styleTypes
         "objective",
         "constraint"
         ]
+
+upperId, lowerId, identifier :: Parser String
+identifier = (lexeme . try) (p >>= checkId)
+  where
+    p = (:) <$> letterChar <*> many validChar
+
+upperId = (lexeme . try) (p >>= checkId)
+  where
+    p = (:) <$> upperChar <*> many validChar
+
+lowerId = (lexeme . try) (p >>= checkId)
+  where
+    p = (:) <$> lowerChar <*> many validChar
+
+checkId :: String -> Parser String
+checkId x =
+  if x `elem` rws
+    then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+    else return x
 
 styleTypeWord :: Parser String
 styleTypeWord = (lexeme . try) (lowerId >>= check)
@@ -427,7 +488,9 @@ anonExpr = tryChoice [layeringExpr, objFn, constrFn]
 
 anonAssign, pathAssign, override, delete :: Parser Stmt
 anonAssign = AnonAssign <$> anonExpr
-pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
+-- TODO: this will prevent `shape` from being a valid id in any path
+pathAssign = PathAssign <$> pure Nothing <*> path <*> (eq >> expr)
+-- pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 

@@ -64,27 +64,9 @@ data SourcePosition = SourcePosition
   } deriving (Show, Eq)
 
 -- TODO: clarify the list of reserved word in each language
-rws, attribs, attribVs, shapes :: [String] -- list of reserved words
+rws, labelrws, dsll :: [String] -- list of reserved words
 rws = ["True", "False", "ensure", "encourage"] 
-
--- ++ types ++ attribs ++ shapes ++ colors
-attribs = ["shape", "color", "label", "scale", "position"]
-
-attribVs = shapes
-
-shapes =
-  [ "Auto"
-  , "None"
-  , "Circle"
-  , "Box"
-  , "SolidArrow"
-  , "SolidDot"
-  , "HollowDot"
-  , "Cross"
-  ]
-
 labelrws = ["Label", "AutoLabel", "NoLabel"]
-
 dsll =
   [ "tconstructor"
   , "vconstructor"

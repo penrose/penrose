@@ -426,13 +426,13 @@ forall Point p; Vertex v
 where Identified(p, v) {
 
   -- COMBAK: This doesn't parse?
-   -- shape = Line {
-      -- start : p.shape.center
-      -- end : v.shape.center
-      -- color: setOpacity(Colors.black, 0.25)
-      -- thickness : 2.0
-      -- style : "dashed"
-   -- }
+   shape = Line {
+      start : p.shape.center
+      end : v.shape.center
+      color: setOpacity(Colors.black, 0.25)
+      thickness : 2.0
+      style : "dashed"
+   }
 
 -- COMBAK: Add this back in when the parser works
    -- layer shape above p.shape
