@@ -40,7 +40,7 @@ const clone = require("rfdc")({ proto: false, circles: false });
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalShapes = (s: State): State => {
-  console.log("state", s); // COMBAK: revert
+  // console.log("state", s); // COMBAK: revert
 
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
@@ -56,8 +56,6 @@ export const evalShapes = (s: State): State => {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
     gradientPreconditioned: genPathMap(s.varyingPaths, s.params.lastGradientPreconditioned),
   };
-
-  console.log("optDebugInfo", optDebugInfo); // COMBAK: Remove
 
   // Insert all varying vals
   const transWithVarying = insertVaryings(s.translation, varyingMapList);
@@ -104,8 +102,6 @@ export const insertVaryings = (
   trans: Translation,
   varyingMap: [Path, VarAD][]
 ): Translation => {
-  console.error("insertVaryings", trans, varyingMap); // COMBAK remove
-
   return varyingMap.reduce(
     (tr: Translation, [path, val]: [Path, VarAD]) =>
       insertExpr(path, doneFloat(val), tr),
@@ -372,7 +368,6 @@ export const evalExpr = (
       const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
 
       // Matrices are parsed as a list of vectors, so when we encounter vectors as elements, we assume it's a matrix, and convert it to a matrix of lists
-      console.log("vector", argVals);
       if (argVals[0].tag !== "Val") { throw Error("expected val"); }
       if (argVals[0].contents.tag === "VectorV") {
         return {
@@ -431,7 +426,7 @@ export const evalExpr = (
     }
 
     case "MatrixAccess": {
-      console.log("matrix access e", e);
+      // console.log("matrix access e", e);
       const [e1, e2] = e.contents;
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2s = evalExprs(e2, trans, varyingVars, optDebugInfo);
@@ -443,7 +438,7 @@ export const evalExpr = (
       });
 
       if (v1.tag !== "Val") { throw Error("expected val"); }
-      console.log("matrix access", v1, indices, v1.contents.contents[indices[0]]);
+      // console.log("matrix access", v1, indices, v1.contents.contents[indices[0]]);
 
       // COMBAK: Temp hack for parse, do vector access
       if (indices.length === 1) { return { tag: "Val", contents: { tag: "FloatV", contents: v1.contents.contents[indices[0]] as any as VarAD } } }
@@ -492,8 +487,6 @@ export const evalExpr = (
           };
         }
 
-        console.error("argExprs", argExprs, optDebugInfo);
-
         return {
           tag: "Val",
           contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(p.contents))
@@ -531,9 +524,6 @@ export const resolvePath = (
 ): ArgVal<VarAD> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
-
-  // console.log("resolve path", path, varyingVal, varyingMap);
-  // throw Error("TODO");
 
   if (varyingVal) {
     return floatVal(varyingVal);
@@ -955,11 +945,8 @@ export const insertExpr = (
             }
             const res3 = res2.contents;
             res3[indices[0]] = expr.contents.contents; // TODO: Does this actually leave a gradient trail, though?
-            // COMBAK: Why does the metadata contain extraneous elements???
-
-            console.error("propertypath", indices, indices[0], res3, expr.contents.contents);
-
-            // throw Error("TODO");
+            // COMBAK: Why does the metadata contain extraneous elements?
+            // console.error("propertypath", indices, indices[0], res3, expr.contents.contents);
             return trans;
           } else { throw Error("unexpected tag"); }
         }
@@ -977,6 +964,11 @@ export const insertExpr = (
  */
 export const decodeState = (json: any): State => {
   // Find out the values of varying variables
+
+  console.log("varying paths", json.varyingPaths);
+  // json.varyingPaths.forEach((p: any, i: any) => console.log(JSON.stringify(p), i));
+  // throw Error("TODO");
+
   const state = {
     ...json,
     varyingValues: json.varyingState,
@@ -1007,13 +999,13 @@ export const decodeState = (json: any): State => {
  */
 export const encodeState = (state: State): any => {
 
-  console.log("mapped translation", mapTranslation(numOf, state.translation));
-  console.log("original translation", state.originalTranslation);
+  // console.log("mapped translation", mapTranslation(numOf, state.translation));
+  // console.log("original translation", state.originalTranslation);
 
-  console.log("shapes", state.shapes);
-  console.log("shapesr", state.shapes
-    .map(values)
-    .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]));
+  // console.log("shapes", state.shapes);
+  // console.log("shapesr", state.shapes
+  //   .map(values)
+  //   .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]));
 
   const json = {
     ...state,
@@ -1057,6 +1049,9 @@ export function genPathMap<T>(
   paths.forEach((path, index) =>
     res.set(JSON.stringify(path), vals[index])
   );
+
+  // console.log("gen path map", res);
+  // throw Error("TODO");
   return res;
 };
 

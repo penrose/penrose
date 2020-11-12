@@ -18,33 +18,33 @@ Set x {
 	color : setOpacity(x.shape.color, 1.0)
     }
 
-    x.labelFn = ensure contains(x.shape, x.text)
-    x.labelFn = ensure contains(x.shape, x.text)
-    x.minSizeFn = ensure minSize(x.shape)
-    x.maxSizeFn = ensure maxSize(x.shape)
-    -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
-    layering  = x.shape below x.text
+    ensure contains(x.shape, x.text)
+    ensure contains(x.shape, x.text)
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
+    -- encourage sameCenter(x.text, x.shape)
+    x.shape below x.text
 }
 
 Set x; Set y
 where IsSubset(x, y) {
-    containFn = ensure contains(y.shape, x.shape, 5.0)
-    sizeFn    = ensure smallerThan(x.shape, y.shape)
-    outsideFn = ensure outsideOf(y.text, x.shape) -- Is this not working?
-    layering  = x.shape above y.shape
+    ensure contains(y.shape, x.shape, 5.0)
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape) -- Is this not working?
+    x.shape above y.shape
     -- layering1  = y.text below x.shape
 }
 
 Set x; Set y
 where NotIntersecting(x, y) {
-    notIntersectFn = ensure disjoint(x.shape, y.shape)
+    ensure disjoint(x.shape, y.shape)
 }
 
 Set x; Set y
 where Intersect(x, y) {
-    overlapFn = ensure overlapping(x.shape, y.shape)
-    labelFn1  = ensure outsideOf(y.text, x.shape)
-    labelFn2  = ensure outsideOf(x.text, y.shape)
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
 }
 
 Point p {
@@ -64,34 +64,34 @@ Point p {
 Point p
 with Set A
 where PointIn(A, p) {
-    containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
-    layeringShape = p.shape above A.shape
-    layeringText = p.text above A.shape
+    ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    p.shape above A.shape
+    p.text above A.shape
 }
 
 Point p
 with Set A
 where PointNotIn(A, p) {
 -- where Not(PointIn(A, p)) {
-    notContainsFn = ensure disjoint(A.shape, p.shape)
+    ensure disjoint(A.shape, p.shape)
 }
 
 -- Put all the text on top of everything
 Set x; Set y {
-    labelRepelFn = encourage repel(x.text, y.text, const.repelWeight)
-    layering = x.shape below y.text
+    encourage repel(x.text, y.text, const.repelWeight)
+    x.shape below y.text
 }
 
 Point p; Point q {
-      -- shapeRepelFn = encourage repel(p.shape, q.shape, G.repelWeight2)
-      labelRepelFn = encourage repel(p.text, q.text, const.repelWeight)
+     -- encourage repel(p.shape, q.shape, G.repelWeight2)
+     encourage repel(p.text, q.text, const.repelWeight)
 }
 
 Set x; Point p {
-    layering1 = p.shape above x.shape
-    layering2 = p.text above x.shape
+    p.shape above x.shape
+    p.text above x.shape
 
-      labelRepelFn = encourage repel(p.text, x.text, const.repelWeight)
+     encourage repel(p.text, x.text, const.repelWeight)
 }
 
 --------------------------------------
@@ -136,7 +136,7 @@ global {
     -- These numbers (weights on inRange and the range itself) have been heavily tweaked
     -- And it makes convergence hard
     -- global.scaleFactor = ?
-    -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
+    ensure inRange(global.scaleFactor, 75.0, 150.0)
     global.scaleFactor = 70.0
     -- global.offset = 150.0
 }
@@ -206,9 +206,9 @@ SimplicialComplex K {
 	 color : Colors.black
        }
 
-       K.labelFn = encourage centerLabel(K.shape, K.text)
+     encourage centerLabel(K.shape, K.text)
 
-       K.layerTextFn = K.text above K.shape
+       K.text above K.shape
 
        -- Expression label
        K.expr_padding = 25.0
@@ -220,7 +220,7 @@ SimplicialComplex K {
        	 color : global.starColor
        }
 
-       K.const_layerFn = K.const_text above K.shape
+       K.const_text above K.shape
 }
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
@@ -228,8 +228,8 @@ SimplicialComplex K1; SimplicialComplex K2 {
 	 padding = 30.0
 
 	 -- TODO: improve this for rectangles by not just using the x size
-	 overlapFn = ensure disjoint(K1.shape, K2.shape, padding)
-	 alignFn = ensure sameHeight(K1.shape, K2.shape)
+	 ensure disjoint(K1.shape, K2.shape, padding)
+	 ensure sameHeight(K1.shape, K2.shape)
 	 -- distFn = ensure distBetween(K1.shape, K2.shape, padding)
 }
 
@@ -258,13 +258,13 @@ with SimplicialComplex K {
 	 color : v.shape.color
        }
 
-       v.layerFnShape = v.shape above K.shape
-       v.layerFnText = v.text above K.shape
+       v.shape above K.shape
+       v.text above K.shape
 
-       v.posFn = ensure contains(K.shape, v.shape, v.shape.r) -- padding
+     ensure contains(K.shape, v.shape, v.shape.r) -- padding
 
-       v.labelFnMargin = ensure atDist(v.shape, v.text, global.labelPadding2)
-       v.labelFn = ensure contains(K.shape, v.text, 0.0)
+     ensure atDist(v.shape, v.text, global.labelPadding2)
+     ensure contains(K.shape, v.text, 0.0)
 }
 
 -- Style a distinguished vertex (only if it's a result)
@@ -278,7 +278,7 @@ with SimplicialComplex K {
       override v.shape.color = global.closureColor
 
       v.offset = 10.0
-      v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
+     encourage near(v.text, v.shape, v.offset)
 
       /*
        -- Optimize the label padding, only for the distinguished vertex
@@ -289,12 +289,12 @@ with SimplicialComplex K {
 
       v.offset = 30.0
       -- This is trying to place the labels but it's very slow, goes from 40s to 3min
-      v.labelInComplexFn = ensure contains(K.shape, v.text)
+     ensure contains(K.shape, v.text)
       -- Label's color might need to be programmatically set depending on its location
 
       v.padding_range = 20.0
-      v.labelRangeXFn = ensure inRange(v.padding_x, v.shape.x - v.padding_range, v.shape.x + v.padding_range)
-      v.labelRangeYFn = ensure inRange(v.padding_y, v.shape.y - v.padding_range, v.shape.y + v.padding_range) */
+     ensure inRange(v.padding_x, v.shape.x - v.padding_range, v.shape.x + v.padding_range)
+     ensure inRange(v.padding_y, v.shape.y - v.padding_range, v.shape.y + v.padding_range) */
 }
 
 Vertex v; Edge e
@@ -303,7 +303,7 @@ with SimplicialComplex K {
      offset = 5.0
      -- Make sure the label doesn't overlap with any edge
      -- TODO: this is NaNing
-     -- edgeLabelFn = ensure disjoint(v.text, e.shape, offset)
+     ensure disjoint(v.text, e.shape, offset)
 }
 
 Vertex v; Edge e
@@ -312,7 +312,7 @@ with SimplicialComplex K {
      offset = 5.0
      -- Make sure the label doesn't overlap with any edge
      -- TODO: this is NaNing
-     edgeLabelFn = ensure disjoint(v.text, e.shape, offset)
+     ensure disjoint(v.text, e.shape, offset)
 }
 
 Edge e
@@ -332,12 +332,12 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        color : Colors.black
      }
 
-     e.closeFn = encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
-     e.nonoverlapFn = ensure disjoint(e.text, e.shape, 5.0)
+     encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
+     ensure disjoint(e.text, e.shape, 5.0)
 
-     e.layering1 = v1.shape above e.shape
-     e.layering2 = v2.shape above e.shape
-     e.layering3 = e.shape above K.shape
+     v1.shape above e.shape
+     v2.shape above e.shape
+     e.shape above K.shape
 }
 
 -- Style a distinguished edge (only if it's declared to be a result)
@@ -356,7 +356,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        color : e.shape.color
      }
 
-     e.layerFnText = e.text above K.shape
+     e.text above K.shape
 }
 
 Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
@@ -381,9 +381,9 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
        color : Colors.black
      }
 
-     f.layerFnText = f.text above K.shape
+     f.text above K.shape
 
-     f.layeringShape = f.shape above K.shape
+     f.shape above K.shape
 }
 
 -- Style and label a distinguished face
@@ -399,8 +399,8 @@ with SimplicialComplex K {
 Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
 with SimplicialComplex K {
-      textLayering1 = v.text above f.shape 
-      textLayering2 = v.text above e.shape
+      v.text above f.shape 
+      v.text above e.shape
 }
 
 -- Only label the (last) result of an operation
@@ -411,29 +411,32 @@ where Result(e) {
 }
 
 Edge e; Face f {
-     layering = e.shape above f.shape
-     layeringText = e.text above f.shape
+     e.shape above f.shape
+     e.text above f.shape
 }
 
 Vertex v; Vertex w {
-       repelFn = encourage repel(v.shape, w.shape, 1.0)
+     encourage repel(v.shape, w.shape, 1.0)
 }
 
 --------------------------------------
 -- | above this line, concatenate the two .sty files for Sets and Meshes
 
-Point p; Vertex v
+forall Point p; Vertex v
 where Identified(p, v) {
+
+  -- COMBAK: This doesn't parse?
    shape = Line {
-      start: p.shape.center
-      end: v.shape.center
-      color: setOpacity(Colors.black, 0.25)
-      thickness : 2.0
-      style: "dashed"
+      -- start : p.shape.center
+      -- end : v.shape.center
+      -- color: setOpacity(Colors.black, 0.25)
+      -- thickness : 2.0
+      -- style : "dashed"
    }
 
-   layering1 = shape above p.shape
-   layering2 = shape above v.shape
+-- COMBAK: Add this back in when the parser works
+   -- layer shape above p.shape
+   -- layer shape above v.shape
    
    -- rather than worry about the two diagrams colliding, just add some penalty that tries to make all the connecting lines fairly long
    -- p.vector = (p.shape.x, p.shape.y)
