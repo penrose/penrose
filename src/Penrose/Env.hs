@@ -65,7 +65,7 @@ data SourcePosition = SourcePosition
 
 -- TODO: clarify the list of reserved word in each language
 rws, attribs, attribVs, shapes :: [String] -- list of reserved words
-rws = ["True", "False"] 
+rws = ["True", "False", "ensure", "encourage"] 
 
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
@@ -103,7 +103,6 @@ dsll =
   , "associativity"
   ]
 
--- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 upperId, lowerId, identifier :: Parser String
 identifier = (lexeme . try) (p >>= checkId)
   where

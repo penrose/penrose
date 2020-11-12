@@ -435,9 +435,9 @@ expr :: Parser Expr
 expr = tryChoice [
            constructor,
            layeringExpr,
-           arithmeticExpr,
            objFn,
            constrFn,
+           arithmeticExpr,
            transformExpr, -- COMBAK: ordering
            compFn,
            list,
