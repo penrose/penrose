@@ -23,7 +23,7 @@ Set x {
       rotation : 0.0
     }
 
-    ensure contains(x.shape, x.text)
+    x.labelFn = ensure contains(x.shape, x.text)
     x.shape below x.text
 }
 
@@ -32,7 +32,7 @@ Set x; Set y
 where IsSubset(x, y) {
   ensure contains(y.shape, x.shape, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)
-  ensure outsideOf(y.text, x.shape, 1.0)
+  y.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
   x.shape above y.shape
 }
 
@@ -85,10 +85,10 @@ Set `Rn` {
       strokeColor : Colors.black
     }
 
-    `Rn`.text.center = (`Rn`.shape.center[0] + `Rn`.shape.side / 2.0 - Const.padding, `Rn`.shape.center[1] + `Rn`.shape.side / 2.0 - Const.padding)
+    override `Rn`.text.center = (`Rn`.shape.center[0] + `Rn`.shape.side / 2.0 - Const.padding, `Rn`.shape.center[1] + `Rn`.shape.side / 2.0 - Const.padding)
 
-    -- delete `Rn`.labelFn
-    -- delete `Rn`.outsideFn
+    delete `Rn`.labelFn
+    delete `Rn`.outsideFn
 
     ensure minSize(`Rn`.shape)
     ensure maxSize(`Rn`.shape)
@@ -112,8 +112,8 @@ with Set `Rn` {
     -- override `Rm`.text.center[1] = `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding
     `Rm`.text.center = (`Rm`.shape.center[0] + `Rm`.shape.side / 2.0 - Const.padding, `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding)
 
-    -- delete `Rm`.labelFn
-    -- delete `Rm`.outsideFn
+    delete `Rm`.labelFn
+    delete `Rm`.outsideFn
 
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
