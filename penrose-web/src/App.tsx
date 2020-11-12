@@ -126,7 +126,7 @@ class App extends React.Component<any, ICanvasState> {
   public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
     if (this.state.autostep) {
-      stepState(data, this.state.autostep);
+      stepState(data, this.onCanvasState);
     }
   };
   public setInspector = async (showInspector: boolean) => {
