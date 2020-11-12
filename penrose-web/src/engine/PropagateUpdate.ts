@@ -53,29 +53,21 @@ export const insertPending = (state: State) => {
   };
 };
 
-// export const updateVaryingState = async (data: any) => {
-//   const newVaryingState = [...data.varyingState];
-//   await data.varyingPaths.forEach((path: any, index: number) => {
-//     // NOTE: We only update property paths since no frontend interactions can change fields
-//     // TODO: add a branch for `FieldPath` when this is no longer the case
-//     if (path.tag === "PropertyPath") {
-//       const [{ contents: subName }, fieldName, propertyName] = path.contents;
-//       data.transr.trMap.forEach(
-//         ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
-//           if (subVar.contents === subName) {
-//             const propertyDict = fieldDict[fieldName].contents[1];
-//             const shapeName = propertyDict.name.contents.contents;
-//             newVaryingState[index] = findShapeProperty(
-//               data.shapesr,
-//               path
-//             ).contents;
-//           }
-//         }
-//       );
-//     }
-//   });
-//   return {
-//     ...data,
-//     varyingState: newVaryingState,
-//   };
-// };
+/**
+ * Back propagate value changes in shapes to varying values
+ * @param state Old diagram state
+ */
+export const updateVaryingValues = async (state: State) => {
+  const newVaryingState = [...state.varyingValues];
+  await state.varyingPaths.forEach((path: Path, index: number) => {
+    // NOTE: We only update property paths since no frontend interactions can change fields
+    // TODO: add a branch for `FieldPath` when this is no longer the case
+    if (path.tag === "PropertyPath") {
+      newVaryingState[index] = findShapeProperty(state.shapes, path).contents;
+    }
+  });
+  return {
+    ...state,
+    varyingState: newVaryingState,
+  };
+};

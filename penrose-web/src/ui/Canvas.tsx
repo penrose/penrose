@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom";
 import { interactiveMap, staticMap } from "shapes/componentMap";
 import Log from "utils/Log";
 import { loadImages } from "utils/Util";
-import { insertPending } from "engine/PropagateUpdate";
+import { insertPending, updateVaryingValues } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
 import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
@@ -84,57 +84,46 @@ class Canvas extends React.Component<ICanvasProps> {
    */
   public dragEvent = async (id: string, dx: number, dy: number) => {
     if (this.props.updateData && this.props.data) {
-      const updated = {
+      const updated: State = {
         ...this.props.data,
         params: { ...this.props.data.params, optStatus: { tag: "NewIter" } },
         shapes: this.props.data.shapes.map(
           ({ shapeType, properties }: Shape) => {
             if (properties.name.contents === id) {
-              return this.dragShape([shapeType, properties], dx, dy);
+              return this.dragShape({shapeType, properties}, [dx, dy]);
             }
-            return [shapeType, properties];
+            return {shapeType, properties};
           }
         ),
       };
       // TODO: need to retrofit this implementation to the new State type
-      // const updatedWithVaryingState = await updateVaryingState(updated);
-      // this.props.updateData(updatedWithVaryingState);
+      const updatedWithVaryingState = await updateVaryingValues(updated);
+      this.props.updateData(updatedWithVaryingState);
     }
   };
 
-  public dragShape = ([type, properties]: any, dx: number, dy: number) => {
-    switch (type) {
+  // TODO: factor out position props in shapedef
+  public dragShape = (shape: Shape, offset: [number, number]) => {
+    const {shapeType, properties} = shape;
+    switch (shapeType) {
       case "Curve":
-        console.log("Curve drag unimplemented", [type, properties]); // Just to prevent crashing on accidental drag
-        return [type, properties];
+        console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+        return shape;
       case "Line":
-        return [
-          type,
-          this.moveProperties(properties, [
-            ["startX", dx],
-            ["startY", dy],
-            ["endX", dx],
-            ["endY", dy],
-          ]),
-        ];
+        return {
+          ...shape,
+          properties: this.moveProperties(properties, ["start", "end"], offset),
+        };
       case "Arrow":
-        return [
-          type,
-          this.moveProperties(properties, [
-            ["startX", dx],
-            ["startY", dy],
-            ["endX", dx],
-            ["endY", dy],
-          ]),
-        ];
+        return {
+          ...shape,
+          properties: this.moveProperties(properties, ["start", "end"], offset),
+        };
       default:
-        return [
-          type,
-          this.moveProperties(properties, [
-            ["x", dx],
-            ["y", dy],
-          ]),
-        ];
+        return {
+          ...shape,
+          properties: this.moveProperties(properties, ["center"], offset),
+        };
     }
   };
 
@@ -143,12 +132,13 @@ class Canvas extends React.Component<ICanvasProps> {
    *
    * @memberof Canvas
    */
-  public moveProperties = (properties: any, propPairs: [string, number][]) => {
-    const moveProperty = (props: any, [propertyID, n]: [string, number]) => {
-      props[propertyID].contents -= n;
+  public moveProperties = (properties: Properties, propsToMove: string[], [dx, dy]: [number, number]) => {
+    const moveProperty = (props: Properties, propertyID: string) => {
+      const [x, y] = props[propertyID].contents as [number, number];
+      // props[propertyID].contents = [dx, dy]
       return props;
     };
-    return propPairs.reduce(moveProperty, properties);
+    return propsToMove.reduce(moveProperty, properties);
   };
 
   public prepareSVGContent = async () => {
