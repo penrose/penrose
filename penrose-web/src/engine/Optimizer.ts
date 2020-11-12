@@ -77,8 +77,8 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-// const DEBUG_GRAD_DESCENT = true;
-const DEBUG_GRAD_DESCENT = false; // COMBAK: Revert
+const DEBUG_GRAD_DESCENT = true;
+// const DEBUG_GRAD_DESCENT = false; // COMBAK: Revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;

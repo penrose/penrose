@@ -282,29 +282,6 @@ export const evalExpr = (
       }
     }
 
-    case "Tuple": {
-      const [e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, optDebugInfo);
-
-      // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
-      if (val1.tag === "Val" && val2.tag === "Val") {
-        if (val1.contents.tag === "FloatV" && val2.contents.tag === "FloatV") {
-          return {
-            // Value<number | VarAD>
-            tag: "Val",
-            contents: {
-              tag: "TupV",
-              contents: [val1.contents.contents, val2.contents.contents],
-            },
-          };
-        } else {
-          throw Error("Tuple needs to contain two Float elements");
-        }
-      } else {
-        throw Error("Tuple needs to evaluate to two values (no GPI allowed)");
-      }
-    }
-
     case "UOp": {
       const {
         contents: [uOp, expr],
@@ -333,18 +310,6 @@ export const evalExpr = (
         // HACK: coerce the type for now to let the compiler finish
         contents: res,
       };
-    }
-
-    case "EPath":
-      return resolvePath(e.contents, trans, varyingVars, optDebugInfo);
-    case "CompApp": {
-      const [fnName, argExprs] = e.contents;
-      // eval all args
-      const args = evalExprs(argExprs, trans, varyingVars, optDebugInfo) as ArgVal<VarAD>[];
-      const argValues = args.map((a) => argValue(a));
-      checkComp(fnName, args);
-      // retrieve comp function from a global dict and call the function
-      return { tag: "Val", contents: compDict[fnName](...argValues) };
     }
 
     case "Tuple": {
@@ -500,8 +465,10 @@ export const evalExpr = (
         contents: { tag: "FloatV", contents: vec[j] as VarAD }
       };
     }
+
     case "EPath":
       return resolvePath(e.contents, trans, varyingVars, optDebugInfo);
+
     case "CompApp": {
       const [fnName, argExprs] = e.contents;
 
@@ -512,15 +479,24 @@ export const evalExpr = (
           throw Error(`expected 1 argument to ${fnName}; got ${argExprs.length}`);
         }
 
-        if (argExprs[0].tag !== "EPath") {
-          throw Error(`expected 1 path as argument to ${fnName}; got ${argExprs[0].tag}`);
+        let p = argExprs[0];
+
+        // Vector and matrix accesses are might be the only way to refer to an anon varying var
+        if (p.tag !== "EPath" && p.tag !== "VectorAccess" && p.tag !== "MatrixAccess") {
+          throw Error(`expected 1 path as argument to ${fnName}; got ${p.tag}`);
         }
 
-        console.error("argExprs", argExprs);
+        if (p.tag === "VectorAccess" || p.tag === "MatrixAccess") {
+          p = { // convert to AccessPath schema...
+            tag: "EPath", contents: { tag: "AccessPath", contents: [p.contents[0], [p.contents[1].contents]] }
+          };
+        }
+
+        console.error("argExprs", argExprs, optDebugInfo);
 
         return {
           tag: "Val",
-          contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(argExprs[0].contents))
+          contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(p.contents))
         };
       }
 
@@ -556,13 +532,14 @@ export const resolvePath = (
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
 
-  console.log("resolve path", path, varyingVal, varyingMap);
+  // console.log("resolve path", path, varyingVal, varyingMap);
   // throw Error("TODO");
 
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
     if (path.tag === "AccessPath") {
+      // Note, doing VectorAccess works bc varying vars are inserted into trans
       throw Error("TODO");
     }
 

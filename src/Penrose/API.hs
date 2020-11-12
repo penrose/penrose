@@ -19,7 +19,7 @@ import           Data.List                  (deleteFirstsBy, partition, (\\))
 import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
-import           Debug.Trace                (traceShowId)
+import           Debug.Trace                (trace, traceShowId)
 import           GHC.Generics
 import           Paths_penrose              (version)
 import           Penrose.Element
@@ -89,9 +89,8 @@ compileTrio substance style element
   -- Compilation phase
   let optConfig = defaultOptConfig
   -- COMBAK: revert
-  state <- compileStyle styProg subOut' styVals optConfig
+  state <- trace ("Style AST: \n" ++ ppShow styProg) $ compileStyle styProg subOut' styVals optConfig
   return (state, env)
-  -- error $ "Style AST: \n" ++ ppShow styProg
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
 getEnv ::

@@ -10,26 +10,22 @@ forall Set x {
         string : x.label
     }
 
-    LOCAL.c = 20.0
+    c = 20.0
 
     x.debugShape = Arrow {
-        startX: x.text.x
-        startY: x.text.y
-        endX: x.text.x + LOCAL.c * derivative(x.text.x)
-        endY: x.text.y + LOCAL.c * derivative(x.text.y)
+        start: x.text.center
+        end: (x.text.center[0] + c * derivative(x.text.center[0]), x.text.center[1] + c * derivative(x.text.center[1]))
         color: rgba(1.0, 0.0, 0.0, 0.5)
         arrowheadSize: 0.5
         thickness: 3.0
         style: "dashed"
     }
 
-    LOCAL.d = 20.0
+    d = 20.0
 
     x.debugShape2 = Arrow {
-        startX: x.text.x
-        startY: x.text.y
-        endX: x.text.x + LOCAL.d * derivativePreconditioned(x.text.x)
-        endY: x.text.y + LOCAL.d * derivativePreconditioned(x.text.y)
+        start: x.text.center
+        end: (x.text.center[0] + c * derivativePreconditioned(x.text.center[0]), x.text.center[1] + c * derivativePreconditioned(x.text.center[1]))
         color: rgba(0.0, 0.0, 1.0, 0.5)
         arrowheadSize: 0.5
         thickness: 3.0

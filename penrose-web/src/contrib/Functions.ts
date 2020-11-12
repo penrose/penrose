@@ -34,7 +34,11 @@ export const compDict = {
       };
     }
 
-    throw Error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    console.error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    return {
+      tag: "FloatV",
+      contents: constOf(0.0)
+    };
   },
 
   // NOTE: This is a special system function. Don't change it!
@@ -56,7 +60,11 @@ export const compDict = {
       };
     }
 
-    throw Error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    console.error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    return {
+      tag: "FloatV",
+      contents: constOf(0.0)
+    };
   },
 
   // Assuming lists only hold floats
