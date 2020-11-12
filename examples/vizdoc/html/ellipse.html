@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Circle</title>
+  
+<p>
+  <label for="cx" 
+     style="display: inline; text-align: right">
+     x-coordinate = <span id="cx-val">0</span>
+  </label>
+  <input type="range" min="-300" max="300" id="cx" value="0">
+  <label for="cy" 
+     style="display: inline; text-align: right">
+     y-coordinate = <span id="cy-val">0</span>
+  </label>
+  <input type="range" min="-150" max="150" id="cy" value="0">
+</p>
+<p>
+  <label for="rx" 
+     style="display: inline; text-align: right">
+     rx = <span id="rx-val">50</span>
+  </label>
+  <input type="range" min="1" max="400" id="rx" value="50">
+  <label for="ry" 
+     style="display: inline; text-align: right">
+     ry = <span id="ry-val">100</span>
+  </label>
+  <input type="range" min="1" max="400" id="ry" value="100">
+</p>
+<p>
+    <label for="fill" 
+    style="display: inline; text-align: right">
+    color
+ </label>
+ <input type="color" id="fill" value="#b7fc95">
+  <label for="stroke-width" 
+     style="display: inline; text-align: right">
+     strokeWidth = <span id="stroke-width-val">2</span>
+  </label>
+  <input type="range" min="0" max="50" id="stroke-width" value="2">
+</p>
+<p>
+    <label for="stroke" 
+     style="display: inline; text-align: right">
+     strokeColor
+  </label>
+  <input type="color" id="stroke" value="#999999">
+  <label for="stroke-dasharray" 
+     style="display: inline; text-align: right">
+     strokeStyle
+  </label>
+  <select id="stroke-dasharray">
+    <option value="solid">solid</option>
+    <option value="dashed">dashed</option>
+  </select>
+</p>
+
+<div id="viz"
+    style= "border-style: solid; width: 600px; height: 300px; margin: auto; margin-top: 30px; border-width: thin;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script>
+
+var width = 600;
+var height = 300;
+  
+  
+var holder = d3.select("#viz")
+      .append("svg:svg")
+      .attr("width", width)  
+      .attr("height", height); 
+
+holder.append("ellipse")
+  .attr("cx", 300)
+  .attr("cy", 150)
+  .attr("id", "ell")
+  .attr("rx", d3.select("#rx").attr("value"))
+  .attr("ry", d3.select("#ry").attr("value"))
+  .attr("fill", d3.select("#fill").attr("value"))
+  .attr("stroke", d3.select("#stroke").attr("value"))
+  .attr("stroke-width", d3.select("#stroke-width").attr("value"))
+
+
+// todo: combine two cases?
+d3.selectAll("input").on("input", function() {
+  update(this.id, this.value);
+});
+d3.select("select").on("change", function() {
+  update(this.id, this.value);
+});
+
+
+function update(id, val) {
+  var shape = holder.select("#ell")
+  switch (id) {
+    case "cx":
+      shape.attr(id, +val + width / 2);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "cy":
+      shape.attr(id, -(+val) + height / 2);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "rx":
+      shape.attr(id, +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "ry":
+      shape.attr(id, +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "fill":
+      shape.attr("fill", val);
+      break;
+    case "stroke-width":
+      shape.attr(id, +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "stroke":
+      shape.attr(id, val);
+      break;
+    case "stroke-dasharray":
+      if (val == "solid") shape.attr(id, "1, 0")
+      else shape.attr(id, "7, 5");
+      break;
+
+  }
+}
+
+</script>

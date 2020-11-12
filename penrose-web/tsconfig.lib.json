@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"]
+    },
+    "plugins": [{ "transform": "typescript-transform-paths" }]
+  }
+}

@@ -1,0 +1,10 @@
+Lin A
+Box B
+Point ps
+Point pe
+Arrhead C, D, E
+Lin F
+
+AutoLabel A, B, C, F
+Label ps $(startX, startY)$
+Label pe $(endX, endY)$
