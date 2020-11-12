@@ -62,14 +62,13 @@ forall VectorSpace U {
     }
 
     U.xAxis = Line {
-           start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
-             end : (o[0] + axisSize, o[1])
-       thickness : const.lineThickness
-           style : "solid"
-           color : U.axisColor
-           -- COMBAK: This `true` gets parsed as a local variable when it should be a special literal (or, call it `True`?)
-           -- leftArrowhead: true
-           -- rightArrowhead: true
+        start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
+        end : (o[0] + axisSize, o[1])
+        thickness : const.lineThickness
+        style : "solid"
+        color : U.axisColor
+        leftArrowhead: True
+        rightArrowhead: True
         arrowheadSize : const.arrowheadSize
     }
 

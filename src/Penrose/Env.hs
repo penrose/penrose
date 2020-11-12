@@ -63,8 +63,9 @@ data SourcePosition = SourcePosition
   , row    :: Int -- ^ row number of the symbol
   } deriving (Show, Eq)
 
+-- TODO: clarify the list of reserved word in each language
 rws, attribs, attribVs, shapes :: [String] -- list of reserved words
-rws = ["avoid", "as"] ++ dsll
+rws = ["True", "False"] 
 
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
