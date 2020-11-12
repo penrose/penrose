@@ -4,13 +4,13 @@
 -- | Set Style program
 
 const {
-      const.subsetColor = sampleColor(0.2, "rgb")
-      const.repelWeight = 0.0
+      subsetColor = sampleColor(0.2, "rgb")
+      repelWeight = 0.0
 }
 
 Set x {
     x.shape = Circle {
-        strokeWidth : 0
+        strokeWidth : 0.0
     }
 
     x.text = Text {
@@ -19,79 +19,79 @@ Set x {
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
+    x.labelFn = ensure contains(x.shape, x.text)
     x.minSizeFn = ensure minSize(x.shape)
     x.maxSizeFn = ensure maxSize(x.shape)
     -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
-    LOCAL.layering  = x.shape below x.text
+    layering  = x.shape below x.text
 }
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
-    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape) -- Is this not working?
-    LOCAL.layering  = x.shape above y.shape
-    -- LOCAL.layering1  = y.text below x.shape
+    containFn = ensure contains(y.shape, x.shape, 5.0)
+    sizeFn    = ensure smallerThan(x.shape, y.shape)
+    outsideFn = ensure outsideOf(y.text, x.shape) -- Is this not working?
+    layering  = x.shape above y.shape
+    -- layering1  = y.text below x.shape
 }
 
 Set x; Set y
 where NotIntersecting(x, y) {
-    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+    notIntersectFn = ensure disjoint(x.shape, y.shape)
 }
 
 Set x; Set y
 where Intersect(x, y) {
-    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
-    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
-    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+    overlapFn = ensure overlapping(x.shape, y.shape)
+    labelFn1  = ensure outsideOf(y.text, x.shape)
+    labelFn2  = ensure outsideOf(x.text, y.shape)
 }
 
 Point p {
     p.offset = 10.0
     p.shape = Circle {
-        strokeWidth : 0
+        strokeWidth : 0.0
         color : rgba(0.0, 0.0, 0.0, 1.0)
         r : 3.0
     }
 
     p.text = Text {
         string : p.label
-        x : p.shape.x + p.offset
-        y : p.shape.y + p.offset
+        center : p.shape.center + (p.offset, p.offset)
     }
 }
 
 Point p
 with Set A
 where PointIn(A, p) {
-    LOCAL.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
-    LOCAL.layeringShape = p.shape above A.shape
-    LOCAL.layeringText = p.text above A.shape
+    containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    layeringShape = p.shape above A.shape
+    layeringText = p.text above A.shape
 }
 
 Point p
 with Set A
 where PointNotIn(A, p) {
 -- where Not(PointIn(A, p)) {
-    LOCAL.notContainsFn = ensure disjoint(A.shape, p.shape)
+    notContainsFn = ensure disjoint(A.shape, p.shape)
 }
 
 -- Put all the text on top of everything
 Set x; Set y {
-    LOCAL.labelRepelFn = encourage repel(x.text, y.text, const.repelWeight)
-    LOCAL.layering = x.shape below y.text
+    labelRepelFn = encourage repel(x.text, y.text, const.repelWeight)
+    layering = x.shape below y.text
 }
 
 Point p; Point q {
-      -- LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape, G.repelWeight2)
-      LOCAL.labelRepelFn = encourage repel(p.text, q.text, const.repelWeight)
+      -- shapeRepelFn = encourage repel(p.shape, q.shape, G.repelWeight2)
+      labelRepelFn = encourage repel(p.text, q.text, const.repelWeight)
 }
 
 Set x; Point p {
-    LOCAL.layering1 = p.shape above x.shape
-    LOCAL.layering2 = p.text above x.shape
+    layering1 = p.shape above x.shape
+    layering2 = p.text above x.shape
 
-      LOCAL.labelRepelFn = encourage repel(p.text, x.text, const.repelWeight)
+      labelRepelFn = encourage repel(p.text, x.text, const.repelWeight)
 }
 
 --------------------------------------
@@ -189,8 +189,7 @@ SimplicialComplex K {
        -- K.size_y = ddg[K.name]["size_y"] * global.scaleFactor + K.box_padding
 
        K.shape = Rectangle {
-           x : K.center_x
-	       y : K.center_y
+           center : (K.center_x, K.center_y)
 	       w : K.size_x
 	       h : K.size_y
 	       rotation : 0.0
@@ -202,8 +201,7 @@ SimplicialComplex K {
        K.padding = 25.0
 
        K.text = Text {
-	 x : K.shape.x - K.shape.w / 2.0 + K.padding
-	 y : K.shape.y - K.shape.h / 2.0 + K.padding
+	 center : (K.shape.center[0] - K.shape.w / 2.0 + K.padding, K.shape.center[1] - K.shape.h / 2.0 + K.padding)
 	 string : K.label
 	 rotation : 0.0
 	 color : Colors.black
@@ -217,8 +215,7 @@ SimplicialComplex K {
        K.expr_padding = 25.0
 
        K.const_text = Text {
-       	 x : K.shape.x 
-       	 y : K.shape.y - (K.size_y / 2.0) - K.expr_padding
+       	 center : (K.shape.center[0], K.shape.center[1] - (K.size_y / 2.0) - K.expr_padding)
        	 string : "\\text{ }"
        	 rotation : 0.0
        	 color : global.starColor
@@ -229,12 +226,12 @@ SimplicialComplex K {
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
 SimplicialComplex K1; SimplicialComplex K2 {
-	 LOCAL.padding = 30.0
+	 padding = 30.0
 
 	 -- TODO: improve this for rectangles by not just using the x size
-	 LOCAL.overlapFn = ensure disjoint(K1.shape, K2.shape, LOCAL.padding)
-	 LOCAL.alignFn = ensure sameHeight(K1.shape, K2.shape)
-	 -- LOCAL.distFn = ensure distBetween(K1.shape, K2.shape, LOCAL.padding)
+	 overlapFn = ensure disjoint(K1.shape, K2.shape, padding)
+	 alignFn = ensure sameHeight(K1.shape, K2.shape)
+	 -- distFn = ensure distBetween(K1.shape, K2.shape, padding)
 }
 
 Vertex v 
@@ -246,8 +243,7 @@ with SimplicialComplex K {
        -- v.ypos = ddg[v.name]["y"] * global.scaleFactor
 
        v.shape = Circle { 
-         x : v.xpos -- avoid "x <- f(x)" in override
-	 y : v.ypos
+         center : (v.xpos, v.ypos) -- avoid "x <- f(x)" in override
          r : global.selectedRadius
 	 color : Colors.black
 	 strokeWidth : 0.0
@@ -255,8 +251,8 @@ with SimplicialComplex K {
 
        -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
        v.text = Text {
-	 x : ? -- v.shape.x + global.padding
-	 y : ? -- v.shape.y + global.padding
+	 center : (?, ?) -- v.shape.x + global.padding
+	                 -- v.shape.y + global.padding
 	 string : v.label
 	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
 	 rotation : 0.0
@@ -305,36 +301,33 @@ with SimplicialComplex K {
 Vertex v; Edge e
 where InVS(v, K); InES(e, K)
 with SimplicialComplex K {
-     LOCAL.offset = 5.0
+     offset = 5.0
      -- Make sure the label doesn't overlap with any edge
      -- TODO: this is NaNing
-     -- LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
+     -- edgeLabelFn = ensure disjoint(v.text, e.shape, offset)
 }
 
 Vertex v; Edge e
 where DeclaredV(v); InVS(v, K); InES(e, K)
 with SimplicialComplex K {
-     LOCAL.offset = 5.0
+     offset = 5.0
      -- Make sure the label doesn't overlap with any edge
      -- TODO: this is NaNing
-     LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
+     edgeLabelFn = ensure disjoint(v.text, e.shape, offset)
 }
 
 Edge e
 where e := MkEdge(v1, v2); InES(e, K)
 with Vertex v1; Vertex v2; SimplicialComplex K {
      e.shape = Line { 
-     	     startX : v1.shape.x
-     	     startY : v1.shape.y
-     	     endX : v2.shape.x
-     	     endY : v2.shape.y
+     	     start : v1.shape.center
+     	     end : v2.shape.center
 	     color : Colors.black
 	     thickness : global.edgeStroke
      }
 
      e.text = Text {
-       x : ?
-       y : ?
+       center : (?, ?)
        string : e.label
        rotation : 0.0
        color : Colors.black
@@ -356,8 +349,8 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.shape.color = global.closureColor
 
      e.text = Text {
-       x : average2(e.shape.startX, e.shape.endX) + global.padding
-       y : average2(e.shape.startY, e.shape.endY) + global.padding
+     -- TODO: Vectorize this
+       center : (average2(e.shape.start[0], e.shape.end[0]) + global.padding, average2(e.shape.start[1], e.shape.end[1]) + global.padding)
        -- string : e.label
        string : "\\text{ }" 
        rotation : 0.0
@@ -383,8 +376,7 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
 
      f.text = Text {
        -- Makes assumptions about vertex order in constructor
-       x : average([e1.shape.startX, e2.shape.startX, e3.shape.startX])
-       y : average([e1.shape.startY, e2.shape.startY, e3.shape.startY])
+       center : (average([e1.shape.start[0], e2.shape.start[0], e3.shape.start[0]]), average([e1.shape.start[1], e2.shape.start[1], e3.shape.start[1]]))
        string : f.label
        rotation : 0.0
        color : Colors.black
@@ -408,8 +400,8 @@ with SimplicialComplex K {
 Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
 with SimplicialComplex K {
-      LOCAL.textLayering1 = v.text above f.shape 
-      LOCAL.textLayering2 = v.text above e.shape
+      textLayering1 = v.text above f.shape 
+      textLayering2 = v.text above e.shape
 }
 
 -- Only label the (last) result of an operation
@@ -420,12 +412,12 @@ where Result(e) {
 }
 
 Edge e; Face f {
-     LOCAL.layering = e.shape above f.shape
-     LOCAL.layeringText = e.text above f.shape
+     layering = e.shape above f.shape
+     layeringText = e.text above f.shape
 }
 
 Vertex v; Vertex w {
-       LOCAL.repelFn = encourage repel(v.shape, w.shape, 1.0)
+       repelFn = encourage repel(v.shape, w.shape, 1.0)
 }
 
 --------------------------------------
@@ -433,27 +425,25 @@ Vertex v; Vertex w {
 
 Point p; Vertex v
 where Identified(p, v) {
-   LOCAL.shape = Line {
-      startX: p.shape.x
-      startY: p.shape.y
-      endX: v.shape.x
-      endY: v.shape.y
+   shape = Line {
+      start: p.shape.center
+      end: v.shape.center
       color: setOpacity(Colors.black, 0.25)
       thickness : 2.0
       style: "dashed"
    }
 
-   LOCAL.layering1 = LOCAL.shape above p.shape
-   LOCAL.layering2 = LOCAL.shape above v.shape
+   layering1 = shape above p.shape
+   layering2 = shape above v.shape
    
    -- rather than worry about the two diagrams colliding, just add some penalty that tries to make all the connecting lines fairly long
    -- p.vector = (p.shape.x, p.shape.y)
    -- v.vector = (v.shape.x, v.shape.y)
-   LOCAL.vec = (p.shape.x - v.shape.x, p.shape.y - v.shape.y)
+   vec = p.shape.center - v.shape.center
 
    -- TODO: encourage or ensure?
    -- TODO: make this better
-   -- LOCAL.lenFn = encourage equal(norm_(p.shape.x - v.shape.x, p.shape.y - v.shape.y), 100.0)
+   -- lenFn = encourage equal(norm_(p.shape.x - v.shape.x, p.shape.y - v.shape.y), 100.0)
 }
 
 Set s; Edge e
@@ -465,6 +455,5 @@ where Identified(e, s) {
 -- TODO: hack for position; assuming there's only one face
 Set s; Face f
 where Identified(f, s) {
-    s.shape.x = 200.0
-    s.shape.y = 0.0
+    s.shape.center = (200.0, 0.0)
 }

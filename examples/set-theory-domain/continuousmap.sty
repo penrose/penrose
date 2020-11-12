@@ -23,17 +23,17 @@ Set x {
       rotation : 0.0
     }
 
-    x.labelFn = ensure contains(x.shape, x.text)
-    LOCAL.layering = x.shape below x.text
+    ensure contains(x.shape, x.text)
+    x.shape below x.text
 }
 
 -- Selector ordering matters!
 Set x; Set y
 where IsSubset(x, y) {
-  LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
+  ensure contains(y.shape, x.shape, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)
-  LOCAL.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
-  LOCAL.layering = x.shape above y.shape
+  ensure outsideOf(y.text, x.shape, 1.0)
+  x.shape above y.shape
 }
 
 Map f
@@ -42,10 +42,8 @@ with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
     f.shape = Arrow {
-      startX : R1.shape.x + (R1.shape.side) / 2.0 + f.padding
-      startY : R1.shape.y
-      endX : R2.shape.x - (R2.shape.side) / 2.0 - f.padding
-      endY : R2.shape.y
+      start : (R1.shape.center[0] + R1.shape.side / 2.0 + f.padding, R1.shape.center[1])
+      end : (R2.shape.center[0] - R2.shape.side / 2.0 - f.padding, R2.shape.center[1])
       thickness : 2.0
       color : Colors.black
         -- style : "curved"
@@ -59,7 +57,7 @@ with Set X; Set Y; Set R1; Set R2 {
       rotation : 0.0
     }
 
-    f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
+    encourage centerLabel(f.shape, f.text, 5.0)
 
     -- Unused?
     -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
@@ -87,14 +85,13 @@ Set `Rn` {
       strokeColor : Colors.black
     }
 
-    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
-    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - Const.padding
+    `Rn`.text.center = (`Rn`.shape.center[0] + `Rn`.shape.side / 2.0 - Const.padding, `Rn`.shape.center[1] + `Rn`.shape.side / 2.0 - Const.padding)
 
-    delete `Rn`.labelFn
-    delete `Rn`.outsideFn
+    -- delete `Rn`.labelFn
+    -- delete `Rn`.outsideFn
 
-    `Rn`.minSizeFn = ensure minSize(`Rn`.shape)
-    `Rn`.maxSizeFn = ensure maxSize(`Rn`.shape)
+    ensure minSize(`Rn`.shape)
+    ensure maxSize(`Rn`.shape)
 }
 
 Set `Rm`
@@ -102,23 +99,25 @@ with Set `Rn` {
     -- TODO: factor this block out
     override `Rm`.shape = Square {
         color : Colors.lightYellow
-        y : `Rn`.shape.y
-        x : `Rn`.shape.x + 400.0
+        center : (`Rn`.shape.center[0] + 400.0, `Rn`.shape.center[1])
         side  : `Rn`.shape.side
         rotation : 0.0
         strokeWidth : 1.0
         strokeColor : Colors.black
     }
 
-    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding
-    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - Const.padding
+    -- COMBAK: Will this work if the property hasn't been set?
+    -- COMBAK: This doesn't parse with overrides or without them?
+    -- override `Rm`.text.center[0] = `Rm`.shape.center[0] + `Rm`.shape.side / 2.0 - Const.padding
+    -- override `Rm`.text.center[1] = `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding
+    `Rm`.text.center = (`Rm`.shape.center[0] + `Rm`.shape.side / 2.0 - Const.padding, `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding)
 
-    delete `Rm`.labelFn
-    delete `Rm`.outsideFn
+    -- delete `Rm`.labelFn
+    -- delete `Rm`.outsideFn
 
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
 
-    `Rm`.minSizeFn = ensure minSize(`Rm`.shape)
-    `Rm`.maxSizeFn = ensure maxSize(`Rm`.shape)
+    ensure minSize(`Rm`.shape)
+    ensure maxSize(`Rm`.shape)
 }

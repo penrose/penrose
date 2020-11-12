@@ -753,16 +753,14 @@ anchorPointType =
   , M.fromList
         -- ("x", (FloatT, x_sampler)),
         -- ("y", (FloatT, y_sampler)),
-      [ ("location", (PtT, pointSampler))
+      [ ("location", (VectorT, vector_sampler))
       , ("name", (StrT, constValue $ StrV "defaultAnchorPoint"))
       ])
 
 circType =
   ( "Circle"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
-      , ("center", (VectorT, vector_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("r", (FloatT, width_sampler))
       , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, constValue $ StrV "filled"))
@@ -775,9 +773,7 @@ circType =
 ellipseType =
   ( "Ellipse"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
-      , ("center", (VectorT, vector_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("rx", (FloatT, width_sampler))
       , ("ry", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
@@ -821,6 +817,7 @@ arrowType =
       , ("arrowheadSize", (FloatT, constValue $ FloatV 1.0))
       ])
 
+-- This has been deprecated
 braceType =
   ( "Brace"
   , M.fromList
@@ -860,11 +857,7 @@ curveType =
 lineType =
   ( "Line"
   , M.fromList
-      [ ("startX", (FloatT, x_sampler))
-      , ("startY", (FloatT, y_sampler))
-      , ("endX", (FloatT, x_sampler))
-      , ("endY", (FloatT, y_sampler))
-      , ("start", (VectorT, vector_sampler))
+      [ ("start", (VectorT, vector_sampler))
       , ("end", (VectorT, vector_sampler))
       , ("thickness", (FloatT, sampleFloatIn (5, 15)))
       , ("leftArrowhead", (BoolT, constValue $ BoolV False))
@@ -880,9 +873,7 @@ lineType =
 rectType =
   ( "Rectangle"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
-      , ("center", (VectorT, vector_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("w", (FloatT, width_sampler))
       , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
@@ -908,6 +899,7 @@ squareType =
       , ("name", (StrT, constValue $ StrV "defaultSquare"))
       ])
 
+-- This has also been deprecated in the frontend
 parallelogramType =
   ( "Parallelogram"
   , M.fromList
@@ -927,9 +919,7 @@ parallelogramType =
 imageType =
   ( "Image"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
-      , ("center", (VectorT, vector_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("w", (FloatT, width_sampler))
       , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
@@ -945,7 +935,7 @@ arcType =
   , M.fromList
       [ ("x", (FloatT, x_sampler)) -- x,y are the cordinates for the bottom left position
       , ("y", (FloatT, y_sampler)) -- of the right angle or the midlle pos of a regular angle
-      , ("center", (VectorT, vector_sampler))
+      -- , ("center", (VectorT, vector_sampler)) -- TODO: Port this to use vectors 
       , ("r", (FloatT, width_sampler))
       , ("size", (FloatT, width_sampler))
       , ("lengthX", (FloatT, width_sampler))

@@ -21,89 +21,88 @@
 
 Colors {
     -- Keenan palette
-    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    black = rgba(0.0, 0.0, 0.0, 1.0)
 
-    Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
-    Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
-    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+    darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    lightpurple = rgba(0.816,0.824, 0.902, 1.0)
 
-    Colors.verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
-    Colors.purple3 = rgba(0.557, 0.627, 0.769, 1.0)
+    verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
+    purple3 = rgba(0.557, 0.627, 0.769, 1.0)
 
-    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
-    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
-    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
-    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+    midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    silver = rgba(0.71, 0.72, 0.79, 1.0)
+    gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
 
-    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
-    Colors.mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
-    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
-    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
-    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
-    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
-    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
-    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
-    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
-    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
-    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
-    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
-    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
-    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
-    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
-    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
-    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
-    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+    darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
+    gray = rgba(0.8, 0.8, 0.8, 1.0)
+    red = rgba(1.0, 0.0, 0.0, 1.0)
+    pink = rgba(1.0, 0.4, 0.7, 1.0)
+    yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    orange = rgba(1.0, 0.6, 0.0, 1.0)
+    lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    green = rgba(0.0, 1.0, 0.0, 1.0)
+    blue = rgba(0.0, 0.0, 1.0, 1.0)
+    sky = rgba(0.325, 0.718, 0.769, 1.0)
+    lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    purple = rgba(0.5, 0.0, 0.5, 1.0)
+    white = rgba(1.0, 1.0, 1.0, 1.0)
+    none = rgba(0.0, 0.0, 0.0, 0.0)
+    bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
 const {
-    const.pi = 3.14159
-    const.arrowheadSize = 0.65
-    const.strokeWidth = 1.75
-    const.textPadding = 7.0
-    const.textPadding2 = 25.0
-    const.repelWeight = 0.7 -- TODO: Reverted from 0.0
-    const.repelWeight2 = 0.5
-    const.fontSize = "18pt"
-    const.containPadding = 50.0
-    const.rayLength = 100.0
-    const.pointSize = 4.0
-    const.pointStroke = 0.0
-    const.thetaRadius = 40.0
+    pi = 3.14159
+    arrowheadSize = 0.65
+    strokeWidth = 1.75
+    textPadding = 7.0
+    textPadding2 = 25.0
+    repelWeight = 0.7 -- TODO: Reverted from 0.0
+    repelWeight2 = 0.5
+    fontSize = "18pt"
+    containPadding = 50.0
+    rayLength = 100.0
+    pointSize = 4.0
+    pointStroke = 0.0
+    thetaRadius = 40.0
 
-    const.label = "E^2"
-    const.text = Text {
-	x : (const.dim / 2.0) - const.textPadding2
-	y : (const.dim / 2.0) - const.textPadding2
-	string : const.label
-	fontSize : const.fontSize
+    label = "E^2"
+    text = Text {
+	x : (dim / 2.0) - textPadding2
+	y : (dim / 2.0) - textPadding2
+	string : label
+	fontSize : fontSize
     }
 
-    const.dim = 400.0
+    dim = 400.0
 
     -- inner: #f3f4f9, outer: #8e93c4
-    const.plane = Rectangle {
+    plane = Rectangle {
     	    angle : 0.0
 	    color : Colors.verylightpurple
 	    strokeColor : Colors.purple3
 	    strokeWidth : 2.0
 	    x : 0.0
 	    y : 0.0
-	    w : const.dim
-	    h : const.dim
+	    w : dim
+	    h : dim
     }
 
-   const.textLayering = const.text above const.plane
+   textLayering = text above plane
 }
 
 Point p {
+      -- TODO: Rewrite these in terms of vectors, etc. when p.vec is ported in the rest of the commented-out program
       p.x = ?
       p.y = ?
-      p.vec = [p.x, p.y]
-      p.tup = (p.x, p.y)
+      p.vec = (p.x, p.y)
 
        p.shape = Circle {
-         x : get(p.vec, 0)
-	 y : get(p.vec, 1)
+         center: p.vec
          r : const.pointSize
 	 color : Colors.black
 	 strokeWidth : 0.0
@@ -111,8 +110,6 @@ Point p {
        }
 
        p.text = Text {
-         x : ?
-         y : ?
          string : p.label
          rotation : 0.0
          color : Colors.black
@@ -120,16 +117,16 @@ Point p {
        }
 
        -- TODO: put these constraints back in
-       p.labelFnMargin = ensure atDist(p.shape, p.text, const.textPadding)
+       ensure atDist(p.shape, p.text, const.textPadding)
 
        -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
        -- There's a choice of whether to put padding on the point or the text for containment
        
-       p.posFn = ensure contains(const.plane, p.shape, const.containPadding)
-       p.labelFn = ensure contains(const.plane, p.text, 0.0)
+       ensure contains(const.plane, p.shape, const.containPadding)
+       ensure contains(const.plane, p.text, 0.0)
 
-       p.layering1 = p.shape above const.plane
-       p.layering2 = p.text above const.plane
+       p.shape above const.plane
+       p.text above const.plane
 }
 
 Segment e
@@ -140,23 +137,21 @@ with Point p; Point q {
      e.color = Colors.black
 
      e.shape = Line {
-     	     startX : p.shape.x
-     	     startY : p.shape.y
-     	     endX : q.shape.x
-     	     endY : q.shape.y
+     	     start : p.shape.center
+     	     end : q.shape.center
 	     color : e.color
 	     thickness : const.strokeWidth
 	     stroke : "none"
 	     style : "solid"
      }
 
-     e.layering1 = p.shape above e.shape
-     e.layering2 = q.shape above e.shape
+     p.shape above e.shape
+     q.shape above e.shape
 
-     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
-     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
+     encourage repel(e.shape, p.text, const.repelWeight)
+     encourage repel(e.shape, q.text, const.repelWeight)
 
-     e.layering = e.shape above const.plane
+     e.shape above const.plane
 }
 
 Point `A` {
@@ -183,7 +178,7 @@ Point `C` {
 -- with Triangle t; Angle theta; Point p; Point q; Point r {
 
 --      e.color = Colors.black
---      e.proj_pt = project(q.tup, p.tup, r.tup)
+--      e.proj_pt = project(q.vec, p.vec, r.vec)
 
 --      e.shape = Line {
 --      	     startX : p.x
@@ -215,9 +210,9 @@ Point `C` {
 
 --       -- BA is the existing segment; C is an existing point that defines the angle
 --       -- p's location is really another altitude of the angle ACB
---       override p.tup = project(a.tup, c.tup, b.tup) 
---       override p.x = get(p.tup, 0)
---       override p.y = get(p.tup, 1)
+--       override p.vec = project(a.vec, c.vec, b.vec) 
+--       override p.x = get(p.vec, 0)
+--       override p.y = get(p.vec, 1)
 -- }
 
 -- Triangle t
@@ -273,7 +268,7 @@ Point `C` {
 
 --     override S.color = setOpacity(Colors.midnightblue, 0.4)
 
---     S.path = squareAt(p.tup, q.tup)
+--     S.path = squareAt(p.vec, q.vec)
 
 --     override S.shape = Curve {
 -- 	    pathData : polygonFromPoints(S.path)
@@ -285,13 +280,13 @@ Point `C` {
 --     }
 
 --     -- Position the points at the corner of the square
---     override r.tup = get(S.path, 2)
---     override r.x = get(r.tup, 0)
---     override r.y = get(r.tup, 1)
+--     override r.vec = get(S.path, 2)
+--     override r.x = get(r.vec, 0)
+--     override r.y = get(r.vec, 1)
 
---     override s.tup = get(S.path, 3)
---     override s.x = get(s.tup, 0)
---     override s.y = get(s.tup, 1)
+--     override s.vec = get(S.path, 3)
+--     override s.x = get(s.vec, 0)
+--     override s.y = get(s.vec, 1)
 -- }
 
 -- -- These more specific matches are so we can figure out which third point of the triangle to push the square away from
@@ -301,21 +296,21 @@ Point `C` {
 -- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(c, q, p)
 -- with Point p; Point q; Point r; Point s; Triangle T; Point c {
 
---     override S.path = squareAt(p.tup, q.tup, c.tup)
+--     override S.path = squareAt(p.vec, q.vec, c.vec)
 -- }
 
 -- Square S
 -- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(q, p, c)
 -- with Point p; Point q; Point r; Point s; Triangle T; Point c {
 
---     override S.path = squareAt(p.tup, q.tup, c.tup)
+--     override S.path = squareAt(p.vec, q.vec, c.vec)
 -- }
 
 -- Square S
 -- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(p, c, q)
 -- with Point p; Point q; Point r; Point s; Triangle T; Point c {
 
---     override S.path = squareAt(p.tup, q.tup, c.tup)
+--     override S.path = squareAt(p.vec, q.vec, c.vec)
 -- }
 
 -- Angle theta
@@ -345,18 +340,16 @@ Point `C` {
 Angle theta
 where theta := InteriorAngle(q, p, r); Right(theta)
 with Point p; Point q; Point r {
-
       theta.perpSize = 13.0
 
       -- override theta.shape = Curve {
-      -- 		 pathData : perpPath(q.tup, p.tup, r.tup, theta.perpSize)
+      -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)
       -- 		 strokeWidth : 1.25
       -- 		 color : Colors.black
       -- 		 fill : setOpacity(Colors.white, 0.5)
       -- }
 
-      theta.perpFn = ensure perpendicular(q.tup, p.tup, r.tup)
-
+      ensure perpendicular(q.vec, p.vec, r.vec)
 }
 
 -- Ray r {
@@ -463,9 +456,9 @@ with Point p; Point q; Point r {
 --       r.markLayering6 = r.perpMark below r.shape
 --       r.markLayering7 = r.perpMark below m.shape
 
---      LOCAL.labelAvoidFn_Mark = encourage repel(r.shape, m.text, const.repelWeight)
---      LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, const.repelWeight)
---      LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, const.repelWeight)
+--      labelAvoidFn_Mark = encourage repel(r.shape, m.text, const.repelWeight)
+--      labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, const.repelWeight)
+--      labelAvoidFn_Seg = encourage repel(s.shape, m.text, const.repelWeight)
 -- }
 
 -- -- TODO: trying to just add a repel function on the point that's not in a segment... this might be too many repels for the ones that are in a segment though
@@ -473,44 +466,44 @@ with Point p; Point q; Point r {
 -- -- TODO: should we use const.repelWeight below?
 
 -- Ray r; Point p {
---     LOCAL.labelAvoidFn = encourage repel(r.shape, p.text, const.repelWeight)
---     LOCAL.layering = r.shape below p.shape
+--     labelAvoidFn = encourage repel(r.shape, p.text, const.repelWeight)
+--     layering = r.shape below p.shape
 -- }
 
 -- Segment s; Point p {
 --      -- TODO: Maybe the optimization would be faster if I used lines instead of curves for the segments?	
---      LOCAL.labelAvoidFn_p = encourage repel(s.shape, p.text, const.repelWeight)
+--      labelAvoidFn_p = encourage repel(s.shape, p.text, const.repelWeight)
 -- }
 
 -- Triangle t; Point p {
---     LOCAL.layering1 = t.shape below p.shape
---     LOCAL.layering2 = t.shape below p.text
+--     layering1 = t.shape below p.shape
+--     layering2 = t.shape below p.text
 -- }
 
 -- Square s; Point p {
---     LOCAL.layering1 = s.shape below p.shape
---     LOCAL.layering2 = s.shape below p.text
+--     layering1 = s.shape below p.shape
+--     layering2 = s.shape below p.text
 -- }
 
 -- Rectangle r; Point p {
---     LOCAL.layering1 = r.shape below p.shape
---     LOCAL.layering2 = r.shape below p.text
+--     layering1 = r.shape below p.shape
+--     layering2 = r.shape below p.text
 -- }
 
 -- Triangle t; Segment e {
---     LOCAL.layering1 = t.shape below e.shape
+--     layering1 = t.shape below e.shape
 -- }
 
 -- Square s; Segment e {
---     LOCAL.layering1 = s.shape below e.shape
+--     layering1 = s.shape below e.shape
 -- }
 
 -- Rectangle r; Segment e {
---     LOCAL.layering1 = r.shape below e.shape
+--     layering1 = r.shape below e.shape
 -- }
 
 -- Triangle t; Angle theta {
--- 	 LOCAL.layering = theta.shape above t.shape
+-- 	 layering = theta.shape above t.shape
 -- }
 
 -- -- TODO: Appendices removed for now

@@ -980,6 +980,11 @@ export const encodeState = (state: State): any => {
   console.log("mapped translation", mapTranslation(numOf, state.translation));
   console.log("original translation", state.originalTranslation);
 
+  console.log("shapes", state.shapes);
+  console.log("shapesr", state.shapes
+    .map(values)
+    .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]));
+
   const json = {
     ...state,
     varyingState: state.varyingValues,

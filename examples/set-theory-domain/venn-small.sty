@@ -1,10 +1,9 @@
 forall Set x {
     x.shape = Circle {
-        x : ?
-        y : ?
+        -- center : (?, ?)
         r : ?
         -- r : 100.0
-        strokeWidth : 0
+        strokeWidth : 0.0
     }
 
     x.text = Text {
@@ -16,6 +15,8 @@ forall Set x {
 
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
+
+    layer x.text above x.shape
 }
 
 forall Set x; Set y
@@ -24,5 +25,5 @@ where IsSubset(x, y) {
     ensure outsideOf(y.text, x.shape)
 
     ensure contains(y.shape, x.shape, 5.0) -- NEW
-    x.shape above y.shape
+    layer x.shape above y.shape
 }

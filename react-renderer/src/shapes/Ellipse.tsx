@@ -6,7 +6,7 @@ class Ellipse extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
-    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
+    const [x, y] = toScreen(shape.center.contents, canvasSize);
 
     const fillColor = toHex(shape.color.contents);
     const fillAlpha = shape.color.contents.contents[3];

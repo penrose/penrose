@@ -6,7 +6,7 @@ class Image extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
-    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
+    const [x, y] = toScreen(shape.center.contents, canvasSize);
     const [w, h] = [shape.w.contents, shape.h.contents];
     const path = shape.path.contents;
     const opacity = shape.opacity.contents;
