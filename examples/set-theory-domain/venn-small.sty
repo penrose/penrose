@@ -32,7 +32,9 @@ forall Set x {
         style: "dashed"
     }
 
-    ensure contains(x.shape, x.text) -- NEW
+    -- COMBAK: This doesn't work now
+    x.containFn = ensure contains(x.shape, x.text) -- NEW
+    -- ensure contains(x.shape, x.text) -- NEW
     encourage sameCenter(x.text, x.shape) -- OLD
 
     ensure minSize(x.shape)
