@@ -1,11 +1,11 @@
 const {
-  perpLen = 25.0
+  perpLen = 20.0
   -- For unit mark
   markerPadding = 15.0
   barSize = 5.0
   vectorSpaceSize = 350.0
   repelWeight = 0.7
-  arrowheadSize = 0.6
+  arrowheadSize = 0.7
   lineThickness = 1.
 }
 
@@ -13,7 +13,7 @@ C {
     -- black = #000000
     black = rgba(0.,0.,0.,1.)
     white = rgba(1., 1., 1., 1.)
-    lightBlue = rgba(1e-1, 0.1, 0.9, 1e-1)
+    lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
     darkBlue = rgba(lightBlue.r / 2., lightBlue.g / 2., lightBlue.b / 2., 0.5)
     darkGray = rgba(0.4, 0.4, 0.4, 1.)
     gray = rgba(0.6, 0.6, 0.6, 1.)
@@ -57,25 +57,30 @@ forall VectorSpace U {
         center : U.origin
         side : const.vectorSpaceSize
         color : C.none
-        stroke : C.black
-        strokeWidth : 2.0
+        strokeColor : C.none
+        -- strokeWidth : 2.0
     }
 
-    U.xAxis = Arrow {
+    U.xAxis = Line {
            start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
              end : (o[0] + axisSize, o[1])
        thickness : const.lineThickness
            style : "solid"
            color : U.axisColor
+           -- COMBAK: This `true` gets parsed as a local variable when it should be a special literal (or, call it `True`?)
+           -- leftArrowhead: true
+           -- rightArrowhead: true
         arrowheadSize : const.arrowheadSize
     }
 
-    U.yAxis = Arrow {
+    U.yAxis = Line {
            start : (o[0], o[1] - axisSize)
              end : (o[0], o[1] + axisSize)
        thickness : const.lineThickness
            style : "solid"
            color : U.axisColor
+           -- leftArrowhead: true
+           -- rightArrowhead: true
         arrowheadSize : const.arrowheadSize
     }
 
@@ -107,6 +112,7 @@ where In(u,U) {
    ensure contains(U.shape, u.arrow)
    ensure contains(U.shape, u.text)
    ensure atDist(u.arrow, u.text, 5.0)
+   ensure minSize(u.arrow)
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -170,10 +176,9 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
           fill : C.none
       }
 
--- COMBAK: Implement matrices
-
+      -- Could use normal instead, just doing this to demonstrate how to use matrices
       rot90CW = ((0., 1.), (-1., 0.))
-      markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+      markNormal = mul(rot90CW, normalize(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
       c = const.barSize
       halfvec = c * markNormal
 

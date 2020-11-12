@@ -127,6 +127,13 @@ export const constrDict = {
 
   minSize: ([shapeType, props]: [string, any]) => {
     const limit = 20;
+
+    if (shapeType === "Line" || shapeType === "Arrow") {
+      const minLen = 50;
+      const vec = ops.vsub(props.end.contents, props.start.contents);
+      return sub(constOf(minLen), ops.vnorm(vec));
+    }
+
     switch (shapeType) {
       case "Circle":
         return sub(constOf(limit), props.r.contents);
