@@ -106,11 +106,7 @@ with Set `Rn` {
         strokeColor : Colors.black
     }
 
-    -- COMBAK: Will this work if the property hasn't been set?
-    -- COMBAK: This doesn't parse with overrides or without them?
-    -- override `Rm`.text.center[0] = `Rm`.shape.center[0] + `Rm`.shape.side / 2.0 - Const.padding
-    -- override `Rm`.text.center[1] = `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding
-    `Rm`.text.center = (`Rm`.shape.center[0] + `Rm`.shape.side / 2.0 - Const.padding, `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding)
+     override `Rm`.text.center = (`Rm`.shape.center[0] + `Rm`.shape.side / 2.0 - Const.padding, `Rm`.shape.center[1] + `Rm`.shape.side / 2.0 - Const.padding)
 
     delete `Rm`.labelFn
     delete `Rm`.outsideFn

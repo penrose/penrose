@@ -88,8 +88,7 @@ compileTrio substance style element
         return (subOutPlugin, styVals)
   -- Compilation phase
   let optConfig = defaultOptConfig
-  -- COMBAK: revert
-  state <- trace ("Style AST: \n" ++ ppShow styProg) $ compileStyle styProg subOut' styVals optConfig
+  state <- {- trace ("Style AST: \n" ++ ppShow styProg) $ -} compileStyle styProg subOut' styVals optConfig
   return (state, env)
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.

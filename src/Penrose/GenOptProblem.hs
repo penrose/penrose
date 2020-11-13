@@ -513,14 +513,6 @@ shapes2floats shapes varyMap varyingPaths =
           error
             ("could not find varying field path '" ++ show fp ++ "' in varyMap: " ++ show varyMap)
                     
-      -- case M.lookup p varyMap of
-      --   Just (OptEval (Vector es)) -> if es !! i == AFloat (Vary) 
-      --                                  then error ("expected non-?: " ++ show p ++ ", " ++ show es)
-      --                                  else (r2f $ floatOf $ es !! i) : acc
-      --   Just (Done (VectorV es)) -> (es !! i) : acc
-      --   Just _ -> error ("wrong type for varying field path (expected float): " ++ show fp)
-      --   Nothing -> error ("could not find varying field path '" ++ show fp ++ "' in varyMap")
-
     lookupPathFloat shapes varyMap acc p@(AccessPath (PropertyPath s field property) [i]) =
       let subID = bvarToString s
           shapeName = getShapeName subID field

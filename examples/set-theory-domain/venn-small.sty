@@ -32,10 +32,9 @@ forall Set x {
         style: "dashed"
     }
 
-    -- COMBAK: This doesn't work now
-    x.containFn = ensure contains(x.shape, x.text) -- NEW
-    ensure contains(x.shape, x.text) -- NEW
-    encourage sameCenter(x.text, x.shape) -- OLD
+    x.containFn = ensure contains(x.shape, x.text)
+    ensure contains(x.shape, x.text)
+    encourage sameCenter(x.text, x.shape)
 
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
@@ -48,6 +47,6 @@ where IsSubset(x, y) {
     ensure smallerThan(x.shape, y.shape)
     ensure outsideOf(y.text, x.shape)
 
-    ensure contains(y.shape, x.shape, 5.0) -- NEW
+    ensure contains(y.shape, x.shape, 5.0)
     layer x.shape above y.shape
 }

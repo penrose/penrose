@@ -40,7 +40,6 @@ const clone = require("rfdc")({ proto: false, circles: false });
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalShapes = (s: State): State => {
-  // console.log("state", s); // COMBAK: revert
 
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
@@ -325,8 +324,9 @@ export const evalExpr = (
     case "List": {
       const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
 
-      // Is there a better way to implement parametric lists in typescript... this makes a type assumption about the whole list, based on the first elements
-      if (!argVals[0]) {
+      // The below code makes a type assumption about the whole list, based on the first elements
+      // Is there a better way to implement parametric lists in typescript? 
+      if (!argVals[0]) { // Empty list
         return {
           tag: "Val",
           contents: {
@@ -336,7 +336,7 @@ export const evalExpr = (
         };
       }
 
-      if (argVals[0].tag === "Val") {
+      if (argVals[0].tag === "Val") { // List contains floats
         if (argVals[0].contents.tag === "FloatV") {
           return {
             tag: "Val",
@@ -345,7 +345,7 @@ export const evalExpr = (
               contents: argVals.map(toFloatVal) as VarAD[],
             },
           };
-        } else if (argVals[0].contents.tag === "VectorV") {
+        } else if (argVals[0].contents.tag === "VectorV") { // List contains vectors
           return {
             tag: "Val",
             contents: {
@@ -378,8 +378,6 @@ export const evalExpr = (
           }
         };
       }
-      // COMBAK: Deal with matrix contents properly as it will be nested vectors, not a list of expressions?
-      // COMBAK: Deal with matrix access returning a vector, or wrapping it correctly?
 
       // Otherwise return vec (list of nums)
       return {
@@ -392,6 +390,7 @@ export const evalExpr = (
     }
 
     case "Matrix": {
+      // This tag is here, but actually, matrices are parsed as lists of vectors, so this case is never hit
       console.log("matrix e", e);
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
     }
@@ -407,7 +406,7 @@ export const evalExpr = (
 
       const i = v2.contents.contents as number;
 
-      // LList access
+      // LList access (since any expr with brackets is parsed as a vector access
       if (v1.contents.tag === "LListV") {
         const llist = v1.contents.contents;
         if (i < 0 || i > llist.length) throw Error("access out of bounds");
@@ -426,7 +425,6 @@ export const evalExpr = (
     }
 
     case "MatrixAccess": {
-      // console.log("matrix access e", e);
       const [e1, e2] = e.contents;
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2s = evalExprs(e2, trans, varyingVars, optDebugInfo);
@@ -438,10 +436,6 @@ export const evalExpr = (
       });
 
       if (v1.tag !== "Val") { throw Error("expected val"); }
-      // console.log("matrix access", v1, indices, v1.contents.contents[indices[0]]);
-
-      // COMBAK: Temp hack for parse, do vector access
-      if (indices.length === 1) { return { tag: "Val", contents: { tag: "FloatV", contents: v1.contents.contents[indices[0]] as any as VarAD } } }
 
       if (v1.contents.tag !== "MatrixV") { throw Error("expected Matrix"); }
 
@@ -476,13 +470,13 @@ export const evalExpr = (
 
         let p = argExprs[0];
 
-        // Vector and matrix accesses are might be the only way to refer to an anon varying var
+        // Vector and matrix accesses are the only way to refer to an anon varying var
         if (p.tag !== "EPath" && p.tag !== "VectorAccess" && p.tag !== "MatrixAccess") {
           throw Error(`expected 1 path as argument to ${fnName}; got ${p.tag}`);
         }
 
         if (p.tag === "VectorAccess" || p.tag === "MatrixAccess") {
-          p = { // convert to AccessPath schema...
+          p = { // convert to AccessPath schema
             tag: "EPath", contents: { tag: "AccessPath", contents: [p.contents[0], [p.contents[1].contents]] }
           };
         }
@@ -528,10 +522,8 @@ export const resolvePath = (
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
-    if (path.tag === "AccessPath") {
-      // Note, doing VectorAccess works bc varying vars are inserted into trans
-      throw Error("TODO");
-    }
+    // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
+    if (path.tag === "AccessPath") { throw Error("TODO"); }
 
     const gpiOrExpr = findExpr(trans, path);
 

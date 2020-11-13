@@ -893,7 +893,7 @@ export const evalEnergyOnCustom = (state: State) => {
     const translationInit = makeTranslationDifferentiable(clone(makeTranslationNumeric(state.translation)));
 
     const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
-    // Insert all varying vals
+    // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
     const translation = insertVaryings(translationInit, varyingMapList);
 
     // construct a new varying map

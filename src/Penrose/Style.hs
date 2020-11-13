@@ -1656,10 +1656,6 @@ evalPluginAccess valMap trans =
                   evalPluginExpr vmap (ThenOp e1 e2) = ThenOp (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (Vector es) = Vector $ map (evalPluginExpr vmap) es
                   evalPluginExpr vmap (Matrix es) = Matrix $ map (evalPluginExpr vmap) es
-                  -- evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
-                  -- evalPluginExpr vmap (MatrixAccess e1 es) = MatrixAccess (evalPluginExpr vmap e1) (map (evalPluginExpr vmap) es)
-
-                  -- COMBAK: Should the first elements have plugin access evaluated? Probably not?
                   evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess e1 (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (MatrixAccess e1 es) = MatrixAccess e1 (map (evalPluginExpr vmap) es)
 
