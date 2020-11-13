@@ -53,16 +53,20 @@ export const arrowheads = {
 export const bBoxDims = (properties: Properties, shapeType: string) => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
-    [w, h] = [(properties.r.contents as number) * 2, (properties.r.contents as number) * 2];}
+    [w, h] = [(properties.r.contents as number) * 2, (properties.r.contents as number) * 2];
+  }
   else if (shapeType === "Square") {
-    [w, h] = [properties.side.contents as number, properties.side.contents as number];}
+    [w, h] = [properties.side.contents as number, properties.side.contents as number];
+  }
   else if (shapeType === "Ellipse") {
-    [w, h] = [(properties.rx.contents as number) * 2, (properties.ry.contents as number) * 2];}
+    [w, h] = [(properties.rx.contents as number) * 2, (properties.ry.contents as number) * 2];
+  }
   else if (shapeType === "Arrow" || shapeType === "Line") {
-    const [sx, sy, ex, ey] = [properties.startX.contents as number, properties.startY.contents as number, 
-      properties.endX.contents as number, properties.endY.contents as number];
+    const [[sx, sy], [ex, ey]] = [properties.start.contents as [number, number],
+    properties.end.contents as [number, number]];
     const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
-    [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];}
+    [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
+  }
   else if (shapeType === "Curve") {
     [w, h] = [20, 20] // todo find a better measure for this... check with max?
   }
@@ -100,31 +104,31 @@ export const makeViewBoxes = (shapes: IShape[], selectedShape: number, setSelect
         right: 0,
       }}>
         {shapes.map(({ properties, shapeType }: Shape, key: number) => {
-		  // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
-		  // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
+          // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
+          // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
           const [w, h] = bBoxDims(properties, shapeType);
           return (
-          <ShapeItem
-            key={`shapePreview-${key}`}
-            selected={selectedShape === key}
-            onClick={() => setSelectedShape(key)}
-          >
-            <div>
-              <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
-                {React.createElement(staticMap[shapeType], {
-                  shape: {
-                    ...properties,
-                    x: { tag: "FloatV", contents: 0 },
-                    y: { tag: "FloatV", contents: 0 },
-                  },
-                  canvasSize: [w, h],
-                })}
-              </svg>
-            </div>
-            <div style={{ margin: "0.5em" }}>
-              <span>{properties.name.contents}</span>
-            </div>
-          </ShapeItem>);
+            <ShapeItem
+              key={`shapePreview-${key}`}
+              selected={selectedShape === key}
+              onClick={() => setSelectedShape(key)}
+            >
+              <div>
+                <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
+                  {React.createElement(staticMap[shapeType], {
+                    shape: {
+                      ...properties,
+                      x: { tag: "FloatV", contents: 0 },
+                      y: { tag: "FloatV", contents: 0 },
+                    },
+                    canvasSize: [w, h],
+                  })}
+                </svg>
+              </div>
+              <div style={{ margin: "0.5em" }}>
+                <span>{properties.name.contents}</span>
+              </div>
+            </ShapeItem>);
         })}
       </ul>
     </div>
@@ -262,14 +266,14 @@ export const hsvToRGB = (
   return h < 60
     ? hsv2rgb(c, x, 0, m)
     : h < 120
-    ? hsv2rgb(x, c, 0, m)
-    : h < 180
-    ? hsv2rgb(0, c, x, m)
-    : h < 240
-    ? hsv2rgb(0, x, c, m)
-    : h < 300
-    ? hsv2rgb(x, 0, c, m)
-    : hsv2rgb(c, 0, x, m);
+      ? hsv2rgb(x, c, 0, m)
+      : h < 180
+        ? hsv2rgb(0, c, x, m)
+        : h < 240
+          ? hsv2rgb(0, x, c, m)
+          : h < 300
+            ? hsv2rgb(x, 0, c, m)
+            : hsv2rgb(c, 0, x, m);
 };
 
 export const toHex = (color: any): string => {

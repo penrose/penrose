@@ -38,7 +38,20 @@ function mapFloat<T, S>(f: (arg: T) => S, v: IFloatV<T>): IFloatV<S> {
   };
 }
 
-function mapPt<T, S>(f: (arg: T) => S, v: IPtV<T>): IPtV<S> {
+function mapInt<T, S>(
+  f: (arg: T) => S,
+  v: IIntV<T>
+): IFloatV<S> {
+  return {
+    tag: "FloatV",
+    contents: f(v.contents as unknown as T) as S // Hack because we know that Ints only contain `number`s
+  };
+};
+
+function mapPt<T, S>(
+  f: (arg: T) => S,
+  v: IPtV<T>
+): IPtV<S> {
   return {
     tag: "PtV",
     contents: mapTup2(f, v.contents) as [S, S],
@@ -59,7 +72,20 @@ function mapList<T, S>(f: (arg: T) => S, v: IListV<T>): IListV<S> {
   };
 }
 
-function mapTup<T, S>(f: (arg: T) => S, v: ITupV<T>): ITupV<S> {
+function mapVector<T, S>(
+  f: (arg: T) => S,
+  v: IVectorV<T>
+): IVectorV<S> {
+  return {
+    tag: "VectorV",
+    contents: v.contents.map(f)
+  };
+};
+
+function mapTup<T, S>(
+  f: (arg: T) => S,
+  v: ITupV<T>
+): ITupV<S> {
   return {
     tag: "TupV",
     contents: mapTup2(f, v.contents),
@@ -73,7 +99,20 @@ function mapLList<T, S>(f: (arg: T) => S, v: ILListV<T>): ILListV<S> {
   };
 }
 
-function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
+function mapMatrix<T, S>(
+  f: (arg: T) => S,
+  v: IMatrixV<T>
+): IMatrixV<S> {
+  return {
+    tag: "MatrixV",
+    contents: v.contents.map(e => e.map(f))
+  };
+};
+
+function mapHMatrix<T, S>(
+  f: (arg: T) => S,
+  v: IHMatrixV<T>
+): IHMatrixV<S> {
   const m = v.contents;
   return {
     tag: "HMatrixV",
@@ -175,25 +214,28 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 
 // Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
-export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
-  const nonnumericValueTypes = [
-    "IntV",
-    "BoolV",
-    "StrV",
-    "ColorV",
-    "PaletteV",
-    "FileV",
-    "StyleV",
-  ];
+export function mapValueNumeric<T, S>(
+  f: (arg: T) => S,
+  v: Value<T>
+): Value<S> {
+  const nonnumericValueTypes = ["BoolV", "StrV", "ColorV", "PaletteV", "FileV", "StyleV"];
 
   if (v.tag === "FloatV") {
     return mapFloat(f, v);
+  } else if (v.tag === "IntV") {
+    // TODO: only convert ints if they are used in place of floats (e.g. shape properties that have float type)
+    // This converts ints to floats, losing the int information (e.g. on roundtrip)
+    return mapInt(f, v);
   } else if (v.tag === "PtV") {
     return mapPt(f, v);
   } else if (v.tag === "PtListV") {
     return mapPtList(f, v);
   } else if (v.tag === "ListV") {
     return mapList(f, v);
+  } else if (v.tag === "VectorV") {
+    return mapVector(f, v);
+  } else if (v.tag === "MatrixV") {
+    return mapMatrix(f, v);
   } else if (v.tag === "TupV") {
     return mapTup(f, v);
   } else if (v.tag === "LListV") {
@@ -238,7 +280,8 @@ export function mapTagExpr<T, S>(f: (arg: T) => S, e: TagExpr<T>): TagExpr<S> {
       contents: mapValueNumeric(f, e.contents),
     };
   } else if (e.tag === "OptEval") {
-    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator as needed
+    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
+    // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
     return e;
   } else {
     throw Error("unrecognized tag");

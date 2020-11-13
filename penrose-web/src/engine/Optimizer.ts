@@ -77,7 +77,8 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = false; // COMBAK: revert
+// const DEBUG_GRAD_DESCENT = true;
+const DEBUG_GRAD_DESCENT = false; // COMBAK: Revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -169,21 +170,12 @@ export const step = (state: State, steps: number, evaluate = true) => {
   let xs: number[] = state.varyingValues;
 
   log.trace("===============");
-  log.trace(
-    "step | weight: ",
-    weight,
-    "| EP round: ",
-    optParams.EPround,
-    " | UO round: ",
-    optParams.UOround
-  );
+  log.trace("step | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   log.trace("params: ", optParams);
   // log.trace("state: ", state);
-  // log.trace("fns: ", prettyPrintFns(state));
-  // log.trace(
-  //   "variables: ",
-  //   state.varyingPaths.map((p) => prettyPrintProperty(p))
-  // );
+  log.trace("fns: ", prettyPrintFns(state));
+  // log.trace("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+  log.trace("variables: ", state.varyingPaths.map(p => JSON.stringify(p)));
 
   switch (optStatus.tag) {
     case "NewIter": {
@@ -204,6 +196,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         // `energyGraph` is a VarAD that is a handle to the top of the graph
 
         log.trace("interpreted energy graph", res.energyGraph);
+        log.trace("input vars", xsVars);
 
         const weightInfo = {
           // TODO: factor out
@@ -283,7 +276,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         state.params.currObjective,
         state.params.currGradient,
         state.params.lbfgsInfo,
-        state.varyingPaths.map(p => prettyPrintProperty(p))
+        state.varyingPaths.map(p => JSON.stringify(p))
       );
       xs = res.xs;
 
@@ -297,8 +290,6 @@ export const step = (state: State, steps: number, evaluate = true) => {
       optParams.lbfgsInfo = newLbfgsInfo;
       optParams.lastGradient = gradient;
       optParams.lastGradientPreconditioned = gradientPreconditioned;
-
-      console.error("res", gradient, gradientPreconditioned);
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
@@ -893,20 +884,20 @@ const minimize = (
  */
 export const evalEnergyOnCustom = (state: State) => {
   // TODO: types
-  return (...varyingValuesTF: VarAD[]): any => {
+  return (...xsVars: VarAD[]): any => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
     // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-    const translation = makeTranslationDifferentiable(
-      clone(makeTranslationNumeric(state.translation))
-    );
+    const translationInit = makeTranslationDifferentiable(clone(makeTranslationNumeric(state.translation)));
+
+    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
+    const translation = insertVaryings(translationInit, varyingMapList);
 
     // construct a new varying map
-    const varyingMap = genPathMap(varyingPaths, varyingValuesTF) as VaryMap<
-      VarAD
-    >;
+    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(objFns, translation, varyingMap);

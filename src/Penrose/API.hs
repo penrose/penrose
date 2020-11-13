@@ -19,7 +19,7 @@ import           Data.List                  (deleteFirstsBy, partition, (\\))
 import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
-import           Debug.Trace                (traceShowId)
+import           Debug.Trace                (trace, traceShowId)
 import           GHC.Generics
 import           Paths_penrose              (version)
 import           Penrose.Element
@@ -35,6 +35,7 @@ import           Penrose.Substance
 import           Penrose.Sugarer
 import           Penrose.Util
 import           System.IO.Unsafe           (unsafePerformIO)
+import           Text.Show.Pretty      (pPrint, ppShow)
 
 --------------------------------------------------------------------------------
 -- Types for decoding API calls
@@ -87,7 +88,7 @@ compileTrio substance style element
         return (subOutPlugin, styVals)
   -- Compilation phase
   let optConfig = defaultOptConfig
-  state <- compileStyle styProg subOut' styVals optConfig
+  state <- {- trace ("Style AST: \n" ++ ppShow styProg) $ -} compileStyle styProg subOut' styVals optConfig
   return (state, env)
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
@@ -127,9 +128,11 @@ resample initState numSamples
   | numSamples == 1 = Right $ resampleOne initState 
   | numSamples > 1 =
      -- NOTE: resampling will not work if the frontend has a new function name (issue #352) because of evalEnergyOn for resampling
-    let newState = resampleBest numSamples initState
-        (newShapes, _, _) = evalTranslation newState
-    in Right $ newState {shapesr = newShapes}
+    Left $ RuntimeError "Only 1 resample supported."
+    -- NOTE: Deprecated since we've deprecated backend `evalExpr`
+    -- let newState = resampleBest numSamples initState
+    --     (newShapes, _, _) = evalTranslation newState
+    -- in Right $ newState {shapesr = newShapes}
   | otherwise = Left $ RuntimeError "At least 1 sample should be requested."
 
 getVersion :: String -- ^ the current version of the Penrose binary
