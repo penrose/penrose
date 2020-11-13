@@ -53,7 +53,7 @@ interface IPending<T> {
   contents: Value<T>;
 }
 
-type Expr = IIntLit | IAFloat | IStringLit | IBoolLit | IEPath | ICompApp | IObjFn | IConstrFn | IAvoidFn | IBinOp | IUOp | IList | ITuple | IListAccess | ICtor | ILayering | IPluginAccess | IThenOp;
+type Expr = IIntLit | IAFloat | IStringLit | IBoolLit | IEVar | IEPath | ICompApp | IObjFn | IConstrFn | IAvoidFn | IBinOp | IUOp | IList | ITuple | IVector | IMatrix | IVectorAccess | IMatrixAccess | IListAccess | ICtor | ILayering | IPluginAccess | IThenOp;
 
 interface IIntLit {
   tag: "IntLit";
@@ -73,6 +73,11 @@ interface IStringLit {
 interface IBoolLit {
   tag: "BoolLit";
   contents: boolean;
+}
+
+interface IEVar {
+  tag: "EVar";
+  contents: LocalVar;
 }
 
 interface IEPath {
@@ -120,6 +125,26 @@ interface ITuple {
   contents: [Expr, Expr];
 }
 
+interface IVector {
+  tag: "Vector";
+  contents: Expr[];
+}
+
+interface IMatrix {
+  tag: "Matrix";
+  contents: Expr[];
+}
+
+interface IVectorAccess {
+  tag: "VectorAccess";
+  contents: [Expr, Expr];
+}
+
+interface IMatrixAccess {
+  tag: "MatrixAccess";
+  contents: [Expr, Expr, Expr];
+}
+
 interface IListAccess {
   tag: "ListAccess";
   contents: [Path, number];
@@ -164,7 +189,7 @@ type PropertyDecl = IPropertyDecl;
 
 type IPropertyDecl = [string, Expr];
 
-type Path = IFieldPath | IPropertyPath;
+type Path = IFieldPath | IPropertyPath | ITypePropertyPath;
 
 interface IFieldPath {
   tag: "FieldPath";
@@ -174,6 +199,10 @@ interface IFieldPath {
 interface IPropertyPath {
   tag: "PropertyPath";
   contents: [BindingForm, string, string];
+}
+
+interface ITypePropertyPath {
+  tag: "TypePropertyPath";
 }
 
 type Var = IVarConst;
@@ -195,6 +224,10 @@ interface IBStyVar {
 type StyVar = IStyVar;
 
 type IStyVar = string;
+
+type LocalVar = ILocalVar;
+
+type ILocalVar = string;
 
 type Value<T> = IFloatV<T> | IIntV<T> | IBoolV<T> | IStrV<T> | IPtV<T> | IPathDataV<T> | IPtListV<T> | IPaletteV<T> | IColorV<T> | IFileV<T> | IStyleV<T> | IListV<T> | ITupV<T> | ILListV<T> | IHMatrixV<T> | IPolygonV<T>;
 

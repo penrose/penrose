@@ -8,11 +8,11 @@ class Line extends React.Component<IGPIProps> {
     const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
     const [sx, sy] = toScreen(
-      [shape.startX.contents, shape.startY.contents],
+      shape.start.contents,
       canvasSize
     );
     const [ex, ey] = toScreen(
-      [shape.endX.contents, shape.endY.contents],
+      shape.end.contents,
       canvasSize
     );
 

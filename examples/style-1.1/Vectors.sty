@@ -1,0 +1,105 @@
+import Colors as C
+import Penrose.Constraints as Constraints -- NOTE: Our functions should be imported
+
+Vectors {
+    const {
+      scalar vectorSpaceSize = 350
+      scalar repelWeight = 0.7
+      scalar arrowheadSize = 0.6
+      scalar lineThickness = 1
+    }
+
+    functions { -- For now, module order matters
+        -- Implicitly in scope: Penrose types.d.ts, Autodiff (ops, fns), Constraints (constrDict), various utils files...
+        -- Should our importable stuff be consolidated?
+        constraint contains = << ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: VarAD) => {
+             if (t1 === "Square" && t2 === "Text") {
+                const a1 = ops.vdist(fns.center(s1), fns.center(s2));
+                const a2 = div(s1.side.contents, constOf(2.0));
+                const a3 = div(s2.w.contents, constOf(2.0)); // TODO: Implement w/ exact text dims
+                const c = offset ? offset : constOf(0.0);
+                return add(add(sub(a1, a2), a3), c);
+
+              } else if (t1 === "Square" && t2 === "Arrow") {
+                const [[startX, startY], [endX, endY]] = linePts(s2);
+                const [x, y] = fns.center(s1);
+                const r = div(s1.side.contents, constOf(2.0));
+                const f = constOf(0.75); // 0.25 padding
+                //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+                //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+                // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+                //    inRange endY ly ry
+                const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
+                const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
+                return addN([constrDict.inRange(startX, lx, rx),
+                constrDict.inRange(startY, ly, ry),
+                constrDict.inRange(endX, lx, rx),
+                constrDict.inRange(endY, ly, ry)]);
+              } else throw new Error(`${[t1, t2]} not supported for contains`);                         
+        } >>
+    }
+
+    forall VectorSpace U {
+        scalar axisSize = const.vectorSpaceSize / 2 -- This should get promoted to float
+        vec2 U.origin = (?, ?)
+        vec2 o = U.origin
+
+        U.shape = Square {
+            center : U.origin
+            side : const.vectorSpaceSize
+            color : C.none
+            stroke : C.black
+        }
+
+        shape U.xAxis = Arrow {
+               start : (o.x - axisSize, o.y)
+                 end : (o.x + axisSize, o.y)
+           thickness : const.lineThickness
+               style : "solid"
+               color : U.axisColor
+            arrowheadSize : const.arrowheadSize
+        }
+
+        shape U.yAxis = Arrow {
+               start : (o.x, o.y + axisSize)
+                 end : (o.x, o.y + axisSize)
+           thickness : const.lineThickness
+               style : "solid"
+               color : U.axisColor
+            arrowheadSize : const.arrowheadSize
+        }
+
+        U.text = Text {
+            string : U.label
+            center : (U.origin.x - axisSize, U.origin.y + axisSize)
+            color : U.axisColor
+        }
+    }
+
+    forall Vector u, VectorSpace U
+    where In(u,U) {
+      shape u.text = Text {
+        -- center : (?, ?) -- This should be done automatically
+        string : u.label
+        color : u.shape.color
+      }
+
+      shape u.arrow = Arrow {
+        start : U.origin
+        end : (?, ?)
+        thickness : 3.0
+        color : C.blue
+        arrowheadSize : const.arrowheadSize
+      }
+
+       vec2 u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
+
+       function contains = functions.contains
+       ensure contains(U.shape, u.shape)
+       ensure contains(U.shape, u.text)
+       ensure Constraints.atDist(u.shape, u.text, 5.0)
+
+      layer u.text above U.xAxis
+      layer u.text above U.yAxis
+    }
+}

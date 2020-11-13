@@ -733,11 +733,15 @@ export const ops = {
   dist: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
 
   vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    if (v1.length !== v2.length) { throw Error("expected vectors of same length"); }
+
     const res = _.zipWith(v1, v2, add);
     return res;
   },
 
   vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    if (v1.length !== v2.length) { throw Error("expected vectors of same length"); }
+
     const res = _.zipWith(v1, v2, sub);
     return res;
   },
@@ -757,6 +761,10 @@ export const ops = {
     return v.map((e) => mul(c, e));
   },
 
+  vneg: (v: VarAD[]): VarAD[] => {
+    return ops.vmul(constOf(-1.0), v);
+  },
+
   vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
     return v.map((e) => div(e, c));
   },
@@ -767,21 +775,33 @@ export const ops = {
   },
 
   vdist: (v: VarAD[], w: VarAD[]): VarAD => {
+    if (v.length !== w.length) { throw Error("expected vectors of same length"); }
+
     return ops.vnorm(ops.vsub(v, w));
   },
 
-  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
-    return ops.vnormsq(ops.vsub(v, w));
-  },
+  vdistsq:
+    (v: VarAD[], w: VarAD[]): VarAD => {
+      if (v.length !== w.length) { throw Error("expected vectors of same length"); }
+
+      return ops.vnormsq(ops.vsub(v, w));
+    },
 
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
+    if (v1.length !== v2.length) { throw Error("expected vectors of same length"); }
+
     const res = _.zipWith(v1, v2, mul);
     return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
   },
 
   vsum: (v: VarAD[]): VarAD => {
     return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
+  },
+
+  // v + c * u
+  vmove: (v: VarAD[], c: VarAD, u: VarAD[]) => {
+    return ops.vadd(v, ops.vmul(c, u));
   },
 };
 
@@ -791,7 +811,7 @@ export const fns = {
   },
 
   center: (props: any): VarAD[] => {
-    return [props.x.contents, props.y.contents];
+    return props.center.contents;
   },
 };
 

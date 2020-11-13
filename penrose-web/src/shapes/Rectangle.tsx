@@ -6,7 +6,7 @@ class Rectangle extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
-    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
+    const [x, y] = toScreen(shape.center.contents, canvasSize);
     const fillColor = toHex(shape.color.contents);
     const fillAlpha = shape.color.contents.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
@@ -25,7 +25,7 @@ class Rectangle extends React.Component<IGPIProps> {
         strokeOpacity={strokeAlpha}
         strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         strokeWidth={thickness}
-        // transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
+      // transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
       >
         <title>{shape.name.contents}</title>
       </rect>

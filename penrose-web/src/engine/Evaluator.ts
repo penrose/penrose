@@ -1,26 +1,18 @@
-import { mapValues, values, pickBy, concat, zip } from "lodash";
-import { mapMap } from "utils/Util";
-import { valueAutodiffToNumber, mapTranslation } from "engine/EngineUtils";
-import { floatVal } from "utils/OtherUtils";
+import { checkComp, compDict } from "contrib/Functions";
+import { mapTranslation, valueAutodiffToNumber } from "engine/EngineUtils";
+import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom from "seedrandom";
-
-import { compDict, checkComp } from "contrib/Functions";
-
+import { floatVal } from "utils/OtherUtils";
 import {
-  varOf,
+  add,
   constOf,
   differentiable,
-  numOf,
-  add,
-  addN,
-  mul,
-  sub,
   div,
-  max,
-  min,
-  sin,
-  cos,
+  mul,
   neg,
+  numOf,
+  ops,
+  sub,
   squared,
   sqrt,
   inverse,
@@ -28,7 +20,6 @@ import {
   gt,
   lt,
   ifCond,
-  ops,
 } from "./Autodiff";
 
 // For deep-cloning the translation
@@ -49,6 +40,7 @@ const clone = require("rfdc")({ proto: false, circles: false });
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalShapes = (s: State): State => {
+
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
   const varyingValuesDiff = s.varyingValues.map(differentiable);
@@ -63,8 +55,6 @@ export const evalShapes = (s: State): State => {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
     gradientPreconditioned: genPathMap(s.varyingPaths, s.params.lastGradientPreconditioned),
   };
-
-  console.log("optDebugInfo", optDebugInfo); // COMBAK: Remove
 
   // Insert all varying vals
   const transWithVarying = insertVaryings(s.translation, varyingMapList);
@@ -206,14 +196,31 @@ export const evalExprs = (
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD>[] => es.map((e) => evalExpr(e, trans, varyingVars, optDebugInfo));
 
-function toFloatVal<T>(a: ArgVal<T>): T {
+function toFloatVal(a: ArgVal<VarAD>): VarAD {
   if (a.tag === "Val") {
     const res = a.contents;
     if (res.tag === "FloatV") {
       return res.contents;
+    } else if (res.tag === "IntV") {
+      return constOf(res.contents);
     } else {
       console.log("res", res);
       throw Error("Expected floating type in list");
+    }
+  } else {
+    console.log("res", a);
+    throw Error("Expected value (non-GPI) type in list");
+  }
+}
+
+function toVecVal<T>(a: ArgVal<T>): T[] {
+  if (a.tag === "Val") {
+    const res = a.contents;
+    if (res.tag === "VectorV") {
+      return res.contents;
+    } else {
+      console.log("res", res);
+      throw Error("Expected vector type in list");
     }
   } else {
     console.log("res", a);
@@ -237,6 +244,7 @@ export const evalExpr = (
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
+
   switch (e.tag) {
     case "IntLit": {
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -252,41 +260,20 @@ export const evalExpr = (
 
     case "AFloat": {
       if (e.contents.tag === "Vary") {
+        console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
         throw new Error("encountered an unsubstituted varying value");
       } else {
         const val = e.contents.contents;
 
+        // Don't convert to VarAD if it's already been converted
         return {
           tag: "Val",
           // Fixed number is stored in translation as number, made differentiable when encountered
           contents: {
             tag: "FloatV",
-            contents: constOf(val),
+            contents: val.tag ? val : constOf(val),
           },
         };
-      }
-    }
-
-    case "Tuple": {
-      const [e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, optDebugInfo);
-
-      // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
-      if (val1.tag === "Val" && val2.tag === "Val") {
-        if (val1.contents.tag === "FloatV" && val2.contents.tag === "FloatV") {
-          return {
-            // Value<number | VarAD>
-            tag: "Val",
-            contents: {
-              tag: "TupV",
-              contents: [val1.contents.contents, val2.contents.contents],
-            },
-          };
-        } else {
-          throw Error("Tuple needs to contain two Float elements");
-        }
-      } else {
-        throw Error("Tuple needs to evaluate to two values (no GPI allowed)");
       }
     }
 
@@ -306,16 +293,20 @@ export const evalExpr = (
     case "BinOp": {
       const [binOp, e1, e2] = e.contents;
       const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, optDebugInfo);
+
+      const res = evalBinOp(
+        binOp,
+        val1.contents as Value<VarAD>,
+        val2.contents as Value<VarAD>
+      );
+
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp(
-          binOp,
-          val1.contents as Value<VarAD>,
-          val2.contents as Value<VarAD>
-        ),
+        contents: res,
       };
     }
+
     case "Tuple": {
       const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
       if (argVals.length !== 2) {
@@ -332,19 +323,141 @@ export const evalExpr = (
     }
     case "List": {
       const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
+
+      // The below code makes a type assumption about the whole list, based on the first elements
+      // Is there a better way to implement parametric lists in typescript? 
+      if (!argVals[0]) { // Empty list
+        return {
+          tag: "Val",
+          contents: {
+            tag: "ListV",
+            contents: [] as VarAD[],
+          },
+        };
+      }
+
+      if (argVals[0].tag === "Val") { // List contains floats
+        if (argVals[0].contents.tag === "FloatV") {
+          return {
+            tag: "Val",
+            contents: {
+              tag: "ListV",
+              contents: argVals.map(toFloatVal) as VarAD[],
+            },
+          };
+        } else if (argVals[0].contents.tag === "VectorV") { // List contains vectors
+          return {
+            tag: "Val",
+            contents: {
+              tag: "LListV", // NOTE: The type has changed from ListV to LListV! That's because ListV's `T` is "not parametric enough" to represent a list of elements
+              contents: argVals.map(toVecVal) as VarAD[][],
+            } as ILListV<VarAD>,
+          };
+        }
+      } else {
+        console.error("list elems", argVals);
+        throw Error("unsupported element in list");
+      }
+    }
+
+    case "ListAccess": {
+      throw Error("List access expression not (yet) supported");
+    }
+
+    case "Vector": {
+      const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
+
+      // Matrices are parsed as a list of vectors, so when we encounter vectors as elements, we assume it's a matrix, and convert it to a matrix of lists
+      if (argVals[0].tag !== "Val") { throw Error("expected val"); }
+      if (argVals[0].contents.tag === "VectorV") {
+        return {
+          tag: "Val",
+          contents: {
+            tag: "MatrixV",
+            contents: argVals.map(toVecVal)
+          }
+        };
+      }
+
+      // Otherwise return vec (list of nums)
       return {
         tag: "Val",
         contents: {
-          tag: "ListV",
+          tag: "VectorV",
           contents: argVals.map(toFloatVal),
         },
       };
     }
-    case "ListAccess": {
-      throw Error("List access expression not (yet) supported");
+
+    case "Matrix": {
+      // This tag is here, but actually, matrices are parsed as lists of vectors, so this case is never hit
+      console.log("matrix e", e);
+      throw new Error(`cannot evaluate expression of type ${e.tag}`);
     }
+
+    case "VectorAccess": {
+      const [e1, e2] = e.contents;
+      const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
+      const v2 = evalExpr(e2, trans, varyingVars, optDebugInfo);
+
+      if (v1.tag !== "Val") { throw Error("expected val"); }
+      if (v2.tag !== "Val") { throw Error("expected val"); }
+      if (v2.contents.tag !== "IntV") { throw Error("expected int"); }
+
+      const i = v2.contents.contents as number;
+
+      // LList access (since any expr with brackets is parsed as a vector access
+      if (v1.contents.tag === "LListV") {
+        const llist = v1.contents.contents;
+        if (i < 0 || i > llist.length) throw Error("access out of bounds");
+        return { tag: "Val", contents: { tag: "VectorV", contents: llist[i] } };
+      }
+
+      // Vector access
+      if (v1.contents.tag !== "VectorV") { console.log("results", v1, v2); throw Error("expected Vector"); }
+      const vec = v1.contents.contents;
+      if (i < 0 || i > vec.length) throw Error("access out of bounds");
+
+      return {
+        tag: "Val",
+        contents: { tag: "FloatV", contents: vec[i] as VarAD },
+      };
+    }
+
+    case "MatrixAccess": {
+      const [e1, e2] = e.contents;
+      const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
+      const v2s = evalExprs(e2, trans, varyingVars, optDebugInfo);
+
+      const indices: number[] = v2s.map(v2 => {
+        if (v2.tag !== "Val") { throw Error("expected val"); }
+        if (v2.contents.tag !== "IntV") { throw Error("expected int"); }
+        return v2.contents.contents;
+      });
+
+      if (v1.tag !== "Val") { throw Error("expected val"); }
+
+      if (v1.contents.tag !== "MatrixV") { throw Error("expected Matrix"); }
+
+      // m[i][j] <-- m's ith row, jth column
+      const mat = v1.contents.contents;
+      // TODO: Currently only supports 2D matrices
+      if (!indices.length || indices.length !== 2) { throw Error("expected 2 indices to access matrix"); }
+
+      const [i, j] = indices;
+      if (i < 0 || (i > (mat.length - 1))) throw Error("`i` access out of bounds");
+      const vec = mat[i];
+      if (j < 0 || (j > (vec.length - 1))) throw Error("`j` access out of bounds");
+
+      return {
+        tag: "Val",
+        contents: { tag: "FloatV", contents: vec[j] as VarAD }
+      };
+    }
+
     case "EPath":
       return resolvePath(e.contents, trans, varyingVars, optDebugInfo);
+
     case "CompApp": {
       const [fnName, argExprs] = e.contents;
 
@@ -355,15 +468,22 @@ export const evalExpr = (
           throw Error(`expected 1 argument to ${fnName}; got ${argExprs.length}`);
         }
 
-        if (argExprs[0].tag !== "EPath") {
-          throw Error(`expected 1 path as argument to ${fnName}; got ${argExprs[0].tag}`);
+        let p = argExprs[0];
+
+        // Vector and matrix accesses are the only way to refer to an anon varying var
+        if (p.tag !== "EPath" && p.tag !== "VectorAccess" && p.tag !== "MatrixAccess") {
+          throw Error(`expected 1 path as argument to ${fnName}; got ${p.tag}`);
         }
 
-        console.error("argExprs", argExprs);
+        if (p.tag === "VectorAccess" || p.tag === "MatrixAccess") {
+          p = { // convert to AccessPath schema
+            tag: "EPath", contents: { tag: "AccessPath", contents: [p.contents[0], [p.contents[1].contents]] }
+          };
+        }
 
         return {
           tag: "Val",
-          contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(argExprs[0].contents))
+          contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(p.contents))
         };
       }
 
@@ -402,6 +522,9 @@ export const resolvePath = (
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
+    // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
+    if (path.tag === "AccessPath") { throw Error("TODO"); }
+
     const gpiOrExpr = findExpr(trans, path);
 
     switch (gpiOrExpr.tag) {
@@ -500,6 +623,10 @@ export const argValue = (e: ArgVal<VarAD>) => {
   }
 };
 
+export const intToFloat = (v: IIntV<number>): IFloatV<VarAD> => {
+  return { tag: "FloatV", contents: constOf(v.contents) };
+};
+
 /**
  * Evaluate a binary operation such as +, -, *, /, or ^.
  * @param op a binary operater
@@ -510,43 +637,120 @@ export const evalBinOp = (
   v1: Value<VarAD>,
   v2: Value<VarAD>
 ): Value<VarAD> => {
-  let returnType: "FloatV" | "IntV";
-  // TODO: deal with Int ops/conversion for binops
-  // res = returnType === "IntV" ? Math.floor(res) : res;
+
+  // Promote int to float
+  if (v1.tag === "IntV" && v2.tag === "FloatV") {
+    return evalBinOp(op, intToFloat(v1), v2);
+  } else if (v1.tag === "FloatV" && v2.tag === "IntV") {
+    return evalBinOp(op, v1, intToFloat(v2));
+  }
 
   // NOTE: need to explicitly check the types so the compiler will understand
   if (v1.tag === "FloatV" && v2.tag === "FloatV") {
     let res;
 
     switch (op) {
-      case "BPlus":
+      case "BPlus": {
         res = add(v1.contents, v2.contents);
         break;
+      }
 
-      case "BMinus":
+      case "BMinus": {
         res = sub(v1.contents, v2.contents);
         break;
+      }
 
-      case "Multiply":
+      case "Multiply": {
         res = mul(v1.contents, v2.contents);
         break;
+      }
 
-      case "Divide":
+      case "Divide": {
         res = div(v1.contents, v2.contents);
         break;
+      }
 
-      case "Exp":
+      case "Exp": {
         throw Error("Pow op unimplemented");
         // res = v1.contents.powStrict(v2.contents);
         break;
+      }
     }
 
-    returnType = "FloatV";
-    return { tag: returnType, contents: res };
+    return { tag: "FloatV", contents: res };
   } else if (v1.tag === "IntV" && v2.tag === "IntV") {
-    returnType = "IntV";
+    const returnType = "IntV";
+    let res;
+
+    switch (op) {
+      case "BPlus": {
+        res = v1.contents + v2.contents;
+        break;
+      }
+
+      case "BMinus": {
+        res = v1.contents - v2.contents;
+        break;
+      }
+
+      case "Multiply": {
+        res = v1.contents * v2.contents;
+        break;
+      }
+
+      case "Divide": {
+        res = v1.contents / v2.contents;
+        return { tag: "FloatV", contents: constOf(res) };
+      }
+
+      case "Exp": {
+        res = Math.pow(v1.contents, v2.contents);
+        break;
+      }
+    }
+
+    return { tag: "IntV", contents: res };
+  } else if (v1.tag === "VectorV" && v2.tag === "VectorV") {
+    let res;
+
+    switch (op) {
+      case "BPlus": {
+        res = ops.vadd(v1.contents, v2.contents);
+        break;
+      }
+
+      case "BMinus": {
+        res = ops.vsub(v1.contents, v2.contents);
+        break;
+      }
+    }
+
+    return { tag: "VectorV", contents: res as VarAD[] };
+  } else if (v1.tag === "FloatV" && v2.tag === "VectorV") {
+    let res;
+
+    switch (op) {
+      case "Multiply": {
+        res = ops.vmul(v1.contents, v2.contents);
+        break;
+      }
+    }
+    return { tag: "VectorV", contents: res as VarAD[] };
+  } else if (v1.tag === "VectorV" && v2.tag === "FloatV") {
+    let res;
+
+    switch (op) {
+      case "Divide": {
+        res = ops.vdiv(v1.contents, v2.contents);
+        break;
+      }
+    }
+
+    return { tag: "VectorV", contents: res as VarAD[] };
   } else {
-    throw new Error(`the types of two operands to ${op} must match`);
+    throw new Error(
+      `the types of two operands to ${op} are not supported: ${v1.tag}, ${v2.tag}`
+    );
   }
 
   return v1; // TODO hack
@@ -559,7 +763,7 @@ export const evalBinOp = (
  */
 export const evalUOp = (
   op: UnaryOp,
-  arg: IFloatV<VarAD> | IIntV<VarAD>
+  arg: IFloatV<VarAD> | IIntV<VarAD> | IVectorV<VarAD>
 ): Value<VarAD> => {
   if (arg.tag === "FloatV") {
     switch (op) {
@@ -568,14 +772,22 @@ export const evalUOp = (
       case "UMinus":
         return { ...arg, contents: neg(arg.contents) };
     }
-  } else {
-    // IntV
+  } else if (arg.tag === "IntV") {
     switch (op) {
       case "UPlus":
         throw new Error("unary plus is undefined");
       case "UMinus":
         return { ...arg, contents: -arg.contents };
     }
+  } else if (arg.tag === "VectorV") {
+    switch (op) {
+      case "UPlus":
+        throw new Error("unary plus is undefined");
+      case "UMinus":
+        return { ...arg, contents: ops.vneg(arg.contents) };
+    }
+  } else {
+    throw Error("unary op undefined on type ${arg.tag}, op ${op}");
   }
 };
 
@@ -630,7 +842,20 @@ export const findExpr = (
           const [, propDict] = gpi.contents;
           return propDict[prop];
       }
+
+    case "AccessPath":
+      throw Error("TODO");
   }
+};
+
+const floatValToExpr = (e: Value<VarAD>): Expr => {
+  if (e.tag !== "FloatV") {
+    throw Error("expected to insert vector elem of type float");
+  }
+  return {
+    tag: "AFloat",
+    contents: { tag: "Fix", contents: e.contents },
+  };
 };
 
 /**
@@ -648,18 +873,77 @@ export const insertExpr = (
   const trans = initTrans;
   let name, field, prop;
   switch (path.tag) {
-    case "FieldPath":
+    case "FieldPath": {
       [name, field] = path.contents;
       // NOTE: this will overwrite existing expressions
       trans.trMap[name.contents][field] = { tag: "FExpr", contents: expr };
       return trans;
-    case "PropertyPath":
-      // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
-      [name, field, prop] = (path as IPropertyPath).contents;
-      const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
+    }
+    case "PropertyPath": {
+      [name, field, prop] = path.contents;
+      const gpi = trans.trMap[name.contents][field];
       const [, properties] = gpi.contents;
       properties[prop] = expr;
       return trans;
+    }
+    case "AccessPath": {
+      const [innerPath, indices] = path.contents;
+
+      switch (innerPath.tag) {
+        case "FieldPath": {
+          // a.x[0] = e
+          [name, field] = innerPath.contents;
+          const res = trans.trMap[name.contents][field];
+          if (res.tag !== "FExpr") {
+            throw Error("did not expect GPI in vector access");
+          }
+          const res2 = res.contents;
+          // Deal with vector expressions
+          if (res2.tag === "OptEval") {
+            const res3 = res2.contents;
+            if (res3.tag !== "Vector") { throw Error("expected Vector"); }
+            const res4 = res3.contents;
+            res4[indices[0]] = floatValToExpr(expr.contents);
+            return trans;
+          } else if (res2.tag === "Done") { // Deal with vector values
+            const res3 = res2.contents;
+            if (res3.tag !== "VectorV") { throw Error("expected Vector"); }
+            const res4 = res3.contents;
+            res4[indices[0]] = expr.contents.contents;
+            return trans;
+          } else { throw Error("unexpected tag"); }
+        }
+
+        case "PropertyPath": {
+          // a.x.y[0] = e
+          [name, field, prop] = (innerPath as IPropertyPath).contents;
+          const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
+          const [, properties] = gpi.contents;
+          const res = properties[prop];
+
+          if (res.tag === "OptEval") { // Deal with vector expresions
+            const res2 = res.contents;
+            if (res2.tag !== "Vector") {
+              throw Error("expected Vector");
+            }
+            const res3 = res2.contents;
+            res3[indices[0]] = floatValToExpr(expr.contents);
+            return trans;
+          } else if (res.tag === "Done") { // Deal with vector values
+            const res2 = res.contents;
+            if (res2.tag !== "VectorV") {
+              throw Error("expected Vector");
+            }
+            const res3 = res2.contents;
+            res3[indices[0]] = expr.contents.contents;
+            return trans;
+          } else { throw Error("unexpected tag"); }
+        }
+
+        default:
+          throw Error("should not have nested AccessPath in AccessPath");
+      }
+    }
   }
 };
 
@@ -669,12 +953,18 @@ export const insertExpr = (
  */
 export const decodeState = (json: any): State => {
   // Find out the values of varying variables
+
+  console.log("varying paths", json.varyingPaths);
+  // json.varyingPaths.forEach((p: any, i: any) => console.log(JSON.stringify(p), i));
+  // throw Error("TODO");
+
   const state = {
     ...json,
     varyingValues: json.varyingState,
     varyingState: json.varyingState,
     // translation: decodeTranslation(json.transr),
     translation: json.transr,
+    originalTranslation: clone(json.transr),
     shapes: json.shapesr.map(([n, props]: any) => {
       return { shapeType: n, properties: props };
     }),
@@ -697,11 +987,21 @@ export const decodeState = (json: any): State => {
  * @param state typed `State` object
  */
 export const encodeState = (state: State): any => {
+
+  // console.log("mapped translation", mapTranslation(numOf, state.translation));
+  // console.log("original translation", state.originalTranslation);
+
+  // console.log("shapes", state.shapes);
+  // console.log("shapesr", state.shapes
+  //   .map(values)
+  //   .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]));
+
   const json = {
     ...state,
     varyingState: state.varyingValues,
     paramsr: state.params, // TODO: careful about the list of variables
-    transr: mapTranslation(numOf, state.translation), // Only send numbers to backend
+    // transr: mapTranslation(numOf, state.translation), // Only send numbers to backend
+    transr: state.originalTranslation, // Only send numbers to backend
     // NOTE: clean up all additional props and turn objects into lists
     shapesr: state.shapes
       .map(values)
@@ -738,6 +1038,9 @@ export function genPathMap<T>(
   paths.forEach((path, index) =>
     res.set(JSON.stringify(path), vals[index])
   );
+
+  // console.log("gen path map", res);
+  // throw Error("TODO");
   return res;
 };
 

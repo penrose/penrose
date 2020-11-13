@@ -2,7 +2,7 @@ import { range, maxBy } from "lodash";
 import { randFloat } from "utils/Util";
 import { mapTup2 } from "engine/EngineUtils";
 import { linePts, getStart, getEnd } from "utils/OtherUtils";
-import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin } from "engine/Autodiff";
+import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, neg } from "engine/Autodiff";
 
 /**
  * Static dictionary of computation functions
@@ -34,7 +34,11 @@ export const compDict = {
       };
     }
 
-    throw Error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    console.error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    return {
+      tag: "FloatV",
+      contents: constOf(0.0)
+    };
   },
 
   // NOTE: This is a special system function. Don't change it!
@@ -56,7 +60,11 @@ export const compDict = {
       };
     }
 
-    throw Error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    console.error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    return {
+      tag: "FloatV",
+      contents: constOf(0.0)
+    };
   },
 
   // Assuming lists only hold floats
@@ -128,17 +136,81 @@ export const compDict = {
     };
   },
 
-  orientedSquare: (arr1: any, arr2: any, pt: any, len: VarAD): IPathDataV<VarAD> => {
-    // TODO: Write the full function; this is just a fixed path for testing
-    checkFloat(len);
+  normalize: (v: VarAD[]): IVectorV<VarAD> => {
+    return {
+      tag: "VectorV",
+      contents: ops.vnormalize(v)
+    }
+  },
 
-    const elems: Elem<VarAD>[] =
-      [{ tag: "Pt", contents: mapTup2(constOf, [100, 100]) },
-      { tag: "Pt", contents: mapTup2(constOf, [200, 200]) },
-      { tag: "Pt", contents: mapTup2(constOf, [300, 150]) }];
-    const path: SubPath<VarAD> = { tag: "Open", contents: elems };
-
+  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<VarAD> => {
+    const pathTypeStr = pathType === 'closed' ? "Closed" : "Open";
+    const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
+    const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
     return { tag: "PathDataV", contents: [path] };
+  },
+
+  unitMark: ([t1, s1]: [string, any], [t2, s2]: [string, any], t: string, padding: VarAD, barSize: VarAD): IPtListV<VarAD> => {
+    const [start1, end1] = linePts(s1);
+    const [start2, end2] = linePts(s2);
+
+    const dir = ops.vnormalize(ops.vsub(end2, start2));
+    const normalDir = ops.vneg(dir);
+    const markStart = ops.vmove(start1, padding, normalDir);
+    const markEnd = ops.vmove(end1, padding, normalDir);
+
+    return {
+      tag: "PtListV",
+      contents: [markStart, markEnd].map(toPt)
+    };
+  },
+
+  unitMark2: ([start, end]: [Pt2, Pt2], t: string, padding: VarAD, size: VarAD): IPtListV<VarAD> => {
+    const dir = ops.vnormalize(ops.vsub(end, start));
+    const normalDir = rot90(toPt(dir));
+    const base = t === "start" ? start : end;
+    const [markStart, markEnd] = [ops.vmove(base, size, normalDir), ops.vmove(base, neg(size), normalDir)];
+    return {
+      tag: "PtListV",
+      contents: [markStart, markEnd].map(toPt)
+    };
+  },
+
+  midpointOffset: ([start, end]: [Pt2, Pt2], [t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      const [start1, end1] = linePts(s1);
+      // TODO: Cache these operations in Style!
+      const dir = ops.vnormalize(ops.vsub(end1, start1));
+      const normalDir = ops.vneg(dir);
+      const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
+      return {
+        tag: "TupV",
+        contents: toPt(midpointOffsetLoc)
+      };
+    } else {
+      throw Error("unsupported shape ${t1} in midpointOffset");
+    }
+  },
+
+  // Given two orthogonal segments that intersect at startR (or startL, should be the same point)
+  // and a size, make three points that describe a perpendicular mark at the angle where the segments intersect.
+  orientedSquare: ([t1, s1]: [string, any], [t2, s2]: [string, any], intersection: Pt2, len: VarAD): IPathDataV<VarAD> => {
+    if ((t1 === "Arrow" || t1 === "Line") && (t2 === "Arrow" || t2 === "Line")) {
+      const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
+      const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
+
+      const elems: Elem<VarAD>[] =
+        [{ tag: "Pt", contents: toPt(ptL) },
+        { tag: "Pt", contents: toPt(ptLR) },
+        { tag: "Pt", contents: toPt(ptR) },
+        { tag: "Pt", contents: intersection }];
+      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
+
+      return { tag: "PathDataV", contents: [path] };
+    } else {
+      throw Error("orientedSquare undefined for types ${t1}, ${t2}");
+    }
   },
 
   triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
@@ -211,6 +283,17 @@ export const compDict = {
     };
   },
 
+  // Matrix-vector multiplication (where `v` is implicitly treated as a column vector)
+  mul: (m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
+    if (!m.length) { throw Error("empty matrix"); }
+    if (!v.length) { throw Error("empty vector"); }
+
+    return {
+      tag: "VectorV",
+      contents: m.map(row => ops.vdot(row, v))
+    };
+  },
+
 };
 
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
@@ -225,9 +308,36 @@ const checkFloat = (x: any) => {
   }
 }
 
+const toPt = (v: VecAD): Pt2 => {
+  if (v.length !== 2) {
+    throw Error("expected vector of length 2");
+  }
+  return [v[0], v[1]];
+};
+
+const perpPathFlat = (len: VarAD, [startR, endR]: [VecAD, VecAD], [startL, endL]: [VecAD, VecAD]): [VecAD, VecAD, VecAD] => {
+  // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
+  // perpPathFlat size (startR, endR) (startL, endL) =
+  //   let dirR = normalize' $ endR -: startR
+  //       dirL = normalize' $ endL -: startL
+  //       ptL = startR +: (size *: dirL)
+  //       ptR = startR +: (size *: dirR)
+  //       ptLR = startR +: (size *: dirL) +: (size *: dirR)
+  //   in (ptL, ptLR, ptR)
+  const dirR = ops.vnormalize(ops.vsub(endR, startR));
+  const dirL = ops.vnormalize(ops.vsub(endL, startL));
+  const ptL = ops.vmove(startR, len, dirL); // ops.vadd(startR, ops.vmul(len, dirL));
+  const ptR = ops.vmove(startR, len, dirR); // ops.vadd(startR, ops.vmul(len, dirR));
+  const ptLR = ops.vadd(ptL, ops.vmul(len, dirR));
+  return [ptL, ptLR, ptR];
+};
+
+const rot90 = ([x, y]: Pt2): Pt2 => {
+  return [neg(y), x];
+};
+
 // returns the point in `candidates` farthest from the points in `pts` (by sum)
 // Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation
-
 // Do not use!
 const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
   if (!pts || pts.length === 0) { throw Error("Expected nonempty point list"); }

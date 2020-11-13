@@ -9,8 +9,7 @@ Colors {
 
 const {
       const.circle = Circle {
-                   x : 0.0
-                   y : 0.0
+                   center : (0., 0.)
                    r : 100.0
                    color : Colors.none
                    strokeWidth : 5.0
@@ -23,8 +22,7 @@ forall Set x {
        x.angle = ?       
 
     x.shape = Circle {
-            x : x.r * cos(x.angle)
-            y : x.r * sin(x.angle)
+            center : (x.r * cos(x.angle), x.r * sin(x.angle))
             strokeWidth : 0.0
     }
 
