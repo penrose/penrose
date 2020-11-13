@@ -425,7 +425,6 @@ Vertex v; Vertex w {
 forall Point p; Vertex v
 where Identified(p, v) {
 
-  -- COMBAK: This doesn't parse?
    shape = Line {
       start : p.shape.center
       end : v.shape.center
@@ -434,9 +433,8 @@ where Identified(p, v) {
       style : "dashed"
    }
 
--- COMBAK: Add this back in when the parser works
-   -- layer shape above p.shape
-   -- layer shape above v.shape
+   layer shape above p.shape
+   layer shape above v.shape
    
    -- rather than worry about the two diagrams colliding, just add some penalty that tries to make all the connecting lines fairly long
    -- p.vector = (p.shape.x, p.shape.y)
