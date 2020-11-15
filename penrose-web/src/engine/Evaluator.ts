@@ -196,13 +196,13 @@ export const evalExprs = (
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD>[] => es.map((e) => evalExpr(e, trans, varyingVars, optDebugInfo));
 
-function toFloatVal<VarAD>(a: ArgVal<VarAD>): VarAD {
+function toFloatVal(a: ArgVal<VarAD>): VarAD {
   if (a.tag === "Val") {
     const res = a.contents;
     if (res.tag === "FloatV") {
       return res.contents;
     } else if (res.tag === "IntV") {
-      return (constOf(res.contents) as unknown) as VarAD; // Not sure why TS compiler has problem here
+      return constOf(res.contents);
     } else {
       console.log("res", res);
       throw Error("Expected floating type in list");
@@ -880,9 +880,8 @@ export const insertExpr = (
       return trans;
     }
     case "PropertyPath": {
-      // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
-      [name, field, prop] = (path as IPropertyPath).contents;
-      const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
+      [name, field, prop] = path.contents;
+      const gpi = trans.trMap[name.contents][field];
       const [, properties] = gpi.contents;
       properties[prop] = expr;
       return trans;
@@ -936,9 +935,7 @@ export const insertExpr = (
               throw Error("expected Vector");
             }
             const res3 = res2.contents;
-            res3[indices[0]] = expr.contents.contents; // TODO: Does this actually leave a gradient trail, though?
-            // COMBAK: Why does the metadata contain extraneous elements?
-            // console.error("propertypath", indices, indices[0], res3, expr.contents.contents);
+            res3[indices[0]] = expr.contents.contents;
             return trans;
           } else { throw Error("unexpected tag"); }
         }
