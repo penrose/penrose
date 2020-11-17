@@ -8,19 +8,38 @@ import { valueNumberToAutodiff } from "engine/EngineUtils";
  */
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
-  if (path.tag === "FieldPath") {
-    throw new Error("pending paths must be property paths");
-  } else {
+  const getProperty = (path: IPropertyPath) => {
     const [
       { contents: subName },
       field,
       prop,
     ] = (path as IPropertyPath).contents;
-
+    // HACK: this depends on the name encoding
     const shape = shapes.find(
       (s: any) => s.properties.name.contents === `${subName}.${field}`
     );
     return shape.properties[prop];
+  };
+  switch (path.tag) {
+    case "FieldPath":
+      throw new Error("pending paths must be property paths");
+    case "PropertyPath": {
+      return getProperty(path);
+    }
+    case "AccessPath": {
+      const [propertyPath, indices] = (path as IAccessPath).contents;
+      if (propertyPath.tag === "PropertyPath") {
+        const property = getProperty(propertyPath);
+        // walk the structure to access all indices
+        let res = property.contents;
+        for (let i of indices) {
+          res = res[i];
+        }
+        return res;
+      } else {
+        throw new Error("pending paths must be property paths");
+      }
+    }
   }
 };
 
@@ -53,29 +72,23 @@ export const insertPending = (state: State) => {
   };
 };
 
-// export const updateVaryingState = async (data: any) => {
-//   const newVaryingState = [...data.varyingState];
-//   await data.varyingPaths.forEach((path: any, index: number) => {
-//     // NOTE: We only update property paths since no frontend interactions can change fields
-//     // TODO: add a branch for `FieldPath` when this is no longer the case
-//     if (path.tag === "PropertyPath") {
-//       const [{ contents: subName }, fieldName, propertyName] = path.contents;
-//       data.transr.trMap.forEach(
-//         ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
-//           if (subVar.contents === subName) {
-//             const propertyDict = fieldDict[fieldName].contents[1];
-//             const shapeName = propertyDict.name.contents.contents;
-//             newVaryingState[index] = findShapeProperty(
-//               data.shapesr,
-//               path
-//             ).contents;
-//           }
-//         }
-//       );
-//     }
-//   });
-//   return {
-//     ...data,
-//     varyingState: newVaryingState,
-//   };
-// };
+/**
+ * Back propagate value changes in shapes to varying values
+ * @param state Old diagram state
+ */
+export const updateVaryingValues = (state: State): State => {
+  const newVaryingValues = [...state.varyingValues];
+  state.varyingPaths.forEach((path: Path, index: number) => {
+    // NOTE: We only update property paths since no frontend interactions can change fields
+    // TODO: add a branch for `FieldPath` when this is no longer the case
+    if (path.tag === "PropertyPath") {
+      newVaryingValues[index] = findShapeProperty(state.shapes, path).contents;
+    } else if (path.tag === "AccessPath") {
+      newVaryingValues[index] = findShapeProperty(state.shapes, path);
+    }
+  });
+  return {
+    ...state,
+    varyingValues: newVaryingValues,
+  };
+};
