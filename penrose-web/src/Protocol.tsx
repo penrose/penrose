@@ -84,7 +84,6 @@ export class Protocol {
   };
   private setConnectionStatus = (status: ConnectionStatus) => {
     this.connectionStatus = status;
-    console.log(this, this.eventHandlers);
     if (this.eventHandlers) {
       this.eventHandlers.forEach((events: EventHandler) =>
         events.onConnectionStatus(status)

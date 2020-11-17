@@ -14,7 +14,6 @@ import {
   IEditorEvents as EditorEvents,
 } from "src/Protocol";
 
-declare module "mathjax";
 export type IRendererEvents = RendererEvents;
 export type IEditorEvents = EditorEvents;
 export {
@@ -28,3 +27,5 @@ export {
   Evaluator,
   EngineUtils,
 };
+
+declare module "mathjax";

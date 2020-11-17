@@ -1,12 +1,5 @@
-Point p
-
 Set A
-PointIn(A, p)
-
 Set B
-Set C
-
-IsSubset(A,C)
 Intersecting(A, B)
 
 AutoLabel All
