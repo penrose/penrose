@@ -91,6 +91,8 @@ data ValueType
   | HMatrixT
   | MapT
   | PolygonT
+  | VectorT
+  | MatrixT
   deriving (Eq, Show)
 
 -- | fully evaluated values in Style
@@ -108,6 +110,8 @@ data Value a
   | StyleV String -- ^ dotted, etc.
   | ListV [a] -- ^ a list of floats
   | TupV (a, a) -- ^ a tuple of floats
+  | VectorV [a]
+  | MatrixV [[a]]
   | LListV [[a]] -- ^ a 2D list of floats
   | HMatrixV (HMatrix a) -- ^ single transformation (homogeneous transformation)
   | PolygonV (Polygon a) -- ^ multiple shapes with holes
@@ -141,6 +145,8 @@ typeOf v =
     StyleV _    -> StyleT
     HMatrixV _  -> HMatrixT
     PolygonV _  -> PolygonT
+    VectorV _  -> VectorT
+    MatrixV _  -> MatrixT
 
 -----------------
 toPolymorphics ::
@@ -178,6 +184,8 @@ toPolyProperty v =
     PtListV xs -> PtListV $ map r2 xs
     PaletteV xs -> PaletteV xs
     ListV xs -> ListV $ map r2f xs
+    VectorV xs -> VectorV $ map r2f xs
+    MatrixV xs -> MatrixV $ map (map r2f) xs
     TupV x -> TupV $ r2 x
     LListV xs -> LListV $ map (map r2f) xs
     ColorV x -> ColorV x
@@ -662,6 +670,13 @@ samplePointIn (interval1, interval2) g =
       (n2, g2) = randomR interval2 g1
   in (PtV (r2f n1, r2f n2), g2)
 
+sampleVectorIn ::
+     (Autofloat a) => (FloatInterval, FloatInterval) -> SampledValue a
+sampleVectorIn (interval1, interval2) g =
+  let (n1, g1) = randomR interval1 g
+      (n2, g2) = randomR interval2 g1
+  in (VectorV [r2f n1, r2f n2], g2)
+
 sampleColor :: (Autofloat a) => SampledValue a
 sampleColor rng =
   let interval = (0.1, 0.9)
@@ -728,6 +743,9 @@ stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
+vector_sampler :: (Autofloat a) => SampledValue a
+vector_sampler = sampleVectorIn (canvasDims, canvasDims)
+
 anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, ellipseTransformType, parallelogramTransformType, textTransformType ::
      (Autofloat a) => ShapeDef a
 anchorPointType =
@@ -735,15 +753,14 @@ anchorPointType =
   , M.fromList
         -- ("x", (FloatT, x_sampler)),
         -- ("y", (FloatT, y_sampler)),
-      [ ("location", (PtT, pointSampler))
+      [ ("location", (VectorT, vector_sampler))
       , ("name", (StrT, constValue $ StrV "defaultAnchorPoint"))
       ])
 
 circType =
   ( "Circle"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("r", (FloatT, width_sampler))
       , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, constValue $ StrV "filled"))
@@ -756,8 +773,7 @@ circType =
 ellipseType =
   ( "Ellipse"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("rx", (FloatT, width_sampler))
       , ("ry", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
@@ -774,8 +790,7 @@ ellipseType =
 textType =
   ( "Text"
   , M.fromList
-      [ ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)))
-      , ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)))
+      [ ("center", (VectorT, vector_sampler))
       , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("fontSize", (StrT, constValue $ StrV "12pt"))
@@ -791,10 +806,8 @@ textType =
 arrowType =
   ( "Arrow"
   , M.fromList
-      [ ("startX", (FloatT, x_sampler))
-      , ("startY", (FloatT, y_sampler))
-      , ("endX", (FloatT, x_sampler))
-      , ("endY", (FloatT, y_sampler))
+      [ ("start", (VectorT, vector_sampler))
+      , ("end", (VectorT, vector_sampler))
       , ("thickness", (FloatT, sampleFloatIn (5, 15)))
       , ("style", (StrT, constValue $ StrV "straight"))
       , ("color", (ColorT, sampleColor))
@@ -804,6 +817,7 @@ arrowType =
       , ("arrowheadSize", (FloatT, constValue $ FloatV 1.0))
       ])
 
+-- This has been deprecated
 braceType =
   ( "Brace"
   , M.fromList
@@ -811,6 +825,8 @@ braceType =
       , ("startY", (FloatT, y_sampler))
       , ("endX", (FloatT, x_sampler))
       , ("endY", (FloatT, y_sampler))
+      , ("start", (VectorT, vector_sampler))
+      , ("end", (VectorT, vector_sampler))
       , ("color", (ColorT, sampleColor))
       , ("thickness", (FloatT, sampleFloatIn (1, 6)))
       , ("name", (StrT, constValue $ StrV "defaultBrace"))
@@ -841,10 +857,8 @@ curveType =
 lineType =
   ( "Line"
   , M.fromList
-      [ ("startX", (FloatT, x_sampler))
-      , ("startY", (FloatT, y_sampler))
-      , ("endX", (FloatT, x_sampler))
-      , ("endY", (FloatT, y_sampler))
+      [ ("start", (VectorT, vector_sampler))
+      , ("end", (VectorT, vector_sampler))
       , ("thickness", (FloatT, sampleFloatIn (5, 15)))
       , ("leftArrowhead", (BoolT, constValue $ BoolV False))
       , ("rightArrowhead", (BoolT, constValue $ BoolV False))
@@ -859,8 +873,7 @@ lineType =
 rectType =
   ( "Rectangle"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("w", (FloatT, width_sampler))
       , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
@@ -875,8 +888,7 @@ rectType =
 squareType =
   ( "Square"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
+      [("center", (VectorT, vector_sampler))
       , ("side", (FloatT, width_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
         -- TODO: distinguish between stroke color and fill color everywhere
@@ -888,11 +900,13 @@ squareType =
       , ("name", (StrT, constValue $ StrV "defaultSquare"))
       ])
 
+-- This has also been deprecated in the frontend
 parallelogramType =
   ( "Parallelogram"
   , M.fromList
       [ ("x", (FloatT, x_sampler)) -- (x, y) is the bottom-left corner of the parallelogram
       , ("y", (FloatT, y_sampler))
+      , ("center", (VectorT, vector_sampler))
       , ("lengthX", (FloatT, width_sampler))
       , ("lengthY", (FloatT, height_sampler))
       , ("angle", (FloatT, constValue $ FloatV 0.0))
@@ -906,8 +920,7 @@ parallelogramType =
 imageType =
   ( "Image"
   , M.fromList
-      [ ("x", (FloatT, x_sampler))
-      , ("y", (FloatT, y_sampler))
+      [ ("center", (VectorT, vector_sampler))
       , ("w", (FloatT, width_sampler))
       , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
@@ -923,6 +936,7 @@ arcType =
   , M.fromList
       [ ("x", (FloatT, x_sampler)) -- x,y are the cordinates for the bottom left position
       , ("y", (FloatT, y_sampler)) -- of the right angle or the midlle pos of a regular angle
+      -- , ("center", (VectorT, vector_sampler)) -- TODO: Port this to use vectors 
       , ("r", (FloatT, width_sampler))
       , ("size", (FloatT, width_sampler))
       , ("lengthX", (FloatT, width_sampler))
@@ -1325,6 +1339,12 @@ setX v shape              = set shape "x" v
 
 setY v shape@("Arrow", _) = set shape "startY" v
 setY v shape              = set shape "y" v
+
+getVec :: (Autofloat a) => Shape a -> PropID -> [a]
+getVec shape prop =
+  case shape .: prop of
+    VectorV x -> x
+    res -> error ("getVec: expected float but got something else: " ++ show res)
 
 getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop =

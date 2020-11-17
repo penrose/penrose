@@ -52,7 +52,8 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = makeTranslationDifferentiable(state.translation);
     const stateAD = {
       ...state,
-      translation: translationAD,
+      originalTranslation: state.originalTranslation,
+      translation: translationAD
     };
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
@@ -309,12 +310,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-          } on ${new Date()
-            .toISOString()
-            .slice(
-              0,
-              10
-            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            } on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}

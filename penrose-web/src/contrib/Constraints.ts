@@ -36,7 +36,7 @@ export const objDict = {
   above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
     // (getY top - getY bottom - offset) ^ 2
     squared(
-      sub(sub(top.y.contents, bottom.y.contents),
+      sub(sub(top.center.contents[1], bottom.center.contents[1]),
         varOf(offset))),
 
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
@@ -78,19 +78,19 @@ export const objDict = {
 
   // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
   below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
-    squared(sub(sub(top.y.contents, bottom.y.contents), constOfIf(offset))),
+    squared(sub(sub(top.center.contents[1], bottom.center.contents[1]), constOfIf(offset))),
 
   centerLabel: ([t1, s1]: [string, any], [t2, s2]: [string, any], w: number): VarAD => {
 
     if (typesAre([t1, t2], ["Arrow", "Text"])) {
       const arr = s1;
       const text1 = s2;
-      const mx = div(add(arr.startX.contents, arr.endX.contents), constOf(2.0));
-      const my = div(add(arr.startY.contents, arr.endY.contents), constOf(2.0));
+      const mx = div(add(arr.start.contents[0], arr.end.contents[0]), constOf(2.0));
+      const my = div(add(arr.start.contents[1], arr.end.contents[1]), constOf(2.0));
 
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-      const lh = squared(sub(mx, text1.x.contents));
-      const rh = squared(sub(add(my, mul(text1.h.contents, constOf(1.1))), text1.y.contents));
+      const lh = squared(sub(mx, text1.center.contents[0]));
+      const rh = squared(sub(add(my, mul(text1.h.contents, constOf(1.1))), text1.center.contents[1]));
       return mul(add(lh, rh), constOfIf(w));
 
     } else if (typesAre([t1, t2], ["Rectangle", "Text"])) {
@@ -128,6 +128,13 @@ export const constrDict = {
 
   minSize: ([shapeType, props]: [string, any]) => {
     const limit = 20;
+
+    if (shapeType === "Line" || shapeType === "Arrow") {
+      const minLen = 50;
+      const vec = ops.vsub(props.end.contents, props.start.contents);
+      return sub(constOf(minLen), ops.vnorm(vec));
+    }
+
     switch (shapeType) {
       case "Circle":
         return sub(constOf(limit), props.r.contents);
@@ -172,7 +179,7 @@ export const constrDict = {
 
     } else if (t1 === "Square" && t2 === "Circle") {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-      const sq = [s1.x.contents, s1.y.contents];
+      const sq = s1.center.contents;
       const d = ops.vdist(sq, fns.center(s2));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
 
@@ -183,10 +190,34 @@ export const constrDict = {
       //   getNum l "w" / 2 + padding
 
       const a1 = ops.vdist(fns.center(s1), fns.center(s2));
-      const a2 = div(s1.w.contents, varOf(2.0));
-      const a3 = div(s2.w.contents, varOf(2.0));
-      return add(add(sub(a1, a2), a3), offset);
+      const a2 = div(s1.w.contents, constOf(2.0));
+      const a3 = div(s2.w.contents, constOf(2.0));
+      const c = offset ? offset : constOf(0.0);
+      return add(add(sub(a1, a2), a3), c);
 
+    } else if (t1 === "Square" && t2 === "Text") {
+      const a1 = ops.vdist(fns.center(s1), fns.center(s2));
+      const a2 = div(s1.side.contents, constOf(2.0));
+      const a3 = div(s2.w.contents, constOf(2.0)); // TODO: Implement w/ exact text dims
+      const c = offset ? offset : constOf(0.0);
+      return add(add(sub(a1, a2), a3), c);
+
+    } else if (t1 === "Square" && t2 === "Arrow") {
+      const [[startX, startY], [endX, endY]] = linePts(s2);
+      const [x, y] = fns.center(s1);
+
+      const r = div(s1.side.contents, constOf(2.0));
+      const f = constOf(0.75); // 0.25 padding
+      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+      //    inRange endY ly ry
+      const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
+      const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
+      return addN([constrDict.inRange(startX, lx, rx),
+      constrDict.inRange(startY, ly, ry),
+      constrDict.inRange(endX, lx, rx),
+      constrDict.inRange(endY, ly, ry)]);
     } else throw new Error(`${[t1, t2]} not supported for contains`);
 
   },
@@ -258,6 +289,13 @@ export const constrDict = {
     // TODO: Account for the size/radius of the initial point, rather than just the center
 
     if (t2 === "Text") {
+      let pt;
+      if (t1 === "Arrow") { // Position label close to the arrow's end
+        pt = { x: s1.end.contents[0], y: s1.end.contents[1] };
+      } else { // Only assume shape1 has a center
+        pt = { x: s1.center.contents[0], y: s1.center.contents[1] };
+      }
+
       // Get polygon of text (box)
       // TODO: Make this a GPI property
       // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
@@ -274,12 +312,12 @@ export const constrDict = {
       const textPts = [[halfWidth, halfHeight], [nhalfWidth, halfHeight],
       [nhalfWidth, nhalfHeight], [halfWidth, nhalfHeight]].map(p => ops.vadd(textCenter, p));
 
-      const pt = { x: s1.x.contents, y: s1.y.contents };
       const rect = {
         minX: textPts[1][0], maxX: textPts[0][0],
         minY: textPts[2][1], maxY: textPts[0][1]
       };
 
+      // TODO: Rewrite this with `ifCond`
       // If the point is inside the box, push it outside w/ `noIntersect`
       if (pointInBox(pt, rect)) {
         return noIntersect(textCenter, text.w.contents, fns.center(s1), constOf(2.0));
@@ -295,11 +333,15 @@ export const constrDict = {
     }
   },
 
-  perpendicular: (q: ITupV<VarAD>, p: ITupV<VarAD>, r: ITupV<VarAD>): VarAD => {
-    const v1 = ops.vsub(q.contents, p.contents);
-    const v2 = ops.vsub(r.contents, p.contents);
+  perpendicular: (q: VarAD[], p: VarAD[], r: VarAD[]): VarAD => {
+    const v1 = ops.vsub(q, p);
+    const v2 = ops.vsub(r, p);
     const dotProd = ops.vdot(v1, v2);
     return equalHard(dotProd, constOf(0.0));
+  },
+
+  inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
+    return mul(sub(x, x0), sub(x, x1));
   },
 
 };
@@ -346,8 +388,8 @@ const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: Va
     end = ops.vadd(center2, ops.vmul(o2, dir));
   }
 
-  const fromPt = [arr.startX.contents, arr.startY.contents];
-  const toPt = [arr.endX.contents, arr.endY.contents];
+  const fromPt = arr.start.contents;
+  const toPt = arr.end.contents;
 
   return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
 }

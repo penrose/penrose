@@ -24,7 +24,7 @@ class Label extends React.Component<IGPIProps> {
     const { shape } = this.props;
 
     const { canvasSize } = this.props;
-    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
+    const [x, y] = toScreen(shape.center.contents, canvasSize);
     const { w, h } = shape;
     const color = toHex(shape.color.contents);
     return (

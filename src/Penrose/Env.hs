@@ -63,27 +63,10 @@ data SourcePosition = SourcePosition
   , row    :: Int -- ^ row number of the symbol
   } deriving (Show, Eq)
 
-rws, attribs, attribVs, shapes :: [String] -- list of reserved words
-rws = ["avoid", "as"] ++ dsll
-
--- ++ types ++ attribs ++ shapes ++ colors
-attribs = ["shape", "color", "label", "scale", "position"]
-
-attribVs = shapes
-
-shapes =
-  [ "Auto"
-  , "None"
-  , "Circle"
-  , "Box"
-  , "SolidArrow"
-  , "SolidDot"
-  , "HollowDot"
-  , "Cross"
-  ]
-
+-- TODO: clarify the list of reserved word in each language
+rws, labelrws, dsll :: [String] -- list of reserved words
+rws = ["True", "False", "ensure", "encourage"] 
 labelrws = ["Label", "AutoLabel", "NoLabel"]
-
 dsll =
   [ "tconstructor"
   , "vconstructor"
@@ -102,7 +85,6 @@ dsll =
   , "associativity"
   ]
 
--- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 upperId, lowerId, identifier :: Parser String
 identifier = (lexeme . try) (p >>= checkId)
   where
@@ -229,6 +211,9 @@ parens = between (symbol "(") (symbol ")")
 
 brackets :: Parser a -> Parser a
 brackets = between (symbol "[") (symbol "]")
+
+quotes :: Parser a -> Parser a
+quotes = between (symbol "\"") (symbol "\"")
 
 -- | 'integer' parses an integer.
 integer :: Parser Integer
