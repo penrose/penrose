@@ -76,20 +76,19 @@ export const insertPending = (state: State) => {
  * Back propagate value changes in shapes to varying values
  * @param state Old diagram state
  */
-export const updateVaryingValues = async (state: State) => {
-  const newVaryingState = [...state.varyingValues];
-  await state.varyingPaths.forEach((path: Path, index: number) => {
+export const updateVaryingValues = (state: State): State => {
+  const newVaryingValues = [...state.varyingValues];
+  state.varyingPaths.forEach((path: Path, index: number) => {
     // NOTE: We only update property paths since no frontend interactions can change fields
     // TODO: add a branch for `FieldPath` when this is no longer the case
     if (path.tag === "PropertyPath") {
-      newVaryingState[index] = findShapeProperty(state.shapes, path).contents;
+      newVaryingValues[index] = findShapeProperty(state.shapes, path).contents;
     } else if (path.tag === "AccessPath") {
-      newVaryingState[index] = findShapeProperty(state.shapes, path);
+      newVaryingValues[index] = findShapeProperty(state.shapes, path);
     }
   });
-  console.log("old", state.varyingValues, "new", newVaryingState);
   return {
     ...state,
-    varyingState: newVaryingState,
+    varyingValues: newVaryingValues,
   };
 };
