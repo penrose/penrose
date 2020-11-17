@@ -42,7 +42,8 @@
     "test": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
-    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json"
+    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
+    "postinstall": "cd .. && husky install ./penrose-web"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
@@ -62,6 +63,7 @@
     "enzyme-to-json": "^3.4.4",
     "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-jsdoc": "^30.7.3",
+    "husky": "^5.0.0",
     "prettier": "^1.19.1",
     "terser": "^3.14.1",
     "ttypescript": "^1.5.12",
