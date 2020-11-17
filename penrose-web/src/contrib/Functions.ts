@@ -14,8 +14,12 @@ import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, ne
 // These all return a Value<VarAD>
 export const compDict = {
 
-  // TODO: Refactoe derivative + derivativePre to be inlined as one case in evaluator
-  // NOTE: This is a special system function. Don't change it!
+  // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
+
+  /**
+   * Return the derivative of `varName`.
+   * NOTE: This is a special system function. Don't change it!
+   */
   derivative: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
     if (!optDebugInfo || !('gradient' in optDebugInfo) || !(optDebugInfo.gradient.size)) {
       console.log("optDebugInfo", optDebugInfo);
@@ -41,7 +45,10 @@ export const compDict = {
     };
   },
 
-  // NOTE: This is a special system function. Don't change it!
+  /**
+   * Return the L-BFGS preconditioned derivative of `varName`.
+   * NOTE: This is a special system function. Don't change it!
+   */
   derivativePreconditioned: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
     if (!optDebugInfo || !('gradientPreconditioned' in optDebugInfo) || !(optDebugInfo.gradientPreconditioned.size)) {
       console.log("optDebugInfo", optDebugInfo);
@@ -67,7 +74,9 @@ export const compDict = {
     };
   },
 
-  // Assuming lists only hold floats
+  /**
+   * Return `i`th element of list `xs, assuming lists only hold floats.
+   */
   get: (xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];
 
@@ -77,6 +86,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, a=opacity).
+   */
   rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
       tag: "ColorV",
@@ -87,6 +99,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return a color of elements `h`, `s`, `v`, `a`.
+   */
   hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
       tag: "ColorV",
