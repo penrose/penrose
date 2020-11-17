@@ -343,7 +343,7 @@ type ILocalVar = string;
 
 type Value<T> =
   | IFloatV<T>
-  | IIntV<T>
+  | IIntV
   | IBoolV<T>
   | IStrV<T>
   | IPtV<T>
@@ -366,7 +366,7 @@ interface IFloatV<T> {
   contents: T;
 }
 
-interface IIntV<T> {
+interface IIntV {
   tag: "IntV";
   contents: number;
 }
