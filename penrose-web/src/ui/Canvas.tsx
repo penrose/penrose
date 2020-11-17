@@ -53,7 +53,7 @@ class Canvas extends React.Component<ICanvasProps> {
     const stateAD = {
       ...state,
       originalTranslation: state.originalTranslation,
-      translation: translationAD
+      translation: translationAD,
     };
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
@@ -90,9 +90,9 @@ class Canvas extends React.Component<ICanvasProps> {
         shapes: this.props.data.shapes.map(
           ({ shapeType, properties }: Shape) => {
             if (properties.name.contents === id) {
-              return this.dragShape({shapeType, properties}, [dx, dy]);
+              return this.dragShape({ shapeType, properties }, [dx, dy]);
             }
-            return {shapeType, properties};
+            return { shapeType, properties };
           }
         ),
       };
@@ -104,7 +104,7 @@ class Canvas extends React.Component<ICanvasProps> {
 
   // TODO: factor out position props in shapedef
   public dragShape = (shape: Shape, offset: [number, number]) => {
-    const {shapeType, properties} = shape;
+    const { shapeType, properties } = shape;
     switch (shapeType) {
       case "Curve":
         console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
@@ -132,10 +132,15 @@ class Canvas extends React.Component<ICanvasProps> {
    *
    * @memberof Canvas
    */
-  public moveProperties = (properties: Properties, propsToMove: string[], [dx, dy]: [number, number]) => {
+  public moveProperties = (
+    properties: Properties,
+    propsToMove: string[],
+    [dx, dy]: [number, number]
+  ) => {
     const moveProperty = (props: Properties, propertyID: string) => {
       const [x, y] = props[propertyID].contents as [number, number];
-      // props[propertyID].contents = [dx, dy]
+      console.log(props[propertyID], dx, dy);
+      props[propertyID].contents = [x + dx, y + dy];
       return props;
     };
     return propsToMove.reduce(moveProperty, properties);
@@ -300,12 +305,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}

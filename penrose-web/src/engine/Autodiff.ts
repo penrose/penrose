@@ -1,13 +1,9 @@
 import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
-import { Logger } from "tslog";
-import { settings } from 'cluster';
+import { settings } from "cluster";
+import consola, { LogLevel } from "consola";
 
-const logger: Logger = new Logger({
-  name: "optimizer",
-  minLevel: "error",
-  displayLoggerName: true,
-});
+const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
@@ -47,7 +43,7 @@ export const constOfIf = (x: number | VarAD): VarAD => {
 export const numOf = (x: VarAD): number => x.val;
 
 export const differentiable = (e: number): VarAD => {
-  // log.warn("making it differentiable", e);
+  // log.trace("making it differentiable", e);
   return varOf(e);
 };
 
@@ -239,7 +235,7 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   // N-way add
   // TODO: Do argument list length checking for other ops generically
   if (xs.length === 0) {
-    logger.warn("node", xs);
+    log.trace("node", xs);
     throw Error("argument list to addN is empty; expected 1+ elements");
   } else if (xs.length === 1) {
     return xs[0];
@@ -479,7 +475,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
 
   const dzDv = (arg: "unit"): number => {
     if (v.val < 0) {
-      logger.warn(`negative arg ${v.val} in sqrt`);
+      log.trace(`negative arg ${v.val} in sqrt`);
     }
     return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM));
   };
@@ -637,7 +633,7 @@ export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
   v.debug = true;
   v.debugInfo = debugInfo;
   return v;
-}
+};
 
 const opMap = {
   "+": {
@@ -678,7 +674,7 @@ const opMap = {
   sqrt: {
     fn: (x: number): number => {
       if (x < 0) {
-        logger.warn(`negative arg ${x} in sqrt`);
+        log.trace(`negative arg ${x} in sqrt`);
       }
       return Math.sqrt(Math.max(0, x));
     },
@@ -733,14 +729,18 @@ export const ops = {
   dist: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
 
   vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
-    if (v1.length !== v2.length) { throw Error("expected vectors of same length"); }
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
 
     const res = _.zipWith(v1, v2, add);
     return res;
   },
 
   vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
-    if (v1.length !== v2.length) { throw Error("expected vectors of same length"); }
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
 
     const res = _.zipWith(v1, v2, sub);
     return res;
@@ -775,21 +775,26 @@ export const ops = {
   },
 
   vdist: (v: VarAD[], w: VarAD[]): VarAD => {
-    if (v.length !== w.length) { throw Error("expected vectors of same length"); }
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
 
     return ops.vnorm(ops.vsub(v, w));
   },
 
-  vdistsq:
-    (v: VarAD[], w: VarAD[]): VarAD => {
-      if (v.length !== w.length) { throw Error("expected vectors of same length"); }
+  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
 
-      return ops.vnormsq(ops.vsub(v, w));
-    },
+    return ops.vnormsq(ops.vsub(v, w));
+  },
 
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
-    if (v1.length !== v2.length) { throw Error("expected vectors of same length"); }
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
 
     const res = _.zipWith(v1, v2, mul);
     return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
@@ -849,7 +854,7 @@ const genCode = (
   let progStmts: string[] = [];
   let progOutputs: string[] = [];
 
-  logger.trace(
+  log.trace(
     "genCode inputs, outputs, weightNode, setting",
     inputs,
     outputs,
@@ -858,7 +863,7 @@ const genCode = (
   );
 
   let inputsNew;
-  logger.trace("has weight?", weightNode.tag === "Just");
+  log.trace("has weight?", weightNode.tag === "Just");
   if (weightNode.tag === "Nothing") {
     inputsNew = inputs;
   } else {
@@ -890,9 +895,9 @@ const genCode = (
     // For any code generated for the next output, start on fresh index
     counter = res.counter + 1;
 
-    // log.warn("output node traversed", z);
-    // log.warn("res stmts", res.prog);
-    // log.warn("res output", res.output);
+    // log.trace("output node traversed", z);
+    // log.trace("res stmts", res.prog);
+    // log.trace("res output", res.output);
   }
 
   let returnStmt: string = "";
@@ -910,10 +915,10 @@ const genCode = (
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
-  logger.warn("progInputs", "progStr", progInputs, progStr);
+  log.trace("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
-  logger.trace("generated f\n", f);
+  log.trace("generated f\n", f);
 
   let g;
   if (weightNode.tag === "Nothing") {
@@ -929,7 +934,7 @@ const genCode = (
       };
     };
   }
-  logger.trace("overall function generated (g):", g);
+  log.trace("overall function generated (g):", g);
 
   for (const x of inputsNew) {
     clearVisitedNodesInput(x);
@@ -1179,7 +1184,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {
-        logger.warn("args", childNames);
+        log.trace("args", childNames);
         throw Error("expected three args to if cond");
       }
 
@@ -1188,7 +1193,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       const childList = "[".concat(childNames.join(", ")).concat("]");
       stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
     } else {
-      logger.warn("node", z, z.op);
+      log.trace("node", z, z.op);
       throw Error("unknown n-ary operation");
     }
 
@@ -1266,7 +1271,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
   // TODO: Make this code more generic/neater over the # children
   if (z.valDone || !z.children || !z.children.length) {
     if (DEBUG_ENERGY) {
-      logger.trace("z.result", z.val);
+      log.trace("z.result", z.val);
     }
     return z.val;
   }
@@ -1284,7 +1289,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      logger.trace("z result:", z.op, childVal, "=", z.val);
+      log.trace("z result:", z.op, childVal, "=", z.val);
     }
     return z.val;
   } else if (z.children.length === 2) {
@@ -1295,7 +1300,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      logger.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
+      log.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
     }
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
@@ -1349,13 +1354,13 @@ export const energyAndGradCompiled = (
   );
 
   if (DEBUG_GRADIENT_UNIT_TESTS) {
-    logger.trace("Running gradient unit tests", graphs);
+    log.trace("Running gradient unit tests", graphs);
     testGradSymbolicAll();
     // throw Error("done with gradient unit tests");
   }
 
   if (DEBUG_GRADIENT) {
-    logger.trace("Testing real gradient on these graphs", graphs);
+    log.trace("Testing real gradient on these graphs", graphs);
     testGradSymbolic(0, graphs);
     // throw Error("done with testGradSymbolic");
   }
@@ -1374,7 +1379,7 @@ const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
   if (PRINT_TEST_RESULTS) {
     // console.assert(b);
-    logger.trace("Assertion", res, ": ", ...s);
+    log.trace("Assertion", res, ": ", ...s);
   }
   return b;
 };
@@ -1408,7 +1413,7 @@ const testGradFiniteDiff = () => {
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
-  logger.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+  log.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = genCode(
@@ -1421,7 +1426,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   const weight = 1; // TODO: Test with several weights
   let f;
   let gradGen;
-  logger.trace("testGradSymbolic has weight?", graphs.weight);
+  log.trace("testGradSymbolic has weight?", graphs.weight);
 
   if (graphs.weight.tag === "Just") {
     // Partially apply with weight
@@ -1442,11 +1447,11 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
-    logger.trace("----");
-    logger.trace("test", i);
-    logger.trace("energy at x", xsTest, "=", energyRes);
-    logger.trace("estimated gradient at", xsTest, "=", gradEstRes);
-    logger.trace("analytic gradient at", xsTest, "=", gradGenRes);
+    log.trace("----");
+    log.trace("test", i);
+    log.trace("energy at x", xsTest, "=", energyRes);
+    log.trace("estimated gradient at", xsTest, "=", gradEstRes);
+    log.trace("analytic gradient at", xsTest, "=", gradGenRes);
 
     const testRes = assert(eqList(gradEstRes, gradGenRes), [
       "estimated, analytic gradients:",
@@ -1462,7 +1467,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   ]);
 
   // TODO: Visualize both of them
-  logger.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+  log.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
 
   return testOverall;
 };
@@ -1480,7 +1485,7 @@ const gradGraph0 = (): GradGraphs => {
   const dRef = gradADSymbolic(ref);
 
   // Print results
-  logger.trace(
+  log.trace(
     "computational graphs for test 1 (input, output, gradient)",
     ref,
     head,
@@ -1582,7 +1587,7 @@ const gradGraph4 = (): GradGraphs => {
 };
 
 export const testGradSymbolicAll = () => {
-  logger.trace("testing symbolic gradients");
+  log.trace("testing symbolic gradients");
 
   testGradFiniteDiff();
 
@@ -1596,5 +1601,5 @@ export const testGradSymbolicAll = () => {
 
   const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 
-  logger.warn(`All grad symbolic tests passed?: ${all(testResults)}`);
+  log.trace(`All grad symbolic tests passed?: ${all(testResults)}`);
 };

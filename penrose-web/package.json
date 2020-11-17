@@ -11,6 +11,7 @@
     "@types/seedrandom": "^2.4.28",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
+    "consola": "^2.15.0",
     "console-feed": "^2.8.11",
     "debug": "^4.1.1",
     "eslint": "^6.6.0",
@@ -31,8 +32,7 @@
     "styled-components": "^5.0.1",
     "svg2pdf.js": "^1.5.0",
     "ts-node": "^9.0.0",
-    "tslib": "^2.0.3",
-    "tslog": "^2.9.1"
+    "tslib": "^2.0.3"
   },
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",

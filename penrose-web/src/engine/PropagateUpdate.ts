@@ -8,19 +8,38 @@ import { valueNumberToAutodiff } from "engine/EngineUtils";
  */
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
-  if (path.tag === "FieldPath") {
-    throw new Error("pending paths must be property paths");
-  } else {
+  const getProperty = (path: IPropertyPath) => {
     const [
       { contents: subName },
       field,
       prop,
     ] = (path as IPropertyPath).contents;
-
+    // HACK: this depends on the name encoding
     const shape = shapes.find(
       (s: any) => s.properties.name.contents === `${subName}.${field}`
     );
     return shape.properties[prop];
+  };
+  switch (path.tag) {
+    case "FieldPath":
+      throw new Error("pending paths must be property paths");
+    case "PropertyPath": {
+      return getProperty(path);
+    }
+    case "AccessPath": {
+      const [propertyPath, indices] = (path as IAccessPath).contents;
+      if (propertyPath.tag === "PropertyPath") {
+        const property = getProperty(propertyPath);
+        // walk the structure to access all indices
+        let res = property.contents;
+        for (let i of indices) {
+          res = res[i];
+        }
+        return res;
+      } else {
+        throw new Error("pending paths must be property paths");
+      }
+    }
   }
 };
 
@@ -64,8 +83,11 @@ export const updateVaryingValues = async (state: State) => {
     // TODO: add a branch for `FieldPath` when this is no longer the case
     if (path.tag === "PropertyPath") {
       newVaryingState[index] = findShapeProperty(state.shapes, path).contents;
+    } else if (path.tag === "AccessPath") {
+      newVaryingState[index] = findShapeProperty(state.shapes, path);
     }
   });
+  console.log("old", state.varyingValues, "new", newVaryingState);
   return {
     ...state,
     varyingState: newVaryingState,
