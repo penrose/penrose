@@ -286,7 +286,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalUOp(uOp, arg as IFloatV<VarAD> | IIntV<VarAD>),
+        contents: evalUOp(uOp, arg as IFloatV<VarAD> | IIntV),
       };
     }
 
@@ -623,7 +623,7 @@ export const argValue = (e: ArgVal<VarAD>) => {
   }
 };
 
-export const intToFloat = (v: IIntV<number>): IFloatV<VarAD> => {
+export const intToFloat = (v: IIntV): IFloatV<VarAD> => {
   return { tag: "FloatV", contents: constOf(v.contents) };
 };
 
@@ -763,7 +763,7 @@ export const evalBinOp = (
  */
 export const evalUOp = (
   op: UnaryOp,
-  arg: IFloatV<VarAD> | IIntV<VarAD> | IVectorV<VarAD>
+  arg: IFloatV<VarAD> | IIntV | IVectorV<VarAD>
 ): Value<VarAD> => {
   if (arg.tag === "FloatV") {
     switch (op) {
