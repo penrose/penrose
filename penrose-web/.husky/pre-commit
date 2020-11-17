@@ -1,0 +1,9 @@
+#!/bin/sh
+. "$(dirname $0)/_/husky.sh"
+
+stack install
+cd penrose-web 
+npm install
+
+# Uncomment the next line for testing hooks
+# exit 1 # Commit will be aborted
