@@ -14,8 +14,12 @@ import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, ne
 // These all return a Value<VarAD>
 export const compDict = {
 
-  // TODO: Refactoe derivative + derivativePre to be inlined as one case in evaluator
-  // NOTE: This is a special system function. Don't change it!
+  // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
+
+  /**
+   * Return the derivative of `varName`.
+   * NOTE: This is a special system function. Don't change it!
+   */
   derivative: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
     if (!optDebugInfo || !('gradient' in optDebugInfo) || !(optDebugInfo.gradient.size)) {
       console.log("optDebugInfo", optDebugInfo);
@@ -41,7 +45,10 @@ export const compDict = {
     };
   },
 
-  // NOTE: This is a special system function. Don't change it!
+  /**
+   * Return the L-BFGS preconditioned derivative of `varName`.
+   * NOTE: This is a special system function. Don't change it!
+   */
   derivativePreconditioned: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
     if (!optDebugInfo || !('gradientPreconditioned' in optDebugInfo) || !(optDebugInfo.gradientPreconditioned.size)) {
       console.log("optDebugInfo", optDebugInfo);
@@ -67,7 +74,9 @@ export const compDict = {
     };
   },
 
-  // Assuming lists only hold floats
+  /**
+   * Return `i`th element of list `xs, assuming lists only hold floats.
+   */
   get: (xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];
 
@@ -77,6 +86,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   */
   rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
       tag: "ColorV",
@@ -87,6 +99,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return a color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   */
   hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
       tag: "ColorV",
@@ -97,22 +112,31 @@ export const compDict = {
     };
   },
 
-  // Accepts degrees; converts to radians
+  /**
+   * Return the cosine of input `d` (in degrees). 
+   */
   cos: (d: VarAD): IFloatV<VarAD> => {
+    // Accepts degrees; converts to radians
     return {
       tag: "FloatV",
       contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0)))
     };
   },
 
-  // Accepts degrees; converts to radians
+  /**
+   * Return the sine of input `d` (in degrees). 
+   */
   sin: (d: VarAD): IFloatV<VarAD> => {
+    // Accepts degrees; converts to radians
     return {
       tag: "FloatV",
       contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0)))
     };
   },
 
+  /**
+   * Return the dot product of `v` and `w`.
+   */
   dot: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
@@ -120,6 +144,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return the length of the line or arrow shape `[type, props]`.
+   */
   lineLength: ([type, props]: [string, any]): IFloatV<VarAD> => {
     const [p1, p2] = linePts(props);
     return {
@@ -128,6 +155,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return the length of the line or arrow shape `[type, props]`.
+   */
   len: ([type, props]: [string, any]): IFloatV<VarAD> => {
     const [p1, p2] = linePts(props);
     return {
@@ -136,6 +166,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return the normalized version of vector `v`.
+   */
   normalize: (v: VarAD[]): IVectorV<VarAD> => {
     return {
       tag: "VectorV",
@@ -143,6 +176,9 @@ export const compDict = {
     }
   },
 
+  /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Curve` shape's `pathData` attribute to be drawn on the screen.
+   */
   pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<VarAD> => {
     const pathTypeStr = pathType === 'closed' ? "Closed" : "Open";
     const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
@@ -150,6 +186,9 @@ export const compDict = {
     return { tag: "PathDataV", contents: [path] };
   },
 
+  /**
+   * Return two points parallel to line `s1` using its normal line `s2`.
+   */
   unitMark: ([t1, s1]: [string, any], [t2, s2]: [string, any], t: string, padding: VarAD, barSize: VarAD): IPtListV<VarAD> => {
     const [start1, end1] = linePts(s1);
     const [start2, end2] = linePts(s2);
@@ -165,6 +204,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return two points to "cap off" the line made in `unitMark`.
+   */
   unitMark2: ([start, end]: [Pt2, Pt2], t: string, padding: VarAD, size: VarAD): IPtListV<VarAD> => {
     const dir = ops.vnormalize(ops.vsub(end, start));
     const normalDir = rot90(toPt(dir));
@@ -176,6 +218,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
+   */
   midpointOffset: ([start, end]: [Pt2, Pt2], [t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start1, end1] = linePts(s1);
@@ -193,8 +238,10 @@ export const compDict = {
     }
   },
 
-  // Given two orthogonal segments that intersect at startR (or startL, should be the same point)
-  // and a size, make three points that describe a perpendicular mark at the angle where the segments intersect.
+  /**
+   * Given two orthogonal segments that intersect at `intersection`, and a size `len`
+   * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
+   */
   orientedSquare: ([t1, s1]: [string, any], [t2, s2]: [string, any], intersection: Pt2, len: VarAD): IPathDataV<VarAD> => {
     if ((t1 === "Arrow" || t1 === "Line") && (t2 === "Arrow" || t2 === "Line")) {
       const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
@@ -213,6 +260,9 @@ export const compDict = {
     }
   },
 
+  /**
+   * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
+   */
   triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
 
@@ -232,6 +282,9 @@ export const compDict = {
     }
   },
 
+  /**
+   * Return the average of floats `x` and `y`.
+   */
   average2: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
@@ -239,6 +292,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Return the average of the floats in the list `xs`.
+   */
   average: (xs: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
@@ -247,6 +303,9 @@ export const compDict = {
     };
   },
 
+  /**
+   * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
+   */
   sampleColor: (alpha: VarAD, colorType: string): IColorV<VarAD> => {
     checkFloat(alpha);
 
@@ -272,6 +331,9 @@ export const compDict = {
     } else throw new Error("unknown color type");
   },
 
+  /**
+   * Set the opacity of a color `color` to `frac`.
+   */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
     const rgb = color.contents;
     return {
@@ -283,7 +345,9 @@ export const compDict = {
     };
   },
 
-  // Matrix-vector multiplication (where `v` is implicitly treated as a column vector)
+  /**
+   * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
+   */
   mul: (m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
     if (!m.length) { throw Error("empty matrix"); }
     if (!v.length) { throw Error("empty vector"); }
@@ -296,6 +360,7 @@ export const compDict = {
 
 };
 
+// Ignore this
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
@@ -315,6 +380,9 @@ const toPt = (v: VecAD): Pt2 => {
   return [v[0], v[1]];
 };
 
+/**
+ * Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a path that describes a perpendicular mark between them.
+ */
 const perpPathFlat = (len: VarAD, [startR, endR]: [VecAD, VecAD], [startL, endL]: [VecAD, VecAD]): [VecAD, VecAD, VecAD] => {
   // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
   // perpPathFlat size (startR, endR) (startL, endL) =
@@ -332,13 +400,18 @@ const perpPathFlat = (len: VarAD, [startR, endR]: [VecAD, VecAD], [startL, endL]
   return [ptL, ptLR, ptR];
 };
 
+/**
+ * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ */
 const rot90 = ([x, y]: Pt2): Pt2 => {
   return [neg(y), x];
 };
 
-// returns the point in `candidates` farthest from the points in `pts` (by sum)
-// Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation
-// Do not use!
+/**
+ * Returns the point in `candidates` farthest from the points in `pts` (by sum).
+ * Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation
+ * Do not use this!
+ */
 const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
   if (!pts || pts.length === 0) { throw Error("Expected nonempty point list"); }
 

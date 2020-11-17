@@ -23,9 +23,14 @@ import { canvasSize } from "ui/Canvas";
 import { linePts } from "utils/OtherUtils";
 
 export const objDict = {
-  // (x - y)^2
+  /** 
+  * Encourage the inputs to have the same value: `(x - y)^2`
+  */
   equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
 
+  /** 
+  * Encourage shape `top` to be above shape `bottom`. Only works for shapes with property `center`.
+  */
   above: (
     [t1, top]: [string, any],
     [t2, bottom]: [string, any],
@@ -36,9 +41,15 @@ export const objDict = {
       sub(sub(top.center.contents[1], bottom.center.contents[1]), varOf(offset))
     ),
 
+  /** 
+  * Encourage shape `s1` to have the same center position as shape `s2`. Only works for shapes with property `center`.
+  */
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
     ops.vdistsq(fns.center(s1), fns.center(s2)),
 
+  /** 
+  * Try to repel shapes `s1` and `s2` with some weight.
+  */
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
@@ -46,6 +57,7 @@ export const objDict = {
 
     let res;
 
+    // Repel a line `s1` from another shape `s2` with a center.
     if (t1 === "Line") {
       const line = s1;
       const c2 = fns.center(s2);
@@ -55,6 +67,7 @@ export const objDict = {
       );
       res = mul(constOfIf(weight), allForces);
     } else {
+      // Repel any two shapes with a center.
       // 1 / (d^2(cx, cy) + eps)
       res = inverse(ops.vdistsq(fns.center(s1), fns.center(s2)));
     }
@@ -62,6 +75,9 @@ export const objDict = {
     return mul(res, constOf(repelWeight));
   },
 
+  /** 
+  * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
+  */
   centerArrow: (
     [t1, arr]: [string, any],
     [t2, text1]: [string, any],
@@ -72,26 +88,23 @@ export const objDict = {
     if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, fns.center(text1), fns.center(text2), [
-        mul(spacing, text1.h.contents),
-        neg(mul(text2.h.contents, spacing)),
-      ]);
+      return centerArrow2(arr, fns.center(text1), fns.center(text2),
+        [mul(spacing, text1.h.contents),
+        neg(mul(text2.h.contents, spacing))]);
+
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
 
-  // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
-  below: (
-    [t1, bottom]: [string, any],
-    [t2, top]: [string, any],
-    offset = 100
-  ) =>
-    squared(
-      sub(
-        sub(top.center.contents[1], bottom.center.contents[1]),
-        constOfIf(offset)
-      )
-    ),
+  /** 
+  * Encourage shape `bottom` to be below shape `top`. Only works for shapes with property `center`.
+  */
+  below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
+    // TODO: can this be made more efficient (code-wise) by calling "above" and swapping arguments?
+    squared(sub(sub(top.center.contents[1], bottom.center.contents[1]), constOfIf(offset))),
 
+  /** 
+  * Try to center a label `s2` with respect to some shape `s1`.
+  */
   centerLabel: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
@@ -119,23 +132,34 @@ export const objDict = {
       );
       return mul(add(lh, rh), constOfIf(w));
     } else if (typesAre([t1, t2], ["Rectangle", "Text"])) {
+      // Try to center label in the rectangle
       // TODO: This should be applied generically on any two GPIs with a center
       return objDict.sameCenter([t1, s1], [t2, s2]);
     } else throw new Error(`${[t1, t2]} not supported for centerLabel`);
   },
 
+  /** 
+  * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
+  */
   near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
     // This only works for two objects with centers (x,y)
     const res = absVal(ops.vdistsq(fns.center(s1), fns.center(s2)));
     return sub(res, squared(constOfIf(offset)));
   },
 
+  /** 
+  * Try to place shape `s1` near a location `(x, y)`.
+  */
   nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
     return ops.vdistsq(fns.center(s1), [constOfIf(x), constOfIf(y)]);
   },
 };
 
 export const constrDict = {
+
+  /** 
+  * Require that a shape have a size less than some constant maximum, based on the type of the shape.
+  */
   maxSize: ([shapeType, props]: [string, any]) => {
     const limit = Math.max(...canvasSize);
     switch (shapeType) {
@@ -149,6 +173,9 @@ export const constrDict = {
     }
   },
 
+  /** 
+  * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
+  */
   minSize: ([shapeType, props]: [string, any]) => {
     const limit = 20;
 
@@ -169,6 +196,9 @@ export const constrDict = {
     }
   },
 
+  /** 
+  * Require that a shape `s1` contains another shape `s2`, based on the type of the shape, and with an optional `offset` between the sizes of the shapes (e.g. if `s1` should contain `s2` with margin `offset`).
+  */
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
@@ -240,6 +270,9 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for contains`);
   },
 
+  /** 
+  * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `offset` between them (e.g. if `s1` should be disjoint from `s2` with margin `offset`).
+  */
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
@@ -259,12 +292,18 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for disjoint`);
   },
 
+  /** 
+  * Require that shape `s1` is smaller than `s2` with some offset `offset`.
+  */
   smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     // s1 is smaller than s2
     const offset = mul(varOf(0.4), s2.r.contents);
     return sub(sub(s1.r.contents, s2.r.contents), offset);
   },
 
+  /** 
+  * Require that shape `s1` outside of `s2` with some offset `padding`.
+  */
   outsideOf: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
@@ -277,6 +316,9 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
   },
 
+  /** 
+  * Require that shape `s1` overlaps shape `s2` with some offset `padding`.
+  */
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
@@ -293,7 +335,13 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for overlapping`);
   },
 
-  tangentTo: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  /** 
+  * Require that shape `s1` is tangent to shape `s2`.
+  */
+  tangentTo: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
     if (t1 === "Circle" && t2 === "Circle") {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const r1 = s1.r.contents;
@@ -303,8 +351,10 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 
+  /** 
+  * Require that label `s2` is at a distance of `offset` from a point-like shape `s1`.
+  */
   atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: VarAD) => {
-    // Place the latter at a distance from the center of the point
     // TODO: Account for the size/radius of the initial point, rather than just the center
 
     if (t2 === "Text") {
@@ -364,6 +414,9 @@ export const constrDict = {
     }
   },
 
+  /** 
+  * Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
+  */
   perpendicular: (q: VarAD[], p: VarAD[], r: VarAD[]): VarAD => {
     const v1 = ops.vsub(q, p);
     const v2 = ops.vsub(r, p);
@@ -371,6 +424,9 @@ export const constrDict = {
     return equalHard(dotProd, constOf(0.0));
   },
 
+  /** 
+  * Require that the value `x` is in the range defined by `[x0, x1]`.
+  */
   inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
     return mul(sub(x, x0), sub(x, x1));
   },
@@ -378,20 +434,29 @@ export const constrDict = {
 
 // -------- Helpers for writing objectives
 
+/** 
+* Check that the `inputs` list equals the `expected` list.
+*/
 const typesAre = (inputs: string[], expected: string[]): boolean =>
   inputs.length === expected.length &&
   _.every(_.zip(inputs, expected).map(([i, e]) => i === e));
 
 // -------- (Hidden) helpers for objective/constraints/computations
 
-// This is an equality constraint (x = c) via two inequality constraints (x <= c and x >= c)
+/** 
+* Require that `x` equals `y`.
+*/
 const equalHard = (x: VarAD, y: VarAD) => {
+  // This is an equality constraint (x = c) via two inequality constraints (x <= c and x >= c)
   const valMax = max(x, y);
   const valMin = min(x, y);
   // TODO: I guess you could also use an absolute value?
   return sub(valMax, valMin);
 };
 
+/** 
+* Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2`.
+*/
 const noIntersect = (
   center1: VarAD[],
   r1: VarAD,
@@ -404,6 +469,9 @@ const noIntersect = (
   return sub(res, ops.vdist(center1, center2));
 };
 
+/** 
+* Require that a shape at `center1` with radius `r1` intersect a shape at `center2` with radius `r2`, with overlap amount `padding`.
+*/
 const looseIntersect = (
   center1: VarAD[],
   r1: VarAD,
@@ -416,6 +484,9 @@ const looseIntersect = (
   return sub(ops.vdist(center1, center2), res);
 };
 
+/** 
+* Encourage that an arrow `arr` be centered between two shapes with centers `center1` and `center2`, and text size (?) `[o1, o2]`.
+*/
 const centerArrow2 = (
   arr: any,
   center1: VarAD[],
@@ -442,38 +513,52 @@ const centerArrow2 = (
   return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
 };
 
+/** 
+* Repel a vector `a` from a vector `b` with weight `c`.
+*/
 const repelPt = (c: VarAD, a: VarAD[], b: VarAD[]) =>
   div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM)));
 
 // ------- Polygon-related helpers
 
-// Assuming `rect` is an axis-aligned bounding box (AABB)
+/** 
+* Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
+*/
 const pointInBox = (p: any, rect: any): boolean => {
   return (
     p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
   );
 };
 
-// Assuming `rect` is an axis-aligned bounding box (AABB)
-// Compute the positive distance squared from point to box (NOT the signed distance)
-// https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
+/** 
+* Assuming `rect` is an axis-aligned bounding box (AABB),
+* compute the positive distance squared from point `p` to box `rect` (not the signed distance).
+* https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
+*/
 const dsqBP = (p: any, rect: any): VarAD => {
   const dx = max(max(sub(rect.minX, p.x), constOf(0.0)), sub(p.x, rect.maxX));
   const dy = max(max(sub(rect.minY, p.y), constOf(0.0)), sub(p.y, rect.maxY));
   return add(squared(dx), squared(dy));
 };
 
-// TODO: Rewrite the lerp code to be more concise
-
-// `k` is the fraction of interpolation
+/** 
+* Linearly interpolate between left `l` and right `r` endpoints, at fraction `k` of interpolation.
+*/
 const lerp = (l: VarAD, r: VarAD, k: VarAD): VarAD => {
+  // TODO: Rewrite the lerp code to be more concise
   return add(mul(l, sub(constOf(1.0), k)), mul(r, k));
 };
 
+/** 
+* Linearly interpolate between vector `l` and vector `r` endpoints, at fraction `k` of interpolation.
+*/
 const lerp2 = (l: VarAD[], r: VarAD[], k: VarAD): [VarAD, VarAD] => {
   return [lerp(l[0], r[0], k), lerp(l[1], r[1], k)];
 };
 
+/** 
+* Sample a line `line` at `NUM_SAMPLES` points uniformly.
+*/
 const sampleSeg = (line: VarAD[][]) => {
   const NUM_SAMPLES = 15;
   const NUM_SAMPLES2 = constOf(1 + NUM_SAMPLES);
@@ -486,6 +571,9 @@ const sampleSeg = (line: VarAD[][]) => {
   return samples;
 };
 
+/** 
+* Return the closest point on segment `[start, end]` to point `pt`.
+*/
 const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
   const EPS0 = varOf(10e-3);
   const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
@@ -503,6 +591,9 @@ const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
   return ops.vadd(start, ops.vmul(t1, dir));
 };
 
+/** 
+* Clamp `x` in range `[l, r]`.
+*/
 const clamp = ([l, r]: number[], x: VarAD): VarAD => {
   return max(constOf(l), min(constOf(r), x));
 };
