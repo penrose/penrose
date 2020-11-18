@@ -2,7 +2,7 @@ import { range, maxBy } from "lodash";
 import { randFloat } from "utils/Util";
 import { mapTup2 } from "engine/EngineUtils";
 import { linePts, getStart, getEnd } from "utils/OtherUtils";
-import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, neg } from "engine/Autodiff";
+import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, sqrt, cos, sin, neg } from "engine/Autodiff";
 
 /**
  * Static dictionary of computation functions
@@ -113,6 +113,16 @@ export const compDict = {
   },
 
   /**
+   * Return the square root of input `x`.
+   */
+  sqrt: (x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: sqrt(x)
+    };
+  },
+
+  /**
    * Return the cosine of input `d` (in degrees). 
    */
   cos: (d: VarAD): IFloatV<VarAD> => {
@@ -131,6 +141,26 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0)))
+    };
+  },
+
+  /**
+   * Return the Euclidean norm of `v`.
+   */
+  norm: (v: VarAD[]): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: ops.vnorm(v)
+    };
+  },
+
+  /**
+   * Return the squared Euclidean norm of `v`.
+   */
+  norm2: (v: VarAD[]): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: ops.vnormsq(v)
     };
   },
 

@@ -36,11 +36,7 @@ import consola, { LogLevel } from "consola";
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
-<<<<<<< HEAD:react-renderer/src/engine/Optimizer.ts
-const clone = require('rfdc')({ proto: false, circles: false });
-=======
 const clone = require("rfdc")({ proto: false, circles: false });
->>>>>>> b0ef2ffe4b61cc3eb8d835526e4ffa9813c0bd64:penrose-web/src/engine/Optimizer.ts
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -810,10 +806,6 @@ const minimize = (
   while (i < numSteps) {
     fxs = f(xs);
     gradfxs = gradf(xs);
-<<<<<<< HEAD:react-renderer/src/engine/Optimizer.ts
-    normGradfxs = normList(gradfxs); // TODO replace with something like -< gradfxs, gradfxsPreconditioned >
-=======
->>>>>>> b0ef2ffe4b61cc3eb8d835526e4ffa9813c0bd64:penrose-web/src/engine/Optimizer.ts
 
     const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(
       xs,
@@ -911,9 +903,6 @@ export const evalEnergyOnCustom = (state: State) => {
 
     // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-<<<<<<< HEAD:react-renderer/src/engine/Optimizer.ts
-    const translation = makeTranslationDifferentiable(clone(makeTranslationNumeric(state.translation)));
-=======
     const translationInit = makeTranslationDifferentiable(
       clone(makeTranslationNumeric(state.translation))
     );
@@ -921,7 +910,6 @@ export const evalEnergyOnCustom = (state: State) => {
     const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
     const translation = insertVaryings(translationInit, varyingMapList);
->>>>>>> b0ef2ffe4b61cc3eb8d835526e4ffa9813c0bd64:penrose-web/src/engine/Optimizer.ts
 
     // construct a new varying map
     const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;

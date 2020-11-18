@@ -315,10 +315,6 @@ export const constrDict = {
      return absVal(sub(x, y));
   },
 
-  inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
-     return mul(sub(x,x0),sub(x,x1));
-  },
-
   /** 
   * Require that shape `s1` outside of `s2` with some offset `padding`.
   */

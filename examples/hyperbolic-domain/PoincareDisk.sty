@@ -29,8 +29,7 @@ forall HyperbolicPlane H {
 
    H.text = Text {
       string: "H^2"
-      x: 0.8*H.diskShape.r
-      y: 0.8*H.diskShape.r
+      center: 0.8*(H.diskShape.r,H.diskShape.r)
       color: Colors.black
       fontSize: Global.labelSize
    }
@@ -46,13 +45,11 @@ where In( p, H ) {
 
    p.inDiskConstraint = ensure contains( H.diskShape, p.dotShape )
 
-   LOCAL.ux = p.dotShape.x / H.diskShape.r
-   LOCAL.uy = p.dotShape.y / H.diskShape.r
+   u = p.dotShape.center / H.diskShape.r
 
    p.text = Text {
       string: p.label
-      x: p.dotShape.x + 1.1*Global.labelSize*LOCAL.ux
-      y: p.dotShape.y + 1.1*Global.labelSize*LOCAL.uy
+      center: p.dotShape.center + 1.1*Global.labelSize*u
       color: Colors.black
       fontSize: Global.labelSize
    }
@@ -78,12 +75,9 @@ forall Horocycle h; IdealPoint p; HyperbolicPlane H
 where IsCenter( p, h ); In( p, H ) {
 
    h.r = ?
-   LOCAL.R = Global.planeSize/2.0
-   LOCAL.px = p.dotShape.x
-   LOCAL.py = p.dotShape.y
-   LOCAL.m = sqrt( LOCAL.px*LOCAL.px + LOCAL.py*LOCAL.py )
-   LOCAL.ux = LOCAL.px/LOCAL.m
-   LOCAL.uy = LOCAL.py/LOCAL.m
+   R = Global.planeSize/2.0
+   pc = p.dotShape.center
+   u = normalize(pc)
 
    h.circleShape = Circle {
       r : h.r
@@ -91,10 +85,9 @@ where IsCenter( p, h ); In( p, H ) {
       strokeColor : Colors.black
       strokeWidth : Global.thinStroke
    }
-   h.circleShape.x = ( LOCAL.R - h.r )*LOCAL.ux
-   h.circleShape.y = ( LOCAL.R - h.r )*LOCAL.uy
+   h.circleShape.center = ( R - h.r )*u
    layer h.circleShape above H.diskShape
-   ensure inRange( h.r, 0.1*LOCAL.R, 0.5*LOCAL.R )
+   ensure inRange( h.r, 0.1*R, 0.5*R )
 }
 
 forall Geodesic g; HyperbolicPlane `H` {
@@ -122,49 +115,35 @@ where PassesThrough( g, p0, p1 ) {
 
    -- First, get some short names
    -- R = radius of Poincare disk
-   LOCAL.R = H.diskShape.r
-   -- p0 = center of first point
-   LOCAL.p0x = p0.dotShape.x
-   LOCAL.p0y = p0.dotShape.y
-   -- p1 = center of second point
-   LOCAL.p1x = p1.dotShape.x
-   LOCAL.p1y = p1.dotShape.y
+   R = H.diskShape.r
+   P0 = p0.dotShape.center
+   P1 = p1.dotShape.center
 
    -- Compute distance b from center of H to center of g
-   LOCAL.dotP0P1 = LOCAL.p0x*LOCAL.p1x + LOCAL.p0y*LOCAL.p1y
-   LOCAL.b = LOCAL.R/sqrt((1.0+LOCAL.dotP0P1/(LOCAL.R*LOCAL.R))/2.0)
+   dotP0P1 = dot(P0,P1)
+   b = R/sqrt((1.0+dotP0P1/(R*R))/2.0)
 
    -- Compute unit vector u between p and q
-   LOCAL.vx = LOCAL.p0x + LOCAL.p1x
-   LOCAL.vy = LOCAL.p0y + LOCAL.p1y
-   LOCAL.m = sqrt( LOCAL.vx*LOCAL.vx + LOCAL.vy*LOCAL.vy )
-   LOCAL.ux = LOCAL.vx / LOCAL.m
-   LOCAL.uy = LOCAL.vy / LOCAL.m
+   u = normalize(P0+P1)
 
    -- Set center of g's circle
-   g.shape.x = LOCAL.b * LOCAL.ux
-   g.shape.y = LOCAL.b * LOCAL.uy
+   g.shape.center = b * u
 
    -- Set radius of g's circle
-   LOCAL.wx = g.shape.x - LOCAL.p0x
-   LOCAL.wy = g.shape.y - LOCAL.p0y
-   g.shape.r = sqrt( LOCAL.wx*LOCAL.wx + LOCAL.wy*LOCAL.wy )
+   w = g.shape.center - P0
+   g.shape.r = norm( w )
 }
 
 forall Geodesic g; Geodesic h; IdealPoint p
 where PerpendicularTo( g, h, p ) {
 
-   LOCAL.cx = g.shape.x
-   LOCAL.cy = g.shape.y
-   LOCAL.px = p.dotShape.x
-   LOCAL.py = p.dotShape.y
-   LOCAL.ux = LOCAL.cx - LOCAL.px
-   LOCAL.uy = LOCAL.cy - LOCAL.py
-   LOCAL.d = sqrt( LOCAL.ux*LOCAL.ux + LOCAL.uy*LOCAL.uy )
+   C = g.shape.center
+   P = p.dotShape.center
+   d = norm(C-P)
 
    g.shape.strokeColor = Colors.red
    
-   encourage equal( g.shape.r, LOCAL.d )
+   encourage equal( g.shape.r, d )
    ensure orthogonalCircles( g.shape, h.shape )
 }
 
