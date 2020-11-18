@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Circle</title>
+  
+<p>
+  <label for="startX" 
+     style="display: inline; text-align: right">
+     startX = <span id="startX-val">-100</span>
+  </label>
+  <input type="range" min="-300" max="300" id="startX" value="-100">
+  <label for="startY" 
+     style="display: inline; text-align: right">
+     startY = <span id="startY-val">0</span>
+  </label>
+  <input type="range" min="-150" max="150" id="startY" value="0">
+</p>
+<p>
+    <label for="endX" 
+       style="display: inline; text-align: right">
+       endX = <span id="endX-val">100</span>
+    </label>
+    <input type="range" min="-300" max="300" id="endX" value="100">
+    <label for="endY" 
+       style="display: inline; text-align: right">
+       endY = <span id="endY-val">0</span>
+    </label>
+    <input type="range" min="-150" max="150" id="endY" value="0">
+  </p>
+<p>
+    <label for="stroke" 
+     style="display: inline; text-align: right">
+     color
+  </label>
+  <input type="color" id="stroke" value="#000000">
+  <label for="stroke-dasharray" 
+     style="display: inline; text-align: right">
+     strokeStyle
+  </label>
+  <select id="stroke-dasharray">
+    <option value="solid">solid</option>
+    <option value="dashed">dashed</option>
+  </select>
+</p>
+<p>
+    <label for="stroke-width" 
+     style="display: inline; text-align: right">
+     thickness
+  </label>
+  <input type="range" min="0" max="20" id="stroke-width" value="2">
+</p>
+<p>
+    <label for="leftArrowhead"
+    style="display: inline; text-align: right;">
+    leftArrowhead
+    </label>
+    <input type="checkbox" id="leftArrowhead">
+    <label for="rightArrowhead"
+    style="display: inline; text-align: right;">
+    rightArrowhead
+    </label>
+    <input type="checkbox" id="rightArrowhead">
+</p>
+<p>
+    <label for="arrowheadSize"
+    style="display: inline; text-align: right;">
+    arrowheadSize = <span id="arrowheadSize-val">1</span>
+    </label>
+    <input type="range" min="1" max="10" id="arrowheadSize" value="1">
+    <label for="arrowheadStyle"
+    style="display: inline; text-align: right;">
+    arrowheadStyle
+    </label>
+    <select id="arrowheadStyle">
+      <option selected value="arrowhead-1">arrowhead-1</option>
+      <option value="arrowhead-2">arrowhead-2</option>
+    </select>
+</p>
+
+<div id="viz"
+    style= "border-style: solid; width: 600px; height: 300px; margin: auto; margin-top: 30px; border-width: thin;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script>
+
+var width = 600;
+var height = 300;
+
+
+const arrowheads = {
+  "arrowhead-1": {
+    width: 8,
+    height: 8,
+    viewbox: "0 0 8 8",
+    refX: "4",
+    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
+  },
+  "arrowhead-2": {
+    width: 9.95,
+    height: 8.12,
+    viewbox: "0 0 9.95 8.12",
+    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
+    refY: "4.06",
+    path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
+  },
+};
+
+// from Util.tsx
+const round2 = (n) => roundTo(n, 2);
+
+const roundTo = (n, digits) => {
+  let negative = false;
+
+  if (digits === undefined) {
+    digits = 0;
+  }
+
+  if (n < 0) {
+    negative = true;
+    n = n * -1;
+  }
+
+  const multiplicator = Math.pow(10, digits);
+  const nNum = parseFloat((n * multiplicator).toFixed(11));
+  const n2 = parseFloat((Math.round(nNum) / multiplicator).toFixed(2));
+  let n3 = n2;
+
+  if (negative) {
+    n3 = parseFloat((n2 * -1).toFixed(2));
+  }
+
+  return n3;
+};
+
+function convx(xcoord) {
+  return xcoord + width / 2;
+}
+function convy(ycoord) {
+  return ycoord + height / 2;
+}
+
+var holder = d3.select("#viz")
+      .append("svg:svg")
+      .attr("width", width)  
+      .attr("height", height); 
+
+      // `M ${sx} ${sy} L ${ex} ${ey}`
+var lin = holder.append("g");
+
+// left arrowhead
+// TODO - remember to factor in size in updating markerWidth/height
+var leftarr = lin.append("marker")
+  .attr("id", "lam")
+  .attr("markerWidth", arrowheads["arrowhead-1"]["width"])
+  .attr("markerHeight", arrowheads["arrowhead-1"]["height"])
+  .attr("refX", arrowheads["arrowhead-1"]["refX"])
+  .attr("refY", arrowheads["arrowhead-1"]["refY"])
+  .attr("orient", "auto-start-reverse")
+  .attr("viewbox", arrowheads["arrowhead-1"]["viewbox"])
+
+leftarr.append("path")
+  .attr("id", "lap")
+  .attr("d", arrowheads["arrowhead-1"]["path"])
+  .attr("fill", d3.select("#stroke").attr("value"));
+
+var rightarr = lin.append("marker")
+  .attr("id", "ram")
+  .attr("markerWidth", arrowheads["arrowhead-1"]["width"])
+  .attr("markerHeight", arrowheads["arrowhead-1"]["height"])
+  .attr("refX", arrowheads["arrowhead-1"]["refX"])
+  .attr("refY", arrowheads["arrowhead-1"]["refY"])
+  .attr("orient", "auto-start-reverse");
+
+rightarr.append("path")
+  .attr("id", "rap")
+  .attr("d", arrowheads["arrowhead-1"]["path"])
+  .attr("fill", d3.select("#stroke").attr("value"));
+
+  // .attr("d", "M " +
+  //     d3.select("#startX").attr("value") + " " +
+  //     d3.select("#startY").attr("value") + " " +
+  //     "L" + " " +
+  //     d3.select("#endX").attr("value") + " " +
+  //     d3.select("#endY").attr("value"))
+
+lin.append("path")
+  .attr("d", "M 200 150 L 400 150")
+  .attr("id", "lin")
+  .attr("stroke-width", d3.select("#stroke-width").attr("value"))
+  .attr("stroke", d3.select("#stroke").attr("value"))
+
+
+// todo: combine two cases?
+d3.selectAll("input").on("input", function() {
+  update(this.id, this.value);
+});
+d3.selectAll("select").on("change", function() {
+  update(this.id, this.value);
+});
+
+
+function update(id, val) {
+  var lin = holder.select("#lin");
+  var lam = holder.select("#lam");
+  var ram = holder.select("#ram");
+  var lap = holder.select("#lap");
+  var rap = holder.select("#rap");
+  let spath = lin.attr("d").split(" ");
+  switch (id) {
+    case "startX":
+      spath[1] = convx(+val).toString();
+      lin.attr("d", spath.join(" "));
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "startY":
+      spath[2] = convy(+val).toString();;
+      lin.attr("d", spath.join(" "));
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "endX":
+      spath[4] = convx(+val).toString();
+      lin.attr("d", spath.join(" "));
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "endY":
+      spath[5] = convy(+val).toString();;
+      lin.attr("d", spath.join(" "));
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "stroke-width":
+      lin.attr(id, +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "stroke":
+      lin.attr(id, val);
+      lap.attr("fill", val);
+      rap.attr("fill", val);
+      break;
+    case "stroke-dasharray":
+      if (val == "solid") lin.attr(id, "1, 0")
+      else lin.attr(id, "7, 5");
+      break;
+    case "leftArrowhead":
+      if (document.getElementById(id).checked) {
+        // why does d3 not work here????? >:( 
+        lin.attr("marker-start", "url(#lam)");
+      }
+      else {
+        lin.attr("marker-start", "")
+      };
+      break;
+    case "rightArrowhead":
+      if (document.getElementById(id).checked) {
+        lin.attr("marker-end", "url(#ram)");
+      }
+      else {
+        lin.attr("marker-end", "")
+      };
+      break;
+    case "arrowheadSize":
+      d3.select("#" + id + "-val").text(val);
+      let e = document.getElementById("arrowheadStyle").value; // not sure why i have to do this. d3.select("#arrowheadStyle").attr("value") returns null
+      let asw = arrowheads[e]["width"];
+      let ash = arrowheads[e]["height"];
+      lam.attr("markerWidth", round2(asw * (+val)));
+      ram.attr("markerWidth", round2(asw * (+val)));
+      lam.attr("markerHeight", round2(ash * (+val)));
+      ram.attr("markerHeight", round2(ash * (+val)));
+      break;
+    case "arrowheadStyle":
+      let ahs = d3.select("#arrowheadSize").attr("value");
+      lap.attr("d", arrowheads[val]["path"]);
+      rap.attr("d", arrowheads[val]["path"]);
+      lam.attr("markerWidth", round2(arrowheads[val]["width"] * (+ahs)));
+      ram.attr("markerWidth", round2(arrowheads[val]["width"] * (+ahs)));
+      lam.attr("markerHeight", round2(arrowheads[val]["height"] * (+ahs)));
+      ram.attr("markerHeight", round2(arrowheads[val]["height"] * (+ahs)));
+      break;
+  }
+}
+
+</script>

@@ -18,8 +18,7 @@ Colors {
 
 forall HyperbolicPlane H {
    H.diskShape = Circle {
-      x : 0.0
-      y : 0.0
+      center : (0.0, 0.)
       r : Global.planeSize/2.0
       color : Colors.blue
       strokeWidth : Global.thinStroke
@@ -66,8 +65,7 @@ where In( p, H ) {
    p.angle = ?
 
    p.dotShape = Circle {
-      x : H.diskShape.r * cos(p.angle)
-      y : H.diskShape.r * sin(p.angle)
+      center : (H.diskShape.r * cos(p.angle), H.diskShape.r * sin(p.angle))
       r : Global.pointSize
       strokeWidth : 0.0
       color : Colors.black

@@ -6,9 +6,9 @@ RUN npm config set prefix "/home/node/.npm-packages"
 
 ENV PATH="=/home/node/.npm-packages/bin:${PATH}"
 
-COPY ./react-renderer/package.json /home/node/react-renderer/package.json
+COPY ./penrose-web/package.json /home/node/penrose-web/package.json
 
-WORKDIR /home/node/react-renderer
+WORKDIR /home/node/penrose-web
 
 RUN npm install
 

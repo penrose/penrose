@@ -1,0 +1,118 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightblue = rgba(0.549, 0.878, 1.0, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.pink = rgba(1.0, 0.533, 0.490, 1.0)
+}
+
+Lin `A` {
+  `A`.shape = Line {
+    startX : -150.0
+    endX: 300.0
+    startY : 0.0
+    endY : 0.0
+    color: Colors.black
+    style: "dashed"
+    thickness: 10.0
+  }
+}
+
+
+Box b 
+with Lin `A`{
+  b.shape = Rectangle {
+        strokeColor: Colors.black
+        color: Colors.none
+        strokeStyle : "solid"
+        strokeWidth: 1.0
+        x: -320.0
+        y: 125.0
+        w: 250.0
+        h: 120.0
+  }
+  b.text0 = Text {
+    string: "\\text{color: }"
+    x: -320.0
+    y: 160.0
+   }
+
+  b.cb = Square {
+      x : b.text0.x + b.text0.w / 2.0 + 17.0
+      y: b.text0.y
+      side : 20.0
+      color: `A`.shape.color
+  }
+  b.text1 = Text {
+    -- string: "\\text{style: }``\\text{dashed\"}"
+    string: "\\text{style: }"
+    x: -320.0
+    y: 130.0
+  }
+  b.ss = Line {
+      startX: b.text1.x + b.text1.w / 2.0 + 5.0
+      startY : b.text1.y
+      endX: b.shape.x + b.shape.w / 2.0 - 27.0
+      endY: b.text1.y
+      style: "dashed"
+      color: Colors.black
+      thickness: 2.0
+  }
+  b.text2 = Text {
+    string: "\\text{thickness: }"
+    x: -340.0
+    y: 100.0
+  }
+  b.sw = Line {
+      startX: b.text2.x + b.text2.w / 2.0 + 5.0
+      startY : b.text2.y
+      endX: b.shape.x + b.shape.w / 2.0 - 39.0
+      endY: b.text2.y
+      style: "dashed"
+      color: Colors.black
+      thickness: 15.0
+  }
+  b.sw2 = Line {
+      startX: b.shape.x + b.shape.w / 2.0 - 29.0
+      startY : b.text2.y + 10.0
+      endX: b.shape.x + b.shape.w / 2.0 - 29.0
+      endY: b.text2.y - 8.0
+      color: Colors.black
+      thickness: 1.0
+      leftArrowhead: True
+      rightArrowhead: True
+  }
+
+}
+
+Point p 
+with Lin `A` {
+    p.shape = Circle{
+        r: 10.0
+        color: Colors.pink
+        strokeWidth: 0.0
+    }
+    p.text = Text{
+    string: p.label
+    x : p.shape.x
+    y: p.shape.y + 25.0
+    fontSize: "10pt"
+    }
+    LOCAL.layering = p.shape above `A`.shape
+    LOCAL.layering2 = p.text above `A`.shape
+}
+
+Point `ps` 
+with Lin `A`{
+  `ps`.shape.x = `A`.shape.startX
+  `ps`.shape.y = `A`.shape.startY
+  override `ps`.text.y = `A`.shape.startY - 30.0
+}
+
+Point `pe` 
+with Lin `A`{
+  `pe`.shape.x = `A`.shape.endX
+  `pe`.shape.y = `A`.shape.endY
+   override `pe`.text.y = `A`.shape.endY - 30.0
+}

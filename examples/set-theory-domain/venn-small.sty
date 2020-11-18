@@ -1,21 +1,45 @@
 forall Set x {
     x.shape = Circle {
-        x : ?
-        y : ?
+        -- center : (?, ?)
         r : ?
         -- r : 100.0
-        strokeWidth : 0
+        strokeWidth : 0.0
     }
 
     x.text = Text {
         string : x.label
     }
 
-    ensure contains(x.shape, x.text) -- NEW
-    encourage sameCenter(x.text, x.shape) -- OLD
+    c = 20.0
+
+    x.debugShape = Arrow {
+        start: x.text.center
+        end: (x.text.center[0] + c * derivative(x.text.center[0]), x.text.center[1] + c * derivative(x.text.center[1]))
+        color: rgba(1.0, 0.0, 0.0, 0.5)
+        arrowheadSize: 0.5
+        thickness: 3.0
+        style: "dashed"
+    }
+
+    d = 20.0
+
+    x.debugShape2 = Arrow {
+        start: x.text.center
+        end: (x.text.center[0] + c * derivativePreconditioned(x.text.center[0]), x.text.center[1] + c * derivativePreconditioned(x.text.center[1]))
+        color: rgba(0.0, 0.0, 1.0, 0.5)
+        arrowheadSize: 0.5
+        thickness: 3.0
+        style: "dashed"
+    }
+
+    x.containFn = ensure contains(x.shape, x.text)
+    ensure contains(x.shape, x.text)
+    encourage sameCenter(x.text, x.shape)
 
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
+
+    layer x.text above x.shape
 }
 
 forall Set x; Set y
@@ -23,6 +47,6 @@ where IsSubset(x, y) {
     ensure smallerThan(x.shape, y.shape)
     ensure outsideOf(y.text, x.shape)
 
-    ensure contains(y.shape, x.shape, 5.0) -- NEW
-    x.shape above y.shape
+    ensure contains(y.shape, x.shape, 5.0)
+    layer x.shape above y.shape
 }

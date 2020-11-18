@@ -1,0 +1,7 @@
+Circ A
+Rad r
+Point p
+Box B
+
+AutoLabel A, r, B
+Label p $(x, y)$

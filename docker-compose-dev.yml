@@ -18,7 +18,7 @@ services:
     ports:
       - "3500:3500"
     volumes:
-      - "./react-renderer:/home/node/react-renderer"
+      - "./penrose-web:/home/node/penrose-web"
     # tty: true # needed for ctrl-C graceful shutdown of whole system
   domain-server:
     build:
