@@ -6,22 +6,22 @@ Global {
    Global.planeSize = 0.9*Global.height
    Global.labelSize = 32.0
 
-   Global.shape = Square {
-      x: 0.0
-      y: 0.0
-      side: Global.height
-      color: rgba( 0.2, 0.1, 0.8, 0.2 )
-      strokeWidth: 0.0
-   }
-
-   -- Global.shape = Rectangle {
+   -- Global.shape = Square {
    --    x: 0.0
    --    y: 0.0
-   --    w: Global.width
-   --    h: Global.height
+   --    side: Global.height
    --    color: rgba( 0.2, 0.1, 0.8, 0.2 )
    --    strokeWidth: 0.0
    -- }
+
+   Global.shape = Rectangle {
+      x: 0.0
+      y: 0.0
+      w: Global.width
+      h: Global.height
+      color: rgba( 0.2, 0.1, 0.8, 0.2 )
+      strokeWidth: 0.0
+   }
 }
 
 Colors {
@@ -54,7 +54,7 @@ forall Point p {
       fontSize: Global.labelSize
    }
    
-   ensure contains( Global.shape, p.shape )
+   ensure contains( Global.shape, p.shape, 1.0 )
 }
 
 forall Triangle t; Vertex a; Vertex b; Vertex c

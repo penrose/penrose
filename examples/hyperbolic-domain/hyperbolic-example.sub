@@ -1,56 +1,56 @@
---- HyperbolicPlane H
---- IdealPoint pi, pj, pk, pl
---- Horocycle hi, hj, hk, hl
---- pi ∈ H
---- pj ∈ H
---- pk ∈ H
---- pl ∈ H
---- Geodesic gij, gjk, gki, gil, glj, gkl
---- -- Geodesic ai
---- PassesThrough( gij, pi, pj )
---- PassesThrough( gjk, pj, pk )
---- PassesThrough( gki, pk, pi )
---- PassesThrough( gil, pi, pl )
---- PassesThrough( glj, pl, pj )
---- PassesThrough( gkl, pk, pl )
---- IsCenter( pi, hi )
---- IsCenter( pj, hj )
---- IsCenter( pk, hk )
---- IsCenter( pl, hl )
---- 
---- -- Construct the altitude ai of triangle ikl 
---- --PerpendicularTo( ai, gkl, pi )
---- 
---- Label pi $i$
---- Label pj $j$
---- Label pk $k$
---- Label pl $l$
-
 HyperbolicPlane H
-IdealPoint pi, pj, pk
+IdealPoint pi, pj, pk, pl
+Horocycle hi, hj, hk, hl
 pi ∈ H
 pj ∈ H
 pk ∈ H
-Geodesic gjk, ai
+pl ∈ H
+Geodesic gij, gjk, gki, gil, glj, gkl
+-- Geodesic ai
+PassesThrough( gij, pi, pj )
 PassesThrough( gjk, pj, pk )
+PassesThrough( gki, pk, pi )
+PassesThrough( gil, pi, pl )
+PassesThrough( glj, pl, pj )
+PassesThrough( gkl, pk, pl )
+IsCenter( pi, hi )
+IsCenter( pj, hj )
+IsCenter( pk, hk )
+IsCenter( pl, hl )
 
 -- Construct the altitude ai of triangle ikl 
-PerpendicularTo( ai, gjk, pi )
+--PerpendicularTo( ai, gkl, pi )
 
 Label pi $i$
 Label pj $j$
 Label pk $k$
+Label pl $l$
 
 -- HyperbolicPlane H
--- IdealPoint i, j, k
--- i ∈ H
--- j ∈ H
--- k ∈ H
--- Geodesic gij, a
+-- IdealPoint pi, pj, pk
+-- pi ∈ H
+-- pj ∈ H
+-- pk ∈ H
+-- Geodesic gjk, ai
+-- PassesThrough( gjk, pj, pk )
 -- 
--- PassesThrough( gij, i, j )
--- PerpendicularTo( a, gij, k )
+-- -- Construct the altitude ai of triangle ikl 
+-- PerpendicularTo( ai, gjk, pi )
 -- 
--- Label i $p_i$
--- Label j $p_j$
--- Label k $p_k$
+-- Label pi $i$
+-- Label pj $j$
+-- Label pk $k$
+-- 
+-- -- HyperbolicPlane H
+-- -- IdealPoint i, j, k
+-- -- i ∈ H
+-- -- j ∈ H
+-- -- k ∈ H
+-- -- Geodesic gij, a
+-- -- 
+-- -- PassesThrough( gij, i, j )
+-- -- PerpendicularTo( a, gij, k )
+-- -- 
+-- -- Label i $p_i$
+-- -- Label j $p_j$
+-- -- Label k $p_k$
