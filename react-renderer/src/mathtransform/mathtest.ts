@@ -1,5 +1,6 @@
 import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
+import { norm } from "@tensorflow/tfjs";
 
 const TOL = 1e-4;
 const DEBUG_ENERGY = false;
@@ -8,12 +9,23 @@ export const objDict = {
   // (x - y)^2
   // autodiff
   equal: (x: number, y: number) => squared(x - y),
+  // autodiff
+  testy: () => a.b(),
+  // autodiff
+  testpow1: () => Math.pow(b, y),
+  //autodiff
+  testpow2: () => Math.pow(x, 2),
+
+  // autodiff
+  g: (x: boolean) => x ? a : b,
 
   // autodiff
   above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
     // (getY top - getY bottom - offset) ^ 2
     squared(top.y.contents - bottom.y.contents - varOf(offset)),
 
+  // autodiff
+  testagain: () => norm(),
   // autodiff
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
     ops.vdistsq(fns.center(s1), fns.center(s2)),
