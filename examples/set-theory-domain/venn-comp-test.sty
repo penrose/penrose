@@ -21,7 +21,7 @@ forall Set x {
        x.r = 100.0
        x.angle = ?       
 
-    x.shape = Circle {
+    x.icon = Circle {
             center : (x.r * cos(x.angle), x.r * sin(x.angle))
             strokeWidth : 0.0
     }
@@ -30,18 +30,18 @@ forall Set x {
         string : x.label
     }
 
-    ensure contains(x.shape, x.text)
-    ensure minSize(x.shape)
-    ensure maxSize(x.shape)
-    encourage sameCenter(x.text, x.shape)
-    x.textLayering = x.text above x.shape
+    ensure contains(x.icon, x.text)
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
+    encourage sameCenter(x.text, x.icon)
+    x.textLayering = x.text above x.icon
 }
 
 -- forall Set x; Set y
 -- where IsSubset(x, y) {
 
---     ensure smallerThan(x.shape, y.shape)
---     ensure outsideOf(y.text, x.shape)
---     ensure contains(y.shape, x.shape, 5.0)
---     x.shape above y.shape
+--     ensure smallerThan(x.icon, y.icon)
+--     ensure outsideOf(y.text, x.icon)
+--     ensure contains(y.icon, x.icon, 5.0)
+--     x.icon above y.icon
 -- }

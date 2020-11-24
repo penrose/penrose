@@ -1,17 +1,19 @@
 const {
-  perpLen = 20.0
+  scalar perpLen = 20.0
   -- For unit mark
-  markerPadding = 15.0
-  barSize = 5.0
-  vectorSpaceSize = 350.0
-  repelWeight = 0.7
-  arrowheadSize = 0.7
-  lineThickness = 1.
+  scalar markerPadding = 15.0
+  scalar barSize = 5.0
+  scalar vectorSpaceSize = 350.0
+  scalar repelWeight = 0.7
+  scalar arrowheadSize = 0.7
+  scalar lineThickness = 1.
+  int intForTesting = 1
+  bool boolForTesting = true
 }
 
 C {
     -- black = #000000
-    black = rgba(0.,0.,0.,1.)
+    color black = rgba(0.,0.,0.,1.)
     white = rgba(1., 1., 1., 1.)
     lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
     darkBlue = rgba(lightBlue.r / 2., lightBlue.g / 2., lightBlue.b / 2., 0.5)
@@ -47,12 +49,12 @@ testing {
 }
 
 forall VectorSpace U {
-    axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
-    U.origin = (0., 0.)
-    o = U.origin
+    scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
+    vec2 U.origin = (0., 0.)
+    vec2 o = U.origin
     U.axisColor = C.gray
 
-    U.shape = Square {
+    shape U.background = Square {
         center : U.origin
         side : const.vectorSpaceSize
         color : C.none
@@ -60,7 +62,7 @@ forall VectorSpace U {
         -- strokeWidth : 2.0
     }
 
-    U.xAxis = Line {
+    shape U.xAxis = Line {
         start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
         end : (o[0] + axisSize, o[1])
         thickness : const.lineThickness
@@ -107,8 +109,8 @@ where In(u,U) {
 
    u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
 
-   ensure contains(U.shape, u.arrow)
-   ensure contains(U.shape, u.text)
+   ensure contains(U.background, u.arrow)
+   ensure contains(U.background, u.text)
    ensure atDist(u.arrow, u.text, 15.0)
    ensure minSize(u.arrow)
 
@@ -175,10 +177,10 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       }
 
       -- Could use normal instead, just doing this to demonstrate how to use matrices
-      rot90CW = ((0., 1.), (-1., 0.))
-      markNormal = mul(rot90CW, normalize(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
-      c = const.barSize
-      halfvec = c * markNormal
+      mat2x2 rot90CW = ((0., 1.), (-1., 0.))
+      vec2 markNormal = mul(rot90CW, normalize(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+      scalar c = const.barSize
+      vec2 halfvec = c * markNormal
 
       v.unitMarkerEnd1 = Curve {
           pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
@@ -194,8 +196,8 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
           fill : C.none
       }
 
-      midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
-      labelPos = midpointLoc + const.markerPadding * normal
+      vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
+      vec2 labelPos = midpointLoc + const.markerPadding * normal
 
       v.unitMarkerText = Text {
           string : "1"
