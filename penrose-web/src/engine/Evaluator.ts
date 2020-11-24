@@ -1087,6 +1087,12 @@ export const encodeState = (state: State): any => {
   return json;
 };
 
+export const cleanShapes = (shapes: Shape[]): Shape[] =>
+  shapes.map(({ shapeType, properties }: Shape) => ({
+    shapeType,
+    properties: pickBy(properties, (p: any) => !p.omit),
+  })) as Shape[];
+
 // Generate a map from paths to values, where the key is the JSON stringified version of the path
 export function genPathMap<T>(
   paths: Path[],
