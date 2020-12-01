@@ -3,7 +3,7 @@ import { step } from "engine/Optimizer";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import { sampleShapes } from "shapes/ShapeDef";
+import { resampleOne } from "shapes/ShapeDef";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
 import { collectLabels } from "utils/CollectLabels";
@@ -112,13 +112,7 @@ class App extends React.Component<any, ICanvasState> {
     // DEBUG: the following is for testing frontend version of resample
     const oldState = this.state.data;
     if (oldState) {
-      this.onCanvasState(
-        {
-          ...oldState,
-          shapes: sampleShapes(cleanShapes(oldState.shapes)),
-        },
-        undefined
-      );
+      this.onCanvasState(resampleOne(oldState), undefined);
     }
   };
 

@@ -2,13 +2,24 @@ import * as React from "react";
 import styled from "styled-components";
 import { staticMap } from "../shapes/componentMap";
 import memoize from "fast-memoize";
+import { times } from "lodash";
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
  * @param min minimum (inclusive)
  * @param max maximum (exclusive)
  */
-export const randFloat = (min: number, max: number) =>
+export const randFloats = (
+  count: number,
+  [min, max]: [number, number]
+): number[] => times(count, () => randFloat(min, max));
+
+/**
+ * Generate a random float. The maximum is exclusive and the minimum is inclusive
+ * @param min minimum (inclusive)
+ * @param max maximum (exclusive)
+ */
+export const randFloat = (min: number, max: number): number =>
   Math.random() * (max - min) + min;
 
 /**
@@ -53,28 +64,37 @@ export const arrowheads = {
 export const bBoxDims = (properties: Properties, shapeType: string) => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
-    [w, h] = [(properties.r.contents as number) * 2, (properties.r.contents as number) * 2];
-  }
-  else if (shapeType === "Square") {
-    [w, h] = [properties.side.contents as number, properties.side.contents as number];
-  }
-  else if (shapeType === "Ellipse") {
-    [w, h] = [(properties.rx.contents as number) * 2, (properties.ry.contents as number) * 2];
-  }
-  else if (shapeType === "Arrow" || shapeType === "Line") {
-    const [[sx, sy], [ex, ey]] = [properties.start.contents as [number, number],
-    properties.end.contents as [number, number]];
+    [w, h] = [
+      (properties.r.contents as number) * 2,
+      (properties.r.contents as number) * 2,
+    ];
+  } else if (shapeType === "Square") {
+    [w, h] = [
+      properties.side.contents as number,
+      properties.side.contents as number,
+    ];
+  } else if (shapeType === "Ellipse") {
+    [w, h] = [
+      (properties.rx.contents as number) * 2,
+      (properties.ry.contents as number) * 2,
+    ];
+  } else if (shapeType === "Arrow" || shapeType === "Line") {
+    const [[sx, sy], [ex, ey]] = [
+      properties.start.contents as [number, number],
+      properties.end.contents as [number, number],
+    ];
     const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
-    [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
-  }
-  else if (shapeType === "Curve") {
-    [w, h] = [20, 20] // todo find a better measure for this... check with max?
-  }
-  else {
+    [w, h] = [
+      Math.max(Math.abs(ex - sx), padding),
+      Math.max(Math.abs(ey - sy), padding),
+    ];
+  } else if (shapeType === "Curve") {
+    [w, h] = [20, 20]; // todo find a better measure for this... check with max?
+  } else {
     [w, h] = [properties.w.contents as number, properties.h.contents as number];
-  };
-  return [w, h]
-}
+  }
+  return [w, h];
+};
 
 // styling for shape inside viewbox - see ShapeView or Mod
 export const ShapeItem = styled.li<any>`
@@ -92,17 +112,23 @@ export const ShapeItem = styled.li<any>`
   cursor: pointer;
 `;
 
-export const makeViewBoxes = (shapes: IShape[], selectedShape: number, setSelectedShape: (key: number) => void) => {
+export const makeViewBoxes = (
+  shapes: IShape[],
+  selectedShape: number,
+  setSelectedShape: (key: number) => void
+) => {
   return (
-    <div style={{ overflowY: "auto", height: "100%", }}>
-      <ul style={{
-        listStyleType: "none",
-        padding: "0 0 1em 0",
-        margin: 0,
-        top: 0,
-        left: 0,
-        right: 0,
-      }}>
+    <div style={{ overflowY: "auto", height: "100%" }}>
+      <ul
+        style={{
+          listStyleType: "none",
+          padding: "0 0 1em 0",
+          margin: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+        }}
+      >
         {shapes.map(({ properties, shapeType }: Shape, key: number) => {
           // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
           // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
@@ -128,12 +154,13 @@ export const makeViewBoxes = (shapes: IShape[], selectedShape: number, setSelect
               <div style={{ margin: "0.5em" }}>
                 <span>{properties.name.contents}</span>
               </div>
-            </ShapeItem>);
+            </ShapeItem>
+          );
         })}
       </ul>
     </div>
   );
-}
+};
 
 export const Shadow = (props: { id: string }) => {
   return (
@@ -266,14 +293,14 @@ export const hsvToRGB = (
   return h < 60
     ? hsv2rgb(c, x, 0, m)
     : h < 120
-      ? hsv2rgb(x, c, 0, m)
-      : h < 180
-        ? hsv2rgb(0, c, x, m)
-        : h < 240
-          ? hsv2rgb(0, x, c, m)
-          : h < 300
-            ? hsv2rgb(x, 0, c, m)
-            : hsv2rgb(c, 0, x, m);
+    ? hsv2rgb(x, c, 0, m)
+    : h < 180
+    ? hsv2rgb(0, c, x, m)
+    : h < 240
+    ? hsv2rgb(0, x, c, m)
+    : h < 300
+    ? hsv2rgb(x, 0, c, m)
+    : hsv2rgb(c, 0, x, m);
 };
 
 export const toHex = (color: any): string => {
@@ -368,3 +395,19 @@ export const roundTo = (n: number, digits: number) => {
 export function mapMap(map: Map<any, any>, fn: any) {
   return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
 }
+
+/**
+ * Safe wrapper for any function that might return `undefined`.
+ * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
+ * @param argument Possible unsafe function call
+ * @param message Error message
+ */
+export const safe = <T extends {}>(
+  argument: T | undefined | null,
+  message: string
+): T => {
+  if (argument === undefined || argument === null) {
+    throw new TypeError(message);
+  }
+  return argument;
+};

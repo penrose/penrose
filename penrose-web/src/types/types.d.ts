@@ -555,6 +555,7 @@ interface IQuadBezJoin<T> {
   contents: [T, T];
 }
 
+// TODO: use strings for status
 type OptStatus =
   | INewIter
   | IUnconstrainedRunning

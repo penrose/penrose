@@ -1,6 +1,10 @@
-import { map, mapKeys, mapValues } from "lodash";
+import { differentiable } from "engine/Autodiff";
+import { valueNumberToAutodiff } from "engine/EngineUtils";
+import { initConstraintWeight } from "engine/Optimizer";
+import { evalShape, evalShapes, insertExpr } from "engine/Evaluator";
+import { map, mapKeys, mapValues, zip } from "lodash";
 import { canvasSize } from "ui/Canvas";
-import { randFloat } from "utils/Util";
+import { randFloat, randFloats, safe } from "utils/Util";
 
 type ShapeDef = IShapeDef;
 
@@ -86,11 +90,19 @@ export const textDef: ShapeDef = {
     rotation: ["FloatV", () => constValue("FloatV", 0)],
     style: ["StrV", () => constValue("StrV", "none")],
     stroke: ["StrV", () => constValue("StrV", "none")],
-    color: ["ColorV", colorSampler],
+    color: ["ColorV", () => black],
     name: ["StrV", () => constValue("StrV", "defaultText")],
     string: ["StrV", () => constValue("StrV", "defaultLabelText")],
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
-    polygon: ["PolygonV", () => constValue("PolygonV", emptyPoly as any)],
+    polygon: ["PolygonV", () => emptyPoly],
+  },
+};
+
+const black: IColorV<number> = {
+  tag: "ColorV",
+  contents: {
+    tag: "RGBA",
+    contents: [0, 0, 0, 1.0],
   },
 };
 
@@ -118,29 +130,127 @@ const findDef = (type: string): ShapeDef => {
   else throw new Error(`${type} is not a valid shape definition.`);
 };
 
-export const sampleShapes = (shapes: Shape[]): Shape[] =>
+//#region shape conversion helpers
+const val2float = (val: Value<number>): number => {
+  if (val.tag === "FloatV") {
+    return val.contents;
+  } else {
+    throw new Error(`${val} is not a float value.`);
+  }
+};
+const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
+  tag: "Done",
+  contents: val,
+});
+//#endregion
+
+//#region Resampling
+// TODO: The current resampling logic is a bit costly. Alternative: map over all varying paths and call sampleField/Property?
+
+/**
+ * Resample all shapes properties using their samplers.
+ * @param shapes Old shapes
+ * @ignore
+ */
+const sampleShapes = (shapes: Shape[]): Shape[] =>
   shapes.map((shape: Shape) => sampleShape(shape, findDef(shape.shapeType)));
 
-const sampleShape = (shape: Shape, shapeDef: ShapeDef): Shape => {
+/**
+ * Resample all properties of one shape.
+ * @param shape existing shape
+ * @param shapeDef shape definition
+ * @ignore
+ */
+const sampleShape = (shape: Shape, shapeDef: ShapeDef): Shape => ({
+  ...shape,
+  properties: mapValues(shape.properties, (_: Value<number>, prop: string) =>
+    sampleProperty(prop, shapeDef)
+  ),
+});
+
+/**
+ * Sample a property based on a shape definition.
+ * @param property property name
+ * @param shapeDef shape definition
+ */
+const sampleProperty = (
+  property: string,
+  shapeDef: ShapeDef
+): Value<number> => {
   const propModels: IPropModel = shapeDef.properties;
-  const sampleProp = (propName: string): Value<number> => {
-    const sampler = propModels[propName];
-    if (sampler) return sampler[1]();
-    else
-      throw new Error(
-        `${propName} is not a valid property to be sampled for shape ${shape.shapeType}.`
-      );
-  };
-  return {
-    ...shape,
-    properties: mapValues(
-      shape.properties,
-      (_: Value<number>, propName: string) => sampleProp(propName)
-    ),
-  };
+  const sampler = propModels[property];
+  if (sampler) return sampler[1]();
+  else
+    throw new Error(
+      `${property} is not a valid property to be sampled for shape ${shapeDef.shapeType}.`
+    );
 };
 
 /**
  * Sample varying fields, which are assumed to be positional values. They are sampled with the canvas dimensions.
+ * @param state State that contains a list of varying paths
  */
-// const sampleFields = () => {};
+const sampleFields = ({ varyingPaths }: State): number[] => {
+  const fieldPaths = varyingPaths.filter(
+    ({ tag }: Path) => tag === "AccessPath" || tag === "FieldPath"
+  );
+  return randFloats(fieldPaths.length, canvasXRange);
+};
+
+const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
+  // HACK: for access and field paths, sample within the canvas width
+  if (path.tag === "AccessPath" || path.tag === "FieldPath") {
+    return constValue("FloatV", randFloat(...canvasXRange));
+  }
+  // for property path, use the sampler in shapedef
+  else {
+    const [{ contents: subName }, field, prop] = path.contents;
+    const { shapeType } = safe(
+      shapes.find(
+        (s: any) => s.properties.name.contents === `${subName}.${field}`
+      ),
+      `Cannot find shape ${subName}.${field}`
+    );
+    const shapeDef = findDef(shapeType);
+    const sampledProp: Value<number> = sampleProperty(prop, shapeDef);
+    return sampledProp;
+  }
+};
+
+export const resampleOne = (state: State): State => {
+  // resample all the uninitialized and varying values
+  const { varyingPaths, shapes, uninitializedPaths, params } = state;
+  const varyingValues: Value<number>[] = varyingPaths.map((p: Path) =>
+    samplePath(p, shapes)
+  );
+  const uninitValues: Value<VarAD>[] = uninitializedPaths.map((p: Path) =>
+    valueNumberToAutodiff(samplePath(p, shapes))
+  );
+
+  // update the translation with all uninitialized values (converted to `Done` values)
+  const uninitExprs: TagExpr<VarAD>[] = uninitValues.map((v) => val2Expr(v));
+  const uninitMap = zip(uninitializedPaths, uninitExprs) as [
+    Path,
+    TagExpr<number>
+  ][];
+
+  const translation: Translation = uninitMap.reduce(
+    (tr: Translation, [p, e]: [Path, Expr]) => insertExpr(p, e, tr),
+    state.translation
+  );
+
+  const sampledState: State = {
+    ...state,
+    varyingValues: varyingValues.map((v) => val2float(v)),
+    translation,
+    params: {
+      ...params,
+      weight: initConstraintWeight,
+      optStatus: { tag: "NewIter" },
+    },
+    // pendingPaths: findPending(translation),
+  };
+  return evalShapes(sampledState);
+};
+
+//#endregion
