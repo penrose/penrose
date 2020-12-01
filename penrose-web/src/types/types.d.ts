@@ -17,6 +17,10 @@ interface IFnDone<T> {
 }
 
 type Fn = IFn;
+
+/**
+ * Generic interface for constraint or objective functions
+ */
 interface IFn {
   fname: string;
   fargs: Expr[];
@@ -42,14 +46,12 @@ interface IState {
   pendingPaths: Path[];
   varyingValues: number[];
   translation: Translation;
+  originalTranslation: Translation;
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;
-
-  // TODO: Remove this
-  overallObjective(...xs: VarAD[]): VarAD;
 }
-type State = IState; // TODO
+type State = IState;
 
 // TODO: annotate the comp graph with their derivatives
 // NOTE: the point is to have a better type that allows annotation of the comp graph
@@ -73,11 +75,17 @@ type Properties = { [k: string]: Value<number> };
 
 type Shape = IShape;
 
+/**
+ * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). This type is specifically used for rendering. See {@link GPI} for the version used for the runtime.
+ */
 interface IShape {
   shapeType: string;
   properties: Properties;
 }
 
+/**
+ * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`IGPI`) or a value (`IVal`).
+ */
 type ArgVal<T> = IGPI<T> | IVal<T>;
 
 interface IGPI<T> {
@@ -85,6 +93,9 @@ interface IGPI<T> {
   contents: GPI<T>;
 }
 
+/**
+ * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). Each property this a value tagged with its type.
+ */
 type GPI<T> = [string, { [k: string]: Value<T> }];
 
 interface IVal<T> {
@@ -92,9 +103,11 @@ interface IVal<T> {
   contents: Value<T>;
 }
 
-// type Translation<T> = ITrans<T>;
-type Translation = ITrans<VarAD>;
 // NOTE: To make a deep clone, use `clone` from `rfdc`
+/**
+ * Translation represents the computational graph compiled from a trio of Penrose programs.
+ */
+type Translation = ITrans<VarAD>;
 
 interface ITrans<T> {
   // TODO: compGraph
@@ -137,6 +150,7 @@ type Expr =
   | IAFloat
   | IStringLit
   | IBoolLit
+  | IEvar
   | IEPath
   | ICompApp
   | IObjFn
@@ -146,6 +160,10 @@ type Expr =
   | IUOp
   | IList
   | ITuple
+  | IVector
+  | IMatrix
+  | IVectorAccess
+  | IMatrixAccess
   | IListAccess
   | ICtor
   | ILayering
@@ -170,6 +188,11 @@ interface IStringLit {
 interface IBoolLit {
   tag: "BoolLit";
   contents: boolean;
+}
+
+interface IEVar {
+  tag: "EVar";
+  contents: LocalVar;
 }
 
 interface IEPath {
@@ -218,6 +241,26 @@ interface ITuple {
   contents: [Expr, Expr];
 }
 
+interface IVector {
+  tag: "Vector";
+  contents: Expr[];
+}
+
+interface IMatrix {
+  tag: "Matrix";
+  contents: Expr[];
+}
+
+interface IVectorAccess {
+  tag: "VectorAccess";
+  contents: [Path, Expr];
+}
+
+interface IMatrixAccess {
+  tag: "MatrixAccess";
+  contents: [Path, Expr[]];
+}
+
 interface IListAccess {
   tag: "ListAccess";
   contents: [Path, number];
@@ -262,7 +305,9 @@ type PropertyDecl = IPropertyDecl;
 
 type IPropertyDecl = [string, Expr];
 
-type Path = IFieldPath | IPropertyPath;
+type Path = IFieldPath | IPropertyPath | IAccessPath;
+// Unused
+// | ITypePropertyPath;
 
 interface IFieldPath {
   tag: "FieldPath";
@@ -273,6 +318,16 @@ interface IPropertyPath {
   tag: "PropertyPath";
   contents: [BindingForm, string, string];
 }
+
+interface IAccessPath {
+  tag: "AccessPath";
+  contents: [Path, number[]];
+}
+
+// Unused
+// interface ITypePropertyPath {
+//   tag: "TypePropertyPath";
+// }
 
 type Var = IVarConst;
 
@@ -294,9 +349,16 @@ type StyVar = IStyVar;
 
 type IStyVar = string;
 
+type LocalVar = ILocalVar;
+
+type ILocalVar = string;
+
+/**
+ * A value in the penrose system.
+ */
 type Value<T> =
   | IFloatV<T>
-  | IIntV<T>
+  | IIntV
   | IBoolV<T>
   | IStrV<T>
   | IPtV<T>
@@ -307,90 +369,123 @@ type Value<T> =
   | IFileV<T>
   | IStyleV<T>
   | IListV<T>
+  | IVectorV<T>
+  | IMatrixV<T>
   | ITupV<T>
   | ILListV<T>
   | IHMatrixV<T>
   | IPolygonV<T>;
 
+/** A floating point number **/
 interface IFloatV<T> {
   tag: "FloatV";
   contents: T;
 }
 
-interface IIntV<T> {
+/** An integer **/
+interface IIntV {
   tag: "IntV";
   contents: number;
 }
 
+/** A boolean expression (`True` or `False`) **/
 interface IBoolV<T> {
   tag: "BoolV";
   contents: boolean;
 }
 
+/** A string literal **/
 interface IStrV<T> {
   tag: "StrV";
   contents: string;
 }
 
+/** A point in 2D **/
 interface IPtV<T> {
   tag: "PtV";
   contents: [T, T];
 }
 
+/** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
 interface IPathDataV<T> {
   tag: "PathDataV";
   contents: SubPath<T>[];
 }
 
+/** A list of points **/
 interface IPtListV<T> {
   tag: "PtListV";
   contents: [T, T][];
 }
 
+/** A list of colors **/
 interface IPaletteV<T> {
   tag: "PaletteV";
   contents: Color<T>[];
 }
 
+/** A color encoded in RGB or HSV **/
 interface IColorV<T> {
   tag: "ColorV";
   contents: Color<T>;
 }
 
+/** A path to a file **/
 interface IFileV<T> {
   tag: "FileV";
   contents: string;
 }
 
+/** A string literal for shape styling (e.g. `dotted`) **/
 interface IStyleV<T> {
   tag: "StyleV";
   contents: string;
 }
 
+/** A list **/
 interface IListV<T> {
   tag: "ListV";
   contents: T[];
 }
 
+/** A vector of floating-point numbers **/
+interface IVectorV<T> {
+  tag: "VectorV";
+  contents: T[];
+}
+
+/** A 2D matrix **/
+interface IMatrixV<T> {
+  tag: "MatrixV";
+  contents: T[][];
+}
+
+/** A 2-tuple **/
 interface ITupV<T> {
   tag: "TupV";
   contents: [T, T];
 }
 
+/** A list of lists **/
 interface ILListV<T> {
   tag: "LListV";
   contents: T[][];
 }
 
+/**
+ * @deprecated
+ */
 interface IHMatrixV<T> {
   tag: "HMatrixV";
   contents: HMatrix<T>;
 }
 
+/**
+ * @deprecated
+ */
 interface IPolygonV<T> {
   tag: "PolygonV";
-  contents: [[T, T][][], [T, T][][],
-    [[T, T], [T, T]], [T, T][]];
+  contents: [[T, T][][], [T, T][][], [[T, T], [T, T]], [T, T][]];
 }
 
 type SubPath<T> = IClosed<T> | IOpen<T>;
@@ -500,14 +595,13 @@ type Params = IParams;
 
 interface IParams {
   optStatus: OptStatus;
-  weight: number; // Constraint weight for exterior point method
-
-  // Info for unconstrained optimization
+  /** Constraint weight for exterior point method **/
+  weight: number;
+  /** Info for unconstrained optimization **/
   UOround: number;
   lastUOstate: number[];
   lastUOenergy: number;
-
-  // Info for exterior point method
+  /** Info for exterior point method **/
   EPround: number;
   lastEPstate: number[];
   lastEPenergy: number;
@@ -543,11 +637,11 @@ interface IParams {
 type WeightInfo = IWeightInfo;
 
 interface IWeightInfo {
-  constrWeightNode: VarAD, // Constant
-  epWeightNode: VarAD, // Changes (input in optimization, but we do NOT need the gradient WRT it)
-  constrWeight: number,
-  epWeight: number
-};
+  constrWeightNode: VarAD; // Constant
+  epWeightNode: VarAD; // Changes (input in optimization, but we do NOT need the gradient WRT it)
+  constrWeight: number;
+  epWeight: number;
+}
 
 // ----- Helper types
 
@@ -560,16 +654,14 @@ interface Just<T> {
   contents: T;
 }
 
-type MaybeVal<T> =
-  | Nothing<T>
-  | Just<T>;
+type MaybeVal<T> = Nothing<T> | Just<T>;
 
 // ------------ Types for reverse-mode autodiff
 
 // ----- Core types
 
 //      s ("single output" node)
-//     ... 
+//     ...
 //     PARENT node (z) -- has refs to its parents
 //      ^
 //      | sensitivity (dz/dv)
@@ -585,7 +677,7 @@ interface IEdgeAD {
   // Function "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
   // Aka how sensitive the output is to this input -- a function encoded as a computational graph fragment
   sensitivityNode: MaybeVal<VarAD>;
-};
+}
 
 type EdgeAD = IEdgeAD;
 
@@ -619,34 +711,30 @@ type VarAD = IVarAD;
 
 // ----- Types for generalizing our system autodiff
 
-// This (IVecAD) type is unused, but could be useful at some point
-interface IVecAD {
-  tag: "VecAD";
-  contents: VarAD[];
-}
+type VecAD = VarAD[];
 
-type VecAD = IVecAD;
+type Pt2 = [VarAD, VarAD];
 
 type GradGraphs = IGradGraphs;
 
 interface IGradGraphs {
-  inputs: VarAD[],
-  energyOutput: VarAD,
+  inputs: VarAD[];
+  energyOutput: VarAD;
   // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
-  gradOutputs: VarAD[]
-  weight: MaybeVal<VarAD>, // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
+  gradOutputs: VarAD[];
+  weight: MaybeVal<VarAD>; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }
 
 type OptInfo = IOptInfo;
 // Returned after a call to `minimize`
 
 interface IOptInfo {
-  xs: number[],
-  energyVal: number,
-  normGrad: number,
-  newLbfgsInfo: LbfgsParams,
-  gradient: number[],
-  gradientPreconditioned: number[]
+  xs: number[];
+  energyVal: number;
+  normGrad: number;
+  newLbfgsInfo: LbfgsParams;
+  gradient: number[];
+  gradientPreconditioned: number[];
 }
 
 type OptDebugInfo = IOptDebugInfo;
@@ -654,6 +742,6 @@ type OptDebugInfo = IOptDebugInfo;
 type NumMap = Map<string, number>;
 
 interface IOptDebugInfo {
-  gradient: NumMap,
-  gradientPreconditioned: NumMap,
+  gradient: NumMap;
+  gradientPreconditioned: NumMap;
 }

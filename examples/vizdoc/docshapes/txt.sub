@@ -1,0 +1,7 @@
+Txt A
+Point p
+Box B
+Txt C
+
+AutoLabel A, B, C
+Label p $(x, y)$

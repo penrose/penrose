@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Input test</title>
+  
+<p>
+  <label for="cx" 
+     style="display: inline; text-align: right">
+     x-coordinate = <span id="cx-val">0</span>
+  </label>
+  <input type="range" min="-300" max="300" id="cx" value="0">
+  <label for="cy" 
+     style="display: inline; text-align: right">
+     y-coordinate = <span id="cy-val">0</span>
+  </label>
+  <input type="range" min="-150" max="150" id="cy" value="0">
+</p>
+<p>
+  <label for="rad" 
+     style="display: inline; text-align: right">
+     radius = <span id="rad-val">40</span>
+  </label>
+  <input type="range" min="1" max="200" id="rad" value="40">
+  <label for="fill" 
+     style="display: inline; text-align: right">
+     color
+  </label>
+  <input type="color" id="fill" value="#94e8ff">
+</p>
+<p>
+  <label for="stroke-width" 
+     style="display: inline; text-align: right">
+     strokeWidth = <span id="stroke-width-val">2</span>
+  </label>
+  <input type="range" min="0" max="50" id="stroke-width" value="2">
+  <label for="stroke" 
+     style="display: inline; text-align: right">
+     strokeColor
+  </label>
+  <input type="color" id="stroke" value="#1d41c9">
+</p>
+<p>
+  <label for="stroke-dasharray" 
+     style="display: inline; text-align: right">
+     strokeStyle
+  </label>
+  <select id="stroke-dasharray">
+    <option value="solid">solid</option>
+    <option value="dashed">dashed</option>
+  </select>
+  <!-- <label for="stroke" 
+     style="display: inline; text-align: right">
+     strokeColor
+  </label>
+  <input type="color" id="stroke" value="#1d41c9"> -->
+</p>
+
+<div id="viz"
+    style= "border-style: solid; width: 600px; height: 300px; margin: auto; margin-top: 30px; border-width: thin;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script>
+
+var width = 600;
+var height = 300;
+  
+  
+var holder = d3.select("#viz")
+      .append("svg:svg")
+      .attr("width", width)  
+      .attr("height", height); 
+
+holder.append("circle")
+  .attr("cx", 300)
+  .attr("cy", 150)
+  .attr("r", 40)
+  .attr("id", "circ")
+  .attr("fill", "#94e8ff")
+  .attr("stroke", "#1d41c9")
+  .attr("stroke-width", 2)
+
+
+// todo: combine two cases?
+d3.selectAll("input").on("input", function() {
+  update(this.id, this.value);
+});
+d3.select("select").on("change", function() {
+  update(this.id, this.value);
+});
+
+// // Initial starting angle of the hexagon 
+// update(0);
+
+function update(id, val) {
+  var circ = holder.select("#circ")
+  switch (id) {
+    case "cx":
+      circ.attr(id, +val + width / 2);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "cy":
+      circ.attr(id, -(+val) + height / 2);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "rad":
+      circ.attr("r", +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "fill":
+      circ.attr("fill", val);
+      break;
+    case "stroke-width":
+      circ.attr(id, +val);
+      d3.select("#" + id + "-val").text(val);
+      break;
+    case "stroke":
+      circ.attr(id, val);
+      break;
+    case "stroke-dasharray":
+      if (val == "solid") circ.attr(id, "1, 0")
+      else circ.attr(id, "7, 5");
+      break;
+
+  }
+}
+
+</script>

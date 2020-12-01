@@ -2,10 +2,11 @@ import * as React from "react";
 import { IGPIPropsDraggable, IGPIProps } from "types";
 import isEqual from "react-fast-compare";
 interface IState {
-  tempX: number;
-  tempY: number;
-  dx: number;
-  dy: number;
+  tempX: number; // current x position
+  tempY: number; // current y position
+  dx: number; // x offset from initial position (right-positive)
+  dy: number; // y offset from initial position (up-positive)
+  dragging: boolean;
   shapeSnapshot: any;
 }
 
@@ -34,6 +35,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       tempY: 0,
       dx: 0,
       dy: 0,
+      dragging: false,
       shapeSnapshot: {},
     };
     public getPosition = (x: number, y: number) => {
@@ -41,11 +43,20 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       return [(x - ctm.e) / ctm.a, (y - ctm.f) / ctm.d];
     };
 
+    public handleMouseDown = (e: React.PointerEvent<any>) => {
+      const [x, y] = this.getPosition(e.clientX, e.clientY);
+      this.setState({ tempX: x, tempY: y, dragging: true });
+      // These listeners are applied to the document
+      // because shape-specific listeners don't fire if there's overlapping issues
+      document.addEventListener("mousemove", this.handleMouseMove);
+      document.addEventListener("mouseup", this.handleMouseUp);
+      return this.handleMouseMove;
+    };
     public handleMouseMove = (e: { clientX: number; clientY: number }) => {
       const [x, y] = this.getPosition(e.clientX, e.clientY);
       const { tempX, tempY } = this.state;
-      const dx = tempX - x;
-      const dy = y - tempY;
+      const dx = x - tempX;
+      const dy = tempY - y;
       this.setState({ dx, dy });
     };
     public handleMouseUp = () => {
@@ -53,28 +64,18 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       document.removeEventListener("mouseup", this.handleMouseUp);
       const { dy, dx } = this.state;
       const { shape } = this.props;
+      this.setState({ dx: 0, dy: 0, tempX: 0, tempY: 0, dragging: false });
       if (this.props.dragEvent) {
         this.props.dragEvent(shape.name.contents, dx, dy);
       }
     };
-    public handleMouseDown = (e: React.PointerEvent<any>) => {
-      const [x, y] = this.getPosition(e.clientX, e.clientY);
-      this.setState({
-        tempX: x + this.state.dx,
-        tempY: y - this.state.dy,
-      });
-      // These listeners are applied to the document
-      // because shape-specific listeners don't fire if there's overlapping issues
-      document.addEventListener("mousemove", this.handleMouseMove);
-      document.addEventListener("mouseup", this.handleMouseUp);
-      return this.handleMouseMove;
-    };
+
     public render() {
-      const { dy, dx } = this.state;
-      // TODO: change opacity effect on mousedown
+      const { dy, dx, dragging } = this.state;
       return (
         <g
-          transform={`translate(${-dx},${dy})`}
+          transform={`translate(${dx},${-dy})`}
+          opacity= {dragging ? "0.5" : ""}
           onMouseDown={this.handleMouseDown}
           // pointerEvents="bounding-box"
         >

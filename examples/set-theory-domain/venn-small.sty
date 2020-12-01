@@ -1,54 +1,52 @@
 forall Set x {
-    x.shape = Circle {
-        x : ?
-        y : ?
+    x.icon = Circle {
+        -- center : (?, ?)
         r : ?
         -- r : 100.0
-        strokeWidth : 0
+        strokeWidth : 0.0
     }
 
     x.text = Text {
         string : x.label
     }
 
-    LOCAL.c = 20.0
+    c = 20.0
 
     x.debugShape = Arrow {
-        startX: x.text.x
-        startY: x.text.y
-        endX: x.text.x + LOCAL.c * derivative(x.text.x)
-        endY: x.text.y + LOCAL.c * derivative(x.text.y)
+        start: x.text.center
+        end: (x.text.center[0] + c * derivative(x.text.center[0]), x.text.center[1] + c * derivative(x.text.center[1]))
         color: rgba(1.0, 0.0, 0.0, 0.5)
         arrowheadSize: 0.5
         thickness: 3.0
         style: "dashed"
     }
 
-    LOCAL.d = 20.0
+    d = 20.0
 
     x.debugShape2 = Arrow {
-        startX: x.text.x
-        startY: x.text.y
-        endX: x.text.x + LOCAL.d * derivativePreconditioned(x.text.x)
-        endY: x.text.y + LOCAL.d * derivativePreconditioned(x.text.y)
+        start: x.text.center
+        end: (x.text.center[0] + c * derivativePreconditioned(x.text.center[0]), x.text.center[1] + c * derivativePreconditioned(x.text.center[1]))
         color: rgba(0.0, 0.0, 1.0, 0.5)
         arrowheadSize: 0.5
         thickness: 3.0
         style: "dashed"
     }
 
-    ensure contains(x.shape, x.text) -- NEW
-    encourage sameCenter(x.text, x.shape) -- OLD
+    x.containFn = ensure contains(x.icon, x.text)
+    ensure contains(x.icon, x.text)
+    encourage sameCenter(x.text, x.icon)
 
-    ensure minSize(x.shape)
-    ensure maxSize(x.shape)
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
+
+    layer x.text above x.icon
 }
 
 forall Set x; Set y
 where IsSubset(x, y) {
-    ensure smallerThan(x.shape, y.shape)
-    ensure outsideOf(y.text, x.shape)
+    ensure smallerThan(x.icon, y.icon)
+    ensure outsideOf(y.text, x.icon)
 
-    ensure contains(y.shape, x.shape, 5.0) -- NEW
-    x.shape above y.shape
+    ensure contains(y.icon, x.icon, 5.0)
+    layer x.icon above y.icon
 }

@@ -1,13 +1,9 @@
 import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
-import { Logger } from "tslog";
-import { settings } from 'cluster';
+import { settings } from "cluster";
+import consola, { LogLevel } from "consola";
 
-const logger: Logger = new Logger({
-  name: "optimizer",
-  minLevel: "error",
-  displayLoggerName: true,
-});
+const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
@@ -26,14 +22,22 @@ export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 // ----- Core AD code
 
-// Grad var, level 1
+/**
+ * Make a number into a gradient `VarAD`. Don't use this!
+ */
 export const gvarOf = (x: number, vname = "", metadata = ""): VarAD =>
+  // Grad var, level 1
   variableAD(x, vname, metadata, false);
 
+/**
+ * Make a number into a `VarAD`.
+ */
 export const varOf = (x: number, vname = "", metadata = ""): VarAD =>
   variableAD(x, vname, metadata);
 
-// TODO: Use this consistently
+/**
+ * Return a new `VarAD` that's a constant.
+ */
 export const constOf = (x: number): VarAD => variableAD(x, String(x), "const");
 
 export const constOfIf = (x: number | VarAD): VarAD => {
@@ -44,13 +48,22 @@ export const constOfIf = (x: number | VarAD): VarAD => {
   return x;
 };
 
+/**
+ * Return the numerical value held in a `VarAD`.
+ */
 export const numOf = (x: VarAD): number => x.val;
 
+/**
+ * Make a number into a `VarAD`.
+ */
 export const differentiable = (e: number): VarAD => {
-  // log.warn("making it differentiable", e);
+  // log.trace("making it differentiable", e);
   return varOf(e);
 };
 
+/**
+ * Make a number into a `VarAD`. Don't use this!
+ */
 export const variableAD = (
   x: number,
   vname = "",
@@ -214,6 +227,9 @@ const check = (
   return isCompNode ? just(sensitivityNode) : none;
 };
 
+/**
+ * Return `v + w`.
+ */
 export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val + w.val, "+");
   z.isCompNode = isCompNode;
@@ -235,11 +251,14 @@ export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return the sum of elements in `xs`.
+ */
 export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   // N-way add
   // TODO: Do argument list length checking for other ops generically
   if (xs.length === 0) {
-    logger.warn("node", xs);
+    log.trace("node", xs);
     throw Error("argument list to addN is empty; expected 1+ elements");
   } else if (xs.length === 1) {
     return xs[0];
@@ -265,6 +284,9 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   }
 };
 
+/**
+ * Return `v * w`.
+ */
 export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val * w.val, "*");
   z.isCompNode = isCompNode;
@@ -286,6 +308,9 @@ export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `v - w`.
+ */
 export const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val - w.val, "-");
   z.isCompNode = isCompNode;
@@ -307,6 +332,9 @@ export const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `v / w`.
+ */
 export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   if (Math.abs(w.val) < 10e-10) {
     throw Error("divide by zero");
@@ -338,6 +366,9 @@ export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `max(v, w)`.
+ */
 export const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.max(v.val, w.val), "max");
   z.isCompNode = isCompNode;
@@ -369,6 +400,9 @@ export const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `min(v, w)`.
+ */
 export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.min(v.val, w.val), "min");
   z.isCompNode = isCompNode;
@@ -400,6 +434,9 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
 // --- Unary ops
 
+/**
+ * Return `sin(v)`.
+ */
 export const sin = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.sin(v.val), "sin");
   z.isCompNode = isCompNode;
@@ -418,6 +455,9 @@ export const sin = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `cos(v)`.
+ */
 export const cos = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.cos(v.val), "cos");
   z.isCompNode = isCompNode;
@@ -436,6 +476,9 @@ export const cos = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `-v`.
+ */
 export const neg = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(-v.val, "- (unary)");
   z.isCompNode = isCompNode;
@@ -453,6 +496,9 @@ export const neg = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `v * v`.
+ */
 export const squared = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val * v.val, "squared");
   z.isCompNode = isCompNode;
@@ -471,6 +517,9 @@ export const squared = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `sqrt(v)`.
+ */
 export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   // NOTE: Watch out for negative numbers in sqrt
   // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
@@ -479,7 +528,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
 
   const dzDv = (arg: "unit"): number => {
     if (v.val < 0) {
-      logger.warn(`negative arg ${v.val} in sqrt`);
+      log.trace(`negative arg ${v.val} in sqrt`);
     }
     return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM));
   };
@@ -503,8 +552,11 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
-// TODO: Avoid numerical instability
+/**
+ * Return `1 / v`.
+ */
 export const inverse = (v: VarAD, isCompNode = true): VarAD => {
+  // TODO: Avoid numerical instability
   const z = variableAD(1 / (v.val + EPS_DENOM), "inverse");
   z.isCompNode = isCompNode;
 
@@ -528,6 +580,9 @@ export const inverse = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return `|v|`.
+ */
 export const absVal = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.abs(v.val), "abs");
   z.isCompNode = isCompNode;
@@ -550,8 +605,14 @@ export const absVal = (v: VarAD, isCompNode = true): VarAD => {
 };
 // ------- Discontinuous / noGrad ops
 
+/**
+ * Return a variable with no gradient.
+ */
 const noGrad: VarAD = gvarOf(1.0, "noGrad");
 
+/**
+ * Return a conditional `v > w`.
+ */
 export const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // returns a boolean, which is converted to number
 
@@ -575,6 +636,9 @@ export const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return a conditional `v < w`.
+ */
 export const lt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // returns a boolean, which is converted to number
   const z = variableAD(v.val < w.val ? 1.0 : 0.0, "lt");
@@ -597,6 +661,9 @@ export const lt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Return a conditional `if(cond) then v else w`.
+ */
 export const ifCond = (
   cond: VarAD,
   v: VarAD,
@@ -631,13 +698,15 @@ export const ifCond = (
 
 // ------------ Meta / debug ops
 
-// Mutates a node to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
-// For more documentation on how to use this function, see the Penrose wiki page.
+/**
+ * Mutates a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
+ * For more documentation on how to use this function, see the Penrose wiki page.
+ */
 export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
   v.debug = true;
   v.debugInfo = debugInfo;
   return v;
-}
+};
 
 const opMap = {
   "+": {
@@ -678,7 +747,7 @@ const opMap = {
   sqrt: {
     fn: (x: number): number => {
       if (x < 0) {
-        logger.warn(`negative arg ${x} in sqrt`);
+        log.trace(`negative arg ${x} in sqrt`);
       }
       return Math.sqrt(Math.max(0, x));
     },
@@ -725,73 +794,157 @@ export const epsdg: VarAD = gvarOf(10e-10);
 
 // ----------------- Other ops
 
-// Note that these ops MUST use the custom var ops for grads
-// Note that these ops are hardcoded to assume they are not applied to grad nodes
+/**
+ * Some vector operations that can be used on `VarAD`.
+ */
 export const ops = {
+  // Note that these ops MUST use the custom var ops for grads
+  // Note that these ops are hardcoded to assume they are not applied to grad nodes
+
+  /**
+   * Return the norm of the 2-vector `[c1, c2]`.
+   */
   norm: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
 
+  /**
+   * Return the Euclidean distance between scalars `c1, c2`.
+   */
   dist: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
 
+  /**
+   * Return the sum of vectors `v1, v2.
+   */
   vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
     const res = _.zipWith(v1, v2, add);
     return res;
   },
 
+  /**
+   * Return the difference of vectors `v1, v2.
+   */
   vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
     const res = _.zipWith(v1, v2, sub);
     return res;
   },
 
+  /**
+   * Return the Euclidean norm squared of vector `v`.
+   */
   vnormsq: (v: VarAD[]): VarAD => {
     const res = v.map((e) => squared(e));
     return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
+  /**
+   * Return the Euclidean norm of vector `v`.
+   */
   vnorm: (v: VarAD[]): VarAD => {
     const res = ops.vnormsq(v);
     return sqrt(res);
   },
 
+  /**
+   * Return the vector `v` scaled by scalar `c`.
+   */
   vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
     return v.map((e) => mul(c, e));
   },
 
+  /**
+   * Return the vector `v`, scaled by `-1`.
+   */
+  vneg: (v: VarAD[]): VarAD[] => {
+    return ops.vmul(constOf(-1.0), v);
+  },
+
+  /**
+   * Return the vector `v` divided by scalar `c`.
+   */
   vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
     return v.map((e) => div(e, c));
   },
 
+  /**
+   * Return the vector `v`, normalized.
+   */
   vnormalize: (v: VarAD[]): VarAD[] => {
     const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
     return ops.vdiv(v, vsize);
   },
 
+  /**
+   * Return the Euclidean distance between vectors `v` and `w`.
+   */
   vdist: (v: VarAD[], w: VarAD[]): VarAD => {
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
+
     return ops.vnorm(ops.vsub(v, w));
   },
 
-  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
-    return ops.vnormsq(ops.vsub(v, w));
-  },
+  /**
+   * Return the Euclidean distance squared between vectors `v` and `w`.
+   */
+  vdistsq:
+    (v: VarAD[], w: VarAD[]): VarAD => {
+      if (v.length !== w.length) {
+        throw Error("expected vectors of same length");
+      }
 
-  // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
+      return ops.vnormsq(ops.vsub(v, w));
+    },
+
+  /**
+   * Return the dot product of vectors `v1, v2`.
+   * Note: if you want to compute a norm squared, use `vnormsq` instead, it generates a smaller computational graph
+   */
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
     const res = _.zipWith(v1, v2, mul);
     return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
   },
 
+  /**
+   * Return the sum of elements in vector `v`.
+   */
   vsum: (v: VarAD[]): VarAD => {
     return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
+  },
+
+  /**
+   * Return `v + c * u`.
+   */
+  vmove: (v: VarAD[], c: VarAD, u: VarAD[]) => {
+    return ops.vadd(v, ops.vmul(c, u));
   },
 };
 
 export const fns = {
+  /**
+   * Return the penalty `max(x, 0)`.
+   */
   toPenalty: (x: VarAD): VarAD => {
     return squared(max(x, variableAD(0.0)));
   },
 
+  /**
+   * Return the center of a shape.
+   */
   center: (props: any): VarAD[] => {
-    return [props.x.contents, props.y.contents];
+    return props.center.contents;
   },
 };
 
@@ -829,7 +982,7 @@ const genCode = (
   let progStmts: string[] = [];
   let progOutputs: string[] = [];
 
-  logger.trace(
+  log.trace(
     "genCode inputs, outputs, weightNode, setting",
     inputs,
     outputs,
@@ -838,7 +991,7 @@ const genCode = (
   );
 
   let inputsNew;
-  logger.trace("has weight?", weightNode.tag === "Just");
+  log.trace("has weight?", weightNode.tag === "Just");
   if (weightNode.tag === "Nothing") {
     inputsNew = inputs;
   } else {
@@ -870,9 +1023,9 @@ const genCode = (
     // For any code generated for the next output, start on fresh index
     counter = res.counter + 1;
 
-    // log.warn("output node traversed", z);
-    // log.warn("res stmts", res.prog);
-    // log.warn("res output", res.output);
+    // log.trace("output node traversed", z);
+    // log.trace("res stmts", res.prog);
+    // log.trace("res output", res.output);
   }
 
   let returnStmt: string = "";
@@ -890,10 +1043,10 @@ const genCode = (
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
-  logger.warn("progInputs", "progStr", progInputs, progStr);
+  log.trace("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
-  logger.trace("generated f\n", f);
+  log.trace("generated f\n", f);
 
   let g;
   if (weightNode.tag === "Nothing") {
@@ -909,7 +1062,7 @@ const genCode = (
       };
     };
   }
-  logger.trace("overall function generated (g):", g);
+  log.trace("overall function generated (g):", g);
 
   for (const x of inputsNew) {
     clearVisitedNodesInput(x);
@@ -1159,7 +1312,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {
-        logger.warn("args", childNames);
+        log.trace("args", childNames);
         throw Error("expected three args to if cond");
       }
 
@@ -1168,7 +1321,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       const childList = "[".concat(childNames.join(", ")).concat("]");
       stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
     } else {
-      logger.warn("node", z, z.op);
+      log.trace("node", z, z.op);
       throw Error("unknown n-ary operation");
     }
 
@@ -1246,7 +1399,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
   // TODO: Make this code more generic/neater over the # children
   if (z.valDone || !z.children || !z.children.length) {
     if (DEBUG_ENERGY) {
-      logger.trace("z.result", z.val);
+      log.trace("z.result", z.val);
     }
     return z.val;
   }
@@ -1264,7 +1417,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      logger.trace("z result:", z.op, childVal, "=", z.val);
+      log.trace("z result:", z.op, childVal, "=", z.val);
     }
     return z.val;
   } else if (z.children.length === 2) {
@@ -1275,7 +1428,7 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.valDone = true;
 
     if (DEBUG_ENERGY) {
-      logger.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
+      log.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
     }
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
@@ -1329,13 +1482,13 @@ export const energyAndGradCompiled = (
   );
 
   if (DEBUG_GRADIENT_UNIT_TESTS) {
-    logger.trace("Running gradient unit tests", graphs);
+    log.trace("Running gradient unit tests", graphs);
     testGradSymbolicAll();
     // throw Error("done with gradient unit tests");
   }
 
   if (DEBUG_GRADIENT) {
-    logger.trace("Testing real gradient on these graphs", graphs);
+    log.trace("Testing real gradient on these graphs", graphs);
     testGradSymbolic(0, graphs);
     // throw Error("done with testGradSymbolic");
   }
@@ -1354,7 +1507,7 @@ const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
   if (PRINT_TEST_RESULTS) {
     // console.assert(b);
-    logger.trace("Assertion", res, ": ", ...s);
+    log.trace("Assertion", res, ": ", ...s);
   }
   return b;
 };
@@ -1388,7 +1541,7 @@ const testGradFiniteDiff = () => {
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
-  logger.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+  log.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = genCode(
@@ -1401,7 +1554,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   const weight = 1; // TODO: Test with several weights
   let f;
   let gradGen;
-  logger.trace("testGradSymbolic has weight?", graphs.weight);
+  log.trace("testGradSymbolic has weight?", graphs.weight);
 
   if (graphs.weight.tag === "Just") {
     // Partially apply with weight
@@ -1422,11 +1575,11 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
-    logger.trace("----");
-    logger.trace("test", i);
-    logger.trace("energy at x", xsTest, "=", energyRes);
-    logger.trace("estimated gradient at", xsTest, "=", gradEstRes);
-    logger.trace("analytic gradient at", xsTest, "=", gradGenRes);
+    log.trace("----");
+    log.trace("test", i);
+    log.trace("energy at x", xsTest, "=", energyRes);
+    log.trace("estimated gradient at", xsTest, "=", gradEstRes);
+    log.trace("analytic gradient at", xsTest, "=", gradGenRes);
 
     const testRes = assert(eqList(gradEstRes, gradGenRes), [
       "estimated, analytic gradients:",
@@ -1442,7 +1595,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   ]);
 
   // TODO: Visualize both of them
-  logger.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+  log.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
 
   return testOverall;
 };
@@ -1460,7 +1613,7 @@ const gradGraph0 = (): GradGraphs => {
   const dRef = gradADSymbolic(ref);
 
   // Print results
-  logger.trace(
+  log.trace(
     "computational graphs for test 1 (input, output, gradient)",
     ref,
     head,
@@ -1562,7 +1715,7 @@ const gradGraph4 = (): GradGraphs => {
 };
 
 export const testGradSymbolicAll = () => {
-  logger.trace("testing symbolic gradients");
+  log.trace("testing symbolic gradients");
 
   testGradFiniteDiff();
 
@@ -1576,5 +1729,5 @@ export const testGradSymbolicAll = () => {
 
   const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 
-  logger.warn(`All grad symbolic tests passed?: ${all(testResults)}`);
+  log.trace(`All grad symbolic tests passed?: ${all(testResults)}`);
 };

@@ -1,5 +1,4 @@
 import { DenseMatrix as la, memoryManager } from "@penrose/linear-algebra";
-import { Logger } from "tslog";
 import {
   makeADInputVars,
   energyAndGradCompiled,
@@ -35,12 +34,9 @@ import {
   prettyPrintFns,
   prettyPrintProperty,
 } from "utils/OtherUtils";
+import consola, { LogLevel } from "consola";
 
-const log: Logger = new Logger({
-  name: "optimizer",
-  minLevel: "warn",
-  displayLoggerName: true,
-});
+const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
 const clone = require("rfdc")({ proto: false, circles: false });
@@ -77,7 +73,8 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = false; // COMBAK: revert
+// const DEBUG_GRAD_DESCENT = true;
+const DEBUG_GRAD_DESCENT = false; // COMBAK: Revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -179,15 +176,16 @@ export const step = (state: State, steps: number, evaluate = true) => {
   );
   log.trace("params: ", optParams);
   // log.trace("state: ", state);
-  // log.trace("fns: ", prettyPrintFns(state));
-  // log.trace(
-  //   "variables: ",
-  //   state.varyingPaths.map((p) => prettyPrintProperty(p))
-  // );
+  log.trace("fns: ", prettyPrintFns(state));
+  // log.trace("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+  log.trace(
+    "variables: ",
+    state.varyingPaths.map((p) => JSON.stringify(p))
+  );
 
   switch (optStatus.tag) {
     case "NewIter": {
-      log.trace("step newIter, xs", xs);
+      log.warn("step newIter, xs", xs);
 
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
@@ -204,6 +202,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         // `energyGraph` is a VarAD that is a handle to the top of the graph
 
         log.trace("interpreted energy graph", res.energyGraph);
+        log.trace("input vars", xsVars);
 
         const weightInfo = {
           // TODO: factor out
@@ -283,13 +282,19 @@ export const step = (state: State, steps: number, evaluate = true) => {
         state.params.currObjective,
         state.params.currGradient,
         state.params.lbfgsInfo,
-        state.varyingPaths.map(p => prettyPrintProperty(p))
+        state.varyingPaths.map((p) => JSON.stringify(p))
       );
       xs = res.xs;
 
       // the new `xs` is put into the `newState`, which is returned at end of function
       // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
-      const { energyVal, normGrad, newLbfgsInfo, gradient, gradientPreconditioned } = res;
+      const {
+        energyVal,
+        normGrad,
+        newLbfgsInfo,
+        gradient,
+        gradientPreconditioned,
+      } = res;
 
       optParams.lastUOstate = xs;
       optParams.lastUOenergy = energyVal;
@@ -297,8 +302,6 @@ export const step = (state: State, steps: number, evaluate = true) => {
       optParams.lbfgsInfo = newLbfgsInfo;
       optParams.lastGradient = gradient;
       optParams.lastGradientPreconditioned = gradientPreconditioned;
-
-      console.error("res", gradient, gradientPreconditioned);
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
@@ -473,10 +476,10 @@ const awLineSearch2 = (
     const tooManySteps = numUpdates > maxSteps;
 
     if (intervalTooSmall && DEBUG_LINE_SEARCH) {
-      console.error("line search stopping: interval too small");
+      log.trace("line search stopping: interval too small");
     }
     if (tooManySteps && DEBUG_LINE_SEARCH) {
-      console.error("line search stopping: step count exceeded");
+      log.trace("line search stopping: step count exceeded");
     }
 
     return intervalTooSmall || tooManySteps;
@@ -504,7 +507,7 @@ const awLineSearch2 = (
 
     if (needToStop) {
       if (DEBUG_LINE_SEARCH) {
-        console.error("stopping early: (i, a, b, t) = ", i, a, b, t);
+        log.trace("stopping early: (i, a, b, t) = ", i, a, b, t);
       }
       break;
     }
@@ -732,7 +735,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const descentDirCheck = -1.0 * dotVec(gradPreconditioned, grad_fx_k);
 
     if (descentDirCheck > 0.0) {
-      console.error(
+      log.trace(
         "L-BFGS did not find a descent direction. Resetting correction vectors.",
         lbfgsInfo
       );
@@ -768,7 +771,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       },
     };
   } else {
-    console.error("State:", lbfgsInfo);
+    log.trace("State:", lbfgsInfo);
     throw Error("Invalid L-BFGS state");
   }
 };
@@ -815,7 +818,7 @@ const minimize = (
     newLbfgsInfo = updatedLbfgsInfo;
     gradientPreconditioned = gradfxsPreconditioned;
 
-    // Don't take the Euclidean norm. According to Boyd (485), we should use the Newton descent check, with the norm of the gradient pulled back to the nicer space. 
+    // Don't take the Euclidean norm. According to Boyd (485), we should use the Newton descent check, with the norm of the gradient pulled back to the nicer space.
     normGradfxs = dot(gradfxs, gradfxsPreconditioned);
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
@@ -848,24 +851,28 @@ const minimize = (
     }
 
     if (isNaN(fxs) || isNaN(normGrad)) {
-      console.error("-----");
+      log.trace("-----");
 
-      const pathMap = _.zip(varyingPaths, xs, gradfxs) as [String, number, number][];
+      const pathMap = _.zip(varyingPaths, xs, gradfxs) as [
+        String,
+        number,
+        number
+      ][];
       console.log("[varying paths, current val, gradient of val]", pathMap);
 
       for (let [name, x, dx] of pathMap) {
         if (isNaN(dx)) {
-          console.error("NaN in varying val's gradient", name, "(current val):", x);
+          log.trace("NaN in varying val's gradient", name, "(current val):", x);
         }
       }
 
-      console.error("i", i);
-      console.error("num steps per display cycle", numSteps);
-      console.error("input (xs):", xs);
-      console.error("energy (f(xs)):", fxs);
-      console.error("grad (grad(f)(xs)):", gradfxs);
-      console.error("|grad f(x)|:", normGrad);
-      console.error("t", t, "use line search:", USE_LINE_SEARCH);
+      log.trace("i", i);
+      log.trace("num steps per display cycle", numSteps);
+      log.trace("input (xs):", xs);
+      log.trace("energy (f(xs)):", fxs);
+      log.trace("grad (grad(f)(xs)):", gradfxs);
+      log.trace("|grad f(x)|:", normGrad);
+      log.trace("t", t, "use line search:", USE_LINE_SEARCH);
       throw Error("NaN reached in optimization energy or gradient norm!");
     }
 
@@ -881,7 +888,7 @@ const minimize = (
     normGrad: normGradfxs,
     newLbfgsInfo,
     gradient: gradfxs,
-    gradientPreconditioned
+    gradientPreconditioned,
   };
 };
 
@@ -893,20 +900,22 @@ const minimize = (
  */
 export const evalEnergyOnCustom = (state: State) => {
   // TODO: types
-  return (...varyingValuesTF: VarAD[]): any => {
+  return (...xsVars: VarAD[]): any => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
     // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-    const translation = makeTranslationDifferentiable(
+    const translationInit = makeTranslationDifferentiable(
       clone(makeTranslationNumeric(state.translation))
     );
 
+    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
+    const translation = insertVaryings(translationInit, varyingMapList);
+
     // construct a new varying map
-    const varyingMap = genPathMap(varyingPaths, varyingValuesTF) as VaryMap<
-      VarAD
-    >;
+    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(objFns, translation, varyingMap);

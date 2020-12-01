@@ -1,0 +1,253 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightblue = rgba(0.549, 0.878, 1.0, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.pink = rgba(1.0, 0.533, 0.490, 1.0)
+}
+
+Arrhead `C` {
+    `C`.shape = Arrow {
+        startX: -301.0
+        endX: -300.0
+        startY: -200.0
+        color: Colors.gray
+        endY: -200.0
+        thickness: 10.0
+    }
+    `C`.box = Rectangle {
+       x: -280.0
+       y: -200.0
+       color: Colors.none
+       strokeColor: Colors.black
+       strokeWidth: 1.0
+       strokeStyle: "dashed"
+       w: 130.0
+       h: 100.0
+    }
+    `C`.arr1 = Arrow {
+        startX : `C`.box.x + `C`.box.w / 2.0
+        startY : `C`.box.y + `C`.box.h / 2.0
+        endX : `C`.box.x + `C`.box.w / 2.0 + 30.0
+        endY : `C`.box.y + `C`.box.h / 2.0 + 30.0
+        thickness : 1.0
+        color: Colors.black
+    }
+    `C`.arr2 = Arrow {
+        startX : `C`.box.x - `C`.box.w / 2.0
+        startY : `C`.box.y + `C`.box.h / 2.0
+        endX : `C`.box.x - `C`.box.w / 2.0- 30.0
+        endY : `C`.box.y + `C`.box.h / 2.0 + 30.0
+        thickness : 1.0
+        color: Colors.black
+    }
+    `C`.arr3 = Arrow {
+        startX : `C`.box.x - `C`.box.w / 2.0
+        startY : `C`.box.y - `C`.box.h / 2.0
+        endX : `C`.box.x - `C`.box.w / 2.0 - 30.0
+        endY : `C`.box.y - `C`.box.h / 2.0 - 30.0
+        thickness : 1.0
+        color: Colors.black
+    }
+    `C`.arr4 = Arrow {
+        startX : `C`.box.x + `C`.box.w / 2.0
+        startY : `C`.box.y - `C`.box.h / 2.0
+        endX : `C`.box.x + `C`.box.w / 2.0 + 30.0
+        endY : `C`.box.y - `C`.box.h / 2.0 - 30.0
+        thickness : 1.0
+        color: Colors.black
+    }
+    `C`.text = Text{
+        x : `C`.box.x
+        y : `C`.box.y - `C`.box.h / 2.0 - 20.0
+        string: "\\text{arrowheadSize}"
+        fontSize: "9pt"
+    }
+}
+
+Arrhead `D` {
+    `D`.shape = Arrow {
+        startX: 0.0
+        endX: 1.0
+        startY: -200.0
+        color: Colors.gray
+        endY: -200.0
+        thickness: 10.0
+    }
+    `D`.box = Rectangle {
+       x: 20.0
+       y: -200.0
+       color: Colors.none
+       strokeColor: Colors.black
+       strokeWidth: 1.0
+       strokeStyle: "dashed"
+       w: 130.0
+       h: 100.0
+    }
+}
+
+Lin `F`
+with Arrhead `E`; Arrhead `D`{
+    f.shape = Line {
+        leftArrowhead : True
+        rightArrowhead : True
+        startX: `D`.box.x + 70.0
+        startY: -200.0
+        endX: `E`.box.x - 70.0
+        endY: -200.0
+        color: Colors.black
+        thickness: 1.0
+    }
+    f.text = Text {
+        string : "\\text{arrowheadStyle}"
+        x : f.shape.startX + 80.0
+        y : -185.0
+        fontSize: "9pt"
+    }
+}
+
+Arrhead `E` {
+    `E`.shape = Arrow {
+        startX: 320.0
+        endX: 321.0
+        startY: -200.0
+        color: Colors.gray
+        arrowheadStyle: "arrowhead-1"
+        endY: -200.0
+        thickness: 10.0
+    }
+    `E`.box = Rectangle {
+       x: 320.0
+       y: -200.0
+       color: Colors.none
+       strokeColor: Colors.black
+       strokeWidth: 1.0
+       strokeStyle: "dashed"
+       w: 130.0
+       h: 100.0
+    }
+}
+
+
+Lin `A` {
+  `A`.shape = Line {
+    startX : -150.0
+    endX: 300.0
+    startY : 0.0
+    endY : 0.0
+    color: Colors.black
+    style: "solid"
+    thickness: 20.0
+    arrowheadSize: 1.0
+    arrowheadStyle: "arrowhead-2"
+    leftArrowhead: True
+    rightArrowhead: True
+  }
+  `A`.thick = Line {
+    startX: 0.0
+    startY : 5.0
+    endX: 0.0
+    endY: -5.0
+    color: Colors.white
+    thickness: 1.0
+    leftArrowhead: True
+    rightArrowhead: True
+  }
+  `A`.tt = Text{
+      x : 40.0
+      y: 0.0
+      color: Colors.white
+      string: "\\text{thickness}"
+      fontSize: "9pt"
+  }
+  `A`.thick above `A`.shape
+  `A`.tt above `A`.shape
+  `A`.la = Text {
+      x: `A`.shape.startX - 220.0
+      y: `A`.shape.startY 
+      string: "\\text{leftArrowhead}"
+      fontSize: "10pt"
+  }
+  `A`.ra = Text {
+      x: `A`.shape.endX + 220.0
+      y: `A`.shape.endY
+      string: "\\text{rightArrowhead}"
+      fontSize: "10pt"
+  }
+}
+
+
+Box b 
+with Lin `A`{
+  b.shape = Rectangle {
+        strokeColor: Colors.black
+        color: Colors.none
+        strokeStyle : "solid"
+        strokeWidth: 1.0
+        x: -300.0
+        y: 145.0
+        w: 130.0
+        h: 70.0
+  }
+  b.text0 = Text {
+    string: "\\text{color: }"
+    x: -320.0
+    y: 160.0
+   }
+
+  b.cb = Square {
+      x : b.text0.x + b.text0.w / 2.0 + 17.0
+      y: b.text0.y
+      side : 20.0
+      color: `A`.shape.color
+  }
+  b.text1 = Text {
+    -- string: "\\text{style: }``\\text{dashed\"}"
+    string: "\\text{style: }"
+    x: -320.0
+    y: 130.0
+  }
+  b.ss = Line {
+      startX: b.text1.x + b.text1.w / 2.0 + 5.0
+      startY : b.text1.y
+      endX: b.shape.x + b.shape.w / 2.0 - 20.0
+      endY: b.text1.y
+      style: "solid"
+      color: Colors.black
+      thickness: 2.0
+  }
+}
+
+Point p 
+with Lin `A` {
+    p.shape = Circle{
+        r: 10.0
+        color: Colors.lightblue
+        strokeWidth: 0.0
+    }
+    p.text = Text{
+    string: p.label
+    x : p.shape.x
+    y: p.shape.y + 25.0
+    fontSize: "10pt"
+    }
+    LOCAL.layering = p.shape above `A`.shape
+    LOCAL.layering2 = p.text above `A`.shape
+}
+
+Point `ps` 
+with Lin `A`{
+  `ps`.shape.x = `A`.shape.startX
+  `ps`.shape.y = `A`.shape.startY
+  override `ps`.text.x = `A`.shape.startX + 80.0
+  override `ps`.text.y = `A`.shape.startY + 25.0
+}
+
+Point `pe` 
+with Lin `A`{
+  `pe`.shape.x = `A`.shape.endX
+  `pe`.shape.y = `A`.shape.endY
+   override `pe`.text.x = `A`.shape.endX - 80.0
+   override `pe`.text.y = `A`.shape.endY + 25.0
+}

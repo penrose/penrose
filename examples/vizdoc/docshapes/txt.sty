@@ -1,0 +1,120 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightblue = rgba(0.580, 0.910, 1.0, 1.0)
+    Colors.darkblue = rgba(0.078, 0.255, 0.788, 1.0)
+}
+
+Txt `A` {
+  `A`.shape = Text {
+    x: 0.0
+    y: 0.0
+    color: Colors.black
+    string: "\\text{string}"
+    fontSize: "14pt"
+  }
+  `A`.bb = Rectangle {
+      x: `A`.shape.x
+      y: `A`.shape.y
+      w: `A`.shape.w + 20.0
+      h: `A`.shape.h + 20.0
+      strokeColor : Colors.gray
+      color: Colors.none
+  }
+  `A`.w = Text {
+     string: "w"
+     x: `A`.bb.x
+     y: `A`.bb.y + `A`.bb.h / 2.0 + 15.0
+  }
+  `A`.h = Text {
+     string: "h"
+     x: `A`.bb.x + `A`.bb.w / 2.0 + 15.0
+     y: `A`.bb.y
+  }
+}
+
+Txt `C` 
+with Txt `A`{
+  `C`.shape = Rectangle {
+      -- HACKY FIX SINCE I CAN'T PUT AN EMPTY TEXTBOX
+    x: 200.0
+    y: 0.0
+    w: `A`.bb.w
+    h: `A`.bb.h
+    strokeColor : Colors.gray
+    color: Colors.none
+    strokeWidth: 2.0
+    strokeStyle: "dashed"
+
+  }
+}
+
+
+
+Box b 
+with Txt `A`{
+  b.shape = Rectangle {
+     strokeColor: Colors.black
+     color: Colors.none
+     strokeStyle : "solid"
+     strokeWidth: 1.0
+     x: -320.0
+     y: 110.0
+     w: 250.0
+     h: 75.0
+  }
+  b.text0 = Text {
+    string: "\\text{color: }"
+    x: b.shape.x
+    y: 130.0
+   }
+
+  b.cb = Square {
+      x : b.text0.x + b.text0.w / 2.0 + 17.0
+      y: b.text0.y
+      side : 20.0
+      color: `A`.shape.color
+      strokeWidth: 1.0
+      strokeStyle: "dashed"
+  }
+  b.text2 = Text {
+    string: "\\text{fontSize: }"
+    x: b.shape.x
+    y: 100.0
+  }
+  b.sw = Text {
+      x: b.text2.x + b.text2.w / 2.0 + 20.0
+      y : b.text2.y
+      string : "\\text{Aa}"
+      color: Colors.black
+  }
+  b.sw2 = Line {
+      startX: b.sw.x + 20.0
+      startY : b.text2.y + 10.0
+      endX: b.sw.x + 20.0
+      endY: b.text2.y - 8.0
+      color: Colors.black
+      thickness: 1.0
+      leftArrowhead: True
+      rightArrowhead: True
+  }
+}
+
+Point p 
+with Txt `C` {
+    p.shape = Circle{
+        x: `C`.shape.x
+        y: `C`.shape.y
+        r: 4.0
+        color: Colors.black
+        strokeWidth: 0.0
+    }
+    p.text = Text{
+    string: p.label
+    x : p.shape.x
+    y: p.shape.y - 40.0
+    }
+    LOCAL.layering = p.shape above `C`.shape
+    LOCAL.layering2 = p.text above `C`.shape
+}

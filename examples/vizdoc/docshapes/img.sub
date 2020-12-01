@@ -1,0 +1,6 @@
+Img A
+Point p
+Box B
+
+AutoLabel A
+Label p $(x, y)$

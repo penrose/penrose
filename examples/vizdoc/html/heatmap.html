@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<svg width="960" height="500" stroke="#fff" stroke-width="0.5"></svg>
+<p>
+    <label for="circ1x" 
+       style="display: inline-block; width: 240px; text-align: right">
+       circle 1 x-coord = <span id="circ1x-value">…</span>
+    </label>
+    <input type="range" min="0" max="960" id="circ1x">
+    <label for="circ1y" 
+       style="display: inline-block; width: 240px; text-align: right">
+       circle 1 y-coord = <span id="circ1y-value">…</span>
+    </label>
+    <input type="range" min="0" max="500" id="circ1y">
+  </p>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-contour.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script>
+
+// most of this code is taken from https://blockbuilder.org/mbostock/f48ff9c1af4d637c9a518727f5fdfef5
+// currently I want to illustrate the sameCenter objective. However, this base code could be repurposed to illustrate many functions
+// if I can get it to work, that is.
+
+// INITIALIZATION
+
+// TODO- translate d3 coords to penrose coords
+let circ1 = [90, 100] // circles we will attempt to sameCenter, initially fixed locations
+
+// Populate a grid of n×m values - these correspond to energy outputs
+var n = 240, m = 125, values = new Array(n * m);
+
+// Initialize each cell with energy of obj function
+function calcval(){
+    for (var j = 0, k = 0; j < m; ++j) {
+    for (var i = 0; i < n; ++i, ++k) {
+        values[k] = constraint(i, j);
+    }
+    }
+}
+
+// Sum the distances between a cell and the two circles - is this the right function
+function constraint(x, y) {
+    var a = x - circ1[0] / 4;   // divide by 4 so contours look normal
+    var b = y - circ1[1]/ 4;
+    // var c = Math.sqrt( a*a + b*b );
+    // var d = x - circ2[0] / 4;
+    // var e = y - circ2[1] / 4;
+    // var f = Math.sqrt( d*d + e*e );
+    //return (c + f) ** 2
+    return a ** 2 + b ** 2
+    //return ((c - f) ** 2) + (c + f) ** 2;
+    //return f;
+}
+
+calcval();
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+// needed a lot of fine-tuning still not ideal
+var thresholds = d3.range(0, 61)
+    .map(function(p) { return Math.pow(1.3, p); });
+
+
+//  var thresholds = [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 100000, 110000, 120000, 40000, 21 ** 2]
+//  var thresholds = d3.range(0, 12)
+//     .map(function(p) { return p * 1000; }).push(40000, 21 ** 2);
+
+var contours = d3.contours()
+    .size([n, m])
+    .thresholds(thresholds);
+
+var color = d3.scaleLog()
+    .domain(d3.extent(thresholds.map(function(p) {return p + 1800})))
+    .interpolate(function() { return d3.interpolateYlGnBu; });
+
+// make contours
+svg.selectAll("path")
+  .data(contours(values))
+  .enter().append("path")
+    .attr("d", d3.geoPath(d3.geoIdentity().scale(width / n)))
+    .attr("fill", function(d) { return color(d.value); });
+
+// add circles
+svg.append("circle")
+  .attr("cx", circ1[0]).attr("cy", circ1[1]).attr("r", 20).attr("id", "circ1").style("fill", "blue");
+
+// update on input change
+d3.select("#circ1x").on("input", function() {
+  update(this.id, +this.value);
+});
+d3.select("#circ1y").on("input", function() {
+  update(this.id, +this.value);
+});
+
+// Initial starting positions of the circles
+update("circ1x", circ1[0]);
+update("circ1y", circ1[1]);
+
+function update(id, val) {
+    // console.log("update", id, val);
+
+  // adjust the positions on the range slider
+  // not elegant, should be refactored tbh
+  if (id == "circ1x") {
+    d3.select("#circ1x-value").text(val);
+    d3.select("#circ1x").property("value", val);
+    d3.select("#circ1").attr(
+        "cx", val
+    );
+    circ1[0] = val;
+  }
+  else if (id == "circ1y") {
+    d3.select("#circ1y-value").text(val);
+    d3.select("#circ1y").property("value", val);
+    d3.select("#circ1").attr(
+        "cy", val
+    );
+    circ1[1] = val;
+  };
+  calcval();
+
+    var update = svg.selectAll("path")
+        .data(contours(values));
+
+    // UPDATE -- update existing data attributes of elements (paths)
+    update
+        .attr("d", d3.geoPath(d3.geoIdentity().scale(width / n)))
+        .attr("fill", function(d) { return color(d.value); });
+    
+    // ENTER -- make new paths for entering elements
+    update.enter()
+        .append("path")
+        .attr("d", d3.geoPath(d3.geoIdentity().scale(width / n)))
+        .attr("fill", function(d) { return color(d.value); })
+
+    // EXIT -- remove paths for exiting data
+    update.exit()
+        .remove();
+
+
+    // TODO: Note how the slider drags are pretty laggy
+    // Maybe update the contour on mouseup, or per slider segment (every 1/100)
+    // Or do less calculation behind the scenes
+}
+
+</script>

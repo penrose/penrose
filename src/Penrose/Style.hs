@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs #-}
 -- | The "Style" module contains the compiler for the Style language,
 -- and functions to traverse the Style AST.
 
@@ -25,7 +26,44 @@ import           Data.Maybe                       (catMaybes, fromMaybe,
 import           Data.Tuple                       (swap)
 import           Data.Typeable
 import           Debug.Trace
-import           Penrose.Env
+import Penrose.Env
+    (validChar,  aps,
+      backticks,
+      braces,
+      brackets,
+      checkT,
+      colon,
+      comma,
+      def,
+      dot,
+      doubleQuotedString,
+      eq,
+      float,
+      integer,
+      isSubtype,
+      isSubtypeArrow,
+      lexeme,
+      newline',
+      parens,
+      question,
+      quotes,
+      rword,
+      scn,
+      semi',
+      symbol,
+      tryChoice,
+      typesEq,
+      var,
+      Arg(..),
+      BaseParser,
+      Parser,
+      ParserError(StyleError),
+      T(..),
+      TypeCtorApp(TypeCtorApp, constructorInvokerPos, argCons, nameCons),
+      TypeVar(TypeVar, typeVarPos, typeVarName),
+      ValConstructor(tvc, tlsvc),
+      Var(..),
+      VarEnv(errors, varMap, operators, valConstructors) )
 import           Penrose.Functions
 import           Penrose.Shapes                   hiding (get)
 import qualified Penrose.Substance                as C
@@ -38,6 +76,27 @@ import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer       as L
 import           Text.Show.Pretty                 (ppShow)
 
+--------------------------------------------------------------------------------
+-- Import Parser
+
+-- Module name, optional alias
+data Import = Import ModulePath (Maybe String)
+data ModulePath = ModulePath String (Maybe String)
+type Imports = [Import]
+
+-- parseImports :: String -> String -> VarEnv -> Either CompilerError Imports
+
+imports :: Parser Imports
+imports = importStmt `endBy` newline' -- zero or multiple import statements
+
+importStmt :: Parser Import
+importStmt = symbol "import" >> (Import <$> modulePath <*> optional importAlias) 
+
+importAlias :: Parser String
+importAlias = symbol "as" >> identifier
+
+modulePath :: Parser ModulePath
+modulePath = ModulePath <$> identifier <*> optional dotId
 
 --------------------------------------------------------------------------------
 -- Plugin Parser
@@ -82,7 +141,7 @@ stringLiteral = doubleQuotedString
 -------------------- Style Program grammar
 
 -- | A variable in Style
-newtype StyVar  = StyVar String
+newtype StyVar = StyVar String
     deriving (Show, Eq, Ord, Typeable)
 
 -- | A header of a block is either a selector or a namespace declaration
@@ -92,8 +151,18 @@ data Header = Select Selector | Namespace StyVar
 -- | A Style block contains a list of statements
 type Block = [Stmt]
 
+-- | A block with a header
+type HeaderBlock = (Header, Block)
+
+-- | Blocks with headers
+type HeaderBlocks = [HeaderBlock]
+
+-- | A top-level module in Style that contains multiple header blocks
+data ModuleBlock = Module String HeaderBlocks deriving (Show, Eq, Typeable)
+
 -- | A Style program is a collection of (header, block) pairs
-type StyProg = [(Header, Block)]
+type StyProg = HeaderBlocks
+-- type StyProg = [ModuleBlock]
 
 -------------------- Style selector grammar
 -- TODO: write a NOTE about the namespace situation between Substance and Style.
@@ -166,17 +235,21 @@ data Selector = Selector {
 
 type Field = String
 
+data StyType = TypeOf String | ListOf String deriving (Show, Eq, Typeable)
+
 -- | A path consist of a Substance or Style id, a shape name, and (optionally)
 -- a property name
 data Path
     = FieldPath BindingForm Field                 -- example: x.val
     | PropertyPath BindingForm Field Property     -- example: x.shape.center
+    | LocalVar String -- example: x (declared locally in the same block)
+    | AccessPath Path [Int] -- COMBAK: Hack so we can refer to anonymous varying vars within structures (vectors, matrices, tuples, lists) -- e.g. `$LOCAL_<id>.o [0]` or `V.shape.center [1]`. This is only used internally; Style doesn't parse into it. Currently only implemented for 2-vectors.
     -- NOTE: Style writer must use backticks in the block to indicate Substance variables
     deriving (Show, Eq, Typeable, Ord)
 
 -- | A statement in the Style language
 data Stmt
-    = Assign Path Expr
+    = PathAssign (Maybe StyType) Path Expr
     | Override Path Expr
     | Delete Path
     | AnonAssign Expr -- Anonymous statement; expression which is automatically given a name by the compiler (LOCAL.id)
@@ -205,6 +278,10 @@ data Expr
     | UOp UnaryOp Expr
     | List [Expr]
     | Tuple Expr Expr
+    | Vector [Expr]
+    | Matrix [Expr]
+    | VectorAccess Path Expr -- ^ Reference to vector, index
+    | MatrixAccess Path [Expr] -- ^ Reference to vector, index, index
     | ListAccess Path Integer
     | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
@@ -224,25 +301,86 @@ data BinaryOp = BPlus | BMinus | Multiply | Divide | Exp
 --------------------------------------------------------------------------------
 -- Style Parser
 
+
+rws, styleTypes, styleLits :: [String] 
+rws = styleLits
+styleLits = ["True", "False"]
+styleTypes 
+    = [
+        "scalar",
+        "int",
+        "bool",
+        "string",
+        "path",
+        "color",
+        "file",
+        "style",
+        "shape",
+        "vec2",
+        "vec3",
+        "vec4",
+        "mat2x2",
+        "mat3x3",
+        "mat4x4",
+        "function",
+        "objective",
+        "constraint"
+        ]
+
+upperId, lowerId, identifier :: Parser String
+identifier = (lexeme . try) (p >>= checkId)
+  where
+    p = (:) <$> letterChar <*> many validChar
+
+upperId = (lexeme . try) (p >>= checkId)
+  where
+    p = (:) <$> upperChar <*> many validChar
+
+lowerId = (lexeme . try) (p >>= checkId)
+  where
+    p = (:) <$> lowerChar <*> many validChar
+
+checkId :: String -> Parser String
+checkId x =
+  if x `elem` rws
+    then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+    else return x
+
+styleTypeWord :: Parser String
+styleTypeWord = (lexeme . try) (lowerId >>= check)
+  where
+    check t = if t `elem` styleTypes
+              then return t
+              else fail $ "type " ++ show t ++ " is not a valid Style type" 
+styleType :: Parser StyType
+styleType = TypeOf <$> styleTypeWord <|> ListOf <$> styleTypeWord <* symbol "[]"
+
 -- | 'parseStyle' runs the actual parser function: 'styleParser', taking in a program String and parse it into an AST.
 parseStyle :: String -> String -> VarEnv -> Either CompilerError StyProg
 parseStyle styFile styIn env =
   case runParser (styleParser env) styFile styIn of
-    Left err  -> Left $ StyleParse $ (errorBundlePretty err)
+    Left err  -> Left $ StyleParse $ errorBundlePretty err
     Right res -> Right res
 
 -- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: VarEnv -> BaseParser StyProg
 styleParser env = evalStateT styleParser' $ Just env
-styleParser' = between scn eof styProg
+    where styleParser' = between scn eof styProg
 
 -- | `styProg` parses a Style program, consisting of a collection of one or
--- more blocks
+-- more module bolocks
 styProg :: Parser StyProg
 styProg =
     plugins >>  -- ignore plugin statements
+    imports >>  -- ignore import statements
     some headerBlock
-    where headerBlock = (,) <$> header <*> braces block <* scn
+    -- some moduleBlock
+
+moduleBlock :: Parser ModuleBlock
+moduleBlock = Module <$> upperId <*> braces (some headerBlock)
+
+headerBlock :: Parser HeaderBlock
+headerBlock = (,) <$> header <*> braces block <* scn
 
 header :: Parser Header
 header = tryChoice [Select <$> selector, Namespace <$> styVar]
@@ -265,6 +403,7 @@ selector = do
           namespace = rword "as" >> identifier
           withAndWhere = runPermutation $ (,) <$> toPermutationWithDefault [] wth <*> toPermutationWithDefault [] whr
 
+-- TODO: uppercase only?
 styVar :: Parser StyVar
 styVar = StyVar <$> identifier
 
@@ -341,15 +480,17 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [assign, anonAssign, override, delete]
+stmt = tryChoice [pathAssign, anonAssign, override, delete]
 
 -- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
 anonExpr :: Parser Expr
 anonExpr = tryChoice [layeringExpr, objFn, constrFn]
 
-anonAssign, assign, override, delete :: Parser Stmt
+anonAssign, pathAssign, override, delete :: Parser Stmt
 anonAssign = AnonAssign <$> anonExpr
-assign   = Assign   <$> path <*> (eq >> expr)
+-- TODO: this will prevent `shape` from being a valid id in any path
+-- pathAssign = PathAssign <$> pure Nothing <*> path <*> (eq >> expr)
+pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 
@@ -357,24 +498,30 @@ expr :: Parser Expr
 expr = tryChoice [
            constructor,
            layeringExpr,
-           arithmeticExpr,
            objFn,
            constrFn,
+           arithmeticExpr,
            transformExpr, -- COMBAK: ordering
            compFn,
            list,
            tuple,
+           vector,
+        --    matrix, -- TODO: will never get to this case because vector and matrix have the same types
            stringLit,
            boolLit
        ]
 
 pluginAccess :: Parser Expr
-pluginAccess = do
-    plugin <- identifier
-    name   <- bExpr
-    key    <- bExpr
-    return $ PluginAccess plugin name key
-    where bExpr = brackets expr
+pluginAccess = PluginAccess <$> quotes identifier <*> bExpr <*> bExpr
+
+vectorAccess :: Parser Expr
+vectorAccess = VectorAccess <$> path <*> bExpr 
+
+matrixAccess :: Parser Expr
+matrixAccess = MatrixAccess <$> path <*> ((:) <$> bExpr <*> some bExpr)
+
+bExpr :: Parser Expr
+bExpr = brackets expr
 
 arithmeticExpr :: Parser Expr
 arithmeticExpr = makeExprParser aTerm aOperators
@@ -384,7 +531,11 @@ aTerm = tryChoice
     [
         compFn,
         pluginAccess,
+        matrixAccess,
+        vectorAccess,
         parens arithmeticExpr,
+        vector,
+        matrix,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
         IntLit . fromIntegral <$> integer
@@ -447,10 +598,14 @@ tOperators =
         -- Lowest precedence
     ]
 
-path :: Parser Path
-path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
-       FieldPath <$> bindingForm <*> dotId
-       where dotId = dot >> identifier
+path, propertyPath, fieldPath, localVar :: Parser Path
+path = tryChoice [propertyPath, fieldPath, localVar]
+propertyPath = PropertyPath <$> bindingForm <*> dotId <*> dotId
+fieldPath = FieldPath <$> bindingForm <*> dotId
+localVar = LocalVar <$> identifier
+
+dotId :: Parser String
+dotId = dot >> identifier
 
 compFn, objFn, constrFn :: Parser Expr
 compFn   = CompApp <$> identifier <*> exprsInParens
@@ -460,9 +615,11 @@ constrFn = ConstrFn <$> (rword "ensure" >> identifier) <*> exprsInParens
 exprsInParens :: Parser [Expr]
 exprsInParens = parens $ expr `sepBy` comma
 
-list, tuple :: Parser Expr
+list, tuple, vector, matrix :: Parser Expr
 list = List <$> brackets (expr `sepBy1` comma)
-tuple = parens (Tuple <$> expr <*> (comma >> expr))
+tuple = braces (Tuple <$> expr <*> (comma >> expr))
+vector = Vector <$> parens (expr `sepBy1` comma)
+matrix = Matrix <$> parens (vector `sepBy1` comma)
 
 constructor :: Parser Expr
 constructor = do
@@ -482,7 +639,12 @@ stringLit :: Parser Expr
 stringLit = StringLit <$> (symbol "\"" >> manyTill L.charLiteral (try (symbol "\"")))
 
 annotatedFloat :: Parser AnnoFloat
-annotatedFloat = (question *> pure Vary) <|> Fix <$> float
+annotatedFloat = tryChoice [vary, floatNum, trailingFloat]
+    where 
+        vary = question *> pure Vary
+        floatNum = Fix <$> float
+        trailingFloat = Fix <$> (fromIntegral <$> integer) <* dot
+
 
 ------------------------------------------------------------------------
 -------- STYLE COMPILER
@@ -704,7 +866,7 @@ checkNamespace name varEnv =
 
 -- Returns a sel env for each selector in the Style program, in the same order
 -- TODO: add these judgments to the paper
-checkSels :: VarEnv -> StyProg -> [SelEnv]
+checkSels :: VarEnv -> HeaderBlocks -> [SelEnv]
 checkSels varEnv prog =
           let selEnvs = map (checkPair varEnv) prog in
           let errors = concatMap sErrors selEnvs in
@@ -727,15 +889,22 @@ checkSels varEnv prog =
 -- A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
 type Subst = M.Map StyVar Var
 
-type LocalVarId = (Int, Int)
--- Index of the block, paired with the index of the current substitution
--- Should be unique across blocks and substitutions
+type NamespaceName = String
+
+data LocalVarSubst = 
+     LocalVarId (Int, Int)
+     -- Index of the block, paired with the index of the current substitution
+     -- Should be unique across blocks and substitutions
+     | NamespaceId NamespaceName
+     -- Namespace's name, e.g. things that are parsed as local vars (e.g. Const { red ... }) get turned into paths "Const.red"
 
 localKeyword :: String
-localKeyword = "LOCAL"
+localKeyword = "$LOCAL"
 
-mkLocalVarName :: LocalVarId -> String
-mkLocalVarName (blockNum, substNum) = localKeyword ++ "_b" ++ show blockNum ++ "_s" ++ show substNum
+-- Local 
+mkLocalVarName :: LocalVarSubst -> String
+mkLocalVarName (LocalVarId (blockNum, substNum)) = localKeyword ++ "_block" ++ show blockNum ++ "_subst" ++ show substNum
+mkLocalVarName (NamespaceId namespace) = namespace
 
 ----- Substitution helper functions
 
@@ -785,20 +954,13 @@ uniqueKeysAndVals subst =
 
 -- TODO: return "maybe" if a substitution fails?
 
-substituteBform :: Maybe LocalVarId -> Subst -> BindingForm -> BindingForm
+substituteBform :: Maybe LocalVarSubst -> Subst -> BindingForm -> BindingForm
 -- Variable in backticks in block or selector (e.g. `X`)
 substituteBform _ subst sv@(BSubVar _) = sv
 
--- If the Style variable is "LOCAL", then resolve it to a unique id for the block and selector
--- Otherwise, look up the substitution for the Style variable and return a Substance variable
+-- Look up the substitution for the Style variable and return a Substance variable
 substituteBform lv subst sv@(BStyVar sv'@(StyVar vn)) =
-   if vn == localKeyword
-   then case lv of
-        -- lv = Nothing: substituting into selector, so local vars don't matter
-        -- lv = Just (i, j): substituting into block, so local vars matter
-        Nothing -> error "LOCAL keyword found without a subst/block id. It should not be used in a selector."
-        Just localVarId -> BSubVar $ VarConst $ mkLocalVarName localVarId
-   else case M.lookup sv' subst of
+        case M.lookup sv' subst of
         Just subVar -> BSubVar subVar -- Returns result of mapping if it exists (y -> x)
         Nothing     -> sv -- error $ "No subst found for Sty var '" ++ vn ++ "'"
                        -- TODO: no substitutions for namespaces
@@ -833,24 +995,27 @@ substituteRels subst rels = map (substituteRel subst) rels
 
 ----- Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
 
-substitutePath :: LocalVarId -> Subst -> Path -> Path
+substitutePath :: LocalVarSubst -> Subst -> Path -> Path
 substitutePath lv subst path =
     case path of
     FieldPath    bVar field      -> FieldPath    (substituteBform (Just lv) subst bVar) field
     PropertyPath bVar field prop -> PropertyPath (substituteBform (Just lv) subst bVar) field prop
+    LocalVar v -> FieldPath (BSubVar $ VarConst $ mkLocalVarName lv) v
+    -- Note that the local var becomes a path
+    -- Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
+    -- where <ids> is a string generated to be unique to this selector match for this block
 
-substituteField :: LocalVarId -> Subst -> PropertyDecl -> PropertyDecl
+substituteField :: LocalVarSubst -> Subst -> PropertyDecl -> PropertyDecl
 substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr lv subst expr
 
-
 -- DEPRECATED
--- substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
+-- substituteLayering :: LocalVarSubst -> Subst -> LExpr -> LExpr
 -- substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
 -- substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
 -- substituteLayering lv subst (LayeringOp op lex1 lex2) =
 --                    LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
 
-substituteBlockExpr :: LocalVarId -> Subst -> Expr -> Expr
+substituteBlockExpr :: LocalVarSubst -> Subst -> Expr -> Expr
 substituteBlockExpr lv subst expr =
     case expr of
     EPath path        -> EPath $ substitutePath lv subst path
@@ -873,17 +1038,26 @@ substituteBlockExpr lv subst expr =
     PluginAccess pluginName e1 e2 -> PluginAccess pluginName (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
     Tuple e1 e2 -> Tuple (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
     ThenOp e1 e2 -> ThenOp (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    Vector es           -> Vector $ map (substituteBlockExpr lv subst) es
+    Matrix es           -> Matrix $ map (substituteBlockExpr lv subst) es
+    VectorAccess e1 e2 -> VectorAccess (substitutePath lv subst e1) (substituteBlockExpr lv subst e2)
+    MatrixAccess e1 es -> MatrixAccess (substitutePath lv subst e1) (map (substituteBlockExpr lv subst) es)
 
-substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
+substituteLine :: LocalVarSubst -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
     case line of
-    Assign   path expr -> Assign (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
+    PathAssign t path expr -> PathAssign t (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
     Override path expr -> Override (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
     Delete   path      -> Delete $ substitutePath lv subst path
+    _ -> error "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
 
 -- Assumes a full substitution
-substituteBlock :: (Subst, Int) -> (Block, Int) -> Block
-substituteBlock (subst, substNum) (block, blockNum) = map (substituteLine (blockNum, substNum) subst) block
+substituteBlock :: (Subst, Int) -> (Block, Int) -> Maybe NamespaceName -> Block
+substituteBlock (subst, substNum) (block, blockNum) name = 
+                let lvsubst = case name of
+                              Nothing -> LocalVarId (blockNum, substNum)
+                              Just nm -> NamespaceId nm
+                in map (substituteLine lvsubst subst) block
 
 ----- Filter with relational statements
 
@@ -1066,7 +1240,7 @@ find_substs_sel _ _ _ (Namespace _, _) = [] -- No substitutions for a namespace 
 
 -- TODO: add note on prog, header judgment to paper?
 -- Find a list of substitutions for each selector in the Sty program.
-find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> [SelEnv] -> [[Subst]]
+find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> HeaderBlocks -> [SelEnv] -> [[Subst]]
 find_substs_prog varEnv subEnv subProg styProg selEnvs =
     let sels = map fst styProg in
     let selsWithEnvs = zip sels selEnvs in
@@ -1144,6 +1318,7 @@ addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
 pathStr :: Path -> String
 pathStr (FieldPath bvar field) = intercalate "." [show bvar, field]
 pathStr (PropertyPath bvar field property) = intercalate "." [show bvar, field, property]
+pathStr (AccessPath p indices) = pathStr p ++ "[" ++ intercalate "," (map show indices) ++ "]"
 
 pathStr2 :: Name -> Field -> String
 pathStr2 name field = intercalate "." [name, field]
@@ -1305,6 +1480,27 @@ addPath override trans path expr =
        let name   = trName bvar
            trans' = addProperty override trans name field property expr in
        Right trans'
+    -- a.x[0] = e
+    AccessPath (FieldPath bvar field) [i] -> 
+        case (lookupField bvar field trans, expr) of
+        (FExpr (OptEval (Vector es)), Done (FloatV n)) -> 
+              let es' = replaceAtIndex i (AFloat $ Fix $ r2f n) es
+                  name   = trName bvar
+                  trans' = addField override trans name field (OptEval (Vector es')) in
+                  Right trans'
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
+    -- a.x.y[0] = e
+    AccessPath (PropertyPath bvar field property) [i] -> 
+        case (lookupProperty bvar field property trans, expr) of
+        (OptEval (Vector es), Done (FloatV n)) -> 
+              let es' = replaceAtIndex i (AFloat $ Fix $ r2f n) es
+                  name   = trName bvar
+                  trans' = addProperty override trans name field property (OptEval (Vector es')) in
+                  Right trans'
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
+
+replaceAtIndex :: Int -> a -> [a] -> [a]
+replaceAtIndex n item ls = a ++ (item:b) where (a, (_:b)) = splitAt n ls
 
 addPaths :: (Autofloat a) => OverrideFlag -> Translation a -> [(Path, TagExpr a)] -> Either [Error] (Translation a)
 addPaths override = foldM (\trans (p, e) -> addPath override trans p e) 
@@ -1325,31 +1521,33 @@ addPaths override = foldM (\trans (p, e) -> addPath override trans p e)
 translateLine :: (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
 translateLine trans stmt =
     case stmt of
-    Assign path expr   -> addPath False trans path (OptEval expr)
+    PathAssign _ path expr   -> addPath False trans path (OptEval expr)
     Override path expr -> addPath True trans path (OptEval expr)
     Delete path        -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-translateBlock :: (Autofloat a) => (Block, Int) -> Translation a -> (Subst, Int) ->
+translateBlock :: (Autofloat a) => Maybe NamespaceName -> (Block, Int) -> Translation a -> (Subst, Int) -> 
                                                                Either [Error] (Translation a)
-translateBlock blockWithNum trans substNum =
-    let block' = substituteBlock substNum blockWithNum in
+translateBlock name blockWithNum trans substWithNum =
+    let block' = substituteBlock substWithNum blockWithNum name in
     foldM translateLine trans block'
 
 -- Judgment 24. [theta]; D |- |B ~> D'
+-- This is a selector, not a namespace, so we substitute local vars with the subst/block IDs
 translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] ->
                                                      (Block, Int) -> Either [Error] (Translation a)
-translateSubstsBlock trans substsNum blockWithNum = foldM (translateBlock blockWithNum) trans substsNum
+translateSubstsBlock trans substsNum blockWithNum = foldM (translateBlock Nothing blockWithNum) trans substsNum
 
 -- Judgment 23, contd.
 translatePair :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg ->
                                   Translation a -> ((Header, Block), Int) -> Either [Error] (Translation a)
-translatePair varEnv subEnv subProg trans ((Namespace styVar, block), blockNum) =
+translatePair varEnv subEnv subProg trans ((Namespace (StyVar name), block), blockNum) =
     let selEnv = initSelEnv
         bErrs  = checkBlock selEnv block in
     if null (sErrors selEnv) && null bErrs
         then let subst = M.empty in -- is this the correct empty?
-             translateBlock (block, blockNum) trans (subst, 0) -- skip transSubstsBlock; only one subst
+             -- This is a namespace, not selector, so we substitute local vars with the namespace's name
+             translateBlock (Just name) (block, blockNum) trans (subst, 0) -- skip transSubstsBlock; only one subst
         else Left $ sErrors selEnv ++ bErrs
 
 translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNum) =
@@ -1456,6 +1654,11 @@ evalPluginAccess valMap trans =
                   evalPluginExpr vmap (List es) = List $ map (evalPluginExpr vmap) es
                   evalPluginExpr vmap (Tuple e1 e2) = Tuple (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (ThenOp e1 e2) = ThenOp (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (Vector es) = Vector $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (Matrix es) = Matrix $ map (evalPluginExpr vmap) es
+
+                  evalPluginExpr vmap (VectorAccess e1 e2) = VectorAccess e1 (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (MatrixAccess e1 es) = MatrixAccess e1 (map (evalPluginExpr vmap) es)
 
                   -- Leaves (no strings should be involved)
                   evalPluginExpr _ e@(IntLit _) = e
@@ -1481,7 +1684,7 @@ evalPluginAccess valMap trans =
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
 translateStyProg :: forall a . (Autofloat a) =>
-    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap -> [J.StyVal] ->
+    VarEnv -> C.SubEnv -> C.SubProg -> HeaderBlocks -> C.LabelMap -> [J.StyVal] ->
     Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg labelMap styVals =
     let numberedProg = zip styProg [0..] in -- For creating unique local var names
@@ -1501,18 +1704,17 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
 -- Leave all other statements unchanged
 
 anonKeyword :: String
-anonKeyword = "ANON"
+anonKeyword = "$ANON"
 
-nameAnonStatements :: StyProg -> StyProg
+nameAnonStatements :: HeaderBlocks -> HeaderBlocks
 nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                    where nameAnonBlock :: Block -> Block
                          nameAnonBlock b = let (count, res) = foldl nameAnonStatement (0, []) b in res
 
                          nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
-                         -- Assign the path "local.ANON_$counter" and increment counter
+                         -- Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
-                                           let path = FieldPath (BStyVar (StyVar localKeyword)) (anonKeyword ++ "_" ++ show i)
-                                               stmt = Assign path e in
+                                           let stmt = PathAssign Nothing (LocalVar $ anonKeyword ++ "_" ++ show i) e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])
 
@@ -1552,6 +1754,41 @@ lookupField bvar field trans =
               --   else trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) lookupField bvarSynonym fieldSynonym trans
               -- _ -> fexpr
 
+lookupProperty ::
+     (Autofloat a)
+  => BindingForm
+  -> Field
+  -> Property
+  -> Translation a
+  -> TagExpr a
+lookupProperty bvar field property trans =
+  let name = trName bvar
+  in case lookupField bvar field trans of
+       FExpr e
+        -- to deal with path synonyms, e.g. `y.f = some GPI with property p; z.f = y.f; z.f.p = some value`
+        -- if we're looking for `z.f.p` and we find out that `z.f = y.f`, then look for `y.f.p` instead
+        -- NOTE: this makes a recursive call!
+        ->
+         case e of
+           OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) ->
+             if bvar == bvarSynonym && field == fieldSynonym
+               then error
+                      ("nontermination in lookupProperty with path '" ++
+                       pathStr3 name field property ++ "' set to itself")
+               else lookupProperty bvarSynonym fieldSynonym property trans
+        -- the only thing that might have properties is another field path
+           _ ->
+             error
+               ("path '" ++
+                pathStr3 name field property ++ "' has no properties")
+       FGPI ctor properties ->
+         case M.lookup property properties of
+           Nothing ->
+             error
+               ("path '" ++
+                pathStr3 name field property ++ "'s property does not exist")
+           Just texpr -> texpr
+
 shapeType :: (Autofloat a) => BindingForm -> Field -> Translation a -> ShapeTypeStr
 shapeType bvar field trans =
           case lookupField bvar field trans of
@@ -1573,6 +1810,7 @@ lookupStyVal subName propName vmap =
          Nothing -> error ("plugin accessors in style: for access " ++ toAccess subName propName ++ ", property does not exist")
          Just val -> val
     where toAccess s1 s2 = s1 ++ "." ++ s2
+
 
 --------------------------------------------------------------------------------
 -- Debugging

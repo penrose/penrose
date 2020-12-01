@@ -1,0 +1,145 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightgreen = rgba(0.718, 0.988, 0.584, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+}
+
+Ell x {
+  x.shape = Ellipse {
+    strokeWidth : 2.0
+    strokeColor : Colors.gray
+    strokeStyle : "dashed"
+    x: 0.0
+    y: 0.0
+    rx: 100.0
+    ry: 1.5 * x.shape.rx
+    color: Colors.lightgreen
+  }
+}
+
+Box b 
+with Ell `A`{
+  b.shape = Rectangle {
+     strokeColor: Colors.black
+     color: Colors.none
+     strokeStyle : "solid"
+     strokeWidth: 1.0
+     x: -320.0
+     y: 110.0
+     w: 250.0
+     h: 150.0
+  }
+  b.text0 = Text {
+    string: "\\text{color: }"
+    x: b.shape.x
+    y: 160.0
+   }
+
+  b.cb = Square {
+      x : b.text0.x + b.text0.w / 2.0 + 17.0
+      y: b.text0.y
+      side : 20.0
+      color: `A`.shape.color
+  }
+  b.text1 = Text {
+    -- string: "\\text{strokeStyle: }``\\text{dashed\"}"
+    string: "\\text{strokeStyle: }"
+    x: -347.0
+    y: 130.0
+  }
+  b.ss = Line {
+      startX: b.text1.x + b.text1.w / 2.0 + 5.0
+      startY : b.text1.y
+      endX: b.shape.x + b.shape.w / 2.0 - 37.0
+      endY: b.text1.y
+      style: `A`.shape.strokeStyle
+      color: `A`.shape.strokeColor
+      thickness: 2.0
+  }
+  b.text2 = Text {
+    string: "\\text{strokeWidth: }"
+    x: -352.0
+    y: 100.0
+  }
+  b.text3 = Text {
+    string: "\\text{strokeColor: }"
+    x: -347.0
+    y: 70.0
+  }
+  b.sc = Square {
+      x : b.text3.x + b.text3.w / 2.0 + 17.0
+      y: b.text3.y
+      side : 20.0
+      color: `A`.shape.strokeColor
+  }
+  b.sw = Line {
+      startX: b.text2.x + b.text2.w / 2.0 + 5.0
+      startY : b.text2.y
+      endX: b.shape.x + b.shape.w / 2.0 - 37.0
+      endY: b.text2.y
+      style: "dashed"
+      color: Colors.black
+      thickness: 15.0
+  }
+  b.sw2 = Line {
+      startX: b.shape.x + b.shape.w / 2.0 - 27.0
+      startY : b.text2.y + 10.0
+      endX: b.shape.x + b.shape.w / 2.0 - 27.0
+      endY: b.text2.y - 8.0
+      color: Colors.black
+      thickness: 1.0
+      leftArrowhead: True
+      rightArrowhead: True
+  }
+}
+
+Point p 
+with Ell e {
+    p.shape = Circle{
+        x: e.shape.x
+        y: e.shape.x
+        r: 4.0
+        color: Colors.black
+    }
+    p.text = Text{
+    string: p.label
+    x : p.shape.x
+    y: p.shape.y - 20.0
+    }
+    LOCAL.layering = p.shape above e.shape
+    LOCAL.layering2 = p.text above e.shape
+}
+
+ Rad x
+ with Ell e {
+   x.shape = Line{
+     startX : e.shape.x
+     startY : e.shape.y
+     thickness : 2.0
+     color: Colors.red
+   }
+   x.text = Text{
+       string : x.label
+       rotation : 0.0
+   }
+   LOCAL.layering = x.shape above e.shape
+   LOCAL.layering2 = x.text above e.shape
+ }
+
+Rad `rx` 
+with Ell `A`{
+  override `rx`.shape.endX = `A`.shape.x + `A`.shape.rx
+  override `rx`.shape.endY = `A`.shape.y
+  override `rx`.text.x = `A`.shape.x + `A`.shape.rx / 2.0
+  override `rx`.text.y = `A`.shape.y + 15.0
+}
+
+Rad `ry` 
+with Ell `A`{
+  override `ry`.shape.endX = `A`.shape.x
+  override `ry`.shape.endY = `A`.shape.y + `A`.shape.ry
+  override `ry`.text.x = `A`.shape.x + 20.0
+  override `ry`.text.y = `A`.shape.y + `A`.shape.ry / 2.0
+}

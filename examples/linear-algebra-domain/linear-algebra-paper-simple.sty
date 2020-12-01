@@ -1,178 +1,214 @@
--- Global constants and sizes
 const {
-  const.vectorSpaceSize = 350.0
-  const.axisSize = const.vectorSpaceSize * 0.5
-  const.scaleRatio = 200.0
-  const.perpLen = 25.0
-  const.repelWeight = 0.7
-  const.arrowheadSize = 0.6
+  scalar perpLen = 20.0
   -- For unit mark
-  const.markerPadding = 15.0
-  const.barSize = 5.0
+  scalar markerPadding = 15.0
+  scalar barSize = 5.0
+  scalar vectorSpaceSize = 350.0
+  scalar repelWeight = 0.7
+  scalar arrowheadSize = 0.7
+  scalar lineThickness = 1.
+  int intForTesting = 1
+  bool boolForTesting = true
 }
 
--- Global RGB colors in common use
-Colors {
-    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
-    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
-    Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
-    Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
-    Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
-    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
-    Colors.green = rgba(0.0, 0.8, 0.0, 1.0)
-    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
-    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+C {
+    -- black = #000000
+    color black = rgba(0.,0.,0.,1.)
+    white = rgba(1., 1., 1., 1.)
+    lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
+    darkBlue = rgba(lightBlue.r / 2., lightBlue.g / 2., lightBlue.b / 2., 0.5)
+    darkGray = rgba(0.4, 0.4, 0.4, 1.)
+    gray = rgba(0.6, 0.6, 0.6, 1.)
+    green = rgba(0., 0.8, 0., 1.)
+    -- blue = #0000ff
+    none = rgba(0., 0., 0., 0.)
 }
 
-VectorSpace U {
-    U.thickness = 2.0
-    U.axisColor = Colors.gray
+-- Just some weird definitions to test parser. Not used in rest of program
+testing {
+  -- COMBAK: Test that plugins still run
+  -- pluginVar = "ddg"["a"]["length"]
+        x = { 1, {2, 3} }
+        y = [-2., const.perpLen, const.markerPadding + 3]
+        a = (-1.0, ?)
+        a1 = (-1.0, 2.) + (1e5, 2.0)
+        m = (a, (-1., 2.))
+        v = (a + (2., 900.))  / (4.0 + 3.)
+        -- z = Colors.black.g
+        asum = a[1] + a[0]
+        c = 0
+        b = 1
+        msum = m[1][0] + m[c][b]
+        nv = -v
+        t1 = x[1][b]
 
-    -- U.originX = ?
-    -- U.originY = ?
-    U.originX = 0.0
-    U.originY = 0.0
-    U.origin = (U.originX, U.originY)
+        -- test parser access of matrix
+        -- test0 = f(0)[1]
+        -- test1 = makeMatrix((1, 0.0, 5.0), (-1, -9., -4.))[2][0]
+        -- test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
+}
 
-    -- TODO: get rid of this?
-    U.shape = Square {
-        x : U.originX
-	y : U.originY
+forall VectorSpace U {
+    scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
+    vec2 U.origin = (0., 0.)
+    vec2 o = U.origin
+    U.axisColor = C.gray
+
+    shape U.background = Square {
+        center : U.origin
         side : const.vectorSpaceSize
-        color : Colors.none
-	stroke : Colors.black
+        color : C.none
+        strokeColor : C.none
+        -- strokeWidth : 2.0
     }
 
-    U.xAxis = Arrow {
-        startX : U.shape.x - const.axisSize
-        startY : U.shape.y
-        endX : U.shape.x + const.axisSize
-        endY : U.shape.y
-        thickness : U.thickness
+    shape U.xAxis = Line {
+        start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
+        end : (o[0] + axisSize, o[1])
+        thickness : const.lineThickness
+        style : "solid"
         color : U.axisColor
-        arrowheadSize : const.arrowheadSize
+        leftArrowhead: True
+        rightArrowhead: True
+        arrowheadSize : const.arrowheadSize * 2.
     }
 
-    U.yAxis = Arrow {
-        startX : U.shape.x
-        startY : U.shape.y - const.axisSize
-        endX : U.shape.x
-        endY : U.shape.y + const.axisSize
-        thickness : U.thickness
-        color : U.axisColor
-        arrowheadSize : const.arrowheadSize
+    U.yAxis = Line {
+           start : (o[0], o[1] - axisSize)
+             end : (o[0], o[1] + axisSize)
+       thickness : const.lineThickness
+           style : "solid"
+           color : U.axisColor
+           leftArrowhead: True
+           rightArrowhead: True
+        arrowheadSize : const.arrowheadSize * 2.
     }
 
     U.text = Text {
         string : U.label
-        x : U.shape.x - const.axisSize
-        y : U.shape.y + const.axisSize
+        center : (U.origin[0] - axisSize, U.origin[1] + axisSize)
         color : U.axisColor
     }
-
-    -- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
-    -- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
 }
 
-Vector v
-with VectorSpace U
-where In(v,U) {
-  v.text = Text {
-    string : v.label
-    color : v.shape.color
+forall Vector u; VectorSpace U
+where In(u,U) {
+  u.text = Text {
+    -- center : (?, ?) -- This should be done automatically
+    string : u.label
+    color : u.arrow.color
   }
 
-  v.shape = Arrow {
-    startX : U.shape.x
-    startY : U.shape.y
+  u.arrow = Arrow {
+    start : U.origin
+    end : (?, ?)
     thickness : 3.0
-    color : Colors.blue
+    color : C.lightBlue
     arrowheadSize : const.arrowheadSize
   }
 
-   v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
-   v.angle = angle(v.vector)
+   u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
 
-   -- v.containFn = ensure contains(U.shape, v.shape)
-   -- v.containLabel = ensure contains(U.shape, v.text)
-   -- v.labelLocation = ensure nearHead(v.shape, v.text, 20.0, 20.0)
+   ensure contains(U.background, u.arrow)
+   ensure contains(U.background, u.text)
+   ensure atDist(u.arrow, u.text, 15.0)
+   ensure minSize(u.arrow)
 
-   -- TODO: Put these back in
-
-   -- ensure contains(U.shape, v.shape)
-   -- ensure contains(U.shape, v.text)
-   -- ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
-
-   -- This objective gives better visual results but causes vectors to be the same length?
-   -- v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
-
-  v.text above U.xAxis
-  v.text above U.yAxis
+  layer u.text above U.xAxis
+  layer u.text above U.yAxis
 }
 
-Vector u; Vector v
+forall Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
-      -- Draw perpendicular mark
-      LOCAL.perpMark = Curve {
-	   pathData : orientedSquare(u.shape, v.shape, U.origin, const.perpLen)
-	   strokeWidth : 2.0
-	   color : Colors.black
-	   fill : Colors.white
+      startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
+      endR = u.arrow.end
+      startL = v.arrow.start
+      endL = v.arrow.end
+      dirR = normalize(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
+      dirL = normalize(endL - startL)
+      ptL = startR + const.perpLen * dirL
+      ptR = startR + const.perpLen * dirR
+      ptLR = ptL + const.perpLen * dirR
+      pts = [startR, ptL, ptLR, ptR]
+
+      -- toPath = functions.pathFromPoints -- COMBAK: Add ability to alias function names
+
+      -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
+      perpMark = Curve {
+           pathData : pathFromPoints("closed", pts)
+           strokeWidth : 2.0
+           color : C.black
+           fill : C.white
       }
 
-      -- Make sure vectors are orthogonal
-      -- encourage equal(dot(u.vector, v.vector), 0.0)
+      -- Make sure vectors are orthogonal (use ensure?)
+      -- eq = functions.equal
+      encourage equal(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
-      layer v.shape above LOCAL.perpMark
-      layer u.shape above LOCAL.perpMark
+-- COMBAK: Test parsing the expressions that involve local vars 
+      layer v.arrow above perpMark
+      layer u.arrow above perpMark
 }
 
--- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
+forall Vector v
+with VectorSpace U; Vector w
+where In(v, U); Unit(v); Orthogonal(v, w) {
+      -- Usually, the unit vector shouldn't need to know about orthogonal vectors
+      -- but we need to position the unit mark so it doesn't overlap with the "inside" of the two vectors
 
--- TODO: Put this back in
+      strokeWidth = 2.0
+      padding = 15.0 -- COMBAK: What is this?
+      -- toPath = functions.pathFromPoints -- COMBAK
 
--- Vector v
--- with VectorSpace U; Vector w
--- where In(v, U); Unit(v); Orthogonal(v, w) {
+      -- The start and end of the body of the unit marker line
+      -- NOTE: We need to have lists of vectors
+      dir = normalize(w.arrow.end - w.arrow.start)
+      normal = -dir
+      markStart = v.arrow.start + padding * normal
+      markEnd = v.arrow.end + padding * normal
+      v.markerLine = [markStart, markEnd]
 
---       -- The start and end of the body of the unit marker line
---       v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
---       v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+      v.unitMarkerLine = Curve {
+          pathData : pathFromPoints("open", v.markerLine)
+          strokeWidth : strokeWidth
+          color : C.black
+          fill : C.none
+      }
 
---       v.unitMarkerLine = Curve {
---           pathData : pathFromPoints(v.offsetVec)
--- 	  strokeWidth : 2.0
--- 	  color : Colors.black
--- 	  fill : Colors.none
---       }
+      -- Could use normal instead, just doing this to demonstrate how to use matrices
+      mat2x2 rot90CW = ((0., 1.), (-1., 0.))
+      vec2 markNormal = mul(rot90CW, normalize(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+      scalar c = const.barSize
+      vec2 halfvec = c * markNormal
 
---       v.unitMarkerEnd1 = Curve {
---           pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
---       	  strokeWidth : 2.0
---       	  color : Colors.black
---       	  fill : Colors.none
---       }
+      v.unitMarkerEnd1 = Curve {
+          pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+          strokeWidth : strokeWidth
+          color : C.black
+          fill : C.none
+      }
 
---       v.unitMarkerEnd2 = Curve {
---           pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
---       	  strokeWidth : 2.0
---       	  color : Colors.black
---       	  fill : Colors.none
---       }
+      v.unitMarkerEnd2 = Curve {
+          pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
+          strokeWidth : strokeWidth
+          color : C.black
+          fill : C.none
+      }
 
---       v.unitMarkerText = Text {
---           string : "1"
--- 	  x : get(v.labelPosition, 0)
--- 	  y : get(v.labelPosition, 1)
--- 	  color : Colors.black
---       }
+      vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
+      vec2 labelPos = midpointLoc + const.markerPadding * normal
 
---       layer v.unitMarkerLine above U.xAxis
---       layer v.unitMarkerLine above U.yAxis
---       -- encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
--- }
+      v.unitMarkerText = Text {
+          string : "1"
+          center : labelPos
+          color : C.black
+      }
 
-Vector `x2` {
-       override `x2`.shape.color = Colors.green
+      layer v.unitMarkerLine above U.xAxis
+      layer v.unitMarkerLine above U.yAxis
+}
+
+forall Vector `x2` {
+       override `x2`.arrow.color = C.green
 }
