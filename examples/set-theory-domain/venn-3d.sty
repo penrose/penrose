@@ -4,8 +4,7 @@ Set x {
     }
 
     x.shading = Image {
-        x : x.shape.x 
-        y : x.shape.y
+        center : x.shape.center 
         w : x.shape.r * 2.0
         h : x.shape.r * 2.0
         path : "shading.svg"
@@ -15,8 +14,7 @@ Set x {
         path : "shadow.svg"
         w : x.shape.r * 2.15
         h : x.shape.r * 2.22
-        x : x.shape.x + 0.03 * x.shading.w
-        y : x.shape.y - 0.051 * x.shading.h
+        center : (x.shape.center[0] + 0.03 * x.shading.w, x.shape.center[1] - 0.051 * x.shading.h)
     }
 
     x.text = Text {
@@ -26,53 +24,33 @@ Set x {
         h: 0.5 * x.shape.r
     }
 
-    x.labelFn = ensure contains(x.shape, x.text)
-    x.minSizeFn = ensure minSize(x.shape)
-    x.maxSizeFn = ensure maxSize(x.shape)
-    x.labelPosFn = encourage sameCenter(x.text, x.shape)
-    LOCAL.layering  = x.shape below x.text
-    LOCAL.shadeLayering  = x.shading below x.shape
-    LOCAL.shadowLayering  = x.shadow below x.shading
+    ensure contains(x.shape, x.text)
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
+    encourage sameCenter(x.text, x.shape)
+    x.shape below x.text
+    x.shading below x.shape
+    x.shadow below x.shading
 }
 
--- Set x {
---     x.newPath = x.shape
---     x.testFn = encourage center(x.newPath)
--- }
-
-Set x; Set y
+forall Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
-    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
-    LOCAL.layering  = x.shape above y.shape
-    LOCAL.layering1  = y.text below x.shape
-    LOCAL.layering2  = x.shadow above y.shape
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure contains(y.shape, x.shape, 5.0)
+    x.shape above y.shape
+    y.text below x.shape
+    x.shadow above y.shape
 }
 
 Set x; Set y
 where Not(Intersecting(x, y)) {
-    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+    ensure disjoint(x.shape, y.shape)
 }
 
 Set x; Set y
 where Intersecting(x, y) {
-    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
-    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
-    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
-}
-
-Point p {
-    p.offset = 10.0
-    p.shape = Circle {
-        strokeWidth : 0
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        r : 3.0
-    }
-
-    p.text = Text {
-        string : p.label
-        x : p.shape.x + p.offset
-        y : p.shape.y + p.offset
-    }
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
 }
