@@ -40,7 +40,7 @@ class Canvas extends React.Component<ICanvasProps> {
 
   /**
    * Decode
-   * NOTE: this function is only used for resample now. Will deprecate as soon as shapedefs are in the frontend
+   * NOTE: this function is only used for compilerOutput now. Will deprecate as soon as style compiler is in the frontend
    * @static
    * @memberof Canvas
    */
