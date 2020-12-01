@@ -891,9 +891,8 @@ squareType =
       [("center", (VectorT, vector_sampler))
       , ("side", (FloatT, width_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
-        -- TODO: distinguish between stroke color and fill color everywhere
       , ("color", (ColorT, sampleColor))
-      , ("style", (StrT, constValue $ StrV "none")) -- TODO: what is this?
+      , ("style", (StrT, constValue $ StrV "none")) 
       , ("strokeColor", (ColorT, sampleColor))
       , ("strokeStyle", (StrT, constValue $ StrV "none"))
       , ("strokeWidth", (FloatT, constValue $ FloatV 0.0))
