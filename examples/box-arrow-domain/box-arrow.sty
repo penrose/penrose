@@ -56,5 +56,13 @@ with Node n1, n2 {
         color : global.arrowColor
         thickness : global.edgeStroke
     }
+}
 
+UndirectedEdge e
+where e := CreateUndirectedEdge(n1,n2) 
+with Node n1, n2 {
+    LOCAL.shape = Line {
+        color : global.arrowColor
+        thickness : global.edgeStroke
+    }
 }
