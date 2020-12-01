@@ -1,9 +1,9 @@
 import { cleanShapes } from "engine/Evaluator";
+import { resample, stepState } from "API";
 import { step } from "engine/Optimizer";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import { resampleOne } from "shapes/ShapeDef";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
 import { collectLabels } from "utils/CollectLabels";
@@ -21,14 +21,6 @@ interface ICanvasState {
 }
 
 const socketAddress = "ws://localhost:9160";
-
-const stepState = async (state: State, onUpdate: any) => {
-  const numSteps = 1;
-  const newState = step(state!, numSteps);
-  const labeledShapes: any = await collectLabels(newState.shapes);
-  onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
-};
-
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
@@ -61,7 +53,7 @@ class App extends React.Component<any, ICanvasState> {
       processedInitial: true,
     });
   };
-  public onCanvasState = async (canvasState: State, _: any) => {
+  public onCanvasState = async (canvasState: State) => {
     // HACK: this will enable the "animation" that we normally expect
     await new Promise((r) => setTimeout(r, 1));
 
@@ -100,19 +92,18 @@ class App extends React.Component<any, ICanvasState> {
       kind: "renderer",
     },
   ]);
-  public step = () => {
-    // this.protocol.sendPacket(Step(1, this.state.data));
-    stepState(this.state.data!, this.onCanvasState);
+  public step = async () => {
+    const stepped = await stepState(this.state.data!);
+    this.onCanvasState(stepped);
   };
+
   public resample = async () => {
     const NUM_SAMPLES = 1;
-    // resampled = true;
-    await this.setState({ processedInitial: false });
-    // this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
-    // DEBUG: the following is for testing frontend version of resample
     const oldState = this.state.data;
     if (oldState) {
-      this.onCanvasState(resampleOne(oldState), undefined);
+      await this.setState({ processedInitial: false });
+      const resampled = await resample(oldState, NUM_SAMPLES);
+      this.onCanvasState(resampled);
     }
   };
 
@@ -133,7 +124,8 @@ class App extends React.Component<any, ICanvasState> {
   public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
     if (this.state.autostep) {
-      stepState(data, this.onCanvasState);
+      const stepped = await stepState(data);
+      this.onCanvasState(stepped);
     }
   };
   public setInspector = async (showInspector: boolean) => {
