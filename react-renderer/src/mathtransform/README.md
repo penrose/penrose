@@ -3,9 +3,45 @@
 ## Prerequisities
 You must install [jscodeshift](https://www.npmjs.com/package/jscodeshift).
 
-## Current functionality
+## Code Breakdown
 
-Currently the program only transforms binary operators (`+ - * /`) and unary operators (`-`) to call expressions, as well as any type to any other type. 
+Understanding the code in `toCustomAD.ts` is essential to extending it. The code is broken down into multiple sections. To easily extend the code, you should be able to understand which section to modify.
+
+### Section 0: Utilities
+
+You shouldn't need to change this code. This section defines some constants and type definitions that will be used later.
+
+### Section 1: Configuration
+
+This section contains all the use-case-specific code. In most cases, this is the only section you should be modifying. Here is where you set what you want to translate, and how you want to translate it.
+
+#### Subsection 1: Transformation Methods
+
+This section contains instructions on how to transform one type of node to another node. For example, the function `BO2CE` takes in a binary expression and transforms it into a call expression. You shouldn't need to modify any of the existing code, but if you want to transform a node in a way that's not already defined, you may need to define new functions here. You can also place custom transforms here. For example, the function `squaredTransform` is custom written to transform the expression `Math.pow(x, 2)` into `squared(x)`. The dropping of an argument necessitates a custom transform, since in most cases you want to preserve all arguments when condensing a call expression. 
+
+#### Subsection 2: Match Target Functions
+
+A match target function extracts the information necessary to match a node to a target in Subsection 3 (Transform Maps). It's important to understand that JSCodeshift doesn't support searching by name (e.g. find all nodes that have name `pow`). Instead, we have to isolate nodes of the desired type (e.g. binary expressions), and then check if those nodes match some pattern that we want to transform. For example, the function `ME2STR` returns the `name` property of a member expression as a string. Later, we check to see if this string matches any of the names of specific member expressions we want to translate. 
+
+#### Subsection 3: Transform Maps
+
+This is the section you will probably need to modify the most. This section contains instructions on which specific AST nodes to transform, what to transform them to, and how to transform them. For instance, the `BOPS` map contains instructions on how to transform each kind of binary expression (`+, -, *, /`). Look at the `Transform` type interface to understand what needs to be included.
+
+#### Subsection 4: Marktag
+
+This section indicates how a user should tag a node that they want to transform. The current tag is `autodiff`, so piece of code that has `autodiff` commented above it will be flagged for possible transforming.
+
+#### Subsection 5: Preset Calls
+
+This section contains an array, `translatees`, that defines which node types should be translated, and which transform map to use for each type. You shouldn't need to change this unless you want to transform a new type of AST node (the types already implemented are MemberExpression, CallExpression, BinaryExpression, UnaryExpression, ConditionalExpression (ternary), Identifier, and type labels).
+
+### Section 2: Program Flow
+
+This section contains everything specific to JSCodeshift and is the only section that actually issues program commands (the rest are just definitions). You shouldn't need to modify this or even understand it all, but I recommend reading through it to understand how your configurations defined in the previous section are actually applied.
+
+## Current Functionality
+
+Currently the following transforms will occur (you can see this in more detail in Section 1.3 of the code): 
 
 |Original   | AD |
 |-----------|----|
@@ -15,12 +51,14 @@ Currently the program only transforms binary operators (`+ - * /`) and unary ope
 | x / y     | div(x, y)|
 | -x        | neg(x)|
 | x: number | x: VarAD|
+| Math.pow(x, y) | pow(x, y)|
+| Math.pow(x, 2) | squared(x)|
+| x ? y : z | ifCond(x, y, z) |
 
-The names to transform to can be modified by editing `toCustomAD.ts`. For instance, to replace instances of `x+y` with `x.sum(y)`, replace the `+: add` entry in `BOPS` with `+: sum`. The program also supports custom type transforms as well as the built-in `number` to `VarAD` replacement (which can, of course, be easily altered or removed). For example, to replace all mentions of type `Tensor` with type `VarAD`, add the line `"Tensor": ["VarAD", TYPSUB]` to the `TYPS` map in `toCustomAD.ts`. 
+
 
 NB - Due to a bug in jscodeshift, the program currently does not transform type names when they appear in an array pattern (i.e. types declared like this: `([t1, s1]: [string, any], [t2, s2]: [string, any])`). You must manually translate these names yourself (though the program will translate the same type name for you in all other contexts)
 
-To add more code modifications, just add the appropriate functions and call them in `toCustomAD.ts`.
 
 ## Marking nodes to transform
 

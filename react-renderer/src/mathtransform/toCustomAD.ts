@@ -2,6 +2,9 @@ import {API, ASTPath, BinaryExpression, CallExpression, Collection, FileInfo, Id
     TSTypeReference, UnaryExpression, MemberExpression, ConditionalExpression, NumericLiteral, BooleanLiteral} from 'jscodeshift'
 import {CommentKind, IdentifierKind} from "./node_modules/ast-types/gen/kinds" // todo update PATH!!  
 
+////////////////////////////////// Section 0: Utilities //////////////////////////////////
+// Don't change this code. It just defines constants and interfaces that are used later.
+
 interface Transform{
     newName: string;
     transformMethod: any;
@@ -17,13 +20,6 @@ module.exports = function(fileInfo: FileInfo, api: API) {
 
     const j = api.jscodeshift   // DO NOT REMOVE
 
-    ////////////////////////////////// Section 1: CONFIGURATION //////////////////////////////////
-    // The section below contains what is essentially the configuration of the program.
-    // It determines which AST nodes will be transformed and how they will be transformed.
-    // Change what you need to.
-
-
-    ////////////////////////////////// Subsection 1: type keywords //////////////////////////////////
     const KWTYPS: string[] = [ // Define all the simple keyword types.
         "TSAnyKeyword",
         "TSBigIntKeyword",
@@ -42,7 +38,12 @@ module.exports = function(fileInfo: FileInfo, api: API) {
     // IMPORTANT: the types module for jscodeshift doesn't include the bigint typing, so I excluded it in the above array. If someone
     // tries to transform it it will break, but I don't think this is likely at all.
 
-    ////////////////////////////////// Subsection 2: Transformation Methods //////////////////////////////////
+    ////////////////////////////////// Section 1: CONFIGURATION //////////////////////////////////
+    // The section below contains what is essentially the configuration of the program.
+    // It determines which AST nodes will be transformed and how they will be transformed.
+    // Change what you need to.
+
+    ////////////////////////////////// Subsection 1: Transformation Methods //////////////////////////////////
 
     // transforms binary op to call expression - essentially deconstructs and reconstructs the node
     const BO2CE = (target: string, node: any) : CallExpression => {
@@ -109,7 +110,7 @@ module.exports = function(fileInfo: FileInfo, api: API) {
         return node;
     }
 
-    ////////////////////////////////// Subsection 3: match target functions //////////////////////////////////
+    ////////////////////////////////// Subsection 2: match target functions //////////////////////////////////
 
     // extracts operator property from BinExp/UnExp
     const getOperator = (node: BinaryExpression | UnaryExpression) => node.operator;
@@ -140,7 +141,7 @@ module.exports = function(fileInfo: FileInfo, api: API) {
         else return (n.callee as IdentifierKind).name + CALLARGS2STR(n)
     }
 
-    ////////////////////////////////// Subsection 4: transform maps //////////////////////////////////
+    ////////////////////////////////// Subsection 3: transform maps //////////////////////////////////
 
     // binary operations map
     // typing may need to be changed
@@ -188,11 +189,11 @@ module.exports = function(fileInfo: FileInfo, api: API) {
     }
     // member expressions
     const MEMEXP : {[k: string]: Transform} = {
-        "a.b": {
-            newName: "ab",
-            transformMethod: ME2ID, // TYPSUB - method to perform type substitution. This will practically always be the method used to transform any type.
-            matchTargetFn: ME2STR
-        }
+        // "a.b": {
+        //     newName: "ab",
+        //     transformMethod: ME2ID, // TYPSUB - method to perform type substitution. This will practically always be the method used to transform any type.
+        //     matchTargetFn: ME2STR
+        // }
     }
     // call expressions
     const CALLEXP : {[k: string]: Transform} = {
@@ -230,11 +231,12 @@ module.exports = function(fileInfo: FileInfo, api: API) {
         }
     }
 
-    ////////////////////////////////// Subsection 5: marktag //////////////////////////////////
+    ////////////////////////////////// Subsection 4: marktag //////////////////////////////////
     const MARKTAG = "autodiff"; // stores what the leading comment will be to indicate that a node should be transformed
 
     ////////////////////////////////// Subsection 5: Preset Calls //////////////////////////////////
 
+    // [type, type tag, transform dict]
     const translatees : [any, string, any][]= [
         [j.BinaryExpression, "BinaryExpression", BOPS],
         [j.UnaryExpression, "UnaryExpression", UOPS],
@@ -247,7 +249,7 @@ module.exports = function(fileInfo: FileInfo, api: API) {
 
 
     ////////////////////////////////// SECTION 2: PROGRAM FLOW //////////////////////////////////
-    // Below here is all the generic stuff that makes the program work with JSCodeshift. 
+    // Below here is all the generic stuff that makes the program work with JSCodeshift. You might not need to mess with it.
         
     const hasMatch = (n: Node, map: {[k: string]: Transform}) => {
         for (const [k, v] of Object.entries(map)) {
@@ -288,30 +290,6 @@ module.exports = function(fileInfo: FileInfo, api: API) {
             const matchKey = hasMatch(node, translatees[presetInd][2])
             return matchKey ? translatees[presetInd][2][matchKey] : false
         }
-        // if (node.type === "BinaryExpression") {
-        //     const matchKey = hasMatch(node, BOPS)
-        //     return matchKey ? BOPS[matchKey] : false
-        // }
-        // else if (node.type === "UnaryExpression") {
-        //     const matchKey = hasMatch((node as UnaryExpression), UOPS)
-        //     return matchKey ? UOPS[matchKey] : false
-        // }
-        // else if (node.type === "MemberExpression") {
-        //     const matchKey = hasMatch((node as MemberExpression), MEMEXP);
-        //     return matchKey ? MEMEXP[matchKey] : false
-        // }
-        // else if (node.type === "Identifier") {
-        //     const matchKey = hasMatch((node as IdentifierKind), IDENT);
-        //     return matchKey ? IDENT[matchKey] : false
-        // }
-        // else if (node.type === "ConditionalExpression") {
-        //     const matchKey = hasMatch((node as ConditionalExpression), TERN)
-        //     return matchKey ? TERN[matchKey] : false
-        // }
-        // else if (node.type === "CallExpression") {
-        //     const matchKey = hasMatch((node as CallExpression), CALLEXP);
-        //     return matchKey ? CALLEXP[matchKey] : false
-        // }
         // todo the next line excludes qualified types e.g. Foo.Bar as a type. fix this
         else if (node.type === "TSTypeReference") { // transform custom types
             const matchKey = hasMatch((node as TSTypeReference), TYPS);
@@ -323,20 +301,13 @@ module.exports = function(fileInfo: FileInfo, api: API) {
 
     const root = j(fileInfo.source);
     const tNodes = root.find(j.Node).filter((nodePath: ASTPath<Node>) => needsTransform(nodePath));
-    // translate all bops
-    findAndTranslate(tNodes, j.BinaryExpression);
-    // uops
-    findAndTranslate(tNodes, j.UnaryExpression);
-    // member expressions
-    findAndTranslate(tNodes, j.MemberExpression);
-    // identifiers
-    findAndTranslate(tNodes, j.Identifier);
-    // ternary
-    findAndTranslate(tNodes, j.ConditionalExpression);
-    // call exp
-    findAndTranslate(tNodes, j.CallExpression);
 
-    // types
+    // translate from presets
+    for (const astElem of (translatees.map(x => x[0]))) {
+        findAndTranslate(tNodes, astElem);
+    }
+
+    // types are done manually. could probably be manipulated somehow to be able to include types in presets
     for (const typ in TYPS) {
         let typNodes: Collection;
         if (KWTYPS.includes(typ)) {
