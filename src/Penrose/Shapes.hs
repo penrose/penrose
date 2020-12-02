@@ -903,7 +903,7 @@ squareType =
       , ("side", (FloatT, width_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
       , ("color", (ColorT, sampleColor))
-      , ("style", (StrT, constValue $ StrV "none"))
+      , ("style", (StrT, constValue $ StrV "none")) 
       , ("strokeColor", (ColorT, sampleColor))
       , ("strokeStyle", (StrT, constValue $ StrV "none"))
       , ("strokeWidth", (FloatT, constValue $ FloatV 0.0))
