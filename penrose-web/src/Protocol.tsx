@@ -127,6 +127,8 @@ export class Protocol {
           (events as IEditorEvents).onVarEnv(data[1])
         );
       }
+    } else if (type === "state") {
+      this.sendProcessedCanvasState(data, id);
     } else if (type === "error") {
       this.eventHandlers.forEach((events: EventHandler) =>
         events.onError(data.contents)
