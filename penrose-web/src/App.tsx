@@ -1,8 +1,7 @@
-import { stepState } from "API";
+import { stepState, resample } from "API";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import { resampleOne } from "shapes/ShapeDef";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
 import Log from "utils/Log";

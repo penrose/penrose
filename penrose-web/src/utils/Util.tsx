@@ -19,7 +19,6 @@ export const randFloats = (
  * @param min minimum (inclusive)
  * @param max maximum (exclusive)
  */
-<<<<<<< HEAD
 export const randFloat = (min: number, max: number): number => {
   // TODO: better error reporting
   console.assert(
@@ -28,10 +27,6 @@ export const randFloat = (min: number, max: number): number => {
   );
   return Math.random() * (max - min) + min;
 };
-=======
-export const randFloat = (min: number, max: number): number =>
-  Math.random() * (max - min) + min;
->>>>>>> shapedefs-export
 
 /**
  * Generate a random integer. The maximum is exclusive and the minimum is inclusive
@@ -99,11 +94,7 @@ export const bBoxDims = (properties: Properties, shapeType: string) => {
       Math.max(Math.abs(ex - sx), padding),
       Math.max(Math.abs(ey - sy), padding),
     ];
-<<<<<<< HEAD
   } else if (shapeType === "Path") {
-=======
-  } else if (shapeType === "Curve") {
->>>>>>> shapedefs-export
     [w, h] = [20, 20]; // todo find a better measure for this... check with max?
   } else {
     [w, h] = [properties.w.contents as number, properties.h.contents as number];

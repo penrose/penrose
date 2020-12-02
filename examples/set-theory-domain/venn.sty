@@ -35,7 +35,6 @@ where Not(Intersecting(x, y)) {
 
 -- --------- NEW
 
--- TODO: The code below hasn't been ported to web-perf yet
 
 forall Set x; Set y
 where Intersecting(x, y) {
@@ -44,6 +43,7 @@ where Intersecting(x, y) {
     ensure outsideOf(x.text, y.icon)
 }
 
+-- TODO: The code below hasn't been ported to web-perf yet
 forall Point p {
     p.offset = 20.0
     p.icon = Circle {

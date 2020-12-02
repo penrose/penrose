@@ -19,5 +19,19 @@
     "style": 11,
     "previewURI": "https://gist.githubusercontent.com/wodeni/54fdcafc3cf9cf0c14b68868893db1dd/raw/80976b0fd68ee2dac52bdc17d107104dde14d3c1/sets-3d.svg?sanitize=true",
     "name": "venn 3d"
+  },
+  {
+    "substanceURI": "set-theory-domain/tree.sub",
+    "element": 0,
+    "style": 0,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/5c9977899f12bd46eff63ae1f0a86583/raw/babe7528e161fde4993440e5e15cdf23105a12af/venn.svg?sanitize=true",
+    "name": "larger venn"
+  },
+  {
+    "substanceURI": "set-theory-domain/nested.sub",
+    "element": 0,
+    "style": 0,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/b91450f8c0cc3df6085c40ecf4ad888f/raw/11a7c69a2890a99e14ae6cb6cc7b341d9be7430d/nested.svg?sanitize=true",
+    "name": "nested"
   }
 ]
