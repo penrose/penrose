@@ -29,7 +29,7 @@ This is the section you will probably need to modify the most. This section cont
 
 #### Subsection 4: Marktag
 
-This section indicates how a user should tag a node that they want to transform. The current tag is `autodiff`, so piece of code that has `autodiff` commented above it will be flagged for possible transforming.
+This section indicates how a user should tag a node that they want to transform. The current tag is `autodiff`, so a piece of code that has `autodiff` commented above it will be flagged for possible transforming.
 
 #### Subsection 5: Preset Calls
 
