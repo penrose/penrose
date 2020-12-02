@@ -5,7 +5,7 @@ You must install [jscodeshift](https://www.npmjs.com/package/jscodeshift).
 
 ## Code Breakdown
 
-Understanding the code in `toCustomAD.ts` is essential to extending it. The code is broken down into multiple sections. To easily extend the code, you should be able to understand which section to modify.
+Understanding the code in `toCustomAD.ts` is essential to extending it. The code is broken down into multiple sections. To easily extend the code, you should be able to understand which section to modify. You should also understand the different types of nodes that the typescript parser produces (i.e. what MemberExpression, CallExpression, etc. mean). A really helpful resource for this is the [AST Parser](https://astexplorer.net). We use the `typescript-eslint` parser.
 
 ### Section 0: Utilities
 
