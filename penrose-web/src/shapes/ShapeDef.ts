@@ -338,7 +338,7 @@ const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
   }
 };
 
-export const resampleOne = (state: State): State => {
+export const resampleBest = (state: State, numSamples: number): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path) =>

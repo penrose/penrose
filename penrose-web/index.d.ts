@@ -6,6 +6,7 @@ import {
   Optimizer,
   Evaluator,
   EngineUtils,
+  API,
 } from "src/module";
 import {
   Protocol,
@@ -26,6 +27,7 @@ export {
   PropagateUpdate,
   Evaluator,
   EngineUtils,
+  API,
 };
 
 declare module "mathjax";
