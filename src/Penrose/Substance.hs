@@ -35,9 +35,7 @@ import           Text.Show.Pretty
 -- * (Variable environment, Substance environment)
 -- * A mapping from Substance ids to their coresponding labels
 data SubOut =
-  SubOut SubProg
-         (VarEnv, SubEnv)
-         LabelMap
+  SubOut SubProg (VarEnv, SubEnv) LabelMap
 
 instance Show SubOut where
   show (SubOut subProg (subEnv, eqEnv) labelMap) =
@@ -55,26 +53,18 @@ type SubProg = [SubStmt]
 
 -- | Special construct added for "declare and bind" statements, which get parsed into a declare and then a bind in the Substance core language
 data SubStmt'
-  = DeclBind T
-             Var
-             Expr
-  | DeclList T
-             [Var]
+  = DeclBind T Var SubExpr
+  | DeclList T [Var]
   | CoreStmt SubStmt
 
 -- | A Substance statement
 data SubStmt
-  = Decl T
-         Var
-  | Bind Var
-         Expr
-  | EqualE Expr
-           Expr
-  | EqualQ Predicate
-           Predicate
-  | ApplyP Predicate
-  | LabelDecl Var
-              String
+  = Decl T Var
+  | Bind Var SubExpr
+  | EqualE SubExpr SubExpr
+  | EqualQ SubPredicate SubPredicate
+  | ApplyP SubPredicate
+  | LabelDecl Var String
   | AutoLabel LabelOption
   | NoLabel [Var]
   deriving (Show, Eq, Typeable)
@@ -87,14 +77,12 @@ data LabelOption
 ------------------------------------
 -- | Declaration of Substance objects
 data SubDecl =
-  SubDeclConst T
-               Var
+  SubDeclConst T Var
   deriving (Show, Eq, Typeable)
 
 -- | Declaration of Substance constaints
 data SubConstr =
-  SubConstrConst String
-                 [PredArg]
+  SubConstrConst String [SubPredArg]
   deriving (Show, Eq, Typeable)
 
 -- | Both declarations and constaints in Substance are regarded as objects,
@@ -112,16 +100,14 @@ newtype OperatorName =
   OperatorConst String
   deriving (Show, Eq, Typeable)
 
-newtype PredicateName =
-  PredicateConst String
-  deriving (Show, Eq, Typeable)
-
 type Field = String
 
-data Func = Func
-  { nameFunc :: String
-  , argFunc  :: [Expr]
-  } deriving (Eq, Typeable)
+data Func =
+  Func
+    { nameFunc :: String
+    , argFunc  :: [SubExpr]
+    }
+  deriving (Eq, Typeable)
 
 instance Show Func where
   show (Func nameFunc argFunc) = nString ++ "(" ++ aString ++ ")"
@@ -129,7 +115,7 @@ instance Show Func where
       nString = show nameFunc
       aString = show argFunc
 
-data Expr
+data SubExpr
   = VarE Var
   | ApplyFunc Func
   | ApplyValCons Func
@@ -137,30 +123,34 @@ data Expr
   | StringLit String
   deriving (Show, Eq, Typeable)
 
-data Deconstructor = Deconstructor
-  { varDeconstructor   :: Var
-  , fieldDeconstructor :: Field
-  } deriving (Show, Eq, Typeable)
-
-data PredArg
-  = PE Expr
-  | PP Predicate
+data Deconstructor =
+  Deconstructor
+    { varDeconstructor   :: Var
+    , fieldDeconstructor :: Field
+    }
   deriving (Show, Eq, Typeable)
 
-data Predicate = Predicate
-  { predicateName :: PredicateName
-  , predicateArgs :: [PredArg]
-  , predicatePos  :: SourcePos
-  } deriving (Typeable)
+data SubPredArg
+  = PE SubExpr
+  | PP SubPredicate
+  deriving (Show, Eq, Typeable)
+
+data SubPredicate =
+  SubPredicate
+    { predicateName :: String
+    , predicateArgs :: [SubPredArg]
+    , predicatePos  :: SourcePos
+    }
+  deriving (Typeable)
 
 -- Equality function that doesn't compare SourcePos
 -- TODO: use correct equality comparison in typechecker?
-instance Eq Predicate where
+instance Eq SubPredicate where
   p1 == p2 =
     predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
 
-instance Show Predicate where
-  show (Predicate predicateName predicateArgs pos) =
+instance Show SubPredicate where
+  show (SubPredicate predicateName predicateArgs pos) =
     nString ++ "(" ++ aString ++ ")"
     where
       nString = show predicateName
@@ -237,7 +227,7 @@ function = do
 field :: Parser Field
 field = identifier
 
-expr, valConsOrFunc, deconstructorE :: Parser Expr
+expr, valConsOrFunc, deconstructorE :: Parser SubExpr
 expr =
   tryChoice
     [ deconstructorE
@@ -276,17 +266,20 @@ valConsOrFunc = do
   where
     substanceErr s = customFailure (SubstanceError s)
 
-predicate :: Parser Predicate
+predicate :: Parser SubPredicate
 predicate = do
   n <- identifier
   args <- parens (predicateArg `sepBy1` comma)
   pos <- getSourcePos
   return
-    Predicate
-    {predicateName = PredicateConst n, predicateArgs = args, predicatePos = pos}
+    SubPredicate
+      { predicateName = n
+      , predicateArgs = args
+      , predicatePos = pos
+      }
 
 -- NOTE: ordering matters here because expr might succeed first by parsing the predicate name as a var. In general, it's not a good idea to start any parser with an id that's not unique to a type. Fix this later when rewriting the whole thing.
-predicateArg :: Parser PredArg
+predicateArg :: Parser SubPredArg
 predicateArg = tryChoice [PP <$> predicate, PE <$> expr]
 
 ----------------------------------- Utility functions ------------------------------------------
@@ -303,11 +296,11 @@ addPrelude subProg varEnv = map toDecl (preludes varEnv) ++ subProg
 check :: SubProg -> VarEnv -> VarEnv
 check p varEnv =
   let env = foldl checkSubStmt varEnv p
-  in if null (errors env)
-       then env
-       else error $
-            "Substance type checking failed with the following problems: \n" ++
-            errors env
+   in if null (errors env)
+        then env
+        else error $
+             "Substance type checking failed with the following problems: \n" ++
+             errors env
 
 -- | Statements are checked differently depending on if they are a variable declaration, variable assignment, or predicate statement.
 -- Variable declaration statements call checkT to check that the type in the statement is well-formed.
@@ -316,62 +309,63 @@ check p varEnv =
 -- These functions return a Maybe type of the variable or expression and a string of errors (which may be empty).
 -- The error strings are added to the context and the Maybe types are checked for “non-null”
 -- values and then equivalence (extra error added to context if the types are not the same for the variable and expression in the statement).
--- Predicate statements are checked by checkPredicate and return a context updated with errors from that checking (if they occur).
+-- SubPredicate statements are checked by checkPredicate and return a context updated with errors from that checking (if they occur).
 checkSubStmt :: VarEnv -> SubStmt -> VarEnv
 checkSubStmt varEnv (Decl t (VarConst n)) =
   let env = checkT varEnv t
       env1 = addDeclaredName n env
-  in env1 {varMap = M.insert (VarConst n) t $ varMap env1}
+   in env1 {varMap = M.insert (VarConst n) t $ varMap env1}
 checkSubStmt varEnv (Bind v e) =
   let (vstr, vt) = checkVarE varEnv v
       (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
-  in if isJust vt && isJust et && vt /= et
-       then varEnv
-            { errors =
-                errors varEnv ++
-                vstr ++
-                estr ++
-                "Expression of type " ++
-                show et ++ " assigned to variable of type " ++ show vt ++ "\n"
-            }
-       else varEnv {errors = errors varEnv ++ vstr ++ estr}
+   in if isJust vt && isJust et && vt /= et
+        then varEnv
+               { errors =
+                   errors varEnv ++
+                   vstr ++
+                   estr ++
+                   "Expression of type " ++
+                   show et ++
+                   " assigned to variable of type " ++ show vt ++ "\n"
+               }
+        else varEnv {errors = errors varEnv ++ vstr ++ estr}
 checkSubStmt varEnv (EqualE expr1 expr2) =
   let (estr1, et1) = checkExpression varEnv expr1
       (estr2, et2) = checkExpression varEnv expr2
-  in if isJust et1 && isJust et2 && et1 /= et2
-       then varEnv
-            { errors =
-                errors varEnv ++
-                estr1 ++
-                estr2 ++
-                "Expression of type " ++
-                show et1 ++
-                " attempeted to be equal to expression from type" ++
-                show et2 ++ "\n"
-            }
-       else varEnv {errors = errors varEnv ++ estr1 ++ estr2}
+   in if isJust et1 && isJust et2 && et1 /= et2
+        then varEnv
+               { errors =
+                   errors varEnv ++
+                   estr1 ++
+                   estr2 ++
+                   "Expression of type " ++
+                   show et1 ++
+                   " attempeted to be equal to expression from type" ++
+                   show et2 ++ "\n"
+               }
+        else varEnv {errors = errors varEnv ++ estr1 ++ estr2}
 checkSubStmt varEnv (EqualQ q1 q2) =
   let env1 = checkPredicate varEnv q1
       env2 = checkPredicate env1 q2
-  in env2
+   in env2
 checkSubStmt varEnv (ApplyP p) = checkPredicate varEnv p
 checkSubStmt varEnv (AutoLabel (IDs vs)) =
   let es = concatMap (fst . checkVarE varEnv) vs
-  in varEnv {errors = errors varEnv ++ es}
+   in varEnv {errors = errors varEnv ++ es}
 checkSubStmt varEnv (AutoLabel _) = varEnv -- no checking required
 checkSubStmt varEnv (NoLabel ids) =
   let es = concatMap (fst . checkVarE varEnv) ids
-  in varEnv {errors = errors varEnv ++ es}
+   in varEnv {errors = errors varEnv ++ es}
 checkSubStmt varEnv (LabelDecl i t) =
   let e = (fst . checkVarE varEnv) i
-  in varEnv {errors = errors varEnv ++ e}
+   in varEnv {errors = errors varEnv ++ e}
 
 -- | The predicate is looked up in the context; if the context doesn’t contain the predicate, then an error is added to the
 -- context, otherwise it is checked differently depending on if it takes expressions or other predicates as arguments by
 -- calling checkVarPred or checkRecursePred respectively. Any errors found within those checking functions will be accumulated
 -- in the context returned by those functions and ultimately this function.
-checkPredicate :: VarEnv -> Predicate -> VarEnv
-checkPredicate varEnv (Predicate (PredicateConst p) args pos) =
+checkPredicate :: VarEnv -> SubPredicate -> VarEnv
+checkPredicate varEnv (SubPredicate p args pos) =
   case checkAndGet p (predicates varEnv) pos of
     Right p ->
       case p of
@@ -390,69 +384,69 @@ areAllArgTypes = foldl (\b at1 -> b && isJust at1) True
 -- function on the predicate argument types and formal types stored in the context.
 -- The substitution need not be applied to any types for predicates, because using the argument types to create the
 -- substitution ensures the argument types match the substitution applied to each formal type.
-checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
+checkVarPred :: VarEnv -> [SubPredArg] -> Predicate1 -> VarEnv
 checkVarPred varEnv args (Prd1 name yls kls tls) =
   let exprArgs = map isVarPredicate args
       errAndTypesLs = map (checkExpression varEnv) exprArgs
       errls = firsts errAndTypesLs
       err = concat errls
       argTypes = seconds errAndTypesLs
-  in if areAllArgTypes argTypes
-       then let argTypes2 = map (KT . fromJust) argTypes
-                tls2 = map KT tls
-                (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
-            in varEnv {errors = errors varEnv ++ err ++ substErr} -- err should be empty str
-       else varEnv {errors = errors varEnv ++ err}
+   in if areAllArgTypes argTypes
+        then let argTypes2 = map (KT . fromJust) argTypes
+                 tls2 = map KT tls
+                 (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
+              in varEnv {errors = errors varEnv ++ err ++ substErr} -- err should be empty str
+        else varEnv {errors = errors varEnv ++ err}
 
-checkVarOperator :: VarEnv -> [PredArg] -> Operator -> VarEnv
+checkVarOperator :: VarEnv -> [SubPredArg] -> Operator -> VarEnv
 checkVarOperator varEnv args (Operator name yls kls tls _) =
   let exprArgs = map isVarPredicate args
       errAndTypesLs = map (checkExpression varEnv) exprArgs
       errls = firsts errAndTypesLs
       err = concat errls
       argTypes = seconds errAndTypesLs
-  in if areAllArgTypes argTypes
-       then let argTypes2 = map (KT . fromJust) argTypes
-                tls2 = map KT tls
-                (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
-            in if sigma == M.empty
-                 then varEnv {errors = errors varEnv ++ err ++ substErr} -- err should be empty str
-                 else varEnv {errors = errors varEnv ++ err ++ substErr} -- err should be empty str
-       else varEnv {errors = errors varEnv ++ err}
+   in if areAllArgTypes argTypes
+        then let argTypes2 = map (KT . fromJust) argTypes
+                 tls2 = map KT tls
+                 (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
+              in if sigma == M.empty
+                   then varEnv {errors = errors varEnv ++ err ++ substErr} -- err should be empty str
+                   else varEnv {errors = errors varEnv ++ err ++ substErr} -- err should be empty str
+        else varEnv {errors = errors varEnv ++ err}
 
 -- Helper function to determine if predicate arguments are all expressions.
 -- It will stop execution if a supplied predicate argument to the function is not an expression.
-isVarPredicate :: PredArg -> Expr
+isVarPredicate :: SubPredArg -> SubExpr
 isVarPredicate (PP p) = error "Mixed predicate types!"
 isVarPredicate (PE p) = p
 
 -- Helper function to determine if predicate arguments are all predicates.
 -- It will stop execution if a supplied predicate argument to the function is not a predicate.
-isRecursedPredicate :: PredArg -> Predicate
+isRecursedPredicate :: SubPredArg -> SubPredicate
 isRecursedPredicate (PP p) = p
 isRecursedPredicate (PE p) = error "Mixed predicate types!"
 
 -- This function, first, ensures all the supplied predicate arguments are predicates.
 -- It calls checkPredicate (recursively) on each argument predicate returning the context with any accumulated errors found
 -- when checking each argument predicate for well-formedness (if there are any).
-checkRecursePred :: VarEnv -> [PredArg] -> VarEnv
+checkRecursePred :: VarEnv -> [SubPredArg] -> VarEnv
 checkRecursePred varEnv args =
   let predArgs = map isRecursedPredicate args
-  in foldl checkPredicate varEnv predArgs
+   in foldl checkPredicate varEnv predArgs
 
 -- This function checks expressions for well-typedness and does it differently for variables or functions/value constructors
 -- calling checkVarE and checkFunc respectively for each case.]
 -- If errors were found during checking then they are accumulated and returned in a tuple with the Maybe type for the expression.
-checkExpression :: VarEnv -> Expr -> (String, Maybe T)
+checkExpression :: VarEnv -> SubExpr -> (String, Maybe T)
 checkExpression varEnv (VarE v) = checkVarE varEnv v
 checkExpression varEnv (ApplyFunc f) = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
 checkExpression varEnv (DeconstructorE d) --checkVarE varEnv (varDeconstructor d)
  =
   let (err, t) = checkVarE varEnv (varDeconstructor d)
-  in case t of
-       Just t' -> checkField varEnv (fieldDeconstructor d) t'
-       Nothing -> (err, Nothing)
+   in case t of
+        Just t' -> checkField varEnv (fieldDeconstructor d) t'
+        Nothing -> (err, Nothing)
 checkExpression varEnv (StringLit v) = ("", Nothing)
 
 -- Type checking for fields in value deconstructor, check that there is a
@@ -465,12 +459,12 @@ checkField varEnv f t =
       ("No matching value constructor for the type " ++ show t, Nothing)
     Just v ->
       let m = M.fromList (zip (nsvc v) (tlsvc v))
-      in case M.lookup (VarConst f) m of
-           Nothing ->
-             ( "No matching field " ++
-               show f ++ " In the value constructor of " ++ show t
-             , Nothing)
-           Just t' -> ("", Just t')
+       in case M.lookup (VarConst f) m of
+            Nothing ->
+              ( "No matching field " ++
+                show f ++ " In the value constructor of " ++ show t
+              , Nothing)
+            Just t' -> ("", Just t')
 
 -- Checking a variable expression for well-typedness involves looking it up in the context.
 -- If it cannot be found in the context, then a tuple is returned of a non-empty error string warning of this problem and
@@ -489,14 +483,14 @@ checkFunc :: VarEnv -> Func -> (String, Maybe T)
 checkFunc varEnv (Func f args) =
   let vcEnv = M.lookup f (valConstructors varEnv)
       fEnv = M.lookup f (operators varEnv)
-  in if isNothing vcEnv && isNothing fEnv
-       then ( "Function or Val Constructor " ++
-              show f ++ " not in environment\n"
-            , Nothing)
-       else maybe
-              (checkFuncInEnv varEnv (Func f args) (fromJust fEnv))
-              (checkVarConsInEnv varEnv (Func f args))
-              vcEnv
+   in if isNothing vcEnv && isNothing fEnv
+        then ( "Function or Val Constructor " ++
+               show f ++ " not in environment\n"
+             , Nothing)
+        else maybe
+               (checkFuncInEnv varEnv (Func f args) (fromJust fEnv))
+               (checkVarConsInEnv varEnv (Func f args))
+               vcEnv
 
 -- Operates very similarly to checkVarPred described above.
 -- The only differences are that this function operates on operators (so checking of arguments to be expressions is
@@ -511,14 +505,14 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
       errls = firsts errAndTypesLs
       err = concat errls
       argTypes = map snd errAndTypesLs
-  in if foldl (\b at1 -> b && isJust at1) True argTypes
-       then let argTypes2 = map (KT . fromJust) argTypes
-                tls2 = map KT tls
-                (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
-            in if sigma == M.empty
-                 then (substErr ++ err, Just t) -- err should be empty str
-                 else (substErr ++ err, Just (applySubst sigma t)) -- err should be empty str
-       else (err, Nothing)
+   in if foldl (\b at1 -> b && isJust at1) True argTypes
+        then let argTypes2 = map (KT . fromJust) argTypes
+                 tls2 = map KT tls
+                 (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
+              in if sigma == M.empty
+                   then (substErr ++ err, Just t) -- err should be empty str
+                   else (substErr ++ err, Just (applySubst sigma t)) -- err should be empty str
+        else (err, Nothing)
 
 -- Operates exactly the same as checkFuncInEnv above it just operates over value constructors instead of operators.
 checkVarConsInEnv :: VarEnv -> Func -> ValConstructor -> (String, Maybe T)
@@ -527,14 +521,14 @@ checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls nls tls t) =
       errls = map fst errAndTypesLs
       err = concat errls
       argTypes = map snd errAndTypesLs
-  in if foldl (\b at1 -> b && isJust at1) True argTypes
-       then let argTypes2 = map (KT . fromJust) argTypes
-                tls2 = map KT tls
-                (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
-            in if sigma == M.empty
-                 then (substErr ++ err, Just t) -- err should be empty str
-                 else (substErr ++ err, Just (applySubst sigma t)) -- err should be empty str
-       else (err, Nothing)
+   in if foldl (\b at1 -> b && isJust at1) True argTypes
+        then let argTypes2 = map (KT . fromJust) argTypes
+                 tls2 = map KT tls
+                 (sigma, substErr) = subst varEnv M.empty argTypes2 tls2
+              in if sigma == M.empty
+                   then (substErr ++ err, Just t) -- err should be empty str
+                   else (substErr ++ err, Just (applySubst sigma t)) -- err should be empty str
+        else (err, Nothing)
 
 -- Takes a substitution “sigma” and applies it to a type. Types that are single type variables are mapped to their corresponding
 -- type which exists in “sigma”. Types that are type constructors are mapped to the same type but with their arguments
@@ -548,7 +542,7 @@ applySubst sigma (TTypeVar vt) =
     AT t -> t
 applySubst sigma (TConstr (TypeCtorApp t args pos)) =
   let argsSub = map (applySubstHelper sigma) args
-  in TConstr (TypeCtorApp t argsSub pos)
+   in TConstr (TypeCtorApp t argsSub pos)
 
 -- This is a helper function which applies a substitution “sigma” to an argument of a type constructor.
 -- If the argument is a variable, then it is mapped to its corresponding variable which exists in “sigma”.
@@ -572,23 +566,24 @@ subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> (M.Map Y Arg, String)
 subst varEnv sigma argTypes formalTypes =
   let types = zip argTypes formalTypes
       sigma2 = foldl (substHelper varEnv) sigma types
-  in if length argTypes /= length formalTypes
-       then ( sigma2
-            , "Arguments list lengths are not equal, expected " ++
-              show (length formalTypes) ++
-              " arguments but call was with " ++
-              show (length argTypes) ++ " arguments \n")
-       else if compareTypesList varEnv argTypes formalTypes --argTypes /= formalTypes
-              then ( sigma2
-                   , "Incorrect types of arguments, expected " ++
-                     show formalTypes ++ " , but was " ++ show argTypes ++ " \n")
-              else (sigma2, "")
+   in if length argTypes /= length formalTypes
+        then ( sigma2
+             , "Arguments list lengths are not equal, expected " ++
+               show (length formalTypes) ++
+               " arguments but call was with " ++
+               show (length argTypes) ++ " arguments \n")
+        else if compareTypesList varEnv argTypes formalTypes --argTypes /= formalTypes
+               then ( sigma2
+                    , "Incorrect types of arguments, expected " ++
+                      show formalTypes ++
+                      " , but was " ++ show argTypes ++ " \n")
+               else (sigma2, "")
 
 compareTypesList :: VarEnv -> [K] -> [K] -> Bool
 compareTypesList varEnv argTypes formalTypes =
   let u = zip argTypes formalTypes
       f = filter (compareTypes varEnv) u
-  in length u /= length f
+   in length u /= length f
 
 compareTypes :: VarEnv -> (K, K) -> Bool
 compareTypes varEnv (k1, k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv) -- TODO: remove the equality here (or derive Eq to not include SourcePos)
@@ -612,7 +607,7 @@ substHelper varEnv sigma (KT (TConstr (TypeCtorApp atc argsAT pos1)), KT (TConst
   | otherwise =
     let args = zip argsAT argsFT
         sigma2 = foldl (substHelper2 varEnv) sigma args
-    in sigma2
+     in sigma2
 substHelper varEnv sigma (Ktype aT, KT fT) =
   error
     ("Argument type " ++ show aT ++ " doesn't match expected type " ++ show fT)
@@ -667,12 +662,14 @@ substInsert sigma y arg =
 --   In order to calculate all the equalities, we compute the closure of the
 --   equalities in Substance + symmetry.
 -- The equalities do NOT contain self-equalities, which are manually checked by the Style matcher
-data SubEnv = SubEnv
-  { exprEqualities :: [(Expr, Expr)]
-  , predEqualities :: [(Predicate, Predicate)]
-  , bindings       :: M.Map Var Expr
-  , subPreds       :: [Predicate]
-  } deriving (Show, Eq, Typeable)
+data SubEnv =
+  SubEnv
+    { exprEqualities :: [(SubExpr, SubExpr)]
+    , predEqualities :: [(SubPredicate, SubPredicate)]
+    , bindings       :: M.Map Var SubExpr
+    , subPreds       :: [SubPredicate]
+    }
+  deriving (Show, Eq, Typeable)
 
 -- | The top level function for computing the Substance environement
 --   Important: this function assumes it runs after the typechecker and that
@@ -681,15 +678,15 @@ loadSubEnv :: SubProg -> SubEnv
 loadSubEnv p =
   let subEnv1 = foldl loadStatement initE p
       subEnv2 = computeEqualityClosure subEnv1
-  in subEnv2
+   in subEnv2
   where
     initE =
       SubEnv
-      { exprEqualities = []
-      , predEqualities = []
-      , bindings = M.empty
-      , subPreds = []
-      }
+        { exprEqualities = []
+        , predEqualities = []
+        , bindings = M.empty
+        , subPreds = []
+        }
 
 -- | The order in all the lists is reserved
 loadStatement :: SubEnv -> SubStmt -> SubEnv
@@ -704,19 +701,19 @@ loadStatement e _ = e -- for all other statements, simply pass on the environmen
 computeEqualityClosure :: SubEnv -> SubEnv
 computeEqualityClosure e =
   e
-  { predEqualities = transitiveClosure (predEqualities e)
-  , exprEqualities = transitiveClosure (exprEqualities e)
-  }
+    { predEqualities = transitiveClosure (predEqualities e)
+    , exprEqualities = transitiveClosure (exprEqualities e)
+    }
 
 -- | Given an environment and 2 expressions, determine whether those expressions are equal
 --   For use in Style
-exprsDeclaredEqual :: SubEnv -> Expr -> Expr -> Bool
+exprsDeclaredEqual :: SubEnv -> SubExpr -> SubExpr -> Bool
 exprsDeclaredEqual env e1 e2 =
   (e1, e2) `elem` exprEqualities env || (e2, e1) `elem` exprEqualities env
 
 -- | Given an environment and 2 predicates determine whether those predicates are equal
 --   For use in Style
-predsDeclaredEqual :: SubEnv -> Predicate -> Predicate -> Bool
+predsDeclaredEqual :: SubEnv -> SubPredicate -> SubPredicate -> Bool
 predsDeclaredEqual env q1 q2 =
   (q1, q2) `elem` predEqualities env || (q2, q1) `elem` predEqualities env
 
@@ -728,13 +725,15 @@ predsDeclaredEqual env q1 q2 =
 type LabelMap = M.Map String (Maybe String)
 
 -- TODO: better name for the type
-data SubObjects = SubObjects
+data SubObjects =
+  SubObjects
     -- | declared Substance objects (including constraints, which is, again, viewed also as objects)
-  { subObjs   :: [SubObj]
+    { subObjs   :: [SubObj]
     -- | a map that stores all label texts associated with each Substance
     -- object (TODO: are predicates included? currently not.)
-  , subLabels :: LabelMap
-  } deriving (Show, Eq, Typeable)
+    , subLabels :: LabelMap
+    }
+  deriving (Show, Eq, Typeable)
 
 -- | generate a mapping from substance IDs to their label strings
 getLabelMap :: SubProg -> VarEnv -> LabelMap

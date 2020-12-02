@@ -14,37 +14,49 @@ import           Penrose.Substance
 
 -------------------------------------------------------
 -- | JSON schemas and derivations using Aeson
-data FunctionSchema = FunctionSchema
-  { varName   :: String
-  , fname     :: String
-  , fargNames :: [String]
-  } deriving (Generic, Show)
+data FunctionSchema =
+  FunctionSchema
+    { varName   :: String
+    , fname     :: String
+    , fargNames :: [String]
+    }
+  deriving (Generic, Show)
 
-data PredicateSchema = PredicateSchema
-  { pname :: String
-  , pargs :: [Either String PredicateSchema]
-  } deriving (Generic, Show)
+data PredicateSchema =
+  PredicateSchema
+    { pname :: String
+    , pargs :: [Either String PredicateSchema]
+    }
+  deriving (Generic, Show)
 
-data ConstraintSchema = ConstraintSchema
-  { functions  :: [FunctionSchema]
-  , predicates :: [PredicateSchema]
-  } deriving (Generic, Show)
+data ConstraintSchema =
+  ConstraintSchema
+    { functions  :: [FunctionSchema]
+    , predicates :: [PredicateSchema]
+    }
+  deriving (Generic, Show)
 
-data ObjectSchema = ObjectSchema
-  { objType :: String
-  , objName :: String
-  } deriving (Generic, Show)
+data ObjectSchema =
+  ObjectSchema
+    { objType :: String
+    , objName :: String
+    }
+  deriving (Generic, Show)
 
-data SubSchema = SubSchema
-  { objects     :: [ObjectSchema]
-  , constraints :: ConstraintSchema
-  , values      :: [ValueSchema]
-  } deriving (Generic, Show)
+data SubSchema =
+  SubSchema
+    { objects     :: [ObjectSchema]
+    , constraints :: ConstraintSchema
+    , values      :: [ValueSchema]
+    }
+  deriving (Generic, Show)
 
-data ValueSchema = ValueSchema
-  { name  :: String
-  , value :: String -- TODO: support more formats in the future
-  } deriving (Generic, Show)
+data ValueSchema =
+  ValueSchema
+    { name  :: String
+    , value :: String -- TODO: support more formats in the future
+    }
+  deriving (Generic, Show)
 
 instance FromJSON ValueSchema
 
@@ -86,12 +98,12 @@ tToSchema (E.TTypeVar typeVar) = E.typeVarName typeVar
 tToSchema (E.TConstr typeCtorApp) =
   let ctorString = E.nameCons typeCtorApp
       args = E.argCons typeCtorApp
-  in case args of
-       [] -> ctorString -- "Set"
-       _ ->
-         ctorString ++ "(" ++ L.intercalate ", " (map targToSchema args) ++ ")"
+   in case args of
+        [] -> ctorString -- "Set"
+        _ ->
+          ctorString ++ "(" ++ L.intercalate ", " (map targToSchema args) ++ ")"
 
-exprToSchema :: Expr -> String
+exprToSchema :: SubExpr -> String
 exprToSchema (VarE (E.VarConst v)) = v
 -- HACK: pass through string literals as it is for now
 exprToSchema (StringLit s) = s
@@ -99,17 +111,14 @@ exprToSchema _ =
   error
     "Cannot convert anonymous expressions in function/val ctor arguments to JSON; must name them first"
 
-prednameToSchema :: PredicateName -> String
-prednameToSchema (PredicateConst s) = s
-
-predargToSchema :: PredArg -> Either String PredicateSchema
+predargToSchema :: SubPredArg -> Either String PredicateSchema
 predargToSchema (PE expr) = Left $ exprToSchema expr
 predargToSchema (PP pred) =
   Right $
   PredicateSchema
-  { pname = prednameToSchema $ predicateName pred
-  , pargs = map predargToSchema $ predicateArgs pred
-  }
+    { pname = predicateName pred
+    , pargs = map predargToSchema $ predicateArgs pred
+    }
 
 -- | Convert a Substance statement to a JSON format and adds it to the right list
 -- | Note: do not rely on ordering in JSON, as this function does not guarantee preserving Substance program order.
@@ -122,33 +131,33 @@ toSchema acc@(objSchs, fnSchs, predSchs, valSchs) subLine =
   case subLine of
     Decl t (E.VarConst v) ->
       let res = ObjectSchema {objType = tToSchema t, objName = v}
-      in (res : objSchs, fnSchs, predSchs, valSchs)
+       in (res : objSchs, fnSchs, predSchs, valSchs)
     Bind (E.VarConst v) (ApplyFunc f) ->
       let res =
             FunctionSchema
-            { varName = v
-            , fname = nameFunc f
-            , fargNames = map exprToSchema $ argFunc f
-            }
-      in (objSchs, res : fnSchs, predSchs, valSchs)
+              { varName = v
+              , fname = nameFunc f
+              , fargNames = map exprToSchema $ argFunc f
+              }
+       in (objSchs, res : fnSchs, predSchs, valSchs)
     Bind (E.VarConst v) (ApplyValCons f) ->
       let res =
             FunctionSchema
-            { varName = v
-            , fname = nameFunc f
-            , fargNames = map exprToSchema $ argFunc f
-            }
-      in (objSchs, res : fnSchs, predSchs, valSchs)
+              { varName = v
+              , fname = nameFunc f
+              , fargNames = map exprToSchema $ argFunc f
+              }
+       in (objSchs, res : fnSchs, predSchs, valSchs)
     Bind (E.VarConst v) (StringLit s) ->
       let res = ValueSchema {name = v, value = s}
-      in (objSchs, fnSchs, predSchs, res : valSchs)
+       in (objSchs, fnSchs, predSchs, res : valSchs)
     ApplyP p ->
       let res =
             PredicateSchema
-            { pname = prednameToSchema $ predicateName p
-            , pargs = map predargToSchema $ predicateArgs p
-            }
-      in (objSchs, fnSchs, res : predSchs, valSchs)
+              { pname = predicateName p
+              , pargs = map predargToSchema $ predicateArgs p
+              }
+       in (objSchs, fnSchs, res : predSchs, valSchs)
          -- TODO: these forms are not sent to plugins
     Bind _ (VarE _) ->
       trace "WARNING: not sending Substance form to plugin!" acc
@@ -165,12 +174,12 @@ subToSchema :: SubProg -> SubSchema
 subToSchema prog =
   let (objSchs, fnSchs, predSchs, valSchs) =
         foldl toSchema ([], [], [], []) prog
-  in SubSchema
-     { objects = objSchs
-     , constraints =
-         ConstraintSchema {functions = fnSchs, predicates = predSchs}
-     , values = valSchs
-     }
+   in SubSchema
+        { objects = objSchs
+        , constraints =
+            ConstraintSchema {functions = fnSchs, predicates = predSchs}
+        , values = valSchs
+        }
 
 -- | This is the main function for converting a parsed Substance program to JSON format, called in ShadowMain
 writeSubstanceToJSON :: FilePath -> SubOut -> IO ()
@@ -181,15 +190,19 @@ writeSubstanceToJSON file (SubOut subprog envs labels) = do
 
 --k-------------------------------------------------------
 --- | JSON format for parsing Style values from plugins
-data KeyValPair = KeyValPair
-  { propertyName :: String
-  , propertyVal  :: Float -- TODO: generalize this
-  } deriving (Generic, Show)
+data KeyValPair =
+  KeyValPair
+    { propertyName :: String
+    , propertyVal  :: Float -- TODO: generalize this
+    }
+  deriving (Generic, Show)
 
-data StyVal = StyVal
-  { subName  :: String
-  , nameVals :: [KeyValPair]
-  } deriving (Generic, Show)
+data StyVal =
+  StyVal
+    { subName  :: String
+    , nameVals :: [KeyValPair]
+    }
+  deriving (Generic, Show)
 
 instance FromJSON KeyValPair
 

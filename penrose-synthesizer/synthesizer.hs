@@ -321,8 +321,8 @@ generatePredicate1 pred = do
   args <- map PE <$> generateArgs opt (map typeName $ tlspred1 pred)
   let stmt =
         ApplyP $
-        Predicate
-          { predicateName = PredicateConst $ namepred1 pred
+        SubPredicate
+          { predicateName = namepred1 pred
           , predicateArgs = args
           , predicatePos = undefined
           }
@@ -335,8 +335,8 @@ generatePredicate2 pred = do
   let args = []
   let stmt =
         ApplyP $
-        Predicate
-          { predicateName = PredicateConst $ namepred2 pred
+        SubPredicate
+          { predicateName = namepred2 pred
           , predicateArgs = args
           , predicatePos = undefined
           }
@@ -344,7 +344,7 @@ generatePredicate2 pred = do
   return stmt
 
 -- | Generate a list of arguments for predicates or functions
-generateArgs :: ArgOption -> [String] -> Synthesize [Expr]
+generateArgs :: ArgOption -> [String] -> Synthesize [SubExpr]
 generateArgs opt types = do
   resetArgContext
   let res = mapM (generateArg opt) types
@@ -352,7 +352,7 @@ generateArgs opt types = do
   res
 
 -- | Generate a list of arguments for predicates or functions
-generateArg :: ArgOption -> String -> Synthesize Expr
+generateArg :: ArgOption -> String -> Synthesize SubExpr
 generateArg Existing typ = do
   existingTypes <- gets declaredTypes
   case M.lookup typ existingTypes of
