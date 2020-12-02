@@ -8,28 +8,22 @@ module Main where
 import           Data.Aeson.TH
 import           Data.Aeson.TypeScript.TH
 import           Data.Map.Strict
-import           Data.Monoid
 import           Data.Proxy
+import           Data.String.Interpolate.IsString
 import           Penrose.Env
 import           Penrose.GenOptProblem
 import           Penrose.Shapes                   hiding (Shape)
 import           Penrose.Style
-import           Penrose.SubstanceTokenizer
+import           Penrose.Substance
+import           Penrose.SubstanceTokenizer       (Token)
 import           Penrose.Transforms
-import           Penrose.Util
+import           Text.Megaparsec                  (Pos, SourcePos)
 
--- import Data.Aeson.TypeScript.Types
-import           Data.Data
-import qualified Data.List                        as L
-import           Data.Set
-import           Data.String.Interpolate.IsString
-import qualified Data.Text                        as T
-import qualified Data.Text.Lazy                   as TL
-
-data Shape = Shape
-  { shapeType  :: String
-  , properties :: Map PropID (Value Double)
-  }
+data Shape =
+  Shape
+    { shapeType  :: String
+    , properties :: Map PropID (Value Double)
+    }
 
 $(deriveTypeScript defaultOptions ''Shape)
 
@@ -39,7 +33,6 @@ $(deriveTypeScript defaultOptions ''Translation)
 
 $(deriveTypeScript defaultOptions ''FieldExpr)
 
--- $(deriveTypeScript defaultOptions ''Name)
 $(deriveTypeScript defaultOptions ''TagExpr)
 
 $(deriveTypeScript defaultOptions ''Expr)
@@ -76,6 +69,89 @@ $(deriveTypeScript defaultOptions ''Params)
 
 $(deriveTypeScript defaultOptions ''OptStatus)
 
+-- All the varenv types
+$(deriveTypeScript defaultOptions ''Header)
+
+$(deriveTypeScript defaultOptions ''Selector)
+
+$(deriveTypeScript defaultOptions ''DeclPattern)
+
+$(deriveTypeScript defaultOptions ''RelationPattern)
+
+$(deriveTypeScript defaultOptions ''Predicate)
+
+$(deriveTypeScript defaultOptions ''PredArg)
+
+$(deriveTypeScript defaultOptions ''StyT)
+
+$(deriveTypeScript defaultOptions ''STypeVar)
+
+$(deriveTypeScript defaultOptions ''STypeCtor)
+
+$(deriveTypeScript defaultOptions ''SArg)
+
+$(deriveTypeScript defaultOptions ''SelExpr)
+
+$(deriveTypeScript defaultOptions ''SourcePos)
+
+$(deriveTypeScript defaultOptions ''Pos)
+
+$(deriveTypeScript defaultOptions ''Stmt)
+
+$(deriveTypeScript defaultOptions ''StyType)
+
+$(deriveTypeScript defaultOptions ''SubOut)
+
+$(deriveTypeScript defaultOptions ''SubEnv)
+
+$(deriveTypeScript defaultOptions ''VarEnv)
+
+$(deriveTypeScript defaultOptions ''TypeConstructor)
+
+$(deriveTypeScript defaultOptions ''K)
+
+$(deriveTypeScript defaultOptions ''T)
+
+$(deriveTypeScript defaultOptions ''Y)
+
+$(deriveTypeScript defaultOptions ''Arg)
+
+$(deriveTypeScript defaultOptions ''TypeVar)
+
+$(deriveTypeScript defaultOptions ''SubExpr)
+
+$(deriveTypeScript defaultOptions ''SubPredicate)
+
+$(deriveTypeScript defaultOptions ''ValConstructor)
+
+$(deriveTypeScript defaultOptions ''Type)
+
+$(deriveTypeScript defaultOptions ''TypeCtorApp)
+
+$(deriveTypeScript defaultOptions ''Func)
+
+$(deriveTypeScript defaultOptions ''Operator)
+
+$(deriveTypeScript defaultOptions ''Deconstructor)
+
+$(deriveTypeScript defaultOptions ''PredicateEnv)
+
+$(deriveTypeScript defaultOptions ''SubPredArg)
+
+$(deriveTypeScript defaultOptions ''LabelOption)
+
+$(deriveTypeScript defaultOptions ''SubStmt)
+
+$(deriveTypeScript defaultOptions ''StmtNotationRule)
+
+$(deriveTypeScript defaultOptions ''Predicate1)
+
+$(deriveTypeScript defaultOptions ''Predicate2)
+
+$(deriveTypeScript defaultOptions ''Token)
+
+$(deriveTypeScript defaultOptions ''Prop)
+
 -- NOTE: omitting all the varenv related types because the evaluator doesn't need them
 instance (TypeScript a, TypeScript b) => TypeScript (Map a b) where
   getTypeScriptType _ =
@@ -110,4 +186,45 @@ main =
      (getTypeScriptDeclarations (Proxy :: Proxy Elem)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy OptStatus)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy BfgsParams)) <>
-     (getTypeScriptDeclarations (Proxy :: Proxy Params)))
+     (getTypeScriptDeclarations (Proxy :: Proxy Params)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Header)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Selector)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy DeclPattern)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy RelationPattern)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Predicate)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy PredArg)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy StyT)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy STypeVar)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy STypeCtor)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SArg)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SelExpr)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SourcePos)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Pos)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Stmt)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy StyType)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SubOut)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SubEnv)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy VarEnv)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy TypeConstructor)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy K)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy T)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Y)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Arg)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy TypeVar)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SubExpr)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SubPredicate)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy ValConstructor)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Type)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy TypeCtorApp)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Func)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Operator)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Deconstructor)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy PredicateEnv)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SubPredArg)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy LabelOption)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy SubStmt)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy StmtNotationRule)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Predicate1)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Predicate2)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Token)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Prop)))

@@ -22,20 +22,17 @@ instance Pretty SubStmt where
   pPrint (NoLabel vs) = text "NoLabel" <+> map pPrint vs `sepBy` comma
   pPrint (LabelDecl v s) = text "Label" <+> pPrint v <+> dollars (text s)
 
-instance Pretty Expr where
+instance Pretty SubExpr where
   pPrint (VarE v)         = pPrint v
   pPrint (ApplyFunc f)    = pPrint f
   pPrint (ApplyValCons f) = pPrint f
   -- pPrint (DeconstructorE d) = pPrint f
 
-instance Pretty Predicate where
-  pPrint Predicate {predicateName = n, predicateArgs = args} =
+instance Pretty SubPredicate where
+  pPrint SubPredicate {predicateName = n, predicateArgs = args} =
     pPrint n <> parens (map pPrint args `sepBy` (comma <> space))
 
-instance Pretty PredicateName where
-  pPrint (PredicateConst n) = text n
-
-instance Pretty PredArg where
+instance Pretty SubPredArg where
   pPrint (PE expr) = pPrint expr
   pPrint (PP p)    = pPrint p
 
@@ -67,8 +64,8 @@ dollars d = dollar <> d <> dollar
 
 --   | EqualE Expr
 --            Expr
---   | EqualQ Predicate
---            Predicate
+--   | EqualQ SubPredicate
+--            SubPredicate
 --   | LabelDecl Var
 --               String
 --   | AutoLabel LabelOption

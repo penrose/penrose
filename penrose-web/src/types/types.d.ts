@@ -7,73 +7,11 @@ interface LabelData {
   height: number;
 }
 
-type VaryMap<T = VarAD> = Map<string, T>;
-
-type FnDone<T> = IFnDone<T>;
-interface IFnDone<T> {
-  name: string;
-  args: ArgVal<T>[];
-  optType: OptType;
-}
-
-type Fn = IFn;
-
-/**
- * Generic interface for constraint or objective functions
- */
-interface IFn {
-  fname: string;
-  fargs: Expr[];
-  optType: OptType;
-}
-type OptType = "ObjFn" | "ConstrFn";
-
-/**
- * The diagram state modeling the original Haskell types
- */
-interface IState {
-  varyingPaths: Path[];
-  shapePaths: Path[];
-  shapeProperties: any; // TODO: types
-  uninitializedPaths: any; // TODO: types
-  params: Params;
-  objFns: Fn[];
-  constrFns: Fn[];
-  rng: prng;
-  selecterMatches: any; // TODO: types
-  policyParams: any; // TODO: types
-  oConfig: any; // TODO: types
-  pendingPaths: Path[];
-  varyingValues: number[];
-  translation: Translation;
-  originalTranslation: Translation;
-  shapeOrdering: string[];
-  shapes: Shape[];
-  varyingMap: VaryMap;
-}
-type State = IState;
-
-// TODO: annotate the comp graph with their derivatives
-// NOTE: the point is to have a better type that allows annotation of the comp graph
-// interface FieldExpr<T> {
-//   tag: "FGPI" | "FExpr";
-//   done: boolean;
-//   value: ?;
-//   contents: [string, { [k: string]: TagExpr<T> }] | TagExpr<T>;
-// }
-// TagExpr is either Value or Expr
-interface CompNode<T> {
-  status: "Done" | "Uninitialized" | "Pending";
-  def: Expr | GPIExpr<T>;
-  value: Value<T> | undefined;
-}
-
-// These are numbers, not autodiff types, since shapes are only for display (unlike GPIs)
-type Properties = { [k: string]: Value<number> };
-
-////////////////////////////////////////////////////////////////////////////
+//#region Shape/Evaluator-related types
 
 type Shape = IShape;
+
+type Properties = { [k: string]: Value<number> };
 
 /**
  * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). This type is specifically used for rendering. See {@link GPI} for the version used for the runtime.
@@ -554,6 +492,55 @@ interface IQuadBezJoin<T> {
   tag: "QuadBezJoin";
   contents: [T, T];
 }
+//#endregion
+
+//#region State-related types
+
+/**
+ * The diagram state modeling the original Haskell types
+ */
+interface IState {
+  varyingPaths: Path[];
+  shapePaths: Path[];
+  shapeProperties: any; // TODO: types
+  uninitializedPaths: any; // TODO: types
+  params: Params;
+  objFns: Fn[];
+  constrFns: Fn[];
+  rng: prng;
+  selecterMatches: any; // TODO: types
+  policyParams: any; // TODO: types
+  oConfig: any; // TODO: types
+  pendingPaths: Path[];
+  varyingValues: number[];
+  translation: Translation;
+  originalTranslation: Translation;
+  shapeOrdering: string[];
+  shapes: Shape[];
+  varyingMap: VaryMap;
+}
+type State = IState;
+
+type VaryMap<T = VarAD> = Map<string, T>;
+
+type FnDone<T> = IFnDone<T>;
+interface IFnDone<T> {
+  name: string;
+  args: ArgVal<T>[];
+  optType: OptType;
+}
+
+type Fn = IFn;
+
+/**
+ * Generic interface for constraint or objective functions
+ */
+interface IFn {
+  fname: string;
+  fargs: Expr[];
+  optType: OptType;
+}
+type OptType = "ObjFn" | "ConstrFn";
 
 // TODO: use strings for status
 type OptStatus =
@@ -644,7 +631,9 @@ interface IWeightInfo {
   epWeight: number;
 }
 
-// ----- Helper types
+//#endregion
+
+//#region Helper types
 
 interface Nothing<T> {
   tag: "Nothing";
@@ -656,8 +645,9 @@ interface Just<T> {
 }
 
 type MaybeVal<T> = Nothing<T> | Just<T>;
+//#endregion
 
-// ------------ Types for reverse-mode autodiff
+//#region Types for reverse-mode autodiff
 
 // ----- Core types
 
@@ -709,8 +699,9 @@ interface IVarAD {
 }
 
 type VarAD = IVarAD;
+//#endregion
 
-// ----- Types for generalizing our system autodiff
+//#region Types for generalizing our system autodiff
 
 type VecAD = VarAD[];
 
@@ -746,3 +737,617 @@ interface IOptDebugInfo {
   gradient: NumMap;
   gradientPreconditioned: NumMap;
 }
+
+//#endregion
+
+//#region Style AST
+
+/** Top level type for Style AST */
+type StyProg = HeaderBlocks;
+type HeaderBlocks = HeaderBlock[];
+type HeaderBlock = [Header, Block];
+type Block = Stmt[];
+
+type Header = ISelect | INamespace;
+
+interface ISelect {
+  tag: "Select";
+  contents: Selector;
+}
+
+interface INamespace {
+  tag: "Namespace";
+  contents: StyVar;
+}
+
+type Selector = ISelector;
+
+interface ISelector {
+  selHead: DeclPattern[];
+  selWith: DeclPattern[];
+  selWhere: RelationPattern[];
+  selNamespace?: string;
+}
+
+type DeclPattern = IPatternDecl;
+
+type IPatternDecl = [StyT, BindingForm];
+
+type RelationPattern = IRelBind | IRelPred;
+
+interface IRelBind {
+  tag: "RelBind";
+  contents: [BindingForm, SelExpr];
+}
+
+interface IRelPred {
+  tag: "RelPred";
+  contents: Predicate;
+}
+
+type Predicate = IPredicate;
+
+interface IPredicate {
+  predicateName: string;
+  predicateArgs: PredArg[];
+  predicatePos: SourcePos;
+}
+
+type PredArg = IPE | IPP;
+
+interface IPE {
+  tag: "PE";
+  contents: SelExpr;
+}
+
+interface IPP {
+  tag: "PP";
+  contents: Predicate;
+}
+
+type StyT = ISTTypeVar | ISTCtor;
+
+interface ISTTypeVar {
+  tag: "STTypeVar";
+  contents: STypeVar;
+}
+
+interface ISTCtor {
+  tag: "STCtor";
+  contents: STypeCtor;
+}
+
+type STypeVar = ISTypeVar;
+
+interface ISTypeVar {
+  typeVarNameS: string;
+  typeVarPosS: SourcePos;
+}
+
+type STypeCtor = ISTypeCtor;
+
+interface ISTypeCtor {
+  nameConsS: string;
+  argConsS: SArg[];
+  posConsS: SourcePos;
+}
+
+type SArg = ISAVar | ISAT;
+
+interface ISAVar {
+  tag: "SAVar";
+  contents: BindingForm;
+}
+
+interface ISAT {
+  tag: "SAT";
+  contents: StyT;
+}
+
+type SelExpr = ISEBind | ISEAppFunc | ISEAppValCons;
+
+interface ISEBind {
+  tag: "SEBind";
+  contents: BindingForm;
+}
+
+interface ISEAppFunc {
+  tag: "SEAppFunc";
+  contents: [string, SelExpr[]];
+}
+
+interface ISEAppValCons {
+  tag: "SEAppValCons";
+  contents: [string, SelExpr[]];
+}
+
+type SourcePos = ISourcePos;
+
+interface ISourcePos {
+  sourceName: string;
+  sourceLine: Pos;
+  sourceColumn: Pos;
+}
+
+type Pos = IPos;
+
+type IPos = number;
+
+type Stmt = IPathAssign | IOverride | IDelete | IAnonAssign;
+
+interface IPathAssign {
+  tag: "PathAssign";
+  contents: [StyType, Path, Expr];
+}
+
+interface IOverride {
+  tag: "Override";
+  contents: [Path, Expr];
+}
+
+interface IDelete {
+  tag: "Delete";
+  contents: Path;
+}
+
+interface IAnonAssign {
+  tag: "AnonAssign";
+  contents: Expr;
+}
+
+type StyType = ITypeOf | IListOf;
+
+interface ITypeOf {
+  tag: "TypeOf";
+  contents: string;
+}
+
+interface IListOf {
+  tag: "ListOf";
+  contents: string;
+}
+
+//#endregion
+
+//#region Substance AST and Domain environment types
+type SubOut = ISubOut;
+
+type SubProg = SubStmt[];
+
+type ISubOut = [SubProg, [VarEnv, SubEnv], LabelMap];
+
+type LabelMap = { [k: string]: string };
+
+type SubEnv = ISubEnv;
+
+interface ISubEnv {
+  exprEqualities: [SubExpr, SubExpr][];
+  predEqualities: [SubPredicate, SubPredicate][];
+  bindings: { [k: Var]: SubExpr };
+  subPreds: SubPredicate[];
+}
+
+type VarEnv = IVarEnv;
+
+interface IVarEnv {
+  typeConstructors: { [k: string]: TypeConstructor };
+  valConstructors: { [k: string]: ValConstructor };
+  operators: { [k: string]: Operator };
+  predicates: { [k: string]: PredicateEnv };
+  typeVarMap: { [k: TypeVar]: Type };
+  typeValConstructor: { [k: T]: ValConstructor };
+  varMap: { [k: Var]: T };
+  preludes: [Var, T][];
+  subTypes: [T, T][];
+  typeCtorNames: string[];
+  declaredNames: string[];
+  stmtNotations: StmtNotationRule[];
+  errors: string;
+}
+
+type TypeConstructor = ITypeConstructor;
+
+interface ITypeConstructor {
+  nametc: string;
+  kindstc: K[];
+}
+
+type K = IKtype | IKT;
+
+interface IKtype {
+  tag: "Ktype";
+  contents: Type;
+}
+
+interface IKT {
+  tag: "KT";
+  contents: T;
+}
+
+type T = ITTypeVar | ITConstr;
+
+interface ITTypeVar {
+  tag: "TTypeVar";
+  contents: TypeVar;
+}
+
+interface ITConstr {
+  tag: "TConstr";
+  contents: TypeCtorApp;
+}
+
+type Y = ITypeVarY | IVarY;
+
+interface ITypeVarY {
+  tag: "TypeVarY";
+  contents: TypeVar;
+}
+
+interface IVarY {
+  tag: "VarY";
+  contents: Var;
+}
+
+type Arg = IAVar | IAT;
+
+interface IAVar {
+  tag: "AVar";
+  contents: Var;
+}
+
+interface IAT {
+  tag: "AT";
+  contents: T;
+}
+
+type TypeVar = ITypeVar;
+
+interface ITypeVar {
+  typeVarName: string;
+  typeVarPos: SourcePos;
+}
+
+type SubExpr =
+  | IVarE
+  | IApplyFunc
+  | IApplyValCons
+  | IDeconstructorE
+  | IStringLit;
+
+interface IVarE {
+  tag: "VarE";
+  contents: Var;
+}
+
+interface IApplyFunc {
+  tag: "ApplyFunc";
+  contents: Func;
+}
+
+interface IApplyValCons {
+  tag: "ApplyValCons";
+  contents: Func;
+}
+
+interface IDeconstructorE {
+  tag: "DeconstructorE";
+  contents: Deconstructor;
+}
+
+interface IStringLit {
+  tag: "StringLit";
+  contents: string;
+}
+
+type SubPredicate = ISubPredicate;
+
+interface ISubPredicate {
+  predicateName: string;
+  predicateArgs: SubPredArg[];
+  predicatePos: SourcePos;
+}
+
+type ValConstructor = IValConstructor;
+
+interface IValConstructor {
+  namevc: string;
+  ylsvc: Y[];
+  kindsvc: K[];
+  nsvc: Var[];
+  tlsvc: T[];
+  tvc: T;
+}
+
+type Type = IType;
+
+interface IType {
+  typeName: string;
+  typePos: SourcePos;
+}
+
+type TypeCtorApp = ITypeCtorApp;
+
+interface ITypeCtorApp {
+  nameCons: string;
+  argCons: Arg[];
+  constructorInvokerPos: SourcePos;
+}
+
+type Func = IFunc;
+
+interface IFunc {
+  nameFunc: string;
+  argFunc: SubExpr[];
+}
+
+type Operator = IOperator;
+
+interface IOperator {
+  nameop: string;
+  ylsop: Y[];
+  kindsop: K[];
+  tlsop: T[];
+  top: T;
+}
+
+type Deconstructor = IDeconstructor;
+
+interface IDeconstructor {
+  varDeconstructor: Var;
+  fieldDeconstructor: string;
+}
+
+type PredicateEnv = IPred1 | IPred2;
+
+interface IPred1 {
+  tag: "Pred1";
+  contents: Predicate1;
+}
+
+interface IPred2 {
+  tag: "Pred2";
+  contents: Predicate2;
+}
+
+type SubPredArg = IPE | IPP;
+
+interface IPE {
+  tag: "PE";
+  contents: SubExpr;
+}
+
+interface IPP {
+  tag: "PP";
+  contents: SubPredicate;
+}
+
+type LabelOption = IDefault | IIDs;
+
+interface IDefault {
+  tag: "Default";
+}
+
+interface IIDs {
+  tag: "IDs";
+  contents: Var[];
+}
+
+type SubStmt =
+  | IDecl
+  | IBind
+  | IEqualE
+  | IEqualQ
+  | IApplyP
+  | ILabelDecl
+  | IAutoLabel
+  | INoLabel;
+
+interface IDecl {
+  tag: "Decl";
+  contents: [T, Var];
+}
+
+interface IBind {
+  tag: "Bind";
+  contents: [Var, SubExpr];
+}
+
+interface IEqualE {
+  tag: "EqualE";
+  contents: [SubExpr, SubExpr];
+}
+
+interface IEqualQ {
+  tag: "EqualQ";
+  contents: [SubPredicate, SubPredicate];
+}
+
+interface IApplyP {
+  tag: "ApplyP";
+  contents: SubPredicate;
+}
+
+interface ILabelDecl {
+  tag: "LabelDecl";
+  contents: [Var, string];
+}
+
+interface IAutoLabel {
+  tag: "AutoLabel";
+  contents: LabelOption;
+}
+
+interface INoLabel {
+  tag: "NoLabel";
+  contents: Var[];
+}
+
+type StmtNotationRule = IStmtNotationRule;
+
+interface IStmtNotationRule {
+  fromSnr: Token[];
+  toSnr: Token[];
+  patternsSnr: Token[];
+  entitiesSnr: Token[];
+}
+
+type Predicate1 = IPrd1;
+
+interface IPrd1 {
+  namepred1: string;
+  ylspred1: Y[];
+  kindspred1: K[];
+  tlspred1: T[];
+}
+
+type Predicate2 = IPrd2;
+
+interface IPrd2 {
+  namepred2: string;
+  plspred2: Prop[];
+}
+
+type Token =
+  | IBind
+  | IIterator
+  | IIter
+  | INewLine
+  | IPredEq
+  | IExprEq
+  | IComma
+  | ILparen
+  | IRparen
+  | ISpace
+  | ISym
+  | IVar
+  | IStringLit
+  | IRecursivePattern
+  | IRecursivePatternElement
+  | ISinglePatternElement
+  | IPattern
+  | IEntitiy
+  | IDSLLEntity
+  | ILabel
+  | IAutoLabel
+  | IComment
+  | IStartMultiComment
+  | IEndMultiComment;
+
+interface IBind {
+  tag: "Bind";
+}
+
+interface IIterator {
+  tag: "Iterator";
+}
+
+interface IIter {
+  tag: "Iter";
+}
+
+interface INewLine {
+  tag: "NewLine";
+}
+
+interface IPredEq {
+  tag: "PredEq";
+}
+
+interface IExprEq {
+  tag: "ExprEq";
+}
+
+interface IComma {
+  tag: "Comma";
+}
+
+interface ILparen {
+  tag: "Lparen";
+}
+
+interface IRparen {
+  tag: "Rparen";
+}
+
+interface ISpace {
+  tag: "Space";
+}
+
+interface ISym {
+  tag: "Sym";
+  contents: string;
+}
+
+interface IVar {
+  tag: "Var";
+  contents: string;
+}
+
+interface IStringLit {
+  tag: "StringLit";
+  contents: string;
+}
+
+interface IRecursivePattern {
+  tag: "RecursivePattern";
+  contents: Token[];
+}
+
+interface IRecursivePatternElement {
+  tag: "RecursivePatternElement";
+  contents: Token[];
+}
+
+interface ISinglePatternElement {
+  tag: "SinglePatternElement";
+  contents: Token[];
+}
+
+interface IPattern {
+  tag: "Pattern";
+  contents: [string, boolean];
+}
+
+interface IEntitiy {
+  tag: "Entitiy";
+  contents: string;
+}
+
+interface IDSLLEntity {
+  tag: "DSLLEntity";
+  contents: string;
+}
+
+interface ILabel {
+  tag: "Label";
+  contents: string;
+}
+
+interface IAutoLabel {
+  tag: "AutoLabel";
+  contents: string;
+}
+
+interface IComment {
+  tag: "Comment";
+  contents: string;
+}
+
+interface IStartMultiComment {
+  tag: "StartMultiComment";
+  contents: string;
+}
+
+interface IEndMultiComment {
+  tag: "EndMultiComment";
+  contents: string;
+}
+
+type Prop = IProp;
+
+interface IProp {
+  propName: string;
+  propPos: SourcePos;
+}
+
+//#endregion

@@ -93,6 +93,7 @@ executable tsdef
         aeson,
         containers,
         text,
+        megaparsec,
         aeson-typescript,
         interpolate,
         unordered-containers,
