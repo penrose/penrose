@@ -146,7 +146,7 @@ where From(f, domain, image) {
         y : domain.shape.endY - 30.0
     }
     -- TODO: move to the following blocks once selector matching supports nested ones
-    f.shape = Curve {
+    f.shape = Path {
     	-- Default
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
         pathData : interpolate(f.shape.path)

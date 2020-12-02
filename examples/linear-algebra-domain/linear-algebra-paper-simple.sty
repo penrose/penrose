@@ -133,7 +133,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       -- toPath = functions.pathFromPoints -- COMBAK: Add ability to alias function names
 
       -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
-      perpMark = Curve {
+      perpMark = Path {
            pathData : pathFromPoints("closed", pts)
            strokeWidth : 2.0
            color : C.black
@@ -167,7 +167,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       markEnd = v.arrow.end + padding * normal
       v.markerLine = [markStart, markEnd]
 
-      v.unitMarkerLine = Curve {
+      v.unitMarkerLine = Path {
           pathData : pathFromPoints("open", v.markerLine)
           strokeWidth : strokeWidth
           color : C.black
@@ -180,14 +180,14 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       c = const.barSize
       halfvec = c * markNormal
 
-      v.unitMarkerEnd1 = Curve {
+      v.unitMarkerEnd1 = Path {
           pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           strokeWidth : strokeWidth
           color : C.black
           fill : C.none
       }
 
-      v.unitMarkerEnd2 = Curve {
+      v.unitMarkerEnd2 = Path {
           pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           strokeWidth : strokeWidth
           color : C.black

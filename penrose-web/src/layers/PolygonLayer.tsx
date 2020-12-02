@@ -54,7 +54,7 @@ class PolygonLayer extends React.Component<ILayerProps> {
           }
 
           // TODO: show control points of bezier curve
-          if (shapeType === "Curve") {
+          if (shapeType === "Path") {
             const ptListString = toPointListStringOld(
               (properties.polyline as IPtListV<number>).contents,
               canvasSize

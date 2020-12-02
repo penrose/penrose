@@ -210,7 +210,7 @@ export const arrowDef: ShapeDef = {
 };
 
 export const curveDef: ShapeDef = {
-  shapeType: "Curve",
+  shapeType: "Path",
   properties: {
     path: ["PtListV", () => constValue("PtListV", [])],
     polyline: ["PtListV", () => constValue("PtListV", [])],
@@ -309,6 +309,7 @@ const sampleProperty = (
 /**
  * Sample varying fields, which are assumed to be positional values. They are sampled with the canvas dimensions.
  * @param state State that contains a list of varying paths
+ * @ignore
  */
 const sampleFields = ({ varyingPaths }: State): number[] => {
   const fieldPaths = varyingPaths.filter(

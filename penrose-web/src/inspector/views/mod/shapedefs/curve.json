@@ -1,5 +1,5 @@
 {
-    "shapeType": "Curve",
+    "shapeType": "Path",
     "properties": {
         "color": {
             "inputType": "color",
@@ -11,12 +11,18 @@
         },
         "arrowheadStyle": {
             "inputType": "select",
-            "options": ["arrowhead-2", "arrowhead-1"],
+            "options": [
+                "arrowhead-2",
+                "arrowhead-1"
+            ],
             "showValue": "false"
         },
         "effect": {
             "inputType": "select",
-            "options": ["none", "dropShadow"],
+            "options": [
+                "none",
+                "dropShadow"
+            ],
             "showValue": "false"
         },
         "arrowheadSize": {

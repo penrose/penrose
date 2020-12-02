@@ -11,7 +11,7 @@ import Ellipse from "shapes/Ellipse";
 import EllipseTransform from "shapes/EllipseTransform";
 import Square from "shapes/Square";
 import SquareTransform from "shapes/SquareTransform";
-import Curve from "shapes/Curve";
+import Path from "shapes/Path";
 import CurveTransform from "shapes/CurveTransform";
 import Arrow from "shapes/Arrow";
 import Line from "shapes/Line";
@@ -35,7 +35,7 @@ export const staticMap = {
   "SquareTransform" : SquareTransform,
   "Text": Label,
   "TextTransform": LabelTransform,
-  "Curve": Curve,
+  "Path": Path,
   "CurveTransform": CurveTransform,
   "Arrow": Arrow,
   "Image": Image,

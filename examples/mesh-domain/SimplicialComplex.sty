@@ -252,7 +252,7 @@ where f := MkFace(e1, e2, e3); InFS(f, K)
 with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
      f.color = Colors.silver
 
-     f.shape = Curve { 
+     f.shape = Path { 
      	     pathData : triangle(e1.shape, e2.shape, e3.shape)
 	     strokeWidth : 0.0
 	     fill : f.color

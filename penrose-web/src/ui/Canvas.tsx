@@ -106,8 +106,8 @@ class Canvas extends React.Component<ICanvasProps> {
   public dragShape = (shape: Shape, offset: [number, number]) => {
     const { shapeType, properties } = shape;
     switch (shapeType) {
-      case "Curve":
-        console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+      case "Path":
+        console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
         return shape;
       case "Line":
         return {

@@ -63,7 +63,7 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
     })
     .join(" ");
 
-class Curve extends React.Component<IGPIProps> {
+class Path extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
@@ -125,4 +125,4 @@ class Curve extends React.Component<IGPIProps> {
     );
   }
 }
-export default Curve;
+export default Path;

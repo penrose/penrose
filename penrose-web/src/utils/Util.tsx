@@ -19,8 +19,14 @@ export const randFloats = (
  * @param min minimum (inclusive)
  * @param max maximum (exclusive)
  */
-export const randFloat = (min: number, max: number): number =>
-  Math.random() * (max - min) + min;
+export const randFloat = (min: number, max: number): number => {
+  // TODO: better error reporting
+  console.assert(
+    max > min,
+    "min should be smaller than max for random number generation!"
+  );
+  return Math.random() * (max - min) + min;
+};
 
 /**
  * Generate a random integer. The maximum is exclusive and the minimum is inclusive
@@ -88,7 +94,7 @@ export const bBoxDims = (properties: Properties, shapeType: string) => {
       Math.max(Math.abs(ex - sx), padding),
       Math.max(Math.abs(ey - sy), padding),
     ];
-  } else if (shapeType === "Curve") {
+  } else if (shapeType === "Path") {
     [w, h] = [20, 20]; // todo find a better measure for this... check with max?
   } else {
     [w, h] = [properties.w.contents as number, properties.h.contents as number];

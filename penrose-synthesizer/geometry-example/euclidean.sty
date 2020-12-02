@@ -104,7 +104,7 @@ with Point p; Point q; Point r {
      t.color = setOpacity(Colors.darkpurple, 0.4)
 
      -- TODO: layer all labels on top of filled shapes
-     t.shape = Curve {
+     t.shape = Path {
      	     pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
 	     strokeWidth : 0.0
 	     fill : t.color
@@ -127,7 +127,7 @@ with Point p; Point q; Point r {
      -- TODO: always take the acute angle, not the obtuse angle
      theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius)
 
-     theta.shape = Curve {
+     theta.shape = Path {
      		 pathData : polygonFromPoints(theta.arcPath)
 		 strokeWidth : G.strokeWidth
 		 color : Colors.darkpurple
@@ -189,7 +189,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
       theta.markLen = 10.0
 
       -- Angle bisector marks: two tick marks
-      theta.bisectMark1 = Curve {
+      theta.bisectMark1 = Path {
       	      pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none
@@ -199,7 +199,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
       	      arrowheadSize : 0.0
       }
 
-      theta.bisectMark2 = Curve {
+      theta.bisectMark2 = Path {
       	      pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none
@@ -231,7 +231,7 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
 
       r.perpSize = 10.0
 
-      r.perpMark = Curve {
+      r.perpMark = Path {
       		 pathData : perpPath(r.shape, s.shape, (r.shape.startX, r.shape.startY), r.perpSize)
 		 strokeWidth : 1.25
 		 color : Colors.black

@@ -430,7 +430,7 @@ where f := CreateFunction(I, J) {
   -- not change what happens here
   override f.domain.color = f.color2
 
-  f.shape = Curve {
+  f.shape = Path {
     pathData : sampleFunctionArea(f.domain, f.codomain)
     strokeWidth : 0.0
     fill : f.color1
@@ -486,7 +486,7 @@ where f := CreateFunction(`R`, `R`) {
   override f.domain.color = f.color2
   override f.codomain.color = f.color2
 
-  f.shape = Curve {
+  f.shape = Path {
     pathData : sampleFunctionArea(f.domain, f.codomain)
     strokeWidth : 0.0
     fill : f.color1
@@ -569,7 +569,7 @@ where f := CreateFunction(I, J);
      override Y.shape.color = f.color2
      -- TODO: have domain intervals be disjoint
 
-     f.shape1 = Curve {
+     f.shape1 = Path {
        pathData : sampleFunctionArea(X.shape, f.codomain)
        strokeWidth : 0.0
        fill : f.color1
@@ -577,7 +577,7 @@ where f := CreateFunction(I, J);
        rotation : 0.0
      }
 
-     f.shape2 = Curve {
+     f.shape2 = Path {
        pathData : sampleFunctionArea(Y.shape, f.codomain)
        strokeWidth : 0.0
        fill : f.color1
@@ -736,7 +736,7 @@ where y := Apply(f, x); f := CreateFunction(I, J); In(x, I) {
   override y.shape.color = f.color2
   -- TODO: change the color of the interval's brackets
 
-  f.pointwise_shape = Curve {
+  f.pointwise_shape = Path {
     pathData : makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
 
     strokeWidth : 2.0
@@ -766,7 +766,7 @@ where y := Apply(f, x); f := CreateFunction(`R`, `R`) {
   override x.shape.color = f.color2
   override y.shape.color = f.color2
 
-  f.pointwise_shape = Curve {
+  f.pointwise_shape = Path {
     pathData : makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
 
     strokeWidth : 2.0

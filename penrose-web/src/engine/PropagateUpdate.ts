@@ -37,7 +37,9 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
         }
         return res;
       } else {
-        throw new Error("pending paths must be property paths");
+        throw new Error(
+          `pending paths must be property paths but got ${propertyPath.tag}`
+        );
       }
     }
   }
@@ -83,7 +85,10 @@ export const updateVaryingValues = (state: State): State => {
     // TODO: add a branch for `FieldPath` when this is no longer the case
     if (path.tag === "PropertyPath") {
       newVaryingValues[index] = findShapeProperty(state.shapes, path).contents;
-    } else if (path.tag === "AccessPath") {
+    } else if (
+      path.tag === "AccessPath" &&
+      path.contents[0].tag === "PropertyPath"
+    ) {
       newVaryingValues[index] = findShapeProperty(state.shapes, path);
     }
   });

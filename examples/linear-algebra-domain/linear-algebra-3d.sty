@@ -257,7 +257,7 @@ where From(f, U, V) {
    f.radius = dist(f.left, f.center)
    f.arcPath = arcPathEuclidean(f.center, f.left, f.right, f.radius, "Open")
 
-   f.shape = Curve {
+   f.shape = Path {
      pathData : pathFromPoints(f.arcPath)
      fill : Colors.none
      color : Colors.black
@@ -292,7 +292,7 @@ Scalar c {
 Scalar c
 with Vector a; Vector b; VectorSpace U
 where c := determinant(a,b); In(a,U); In(b,U) {
-   c.shape = Curve {
+   c.shape = Path {
    	   pathData : makeRegionPath(a.shape, b.shape)
 	   strokeWidth : 0.0
 	   fill : setOpacity(Colors.sky, 0.25)
