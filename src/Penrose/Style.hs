@@ -489,8 +489,8 @@ anonExpr = tryChoice [layeringExpr, objFn, constrFn]
 anonAssign, pathAssign, override, delete :: Parser Stmt
 anonAssign = AnonAssign <$> anonExpr
 -- TODO: this will prevent `shape` from being a valid id in any path
-pathAssign = PathAssign <$> pure Nothing <*> path <*> (eq >> expr)
--- pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
+-- pathAssign = PathAssign <$> pure Nothing <*> path <*> (eq >> expr)
+pathAssign = PathAssign <$> optional styleType <*> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 

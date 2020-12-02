@@ -100,7 +100,7 @@ Point p {
       p.y = ?
       p.vec = (p.x, p.y)
 
-       p.shape = Circle {
+       p.icon = Circle {
          center: p.vec
          r : const.pointSize
 	 color : Colors.black
@@ -116,15 +116,15 @@ Point p {
        }
 
        -- TODO: put these constraints back in
-       ensure atDist(p.shape, p.text, const.textPadding)
+       ensure atDist(p.icon, p.text, const.textPadding)
 
        -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
        -- There's a choice of whether to put padding on the point or the text for containment
        
-       ensure contains(const.plane, p.shape, const.containPadding)
+       ensure contains(const.plane, p.icon, const.containPadding)
        ensure contains(const.plane, p.text, 0.0)
 
-       p.shape above const.plane
+       p.icon above const.plane
        p.text above const.plane
 }
 
@@ -135,36 +135,36 @@ with Point p; Point q {
 
      e.color = Colors.black
 
-     e.shape = Line {
-     	     start : p.shape.center
-     	     end : q.shape.center
+     e.icon = Line {
+     	     start : p.icon.center
+     	     end : q.icon.center
 	     color : e.color
 	     thickness : const.strokeWidth
 	     stroke : "none"
 	     style : "solid"
      }
 
-     p.shape above e.shape
-     q.shape above e.shape
+     p.icon above e.icon
+     q.icon above e.icon
 
-     encourage repel(e.shape, p.text, const.repelWeight)
-     encourage repel(e.shape, q.text, const.repelWeight)
+     encourage repel(e.icon, p.text, const.repelWeight)
+     encourage repel(e.icon, q.text, const.repelWeight)
 
-     e.shape above const.plane
+     e.icon above const.plane
 }
 
 Point `A` {
-      override `A`.shape.color = Colors.red
+      override `A`.icon.color = Colors.red
       override `A`.text.color = Colors.red
 }
 
 Point `B` {
-      override `B`.shape.color = Colors.sky
+      override `B`.icon.color = Colors.sky
       override `B`.text.color = Colors.sky
 }
 
 Point `C` {
-      override `C`.shape.color = Colors.silver
+      override `C`.icon.color = Colors.silver
       override `C`.text.color = Colors.silver
 }
 
@@ -179,7 +179,7 @@ Point `C` {
 --      e.color = Colors.black
 --      e.proj_pt = project(q.vec, p.vec, r.vec)
 
---      e.shape = Line {
+--      e.icon = Line {
 --      	     startX : p.x
 --      	     startY : p.y
 --      	     endX : get(e.proj_pt, 0)
@@ -228,7 +228,7 @@ Point `C` {
 -- 	     rotation : 0.0
 --      }
 
---      t.layering = t.shape above const.plane
+--      t.layering = t.icon above const.plane
 -- }
 
 -- -- Should the rectangle be constructed from the points, or vice versa?
@@ -245,7 +245,7 @@ Point `C` {
 -- 	     rotation : 0.0
 --      }
 
---      R.layering = R.shape above const.plane
+--      R.layering = R.icon above const.plane
 -- }
 
 -- -- We don't know if the points in the triangle actually include the points in the square or not
@@ -327,13 +327,13 @@ Point `C` {
 -- 		 fill : setOpacity(Colors.white, 0.5)
 --      }
 
---      theta.layering1 = theta.shape above const.plane
---      theta.layering2 = theta.shape below p.shape
---      theta.layering3 = theta.shape below q.shape
---      theta.layering4 = theta.shape below r.shape
+--      theta.layering1 = theta.icon above const.plane
+--      theta.layering2 = theta.icon below p.icon
+--      theta.layering3 = theta.icon below q.icon
+--      theta.layering4 = theta.icon below r.icon
 
 --      -- TODO: or could be minimum constraint function
---      theta.sizeFn = encourage repel(q.shape, r.shape, 100.0)
+--      theta.sizeFn = encourage repel(q.icon, r.icon, 100.0)
 -- }
 
 Angle theta
@@ -358,13 +358,13 @@ with Point p; Point q; Point r {
 -- Point p
 -- where p := Midpoint(s)
 -- with Segment s {
---      override p.shape.x = midpointX(s.shape)
---      override p.shape.y = midpointY(s.shape)
+--      override p.icon.x = midpointX(s.icon)
+--      override p.icon.y = midpointY(s.icon)
 
---      override p.shape.strokeWidth = 1.0
---      override p.shape.color = Colors.white
---      override p.shape.r = 3.2
---      p.midLayering = p.shape above s.shape
+--      override p.icon.strokeWidth = 1.0
+--      override p.icon.color = Colors.white
+--      override p.icon.r = 3.2
+--      p.midLayering = p.icon above s.icon
 -- }
 
 -- Ray r
@@ -374,7 +374,7 @@ with Point p; Point q; Point r {
 --       r.tail = [x.x, x.y]
 --       r.head = angleBisectorEuclidean(x.vec, y.vec, z.vec, r.length)
 
---       r.shape = Line {
+--       r.icon = Line {
 --       	      startX : x.x
 -- 	      startY : x.y
 -- 	      -- TODO: figure out how long this should be
@@ -414,20 +414,20 @@ with Point p; Point q; Point r {
 --       	      arrowheadSize : 0.0
 --       }
 
---       theta.layeringMark1 = theta.bisectMark1 above theta.shape
---       theta.layeringMark2 = theta.bisectMark2 above theta.shape
---       r.layering = r.shape above const.plane
+--       theta.layeringMark1 = theta.bisectMark1 above theta.icon
+--       theta.layeringMark2 = theta.bisectMark2 above theta.icon
+--       r.layering = r.icon above const.plane
 -- }
 
 -- Ray r
 -- with Linelike s; Point m
 -- where r := PerpendicularBisector(s); m := Midpoint(s) {
 
---       r.shape = Line {
---       	      startX : midpointX(s.shape)
--- 	      startY : midpointY(s.shape)
--- 	      endX : perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
--- 	      endY : perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
+--       r.icon = Line {
+--       	      startX : midpointX(s.icon)
+-- 	      startY : midpointY(s.icon)
+-- 	      endX : perpX(s.icon, r.icon.startX, r.icon.startY, r.length)
+-- 	      endY : perpY(s.icon, r.icon.startX, r.icon.startY, r.length)
 -- 	      thickness : const.strokeWidth
 -- 	      color : Colors.darkpurple
 -- 	      style : "dotted"
@@ -444,20 +444,20 @@ with Point p; Point q; Point r {
 -- 		 fill : setOpacity(Colors.white, 0.5)
 --       }
 
---       r.layering1 = r.shape above const.plane
+--       r.layering1 = r.icon above const.plane
 --       r.layering2 = r.perpMark above const.plane
 
---       r.markLayering1 = r.perpMark below s.shape
---       r.markLayering2 = r.perpMark below r.shape
+--       r.markLayering1 = r.perpMark below s.icon
+--       r.markLayering2 = r.perpMark below r.icon
 --       -- r.markLayering3 = r.perpMark above const.sphere
---       r.markLayering4 = r.perpMark below p.shape
---       r.markLayering5 = r.perpMark below q.shape
---       r.markLayering6 = r.perpMark below r.shape
---       r.markLayering7 = r.perpMark below m.shape
+--       r.markLayering4 = r.perpMark below p.icon
+--       r.markLayering5 = r.perpMark below q.icon
+--       r.markLayering6 = r.perpMark below r.icon
+--       r.markLayering7 = r.perpMark below m.icon
 
---      labelAvoidFn_Mark = encourage repel(r.shape, m.text, const.repelWeight)
+--      labelAvoidFn_Mark = encourage repel(r.icon, m.text, const.repelWeight)
 --      labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, const.repelWeight)
---      labelAvoidFn_Seg = encourage repel(s.shape, m.text, const.repelWeight)
+--      labelAvoidFn_Seg = encourage repel(s.icon, m.text, const.repelWeight)
 -- }
 
 -- -- TODO: trying to just add a repel function on the point that's not in a segment... this might be too many repels for the ones that are in a segment though
@@ -465,44 +465,44 @@ with Point p; Point q; Point r {
 -- -- TODO: should we use const.repelWeight below?
 
 -- Ray r; Point p {
---     labelAvoidFn = encourage repel(r.shape, p.text, const.repelWeight)
---     layering = r.shape below p.shape
+--     labelAvoidFn = encourage repel(r.icon, p.text, const.repelWeight)
+--     layering = r.icon below p.icon
 -- }
 
 -- Segment s; Point p {
 --      -- TODO: Maybe the optimization would be faster if I used lines instead of curves for the segments?	
---      labelAvoidFn_p = encourage repel(s.shape, p.text, const.repelWeight)
+--      labelAvoidFn_p = encourage repel(s.icon, p.text, const.repelWeight)
 -- }
 
 -- Triangle t; Point p {
---     layering1 = t.shape below p.shape
---     layering2 = t.shape below p.text
+--     layering1 = t.icon below p.icon
+--     layering2 = t.icon below p.text
 -- }
 
 -- Square s; Point p {
---     layering1 = s.shape below p.shape
---     layering2 = s.shape below p.text
+--     layering1 = s.icon below p.icon
+--     layering2 = s.icon below p.text
 -- }
 
 -- Rectangle r; Point p {
---     layering1 = r.shape below p.shape
---     layering2 = r.shape below p.text
+--     layering1 = r.icon below p.icon
+--     layering2 = r.icon below p.text
 -- }
 
 -- Triangle t; Segment e {
---     layering1 = t.shape below e.shape
+--     layering1 = t.icon below e.icon
 -- }
 
 -- Square s; Segment e {
---     layering1 = s.shape below e.shape
+--     layering1 = s.icon below e.icon
 -- }
 
 -- Rectangle r; Segment e {
---     layering1 = r.shape below e.shape
+--     layering1 = r.icon below e.icon
 -- }
 
 -- Triangle t; Angle theta {
--- 	 layering = theta.shape above t.shape
+-- 	 layering = theta.icon above t.icon
 -- }
 
 -- -- TODO: Appendices removed for now
