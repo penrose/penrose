@@ -1,0 +1,833 @@
+global {
+  global.padding = 20.0
+  global.curve_dx = -10.0
+  global.curve_dy = 5.0
+}
+
+origin {
+  origin.x = -200.0
+  origin.y = 100.0
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.darkgray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    -- Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.lightblue2 = rgba(0.82, 0.88, 0.94, 1.0)
+
+    Colors.sky = rgba(0.42, 0.65, 0.77, 1.0)
+    Colors.lightsky = rgba(0.252, 0.65, 0.77, 0.25)
+    Colors.pink = rgba(0.78, 0.256, 0.53, 1.0)
+    Colors.lightpink = rgba(0.78, 0.256, 0.53, 0.25)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+-- Should there be a style for generic Interval
+-- without a Subset relationship?
+-- It would specify the fields that the subtypes
+-- would need to have, like left, right, yval, shape
+
+Reals `R` {
+  R.len = 500.0
+  R.thickness = 3
+  R.color = Colors.darkgray
+  R.spacing = 100.0 -- spacing between parallel reals
+
+  R.left = origin.x
+  R.right = origin.x + R.len
+  R.yval = origin.y
+
+  R.shape = Arrow {
+    startX : R.left
+    startY : R.yval
+    endX : R.right
+    endY : R.yval
+    thickness : R.thickness
+    color : R.color
+    rotation : 0.0
+  }
+
+  R.text = Text {
+    x : R.shape.endX + global.padding
+    y : R.shape.endY + global.padding
+    string : R.label
+    rotation : 0.0
+  }
+
+  -- R.labelFn = ensure nearHead(R.shape, R.text, global.padding, global.padding)
+}
+
+Real r  -- no "In(r, `R`)"
+with Reals `R` {
+  r.val = ?
+  r.yval = `R`.yval
+  r.len = 20.0
+
+  r.shape = Line {
+    startX : r.val
+    startY : r.yval - (r.len / 2.0)
+    endX : r.val
+    endY : r.yval + (r.len / 2.0)
+    thickness : 2.5
+    color : Colors.black
+    rotation : 0.0
+  }
+
+  r.text = Text {
+    -- position computed, not ?
+    x : r.val
+    y : r.shape.endY + 1.5 * global.padding
+    string : r.label
+    color : r.shape.color
+    rotation : 0.0
+  }
+
+  r.inFn = ensure inRange(r.val, R.left, R.right)
+  -- r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+}
+
+----------------------------------
+-- INTERVAL STYLES
+
+Interval I
+where Subset(I, R)
+with Reals R { -- TODO: more general, with Interval J
+  I.left = ?
+  I.right = ?
+  I.yval = R.yval
+
+  I.shape = Line { -- horizontal
+    startX : I.left
+    startY : I.yval
+    endX : I.right
+    endY : I.yval
+    thickness : 3
+    color : rgba(0.3, 0.3, 0.9, 0.5)
+    rotation : 0.0
+  }
+
+  -- position computed, not ?
+  I.text = Text {
+    string : I.label
+    x : midpointX(I.shape)
+    y : I.yval + 3.5 * global.padding
+    rotation : 0.0
+    color : I.shape.color
+  }
+
+  I.wfFn = ensure lessThanSq(I.left, I.right)
+  I.liFn = ensure inRange(I.left, R.left, R.right)
+  I.riFn = ensure inRange(I.right, R.left, R.right)
+
+  I.minSize = 0.15 * R.len
+  I.minSizeFn = ensure minSize(I.shape, I.minSize)
+
+  -- TODO: the first I.labelFn interferes with I.wfFn
+  -- I.labelFn = encourage centerLabel(I.shape, I.text)
+  -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
+  -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
+}
+
+Real a; Real b
+with Interval I; Reals R
+where I := CreateInterval(a, b); Subset(I, R) {
+  override a.val = I.left
+  override b.val = I.right
+  override a.yval = I.yval
+  override b.yval = I.yval
+  -- I.left and I.right already have I.liFn, I.riFn
+  delete a.inFn
+  delete b.inFn
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
+}
+
+Real r
+with Interval I; Reals R; Real a; Real b
+where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
+  override r.yval = I.yval
+  override r.inFn = ensure inRange(r.val, a.val, b.val)
+  override r.shape.color = Colors.red
+  override r.text.color = I.shape.color
+}
+
+Real a; Real b
+with OpenInterval I; Reals R
+where I := CreateOpenInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path : "left-paren.svg"
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+  override b.shape = Image {
+      path : "right-paren.svg"
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
+
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with ClosedInterval I; Reals R
+where I := CreateClosedInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path : "left-bracket.svg"
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+  override b.shape = Image {
+      path : "right-bracket.svg"
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
+
+
+
+  -- TODO: put these everywhere and remove all the labelFns
+  -- Since r.text.y refers to r.shape.startY, which no longer exists since the shape was overridden to have a different type
+  -- override a.text.y = 0.0
+  -- override b.text.y = 0.0
+
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with LeftClopenInterval I; Reals R
+where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path : "left-bracket.svg"
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+  override b.shape = Image {
+      path : "right-paren.svg"
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
+
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with RightClopenInterval I; Reals R
+where I := CreateRightClopenInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path : "left-paren.svg"
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+  override b.shape = Image {
+      path : "right-bracket.svg"
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
+
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+-- Extend I's shape toward positive infinity
+Interval I
+with Real x; Real y; Reals `R`
+where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
+      override I.right = `R`.right
+
+      override I.shape = Arrow {
+      	       startX : I.left
+	       startY : I.yval
+	       endX : I.right
+	       endY : I.yval
+	       thickness : 3
+	       color : Colors.bluegreen
+	       rotation : 0.0
+      }
+
+      override y.val = `R`.right
+      delete y.shape
+      delete y.text
+      -- delete y.labelFn
+      delete I.riFn
+
+      override I.wfFn = ensure lessThanSq(x.val, I.right)
+      override x.text.color = I.shape.color
+}
+
+-- TODO
+-- 1) This generates a lot of matches (and if it does (B,C) and (C,B), is that ok?)
+-- 2) Why don't the disjoint functions show up in the list of functions?
+-- 3) Why do the intervals collapse onto one interval?
+-- 4) Should I add a match directive to get rid of symmetric pairs?
+
+/*
+Interval A; Interval B
+with Reals `R`
+where Subset(A, `R`); Subset(B, `R`) {
+   -- Exclude Interval matching Reals
+   LOCAL.disjointFn = ensure disjoint(A.shape, B.shape)
+} */
+
+-- Only works with interval-types.sub
+/*
+Interval `A`; Interval `C` {
+   LOCAL.disjointFn = ensure disjoint(`A`.shape, `C`.shape)
+}
+
+Interval `A`; Interval `D` {
+   LOCAL.disjointFn = ensure disjoint(`A`.shape, `D`.shape)
+}
+
+Interval `C`; Interval `D` {
+   LOCAL.disjointFn = ensure disjoint(`C`.shape, `D`.shape)
+}
+*/
+
+-- Only works with smaller-spec.sub
+
+-- Intervals A, I, J, K, but not U
+-- Interval `A`;
+-- Doesn't work well with all the constraints
+Interval `A`; Interval `I`; Interval `J`; Interval `K` {
+   LOCAL.disjointFn1 = ensure disjoint(`A`.shape, `I`.shape)
+   LOCAL.disjointFn2 = ensure disjoint(`A`.shape, `J`.shape)
+   LOCAL.disjointFn3 = ensure disjoint(`A`.shape, `K`.shape)
+   LOCAL.disjointFn4 = ensure disjoint(`I`.shape, `J`.shape)
+   LOCAL.disjointFn5 = ensure disjoint(`I`.shape, `K`.shape)
+   LOCAL.disjointFn6 = ensure disjoint(`J`.shape, `K`.shape)
+}
+
+-- TODO: style for interval with negative infinity
+-- do they cascade style (-inf, +inf) properly?
+
+-- TODO: Can't do this here because the Function selector relies on it, unless we add the NOT construct to the selector language?
+-- !(I := union(X, Y))
+
+Interval Z
+where Z := Union(X, Y)
+with Interval X; Interval Y {
+     -- delete Z.shape
+     -- delete Z.text
+     -- delete Z.wfFn
+     -- delete Z.liFn
+     -- delete Z.riFn
+
+     delete Z.minSize
+     delete Z.minSizeFn
+}
+
+----------------------------------
+-- FUNCTION STYLES
+
+/* The selectors for drawing a single function
+cascade by first drawing a generic function between two *different* intervals (where Real is a subtype of Interval), drawing a new Real line and setting the relevant pointers. The selectors after it deal with the following specific cases:
+
+- if f : R -> R, set f's domain and codomain accordingly
+- if f : (R or I) -> J (where J is an interval that's a subset of R), move J onto the second real number line
+- if f : I -> R, f's codomain needs to be the second real number line, otherwise f will be drawn to map onto the first real number line (which is a valid visualization style, just confusing to see)
+
+We currently do not draw f : I -> I. */
+
+/* f : I -> J
+ If there is any function from I to J, then we make a second real number line that those functions all share. (This is going to be done for every match, hence the `override` / lack of `override` warnings.) This will achieve the effect of if only one shape had been made.
+
+TODO: Doesn't match f : R -> R right now but will match if we add a "could equal" for I ?= J */
+
+Function f
+with Interval I; Interval J; Reals `R`
+-- Does NOT match with generic "Reals R"!
+where f := CreateFunction(I, J) {
+  `R`.yval2 = `R`.yval - `R`.spacing -- function drawn downward
+
+  `R`.shape2 = Arrow {
+    startX : `R`.left
+    startY : `R`.yval2
+    endX : `R`.right
+    endY : `R`.yval2
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
+  }
+
+ `R`.shape2_text = Text {
+    x : R.shape2.endX + global.padding
+    y : R.shape2.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
+  }
+
+  -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
+
+  -------------------------------------------------
+
+  f.domain = I.shape -- TODO: we really want to be able to write `f.domain = I` but it doesn't even parse
+  f.codomain = J.shape
+  f.color1 = Colors.lightpink
+  f.color2 = Colors.pink
+
+  -- This will override the CURRENT contents of f.domain
+  -- but if f.domain is overridden later, that will
+  -- not change what happens here
+  override f.domain.color = f.color2
+
+  f.shape = Path {
+    pathData : sampleFunctionArea(f.domain, f.codomain)
+    strokeWidth : 0.0
+    fill : f.color1
+    color : f.color1
+    rotation : 0.0
+  }
+
+  f.text = Text {
+    string : f.label
+    x : average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
+    y : average(f.domain.startY, f.codomain.startY)
+    rotation : 0.0
+    color : f.color2
+  }
+}
+
+-- This is simply copy-pasted from the previous selector except for f.domain and f.codomain
+-- Not sure how to make it more generic, since we do want to do something special for f : I -> I
+
+Function f
+with Reals `R`
+where f := CreateFunction(`R`, `R`) {
+  `R`.yval2 = `R`.yval - `R`.spacing -- function drawn downward
+
+  `R`.shape2 = Arrow {
+    startX : `R`.left
+    startY : `R`.yval2
+    endX : `R`.right
+    endY : `R`.yval2
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
+  }
+
+ `R`.shape2_text = Text {
+    x : R.shape2.endX + global.padding
+    y : R.shape2.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
+    color : `R`.shape2.color
+  }
+
+  -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
+
+  -------------------------------------------------
+
+  f.val = ?
+  f.domain = `R`.shape
+  f.codomain = `R`.shape2
+  f.color1 = Colors.lightpink
+  f.color2 = Colors.pink
+
+  override f.domain.color = f.color2
+  override f.codomain.color = f.color2
+
+  f.shape = Path {
+    pathData : sampleFunctionArea(f.domain, f.codomain)
+    strokeWidth : 0.0
+    fill : f.color1
+    color : f.color1
+    rotation : 0.0
+  }
+
+  f.text = Text {
+    string : f.label
+    x : average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
+    y : average(f.domain.startY, f.codomain.startY)
+    rotation : 0.0
+    color : f.color2
+  }
+}
+
+/* We have no style for f : I -> I where I is a generic interval in R.  Hard to visualize with the "mass" function. ut we could easily draw a loopy arrow. */
+
+Function f
+with Interval I; Interval J; Reals `R`
+where f := CreateFunction(I, J);
+      Subset(J, `R`) { -- i.e. J is not of type Reals
+
+  override J.yval = `R`.yval2
+  -- avoid cycles if I=R in generic (I,J) selector
+  override f.codomain.color = f.color2
+}
+
+Function f
+with Interval I; Reals R
+where f := CreateFunction(I, R) {
+
+  override f.codomain = R.shape2
+  override f.codomain.color = f.color2
+  -- specifically draw from the current R to new R
+  -- otherwise, will show it from R to itself
+  -- (which is also a valid viz)
+}
+
+/*
+Function `g` {
+	 override `g`.shape.fill = Colors.lightsky
+	 override `g`.shape.color = Colors.lightsky
+} */
+
+-- Function defined on a union of intervals
+
+-- Draw a function with two parts with a discontinuity
+-- Note that this works generically over subtypes of intervals
+Function f
+with Interval I; Interval J; Interval X; Interval Y
+where f := CreateFunction(I, J);
+      I := Union(X, Y); -- Assuming that none of these is recursively a Union of intervals
+      Discontinuous(f) {
+
+      -- `I` is not drawn separately on the screen
+     delete I.shape
+     I.shape1 = X.shape
+     I.shape2 = Y.shape
+     delete I.text
+     delete I.wfFn
+     delete I.liFn
+     delete I.riFn
+
+     -- f has no domain field defined in Style (since we can't define a list of shapes yet)
+     delete f.domain
+     delete f.shape
+     delete f.text
+
+     -- Define f.domain1 and f.domain2?
+     -- TODO: should we have h go to two intervals?
+     -- TODO: move this to separate selector if we need to specify R.shape2
+     -- The second R is already drawn
+     override f.codomain = R.shape2
+
+     override f.color1 = Colors.lightsky
+     override f.color2 = Colors.sky
+
+     override X.shape.color = f.color2
+     override Y.shape.color = f.color2
+     -- TODO: have domain intervals be disjoint
+
+     f.shape1 = Path {
+       pathData : sampleFunctionArea(X.shape, f.codomain)
+       strokeWidth : 0.0
+       fill : f.color1
+       color : f.color1
+       rotation : 0.0
+     }
+
+     f.shape2 = Path {
+       pathData : sampleFunctionArea(Y.shape, f.codomain)
+       strokeWidth : 0.0
+       fill : f.color1
+       color : f.color1
+       rotation : 0.0
+     }
+
+     f.text = Text {
+       string : f.label
+       x : average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
+       y : average(X.shape.startY, f.codomain.startY)
+       rotation : 0.0
+       color : f.color2
+     }
+
+     f.layering1 = f.text above f.shape1
+     f.layering2 = f.text above f.shape2
+}
+
+-------------------------------------------------------
+
+-- FUNCTION COMPOSITION STYLES
+
+/* h = g . f
+
+If there is a composition of functions, draw a third R for the second function. Again, this is technically going to be made for every match, but overridden to be the same thing. (Does NOT deal with composition of 3 functions, i = h . g . f) */
+
+Function h, g, f
+where h := Compose(g, f);
+      h := CreateFunction(A, C);
+      g := CreateFunction(B, C);
+      f := CreateFunction(A, B)
+      -- disallow equality for simplicity
+      -- TODO: deal with these later
+      -- A ?= B; B ?= C; h ?= g; g ?= f
+with Interval A, B, C;
+     Reals `R` {
+  `R`.yval3 = `R`.yval2 - `R`.spacing -- function drawn downward
+
+  `R`.shape3 = Arrow {
+    startX : `R`.left
+    startY : `R`.yval3
+    endX : `R`.right
+    endY : `R`.yval3
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
+  }
+
+ `R`.shape3_text = Text {
+    x : R.shape3.endX + global.padding
+    y : R.shape3.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
+  }
+
+  -- `R`.shape3_labelFn = ensure nearHead(`R`.shape3, `R`.shape3_text, global.padding, global.padding)
+
+  -------------------------------------------------
+
+  -- move g's codomain to the new real line
+  -- have to use C because we can't write
+  -- "f.codomain = J" in the function block yet
+  override C.yval = `R`.yval3
+
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain)
+
+  -- delete h's shape, label, etc.
+  delete h.val
+  delete h.shape
+  delete h.text
+}
+
+/* Composition of a composition of functions
+   Two cases:
+   Composition on the left
+   Composition on the right */
+
+-- Composition on the right
+-- Note that the first function composition
+-- selector will apply first, and this will cascade
+
+-- Temporarily moving on from making this selector/block work (issue #167)
+
+Function h
+where h := Compose(g, f);
+      f := Compose(e, d);
+      -- It's a little faster with the intervals and createFunctions commented out.
+      h := CreateFunction(A, D)
+      -- g := CreateFunction(C, D);
+      -- f := CreateFunction(A, C);
+      -- e := CreateFunction(B, C);
+      -- d := CreateFunction(A, B)
+with Function g, f, e, d;
+     Interval A, D;
+     Reals `R` {
+     -- Interval A, B, C, D;
+
+     -- just to test the match
+     -- override `R`.shape3.color = Colors.red
+
+  `R`.yval4 = `R`.yval3 - `R`.spacing -- function drawn downward
+
+  `R`.shape4 = Arrow {
+    startX : `R`.left
+    startY : `R`.yval4
+    endX : `R`.right
+    endY : `R`.yval4
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
+  }
+
+ `R`.shape4_text = Text {
+    x : R.shape4.endX + global.padding
+    y : R.shape4.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
+  }
+
+  -- `R`.shape4_labelFn = ensure nearHead(`R`.shape4, `R`.shape4_text, global.padding, global.padding)
+
+  -------------------------------------------------
+
+  -- move g's codomain to the new real line
+  -- have to use C because we can't write
+  -- "f.codomain = J" in the function block yet
+  override D.yval = `R`.yval4
+
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain)
+
+  -- delete h's shape, label, etc.
+  delete h.val
+  delete h.shape
+  delete h.text
+}
+
+----------------------------------
+-- FUNCTION APPLICATION STYLES
+
+-- y := f(x)
+Real y; Function f
+with Interval I; Interval J; Real x
+where y := Apply(f, x); f := CreateFunction(I, J); In(x, I) {
+
+  override x.val = midpointX(f.domain)
+  override y.val = midpointX(f.codomain) -- hardcoded
+  -- so it's not necessary to say In(y, J)
+  override y.yval = f.codomain.startY
+  -- We need to use f.codomain.startY (and f.domain.startY) because f's domain and codomain might have been overridden
+  -- NOT J.yval
+  -- also NOT f.domain.yval
+  -- this seems really tricky
+
+  override x.shape.color = f.color2
+  override y.shape.color = f.color2
+  -- TODO: change the color of the interval's brackets
+
+  f.pointwise_shape = Path {
+    pathData : makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
+
+    strokeWidth : 2.0
+    fill : Colors.none
+    color : f.color2
+    rotation : 0.0
+    -- TODO: rename to account for arrow directionality
+    rightArrowhead : True
+  }
+
+  -- x.text.x = x.val
+  -- x.text.y = x.shape.endY + 1.5 * global.padding
+  override y.text.x = y.val
+  override y.text.y = y.shape.startY - 1.5 * global.padding
+
+  y.layering = y.shape above f.codomain
+}
+
+-- Again duplicated for f : R -> R
+Real y; Function f
+with Reals `R`; Real x
+where y := Apply(f, x); f := CreateFunction(`R`, `R`) {
+  override x.val = midpointX(`R`.shape1)
+  override y.val = midpointX(`R`.shape2) -- hardcoded
+
+  override y.yval = `R`.yval2
+  override x.shape.color = f.color2
+  override y.shape.color = f.color2
+
+  f.pointwise_shape = Path {
+    pathData : makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
+
+    strokeWidth : 2.0
+    fill : Colors.none
+    color : f.color2
+    rotation : 0.0
+    rightArrowhead : True
+  }
+
+  -- x.text.x = x.val
+  -- x.text.y = x.shape.endY + 1.5 * global.padding
+  override y.text.x = y.val
+  override y.text.y = y.shape.startY - 1.5 * global.padding
+
+  y.layering = y.shape above `R`.shape2
+}
+
+-- Only if J is not reals, make sure result is in interval
+Real y; Function f
+with Interval I; Interval J; Real x; Reals `R`
+where y := Apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
+  -- Only if J is not reals?
+  y.inCodomainFn = ensure inRange(y.val, J.left, J.right)
+}
+
+-----------------------------------
+
+-- No styles for derivative, Integral, point
+
+Real dfx
+with Function f; Interval I; Interval J; Real x; Real y
+where dfx := DerivativeAtP(f, x); f := CreateFunction(I, J);
+      y := Apply(f, x) {
+
+      delete dfx.val
+      delete dfx.shape
+      delete dfx.text
+      delete dfx.inFn
+      -- delete dfx.labelFn
+}
+
+Real ifI
+with Function f; Interval I; Interval J; Interval U; Reals R
+where U := Union(I, J);
+      ifI := Integral(I, f);
+      f := CreateFunction(U, R);
+      Discontinuous(f) {
+
+      delete ifI.val
+      delete ifI.shape
+      delete ifI.text
+      delete ifI.inFn
+      -- delete ifI.labelFn
+}
+
+Point p
+with Function f; Interval I; Real x; Real y; Reals R
+where p := Pt(x, y);
+      y := Apply(f, x);
+      f := CreateFunction(I, R);
+      In(x, I) {
+
+      -- no style
+}

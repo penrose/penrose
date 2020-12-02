@@ -10,7 +10,7 @@ Colors {
 }
 
 Set x {
-    x.shape = Circle {
+    x.icon = Circle {
         color : Colors.lightBlue
         strokeColor : Colors.black
         strokeStyle : "solid"
@@ -23,18 +23,17 @@ Set x {
       rotation : 0.0
     }
 
-    -- TODO
-    x.labelFn = ensure contains(x.shape, x.text)
-    LOCAL.layering = x.shape below x.text
+    x.labelFn = ensure contains(x.icon, x.text)
+    x.icon below x.text
 }
 
 -- Selector ordering matters!
 Set x; Set y
 where IsSubset(x, y) {
-  LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
-  -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)
-  LOCAL.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
-  LOCAL.layering = x.shape above y.shape
+  ensure contains(y.icon, x.icon, 10.0)
+  -- y.sizeFn    = ensure smallerThan(x.icon, y.icon)
+  y.outsideFn = ensure outsideOf(y.text, x.icon, 1.0)
+  x.icon above y.icon
 }
 
 Map f
@@ -42,11 +41,9 @@ where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
 with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
-    f.shape = Arrow {
-      startX : R1.shape.x + (R1.shape.side) / 2.0 + f.padding
-      startY : R1.shape.y
-      endX : R2.shape.x - (R2.shape.side) / 2.0 - f.padding
-      endY : R2.shape.y
+    f.icon = Arrow {
+      start : (R1.icon.center[0] + R1.icon.side / 2.0 + f.padding, R1.icon.center[1])
+      end : (R2.icon.center[0] - R2.icon.side / 2.0 - f.padding, R2.icon.center[1])
       thickness : 2.0
       color : Colors.black
         -- style : "curved"
@@ -54,29 +51,31 @@ with Set X; Set Y; Set R1; Set R2 {
 
     f.text     = Text {
       -- Doesn't seem to work after the first resample. Is the server updating f.text.h on resample?
-      -- x : (f.shape.startX + f.shape.endX) / 2.0
-      -- y : (f.shape.startY + f.shape.endY) / 2.0 + 1.1 * f.text.h
+      -- x : (f.icon.startX + f.icon.endX) / 2.0
+      -- y : (f.icon.startY + f.icon.endY) / 2.0 + 1.1 * f.text.h
       string : f.label
       rotation : 0.0
     }
 
-    f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
-    -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
+    encourage centerLabel(f.icon, f.text, 5.0)
+
+    -- Unused?
+    -- f.centerFn = encourage centerArrow(f.icon, R1.icon, R2.icon)
 }
 
 Set `U` {
-    override `U`.shape.strokeStyle = "dashed"
-    override `U`.shape.strokeWidth = Const.strokeWidth
+    override `U`.icon.strokeStyle = "dashed"
+    override `U`.icon.strokeWidth = Const.strokeWidth
 }
 
 Set `V` {
-    override `V`.shape.strokeStyle = "dashed"
-    override `V`.shape.strokeWidth = Const.strokeWidth
+    override `V`.icon.strokeStyle = "dashed"
+    override `V`.icon.strokeWidth = Const.strokeWidth
 }
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
-    override `Rn`.shape = Square {
+    override `Rn`.icon = Square {
       -- Works but is slow
       -- x : -100.0
       -- y = 0.0
@@ -86,36 +85,35 @@ Set `Rn` {
       strokeColor : Colors.black
     }
 
-    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
-    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - Const.padding
+    override `Rn`.text.center = (`Rn`.icon.center[0] + `Rn`.icon.side / 2.0 - Const.padding, `Rn`.icon.center[1] + `Rn`.icon.side / 2.0 - Const.padding)
 
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
-    `Rn`.minSizeFn = ensure minSize(`Rn`.shape)
-    `Rn`.maxSizeFn = ensure maxSize(`Rn`.shape)
+
+    ensure minSize(`Rn`.icon)
+    ensure maxSize(`Rn`.icon)
 }
 
 Set `Rm`
 with Set `Rn` {
     -- TODO: factor this block out
-    override `Rm`.shape = Square {
+    override `Rm`.icon = Square {
         color : Colors.lightYellow
-        y : `Rn`.shape.y
-        x : `Rn`.shape.x + 400.0
-        side  : `Rn`.shape.side
+        center : (`Rn`.icon.center[0] + 400.0, `Rn`.icon.center[1])
+        side  : `Rn`.icon.side
         rotation : 0.0
         strokeWidth : 1.0
         strokeColor : Colors.black
     }
 
-    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding
-    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - Const.padding
+     override `Rm`.text.center = (`Rm`.icon.center[0] + `Rm`.icon.side / 2.0 - Const.padding, `Rm`.icon.center[1] + `Rm`.icon.side / 2.0 - Const.padding)
 
     delete `Rm`.labelFn
     delete `Rm`.outsideFn
 
     -- This doesn't seem to work
-    --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
-    `Rm`.minSizeFn = ensure minSize(`Rm`.shape)
-    `Rm`.maxSizeFn = ensure maxSize(`Rm`.shape)
+    --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.icon)
+
+    ensure minSize(`Rm`.icon)
+    ensure maxSize(`Rm`.icon)
 }

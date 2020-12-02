@@ -1,0 +1,166 @@
+import Colors as C
+import Vectors -- TODO: do something with this import?
+
+OrthogonalVectors {
+    const {
+      scalar perpLen = 25.0
+      -- For unit mark
+      scalar markerPadding = 15.0
+      scalar barSize = 5.0
+    }
+
+    functions {
+        function dot = << (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+                           return { tag: "FloatV", contents: ops.vdot(v, w) };
+                         } >>
+
+        objective equal = << (x: VarAD, y: VarAD) => squared(sub(x, y)) >>
+
+        function perpPathFlat = << (len: VarAD, [startR, endR]: [VecAD, VecAD], 
+                                   [startL, endL]: [VecAD, VecAD]): [VecAD, VecAD, VecAD] => {
+                   const dirR = ops.vnormalize(ops.vsub(endR, startR));
+                   const dirL = ops.vnormalize(ops.vsub(endL, startL));
+                   const ptL = ops.vmove(startR, len, dirL); // ops.vadd(startR, ops.vmul(len, dirL));
+                   const ptR = ops.vmove(startR, len, dirR); // ops.vadd(startR, ops.vmul(len, dirR));
+                   const ptLR = ops.vadd(ptL, ops.vmul(len, dirR));
+                   return [ptL, ptLR, ptR];
+                 } >>
+
+         -- Local functions should be able to call other local functions, like perpPathFlat, that are defined in the file
+        function orientedSquare = << ([t1, s1]: [string, any], [t2, s2]: [string, any], 
+                                           intersection: Pt2, len: VarAD): IPathDataV<VarAD> => {
+               if ((t1 === "Arrow" || t1 === "Line") && (t2 === "Arrow" || t2 === "Line")) {
+                 const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
+                 const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
+
+                 const elems: Elem<VarAD>[] =
+                   [{ tag: "Pt", contents: toPt(ptL) },
+                   { tag: "Pt", contents: toPt(ptLR) },
+                   { tag: "Pt", contents: toPt(ptR) },
+                   { tag: "Pt", contents: intersection }];
+                 const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
+
+                 return { tag: "PathDataV", contents: [path] };
+               } else {
+                 throw Error("orientedSquare undefined for types ${t1}, ${t2}");
+               } >>
+
+        function pathFromPoints = << (pts: [Pt2]): IPathDataV<VarAD> => {
+              const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
+              const path: SubPath<VarAD> = { tag: "Open", contents: elems };
+              return { tag: "PathDataV", contents: [path] };
+            } >>
+
+        function midpointOffset = << ([start, end]: [Pt2, Pt2], [t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
+             if (t1 === "Arrow" || t1 === "Line") {
+               const [start1, end1] = linePts(s1);
+               // TODO: Cache these operations in Style!
+               const dir = ops.vnormalize(ops.vsub(end1, start1));
+               const normalDir = ops.vneg(dir);
+               const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+               const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
+               return {
+                 tag: "TupV",
+                 contents: toPt(midpointOffsetLoc)
+               };
+             } else {
+               throw Error("unsupported shape ${t1} in midpointOffset");
+             }
+           } 
+       >>
+
+       function unitMark = <<   ([t1, s1]: [string, any], [t2, s2]: [string, any], 
+                                t: string, padding: VarAD, barSize: VarAD): IPtListV<VarAD> => {
+           const [start1, end1] = linePts(s1);
+           const [start2, end2] = linePts(s2);
+
+           const dir = ops.vnormalize(ops.vsub(end2, start2));
+           const normalDir = ops.vneg(dir);
+           const markStart = ops.vmove(start1, padding, normalDir);
+           const markEnd = ops.vmove(end1, padding, normalDir);
+
+           return {
+             tag: "PtListV",
+             contents: [markStart, markEnd].map(toPt)
+           };
+         } >>             
+
+       function unitMark2 = << ([start, end]: [Pt2, Pt2], t: string, 
+                               padding: VarAD, size: VarAD): IPtListV<VarAD> => {
+           const dir = ops.vnormalize(ops.vsub(end, start));
+           const normalDir = rot90(toPt(dir));
+           const base = t === "start" ? start : end;
+           const [markStart, markEnd] = [ops.vmove(base, size, normalDir), ops.vmove(base, neg(size), normalDir)];
+           return {
+             tag: "PtListV",
+             contents: [markStart, markEnd].map(toPt)
+           };
+         } >>
+    }
+
+    forall Vector u; Vector v
+    with VectorSpace U
+    where Orthogonal(u, v); In(u, U); In(v, U) {
+          -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
+          shape perpMark = Path {
+               pathData : orientedSquare(u.shape, v.shape, U.origin, const.perpLen)
+               strokeWidth : 2.0
+               color : C.black
+               fill : C.white
+          }
+
+          -- Make sure vectors are orthogonal (use ensure?)
+          encourage equal(dot(u.vector, v.vector), 0.0)
+
+          layer v.shape above LOCAL.perpMark
+          layer u.shape above LOCAL.perpMark
+    }
+
+    forall Vector v
+    with VectorSpace U; Vector w
+    where In(v, U); Unit(v); Orthogonal(v, w) {
+          -- Usually, the unit vector shouldn't need to know about orthogonal vectors
+          -- but we need to position the unit mark so it doesn't overlap with the "inside" of the two vectors
+
+          -- The start and end of the body of the unit marker line
+          -- NOTE: We need to have lists of vectors
+          vec2[] v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
+          -- NOTE: TupV needs to be converted to vector
+          vec2 v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+          vec2 strokeWidth = 2
+
+          shape v.unitMarkerLine = Path {
+              pathData : pathFromPoints(v.offsetVec)
+              strokeWidth : strokeWidth
+              color : C.black
+              fill : C.none
+          }
+
+          shape v.unitMarkerEnd1 = Path {
+              pathData : pathFromPoints(unitMark2(v.offsetVec, "start", const.markerPadding, const.barSize))
+              strokeWidth : strokeWidth
+              color : C.black
+              fill : C.none
+          }
+
+          shape v.unitMarkerEnd2 = Path {
+              pathData : pathFromPoints(unitMark2(v.offsetVec, "end", const.markerPadding, const.barSize))
+              strokeWidth : strokeWidth
+              color : C.black
+              fill : C.none
+          }
+
+          shape v.unitMarkerText = Text {
+              string : "1"
+              center : v.labelPosition
+              color : C.black
+          }
+
+          layer v.unitMarkerLine above U.xAxis
+          layer v.unitMarkerLine above U.yAxis
+    }
+
+    forall Vector `x2` {
+           override `x2`.shape.color = C.green
+    }
+}

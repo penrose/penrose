@@ -1,0 +1,562 @@
+-- CONSTANTS
+
+global {
+    global.padding = 20.0
+    global.intervalPadding = 60.0
+    global.stroke = 2.0
+}
+
+origin {
+    origin.x = -150.0
+    origin.y = 0.0
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+--------------------------------------------------
+-- REALS + REAL STYLES
+
+
+Reals R {
+    R.len = 300.0
+    R.thickness = 2.0
+    R.color = Colors.gray
+
+    -- TODO: draw these axes overlapping
+    R.x_axis = Arrow {
+        startX : origin.x
+        startY : origin.y
+        endX : R.len
+        endY : origin.y
+        thickness : R.thickness
+        color : R.color
+        rotation : 0.0
+    }
+
+    R.y_axis = Arrow {
+        startX : origin.x
+        startY : origin.y
+        endX : origin.x
+        endY : R.len
+        thickness : R.thickness
+        color : R.color
+        rotation : 0.0
+    }
+
+    R.x_text = Text {
+        x : R.x_axis.endX + global.padding
+        y : R.x_axis.endY + global.padding
+        string : R.label
+        rotation : 0.0
+    }
+
+    R.y_text = Text {
+        x : R.y_axis.endX + global.padding
+        y : R.y_axis.endY + global.padding
+        string : R.label
+        rotation : 0.0
+    }
+
+    -- R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
+    -- R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
+}
+
+Real r
+with Reals R { -- No In(r, `R`)
+    r.val = ?
+    r.len = 20.0
+
+    r.shape = Line {
+        startX : r.val
+        startY : origin.y - (r.len / 2.0)
+        endX : r.val
+        endY : origin.y + (r.len / 2.0)
+        thickness : 1.5
+        color : Colors.darkgray
+    }
+
+    r.text = Text {
+        x : r.val
+        y : r.shape.startY - 1.5 * global.padding
+        string : r.label
+        rotation : 0.0
+        color : Colors.black
+    }
+
+    r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
+    -- r.labelFn = encourage nearHead(r.shape, r.text, 0.0, -30.0)
+    r.layering = r.shape above R.x_axis
+}
+
+--------------------------------------------------
+-- INTERVAL STYLES
+
+
+Interval I
+with Real a; Real b; Reals R
+where I := CreateInterval(a, b); Subset(I, R) {
+  I.shape = Line {
+      startX : a.val
+      startY : origin.y
+      endX   : b.val
+      endY   : origin.y
+      color : Colors.black
+      thickness : 3.0
+  }
+
+  -- position computed, not ?
+  I.text = Text {
+      string : I.label
+      x : I.shape.startX + (I.shape.endX - I.shape.startX) / 2.0
+      y : origin.y - 3.5 * global.padding
+      rotation : 0.0
+      color : Colors.black
+  }
+
+  I.orderFn = ensure lessThanSq(a.val, b.val)
+  -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
+
+  I.minSize = 0.3 * R.len
+  I.minSizeFn = ensure minSize(I.shape, I.minSize)
+  -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
+}
+
+Interval I
+with Interval J, K; Reals R
+where I := Union(J, K); Subset(I, R) {
+      -- TODO: fix findShapeNames so `I` doesn't need to have a shape
+      -- this is a hack
+      /*
+      I.shape = Line {
+            color : Colors.none
+      } */
+
+      -- I.text = Text {
+      -- 	     string : I.label
+      -- 	     y : origin.y + global.padding
+      -- 	     rotation : 0.0
+      -- }
+      -- override J.shape.color = Colors.orange
+      -- override K.shape.color = Colors.orange
+
+      -- The disjointness is applied in f
+      -- I.disjointFn = ensure disjoint(J.shape, K.shape)
+}
+
+
+Real r
+with Interval I; Reals R; Real a; Real b
+where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
+    override r.inFn = ensure inRange(r.val, a.val, b.val)
+
+    r.layering_int = r.shape above I.shape
+}
+
+
+Real a; Real b
+with ClosedInterval I; Reals R -- TODO: be able to say Interval I?
+where I := CreateClosedInterval(a, b); Subset(I, R) {
+    override a.shape = Image {
+        path : "left-bracket.svg"
+        x : a.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
+        rotation : 0.0
+    }
+
+    override b.shape = Image {
+        path : "right-bracket.svg"
+        x : b.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
+        rotation : 0.0
+    }
+
+    override a.text.y = a.shape.y - a.shape.h - global.padding
+    override b.text.y = b.shape.y - b.shape.h - global.padding
+    override a.text.color = I.shape.color
+    override b.text.color = I.shape.color
+
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with OpenInterval I; Reals R -- TODO: be able to say Interval I?
+where I := CreateOpenInterval(a, b); Subset(I, R) {
+    override a.shape = Image {
+        path : "left-paren.svg"
+        x : a.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
+        rotation : 0.0
+    }
+
+    override b.shape = Image {
+        path : "right-paren.svg"
+        x : b.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
+        rotation : 0.0
+    }
+
+    override a.text.y = a.shape.y - a.shape.h - global.padding
+    override b.text.y = b.shape.y - b.shape.h - global.padding
+    override a.text.color = I.shape.color
+    override b.text.color = I.shape.color
+
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with LeftClopenInterval I; Reals R
+where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path : "left-bracket.svg"
+      x : a.val
+      y : origin.y
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+  override b.shape = Image {
+      path : "right-paren.svg"
+      x : b.val
+      y : origin.y
+      w : 10.0
+      h : 20.0
+      rotation : 0.0
+  }
+
+    override a.text.y = a.shape.y - a.shape.h - global.padding
+    override b.text.y = b.shape.y - b.shape.h - global.padding
+    override a.text.color = I.shape.color
+    override b.text.color = I.shape.color
+}
+
+-- Extend I's shape toward positive infinity
+Interval I
+with Real x; Real y; Reals `R`
+where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
+    override I.shape = Arrow {
+        startX : x.val
+        startY : origin.y
+        endX : `R`.x_axis.endX
+        endY : origin.y
+        thickness : 3.0
+        color : Colors.bluegreen
+        rotation : 0.0
+    }
+
+    override I.text.color = I.shape.color
+    override x.text.color = I.shape.color
+    override y.val = `R`.x_axis.endX
+    delete y.shape
+    delete y.text
+    delete y.layering
+    delete y.inFn
+    -- delete y.labelFn
+
+    override I.orderFn = ensure lessThanSq(x.val, `R`.x_axis.endX)
+    -- delete I.riFn
+
+    I.maxSizeFn = ensure maxSize(I.shape, 0.3 * `R`.len)
+}
+
+Interval `A`; Interval `K` {
+    LOCAL.distFn = ensure disjoint(`A`.shape, `K`.shape)
+}
+
+Interval `A`; Interval `I` {
+    LOCAL.distFn = ensure disjoint(`A`.shape, `I`.shape)
+}
+
+Interval `A`; Interval `J` {
+    LOCAL.distFn = ensure disjoint(`A`.shape, `J`.shape)
+}
+
+Interval `K`; Interval `I` {
+    LOCAL.distFn = ensure disjoint(`K`.shape, `I`.shape)
+}
+
+Interval `K`; Interval `J` {
+    LOCAL.distFn = ensure disjoint(`K`.shape, `J`.shape)
+}
+
+/*
+Interval I; Interval J
+with Reals R
+where Subset(I, R); Subset(J, R) {
+    LOCAL.distFn = ensure disjoint(I.shape, J.shape)
+} */
+
+--------------------------------------------------
+-- FUNCTION STYLES
+
+Function f
+with Interval I; Reals R
+-- TODO: with Set A; Set B
+where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
+  f.pts = 3
+  -- TODO: use a more general function than computeSurjection
+  f.ypad = 100.0
+  f.val = sampleFunction(f.pts, I.shape.startX, I.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "surjection")
+  f.color = Colors.sky
+
+  f.shape = Path {
+    path : f.val
+    pathData : interpolate(f.val)
+    fill : Colors.none
+    color : f.color
+    strokeWidth : 2.0
+    polyline : polygonizeCurve(5, f.shape.pathData)
+    -- TODO: start and end style depending on the interval
+  }
+
+  override I.shape.color = f.color
+  override I.text.color = f.color
+
+  -- TODO: position label using midpointPathX(f.val)
+  f.text = Text {
+    x : midpointX(I.shape)
+    y : midpointY(R.y_axis)
+    string : f.label
+    rotation : 0.0
+    color : f.shape.color
+  }
+}
+
+-- Draw a function with two parts with a discontinuity
+Function f
+with Interval I; Interval J; Interval K; Reals R
+where f := CreateFunction(I, R);
+      I := Union(J, K);
+      Discontinuous(f);
+      Subset(I, R); Subset(J, R); Subset(K, R) {
+
+      f.color = Colors.orange
+      override J.shape.color = f.color
+      override K.shape.color = f.color
+      override J.text.color = f.color
+      override K.text.color = f.color
+
+      f.pts1 = 4
+      f.pts2 = 3
+      f.ypad = 100.0
+
+      f.val1 = sampleFunction(f.pts1, J.shape.startX, J.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "surjection")
+      f.val2 = sampleFunction(f.pts2, K.shape.startX, K.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "bijection")
+
+      f.shape1 = Path {
+          path : f.val1
+          pathData : interpolate(f.val1)
+          polyline : polygonizeCurve(5, f.shape1.pathData)
+          fill : Colors.none
+          color : f.color
+          strokeWidth : global.stroke
+          -- TODO: start and end style depending on the interval
+      }
+
+      f.text1 = Text {
+          x : midpointPathX(f.val1)
+          y : midpointPathY(f.val1)
+          string : f.label
+          rotation : 0.0
+          color : f.color
+      }
+
+      -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
+      f.shape2 = Path {
+          path : f.val2
+          pathData : interpolate(f.val2)
+          polyline : polygonizeCurve(5, f.shape2.pathData)
+          fill : Colors.none
+          color : f.color
+          strokeWidth : global.stroke
+          -- TODO: start and end style depending on the interval
+      }
+
+      f.text2 = Text {
+          x : midpointPathX(f.val2)
+          y : midpointPathY(f.val2)
+          string : f.label
+          rotation : 0.0
+          color : f.color
+      }
+
+      -- Discontinuity
+      f.shape3 = Circle {
+          r : 6.0
+          color : Colors.white
+          strokeWidth : 2.5
+          strokeColor : f.color
+          strokeStyle : "solid"
+          x : fromDomain(f.shape2.polyline)
+          y : applyFn(f.shape2.polyline, f.shape3.x)
+      }
+
+      -- Value of function
+      f.shape4 = Circle {
+          r : 5.0
+          color : Colors.orange
+          strokeWidth : 2.5
+          strokeColor : Colors.orange
+          strokeStyle : "solid"
+          x : f.shape3.x
+          y : 50.0 -- TODO: ?
+      }
+
+      f.domainFn = ensure disjoint(J.shape, K.shape)
+
+      f.layering1 = f.shape3 above f.shape2
+      f.layering2 = f.shape3 above J.shape
+}
+
+--------------------------------------------------
+-- OTHER FUNCTION-RELATED STYLES (application, derivative, Integral)
+
+
+-- y := f(x)
+-- draw on the vertical axis
+Real y
+with Function f; Interval I; Real x; Reals R
+where y := Apply(f, x); f := CreateFunction(I, R); In(x, I)
+{
+      override x.val = fromDomain(f.shape.polyline)
+      override y.val = applyFn(f.shape.polyline, x.val)
+
+      override y.shape.startX = origin.x - (y.len / 2.0)
+      override y.shape.startY = y.val
+      override y.shape.endX =  origin.x + (y.len / 2.0)
+      override y.shape.endY = y.val
+
+      override x.shape.color = f.shape.color
+      override y.shape.color = f.shape.color
+
+      override y.text.x = y.shape.startX - 2.0 * global.padding
+      override y.text.y = y.val
+
+      override y.text.color = f.shape.color
+      override x.text.color = f.shape.color
+
+      -- override y.labelFn = encourage nearHead(y.shape, y.text, -50.0, 0.0)
+
+      delete x.inFn
+      delete y.inFn
+}
+
+Point p
+with Function f; Interval I; Real x; Real y; Reals R
+where p := Pt(x, y);
+      y := Apply(f, x);
+      f := CreateFunction(I, R);
+      In(x, I) {
+
+      p.shape = Circle {
+          x : x.val
+          y : y.val
+          r : 3.0
+          color : Colors.sky
+          strokeColor : Colors.sky
+          strokeWidth : 0.0
+      }
+
+      p.vert = Line {
+          startX : x.val
+          startY : origin.y
+          endX : x.val
+          endY : y.val
+          thickness : 1.5
+          style : "dashed"
+          color : f.shape.color
+      }
+
+      p.horiz = Line {
+          startX : origin.x
+          startY : y.val
+          endX : x.val
+          endY : y.val
+          thickness : 1.5
+          style : "dashed"
+          color : f.shape.color
+      }
+}
+
+Real dfx
+with Function f; Interval I; Real x; Real y; Reals R
+where dfx := DerivativeAtP(f, x); f := CreateFunction(I, R);
+      y := Apply(f, x) {
+      -- We know that x's val has been chosen from f's domain
+
+      delete dfx.val
+      delete dfx.inFn
+      -- delete dfx.layering
+      -- delete dfx.labelFn
+
+      override dfx.shape = Line {
+          startX : tangentLineSX(f.shape.polyline, x.val, 150.0)
+          startY : tangentLineSY(f.shape.polyline, x.val, 150.0)
+          endX : tangentLineEX(f.shape.polyline, x.val, 150.0)
+          endY : tangentLineEY(f.shape.polyline, x.val, 150.0)
+          thickness : 2.0
+          color : Colors.lightsky
+      }
+      override dfx.layering = dfx.shape above f.shape
+
+      dfx.offset = 30.0
+      override dfx.text.x = dfx.shape.endX + dfx.offset
+      override dfx.text.y = dfx.shape.endY + dfx.offset
+      override dfx.text.color = dfx.shape.color
+}
+
+Real ifI
+with Function f; Interval I; Interval J; Interval U; Reals R
+where U := Union(I, J);
+      ifI := Integral(I, f);
+      f := CreateFunction(U, R);
+      Discontinuous(f) {
+
+      delete ifI.val
+      delete ifI.inFn
+      delete ifI.layering
+      -- delete ifI.labelFn
+
+      -- compute Integral as a shape that lies under fn curve
+      override ifI.shape = Path {
+          pathData : makeRegionPath(f.shape1, I.shape)
+          strokeWidth : 0.0
+          fill : Colors.lightorange
+          color : Colors.lightorange
+          rotation : 0.0
+      }
+
+      override ifI.text.color = ifI.shape.color
+
+      override ifI.text.x = midpointPathX(f.val1)
+      override ifI.text.y = midpointPathY(f.val1) - 100.0
+}

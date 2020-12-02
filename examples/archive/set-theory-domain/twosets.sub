@@ -1,0 +1,6 @@
+Set A
+Set B
+Intersecting(A, B)
+
+AutoLabel All
+-- Label A $\int_0^{\infty} \alpha$

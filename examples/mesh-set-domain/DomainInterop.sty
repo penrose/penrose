@@ -4,101 +4,102 @@
 -- | Set Style program
 
 const {
-      const.subsetColor = sampleColor(0.2, "rgb")
-      const.repelWeight = 0.0
+      subsetColor = sampleColor(0.2, "rgb")
+      repelWeight = 0.0
 }
 
 Set x {
-    x.shape = Circle {
-        strokeWidth : 0
+    x.icon = Circle {
+        strokeWidth : 0.0
     }
 
     x.text = Text {
         string : x.label
-	color : setOpacity(x.shape.color, 1.0)
+	color : setOpacity(x.icon.color, 1.0)
     }
 
-    x.labelFn = ensure contains(x.shape, x.text)
-    x.minSizeFn = ensure minSize(x.shape)
-    x.maxSizeFn = ensure maxSize(x.shape)
-    -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
-    LOCAL.layering  = x.shape below x.text
+    ensure contains(x.icon, x.text)
+    ensure contains(x.icon, x.text)
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
+    -- encourage sameCenter(x.text, x.icon)
+    x.icon below x.text
 }
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
-    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape) -- Is this not working?
-    LOCAL.layering  = x.shape above y.shape
-    -- LOCAL.layering1  = y.text below x.shape
+    ensure contains(y.icon, x.icon, 5.0)
+    ensure smallerThan(x.icon, y.icon)
+    ensure outsideOf(y.text, x.icon) -- Is this not working?
+    x.icon above y.icon
+    -- layering1  = y.text below x.icon
 }
 
 Set x; Set y
 where NotIntersecting(x, y) {
-    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+    ensure disjoint(x.icon, y.icon)
 }
 
 Set x; Set y
 where Intersect(x, y) {
-    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
-    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
-    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+    ensure overlapping(x.icon, y.icon)
+    ensure outsideOf(y.text, x.icon)
+    ensure outsideOf(x.text, y.icon)
 }
 
 Point p {
     p.offset = 10.0
-    p.shape = Circle {
-        strokeWidth : 0
+    p.icon = Circle {
+        strokeWidth : 0.0
         color : rgba(0.0, 0.0, 0.0, 1.0)
         r : 3.0
     }
 
     p.text = Text {
         string : p.label
-        x : p.shape.x + p.offset
-        y : p.shape.y + p.offset
+        center : p.icon.center + (p.offset, p.offset)
     }
 }
 
 Point p
 with Set A
 where PointIn(A, p) {
-    LOCAL.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
-    LOCAL.layeringShape = p.shape above A.shape
-    LOCAL.layeringText = p.text above A.shape
+    ensure contains(A.icon, p.icon, 0.3 * A.icon.r)
+    p.icon above A.icon
+    p.text above A.icon
 }
 
 Point p
 with Set A
 where PointNotIn(A, p) {
 -- where Not(PointIn(A, p)) {
-    LOCAL.notContainsFn = ensure disjoint(A.shape, p.shape)
+    ensure disjoint(A.icon, p.icon)
 }
 
 -- Put all the text on top of everything
 Set x; Set y {
-    LOCAL.labelRepelFn = encourage repel(x.text, y.text, const.repelWeight)
-    LOCAL.layering = x.shape below y.text
+    encourage repel(x.text, y.text, const.repelWeight)
+    x.icon below y.text
 }
 
 Point p; Point q {
-      -- LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape, G.repelWeight2)
-      LOCAL.labelRepelFn = encourage repel(p.text, q.text, const.repelWeight)
+     -- encourage repel(p.icon, q.icon, G.repelWeight2)
+     encourage repel(p.text, q.text, const.repelWeight)
 }
 
 Set x; Point p {
-    LOCAL.layering1 = p.shape above x.shape
-    LOCAL.layering2 = p.text above x.shape
+    p.icon above x.icon
+    p.text above x.icon
 
-      LOCAL.labelRepelFn = encourage repel(p.text, x.text, const.repelWeight)
+     encourage repel(p.text, x.text, const.repelWeight)
 }
 
 --------------------------------------
 -- | Mesh Style program
 
 global {
-       global.labelPadding2 = 10.0
+    -- TODO: Behaves badly w/ padding=0.0, 1.0
+    global.labelPadding2 = 10.0
     global.padding = 20.0
     global.stroke = 2.0
     global.spacing = 150.0
@@ -135,7 +136,7 @@ global {
     -- These numbers (weights on inRange and the range itself) have been heavily tweaked
     -- And it makes convergence hard
     -- global.scaleFactor = ?
-    -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
+    ensure inRange(global.scaleFactor, 75.0, 150.0)
     global.scaleFactor = 70.0
     -- global.offset = 150.0
 }
@@ -186,9 +187,8 @@ SimplicialComplex K {
        -- K.size_x = ddg[K.name]["size_x"] * global.scaleFactor + K.box_padding
        -- K.size_y = ddg[K.name]["size_y"] * global.scaleFactor + K.box_padding
 
-       K.shape = Rectangle {
-           x : K.center_x
-	       y : K.center_y
+       K.icon = Rectangle {
+           center : (K.center_x, K.center_y)
 	       w : K.size_x
 	       h : K.size_y
 	       rotation : 0.0
@@ -200,39 +200,37 @@ SimplicialComplex K {
        K.padding = 25.0
 
        K.text = Text {
-	 x : K.shape.x - K.shape.w / 2.0 + K.padding
-	 y : K.shape.y - K.shape.h / 2.0 + K.padding
+	 center : (K.icon.center[0] - K.icon.w / 2.0 + K.padding, K.icon.center[1] - K.icon.h / 2.0 + K.padding)
 	 string : K.label
 	 rotation : 0.0
 	 color : Colors.black
        }
 
-       K.labelFn = encourage centerLabel(K.shape, K.text)
+     encourage centerLabel(K.icon, K.text)
 
-       K.layerTextFn = K.text above K.shape
+       K.text above K.icon
 
        -- Expression label
        K.expr_padding = 25.0
 
        K.const_text = Text {
-       	 x : K.shape.x 
-       	 y : K.shape.y - (K.size_y / 2.0) - K.expr_padding
+       	 center : (K.icon.center[0], K.icon.center[1] - (K.size_y / 2.0) - K.expr_padding)
        	 string : "\\text{ }"
        	 rotation : 0.0
        	 color : global.starColor
        }
 
-       K.const_layerFn = K.const_text above K.shape
+       K.const_text above K.icon
 }
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
 SimplicialComplex K1; SimplicialComplex K2 {
-	 LOCAL.padding = 30.0
+	 padding = 30.0
 
 	 -- TODO: improve this for rectangles by not just using the x size
-	 LOCAL.overlapFn = ensure disjoint(K1.shape, K2.shape, LOCAL.padding)
-	 LOCAL.alignFn = ensure sameHeight(K1.shape, K2.shape)
-	 -- LOCAL.distFn = ensure distBetween(K1.shape, K2.shape, LOCAL.padding)
+	 ensure disjoint(K1.icon, K2.icon, padding)
+	 ensure sameHeight(K1.icon, K2.icon)
+	 -- distFn = ensure distBetween(K1.icon, K2.icon, padding)
 }
 
 Vertex v 
@@ -243,9 +241,8 @@ with SimplicialComplex K {
        -- v.xpos = ddg[v.name]["x"] * global.scaleFactor
        -- v.ypos = ddg[v.name]["y"] * global.scaleFactor
 
-       v.shape = Circle { 
-         x : v.xpos -- avoid "x <- f(x)" in override
-	 y : v.ypos
+       v.icon = Circle { 
+         center : (v.xpos, v.ypos) -- avoid "x <- f(x)" in override
          r : global.selectedRadius
 	 color : Colors.black
 	 strokeWidth : 0.0
@@ -253,21 +250,21 @@ with SimplicialComplex K {
 
        -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
        v.text = Text {
-	 x : ? -- v.shape.x + global.padding
-	 y : ? -- v.shape.y + global.padding
+	 center : (?, ?) -- v.icon.x + global.padding
+	                 -- v.icon.y + global.padding
 	 string : v.label
 	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
 	 rotation : 0.0
-	 color : v.shape.color
+	 color : v.icon.color
        }
 
-       v.layerFnShape = v.shape above K.shape
-       v.layerFnText = v.text above K.shape
+       v.icon above K.icon
+       v.text above K.icon
 
-       v.posFn = ensure contains(K.shape, v.shape, v.shape.r) -- padding
+     ensure contains(K.icon, v.icon, v.icon.r) -- padding
 
-       v.labelFnMargin = ensure atDist(v.shape, v.text, global.labelPadding2)
-       v.labelFn = ensure contains(K.shape, v.text, 0.0)
+     ensure atDist(v.icon, v.text, global.labelPadding2)
+     ensure contains(K.icon, v.text, 0.0)
 }
 
 -- Style a distinguished vertex (only if it's a result)
@@ -277,83 +274,89 @@ with SimplicialComplex K {
       -- Don't label the vertex because then we need to position it...
       -- override v.text.string = v.label
 
-      override v.shape.r = global.selectedRadius
-      override v.shape.color = global.closureColor
+      override v.icon.r = global.selectedRadius
+      override v.icon.color = global.closureColor
 
       v.offset = 10.0
-      v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
+     encourage near(v.text, v.icon, v.offset)
 
       /*
        -- Optimize the label padding, only for the distinguished vertex
       v.padding_x = ?
       v.padding_y = ?
-      override v.text.x = v.shape.x + v.padding_x
-      override v.text.y = v.shape.y + v.padding_y
+      override v.text.x = v.icon.x + v.padding_x
+      override v.text.y = v.icon.y + v.padding_y
 
       v.offset = 30.0
       -- This is trying to place the labels but it's very slow, goes from 40s to 3min
-      v.labelInComplexFn = ensure contains(K.shape, v.text)
+     ensure contains(K.icon, v.text)
       -- Label's color might need to be programmatically set depending on its location
 
       v.padding_range = 20.0
-      v.labelRangeXFn = ensure inRange(v.padding_x, v.shape.x - v.padding_range, v.shape.x + v.padding_range)
-      v.labelRangeYFn = ensure inRange(v.padding_y, v.shape.y - v.padding_range, v.shape.y + v.padding_range) */
+     ensure inRange(v.padding_x, v.icon.x - v.padding_range, v.icon.x + v.padding_range)
+     ensure inRange(v.padding_y, v.icon.y - v.padding_range, v.icon.y + v.padding_range) */
+}
+
+Vertex v; Edge e
+where InVS(v, K); InES(e, K)
+with SimplicialComplex K {
+     offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     ensure disjoint(v.text, e.icon, offset)
 }
 
 Vertex v; Edge e
 where DeclaredV(v); InVS(v, K); InES(e, K)
 with SimplicialComplex K {
-     LOCAL.offset = 5.0
+     offset = 5.0
      -- Make sure the label doesn't overlap with any edge
      -- TODO: this is NaNing
-     LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
+     ensure disjoint(v.text, e.icon, offset)
 }
 
 Edge e
 where e := MkEdge(v1, v2); InES(e, K)
 with Vertex v1; Vertex v2; SimplicialComplex K {
-     e.shape = Line { 
-     	     startX : v1.shape.x
-     	     startY : v1.shape.y
-     	     endX : v2.shape.x
-     	     endY : v2.shape.y
+     e.icon = Line { 
+     	     start : v1.icon.center
+     	     end : v2.icon.center
 	     color : Colors.black
 	     thickness : global.edgeStroke
      }
 
      e.text = Text {
-       x : ?
-       y : ?
+       center : (?, ?)
        string : e.label
        rotation : 0.0
        color : Colors.black
      }
 
-     e.closeFn = encourage near(e.text, average(v1.xpos, v2.xpos), average(v1.ypos, v2.ypos))
-     e.nonoverlapFn = ensure disjoint(e.text, e.shape, 5.0)
+     encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
+     ensure disjoint(e.text, e.icon, 5.0)
 
-     e.layering1 = v1.shape above e.shape
-     e.layering2 = v2.shape above e.shape
-     e.layering3 = e.shape above K.shape
+     v1.icon above e.icon
+     v2.icon above e.icon
+     e.icon above K.icon
 }
 
 -- Style a distinguished edge (only if it's declared to be a result)
 Edge e
 where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
 with Vertex v1; Vertex v2; SimplicialComplex K {
-     override e.shape.thickness = global.selectedEdgeStroke
-     override e.shape.color = global.closureColor
+     override e.icon.thickness = global.selectedEdgeStroke
+     override e.icon.color = global.closureColor
 
      e.text = Text {
-       x : average(e.shape.startX, e.shape.endX) + global.padding
-       y : average(e.shape.startY, e.shape.endY) + global.padding
+     -- TODO: Vectorize this
+       center : (average2(e.icon.start[0], e.icon.end[0]) + global.padding, average2(e.icon.start[1], e.icon.end[1]) + global.padding)
        -- string : e.label
        string : "\\text{ }" 
        rotation : 0.0
-       color : e.shape.color
+       color : e.icon.color
      }
 
-     e.layerFnText = e.text above K.shape
+     e.text above K.icon
 }
 
 Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
@@ -361,8 +364,9 @@ where f := MkFace(e1, e2, e3); InFS(f, K)
 with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
      f.color = Colors.silver
 
-     f.shape = Curve { 
-     	     pathData : triangle(e1.shape, e2.shape, e3.shape)
+     f.icon = Path { 
+        -- As temp hack around furthestFrom, web-runtime assumes triangle is drawn in a consistent order (first point of each line)
+     	     pathData : triangle(e1.icon, e2.icon, e3.icon)
 	     strokeWidth : 0.0
 	     fill : setOpacity(f.color, 0.8)
 	     color : setOpacity(f.color, 0.8)
@@ -371,16 +375,15 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
 
      f.text = Text {
        -- Makes assumptions about vertex order in constructor
-       x : average([e1.shape.startX, e2.shape.startX, e3.shape.startX])
-       y : average([e1.shape.startY, e2.shape.startY, e3.shape.startY])
+       center : (average([e1.icon.start[0], e2.icon.start[0], e3.icon.start[0]]), average([e1.icon.start[1], e2.icon.start[1], e3.icon.start[1]]))
        string : f.label
        rotation : 0.0
        color : Colors.black
      }
 
-     f.layerFnText = f.text above K.shape
+     f.text above K.icon
 
-     f.layeringShape = f.shape above K.shape
+     f.icon above K.icon
 }
 
 -- Style and label a distinguished face
@@ -388,16 +391,16 @@ Face f
 where DeclaredF(f); InFS(f, K)
 with SimplicialComplex K {
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
-     override f.shape.fill = global.selectedFaceColor
-     override f.shape.color = global.selectedFaceColor
+     override f.icon.fill = global.selectedFaceColor
+     override f.icon.color = global.selectedFaceColor
 }
 
 -- Relative layerings within a simplicial complex
 Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
 with SimplicialComplex K {
-      LOCAL.textLayering1 = v.text above f.shape 
-      LOCAL.textLayering2 = v.text above e.shape
+      v.text above f.icon 
+      v.text above e.icon
 }
 
 -- Only label the (last) result of an operation
@@ -408,51 +411,49 @@ where Result(e) {
 }
 
 Edge e; Face f {
-     LOCAL.layering = e.shape above f.shape
-     LOCAL.layeringText = e.text above f.shape
+     e.icon above f.icon
+     e.text above f.icon
 }
 
 Vertex v; Vertex w {
-       LOCAL.repelFn = encourage repel(v.shape, w.shape, 1.0)
+     encourage repel(v.icon, w.icon, 1.0)
 }
 
 --------------------------------------
 -- | above this line, concatenate the two .sty files for Sets and Meshes
 
-Point p; Vertex v
+forall Point p; Vertex v
 where Identified(p, v) {
-   LOCAL.shape = Line {
-      startX: p.shape.x
-      startY: p.shape.y
-      endX: v.shape.x
-      endY: v.shape.y
+
+   icon = Line {
+      start : p.icon.center
+      end : v.icon.center
       color: setOpacity(Colors.black, 0.25)
       thickness : 2.0
-      style: "dashed"
+      style : "dashed"
    }
 
-   LOCAL.layering1 = LOCAL.shape above p.shape
-   LOCAL.layering2 = LOCAL.shape above v.shape
+   layer icon above p.icon
+   layer icon above v.icon
    
    -- rather than worry about the two diagrams colliding, just add some penalty that tries to make all the connecting lines fairly long
-   -- p.vector = (p.shape.x, p.shape.y)
-   -- v.vector = (v.shape.x, v.shape.y)
-   LOCAL.vec = (p.shape.x - v.shape.x, p.shape.y - v.shape.y)
+   -- p.vector = (p.icon.x, p.icon.y)
+   -- v.vector = (v.icon.x, v.icon.y)
+   vec = p.icon.center - v.icon.center
 
    -- TODO: encourage or ensure?
    -- TODO: make this better
-   -- LOCAL.lenFn = encourage equal(norm_(p.shape.x - v.shape.x, p.shape.y - v.shape.y), 100.0)
+   -- lenFn = encourage equal(norm_(p.icon.x - v.icon.x, p.icon.y - v.icon.y), 100.0)
 }
 
 Set s; Edge e
 where Identified(e, s) {
       -- Make all edge subsets the same random color
-      s.shape.color = setOpacity(Colors.purple, 0.2) -- const.subsetColor
+      s.icon.color = setOpacity(Colors.purple, 0.2) -- const.subsetColor
 }
 
 -- TODO: hack for position; assuming there's only one face
 Set s; Face f
 where Identified(f, s) {
-    s.shape.x = 200.0
-    s.shape.y = 0.0
+    s.icon.center = (200.0, 0.0)
 }

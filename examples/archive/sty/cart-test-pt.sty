@@ -39,7 +39,7 @@ Set `codomain` {
 Map f
 with Set domain; Set codomain
 where From(f, domain, codomain) {
-    f.shape = Curve {
+    f.shape = Path {
         path : computeSurjectionLines(10, codomain.shape, domain.shape)
     }
 

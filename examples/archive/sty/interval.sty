@@ -165,7 +165,7 @@ Point2D p = (a, b)
 
 Map f : A -> C
   where Differentiable(f); Interval A = [a,b]; Closed(A); Point a,b; a,b : D; A : D; Reals C, D {
-    shape = Curve {
+    shape = Path {
         function = sample_differentiable_fn() -- needs to be able to take arguments
         path = samplePointsInBbox(f.shape.function, A, C)
         label = auto
@@ -176,7 +176,7 @@ Map f : A -> C
 
 Map h : U -> C
   where Discontinuous(h); Interval U : D = union(c,J,I); Interval J : U = [d,e); Interval I : U = (i,j); Point c : U; Point d,e,i,j : D; Reals C, D {
-    shape1 = Curve {
+    shape1 = Path {
         function = sample_continuous_fn()
         path = samplePointsInBbox(h.shape1.function,c, C)
         label = auto
@@ -184,7 +184,7 @@ Map h : U -> C
         end-style = none
     }
 
-    shape2 = Curve {
+    shape2 = Path {
         function = sample_continuous_fn()
         path = samplePointsInBbox(h.shape2.function, J, C)
         label = auto
@@ -192,7 +192,7 @@ Map h : U -> C
         end-style = none
     }
 
-    shape3 = Curve {
+    shape3 = Path {
         function = sample_continuous_fn()
         path = samplePointsInBbox(h.shape3.function, I, C)
         label = auto

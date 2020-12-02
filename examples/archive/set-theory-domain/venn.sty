@@ -1,0 +1,116 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+}
+
+const {
+  const.pi = 3.14159
+  const.debugDotRadius = 5.0
+  const.debugX = -200.0
+  const.debugY = 200.0
+  const.debugR = 50.0
+
+  const.debugCircle = Circle {
+    x : const.debugX
+    y : const.debugY
+    r : const.debugR
+    strokeWidth : 3
+    strokeColor : Colors.gray
+    color : Colors.none
+  }
+
+  const.wheelLabel = Text {
+    string : "\\text{hue}"
+    x : const.debugX
+    y : const.debugY
+    fontSize : "15pt"
+    color : Colors.gray
+  }
+}
+
+forall Set x {
+    x.hue = ? -- In degrees
+    x.color = hsva(x.hue, 100.0, 80.0, 0.5)
+
+    x.shape = Circle {
+        strokeWidth : 0
+	color : x.color
+    }
+
+    x.text = Text {
+        string : x.label
+    }
+
+    ensure contains(x.shape, x.text)
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
+    encourage sameCenter(x.text, x.shape)
+    x.shape below x.text
+
+    -- Hue wheel debugging
+    x.hueRad = const.pi * x.hue / 180.0
+
+    x.hueDebug = Circle {
+        x : const.debugX + const.debugR * cos(x.hue)
+        y : const.debugY + const.debugR * sin(x.hue)
+        r : const.debugDotRadius
+        strokeWidth : 0.0
+        strokeColor : Colors.none
+        color : x.color
+    }
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+      -- TODO / NOTE: This version of `repel` doesn't yet work in the new runtime
+    encourage repel(x.hue, y.hue, 1.0, "angle")
+
+    ensure contains(y.shape, x.shape, 5.0)
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    x.shape above y.shape
+    y.text below x.shape
+}
+
+forall Set x; Set y
+where Not(Intersecting(x, y)) {
+    ensure disjoint(x.shape, y.shape)
+}
+
+forall Set x; Set y
+where Intersecting(x, y) {
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
+}
+
+forall Point p {
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
+
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
+
+    p.textLayering = p.text above p.shape
+}
+
+Point p
+with Set A
+where PointIn(A, p) {
+    p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    p.layering = p.shape above A.shape
+}
+
+Point p
+with Set A
+where Not(PointIn(A, p)) {
+    p.notContainsFn = ensure disjoint(A.shape, p.shape)
+}

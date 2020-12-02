@@ -1,0 +1,172 @@
+-- Global constants and sizes
+const {
+  const.vectorSpaceSize = 350.0
+  const.axisSize = const.vectorSpaceSize * 0.5
+  const.scaleRatio = 200.0
+  const.perpLen = 25.0
+  const.repelWeight = 0.7
+  const.arrowheadSize = 0.6
+  -- For unit mark
+  const.markerPadding = 15.0
+  const.barSize = 5.0
+}
+
+-- Global RGB colors in common use
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
+    Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
+    Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.green = rgba(0.0, 0.8, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+VectorSpace U {
+    U.thickness = 2.0
+    U.axisColor = Colors.gray
+
+    -- U.originX = ?
+    -- U.originY = ?
+    U.originX = 0.0
+    U.originY = 0.0
+    U.origin = (U.originX, U.originY)
+
+    -- TODO: get rid of this?
+    U.shape = Square {
+        x : U.originX
+	y : U.originY
+        side : const.vectorSpaceSize
+        color : Colors.none
+	stroke : Colors.black
+    }
+
+    U.xAxis = Arrow {
+        startX : U.shape.x - const.axisSize
+        startY : U.shape.y
+        endX : U.shape.x + const.axisSize
+        endY : U.shape.y
+        thickness : U.thickness
+        color : U.axisColor
+        arrowheadSize : const.arrowheadSize
+    }
+
+    U.yAxis = Arrow {
+        startX : U.shape.x
+        startY : U.shape.y - const.axisSize
+        endX : U.shape.x
+        endY : U.shape.y + const.axisSize
+        thickness : U.thickness
+        color : U.axisColor
+        arrowheadSize : const.arrowheadSize
+    }
+
+    U.text = Text {
+        string : U.label
+        x : U.shape.x - const.axisSize
+        y : U.shape.y + const.axisSize
+        color : U.axisColor
+    }
+
+    -- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
+    -- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
+}
+
+Vector v
+with VectorSpace U
+where In(v,U) {
+  v.text = Text {
+    string : v.label
+    color : v.shape.color
+  }
+
+  v.shape = Arrow {
+    startX : U.shape.x
+    startY : U.shape.y
+    thickness : 3.0
+    color : Colors.blue
+    arrowheadSize : const.arrowheadSize
+  }
+
+   v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
+   v.angle = angle(v.vector)
+
+   -- v.containFn = ensure contains(U.shape, v.shape)
+   -- v.containLabel = ensure contains(U.shape, v.text)
+   -- v.labelLocation = ensure nearHead(v.shape, v.text, 20.0, 20.0)
+
+   ensure contains(U.shape, v.shape)
+   ensure contains(U.shape, v.text)
+   ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
+   -- This objective gives better visual results but causes vectors to be the same length?
+   -- v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+
+  v.text above U.xAxis
+  v.text above U.yAxis
+}
+
+Vector u; Vector v
+with VectorSpace U
+where Orthogonal(u, v); In(u, U); In(v, U) {
+      -- Draw perpendicular mark
+      LOCAL.perpMark = Path {
+	   pathData : orientedSquare(u.shape, v.shape, U.origin, const.perpLen)
+	   strokeWidth : 2.0
+	   color : Colors.black
+	   fill : Colors.white
+      }
+
+      -- Make sure vectors are orthogonal
+      encourage equal(dot(u.vector, v.vector), 0.0)
+
+      layer v.shape above LOCAL.perpMark
+      layer u.shape above LOCAL.perpMark
+}
+
+-- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
+Vector v
+with VectorSpace U; Vector w
+where In(v, U); Unit(v); Orthogonal(v, w) {
+
+      -- The start and end of the body of the unit marker line
+      v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
+      v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+
+      v.unitMarkerLine = Path {
+          pathData : pathFromPoints(v.offsetVec)
+	  strokeWidth : 2.0
+	  color : Colors.black
+	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd1 = Path {
+          pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd2 = Path {
+          pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerText = Text {
+          string : "1"
+	  x : get(v.labelPosition, 0)
+	  y : get(v.labelPosition, 1)
+	  color : Colors.black
+      }
+
+      layer v.unitMarkerLine above U.xAxis
+      layer v.unitMarkerLine above U.yAxis
+      -- encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
+}
+
+Vector `x2` {
+       override `x2`.shape.color = Colors.green
+}

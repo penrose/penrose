@@ -1,0 +1,118 @@
+import Colors as C
+import Vectors -- TODO: do something with this import?
+import Penrose.Math as M -- Can you import a specific name, like "dot"?
+
+OrthogonalVectors {
+    const {
+      scalar perpLen = 25.0
+      -- For unit mark
+      scalar markerPadding = 15.0
+      scalar barSize = 5.0
+    }
+
+    /*
+    functions {
+        objective equal = {{ (x: VarAD, y: VarAD) => squared(sub(x, y)) }}
+
+        function pathFromPoints = {{
+            (setting: string, pts: [Pt2]): IPathDataV<VarAD> => {
+                const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
+                const path: SubPath<VarAD> = { tag: setting, contents: elems };
+                return { tag: "PathDataV", contents: [path] };
+            } 
+        }} 
+    }
+
+    forall Vector u; Vector v
+    with VectorSpace U
+    where Orthogonal(u, v); In(u, U); In(v, U) {
+          vec2 startR = u.shape.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.shape.start, u.shape.end]
+          vec2 endR = u.shape.end
+          vec2 startL = v.shape.start
+          vec2 endL = v.shape.end
+          vec2 dirR = normalize(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
+          vec2 dirL = normalize(endL - startL)
+          vec2 ptL = startR + const.perpLen * dirL
+          vec2 ptR = startR + const.perpLen * dirR
+          vec2 ptLR = ptL + len * dirR
+          vec2[] pts = [ptL, ptLR, ptR]
+
+          function toPath = functions.pathFromPoints
+
+          -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
+          shape perpMark = Path {
+               pathData : toPath("closed", pts)
+               strokeWidth : 2.0
+               color : C.black
+               fill : C.white
+          }
+
+          -- Make sure vectors are orthogonal (use ensure?)
+          function eq = functions.equal
+          encourage eq(M.dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
+
+          layer v.shape above LOCAL.perpMark
+          layer u.shape above LOCAL.perpMark
+    }
+
+    forall Vector v
+    with VectorSpace U; Vector w
+    where In(v, U); Unit(v); Orthogonal(v, w) {
+          -- Usually, the unit vector shouldn't need to know about orthogonal vectors
+          -- but we need to position the unit mark so it doesn't overlap with the "inside" of the two vectors
+
+          scalar strokeWidth = 2
+          function toPath = functions.pathFromPoints
+
+          -- The start and end of the body of the unit marker line
+          -- NOTE: We need to have lists of vectors
+          vec2 dir = normalize(w.shape.end - w.shape.start)
+          vec2 normal = -dir
+          vec2 markStart = v.shape.start + padding * normal
+          vec2 markEnd = v.shape.end + padding * normal
+          vec2[] v.markerLine = [markStart, markEnd]
+
+          shape v.unitMarkerLine = Path {
+              pathData : toPath("open", v.markerLine)
+              strokeWidth : strokeWidth
+              color : C.black
+              fill : C.none
+          }
+
+          matrix2x2 rot90CW = ((0, 1), (-1, 0))
+          vec2 markNormal = mul(rot90CW, normal) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+          function c = const.barSize
+          vec2 halfvec = c * markNormal
+
+          shape v.unitMarkerEnd1 = Path {
+              pathData : toPath("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+              strokeWidth : strokeWidth
+              color : C.black
+              fill : C.none
+          }
+
+          shape v.unitMarkerEnd2 = Path {
+              pathData : toPath("open", [markEnd - halfvec, markEnd + halfvec])
+              strokeWidth : strokeWidth
+              color : C.black
+              fill : C.none
+          }
+
+          vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2
+          vec2 labelPos = midpointLoc + const.markerPadding * normal
+
+          shape v.unitMarkerText = Text {
+              string : "1"
+              center : labelPos
+              color : C.black
+          }
+
+          layer v.unitMarkerLine above U.xAxis
+          layer v.unitMarkerLine above U.yAxis
+    }
+
+    forall Vector `x2` {
+           override `x2`.shape.color = C.green
+    }
+    */
+}

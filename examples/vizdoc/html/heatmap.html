@@ -12,18 +12,6 @@
     </label>
     <input type="range" min="0" max="500" id="circ1y">
   </p>
-  <p>
-    <label for="circ2x" 
-       style="display: inline-block; width: 240px; text-align: right">
-       circle 2 x-coord = <span id="circ2x-value">…</span>
-    </label>
-    <input type="range" min="0" max="960" id="circ2x">
-    <label for="circ2y" 
-       style="display: inline-block; width: 240px; text-align: right">
-       circle 2 y-coord = <span id="circ2y-value">…</span>
-    </label>
-    <input type="range" min="0" max="500" id="circ2y">
-  </p>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-contour.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
@@ -37,7 +25,6 @@
 
 // TODO- translate d3 coords to penrose coords
 let circ1 = [90, 100] // circles we will attempt to sameCenter, initially fixed locations
-let circ2 = [500, 80]
 
 // Populate a grid of n×m values - these correspond to energy outputs
 var n = 240, m = 125, values = new Array(n * m);
@@ -55,12 +42,12 @@ function calcval(){
 function constraint(x, y) {
     var a = x - circ1[0] / 4;   // divide by 4 so contours look normal
     var b = y - circ1[1]/ 4;
-    var c = Math.sqrt( a*a + b*b );
-    var d = x - circ2[0] / 4;
-    var e = y - circ2[1] / 4;
-    var f = Math.sqrt( d*d + e*e );
+    // var c = Math.sqrt( a*a + b*b );
+    // var d = x - circ2[0] / 4;
+    // var e = y - circ2[1] / 4;
+    // var f = Math.sqrt( d*d + e*e );
     //return (c + f) ** 2
-    return c ** 2 + f ** 2
+    return a ** 2 + b ** 2
     //return ((c - f) ** 2) + (c + f) ** 2;
     //return f;
 }
@@ -98,8 +85,6 @@ svg.selectAll("path")
 // add circles
 svg.append("circle")
   .attr("cx", circ1[0]).attr("cy", circ1[1]).attr("r", 20).attr("id", "circ1").style("fill", "blue");
-svg.append("circle")
-  .attr("cx", circ2[0]).attr("cy", circ2[1]).attr("r", 20).attr("id", "circ2").style("fill", "green");
 
 // update on input change
 d3.select("#circ1x").on("input", function() {
@@ -108,21 +93,13 @@ d3.select("#circ1x").on("input", function() {
 d3.select("#circ1y").on("input", function() {
   update(this.id, +this.value);
 });
-d3.select("#circ2x").on("input", function() {
-  update(this.id, +this.value);
-});
-d3.select("#circ2y").on("input", function() {
-  update(this.id, +this.value);
-});
 
 // Initial starting positions of the circles
 update("circ1x", circ1[0]);
 update("circ1y", circ1[1]);
-update("circ2x", circ2[0]);
-update("circ2y", circ2[1]);
 
 function update(id, val) {
-    console.log("update", id, val);
+    // console.log("update", id, val);
 
   // adjust the positions on the range slider
   // not elegant, should be refactored tbh
@@ -141,34 +118,13 @@ function update(id, val) {
         "cy", val
     );
     circ1[1] = val;
-  }
-  else if (id == "circ2x") {
-    d3.select("#circ2x-value").text(val);
-    d3.select("#circ2x").property("value", val);
-    d3.select("#circ2").attr(
-        "cx", val
-    );
-    circ2[0] = val;
-  }
-  else if (id == "circ2y") {
-    d3.select("#circ2y-value").text(val);
-    d3.select("#circ2y").property("value", val);
-    d3.select("#circ2").attr(
-        "cy", val
-    );
-    circ2[1] = val;
-  }
+  };
   calcval();
-
-    // Note: If your code isn't working, try googling more specific search terms (I got here by searching "d3 update selection svg", since it seemed like the update selection for existing elements in the svg wasn't working)
-    // https://www.d3indepth.com/enterexit/
-    // https://stackoverflow.com/questions/22621865/how-to-update-an-svg-path-with-d3-js/22622385
 
     var update = svg.selectAll("path")
         .data(contours(values));
 
     // UPDATE -- update existing data attributes of elements (paths)
-    // The problem was that earlier, I guess you were not updating the data attribute for paths whose data had changed; the code was only binding data without updating the paths
     update
         .attr("d", d3.geoPath(d3.geoIdentity().scale(width / n)))
         .attr("fill", function(d) { return color(d.value); });
@@ -183,7 +139,6 @@ function update(id, val) {
     update.exit()
         .remove();
 
-    // In conclusion: I still think d3 does not have the most intuitive API :-) Actually this particular API is poorly designed for most users who are not power users because if new data is bound, the view should automatically update via a function, rather than having to state it imperatively
 
     // TODO: Note how the slider drags are pretty laggy
     // Maybe update the contour on mouseup, or per slider segment (every 1/100)

@@ -111,7 +111,7 @@ with Set `codomain`, `domainOuter`{
 Map f
 where From(f, domain, image)
 with Set `domainOuter`; Set domain; Set image {
-    f.shape = Curve {
+    f.shape = Path {
         path : computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
         pathData : interpolate(f.shape.path, "open")
         color : Colors.darkBlue

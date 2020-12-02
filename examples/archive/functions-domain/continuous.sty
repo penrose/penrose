@@ -1,0 +1,185 @@
+Colors {
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+    Colors.darkBlue = rgba(0.05, 0.05, 0.6, 1.0)
+}
+
+G {
+    G.thickness = 2.0
+    G.arrowheadSize = 0.75
+    G.padding = 15.0
+    G.padding2 = 25.0
+}
+
+-- NOTE: this style doesn't handle multiple functions in one axis setting
+-- Multiple From statements will result in multiple superimposed axis settings
+
+Set domain; Set image
+with Map f
+where From(f, domain, image) {
+    domain.shape = Arrow {
+        startX : -100.0
+        startY : 0.0
+        endX   : 325.0
+        endY   : 0.0
+        thickness : 2.0
+        color : Colors.black
+        arrowheadSize : G.arrowheadSize
+    }
+
+    -- TODO: compute instead of optimizing
+    domain.text = Text { 
+        x : domain.shape.endX + G.padding
+        y : domain.shape.endY
+        string : domain.label 
+    }
+
+    image.shape = Arrow {
+          startX : -100.0
+          startY : 0.0
+          endX   : -100.0
+          endY   : 200.0
+          thickness : 2.0
+          color : Colors.black
+        arrowheadSize : G.arrowheadSize
+    }
+
+    image.text = Text { 
+        x : image.shape.endX
+        y : image.shape.endY + G.padding
+        string : image.label 
+    }
+
+    domain.left_margin  = 0.2
+    domain.right_margin = 0.8
+    domain.outer_len = domain.shape.endX - domain.shape.startX
+
+    domain.left = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : domain.shape.startX + domain.left_margin * domain.outer_len
+        startY : domain.shape.startY
+        endX : domain.left.startX
+        endY : image.shape.endY
+    }
+
+    domain.right = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : domain.shape.startX + domain.right_margin * domain.outer_len
+        startY : domain.shape.startY
+        endX : domain.right.startX
+        endY : image.shape.endY
+     }
+
+    domain.left_label = Text { 
+        x : domain.left.startX
+        y : domain.left.startY - G.padding2
+        string : "A_0" 
+    }
+
+    domain.right_label = Text { 
+        x : domain.right.startX
+        y : domain.right.startY - G.padding2
+        string : "A_1" 
+    }
+
+    image.bottom_margin  = 0.2 -- TODO: Could these margins be optimized?
+    image.top_margin = 0.8
+    image.image_len = image.shape.endY - image.shape.startY
+
+    image.bottom = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : image.shape.startX
+        startY : image.shape.startY + image.bottom_margin * image.image_len
+        endX : domain.shape.endX
+        endY : image.bottom.startY
+    }
+
+    image.top = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : image.shape.startX
+        startY : image.shape.startY + image.top_margin * image.image_len
+        endX : domain.shape.endX
+        endY : image.top.startY
+    }
+
+    image.bottom_label = Text { 
+        x : image.bottom.startX - G.padding2
+	y : image.bottom.startY
+        string : "B_0" 
+    }
+
+    image.top_label = Text { 
+        x : image.top.startX - G.padding2
+	y : image.top.startY
+        string : "B_1" 
+    }
+
+    -- Cartesian product
+    -- LOCAL.shape = Rectangle {
+        -- x : (domain.left.startX + domain.right.startX) / 2.0
+        -- y : (image.bottom.startY + image.top.startY) / 2.0
+        -- sizeX : domain.right.startX - domain.left.startX
+        -- sizeY : image.top.startY - image.bottom.startY
+        -- color : Colors.lightBlue
+        -- strokeColor : Colors.none
+    -- }
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image) {
+    f.numPoints = 5
+
+    f.text = Text {
+        string : f.label
+        x : domain.shape.endX / 2.0 - 50.0
+        y : domain.shape.endY - 30.0
+    }
+    -- TODO: move to the following blocks once selector matching supports nested ones
+    f.shape = Path {
+    	-- Default
+        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
+        pathData : interpolate(f.shape.path)
+        -- color : Colors.darkBlue
+        fill : Colors.none
+        arrowheadSize : 0.0
+        strokeWidth : 2.5
+        effect : "dropShadow"
+    }
+    f.layering = f.shape above image.top
+    f.layering2 = f.shape above image.bottom
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); Not(OneToOne(f)) {
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "injection")
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); OneToOne(f) {
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
+}

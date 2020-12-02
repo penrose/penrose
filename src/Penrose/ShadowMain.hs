@@ -17,7 +17,7 @@ import           Control.Monad              (forM_, when)
 import           Control.Monad.Trans
 import           Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as B
-import qualified Data.List                  as L (intercalate)
+import qualified Data.List                  as L (intercalate, isSuffixOf)
 import qualified Data.List.Split            as LS (splitOn)
 import qualified Data.Map.Strict            as M
 import qualified Data.Text.Lazy             as T
@@ -79,10 +79,12 @@ processArgs args
       then let isVerbose = args `isPresent` longOption "verbose"
            in Server.serveEditor domain (read port) isVerbose
       else do
-        subFile <- args `getArgOrExit` argument "substance"
-        styFile <- args `getArgOrExit` argument "style"
-        elementFile <- args `getArgOrExit` argument "element"
-        penroseRenderer subFile styFile elementFile domain config $ read port
+        let inputs = args `getAllArgs` argument "input"
+        let files = (\x -> filter (x `L.isSuffixOf`)) <$> [".sub", ".sty", ".dsl"] <*> pure inputs
+        if any ((/= 1) . length) files
+          then exitWithUsage argPatterns
+          else let [[subFile], [styFile], [elementFile]] = files
+               in penroseRenderer subFile styFile elementFile domain config $ read port
 
 --------------------------------------------------------------------------------
 -- CLI wrapper
@@ -133,15 +135,15 @@ penroseRenderer subFile styFile elementFile domain configPath port = do
       Left err     -> error $ show err
       Right (s, _) -> return s
   -- Read optimization config and so it can be included in the initial state
-  configStr <- B.readFile configPath
-  let configBstr = decode configStr :: Maybe G.OptConfig
-  let optConfig =
-        case configBstr of
-          Nothing -> error "couldn't read opt config JSON"
-          Just x  -> x
-  putStrLn "Opt config:\n"
-  print optConfig
-  let state = initState {G.oConfig = optConfig}
+  -- configStr <- B.readFile configPath
+  -- let configBstr = decode configStr :: Maybe G.OptConfig
+  -- let optConfig =
+  --       case configBstr of
+  --         Nothing -> error "couldn't read opt config JSON"
+  --         Just x  -> x
+  -- putStrLn "Opt config:\n"
+  -- print optConfig
+  let state = initState {G.oConfig = G.defaultOptConfig}
   if useFrontend
     then Server.serveRenderer domain port state
     else let numTrials = 1000
