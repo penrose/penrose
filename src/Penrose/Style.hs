@@ -167,7 +167,7 @@ type StyProg = HeaderBlocks
 -------------------- Style selector grammar
 -- TODO: write a NOTE about the namespace situation between Substance and Style.
 
-data STypeVar = STypeVar' {
+data STypeVar = STypeVar {
     typeVarNameS :: String,
     typeVarPosS  :: SourcePos
 } deriving (Eq, Typeable)
@@ -217,7 +217,7 @@ instance Show Predicate where
 data BindingForm = BSubVar Var | BStyVar StyVar
     deriving (Show, Eq, Ord, Typeable)
 
-data DeclPattern = PatternDecl' StyT BindingForm
+data DeclPattern = PatternDecl StyT BindingForm
     deriving (Show, Eq, Typeable)
 
 data RelationPattern = RelBind BindingForm SelExpr | RelPred Predicate
@@ -411,7 +411,7 @@ declPattern :: Parser [DeclPattern]
 declPattern = do
     t  <- styType
     ns <- bindingForm `sepBy1` comma
-    return $ map (PatternDecl' t) ns
+    return $ map (PatternDecl t) ns
 
 styType :: Parser StyT
 styType = STTypeVar <$> typeVar <|> STCtor <$> typeConstructor
@@ -421,7 +421,7 @@ typeVar = do
     aps -- COMBAK: get rid of this later once it's consistent with DSLL/Substance
     t   <- identifier
     pos <- getSourcePos
-    return STypeVar' { typeVarNameS = t, typeVarPosS = pos}
+    return STypeVar { typeVarNameS = t, typeVarPosS = pos}
 
 typeConstructor :: Parser STypeCtor
 typeConstructor = do
@@ -793,7 +793,7 @@ checkDeclPatterns :: VarEnv -> SelEnv -> [DeclPattern] -> SelEnv
 checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv decls
     -- Judgment 3. G; g |- |S_o ok ~> g'
     where checkDeclPattern :: VarEnv -> SelEnv -> DeclPattern -> SelEnv
-          checkDeclPattern varEnv selEnv stmt@(PatternDecl' styType bVar) =
+          checkDeclPattern varEnv selEnv stmt@(PatternDecl styType bVar) =
              -- G |- |T : type
              let errT = errors $ checkT varEnv (toSubType styType) in
              let selEnv' = addErr errT selEnv in
@@ -1198,7 +1198,7 @@ matchBvar subVar (BSubVar styVar) = if subVar == styVar
 
 -- Judgment 12. G; theta |- S <| |S_o
 matchDeclLine :: VarEnv -> C.SubStmt -> DeclPattern -> Maybe Subst
-matchDeclLine varEnv (C.Decl subT subVar) (PatternDecl' styT bvar) =
+matchDeclLine varEnv (C.Decl subT subVar) (PatternDecl styT bvar) =
               let typesMatched = matchType varEnv subT styT in
               if typesMatched
               then trM1 "types matched" $ matchBvar subVar bvar

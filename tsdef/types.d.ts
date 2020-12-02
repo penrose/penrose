@@ -2,14 +2,14 @@ type Shape = IShape;
 
 interface IShape {
   shapeType: string;
-  properties: {[k: string]: Value<number>};
+  properties: { [k: string]: Value<number> };
 }
 
 type ArgVal<T> = IGPI<T> | IVal<T>;
 
 interface IGPI<T> {
   tag: "GPI";
-  contents: [string, {[k: string]: Value<T>}];
+  contents: [string, { [k: string]: Value<T> }];
 }
 
 interface IVal<T> {
@@ -20,7 +20,7 @@ interface IVal<T> {
 type Translation<T> = ITrans<T>;
 
 interface ITrans<T> {
-  trMap: {[k: string]: {[k: string]: FieldExpr<T>}};
+  trMap: { [k: string]: { [k: string]: FieldExpr<T> } };
   warnings: string[];
 }
 
@@ -33,7 +33,7 @@ interface IFExpr<T> {
 
 interface IFGPI<T> {
   tag: "FGPI";
-  contents: [string, {[k: string]: TagExpr<T>}];
+  contents: [string, { [k: string]: TagExpr<T> }];
 }
 
 type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;
@@ -53,7 +53,29 @@ interface IPending<T> {
   contents: Value<T>;
 }
 
-type Expr = IIntLit | IAFloat | IStringLit | IBoolLit | IEVar | IEPath | ICompApp | IObjFn | IConstrFn | IAvoidFn | IBinOp | IUOp | IList | ITuple | IVector | IMatrix | IVectorAccess | IMatrixAccess | IListAccess | ICtor | ILayering | IPluginAccess | IThenOp;
+type Expr =
+  | IIntLit
+  | IAFloat
+  | IStringLit
+  | IBoolLit
+  | IEPath
+  | ICompApp
+  | IObjFn
+  | IConstrFn
+  | IAvoidFn
+  | IBinOp
+  | IUOp
+  | IList
+  | ITuple
+  | IVector
+  | IMatrix
+  | IVectorAccess
+  | IMatrixAccess
+  | IListAccess
+  | ICtor
+  | ILayering
+  | IPluginAccess
+  | IThenOp;
 
 interface IIntLit {
   tag: "IntLit";
@@ -73,11 +95,6 @@ interface IStringLit {
 interface IBoolLit {
   tag: "BoolLit";
   contents: boolean;
-}
-
-interface IEVar {
-  tag: "EVar";
-  contents: LocalVar;
 }
 
 interface IEPath {
@@ -137,12 +154,12 @@ interface IMatrix {
 
 interface IVectorAccess {
   tag: "VectorAccess";
-  contents: [Expr, Expr];
+  contents: [Path, Expr];
 }
 
 interface IMatrixAccess {
   tag: "MatrixAccess";
-  contents: [Expr, Expr, Expr];
+  contents: [Path, Expr[]];
 }
 
 interface IListAccess {
@@ -189,7 +206,7 @@ type PropertyDecl = IPropertyDecl;
 
 type IPropertyDecl = [string, Expr];
 
-type Path = IFieldPath | IPropertyPath | ITypePropertyPath;
+type Path = IFieldPath | IPropertyPath | ILocalVar | IAccessPath;
 
 interface IFieldPath {
   tag: "FieldPath";
@@ -201,8 +218,14 @@ interface IPropertyPath {
   contents: [BindingForm, string, string];
 }
 
-interface ITypePropertyPath {
-  tag: "TypePropertyPath";
+interface ILocalVar {
+  tag: "LocalVar";
+  contents: string;
+}
+
+interface IAccessPath {
+  tag: "AccessPath";
+  contents: [Path, number[]];
 }
 
 type Var = IVarConst;
@@ -225,11 +248,25 @@ type StyVar = IStyVar;
 
 type IStyVar = string;
 
-type LocalVar = ILocalVar;
-
-type ILocalVar = string;
-
-type Value<T> = IFloatV<T> | IIntV<T> | IBoolV<T> | IStrV<T> | IPtV<T> | IPathDataV<T> | IPtListV<T> | IPaletteV<T> | IColorV<T> | IFileV<T> | IStyleV<T> | IListV<T> | ITupV<T> | ILListV<T> | IHMatrixV<T> | IPolygonV<T>;
+type Value<T> =
+  | IFloatV<T>
+  | IIntV<T>
+  | IBoolV<T>
+  | IStrV<T>
+  | IPtV<T>
+  | IPathDataV<T>
+  | IPtListV<T>
+  | IPaletteV<T>
+  | IColorV<T>
+  | IFileV<T>
+  | IStyleV<T>
+  | IListV<T>
+  | ITupV<T>
+  | IVectorV<T>
+  | IMatrixV<T>
+  | ILListV<T>
+  | IHMatrixV<T>
+  | IPolygonV<T>;
 
 interface IFloatV<T> {
   tag: "FloatV";
@@ -296,6 +333,16 @@ interface ITupV<T> {
   contents: [T, T];
 }
 
+interface IVectorV<T> {
+  tag: "VectorV";
+  contents: T[];
+}
+
+interface IMatrixV<T> {
+  tag: "MatrixV";
+  contents: T[][];
+}
+
 interface ILListV<T> {
   tag: "LListV";
   contents: T[][];
@@ -346,7 +393,12 @@ interface IHSVA {
   contents: [number, number, number, number];
 }
 
-type Elem<T> = IPt<T> | ICubicBez<T> | ICubicBezJoin<T> | IQuadBez<T> | IQuadBezJoin<T>;
+type Elem<T> =
+  | IPt<T>
+  | ICubicBez<T>
+  | ICubicBezJoin<T>
+  | IQuadBez<T>
+  | IQuadBezJoin<T>;
 
 interface IPt<T> {
   tag: "Pt";
@@ -373,7 +425,11 @@ interface IQuadBezJoin<T> {
   contents: [T, T];
 }
 
-type OptStatus = INewIter | IUnconstrainedRunning | IUnconstrainedConverged | IEPConverged;
+type OptStatus =
+  | INewIter
+  | IUnconstrainedRunning
+  | IUnconstrainedConverged
+  | IEPConverged;
 
 interface INewIter {
   tag: "NewIter";
@@ -411,4 +467,163 @@ interface IParams {
   weight: number;
   optStatus: OptStatus;
   bfgsInfo: BfgsParams;
+}
+
+type Header = ISelect | INamespace;
+
+interface ISelect {
+  tag: "Select";
+  contents: Selector;
+}
+
+interface INamespace {
+  tag: "Namespace";
+  contents: StyVar;
+}
+
+type Selector = ISelector;
+
+interface ISelector {
+  selHead: DeclPattern[];
+  selWith: DeclPattern[];
+  selWhere: RelationPattern[];
+  selNamespace?: string;
+}
+
+type DeclPattern = IPatternDecl;
+
+type IPatternDecl = [StyT, BindingForm];
+
+type RelationPattern = IRelBind | IRelPred;
+
+interface IRelBind {
+  tag: "RelBind";
+  contents: [BindingForm, SelExpr];
+}
+
+interface IRelPred {
+  tag: "RelPred";
+  contents: Predicate;
+}
+
+type Predicate = IPredicate;
+
+interface IPredicate {
+  predicateName: string;
+  predicateArgs: PredArg[];
+  predicatePos: SourcePos;
+}
+
+type PredArg = IPE | IPP;
+
+interface IPE {
+  tag: "PE";
+  contents: SelExpr;
+}
+
+interface IPP {
+  tag: "PP";
+  contents: Predicate;
+}
+
+type StyT = ISTTypeVar | ISTCtor;
+
+interface ISTTypeVar {
+  tag: "STTypeVar";
+  contents: STypeVar;
+}
+
+interface ISTCtor {
+  tag: "STCtor";
+  contents: STypeCtor;
+}
+
+type STypeVar = ISTypeVar;
+
+interface ISTypeVar {
+  typeVarNameS: string;
+  typeVarPosS: SourcePos;
+}
+
+type STypeCtor = ISTypeCtor;
+
+interface ISTypeCtor {
+  nameConsS: string;
+  argConsS: SArg[];
+  posConsS: SourcePos;
+}
+
+type SArg = ISAVar | ISAT;
+
+interface ISAVar {
+  tag: "SAVar";
+  contents: BindingForm;
+}
+
+interface ISAT {
+  tag: "SAT";
+  contents: StyT;
+}
+
+type SelExpr = ISEBind | ISEAppFunc | ISEAppValCons;
+
+interface ISEBind {
+  tag: "SEBind";
+  contents: BindingForm;
+}
+
+interface ISEAppFunc {
+  tag: "SEAppFunc";
+  contents: [string, SelExpr[]];
+}
+
+interface ISEAppValCons {
+  tag: "SEAppValCons";
+  contents: [string, SelExpr[]];
+}
+
+type SourcePos = ISourcePos;
+
+interface ISourcePos {
+  sourceName: string;
+  sourceLine: Pos;
+  sourceColumn: Pos;
+}
+
+type Pos = IPos;
+
+type IPos = number;
+
+type Stmt = IPathAssign | IOverride | IDelete | IAnonAssign;
+
+interface IPathAssign {
+  tag: "PathAssign";
+  contents: [StyType, Path, Expr];
+}
+
+interface IOverride {
+  tag: "Override";
+  contents: [Path, Expr];
+}
+
+interface IDelete {
+  tag: "Delete";
+  contents: Path;
+}
+
+interface IAnonAssign {
+  tag: "AnonAssign";
+  contents: Expr;
+}
+
+type StyType = ITypeOf | IListOf;
+
+interface ITypeOf {
+  tag: "TypeOf";
+  contents: string;
+}
+
+interface IListOf {
+  tag: "ListOf";
+  contents: string;
 }

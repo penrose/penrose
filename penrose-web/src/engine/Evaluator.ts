@@ -583,6 +583,8 @@ export const resolvePath = (
 
     const gpiOrExpr = findExpr(trans, path);
 
+    console.log(path);
+
     switch (gpiOrExpr.tag) {
       case "FGPI": {
         const [type, props] = gpiOrExpr.contents;

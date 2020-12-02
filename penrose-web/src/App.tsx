@@ -101,7 +101,6 @@ class App extends React.Component<any, ICanvasState> {
     },
   ]);
   public step = () => {
-    // this.protocol.sendPacket(Step(1, this.state.data));
     stepState(this.state.data!, this.onCanvasState);
   };
   public resample = async () => {

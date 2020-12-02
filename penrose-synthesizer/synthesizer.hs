@@ -62,12 +62,14 @@ data AllowDuplicates
 
 type Weight = Float
 
-data StmtWeights = StmtWeights
-  { weightType        :: Weight
-  , weightPredicate   :: Weight
-  , weightConstructor :: Weight
-  , weightFunction    :: Weight
-  } deriving (Show)
+data StmtWeights =
+  StmtWeights
+    { weightType        :: Weight
+    , weightPredicate   :: Weight
+    , weightConstructor :: Weight
+    , weightFunction    :: Weight
+    }
+  deriving (Show)
 
 $(deriveJSON
     defaultOptions {fieldLabelModifier = map toLower . drop 6}
@@ -76,22 +78,26 @@ $(deriveJSON
 -- | When generating arguments, maintain a context of generated names to avoid duplicates
 type ArgContext = [String]
 
-data Context = Context
-  { names         :: Names
-  , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
-  , prog          :: SubProg -- | AST of the generated program
-  , initProg      :: SubProg -- | AST of an input Substance program
-  , gen           :: StdGen -- | A random generator
-  , setting       :: Setting -- | Synthesizer settings
-  , argContext    :: ArgContext -- | Context for generating arguments. Needs to be reinitialized for generating each set of arguments
-  } deriving (Show)
+data Context =
+  Context
+    { names         :: Names
+    , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
+    , prog          :: SubProg -- | AST of the generated program
+    , initProg      :: SubProg -- | AST of an input Substance program
+    , gen           :: StdGen -- | A random generator
+    , setting       :: Setting -- | Synthesizer settings
+    , argContext    :: ArgContext -- | Context for generating arguments. Needs to be reinitialized for generating each set of arguments
+    }
+  deriving (Show)
 
-data Setting = Setting
-  { lengthRange :: (Int, Int)
-  , argOption   :: ArgOption
-  , weights     :: StmtWeights
+data Setting =
+  Setting
+    { lengthRange :: (Int, Int)
+    , argOption   :: ArgOption
+    , weights     :: StmtWeights
   -- , numPrograms :: Int
-  } deriving (Show)
+    }
+  deriving (Show)
 
 $(deriveJSON defaultOptions ''Setting)
 
@@ -110,16 +116,17 @@ initContext (Just subIn) env setting =
         fromRight (error "Failed to parse the input Substance program") $
         parseSubstance "" subIn env
       cxt = initContext Nothing env setting
-  in cxt {initProg = subProg}
+   in cxt {initProg = subProg}
 initContext Nothing _ setting =
   Context
-  { declaredTypes = M.empty
-  , names = M.empty
-  , gen = mkStdGen seedRnd
-  , prog = []
-  , initProg = []
-  , setting = setting
-  }
+    { declaredTypes = M.empty
+    , names = M.empty
+    , gen = mkStdGen seedRnd
+    , prog = []
+    , initProg = []
+    , setting = setting
+    , argContext = []
+    }
 
 getArgMode :: String -> ArgOption
 getArgMode "mixed" = Mixed
@@ -244,7 +251,7 @@ stmtTypes env ws =
         , M.null $ valConstructors env
         ]
       validGens = map snd $ filter (not . fst) $ zip typesExist stmtGens
-  in validGens
+   in validGens
     -- Ordering must be consistent with typesExist
   where
     stmtGens =
@@ -276,7 +283,9 @@ generateType' typ Concrete = do
   name <- freshName typ
   let stmt =
         Decl
-          (TConstr $ TypeCtorApp {nameCons = typ, argCons = []})
+          (TConstr $
+           TypeCtorApp
+             {nameCons = typ, argCons = [], constructorInvokerPos = undefined})
           (VarConst name)
   appendStmt stmt
   return stmt
@@ -313,7 +322,10 @@ generatePredicate1 pred = do
   let stmt =
         ApplyP $
         Predicate
-        {predicateName = PredicateConst $ namepred1 pred, predicateArgs = args}
+          { predicateName = PredicateConst $ namepred1 pred
+          , predicateArgs = args
+          , predicatePos = undefined
+          }
   appendStmt stmt
   return stmt
 
@@ -324,7 +336,10 @@ generatePredicate2 pred = do
   let stmt =
         ApplyP $
         Predicate
-        {predicateName = PredicateConst $ namepred2 pred, predicateArgs = args}
+          { predicateName = PredicateConst $ namepred2 pred
+          , predicateArgs = args
+          , predicatePos = undefined
+          }
   appendStmt stmt
   return stmt
 
@@ -403,7 +418,7 @@ possibleTypes :: VarEnv -> String -> [String]
 possibleTypes env t =
   let subt = subTypes env
       allTypes = [typeName t1 | (t1, t2) <- subt, typeName t2 == t]
-  in (t : allTypes)
+   in (t : allTypes)
 
 typeName :: T -> String
 typeName (TTypeVar t) = typeVarName t
@@ -415,9 +430,9 @@ filterPred cxt (Pred1 Prd1 {tlspred1 = types}) =
   let typeAndVars = M.toList $ declaredTypes cxt
       existingFreq = map (\(t, ns) -> (t, length ns)) typeAndVars
       predFreq = countTypes types
-  in all
-       (\(t, n) -> compareFreq n $ filter ((==) t . fst) existingFreq)
-       predFreq
+   in all
+        (\(t, n) -> compareFreq n $ filter ((==) t . fst) existingFreq)
+        predFreq
   where
     countTypes ts = freq $ map typeName ts
     freq = map (\x -> (head x, length x)) . group . sort
@@ -502,9 +517,9 @@ freshName typ = do
   let (n, names') = uniqueName (prefixOf typ) $ names cxt
   modify $ \cxt ->
     cxt
-    { declaredTypes = M.insertWith (++) typ [n] (declaredTypes cxt)
-    , names = names'
-    }
+      { declaredTypes = M.insertWith (++) typ [n] (declaredTypes cxt)
+      , names = names'
+      }
   return n
 
 insertName :: String -> String -> NameType -> Synthesize ()
@@ -512,17 +527,17 @@ insertName typ name ExistingName = do
   cxt <- get
   modify $ \cxt ->
     cxt
-    { declaredTypes = M.insertWith (++) typ [name] (declaredTypes cxt)
-    , names = M.insert name 1 $ names cxt
-    }
+      { declaredTypes = M.insertWith (++) typ [name] (declaredTypes cxt)
+      , names = M.insert name 1 $ names cxt
+      }
 insertName typ name GeneratedName = do
   cxt <- get
   let (n, names') = uniqueName name $ names cxt
   modify $ \cxt ->
     cxt
-    { declaredTypes = M.insertWith (++) typ [n] (declaredTypes cxt)
-    , names = names'
-    }
+      { declaredTypes = M.insertWith (++) typ [n] (declaredTypes cxt)
+      , names = names'
+      }
 
 prefixOf :: String -> String
 prefixOf = map toLower . take 1
