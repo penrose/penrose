@@ -2,7 +2,21 @@ import { range, maxBy } from "lodash";
 import { randFloat } from "utils/Util";
 import { mapTup2 } from "engine/EngineUtils";
 import { linePts, getStart, getEnd } from "utils/OtherUtils";
-import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, neg } from "engine/Autodiff";
+import {
+  ops,
+  fns,
+  varOf,
+  numOf,
+  constOf,
+  add,
+  addN,
+  max,
+  div,
+  mul,
+  cos,
+  sin,
+  neg,
+} from "engine/Autodiff";
 
 /**
  * Static dictionary of computation functions
@@ -13,7 +27,6 @@ import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, ne
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<VarAD>
 export const compDict = {
-
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
 
   /**
@@ -21,12 +34,16 @@ export const compDict = {
    * NOTE: This is a special system function. Don't change it!
    */
   derivative: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
-    if (!optDebugInfo || !('gradient' in optDebugInfo) || !(optDebugInfo.gradient.size)) {
+    if (
+      !optDebugInfo ||
+      !("gradient" in optDebugInfo) ||
+      !optDebugInfo.gradient.size
+    ) {
       console.log("optDebugInfo", optDebugInfo);
       console.error(`no derivative found for '${varName}'; returning 0`);
       return {
         tag: "FloatV",
-        contents: constOf(0.0)
+        contents: constOf(0.0),
       };
     }
 
@@ -34,14 +51,16 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: constOf(optDebugInfo.gradient.get(varName) as number)
+        contents: constOf(optDebugInfo.gradient.get(varName) as number),
       };
     }
 
-    console.error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    console.error(
+      `variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`
+    );
     return {
       tag: "FloatV",
-      contents: constOf(0.0)
+      contents: constOf(0.0),
     };
   },
 
@@ -49,13 +68,20 @@ export const compDict = {
    * Return the L-BFGS preconditioned derivative of `varName`.
    * NOTE: This is a special system function. Don't change it!
    */
-  derivativePreconditioned: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
-    if (!optDebugInfo || !('gradientPreconditioned' in optDebugInfo) || !(optDebugInfo.gradientPreconditioned.size)) {
+  derivativePreconditioned: (
+    optDebugInfo: OptDebugInfo,
+    varName: string
+  ): IFloatV<any> => {
+    if (
+      !optDebugInfo ||
+      !("gradientPreconditioned" in optDebugInfo) ||
+      !optDebugInfo.gradientPreconditioned.size
+    ) {
       console.log("optDebugInfo", optDebugInfo);
       console.error(`no derivative found for '${varName}'; returning 0`);
       return {
         tag: "FloatV",
-        contents: constOf(0.0)
+        contents: constOf(0.0),
       };
     }
 
@@ -63,14 +89,18 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: constOf(optDebugInfo.gradientPreconditioned.get(varName) as number)
+        contents: constOf(
+          optDebugInfo.gradientPreconditioned.get(varName) as number
+        ),
       };
     }
 
-    console.error(`variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`);
+    console.error(
+      `variable ${varName} not found in optDebugInfo! Are you sure it's a varying variable?`
+    );
     return {
       tag: "FloatV",
-      contents: constOf(0.0)
+      contents: constOf(0.0),
     };
   },
 
@@ -82,7 +112,7 @@ export const compDict = {
 
     return {
       tag: "FloatV",
-      contents: res
+      contents: res,
     };
   },
 
@@ -113,24 +143,24 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `d` (in degrees). 
+   * Return the cosine of input `d` (in degrees).
    */
   cos: (d: VarAD): IFloatV<VarAD> => {
     // Accepts degrees; converts to radians
     return {
       tag: "FloatV",
-      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0)))
+      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0))),
     };
   },
 
   /**
-   * Return the sine of input `d` (in degrees). 
+   * Return the sine of input `d` (in degrees).
    */
   sin: (d: VarAD): IFloatV<VarAD> => {
     // Accepts degrees; converts to radians
     return {
       tag: "FloatV",
-      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0)))
+      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0))),
     };
   },
 
@@ -140,7 +170,7 @@ export const compDict = {
   dot: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: ops.vdot(v, w)
+      contents: ops.vdot(v, w),
     };
   },
 
@@ -151,7 +181,7 @@ export const compDict = {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
-      contents: ops.vdist(p1, p2)
+      contents: ops.vdist(p1, p2),
     };
   },
 
@@ -162,7 +192,7 @@ export const compDict = {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
-      contents: ops.vdist(p1, p2)
+      contents: ops.vdist(p1, p2),
     };
   },
 
@@ -172,16 +202,16 @@ export const compDict = {
   normalize: (v: VarAD[]): IVectorV<VarAD> => {
     return {
       tag: "VectorV",
-      contents: ops.vnormalize(v)
-    }
+      contents: ops.vnormalize(v),
+    };
   },
 
   /**
-   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Curve` shape's `pathData` attribute to be drawn on the screen.
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
   pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<VarAD> => {
-    const pathTypeStr = pathType === 'closed' ? "Closed" : "Open";
-    const elems: Elem<VarAD>[] = pts.map(e => ({ tag: "Pt", contents: e }));
+    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
+    const elems: Elem<VarAD>[] = pts.map((e) => ({ tag: "Pt", contents: e }));
     const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
     return { tag: "PathDataV", contents: [path] };
   },
@@ -189,7 +219,13 @@ export const compDict = {
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
-  unitMark: ([t1, s1]: [string, any], [t2, s2]: [string, any], t: string, padding: VarAD, barSize: VarAD): IPtListV<VarAD> => {
+  unitMark: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    t: string,
+    padding: VarAD,
+    barSize: VarAD
+  ): IPtListV<VarAD> => {
     const [start1, end1] = linePts(s1);
     const [start2, end2] = linePts(s2);
 
@@ -200,28 +236,40 @@ export const compDict = {
 
     return {
       tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt)
+      contents: [markStart, markEnd].map(toPt),
     };
   },
 
   /**
    * Return two points to "cap off" the line made in `unitMark`.
    */
-  unitMark2: ([start, end]: [Pt2, Pt2], t: string, padding: VarAD, size: VarAD): IPtListV<VarAD> => {
+  unitMark2: (
+    [start, end]: [Pt2, Pt2],
+    t: string,
+    padding: VarAD,
+    size: VarAD
+  ): IPtListV<VarAD> => {
     const dir = ops.vnormalize(ops.vsub(end, start));
     const normalDir = rot90(toPt(dir));
     const base = t === "start" ? start : end;
-    const [markStart, markEnd] = [ops.vmove(base, size, normalDir), ops.vmove(base, neg(size), normalDir)];
+    const [markStart, markEnd] = [
+      ops.vmove(base, size, normalDir),
+      ops.vmove(base, neg(size), normalDir),
+    ];
     return {
       tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt)
+      contents: [markStart, markEnd].map(toPt),
     };
   },
 
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: ([start, end]: [Pt2, Pt2], [t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
+  midpointOffset: (
+    [start, end]: [Pt2, Pt2],
+    [t1, s1]: [string, any],
+    padding: VarAD
+  ): ITupV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start1, end1] = linePts(s1);
       // TODO: Cache these operations in Style!
@@ -231,7 +279,7 @@ export const compDict = {
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
       return {
         tag: "TupV",
-        contents: toPt(midpointOffsetLoc)
+        contents: toPt(midpointOffsetLoc),
       };
     } else {
       throw Error("unsupported shape ${t1} in midpointOffset");
@@ -242,16 +290,25 @@ export const compDict = {
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
    */
-  orientedSquare: ([t1, s1]: [string, any], [t2, s2]: [string, any], intersection: Pt2, len: VarAD): IPathDataV<VarAD> => {
-    if ((t1 === "Arrow" || t1 === "Line") && (t2 === "Arrow" || t2 === "Line")) {
+  orientedSquare: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    intersection: Pt2,
+    len: VarAD
+  ): IPathDataV<VarAD> => {
+    if (
+      (t1 === "Arrow" || t1 === "Line") &&
+      (t2 === "Arrow" || t2 === "Line")
+    ) {
       const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
 
-      const elems: Elem<VarAD>[] =
-        [{ tag: "Pt", contents: toPt(ptL) },
+      const elems: Elem<VarAD>[] = [
+        { tag: "Pt", contents: toPt(ptL) },
         { tag: "Pt", contents: toPt(ptLR) },
         { tag: "Pt", contents: toPt(ptR) },
-        { tag: "Pt", contents: intersection }];
+        { tag: "Pt", contents: intersection },
+      ];
       const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 
       return { tag: "PathDataV", contents: [path] };
@@ -263,19 +320,22 @@ export const compDict = {
   /**
    * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
    */
-  triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
+  triangle: (
+    [t1, l1]: any,
+    [t2, l2]: any,
+    [t3, l3]: any
+  ): IPathDataV<VarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
-
       // As temp hack around furthestFrom, assumes triangle is drawn in a consistent order (first point of each line)
-      const elems: Elem<VarAD>[] =
-        [{ tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
+      const elems: Elem<VarAD>[] = [
+        { tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
         { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
-        { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] }];
+        { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] },
+      ];
 
       const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 
       return { tag: "PathDataV", contents: [path] };
-
     } else {
       console.error([t1, l1], [t2, l2], [t3, l3]);
       throw Error("Triangle function expected three lines");
@@ -288,7 +348,7 @@ export const compDict = {
   average2: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: div(add(x, y), constOf(2.0))
+      contents: div(add(x, y), constOf(2.0)),
     };
   },
 
@@ -298,7 +358,7 @@ export const compDict = {
   average: (xs: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: div(addN(xs), max(constOf(1.0), constOf(xs.length)))
+      contents: div(addN(xs), max(constOf(1.0), constOf(xs.length))),
       // To avoid divide-by-0
     };
   },
@@ -349,15 +409,18 @@ export const compDict = {
    * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
    */
   mul: (m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
-    if (!m.length) { throw Error("empty matrix"); }
-    if (!v.length) { throw Error("empty vector"); }
+    if (!m.length) {
+      throw Error("empty matrix");
+    }
+    if (!v.length) {
+      throw Error("empty vector");
+    }
 
     return {
       tag: "VectorV",
-      contents: m.map(row => ops.vdot(row, v))
+      contents: m.map((row) => ops.vdot(row, v)),
     };
   },
-
 };
 
 // Ignore this
@@ -371,7 +434,7 @@ const checkFloat = (x: any) => {
     console.log("x", x);
     throw Error("expected float converted to VarAD; got number (int?)");
   }
-}
+};
 
 const toPt = (v: VecAD): Pt2 => {
   if (v.length !== 2) {
@@ -383,7 +446,11 @@ const toPt = (v: VecAD): Pt2 => {
 /**
  * Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a path that describes a perpendicular mark between them.
  */
-const perpPathFlat = (len: VarAD, [startR, endR]: [VecAD, VecAD], [startL, endL]: [VecAD, VecAD]): [VecAD, VecAD, VecAD] => {
+const perpPathFlat = (
+  len: VarAD,
+  [startR, endR]: [VecAD, VecAD],
+  [startL, endL]: [VecAD, VecAD]
+): [VecAD, VecAD, VecAD] => {
   // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
   // perpPathFlat size (startR, endR) (startL, endL) =
   //   let dirR = normalize' $ endR -: startR
@@ -413,12 +480,19 @@ const rot90 = ([x, y]: Pt2): Pt2 => {
  * Do not use this!
  */
 const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
-  if (!pts || pts.length === 0) { throw Error("Expected nonempty point list"); }
+  if (!pts || pts.length === 0) {
+    throw Error("Expected nonempty point list");
+  }
 
-  const ptDists: [VarAD[], VarAD][] = pts.map((p: VarAD[]) => [p, ops.vsum(candidates.map(pt => ops.vdistsq(p, pt)))]);
+  const ptDists: [VarAD[], VarAD][] = pts.map((p: VarAD[]) => [
+    p,
+    ops.vsum(candidates.map((pt) => ops.vdistsq(p, pt))),
+  ]);
   const res = maxBy(ptDists, ([p, d]: [VarAD[], VarAD]) => numOf(d));
 
-  if (!res || res.length < 2) { throw Error("expected point"); }
+  if (!res || res.length < 2) {
+    throw Error("expected point");
+  }
 
   return res[0] as VarAD[];
 };

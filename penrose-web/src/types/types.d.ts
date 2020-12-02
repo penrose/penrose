@@ -39,7 +39,7 @@ interface IState {
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
-  rng: any; // TODO: types
+  rng: prng;
   selecterMatches: any; // TODO: types
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
@@ -555,6 +555,7 @@ interface IQuadBezJoin<T> {
   contents: [T, T];
 }
 
+// TODO: use strings for status
 type OptStatus =
   | INewIter
   | IUnconstrainedRunning

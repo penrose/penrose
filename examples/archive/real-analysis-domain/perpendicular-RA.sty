@@ -328,7 +328,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   f.val = sampleFunction(f.pts, I.shape.startX, I.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "surjection")
   f.color = Colors.sky
 
-  f.shape = Curve {
+  f.shape = Path {
     path : f.val
     pathData : interpolate(f.val)
     fill : Colors.none
@@ -372,7 +372,7 @@ where f := CreateFunction(I, R);
       f.val1 = sampleFunction(f.pts1, J.shape.startX, J.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "surjection")
       f.val2 = sampleFunction(f.pts2, K.shape.startX, K.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "bijection")
 
-      f.shape1 = Curve {
+      f.shape1 = Path {
           path : f.val1
           pathData : interpolate(f.val1)
           polyline : polygonizeCurve(5, f.shape1.pathData)
@@ -391,7 +391,7 @@ where f := CreateFunction(I, R);
       }
 
       -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
-      f.shape2 = Curve {
+      f.shape2 = Path {
           path : f.val2
           pathData : interpolate(f.val2)
           polyline : polygonizeCurve(5, f.shape2.pathData)
@@ -547,7 +547,7 @@ where U := Union(I, J);
       -- delete ifI.labelFn
 
       -- compute Integral as a shape that lies under fn curve
-      override ifI.shape = Curve {
+      override ifI.shape = Path {
           pathData : makeRegionPath(f.shape1, I.shape)
           strokeWidth : 0.0
           fill : Colors.lightorange

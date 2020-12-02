@@ -1,7 +1,9 @@
+import { cleanShapes } from "engine/Evaluator";
 import { step } from "engine/Optimizer";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
+import { resampleOne } from "shapes/ShapeDef";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
 import { collectLabels } from "utils/CollectLabels";
@@ -58,7 +60,7 @@ class App extends React.Component<any, ICanvasState> {
       data: canvasState,
       processedInitial: true,
     });
-  }
+  };
   public onCanvasState = async (canvasState: State, _: any) => {
     // HACK: this will enable the "animation" that we normally expect
     await new Promise((r) => setTimeout(r, 1));
@@ -106,7 +108,12 @@ class App extends React.Component<any, ICanvasState> {
     const NUM_SAMPLES = 1;
     // resampled = true;
     await this.setState({ processedInitial: false });
-    this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
+    // this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
+    // DEBUG: the following is for testing frontend version of resample
+    const oldState = this.state.data;
+    if (oldState) {
+      this.onCanvasState(resampleOne(oldState), undefined);
+    }
   };
 
   public async componentDidMount() {
@@ -189,7 +196,13 @@ class App extends React.Component<any, ICanvasState> {
               ref={this.canvas}
               penroseVersion={penroseVersion}
             />
-            {showInspector && <Inspector history={history} onClose={this.toggleInspector} modShapes={this.modShapes} />}
+            {showInspector && (
+              <Inspector
+                history={history}
+                onClose={this.toggleInspector}
+                modShapes={this.modShapes}
+              />
+            )}
           </SplitPane>
         </div>
       </div>

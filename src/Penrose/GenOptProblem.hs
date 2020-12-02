@@ -1505,8 +1505,8 @@ resampleVState varyPaths shapes g =
   let (resampledShapes, rng') = sampleShapes g shapes
       (resampledFields, rng'') = resampleFields varyPaths rng'
         -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
-      varyMapNew = mkVaryMap (filter isFieldOrAccessPath $ varyPaths) resampledFields
-      varyingState = shapes2floats resampledShapes varyMapNew $ varyPaths
+      varyMapNew = mkVaryMap (filter isFieldOrAccessPath varyPaths) resampledFields
+      varyingState = shapes2floats resampledShapes varyMapNew varyPaths
   in ((resampledShapes, varyingState, resampledFields), rng'')
 
 -- | Update the translation to get the full state.

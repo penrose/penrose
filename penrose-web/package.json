@@ -65,7 +65,7 @@
     "eslint-plugin-jsdoc": "^30.7.3",
     "husky": "^5.0.0",
     "prettier": "^1.19.1",
-    "terser": "^3.14.1",
+    "terser": "^5.5.1",
     "ttypescript": "^1.5.12",
     "typedoc": "^0.19.2",
     "typescript": "^3.9.5",

@@ -220,8 +220,8 @@ Point `C` {
 --      t.color = setOpacity(Colors.darkpurple, 0.4)
 
 --      -- TODO: layer all labels on top of filled shapes
---      t.icon = Curve {
---      	     pathData : triangle(p.icon.x, p.icon.y, q.icon.x, q.icon.y, r.icon.x, r.icon.y)
+--      t.shape = Path {
+--      	     pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
 -- 	     strokeWidth : 0.0
 -- 	     fill : t.color
 -- 	     color : Colors.black
@@ -237,7 +237,7 @@ Point `C` {
 -- with Point p; Point q; Point r; Point s {
 --      R.color = setOpacity(Colors.blue, 0.2)
 
---      R.icon = Curve {
+--      R.shape = Path {
 --      	     pathData : rectangle(p.x, p.y, q.x, q.y, r.x, r.y, s.x, s.y)
 -- 	     strokeWidth : const.strokeWidth
 -- 	     fill : R.color
@@ -269,7 +269,7 @@ Point `C` {
 
 --     S.path = squareAt(p.vec, q.vec)
 
---     override S.icon = Curve {
+--     override S.shape = Path {
 -- 	    pathData : polygonFromPoints(S.path)
 -- 	    -- Assumes that the last two points are the new corners (r, s) that need to be set
 -- 	    strokeWidth : const.strokeWidth
@@ -320,7 +320,7 @@ Point `C` {
 --      -- TODO: always take the acute angle, not the obtuse angle
 --      theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
 
---      theta.icon = Curve {
+--      theta.shape = Path {
 --      		 pathData : polygonFromPoints(theta.arcPath)
 -- 		 strokeWidth : const.strokeWidth
 -- 		 color : Colors.darkpurple
@@ -341,7 +341,7 @@ where theta := InteriorAngle(q, p, r); Right(theta)
 with Point p; Point q; Point r {
       theta.perpSize = 13.0
 
-      -- override theta.icon = Curve {
+      -- override theta.shape = Path {
       -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)
       -- 		 strokeWidth : 1.25
       -- 		 color : Colors.black
@@ -394,7 +394,7 @@ with Point p; Point q; Point r {
 --       theta.markLen = 10.0
 
 --       -- Angle bisector marks: two tick marks
---       theta.bisectMark1 = Curve {
+--       theta.bisectMark1 = Path {
 --       	      pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
 --       	      strokeWidth : const.strokeWidth
 --       	      fill : Colors.none
@@ -404,7 +404,7 @@ with Point p; Point q; Point r {
 --       	      arrowheadSize : 0.0
 --       }
 
---       theta.bisectMark2 = Curve {
+--       theta.bisectMark2 = Path {
 --       	      pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
 --       	      strokeWidth : const.strokeWidth
 --       	      fill : Colors.none
@@ -437,8 +437,8 @@ with Point p; Point q; Point r {
 
 --       r.perpSize = 10.0
 
---       r.perpMark = Curve {
---       		 pathData : perpPath(r.icon, s.icon, (r.icon.startX, r.icon.startY), r.perpSize)
+--       r.perpMark = Path {
+--       		 pathData : perpPath(r.shape, s.shape, (r.shape.startX, r.shape.startY), r.perpSize)
 -- 		 strokeWidth : 1.25
 -- 		 color : Colors.black
 -- 		 fill : setOpacity(Colors.white, 0.5)

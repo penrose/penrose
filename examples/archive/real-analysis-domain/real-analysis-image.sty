@@ -162,7 +162,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)
 
-  f.shape = Curve {
+  f.shape = Path {
     path = f.val
     pathData = interpolate(f.val, "open")
     fill = Colors.none
@@ -194,7 +194,7 @@ where f := CreateFunction(I, R);
       f.val1 = sampleFunction(f.pts1, J.shape, R.y_axis)
       f.val2 = sampleFunction(f.pts2, K.shape, R.y_axis)
 
-      f.shape1 = Curve {
+      f.shape1 = Path {
 	path = f.val1
 	pathData = interpolate(f.val1, "open")
 	fill = Colors.none
@@ -209,7 +209,7 @@ where f := CreateFunction(I, R);
       }
 
       -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
-      f.shape2 = Curve {
+      f.shape2 = Path {
 	path = f.val2
 	pathData = interpolate(f.val2, "open")
 	fill = Colors.none
@@ -332,7 +332,7 @@ Real ifI
 with Function f; Interval I; Reals R
 where ifI := integral(I, f); f := CreateFunction(I, R) {
       -- compute integral as a shape that lies under fn curve
-      override ifI.shape = Curve {
+      override ifI.shape = Path {
       	       pathData = makeRegionPath(f.shape, I.shape)
 	       fill = Colors.lightorange
 	       color = Colors.lightorange

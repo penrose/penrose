@@ -116,7 +116,7 @@
     "with" "where" "LOCAL" "ensure" "encourage" "override" "delete" "OPTIMIZED" "List"
 
     ;; GPIs
-    "Circle" "Square" "Brace" "Parallelogram" "Arrow" "AnchorPoint" "Ellipse" "Curve" "Line" "Rectangle" "Arc" "Image" "Text" "Bracket"
+    "Circle" "Square" "Brace" "Parallelogram" "Arrow" "AnchorPoint" "Ellipse" "Path" "Line" "Rectangle" "Arc" "Image" "Text" "Bracket"
 
     ;; property names
     ;; TODO
