@@ -77,7 +77,7 @@ processRequests client@(_, conn, _) = do
         StepUntilConvergence s ->
           sendSafe session "state" $ stepUntilConvergence s
         CompileTrio sub sty elm ->
-          sendSafe session "compilerOutput" $ compileTrio sub sty elm
+          sendSafe session "compilerOutput" $ compileTrio2 sub sty elm
         ReconcileNext s sub sty elm ->
           sendSafe session "compilerOutput" $ reconcileNext s sub sty elm
         GetEnv sub elm -> sendSafe session "varEnv" $ getEnv sub elm

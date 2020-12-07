@@ -11,6 +11,7 @@
 module Penrose.Serializer where
 
 import           Penrose.Env
+import           Penrose.Substance
 import           Penrose.GenOptProblem
 import           Penrose.Optimizer
 
@@ -160,3 +161,80 @@ deriveJSON defaultOptions ''CompilerError
 deriveJSON defaultOptions ''RuntimeError
 --------------------------------------------------------------------------------
 -- Plugins
+
+-- Style
+deriveJSON defaultOptions ''Header
+
+deriveJSON defaultOptions ''Penrose.Style.Selector
+
+deriveJSON defaultOptions ''DeclPattern
+
+deriveJSON defaultOptions ''RelationPattern
+
+deriveJSON defaultOptions ''Predicate
+
+deriveJSON defaultOptions ''PredArg
+
+deriveJSON defaultOptions ''StyT
+
+deriveJSON defaultOptions ''STypeVar
+
+deriveJSON defaultOptions ''STypeCtor
+
+deriveJSON defaultOptions ''SArg
+
+deriveJSON defaultOptions ''SelExpr
+
+deriveJSON defaultOptions ''Stmt
+
+deriveJSON defaultOptions ''StyType
+
+deriveJSON defaultOptions ''SubOut
+
+deriveJSON defaultOptions ''SubEnv
+
+-- deriveJSON defaultOptions ''TypeConstructor
+
+-- deriveJSON defaultOptions ''K
+
+-- deriveJSON defaultOptions ''T
+
+-- deriveJSON defaultOptions ''Y
+
+-- deriveJSON defaultOptions ''Arg
+
+-- deriveJSON defaultOptions ''TypeVar
+
+deriveJSON defaultOptions ''SubExpr
+
+deriveJSON defaultOptions ''SubPredicate
+
+-- deriveJSON defaultOptions ''ValConstructor
+
+-- deriveJSON defaultOptions ''Type
+
+-- deriveJSON defaultOptions ''TypeCtorApp
+
+deriveJSON defaultOptions ''Func
+
+-- deriveJSON defaultOptions ''Operator
+
+deriveJSON defaultOptions ''Deconstructor
+
+-- deriveJSON defaultOptions ''PredicateEnv
+
+deriveJSON defaultOptions ''SubPredArg
+
+deriveJSON defaultOptions ''LabelOption
+
+deriveJSON defaultOptions ''SubStmt
+
+-- deriveJSON defaultOptions ''StmtNotationRule
+
+-- deriveJSON defaultOptions ''Predicate1
+
+-- deriveJSON defaultOptions ''Predicate2
+
+-- deriveJSON defaultOptions ''Token
+
+-- deriveJSON defaultOptions ''Prop
