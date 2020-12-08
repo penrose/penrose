@@ -79,8 +79,12 @@ export const evalShapes = (s: State): State => {
   // Sort the shapes by ordering--note the null assertion
   const sortedShapesEvaled = s.shapeOrdering.map(
     (name) =>
+      // TODO: error
       shapesEvaled.find(({ properties }) => properties.name.contents === name)!
   );
+
+  // TODO: do we still need this check for non-empty labels?
+  // const nonEmpties = sortedShapes.filter(notEmptyLabel);
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
@@ -1023,18 +1027,10 @@ export const insertExpr = (
  * @param json plain object encoding `State` of the diagram
  */
 export const decodeState = (json: any): State => {
-  // Find out the values of varying variables
-
-  console.log("varying paths", json.varyingPaths);
-  // json.varyingPaths.forEach((p: any, i: any) => console.log(JSON.stringify(p), i));
-  // throw Error("TODO");
-
   const rng: prng = seedrandom(json.rng, { global: true });
   const state = {
     ...json,
     varyingValues: json.varyingState,
-    varyingState: json.varyingState,
-    // translation: decodeTranslation(json.transr),
     translation: json.transr,
     originalTranslation: clone(json.transr),
     shapes: json.shapesr.map(([n, props]: any) => {
@@ -1042,7 +1038,8 @@ export const decodeState = (json: any): State => {
     }),
     varyingMap: genPathMap(json.varyingPaths, json.varyingState),
     params: json.paramsr,
-    rng: rng,
+    pendingMap: new Map(),
+    rng,
   };
   // cache energy function
   // state.overallObjective = evalEnergyOn(state);

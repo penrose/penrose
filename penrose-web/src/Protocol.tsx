@@ -1,4 +1,5 @@
-import { Packets, Canvas } from "./module";
+import { Packets } from "./module";
+import { prepareState } from "API";
 
 export enum ConnectionStatus {
   socketOpen = "SOCKET_OPEN",
@@ -96,11 +97,12 @@ export class Protocol {
     canvasState: any,
     id: string = ""
   ) => {
-    const processedData = await Canvas.processData(canvasState);
+    const processedData = await prepareState(canvasState);
     this.eventHandlers.forEach((events: EventHandler) =>
       events.onCanvasState(processedData, id)
     );
   };
+
   private onMessage = async (e: MessageEvent) => {
     const parsed = JSON.parse(e.data);
     const data = parsed.contents;

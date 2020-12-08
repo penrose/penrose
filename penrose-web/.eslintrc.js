@@ -170,7 +170,9 @@ module.exports = {
       "error",
       "always",
       {
-        markers: ["/"],
+        line: {
+          markers: ["#region", "#endregion", "region", "endregion"],
+        },
       },
     ],
     "use-isnan": "error",

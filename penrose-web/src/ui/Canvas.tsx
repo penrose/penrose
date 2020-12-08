@@ -1,13 +1,8 @@
+import { updateVaryingValues } from "engine/PropagateUpdate";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-
 import { interactiveMap, staticMap } from "shapes/componentMap";
 import Log from "utils/Log";
-import { loadImages } from "utils/Util";
-import { insertPending, updateVaryingValues } from "engine/PropagateUpdate";
-import { collectLabels } from "utils/CollectLabels";
-import { evalShapes, decodeState } from "engine/Evaluator";
-import { makeTranslationDifferentiable } from "engine/EngineUtils";
 
 interface ICanvasProps {
   lock: boolean;
@@ -28,53 +23,6 @@ interface ICanvasProps {
 export const canvasSize: [number, number] = [800, 700];
 
 class Canvas extends React.Component<ICanvasProps> {
-  public static sortShapes = (shapes: Shape[], ordering: string[]) => {
-    return ordering.map((name) =>
-      shapes.find(({ properties }) => properties.name.contents === name)
-    ); // assumes that all names are unique
-  };
-
-  public static notEmptyLabel = ({ shapeType, properties }: any) => {
-    return shapeType === "Text" ? !(properties.string.contents === "") : true;
-  };
-
-  /**
-   * Decode
-   * NOTE: this function is only used for compilerOutput now. Will deprecate as soon as style compiler is in the frontend
-   * @static
-   * @memberof Canvas
-   */
-  public static processData = async (data: any) => {
-    const state: State = decodeState(data);
-
-    // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
-    // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
-    const translationAD = makeTranslationDifferentiable(state.translation);
-    const stateAD = {
-      ...state,
-      originalTranslation: state.originalTranslation,
-      translation: translationAD,
-    };
-
-    // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
-    // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalShapes(stateAD);
-    // TODO: add return types
-    const labeledShapes: any = await collectLabels(stateEvaled.shapes);
-    const labeledShapesWithImgs: any = await loadImages(labeledShapes);
-    const sortedShapes: any = await Canvas.sortShapes(
-      labeledShapesWithImgs,
-      data.shapeOrdering
-    );
-    const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-    const processed = await insertPending({
-      ...stateEvaled,
-      shapes: nonEmpties,
-    });
-
-    return processed;
-  };
-
   // public readonly canvasSize: [number, number] = [400, 400];
   public readonly svg = React.createRef<SVGSVGElement>();
 
@@ -82,7 +30,7 @@ class Canvas extends React.Component<ICanvasProps> {
    * Retrieve data from drag events and update varying state accordingly
    * @memberof Canvas
    */
-  public dragEvent = async (id: string, dx: number, dy: number) => {
+  public dragEvent = (id: string, dx: number, dy: number): void => {
     if (this.props.updateData && this.props.data) {
       const updated: State = {
         ...this.props.data,
@@ -97,13 +45,13 @@ class Canvas extends React.Component<ICanvasProps> {
         ),
       };
       // TODO: need to retrofit this implementation to the new State type
-      const updatedWithVaryingState = await updateVaryingValues(updated);
+      const updatedWithVaryingState = updateVaryingValues(updated);
       this.props.updateData(updatedWithVaryingState);
     }
   };
 
   // TODO: factor out position props in shapedef
-  public dragShape = (shape: Shape, offset: [number, number]) => {
+  public dragShape = (shape: Shape, offset: [number, number]): Shape => {
     const { shapeType, properties } = shape;
     switch (shapeType) {
       case "Path":
@@ -136,7 +84,7 @@ class Canvas extends React.Component<ICanvasProps> {
     properties: Properties,
     propsToMove: string[],
     [dx, dy]: [number, number]
-  ) => {
+  ): Properties => {
     const moveProperty = (props: Properties, propertyID: string) => {
       const [x, y] = props[propertyID].contents as [number, number];
       console.log(props[propertyID], dx, dy);
@@ -253,7 +201,11 @@ class Canvas extends React.Component<ICanvasProps> {
     frame.remove();
   };
 
-  public renderGPI = ({ shapeType, properties }: Shape, key: number) => {
+  public renderGPI = (
+    { shapeType, properties }: Shape,
+    labels: LabelCache,
+    key: number
+  ) => {
     const component = this.props.lock
       ? staticMap[shapeType]
       : interactiveMap[shapeType];
@@ -269,13 +221,14 @@ class Canvas extends React.Component<ICanvasProps> {
     return React.createElement(component, {
       key,
       shape: properties,
+      labels,
       canvasSize,
       dragEvent,
-      ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null,
+      ctm: !this.props.lock ? this.svg.current?.getScreenCTM() : null,
     });
   };
 
-  public render() {
+  public render(): JSX.Element {
     const {
       substanceMetadata,
       styleMetadata,
@@ -290,7 +243,7 @@ class Canvas extends React.Component<ICanvasProps> {
       return <svg ref={this.svg} />;
     }
 
-    const { shapes } = data;
+    const { shapes, labelCache } = data;
 
     return (
       <svg
@@ -316,7 +269,7 @@ class Canvas extends React.Component<ICanvasProps> {
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes && shapes.map(this.renderGPI)}
+        {shapes && shapes.map((s, k) => this.renderGPI(s, labelCache, k))}
       </svg>
     );
   }

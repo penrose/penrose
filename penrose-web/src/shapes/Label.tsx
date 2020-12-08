@@ -1,6 +1,7 @@
 import * as React from "react";
 import { toScreen, toHex } from "utils/Util";
 import { IGPIProps } from "types";
+import { retrieveLabel } from "utils/CollectLabels";
 
 // TODO: use JSDOM
 // WARNING: this mutates the original! it's not pure at all
@@ -21,19 +22,18 @@ const styleLabel = (
 
 class Label extends React.Component<IGPIProps> {
   public render() {
-    const { shape } = this.props;
-
-    const { canvasSize } = this.props;
+    const { shape, labels, canvasSize } = this.props;
     const [x, y] = toScreen(shape.center.contents, canvasSize);
     const { w, h } = shape;
     const color = toHex(shape.color.contents);
+    const renderedLabel = retrieveLabel(shape.name.contents, labels);
     return (
       <g
         pointerEvents="bounding-box"
         transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
         dangerouslySetInnerHTML={{
-          __html: shape.rendered
-            ? styleLabel(shape.rendered.contents, color, w.contents, h.contents)
+          __html: renderedLabel
+            ? styleLabel(renderedLabel.rendered, color, w.contents, h.contents)
             : `<text>${shape.string.contents}</text>`,
         }}
       />
