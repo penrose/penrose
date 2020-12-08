@@ -2,7 +2,10 @@ import { makeTranslationDifferentiable } from "engine/EngineUtils";
 import { decodeState, evalShapes } from "engine/Evaluator";
 import { step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
+import React from "react";
+import ReactDOM from "react-dom";
 import { resampleBest } from "shapes/ShapeDef";
+import Canvas from "ui/Canvas";
 import { collectLabels } from "utils/CollectLabels";
 
 export const resample = async (
@@ -41,11 +44,15 @@ export const prepareState = async (data: any): Promise<State> => {
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = evalShapes(stateAD);
   const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
-  console.log(labelCache);
 
   // const labeledShapesWithImgs: any = await loadImages(labeledShapes);
   return insertPending({
     ...stateEvaled,
     labelCache,
   });
+};
+
+export const diagram = async (data: State, node: HTMLElement) => {
+  data.labelCache = await collectLabels(data.shapes);
+  return ReactDOM.render(<Canvas data={data} lock={true} />, node);
 };

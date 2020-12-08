@@ -201,6 +201,20 @@ class Canvas extends React.Component<ICanvasProps> {
     frame.remove();
   };
 
+  public downloadState = () => {
+    const content = JSON.stringify({ ...this.props.data, params: {} });
+    const blob = new Blob([content], {
+      type: "text/plain",
+    });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = `state.json`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
   public renderGPI = (
     { shapeType, properties }: Shape,
     labels: LabelCache,
@@ -228,7 +242,7 @@ class Canvas extends React.Component<ICanvasProps> {
     });
   };
 
-  public render(): JSX.Element {
+  public render() {
     const {
       substanceMetadata,
       styleMetadata,

@@ -10,6 +10,7 @@ interface IProps {
   downloadPDF(): void;
 
   downloadSVG(): void;
+  downloadState(): void;
   autoStepToggle(): void;
   step(): void;
   // stepUntilConvergence(): void;
@@ -24,6 +25,7 @@ class ButtonBar extends React.Component<IProps> {
       autoStepToggle,
       downloadPDF,
       downloadSVG,
+      downloadState,
       step,
       // stepUntilConvergence,
       resample,
@@ -45,6 +47,7 @@ class ButtonBar extends React.Component<IProps> {
         </button>
         <button onClick={downloadPDF}>download PDF</button>
         <button onClick={downloadSVG}>download SVG</button>
+        <button onClick={downloadState}>download State</button>
         <button onClick={toggleInspector}>
           {showInspector ? "hide" : "show"} inspector
         </button>

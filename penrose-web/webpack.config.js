@@ -10,11 +10,21 @@ module.exports = {
   node: {
     fs: "empty",
   },
+  // tree shaking
+  // mode: "production",
+
   module: {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        loader: "ts-loader",
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              configFile: "tsconfig.lib.json",
+            },
+          },
+        ],
       },
     ],
   },

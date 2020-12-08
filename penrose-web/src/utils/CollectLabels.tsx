@@ -98,6 +98,7 @@ export const collectLabels = async (
         shapeName,
         properties.fontSize.contents as string
       );
+
       // Instead of directly overwriting the properties, cache them temporarily
       const label: LabelData = {
         w: { tag: "FloatV", contents: width as number },
