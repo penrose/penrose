@@ -11,7 +11,7 @@ module.exports = {
     fs: "empty",
   },
   // tree shaking
-  // mode: "production",
+  mode: "development",
 
   module: {
     rules: [

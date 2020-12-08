@@ -6,6 +6,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { resampleBest } from "shapes/ShapeDef";
 import Canvas from "ui/Canvas";
+import Embed from "ui/Embed";
 import { collectLabels } from "utils/CollectLabels";
 
 export const resample = async (
@@ -54,5 +55,5 @@ export const prepareState = async (data: any): Promise<State> => {
 
 export const diagram = async (data: State, node: HTMLElement) => {
   data.labelCache = await collectLabels(data.shapes);
-  return ReactDOM.render(<Canvas data={data} lock={true} />, node);
+  return ReactDOM.render(<Embed data={data} />, node);
 };
