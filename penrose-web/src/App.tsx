@@ -74,6 +74,11 @@ class App extends React.Component<any, ICanvasState> {
       this.canvas.current.downloadPDF();
     }
   };
+  public downloadState = () => {
+    if (this.canvas.current !== null) {
+      this.canvas.current.downloadState();
+    }
+  };
   public autoStepToggle = async () => {
     await this.setState({ autostep: !this.state.autostep });
     if (this.state.autostep && this.state.processedInitial) {
@@ -158,6 +163,7 @@ class App extends React.Component<any, ICanvasState> {
           <ButtonBar
             downloadPDF={this.downloadPDF}
             downloadSVG={this.downloadSVG}
+            downloadState={this.downloadState}
             // stepUntilConvergence={stepUntilConvergence}
             autostep={autostep}
             step={this.step}

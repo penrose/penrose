@@ -1,8 +1,8 @@
 import { valueNumberToAutodiff } from "engine/EngineUtils";
 import { evalShapes, insertExpr } from "engine/Evaluator";
 import { initConstraintWeight } from "engine/Optimizer";
-import { mapValues, zip } from "lodash";
-import { canvasSize } from "ui/Canvas";
+import { mapValues, property, zip } from "lodash";
+// import { canvasSize } from "ui/Canvas";
 import { randFloat, randFloats, safe } from "utils/Util";
 
 //#region shapedef helpers and samplers
@@ -14,8 +14,20 @@ type ConstSampler = (type: PropType, value: PropContents) => Value<number>;
 
 type Range = [number, number];
 
+// TODO: why did the original import fail here?
+const canvasSize: [number, number] = [800, 700];
 const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
 const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
+
+/** Generate a single string based on a path to a shape */
+export const getShapeName = (p: Path): string => {
+  if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
+    const [{ contents: subName }, field] = p.contents;
+    return `${subName}.${field}`;
+  } else {
+    throw new Error("Can only derive shape name from field or property path.");
+  }
+};
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
   tag: "FloatV",
@@ -300,10 +312,11 @@ const sampleProperty = (
   const propModels: IPropModel = shapeDef.properties;
   const sampler = propModels[property];
   if (sampler) return sampler[1]();
-  else
+  else {
     throw new Error(
       `${property} is not a valid property to be sampled for shape ${shapeDef.shapeType}.`
     );
+  }
 };
 
 /**

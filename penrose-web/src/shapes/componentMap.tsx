@@ -23,26 +23,26 @@ import draggable from "./Draggable";
 
 // prettier-ignore
 export const staticMap = {
-  "Circle": Circle,
-  "Rectangle": Rectangle,
-  "Arc": Arc,
-  "RectangleTransform": RectangleTransform,
-  "CircleTransform": CircleTransform,
-  "Ellipse": Ellipse,
-  "EllipseTransform": EllipseTransform,
-  "Polygon": Polygon,
-  "Square": Square,
-  "SquareTransform" : SquareTransform,
+  Circle,
+  Rectangle,
+  Arc,
+  RectangleTransform,
+  CircleTransform,
+  Ellipse,
+  EllipseTransform,
+  Polygon,
+  Square,
+  SquareTransform,
   "Text": Label,
   "TextTransform": LabelTransform,
-  "Path": Path,
-  "CurveTransform": CurveTransform,
-  "Arrow": Arrow,
-  "Image": Image,
-  "ImageTransform": ImageTransform,
-  "LineTransform": LineTransform,
-  "Line": Line,
-  "ParallelogramTransform": ParallelogramTransform
+  Path,
+  CurveTransform,
+  Arrow,
+  Image,
+  ImageTransform,
+  LineTransform,
+  Line,
+  ParallelogramTransform
 };
 
 export const interactiveMap = { ...staticMap };

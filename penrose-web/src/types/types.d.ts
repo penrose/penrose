@@ -1,12 +1,3 @@
-/**
- * Output of label generation.
- */
-interface LabelData {
-  rendered: SVGSVGElement;
-  width: number;
-  height: number;
-}
-
 type VaryMap<T = VarAD> = Map<string, T>;
 
 type FnDone<T> = IFnDone<T>;
@@ -44,6 +35,7 @@ interface IState {
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
+  labelCache: LabelCache;
   varyingValues: number[];
   translation: Translation;
   originalTranslation: Translation;
@@ -52,6 +44,17 @@ interface IState {
   varyingMap: VaryMap;
 }
 type State = IState;
+
+/**
+ * Output of label generation.
+ */
+interface LabelData {
+  w: Value<number>;
+  h: Value<number>;
+  rendered: HTMLElement;
+}
+
+type LabelCache = [string, LabelData][];
 
 // TODO: annotate the comp graph with their derivatives
 // NOTE: the point is to have a better type that allows annotation of the comp graph

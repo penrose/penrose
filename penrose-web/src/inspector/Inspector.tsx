@@ -47,7 +47,6 @@ class Inspector extends React.Component<IProps, IInspectState> {
       history,
       modShapes,
     };
-    // console.log(currentFrame);
     return (
       <div
         style={{
