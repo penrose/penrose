@@ -27,6 +27,7 @@ class Label extends React.Component<IGPIProps> {
     const { w, h } = shape;
     const color = toHex(shape.color.contents);
     const renderedLabel = retrieveLabel(shape.name.contents, labels);
+
     return (
       <g
         pointerEvents="bounding-box"

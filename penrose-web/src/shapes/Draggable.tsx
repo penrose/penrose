@@ -75,7 +75,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       return (
         <g
           transform={`translate(${dx},${-dy})`}
-          opacity= {dragging ? "0.5" : ""}
+          opacity={dragging ? "0.5" : ""}
           onMouseDown={this.handleMouseDown}
           // pointerEvents="bounding-box"
         >

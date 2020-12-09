@@ -201,6 +201,24 @@ class Canvas extends React.Component<ICanvasProps> {
     frame.remove();
   };
 
+  public downloadState = () => {
+    const content = JSON.stringify({ ...this.props.data, params: {} });
+    const blob = new Blob([content], {
+      type: "text/plain",
+    });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = `state.json`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
+  componentDidMount() {
+    this.forceUpdate();
+  }
+
   public renderGPI = (
     { shapeType, properties }: Shape,
     labels: LabelCache,
@@ -214,8 +232,7 @@ class Canvas extends React.Component<ICanvasProps> {
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
     if (!this.props.lock && this.svg.current === null) {
-      Log.error("SVG ref is null");
-      return <g key={key}>broken!</g>;
+      return <g key={key}>Pending</g>;
     }
     const { dragEvent } = this;
     return React.createElement(component, {
@@ -225,10 +242,11 @@ class Canvas extends React.Component<ICanvasProps> {
       canvasSize,
       dragEvent,
       ctm: !this.props.lock ? this.svg.current?.getScreenCTM() : null,
+      // ctm: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 20.511363191791812 },
     });
   };
 
-  public render(): JSX.Element {
+  public render() {
     const {
       substanceMetadata,
       styleMetadata,
