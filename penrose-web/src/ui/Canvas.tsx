@@ -87,7 +87,6 @@ class Canvas extends React.Component<ICanvasProps> {
   ): Properties => {
     const moveProperty = (props: Properties, propertyID: string) => {
       const [x, y] = props[propertyID].contents as [number, number];
-      console.log(props[propertyID], dx, dy);
       props[propertyID].contents = [x + dx, y + dy];
       return props;
     };

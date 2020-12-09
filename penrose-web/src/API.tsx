@@ -9,20 +9,13 @@ import Canvas from "ui/Canvas";
 import Embed from "ui/Embed";
 import { collectLabels } from "utils/CollectLabels";
 
-export const resample = async (
-  state: State,
-  numSamples: number
-): Promise<State> => {
-  const newState = resampleBest(state, numSamples);
-  const labelCache: LabelCache = await collectLabels(newState.shapes);
-  return { ...newState, labelCache };
+export const resample = (state: State, numSamples: number): State => {
+  return resampleBest(state, numSamples);
 };
 
-export const stepState = async (state: State): Promise<State> => {
+export const stepState = (state: State): State => {
   const numSteps = 1;
-  const newState = step(state, numSteps);
-  const labelCache: LabelCache = await collectLabels(newState.shapes);
-  return { ...newState, labelCache };
+  return step(state, numSteps);
 };
 
 /**
@@ -53,7 +46,10 @@ export const prepareState = async (data: any): Promise<State> => {
   });
 };
 
-export const diagram = async (data: State, node: HTMLElement) => {
+export const diagram = async (
+  data: State,
+  node: HTMLElement
+): Promise<void> => {
   data.labelCache = await collectLabels(data.shapes);
-  return ReactDOM.render(<Embed data={data} />, node);
+  ReactDOM.render(<Embed data={data} />, node);
 };
