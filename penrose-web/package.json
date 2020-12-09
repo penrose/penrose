@@ -8,6 +8,7 @@
   "dependencies": {
     "@penrose/linear-algebra": "^1.0.0",
     "@reach/tabs": "^0.9.0",
+    "@types/nearley": "^2.11.1",
     "@types/seedrandom": "^2.4.28",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
