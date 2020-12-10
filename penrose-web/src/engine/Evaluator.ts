@@ -583,8 +583,6 @@ export const resolvePath = (
 
     const gpiOrExpr = findExpr(trans, path);
 
-    console.log(path);
-
     switch (gpiOrExpr.tag) {
       case "FGPI": {
         const [type, props] = gpiOrExpr.contents;
@@ -1108,9 +1106,9 @@ export function genPathMap<T>(
     console.log(paths, vals);
     throw new Error(
       "Different numbers of varying vars vs. paths: " +
-        paths.length +
-        ", " +
-        vals.length
+      paths.length +
+      ", " +
+      vals.length
     );
   }
   const res = new Map();

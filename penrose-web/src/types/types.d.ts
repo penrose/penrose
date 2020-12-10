@@ -1363,3 +1363,20 @@ interface IProp {
 }
 
 //#endregion
+
+//#region Style semantics
+
+// Style static semantics for selectors
+
+// g ::= B => |T
+// Assumes nullary type constructors (i.e. Style type = Substance type)
+interface ISelEnv {
+  sTypeVarMap: { [k: BindingForm]: StyT }; // B : |T
+  sErrors: string[]; // TODO(errors): Store errors properly
+  skipBlock: Bool;
+}
+// Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
+
+type SelEnv = ISelEnv;
+
+//#endregion

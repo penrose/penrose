@@ -9,6 +9,9 @@ import { collectLabels } from "utils/CollectLabels";
 import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
 
+import * as stateJSON from "__tests__/orthogonalVectors.json";
+import { compileStyle } from "compiler/Style"; // COMBAK: Use this import properly
+
 interface ICanvasProps {
   lock: boolean;
   substanceMetadata?: string;
@@ -45,6 +48,10 @@ class Canvas extends React.Component<ICanvasProps> {
    * @memberof Canvas
    */
   public static processData = async (data: any) => {
+    // COMBAK: Clean up this use
+    const res = compileStyle(stateJSON);
+    throw Error("TODO: style compiler");
+
     const state: State = decodeState(data);
 
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
@@ -305,12 +312,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-          } on ${new Date()
-            .toISOString()
-            .slice(
-              0,
-              10
-            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            } on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
