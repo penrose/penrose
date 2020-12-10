@@ -1,3 +1,7 @@
+import * as _ from "lodash";
+
+// TODO: Write pseudocode / code comments / tests for the Style compiler
+
 // Really it should be SubOut, not SubProg:
 
 // -- | 'SubOut' is the output of the Substance compiler, comprised of:
@@ -10,6 +14,9 @@
 const checkSels = (subEnv: SubEnv, prog: HeaderBlocks): SelEnv[] => {
 
   console.log("checking selectors");
+
+  // Will probably need Substance typechecking as well
+
   return []; // TODO
 
 };

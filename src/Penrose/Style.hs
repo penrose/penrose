@@ -875,60 +875,37 @@ checkDeclPatterns varEnv selEnv decls =
     -- Judgment 3. G; g |- |S_o ok ~> g'
   where
     checkDeclPattern :: VarEnv -> SelEnv -> DeclPattern -> SelEnv
-    checkDeclPattern varEnv selEnv stmt@(PatternDecl styType bVar)
-             -- G |- |T : type
-     =
+    checkDeclPattern varEnv selEnv stmt@(PatternDecl styType bVar) = -- G |- |T : type
       let errT = errors $ checkT varEnv (toSubType styType)
        in let selEnv' = addErr errT selEnv
-           in case bVar
-             -- rule Decl-Sty-Context
-                    of
-                bsv@(BStyVar (StyVar styVar))
+           in case bVar of
+                -- rule Decl-Sty-Context
+                bsv@(BStyVar (StyVar styVar)) ->
                      -- NOTE: this does not aggregate *all* possible error May just return first error.
                      -- y \not\in dom(g)
-                 ->
                   if M.member bsv (sTypeVarMap selEnv')
-                    then let err =
-                               "Style pattern statement " ++
-                               show stmt ++
-                               " declares Style variable '" ++
+                    then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++
                                styVar ++ "' twice"
                           in addErr err selEnv'
-                    else if M.member
-                              (BSubVar (VarConst styVar))
-                              (sTypeVarMap selEnv')
-                           then let err =
-                                      "Style pattern statement " ++
-                                      show stmt ++
-                                      " declares Style variable '" ++
-                                      styVar ++
-                                      "'" ++
-                                      " in the same selector as a Substance variable of the same name"
+                    else if M.member (BSubVar (VarConst styVar)) (sTypeVarMap selEnv')
+                           then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++ styVar ++
+                                      "'" ++ " in the same selector as a Substance variable of the same name"
                                  in addErr err selEnv'
                            else addMapping bsv styType selEnv'
-             -- rule Decl-Sub-Context
-                bsv@(BSubVar subVar@(VarConst sVar))
+                -- rule Decl-Sub-Context
+                bsv@(BSubVar subVar@(VarConst sVar)) ->
                      -- x \not\in dom(g)
-                 ->
                   if M.member bsv (sTypeVarMap selEnv')
                     then let err =
-                               "Style pattern statement " ++
-                               show stmt ++
-                               " declares Substance variable '" ++
-                               sVar ++ "' twice"
+                               "Style pattern statement " ++ show stmt ++ " declares Substance variable '" ++ sVar ++ "' twice"
                           in addErr err selEnv'
                     else if M.member
                               (BStyVar (StyVar sVar))
                               (sTypeVarMap selEnv')
-                           then let err =
-                                      "Style pattern statement " ++
-                                      show stmt ++
-                                      " declares Substance variable '" ++
-                                      sVar ++
-                                      "'" ++
-                                      " in the same selector as a Style variable of the same name"
+                           then let err = "Style pattern statement " ++ show stmt ++ " declares Substance variable '" ++
+                                      sVar ++ "'" ++ " in the same selector as a Style variable of the same name"
                                  in addErr err selEnv'
-                         -- G(x) = T
+                           -- G(x) = T
                            else let subType = M.lookup subVar $ varMap varEnv
                                  in case subType of
                                       Nothing -> selEnv' {skipBlock = True}
@@ -937,56 +914,34 @@ checkDeclPatterns varEnv selEnv decls =
                                     {- let err = "Substance variable '" ++ show subVar ++
                                               "' does not exist in environment. \n" {- ++ show varEnv -} in
                                     addErr err selEnv' -}
-                                      Just subType'
-                             -- check "T <: |T", assuming type constructors are nullary
-                                       ->
+                                      Just subType' ->
+                                        -- check "T <: |T", assuming type constructors are nullary
                                         let declType = toSubType styType
-                                         in if subType' == declType ||
-                                               isSubtype
-                                                 subType'
-                                                 declType
-                                                 varEnv
-                                              then addMapping
-                                                     bsv
-                                                     styType
-                                                     selEnv'
+                                         in if subType' == declType || isSubtype subType' declType varEnv
+                                              then addMapping bsv styType selEnv'
                                               else let err =
                                                          "Mismatched types between Substance and Style var\n" ++
-                                                         "Sub var '" ++
-                                                         show subVar ++
-                                                         "' has type '" ++
-                                                         show subType' ++
-                                                         "in Substance but has type '" ++
-                                                         show declType ++
-                                                         "' in Style."
+                                                         "Sub var '" ++ show subVar ++ "' has type '" ++
+                                                         show subType' ++ "in Substance but has type '" ++
+                                                         show declType ++ "' in Style."
                                                     in addErr err selEnv'
 
 -- Judgment 7. G |- Sel ok ~> g
 checkSel :: VarEnv -> Selector -> SelEnv
-checkSel varEnv sel
-         -- Check head statements
- =
+checkSel varEnv sel = -- Check head statements
   let selEnv_afterHead = checkDeclPatterns varEnv initSelEnv (selHead sel)
          -- Check `with` statements
    in let selEnv_decls = checkDeclPatterns varEnv selEnv_afterHead (selWith sel)
          -- Check relational statements
-       in let rel_errs =
-                checkRelPatterns (mergeEnv varEnv selEnv_decls) (selWhere sel)
+       in let rel_errs = checkRelPatterns (mergeEnv varEnv selEnv_decls) (selWhere sel)
            in selEnv_decls
-                { sErrors =
-                    filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs
-                }
+                { sErrors = filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs }
 
 checkNamespace :: String -> VarEnv -> SelEnv
-checkNamespace name varEnv
-    -- A Substance variable cannot have the same name as a namespace
- =
+checkNamespace name varEnv = -- A Substance variable cannot have the same name as a namespace
   let error =
         if M.member (VarConst name) (varMap varEnv)
-          then [ "Substance variable '" ++
-                 name ++
-                 "' has the same name as a namespace in the Style program"
-               ]
+          then [ "Substance variable '" ++ name ++ "' has the same name as a namespace in the Style program" ]
           else []
    in addErrs error initSelEnv
 
