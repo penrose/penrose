@@ -2,7 +2,7 @@
 
 @{%
 import * as moo from "moo";
-import { concat } from 'lodash'
+import { concat, compact, flatten } from 'lodash'
 
 const lexer = moo.compile({
     ws: /[ \t]+/,
@@ -89,28 +89,31 @@ const maxLoc = (...locs: SourceLoc[]) => {
 }
 
 /** Given a list of tokens, find the range of tokens */
-const findRange = (nodes: any[]) => {
-  // TODO: check if this heuristics always work out
-  // console.log("find range", nodes);
-  if(nodes.length === 0) throw new TypeError();
-  if(nodes.length === 1) {
-    return { start: nodes[0].start, end: nodes[0].end };
+const astNode = (children: ASTNode[]) => {
+  if(children.length === 0) throw new TypeError();
+  if(children.length === 1) {
+    const child = children[0];
+    return { start: child.start, end: child.end };
   }
 
   return {
-    start: minLoc(...nodes.map(n => n.start)),
-    end: maxLoc(...nodes.map(n => n.end)),
+    start: minLoc(...children.map(n => n.start)),
+    end: maxLoc(...children.map(n => n.end)),
+    // children TODO: decide if want children/parent pointers in the tree
   }
 }
+
+// const walkTree = <T>(root: ASTNode, f: (ASTNode): T) => {
+  // TODO: implement
+// }
 
 function convertTokenId(data) {
     return tokenRange(data[0]);
 }
 
 const declList = (type, ids) => {
-  // TODO: range for subsequent ids
   const decl = (t, i) => ({
-    ...findRange([t, i]),
+    ...astNode([t, i]),
     tag: "DeclPattern",
     type: t,
     id: i 
@@ -119,15 +122,13 @@ const declList = (type, ids) => {
 }
 
 const selector = (
-  hd: DeclPattern[],
-  wth?: DeclPattern[],
-  whr?: RelationPattern[],
+  hd: DeclPatterns,
+  wth?: DeclPatterns,
+  whr?: RelationPatterns,
   namespace?: Namespace
 ): Selector => {
   return {
-    // TODO: range
-    // ...findRange([...hd, ...wth, ...whr, namespace]),
-    ...findRange(hd),
+    ...astNode(compact([hd, wth, whr, namespace])),
     tag: "Selector",
     head: hd,
     with: wth,
@@ -166,12 +167,23 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
 
 # Grammar
 
-input -> _ml header_blocks _ml {% res => res[1] %}
+input -> _ml header_blocks {% res => res[1] %}
 
-header_blocks -> header _ml blocks {%
+header_blocks -> (header_block):* {%
+  (d) => {
+    const blocks = d;
+    return {
+      ...astNode(blocks),
+      tag: "StyProg",
+      contents: blocks
+    }
+  }
+%}
+
+header_block -> header _ml block _ml {%
  (d): HeaderBlock => ({
-   ...findRange([d[0]]),
-   //...findRange(d),
+   // TODO: range
+   ...astNode([d[0]]),
    tag:"HeaderBlock",
    header: d[0], 
    block: d[2]
@@ -184,17 +196,24 @@ header
   |  selector  {% id %}
 
 selector -> 
-  ( "forall":? __ decl_pattern _ml select_where:? _ml select_with:? _ml select_as:? 
-  | "forall":? __ decl_pattern _ml select_with:? _ml select_where:? _ml select_as:?) {%
+  ( "forall":? __ decl_patterns _ml select_where:? _ml select_with:? _ml select_as:? 
+  | "forall":? __ decl_patterns _ml select_with:? _ml select_where:? _ml select_as:?) {%
   ([d]) => { 
     return selector(d[2], d[4], d[6], d[8])
   } 
  %}
 
-select_with -> "with" __ decl_pattern {% d => d[2] %}
+select_with -> "with" __ decl_patterns {% d => d[2] %}
 
-# TODO: abstract this pattern out?
-decl_pattern -> sepBy1[decl_list, ";"]  {% d => concat(d) %}
+decl_patterns -> sepBy1[decl_list, ";"] {% 
+  ([d]) => {
+    const contents = flatten(d);
+    return {
+      ...astNode(contents),
+      tag: "DeclPatterns", contents
+    };
+  }
+%}
 
 decl_list -> identifier __ sepBy1[binding_form, ","] {% 
   ([type, , ids]) => {
@@ -204,7 +223,12 @@ decl_list -> identifier __ sepBy1[binding_form, ","] {%
 
 select_where -> "where" __ relation_list {% d => d[2] %}
 
-relation_list -> sepBy1[relation, ";"]  {% id %}
+relation_list -> sepBy1[relation, ";"]  {% ([d]) => ({
+    ...astNode(d),
+    tag: "RelationPatterns",
+    contents: d
+  })
+%}
 
 relation
   -> rel_bind {% id %} 
@@ -212,14 +236,14 @@ relation
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
   ([id, , , , expr]) => ({
-    ...findRange([id, expr]),
+    ...astNode([id, expr]),
     tag: "RelBind",
-    contents: [id, expr]
+    id, expr
   })
 %}
 
 rel_pred -> identifier _ "(" _ pred_arg_list _ ")" {% ([name, , , , args, , ,]) => ({
-      ...findRange([name, ...args]),
+      ...astNode([name, ...args]),
       tag: "RelPred",
       name, args
     }) 
@@ -229,12 +253,12 @@ sel_expr_list -> sepBy[sel_expr, ","] {% id %}
 
 sel_expr 
   -> identifier _ "(" _ sel_expr_list _ ")" {% ([name, , , , args, , ,]) => ({
-      ...findRange([name, ...args]),
+      ...astNode([name, ...args]),
       tag: "SEFuncOrValCons",
       name, args
     }) 
   %}
-  |  binding_form {% ([d]) => ({...findRange([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]) => ({...astNode([d]), tag: "SEBind", contents: d}) %}
 
 
 pred_arg_list -> sepBy[pred_arg, ","] {% id %}
@@ -251,18 +275,18 @@ binding_form
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?
 subVar -> "`" identifier "`" {%
-  d => ({ ...findRange([d[1]]), tag: "SubVar", contents: d[1]})
+  d => ({ ...astNode([d[1]]), tag: "SubVar", contents: d[1]})
 %}
 
 styVar -> identifier {%
-  d => ({ ...findRange(d), tag: "StyVar", contents: d[0]})
+  d => ({ ...astNode(d), tag: "StyVar", contents: d[0]})
 %}
 
 select_as -> "as" __ namespace {% d => d[2] %}
 
 namespace -> identifier {%
   (d): Namespace => ({
-    ...findRange(d),
+    ...astNode(d),
     tag: "Namespace",
     contents: d[0]
   })
@@ -271,7 +295,7 @@ namespace -> identifier {%
 
 # block
 
-blocks -> "{" _ml "}" {% d => [] %}
+block -> "{" _ml "}" {% d => [] %}
 
 statements
     ->  statement

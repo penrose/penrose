@@ -743,9 +743,10 @@ interface IOptDebugInfo {
 //#region Style AST
 
 /** Top level type for Style AST */
-type StyProg = HeaderBlocks;
-
-type HeaderBlocks = HeaderBlock[];
+interface StyProg extends ASTNode {
+  tag: "StyProg";
+  contents: HeaderBlock[];
+}
 
 // type HeaderBlock = [Header, Block];
 interface HeaderBlock extends ASTNode {
@@ -760,10 +761,17 @@ type Header = Selector | Namespace;
 
 interface Selector extends ASTNode {
   tag: "Selector";
-  head: DeclPattern[];
-  with: DeclPattern[];
-  where: RelationPattern[];
+  head: DeclPatterns;
+  with: DeclPatterns;
+  where: RelationPatterns;
   namespace?: Namespace;
+}
+
+// NOTE: Instead of a js array typed child. I explicitly wrap them in an ASTNode so location and ancestry info can be better preserved.
+// TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.
+interface DeclPatterns extends ASTNode {
+  tag: "DeclPatterns";
+  contents: DeclPattern[];
 }
 
 interface Namespace extends ASTNode {
@@ -778,10 +786,15 @@ interface DeclPattern extends ASTNode {
 }
 
 type RelationPattern = RelBind | RelPred;
+interface RelationPatterns extends ASTNode {
+  tag: "RelationPatterns";
+  contents: RelationPattern[];
+}
 
 interface RelBind extends ASTNode {
   tag: "RelBind";
-  contents: [BindingForm, SelExpr];
+  id: BindingForm;
+  expr: SelExpr;
 }
 interface RelPred extends ASTNode {
   tag: "RelPred";
@@ -1322,7 +1335,7 @@ interface ASTNode {
   start: SourceLoc;
   end: SourceLoc;
   // Optionally for querying
-  // children: childrenOf;
+  // children: ASTNode[];
   // file: string;
   // parent: ASTNode; // NOTE: pointer type; don't serialize this
 }
