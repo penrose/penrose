@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "nearleyc src/Style.ne > src/StyleParser.ts && tsc",
-    "test": "npm run build && node build/index.js"
+    "exec": "npm run build && node build/index.js",
+    "test": "jest"
   },
   "author": "Colin Caine <colin.caine@manchester.ac.uk>",
   "license": "GPLv3",
@@ -15,5 +16,11 @@
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
     "typescript": "^2.9.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.19",
+    "ts-jest": "^26.4.4",
+    "jest": "^26.6.3",
+    "ts-node": "^9.1.1"
   }
 }
