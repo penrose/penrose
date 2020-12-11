@@ -2,20 +2,6 @@
 import * as nearley from "nearley";
 import grammar from "./StyleParser";
 
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
-
-async function compileNearley() {
-  const { stdout, stderr } = await exec(
-    "nearleyc src/Style.ne > src/StyleParser.ts"
-  );
-  if (stdout.length > 0) console.log("stdout:", stdout);
-  if (stderr.length > 0) console.log("stderr:", stderr);
-}
-beforeEach(async () => {
-  await compileNearley();
-});
-
 const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
 test("empty program", () => {
@@ -26,12 +12,36 @@ test("empty block", () => {
   parser.feed("const { }");
 });
 
-test("comment and empty block", () => {
+test("comment and empty blocks", () => {
   const prog = `
   -- this is a comment
   forall Set A, B { }
   
-  forall Set A, \`B\`; Map f`;
+  forall Set A, \`B\`; Map f 
+  { 
+
+  }`;
+  parser.feed(prog);
+});
+
+test("forall keyword", () => {
+  const prog = `
+  forall Set A, B { }
+
+  Set A, \`B\`; Map f
+  {
+
+  }`;
+  parser.feed(prog);
+});
+
+test("with, where, and as", () => {
+  const prog = `
+forall Set A, B; Map f
+with Set C, D; Map \`g\`
+where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ); IsSubset( Union(A,B), C); Intersect (    )
+as Const
+{ }`;
   parser.feed(prog);
 });
 

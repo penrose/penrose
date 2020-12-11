@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nearleyc src/Style.ne > src/StyleParser.ts && tsc",
     "exec": "npm run build && node build/index.js",
-    "test": "jest"
+    "test": "nearleyc src/Style.ne > src/StyleParser.ts && jest"
   },
   "author": "Colin Caine <colin.caine@manchester.ac.uk>",
   "license": "GPLv3",
