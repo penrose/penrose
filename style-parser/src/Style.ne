@@ -20,16 +20,17 @@ const lexer = moo.compile({
     lbrace: "{",
     rbrace: "}",
     assignment: "=",
+    def: ":=",
     plus: "+",
     multiply: "*",
     divide: "/",
     modulo: "%",
     colon: ":",
     semi: ";",
-    tick: "`",
+    tick: "\`",
     comment: /--.*?$/,
     identifier: {
-        match: /[A-z_][a-z_0-9]*/,
+        match: /[A-z_][A-Za-z_0-9]*/,
         type: moo.keywords({
             forall: "forall",
             as: "as",
@@ -90,6 +91,7 @@ const maxLoc = (...locs: SourceLoc[]) => {
 /** Given a list of tokens, find the range of tokens */
 const findRange = (nodes: any[]) => {
   // TODO: check if this heuristics always work out
+  // console.log("find range", nodes);
   if(nodes.length === 0) throw new TypeError();
   if(nodes.length === 1) {
     return { start: nodes[0].start, end: nodes[0].end };
@@ -139,9 +141,9 @@ const selector = (
 
 @lexer lexer
 
-# Macro
+# Macros
 
-sepBy[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* {% 
+sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* {% 
   d => { 
     const [first, rest] = [d[0], d[1]];
     if(rest.length > 0) {
@@ -151,7 +153,18 @@ sepBy[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* {%
   }
 %}
 
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):+
+sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
+  d => { 
+    const [first, rest] = [d[0], d[1]];
+    if(!first) return [];
+    if(rest.length > 0) {
+      const restNodes = rest.map(ts => ts[3]);
+      return concat(first, ...restNodes);
+    } else return first;
+  }
+%}
+
+# Grammar
 
 input -> _ml header_blocks _ml {% res => res[1] %}
 
@@ -166,14 +179,14 @@ header_blocks -> header _ml blocks {%
 %}
 
 # selector
-header -> namespace {% id %}
-      | selector {% id %}
+header 
+  -> namespace {% id %}
+  |  selector  {% id %}
 
 selector -> 
   ( "forall":? __ decl_pattern _ml select_where:? _ml select_with:? _ml select_as:? 
-  | "forall":? __ decl_pattern _ml select_where:? _ml select_with:? _ml select_as:?) {%
+  | "forall":? __ decl_pattern _ml select_with:? _ml select_where:? _ml select_as:?) {%
   ([d]) => { 
-    console.log(d[2], d[4], d[6], d[8]);
     return selector(d[2], d[4], d[6], d[8])
   } 
  %}
@@ -181,17 +194,19 @@ selector ->
 select_with -> "with" __ decl_pattern {% d => d[2] %}
 
 # TODO: abstract this pattern out?
-decl_pattern -> sepBy[decl_list, ";"]  {% d => concat(d) %}
+decl_pattern -> sepBy1[decl_list, ";"]  {% d => concat(d) %}
 
-decl_list -> identifier __ sepBy[binding_form, ","] {% 
+decl_list -> identifier __ sepBy1[binding_form, ","] {% 
   ([type, , ids]) => {
     return declList(type, ids);
   }
 %}
 
-select_where -> "where" __ relation_patterns {% d => d[2] %}
+select_where -> "where" __ relation_list {% d => d[2] %}
 
-relation_patterns 
+relation_list -> sepBy1[relation, ";"]  {% id %}
+
+relation
   -> rel_bind {% id %} 
   |  rel_pred {% id %}
 
@@ -203,14 +218,32 @@ rel_bind -> binding_form _ ":=" _ sel_expr {%
   })
 %}
 
-# TODO: complete
+rel_pred -> identifier _ "(" _ pred_arg_list _ ")" {% ([name, , , , args, , ,]) => ({
+      ...findRange([name, ...args]),
+      tag: "RelPred",
+      name, args
+    }) 
+%}
+
+sel_expr_list -> sepBy[sel_expr, ","] {% id %}
+
 sel_expr 
-  -> binding_form {%
-      ([d]) => ({...findRange(d), tag: "SEBind", contents: d}) 
-     %}
+  -> identifier _ "(" _ sel_expr_list _ ")" {% ([name, , , , args, , ,]) => ({
+      ...findRange([name, ...args]),
+      tag: "SEFuncOrValCons",
+      name, args
+    }) 
+  %}
+  |  binding_form {% ([d]) => ({...findRange([d]), tag: "SEBind", contents: d}) %}
 
-# sel_expr_list -> sel_expr (_ "," _ sel_expr)
 
+pred_arg_list -> sepBy[pred_arg, ","] {% id %}
+
+# NOTE: ordering matters here because sel_expr has valcons or func, which looks exactly the same as predicates. 
+# TODO: check the grammar to see if this is intended behavior
+pred_arg 
+  -> rel_pred {% id %}
+  |  sel_expr {% id %}
 
 binding_form 
   -> subVar {% id %} 

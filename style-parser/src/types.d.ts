@@ -777,37 +777,19 @@ interface DeclPattern extends ASTNode {
   id: BindingForm;
 }
 
-type RelationPattern = IRelBind | IRelPred;
+type RelationPattern = RelBind | RelPred;
 
-interface IRelBind extends ASTNode {
+interface RelBind extends ASTNode {
   tag: "RelBind";
   contents: [BindingForm, SelExpr];
 }
-
-interface IRelPred extends ASTNode {
+interface RelPred extends ASTNode {
   tag: "RelPred";
-  contents: Predicate;
+  name: string;
+  args: PredArg[];
 }
 
-type Predicate = IPredicate;
-
-interface IPredicate {
-  predicateName: string;
-  predicateArgs: PredArg[];
-  predicatePos: SourcePos;
-}
-
-type PredArg = IPE | IPP;
-
-interface IPE {
-  tag: "PE";
-  contents: SelExpr;
-}
-
-interface IPP {
-  tag: "PP";
-  contents: Predicate;
-}
+type PredArg = SelExpr | RelPred;
 
 type StyT = ISTTypeVar | ISTCtor;
 
@@ -848,21 +830,29 @@ interface ISAT {
   contents: StyT;
 }
 
-type SelExpr = ISEBind | ISEAppFunc | ISEAppValCons;
+type SelExpr = SEBind | SEFunc | SEValCons | SEFuncOrValCons;
 
-interface ISEBind {
+interface SEBind extends ASTNode {
   tag: "SEBind";
   contents: BindingForm;
 }
 
-interface ISEAppFunc {
-  tag: "SEAppFunc";
-  contents: [string, SelExpr[]];
+interface SEFunc extends ASTNode {
+  tag: "SEFunc";
+  name: string;
+  args: SelExpr[];
 }
 
-interface ISEAppValCons {
-  tag: "SEAppValCons";
-  contents: [string, SelExpr[]];
+interface SEValCons extends ASTNode {
+  tag: "SEValCons";
+  name: string;
+  args: SelExpr[];
+}
+// NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
+interface SEFuncOrValCons extends ASTNode {
+  tag: "SEFuncOrValCons";
+  name: string;
+  args: SelExpr[];
 }
 
 type SourcePos = ISourcePos;
@@ -1080,11 +1070,10 @@ interface IPred2 {
 
 type SubPredArg = IPE | IPP;
 
-// TODO: duplicated
-// interface IPE {
-//   tag: "PE";
-//   contents: SubExpr;
-// }
+interface IPE {
+  tag: "PE";
+  contents: SubExpr;
+}
 
 interface IPP {
   tag: "PP";

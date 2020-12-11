@@ -26,16 +26,17 @@ const lexer = moo.compile({
     lbrace: "{",
     rbrace: "}",
     assignment: "=",
+    def: ":=",
     plus: "+",
     multiply: "*",
     divide: "/",
     modulo: "%",
     colon: ":",
     semi: ";",
-    tick: "`",
+    tick: "\`",
     comment: /--.*?$/,
     identifier: {
-        match: /[A-z_][a-z_0-9]*/,
+        match: /[A-z_][A-Za-z_0-9]*/,
         type: moo.keywords({
             forall: "forall",
             as: "as",
@@ -96,6 +97,7 @@ const maxLoc = (...locs: SourceLoc[]) => {
 /** Given a list of tokens, find the range of tokens */
 const findRange = (nodes: any[]) => {
   // TODO: check if this heuristics always work out
+  // console.log("find range", nodes);
   if(nodes.length === 0) throw new TypeError();
   if(nodes.length === 1) {
     return { start: nodes[0].start, end: nodes[0].end };
@@ -195,16 +197,15 @@ const grammar: Grammar = {
     {"name": "selector$subexpression$1", "symbols": ["selector$subexpression$1$ebnf$1", "__", "decl_pattern", "_ml", "selector$subexpression$1$ebnf$2", "_ml", "selector$subexpression$1$ebnf$3", "_ml", "selector$subexpression$1$ebnf$4"]},
     {"name": "selector$subexpression$1$ebnf$5", "symbols": [{"literal":"forall"}], "postprocess": id},
     {"name": "selector$subexpression$1$ebnf$5", "symbols": [], "postprocess": () => null},
-    {"name": "selector$subexpression$1$ebnf$6", "symbols": ["select_where"], "postprocess": id},
+    {"name": "selector$subexpression$1$ebnf$6", "symbols": ["select_with"], "postprocess": id},
     {"name": "selector$subexpression$1$ebnf$6", "symbols": [], "postprocess": () => null},
-    {"name": "selector$subexpression$1$ebnf$7", "symbols": ["select_with"], "postprocess": id},
+    {"name": "selector$subexpression$1$ebnf$7", "symbols": ["select_where"], "postprocess": id},
     {"name": "selector$subexpression$1$ebnf$7", "symbols": [], "postprocess": () => null},
     {"name": "selector$subexpression$1$ebnf$8", "symbols": ["select_as"], "postprocess": id},
     {"name": "selector$subexpression$1$ebnf$8", "symbols": [], "postprocess": () => null},
     {"name": "selector$subexpression$1", "symbols": ["selector$subexpression$1$ebnf$5", "__", "decl_pattern", "_ml", "selector$subexpression$1$ebnf$6", "_ml", "selector$subexpression$1$ebnf$7", "_ml", "selector$subexpression$1$ebnf$8"]},
     {"name": "selector", "symbols": ["selector$subexpression$1"], "postprocess": 
         ([d]) => { 
-          console.log(d[2], d[4], d[6], d[8]);
           return selector(d[2], d[4], d[6], d[8])
         } 
          },
@@ -243,9 +244,24 @@ const grammar: Grammar = {
           return declList(type, ids);
         }
         },
-    {"name": "select_where", "symbols": [{"literal":"where"}, "__", "relation_patterns"], "postprocess": d => d[2]},
-    {"name": "relation_patterns", "symbols": ["rel_bind"], "postprocess": id},
-    {"name": "relation_patterns", "symbols": ["rel_pred"], "postprocess": id},
+    {"name": "select_where", "symbols": [{"literal":"where"}, "__", "relation_list"], "postprocess": d => d[2]},
+    {"name": "relation_list$macrocall$2", "symbols": ["relation"]},
+    {"name": "relation_list$macrocall$3", "symbols": [{"literal":";"}]},
+    {"name": "relation_list$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "relation_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "relation_list$macrocall$3", "_", "relation_list$macrocall$2"]},
+    {"name": "relation_list$macrocall$1$ebnf$1", "symbols": ["relation_list$macrocall$1$ebnf$1", "relation_list$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "relation_list$macrocall$1", "symbols": ["relation_list$macrocall$2", "relation_list$macrocall$1$ebnf$1"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map(ts => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "relation_list", "symbols": ["relation_list$macrocall$1"], "postprocess": id},
+    {"name": "relation", "symbols": ["rel_bind"], "postprocess": id},
+    {"name": "relation", "symbols": ["rel_pred"], "postprocess": id},
     {"name": "rel_bind", "symbols": ["binding_form", "_", {"literal":":="}, "_", "sel_expr"], "postprocess": 
         ([id, , , , expr]) => ({
           ...findRange([id, expr]),
@@ -253,9 +269,57 @@ const grammar: Grammar = {
           contents: [id, expr]
         })
         },
-    {"name": "sel_expr", "symbols": ["binding_form"], "postprocess": 
-        ([d]) => ({...findRange(d), tag: "SEBind", contents: d}) 
-             },
+    {"name": "rel_pred", "symbols": ["identifier", "_", {"literal":"("}, "_", "pred_arg_list", "_", {"literal":")"}], "postprocess":  ([name, , , , args, , ,]) => ({
+          ...findRange([name, ...args]),
+          tag: "RelPred",
+          name, args
+        }) 
+        },
+    {"name": "sel_expr_list$macrocall$2", "symbols": ["sel_expr"]},
+    {"name": "sel_expr_list$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "sel_expr_list$macrocall$1$ebnf$1", "symbols": ["sel_expr_list$macrocall$2"], "postprocess": id},
+    {"name": "sel_expr_list$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "sel_expr_list$macrocall$1$ebnf$2", "symbols": []},
+    {"name": "sel_expr_list$macrocall$1$ebnf$2$subexpression$1", "symbols": ["_", "sel_expr_list$macrocall$3", "_", "sel_expr_list$macrocall$2"]},
+    {"name": "sel_expr_list$macrocall$1$ebnf$2", "symbols": ["sel_expr_list$macrocall$1$ebnf$2", "sel_expr_list$macrocall$1$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "sel_expr_list$macrocall$1", "symbols": ["sel_expr_list$macrocall$1$ebnf$1", "sel_expr_list$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(!first) return [];
+          if(rest.length > 0) {
+            const restNodes = rest.map(ts => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "sel_expr_list", "symbols": ["sel_expr_list$macrocall$1"], "postprocess": id},
+    {"name": "sel_expr", "symbols": ["identifier", "_", {"literal":"("}, "_", "sel_expr_list", "_", {"literal":")"}], "postprocess":  ([name, , , , args, , ,]) => ({
+          ...findRange([name, ...args]),
+          tag: "SEFuncOrValCons",
+          name, args
+        }) 
+          },
+    {"name": "sel_expr", "symbols": ["binding_form"], "postprocess": ([d]) => ({...findRange([d]), tag: "SEBind", contents: d})},
+    {"name": "pred_arg_list$macrocall$2", "symbols": ["pred_arg"]},
+    {"name": "pred_arg_list$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "pred_arg_list$macrocall$1$ebnf$1", "symbols": ["pred_arg_list$macrocall$2"], "postprocess": id},
+    {"name": "pred_arg_list$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "pred_arg_list$macrocall$1$ebnf$2", "symbols": []},
+    {"name": "pred_arg_list$macrocall$1$ebnf$2$subexpression$1", "symbols": ["_", "pred_arg_list$macrocall$3", "_", "pred_arg_list$macrocall$2"]},
+    {"name": "pred_arg_list$macrocall$1$ebnf$2", "symbols": ["pred_arg_list$macrocall$1$ebnf$2", "pred_arg_list$macrocall$1$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "pred_arg_list$macrocall$1", "symbols": ["pred_arg_list$macrocall$1$ebnf$1", "pred_arg_list$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(!first) return [];
+          if(rest.length > 0) {
+            const restNodes = rest.map(ts => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "pred_arg_list", "symbols": ["pred_arg_list$macrocall$1"], "postprocess": id},
+    {"name": "pred_arg", "symbols": ["sel_expr"], "postprocess": id},
+    {"name": "pred_arg", "symbols": ["rel_pred"], "postprocess": id},
     {"name": "binding_form", "symbols": ["subVar"], "postprocess": id},
     {"name": "binding_form", "symbols": ["styVar"], "postprocess": id},
     {"name": "subVar", "symbols": [{"literal":"`"}, "identifier", {"literal":"`"}], "postprocess": 
