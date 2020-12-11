@@ -1,0 +1,19 @@
+{
+  "name": "nearley-ts-demo",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "nearleyc src/Style.ne > src/StyleParser.ts && tsc",
+    "test": "npm run build && node build/index.js"
+  },
+  "author": "Colin Caine <colin.caine@manchester.ac.uk>",
+  "license": "GPLv3",
+  "dependencies": {
+    "@types/moo": "^0.5.3",
+    "@types/nearley": "^2.11.0",
+    "lodash": "^4.17.20",
+    "moo": "^0.5.1",
+    "nearley": "^2.20.1",
+    "typescript": "^2.9.2"
+  }
+}
