@@ -11,14 +11,34 @@ import * as _ from "lodash";
 // data SubOut =
 //   SubOut SubProg (VarEnv, SubEnv) LabelMap
 
-const checkSels = (subEnv: SubEnv, prog: HeaderBlocks): SelEnv[] => {
+const initSelEnv: SelEnv = {
+  sTypeVarMap: {},
+  sErrors: [],
+  skipBlock: false
+};
 
+const checkHeader = (subEnv: SubEnv, header: Header): SelEnv => {
+
+  if (header.contents === "Select") {
+
+    // TODO <<<
+    // const selEnv_afterHead = checkDeclPatterns(varEnv, initSelEnv, sel.selHead);
+    // Write checkDeclPatterns w/o error-checking, just addMapping for StyVars and SubVars
+
+    return initSelEnv;
+
+  } else if (header.contents === "Namespace") {
+    // TODO(error)
+    return initSelEnv;
+  } else throw Error("unknown Style header tag");
+}
+
+// previously named `checkSels`
+const checkSelsAndMakeEnv = (subEnv: SubEnv, prog: HeaderBlocks): SelEnv[] => {
   console.log("checking selectors");
-
-  // Will probably need Substance typechecking as well
-
-  return []; // TODO
-
+  const selEnvs: SelEnv[] = prog.map(([header, _]): SelEnv => checkHeader(subEnv, header));
+  // const errors = ... TODO(errors)
+  return selEnvs; // TODO
 };
 
 // export const compileStyle = (env: VarEnv, subAST: SubProg, styAST: StyProg): State => {
@@ -43,7 +63,7 @@ export const compileStyle = (json: any): State => {
   // (Porting from `compileStyle` in `GenOptProblem`)
 
   // Check selectors; return list of selector environments
-  const selEnvs = checkSels(subEnv, styProgInit);
+  const selEnvs = checkSelsAndMakeEnv(subEnv, styProgInit);
 
   // Find substitutions
 

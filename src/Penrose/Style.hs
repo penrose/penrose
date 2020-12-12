@@ -881,7 +881,7 @@ checkDeclPatterns varEnv selEnv decls =
            in case bVar of
                 -- rule Decl-Sty-Context
                 bsv@(BStyVar (StyVar styVar)) ->
-                     -- NOTE: this does not aggregate *all* possible error May just return first error.
+                     -- NOTE: this does not aggregate *all* possible errors. May just return first error.
                      -- y \not\in dom(g)
                   if M.member bsv (sTypeVarMap selEnv')
                     then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++
@@ -911,9 +911,6 @@ checkDeclPatterns varEnv selEnv decls =
                                       Nothing -> selEnv' {skipBlock = True}
                                     -- If any Substance variable doesn't exist in env, ignore it,
                                     -- but flag it so we know to not translate the lines in the block later.
-                                    {- let err = "Substance variable '" ++ show subVar ++
-                                              "' does not exist in environment. \n" {- ++ show varEnv -} in
-                                    addErr err selEnv' -}
                                       Just subType' ->
                                         -- check "T <: |T", assuming type constructors are nullary
                                         let declType = toSubType styType
@@ -1487,15 +1484,11 @@ deleteField trans name field =
   let trn = trMap trans
    in case M.lookup name trn of
         Nothing ->
-          let err =
-                "Err: Sub obj '" ++
-                name ++ "' has no fields; can't delete field '" ++ field ++ "'"
-           in addWarn trans err
+          let err = "Err: Sub obj '" ++ name ++ "' has no fields; can't delete field '" ++ field ++ "'"
+          in addWarn trans err
         Just fieldDict ->
           if field `M.notMember` fieldDict
-            then let warn =
-                       "Warn: Sub obj '" ++
-                       name ++ "' already lacks field '" ++ field ++ "'"
+            then let warn = "Warn: Sub obj '" ++ name ++ "' already lacks field '" ++ field ++ "'"
                   in addWarn trans warn
             else let fieldDict' = M.delete field fieldDict
                      trn' = M.insert name fieldDict' trn
@@ -1513,18 +1506,12 @@ deleteProperty trans name field property =
       path = pathStr3 name field property
    in case M.lookup name trn of
         Nothing ->
-          let err =
-                "Err: Sub obj '" ++
-                name ++ "' has no fields; can't delete path '" ++ path ++ "'"
+          let err = "Err: Sub obj '" ++ name ++ "' has no fields; can't delete path '" ++ path ++ "'"
            in addWarn trans err
         Just fieldDict ->
           case M.lookup field fieldDict of
             Nothing ->
-              let err =
-                    "Err: Sub obj '" ++
-                    name ++
-                    "' already lacks field '" ++
-                    field ++ "'; can't delete path " ++ path
+              let err = "Err: Sub obj '" ++ name ++ "' already lacks field '" ++ field ++ "'; can't delete path " ++ path
                in addWarn trans err
         -- Deal with path aliasing as in `addProperty`
             Just (FExpr e) ->
@@ -1532,29 +1519,19 @@ deleteProperty trans name field property =
                 OptEval (EPath p@(FieldPath bvar newField)) ->
                   let newName = trName bvar
                    in if newName == name && newField == field
-                        then let err =
-                                   "Error: path '" ++
-                                   pathStr p ++ "' was aliased to itself"
+                        then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
                               in addWarn trans err
                         else deleteProperty trans newName newField property
                 res ->
-                  let err =
-                        "Error: Sub obj '" ++
-                        name ++
-                        "' does not have GPI '" ++
-                        field ++
-                        "'; cannot delete property '" ++ property ++ "'"
+                  let err = "Error: Sub obj '" ++ name ++ "' does not have GPI '"
+                            ++ field ++ "'; cannot delete property '" ++ property ++ "'"
                    in addWarn trans err
             Just (FGPI ctor properties)
            -- If the field is GPI, check if property already exists
              ->
               if property `M.notMember` properties
-                then let warn =
-                           "Warning: property '" ++
-                           property ++
-                           "' already does not exist in path '" ++
-                           pathStr3 name field property ++
-                           "'; deletion does nothing"
+                then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '" ++
+                           pathStr3 name field property ++ "'; deletion does nothing"
                       in addWarn trans warn
                 else let properties' = M.delete property properties
                          fieldDict' =
@@ -1582,27 +1559,18 @@ addField override trans name field texpr =
      -- Warn using override if x doesn't exist
        in let warn1 =
                 if fieldDict == M.empty && override
-                  then Just $
-                       "Warning: Sub obj '" ++
-                       name ++ "' has no fields, but override was declared"
+                  then Just $ "Warning: Sub obj '" ++ name ++ "' has no fields, but override was declared"
                   else Nothing
      -- Warn using override if x.n already exists
            in let warn2 =
                     if (field `M.member` fieldDict) && (not override)
-                      then Just $
-                           "Warning: Sub obj '" ++
-                           name ++
-                           "''s field '" ++
-                           field ++
-                           "' is overridden, but was not declared an override"
+                      then Just $ "Warning: Sub obj '" ++ name ++ "''s field '" ++
+                           field ++ "' is overridden, but was not declared an override"
                       else Nothing
      -- Warn using override if x.n doesn't exist
                in let warn3 =
                         if (field `M.notMember` fieldDict) && override
-                          then Just $
-                               "Warning: field '" ++
-                               field ++
-                               "' declared override, but has not been initialized"
+                          then Just $ "Warning: field '" ++ field ++ "' declared override, but has not been initialized"
                           else Nothing
     -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
                    in let fieldExpr =
@@ -1614,11 +1582,7 @@ addField override trans name field texpr =
                               trn' = M.insert name fieldDict' trn
                            in trans
                                 { trMap = trn'
-                                , warnings =
-                                    addMaybes
-                                      (warnings trans)
-                                      [warn1, warn2, warn3]
-                                }
+                                , warnings = addMaybes (warnings trans) [warn1, warn2, warn3] }
 
 addProperty ::
      (Autofloat a)
@@ -1635,18 +1599,12 @@ addProperty override trans name field property texpr =
     -- TODO: distinguish b/t errors and warns
    in case M.lookup name trn of
         Nothing ->
-          let err =
-                "Error: Sub obj '" ++
-                name ++ "' has no fields; cannot add property"
-           in addWarn trans err
+          let err = "Error: Sub obj '" ++ name ++ "' has no fields; cannot add property" in addWarn trans err
         Just fieldDict ->
           case M.lookup field fieldDict of
             Nothing ->
-              let err =
-                    "Error: Sub obj '" ++
-                    name ++
-                    "' does not have field '" ++
-                    field ++ "'; cannot add property '" ++ property ++ "'"
+              let err = "Error: Sub obj '" ++ name ++ "' does not have field '"
+                        ++ field ++ "'; cannot add property '" ++ property ++ "'"
                in addWarn trans err
         -- If looking up "f.domain" yields a *different* path (i.e. that path was an alias)
         -- e.g. "f.domain" is aliased to "I.shape"
@@ -1656,54 +1614,29 @@ addProperty override trans name field property texpr =
                 OptEval (EPath p@(FieldPath bvar newField)) ->
                   let newName = trName bvar
                    in if newName == name && newField == field
-                        then let err =
-                                   "Error: path '" ++
-                                   pathStr p ++ "' was aliased to itself"
+                        then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
                               in addWarn trans err
-                        else addProperty
-                               override
-                               trans
-                               newName
-                               newField
-                               property
-                               texpr
+                        else addProperty override trans newName newField property texpr
                 res ->
-                  let err =
-                        "Error: Sub obj '" ++
-                        name ++
-                        "' does not have GPI '" ++
-                        field ++
-                        "'; found expr '" ++
-                        show res ++
-                        "'; cannot add property '" ++ property ++ "'"
+                  let err = "Error: Sub obj '" ++ name ++ "' does not have GPI '" ++ field 
+                            ++ "'; found expr '" ++ show res ++ "'; cannot add property '" ++ property ++ "'"
                    in addWarn trans err
-            Just (FGPI ctor properties)
+            Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
-             ->
               let warn =
                     if (property `M.notMember` properties) && override
-                      then Just $
-                           "Warning: property '" ++
-                           property ++
-                           "' does not exist in path '" ++
-                           pathStr3 name field property ++
-                           "' but override was set"
+                      then Just $ "Warning: property '" ++ property ++
+                           "' does not exist in path '" ++ pathStr3 name field property ++ "' but override was set"
                       else if property `M.member` properties && (not override)
-                             then Just $
-                                  "Warning: property '" ++
-                                  property ++
-                                  "' already exists in path '" ++
-                                  pathStr3 name field property ++
-                                  "' but override was not set"
+                             then Just $ "Warning: property '" ++ property ++
+                                  "' already exists in path '" ++ pathStr3 name field property ++ "' but override was not set"
                              else Nothing
                in let properties' = M.insert property texpr properties
                       fieldDict' =
                         M.insert field (FGPI ctor properties') fieldDict
                       trn' = M.insert name fieldDict' trn
-                   in trans
-                        { trMap = trn'
-                        , warnings = addMaybe (warnings trans) warn
-                        }
+                   in trans { trMap = trn'
+                            , warnings = addMaybe (warnings trans) warn }
 
 -- rule Line-Delete
 deletePath ::
@@ -1747,27 +1680,16 @@ addPath override trans path expr =
               name = trName bvar
               trans' = addField override trans name field (OptEval (Vector es'))
            in Right trans'
-        _ ->
-          error
-            "expected access of vector with at least one varying float, putting in a float"
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
     -- a.x.y[0] = e
     AccessPath (PropertyPath bvar field property) [i] ->
       case (lookupProperty bvar field property trans, expr) of
         (OptEval (Vector es), Done (FloatV n)) ->
           let es' = replaceAtIndex i (AFloat $ Fix $ r2f n) es
               name = trName bvar
-              trans' =
-                addProperty
-                  override
-                  trans
-                  name
-                  field
-                  property
-                  (OptEval (Vector es'))
+              trans' = addProperty override trans name field property (OptEval (Vector es'))
            in Right trans'
-        _ ->
-          error
-            "expected access of vector with at least one varying float, putting in a float"
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
 
 replaceAtIndex :: Int -> a -> [a] -> [a]
 replaceAtIndex n item ls = a ++ (item : b)
@@ -1852,10 +1774,7 @@ translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNu
                then let substs =
                           find_substs_sel varEnv subEnv subProg (header, selEnv)
                      in let numberedSubsts = zip substs [0 ..] -- For creating unique local var names
-                         in translateSubstsBlock
-                              trans
-                              numberedSubsts
-                              (block, blockNum)
+                         in translateSubstsBlock trans numberedSubsts (block, blockNum)
                else Left $ sErrors selEnv ++ bErrs
 
 insertLabels ::
@@ -1863,10 +1782,7 @@ insertLabels ::
 insertLabels trans labels =
   trans
     { trMap = M.mapWithKey insertLabel (trMap trans)
-    , warnings =
-        warnings trans ++
-        [ "Note: Text GPIs are automatically deleted if their Substance object has no label"
-        ]
+    , warnings = warnings trans ++ [ "Note: Text GPIs are automatically deleted if their Substance object has no label"]
             -- TODO: print out the names of the GPIs that were auto-deleted
     }
   where
@@ -2064,16 +1980,12 @@ lookupField bvar field trans =
    in let trn = trMap trans
        in case M.lookup name trn of
             Nothing ->
-              error
-                ("path '" ++
-                 pathStr2 name field ++ "''s name doesn't exist in trans")
+              error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
                -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
             Just fieldDict ->
               case M.lookup field fieldDict of
                 Nothing ->
-                  error
-                    ("path '" ++
-                     pathStr2 name field ++ "'s field doesn't exist in trans")
+                  error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
                 Just fexpr -> fexpr
               -- TODO: This is the right way to look up fields, but doing so causes a frontend undefined error. Why?
               -- case fexpr of
@@ -2102,21 +2014,13 @@ lookupProperty bvar field property trans =
           case e of
             OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) ->
               if bvar == bvarSynonym && field == fieldSynonym
-                then error
-                       ("nontermination in lookupProperty with path '" ++
-                        pathStr3 name field property ++ "' set to itself")
+                then error ("nontermination in lookupProperty with path '" ++ pathStr3 name field property ++ "' set to itself")
                 else lookupProperty bvarSynonym fieldSynonym property trans
         -- the only thing that might have properties is another field path
-            _ ->
-              error
-                ("path '" ++
-                 pathStr3 name field property ++ "' has no properties")
+            _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
         FGPI ctor properties ->
           case M.lookup property properties of
-            Nothing ->
-              error
-                ("path '" ++
-                 pathStr3 name field property ++ "'s property does not exist")
+            Nothing -> error ("path '" ++ pathStr3 name field property ++ "'s property does not exist")
             Just texpr -> texpr
 
 shapeType ::
@@ -2124,12 +2028,10 @@ shapeType ::
 shapeType bvar field trans =
   case lookupField bvar field trans of
     FGPI stype _ -> stype
-              -- -- Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
+              --Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
     FExpr (OptEval (EPath (FieldPath bvarSynonym fieldSynonym))) ->
       if bvar == bvarSynonym && field == fieldSynonym
-        then error
-               ("nontermination in lookupField with path '" ++
-                pathStr (FieldPath bvar field) ++ "' set to itself")
+        then error ("nontermination in lookupField with path '" ++ pathStr (FieldPath bvar field) ++ "' set to itself")
         else shapeType bvarSynonym fieldSynonym trans {- trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) -}
     FExpr e -> error ("path " ++ show e ++ " is not a GPI; cannot get type")
 
