@@ -1737,12 +1737,13 @@ lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldEx
 lookupField bvar field trans =
     let name = trName bvar in
     let trn = trMap trans in
+    let errorStr2 = if field == "text" then ": did you label the variable in Substance? Use `Label " ++ name ++ " $LABEL` or `AutoLabel All`" else "" in
     case M.lookup name trn of
-    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
+    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans" ++ errorStr2)
                -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
     Just fieldDict ->
          case M.lookup field fieldDict of
-         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
+         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans" ++ errorStr2)
          Just fexpr -> fexpr
               -- TODO: This is the right way to look up fields, but doing so causes a frontend undefined error. Why?
 
