@@ -125,8 +125,8 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       endR = u.arrow.end
       startL = v.arrow.start
       endL = v.arrow.end
-      dirR = normalize(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
-      dirL = normalize(endL - startL)
+      dirR = unit(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
+      dirL = unit(endL - startL)
       ptL = startR + const.perpLen * dirL
       ptR = startR + const.perpLen * dirR
       ptLR = ptL + const.perpLen * dirR
@@ -163,7 +163,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
       -- The start and end of the body of the unit marker line
       -- NOTE: We need to have lists of vectors
-      dir = normalize(w.arrow.end - w.arrow.start)
+      dir = unit(w.arrow.end - w.arrow.start)
       normal = -dir
       markStart = v.arrow.start + padding * normal
       markEnd = v.arrow.end + padding * normal
@@ -178,7 +178,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
       -- Could use normal instead, just doing this to demonstrate how to use matrices
       mat2x2 rot90CW = ((0., 1.), (-1., 0.))
-      vec2 markNormal = mul(rot90CW, normalize(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+      vec2 markNormal = mul(rot90CW, unit(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
       scalar c = const.barSize
       vec2 halfvec = c * markNormal
 

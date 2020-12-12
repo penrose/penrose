@@ -197,12 +197,22 @@ export const compDict = {
   },
 
   /**
+   * Return the norm of vector `v`.
+   */
+  norm: (v: VarAD[]): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: ops.vnorm(v),
+    };
+  },
+
+  /**
    * Return the normalized version of vector `v`.
    */
-  normalize: (v: VarAD[]): IVectorV<VarAD> => {
+  unit: (v: VarAD[]): IVectorV<VarAD> => {
     return {
       tag: "VectorV",
-      contents: ops.vnormalize(v),
+      contents: ops.vunit(v),
     };
   },
 
@@ -229,7 +239,7 @@ export const compDict = {
     const [start1, end1] = linePts(s1);
     const [start2, end2] = linePts(s2);
 
-    const dir = ops.vnormalize(ops.vsub(end2, start2));
+    const dir = ops.vunit(ops.vsub(end2, start2));
     const normalDir = ops.vneg(dir);
     const markStart = ops.vmove(start1, padding, normalDir);
     const markEnd = ops.vmove(end1, padding, normalDir);
@@ -249,7 +259,7 @@ export const compDict = {
     padding: VarAD,
     size: VarAD
   ): IPtListV<VarAD> => {
-    const dir = ops.vnormalize(ops.vsub(end, start));
+    const dir = ops.vunit(ops.vsub(end, start));
     const normalDir = rot90(toPt(dir));
     const base = t === "start" ? start : end;
     const [markStart, markEnd] = [
@@ -273,7 +283,7 @@ export const compDict = {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start1, end1] = linePts(s1);
       // TODO: Cache these operations in Style!
-      const dir = ops.vnormalize(ops.vsub(end1, start1));
+      const dir = ops.vunit(ops.vsub(end1, start1));
       const normalDir = ops.vneg(dir);
       const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
@@ -459,8 +469,8 @@ const perpPathFlat = (
   //       ptR = startR +: (size *: dirR)
   //       ptLR = startR +: (size *: dirL) +: (size *: dirR)
   //   in (ptL, ptLR, ptR)
-  const dirR = ops.vnormalize(ops.vsub(endR, startR));
-  const dirL = ops.vnormalize(ops.vsub(endL, startL));
+  const dirR = ops.vunit(ops.vsub(endR, startR));
+  const dirL = ops.vunit(ops.vsub(endL, startL));
   const ptL = ops.vmove(startR, len, dirL); // ops.vadd(startR, ops.vmul(len, dirL));
   const ptR = ops.vmove(startR, len, dirR); // ops.vadd(startR, ops.vmul(len, dirR));
   const ptLR = ops.vadd(ptL, ops.vmul(len, dirR));

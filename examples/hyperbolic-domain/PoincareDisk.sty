@@ -76,7 +76,7 @@ where IsCenter( p, h ); In( p, H ) {
    -- -- set the center of the horocycle h so that it is
    -- -- tangent to the hyperbolic plane H at ideal point p
    scalar a = R - r
-   h.circleShape.center = a*normalize(x)
+   h.circleShape.center = a*unit(x)
 
    -- since we've computed the location of the center
    -- explicitly, we should no longer need constraints to
