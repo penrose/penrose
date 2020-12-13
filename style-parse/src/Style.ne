@@ -90,7 +90,7 @@ const maxLoc = (...locs: SourceLoc[]) => {
 
 /** Given a list of tokens, find the range of tokens */
 const astNode = (children: ASTNode[]) => {
-  if(children.length === 0) throw new TypeError();
+  if(children.length === 0) throw new TypeError(`No children ${JSON.stringify(children)}`);
   if(children.length === 1) {
     const child = children[0];
     return { start: child.start, end: child.end };
@@ -136,15 +136,20 @@ const selector = (
     namespace,
   };
 }
-  
 
+function nth(n) {
+    return function(d) {
+        return d[n];
+    };
+}
 %}
 
 @lexer lexer
 
 # Macros
 
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* {% 
+# TODO: factor out sepEndBy
+sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
   d => { 
     const [first, rest] = [d[0], d[1]];
     if(rest.length > 0) {
@@ -180,13 +185,13 @@ header_blocks -> (header_block):* {%
   }
 %}
 
-header_block -> header _ml block _ml {%
+header_block -> header block _ml {%
  (d): HeaderBlock => ({
    // TODO: range
    ...astNode([d[0]]),
    tag:"HeaderBlock",
    header: d[0], 
-   block: d[2]
+   block: d[1]
  })
 %}
 
@@ -196,14 +201,18 @@ header
   |  selector  {% id %}
 
 selector -> 
-  ( "forall":? __ decl_patterns _ml select_where:? _ml select_with:? _ml select_as:? 
-  | "forall":? __ decl_patterns _ml select_with:? _ml select_where:? _ml select_as:?) {%
-  ([d]) => { 
-    return selector(d[2], d[4], d[6], d[8])
-  } 
- %}
+    "forall":? __ decl_patterns _ml select_as:?  
+    {% (d) => selector(d[2], null, null, d[4]) %} 
+  | "forall":? __ decl_patterns _ml select_where select_as:? 
+    {% (d) => selector(d[2], null, d[4], d[5]) %} 
+  | "forall":? __ decl_patterns _ml select_with select_as:? 
+    {% (d) => selector(d[2], d[4], null, d[5]) %} 
+  | "forall":? __ decl_patterns _ml select_where select_with select_as:? 
+    {% (d) => selector(d[2], d[5], d[4], d[6]) %} 
+  | "forall":? __ decl_patterns _ml select_with select_where select_as:? 
+    {% (d) => selector(d[2], d[4], d[5], d[6]) %}
 
-select_with -> "with" __ decl_patterns {% d => d[2] %}
+select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]) => {
@@ -221,7 +230,7 @@ decl_list -> identifier __ sepBy1[binding_form, ","] {%
   }
 %}
 
-select_where -> "where" __ relation_list {% d => d[2] %}
+select_where -> "where" __ relation_list _ml {% d => d[2] %}
 
 relation_list -> sepBy1[relation, ";"]  {% ([d]) => ({
     ...astNode(d),
@@ -242,17 +251,19 @@ rel_bind -> binding_form _ ":=" _ sel_expr {%
   })
 %}
 
-rel_pred -> identifier _ "(" _ pred_arg_list _ ")" {% ([name, , , , args, , ,]) => ({
+rel_pred -> identifier _ "(" pred_arg_list ")" {% ([name, , , args, ]) => ({
       ...astNode([name, ...args]),
       tag: "RelPred",
       name, args
     }) 
 %}
 
-sel_expr_list -> sepBy[sel_expr, ","] {% id %}
+sel_expr_list 
+  -> _ {% d => [] %}
+  |  _ sepBy1[sel_expr, ","] _ {% nth(1) %}
 
 sel_expr 
-  -> identifier _ "(" _ sel_expr_list _ ")" {% ([name, , , , args, , ,]) => ({
+  -> identifier _ "(" sel_expr_list ")" {% ([name, , , args, ]) => ({
       ...astNode([name, ...args]),
       tag: "SEFuncOrValCons",
       name, args
@@ -261,13 +272,14 @@ sel_expr
   |  binding_form {% ([d]) => ({...astNode([d]), tag: "SEBind", contents: d}) %}
 
 
-pred_arg_list -> sepBy[pred_arg, ","] {% id %}
+pred_arg_list 
+  -> _ {% d => [] %}
+  |  _ sepBy1[pred_arg, ","] _ {% nth(1) %}
 
-# NOTE: ordering matters here because sel_expr has valcons or func, which looks exactly the same as predicates. 
-# TODO: check the grammar to see if this is intended behavior
+# NOTE: ambiguity here because sel_expr has valcons or func, which looks exactly the same as predicates. 
 pred_arg 
   -> rel_pred {% id %}
-  |  sel_expr {% id %}
+  |  binding_form {% id %}
 
 binding_form 
   -> subVar {% id %} 
@@ -282,11 +294,12 @@ styVar -> identifier {%
   d => ({ ...astNode(d), tag: "StyVar", contents: d[0]})
 %}
 
-select_as -> "as" __ namespace {% d => d[2] %}
+# NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
+select_as -> "as" __ namespace {% nth(2) %}
 
-namespace -> identifier {%
+namespace -> identifier _ml {%
   (d): Namespace => ({
-    ...astNode(d),
+    ...astNode([d[0]]),
     tag: "Namespace",
     contents: d[0]
   })
