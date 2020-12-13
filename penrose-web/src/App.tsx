@@ -22,7 +22,7 @@ class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
     history: [],
-    autostep: false,
+    autostep: true,
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
     showInspector: true,
