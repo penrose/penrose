@@ -1371,9 +1371,11 @@ interface IProp {
 // g ::= B => |T
 // Assumes nullary type constructors (i.e. Style type = Substance type)
 interface ISelEnv {
-  sTypeVarMap: { [k: BindingForm]: StyT }; // B : |T
+  // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
+  sTypeVarMap: { [k: string]: StyT }; // B : |T
   sErrors: string[]; // TODO(errors): Store errors properly
   skipBlock: Bool;
+  header: Maybe<Header>; // Just for debugging
 }
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
 

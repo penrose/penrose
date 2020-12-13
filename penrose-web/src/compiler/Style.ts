@@ -11,32 +11,82 @@ import * as _ from "lodash";
 // data SubOut =
 //   SubOut SubProg (VarEnv, SubEnv) LabelMap
 
-const initSelEnv: SelEnv = {
-  sTypeVarMap: {},
-  sErrors: [],
-  skipBlock: false
+const initSelEnv = (): SelEnv => {
+  return {
+    sTypeVarMap: {},
+    sErrors: [],
+    skipBlock: false,
+    header: { tag: "Nothing" },
+  };
+}
+
+// Add a mapping from Sub or Sty var to the selector's environment
+// g, (x : |T)
+// NOTE: Mutates the map in `m`
+const addMapping = (k: BindingForm, v: StyT, m: SelEnv): SelEnv => {
+  m.sTypeVarMap[JSON.stringify(k)] = v; // Note that the BindingForm is stringified
+  return m;
 };
 
-const checkHeader = (subEnv: SubEnv, header: Header): SelEnv => {
+// Judgment 3. G; g |- |S_o ok ~> g'
+// `checkDeclPattern`
+const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPattern): SelEnv => {
+  const [styType, bVar] = stmt;
+  if (bVar.tag === "BStyVar") {
+    // rule Decl-Sty-Context
+    // NOTE: this does not aggregate *all* possible errors. May just return first error.
+    // y \not\in dom(g)
 
-  if (header.contents === "Select") {
+    // TODO(errors)
 
-    // TODO <<<
-    // const selEnv_afterHead = checkDeclPatterns(varEnv, initSelEnv, sel.selHead);
-    // Write checkDeclPatterns w/o error-checking, just addMapping for StyVars and SubVars
+    return addMapping(bVar, styType, selEnv);
+  } else if (bVar.tag === "BSubVar") {
+    // rule Decl-Sub-Context
+    // x \not\in dom(g)
 
-    return initSelEnv;
+    // TODO(errors)
+    // TODO: Check subtypes
+    // TODO: Check `skip block` condition
 
-  } else if (header.contents === "Namespace") {
+    return addMapping(bVar, styType, selEnv);
+  } else throw Error("unknown tag");
+};
+
+// TODO: Make a new sel env and add it to the list ....?
+
+// Judgment 6. G; g |- [|S_o] ~> g'
+// `checkDeclPatterns` w/o error-checking, just addMapping for StyVars and SubVars
+const checkDeclPatternsAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, decls: DeclPattern[]): SelEnv => {
+  return decls.reduce((s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p), selEnv);
+};
+
+// ported from `checkSel` and `checkNamespace`
+const checkHeader = (varEnv: VarEnv, header: Header): SelEnv => {
+  if (header.tag === "Select") {
+    // Judgment 7. G |- Sel ok ~> g
+    const sel: Selector = header.contents;
+    const selEnv_afterHead = checkDeclPatternsAndMakeEnv(varEnv, initSelEnv(), sel.selHead);
+    // Check `with` statements
+    // TODO: Did we get rid of `with` statements?
+    const selEnv_decls = checkDeclPatternsAndMakeEnv(varEnv, selEnv_afterHead, sel.selWith);
+    // TODO(error): rel_errs
+    return selEnv_decls;
+  } else if (header.tag === "Namespace") {
     // TODO(error)
-    return initSelEnv;
+    return initSelEnv();
   } else throw Error("unknown Style header tag");
 }
 
+// Returns a sel env for each selector in the Style program, in the same order
 // previously named `checkSels`
-const checkSelsAndMakeEnv = (subEnv: SubEnv, prog: HeaderBlocks): SelEnv[] => {
+const checkSelsAndMakeEnv = (varEnv: VarEnv, prog: HeaderBlocks): SelEnv[] => {
   console.log("checking selectors");
-  const selEnvs: SelEnv[] = prog.map(([header, _]): SelEnv => checkHeader(subEnv, header));
+  // TODO: Put selector text in just for debugging?
+  const selEnvs: SelEnv[] = prog.map(([header, block]): SelEnv => {
+    const res = checkHeader(varEnv, header);
+    res.header = { tag: "Just", contents: header };
+    return res;
+  });
   // const errors = ... TODO(errors)
   return selEnvs; // TODO
 };
@@ -63,7 +113,9 @@ export const compileStyle = (json: any): State => {
   // (Porting from `compileStyle` in `GenOptProblem`)
 
   // Check selectors; return list of selector environments
-  const selEnvs = checkSelsAndMakeEnv(subEnv, styProgInit);
+  const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit);
+
+  console.log("selEnvs", selEnvs);
 
   // Find substitutions
 
