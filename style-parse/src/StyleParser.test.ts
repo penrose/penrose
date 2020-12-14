@@ -206,6 +206,29 @@ const {
     sameASTs(results);
   });
 
+  test("floating point expr", () => {
+    const prog = `
+const {
+  -- varying
+  v1 = ?
+  v2 = ensure near(?, 4.2, .5)
+  -- int
+  f1 = 42
+  f2 = 424242424242
+  -- decimals
+  -- d1 = .42
+  d2 = 420.
+  d3 = 04350. -- error?
+  -- exp
+  e1 = 0.0314E+2
+  e2 = 314e-2 
+  -- function
+  A.func = comp("some string", 1.347e-2)
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
   test("computation functions expr", () => {
     const prog = `
 const {

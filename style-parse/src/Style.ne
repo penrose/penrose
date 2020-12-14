@@ -25,6 +25,8 @@ const styleTypes: string[] =
   , "objective"
   , "constraint"
   ];
+
+// NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   ws: /[ \t]+/,
   nl: { match: "\n", lineBreaks: true },
@@ -36,6 +38,8 @@ const lexer = moo.compile({
   lparen: "(",
   rparen: ")",
   comma: ",",
+  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+  float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
   dot: ".",
   brackets: "[]",
   lbracket: "[",
@@ -50,9 +54,9 @@ const lexer = moo.compile({
   modulo: "%",
   colon: ":",
   semi: ";",
+  question: "?",
   tick: "\`",
   comment: /--.*?$/,
-  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
@@ -457,6 +461,7 @@ localVar -> identifier {%
 expr 
   -> bool_lit {% id %}
   |  string_lit {% id %}
+  |  annotated_float {% id %}
   |  computation_function {% id %}
   |  path {% id %}
   |  layering {% id %}
@@ -487,6 +492,12 @@ string_lit -> %string_literal {%
     contents: JSON.parse(d.text)
   })
 %}
+
+annotated_float 
+  -> "?" {% ([d]) => ({ ...tokenRange(d), tag: 'Vary' }) %}
+  |  %float_literal {% 
+    ([d]) => ({ ...tokenRange(d), tag: 'Fix', contents: parseFloat(d) }) 
+  %}
 
 layering
   -> layer_keyword:? path __ "below" __ path {% d => layering(d[0], d[1], d[5]) %}
