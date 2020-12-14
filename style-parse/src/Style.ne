@@ -14,7 +14,7 @@ const styleTypes: string[] =
   , "color"
   , "file"
   , "style"
-  , "icon" // TODO: make sure this is the intended keyword
+  , "shape" // TODO: make sure this is the intended keyword
   , "vec2"
   , "vec3"
   , "vec4"
@@ -61,7 +61,7 @@ const lexer = moo.compile({
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
-      "type-keyword": styleTypes, 
+      // "type-keyword": styleTypes, 
       forall: "forall",
       where: "where",
       with: "with",
@@ -244,7 +244,7 @@ input -> _ml header_blocks {%
   ([, blocks]) => ({
     ...rangeOf(blocks),
     tag: "StyProg",
-    contents: blocks
+    blocks
   })
 %}
 
@@ -424,23 +424,23 @@ path
 
 
 propertyPath -> binding_form "." identifier "." identifier {%
-  ([sub, , field, , prop]) => ({
-    ...rangeOf([sub, field, prop]),
+  ([name, , field, , property]): IPropertyPath => ({
+    ...rangeOf([name, field, property]),
     tag: "PropertyPath",
-    contents: [sub, field, prop]
+    name, field, property
   })
 %}
 
 fieldPath -> binding_form "." identifier {%
-  ([sub, , field]) => ({
-    ...rangeOf([sub, field]),
+  ([name, , field]): IFieldPath => ({
+    ...rangeOf([name, field]),
     tag: "FieldPath",
-    contents: [sub, field]
+    name, field
   })
 %}
 
 localVar -> identifier {%
-  ([d]) => ({
+  ([d]): LocalVar => ({
     ...rangeOf([d]),
     tag: "LocalVar",
     contents: d
@@ -468,9 +468,9 @@ expr
   |  objective {% id %}
   |  constraint {% id %}
   |  gpi_decl {% id %}
+  |  list
   # TODO: complete
   # |  transformExpr 
-  # |  list
   # |  tuple
   # |  vector
   # |  matrix # TODO: check if this will create ambiguity
@@ -494,9 +494,9 @@ string_lit -> %string_literal {%
 %}
 
 annotated_float 
-  -> "?" {% ([d]) => ({ ...tokenRange(d), tag: 'Vary' }) %}
+  -> "?" {% ([d]): IVary => ({ ...tokenRange(d), tag: 'Vary' }) %}
   |  %float_literal {% 
-    ([d]) => ({ ...tokenRange(d), tag: 'Fix', contents: parseFloat(d) }) 
+    ([d]): IFix => ({ ...tokenRange(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
 
 layering
@@ -534,7 +534,7 @@ expr_list
   |  _ sepBy1[expr, ","] _ {% nth(1) %}
 
 gpi_decl -> identifier _ "{" property_decl_list "}" {%
-  ([shapeName, , , properties, rbrace]) => ({
+  ([shapeName, , , properties, rbrace]): GPIDecl => ({
     ...rangeBetween(shapeName, rbrace),
     tag: "GPIDecl",
     shapeName, properties
@@ -571,7 +571,13 @@ property_decl -> identifier _ ":" _ expr {%
 
 # Common 
 
-identifier -> %identifier {% convertTokenId %}
+identifier -> %identifier {% 
+  ([d]) => ({
+    ...tokenRange(d),
+    value: d.text,
+    type: styleTypes.includes(d.text) ? "type-keyword" : "identifier"
+  })
+%}
 
 # white space definitions 
 # TODO: multiline comments

@@ -1,6 +1,7 @@
 // const grammar = require("./Style.ne");
 import * as nearley from "nearley";
 import grammar from "./StyleParser";
+import { find } from "lodash";
 
 let parser;
 const sameASTs = (results: any[]) => {
@@ -23,6 +24,22 @@ describe("Common", () => {
   test("empty program", () => {
     const { results } = parser.feed("");
     sameASTs(results);
+  });
+  test("type keyword check", () => {
+    const prog = `
+const { 
+  A.shape = Circle {} 
+  B.icon.x = 2.5
+}
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    const ast = results[0];
+    const keyword = ast.blocks[0].block.statements[0].path.field;
+    const id = ast.blocks[0].block.statements[1].path.field;
+
+    expect(keyword.type).toEqual("type-keyword");
+    expect(id.type).toEqual("identifier");
   });
 });
 
@@ -249,6 +266,7 @@ const {
   A.fn2 = encourage obj( a, b )
   -- ensure 
   A.fn = ensure obj("string1", true, "string\\n", false)
+  -- shape should be processed as keyword
   B.fn = ensure same( A.shape.prop , B.shape  )
   localVar = ensure same( A.shp , B.shp  )
 }`;
@@ -271,6 +289,13 @@ const {
   \`A\`.circle = Circle {  }
   A.circle = Circle {
     --- comments 
+
+  }
+  -- venn
+  p.icon = Circle {
+    strokeWidth : 0.0
+    color : rgba(0.0, 0.0, 0.0, 1.0)
+    r : 3.0
   }
 }`;
     const { results } = parser.feed(prog);

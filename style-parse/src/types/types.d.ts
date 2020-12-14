@@ -142,19 +142,19 @@ interface IEVar {
 
 interface ICompApp extends ASTNode {
   tag: "CompApp";
-  name: string;
+  name: Identifier;
   args: Expr[];
 }
 
 interface IObjFn extends ASTNode {
   tag: "ObjFn";
-  name: string;
+  name: Identifier;
   args: Expr[];
 }
 
 interface IConstrFn extends ASTNode {
   tag: "ConstrFn";
-  name: string;
+  name: Identifier;
   args: Expr[];
 }
 
@@ -210,7 +210,7 @@ interface IListAccess {
 
 interface GPIDecl extends ASTNode {
   tag: "GPIDecl";
-  shapeName: string;
+  shapeName: Identifier;
   properties: PropertyDecl[];
 }
 
@@ -232,12 +232,12 @@ interface IThenOp {
 
 type AnnoFloat = IFix | IVary;
 
-interface IFix {
+interface IFix extends ASTNode {
   tag: "Fix";
   contents: number;
 }
 
-interface IVary {
+interface IVary extends ASTNode {
   tag: "Vary";
 }
 
@@ -247,7 +247,7 @@ type UnaryOp = "UPlus" | "UMinus";
 
 interface PropertyDecl extends ASTNode {
   tag: "PropertyDecl";
-  name: string;
+  name: Identifier;
   value: Expr;
 }
 
@@ -258,12 +258,15 @@ type Path = IFieldPath | IPropertyPath | IAccessPath;
 
 interface IFieldPath extends ASTNode {
   tag: "FieldPath";
-  contents: [BindingForm, string];
+  name: BindingForm;
+  field: Identifier;
 }
 
 interface IPropertyPath extends ASTNode {
   tag: "PropertyPath";
-  contents: [BindingForm, string, string];
+  name: BindingForm;
+  field: Identifier;
+  property: Identifier;
 }
 
 interface IAccessPath extends ASTNode {
@@ -292,14 +295,14 @@ interface IBStyVar {
   contents: StyVar;
 }
 
-interface StyVar {
+interface StyVar extends ASTNode {
   tag: "StyVar";
-  contents: string;
+  contents: Identifier;
 }
 
 interface LocalVar extends ASTNode {
   tag: "LocalVar";
-  contents: string;
+  contents: Identifier;
 }
 
 /**
@@ -756,7 +759,7 @@ interface IOptDebugInfo {
 /** Top level type for Style AST */
 interface StyProg extends ASTNode {
   tag: "StyProg";
-  contents: HeaderBlock[];
+  blocks: HeaderBlock[];
 }
 
 // type HeaderBlock = [Header, Block];
@@ -866,19 +869,19 @@ interface SEBind extends ASTNode {
 
 interface SEFunc extends ASTNode {
   tag: "SEFunc";
-  name: string;
+  name: Identifier;
   args: SelExpr[];
 }
 
 interface SEValCons extends ASTNode {
   tag: "SEValCons";
-  name: string;
+  name: Identifier;
   args: SelExpr[];
 }
 // NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
 interface SEFuncOrValCons extends ASTNode {
   tag: "SEFuncOrValCons";
-  name: string;
+  name: Identifier;
   args: SelExpr[];
 }
 
