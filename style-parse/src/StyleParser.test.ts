@@ -2,31 +2,37 @@
 import * as nearley from "nearley";
 import grammar from "./StyleParser";
 
-const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+let parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
 };
 
-test("empty program", () => {
-  const { results } = parser.feed("");
-  sameASTs(results);
-  expect(results.length).toBe(1);
+beforeEach(() => {
+  parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 });
 
-test("empty namespace block", () => {
-  const { results } = parser.feed("const { }");
-  sameASTs(results);
-  expect(results.length).toBe(1);
+describe("Common", () => {
+  test("empty program", () => {
+    const { results } = parser.feed("");
+    sameASTs(results);
+  });
 });
 
-test("empty selector block", () => {
-  const { results } = parser.feed("forall Set A{}");
-  sameASTs(results);
-});
+describe("Selector Grammar", () => {
+  test("empty namespace block", () => {
+    const { results } = parser.feed("const { }");
+    sameASTs(results);
+  });
 
-test("comment and empty blocks", () => {
-  const prog = `
+  test("empty selector block", () => {
+    const { results } = parser.feed("forall Set A{}");
+    sameASTs(results);
+    const ast: StyProg = results[0] as StyProg;
+  });
+
+  test("comment and empty blocks", () => {
+    const prog = `
   -- this is a comment
 
   Set A with Set B { 
@@ -36,50 +42,113 @@ test("comment and empty blocks", () => {
   forall Set A, \`B\`; Map f 
   { 
   }`;
-  const { results } = parser.feed(prog);
-  sameASTs(results);
-});
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 
-test("forall keyword", () => {
-  const prog = `
+  test("forall keyword", () => {
+    const prog = `
   forall Set A, B { }
 
   Set A, \`B\`; Map f
   {
 
   }`;
-  const { results } = parser.feed(prog);
-  sameASTs(results);
-});
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 
-test("nested preds", () => {
-  const prog = `
+  test("nested preds", () => {
+    const prog = `
 forall Set A, B, C
 where IsSubset(Union(A,B), C, Intersection(B, C));
 { }`;
-  const { results } = parser.feed(prog);
-  sameASTs(results);
-});
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 
-test("empty pred", () => {
-  const prog = `
+  test("empty pred", () => {
+    const prog = `
 forall Set A, B, C
 where IsSubset(   );
 { }`;
-  const { results } = parser.feed(prog);
-  sameASTs(results);
-});
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 
-test("with, where, and as", () => {
-  const prog = `
+  test("with, where, and as", () => {
+    const prog = `
 forall Set A, B; Map f
 with Set C, D; Map \`g\`
 where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ); IsSubset( Union(A,B), C); Intersect (   )
 as Const
 { }`;
-  const { results } = parser.feed(prog);
-  sameASTs(results);
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 });
 
-// parser.feed(prog);
-// console.log(JSON.stringify(parser.results[0]));
+describe("Block Grammar", () => {
+  test("empty block with comments and blank lines", () => {
+    const prog = `
+forall Set A, B; Map f as Const {
+     
+  -- comments
+
+
+
+
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("single statement", () => {
+    const prog = `
+forall Set A, B; Map f as Const {
+  delete A.arrow.center
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("delete statements with field, property paths", () => {
+    const prog = `
+forall Set A, B; Map f as Const {
+  delete A.arrow.center
+  delete B.arrow
+  delete localx
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    // const ast: StyProg = results[0] as StyProg;
+    // console.log(JSON.stringify(ast));
+  });
+
+  test("line comments among statements", () => {
+    const prog = `
+forall Set A, B; Map f as Const {
+  -- beginning comment
+  delete A.arrow.center 
+  -- between comment
+  delete B.arrow
+  delete localx
+  -- end of block comment
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("line comments after statements", () => {
+    const prog = `
+forall Set A, B; Map f as Const {
+  delete A.arrow.center -- end of statement comment
+  -- between comment
+  delete B.arrow
+-- delete C.arrow 
+  delete localx -- end of block comment
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+});

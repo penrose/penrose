@@ -243,16 +243,17 @@ type PropertyDecl = IPropertyDecl;
 
 type IPropertyDecl = [string, Expr];
 
+// TODO: check how the evaluator/compiler should interact with ASTNode
 type Path = IFieldPath | IPropertyPath | IAccessPath;
 // Unused
 // | ITypePropertyPath;
 
-interface IFieldPath {
+interface IFieldPath extends ASTNode {
   tag: "FieldPath";
   contents: [BindingForm, string];
 }
 
-interface IPropertyPath {
+interface IPropertyPath extends ASTNode {
   tag: "PropertyPath";
   contents: [BindingForm, string, string];
 }
@@ -283,13 +284,15 @@ interface IBStyVar {
   contents: StyVar;
 }
 
-type StyVar = IStyVar;
+interface StyVar {
+  tag: "StyVar";
+  contents: string;
+}
 
-type IStyVar = string;
-
-type LocalVar = ILocalVar;
-
-type ILocalVar = string;
+interface LocalVar extends ASTNode {
+  tag: "LocalVar";
+  contents: string;
+}
 
 /**
  * A value in the penrose system.
@@ -755,7 +758,10 @@ interface HeaderBlock extends ASTNode {
   block: Block;
 }
 
-type Block = Stmt[];
+interface Block extends ASTNode {
+  tag: "Block";
+  statements: Stmt[];
+}
 
 type Header = Selector | Namespace;
 

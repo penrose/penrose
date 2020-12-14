@@ -15,6 +15,7 @@ const lexer = moo.compile({
     lparan: "(",
     rparan: ")",
     comma: ",",
+    dot: ".",
     lbracket: "[",
     rbracket: "]",
     lbrace: "{",
@@ -33,6 +34,9 @@ const lexer = moo.compile({
         match: /[A-z_][A-Za-z_0-9]*/,
         type: moo.keywords({
             forall: "forall",
+            where: "where",
+            with: "with",
+            delete: "delete",
             as: "as",
             true: "true",
             false: "false",
@@ -89,7 +93,7 @@ const maxLoc = (...locs: SourceLoc[]) => {
 }
 
 /** Given a list of tokens, find the range of tokens */
-const astNode = (children: ASTNode[]) => {
+const rangeOf = (children: ASTNode[]) => {
   if(children.length === 0) throw new TypeError(`No children ${JSON.stringify(children)}`);
   if(children.length === 1) {
     const child = children[0];
@@ -103,6 +107,14 @@ const astNode = (children: ASTNode[]) => {
   }
 }
 
+const rangeBetween = (beginToken, endToken) => {
+  const [begin, end] = [beginToken, endToken].map(tokenRange);
+  return {
+    start: beginToken.start,
+    end: endToken.end
+  }
+}
+
 // const walkTree = <T>(root: ASTNode, f: (ASTNode): T) => {
   // TODO: implement
 // }
@@ -113,7 +125,7 @@ function convertTokenId(data) {
 
 const declList = (type, ids) => {
   const decl = (t, i) => ({
-    ...astNode([t, i]),
+    ...rangeOf([t, i]),
     tag: "DeclPattern",
     type: t,
     id: i 
@@ -128,7 +140,7 @@ const selector = (
   namespace?: Namespace
 ): Selector => {
   return {
-    ...astNode(compact([hd, wth, whr, namespace])),
+    ...rangeOf(compact([hd, wth, whr, namespace])),
     tag: "Selector",
     head: hd,
     with: wth,
@@ -170,7 +182,8 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
   }
 %}
 
-# Grammar
+################################################################################
+# Style Grammar
 
 input -> _ml header_blocks {% res => res[1] %}
 
@@ -178,7 +191,7 @@ header_blocks -> (header_block):* {%
   (d) => {
     const blocks = d;
     return {
-      ...astNode(blocks),
+      ...rangeOf(blocks),
       tag: "StyProg",
       contents: blocks
     }
@@ -188,14 +201,16 @@ header_blocks -> (header_block):* {%
 header_block -> header block _ml {%
  (d): HeaderBlock => ({
    // TODO: range
-   ...astNode([d[0]]),
+   ...rangeOf([d[0]]),
    tag:"HeaderBlock",
    header: d[0], 
    block: d[1]
  })
 %}
 
-# selector
+################################################################################
+# Selector grammar
+
 header 
   -> namespace {% id %}
   |  selector  {% id %}
@@ -218,7 +233,7 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
   ([d]) => {
     const contents = flatten(d);
     return {
-      ...astNode(contents),
+      ...rangeOf(contents),
       tag: "DeclPatterns", contents
     };
   }
@@ -233,7 +248,7 @@ decl_list -> identifier __ sepBy1[binding_form, ","] {%
 select_where -> "where" __ relation_list _ml {% d => d[2] %}
 
 relation_list -> sepBy1[relation, ";"]  {% ([d]) => ({
-    ...astNode(d),
+    ...rangeOf(d),
     tag: "RelationPatterns",
     contents: d
   })
@@ -245,17 +260,18 @@ relation
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
   ([id, , , , expr]) => ({
-    ...astNode([id, expr]),
+    ...rangeOf([id, expr]),
     tag: "RelBind",
     id, expr
   })
 %}
 
-rel_pred -> identifier _ "(" pred_arg_list ")" {% ([name, , , args, ]) => ({
-      ...astNode([name, ...args]),
-      tag: "RelPred",
-      name, args
-    }) 
+rel_pred -> identifier _ "(" pred_arg_list ")" {% 
+  ([name, , , args, ]) => ({
+    ...rangeOf([name, ...args]),
+    tag: "RelPred",
+    name, args
+  }) 
 %}
 
 sel_expr_list 
@@ -264,12 +280,12 @@ sel_expr_list
 
 sel_expr 
   -> identifier _ "(" sel_expr_list ")" {% ([name, , , args, ]) => ({
-      ...astNode([name, ...args]),
+      ...rangeOf([name, ...args]),
       tag: "SEFuncOrValCons",
       name, args
     }) 
   %}
-  |  binding_form {% ([d]) => ({...astNode([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]) => ({...rangeOf([d]), tag: "SEBind", contents: d}) %}
 
 
 pred_arg_list 
@@ -287,11 +303,11 @@ binding_form
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?
 subVar -> "`" identifier "`" {%
-  d => ({ ...astNode([d[1]]), tag: "SubVar", contents: d[1]})
+  d => ({ ...rangeOf([d[1]]), tag: "SubVar", contents: d[1]})
 %}
 
 styVar -> identifier {%
-  d => ({ ...astNode(d), tag: "StyVar", contents: d[0]})
+  d => ({ ...rangeOf(d), tag: "StyVar", contents: d[0]})
 %}
 
 # NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
@@ -299,48 +315,77 @@ select_as -> "as" __ namespace {% nth(2) %}
 
 namespace -> identifier _ml {%
   (d): Namespace => ({
-    ...astNode([d[0]]),
+    ...rangeOf([d[0]]),
     tag: "Namespace",
     contents: d[0]
   })
 %}
 
 
-# block
+################################################################################
+# Block grammar
 
-block -> "{" _ml "}" {% d => [] %}
+block -> "{" statements "}" {% 
+  ([lbrace, stmts, rbrace]) => ({
+    ...rangeBetween(lbrace, rbrace),
+    statements: stmts
+  })
+  // nth(1)
+%}
 
 statements
-    ->  statement
-        {%
-            d => [d[0]]
-        %}
-    |  statement _ "\n" _ statements
-        {%
-            d => [
-                d[0],
-                ...d[4]
-            ]
-        %}
-    # below 2 sub-rules handle blank lines
-    |  _ "\n" statement
-        {%
-            d => d[2]
-        %}
-    |  _
-        {%
-            d => []
-        %}
+    # base case
+    -> _ {% () => [] %} 
+    # whitespaces at the beginning (NOTE: comments are allowed)
+    |  _c_ "\n" statements {% nth(2) %} # 
+    # spaces around each statement
+    |  _ statement _ {% nth(1) %}
+    # whitespaces in between and at the end (NOTE: comments are allowed)
+    |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
+
+statement 
+  -> delete {% id %}
+  # | line_comment {% null %}
+
+delete -> "delete" __ path 
+
+path -> propertyPath | fieldPath | localVar {% id %}
 
 
-statement
-    -> line_comment     {% id %}
+propertyPath -> binding_form "." identifier "." identifier {%
+  ([sub, , field, , prop]) => ({
+    ...rangeOf([sub, field, prop]),
+    tag: "PropertyPath",
+    contents: [sub, field, prop]
+  })
+%}
 
-line_comment -> %comment {% convertTokenId %}
+fieldPath -> binding_form "." identifier {%
+  ([sub, , field]) => ({
+    ...rangeOf([sub, field]),
+    tag: "FieldPath",
+    contents: [sub, field]
+  })
+%}
+
+localVar -> identifier {%
+  ([d]) => ({
+    ...rangeOf([d]),
+    tag: "LocalVar",
+    contents: d
+  })
+%}
+
+# Common 
 
 identifier -> %identifier {% convertTokenId %}
 
 # white space definitions 
+# TODO: multiline comments
+
+line_comment -> %comment {% convertTokenId %}
+
+_c_ -> (%ws | line_comment):* 
 
 _ml -> multi_line_ws_char:* 
 
@@ -349,6 +394,6 @@ multi_line_ws_char
     |  "\n"
     | line_comment # skip comments
 
-__ -> %ws:+
+__ -> %ws:+ 
 
 _ -> %ws:*

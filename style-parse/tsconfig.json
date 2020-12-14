@@ -9,11 +9,11 @@
     "lib": ["es6", "dom"],
 
     // Required for @types/nearley
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": ["node_modules/@types", "./types"],
 
     // Required if you want to run index.js in node
     "module": "commonjs"
   },
   "include": ["./src/**/*"],
-  "exclude": ["./src/**/*.test.ts", "./node_modules/*", "jest"]
+  "exclude": ["./node_modules/*", "jest"]
 }
