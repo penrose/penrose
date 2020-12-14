@@ -1,5 +1,6 @@
 @preprocessor typescript
 
+# Lexer
 @{%
 import * as moo from "moo";
 import { concat, compact, flatten } from 'lodash'
@@ -25,46 +26,47 @@ const styleTypes: string[] =
   , "constraint"
   ];
 const lexer = moo.compile({
-    ws: /[ \t]+/,
-    nl: { match: "\n", lineBreaks: true },
-    lte: "<=",
-    lt: "<",
-    gte: ">=",
-    gt: ">",
-    eq: "==",
-    lparan: "(",
-    rparan: ")",
-    comma: ",",
-    dot: ".",
-    brackets: "[]",
-    lbracket: "[",
-    rbracket: "]",
-    lbrace: "{",
-    rbrace: "}",
-    assignment: "=",
-    def: ":=",
-    plus: "+",
-    multiply: "*",
-    divide: "/",
-    modulo: "%",
-    colon: ":",
-    semi: ";",
-    tick: "\`",
-    comment: /--.*?$/,
-    string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
-    identifier: {
-        match: /[A-z_][A-Za-z_0-9]*/,
-        type: moo.keywords({
-            ...Object.fromEntries(styleTypes.map(k => ['typeword' + k, k])),
-            forall: "forall",
-            where: "where",
-            with: "with",
-            delete: "delete",
-            as: "as",
-            true: "true",
-            false: "false",
-        })
-    }
+  ws: /[ \t]+/,
+  nl: { match: "\n", lineBreaks: true },
+  lte: "<=",
+  lt: "<",
+  gte: ">=",
+  gt: ">",
+  eq: "==",
+  lparan: "(",
+  rparan: ")",
+  comma: ",",
+  dot: ".",
+  brackets: "[]",
+  lbracket: "[",
+  rbracket: "]",
+  lbrace: "{",
+  rbrace: "}",
+  assignment: "=",
+  def: ":=",
+  plus: "+",
+  multiply: "*",
+  divide: "/",
+  modulo: "%",
+  colon: ":",
+  semi: ";",
+  tick: "\`",
+  comment: /--.*?$/,
+  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+  identifier: {
+    match: /[A-z_][A-Za-z_0-9]*/,
+    type: moo.keywords({
+      ...Object.fromEntries(styleTypes.map(k => ['typeword' + k, k])),
+      forall: "forall",
+      where: "where",
+      with: "with",
+      delete: "delete",
+      as: "as",
+      true: "true",
+      false: "false",
+      layer: "layer",
+    })
+  }
 });
 
 
@@ -156,6 +158,14 @@ const convertTokenId =([token]) => {
   };
 }
 
+const nth = (n) => {
+  return function(d) {
+      return d[n];
+  };
+}
+
+// Node constructors
+
 const declList = (type, ids) => {
   const decl = (t, i) => ({
     ...rangeOf([t, i]),
@@ -165,6 +175,7 @@ const declList = (type, ids) => {
   });
   return ids.map(i => decl(type, i));
 }
+
 
 const selector = (
   hd: DeclPatterns,
@@ -182,12 +193,14 @@ const selector = (
   };
 }
 
-function nth(n) {
-    return function(d) {
-        return d[n];
-    };
-}
-%}
+const layering = (kw: any, below: Path, above: Path): ILayering => ({
+  // TODO: keyword in range
+  ...rangeOf([above, below]),
+  tag: 'Layering',
+  above, below
+})
+
+%} # end of lexer
 
 @lexer lexer
 
@@ -432,9 +445,9 @@ localVar -> identifier {%
 expr 
   -> bool_lit {% id %}
   |  string_lit {% id %}
+  |  layeringExpr {% id %}
   # TODO: complete
   # |  constructor 
-  # |  layeringExpr
   # |  objFn
   # |  constrFn
   # |  transformExpr 
@@ -460,6 +473,12 @@ string_lit -> %string_literal {%
     contents: JSON.parse(d.text)
   })
 %}
+
+layeringExpr
+  -> layer_keyword:? path __ "below" __ path {% d => layering(d[0], d[1], d[5]) %}
+  |  layer_keyword:? path __ "above" __ path {% d => layering(d[0], d[5], d[1]) %}
+
+layer_keyword -> "layer" __ {% nth(0) %}
 
 # Common 
 

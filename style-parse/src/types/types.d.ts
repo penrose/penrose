@@ -209,9 +209,10 @@ interface ICtor {
   contents: [string, PropertyDecl[]];
 }
 
-interface ILayering {
+interface ILayering extends ASTNode {
   tag: "Layering";
-  contents: [Path, Path];
+  below: Path;
+  above: Path;
 }
 
 interface IPluginAccess {
@@ -258,7 +259,7 @@ interface IPropertyPath extends ASTNode {
   contents: [BindingForm, string, string];
 }
 
-interface IAccessPath {
+interface IAccessPath extends ASTNode {
   tag: "AccessPath";
   contents: [Path, number[]];
 }

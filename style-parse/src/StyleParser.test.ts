@@ -175,3 +175,19 @@ Set B {
     sameASTs(results);
   });
 });
+
+describe("Expr Grammar", () => {
+  test("layering expr", () => {
+    const prog = `
+const {
+  -- w/ optional keyword
+  \`C\`.layering1 = layer A.circ above B.circ
+  layering2 = layer B.circ below C.circ
+  -- w/o optional keyword
+  A.layering3 = A.circ above B.circ
+  layering4 = B.circ below C.circ
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+});
