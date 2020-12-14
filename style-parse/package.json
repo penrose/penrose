@@ -15,7 +15,7 @@
     "lodash": "^4.17.20",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
-    "typescript": "^2.9.2"
+    "typescript": "^3.9.5"
   },
   "devDependencies": {
     "@types/jest": "^26.0.19",

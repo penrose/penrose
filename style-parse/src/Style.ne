@@ -239,20 +239,22 @@ header_block -> header block _ml {%
 # Selector grammar
 
 header 
-  -> namespace {% id %}
-  |  selector  {% id %}
+  -> selector  {% id %}
+  |  namespace {% id %}
 
 selector -> 
-    "forall":? __ decl_patterns _ml select_as:?  
-    {% (d) => selector(d[2], null, null, d[4]) %} 
-  | "forall":? __ decl_patterns _ml select_where select_as:? 
-    {% (d) => selector(d[2], null, d[4], d[5]) %} 
-  | "forall":? __ decl_patterns _ml select_with select_as:? 
-    {% (d) => selector(d[2], d[4], null, d[5]) %} 
-  | "forall":? __ decl_patterns _ml select_where select_with select_as:? 
-    {% (d) => selector(d[2], d[5], d[4], d[6]) %} 
-  | "forall":? __ decl_patterns _ml select_with select_where select_as:? 
-    {% (d) => selector(d[2], d[4], d[5], d[6]) %}
+    forall:? decl_patterns _ml select_as:?  
+    {% (d) => selector(d[1], null, null, d[4]) %} 
+  | forall:? decl_patterns _ml select_where select_as:? 
+    {% (d) => selector(d[1], null, d[4], d[5]) %} 
+  | forall:? decl_patterns _ml select_with select_as:? 
+    {% (d) => selector(d[1], d[4], null, d[5]) %} 
+  | forall:? decl_patterns _ml select_where select_with select_as:? 
+    {% (d) => selector(d[1], d[5], d[4], d[6]) %} 
+  | forall:? decl_patterns _ml select_with select_where select_as:? 
+    {% (d) => selector(d[1], d[4], d[5], d[6]) %}
+
+forall -> "forall" __ {% nth(0) %}
 
 select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
@@ -383,8 +385,9 @@ delete -> "delete" __ path {%
 %}
 
 path_assign -> type:? __ path _ "=" _ expr {%
-  ([type, , path, , , , expr]) => ({
+  ([type, , path, , , , expr]) => ({ 
     ...rangeBetween(type ? type : path, expr),
+    // ...rangeBetween(path, expr),
     tag: "PathAssign",
     type, path, expr
   })
@@ -427,8 +430,9 @@ localVar -> identifier {%
 # Expression
 
 expr 
-  -> bool_lit 
-  |  string_lit
+  -> bool_lit {% id %}
+  |  string_lit {% id %}
+  # TODO: complete
   # |  constructor 
   # |  layeringExpr
   # |  objFn
@@ -440,8 +444,9 @@ expr
   # |  vector
   # |  arithmeticExpr
 
-bool_lit -> "true" | "false" {%
-  ([d]): IBoolLit => ({
+# TODO: find a better way to express options, extra layer introduced by parens
+bool_lit -> ("true" | "false") {%
+  ([[d]]): IBoolLit => ({
     ...tokenRange(d),
     tag: 'BoolLit',
     contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
@@ -452,7 +457,7 @@ string_lit -> %string_literal {%
   ([d]): IStringLit => ({
     ...tokenRange(d),
     tag: 'StringLit',
-    contents: d.text
+    contents: JSON.parse(d.text)
   })
 %}
 

@@ -55,7 +55,13 @@ describe("Selector Grammar", () => {
 
   test("forall keyword", () => {
     const prog = `
+  Set B { }
+
   forall Set A, B { }
+
+  Set \`C\` { }
+
+  Set A, B { }
 
   Set A, \`B\`; Map f
   {
@@ -152,6 +158,18 @@ forall Set A, B; Map f as Const {
   delete B.arrow
 -- delete C.arrow 
   delete localx -- end of block comment
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("path assign with expressions", () => {
+    const prog = `
+Set B {
+  -- property paths
+  A.circle.boolProp = true
+  A.circle.boolProp1 = false
+  A.circle.strProp = "ABCdef1243_dfds&(*($#@"
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
