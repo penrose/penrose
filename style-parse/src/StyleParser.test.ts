@@ -190,4 +190,31 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+  test("string expr", () => {
+    const prog = `
+const {
+  -- plain
+  \`C\`.strin = "abs1232189y790yh97dasyhfda7fhnasopufn9"
+  -- unicode
+  chn = "penrose真好玩"
+  -- escape char
+  \`C\`.newline = "\\n"
+  \`C\`.newline = "first line\\nnextline\\ttabbed"
+  -- TODO: test slash
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("computation functions expr", () => {
+    const prog = `
+const {
+  -- no arg
+  B.fn = compute(    )
+  -- literals
+  A.fn = compute("string1", true, "string\\n", false)
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 });

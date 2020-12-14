@@ -139,9 +139,10 @@ interface IEPath {
   // value
 }
 
-interface ICompApp {
+interface ICompApp extends ASTNode {
   tag: "CompApp";
-  contents: [string, Expr[]];
+  name: string;
+  args: Expr[];
 }
 
 interface IObjFn {

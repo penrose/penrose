@@ -33,8 +33,8 @@ const lexer = moo.compile({
   gte: ">=",
   gt: ">",
   eq: "==",
-  lparan: "(",
-  rparan: ")",
+  lparen: "(",
+  rparen: ")",
   comma: ",",
   dot: ".",
   brackets: "[]",
@@ -446,12 +446,12 @@ expr
   -> bool_lit {% id %}
   |  string_lit {% id %}
   |  layeringExpr {% id %}
+  |  comp_func {% id %}
   # TODO: complete
   # |  constructor 
   # |  objFn
   # |  constrFn
   # |  transformExpr 
-  # |  compFn
   # |  list
   # |  tuple
   # |  vector
@@ -479,6 +479,27 @@ layeringExpr
   |  layer_keyword:? path __ "above" __ path {% d => layering(d[0], d[5], d[1]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
+
+comp_func -> identifier _ "(" expr_list ")" {% 
+  ([name, , , args, rparen]): ICompApp => ({
+    ...rangeBetween(name, rparen),
+    tag: "CompApp",
+    name, args
+  }) 
+%}
+
+expr_list 
+  -> _ {% d => [] %}
+  |  _ sepBy1[expr, ","] _ {% nth(1) %}
+
+# Arith ops
+# TODO: finish
+
+# arithmeticExpr -> sum
+
+# sum -> sum ("+"|"-") product | product
+# product -> product ("*"|"/") exp | exp
+# exp -> number "^" exp | number # this is right associative!
 
 # Common 
 
