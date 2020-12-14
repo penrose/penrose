@@ -118,12 +118,12 @@ interface IAFloat {
   contents: AnnoFloat;
 }
 
-interface IStringLit {
+interface IStringLit extends ASTNode {
   tag: "StringLit";
   contents: string;
 }
 
-interface IBoolLit {
+interface IBoolLit extends ASTNode {
   tag: "BoolLit";
   contents: boolean;
 }
@@ -886,11 +886,13 @@ type Pos = IPos;
 
 type IPos = number;
 
-type Stmt = IPathAssign | IOverride | IDelete | IAnonAssign;
+type Stmt = PathAssign | IOverride | Delete | IAnonAssign;
 
-interface IPathAssign {
+interface PathAssign extends ASTNode {
   tag: "PathAssign";
-  contents: [StyType, Path, Expr];
+  type: StyType;
+  path: Path;
+  value: Expr;
 }
 
 interface IOverride {
@@ -898,7 +900,7 @@ interface IOverride {
   contents: [Path, Expr];
 }
 
-interface IDelete {
+interface Delete extends ASTNode {
   tag: "Delete";
   contents: Path;
 }

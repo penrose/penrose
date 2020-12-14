@@ -8,7 +8,14 @@ const sameASTs = (results: any[]) => {
   expect(results.length).toEqual(1);
 };
 
+// USAGE:
+// printAST(results[0])
+const printAST = (ast: any) => {
+  console.log(JSON.stringify(ast));
+};
+
 beforeEach(() => {
+  // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
   parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 });
 
@@ -121,8 +128,6 @@ forall Set A, B; Map f as Const {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    // const ast: StyProg = results[0] as StyProg;
-    // console.log(JSON.stringify(ast));
   });
 
   test("line comments among statements", () => {

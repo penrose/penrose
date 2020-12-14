@@ -4,6 +4,26 @@
 import * as moo from "moo";
 import { concat, compact, flatten } from 'lodash'
 
+const styleTypes: string[] =
+  [ "scalar"
+  , "int"
+  , "bool"
+  , "string"
+  , "path"
+  , "color"
+  , "file"
+  , "style"
+  , "shape"
+  , "vec2"
+  , "vec3"
+  , "vec4"
+  , "mat2x2"
+  , "mat3x3"
+  , "mat4x4"
+  , "function"
+  , "objective"
+  , "constraint"
+  ];
 const lexer = moo.compile({
     ws: /[ \t]+/,
     nl: { match: "\n", lineBreaks: true },
@@ -16,6 +36,7 @@ const lexer = moo.compile({
     rparan: ")",
     comma: ",",
     dot: ".",
+    brackets: "[]",
     lbracket: "[",
     rbracket: "]",
     lbrace: "{",
@@ -30,9 +51,11 @@ const lexer = moo.compile({
     semi: ";",
     tick: "\`",
     comment: /--.*?$/,
+    string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
     identifier: {
         match: /[A-z_][A-Za-z_0-9]*/,
         type: moo.keywords({
+            ...Object.fromEntries(styleTypes.map(k => ['typeword' + k, k])),
             forall: "forall",
             where: "where",
             with: "with",
@@ -64,8 +87,9 @@ function tokenEnd(token) {
 }
 
 const tokenRange = (token: any) => {
+  // if it's already converted, assume it's an AST Node
+  if(token.start) return token;
   return {
-    token: token.text,
     start: tokenStart(token),
     end: tokenEnd(token)
   };
@@ -94,7 +118,12 @@ const maxLoc = (...locs: SourceLoc[]) => {
 
 /** Given a list of tokens, find the range of tokens */
 const rangeOf = (children: ASTNode[]) => {
-  if(children.length === 0) throw new TypeError(`No children ${JSON.stringify(children)}`);
+  // TODO: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
+  if(children.length === 0) {
+    // console.trace(`No children ${JSON.stringify(children)}`);
+    return { start: {line: 1, col: 1}, end: {line: 1, col: 1} };
+  }
+
   if(children.length === 1) {
     const child = children[0];
     return { start: child.start, end: child.end };
@@ -108,10 +137,10 @@ const rangeOf = (children: ASTNode[]) => {
 }
 
 const rangeBetween = (beginToken, endToken) => {
-  const [begin, end] = [beginToken, endToken].map(tokenRange);
+  const [beginRange, endRange] = [beginToken, endToken].map(tokenRange);
   return {
-    start: beginToken.start,
-    end: endToken.end
+    start: beginRange.start,
+    end: endRange.end
   }
 }
 
@@ -119,8 +148,12 @@ const rangeBetween = (beginToken, endToken) => {
   // TODO: implement
 // }
 
-function convertTokenId(data) {
-    return tokenRange(data[0]);
+const convertTokenId =([token]) => {
+  return {
+    ...tokenRange(token),
+    token: token.text,
+    type: token.type,
+  };
 }
 
 const declList = (type, ids) => {
@@ -184,28 +217,22 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
 
 ################################################################################
 # Style Grammar
+# NOTE: remember that parens in the grammar or EBNF operators (e.g. `:*`) will wrap an array around the result. 
 
-input -> _ml header_blocks {% res => res[1] %}
-
-header_blocks -> (header_block):* {%
-  (d) => {
-    const blocks = d;
-    return {
-      ...rangeOf(blocks),
-      tag: "StyProg",
-      contents: blocks
-    }
-  }
+# TODO: header_blocks gets called twice here. Investigate why
+input -> _ml header_blocks {%
+  ([, blocks]) => ({
+    ...rangeOf(blocks),
+    tag: "StyProg",
+    contents: blocks
+  })
 %}
 
+header_blocks -> header_block:* {% id %}
+
 header_block -> header block _ml {%
- (d): HeaderBlock => ({
-   // TODO: range
-   ...rangeOf([d[0]]),
-   tag:"HeaderBlock",
-   header: d[0], 
-   block: d[1]
- })
+ ([header, block]): HeaderBlock => ({
+   ...rangeOf([header, block]), tag:"HeaderBlock", header, block })
 %}
 
 ################################################################################
@@ -330,7 +357,6 @@ block -> "{" statements "}" {%
     ...rangeBetween(lbrace, rbrace),
     statements: stmts
   })
-  // nth(1)
 %}
 
 statements
@@ -338,18 +364,40 @@ statements
     -> _ {% () => [] %} 
     # whitespaces at the beginning (NOTE: comments are allowed)
     |  _c_ "\n" statements {% nth(2) %} # 
-    # spaces around each statement
-    |  _ statement _ {% nth(1) %}
+    # spaces around each statement (NOTE: still wrap in list to spread later)
+    |  _ statement _ {% d => [d[1]] %}
     # whitespaces in between and at the end (NOTE: comments are allowed)
     |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
 
 statement 
   -> delete {% id %}
-  # | line_comment {% null %}
+  |  path_assign {% id %}
 
-delete -> "delete" __ path 
+delete -> "delete" __ path {%
+  (d) => {
+   return {
+    ...rangeBetween(d[0], d[2]),
+    tag: "Delete",
+    contents: d[2]
+  }}
+%}
 
-path -> propertyPath | fieldPath | localVar {% id %}
+path_assign -> type:? __ path _ "=" _ expr {%
+  ([type, , path, , , , expr]) => ({
+    ...rangeBetween(type ? type : path, expr),
+    tag: "PathAssign",
+    type, path, expr
+  })
+%}
+
+type -> identifier {% id %}
+
+# | identifier "[]"
+
+path 
+  -> propertyPath {% id %}
+  |  fieldPath    {% id %}
+  |  localVar     {% id %}
 
 
 propertyPath -> binding_form "." identifier "." identifier {%
@@ -373,6 +421,38 @@ localVar -> identifier {%
     ...rangeOf([d]),
     tag: "LocalVar",
     contents: d
+  })
+%}
+
+# Expression
+
+expr 
+  -> bool_lit 
+  |  string_lit
+  # |  constructor 
+  # |  layeringExpr
+  # |  objFn
+  # |  constrFn
+  # |  transformExpr 
+  # |  compFn
+  # |  list
+  # |  tuple
+  # |  vector
+  # |  arithmeticExpr
+
+bool_lit -> "true" | "false" {%
+  ([d]): IBoolLit => ({
+    ...tokenRange(d),
+    tag: 'BoolLit',
+    contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
+  })
+%}
+
+string_lit -> %string_literal {%
+  ([d]): IStringLit => ({
+    ...tokenRange(d),
+    tag: 'StringLit',
+    contents: d.text
   })
 %}
 

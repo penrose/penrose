@@ -6,7 +6,7 @@
     "outDir": "build",
     "target": "es6",
     // Required for Map and console
-    "lib": ["es6", "dom"],
+    "lib": ["es2018", "dom", "esnext"],
 
     // Required for @types/nearley
     "typeRoots": ["node_modules/@types", "./types"],
