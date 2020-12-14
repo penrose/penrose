@@ -14,7 +14,7 @@ const styleTypes: string[] =
   , "color"
   , "file"
   , "style"
-  , "shape"
+  , "icon" // TODO: make sure this is the intended keyword
   , "vec2"
   , "vec3"
   , "vec4"
@@ -56,7 +56,8 @@ const lexer = moo.compile({
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
-      ...Object.fromEntries(styleTypes.map(k => ['typeword' + k, k])),
+      // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
+      "type-keyword": styleTypes, 
       forall: "forall",
       where: "where",
       with: "with",
@@ -65,6 +66,8 @@ const lexer = moo.compile({
       true: "true",
       false: "false",
       layer: "layer",
+      encourage: "encourage",
+      ensure: "ensure",
     })
   }
 });
@@ -150,10 +153,10 @@ const rangeBetween = (beginToken, endToken) => {
   // TODO: implement
 // }
 
-const convertTokenId =([token]) => {
+const convertTokenId = ([token]): Identifier => {
   return {
     ...tokenRange(token),
-    token: token.text,
+    value: token.text,
     type: token.type,
   };
 }
@@ -407,7 +410,7 @@ path_assign -> type:? __ path _ "=" _ expr {%
 %}
 
 type -> identifier {% id %}
-
+# TODO: list type
 # | identifier "[]"
 
 path 
@@ -442,19 +445,30 @@ localVar -> identifier {%
 
 # Expression
 
+# TODO: if we want to be less libral about expressions, we can put exprs like layering strictly into this category so they don't appear in, say, comp functions
+# assign_expr 
+#   -> expr {% id %}
+#   |  layering {% id %}
+#   |  objective {% id %}
+#   |  constraint {% id %}
+  # |  constructor {% id %}
+
+
 expr 
   -> bool_lit {% id %}
   |  string_lit {% id %}
-  |  layeringExpr {% id %}
-  |  comp_func {% id %}
+  |  computation_function {% id %}
+  |  path {% id %}
+  |  layering {% id %}
+  |  objective {% id %}
+  |  constraint {% id %}
+  |  gpi_decl {% id %}
   # TODO: complete
-  # |  constructor 
-  # |  objFn
-  # |  constrFn
   # |  transformExpr 
   # |  list
   # |  tuple
   # |  vector
+  # |  matrix # TODO: check if this will create ambiguity
   # |  arithmeticExpr
 
 # TODO: find a better way to express options, extra layer introduced by parens
@@ -474,16 +488,32 @@ string_lit -> %string_literal {%
   })
 %}
 
-layeringExpr
+layering
   -> layer_keyword:? path __ "below" __ path {% d => layering(d[0], d[1], d[5]) %}
   |  layer_keyword:? path __ "above" __ path {% d => layering(d[0], d[5], d[1]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
 
-comp_func -> identifier _ "(" expr_list ")" {% 
+computation_function -> identifier _ "(" expr_list ")" {% 
   ([name, , , args, rparen]): ICompApp => ({
     ...rangeBetween(name, rparen),
     tag: "CompApp",
+    name, args
+  }) 
+%}
+
+objective -> "encourage" __ identifier _ "(" expr_list ")" {% 
+  ([kw, , name, , , args, rparen]): IObjFn => ({
+    ...rangeBetween(kw, rparen),
+    tag: "ObjFn",
+    name, args
+  }) 
+%}
+
+constraint -> "ensure" __ identifier _ "(" expr_list ")" {% 
+  ([kw, , name, , , args, rparen]): IConstrFn => ({
+    ...rangeBetween(kw, rparen),
+    tag: "ConstrFn",
     name, args
   }) 
 %}
@@ -492,10 +522,37 @@ expr_list
   -> _ {% d => [] %}
   |  _ sepBy1[expr, ","] _ {% nth(1) %}
 
+gpi_decl -> identifier _ "{" property_decl_list "}" {%
+  ([shapeName, , , properties, rbrace]) => ({
+    ...rangeBetween(shapeName, rbrace),
+    tag: "GPIDecl",
+    shapeName, properties
+  })
+%}
+
+# TODO: maybe separate out as macro when stable (macros have really bad state ids tho!)
+property_decl_list
+    # base case
+    -> _ {% () => [] %} 
+    # whitespaces at the beginning (NOTE: comments are allowed)
+    |  _c_ "\n" property_decl_list {% nth(2) %} # 
+    # spaces around each decl (NOTE: still wrap in list to spread later)
+    |  _ property_decl _ {% d => [d[1]] %}
+    # whitespaces in between and at the end (NOTE: comments are allowed)
+    |  _ property_decl _c_ "\n" property_decl_list {% d => [d[1], ...d[4]] %}
+  
+property_decl -> identifier _ ":" _ expr {%
+  ([name, , , , value]) => ({
+    ...rangeBetween(name, value),
+    tag: "PropertyDecl",
+    name, value
+  })
+%}
+
 # Arith ops
 # TODO: finish
 
-# arithmeticExpr -> sum
+# arithmetic_expr 
 
 # sum -> sum ("+"|"-") product | product
 # product -> product ("*"|"/") exp | exp

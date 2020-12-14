@@ -89,7 +89,7 @@ type Expr =
   | IStringLit
   | IBoolLit
   // | IEvar
-  | IEPath
+  | Path // NOTE: changed from EPath
   | ICompApp
   | IObjFn
   | IConstrFn
@@ -103,7 +103,7 @@ type Expr =
   | IVectorAccess
   | IMatrixAccess
   | IListAccess
-  | ICtor
+  | GPIDecl
   | ILayering
   | IPluginAccess
   | IThenOp;
@@ -133,11 +133,12 @@ interface IEVar {
   contents: LocalVar;
 }
 
-interface IEPath {
-  tag: "EPath";
-  contents: Path;
-  // value
-}
+// NOTE: no longer using EPath, and use Path instead in Expr
+// interface IEPath {
+//   tag: "EPath";
+//   contents: Path;
+//   // value
+// }
 
 interface ICompApp extends ASTNode {
   tag: "CompApp";
@@ -145,14 +146,16 @@ interface ICompApp extends ASTNode {
   args: Expr[];
 }
 
-interface IObjFn {
+interface IObjFn extends ASTNode {
   tag: "ObjFn";
-  contents: [string, Expr[]];
+  name: string;
+  args: Expr[];
 }
 
-interface IConstrFn {
+interface IConstrFn extends ASTNode {
   tag: "ConstrFn";
-  contents: [string, Expr[]];
+  name: string;
+  args: Expr[];
 }
 
 interface IAvoidFn {
@@ -205,9 +208,10 @@ interface IListAccess {
   contents: [Path, number];
 }
 
-interface ICtor {
-  tag: "Ctor";
-  contents: [string, PropertyDecl[]];
+interface GPIDecl extends ASTNode {
+  tag: "GPIDecl";
+  shapeName: string;
+  properties: PropertyDecl[];
 }
 
 interface ILayering extends ASTNode {
@@ -241,9 +245,11 @@ type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
 
 type UnaryOp = "UPlus" | "UMinus";
 
-type PropertyDecl = IPropertyDecl;
-
-type IPropertyDecl = [string, Expr];
+interface PropertyDecl extends ASTNode {
+  tag: "PropertyDecl";
+  name: string;
+  value: Expr;
+}
 
 // TODO: check how the evaluator/compiler should interact with ASTNode
 type Path = IFieldPath | IPropertyPath | IAccessPath;
@@ -1348,6 +1354,11 @@ interface ASTNode {
   // children: ASTNode[];
   // file: string;
   // parent: ASTNode; // NOTE: pointer type; don't serialize this
+}
+
+interface Identifier extends ASTNode {
+  type: string;
+  value: string;
 }
 
 //#endregion

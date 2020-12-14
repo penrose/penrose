@@ -217,4 +217,40 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+
+  test("objective and constraint expr", () => {
+    const prog = `
+const {
+  -- encourage
+  A.fn = encourage obj("string1", true, "string\\n", false)
+  A.fn2 = encourage obj( a, b )
+  -- ensure 
+  A.fn = ensure obj("string1", true, "string\\n", false)
+  B.fn = ensure same( A.shape.prop , B.shape  )
+  localVar = ensure same( A.shp , B.shp  )
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("GPI constructor expr", () => {
+    const prog = `
+const {
+  -- literals
+  A.circle = Circle { -- comment begin
+    strokeStyle: "dashed"
+    -- comment between lines
+    beautiful: true --comment inline
+    center: B.circle.center
+    -- comment end
+  }
+  -- empty
+  \`A\`.circle = Circle {  }
+  A.circle = Circle {
+    --- comments 
+  }
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 });
