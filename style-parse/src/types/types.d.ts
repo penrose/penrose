@@ -909,9 +909,10 @@ interface PathAssign extends ASTNode {
   value: Expr;
 }
 
-interface IOverride {
+interface IOverride extends ASTNode {
   tag: "Override";
-  contents: [Path, Expr];
+  path: Path;
+  value: Expr;
 }
 
 interface Delete extends ASTNode {
@@ -919,7 +920,7 @@ interface Delete extends ASTNode {
   contents: Path;
 }
 
-interface IAnonAssign {
+interface IAnonAssign extends ASTNode {
   tag: "AnonAssign";
   contents: Expr;
 }

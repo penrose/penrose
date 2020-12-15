@@ -41,6 +41,10 @@ const lexer = moo.compile({
   string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
   comment: /--.*?$/,
+  multiline_comment: { 
+    match: /\/\*(?:[\s\S]*?)\*\//,
+    lineBreaks: true 
+  },
   dot: ".",
   brackets: "[]",
   lbracket: "[",
@@ -74,6 +78,7 @@ const lexer = moo.compile({
       layer: "layer",
       encourage: "encourage",
       ensure: "ensure",
+      override: "override",
     })
   }
 });
@@ -86,20 +91,27 @@ function tokenStart(token) {
   };
 }
 
-function tokenEnd(token) {
-    const lastNewLine = token.text.lastIndexOf("\n");
-    if (lastNewLine !== -1) {
-        throw new Error("Unsupported case: token with line breaks");
-    }
-    return {
-        line: token.line,
-        col: token.col + token.text.length - 1
-    };
+// TODO: test multiline range
+const tokenEnd = (token) => {
+  const { text } = token;
+  const nl = /\r\n|\r|\n/;
+  var newlines = 0;
+  var textLength = text.length;
+  if (token.lineBreaks) {
+    newlines = text.split(nl).length;
+    textLength = text.substring(text.lastIndexOf(nl) + 1);
+  }
+  return {
+      line: token.line + newlines,
+      col: token.col + textLength - 1
+  };
 }
 
-const tokenRange = (token: any) => {
+const rangeOf = (token: any) => {
   // if it's already converted, assume it's an AST Node
-  if(token.start) return token;
+  if(token.start && token.end) {
+    return { start: token.start, end: token.end };
+  }
   return {
     start: tokenStart(token),
     end: tokenEnd(token)
@@ -128,8 +140,8 @@ const maxLoc = (...locs: SourceLoc[]) => {
 }
 
 /** Given a list of tokens, find the range of tokens */
-const rangeOf = (children: ASTNode[]) => {
-  // TODO: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
+const rangeFrom = (children: ASTNode[]) => {
+  // NOTE: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
   if(children.length === 0) {
     // console.trace(`No children ${JSON.stringify(children)}`);
     return { start: {line: 1, col: 1}, end: {line: 1, col: 1} };
@@ -148,7 +160,7 @@ const rangeOf = (children: ASTNode[]) => {
 }
 
 const rangeBetween = (beginToken, endToken) => {
-  const [beginRange, endRange] = [beginToken, endToken].map(tokenRange);
+  const [beginRange, endRange] = [beginToken, endToken].map(rangeOf);
   return {
     start: beginRange.start,
     end: endRange.end
@@ -159,9 +171,9 @@ const rangeBetween = (beginToken, endToken) => {
   // TODO: implement
 // }
 
-const convertTokenId = ([token]): Identifier => {
+const convertTokenId = ([token]) => {
   return {
-    ...tokenRange(token),
+    ...rangeOf(token),
     value: token.text,
     type: token.type,
   };
@@ -177,7 +189,7 @@ const nth = (n) => {
 
 const declList = (type, ids) => {
   const decl = (t, i) => ({
-    ...rangeOf([t, i]),
+    ...rangeFrom([t, i]),
     tag: "DeclPattern",
     type: t,
     id: i 
@@ -193,7 +205,7 @@ const selector = (
   namespace?: Namespace
 ): Selector => {
   return {
-    ...rangeOf(compact([hd, wth, whr, namespace])),
+    ...rangeFrom(compact([hd, wth, whr, namespace])),
     tag: "Selector",
     head: hd,
     with: wth,
@@ -204,7 +216,7 @@ const selector = (
 
 const layering = (kw: any, below: Path, above: Path): ILayering => ({
   // TODO: keyword in range
-  ...rangeOf([above, below]),
+  ...rangeFrom([above, below]),
   tag: 'Layering',
   above, below
 })
@@ -250,7 +262,7 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
 # TODO: header_blocks gets called twice here. Investigate why
 input -> _ml header_blocks {%
   ([, blocks]) => ({
-    ...rangeOf(blocks),
+    ...rangeFrom(blocks),
     tag: "StyProg",
     blocks
   })
@@ -260,7 +272,7 @@ header_blocks -> header_block:* {% id %}
 
 header_block -> header block _ml {%
  ([header, block]): HeaderBlock => ({
-   ...rangeOf([header, block]), tag:"HeaderBlock", header, block })
+   ...rangeFrom([header, block]), tag:"HeaderBlock", header, block })
 %}
 
 ################################################################################
@@ -290,7 +302,7 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
   ([d]) => {
     const contents = flatten(d);
     return {
-      ...rangeOf(contents),
+      ...rangeFrom(contents),
       tag: "DeclPatterns", contents
     };
   }
@@ -305,7 +317,7 @@ decl_list -> identifier __ sepBy1[binding_form, ","] {%
 select_where -> "where" __ relation_list _ml {% d => d[2] %}
 
 relation_list -> sepBy1[relation, ";"]  {% ([d]) => ({
-    ...rangeOf(d),
+    ...rangeFrom(d),
     tag: "RelationPatterns",
     contents: d
   })
@@ -317,7 +329,7 @@ relation
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
   ([id, , , , expr]) => ({
-    ...rangeOf([id, expr]),
+    ...rangeFrom([id, expr]),
     tag: "RelBind",
     id, expr
   })
@@ -325,7 +337,7 @@ rel_bind -> binding_form _ ":=" _ sel_expr {%
 
 rel_pred -> identifier _ "(" pred_arg_list ")" {% 
   ([name, , , args, ]) => ({
-    ...rangeOf([name, ...args]),
+    ...rangeFrom([name, ...args]),
     tag: "RelPred",
     name, args
   }) 
@@ -337,19 +349,20 @@ sel_expr_list
 
 sel_expr 
   -> identifier _ "(" sel_expr_list ")" {% ([name, , , args, ]) => ({
-      ...rangeOf([name, ...args]),
+      ...rangeFrom([name, ...args]),
       tag: "SEFuncOrValCons",
       name, args
     }) 
   %}
-  |  binding_form {% ([d]) => ({...rangeOf([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
 
 
 pred_arg_list 
   -> _ {% d => [] %}
   |  _ sepBy1[pred_arg, ","] _ {% nth(1) %}
 
-# NOTE: ambiguity here because sel_expr has valcons or func, which looks exactly the same as predicates. 
+# NOTE: resolve ambiguity here by allowing only rel_pred or `binding_form`
+# Can't use sel_expr because sel_expr has valcons or func, which looks exactly the same as predicates. 
 pred_arg 
   -> rel_pred {% id %}
   |  binding_form {% id %}
@@ -360,11 +373,11 @@ binding_form
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?
 subVar -> "`" identifier "`" {%
-  d => ({ ...rangeOf([d[1]]), tag: "SubVar", contents: d[1]})
+  d => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
 %}
 
 styVar -> identifier {%
-  d => ({ ...rangeOf(d), tag: "StyVar", contents: d[0]})
+  d => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
 %}
 
 # NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
@@ -372,7 +385,7 @@ select_as -> "as" __ namespace {% nth(2) %}
 
 namespace -> identifier _ml {%
   (d): Namespace => ({
-    ...rangeOf([d[0]]),
+    ...rangeFrom([d[0]]),
     tag: "Namespace",
     contents: d[0]
   })
@@ -401,7 +414,10 @@ statements
 
 statement 
   -> delete {% id %}
+  |  override {% id %}
   |  path_assign {% id %}
+  |  anonymous_expr 
+    {% ([d]) => ({...rangeOf(d), tag: "AnonAssign", contents: d}) %}
 
 delete -> "delete" __ path {%
   (d) => {
@@ -410,6 +426,14 @@ delete -> "delete" __ path {%
     tag: "Delete",
     contents: d[2]
   }}
+%}
+
+override -> "override" __ path _ "=" _ assign_expr {%
+  ([kw, , path, , , , expr]) => ({ 
+    ...rangeBetween(kw, expr),
+    tag: "Override",
+    path, expr
+  })
 %}
 
 path_assign -> type:? __ path _ "=" _ assign_expr {%
@@ -421,9 +445,9 @@ path_assign -> type:? __ path _ "=" _ assign_expr {%
 %}
 
 type 
-  -> identifier {% ([d]): StyType => ({...tokenRange(d), tag: 'TypeOf', contents: d}) %}
+  -> identifier {% ([d]): StyType => ({...rangeOf(d), tag: 'TypeOf', contents: d}) %}
   |  identifier "[]" {%
-      ([d]): StyType => ({...tokenRange(d), tag: 'ListOf', contents: d}) 
+      ([d]): StyType => ({...rangeOf(d), tag: 'ListOf', contents: d}) 
      %}
 
 path 
@@ -437,7 +461,7 @@ entity_path
 
 propertyPath -> binding_form "." identifier "." identifier {%
   ([name, , field, , property]): IPropertyPath => ({
-    ...rangeOf([name, field, property]),
+    ...rangeFrom([name, field, property]),
     tag: "PropertyPath",
     name, field, property
   })
@@ -445,7 +469,7 @@ propertyPath -> binding_form "." identifier "." identifier {%
 
 fieldPath -> binding_form "." identifier {%
   ([name, , field]): IFieldPath => ({
-    ...rangeOf([name, field]),
+    ...rangeFrom([name, field]),
     tag: "FieldPath",
     name, field
   })
@@ -453,7 +477,7 @@ fieldPath -> binding_form "." identifier {%
 
 localVar -> identifier {%
   ([d]): LocalVar => ({
-    ...rangeOf([d]),
+    ...rangeFrom([d]),
     tag: "LocalVar",
     contents: d
   })
@@ -486,6 +510,11 @@ assign_expr
   |  objective {% id %}
   |  constraint {% id %}
   |  gpi_decl {% id %}
+
+anonymous_expr
+  -> layering {% id %}
+  |  objective {% id %}
+  |  constraint {% id %}
 
 # NOTE: inline computations on expr_literal (including expr_literal)
 expr -> arithmeticExpr {% id %}
@@ -535,6 +564,7 @@ expr_literal
   |  tuple {% id %}
   |  vector {% id %}
   # |  matrix {% id %} # NOTE: we liberally parse vectors to include the matrix case instead. All matrices are vectors of vectors.
+  # TODO: 
   # |  transformExpr 
 
 list -> "[" _ expr_list _ "]" {% 
@@ -574,7 +604,7 @@ vector -> "(" _ expr  _ "," expr_list ")" {%
 
 bool_lit -> ("true" | "false") {%
   ([[d]]): IBoolLit => ({
-    ...tokenRange(d),
+    ...rangeOf(d),
     tag: 'BoolLit',
     contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
   })
@@ -582,16 +612,16 @@ bool_lit -> ("true" | "false") {%
 
 string_lit -> %string_literal {%
   ([d]): IStringLit => ({
-    ...tokenRange(d),
+    ...rangeOf(d),
     tag: 'StringLit',
     contents: JSON.parse(d.text)
   })
 %}
 
 annotated_float 
-  -> "?" {% ([d]): IVary => ({ ...tokenRange(d), tag: 'Vary' }) %}
+  -> "?" {% ([d]): IVary => ({ ...rangeOf(d), tag: 'Vary' }) %}
   |  %float_literal {% 
-    ([d]): IFix => ({ ...tokenRange(d), tag: 'Fix', contents: parseFloat(d) }) 
+    ([d]): IFix => ({ ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
 
 layering
@@ -659,7 +689,8 @@ property_decl -> identifier _ ":" _ expr {%
 
 identifier -> %identifier {% 
   ([d]) => ({
-    ...tokenRange(d),
+    ...rangeOf(d),
+    tag: 'Identifier',
     value: d.text,
     type: styleTypes.includes(d.text) ? "type-keyword" : "identifier"
   })
@@ -668,7 +699,9 @@ identifier -> %identifier {%
 # white space definitions 
 # TODO: multiline comments
 
-line_comment -> %comment {% convertTokenId %}
+line_comment 
+  -> %comment {% convertTokenId %}
+  |  %multiline_comment {% ([d]) => rangeOf(d) %}
 
 _c_ -> (%ws | line_comment):* 
 

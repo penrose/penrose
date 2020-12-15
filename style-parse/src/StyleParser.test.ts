@@ -1,6 +1,8 @@
 // const grammar = require("./Style.ne");
 import * as nearley from "nearley";
 import grammar from "./StyleParser";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 let parser;
 const sameASTs = (results: any[]) => {
@@ -13,6 +15,18 @@ const sameASTs = (results: any[]) => {
 const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
+
+const styPaths = [
+  "linear-algebra-domain/linear-algebra-paper-simple.sty",
+  "set-theory-domain/venn.sty",
+  "set-theory-domain/venn-3d.sty",
+  "set-theory-domain/venn-small.sty",
+  "set-theory-domain/tree.sty",
+  "set-theory-domain/continuousmap.sty",
+  "hyperbolic-domain/PoincareDisk.sty",
+  "geometry-domain/euclidean-simple.sty",
+  "mesh-set-domain/DomainInterop.sty",
+];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -372,16 +386,26 @@ testing {
   test("vector/matrix access expr", () => {
     const prog = `
 testing {
-  a1 = vec[42]
-  a2 = vec[12][34]
-  a3 = a[1] + a[0]
-  a4 = m [1][0] + m[c] [b]
+  mat3x3 a1 = vec[42]
+  vec3 a2 = vec[12][34]
+  vec2 a3 = a[1] + a[0]
+  vec2[] a4 = m [1][0] + m[c] [b]
   a5 = comp(x[1][b])
   a6 = A.shape.vec[comp(a1[12][34])][a2[56]]
 
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    printAST(results[0]);
+  });
+});
+
+describe("Real Programs", () => {
+  styPaths.map((path) => {
+    const file = join("../examples/", path);
+    const prog = readFileSync(file, "utf8");
+    test(path, () => {
+      const { results } = parser.feed(prog);
+      sameASTs(results);
+    });
   });
 });
