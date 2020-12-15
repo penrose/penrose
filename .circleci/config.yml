@@ -45,6 +45,7 @@ jobs:
       - run:
           name: Build normally
           command: npm run build
+          resource_class: large
           working_directory: ~/penrose/penrose-web
       - run:
           name: Build-lib
