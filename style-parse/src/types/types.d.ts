@@ -273,7 +273,8 @@ interface IPropertyPath extends ASTNode {
 
 interface IAccessPath extends ASTNode {
   tag: "AccessPath";
-  contents: [Path, number[]];
+  path: Path;
+  indices: number[];
 }
 
 // Unused

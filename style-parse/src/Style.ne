@@ -3,7 +3,7 @@
 # Lexer
 @{%
 import * as moo from "moo";
-import { concat, compact, flatten } from 'lodash'
+import { concat, compact, flatten, last } from 'lodash'
 
 const styleTypes: string[] =
   [ "scalar"
@@ -427,10 +427,13 @@ type
      %}
 
 path 
-  -> propertyPath {% id %}
-  |  fieldPath    {% id %}
-  |  localVar     {% id %}
+  -> entity_path   {% id %}
+  |  access_path   {% id %}
 
+entity_path
+  -> propertyPath  {% id %}
+  |  fieldPath     {% id %}
+  |  localVar      {% id %}
 
 propertyPath -> binding_form "." identifier "." identifier {%
   ([name, , field, , property]): IPropertyPath => ({
@@ -455,6 +458,24 @@ localVar -> identifier {%
     contents: d
   })
 %}
+
+# NOTE: not a subrule of entity_path so we can parse all indices into a list
+# TODO: capture the range more accurately, now it's missing the last bracket
+access_path -> entity_path _ access_ops {%
+  ([path, , indices]): IAccessPath => {
+    const lastIndex = last(indices);
+    return {
+      ...rangeBetween(path, lastIndex),
+      tag: "AccessPath",
+      path, indices
+    }
+  }
+%}
+
+access_ops 
+  -> access_op  
+  |  access_op _ access_ops {% d => [d[0], ...d[2]] %}
+access_op -> "[" _ expr _ "]" {% nth(2) %}
 
 # Expression
 

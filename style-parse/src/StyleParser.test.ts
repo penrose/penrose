@@ -372,12 +372,16 @@ testing {
   test("vector/matrix access expr", () => {
     const prog = `
 testing {
-  -- asum = a[1] + a[0]
-  -- msum = m[1][0] + m[c][b]
-  -- nv = -v
-  -- t1 = x[1][b]
+  a1 = vec[42]
+  a2 = vec[12][34]
+  a3 = a[1] + a[0]
+  a4 = m [1][0] + m[c] [b]
+  a5 = comp(x[1][b])
+  a6 = A.shape.vec[comp(a1[12][34])][a2[56]]
+
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
+    printAST(results[0]);
   });
 });
