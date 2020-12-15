@@ -697,20 +697,19 @@ identifier -> %identifier {%
 %}
 
 # white space definitions 
-# TODO: multiline comments
 
-line_comment 
+comment 
   -> %comment {% convertTokenId %}
   |  %multiline_comment {% ([d]) => rangeOf(d) %}
 
-_c_ -> (%ws | line_comment):* 
+_c_ -> (%ws | comment):* 
 
 _ml -> multi_line_ws_char:* 
 
 multi_line_ws_char
     -> %ws
     |  "\n"
-    | line_comment # skip comments
+    | comment # skip comments
 
 __ -> %ws:+ 
 

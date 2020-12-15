@@ -1,8 +1,11 @@
 // const grammar = require("./Style.ne");
 import * as nearley from "nearley";
 import grammar from "./StyleParser";
-import { join } from "path";
-import { readFileSync } from "fs";
+import * as path from "path";
+import * as fs from "fs";
+
+const outputDir = "../output";
+const saveASTs = true;
 
 let parser;
 const sameASTs = (results: any[]) => {
@@ -400,12 +403,27 @@ testing {
 });
 
 describe("Real Programs", () => {
-  styPaths.map((path) => {
-    const file = join("../examples/", path);
-    const prog = readFileSync(file, "utf8");
-    test(path, () => {
+  // create output folder
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  styPaths.map((examplePath) => {
+    const file = path.join("../examples/", examplePath);
+    const prog = fs.readFileSync(file, "utf8");
+    test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
+      // write to output folder
+      if (saveASTs) {
+        const exampleName = path.basename(examplePath, ".sty");
+        const astPath = path.join(
+          __dirname,
+          outputDir,
+          exampleName + ".ast.json"
+        );
+        fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
+      }
     });
   });
 });
