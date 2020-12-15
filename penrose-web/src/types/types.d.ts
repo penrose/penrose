@@ -1382,3 +1382,13 @@ interface ISelEnv {
 type SelEnv = ISelEnv;
 
 //#endregion
+
+//#region Selector dynamic semantics (matching)
+
+// Type declarations
+
+// A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
+// COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
+type Subst = { [k: string]: Var };
+
+//#endregion
