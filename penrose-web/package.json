@@ -36,9 +36,10 @@
     "tslib": "^2.0.3"
   },
   "scripts": {
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "CI=false && react-scripts --max_old_space_size=4096 build",
-    "build-lib": "ttsc --project tsconfig.lib.json",
+    "build:parser": "nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
+    "start": "npm run build:parser && react-scripts --max_old_space_size=4096 start",
+    "build": "CI=false && npm run build:parser && react-scripts --max_old_space_size=4096 build",
+    "build-lib": "npm run build:parser && ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",
@@ -47,10 +48,14 @@
     "postinstall": "cd .. && husky install ./penrose-web"
   },
   "devDependencies": {
+    "@types/moo": "^0.5.3",
+    "@types/nearley": "^2.11.0",
+    "moo": "^0.5.1",
+    "nearley": "^2.20.1",
     "@types/debug": "0.0.31",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/jest": "^23.3.14",
+    "@types/jest": "^26.0.19",
     "@types/lodash": "^4.14.149",
     "@types/node": "^10.17.21",
     "@types/react": "^16.9.32",

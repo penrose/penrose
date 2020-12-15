@@ -2,6 +2,7 @@
 
 # Lexer
 @{%
+
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 
@@ -84,7 +85,7 @@ const lexer = moo.compile({
 });
 
 
-function tokenStart(token) {
+function tokenStart(token: any) {
   return {
       line: token.line,
       col: token.col - 1
@@ -92,7 +93,7 @@ function tokenStart(token) {
 }
 
 // TODO: test multiline range
-const tokenEnd = (token) => {
+const tokenEnd = (token: any) => {
   const { text } = token;
   const nl = /\r\n|\r|\n/;
   var newlines = 0;
@@ -159,7 +160,7 @@ const rangeFrom = (children: ASTNode[]) => {
   }
 }
 
-const rangeBetween = (beginToken, endToken) => {
+const rangeBetween = (beginToken: any, endToken: any) => {
   const [beginRange, endRange] = [beginToken, endToken].map(rangeOf);
   return {
     start: beginRange.start,
@@ -171,7 +172,7 @@ const rangeBetween = (beginToken, endToken) => {
   // TODO: implement
 // }
 
-const convertTokenId = ([token]) => {
+const convertTokenId = ([token]: any) => {
   return {
     ...rangeOf(token),
     value: token.text,
@@ -179,22 +180,22 @@ const convertTokenId = ([token]) => {
   };
 }
 
-const nth = (n) => {
-  return function(d) {
+const nth = (n: number) => {
+  return function(d: any[]) {
       return d[n];
   };
 }
 
 // Node constructors
 
-const declList = (type, ids) => {
-  const decl = (t, i) => ({
+const declList = (type: StyT, ids: BindingForm[]) => {
+  const decl = (t: StyT, i: BindingForm) => ({
     ...rangeFrom([t, i]),
     tag: "DeclPattern",
     type: t,
     id: i 
   });
-  return ids.map(i => decl(type, i));
+  return ids.map((i: BindingForm) => decl(type, i));
 }
 
 
@@ -238,7 +239,7 @@ sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {%
   d => { 
     const [first, rest] = [d[0], d[1]];
     if(rest.length > 0) {
-      const restNodes = rest.map(ts => ts[3]);
+      const restNodes = rest.map((ts: any[]) => ts[3]);
       return concat(first, ...restNodes);
     } else return first;
   }
@@ -284,11 +285,11 @@ header
 
 selector -> 
     forall:? decl_patterns _ml select_as:?  
-    {% (d) => selector(d[1], null, null, d[4]) %} 
+    {% (d) => selector(d[1], undefined, undefined, d[4]) %} 
   | forall:? decl_patterns _ml select_where select_as:? 
-    {% (d) => selector(d[1], null, d[4], d[5]) %} 
+    {% (d) => selector(d[1], undefined, d[4], d[5]) %} 
   | forall:? decl_patterns _ml select_with select_as:? 
-    {% (d) => selector(d[1], d[4], null, d[5]) %} 
+    {% (d) => selector(d[1], d[4], undefined, d[5]) %} 
   | forall:? decl_patterns _ml select_where select_with select_as:? 
     {% (d) => selector(d[1], d[5], d[4], d[6]) %} 
   | forall:? decl_patterns _ml select_with select_where select_as:? 
@@ -300,7 +301,7 @@ select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]) => {
-    const contents = flatten(d);
+    const contents = flatten(d) as ASTNode[];
     return {
       ...rangeFrom(contents),
       tag: "DeclPatterns", contents
@@ -498,7 +499,7 @@ access_path -> entity_path _ access_ops {%
 
 access_ops 
   -> access_op  
-  |  access_op _ access_ops {% d => [d[0], ...d[2]] %}
+  |  access_op _ access_ops {% (d: any[]) => [d[0], ...d[2]] %}
 access_op -> "[" _ expr _ "]" {% nth(2) %}
 
 # Expression

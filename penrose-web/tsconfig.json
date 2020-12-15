@@ -4,13 +4,7 @@
     "outDir": "build/dist",
     "module": "esnext",
     "target": "es5",
-    "lib": [
-      "es5",
-      "es6",
-      "es7",
-      "esnext",
-      "dom"
-    ],
+    "lib": ["es5", "es6", "es7", "esnext", "dom"],
     "sourceMap": true,
     "allowJs": true,
     "jsx": "react",
@@ -27,15 +21,8 @@
     "noUnusedLocals": false,
     "skipLibCheck": true,
     "downlevelIteration": true,
-    "types": [
-      "react",
-      "jest",
-      "node",
-      "tslib"
-    ],
-    "typeRoots": [
-      "src/types"
-    ],
+    "types": ["react", "jest", "node", "tslib"],
+    "typeRoots": ["src/types", "node_modules/@types"],
     "esModuleInterop": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -63,9 +50,7 @@
     "placeOpenBraceOnNewLineForFunctions": false,
     "placeOpenBraceOnNewLineForControlBlocks": false
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "exclude": [
     "node_modules",
     "build",
@@ -79,16 +64,10 @@
     "src/setupTests.ts"
   ],
   "typedocOptions": {
-    "inputFiles": [
-      "./src"
-    ],
+    "inputFiles": ["./src"],
     "mode": "modules",
     "out": "doc",
-    "exclude": [
-      "**/*.test.tsx",
-      "**/*__*/**",
-      "**/node_modules/**"
-    ],
+    "exclude": ["**/*.test.tsx", "**/*__*/**", "**/node_modules/**"],
     "includeDeclarations": true
   }
 }

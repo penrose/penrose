@@ -4,10 +4,10 @@ import grammar from "./StyleParser";
 import * as path from "path";
 import * as fs from "fs";
 
-const outputDir = "../output";
+const outputDir = "/tmp/asts";
 const saveASTs = true;
 
-let parser;
+let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
@@ -417,11 +417,7 @@ describe("Real Programs", () => {
       // write to output folder
       if (saveASTs) {
         const exampleName = path.basename(examplePath, ".sty");
-        const astPath = path.join(
-          __dirname,
-          outputDir,
-          exampleName + ".ast.json"
-        );
+        const astPath = path.join(outputDir, exampleName + ".ast.json");
         fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
       }
     });

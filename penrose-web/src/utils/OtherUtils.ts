@@ -1,10 +1,13 @@
+// @ts-nocheck
+// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
+
 import * as _ from "lodash";
 
 const RAND_RANGE = 100;
 const TOL = 1e-3;
 
 export const normList = (xs: number[]) =>
-  Math.sqrt(_.sum(xs.map(e => e * e)));
+  Math.sqrt(_.sum(xs.map((e) => e * e)));
 
 // Repeat `x`, `i` times
 export function repeat<T>(i: number, x: T) {
@@ -12,18 +15,18 @@ export function repeat<T>(i: number, x: T) {
 
   for (let j = 0; j < i; j++) {
     xs.push(x);
-  };
+  }
 
   return xs;
-};
+}
 
 export const all = (xs: boolean[]) =>
   xs.reduce((prev, curr) => prev && curr, true);
 
-// ---------- Vector utils 
+// ---------- Vector utils
 
 export const scalev = (c: number, xs: number[]): number[] =>
-  _.map(xs, x => c * x);
+  _.map(xs, (x) => c * x);
 
 export const addv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
@@ -32,7 +35,7 @@ export const addv = (xs: number[], ys: number[]): number[] => {
   }
 
   return _.zipWith(xs, ys, (x, y) => x + y);
-}
+};
 
 export const subv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
@@ -43,8 +46,7 @@ export const subv = (xs: number[], ys: number[]): number[] => {
   return _.zipWith(xs, ys, (x, y) => x - y);
 };
 
-export const negv = (xs: number[]): number[] =>
-  _.map(xs, e => -e);
+export const negv = (xs: number[]): number[] => _.map(xs, (e) => -e);
 
 export const dot = (xs: number[], ys: number[]): number => {
   if (xs.length !== ys.length) {
@@ -73,11 +75,15 @@ const prettyPrintExpr = (arg: Expr): string => {
       const val = arg.contents.contents;
       return String(val);
     } else {
-      throw Error("Should not be asked to pretty-print varying float; has it been replaced?");
+      throw Error(
+        "Should not be asked to pretty-print varying float; has it been replaced?"
+      );
     }
   } else if (arg.tag === "CompApp") {
     const [fnName, fnArgs] = arg.contents;
-    return [fnName, "(", ...(fnArgs.map(prettyPrintExpr).join(", ")), ")"].join("");
+    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
+      ""
+    );
   } else {
     // TODO: Finish writing pretty-printer for rest of expressions (UOp, BinOp)
     const res = JSON.stringify(arg);
@@ -102,7 +108,8 @@ export const prettyPrintProperty = (arg: any) => {
   return [varName, varField, property].join(".");
 };
 
-export const prettyPrintFns = (state: any) => state.objFns.concat(state.constrFns).map(prettyPrintFn);
+export const prettyPrintFns = (state: any) =>
+  state.objFns.concat(state.constrFns).map(prettyPrintFn);
 
 // ----- Helper functions
 
@@ -150,7 +157,7 @@ export const repeatList = (e: any, n: number): any[] => {
 };
 
 export const randList = (n: number): number[] => {
-  return repeatList(0, n).map(e => RAND_RANGE * (Math.random() - 0.5));
+  return repeatList(0, n).map((e) => RAND_RANGE * (Math.random() - 0.5));
 };
 
 // From Evaluator
@@ -169,8 +176,10 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
 //   return (...args: any[]) => toPenalty(constrDict[name]);
 // };
 
-export const linePts = ({ start, end }: any): [VarAD[], VarAD[]] =>
-  [start.contents, end.contents];
+export const linePts = ({ start, end }: any): [VarAD[], VarAD[]] => [
+  start.contents,
+  end.contents,
+];
 
 export const getStart = ({ start }: any): VarAD[] => start.contents;
 
