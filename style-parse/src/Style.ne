@@ -40,6 +40,7 @@ const lexer = moo.compile({
   comma: ",",
   string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
+  comment: /--.*?$/,
   dot: ".",
   brackets: "[]",
   lbracket: "[",
@@ -49,6 +50,7 @@ const lexer = moo.compile({
   assignment: "=",
   def: ":=",
   plus: "+",
+  minus: "-",
   multiply: "*",
   divide: "/",
   modulo: "%",
@@ -56,7 +58,6 @@ const lexer = moo.compile({
   semi: ";",
   question: "?",
   tick: "\`",
-  comment: /--.*?$/,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
@@ -205,6 +206,12 @@ const layering = (kw: any, below: Path, above: Path): ILayering => ({
   ...rangeOf([above, below]),
   tag: 'Layering',
   above, below
+})
+
+const binop = (op: BinaryOp, left: Expr, right: Expr): IBinOp => ({
+  ...rangeBetween(left, right),
+  tag: 'BinOp',
+  op, left, right
 })
 
 %} # end of lexer
@@ -404,7 +411,7 @@ delete -> "delete" __ path {%
   }}
 %}
 
-path_assign -> type:? __ path _ "=" _ expr {%
+path_assign -> type:? __ path _ "=" _ assign_expr {%
   ([type, , path, , , , expr]) => ({ 
     ...rangeBetween(type ? type : path, expr),
     // ...rangeBetween(path, expr),
@@ -450,31 +457,32 @@ localVar -> identifier {%
 # Expression
 
 # TODO: if we want to be less libral about expressions, we can put exprs like layering strictly into this category so they don't appear in, say, comp functions
-# assign_expr 
-#   -> expr {% id %}
-#   |  layering {% id %}
-#   |  objective {% id %}
-#   |  constraint {% id %}
-  # |  constructor {% id %}
-
+assign_expr 
+  -> expr {% id %}
+  |  layering {% id %}
+  |  objective {% id %}
+  |  constraint {% id %}
+  |  gpi_decl {% id %}
 
 expr 
+  -> arithmeticExpr {% id %}
+
+parenthesized 
+  -> "(" _ arithmeticExpr _ ")" {% nth(2) %}
+  |  unary_expr {% id %}
+
+unary_expr
   -> bool_lit {% id %}
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
   |  path {% id %}
-  |  layering {% id %}
-  |  objective {% id %}
-  |  constraint {% id %}
-  |  gpi_decl {% id %}
-  |  list
   # TODO: complete
+  # |  list
   # |  transformExpr 
   # |  tuple
   # |  vector
   # |  matrix # TODO: check if this will create ambiguity
-  # |  arithmeticExpr
 
 # TODO: find a better way to express options, extra layer introduced by parens
 bool_lit -> ("true" | "false") {%
@@ -561,13 +569,24 @@ property_decl -> identifier _ ":" _ expr {%
 %}
 
 # Arith ops
-# TODO: finish
+# TODO: unary op
 
-# arithmetic_expr 
+# Exponents
+factor 
+  -> parenthesized _ "^" _ factor {% (d) => binop('Exp', d[0], d[4]) %}
+  |  parenthesized                {% id %}
 
-# sum -> sum ("+"|"-") product | product
-# product -> product ("*"|"/") exp | exp
-# exp -> number "^" exp | number # this is right associative!
+# Multiplication and division
+term 
+  -> term _ "*" _ factor  {% (d) => binop('Multiply', d[0], d[4]) %}
+  |  term _ "/" _ factor  {% (d) => binop('Divide', d[0], d[4]) %}
+  |  factor               {% id %}
+
+# Addition and subtraction
+arithmeticExpr 
+  -> arithmeticExpr _ "+" _ term {% (d) => binop('BPlus', d[0], d[4]) %}
+  |  arithmeticExpr _ "-" _ term {% (d) => binop('BMinus', d[0], d[4]) %}
+  |  term                        {% id %}
 
 # Common 
 

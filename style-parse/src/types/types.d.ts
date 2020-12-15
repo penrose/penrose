@@ -163,14 +163,17 @@ interface IAvoidFn {
   contents: [string, Expr[]];
 }
 
-interface IBinOp {
+interface IBinOp extends ASTNode {
   tag: "BinOp";
-  contents: [BinaryOp, Expr, Expr];
+  op: BinaryOp;
+  left: Expr;
+  right: Expr;
 }
 
-interface IUOp {
+interface IUOp extends ASTNode {
   tag: "UOp";
-  contents: [UnaryOp, Expr];
+  op: UnaryOp;
+  arg: Expr;
 }
 
 interface IList {

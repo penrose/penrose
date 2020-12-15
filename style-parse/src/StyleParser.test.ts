@@ -301,4 +301,28 @@ const {
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+
+  test("assigning arithmetic expr", () => {
+    const prog = `
+const {
+  -- nesting and parens
+  n1 = (1.0)
+  n2 = (1.0 + .2) 
+  n3 = 1.0 + 2.0 / .3
+  -- plus/minus
+  p1 = 1.0 - 2.0
+  p2 = 1.0 + "string" -- should still parse 
+  p3 = 1.0 + ? 
+  p4 = 1.0 + 2.0 - 3.0 + 4.0 
+  -- mul/div
+  m1 = 1.0 / 2.0
+  m2 = 1.0 * "string" -- should still parse 
+  m3 = 1.0 / ? 
+  m3 = 1.0 * ? 
+  m4 = 1.0 * 2.0 / 3.0 / 4.0 
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    printAST(results[0]);
+  });
 });
