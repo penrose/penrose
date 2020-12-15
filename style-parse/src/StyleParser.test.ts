@@ -1,7 +1,6 @@
 // const grammar = require("./Style.ne");
 import * as nearley from "nearley";
 import grammar from "./StyleParser";
-import { find } from "lodash";
 
 let parser;
 const sameASTs = (results: any[]) => {
@@ -302,27 +301,83 @@ const {
     sameASTs(results);
   });
 
-  test("assigning arithmetic expr", () => {
+  test("arithmetic expr", () => {
     const prog = `
 const {
+  -- pos/neg numbers
+  float pn1 = -5.2
+  pn2 = -3.14532e+2
+  pn3 = 1 + (-3.14) / 3.0 * (-2.0)
   -- nesting and parens
   n1 = (1.0)
   n2 = (1.0 + .2) 
-  n3 = 1.0 + 2.0 / .3
+  float n3 = 1.0 + 2.0 / .3
   -- plus/minus
   p1 = 1.0 - 2.0
   p2 = 1.0 + "string" -- should still parse 
   p3 = 1.0 + ? 
-  p4 = 1.0 + 2.0 - 3.0 + 4.0 
+  float p4 = 1.0 + 2.0 - 3.0 + 4.0 
   -- mul/div
   m1 = 1.0 / 2.0
   m2 = 1.0 * "string" -- should still parse 
   m3 = 1.0 / ? 
   m3 = 1.0 * ? 
   m4 = 1.0 * 2.0 / 3.0 / 4.0 
+  -- exp
+  e1 = 1.0^5 + 5.0^ 3
+  e1 = 1.0 ^ (5 + 8) + 5.0 ^3
+  -- unary op
+  u2 = -pn2
+  u1 = -A.shape.x + (-m1) * 5.0
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    printAST(results[0]);
+  });
+
+  test("tuple expr", () => {
+    const prog = `
+testing {
+  w = {"thing1", "thing2"}
+  x = { 1, {2, comp( 5.0, x.shape.y) } }
+  y = {{ "string", {2, x.shape.color} }, -2.}
+  z = { "thing1", false}
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("vector arith expr", () => {
+    const prog = `
+testing {
+  m = (a, (-1., 2.))
+  v = (a + (2, 900)) / (4.0 + 3)
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("vector/matrix literal expr", () => {
+    const prog = `
+testing {
+  m1 = ((1., 2.), (3., 4 ), ( 5., 6.))
+  -- NOTE: this will parse. It's up to the checker to determine the type
+  m2 = (1, (3., 4 ), "string", (4, 5, (-6)))
+  m3 = ((42.))
+  m4 = (x.shape.y, ({2, 3.}, localVar ), "string", (4, 5, (-6)))
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("vector/matrix access expr", () => {
+    const prog = `
+testing {
+  -- asum = a[1] + a[0]
+  -- msum = m[1][0] + m[c][b]
+  -- nv = -v
+  -- t1 = x[1][b]
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
   });
 });

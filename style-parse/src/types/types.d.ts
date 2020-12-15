@@ -163,35 +163,38 @@ interface IAvoidFn {
   contents: [string, Expr[]];
 }
 
+type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
+
+// NOTE: unary + operator not parsed, as they don't change values
+type UnaryOp = "UPlus";
 interface IBinOp extends ASTNode {
   tag: "BinOp";
   op: BinaryOp;
   left: Expr;
   right: Expr;
 }
-
 interface IUOp extends ASTNode {
   tag: "UOp";
   op: UnaryOp;
   arg: Expr;
 }
 
-interface IList {
+interface IList extends ASTNode {
   tag: "List";
   contents: Expr[];
 }
 
-interface ITuple {
+interface ITuple extends ASTNode {
   tag: "Tuple";
   contents: [Expr, Expr];
 }
 
-interface IVector {
+interface IVector extends ASTNode {
   tag: "Vector";
   contents: Expr[];
 }
 
-interface IMatrix {
+interface IMatrix extends ASTNode {
   tag: "Matrix";
   contents: Expr[];
 }
@@ -243,10 +246,6 @@ interface IFix extends ASTNode {
 interface IVary extends ASTNode {
   tag: "Vary";
 }
-
-type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
-
-type UnaryOp = "UPlus" | "UMinus";
 
 interface PropertyDecl extends ASTNode {
   tag: "PropertyDecl";

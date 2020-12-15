@@ -50,6 +50,7 @@ const lexer = moo.compile({
   assignment: "=",
   def: ":=",
   plus: "+",
+  exp: "^",
   minus: "-",
   multiply: "*",
   divide: "/",
@@ -414,15 +415,16 @@ delete -> "delete" __ path {%
 path_assign -> type:? __ path _ "=" _ assign_expr {%
   ([type, , path, , , , expr]) => ({ 
     ...rangeBetween(type ? type : path, expr),
-    // ...rangeBetween(path, expr),
     tag: "PathAssign",
     type, path, expr
   })
 %}
 
-type -> identifier {% id %}
-# TODO: list type
-# | identifier "[]"
+type 
+  -> identifier {% ([d]): StyType => ({...tokenRange(d), tag: 'TypeOf', contents: d}) %}
+  |  identifier "[]" {%
+      ([d]): StyType => ({...tokenRange(d), tag: 'ListOf', contents: d}) 
+     %}
 
 path 
   -> propertyPath {% id %}
@@ -456,7 +458,7 @@ localVar -> identifier {%
 
 # Expression
 
-# TODO: if we want to be less libral about expressions, we can put exprs like layering strictly into this category so they don't appear in, say, comp functions
+# NOTE: all assign_expr can appear on the rhs of an assign statement, but not all can be, say, arguments of a computation/constraint. 
 assign_expr 
   -> expr {% id %}
   |  layering {% id %}
@@ -464,27 +466,91 @@ assign_expr
   |  constraint {% id %}
   |  gpi_decl {% id %}
 
-expr 
-  -> arithmeticExpr {% id %}
+# NOTE: inline computations on expr_literal (including expr_literal)
+expr -> arithmeticExpr {% id %}
 
+# Arith ops (NOTE: ordered in decreasing precedence)
+
+# Parenthsized
 parenthesized 
   -> "(" _ arithmeticExpr _ ")" {% nth(2) %}
-  |  unary_expr {% id %}
+  |  expr_literal               {% id %}
 
-unary_expr
+# Unary ops 
+unary 
+  -> "-" _ parenthesized  {% (d) => 
+    ({
+      ...rangeBetween(d[0], d[2]),
+      tag: 'UOp', op: "UMinus", arg: d[2]
+    }) 
+  %}
+  |  parenthesized        {% id %}
+
+# Exponents
+factor 
+  -> unary _ "^" _ factor {% (d) => binop('Exp', d[0], d[4]) %}
+  |  unary                {% id %}
+
+# Multiplication and division
+term 
+  -> term _ "*" _ factor  {% (d) => binop('Multiply', d[0], d[4]) %}
+  |  term _ "/" _ factor  {% (d) => binop('Divide', d[0], d[4]) %}
+  |  factor               {% id %}
+
+# Addition and subtraction
+arithmeticExpr 
+  -> arithmeticExpr _ "+" _ term {% (d) => binop('BPlus', d[0], d[4]) %}
+  |  arithmeticExpr _ "-" _ term {% (d) => binop('BMinus', d[0], d[4]) %}
+  |  term                        {% id %}
+
+# NOTE: all of the expr_literal can be operands of inline computation 
+expr_literal
   -> bool_lit {% id %}
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
   |  path {% id %}
-  # TODO: complete
-  # |  list
+  |  list {% id %}
+  |  tuple {% id %}
+  |  vector {% id %}
+  # |  matrix {% id %} # NOTE: we liberally parse vectors to include the matrix case instead. All matrices are vectors of vectors.
   # |  transformExpr 
-  # |  tuple
-  # |  vector
-  # |  matrix # TODO: check if this will create ambiguity
 
-# TODO: find a better way to express options, extra layer introduced by parens
+list -> "[" _ expr_list _ "]" {% 
+  ([lbracket, , exprs, , rbracket]): IList => ({
+    ...rangeBetween(lbracket, rbracket),
+    tag: 'List',
+    contents: exprs
+  })
+%}
+
+# NOTE: we only allow 2 tuples and enforce this rule during parsing
+tuple -> "{" _ expr _ "," _ expr _ "}" {% 
+  ([lbrace, , e1, , , , e2, , rbrace]): ITuple => ({
+    ...rangeBetween(lbrace, rbrace),
+    tag: 'Tuple',
+    contents: [e1, e2]
+  })
+%}
+
+# NOTE: the extra expr makes sure a vector will always have >1 components.
+vector -> "(" _ expr  _ "," expr_list ")" {% 
+  ([lparen, , first, , , rest, rparen]): IVector => ({
+    ...rangeBetween(lparen, rparen),
+    tag: 'Vector',
+    contents: [first, ...rest]
+  })
+%}
+
+# NOTE: not used since `vector` will include this case. Actual type will be resolved by the compiler.
+# matrix -> "(" _ sepBy1[vector, ","] _ ")" {% 
+#   ([lparen, , exprs, , rparen]): IMatrix => ({
+#     ...rangeBetween(lparen, rparen),
+#     tag: 'Matrix',
+#     contents: exprs
+#   })
+# %}
+
 bool_lit -> ("true" | "false") {%
   ([[d]]): IBoolLit => ({
     ...tokenRange(d),
@@ -567,26 +633,6 @@ property_decl -> identifier _ ":" _ expr {%
     name, value
   })
 %}
-
-# Arith ops
-# TODO: unary op
-
-# Exponents
-factor 
-  -> parenthesized _ "^" _ factor {% (d) => binop('Exp', d[0], d[4]) %}
-  |  parenthesized                {% id %}
-
-# Multiplication and division
-term 
-  -> term _ "*" _ factor  {% (d) => binop('Multiply', d[0], d[4]) %}
-  |  term _ "/" _ factor  {% (d) => binop('Divide', d[0], d[4]) %}
-  |  factor               {% id %}
-
-# Addition and subtraction
-arithmeticExpr 
-  -> arithmeticExpr _ "+" _ term {% (d) => binop('BPlus', d[0], d[4]) %}
-  |  arithmeticExpr _ "-" _ term {% (d) => binop('BMinus', d[0], d[4]) %}
-  |  term                        {% id %}
 
 # Common 
 
