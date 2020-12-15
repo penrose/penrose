@@ -9,9 +9,11 @@ interface IProps {
     modAttr(attrname: string, attrval: Value<any>): void;
 }
 
+type InputType = "range" | "mulptrange" | "color" | "select" | "checkbox" | "text" | "number" | "url" | "ptrange";
+
 interface IInputProps {
-    inputType: string,
-    showValue?: string,
+    inputType: InputType,
+    showValue?: "true" | "false",
     min? : string,
     max? : string,
     minX? : string,
@@ -67,24 +69,28 @@ class LabeledInput extends React.Component<IProps> {
     }
     public handleChange = (eattr: string, event: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
         const teval = (isNaN(Number(event.target.value))) ? event.target.value : +event.target.value; // convert to number if necessary
-        this.updateAttr(eattr, teval); // a little hacky - id is name of property
+        this.updateAttr(eattr, teval);
     }
     // when an input corresponding to a part of an attribute is modified instead of an entire attribute
-    public handleSubChange = (eAttr: string, pathIndex: number, subpathIndex: number, pointIndex: number, event: React.ChangeEvent<HTMLInputElement>) => {
-        // const ptinfo = event.target.id.split("_");
-        // const xory = (ptinfo[2] === "x" ? 0 : 1);
+    public handleMulPtRange = (eAttr: string, pathIndex: number, subpathIndex: number, pointIndex: number, event: React.ChangeEvent<HTMLInputElement>) => {
         const teval = (isNaN(Number(event.target.value))) ? event.target.value : +event.target.value;
-        const path = _.cloneDeep(this.props.eValue.contents);
+        const path = _.cloneDeep(this.props.eValue.contents);   // TODO do we really need to clone it? good in practice but is it strictly necessary??
         const subpath = path[pathIndex];   // get specific subpath
         const pt = subpath.contents[subpathIndex];    // get specific point
         pt.contents[pointIndex] = teval;
         this.updateAttr(eAttr, path);
     }
+    public handlePtRange = (eAttr: string, pointIndex: number, event: React.ChangeEvent<HTMLInputElement>) => {
+        const teval = (isNaN(Number(event.target.value))) ? event.target.value : +event.target.value;
+        const point = [...this.props.eValue.contents];
+        point[pointIndex] = teval;
+        this.updateAttr(eAttr, point); 
+    }
     public handleCheck = (eattr: string, event: React.ChangeEvent<HTMLInputElement>) => {
         this.updateAttr(eattr, event.target.checked);
     }
     public keyDown = (eattr: string, event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.keyCode === 13) {
+        if (event.key === "Enter") {
             const etgt = (event.target) as HTMLInputElement;
             const teval = (isNaN(Number(etgt.value))) ? etgt.value : +etgt.value; // convert to number if necessary
             this.updateAttr(eattr, teval);
@@ -127,7 +133,7 @@ class LabeledInput extends React.Component<IProps> {
         }
         else return (<label htmlFor={id}>{ltxt}</label>)
     }
-    public makePointRange = () => {
+    public makeMulPointRange = () => {
             const {inputProps, eAttr} = this.props;
             const subpaths = this.props.eValue.contents;
             // todo - refactor the whole file so you can call makerange() and makelabel() with params
@@ -143,19 +149,19 @@ class LabeledInput extends React.Component<IProps> {
                         if (pt.tag !== "Pt") throw new Error('No current support for Bezier curves!');
                         const xid = ["S", index.toString(), "x", subindex.toString(), eAttr].join("_");
                         const xltxt = "S" + index.toString() + "x" + subindex.toString();
-                        const xspan = this.state.eValue.contents[index].contents[subindex].contents[0].toString();
-                        const yspan = this.state.eValue.contents[index].contents[subindex].contents[1].toString();
+                        const xspan = _.round(this.state.eValue.contents[index].contents[subindex].contents[0]).toString();
+                        const yspan = _.round(this.state.eValue.contents[index].contents[subindex].contents[1]).toString();
                         const yid = ["S", index.toString(), "y", subindex.toString(), eAttr].join("_");
                         const yltxt = "S" + index.toString() + "y" + subindex.toString();
                         return (
                             <React.Fragment key={"S" + index + "pt" + subindex}>
                             <div style={{display: "inline-block"}} className="sublabinput">
-                                <input id={xid} type="range" onChange={(e) => this.handleSubChange(eAttr, index, subindex, 0, e)} min={toCanvas(inputProps.minX!)}
+                                <input id={xid} type="range" onChange={(e) => this.handleMulPtRange(eAttr, index, subindex, 0, e)} min={toCanvas(inputProps.minX!)}
                                 max={toCanvas(inputProps.maxX!)} value={_.round(pt.contents[0] as number)}/>
                                 {this.makeSubLabel(xid, xspan, xltxt, (inputProps.showValue === "true"))}
                             </div>
                             <div className="sublabinput" style={{display: "inline-block"}} >
-                                <input id={yid} type="range" onChange={(e) => this.handleSubChange(eAttr, index, subindex, 1, e)} min={toCanvas(inputProps.minY!)}
+                                <input id={yid} type="range" onChange={(e) => this.handleMulPtRange(eAttr, index, subindex, 1, e)} min={toCanvas(inputProps.minY!)}
                                 max={toCanvas(inputProps.maxY!)} value={_.round(pt.contents[1] as number)}/>
                                 {this.makeSubLabel(yid, yspan, yltxt, (inputProps.showValue === "true"))}
                             </div>
@@ -166,6 +172,28 @@ class LabeledInput extends React.Component<IProps> {
             </React.Fragment>)
             
         }
+    public makePointRange = () => {
+        const {eAttr, inputProps} = this.props;
+        const xid = "x_" + eAttr;
+        const xspan = _.round(this.state.eValue.contents[0]).toString();
+        const yspan = _.round(this.state.eValue.contents[1]).toString();
+        const yid = "y_" + eAttr;
+        const pt = this.state.eValue.contents;
+        return (
+            <React.Fragment>
+                <div className="sublabinput" style={{display: "inline-block"}}>
+                    <input type= "range" id={xid} min={toCanvas(inputProps.minX!)}
+                    max={toCanvas(inputProps.maxX!)} value={_.round(pt[0] as number)} onChange={(e) => this.handlePtRange(eAttr, 0, e)} />
+                    {this.makeSubLabel(xid, xspan, eAttr + "X", (inputProps.showValue === "true"))}
+                </div>
+                <div className="sublabinput" style={{display: "inline-block"}}>
+                    <input type= "range" id={yid} min={toCanvas(inputProps.minY!)} max={toCanvas(inputProps.maxY!)}
+                    value={_.round(pt[1] as number)} onChange={(e) => this.handlePtRange(eAttr, 1, e)}/>
+                    {this.makeSubLabel(yid, yspan, eAttr + "Y", (inputProps.showValue === "true"))}
+                </div>
+            </React.Fragment>
+        )
+    }
     public makeText = () => {
         const {eAttr} = this.props;
         // set up to only trigger on enter
@@ -228,10 +256,8 @@ class LabeledInput extends React.Component<IProps> {
     }
 
     public makeLabel = () => {
-        if (this.props.inputProps.inputType === "ptrange") return     // don't need to return anything b/c we need to make individual labels
-        // nb - this is a quick fix while we have only one input type that has multiple subinputs
-        // if this changes we may want to refactor so this doesn't become a wall of if statements.
-        else if (this.props.inputProps.inputType === "color") return
+        // todo - better way to check this?
+        if (["mulptrange", "color", "ptrange"].includes(this.props.inputProps.inputType)) return     // don't need to return anything b/c we need to make individual labels
         else if (this.props.inputProps.showValue === "true") return (<label htmlFor={this.props.eAttr}>{this.makeSpan()}{this.props.eAttr}</label>)
         else return (<label htmlFor={this.props.eAttr}>{this.props.eAttr}</label>)
     }
@@ -241,8 +267,8 @@ class LabeledInput extends React.Component<IProps> {
         switch (inputType) {
             case ("range") :
                 return (this.makeRange())
-            case ("ptrange") :
-                return (this.makePointRange())
+            case ("mulptrange") :
+                return (this.makeMulPointRange())
             case ("color") :
                 return (this.makeColor())
             case ("select") :
@@ -255,12 +281,14 @@ class LabeledInput extends React.Component<IProps> {
                 return (this.makeNumber())
             case ("url") :
                 return (this.makeURL())
+            case ("ptrange") :
+                return (this.makePointRange())
             default:
                 throw new Error("Invalid input type " + inputType + " .");
         }
     }
     public makeInputAndLabel = () => {
-        if (this.props.inputProps.inputType === "ptrange") {
+        if (this.props.inputProps.inputType === "mulptrange") {
             return (
                 <React.Fragment>
                     {this.makeInput()}
