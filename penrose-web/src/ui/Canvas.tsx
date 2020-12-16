@@ -201,7 +201,16 @@ class Canvas extends React.Component<ICanvasProps> {
   };
 
   public downloadState = () => {
-    const content = JSON.stringify({ ...this.props.data, params: {} });
+    const state: State = this.props.data!;
+    const params = {
+      ...state.params,
+      energyGraph: {},
+      xsVars: [],
+      constrWeightNode: undefined,
+      epWeightNode: undefined,
+      graphs: undefined,
+    };
+    const content = JSON.stringify({ ...state, params });
     const blob = new Blob([content], {
       type: "text/plain",
     });
