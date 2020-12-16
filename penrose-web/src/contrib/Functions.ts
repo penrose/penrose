@@ -16,7 +16,8 @@ import {
   cos,
   sin,
   neg,
-  sqrt
+  sqrt,
+  arccos
 } from "engine/Autodiff";
 
 /**
@@ -154,24 +155,33 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `d` (in degrees). 
+   * Return the cosine of input `theta` (in radians). 
    */
-  cos: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  cos: (theta: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      contents: cos(theta),
     };
   },
 
   /**
-   * Return the sine of input `d` (in degrees).
+   * Return the sine of input `theta` (in radians).
    */
-  sin: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  sin: (theta: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      contents: sin(theta),
+    };
+  },
+
+  /**
+   * Return the arccos of input `x` (in range [-1,1]).
+   * TODO: We should think about where/when/if to clamp acos and/or its derivative
+   */
+  arccos: (x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: arccos(x),
     };
   },
 
@@ -202,6 +212,16 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: ops.vdot(v, w),
+    };
+  },
+
+  /**
+   * Return the unsigned angle between vectors `u` and `v`.
+   */
+  angleBetween: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: arccos(ops.vdot(ops.vunit(u), ops.vunit(v))),
     };
   },
 

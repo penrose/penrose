@@ -33,6 +33,8 @@ where In( p, H ) {
       color : Colors.black
    }
 
+   layer p.dotShape above H.diskShape
+
    --ensure contains( H.diskShape, p.dotShape )
 }
 
@@ -85,23 +87,39 @@ where IsCenter( p, h ); In( p, H ) {
    delete h.tangentDisk
 }
 
--- forall Geodesic g; IdealPoint p; IdealPoint q; HyperbolicPlane H
--- where g := MakeGeodesic( p, q )
+forall Geodesic g; IdealPoint p; IdealPoint q; HyperbolicPlane H
+where g := MakeGeodesic( p, q )
+{
+   vec2 P = p.dotShape.center
+   vec2 Q = q.dotShape.center
+   scalar theta = angleBetween( P, Q )
+   scalar L = H.diskShape.r
+   scalar R = L/cos(theta/2.)
+   vec2 c = R*unit(P+Q)
+   scalar r = norm(c - P)
+
+   g.shape = Circle {
+      center: c
+      r: r
+   }
+
+   -- g.shape = Line {
+   --        start: p.dotShape.center
+   --          end: q.dotShape.center
+   --        color: Colors.black
+   --    thickness: 5.
+   -- }
+
+   layer p.dotShape above g.shape
+   layer q.dotShape above g.shape
+}
+
+-- forall Geodesic g; Geodesic h; IdealPoint p; HyperbolicPlane H
+-- where PerpendicularTo( g, h, p ); In( p, H )
 -- {
---    vec2 P = p.dotShape.center
---    vec2 Q = q.dotShape.center
---    scalar theta = angleBetween( P, Q )
---    scalar L = H.diskShape.r
---    scalar R = L/cos(theta/2.)
---    vec2 c = R*unit(P+Q)
---    scalar r = norm(c-P)
--- 
---    g.shape = Line {
---           start: p.dotShape.center
---             end: q.dotShape.center
---           color: Colors.black
---       thickness: 5.
---    }
+--    -- TODO ensure that g passes through p
+--    -- TODO ensure that g is perpendicular to h
 -- }
+
 
 
