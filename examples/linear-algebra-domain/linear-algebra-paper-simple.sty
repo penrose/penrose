@@ -48,6 +48,35 @@ testing {
         -- test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
 }
 
+forall Vector u; VectorSpace U
+where In(u,U) {
+  u.text = Text {
+    -- center : (?, ?) -- This should be done automatically
+    string : u.label
+    color : u.arrow.color
+  }
+
+  u.arrow = Arrow {
+    start : U.origin
+    end : (?, ?)
+    thickness : 3.0
+    color : C.lightBlue
+    arrowheadSize : const.arrowheadSize
+  }
+
+   u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
+
+   ensure contains(U.background, u.arrow)
+   ensure contains(U.background, u.text)
+   ensure atDist(u.arrow, u.text, 15.0)
+   ensure minSize(u.arrow)
+
+  u.text above U.xAxis
+  u.text above U.yAxis
+  U.background below u.text
+  U.background below u.arrow
+}
+
 forall VectorSpace U {
     scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
     vec2 U.origin = (0., 0.)
@@ -56,7 +85,8 @@ forall VectorSpace U {
 
     shape U.background = Square {
         center : U.origin
-        side : const.vectorSpaceSize
+        w: const.vectorSpaceSize
+        h: const.vectorSpaceSize
         color : C.none
         strokeColor : C.none
         -- strokeWidth : 2.0
@@ -86,37 +116,27 @@ forall VectorSpace U {
 
     U.text = Text {
         string : U.label
+        fontSize: "15pt"
         center : (U.origin[0] - axisSize, U.origin[1] + axisSize)
         color : U.axisColor
     }
 }
 
-forall Vector u; VectorSpace U
-where In(u,U) {
-  u.text = Text {
-    -- center : (?, ?) -- This should be done automatically
-    string : u.label
-    color : u.arrow.color
-  }
 
-  u.arrow = Arrow {
-    start : U.origin
-    end : (?, ?)
-    thickness : 3.0
-    color : C.lightBlue
-    arrowheadSize : const.arrowheadSize
-  }
 
-   u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
-
-   ensure contains(U.background, u.arrow)
-   ensure contains(U.background, u.text)
-   ensure atDist(u.arrow, u.text, 15.0)
-   ensure minSize(u.arrow)
-
-  layer u.text above U.xAxis
-  layer u.text above U.yAxis
+/*
+forall Vector u; Vector v
+with VectorSpace U
+where Independent(u, v); In(u, U); In(v, U) {
+    startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
+    endR = u.arrow.end
+    startL = v.arrow.start
+    endL = v.arrow.end
+    dirR = unit(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
+    dirL = unit(endL - startL)
+    encourage equal(dirR + dirL, 0.0) -- NOTE: Have to import Penrose fns
 }
+*/
 
 forall Vector u; Vector v
 with VectorSpace U
@@ -209,6 +229,6 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       layer v.unitMarkerLine above U.yAxis
 }
 
-forall Vector `x2` {
-       override `x2`.arrow.color = C.green
+forall Vector `b` {
+       override `b`.arrow.color = C.green
 }

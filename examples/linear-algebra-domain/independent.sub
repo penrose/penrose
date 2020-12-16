@@ -1,0 +1,6 @@
+VectorSpace V
+Vector a ∈ V
+Vector b ∈ V
+Independent(a, b)
+Label a $a$
+Label b $b$

@@ -895,14 +895,13 @@ export const ops = {
   /**
    * Return the Euclidean distance squared between vectors `v` and `w`.
    */
-  vdistsq:
-    (v: VarAD[], w: VarAD[]): VarAD => {
-      if (v.length !== w.length) {
-        throw Error("expected vectors of same length");
-      }
+  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
 
-      return ops.vnormsq(ops.vsub(v, w));
-    },
+    return ops.vnormsq(ops.vsub(v, w));
+  },
 
   /**
    * Return the dot product of vectors `v1, v2`.
