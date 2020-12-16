@@ -1,7 +1,7 @@
 import { checkComp, compDict } from "contrib/Functions";
 import { mapTranslation, valueAutodiffToNumber } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
-import seedrandom from "seedrandom";
+import seedrandom, { prng } from "seedrandom";
 import { floatVal } from "utils/OtherUtils";
 import {
   add,
@@ -40,7 +40,6 @@ const clone = require("rfdc")({ proto: false, circles: false });
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalShapes = (s: State): State => {
-
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
   const varyingValuesDiff = s.varyingValues.map(differentiable);
@@ -53,7 +52,10 @@ export const evalShapes = (s: State): State => {
 
   const optDebugInfo = {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
-    gradientPreconditioned: genPathMap(s.varyingPaths, s.params.lastGradientPreconditioned),
+    gradientPreconditioned: genPathMap(
+      s.varyingPaths,
+      s.params.lastGradientPreconditioned
+    ),
   };
 
   // Insert all varying vals
@@ -77,8 +79,12 @@ export const evalShapes = (s: State): State => {
   // Sort the shapes by ordering--note the null assertion
   const sortedShapesEvaled = s.shapeOrdering.map(
     (name) =>
+      // TODO: error
       shapesEvaled.find(({ properties }) => properties.name.contents === name)!
   );
+
+  // TODO: do we still need this check for non-empty labels?
+  // const nonEmpties = sortedShapes.filter(notEmptyLabel);
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
@@ -125,12 +131,16 @@ const evalFn = (
   trans: Translation,
   varyingMap: VaryMap<VarAD>
 ): FnDone<VarAD> => {
-
-  const noOptDebugInfo = { gradient: new Map(), gradientPreconditioned: new Map() };
+  const noOptDebugInfo = {
+    gradient: new Map(),
+    gradientPreconditioned: new Map(),
+  };
 
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap, noOptDebugInfo) as ArgVal<VarAD>[],
+    args: evalExprs(fn.fargs, trans, varyingMap, noOptDebugInfo) as ArgVal<
+      VarAD
+    >[],
     optType: fn.optType,
   };
 };
@@ -194,7 +204,8 @@ export const evalExprs = (
   trans: Translation,
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
-): ArgVal<VarAD>[] => es.map((e) => evalExpr(e, trans, varyingVars, optDebugInfo));
+): ArgVal<VarAD>[] =>
+  es.map((e) => evalExpr(e, trans, varyingVars, optDebugInfo));
 
 function toFloatVal(a: ArgVal<VarAD>): VarAD {
   if (a.tag === "Val") {
@@ -244,7 +255,6 @@ export const evalExpr = (
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
-
   switch (e.tag) {
     case "IntLit": {
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -292,7 +302,12 @@ export const evalExpr = (
 
     case "BinOp": {
       const [binOp, e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, optDebugInfo);
+      const [val1, val2] = evalExprs(
+        [e1, e2],
+        trans,
+        varyingVars,
+        optDebugInfo
+      );
 
       const res = evalBinOp(
         binOp,
@@ -325,8 +340,9 @@ export const evalExpr = (
       const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
 
       // The below code makes a type assumption about the whole list, based on the first elements
-      // Is there a better way to implement parametric lists in typescript? 
-      if (!argVals[0]) { // Empty list
+      // Is there a better way to implement parametric lists in typescript?
+      if (!argVals[0]) {
+        // Empty list
         return {
           tag: "Val",
           contents: {
@@ -336,7 +352,8 @@ export const evalExpr = (
         };
       }
 
-      if (argVals[0].tag === "Val") { // List contains floats
+      if (argVals[0].tag === "Val") {
+        // List contains floats
         if (argVals[0].contents.tag === "FloatV") {
           return {
             tag: "Val",
@@ -345,7 +362,8 @@ export const evalExpr = (
               contents: argVals.map(toFloatVal) as VarAD[],
             },
           };
-        } else if (argVals[0].contents.tag === "VectorV") { // List contains vectors
+        } else if (argVals[0].contents.tag === "VectorV") {
+          // List contains vectors
           return {
             tag: "Val",
             contents: {
@@ -368,14 +386,16 @@ export const evalExpr = (
       const argVals = evalExprs(e.contents, trans, varyingVars, optDebugInfo);
 
       // Matrices are parsed as a list of vectors, so when we encounter vectors as elements, we assume it's a matrix, and convert it to a matrix of lists
-      if (argVals[0].tag !== "Val") { throw Error("expected val"); }
+      if (argVals[0].tag !== "Val") {
+        throw Error("expected val");
+      }
       if (argVals[0].contents.tag === "VectorV") {
         return {
           tag: "Val",
           contents: {
             tag: "MatrixV",
-            contents: argVals.map(toVecVal)
-          }
+            contents: argVals.map(toVecVal),
+          },
         };
       }
 
@@ -400,9 +420,15 @@ export const evalExpr = (
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2 = evalExpr(e2, trans, varyingVars, optDebugInfo);
 
-      if (v1.tag !== "Val") { throw Error("expected val"); }
-      if (v2.tag !== "Val") { throw Error("expected val"); }
-      if (v2.contents.tag !== "IntV") { throw Error("expected int"); }
+      if (v1.tag !== "Val") {
+        throw Error("expected val");
+      }
+      if (v2.tag !== "Val") {
+        throw Error("expected val");
+      }
+      if (v2.contents.tag !== "IntV") {
+        throw Error("expected int");
+      }
 
       const i = v2.contents.contents as number;
 
@@ -414,7 +440,10 @@ export const evalExpr = (
       }
 
       // Vector access
-      if (v1.contents.tag !== "VectorV") { console.log("results", v1, v2); throw Error("expected Vector"); }
+      if (v1.contents.tag !== "VectorV") {
+        console.log("results", v1, v2);
+        throw Error("expected Vector");
+      }
       const vec = v1.contents.contents;
       if (i < 0 || i > vec.length) throw Error("access out of bounds");
 
@@ -429,29 +458,39 @@ export const evalExpr = (
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2s = evalExprs(e2, trans, varyingVars, optDebugInfo);
 
-      const indices: number[] = v2s.map(v2 => {
-        if (v2.tag !== "Val") { throw Error("expected val"); }
-        if (v2.contents.tag !== "IntV") { throw Error("expected int"); }
+      const indices: number[] = v2s.map((v2) => {
+        if (v2.tag !== "Val") {
+          throw Error("expected val");
+        }
+        if (v2.contents.tag !== "IntV") {
+          throw Error("expected int");
+        }
         return v2.contents.contents;
       });
 
-      if (v1.tag !== "Val") { throw Error("expected val"); }
+      if (v1.tag !== "Val") {
+        throw Error("expected val");
+      }
 
-      if (v1.contents.tag !== "MatrixV") { throw Error("expected Matrix"); }
+      if (v1.contents.tag !== "MatrixV") {
+        throw Error("expected Matrix");
+      }
 
       // m[i][j] <-- m's ith row, jth column
       const mat = v1.contents.contents;
       // TODO: Currently only supports 2D matrices
-      if (!indices.length || indices.length !== 2) { throw Error("expected 2 indices to access matrix"); }
+      if (!indices.length || indices.length !== 2) {
+        throw Error("expected 2 indices to access matrix");
+      }
 
       const [i, j] = indices;
-      if (i < 0 || (i > (mat.length - 1))) throw Error("`i` access out of bounds");
+      if (i < 0 || i > mat.length - 1) throw Error("`i` access out of bounds");
       const vec = mat[i];
-      if (j < 0 || (j > (vec.length - 1))) throw Error("`j` access out of bounds");
+      if (j < 0 || j > vec.length - 1) throw Error("`j` access out of bounds");
 
       return {
         tag: "Val",
-        contents: { tag: "FloatV", contents: vec[j] as VarAD }
+        contents: { tag: "FloatV", contents: vec[j] as VarAD },
       };
     }
 
@@ -465,30 +504,49 @@ export const evalExpr = (
         // Special function: don't look up the path's value, but its gradient's value
 
         if (argExprs.length !== 1) {
-          throw Error(`expected 1 argument to ${fnName}; got ${argExprs.length}`);
+          throw Error(
+            `expected 1 argument to ${fnName}; got ${argExprs.length}`
+          );
         }
 
         let p = argExprs[0];
 
         // Vector and matrix accesses are the only way to refer to an anon varying var
-        if (p.tag !== "EPath" && p.tag !== "VectorAccess" && p.tag !== "MatrixAccess") {
+        if (
+          p.tag !== "EPath" &&
+          p.tag !== "VectorAccess" &&
+          p.tag !== "MatrixAccess"
+        ) {
           throw Error(`expected 1 path as argument to ${fnName}; got ${p.tag}`);
         }
 
         if (p.tag === "VectorAccess" || p.tag === "MatrixAccess") {
-          p = { // convert to AccessPath schema
-            tag: "EPath", contents: { tag: "AccessPath", contents: [p.contents[0], [p.contents[1].contents]] }
+          p = {
+            // convert to AccessPath schema
+            tag: "EPath",
+            contents: {
+              tag: "AccessPath",
+              contents: [p.contents[0], [p.contents[1].contents]],
+            },
           };
         }
 
         return {
           tag: "Val",
-          contents: compDict[fnName](optDebugInfo as OptDebugInfo, JSON.stringify(p.contents))
+          contents: compDict[fnName](
+            optDebugInfo as OptDebugInfo,
+            JSON.stringify(p.contents)
+          ),
         };
       }
 
       // eval all args
-      const args = evalExprs(argExprs, trans, varyingVars, optDebugInfo) as ArgVal<VarAD>[];
+      const args = evalExprs(
+        argExprs,
+        trans,
+        varyingVars,
+        optDebugInfo
+      ) as ArgVal<VarAD>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
 
@@ -523,7 +581,9 @@ export const resolvePath = (
     return floatVal(varyingVal);
   } else {
     // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
-    if (path.tag === "AccessPath") { throw Error("TODO"); }
+    if (path.tag === "AccessPath") {
+      throw Error("TODO");
+    }
 
     const gpiOrExpr = findExpr(trans, path);
 
@@ -586,7 +646,12 @@ export const resolvePath = (
 
         if (expr.tag === "OptEval") {
           // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-          const res: ArgVal<VarAD> = evalExpr(expr.contents, trans, varyingMap, optDebugInfo);
+          const res: ArgVal<VarAD> = evalExpr(
+            expr.contents,
+            trans,
+            varyingMap,
+            optDebugInfo
+          );
 
           if (res.tag === "Val") {
             const transNew = insertExpr(
@@ -637,7 +702,6 @@ export const evalBinOp = (
   v1: Value<VarAD>,
   v2: Value<VarAD>
 ): Value<VarAD> => {
-
   // Promote int to float
   if (v1.tag === "IntV" && v2.tag === "FloatV") {
     return evalBinOp(op, intToFloat(v1), v2);
@@ -901,17 +965,24 @@ export const insertExpr = (
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
             const res3 = res2.contents;
-            if (res3.tag !== "Vector") { throw Error("expected Vector"); }
+            if (res3.tag !== "Vector") {
+              throw Error("expected Vector");
+            }
             const res4 = res3.contents;
             res4[indices[0]] = floatValToExpr(expr.contents);
             return trans;
-          } else if (res2.tag === "Done") { // Deal with vector values
+          } else if (res2.tag === "Done") {
+            // Deal with vector values
             const res3 = res2.contents;
-            if (res3.tag !== "VectorV") { throw Error("expected Vector"); }
+            if (res3.tag !== "VectorV") {
+              throw Error("expected Vector");
+            }
             const res4 = res3.contents;
             res4[indices[0]] = expr.contents.contents;
             return trans;
-          } else { throw Error("unexpected tag"); }
+          } else {
+            throw Error("unexpected tag");
+          }
         }
 
         case "PropertyPath": {
@@ -921,7 +992,8 @@ export const insertExpr = (
           const [, properties] = gpi.contents;
           const res = properties[prop];
 
-          if (res.tag === "OptEval") { // Deal with vector expresions
+          if (res.tag === "OptEval") {
+            // Deal with vector expresions
             const res2 = res.contents;
             if (res2.tag !== "Vector") {
               throw Error("expected Vector");
@@ -929,7 +1001,8 @@ export const insertExpr = (
             const res3 = res2.contents;
             res3[indices[0]] = floatValToExpr(expr.contents);
             return trans;
-          } else if (res.tag === "Done") { // Deal with vector values
+          } else if (res.tag === "Done") {
+            // Deal with vector values
             const res2 = res.contents;
             if (res2.tag !== "VectorV") {
               throw Error("expected Vector");
@@ -937,7 +1010,9 @@ export const insertExpr = (
             const res3 = res2.contents;
             res3[indices[0]] = expr.contents.contents;
             return trans;
-          } else { throw Error("unexpected tag"); }
+          } else {
+            throw Error("unexpected tag");
+          }
         }
 
         default:
@@ -952,17 +1027,10 @@ export const insertExpr = (
  * @param json plain object encoding `State` of the diagram
  */
 export const decodeState = (json: any): State => {
-  // Find out the values of varying variables
-
-  console.log("varying paths", json.varyingPaths);
-  // json.varyingPaths.forEach((p: any, i: any) => console.log(JSON.stringify(p), i));
-  // throw Error("TODO");
-
+  const rng: prng = seedrandom(json.rng, { global: true });
   const state = {
     ...json,
     varyingValues: json.varyingState,
-    varyingState: json.varyingState,
-    // translation: decodeTranslation(json.transr),
     translation: json.transr,
     originalTranslation: clone(json.transr),
     shapes: json.shapesr.map(([n, props]: any) => {
@@ -970,10 +1038,11 @@ export const decodeState = (json: any): State => {
     }),
     varyingMap: genPathMap(json.varyingPaths, json.varyingState),
     params: json.paramsr,
+    pendingMap: new Map(),
+    rng,
   };
   // cache energy function
   // state.overallObjective = evalEnergyOn(state);
-  seedrandom(json.rng, { global: true });
   delete state.shapesr;
   delete state.transr;
   delete state.paramsr;
@@ -987,7 +1056,6 @@ export const decodeState = (json: any): State => {
  * @param state typed `State` object
  */
 export const encodeState = (state: State): any => {
-
   // console.log("mapped translation", mapTranslation(numOf, state.translation));
   // console.log("original translation", state.originalTranslation);
 
@@ -1016,6 +1084,12 @@ export const encodeState = (state: State): any => {
   return json;
 };
 
+export const cleanShapes = (shapes: Shape[]): Shape[] =>
+  shapes.map(({ shapeType, properties }: Shape) => ({
+    shapeType,
+    properties: pickBy(properties, (p: any) => !p.omit),
+  })) as Shape[];
+
 // Generate a map from paths to values, where the key is the JSON stringified version of the path
 export function genPathMap<T>(
   paths: Path[],
@@ -1029,20 +1103,18 @@ export function genPathMap<T>(
     console.log(paths, vals);
     throw new Error(
       "Different numbers of varying vars vs. paths: " +
-      paths.length +
-      ", " +
-      vals.length
+        paths.length +
+        ", " +
+        vals.length
     );
   }
   const res = new Map();
-  paths.forEach((path, index) =>
-    res.set(JSON.stringify(path), vals[index])
-  );
+  paths.forEach((path, index) => res.set(JSON.stringify(path), vals[index]));
 
   // console.log("gen path map", res);
   // throw Error("TODO");
   return res;
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Types

@@ -11,7 +11,7 @@ import Ellipse from "shapes/Ellipse";
 import EllipseTransform from "shapes/EllipseTransform";
 import Square from "shapes/Square";
 import SquareTransform from "shapes/SquareTransform";
-import Curve from "shapes/Curve";
+import Path from "shapes/Path";
 import CurveTransform from "shapes/CurveTransform";
 import Arrow from "shapes/Arrow";
 import Line from "shapes/Line";
@@ -23,26 +23,26 @@ import draggable from "./Draggable";
 
 // prettier-ignore
 export const staticMap = {
-  "Circle": Circle,
-  "Rectangle": Rectangle,
-  "Arc": Arc,
-  "RectangleTransform": RectangleTransform,
-  "CircleTransform": CircleTransform,
-  "Ellipse": Ellipse,
-  "EllipseTransform": EllipseTransform,
-  "Polygon": Polygon,
-  "Square": Square,
-  "SquareTransform" : SquareTransform,
+  Circle,
+  Rectangle,
+  Arc,
+  RectangleTransform,
+  CircleTransform,
+  Ellipse,
+  EllipseTransform,
+  Polygon,
+  Square,
+  SquareTransform,
   "Text": Label,
   "TextTransform": LabelTransform,
-  "Curve": Curve,
-  "CurveTransform": CurveTransform,
-  "Arrow": Arrow,
-  "Image": Image,
-  "ImageTransform": ImageTransform,
-  "LineTransform": LineTransform,
-  "Line": Line,
-  "ParallelogramTransform": ParallelogramTransform
+  Path,
+  CurveTransform,
+  Arrow,
+  Image,
+  ImageTransform,
+  LineTransform,
+  Line,
+  ParallelogramTransform
 };
 
 export const interactiveMap = { ...staticMap };

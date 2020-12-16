@@ -478,7 +478,7 @@ checkField varEnv f t =
 checkVarE :: VarEnv -> Var -> (String, Maybe T)
 checkVarE varEnv v =
   case M.lookup v (varMap varEnv) of
-    Nothing -> ("Variable " ++ show v ++ " not in environment\n", Nothing)
+    Nothing -> ("Variable " ++ show v ++ " not in environment in Substance file. Did you declare it first?\n", Nothing)
     vt      -> ("", vt)
 
 --  Looks up the operator or value-constructor in the context. If it cannot be found in the context,
@@ -491,7 +491,7 @@ checkFunc varEnv (Func f args) =
       fEnv = M.lookup f (operators varEnv)
   in if isNothing vcEnv && isNothing fEnv
        then ( "Function or Val Constructor " ++
-              show f ++ " not in environment\n"
+              show f ++ " not in environment in Substance file. Did you declare it first?\n"
             , Nothing)
        else maybe
               (checkFuncInEnv varEnv (Func f args) (fromJust fEnv))

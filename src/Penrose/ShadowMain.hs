@@ -135,15 +135,15 @@ penroseRenderer subFile styFile elementFile domain configPath port = do
       Left err     -> error $ show err
       Right (s, _) -> return s
   -- Read optimization config and so it can be included in the initial state
-  configStr <- B.readFile configPath
-  let configBstr = decode configStr :: Maybe G.OptConfig
-  let optConfig =
-        case configBstr of
-          Nothing -> error "couldn't read opt config JSON"
-          Just x  -> x
-  putStrLn "Opt config:\n"
-  print optConfig
-  let state = initState {G.oConfig = optConfig}
+  -- configStr <- B.readFile configPath
+  -- let configBstr = decode configStr :: Maybe G.OptConfig
+  -- let optConfig =
+  --       case configBstr of
+  --         Nothing -> error "couldn't read opt config JSON"
+  --         Just x  -> x
+  -- putStrLn "Opt config:\n"
+  -- print optConfig
+  let state = initState {G.oConfig = G.defaultOptConfig}
   if useFrontend
     then Server.serveRenderer domain port state
     else let numTrials = 1000

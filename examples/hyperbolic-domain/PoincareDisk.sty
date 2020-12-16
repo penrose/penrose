@@ -1,171 +1,88 @@
 Global {
-   Global.width = 800.0
-   Global.height = 700.0
-   Global.pointSize = Global.width/100.0
-   Global.thinStroke = Global.width/200.0
-   Global.planeSize = 0.9*Global.height
-   Global.labelSize = 32.0
+   scalar width = 800.0
+   scalar height = 700.0
+   scalar pointSize = width/100.0
+   scalar thinStroke = width/200.0
+   scalar planeSize = 0.9*height
 }
 
 Colors {
-   Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
-   Colors.black = rgba( 0.0, 0.0, 0.0, 1.0 )
-   Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
-   Colors.darkBlue = rgba( 0.2, 0.3, 0.6, 0.5 )
-   Colors.red = rgba( 1.0, 0.0, 0.0, 0.5 )
-   Colors.none = rgba( 0.0, 0.0, 0.0, 0.0 )
+   color none = rgba(0.0, 0.0, 0.0, 0.0)
+   color black = rgba( 0.0, 0.0, 0.0, 1.0 )
+   color blue = rgba( 0.8, 0.7, 1.0, 0.2 )
+   color red = rgba( 1.0, 0.0, 0.0, 0.5 )
 }
 
 forall HyperbolicPlane H {
-   H.diskShape = Circle {
+   shape H.diskShape = Circle {
       center : (0.0, 0.)
       r : Global.planeSize/2.0
       color : Colors.blue
       strokeWidth : Global.thinStroke
       strokeColor : Colors.black
       strokeStyle : "dashed"
-      strokeDashArray : "10,10"
-   }
-
-   H.text = Text {
-      string: "H^2"
-      center: 0.8*(H.diskShape.r,H.diskShape.r)
-      color: Colors.black
-      fontSize: Global.labelSize
+      strokeDashArray : "20,10,5,5,5,10"
    }
 }
 
 forall Point p; HyperbolicPlane H
 where In( p, H ) {
-   p.dotShape = Circle {
+   shape p.dotShape = Circle {
       r : Global.pointSize/2.0
       strokeWidth : 0.0
       color : Colors.black
    }
 
-   p.inDiskConstraint = ensure contains( H.diskShape, p.dotShape )
-
-   u = p.dotShape.center / H.diskShape.r
-
-   p.text = Text {
-      string: p.label
-      center: p.dotShape.center + 1.1*Global.labelSize*u
-      color: Colors.black
-      fontSize: Global.labelSize
-   }
+   --ensure contains( H.diskShape, p.dotShape )
 }
 
 -- TODO: Fix that we can't add new functions with new names w/o backend complaining
 
 forall IdealPoint p; HyperbolicPlane H
 where In( p, H ) {
-   p.angle = ?
+   scalar p.angle = ?
 
-   p.dotShape = Circle {
-      center : (H.diskShape.r * cos(p.angle), H.diskShape.r * sin(p.angle))
+   scalar R = H.diskShape.r
+
+   shape p.dotShape = Circle {
+      center : R*(cos(p.angle), sin(p.angle))
       r : Global.pointSize
       strokeWidth : 0.0
       color : Colors.black
    }
-
-   delete p.inDiskConstraint
 }
 
-forall Horocycle h; IdealPoint p; HyperbolicPlane H
+forall Horocycle h; HyperbolicPlane H {
+  shape h.circleShape = Circle {
+    color : Colors.none
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+  }
+
+  scalar R = H.diskShape.r
+
+  ensure inRange(h.circleShape.r, R/8., R/2.)
+  constraint h.inDisk      = ensure contains(H.diskShape, h.circleShape)
+  constraint h.tangentDisk = ensure tangentTo(H.diskShape, h.circleShape)
+}
+
+forall IdealPoint p; Horocycle h; HyperbolicPlane H
 where IsCenter( p, h ); In( p, H ) {
 
-   h.r = ?
-   R = Global.planeSize/2.0
-   pc = p.dotShape.center
-   u = normalize(pc)
+   scalar R = H.diskShape.r
+   scalar r = h.circleShape.r
+   vec2 x = p.dotShape.center
 
-   h.circleShape = Circle {
-      r : h.r
-      color : rgba( 1.0, 1.0, 1.0, 0.4 )
-      strokeColor : Colors.black
-      strokeWidth : Global.thinStroke
-   }
-   h.circleShape.center = ( R - h.r )*u
-   layer h.circleShape above H.diskShape
-   ensure inRange( h.r, 0.1*R, 0.5*R )
+   -- -- set the center of the horocycle h so that it is
+   -- -- tangent to the hyperbolic plane H at ideal point p
+   scalar a = R - r
+   h.circleShape.center = a*unit(x)
+
+   -- since we've computed the location of the center
+   -- explicitly, we should no longer need constraints to
+   -- ensure containment/tangency in the Poincaré disk
+   delete h.inDisk
+   delete h.tangentDisk
 }
 
-forall Geodesic g; HyperbolicPlane `H` {
-   g.shape = Circle {
-      color : Colors.none
-      strokeColor: Colors.darkBlue
-      strokeWidth: Global.thinStroke
-   }
-
-   g.orthogonalConstraint = ensure orthogonalCircles( g.shape, H.diskShape )
-   ensure inRange( g.shape.r, Global.planeSize*0.1, Global.planeSize )
-}
-
-forall Geodesic g; IdealPoint p0; IdealPoint p1; HyperbolicPlane `H`
-where PassesThrough( g, p0, p1 ) {
-
-   -- Given the locations of two points p0, p1 on the boundary of
-   -- the Poincare disk, we'll explicitly compute the center and
-   -- radius of the circle orthogonal to the disk boundary, passing
-   -- through these two points.
-
-   -- remove the constraint that g should be orthogonal to H;
-   -- orthogonality will be enforced by construction here
-   delete g.orthogonalConstraint
-
-   -- First, get some short names
-   -- R = radius of Poincare disk
-   R = H.diskShape.r
-   P0 = p0.dotShape.center
-   P1 = p1.dotShape.center
-
-   -- Compute distance b from center of H to center of g
-   dotP0P1 = dot(P0,P1)
-   b = R/sqrt((1.0+dotP0P1/(R*R))/2.0)
-
-   -- Compute unit vector u between p and q
-   u = normalize(P0+P1)
-
-   -- Set center of g's circle
-   g.shape.center = b * u
-
-   -- Set radius of g's circle
-   w = g.shape.center - P0
-   g.shape.r = norm( w )
-}
-
-forall Geodesic g; Geodesic h; IdealPoint p
-where PerpendicularTo( g, h, p ) {
-
-   C = g.shape.center
-   P = p.dotShape.center
-   d = norm(C-P)
-
-   g.shape.strokeColor = Colors.red
-   
-   encourage equal( g.shape.r, d )
-   ensure orthogonalCircles( g.shape, h.shape )
-}
-
--- Diagram-specific constants
-
-IdealPoint `pi` {
-   override `pi`.angle = -110.0
-}
-
-IdealPoint `pj` {
-   override `pj`.angle = 90.0
-}
-
-IdealPoint `pk` {
-   override `pk`.angle = 170.0
-}
-
-IdealPoint `pl` {
-   override `pl`.angle = 10.0
-}
-
-Geodesic `gkl` {
-   `gkl`.shape.strokeStyle = "dashed"
-}
 

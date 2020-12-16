@@ -40,7 +40,7 @@ OrthogonalVectors {
           function toPath = functions.pathFromPoints
 
           -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
-          shape perpMark = Curve {
+          shape perpMark = Path {
                pathData : toPath("closed", pts)
                strokeWidth : 2.0
                color : C.black
@@ -72,7 +72,7 @@ OrthogonalVectors {
           vec2 markEnd = v.shape.end + padding * normal
           vec2[] v.markerLine = [markStart, markEnd]
 
-          shape v.unitMarkerLine = Curve {
+          shape v.unitMarkerLine = Path {
               pathData : toPath("open", v.markerLine)
               strokeWidth : strokeWidth
               color : C.black
@@ -84,14 +84,14 @@ OrthogonalVectors {
           function c = const.barSize
           vec2 halfvec = c * markNormal
 
-          shape v.unitMarkerEnd1 = Curve {
+          shape v.unitMarkerEnd1 = Path {
               pathData : toPath("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
               strokeWidth : strokeWidth
               color : C.black
               fill : C.none
           }
 
-          shape v.unitMarkerEnd2 = Curve {
+          shape v.unitMarkerEnd2 = Path {
               pathData : toPath("open", [markEnd - halfvec, markEnd + halfvec])
               strokeWidth : strokeWidth
               color : C.black

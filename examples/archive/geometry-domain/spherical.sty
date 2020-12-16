@@ -177,7 +177,7 @@ with Point p; Point q {
      e.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, e.arcPath, G.toScreen, e.shape.name)
 
      -- Draw a path using the slerp'ed points
-     e.shape = Curve {
+     e.shape = Path {
      	     pathData : pathFromPoints(e.screenspacePath)
 	     strokeWidth : G.strokeWidth
 	     fill : Colors.none
@@ -209,7 +209,7 @@ with Point p; Point q; Point r {
      t.arcPath_rp = slerp(r.vec_math, p.vec_math, G.numArcPts)
      t.screenspacePath_rp = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, t.arcPath_rp, G.toScreen, t.shape.name)
 
-     t.shape = Curve {
+     t.shape = Path {
      	     pathData : join(t.screenspacePath_pq, t.screenspacePath_qr, t.screenspacePath_rp) -- Connect them in a particular order
 	     strokeWidth : 0.0
 	     fill : setOpacity(Colors.darkpurple, 0.4)
@@ -231,7 +231,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       r.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.arcPath, G.toScreen, r.shape.name)
 
       -- Ray
-      r.shape = Curve {
+      r.shape = Path {
       	      pathData : pathFromPoints(r.screenspacePath)
 	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
@@ -245,7 +245,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       r.perpmarkPath = perpPath(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen)
       r.perpmark_screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.perpmarkPath, G.toScreen, r.shape.name)
 
-      r.perpMark = Curve {
+      r.perpMark = Path {
       	      pathData : polygonFromPoints(r.perpmark_screenspacePath)
 	      strokeWidth : 1.25
 	      color : Colors.black
@@ -286,7 +286,7 @@ with Point p; Point q; Point r {
      theta.arcPath = arcPath(p.vec_math, q.vec_math, r.vec_math, theta.radius)
      theta.arcPath_screenspace = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.arcPath, G.toScreen, theta.shape.name)
 
-     theta.shape = Curve {
+     theta.shape = Path {
      		 pathData : polygonFromPoints(theta.arcPath_screenspace)
 		 strokeWidth : G.strokeWidth
 		 color : Colors.darkpurple
@@ -313,7 +313,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
       r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
       r.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.arcPath, G.toScreen, r.shape.name)
 
-      r.shape = Curve {
+      r.shape = Path {
       	      pathData : pathFromPoints(r.screenspacePath)
 	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
@@ -341,7 +341,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
       -- NOTE: seems to make things slower
       -- Also note: drawing as straight lines, not geodesics on sphere
 
-      theta.bisectMark1 = Curve {
+      theta.bisectMark1 = Path {
       	      pathData : makeBisectorMark(theta.vec_pt1, LOCAL.x_proj, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none
@@ -351,7 +351,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
       	      arrowheadSize : 0.0
       }
 
-      theta.bisectMark2 = Curve {
+      theta.bisectMark2 = Path {
       	      pathData : makeBisectorMark(theta.vec_pt2, LOCAL.x_proj, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none

@@ -1,5 +1,6 @@
--- | The Style file for the linear algebra domain
--- | Author: Dor Ma'ayan, Katherine Ye
+-- | The full generic Style file for the linear algebra domain
+-- | Author: Dor Ma'ayan
+--   August, 2018
 
 -- Global constants and sizes
 const {
@@ -16,10 +17,6 @@ const {
   const.arrowheadSize = 0.5
   const.repelWeight = 0.7
   const.textPadding = 15.0
-  const.perpLen = 15.0
-  -- For unit mark
-  const.markerPadding = 15.0
-  const.barSize = 5.0
 }
 
 -- Global RGB colors in common use
@@ -29,6 +26,7 @@ Colors {
     Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
     Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
     Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
+
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
     Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
@@ -45,26 +43,35 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
-    Colors.red2 = hsva(0.0, 100.0, 100.0, 1.0)
-    Colors.green2 = hsva(140.0, 23.0, 100.0, 1.0)
 }
 
 VectorSpace U {
     U.thickness = 1.5
     U.axisColor = Colors.darkGray
     U.originX = 0.0
-    U.originY = 0.0
-    U.origin = (U.originX, U.originY)
 
     U.shape = Square {
 	x : U.originX
-	y : U.originY
+	y : 0.0
         side : const.vectorSpaceSize
         color : Colors.lightBlue
     }
 
+    U.left = U.shape.x + (U.shape.side/2.0)
+    U.right = U.shape.x - (U.shape.side/2.0)
+
     U.xAxis = Arrow {
-        startX : U.shape.x - const.axisSize
+        startX : U.shape.x
+        startY : U.shape.y
+        endX : U.shape.x
+        endY : U.shape.y + const.axisSize
+        thickness : U.thickness
+        color : U.axisColor
+        arrowheadSize : const.arrowheadSize
+    }
+
+    U.yAxis = Arrow {
+        startX : U.shape.x
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
         endY : U.shape.y
@@ -73,15 +80,16 @@ VectorSpace U {
         arrowheadSize : const.arrowheadSize
     }
 
-    U.yAxis = Arrow {
+    U.zAxis = Arrow {
         startX : U.shape.x
-        startY : U.shape.y - const.axisSize
-        endX : U.shape.x
-        endY : U.shape.y + const.axisSize
+        startY : U.shape.y
+        endX : U.shape.x - const.axisSize * 0.5
+        endY : U.shape.y - const.axisSize * 0.5
         thickness : U.thickness
         color : U.axisColor
         arrowheadSize : const.arrowheadSize
     }
+
 
     U.text = Text {
         string : U.label
@@ -91,8 +99,8 @@ VectorSpace U {
         fontSize : const.fontSize
     }
 
-    U.textX = Text {
-        string : "x"
+    U.textZ = Text {
+        string : "z"
         color : Colors.darkGray
         x : U.xAxis.endX
         y : U.xAxis.endY + const.textPadding
@@ -105,19 +113,39 @@ VectorSpace U {
         y : U.yAxis.endY
     }
 
+    U.textX = Text {
+        string : "x"
+        color : Colors.darkGray
+        x : U.zAxis.endX + const.textPadding
+        y : U.zAxis.endY
+    }
+
     U.perpMark = Square {
         x : U.shape.x + 5.0
         y : U.shape.y + 5.0
         side : 10.0
         color : Colors.white
-	strokeColor : Colors.black
-	strokeWidth : 1.0
-    }
+	      strokeColor : Colors.black
+	      strokeWidth : 1.0
+   }
 
-    U.perpLayering1 = U.perpMark below U.xAxis
-    U.perpLayering2 = U.perpMark below U.yAxis
-    U.perpLayering3 = U.perpMark above U.shape
+
+   --U.perpMark2 = Rectangle {
+  --      x : 0.0
+  --      y : 0.0
+  --      color : Colors.white
+        --angle = 45.0
+        --rotation = 120.0
+  -- }
+
+  U.perpLayering1 = U.perpMark below U.xAxis
+  U.perpLayering2 = U.perpMark below U.yAxis
+  U.perpLayering2 = U.perpMark below U.zAxis
+  U.perpLayering3 = U.perpMark above U.shape
+
 }
+
+
 
 Vector v
 with VectorSpace U
@@ -130,11 +158,17 @@ where In(v,U) {
 
   v.color = sampleColor(1.0, "rgb") -- Full opacity to hide arrowhead layering
 
+  -- v.pad1 = ?
+  -- v.pad2 = ?
+
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
     endX : ?
     endY : ?
+    -- So the labels can be optimized separately
+    -- endX : sampleNum(U.left, U.right) + v.pad1
+    -- endY : sampleNum(U.left, U.right) + v.pad2
 
     thickness : const.arrowThickness
     color : v.color
@@ -154,8 +188,8 @@ where In(v,U) {
    v.containLabel = ensure contains(U.shape, v.text)
 
    -- NOTE: nearHead is actually an objective. Use the other constraint form?
-   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
-   -- v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
+   -- v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
+   v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
 
    v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
 
@@ -223,13 +257,13 @@ where From(f, U, V) {
    f.radius = dist(f.left, f.center)
    f.arcPath = arcPathEuclidean(f.center, f.left, f.right, f.radius, "Open")
 
-   f.shape = Curve {
+   f.shape = Path {
      pathData : pathFromPoints(f.arcPath)
      fill : Colors.none
      color : Colors.black
      strokeWidth : 2.5
      rightArrowhead : True
-     arrowheadSize : const.arrowheadSize     
+     arrowheadSize : const.arrowheadSize
    }
 
    f.labelOffset = 30.0
@@ -258,7 +292,7 @@ Scalar c {
 Scalar c
 with Vector a; Vector b; VectorSpace U
 where c := determinant(a,b); In(a,U); In(b,U) {
-   c.shape = Curve {
+   c.shape = Path {
    	   pathData : makeRegionPath(a.shape, b.shape)
 	   strokeWidth : 0.0
 	   fill : setOpacity(Colors.sky, 0.25)
@@ -303,7 +337,7 @@ Scalar c
 with Vector a;  VectorSpace U
 where c := norm(a); In(a,U) {
    c.norm = len(a.shape)
-   override c.val = c.norm / const.scaleRatio 
+   override c.val = c.norm / const.scaleRatio
    c.padding = 20.0
 
    -- c.shape = Brace {
@@ -318,8 +352,8 @@ where c := norm(a); In(a,U) {
 
    c.text = Text {
         string : c.label
-        x : c.padding + midpointX(c.shape) 
-        y : c.padding + midpointY(c.shape) 
+        x : c.padding + midpointX(c.shape)
+        y : c.padding + midpointY(c.shape)
         color : c.shape.color
         fontSize : const.fontSize
    }
@@ -337,19 +371,37 @@ where u := scale(c, v); In(u, U); In(v, U) {
 Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
-      -- Draw perpendicular mark
-      LOCAL.perpMark = Curve {
-	   pathData : orientedSquare(u.shape, v.shape, U.origin, const.perpLen)
-	   strokeWidth : 2.0
-	   color : Colors.black
-	   fill : Colors.white
+      -- TODO: fix this angle calculation so it works when both vectors are in quadrants 2 or 3
+      LOCAL.angle = min(u.angle, v.angle)
+      LOCAL.len = 20.0
+
+      -- Scale by side len. Then translate so default square's corner is at (0,0).
+      -- Then rotate by the vector angle. Then translate to the local origin of the vector space.
+      LOCAL.shape = SquareTransform {
+	  -- TODO: unintuitive behavior; need to set these constants otherwise shape is offscreen
+
+	  -- TODO: this currently isn't working because we commented out transforms in computedProperties (they were slowing down the system)
+
+	  -- x : 0.0
+	  -- y : 0.0
+	  -- side : 100.0
+	  -- rotation : 0.0
+
+	  x : 0.0
+	  y : 0.0
+	  side : 1.0
+	  rotation : 0.0
+	  transform : andThen(andThen(andThen(scale(LOCAL.len, LOCAL.len), translate(LOCAL.len / 2.0, LOCAL.len / 2.0)), rotate(LOCAL.angle)), translate(U.shape.x, U.shape.y))
+	  color : Colors.none
+	  strokeColor : Colors.black
+	  strokeWidth : 0.1
       }
 
-      -- Make sure vectors are orthogonal
+      -- LOCAL.perpFn = ensure equals(dot(u.vector, v.vector), 0.0)
       LOCAL.perpFn = encourage equal(dot(u.vector, v.vector), 0.0)
 
-      LOCAL.layering1 = v.shape above LOCAL.perpMark
-      LOCAL.layering2 = u.shape above LOCAL.perpMark
+      LOCAL.layering1 = v.shape above LOCAL.shape
+      LOCAL.layering2 = u.shape above LOCAL.shape
 }
 
 -- No label overlaps with any other label, vector, slider vector, or axis line. (This doesn't match the same vector twice, right?)
@@ -363,6 +415,8 @@ where In(u1, U); In(u2, U) {
 
       LOCAL.labelAvoidSegFn = encourage repel(u1.shape, u2.text, const.repelWeight)
       LOCAL.labelAvoidTextFn = encourage repel(u1.text, u2.text, 1000.0 * const.repelWeight)
+
+      -- LOCAL.labelAvoidTextFn = encourage disjointPoly(u1.text, u2.text)
 }
 
 -- For vectors that are mapped from one vector space to another,
@@ -410,46 +464,4 @@ where From(f, U, V); u2 := scale(c, u1); v1 := apply(f, u1); v2 := apply(f, u2);
       delete v3.containLabel
       delete v3.labelLocation
       delete v3.labelAvoidFn
-}
-
--- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
-Vector v
-with VectorSpace U; Vector w
-where In(v, U); Unit(v); Orthogonal(v, w) {
-
-      -- The start and end of the body of the unit marker line
-      v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
-      v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
-
-      v.unitMarkerLine = Curve {
-          pathData : pathFromPoints(v.offsetVec)
-	  strokeWidth : 2.0
-	  color : Colors.black
-	  fill : Colors.none
-      }
-
-      v.unitMarkerEnd1 = Curve {
-          pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
-      	  strokeWidth : 2.0
-      	  color : Colors.black
-      	  fill : Colors.none
-      }
-
-      v.unitMarkerEnd2 = Curve {
-          pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
-      	  strokeWidth : 2.0
-      	  color : Colors.black
-      	  fill : Colors.none
-      }
-
-      v.unitMarkerText = Text {
-          string : "1"
-	  x : get(v.labelPosition, 0)
-	  y : get(v.labelPosition, 1)
-	  color : Colors.black
-      }
-
-      v.layeringUnit1 = v.unitMarkerLine above U.xAxis
-      v.layeringUnit2 = v.unitMarkerLine above U.yAxis
-      -- v.unitLabelAvoidFn = encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
 }

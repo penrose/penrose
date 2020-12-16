@@ -188,8 +188,8 @@ where f := CreateFunction(A, B); A ?= B {
   f.x_vals = sampleFrom(A.left, A.right, 10)
   f.y_vals = map(applyFn, f.val, f.x_vals)
 
-  -- TODO: lambda (i => Curve) for making the shapes?
-  f.shape = List(Curve) {
+  -- TODO: lambda (i => Path) for making the shapes?
+  f.shape = List(Path) {
     xs = f.x_vals
     ys = f.y_vals
     arrows = "true"

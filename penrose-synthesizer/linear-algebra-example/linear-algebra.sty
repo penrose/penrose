@@ -232,7 +232,7 @@ where From(f,U,V) {
    V.shape.x = U.shape.x + const.vectorSpaceSize 
    V.shape.y = U.shape.y
 
-   f.shape = Curve {
+   f.shape = Path {
      pathData : makeCurve(0.65*U.shape.x+0.35*V.shape.x,0.65*U.shape.y+0.35*V.shape.y,0.35*U.shape.x+0.65*V.shape.x,0.35*U.shape.y+0.65*V.shape.y, 0.0, 30.0)
      fill : Colors.none
      strokeWidth : 1.5
@@ -264,7 +264,7 @@ Scalar c {
 Scalar c
 with Vector a; Vector b; VectorSpace U
 where c := determinant(a,b); In(a,U); In(b,U) {
-   c.shape = Curve {
+   c.shape = Path {
    	   pathData : makeRegionPath(a.shape, b.shape)
 	   strokeWidth : 0.0
 	   fill : setOpacity(Colors.sky, 0.25)

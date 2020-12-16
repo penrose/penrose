@@ -6,11 +6,12 @@ interface IProps {
   initial: boolean;
   showInspector: boolean;
 
-  toggleInspector(): void;
-  downloadPDF(): void;
+  toggleInspector?(): void;
+  downloadPDF?(): void;
 
-  downloadSVG(): void;
-  autoStepToggle(): void;
+  downloadSVG?(): void;
+  downloadState?(): void;
+  autoStepToggle?(): void;
   step(): void;
   // stepUntilConvergence(): void;
   resample(): void;
@@ -24,6 +25,7 @@ class ButtonBar extends React.Component<IProps> {
       autoStepToggle,
       downloadPDF,
       downloadSVG,
+      downloadState,
       step,
       // stepUntilConvergence,
       resample,
@@ -32,9 +34,11 @@ class ButtonBar extends React.Component<IProps> {
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
-        <button onClick={autoStepToggle}>
-          autostep {autostep ? "(on)" : "(off)"}
-        </button>
+        {autoStepToggle && (
+          <button onClick={autoStepToggle}>
+            autostep {autostep ? "(on)" : "(off)"}
+          </button>
+        )}
         <button onClick={step}>step</button>
         {/* <button onClick={stepUntilConvergence}>step until convergence</button> */}
         <button
@@ -43,11 +47,16 @@ class ButtonBar extends React.Component<IProps> {
         >
           resample
         </button>
-        <button onClick={downloadPDF}>download PDF</button>
-        <button onClick={downloadSVG}>download SVG</button>
-        <button onClick={toggleInspector}>
-          {showInspector ? "hide" : "show"} inspector
-        </button>
+        {downloadPDF && <button onClick={downloadPDF}>download PDF</button>}
+        {downloadSVG && <button onClick={downloadSVG}>download SVG</button>}
+        {downloadState && (
+          <button onClick={downloadState}>download State</button>
+        )}
+        {toggleInspector && (
+          <button onClick={toggleInspector}>
+            {showInspector ? "hide" : "show"} inspector
+          </button>
+        )}
 
         <div
           style={{

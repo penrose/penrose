@@ -111,7 +111,7 @@ Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
       -- Draw perpendicular mark
-      LOCAL.perpMark = Curve {
+      LOCAL.perpMark = Path {
 	   pathData : orientedSquare(u.shape, v.shape, U.origin, const.perpLen)
 	   strokeWidth : 2.0
 	   color : Colors.black
@@ -134,21 +134,21 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
       v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
 
-      v.unitMarkerLine = Curve {
+      v.unitMarkerLine = Path {
           pathData : pathFromPoints(v.offsetVec)
 	  strokeWidth : 2.0
 	  color : Colors.black
 	  fill : Colors.none
       }
 
-      v.unitMarkerEnd1 = Curve {
+      v.unitMarkerEnd1 = Path {
           pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
       	  strokeWidth : 2.0
       	  color : Colors.black
       	  fill : Colors.none
       }
 
-      v.unitMarkerEnd2 = Curve {
+      v.unitMarkerEnd2 = Path {
           pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
       	  strokeWidth : 2.0
       	  color : Colors.black

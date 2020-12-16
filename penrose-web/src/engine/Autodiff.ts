@@ -915,7 +915,7 @@ export const ops = {
   /**
    * Return the vector `v`, normalized.
    */
-  vnormalize: (v: VarAD[]): VarAD[] => {
+  vunit: (v: VarAD[]): VarAD[] => {
     const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
     return ops.vdiv(v, vsize);
   },

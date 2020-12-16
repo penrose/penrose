@@ -69,29 +69,44 @@ const tex2svg = memoize(
     })
 );
 
+export const retrieveLabel = (
+  shapeName: string,
+  labels: LabelCache
+): LabelData | undefined => {
+  if (labels) {
+    const res = labels.find(([name]) => name === shapeName);
+    if (res) {
+      return res[1];
+    } else {
+      return undefined;
+    }
+  } else return undefined;
+};
+
 // https://stackoverflow.com/a/44564236
-export const collectLabels = async (allShapes: Shape[]) => {
-  return Promise.all(
-    allShapes.map(async ({ shapeType, properties }: Shape) => {
-      if (shapeType === "Text" || shapeType === "TextTransform") {
-        // HACK: getting type errors for not being able to resolve the Value type
-        const { body, width, height } = await tex2svg(
-          properties.string.contents as string,
-          properties.name.contents as string,
-          properties.fontSize.contents as string
-        );
-        // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
-        // TODO: need to give a type to this kind of updated shape
-        const obj2: any = { ...properties };
-        obj2.w.updated = { tag: "FloatV", contents: width };
-        obj2.h.updated = { tag: "FloatV", contents: height };
-        // HACK: this behavior needs to be encoded in our type system
-        // Add omit: true flag so it doesn't get sent to the server
-        obj2.rendered = { contents: body, omit: true };
-        return { shapeType, properties: obj2 };
-      } else {
-        return { shapeType, properties };
-      }
-    })
-  );
+export const collectLabels = async (
+  allShapes: Shape[]
+): Promise<LabelCache> => {
+  const labels: LabelCache = [];
+  for (let s of allShapes) {
+    const { shapeType, properties } = s;
+    if (shapeType === "Text" || shapeType === "TextTransform") {
+      const shapeName: string = properties.name.contents as string;
+      // HACK: getting type errors for not being able to resolve the Value type
+      const { body, width, height } = await tex2svg(
+        properties.string.contents as string,
+        shapeName,
+        properties.fontSize.contents as string
+      );
+
+      // Instead of directly overwriting the properties, cache them temporarily
+      const label: LabelData = {
+        w: { tag: "FloatV", contents: width as number },
+        h: { tag: "FloatV", contents: height as number },
+        rendered: body as HTMLElement,
+      };
+      labels.push([shapeName, label]);
+    }
+  }
+  return Promise.all(labels);
 };

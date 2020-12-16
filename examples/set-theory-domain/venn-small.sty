@@ -1,5 +1,5 @@
 forall Set x {
-    x.shape = Circle {
+    x.icon = Circle {
         -- center : (?, ?)
         r : ?
         -- r : 100.0
@@ -32,21 +32,21 @@ forall Set x {
         style: "dashed"
     }
 
-    x.containFn = ensure contains(x.shape, x.text)
-    ensure contains(x.shape, x.text)
-    encourage sameCenter(x.text, x.shape)
+    x.containFn = ensure contains(x.icon, x.text)
+    ensure contains(x.icon, x.text)
+    encourage sameCenter(x.text, x.icon)
 
-    ensure minSize(x.shape)
-    ensure maxSize(x.shape)
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
 
-    layer x.text above x.shape
+    layer x.text above x.icon
 }
 
 forall Set x; Set y
 where IsSubset(x, y) {
-    ensure smallerThan(x.shape, y.shape)
-    ensure outsideOf(y.text, x.shape)
+    ensure smallerThan(x.icon, y.icon)
+    ensure outsideOf(y.text, x.icon)
 
-    ensure contains(y.shape, x.shape, 5.0)
-    layer x.shape above y.shape
+    ensure contains(y.icon, x.icon, 5.0)
+    layer x.icon above y.icon
 }

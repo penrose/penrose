@@ -1,12 +1,11 @@
-import { step } from "engine/Optimizer";
+import { stepState, resample } from "API";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
-import { collectLabels } from "utils/CollectLabels";
 import Log from "utils/Log";
-import { converged, initial, Resample } from "./packets";
+import { converged, initial } from "./packets";
 import { ConnectionStatus, Protocol } from "./Protocol";
 
 interface ICanvasState {
@@ -19,19 +18,11 @@ interface ICanvasState {
 }
 
 const socketAddress = "ws://localhost:9160";
-
-const stepState = async (state: State, onUpdate: any) => {
-  const numSteps = 1;
-  const newState = step(state!, numSteps);
-  const labeledShapes: any = await collectLabels(newState.shapes);
-  onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
-};
-
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
     history: [],
-    autostep: false,
+    autostep: true,
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
     showInspector: true,
@@ -58,8 +49,8 @@ class App extends React.Component<any, ICanvasState> {
       data: canvasState,
       processedInitial: true,
     });
-  }
-  public onCanvasState = async (canvasState: State, _: any) => {
+  };
+  public onCanvasState = async (canvasState: State) => {
     // HACK: this will enable the "animation" that we normally expect
     await new Promise((r) => setTimeout(r, 1));
 
@@ -83,6 +74,11 @@ class App extends React.Component<any, ICanvasState> {
       this.canvas.current.downloadPDF();
     }
   };
+  public downloadState = () => {
+    if (this.canvas.current !== null) {
+      this.canvas.current.downloadState();
+    }
+  };
   public autoStepToggle = async () => {
     await this.setState({ autostep: !this.state.autostep });
     if (this.state.autostep && this.state.processedInitial) {
@@ -98,15 +94,19 @@ class App extends React.Component<any, ICanvasState> {
       kind: "renderer",
     },
   ]);
-  public step = () => {
-    // this.protocol.sendPacket(Step(1, this.state.data));
-    stepState(this.state.data!, this.onCanvasState);
+  public step = async () => {
+    const stepped = await stepState(this.state.data!);
+    this.onCanvasState(stepped);
   };
+
   public resample = async () => {
     const NUM_SAMPLES = 1;
-    // resampled = true;
-    await this.setState({ processedInitial: false });
-    this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
+    const oldState = this.state.data;
+    if (oldState) {
+      await this.setState({ processedInitial: false });
+      const resampled = await resample(oldState, NUM_SAMPLES);
+      this.onCanvasState(resampled);
+    }
   };
 
   public async componentDidMount() {
@@ -126,7 +126,8 @@ class App extends React.Component<any, ICanvasState> {
   public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
     if (this.state.autostep) {
-      stepState(data, this.onCanvasState);
+      const stepped = await stepState(data);
+      this.onCanvasState(stepped);
     }
   };
   public setInspector = async (showInspector: boolean) => {
@@ -162,6 +163,7 @@ class App extends React.Component<any, ICanvasState> {
           <ButtonBar
             downloadPDF={this.downloadPDF}
             downloadSVG={this.downloadSVG}
+            downloadState={this.downloadState}
             // stepUntilConvergence={stepUntilConvergence}
             autostep={autostep}
             step={this.step}
@@ -189,7 +191,13 @@ class App extends React.Component<any, ICanvasState> {
               ref={this.canvas}
               penroseVersion={penroseVersion}
             />
-            {showInspector && <Inspector history={history} onClose={this.toggleInspector} modShapes={this.modShapes} />}
+            {showInspector && (
+              <Inspector
+                history={history}
+                onClose={this.toggleInspector}
+                modShapes={this.modShapes}
+              />
+            )}
           </SplitPane>
         </div>
       </div>

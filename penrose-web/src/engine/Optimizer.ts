@@ -51,7 +51,7 @@ const weightGrowthFactor = 10;
 const constraintWeight = 10e4; // HACK: constant constraint weight
 
 // Intial weight for constraints
-const initConstraintWeight = 10e-3;
+export const initConstraintWeight = 10e-3;
 
 // EP method convergence criteria
 const epStop = 1e-3;
