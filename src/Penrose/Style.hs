@@ -563,25 +563,12 @@ aOperators =
 -- Parse permissively with or without the `layer` keyword (so we don't need to port all the old Style programs for now)
 -- TODO: port them to use `layer`
 layeringExpr :: Parser Expr
--- layeringExpr = try layeringAbove <|> layeringBelow
-layeringExpr = tryChoice [layeringAbove, layeringBelow, layeringAboveKeyword, layeringBelowKeyword]
+layeringExpr = optional (rword "layer") >> try layeringAbove <|> layeringBelow
     where
         layeringBelow = Layering <$> path <* rword "below" <*> path
         layeringAbove = do
             path1 <- path
             rword "above"
-            path2 <- path
-            return $ Layering path2 path1
-        layeringAboveKeyword = do
-            rword "layer"
-            path1 <- path
-            rword "above"
-            path2 <- path
-            return $ Layering path2 path1
-        layeringBelowKeyword = do
-            rword "layer"
-            path1 <- path
-            rword "below"
             path2 <- path
             return $ Layering path2 path1
 
