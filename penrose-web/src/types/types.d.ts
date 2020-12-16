@@ -88,8 +88,8 @@ type Expr =
   | IAFloat
   | IStringLit
   | IBoolLit
-  | IEvar
-  | IEPath
+  // | IEvar
+  | Path // NOTE: changed from EPath
   | ICompApp
   | IObjFn
   | IConstrFn
@@ -103,7 +103,7 @@ type Expr =
   | IVectorAccess
   | IMatrixAccess
   | IListAccess
-  | ICtor
+  | GPIDecl
   | ILayering
   | IPluginAccess
   | IThenOp;
@@ -118,12 +118,12 @@ interface IAFloat {
   contents: AnnoFloat;
 }
 
-interface IStringLit {
+interface IStringLit extends ASTNode {
   tag: "StringLit";
   contents: string;
 }
 
-interface IBoolLit {
+interface IBoolLit extends ASTNode {
   tag: "BoolLit";
   contents: boolean;
 }
@@ -133,25 +133,29 @@ interface IEVar {
   contents: LocalVar;
 }
 
-interface IEPath {
-  tag: "EPath";
-  contents: Path;
-  // value
-}
+// NOTE: no longer using EPath, and use Path instead in Expr
+// interface IEPath {
+//   tag: "EPath";
+//   contents: Path;
+//   // value
+// }
 
-interface ICompApp {
+interface ICompApp extends ASTNode {
   tag: "CompApp";
-  contents: [string, Expr[]];
+  name: Identifier;
+  args: Expr[];
 }
 
-interface IObjFn {
+interface IObjFn extends ASTNode {
   tag: "ObjFn";
-  contents: [string, Expr[]];
+  name: Identifier;
+  args: Expr[];
 }
 
-interface IConstrFn {
+interface IConstrFn extends ASTNode {
   tag: "ConstrFn";
-  contents: [string, Expr[]];
+  name: Identifier;
+  args: Expr[];
 }
 
 interface IAvoidFn {
@@ -159,32 +163,38 @@ interface IAvoidFn {
   contents: [string, Expr[]];
 }
 
-interface IBinOp {
+type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
+
+// NOTE: unary + operator not parsed, as they don't change values
+type UnaryOp = "UPlus";
+interface IBinOp extends ASTNode {
   tag: "BinOp";
-  contents: [BinaryOp, Expr, Expr];
+  op: BinaryOp;
+  left: Expr;
+  right: Expr;
 }
-
-interface IUOp {
+interface IUOp extends ASTNode {
   tag: "UOp";
-  contents: [UnaryOp, Expr];
+  op: UnaryOp;
+  arg: Expr;
 }
 
-interface IList {
+interface IList extends ASTNode {
   tag: "List";
   contents: Expr[];
 }
 
-interface ITuple {
+interface ITuple extends ASTNode {
   tag: "Tuple";
   contents: [Expr, Expr];
 }
 
-interface IVector {
+interface IVector extends ASTNode {
   tag: "Vector";
   contents: Expr[];
 }
 
-interface IMatrix {
+interface IMatrix extends ASTNode {
   tag: "Matrix";
   contents: Expr[];
 }
@@ -204,14 +214,16 @@ interface IListAccess {
   contents: [Path, number];
 }
 
-interface ICtor {
-  tag: "Ctor";
-  contents: [string, PropertyDecl[]];
+interface GPIDecl extends ASTNode {
+  tag: "GPIDecl";
+  shapeName: Identifier;
+  properties: PropertyDecl[];
 }
 
-interface ILayering {
+interface ILayering extends ASTNode {
   tag: "Layering";
-  contents: [Path, Path];
+  below: Path;
+  above: Path;
 }
 
 interface IPluginAccess {
@@ -226,40 +238,43 @@ interface IThenOp {
 
 type AnnoFloat = IFix | IVary;
 
-interface IFix {
+interface IFix extends ASTNode {
   tag: "Fix";
   contents: number;
 }
 
-interface IVary {
+interface IVary extends ASTNode {
   tag: "Vary";
 }
 
-type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
+interface PropertyDecl extends ASTNode {
+  tag: "PropertyDecl";
+  name: Identifier;
+  value: Expr;
+}
 
-type UnaryOp = "UPlus" | "UMinus";
-
-type PropertyDecl = IPropertyDecl;
-
-type IPropertyDecl = [string, Expr];
-
+// TODO: check how the evaluator/compiler should interact with ASTNode
 type Path = IFieldPath | IPropertyPath | IAccessPath;
 // Unused
 // | ITypePropertyPath;
 
-interface IFieldPath {
+interface IFieldPath extends ASTNode {
   tag: "FieldPath";
-  contents: [BindingForm, string];
+  name: BindingForm;
+  field: Identifier;
 }
 
-interface IPropertyPath {
+interface IPropertyPath extends ASTNode {
   tag: "PropertyPath";
-  contents: [BindingForm, string, string];
+  name: BindingForm;
+  field: Identifier;
+  property: Identifier;
 }
 
-interface IAccessPath {
+interface IAccessPath extends ASTNode {
   tag: "AccessPath";
-  contents: [Path, number[]];
+  path: Path;
+  indices: number[];
 }
 
 // Unused
@@ -267,29 +282,22 @@ interface IAccessPath {
 //   tag: "TypePropertyPath";
 // }
 
-type Var = IVarConst;
+type BindingForm = SubVar | StyVar;
 
-type IVarConst = string;
-
-type BindingForm = IBSubVar | IBStyVar;
-
-interface IBSubVar {
-  tag: "BSubVar";
-  contents: Var;
+interface SubVar extends ASTNode {
+  tag: "SubVar";
+  contents: Identifier;
 }
 
-interface IBStyVar {
-  tag: "BStyVar";
-  contents: StyVar;
+interface StyVar extends ASTNode {
+  tag: "StyVar";
+  contents: Identifier;
 }
 
-type StyVar = IStyVar;
-
-type IStyVar = string;
-
-type LocalVar = ILocalVar;
-
-type ILocalVar = string;
+interface LocalVar extends ASTNode {
+  tag: "LocalVar";
+  contents: Identifier;
+}
 
 /**
  * A value in the penrose system.
@@ -743,69 +751,73 @@ interface IOptDebugInfo {
 //#region Style AST
 
 /** Top level type for Style AST */
-type StyProg = HeaderBlocks;
-type HeaderBlocks = HeaderBlock[];
-type HeaderBlock = [Header, Block];
-type Block = Stmt[];
-
-type Header = ISelect | INamespace;
-
-interface ISelect {
-  tag: "Select";
-  contents: Selector;
+interface StyProg extends ASTNode {
+  tag: "StyProg";
+  blocks: HeaderBlock[];
 }
 
-interface INamespace {
+// type HeaderBlock = [Header, Block];
+interface HeaderBlock extends ASTNode {
+  tag: "HeaderBlock";
+  header: Header;
+  block: Block;
+}
+
+interface Block extends ASTNode {
+  tag: "Block";
+  statements: Stmt[];
+}
+
+type Header = Selector | Namespace;
+
+interface Selector extends ASTNode {
+  tag: "Selector";
+  head: DeclPatterns;
+  with?: DeclPatterns;
+  where?: RelationPatterns;
+  namespace?: Namespace;
+}
+
+// NOTE: Instead of a js array typed child. I explicitly wrap them in an ASTNode so location and ancestry info can be better preserved.
+// TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.
+interface DeclPatterns extends ASTNode {
+  tag: "DeclPatterns";
+  contents: DeclPattern[];
+}
+
+interface Namespace extends ASTNode {
   tag: "Namespace";
   contents: StyVar;
 }
 
-type Selector = ISelector;
-
-interface ISelector {
-  selHead: DeclPattern[];
-  selWith: DeclPattern[];
-  selWhere: RelationPattern[];
-  selNamespace?: string;
+interface DeclPattern extends ASTNode {
+  tag: "DeclPattern";
+  type: StyT;
+  id: BindingForm;
 }
 
-type DeclPattern = IPatternDecl;
+type RelationPattern = RelBind | RelPred;
+interface RelationPatterns extends ASTNode {
+  tag: "RelationPatterns";
+  contents: RelationPattern[];
+}
 
-type IPatternDecl = [StyT, BindingForm];
-
-type RelationPattern = IRelBind | IRelPred;
-
-interface IRelBind {
+interface RelBind extends ASTNode {
   tag: "RelBind";
-  contents: [BindingForm, SelExpr];
+  id: BindingForm;
+  expr: SelExpr;
 }
-
-interface IRelPred {
+interface RelPred extends ASTNode {
   tag: "RelPred";
-  contents: Predicate;
+  name: string;
+  args: PredArg[];
 }
 
-type Predicate = IPredicate;
+type PredArg = SelExpr | RelPred;
 
-interface IPredicate {
-  predicateName: string;
-  predicateArgs: PredArg[];
-  predicatePos: SourcePos;
-}
-
-type PredArg = IPE | IPP;
-
-interface IPE {
-  tag: "PE";
-  contents: SelExpr;
-}
-
-interface IPP {
-  tag: "PP";
-  contents: Predicate;
-}
-
-type StyT = ISTTypeVar | ISTCtor;
+// NOTE: the original type is unnecessarily nested and contain type constructor, which is deprecated.
+type StyT = Identifier;
+// type StyT = ISTTypeVar | ISTCtor;
 
 interface ISTTypeVar {
   tag: "STTypeVar";
@@ -844,21 +856,29 @@ interface ISAT {
   contents: StyT;
 }
 
-type SelExpr = ISEBind | ISEAppFunc | ISEAppValCons;
+type SelExpr = SEBind | SEFunc | SEValCons | SEFuncOrValCons;
 
-interface ISEBind {
+interface SEBind extends ASTNode {
   tag: "SEBind";
   contents: BindingForm;
 }
 
-interface ISEAppFunc {
-  tag: "SEAppFunc";
-  contents: [string, SelExpr[]];
+interface SEFunc extends ASTNode {
+  tag: "SEFunc";
+  name: Identifier;
+  args: SelExpr[];
 }
 
-interface ISEAppValCons {
-  tag: "SEAppValCons";
-  contents: [string, SelExpr[]];
+interface SEValCons extends ASTNode {
+  tag: "SEValCons";
+  name: Identifier;
+  args: SelExpr[];
+}
+// NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
+interface SEFuncOrValCons extends ASTNode {
+  tag: "SEFuncOrValCons";
+  name: Identifier;
+  args: SelExpr[];
 }
 
 type SourcePos = ISourcePos;
@@ -873,24 +893,27 @@ type Pos = IPos;
 
 type IPos = number;
 
-type Stmt = IPathAssign | IOverride | IDelete | IAnonAssign;
+type Stmt = PathAssign | IOverride | Delete | IAnonAssign;
 
-interface IPathAssign {
+interface PathAssign extends ASTNode {
   tag: "PathAssign";
-  contents: [StyType, Path, Expr];
+  type: StyType;
+  path: Path;
+  value: Expr;
 }
 
-interface IOverride {
+interface IOverride extends ASTNode {
   tag: "Override";
-  contents: [Path, Expr];
+  path: Path;
+  value: Expr;
 }
 
-interface IDelete {
+interface Delete extends ASTNode {
   tag: "Delete";
   contents: Path;
 }
 
-interface IAnonAssign {
+interface IAnonAssign extends ASTNode {
   tag: "AnonAssign";
   contents: Expr;
 }
@@ -944,7 +967,6 @@ interface IVarEnv {
   stmtNotations: StmtNotationRule[];
   errors: string;
 }
-
 type TypeConstructor = ITypeConstructor;
 
 interface ITypeConstructor {
@@ -1348,6 +1370,29 @@ type Prop = IProp;
 interface IProp {
   propName: string;
   propPos: SourcePos;
+}
+
+//#endregion
+
+//#region AST nodes
+interface SourceLoc {
+  line: number;
+  col: number;
+}
+
+interface ASTNode {
+  tag: string;
+  start: SourceLoc;
+  end: SourceLoc;
+  // Optionally for querying
+  // children: ASTNode[];
+  // file: string;
+  // parent: ASTNode; // NOTE: pointer type; don't serialize this
+}
+
+interface Identifier extends ASTNode {
+  type: string;
+  value: string;
 }
 
 //#endregion
