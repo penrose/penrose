@@ -65,6 +65,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/consistent-type-assertions": "error",
+    "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/dot-notation": "error",
     "@typescript-eslint/indent": "off",
     "@typescript-eslint/member-delimiter-style": [
@@ -81,7 +82,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/member-ordering": "off",
-    "@typescript-eslint/naming-convention": "error",
+    "@typescript-eslint/naming-convention": "off",
     "@typescript-eslint/no-empty-function": "error",
     "@typescript-eslint/no-empty-interface": "error",
     "@typescript-eslint/no-explicit-any": "off",
