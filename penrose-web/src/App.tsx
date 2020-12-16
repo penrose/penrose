@@ -4,6 +4,7 @@ import * as React from "react";
 import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
+import Embed from "ui/Embed";
 import Log from "utils/Log";
 import { converged, initial } from "./packets";
 import { ConnectionStatus, Protocol } from "./Protocol";
@@ -54,7 +55,7 @@ class App extends React.Component<any, ICanvasState> {
     // HACK: this will enable the "animation" that we normally expect
     await new Promise((r) => setTimeout(r, 1));
 
-    await this.setState({
+    this.setState({
       data: canvasState,
       history: [...this.state.history, canvasState],
       processedInitial: true,
@@ -64,14 +65,14 @@ class App extends React.Component<any, ICanvasState> {
       await this.step();
     }
   };
-  public downloadSVG = () => {
+  public downloadSVG = (): void => {
     if (this.canvas.current !== null) {
-      this.canvas.current.downloadSVG();
+      void this.canvas.current.downloadSVG();
     }
   };
   public downloadPDF = () => {
     if (this.canvas.current !== null) {
-      this.canvas.current.downloadPDF();
+      void this.canvas.current.downloadPDF();
     }
   };
   public downloadState = () => {
@@ -80,9 +81,9 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public autoStepToggle = async () => {
-    await this.setState({ autostep: !this.state.autostep });
+    this.setState({ autostep: !this.state.autostep });
     if (this.state.autostep && this.state.processedInitial) {
-      this.step();
+      void this.step();
     }
   };
   public protocol: Protocol = new Protocol(socketAddress, [
@@ -95,21 +96,21 @@ class App extends React.Component<any, ICanvasState> {
     },
   ]);
   public step = async () => {
-    const stepped = await stepState(this.state.data!);
-    this.onCanvasState(stepped);
+    const stepped = stepState(this.state.data!);
+    void this.onCanvasState(stepped);
   };
 
   public resample = async () => {
     const NUM_SAMPLES = 1;
     const oldState = this.state.data;
     if (oldState) {
-      await this.setState({ processedInitial: false });
-      const resampled = await resample(oldState, NUM_SAMPLES);
-      this.onCanvasState(resampled);
+      this.setState({ processedInitial: false });
+      const resampled = resample(oldState, NUM_SAMPLES);
+      void this.onCanvasState(resampled);
     }
   };
 
-  public async componentDidMount() {
+  public componentDidMount(): void {
     this.protocol = new Protocol(socketAddress, [
       {
         onConnectionStatus: this.onConnectionStatus,
@@ -131,7 +132,7 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public setInspector = async (showInspector: boolean) => {
-    await this.setState({ showInspector });
+    this.setState({ showInspector });
     // localStorage.setItem("showInspector", showInspector ? "true" : "false");
   };
   public toggleInspector = async () => {
@@ -141,7 +142,7 @@ class App extends React.Component<any, ICanvasState> {
     await this.setInspector(false);
   };
 
-  public render() {
+  private renderApp() {
     const {
       data,
       autostep,
@@ -202,6 +203,15 @@ class App extends React.Component<any, ICanvasState> {
         </div>
       </div>
     );
+  }
+
+  public render() {
+    return (
+      <div style={{ margin: "0 auto", width: "50%", height: "50%" }}>
+        {this.state.data && <Embed data={this.state.data} />}
+      </div>
+    );
+    // return this.renderApp();
   }
 }
 

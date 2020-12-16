@@ -1,0 +1,23 @@
+.penrose-embed {
+  position: relative;
+  border-radius: 10px;
+  /* Add shadows to create the "card" effect */
+  border: 0.5px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.embed-footer {
+  /* height: 40px; */
+  font-family: "Open Sans", sans-serif;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-between;
+  color: white;
+  padding: 0 1em;
+  font-weight: lighter;
+  font-size: smaller;
+  align-items: center;
+  background-color: #40b4f7;
+  border-radius: 0 0 9px 9px;
+}
