@@ -285,15 +285,15 @@ header
 
 selector -> 
     forall:? decl_patterns _ml select_as:?  
-    {% (d) => selector(d[1], undefined, undefined, d[4]) %} 
+    {% (d) => selector(d[1], undefined, undefined, d[3]) %} 
   | forall:? decl_patterns _ml select_where select_as:? 
-    {% (d) => selector(d[1], undefined, d[4], d[5]) %} 
+    {% (d) => selector(d[1], undefined, d[3], d[4]) %} 
   | forall:? decl_patterns _ml select_with select_as:? 
-    {% (d) => selector(d[1], d[4], undefined, d[5]) %} 
+    {% (d) => selector(d[1], d[3], undefined, d[4]) %} 
   | forall:? decl_patterns _ml select_where select_with select_as:? 
-    {% (d) => selector(d[1], d[5], d[4], d[6]) %} 
+    {% (d) => selector(d[1], d[4], d[3], d[5]) %} 
   | forall:? decl_patterns _ml select_with select_where select_as:? 
-    {% (d) => selector(d[1], d[4], d[5], d[6]) %}
+    {% (d) => selector(d[1], d[3], d[4], d[5]) %}
 
 forall -> "forall" __ {% nth(0) %}
 
