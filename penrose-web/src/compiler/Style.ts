@@ -48,8 +48,6 @@ const addMapping = (k: BindingForm, v: StyT, m: SelEnv): SelEnv => {
 // `checkDeclPattern`
 const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPattern): SelEnv => {
 
-  console.error("stmt", stmt);
-
   const [styType, bVar] = [stmt.type, stmt.id];
   if (bVar.tag === "StyVar") {
     // rule Decl-Sty-Context
@@ -85,8 +83,6 @@ const checkHeader = (varEnv: VarEnv, header: Header): SelEnv => {
     const selEnv_afterHead = checkDeclPatternsAndMakeEnv(varEnv, initSelEnv(), sel.head.contents);
     // Check `with` statements
     // TODO: Did we get rid of `with` statements?
-
-    console.error("sel", sel);
 
     const selEnv_decls = checkDeclPatternsAndMakeEnv(varEnv, selEnv_afterHead, safeContentsList(sel.with));
     // TODO(error): rel_errs
@@ -146,13 +142,14 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
 // Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 // Ported from `matchType`
 const typesMatched = (varEnv: VarEnv, substanceType: T, styleType: StyT): boolean => {
-  if (substanceType.tag === "TConstr" && styleType.tag === "STCtor") {
+  if (substanceType.tag === "TConstr") {
     return substanceType.contents.nameCons === styleType.value;
     // TODO/COMBAK: Implement subtype checking
     // && isSubtype(substanceType, toSubType(styleType), varEnv);
   }
 
   // TODO(errors)
+  console.log(substanceType, styleType);
   throw Error("expected two nullary types");
 };
 
@@ -233,7 +230,8 @@ const findSubstsProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg,
   styProg: HeaderBlock[], selEnvs: SelEnv[]): Subst[][] => {
 
   if (selEnvs.length !== styProg.length) { throw Error("expected same # selEnvs as selectors"); }
-  const selsWithEnvs = _.zip(styProg.map((e: HeaderBlock) => e[0]), selEnvs); // TODO: Why can't I type it [Header, SelEnv][]? It shouldn't be undefined after the length check
+  const selsWithEnvs = _.zip(styProg.map((e: HeaderBlock) => e.header), selEnvs); // TODO: Why can't I type it [Header, SelEnv][]? It shouldn't be undefined after the length check
+
   return selsWithEnvs.map(selAndEnv => findSubstsSel(varEnv, subEnv, subProg, selAndEnv as [Header, SelEnv]));
 };
 
