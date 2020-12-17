@@ -23,6 +23,8 @@ function justs<T>(xs: MaybeVal<T>[]): T[] {
 
 const safeContentsList = (x: any) => x ? x.contents : [];
 
+const toString = (x: BindingForm): string => x.contents.value;
+
 //#endregion
 
 //#region Types and code for selector checking and environment construction
@@ -30,6 +32,7 @@ const safeContentsList = (x: any) => x ? x.contents : [];
 const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so you have to make a new one each time
   return {
     sTypeVarMap: {},
+    varProgTypeMap: {},
     sErrors: [],
     skipBlock: false,
     header: { tag: "Nothing" },
@@ -39,8 +42,9 @@ const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so 
 // Add a mapping from Sub or Sty var to the selector's environment
 // g, (x : |T)
 // NOTE: Mutates the map in `m`
-const addMapping = (k: BindingForm, v: StyT, m: SelEnv): SelEnv => {
-  m.sTypeVarMap[JSON.stringify(k)] = v; // Note that the BindingForm is stringified
+const addMapping = (k: BindingForm, v: StyT, m: SelEnv, p: ProgType): SelEnv => {
+  m.sTypeVarMap[toString(k)] = v; // Note that the BindingForm is stringified
+  m.varProgTypeMap[toString(k)] = [p, k];
   return m;
 };
 
@@ -56,7 +60,7 @@ const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPa
 
     // TODO(errors)
 
-    return addMapping(bVar, styType, selEnv);
+    return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
   } else if (bVar.tag === "SubVar") {
     // rule Decl-Sub-Context
     // x \not\in dom(g)
@@ -65,7 +69,7 @@ const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPa
     // TODO: Check subtypes
     // TODO: Check `skip block` condition
 
-    return addMapping(bVar, styType, selEnv);
+    return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
   } else throw Error("unknown tag");
 };
 
@@ -157,7 +161,7 @@ const typesMatched = (varEnv: VarEnv, substanceType: T, styleType: StyT): boolea
 const matchBvar = (subVar: Var, bf: BindingForm): MaybeVal<Subst> => {
   if (bf.tag === "StyVar") {
     const newSubst = {};
-    newSubst[JSON.stringify(bf.contents)] = subVar; // StyVar matched SubVar
+    newSubst[toString(bf)] = subVar; // StyVar matched SubVar
     return {
       tag: "Just",
       contents: newSubst

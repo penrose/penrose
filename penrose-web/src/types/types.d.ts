@@ -1393,11 +1393,31 @@ interface IProp {
 
 // Style static semantics for selectors
 
+// Whether a variable in a selector is a Style variable or a Substance variable -- NOTE: This is new from the semantics because we can only store string in sTypeVarMap. So you have to look up the ProgType here too
+// const enum ProgType {
+//   Sub,
+//   Sty
+// }
+// TODO why doesn't this work
+
+type ProgType =
+  | ISubProgT
+  | IStyProgT
+
+interface ISubProgT {
+  tag: "SubProgT";
+}
+
+interface IStyProgT {
+  tag: "StyProgT";
+}
+
 // g ::= B => |T
 // Assumes nullary type constructors (i.e. Style type = Substance type)
 interface ISelEnv {
   // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
   sTypeVarMap: { [k: string]: StyT }; // B : |T
+  varProgTypeMap: { [k: string]: [ProgType, BindingForm] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
   sErrors: string[]; // TODO(errors): Store errors properly
   skipBlock: Bool;
   header: Maybe<Header>; // Just for debugging
