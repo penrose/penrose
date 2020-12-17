@@ -10,6 +10,7 @@ import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
 
 import * as stateJSON from "__tests__/orthogonalVectors.json";
+import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
 import { compileStyle } from "compiler/Style"; // COMBAK: Use this import properly
 
 interface ICanvasProps {
@@ -49,7 +50,7 @@ class Canvas extends React.Component<ICanvasProps> {
    */
   public static processData = async (data: any) => {
     // COMBAK: Clean up this use
-    const res = compileStyle(stateJSON);
+    const res = compileStyle(stateJSON, styJSON);
     throw Error("TODO: style compiler");
 
     const state: State = decodeState(data);
