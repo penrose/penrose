@@ -25,6 +25,10 @@ const safeContentsList = (x: any) => x ? x.contents : [];
 
 const toString = (x: BindingForm): string => x.contents.value;
 
+// https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
+const cartesianProduct =
+  (...a: any[]) => a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())));
+
 //#endregion
 
 //#region Types and code for selector checking and environment construction
@@ -117,15 +121,33 @@ const checkSelsAndMakeEnv = (varEnv: VarEnv, prog: HeaderBlock[]): SelEnv[] => {
 
 // Judgment 20. A substitution for a selector is only correct if it gives exactly one
 //   mapping for each Style variable in the selector.
+// UNTESTED
 const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
+  // Check if a variable is a style variable, not a substance one
+  const isStyVar = (e: string): boolean => selEnv.varProgTypeMap[e][0].tag === "StyProgT";
 
-  return false; // TODO <
-
+  // Equal up to permutation (M.keys ensures that there are no dups)
+  const selStyVars = Object.keys(selEnv.sTypeVarMap).filter(isStyVar);
+  const substStyVars = Object.keys(subst);
+  // Equal up to permutation (keys of an object in js ensures that there are no dups)
+  return _.isEqual(selStyVars.sort(), substStyVars.sort()N);
 };
 
 // Check that there are no duplicate keys or vals in the substitution
+// UNTESTED
 const uniqueKeysAndVals = (subst: Subst): boolean => {
-  return false; // TODO <
+  // All keys already need to be unique in js, so only checking values
+  const vals = Object.values(subst);
+  const valsSet = {};
+
+  for (let i = 0; i < vals.length; i++) {
+    valsSet[vals[i]] = 0; // This 0 means nothing, we just want to create a set of values
+  }
+
+  console.error("vals", vals, "valsSet", valsSet);
+
+  // All entries were unique if length didn't change (ie the nub didn't change)
+  return Object.keys(valsSet).length === vals.length;
 };
 
 // -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
@@ -138,8 +160,24 @@ const filterRels = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: Rel
 
 //// Match declaration statements
 
+const combine = (s1: Subst, s2: Subst): Subst => {
+  return { ...s1, ...s2 };
+};
+
+// TODO check for duplicate keys (and vals)
+// (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
+// the way merge is used, I think each subst in the second argument only contains one mapping
 const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
-  return []; // TODO <
+
+  if (s2.length === 0) {
+    return s1;
+  }
+
+  if (s1.length === 0) {
+    return s2;
+  }
+
+  return cartesianProduct(s1, s2).map(([a, b]: Subst[]) => combine(a, b));
 };
 
 // Judgment 9. G; theta |- T <| |T
@@ -199,7 +237,11 @@ const matchDeclLine = (varEnv: VarEnv, line: SubStmt, decl: DeclPattern): MaybeV
 const matchDecl = (varEnv: VarEnv, subProg: SubProg, initSubsts: Subst[], decl: DeclPattern): Subst[] => {
   // Judgment 14. G; [theta] |- [S] <| |S_o
   const newSubsts = subProg.map(line => matchDeclLine(varEnv, line, decl));
-  return merge(initSubsts, justs(newSubsts));
+  const res = merge(initSubsts, justs(newSubsts)); // TODO inline
+  // COMBAK: Inline this
+  // console.log("substs to combine:", initSubsts, justs(newSubsts));
+  // console.log("res", res);
+  return res;
 };
 
 // Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
@@ -280,10 +322,13 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
   // TODO <
 
   // Translate style program
+  // TODO <
 
   // Gen opt problem and state
+  // TODO <
 
   // Compute layering
+  // TODO(@wodeni)
 
   return {} as State;
 

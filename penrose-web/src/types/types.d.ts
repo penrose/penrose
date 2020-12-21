@@ -1416,8 +1416,10 @@ interface IStyProgT {
 // Assumes nullary type constructors (i.e. Style type = Substance type)
 interface ISelEnv {
   // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
+  // Variable => Type
   sTypeVarMap: { [k: string]: StyT }; // B : |T
   varProgTypeMap: { [k: string]: [ProgType, BindingForm] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
+  // Variable => [Substance or Style variable, original data structure with program locs etc]
   sErrors: string[]; // TODO(errors): Store errors properly
   skipBlock: Bool;
   header: Maybe<Header>; // Just for debugging
