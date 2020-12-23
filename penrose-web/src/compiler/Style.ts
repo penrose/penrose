@@ -146,12 +146,45 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   return Object.keys(valsSet).length === vals.length;
 };
 
+const couldMatchRels = (typeEnv: VarEnv, rels: RelationPattern[], stmt: SubStmt): boolean => {
+
+  // TODO < (this is an optimization)
+  return true;
+
+};
+
+//#region (subregion? TODO fix) Applying a substitution
+
+const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
+
+  // TODO
+  return rel;
+
+};
+
+const substituteRels = (subst: Subst, rels: RelationPattern[]): RelationPattern[] => {
+  return rels.map(rel => substituteRel(subst, rel));
+};
+
+//#endregion (subregion? TODO fix)
+
+const relMatchesProg = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rel: RelationPattern): boolean => {
+
+  return true;
+  // TODO <
+  // TODO relMatchesLine
+
+};
+
+const allRelsMatch = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[]): boolean => {
+  return rels.every(rel => relMatchesProg(typeEnv, subEnv, subProg, rel));
+};
+
 // -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // -- Folds over [theta]
 const filterRels = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[], substs: Subst[]): Subst[] => {
-
-  return substs; // TODO <
-
+  const subProgFiltered = subProg.filter(line => couldMatchRels(typeEnv, rels, line)); // TODO <
+  return substs.filter(subst => allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))); // TODO <
 };
 
 //// Match declaration statements
