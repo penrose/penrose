@@ -120,9 +120,8 @@ const checkSelsAndMakeEnv = (varEnv: VarEnv, prog: HeaderBlock[]): SelEnv[] => {
 //#region Types and code for finding substitutions
 
 // Judgment 20. A substitution for a selector is only correct if it gives exactly one
-//   mapping for each Style variable in the selector.
-// UNTESTED
-const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
+//   mapping for each Style variable in the selector. (Has test)
+export const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
   // Check if a variable is a style variable, not a substance one
   const isStyVar = (e: string): boolean => selEnv.varProgTypeMap[e][0].tag === "StyProgT";
 
@@ -130,12 +129,11 @@ const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
   const selStyVars = Object.keys(selEnv.sTypeVarMap).filter(isStyVar);
   const substStyVars = Object.keys(subst);
   // Equal up to permutation (keys of an object in js ensures that there are no dups)
-  return _.isEqual(selStyVars.sort(), substStyVars.sort()N);
+  return _.isEqual(selStyVars.sort(), substStyVars.sort());
 };
 
-// Check that there are no duplicate keys or vals in the substitution
-// UNTESTED
-const uniqueKeysAndVals = (subst: Subst): boolean => {
+// Check that there are no duplicate keys or vals in the substitution (Has test)
+export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
   const valsSet = {};
@@ -143,8 +141,6 @@ const uniqueKeysAndVals = (subst: Subst): boolean => {
   for (let i = 0; i < vals.length; i++) {
     valsSet[vals[i]] = 0; // This 0 means nothing, we just want to create a set of values
   }
-
-  console.error("vals", vals, "valsSet", valsSet);
 
   // All entries were unique if length didn't change (ie the nub didn't change)
   return Object.keys(valsSet).length === vals.length;
@@ -154,7 +150,7 @@ const uniqueKeysAndVals = (subst: Subst): boolean => {
 // -- Folds over [theta]
 const filterRels = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[], substs: Subst[]): Subst[] => {
 
-  return []; // TODO <
+  return substs; // TODO <
 
 };
 
@@ -261,7 +257,7 @@ const findSubstsSel = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, [header
     const initSubsts: Subst[] = [];
     const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
     const substCandidates = rawSubsts.filter(subst => fullSubst(selEnv, subst));
-    const filteredSubsts = filterRels(varEnv, subEnv, subProg, rels, substCandidates);
+    const filteredSubsts = filterRels(varEnv, subEnv, subProg, rels, substCandidates); // TODO <
     const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
     return correctSubsts;
   } else if (header.tag === "Namespace") {
@@ -316,6 +312,9 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
 
   // Find substitutions (`find_substs_prog`)
   const subss = findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
+
+  console.log("substitutions", subss);
+
   // TODO < Check the port for this function tree
 
   // Name anon statements
