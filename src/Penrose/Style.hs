@@ -1231,32 +1231,21 @@ relMatchesLine :: VarEnv -> C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
 relMatchesLine typeEnv subEnv s1@(C.Bind var expr) s2@(RelBind bvar sExpr) =
   case bvar of
-    BStyVar v ->
-      error
-        ("Style variable '" ++
-         show v ++
-         "' found in relational statement '" ++
-         show (RelBind bvar sExpr) ++ "'. Should not be present!")
+    BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" 
+                               ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
     BSubVar sVar ->
       let selExpr = toSubExpr sExpr
        in let res =
                 (varsEq var sVar && exprsMatch typeEnv expr selExpr) ||
                 C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
-           in trM1
-                ("Bind-Match: trying to match exprs \n'" ++
-                 show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $
-              res
+           in trM1 ("Bind-Match: trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
 -- rule Pred-Match
 relMatchesLine typeEnv subEnv s1@(C.ApplyP pred) s2@(RelPred sPred) =
   let selPred = toSubPred sPred
       res =
-        pred == selPred ||
-        C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
-   in trM1
-        ("Pred-Match: trying to match exprs \n'" ++
-         show pred ++
-         "'\n'" ++ show selPred ++ "'\n'" ++ "res: " ++ show res ++ "'\n\n") $
-      res
+        pred == selPred || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+   in trM1 ("Pred-Match: trying to match exprs \n'" ++
+                         show pred ++ "'\n'" ++ show selPred ++ "'\n'" ++ "res: " ++ show res ++ "'\n\n") $ res
 relMatchesLine _ _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r
@@ -1299,14 +1288,7 @@ filterRels typeEnv subEnv subProg rels substs =
   let subProgFiltered = filter (couldMatchRels typeEnv rels) subProg
            -- trace ("\n----------\n\nrels:\n" ++ ppShow rels
            --        ++ "\nsub prog filtered\n: " ++ ppShow subProgFiltered) $
-   in filter
-        (\subst ->
-           allRelsMatch
-             typeEnv
-             subEnv
-             subProgFiltered
-             (substituteRels subst rels))
-        substs
+   in filter (\subst -> allRelsMatch typeEnv subEnv subProgFiltered (substituteRels subst rels)) substs
 
 ----- Match declaration statements
 -- Judgment 9. G; theta |- T <| |T

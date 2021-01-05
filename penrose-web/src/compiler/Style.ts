@@ -47,7 +47,7 @@ const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so 
 // g, (x : |T)
 // NOTE: Mutates the map in `m`
 const addMapping = (k: BindingForm, v: StyT, m: SelEnv, p: ProgType): SelEnv => {
-  m.sTypeVarMap[toString(k)] = v; // Note that the BindingForm is stringified
+  m.sTypeVarMap[toString(k)] = v;
   m.varProgTypeMap[toString(k)] = [p, k];
   return m;
 };
@@ -147,33 +147,99 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 };
 
 const couldMatchRels = (typeEnv: VarEnv, rels: RelationPattern[], stmt: SubStmt): boolean => {
-
   // TODO < (this is an optimization)
   return true;
-
 };
 
 //#region (subregion? TODO fix) Applying a substitution
+//// Apply a substitution to various parts of Style (relational statements, exprs, blocks)
+
+// Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable
+// If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
+// COMBAK: return "maybe" if a substitution fails?
+// COMBAK: Add a type for `lv`? It's not used here
+const substituteBform = (lv: any, subst: Subst, bform: BindingForm): BindingForm => {
+  // theta(B) = ...
+  if (bform.tag === "SubVar") {
+    // Variable in backticks in block or selector (e.g. `X`), so nothing to substitute
+    return bform;
+  } else if (bform.tag === "StyVar") {
+    // Look up the substitution for the Style variable and return a Substance variable
+    // Returns result of mapping if it exists (y -> x)
+    const res = subst[bform.contents.value];
+    if (res) {
+      return {
+        ...bform, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info (COMBAK)
+        tag: "SubVar",
+        contents: {
+          ...bform.contents,  // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
+          type: "value",
+          value: res
+        }
+      };
+    } else { // Nothing to substitute
+      return bform;
+    }
+  } else throw Error("unknown tag");
+};
+
+const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
+  // theta(f[E]) = f([theta(E)]
+  if (expr.tag !== "SEBind" && ["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(expr.tag)) { // COMBAK: Remove SEFuncOrValCons
+    return {
+      ...expr,
+      args: expr.args.map(arg => substituteExpr(subst, arg))
+    };
+  } else throw Error("unsupported tag");
+};
+
+const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
+  if (predArg.tag === "RelPred") {
+    return {
+      ...predArg,
+      args: predArg.args.map(arg => substitutePredArg(subst, arg))
+    };
+  } else if (predArg.tag === "SEBind") {
+    return {
+      ...predArg,
+      contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents) // COMBAK: Why is bform here...
+    };
+  } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(predArg.tag)) { // COMBAK: Remove SEFuncOrValCons
+    // check if it's any other kind of SelExpr, which isn't tagged separately
+    return {
+      ...predArg,
+      args: predArg.args.map(expr => substituteExpr(subst, expr))
+    };
+  } else throw Error("unknown tag");
+};
 
 const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
-
-  // TODO
-  return rel;
-
+  if (rel.tag === "RelBind") {
+    return {
+      ...rel,
+      id: substituteBform({ tag: "Nothing" }, subst, rel.id),
+      expr: substituteExpr(subst, rel.expr),
+    };
+  } else if (rel.tag === "RelPred") {
+    return {
+      ...rel,
+      args: rel.args.map(arg => substitutePredArg(subst, arg)),
+    };
+  } else throw Error("unknown tag");
 };
 
 const substituteRels = (subst: Subst, rels: RelationPattern[]): RelationPattern[] => {
-  return rels.map(rel => substituteRel(subst, rel));
+  return rels.map(rel => substituteRel(subst, rel)); // TODO
 };
 
 //#endregion (subregion? TODO fix)
 
+const relMatchesLine = (typeEnv: VarEnv, subEnv: SubEnv, s1: SubStmt, rel: RelationPattern): boolean => {
+  return true; // TODO <
+};
+
 const relMatchesProg = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rel: RelationPattern): boolean => {
-
-  return true;
-  // TODO <
-  // TODO relMatchesLine
-
+  return subProg.some(line => relMatchesLine(typeEnv, subEnv, line, rel)); // TODO
 };
 
 const allRelsMatch = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[]): boolean => {
@@ -183,8 +249,8 @@ const allRelsMatch = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: R
 // -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // -- Folds over [theta]
 const filterRels = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[], substs: Subst[]): Subst[] => {
-  const subProgFiltered = subProg.filter(line => couldMatchRels(typeEnv, rels, line)); // TODO <
-  return substs.filter(subst => allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))); // TODO <
+  const subProgFiltered = subProg.filter(line => couldMatchRels(typeEnv, rels, line)); // TODO
+  return substs.filter(subst => allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))); // TODO
 };
 
 //// Match declaration statements
@@ -197,15 +263,8 @@ const combine = (s1: Subst, s2: Subst): Subst => {
 // (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
 // the way merge is used, I think each subst in the second argument only contains one mapping
 const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
-
-  if (s2.length === 0) {
-    return s1;
-  }
-
-  if (s1.length === 0) {
-    return s2;
-  }
-
+  if (s2.length === 0) { return s1; }
+  if (s1.length === 0) { return s2; }
   return cartesianProduct(s1, s2).map(([a, b]: Subst[]) => combine(a, b));
 };
 
