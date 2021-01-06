@@ -39,4 +39,7 @@ describe("Compiler", () => {
     expect(uniqueKeysAndVals({ "a": "V", "c": "V" })).toEqual(false);
   });
 
+  // Substituting in a relational expression yields the correct result
+  // TODO: Encode the working tests from the console?
+
 });

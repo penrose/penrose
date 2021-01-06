@@ -819,6 +819,7 @@ interface RelBind extends ASTNode {
   id: BindingForm;
   expr: SelExpr;
 }
+
 interface RelPred extends ASTNode {
   tag: "RelPred";
   name: string;

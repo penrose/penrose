@@ -31,6 +31,49 @@ const cartesianProduct =
 
 //#endregion
 
+//#region Some code for prettyprinting
+
+const ppExpr = (e: SelExpr): string => {
+  if (e.tag === "SEBind") {
+    return e.contents.contents.value;
+  } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(e.tag)) {
+    const args = e.args.map(ppExpr);
+    return `${e.name.value}(${args})`;
+  } else if ((e as any as StyVar).tag === "StyVar") {
+    return (e as any as StyVar).contents.value;
+  } else { console.log("res", e); throw Error("unknown tag"); }
+};
+
+const ppRelArg = (r: PredArg): string => {
+  if (r.tag === "RelPred") {
+    return ppRelPred(r);
+  } else {
+    return ppExpr(r)
+  };
+};
+
+const ppRelBind = (r: RelBind): string => {
+  const expr = ppExpr(r.expr);
+  return `${r.id.contents.value} := ${expr}`;
+}
+
+const ppRelPred = (r: RelPred): string => {
+  const args = r.args.map(ppRelArg).join(', ');
+  // console.error("pprelpred", r, r.name);
+  const name = (r.name as unknown as Identifier).value; // COMBAK GH #437
+  return `${name}(${args})`;
+};
+
+const ppRel = (r: RelationPattern): string => {
+  if (r.tag === "RelBind") {
+    return ppRelBind(r);
+  } else if (r.tag === "RelPred") {
+    return ppRelPred(r);
+  } else throw Error("unknown tag");
+};
+
+//#endregion
+
 //#region Types and code for selector checking and environment construction
 
 const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so you have to make a new one each time
@@ -167,6 +210,7 @@ const substituteBform = (lv: any, subst: Subst, bform: BindingForm): BindingForm
     // Look up the substitution for the Style variable and return a Substance variable
     // Returns result of mapping if it exists (y -> x)
     const res = subst[bform.contents.value];
+
     if (res) {
       return {
         ...bform, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info (COMBAK)
@@ -210,17 +254,28 @@ const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
       ...predArg,
       args: predArg.args.map(expr => substituteExpr(subst, expr))
     };
-  } else throw Error("unknown tag");
+  } else if ((predArg as any).tag === "StyVar") {
+    // COMBAK: GH issue #436; remove this case after parser or grammar is fixed
+    return {
+      start: predArg.start,
+      end: predArg.end,
+      tag: "SEBind",
+      contents: substituteBform({ tag: "Nothing" }, subst, predArg as unknown as BindingForm) // TODO, this is a hack
+    };
+  } else { console.log("res", subst, predArg); throw Error("unknown tag"); }
 };
 
+// theta(|S_r) = ...
 const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
   if (rel.tag === "RelBind") {
+    // theta(B := E) |-> theta(B) := theta(E)
     return {
       ...rel,
       id: substituteBform({ tag: "Nothing" }, subst, rel.id),
       expr: substituteExpr(subst, rel.expr),
     };
   } else if (rel.tag === "RelPred") {
+    // theta(Q([a]) = Q([theta(a)])
     return {
       ...rel,
       args: rel.args.map(arg => substitutePredArg(subst, arg)),
@@ -228,8 +283,14 @@ const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
   } else throw Error("unknown tag");
 };
 
+// Applies a substitution to a list of relational statement theta([|S_r])
+// TODO: assumes a full substitution
 const substituteRels = (subst: Subst, rels: RelationPattern[]): RelationPattern[] => {
-  return rels.map(rel => substituteRel(subst, rel)); // TODO
+  console.log("Before substitution", subst, rels, rels.map(ppRel));
+  const res = rels.map(rel => substituteRel(subst, rel));
+  console.error("After substitution", subst, res, res.map(ppRel));
+  console.log("-------");
+  return res;
 };
 
 //#endregion (subregion? TODO fix)
