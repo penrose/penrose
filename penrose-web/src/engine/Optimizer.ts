@@ -185,7 +185,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
   switch (optStatus.tag) {
     case "NewIter": {
-      log.warn("step newIter, xs", xs);
+      log.trace("step newIter, xs", xs);
 
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
