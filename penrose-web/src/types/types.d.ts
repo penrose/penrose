@@ -813,7 +813,7 @@ interface RelPred extends ASTNode {
   args: PredArg[];
 }
 
-type PredArg = SelExpr | RelPred;
+type PredArg = SEBind | RelPred;
 
 // NOTE: the original type is unnecessarily nested and contain type constructor, which is deprecated.
 type StyT = Identifier;
@@ -856,7 +856,7 @@ interface ISAT {
   contents: StyT;
 }
 
-type SelExpr = SEBind | SEFunc | SEValCons | SEFuncOrValCons;
+type SelExpr = StyVar | SEFunc | SEValCons | SEFuncOrValCons;
 
 interface SEBind extends ASTNode {
   tag: "SEBind";
