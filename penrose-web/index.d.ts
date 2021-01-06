@@ -1,3 +1,7 @@
+/// <reference path="src/types/types.d.ts" />
+
+export type PenroseState = State;
+
 import {
   PropagateUpdate,
   Canvas,
@@ -8,6 +12,7 @@ import {
   EngineUtils,
   API,
 } from "src/module";
+
 import {
   Protocol,
   IRendererEvents as RendererEvents,
