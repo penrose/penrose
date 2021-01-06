@@ -10,9 +10,9 @@ IdealPoint <: Point
 predicate In: Point * HyperbolicPlane
 predicate IsCenter: IdealPoint * Horocycle
 
--- PerpendicularTo( g, h, p ) asserts that g is
+-- PerpendicularAt( g, h, p ) asserts that g is
 -- perpendicular to h and passes through p
-predicate PerpendicularTo: Geodesic * Geodesic * IdealPoint
+predicate PerpendicularAt: Geodesic * Geodesic * IdealPoint
 
 constructor MakeSegment: Point endpoint1 * Point endpoint2 -> Segment
 constructor MakeGeodesic: IdealPoint endpoint1 * IdealPoint endpoint2 -> Geodesic

@@ -1213,6 +1213,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = Math.sin(${childName});`;
     } else if (z.op === "cos") {
       stmt = `const ${parName} = Math.cos(${childName});`;
+    } else if (z.op === "arccos") {
+      stmt = `const ${parName} = Math.acos(${childName});`;
     } else if (z.op === "+ list") {
       // TODO: Get rid of unary +
       stmt = `const ${parName} = ${childName};`;

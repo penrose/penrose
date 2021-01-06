@@ -372,8 +372,7 @@ export const constrDict = {
     if (t1 === "Circle" && t2 === "Circle") {
        // Two circles of radii r1,r2 at a distance d will be
        // orthogonal iff d^2 = r1^2 + r2^2.
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      const d2 = squared(d);
+      const d2 = ops.vdistsq(fns.center(s1), fns.center(s2));
       const r1 = s1.r.contents;
       const r2 = s2.r.contents;
       const r12 = squared(r1);

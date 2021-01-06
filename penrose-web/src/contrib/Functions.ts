@@ -17,6 +17,7 @@ import {
   sin,
   neg,
   sqrt,
+  squared,
   arccos
 } from "engine/Autodiff";
 
@@ -151,6 +152,16 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: sqrt(x)
+    };
+  },
+
+  /**
+   * Return the square of input `x`.
+   */
+  square: (x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: squared(x)
     };
   },
 

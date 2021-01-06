@@ -30,7 +30,7 @@ where In( p, H ) {
    shape p.dotShape = Circle {
       r : Global.pointSize/2.0
       strokeWidth : 0.0
-      color : Colors.black
+      color : Colors.red
    }
 
    layer p.dotShape above H.diskShape
@@ -87,6 +87,14 @@ where IsCenter( p, h ); In( p, H ) {
    delete h.tangentDisk
 }
 
+-- default "constructor"
+forall Geodesic g; HyperbolicPlane H
+{
+   g.shape = Circle{}
+
+   constraint g.diskConstraint = ensure orthogonalCircles( g.shape, H.diskShape )
+}
+
 forall Geodesic g; IdealPoint p; IdealPoint q; HyperbolicPlane H
 where g := MakeGeodesic( p, q )
 {
@@ -110,16 +118,29 @@ where g := MakeGeodesic( p, q )
    --    thickness: 5.
    -- }
 
+   delete g.diskConstraint
+
    layer p.dotShape above g.shape
    layer q.dotShape above g.shape
 }
 
--- forall Geodesic g; Geodesic h; IdealPoint p; HyperbolicPlane H
--- where PerpendicularTo( g, h, p ); In( p, H )
--- {
---    -- TODO ensure that g passes through p
---    -- TODO ensure that g is perpendicular to h
--- }
+forall Geodesic g; Geodesic h; IdealPoint p; HyperbolicPlane H
+where PerpendicularAt( g, h, p ); In( p, H )
+{
+   -- ensure equalTo( g.shape.r, h.shape.r )
+
+   vec2 P = p.dotShape.center
+   vec2 Cg = g.shape.center
+   vec2 Ch = h.shape.center
+   scalar Rg = g.shape.r
+
+   -- ensure that g passes through p
+   ensure equalTo( Rg, norm( Cg - P ))
+   --ensure equalTo( square(Rg), norm2( Cg - P ))
+
+   -- also ensure that g and h are orthogonal
+   ensure orthogonalCircles( g.shape, h.shape )
+}
 
 
 
