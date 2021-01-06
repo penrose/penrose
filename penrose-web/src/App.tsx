@@ -206,12 +206,13 @@ class App extends React.Component<any, ICanvasState> {
   }
 
   public render() {
-    return (
-      <div style={{ margin: "0 auto", width: "50%", height: "50%" }}>
-        {this.state.data && <Embed data={this.state.data} />}
-      </div>
-    );
-    // return this.renderApp();
+    // NOTE: uncomment to render embeddable component
+    // return (
+    //   <div style={{ margin: "0 auto", width: "50%", height: "50%" }}>
+    //     {this.state.data && <Embed data={this.state.data} />}
+    //   </div>
+    // );
+    return this.renderApp();
   }
 }
 
