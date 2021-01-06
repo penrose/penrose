@@ -809,7 +809,7 @@ interface RelBind extends ASTNode {
 }
 interface RelPred extends ASTNode {
   tag: "RelPred";
-  name: string;
+  name: Identifier;
   args: PredArg[];
 }
 
