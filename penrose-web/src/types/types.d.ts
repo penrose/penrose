@@ -856,7 +856,7 @@ interface ISAT {
   contents: StyT;
 }
 
-type SelExpr = StyVar | SEFunc | SEValCons | SEFuncOrValCons;
+type SelExpr = SEBind | SEFunc | SEValCons | SEFuncOrValCons;
 
 interface SEBind extends ASTNode {
   tag: "SEBind";
@@ -1395,4 +1395,22 @@ interface Identifier extends ASTNode {
   value: string;
 }
 
+//#endregion
+
+//#region
+type PenroseError = LanguageError | RuntimeError;
+type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
+type RuntimeError = OptimizerError | EvaluatorError;
+type StyleError = StyleParseError | StyleCheckError | TranslationError;
+interface LanguageError {
+  message: string;
+  sources: ErrorSource[];
+}
+interface StyleError {
+  sources: ErrorSource[];
+  message: FormatString; // Style matched failed with Substance object $1 and select in Style $2
+}
+interface ErrorSource {
+  node: ASTNode;
+}
 //#endregion
