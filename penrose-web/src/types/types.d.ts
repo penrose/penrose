@@ -822,11 +822,11 @@ interface RelBind extends ASTNode {
 
 interface RelPred extends ASTNode {
   tag: "RelPred";
-  name: string;
+  name: Identifier;
   args: PredArg[];
 }
 
-type PredArg = SelExpr | RelPred;
+type PredArg = SEBind | RelPred;
 
 // NOTE: the original type is unnecessarily nested and contain type constructor, which is deprecated.
 type StyT = Identifier;
@@ -1462,4 +1462,22 @@ interface Identifier extends ASTNode {
   value: string; // the actual value
 }
 
+//#endregion
+
+//#region
+type PenroseError = LanguageError | RuntimeError;
+type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
+type RuntimeError = OptimizerError | EvaluatorError;
+type StyleError = StyleParseError | StyleCheckError | TranslationError;
+interface LanguageError {
+  message: string;
+  sources: ErrorSource[];
+}
+interface StyleError {
+  sources: ErrorSource[];
+  message: FormatString; // Style matched failed with Substance object $1 and select in Style $2
+}
+interface ErrorSource {
+  node: ASTNode;
+}
 //#endregion

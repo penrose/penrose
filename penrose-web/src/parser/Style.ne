@@ -337,7 +337,7 @@ rel_bind -> binding_form _ ":=" _ sel_expr {%
 %}
 
 rel_pred -> identifier _ "(" pred_arg_list ")" {% 
-  ([name, , , args, ]) => ({
+  ([name, , , args, ]): RelPred => ({
     ...rangeFrom([name, ...args]),
     tag: "RelPred",
     name, args
@@ -366,7 +366,7 @@ pred_arg_list
 # Can't use sel_expr because sel_expr has valcons or func, which looks exactly the same as predicates. 
 pred_arg 
   -> rel_pred {% id %}
-  |  binding_form {% id %}
+  |  binding_form {% ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
 
 binding_form 
   -> subVar {% id %} 

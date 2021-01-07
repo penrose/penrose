@@ -389,7 +389,7 @@ const grammar: Grammar = {
         })
         },
     {"name": "rel_pred", "symbols": ["identifier", "_", {"literal":"("}, "pred_arg_list", {"literal":")"}], "postprocess":  
-        ([name, , , args, ]) => ({
+        ([name, , , args, ]): RelPred => ({
           ...rangeFrom([name, ...args]),
           tag: "RelPred",
           name, args
@@ -439,7 +439,7 @@ const grammar: Grammar = {
         },
     {"name": "pred_arg_list", "symbols": ["_", "pred_arg_list$macrocall$1", "_"], "postprocess": nth(1)},
     {"name": "pred_arg", "symbols": ["rel_pred"], "postprocess": id},
-    {"name": "pred_arg", "symbols": ["binding_form"], "postprocess": id},
+    {"name": "pred_arg", "symbols": ["binding_form"], "postprocess": ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
     {"name": "binding_form", "symbols": ["subVar"], "postprocess": id},
     {"name": "binding_form", "symbols": ["styVar"], "postprocess": id},
     {"name": "subVar", "symbols": [{"literal":"`"}, "identifier", {"literal":"`"}], "postprocess": 
