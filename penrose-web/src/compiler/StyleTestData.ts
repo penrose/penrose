@@ -1968,5 +1968,5 @@ export const correctSubsts: Subst[][] = [
       "w": "x2"
     }
   ],
-  [] // TODO: Is this [{}] or []?
+  [{}]
 ];

@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
 import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData"; // TODO: Check correctness
-import { compileStyle, fullSubst, uniqueKeysAndVals, substituteRel, ppRel } from "compiler/Style"; // COMBAK: Use this import properly
+import { compileStyle, fullSubst, uniqueKeysAndVals, substituteRel, ppRel, checkSelsAndMakeEnv, findSubstsProg } from "compiler/Style"; // COMBAK: Use this import properly
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -61,6 +61,27 @@ describe("Compiler", () => {
     const answers = ["In(x2, X)", "Unit(x2)", "Orthogonal(x2, x2)"];
 
     for (const [res, expected] of _.zip(relsSubStr, answers)) {
+      expect(res).toEqual(expected);
+    }
+  });
+
+  // Compiler finds the right substitutions for LA Style program
+  // Note that this doesn't test subtypes
+  test("finds the right substitutions for LA Style program", () => {
+    // This code is cleaned up from `compileStyle`; runs the beginning of compiler checking from scratch
+    // Not sure why the checker throws an error on `.default` below, but the test runs + passes
+    const info = stateJSON.default.contents;
+    const styProgInit: StyProg = styJSON.default;
+    const subOut: SubOut = info[3];
+
+    const subProg: SubProg = subOut[0];
+    const varEnv: VarEnv = subOut[1][0];
+    const subEnv: SubEnv = subOut[1][1];
+
+    const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
+    const subss = findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
+
+    for (const [res, expected] of _.zip(subss, correctSubsts)) {
       expect(res).toEqual(expected);
     }
   });
