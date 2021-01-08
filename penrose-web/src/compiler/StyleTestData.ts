@@ -1,4 +1,5 @@
 // For linear-algebra-paper-simple.sty and linear-algebra-paper-simple.ast.json
+// The `selEnvs` are in the same order as the selectors in linear-algebra-paper-simple.sty
 
 export const selEnvs: SelEnv[] = [
   {
@@ -482,7 +483,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 95,
                     "col": 10
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 95,
@@ -492,9 +493,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 95,
                       "col": 10
                     },
-                    "tag": "Identifier",
-                    "value": "u",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 95,
+                        "col": 9
+                      },
+                      "end": {
+                        "line": 95,
+                        "col": 10
+                      },
+                      "tag": "Identifier",
+                      "value": "u",
+                      "type": "identifier"
+                    }
                   }
                 },
                 {
@@ -506,7 +518,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 95,
                     "col": 12
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 95,
@@ -516,9 +528,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 95,
                       "col": 12
                     },
-                    "tag": "Identifier",
-                    "value": "U",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 95,
+                        "col": 11
+                      },
+                      "end": {
+                        "line": 95,
+                        "col": 12
+                      },
+                      "tag": "Identifier",
+                      "value": "U",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]
@@ -888,7 +911,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 123,
                     "col": 18
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 123,
@@ -898,9 +921,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 123,
                       "col": 18
                     },
-                    "tag": "Identifier",
-                    "value": "u",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 123,
+                        "col": 17
+                      },
+                      "end": {
+                        "line": 123,
+                        "col": 18
+                      },
+                      "tag": "Identifier",
+                      "value": "u",
+                      "type": "identifier"
+                    }
                   }
                 },
                 {
@@ -912,7 +946,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 123,
                     "col": 21
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 123,
@@ -922,9 +956,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 123,
                       "col": 21
                     },
-                    "tag": "Identifier",
-                    "value": "v",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 123,
+                        "col": 20
+                      },
+                      "end": {
+                        "line": 123,
+                        "col": 21
+                      },
+                      "tag": "Identifier",
+                      "value": "v",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]
@@ -962,7 +1007,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 123,
                     "col": 28
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 123,
@@ -972,9 +1017,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 123,
                       "col": 28
                     },
-                    "tag": "Identifier",
-                    "value": "u",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 123,
+                        "col": 27
+                      },
+                      "end": {
+                        "line": 123,
+                        "col": 28
+                      },
+                      "tag": "Identifier",
+                      "value": "u",
+                      "type": "identifier"
+                    }
                   }
                 },
                 {
@@ -986,7 +1042,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 123,
                     "col": 31
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 123,
@@ -996,9 +1052,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 123,
                       "col": 31
                     },
-                    "tag": "Identifier",
-                    "value": "U",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 123,
+                        "col": 30
+                      },
+                      "end": {
+                        "line": 123,
+                        "col": 31
+                      },
+                      "tag": "Identifier",
+                      "value": "U",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]
@@ -1036,7 +1103,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 123,
                     "col": 38
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 123,
@@ -1046,9 +1113,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 123,
                       "col": 38
                     },
-                    "tag": "Identifier",
-                    "value": "v",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 123,
+                        "col": 37
+                      },
+                      "end": {
+                        "line": 123,
+                        "col": 38
+                      },
+                      "tag": "Identifier",
+                      "value": "v",
+                      "type": "identifier"
+                    }
                   }
                 },
                 {
@@ -1060,7 +1138,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 123,
                     "col": 41
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 123,
@@ -1070,9 +1148,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 123,
                       "col": 41
                     },
-                    "tag": "Identifier",
-                    "value": "U",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 123,
+                        "col": 40
+                      },
+                      "end": {
+                        "line": 123,
+                        "col": 41
+                      },
+                      "tag": "Identifier",
+                      "value": "U",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]
@@ -1442,7 +1531,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 156,
                     "col": 10
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 156,
@@ -1452,9 +1541,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 156,
                       "col": 10
                     },
-                    "tag": "Identifier",
-                    "value": "v",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 156,
+                        "col": 9
+                      },
+                      "end": {
+                        "line": 156,
+                        "col": 10
+                      },
+                      "tag": "Identifier",
+                      "value": "v",
+                      "type": "identifier"
+                    }
                   }
                 },
                 {
@@ -1466,7 +1566,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 156,
                     "col": 13
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 156,
@@ -1476,9 +1576,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 156,
                       "col": 13
                     },
-                    "tag": "Identifier",
-                    "value": "U",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 156,
+                        "col": 12
+                      },
+                      "end": {
+                        "line": 156,
+                        "col": 13
+                      },
+                      "tag": "Identifier",
+                      "value": "U",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]
@@ -1516,7 +1627,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 156,
                     "col": 22
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 156,
@@ -1526,9 +1637,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 156,
                       "col": 22
                     },
-                    "tag": "Identifier",
-                    "value": "v",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 156,
+                        "col": 21
+                      },
+                      "end": {
+                        "line": 156,
+                        "col": 22
+                      },
+                      "tag": "Identifier",
+                      "value": "v",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]
@@ -1566,7 +1688,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 156,
                     "col": 37
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 156,
@@ -1576,9 +1698,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 156,
                       "col": 37
                     },
-                    "tag": "Identifier",
-                    "value": "v",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 156,
+                        "col": 36
+                      },
+                      "end": {
+                        "line": 156,
+                        "col": 37
+                      },
+                      "tag": "Identifier",
+                      "value": "v",
+                      "type": "identifier"
+                    }
                   }
                 },
                 {
@@ -1590,7 +1723,7 @@ export const selEnvs: SelEnv[] = [
                     "line": 156,
                     "col": 40
                   },
-                  "tag": "StyVar",
+                  "tag": "SEBind",
                   "contents": {
                     "start": {
                       "line": 156,
@@ -1600,9 +1733,20 @@ export const selEnvs: SelEnv[] = [
                       "line": 156,
                       "col": 40
                     },
-                    "tag": "Identifier",
-                    "value": "w",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                      "start": {
+                        "line": 156,
+                        "col": 39
+                      },
+                      "end": {
+                        "line": 156,
+                        "col": 40
+                      },
+                      "tag": "Identifier",
+                      "value": "w",
+                      "type": "identifier"
+                    }
                   }
                 }
               ]

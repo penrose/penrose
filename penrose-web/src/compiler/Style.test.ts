@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
 import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData"; // TODO: Check correctness
-import { compileStyle, fullSubst, uniqueKeysAndVals } from "compiler/Style"; // COMBAK: Use this import properly
+import { compileStyle, fullSubst, uniqueKeysAndVals, substituteRel, ppRel } from "compiler/Style"; // COMBAK: Use this import properly
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -39,7 +39,31 @@ describe("Compiler", () => {
     expect(uniqueKeysAndVals({ "a": "V", "c": "V" })).toEqual(false);
   });
 
-  // Substituting in a relational expression yields the correct result
-  // TODO: Encode the working tests from the console?
+  // For the 6th selector in the LA Style program, substituting in this substitution into the relational expressions yields the correct result (where all vars are unique)
+  test("substitute unique vars in selector", () => {
+    const subst: Subst = { v: "x1", U: "X", w: "x2" };
+    const rels: RelationPattern[] = selEnvs[6].header.contents.where.contents; // This is selector #6 in the LA Style program
+    // `rels` stringifies to this: `["In(v, U)", "Unit(v)", "Orthogonal(v, w)"]`
+    const relsSubStr = rels.map(rel => substituteRel(subst, rel)).map(ppRel);
+    const answers = ["In(x1, X)", "Unit(x1)", "Orthogonal(x1, x2)"];
+
+    for (const [res, expected] of _.zip(relsSubStr, answers)) {
+      expect(res).toEqual(expected);
+    }
+  });
+
+  // For the 6th selector in the LA Style program, substituting in this substitution into the relational expressions yields the correct result (where two vars are non-unique, `x2`)
+  test("substitute non-unique vars in selector", () => {
+    const subst: Subst = { v: "x2", U: "X", w: "x2" };
+    const rels: RelationPattern[] = selEnvs[6].header.contents.where.contents; // This is selector #6 in the LA Style program
+    // `rels` stringifies to this: `["In(v, U)", "Unit(v)", "Orthogonal(v, w)"]`
+    const relsSubStr = rels.map(rel => substituteRel(subst, rel)).map(ppRel);
+    const answers = ["In(x2, X)", "Unit(x2)", "Orthogonal(x2, x2)"];
+
+    for (const [res, expected] of _.zip(relsSubStr, answers)) {
+      expect(res).toEqual(expected);
+    }
+  });
+
 
 });

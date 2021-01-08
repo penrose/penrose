@@ -63,7 +63,7 @@ const ppRelPred = (r: RelPred): string => {
   return `${name}(${args})`;
 };
 
-const ppRel = (r: RelationPattern): string => {
+export const ppRel = (r: RelationPattern): string => {
   if (r.tag === "RelBind") {
     return ppRelBind(r);
   } else if (r.tag === "RelPred") {
@@ -247,11 +247,11 @@ const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
       ...predArg,
       contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents) // COMBAK: Why is bform here...
     };
-  } else { console.log("res", subst, predArg); throw Error("unknown tag"); }
+  } else { console.log("unknown tag", subst, predArg); throw Error("unknown tag"); }
 };
 
 // theta(|S_r) = ...
-const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
+export const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
   if (rel.tag === "RelBind") {
     // theta(B := E) |-> theta(B) := theta(E)
     return {
@@ -271,10 +271,11 @@ const substituteRel = (subst: Subst, rel: RelationPattern): RelationPattern => {
 // Applies a substitution to a list of relational statement theta([|S_r])
 // TODO: assumes a full substitution
 const substituteRels = (subst: Subst, rels: RelationPattern[]): RelationPattern[] => {
-  console.log("Before substitution", subst, rels, rels.map(ppRel));
+  // COMBAK: Remove these logs
+  // console.log("Before substitution", subst, rels, rels.map(ppRel));
   const res = rels.map(rel => substituteRel(subst, rel));
-  console.error("After substitution", subst, res, res.map(ppRel));
-  console.log("-------");
+  // console.error("After substitution", subst, res, res.map(ppRel));
+  // console.log("-------");
   return res;
 };
 
