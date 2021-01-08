@@ -36,10 +36,14 @@
     "tslib": "^2.0.3"
   },
   "scripts": {
-    "build:parser": "nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
-    "start": "npm run build:parser && react-scripts --max_old_space_size=4096 start",
-    "build": "CI=false && npm run build:parser && react-scripts --max_old_space_size=4096 build",
-    "build-lib": "npm run build:parser && ttsc --project tsconfig.lib.json",
+    "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
+    "prebuild": "npm run build:parsers",
+    "prestart": "npm run build:parsers",
+    "pretest": "npm run build:parsers",
+    "prebuild-lib": "npm run build:parsers",
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "CI=false && react-scripts --max_old_space_size=4096 build",
+    "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",
