@@ -59,8 +59,7 @@ const ppRelBind = (r: RelBind): string => {
 
 const ppRelPred = (r: RelPred): string => {
   const args = r.args.map(ppRelArg).join(', ');
-  // console.error("pprelpred", r, r.name);
-  const name = (r.name as unknown as Identifier).value; // COMBAK GH #437
+  const name = r.name.value;
   return `${name}(${args})`;
 };
 
@@ -247,20 +246,6 @@ const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
     return {
       ...predArg,
       contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents) // COMBAK: Why is bform here...
-    };
-  } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(predArg.tag)) { // COMBAK: Remove SEFuncOrValCons
-    // check if it's any other kind of SelExpr, which isn't tagged separately
-    return {
-      ...predArg,
-      args: predArg.args.map(expr => substituteExpr(subst, expr))
-    };
-  } else if ((predArg as any).tag === "StyVar") {
-    // COMBAK: GH issue #436; remove this case after parser or grammar is fixed
-    return {
-      start: predArg.start,
-      end: predArg.end,
-      tag: "SEBind",
-      contents: substituteBform({ tag: "Nothing" }, subst, predArg as unknown as BindingForm) // TODO, this is a hack
     };
   } else { console.log("res", subst, predArg); throw Error("unknown tag"); }
 };
