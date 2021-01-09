@@ -254,7 +254,8 @@ interface PropertyDecl extends ASTNode {
 }
 
 // TODO: check how the evaluator/compiler should interact with ASTNode
-type Path = IFieldPath | IPropertyPath | IAccessPath;
+type Path = IFieldPath | IPropertyPath | IAccessPath | ILocalVar;
+// LocalVar is only used internally by the compiler
 // Unused
 // | ITypePropertyPath;
 
@@ -275,6 +276,11 @@ interface IAccessPath extends ASTNode {
   tag: "AccessPath";
   path: Path;
   indices: number[];
+}
+
+interface ILocalVar { // Note, doesn't extend ASTNode as it's only used internally by compiler
+  tag: "LocalVar";
+  contents: string;
 }
 
 // Unused
@@ -809,6 +815,7 @@ interface DeclPattern extends ASTNode {
 }
 
 type RelationPattern = RelBind | RelPred;
+
 interface RelationPatterns extends ASTNode {
   tag: "RelationPatterns";
   contents: RelationPattern[];

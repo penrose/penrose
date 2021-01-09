@@ -11,6 +11,11 @@ import * as _ from "lodash";
 // data SubOut =
 //   SubOut SubProg (VarEnv, SubEnv) LabelMap
 
+//#region consts
+const ANON_KEYWORD = "ANON";
+
+//#endregion
+
 //#region utils
 
 // TODO move to util
@@ -146,7 +151,6 @@ const checkHeader = (varEnv: VarEnv, header: Header): SelEnv => {
 // Returns a sel env for each selector in the Style program, in the same order
 // previously named `checkSels`
 export const checkSelsAndMakeEnv = (varEnv: VarEnv, prog: HeaderBlock[]): SelEnv[] => {
-  console.log("checking selectors");
   const selEnvs: SelEnv[] = prog.map(e => {
     const res = checkHeader(varEnv, e.header);
     // Put selector AST in just for debugging
@@ -552,6 +556,46 @@ export const findSubstsProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg,
 
 //#endregion
 
+// Style AST preprocessing:
+// For any anonymous statement only (e.g. `encourage near(x.shape, y.shape)`),
+// replace it with a named statement (`local.<UNIQUE_ID> = encourage near(x.shape, y.shape)`)
+// Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
+// Leave all other statements unchanged
+
+const nameAnonStatement = ([i, b]: [number, Stmt[]], s: Stmt): [number, Stmt[]] => {
+  // Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
+  if (s.tag === "AnonAssign") {
+    const stmt: Stmt = {
+      ...s,
+      tag: "PathAssign",
+      type: { tag: "TypeOf", contents: "Nothing" }, // TODO: Why is it parsed like this?
+      path: { tag: "LocalVar", contents: `\$${ANON_KEYWORD}_${i}` },
+      value: s.contents
+    };
+    return [i + 1, b.concat([stmt])];
+  } else {
+    return [i, b.concat([s])];
+  }
+};
+
+const nameAnonBlock = (b: Block): Block => {
+  return {
+    ...b,
+    statements: b.statements.reduce(
+      (acc, curr) => nameAnonStatement(acc, curr), // Not sure why this can't be point-free
+      [0, []] as [number, Stmt[]]
+    )[1]
+  };
+};
+
+export const nameAnonStatements = (prog: StyProg): StyProg => {
+  const p = prog.blocks;
+  return {
+    ...prog,
+    blocks: p.map(hb => ({ ...hb, block: nameAnonBlock(hb.block) }))
+  };
+};
+
 // TODO: Improve this type signature
 // export const compileStyle = (env: VarEnv, subAST: SubProg, styAST: StyProg): State => {
 export const compileStyle = (stateJSON: any, styJSON: any): State => {
@@ -588,10 +632,11 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
 
   console.log("substitutions", subss);
 
-  // TODO < Check the port for this function tree
-
   // Name anon statements
-  // TODO <
+  const styProg: StyProg = nameAnonStatements(styProgInit);
+
+  console.log("old prog", styProgInit);
+  console.log("new prog, substituted", styProg);
 
   // Translate style program
   // TODO <

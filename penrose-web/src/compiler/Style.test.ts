@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
 import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData"; // TODO: Check correctness
-import { compileStyle, fullSubst, uniqueKeysAndVals, substituteRel, ppRel, checkSelsAndMakeEnv, findSubstsProg } from "compiler/Style"; // COMBAK: Use this import properly
+import { compileStyle, fullSubst, uniqueKeysAndVals, substituteRel, ppRel, checkSelsAndMakeEnv, findSubstsProg, nameAnonStatements } from "compiler/Style"; // COMBAK: Use this import properly
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -69,10 +69,10 @@ describe("Compiler", () => {
   // Note that this doesn't test subtypes
   test("finds the right substitutions for LA Style program", () => {
     // This code is cleaned up from `compileStyle`; runs the beginning of compiler checking from scratch
-    // Not sure why the checker throws an error on `.default` below, but the test runs + passes
-    const info = stateJSON.default.contents;
-    const styProgInit: StyProg = styJSON.default;
-    const subOut: SubOut = info[3];
+    // Not sure why the checker throws an error on `.default` below (or, alternatively, needs the type coercions), but the test runs + passes
+    const info = stateJSON.contents;
+    const styProgInit: StyProg = styJSON as unknown as StyProg;
+    const subOut: SubOut = info[3] as unknown as SubOut;
 
     const subProg: SubProg = subOut[0];
     const varEnv: VarEnv = subOut[1][0];
@@ -86,5 +86,17 @@ describe("Compiler", () => {
     }
   });
 
+
+  // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `nameAnonStatements` working)
+  test("There are no anonymous statements", () => {
+    const styProgInit: StyProg = styJSON as unknown as StyProg;
+    const styProg: StyProg = nameAnonStatements(styProgInit);
+
+    for (const hb of styProg.blocks) {
+      for (const stmt of hb.block.statements) {
+        expect(stmt.tag).not.toEqual("AnonAssign");
+      }
+    }
+  });
 
 });
