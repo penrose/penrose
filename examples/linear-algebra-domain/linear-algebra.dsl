@@ -19,6 +19,8 @@ predicate In: Vector * VectorSpace V
 predicate From: LinearMap V * VectorSpace domain * VectorSpace codomain
 predicate Not: Prop p1
 predicate Orthogonal: Vector v1 * Vector v2
+predicate Independent: Vector v1 * Vector v2
+predicate Dependent: Vector v1 * Vector v2
 predicate Unit: Vector v
 
 -- Syntactic sugar

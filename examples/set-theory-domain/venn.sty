@@ -43,7 +43,6 @@ where Intersecting(x, y) {
     ensure outsideOf(x.text, y.icon)
 }
 
--- TODO: The code below hasn't been ported to web-perf yet
 forall Point p {
     p.offset = 20.0
     p.icon = Circle {
@@ -57,8 +56,6 @@ forall Point p {
         center : p.icon.center + (p.offset, p.offset)
     }
 
-    -- TODO: Why isn't the offset working?
-    -- TODO: Port atDist?
     p.textLayering = p.text above p.icon
 }
 

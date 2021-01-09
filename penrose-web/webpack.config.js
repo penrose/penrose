@@ -1,4 +1,6 @@
 const path = require("path");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+  .BundleAnalyzerPlugin;
 
 module.exports = {
   entry: "./src/module.ts",
@@ -11,7 +13,10 @@ module.exports = {
     fs: "empty",
   },
   // tree shaking
+  // mode: "production",
   mode: "development",
+
+  plugins: [new BundleAnalyzerPlugin()],
 
   module: {
     rules: [
