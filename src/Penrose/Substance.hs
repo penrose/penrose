@@ -272,11 +272,7 @@ predicate = do
   args <- parens (predicateArg `sepBy1` comma)
   pos <- getSourcePos
   return
-    SubPredicate
-      { predicateName = n
-      , predicateArgs = args
-      , predicatePos = pos
-      }
+    SubPredicate {predicateName = n, predicateArgs = args, predicatePos = pos}
 
 -- NOTE: ordering matters here because expr might succeed first by parsing the predicate name as a var. In general, it's not a good idea to start any parser with an id that's not unique to a type. Fix this later when rewriting the whole thing.
 predicateArg :: Parser SubPredArg

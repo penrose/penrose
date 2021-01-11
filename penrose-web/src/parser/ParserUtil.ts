@@ -1,3 +1,5 @@
+import { compact } from "lodash";
+
 const tokenStart = (token: any) => {
   return {
     line: token.line,
@@ -69,14 +71,18 @@ export const rangeFrom = (children: ASTNode[]) => {
     return { start: child.start, end: child.end };
   }
 
+  // NOTE: use of compact to remove optional nodes
   return {
-    start: minLoc(...children.map((n) => n.start)),
-    end: maxLoc(...children.map((n) => n.end)),
+    start: minLoc(...compact(children).map((n) => n.start)),
+    end: maxLoc(...compact(children).map((n) => n.end)),
     // children TODO: decide if want children/parent pointers in the tree
   };
 };
 
 export const rangeBetween = (beginToken: any, endToken: any) => {
+  // handle null cases for easier use in postprocessors
+  if (!endToken) return rangeOf(beginToken);
+  if (!beginToken) return rangeOf(endToken);
   const [beginRange, endRange] = [beginToken, endToken].map(rangeOf);
   return {
     start: beginRange.start,

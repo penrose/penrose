@@ -750,15 +750,34 @@ interface IOptDebugInfo {
 
 //#region Domain AST
 
-type DomainProg = DomainStmt[];
+interface DomainProg extends ASTNode {
+  tag: "DomainProg";
+  statements: DomainStmt[];
+}
 
 type Type = TypeVar | TypeConstructor;
 type TypeArg = VarConst | Type;
 type Variable = VarConst | TypeVar;
 type Kind = ConstType | Type;
-type ConstType = "type"; // TODO: locational info?
-type Prop = "Prop";
 
+interface TypeParam extends ASTNode {
+  tag: "TypeParam";
+  variable: Variable;
+  kind: Kind;
+}
+interface Arg extends ASTNode {
+  tag: "Arg";
+  variable: Var | undefined;
+  type: Type;
+}
+interface ConstType extends ASTNode {
+  tag: "ConstType";
+  contents: "type";
+}
+interface Prop extends ASTNode {
+  tag: "Prop";
+  contents: "Prop";
+}
 type DomainStmt =
   | TypeDecl
   | PredicateDecl
@@ -786,36 +805,35 @@ interface TypeConstructor {
 interface TypeDecl extends ASTNode {
   tag: "TypeDecl";
   name: Identifier;
-  params: [Variable, Kind][]; // TODO: is this still supported?
+  params: TypeParam[]; // TODO: is this still supported?
 }
 
 interface PredicateDecl extends ASTNode {
   tag: "PredicateDecl";
   name: Identifier;
-  params: [Variable, Kind][];
-  args: [Var, Type][];
+  params: TypeParam[];
+  args: Arg[];
 }
 
 interface NestedPredicateDecl extends ASTNode {
   tag: "NestedPredicateDecl";
   name: Identifier;
-  args: [Var, Prop][];
+  args: Var[]; // TODO: check if `Prop` is really needed. We do only parse `Prop` as a type, so including it in the AST seems redundant.
 }
 
 interface FunctionDecl extends ASTNode {
   tag: "FunctionDecl";
   name: Identifier;
-  params: [Variable, Kind][];
-  args: [Var, Type][];
+  params: TypeParam[];
+  args: Arg[];
 }
 interface ConstructorDecl extends ASTNode {
   tag: "ConstructorDecl";
   name: Identifier;
-  params: [Variable, Kind][];
-  args: [Var, Type][];
+  params: TypeParam[];
+  args: Arg[];
   output: Type;
 }
-// TODO: finish
 interface PreludeDecl extends ASTNode {
   name: Var;
   type: Type;
@@ -825,7 +843,6 @@ interface NotationDecl extends ASTNode {
   from: string;
   to: string;
 }
-// TODO: finish
 interface SubTypeDecl extends ASTNode {
   tag: "SubTypeDecl";
   subType: Type;

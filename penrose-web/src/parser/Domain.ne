@@ -19,6 +19,7 @@ const lexer = moo.compile({
   eq: "==",
   lparen: "(",
   rparen: ")",
+  apos: "'",
   comma: ",",
   string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
@@ -56,16 +57,51 @@ const lexer = moo.compile({
       constructor: "constructor",
       function: "function",
       predicate: "predicate",
-      notation: "notation"
+      notation: "notation",
+      prop: "Prop"
     })
   }
 });
+
+const optional = <T>(optionalValue: T | undefined, defaultValue: T) => optionalValue ? optionalValue : defaultValue;
+// Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
+const tokensIn = (tokenList: any[]): any[] => flatten(compact(tokenList));
 
 %} # end of lexer
 
 @lexer lexer
 
-input -> statements 
+# Macros
+
+# TODO: factor out sepEndBy
+sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
+  d => { 
+    const [first, rest] = [d[0], d[1]];
+    if(rest.length > 0) {
+      const restNodes = rest.map((ts: any[]) => ts[3]);
+      return concat(first, ...restNodes);
+    } else return first;
+  }
+%}
+
+sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
+  d => { 
+    const [first, rest] = [d[0], d[1]];
+    if(!first) return [];
+    if(rest.length > 0) {
+      const restNodes = rest.map(ts => ts[3]);
+      return concat(first, ...restNodes);
+    } else return first;
+  }
+%}
+
+input -> statements {% 
+  ([statements]): DomainProg => ({
+    ...rangeFrom(statements),
+    tag: "DomainProg",
+    statements
+  })
+%}
 
 statements
     # base case
@@ -80,22 +116,111 @@ statements
 statement 
   -> type        {% id %}
   |  predicate   {% id %}
-  |  function    {% id %}
-  |  constructor {% id %}
-  |  prelude     {% id %}
-  |  notation    {% id %}
-  |  subtype     {% id %}
+  # |  function    {% id %}
+  # |  constructor {% id %}
+  # |  prelude     {% id %}
+  # |  notation    {% id %}
+  # |  subtype     {% id %}
 
 # TODO: parse the y with kind case as well, or is it obsolete?
-type -> "type" __ identifier 
+type -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
+  ([typ, , name, params]): TypeDecl => ({
+    ...rangeBetween(typ, name),
+    tag: "TypeDecl", 
+    name, 
+    params: params ? params[3] : []
+  })
+%}
+predicate 
+  -> nested_predicate {% id %}
+  |  simple_predicate {% id %}
+
+# TODO: check if dangling colon is okay.
+simple_predicate -> "predicate" __ identifier _ ":" type_params_list:? _ args_list:? {%
+  ([kw, , name, , , params, , args]): PredicateDecl => ({
+    // HACK: keywords don't seem to have ranges. Have to manually convert here
+    ...rangeFrom(tokensIn([rangeOf(kw), args, params])),
+    tag: "PredicateDecl",
+    name, 
+    params: optional(params, []),
+    args: optional(args, []),
+  })
+%}
+
+# TODO: check if dangling colon is okay.
+nested_predicate ->  "predicate" __ identifier _ ":" _ prop_list:? {%
+  ([kw, , name, , , , args]): NestedPredicateDecl => ({
+    // HACK: keywords don't seem to have ranges. Have to manually convert here
+    ...rangeFrom(tokensIn([rangeOf(kw), args])),
+    tag: "NestedPredicateDecl",
+    name, args
+  })
+%}
+
+# Basic types
+  
+variable 
+  -> var      {% id %}
+  |  type_var {% id %}
+
+var -> identifier {% ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name }) %}
+
+type_var -> "'" identifier {% 
+  ([a, name]) => ({ ...rangeBetween(a, name), tag: "TypeVar", name }) 
+%}
+
+kind 
+  -> type   {% id %}
+  |  "type" {% ([d]): ConstType => ({ ...rangeOf(d), tag: "ConstType", contents: "type" }) %}
+
+type
+  -> type_var         {% id %}
+  |  type_constructor {% id %}
+
+type_constructor -> identifier type_arg_list:? {% 
+  ([name, args]): TypeConstructor => ({
+    ...rangeBetween(name, args),
+    tag: "TypeConstructor",
+    name, 
+    args: optional(args, [])
+  })
+ %}
+
+# Various kinds of parameters and arguments
+
+type_params_list -> _ "[" _ type_params _ "]" {% nth(3) %}
+type_params -> sepBy1[type_param, ","] {% ([d]) => d %}
+type_param -> variable _ ":" _ kind {% 
+  ([variable, , , , kind]): TypeParam => ({
+    ...rangeBetween(variable, kind),
+    tag: "TypeParam", variable, kind
+  })
+%}
+
+type_arg_list -> _ "(" _ sepBy1[type_arg, ","] _ ")" {% ([, , , d]): TypeArg[] => flatten(d) %}
+type_arg 
+  -> var  {% id %}
+  |  type {% id %}
+
+# args_list -> _ "(" _ args _ ")"        {% nth(3) %}
+args_list -> sepBy1[arg, "*"] {% ([d]): Arg[] => flatten(d) %}
+arg -> type (__ var):? {% 
+  ([type, v]): Arg => {
+    const variable = v ? v[1] : undefined;
+    const range = variable ? rangeBetween(variable, type) : rangeOf(type);
+    return { ...range, tag: "Arg", variable: variable, type };
+  }
+%}
+
+prop -> "Prop" _ var {% nth(2) %}
+prop_list -> sepBy1[prop, "*"] {% ([d]) => d %}
 
 # TODO: finish below
-predicate -> "predicate" __ identifier
-function -> "function" __ identifier
-constructor -> "constructor" __ identifier
-prelude -> "prelude" __ identifier
-notation -> "notation" __ identifier
-subtype -> "subtype" __ identifier
+# function -> "function" __ identifier
+# constructor -> "constructor" __ identifier
+# prelude -> "prelude" __ identifier
+# notation -> "notation" __ identifier
+# subtype -> "subtype" __ identifier
 
 # Common 
 

@@ -24,6 +24,7 @@ const lexer = moo.compile({
   eq: "==",
   lparen: "(",
   rparen: ")",
+  apos: "'",
   comma: ",",
   string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
@@ -61,10 +62,15 @@ const lexer = moo.compile({
       constructor: "constructor",
       function: "function",
       predicate: "predicate",
-      notation: "notation"
+      notation: "notation",
+      prop: "Prop"
     })
   }
 });
+
+const optional = <T>(optionalValue: T | undefined, defaultValue: T) => optionalValue ? optionalValue : defaultValue;
+// Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
+const tokensIn = (tokenList: any[]): any[] => flatten(compact(tokenList));
 
 
 interface NearleyToken {
@@ -97,25 +103,164 @@ interface Grammar {
 const grammar: Grammar = {
   Lexer: lexer,
   ParserRules: [
-    {"name": "input", "symbols": ["statements"]},
+    {"name": "input", "symbols": ["statements"], "postprocess":  
+        ([statements]): DomainProg => ({
+          ...rangeFrom(statements),
+          tag: "DomainProg",
+          statements
+        })
+        },
     {"name": "statements", "symbols": ["_"], "postprocess": () => []},
     {"name": "statements", "symbols": ["_c_", {"literal":"\n"}, "statements"], "postprocess": nth(2)},
     {"name": "statements", "symbols": ["_", "statement", "_"], "postprocess": d => [d[1]]},
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["type"], "postprocess": id},
     {"name": "statement", "symbols": ["predicate"], "postprocess": id},
-    {"name": "statement", "symbols": ["function"], "postprocess": id},
-    {"name": "statement", "symbols": ["constructor"], "postprocess": id},
-    {"name": "statement", "symbols": ["prelude"], "postprocess": id},
-    {"name": "statement", "symbols": ["notation"], "postprocess": id},
-    {"name": "statement", "symbols": ["subtype"], "postprocess": id},
-    {"name": "type", "symbols": [{"literal":"type"}, "__", "identifier"]},
-    {"name": "predicate", "symbols": [{"literal":"predicate"}, "__", "identifier"]},
-    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier"]},
-    {"name": "constructor", "symbols": [{"literal":"constructor"}, "__", "identifier"]},
-    {"name": "prelude", "symbols": [{"literal":"prelude"}, "__", "identifier"]},
-    {"name": "notation", "symbols": [{"literal":"notation"}, "__", "identifier"]},
-    {"name": "subtype", "symbols": [{"literal":"subtype"}, "__", "identifier"]},
+    {"name": "type$ebnf$1$subexpression$1", "symbols": ["_", {"literal":"("}, "_", "type_params", "_", {"literal":")"}]},
+    {"name": "type$ebnf$1", "symbols": ["type$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "type$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "type", "symbols": [{"literal":"type"}, "__", "identifier", "type$ebnf$1"], "postprocess": 
+        ([typ, , name, params]): TypeDecl => ({
+          ...rangeBetween(typ, name),
+          tag: "TypeDecl", 
+          name, 
+          params: params ? params[3] : []
+        })
+        },
+    {"name": "predicate", "symbols": ["nested_predicate"], "postprocess": id},
+    {"name": "predicate", "symbols": ["simple_predicate"], "postprocess": id},
+    {"name": "simple_predicate$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
+    {"name": "simple_predicate$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "simple_predicate$ebnf$2", "symbols": ["args_list"], "postprocess": id},
+    {"name": "simple_predicate$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "simple_predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "_", {"literal":":"}, "simple_predicate$ebnf$1", "_", "simple_predicate$ebnf$2"], "postprocess": 
+        ([kw, , name, , , params, , args]): PredicateDecl => ({
+          // HACK: keywords don't seem to have ranges. Have to manually convert here
+          ...rangeFrom(tokensIn([rangeOf(kw), args, params])),
+          tag: "PredicateDecl",
+          name, 
+          params: optional(params, []),
+          args: optional(args, []),
+        })
+        },
+    {"name": "nested_predicate$ebnf$1", "symbols": ["prop_list"], "postprocess": id},
+    {"name": "nested_predicate$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "nested_predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "_", {"literal":":"}, "_", "nested_predicate$ebnf$1"], "postprocess": 
+        ([kw, , name, , , , args]): NestedPredicateDecl => ({
+          // HACK: keywords don't seem to have ranges. Have to manually convert here
+          ...rangeFrom(tokensIn([rangeOf(kw), args])),
+          tag: "NestedPredicateDecl",
+          name, args
+        })
+        },
+    {"name": "variable", "symbols": ["var"], "postprocess": id},
+    {"name": "variable", "symbols": ["type_var"], "postprocess": id},
+    {"name": "var", "symbols": ["identifier"], "postprocess": ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name })},
+    {"name": "type_var", "symbols": [{"literal":"'"}, "identifier"], "postprocess":  
+        ([a, name]) => ({ ...rangeBetween(a, name), tag: "TypeVar", name }) 
+        },
+    {"name": "kind", "symbols": ["type"], "postprocess": id},
+    {"name": "kind", "symbols": [{"literal":"type"}], "postprocess": ([d]): ConstType => ({ ...rangeOf(d), tag: "ConstType", contents: "type" })},
+    {"name": "type", "symbols": ["type_var"], "postprocess": id},
+    {"name": "type", "symbols": ["type_constructor"], "postprocess": id},
+    {"name": "type_constructor$ebnf$1", "symbols": ["type_arg_list"], "postprocess": id},
+    {"name": "type_constructor$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "type_constructor", "symbols": ["identifier", "type_constructor$ebnf$1"], "postprocess":  
+        ([name, args]): TypeConstructor => ({
+          ...rangeBetween(name, args),
+          tag: "TypeConstructor",
+          name, 
+          args: optional(args, [])
+        })
+         },
+    {"name": "type_params_list", "symbols": ["_", {"literal":"["}, "_", "type_params", "_", {"literal":"]"}], "postprocess": nth(3)},
+    {"name": "type_params$macrocall$2", "symbols": ["type_param"]},
+    {"name": "type_params$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "type_params$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "type_params$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "type_params$macrocall$3", "_", "type_params$macrocall$2"]},
+    {"name": "type_params$macrocall$1$ebnf$1", "symbols": ["type_params$macrocall$1$ebnf$1", "type_params$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "type_params$macrocall$1$ebnf$2", "symbols": ["type_params$macrocall$3"], "postprocess": id},
+    {"name": "type_params$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "type_params$macrocall$1", "symbols": ["type_params$macrocall$2", "type_params$macrocall$1$ebnf$1", "type_params$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "type_params", "symbols": ["type_params$macrocall$1"], "postprocess": ([d]) => d},
+    {"name": "type_param", "symbols": ["variable", "_", {"literal":":"}, "_", "kind"], "postprocess":  
+        ([variable, , , , kind]): TypeParam => ({
+          ...rangeBetween(variable, kind),
+          tag: "TypeParam", variable, kind
+        })
+        },
+    {"name": "type_arg_list$macrocall$2", "symbols": ["type_arg"]},
+    {"name": "type_arg_list$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "type_arg_list$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "type_arg_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "type_arg_list$macrocall$3", "_", "type_arg_list$macrocall$2"]},
+    {"name": "type_arg_list$macrocall$1$ebnf$1", "symbols": ["type_arg_list$macrocall$1$ebnf$1", "type_arg_list$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "type_arg_list$macrocall$1$ebnf$2", "symbols": ["type_arg_list$macrocall$3"], "postprocess": id},
+    {"name": "type_arg_list$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "type_arg_list$macrocall$1", "symbols": ["type_arg_list$macrocall$2", "type_arg_list$macrocall$1$ebnf$1", "type_arg_list$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "type_arg_list", "symbols": ["_", {"literal":"("}, "_", "type_arg_list$macrocall$1", "_", {"literal":")"}], "postprocess": ([, , , d]): TypeArg[] => flatten(d)},
+    {"name": "type_arg", "symbols": ["var"], "postprocess": id},
+    {"name": "type_arg", "symbols": ["type"], "postprocess": id},
+    {"name": "args_list$macrocall$2", "symbols": ["arg"]},
+    {"name": "args_list$macrocall$3", "symbols": [{"literal":"*"}]},
+    {"name": "args_list$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "args_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "args_list$macrocall$3", "_", "args_list$macrocall$2"]},
+    {"name": "args_list$macrocall$1$ebnf$1", "symbols": ["args_list$macrocall$1$ebnf$1", "args_list$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "args_list$macrocall$1$ebnf$2", "symbols": ["args_list$macrocall$3"], "postprocess": id},
+    {"name": "args_list$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "args_list$macrocall$1", "symbols": ["args_list$macrocall$2", "args_list$macrocall$1$ebnf$1", "args_list$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "args_list", "symbols": ["args_list$macrocall$1"], "postprocess": ([d]): Arg[] => flatten(d)},
+    {"name": "arg$ebnf$1$subexpression$1", "symbols": ["__", "var"]},
+    {"name": "arg$ebnf$1", "symbols": ["arg$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "arg$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "arg", "symbols": ["type", "arg$ebnf$1"], "postprocess":  
+        ([type, v]): Arg => {
+          const variable = v ? v[1] : undefined;
+          const range = variable ? rangeBetween(variable, type) : rangeOf(type);
+          return { ...range, tag: "Arg", variable: variable, type };
+        }
+        },
+    {"name": "prop", "symbols": [{"literal":"Prop"}, "_", "var"], "postprocess": nth(2)},
+    {"name": "prop_list$macrocall$2", "symbols": ["prop"]},
+    {"name": "prop_list$macrocall$3", "symbols": [{"literal":"*"}]},
+    {"name": "prop_list$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "prop_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "prop_list$macrocall$3", "_", "prop_list$macrocall$2"]},
+    {"name": "prop_list$macrocall$1$ebnf$1", "symbols": ["prop_list$macrocall$1$ebnf$1", "prop_list$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "prop_list$macrocall$1$ebnf$2", "symbols": ["prop_list$macrocall$3"], "postprocess": id},
+    {"name": "prop_list$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "prop_list$macrocall$1", "symbols": ["prop_list$macrocall$2", "prop_list$macrocall$1$ebnf$1", "prop_list$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "prop_list", "symbols": ["prop_list$macrocall$1"], "postprocess": ([d]) => d},
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
         ([d]) => ({
           ...rangeOf(d),
