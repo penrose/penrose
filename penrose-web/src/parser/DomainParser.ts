@@ -3,6 +3,7 @@
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
 function id(d: any[]): any { return d[0]; }
+declare var identifier: any;
 declare var comment: any;
 declare var multiline_comment: any;
 declare var ws: any;
@@ -96,7 +97,33 @@ interface Grammar {
 const grammar: Grammar = {
   Lexer: lexer,
   ParserRules: [
-    {"name": "input", "symbols": ["_ml"]},
+    {"name": "input", "symbols": ["statements"]},
+    {"name": "statements", "symbols": ["_"], "postprocess": () => []},
+    {"name": "statements", "symbols": ["_c_", {"literal":"\n"}, "statements"], "postprocess": nth(2)},
+    {"name": "statements", "symbols": ["_", "statement", "_"], "postprocess": d => [d[1]]},
+    {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
+    {"name": "statement", "symbols": ["type"], "postprocess": id},
+    {"name": "statement", "symbols": ["predicate"], "postprocess": id},
+    {"name": "statement", "symbols": ["function"], "postprocess": id},
+    {"name": "statement", "symbols": ["constructor"], "postprocess": id},
+    {"name": "statement", "symbols": ["prelude"], "postprocess": id},
+    {"name": "statement", "symbols": ["notation"], "postprocess": id},
+    {"name": "statement", "symbols": ["subtype"], "postprocess": id},
+    {"name": "type", "symbols": [{"literal":"type"}, "__", "identifier"]},
+    {"name": "predicate", "symbols": [{"literal":"predicate"}, "__", "identifier"]},
+    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier"]},
+    {"name": "constructor", "symbols": [{"literal":"constructor"}, "__", "identifier"]},
+    {"name": "prelude", "symbols": [{"literal":"prelude"}, "__", "identifier"]},
+    {"name": "notation", "symbols": [{"literal":"notation"}, "__", "identifier"]},
+    {"name": "subtype", "symbols": [{"literal":"subtype"}, "__", "identifier"]},
+    {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
+        ([d]) => ({
+          ...rangeOf(d),
+          tag: 'Identifier',
+          value: d.text,
+          type: "identifier"
+        })
+        },
     {"name": "comment", "symbols": [(lexer.has("comment") ? {type: "comment"} : comment)], "postprocess": convertTokenId},
     {"name": "comment", "symbols": [(lexer.has("multiline_comment") ? {type: "multiline_comment"} : multiline_comment)], "postprocess": ([d]) => rangeOf(d)},
     {"name": "_c_$ebnf$1", "symbols": []},

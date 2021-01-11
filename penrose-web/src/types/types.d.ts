@@ -748,6 +748,92 @@ interface IOptDebugInfo {
 
 //#endregion
 
+//#region Domain AST
+
+type DomainProg = DomainStmt[];
+
+type Type = TypeVar | TypeConstructor;
+type TypeArg = VarConst | Type;
+type Variable = VarConst | TypeVar;
+type Kind = ConstType | Type;
+type ConstType = "type"; // TODO: locational info?
+type Prop = "Prop";
+
+type DomainStmt =
+  | TypeDecl
+  | PredicateDecl
+  | NestedPredicateDecl
+  | FunctionDecl
+  | ConstructorDecl
+  | PreludeDecl
+  | NotationDecl
+  | SubTypeDecl;
+
+interface VarConst extends ASTNode {
+  tag: "VarConst";
+  name: Identifier;
+}
+interface TypeVar extends ASTNode {
+  tag: "TypeVar";
+  name: Identifier;
+}
+interface TypeConstructor {
+  tag: "TypeConstructor";
+  name: Identifier;
+  args: TypeArg[];
+}
+
+interface TypeDecl extends ASTNode {
+  tag: "TypeDecl";
+  name: Identifier;
+  params: [Variable, Kind][]; // TODO: is this still supported?
+}
+
+interface PredicateDecl extends ASTNode {
+  tag: "PredicateDecl";
+  name: Identifier;
+  params: [Variable, Kind][];
+  args: [Var, Type][];
+}
+
+interface NestedPredicateDecl extends ASTNode {
+  tag: "NestedPredicateDecl";
+  name: Identifier;
+  args: [Var, Prop][];
+}
+
+interface FunctionDecl extends ASTNode {
+  tag: "FunctionDecl";
+  name: Identifier;
+  params: [Variable, Kind][];
+  args: [Var, Type][];
+}
+interface ConstructorDecl extends ASTNode {
+  tag: "ConstructorDecl";
+  name: Identifier;
+  params: [Variable, Kind][];
+  args: [Var, Type][];
+  output: Type;
+}
+// TODO: finish
+interface PreludeDecl extends ASTNode {
+  name: Var;
+  type: Type;
+}
+// TODO: check if string type is enough
+interface NotationDecl extends ASTNode {
+  from: string;
+  to: string;
+}
+// TODO: finish
+interface SubTypeDecl extends ASTNode {
+  tag: "SubTypeDecl";
+  subType: Type;
+  superType: Type;
+}
+
+//#endregion
+
 //#region Style AST
 
 /** Top level type for Style AST */
@@ -1397,7 +1483,7 @@ interface Identifier extends ASTNode {
 
 //#endregion
 
-//#region
+//#region Errors
 type PenroseError = LanguageError | RuntimeError;
 type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 type RuntimeError = OptimizerError | EvaluatorError;

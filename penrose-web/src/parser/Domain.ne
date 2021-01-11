@@ -65,10 +65,50 @@ const lexer = moo.compile({
 
 @lexer lexer
 
-input -> _ml 
+input -> statements 
+
+statements
+    # base case
+    -> _ {% () => [] %} 
+    # whitespaces at the beginning (NOTE: comments are allowed)
+    |  _c_ "\n" statements {% nth(2) %} # 
+    # spaces around each statement (NOTE: still wrap in list to spread later)
+    |  _ statement _ {% d => [d[1]] %}
+    # whitespaces in between and at the end (NOTE: comments are allowed)
+    |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
+
+statement 
+  -> type        {% id %}
+  |  predicate   {% id %}
+  |  function    {% id %}
+  |  constructor {% id %}
+  |  prelude     {% id %}
+  |  notation    {% id %}
+  |  subtype     {% id %}
+
+# TODO: parse the y with kind case as well, or is it obsolete?
+type -> "type" __ identifier 
+
+# TODO: finish below
+predicate -> "predicate" __ identifier
+function -> "function" __ identifier
+constructor -> "constructor" __ identifier
+prelude -> "prelude" __ identifier
+notation -> "notation" __ identifier
+subtype -> "subtype" __ identifier
+
+# Common 
+
+identifier -> %identifier {% 
+  ([d]) => ({
+    ...rangeOf(d),
+    tag: 'Identifier',
+    value: d.text,
+    type: "identifier"
+  })
+%}
 
 # white space definitions 
-
 comment 
   -> %comment {% convertTokenId %}
   |  %multiline_comment {% ([d]) => rangeOf(d) %}
