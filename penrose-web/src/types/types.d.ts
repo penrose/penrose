@@ -755,24 +755,11 @@ interface DomainProg extends ASTNode {
   statements: DomainStmt[];
 }
 
-type Type = TypeVar | TypeConstructor;
-type TypeArg = VarConst | Type;
-type Variable = VarConst | TypeVar;
-type Kind = ConstType | Type;
-
-interface TypeParam extends ASTNode {
-  tag: "TypeParam";
-  variable: Variable;
-  kind: Kind;
-}
+type Type = TypeVar | TypeConstructor | Prop;
 interface Arg extends ASTNode {
   tag: "Arg";
   variable: Var | undefined;
   type: Type;
-}
-interface ConstType extends ASTNode {
-  tag: "ConstType";
-  contents: "type";
 }
 interface Prop extends ASTNode {
   tag: "Prop";
@@ -799,39 +786,33 @@ interface TypeVar extends ASTNode {
 interface TypeConstructor {
   tag: "TypeConstructor";
   name: Identifier;
-  args: TypeArg[];
+  args: Type[];
 }
 
 interface TypeDecl extends ASTNode {
   tag: "TypeDecl";
   name: Identifier;
-  params: TypeParam[]; // TODO: is this still supported?
+  params: Type[];
 }
 
 interface PredicateDecl extends ASTNode {
   tag: "PredicateDecl";
   name: Identifier;
-  params: TypeParam[];
+  params: Type[];
   args: Arg[];
-}
-
-interface NestedPredicateDecl extends ASTNode {
-  tag: "NestedPredicateDecl";
-  name: Identifier;
-  args: Var[]; // TODO: check if `Prop` is really needed. We do only parse `Prop` as a type, so including it in the AST seems redundant.
 }
 
 interface FunctionDecl extends ASTNode {
   tag: "FunctionDecl";
   name: Identifier;
-  params: TypeParam[];
+  params: Type[];
   args: Arg[];
   output: Type;
 }
 interface ConstructorDecl extends ASTNode {
   tag: "ConstructorDecl";
   name: Identifier;
-  params: TypeParam[];
+  params: Type[];
   args: Arg[];
   output: Type;
 }

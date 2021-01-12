@@ -118,8 +118,8 @@ statement
   -> type        {% id %}
   |  predicate   {% id %}
   |  function    {% id %}
-  # |  constructor {% id %}
-  # |  prelude     {% id %}
+  |  constructor_decl {% id %}
+  |  prelude     {% id %}
   # |  notation    {% id %}
   # |  subtype     {% id %}
 
@@ -132,13 +132,9 @@ type -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
     params: params ? params[3] : []
   })
 %}
-predicate 
-  -> nested_predicate {% id %}
-  |  simple_predicate {% id %}
 
-# TODO: check if dangling colon is okay.
-simple_predicate -> "predicate" __ identifier _ ":" type_params_list:? _ args_list:? {%
-  ([kw, , name, , , params, , args]): PredicateDecl => ({
+predicate -> "predicate" __ identifier type_params_list:? args_list:? {%
+  ([kw, , name, params, args]): PredicateDecl => ({
     // HACK: keywords don't seem to have ranges. Have to manually convert here
     ...rangeFrom(tokensIn([rangeOf(kw), args, params])),
     tag: "PredicateDecl",
@@ -148,20 +144,10 @@ simple_predicate -> "predicate" __ identifier _ ":" type_params_list:? _ args_li
   })
 %}
 
-# TODO: check if dangling colon is okay.
-nested_predicate ->  "predicate" __ identifier _ ":" _ prop_list:? {%
-  ([kw, , name, , , , args]): NestedPredicateDecl => ({
-    // HACK: keywords don't seem to have ranges. Have to manually convert here
-    ...rangeFrom(tokensIn([rangeOf(kw), args])),
-    tag: "NestedPredicateDecl",
-    name, args
-  })
-%}
-
 function 
-  -> "function" __ identifier _ ":" type_params_list:? _ named_args_list:? _ "->" _ arg
+  -> "function" __ identifier type_params_list:? args_list:? _ "->" _ arg
   {%
-    ([kw, , name, , , params, , args, , , , output]): FunctionDecl => ({
+    ([kw, , name, params, args, , , , output]): FunctionDecl => ({
       ...rangeBetween(rangeOf(kw), output),
       tag: "FunctionDecl",
       name, output,
@@ -170,77 +156,92 @@ function
     })
   %}
 
+# NOTE: nearley does not like `constructor` as a rule name
+constructor_decl
+  -> "constructor" __  identifier type_params_list:? named_args_list:? _ "->" _ arg
+  {%
+    ([kw, , name, params, args, , , , output]): ConstructorDecl => ({
+      ...rangeBetween(rangeOf(kw), output),
+      tag: "ConstructorDecl",
+      name, output,
+      params: optional(params, []),
+      args: optional(args, []),
+    })
+  %}
+
+prelude -> "value" __ var _ ":" _ type {%
+  ([kw, , name, , , , type]): PreludeDecl => ({
+    ...rangeBetween(rangeOf(kw), type),
+    tag: "PreludeDecl", name, type
+  })
+%}
+
+
+# TODO: finish below
+# notation -> "notation" __ identifier
+# subtype -> "subtype" __ identifier
+# predicate 
+#   -> nested_predicate {% id %}
+#   |  simple_predicate {% id %}
+# nested_predicate ->  "predicate" __ identifier _ ":" _ prop_list:? {%
+#   ([kw, , name, , , , args]): NestedPredicateDecl => ({
+#     // HACK: keywords don't seem to have ranges. Have to manually convert here
+#     ...rangeFrom(tokensIn([rangeOf(kw), args])),
+#     tag: "NestedPredicateDecl",
+#     name, args
+#   })
+# %}
+
 # Basic types
   
-variable 
-  -> var      {% id %}
-  |  type_var {% id %}
-
 var -> identifier {% ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name }) %}
 
+# TODO: without `'`, type_var will look the same as 0-arg type_constructor
 type_var -> "'" identifier {% 
   ([a, name]) => ({ ...rangeBetween(a, name), tag: "TypeVar", name }) 
 %}
 
-kind 
-  -> type   {% id %}
-  |  "type" {% ([d]): ConstType => ({ ...rangeOf(d), tag: "ConstType", contents: "type" }) %}
-
 type
   -> type_var         {% id %}
   |  type_constructor {% id %}
+  |  prop             {% id %}
 
 type_constructor -> identifier type_arg_list:? {% 
-  ([name, args]): TypeConstructor => ({
-    ...rangeBetween(name, args),
-    tag: "TypeConstructor",
-    name, 
-    args: optional(args, [])
-  })
+  ([name, a]): TypeConstructor => {
+    const args = optional(a, []);
+    return {
+      ...rangeFrom([name, ...args]),
+      tag: "TypeConstructor", name, args 
+    };
+  }
  %}
 
 # Various kinds of parameters and arguments
 
 type_params_list -> _ "[" _ type_params _ "]" {% nth(3) %}
-type_params -> sepBy1[type_param, ","] {% ([d]) => d %}
-type_param -> variable _ ":" _ kind {% 
-  ([variable, , , , kind]): TypeParam => ({
-    ...rangeBetween(variable, kind),
-    tag: "TypeParam", variable, kind
-  })
-%}
+# TODO: only allowing `type_var`s to avoid loops here. Does this conform to the spec?
+type_params -> sepBy1[type, ","] {% ([d]) => d %}
 
-type_arg_list -> _ "(" _ sepBy1[type_arg, ","] _ ")" {% ([, , , d]): TypeArg[] => flatten(d) %}
-type_arg 
-  -> var  {% id %}
-  |  type {% id %}
+type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type[] => flatten(d) %}
 
-# args_list -> _ "(" _ args _ ")"        {% nth(3) %}
-args_list -> sepBy1[arg, "*"] {% ([d]): Arg[] => flatten(d) %}
-named_args_list -> sepBy1[named_arg, "*"] {% ([d]): Arg[] => flatten(d) %}
+args_list -> _ ":" _ sepBy1[arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg => {
     const variable = v ? v[1] : undefined;
     const range = variable ? rangeBetween(variable, type) : rangeOf(type);
-    return { ...range, tag: "Arg", variable: variable, type };
+    return { ...range, tag: "Arg", variable, type };
   }
 %}
+named_args_list -> _ ":" _ sepBy1[named_arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg => ({
      ...rangeBetween(type, variable), 
-     tag: "Arg", variable: variable, type 
+     tag: "Arg", variable, type 
   })
 %}
 
 prop -> "Prop" _ var {% nth(2) %}
 prop_list -> sepBy1[prop, "*"] {% ([d]) => d %}
-
-# TODO: finish below
-# function -> "function" __ identifier
-# constructor -> "constructor" __ identifier
-# prelude -> "prelude" __ identifier
-# notation -> "notation" __ identifier
-# subtype -> "subtype" __ identifier
 
 # Common 
 

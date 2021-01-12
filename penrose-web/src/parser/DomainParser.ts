@@ -118,6 +118,8 @@ const grammar: Grammar = {
     {"name": "statement", "symbols": ["type"], "postprocess": id},
     {"name": "statement", "symbols": ["predicate"], "postprocess": id},
     {"name": "statement", "symbols": ["function"], "postprocess": id},
+    {"name": "statement", "symbols": ["constructor_decl"], "postprocess": id},
+    {"name": "statement", "symbols": ["prelude"], "postprocess": id},
     {"name": "type$ebnf$1$subexpression$1", "symbols": ["_", {"literal":"("}, "_", "type_params", "_", {"literal":")"}]},
     {"name": "type$ebnf$1", "symbols": ["type$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "type$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -129,14 +131,12 @@ const grammar: Grammar = {
           params: params ? params[3] : []
         })
         },
-    {"name": "predicate", "symbols": ["nested_predicate"], "postprocess": id},
-    {"name": "predicate", "symbols": ["simple_predicate"], "postprocess": id},
-    {"name": "simple_predicate$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
-    {"name": "simple_predicate$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "simple_predicate$ebnf$2", "symbols": ["args_list"], "postprocess": id},
-    {"name": "simple_predicate$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "simple_predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "_", {"literal":":"}, "simple_predicate$ebnf$1", "_", "simple_predicate$ebnf$2"], "postprocess": 
-        ([kw, , name, , , params, , args]): PredicateDecl => ({
+    {"name": "predicate$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
+    {"name": "predicate$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "predicate$ebnf$2", "symbols": ["args_list"], "postprocess": id},
+    {"name": "predicate$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "predicate$ebnf$1", "predicate$ebnf$2"], "postprocess": 
+        ([kw, , name, params, args]): PredicateDecl => ({
           // HACK: keywords don't seem to have ranges. Have to manually convert here
           ...rangeFrom(tokensIn([rangeOf(kw), args, params])),
           tag: "PredicateDecl",
@@ -145,22 +145,12 @@ const grammar: Grammar = {
           args: optional(args, []),
         })
         },
-    {"name": "nested_predicate$ebnf$1", "symbols": ["prop_list"], "postprocess": id},
-    {"name": "nested_predicate$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "nested_predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "_", {"literal":":"}, "_", "nested_predicate$ebnf$1"], "postprocess": 
-        ([kw, , name, , , , args]): NestedPredicateDecl => ({
-          // HACK: keywords don't seem to have ranges. Have to manually convert here
-          ...rangeFrom(tokensIn([rangeOf(kw), args])),
-          tag: "NestedPredicateDecl",
-          name, args
-        })
-        },
     {"name": "function$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
     {"name": "function$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "function$ebnf$2", "symbols": ["named_args_list"], "postprocess": id},
+    {"name": "function$ebnf$2", "symbols": ["args_list"], "postprocess": id},
     {"name": "function$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier", "_", {"literal":":"}, "function$ebnf$1", "_", "function$ebnf$2", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
-        ([kw, , name, , , params, , args, , , , output]): FunctionDecl => ({
+    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier", "function$ebnf$1", "function$ebnf$2", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
+        ([kw, , name, params, args, , , , output]): FunctionDecl => ({
           ...rangeBetween(rangeOf(kw), output),
           tag: "FunctionDecl",
           name, output,
@@ -168,28 +158,45 @@ const grammar: Grammar = {
           args: optional(args, []),
         })
           },
-    {"name": "variable", "symbols": ["var"], "postprocess": id},
-    {"name": "variable", "symbols": ["type_var"], "postprocess": id},
+    {"name": "constructor_decl$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
+    {"name": "constructor_decl$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "constructor_decl$ebnf$2", "symbols": ["named_args_list"], "postprocess": id},
+    {"name": "constructor_decl$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "constructor_decl", "symbols": [{"literal":"constructor"}, "__", "identifier", "constructor_decl$ebnf$1", "constructor_decl$ebnf$2", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
+        ([kw, , name, params, args, , , , output]): ConstructorDecl => ({
+          ...rangeBetween(rangeOf(kw), output),
+          tag: "ConstructorDecl",
+          name, output,
+          params: optional(params, []),
+          args: optional(args, []),
+        })
+          },
+    {"name": "prelude", "symbols": [{"literal":"value"}, "__", "var", "_", {"literal":":"}, "_", "type"], "postprocess": 
+        ([kw, , name, , , , type]): PreludeDecl => ({
+          ...rangeBetween(rangeOf(kw), type),
+          tag: "PreludeDecl", name, type
+        })
+        },
     {"name": "var", "symbols": ["identifier"], "postprocess": ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name })},
     {"name": "type_var", "symbols": [{"literal":"'"}, "identifier"], "postprocess":  
         ([a, name]) => ({ ...rangeBetween(a, name), tag: "TypeVar", name }) 
         },
-    {"name": "kind", "symbols": ["type"], "postprocess": id},
-    {"name": "kind", "symbols": [{"literal":"type"}], "postprocess": ([d]): ConstType => ({ ...rangeOf(d), tag: "ConstType", contents: "type" })},
     {"name": "type", "symbols": ["type_var"], "postprocess": id},
     {"name": "type", "symbols": ["type_constructor"], "postprocess": id},
+    {"name": "type", "symbols": ["prop"], "postprocess": id},
     {"name": "type_constructor$ebnf$1", "symbols": ["type_arg_list"], "postprocess": id},
     {"name": "type_constructor$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "type_constructor", "symbols": ["identifier", "type_constructor$ebnf$1"], "postprocess":  
-        ([name, args]): TypeConstructor => ({
-          ...rangeBetween(name, args),
-          tag: "TypeConstructor",
-          name, 
-          args: optional(args, [])
-        })
+        ([name, a]): TypeConstructor => {
+          const args = optional(a, []);
+          return {
+            ...rangeFrom([name, ...args]),
+            tag: "TypeConstructor", name, args 
+          };
+        }
          },
     {"name": "type_params_list", "symbols": ["_", {"literal":"["}, "_", "type_params", "_", {"literal":"]"}], "postprocess": nth(3)},
-    {"name": "type_params$macrocall$2", "symbols": ["type_param"]},
+    {"name": "type_params$macrocall$2", "symbols": ["type"]},
     {"name": "type_params$macrocall$3", "symbols": [{"literal":","}]},
     {"name": "type_params$macrocall$1$ebnf$1", "symbols": []},
     {"name": "type_params$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "type_params$macrocall$3", "_", "type_params$macrocall$2"]},
@@ -206,13 +213,7 @@ const grammar: Grammar = {
         }
         },
     {"name": "type_params", "symbols": ["type_params$macrocall$1"], "postprocess": ([d]) => d},
-    {"name": "type_param", "symbols": ["variable", "_", {"literal":":"}, "_", "kind"], "postprocess":  
-        ([variable, , , , kind]): TypeParam => ({
-          ...rangeBetween(variable, kind),
-          tag: "TypeParam", variable, kind
-        })
-        },
-    {"name": "type_arg_list$macrocall$2", "symbols": ["type_arg"]},
+    {"name": "type_arg_list$macrocall$2", "symbols": ["type"]},
     {"name": "type_arg_list$macrocall$3", "symbols": [{"literal":","}]},
     {"name": "type_arg_list$macrocall$1$ebnf$1", "symbols": []},
     {"name": "type_arg_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "type_arg_list$macrocall$3", "_", "type_arg_list$macrocall$2"]},
@@ -228,9 +229,7 @@ const grammar: Grammar = {
           } else return first;
         }
         },
-    {"name": "type_arg_list", "symbols": ["_", {"literal":"("}, "_", "type_arg_list$macrocall$1", "_", {"literal":")"}], "postprocess": ([, , , d]): TypeArg[] => flatten(d)},
-    {"name": "type_arg", "symbols": ["var"], "postprocess": id},
-    {"name": "type_arg", "symbols": ["type"], "postprocess": id},
+    {"name": "type_arg_list", "symbols": ["_", {"literal":"("}, "_", "type_arg_list$macrocall$1", "_", {"literal":")"}], "postprocess": ([, , , d]): Type[] => flatten(d)},
     {"name": "args_list$macrocall$2", "symbols": ["arg"]},
     {"name": "args_list$macrocall$3", "symbols": [{"literal":"*"}]},
     {"name": "args_list$macrocall$1$ebnf$1", "symbols": []},
@@ -247,7 +246,17 @@ const grammar: Grammar = {
           } else return first;
         }
         },
-    {"name": "args_list", "symbols": ["args_list$macrocall$1"], "postprocess": ([d]): Arg[] => flatten(d)},
+    {"name": "args_list", "symbols": ["_", {"literal":":"}, "_", "args_list$macrocall$1"], "postprocess": ([, , , d]): Arg[] => flatten(d)},
+    {"name": "arg$ebnf$1$subexpression$1", "symbols": ["__", "var"]},
+    {"name": "arg$ebnf$1", "symbols": ["arg$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "arg$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "arg", "symbols": ["type", "arg$ebnf$1"], "postprocess":  
+        ([type, v]): Arg => {
+          const variable = v ? v[1] : undefined;
+          const range = variable ? rangeBetween(variable, type) : rangeOf(type);
+          return { ...range, tag: "Arg", variable, type };
+        }
+        },
     {"name": "named_args_list$macrocall$2", "symbols": ["named_arg"]},
     {"name": "named_args_list$macrocall$3", "symbols": [{"literal":"*"}]},
     {"name": "named_args_list$macrocall$1$ebnf$1", "symbols": []},
@@ -264,21 +273,11 @@ const grammar: Grammar = {
           } else return first;
         }
         },
-    {"name": "named_args_list", "symbols": ["named_args_list$macrocall$1"], "postprocess": ([d]): Arg[] => flatten(d)},
-    {"name": "arg$ebnf$1$subexpression$1", "symbols": ["__", "var"]},
-    {"name": "arg$ebnf$1", "symbols": ["arg$ebnf$1$subexpression$1"], "postprocess": id},
-    {"name": "arg$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "arg", "symbols": ["type", "arg$ebnf$1"], "postprocess":  
-        ([type, v]): Arg => {
-          const variable = v ? v[1] : undefined;
-          const range = variable ? rangeBetween(variable, type) : rangeOf(type);
-          return { ...range, tag: "Arg", variable: variable, type };
-        }
-        },
+    {"name": "named_args_list", "symbols": ["_", {"literal":":"}, "_", "named_args_list$macrocall$1"], "postprocess": ([, , , d]): Arg[] => flatten(d)},
     {"name": "named_arg", "symbols": ["type", "__", "var"], "postprocess":  
         ([type, , variable]): Arg => ({
            ...rangeBetween(type, variable), 
-           tag: "Arg", variable: variable, type 
+           tag: "Arg", variable, type 
         })
         },
     {"name": "prop", "symbols": [{"literal":"Prop"}, "_", "var"], "postprocess": nth(2)},
