@@ -278,7 +278,7 @@ interface IAccessPath extends ASTNode {
   indices: number[];
 }
 
-interface ILocalVar { // Note, doesn't extend ASTNode as it's only used internally by compiler
+interface ILocalVar extends ASTNode { // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
   tag: "LocalVar";
   contents: string;
 }
@@ -1472,18 +1472,40 @@ interface Identifier extends ASTNode {
 //#endregion
 
 //#region
+
+type StyErrors = string[];
+// TODO: Convert this to StyleError[]
+
+interface Left<A> {
+  value: A;
+  tag: 'left'
+}
+
+interface Right<B> {
+  value: B;
+  tag: 'right'
+}
+
+type Either<A, B> = Left<A> | Right<B>;
+
+//#endregion
+
+//#region
 type PenroseError = LanguageError | RuntimeError;
 type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 type RuntimeError = OptimizerError | EvaluatorError;
 type StyleError = StyleParseError | StyleCheckError | TranslationError;
+
 interface LanguageError {
   message: string;
   sources: ErrorSource[];
 }
+
 interface StyleError {
   sources: ErrorSource[];
-  message: FormatString; // Style matched failed with Substance object $1 and select in Style $2
+  message: FormatString; // Style match failed with Substance object $1 and select in Style $2
 }
+
 interface ErrorSource {
   node: ASTNode;
 }

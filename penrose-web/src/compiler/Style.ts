@@ -19,6 +19,39 @@ const ANON_KEYWORD = "ANON";
 //#region utils
 
 // TODO move to util
+
+function isLeft<A>(val: any): val is Left<A> {
+  if ((val as Left<A>).tag === 'left') return true;
+  return false;
+}
+
+function isRight<B>(val: any): val is Right<B> {
+  if ((val as Right<B>).tag === 'right') return true;
+  return false;
+}
+
+function Left<A>(val: A): Left<A> {
+  return { value: val, tag: 'left' };
+}
+
+function Right<B>(val: B): Right<B> {
+  return { value: val, tag: 'right' };
+}
+
+// TODO < Test this
+function foldM<A, B, C>(xs: A[], f: (acc: B, curr: A) => Either<C, B>, init: B): Either<C, B> {
+  let res = init;
+  let resW = Right(init); // wrapped
+
+  for (let i = 0; i < xs.length; i++) {
+    let resW = f(res, xs[i]);
+    if (isLeft(resW)) { return resW; } // Stop fold early on first error and return it
+    res = resW.value;
+  }
+
+  return resW;
+};
+
 function justs<T>(xs: MaybeVal<T>[]): T[] {
   return xs.filter(x => x.tag === "Just").map(x => {
     if (x.tag === "Just") { return x.contents; }
@@ -89,6 +122,10 @@ const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so 
     header: { tag: "Nothing" },
   };
 }
+
+const dummySourceLoc = (): SourceLoc => {
+  return { line: -1, col: -1 };
+};
 
 // Add a mapping from Sub or Sty var to the selector's environment
 // g, (x : |T)
@@ -556,6 +593,8 @@ export const findSubstsProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg,
 
 //#endregion
 
+//#region Naming anon statements
+
 // Style AST preprocessing:
 // For any anonymous statement only (e.g. `encourage near(x.shape, y.shape)`),
 // replace it with a named statement (`local.<UNIQUE_ID> = encourage near(x.shape, y.shape)`)
@@ -569,7 +608,10 @@ const nameAnonStatement = ([i, b]: [number, Stmt[]], s: Stmt): [number, Stmt[]] 
       ...s,
       tag: "PathAssign",
       type: { tag: "TypeOf", contents: "Nothing" }, // TODO: Why is it parsed like this?
-      path: { tag: "LocalVar", contents: `\$${ANON_KEYWORD}_${i}` },
+      path: {
+        tag: "LocalVar", contents: `\$${ANON_KEYWORD}_${i}`,
+        start: dummySourceLoc(), end: dummySourceLoc() // Unused bc compiler internal
+      },
       value: s.contents
     };
     return [i + 1, b.concat([stmt])];
@@ -595,6 +637,74 @@ export const nameAnonStatements = (prog: StyProg): StyProg => {
     blocks: p.map(hb => ({ ...hb, block: nameAnonBlock(hb.block) }))
   };
 };
+
+//#endregion
+
+//#region Translating Style program
+
+const initTrans = (): Translation => {
+  return { trMap: {}, warnings: [] };
+};
+
+// TODO < make a region
+const substituteBlock = () => {
+
+  // TODO <
+
+};
+
+const deletePath = () => {
+
+  // TODO <
+  // deleteField, deleteProperty
+
+};
+
+const addPath = () => {
+
+  // TODO < 
+  // addField, addProperty
+
+};
+
+const translateLine = () => {
+
+  // TODO < 
+  // addPath
+
+  // TODO <
+  // deletePath
+
+};
+
+const translateBlock = () => {
+
+  // TODO < 
+  // substituteBlock
+  // TODO < 
+  // translateLine
+
+};
+
+const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: Translation, hb: HeaderBlock): Either<StyErrors, Translation> => {
+  // TODO <
+  // Put in int
+  return Left([]);
+};
+
+const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styProg: StyProg, labelMap: LabelMap, styVals: number[]): Either<StyErrors, Translation> => {
+  // COMBAK: Deal with styVals
+
+  // TODO: Test foldM; put in int
+  const res = foldM(styProg.blocks, (trans, hb) => translatePair(varEnv, subEnv, subProg, trans, hb), initTrans());
+  // const res = styProg.blocks.reduce((trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i));
+
+  // TODO <
+  return Left([]);
+
+};
+
+//#endregion
 
 // TODO: Improve this type signature
 // export const compileStyle = (env: VarEnv, subAST: SubProg, styAST: StyProg): State => {
@@ -639,7 +749,8 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
   console.log("new prog, substituted", styProg);
 
   // Translate style program
-  // TODO <
+  const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
+  const trans = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals); // TODO <
 
   // Gen opt problem and state
   // TODO <

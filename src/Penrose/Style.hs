@@ -1476,13 +1476,7 @@ deleteField trans name field =
                      trn' = M.insert name fieldDict' trn
                   in trans {trMap = trn'}
 
-deleteProperty ::
-     (Autofloat a)
-  => Translation a
-  -> Name
-  -> Field
-  -> Property
-  -> Translation a
+deleteProperty :: (Autofloat a) => Translation a -> Name -> Field -> Property -> Translation a
 deleteProperty trans name field property =
   let trn = trMap trans
       path = pathStr3 name field property
@@ -1524,14 +1518,7 @@ deleteProperty trans name field property =
 -- Implements two rules for fields:
 -- x.n = Ctor { n_i = e_i }, rule Line-Set-Ctor, for GPI
 -- x.n = e, rule Line-Set-Field-Expr
-addField ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> Name
-  -> Field
-  -> TagExpr a
-  -> Translation a
+addField :: (Autofloat a) => OverrideFlag -> Translation a -> Name -> Field -> TagExpr a -> Translation a
 addField override trans name field texpr =
   let trn = trMap trans
    in let fieldDict =
@@ -1566,15 +1553,7 @@ addField override trans name field texpr =
                                 { trMap = trn'
                                 , warnings = addMaybes (warnings trans) [warn1, warn2, warn3] }
 
-addProperty ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> Name
-  -> Field
-  -> Property
-  -> TagExpr a
-  -> Translation a
+addProperty :: (Autofloat a) => OverrideFlag -> Translation a -> Name -> Field -> Property -> TagExpr a -> Translation a
 addProperty override trans name field property texpr =
   let trn = trMap trans
     -- Setting a field's property should require that field to already exist and be a GPI
@@ -1621,8 +1600,7 @@ addProperty override trans name field property texpr =
                             , warnings = addMaybe (warnings trans) warn }
 
 -- rule Line-Delete
-deletePath ::
-     (Autofloat a) => Translation a -> Path -> Either [Error] (Translation a)
+deletePath :: (Autofloat a) => Translation a -> Path -> Either [Error] (Translation a)
 deletePath trans path =
   case path of
     FieldPath bvar field ->
@@ -1634,13 +1612,7 @@ deletePath trans path =
           trans' = deleteProperty trans name field property
        in Right trans'
 
-addPath ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> Path
-  -> TagExpr a
-  -> Either [Error] (Translation a)
+addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> TagExpr a -> Either [Error] (Translation a)
 addPath override trans path expr =
   case path
     -- rule Line-Set-Field-Expr, Line-Set-Ctor
@@ -1678,12 +1650,7 @@ replaceAtIndex n item ls = a ++ (item : b)
   where
     (a, (_:b)) = splitAt n ls
 
-addPaths ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> [(Path, TagExpr a)]
-  -> Either [Error] (Translation a)
+addPaths :: (Autofloat a) => OverrideFlag -> Translation a -> [(Path, TagExpr a)] -> Either [Error] (Translation a)
 addPaths override = foldM (\trans (p, e) -> addPath override trans p e)
 
 ----- Translation judgments
@@ -1697,8 +1664,7 @@ addPaths override = foldM (\trans (p, e) -> addPath override trans p e)
    foldM f [] [1, 9] = Right [9,1]  -}
 -- Judgment 26. D |- phi ~> D'
 -- This is where interesting things actually happen (each line is interpreted and added to the translation)
-translateLine ::
-     (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
+translateLine :: (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
 translateLine trans stmt =
   case stmt of
     PathAssign _ path expr -> addPath False trans path (OptEval expr)
@@ -1706,37 +1672,21 @@ translateLine trans stmt =
     Delete path            -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-translateBlock ::
-     (Autofloat a)
-  => Maybe NamespaceName
-  -> (Block, Int)
-  -> Translation a
-  -> (Subst, Int)
-  -> Either [Error] (Translation a)
+translateBlock :: (Autofloat a) => 
+               Maybe NamespaceName -> (Block, Int) -> Translation a -> (Subst, Int) -> Either [Error] (Translation a)
 translateBlock name blockWithNum trans substWithNum =
   let block' = substituteBlock substWithNum blockWithNum name
    in foldM translateLine trans block'
 
 -- Judgment 24. [theta]; D |- |B ~> D'
 -- This is a selector, not a namespace, so we substitute local vars with the subst/block IDs
-translateSubstsBlock ::
-     (Autofloat a)
-  => Translation a
-  -> [(Subst, Int)]
-  -> (Block, Int)
-  -> Either [Error] (Translation a)
+translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] -> (Block, Int) -> Either [Error] (Translation a)
 translateSubstsBlock trans substsNum blockWithNum =
   foldM (translateBlock Nothing blockWithNum) trans substsNum
 
 -- Judgment 23, contd.
-translatePair ::
-     (Autofloat a)
-  => VarEnv
-  -> C.SubEnv
-  -> C.SubProg
-  -> Translation a
-  -> ((Header, Block), Int)
-  -> Either [Error] (Translation a)
+translatePair :: (Autofloat a)
+  => VarEnv -> C.SubEnv -> C.SubProg -> Translation a -> ((Header, Block), Int) -> Either [Error] (Translation a)
 translatePair varEnv subEnv subProg trans ((Namespace (StyVar name), block), blockNum) =
   let selEnv = initSelEnv
       bErrs = checkBlock selEnv block
@@ -1894,15 +1844,8 @@ evalPluginAccess valMap trans =
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
-translateStyProg ::
-     forall a. (Autofloat a)
-  => VarEnv
-  -> C.SubEnv
-  -> C.SubProg
-  -> HeaderBlocks
-  -> C.LabelMap
-  -> [J.StyVal]
-  -> Either [Error] (Translation a)
+translateStyProg :: forall a. (Autofloat a)
+  => VarEnv -> C.SubEnv -> C.SubProg -> HeaderBlocks -> C.LabelMap -> [J.StyVal] -> Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg labelMap styVals =
   let numberedProg = zip styProg [0 ..] -- For creating unique local var names
    in case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
