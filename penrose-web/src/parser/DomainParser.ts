@@ -286,24 +286,7 @@ const grammar: Grammar = {
            tag: "Arg", variable, type 
         })
         },
-    {"name": "prop", "symbols": [{"literal":"Prop"}, "_", "var"], "postprocess": nth(2)},
-    {"name": "prop_list$macrocall$2", "symbols": ["prop"]},
-    {"name": "prop_list$macrocall$3", "symbols": [{"literal":"*"}]},
-    {"name": "prop_list$macrocall$1$ebnf$1", "symbols": []},
-    {"name": "prop_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "prop_list$macrocall$3", "_", "prop_list$macrocall$2"]},
-    {"name": "prop_list$macrocall$1$ebnf$1", "symbols": ["prop_list$macrocall$1$ebnf$1", "prop_list$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "prop_list$macrocall$1$ebnf$2", "symbols": ["prop_list$macrocall$3"], "postprocess": id},
-    {"name": "prop_list$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "prop_list$macrocall$1", "symbols": ["prop_list$macrocall$2", "prop_list$macrocall$1$ebnf$1", "prop_list$macrocall$1$ebnf$2"], "postprocess":  
-        d => { 
-          const [first, rest] = [d[0], d[1]];
-          if(rest.length > 0) {
-            const restNodes = rest.map((ts: any[]) => ts[3]);
-            return concat(first, ...restNodes);
-          } else return first;
-        }
-        },
-    {"name": "prop_list", "symbols": ["prop_list$macrocall$1"], "postprocess": ([d]) => d},
+    {"name": "prop", "symbols": [{"literal":"Prop"}], "postprocess": ([kw]): Prop => ({ ...rangeOf(kw), tag: "Prop" })},
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
         ([d]) => ({
           ...rangeOf(d),

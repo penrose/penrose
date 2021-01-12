@@ -252,8 +252,7 @@ named_arg -> type __ var {%
   })
 %}
 
-prop -> "Prop" _ var {% nth(2) %}
-prop_list -> sepBy1[prop, "*"] {% ([d]) => d %}
+prop -> "Prop" {% ([kw]): Prop => ({ ...rangeOf(kw), tag: "Prop" })  %}
 
 # Common 
 

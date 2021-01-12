@@ -761,9 +761,17 @@ interface Arg extends ASTNode {
   variable: Var | undefined;
   type: Type;
 }
+interface TypeVar extends ASTNode {
+  tag: "TypeVar";
+  name: Identifier;
+}
+interface TypeConstructor {
+  tag: "TypeConstructor";
+  name: Identifier;
+  args: Type[];
+}
 interface Prop extends ASTNode {
   tag: "Prop";
-  contents: "Prop";
 }
 type DomainStmt =
   | TypeDecl
@@ -778,15 +786,6 @@ type DomainStmt =
 interface VarConst extends ASTNode {
   tag: "VarConst";
   name: Identifier;
-}
-interface TypeVar extends ASTNode {
-  tag: "TypeVar";
-  name: Identifier;
-}
-interface TypeConstructor {
-  tag: "TypeConstructor";
-  name: Identifier;
-  args: Type[];
 }
 
 interface TypeDecl extends ASTNode {

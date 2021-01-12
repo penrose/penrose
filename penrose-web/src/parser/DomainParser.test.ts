@@ -4,8 +4,8 @@ import * as path from "path";
 import * as fs from "fs";
 import { result } from "lodash";
 
-// const outputDir = "/tmp/asts";
-// const saveASTs = true;
+const outputDir = "/tmp/asts";
+const saveASTs = true;
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
@@ -157,5 +157,27 @@ List('T) <: List('U)
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);
+  });
+});
+
+describe("Real Programs", () => {
+  // create output folder
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  domainPaths.map((examplePath) => {
+    const file = path.join("../examples/", examplePath);
+    const prog = fs.readFileSync(file, "utf8");
+    test(examplePath, () => {
+      const { results } = parser.feed(prog);
+      sameASTs(results);
+      // write to output folder
+      if (saveASTs) {
+        const exampleName = path.basename(examplePath, ".dsl");
+        const astPath = path.join(outputDir, exampleName + ".ast.json");
+        fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
+      }
+    });
   });
 });
