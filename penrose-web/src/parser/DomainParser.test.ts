@@ -130,6 +130,32 @@ function Empty -> Scalar
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    printAST(results[0]);
+  });
+  test("notation decls", () => {
+    const prog = `
+notation "A ⊂ B" ~ "IsSubset(A, B)"
+notation "p ∈ A" ~ "PointIn(A, p)"
+notation "p ∉ A" ~ "PointNotIn(A, p)"
+notation "A ∩ B = ∅" ~ "Not(Intersecting(A, B))"
+notation "f: A -> B" ~ "Map f; From(f, A, B)"
+      `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  test("notation decls", () => {
+    const prog = `
+Reals <: Set
+Interval <: Set
+Reals <: Interval
+OpenInterval <: Interval
+ClosedInterval <: Interval
+LeftClopenInterval <: Interval
+RightClopenInterval <: Interval
+-- edge cases
+List(Vector) <: List(Matrix)
+List('T) <: List('U)
+      `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
   });
 });

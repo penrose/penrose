@@ -3,6 +3,7 @@
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
 function id(d: any[]): any { return d[0]; }
+declare var string_literal: any;
 declare var identifier: any;
 declare var comment: any;
 declare var multiline_comment: any;
@@ -17,12 +18,14 @@ import { rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/Pa
 const lexer = moo.compile({
   ws: /[ \t]+/,
   nl: { match: "\n", lineBreaks: true },
+  subtypeOf: "<:",
   lte: "<=",
   lt: "<",
   gte: ">=",
   gt: ">",
   eq: "==",
   rarrow: "->",
+  tilda: "~",
   lparen: "(",
   rparen: ")",
   apos: "'",
@@ -120,6 +123,8 @@ const grammar: Grammar = {
     {"name": "statement", "symbols": ["function"], "postprocess": id},
     {"name": "statement", "symbols": ["constructor_decl"], "postprocess": id},
     {"name": "statement", "symbols": ["prelude"], "postprocess": id},
+    {"name": "statement", "symbols": ["notation"], "postprocess": id},
+    {"name": "statement", "symbols": ["subtype"], "postprocess": id},
     {"name": "type$ebnf$1$subexpression$1", "symbols": ["_", {"literal":"("}, "_", "type_params", "_", {"literal":")"}]},
     {"name": "type$ebnf$1", "symbols": ["type$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "type$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -131,25 +136,13 @@ const grammar: Grammar = {
           params: params ? params[3] : []
         })
         },
-    {"name": "predicate$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
-    {"name": "predicate$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "predicate$ebnf$2", "symbols": ["args_list"], "postprocess": id},
-    {"name": "predicate$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "predicate$ebnf$1", "predicate$ebnf$2"], "postprocess": 
+    {"name": "predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "type_params_list", "args_list"], "postprocess": 
         ([kw, , name, params, args]): PredicateDecl => ({
-          // HACK: keywords don't seem to have ranges. Have to manually convert here
-          ...rangeFrom(tokensIn([rangeOf(kw), args, params])),
-          tag: "PredicateDecl",
-          name, 
-          params: optional(params, []),
-          args: optional(args, []),
+          ...rangeFrom([rangeOf(kw), ...args, ...params]),
+          tag: "PredicateDecl", name, params, args
         })
         },
-    {"name": "function$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
-    {"name": "function$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "function$ebnf$2", "symbols": ["args_list"], "postprocess": id},
-    {"name": "function$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier", "function$ebnf$1", "function$ebnf$2", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
+    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier", "type_params_list", "args_list", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
         ([kw, , name, params, args, , , , output]): FunctionDecl => ({
           ...rangeBetween(rangeOf(kw), output),
           tag: "FunctionDecl",
@@ -158,11 +151,7 @@ const grammar: Grammar = {
           args: optional(args, []),
         })
           },
-    {"name": "constructor_decl$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
-    {"name": "constructor_decl$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "constructor_decl$ebnf$2", "symbols": ["named_args_list"], "postprocess": id},
-    {"name": "constructor_decl$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "constructor_decl", "symbols": [{"literal":"constructor"}, "__", "identifier", "constructor_decl$ebnf$1", "constructor_decl$ebnf$2", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
+    {"name": "constructor_decl", "symbols": [{"literal":"constructor"}, "__", "identifier", "type_params_list", "named_args_list", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
         ([kw, , name, params, args, , , , output]): ConstructorDecl => ({
           ...rangeBetween(rangeOf(kw), output),
           tag: "ConstructorDecl",
@@ -175,6 +164,20 @@ const grammar: Grammar = {
         ([kw, , name, , , , type]): PreludeDecl => ({
           ...rangeBetween(rangeOf(kw), type),
           tag: "PreludeDecl", name, type
+        })
+        },
+    {"name": "notation", "symbols": [{"literal":"notation"}, "_", (lexer.has("string_literal") ? {type: "string_literal"} : string_literal), "_", {"literal":"~"}, "_", (lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
+        ([kw, , from, , , , to]): NotationDecl => ({
+          ...rangeBetween(rangeOf(kw), to),
+          tag: "NotationDecl", 
+          from: JSON.parse(from.text),
+          to: JSON.parse(to.text)
+        })
+        },
+    {"name": "subtype", "symbols": ["type", "_", {"literal":"<:"}, "_", "type"], "postprocess": 
+        ([subType, , , , superType]): SubTypeDecl => ({
+          ...rangeBetween(subType, superType),
+          tag: "SubTypeDecl", subType, superType
         })
         },
     {"name": "var", "symbols": ["identifier"], "postprocess": ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name })},
@@ -195,24 +198,6 @@ const grammar: Grammar = {
           };
         }
          },
-    {"name": "type_params_list", "symbols": ["_", {"literal":"["}, "_", "type_params", "_", {"literal":"]"}], "postprocess": nth(3)},
-    {"name": "type_params$macrocall$2", "symbols": ["type"]},
-    {"name": "type_params$macrocall$3", "symbols": [{"literal":","}]},
-    {"name": "type_params$macrocall$1$ebnf$1", "symbols": []},
-    {"name": "type_params$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "type_params$macrocall$3", "_", "type_params$macrocall$2"]},
-    {"name": "type_params$macrocall$1$ebnf$1", "symbols": ["type_params$macrocall$1$ebnf$1", "type_params$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "type_params$macrocall$1$ebnf$2", "symbols": ["type_params$macrocall$3"], "postprocess": id},
-    {"name": "type_params$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "type_params$macrocall$1", "symbols": ["type_params$macrocall$2", "type_params$macrocall$1$ebnf$1", "type_params$macrocall$1$ebnf$2"], "postprocess":  
-        d => { 
-          const [first, rest] = [d[0], d[1]];
-          if(rest.length > 0) {
-            const restNodes = rest.map((ts: any[]) => ts[3]);
-            return concat(first, ...restNodes);
-          } else return first;
-        }
-        },
-    {"name": "type_params", "symbols": ["type_params$macrocall$1"], "postprocess": ([d]) => d},
     {"name": "type_arg_list$macrocall$2", "symbols": ["type"]},
     {"name": "type_arg_list$macrocall$3", "symbols": [{"literal":","}]},
     {"name": "type_arg_list$macrocall$1$ebnf$1", "symbols": []},
@@ -230,6 +215,26 @@ const grammar: Grammar = {
         }
         },
     {"name": "type_arg_list", "symbols": ["_", {"literal":"("}, "_", "type_arg_list$macrocall$1", "_", {"literal":")"}], "postprocess": ([, , , d]): Type[] => flatten(d)},
+    {"name": "type_params_list", "symbols": [], "postprocess": d => []},
+    {"name": "type_params_list", "symbols": ["_", {"literal":"["}, "_", "type_params", "_", {"literal":"]"}], "postprocess": nth(3)},
+    {"name": "type_params$macrocall$2", "symbols": ["type_var"]},
+    {"name": "type_params$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "type_params$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "type_params$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "type_params$macrocall$3", "_", "type_params$macrocall$2"]},
+    {"name": "type_params$macrocall$1$ebnf$1", "symbols": ["type_params$macrocall$1$ebnf$1", "type_params$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "type_params$macrocall$1$ebnf$2", "symbols": ["type_params$macrocall$3"], "postprocess": id},
+    {"name": "type_params$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "type_params$macrocall$1", "symbols": ["type_params$macrocall$2", "type_params$macrocall$1$ebnf$1", "type_params$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "type_params", "symbols": ["type_params$macrocall$1"], "postprocess": ([d]) => d},
+    {"name": "args_list", "symbols": [], "postprocess": d => []},
     {"name": "args_list$macrocall$2", "symbols": ["arg"]},
     {"name": "args_list$macrocall$3", "symbols": [{"literal":"*"}]},
     {"name": "args_list$macrocall$1$ebnf$1", "symbols": []},
@@ -257,6 +262,7 @@ const grammar: Grammar = {
           return { ...range, tag: "Arg", variable, type };
         }
         },
+    {"name": "named_args_list", "symbols": [], "postprocess": d => []},
     {"name": "named_args_list$macrocall$2", "symbols": ["named_arg"]},
     {"name": "named_args_list$macrocall$3", "symbols": [{"literal":"*"}]},
     {"name": "named_args_list$macrocall$1$ebnf$1", "symbols": []},

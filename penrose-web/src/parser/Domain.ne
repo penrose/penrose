@@ -12,12 +12,14 @@ import { rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/Pa
 const lexer = moo.compile({
   ws: /[ \t]+/,
   nl: { match: "\n", lineBreaks: true },
+  subtypeOf: "<:",
   lte: "<=",
   lt: "<",
   gte: ">=",
   gt: ">",
   eq: "==",
   rarrow: "->",
+  tilda: "~",
   lparen: "(",
   rparen: ")",
   apos: "'",
@@ -74,7 +76,6 @@ const tokensIn = (tokenList: any[]): any[] => flatten(compact(tokenList));
 
 # Macros
 
-# TODO: factor out sepEndBy
 sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
   d => { 
     const [first, rest] = [d[0], d[1]];
@@ -120,10 +121,9 @@ statement
   |  function    {% id %}
   |  constructor_decl {% id %}
   |  prelude     {% id %}
-  # |  notation    {% id %}
-  # |  subtype     {% id %}
+  |  notation    {% id %}
+  |  subtype     {% id %}
 
-# TODO: parse the y with kind case as well, or is it obsolete?
 type -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
   ([typ, , name, params]): TypeDecl => ({
     ...rangeBetween(typ, name),
@@ -133,19 +133,15 @@ type -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
   })
 %}
 
-predicate -> "predicate" __ identifier type_params_list:? args_list:? {%
+predicate -> "predicate" __ identifier type_params_list args_list {%
   ([kw, , name, params, args]): PredicateDecl => ({
-    // HACK: keywords don't seem to have ranges. Have to manually convert here
-    ...rangeFrom(tokensIn([rangeOf(kw), args, params])),
-    tag: "PredicateDecl",
-    name, 
-    params: optional(params, []),
-    args: optional(args, []),
+    ...rangeFrom([rangeOf(kw), ...args, ...params]),
+    tag: "PredicateDecl", name, params, args
   })
 %}
 
 function 
-  -> "function" __ identifier type_params_list:? args_list:? _ "->" _ arg
+  -> "function" __ identifier type_params_list args_list _ "->" _ arg
   {%
     ([kw, , name, params, args, , , , output]): FunctionDecl => ({
       ...rangeBetween(rangeOf(kw), output),
@@ -158,7 +154,7 @@ function
 
 # NOTE: nearley does not like `constructor` as a rule name
 constructor_decl
-  -> "constructor" __  identifier type_params_list:? named_args_list:? _ "->" _ arg
+  -> "constructor" __  identifier type_params_list named_args_list _ "->" _ arg
   {%
     ([kw, , name, params, args, , , , output]): ConstructorDecl => ({
       ...rangeBetween(rangeOf(kw), output),
@@ -176,10 +172,21 @@ prelude -> "value" __ var _ ":" _ type {%
   })
 %}
 
+notation -> "notation" _ %string_literal _ "~" _ %string_literal {%
+  ([kw, , from, , , , to]): NotationDecl => ({
+    ...rangeBetween(rangeOf(kw), to),
+    tag: "NotationDecl", 
+    from: JSON.parse(from.text),
+    to: JSON.parse(to.text)
+  })
+%} 
+subtype -> type _ "<:" _ type {%
+  ([subType, , , , superType]): SubTypeDecl => ({
+    ...rangeBetween(subType, superType),
+    tag: "SubTypeDecl", subType, superType
+  })
+%}
 
-# TODO: finish below
-# notation -> "notation" __ identifier
-# subtype -> "subtype" __ identifier
 # predicate 
 #   -> nested_predicate {% id %}
 #   |  simple_predicate {% id %}
@@ -218,13 +225,16 @@ type_constructor -> identifier type_arg_list:? {%
 
 # Various kinds of parameters and arguments
 
-type_params_list -> _ "[" _ type_params _ "]" {% nth(3) %}
-# TODO: only allowing `type_var`s to avoid loops here. Does this conform to the spec?
-type_params -> sepBy1[type, ","] {% ([d]) => d %}
-
 type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type[] => flatten(d) %}
 
-args_list -> _ ":" _ sepBy1[arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
+type_params_list 
+  -> null {% d => [] %}
+  |  _ "[" _ type_params _ "]" {% nth(3) %}
+type_params -> sepBy1[type_var, ","] {% ([d]) => d %}
+
+args_list 
+  -> null {% d => [] %}
+  |  _ ":" _ sepBy1[arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg => {
     const variable = v ? v[1] : undefined;
@@ -232,7 +242,9 @@ arg -> type (__ var):? {%
     return { ...range, tag: "Arg", variable, type };
   }
 %}
-named_args_list -> _ ":" _ sepBy1[named_arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
+named_args_list 
+  -> null {% d => [] %}
+  |  _ ":" _ sepBy1[named_arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg => ({
      ...rangeBetween(type, variable), 
