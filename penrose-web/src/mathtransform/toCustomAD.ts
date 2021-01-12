@@ -56,11 +56,13 @@ module.exports = function(fileInfo: FileInfo, api: API) {
     };
     // unary op to call expression
     const UO2CE = (target: string, node: any) : CallExpression => {
-        const newCallee = j.identifier(target); // get new name of function
-        const newArgs = [node.argument];    // reorder arguments
-        node.callee = newCallee;
-        node.arguments = newArgs;
-        node.type = "CallExpression";
+        if (node.argument.type !== "NumericLiteral") {
+            const newCallee = j.identifier(target); // get new name of function
+            const newArgs = [node.argument];    // reorder arguments
+            node.callee = newCallee;
+            node.arguments = newArgs;
+            node.type = "CallExpression";
+        }
         return node;
     };
     // type preset keyword (number, etc.) to type reference i.e. custom type OR custom type to custom type
@@ -112,6 +114,8 @@ module.exports = function(fileInfo: FileInfo, api: API) {
 
     ////////////////////////////////// Subsection 2: match target functions //////////////////////////////////
 
+
+
     // extracts operator property from BinExp/UnExp
     const getOperator = (node: BinaryExpression | UnaryExpression) => node.operator;
     // extracts type name from TSTypeReference
@@ -120,25 +124,45 @@ module.exports = function(fileInfo: FileInfo, api: API) {
     // NOTE - ONLY WORKS FOR BINARY MEMBER EXPRESSIONS E.G. A.B;
     // WILL NOT WORK FOR CHAINED MEMBER EXPRESSIONS E.G. A.B.C;
     // todo fix
-    const ME2STR = (n: MemberExpression) => (n.object as IdentifierKind).name + "." + (n.property as IdentifierKind).name; // e.g. Math.pow
-    // transforms args a, b, c, etc. in a call exp to the string "(a, b, c, ...)"
-    const CALLARGS2STR = (n: CallExpression) => {
-        if (n.arguments.length == 1) return "()";
+    const ME2STR = (n: MemberExpression) => TOSTRING[n.object.type](n.object) + "." + TOSTRING[n.property.type](n.property); // e.g. Math.pow
+
+    // keep in mind no spaces are added.. so x?2:3
+    const TERN2STR = (n: ConditionalExpression) => TOSTRING[n.test.type](n.test) + "?" + TOSTRING[n.consequent.type](n.consequent) +
+        ":" + TOSTRING[n.alternate.type](n.alternate)
+   
+     // transforms a list of args a, b, c, etc. in an exp to the string "(a, b, c, ...)"
+    const ARGS2STR = (n: any[]) => {
+        if (n.length == 1) return "()";
         let ret = "(";
-        for (const arg of n.arguments) {
-            // ASSUMES ARGS ARE IDENTIFIERS! IF YOU HAVE NESTED ARGUMENTS THIS WILL NOT WORK
-            if (arg.type === "Identifier") ret += (arg as IdentifierKind).name + ",";
-            else if (arg.type === "NumericLiteral") ret += (arg as NumericLiteral).value?.toString() + ",";
-            else if (arg.type === "BooleanLiteral") ret += (arg as BooleanLiteral).value?.toString() + ","; 
+        for (const arg of n) {
+            ret += TOSTRING[arg.type](arg) + ",";
         }
         return ret.slice(0, -1) + ")"    // remove trailing comma
     }
+    const BINOP2STR = (n: BinaryExpression) => TOSTRING[n.left.type](n.left) + n.operator + TOSTRING[n.right.type](n.right)
+    const UNOP2STR = (n: UnaryExpression) => n.operator + TOSTRING[n.argument.type](n.argument)
+    const NUMLIT2STR = (n: NumericLiteral) => n.value?.toString()
+    const ID2STR = (n: IdentifierKind) => n.name
+    const BOOLLIT2STR = (n: BooleanLiteral) => n.value?.toString()
+
     const CE2STR = (n: CallExpression) => {
         // only works if the callee is a member expression or identifier
         // will prob crash if n is different
         // todo fix
-        if (n.callee.type === "MemberExpression") return ME2STR(n.callee) + CALLARGS2STR(n)
-        else return (n.callee as IdentifierKind).name + CALLARGS2STR(n)
+        if (n.callee.type === "MemberExpression") {
+            return ME2STR(n.callee) + ARGS2STR(n.arguments);
+        }
+        else return ID2STR(n.callee as IdentifierKind) + ARGS2STR(n.arguments)
+    }
+    const TOSTRING : {[k: string] : any} = {
+        "Identifier": ID2STR,
+        "NumericLiteral": NUMLIT2STR,
+        "CallExpression": CE2STR,
+        "MemberExpression": ME2STR,
+        "BooleanLiteral": BOOLLIT2STR,
+        "BinaryExpression": BINOP2STR,
+        "UnaryExpression": UNOP2STR,
+        "ConditionalExpression": TERN2STR
     }
 
     ////////////////////////////////// Subsection 3: transform maps //////////////////////////////////
@@ -201,17 +225,19 @@ module.exports = function(fileInfo: FileInfo, api: API) {
             newName: "pow",
             transformMethod: CONDENSECALLEXP,
             matchTargetFn: CE2STR,
-            matchMethod: (nstr: string) => /^Math\.pow\(\w+,([a-zA-z013-9]|\w{2,})\)$/.test(nstr) // should match anything of the form 
+            // matchMethod: (nstr: string) => /^Math\.pow\(\w+,([a-zA-z013-9]|\w{2,})\)$/.test(nstr) // should match anything of the form 
+            matchMethod: (nstr: string) => /^Math\.pow\((.+),(.+)\)$/.test(nstr) && nstr.slice(-3) !== ",2)"
+            // note: regex above is too permissive, e.g. would allow Math.pow(x+3,,3) even though that's not valid JS - but this shouldn't be a problem
             // Math.pow(x, y) where x, y are var or num as long as y != 2
-            // I did test it but you never know with regex :/
         },
         "Math.pow(x, 2)": {
             newName: "squared",
             transformMethod: squaredTransform,
             matchTargetFn: CE2STR,
-            matchMethod: (nstr: string) => {
-                return /^Math\.pow\(\w+,2\)$/.test(nstr)
-            }    // should match anything of form Math.pow(x, 2) where x is var or num
+            matchMethod: (nstr: string) => /^Math\.pow\((.+),2\)$/.test(nstr)
+            // matchMethod: (nstr: string) => {
+            //     return /^Math\.pow\(\w+,2\)$/.test(nstr)
+            // }    // should match anything of form Math.pow(x, 2) where x is var or num
         }
     }
     // identifiers
@@ -219,7 +245,7 @@ module.exports = function(fileInfo: FileInfo, api: API) {
         // "norm": {
         //     newName: "ADNorm",
         //     transformMethod: ID2ID,
-        //     matchTargetFn: () => (node as IdentifierKind).name;
+        //     matchTargetFn: ID2STR
         // }
     }
     // ternary expressions

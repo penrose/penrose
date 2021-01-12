@@ -1,7 +1,5 @@
 export const objDict = {
-    above: (x: number[]): number => {
-      //autodiff
-      x = t2 - z * 34 + (2 / 4)
-      y = a + bigint
-    }
+  // autodiff
+    testpow3: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
+      ops.vdistsq(Math.pow(x - 3, 2)),
 }
