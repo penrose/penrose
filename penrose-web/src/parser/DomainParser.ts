@@ -22,6 +22,7 @@ const lexer = moo.compile({
   gte: ">=",
   gt: ">",
   eq: "==",
+  rarrow: "->",
   lparen: "(",
   rparen: ")",
   apos: "'",
@@ -116,6 +117,7 @@ const grammar: Grammar = {
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["type"], "postprocess": id},
     {"name": "statement", "symbols": ["predicate"], "postprocess": id},
+    {"name": "statement", "symbols": ["function"], "postprocess": id},
     {"name": "type$ebnf$1$subexpression$1", "symbols": ["_", {"literal":"("}, "_", "type_params", "_", {"literal":")"}]},
     {"name": "type$ebnf$1", "symbols": ["type$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "type$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -153,6 +155,19 @@ const grammar: Grammar = {
           name, args
         })
         },
+    {"name": "function$ebnf$1", "symbols": ["type_params_list"], "postprocess": id},
+    {"name": "function$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "function$ebnf$2", "symbols": ["named_args_list"], "postprocess": id},
+    {"name": "function$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier", "_", {"literal":":"}, "function$ebnf$1", "_", "function$ebnf$2", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
+        ([kw, , name, , , params, , args, , , , output]): FunctionDecl => ({
+          ...rangeBetween(rangeOf(kw), output),
+          tag: "FunctionDecl",
+          name, output,
+          params: optional(params, []),
+          args: optional(args, []),
+        })
+          },
     {"name": "variable", "symbols": ["var"], "postprocess": id},
     {"name": "variable", "symbols": ["type_var"], "postprocess": id},
     {"name": "var", "symbols": ["identifier"], "postprocess": ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name })},
@@ -233,6 +248,23 @@ const grammar: Grammar = {
         }
         },
     {"name": "args_list", "symbols": ["args_list$macrocall$1"], "postprocess": ([d]): Arg[] => flatten(d)},
+    {"name": "named_args_list$macrocall$2", "symbols": ["named_arg"]},
+    {"name": "named_args_list$macrocall$3", "symbols": [{"literal":"*"}]},
+    {"name": "named_args_list$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "named_args_list$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "named_args_list$macrocall$3", "_", "named_args_list$macrocall$2"]},
+    {"name": "named_args_list$macrocall$1$ebnf$1", "symbols": ["named_args_list$macrocall$1$ebnf$1", "named_args_list$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "named_args_list$macrocall$1$ebnf$2", "symbols": ["named_args_list$macrocall$3"], "postprocess": id},
+    {"name": "named_args_list$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "named_args_list$macrocall$1", "symbols": ["named_args_list$macrocall$2", "named_args_list$macrocall$1$ebnf$1", "named_args_list$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "named_args_list", "symbols": ["named_args_list$macrocall$1"], "postprocess": ([d]): Arg[] => flatten(d)},
     {"name": "arg$ebnf$1$subexpression$1", "symbols": ["__", "var"]},
     {"name": "arg$ebnf$1", "symbols": ["arg$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "arg$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -242,6 +274,12 @@ const grammar: Grammar = {
           const range = variable ? rangeBetween(variable, type) : rangeOf(type);
           return { ...range, tag: "Arg", variable: variable, type };
         }
+        },
+    {"name": "named_arg", "symbols": ["type", "__", "var"], "postprocess":  
+        ([type, , variable]): Arg => ({
+           ...rangeBetween(type, variable), 
+           tag: "Arg", variable: variable, type 
+        })
         },
     {"name": "prop", "symbols": [{"literal":"Prop"}, "_", "var"], "postprocess": nth(2)},
     {"name": "prop_list$macrocall$2", "symbols": ["prop"]},

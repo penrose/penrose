@@ -50,7 +50,6 @@ type ParametrizedSet (s1: Set, s2: Set)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    printAST(results[0]);
   });
   test("predicate decls", () => {
     const prog = `
@@ -66,6 +65,20 @@ predicate Injection : Map m
 predicate Surjection : Map m
 predicate Bijection : Map m
 predicate PairIn : Point * Point * Map
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  test("function decls", () => {
+    const prog = `
+-- comments
+function Intersection : Set a * Set b -> Set
+function Union : Set a * Set b -> Set
+function Subtraction : Set a * Set b -> Set
+function CartesianProduct : Set a * Set b -> Set
+function Difference : Set a * Set b -> Set
+function Subset : Set a * Set b -> Set
+function AddPoint : Point p * Set s1 -> Set
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);

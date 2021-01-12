@@ -826,6 +826,7 @@ interface FunctionDecl extends ASTNode {
   name: Identifier;
   params: TypeParam[];
   args: Arg[];
+  output: Type;
 }
 interface ConstructorDecl extends ASTNode {
   tag: "ConstructorDecl";

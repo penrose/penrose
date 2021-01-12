@@ -17,6 +17,7 @@ const lexer = moo.compile({
   gte: ">=",
   gt: ">",
   eq: "==",
+  rarrow: "->",
   lparen: "(",
   rparen: ")",
   apos: "'",
@@ -116,7 +117,7 @@ statements
 statement 
   -> type        {% id %}
   |  predicate   {% id %}
-  # |  function    {% id %}
+  |  function    {% id %}
   # |  constructor {% id %}
   # |  prelude     {% id %}
   # |  notation    {% id %}
@@ -156,6 +157,18 @@ nested_predicate ->  "predicate" __ identifier _ ":" _ prop_list:? {%
     name, args
   })
 %}
+
+function 
+  -> "function" __ identifier _ ":" type_params_list:? _ named_args_list:? _ "->" _ arg
+  {%
+    ([kw, , name, , , params, , args, , , , output]): FunctionDecl => ({
+      ...rangeBetween(rangeOf(kw), output),
+      tag: "FunctionDecl",
+      name, output,
+      params: optional(params, []),
+      args: optional(args, []),
+    })
+  %}
 
 # Basic types
   
@@ -204,12 +217,19 @@ type_arg
 
 # args_list -> _ "(" _ args _ ")"        {% nth(3) %}
 args_list -> sepBy1[arg, "*"] {% ([d]): Arg[] => flatten(d) %}
+named_args_list -> sepBy1[named_arg, "*"] {% ([d]): Arg[] => flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg => {
     const variable = v ? v[1] : undefined;
     const range = variable ? rangeBetween(variable, type) : rangeOf(type);
     return { ...range, tag: "Arg", variable: variable, type };
   }
+%}
+named_arg -> type __ var {% 
+  ([type, , variable]): Arg => ({
+     ...rangeBetween(type, variable), 
+     tag: "Arg", variable: variable, type 
+  })
 %}
 
 prop -> "Prop" _ var {% nth(2) %}
