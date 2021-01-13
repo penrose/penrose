@@ -384,7 +384,7 @@ styVar -> identifier {%
 # NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
 select_as -> "as" __ namespace {% nth(2) %}
 
-namespace -> identifier _ml {%
+namespace -> styVar _ml {%
   (d): Namespace => ({
     ...rangeFrom([d[0]]),
     tag: "Namespace",

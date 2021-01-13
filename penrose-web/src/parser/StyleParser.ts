@@ -449,7 +449,7 @@ const grammar: Grammar = {
         d => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
         },
     {"name": "select_as", "symbols": [{"literal":"as"}, "__", "namespace"], "postprocess": nth(2)},
-    {"name": "namespace", "symbols": ["identifier", "_ml"], "postprocess": 
+    {"name": "namespace", "symbols": ["styVar", "_ml"], "postprocess": 
         (d): Namespace => ({
           ...rangeFrom([d[0]]),
           tag: "Namespace",
