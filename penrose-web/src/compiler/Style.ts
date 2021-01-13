@@ -409,28 +409,125 @@ const substituteField = (lv: LocalVarSubst, subst: Subst, field: PropertyDecl): 
   };
 };
 
+const isPath = (expr: Expr): expr is Path => {
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
+};
+
 const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr => {
+  // COMBAK delete this
+  // console.error("expr", expr);
 
-  // TODO <
-  // if (expr.tag === "Path") {
-  // }
-
-  return expr;
-  // No substitution for literals
+  if (isPath(expr)) {
+    return substitutePath(lv, subst, expr);
+  } else if (expr.tag === "CompApp" || expr.tag === "ObjFn" || expr.tag === "ConstrFn") {
+    return {
+      ...expr,
+      args: expr.args.map((arg: Expr) => substituteBlockExpr(lv, subst, arg))
+    };
+  } else if (expr.tag === "AvoidFn") {
+    return {
+      ...expr,
+      contents: [expr.contents[0], expr.contents[1].map((arg: Expr) => substituteBlockExpr(lv, subst, arg))]
+    };
+  } else if (expr.tag === "BinOp") {
+    return {
+      ...expr,
+      left: substituteBlockExpr(lv, subst, expr.left),
+      right: substituteBlockExpr(lv, subst, expr.right)
+    };
+  } else if (expr.tag === "UOp") {
+    return {
+      ...expr,
+      arg: substituteBlockExpr(lv, subst, expr.arg)
+    };
+  } else if (expr.tag === "List" || expr.tag === "Vector" || expr.tag === "Matrix") {
+    return {
+      ...expr,
+      contents: expr.contents.map((e: Expr) => substituteBlockExpr(lv, subst, e))
+    };
+  } else if (expr.tag === "ListAccess") {
+    return {
+      ...expr,
+      contents: [substitutePath(lv, subst, expr.contents[0]), expr.contents[1]]
+    };
+  } else if (expr.tag === "GPIDecl") {
+    return {
+      ...expr,
+      properties: expr.properties.map((p: PropertyDecl) => substituteField(lv, subst, p))
+    };
+  } else if (expr.tag === "Layering") {
+    return {
+      ...expr,
+      below: substitutePath(lv, subst, expr.below),
+      above: substitutePath(lv, subst, expr.above)
+    };
+  } else if (expr.tag === "PluginAccess") {
+    return {
+      ...expr,
+      contents: [expr.contents[0],
+      substituteBlockExpr(lv, subst, expr.contents[1]),
+      substituteBlockExpr(lv, subst, expr.contents[2])]
+    };
+  } else if (expr.tag === "Tuple" || expr.tag === "ThenOp") {
+    return {
+      ...expr,
+      contents: [substituteBlockExpr(lv, subst, expr.contents[0]),
+      substituteBlockExpr(lv, subst, expr.contents[1])]
+    };
+  } else if (expr.tag === "VectorAccess") {
+    return {
+      ...expr,
+      contents: [substitutePath(lv, subst, expr.contents[0]), substituteBlockExpr(lv, subst, expr.contents[1])]
+    };
+  } else if (expr.tag === "MatrixAccess") {
+    return {
+      ...expr,
+      contents: [substitutePath(lv, subst, expr.contents[0]), expr.contents[1].map(e => substituteBlockExpr(lv, subst, e))]
+    };
+  } else if (expr.tag === "IntLit" || expr.tag === "AFloat" || expr.tag === "StringLit" || expr.tag === "BoolLit") {
+    // No substitution for literals
+    return expr;
+  } else {
+    console.error("expr", expr);
+    if ((expr as any).tag === "Fix" || (expr as any).tag === "Vary") { // COMBAK ISSUE #444
+      return substituteBlockExpr(lv, subst, { tag: "AFloat", contents: expr });
+    }
+    throw Error("unknown tag");
+  }
 };
 
 const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
+  console.error("line", line);
+
   if (line.tag === "PathAssign") {
+    // COMBAK: ISSUE #443, delete this check, it should just be line.value
+    if (line.value) {
+      return {
+        ...line,
+        path: substitutePath(lv, subst, line.path),
+        value: substituteBlockExpr(lv, subst, line.value) // COMBAK: ISSUE #443, should be line.value
+      };
+    }
+
     return {
       ...line,
       path: substitutePath(lv, subst, line.path),
-      value: substituteBlockExpr(lv, subst, line.value)
+      value: substituteBlockExpr(lv, subst, (line as any).expr) // COMBAK: ISSUE #443, should be line.value
     };
   } else if (line.tag === "Override") {
+    // COMBAK: ISSUE #443, delete this check, it should just be line.value
+    if (line.value) {
+      return {
+        ...line,
+        path: substitutePath(lv, subst, line.path),
+        value: substituteBlockExpr(lv, subst, line.value) // COMBAK: ISSUE #443, should be line.value
+      };
+    }
+
     return {
       ...line,
       path: substitutePath(lv, subst, line.path),
-      value: substituteBlockExpr(lv, subst, line.value)
+      value: substituteBlockExpr(lv, subst, (line as any).expr) // COMBAK: ISSUE #443, should be line.value
     };
   } else if (line.tag === "Delete") {
     return {
@@ -820,6 +917,11 @@ const translateLine = (trans: Translation, stmt: Stmt): Either<StyErrors, Transl
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
 const translateBlock = (name: MaybeVal<string>, blockWithNum: [Block, number], trans: Translation, substWithNum: [Subst, number]): Either<StyErrors, Translation> => {
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
+
+  // TODO: Remove these lines
+  console.error("block pre-subst", blockWithNum);
+  console.error("block post-subst", blockSubsted);
+
   return foldM(blockSubsted.statements, translateLine, trans);
 };
 
