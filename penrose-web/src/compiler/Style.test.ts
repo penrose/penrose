@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
 import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData"; // TODO: Check correctness
-import { compileStyle, fullSubst, uniqueKeysAndVals, substituteRel, ppRel, checkSelsAndMakeEnv, findSubstsProg, nameAnonStatements } from "compiler/Style"; // COMBAK: Use this import properly
+import * as S from "compiler/Style"; // COMBAK: Use this import properly
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -11,32 +11,32 @@ const clone = require("rfdc")({ proto: false, circles: false });
 describe("Compiler", () => {
 
   // Each possible substitution should be full WRT its selector
-  test("substitution: fullSubst true", () => {
+  test("substitution: S.fullSubst true", () => {
     for (let i = 0; i < selEnvs.length; i++) {
       for (let j = 0; j < possibleSubsts[i].length; j++) {
-        expect(fullSubst(selEnvs[i], possibleSubsts[i][j] as Subst)).toEqual(true);
+        expect(S.fullSubst(selEnvs[i], possibleSubsts[i][j] as Subst)).toEqual(true);
       }
     }
   });
 
-  test("substitution: fullSubst false", () => {
+  test("substitution: S.fullSubst false", () => {
     // Namespace shouldn't have matches
     const ps0: Subst = { "test": "A" };
-    expect(fullSubst(selEnvs[0], ps0)).toEqual(false);
+    expect(S.fullSubst(selEnvs[0], ps0)).toEqual(false);
 
     // Selector should have real substitution
     const ps1 = { "v": "x1", "U": "X" }; // missing "w" match
-    expect(fullSubst(selEnvs[6], ps1)).toEqual(false);
+    expect(S.fullSubst(selEnvs[6], ps1)).toEqual(false);
   });
 
-  test("substitution: uniqueKeysAndVals true", () => {
+  test("substitution: S.uniqueKeysAndVals true", () => {
     // This subst has unique keys and vals
-    expect(uniqueKeysAndVals({ "a": "V", "c": "z" })).toEqual(true);
+    expect(S.uniqueKeysAndVals({ "a": "V", "c": "z" })).toEqual(true);
   });
 
-  test("substitution: uniqueKeysAndVals false", () => {
+  test("substitution: S.uniqueKeysAndVals false", () => {
     // This subst doesn't have unique keys and vals
-    expect(uniqueKeysAndVals({ "a": "V", "c": "V" })).toEqual(false);
+    expect(S.uniqueKeysAndVals({ "a": "V", "c": "V" })).toEqual(false);
   });
 
   // For the 6th selector in the LA Style program, substituting in this substitution into the relational expressions yields the correct result (where all vars are unique)
@@ -44,7 +44,7 @@ describe("Compiler", () => {
     const subst: Subst = { v: "x1", U: "X", w: "x2" };
     const rels: RelationPattern[] = selEnvs[6].header.contents.where.contents; // This is selector #6 in the LA Style program
     // `rels` stringifies to this: `["In(v, U)", "Unit(v)", "Orthogonal(v, w)"]`
-    const relsSubStr = rels.map(rel => substituteRel(subst, rel)).map(ppRel);
+    const relsSubStr = rels.map(rel => S.substituteRel(subst, rel)).map(S.ppRel);
     const answers = ["In(x1, X)", "Unit(x1)", "Orthogonal(x1, x2)"];
 
     for (const [res, expected] of _.zip(relsSubStr, answers)) {
@@ -57,7 +57,7 @@ describe("Compiler", () => {
     const subst: Subst = { v: "x2", U: "X", w: "x2" };
     const rels: RelationPattern[] = selEnvs[6].header.contents.where.contents; // This is selector #6 in the LA Style program
     // `rels` stringifies to this: `["In(v, U)", "Unit(v)", "Orthogonal(v, w)"]`
-    const relsSubStr = rels.map(rel => substituteRel(subst, rel)).map(ppRel);
+    const relsSubStr = rels.map(rel => S.substituteRel(subst, rel)).map(S.ppRel);
     const answers = ["In(x2, X)", "Unit(x2)", "Orthogonal(x2, x2)"];
 
     for (const [res, expected] of _.zip(relsSubStr, answers)) {
@@ -68,7 +68,7 @@ describe("Compiler", () => {
   // Compiler finds the right substitutions for LA Style program
   // Note that this doesn't test subtypes
   test("finds the right substitutions for LA Style program", () => {
-    // This code is cleaned up from `compileStyle`; runs the beginning of compiler checking from scratch
+    // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
     // Not sure why the checker throws an error on `.default` below (or, alternatively, needs the type coercions), but the test runs + passes
     const info = stateJSON.contents;
     const styProgInit: StyProg = styJSON as unknown as StyProg;
@@ -78,8 +78,8 @@ describe("Compiler", () => {
     const varEnv: VarEnv = subOut[1][0];
     const subEnv: SubEnv = subOut[1][1];
 
-    const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    const subss = findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
+    const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
+    const subss = S.findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
 
     for (const [res, expected] of _.zip(subss, correctSubsts)) {
       expect(res).toEqual(expected);
@@ -87,10 +87,10 @@ describe("Compiler", () => {
   });
 
 
-  // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `nameAnonStatements` working)
+  // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `S.nameAnonStatements` working)
   test("There are no anonymous statements", () => {
     const styProgInit: StyProg = styJSON as unknown as StyProg;
-    const styProg: StyProg = nameAnonStatements(styProgInit);
+    const styProg: StyProg = S.nameAnonStatements(styProgInit);
 
     for (const hb of styProg.blocks) {
       for (const stmt of hb.block.statements) {
@@ -98,5 +98,25 @@ describe("Compiler", () => {
       }
     }
   });
+
+  const sum = (acc: number, n: number, i: number): Either<String, number> => i > 2 ? S.Left("error") : S.Right(acc + n);
+
+  test("S.foldM none", () => {
+    expect(S.foldM([], sum, -1)).toEqual(S.Right(-1));
+  });
+
+  test("S.foldM right", () => {
+    expect(S.foldM([1, 2, 3], sum, -1)).toEqual(S.Right(5));
+  });
+
+  test("S.foldM left", () => {
+    expect(S.foldM([1, 2, 3, 4], sum, -1)).toEqual(S.Left("error"));
+  });
+
+  const xs = ['a', 'b', 'c'];
+  test("numbered", () => {
+    expect(S.numbered(xs)).toEqual([['a', 0], ['b', 1], ['c', 2]]);
+  });
+
 
 });

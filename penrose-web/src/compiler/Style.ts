@@ -13,40 +13,56 @@ import * as _ from "lodash";
 
 //#region consts
 const ANON_KEYWORD = "ANON";
+const LOCAL_KEYWORD = "$LOCAL";
 
 //#endregion
 
 //#region utils
 
+// numbers from 0 to r-1 w/ increment of 1
+const numbers = (r: number): number[] => {
+  const l = 0;
+  if (l > r) { throw Error("invalid range"); }
+  const arr = [];
+  for (let i = l; i < r; i++) {
+    arr.push(i);
+  }
+  return arr;
+}
+
+export function numbered<A>(xs: A[]): [A, number][] {
+  if (!xs) throw Error("fail");
+  return _.zip(xs, numbers(xs.length)) as [A, number][]; // COMBAK: Don't know why typescript has problem with this
+};
+
 // TODO move to util
 
-function isLeft<A>(val: any): val is Left<A> {
-  if ((val as Left<A>).tag === 'left') return true;
+export function isLeft<A>(val: any): val is Left<A> {
+  if ((val as Left<A>).tag === 'Left') return true;
   return false;
 }
 
-function isRight<B>(val: any): val is Right<B> {
-  if ((val as Right<B>).tag === 'right') return true;
+export function isRight<B>(val: any): val is Right<B> {
+  if ((val as Right<B>).tag === 'Right') return true;
   return false;
 }
 
-function Left<A>(val: A): Left<A> {
-  return { value: val, tag: 'left' };
+export function Left<A>(val: A): Left<A> {
+  return { contents: val, tag: 'Left' };
 }
 
-function Right<B>(val: B): Right<B> {
-  return { value: val, tag: 'right' };
+export function Right<B>(val: B): Right<B> {
+  return { contents: val, tag: 'Right' };
 }
 
-// TODO < Test this
-function foldM<A, B, C>(xs: A[], f: (acc: B, curr: A) => Either<C, B>, init: B): Either<C, B> {
+export function foldM<A, B, C>(xs: A[], f: (acc: B, curr: A, i: number) => Either<C, B>, init: B): Either<C, B> {
   let res = init;
-  let resW = Right(init); // wrapped
+  let resW: Either<C, B> = Right(init); // wrapped
 
   for (let i = 0; i < xs.length; i++) {
-    let resW = f(res, xs[i]);
-    if (isLeft(resW)) { return resW; } // Stop fold early on first error and return it
-    res = resW.value;
+    resW = f(res, xs[i], i);
+    if (resW.tag === "Left") { return resW; } // Stop fold early on first error and return it
+    res = resW.contents;
   }
 
   return resW;
@@ -125,6 +141,17 @@ const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so 
 
 const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
+};
+
+// COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
+const dummyIdentifier = (name: string): Identifier => {
+  return {
+    type: "value",
+    value: name,
+    tag: "dummyIdentifier",
+    start: dummySourceLoc(),
+    end: dummySourceLoc()
+  }
 };
 
 // Add a mapping from Sub or Sty var to the selector's environment
@@ -322,6 +349,112 @@ const substituteRels = (subst: Subst, rels: RelationPattern[]): RelationPattern[
 
 //#endregion (subregion? TODO fix)
 
+//#region Applying a substitution to a block
+
+//// Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
+
+const mkLocalVarName = (lv: LocalVarSubst): string => {
+  if (lv.tag === "LocalVarId") {
+    const [blockNum, substNum] = lv.contents;
+    return `${LOCAL_KEYWORD}_block${blockNum}_subst${substNum}`;
+  } else if (lv.tag === "NamespaceId") {
+    return lv.contents;
+  } else throw Error("unknown error");
+};
+
+const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
+  if (path.tag === "FieldPath") {
+    return {
+      ...path,
+      name: substituteBform({ tag: "Just", contents: lv }, subst, path.name)
+    };
+  } else if (path.tag === "PropertyPath") {
+    return {
+      ...path,
+      name: substituteBform({ tag: "Just", contents: lv }, subst, path.name)
+    };
+  } else if (path.tag === "LocalVar") {
+    // Note that the local var becomes a path
+    // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
+    // where <ids> is a string generated to be unique to this selector match for this block
+
+    // COMBAK / HACK: Is there some way to get rid of all these dummy values?
+    return {
+      start: dummySourceLoc(),
+      end: dummySourceLoc(),
+      tag: "FieldPath",
+      name: {
+        start: dummySourceLoc(),
+        end: dummySourceLoc(),
+        tag: "SubVar",
+        contents: {
+          ...dummyIdentifier(mkLocalVarName(lv))
+        }
+      },
+      field: dummyIdentifier(path.contents)
+    };
+  } else if (path.tag === "AccessPath") {
+    // COMBAK: Check if this works / is needed (wasn't present in original code)
+    return {
+      ...path,
+      path: substitutePath(lv, subst, path.path)
+    };
+  } else throw Error("unknown tag");
+};
+
+const substituteField = (lv: LocalVarSubst, subst: Subst, field: PropertyDecl): PropertyDecl => {
+  return {
+    ...field,
+    value: substituteBlockExpr(lv, subst, field.value)
+  };
+};
+
+const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr => {
+
+  // TODO <
+  // if (expr.tag === "Path") {
+  // }
+
+  return expr;
+  // No substitution for literals
+};
+
+const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
+  if (line.tag === "PathAssign") {
+    return {
+      ...line,
+      path: substitutePath(lv, subst, line.path),
+      value: substituteBlockExpr(lv, subst, line.value)
+    };
+  } else if (line.tag === "Override") {
+    return {
+      ...line,
+      path: substitutePath(lv, subst, line.path),
+      value: substituteBlockExpr(lv, subst, line.value)
+    };
+  } else if (line.tag === "Delete") {
+    return {
+      ...line,
+      contents: substitutePath(lv, subst, line.contents)
+    };
+  } else throw Error("Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)");
+};
+
+// Assumes a full substitution
+const substituteBlock = ([subst, si]: [Subst, number], [block, bi]: [Block, number], name: MaybeVal<string>): Block => {
+
+  const lvSubst: LocalVarSubst = name.tag === "Nothing"
+    ? { tag: "LocalVarId", contents: [bi, si] }
+    : { tag: "NamespaceId", contents: name.contents };
+
+  return {
+    ...block,
+    statements: block.statements.map(line => substituteLine(lvSubst, subst, line))
+  };
+};
+
+//#endregion Applying a substitution to a block
+
 const toSubVar = (b: BindingForm): Var => {
   if (b.tag === "SubVar") {
     return b.contents.value;
@@ -515,7 +648,7 @@ const matchBvar = (subVar: Var, bf: BindingForm): MaybeVal<Subst> => {
       contents: newSubst
     };
   } else if (bf.tag === "SubVar") {
-    if (subVar === bf.contents.value) { // Substance variables matched--comparing string equality
+    if (subVar === bf.contents.value) { // Substance variables matched; comparing string equality
       return {
         tag: "Just",
         contents: {}
@@ -646,13 +779,6 @@ const initTrans = (): Translation => {
   return { trMap: {}, warnings: [] };
 };
 
-// TODO < make a region
-const substituteBlock = () => {
-
-  // TODO <
-
-};
-
 const deletePath = () => {
 
   // TODO <
@@ -667,7 +793,19 @@ const addPath = () => {
 
 };
 
-const translateLine = () => {
+///////// Translation judgments
+/* Note: All of the folds below use foldM.
+   foldM stops accumulating when the first fatal error is reached, using "Either [Error]" as a monad
+   (Non-fatal errors are stored as warnings in the translation)
+   foldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
+   example:
+   f acc elem = if elem < 0 then Left ["wrong " ++ show elem] else Right $ elem : acc
+   foldM f [] [1, 9, -1, 2, -2] = Left ["wrong -1"]
+   foldM f [] [1, 9] = Right [9,1]  */
+// Judgment 26. D |- phi ~> D'
+// This is where interesting things actually happen (each line is interpreted and added to the translation)
+
+const translateLine = (trans: Translation, stmt: Stmt): Either<StyErrors, Translation> => {
 
   // TODO < 
   // addPath
@@ -675,33 +813,100 @@ const translateLine = () => {
   // TODO <
   // deletePath
 
-};
-
-const translateBlock = () => {
-
-  // TODO < 
-  // substituteBlock
-  // TODO < 
-  // translateLine
+  return Right(trans);
 
 };
 
-const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: Translation, hb: HeaderBlock): Either<StyErrors, Translation> => {
+// Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
+const translateBlock = (name: MaybeVal<string>, blockWithNum: [Block, number], trans: Translation, substWithNum: [Subst, number]): Either<StyErrors, Translation> => {
+  const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
+  return foldM(blockSubsted.statements, translateLine, trans);
+};
+
+// Judgment 24. [theta]; D |- |B ~> D'
+// This is a selector, not a namespace, so we substitute local vars with the subst/block IDs
+const translateSubstsBlock = (trans: Translation, substsNum: [Subst, number][], blockWithNum: [Block, number]): Either<StyErrors, Translation> => {
+  return foldM(substsNum, (trans, substNum, i) => translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum), trans);
+};
+
+const checkBlock = (selEnv: SelEnv, block: Block): StyErrors => {
+  // COMBAK: Block checking and return block errors, not generic sty errors
+  return [];
+};
+
+// Judgment 23, contd.
+const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: Translation, hb: HeaderBlock, blockNum: number): Either<StyErrors, Translation> => {
+
+  if (hb.header.tag === "Namespace") {
+    const selEnv = initSelEnv();
+    const bErrs = checkBlock(selEnv, hb.block); // COMBAK
+    if (selEnv.sErrors.length > 0 || bErrs.length > 0) {
+      // This is a namespace, not selector, so we substitute local vars with the namespace's name
+      // skip transSubstsBlock; only one subst
+      return {
+        tag: "Left",
+        contents: selEnv.sErrors.concat(bErrs)
+      }
+    }
+    const subst = {};
+    // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
+    // console.error("hb", hb);
+    console.error("hb header contents", hb.header.contents);
+    const info = hb.header.contents as any; // COMBAK / ISSUE #442: This seems to not be wrapped in StyVar
+    return translateBlock({ tag: "Just", contents: info.value as any as string }, [hb.block, blockNum], trans, [subst, 0]);
+
+  } else if (hb.header.tag === "Selector") {
+    const selEnv = checkHeader(varEnv, hb.header);
+    const bErrs = checkBlock(selEnv, hb.block); // COMBAK
+
+    // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
+    // skip this block (because the Substance variable won't exist in the translation)
+
+    if (selEnv.skipBlock) {
+      return Right(trans);
+    }
+
+    if (selEnv.sErrors.length > 0 || bErrs.length > 0) {
+      return {
+        tag: "Left",
+        contents: selEnv.sErrors.concat(bErrs)
+      };
+    }
+
+    // For creating unique local var names
+    const substs = findSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv]);
+    return translateSubstsBlock(trans, numbered(substs), [hb.block, blockNum]);
+
+  } else throw Error("unknown tag");
+};
+
+const insertNames = (trans: Translation): Translation => {
   // TODO <
-  // Put in int
-  return Left([]);
+  return trans;
+
+};
+
+const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
+  // TODO <
+  return trans;
 };
 
 const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styProg: StyProg, labelMap: LabelMap, styVals: number[]): Either<StyErrors, Translation> => {
   // COMBAK: Deal with styVals
 
-  // TODO: Test foldM; put in int
-  const res = foldM(styProg.blocks, (trans, hb) => translatePair(varEnv, subEnv, subProg, trans, hb), initTrans());
-  // const res = styProg.blocks.reduce((trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i));
+  const res = foldM(styProg.blocks, (trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i), initTrans());
 
-  // TODO <
-  return Left([]);
+  if (isLeft(res)) { return res; } // Return errors
 
+  const trans = res.contents;
+  const transWithNames = insertNames(trans); // TODO
+  const transWithNamesAndLabels = insertLabels(transWithNames, labelMap); // TODO
+
+  // COMBAK: Do this with plugins
+  // const styValMap = styJsonToMap(styVals);
+  // const transWithPlugins = evalPluginAccess(styValMap, transWithNamesAndLabels);
+  // return Right(transWithPlugins);
+  return Right(transWithNamesAndLabels);
 };
 
 //#endregion
@@ -717,7 +922,7 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
 
   // Types from compileTrio
   const state: State = info[0];
-  // const env: VarEnv = info[1]; -- This is redundant with subOut
+  // const env: VarEnv = info[1]; // This is redundant with subOut
   // const styProgInit: StyProg = info[2];
   const styProgInit: StyProg = styJSON.default;
   const subOut: SubOut = info[3];

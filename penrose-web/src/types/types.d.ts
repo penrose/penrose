@@ -1446,6 +1446,21 @@ type SelEnv = ISelEnv;
 // COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
 type Subst = { [k: string]: Var };
 
+type LocalVarSubst = LocalVarId | NamespaceId;
+
+interface LocalVarId {
+  tag: "LocalVarId";
+  contents: [number, number];
+  // Index of the block, paired with the index of the current substitution
+  // Should be unique across blocks and substitutions
+};
+
+interface NamespaceId {
+  tag: "NamespaceId"
+  contents: string;
+  // Namespace's name, e.g. things that are parsed as local vars (e.g. Const { red ... }) get turned into paths "Const.red"
+}
+
 //#endregion
 
 //#region AST nodes
@@ -1477,13 +1492,13 @@ type StyErrors = string[];
 // TODO: Convert this to StyleError[]
 
 interface Left<A> {
-  value: A;
-  tag: 'left'
+  tag: 'Left'
+  contents: A;
 }
 
 interface Right<B> {
-  value: B;
-  tag: 'right'
+  tag: 'Right'
+  contents: B;
 }
 
 type Either<A, B> = Left<A> | Right<B>;
