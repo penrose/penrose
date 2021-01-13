@@ -196,8 +196,8 @@ const nth = (n: number) => {
 
 // Node constructors
 
-const declList = (type: StyT, ids: BindingForm[]) => {
-  const decl = (t: StyT, i: BindingForm) => ({
+const declList = (type: StyT, ids: BindingForm[]): DeclPattern[] => {
+  const decl = (t: StyT, i: BindingForm): DeclPattern => ({
     ...rangeFrom([t, i]),
     tag: "DeclPattern",
     type: t,
@@ -268,7 +268,7 @@ const grammar: Grammar = {
   Lexer: lexer,
   ParserRules: [
     {"name": "input", "symbols": ["_ml", "header_blocks"], "postprocess": 
-        ([, blocks]) => ({
+        ([, blocks]): StyProg => ({
           ...rangeFrom(blocks),
           tag: "StyProg",
           blocks
@@ -327,8 +327,8 @@ const grammar: Grammar = {
         }
         },
     {"name": "decl_patterns", "symbols": ["decl_patterns$macrocall$1"], "postprocess":  
-        ([d]) => {
-          const contents = flatten(d) as ASTNode[];
+        ([d]): DeclPatterns => {
+          const contents = flatten(d) as DeclPattern[];
           return {
             ...rangeFrom(contents),
             tag: "DeclPatterns", contents
@@ -352,7 +352,7 @@ const grammar: Grammar = {
         }
         },
     {"name": "decl_list", "symbols": ["identifier", "__", "decl_list$macrocall$1"], "postprocess":  
-        ([type, , ids]) => {
+        ([type, , ids]): DeclPattern[] => {
           return declList(type, ids);
         }
         },
@@ -373,7 +373,8 @@ const grammar: Grammar = {
           } else return first;
         }
         },
-    {"name": "relation_list", "symbols": ["relation_list$macrocall$1"], "postprocess":  ([d]) => ({
+    {"name": "relation_list", "symbols": ["relation_list$macrocall$1"], "postprocess":  
+        ([d]): RelationPatterns => ({
           ...rangeFrom(d),
           tag: "RelationPatterns",
           contents: d
@@ -382,7 +383,7 @@ const grammar: Grammar = {
     {"name": "relation", "symbols": ["rel_bind"], "postprocess": id},
     {"name": "relation", "symbols": ["rel_pred"], "postprocess": id},
     {"name": "rel_bind", "symbols": ["binding_form", "_", {"literal":":="}, "_", "sel_expr"], "postprocess": 
-        ([id, , , , expr]) => ({
+        ([id, , , , expr]): RelBind => ({
           ...rangeFrom([id, expr]),
           tag: "RelBind",
           id, expr
@@ -413,13 +414,14 @@ const grammar: Grammar = {
         }
         },
     {"name": "sel_expr_list", "symbols": ["_", "sel_expr_list$macrocall$1", "_"], "postprocess": nth(1)},
-    {"name": "sel_expr", "symbols": ["identifier", "_", {"literal":"("}, "sel_expr_list", {"literal":")"}], "postprocess":  ([name, , , args, ]) => ({
+    {"name": "sel_expr", "symbols": ["identifier", "_", {"literal":"("}, "sel_expr_list", {"literal":")"}], "postprocess":  
+        ([name, , , args, ]): SEFuncOrValCons => ({
           ...rangeFrom([name, ...args]),
           tag: "SEFuncOrValCons",
           name, args
         }) 
           },
-    {"name": "sel_expr", "symbols": ["binding_form"], "postprocess": ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
+    {"name": "sel_expr", "symbols": ["binding_form"], "postprocess": ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
     {"name": "pred_arg_list", "symbols": ["_"], "postprocess": d => []},
     {"name": "pred_arg_list$macrocall$2", "symbols": ["pred_arg"]},
     {"name": "pred_arg_list$macrocall$3", "symbols": [{"literal":","}]},
@@ -439,17 +441,17 @@ const grammar: Grammar = {
         },
     {"name": "pred_arg_list", "symbols": ["_", "pred_arg_list$macrocall$1", "_"], "postprocess": nth(1)},
     {"name": "pred_arg", "symbols": ["rel_pred"], "postprocess": id},
-    {"name": "pred_arg", "symbols": ["binding_form"], "postprocess": ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
+    {"name": "pred_arg", "symbols": ["binding_form"], "postprocess": ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
     {"name": "binding_form", "symbols": ["subVar"], "postprocess": id},
     {"name": "binding_form", "symbols": ["styVar"], "postprocess": id},
     {"name": "subVar", "symbols": [{"literal":"`"}, "identifier", {"literal":"`"}], "postprocess": 
-        d => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
+        (d): SubVar => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
         },
     {"name": "styVar", "symbols": ["identifier"], "postprocess": 
-        d => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
+        (d): StyVar => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
         },
     {"name": "select_as", "symbols": [{"literal":"as"}, "__", "namespace"], "postprocess": nth(2)},
-    {"name": "namespace", "symbols": ["identifier", "_ml"], "postprocess": 
+    {"name": "namespace", "symbols": ["styVar", "_ml"], "postprocess": 
         (d): Namespace => ({
           ...rangeFrom([d[0]]),
           tag: "Namespace",
@@ -457,8 +459,9 @@ const grammar: Grammar = {
         })
         },
     {"name": "block", "symbols": [{"literal":"{"}, "statements", {"literal":"}"}], "postprocess":  
-        ([lbrace, stmts, rbrace]) => ({
+        ([lbrace, stmts, rbrace]): Block => ({
           ...rangeBetween(lbrace, rbrace),
+          tag: "Block",
           statements: stmts
         })
         },
@@ -469,9 +472,9 @@ const grammar: Grammar = {
     {"name": "statement", "symbols": ["delete"], "postprocess": id},
     {"name": "statement", "symbols": ["override"], "postprocess": id},
     {"name": "statement", "symbols": ["path_assign"], "postprocess": id},
-    {"name": "statement", "symbols": ["anonymous_expr"], "postprocess": ([d]) => ({...rangeOf(d), tag: "AnonAssign", contents: d})},
+    {"name": "statement", "symbols": ["anonymous_expr"], "postprocess": ([d]): IAnonAssign => ({...rangeOf(d), tag: "AnonAssign", contents: d})},
     {"name": "delete", "symbols": [{"literal":"delete"}, "__", "path"], "postprocess": 
-        (d) => {
+        (d): Delete => {
          return {
           ...rangeBetween(d[0], d[2]),
           tag: "Delete",
@@ -479,19 +482,19 @@ const grammar: Grammar = {
         }}
         },
     {"name": "override", "symbols": [{"literal":"override"}, "__", "path", "_", {"literal":"="}, "_", "assign_expr"], "postprocess": 
-        ([kw, , path, , , , expr]) => ({ 
-          ...rangeBetween(kw, expr),
+        ([kw, , path, , , , value]): IOverride => ({ 
+          ...rangeBetween(kw, value),
           tag: "Override",
-          path, expr
+          path, value
         })
         },
     {"name": "path_assign$ebnf$1", "symbols": ["type"], "postprocess": id},
     {"name": "path_assign$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "path_assign", "symbols": ["path_assign$ebnf$1", "__", "path", "_", {"literal":"="}, "_", "assign_expr"], "postprocess": 
-        ([type, , path, , , , expr]) => ({ 
-          ...rangeBetween(type ? type : path, expr),
+        ([type, , path, , , , value]): PathAssign => ({ 
+          ...rangeBetween(type ? type : path, value),
           tag: "PathAssign",
-          type, path, expr
+          type, path, value
         })
         },
     {"name": "type", "symbols": ["identifier"], "postprocess": ([d]): StyType => ({...rangeOf(d), tag: 'TypeOf', contents: d})},
@@ -548,20 +551,20 @@ const grammar: Grammar = {
     {"name": "expr", "symbols": ["arithmeticExpr"], "postprocess": id},
     {"name": "parenthesized", "symbols": [{"literal":"("}, "_", "arithmeticExpr", "_", {"literal":")"}], "postprocess": nth(2)},
     {"name": "parenthesized", "symbols": ["expr_literal"], "postprocess": id},
-    {"name": "unary", "symbols": [{"literal":"-"}, "_", "parenthesized"], "postprocess":  (d) => 
+    {"name": "unary", "symbols": [{"literal":"-"}, "_", "parenthesized"], "postprocess":  (d): IUOp => 
         ({
           ...rangeBetween(d[0], d[2]),
           tag: 'UOp', op: "UMinus", arg: d[2]
         }) 
           },
     {"name": "unary", "symbols": ["parenthesized"], "postprocess": id},
-    {"name": "factor", "symbols": ["unary", "_", {"literal":"^"}, "_", "factor"], "postprocess": (d) => binop('Exp', d[0], d[4])},
+    {"name": "factor", "symbols": ["unary", "_", {"literal":"^"}, "_", "factor"], "postprocess": (d): IBinOp => binop('Exp', d[0], d[4])},
     {"name": "factor", "symbols": ["unary"], "postprocess": id},
-    {"name": "term", "symbols": ["term", "_", {"literal":"*"}, "_", "factor"], "postprocess": (d) => binop('Multiply', d[0], d[4])},
-    {"name": "term", "symbols": ["term", "_", {"literal":"/"}, "_", "factor"], "postprocess": (d) => binop('Divide', d[0], d[4])},
+    {"name": "term", "symbols": ["term", "_", {"literal":"*"}, "_", "factor"], "postprocess": (d): IBinOp => binop('Multiply', d[0], d[4])},
+    {"name": "term", "symbols": ["term", "_", {"literal":"/"}, "_", "factor"], "postprocess": (d): IBinOp => binop('Divide', d[0], d[4])},
     {"name": "term", "symbols": ["factor"], "postprocess": id},
-    {"name": "arithmeticExpr", "symbols": ["arithmeticExpr", "_", {"literal":"+"}, "_", "term"], "postprocess": (d) => binop('BPlus', d[0], d[4])},
-    {"name": "arithmeticExpr", "symbols": ["arithmeticExpr", "_", {"literal":"-"}, "_", "term"], "postprocess": (d) => binop('BMinus', d[0], d[4])},
+    {"name": "arithmeticExpr", "symbols": ["arithmeticExpr", "_", {"literal":"+"}, "_", "term"], "postprocess": (d): IBinOp => binop('BPlus', d[0], d[4])},
+    {"name": "arithmeticExpr", "symbols": ["arithmeticExpr", "_", {"literal":"-"}, "_", "term"], "postprocess": (d): IBinOp => binop('BMinus', d[0], d[4])},
     {"name": "arithmeticExpr", "symbols": ["term"], "postprocess": id},
     {"name": "expr_literal", "symbols": ["bool_lit"], "postprocess": id},
     {"name": "expr_literal", "symbols": ["string_lit"], "postprocess": id},
@@ -614,10 +617,10 @@ const grammar: Grammar = {
           },
     {"name": "layering$ebnf$1", "symbols": ["layer_keyword"], "postprocess": id},
     {"name": "layering$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "layering", "symbols": ["layering$ebnf$1", "path", "__", {"literal":"below"}, "__", "path"], "postprocess": d => layering(d[0], d[1], d[5])},
+    {"name": "layering", "symbols": ["layering$ebnf$1", "path", "__", {"literal":"below"}, "__", "path"], "postprocess": (d): ILayering => layering(d[0], d[1], d[5])},
     {"name": "layering$ebnf$2", "symbols": ["layer_keyword"], "postprocess": id},
     {"name": "layering$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "layering", "symbols": ["layering$ebnf$2", "path", "__", {"literal":"above"}, "__", "path"], "postprocess": d => layering(d[0], d[5], d[1])},
+    {"name": "layering", "symbols": ["layering$ebnf$2", "path", "__", {"literal":"above"}, "__", "path"], "postprocess": (d): ILayering => layering(d[0], d[5], d[1])},
     {"name": "layer_keyword", "symbols": [{"literal":"layer"}, "__"], "postprocess": nth(0)},
     {"name": "computation_function", "symbols": ["identifier", "_", {"literal":"("}, "expr_list", {"literal":")"}], "postprocess":  
         ([name, , , args, rparen]): ICompApp => ({
@@ -670,14 +673,14 @@ const grammar: Grammar = {
     {"name": "property_decl_list", "symbols": ["_", "property_decl", "_"], "postprocess": d => [d[1]]},
     {"name": "property_decl_list", "symbols": ["_", "property_decl", "_c_", {"literal":"\n"}, "property_decl_list"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "property_decl", "symbols": ["identifier", "_", {"literal":":"}, "_", "expr"], "postprocess": 
-        ([name, , , , value]) => ({
+        ([name, , , , value]): PropertyDecl => ({
           ...rangeBetween(name, value),
           tag: "PropertyDecl",
           name, value
         })
         },
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
-        ([d]) => ({
+        ([d]): Identifier => ({
           ...rangeOf(d),
           tag: 'Identifier',
           value: d.text,

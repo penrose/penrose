@@ -188,8 +188,8 @@ const nth = (n: number) => {
 
 // Node constructors
 
-const declList = (type: StyT, ids: BindingForm[]) => {
-  const decl = (t: StyT, i: BindingForm) => ({
+const declList = (type: StyT, ids: BindingForm[]): DeclPattern[] => {
+  const decl = (t: StyT, i: BindingForm): DeclPattern => ({
     ...rangeFrom([t, i]),
     tag: "DeclPattern",
     type: t,
@@ -262,7 +262,7 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
 
 # TODO: header_blocks gets called twice here. Investigate why
 input -> _ml header_blocks {%
-  ([, blocks]) => ({
+  ([, blocks]): StyProg => ({
     ...rangeFrom(blocks),
     tag: "StyProg",
     blocks
@@ -300,8 +300,8 @@ forall -> "forall" __ {% nth(0) %}
 select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
-  ([d]) => {
-    const contents = flatten(d) as ASTNode[];
+  ([d]): DeclPatterns => {
+    const contents = flatten(d) as DeclPattern[];
     return {
       ...rangeFrom(contents),
       tag: "DeclPatterns", contents
@@ -310,14 +310,15 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
 %}
 
 decl_list -> identifier __ sepBy1[binding_form, ","] {% 
-  ([type, , ids]) => {
+  ([type, , ids]): DeclPattern[] => {
     return declList(type, ids);
   }
 %}
 
 select_where -> "where" __ relation_list _ml {% d => d[2] %}
 
-relation_list -> sepBy1[relation, ";"]  {% ([d]) => ({
+relation_list -> sepBy1[relation, ";"]  {% 
+  ([d]): RelationPatterns => ({
     ...rangeFrom(d),
     tag: "RelationPatterns",
     contents: d
@@ -329,7 +330,7 @@ relation
   |  rel_pred {% id %}
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
-  ([id, , , , expr]) => ({
+  ([id, , , , expr]): RelBind => ({
     ...rangeFrom([id, expr]),
     tag: "RelBind",
     id, expr
@@ -349,13 +350,14 @@ sel_expr_list
   |  _ sepBy1[sel_expr, ","] _ {% nth(1) %}
 
 sel_expr 
-  -> identifier _ "(" sel_expr_list ")" {% ([name, , , args, ]) => ({
+  -> identifier _ "(" sel_expr_list ")" {% 
+    ([name, , , args, ]): SEFuncOrValCons => ({
       ...rangeFrom([name, ...args]),
       tag: "SEFuncOrValCons",
       name, args
     }) 
   %}
-  |  binding_form {% ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
 
 
 pred_arg_list 
@@ -366,7 +368,7 @@ pred_arg_list
 # Can't use sel_expr because sel_expr has valcons or func, which looks exactly the same as predicates. 
 pred_arg 
   -> rel_pred {% id %}
-  |  binding_form {% ([d]) => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
 
 binding_form 
   -> subVar {% id %} 
@@ -374,17 +376,17 @@ binding_form
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?
 subVar -> "`" identifier "`" {%
-  d => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
+  (d): SubVar => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
 %}
 
 styVar -> identifier {%
-  d => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
+  (d): StyVar => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
 %}
 
 # NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
 select_as -> "as" __ namespace {% nth(2) %}
 
-namespace -> identifier _ml {%
+namespace -> styVar _ml {%
   (d): Namespace => ({
     ...rangeFrom([d[0]]),
     tag: "Namespace",
@@ -397,8 +399,9 @@ namespace -> identifier _ml {%
 # Block grammar
 
 block -> "{" statements "}" {% 
-  ([lbrace, stmts, rbrace]) => ({
+  ([lbrace, stmts, rbrace]): Block => ({
     ...rangeBetween(lbrace, rbrace),
+    tag: "Block",
     statements: stmts
   })
 %}
@@ -418,10 +421,10 @@ statement
   |  override {% id %}
   |  path_assign {% id %}
   |  anonymous_expr 
-    {% ([d]) => ({...rangeOf(d), tag: "AnonAssign", contents: d}) %}
+    {% ([d]): IAnonAssign => ({...rangeOf(d), tag: "AnonAssign", contents: d}) %}
 
 delete -> "delete" __ path {%
-  (d) => {
+  (d): Delete => {
    return {
     ...rangeBetween(d[0], d[2]),
     tag: "Delete",
@@ -430,18 +433,18 @@ delete -> "delete" __ path {%
 %}
 
 override -> "override" __ path _ "=" _ assign_expr {%
-  ([kw, , path, , , , expr]) => ({ 
-    ...rangeBetween(kw, expr),
+  ([kw, , path, , , , value]): IOverride => ({ 
+    ...rangeBetween(kw, value),
     tag: "Override",
-    path, expr
+    path, value
   })
 %}
 
 path_assign -> type:? __ path _ "=" _ assign_expr {%
-  ([type, , path, , , , expr]) => ({ 
-    ...rangeBetween(type ? type : path, expr),
+  ([type, , path, , , , value]): PathAssign => ({ 
+    ...rangeBetween(type ? type : path, value),
     tag: "PathAssign",
-    type, path, expr
+    type, path, value
   })
 %}
 
@@ -529,7 +532,7 @@ parenthesized
 
 # Unary ops 
 unary 
-  -> "-" _ parenthesized  {% (d) => 
+  -> "-" _ parenthesized  {% (d): IUOp => 
     ({
       ...rangeBetween(d[0], d[2]),
       tag: 'UOp', op: "UMinus", arg: d[2]
@@ -539,19 +542,19 @@ unary
 
 # Exponents
 factor 
-  -> unary _ "^" _ factor {% (d) => binop('Exp', d[0], d[4]) %}
+  -> unary _ "^" _ factor {% (d): IBinOp => binop('Exp', d[0], d[4]) %}
   |  unary                {% id %}
 
 # Multiplication and division
 term 
-  -> term _ "*" _ factor  {% (d) => binop('Multiply', d[0], d[4]) %}
-  |  term _ "/" _ factor  {% (d) => binop('Divide', d[0], d[4]) %}
+  -> term _ "*" _ factor  {% (d): IBinOp => binop('Multiply', d[0], d[4]) %}
+  |  term _ "/" _ factor  {% (d): IBinOp => binop('Divide', d[0], d[4]) %}
   |  factor               {% id %}
 
 # Addition and subtraction
 arithmeticExpr 
-  -> arithmeticExpr _ "+" _ term {% (d) => binop('BPlus', d[0], d[4]) %}
-  |  arithmeticExpr _ "-" _ term {% (d) => binop('BMinus', d[0], d[4]) %}
+  -> arithmeticExpr _ "+" _ term {% (d): IBinOp => binop('BPlus', d[0], d[4]) %}
+  |  arithmeticExpr _ "-" _ term {% (d): IBinOp => binop('BMinus', d[0], d[4]) %}
   |  term                        {% id %}
 
 # NOTE: all of the expr_literal can be operands of inline computation 
@@ -626,8 +629,10 @@ annotated_float
   %}
 
 layering
-  -> layer_keyword:? path __ "below" __ path {% d => layering(d[0], d[1], d[5]) %}
-  |  layer_keyword:? path __ "above" __ path {% d => layering(d[0], d[5], d[1]) %}
+  -> layer_keyword:? path __ "below" __ path 
+    {% (d): ILayering => layering(d[0], d[1], d[5]) %}
+  |  layer_keyword:? path __ "above" __ path 
+    {% (d): ILayering => layering(d[0], d[5], d[1]) %}
 
 layer_keyword -> "layer" __ {% nth(0) %}
 
@@ -679,7 +684,7 @@ property_decl_list
     |  _ property_decl _c_ "\n" property_decl_list {% d => [d[1], ...d[4]] %}
   
 property_decl -> identifier _ ":" _ expr {%
-  ([name, , , , value]) => ({
+  ([name, , , , value]): PropertyDecl => ({
     ...rangeBetween(name, value),
     tag: "PropertyDecl",
     name, value
@@ -689,7 +694,7 @@ property_decl -> identifier _ ":" _ expr {%
 # Common 
 
 identifier -> %identifier {% 
-  ([d]) => ({
+  ([d]): Identifier => ({
     ...rangeOf(d),
     tag: 'Identifier',
     value: d.text,
