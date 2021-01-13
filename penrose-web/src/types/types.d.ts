@@ -84,11 +84,10 @@ interface IPending<T> {
 }
 
 type Expr =
-  | IIntLit
-  | IAFloat
+  // | IIntLit
+  | AnnoFloat
   | IStringLit
   | IBoolLit
-  // | IEvar
   | Path // NOTE: changed from EPath
   | ICompApp
   | IObjFn
@@ -166,7 +165,7 @@ interface IAvoidFn {
 type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
 
 // NOTE: unary + operator not parsed, as they don't change values
-type UnaryOp = "UPlus";
+type UnaryOp = "UMinus";
 interface IBinOp extends ASTNode {
   tag: "BinOp";
   op: BinaryOp;
