@@ -1,7 +1,7 @@
 HyperbolicPlane H
 IdealPoint pi, pj, pk
-Horocycle hi, hj, hk
---Geodesic a
+--Horocycle hi, hj, hk
+Geodesic a
 
 pi ∈ H
 pj ∈ H
@@ -11,8 +11,8 @@ Geodesic gij := pi <-> pj
 Geodesic gjk := pj <-> pk
 Geodesic gki := pk <-> pi
 
---PerpendicularAt( a, gij, pk )
+PerpendicularAt( a, gij, pk )
 
-IsCenter( pi, hi )
-IsCenter( pj, hj )
-IsCenter( pk, hk )
+-- IsCenter( pi, hi )
+-- IsCenter( pj, hj )
+-- IsCenter( pk, hk )

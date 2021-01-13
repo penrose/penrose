@@ -127,8 +127,6 @@ where g := MakeGeodesic( p, q )
 forall Geodesic g; Geodesic h; IdealPoint p; HyperbolicPlane H
 where PerpendicularAt( g, h, p ); In( p, H )
 {
-   -- ensure equalTo( g.shape.r, h.shape.r )
-
    vec2 P = p.dotShape.center
    vec2 Cg = g.shape.center
    vec2 Ch = h.shape.center
@@ -136,11 +134,22 @@ where PerpendicularAt( g, h, p ); In( p, H )
 
    -- ensure that g passes through p
    ensure equalTo( Rg, norm( Cg - P ))
-   --ensure equalTo( square(Rg), norm2( Cg - P ))
 
    -- also ensure that g and h are orthogonal
    ensure orthogonalCircles( g.shape, h.shape )
 }
 
+IdealPoint `pi`
+{
+   override `pi`.angle = 0.0
+}
 
+IdealPoint `pj`
+{
+   override `pj`.angle = 2.0*3.1415926/3.0
+}
 
+IdealPoint `pk`
+{
+   override `pk`.angle = 4.0*3.1415926/3.0
+}

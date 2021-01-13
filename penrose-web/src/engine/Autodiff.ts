@@ -747,6 +747,14 @@ export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
   return v;
 };
 
+export const vdebug = (v: VarAD[], debugInfo = "no additional info"): VarAD[] => {
+   for( let e of v ) {
+      e.debug = true;
+      e.debugInfo = debugInfo;
+   }
+   return v;
+}
+
 const opMap = {
   "+": {
     fn: (x: number, y: number): number => x + y,

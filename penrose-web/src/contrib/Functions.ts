@@ -11,6 +11,7 @@ import {
   add,
   addN,
   max,
+  min,
   div,
   mul,
   cos,
@@ -18,7 +19,9 @@ import {
   neg,
   sqrt,
   squared,
-  arccos
+  arccos,
+  debug,
+  vdebug
 } from "engine/Autodiff";
 
 /**
@@ -232,7 +235,15 @@ export const compDict = {
   angleBetween: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: arccos(ops.vdot(ops.vunit(u), ops.vunit(v))),
+      //contents: arccos(ops.vdot(vdebug(ops.vunit(u), "normalized u"), ops.vunit(v))),
+      //contents: arccos(ops.vdot(ops.vunit(u), ops.vunit(v))),
+      contents: arccos(
+         max( constOf(-1.),
+            min( constOf(1.),
+               ops.vdot(ops.vunit(u), ops.vunit(v))
+            )
+         )
+      ),
     };
   },
 
