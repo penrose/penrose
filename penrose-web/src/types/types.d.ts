@@ -127,10 +127,11 @@ interface IBoolLit extends ASTNode {
   contents: boolean;
 }
 
-interface IEVar {
-  tag: "EVar";
-  contents: LocalVar;
-}
+// COMBAK: This seems to be unused, delete
+// interface IEVar {
+//   tag: "EVar";
+//   contents: LocalVar;
+// }
 
 // NOTE: no longer using EPath, and use Path instead in Expr
 // interface IEPath {
@@ -253,7 +254,7 @@ interface PropertyDecl extends ASTNode {
 }
 
 // TODO: check how the evaluator/compiler should interact with ASTNode
-type Path = IFieldPath | IPropertyPath | IAccessPath | ILocalVar;
+type Path = IFieldPath | IPropertyPath | IAccessPath | LocalVar | IInternalLocalVar;
 // LocalVar is only used internally by the compiler
 // Unused
 // | ITypePropertyPath;
@@ -277,7 +278,13 @@ interface IAccessPath extends ASTNode {
   indices: number[];
 }
 
-interface ILocalVar extends ASTNode { // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
+// COMBAK: This is named inconsistently since the parser calls it `LocalVar`, should be ILocalVar
+interface LocalVar extends ASTNode {
+  tag: "LocalVar";
+  contents: Identifier;
+}
+
+interface IInternalLocalVar extends ASTNode { // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
   tag: "InternalLocalVar";
   contents: string;
 }
@@ -296,11 +303,6 @@ interface SubVar extends ASTNode {
 
 interface StyVar extends ASTNode {
   tag: "StyVar";
-  contents: Identifier;
-}
-
-interface LocalVar extends ASTNode {
-  tag: "LocalVar";
   contents: Identifier;
 }
 

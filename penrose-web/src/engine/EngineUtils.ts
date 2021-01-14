@@ -350,18 +350,8 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
         trans.trMap[name.contents.value] = {};
       }
 
-      if (!(typeof field.value === "string")) {
-        console.error("field", field);
-        console.error("field", field.value);
-        throw Error("fail");
-      }
-
-      // COMBAK: ISSUE field.value
-      const key = (typeof field.value === "string") ? field.value : (field.value as any).value;
-      console.log("key", key);
-
       // NOTE: this will overwrite existing expressions
-      trans.trMap[name.contents.value][key] = { tag: "FExpr", contents: expr };
+      trans.trMap[name.contents.value][field.value] = { tag: "FExpr", contents: expr };
       return trans;
     }
 
@@ -376,7 +366,6 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
 
       console.log("trans", trans.trMap, trans.trMap[name.contents.value]);
 
-      // COMBAK: ISSUE field.value?
       const gpi: FieldExpr<IVarAD> = trans.trMap[name.contents.value][field.value];
 
       if (gpi.tag === "FExpr") {

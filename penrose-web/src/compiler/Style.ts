@@ -382,6 +382,21 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
       ...path,
       name: substituteBform({ tag: "Just", contents: lv }, subst, path.name)
     };
+  } else if (path.tag === "LocalVar") {
+    return {
+      start: dummySourceLoc(),
+      end: dummySourceLoc(),
+      tag: "FieldPath",
+      name: {
+        start: dummySourceLoc(),
+        end: dummySourceLoc(),
+        tag: "SubVar",
+        contents: {
+          ...dummyIdentifier(mkLocalVarName(lv))
+        }
+      },
+      field: path.contents
+    };
   } else if (path.tag === "InternalLocalVar") {
     // Note that the local var becomes a path
     // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
@@ -409,25 +424,6 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
       path: substitutePath(lv, subst, path.path)
     };
   } else {
-    // COMBAK / ISSUE: This case shouldn't be here
-    if ((path as any).tag === "LocalVar") {
-      console.error("unexpected tag", path);
-
-      return {
-        start: dummySourceLoc(),
-        end: dummySourceLoc(),
-        tag: "FieldPath",
-        name: {
-          start: dummySourceLoc(),
-          end: dummySourceLoc(),
-          tag: "SubVar",
-          contents: {
-            ...dummyIdentifier(mkLocalVarName(lv))
-          }
-        },
-        field: (path as any).contents // COMBAK ? ISSUE
-      };
-    }
     throw Error("unknown tag");
   }
 };
