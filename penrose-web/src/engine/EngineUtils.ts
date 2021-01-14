@@ -326,6 +326,17 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
   };
 };
 
+const mkPropertyDict = (decls: PropertyDecl[]): { [k: string]: TagExpr<VarAD> } => {
+  const gpi = {};
+
+  for (let decl of decls) {
+    // TODO (error/warning): Warn if any of these properties are duplicated or do not exist in the shape constructor
+    gpi[decl.name.value] = { tag: "OptEval", contents: decl.value };
+  }
+
+  return gpi;
+};
+
 /**
  * Insert an expression into the translation (mutating it), returning a reference to the mutated translation for convenience
  * @param path path to a field or property
@@ -333,44 +344,57 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
  * @param initTrans initial translation
  *
  */
+
+// This function is a combination of `addField` and `addProperty` from `Style.hs`
 export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translation): Translation => {
   const trans = initTrans;
   let name, field, prop;
 
-  console.log("path", path, expr);
+  // console.log("insertExpr: path, expr", path, expr);
+  // COMBAK: Deal with path aliasing for both field and property paths
 
   switch (path.tag) {
     case "FieldPath": {
       [name, field] = [path.name, path.field];
 
-      console.log("insertExpr", path, expr);
-      console.log("name, field", name.contents.value, field, trans.trMap[name.contents.value]);
-
+      // Initialize the field dict if it hasn't been initialized
       if (!trans.trMap[name.contents.value]) {
         trans.trMap[name.contents.value] = {};
       }
 
+      let fexpr: FieldExpr<VarAD> = { tag: "FExpr", contents: expr };
+
+      // If it's a GPI, instantiate it (rule Line-Set-Ctor); otherwise put it in the translation as-is
+      if (expr.tag === "OptEval") {
+        const gpi: Expr = expr.contents;
+        if (gpi.tag === "GPIDecl") {
+          const [nm, decls]: [Identifier, PropertyDecl[]] = [gpi.shapeName, gpi.properties];
+
+          fexpr = {
+            tag: "FGPI",
+            contents: [nm.value, mkPropertyDict(decls)]
+          };
+        }
+      }
+
+      // For any non-GPI thing, just put it in the translation
       // NOTE: this will overwrite existing expressions
-      trans.trMap[name.contents.value][field.value] = { tag: "FExpr", contents: expr };
+      // TODO: warning / error here
+      trans.trMap[name.contents.value][field.value] = fexpr;
       return trans;
     }
 
     case "PropertyPath": {
       [name, field, prop] = [path.name, path.field, path.property];
 
-      console.log("info0", path.name, path.field, path.property);
-      console.log("info1", name.contents.value, field.value);
       if (!trans.trMap[name.contents.value]) {
         trans.trMap[name.contents.value] = {};
       }
-
-      console.log("trans", trans.trMap, trans.trMap[name.contents.value]);
 
       const gpi: FieldExpr<IVarAD> = trans.trMap[name.contents.value][field.value];
 
       if (gpi.tag === "FExpr") {
         // TODO (error)
-        console.log("gpi", gpi);
         throw Error("expected GPI");
       } else if (gpi.tag === "FGPI") {
         const [, properties] = gpi.contents;

@@ -1000,8 +1000,8 @@ const translateBlock = (name: MaybeVal<string>, blockWithNum: [Block, number], t
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
 
   // TODO: Remove these lines
-  console.error("block pre-subst", blockWithNum);
-  console.error("block post-subst", blockSubsted);
+  // console.error("block pre-subst", blockWithNum);
+  // console.error("block post-subst", blockSubsted);
 
   return foldM(blockSubsted.statements, translateLine, trans);
 };
@@ -1093,9 +1093,21 @@ const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styP
 
 //#endregion
 
+//#region Gen opt problem
+
+// COMBAK: Add optConfig as param?
+const genOptProblemAndState = (trans: Translation): State => {
+
+  // TODO <
+  return {} as State;
+
+};
+
+//#endregion
+
 // TODO: Improve this type signature
 // export const compileStyle = (env: VarEnv, subAST: SubProg, styAST: StyProg): State => {
-export const compileStyle = (stateJSON: any, styJSON: any): State => {
+export const compileStyle = (stateJSON: any, styJSON: any): Either<StyErrors, State> => {
 
   const info = stateJSON.default.contents;
   console.log("compiling style (stateJSON)", info);
@@ -1137,14 +1149,23 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
 
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
-  const trans = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals);
+  const translateRes = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals);
 
-  // Gen opt problem and state
-  // TODO <
+  console.log("translation (before genOptProblem)", translateRes);
+  console.error("Note that translation does not yet have names and labels inserted"); // COMBAK: Remove this when done
 
-  // Compute layering
-  // TODO(@wodeni)
+  // Translation failed somewhere. TODO (errors/warnings)
+  if (translateRes.tag === "Left") {
+    return translateRes;
+  }
 
-  return {} as State;
+  const trans = translateRes.contents;
+  const initState = genOptProblemAndState(trans);
 
+  // Compute layering: TODO(@wodeni)
+
+  return {
+    tag: "Right",
+    contents: initState
+  };
 };

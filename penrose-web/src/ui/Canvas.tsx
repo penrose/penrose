@@ -50,7 +50,7 @@ class Canvas extends React.Component<ICanvasProps> {
    */
   public static processData = async (data: any) => {
     // COMBAK: Clean up this use
-    const res = compileStyle(stateJSON, styJSON);
+    const res: Either<StyErrors, State> = compileStyle(stateJSON, styJSON);
     throw Error("TODO: style compiler");
 
     const state: State = decodeState(data);
