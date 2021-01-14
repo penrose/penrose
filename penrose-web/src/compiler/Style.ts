@@ -1095,12 +1095,96 @@ const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styP
 
 //#region Gen opt problem
 
+const findVarying = (tr: Translation): Path[] => {
+  return []; // TODO <
+};
+
+const findUninitialized = (tr: Translation): Path[] => {
+  return []; // TODO <
+};
+
+const findShapeNames = (tr: Translation): [string, string][] => {
+  return []; // TODO <
+};
+
+const toPath = (xs: [string, string]): Path => {
+  return { tag: "InternalLocalVar", contents: "" } as Path; // TODO <
+};
+
+const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
+  return tr; // TODO <
+};
+
+const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
+  return tr; // TODO <
+}
+
+const findShapesProperties = (tr: Translation): [string, string, string][] => {
+  return []; // TODO <
+}
+
+const findFns = (tr: Translation): [Fn[], Fn[]] => {
+  return [[], []]; // TODO <
+};
+
+const findDefaultFns = (tr: Translation): [Fn[], Fn[]] => {
+  return [[], []]; // TODO <
+};
+
+export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
+  return [];
+  // TODO, call findExpr
+};
+
+const findPending = (tr: Translation): Path[] => {
+  return []; // TODO <
+};
+
 // COMBAK: Add optConfig as param?
 const genOptProblemAndState = (trans: Translation): State => {
 
-  // TODO <
-  return {} as State;
+  const varyingPaths = findVarying(trans);
+  const uninitializedPaths = findUninitialized(trans);
+  const shapePathList = findShapeNames(trans);
+  const shapePaths = shapePathList.map(toPath);
 
+  // COMBAK: Use pseudorandomness
+  const transInitFields = initFields(varyingPaths, trans);
+  const transInit = initShapes(transInitFields, shapePathList);
+
+  const shapeProperties = findShapesProperties(transInit);
+  const [objfnsDecl, constrfnsDecl] = findFns(transInit);
+  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInit)
+  const [objFns, constrFns] = [objfnsDecl.concat(objfnsDefault), constrfnsDecl.concat(constrfnsDefault)];
+
+  const initVaryingMap = {};
+  const [initialGPIs, transEvaled] = [[], transInit];
+  const initVaryingState = lookupNumericPaths(varyingPaths, transEvaled);
+  const pendingPaths = findPending(transInit);
+
+  const initState = {
+    shapes: initialGPIs, // ??
+    shapePaths,
+    shapeProperties,
+    shapeOrdering: [],
+    translation: transInit,
+    varyingPaths,
+    varyingValues: initVaryingState,
+    uninitializedPaths,
+    pendingPaths,
+    objFns,
+    constrFns,
+    originalTranslation: trans, // COMBAK: Make a copy of the inital trans and store it here
+
+    params: undefined as any, // Initialized by optimization; TODO: model with Maybe type
+    rng: undefined as any,
+    policyParams: undefined as any,
+    oConfig: undefined as any,
+    selectorMatches: undefined as any,
+    varyingMap: {} as any, // TODO: Should this be empty?
+  };
+
+  return initState;
 };
 
 //#endregion

@@ -51,9 +51,17 @@ class Canvas extends React.Component<ICanvasProps> {
   public static processData = async (data: any) => {
     // COMBAK: Clean up this use
     const res: Either<StyErrors, State> = compileStyle(stateJSON, styJSON);
-    throw Error("TODO: style compiler");
 
-    const state: State = decodeState(data);
+    if (res.tag === "Left") {
+      // TODO (error)
+      console.error("style error", res.contents);
+      throw Error("style error");
+    }
+
+    // TODO: Do this properly
+    // const state: State = decodeState(data);
+    const state: State = res.contents;
+    // throw Error("TODO: style compiler");
 
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
     // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)

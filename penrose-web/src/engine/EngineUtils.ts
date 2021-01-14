@@ -506,4 +506,62 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
   throw Error("shouldn't be reached");
 };
 
+/**
+ * Finds an expression in a translation given a field or property path.
+ * @param trans - a translation from `State`
+ * @param path - a path to an expression
+ * @returns an expression
+ *
+ * TODO: the optional type here exist because GPI is not an expression in Style yet. It's not the most sustainable pattern w.r.t to our current way to typecasting the result using `as`.
+ */
+export const findExpr = (
+  trans: Translation,
+  path: Path
+): TagExpr<VarAD> | IFGPI<VarAD> => {
+  let name, field, prop;
+
+  switch (path.tag) {
+    case "FieldPath":
+      [name, field] = [path.name.contents.value, path.field.value];
+      // Type cast to field expression
+      const fieldExpr = trans.trMap[name][field];
+
+      if (!fieldExpr) {
+        throw Error(
+          `Could not find field '${JSON.stringify(path)}' in translation`
+        );
+      }
+
+      switch (fieldExpr.tag) {
+        case "FGPI":
+          return fieldExpr;
+        case "FExpr":
+          return fieldExpr.contents;
+      }
+
+    case "PropertyPath":
+      [name, field, prop] = [path.name.contents.value, path.field.value, path.property.value];
+      // Type cast to FGPI and get the properties
+      const gpi = trans.trMap[name][field];
+
+      if (!gpi) {
+        throw Error(
+          `Could not find GPI '${JSON.stringify(path)}' in translation`
+        );
+      }
+
+      switch (gpi.tag) {
+        case "FExpr":
+          throw new Error("field path leads to an expression, not a GPI");
+        case "FGPI":
+          const [, propDict] = gpi.contents;
+          return propDict[prop];
+      }
+
+    case "AccessPath":
+      throw Error("TODO");
+  }
+  throw Error("shouldn't be reached");
+};
+
 //#endregion
