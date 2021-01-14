@@ -33,7 +33,7 @@ Create a "mod file" for your shape and place it in `mod/shapedefs/`. This must b
 - `shapeType` should correspond to the name for your shape in `../componentMap.tsx`. 
 - `properties` should be a nested object. Each 'entry' within `properties` must correspond to a property in `YOURSHAPE.tsx` (e.g. `Circle.tsx`).
 - Each property within `properties` should have the following subentries:
-    - An input type property `inputType` corresponding to the appropriate HTML input element you would like to use to customize that property. Currently supported types are `range`, `select`, `text`, `url`, `number`, `color`, `checkbox`. This entry is **required**.
+    - An input type property `inputType` corresponding to the appropriate HTML input element you would like to use to customize that property. Currently supported types are `range`, `select`, `text`, `url`, `number`, `color`, `checkbox`, `mulptrange`, `ptrange`. This entry is **required**.
     - A property `showValue`, set to either `"true"` or `"false"`. If set to `"true"`, the current value of the input element will be displayed next to the input element. For example, on a `range` input element, the user will not see the actual value of the slider in numeric form unless `showValue` is set to true. It is recommended that for `range` specifically, `showValue` is always set to `"true"` and all other input types `showValue` is `"false"`. If left out, this will default to `"false"`.
     - If the input type is `select`, there must be a subentry entitled `options`, which is an array of all possible options for the dropdown menu. This is **required**.
     - Any other [HTML input customization features](https://www.w3schools.com/html/html_form_input_types.asp). For example, the `range` input type takes in a `min` and `max` value respectively. You may provide your own values for these. If you do not choose to, such fields will take their HTML-defined default value. For instance, the `min` and `max` fields for `range` have default values of `0` and `100` respectively. 
@@ -57,5 +57,4 @@ After creating the mod file, add it to `mod/defmap.tsx`.
 
 - The `pathData` attribute is only modifiable if it contains a list of `IPt`. Currently does not work with Bezier curves.
 - If the types in `types.d.ts` change form, `LabeledInput.tsx` will likely need to be modified. For example, if the structure of `IPathData` is changed, attempting to modify the `pathData` attribute will result in a crash.
-- Does not support alpha customization for color attributes.
 - Uses the fact that the canvas is hardcoded. Needs to be updated when that changes.
