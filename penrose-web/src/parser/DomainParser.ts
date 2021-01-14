@@ -180,7 +180,7 @@ const grammar: Grammar = {
           tag: "SubTypeDecl", subType, superType
         })
         },
-    {"name": "var", "symbols": ["identifier"], "postprocess": ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name })},
+    {"name": "var", "symbols": ["identifier"], "postprocess": id},
     {"name": "type_var", "symbols": [{"literal":"'"}, "identifier"], "postprocess":  
         ([a, name]) => ({ ...rangeBetween(a, name), tag: "TypeVar", name }) 
         },

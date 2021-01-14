@@ -4,26 +4,44 @@ type CheckerResult = Result<DomainEnv, DomainError>;
 
 const toString = (error: DomainError): string => {
   switch (error.tag) {
-    case "TypeDeclaredError": {
+    case "TypeDeclared": {
       return `Name ${error.typeName} already exists in the context`;
+    }
+    case "TypeVarNotFound": {
+      return `Type variable ${error.typeVar} does not exist in the context`;
     }
   }
 };
 
 interface DomainEnv {
   types: Map<string, TypeDecl>;
+  typeVars: Map<string, TypeVar>;
+  vars: Map<string, Identifier>;
 }
+
+const initEnv = (): DomainEnv => ({
+  types: new Map(builtinTypes),
+  typeVars: new Map(),
+  vars: new Map(),
+});
+
+const safeChain = <Item, Ok, Error>(
+  itemList: Item[],
+  func: (nextItem: Item, currentResult: Ok) => Result<Ok, Error>,
+  initialResult: Result<Ok, Error>
+): Result<Ok, Error> =>
+  itemList.reduce(
+    (currentResult: Result<Ok, Error>, nextItem: Item) =>
+      andThen((res: Ok) => func(nextItem, res), currentResult),
+    initialResult
+  );
 
 export const checkDomain = (prog: DomainProg): CheckerResult => {
   const { statements } = prog;
   // load built-in types
   const env: DomainEnv = initEnv();
   // check all statements
-  const res: CheckerResult = statements.reduce(
-    (envOrError: CheckerResult, stmt: DomainStmt) =>
-      andThen((env) => checkStmt(stmt, env), envOrError),
-    ok(env)
-  );
+  const res: CheckerResult = safeChain(statements, checkStmt, ok(env));
   return res;
 };
 
@@ -31,8 +49,9 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
       const { name, params } = stmt;
+      // check name duplicate
       if (env.types.has(name.value)) {
-        return err({ tag: "TypeDeclaredError", typeName: name });
+        return err({ tag: "TypeDeclared", typeName: name });
       }
       // TODO: remove side effect?
       env.types.set(name.value, stmt);
@@ -43,9 +62,32 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
   return ok(env);
 };
 
-const initEnv = (): DomainEnv => ({
-  types: new Map(builtinTypes),
-});
+const checkType = (type: Type, env: DomainEnv): CheckerResult => {
+  switch (type.tag) {
+    case "TypeVar": {
+      env.typeVars.has(type.name.value)
+        ? ok(env)
+        : err({ tag: "TypeVarNotFound", typeVar: type });
+    }
+    case "Prop":
+      return ok(env); // TODO: check if this is okay
+    case "TypeConstructor":
+      return checkTypeConstructor(type, env);
+  }
+};
+
+const checkTypeConstructor = (
+  type: TypeConstructor,
+  env: DomainEnv
+): CheckerResult => {
+  const { name, args } = type;
+  // COMBAK: finish
+  return ok();
+};
+
+// const checkArg = (arg: Arg, env: DomainEnv): CheckerResult => {
+//   // check if arg exists
+// };
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
 const idOf = (value: string) => ({

@@ -201,7 +201,7 @@ subtype -> type _ "<:" _ type {%
 
 # Basic types
   
-var -> identifier {% ([name]): VarConst => ({ ...rangeOf(name), tag: "VarConst", name }) %}
+var -> identifier {% id %}
 
 # TODO: without `'`, type_var will look the same as 0-arg type_constructor
 type_var -> "'" identifier {% 

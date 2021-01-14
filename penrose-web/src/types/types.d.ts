@@ -758,7 +758,7 @@ interface DomainProg extends ASTNode {
 type Type = TypeVar | TypeConstructor | Prop;
 interface Arg extends ASTNode {
   tag: "Arg";
-  variable: Var | undefined;
+  variable: Identifier | undefined;
   type: Type;
 }
 interface TypeVar extends ASTNode {
@@ -781,11 +781,6 @@ type DomainStmt =
   | PreludeDecl
   | NotationDecl
   | SubTypeDecl;
-
-interface VarConst extends ASTNode {
-  tag: "VarConst";
-  name: Identifier;
-}
 
 interface TypeDecl extends ASTNode {
   tag: "TypeDecl";
@@ -1489,10 +1484,14 @@ type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 type RuntimeError = OptimizerError | EvaluatorError;
 type StyleError = StyleParseError | StyleCheckError | TranslationError;
 
-type DomainError = TypeDeclaredError;
-interface TypeDeclaredError {
-  tag: "TypeDeclaredError";
+type DomainError = TypeDeclared | TypeVarNotFound;
+interface TypeDeclared {
+  tag: "TypeDeclared";
   typeName: Identifier;
+}
+interface TypeVarNotFound {
+  tag: "TypeVarNotFound";
+  typeVar: TypeVar;
 }
 interface StyleError {
   sources: ErrorSource[];
