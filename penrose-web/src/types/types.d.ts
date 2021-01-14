@@ -776,7 +776,6 @@ interface Prop extends ASTNode {
 type DomainStmt =
   | TypeDecl
   | PredicateDecl
-  | NestedPredicateDecl
   | FunctionDecl
   | ConstructorDecl
   | PreludeDecl
@@ -816,11 +815,13 @@ interface ConstructorDecl extends ASTNode {
   output: Type;
 }
 interface PreludeDecl extends ASTNode {
+  tag: "PreludeDecl";
   name: Var;
   type: Type;
 }
 // TODO: check if string type is enough
 interface NotationDecl extends ASTNode {
+  tag: "NotationDecl";
   from: string;
   to: string;
 }
@@ -1037,7 +1038,7 @@ interface ISubEnv {
 type VarEnv = IVarEnv;
 
 interface IVarEnv {
-  typeConstructors: { [k: string]: TypeConstructor };
+  typeConstructors: { [k: string]: ITypeConstructor };
   valConstructors: { [k: string]: ValConstructor };
   operators: { [k: string]: Operator };
   predicates: { [k: string]: PredicateEnv };
@@ -1051,7 +1052,7 @@ interface IVarEnv {
   stmtNotations: StmtNotationRule[];
   errors: string;
 }
-type TypeConstructor = ITypeConstructor;
+// type TypeConstructor = ITypeConstructor;
 
 interface ITypeConstructor {
   nametc: string;
@@ -1482,19 +1483,23 @@ interface Identifier extends ASTNode {
 //#endregion
 
 //#region Errors
+
 type PenroseError = LanguageError | RuntimeError;
 type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 type RuntimeError = OptimizerError | EvaluatorError;
 type StyleError = StyleParseError | StyleCheckError | TranslationError;
-interface LanguageError {
-  message: string;
-  sources: ErrorSource[];
+
+type DomainError = TypeDeclaredError;
+interface TypeDeclaredError {
+  tag: "TypeDeclaredError";
+  typeName: Identifier;
 }
 interface StyleError {
   sources: ErrorSource[];
   message: FormatString; // Style matched failed with Substance object $1 and select in Style $2
 }
-interface ErrorSource {
-  node: ASTNode;
-}
+
+// NOTE: aliased to ASTNode for now, can include more types for different errors
+type ErrorSource = ASTNode;
+
 //#endregion

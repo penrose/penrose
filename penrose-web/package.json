@@ -32,6 +32,8 @@
     "seedrandom": "^3.0.5",
     "styled-components": "^5.0.1",
     "svg2pdf.js": "^1.5.0",
+    "true-myth": "^4.1.0",
+    "ts-jest": "^26.4.4",
     "ts-node": "^9.0.0",
     "tslib": "^2.0.3"
   },
@@ -79,6 +81,7 @@
     "ttypescript": "^1.5.12",
     "typedoc": "^0.19.2",
     "typescript": "^3.9.5",
+    "true-myth": "^4.1.0",
     "typescript-transform-paths": "^2.0.1"
   },
   "browserslist": [
