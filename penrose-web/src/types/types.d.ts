@@ -278,7 +278,7 @@ interface IAccessPath extends ASTNode {
 }
 
 interface ILocalVar extends ASTNode { // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
-  tag: "LocalVar";
+  tag: "InternalLocalVar";
   contents: string;
 }
 
@@ -1523,4 +1523,6 @@ interface StyleError {
 interface ErrorSource {
   node: ASTNode;
 }
+
+type Warning = string;
 //#endregion

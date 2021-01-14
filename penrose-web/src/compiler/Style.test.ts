@@ -118,5 +118,6 @@ describe("Compiler", () => {
     expect(S.numbered(xs)).toEqual([['a', 0], ['b', 1], ['c', 2]]);
   });
 
+  // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
 
 });

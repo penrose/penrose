@@ -38,9 +38,20 @@
                         "line": 1,
                         "col": 5
                     },
-                    "tag": "Identifier",
-                    "value": "const",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                        "start": {
+                            "line": 1,
+                            "col": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "col": 5
+                        },
+                        "tag": "Identifier",
+                        "value": "const",
+                        "type": "identifier"
+                    }
                 }
             },
             "block": {
@@ -52,6 +63,7 @@
                     "line": 12,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -111,7 +123,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 2,
                                 "col": 19
@@ -182,7 +194,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 4,
                                 "col": 25
@@ -253,7 +265,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 5,
                                 "col": 19
@@ -324,7 +336,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 6,
                                 "col": 27
@@ -395,7 +407,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 7,
                                 "col": 23
@@ -466,7 +478,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 8,
                                 "col": 25
@@ -537,7 +549,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 9,
                                 "col": 25
@@ -608,7 +620,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 10,
                                 "col": 22
@@ -679,7 +691,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 11,
                                 "col": 24
@@ -724,9 +736,20 @@
                         "line": 14,
                         "col": 1
                     },
-                    "tag": "Identifier",
-                    "value": "C",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                        "start": {
+                            "line": 14,
+                            "col": 0
+                        },
+                        "end": {
+                            "line": 14,
+                            "col": 1
+                        },
+                        "tag": "Identifier",
+                        "value": "C",
+                        "type": "identifier"
+                    }
                 }
             },
             "block": {
@@ -738,6 +761,7 @@
                     "line": 25,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -797,7 +821,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 16,
                                 "col": 18
@@ -907,7 +931,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 17,
                                 "col": 12
@@ -1017,7 +1041,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 18,
                                 "col": 16
@@ -1127,7 +1151,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 19,
                                 "col": 15
@@ -1417,7 +1441,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 20,
                                 "col": 15
@@ -1527,7 +1551,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 21,
                                 "col": 11
@@ -1637,7 +1661,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 22,
                                 "col": 12
@@ -1747,7 +1771,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 24,
                                 "col": 11
@@ -1854,9 +1878,20 @@
                         "line": 28,
                         "col": 7
                     },
-                    "tag": "Identifier",
-                    "value": "testing",
-                    "type": "identifier"
+                    "tag": "StyVar",
+                    "contents": {
+                        "start": {
+                            "line": 28,
+                            "col": 0
+                        },
+                        "end": {
+                            "line": 28,
+                            "col": 7
+                        },
+                        "tag": "Identifier",
+                        "value": "testing",
+                        "type": "identifier"
+                    }
                 }
             },
             "block": {
@@ -1868,6 +1903,7 @@
                     "line": 49,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -1904,7 +1940,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 31,
                                 "col": 12
@@ -2002,7 +2038,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 32,
                                 "col": 12
@@ -2183,7 +2219,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 33,
                                 "col": 12
@@ -2255,7 +2291,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 34,
                                 "col": 13
@@ -2377,7 +2413,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 35,
                                 "col": 12
@@ -2487,7 +2523,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 36,
                                 "col": 13
@@ -2644,7 +2680,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 38,
                                 "col": 15
@@ -2790,7 +2826,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 39,
                                 "col": 12
@@ -2838,7 +2874,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 40,
                                 "col": 12
@@ -2886,7 +2922,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 41,
                                 "col": 15
@@ -3080,7 +3116,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 42,
                                 "col": 13
@@ -3152,7 +3188,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 43,
                                 "col": 13
@@ -3321,6 +3357,7 @@
                     "line": 92,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -3380,7 +3417,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 52,
                                 "col": 22
@@ -3535,7 +3572,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 53,
                                 "col": 20
@@ -3631,7 +3668,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 54,
                                 "col": 13
@@ -3739,7 +3776,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 55,
                                 "col": 18
@@ -3870,7 +3907,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 57,
                                 "col": 25
@@ -4267,7 +4304,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 65,
                                 "col": 20
@@ -5067,7 +5104,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 76,
                                 "col": 14
@@ -5867,7 +5904,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 87,
                                 "col": 13
@@ -6545,6 +6582,7 @@
                     "line": 119,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -6605,7 +6643,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 96,
                                 "col": 11
@@ -6848,7 +6886,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 102,
                                 "col": 12
@@ -7245,7 +7283,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 110,
                                 "col": 14
@@ -8617,6 +8655,7 @@
                     "line": 152,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -8653,7 +8692,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 124,
                                 "col": 15
@@ -8750,7 +8789,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 125,
                                 "col": 13
@@ -8847,7 +8886,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 126,
                                 "col": 15
@@ -8944,7 +8983,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 127,
                                 "col": 13
@@ -9041,7 +9080,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 128,
                                 "col": 13
@@ -9163,7 +9202,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 129,
                                 "col": 13
@@ -9285,7 +9324,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 130,
                                 "col": 12
@@ -9441,7 +9480,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 131,
                                 "col": 12
@@ -9597,7 +9636,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 132,
                                 "col": 13
@@ -9753,7 +9792,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 133,
                                 "col": 12
@@ -9898,7 +9937,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 138,
                                 "col": 17
@@ -11020,6 +11059,7 @@
                     "line": 210,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -11056,7 +11096,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 160,
                                 "col": 20
@@ -11104,7 +11144,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 161,
                                 "col": 16
@@ -11152,7 +11192,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 166,
                                 "col": 12
@@ -11348,7 +11388,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 167,
                                 "col": 15
@@ -11420,7 +11460,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 168,
                                 "col": 18
@@ -11589,7 +11629,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 169,
                                 "col": 16
@@ -11782,7 +11822,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 170,
                                 "col": 21
@@ -11903,7 +11943,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 172,
                                 "col": 25
@@ -12290,7 +12330,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 180,
                                 "col": 23
@@ -12436,7 +12476,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 181,
                                 "col": 24
@@ -12705,7 +12745,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 182,
                                 "col": 17
@@ -12812,7 +12852,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 183,
                                 "col": 21
@@ -12932,7 +12972,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 185,
                                 "col": 25
@@ -13405,7 +13445,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 192,
                                 "col": 25
@@ -13877,7 +13917,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 199,
                                 "col": 26
@@ -14118,7 +14158,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 200,
                                 "col": 22
@@ -14298,7 +14338,7 @@
                                 "type": "identifier"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 202,
                                 "col": 25
@@ -14812,6 +14852,7 @@
                     "line": 214,
                     "col": 1
                 },
+                "tag": "Block",
                 "statements": [
                     {
                         "start": {
@@ -14884,7 +14925,7 @@
                                 "type": "type-keyword"
                             }
                         },
-                        "expr": {
+                        "value": {
                             "start": {
                                 "line": 213,
                                 "col": 35

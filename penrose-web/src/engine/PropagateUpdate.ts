@@ -1,8 +1,7 @@
 // @ts-nocheck
 // TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
 
-import { insertExpr } from "engine/Evaluator";
-import { valueNumberToAutodiff } from "engine/EngineUtils";
+import { valueNumberToAutodiff, insertExpr } from "engine/EngineUtils";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.

@@ -306,3 +306,191 @@ export const makeTranslationDifferentiable = (trans: any): Translation => {
 export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
   return mapTranslation(numOf, trans);
 };
+
+
+//#region translation operations
+
+const dummySourceLoc = (): SourceLoc => {
+  return { line: -1, col: -1 };
+};
+
+const floatValToExpr = (e: Value<VarAD>): Expr => {
+  if (e.tag !== "FloatV") {
+    throw Error("expected to insert vector elem of type float");
+  }
+  return {
+    start: dummySourceLoc(),
+    end: dummySourceLoc(),
+    tag: "Fix", contents: e.contents.val
+    // COMBAK: This apparently held a VarAD before the AFloat grammar change? Is doing ".val" going to break something?
+  };
+};
+
+/**
+ * Insert an expression into the translation (mutating it), returning a reference to the mutated translation for convenience
+ * @param path path to a field or property
+ * @param expr new expression
+ * @param initTrans initial translation
+ *
+ */
+export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translation): Translation => {
+  const trans = initTrans;
+  let name, field, prop;
+
+  console.log("path", path, expr);
+
+  switch (path.tag) {
+    case "FieldPath": {
+      [name, field] = [path.name, path.field];
+
+      console.log("insertExpr", path, expr);
+      console.log("name, field", name.contents.value, field, trans.trMap[name.contents.value]);
+
+      if (!trans.trMap[name.contents.value]) {
+        trans.trMap[name.contents.value] = {};
+      }
+
+      if (!(typeof field.value === "string")) {
+        console.error("field", field);
+        console.error("field", field.value);
+        throw Error("fail");
+      }
+
+      // COMBAK: ISSUE field.value
+      const key = (typeof field.value === "string") ? field.value : (field.value as any).value;
+      console.log("key", key);
+
+      // NOTE: this will overwrite existing expressions
+      trans.trMap[name.contents.value][key] = { tag: "FExpr", contents: expr };
+      return trans;
+    }
+
+    case "PropertyPath": {
+      [name, field, prop] = [path.name, path.field, path.property];
+
+      console.log("info0", path.name, path.field, path.property);
+      console.log("info1", name.contents.value, field.value);
+      if (!trans.trMap[name.contents.value]) {
+        trans.trMap[name.contents.value] = {};
+      }
+
+      console.log("trans", trans.trMap, trans.trMap[name.contents.value]);
+
+      // COMBAK: ISSUE field.value?
+      const gpi: FieldExpr<IVarAD> = trans.trMap[name.contents.value][field.value];
+
+      if (gpi.tag === "FExpr") {
+        // TODO (error)
+        console.log("gpi", gpi);
+        throw Error("expected GPI");
+      } else if (gpi.tag === "FGPI") {
+        const [, properties] = gpi.contents;
+        properties[prop.value] = expr;
+        return trans;
+      } else { throw Error("unexpected tag"); }
+    }
+
+    case "AccessPath": {
+      const [innerPath, indices] = [path.path, path.indices];
+
+      switch (innerPath.tag) {
+        case "FieldPath": {
+          // a.x[0] = e
+          [name, field] = [innerPath.name, innerPath.field];
+          const res = trans.trMap[name.contents.value][field.value];
+          if (res.tag !== "FExpr") {
+            throw Error("did not expect GPI in vector access");
+          }
+          const res2: TagExpr<IVarAD> = res.contents;
+          // Deal with vector expressions
+          if (res2.tag === "OptEval") {
+            const res3: Expr = res2.contents;
+            if (res3.tag !== "Vector") {
+              throw Error("expected Vector");
+            }
+            const res4: Expr[] = res3.contents;
+
+            if (expr.tag === "OptEval") {
+              res4[indices[0]] = expr.contents;
+            } else if (expr.tag === "Done") {
+              res4[indices[0]] = floatValToExpr(expr.contents);
+            } else {
+              throw Error("unexpected pending val");
+            }
+
+            return trans;
+          } else if (res2.tag === "Done") {
+            // Deal with vector values
+            const res3: Value<IVarAD> = res2.contents;
+            if (res3.tag !== "VectorV") {
+              throw Error("expected Vector");
+            }
+            const res4: IVarAD[] = res3.contents;
+
+            if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
+              res4[indices[0]] = expr.contents.contents;
+            } else {
+              throw Error("unexpected val");
+            }
+
+            return trans;
+          } else {
+            throw Error("unexpected tag");
+          }
+        }
+
+        case "PropertyPath": {
+          const ip = innerPath as IPropertyPath;
+          // a.x.y[0] = e
+          [name, field, prop] = [ip.name, ip.field, ip.property];
+          const gpi = trans.trMap[name.contents.value][field.value] as IFGPI<VarAD>;
+          const [, properties] = gpi.contents;
+          const res = properties[prop.value];
+
+          if (res.tag === "OptEval") {
+            // Deal with vector expresions
+            const res2 = res.contents;
+            if (res2.tag !== "Vector") {
+              throw Error("expected Vector");
+            }
+            const res3 = res2.contents;
+
+            if (expr.tag === "OptEval") {
+              res3[indices[0]] = expr.contents;
+            } else if (expr.tag === "Done") {
+              res3[indices[0]] = floatValToExpr(expr.contents);
+            } else {
+              throw Error("unexpected pending val");
+            }
+
+            return trans;
+          } else if (res.tag === "Done") {
+            // Deal with vector values
+            const res2 = res.contents;
+            if (res2.tag !== "VectorV") {
+              throw Error("expected Vector");
+            }
+            const res3 = res2.contents;
+
+            if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
+              res3[indices[0]] = expr.contents.contents;
+            } else {
+              throw Error("unexpected val");
+            }
+
+            return trans;
+          } else {
+            throw Error("unexpected tag");
+          }
+        }
+
+        default:
+          throw Error("should not have nested AccessPath in AccessPath");
+      }
+    }
+  }
+
+  throw Error("shouldn't be reached");
+};
+
+//#endregion

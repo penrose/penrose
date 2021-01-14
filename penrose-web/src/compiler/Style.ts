@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import { insertExpr } from "engine/EngineUtils";
 
 // TODO: Write pseudocode / code comments / tests for the Style compiler
 
@@ -82,6 +83,14 @@ const toString = (x: BindingForm): string => x.contents.value;
 // https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
 const cartesianProduct =
   (...a: any[]) => a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())));
+
+const pathString = (p: Path): string => {
+  if (p.tag === "FieldPath") {
+    return `${p.name.contents.value}.${p.field.value}`;
+  } else if (p.tag === "PropertyPath") {
+    return `${p.name.contents.value}.${p.field.value}.${p.property.value}`;
+  } else throw Error("pathStr not implemented");
+};
 
 //#endregion
 
@@ -373,7 +382,7 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
       ...path,
       name: substituteBform({ tag: "Just", contents: lv }, subst, path.name)
     };
-  } else if (path.tag === "LocalVar") {
+  } else if (path.tag === "InternalLocalVar") {
     // Note that the local var becomes a path
     // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
     // where <ids> is a string generated to be unique to this selector match for this block
@@ -399,7 +408,28 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
       ...path,
       path: substitutePath(lv, subst, path.path)
     };
-  } else throw Error("unknown tag");
+  } else {
+    // COMBAK / ISSUE: This case shouldn't be here
+    if ((path as any).tag === "LocalVar") {
+      console.error("unexpected tag", path);
+
+      return {
+        start: dummySourceLoc(),
+        end: dummySourceLoc(),
+        tag: "FieldPath",
+        name: {
+          start: dummySourceLoc(),
+          end: dummySourceLoc(),
+          tag: "SubVar",
+          contents: {
+            ...dummyIdentifier(mkLocalVarName(lv))
+          }
+        },
+        field: (path as any).contents // COMBAK ? ISSUE
+      };
+    }
+    throw Error("unknown tag");
+  }
 };
 
 const substituteField = (lv: LocalVarSubst, subst: Subst, field: PropertyDecl): PropertyDecl => {
@@ -484,50 +514,24 @@ const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr 
       ...expr,
       contents: [substitutePath(lv, subst, expr.contents[0]), expr.contents[1].map(e => substituteBlockExpr(lv, subst, e))]
     };
-  } else if (expr.tag === "IntLit" || expr.tag === "AFloat" || expr.tag === "StringLit" || expr.tag === "BoolLit") {
+  } else if (expr.tag === "Fix" || expr.tag === "Vary" || expr.tag === "StringLit" || expr.tag === "BoolLit") {
     // No substitution for literals
     return expr;
-  } else {
-    console.error("expr", expr);
-    if ((expr as any).tag === "Fix" || (expr as any).tag === "Vary") { // COMBAK ISSUE #444
-      return substituteBlockExpr(lv, subst, { tag: "AFloat", contents: expr });
-    }
-    throw Error("unknown tag");
-  }
+  } else { console.error("expr", expr); throw Error("unknown tag"); }
 };
 
 const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
-  console.error("line", line);
-
   if (line.tag === "PathAssign") {
-    // COMBAK: ISSUE #443, delete this check, it should just be line.value
-    if (line.value) {
-      return {
-        ...line,
-        path: substitutePath(lv, subst, line.path),
-        value: substituteBlockExpr(lv, subst, line.value) // COMBAK: ISSUE #443, should be line.value
-      };
-    }
-
     return {
       ...line,
       path: substitutePath(lv, subst, line.path),
-      value: substituteBlockExpr(lv, subst, (line as any).expr) // COMBAK: ISSUE #443, should be line.value
+      value: substituteBlockExpr(lv, subst, line.value)
     };
   } else if (line.tag === "Override") {
-    // COMBAK: ISSUE #443, delete this check, it should just be line.value
-    if (line.value) {
-      return {
-        ...line,
-        path: substitutePath(lv, subst, line.path),
-        value: substituteBlockExpr(lv, subst, line.value) // COMBAK: ISSUE #443, should be line.value
-      };
-    }
-
     return {
       ...line,
       path: substitutePath(lv, subst, line.path),
-      value: substituteBlockExpr(lv, subst, (line as any).expr) // COMBAK: ISSUE #443, should be line.value
+      value: substituteBlockExpr(lv, subst, line.value)
     };
   } else if (line.tag === "Delete") {
     return {
@@ -839,7 +843,7 @@ const nameAnonStatement = ([i, b]: [number, Stmt[]], s: Stmt): [number, Stmt[]] 
       tag: "PathAssign",
       type: { tag: "TypeOf", contents: "Nothing" }, // TODO: Why is it parsed like this?
       path: {
-        tag: "LocalVar", contents: `\$${ANON_KEYWORD}_${i}`,
+        tag: "InternalLocalVar", contents: `\$${ANON_KEYWORD}_${i}`,
         start: dummySourceLoc(), end: dummySourceLoc() // Unused bc compiler internal
       },
       value: s.contents
@@ -876,19 +880,6 @@ const initTrans = (): Translation => {
   return { trMap: {}, warnings: [] };
 };
 
-const deletePath = () => {
-
-  // TODO <
-  // deleteField, deleteProperty
-
-};
-
-const addPath = () => {
-
-  // TODO < 
-  // addField, addProperty
-
-};
 
 ///////// Translation judgments
 /* Note: All of the folds below use foldM.
@@ -902,16 +893,110 @@ const addPath = () => {
 // Judgment 26. D |- phi ~> D'
 // This is where interesting things actually happen (each line is interpreted and added to the translation)
 
+// Related functions in `Evaluator`: findExpr, insertExpr
+
+const addWarn = (tr: Translation, warn: Warning): Translation => {
+  return {
+    ...tr,
+    warnings: tr.warnings.concat(warn)
+  };
+};
+
+// Note this mutates the translation, and we return the translation reference just as a courtesy
+const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier, property: Identifier): Translation => {
+  const trn = trans.trMap;
+  const pathStr = pathString({ tag: "PropertyPath", name, field, property } as Path);
+
+  const nm = name.contents.value;
+  const fld = field.value;
+  const prp = property.value;
+
+  const fieldDict = trn[nm];
+
+  if (!fieldDict) {
+    // TODO (errors / warnings): Should this be fatal?
+    const err = `Err: Sub obj '${nm}' has no fields; can't delete path '${pathStr}'`;
+    return addWarn(trans, err);
+  }
+
+  const prop: FieldExpr<VarAD> = fieldDict[fld];
+
+  if (!prop) {
+    // TODO (errors / warnings): Should this be fatal?
+    const err = `Err: Sub obj '${nm}' already lacks field '${fld}'; can't delete path ${pathStr}`;
+    return addWarn(trans, err);
+  }
+
+  if (prop.tag === "FExpr") {
+    // COMBAK (missing feature): Deal with path aliasing
+    throw Error("deal with path aliasing");
+    // TODO (error): deal with non-alias error
+  } else if (prop.tag === "FGPI") {
+    // TODO(error, warning): check if the property is member of properties of GPI
+    const gpiDict = prop.contents[1];
+    delete gpiDict.prp;
+    return trans;
+  } else throw Error("unknown tag");
+};
+
+// Note this mutates the translation, and we return the translation reference just as a courtesy
+const deleteField = (trans: Translation, name: BindingForm, field: Identifier): Translation => {
+  // TODO (errors)
+  let trn = trans.trMap;
+  const fieldDict = trn[name.contents.value];
+
+  if (!fieldDict) {
+    // TODO(errors / warnings)
+    const warn = `Err: Sub obj '${name.contents.value}' has no fields; can't delete field '${field.value}'`;
+    return addWarn(trans, warn);
+  }
+
+  if (!(field.value in fieldDict)) {
+    // TODO(errors / warnings)
+    const warn = `Warn: SubObj '${name.contents.value}' already lacks field '${field.value}'`;
+    return addWarn(trans, warn);
+  }
+
+  delete fieldDict[field.value];
+  return trans;
+};
+
+// NOTE: This function mutates the translation
+// rule Line-delete
+const deletePath = (trans: Translation, path: Path): Either<StyErrors, Translation> => {
+  // TODO(errors): Maybe fix how warnings are reported? Right now they are put into the "translation"
+  if (path.tag === "FieldPath") {
+    const transWithWarnings = deleteField(trans, path.name, path.field);
+    return Right(transWithWarnings);
+  } else if (path.tag === "PropertyPath") {
+    let transWithWarnings = deleteProperty(trans, path.name, path.field, path.property);
+    return Right(transWithWarnings);
+  } else if (path.tag === "AccessPath") {
+    // TODO(error)
+    return Left([`Cannot delete an element of a vector: ${path}`])
+  } else if (path.tag === "InternalLocalVar") {
+    throw Error("Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass");
+  } else throw Error("unknown tag");
+};
+
+// NOTE: This function mutates the translation
+const addPath = (override: boolean, trans: Translation, path: Path, expr: TagExpr<VarAD>): Either<StyErrors, Translation> => {
+  // TODO(errors) <
+  // Extend `insertExpr` with an optional flag to deal with errors and warnings
+  // Move `insertExpr`, etc. into a translation utils file, as currently we import from Evaluator
+  // - Removed: addField, addProperty
+
+  return Right(insertExpr(path, expr, trans));
+};
+
 const translateLine = (trans: Translation, stmt: Stmt): Either<StyErrors, Translation> => {
-
-  // TODO < 
-  // addPath
-
-  // TODO <
-  // deletePath
-
-  return Right(trans);
-
+  if (stmt.tag === "PathAssign") {
+    return addPath(false, trans, stmt.path, { tag: "OptEval", contents: stmt.value });
+  } else if (stmt.tag === "Override") {
+    return addPath(true, trans, stmt.path, { tag: "OptEval", contents: stmt.value });
+  } else if (stmt.tag === "Delete") {
+    return deletePath(trans, stmt.contents);
+  } else throw Error("unknown tag");
 };
 
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
@@ -942,6 +1027,7 @@ const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: 
   if (hb.header.tag === "Namespace") {
     const selEnv = initSelEnv();
     const bErrs = checkBlock(selEnv, hb.block); // COMBAK
+
     if (selEnv.sErrors.length > 0 || bErrs.length > 0) {
       // This is a namespace, not selector, so we substitute local vars with the namespace's name
       // skip transSubstsBlock; only one subst
@@ -950,12 +1036,10 @@ const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: 
         contents: selEnv.sErrors.concat(bErrs)
       }
     }
+
     const subst = {};
     // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
-    // console.error("hb", hb);
-    console.error("hb header contents", hb.header.contents);
-    const info = hb.header.contents as any; // COMBAK / ISSUE #442: This seems to not be wrapped in StyVar
-    return translateBlock({ tag: "Just", contents: info.value as any as string }, [hb.block, blockNum], trans, [subst, 0]);
+    return translateBlock({ tag: "Just", contents: hb.header.contents.contents.value as any as string }, [hb.block, blockNum], trans, [subst, 0]);
 
   } else if (hb.header.tag === "Selector") {
     const selEnv = checkHeader(varEnv, hb.header);
@@ -1057,7 +1141,7 @@ export const compileStyle = (stateJSON: any, styJSON: any): State => {
 
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
-  const trans = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals); // TODO <
+  const trans = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals);
 
   // Gen opt problem and state
   // TODO <

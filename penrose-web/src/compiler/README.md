@@ -11,6 +11,15 @@
 
 Incomplete parts are marked with TODO or COMBAK.
 
+# Generating new test data
+
+This is needed if the parser changes (e.g. the grammar changed). 
+
+1. Rerun the normal system build-and-run chain: `npm run build-lib; npm install` This will regenerate the parser.
+2. Run the parser's tests to generate the new ASTs from its tests, which are used for the Style compiler tests. To do this, from `penrose-web` run `npm test -- -t "Real Program"`. (See below for more info on how to rerun the parser.)
+3. Move the new ASTs into the `compiler` folder as follows: from `penrose-web`, do `cp -rf /tmp/asts compiler` (this will override the old `compiler/asts` folder).
+4. Make sure the compiler runs and passes tests with the new grammar.
+
 # Running the parser
 
 The test suite is located at `penrose-web/src/parser/StyleParser.test.ts`. It has suites for each kind of grammatical construct (e.g. block expr, expr, arith expr).
