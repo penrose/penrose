@@ -272,11 +272,7 @@ predicate = do
   args <- parens (predicateArg `sepBy1` comma)
   pos <- getSourcePos
   return
-    SubPredicate
-      { predicateName = n
-      , predicateArgs = args
-      , predicatePos = pos
-      }
+    SubPredicate {predicateName = n, predicateArgs = args, predicatePos = pos}
 
 -- NOTE: ordering matters here because expr might succeed first by parsing the predicate name as a var. In general, it's not a good idea to start any parser with an id that's not unique to a type. Fix this later when rewriting the whole thing.
 predicateArg :: Parser SubPredArg
@@ -592,6 +588,7 @@ compareTypes varEnv (k1, k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv) -- TODO: re
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
 -- a substitution entry is generated. substitutionHelper2 helps in generating these entries for type constructor arguments and
 -- substitutionInsert does the insertion of the entry into the substitution map “sigma”.
+substHelper :: VarEnv -> M.Map Y Arg -> (K, K) -> M.Map Y Arg
 substHelper varEnv sigma (KT (TConstr (TypeCtorApp atc argsAT pos1)), KT (TConstr (TypeCtorApp ftc argsFT pos2)))
   | atc `elem` declaredNames varEnv || ftc `elem` declaredNames varEnv =
     substHelper2 varEnv sigma (AVar (VarConst atc), AVar (VarConst ftc))

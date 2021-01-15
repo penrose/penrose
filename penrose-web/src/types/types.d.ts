@@ -747,6 +747,87 @@ interface IOptDebugInfo {
 
 //#endregion
 
+//#region Domain AST
+
+interface DomainProg extends ASTNode {
+  tag: "DomainProg";
+  statements: DomainStmt[];
+}
+
+type Type = TypeVar | TypeConstructor | Prop;
+interface Arg extends ASTNode {
+  tag: "Arg";
+  variable: Identifier | undefined;
+  type: Type;
+}
+interface TypeVar extends ASTNode {
+  tag: "TypeVar";
+  name: Identifier;
+}
+interface TypeConstructor {
+  tag: "TypeConstructor";
+  name: Identifier;
+  args: Type[];
+}
+interface Prop extends ASTNode {
+  tag: "Prop";
+}
+
+type DomainStmt =
+  | TypeDecl
+  | PredicateDecl
+  | FunctionDecl
+  | ConstructorDecl
+  | PreludeDecl
+  | NotationDecl
+  | SubTypeDecl;
+
+interface TypeDecl extends ASTNode {
+  tag: "TypeDecl";
+  name: Identifier;
+  params: Type[];
+}
+
+interface PredicateDecl extends ASTNode {
+  tag: "PredicateDecl";
+  name: Identifier;
+  params: TypeVar[];
+  args: Arg[];
+}
+
+interface FunctionDecl extends ASTNode {
+  tag: "FunctionDecl";
+  name: Identifier;
+  params: TypeVar[];
+  args: Arg[];
+  output: Arg;
+}
+interface ConstructorDecl extends ASTNode {
+  tag: "ConstructorDecl";
+  name: Identifier;
+  params: TypeVar[];
+  args: Arg[];
+  output: Arg;
+}
+interface PreludeDecl extends ASTNode {
+  tag: "PreludeDecl";
+  name: Var;
+  type: Type;
+}
+// TODO: check if string type is enough
+interface NotationDecl extends ASTNode {
+  tag: "NotationDecl";
+  from: string;
+  to: string;
+}
+interface SubTypeDecl extends ASTNode {
+  tag: "SubTypeDecl";
+  subType: Type;
+  superType: Type;
+}
+
+//#endregion
+
 //#region Style AST
 
 /** Top level type for Style AST */
@@ -952,7 +1033,7 @@ interface ISubEnv {
 type VarEnv = IVarEnv;
 
 interface IVarEnv {
-  typeConstructors: { [k: string]: TypeConstructor };
+  typeConstructors: { [k: string]: ITypeConstructor };
   valConstructors: { [k: string]: ValConstructor };
   operators: { [k: string]: Operator };
   predicates: { [k: string]: PredicateEnv };
@@ -966,7 +1047,7 @@ interface IVarEnv {
   stmtNotations: StmtNotationRule[];
   errors: string;
 }
-type TypeConstructor = ITypeConstructor;
+// type TypeConstructor = ITypeConstructor;
 
 interface ITypeConstructor {
   nametc: string;
@@ -1394,22 +1475,4 @@ interface Identifier extends ASTNode {
   value: string;
 }
 
-//#endregion
-
-//#region
-type PenroseError = LanguageError | RuntimeError;
-type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
-type RuntimeError = OptimizerError | EvaluatorError;
-type StyleError = StyleParseError | StyleCheckError | TranslationError;
-interface LanguageError {
-  message: string;
-  sources: ErrorSource[];
-}
-interface StyleError {
-  sources: ErrorSource[];
-  message: FormatString; // Style matched failed with Substance object $1 and select in Style $2
-}
-interface ErrorSource {
-  node: ASTNode;
-}
 //#endregion
