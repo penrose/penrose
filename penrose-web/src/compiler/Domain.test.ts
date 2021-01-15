@@ -2,7 +2,12 @@ import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import * as fs from "fs";
-import { checkDomain, DomainEnv, CheckerResult } from "compiler/Domain";
+import {
+  checkDomain,
+  DomainEnv,
+  CheckerResult,
+  isSubtypeOf,
+} from "compiler/Domain";
 import { showDomainErr } from "utils/Error";
 import { compile } from "moo";
 import { type } from "os";
@@ -38,15 +43,35 @@ beforeEach(() => {
 });
 
 describe("Common", () => {
-  test("empty program", () => {
-    const { results } = parser.feed("");
-  });
-  test("comments", () => {
+  test("finding subtypes", () => {
     const prog = `
-type Set 
-type Point 
-type Set
-    `;
+  type A
+  type B
+  type C
+  type D
+  type E
+  C <: B
+  B <: A
+  value varA: A
+  value varB: B
+  value varC: C
+ `;
+    const res = compileDomain(prog);
+    if (res.isOk()) {
+      const env = res.value;
+      const typeA = env.preludeValues.get("varA")!;
+      const typeB = env.preludeValues.get("varB")!;
+      const typeC = env.preludeValues.get("varC")!;
+      expect(isSubtypeOf(typeB, typeA, env)).toBe(true);
+      expect(isSubtypeOf(typeC, typeB, env)).toBe(true);
+      expect(isSubtypeOf(typeC, typeA, env)).toBe(true);
+      expect(isSubtypeOf(typeA, typeA, env)).toBe(true);
+      expect(isSubtypeOf(typeB, typeB, env)).toBe(true);
+      expect(isSubtypeOf(typeA, typeC, env)).toBe(false);
+      expect(isSubtypeOf(typeA, typeB, env)).toBe(false);
+    } else {
+      fail(showDomainErr(res.error));
+    }
   });
 });
 

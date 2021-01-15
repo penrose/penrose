@@ -39,6 +39,17 @@ export const showDomainErr = (error: DomainError): string => {
         error.cycles
       )}`;
     }
+    case "NotTypeConsInPrelude": {
+      if (error.type.tag === "Prop")
+        return `Prop (at ${loc(
+          error.type
+        )}) is not a type constructor. Only type constructors are allowed for prelude values.`;
+      else {
+        return `${error.type.name.value} (at ${loc(
+          error.type
+        )}) is not a type constructor. Only type constructors are allowed in prelude values.`;
+      }
+    }
   }
 };
 
@@ -50,6 +61,13 @@ const showCycles = (cycles: string[][]) => {
 export const cyclicSubtypes = (cycles: string[][]): CyclicSubtypes => ({
   tag: "CyclicSubtypes",
   cycles,
+});
+
+export const notTypeConsInPrelude = (
+  type: Prop | TypeVar
+): NotTypeConsInPrelude => ({
+  tag: "NotTypeConsInPrelude",
+  type,
 });
 
 export const notTypeConsInSubtype = (

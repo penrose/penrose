@@ -8,6 +8,7 @@ import {
   cyclicSubtypes,
   duplicateName,
   err,
+  notTypeConsInPrelude,
   notTypeConsInSubtype,
   ok,
   Result,
@@ -23,7 +24,7 @@ export interface DomainEnv {
   vars: Map<string, Identifier>;
   predicates: Map<string, PredicateDecl>;
   typeVars: Map<string, TypeVar>;
-  preludeValues: Map<string, PreludeDecl>; // TODO: store as Substance values?
+  preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
   subTypes: [TypeConstructor, TypeConstructor][];
   typeGraph: Graph;
 }
@@ -158,9 +159,12 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
     case "PreludeDecl": {
       const { name, type } = stmt;
       const typeOk = checkType(type, env);
+      // make sure only type cons are involved in the prelude decl
+      if (type.tag !== "TypeConstructor")
+        return err(notTypeConsInPrelude(type));
       const updatedEnv: CheckerResult = ok({
         ...env,
-        preludeValues: env.preludeValues.set(name.value, stmt),
+        preludeValues: env.preludeValues.set(name.value, type),
       });
       return all(typeOk, updatedEnv);
     }
@@ -218,11 +222,27 @@ const checkArg = (arg: Arg, env: DomainEnv): CheckerResult =>
 const computeTypeGraph = (env: DomainEnv): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
-  typeNames.map((t: string) => typeGraph.setNode(t));
+  typeNames.map((t: string) => typeGraph.setNode(t, t));
+  // NOTE: since we search for super types upstream, subtyping arrow points to supertype
   subTypes.map(([subType, superType]: [TypeConstructor, TypeConstructor]) =>
-    typeGraph.setEdge(superType.name.value, subType.name.value)
+    typeGraph.setEdge(subType.name.value, superType.name.value)
   );
   if (!alg.isAcyclic(typeGraph))
     return err(cyclicSubtypes(alg.findCycles(typeGraph)));
   return ok(env);
+};
+
+export const isSubtypeOf = (
+  subType: TypeConstructor,
+  superType: TypeConstructor,
+  env: DomainEnv
+): boolean => {
+  const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
+  const superNode = superTypes[superType.name.value];
+  if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
+  // TODO: include this case in our error system
+  else {
+    console.error(`${subType.name.value} not found in the subtype graph.`);
+    return false;
+  }
 };

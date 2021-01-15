@@ -12,11 +12,16 @@ type DomainError =
   | TypeNotFound
   | DuplicateName
   | CyclicSubtypes
-  | NotTypeConsInSubtype;
+  | NotTypeConsInSubtype
+  | NotTypeConsInPrelude;
 
 interface CyclicSubtypes {
   tag: "CyclicSubtypes";
   cycles: string[][];
+}
+interface NotTypeConsInPrelude {
+  tag: "NotTypeConsInPrelude";
+  type: Prop | TypeVar;
 }
 
 interface NotTypeConsInSubtype {
