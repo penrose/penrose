@@ -1,51 +1,16 @@
 import { Map } from "immutable";
 import { keyBy } from "lodash";
-import { Result } from "true-myth";
-const { or, and, ok, err, andThen } = Result;
-
-// TODO: separate out error handling functions to another module
+import {
+  all,
+  and,
+  duplicateName,
+  err,
+  ok,
+  Result,
+  safeChain,
+} from "utils/Error";
 
 export type CheckerResult = Result<DomainEnv, DomainError>;
-
-// TODO: fix template formatting
-export const errorString = (error: DomainError): string => {
-  switch (error.tag) {
-    case "TypeDeclared": {
-      return `Type ${error.typeName.value} already exists`;
-    }
-    case "TypeNotFound": {
-      return `Type ${error.typeName.value} (at ${loc(
-        error.typeName
-      )}) does not exist`;
-    }
-    case "TypeVarNotFound": {
-      return `Type variable ${error.typeVar.name.value} (at ${loc(
-        error.typeVar
-      )}) does not exist`;
-    }
-    case "DuplicateName": {
-      const { firstDefined, name, location } = error;
-      return `Name ${name.value} (at ${loc(
-        location
-      )}) already exists, first declared at ${loc(firstDefined)}`;
-    }
-  }
-};
-
-// action constructors for error
-const duplicateName = (
-  name: Identifier,
-  location: ASTNode,
-  firstDefined: ASTNode
-): DuplicateName => ({
-  tag: "DuplicateName",
-  name,
-  location,
-  firstDefined,
-});
-
-// const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
-const loc = (node: ASTNode) => `line ${node.start.line}`;
 
 export interface DomainEnv {
   types: Map<string, TypeDecl>;
@@ -58,6 +23,29 @@ export interface DomainEnv {
   subTypes: [Type, Type][];
 }
 
+// HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
+// TODO: move this function to a util module
+const idOf = (value: string) => ({
+  start: { line: 1, col: 1 },
+  end: { line: 1, col: 1 },
+  tag: "Identifier",
+  type: "identifier",
+  value: value,
+});
+
+/* Built in types for all Domain programs */
+const builtinTypes: [string, TypeDecl][] = [
+  [
+    "String",
+    {
+      start: { line: 1, col: 1 },
+      end: { line: 1, col: 1 },
+      tag: "TypeDecl",
+      name: idOf("String"),
+      params: [],
+    },
+  ],
+];
 const initEnv = (): DomainEnv => ({
   types: Map(builtinTypes),
   typeVars: Map(),
@@ -69,24 +57,10 @@ const initEnv = (): DomainEnv => ({
   subTypes: [],
 });
 
-const all = <Ok, Error>(...results: Result<Ok, Error>[]): Result<Ok, Error> =>
-  results.reduce(
-    (currentResult: Result<Ok, Error>, nextResult: Result<Ok, Error>) =>
-      and(nextResult, currentResult),
-    results[0] // TODO: separate out this element in argument
-  );
-
-const safeChain = <Item, Ok, Error>(
-  itemList: Item[],
-  func: (nextItem: Item, currentResult: Ok) => Result<Ok, Error>,
-  initialResult: Result<Ok, Error>
-): Result<Ok, Error> =>
-  itemList.reduce(
-    (currentResult: Result<Ok, Error>, nextItem: Item) =>
-      andThen((res: Ok) => func(nextItem, res), currentResult),
-    initialResult
-  );
-
+/**
+ * Top-level function for the Domain semantic checker. Given a Domain AST, it output either a `DomainError` or a `DomainEnv` context.
+ * @param prog compiled AST of a Domain program
+ */
 export const checkDomain = (prog: DomainProg): CheckerResult => {
   const { statements } = prog;
   // load built-in types
@@ -229,25 +203,3 @@ const checkTypeConstructor = (
 
 const checkArg = (arg: Arg, env: DomainEnv): CheckerResult =>
   checkType(arg.type, env);
-
-// HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-const idOf = (value: string) => ({
-  start: { line: 1, col: 1 },
-  end: { line: 1, col: 1 },
-  tag: "Identifier",
-  type: "identifier",
-  value: value,
-});
-
-const builtinTypes: [string, TypeDecl][] = [
-  [
-    "String",
-    {
-      start: { line: 1, col: 1 },
-      end: { line: 1, col: 1 },
-      tag: "TypeDecl",
-      name: idOf("String"),
-      params: [],
-    },
-  ],
-];

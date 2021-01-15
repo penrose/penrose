@@ -2,12 +2,8 @@ import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import * as fs from "fs";
-import {
-  checkDomain,
-  errorString,
-  DomainEnv,
-  CheckerResult,
-} from "compiler/Domain";
+import { checkDomain, DomainEnv, CheckerResult } from "compiler/Domain";
+import { showDomainErr } from "utils/Error";
 import { compile } from "moo";
 import { type } from "os";
 
@@ -31,7 +27,7 @@ const contextHas = (
     expectedFunctions.map((f) => expect(functions.has(f)).toBe(true));
     expectedPredicates.map((p) => expect(predicates.has(p)).toBe(true));
   } else {
-    fail(errorString(res.error));
+    fail(showDomainErr(res.error));
   }
 };
 
@@ -127,7 +123,7 @@ describe("Errors", () => {
     const result = compileDomain(prog);
     if (result.isErr()) {
       expect(compileDomain(prog).unsafelyUnwrapErr().tag).toBe(errorType);
-      console.log(errorString(result.error));
+      console.log(showDomainErr(result.error));
     } else {
       fail(`Error ${errorType} was suppoed to occur.`);
     }
