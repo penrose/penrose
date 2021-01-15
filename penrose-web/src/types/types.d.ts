@@ -1484,6 +1484,8 @@ type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 type RuntimeError = OptimizerError | EvaluatorError;
 type StyleError = StyleParseError | StyleCheckError | TranslationError;
 
+type TaggedDomainError = DomainError & { type: "DomainError " };
+
 type DomainError =
   | TypeDeclared
   | TypeVarNotFound

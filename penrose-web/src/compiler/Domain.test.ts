@@ -2,11 +2,37 @@ import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import * as fs from "fs";
-import { checkDomain, errorString } from "compiler/Domain";
+import {
+  checkDomain,
+  errorString,
+  DomainEnv,
+  CheckerResult,
+} from "compiler/Domain";
+import { compile } from "moo";
+import { type } from "os";
 
 const compileDomain = (prog: string) => {
   const { results } = parser.feed(prog);
   return checkDomain(results[0]);
+};
+
+const contextHas = (
+  res: CheckerResult,
+  expectedTypes: string[],
+  expectedConstructors: string[],
+  expectedFunctions: string[],
+  expectedPredicates: string[]
+) => {
+  if (res.isOk()) {
+    const { types, typeVars, constructors, functions, predicates } = res.value;
+    expect(typeVars.size).toBe(0);
+    expectedTypes.map((t) => expect(types.has(t)).toBe(true));
+    expectedConstructors.map((c) => expect(constructors.has(c)).toBe(true));
+    expectedFunctions.map((f) => expect(functions.has(f)).toBe(true));
+    expectedPredicates.map((p) => expect(predicates.has(p)).toBe(true));
+  } else {
+    fail(errorString(res.error));
+  }
 };
 
 let parser: nearley.Parser;
@@ -29,7 +55,7 @@ type Set
 });
 
 describe("Statements", () => {
-  test("constructor decl", () => {
+  test("type and constructor decl", () => {
     const prog = `
 type List ('T)
 type Real
@@ -43,30 +69,56 @@ constructor CreateOpenInterval: Real left * Real right -> OpenInterval
 constructor CreateClosedInterval: Real left * Real right -> ClosedInterval
     `;
     const res = compileDomain(prog);
-
-    if (res.isOk()) {
-      const [...typeVars] = res.value.typeVars.keys();
-      expect(typeVars.length).toBe(0);
-      const [...types] = res.value.types.keys();
-      expect(types).toEqual([
-        "String",
-        "List",
-        "Real",
-        "Interval",
-        "OpenInterval",
-        "ClosedInterval",
-      ]);
-      const [...constructors] = res.value.constructors.keys();
-      expect(constructors).toEqual([
-        "Cons",
-        "Nil",
-        "CreateInterval",
-        "CreateOpenInterval",
-        "CreateClosedInterval",
-      ]);
-    } else {
-      fail(errorString(res.error));
-    }
+    const types = [
+      "String",
+      "List",
+      "Real",
+      "Interval",
+      "OpenInterval",
+      "ClosedInterval",
+    ];
+    const constructors = [
+      "Cons",
+      "Nil",
+      "CreateInterval",
+      "CreateOpenInterval",
+      "CreateClosedInterval",
+    ];
+    contextHas(res, types, constructors, [], []);
+  });
+  test("predicate decl", () => {
+    const prog = `
+type Map
+type Set
+type Point
+predicate Not : Prop p1
+predicate From : Map f * Set domain * Set codomain
+predicate Empty : Set s
+predicate Intersecting : Set s1 * Set s2
+predicate IsSubset : Set s1 * Set s2
+predicate PointIn : Set s * Point p
+predicate In : Point p * Set s
+predicate Injection : Map m
+predicate Surjection : Map m
+predicate Bijection : Map m
+predicate PairIn : Point * Point * Map
+    `;
+    const res = compileDomain(prog);
+    const types = ["Map", "Set", "Point"];
+    const predicates = [
+      "Not",
+      "From",
+      "Empty",
+      "Intersecting",
+      "IsSubset",
+      "PointIn",
+      "In",
+      "Injection",
+      "Surjection",
+      "Bijection",
+      "PairIn",
+    ];
+    contextHas(res, types, [], [], predicates);
   });
 });
 

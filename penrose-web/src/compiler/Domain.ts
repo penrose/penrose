@@ -3,7 +3,9 @@ import { keyBy } from "lodash";
 import { Result } from "true-myth";
 const { or, and, ok, err, andThen } = Result;
 
-type CheckerResult = Result<DomainEnv, DomainError>;
+// TODO: separate out error handling functions to another module
+
+export type CheckerResult = Result<DomainEnv, DomainError>;
 
 // TODO: fix template formatting
 export const errorString = (error: DomainError): string => {
@@ -30,14 +32,30 @@ export const errorString = (error: DomainError): string => {
   }
 };
 
+// action constructors for error
+const duplicateName = (
+  name: Identifier,
+  location: ASTNode,
+  firstDefined: ASTNode
+): DuplicateName => ({
+  tag: "DuplicateName",
+  name,
+  location,
+  firstDefined,
+});
+
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 const loc = (node: ASTNode) => `line ${node.start.line}`;
 
-interface DomainEnv {
+export interface DomainEnv {
   types: Map<string, TypeDecl>;
-  typeVars: Map<string, TypeVar>;
   constructors: Map<string, ConstructorDecl>;
+  functions: Map<string, FunctionDecl>;
   vars: Map<string, Identifier>;
+  predicates: Map<string, PredicateDecl>;
+  typeVars: Map<string, TypeVar>;
+  preludeValues: Map<string, PreludeDecl>; // TODO: store as Substance values?
+  subTypes: [Type, Type][];
 }
 
 const initEnv = (): DomainEnv => ({
@@ -45,6 +63,10 @@ const initEnv = (): DomainEnv => ({
   typeVars: Map(),
   vars: Map(),
   constructors: Map(),
+  predicates: Map(),
+  functions: Map(),
+  preludeValues: Map(),
+  subTypes: [],
 });
 
 const all = <Ok, Error>(...results: Result<Ok, Error>[]): Result<Ok, Error> =>
@@ -71,14 +93,9 @@ export const checkDomain = (prog: DomainProg): CheckerResult => {
   const env: DomainEnv = initEnv();
   // check all statements
   const res: CheckerResult = safeChain(statements, checkStmt, ok(env));
+  // TODO: compute transitive closure of subtyping relations and insert into env
   return res;
 };
-
-// TODO: abstract out the name checking logic
-// const checkName = <T>(
-//   name: Identifier,
-//   env: Map<string, T>
-// ): CheckerResult => {};
 
 const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
   switch (stmt.tag) {
@@ -86,14 +103,8 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
       // NOTE: params are not reused, so no need to check
       const { name, params } = stmt;
       // check name duplicate
-      if (env.types.has(name.value)) {
-        return err({
-          tag: "DuplicateName",
-          name,
-          location: stmt,
-          firstDefined: env.types.get(name.value)!,
-        });
-      }
+      if (env.types.has(name.value))
+        return err(duplicateName(name, stmt, env.types.get(name.value)!));
       // insert type into env
       return ok({ ...env, types: env.types.set(name.value, stmt) });
     }
@@ -105,14 +116,10 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.constructors.has(name.value)) {
-        return err({
-          tag: "DuplicateName",
-          name,
-          location: stmt,
-          firstDefined: env.types.get(name.value)!,
-        });
-      }
+      if (env.constructors.has(name.value))
+        return err(
+          duplicateName(name, stmt, env.constructors.get(name.value)!)
+        );
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
@@ -125,24 +132,67 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
       return all(argsOk, outputOk, updatedEnv);
     }
     case "FunctionDecl": {
-      // COMBAK: finish
-      return ok(env);
-    }
-    case "NotationDecl": {
-      // COMBAK: finish
-      return ok(env);
+      const { name, params, args, output } = stmt;
+      // load params into context
+      const localEnv: DomainEnv = {
+        ...env,
+        typeVars: Map(keyBy(params, "name.value")),
+      };
+      // check name duplicate
+      if (env.functions.has(name.value))
+        return err(duplicateName(name, stmt, env.functions.get(name.value)!));
+      // check arguments
+      const argsOk = safeChain(args, checkArg, ok(localEnv));
+      // check output
+      const outputOk = checkArg(output, localEnv);
+      // insert function into env
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        functions: env.functions.set(name.value, stmt),
+      });
+      return all(argsOk, outputOk, updatedEnv);
     }
     case "PredicateDecl": {
-      // COMBAK: finish
+      const { name, params, args } = stmt;
+      // load params into context
+      const localEnv: DomainEnv = {
+        ...env,
+        typeVars: Map(keyBy(params, "name.value")),
+      };
+      // check name duplicate
+      if (env.predicates.has(name.value))
+        return err(duplicateName(name, stmt, env.predicates.get(name.value)!));
+      // check arguments
+      const argsOk = safeChain(args, checkArg, ok(localEnv));
+      // insert predicate into env
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        predicates: env.predicates.set(name.value, stmt),
+      });
+      return all(argsOk, updatedEnv);
+    }
+    case "NotationDecl": {
+      // TODO: just passing through the notation rules here. Need to parse them into transformers
       return ok(env);
     }
     case "PreludeDecl": {
-      // COMBAK: finish
-      return ok(env);
+      const { name, type } = stmt;
+      const typeOk = checkType(type, env);
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        preludeValues: env.preludeValues.set(name.value, stmt),
+      });
+      return all(typeOk, updatedEnv);
     }
     case "SubTypeDecl": {
-      // COMBAK: finish
-      return ok(env);
+      const { subType, superType } = stmt;
+      const subOk = checkType(subType, env);
+      const superOk = checkType(superType, env);
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        subTypes: [...env.subTypes, [subType, superType]],
+      });
+      return all(subOk, superOk, updatedEnv);
     }
   }
 };
