@@ -1,29 +1,58 @@
+import { Map } from "immutable";
+import { keyBy } from "lodash";
 import { Result } from "true-myth";
-const { ok, err, andThen } = Result;
+const { or, and, ok, err, andThen } = Result;
+
 type CheckerResult = Result<DomainEnv, DomainError>;
 
-const toString = (error: DomainError): string => {
+// TODO: fix template formatting
+export const errorString = (error: DomainError): string => {
   switch (error.tag) {
     case "TypeDeclared": {
-      return `Name ${error.typeName} already exists in the context`;
+      return `Type ${error.typeName.value} already exists`;
+    }
+    case "TypeNotFound": {
+      return `Type ${error.typeName.value} (at ${loc(
+        error.typeName
+      )}) does not exist`;
     }
     case "TypeVarNotFound": {
-      return `Type variable ${error.typeVar} does not exist in the context`;
+      return `Type variable ${error.typeVar.name.value} (at ${loc(
+        error.typeVar
+      )}) does not exist`;
+    }
+    case "DuplicateName": {
+      const { firstDefined, name, location } = error;
+      return `Name ${name.value} (at ${loc(
+        location
+      )}) already exists, first declared at ${loc(firstDefined)}`;
     }
   }
 };
 
+// const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
+const loc = (node: ASTNode) => `line ${node.start.line}`;
+
 interface DomainEnv {
   types: Map<string, TypeDecl>;
   typeVars: Map<string, TypeVar>;
+  constructors: Map<string, ConstructorDecl>;
   vars: Map<string, Identifier>;
 }
 
 const initEnv = (): DomainEnv => ({
-  types: new Map(builtinTypes),
-  typeVars: new Map(),
-  vars: new Map(),
+  types: Map(builtinTypes),
+  typeVars: Map(),
+  vars: Map(),
+  constructors: Map(),
 });
+
+const all = <Ok, Error>(...results: Result<Ok, Error>[]): Result<Ok, Error> =>
+  results.reduce(
+    (currentResult: Result<Ok, Error>, nextResult: Result<Ok, Error>) =>
+      and(nextResult, currentResult),
+    results[0] // TODO: separate out this element in argument
+  );
 
 const safeChain = <Item, Ok, Error>(
   itemList: Item[],
@@ -45,32 +74,88 @@ export const checkDomain = (prog: DomainProg): CheckerResult => {
   return res;
 };
 
+// TODO: abstract out the name checking logic
+// const checkName = <T>(
+//   name: Identifier,
+//   env: Map<string, T>
+// ): CheckerResult => {};
+
 const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
+      // NOTE: params are not reused, so no need to check
       const { name, params } = stmt;
       // check name duplicate
       if (env.types.has(name.value)) {
-        return err({ tag: "TypeDeclared", typeName: name });
+        return err({
+          tag: "DuplicateName",
+          name,
+          location: stmt,
+          firstDefined: env.types.get(name.value)!,
+        });
       }
-      // TODO: remove side effect?
-      env.types.set(name.value, stmt);
+      // insert type into env
+      return ok({ ...env, types: env.types.set(name.value, stmt) });
+    }
+    case "ConstructorDecl": {
+      const { name, params, args, output } = stmt;
+      // load params into context
+      const localEnv: DomainEnv = {
+        ...env,
+        typeVars: Map(keyBy(params, "name.value")),
+      };
+      // check name duplicate
+      if (env.constructors.has(name.value)) {
+        return err({
+          tag: "DuplicateName",
+          name,
+          location: stmt,
+          firstDefined: env.types.get(name.value)!,
+        });
+      }
+      // check arguments
+      const argsOk = safeChain(args, checkArg, ok(localEnv));
+      // check output
+      const outputOk = checkArg(output, localEnv);
+      // insert constructor into env
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        constructors: env.constructors.set(name.value, stmt),
+      });
+      return all(argsOk, outputOk, updatedEnv);
+    }
+    case "FunctionDecl": {
+      // COMBAK: finish
+      return ok(env);
+    }
+    case "NotationDecl": {
+      // COMBAK: finish
+      return ok(env);
+    }
+    case "PredicateDecl": {
+      // COMBAK: finish
+      return ok(env);
+    }
+    case "PreludeDecl": {
+      // COMBAK: finish
+      return ok(env);
+    }
+    case "SubTypeDecl": {
+      // COMBAK: finish
       return ok(env);
     }
   }
-  // COMBAK: remove
-  return ok(env);
 };
 
 const checkType = (type: Type, env: DomainEnv): CheckerResult => {
   switch (type.tag) {
     case "TypeVar": {
-      env.typeVars.has(type.name.value)
+      return env.typeVars.has(type.name.value)
         ? ok(env)
         : err({ tag: "TypeVarNotFound", typeVar: type });
     }
     case "Prop":
-      return ok(env); // TODO: check if this is okay
+      return ok(env); // NOTE: no need to check
     case "TypeConstructor":
       return checkTypeConstructor(type, env);
   }
@@ -81,13 +166,19 @@ const checkTypeConstructor = (
   env: DomainEnv
 ): CheckerResult => {
   const { name, args } = type;
-  // COMBAK: finish
-  return ok();
+  // check if name exists
+  if (!env.types.has(name.value)) {
+    return err({
+      tag: "TypeNotFound",
+      typeName: name,
+    });
+  }
+  const argsOk = safeChain(args, checkType, ok(env));
+  return and(ok(env), argsOk);
 };
 
-// const checkArg = (arg: Arg, env: DomainEnv): CheckerResult => {
-//   // check if arg exists
-// };
+const checkArg = (arg: Arg, env: DomainEnv): CheckerResult =>
+  checkType(arg.type, env);
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
 const idOf = (value: string) => ({

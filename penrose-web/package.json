@@ -18,6 +18,7 @@
     "eslint": "^6.6.0",
     "eslint-plugin-prefer-arrow": "^1.2.2",
     "fast-memoize": "^2.5.2",
+    "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",
     "node-pre-gyp": "^0.14.0",
