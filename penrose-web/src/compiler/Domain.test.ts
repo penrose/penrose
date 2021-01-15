@@ -122,8 +122,8 @@ describe("Errors", () => {
   const expectErrorOf = (prog: string, errorType: string) => {
     const result = compileDomain(prog);
     if (result.isErr()) {
-      expect(compileDomain(prog).unsafelyUnwrapErr().tag).toBe(errorType);
       console.log(showDomainErr(result.error));
+      expect(result.error.tag).toBe(errorType);
     } else {
       fail(`Error ${errorType} was suppoed to occur.`);
     }
@@ -142,10 +142,39 @@ constructor Cons ['X] : 'X head * List('X) tail -> List('X)
     `;
     expectErrorOf(prog, "TypeNotFound");
   });
-  test("TypeVarNotFound", () => {
+  test("type var not found", () => {
     const prog = `
-constructor Cons ['X] : 'Z head * List('Y) tail -> List('X)
+  constructor Cons ['X] : 'Z head * List('Y) tail -> List('X)
     `;
     expectErrorOf(prog, "TypeVarNotFound");
+  });
+  test("prop in subtyping relation", () => {
+    const prog = `
+  type Set
+  Prop <: Set
+    `;
+    expectErrorOf(prog, "NotTypeConsInSubtype");
+  });
+  test("type var in subtyping relation", () => {
+    const prog = `
+  'T <: 'V
+    `;
+    expectErrorOf(prog, "NotTypeConsInSubtype");
+  });
+  test("subtype cycle", () => {
+    const prog = `
+  type A
+  type B
+  type C
+  type D
+  type E
+  C <: B
+  B <: A
+  A <: C
+  D <: C
+  E <: D
+  D <: E
+    `;
+    expectErrorOf(prog, "CyclicSubtypes");
   });
 });

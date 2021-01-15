@@ -23,8 +23,41 @@ export const showDomainErr = (error: DomainError): string => {
         location
       )}) already exists, first declared at ${loc(firstDefined)}`;
     }
+    case "NotTypeConsInSubtype": {
+      if (error.type.tag === "Prop")
+        return `Prop (at ${loc(
+          error.type
+        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
+      else {
+        return `${error.type.name.value} (at ${loc(
+          error.type
+        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
+      }
+    }
+    case "CyclicSubtypes": {
+      return `Subtyping relations in this program form a cycle. Cycles of types are:\n${showCycles(
+        error.cycles
+      )}`;
+    }
   }
 };
+
+const showCycles = (cycles: string[][]) => {
+  const pathString = (path: string[]) => path.join(" -> ");
+  return cycles.map(pathString).join("\n");
+};
+
+export const cyclicSubtypes = (cycles: string[][]): CyclicSubtypes => ({
+  tag: "CyclicSubtypes",
+  cycles,
+});
+
+export const notTypeConsInSubtype = (
+  type: Prop | TypeVar
+): NotTypeConsInSubtype => ({
+  tag: "NotTypeConsInSubtype",
+  type,
+});
 
 // action constructors for error
 export const duplicateName = (

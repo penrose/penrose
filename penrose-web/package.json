@@ -8,6 +8,7 @@
   "dependencies": {
     "@penrose/linear-algebra": "^1.0.0",
     "@reach/tabs": "^0.9.0",
+    "@types/graphlib": "^2.1.7",
     "@types/nearley": "^2.11.1",
     "@types/seedrandom": "^2.4.28",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
@@ -18,6 +19,7 @@
     "eslint": "^6.6.0",
     "eslint-plugin-prefer-arrow": "^1.2.2",
     "fast-memoize": "^2.5.2",
+    "graphlib": "^2.1.8",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",

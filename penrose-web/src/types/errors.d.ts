@@ -10,7 +10,19 @@ type DomainError =
   | TypeDeclared
   | TypeVarNotFound
   | TypeNotFound
-  | DuplicateName;
+  | DuplicateName
+  | CyclicSubtypes
+  | NotTypeConsInSubtype;
+
+interface CyclicSubtypes {
+  tag: "CyclicSubtypes";
+  cycles: string[][];
+}
+
+interface NotTypeConsInSubtype {
+  tag: "NotTypeConsInSubtype";
+  type: Prop | TypeVar;
+}
 interface TypeDeclared {
   tag: "TypeDeclared";
   typeName: Identifier;

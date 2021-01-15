@@ -1,10 +1,14 @@
+import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
 import { keyBy } from "lodash";
 import {
   all,
   and,
+  andThen,
+  cyclicSubtypes,
   duplicateName,
   err,
+  notTypeConsInSubtype,
   ok,
   Result,
   safeChain,
@@ -20,7 +24,8 @@ export interface DomainEnv {
   predicates: Map<string, PredicateDecl>;
   typeVars: Map<string, TypeVar>;
   preludeValues: Map<string, PreludeDecl>; // TODO: store as Substance values?
-  subTypes: [Type, Type][];
+  subTypes: [TypeConstructor, TypeConstructor][];
+  typeGraph: Graph;
 }
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
@@ -55,6 +60,7 @@ const initEnv = (): DomainEnv => ({
   functions: Map(),
   preludeValues: Map(),
   subTypes: [],
+  typeGraph: new Graph(),
 });
 
 /**
@@ -66,9 +72,9 @@ export const checkDomain = (prog: DomainProg): CheckerResult => {
   // load built-in types
   const env: DomainEnv = initEnv();
   // check all statements
-  const res: CheckerResult = safeChain(statements, checkStmt, ok(env));
-  // TODO: compute transitive closure of subtyping relations and insert into env
-  return res;
+  const stmtsOk: CheckerResult = safeChain(statements, checkStmt, ok(env));
+  // compute subtyping graph
+  return andThen(computeTypeGraph, stmtsOk);
 };
 
 const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
@@ -160,6 +166,11 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
+      // make sure only type cons are involved in the subtyping relation
+      if (subType.tag !== "TypeConstructor")
+        return err(notTypeConsInSubtype(subType));
+      if (superType.tag !== "TypeConstructor")
+        return err(notTypeConsInSubtype(superType));
       const subOk = checkType(subType, env);
       const superOk = checkType(superType, env);
       const updatedEnv: CheckerResult = ok({
@@ -203,3 +214,15 @@ const checkTypeConstructor = (
 
 const checkArg = (arg: Arg, env: DomainEnv): CheckerResult =>
   checkType(arg.type, env);
+
+const computeTypeGraph = (env: DomainEnv): CheckerResult => {
+  const { subTypes, types, typeGraph } = env;
+  const [...typeNames] = types.keys();
+  typeNames.map((t: string) => typeGraph.setNode(t));
+  subTypes.map(([subType, superType]: [TypeConstructor, TypeConstructor]) =>
+    typeGraph.setEdge(superType.name.value, subType.name.value)
+  );
+  if (!alg.isAcyclic(typeGraph))
+    return err(cyclicSubtypes(alg.findCycles(typeGraph)));
+  return ok(env);
+};
