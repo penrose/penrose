@@ -6,23 +6,22 @@
 
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
-import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
+import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
+  tex_literal: /\$.*?\$/,
   ...basicSymbols,
+  // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 
-      type: "type",
-      value: "value",
-      constructor: "constructor",
-      function: "function",
-      predicate: "predicate",
-      notation: "notation",
-      prop: "Prop"
+      all: "All",
+      label: "Label",
+      noLabel: "NoLabel",
+      autoLabel: "AutoLabel"
     })
   }
 });
@@ -54,29 +53,94 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
   }
 %}
 
-# Grammar from Domain
-
 # Main grammar
 
+input -> statements {% 
+  ([d]): SubProg => {
+    const statements = flatten(d) as SubStmt[];
+    return { ...rangeFrom(statements), tag: "SubProg", statements };
+  }
+%}
 
-input -> _
-# input -> statements 
+statements
+    # base case
+    -> _ {% () => [] %} 
+    # whitespaces at the beginning (NOTE: comments are allowed)
+    |  _c_ "\n" statements {% nth(2) %} # 
+    # spaces around each statement (NOTE: still wrap in list to spread later)
+    |  _ statement _ {% d => [d[1]] %}
+    # whitespaces in between and at the end (NOTE: comments are allowed)
+    |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
 
-# statements
-#     # base case
-#     -> _ {% () => [] %} 
-#     # whitespaces at the beginning (NOTE: comments are allowed)
-#     |  _c_ "\n" statements {% nth(2) %} # 
-#     # spaces around each statement (NOTE: still wrap in list to spread later)
-#     |  _ statement _ {% d => [d[1]] %}
-#     # whitespaces in between and at the end (NOTE: comments are allowed)
-#     |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
+statement 
+  -> decl        {% id %}
+  |  label_stmt  {% id %}
 
-# statement 
-#   -> type        {% id %}
+decl -> type_constructor __ sepBy1[identifier, ","] {%
+  ([type, , ids]): Decl[] => ids.map((name: Identifier): Decl => ({
+    ...rangeBetween(type, name),
+    tag: "Decl", type, name
+  }))
+%}
 
+label_stmt 
+  -> label_decl {% id %}
+  |  no_label   {% id %}
+  |  auto_label {% id %}
 
- # Common 
+label_decl -> "Label" __ identifier __ tex_literal {%
+  ([kw, , variable, , label]): LabelDecl => ({
+    ...rangeBetween(rangeOf(kw), label),
+    tag: "LabelDecl", variable, label
+  })
+%}
+
+no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
+  ([kw, , args]): NoLabel => ({
+    ...rangeFrom([rangeOf(kw), ...args]),
+    tag: "NoLabel", args
+  })
+%}
+
+auto_label -> "AutoLabel" __ label_option {%
+  ([kw, , option]): AutoLabel => ({
+    ...rangeBetween(kw, option),
+    tag: "AutoLabel", option 
+  })
+%}
+
+label_option 
+  -> "All" {% ([kw]): LabelOption => ({ ...rangeOf(kw), tag: "DefaultLabels" }) %}
+  |  sepBy1[identifier, ","] {% 
+       ([variables]): LabelOption => ({ ...rangeFrom(variables), tag: "LabelIDs", variables }) 
+     %}
+
+# Grammar from Domain
+
+type_constructor -> identifier type_arg_list:? {% 
+  ([name, a]): TypeConstructor => {
+    const args = optional(a, []);
+    return {
+      ...rangeFrom([name, ...args]),
+      tag: "TypeConstructor", name, args 
+    };
+  }
+%}
+
+# NOTE: only type constructors are alloed in Substance
+type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {% 
+  ([, , , d]): TypeConstructor[] => flatten(d) 
+%}
+
+# Common 
+
+tex_literal -> %tex_literal {% 
+  ([d]): IStringLit => ({
+    ...rangeOf(d),
+    tag: 'StringLit',
+    contents: d.text.substring(1, d.text.length - 1), // NOTE: remove dollars
+  })
+%}
 
 identifier -> %identifier {% 
   ([d]) => ({

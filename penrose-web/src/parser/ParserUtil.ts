@@ -1,4 +1,4 @@
-import { compact } from "lodash";
+import { compact, flatten } from "lodash";
 import * as moo from "moo";
 
 export const basicSymbols: moo.Rules = {
@@ -151,3 +151,9 @@ export const nth = (n: number) => {
     return d[n];
   };
 };
+
+export const optional = <T>(optionalValue: T | undefined, defaultValue: T) =>
+  optionalValue ? optionalValue : defaultValue;
+// Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
+export const tokensIn = (tokenList: any[]): any[] =>
+  flatten(compact(tokenList));

@@ -1014,9 +1014,6 @@ interface IListOf {
 
 //#region Substance AST and Domain environment types
 type SubOut = ISubOut;
-
-type SubProg = SubStmt[];
-
 type ISubOut = [SubProg, [VarEnv, SubEnv], LabelMap];
 
 type LabelMap = { [k: string]: string };
@@ -1109,46 +1106,6 @@ interface ITypeVar {
   typeVarPos: SourcePos;
 }
 
-type SubExpr =
-  | IVarE
-  | IApplyFunc
-  | IApplyValCons
-  | IDeconstructorE
-  | IStringLit;
-
-interface IVarE {
-  tag: "VarE";
-  contents: Var;
-}
-
-interface IApplyFunc {
-  tag: "ApplyFunc";
-  contents: Func;
-}
-
-interface IApplyValCons {
-  tag: "ApplyValCons";
-  contents: Func;
-}
-
-interface IDeconstructorE {
-  tag: "DeconstructorE";
-  contents: Deconstructor;
-}
-
-interface IStringLit {
-  tag: "StringLit";
-  contents: string;
-}
-
-type SubPredicate = ISubPredicate;
-
-interface ISubPredicate {
-  predicateName: string;
-  predicateArgs: SubPredArg[];
-  predicatePos: SourcePos;
-}
-
 type ValConstructor = IValConstructor;
 
 interface IValConstructor {
@@ -1223,15 +1180,9 @@ interface IPP {
   contents: SubPredicate;
 }
 
-type LabelOption = IDefault | IIDs;
-
-interface IDefault {
-  tag: "Default";
-}
-
-interface IIDs {
-  tag: "IDs";
-  contents: Var[];
+interface SubProg {
+  tag: "SubProg";
+  statements: SubStmt[];
 }
 
 type SubStmt =
@@ -1240,20 +1191,68 @@ type SubStmt =
   | IEqualE
   | IEqualQ
   | IApplyP
-  | ILabelDecl
-  | IAutoLabel
-  | INoLabel;
+  | LabelDecl
+  | AutoLabel
+  | NoLabel;
 
-interface IDecl {
+interface LabelDecl extends ASTNode {
+  tag: "LabelDecl";
+  variable: Identifier;
+  label: StringLit;
+}
+interface AutoLabel extends ASTNode {
+  tag: "AutoLabel";
+  option: LabelOption;
+}
+
+type LabelOption = DefaultLabels | LabelIDs;
+
+interface DefaultLabels extends ASTNode {
+  tag: "DefaultLabels";
+}
+interface LabelIDs extends ASTNode {
+  tag: "LabelIDs";
+  variables: Identifier[];
+}
+
+interface NoLabel extends ASTNode {
+  tag: "NoLabel";
+  args: Identifier[];
+}
+
+interface Decl extends ASTNode {
   tag: "Decl";
-  contents: [T, Var];
+  type: TypeConstructor;
+  name: Identifier;
 }
 
-interface IBind {
+interface IBind extends ASTNode {
   tag: "Bind";
-  contents: [Var, SubExpr];
+  variable: Identifier;
+  expression: SubExpr;
 }
 
+type SubExpr =
+  | Identifier
+  | ApplyFunction
+  | ApplyConstructor
+  | Deconstructor
+  | IStringLit;
+interface ApplyFunction {
+  tag: "ApplyFunction";
+  contents: Func;
+}
+interface ApplyConstructor {
+  tag: "ApplyConstructor";
+  contents: Func;
+}
+
+type SubPredicate = ISubPredicate;
+interface ISubPredicate {
+  predicateName: string;
+  predicateArgs: SubPredArg[];
+  predicatePos: SourcePos;
+}
 interface IEqualE {
   tag: "EqualE";
   contents: [SubExpr, SubExpr];
@@ -1267,21 +1266,6 @@ interface IEqualQ {
 interface IApplyP {
   tag: "ApplyP";
   contents: SubPredicate;
-}
-
-interface ILabelDecl {
-  tag: "LabelDecl";
-  contents: [Var, string];
-}
-
-interface IAutoLabel {
-  tag: "AutoLabel";
-  contents: LabelOption;
-}
-
-interface INoLabel {
-  tag: "NoLabel";
-  contents: Var[];
 }
 
 type StmtNotationRule = IStmtNotationRule;

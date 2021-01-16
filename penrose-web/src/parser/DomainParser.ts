@@ -12,7 +12,7 @@ declare var ws: any;
 
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
-import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
+import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
@@ -33,9 +33,6 @@ const lexer = moo.compile({
   }
 });
 
-const optional = <T>(optionalValue: T | undefined, defaultValue: T) => optionalValue ? optionalValue : defaultValue;
-// Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
-const tokensIn = (tokenList: any[]): any[] => flatten(compact(tokenList));
 
 
 interface NearleyToken {
