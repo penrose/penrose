@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import { insertExpr } from "engine/EngineUtils";
+import { shapedefs, findDef } from "shapes/ShapeDef";
 
 // TODO: Write pseudocode / code comments / tests for the Style compiler
 
@@ -1093,31 +1094,223 @@ const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styP
 
 //#endregion
 
+//#region Translation utilities -- TODO move to EngineUtils
+
+function foldFields<T>(f: (s: string, field: Field, fexpr: FieldExpr<VarAD>, acc: T[]) => T[],
+  [name, fieldDict]: [string, { [k: string]: FieldExpr<VarAD> }], acc: T[]): T[] {
+
+  const res: T[] = Object.entries(fieldDict).reduce((acc: T[], [field, expr]) => f(name, field, expr, acc), []);
+  return res.concat(acc);
+};
+
+function foldSubObjs<T>(f: (s: string, f: Field, fexpr: FieldExpr<VarAD>, acc: T[]) => T[], tr: Translation): T[] {
+  return Object.entries(tr.trMap).reduce((acc: T[], curr) => foldFields(f, curr, acc), []);
+};
+
+//#endregion
+
 //#region Gen opt problem
 
+// Find varying (float) paths
+// For now, don't optimize these float-valued properties of a GPI
+// (use whatever they are initialized to in Shapes or set to in Style)
+const unoptimizedFloatProperties: String[] =
+  ["rotation", "strokeWidth", "thickness", "transform", "transformation",
+    "opacity", "finalW", "finalH", "arrowheadSize"]
+
+const optimizedVectorProperties: string[] =
+  ["start", "end", "center"]
+
+const declaredVarying = (t: TagExpr<VarAD>): boolean => {
+  if (t.tag == "OptEval") {
+    if (t.contents.tag === "Vary") {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const mkPath = (strs: string[]): Path => {
+  if (strs.length === 2) {
+    const [name, field] = strs;
+    return {
+      tag: "FieldPath",
+      start: dummySourceLoc(),
+      end: dummySourceLoc(),
+      name: {
+        start: dummySourceLoc(),
+        end: dummySourceLoc(),
+        tag: "SubVar",
+        contents: {
+          ...dummyIdentifier(name)
+        }
+      },
+      field: dummyIdentifier(field)
+    };
+  } else if (strs.length === 3) {
+    const [name, field, prop] = strs;
+    return {
+      tag: "PropertyPath",
+      start: dummySourceLoc(),
+      end: dummySourceLoc(),
+      name: {
+        start: dummySourceLoc(),
+        end: dummySourceLoc(),
+        tag: "SubVar",
+        contents: {
+          ...dummyIdentifier(name)
+        }
+      },
+      field: dummyIdentifier(field),
+      property: dummyIdentifier(prop),
+    };
+  } else throw Error("bad # inputs");
+
+};
+
+const pendingProperties = (s: ShapeTypeStr): PropID[] => {
+  if (s === "Text") return ["w", "h"];
+  if (s === "TextTransform") return ["w", "h"];
+  if (s === "ImageTransform") return ["initWidth", "initHeight"];
+  return [];
+};
+
+const isVarying = (e: Expr): boolean => {
+  return e.tag === "Vary";
+};
+
+const isPending = (s: ShapeTypeStr, p: PropID): boolean => {
+  return pendingProperties(s).includes(p);
+};
+
+// ---- FINDING VARIOUS THINGS IN THE TRANSLATION
+
+const findPropertyVarying = (name: string, field: Field, properties: { [k: string]: TagExpr<VarAD> },
+  floatProperty: string, acc: Path[]): Path[] => {
+
+  const expr = properties[floatProperty];
+  const path = mkPath([name, field, floatProperty]);
+
+  if (!expr) {
+    if (unoptimizedFloatProperties.includes(floatProperty)) {
+      return acc;
+    }
+
+    if (optimizedVectorProperties.includes(floatProperty)) {
+      const defaultVec2: TagExpr<VarAD> = {
+        tag: "OptEval",
+        contents: {
+          start: dummySourceLoc(), end: dummySourceLoc(),
+          tag: "Vector",
+          contents: [{ start: dummySourceLoc(), end: dummySourceLoc(), tag: "Vary" }, {
+            start: dummySourceLoc(), end: dummySourceLoc(), tag: "Vary"
+          }]
+        }
+      };
+      // Return paths for both elements, COMBAK: This hardcodes that unset vectors have 2 elements, need to generalize
+      const paths = findNestedVarying(defaultVec2, path);
+      return paths.concat(acc);
+    }
+
+    return [path].concat(acc);
+
+  } else {
+    if (declaredVarying(expr)) {
+      return [path].concat(acc);
+    }
+  }
+
+  const paths = findNestedVarying(expr, path);
+  return paths.concat(acc);
+};
+
+const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
+  if (e.tag === "OptEval") {
+    const res = e.contents;
+    if (res.tag === "Vector") {
+      const elems = res.contents;
+      const indices: Path[] = elems.filter(isVarying)
+        .map((e, i) => ({
+          start: dummySourceLoc(),
+          end: dummySourceLoc(),
+          tag: "AccessPath",
+          path: p,
+          indices: [i]
+        }));
+
+      return indices;
+    } else if (res.tag === "Matrix" || res.tag === "List" || res.tag === "Tuple") {
+      // COMBAK: This should search, but for now we just don't handle nested varying vars in these
+      return [];
+    }
+  }
+
+  return [];
+};
+
+// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
+// COMBAK: Port the comments
+const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
+  const shapeInfo = Object.entries(findDef(propType)[1]);
+  return shapeInfo.filter(([t, e]) => t === propType).map(e => e[0]);
+};
+
+const propertiesNotOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
+  const shapeInfo = Object.entries(findDef(propType)[1]);
+  return shapeInfo.filter(([t, e]) => t !== propType).map(e => e[0]);
+};
+
+const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
+  if (fexpr.tag === "FExpr") {
+    if (declaredVarying(fexpr.contents)) {
+      return [mkPath([name, field])].concat(acc);
+    }
+
+    const paths = findNestedVarying(fexpr.contents, mkPath([name, field]));
+    return paths.concat(acc);
+
+  } else if (fexpr.tag === "FGPI") {
+    const [typ, properties] = fexpr.contents;
+    const ctorFloats = propertiesOf("FloatT", typ).concat(propertiesOf("VectorT", typ));
+    const varyingFloats = ctorFloats.filter(e => !isPending(typ, e));
+    const vs: Path[] = varyingFloats.reduce((acc: Path[], curr) => findPropertyVarying(name, field, properties, curr, acc), []);
+    return vs.concat(acc);
+
+  } else throw Error("unknown tag");
+};
+
 const findVarying = (tr: Translation): Path[] => {
-  return []; // TODO <
+  return foldSubObjs(findFieldVarying, tr);
+};
+
+const findPropertyUninitialized = (name: string, field: Field, properties: GPIMap, nonfloatProperty: string, acc: Path[]): Path[] => {
+  const res = properties[nonfloatProperty];
+  if (!res) {
+    return [mkPath([name, field, nonfloatProperty])].concat(acc);
+  }
+  return acc;
+};
+
+const findFieldUninitialized = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
+  if (fexpr.tag === "FExpr") { return acc; }
+  if (fexpr.tag === "FGPI") {
+    const [typ, properties] = fexpr.contents;
+    const ctorNonfloats = propertiesNotOf("FloatT", typ).filter(e => e !== "name");
+    const uninitializedProps = ctorNonfloats;
+    const vs = uninitializedProps.reduce((acc: Path[], curr) => findPropertyUninitialized(name, field, properties, curr, acc), []);
+    return vs.concat(acc);
+  }
+  throw Error("unknown tag");
 };
 
 const findUninitialized = (tr: Translation): Path[] => {
-  return []; // TODO <
+  return foldSubObjs(findFieldUninitialized, tr);
 };
 
 const findShapeNames = (tr: Translation): [string, string][] => {
   return []; // TODO <
 };
-
-const toPath = (xs: [string, string]): Path => {
-  return { tag: "InternalLocalVar", contents: "" } as Path; // TODO <
-};
-
-const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
-  return tr; // TODO <
-};
-
-const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
-  return tr; // TODO <
-}
 
 const findShapesProperties = (tr: Translation): [string, string, string][] => {
   return []; // TODO <
@@ -1140,13 +1333,25 @@ const findPending = (tr: Translation): Path[] => {
   return []; // TODO <
 };
 
+// ---- INITIALIZATION
+
+const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
+  return tr; // TODO <
+};
+
+const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
+  return tr; // TODO <
+}
+
+// ---- MAIN FUNCTION
+
 // COMBAK: Add optConfig as param?
 const genOptProblemAndState = (trans: Translation): State => {
 
   const varyingPaths = findVarying(trans);
   const uninitializedPaths = findUninitialized(trans);
-  const shapePathList = findShapeNames(trans);
-  const shapePaths = shapePathList.map(toPath);
+  const shapePathList: [string, string][] = findShapeNames(trans);
+  const shapePaths = shapePathList.map(mkPath);
 
   // COMBAK: Use pseudorandomness
   const transInitFields = initFields(varyingPaths, trans);
@@ -1163,18 +1368,22 @@ const genOptProblemAndState = (trans: Translation): State => {
   const pendingPaths = findPending(transInit);
 
   const initState = {
-    shapes: initialGPIs, // ??
+    shapes: initialGPIs, // TODO: Why is this empty? I guess someone else initializes these?
     shapePaths,
     shapeProperties,
     shapeOrdering: [],
+
     translation: transInit,
+    originalTranslation: trans, // COMBAK: Make a copy of the inital trans and store it here
+
     varyingPaths,
     varyingValues: initVaryingState,
+
     uninitializedPaths,
     pendingPaths,
+
     objFns,
     constrFns,
-    originalTranslation: trans, // COMBAK: Make a copy of the inital trans and store it here
 
     params: undefined as any, // Initialized by optimization; TODO: model with Maybe type
     rng: undefined as any,

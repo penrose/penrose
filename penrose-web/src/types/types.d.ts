@@ -41,15 +41,26 @@ interface IVal<T> {
   contents: Value<T>;
 }
 
+type Field = string;
+type Name = string;
+type FExpr = FieldExpr<VarAD>;
+type ShapeTypeStr = string;
+type PropID = string;
+type GPIMap = { [k: string]: TagExpr<VarAD> };
+
 // NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
  * Translation represents the computational graph compiled from a trio of Penrose programs.
  */
 type Translation = ITrans<VarAD>;
 
+type Trans = TrMap<VarAD>;
+
+type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
+
 interface ITrans<T> {
   // TODO: compGraph
-  trMap: { [k: string]: { [k: string]: FieldExpr<T> } };
+  trMap: TrMap<T>;
   warnings: string[];
 }
 

@@ -245,7 +245,7 @@ export const shapedefs: ShapeDef[] = [
   arrowDef,
 ];
 
-const findDef = (type: string): ShapeDef => {
+export const findDef = (type: string): ShapeDef => {
   const res = shapedefs.find(({ shapeType }: ShapeDef) => shapeType === type);
   if (res) return res;
   else throw new Error(`${type} is not a valid shape definition.`);
