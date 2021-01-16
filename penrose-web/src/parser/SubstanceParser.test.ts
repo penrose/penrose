@@ -116,4 +116,15 @@ NoLabel B, C
       results[0].statements[4].option.variables.map((a: any) => a.value)
     ).toEqual(["B", "C"]);
   });
+  test("bind and exprs", () => {
+    const prog = `
+Set A, B, C
+Point p1, p2
+C := Intersection(A, B)
+p1 := ValueOf(A.value)
+p2 := ValueOf(Translate(p), "10, 20")
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 });

@@ -74,6 +74,8 @@ statements
 
 statement 
   -> decl        {% id %}
+  |  bind        {% id %}
+  # |  decl_bind   {% id %}
   |  label_stmt  {% id %}
 
 decl -> type_constructor __ sepBy1[identifier, ","] {%
@@ -81,6 +83,33 @@ decl -> type_constructor __ sepBy1[identifier, ","] {%
     ...rangeBetween(type, name),
     tag: "Decl", type, name
   }))
+%}
+
+bind -> identifier _ ":=" _ sub_expr {%
+  ([variable, , , , expr]): Bind => ({
+    ...rangeBetween(variable, expr),
+    tag: "Bind", variable, expr
+  })
+%}
+
+sub_expr 
+  -> identifier {% id %}
+  |  deconstructor {% id %}
+  |  apply_cons_or_func {% id %}
+  |  string_lit {% id %}
+
+deconstructor -> identifier _ "." _ identifier {%
+  ([variable, , , , field]): Deconstructor => ({
+    ...rangeBetween(variable, field),
+    tag: "Deconstructor", variable, field
+  })
+%}
+
+apply_cons_or_func -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
+  ([name, , , , args]): ApplyConsOrFunc => ({
+    ...rangeFrom([name, ...args]),
+    tag: "ApplyConsOrFunc", name, args
+  })
 %}
 
 label_stmt 
@@ -133,6 +162,14 @@ type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {%
 %}
 
 # Common 
+
+string_lit -> %string_literal {%
+  ([d]): IStringLit => ({
+    ...rangeOf(d),
+    tag: 'StringLit',
+    contents: d.text
+  })
+%}
 
 tex_literal -> %tex_literal {% 
   ([d]): IStringLit => ({

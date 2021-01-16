@@ -483,7 +483,7 @@ string_lit -> %string_literal {%
   ([d]): IStringLit => ({
     ...rangeOf(d),
     tag: 'StringLit',
-    contents: JSON.parse(d.text)
+    contents: d.text
   })
 %}
 

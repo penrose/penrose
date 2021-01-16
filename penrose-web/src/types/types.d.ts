@@ -829,6 +829,7 @@ interface SubTypeDecl extends ASTNode {
 //#endregion
 
 //#region Style AST
+// TODO: unify type name convention (e.g. stop using `I` for interfaces and drop some of the Haskell ported types)
 
 /** Top level type for Style AST */
 interface StyProg extends ASTNode {
@@ -1026,6 +1027,101 @@ interface ISubEnv {
   bindings: { [k: Var]: SubExpr };
   subPreds: SubPredicate[];
 }
+interface SubProg {
+  tag: "SubProg";
+  statements: SubStmt[];
+}
+
+type SubStmt =
+  | Decl
+  | Bind
+  | IEqualE
+  | IEqualQ
+  | IApplyP
+  | LabelDecl
+  | AutoLabel
+  | NoLabel;
+
+interface LabelDecl extends ASTNode {
+  tag: "LabelDecl";
+  variable: Identifier;
+  label: StringLit;
+}
+interface AutoLabel extends ASTNode {
+  tag: "AutoLabel";
+  option: LabelOption;
+}
+
+type LabelOption = DefaultLabels | LabelIDs;
+
+interface DefaultLabels extends ASTNode {
+  tag: "DefaultLabels";
+}
+interface LabelIDs extends ASTNode {
+  tag: "LabelIDs";
+  variables: Identifier[];
+}
+
+interface NoLabel extends ASTNode {
+  tag: "NoLabel";
+  args: Identifier[];
+}
+
+interface Decl extends ASTNode {
+  tag: "Decl";
+  type: TypeConstructor;
+  name: Identifier;
+}
+
+interface Bind extends ASTNode {
+  tag: "Bind";
+  variable: Identifier;
+  expr: SubExpr;
+}
+
+type SubExpr =
+  | Identifier
+  | ApplyFunction
+  | ApplyConstructor
+  | ApplyConsOrFunc // NOTE: there's no syntactic difference between cons and func, so the parser will parse both into this type first
+  | Deconstructor
+  | IStringLit;
+
+interface ApplyConsOrFunc extends ASTNode {
+  tag: "ApplyConsOrFunc";
+  name: string;
+  args: SubExpr[];
+}
+interface ApplyFunction extends ASTNode {
+  tag: "ApplyFunction";
+  name: string;
+  args: SubExpr[];
+}
+interface ApplyConstructor extends ASTNode {
+  tag: "ApplyConstructor";
+  name: string;
+  args: SubExpr[];
+}
+interface Deconstructor extends ASTNode {
+  variable: Identifier;
+  field: Identifier;
+}
+
+interface EqualExprs extends ASTNode {
+  tag: "EqualExprs";
+  left: SubExpr;
+  right: SubExpr;
+}
+
+interface EqualPredicates extends ASTNode {
+  tag: "EqualPredicates";
+  left: SubPredicate;
+  right: SubPredicate;
+}
+interface ApplyPredicate extends ASTNode {
+  name: Identifier;
+  args: SubPredArg[];
+}
 
 type VarEnv = IVarEnv;
 
@@ -1132,13 +1228,6 @@ interface ITypeCtorApp {
   constructorInvokerPos: SourcePos;
 }
 
-type Func = IFunc;
-
-interface IFunc {
-  nameFunc: string;
-  argFunc: SubExpr[];
-}
-
 type Operator = IOperator;
 
 interface IOperator {
@@ -1147,13 +1236,6 @@ interface IOperator {
   kindsop: K[];
   tlsop: T[];
   top: T;
-}
-
-type Deconstructor = IDeconstructor;
-
-interface IDeconstructor {
-  varDeconstructor: Var;
-  fieldDeconstructor: string;
 }
 
 type PredicateEnv = IPred1 | IPred2;
@@ -1177,94 +1259,6 @@ interface IPE {
 
 interface IPP {
   tag: "PP";
-  contents: SubPredicate;
-}
-
-interface SubProg {
-  tag: "SubProg";
-  statements: SubStmt[];
-}
-
-type SubStmt =
-  | IDecl
-  | IBind
-  | IEqualE
-  | IEqualQ
-  | IApplyP
-  | LabelDecl
-  | AutoLabel
-  | NoLabel;
-
-interface LabelDecl extends ASTNode {
-  tag: "LabelDecl";
-  variable: Identifier;
-  label: StringLit;
-}
-interface AutoLabel extends ASTNode {
-  tag: "AutoLabel";
-  option: LabelOption;
-}
-
-type LabelOption = DefaultLabels | LabelIDs;
-
-interface DefaultLabels extends ASTNode {
-  tag: "DefaultLabels";
-}
-interface LabelIDs extends ASTNode {
-  tag: "LabelIDs";
-  variables: Identifier[];
-}
-
-interface NoLabel extends ASTNode {
-  tag: "NoLabel";
-  args: Identifier[];
-}
-
-interface Decl extends ASTNode {
-  tag: "Decl";
-  type: TypeConstructor;
-  name: Identifier;
-}
-
-interface IBind extends ASTNode {
-  tag: "Bind";
-  variable: Identifier;
-  expression: SubExpr;
-}
-
-type SubExpr =
-  | Identifier
-  | ApplyFunction
-  | ApplyConstructor
-  | Deconstructor
-  | IStringLit;
-interface ApplyFunction {
-  tag: "ApplyFunction";
-  contents: Func;
-}
-interface ApplyConstructor {
-  tag: "ApplyConstructor";
-  contents: Func;
-}
-
-type SubPredicate = ISubPredicate;
-interface ISubPredicate {
-  predicateName: string;
-  predicateArgs: SubPredArg[];
-  predicatePos: SourcePos;
-}
-interface IEqualE {
-  tag: "EqualE";
-  contents: [SubExpr, SubExpr];
-}
-
-interface IEqualQ {
-  tag: "EqualQ";
-  contents: [SubPredicate, SubPredicate];
-}
-
-interface IApplyP {
-  tag: "ApplyP";
   contents: SubPredicate;
 }
 

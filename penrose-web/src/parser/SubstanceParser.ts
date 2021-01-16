@@ -3,6 +3,7 @@
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
 function id(d: any[]): any { return d[0]; }
+declare var string_literal: any;
 declare var tex_literal: any;
 declare var identifier: any;
 declare var comment: any;
@@ -74,6 +75,7 @@ const grammar: Grammar = {
     {"name": "statements", "symbols": ["_", "statement", "_"], "postprocess": d => [d[1]]},
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["decl"], "postprocess": id},
+    {"name": "statement", "symbols": ["bind"], "postprocess": id},
     {"name": "statement", "symbols": ["label_stmt"], "postprocess": id},
     {"name": "decl$macrocall$2", "symbols": ["identifier"]},
     {"name": "decl$macrocall$3", "symbols": [{"literal":","}]},
@@ -96,6 +98,44 @@ const grammar: Grammar = {
           ...rangeBetween(type, name),
           tag: "Decl", type, name
         }))
+        },
+    {"name": "bind", "symbols": ["identifier", "_", {"literal":":="}, "_", "sub_expr"], "postprocess": 
+        ([variable, , , , expr]): Bind => ({
+          ...rangeBetween(variable, expr),
+          tag: "Bind", variable, expr
+        })
+        },
+    {"name": "sub_expr", "symbols": ["identifier"], "postprocess": id},
+    {"name": "sub_expr", "symbols": ["deconstructor"], "postprocess": id},
+    {"name": "sub_expr", "symbols": ["apply_cons_or_func"], "postprocess": id},
+    {"name": "sub_expr", "symbols": ["string_lit"], "postprocess": id},
+    {"name": "deconstructor", "symbols": ["identifier", "_", {"literal":"."}, "_", "identifier"], "postprocess": 
+        ([variable, , , , field]): Deconstructor => ({
+          ...rangeBetween(variable, field),
+          tag: "Deconstructor", variable, field
+        })
+        },
+    {"name": "apply_cons_or_func$macrocall$2", "symbols": ["sub_expr"]},
+    {"name": "apply_cons_or_func$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "apply_cons_or_func$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "apply_cons_or_func$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "apply_cons_or_func$macrocall$3", "_", "apply_cons_or_func$macrocall$2"]},
+    {"name": "apply_cons_or_func$macrocall$1$ebnf$1", "symbols": ["apply_cons_or_func$macrocall$1$ebnf$1", "apply_cons_or_func$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "apply_cons_or_func$macrocall$1$ebnf$2", "symbols": ["apply_cons_or_func$macrocall$3"], "postprocess": id},
+    {"name": "apply_cons_or_func$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "apply_cons_or_func$macrocall$1", "symbols": ["apply_cons_or_func$macrocall$2", "apply_cons_or_func$macrocall$1$ebnf$1", "apply_cons_or_func$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "apply_cons_or_func", "symbols": ["identifier", "_", {"literal":"("}, "_", "apply_cons_or_func$macrocall$1", "_", {"literal":")"}], "postprocess": 
+        ([name, , , , args]): ApplyConsOrFunc => ({
+          ...rangeFrom([name, ...args]),
+          tag: "ApplyConsOrFunc", name, args
+        })
         },
     {"name": "label_stmt", "symbols": ["label_decl"], "postprocess": id},
     {"name": "label_stmt", "symbols": ["no_label"], "postprocess": id},
@@ -183,6 +223,13 @@ const grammar: Grammar = {
         },
     {"name": "type_arg_list", "symbols": ["_", {"literal":"("}, "_", "type_arg_list$macrocall$1", "_", {"literal":")"}], "postprocess":  
         ([, , , d]): TypeConstructor[] => flatten(d) 
+        },
+    {"name": "string_lit", "symbols": [(lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
+        ([d]): IStringLit => ({
+          ...rangeOf(d),
+          tag: 'StringLit',
+          contents: d.text
+        })
         },
     {"name": "tex_literal", "symbols": [(lexer.has("tex_literal") ? {type: "tex_literal"} : tex_literal)], "postprocess":  
         ([d]): IStringLit => ({

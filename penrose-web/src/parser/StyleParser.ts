@@ -473,7 +473,7 @@ const grammar: Grammar = {
         ([d]): IStringLit => ({
           ...rangeOf(d),
           tag: 'StringLit',
-          contents: JSON.parse(d.text)
+          contents: d.text
         })
         },
     {"name": "annotated_float", "symbols": [{"literal":"?"}], "postprocess": ([d]): IVary => ({ ...rangeOf(d), tag: 'Vary' })},

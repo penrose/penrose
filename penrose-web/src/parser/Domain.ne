@@ -136,8 +136,8 @@ notation -> "notation" _ %string_literal _ "~" _ %string_literal {%
   ([kw, , from, , , , to]): NotationDecl => ({
     ...rangeBetween(rangeOf(kw), to),
     tag: "NotationDecl", 
-    from: JSON.parse(from.text),
-    to: JSON.parse(to.text)
+    from: from.text,
+    to: to.text
   })
 %} 
 subtype -> type _ "<:" _ type {%

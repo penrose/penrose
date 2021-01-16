@@ -128,8 +128,8 @@ const grammar: Grammar = {
         ([kw, , from, , , , to]): NotationDecl => ({
           ...rangeBetween(rangeOf(kw), to),
           tag: "NotationDecl", 
-          from: JSON.parse(from.text),
-          to: JSON.parse(to.text)
+          from: from.text,
+          to: to.text
         })
         },
     {"name": "subtype", "symbols": ["type", "_", {"literal":"<:"}, "_", "type"], "postprocess": 
