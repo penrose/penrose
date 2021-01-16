@@ -1083,12 +1083,12 @@ type SubExpr =
   | Identifier
   | ApplyFunction
   | ApplyConstructor
-  | ApplyConsOrFunc // NOTE: there's no syntactic difference between cons and func, so the parser will parse both into this type first
+  | Func // NOTE: there's no syntactic difference among function, consturctor, and predicate, so the parser will parse both into this type first
   | Deconstructor
   | IStringLit;
 
-interface ApplyConsOrFunc extends ASTNode {
-  tag: "ApplyConsOrFunc";
+interface Func extends ASTNode {
+  tag: "Func";
   name: string;
   args: SubExpr[];
 }
@@ -1121,6 +1121,16 @@ interface EqualPredicates extends ASTNode {
 interface ApplyPredicate extends ASTNode {
   name: Identifier;
   args: SubPredArg[];
+}
+
+type SubPredArg = SubPredExpr | SubPredNested;
+interface SubPredExpr extends ASTNode {
+  tag: "SubPredExpr";
+  contents: SubExpr;
+}
+interface SubPredNested extends ASTNode {
+  tag: "SubPredNested";
+  contents: ApplyPredicate;
 }
 
 type VarEnv = IVarEnv;
@@ -1248,18 +1258,6 @@ interface IPred1 {
 interface IPred2 {
   tag: "Pred2";
   contents: Predicate2;
-}
-
-type SubPredArg = IPE | IPP;
-
-interface IPE {
-  tag: "PE";
-  contents: SubExpr;
-}
-
-interface IPP {
-  tag: "PP";
-  contents: SubPredicate;
 }
 
 type StmtNotationRule = IStmtNotationRule;

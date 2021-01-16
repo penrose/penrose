@@ -73,10 +73,11 @@ statements
     |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
 
 statement 
-  -> decl        {% id %}
-  |  bind        {% id %}
+  -> decl            {% id %}
+  |  bind            {% id %}
   # |  decl_bind   {% id %}
-  |  label_stmt  {% id %}
+  |  apply_predicate {% id %}
+  |  label_stmt      {% id %}
 
 decl -> type_constructor __ sepBy1[identifier, ","] {%
   ([type, , ids]): Decl[] => ids.map((name: Identifier): Decl => ({
@@ -92,10 +93,21 @@ bind -> identifier _ ":=" _ sub_expr {%
   })
 %}
 
+apply_predicate -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
+  ([name, , , , args]): ApplyPredicate => ({
+    ...rangeFrom([name, ...args]),
+    tag: "ApplyPredicate", name, args
+  })
+%}
+
+# pred_arg 
+  # -> apply_predicate {% ([d]): SubPredNested => ({ ...rangeOf(d), tag: "SubPredNested", contents: d}) %}
+  # -> sub_expr {% ([d]): SubPredExpr => ({ ...rangeOf(d), tag: "SubPredExpr", contents: d}) %}
+
 sub_expr 
   -> identifier {% id %}
   |  deconstructor {% id %}
-  |  apply_cons_or_func {% id %}
+  |  func {% id %}
   |  string_lit {% id %}
 
 deconstructor -> identifier _ "." _ identifier {%
@@ -105,10 +117,11 @@ deconstructor -> identifier _ "." _ identifier {%
   })
 %}
 
-apply_cons_or_func -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
-  ([name, , , , args]): ApplyConsOrFunc => ({
+# NOTE: generic func type for consturction, predicate, or function
+func -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
+  ([name, , , , args]): Func => ({
     ...rangeFrom([name, ...args]),
-    tag: "ApplyConsOrFunc", name, args
+    tag: "Func", name, args
   })
 %}
 

@@ -127,4 +127,14 @@ p2 := ValueOf(Translate(p), "10, 20")
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+  test("predicates", () => {
+    const prog = `
+Set A, B, C
+IsSubset(A, B)
+Not(IsSubset(A, B))
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    printAST(results[0]);
+  });
 });

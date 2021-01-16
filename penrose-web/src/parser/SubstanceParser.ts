@@ -76,6 +76,7 @@ const grammar: Grammar = {
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["decl"], "postprocess": id},
     {"name": "statement", "symbols": ["bind"], "postprocess": id},
+    {"name": "statement", "symbols": ["apply_predicate"], "postprocess": id},
     {"name": "statement", "symbols": ["label_stmt"], "postprocess": id},
     {"name": "decl$macrocall$2", "symbols": ["identifier"]},
     {"name": "decl$macrocall$3", "symbols": [{"literal":","}]},
@@ -105,24 +106,14 @@ const grammar: Grammar = {
           tag: "Bind", variable, expr
         })
         },
-    {"name": "sub_expr", "symbols": ["identifier"], "postprocess": id},
-    {"name": "sub_expr", "symbols": ["deconstructor"], "postprocess": id},
-    {"name": "sub_expr", "symbols": ["apply_cons_or_func"], "postprocess": id},
-    {"name": "sub_expr", "symbols": ["string_lit"], "postprocess": id},
-    {"name": "deconstructor", "symbols": ["identifier", "_", {"literal":"."}, "_", "identifier"], "postprocess": 
-        ([variable, , , , field]): Deconstructor => ({
-          ...rangeBetween(variable, field),
-          tag: "Deconstructor", variable, field
-        })
-        },
-    {"name": "apply_cons_or_func$macrocall$2", "symbols": ["sub_expr"]},
-    {"name": "apply_cons_or_func$macrocall$3", "symbols": [{"literal":","}]},
-    {"name": "apply_cons_or_func$macrocall$1$ebnf$1", "symbols": []},
-    {"name": "apply_cons_or_func$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "apply_cons_or_func$macrocall$3", "_", "apply_cons_or_func$macrocall$2"]},
-    {"name": "apply_cons_or_func$macrocall$1$ebnf$1", "symbols": ["apply_cons_or_func$macrocall$1$ebnf$1", "apply_cons_or_func$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "apply_cons_or_func$macrocall$1$ebnf$2", "symbols": ["apply_cons_or_func$macrocall$3"], "postprocess": id},
-    {"name": "apply_cons_or_func$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "apply_cons_or_func$macrocall$1", "symbols": ["apply_cons_or_func$macrocall$2", "apply_cons_or_func$macrocall$1$ebnf$1", "apply_cons_or_func$macrocall$1$ebnf$2"], "postprocess":  
+    {"name": "apply_predicate$macrocall$2", "symbols": ["sub_expr"]},
+    {"name": "apply_predicate$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "apply_predicate$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "apply_predicate$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "apply_predicate$macrocall$3", "_", "apply_predicate$macrocall$2"]},
+    {"name": "apply_predicate$macrocall$1$ebnf$1", "symbols": ["apply_predicate$macrocall$1$ebnf$1", "apply_predicate$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "apply_predicate$macrocall$1$ebnf$2", "symbols": ["apply_predicate$macrocall$3"], "postprocess": id},
+    {"name": "apply_predicate$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "apply_predicate$macrocall$1", "symbols": ["apply_predicate$macrocall$2", "apply_predicate$macrocall$1$ebnf$1", "apply_predicate$macrocall$1$ebnf$2"], "postprocess":  
         d => { 
           const [first, rest] = [d[0], d[1]];
           if(rest.length > 0) {
@@ -131,10 +122,42 @@ const grammar: Grammar = {
           } else return first;
         }
         },
-    {"name": "apply_cons_or_func", "symbols": ["identifier", "_", {"literal":"("}, "_", "apply_cons_or_func$macrocall$1", "_", {"literal":")"}], "postprocess": 
-        ([name, , , , args]): ApplyConsOrFunc => ({
+    {"name": "apply_predicate", "symbols": ["identifier", "_", {"literal":"("}, "_", "apply_predicate$macrocall$1", "_", {"literal":")"}], "postprocess": 
+        ([name, , , , args]): ApplyPredicate => ({
           ...rangeFrom([name, ...args]),
-          tag: "ApplyConsOrFunc", name, args
+          tag: "ApplyPredicate", name, args
+        })
+        },
+    {"name": "sub_expr", "symbols": ["identifier"], "postprocess": id},
+    {"name": "sub_expr", "symbols": ["deconstructor"], "postprocess": id},
+    {"name": "sub_expr", "symbols": ["func"], "postprocess": id},
+    {"name": "sub_expr", "symbols": ["string_lit"], "postprocess": id},
+    {"name": "deconstructor", "symbols": ["identifier", "_", {"literal":"."}, "_", "identifier"], "postprocess": 
+        ([variable, , , , field]): Deconstructor => ({
+          ...rangeBetween(variable, field),
+          tag: "Deconstructor", variable, field
+        })
+        },
+    {"name": "func$macrocall$2", "symbols": ["sub_expr"]},
+    {"name": "func$macrocall$3", "symbols": [{"literal":","}]},
+    {"name": "func$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "func$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "func$macrocall$3", "_", "func$macrocall$2"]},
+    {"name": "func$macrocall$1$ebnf$1", "symbols": ["func$macrocall$1$ebnf$1", "func$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "func$macrocall$1$ebnf$2", "symbols": ["func$macrocall$3"], "postprocess": id},
+    {"name": "func$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
+    {"name": "func$macrocall$1", "symbols": ["func$macrocall$2", "func$macrocall$1$ebnf$1", "func$macrocall$1$ebnf$2"], "postprocess":  
+        d => { 
+          const [first, rest] = [d[0], d[1]];
+          if(rest.length > 0) {
+            const restNodes = rest.map((ts: any[]) => ts[3]);
+            return concat(first, ...restNodes);
+          } else return first;
+        }
+        },
+    {"name": "func", "symbols": ["identifier", "_", {"literal":"("}, "_", "func$macrocall$1", "_", {"literal":")"}], "postprocess": 
+        ([name, , , , args]): Func => ({
+          ...rangeFrom([name, ...args]),
+          tag: "Func", name, args
         })
         },
     {"name": "label_stmt", "symbols": ["label_decl"], "postprocess": id},
