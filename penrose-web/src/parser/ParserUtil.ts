@@ -1,4 +1,48 @@
 import { compact } from "lodash";
+import * as moo from "moo";
+
+export const basicSymbols: moo.Rules = {
+  ws: /[ \t]+/,
+  nl: { match: "\n", lineBreaks: true },
+  subtypeOf: "<:",
+  lte: "<=",
+  lt: "<",
+  gte: ">=",
+  gt: ">",
+  eq: "==",
+  rarrow: "->",
+  tilda: "~",
+  lparen: "(",
+  rparen: ")",
+  apos: "'",
+  comma: ",",
+  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+  float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
+  comment: /--.*?$/,
+  multiline_comment: {
+    match: /\/\*(?:[\s\S]*?)\*\//,
+    lineBreaks: true,
+  },
+  dot: ".",
+  brackets: "[]",
+  lbracket: "[",
+  rbracket: "]",
+  lbrace: "{",
+  rbrace: "}",
+  assignment: "=",
+  def: ":=",
+  plus: "+",
+  exp: "^",
+  minus: "-",
+  multiply: "*",
+  divide: "/",
+  modulo: "%",
+  colon: ":",
+  semi: ";",
+  question: "?",
+  dollar: "$",
+  tick: "`",
+};
 
 const tokenStart = (token: any) => {
   return {
