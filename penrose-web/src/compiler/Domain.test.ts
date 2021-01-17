@@ -7,6 +7,14 @@ import { showDomainErr } from "utils/Error";
 import { compile } from "moo";
 import { type } from "os";
 
+const outputDir = "/tmp/contexts";
+const saveContexts = true;
+
+const domainPaths = [
+  "linear-algebra-domain/linear-algebra.dsl",
+  "set-theory-domain/setTheory.dsl",
+];
+
 const compileDomain = (prog: string) => {
   const { results } = parser.feed(prog);
   return checkDomain(results[0]);
@@ -196,5 +204,27 @@ constructor Cons ['X] : 'X head * List('X) tail -> List('X)
   D <: E
     `;
     expectErrorOf(prog, "CyclicSubtypes");
+  });
+});
+
+describe("Real Programs", () => {
+  // create output folder
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  domainPaths.map((examplePath) => {
+    const file = path.join("../examples/", examplePath);
+    const prog = fs.readFileSync(file, "utf8");
+    test(examplePath, () => {
+      const res = compileDomain(prog);
+      expect(res.isOk()).toBe(true);
+      // write to output folder
+      if (res.isOk()) {
+        const exampleName = path.basename(examplePath, ".dsl");
+        const astPath = path.join(outputDir, exampleName + ".env.json");
+        fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
+      }
+    });
   });
 });
