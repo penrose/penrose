@@ -19,7 +19,17 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-const subPaths = [];
+const subPaths = [
+  // "linear-algebra-domain/twoVectorsPerp.sub",
+  "set-theory-domain/tree.sub",
+  "set-theory-domain/continuousmap.sub",
+  "set-theory-domain/twosets-simple.sub",
+  "set-theory-domain/multisets.sub",
+  "set-theory-domain/nested.sub",
+  // "hyperbolic-domain/hyperbolic-example.sub",
+  // "geometry-domain/pythagorean-theorem-sugared.sub",
+  // "mesh-set-domain/DomainInterop.sub",
+];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -144,6 +154,27 @@ CreateSubset(A, B) = CreateSubset(B, C)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    printAST(results[0]);
+  });
+});
+
+describe("Real Programs", () => {
+  // create output folder
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  subPaths.map((examplePath) => {
+    const file = path.join("../examples/", examplePath);
+    const prog = fs.readFileSync(file, "utf8");
+    test(examplePath, () => {
+      const { results } = parser.feed(prog);
+      sameASTs(results);
+      // write to output folder
+      if (saveASTs) {
+        const exampleName = path.basename(examplePath, ".sub");
+        const astPath = path.join(outputDir, exampleName + ".ast.json");
+        fs.writeFileSync(astPath, JSON.stringify(results[0]), "utf8");
+      }
+    });
   });
 });
