@@ -1,6 +1,8 @@
+import domainGrammar from "parser/DomainParser";
 import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
 import { keyBy } from "lodash";
+import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import {
   all,
@@ -14,16 +16,26 @@ import {
   ok,
   Result,
   safeChain,
+  typeNotFound,
 } from "utils/Error";
 
-export type CheckerResult = Result<DomainEnv, DomainError>;
+// TODO: wrap errors in PenroseError type
+export const compileDomain = (prog: string): CheckerResult => {
+  const parser = new nearley.Parser(
+    nearley.Grammar.fromCompiled(domainGrammar)
+  );
+  const { results } = parser.feed(prog);
+  return checkDomain(results[0]);
+};
+
+export type CheckerResult = Result<Env, DomainError>;
 
 //#region Domain context
-export interface DomainEnv {
+export interface Env {
   types: Map<string, TypeDecl>;
   constructors: Map<string, ConstructorDecl>;
   functions: Map<string, FunctionDecl>;
-  vars: Map<string, Identifier>;
+  vars: Map<string, TypeConstructor>; // TODO: use Identifier as key?
   predicates: Map<string, PredicateDecl>;
   typeVars: Map<string, TypeVar>;
   preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
@@ -45,7 +57,7 @@ const builtinTypes: [string, TypeDecl][] = [
     },
   ],
 ];
-const initEnv = (): DomainEnv => ({
+const initEnv = (): Env => ({
   types: Map(builtinTypes),
   typeVars: Map(),
   vars: Map(),
@@ -64,14 +76,14 @@ const initEnv = (): DomainEnv => ({
 export const checkDomain = (prog: DomainProg): CheckerResult => {
   const { statements } = prog;
   // load built-in types
-  const env: DomainEnv = initEnv();
+  const env: Env = initEnv();
   // check all statements
   const stmtsOk: CheckerResult = safeChain(statements, checkStmt, ok(env));
   // compute subtyping graph
   return andThen(computeTypeGraph, stmtsOk);
 };
 
-const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
+const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
       // NOTE: params are not reused, so no need to check
@@ -85,7 +97,7 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
     case "ConstructorDecl": {
       const { name, params, args, output } = stmt;
       // load params into context
-      const localEnv: DomainEnv = {
+      const localEnv: Env = {
         ...env,
         typeVars: Map(keyBy(params, "name.value")),
       };
@@ -108,7 +120,7 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
     case "FunctionDecl": {
       const { name, params, args, output } = stmt;
       // load params into context
-      const localEnv: DomainEnv = {
+      const localEnv: Env = {
         ...env,
         typeVars: Map(keyBy(params, "name.value")),
       };
@@ -129,7 +141,7 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
     case "PredicateDecl": {
       const { name, params, args } = stmt;
       // load params into context
-      const localEnv: DomainEnv = {
+      const localEnv: Env = {
         ...env,
         typeVars: Map(keyBy(params, "name.value")),
       };
@@ -179,7 +191,15 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
   }
 };
 
-const checkType = (type: Type, env: DomainEnv): CheckerResult => {
+/**
+ * Check if a type exists in the domain context. Used across Domain, Substance, and Style.
+ * @param type type constructor, type variable, or prop to be checked.
+ * @param env  the Domain environment
+ */
+export const checkType = (
+  type: Type,
+  env: Env
+): Result<Env, TypeNotFound | TypeVarNotFound> => {
   switch (type.tag) {
     case "TypeVar": {
       return env.typeVars.has(type.name.value)
@@ -193,26 +213,34 @@ const checkType = (type: Type, env: DomainEnv): CheckerResult => {
   }
 };
 
-const checkTypeConstructor = (
+/**
+ * Check if a type constructor exists in the domain context. Used across Domain, Substance, and Style.
+ * @param type type constructor to be checked.
+ * @param env  the Domain environment
+ */
+export const checkTypeConstructor = (
   type: TypeConstructor,
-  env: DomainEnv
-): CheckerResult => {
+  env: Env
+): Result<Env, TypeNotFound | TypeVarNotFound> => {
   const { name, args } = type;
   // check if name exists
   if (!env.types.has(name.value)) {
-    return err({
-      tag: "TypeNotFound",
-      typeName: name,
-    });
+    const [...suggestions] = env.types.values();
+    return err(
+      typeNotFound(
+        name,
+        suggestions.map((t: TypeDecl) => t.name)
+      )
+    );
   }
   const argsOk = safeChain(args, checkType, ok(env));
   return and(ok(env), argsOk);
 };
 
-const checkArg = (arg: Arg, env: DomainEnv): CheckerResult =>
+const checkArg = (arg: Arg, env: Env): CheckerResult =>
   checkType(arg.type, env);
 
-const computeTypeGraph = (env: DomainEnv): CheckerResult => {
+const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
   typeNames.map((t: string) => typeGraph.setNode(t, t));
@@ -228,7 +256,7 @@ const computeTypeGraph = (env: DomainEnv): CheckerResult => {
 export const isSubtypeOf = (
   subType: TypeConstructor,
   superType: TypeConstructor,
-  env: DomainEnv
+  env: Env
 ): boolean => {
   const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
   const superNode = superTypes[superType.name.value];

@@ -1022,9 +1022,9 @@ interface SubProg {
 type SubStmt =
   | Decl
   | Bind
-  | IEqualE
-  | IEqualQ
-  | IApplyP
+  | EqualExprs
+  | EqualPredicates
+  | ApplyPredicate
   | LabelDecl
   | AutoLabel
   | NoLabel;
@@ -1106,6 +1106,7 @@ interface EqualPredicates extends ASTNode {
   right: Func;
 }
 interface ApplyPredicate extends ASTNode {
+  tag: "ApplyPredicate";
   name: Identifier;
   args: SubPredArg[];
 }

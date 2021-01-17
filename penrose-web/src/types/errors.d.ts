@@ -4,9 +4,12 @@
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 // type RuntimeError = OptimizerError | EvaluatorError;
 // type StyleError = StyleParseError | StyleCheckError | TranslationError;
-type PenroseError = DomainError & { type: "DomainError" };
+type PenroseError =
+  | (DomainError & { type: "DomainError" })
+  | (SubstanceError & { type: "SubstanceError" });
 
-type SubstanceError = DuplicateName;
+// TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
+type SubstanceError = DuplicateName | TypeNotFound | TypeVarNotFound;
 
 type DomainError =
   | TypeDeclared
@@ -47,6 +50,7 @@ interface TypeVarNotFound {
 interface TypeNotFound {
   tag: "TypeNotFound";
   typeName: Identifier;
+  possibleTypes?: Identifier[];
 }
 interface StyleError {
   sources: ErrorSource[];

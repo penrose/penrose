@@ -1,27 +1,34 @@
 import { Result } from "true-myth";
-const { or, and, ok, err, andThen } = Result;
+const { or, and, ok, err, andThen, match } = Result;
 
 // TODO: fix template formatting
-export const showDomainErr = (error: DomainError): string => {
+export const showError = (error: DomainError | SubstanceError): string => {
   switch (error.tag) {
     case "TypeDeclared": {
-      return `Type ${error.typeName.value} already exists`;
+      return `Type ${error.typeName.value} already exists.`;
     }
     case "TypeNotFound": {
-      return `Type ${error.typeName.value} (at ${loc(
-        error.typeName
-      )}) does not exist`;
+      const { typeName, possibleTypes } = error;
+      const msg = `Type ${typeName.value} (at ${loc(
+        typeName
+      )}) does not exist.`;
+      if (possibleTypes) {
+        const suggestions = possibleTypes
+          .map(({ value }: Identifier) => value)
+          .join(", ");
+        return msg + ` Possible types are: ${suggestions}`;
+      } else return msg;
     }
     case "TypeVarNotFound": {
       return `Type variable ${error.typeVar.name.value} (at ${loc(
         error.typeVar
-      )}) does not exist`;
+      )}) does not exist.`;
     }
     case "DuplicateName": {
       const { firstDefined, name, location } = error;
       return `Name ${name.value} (at ${loc(
         location
-      )}) already exists, first declared at ${loc(firstDefined)}`;
+      )}) already exists, first declared at ${loc(firstDefined)}.`;
     }
     case "NotTypeConsInSubtype": {
       if (error.type.tag === "Prop")
@@ -87,6 +94,15 @@ export const duplicateName = (
   name,
   location,
   firstDefined,
+});
+
+export const typeNotFound = (
+  typeName: Identifier,
+  possibleTypes?: Identifier[]
+): TypeNotFound => ({
+  tag: "TypeNotFound",
+  typeName,
+  possibleTypes,
 });
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;

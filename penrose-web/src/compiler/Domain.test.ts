@@ -1,11 +1,9 @@
+import { CheckerResult, compileDomain, isSubtypeOf } from "compiler/Domain";
+import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
-import * as fs from "fs";
-import { checkDomain, CheckerResult, isSubtypeOf } from "compiler/Domain";
-import { showDomainErr } from "utils/Error";
-import { compile } from "moo";
-import { type } from "os";
+import { showError } from "utils/Error";
 
 const outputDir = "/tmp/contexts";
 const saveContexts = true;
@@ -14,11 +12,6 @@ const domainPaths = [
   "linear-algebra-domain/linear-algebra.dsl",
   "set-theory-domain/setTheory.dsl",
 ];
-
-const compileDomain = (prog: string) => {
-  const { results } = parser.feed(prog);
-  return checkDomain(results[0]);
-};
 
 const contextHas = (
   res: CheckerResult,
@@ -35,7 +28,7 @@ const contextHas = (
     expectedFunctions.map((f) => expect(functions.has(f)).toBe(true));
     expectedPredicates.map((p) => expect(predicates.has(p)).toBe(true));
   } else {
-    fail(showDomainErr(res.error));
+    fail(showError(res.error));
   }
 };
 
@@ -73,7 +66,7 @@ describe("Common", () => {
       expect(isSubtypeOf(typeA, typeC, env)).toBe(false);
       expect(isSubtypeOf(typeA, typeB, env)).toBe(false);
     } else {
-      fail(showDomainErr(res.error));
+      fail(showError(res.error));
     }
   });
 });
@@ -150,7 +143,7 @@ describe("Errors", () => {
   const expectErrorOf = (prog: string, errorType: string) => {
     const result = compileDomain(prog);
     if (result.isErr()) {
-      console.log(showDomainErr(result.error));
+      console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
       fail(`Error ${errorType} was suppoed to occur.`);
@@ -220,7 +213,7 @@ describe("Real Programs", () => {
       const res = compileDomain(prog);
       expect(res.isOk()).toBe(true);
       // write to output folder
-      if (res.isOk()) {
+      if (res.isOk() && saveContexts) {
         const exampleName = path.basename(examplePath, ".dsl");
         const astPath = path.join(outputDir, exampleName + ".env.json");
         fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
