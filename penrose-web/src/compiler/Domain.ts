@@ -1,6 +1,7 @@
 import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
 import { keyBy } from "lodash";
+import { idOf } from "parser/ParserUtil";
 import {
   all,
   and,
@@ -17,6 +18,7 @@ import {
 
 export type CheckerResult = Result<DomainEnv, DomainError>;
 
+//#region Domain context
 export interface DomainEnv {
   types: Map<string, TypeDecl>;
   constructors: Map<string, ConstructorDecl>;
@@ -28,16 +30,7 @@ export interface DomainEnv {
   subTypes: [TypeConstructor, TypeConstructor][];
   typeGraph: Graph;
 }
-
-// HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-// TODO: move this function to a util module
-const idOf = (value: string) => ({
-  start: { line: 1, col: 1 },
-  end: { line: 1, col: 1 },
-  tag: "Identifier",
-  type: "identifier",
-  value: value,
-});
+//#endregion
 
 /* Built in types for all Domain programs */
 const builtinTypes: [string, TypeDecl][] = [

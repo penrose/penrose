@@ -157,3 +157,12 @@ export const optional = <T>(optionalValue: T | undefined, defaultValue: T) =>
 // Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
 export const tokensIn = (tokenList: any[]): any[] =>
   flatten(compact(tokenList));
+
+// HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
+export const idOf = (value: string) => ({
+  start: { line: 1, col: 1 },
+  end: { line: 1, col: 1 },
+  tag: "Identifier",
+  type: "identifier",
+  value: value,
+});

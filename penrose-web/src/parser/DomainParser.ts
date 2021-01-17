@@ -74,7 +74,7 @@ const grammar: Grammar = {
         },
     {"name": "statements", "symbols": ["_"], "postprocess": () => []},
     {"name": "statements", "symbols": ["_c_", {"literal":"\n"}, "statements"], "postprocess": nth(2)},
-    {"name": "statements", "symbols": ["_", "statement", "_"], "postprocess": d => [d[1]]},
+    {"name": "statements", "symbols": ["_", "statement", "_c_"], "postprocess": d => [d[1]]},
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["type"], "postprocess": id},
     {"name": "statement", "symbols": ["predicate"], "postprocess": id},

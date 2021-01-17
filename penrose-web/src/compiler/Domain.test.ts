@@ -2,12 +2,7 @@ import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
 import * as fs from "fs";
-import {
-  checkDomain,
-  DomainEnv,
-  CheckerResult,
-  isSubtypeOf,
-} from "compiler/Domain";
+import { checkDomain, CheckerResult, isSubtypeOf } from "compiler/Domain";
 import { showDomainErr } from "utils/Error";
 import { compile } from "moo";
 import { type } from "os";

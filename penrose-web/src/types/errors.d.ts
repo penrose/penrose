@@ -6,6 +6,8 @@
 // type StyleError = StyleParseError | StyleCheckError | TranslationError;
 type PenroseError = DomainError & { type: "DomainError" };
 
+type SubstanceError = DuplicateName;
+
 type DomainError =
   | TypeDeclared
   | TypeVarNotFound
