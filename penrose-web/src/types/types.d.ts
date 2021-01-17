@@ -1013,12 +1013,10 @@ interface IListOf {
 
 //#endregion
 
-//#region Substance AST and Domain environment types
+//#region Substance context
 type SubOut = ISubOut;
 type ISubOut = [SubProg, [VarEnv, SubEnv], LabelMap];
-
 type LabelMap = { [k: string]: string };
-
 type SubEnv = ISubEnv;
 
 interface ISubEnv {
@@ -1027,6 +1025,9 @@ interface ISubEnv {
   bindings: { [k: Var]: SubExpr };
   subPreds: SubPredicate[];
 }
+//#endregion
+
+//#region Substance AST
 interface SubProg {
   tag: "SubProg";
   statements: SubStmt[];
@@ -1115,8 +1116,8 @@ interface EqualExprs extends ASTNode {
 
 interface EqualPredicates extends ASTNode {
   tag: "EqualPredicates";
-  left: SubPredicate;
-  right: SubPredicate;
+  left: Func;
+  right: Func;
 }
 interface ApplyPredicate extends ASTNode {
   name: Identifier;
@@ -1133,6 +1134,9 @@ interface SubPredNested extends ASTNode {
   contents: ApplyPredicate;
 }
 
+//#endregion
+
+//#region Legacy Domain context types
 type VarEnv = IVarEnv;
 
 interface IVarEnv {

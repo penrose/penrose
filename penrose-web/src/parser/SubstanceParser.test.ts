@@ -135,6 +135,15 @@ Not(IsSubset(A, B))
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
+  });
+  test("predicates", () => {
+    const prog = `
+Set A, B, C
+IsSubset(Not(A), B) <-> IsSubset(B, C)
+CreateSubset(A, B) = CreateSubset(B, C)
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
     printAST(results[0]);
   });
 });

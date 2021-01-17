@@ -18,6 +18,7 @@ import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertT
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/,
+  double_arrow: "<->",
   ...basicSymbols,
   // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
   identifier: {
@@ -78,6 +79,8 @@ const grammar: Grammar = {
     {"name": "statement", "symbols": ["bind"], "postprocess": id},
     {"name": "statement", "symbols": ["apply_predicate"], "postprocess": id},
     {"name": "statement", "symbols": ["label_stmt"], "postprocess": id},
+    {"name": "statement", "symbols": ["equal_exprs"], "postprocess": id},
+    {"name": "statement", "symbols": ["equal_predicates"], "postprocess": id},
     {"name": "decl$macrocall$2", "symbols": ["identifier"]},
     {"name": "decl$macrocall$3", "symbols": [{"literal":","}]},
     {"name": "decl$macrocall$1$ebnf$1", "symbols": []},
@@ -158,6 +161,18 @@ const grammar: Grammar = {
         ([name, , , , args]): Func => ({
           ...rangeFrom([name, ...args]),
           tag: "Func", name, args
+        })
+        },
+    {"name": "equal_exprs", "symbols": ["sub_expr", "_", {"literal":"="}, "_", "sub_expr"], "postprocess": 
+        ([left, , , , right]): EqualExprs => ({
+          ...rangeBetween(left, right),
+          tag: "EqualExprs", left, right
+        })
+        },
+    {"name": "equal_predicates", "symbols": ["func", "_", {"literal":"<->"}, "_", "func"], "postprocess": 
+        ([left, , , , right]): EqualPredicates => ({
+          ...rangeBetween(left, right),
+          tag: "EqualPredicates", left, right
         })
         },
     {"name": "label_stmt", "symbols": ["label_decl"], "postprocess": id},

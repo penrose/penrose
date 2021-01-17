@@ -11,6 +11,7 @@ import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertT
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/,
+  double_arrow: "<->",
   ...basicSymbols,
   // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
   identifier: {
@@ -75,9 +76,11 @@ statements
 statement 
   -> decl            {% id %}
   |  bind            {% id %}
-  # |  decl_bind   {% id %}
+  # |  decl_bind   {% id %} # TODO: shorthand for bind
   |  apply_predicate {% id %}
   |  label_stmt      {% id %}
+  |  equal_exprs     {% id %}
+  |  equal_predicates {% id %}
 
 decl -> type_constructor __ sepBy1[identifier, ","] {%
   ([type, , ids]): Decl[] => ids.map((name: Identifier): Decl => ({
@@ -122,6 +125,20 @@ func -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
   ([name, , , , args]): Func => ({
     ...rangeFrom([name, ...args]),
     tag: "Func", name, args
+  })
+%}
+
+equal_exprs -> sub_expr _ "=" _ sub_expr {%
+  ([left, , , , right]): EqualExprs => ({
+    ...rangeBetween(left, right),
+    tag: "EqualExprs", left, right
+  })
+%}
+
+equal_predicates -> func _ "<->" _ func {%
+  ([left, , , , right]): EqualPredicates => ({
+    ...rangeBetween(left, right),
+    tag: "EqualPredicates", left, right
   })
 %}
 
