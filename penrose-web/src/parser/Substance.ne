@@ -97,16 +97,16 @@ bind -> identifier _ ":=" _ sub_expr {%
   })
 %}
 
-apply_predicate -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
+apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate => ({
     ...rangeFrom([name, ...args]),
     tag: "ApplyPredicate", name, args
   })
 %}
 
-# pred_arg 
-  # -> apply_predicate {% ([d]): SubPredNested => ({ ...rangeOf(d), tag: "SubPredNested", contents: d}) %}
-  # -> sub_expr {% ([d]): SubPredExpr => ({ ...rangeOf(d), tag: "SubPredExpr", contents: d}) %}
+pred_arg 
+  -> apply_predicate {% id %}
+  |  identifier      {% id %}
 
 sub_expr 
   -> identifier {% id %}

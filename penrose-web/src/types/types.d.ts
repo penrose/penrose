@@ -1070,7 +1070,7 @@ type SubExpr =
   | Identifier
   | ApplyFunction
   | ApplyConstructor
-  | Func // NOTE: there's no syntactic difference among function, consturctor, and predicate, so the parser will parse both into this type first
+  | Func // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
   | Deconstructor
   | IStringLit;
 
@@ -1110,15 +1110,7 @@ interface ApplyPredicate extends ASTNode {
   args: SubPredArg[];
 }
 
-type SubPredArg = SubPredExpr | SubPredNested;
-interface SubPredExpr extends ASTNode {
-  tag: "SubPredExpr";
-  contents: SubExpr;
-}
-interface SubPredNested extends ASTNode {
-  tag: "SubPredNested";
-  contents: ApplyPredicate;
-}
+type SubPredArg = Identifier | ApplyPredicate;
 
 //#endregion
 

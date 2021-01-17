@@ -109,7 +109,7 @@ const grammar: Grammar = {
           tag: "Bind", variable, expr
         })
         },
-    {"name": "apply_predicate$macrocall$2", "symbols": ["sub_expr"]},
+    {"name": "apply_predicate$macrocall$2", "symbols": ["pred_arg"]},
     {"name": "apply_predicate$macrocall$3", "symbols": [{"literal":","}]},
     {"name": "apply_predicate$macrocall$1$ebnf$1", "symbols": []},
     {"name": "apply_predicate$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "apply_predicate$macrocall$3", "_", "apply_predicate$macrocall$2"]},
@@ -131,6 +131,8 @@ const grammar: Grammar = {
           tag: "ApplyPredicate", name, args
         })
         },
+    {"name": "pred_arg", "symbols": ["apply_predicate"], "postprocess": id},
+    {"name": "pred_arg", "symbols": ["identifier"], "postprocess": id},
     {"name": "sub_expr", "symbols": ["identifier"], "postprocess": id},
     {"name": "sub_expr", "symbols": ["deconstructor"], "postprocess": id},
     {"name": "sub_expr", "symbols": ["func"], "postprocess": id},

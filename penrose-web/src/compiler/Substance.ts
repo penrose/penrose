@@ -46,6 +46,9 @@ export const checkSubstance = (prog: SubProg): CheckerResult => {
   return stmtsOk;
 };
 
-export const checkStmt = (stmt: SubStmt, env: SubstanceEnv): CheckerResult => {
+const checkStmt = (stmt: SubStmt, env: SubstanceEnv): CheckerResult => {
   return ok(env);
 };
+
+// Resolve ambiguity
+// const checkFunc = ()

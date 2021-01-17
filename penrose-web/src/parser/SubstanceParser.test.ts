@@ -145,6 +145,7 @@ Not(IsSubset(A, B))
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
+    printAST(results[0]);
   });
   test("predicates", () => {
     const prog = `
