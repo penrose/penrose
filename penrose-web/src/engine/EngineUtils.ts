@@ -595,8 +595,15 @@ export const findExpr = (
       const res = findExpr(trans, path.path);
       const i = path.indices[0]; // COMBAK VECTORS: Currently only supports 1D vectors
 
+      console.log("accesspath", res, path.path, trans, i);
+
       if (res.tag === "OptEval") {
         if (res.contents.tag === "Vector") {
+
+          console.log("results", res);
+          console.log("results", res.contents);
+          console.log("results", res.contents[i]);
+
           return res.contents[i];
 
         } else throw Error("access path lookup is invalid");

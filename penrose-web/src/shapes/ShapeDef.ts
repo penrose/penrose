@@ -17,9 +17,10 @@ type ConstSampler = (type: PropType, value: PropContents) => Value<number>;
 type Range = [number, number];
 
 // NOTE: I moved `canvasSize` here from Canvas.tsx, which re-exports it, to avoid a circular import in `Style`.
+
 export const canvasSize: [number, number] = [800, 700];
-const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
-const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
+export const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
+export const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
   tag: "FloatV",

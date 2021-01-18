@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { insertExpr, insertGPI, findExpr, insertExprs } from "engine/EngineUtils";
-import { canvasSize, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
+import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
 
@@ -1136,7 +1136,7 @@ const optimizedVectorProperties: string[] =
   ["start", "end", "center"]
 
 const declaredVarying = (t: TagExpr<VarAD>): boolean => {
-  if (t.tag == "OptEval") {
+  if (t.tag === "OptEval") {
     if (t.contents.tag === "Vary") {
       return true;
     }
@@ -1243,15 +1243,17 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
   if (e.tag === "OptEval") {
     const res = e.contents;
     if (res.tag === "Vector") {
-      const elems = res.contents;
-      const indices: Path[] = elems.filter(isVarying)
-        .map((e, i) => ({
-          start: dummySourceLoc(),
-          end: dummySourceLoc(),
-          tag: "AccessPath",
-          path: p,
-          indices: [i]
-        }));
+      const elems: Expr[] = res.contents;
+      const indices: Path[] =
+        elems.map((e: Expr, i): [Expr, number] => [e, i])
+          .filter((e: [Expr, number]): boolean => isVarying(e[0]))
+          .map(([e, i]) => ({
+            start: dummySourceLoc(),
+            end: dummySourceLoc(),
+            tag: "AccessPath",
+            path: p,
+            indices: [i]
+          }));
 
       return indices;
     } else if (res.tag === "Matrix" || res.tag === "List" || res.tag === "Tuple") {
@@ -1266,16 +1268,17 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
 // COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
 // COMBAK: Port the comments
 const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo = Object.entries(findDef(propType)[1]);
+  const shapeInfo = Object.entries(findDef(shapeType).properties);
   return shapeInfo.filter(([t, e]) => t === propType).map(e => e[0]);
 };
 
 const propertiesNotOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo = Object.entries(findDef(propType)[1]);
+  const shapeInfo = Object.entries(findDef(shapeType).properties);
   return shapeInfo.filter(([t, e]) => t !== propType).map(e => e[0]);
 };
 
 const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
+  // debugger;
   if (fexpr.tag === "FExpr") {
     if (declaredVarying(fexpr.contents)) {
       return [mkPath([name, field])].concat(acc);
@@ -1425,6 +1428,10 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
+  console.log("paths", ps);
+  console.log("tr", tr);
+  console.log("res", findExpr(tr, ps[0]));
+
   return ps.map(path => findExpr(tr, path)).map(getNum);
 };
 
@@ -1460,7 +1467,7 @@ const isFieldOrAccessPath = (p: Path): boolean => {
 // NOTE: Mutates translation
 const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
   const varyingFields = varyingPaths.filter(isFieldOrAccessPath);
-  const sampledVals = randFloats(varyingFields.length, canvasSize);
+  const sampledVals = randFloats(varyingFields.length, canvasXRange);
   const vals: TagExpr<VarAD>[] = sampledVals.map((v: number): TagExpr<VarAD> => ({
     tag: "Done",
     contents: {
@@ -1522,6 +1529,9 @@ const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
 const genOptProblemAndState = (trans: Translation): State => {
 
   const varyingPaths = findVarying(trans);
+
+  console.log("varyingPaths", varyingPaths);
+
   const uninitializedPaths = findUninitialized(trans);
   const shapePathList: [string, string][] = findShapeNames(trans);
   const shapePaths = shapePathList.map(mkPath);
