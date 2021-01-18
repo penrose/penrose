@@ -8,6 +8,7 @@ import { insertPending, updateVaryingValues } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
 import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
+import * as Shapes from "shapes/ShapeDef";
 
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
@@ -29,7 +30,8 @@ interface ICanvasProps {
  * Hard-coded canvas size
  * @type {[number, number]}
  */
-export const canvasSize: [number, number] = [800, 700];
+// export const canvasSize: [number, number] = [800, 700];
+export const canvasSize: [number, number] = Shapes.canvasSize;
 
 class Canvas extends React.Component<ICanvasProps> {
   public static sortShapes = (shapes: Shape[], ordering: string[]) => {

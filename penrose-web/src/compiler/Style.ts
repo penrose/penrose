@@ -1,9 +1,8 @@
 import * as _ from "lodash";
 import { insertExpr, insertGPI, findExpr, insertExprs } from "engine/EngineUtils";
-import { shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
+import { canvasSize, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
-import { canvasSize } from "ui/Canvas";
 
 // TODO: Write pseudocode / code comments / tests for the Style compiler
 
