@@ -87,21 +87,21 @@ const emptyPoly: IPolygonV<number> = {
 //#endregion
 
 //#region shapedefs
-type ShapeDef = IShapeDef;
+export type ShapeDef = IShapeDef;
 
 // type HasTag<T, N> = T extends { tag: N } ? T : never;
 
-type PropType = Value<number>["tag"];
-type IPropModel = {
+export type PropType = Value<number>["tag"];
+export type IPropModel = {
   [k: string]: [PropType, Sampler];
 };
 
-interface IShapeDef {
+export interface IShapeDef {
   shapeType: string;
   properties: IPropModel;
 }
 
-type Sampler = () => Value<number>;
+export type Sampler = () => Value<number>;
 
 export const circleDef: ShapeDef = {
   shapeType: "Circle",

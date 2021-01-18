@@ -43,10 +43,13 @@ interface IVal<T> {
 
 type Field = string;
 type Name = string;
+type Property = string;
 type FExpr = FieldExpr<VarAD>;
 type ShapeTypeStr = string;
 type PropID = string;
 type GPIMap = { [k: string]: TagExpr<VarAD> };
+
+type StyleOptFn = [string, Expr[]] // Objective or constraint
 
 // NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
@@ -75,6 +78,8 @@ interface IFGPI<T> {
   tag: "FGPI";
   contents: GPIExpr<T>;
 }
+
+type GPIProps<T> = { [k: string]: TagExpr<T> };
 
 type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
 type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;

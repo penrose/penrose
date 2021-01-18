@@ -354,14 +354,7 @@ foldSubObjs :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b])
 foldSubObjs f trans = M.foldrWithKey (foldFields f) [] (trMap trans)
 
 ------- Inserting into a translation
-insertGPI ::
-     (Autofloat a)
-  => Translation a
-  -> String
-  -> Field
-  -> ShapeTypeStr
-  -> PropertyDict a
-  -> Translation a
+insertGPI :: (Autofloat a) => Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a -> Translation a
 insertGPI trans n field t propDict =
   case M.lookup n $ trMap trans of
     Nothing -> error "Substance ID does not exist"
@@ -652,13 +645,9 @@ findObjfnsConstrs = foldSubObjs findFieldFns
 findDefaultFns :: (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
 findDefaultFns = foldSubObjs findFieldDefaultFns
   where
-    findFieldDefaultFns ::
-         (Autofloat a)
-      => String
-      -> Field
-      -> FieldExpr a
-      -> [Either StyleOptFn StyleOptFn]
-      -> [Either StyleOptFn StyleOptFn]
+    findFieldDefaultFns :: (Autofloat a) => 
+                     String -> Field -> FieldExpr a 
+                        -> [Either StyleOptFn StyleOptFn] -> [Either StyleOptFn StyleOptFn]
     findFieldDefaultFns name field gpi@(FGPI typ props) acc =
       let args = [EPath $ FieldPath (BSubVar (VarConst name)) field]
           objs = map (Left . addArgs args) $ defaultObjFnsOf typ
@@ -1166,13 +1155,9 @@ evalEnergy s =
 -- 2. Initialize all properties of all GPIs
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
-initProperty ::
-     (Autofloat a)
-  => ShapeTypeStr
-  -> (PropertyDict a, StdGen)
-  -> String
-  -> (ValueType, SampledValue a)
-  -> (PropertyDict a, StdGen)
+initProperty :: (Autofloat a) => 
+             ShapeTypeStr -> (PropertyDict a, StdGen) -> String -> 
+                          (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
 initProperty shapeType (properties, g) pID (typ, sampleF) =
   let (v, g') = sampleF g
       autoRndVal = Done v
@@ -1190,11 +1175,7 @@ initProperty shapeType (properties, g) pID (typ, sampleF) =
            else (M.insert pID autoRndVal properties, g')
        _ -> error ("not handled: " ++ pID ++ ", " ++ show (M.lookup pID properties))
 
-initShape ::
-     (Autofloat a)
-  => (Translation a, StdGen)
-  -> (String, Field)
-  -> (Translation a, StdGen)
+initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
 initShape (trans, g) (n, field) =
   case lookupField (BSubVar (VarConst n)) field trans of
     FGPI shapeType propDict ->

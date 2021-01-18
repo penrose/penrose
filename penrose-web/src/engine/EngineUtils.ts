@@ -2,6 +2,7 @@
 
 // TODO: Fix imports
 import { varOf, numOf } from "engine/Autodiff";
+import * as _ from "lodash";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -345,6 +346,24 @@ const mkPropertyDict = (decls: PropertyDecl[]): { [k: string]: TagExpr<VarAD> } 
  *
  */
 
+// TODO: Test this
+export const insertGPI = (path: Path, gpi: IFGPI<VarAD>, trans: Translation): Translation => {
+  let name, field;
+
+  switch (path.tag) {
+    case "FieldPath": {
+      [name, field] = [path.name, path.field];
+      // TODO: warning / error here
+      trans.trMap[name.contents.value][field.value] = gpi;
+      return trans;
+    }
+
+    default: {
+      throw Error("expected GPI");
+    }
+  }
+};
+
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
 export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translation): Translation => {
   const trans = initTrans;
@@ -506,6 +525,19 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
   throw Error("shouldn't be reached");
 };
 
+// Mutates translation
+export const insertExprs = (ps: Path[], es: TagExpr<VarAD>[], tr: Translation): Translation => {
+  if (ps.length !== es.length) { throw Error("length should be the same"); }
+
+  let tr2 = tr;
+  for (let i = 0; i < ps.length; i++) {
+    // Tr gets mutated
+    tr2 = insertExpr(ps[i], es[i], tr);
+  }
+
+  return tr2;
+};
+
 /**
  * Finds an expression in a translation given a field or property path.
  * @param trans - a translation from `State`
@@ -558,9 +590,26 @@ export const findExpr = (
           return propDict[prop];
       }
 
-    case "AccessPath":
-      throw Error("TODO");
+    case "AccessPath": {
+      // Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves 
+      const res = findExpr(trans, path.path);
+      const i = path.indices[0]; // COMBAK VECTORS: Currently only supports 1D vectors
+
+      if (res.tag === "OptEval") {
+        if (res.contents.tag === "Vector") {
+          return res.contents[i];
+
+        } else throw Error("access path lookup is invalid");
+      } else if (res.tag === "Done") {
+        if (res.contents.tag === "VectorV") {
+          return res.contents[i];
+
+        } else throw Error("access path lookup is invalid");
+      } else throw Error("access path lookup is invalid");
+      // COMBAK ERROR (see `lookupPath` in `GenOptProblem.hs`)
+    }
   }
+
   throw Error("shouldn't be reached");
 };
 
