@@ -785,7 +785,7 @@ type DomainStmt =
 interface TypeDecl extends ASTNode {
   tag: "TypeDecl";
   name: Identifier;
-  params: Type[];
+  params: TypeVar[];
 }
 
 interface PredicateDecl extends ASTNode {
@@ -1056,8 +1056,12 @@ interface NoLabel extends ASTNode {
 
 interface Decl extends ASTNode {
   tag: "Decl";
-  type: TypeConstructor;
+  type: TypeConsApp;
   name: Identifier;
+}
+
+interface TypeConsApp extends TypeConstructor {
+  args: TypeConsApp[];
 }
 
 interface Bind extends ASTNode {
@@ -1076,7 +1080,7 @@ type SubExpr =
 
 interface Func extends ASTNode {
   tag: "Func";
-  name: string;
+  name: Identifier;
   args: SubExpr[];
 }
 interface ApplyFunction extends ASTNode {
@@ -1090,6 +1094,7 @@ interface ApplyConstructor extends ASTNode {
   args: SubExpr[];
 }
 interface Deconstructor extends ASTNode {
+  tag: "Deconstructor";
   variable: Identifier;
   field: Identifier;
 }
@@ -1436,6 +1441,7 @@ interface ASTNode {
 }
 
 interface Identifier extends ASTNode {
+  tag: "Identifier";
   type: string;
   value: string;
 }

@@ -159,7 +159,7 @@ export const tokensIn = (tokenList: any[]): any[] =>
   flatten(compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-export const idOf = (value: string) => ({
+export const idOf = (value: string): Identifier => ({
   start: { line: 1, col: 1 },
   end: { line: 1, col: 1 },
   tag: "Identifier",

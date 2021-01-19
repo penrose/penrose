@@ -35,7 +35,7 @@ export interface Env {
   types: Map<string, TypeDecl>;
   constructors: Map<string, ConstructorDecl>;
   functions: Map<string, FunctionDecl>;
-  vars: Map<string, TypeConstructor>; // TODO: use Identifier as key?
+  vars: Map<string, TypeConsApp>; // TODO: use Identifier as key?
   predicates: Map<string, PredicateDecl>;
   typeVars: Map<string, TypeVar>;
   preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
@@ -70,7 +70,7 @@ const initEnv = (): Env => ({
 });
 
 /**
- * Top-level function for the Domain semantic checker. Given a Domain AST, it output either a `DomainError` or a `DomainEnv` context.
+ * Top-level function for the Domain semantic checker. Given a Domain AST, it outputs either a `DomainError` or a `DomainEnv` context.
  * @param prog compiled AST of a Domain program
  */
 export const checkDomain = (prog: DomainProg): CheckerResult => {
@@ -253,6 +253,12 @@ const computeTypeGraph = (env: Env): CheckerResult => {
   return ok(env);
 };
 
+/**
+ * Utility for comparing types. `isSubtypeOf` returns true if `subType` is a subtype of `superType`, or if both are actually the same type.
+ * @param subType
+ * @param superType
+ * @param env
+ */
 export const isSubtypeOf = (
   subType: TypeConstructor,
   superType: TypeConstructor,
@@ -260,10 +266,18 @@ export const isSubtypeOf = (
 ): boolean => {
   const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
   const superNode = superTypes[superType.name.value];
+  // HACK: add in top type as an escape hatch for unbounded types
+  if (superType.name.value === topType.name.value) return true;
   if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
   // TODO: include this case in our error system
   else {
     console.error(`${subType.name.value} not found in the subtype graph.`);
     return false;
   }
+};
+
+export const topType: TypeConsApp = {
+  tag: "TypeConstructor",
+  name: idOf("type"),
+  args: [],
 };

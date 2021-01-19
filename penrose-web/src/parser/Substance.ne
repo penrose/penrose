@@ -48,7 +48,7 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
     const [first, rest] = [d[0], d[1]];
     if(!first) return [];
     if(rest.length > 0) {
-      const restNodes = rest.map(ts => ts[3]);
+      const restNodes = rest.map((ts: any[]) => ts[3]);
       return concat(first, ...restNodes);
     } else return first;
   }
@@ -122,7 +122,7 @@ deconstructor -> identifier _ "." _ identifier {%
 %}
 
 # NOTE: generic func type for consturction, predicate, or function
-func -> identifier _ "(" _ sepBy1[sub_expr, ","] _ ")" {%
+func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
   ([name, , , , args]): Func => ({
     ...rangeFrom([name, ...args]),
     tag: "Func", name, args
@@ -178,7 +178,7 @@ label_option
 # Grammar from Domain
 
 type_constructor -> identifier type_arg_list:? {% 
-  ([name, a]): TypeConstructor => {
+  ([name, a]): TypeConsApp => {
     const args = optional(a, []);
     return {
       ...rangeFrom([name, ...args]),
@@ -189,7 +189,7 @@ type_constructor -> identifier type_arg_list:? {%
 
 # NOTE: only type constructors are alloed in Substance
 type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {% 
-  ([, , , d]): TypeConstructor[] => flatten(d) 
+  ([, , , d]): TypeConsApp[] => flatten(d) 
 %}
 
 # Common 

@@ -7,7 +7,15 @@ import { checkSubstance, compileSubstance } from "./Substance";
 
 const domainProg = `
 type Set
+type OpenSet
+type Vector
 type List('T)
+type Tuple('T, 'U)
+constructor Subset: Set A * Set B -> Set
+constructor Cons ['X] : 'X head * List('X) tail -> List('X)
+constructor Nil['X] -> List('X)
+constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
+OpenSet <: Set
 `;
 
 const envOrError = (prog: string): Env => {
@@ -38,11 +46,13 @@ describe("Check statements", () => {
       expect(env.vars.get(name)?.name.value).toEqual(type);
     });
   };
-  test("Decls", () => {
+  test("decls", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
 List(Set) l
+OpenSet D
+D := A
     `;
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
@@ -51,6 +61,27 @@ List(Set) l
         ["A", "Set"],
         ["l", "List"],
       ]);
+  });
+  test("func", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+-- Substance program for type checking
+List(Set) l, nil
+nil := Nil()
+Set A
+l := Cons(A, nil)
+      `;
+    const res = compileSubstance(prog, env);
+    if (res.isOk()) {
+      hasVars(res.value, [
+        ["A", "Set"],
+        ["l", "List"],
+        ["nil", "List"],
+      ]);
+    } else {
+      // fail(`unexpected error ${showError(res.error)}`);
+      fail(`unexpected error ${res.error.tag}`);
+    }
   });
 });
 
@@ -77,4 +108,67 @@ NotExistentType B
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
   });
+  test("var not found", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+D := Subset(B, C)
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "VarNotFound");
+  });
+  test("type mismatch: var", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B
+Vector v
+A := B -- ok
+A := v -- error
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
+  test("func: arg length mismatch", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+C := Subset(A) -- error
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "ArgLengthMismatch");
+  });
+  test("func: arg type mismatch", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+Vector v
+C := Subset(A, B) -- ok
+C := Subset(A, v) -- error
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
+  test("func: output type mismatch", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+Vector v
+C := Subset(A, B) -- ok
+v := Subset(A, B) -- error
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
+  // TODO: fix typeconstructor check and pass this test
+  //   test("func: type argument mismatch", () => {
+  //     const env = envOrError(domainProg);
+  //     const prog = `
+  // List(Set) nil
+  // Set A
+  // Tuple t
+  // t := CreateTuple(nil, A)
+  //     `;
+  //     const res = compileSubstance(prog, env);
+  //     expectErrorOf(res, "TypeMismatch");
+  //   });
 });

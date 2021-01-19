@@ -1,11 +1,22 @@
-import { Result } from "true-myth";
-const { or, and, ok, err, andThen, match } = Result;
+import { Maybe, Result } from "true-myth";
+const { or, and, ok, err, andThen, match, ap } = Result;
 
 // TODO: fix template formatting
 export const showError = (error: DomainError | SubstanceError): string => {
   switch (error.tag) {
     case "TypeDeclared": {
       return `Type ${error.typeName.value} already exists.`;
+    }
+    // TODO: abstract out this pattern if it becomes more common
+    case "VarNotFound": {
+      const { variable, possibleVars } = error;
+      const msg = `Variable ${variable.value} (at ${loc(
+        variable
+      )}) does not exist.`;
+      if (possibleVars) {
+        const suggestions = possibleVars.join(", ");
+        return msg + ` Declared variable are: ${suggestions}`;
+      } else return msg;
     }
     case "TypeNotFound": {
       const { typeName, possibleTypes } = error;
@@ -57,6 +68,35 @@ export const showError = (error: DomainError | SubstanceError): string => {
         )}) is not a type constructor. Only type constructors are allowed in prelude values.`;
       }
     }
+    case "TypeMismatch": {
+      const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
+      return `The type of the expression at ${loc(sourceExpr)} (${
+        sourceType.name.value
+      }) does not match with the expected type derived from the expression at ${loc(
+        expectedExpr
+      )} (${expectedType.name.value}).`;
+    }
+    case "TypeArgLengthMismatch": {
+      const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
+      return `${expectedType.args.length} arguments expected for type ${
+        expectedType.name.value
+      } (defined at ${loc(expectedExpr)}), but ${
+        sourceType.args.length
+      } arguments were given for ${sourceType.name.value} at ${loc(
+        sourceExpr
+      )} `;
+    }
+    case "ArgLengthMismatch": {
+      const { name, argsGiven, argsExpected, sourceExpr, expectedExpr } = error;
+      return `${name.value} expects ${
+        argsExpected.length
+      } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
+        argsGiven.length
+      } arguments instead at ${loc(sourceExpr)}.`;
+    }
+    case "Fatal": {
+      return `FATAL: ${error.message}`;
+    }
   }
 };
 
@@ -105,8 +145,65 @@ export const typeNotFound = (
   possibleTypes,
 });
 
+export const varNotFound = (
+  variable: Identifier,
+  possibleVars?: string[]
+): VarNotFound => ({
+  tag: "VarNotFound",
+  variable,
+  possibleVars,
+});
+
+export const typeMismatch = (
+  sourceType: TypeConstructor,
+  expectedType: TypeConstructor,
+  sourceExpr: ASTNode,
+  expectedExpr: ASTNode
+): TypeMismatch => ({
+  tag: "TypeMismatch",
+  sourceExpr,
+  sourceType,
+  expectedExpr,
+  expectedType,
+});
+
+export const argLengthMismatch = (
+  name: Identifier,
+  argsGiven: SubExpr[],
+  argsExpected: Arg[],
+  sourceExpr: ASTNode,
+  expectedExpr: ASTNode
+): ArgLengthMismatch => ({
+  tag: "ArgLengthMismatch",
+  name,
+  argsGiven,
+  argsExpected,
+  sourceExpr,
+  expectedExpr,
+});
+
+export const typeArgLengthMismatch = (
+  sourceType: TypeConstructor,
+  expectedType: TypeConstructor,
+  sourceExpr: ASTNode,
+  expectedExpr: ASTNode
+): TypeArgLengthMismatch => ({
+  tag: "TypeArgLengthMismatch",
+  sourceExpr,
+  sourceType,
+  expectedExpr,
+  expectedType,
+});
+
+export const fatalError = (message: string): FatalError => ({
+  tag: "Fatal",
+  message,
+});
+
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
-const loc = (node: ASTNode) => `line ${node.start.line}`;
+// TODO: Show file name
+const loc = (node: ASTNode) =>
+  `line ${node.start.line}, column ${node.start.col + 1}`;
 
 export const all = <Ok, Error>(
   ...results: Result<Ok, Error>[]
@@ -129,4 +226,4 @@ export const safeChain = <Item, Ok, Error>(
   );
 
 // NOTE: re-export all true-myth types to reduce boilerplate
-export { Result, and, or, ok, err, andThen };
+export { Maybe, Result, and, or, ok, err, andThen, ap, match };

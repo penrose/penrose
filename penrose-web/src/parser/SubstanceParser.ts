@@ -145,14 +145,15 @@ const grammar: Grammar = {
         },
     {"name": "func$macrocall$2", "symbols": ["sub_expr"]},
     {"name": "func$macrocall$3", "symbols": [{"literal":","}]},
-    {"name": "func$macrocall$1$ebnf$1", "symbols": []},
-    {"name": "func$macrocall$1$ebnf$1$subexpression$1", "symbols": ["_", "func$macrocall$3", "_", "func$macrocall$2"]},
-    {"name": "func$macrocall$1$ebnf$1", "symbols": ["func$macrocall$1$ebnf$1", "func$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "func$macrocall$1$ebnf$2", "symbols": ["func$macrocall$3"], "postprocess": id},
-    {"name": "func$macrocall$1$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "func$macrocall$1", "symbols": ["func$macrocall$2", "func$macrocall$1$ebnf$1", "func$macrocall$1$ebnf$2"], "postprocess":  
+    {"name": "func$macrocall$1$ebnf$1", "symbols": ["func$macrocall$2"], "postprocess": id},
+    {"name": "func$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "func$macrocall$1$ebnf$2", "symbols": []},
+    {"name": "func$macrocall$1$ebnf$2$subexpression$1", "symbols": ["_", "func$macrocall$3", "_", "func$macrocall$2"]},
+    {"name": "func$macrocall$1$ebnf$2", "symbols": ["func$macrocall$1$ebnf$2", "func$macrocall$1$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "func$macrocall$1", "symbols": ["func$macrocall$1$ebnf$1", "func$macrocall$1$ebnf$2"], "postprocess":  
         d => { 
           const [first, rest] = [d[0], d[1]];
+          if(!first) return [];
           if(rest.length > 0) {
             const restNodes = rest.map((ts: any[]) => ts[3]);
             return concat(first, ...restNodes);
@@ -237,7 +238,7 @@ const grammar: Grammar = {
     {"name": "type_constructor$ebnf$1", "symbols": ["type_arg_list"], "postprocess": id},
     {"name": "type_constructor$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "type_constructor", "symbols": ["identifier", "type_constructor$ebnf$1"], "postprocess":  
-        ([name, a]): TypeConstructor => {
+        ([name, a]): TypeConsApp => {
           const args = optional(a, []);
           return {
             ...rangeFrom([name, ...args]),
@@ -262,7 +263,7 @@ const grammar: Grammar = {
         }
         },
     {"name": "type_arg_list", "symbols": ["_", {"literal":"("}, "_", "type_arg_list$macrocall$1", "_", {"literal":")"}], "postprocess":  
-        ([, , , d]): TypeConstructor[] => flatten(d) 
+        ([, , , d]): TypeConsApp[] => flatten(d) 
         },
     {"name": "string_lit", "symbols": [(lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
         ([d]): IStringLit => ({
