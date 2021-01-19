@@ -605,8 +605,11 @@ export const findExpr = (
 
           console.log("res", res);
           console.log("res contents", res.contents);
+          console.log("res contents i", res.contents.contents[i] as any);
 
-          return res.contents[i];
+          // COMBAK / ISSUE: Nested?
+          // return res.contents[i];
+          return res.contents.contents[i] as any;
 
         } else throw Error("access path lookup is invalid");
       } else throw Error("access path lookup is invalid");

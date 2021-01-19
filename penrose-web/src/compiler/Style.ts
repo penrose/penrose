@@ -21,7 +21,7 @@ const clone = require("rfdc")({ proto: false, circles: false });
 const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
 
-const UnknownTagError = Error("unknown tag");
+const UnknownTagError = new Error("unknown tag");
 
 //#endregion
 
@@ -119,7 +119,7 @@ const ppExpr = (e: SelExpr): string => {
     return `${e.name.value}(${args})`;
   } else if ((e as any as StyVar).tag === "StyVar") {
     return (e as any as StyVar).contents.value;
-  } else { console.log("res", e); throw UnknownTagError; }
+  } else { console.log("res", e); throw Error("unknown tag"); }
 };
 
 const ppRelArg = (r: PredArg): string => {
@@ -146,7 +146,7 @@ export const ppRel = (r: RelationPattern): string => {
     return ppRelBind(r);
   } else if (r.tag === "RelPred") {
     return ppRelPred(r);
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 //#endregion
@@ -209,7 +209,7 @@ const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPa
     // TODO: Check `skip block` condition
 
     return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Judgment 6. G; g |- [|S_o] ~> g'
@@ -315,7 +315,7 @@ const substituteBform = (lv: any, subst: Subst, bform: BindingForm): BindingForm
     } else { // Nothing to substitute
       return bform;
     }
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
@@ -339,7 +339,7 @@ const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
       ...predArg,
       contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents) // COMBAK: Why is bform here...
     };
-  } else { console.log("unknown tag", subst, predArg); throw UnknownTagError; }
+  } else { console.log("unknown tag", subst, predArg); throw Error("unknown tag"); }
 };
 
 // theta(|S_r) = ...
@@ -357,7 +357,7 @@ export const substituteRel = (subst: Subst, rel: RelationPattern): RelationPatte
       ...rel,
       args: rel.args.map(arg => substitutePredArg(subst, arg)),
     };
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Applies a substitution to a list of relational statement theta([|S_r])
@@ -439,7 +439,7 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
       path: substitutePath(lv, subst, path.path)
     };
   } else {
-    throw UnknownTagError;
+    throw Error("unknown tag");
   }
 };
 
@@ -528,7 +528,7 @@ const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr 
   } else if (expr.tag === "Fix" || expr.tag === "Vary" || expr.tag === "StringLit" || expr.tag === "BoolLit") {
     // No substitution for literals
     return expr;
-  } else { console.error("expr", expr); throw UnknownTagError; }
+  } else { console.error("expr", expr); throw Error("unknown tag"); }
 };
 
 const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
@@ -573,7 +573,7 @@ const toSubVar = (b: BindingForm): Var => {
   } else if (b.tag === "StyVar") {
     // return b.contents.value;
     throw Error("there shouldn't be a style variable in a selector expression; should have been substituted out");
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
@@ -601,7 +601,7 @@ const toSubExpr = (e: SelExpr): SubExpr => {
     };
   } else if (e.tag === "SEFuncOrValCons") {
     throw Error("compiler should have disambiguated func/val cons");
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 const toSubPredArg = (a: PredArg): SubPredArg => {
@@ -618,7 +618,7 @@ const toSubPredArg = (a: PredArg): SubPredArg => {
       tag: "PP",
       contents: toSubPred(a)
     };
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
@@ -689,7 +689,7 @@ const relMatchesLine = (typeEnv: VarEnv, subEnv: SubEnv, s1: SubStmt, s2: Relati
       return varsEq(subVar, sVar) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
       // COMBAK: Add this condition when the Substance typechecker is implemented
       // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
-    } else throw UnknownTagError;
+    } else throw Error("unknown tag");
 
   } else if (s1.tag === "ApplyP" && s2.tag === "RelPred") { // rule Pred-Match
     const [pred, sPred] = [s1.contents, s2];
@@ -768,7 +768,7 @@ const matchBvar = (subVar: Var, bf: BindingForm): MaybeVal<Subst> => {
     } else {
       return { tag: "Nothing" }; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
     }
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Judgment 12. G; theta |- S <| |S_o
@@ -822,7 +822,7 @@ const findSubstsSel = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, [header
   } else if (header.tag === "Namespace") {
     // No substitutions for a namespace (not in paper)
     return [];
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 
 };
 
@@ -947,7 +947,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
     const gpiDict = prop.contents[1];
     delete gpiDict.prp;
     return trans;
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Note this mutates the translation, and we return the translation reference just as a courtesy
@@ -987,7 +987,7 @@ const deletePath = (trans: Translation, path: Path): Either<StyErrors, Translati
     return Left([`Cannot delete an element of a vector: ${path}`])
   } else if (path.tag === "InternalLocalVar") {
     throw Error("Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass");
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // NOTE: This function mutates the translation
@@ -1007,7 +1007,7 @@ const translateLine = (trans: Translation, stmt: Stmt): Either<StyErrors, Transl
     return addPath(true, trans, stmt.path, { tag: "OptEval", contents: stmt.value });
   } else if (stmt.tag === "Delete") {
     return deletePath(trans, stmt.contents);
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
@@ -1074,13 +1074,27 @@ const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: 
     const substs = findSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv]);
     return translateSubstsBlock(trans, numbered(substs), [hb.block, blockNum]);
 
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
+// Note, this mutates the translation
 const insertNames = (trans: Translation): Translation => {
-  // TODO <
-  return trans;
-
+  return {
+    ...trans,
+    trMap: Object.fromEntries(
+      Object.entries(trans.trMap)
+        .map(([name, fieldDict]) => {
+          fieldDict.name = {
+            tag: "FExpr",
+            contents: {
+              tag: "Done",
+              contents: { tag: "StrV", contents: name }
+            }
+          };
+          return [name, fieldDict];
+        })
+    )
+  };
 };
 
 const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
@@ -1096,7 +1110,7 @@ const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styP
   if (isLeft(res)) { return res; } // Return errors
 
   const trans = res.contents;
-  const transWithNames = insertNames(trans); // TODO
+  const transWithNames = insertNames(trans);
   const transWithNamesAndLabels = insertLabels(transWithNames, labelMap); // TODO
 
   // COMBAK: Do this with plugins
@@ -1270,13 +1284,13 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
 // COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
 // COMBAK: Port the comments
 const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo = Object.entries(findDef(shapeType).properties);
-  return shapeInfo.filter(([t, e]) => t === propType).map(e => e[0]);
+  const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(findDef(shapeType).properties);
+  return shapeInfo.filter(([pName, [pType, s]]) => pType === propType).map(e => e[0]);
 };
 
 const propertiesNotOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo = Object.entries(findDef(shapeType).properties);
-  return shapeInfo.filter(([t, e]) => t !== propType).map(e => e[0]);
+  const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(findDef(shapeType).properties);
+  return shapeInfo.filter(([pName, [pType, s]]) => pType !== propType).map(e => e[0]);
 };
 
 const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
@@ -1291,12 +1305,12 @@ const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, a
 
   } else if (fexpr.tag === "FGPI") {
     const [typ, properties] = fexpr.contents;
-    const ctorFloats = propertiesOf("FloatT", typ).concat(propertiesOf("VectorT", typ));
+    const ctorFloats = propertiesOf("FloatV", typ).concat(propertiesOf("VectorV", typ));
     const varyingFloats = ctorFloats.filter(e => !isPending(typ, e));
     const vs: Path[] = varyingFloats.reduce((acc: Path[], curr) => findPropertyVarying(name, field, properties, curr, acc), []);
     return vs.concat(acc);
 
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 const findVarying = (tr: Translation): Path[] => {
@@ -1315,12 +1329,12 @@ const findFieldUninitialized = (name: string, field: Field, fexpr: FieldExpr<Var
   if (fexpr.tag === "FExpr") { return acc; }
   if (fexpr.tag === "FGPI") {
     const [typ, properties] = fexpr.contents;
-    const ctorNonfloats = propertiesNotOf("FloatT", typ).filter(e => e !== "name");
+    const ctorNonfloats = propertiesNotOf("FloatV", typ).filter(e => e !== "name");
     const uninitializedProps = ctorNonfloats;
     const vs = uninitializedProps.reduce((acc: Path[], curr) => findPropertyUninitialized(name, field, properties, curr, acc), []);
     return vs.concat(acc);
   }
-  throw UnknownTagError;
+  throw Error("unknown tag");
 };
 
 const findUninitialized = (tr: Translation): Path[] => {
@@ -1331,7 +1345,7 @@ const findGPIName = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: [
   if (fexpr.tag === "FGPI") {
     return ([[name, field]] as [string, Field][]).concat(acc);
   } else if (fexpr.tag === "FExpr") { return acc; }
-  else throw UnknownTagError;
+  else throw Error("unknown tag");
 };
 
 const findShapeNames = (tr: Translation): [string, string][] => {
@@ -1345,7 +1359,7 @@ const findShapeProperties = (name: string, field: Field, fexpr: FieldExpr<VarAD>
     return paths.concat(acc);
   } else if (fexpr.tag === "FExpr") {
     return acc;
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 const findShapesProperties = (tr: Translation): [string, string, string][] => {
@@ -1423,8 +1437,8 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
     // COMBAK: Error
   } else if (e.tag === "FGPI") {
     throw Error("invalid varying path");
-    // COMBAK: ErrorP
-  } else throw UnknownTagError;
+    // COMBAK: Error
+  } else throw Error("unknown tag");
 };
 
 // ported from `lookupPaths`
@@ -1432,7 +1446,7 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
   console.log("paths", ps);
   console.log("tr", tr);
-  console.log("res", findExpr(tr, ps[0]));
+  console.log("findExpr res", findExpr(tr, ps[0]));
 
   return ps.map(path => findExpr(tr, path)).map(getNum);
 };
@@ -1446,7 +1460,7 @@ const findFieldPending = (name: string, field: Field, fexpr: FieldExpr<VarAD>, a
         .filter(([k, v]) => v.tag === "Pending"));
     return pendingProps.map(property => mkPath([name, field, property])).concat(acc);
 
-  } else throw UnknownTagError;
+  } else throw Error("unknown tag");
 };
 
 const findPending = (tr: Translation): Path[] => {
@@ -1483,7 +1497,6 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
 };
 
 // NOTE: Shape properties are mutated; they are returned as a courtesy
-// TODO < Is this going to mess up the original translation? Should this be copied...?
 const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
   [propName, [propType, propSampler]]: [string, [PropType, Sampler]]): GPIProps<VarAD> => {
 
@@ -1668,7 +1681,7 @@ export const compileStyle = (stateJSON: any, styJSON: any): Either<StyErrors, St
   const translateRes = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals);
 
   console.log("translation (before genOptProblem)", translateRes);
-  console.error("Note that translation does not yet have names and labels inserted"); // COMBAK: Remove this when done
+  console.error("Note that the translation does not yet have labels inserted"); // COMBAK: Remove this when done
 
   // Translation failed somewhere. TODO (errors/warnings)
   if (translateRes.tag === "Left") {
