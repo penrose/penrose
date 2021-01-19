@@ -1,7 +1,7 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 // TODO: Fix imports
-import { varOf, numOf } from "engine/Autodiff";
+import { varOf, numOf, constOf, constOfIf } from "engine/Autodiff";
 import * as _ from "lodash";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -61,6 +61,8 @@ function mapList<T, S>(f: (arg: T) => S, v: IListV<T>): IListV<S> {
 }
 
 function mapVector<T, S>(f: (arg: T) => S, v: IVectorV<T>): IVectorV<S> {
+  console.log("v.contents", v.contents, v.contents.map(f));
+
   return {
     tag: "VectorV",
     contents: v.contents.map(f),
@@ -241,6 +243,9 @@ export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
 
 export const valueNumberToAutodiff = (v: Value<number>): Value<VarAD> =>
   mapValueNumeric(varOf, v);
+
+export const valueNumberToAutodiffConst = (v: Value<number>): Value<VarAD> =>
+  mapValueNumeric(constOfIf, v); // COMBAK: Really this should be constOf... I don't know why some inputs are already converted to VarADs?
 
 // Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
 // (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
@@ -596,20 +601,18 @@ export const findExpr = (
       const i = path.indices[0]; // COMBAK VECTORS: Currently only supports 1D vectors
 
       if (res.tag === "OptEval") {
-        if (res.contents.tag === "Vector") {
-          return res.contents[i];
+        const res2: Expr = res.contents;
+
+        if (res2.tag === "Vector") {
+          const inner: Expr = res2.contents[i];
+          return { tag: "OptEval", contents: inner };
 
         } else throw Error("access path lookup is invalid");
       } else if (res.tag === "Done") {
         if (res.contents.tag === "VectorV") {
 
-          console.log("res", res);
-          console.log("res contents", res.contents);
-          console.log("res contents i", res.contents.contents[i] as any);
-
-          // COMBAK / ISSUE: Nested?
-          // return res.contents[i];
-          return res.contents.contents[i] as any;
+          const inner: VarAD = res.contents.contents[i];
+          return { tag: "Done", contents: { tag: "FloatV", contents: inner } };
 
         } else throw Error("access path lookup is invalid");
       } else throw Error("access path lookup is invalid");

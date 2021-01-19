@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff } from "engine/EngineUtils";
+import { insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst } from "engine/EngineUtils";
 import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
@@ -1444,9 +1444,11 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
-  console.log("paths", ps);
-  console.log("tr", tr);
-  console.log("findExpr res", findExpr(tr, ps[0]));
+  // console.log("paths", ps);
+  // console.log("tr", tr);
+  // console.log("findExpr res", findExpr(tr, ps[0]));
+  // console.log("pths", ps.map(path => findExpr(tr, path)));
+  // debugger;
 
   return ps.map(path => findExpr(tr, path)).map(getNum);
 };
@@ -1501,7 +1503,8 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
   [propName, [propType, propSampler]]: [string, [PropType, Sampler]]): GPIProps<VarAD> => {
 
   const propVal: Value<number> = propSampler();
-  const propValDone: TagExpr<VarAD> = { tag: "Done", contents: valueNumberToAutodiff(propVal) };
+  const propValAD: Value<VarAD> = valueNumberToAutodiffConst(propVal);
+  const propValDone: TagExpr<VarAD> = { tag: "Done", contents: propValAD };
   const styleSetting: TagExpr<VarAD> = properties[propName];
 
   // Property not set in Style
@@ -1509,7 +1512,7 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
     if (isPending(shapeType, propType)) {
       properties[propName] = {
         tag: "Pending",
-        contents: valueNumberToAutodiff(propVal)
+        contents: propValAD
       } as TagExpr<VarAD>;
       return properties;
     } else {
@@ -1609,7 +1612,7 @@ const genOptProblemAndState = (trans: Translation): State => {
     shapeProperties,
     shapeOrdering: [],
 
-    translation: transInit,
+    translation: transInit, // This is the result of the data processing
     originalTranslation: trans, // COMBAK: Make a copy of the inital trans and store it here
 
     varyingPaths,
@@ -1621,7 +1624,10 @@ const genOptProblemAndState = (trans: Translation): State => {
     objFns,
     constrFns,
 
-    params: undefined as any, // Initialized by optimization; TODO: model with Maybe type
+    // `params` are initialized properly by optimization; COMBAK Does this need to be done here?
+    params: {
+      optStatus: "NewIter",
+    } as unknown as Params,
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,
@@ -1690,6 +1696,8 @@ export const compileStyle = (stateJSON: any, styJSON: any): Either<StyErrors, St
 
   const trans = translateRes.contents;
   const initState = genOptProblemAndState(trans);
+
+  console.log("init state from GenOptProblem", initState);
 
   // Compute layering: TODO(@wodeni)
 
