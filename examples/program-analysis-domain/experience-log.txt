@@ -1,0 +1,76 @@
+Jonathan's Penrose Experiences
+
+To install WSL:
+    Enable-WindowsOptionalFeature -Online -FeatureName $("VirtualMachinePlatform", "Microsoft-Windows-Subsystem-Linux")
+
+    
+Windows Installation steps
+--------------------------
+
+Install Haskell.  Broadly, see https://www.haskell.org/platform/
+    Follow these instructions to install Chocolatey: https://chocolatey.org/install
+    Within windows powershell, run choco install haskell-dev
+
+Interviewing Protocol
+---------------------
+Q: Should I make it look like my existing crappy diagram that is hobbled by present tools or should I make it look like the diagram I really want?  A: The latter.  And ask the user to draw their ideal diagram, ideally in advance.
+    
+Language Requests
+-----------------
+ * Use nodes before defining them (mutually-recursive definitions)
+ * Decompose lists in style
+ * Separate namespaces for types and values, so Node can be a type and a constructor
+ 
+    
+First diagram - page 17 of program-analysis.pdf
+===============================================
+
+Substance (non-Penrose ideal)
+---------
+1 : if x = 0 goto 4
+2 : y := 0
+3 : goto 6
+4 : y := 1
+5 : x := 1
+6 : z := y
+
+
+Substance (future Penrose ideal)
+==================
+Node n1, n2, n3
+n1 := MakeNode("if x = 0 goto 4", [n2,n4])
+n2 := MakeNode("y := 0", [n3])
+n3 := MakeNode("\text{goto}~6", [n6])
+
+
+
+Substance (present Penrose)
+===========================
+Node n1, n2, n3, n4, n5, n6
+
+Label n1 $1: \mbox{if}~x=0~\mbox{goto}~4$
+Label n2 $2: y := 0$
+Label n3 $3: \mbox{goto}~6$
+Label n4 $4: y := 1$
+Label n5 $5: x := 1$
+Label n6 $6: z := y$
+
+Edge(n1, n2, "x -> N")
+Edge(n1, n4, "x -> Z")
+Edge(n2, n3)
+Edge(n3, n6)
+Edge(n4, n5)
+Edge(n5, n6)
+
+
+Style Design Criteria
+=====================
+Each statement turns into a box with the label
+We may want to extract the line number and put it in a shape immediately below the statement.  This denotes a program point at which we know some analysis information.  Maybe the shape to be a emerald (horizontally stretched stop sign shape).
+Edges turn into arrows showing flow between statements.  The arrow should ideally come out of the program point shape and go to the top middle of the destination statement.
+
+We left off here: should we label edges
+
+Style (present Penrose)
+=======================
+
