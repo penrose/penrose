@@ -51,6 +51,7 @@
     "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
+    "coverage": "npm test -- --coverage --watchAll=false",
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
     "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
