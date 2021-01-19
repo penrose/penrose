@@ -1,4 +1,4 @@
-import { CheckerResult, compileDomain, isSubtypeOf } from "compiler/Domain";
+import { CheckerResult, compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
@@ -58,13 +58,13 @@ describe("Common", () => {
       const typeA = env.preludeValues.get("varA")!;
       const typeB = env.preludeValues.get("varB")!;
       const typeC = env.preludeValues.get("varC")!;
-      expect(isSubtypeOf(typeB, typeA, env)).toBe(true);
-      expect(isSubtypeOf(typeC, typeB, env)).toBe(true);
-      expect(isSubtypeOf(typeC, typeA, env)).toBe(true);
-      expect(isSubtypeOf(typeA, typeA, env)).toBe(true);
-      expect(isSubtypeOf(typeB, typeB, env)).toBe(true);
-      expect(isSubtypeOf(typeA, typeC, env)).toBe(false);
-      expect(isSubtypeOf(typeA, typeB, env)).toBe(false);
+      expect(isSubtype(typeB, typeA, env)).toBe(true);
+      expect(isSubtype(typeC, typeB, env)).toBe(true);
+      expect(isSubtype(typeC, typeA, env)).toBe(true);
+      expect(isSubtype(typeA, typeA, env)).toBe(true);
+      expect(isSubtype(typeB, typeB, env)).toBe(true);
+      expect(isSubtype(typeA, typeC, env)).toBe(false);
+      expect(isSubtype(typeA, typeB, env)).toBe(false);
     } else {
       fail(showError(res.error));
     }

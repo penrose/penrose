@@ -263,7 +263,7 @@ const computeTypeGraph = (env: Env): CheckerResult => {
  * @param superType
  * @param env
  */
-export const isSubtypeOf = (
+const isDeclaredSubtype = (
   subType: TypeConstructor,
   superType: TypeConstructor,
   env: Env
@@ -272,6 +272,8 @@ export const isSubtypeOf = (
   // if (subType.args.length > 0 || superType.args.length > 0) return false;
   // HACK: add in top type as an escape hatch for unbounded types
   if (superType.name.value === topType.name.value) return true;
+  // HACK: add in top type as an escape hatch for unbounded types
+  if (subType.name.value === bottomType.name.value) return true;
 
   const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
   const superNode = superTypes[superType.name.value];
@@ -284,35 +286,41 @@ export const isSubtypeOf = (
   }
 };
 
-export const typesEq = (
-  maybeSub: Type,
-  maybeSuper: Type,
+export const isSubtype = (
+  subType: Type,
+  superType: Type,
   env: Env
 ): boolean => {
   if (
-    maybeSub.tag === "TypeConstructor" &&
-    maybeSuper.tag === "TypeConstructor"
+    subType.tag === "TypeConstructor" &&
+    superType.tag === "TypeConstructor"
   ) {
     const argsMatch = (args1: Type[], args2: Type[]): boolean =>
       every(
         zipWith(args1, args2, (sub: Type, sup: Type): boolean =>
-          typesEq(sub, sup, env)
+          isSubtype(sub, sup, env)
         )
       );
     return (
-      (maybeSub.name.value === maybeSuper.name.value ||
-        isSubtypeOf(maybeSub, maybeSuper, env)) &&
-      maybeSub.args.length === maybeSuper.args.length &&
-      argsMatch(maybeSub.args, maybeSuper.args)
+      (subType.name.value === superType.name.value ||
+        isDeclaredSubtype(subType, superType, env)) &&
+      subType.args.length === superType.args.length &&
+      argsMatch(subType.args, superType.args)
     );
-  } else if (maybeSub.tag === "TypeVar" && maybeSuper.tag === "TypeVar") {
-    return maybeSub.name.value === maybeSuper.name.value;
+  } else if (subType.tag === "TypeVar" && superType.tag === "TypeVar") {
+    return subType.name.value === superType.name.value;
   } else return false;
 };
 
 export const topType: TypeConsApp = {
   tag: "TypeConstructor",
   name: idOf("type"),
+  args: [],
+};
+
+export const bottomType: TypeConsApp = {
+  tag: "TypeConstructor",
+  name: idOf("void"),
   args: [],
 };
 

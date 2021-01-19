@@ -18,12 +18,12 @@ import {
   varNotFound,
 } from "utils/Error";
 import {
+  bottomType,
   checkTypeConstructor,
   Env,
-  isSubtypeOf,
+  isSubtype,
   showType,
   topType,
-  typesEq,
 } from "./Domain";
 
 // TODO: wrap errors in PenroseError type
@@ -84,7 +84,7 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
       const { variable, expr } = stmt;
       const varOk = checkVar(variable, env);
       const exprOk = checkExpr(expr, env);
-      return typesMatch(varOk, exprOk, variable, expr, env);
+      return subtypeOf(exprOk, varOk, variable, expr, env);
     }
     case "ApplyPredicate": {
       const { name, args } = stmt;
@@ -96,7 +96,7 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   return ok(env);
 };
 
-const typesMatch = (
+const subtypeOf = (
   type1: ResultWithType,
   type2: ResultWithType,
   expr1: SubExpr,
@@ -110,7 +110,7 @@ const typesMatch = (
         Ok: ([t2, _]) => {
           // TODO: Check ordering of types, maybe annotated the ordering in the signature
           // TODO: call the right type equality function
-          if (typesEq(t1, t2, env)) return ok(env);
+          if (isSubtype(t1, t2, env)) return ok(env);
           else {
             return err(typeMismatch(t1, t2, expr1, expr2));
           }
@@ -177,7 +177,7 @@ const substituteArg = (
       else return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
     } else {
       // if there are no arguments, check for type equality and return mismatch error if types do not match
-      if (type.args.length === 0 && !typesEq(type, formalType, env)) {
+      if (type.args.length === 0 && !isSubtype(type, formalType, env)) {
         return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
       }
       // if there are more arguments, substitute them one by one
@@ -197,7 +197,7 @@ const substituteArg = (
     // type var already substituted
     if (expectedType) {
       // substitutions OK, moving on
-      if (typesEq(expectedType, type, env)) return ok(substEnv);
+      if (isSubtype(expectedType, type, env)) return ok(substEnv);
       // type doesn't match with the previous substitution
       else
         return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));
@@ -247,9 +247,9 @@ const applySubstitution = (
       };
     }
   } else if (formalType.tag === "TypeVar") {
-    // TODO: check if it's okay to return an unbounded type
     const res = substContext.get(formalType.name.value);
-    return res ? res : topType;
+    // TODO: COMBAK(Parametrized types) check if it's okay to return an unbounded type. This case happens when a type variable did not occur in any of the args, therefore lacking a substitution.
+    return res ? res : bottomType;
   } else {
     // COMBAK: find a way around checking props
     return topType;

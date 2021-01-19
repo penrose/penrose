@@ -1,9 +1,8 @@
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
-import { domain } from "process";
 import { Result, showError } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
-import { checkSubstance, compileSubstance } from "./Substance";
+import { compileSubstance } from "./Substance";
 
 const domainProg = `
 type Set
@@ -22,6 +21,15 @@ const envOrError = (prog: string): Env => {
   const res = compileDomain(prog);
   if (res.isErr()) fail(showError(res.error));
   return res.value;
+};
+
+const compileOrError = (prog: string, env: Env) => {
+  const res = compileSubstance(prog, env);
+  if (res.isOk()) {
+    return;
+  } else {
+    fail(`unexpected error ${showError(res.error)}`);
+  }
 };
 
 let parser: nearley.Parser;
@@ -52,7 +60,7 @@ describe("Check statements", () => {
 Set A, B, C
 List(Set) l
 OpenSet D
-D := A
+A := D
     `;
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
@@ -181,5 +189,42 @@ t := CreateTuple(nil, nil) -- Definitely an error
       `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeMismatch");
+  });
+  test("func: argument of too general type", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+List(OpenSet) l, nil
+nil := Nil()
+Set A
+l := Cons(A, nil)
+        `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
+});
+
+// TODO: separate out all subtyping related tests into another suite
+
+describe("Subtypes", () => {
+  test("func argument subtypes", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+List(Set) l, nil
+nil := Nil()
+OpenSet A
+l := Cons(A, nil)
+        `;
+    compileOrError(prog, env);
+  });
+  test("func argument parametrized subtypes", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+List(Set) l
+List(OpenSet) nil
+nil := Nil()
+OpenSet A
+l := Cons(A, nil)
+        `;
+    compileOrError(prog, env);
   });
 });

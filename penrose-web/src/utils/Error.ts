@@ -71,11 +71,11 @@ export const showError = (error: DomainError | SubstanceError): string => {
     }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
-      return `The type of the expression at ${loc(sourceExpr)} (${showType(
+      return `The type of the expression at ${loc(sourceExpr)} '${showType(
         sourceType
-      )}) does not match with the expected type derived from the expression at ${loc(
+      )}' does not match with the expected type derived from the expression at ${loc(
         expectedExpr
-      )} (${showType(expectedType)}).`;
+      )} '${showType(expectedType)}'.`;
     }
     case "TypeArgLengthMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
