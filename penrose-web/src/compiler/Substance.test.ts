@@ -65,7 +65,6 @@ D := A
   test("func", () => {
     const env = envOrError(domainProg);
     const prog = `
--- Substance program for type checking
 List(Set) l, nil
 nil := Nil()
 Set A
@@ -79,8 +78,7 @@ l := Cons(A, nil)
         ["nil", "List"],
       ]);
     } else {
-      // fail(`unexpected error ${showError(res.error)}`);
-      fail(`unexpected error ${res.error.tag}`);
+      fail(`unexpected error ${showError(res.error)}`);
     }
   });
 });
@@ -160,15 +158,28 @@ v := Subset(A, B) -- error
     expectErrorOf(res, "TypeMismatch");
   });
   // TODO: fix typeconstructor check and pass this test
-  //   test("func: type argument mismatch", () => {
-  //     const env = envOrError(domainProg);
-  //     const prog = `
-  // List(Set) nil
-  // Set A
-  // Tuple t
-  // t := CreateTuple(nil, A)
-  //     `;
-  //     const res = compileSubstance(prog, env);
-  //     expectErrorOf(res, "TypeMismatch");
-  //   });
+  test("func: type argument mismatch", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+-- type Tuple('T, 'U)
+-- constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
+List(Set) nil
+Tuple(Set, Set) t -- Maybe an error?
+t := CreateTuple(nil, nil) -- Definitely an error
+      `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
+  test("func: type argument mismatch 2", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+  -- Substance program for type checking
+  List(Set) l, nil
+  nil := Nil()
+  Set A
+  l := Cons(nil, A)
+      `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
 });

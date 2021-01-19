@@ -1,5 +1,6 @@
+import { showType } from "compiler/Domain";
 import { Maybe, Result } from "true-myth";
-const { or, and, ok, err, andThen, match, ap } = Result;
+const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap } = Result;
 
 // TODO: fix template formatting
 export const showError = (error: DomainError | SubstanceError): string => {
@@ -70,11 +71,11 @@ export const showError = (error: DomainError | SubstanceError): string => {
     }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
-      return `The type of the expression at ${loc(sourceExpr)} (${
-        sourceType.name.value
-      }) does not match with the expected type derived from the expression at ${loc(
+      return `The type of the expression at ${loc(sourceExpr)} (${showType(
+        sourceType
+      )}) does not match with the expected type derived from the expression at ${loc(
         expectedExpr
-      )} (${expectedType.name.value}).`;
+      )} (${showType(expectedType)}).`;
     }
     case "TypeArgLengthMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
@@ -226,4 +227,4 @@ export const safeChain = <Item, Ok, Error>(
   );
 
 // NOTE: re-export all true-myth types to reduce boilerplate
-export { Maybe, Result, and, or, ok, err, andThen, ap, match };
+export { Maybe, Result, and, or, ok, err, andThen, ap, match, unsafelyUnwrap };

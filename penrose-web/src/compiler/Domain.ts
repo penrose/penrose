@@ -1,13 +1,14 @@
 import domainGrammar from "parser/DomainParser";
 import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
-import { keyBy } from "lodash";
+import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import {
   all,
   and,
   andThen,
+  argLengthMismatch,
   cyclicSubtypes,
   duplicateName,
   err,
@@ -18,6 +19,7 @@ import {
   safeChain,
   typeNotFound,
 } from "utils/Error";
+import { maybe } from "true-myth/maybe";
 
 // TODO: wrap errors in PenroseError type
 export const compileDomain = (prog: string): CheckerResult => {
@@ -192,7 +194,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
 };
 
 /**
- * Check if a type exists in the domain context. Used across Domain, Substance, and Style.
+ * Check if a type exists in the domain context. Used across Domain, Substance, and Style. If the type is a type variable, the function assumes the `env` already has `typeVars` populated for lookup.
  * @param type type constructor, type variable, or prop to be checked.
  * @param env  the Domain environment
  */
@@ -223,7 +225,7 @@ export const checkTypeConstructor = (
   env: Env
 ): Result<Env, TypeNotFound | TypeVarNotFound> => {
   const { name, args } = type;
-  // check if name exists
+  // check if name of the type exists
   if (!env.types.has(name.value)) {
     const [...suggestions] = env.types.values();
     return err(
@@ -233,6 +235,7 @@ export const checkTypeConstructor = (
       )
     );
   }
+  // check if the arguments are well-formed types
   const argsOk = safeChain(args, checkType, ok(env));
   return and(ok(env), argsOk);
 };
@@ -255,6 +258,7 @@ const computeTypeGraph = (env: Env): CheckerResult => {
 
 /**
  * Utility for comparing types. `isSubtypeOf` returns true if `subType` is a subtype of `superType`, or if both are actually the same type.
+ * TODO: this function only compares nullary type constructors
  * @param subType
  * @param superType
  * @param env
@@ -264,10 +268,14 @@ export const isSubtypeOf = (
   superType: TypeConstructor,
   env: Env
 ): boolean => {
-  const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
-  const superNode = superTypes[superType.name.value];
+  // HACK: subtyping among parametrized types is not handled and assumed to be false
+  // if (subType.args.length > 0 || superType.args.length > 0) return false;
   // HACK: add in top type as an escape hatch for unbounded types
   if (superType.name.value === topType.name.value) return true;
+
+  const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
+  const superNode = superTypes[superType.name.value];
+
   if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
   // TODO: include this case in our error system
   else {
@@ -276,8 +284,52 @@ export const isSubtypeOf = (
   }
 };
 
+export const typesEq = (
+  maybeSub: Type,
+  maybeSuper: Type,
+  env: Env
+): boolean => {
+  if (
+    maybeSub.tag === "TypeConstructor" &&
+    maybeSuper.tag === "TypeConstructor"
+  ) {
+    const argsMatch = (args1: Type[], args2: Type[]): boolean =>
+      every(
+        zipWith(args1, args2, (sub: Type, sup: Type): boolean =>
+          typesEq(sub, sup, env)
+        )
+      );
+    return (
+      (maybeSub.name.value === maybeSuper.name.value ||
+        isSubtypeOf(maybeSub, maybeSuper, env)) &&
+      maybeSub.args.length === maybeSuper.args.length &&
+      argsMatch(maybeSub.args, maybeSuper.args)
+    );
+  } else if (maybeSub.tag === "TypeVar" && maybeSuper.tag === "TypeVar") {
+    return maybeSub.name.value === maybeSuper.name.value;
+  } else return false;
+};
+
 export const topType: TypeConsApp = {
   tag: "TypeConstructor",
   name: idOf("type"),
   args: [],
+};
+
+/**
+ * Type pretty printing function.
+ * @param t Type to be printed
+ */
+export const showType = (t: Type): string => {
+  if (t.tag === "Prop") {
+    return "Prop";
+  } else if (t.tag === "TypeVar") {
+    return `'${t.name.value}`;
+  } else {
+    const { name, args } = t;
+    if (args.length > 0) {
+      const argStrs = args.map(showType);
+      return `${name.value}(${argStrs.join(", ")})`;
+    } else return `${name.value}`;
+  }
 };
