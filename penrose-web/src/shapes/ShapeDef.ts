@@ -94,9 +94,7 @@ export type ShapeDef = IShapeDef;
 // type HasTag<T, N> = T extends { tag: N } ? T : never;
 
 export type PropType = Value<number>["tag"];
-export type IPropModel = {
-  [k: string]: [PropType, Sampler];
-};
+export type IPropModel = { [k: string]: [PropType, Sampler]; };
 
 export interface IShapeDef {
   shapeType: string;

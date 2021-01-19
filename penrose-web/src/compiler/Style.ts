@@ -1,8 +1,10 @@
 import * as _ from "lodash";
-import { insertExpr, insertGPI, findExpr, insertExprs } from "engine/EngineUtils";
+import { insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff } from "engine/EngineUtils";
 import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
+
+const clone = require("rfdc")({ proto: false, circles: false });
 
 // TODO: Write pseudocode / code comments / tests for the Style compiler
 
@@ -1480,43 +1482,81 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
   return tr2;
 };
 
-const initProperty = (s: ShapeTypeStr, p: GPIProps<VarAD>,
-  [typ, sampleF]: [string, Sampler]): GPIProps<VarAD> => {
-  // TODO <
-  return p;
+// NOTE: Shape properties are mutated; they are returned as a courtesy
+// TODO < Is this going to mess up the original translation? Should this be copied...?
+const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
+  [propName, [propType, propSampler]]: [string, [PropType, Sampler]]): GPIProps<VarAD> => {
+
+  const propVal: Value<number> = propSampler();
+  const propValDone: TagExpr<VarAD> = { tag: "Done", contents: valueNumberToAutodiff(propVal) };
+  const styleSetting: TagExpr<VarAD> = properties[propName];
+
+  // Property not set in Style
+  if (!styleSetting) {
+    if (isPending(shapeType, propType)) {
+      properties[propName] = {
+        tag: "Pending",
+        contents: valueNumberToAutodiff(propVal)
+      } as TagExpr<VarAD>;
+      return properties;
+    } else {
+      properties[propName] = propValDone;
+      return properties;
+    }
+  }
+
+  // Property set in Style
+  if (styleSetting.tag === "OptEval") {
+    if (styleSetting.contents.tag === "Vary") {
+      properties[propName] = propValDone;
+      return properties;
+    } else if (styleSetting.contents.tag === "Vector") {
+      properties[propName] = propValDone;
+      return properties;
+    } else {
+      return properties;
+    }
+  } else if (styleSetting.tag === "Done") {
+    return properties;
+  }
+
+  // TODO: error
+  throw Error("invalid value for property");
 };
 
-const getShapeName = (s: string, f: Field): string => {
+const mkShapeName = (s: string, f: Field): string => {
   return `${s}.${f}`;
 };
 
 // COMBAK: This will require `getNames` to work
 const initShape = (tr: Translation, [n, field]: [string, Field]): Translation => {
-  return tr;
-  // const path = mkPath([n, field]);
-  // const res = findExpr(tr, path);
+  const path = mkPath([n, field]);
+  const res = findExpr(tr, path);
 
-  // if (res.tag === "FGPI") {
-  //   const [stype, props] = res.contents;
-  //   const def: ShapeDef = findDef(stype);
-  //   const props2 = Object.fromEntries(
-  //     Object.entries(def.properties)
-  //       .reduce((acc: GPIProps<VarAD>, curr: [string, Sampler]): IPropModel => initProperty(stype, acc, curr),
-  //         props)
-  //   );
+  if (res.tag === "FGPI") {
+    const [stype, props] = res.contents as [string, GPIProps<VarAD>];
+    const def: ShapeDef = findDef(stype);
+    const gpiTemplate: [string, [PropType, Sampler]][] = Object.entries(def.properties);
 
-  //   const shapeName = getShapeName(n, field);
-  //   props2.name = {
-  //     tag: "Done",
-  //     contents: {
-  //       tag: "StrV",
-  //       contents: shapeName
-  //     }
-  //   };
+    const instantiatedGPIProps: GPIProps<VarAD> =
+      gpiTemplate.reduce(
+        (newGPI: GPIProps<VarAD>, propTemplate: [string, [PropType, Sampler]]): GPIProps<VarAD> =>
+          initProperty(stype, newGPI, propTemplate),
+        clone(props)); // NOTE: `initProperty` mutates its input, so the `props` from the translation is cloned here, so the one in the translation itself isn't mutated
 
-  //   return insertGPI(path, { tag: "FGPI", contents: [stype, props2] }, tr);
-  // TODO < above ^
-  // } else throw Error("expected GPI but got field");
+    // Insert the name of the shape into its prop dict
+    const shapeName = mkShapeName(n, field);
+    instantiatedGPIProps.name = {
+      tag: "Done",
+      contents: {
+        tag: "StrV",
+        contents: shapeName
+      }
+    };
+    const gpi: IFGPI<VarAD> = { tag: "FGPI", contents: [stype, instantiatedGPIProps] };
+    return insertGPI(path, gpi, tr);
+
+  } else throw Error("expected GPI but got field");
 };
 
 const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
