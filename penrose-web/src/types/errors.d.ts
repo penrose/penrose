@@ -18,6 +18,7 @@ type SubstanceError =
   | TypeArgLengthMismatch
   | VarNotFound
   | DeconstructNonconstructor
+  | UnexpectedExprForNestedPred
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 type DomainError =
@@ -28,6 +29,13 @@ type DomainError =
   | CyclicSubtypes
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
+
+interface UnexpectedExprForNestedPred {
+  tag: "UnexpectedExprForNestedPred";
+  sourceType: TypeConstructor;
+  sourceExpr: ASTNode;
+  expectedExpr: ASTNode;
+}
 
 interface CyclicSubtypes {
   tag: "CyclicSubtypes";

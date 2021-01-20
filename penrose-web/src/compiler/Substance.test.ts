@@ -13,10 +13,16 @@ type Tuple('T, 'U)
 type Point
 OpenSet <: Set
 constructor Subset: Set A * Set B -> Set
+constructor Intersection: Set A * Set B -> Set
 constructor Cons ['X] : 'X head * List('X) tail -> List('X)
 constructor Nil['X] -> List('X)
 constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
 function AddPoint : Point p * Set s1 -> Set
+predicate Not : Prop p1
+predicate Or : Prop p1 * Prop p2
+predicate Empty : Set s
+predicate Intersecting : Set s1 * Set s2
+predicate IsSubset : Set s1 * Set s2
 `;
 
 const envOrError = (prog: string): Env => {
@@ -115,6 +121,29 @@ Set A, B, C, D, E
 C := Subset(A, B)
 D := C.A
 E := C.B
+    `;
+    const env = envOrError(domainProg);
+    compileOrError(prog, env);
+  });
+  test("predicates: non-nesting", () => {
+    const prog = `
+Set A, B, C, D, E
+C := Intersection(A, B)
+Empty(C)
+IsSubset(D, E)
+IsSubset(D, A)
+IsSubset(Subset(D, E), A) -- anon. constructor
+    `;
+    const env = envOrError(domainProg);
+    compileOrError(prog, env);
+  });
+  test("predicates: non-nesting", () => {
+    const prog = `
+Set A, B, C, D, E
+C := Intersection(A, B)
+Not(Empty(C))
+Not(IsSubset(D, E))
+Not(IsSubset(Subset(D, E), A)) -- anon. constructor
     `;
     const env = envOrError(domainProg);
     compileOrError(prog, env);
@@ -250,6 +279,27 @@ q := B.p1 -- although the function has named args, one still cannot deconstruct 
         `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DeconstructNonconstructor");
+  });
+  test("wrong return type of anon constructor in predicate", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+List(Set) nil
+nil := Nil()
+OpenSet A
+IsSubset(nil, A) -- error because nil is not a Set
+        `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeMismatch");
+  });
+  test("unexpected var when nested pred is expected", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B
+Not(IsSubset(A, B)) -- ok
+Not(Intersection(A, B))
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "UnexpectedExprForNestedPred");
   });
 });
 

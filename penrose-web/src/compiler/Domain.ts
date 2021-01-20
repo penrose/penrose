@@ -5,7 +5,7 @@ import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import {
-  all,
+  every as everyResult,
   and,
   andThen,
   argLengthMismatch,
@@ -19,7 +19,6 @@ import {
   safeChain,
   typeNotFound,
 } from "utils/Error";
-import { maybe } from "true-myth/maybe";
 
 // TODO: wrap errors in PenroseError type
 export const compileDomain = (prog: string): CheckerResult => {
@@ -119,7 +118,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
         ...env,
         constructors: env.constructors.set(name.value, stmt),
       });
-      return all(argsOk, outputOk, updatedEnv);
+      return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "FunctionDecl": {
       const { name, params, args, output } = stmt;
@@ -140,7 +139,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
         ...env,
         functions: env.functions.set(name.value, stmt),
       });
-      return all(argsOk, outputOk, updatedEnv);
+      return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "PredicateDecl": {
       const { name, params, args } = stmt;
@@ -159,7 +158,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
         ...env,
         predicates: env.predicates.set(name.value, stmt),
       });
-      return all(argsOk, updatedEnv);
+      return everyResult(argsOk, updatedEnv);
     }
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
@@ -175,7 +174,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
         ...env,
         preludeValues: env.preludeValues.set(name.value, type),
       });
-      return all(typeOk, updatedEnv);
+      return everyResult(typeOk, updatedEnv);
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
@@ -190,7 +189,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
         ...env,
         subTypes: [...env.subTypes, [subType, superType]],
       });
-      return all(subOk, superOk, updatedEnv);
+      return everyResult(subOk, superOk, updatedEnv);
     }
   }
 };

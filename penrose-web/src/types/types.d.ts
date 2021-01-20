@@ -1119,7 +1119,7 @@ interface ApplyPredicate extends ASTNode {
   args: SubPredArg[];
 }
 
-type SubPredArg = Identifier | ApplyPredicate;
+type SubPredArg = SubExpr | ApplyPredicate; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
 
 //#endregion
 

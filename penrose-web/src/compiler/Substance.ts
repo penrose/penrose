@@ -5,7 +5,7 @@ import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import {
-  all,
+  every,
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
@@ -18,6 +18,7 @@ import {
   typeNotFound,
   unsafelyUnwrap,
   varNotFound,
+  unexpectedExprForNestedPred,
 } from "utils/Error";
 import {
   bottomType,
@@ -80,7 +81,7 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
       const { type, name } = stmt;
       const typeOk = checkTypeConstructor(type, env);
       const updatedEnv: Env = { ...env, vars: env.vars.set(name.value, type) };
-      return all(typeOk, ok(updatedEnv));
+      return every(typeOk, ok(updatedEnv));
     }
     case "Bind": {
       const { variable, expr } = stmt;
@@ -89,13 +90,72 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
       return subtypeOf(exprOk, varOk, variable, expr);
     }
     case "ApplyPredicate": {
-      const { name, args } = stmt;
-      // COMBAK: finish
-      return ok(env);
+      return checkPredicate(stmt, env);
     }
+    case "EqualExprs":
+      return ok(env); // COMBAK: finish
+    case "EqualPredicates":
+      return ok(env); // COMBAK: finish
+    case "AutoLabel":
+      return ok(env); // COMBAK: finish
+    case "LabelDecl":
+      return ok(env); // COMBAK: finish
+    case "NoLabel":
+      return ok(env); // COMBAK: finish
   }
-  // COMBAK: remove
-  return ok(env);
+};
+
+const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
+  const { name, args } = stmt;
+  const predDecl = env.predicates.get(name.value);
+  // check if predicate exists and retrieve its decl
+  if (predDecl) {
+    // initialize substitution environment
+    const substContext: SubstitutionEnv = Map();
+    const argPairs = zip(args, predDecl.args) as [SubPredArg, Arg][];
+    const argsOk: SubstitutionResult = safeChain(
+      argPairs,
+      ([expr, arg], [cxt, e]) => checkPredArg(expr, arg, cxt, e),
+      ok([substContext, env])
+    );
+    // NOTE: throw away the substitution because this layer above doesn't need to typecheck
+    return andThen(([_, e]) => ok(e), argsOk);
+  } else
+    return err(
+      typeNotFound(
+        name,
+        [...env.predicates.values()].map((p) => p.name)
+      )
+    );
+};
+
+const checkPredArg = (
+  arg: SubPredArg,
+  argDecl: Arg,
+  subst: SubstitutionEnv,
+  env: Env
+): SubstitutionResult => {
+  // HACK: predicate-typed args are parsed into `Func` type first, explicitly check and change it to predicate if the func is actually a predicate in the context
+  if (arg.tag === "Func" && env.predicates.get(arg.name.value))
+    arg = { ...arg, tag: "ApplyPredicate" };
+  if (arg.tag === "ApplyPredicate") {
+    // if the argument is a nested predicate, call checkPredicate again
+    const predOk = checkPredicate(arg, env);
+    // NOTE: throw out the env from the check because it's not updating anything
+    return andThen((env) => ok([subst, env]), predOk);
+  } else {
+    const argExpr: SubExpr = arg; // HACK: make sure the lambda function below will typecheck
+    // if the argument is an expr, check and get the type of the expression
+    const exprOk: ResultWithType = checkExpr(arg, env);
+    // check against the formal argument
+    const argSubstOk = andThen(
+      ([t, e]: [TypeConsApp, Env]) =>
+        substituteArg(t, argDecl.type, argExpr, argDecl, subst, e),
+      exprOk
+    );
+    // if everything checks out, return env as a formality
+    return argSubstOk;
+  }
 };
 
 // TODO: in general, true-myth seem to have trouble transforming data within the monad when the transformation itself can go wrong. If the transformation function cannot return errors, it's completely fine to use `ap`. This particular scenario is technically handled by `andThen`, but it seems to have problems with curried functions.
@@ -149,8 +209,8 @@ const checkExpr = (
   }
 };
 
-type SubstitutionEnv = Map<string, TypeConsApp>;
-type SubstitutionResult = Result<SubstitutionEnv, SubstanceError>;
+type SubstitutionEnv = Map<string, TypeConsApp>; // mapping from type var to concrete types
+type SubstitutionResult = Result<[SubstitutionEnv, Env], SubstanceError>; // included env as a potential error accumulator TODO: check if the env passing chain is intact
 
 /**
  * Given a concrete type in Substance and the formal type in Domain (which may include type variables), check if the concrete type is well-formed and possibly add to the substitution map.
@@ -187,9 +247,9 @@ const substituteArg = (
       const typePairs = zip(type.args, expectedArgs) as [TypeConsApp, Type][];
       return safeChain(
         typePairs,
-        ([type, expected], subst) =>
+        ([type, expected], [subst, env]) =>
           substituteArg(type, expected, sourceExpr, expectedExpr, subst, env),
-        ok(substEnv)
+        ok([substEnv, env])
       );
     }
   } else if (formalType.tag === "TypeVar") {
@@ -199,17 +259,16 @@ const substituteArg = (
     // type var already substituted
     if (expectedType) {
       // substitutions OK, moving on
-      if (isSubtype(expectedType, type, env)) return ok(substEnv);
+      if (isSubtype(expectedType, type, env)) return ok([substEnv, env]);
       // type doesn't match with the previous substitution
       else
         return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));
     } else {
       // if type var is not substituted yet, add new substitution to the env
-      return ok(substEnv.set(formalType.name.value, type));
+      return ok([substEnv.set(formalType.name.value, type), env]);
     }
   } else {
-    // COMBAK: do nothing about prop. Come back and test nested predicates
-    return ok(substEnv);
+    return err(unexpectedExprForNestedPred(type, sourceExpr, expectedExpr));
   }
 };
 const matchArg = (
@@ -287,11 +346,11 @@ const checkFunc = (
       const argPairs = zip(func.args, funcDecl.args) as [SubExpr, Arg][];
       const argsOk: SubstitutionResult = safeChain(
         argPairs,
-        ([expr, arg], cxt) => matchArg(expr, arg, cxt, env),
-        ok(substContext)
+        ([expr, arg], [cxt, e]) => matchArg(expr, arg, cxt, e),
+        ok([substContext, env])
       );
       const outputOk: ResultWithType = andThen(
-        (subst) => withType(env, applySubstitution(output.type, subst)),
+        ([subst, e]) => withType(e, applySubstitution(output.type, subst)),
         argsOk
       );
       // if the func is a constructor and bounded by a variable, cache the binding to env
@@ -320,7 +379,7 @@ const checkDeconstructor = (
   const { variable } = decons;
   const varOk = checkVar(variable, env);
   const fieldOk = checkField(decons, env);
-  return all(varOk, fieldOk);
+  return every(varOk, fieldOk);
 };
 
 const checkField = (decons: Deconstructor, env: Env): ResultWithType => {

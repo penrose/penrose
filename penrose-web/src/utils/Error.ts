@@ -103,6 +103,14 @@ export const showError = (error: DomainError | SubstanceError): string => {
         error.deconstructor
       )}) does not correspond to a field value.`;
     }
+    case "UnexpectedExprForNestedPred": {
+      const { sourceExpr, sourceType, expectedExpr } = error;
+      return `A nested predicate is expected (defined at ${loc(
+        expectedExpr
+      )}), but an expression of '${showType(
+        sourceType
+      )}' type was given at ${loc(sourceExpr)}.`;
+    }
     case "Fatal": {
       return `FATAL: ${error.message}`;
     }
@@ -176,6 +184,17 @@ export const typeMismatch = (
   expectedType,
 });
 
+export const unexpectedExprForNestedPred = (
+  sourceType: TypeConstructor,
+  sourceExpr: ASTNode,
+  expectedExpr: ASTNode
+): UnexpectedExprForNestedPred => ({
+  tag: "UnexpectedExprForNestedPred",
+  sourceType,
+  sourceExpr,
+  expectedExpr,
+});
+
 export const argLengthMismatch = (
   name: Identifier,
   argsGiven: SubExpr[],
@@ -221,7 +240,7 @@ export const fatalError = (message: string): FatalError => ({
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1}`;
 
-export const all = <Ok, Error>(
+export const every = <Ok, Error>(
   ...results: Result<Ok, Error>[]
 ): Result<Ok, Error> =>
   results.reduce(
@@ -240,6 +259,29 @@ export const safeChain = <Item, Ok, Error>(
       andThen((res: Ok) => func(nextItem, res), currentResult),
     initialResult
   );
+
+/**
+ * Hand-written version of `Result.all`.
+ */
+export const all = <Ok, Error>(
+  results: Result<Ok, Error>[]
+): Result<Ok[], Error> => {
+  return results.reduce(
+    (
+      currentResults: Result<Ok[], Error>,
+      nextResult: Result<Ok, Error>
+    ): Result<Ok[], Error> =>
+      currentResults.match({
+        Ok: (current: Ok[]) =>
+          nextResult.match({
+            Ok: (next: Ok) => ok([...current, next]),
+            Err: (e: Error) => err(e),
+          }),
+        Err: (e: Error) => err(e),
+      }),
+    ok([])
+  );
+};
 
 // NOTE: re-export all true-myth types to reduce boilerplate
 export { Maybe, Result, and, or, ok, err, andThen, ap, match, unsafelyUnwrap };

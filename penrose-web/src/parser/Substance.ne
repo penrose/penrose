@@ -105,8 +105,6 @@ apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
 %}
 
 pred_arg -> sub_expr {% id %} # allow any expressions as arguments
-  # -> apply_predicate {% id %} # only allow predicates to be arguments
-  # |  identifier      {% id %}
 
 sub_expr 
   -> identifier {% id %}
