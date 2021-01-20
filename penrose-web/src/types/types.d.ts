@@ -760,6 +760,9 @@ interface Arg extends ASTNode {
   variable: Identifier | undefined;
   type: Type;
 }
+interface NamedArg extends Arg {
+  variable: Identifier;
+}
 interface TypeVar extends ASTNode {
   tag: "TypeVar";
   name: Identifier;
@@ -806,7 +809,7 @@ interface ConstructorDecl extends ASTNode {
   tag: "ConstructorDecl";
   name: Identifier;
   params: TypeVar[];
-  args: Arg[];
+  args: NamedArg[];
   output: Arg;
 }
 interface PreludeDecl extends ASTNode {
@@ -1085,12 +1088,12 @@ interface Func extends ASTNode {
 }
 interface ApplyFunction extends ASTNode {
   tag: "ApplyFunction";
-  name: string;
+  name: Identifier;
   args: SubExpr[];
 }
 interface ApplyConstructor extends ASTNode {
   tag: "ApplyConstructor";
-  name: string;
+  name: Identifier;
   args: SubExpr[];
 }
 interface Deconstructor extends ASTNode {

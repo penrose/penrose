@@ -16,7 +16,6 @@ constructor Subset: Set A * Set B -> Set
 constructor Cons ['X] : 'X head * List('X) tail -> List('X)
 constructor Nil['X] -> List('X)
 constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function Subset : Set a * Set b -> Set
 function AddPoint : Point p * Set s1 -> Set
 `;
 
@@ -109,6 +108,16 @@ l := Cons(A, nil)
     } else {
       fail(`unexpected error ${showError(res.error)}`);
     }
+  });
+  test("deconstructor: plain types", () => {
+    const prog = `
+Set A, B, C, D, E
+C := Subset(A, B)
+D := C.A
+E := C.B
+    `;
+    const env = envOrError(domainProg);
+    compileOrError(prog, env);
   });
 });
 
@@ -221,6 +230,26 @@ l := Cons(A, nil)
         `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeMismatch");
+  });
+  test("unbound field access", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B
+B := A.field
+        `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "DeconstructNonconstructor");
+  });
+  test("unbound field access of a function", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, 
+Point p, q
+B := AddPoint(p, A)
+q := B.p1 -- although the function has named args, one still cannot deconstruct functions. Only constructors are okay. 
+        `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "DeconstructNonconstructor");
   });
 });
 

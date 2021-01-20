@@ -95,6 +95,14 @@ export const showError = (error: DomainError | SubstanceError): string => {
         argsGiven.length
       } arguments instead at ${loc(sourceExpr)}.`;
     }
+    case "DeconstructNonconstructor": {
+      const { variable, field } = error.deconstructor;
+      return `Becuase ${variable.value} is not bound to a constructor, ${
+        variable.value
+      }.${field.value} (at ${loc(
+        error.deconstructor
+      )}) does not correspond to a field value.`;
+    }
     case "Fatal": {
       return `FATAL: ${error.message}`;
     }
@@ -194,6 +202,13 @@ export const typeArgLengthMismatch = (
   sourceType,
   expectedExpr,
   expectedType,
+});
+
+export const deconstructNonconstructor = (
+  deconstructor: Deconstructor
+): DeconstructNonconstructor => ({
+  tag: "DeconstructNonconstructor",
+  deconstructor,
 });
 
 export const fatalError = (message: string): FatalError => ({

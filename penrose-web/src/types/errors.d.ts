@@ -17,6 +17,7 @@ type SubstanceError =
   | ArgLengthMismatch
   | TypeArgLengthMismatch
   | VarNotFound
+  | DeconstructNonconstructor
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 type DomainError =
@@ -88,6 +89,11 @@ interface TypeArgLengthMismatch {
   expectedType: TypeConstructor;
   sourceExpr: ASTNode;
   expectedExpr: ASTNode;
+}
+
+interface DeconstructNonconstructor {
+  tag: "DeconstructNonconstructor";
+  deconstructor: Deconstructor;
 }
 
 // NOTE: for debugging purposes

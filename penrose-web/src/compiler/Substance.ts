@@ -1,5 +1,6 @@
+import { varOf } from "engine/Autodiff";
 import { Map } from "immutable";
-import { zip } from "lodash";
+import { findIndex, update, zip } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
@@ -7,6 +8,7 @@ import {
   all,
   andThen,
   argLengthMismatch,
+  deconstructNonconstructor,
   err,
   ok,
   Result,
@@ -83,8 +85,8 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
     case "Bind": {
       const { variable, expr } = stmt;
       const varOk = checkVar(variable, env);
-      const exprOk = checkExpr(expr, env);
-      return subtypeOf(exprOk, varOk, variable, expr, env);
+      const exprOk = checkExpr(expr, env, variable);
+      return subtypeOf(exprOk, varOk, variable, expr);
     }
     case "ApplyPredicate": {
       const { name, args } = stmt;
@@ -96,21 +98,21 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   return ok(env);
 };
 
+// TODO: in general, true-myth seem to have trouble transforming data within the monad when the transformation itself can go wrong. If the transformation function cannot return errors, it's completely fine to use `ap`. This particular scenario is technically handled by `andThen`, but it seems to have problems with curried functions.
 const subtypeOf = (
   type1: ResultWithType,
   type2: ResultWithType,
   expr1: SubExpr,
-  expr2: SubExpr,
-  env: Env
+  expr2: SubExpr
 ): CheckerResult => {
   // TODO: find a more elegant way of writing this
   return type1.match({
-    Ok: ([t1, _]) =>
+    Ok: ([t1, updatedenv]) =>
       type2.match({
         Ok: ([t2, _]) => {
           // TODO: Check ordering of types, maybe annotated the ordering in the signature
           // TODO: call the right type equality function
-          if (isSubtype(t1, t2, env)) return ok(env);
+          if (isSubtype(t1, t2, updatedenv)) return ok(updatedenv);
           else {
             return err(typeMismatch(t1, t2, expr1, expr2));
           }
@@ -129,21 +131,21 @@ const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
 const checkExpr = (
   expr: SubExpr,
   env: Env,
-  expectedType?: TypeConsApp
+  variable?: Identifier
 ): ResultWithType => {
   switch (expr.tag) {
     case "Func":
-      return checkFunc(expr, env);
+      return checkFunc(expr, env, variable);
     case "Identifier":
       return checkVar(expr, env);
     case "StringLit":
       return ok([stringType, env]);
     case "ApplyFunction":
-      return ok([stringType, env]); // COMBAK: finish
+      return checkFunc(expr, env, variable); // NOTE: the parser technically doesn't output this type, put in for completeness
     case "ApplyConstructor":
-      return ok([stringType, env]); // COMBAK: finish
+      return checkFunc(expr, env, variable); // NOTE: the parser technically doesn't output this type, put in for completeness
     case "Deconstructor":
-      return ok([stringType, env]); // COMBAK: finish
+      return checkDeconstructor(expr, env);
   }
 };
 
@@ -256,13 +258,20 @@ const applySubstitution = (
   }
 };
 
-const checkFunc = (func: Func, env: Env): ResultWithType => {
+// TODO: refactor this function to check functions and constructors separately
+const checkFunc = (
+  func: Func | ApplyConstructor | ApplyFunction,
+  env: Env,
+  variable?: Identifier
+): ResultWithType => {
   const name = func.name.value;
   // check if func is either constructor or function
   let funcDecl: ConstructorDecl | FunctionDecl | undefined;
   if (env.constructors.has(name)) {
+    func = { ...func, tag: "ApplyConstructor" };
     funcDecl = env.constructors.get(name);
   } else if (env.functions.has(name)) {
+    func = { ...func, tag: "ApplyFunction" };
     funcDecl = env.functions.get(name);
   }
   // if the function/constructor is found, run a generic check on the arguments and output
@@ -285,9 +294,51 @@ const checkFunc = (func: Func, env: Env): ResultWithType => {
         (subst) => withType(env, applySubstitution(output.type, subst)),
         argsOk
       );
-      return outputOk;
+      // if the func is a constructor and bounded by a variable, cache the binding to env
+      if (
+        variable &&
+        func.tag === "ApplyConstructor" &&
+        funcDecl.tag === "ConstructorDecl"
+      ) {
+        const updatedEnv: Env = {
+          ...env,
+          constructorsBindings: env.constructorsBindings.set(variable.value, [
+            func,
+            funcDecl,
+          ]),
+        };
+        return andThen(([t, _]) => withType(updatedEnv, t), outputOk);
+      } else return outputOk;
     }
   } else return err(typeNotFound(func.name)); // TODO: suggest possible types
+};
+
+const checkDeconstructor = (
+  decons: Deconstructor,
+  env: Env
+): ResultWithType => {
+  const { variable } = decons;
+  const varOk = checkVar(variable, env);
+  const fieldOk = checkField(decons, env);
+  return all(varOk, fieldOk);
+};
+
+const checkField = (decons: Deconstructor, env: Env): ResultWithType => {
+  const { field } = decons;
+  // get the original constructor in Substance
+  const res = env.constructorsBindings.get(decons.variable.value);
+  if (res) {
+    // get the constructor decl in Domain
+    const [cons, consDecl] = res;
+    // find the field index by name
+    const fieldIndex = findIndex(
+      consDecl.args,
+      (a) => a.variable.value === field.value
+    );
+    // TODO: the field type call is a bit redundant. Is there a better way to get the type of the field?
+    const fieldType = checkExpr(cons.args[fieldIndex], env);
+    return fieldType;
+  } else return err(deconstructNonconstructor(decons));
 };
 
 const checkVar = (variable: Identifier, env: Env): ResultWithType => {
@@ -300,6 +351,3 @@ const checkVar = (variable: Identifier, env: Env): ResultWithType => {
     return err(varNotFound(variable, possibleVars));
   }
 };
-
-// Resolve ambiguity
-// const checkFunc = ()

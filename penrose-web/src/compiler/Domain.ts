@@ -36,6 +36,7 @@ export type CheckerResult = Result<Env, DomainError>;
 export interface Env {
   types: Map<string, TypeDecl>;
   constructors: Map<string, ConstructorDecl>;
+  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
   functions: Map<string, FunctionDecl>;
   vars: Map<string, TypeConsApp>; // TODO: use Identifier as key?
   predicates: Map<string, PredicateDecl>;
@@ -64,6 +65,7 @@ const initEnv = (): Env => ({
   typeVars: Map(),
   vars: Map(),
   constructors: Map(),
+  constructorsBindings: Map(),
   predicates: Map(),
   functions: Map(),
   preludeValues: Map(),
