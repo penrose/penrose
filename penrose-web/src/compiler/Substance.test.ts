@@ -19,7 +19,7 @@ constructor Nil['X] -> List('X)
 constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
 function AddPoint : Point p * Set s1 -> Set
 predicate Not : Prop p1
-predicate Or : Prop p1 * Prop p2
+predicate Both : Prop p1 * Prop p2
 predicate Empty : Set s
 predicate Intersecting : Set s1 * Set s2
 predicate IsSubset : Set s1 * Set s2
@@ -137,13 +137,26 @@ IsSubset(Subset(D, E), A) -- anon. constructor
     const env = envOrError(domainProg);
     compileOrError(prog, env);
   });
-  test("predicates: non-nesting", () => {
+  test("predicates: nesting", () => {
     const prog = `
 Set A, B, C, D, E
 C := Intersection(A, B)
 Not(Empty(C))
 Not(IsSubset(D, E))
 Not(IsSubset(Subset(D, E), A)) -- anon. constructor
+Both(IsSubset(A, B), IsSubset(C, D))
+    `;
+    const env = envOrError(domainProg);
+    compileOrError(prog, env);
+  });
+  test("predicates: nesting", () => {
+    const prog = `
+Set A, B, C
+Label A $\\vec{A}$
+Label B $B_1$
+AutoLabel All
+AutoLabel B, C
+NoLabel B, C
     `;
     const env = envOrError(domainProg);
     compileOrError(prog, env);
@@ -300,6 +313,15 @@ Not(Intersection(A, B))
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "UnexpectedExprForNestedPred");
+  });
+  test("variables not found in label statements", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B
+Label D $\\vec{d}$
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "VarNotFound");
   });
 });
 

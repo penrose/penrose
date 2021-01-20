@@ -92,16 +92,25 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
     case "ApplyPredicate": {
       return checkPredicate(stmt, env);
     }
-    case "EqualExprs":
-      return ok(env); // COMBAK: finish
-    case "EqualPredicates":
-      return ok(env); // COMBAK: finish
+    case "EqualExprs": {
+      const { left, right } = stmt;
+      const leftOk = checkExpr(left, env);
+      const rightOk = checkExpr(right, env);
+      return andThen(([_, e]) => ok(e), every(leftOk, rightOk));
+    }
+    case "EqualPredicates": {
+      const { left, right } = stmt;
+      const leftOk = checkPredicate(left, env);
+      const rightOk = checkPredicate(right, env);
+      return every(leftOk, rightOk);
+    }
     case "AutoLabel":
-      return ok(env); // COMBAK: finish
+      return ok(env); // NOTE: no checking required
     case "LabelDecl":
-      return ok(env); // COMBAK: finish
+      return andThen(([_, e]) => ok(e), checkVar(stmt.variable, env));
     case "NoLabel":
-      return ok(env); // COMBAK: finish
+      const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
+      return andThen(([_, e]) => ok(e), argsOk);
   }
 };
 
@@ -312,7 +321,7 @@ const applySubstitution = (
     // TODO: COMBAK(Parametrized types) check if it's okay to return an unbounded type. This case happens when a type variable did not occur in any of the args, therefore lacking a substitution.
     return res ? res : bottomType;
   } else {
-    // COMBAK: find a way around checking props
+    // TODO: this case shouldn't occure, as the right hand side of binds cannot be a predicate, which is already ensured by the parser
     return topType;
   }
 };

@@ -171,7 +171,7 @@ const grammar: Grammar = {
           tag: "EqualExprs", left, right
         })
         },
-    {"name": "equal_predicates", "symbols": ["func", "_", {"literal":"<->"}, "_", "func"], "postprocess": 
+    {"name": "equal_predicates", "symbols": ["apply_predicate", "_", {"literal":"<->"}, "_", "apply_predicate"], "postprocess": 
         ([left, , , , right]): EqualPredicates => ({
           ...rangeBetween(left, right),
           tag: "EqualPredicates", left, right

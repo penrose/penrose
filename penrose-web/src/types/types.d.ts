@@ -1035,7 +1035,7 @@ type SubStmt =
 interface LabelDecl extends ASTNode {
   tag: "LabelDecl";
   variable: Identifier;
-  label: StringLit;
+  label: IStringLit;
 }
 interface AutoLabel extends ASTNode {
   tag: "AutoLabel";
@@ -1110,8 +1110,8 @@ interface EqualExprs extends ASTNode {
 
 interface EqualPredicates extends ASTNode {
   tag: "EqualPredicates";
-  left: Func;
-  right: Func;
+  left: ApplyPredicate;
+  right: ApplyPredicate;
 }
 interface ApplyPredicate extends ASTNode {
   tag: "ApplyPredicate";

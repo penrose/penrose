@@ -134,7 +134,7 @@ equal_exprs -> sub_expr _ "=" _ sub_expr {%
   })
 %}
 
-equal_predicates -> func _ "<->" _ func {%
+equal_predicates -> apply_predicate _ "<->" _ apply_predicate {%
   ([left, , , , right]): EqualPredicates => ({
     ...rangeBetween(left, right),
     tag: "EqualPredicates", left, right
