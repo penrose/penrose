@@ -258,35 +258,35 @@ const applySubstitution = (
 
 const checkFunc = (func: Func, env: Env): ResultWithType => {
   const name = func.name.value;
-  // use the nmae of the func to see if it's a predicate, constructor, or function
+  // check if func is either constructor or function
+  let funcDecl: ConstructorDecl | FunctionDecl | undefined;
   if (env.constructors.has(name)) {
-    const cons = env.constructors.get(name);
-    // TODO: this check is redundant. Encode in the type system
-    if (cons) {
-      // initialize substitution environment
-      const substContext: SubstitutionEnv = Map();
-      if (cons.args.length !== func.args.length) {
-        return err(
-          argLengthMismatch(func.name, func.args, cons.args, func, cons)
-        );
-      } else {
-        const argPairs = zip(func.args, cons.args) as [SubExpr, Arg][];
-        const argsOk: SubstitutionResult = safeChain(
-          argPairs,
-          ([expr, arg], cxt) => matchArg(expr, arg, cxt, env),
-          ok(substContext)
-        );
-        const outputOk: ResultWithType = andThen(
-          (subst) => withType(env, applySubstitution(cons.output.type, subst)),
-          argsOk
-        );
-        return outputOk;
-      }
-    } else return err(typeNotFound(func.name));
+    funcDecl = env.constructors.get(name);
   } else if (env.functions.has(name)) {
-    return ok([stringType, env]); // COMBAK: finish
-  } else if (env.predicates.has(name)) {
-    return ok([stringType, env]); // COMBAK: finish
+    funcDecl = env.functions.get(name);
+  }
+  // if the function/constructor is found, run a generic check on the arguments and output
+  if (funcDecl) {
+    const { output } = funcDecl;
+    // initialize substitution environment
+    const substContext: SubstitutionEnv = Map();
+    if (funcDecl.args.length !== func.args.length) {
+      return err(
+        argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl)
+      );
+    } else {
+      const argPairs = zip(func.args, funcDecl.args) as [SubExpr, Arg][];
+      const argsOk: SubstitutionResult = safeChain(
+        argPairs,
+        ([expr, arg], cxt) => matchArg(expr, arg, cxt, env),
+        ok(substContext)
+      );
+      const outputOk: ResultWithType = andThen(
+        (subst) => withType(env, applySubstitution(output.type, subst)),
+        argsOk
+      );
+      return outputOk;
+    }
   } else return err(typeNotFound(func.name)); // TODO: suggest possible types
 };
 

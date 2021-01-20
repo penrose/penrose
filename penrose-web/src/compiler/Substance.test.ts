@@ -1,7 +1,7 @@
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import { Result, showError } from "utils/Error";
-import { compileDomain, Env } from "./Domain";
+import { compileDomain, Env, showType } from "./Domain";
 import { compileSubstance } from "./Substance";
 
 const domainProg = `
@@ -10,11 +10,14 @@ type OpenSet
 type Vector
 type List('T)
 type Tuple('T, 'U)
+type Point
+OpenSet <: Set
 constructor Subset: Set A * Set B -> Set
 constructor Cons ['X] : 'X head * List('X) tail -> List('X)
 constructor Nil['X] -> List('X)
 constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-OpenSet <: Set
+function Subset : Set a * Set b -> Set
+function AddPoint : Point p * Set s1 -> Set
 `;
 
 const envOrError = (prog: string): Env => {
@@ -51,7 +54,7 @@ describe("Check statements", () => {
   const hasVars = (env: Env, vars: [string, string][]) => {
     vars.map(([name, type]: [string, string]) => {
       expect(env.vars.has(name)).toBe(true);
-      expect(env.vars.get(name)?.name.value).toEqual(type);
+      expect(showType(env.vars.get(name)!)).toEqual(type);
     });
   };
   test("decls", () => {
@@ -67,10 +70,28 @@ A := D
     if (res.isOk())
       hasVars(res.value, [
         ["A", "Set"],
-        ["l", "List"],
+        ["l", "List(Set)"],
       ]);
   });
-  test("func", () => {
+  test("func: function", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B
+Point p
+B := AddPoint(p, B)
+      `;
+    const res = compileSubstance(prog, env);
+    if (res.isOk()) {
+      hasVars(res.value, [
+        ["A", "Set"],
+        ["B", "Set"],
+        ["p", "Point"],
+      ]);
+    } else {
+      fail(`unexpected error ${showError(res.error)}`);
+    }
+  });
+  test("func: constructor", () => {
     const env = envOrError(domainProg);
     const prog = `
 List(Set) l, nil
@@ -82,8 +103,8 @@ l := Cons(A, nil)
     if (res.isOk()) {
       hasVars(res.value, [
         ["A", "Set"],
-        ["l", "List"],
-        ["nil", "List"],
+        ["l", "List(Set)"],
+        ["nil", "List(Set)"],
       ]);
     } else {
       fail(`unexpected error ${showError(res.error)}`);
@@ -202,8 +223,6 @@ l := Cons(A, nil)
     expectErrorOf(res, "TypeMismatch");
   });
 });
-
-// TODO: separate out all subtyping related tests into another suite
 
 describe("Subtypes", () => {
   test("func argument subtypes", () => {

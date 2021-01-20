@@ -131,8 +131,7 @@ const grammar: Grammar = {
           tag: "ApplyPredicate", name, args
         })
         },
-    {"name": "pred_arg", "symbols": ["apply_predicate"], "postprocess": id},
-    {"name": "pred_arg", "symbols": ["identifier"], "postprocess": id},
+    {"name": "pred_arg", "symbols": ["sub_expr"], "postprocess": id},
     {"name": "sub_expr", "symbols": ["identifier"], "postprocess": id},
     {"name": "sub_expr", "symbols": ["deconstructor"], "postprocess": id},
     {"name": "sub_expr", "symbols": ["func"], "postprocess": id},

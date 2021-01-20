@@ -1434,6 +1434,9 @@ interface ASTNode {
   tag: string;
   start: SourceLoc;
   end: SourceLoc;
+  // TODO: add file source and node type
+  // type: "Domain" | "Substance" | "Style"
+  // sourceFile: FilePath
   // Optionally for querying
   // children: ASTNode[];
   // file: string;
