@@ -1,5 +1,5 @@
 import { checkComp, compDict } from "contrib/Functions";
-import { mapTranslation, valueAutodiffToNumber, insertExpr, isPath, exprToNumber } from "engine/EngineUtils";
+import { mapTranslation, valueAutodiffToNumber, insertExpr, isPath, exprToNumber, numToExpr } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom, { prng } from "seedrandom";
 import { floatVal } from "utils/OtherUtils";
@@ -426,6 +426,9 @@ export const evalExpr = (
     }
 
     case "VectorAccess": {
+      // COMBAK: Deprecate Vector/MatrixAccess
+      // throw Error("deprecated");
+
       const [e1, e2] = e.contents;
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2 = evalExpr(e2, trans, varyingVars, optDebugInfo);
@@ -436,6 +439,19 @@ export const evalExpr = (
       if (v2.tag !== "Val") {
         throw Error("expected val");
       }
+
+      // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
+      if (v2.contents.tag === "FloatV") {
+        console.log("v2 before", v2);
+
+        v2.contents = {
+          tag: "IntV",
+          contents: Math.floor(numOf(v2.contents.contents))
+        }
+
+        console.log("v2 after", v2);
+      }
+
       if (v2.contents.tag !== "IntV") {
         throw Error("expected int");
       }
@@ -464,6 +480,9 @@ export const evalExpr = (
     }
 
     case "MatrixAccess": {
+      // COMBAK: Deprecate Vector/MatrixAccess
+      // throw Error("deprecated");
+
       const [e1, e2] = e.contents;
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2s = evalExprs(e2, trans, varyingVars, optDebugInfo);
@@ -595,8 +614,21 @@ export const resolvePath = (
     return floatVal(varyingVal);
   } else {
     // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
+    // NOTE: varyingMap includes vars of form AccessPath but not Vector/Matrix access
     if (path.tag === "AccessPath") {
-      throw Error("TODO");
+      // Evaluate it as Vector or Matrix access as appropriate (COMBAK: Deprecate Vector/Matrix access on second pass, and also remove Vector/Matrix conversion to accesspath for derivative debugging computations)
+
+      console.log("path", path);
+      console.log("trans", trans);
+      console.log("varyingMap", varyingMap);
+
+      if (path.indices.length === 1) { // Vector
+        const e: Expr = { tag: "VectorAccess", contents: [path.path, numToExpr(path.indices[0])] };
+        return evalExpr(e, trans, varyingMap, optDebugInfo);
+      } else if (path.indices.length === 2) { // Matrix
+        const e: Expr = { tag: "MatrixAccess", contents: [path.path, path.indices.map(numToExpr)] };
+        return evalExpr(e, trans, varyingMap, optDebugInfo);
+      } else throw Error("unsupported number of indices in AccessPath");
     }
 
     if (path.tag === "InternalLocalVar" || path.tag === "LocalVar") {
@@ -660,24 +692,13 @@ export const resolvePath = (
 
         if (expr.tag === "OptEval") {
           // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-          const res: ArgVal<VarAD> = evalExpr(
-            expr.contents,
-            trans,
-            varyingMap,
-            optDebugInfo
-          );
+          const res: ArgVal<VarAD> = evalExpr(expr.contents, trans, varyingMap, optDebugInfo);
 
           if (res.tag === "Val") {
-            const transNew = insertExpr(
-              path,
-              { tag: "Done", contents: res.contents },
-              trans
-            );
+            const transNew = insertExpr(path, { tag: "Done", contents: res.contents }, trans);
             return res;
           } else if (res.tag === "GPI") {
-            throw Error(
-              "Field expression evaluated to GPI when this case was eliminated"
-            );
+            throw Error("Field expression evaluated to GPI when this case was eliminated");
           } else {
             throw Error("Unknown tag");
           }

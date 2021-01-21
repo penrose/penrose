@@ -21,6 +21,8 @@ const clone = require("rfdc")({ proto: false, circles: false });
 const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
 
+const LABEL_FIELD = "label";
+
 const UnknownTagError = new Error("unknown tag");
 
 //#endregion
@@ -1073,29 +1075,52 @@ const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: 
   } else throw Error("unknown tag");
 };
 
-// Note, this mutates the translation
-const insertNames = (trans: Translation): Translation => {
+// Map a function over the translation
+const mapTrans = (trans: Translation, f: (name: string, fieldDict: FieldDict) => [string, FieldDict]): Translation => {
   return {
     ...trans,
     trMap: Object.fromEntries(
       Object.entries(trans.trMap)
-        .map(([name, fieldDict]) => {
-          fieldDict.name = {
-            tag: "FExpr",
-            contents: {
-              tag: "Done",
-              contents: { tag: "StrV", contents: name }
-            }
-          };
-          return [name, fieldDict];
-        })
-    )
+        .map(([n, fd]) => f(n, fd)))
   };
 };
 
+// Note, this mutates the translation
+const insertNames = (trans: Translation): Translation => {
+  const insertName = (name: string, fieldDict: FieldDict): [string, FieldDict] => {
+    fieldDict.name = {
+      tag: "FExpr",
+      contents: {
+        tag: "Done",
+        contents: { tag: "StrV", contents: name }
+      }
+    };
+    return [name, fieldDict];
+  };
+
+  return mapTrans(trans, insertName);
+};
+
+// Note, this mutates the translation
 const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
-  // TODO <
-  return trans;
+  const insertLabel = (name: string, fieldDict: FieldDict): [string, FieldDict] => {
+    const label: string = labels[name];
+    if (!label) { return [name, fieldDict]; }
+    // COMBAK: Model this better WRT Maybes; need to distinguish between "no label mapping" and "no label" so we can delete the relevant text GPIs (see Haskell for code)
+    fieldDict[LABEL_FIELD] = {
+      tag: "FExpr",
+      contents: {
+        tag: "Done",
+        contents: {
+          tag: "StrV",
+          contents: label
+        }
+      }
+    };
+    return [name, fieldDict];
+  };
+
+  return mapTrans(trans, insertLabel);
 };
 
 const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styProg: StyProg, labelMap: LabelMap, styVals: number[]): Either<StyErrors, Translation> => {

@@ -48,6 +48,7 @@ type FExpr = FieldExpr<VarAD>;
 type ShapeTypeStr = string;
 type PropID = string;
 type GPIMap = { [k: string]: TagExpr<VarAD> };
+type FieldDict = { [k: string]: FieldExpr<VarAD> };
 
 type StyleOptFn = [string, Expr[]] // Objective or constraint
 

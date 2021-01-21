@@ -636,3 +636,17 @@ export const exprToNumber = (e: Expr): number => {
   if (e.tag === "Fix") { return e.contents; }
   throw Error("expecting expr to be number");
 };
+
+// TODO: Import/export this
+// const dummySourceLoc = (): SourceLoc => {
+//   return { line: -1, col: -1 };
+// };
+
+export const numToExpr = (n: number): Expr => {
+  return {
+    start: dummySourceLoc(),
+    end: dummySourceLoc(),
+    tag: "Fix",
+    contents: n
+  };
+};
