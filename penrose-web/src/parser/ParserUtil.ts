@@ -1,4 +1,48 @@
-import { compact } from "lodash";
+import { compact, flatten } from "lodash";
+import * as moo from "moo";
+
+export const basicSymbols: moo.Rules = {
+  ws: /[ \t]+/,
+  nl: { match: "\n", lineBreaks: true },
+  subtypeOf: "<:",
+  lte: "<=",
+  lt: "<",
+  gte: ">=",
+  gt: ">",
+  eq: "==",
+  rarrow: "->",
+  tilda: "~",
+  lparen: "(",
+  rparen: ")",
+  apos: "'",
+  comma: ",",
+  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+  float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
+  comment: /--.*?$/,
+  multiline_comment: {
+    match: /\/\*(?:[\s\S]*?)\*\//,
+    lineBreaks: true,
+  },
+  dot: ".",
+  brackets: "[]",
+  lbracket: "[",
+  rbracket: "]",
+  lbrace: "{",
+  rbrace: "}",
+  assignment: "=",
+  def: ":=",
+  plus: "+",
+  exp: "^",
+  minus: "-",
+  multiply: "*",
+  divide: "/",
+  modulo: "%",
+  colon: ":",
+  semi: ";",
+  question: "?",
+  dollar: "$",
+  tick: "`",
+};
 
 const tokenStart = (token: any) => {
   return {
@@ -59,7 +103,7 @@ const maxLoc = (...locs: SourceLoc[]) => {
 };
 
 /** Given a list of tokens, find the range of tokens */
-export const rangeFrom = (children: ASTNode[]) => {
+export const rangeFrom = (children: any[]) => {
   // NOTE: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
   if (children.length === 0) {
     // console.trace(`No children ${JSON.stringify(children)}`);
@@ -107,3 +151,20 @@ export const nth = (n: number) => {
     return d[n];
   };
 };
+
+export const optional = <T>(optionalValue: T | undefined, defaultValue: T) =>
+  optionalValue ? optionalValue : defaultValue;
+// Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
+export const tokensIn = (tokenList: any[]): any[] =>
+  flatten(compact(tokenList));
+
+// HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
+export const idOf = (value: string, nodeType: string): Identifier => ({
+  nodeType,
+  children: [],
+  start: { line: 1, col: 1 },
+  end: { line: 1, col: 1 },
+  tag: "Identifier",
+  type: "identifier",
+  value: value,
+});

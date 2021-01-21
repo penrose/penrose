@@ -41,7 +41,7 @@
     "tslib": "^2.0.3"
   },
   "scripts": {
-    "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
+    "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "prebuild": "npm run build:parsers",
     "prestart": "npm run build:parsers",
     "pretest": "npm run build:parsers",
@@ -51,6 +51,7 @@
     "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test",
+    "coverage": "npm test -- --coverage --watchAll=false",
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
     "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",

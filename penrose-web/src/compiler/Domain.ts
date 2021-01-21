@@ -1,10 +1,14 @@
+import domainGrammar from "parser/DomainParser";
 import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
-import { keyBy } from "lodash";
+import { every, keyBy, result, zipWith } from "lodash";
+import nearley from "nearley";
+import { idOf } from "parser/ParserUtil";
 import {
-  all,
+  every as everyResult,
   and,
   andThen,
+  argLengthMismatch,
   cyclicSubtypes,
   duplicateName,
   err,
@@ -13,31 +17,38 @@ import {
   ok,
   Result,
   safeChain,
+  typeNotFound,
 } from "utils/Error";
 
-export type CheckerResult = Result<DomainEnv, DomainError>;
+// TODO: wrap errors in PenroseError type
+export const compileDomain = (prog: string): Result<Env, PenroseError> => {
+  const parser = new nearley.Parser(
+    nearley.Grammar.fromCompiled(domainGrammar)
+  );
+  const { results } = parser.feed(prog);
+  const ast: DomainProg = results[0];
+  return checkDomain(ast).match({
+    Ok: (env) => ok(env),
+    Err: (e) => err({ ...e, errorType: "DomainError" }),
+  });
+};
 
-export interface DomainEnv {
+export type CheckerResult = Result<Env, DomainError>;
+
+//#region Domain context
+export interface Env {
   types: Map<string, TypeDecl>;
   constructors: Map<string, ConstructorDecl>;
+  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
   functions: Map<string, FunctionDecl>;
-  vars: Map<string, Identifier>;
+  vars: Map<string, TypeConsApp>; // TODO: use Identifier as key?
   predicates: Map<string, PredicateDecl>;
   typeVars: Map<string, TypeVar>;
   preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
   subTypes: [TypeConstructor, TypeConstructor][];
   typeGraph: Graph;
 }
-
-// HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-// TODO: move this function to a util module
-const idOf = (value: string) => ({
-  start: { line: 1, col: 1 },
-  end: { line: 1, col: 1 },
-  tag: "Identifier",
-  type: "identifier",
-  value: value,
-});
+//#endregion
 
 /* Built in types for all Domain programs */
 const builtinTypes: [string, TypeDecl][] = [
@@ -46,17 +57,20 @@ const builtinTypes: [string, TypeDecl][] = [
     {
       start: { line: 1, col: 1 },
       end: { line: 1, col: 1 },
+      nodeType: "Substance",
+      children: [],
       tag: "TypeDecl",
-      name: idOf("String"),
+      name: idOf("String", "Domain"),
       params: [],
     },
   ],
 ];
-const initEnv = (): DomainEnv => ({
+const initEnv = (): Env => ({
   types: Map(builtinTypes),
   typeVars: Map(),
   vars: Map(),
   constructors: Map(),
+  constructorsBindings: Map(),
   predicates: Map(),
   functions: Map(),
   preludeValues: Map(),
@@ -65,20 +79,20 @@ const initEnv = (): DomainEnv => ({
 });
 
 /**
- * Top-level function for the Domain semantic checker. Given a Domain AST, it output either a `DomainError` or a `DomainEnv` context.
+ * Top-level function for the Domain semantic checker. Given a Domain AST, it outputs either a `DomainError` or a `DomainEnv` context.
  * @param prog compiled AST of a Domain program
  */
 export const checkDomain = (prog: DomainProg): CheckerResult => {
   const { statements } = prog;
   // load built-in types
-  const env: DomainEnv = initEnv();
+  const env: Env = initEnv();
   // check all statements
   const stmtsOk: CheckerResult = safeChain(statements, checkStmt, ok(env));
   // compute subtyping graph
   return andThen(computeTypeGraph, stmtsOk);
 };
 
-const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
+const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
       // NOTE: params are not reused, so no need to check
@@ -92,7 +106,7 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
     case "ConstructorDecl": {
       const { name, params, args, output } = stmt;
       // load params into context
-      const localEnv: DomainEnv = {
+      const localEnv: Env = {
         ...env,
         typeVars: Map(keyBy(params, "name.value")),
       };
@@ -110,12 +124,12 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
         ...env,
         constructors: env.constructors.set(name.value, stmt),
       });
-      return all(argsOk, outputOk, updatedEnv);
+      return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "FunctionDecl": {
       const { name, params, args, output } = stmt;
       // load params into context
-      const localEnv: DomainEnv = {
+      const localEnv: Env = {
         ...env,
         typeVars: Map(keyBy(params, "name.value")),
       };
@@ -131,12 +145,12 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
         ...env,
         functions: env.functions.set(name.value, stmt),
       });
-      return all(argsOk, outputOk, updatedEnv);
+      return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "PredicateDecl": {
       const { name, params, args } = stmt;
       // load params into context
-      const localEnv: DomainEnv = {
+      const localEnv: Env = {
         ...env,
         typeVars: Map(keyBy(params, "name.value")),
       };
@@ -150,7 +164,7 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
         ...env,
         predicates: env.predicates.set(name.value, stmt),
       });
-      return all(argsOk, updatedEnv);
+      return everyResult(argsOk, updatedEnv);
     }
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
@@ -166,7 +180,7 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
         ...env,
         preludeValues: env.preludeValues.set(name.value, type),
       });
-      return all(typeOk, updatedEnv);
+      return everyResult(typeOk, updatedEnv);
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
@@ -181,12 +195,20 @@ const checkStmt = (stmt: DomainStmt, env: DomainEnv): CheckerResult => {
         ...env,
         subTypes: [...env.subTypes, [subType, superType]],
       });
-      return all(subOk, superOk, updatedEnv);
+      return everyResult(subOk, superOk, updatedEnv);
     }
   }
 };
 
-const checkType = (type: Type, env: DomainEnv): CheckerResult => {
+/**
+ * Check if a type exists in the domain context. Used across Domain, Substance, and Style. If the type is a type variable, the function assumes the `env` already has `typeVars` populated for lookup.
+ * @param type type constructor, type variable, or prop to be checked.
+ * @param env  the Domain environment
+ */
+export const checkType = (
+  type: Type,
+  env: Env
+): Result<Env, TypeNotFound | TypeVarNotFound> => {
   switch (type.tag) {
     case "TypeVar": {
       return env.typeVars.has(type.name.value)
@@ -200,26 +222,35 @@ const checkType = (type: Type, env: DomainEnv): CheckerResult => {
   }
 };
 
-const checkTypeConstructor = (
+/**
+ * Check if a type constructor exists in the domain context. Used across Domain, Substance, and Style.
+ * @param type type constructor to be checked.
+ * @param env  the Domain environment
+ */
+export const checkTypeConstructor = (
   type: TypeConstructor,
-  env: DomainEnv
-): CheckerResult => {
+  env: Env
+): Result<Env, TypeNotFound | TypeVarNotFound> => {
   const { name, args } = type;
-  // check if name exists
+  // check if name of the type exists
   if (!env.types.has(name.value)) {
-    return err({
-      tag: "TypeNotFound",
-      typeName: name,
-    });
+    const [...suggestions] = env.types.values();
+    return err(
+      typeNotFound(
+        name,
+        suggestions.map((t: TypeDecl) => t.name)
+      )
+    );
   }
+  // check if the arguments are well-formed types
   const argsOk = safeChain(args, checkType, ok(env));
   return and(ok(env), argsOk);
 };
 
-const checkArg = (arg: Arg, env: DomainEnv): CheckerResult =>
+const checkArg = (arg: Arg, env: Env): CheckerResult =>
   checkType(arg.type, env);
 
-const computeTypeGraph = (env: DomainEnv): CheckerResult => {
+const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
   typeNames.map((t: string) => typeGraph.setNode(t, t));
@@ -232,17 +263,88 @@ const computeTypeGraph = (env: DomainEnv): CheckerResult => {
   return ok(env);
 };
 
-export const isSubtypeOf = (
+/**
+ * Utility for comparing types. `isSubtypeOf` returns true if `subType` is a subtype of `superType`, or if both are actually the same type.
+ * TODO: this function only compares nullary type constructors
+ * @param subType
+ * @param superType
+ * @param env
+ */
+const isDeclaredSubtype = (
   subType: TypeConstructor,
   superType: TypeConstructor,
-  env: DomainEnv
+  env: Env
 ): boolean => {
+  // HACK: subtyping among parametrized types is not handled and assumed to be false
+  // if (subType.args.length > 0 || superType.args.length > 0) return false;
+  // HACK: add in top type as an escape hatch for unbounded types
+  if (superType.name.value === topType.name.value) return true;
+  // HACK: add in top type as an escape hatch for unbounded types
+  if (subType.name.value === bottomType.name.value) return true;
+
   const superTypes = alg.dijkstra(env.typeGraph, subType.name.value);
   const superNode = superTypes[superType.name.value];
+
   if (superNode) return superNode.distance < Number.POSITIVE_INFINITY;
   // TODO: include this case in our error system
   else {
     console.error(`${subType.name.value} not found in the subtype graph.`);
     return false;
+  }
+};
+
+export const isSubtype = (
+  subType: Type,
+  superType: Type,
+  env: Env
+): boolean => {
+  if (
+    subType.tag === "TypeConstructor" &&
+    superType.tag === "TypeConstructor"
+  ) {
+    const argsMatch = (args1: Type[], args2: Type[]): boolean =>
+      every(
+        zipWith(args1, args2, (sub: Type, sup: Type): boolean =>
+          isSubtype(sub, sup, env)
+        )
+      );
+    return (
+      (subType.name.value === superType.name.value ||
+        isDeclaredSubtype(subType, superType, env)) &&
+      subType.args.length === superType.args.length &&
+      argsMatch(subType.args, superType.args)
+    );
+  } else if (subType.tag === "TypeVar" && superType.tag === "TypeVar") {
+    return subType.name.value === superType.name.value;
+  } else return false;
+};
+
+export const topType: TypeConsApp = {
+  tag: "TypeConstructor",
+  name: idOf("type", "Domain"),
+  args: [],
+};
+
+export const bottomType: TypeConsApp = {
+  tag: "TypeConstructor",
+  name: idOf("void", "Domain"),
+  args: [],
+};
+
+/**
+ * Type pretty printing function.
+ * @param t Type to be printed
+ */
+export const showType = (t: Type): string => {
+  if (t.tag === "Prop") {
+    return "Prop";
+  } else if (t.tag === "TypeVar") {
+    return `'${t.name.value}`;
+  } else {
+    const { name, args } = t;
+    if (args.length > 0) {
+      const argStrs = args.map(showType);
+      return `${name.value}(${argStrs.join(", ")})`;
+    } else return `${name.value}`;
   }
 };

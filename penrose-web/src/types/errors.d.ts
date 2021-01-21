@@ -4,7 +4,22 @@
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 // type RuntimeError = OptimizerError | EvaluatorError;
 // type StyleError = StyleParseError | StyleCheckError | TranslationError;
-type PenroseError = DomainError & { type: "DomainError" };
+type PenroseError =
+  | (DomainError & { errorType: "DomainError" })
+  | (SubstanceError & { errorType: "SubstanceError" });
+
+// TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
+type SubstanceError =
+  | DuplicateName
+  | TypeNotFound
+  | TypeVarNotFound
+  | TypeMismatch
+  | ArgLengthMismatch
+  | TypeArgLengthMismatch
+  | VarNotFound
+  | DeconstructNonconstructor
+  | UnexpectedExprForNestedPred
+  | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 type DomainError =
   | TypeDeclared
@@ -14,6 +29,13 @@ type DomainError =
   | CyclicSubtypes
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
+
+interface UnexpectedExprForNestedPred {
+  tag: "UnexpectedExprForNestedPred";
+  sourceType: TypeConstructor;
+  sourceExpr: ASTNode;
+  expectedExpr: ASTNode;
+}
 
 interface CyclicSubtypes {
   tag: "CyclicSubtypes";
@@ -45,6 +67,47 @@ interface TypeVarNotFound {
 interface TypeNotFound {
   tag: "TypeNotFound";
   typeName: Identifier;
+  possibleTypes?: Identifier[];
+}
+interface VarNotFound {
+  tag: "VarNotFound";
+  variable: Identifier;
+  possibleVars?: string[]; // TODO: use Identifier type, but need to store them in env
+}
+
+interface TypeMismatch {
+  tag: "TypeMismatch";
+  sourceType: TypeConstructor;
+  expectedType: TypeConstructor;
+  sourceExpr: ASTNode;
+  expectedExpr: ASTNode;
+}
+interface ArgLengthMismatch {
+  tag: "ArgLengthMismatch";
+  name: Identifier;
+  argsGiven: SubExpr[];
+  argsExpected: Arg[];
+  sourceExpr: ASTNode;
+  expectedExpr: ASTNode;
+}
+
+interface TypeArgLengthMismatch {
+  tag: "TypeArgLengthMismatch";
+  sourceType: TypeConstructor;
+  expectedType: TypeConstructor;
+  sourceExpr: ASTNode;
+  expectedExpr: ASTNode;
+}
+
+interface DeconstructNonconstructor {
+  tag: "DeconstructNonconstructor";
+  deconstructor: Deconstructor;
+}
+
+// NOTE: for debugging purposes
+interface FatalError {
+  tag: "Fatal";
+  message: string;
 }
 interface StyleError {
   sources: ErrorSource[];

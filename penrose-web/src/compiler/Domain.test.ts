@@ -1,24 +1,21 @@
+import { CheckerResult, compileDomain, Env, isSubtype } from "compiler/Domain";
+import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
-import * as fs from "fs";
-import {
-  checkDomain,
-  DomainEnv,
-  CheckerResult,
-  isSubtypeOf,
-} from "compiler/Domain";
-import { showDomainErr } from "utils/Error";
-import { compile } from "moo";
-import { type } from "os";
+import { Result, showError } from "utils/Error";
 
-const compileDomain = (prog: string) => {
-  const { results } = parser.feed(prog);
-  return checkDomain(results[0]);
-};
+const outputDir = "/tmp/contexts";
+const saveContexts = true;
+const printError = false;
+
+const domainPaths = [
+  "linear-algebra-domain/linear-algebra.dsl",
+  "set-theory-domain/setTheory.dsl",
+];
 
 const contextHas = (
-  res: CheckerResult,
+  res: Result<Env, PenroseError>,
   expectedTypes: string[],
   expectedConstructors: string[],
   expectedFunctions: string[],
@@ -32,7 +29,7 @@ const contextHas = (
     expectedFunctions.map((f) => expect(functions.has(f)).toBe(true));
     expectedPredicates.map((p) => expect(predicates.has(p)).toBe(true));
   } else {
-    fail(showDomainErr(res.error));
+    fail(showError(res.error));
   }
 };
 
@@ -62,15 +59,15 @@ describe("Common", () => {
       const typeA = env.preludeValues.get("varA")!;
       const typeB = env.preludeValues.get("varB")!;
       const typeC = env.preludeValues.get("varC")!;
-      expect(isSubtypeOf(typeB, typeA, env)).toBe(true);
-      expect(isSubtypeOf(typeC, typeB, env)).toBe(true);
-      expect(isSubtypeOf(typeC, typeA, env)).toBe(true);
-      expect(isSubtypeOf(typeA, typeA, env)).toBe(true);
-      expect(isSubtypeOf(typeB, typeB, env)).toBe(true);
-      expect(isSubtypeOf(typeA, typeC, env)).toBe(false);
-      expect(isSubtypeOf(typeA, typeB, env)).toBe(false);
+      expect(isSubtype(typeB, typeA, env)).toBe(true);
+      expect(isSubtype(typeC, typeB, env)).toBe(true);
+      expect(isSubtype(typeC, typeA, env)).toBe(true);
+      expect(isSubtype(typeA, typeA, env)).toBe(true);
+      expect(isSubtype(typeB, typeB, env)).toBe(true);
+      expect(isSubtype(typeA, typeC, env)).toBe(false);
+      expect(isSubtype(typeA, typeB, env)).toBe(false);
     } else {
-      fail(showDomainErr(res.error));
+      fail(showError(res.error));
     }
   });
 });
@@ -147,7 +144,7 @@ describe("Errors", () => {
   const expectErrorOf = (prog: string, errorType: string) => {
     const result = compileDomain(prog);
     if (result.isErr()) {
-      console.log(showDomainErr(result.error));
+      if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
       fail(`Error ${errorType} was suppoed to occur.`);
@@ -201,5 +198,27 @@ constructor Cons ['X] : 'X head * List('X) tail -> List('X)
   D <: E
     `;
     expectErrorOf(prog, "CyclicSubtypes");
+  });
+});
+
+describe("Real Programs", () => {
+  // create output folder
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  domainPaths.map((examplePath) => {
+    const file = path.join("../examples/", examplePath);
+    const prog = fs.readFileSync(file, "utf8");
+    test(examplePath, () => {
+      const res = compileDomain(prog);
+      expect(res.isOk()).toBe(true);
+      // write to output folder
+      if (res.isOk() && saveContexts) {
+        const exampleName = path.basename(examplePath, ".dsl");
+        const astPath = path.join(outputDir, exampleName + ".env.json");
+        fs.writeFileSync(astPath, JSON.stringify(res.value), "utf8");
+      }
+    });
   });
 });

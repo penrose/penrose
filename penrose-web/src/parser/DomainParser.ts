@@ -12,50 +12,11 @@ declare var ws: any;
 
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
-import { rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
+import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
-  ws: /[ \t]+/,
-  nl: { match: "\n", lineBreaks: true },
-  subtypeOf: "<:",
-  lte: "<=",
-  lt: "<",
-  gte: ">=",
-  gt: ">",
-  eq: "==",
-  rarrow: "->",
-  tilda: "~",
-  lparen: "(",
-  rparen: ")",
-  apos: "'",
-  comma: ",",
-  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
-  float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
-  comment: /--.*?$/,
-  multiline_comment: { 
-    match: /\/\*(?:[\s\S]*?)\*\//,
-    lineBreaks: true 
-  },
-  dot: ".",
-  brackets: "[]",
-  lbracket: "[",
-  rbracket: "]",
-  lbrace: "{",
-  rbrace: "}",
-  assignment: "=",
-  def: ":=",
-  plus: "+",
-  exp: "^",
-  minus: "-",
-  multiply: "*",
-  divide: "/",
-  modulo: "%",
-  colon: ":",
-  semi: ";",
-  question: "?",
-  dollar: "$",
-  tick: "\`",
+  ...basicSymbols,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
@@ -72,9 +33,10 @@ const lexer = moo.compile({
   }
 });
 
-const optional = <T>(optionalValue: T | undefined, defaultValue: T) => optionalValue ? optionalValue : defaultValue;
-// Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
-const tokensIn = (tokenList: any[]): any[] => flatten(compact(tokenList));
+const nodeData = (children: ASTNode[]) => ({
+  nodeType: "Domain",
+  children
+});
 
 
 interface NearleyToken {
@@ -109,6 +71,7 @@ const grammar: Grammar = {
   ParserRules: [
     {"name": "input", "symbols": ["statements"], "postprocess":  
         ([statements]): DomainProg => ({
+          ...nodeData(statements),
           ...rangeFrom(statements),
           tag: "DomainProg",
           statements
@@ -116,7 +79,7 @@ const grammar: Grammar = {
         },
     {"name": "statements", "symbols": ["_"], "postprocess": () => []},
     {"name": "statements", "symbols": ["_c_", {"literal":"\n"}, "statements"], "postprocess": nth(2)},
-    {"name": "statements", "symbols": ["_", "statement", "_"], "postprocess": d => [d[1]]},
+    {"name": "statements", "symbols": ["_", "statement", "_c_"], "postprocess": d => [d[1]]},
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["type"], "postprocess": id},
     {"name": "statement", "symbols": ["predicate"], "postprocess": id},
@@ -129,60 +92,72 @@ const grammar: Grammar = {
     {"name": "type$ebnf$1", "symbols": ["type$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "type$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "type", "symbols": [{"literal":"type"}, "__", "identifier", "type$ebnf$1"], "postprocess": 
-        ([typ, , name, params]): TypeDecl => ({
-          ...rangeBetween(typ, name),
-          tag: "TypeDecl", 
-          name, 
-          params: params ? params[3] : []
-        })
+        ([typ, , name, ps]): TypeDecl => {
+          const params = ps ? ps[3] : [];
+          return { 
+            ...nodeData([name, ...params]),
+            ...rangeBetween(typ, name),
+            tag: "TypeDecl", name, params
+          };
+        }
         },
     {"name": "predicate", "symbols": [{"literal":"predicate"}, "__", "identifier", "type_params_list", "args_list"], "postprocess": 
         ([kw, , name, params, args]): PredicateDecl => ({
+          ...nodeData([name, ...params, ...args]),
           ...rangeFrom([rangeOf(kw), ...args, ...params]),
           tag: "PredicateDecl", name, params, args
         })
         },
     {"name": "function", "symbols": [{"literal":"function"}, "__", "identifier", "type_params_list", "args_list", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
-        ([kw, , name, params, args, , , , output]): FunctionDecl => ({
-          ...rangeBetween(rangeOf(kw), output),
-          tag: "FunctionDecl",
-          name, output,
-          params: optional(params, []),
-          args: optional(args, []),
-        })
+        ([kw, , name, ps, as, , , , output]): FunctionDecl => {
+          const params = optional(ps, []);
+          const args   = optional(as, []);
+          return {
+            ...nodeData([name, output, ...params, ...args]),
+            ...rangeBetween(rangeOf(kw), output),
+            tag: "FunctionDecl", name, output, params, args
+          };
+        }
           },
     {"name": "constructor_decl", "symbols": [{"literal":"constructor"}, "__", "identifier", "type_params_list", "named_args_list", "_", {"literal":"->"}, "_", "arg"], "postprocess": 
-        ([kw, , name, params, args, , , , output]): ConstructorDecl => ({
-          ...rangeBetween(rangeOf(kw), output),
-          tag: "ConstructorDecl",
-          name, output,
-          params: optional(params, []),
-          args: optional(args, []),
-        })
+        ([kw, , name, ps, as, , , , output]): ConstructorDecl => {
+          const params = optional(ps, []);
+          const args   = optional(as, []);
+          return {
+            ...nodeData([name, output, ...params, ...args]),
+            ...rangeBetween(rangeOf(kw), output),
+            tag: "ConstructorDecl", name, output, params, args
+          }
+        }
           },
     {"name": "prelude", "symbols": [{"literal":"value"}, "__", "var", "_", {"literal":":"}, "_", "type"], "postprocess": 
         ([kw, , name, , , , type]): PreludeDecl => ({
+          ...nodeData([name, type]),
           ...rangeBetween(rangeOf(kw), type),
           tag: "PreludeDecl", name, type
         })
         },
-    {"name": "notation", "symbols": [{"literal":"notation"}, "_", (lexer.has("string_literal") ? {type: "string_literal"} : string_literal), "_", {"literal":"~"}, "_", (lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
+    {"name": "notation", "symbols": [{"literal":"notation"}, "_", "string_lit", "_", {"literal":"~"}, "_", "string_lit"], "postprocess": 
         ([kw, , from, , , , to]): NotationDecl => ({
+          ...nodeData([from, to]),
           ...rangeBetween(rangeOf(kw), to),
-          tag: "NotationDecl", 
-          from: JSON.parse(from.text),
-          to: JSON.parse(to.text)
+          tag: "NotationDecl", from, to
         })
         },
     {"name": "subtype", "symbols": ["type", "_", {"literal":"<:"}, "_", "type"], "postprocess": 
         ([subType, , , , superType]): SubTypeDecl => ({
+          ...nodeData([subType, superType]),
           ...rangeBetween(subType, superType),
           tag: "SubTypeDecl", subType, superType
         })
         },
     {"name": "var", "symbols": ["identifier"], "postprocess": id},
     {"name": "type_var", "symbols": [{"literal":"'"}, "identifier"], "postprocess":  
-        ([a, name]) => ({ ...rangeBetween(a, name), tag: "TypeVar", name }) 
+        ([a, name]) => ({ 
+          ...nodeData([name]),
+          ...rangeBetween(a, name), 
+          tag: "TypeVar", name 
+        }) 
         },
     {"name": "type", "symbols": ["type_var"], "postprocess": id},
     {"name": "type", "symbols": ["type_constructor"], "postprocess": id},
@@ -193,6 +168,7 @@ const grammar: Grammar = {
         ([name, a]): TypeConstructor => {
           const args = optional(a, []);
           return {
+            ...nodeData([name, ...args]),
             ...rangeFrom([name, ...args]),
             tag: "TypeConstructor", name, args 
           };
@@ -259,7 +235,11 @@ const grammar: Grammar = {
         ([type, v]): Arg => {
           const variable = v ? v[1] : undefined;
           const range = variable ? rangeBetween(variable, type) : rangeOf(type);
-          return { ...range, tag: "Arg", variable, type };
+          return { 
+            ...nodeData(variable ? [variable, type] : [type]),
+            ...range, 
+            tag: "Arg", variable, type 
+          };
         }
         },
     {"name": "named_args_list", "symbols": [], "postprocess": d => []},
@@ -282,13 +262,29 @@ const grammar: Grammar = {
     {"name": "named_args_list", "symbols": ["_", {"literal":":"}, "_", "named_args_list$macrocall$1"], "postprocess": ([, , , d]): Arg[] => flatten(d)},
     {"name": "named_arg", "symbols": ["type", "__", "var"], "postprocess":  
         ([type, , variable]): Arg => ({
+           ...nodeData([type, variable]),
            ...rangeBetween(type, variable), 
            tag: "Arg", variable, type 
         })
         },
-    {"name": "prop", "symbols": [{"literal":"Prop"}], "postprocess": ([kw]): Prop => ({ ...rangeOf(kw), tag: "Prop" })},
+    {"name": "prop", "symbols": [{"literal":"Prop"}], "postprocess":  
+        ([kw]): Prop => ({
+           ...nodeData([]),
+           ...rangeOf(kw), 
+           tag: "Prop" 
+        })  
+        },
+    {"name": "string_lit", "symbols": [(lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
+        ([d]): IStringLit => ({
+          ...nodeData([]),
+          ...rangeOf(d),
+          tag: 'StringLit',
+          contents: d.text
+        })
+        },
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
         ([d]) => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'Identifier',
           value: d.text,
