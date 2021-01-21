@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst } from "engine/EngineUtils";
+import { insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst, isPath } from "engine/EngineUtils";
 import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
@@ -448,10 +448,6 @@ const substituteField = (lv: LocalVarSubst, subst: Subst, field: PropertyDecl): 
     ...field,
     value: substituteBlockExpr(lv, subst, field.value)
   };
-};
-
-const isPath = (expr: Expr): expr is Path => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
 };
 
 const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr => {
@@ -1628,6 +1624,7 @@ const genOptProblemAndState = (trans: Translation): State => {
     params: {
       optStatus: "NewIter",
     } as unknown as Params,
+
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,

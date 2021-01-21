@@ -247,6 +247,9 @@ export const valueNumberToAutodiff = (v: Value<number>): Value<VarAD> =>
 export const valueNumberToAutodiffConst = (v: Value<number>): Value<VarAD> =>
   mapValueNumeric(constOfIf, v); // COMBAK: Really this should be constOf... I don't know why some inputs are already converted to VarADs?
 
+export const tagExprNumberToAutodiff = (v: TagExpr<number>): TagExpr<VarAD> =>
+  mapTagExpr(constOfIf, v);
+
 // Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
 // (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
 
@@ -624,3 +627,12 @@ export const findExpr = (
 };
 
 //#endregion
+
+export const isPath = (expr: Expr): expr is Path => {
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
+};
+
+export const exprToNumber = (e: Expr): number => {
+  if (e.tag === "Fix") { return e.contents; }
+  throw Error("expecting expr to be number");
+};

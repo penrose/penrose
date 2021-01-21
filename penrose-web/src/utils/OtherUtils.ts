@@ -1,6 +1,3 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
 import * as _ from "lodash";
 
 const RAND_RANGE = 100;
@@ -63,24 +60,22 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 // ---------- Printing utils
 
+// COMBAK: Copied from `EngineUtils`; consolidate
+export const isPath = (expr: Expr): expr is Path => {
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
+};
+
 const prettyPrintExpr = (arg: Expr): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
-  if (arg.tag === "EPath") {
-    const obj = arg.contents.contents;
-    const varName = obj[0].contents;
-    const varField = obj[1];
+  if (arg.tag === "FieldPath") {
+    const varName = arg.name;
+    const varField = arg.field;
     return [varName, varField].join(".");
-  } else if (arg.tag === "AFloat") {
-    if (arg.contents.tag === "Fix") {
-      const val = arg.contents.contents;
-      return String(val);
-    } else {
-      throw Error(
-        "Should not be asked to pretty-print varying float; has it been replaced?"
-      );
-    }
+  } else if (arg.tag === "Fix") {
+    const val = arg.contents;
+    return String(val);
   } else if (arg.tag === "CompApp") {
-    const [fnName, fnArgs] = arg.contents;
+    const [fnName, fnArgs] = [arg.name.value, arg.args];
     return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
       ""
     );

@@ -1,7 +1,4 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
-import { valueNumberToAutodiff, insertExpr } from "engine/EngineUtils";
+import { valueNumberToAutodiff, tagExprNumberToAutodiff, insertExpr } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
 import { initConstraintWeight } from "engine/Optimizer";
 import { mapValues, zip } from "lodash";
@@ -322,13 +319,17 @@ const sampleFields = ({ varyingPaths }: State): number[] => {
 };
 
 const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
+  if (path.tag === "LocalVar" || path.tag === "InternalLocalVar") {
+    throw Error("local path shouldn't appear in GPI");
+  }
+
   // HACK: for access and field paths, sample within the canvas width
   if (path.tag === "AccessPath" || path.tag === "FieldPath") {
     return constValue("FloatV", randFloat(...canvasXRange));
   }
   // for property path, use the sampler in shapedef
   else {
-    const [{ contents: subName }, field, prop] = path.contents;
+    const [{ contents: subName }, field, prop] = [path.name, path.field, path.property];
     const { shapeType } = safe(
       shapes.find(
         (s: any) => s.properties.name.contents === `${subName}.${field}`
@@ -336,7 +337,7 @@ const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
       `Cannot find shape ${subName}.${field}`
     );
     const shapeDef = findDef(shapeType);
-    const sampledProp: Value<number> = sampleProperty(prop, shapeDef);
+    const sampledProp: Value<number> = sampleProperty(prop.value, shapeDef);
     return sampledProp;
   }
 };
@@ -359,7 +360,8 @@ export const resampleBest = (state: State, numSamples: number): State => {
   ][];
 
   const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path, Expr]) => insertExpr(p, e, tr),
+    // (tr: Translation, [p, e]: [Path, TagExpr<number}]) => insertExpr(p, { tag: "OptEval", contents: e } as TagExpr<VarAD>, tr),
+    (tr: Translation, [p, e]: [Path, TagExpr<number>]) => insertExpr(p, tagExprNumberToAutodiff(e), tr),
     state.translation
   );
 

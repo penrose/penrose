@@ -1,6 +1,3 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
 import { valueNumberToAutodiff, insertExpr } from "engine/EngineUtils";
 
 /**
@@ -11,16 +8,12 @@ import { valueNumberToAutodiff, insertExpr } from "engine/EngineUtils";
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
   const getProperty = (path: IPropertyPath) => {
-    const [
-      { contents: subName },
-      field,
-      prop,
-    ] = (path as IPropertyPath).contents;
+    const [{ contents: subName }, field, prop,] = [(path as IPropertyPath).name, path.field, path.property];
     // HACK: this depends on the name encoding
     const shape = shapes.find(
       (s: any) => s.properties.name.contents === `${subName}.${field}`
     );
-    return shape.properties[prop];
+    return shape.properties[prop.value];
   };
   switch (path.tag) {
     case "FieldPath":
@@ -29,7 +22,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
       return getProperty(path);
     }
     case "AccessPath": {
-      const [propertyPath, indices] = (path as IAccessPath).contents;
+      const [propertyPath, indices] = [(path as IAccessPath).path, path.indices];
       if (propertyPath.tag === "PropertyPath") {
         const property = getProperty(propertyPath);
         // walk the structure to access all indices
@@ -39,9 +32,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
         }
         return res;
       } else {
-        throw new Error(
-          `pending paths must be property paths but got ${propertyPath.tag}`
-        );
+        throw new Error(`pending paths must be property paths but got ${propertyPath.tag}`);
       }
     }
   }
@@ -87,10 +78,8 @@ export const updateVaryingValues = (state: State): State => {
     // TODO: add a branch for `FieldPath` when this is no longer the case
     if (path.tag === "PropertyPath") {
       newVaryingValues[index] = findShapeProperty(state.shapes, path).contents;
-    } else if (
-      path.tag === "AccessPath" &&
-      path.contents[0].tag === "PropertyPath"
-    ) {
+    } else if (path.tag === "AccessPath"
+      && path.path.tag === "PropertyPath") {
       newVaryingValues[index] = findShapeProperty(state.shapes, path);
     }
   });
