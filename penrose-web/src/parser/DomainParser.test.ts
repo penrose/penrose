@@ -19,6 +19,18 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
+export const traverseTree = (root: ASTNode) => {
+  const { nodeType, children } = root;
+  if (!nodeType) console.log(root);
+  expect(nodeType).toEqual("Domain");
+  expect(children).not.toBe(undefined);
+  children.map((node) => {
+    if (!node) console.log(root);
+    expect(node).not.toBe(undefined);
+    traverseTree(node);
+  });
+};
+
 const domainPaths = [
   "linear-algebra-domain/linear-algebra.dsl",
   "set-theory-domain/setTheory.dsl",
@@ -46,10 +58,50 @@ type ParametrizedSet ('T, 'U)
 predicate From : Map f * Set domain * Set codomain
 */
 predicate From : Map f * Set domain * Set codomain
-
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
+  });
+  test("tree integrity", () => {
+    const prog = `
+-- comments
+type Set -- inline comments
+-- type Point 
+type ParametrizedSet ('T, 'U)
+predicate From : Map f * Set domain * Set codomain
+/* Multi-line comments
+type ParametrizedSet ('T, 'U)
+predicate From : Map f * Set domain * Set codomain
+*/
+predicate From : Map f * Set domain * Set codomain
+function Intersection : Set a * Set b -> Set
+function Union : Set a * Set b -> Set c
+function Subtraction : Set a * Set b -> Set
+function CartesianProduct : Set a * Set b -> Set
+function Difference : Set a * Set b -> Set
+function Subset : Set a * Set b -> Set
+function AddPoint : Point p * Set s1 -> Set
+-- with type params
+function AddV['V] : Vector('V) v1 *Vector('V) v2 -> Vector('V)
+function Norm['V] : Vector('V) v1 -> Scalar
+-- edge case
+function Empty -> Scalar
+-- generics
+constructor Cons ['X] : 'X head * List('X) tail -> List('X)
+constructor Nil['X] -> List('X)
+notation "A ⊂ B" ~ "IsSubset(A, B)"
+notation "p ∈ A" ~ "PointIn(A, p)"
+notation "p ∉ A" ~ "PointNotIn(A, p)"
+notation "A ∩ B = ∅" ~ "Not(Intersecting(A, B))"
+notation "f: A -> B" ~ "Map f; From(f, A, B)"
+RightClopenInterval <: Interval
+-- edge cases
+List(Vector) <: List(Matrix)
+List('T) <: List('U)
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    traverseTree(results[0]);
   });
 });
 
@@ -172,6 +224,7 @@ describe("Real Programs", () => {
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
+      traverseTree(results[0]);
       // write to output folder
       if (saveASTs) {
         const exampleName = path.basename(examplePath, ".dsl");

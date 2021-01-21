@@ -59,7 +59,7 @@ const initEnv = (): SubstanceEnv => ({
 
 const stringType: TypeConsApp = {
   tag: "TypeConstructor",
-  name: idOf("String"),
+  name: idOf("String", "Substance"),
   args: [],
 };
 

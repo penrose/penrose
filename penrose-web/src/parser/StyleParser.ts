@@ -59,10 +59,16 @@ const lexer = moo.compile({
   }
 });
 
+const nodeData = (children: ASTNode[]) => ({
+  nodeType: "Style",
+  children
+});
+
 // Node constructors
 
 const declList = (type: StyT, ids: BindingForm[]): DeclPattern[] => {
   const decl = (t: StyT, i: BindingForm): DeclPattern => ({
+    ...nodeData([t, i]),
     ...rangeFrom([t, i]),
     tag: "DeclPattern",
     type: t,
@@ -79,6 +85,7 @@ const selector = (
   namespace?: Namespace
 ): Selector => {
   return {
+    ...nodeData(compact([hd, wth, whr, namespace])),
     ...rangeFrom(compact([hd, wth, whr, namespace])),
     tag: "Selector",
     head: hd,
@@ -89,16 +96,15 @@ const selector = (
 }
 
 const layering = (kw: any, below: Path, above: Path): ILayering => ({
-  // TODO: keyword in range
-  ...rangeFrom([above, below]),
-  tag: 'Layering',
-  above, below
+  ...nodeData([above, below]),
+  ...rangeFrom(kw ? [rangeOf(kw), above, below] : [above, below]),
+  tag: 'Layering', above, below
 })
 
 const binop = (op: BinaryOp, left: Expr, right: Expr): IBinOp => ({
+  ...nodeData([left, right]),
   ...rangeBetween(left, right),
-  tag: 'BinOp',
-  op, left, right
+  tag: 'BinOp', op, left, right
 })
 
 
@@ -134,9 +140,9 @@ const grammar: Grammar = {
   ParserRules: [
     {"name": "input", "symbols": ["_ml", "header_blocks"], "postprocess": 
         ([, blocks]): StyProg => ({
+          ...nodeData(blocks),
           ...rangeFrom(blocks),
-          tag: "StyProg",
-          blocks
+          tag: "StyProg", blocks
         })
         },
     {"name": "header_blocks$ebnf$1", "symbols": []},
@@ -144,7 +150,10 @@ const grammar: Grammar = {
     {"name": "header_blocks", "symbols": ["header_blocks$ebnf$1"], "postprocess": id},
     {"name": "header_block", "symbols": ["header", "block", "_ml"], "postprocess": 
         ([header, block]): HeaderBlock => ({
-          ...rangeFrom([header, block]), tag:"HeaderBlock", header, block })
+          ...nodeData([header, block]), 
+          ...rangeFrom([header, block]), 
+          tag:"HeaderBlock", header, block 
+        })
         },
     {"name": "header", "symbols": ["selector"], "postprocess": id},
     {"name": "header", "symbols": ["namespace"], "postprocess": id},
@@ -195,6 +204,7 @@ const grammar: Grammar = {
         ([d]): DeclPatterns => {
           const contents = flatten(d) as DeclPattern[];
           return {
+            ...nodeData([...contents]), 
             ...rangeFrom(contents),
             tag: "DeclPatterns", contents
           };
@@ -240,6 +250,7 @@ const grammar: Grammar = {
         },
     {"name": "relation_list", "symbols": ["relation_list$macrocall$1"], "postprocess":  
         ([d]): RelationPatterns => ({
+          ...nodeData([...d]), 
           ...rangeFrom(d),
           tag: "RelationPatterns",
           contents: d
@@ -249,16 +260,16 @@ const grammar: Grammar = {
     {"name": "relation", "symbols": ["rel_pred"], "postprocess": id},
     {"name": "rel_bind", "symbols": ["binding_form", "_", {"literal":":="}, "_", "sel_expr"], "postprocess": 
         ([id, , , , expr]): RelBind => ({
+          ...nodeData([id, expr]), 
           ...rangeFrom([id, expr]),
-          tag: "RelBind",
-          id, expr
+          tag: "RelBind", id, expr
         })
         },
     {"name": "rel_pred", "symbols": ["identifier", "_", {"literal":"("}, "pred_arg_list", {"literal":")"}], "postprocess":  
         ([name, , , args, ]): RelPred => ({
+          ...nodeData([name, ...args]), 
           ...rangeFrom([name, ...args]),
-          tag: "RelPred",
-          name, args
+          tag: "RelPred", name, args
         }) 
         },
     {"name": "sel_expr_list", "symbols": ["_"], "postprocess": d => []},
@@ -281,12 +292,18 @@ const grammar: Grammar = {
     {"name": "sel_expr_list", "symbols": ["_", "sel_expr_list$macrocall$1", "_"], "postprocess": nth(1)},
     {"name": "sel_expr", "symbols": ["identifier", "_", {"literal":"("}, "sel_expr_list", {"literal":")"}], "postprocess":  
         ([name, , , args, ]): SEFuncOrValCons => ({
+          ...nodeData([name, ...args]), 
           ...rangeFrom([name, ...args]),
           tag: "SEFuncOrValCons",
           name, args
         }) 
           },
-    {"name": "sel_expr", "symbols": ["binding_form"], "postprocess": ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
+    {"name": "sel_expr", "symbols": ["binding_form"], "postprocess":  ([d]): SEBind => ({
+          ...nodeData([d]),
+          ...rangeFrom([d]), 
+          tag: "SEBind", contents: d
+        }) 
+          },
     {"name": "pred_arg_list", "symbols": ["_"], "postprocess": d => []},
     {"name": "pred_arg_list$macrocall$2", "symbols": ["pred_arg"]},
     {"name": "pred_arg_list$macrocall$3", "symbols": [{"literal":","}]},
@@ -306,25 +323,40 @@ const grammar: Grammar = {
         },
     {"name": "pred_arg_list", "symbols": ["_", "pred_arg_list$macrocall$1", "_"], "postprocess": nth(1)},
     {"name": "pred_arg", "symbols": ["rel_pred"], "postprocess": id},
-    {"name": "pred_arg", "symbols": ["binding_form"], "postprocess": ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d})},
+    {"name": "pred_arg", "symbols": ["binding_form"], "postprocess":  ([d]): SEBind => ({
+          ...nodeData([d]),
+          ...rangeFrom([d]), 
+          tag: "SEBind", contents: d
+        }) 
+          },
     {"name": "binding_form", "symbols": ["subVar"], "postprocess": id},
     {"name": "binding_form", "symbols": ["styVar"], "postprocess": id},
     {"name": "subVar", "symbols": [{"literal":"`"}, "identifier", {"literal":"`"}], "postprocess": 
-        (d): SubVar => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
+        ([ltick, contents, rtick]): SubVar => ({ 
+          ...nodeData([contents]), 
+          ...rangeBetween(rangeOf(ltick), rangeOf(rtick)),
+          tag: "SubVar", contents
+        })
         },
     {"name": "styVar", "symbols": ["identifier"], "postprocess": 
-        (d): StyVar => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
+        ([contents]): StyVar => ({ 
+          ...nodeData([contents]),
+          ...rangeOf(contents), 
+          tag: "StyVar", contents
+        })
         },
     {"name": "select_as", "symbols": [{"literal":"as"}, "__", "namespace"], "postprocess": nth(2)},
     {"name": "namespace", "symbols": ["styVar", "_ml"], "postprocess": 
-        (d): Namespace => ({
-          ...rangeFrom([d[0]]),
+        ([contents]): Namespace => ({
+          ...nodeData([contents]),
+          ...rangeOf(contents),
           tag: "Namespace",
-          contents: d[0]
+          contents
         })
         },
     {"name": "block", "symbols": [{"literal":"{"}, "statements", {"literal":"}"}], "postprocess":  
         ([lbrace, stmts, rbrace]): Block => ({
+          ...nodeData(stmts),
           ...rangeBetween(lbrace, rbrace),
           tag: "Block",
           statements: stmts
@@ -337,35 +369,50 @@ const grammar: Grammar = {
     {"name": "statement", "symbols": ["delete"], "postprocess": id},
     {"name": "statement", "symbols": ["override"], "postprocess": id},
     {"name": "statement", "symbols": ["path_assign"], "postprocess": id},
-    {"name": "statement", "symbols": ["anonymous_expr"], "postprocess": ([d]): IAnonAssign => ({...rangeOf(d), tag: "AnonAssign", contents: d})},
+    {"name": "statement", "symbols": ["anonymous_expr"], "postprocess":  ([contents]): IAnonAssign => 
+        ({
+          ...nodeData([contents]), 
+          ...rangeOf(contents), 
+          tag: "AnonAssign", contents
+        }) 
+          },
     {"name": "delete", "symbols": [{"literal":"delete"}, "__", "path"], "postprocess": 
-        (d): Delete => {
+        ([kw, , contents]): Delete => {
          return {
-          ...rangeBetween(d[0], d[2]),
-          tag: "Delete",
-          contents: d[2]
+          ...nodeData([contents]),
+          ...rangeBetween(rangeOf(kw), contents),
+          tag: "Delete", contents
         }}
         },
     {"name": "override", "symbols": [{"literal":"override"}, "__", "path", "_", {"literal":"="}, "_", "assign_expr"], "postprocess": 
         ([kw, , path, , , , value]): IOverride => ({ 
+          ...nodeData([path, value]),
           ...rangeBetween(kw, value),
-          tag: "Override",
-          path, value
+          tag: "Override", path, value
         })
         },
     {"name": "path_assign$ebnf$1", "symbols": ["type"], "postprocess": id},
     {"name": "path_assign$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "path_assign", "symbols": ["path_assign$ebnf$1", "__", "path", "_", {"literal":"="}, "_", "assign_expr"], "postprocess": 
         ([type, , path, , , , value]): PathAssign => ({ 
+          ...nodeData(type ? [type, path, value] : [path, value]),
           ...rangeBetween(type ? type : path, value),
           tag: "PathAssign",
           type, path, value
         })
         },
-    {"name": "type", "symbols": ["identifier"], "postprocess": ([d]): StyType => ({...rangeOf(d), tag: 'TypeOf', contents: d})},
-    {"name": "type", "symbols": ["identifier", {"literal":"[]"}], "postprocess": 
-        ([d]): StyType => ({...rangeOf(d), tag: 'ListOf', contents: d}) 
-             },
+    {"name": "type", "symbols": ["identifier"], "postprocess":  ([contents]): StyType => ({
+          ...nodeData([contents]),
+          ...rangeOf(contents),
+          tag: 'TypeOf', contents
+        }) 
+          },
+    {"name": "type", "symbols": ["identifier", {"literal":"[]"}], "postprocess":  ([contents]): StyType => ({
+          ...nodeData([contents]),
+          ...rangeOf(contents), 
+          tag: 'ListOf', contents
+        }) 
+          },
     {"name": "path", "symbols": ["entity_path"], "postprocess": id},
     {"name": "path", "symbols": ["access_path"], "postprocess": id},
     {"name": "entity_path", "symbols": ["propertyPath"], "postprocess": id},
@@ -373,32 +420,32 @@ const grammar: Grammar = {
     {"name": "entity_path", "symbols": ["localVar"], "postprocess": id},
     {"name": "propertyPath", "symbols": ["binding_form", {"literal":"."}, "identifier", {"literal":"."}, "identifier"], "postprocess": 
         ([name, , field, , property]): IPropertyPath => ({
+          ...nodeData([name, field, property]),
           ...rangeFrom([name, field, property]),
-          tag: "PropertyPath",
-          name, field, property
+          tag: "PropertyPath", name, field, property
         })
         },
     {"name": "fieldPath", "symbols": ["binding_form", {"literal":"."}, "identifier"], "postprocess": 
         ([name, , field]): IFieldPath => ({
+          ...nodeData([name, field]),
           ...rangeFrom([name, field]),
-          tag: "FieldPath",
-          name, field
+          tag: "FieldPath", name, field
         })
         },
     {"name": "localVar", "symbols": ["identifier"], "postprocess": 
-        ([d]): LocalVar => ({
-          ...rangeFrom([d]),
-          tag: "LocalVar",
-          contents: d
+        ([contents]): LocalVar => ({
+          ...nodeData([contents]),
+          ...rangeOf(contents),
+          tag: "LocalVar", contents
         })
         },
     {"name": "access_path", "symbols": ["entity_path", "_", "access_ops"], "postprocess": 
         ([path, , indices]): IAccessPath => {
           const lastIndex = last(indices);
           return {
+            ...nodeData([path]), // TODO: model access op as an AST node to solve the range and child node issue
             ...rangeBetween(path, lastIndex),
-            tag: "AccessPath",
-            path, indices
+            tag: "AccessPath", path, indices
           }
         }
         },
@@ -418,6 +465,7 @@ const grammar: Grammar = {
     {"name": "parenthesized", "symbols": ["expr_literal"], "postprocess": id},
     {"name": "unary", "symbols": [{"literal":"-"}, "_", "parenthesized"], "postprocess":  (d): IUOp => 
         ({
+          ...nodeData([d[2]]),
           ...rangeBetween(d[0], d[2]),
           tag: 'UOp', op: "UMinus", arg: d[2]
         }) 
@@ -441,6 +489,7 @@ const grammar: Grammar = {
     {"name": "expr_literal", "symbols": ["vector"], "postprocess": id},
     {"name": "list", "symbols": [{"literal":"["}, "_", "expr_list", "_", {"literal":"]"}], "postprocess":  
         ([lbracket, , exprs, , rbracket]): IList => ({
+          ...nodeData(exprs),
           ...rangeBetween(lbracket, rbracket),
           tag: 'List',
           contents: exprs
@@ -448,6 +497,7 @@ const grammar: Grammar = {
         },
     {"name": "tuple", "symbols": [{"literal":"{"}, "_", "expr", "_", {"literal":","}, "_", "expr", "_", {"literal":"}"}], "postprocess":  
         ([lbrace, , e1, , , , e2, , rbrace]): ITuple => ({
+          ...nodeData([e1, e2]),
           ...rangeBetween(lbrace, rbrace),
           tag: 'Tuple',
           contents: [e1, e2]
@@ -455,6 +505,7 @@ const grammar: Grammar = {
         },
     {"name": "vector", "symbols": [{"literal":"("}, "_", "expr", "_", {"literal":","}, "expr_list", {"literal":")"}], "postprocess":  
         ([lparen, , first, , , rest, rparen]): IVector => ({
+          ...nodeData([first, ...rest]),
           ...rangeBetween(lparen, rparen),
           tag: 'Vector',
           contents: [first, ...rest]
@@ -464,6 +515,7 @@ const grammar: Grammar = {
     {"name": "bool_lit$subexpression$1", "symbols": [{"literal":"false"}]},
     {"name": "bool_lit", "symbols": ["bool_lit$subexpression$1"], "postprocess": 
         ([[d]]): IBoolLit => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'BoolLit',
           contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
@@ -471,14 +523,15 @@ const grammar: Grammar = {
         },
     {"name": "string_lit", "symbols": [(lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
         ([d]): IStringLit => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'StringLit',
           contents: d.text
         })
         },
-    {"name": "annotated_float", "symbols": [{"literal":"?"}], "postprocess": ([d]): IVary => ({ ...rangeOf(d), tag: 'Vary' })},
+    {"name": "annotated_float", "symbols": [{"literal":"?"}], "postprocess": ([d]): IVary => ({ ...nodeData([]), ...rangeOf(d), tag: 'Vary' })},
     {"name": "annotated_float", "symbols": [(lexer.has("float_literal") ? {type: "float_literal"} : float_literal)], "postprocess":  
-        ([d]): IFix => ({ ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
+        ([d]): IFix => ({ ...nodeData([]), ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
           },
     {"name": "layering$ebnf$1", "symbols": ["layer_keyword"], "postprocess": id},
     {"name": "layering$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -489,6 +542,7 @@ const grammar: Grammar = {
     {"name": "layer_keyword", "symbols": [{"literal":"layer"}, "__"], "postprocess": nth(0)},
     {"name": "computation_function", "symbols": ["identifier", "_", {"literal":"("}, "expr_list", {"literal":")"}], "postprocess":  
         ([name, , , args, rparen]): ICompApp => ({
+          ...nodeData([name, ...args]),
           ...rangeBetween(name, rparen),
           tag: "CompApp",
           name, args
@@ -496,6 +550,7 @@ const grammar: Grammar = {
         },
     {"name": "objective", "symbols": [{"literal":"encourage"}, "__", "identifier", "_", {"literal":"("}, "expr_list", {"literal":")"}], "postprocess":  
         ([kw, , name, , , args, rparen]): IObjFn => ({
+          ...nodeData([name, ...args]),
           ...rangeBetween(kw, rparen),
           tag: "ObjFn",
           name, args
@@ -503,6 +558,7 @@ const grammar: Grammar = {
         },
     {"name": "constraint", "symbols": [{"literal":"ensure"}, "__", "identifier", "_", {"literal":"("}, "expr_list", {"literal":")"}], "postprocess":  
         ([kw, , name, , , args, rparen]): IConstrFn => ({
+          ...nodeData([name, ...args]),
           ...rangeBetween(kw, rparen),
           tag: "ConstrFn",
           name, args
@@ -528,6 +584,7 @@ const grammar: Grammar = {
     {"name": "expr_list", "symbols": ["_", "expr_list$macrocall$1", "_"], "postprocess": nth(1)},
     {"name": "gpi_decl", "symbols": ["identifier", "_", {"literal":"{"}, "property_decl_list", {"literal":"}"}], "postprocess": 
         ([shapeName, , , properties, rbrace]): GPIDecl => ({
+          ...nodeData([shapeName, ...properties]),
           ...rangeBetween(shapeName, rbrace),
           tag: "GPIDecl",
           shapeName, properties
@@ -539,6 +596,7 @@ const grammar: Grammar = {
     {"name": "property_decl_list", "symbols": ["_", "property_decl", "_c_", {"literal":"\n"}, "property_decl_list"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "property_decl", "symbols": ["identifier", "_", {"literal":":"}, "_", "expr"], "postprocess": 
         ([name, , , , value]): PropertyDecl => ({
+          ...nodeData([name, value]),
           ...rangeBetween(name, value),
           tag: "PropertyDecl",
           name, value
@@ -546,6 +604,7 @@ const grammar: Grammar = {
         },
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
         ([d]): Identifier => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'Identifier',
           value: d.text,

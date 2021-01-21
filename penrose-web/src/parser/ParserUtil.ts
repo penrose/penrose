@@ -103,7 +103,7 @@ const maxLoc = (...locs: SourceLoc[]) => {
 };
 
 /** Given a list of tokens, find the range of tokens */
-export const rangeFrom = (children: ASTNode[]) => {
+export const rangeFrom = (children: any[]) => {
   // NOTE: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
   if (children.length === 0) {
     // console.trace(`No children ${JSON.stringify(children)}`);
@@ -159,7 +159,9 @@ export const tokensIn = (tokenList: any[]): any[] =>
   flatten(compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-export const idOf = (value: string): Identifier => ({
+export const idOf = (value: string, nodeType: string): Identifier => ({
+  nodeType,
+  children: [],
   start: { line: 1, col: 1 },
   end: { line: 1, col: 1 },
   tag: "Identifier",

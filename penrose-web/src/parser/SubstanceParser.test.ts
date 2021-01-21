@@ -19,6 +19,18 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
+export const traverseTree = (root: ASTNode) => {
+  const { nodeType, children } = root;
+  if (!nodeType) console.log(root);
+  expect(nodeType).toEqual("Substance");
+  expect(children).not.toBe(undefined);
+  children.map((node) => {
+    if (!node) console.log(root);
+    expect(node).not.toBe(undefined);
+    traverseTree(node);
+  });
+};
+
 const subPaths = [
   // "linear-algebra-domain/twoVectorsPerp.sub",
   "set-theory-domain/tree.sub",
@@ -169,6 +181,7 @@ describe("Real Programs", () => {
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);
+      traverseTree(results[0]);
       // write to output folder
       if (saveASTs) {
         const exampleName = path.basename(examplePath, ".sub");

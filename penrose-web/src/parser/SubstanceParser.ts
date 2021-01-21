@@ -34,6 +34,11 @@ const lexer = moo.compile({
   }
 });
 
+const nodeData = (children: ASTNode[]) => ({
+  nodeType: "Substance",
+  children
+});
+
 
 interface NearleyToken {
   value: any;
@@ -68,7 +73,7 @@ const grammar: Grammar = {
     {"name": "input", "symbols": ["statements"], "postprocess":  
         ([d]): SubProg => {
           const statements = flatten(d) as SubStmt[];
-          return { ...rangeFrom(statements), tag: "SubProg", statements };
+          return { ...nodeData(statements), ...rangeFrom(statements), tag: "SubProg", statements };
         }
         },
     {"name": "statements", "symbols": ["_"], "postprocess": () => []},
@@ -99,12 +104,14 @@ const grammar: Grammar = {
         },
     {"name": "decl", "symbols": ["type_constructor", "__", "decl$macrocall$1"], "postprocess": 
         ([type, , ids]): Decl[] => ids.map((name: Identifier): Decl => ({
+          ...nodeData([type, name]),
           ...rangeBetween(type, name),
           tag: "Decl", type, name
         }))
         },
     {"name": "bind", "symbols": ["identifier", "_", {"literal":":="}, "_", "sub_expr"], "postprocess": 
         ([variable, , , , expr]): Bind => ({
+          ...nodeData([variable, expr]),
           ...rangeBetween(variable, expr),
           tag: "Bind", variable, expr
         })
@@ -127,6 +134,7 @@ const grammar: Grammar = {
         },
     {"name": "apply_predicate", "symbols": ["identifier", "_", {"literal":"("}, "_", "apply_predicate$macrocall$1", "_", {"literal":")"}], "postprocess": 
         ([name, , , , args]): ApplyPredicate => ({
+          ...nodeData([name, ...args]),
           ...rangeFrom([name, ...args]),
           tag: "ApplyPredicate", name, args
         })
@@ -138,6 +146,7 @@ const grammar: Grammar = {
     {"name": "sub_expr", "symbols": ["string_lit"], "postprocess": id},
     {"name": "deconstructor", "symbols": ["identifier", "_", {"literal":"."}, "_", "identifier"], "postprocess": 
         ([variable, , , , field]): Deconstructor => ({
+          ...nodeData([variable, field]),
           ...rangeBetween(variable, field),
           tag: "Deconstructor", variable, field
         })
@@ -161,18 +170,21 @@ const grammar: Grammar = {
         },
     {"name": "func", "symbols": ["identifier", "_", {"literal":"("}, "_", "func$macrocall$1", "_", {"literal":")"}], "postprocess": 
         ([name, , , , args]): Func => ({
+          ...nodeData([name, ...args]),
           ...rangeFrom([name, ...args]),
           tag: "Func", name, args
         })
         },
     {"name": "equal_exprs", "symbols": ["sub_expr", "_", {"literal":"="}, "_", "sub_expr"], "postprocess": 
         ([left, , , , right]): EqualExprs => ({
+          ...nodeData([left, right]),
           ...rangeBetween(left, right),
           tag: "EqualExprs", left, right
         })
         },
     {"name": "equal_predicates", "symbols": ["apply_predicate", "_", {"literal":"<->"}, "_", "apply_predicate"], "postprocess": 
         ([left, , , , right]): EqualPredicates => ({
+          ...nodeData([left, right]),
           ...rangeBetween(left, right),
           tag: "EqualPredicates", left, right
         })
@@ -182,6 +194,7 @@ const grammar: Grammar = {
     {"name": "label_stmt", "symbols": ["auto_label"], "postprocess": id},
     {"name": "label_decl", "symbols": [{"literal":"Label"}, "__", "identifier", "__", "tex_literal"], "postprocess": 
         ([kw, , variable, , label]): LabelDecl => ({
+          ...nodeData([variable, label]),
           ...rangeBetween(rangeOf(kw), label),
           tag: "LabelDecl", variable, label
         })
@@ -204,17 +217,19 @@ const grammar: Grammar = {
         },
     {"name": "no_label", "symbols": [{"literal":"NoLabel"}, "__", "no_label$macrocall$1"], "postprocess": 
         ([kw, , args]): NoLabel => ({
+          ...nodeData([...args]),
           ...rangeFrom([rangeOf(kw), ...args]),
           tag: "NoLabel", args
         })
         },
     {"name": "auto_label", "symbols": [{"literal":"AutoLabel"}, "__", "label_option"], "postprocess": 
         ([kw, , option]): AutoLabel => ({
+          ...nodeData([option]),
           ...rangeBetween(kw, option),
           tag: "AutoLabel", option 
         })
         },
-    {"name": "label_option", "symbols": [{"literal":"All"}], "postprocess": ([kw]): LabelOption => ({ ...rangeOf(kw), tag: "DefaultLabels" })},
+    {"name": "label_option", "symbols": [{"literal":"All"}], "postprocess": ([kw]): LabelOption => ({ ...nodeData([]), ...rangeOf(kw), tag: "DefaultLabels" })},
     {"name": "label_option$macrocall$2", "symbols": ["identifier"]},
     {"name": "label_option$macrocall$3", "symbols": [{"literal":","}]},
     {"name": "label_option$macrocall$1$ebnf$1", "symbols": []},
@@ -232,7 +247,7 @@ const grammar: Grammar = {
         }
         },
     {"name": "label_option", "symbols": ["label_option$macrocall$1"], "postprocess":  
-        ([variables]): LabelOption => ({ ...rangeFrom(variables), tag: "LabelIDs", variables }) 
+        ([variables]): LabelOption => ({ ...nodeData([]), ...rangeFrom(variables), tag: "LabelIDs", variables }) 
              },
     {"name": "type_constructor$ebnf$1", "symbols": ["type_arg_list"], "postprocess": id},
     {"name": "type_constructor$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -240,6 +255,7 @@ const grammar: Grammar = {
         ([name, a]): TypeConsApp => {
           const args = optional(a, []);
           return {
+            ...nodeData([name, ...args]),
             ...rangeFrom([name, ...args]),
             tag: "TypeConstructor", name, args 
           };
@@ -266,6 +282,7 @@ const grammar: Grammar = {
         },
     {"name": "string_lit", "symbols": [(lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": 
         ([d]): IStringLit => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'StringLit',
           contents: d.text
@@ -273,6 +290,7 @@ const grammar: Grammar = {
         },
     {"name": "tex_literal", "symbols": [(lexer.has("tex_literal") ? {type: "tex_literal"} : tex_literal)], "postprocess":  
         ([d]): IStringLit => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'StringLit',
           contents: d.text.substring(1, d.text.length - 1), // NOTE: remove dollars
@@ -280,6 +298,7 @@ const grammar: Grammar = {
         },
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
         ([d]) => ({
+          ...nodeData([]),
           ...rangeOf(d),
           tag: 'Identifier',
           value: d.text,

@@ -27,6 +27,11 @@ const lexer = moo.compile({
   }
 });
 
+const nodeData = (children: ASTNode[]) => ({
+  nodeType: "Substance",
+  children
+});
+
 %} # end of lexer
 
 @lexer lexer
@@ -59,7 +64,7 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
 input -> statements {% 
   ([d]): SubProg => {
     const statements = flatten(d) as SubStmt[];
-    return { ...rangeFrom(statements), tag: "SubProg", statements };
+    return { ...nodeData(statements), ...rangeFrom(statements), tag: "SubProg", statements };
   }
 %}
 
@@ -85,6 +90,7 @@ statement
 
 decl -> type_constructor __ sepBy1[identifier, ","] {%
   ([type, , ids]): Decl[] => ids.map((name: Identifier): Decl => ({
+    ...nodeData([type, name]),
     ...rangeBetween(type, name),
     tag: "Decl", type, name
   }))
@@ -92,6 +98,7 @@ decl -> type_constructor __ sepBy1[identifier, ","] {%
 
 bind -> identifier _ ":=" _ sub_expr {%
   ([variable, , , , expr]): Bind => ({
+    ...nodeData([variable, expr]),
     ...rangeBetween(variable, expr),
     tag: "Bind", variable, expr
   })
@@ -99,6 +106,7 @@ bind -> identifier _ ":=" _ sub_expr {%
 
 apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate => ({
+    ...nodeData([name, ...args]),
     ...rangeFrom([name, ...args]),
     tag: "ApplyPredicate", name, args
   })
@@ -114,6 +122,7 @@ sub_expr
 
 deconstructor -> identifier _ "." _ identifier {%
   ([variable, , , , field]): Deconstructor => ({
+    ...nodeData([variable, field]),
     ...rangeBetween(variable, field),
     tag: "Deconstructor", variable, field
   })
@@ -122,6 +131,7 @@ deconstructor -> identifier _ "." _ identifier {%
 # NOTE: generic func type for consturction, predicate, or function
 func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
   ([name, , , , args]): Func => ({
+    ...nodeData([name, ...args]),
     ...rangeFrom([name, ...args]),
     tag: "Func", name, args
   })
@@ -129,6 +139,7 @@ func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
 
 equal_exprs -> sub_expr _ "=" _ sub_expr {%
   ([left, , , , right]): EqualExprs => ({
+    ...nodeData([left, right]),
     ...rangeBetween(left, right),
     tag: "EqualExprs", left, right
   })
@@ -136,6 +147,7 @@ equal_exprs -> sub_expr _ "=" _ sub_expr {%
 
 equal_predicates -> apply_predicate _ "<->" _ apply_predicate {%
   ([left, , , , right]): EqualPredicates => ({
+    ...nodeData([left, right]),
     ...rangeBetween(left, right),
     tag: "EqualPredicates", left, right
   })
@@ -148,6 +160,7 @@ label_stmt
 
 label_decl -> "Label" __ identifier __ tex_literal {%
   ([kw, , variable, , label]): LabelDecl => ({
+    ...nodeData([variable, label]),
     ...rangeBetween(rangeOf(kw), label),
     tag: "LabelDecl", variable, label
   })
@@ -155,6 +168,7 @@ label_decl -> "Label" __ identifier __ tex_literal {%
 
 no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
   ([kw, , args]): NoLabel => ({
+    ...nodeData([...args]),
     ...rangeFrom([rangeOf(kw), ...args]),
     tag: "NoLabel", args
   })
@@ -162,15 +176,16 @@ no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
 
 auto_label -> "AutoLabel" __ label_option {%
   ([kw, , option]): AutoLabel => ({
+    ...nodeData([option]),
     ...rangeBetween(kw, option),
     tag: "AutoLabel", option 
   })
 %}
 
 label_option 
-  -> "All" {% ([kw]): LabelOption => ({ ...rangeOf(kw), tag: "DefaultLabels" }) %}
+  -> "All" {% ([kw]): LabelOption => ({ ...nodeData([]), ...rangeOf(kw), tag: "DefaultLabels" }) %}
   |  sepBy1[identifier, ","] {% 
-       ([variables]): LabelOption => ({ ...rangeFrom(variables), tag: "LabelIDs", variables }) 
+       ([variables]): LabelOption => ({ ...nodeData([]), ...rangeFrom(variables), tag: "LabelIDs", variables }) 
      %}
 
 # Grammar from Domain
@@ -179,6 +194,7 @@ type_constructor -> identifier type_arg_list:? {%
   ([name, a]): TypeConsApp => {
     const args = optional(a, []);
     return {
+      ...nodeData([name, ...args]),
       ...rangeFrom([name, ...args]),
       tag: "TypeConstructor", name, args 
     };
@@ -194,6 +210,7 @@ type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {%
 
 string_lit -> %string_literal {%
   ([d]): IStringLit => ({
+    ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',
     contents: d.text
@@ -202,6 +219,7 @@ string_lit -> %string_literal {%
 
 tex_literal -> %tex_literal {% 
   ([d]): IStringLit => ({
+    ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',
     contents: d.text.substring(1, d.text.length - 1), // NOTE: remove dollars
@@ -210,6 +228,7 @@ tex_literal -> %tex_literal {%
 
 identifier -> %identifier {% 
   ([d]) => ({
+    ...nodeData([]),
     ...rangeOf(d),
     tag: 'Identifier',
     value: d.text,

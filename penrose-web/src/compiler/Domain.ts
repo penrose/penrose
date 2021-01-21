@@ -53,8 +53,10 @@ const builtinTypes: [string, TypeDecl][] = [
     {
       start: { line: 1, col: 1 },
       end: { line: 1, col: 1 },
+      nodeType: "Substance",
+      children: [],
       tag: "TypeDecl",
-      name: idOf("String"),
+      name: idOf("String", "Domain"),
       params: [],
     },
   ],
@@ -315,13 +317,13 @@ export const isSubtype = (
 
 export const topType: TypeConsApp = {
   tag: "TypeConstructor",
-  name: idOf("type"),
+  name: idOf("type", "Domain"),
   args: [],
 };
 
 export const bottomType: TypeConsApp = {
   tag: "TypeConstructor",
-  name: idOf("void"),
+  name: idOf("void", "Domain"),
   args: [],
 };
 

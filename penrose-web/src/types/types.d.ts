@@ -92,7 +92,7 @@ type Expr =
   | ICompApp
   | IObjFn
   | IConstrFn
-  | IAvoidFn
+  // | IAvoidFn // TODO: unimplemented
   | IBinOp
   | IUOp
   | IList
@@ -104,8 +104,8 @@ type Expr =
   | IListAccess
   | GPIDecl
   | ILayering
-  | IPluginAccess
-  | IThenOp;
+  | IPluginAccess;
+// | IThenOp; // TODO: deprecated transformation exprs
 
 interface IIntLit {
   tag: "IntLit";
@@ -198,17 +198,17 @@ interface IMatrix extends ASTNode {
   contents: Expr[];
 }
 
-interface IVectorAccess {
+interface IVectorAccess extends ASTNode {
   tag: "VectorAccess";
   contents: [Path, Expr];
 }
 
-interface IMatrixAccess {
+interface IMatrixAccess extends ASTNode {
   tag: "MatrixAccess";
   contents: [Path, Expr[]];
 }
 
-interface IListAccess {
+interface IListAccess extends ASTNode {
   tag: "ListAccess";
   contents: [Path, number];
 }
@@ -225,7 +225,7 @@ interface ILayering extends ASTNode {
   above: Path;
 }
 
-interface IPluginAccess {
+interface IPluginAccess extends ASTNode {
   tag: "PluginAccess";
   contents: [string, Expr, Expr];
 }
@@ -820,8 +820,8 @@ interface PreludeDecl extends ASTNode {
 // TODO: check if string type is enough
 interface NotationDecl extends ASTNode {
   tag: "NotationDecl";
-  from: string;
-  to: string;
+  from: IStringLit;
+  to: IStringLit;
 }
 interface SubTypeDecl extends ASTNode {
   tag: "SubTypeDecl";
@@ -1437,12 +1437,11 @@ interface ASTNode {
   tag: string;
   start: SourceLoc;
   end: SourceLoc;
+  nodeType: string;
+  children: ASTNode[];
   // TODO: add file source and node type
-  // type: "Domain" | "Substance" | "Style"
   // sourceFile: FilePath
   // Optionally for querying
-  // children: ASTNode[];
-  // file: string;
   // parent: ASTNode; // NOTE: pointer type; don't serialize this
 }
 
