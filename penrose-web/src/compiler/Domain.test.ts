@@ -1,12 +1,13 @@
-import { CheckerResult, compileDomain, isSubtype } from "compiler/Domain";
+import { CheckerResult, compileDomain, Env, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
-import { showError } from "utils/Error";
+import { Result, showError } from "utils/Error";
 
 const outputDir = "/tmp/contexts";
 const saveContexts = true;
+const printError = false;
 
 const domainPaths = [
   "linear-algebra-domain/linear-algebra.dsl",
@@ -14,7 +15,7 @@ const domainPaths = [
 ];
 
 const contextHas = (
-  res: CheckerResult,
+  res: Result<Env, PenroseError>,
   expectedTypes: string[],
   expectedConstructors: string[],
   expectedFunctions: string[],
@@ -143,7 +144,7 @@ describe("Errors", () => {
   const expectErrorOf = (prog: string, errorType: string) => {
     const result = compileDomain(prog);
     if (result.isErr()) {
-      console.log(showError(result.error));
+      if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
       fail(`Error ${errorType} was suppoed to occur.`);

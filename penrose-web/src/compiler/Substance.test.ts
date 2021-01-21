@@ -2,7 +2,13 @@ import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import { Result, showError } from "utils/Error";
 import { compileDomain, Env, showType } from "./Domain";
-import { compileSubstance } from "./Substance";
+import {
+  compileSubstance,
+  postprocessSubstance,
+  SubstanceEnv,
+} from "./Substance";
+
+const printError = false;
 
 const domainProg = `
 type Set
@@ -55,6 +61,35 @@ describe("Common", () => {
   });
 });
 
+describe("Postprocess", () => {
+  test("labels", () => {
+    const prog = `
+Set A, B, C, D, E
+AutoLabel All
+Label A $\\vec{A}$
+Label B $B_1$
+NoLabel D, E
+    `;
+    const env = envOrError(domainProg);
+    const res = compileSubstance(prog, env);
+    if (res.isOk()) {
+      const expected = [
+        ["A", "\\vec{A}"],
+        ["B", "B_1"],
+        ["C", "C"],
+        ["D", ""],
+        ["E", ""],
+      ];
+      const labelMap = res.value[0].labels;
+      expected.map(([id, value]) =>
+        expect(labelMap.get(id)!.unwrapOr("")).toEqual(value)
+      );
+    } else {
+      fail("Unexpected error when processing labels: " + showError(res.error));
+    }
+  });
+});
+
 describe("Check statements", () => {
   const hasVars = (env: Env, vars: [string, string][]) => {
     vars.map(([name, type]: [string, string]) => {
@@ -73,7 +108,7 @@ A := D
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
     if (res.isOk())
-      hasVars(res.value, [
+      hasVars(res.value[1], [
         ["A", "Set"],
         ["l", "List(Set)"],
       ]);
@@ -87,7 +122,7 @@ B := AddPoint(p, B)
       `;
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
-      hasVars(res.value, [
+      hasVars(res.value[1], [
         ["A", "Set"],
         ["B", "Set"],
         ["p", "Point"],
@@ -106,7 +141,7 @@ l := Cons(A, nil)
       `;
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
-      hasVars(res.value, [
+      hasVars(res.value[1], [
         ["A", "Set"],
         ["l", "List(Set)"],
         ["nil", "List(Set)"],
@@ -165,11 +200,11 @@ NoLabel B, C
 
 describe("Errors", () => {
   const expectErrorOf = (
-    result: Result<Env, SubstanceError | DomainError>,
+    result: Result<[SubstanceEnv, Env], SubstanceError | DomainError>,
     errorType: string
   ) => {
     if (result.isErr()) {
-      console.log(showError(result.error));
+      if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
       fail(`Error ${errorType} was suppoed to occur.`);

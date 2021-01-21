@@ -1,51 +1,56 @@
-import { varOf } from "engine/Autodiff";
 import { Map } from "immutable";
-import { findIndex, update, zip } from "lodash";
+import { findIndex, zip, zipWith } from "lodash";
+import { states } from "moo";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import {
-  every,
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
   err,
+  every,
+  Maybe,
   ok,
   Result,
   safeChain,
   typeArgLengthMismatch,
   typeMismatch,
   typeNotFound,
-  unsafelyUnwrap,
-  varNotFound,
   unexpectedExprForNestedPred,
+  varNotFound,
 } from "utils/Error";
 import {
   bottomType,
   checkTypeConstructor,
   Env,
   isSubtype,
-  showType,
   topType,
 } from "./Domain";
 
 // TODO: wrap errors in PenroseError type
-export const compileSubstance = (prog: string, env: Env): CheckerResult => {
+export const compileSubstance = (
+  prog: string,
+  env: Env
+): Result<[SubstanceEnv, Env], PenroseError> => {
   const parser = new nearley.Parser(
     nearley.Grammar.fromCompiled(substanceGrammar)
   );
   const { results } = parser.feed(prog);
-  return checkSubstance(results[0], env);
+  const ast: SubProg = results[0];
+  const checkerOk = checkSubstance(ast, env);
+  return checkerOk.match({
+    Ok: (env) => ok([postprocessSubstance(ast, env), env]),
+    Err: (e) => err({ ...e, errorType: "SubstanceError" }),
+  });
 };
 
-type CheckerResult = Result<Env, SubstanceError>;
-type ResultWithType = Result<[TypeConsApp, Env], SubstanceError>;
-
-interface SubstanceEnv {
+type LabelMap = Map<string, Maybe<string>>;
+export interface SubstanceEnv {
   exprEqualities: [SubExpr, SubExpr][];
   predEqualities: [ApplyPredicate, ApplyPredicate][];
   bindings: Map<string, SubExpr>;
-  labels: Map<string, string>;
+  labels: LabelMap;
   predicates: ApplyPredicate[];
 }
 
@@ -56,6 +61,68 @@ const initEnv = (): SubstanceEnv => ({
   labels: Map(),
   predicates: [],
 });
+
+//#region Postprocessing
+export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
+  const subEnv = initEnv();
+  return prog.statements.reduce(
+    (e, stmt) => postprocessStmt(stmt, env, e),
+    subEnv
+  );
+};
+
+const postprocessStmt = (
+  stmt: SubStmt,
+  env: Env,
+  subEnv: SubstanceEnv
+): SubstanceEnv => {
+  switch (stmt.tag) {
+    case "AutoLabel": {
+      if (stmt.option.tag === "DefaultLabels") {
+        const [...ids] = env.vars.keys();
+        const newLabels: LabelMap = Map(ids.map((id) => [id, Maybe.just(id)]));
+        return {
+          ...subEnv,
+          labels: newLabels,
+        };
+      } else {
+        const ids = stmt.option.variables;
+        const newLabels: LabelMap = subEnv.labels.merge(
+          ids.map((id) => [id.value, Maybe.just(id.value)])
+        );
+        return {
+          ...subEnv,
+          labels: newLabels,
+        };
+      }
+    }
+    case "LabelDecl": {
+      const { variable, label } = stmt;
+      return {
+        ...subEnv,
+        labels: subEnv.labels.set(variable.value, Maybe.just(label.contents)),
+      };
+    }
+    case "NoLabel": {
+      const ids = stmt.args;
+      const newLabels: LabelMap = subEnv.labels.merge(
+        ids.map((id) => [id.value, Maybe.nothing()])
+      );
+      return {
+        ...subEnv,
+        labels: newLabels,
+      };
+    }
+    default:
+      return subEnv;
+  }
+};
+//#endregion
+
+//#region Semantic checker
+
+type CheckerResult = Result<Env, SubstanceError>;
+type ResultWithType = Result<[TypeConsApp, Env], SubstanceError>;
 
 const stringType: TypeConsApp = {
   tag: "TypeConstructor",
@@ -419,3 +486,5 @@ const checkVar = (variable: Identifier, env: Env): ResultWithType => {
     return err(varNotFound(variable, possibleVars));
   }
 };
+
+//#endregion

@@ -5,8 +5,8 @@
 // type RuntimeError = OptimizerError | EvaluatorError;
 // type StyleError = StyleParseError | StyleCheckError | TranslationError;
 type PenroseError =
-  | (DomainError & { type: "DomainError" })
-  | (SubstanceError & { type: "SubstanceError" });
+  | (DomainError & { errorType: "DomainError" })
+  | (SubstanceError & { errorType: "SubstanceError" });
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 type SubstanceError =

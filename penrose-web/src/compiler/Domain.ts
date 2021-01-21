@@ -1,7 +1,7 @@
 import domainGrammar from "parser/DomainParser";
 import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
-import { every, keyBy, zipWith } from "lodash";
+import { every, keyBy, result, zipWith } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import {
@@ -21,12 +21,16 @@ import {
 } from "utils/Error";
 
 // TODO: wrap errors in PenroseError type
-export const compileDomain = (prog: string): CheckerResult => {
+export const compileDomain = (prog: string): Result<Env, PenroseError> => {
   const parser = new nearley.Parser(
     nearley.Grammar.fromCompiled(domainGrammar)
   );
   const { results } = parser.feed(prog);
-  return checkDomain(results[0]);
+  const ast: DomainProg = results[0];
+  return checkDomain(ast).match({
+    Ok: (env) => ok(env),
+    Err: (e) => err({ ...e, errorType: "DomainError" }),
+  });
 };
 
 export type CheckerResult = Result<Env, DomainError>;

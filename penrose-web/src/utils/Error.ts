@@ -16,7 +16,7 @@ export const showError = (error: DomainError | SubstanceError): string => {
       )}) does not exist.`;
       if (possibleVars) {
         const suggestions = possibleVars.join(", ");
-        return msg + ` Declared variable are: ${suggestions}`;
+        return msg + ` Declared variables are: ${suggestions}`;
       } else return msg;
     }
     case "TypeNotFound": {
@@ -73,9 +73,9 @@ export const showError = (error: DomainError | SubstanceError): string => {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `The type of the expression at ${loc(sourceExpr)} '${showType(
         sourceType
-      )}' does not match with the expected type derived from the expression at ${loc(
-        expectedExpr
-      )} '${showType(expectedType)}'.`;
+      )}' does not match with the expected type '${showType(
+        expectedType
+      )}' derived from the expression at ${loc(expectedExpr)}.`;
     }
     case "TypeArgLengthMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
@@ -238,7 +238,9 @@ export const fatalError = (message: string): FatalError => ({
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: ASTNode) =>
-  `line ${node.start.line}, column ${node.start.col + 1}`;
+  `line ${node.start.line}, column ${node.start.col + 1} of ${
+    node.nodeType
+  } program`;
 
 export const every = <Ok, Error>(
   ...results: Result<Ok, Error>[]
