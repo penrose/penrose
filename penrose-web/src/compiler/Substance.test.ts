@@ -1,3 +1,5 @@
+import * as path from "path";
+import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import { Result, showError } from "utils/Error";
@@ -9,6 +11,20 @@ import {
 } from "./Substance";
 
 const printError = false;
+const saveContexts = false;
+const outputDir = "/tmp/contexts";
+
+const subPaths = [
+  // "linear-algebra-domain/twoVectorsPerp.sub",
+  ["set-theory-domain/setTheory.dsl", "set-theory-domain/tree.sub"],
+  ["set-theory-domain/setTheory.dsl", "set-theory-domain/continuousmap.sub"],
+  ["set-theory-domain/setTheory.dsl", "set-theory-domain/twosets-simple.sub"],
+  ["set-theory-domain/setTheory.dsl", "set-theory-domain/multisets.sub"],
+  ["set-theory-domain/setTheory.dsl", "set-theory-domain/nested.sub"],
+  // "hyperbolic-domain/hyperbolic-example.sub",
+  // "geometry-domain/pythagorean-theorem-sugared.sub",
+  // "mesh-set-domain/DomainInterop.sub",
+];
 
 const domainProg = `
 type Set
@@ -381,5 +397,34 @@ OpenSet A
 l := Cons(A, nil)
         `;
     compileOrError(prog, env);
+  });
+});
+
+describe("Real Programs", () => {
+  // create output folder
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  subPaths.map(([domainPath, examplePath]) => {
+    const domFile = path.join("../examples/", domainPath);
+    const subFile = path.join("../examples/", examplePath);
+    const domProg = fs.readFileSync(domFile, "utf8");
+    const subProg = fs.readFileSync(subFile, "utf8");
+    test(examplePath, () => {
+      // do testing
+      const env = envOrError(domProg);
+      const res = compileSubstance(subProg, env);
+      expect(res.isOk()).toBe(true);
+      // write to output folder
+      if (res.isOk() && saveContexts) {
+        const domainName = path.basename(domainPath, ".dsl");
+        const exampleName = path.basename(examplePath, ".sub");
+        const envPath = path.join(outputDir, domainName + ".env.json");
+        const subenvPath = path.join(outputDir, exampleName + ".env.json");
+        fs.writeFileSync(subenvPath, JSON.stringify(res.value[0]), "utf8");
+        fs.writeFileSync(envPath, JSON.stringify(res.value[1]), "utf8");
+      }
+    });
   });
 });
