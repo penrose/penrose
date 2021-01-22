@@ -32,7 +32,6 @@ import {
   negv,
   dot,
   prettyPrintFns,
-  prettyPrintProperty,
 } from "utils/OtherUtils";
 import consola, { LogLevel } from "consola";
 

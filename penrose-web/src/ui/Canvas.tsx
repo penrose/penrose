@@ -40,7 +40,13 @@ class Canvas extends React.Component<ICanvasProps> {
     ); // assumes that all names are unique
   };
 
-  public static notEmptyLabel = ({ shapeType, properties }: any) => {
+  public static notEmptyLabel = (shape: any) => {
+    if (!shape) {
+      // COMBAK: temp hack, revert when labels are generated
+      console.error("Skipping undefined shape");
+      return true;
+    }
+    const { shapeType, properties } = shape;
     return shapeType === "Text" ? !(properties.string.contents === "") : true;
   };
 
@@ -68,6 +74,9 @@ class Canvas extends React.Component<ICanvasProps> {
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
     // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
     const translationAD = makeTranslationDifferentiable(state.translation);
+
+    console.log("translationAD", translationAD);
+
     const stateAD = {
       ...state,
       originalTranslation: state.originalTranslation,
@@ -76,19 +85,36 @@ class Canvas extends React.Component<ICanvasProps> {
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalShapes(stateAD);
+    const stateEvaled: State = evalShapes(stateAD)
+
+    console.log("stateEvaled", stateEvaled);
+
     // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
+
+    console.log("labeledShapes", labeledShapes);
+
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
+
+    console.log("labeledShapesWithImgs", labeledShapesWithImgs);
+
     const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
       data.shapeOrdering
     );
+
+    console.log("sortedShapesWithImgs", sortedShapes);
+
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
+
+    console.log("nonempties", nonEmpties);
+
     const processed = await insertPending({
       ...stateEvaled,
       shapes: nonEmpties,
     });
+
+    console.log("processed", processed);
 
     return processed;
   };

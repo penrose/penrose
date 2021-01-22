@@ -1103,9 +1103,15 @@ const insertNames = (trans: Translation): Translation => {
 
 // Note, this mutates the translation
 const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
+  console.log("labels", labels);
+
   const insertLabel = (name: string, fieldDict: FieldDict): [string, FieldDict] => {
-    const label: string = labels[name];
-    if (!label) { return [name, fieldDict]; }
+    let label: string = labels[name];
+    if (!label) {
+      label = name;
+      // Note that there's no reason for a shape to have no label; by default, it will be its substance name
+    }
+
     // COMBAK: Model this better WRT Maybes; need to distinguish between "no label mapping" and "no label" so we can delete the relevant text GPIs (see Haskell for code)
     fieldDict[LABEL_FIELD] = {
       tag: "FExpr",

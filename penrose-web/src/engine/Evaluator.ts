@@ -2,7 +2,7 @@ import { checkComp, compDict } from "contrib/Functions";
 import { mapTranslation, valueAutodiffToNumber, insertExpr, isPath, exprToNumber, numToExpr } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom, { prng } from "seedrandom";
-import { floatVal } from "utils/OtherUtils";
+import { floatVal, prettyPrintPath, prettyPrintExpr, prettyPrintFn } from "utils/OtherUtils";
 import {
   add,
   constOf,
@@ -57,6 +57,7 @@ const dummyIdentifier = (name: string): Identifier => {
 export const evalShapes = (s: State): State => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
+
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
@@ -80,26 +81,37 @@ export const evalShapes = (s: State): State => {
   const trans = clone(transWithVarying);
 
   // Find out all the GPI expressions in the translation
-  const shapeExprs = s.shapePaths.map(
-    (p: Path) => findExpr(trans, p) as IFGPI<VarAD>
-  );
+  const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map((p: Path) => findExpr(trans, p) as IFGPI<VarAD>);
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
-  const [shapesEvaled, transEvaled] = shapeExprs.reduce(
+  const [shapesEvaled, transEvaled]: [IShape[], Translation] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
       evalShape(e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
 
+  // COMBAK: Re-sort the shapes by layering, as currently it's not available
+
+  if (s.shapeOrdering.length < shapesEvaled.length) {
+    console.error("Invalid shape layering of length", s.shapeOrdering.length);
+  }
+
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled = s.shapeOrdering.map(
-    (name) =>
-      shapesEvaled.find(({ properties }) => properties.name.contents === name)!
+  const sortedShapesEvaled: IShape[] = s.shapeOrdering.map(
+    (name) => shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: sortedShapesEvaled };
+  return { ...s, shapes: shapesEvaled };
+};
+
+const sameName = (given: Value<number>, expected: string): boolean => {
+  console.log("given, expected", given.contents, expected);
+
+  if (given.tag !== "StrV") { return false; }
+  if (typeof given.contents !== "string") { throw Error("expected string GPI name"); }
+  return given.contents === expected;
 };
 
 const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
@@ -266,6 +278,9 @@ export const evalExpr = (
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
+
+  console.log("evalExpr", e);
+
   switch (e.tag) {
     // COMBAK: Deal with ints
     // case "IntLit": {
@@ -312,12 +327,16 @@ export const evalExpr = (
 
     case "BinOp": {
       const [binOp, e1, e2] = [e.op, e.left, e.right];
+
       const [val1, val2] = evalExprs(
         [e1, e2],
         trans,
         varyingVars,
         optDebugInfo
       );
+
+      console.log("evalBinOp e", binOp, e1, e2);
+      console.log("evalBinOp v", val1, val2);
 
       const res = evalBinOp(
         binOp,
@@ -430,6 +449,10 @@ export const evalExpr = (
       // throw Error("deprecated");
 
       const [e1, e2] = e.contents;
+
+      console.log("e1, e2", e1, e2);
+      // debugger;
+
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2 = evalExpr(e2, trans, varyingVars, optDebugInfo);
 
@@ -443,10 +466,20 @@ export const evalExpr = (
       // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
       if (v2.contents.tag === "FloatV") {
         console.log("v2 before", v2);
+        console.log("numOf(v2.contents.contents)", numOf(v2.contents.contents));
 
-        v2.contents = {
-          tag: "IntV",
-          contents: Math.floor(numOf(v2.contents.contents))
+        // COMBAK: (ISSUE): Indices should not have "Fix"
+        if (v2.contents.contents.tag) {
+          console.error("malformed v2", v2);
+          v2.contents = {
+            tag: "IntV",
+            contents: Math.floor(((v2.contents.contents) as unknown as IFix).contents)
+          }
+        } else {
+          v2.contents = {
+            tag: "IntV",
+            contents: Math.floor(numOf(v2.contents.contents))
+          }
         }
 
         console.log("v2 after", v2);
@@ -814,7 +847,11 @@ export const evalBinOp = (
 
     switch (op) {
       case "BPlus": {
+        console.log("in", v1, v2);
+
         res = ops.vadd(v1.contents, v2.contents);
+
+        console.log("out", res);
         break;
       }
 
@@ -906,7 +943,7 @@ export const findExpr = (
 
       if (!fieldExpr) {
         throw Error(
-          `Could not find field '${JSON.stringify(path)}' in translation`
+          `Could not find field '${prettyPrintPath(path)}' in translation`
         );
       }
 
@@ -925,7 +962,7 @@ export const findExpr = (
 
       if (!gpi) {
         throw Error(
-          `Could not find GPI '${JSON.stringify(path)}' in translation`
+          `Could not find GPI '${prettyPrintPath(path)}' in translation`
         );
       }
 

@@ -65,42 +65,42 @@ export const isPath = (expr: Expr): expr is Path => {
   return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
 };
 
-const prettyPrintExpr = (arg: Expr): string => {
-  // TODO: only handles paths and floats for now; generalize to other exprs
-  if (arg.tag === "FieldPath") {
-    const varName = arg.name;
-    const varField = arg.field;
+export const prettyPrintPath = (p: Expr): string => {
+  if (p.tag === "FieldPath") {
+    const varName = p.name.contents.value;
+    const varField = p.field.value;
     return [varName, varField].join(".");
+  } else if (p.tag === "PropertyPath") {
+    const varName = p.name.contents.value;
+    const varField = p.field.value;
+    const property = p.property.value;
+    return [varName, varField, property].join(".");
+  } else {
+    return JSON.stringify(p);
+  }
+};
+
+export const prettyPrintExpr = (arg: Expr): string => {
+  // TODO: only handles paths and floats for now; generalize to other exprs
+  if (isPath(arg)) {
+    return prettyPrintPath(arg);
   } else if (arg.tag === "Fix") {
     const val = arg.contents;
     return String(val);
   } else if (arg.tag === "CompApp") {
     const [fnName, fnArgs] = [arg.name.value, arg.args];
-    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
-      ""
-    );
+    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join("");
   } else {
     // TODO: Finish writing pretty-printer for rest of expressions (UOp, BinOp)
     const res = JSON.stringify(arg);
-    // log.trace("arg", arg);
-    // log.trace(`warning: argument of type ${arg.tag} not yet handled in pretty-printer; returning stopgap`, res);
     return res;
   }
 };
 
-const prettyPrintFn = (fn: any) => {
+export const prettyPrintFn = (fn: any) => {
   const name = fn.fname;
   const args = fn.fargs.map(prettyPrintExpr).join(", ");
   return [name, "(", args, ")"].join("");
-};
-
-// TODO: only handles property paths for now
-export const prettyPrintProperty = (arg: any) => {
-  const obj = arg.contents;
-  const varName = obj[0].contents;
-  const varField = obj[1];
-  const property = obj[2];
-  return [varName, varField, property].join(".");
 };
 
 export const prettyPrintFns = (state: any) =>
