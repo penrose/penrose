@@ -73,14 +73,15 @@ class Canvas extends React.Component<ICanvasProps> {
 
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
     // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
-    const translationAD = makeTranslationDifferentiable(state.translation);
 
-    console.log("translationAD", translationAD);
+    // COMBAK: This is no longer necessary if we are using the frontend style compiler
+    // const translationAD = makeTranslationDifferentiable(state.translation);
+    // console.log("translationAD", translationAD);
 
     const stateAD = {
       ...state,
       originalTranslation: state.originalTranslation,
-      translation: translationAD,
+      // translation: translationAD,
     };
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)

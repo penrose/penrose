@@ -85,6 +85,10 @@ export const collectLabels = async (allShapes: Shape[]) => {
         const obj2: any = { ...properties };
         obj2.w.updated = { tag: "FloatV", contents: width };
         obj2.h.updated = { tag: "FloatV", contents: height };
+
+        console.log("new obj", obj2);
+        // throw Error("TODO");
+
         // HACK: this behavior needs to be encoded in our type system
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = { contents: body, omit: true };

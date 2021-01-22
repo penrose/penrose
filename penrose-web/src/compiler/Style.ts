@@ -1536,7 +1536,7 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
 
   // Property not set in Style
   if (!styleSetting) {
-    if (isPending(shapeType, propType)) {
+    if (isPending(shapeType, propName)) {
       properties[propName] = {
         tag: "Pending",
         contents: propValAD

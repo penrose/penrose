@@ -61,17 +61,11 @@ export const evalShapes = (s: State): State => {
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
-  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [
-    Path,
-    VarAD
-  ][];
+  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [Path, VarAD][];
 
   const optDebugInfo = {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
-    gradientPreconditioned: genPathMap(
-      s.varyingPaths,
-      s.params.lastGradientPreconditioned
-    ),
+    gradientPreconditioned: genPathMap(s.varyingPaths, s.params.lastGradientPreconditioned),
   };
 
   // Insert all varying vals
@@ -82,6 +76,9 @@ export const evalShapes = (s: State): State => {
 
   // Find out all the GPI expressions in the translation
   const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map((p: Path) => findExpr(trans, p) as IFGPI<VarAD>);
+
+  console.log("shapePaths", s.shapePaths.map(prettyPrintPath));
+  // throw Error("TODO");
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled]: [IShape[], Translation] = shapeExprs.reduce(
@@ -193,19 +190,18 @@ export const evalShape = (
       if (prop.tag === "OptEval") {
         // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
         // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-        const res: Value<VarAD> = (evalExpr(
-          prop.contents,
-          trans,
-          varyingVars,
-          optDebugInfo
-        ) as IVal<VarAD>).contents;
+        const res: Value<VarAD> = (evalExpr(prop.contents, trans, varyingVars, optDebugInfo) as IVal<VarAD>).contents;
         const resDisplay: Value<number> = valueAutodiffToNumber(res);
         return resDisplay;
       } else if (prop.tag === "Done") {
         return valueAutodiffToNumber(prop.contents);
-      } else {
+      } else if (prop.tag === "Pending") {
         // Pending expressions are just converted because they get converted back to numbers later
-        return valueAutodiffToNumber(prop.contents);
+        const res = valueAutodiffToNumber(prop.contents);
+        // debugger;
+        return res;
+      } else {
+        throw Error("unknown tag");
       }
     }
   );
