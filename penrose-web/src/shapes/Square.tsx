@@ -10,9 +10,11 @@ class Square extends React.Component<IGPIProps> {
     const color = toHex(shape.color.contents);
     const alpha = shape.color.contents.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
+    const strokeOpacity = shape.strokeColor.contents.contents[3];
     const side = shape.side.contents;
     const strokeWidth = shape.strokeWidth.contents;
 
+    // COMBAK: Apparently our shapes don't deal with stroke opacity? All shapes should deal with stroke opacity
     return (
       <rect
         x={x - side / 2}
@@ -21,6 +23,7 @@ class Square extends React.Component<IGPIProps> {
         height={side}
         fill={color}
         fillOpacity={alpha}
+        strokeOpacity={strokeOpacity}
         strokeWidth={strokeWidth}
         strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         stroke={strokeColor}
