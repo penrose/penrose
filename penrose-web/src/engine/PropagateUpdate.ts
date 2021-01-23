@@ -8,12 +8,25 @@ import { valueNumberToAutodiff, insertExpr } from "engine/EngineUtils";
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
   const getProperty = (path: IPropertyPath) => {
-    const [{ contents: subName }, field, prop,] = [(path as IPropertyPath).name, path.field, path.property];
+    const [subName, field, prop,]: [string, string, string] =
+      [(path as IPropertyPath).name.contents.value, path.field.value, path.property.value];
+
     // HACK: this depends on the name encoding
     const shape = shapes.find(
-      (s: any) => s.properties.name.contents === `${subName}.${field}`
+      (s: any) => {
+        const [nameStr, fieldStr]: [string, string] = [subName, field];
+        const currName: string = s.properties.name.contents;
+        return currName === `${nameStr}.${fieldStr}`;
+      }
     );
-    return shape.properties[prop.value];
+
+    if (!shape) {
+      console.log("shapes", shapes, shapes.map((s: Shape) => s.properties.name.contents));
+      throw Error(`shape not found: ${subName}.${field}`);
+      debugger;
+    }
+
+    return shape.properties[prop];
   };
   switch (path.tag) {
     case "FieldPath":
@@ -46,6 +59,10 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
  * @todo: test with an initial state that has pending values
  */
 export const insertPending = (state: State) => {
+  // debugger;
+
+  console.log("insertPending");
+
   return {
     ...state,
     // clear up pending paths now that they are updated properly
@@ -56,14 +73,8 @@ export const insertPending = (state: State) => {
       // .updated is from `collectLabels` updating pending properties.
       // TODO: `v` can only be any for now due to `updated`
       .reduce(
-        (trans: Translation, [path, v]: any) =>
-          insertExpr(
-            path,
-            { tag: "Done", contents: valueNumberToAutodiff(v) },
-            trans
-          ),
-        state.translation
-      ),
+        (trans: Translation, [path, v]: any) => insertExpr(path, { tag: "Done", contents: valueNumberToAutodiff(v) }, trans),
+        state.translation),
   };
 };
 

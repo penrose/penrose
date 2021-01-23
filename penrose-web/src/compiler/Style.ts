@@ -1484,9 +1484,12 @@ const findFieldPending = (name: string, field: Field, fexpr: FieldExpr<VarAD>, a
   if (fexpr.tag === "FExpr") { return acc; }
   else if (fexpr.tag === "FGPI") {
     const properties = fexpr.contents[1];
-    const pendingProps = Object.keys(
+    const pendingProps =
       Object.entries(properties)
-        .filter(([k, v]) => v.tag === "Pending"));
+        .filter(([k, v]) => v.tag === "Pending")
+        .map((e: [string, TagExpr<VarAD>]) => e[0]);
+
+    // TODO: Pending properties currently don't support AccessPaths
     return pendingProps.map(property => mkPath([name, field, property])).concat(acc);
 
   } else throw Error("unknown tag");
@@ -1543,7 +1546,7 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
       } as TagExpr<VarAD>;
       return properties;
     } else {
-      properties[propName] = propValDone;
+      properties[propName] = propValDone; // Use the sampled one
       return properties;
     }
   }
@@ -1551,10 +1554,18 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
   // Property set in Style
   if (styleSetting.tag === "OptEval") {
     if (styleSetting.contents.tag === "Vary") {
-      properties[propName] = propValDone;
+      properties[propName] = propValDone; // X.prop = ?
       return properties;
     } else if (styleSetting.contents.tag === "Vector") {
-      properties[propName] = propValDone;
+      const v: Expr[] = styleSetting.contents.contents;
+      if (v.length === 2) {
+        // Sample a whole 2D vector, e.g. `Circle { center : [?, ?] }`
+        // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
+        if (v[0].tag === "Vary" && v[1].tag === "Vary") {
+          properties[propName] = propValDone;
+          return properties;
+        }
+      }
       return properties;
     } else {
       return properties;

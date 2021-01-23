@@ -35,6 +35,7 @@ export const canvasSize: [number, number] = Shapes.canvasSize;
 
 class Canvas extends React.Component<ICanvasProps> {
   public static sortShapes = (shapes: Shape[], ordering: string[]) => {
+    // COMBAK: Deal with nonexistent shapes
     return ordering.map((name) =>
       shapes.find(({ properties }) => properties.name.contents === name)
     ); // assumes that all names are unique
@@ -89,35 +90,47 @@ class Canvas extends React.Component<ICanvasProps> {
     const stateEvaled: State = evalShapes(stateAD)
 
     console.log("stateEvaled", stateEvaled);
+    const numShapes = stateEvaled.shapes.length;
 
     // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
 
     console.log("labeledShapes", labeledShapes);
+    console.assert(labeledShapes.length === numShapes);
 
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
 
     console.log("labeledShapesWithImgs", labeledShapesWithImgs);
+    console.assert(labeledShapesWithImgs.length === numShapes);
 
+    // Unused
     const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
       data.shapeOrdering
     );
 
-    console.log("sortedShapesWithImgs", sortedShapes);
+    console.log("sortedShapes (unused due to layering)", sortedShapes);
+    console.assert(sortedShapes.length === numShapes);
 
-    const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
+    // COMBAK: Use the sorted shapes; removed since we don't have layering
+    const nonEmpties = await labeledShapesWithImgs.filter(Canvas.notEmptyLabel);
 
     console.log("nonempties", nonEmpties);
+    console.assert(nonEmpties.length === numShapes);
 
-    const processed = await insertPending({
+    const stateWithPendingProperties = await insertPending({
       ...stateEvaled,
       shapes: nonEmpties,
     });
 
-    console.log("processed", processed);
+    // Problem: dimensions are inserted to the translation, but the shapes are not re-generated to reflect the new dimensions. How did this work in the first place??
 
-    return processed;
+    console.log("processed (after insertPending)", stateWithPendingProperties);
+
+    // COMBAK: I guess we need to eval the shapes again?
+    const stateWithPendingProperties2: State = evalShapes(stateWithPendingProperties);
+
+    return stateWithPendingProperties2;
   };
 
   // public readonly canvasSize: [number, number] = [400, 400];

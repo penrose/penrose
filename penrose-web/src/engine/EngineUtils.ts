@@ -377,7 +377,7 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
   const trans = initTrans;
   let name, field, prop;
 
-  // console.log("insertExpr: path, expr", path, expr);
+  console.log("insertExpr: path, expr", path, expr);
   // COMBAK: Deal with path aliasing for both field and property paths
 
   switch (path.tag) {
@@ -426,6 +426,12 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
       } else if (gpi.tag === "FGPI") {
         const [, properties] = gpi.contents;
         properties[prop.value] = expr;
+
+        // COMBAK revert
+        if (prop.value === "w") {
+          // debugger;
+        }
+
         return trans;
       } else { throw Error("unexpected tag"); }
     }
@@ -650,3 +656,5 @@ export const numToExpr = (n: number): Expr => {
     contents: n
   };
 };
+
+// COMBAK: consolidate prettyprinting code
