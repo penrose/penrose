@@ -84,7 +84,7 @@ const EPS = uoStop;
 
 const unconstrainedConverged2 = (normGrad: number): boolean => {
   if (DEBUG_GRAD_DESCENT) {
-    log.trace("UO convergence check: ||grad f(x)||", normGrad);
+    console.log("UO convergence check: ||grad f(x)||", normGrad);
   }
   return normGrad < uoStop;
 };
@@ -98,7 +98,7 @@ const epConverged2 = (
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = normList(subv(xs1, xs0));
   const energyChange = Math.abs(fxs1 - fxs0);
-  log.trace(
+  console.log(
     "epConverged?: stateChange: ",
     stateChange,
     " | energyChange: ",
@@ -156,41 +156,31 @@ export const stepUntilConvergence = async (state: State) => {
 };
 
 export const step = (state: State, steps: number, evaluate = true) => {
-  log.trace("step");
-  log.trace(state);
+  console.log("step");
+  console.log(state);
 
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   let xs: number[] = state.varyingValues;
 
-  log.trace("===============");
-  log.trace(
-    "step | weight: ",
-    weight,
-    "| EP round: ",
-    optParams.EPround,
-    " | UO round: ",
-    optParams.UOround
-  );
-  log.trace("params: ", optParams);
-  // log.trace("state: ", state);
-  log.trace("fns: ", prettyPrintFns(state));
-  // log.trace("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
-  log.trace(
-    "variables: ",
-    state.varyingPaths.map((p) => JSON.stringify(p))
-  );
+  console.log("===============");
+  console.log("step | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
+  console.log("params: ", optParams);
+  // console.log("state: ", state);
+  console.log("fns: ", prettyPrintFns(state));
+  // console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+  console.log("variables: ", state.varyingPaths.map((p) => JSON.stringify(p)));
 
   switch (optStatus.tag) {
     case "NewIter": {
-      log.warn("step newIter, xs", xs);
+      console.log("step newIter, xs", xs);
 
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       if (true) {
         // Compile objective and gradient
-        log.trace("Compiling objective and gradient");
+        console.log("Compiling objective and gradient");
 
         // `overallEnergy` is a partially applied function, waiting for an input.
         // When applied, it will interpret the energy via lookups on the computational graph
@@ -200,8 +190,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
         const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
         // `energyGraph` is a VarAD that is a handle to the top of the graph
 
-        log.trace("interpreted energy graph", res.energyGraph);
-        log.trace("input vars", xsVars);
+        console.log("interpreted energy graph", res.energyGraph);
+        console.log("input vars", xsVars);
 
         const weightInfo = {
           // TODO: factor out
@@ -252,7 +242,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         // Reuse compiled functions for resample; set other initialization params accordingly
         // The computational graph gets destroyed in resample (just for now, because it can't get serialized)
         // But it's not needed for the optimization
-        log.trace("Reusing compiled objective and gradients");
+        console.log("Reusing compiled objective and gradients");
         const params = state.params;
 
         const newParams: Params = {
@@ -274,7 +264,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
     case "UnconstrainedRunning": {
       // NOTE: use cached varying values
-      log.trace("step step, xs", xs);
+      console.log("step step, xs", xs);
 
       const res = minimize(
         xs,
@@ -309,7 +299,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         optParams.optStatus.tag = "UnconstrainedConverged";
         memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
         optParams.lbfgsInfo = defaultLbfgsParams;
-        log.trace(
+        console.log(
           "Unconstrained converged with energy",
           energyVal,
           "gradient norm",
@@ -318,7 +308,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
       } else {
         optParams.optStatus.tag = "UnconstrainedRunning";
         // Note that lbfgs prams have already been updated
-        log.trace(
+        console.log(
           `Took ${steps} steps. Current energy`,
           energyVal,
           "gradient norm",
@@ -338,7 +328,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
       // Note that lbfgs params have already been reset to default
 
       // TODO. Make a diagram to clarify vocabulary
-      log.trace("step: unconstrained converged", optParams);
+      console.log("step: unconstrained converged", optParams);
 
       // We force EP to run at least two rounds (State 0 -> State 1 -> State 2; the first check is only between States 1 and 2)
       if (
@@ -351,11 +341,11 @@ export const step = (state: State, steps: number, evaluate = true) => {
         )
       ) {
         optParams.optStatus.tag = "EPConverged";
-        log.trace("EP converged with energy", optParams.lastUOenergy);
+        console.log("EP converged with energy", optParams.lastUOenergy);
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
-        log.trace(
+        console.log(
           "step: UO converged but EP did not converge; starting next round"
         );
         optParams.optStatus.tag = "UnconstrainedRunning";
@@ -367,7 +357,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         optParams.currObjective = optParams.objective(optParams.weight);
         optParams.currGradient = optParams.gradient(optParams.weight);
 
-        log.trace(
+        console.log(
           "increased EP weight to",
           optParams.weight,
           "in compiled energy and gradient"
@@ -383,7 +373,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
     case "EPConverged": {
       // do nothing if converged
-      log.trace("step: EP converged");
+      console.log("step: EP converged");
       return state;
     }
   }
@@ -391,8 +381,8 @@ export const step = (state: State, steps: number, evaluate = true) => {
   // return the state with a new set of shapes
   if (evaluate) {
     const varyingValues = xs;
-    // log.trace("evaluating state with varying values", varyingValues);
-    // log.trace("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
+    // console.log("evaluating state with varying values", varyingValues);
+    // console.log("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
 
     newState.translation = insertVaryings(
       state.translation,
@@ -475,10 +465,10 @@ const awLineSearch2 = (
     const tooManySteps = numUpdates > maxSteps;
 
     if (intervalTooSmall && DEBUG_LINE_SEARCH) {
-      log.trace("line search stopping: interval too small");
+      console.log("line search stopping: interval too small");
     }
     if (tooManySteps && DEBUG_LINE_SEARCH) {
-      log.trace("line search stopping: step count exceeded");
+      console.log("line search stopping: step count exceeded");
     }
 
     return intervalTooSmall || tooManySteps;
@@ -497,7 +487,7 @@ const awLineSearch2 = (
   const DEBUG_LINE_SEARCH = false;
 
   if (DEBUG_LINE_SEARCH) {
-    log.trace("line search", xs0, gradfxs0, duf(xs0)(xs0));
+    console.log("line search", xs0, gradfxs0, duf(xs0)(xs0));
   }
 
   // Main loop + update check
@@ -506,7 +496,7 @@ const awLineSearch2 = (
 
     if (needToStop) {
       if (DEBUG_LINE_SEARCH) {
-        log.trace("stopping early: (i, a, b, t) = ", i, a, b, t);
+        console.log("stopping early: (i, a, b, t) = ", i, a, b, t);
       }
       break;
     }
@@ -514,35 +504,35 @@ const awLineSearch2 = (
     const isArmijo = armijo(t);
     const isWolfe = wolfe(t);
     if (DEBUG_LINE_SEARCH) {
-      log.trace("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
+      console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
     }
 
     if (!isArmijo) {
       if (DEBUG_LINE_SEARCH) {
-        log.trace("not armijo");
+        console.log("not armijo");
       }
       b = t;
     } else if (!isWolfe) {
       if (DEBUG_LINE_SEARCH) {
-        log.trace("not wolfe");
+        console.log("not wolfe");
       }
       a = t;
     } else {
       if (DEBUG_LINE_SEARCH) {
-        log.trace("found good interval");
-        log.trace("stopping: (i, a, b, t) = ", i, a, b, t);
+        console.log("found good interval");
+        console.log("stopping: (i, a, b, t) = ", i, a, b, t);
       }
       break;
     }
 
     if (b < Infinity) {
       if (DEBUG_LINE_SEARCH) {
-        log.trace("already found armijo");
+        console.log("already found armijo");
       }
       t = (a + b) / 2.0;
     } else {
       if (DEBUG_LINE_SEARCH) {
-        log.trace("did not find armijo");
+        console.log("did not find armijo");
       }
       t = 2.0 * a;
     }
@@ -564,7 +554,7 @@ const vecList = (xs: any): number[] => {
 
 const printVec = (xs: any) => {
   // Prints a col vector (nx1)
-  log.trace("xs (matrix)", vecList(xs));
+  console.log("xs (matrix)", vecList(xs));
 };
 
 const colVec = (xs: number[]): any => {
@@ -573,7 +563,7 @@ const colVec = (xs: number[]): any => {
   const m = la.zeros(xs.length, 1); // rows x cols
   xs.forEach((e, i) => m.set(e, i, 0));
 
-  // log.trace("original xs", xs);
+  // console.log("original xs", xs);
   // printVec(m);
   return m;
 };
@@ -672,7 +662,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
   // y_0 = grad f(x_1) - grad f(x_0)
 
   if (DEBUG_LBFGS) {
-    log.trace(
+    console.log(
       "Starting lbfgs calculation with xs",
       xs,
       "gradfxs",
@@ -734,7 +724,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const descentDirCheck = -1.0 * dotVec(gradPreconditioned, grad_fx_k);
 
     if (descentDirCheck > 0.0) {
-      log.trace(
+      console.log(
         "L-BFGS did not find a descent direction. Resetting correction vectors.",
         lbfgsInfo
       );
@@ -755,7 +745,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
     // https://github.com/JuliaNLSolvers/Optim.jl/issues/26
     if (DEBUG_LBFGS) {
-      log.trace("Descent direction found.", vecList(gradPreconditioned));
+      console.log("Descent direction found.", vecList(gradPreconditioned));
     }
 
     return {
@@ -770,7 +760,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       },
     };
   } else {
-    log.trace("State:", lbfgsInfo);
+    console.log("State:", lbfgsInfo);
     throw Error("Invalid L-BFGS state");
   }
 };
@@ -789,8 +779,8 @@ const minimize = (
   const numSteps = DEBUG_GRAD_DESCENT ? 2 : 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
-  log.trace("-------------------------------------");
-  log.trace("minimize, num steps", numSteps);
+  console.log("-------------------------------------");
+  console.log("minimize, num steps", numSteps);
 
   // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
@@ -822,7 +812,7 @@ const minimize = (
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       // This is on the original gradient, not the preconditioned one
-      log.trace(
+      console.log(
         "descent converged early, on step",
         i,
         "of",
@@ -839,18 +829,18 @@ const minimize = (
     const normGrad = normList(gradfxs);
 
     if (DEBUG_GRAD_DESCENT) {
-      log.trace("-----");
-      log.trace("i", i);
-      log.trace("num steps per display cycle", numSteps);
-      log.trace("input (xs):", xs);
-      log.trace("energy (f(xs)):", fxs);
-      log.trace("grad (grad(f)(xs)):", gradfxs);
-      log.trace("|grad f(x)|:", normGrad);
-      log.trace("t", t, "use line search:", USE_LINE_SEARCH);
+      console.log("-----");
+      console.log("i", i);
+      console.log("num steps per display cycle", numSteps);
+      console.log("input (xs):", xs);
+      console.log("energy (f(xs)):", fxs);
+      console.log("grad (grad(f)(xs)):", gradfxs);
+      console.log("|grad f(x)|:", normGrad);
+      console.log("t", t, "use line search:", USE_LINE_SEARCH);
     }
 
     if (isNaN(fxs) || isNaN(normGrad)) {
-      log.trace("-----");
+      console.log("-----");
 
       const pathMap = _.zip(varyingPaths, xs, gradfxs) as [
         String,
@@ -861,17 +851,17 @@ const minimize = (
 
       for (let [name, x, dx] of pathMap) {
         if (isNaN(dx)) {
-          log.trace("NaN in varying val's gradient", name, "(current val):", x);
+          console.log("NaN in varying val's gradient", name, "(current val):", x);
         }
       }
 
-      log.trace("i", i);
-      log.trace("num steps per display cycle", numSteps);
-      log.trace("input (xs):", xs);
-      log.trace("energy (f(xs)):", fxs);
-      log.trace("grad (grad(f)(xs)):", gradfxs);
-      log.trace("|grad f(x)|:", normGrad);
-      log.trace("t", t, "use line search:", USE_LINE_SEARCH);
+      console.log("i", i);
+      console.log("num steps per display cycle", numSteps);
+      console.log("input (xs):", xs);
+      console.log("energy (f(xs)):", fxs);
+      console.log("grad (grad(f)(xs)):", gradfxs);
+      console.log("|grad f(x)|:", normGrad);
+      console.log("t", t, "use line search:", USE_LINE_SEARCH);
       throw Error("NaN reached in optimization energy or gradient norm!");
     }
 
@@ -927,12 +917,12 @@ export const evalEnergyOnCustom = (state: State) => {
 
     // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // The energies are in the val field of the results (w/o grads)
-    // log.trace("objEngs", objFns, objEngs);
-    // log.trace("vars", varyingValuesTF);
+    // console.log("objEngs", objFns, objEngs);
+    // console.log("vars", varyingValuesTF);
 
     // TODO make this check more robust to empty lists of objectives/constraints
     if (!objEngs[0] && !constrEngs[0]) {
-      log.trace("WARNING: no objectives and no constraints");
+      console.log("WARNING: no objectives and no constraints");
     }
 
     // This is fixed during the whole optimization
@@ -958,7 +948,7 @@ export const evalEnergyOnCustom = (state: State) => {
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
     overallEng.gradVal = { tag: "Just", contents: 1.0 };
-    log.trace("overall eng from custom AD", overallEng, overallEng.val);
+    console.log("overall eng from custom AD", overallEng, overallEng.val);
 
     return {
       energyGraph: overallEng,

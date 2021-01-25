@@ -275,7 +275,7 @@ export const evalExpr = (
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
 
-  console.log("evalExpr", e);
+  // console.log("evalExpr", e);
 
   switch (e.tag) {
     // COMBAK: Deal with ints
@@ -330,9 +330,6 @@ export const evalExpr = (
         varyingVars,
         optDebugInfo
       );
-
-      console.log("evalBinOp e", binOp, e1, e2);
-      console.log("evalBinOp v", val1, val2);
 
       const res = evalBinOp(
         binOp,
@@ -446,9 +443,6 @@ export const evalExpr = (
 
       const [e1, e2] = e.contents;
 
-      console.log("e1, e2", e1, e2);
-      // debugger;
-
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2 = evalExpr(e2, trans, varyingVars, optDebugInfo);
 
@@ -461,12 +455,9 @@ export const evalExpr = (
 
       // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
       if (v2.contents.tag === "FloatV") {
-        console.log("v2 before", v2);
-        console.log("numOf(v2.contents.contents)", numOf(v2.contents.contents));
-
         // COMBAK: (ISSUE): Indices should not have "Fix"
         if (v2.contents.contents.tag) {
-          console.error("malformed v2", v2);
+          // console.error("malformed v2 (fixed)", v2);
           v2.contents = {
             tag: "IntV",
             contents: Math.floor(((v2.contents.contents) as unknown as IFix).contents)
@@ -477,8 +468,6 @@ export const evalExpr = (
             contents: Math.floor(numOf(v2.contents.contents))
           }
         }
-
-        console.log("v2 after", v2);
       }
 
       if (v2.contents.tag !== "IntV") {
@@ -647,9 +636,9 @@ export const resolvePath = (
     if (path.tag === "AccessPath") {
       // Evaluate it as Vector or Matrix access as appropriate (COMBAK: Deprecate Vector/Matrix access on second pass, and also remove Vector/Matrix conversion to accesspath for derivative debugging computations)
 
-      console.log("path", path);
-      console.log("trans", trans);
-      console.log("varyingMap", varyingMap);
+      // console.log("path", path);
+      // console.log("trans", trans);
+      // console.log("varyingMap", varyingMap);
 
       if (path.indices.length === 1) { // Vector
         const e: Expr = { tag: "VectorAccess", contents: [path.path, numToExpr(path.indices[0])] };
@@ -843,11 +832,7 @@ export const evalBinOp = (
 
     switch (op) {
       case "BPlus": {
-        console.log("in", v1, v2);
-
         res = ops.vadd(v1.contents, v2.contents);
-
-        console.log("out", res);
         break;
       }
 

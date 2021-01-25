@@ -61,8 +61,6 @@ function mapList<T, S>(f: (arg: T) => S, v: IListV<T>): IListV<S> {
 }
 
 function mapVector<T, S>(f: (arg: T) => S, v: IVectorV<T>): IVectorV<S> {
-  console.log("v.contents", v.contents, v.contents.map(f));
-
   return {
     tag: "VectorV",
     contents: v.contents.map(f),
@@ -377,7 +375,7 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
   const trans = initTrans;
   let name, field, prop;
 
-  console.log("insertExpr: path, expr", path, expr);
+  // console.log("insertExpr: path, expr", path, expr);
   // COMBAK: Deal with path aliasing for both field and property paths
 
   switch (path.tag) {

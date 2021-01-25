@@ -1397,10 +1397,14 @@ const findFieldFns = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: 
   if (fexpr.tag === "FExpr") {
     if (fexpr.contents.tag === "OptEval") {
       const e = fexpr.contents.contents;
+      // COMBAK: This throws away the function's Identifier for future debugging
+      // (Also, why doesn't typescript report an error when `e.name` is an Identifier but a StyleOptFn expects a string, using the `as` keyword?)
       if (e.tag === "ObjFn") {
-        return [ToLeft([e.name, e.args]) as Either<StyleOptFn, StyleOptFn>].concat(acc);
+        const res: Either<StyleOptFn, StyleOptFn> = ToLeft([e.name.value, e.args]);
+        return [res].concat(acc);
       } else if (e.tag === "ConstrFn") {
-        return [ToRight([e.name, e.args]) as Either<StyleOptFn, StyleOptFn>].concat(acc);
+        const res: Either<StyleOptFn, StyleOptFn> = ToRight([e.name.value, e.args]);
+        return [res].concat(acc);
       } else {
         return acc;
       }
@@ -1639,7 +1643,6 @@ const genOptProblemAndState = (trans: Translation): State => {
   const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInit);
   const [objFns, constrFns] = [objfnsDecl.concat(objfnsDefault), constrfnsDecl.concat(constrfnsDefault)];
 
-  const initVaryingMap = {};
   const [initialGPIs, transEvaled] = [[], transInit];
   const initVaryingState = lookupNumericPaths(varyingPaths, transEvaled);
   const pendingPaths = findPending(transInit);
@@ -1664,7 +1667,7 @@ const genOptProblemAndState = (trans: Translation): State => {
 
     // `params` are initialized properly by optimization; COMBAK Does this need to be done here?
     params: {
-      optStatus: "NewIter",
+      optStatus: { tag: "NewIter" },
     } as unknown as Params,
 
     rng: undefined as any,
