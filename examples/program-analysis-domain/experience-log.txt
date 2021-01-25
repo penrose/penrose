@@ -10,18 +10,39 @@ Windows Installation steps
 Install Haskell.  Broadly, see https://www.haskell.org/platform/
     Follow these instructions to install Chocolatey: https://chocolatey.org/install
     Within windows powershell, run choco install haskell-dev
+    
+    failed in the later step with "stack install" for penrose dir (see issue)
 
 Interviewing Protocol
 ---------------------
 Q: Should I make it look like my existing crappy diagram that is hobbled by present tools or should I make it look like the diagram I really want?  A: The latter.  And ask the user to draw their ideal diagram, ideally in advance.
+
+Users are probably going to want example programs to read
+
+
     
 Language Requests
 -----------------
  * Use nodes before defining them (mutually-recursive definitions)
  * Decompose lists in style
  * Separate namespaces for types and values, so Node can be a type and a constructor
+ * You should be able to use the same constructor whether or not you bind it to a name
+ * Optional and/or default parameters (very low priority)
+ * Allow primary matches on relations in Style
+ * Allow local variables to refer to Substance objects, e.g. local start = `start`
+ * multi- and single-line comment consistency - e.g. switch to // and /* */
+ * Give me != in matches
+ * Int a subtype of Float (so I can write 2 instead of 2.0)
+ * Allow local references to fields of shape, when defining the shape.  For example:
+    height : 5
+    width : height
+
+Random notes
+------------
+ - .sty extension conflicts with LaTeX tools
+ - shape properties are about centers not corners
+
  
-    
 First diagram - page 17 of program-analysis.pdf
 ===============================================
 
@@ -44,6 +65,10 @@ n3 := MakeNode("\text{goto}~6", [n6])
 
 
 
+Domain (present Penrose)
+========================
+
+
 Substance (present Penrose)
 ===========================
 Node n1, n2, n3, n4, n5, n6
@@ -55,22 +80,97 @@ Label n4 $4: y := 1$
 Label n5 $5: x := 1$
 Label n6 $6: z := y$
 
-Edge(n1, n2, "x -> N")
-Edge(n1, n4, "x -> Z")
-Edge(n2, n3)
-Edge(n3, n6)
-Edge(n4, n5)
-Edge(n5, n6)
+Edge(start, n1, "")
+Edge(n1, n2, "$x \mapsto N$")
+Edge(n1, n4, "$x \mapsto Z$")
+Edge(n2, n3, "")
+Edge(n3, n6, "")
+Edge(n4, n5, "")
+Edge(n5, n6, "")
+
 
 
 Style Design Criteria
 =====================
 Each statement turns into a box with the label
-We may want to extract the line number and put it in a shape immediately below the statement.  This denotes a program point at which we know some analysis information.  Maybe the shape to be a emerald (horizontally stretched stop sign shape).
+We may want to extract the line number and put it in a shape immediately below the statement.  This denotes a program point at which we know some analysis information.  Maybe the shape should be a emerald (horizontally stretched stop sign shape).
 Edges turn into arrows showing flow between statements.  The arrow should ideally come out of the program point shape and go to the top middle of the destination statement.
-
-We left off here: should we label edges
+Edges coming out of conditional nodes should be labeled - in the above example with dataflow information that differs between edges
+We treat the distinguished "start" program point specially (no node, just a program point)
 
 Style (present Penrose)
 =======================
+
+global {
+    global.padding = 20.0
+    global.stroke = 2.0
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+}
+
+Node N {
+    N.shape = Rectangle { 
+        width : N.text.width + global.padding*2.0
+        height : N.text.height + global.padding*2.0
+	    color = Colors.black	 
+    }
+    N.text = Text {
+        center : N.shape.center
+        string : N.label
+        rotation : 0.0
+        color : N.shape.color
+    }
+    N.programPoint = Circle {
+        center : (N.shape.center.x, N.shape.center.y + N.shape.height/2.0 + N.programPoint.r)
+        r : max(N.programPointText.width, N.programPointText.height)/2.0 + global.padding
+	    color : Colors.black	 
+    }
+    N.programPointText = Text {
+        center : N.programPoint.center
+        string : extractNumber(N.label) -- TODO calling native function here
+        rotation : 0.0
+        color : `start`.shape.color
+    }
+}
+
+Node `start` {
+    -- maybe replace with Octagon?  requires path magic
+    override `start`.shape = Circle {
+        r : max(`start`.text.width, `start`.text.height)/2.0 + global.padding
+	    color : Colors.black	 
+    }
+    override `start`.text = Text {
+        center : `start`.shape.center
+        string : "start"
+        rotation : 0.0
+        color : `start`.shape.color
+    }
+}
+
+
+-- TODO LEFT OFF HERE
+Node n1
+where Edge(n1, n2, lab)
+with Node n2 {
+    E.shape = Line { 
+        startX = v1.shape.x
+        startY = v1.shape.y
+        endX = v2.shape.x
+        endY = v2.shape.y
+        color = Colors.black
+        thickness = 3.0
+    }
+
+    E.text = Text {
+        x = midpointX(E.shape) + global.padding
+        y = midpointY(E.shape) + global.padding
+        string = lab
+        rotation = 0.0
+    }
+
+    E.layering1 = v1.shape above E.shape
+    E.layering2 = v2.shape above E.shape
+}
 
