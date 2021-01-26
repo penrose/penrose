@@ -1,5 +1,7 @@
 import * as _ from "lodash";
-import { insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst, isPath } from "engine/EngineUtils";
+import {
+  insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst, isPath, defaultLbfgsParams, initConstraintWeight
+} from "engine/EngineUtils";
 import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
@@ -1665,9 +1667,13 @@ const genOptProblemAndState = (trans: Translation): State => {
     objFns,
     constrFns,
 
-    // `params` are initialized properly by optimization; COMBAK Does this need to be done here?
+    // `params` are initialized properly by optimization; the only thing it needs is the weight (for the objective function synthesis)
     params: {
       optStatus: { tag: "NewIter" },
+      weight: initConstraintWeight,
+      lbfgsInfo: defaultLbfgsParams,
+      UOround: -1,
+      EPround: -1,
     } as unknown as Params,
 
     rng: undefined as any,

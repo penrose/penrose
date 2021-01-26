@@ -1,6 +1,6 @@
 import { valueNumberToAutodiff, tagExprNumberToAutodiff, insertExpr } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
-import { initConstraintWeight } from "engine/Optimizer";
+import { initConstraintWeight } from "engine/EngineUtils";
 import { mapValues, zip } from "lodash";
 import { randFloat, randFloats, safe } from "utils/Util";
 
@@ -329,15 +329,13 @@ const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
   }
   // for property path, use the sampler in shapedef
   else {
-    const [{ contents: subName }, field, prop] = [path.name, path.field, path.property];
+    const [subName, field, prop]: [string, string, string] = [path.name.contents.value, path.field.value, path.property.value];
     const { shapeType } = safe(
-      shapes.find(
-        (s: any) => s.properties.name.contents === `${subName}.${field}`
-      ),
+      shapes.find((s: any) => s.properties.name.contents === `${subName}.${field}`),
       `Cannot find shape ${subName}.${field}`
     );
     const shapeDef = findDef(shapeType);
-    const sampledProp: Value<number> = sampleProperty(prop.value, shapeDef);
+    const sampledProp: Value<number> = sampleProperty(prop, shapeDef);
     return sampledProp;
   }
 };
@@ -360,7 +358,6 @@ export const resampleBest = (state: State, numSamples: number): State => {
   ][];
 
   const translation: Translation = uninitMap.reduce(
-    // (tr: Translation, [p, e]: [Path, TagExpr<number}]) => insertExpr(p, { tag: "OptEval", contents: e } as TagExpr<VarAD>, tr),
     (tr: Translation, [p, e]: [Path, TagExpr<number>]) => insertExpr(p, tagExprNumberToAutodiff(e), tr),
     state.translation
   );

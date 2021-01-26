@@ -656,3 +656,21 @@ export const numToExpr = (n: number): Expr => {
 };
 
 // COMBAK: consolidate prettyprinting code
+
+//#region Constants/helpers for the optimization initialization (used by both the compiler and the optimizer)
+
+// Intial weight for constraints
+export const initConstraintWeight = 10e-3;
+
+const defaultLbfgsMemSize = 17;
+
+export const defaultLbfgsParams: LbfgsParams = {
+  lastState: { tag: "Nothing" },
+  lastGrad: { tag: "Nothing" },
+  s_list: [],
+  y_list: [],
+  numUnconstrSteps: 0,
+  memSize: defaultLbfgsMemSize,
+};
+
+//#endregion
