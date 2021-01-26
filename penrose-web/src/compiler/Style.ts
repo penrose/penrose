@@ -111,6 +111,10 @@ const pathString = (p: Path): string => {
   } else throw Error("pathStr not implemented");
 };
 
+const getShapeName = (s: string, f: Field): string => {
+  return `${s}.${f}`;
+};
+
 //#endregion
 
 //#region Some code for prettyprinting
@@ -1623,6 +1627,63 @@ const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
   return pths.reduce(initShape, tr);
 }
 
+//#region layering
+
+const findLayeringExpr = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Expr[]): Expr[] => {
+  if (fexpr.tag === "FExpr") {
+    if (fexpr.contents.tag === "OptEval") {
+      if (fexpr.contents.contents.tag === "Layering") {
+        const layering: ILayering = fexpr.contents.contents;
+        return [layering as Expr].concat(acc);
+      }
+    }
+  }
+  return acc;
+};
+
+const findLayeringExprs = (tr: Translation): Expr[] => {
+  return foldSubObjs(findLayeringExpr, tr);
+};
+
+const lookupGPIName = (p: Path, tr: Translation): string => {
+  if (p.tag === "FieldPath") {
+    // COMBAK: Deal with path synonyms by looking them up
+    return getShapeName(p.name.contents.value, p.field.value);
+  } else {
+    throw Error("expected path to GPI");
+  }
+};
+
+const findNames = (e: Expr, tr: Translation): [string, string] => {
+  if (e.tag === "Layering") {
+    return [lookupGPIName(e.below, tr), lookupGPIName(e.above, tr)];
+  } else { throw Error("unknown tag"); }
+};
+
+const topSortLayering = (allGPINames: string[], partialOrderings: [string, string][]): MaybeVal<string[]> => {
+  // Compute layering: TODO(@wodeni)
+  return { tag: "Just", contents: [] };
+};
+
+const computeShapeOrdering = (tr: Translation): string[] => {
+  const layeringExprs = findLayeringExprs(tr);
+  // Returns list of layering specifications [below, above]
+  const partialOrderings: [string, string][] = layeringExprs.map((e: Expr): [string, string] => findNames(e, tr));
+
+  const allGPINames: string[] = findShapeNames(tr)
+    .map((e: [string, Field]): string => getShapeName(e[0], e[1]));
+  const shapeOrdering = topSortLayering(allGPINames, partialOrderings);
+
+  // TODO: Errors for labeling
+  if (shapeOrdering.tag === "Nothing") {
+    throw Error("no shape ordering possible from layering");
+  }
+
+  return shapeOrdering.contents;
+};
+
+//#endregion
+
 // ---- MAIN FUNCTION
 
 // COMBAK: Add optConfig as param?
@@ -1648,12 +1709,13 @@ const genOptProblemAndState = (trans: Translation): State => {
   const [initialGPIs, transEvaled] = [[], transInit];
   const initVaryingState = lookupNumericPaths(varyingPaths, transEvaled);
   const pendingPaths = findPending(transInit);
+  const shapeOrdering = computeShapeOrdering(transInit); // deal with layering
 
   const initState = {
     shapes: initialGPIs, // TODO: Why is this empty? I guess someone else initializes these?
     shapePaths,
     shapeProperties,
-    shapeOrdering: [],
+    shapeOrdering,
 
     translation: transInit, // This is the result of the data processing
     originalTranslation: trans, // COMBAK: Make a copy of the inital trans and store it here
@@ -1746,8 +1808,6 @@ export const compileStyle = (stateJSON: any, styJSON: any): Either<StyErrors, St
   const initState = genOptProblemAndState(trans);
 
   console.log("init state from GenOptProblem", initState);
-
-  // Compute layering: TODO(@wodeni)
 
   return {
     tag: "Right",

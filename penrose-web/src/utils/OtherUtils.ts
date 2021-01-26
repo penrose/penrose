@@ -75,7 +75,12 @@ export const prettyPrintPath = (p: Expr): string => {
     const varField = p.field.value;
     const property = p.property.value;
     return [varName, varField, property].join(".");
+  } else if (p.tag === "AccessPath") {
+    const pstr: string = prettyPrintPath(p.path);
+    const indices: number[] = p.indices;
+    return `${pstr}[${indices.toString() as string}]`;
   } else {
+    console.error("unexpected path type in", p);
     return JSON.stringify(p);
   }
 };

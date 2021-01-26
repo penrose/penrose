@@ -16,7 +16,7 @@ import {
   defaultLbfgsParams,
   initConstraintWeight
 } from "engine/EngineUtils";
-import { normList, repeat } from "utils/OtherUtils";
+import { normList, repeat, prettyPrintPath } from "utils/OtherUtils";
 import {
   argValue,
   evalShapes,
@@ -157,8 +157,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
   console.log("params: ", optParams);
   // console.log("state: ", state);
   console.log("fns: ", prettyPrintFns(state));
-  // console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
-  console.log("variables: ", state.varyingPaths.map((p) => JSON.stringify(p)));
+  console.log("variables: ", state.varyingPaths.map((p: Path): string => prettyPrintPath(p)));
 
   switch (optStatus.tag) {
     case "NewIter": {
