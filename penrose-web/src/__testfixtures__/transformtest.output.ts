@@ -17,16 +17,16 @@ export const objDict = {
 
     //autodiff
     testpow5: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-    ops.vdistsq(add(2, ifCond(x, 3, bob(pow(4, 4))))),
+    ops.vdistsq(add(2, (ifCond(x, 3, bob(pow(4, 4)))))),
 
     //autodiff
     testbops1: ([t1, s1]: [string, any]) => add(x, 3),
 
     //autodiff
-    testbops2: (x: number) => sub(add(sub(add(x, 2), 3), div(mul(5, 7), 2)), add(3, 4)),
+    testbops2: (x: VarAD) => sub(add(sub(add(x, 2), 3), div(mul(5, 7), 2)), (add(3, 4))),
 
     //autodiff
-    testbops3: (x: VarAD) => add(add(x, 3), add(2, add(1, 4))),
+    testbops3: (x: VarAD) => add(add(x, 3), (add(2, (add(1, 4))))),
 
     // autodiff
     testsq1: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
@@ -46,7 +46,7 @@ export const objDict = {
 
     //autodiff
     testsq5: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-    ops.vdistsq(add(2, ifCond(x, 3, bob(squared(4))))),
+    ops.vdistsq(add(2, (ifCond(x, 3, bob(squared(4)))))),
 
     //autodiff
     testtyps1: (x : VarAD, y: VarAD) : VarAD => 3,
@@ -61,29 +61,30 @@ export const objDict = {
     testuops3: (x: VarAD) => -7,
 
     //autodiff
-    testuops4: (x: VarAD) => neg(add(3, mul(-5, ifCond(2, x, y)))),
+    testuops4: (x: VarAD) => neg((add(3, mul(-5, (ifCond(2, x, y)))))),
 
     //autodiff
     testtern1: (x: any) => ifCond(x, 3, sub(4, 2)),
 
     //autodiff
-    testtern2: (x: any) => bob.sue(add(x, ifCond(squared(x), ahd(z), 2))),
+    testtern2: (x: any) => bob.sue(add(x, (ifCond(squared(x), ahd(z), 2)))),
 
     //autodiff
-    testtern3: (x: any) => pow(x, ifCond(x, 4, 2)),
+    testtern3: (x: any) => pow(x, ifCond(z, 4, 2)),
 
     // //autodiff       -- these can only be tested when the content of MEMEXP and IDENT are uncommented in toCustomAD.ts, which is ok only for testing
-    // testid1: (x: any) => add(ADNorm, 2),
+    // see testkey for the answers to these
+    // testid1: (x: any) => norm + 2,
 
     // //autodiff
-    // testid2: (norm: any) => abs(3, neg(add(ops.vdistsq(ADNorm), 7)))
+    // testid2: (norm: any) => abs(3, -(ops.vdistsq(norm) + 7))
  
     // //autodiff
-    // testmemexp1: (x: any) => ab,
+    // testmemexp1: (x: any) => a.b,
 
     // //autodiff
-    // testmemexp2: (x: any) => ab(g, e, h, ab(bob)),
+    // testmemexp2: (x: any) => a.b(g, e, h, a.b(bob)),
 
     // //autodiff
-    // testmemexp3: (x: any) => bob(add(2, Math.pow(ab, 2)))
+    // testmemexp3: (x: any) => bob(2 + Math.pow(a.b, 2))
   }

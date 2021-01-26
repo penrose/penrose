@@ -1,89 +1,90 @@
 export const objDict = {
     // autodiff
     testpow1: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-        pow(sub(x, 7), add(3, 2)),
+        Math.pow(x - 7, 3 + 2),
 
     //autodiff
     testpow2: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-        ops.vdistsq(pow(sub(x, 3), 22)),
+        ops.vdistsq(Math.pow(x - 3, 22)),
 
     //autodiff
     testpow3: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-        add(x, pow(4, sub(y, z))),
+        x + Math.pow(4, y - z),
     
     //autodiff
     testpow4: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-    add(x, pow(4, pow(3, 8))),
+    x + Math.pow(4, Math.pow(3, 8)),
 
     //autodiff
     testpow5: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-    ops.vdistsq(add(2, ifCond(x, 3, bob(pow(4, 4))))),
+    ops.vdistsq(2 + (x ? 3 : bob(Math.pow(4, 4)))),
 
     //autodiff
-    testbops1: ([t1, s1]: [string, any]) => add(x, 3),
+    testbops1: ([t1, s1]: [string, any]) => x + 3,
 
     //autodiff
-    testbops2: (x: number) => sub(add(sub(add(x, 2), 3), div(mul(5, 7), 2)), add(3, 4)),
+    testbops2: (x: number) => x + 2 - 3 + 5 * 7 / 2 - (3 + 4),
 
     //autodiff
-    testbops3: (x: VarAD) => add(add(x, 3), add(2, add(1, 4))),
+    testbops3: (x: number) => x + 3 + (2 + (1 + 4)),
 
     // autodiff
     testsq1: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-    squared(sub(x, 7)),
+    Math.pow(x - 7, 2),
 
     //autodiff
     testsq2: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-        ops.vdistsq(squared(sub(x, 3))),
+        ops.vdistsq(Math.pow(x - 3, 2)),
 
     //autodiff
     testsq3: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-        add(x, squared(4)),
+        x + Math.pow(4, 2),
     
     //autodiff
     testsq4: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-    add(x, squared(squared(3))),
+    x + Math.pow(Math.pow(3, 2), 2),
 
     //autodiff
     testsq5: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => 
-    ops.vdistsq(add(2, ifCond(x, 3, bob(squared(4))))),
+    ops.vdistsq(2 + (x ? 3 : bob(Math.pow(4, 2)))),
 
     //autodiff
-    testtyps1: (x : VarAD, y: VarAD) : VarAD => 3,
+    testtyps1: (x : number, y: number) : number => 3,
 
     //autodiff
-    testuops1: (x: VarAD) => neg(x),
+    testuops1: (x: number) => -x,
 
     //autodiff
-    testuops2: (x: VarAD) => neg(ops.vdistsq(3, 2)),
+    testuops2: (x: number) => -ops.vdistsq(3, 2),
 
     //autodiff
-    testuops3: (x: VarAD) => -7,
+    testuops3: (x: number) => -7,
 
     //autodiff
-    testuops4: (x: VarAD) => neg(add(3, mul(-5, ifCond(2, x, y)))),
+    testuops4: (x: number) => -(3 + -5 * (2 ? x : y)),
 
     //autodiff
-    testtern1: (x: any) => ifCond(x, 3, sub(4, 2)),
+    testtern1: (x: any) => x ? 3 : 4-2,
 
     //autodiff
-    testtern2: (x: any) => bob.sue(add(x, ifCond(squared(x), ahd(z), 2))),
+    testtern2: (x: any) => bob.sue(x + (Math.pow(x, 2) ? ahd(z) : 2)),
 
     //autodiff
-    testtern3: (x: any) => pow(x, ifCond(x, 4, 2)),
+    testtern3: (x: any) => Math.pow(x, z ? 4 : 2),
 
     // //autodiff       -- these can only be tested when the content of MEMEXP and IDENT are uncommented in toCustomAD.ts, which is ok only for testing
-    // testid1: (x: any) => add(ADNorm, 2),
+    // see testkey for the answers to these
+    // testid1: (x: any) => norm + 2,
 
     // //autodiff
-    // testid2: (norm: any) => abs(3, neg(add(ops.vdistsq(ADNorm), 7)))
+    // testid2: (norm: any) => abs(3, -(ops.vdistsq(norm) + 7))
  
     // //autodiff
-    // testmemexp1: (x: any) => ab,
+    // testmemexp1: (x: any) => a.b,
 
     // //autodiff
-    // testmemexp2: (x: any) => ab(g, e, h, ab(bob)),
+    // testmemexp2: (x: any) => a.b(g, e, h, a.b(bob)),
 
     // //autodiff
-    // testmemexp3: (x: any) => bob(add(2, Math.pow(ab, 2)))
+    // testmemexp3: (x: any) => bob(2 + Math.pow(a.b, 2))
   }

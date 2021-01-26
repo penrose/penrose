@@ -49,7 +49,7 @@ export const objDict = {
     ops.vdistsq(2 + (x ? 3 : bob(Math.pow(4, 2)))),
 
     //autodiff
-    testtyps1: (x : number) : number => 3,
+    testtyps1: (x : number, y: number) : number => 3,
 
     //autodiff
     testuops1: (x: number) => -x,
