@@ -92,7 +92,7 @@ export default class Watch extends Command {
       console.info(
         chalk.blueBright(`${type}`) +
           chalk.whiteBright(` ${fileName}`) +
-          chalk.blueBright(` updated, recompiling...`)
+          chalk.blueBright(` updated, sending...`)
       );
       this.sendFiles();
     });

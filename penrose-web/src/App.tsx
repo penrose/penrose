@@ -1,4 +1,6 @@
 import { stepState, resample } from "API";
+import { compileDomain } from "compiler/Domain";
+import { compileSubstance } from "compiler/Substance";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
@@ -95,6 +97,18 @@ class App extends React.Component<any, ICanvasState> {
   public async componentDidMount() {
     const fileSocket = FileSocket(socketAddress, (files) => {
       this.setState({ files });
+      const env = compileDomain(files.domain.contents);
+      if (env.isErr()) {
+        console.error(env.error);
+        return;
+      }
+      const sub = compileSubstance(files.substance.contents, env.value);
+      if (sub.isOk()) {
+        console.log(sub.value);
+        return;
+      } else {
+        console.error(sub.error);
+      }
     });
   }
 
