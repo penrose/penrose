@@ -3,6 +3,7 @@
 # Lexer
 @{%
 
+/* eslint-disable */
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'

@@ -20,13 +20,18 @@ import {
   typeNotFound,
 } from "utils/Error";
 
-// TODO: wrap errors in PenroseError type
-export const compileDomain = (prog: string): Result<Env, PenroseError> => {
+export const parseDomain = (prog: string): DomainProg => {
   const parser = new nearley.Parser(
     nearley.Grammar.fromCompiled(domainGrammar)
   );
   const { results } = parser.feed(prog);
-  const ast: DomainProg = results[0];
+  const ast: DomainProg = results[0] as DomainProg;
+  return ast;
+};
+
+// TODO: wrap errors in PenroseError type
+export const compileDomain = (prog: string): Result<Env, PenroseError> => {
+  const ast = parseDomain(prog);
   return checkDomain(ast).match({
     Ok: (env) => ok(env),
     Err: (e) => err({ ...e, errorType: "DomainError" }),
