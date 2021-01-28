@@ -1,10 +1,12 @@
 import * as React from "react";
+import { FileSocketResult } from "./FileSocket";
 
 interface IProps {
   converged: boolean;
   autostep: boolean;
   initial: boolean;
   showInspector: boolean;
+  files: FileSocketResult | null;
 
   toggleInspector(): void;
   downloadPDF(): void;
@@ -29,6 +31,7 @@ class ButtonBar extends React.Component<IProps> {
       resample,
       toggleInspector,
       showInspector,
+      files,
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -63,6 +66,18 @@ class ButtonBar extends React.Component<IProps> {
                 : "#ff9d23",
           }}
         />
+        <div
+          style={{
+            display: "inline-block",
+            marginLeft: "1em",
+            color: "#303030",
+            fontSize: "14px",
+          }}
+        >
+          {files === null
+            ? "no files received from server"
+            : `sub: ${files.substance.fileName} sty: ${files.style.fileName} dsl: ${files.domain.fileName}`}
+        </div>
       </div>
     );
   }
