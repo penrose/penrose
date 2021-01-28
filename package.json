@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "repository": "penrose/penrose",
+  "packages": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "CI=true lerna run test",
+    "new-version": "lerna version --conventional-commits --yes",
+    "diff": "lerna diff"
+  },
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  }
+}

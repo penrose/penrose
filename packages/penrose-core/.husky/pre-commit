@@ -1,7 +1,6 @@
 #!/bin/sh
 . "$(dirname $0)/_/husky.sh"
 
-cd penrose-web 
 npm install
 npm run build-lib
 CI=true npm test

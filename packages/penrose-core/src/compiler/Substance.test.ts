@@ -407,8 +407,8 @@ describe("Real Programs", () => {
   }
 
   subPaths.map(([domainPath, examplePath]) => {
-    const domFile = path.join("../examples/", domainPath);
-    const subFile = path.join("../examples/", examplePath);
+    const domFile = path.join("../../examples/", domainPath);
+    const subFile = path.join("../../examples/", examplePath);
     const domProg = fs.readFileSync(domFile, "utf8");
     const subProg = fs.readFileSync(subFile, "utf8");
     test(examplePath, () => {

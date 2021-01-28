@@ -421,7 +421,7 @@ describe("Real Programs", () => {
   }
 
   styPaths.map((examplePath) => {
-    const file = path.join("../examples/", examplePath);
+    const file = path.join("../../examples/", examplePath);
     const prog = fs.readFileSync(file, "utf8");
     test(examplePath, () => {
       const { results } = parser.feed(prog);

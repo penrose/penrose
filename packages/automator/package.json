@@ -5,7 +5,7 @@
   "main": "index.tsx",
   "scripts": {
     "start": "ts-node ./index.tsx",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"no test specified for automator\" && exit 0"
   },
   "author": "",
   "license": "ISC",

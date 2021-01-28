@@ -208,7 +208,7 @@ describe("Real Programs", () => {
   }
 
   domainPaths.map((examplePath) => {
-    const file = path.join("../examples/", examplePath);
+    const file = path.join("../../examples/", examplePath);
     const prog = fs.readFileSync(file, "utf8");
     test(examplePath, () => {
       const res = compileDomain(prog);

@@ -1,5 +1,5 @@
 {
-  "name": "penrose-web",
+  "name": "penrose-core",
   "version": "1.0.0",
   "main": "build/dist/module.js",
   "module": "build/dist/module.js",
@@ -55,7 +55,6 @@
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
     "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
-    "postinstall": "cd .. && husky install ./penrose-web",
     "install-cli": "cd roger && npm install && npm link"
   },
   "devDependencies": {
