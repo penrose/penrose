@@ -1,7 +1,7 @@
 {
   "name": "roger",
   "description": "💂 The command line for penrose.",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "author": "maxkrieger @maxkrieger",
   "bin": {
     "roger": "./bin/run"
