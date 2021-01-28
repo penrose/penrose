@@ -1,6 +1,5 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
-import { ConnectionStatus } from "Protocol";
 import styled from "styled-components";
 
 const LogLine = styled.li`
@@ -15,14 +14,7 @@ const LogLine = styled.li`
 class LogView extends React.Component<IViewProps> {
   public render() {
     // const { connectionLog } = this.props;
-    const connectionLog: ConnectionStatus[] = [];
-    return (
-      <ul style={{ padding: 0 }}>
-        {connectionLog.map((log: ConnectionStatus | string, k: number) => (
-          <LogLine key={`log-${k}`}>{log}</LogLine>
-        ))}
-      </ul>
-    );
+    return <ul style={{ padding: 0 }}></ul>;
   }
 }
 

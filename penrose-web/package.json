@@ -55,7 +55,8 @@
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
     "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
-    "postinstall": "cd .. && husky install ./penrose-web"
+    "postinstall": "cd .. && husky install ./penrose-web",
+    "install-cli": "cd roger && npm install && npm link"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",

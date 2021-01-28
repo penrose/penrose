@@ -1,25 +1,25 @@
 {
-  "name": "penrose-cli",
-  "description": "CLI for using Penrose",
+  "name": "roger",
+  "description": "💂 The command line for penrose.",
   "version": "0.0.0",
   "author": "maxkrieger @maxkrieger",
   "bin": {
-    "penrose-cli": "./bin/run"
+    "roger": "./bin/run"
   },
   "bugs": "https://github.com/penrose/penrose/issues",
   "dependencies": {
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
-    "@oclif/plugin-help": "^3.2.0",
+    "@oclif/plugin-help": "^3.2.1",
     "chalk": "^4.1.0",
-    "chokidar": "^3.4.3",
+    "chokidar": "^3.5.1",
     "tslib": "^1.14.1",
-    "ws": "^7.3.1"
+    "ws": "^7.4.2"
   },
   "devDependencies": {
-    "@oclif/dev-cli": "^1.22.2",
-    "@types/node": "^10.17.44",
-    "@types/ws": "^7.2.9",
+    "@oclif/dev-cli": "^1.26.0",
+    "@types/node": "^10.17.51",
+    "@types/ws": "^7.4.0",
     "eslint": "^5.16.0",
     "eslint-config-oclif": "^3.1.0",
     "eslint-config-oclif-typescript": "^0.1.0",
@@ -44,7 +44,7 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "penrose-cli",
+    "bin": "roger",
     "plugins": [
       "@oclif/plugin-help"
     ]
