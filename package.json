@@ -10,6 +10,13 @@
     "diff": "lerna diff"
   },
   "devDependencies": {
+    "husky": "^4.3.8",
     "lerna": "^3.22.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
   }
 }

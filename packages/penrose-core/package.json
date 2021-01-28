@@ -4,7 +4,6 @@
   "main": "build/dist/module.js",
   "module": "build/dist/module.js",
   "types": "build/dist/types.js",
-  "private": true,
   "dependencies": {
     "@penrose/linear-algebra": "^1.0.0",
     "@reach/tabs": "^0.9.0",
@@ -77,8 +76,6 @@
     "enzyme-to-json": "^3.4.4",
     "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-jsdoc": "^30.7.3",
-    "husky": "^5.0.0",
-    "lerna": "^3.22.1",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
     "prettier": "^1.19.1",

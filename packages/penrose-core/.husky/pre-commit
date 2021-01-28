@@ -1,9 +1,0 @@
-#!/bin/sh
-. "$(dirname $0)/_/husky.sh"
-
-npm install
-npm run build-lib
-CI=true npm test
-
-# Uncomment the next line for testing hooks
-# exit 1 # Commit will be aborted
