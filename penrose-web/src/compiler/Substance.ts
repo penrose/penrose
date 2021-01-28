@@ -51,7 +51,7 @@ export const compileSubstance = (
   });
 };
 
-type LabelMap = Map<string, Maybe<string>>;
+export type LabelMap = Map<string, Maybe<string>>;
 export interface SubstanceEnv {
   exprEqualities: [SubExpr, SubExpr][];
   predEqualities: [ApplyPredicate, ApplyPredicate][];

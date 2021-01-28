@@ -10,9 +10,10 @@ import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
 import * as Shapes from "shapes/ShapeDef";
 
-import * as stateJSON from "__tests__/orthogonalVectors.json";
-import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
-import { compileStyle } from "compiler/Style"; // COMBAK: Use this import properly
+// COMBAK: Clean this up
+// import * as stateJSON from "__tests__/orthogonalVectors.json";
+// import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
+import { compileStyle } from "compiler/Style";
 
 interface ICanvasProps {
   lock: boolean;
@@ -59,7 +60,7 @@ class Canvas extends React.Component<ICanvasProps> {
    */
   public static processData = async (data: any) => {
     // COMBAK: Clean up this use
-    const res: Either<StyErrors, State> = compileStyle(stateJSON, styJSON);
+    const res: Either<StyErrors, State> = compileStyle();
 
     if (res.tag === "Left") {
       // TODO (error)

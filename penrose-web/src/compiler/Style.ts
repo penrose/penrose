@@ -5,6 +5,15 @@ import {
 import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
 import { numOf, constOf } from "engine/Autodiff";
+import { compileDomain, compileSubstance, checkDomain, checkSubstance, parseSubstance, parseDomain } from "API";
+
+import nearley from "nearley";
+import styleGrammar from "parser/StyleParser";
+import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestPrograms";
+import { SubstanceEnv, LabelMap } from "compiler/Substance";
+import { Result, ok, err, unsafelyUnwrap, } from "utils/Error";
+// unsafelyUnwrapErr, isOk, isErr
+import { Env } from "./Domain";
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -210,7 +219,7 @@ const addMapping = (k: BindingForm, v: StyT, m: SelEnv, p: ProgType): SelEnv => 
 
 // Judgment 3. G; g |- |S_o ok ~> g'
 // `checkDeclPattern`
-const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPattern): SelEnv => {
+const checkDeclPatternAndMakeEnv = (varEnv: Env, selEnv: SelEnv, stmt: DeclPattern): SelEnv => {
 
   const [styType, bVar] = [stmt.type, stmt.id];
   if (bVar.tag === "StyVar") {
@@ -235,12 +244,12 @@ const checkDeclPatternAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, stmt: DeclPa
 
 // Judgment 6. G; g |- [|S_o] ~> g'
 // `checkDeclPatterns` w/o error-checking, just addMapping for StyVars and SubVars
-const checkDeclPatternsAndMakeEnv = (varEnv: VarEnv, selEnv: SelEnv, decls: DeclPattern[]): SelEnv => {
+const checkDeclPatternsAndMakeEnv = (varEnv: Env, selEnv: SelEnv, decls: DeclPattern[]): SelEnv => {
   return decls.reduce((s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p), selEnv);
 };
 
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
-const checkHeader = (varEnv: VarEnv, header: Header): SelEnv => {
+const checkHeader = (varEnv: Env, header: Header): SelEnv => {
   if (header.tag === "Selector") {
     // Judgment 7. G |- Sel ok ~> g
     const sel: Selector = header;
@@ -259,7 +268,7 @@ const checkHeader = (varEnv: VarEnv, header: Header): SelEnv => {
 
 // Returns a sel env for each selector in the Style program, in the same order
 // previously named `checkSels`
-export const checkSelsAndMakeEnv = (varEnv: VarEnv, prog: HeaderBlock[]): SelEnv[] => {
+export const checkSelsAndMakeEnv = (varEnv: Env, prog: HeaderBlock[]): SelEnv[] => {
   const selEnvs: SelEnv[] = prog.map(e => {
     const res = checkHeader(varEnv, e.header);
     // Put selector AST in just for debugging
@@ -301,7 +310,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   return Object.keys(valsSet).length === vals.length;
 };
 
-const couldMatchRels = (typeEnv: VarEnv, rels: RelationPattern[], stmt: SubStmt): boolean => {
+const couldMatchRels = (typeEnv: Env, rels: RelationPattern[], stmt: SubStmt): boolean => {
   // TODO < (this is an optimization)
   return true;
 };
@@ -639,7 +648,7 @@ const predsEq = (p1: ApplyPredicate, p2: ApplyPredicate): boolean => {
   return _.isEqual([p1.name.value, p1.args], [p2.name.value, p2.args]);
 };
 
-const exprsMatchArr = (typeEnv: VarEnv, subE: SubExpr, selE: SubExpr): boolean => {
+const exprsMatchArr = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
   throw Error("FIX SUBSTANCE EQUALITY CHECK TO ACCOUNT FOR ARGS");
   return _.isEqual(subE, selE);
   // COMBAK: Depends on subtype implementation 
@@ -653,7 +662,7 @@ const isIdentifier = (e: any): e is Identifier => {
 
 // New judgment (number?): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
 // We assume the latter expression has already had a substitution applied
-const exprsMatch = (typeEnv: VarEnv, subE: SubExpr, selE: SubExpr): boolean => {
+const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
   // We match value constructor applications if one val ctor is a subtype of another
   // whereas for function applications, we match only if the exprs are equal (for now)
   // This is because a val ctor doesn't "do" anything besides wrap its values
@@ -677,7 +686,7 @@ const exprsMatch = (typeEnv: VarEnv, subE: SubExpr, selE: SubExpr): boolean => {
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if 
-const relMatchesLine = (typeEnv: VarEnv, subEnv: SubEnv, s1: SubStmt, s2: RelationPattern): boolean => {
+const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationPattern): boolean => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") { // rule Bind-Match
     const bvar = s2.id;
     if (s2.id.tag === "StyVar") { // COMBAK: Error
@@ -706,18 +715,18 @@ const relMatchesLine = (typeEnv: VarEnv, subEnv: SubEnv, s1: SubStmt, s2: Relati
 };
 
 // Judgment 13. b |- [S] <| |S_r
-const relMatchesProg = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rel: RelationPattern): boolean => {
+const relMatchesProg = (typeEnv: Env, subEnv: SubEnv, subProg: SubProg, rel: RelationPattern): boolean => {
   return subProg.statements.some(line => relMatchesLine(typeEnv, subEnv, line, rel));
 };
 
 // Judgment 15. b |- [S] <| [|S_r]
-const allRelsMatch = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[]): boolean => {
+const allRelsMatch = (typeEnv: Env, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[]): boolean => {
   return rels.every(rel => relMatchesProg(typeEnv, subEnv, subProg, rel));
 };
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // Folds over [theta]
-const filterRels = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[], substs: Subst[]): Subst[] => {
+const filterRels = (typeEnv: Env, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[], substs: Subst[]): Subst[] => {
   const subProgFiltered: SubProg = {
     ...subProg,
     statements: subProg.statements.filter(line => couldMatchRels(typeEnv, rels, line))
@@ -744,7 +753,7 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
 // Judgment 9. G; theta |- T <| |T
 // Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 // Ported from `matchType`
-const typesMatched = (varEnv: VarEnv, substanceType: TypeConsApp, styleType: StyT): boolean => {
+const typesMatched = (varEnv: Env, substanceType: TypeConsApp, styleType: StyT): boolean => {
   if (substanceType.tag === "TypeConstructor") {
     return substanceType.name.value === styleType.value;
     // TODO/COMBAK: Implement subtype checking
@@ -779,7 +788,7 @@ const matchBvar = (subVar: Identifier, bf: BindingForm): MaybeVal<Subst> => {
 
 // Judgment 12. G; theta |- S <| |S_o
 // TODO: Not sure why Maybe<Subst> doesn't work in the type signature?
-const matchDeclLine = (varEnv: VarEnv, line: SubStmt, decl: DeclPattern): MaybeVal<Subst> => {
+const matchDeclLine = (varEnv: Env, line: SubStmt, decl: DeclPattern): MaybeVal<Subst> => {
   if (line.tag === "Decl") {
     const [subT, subVar] = [line.type, line.name];
     const [styT, bvar] = [decl.type, decl.id];
@@ -795,7 +804,7 @@ const matchDeclLine = (varEnv: VarEnv, line: SubStmt, decl: DeclPattern): MaybeV
 };
 
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
-const matchDecl = (varEnv: VarEnv, subProg: SubProg, initSubsts: Subst[], decl: DeclPattern): Subst[] => {
+const matchDecl = (varEnv: Env, subProg: SubProg, initSubsts: Subst[], decl: DeclPattern): Subst[] => {
   // debugger;
 
   // Judgment 14. G; [theta] |- [S] <| |S_o
@@ -809,14 +818,14 @@ const matchDecl = (varEnv: VarEnv, subProg: SubProg, initSubsts: Subst[], decl: 
 
 // Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 // Folds over [|S_o]
-const matchDecls = (varEnv: VarEnv, subProg: SubProg, decls: DeclPattern[], initSubsts: Subst[]): Subst[] => {
+const matchDecls = (varEnv: Env, subProg: SubProg, decls: DeclPattern[], initSubsts: Subst[]): Subst[] => {
   return decls.reduce((substs, decl) => matchDecl(varEnv, subProg, substs, decl), initSubsts);
 };
 
 // Judgment 19. g; G; b; [theta] |- [S] <| Sel
 // NOTE: this uses little gamma (not in paper) to check substitution validity
 // ported from `find_substs_sel`
-const findSubstsSel = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, [header, selEnv]: [Header, SelEnv]): Subst[] => {
+const findSubstsSel = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, [header, selEnv]: [Header, SelEnv]): Subst[] => {
   if (header.tag === "Selector") {
     const sel = header;
     const decls = sel.head.contents.concat(safeContentsList(sel.with));
@@ -835,7 +844,7 @@ const findSubstsSel = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, [header
 };
 
 // Find a list of substitutions for each selector in the Sty program. (ported from `find_substs_prog`)
-export const findSubstsProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg,
+export const findSubstsProg = (varEnv: Env, subEnv: SubEnv, subProg: SubProg,
   styProg: HeaderBlock[], selEnvs: SelEnv[]): Subst[][] => {
 
   if (selEnvs.length !== styProg.length) { throw Error("expected same # selEnvs as selectors"); }
@@ -1042,7 +1051,7 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyErrors => {
 };
 
 // Judgment 23, contd.
-const translatePair = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, trans: Translation, hb: HeaderBlock, blockNum: number): Either<StyErrors, Translation> => {
+const translatePair = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, trans: Translation, hb: HeaderBlock, blockNum: number): Either<StyErrors, Translation> => {
 
   if (hb.header.tag === "Namespace") {
     const selEnv = initSelEnv();
@@ -1140,7 +1149,7 @@ const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
   return mapTrans(trans, insertLabel);
 };
 
-const translateStyProg = (varEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, styProg: StyProg, labelMap: LabelMap, styVals: number[]): Either<StyErrors, Translation> => {
+const translateStyProg = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, styProg: StyProg, labelMap: LabelMap, styVals: number[]): Either<StyErrors, Translation> => {
   // COMBAK: Deal with styVals
 
   const res = foldM(styProg.blocks, (trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i), initTrans());
@@ -1763,31 +1772,37 @@ const genOptProblemAndState = (trans: Translation): State => {
 
 //#endregion
 
+export const parseStyle = (p: string): StyProg => {
+  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
+
+  const { results } = parser.feed(p);
+  const ast: StyProg = results[0] as StyProg;
+  return ast;
+};
+
+export const loadProgs = (): [Env, SubstanceEnv, SubProg, StyProg] => {
+  // TODO: Replace this with the sugared version...
+  // console.log("progs", domainStr, subStrUnsugared, styStr);
+
+  const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
+  const env0: Env = unsafelyUnwrap(domainProgRes);
+
+  // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
+  const subProg: SubProg = parseSubstance(subStrUnsugared);
+  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(subStrUnsugared, env0);
+
+  const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
+  const styProg: StyProg = parseStyle(styStr);
+
+  const res: [Env, SubstanceEnv, SubProg, StyProg] = [varEnv, subEnv, subProg, styProg];
+  console.log("results from loading programs", res);
+  return res;
+};
+
 // TODO: Improve this type signature
-// export const compileStyle = (env: VarEnv, subAST: SubProg, styAST: StyProg): State => {
-export const compileStyle = (stateJSON: any, styJSON: any): Either<StyErrors, State> => {
-
-  const info = stateJSON.default.contents;
-  console.log("compiling style (stateJSON)", info);
-
-  console.log("compiled style with new parser", styJSON.default);
-
-  // Types from compileTrio
-  const state: State = info[0];
-  // const env: VarEnv = info[1]; // This is redundant with subOut
-  // const styProgInit: StyProg = info[2];
-  const styProgInit: StyProg = styJSON.default;
-  const subOut: SubOut = info[3];
-
-  const subProg: SubProg = subOut[0];
-  const varEnv: VarEnv = subOut[1][0];
-  const subEnv: SubEnv = subOut[1][1];
-  // TODO: Bring back `eqEnv`?
-  const labelMap: LabelMap = subOut[2];
-
-  console.log("subOut", subOut);
-
-  // (Porting from `compileStyle` in `GenOptProblem`)
+export const compileStyle = (): Either<StyErrors, State> => {
+  const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs();
+  const labelMap = subEnv.labels;
 
   // Check selectors; return list of selector environments (`checkSels`)
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);

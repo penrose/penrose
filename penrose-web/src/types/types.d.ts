@@ -1676,6 +1676,3 @@ interface ErrorSource {
 
 type Warning = string;
 //#endregion
-
-// COMBAK: Remove if unused?
-type LabelMap = { [k: string]: string }

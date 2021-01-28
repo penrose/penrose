@@ -81,6 +81,7 @@ describe("Compiler", () => {
     const subEnv: SubEnv = subOut[1][1];
 
     console.log("TODO: Put this test back in");
+    console.log("TODO: Update tests to load new programs");
 
     expect(true).toEqual(true);
 
