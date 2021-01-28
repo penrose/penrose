@@ -1,4 +1,4 @@
-import { valueNumberToAutodiff, insertExpr } from "engine/EngineUtils";
+import { valueNumberToAutodiff, insertExpr, exprToNumber } from "engine/EngineUtils";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
@@ -23,7 +23,6 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
     if (!shape) {
       console.log("shapes", shapes, shapes.map((s: Shape) => s.properties.name.contents));
       throw Error(`shape not found: ${subName}.${field}`);
-      debugger;
     }
 
     return shape.properties[prop];
@@ -41,7 +40,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
         // walk the structure to access all indices
         let res = property.contents;
         for (let i of indices) {
-          res = res[i];
+          res = res[exprToNumber(i)];
         }
         return res;
       } else {

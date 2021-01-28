@@ -40,15 +40,16 @@ data ElementStmt
   | OdStmt Od
   | PdStmt Pd
   | SnStmt Sn -- Statement notation
-  | PreludeDeclStmt Var
-                    T
+  | PreludeDeclStmt Var T
   deriving (Show, Eq, Typeable)
 
 -- | tconstructor
-data Cd = Cd
-  { nameCd  :: String
-  , inputCd :: [(Y, K)]
-  } deriving (Eq, Typeable)
+data Cd =
+  Cd
+    { nameCd  :: String
+    , inputCd :: [(Y, K)]
+    }
+  deriving (Eq, Typeable)
 
 instance Show Cd where
   show (Cd nameCd inputCd) =
@@ -58,12 +59,14 @@ instance Show Cd where
       iString = show inputCd
 
 -- | vconstructor
-data Vd = Vd
-  { nameVd  :: String
-  , varsVd  :: [(Y, K)]
-  , typesVd :: [(Var, T)]
-  , toVd    :: T
-  } deriving (Eq, Typeable)
+data Vd =
+  Vd
+    { nameVd  :: String
+    , varsVd  :: [(Y, K)]
+    , typesVd :: [(Var, T)]
+    , toVd    :: T
+    }
+  deriving (Eq, Typeable)
 
 instance Show Vd where
   show (Vd nameVd varsVd typesVd toVd) =
@@ -78,10 +81,12 @@ instance Show Vd where
       dString = show toVd
 
 -- | Subtype declarations
-data SubtypeDecl = SubtypeDecl
-  { subType   :: T
-  , superType :: T
-  } deriving (Eq, Typeable)
+data SubtypeDecl =
+  SubtypeDecl
+    { subType   :: T
+    , superType :: T
+    }
+  deriving (Eq, Typeable)
 
 instance Show SubtypeDecl where
   show (SubtypeDecl subType superType) = aString ++ "Subtype of" ++ bString
@@ -90,12 +95,14 @@ instance Show SubtypeDecl where
       bString = show superType
 
 -- | predicates
-data Od = Od
-  { nameOd  :: String
-  , varsOd  :: [(Y, K)]
-  , typesOd :: [(Var, T)]
-  , toOd    :: T
-  } deriving (Eq, Typeable)
+data Od =
+  Od
+    { nameOd  :: String
+    , varsOd  :: [(Y, K)]
+    , typesOd :: [(Var, T)]
+    , toOd    :: T
+    }
+  deriving (Eq, Typeable)
 
 instance Show Od where
   show (Od nameOd varsOd typesOd toOd) =
@@ -115,11 +122,13 @@ data Pd
   | Pd2Const Pd2
   deriving (Show, Eq, Typeable)
 
-data Pd1 = Pd1
-  { namePd1  :: String
-  , varsPd1  :: [(Y, K)]
-  , typesPd1 :: [(Var, T)]
-  } deriving (Eq, Typeable)
+data Pd1 =
+  Pd1
+    { namePd1  :: String
+    , varsPd1  :: [(Y, K)]
+    , typesPd1 :: [(Var, T)]
+    }
+  deriving (Eq, Typeable)
 
 instance Show Pd1 where
   show (Pd1 namePd1 varsPd1 typesPd1) =
@@ -131,10 +140,12 @@ instance Show Pd1 where
       bString = show varsPd1
       cString = show typesPd1
 
-data Pd2 = Pd2
-  { namePd2  :: String
-  , propsPd2 :: [(Var, Prop)]
-  } deriving (Eq, Typeable)
+data Pd2 =
+  Pd2
+    { namePd2  :: String
+    , propsPd2 :: [(Var, Prop)]
+    }
+  deriving (Eq, Typeable)
 
 instance Show Pd2 where
   show (Pd2 namePd2 propsPd2) =
@@ -144,10 +155,12 @@ instance Show Pd2 where
       bString = show propsPd2
 
 -- | Statement notation (for syntactic sugar)
-data Sn = Sn
-  { fromSn :: String
-  , toSn   :: String
-  } deriving (Eq, Typeable)
+data Sn =
+  Sn
+    { fromSn :: String
+    , toSn   :: String
+    }
+  deriving (Eq, Typeable)
 
 instance Show Sn where
   show (Sn fromSn toSn) = "(notation: from: " ++ a ++ " to: " ++ b
@@ -320,28 +333,28 @@ check :: ElementProg -> VarEnv
 check p =
   let loadedEnv = loadBuiltInTypes initE
       env = foldl checkElementStmt loadedEnv p
-  in if null (errors env)
-       then env
-       else error $
-            "Element type checking failed with the following problems: \n" ++
-            ppShow (errors env) ++ ppShow env
+   in if null (errors env)
+        then env
+        else error $
+             "Element type checking failed with the following problems: \n" ++
+             ppShow (errors env) ++ ppShow env
   where
     initE =
       VarEnv
-      { typeConstructors = M.empty
-      , valConstructors = M.empty
-      , operators = M.empty
-      , predicates = M.empty
-      , typeVarMap = M.empty
-      , typeValConstructor = M.empty
-      , varMap = M.empty
-      , subTypes = []
-      , stmtNotations = []
-      , typeCtorNames = []
-      , preludes = []
-      , declaredNames = []
-      , errors = ""
-      }
+        { typeConstructors = M.empty
+        , valConstructors = M.empty
+        , operators = M.empty
+        , predicates = M.empty
+        , typeVarMap = M.empty
+        , typeValConstructor = M.empty
+        , varMap = M.empty
+        , subTypes = []
+        , stmtNotations = []
+        , typeCtorNames = []
+        , preludes = []
+        , declaredNames = []
+        , errors = ""
+        }
 
 -- | Load the initial environemt with built in types and predicates
 loadBuiltInTypes :: VarEnv -> VarEnv
@@ -350,8 +363,10 @@ loadBuiltInTypes initEnv = foldl go initEnv builtInTypes
     go env typeCons =
       let typeName = nametc typeCons
           env' = addName typeName initEnv
-      in env'
-         {typeConstructors = M.insert typeName typeCons $ typeConstructors env'}
+       in env'
+            { typeConstructors =
+                M.insert typeName typeCons $ typeConstructors env'
+            }
 
 -- | all the built-in types supported by all Element programs
 builtInTypes :: [TypeConstructor]
@@ -366,15 +381,15 @@ checkElementStmt e (CdStmt c) =
       env1 = foldl checkK e kinds
       tc = TypeConstructor {nametc = nameCd c, kindstc = kinds}
       ef = addName (nameCd c) env1
-  in ef {typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef}
+   in ef {typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef}
 checkElementStmt e (SubtypeDeclStmt s) =
   let env1 = checkDeclaredType e (subType s)
       env2 = checkDeclaredType env1 (superType s)
       env3 = env2 {subTypes = (subType s, superType s) : subTypes env2}
-  in env3
+   in env3
 checkElementStmt e (PreludeDeclStmt (VarConst pvar) ptype) =
   let env = checkT e ptype
-  in env {preludes = ((VarConst pvar), ptype) : preludes env}
+   in env {preludes = ((VarConst pvar), ptype) : preludes env}
 checkElementStmt e (VdStmt v) =
   let kinds = seconds (varsVd v)
       env1 = foldl checkK e kinds
@@ -385,18 +400,18 @@ checkElementStmt e (VdStmt v) =
       env3 = checkT env2 res
       vc =
         ValConstructor
-        { namevc = nameVd v
-        , ylsvc = firsts (varsVd v)
-        , kindsvc = seconds (varsVd v)
-        , nsvc = firsts (typesVd v)
-        , tlsvc = seconds (typesVd v)
-        , tvc = toVd v
-        }
+          { namevc = nameVd v
+          , ylsvc = firsts (varsVd v)
+          , kindsvc = seconds (varsVd v)
+          , nsvc = firsts (typesVd v)
+          , tlsvc = seconds (typesVd v)
+          , tvc = toVd v
+          }
       e1 = addName (nameVd v) env3
       ef = addValConstructor vc e1
-  in if env2 == e || env2 /= e && env3 == e || env3 /= e && e1 == e || e1 /= e
-       then ef {valConstructors = M.insert (nameVd v) vc $ valConstructors ef}
-       else error "Error!" -- Does not suppose to reach here
+   in if env2 == e || env2 /= e && env3 == e || env3 /= e && e1 == e || e1 /= e
+        then ef {valConstructors = M.insert (nameVd v) vc $ valConstructors ef}
+        else error "Error!" -- Does not suppose to reach here
 checkElementStmt e (OdStmt v) =
   let kinds = seconds (varsOd v)
       env1 = foldl checkK e kinds
@@ -407,16 +422,16 @@ checkElementStmt e (OdStmt v) =
       env3 = checkT env2 res
       op =
         Operator
-        { nameop = nameOd v
-        , ylsop = firsts (varsOd v)
-        , kindsop = seconds (varsOd v)
-        , tlsop = seconds (typesOd v)
-        , top = toOd v
-        }
+          { nameop = nameOd v
+          , ylsop = firsts (varsOd v)
+          , kindsop = seconds (varsOd v)
+          , tlsop = seconds (typesOd v)
+          , top = toOd v
+          }
       ef = addName (nameOd v) env3
-  in if env2 == e || env2 /= e && env3 == e || env3 /= e
-       then ef {operators = M.insert (nameOd v) op $ operators ef}
-       else error "Error!" -- Does not suppose to reach here
+   in if env2 == e || env2 /= e && env3 == e || env3 /= e
+        then ef {operators = M.insert (nameOd v) op $ operators ef}
+        else error "Error!" -- Does not suppose to reach here
 checkElementStmt e (PdStmt (Pd1Const v)) =
   let kinds = seconds (varsPd1 v)
       env1 = foldl checkK e kinds
@@ -426,36 +441,36 @@ checkElementStmt e (PdStmt (Pd1Const v)) =
       pd1 =
         Pred1 $
         Prd1
-        { namepred1 = namePd1 v
-        , ylspred1 = firsts (varsPd1 v)
-        , kindspred1 = seconds (varsPd1 v)
-        , tlspred1 = seconds (typesPd1 v)
-        }
+          { namepred1 = namePd1 v
+          , ylspred1 = firsts (varsPd1 v)
+          , kindspred1 = seconds (varsPd1 v)
+          , tlspred1 = seconds (typesPd1 v)
+          }
       ef = addName (namePd1 v) e
-  in if env2 == e || env2 /= e
-       then ef {predicates = M.insert (namePd1 v) pd1 $ predicates ef}
-       else error "Error!" -- Does not suppose to reach here
+   in if env2 == e || env2 /= e
+        then ef {predicates = M.insert (namePd1 v) pd1 $ predicates ef}
+        else error "Error!" -- Does not suppose to reach here
 checkElementStmt e (PdStmt (Pd2Const v)) =
   let pd = Pred2 $ Prd2 {namepred2 = namePd2 v, plspred2 = seconds (propsPd2 v)}
       ef = addName (namePd2 v) e
-  in ef {predicates = M.insert (namePd2 v) pd $ predicates ef}
+   in ef {predicates = M.insert (namePd2 v) pd $ predicates ef}
 checkElementStmt e (SnStmt s) =
   let (from, to, patterns, entities) = T.translatePatterns (fromSn s, toSn s) e
       newSnr =
         StmtNotationRule
-        { fromSnr = from
-        , toSnr = to
-        , patternsSnr = patterns
-        , entitiesSnr = entities
-        }
-  in e {stmtNotations = newSnr : stmtNotations e}
+          { fromSnr = from
+          , toSnr = to
+          , patternsSnr = patterns
+          , entitiesSnr = entities
+          }
+   in e {stmtNotations = newSnr : stmtNotations e}
 
 computeSubTypes :: VarEnv -> VarEnv
 computeSubTypes e =
   let env1 = e {subTypes = transitiveClosure (subTypes e)}
-  in if isClosureNotCyclic (subTypes env1)
-       then env1
-       else env1 {errors = errors env1 ++ "Cyclic Subtyping Relation! \n"}
+   in if isClosureNotCyclic (subTypes env1)
+        then env1
+        else env1 {errors = errors env1 ++ "Cyclic Subtyping Relation! \n"}
 
 -- | 'parseElement' runs the actual parser function: 'elementParser', taking in a
 --   program String, parses it and semantically checks it. It outputs the
@@ -467,7 +482,7 @@ parseElement elementFile elementIn =
     Right prog ->
       let env = check prog
           env1 = computeSubTypes env
-      in Right env1
+       in Right env1
 
 ----------------------------- Test Driver --------------------------------------
 -- | For testing: first uncomment the module definition to make this module the

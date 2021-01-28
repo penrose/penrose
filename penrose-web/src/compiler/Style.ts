@@ -178,11 +178,24 @@ const dummySourceLoc = (): SourceLoc => {
 // COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
 const dummyIdentifier = (name: string): Identifier => {
   return {
+    // COMBAK: Is this ok?
+    nodeType: "dummyNode",
+    children: [],
     type: "value",
     value: name,
-    tag: "dummyIdentifier",
+    tag: "Identifier",
     start: dummySourceLoc(),
     end: dummySourceLoc()
+  }
+};
+
+const dummyASTNode = (o: any): ASTNode => {
+  return {
+    ...o,
+    start: dummySourceLoc(),
+    end: dummySourceLoc(),
+    nodeType: "dummyASTNode", // COMBAK: Is this ok?
+    children: [],
   }
 };
 
@@ -407,10 +420,14 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
     };
   } else if (path.tag === "LocalVar") {
     return {
+      nodeType: "dummyNode",
+      children: [],
       start: dummySourceLoc(),
       end: dummySourceLoc(),
       tag: "FieldPath",
       name: {
+        nodeType: "dummyNode",
+        children: [],
         start: dummySourceLoc(),
         end: dummySourceLoc(),
         tag: "SubVar",
@@ -427,10 +444,14 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
 
     // COMBAK / HACK: Is there some way to get rid of all these dummy values?
     return {
+      nodeType: "dummyNode",
+      children: [],
       start: dummySourceLoc(),
       end: dummySourceLoc(),
       tag: "FieldPath",
       name: {
+        nodeType: "dummyNode", // COMBAK: Is this ok?
+        children: [],
         start: dummySourceLoc(),
         end: dummySourceLoc(),
         tag: "SubVar",
@@ -468,11 +489,6 @@ const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr 
     return {
       ...expr,
       args: expr.args.map((arg: Expr) => substituteBlockExpr(lv, subst, arg))
-    };
-  } else if (expr.tag === "AvoidFn") {
-    return {
-      ...expr,
-      contents: [expr.contents[0], expr.contents[1].map((arg: Expr) => substituteBlockExpr(lv, subst, arg))]
     };
   } else if (expr.tag === "BinOp") {
     return {
@@ -513,7 +529,7 @@ const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr 
       substituteBlockExpr(lv, subst, expr.contents[1]),
       substituteBlockExpr(lv, subst, expr.contents[2])]
     };
-  } else if (expr.tag === "Tuple" || expr.tag === "ThenOp") {
+  } else if (expr.tag === "Tuple") {
     return {
       ...expr,
       contents: [substituteBlockExpr(lv, subst, expr.contents[0]),
@@ -571,37 +587,23 @@ const substituteBlock = ([subst, si]: [Subst, number], [block, bi]: [Block, numb
 
 //#endregion Applying a substitution to a block
 
-const toSubVar = (b: BindingForm): Var => {
-  if (b.tag === "SubVar") {
-    return b.contents.value;
-  } else if (b.tag === "StyVar") {
-    // return b.contents.value;
-    throw Error("there shouldn't be a style variable in a selector expression; should have been substituted out");
-  } else throw Error("unknown tag");
-};
-
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 const toSubExpr = (e: SelExpr): SubExpr => {
   if (e.tag === "SEBind") {
-    return {
-      tag: "VarE",
-      contents: toSubVar(e.contents)
-    };
+    return e.contents.contents;
   } else if (e.tag === "SEFunc") {
     return {
-      tag: "ApplyFunc",
-      contents: {
-        nameFunc: e.name.value,
-        argFunc: e.args.map(toSubExpr)
-      }
+      ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
+      tag: "ApplyFunction",
+      name: e.name,
+      args: e.args.map(toSubExpr)
     };
   } else if (e.tag === "SEValCons") {
     return {
-      tag: "ApplyValCons",
-      contents: {
-        nameFunc: e.name.value,
-        argFunc: e.args.map(toSubExpr)
-      }
+      ...e,
+      tag: "ApplyConstructor",
+      name: e.name,
+      args: e.args.map(toSubExpr)
     };
   } else if (e.tag === "SEFuncOrValCons") {
     throw Error("compiler should have disambiguated func/val cons");
@@ -610,48 +612,43 @@ const toSubExpr = (e: SelExpr): SubExpr => {
 
 const toSubPredArg = (a: PredArg): SubPredArg => {
   if (a.tag === "SEBind") {
-    return {
-      tag: "PE",
-      contents: { // Only vars, no exprs
-        tag: "VarE",
-        contents: a.contents.contents.value
-      }
-    };
+    return a.contents.contents;
   } else if (a.tag === "RelPred") {
-    return {
-      tag: "PP",
-      contents: toSubPred(a)
-    };
+    return toSubPred(a);
   } else throw Error("unknown tag");
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
-const toSubPred = (p: RelPred): SubPredicate => {
+const toSubPred = (p: RelPred): ApplyPredicate => {
   return {
-    predicateName: p.name.value,
-    predicateArgs: p.args.map(toSubPredArg),
-    predicatePos: { // Unused dummy position, since the info is lost anyway
-      sourceName: "undefined",
-      sourceLine: 0,
-      sourceColumn: 0
-    }
-  }
+    ...p,
+    tag: "ApplyPredicate",
+    name: p.name,
+    args: p.args.map(toSubPredArg),
+  };
 };
 
-const varsEq = (v1: Var, v2: Var): boolean => {
-  return v1 === v2; // String comparison
+const varsEq = (v1: Identifier, v2: Identifier): boolean => {
+  return v1.value === v2.value;
 };
 
-const predsEq = (p1: SubPredicate, p2: SubPredicate): boolean => {
+const predsEq = (p1: ApplyPredicate, p2: ApplyPredicate): boolean => {
   // !! COMBAK !!: this equality check is possible because the Substance exprs don't contain location information. But if they do, this has to be rewritten...
   // This equality check removes SourcePos
-  return _.isEqual([p1.predicateName, p1.predicateArgs], [p2.predicateName, p2.predicateArgs]);
+  throw Error("FIX SUBSTANCE EQUALITY CHECK TO ACCOUNT FOR ARGS");
+  return _.isEqual([p1.name.value, p1.args], [p2.name.value, p2.args]);
 };
 
-const exprsMatchArr = (typeEnv: VarEnv, subE: Func, selE: Func): boolean => {
+const exprsMatchArr = (typeEnv: VarEnv, subE: SubExpr, selE: SubExpr): boolean => {
+  throw Error("FIX SUBSTANCE EQUALITY CHECK TO ACCOUNT FOR ARGS");
   return _.isEqual(subE, selE);
   // COMBAK: Depends on subtype implementation 
   // COMBAK: Implement this match WRT subtyping
+};
+
+// COMBAK: Hack because SubExprs don't have variables tagged
+const isIdentifier = (e: any): e is Identifier => {
+  return e.hasOwnProperty('type') && e.hasOwnProperty('value');
 };
 
 // New judgment (number?): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
@@ -665,13 +662,14 @@ const exprsMatch = (typeEnv: VarEnv, subE: SubExpr, selE: SubExpr): boolean => {
   // (e.g. think of the infinite functions from Vector -> Vector)
 
   // rule Match-Expr-Var
-  if (subE.tag === "VarE" && selE.tag === "VarE") {
-    return varsEq(subE.contents, selE.contents);
-  } else if (subE.tag === "ApplyFunc" && selE.tag === "ApplyFunc") { // rule Match-Expr-Fnapp
+  if (isIdentifier(subE) && isIdentifier(selE)) {
+    return varsEq(subE, selE);
+  } else if (subE.tag === "ApplyFunction" && selE.tag === "ApplyFunction") { // rule Match-Expr-Fnapp
     // !! COMBAK !!: this equality check is possible because the Substance exprs don't contain location information. But if they do, this has to be rewritten...
-    return _.isEqual(subE.contents, selE.contents);
-  } else if (subE.tag === "ApplyValCons" && selE.tag === "ApplyValCons") { // rule Match-Expr-Vconsapp
-    return exprsMatchArr(typeEnv, subE.contents, selE.contents);
+    throw Error("FIX SUBSTANCE EQUALITY CHECK");
+    return _.isEqual(subE, selE);
+  } else if (subE.tag === "ApplyConstructor" && selE.tag === "ApplyConstructor") { // rule Match-Expr-Vconsapp
+    return exprsMatchArr(typeEnv, subE, selE);
   } else {
     return false;
   }
@@ -687,17 +685,17 @@ const relMatchesLine = (typeEnv: VarEnv, subEnv: SubEnv, s1: SubStmt, s2: Relati
 
     } else if (s2.id.tag === "SubVar") {
       // B |- E = |E
-      const [subVar, sVar] = [s1.contents[0], s2.id.contents.value];
-      const selExpr = toSubExpr(s2.expr); // TODO ^
-      const subExpr = s1.contents[1];
-      return varsEq(subVar, sVar) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
+      const [subVar, sVar] = [s1.variable, s2.id.contents.value];
+      const selExpr = toSubExpr(s2.expr);
+      const subExpr = s1.expr;
+      return varsEq(subVar, dummyIdentifier(sVar)) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
       // COMBAK: Add this condition when the Substance typechecker is implemented
       // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
     } else throw Error("unknown tag");
 
-  } else if (s1.tag === "ApplyP" && s2.tag === "RelPred") { // rule Pred-Match
-    const [pred, sPred] = [s1.contents, s2];
-    const selPred = toSubPred(sPred); // TODO ^
+  } else if (s1.tag === "ApplyPredicate" && s2.tag === "RelPred") { // rule Pred-Match
+    const [pred, sPred] = [s1, s2];
+    const selPred = toSubPred(sPred);
     return predsEq(pred, selPred);     // TODO < check if this needs to be a deep equality check
     // COMBAK: Add this condition when the Substance typechecker is implemented
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
@@ -709,7 +707,7 @@ const relMatchesLine = (typeEnv: VarEnv, subEnv: SubEnv, s1: SubStmt, s2: Relati
 
 // Judgment 13. b |- [S] <| |S_r
 const relMatchesProg = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rel: RelationPattern): boolean => {
-  return subProg.some(line => relMatchesLine(typeEnv, subEnv, line, rel));
+  return subProg.statements.some(line => relMatchesLine(typeEnv, subEnv, line, rel));
 };
 
 // Judgment 15. b |- [S] <| [|S_r]
@@ -720,7 +718,11 @@ const allRelsMatch = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: R
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // Folds over [theta]
 const filterRels = (typeEnv: VarEnv, subEnv: SubEnv, subProg: SubProg, rels: RelationPattern[], substs: Subst[]): Subst[] => {
-  const subProgFiltered = subProg.filter(line => couldMatchRels(typeEnv, rels, line));
+  const subProgFiltered: SubProg = {
+    ...subProg,
+    statements: subProg.statements.filter(line => couldMatchRels(typeEnv, rels, line))
+  };
+
   return substs.filter(subst => allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels)));
 };
 
@@ -742,9 +744,9 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
 // Judgment 9. G; theta |- T <| |T
 // Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 // Ported from `matchType`
-const typesMatched = (varEnv: VarEnv, substanceType: T, styleType: StyT): boolean => {
-  if (substanceType.tag === "TConstr") {
-    return substanceType.contents.nameCons === styleType.value;
+const typesMatched = (varEnv: VarEnv, substanceType: TypeConsApp, styleType: StyT): boolean => {
+  if (substanceType.tag === "TypeConstructor") {
+    return substanceType.name.value === styleType.value;
     // TODO/COMBAK: Implement subtype checking
     // && isSubtype(substanceType, toSubType(styleType), varEnv);
   }
@@ -755,16 +757,16 @@ const typesMatched = (varEnv: VarEnv, substanceType: T, styleType: StyT): boolea
 };
 
 // Judgment 10. theta |- x <| B
-const matchBvar = (subVar: Var, bf: BindingForm): MaybeVal<Subst> => {
+const matchBvar = (subVar: Identifier, bf: BindingForm): MaybeVal<Subst> => {
   if (bf.tag === "StyVar") {
     const newSubst = {};
-    newSubst[toString(bf)] = subVar; // StyVar matched SubVar
+    newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar 
     return {
       tag: "Just",
       contents: newSubst
     };
   } else if (bf.tag === "SubVar") {
-    if (subVar === bf.contents.value) { // Substance variables matched; comparing string equality
+    if (subVar.value === bf.contents.value) { // Substance variables matched; comparing string equality
       return {
         tag: "Just",
         contents: {}
@@ -779,7 +781,7 @@ const matchBvar = (subVar: Var, bf: BindingForm): MaybeVal<Subst> => {
 // TODO: Not sure why Maybe<Subst> doesn't work in the type signature?
 const matchDeclLine = (varEnv: VarEnv, line: SubStmt, decl: DeclPattern): MaybeVal<Subst> => {
   if (line.tag === "Decl") {
-    const [subT, subVar] = line.contents;
+    const [subT, subVar] = [line.type, line.name];
     const [styT, bvar] = [decl.type, decl.id];
 
     // substitution is only valid if types matched first
@@ -794,8 +796,10 @@ const matchDeclLine = (varEnv: VarEnv, line: SubStmt, decl: DeclPattern): MaybeV
 
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 const matchDecl = (varEnv: VarEnv, subProg: SubProg, initSubsts: Subst[], decl: DeclPattern): Subst[] => {
+  // debugger;
+
   // Judgment 14. G; [theta] |- [S] <| |S_o
-  const newSubsts = subProg.map(line => matchDeclLine(varEnv, line, decl));
+  const newSubsts = subProg.statements.map(line => matchDeclLine(varEnv, line, decl));
   const res = merge(initSubsts, justs(newSubsts)); // TODO inline
   // COMBAK: Inline this
   // console.log("substs to combine:", initSubsts, justs(newSubsts));
@@ -859,7 +863,8 @@ const nameAnonStatement = ([i, b]: [number, Stmt[]], s: Stmt): [number, Stmt[]] 
       type: { tag: "TypeOf", contents: "Nothing" }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar", contents: `\$${ANON_KEYWORD}_${i}`,
-        start: dummySourceLoc(), end: dummySourceLoc() // Unused bc compiler internal
+        start: dummySourceLoc(), end: dummySourceLoc(), // Unused bc compiler internal
+        nodeType: "dummy", children: [],  // Unused bc compiler internal
       },
       value: s.contents
     };
@@ -1201,7 +1206,11 @@ const mkPath = (strs: string[]): Path => {
       tag: "FieldPath",
       start: dummySourceLoc(),
       end: dummySourceLoc(),
+      nodeType: "dummyPath",
+      children: [],
       name: {
+        nodeType: "dummyPath",
+        children: [],
         start: dummySourceLoc(),
         end: dummySourceLoc(),
         tag: "SubVar",
@@ -1217,7 +1226,11 @@ const mkPath = (strs: string[]): Path => {
       tag: "PropertyPath",
       start: dummySourceLoc(),
       end: dummySourceLoc(),
+      nodeType: "dummyPath",
+      children: [],
       name: {
+        nodeType: "dummyPath",
+        children: [],
         start: dummySourceLoc(),
         end: dummySourceLoc(),
         tag: "SubVar",
@@ -1264,11 +1277,9 @@ const findPropertyVarying = (name: string, field: Field, properties: { [k: strin
       const defaultVec2: TagExpr<VarAD> = {
         tag: "OptEval",
         contents: {
-          start: dummySourceLoc(), end: dummySourceLoc(),
+          start: dummySourceLoc(), end: dummySourceLoc(), nodeType: "dummyVec", children: [],
           tag: "Vector",
-          contents: [{ start: dummySourceLoc(), end: dummySourceLoc(), tag: "Vary" }, {
-            start: dummySourceLoc(), end: dummySourceLoc(), tag: "Vary"
-          }]
+          contents: [dummyASTNode({ tag: "Vary" }) as Expr, dummyASTNode({ tag: "Vary" }) as Expr]
         }
       };
       // Return paths for both elements, COMBAK: This hardcodes that unset vectors have 2 elements, need to generalize
@@ -1296,13 +1307,15 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
       const indices: Path[] =
         elems.map((e: Expr, i): [Expr, number] => [e, i])
           .filter((e: [Expr, number]): boolean => isVarying(e[0]))
-          .map(([e, i]) => ({
+          .map(([e, i]: [Expr, number]): IAccessPath => ({
+            nodeType: "dummyAccessPath",
+            children: [],
             start: dummySourceLoc(),
             end: dummySourceLoc(),
             tag: "AccessPath",
             path: p,
-            indices: [i]
-          }));
+            indices: [dummyASTNode({ tag: "Fix", contents: i })]
+          } as IAccessPath));
 
       return indices;
     } else if (res.tag === "Matrix" || res.tag === "List" || res.tag === "Tuple") {

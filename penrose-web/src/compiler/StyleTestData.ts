@@ -1,3 +1,6 @@
+// @ts-nocheck
+// This doesn't need to strictly follow the grammar in types.d.ts
+
 // For linear-algebra-paper-simple.sty and linear-algebra-paper-simple.ast.json
 // The `selEnvs` are in the same order as the selectors in linear-algebra-paper-simple.sty
 

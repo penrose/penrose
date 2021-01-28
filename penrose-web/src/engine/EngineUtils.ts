@@ -326,9 +326,12 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
     throw Error("expected to insert vector elem of type float");
   }
   return {
+    nodeType: "dummyExpr",
+    children: [],
     start: dummySourceLoc(),
     end: dummySourceLoc(),
-    tag: "Fix", contents: e.contents.val
+    tag: "Fix",
+    contents: e.contents.val
     // COMBAK: This apparently held a VarAD before the AFloat grammar change? Is doing ".val" going to break something?
   };
 };
@@ -455,9 +458,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res4: Expr[] = res3.contents;
 
             if (expr.tag === "OptEval") {
-              res4[indices[0]] = expr.contents;
+              res4[exprToNumber(indices[0])] = expr.contents;
             } else if (expr.tag === "Done") {
-              res4[indices[0]] = floatValToExpr(expr.contents);
+              res4[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               throw Error("unexpected pending val");
             }
@@ -472,7 +475,7 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res4: IVarAD[] = res3.contents;
 
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
-              res4[indices[0]] = expr.contents.contents;
+              res4[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
               throw Error("unexpected val");
             }
@@ -500,9 +503,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res3 = res2.contents;
 
             if (expr.tag === "OptEval") {
-              res3[indices[0]] = expr.contents;
+              res3[exprToNumber(indices[0])] = expr.contents;
             } else if (expr.tag === "Done") {
-              res3[indices[0]] = floatValToExpr(expr.contents);
+              res3[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               throw Error("unexpected pending val");
             }
@@ -517,7 +520,7 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res3 = res2.contents;
 
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
-              res3[indices[0]] = expr.contents.contents;
+              res3[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
               throw Error("unexpected val");
             }
@@ -605,7 +608,7 @@ export const findExpr = (
     case "AccessPath": {
       // Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves 
       const res = findExpr(trans, path.path);
-      const i = path.indices[0]; // COMBAK VECTORS: Currently only supports 1D vectors
+      const i = exprToNumber(path.indices[0]); // COMBAK VECTORS: Currently only supports 1D vectors
 
       if (res.tag === "OptEval") {
         const res2: Expr = res.contents;
@@ -648,6 +651,8 @@ export const exprToNumber = (e: Expr): number => {
 
 export const numToExpr = (n: number): Expr => {
   return {
+    nodeType: "dummyExpr",
+    children: [],
     start: dummySourceLoc(),
     end: dummySourceLoc(),
     tag: "Fix",

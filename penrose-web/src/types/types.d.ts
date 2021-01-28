@@ -109,7 +109,7 @@ type Expr =
   | ICompApp
   | IObjFn
   | IConstrFn
-  | IAvoidFn
+  // | IAvoidFn // TODO: unimplemented
   | IBinOp
   | IUOp
   | IList
@@ -121,8 +121,8 @@ type Expr =
   | IListAccess
   | GPIDecl
   | ILayering
-  | IPluginAccess
-  | IThenOp;
+  | IPluginAccess;
+// | IThenOp; // TODO: deprecated transformation exprs
 
 interface IIntLit {
   tag: "IntLit";
@@ -216,17 +216,17 @@ interface IMatrix extends ASTNode {
   contents: Expr[];
 }
 
-interface IVectorAccess {
+interface IVectorAccess extends ASTNode {
   tag: "VectorAccess";
   contents: [Path, Expr];
 }
 
-interface IMatrixAccess {
+interface IMatrixAccess extends ASTNode {
   tag: "MatrixAccess";
   contents: [Path, Expr[]];
 }
 
-interface IListAccess {
+interface IListAccess extends ASTNode {
   tag: "ListAccess";
   contents: [Path, number];
 }
@@ -243,7 +243,7 @@ interface ILayering extends ASTNode {
   above: Path;
 }
 
-interface IPluginAccess {
+interface IPluginAccess extends ASTNode {
   tag: "PluginAccess";
   contents: [string, Expr, Expr];
 }
@@ -292,7 +292,7 @@ interface IPropertyPath extends ASTNode {
 interface IAccessPath extends ASTNode {
   tag: "AccessPath";
   path: Path;
-  indices: number[];
+  indices: Expr[];
 }
 
 // COMBAK: This is named inconsistently since the parser calls it `LocalVar`, should be ILocalVar
@@ -784,7 +784,92 @@ interface IOptDebugInfo {
 
 //#endregion
 
+//#region Domain AST
+
+interface DomainProg extends ASTNode {
+  tag: "DomainProg";
+  statements: DomainStmt[];
+}
+
+type Type = TypeVar | TypeConstructor | Prop;
+interface Arg extends ASTNode {
+  tag: "Arg";
+  variable: Identifier | undefined;
+  type: Type;
+}
+interface NamedArg extends Arg {
+  variable: Identifier;
+}
+interface TypeVar extends ASTNode {
+  tag: "TypeVar";
+  name: Identifier;
+}
+interface TypeConstructor {
+  tag: "TypeConstructor";
+  name: Identifier;
+  args: Type[];
+}
+interface Prop extends ASTNode {
+  tag: "Prop";
+}
+
+type DomainStmt =
+  | TypeDecl
+  | PredicateDecl
+  | FunctionDecl
+  | ConstructorDecl
+  | PreludeDecl
+  | NotationDecl
+  | SubTypeDecl;
+
+interface TypeDecl extends ASTNode {
+  tag: "TypeDecl";
+  name: Identifier;
+  params: TypeVar[];
+}
+
+interface PredicateDecl extends ASTNode {
+  tag: "PredicateDecl";
+  name: Identifier;
+  params: TypeVar[];
+  args: Arg[];
+}
+
+interface FunctionDecl extends ASTNode {
+  tag: "FunctionDecl";
+  name: Identifier;
+  params: TypeVar[];
+  args: Arg[];
+  output: Arg;
+}
+interface ConstructorDecl extends ASTNode {
+  tag: "ConstructorDecl";
+  name: Identifier;
+  params: TypeVar[];
+  args: NamedArg[];
+  output: Arg;
+}
+interface PreludeDecl extends ASTNode {
+  tag: "PreludeDecl";
+  name: Var;
+  type: Type;
+}
+// TODO: check if string type is enough
+interface NotationDecl extends ASTNode {
+  tag: "NotationDecl";
+  from: IStringLit;
+  to: IStringLit;
+}
+interface SubTypeDecl extends ASTNode {
+  tag: "SubTypeDecl";
+  subType: Type;
+  superType: Type;
+}
+
+//#endregion
+
 //#region Style AST
+// TODO: unify type name convention (e.g. stop using `I` for interfaces and drop some of the Haskell ported types)
 
 /** Top level type for Style AST */
 interface StyProg extends ASTNode {
@@ -970,28 +1055,124 @@ interface IListOf {
 
 //#endregion
 
-//#region Substance AST and Domain environment types
-type SubOut = ISubOut;
-
-type SubProg = SubStmt[];
-
-type ISubOut = [SubProg, [VarEnv, SubEnv], LabelMap];
-
-type LabelMap = { [k: string]: string };
-
-type SubEnv = ISubEnv;
-
-interface ISubEnv {
-  exprEqualities: [SubExpr, SubExpr][];
-  predEqualities: [SubPredicate, SubPredicate][];
-  bindings: { [k: Var]: SubExpr };
-  subPreds: SubPredicate[];
+//#region Substance AST
+interface SubProg {
+  tag: "SubProg";
+  statements: SubStmt[];
 }
 
+type SubStmt =
+  | Decl
+  | Bind
+  | EqualExprs
+  | EqualPredicates
+  | ApplyPredicate
+  | LabelDecl
+  | AutoLabel
+  | NoLabel;
+
+interface LabelDecl extends ASTNode {
+  tag: "LabelDecl";
+  variable: Identifier;
+  label: IStringLit;
+}
+interface AutoLabel extends ASTNode {
+  tag: "AutoLabel";
+  option: LabelOption;
+}
+
+type LabelOption = DefaultLabels | LabelIDs;
+
+interface DefaultLabels extends ASTNode {
+  tag: "DefaultLabels";
+}
+interface LabelIDs extends ASTNode {
+  tag: "LabelIDs";
+  variables: Identifier[];
+}
+
+interface NoLabel extends ASTNode {
+  tag: "NoLabel";
+  args: Identifier[];
+}
+
+interface Decl extends ASTNode {
+  tag: "Decl";
+  type: TypeConsApp;
+  name: Identifier;
+}
+
+interface TypeConsApp extends TypeConstructor {
+  args: TypeConsApp[];
+}
+
+interface Bind extends ASTNode {
+  tag: "Bind";
+  variable: Identifier;
+  expr: SubExpr;
+}
+
+type SubExpr =
+  | Identifier
+  | ApplyFunction
+  | ApplyConstructor
+  | Func // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
+  | Deconstructor
+  | IStringLit;
+
+interface Func extends ASTNode {
+  tag: "Func";
+  name: Identifier;
+  args: SubExpr[];
+}
+interface ApplyFunction extends ASTNode {
+  tag: "ApplyFunction";
+  name: Identifier;
+  args: SubExpr[];
+}
+interface ApplyConstructor extends ASTNode {
+  tag: "ApplyConstructor";
+  name: Identifier;
+  args: SubExpr[];
+}
+interface Deconstructor extends ASTNode {
+  tag: "Deconstructor";
+  variable: Identifier;
+  field: Identifier;
+}
+
+interface EqualExprs extends ASTNode {
+  tag: "EqualExprs";
+  left: SubExpr;
+  right: SubExpr;
+}
+
+interface EqualPredicates extends ASTNode {
+  tag: "EqualPredicates";
+  left: ApplyPredicate;
+  right: ApplyPredicate;
+}
+interface ApplyPredicate extends ASTNode {
+  tag: "ApplyPredicate";
+  name: Identifier;
+  args: SubPredArg[];
+}
+
+type SubPredArg = SubExpr | ApplyPredicate; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
+
+//#endregion
+
+//#region Substance context
+type SubOut = ISubOut;
+type ISubOut = [SubProg, [VarEnv, SubEnv], LabelMap];
+type SubEnv = ISubEnv;
+//#endregion
+
+//#region Legacy Domain context types
 type VarEnv = IVarEnv;
 
 interface IVarEnv {
-  typeConstructors: { [k: string]: TypeConstructor };
+  typeConstructors: { [k: string]: ITypeConstructor };
   valConstructors: { [k: string]: ValConstructor };
   operators: { [k: string]: Operator };
   predicates: { [k: string]: PredicateEnv };
@@ -1005,7 +1186,7 @@ interface IVarEnv {
   stmtNotations: StmtNotationRule[];
   errors: string;
 }
-type TypeConstructor = ITypeConstructor;
+// type TypeConstructor = ITypeConstructor;
 
 interface ITypeConstructor {
   nametc: string;
@@ -1067,46 +1248,6 @@ interface ITypeVar {
   typeVarPos: SourcePos;
 }
 
-type SubExpr =
-  | IVarE
-  | IApplyFunc
-  | IApplyValCons
-  | IDeconstructorE
-  | IStringLit;
-
-interface IVarE {
-  tag: "VarE";
-  contents: Var;
-}
-
-interface IApplyFunc {
-  tag: "ApplyFunc";
-  contents: Func;
-}
-
-interface IApplyValCons {
-  tag: "ApplyValCons";
-  contents: Func;
-}
-
-interface IDeconstructorE {
-  tag: "DeconstructorE";
-  contents: Deconstructor;
-}
-
-interface IStringLit {
-  tag: "StringLit";
-  contents: string;
-}
-
-type SubPredicate = ISubPredicate;
-
-interface ISubPredicate {
-  predicateName: string;
-  predicateArgs: SubPredArg[];
-  predicatePos: SourcePos;
-}
-
 type ValConstructor = IValConstructor;
 
 interface IValConstructor {
@@ -1133,13 +1274,6 @@ interface ITypeCtorApp {
   constructorInvokerPos: SourcePos;
 }
 
-type Func = IFunc;
-
-interface IFunc {
-  nameFunc: string;
-  argFunc: SubExpr[];
-}
-
 type Operator = IOperator;
 
 interface IOperator {
@@ -1148,13 +1282,6 @@ interface IOperator {
   kindsop: K[];
   tlsop: T[];
   top: T;
-}
-
-type Deconstructor = IDeconstructor;
-
-interface IDeconstructor {
-  varDeconstructor: Var;
-  fieldDeconstructor: string;
 }
 
 type PredicateEnv = IPred1 | IPred2;
@@ -1169,81 +1296,82 @@ interface IPred2 {
   contents: Predicate2;
 }
 
-type SubPredArg = IPE | IPP;
+// TODO: remove this
+// type SubPredArg = IPE | IPP;
 
-interface IPE {
-  tag: "PE";
-  contents: SubExpr;
-}
+// interface IPE {
+//   tag: "PE";
+//   contents: SubExpr;
+// }
 
-interface IPP {
-  tag: "PP";
-  contents: SubPredicate;
-}
+// interface IPP {
+//   tag: "PP";
+//   contents: SubPredicate;
+// }
 
-type LabelOption = IDefault | IIDs;
+// type LabelOption = IDefault | IIDs;
 
-interface IDefault {
-  tag: "Default";
-}
+// interface IDefault {
+//   tag: "Default";
+// }
 
-interface IIDs {
-  tag: "IDs";
-  contents: Var[];
-}
+// interface IIDs {
+//   tag: "IDs";
+//   contents: Var[];
+// }
 
 
-type Var = string;
+// type Var = string;
 
-type SubStmt =
-  | IDecl
-  | IBind
-  | IEqualE
-  | IEqualQ
-  | IApplyP
-  | ILabelDecl
-  | IAutoLabel
-  | INoLabel;
+// type SubStmt =
+//   | IDecl
+//   | IBind
+//   | IEqualE
+//   | IEqualQ
+//   | IApplyP
+//   | ILabelDecl
+//   | IAutoLabel
+//   | INoLabel;
 
-interface IDecl {
-  tag: "Decl";
-  contents: [T, Var];
-}
+// interface IDecl {
+//   tag: "Decl";
+//   contents: [T, Var];
+// }
 
-interface IBind {
-  tag: "Bind";
-  contents: [Var, SubExpr];
-}
+// interface IBind {
+//   tag: "Bind";
+//   contents: [Var, SubExpr];
+// }
 
-interface IEqualE {
-  tag: "EqualE";
-  contents: [SubExpr, SubExpr];
-}
+// interface IEqualE {
+//   tag: "EqualE";
+//   contents: [SubExpr, SubExpr];
+// }
 
-interface IEqualQ {
-  tag: "EqualQ";
-  contents: [SubPredicate, SubPredicate];
-}
+// interface IEqualQ {
+//   tag: "EqualQ";
+//   contents: [SubPredicate, SubPredicate];
+// }
 
-interface IApplyP {
-  tag: "ApplyP";
-  contents: SubPredicate;
-}
+// interface IApplyP {
+//   tag: "ApplyP";
+//   contents: SubPredicate;
+// }
 
-interface ILabelDecl {
-  tag: "LabelDecl";
-  contents: [Var, string];
-}
+// interface ILabelDecl {
+//   tag: "LabelDecl";
+//   contents: [Var, string];
+// }
 
-interface IAutoLabel {
-  tag: "AutoLabel";
-  contents: LabelOption;
-}
+// interface IAutoLabel {
+//   tag: "AutoLabel";
+//   contents: LabelOption;
+// }
 
-interface INoLabel {
-  tag: "NoLabel";
-  contents: Var[];
-}
+// interface INoLabel {
+//   tag: "NoLabel";
+//   contents: Var[];
+// }
 
 type StmtNotationRule = IStmtNotationRule;
 
@@ -1491,13 +1619,16 @@ interface ASTNode {
   tag: string;
   start: SourceLoc;
   end: SourceLoc;
+  nodeType: string;
+  children: ASTNode[];
+  // TODO: add file source and node type
+  // sourceFile: FilePath
   // Optionally for querying
-  // children: ASTNode[];
-  // file: string;
   // parent: ASTNode; // NOTE: pointer type; don't serialize this
 }
 
 interface Identifier extends ASTNode {
+  tag: "Identifier";
   type: string; // meta-info: either `value` or `type-identifier` according to the parser
   value: string; // the actual value
 }
@@ -1545,3 +1676,6 @@ interface ErrorSource {
 
 type Warning = string;
 //#endregion
+
+// COMBAK: Remove if unused?
+type LabelMap = { [k: string]: string }

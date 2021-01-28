@@ -41,9 +41,11 @@ const dummySourceLoc = (): SourceLoc => {
 
 const dummyIdentifier = (name: string): Identifier => {
   return {
+    nodeType: "dummyNode",
+    children: [],
     type: "value",
     value: name,
-    tag: "dummyIdentifier",
+    tag: "Identifier",
     start: dummySourceLoc(),
     end: dummySourceLoc()
   }
@@ -561,20 +563,24 @@ export const evalExpr = (
 
         if (p.tag === "VectorAccess") {
           p = { // convert to AccessPath schema
+            nodeType: "dummyNode",
+            children: [],
             start: dummySourceLoc(),
             end: dummySourceLoc(),
             tag: "AccessPath",
             // contents: [p.contents[0], [p.contents[1].contents]],
             path: p.contents[0],
-            indices: [exprToNumber(p.contents[1])],
+            indices: [p.contents[1]],
           };
         } else if (p.tag === "MatrixAccess") {
           p = { // convert to AccessPath schema
+            nodeType: "dummyNode",
+            children: [],
             start: dummySourceLoc(),
             end: dummySourceLoc(),
             tag: "AccessPath",
             path: p.contents[0],
-            indices: p.contents[1].map(exprToNumber),
+            indices: p.contents[1],
           };
         }
 
@@ -641,10 +647,18 @@ export const resolvePath = (
       // console.log("varyingMap", varyingMap);
 
       if (path.indices.length === 1) { // Vector
-        const e: Expr = { tag: "VectorAccess", contents: [path.path, numToExpr(path.indices[0])] };
+        const e: Expr = {
+          ...path,
+          tag: "VectorAccess",
+          contents: [path.path, path.indices[0]]
+        };
         return evalExpr(e, trans, varyingMap, optDebugInfo);
       } else if (path.indices.length === 2) { // Matrix
-        const e: Expr = { tag: "MatrixAccess", contents: [path.path, path.indices.map(numToExpr)] };
+        const e: Expr = {
+          ...path,
+          tag: "MatrixAccess",
+          contents: [path.path, path.indices]
+        };
         return evalExpr(e, trans, varyingMap, optDebugInfo);
       } else throw Error("unsupported number of indices in AccessPath");
     }

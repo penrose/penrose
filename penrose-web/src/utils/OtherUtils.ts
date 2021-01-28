@@ -3,6 +3,12 @@ import * as _ from "lodash";
 const RAND_RANGE = 100;
 const TOL = 1e-3;
 
+// HACK: Copied from EngineUtils
+export const exprToNumber = (e: Expr): number => {
+  if (e.tag === "Fix") { return e.contents; }
+  throw Error("expecting expr to be number");
+};
+
 export const normList = (xs: number[]) =>
   Math.sqrt(_.sum(xs.map((e) => e * e)));
 
@@ -77,7 +83,7 @@ export const prettyPrintPath = (p: Expr): string => {
     return [varName, varField, property].join(".");
   } else if (p.tag === "AccessPath") {
     const pstr: string = prettyPrintPath(p.path);
-    const indices: number[] = p.indices;
+    const indices: number[] = p.indices.map(exprToNumber);
     return `${pstr}[${indices.toString() as string}]`;
   } else {
     console.error("unexpected path type in", p);

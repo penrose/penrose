@@ -3,8 +3,10 @@
 # Lexer
 @{%
 
+/* eslint-disable */
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
+import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 
 const styleTypes: string[] =
   [ "scalar"
@@ -29,41 +31,7 @@ const styleTypes: string[] =
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
-  ws: /[ \t]+/,
-  nl: { match: "\n", lineBreaks: true },
-  lte: "<=",
-  lt: "<",
-  gte: ">=",
-  gt: ">",
-  eq: "==",
-  lparen: "(",
-  rparen: ")",
-  comma: ",",
-  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
-  float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
-  comment: /--.*?$/,
-  multiline_comment: { 
-    match: /\/\*(?:[\s\S]*?)\*\//,
-    lineBreaks: true 
-  },
-  dot: ".",
-  brackets: "[]",
-  lbracket: "[",
-  rbracket: "]",
-  lbrace: "{",
-  rbrace: "}",
-  assignment: "=",
-  def: ":=",
-  plus: "+",
-  exp: "^",
-  minus: "-",
-  multiply: "*",
-  divide: "/",
-  modulo: "%",
-  colon: ":",
-  semi: ";",
-  question: "?",
-  tick: "\`",
+  ...basicSymbols,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
@@ -84,112 +52,16 @@ const lexer = moo.compile({
   }
 });
 
-
-function tokenStart(token: any) {
-  return {
-      line: token.line,
-      col: token.col - 1
-  };
-}
-
-// TODO: test multiline range
-const tokenEnd = (token: any) => {
-  const { text } = token;
-  const nl = /\r\n|\r|\n/;
-  var newlines = 0;
-  var textLength = text.length;
-  if (token.lineBreaks) {
-    newlines = text.split(nl).length;
-    textLength = text.substring(text.lastIndexOf(nl) + 1);
-  }
-  return {
-      line: token.line + newlines,
-      col: token.col + textLength - 1
-  };
-}
-
-const rangeOf = (token: any) => {
-  // if it's already converted, assume it's an AST Node
-  if(token.start && token.end) {
-    return { start: token.start, end: token.end };
-  }
-  return {
-    start: tokenStart(token),
-    end: tokenEnd(token)
-  };
-}
-
-const before = (loc1: SourceLoc, loc2: SourceLoc) => {
-  if (loc1.line < loc2.line) { return true; }
-  if (loc1.line > loc2.line) { return false; }
-  return loc1.col < loc2.col;
-}
-
-const minLoc = (...locs: SourceLoc[]) => {
-  if(locs.length === 0) throw new TypeError();
-  let minLoc = locs[0];
-  for(const l of locs)
-    if(before(l, minLoc)) minLoc = l;
-  return minLoc;
-}
-const maxLoc = (...locs: SourceLoc[]) => {
-  if(locs.length === 0) throw new TypeError();
-  let maxLoc = locs[0];
-  for(const l of locs)
-    if(before(maxLoc, l)) maxLoc = l;
-  return maxLoc;
-}
-
-/** Given a list of tokens, find the range of tokens */
-const rangeFrom = (children: ASTNode[]) => {
-  // NOTE: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
-  if(children.length === 0) {
-    // console.trace(`No children ${JSON.stringify(children)}`);
-    return { start: {line: 1, col: 1}, end: {line: 1, col: 1} };
-  }
-
-  if(children.length === 1) {
-    const child = children[0];
-    return { start: child.start, end: child.end };
-  }
-
-  return {
-    start: minLoc(...children.map(n => n.start)),
-    end: maxLoc(...children.map(n => n.end)),
-    // children TODO: decide if want children/parent pointers in the tree
-  }
-}
-
-const rangeBetween = (beginToken: any, endToken: any) => {
-  const [beginRange, endRange] = [beginToken, endToken].map(rangeOf);
-  return {
-    start: beginRange.start,
-    end: endRange.end
-  }
-}
-
-// const walkTree = <T>(root: ASTNode, f: (ASTNode): T) => {
-  // TODO: implement
-// }
-
-const convertTokenId = ([token]: any) => {
-  return {
-    ...rangeOf(token),
-    value: token.text,
-    type: token.type,
-  };
-}
-
-const nth = (n: number) => {
-  return function(d: any[]) {
-      return d[n];
-  };
-}
+const nodeData = (children: ASTNode[]) => ({
+  nodeType: "Style",
+  children
+});
 
 // Node constructors
 
 const declList = (type: StyT, ids: BindingForm[]): DeclPattern[] => {
   const decl = (t: StyT, i: BindingForm): DeclPattern => ({
+    ...nodeData([t, i]),
     ...rangeFrom([t, i]),
     tag: "DeclPattern",
     type: t,
@@ -206,6 +78,7 @@ const selector = (
   namespace?: Namespace
 ): Selector => {
   return {
+    ...nodeData(compact([hd, wth, whr, namespace])),
     ...rangeFrom(compact([hd, wth, whr, namespace])),
     tag: "Selector",
     head: hd,
@@ -216,16 +89,15 @@ const selector = (
 }
 
 const layering = (kw: any, below: Path, above: Path): ILayering => ({
-  // TODO: keyword in range
-  ...rangeFrom([above, below]),
-  tag: 'Layering',
-  above, below
+  ...nodeData([above, below]),
+  ...rangeFrom(kw ? [rangeOf(kw), above, below] : [above, below]),
+  tag: 'Layering', above, below
 })
 
 const binop = (op: BinaryOp, left: Expr, right: Expr): IBinOp => ({
+  ...nodeData([left, right]),
   ...rangeBetween(left, right),
-  tag: 'BinOp',
-  op, left, right
+  tag: 'BinOp', op, left, right
 })
 
 %} # end of lexer
@@ -263,17 +135,20 @@ sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {%
 # TODO: header_blocks gets called twice here. Investigate why
 input -> _ml header_blocks {%
   ([, blocks]): StyProg => ({
+    ...nodeData(blocks),
     ...rangeFrom(blocks),
-    tag: "StyProg",
-    blocks
+    tag: "StyProg", blocks
   })
 %}
 
 header_blocks -> header_block:* {% id %}
 
 header_block -> header block _ml {%
- ([header, block]): HeaderBlock => ({
-   ...rangeFrom([header, block]), tag:"HeaderBlock", header, block })
+  ([header, block]): HeaderBlock => ({
+    ...nodeData([header, block]), 
+    ...rangeFrom([header, block]), 
+    tag:"HeaderBlock", header, block 
+  })
 %}
 
 ################################################################################
@@ -303,6 +178,7 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
   ([d]): DeclPatterns => {
     const contents = flatten(d) as DeclPattern[];
     return {
+      ...nodeData([...contents]), 
       ...rangeFrom(contents),
       tag: "DeclPatterns", contents
     };
@@ -319,6 +195,7 @@ select_where -> "where" __ relation_list _ml {% d => d[2] %}
 
 relation_list -> sepBy1[relation, ";"]  {% 
   ([d]): RelationPatterns => ({
+    ...nodeData([...d]), 
     ...rangeFrom(d),
     tag: "RelationPatterns",
     contents: d
@@ -331,17 +208,17 @@ relation
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
   ([id, , , , expr]): RelBind => ({
+    ...nodeData([id, expr]), 
     ...rangeFrom([id, expr]),
-    tag: "RelBind",
-    id, expr
+    tag: "RelBind", id, expr
   })
 %}
 
 rel_pred -> identifier _ "(" pred_arg_list ")" {% 
   ([name, , , args, ]): RelPred => ({
+    ...nodeData([name, ...args]), 
     ...rangeFrom([name, ...args]),
-    tag: "RelPred",
-    name, args
+    tag: "RelPred", name, args
   }) 
 %}
 
@@ -352,12 +229,18 @@ sel_expr_list
 sel_expr 
   -> identifier _ "(" sel_expr_list ")" {% 
     ([name, , , args, ]): SEFuncOrValCons => ({
+      ...nodeData([name, ...args]), 
       ...rangeFrom([name, ...args]),
       tag: "SEFuncOrValCons",
       name, args
     }) 
   %}
-  |  binding_form {% ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]): SEBind => ({
+      ...nodeData([d]),
+      ...rangeFrom([d]), 
+      tag: "SEBind", contents: d
+    }) 
+  %}
 
 
 pred_arg_list 
@@ -368,7 +251,12 @@ pred_arg_list
 # Can't use sel_expr because sel_expr has valcons or func, which looks exactly the same as predicates. 
 pred_arg 
   -> rel_pred {% id %}
-  |  binding_form {% ([d]): SEBind => ({...rangeFrom([d]), tag: "SEBind", contents: d}) %}
+  |  binding_form {% ([d]): SEBind => ({
+      ...nodeData([d]),
+      ...rangeFrom([d]), 
+      tag: "SEBind", contents: d
+    }) 
+  %}
 
 binding_form 
   -> subVar {% id %} 
@@ -376,21 +264,30 @@ binding_form
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?
 subVar -> "`" identifier "`" {%
-  (d): SubVar => ({ ...rangeFrom([d[1]]), tag: "SubVar", contents: d[1]})
+  ([ltick, contents, rtick]): SubVar => ({ 
+    ...nodeData([contents]), 
+    ...rangeBetween(rangeOf(ltick), rangeOf(rtick)),
+    tag: "SubVar", contents
+  })
 %}
 
 styVar -> identifier {%
-  (d): StyVar => ({ ...rangeFrom(d), tag: "StyVar", contents: d[0]})
+  ([contents]): StyVar => ({ 
+    ...nodeData([contents]),
+    ...rangeOf(contents), 
+    tag: "StyVar", contents
+  })
 %}
 
 # NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
 select_as -> "as" __ namespace {% nth(2) %}
 
 namespace -> styVar _ml {%
-  (d): Namespace => ({
-    ...rangeFrom([d[0]]),
+  ([contents]): Namespace => ({
+    ...nodeData([contents]),
+    ...rangeOf(contents),
     tag: "Namespace",
-    contents: d[0]
+    contents
   })
 %}
 
@@ -400,6 +297,7 @@ namespace -> styVar _ml {%
 
 block -> "{" statements "}" {% 
   ([lbrace, stmts, rbrace]): Block => ({
+    ...nodeData(stmts),
     ...rangeBetween(lbrace, rbrace),
     tag: "Block",
     statements: stmts
@@ -420,28 +318,34 @@ statement
   -> delete {% id %}
   |  override {% id %}
   |  path_assign {% id %}
-  |  anonymous_expr 
-    {% ([d]): IAnonAssign => ({...rangeOf(d), tag: "AnonAssign", contents: d}) %}
+  |  anonymous_expr {% ([contents]): IAnonAssign => 
+    ({
+      ...nodeData([contents]), 
+      ...rangeOf(contents), 
+      tag: "AnonAssign", contents
+    }) 
+  %}
 
 delete -> "delete" __ path {%
-  (d): Delete => {
+  ([kw, , contents]): Delete => {
    return {
-    ...rangeBetween(d[0], d[2]),
-    tag: "Delete",
-    contents: d[2]
+    ...nodeData([contents]),
+    ...rangeBetween(rangeOf(kw), contents),
+    tag: "Delete", contents
   }}
 %}
 
 override -> "override" __ path _ "=" _ assign_expr {%
   ([kw, , path, , , , value]): IOverride => ({ 
+    ...nodeData([path, value]),
     ...rangeBetween(kw, value),
-    tag: "Override",
-    path, value
+    tag: "Override", path, value
   })
 %}
 
 path_assign -> type:? __ path _ "=" _ assign_expr {%
   ([type, , path, , , , value]): PathAssign => ({ 
+    ...nodeData(type ? [type, path, value] : [path, value]),
     ...rangeBetween(type ? type : path, value),
     tag: "PathAssign",
     type, path, value
@@ -449,10 +353,18 @@ path_assign -> type:? __ path _ "=" _ assign_expr {%
 %}
 
 type 
-  -> identifier {% ([d]): StyType => ({...rangeOf(d), tag: 'TypeOf', contents: d}) %}
-  |  identifier "[]" {%
-      ([d]): StyType => ({...rangeOf(d), tag: 'ListOf', contents: d}) 
-     %}
+  -> identifier {% ([contents]): StyType => ({
+      ...nodeData([contents]),
+      ...rangeOf(contents),
+      tag: 'TypeOf', contents
+    }) 
+  %}
+  |  identifier "[]" {% ([contents]): StyType => ({
+      ...nodeData([contents]),
+      ...rangeOf(contents), 
+      tag: 'ListOf', contents
+    }) 
+  %}
 
 path 
   -> entity_path   {% id %}
@@ -465,25 +377,25 @@ entity_path
 
 propertyPath -> binding_form "." identifier "." identifier {%
   ([name, , field, , property]): IPropertyPath => ({
+    ...nodeData([name, field, property]),
     ...rangeFrom([name, field, property]),
-    tag: "PropertyPath",
-    name, field, property
+    tag: "PropertyPath", name, field, property
   })
 %}
 
 fieldPath -> binding_form "." identifier {%
   ([name, , field]): IFieldPath => ({
+    ...nodeData([name, field]),
     ...rangeFrom([name, field]),
-    tag: "FieldPath",
-    name, field
+    tag: "FieldPath", name, field
   })
 %}
 
 localVar -> identifier {%
-  ([d]): LocalVar => ({
-    ...rangeFrom([d]),
-    tag: "LocalVar",
-    contents: d
+  ([contents]): LocalVar => ({
+    ...nodeData([contents]),
+    ...rangeOf(contents),
+    tag: "LocalVar", contents
   })
 %}
 
@@ -493,9 +405,9 @@ access_path -> entity_path _ access_ops {%
   ([path, , indices]): IAccessPath => {
     const lastIndex = last(indices);
     return {
+      ...nodeData([path]), // TODO: model access op as an AST node to solve the range and child node issue
       ...rangeBetween(path, lastIndex),
-      tag: "AccessPath",
-      path, indices
+      tag: "AccessPath", path, indices
     }
   }
 %}
@@ -534,6 +446,7 @@ parenthesized
 unary 
   -> "-" _ parenthesized  {% (d): IUOp => 
     ({
+      ...nodeData([d[2]]),
       ...rangeBetween(d[0], d[2]),
       tag: 'UOp', op: "UMinus", arg: d[2]
     }) 
@@ -573,6 +486,7 @@ expr_literal
 
 list -> "[" _ expr_list _ "]" {% 
   ([lbracket, , exprs, , rbracket]): IList => ({
+    ...nodeData(exprs),
     ...rangeBetween(lbracket, rbracket),
     tag: 'List',
     contents: exprs
@@ -582,6 +496,7 @@ list -> "[" _ expr_list _ "]" {%
 # NOTE: we only allow 2 tuples and enforce this rule during parsing
 tuple -> "{" _ expr _ "," _ expr _ "}" {% 
   ([lbrace, , e1, , , , e2, , rbrace]): ITuple => ({
+    ...nodeData([e1, e2]),
     ...rangeBetween(lbrace, rbrace),
     tag: 'Tuple',
     contents: [e1, e2]
@@ -591,6 +506,7 @@ tuple -> "{" _ expr _ "," _ expr _ "}" {%
 # NOTE: the extra expr makes sure a vector will always have >1 components.
 vector -> "(" _ expr  _ "," expr_list ")" {% 
   ([lparen, , first, , , rest, rparen]): IVector => ({
+    ...nodeData([first, ...rest]),
     ...rangeBetween(lparen, rparen),
     tag: 'Vector',
     contents: [first, ...rest]
@@ -608,6 +524,7 @@ vector -> "(" _ expr  _ "," expr_list ")" {%
 
 bool_lit -> ("true" | "false") {%
   ([[d]]): IBoolLit => ({
+    ...nodeData([]),
     ...rangeOf(d),
     tag: 'BoolLit',
     contents: d.text === 'true' // https://stackoverflow.com/questions/263965/how-can-i-convert-a-string-to-boolean-in-javascript
@@ -616,16 +533,17 @@ bool_lit -> ("true" | "false") {%
 
 string_lit -> %string_literal {%
   ([d]): IStringLit => ({
+    ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',
-    contents: JSON.parse(d.text)
+    contents: d.text
   })
 %}
 
 annotated_float 
-  -> "?" {% ([d]): IVary => ({ ...rangeOf(d), tag: 'Vary' }) %}
+  -> "?" {% ([d]): IVary => ({ ...nodeData([]), ...rangeOf(d), tag: 'Vary' }) %}
   |  %float_literal {% 
-    ([d]): IFix => ({ ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
+    ([d]): IFix => ({ ...nodeData([]), ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
 
 layering
@@ -638,6 +556,7 @@ layer_keyword -> "layer" __ {% nth(0) %}
 
 computation_function -> identifier _ "(" expr_list ")" {% 
   ([name, , , args, rparen]): ICompApp => ({
+    ...nodeData([name, ...args]),
     ...rangeBetween(name, rparen),
     tag: "CompApp",
     name, args
@@ -646,6 +565,7 @@ computation_function -> identifier _ "(" expr_list ")" {%
 
 objective -> "encourage" __ identifier _ "(" expr_list ")" {% 
   ([kw, , name, , , args, rparen]): IObjFn => ({
+    ...nodeData([name, ...args]),
     ...rangeBetween(kw, rparen),
     tag: "ObjFn",
     name, args
@@ -654,6 +574,7 @@ objective -> "encourage" __ identifier _ "(" expr_list ")" {%
 
 constraint -> "ensure" __ identifier _ "(" expr_list ")" {% 
   ([kw, , name, , , args, rparen]): IConstrFn => ({
+    ...nodeData([name, ...args]),
     ...rangeBetween(kw, rparen),
     tag: "ConstrFn",
     name, args
@@ -666,6 +587,7 @@ expr_list
 
 gpi_decl -> identifier _ "{" property_decl_list "}" {%
   ([shapeName, , , properties, rbrace]): GPIDecl => ({
+    ...nodeData([shapeName, ...properties]),
     ...rangeBetween(shapeName, rbrace),
     tag: "GPIDecl",
     shapeName, properties
@@ -685,6 +607,7 @@ property_decl_list
   
 property_decl -> identifier _ ":" _ expr {%
   ([name, , , , value]): PropertyDecl => ({
+    ...nodeData([name, value]),
     ...rangeBetween(name, value),
     tag: "PropertyDecl",
     name, value
@@ -695,6 +618,7 @@ property_decl -> identifier _ ":" _ expr {%
 
 identifier -> %identifier {% 
   ([d]): Identifier => ({
+    ...nodeData([]),
     ...rangeOf(d),
     tag: 'Identifier',
     value: d.text,
