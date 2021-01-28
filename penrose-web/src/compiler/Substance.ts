@@ -28,16 +28,22 @@ import {
   topType,
 } from "./Domain";
 
+export const parseSubstance = (prog: string): SubProg => {
+  const parser = new nearley.Parser(
+    nearley.Grammar.fromCompiled(substanceGrammar)
+  );
+  const { results } = parser.feed(prog);
+  const ast: SubProg = results[0] as SubProg;
+  // TODO: report errors
+  return ast;
+};
+
 // TODO: wrap errors in PenroseError type
 export const compileSubstance = (
   prog: string,
   env: Env
 ): Result<[SubstanceEnv, Env], PenroseError> => {
-  const parser = new nearley.Parser(
-    nearley.Grammar.fromCompiled(substanceGrammar)
-  );
-  const { results } = parser.feed(prog);
-  const ast: SubProg = results[0];
+  const ast = parseSubstance(prog);
   const checkerOk = checkSubstance(ast, env);
   return checkerOk.match({
     Ok: (env) => ok([postprocessSubstance(ast, env), env]),
