@@ -28,29 +28,8 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`roger hello [FILE]`](#roger-hello-file)
 * [`roger help [COMMAND]`](#roger-help-command)
-* [`roger watch [FILE]`](#roger-watch-file)
-
-## `roger hello [FILE]`
-
-describe the command here
-
-```
-USAGE
-  $ roger hello [FILE]
-
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ roger hello
-  hello world from ./src/hello.ts!
-```
-
-_See code: [src/commands/hello.ts](https://github.com/penrose/penrose/blob/v0.0.0/src/commands/hello.ts)_
+* [`roger watch SUBSTANCE STYLE DOMAIN`](#roger-watch-substance-style-domain)
 
 ## `roger help [COMMAND]`
 
@@ -69,18 +48,17 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.1/src/commands/help.ts)_
 
-## `roger watch [FILE]`
+## `roger watch SUBSTANCE STYLE DOMAIN`
 
-describe the command here
+watches files for changes
 
 ```
 USAGE
-  $ roger watch [FILE]
+  $ roger watch SUBSTANCE STYLE DOMAIN
 
 OPTIONS
-  -f, --force
   -h, --help       show CLI help
-  -n, --name=name  name to print
+  -p, --port=port  [default: 9160] websocket port to serve to frontend
 ```
 
 _See code: [src/commands/watch.ts](https://github.com/penrose/penrose/blob/v0.0.0/src/commands/watch.ts)_

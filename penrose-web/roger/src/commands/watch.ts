@@ -69,7 +69,7 @@ export default class Watch extends Command {
       const read = await fsp.readFile(fileName, "utf8");
       return read;
     } catch (err) {
-      console.error(`Could not open ${fileName}: ${err}`);
+      console.error(`❌ Could not open ${fileName}: ${err}`);
       this.exit(1);
     }
   };
@@ -83,13 +83,14 @@ export default class Watch extends Command {
     });
     this.currentFilenames[type] = fileName;
     watcher.on("error", (err: Error) => {
-      console.error(`Could not open ${fileName} ${type}: ${err}`);
+      console.error(`❌ Could not open ${fileName} ${type}: ${err}`);
       this.exit(1);
     });
     watcher.on("change", async () => {
       const str = await this.readFile(fileName);
       this.current[type] = str;
       console.info(
+        `✅`,
         chalk.blueBright(`${type}`) +
           chalk.whiteBright(` ${fileName}`) +
           chalk.blueBright(` updated, sending...`)
@@ -103,7 +104,7 @@ export default class Watch extends Command {
   async run() {
     const { args, flags } = this.parse(Watch);
 
-    console.info(chalk.blue(`starting on port ${flags.port}...`));
+    console.info(chalk.blue(`💂 starting on port ${flags.port}...`));
 
     await this.watchFile(args.substance, "substance");
     await this.watchFile(args.style, "style");

@@ -11,3 +11,9 @@ We use [nearley.js](https://nearley.js.org/), a parser generator library, for pa
 ## Exposing new parts of the module
 
 Export any new module parts by editing `src/module.tsx` and `index.d.ts`.
+
+## 💂 Roger
+
+To regenerate the README, run in `roger/`:
+
+`npx oclif-dev readme`
