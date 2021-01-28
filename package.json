@@ -1,5 +1,4 @@
 {
-  "private": true,
   "repository": "penrose/penrose",
   "packages": [
     "packages/*"
@@ -15,7 +14,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lerna run test"
+      "pre-commit": "npm test"
     }
   }
 }
