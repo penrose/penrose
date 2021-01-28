@@ -54,7 +54,7 @@
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
     "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
-    "install-cli": "cd roger && npm install && npm link"
+    "install-cli": "cd ../roger && npm install && npm link"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
