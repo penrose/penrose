@@ -60,13 +60,13 @@ jobs:
           command: npm run coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
           working_directory: ~/penrose/packages/penrose-core
           environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
+            JEST_JUNIT_OUTPUT_DIR: ~/penrose/packages/penrose-core/reports/junit/
       - store_test_results:
-          path: ./reports/junit/
+          path: ~/penrose/packages/penrose-core/reports/junit/
       - store_artifacts:
-          path: ./reports/junit
+          path: ~/penrose/packages/penrose-core/reports/junit/
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: coverage
+          path: ~/penrose/packages/penrose-core/coverage
       # - store_artifacts:
       #     path: ~/penrose/penrose-web/build
       #     destination: penrose-web-built
