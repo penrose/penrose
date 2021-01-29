@@ -70,17 +70,8 @@ workflows:
           filters:
             branches:
               only: master
-      - build_frontend:
-          filters:
-            branches:
-              only: master
       - build:
           filters:
             branches:
               only: master
-      - headless_test:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
+
