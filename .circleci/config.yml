@@ -55,6 +55,8 @@ jobs:
           name: Test
           command: npm test
           working_directory: ~/penrose/
+      - store_test_results:
+          path: test-results
       # - store_artifacts:
       #     path: ~/penrose/penrose-web/build
       #     destination: penrose-web-built
