@@ -200,7 +200,6 @@ export const evalShape = (
       } else if (prop.tag === "Pending") {
         // Pending expressions are just converted because they get converted back to numbers later
         const res = valueAutodiffToNumber(prop.contents);
-        // debugger;
         return res;
       } else {
         throw Error("unknown tag");
@@ -458,17 +457,10 @@ export const evalExpr = (
       // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
       if (v2.contents.tag === "FloatV") {
         // COMBAK: (ISSUE): Indices should not have "Fix"
-        if (v2.contents.contents.tag) {
-          // console.error("malformed v2 (fixed)", v2);
-          v2.contents = {
-            tag: "IntV",
-            contents: Math.floor(((v2.contents.contents) as unknown as IFix).contents)
-          }
-        } else {
-          v2.contents = {
-            tag: "IntV",
-            contents: Math.floor(numOf(v2.contents.contents))
-          }
+        const iObj: IVarAD = v2.contents.contents;
+        v2.contents = {
+          tag: "IntV",
+          contents: Math.floor(numOf(iObj))
         }
       }
 
@@ -476,7 +468,7 @@ export const evalExpr = (
         throw Error("expected int");
       }
 
-      const i = v2.contents.contents as number;
+      const i: number = v2.contents.contents;
 
       // LList access (since any expr with brackets is parsed as a vector access
       if (v1.contents.tag === "LListV") {
@@ -647,6 +639,13 @@ export const resolvePath = (
       // console.log("varyingMap", varyingMap);
 
       if (path.indices.length === 1) { // Vector
+
+        // if (path.path.tag === "FieldPath") {
+        //   if (path.path.field.value === "markerLine") {
+        //     debugger;
+        //   }
+        // }
+
         const e: Expr = {
           ...path,
           tag: "VectorAccess",

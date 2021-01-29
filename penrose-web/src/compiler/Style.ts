@@ -637,27 +637,50 @@ const toSubPred = (p: RelPred): ApplyPredicate => {
   };
 };
 
-const varsEq = (v1: Identifier, v2: Identifier): boolean => {
+const subVarsEq = (v1: Identifier, v2: Identifier): boolean => {
   return v1.value === v2.value;
 };
 
-const predsEq = (p1: ApplyPredicate, p2: ApplyPredicate): boolean => {
-  // !! COMBAK !!: this equality check is possible because the Substance exprs don't contain location information. But if they do, this has to be rewritten...
-  // This equality check removes SourcePos
-  throw Error("FIX SUBSTANCE EQUALITY CHECK TO ACCOUNT FOR ARGS");
-  return _.isEqual([p1.name.value, p1.args], [p2.name.value, p2.args]);
+const argsEq = (a1: SubPredArg, a2: SubPredArg): boolean => {
+  if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
+    return subFnsEq(a1, a2);
+  } else if (a1.tag === a2.tag) { // both are SubExpr, which are not explicitly tagged
+    return subExprsEq(a1 as SubExpr, a2 as SubExpr);
+  } else return false; // they are different types
+};
+
+const subFnsEq = (p1: any, p2: any): boolean => {
+  if (!p1.hasOwnProperty('name') || !p1.hasOwnProperty('args') || !p2.hasOwnProperty('name') || !p2.hasOwnProperty('args')) {
+    throw Error("expected substance type with name and args properties");
+  }
+
+  if (p1.args.length !== p2.args.length) { return false; }
+  // Can use `as` because now we know their lengths are equal
+  const allArgsEq = _.zip(p1.args, p2.args).every(([a1, a2]) => argsEq(a1 as SubPredArg, a2 as SubPredArg));
+  return p1.name.value === p2.name.value && allArgsEq;
+};
+
+const subExprsEq = (e1: SubExpr, e2: SubExpr): boolean => {
+  // ts doesn't seem to work well with the more generic way of checking this
+  if (e1.tag === "Identifier" && e2.tag === "Identifier") {
+    return e1.value === e2.value;
+  } else if (e1.tag === "ApplyFunction" && e2.tag === "ApplyFunction"
+    || e1.tag === "ApplyConstructor" && e2.tag === "ApplyConstructor"
+    || e1.tag === "Func" && e2.tag === "Func") {
+    return subFnsEq(e1, e2);
+  } else if (e1.tag === "Deconstructor" && e2.tag === "Deconstructor") {
+    return e1.variable.value === e2.variable.value
+      && e1.field.value === e2.field.value;
+  } else if (e1.tag === "StringLit" && e2.tag === "StringLit") {
+    return e1.contents === e2.contents;
+  }
+
+  return false;
 };
 
 const exprsMatchArr = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
-  throw Error("FIX SUBSTANCE EQUALITY CHECK TO ACCOUNT FOR ARGS");
-  return _.isEqual(subE, selE);
-  // COMBAK: Depends on subtype implementation 
-  // COMBAK: Implement this match WRT subtyping
-};
-
-// COMBAK: Hack because SubExprs don't have variables tagged
-const isIdentifier = (e: any): e is Identifier => {
-  return e.hasOwnProperty('type') && e.hasOwnProperty('value');
+  // COMBAK: Depends on subtype implementation. Implement this match WRT subtyping
+  return subExprsEq(subE, selE);
 };
 
 // New judgment (number?): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
@@ -671,12 +694,10 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
   // (e.g. think of the infinite functions from Vector -> Vector)
 
   // rule Match-Expr-Var
-  if (isIdentifier(subE) && isIdentifier(selE)) {
-    return varsEq(subE, selE);
+  if (subE.tag === "Identifier" && selE.tag === "Identifier") {
+    return subVarsEq(subE, selE);
   } else if (subE.tag === "ApplyFunction" && selE.tag === "ApplyFunction") { // rule Match-Expr-Fnapp
-    // !! COMBAK !!: this equality check is possible because the Substance exprs don't contain location information. But if they do, this has to be rewritten...
-    throw Error("FIX SUBSTANCE EQUALITY CHECK");
-    return _.isEqual(subE, selE);
+    return subExprsEq(subE, selE);
   } else if (subE.tag === "ApplyConstructor" && selE.tag === "ApplyConstructor") { // rule Match-Expr-Vconsapp
     return exprsMatchArr(typeEnv, subE, selE);
   } else {
@@ -697,7 +718,7 @@ const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationP
       const [subVar, sVar] = [s1.variable, s2.id.contents.value];
       const selExpr = toSubExpr(s2.expr);
       const subExpr = s1.expr;
-      return varsEq(subVar, dummyIdentifier(sVar)) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
+      return subVarsEq(subVar, dummyIdentifier(sVar)) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
       // COMBAK: Add this condition when the Substance typechecker is implemented
       // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
     } else throw Error("unknown tag");
@@ -705,7 +726,7 @@ const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationP
   } else if (s1.tag === "ApplyPredicate" && s2.tag === "RelPred") { // rule Pred-Match
     const [pred, sPred] = [s1, s2];
     const selPred = toSubPred(sPred);
-    return predsEq(pred, selPred);     // TODO < check if this needs to be a deep equality check
+    return subFnsEq(pred, selPred);     // TODO < check if this needs to be a deep equality check
     // COMBAK: Add this condition when the Substance typechecker is implemented
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
 
