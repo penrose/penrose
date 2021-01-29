@@ -10,10 +10,10 @@ import { compileDomain, compileSubstance, checkDomain, checkSubstance, parseSubs
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
 import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestPrograms";
-import { SubstanceEnv, LabelMap } from "compiler/Substance";
-import { Result, ok, err, unsafelyUnwrap, } from "utils/Error";
-// unsafelyUnwrapErr, isOk, isErr
-import { Env } from "./Domain";
+import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr } from "compiler/Substance";
+import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
+
+import { Env, isDeclaredSubtype } from "./Domain";
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -227,12 +227,16 @@ const checkDeclPatternAndMakeEnv = (varEnv: Env, selEnv: SelEnv, stmt: DeclPatte
     // NOTE: this does not aggregate *all* possible errors. May just return first error.
     // y \not\in dom(g)
 
+    // TODO <: Substance checking
+
     // TODO(errors)
 
     return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
   } else if (bVar.tag === "SubVar") {
     // rule Decl-Sub-Context
     // x \not\in dom(g)
+
+    // TODO <: Substance checking
 
     // TODO(errors)
     // TODO: Check subtypes
@@ -248,6 +252,105 @@ const checkDeclPatternsAndMakeEnv = (varEnv: Env, selEnv: SelEnv, decls: DeclPat
   return decls.reduce((s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p), selEnv);
 };
 
+// TODO: Test this function
+// Judgment 4. G |- |S_r ok
+const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
+  // rule Bind-Context
+  if (rel.tag === "RelBind") {
+    // TODO: use checkSubStmt here (and in paper)?
+    // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
+    // G |- B : T1
+    const res1 = checkVar(rel.id.contents, varEnv);
+
+    // TODO (error)
+    if (isErr(res1)) {
+      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
+      return ["substance typecheck error in B"];
+    }
+
+    const [vtype, env1] = unsafelyUnwrap(res1);
+
+    // G |- E : T2
+    const res2 = checkExpr(toSubExpr(rel.expr), varEnv);
+
+    // TODO (error)
+    if (isErr(res2)) {
+      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
+      return ["substance typecheck error in E"];
+    }
+
+    const [etype, env2] = unsafelyUnwrap(res1);
+
+    // T1 = T2
+    const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
+
+    // TODO (error) -- improve message
+    if (!typesEq) {
+      return ["types not equal"];
+    }
+
+    return [];
+
+  } else if (rel.tag === "RelPred") {
+    // rule Pred-Context
+    // G |- Q : Prop
+    const res = checkPredicate(toSubPred(rel), varEnv);
+    if (isErr(res)) {
+      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
+      // return unsafelyUnwrapErr(res);
+      return ["substance typecheck error in Pred"];
+    }
+    return [];
+  } else {
+    throw Error("unknown tag");
+  }
+};
+
+// Judgment 5. G |- [|S_r] ok
+const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyErrors => {
+  return _.flatMap(rels, (rel: RelationPattern): StyErrors => checkRelPattern(varEnv, rel));
+};
+
+const toSubType = (styT: StyT): TypeConsApp => {
+  // TODO: Extend for non-nullary types (when they are implemented in Style)
+  return {
+    tag: "TypeConstructor",
+    name: styT,
+    args: []
+  };
+};
+
+// TODO: Test this
+const mergeMapping = (varProgTypeMap: { [k: string]: [ProgType, BindingForm] },
+  varEnv: Env, [varName, styType]: [string, StyT]): Env => {
+
+  const res = varProgTypeMap[varName];
+  if (!res) { throw Error("var has no binding form?"); }
+  const [progType, bindingForm] = res;
+
+  if (bindingForm.tag === "SubVar") {
+    // G || (x : |T) |-> G
+    return varEnv;
+
+  } else if (bindingForm.tag === "StyVar") {
+    // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
+    const newEnv = clone(varEnv); // COMBAK: Is this necessary? don't want to mutate original
+    return {
+      ...newEnv,
+      vars: varEnv.vars.set(bindingForm.contents.value, toSubType(styType))
+    };
+  } else {
+    throw Error("unknown tag");
+  }
+};
+
+// TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
+// Judgment 1. G || g |-> ...
+const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
+  return Object.entries(selEnv.sTypeVarMap)
+    .reduce((acc, curr) => mergeMapping(selEnv.varProgTypeMap, acc, curr), varEnv);
+};
+
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
 const checkHeader = (varEnv: Env, header: Header): SelEnv => {
   if (header.tag === "Selector") {
@@ -256,10 +359,15 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
     const selEnv_afterHead = checkDeclPatternsAndMakeEnv(varEnv, initSelEnv(), sel.head.contents);
     // Check `with` statements
     // TODO: Did we get rid of `with` statements?
-
     const selEnv_decls = checkDeclPatternsAndMakeEnv(varEnv, selEnv_afterHead, safeContentsList(sel.with));
-    // TODO(error): rel_errs
-    return selEnv_decls;
+
+    const relErrs = checkRelPatterns(mergeEnv(varEnv, selEnv_decls), safeContentsList(sel.where));
+
+    // TODO(error): The errors returned in the top 3 statements
+    return {
+      ...selEnv_decls,
+      sErrors: selEnv_decls.sErrors.concat(relErrs) // COMBAK: Reverse the error order?
+    };
   } else if (header.tag === "Namespace") {
     // TODO(error)
     return initSelEnv();
@@ -393,11 +501,7 @@ export const substituteRel = (subst: Subst, rel: RelationPattern): RelationPatte
 // Applies a substitution to a list of relational statement theta([|S_r])
 // TODO: assumes a full substitution
 const substituteRels = (subst: Subst, rels: RelationPattern[]): RelationPattern[] => {
-  // COMBAK: Remove these logs
-  // console.log("Before substitution", subst, rels, rels.map(ppRel));
   const res = rels.map(rel => substituteRel(subst, rel));
-  // console.error("After substitution", subst, res, res.map(ppRel));
-  // console.log("-------");
   return res;
 };
 

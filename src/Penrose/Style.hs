@@ -793,44 +793,27 @@ toSubPred stypred =
 
 ----------- Selector static semantics
 -- For `B := E`, make sure `B : T` and `E : T`
-compareTypes ::
-     RelationPattern
-  -> BindingForm
-  -> SelExpr
-  -> Maybe T
-  -> Maybe T
-  -> Maybe Error
+compareTypes :: RelationPattern -> BindingForm -> SelExpr -> Maybe T -> Maybe T -> Maybe Error
 compareTypes stmt var expr vtype etype =
   case (vtype, etype) of
     (Nothing, Nothing) ->
-      Just $
-      "In Style statement '" ++
-      show stmt ++ "', the var and expr" ++ " are both of invalid type."
+      Just $ "In Style statement '" ++ show stmt ++ "', the var and expr" ++ " are both of invalid type."
     (Just vtype', Nothing) ->
       Just $
-      "In Style statement '" ++
-      show stmt ++
-      "', the expr '" ++
-      show expr ++
-      " should have type '" ++ show vtype' ++ "' but does not have a type."
+      "In Style statement '" ++ show stmt ++ "', the expr '" ++
+      show expr ++ " should have type '" ++ show vtype' ++ "' but does not have a type."
     (Nothing, Just etype') ->
       Just $
-      "In Style statement '" ++
-      show stmt ++
-      "', the var '" ++
-      show var ++
-      " should have type '" ++ show etype' ++ "' but does not have a type."
+      "In Style statement '" ++ show stmt ++ "', the var '" ++
+      show var ++ " should have type '" ++ show etype' ++ "' but does not have a type."
     (Just vtype', Just etype') ->
       if typesEq
            (trM2 ("VTYPE: " ++ show vtype') vtype')
            (trM2 ("ETYPE: " ++ show etype') etype')
         then Nothing
         else Just $
-             "In Style statement '" ++
-             show stmt ++
-             "', the var and expr" ++
-             " should have the same type, but have types '" ++
-             show vtype' ++ "' and '" ++ show etype' ++ "'."
+             "In Style statement '" ++ show stmt ++ "', the var and expr" ++
+             " should have the same type, but have types '" ++ show vtype' ++ "' and '" ++ show etype' ++ "'."
 
 -- Judgment 5. G |- [|S_r] ok
 checkRelPatterns :: VarEnv -> [RelationPattern] -> [Error]
@@ -839,32 +822,23 @@ checkRelPatterns varEnv rels = concatMap (checkRelPattern varEnv) rels
   where
     checkRelPattern :: VarEnv -> RelationPattern -> [Error]
     checkRelPattern varEnv rel =
-      case rel
-              -- rule Bind-Context
-            of
-        RelBind bVar sExpr
+      case rel of -- rule Bind-Context
+        RelBind bVar sExpr ->
                       -- TODO: use checkSubStmt here (and in paper)?
                       -- TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
                       -- G |- B : T1
-         ->
           let (error1, vtype) =
-                C.checkVarE
-                  varEnv
-                  (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar)
+                C.checkVarE varEnv (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar)
                       -- G |- E : T2
            in let (error2, etype) =
-                    C.checkExpression
-                      varEnv
-                      (trM2 ("E: " ++ show (toSubExpr sExpr)) $ toSubExpr sExpr)
+                    C.checkExpression varEnv (trM2 ("E: " ++ show (toSubExpr sExpr)) $ toSubExpr sExpr)
                       -- T1 = T2
                in let err3 = compareTypes rel bVar sExpr vtype etype
                    in case trM2 ("ERR3: " ++ show err3) err3 of
                         Nothing -> [error1, error2]
                         Just e3 -> [error1, error2, e3]
               -- rule Pred-Context
-        RelPred pred
-                      -- G |- Q : Prop
-         ->
+        RelPred pred ->  -- G |- Q : Prop
           let varEnv' = C.checkPredicate varEnv $ toSubPred pred
            in [errors varEnv']
 

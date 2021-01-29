@@ -187,7 +187,7 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   }
 };
 
-const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
+export const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
   const { name, args } = stmt;
   const predDecl = env.predicates.get(name.value);
   // check if predicate exists and retrieve its decl
@@ -270,7 +270,7 @@ const withType = (env: Env, type: TypeConsApp): ResultWithType =>
 const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
   andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
 
-const checkExpr = (
+export const checkExpr = (
   expr: SubExpr,
   env: Env,
   variable?: Identifier
@@ -482,7 +482,7 @@ const checkField = (decons: Deconstructor, env: Env): ResultWithType => {
   } else return err(deconstructNonconstructor(decons));
 };
 
-const checkVar = (variable: Identifier, env: Env): ResultWithType => {
+export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
   const type = env.vars.get(variable.value);
   if (type) {
     return ok([type, env]);
