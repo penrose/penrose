@@ -33,156 +33,37 @@ jobs:
       - checkout:
           path: ~/penrose
       - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ arch }}
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
       - run:
           name: Install npm deps
           command: npm install
-          working_directory: ~/penrose/penrose-web
+          working_directory: ~/penrose
       - save_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ arch }}
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
           paths:
-            - ~/penrose/penrose-web/node_modules
+            - ~/penrose/node_modules
       - run:
           name: Build normally
-          command: npm run build
+          command: lerna bootstrap
           resource_class: large
-          working_directory: ~/penrose/penrose-web
+          working_directory: ~/penrose
       - run:
-          name: Build-lib
-          command: npm run build-lib
-          working_directory: ~/penrose/penrose-web
-      - store_artifacts:
-          path: ~/penrose/penrose-web/build
-          destination: penrose-web-built
-  build:
-    docker:
-      - image: fpco/stack-build:lts-13.24
-    #    parallelism: 4
-    steps:
-      - checkout
-      - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          name: Restore Cached Dependencies
-          keys:
-            - penrose-cache-{{ checksum "penrose.cabal" }}
-      - run:
-          name: Manually install Alex and Happy
-          command: stack install alex happy
-      - run:
-          name: Resolve/Update Dependencies
-          command: stack build
-      - run:
-          name: Run tests
-          command: stack test
-      - run:
-          name: Install executable
-          command: stack install
-      - save_cache:
-          name: Cache Dependencies
-          key: penrose-cache-{{ checksum "penrose.cabal" }}
-          paths:
-            - ".stack"
-            - ".stack-work"
-            - "$HOME/.ghc"
-            - "$HOME/.cabal"
-            - "$HOME/.stack"
-            - "/root/.stack"
-            - "/root/.stack-work"
-
-      - store_artifacts:
-          # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: ~/.local/bin/penrose
-          destination: penrose-bin
-      - persist_to_workspace:
-          root: ~/.local/bin
-          paths:
-            - penrose
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - src/
-  headless_test:
-    docker:
-      - image: fpco/stack-build:lts-13.24
-    steps:
-      - run:
-          name: Add node repo
-          command: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-      - run:
-          name: Install nodejs/npm
-          command: sudo apt-get update && sudo apt-get install -y nodejs
-      - checkout:
-          path: ~/penrose
-      - attach_workspace:
-          at: ~/.local/bin
-      - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
-      - run:
-          name: Install deps for penrose-web
-          command: npm install
-          working_directory: ~/penrose/penrose-web
-      - run:
-          name: Build penrose-web as a library
-          command: npm run build-lib
-          working_directory: ~/penrose/penrose-web
-      - run:
-          name: Create link penrose-web
-          command: sudo npm link
-          working_directory: ~/penrose/penrose-web
-      - run:
-          name: Link to penrose-web in automator
-          command: npm link penrose-web
-          working_directory: ~/penrose/automator
-      - run:
-          name: Install deps for automator
-          command: npm install
-          working_directory: ~/penrose/automator
-      - run:
-          name: Link to penrose-web in automator again
-          command: npm link penrose-web
-          working_directory: ~/penrose/automator
-      - save_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
-          paths:
-            - ~/penrose/penrose-web/node_modules
-            - ~/penrose/automator/node_modules
-      - run:
-          name: Make output dir
-          command: mkdir -p /root/out
-          working_directory: ~/
-      - run:
-          name: Alias penrose command
-          command: echo 'alias penrose=~/.local/bin/penrose' >> ~/.bashrc && source ~/.bashrc
-          working_directory: ~/
-      - run:
-          name: Run all in registry
-          command: npm start -- batch substanceLibrary.json styleLibrary.json elementLibrary.json /root/out
-          working_directory: ~/penrose/automator
-      - store_artifacts:
-          path: ~/out
-          destination: output
-
+          name: Test
+          command: npm test
+          working_directory: ~/penrose/
+      # - store_artifacts:
+      #     path: ~/penrose/penrose-web/build
+      #     destination: penrose-web-built
 workflows:
   version: 2.1
   build_other_branches:
     jobs:
-      - build_frontend:
-          filters:
-            branches:
-              ignore:
-                - master
       - build:
           filters:
             branches:
               ignore:
                 - master
-      - headless_test:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore:
-                - master
+
   build_master_deploy:
     jobs:
       - docs-deploy:
