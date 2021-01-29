@@ -35,6 +35,10 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
       - run:
+          name: Install Lerna
+          command: npm install -g lerna
+          working_directory: ~/penrose
+      - run:
           name: Install npm deps
           command: npm install
           working_directory: ~/penrose
