@@ -56,11 +56,17 @@ jobs:
           command: npm test
           working_directory: ~/penrose/
       - run:
+          name: Make test report dir
+          command: mkdir -p reports/junit
+          working_directory: ~/penrose/packages/penrose-core
+      - run:
           name: Run core tests and generate test data
           command: npm run coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
           working_directory: ~/penrose/packages/penrose-core
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ~/penrose/packages/penrose-core/reports/junit/
+      - run:
+          name: Move test report
+          command: mv junit.xml reports/junit/
+          working_directory: ~/penrose/packages/penrose-core
       - store_test_results:
           path: ~/penrose/packages/penrose-core/reports/junit/
       - store_artifacts:
