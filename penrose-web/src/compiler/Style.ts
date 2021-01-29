@@ -14,6 +14,7 @@ import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr } from "com
 import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
 
 import { Env, isDeclaredSubtype } from "./Domain";
+import { Map } from "immutable"; // Note: Domain maps are immutable!!!
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -321,6 +322,7 @@ const toSubType = (styT: StyT): TypeConsApp => {
 };
 
 // TODO: Test this
+// NOTE: `Map` is immutable; we return the same `Env` reference with a new `vars` set (rather than mutating the existing `vars` Map)
 const mergeMapping = (varProgTypeMap: { [k: string]: [ProgType, BindingForm] },
   varEnv: Env, [varName, styType]: [string, StyT]): Env => {
 
@@ -334,9 +336,8 @@ const mergeMapping = (varProgTypeMap: { [k: string]: [ProgType, BindingForm] },
 
   } else if (bindingForm.tag === "StyVar") {
     // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
-    const newEnv = clone(varEnv); // COMBAK: Is this necessary? don't want to mutate original
     return {
-      ...newEnv,
+      ...varEnv,
       vars: varEnv.vars.set(bindingForm.contents.value, toSubType(styType))
     };
   } else {
@@ -930,8 +931,6 @@ const matchDeclLine = (varEnv: Env, line: SubStmt, decl: DeclPattern): MaybeVal<
 
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 const matchDecl = (varEnv: Env, subProg: SubProg, initSubsts: Subst[], decl: DeclPattern): Subst[] => {
-  // debugger;
-
   // Judgment 14. G; [theta] |- [S] <| |S_o
   const newSubsts = subProg.statements.map(line => matchDeclLine(varEnv, line, decl));
   const res = merge(initSubsts, justs(newSubsts)); // TODO inline
@@ -1474,7 +1473,6 @@ const propertiesNotOf = (propType: string, shapeType: ShapeTypeStr): PropID[] =>
 };
 
 const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
-  // debugger;
   if (fexpr.tag === "FExpr") {
     if (declaredVarying(fexpr.contents)) {
       return [mkPath([name, field])].concat(acc);
@@ -1628,12 +1626,6 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
-  // console.log("paths", ps);
-  // console.log("tr", tr);
-  // console.log("findExpr res", findExpr(tr, ps[0]));
-  // console.log("pths", ps.map(path => findExpr(tr, path)));
-  // debugger;
-
   return ps.map(path => findExpr(tr, path)).map(getNum);
 };
 
@@ -1927,6 +1919,7 @@ export const loadProgs = (): [Env, SubstanceEnv, SubProg, StyProg] => {
 // TODO: Improve this type signature
 export const compileStyle = (): Either<StyErrors, State> => {
   const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs();
+
   const labelMap = subEnv.labels;
 
   // Check selectors; return list of selector environments (`checkSels`)
