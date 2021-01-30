@@ -10,10 +10,10 @@ import { compileDomain, compileSubstance, checkDomain, checkSubstance, parseSubs
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
 import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestPrograms";
-import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr } from "compiler/Substance";
+import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr, subtypeOf } from "compiler/Substance";
 import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
 
-import { Env, isDeclaredSubtype } from "./Domain";
+import { Env, isDeclaredSubtype, checkTypeConstructor } from "./Domain";
 import { Map } from "immutable"; // Note: Domain maps are immutable!!!
 
 const clone = require("rfdc")({ proto: false, circles: false });
@@ -218,32 +218,53 @@ const addMapping = (k: BindingForm, v: StyT, m: SelEnv, p: ProgType): SelEnv => 
   return m;
 };
 
+// TODO: Test this
 // Judgment 3. G; g |- |S_o ok ~> g'
 // `checkDeclPattern`
 const checkDeclPatternAndMakeEnv = (varEnv: Env, selEnv: SelEnv, stmt: DeclPattern): SelEnv => {
-
   const [styType, bVar] = [stmt.type, stmt.id];
+
+  const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
+  if (isErr(typeErr)) {
+    // TODO(errors)
+    throw Error("substance type error");
+  }
+
+  const varName: string = bVar.contents.value;
+
+  // TODO(errors)
+  if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
+    throw Error("Style pattern statement has already declared the variable");
+  }
+
   if (bVar.tag === "StyVar") {
     // rule Decl-Sty-Context
     // NOTE: this does not aggregate *all* possible errors. May just return first error.
     // y \not\in dom(g)
-
-    // TODO <: Substance checking
-
-    // TODO(errors)
-
     return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
+
   } else if (bVar.tag === "SubVar") {
     // rule Decl-Sub-Context
     // x \not\in dom(g)
 
-    // TODO <: Substance checking
+    const substanceType = varEnv.vars.get(varName);
+    // If any Substance variable doesn't exist in env, ignore it,
+    // but flag it so we know to not translate the lines in the block later.
+    if (!substanceType) {
+      return { ...selEnv, skipBlock: true };
+    }
 
-    // TODO(errors)
-    // TODO: Check subtypes
-    // TODO: Check `skip block` condition
+    // check "T <: |T", assuming type constructors are nullary
+    // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
+    // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
+    const declType = toSubstanceType(styType);
+    if (!isDeclaredSubtype(substanceType, declType, varEnv)) { // COMBAK: Order?
+      // TODO(errors)
+      throw Error("mismatched types or wrong subtypes b/t Sub and Sty vars");
+    }
 
     return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
+
   } else throw Error("unknown tag");
 };
 
@@ -312,7 +333,7 @@ const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyErrors => {
   return _.flatMap(rels, (rel: RelationPattern): StyErrors => checkRelPattern(varEnv, rel));
 };
 
-const toSubType = (styT: StyT): TypeConsApp => {
+const toSubstanceType = (styT: StyT): TypeConsApp => {
   // TODO: Extend for non-nullary types (when they are implemented in Style)
   return {
     tag: "TypeConstructor",
@@ -338,7 +359,7 @@ const mergeMapping = (varProgTypeMap: { [k: string]: [ProgType, BindingForm] },
     // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
     return {
       ...varEnv,
-      vars: varEnv.vars.set(bindingForm.contents.value, toSubType(styType))
+      vars: varEnv.vars.set(bindingForm.contents.value, toSubstanceType(styType))
     };
   } else {
     throw Error("unknown tag");
@@ -420,7 +441,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 };
 
 const couldMatchRels = (typeEnv: Env, rels: RelationPattern[], stmt: SubStmt): boolean => {
-  // TODO < (this is an optimization)
+  // TODO < (this is an optimization; will only implement if needed)
   return true;
 };
 
@@ -742,6 +763,10 @@ const toSubPred = (p: RelPred): ApplyPredicate => {
   };
 };
 
+const varsEq = (v1: Identifier, v2: Identifier): boolean => {
+  return v1.value === v2.value;
+};
+
 const subVarsEq = (v1: Identifier, v2: Identifier): boolean => {
   return v1.value === v2.value;
 };
@@ -783,9 +808,65 @@ const subExprsEq = (e1: SubExpr, e2: SubExpr): boolean => {
   return false;
 };
 
-const exprsMatchArr = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
-  // COMBAK: Depends on subtype implementation. Implement this match WRT subtyping
-  return subExprsEq(subE, selE);
+const exprToVar = (e: SubExpr): Identifier => {
+  if (e.tag === "Identifier") {
+    return e;
+  } else {
+    // TODO(errors)
+    throw Error("Style expression matching doesn't yet handle nested exprssions");
+  }
+};
+
+const toTypeList = (c: ConstructorDecl): TypeConstructor[] => {
+  return c.args.map(p => {
+    if (p.type.tag === "TypeConstructor") { return p.type; }
+    throw Error("expected TypeConstructor in type (expected nullary type)");
+  });
+};
+
+// TODO: Test this
+// For existing judgment G |- T1 <: T2,
+// this rule (SUBTYPE-ARROW) checks if the first arrow type (i.e. function or value constructor type) is a subtype of the second
+// The arrow types are contravariant in their arguments and covariant in their return type
+// e.g. if Cat <: Animal, then Cat -> Cat <: Cat -> Animal, and Animal -> Cat <: Cat -> Cat
+const isSubtypeArrow = (types1: TypeConstructor[], types2: TypeConstructor[], e: Env): boolean => {
+  if (types1.length !== types2.length) {
+    return false;
+  }
+
+  if (types1.length === 0 && types2.length === 0) {
+    return true;
+  }
+
+  return isDeclaredSubtype(types2[0], types1[0], e)   // Note swap -- contravariant in arguments
+    && isSubtypeArrow(types1.slice(1), types2.slice(1), e);   // Covariant in return type
+};
+
+const exprsMatchArr = (varEnv: Env, subE: ApplyConstructor, styE: ApplyConstructor): boolean => {
+  const subArrType = varEnv.constructors.get(subE.name.value);
+  if (!subArrType) {
+    // TODO(errors)
+    throw Error("sub arr type doesn't exist");
+  }
+
+  const styArrType = varEnv.constructors.get(styE.name.value);
+  if (!styArrType) {
+    // TODO(errors)
+    throw Error("sty arr type doesn't exist");
+  }
+
+  if (subE.args.length !== styE.args.length) {
+    return false;
+  }
+
+  const subArrTypes = toTypeList(subArrType);
+  const styArrTypes = toTypeList(styArrType);
+  const subVarArgs = subE.args.map(exprToVar);
+  const styVarArgs = styE.args.map(exprToVar);
+
+  return isSubtypeArrow(subArrTypes, styArrTypes, varEnv)
+    && _.zip(subVarArgs, styVarArgs).every(([a1, a2]) => varsEq(a1 as Identifier, a2 as Identifier));
+  // `as` is fine bc of preceding length check
 };
 
 // New judgment (number?): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
@@ -831,8 +912,8 @@ const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationP
   } else if (s1.tag === "ApplyPredicate" && s2.tag === "RelPred") { // rule Pred-Match
     const [pred, sPred] = [s1, s2];
     const selPred = toSubPred(sPred);
-    return subFnsEq(pred, selPred);     // TODO < check if this needs to be a deep equality check
-    // COMBAK: Add this condition when the Substance typechecker is implemented
+    return subFnsEq(pred, selPred);
+    // COMBAK: Add this condition when the Substance typechecker is implemented -- where is the equivalent function to `predsDeclaredEqual` in the new code?
     // || C.predsDeclaredEqual subEnv pred selPred // B |- Q <-> |Q
 
   } else {
@@ -880,10 +961,9 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
 // Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 // Ported from `matchType`
 const typesMatched = (varEnv: Env, substanceType: TypeConsApp, styleType: StyT): boolean => {
-  if (substanceType.tag === "TypeConstructor") {
-    return substanceType.name.value === styleType.value;
-    // TODO/COMBAK: Implement subtype checking
-    // && isSubtype(substanceType, toSubType(styleType), varEnv);
+  if (substanceType.tag === "TypeConstructor" && substanceType.args.length === 0) {
+    // Style type needs to be more generic than Style type
+    return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
   }
 
   // TODO(errors)
@@ -1571,8 +1651,7 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Either<StyleOptFn, StyleOptFn>[]): Either<StyleOptFn, StyleOptFn>[] => {
-  // COMBAK: Implement this. Currently we have no default objectives/constraints.
-  // TODO <
+  // TODO < Currently we have no default objectives/constraints, so it's not implemented
   return [];
 };
 

@@ -862,8 +862,7 @@ checkDeclPatterns varEnv selEnv decls =
                                styVar ++ "' twice"
                           in addErr err selEnv'
                     else if M.member (BSubVar (VarConst styVar)) (sTypeVarMap selEnv')
-                           then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++ styVar ++
-                                      "'" ++ " in the same selector as a Substance variable of the same name"
+                           then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++ styVar ++ "'" ++ " in the same selector as a Substance variable of the same name"
                                  in addErr err selEnv'
                            else addMapping bsv styType selEnv'
                 -- rule Decl-Sub-Context
@@ -873,9 +872,7 @@ checkDeclPatterns varEnv selEnv decls =
                     then let err =
                                "Style pattern statement " ++ show stmt ++ " declares Substance variable '" ++ sVar ++ "' twice"
                           in addErr err selEnv'
-                    else if M.member
-                              (BStyVar (StyVar sVar))
-                              (sTypeVarMap selEnv')
+                    else if M.member (BStyVar (StyVar sVar)) (sTypeVarMap selEnv')
                            then let err = "Style pattern statement " ++ show stmt ++ " declares Substance variable '" ++
                                       sVar ++ "'" ++ " in the same selector as a Style variable of the same name"
                                  in addErr err selEnv'
@@ -891,10 +888,7 @@ checkDeclPatterns varEnv selEnv decls =
                                          in if subType' == declType || isSubtype subType' declType varEnv
                                               then addMapping bsv styType selEnv'
                                               else let err =
-                                                         "Mismatched types between Substance and Style var\n" ++
-                                                         "Sub var '" ++ show subVar ++ "' has type '" ++
-                                                         show subType' ++ "in Substance but has type '" ++
-                                                         show declType ++ "' in Style."
+                                                         "Mismatched types between Substance and Style var\n" ++ "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++ "in Substance but has type '" ++ show declType ++ "' in Style."
                                                     in addErr err selEnv'
 
 -- Judgment 7. G |- Sel ok ~> g
@@ -1150,10 +1144,7 @@ varsEq = (==)
 
 exprToVar :: C.SubExpr -> Var
 exprToVar (C.VarE v) = v
-exprToVar e =
-  error $
-  "Style expression matching does not yet handle nested expressions: '" ++
-  show e ++ "'"
+exprToVar e = error $ "Style expression matching does not yet handle nested expressions: '" ++ show e ++ "'"
 
 findType :: VarEnv -> String -> [T]
 findType typeEnv name =
@@ -1174,12 +1165,7 @@ exprsMatchArr typeEnv subE styE =
    in let res =
             isSubtypeArrow subArrType styArrType typeEnv &&
             (all (uncurry varsEq) $ zip subVarArgs styVarArgs)
-       in trM1
-            ("subArrType: " ++
-             show subArrType ++
-             "\nstyArrType: " ++
-             show styArrType ++
-             "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv))
+       in trM1 ("subArrType: " ++ show subArrType ++ "\nstyArrType: " ++ show styArrType ++ "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv))
             res
 
 -- New judgment (COMBAK number): expression matching that accounts for subtyping. G, B, . |- E0 <| E1

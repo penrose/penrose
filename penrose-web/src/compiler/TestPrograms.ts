@@ -4,6 +4,11 @@ type Scalar
 type VectorSpace
 type Vector
 type LinearMap
+type UnitVector -- just for testing
+
+UnitVector <: Vector
+
+constructor Vec2: Scalar x * Scalar y -> Vector v
 
 -- Operators
 function neg: Vector v -> Vector

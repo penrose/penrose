@@ -241,7 +241,7 @@ const checkPredArg = (
 };
 
 // TODO: in general, true-myth seem to have trouble transforming data within the monad when the transformation itself can go wrong. If the transformation function cannot return errors, it's completely fine to use `ap`. This particular scenario is technically handled by `andThen`, but it seems to have problems with curried functions.
-const subtypeOf = (
+export const subtypeOf = (
   type1: ResultWithType,
   type2: ResultWithType,
   expr1: SubExpr,
