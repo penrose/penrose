@@ -3,6 +3,7 @@
 // TODO: Fix imports
 import { varOf, numOf, constOf, constOfIf } from "engine/Autodiff";
 import * as _ from "lodash";
+const clone = require("rfdc")({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -419,13 +420,34 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
         trans.trMap[name.contents.value] = {};
       }
 
-      const gpi: FieldExpr<IVarAD> = trans.trMap[name.contents.value][field.value];
+      const fieldRes: FieldExpr<IVarAD> = trans.trMap[name.contents.value][field.value];
 
-      if (gpi.tag === "FExpr") {
+      if (fieldRes.tag === "FExpr") {
+        // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
+        if (fieldRes.contents.tag === "OptEval") {
+          if (fieldRes.contents.contents.tag === "FieldPath") {
+            const p = fieldRes.contents.contents;
+            if (p.name.contents.value === name.contents.value && p.field.value === field.value) {
+              // TODO (error)
+              throw Error(`path was aliased to itself`);
+            }
+            const newPath = clone(path);
+            return insertExpr({
+              ...newPath,
+              tag: "PropertyPath",
+              name: p.name, // Note use of alias
+              field: p.field,  // Note use of alias
+              property: path.property
+            }, expr, trans);
+          }
+        }
+
         // TODO (error)
-        throw Error("expected GPI");
-      } else if (gpi.tag === "FGPI") {
-        const [, properties] = gpi.contents;
+        const err = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot add property '${prop.value}'`;
+        throw Error(err);
+
+      } else if (fieldRes.tag === "FGPI") {
+        const [, properties] = fieldRes.contents;
         properties[prop.value] = expr;
 
         // COMBAK revert

@@ -1161,9 +1161,25 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
   }
 
   if (prop.tag === "FExpr") {
-    // COMBAK (missing feature): Deal with path aliasing
-    throw Error("deal with path aliasing");
-    // TODO (error): deal with non-alias error
+    // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
+    // COMBAK: should path aliasing have destructive effects on the translation (e.g. add or delete)? maybe it should only happen in lookup? Deleting an aliased path should just delete the alias, not its referent?
+
+    if (prop.contents.tag === "OptEval") {
+      if (prop.contents.contents.tag === "FieldPath") {
+        const p = prop.contents.contents;
+        if (varsEq(p.name.contents, name.contents) && varsEq(p.field, field)) {
+          // TODO (error)
+          const warn = `path was aliased to itself`;
+          return addWarn(trans, warn);
+        }
+        return deleteProperty(trans, p.name, p.field, property);
+      }
+    }
+
+    // TODO (error)
+    const warn = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot delete property '${property.value}'`;
+    return addWarn(trans, warn);
+
   } else if (prop.tag === "FGPI") {
     // TODO(error, warning): check if the property is member of properties of GPI
     const gpiDict = prop.contents[1];
@@ -2022,7 +2038,6 @@ export const compileStyle = (): Either<StyErrors, State> => {
   const translateRes = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals);
 
   console.log("translation (before genOptProblem)", translateRes);
-  console.error("Note that the translation does not yet have labels inserted"); // COMBAK: Remove this when done
 
   // Translation failed somewhere. TODO (errors/warnings)
   if (translateRes.tag === "Left") {
