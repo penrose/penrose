@@ -424,6 +424,7 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
 
       if (fieldRes.tag === "FExpr") {
         // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
+        // TODO: Test this
         if (fieldRes.contents.tag === "OptEval") {
           if (fieldRes.contents.contents.tag === "FieldPath") {
             const p = fieldRes.contents.contents;

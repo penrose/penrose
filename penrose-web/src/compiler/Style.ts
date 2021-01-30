@@ -9,12 +9,22 @@ import { compileDomain, compileSubstance, checkDomain, checkSubstance, parseSubs
 
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
-import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestPrograms";
 import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr, subtypeOf } from "compiler/Substance";
 import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
 
 import { Env, isDeclaredSubtype, checkTypeConstructor } from "./Domain";
 import { Map } from "immutable"; // Note: Domain maps are immutable!!!
+
+// TEST PROGRAMS
+// COMBAK: Make the frontend testing easier/more programmatic...
+
+// -> WORKING
+// import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestLA";
+// import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestSetTree";
+
+// -> NOT WORKING
+// import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestSetCircles";
+import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestDebug";
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -1163,6 +1173,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
   if (prop.tag === "FExpr") {
     // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
     // COMBAK: should path aliasing have destructive effects on the translation (e.g. add or delete)? maybe it should only happen in lookup? Deleting an aliased path should just delete the alias, not its referent?
+    // TODO: Test this
 
     if (prop.contents.tag === "OptEval") {
       if (prop.contents.contents.tag === "FieldPath") {
