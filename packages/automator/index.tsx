@@ -1,15 +1,15 @@
 import * as React from "react";
-
-const fs = require("fs");
-const mathjax = require("mathjax-node");
-const {
+import {
   Canvas,
   EngineUtils,
   Packets,
   PropagateUpdate,
   Optimizer,
   Evaluator,
-} = require("penrose-web");
+} from "penrose-core";
+
+const fs = require("fs");
+const mathjax = require("mathjax-node");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 const chalk = require("chalk");

@@ -1,11 +1,13 @@
 {
   "repository": "penrose/penrose",
+  "author": "Penrose Team (https://penrose.ink)",
   "private": true,
   "packages": [
     "packages/*"
   ],
   "scripts": {
-    "test": "lerna run test",
+    "bootstrap": "lerna bootstrap",
+    "test": "lerna run test --stream",
     "new-version": "lerna version --conventional-commits --yes",
     "diff": "lerna diff"
   },
