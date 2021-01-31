@@ -67,6 +67,10 @@ jobs:
           name: Move test report
           command: mv junit.xml reports/junit/
           working_directory: ~/penrose/packages/penrose-core
+      - run:
+          name: Upload test coverage to codecov
+          command: bash <(curl -s https://codecov.io/bash)
+          working_directory: ~/penrose/packages/penrose-core
       - store_test_results:
           path: ~/penrose/packages/penrose-core/reports/junit/
       - store_artifacts:
