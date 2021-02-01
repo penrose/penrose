@@ -71,7 +71,6 @@ class Canvas extends React.Component<ICanvasProps> {
     // TODO: Do this properly
     // const state: State = decodeState(data);
     const state: State = res.contents;
-    // throw Error("TODO: style compiler");
 
     // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
     // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)

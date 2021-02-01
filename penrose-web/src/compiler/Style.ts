@@ -2003,16 +2003,17 @@ export const parseStyle = (p: string): StyProg => {
   return ast;
 };
 
-export const loadProgs = (): [Env, SubstanceEnv, SubProg, StyProg] => {
+export const loadProgs = (files: any): [Env, SubstanceEnv, SubProg, StyProg] => {
   // TODO: Replace this with the sugared version...
   // console.log("progs", domainStr, subStrUnsugared, styStr);
+  const [domainStr, subStr, styStr]: [string, string, string] = [files.domain.contents, files.substance.contents, files.style.contents];
 
   const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
   const env0: Env = unsafelyUnwrap(domainProgRes);
 
   // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
-  const subProg: SubProg = parseSubstance(subStrUnsugared);
-  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(subStrUnsugared, env0);
+  const subProg: SubProg = parseSubstance(subStr);
+  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(subStr, env0);
 
   const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
   const styProg: StyProg = parseStyle(styStr);
@@ -2023,8 +2024,8 @@ export const loadProgs = (): [Env, SubstanceEnv, SubProg, StyProg] => {
 };
 
 // TODO: Improve this type signature
-export const compileStyle = (): Either<StyErrors, State> => {
-  const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs();
+export const compileStyle = (files: any): Either<StyErrors, State> => {
+  const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(files);
 
   const labelMap = subEnv.labels;
 
