@@ -104,7 +104,7 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   // TODO Add schema and type signatures for `files`: { progType (domain/style/substance) => { contents: string, fileName: string } }
-  public genStateFrontend = async (files) => {
+  public genStateFrontend = async (files: any) => {
     const res: Either<StyErrors, State> = compileStyle(files);
     if (res.tag === "Left") {
       // TODO(error)

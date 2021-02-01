@@ -2023,9 +2023,73 @@ export const loadProgs = (files: any): [Env, SubstanceEnv, SubProg, StyProg] => 
   return res;
 };
 
+const traverseTreeReplace = (env: Env, stmt: ASTNode): ASTNode => {
+
+  const newChildren = stmt.children.map(child => traverseTreeReplace(env, child));
+
+  if (stmt.tag !== "Func" && stmt.hasOwnProperty('args')) {
+    // TODO / ISSUE: Just changing the children doesn't seem to be enough; seem to have to change the args too
+    const newArgs = (stmt as any).args.map((child: any) => traverseTreeReplace(env, child));
+    return { ...stmt, children: newChildren, args: newArgs } as ASTNode;
+  }
+
+  if (stmt.tag !== "Func") { return { ...stmt, children: newChildren }; } // No args to set
+
+  // Lookup name in the env and replace it if it exists, otherwise throw error
+  // Assuming the env is valid and there are no double declarations
+  const func = stmt as Func;
+
+  // TODO / ISSUE: Just changing the children doesn't seem to be enough; seem to have to change the args too
+  const newArgs = func.args.map(child => traverseTreeReplace(env, child));
+
+  const isCtor = env.constructors.has(func.name.value);
+  const isFn = env.functions.has(func.name.value);
+  const isPred = env.predicates.has(func.name.value);
+
+  // Not sure about a more concise way to write this?
+  if (isCtor && !isFn && !isPred) {
+    return {
+      ...stmt,
+      tag: "ApplyConstructor",
+      args: newArgs,
+      children: newChildren
+    } as ApplyConstructor;
+  } else if (!isCtor && isFn && !isPred) {
+    return {
+      ...stmt,
+      tag: "ApplyFunction",
+      args: newArgs,
+      children: newChildren
+    } as ApplyFunction;
+  } else if (!isCtor && !isFn && isPred) {
+    return {
+      ...stmt,
+      tag: "ApplyPredicate",
+      args: newArgs,
+      children: newChildren
+    } as ApplyPredicate;
+  } else if (!isCtor && !isFn && !isPred) {
+    throw Error("Substance internal error: expected val of type Func to be disambiguable in env, but was not found");
+  } else {
+    throw Error("Substance internal error: expected val of type Func to be uniquely disambiguable in env, but found multiple");
+  }
+};
+
+const disambiguateFunctions = (env: Env, subProg: SubProg): SubProg => {
+  // For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
+  return {
+    ...subProg,
+    // NOTE: This `as` (cast from ASTNode to SubStmt) is ok because we know that the input should be all SubStmts
+    statements: subProg.statements.map((stmt: SubStmt): SubStmt => traverseTreeReplace(env, stmt) as SubStmt)
+  };
+};
+
 // TODO: Improve this type signature
 export const compileStyle = (files: any): Either<StyErrors, State> => {
-  const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(files);
+  const [varEnv, subEnv, subProgInit, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(files);
+
+  // disambiguate Func into the right form in Substance grammar #453
+  const subProg = disambiguateFunctions(varEnv, subProgInit);
 
   const labelMap = subEnv.labels;
 
