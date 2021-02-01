@@ -1,12 +1,14 @@
 import { stepState, resample } from "API";
+import { compileDomain } from "compiler/Domain";
+import { compileSubstance } from "compiler/Substance";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
+import { FileSocket, FileSocketResult } from "ui/FileSocket";
 import Log from "utils/Log";
 import { converged, initial } from "./packets";
-import { ConnectionStatus, Protocol } from "./Protocol";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -15,6 +17,7 @@ interface ICanvasState {
   penroseVersion: string;
   history: State[];
   showInspector: boolean;
+  files: FileSocketResult | null;
 }
 
 const socketAddress = "ws://localhost:9160";
@@ -26,6 +29,7 @@ class App extends React.Component<any, ICanvasState> {
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
     showInspector: true,
+    files: null,
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -34,12 +38,6 @@ class App extends React.Component<any, ICanvasState> {
     this.modCanvas(state); // is this the right way to call it
   };
 
-  public onConnectionStatus = (conn: ConnectionStatus) => {
-    Log.info(`Connection status: ${conn}`);
-  };
-  public onVersion = (version: string) => {
-    this.setState({ penroseVersion: version });
-  };
   // same as onCanvasState but doesn't alter timeline or involve optimization
   // used only in modshapes
   public modCanvas = async (canvasState: State) => {
@@ -80,15 +78,7 @@ class App extends React.Component<any, ICanvasState> {
       this.step();
     }
   };
-  public protocol: Protocol = new Protocol(socketAddress, [
-    {
-      onConnectionStatus: this.onConnectionStatus,
-      onVersion: this.onVersion,
-      onCanvasState: this.onCanvasState,
-      onError: console.warn,
-      kind: "renderer",
-    },
-  ]);
+
   public step = async () => {
     const stepped = await stepState(this.state.data!);
     this.onCanvasState(stepped);
@@ -105,17 +95,21 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public async componentDidMount() {
-    this.protocol = new Protocol(socketAddress, [
-      {
-        onConnectionStatus: this.onConnectionStatus,
-        onVersion: this.onVersion,
-        onCanvasState: this.onCanvasState,
-        onError: console.warn,
-        kind: "renderer",
-      },
-    ]);
-
-    this.protocol.setupSockets();
+    const fileSocket = FileSocket(socketAddress, (files) => {
+      this.setState({ files });
+      const env = compileDomain(files.domain.contents);
+      if (env.isErr()) {
+        console.error(env.error);
+        return;
+      }
+      const sub = compileSubstance(files.substance.contents, env.value);
+      if (sub.isOk()) {
+        console.log(sub.value);
+        return;
+      } else {
+        console.error(sub.error);
+      }
+    });
   }
 
   public updateData = async (data: any) => {
@@ -143,6 +137,7 @@ class App extends React.Component<any, ICanvasState> {
       penroseVersion,
       showInspector,
       history,
+      files,
     } = this.state;
     return (
       <div
@@ -158,7 +153,6 @@ class App extends React.Component<any, ICanvasState> {
           <ButtonBar
             downloadPDF={this.downloadPDF}
             downloadSVG={this.downloadSVG}
-            // stepUntilConvergence={stepUntilConvergence}
             autostep={autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}
@@ -167,6 +161,7 @@ class App extends React.Component<any, ICanvasState> {
             initial={data ? initial(data) : false}
             toggleInspector={this.toggleInspector}
             showInspector={showInspector}
+            files={files}
             ref={this.buttons}
           />
         </div>
