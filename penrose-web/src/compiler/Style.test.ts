@@ -1,8 +1,8 @@
 import * as _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
-import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData"; // TODO: Check correctness
-import * as S from "compiler/Style"; // COMBAK: Use this import properly
+import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData";
+import * as S from "compiler/Style";
 
 const clone = require("rfdc")({ proto: false, circles: false });
 

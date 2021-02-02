@@ -15,29 +15,9 @@ import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
 import { Env, isDeclaredSubtype, checkTypeConstructor } from "./Domain";
 import { Map } from "immutable"; // Note: Domain maps are immutable!!!
 
-// TEST PROGRAMS
-// COMBAK: Make the frontend testing easier/more programmatic...
-
-// -> WORKING
-// import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestLA";
-// import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestSetTree";
-
-// -> NOT WORKING
-// import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestSetCircles";
 import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestDebug";
 
 const clone = require("rfdc")({ proto: false, circles: false });
-
-// TODO: Write pseudocode / code comments / tests for the Style compiler
-
-// Really it should be SubOut, not SubProg:
-
-// -- | 'SubOut' is the output of the Substance compiler, comprised of:
-// -- * Substance AST
-// -- * (Variable environment, Substance environment)
-// -- * A mapping from Substance ids to their coresponding labels
-// data SubOut =
-//   SubOut SubProg (VarEnv, SubEnv) LabelMap
 
 //#region consts
 const ANON_KEYWORD = "ANON";
@@ -436,7 +416,7 @@ export const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
   return _.isEqual(selStyVars.sort(), substStyVars.sort());
 };
 
-// Check that there are no duplicate keys or vals in the substitution (Has test)
+// Check that there are no duplicate keys or vals in the substitution
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
@@ -450,6 +430,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   return Object.keys(valsSet).length === vals.length;
 };
 
+// Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (typeEnv: Env, rels: RelationPattern[], stmt: SubStmt): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
   return true;
@@ -489,13 +470,15 @@ const substituteBform = (lv: any, subst: Subst, bform: BindingForm): BindingForm
 };
 
 const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
-  // theta(f[E]) = f([theta(E)]
+  // theta(B) = ...
   if (expr.tag === "SEBind") {
     return {
       ...expr,
       contents: substituteBform({ tag: "Nothing" }, subst, expr.contents)
     };
   } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(expr.tag)) { // COMBAK: Remove SEFuncOrValCons?
+    // theta(f[E]) = f([theta(E)]
+
     return {
       ...expr,
       args: expr.args.map(arg => substituteExpr(subst, arg))
@@ -968,6 +951,8 @@ const filterRels = (typeEnv: Env, subEnv: SubEnv, subProg: SubProg, rels: Relati
 
 //// Match declaration statements
 
+//// Substitution helper functions
+// (+) operator combines two substitutions: subst -> subst -> subst
 const combine = (s1: Subst, s2: Subst): Subst => {
   return { ...s1, ...s2 };
 };
@@ -1276,11 +1261,6 @@ const translateLine = (trans: Translation, stmt: Stmt): Either<StyErrors, Transl
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
 const translateBlock = (name: MaybeVal<string>, blockWithNum: [Block, number], trans: Translation, substWithNum: [Subst, number]): Either<StyErrors, Translation> => {
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
-
-  // TODO: Remove these lines
-  // console.error("block pre-subst", blockWithNum);
-  // console.error("block post-subst", blockSubsted);
-
   return foldM(blockSubsted.statements, translateLine, trans);
 };
 
@@ -1292,6 +1272,7 @@ const translateSubstsBlock = (trans: Translation, substsNum: [Subst, number][], 
 
 const checkBlock = (selEnv: SelEnv, block: Block): StyErrors => {
   // COMBAK: Block checking and return block errors, not generic sty errors
+  // Static semantics would go here
   return [];
 };
 
@@ -1553,6 +1534,7 @@ const findPropertyVarying = (name: string, field: Field, properties: { [k: strin
   return paths.concat(acc);
 };
 
+// Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
 const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
   if (e.tag === "OptEval") {
     const res = e.contents;
@@ -1581,18 +1563,20 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
   return [];
 };
 
+// Given 'propType' and 'shapeType', return all props of that ValueType
 // COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
-// COMBAK: Port the comments
 const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
   const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(findDef(shapeType).properties);
   return shapeInfo.filter(([pName, [pType, s]]) => pType === propType).map(e => e[0]);
 };
 
+// Given 'propType' and 'shapeType', return all props NOT of that ValueType
 const propertiesNotOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
   const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(findDef(shapeType).properties);
   return shapeInfo.filter(([pName, [pType, s]]) => pType !== propType).map(e => e[0]);
 };
 
+// Find varying fields
 const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
   if (fexpr.tag === "FExpr") {
     if (declaredVarying(fexpr.contents)) {
@@ -1606,17 +1590,21 @@ const findFieldVarying = (name: string, field: Field, fexpr: FieldExpr<VarAD>, a
     const [typ, properties] = fexpr.contents;
     const ctorFloats = propertiesOf("FloatV", typ).concat(propertiesOf("VectorV", typ));
     const varyingFloats = ctorFloats.filter(e => !isPending(typ, e));
+    // This splits up vector-typed properties into one path for each element
     const vs: Path[] = varyingFloats.reduce((acc: Path[], curr) => findPropertyVarying(name, field, properties, curr, acc), []);
     return vs.concat(acc);
 
   } else throw Error("unknown tag");
 };
 
+// Find all varying paths
 const findVarying = (tr: Translation): Path[] => {
   return foldSubObjs(findFieldVarying, tr);
 };
 
+// Find uninitialized (non-float) property paths
 const findPropertyUninitialized = (name: string, field: Field, properties: GPIMap, nonfloatProperty: string, acc: Path[]): Path[] => {
+  // nonfloatProperty is a non-float property that is NOT set by the user and thus we can sample it
   const res = properties[nonfloatProperty];
   if (!res) {
     return [mkPath([name, field, nonfloatProperty])].concat(acc);
@@ -1624,7 +1612,9 @@ const findPropertyUninitialized = (name: string, field: Field, properties: GPIMa
   return acc;
 };
 
+// Find uninitialized fields
 const findFieldUninitialized = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Path[]): Path[] => {
+  // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
   if (fexpr.tag === "FExpr") { return acc; }
   if (fexpr.tag === "FGPI") {
     const [typ, properties] = fexpr.contents;
@@ -1636,10 +1626,12 @@ const findFieldUninitialized = (name: string, field: Field, fexpr: FieldExpr<Var
   throw Error("unknown tag");
 };
 
+// NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
 const findUninitialized = (tr: Translation): Path[] => {
   return foldSubObjs(findFieldUninitialized, tr);
 };
 
+// Fold function to return the names of GPIs
 const findGPIName = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: [string, Field][]): [string, Field][] => {
   if (fexpr.tag === "FGPI") {
     return ([[name, field]] as [string, Field][]).concat(acc);
@@ -1647,10 +1639,12 @@ const findGPIName = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: [
   else throw Error("unknown tag");
 };
 
+// Find shapes and their properties
 const findShapeNames = (tr: Translation): [string, string][] => {
   return foldSubObjs(findGPIName, tr);
 };
 
+// Find paths that are the properties of shapes
 const findShapeProperties = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: [string, Field, Property][]): [string, Field, Property][] => {
   if (fexpr.tag === "FGPI") {
     const properties = fexpr.contents[1];
@@ -1661,10 +1655,13 @@ const findShapeProperties = (name: string, field: Field, fexpr: FieldExpr<VarAD>
   } else throw Error("unknown tag");
 };
 
+// Find paths that are the properties of shapes
 const findShapesProperties = (tr: Translation): [string, string, string][] => {
   return foldSubObjs(findShapeProperties, tr);
 }
 
+
+// Find various kinds of functions
 const findFieldFns = (name: string, field: Field, fexpr: FieldExpr<VarAD>, acc: Either<StyleOptFn, StyleOptFn>[]): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FExpr") {
     if (fexpr.contents.tag === "OptEval") {
@@ -1722,6 +1719,7 @@ const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
   return toFns(partitionEithers(fns));
 };
 
+// Extract number from a more complicated type
 // also ported from `lookupPaths`
 const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
   if (e.tag === "OptEval") {
@@ -1764,6 +1762,8 @@ const findFieldPending = (name: string, field: Field, fexpr: FieldExpr<VarAD>, a
   } else throw Error("unknown tag");
 };
 
+// Find pending paths
+// Find the paths to all pending, non-float, non-name properties
 const findPending = (tr: Translation): Path[] => {
   return foldSubObjs(findFieldPending, tr);
 };
@@ -1781,6 +1781,10 @@ const isFieldOrAccessPath = (p: Path): boolean => {
   return false;
 };
 
+// sample varying fields only (from the range defined by canvas dims) and store them in the translation
+// example: A.val = OPTIMIZED
+// This also samples varying access paths, e.g.
+// Circle { center : (1.1, ?) ... } <// the latter is an access path that gets initialized here
 // NOTE: Mutates translation
 const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
   const varyingFields = varyingPaths.filter(isFieldOrAccessPath);
@@ -1796,6 +1800,12 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
 
   return tr2;
 };
+
+////////////// Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
+// 1. Initialize all varying fields
+// 2. Initialize all properties of all GPIs
+// NOTE: since we store all varying paths separately, it is okay to mark the default values as Done // they will still be optimized, if needed.
+// TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
 
 // NOTE: Shape properties are mutated; they are returned as a courtesy
 const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
@@ -1830,6 +1840,7 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
       if (v.length === 2) {
         // Sample a whole 2D vector, e.g. `Circle { center : [?, ?] }`
         // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
+        // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
         if (v[0].tag === "Vary" && v[1].tag === "Vary") {
           properties[propName] = propValDone;
           return properties;
@@ -1840,6 +1851,8 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
       return properties;
     }
   } else if (styleSetting.tag === "Done") {
+    // TODO: pending properties are only marked if the Style source does not set them explicitly
+    // Check if this is the right decision. We still give pending values a default such that the initial list of shapes can be generated without errors.
     return properties;
   }
 
@@ -1868,6 +1881,8 @@ const initShape = (tr: Translation, [n, field]: [string, Field]): Translation =>
         clone(props)); // NOTE: `initProperty` mutates its input, so the `props` from the translation is cloned here, so the one in the translation itself isn't mutated
 
     // Insert the name of the shape into its prop dict
+    // NOTE: getShapes resolves the names + we don't use the names of the shapes in the translation
+    // The name-adding logic can be removed but is left in for debugging
     const shapeName = mkShapeName(n, field);
     instantiatedGPIProps.name = {
       tag: "Done",
@@ -1906,7 +1921,7 @@ const findLayeringExprs = (tr: Translation): Expr[] => {
 
 const lookupGPIName = (p: Path, tr: Translation): string => {
   if (p.tag === "FieldPath") {
-    // COMBAK: Deal with path synonyms by looking them up
+    // COMBAK: Deal with path synonyms / aliases by looking them up?
     return getShapeName(p.name.contents.value, p.field.value);
   } else {
     throw Error("expected path to GPI");
@@ -1949,15 +1964,15 @@ const computeShapeOrdering = (tr: Translation): string[] => {
 const genOptProblemAndState = (trans: Translation): State => {
 
   const varyingPaths = findVarying(trans);
-
-  console.log("varyingPaths", varyingPaths);
-
+  // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const uninitializedPaths = findUninitialized(trans);
   const shapePathList: [string, string][] = findShapeNames(trans);
   const shapePaths = shapePathList.map(mkPath);
 
   // COMBAK: Use pseudorandomness
+  // sample varying fieldsr
   const transInitFields = initFields(varyingPaths, trans);
+  // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   const transInit = initShapes(transInitFields, shapePathList);
 
   const shapeProperties = findShapesProperties(transInit);
@@ -1971,13 +1986,13 @@ const genOptProblemAndState = (trans: Translation): State => {
   const shapeOrdering = computeShapeOrdering(transInit); // deal with layering
 
   const initState = {
-    shapes: initialGPIs, // TODO: Why is this empty? I guess someone else initializes these?
+    shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapePaths,
     shapeProperties,
     shapeOrdering,
 
     translation: transInit, // This is the result of the data processing
-    originalTranslation: trans, // COMBAK: Make a copy of the inital trans and store it here
+    originalTranslation: clone(trans),
 
     varyingPaths,
     varyingValues: initVaryingState,
@@ -2017,9 +2032,8 @@ export const parseStyle = (p: string): StyProg => {
   return ast;
 };
 
+// Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 export const loadProgs = (files: any): [Env, SubstanceEnv, SubProg, StyProg] => {
-  // TODO: Replace this with the sugared version...
-  // console.log("progs", domainStr, subStrUnsugared, styStr);
   const [domainStr, subStr, styStr]: [string, string, string] = [files.domain.contents, files.substance.contents, files.style.contents];
 
   const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
@@ -2069,7 +2083,6 @@ const disambiguateFunctions = (env: Env, subProg: SubProg) => {
   subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt))
 };
 
-// TODO: Improve this type signature
 export const compileStyle = (files: any): Either<StyErrors, State> => {
   const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(files);
 
@@ -2081,6 +2094,7 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
   // Check selectors; return list of selector environments (`checkSels`)
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
+  // Leaving these logs in because they are still useful for debugging, but TODO: remove them
   console.log("selEnvs", selEnvs);
 
   // Find substitutions (`find_substs_prog`)

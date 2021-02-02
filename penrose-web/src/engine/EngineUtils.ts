@@ -379,9 +379,6 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
   const trans = initTrans;
   let name, field, prop;
 
-  // console.log("insertExpr: path, expr", path, expr);
-  // COMBAK: Deal with path aliasing for both field and property paths
-
   switch (path.tag) {
     case "FieldPath": {
       [name, field] = [path.name, path.field];
@@ -408,7 +405,7 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
 
       // For any non-GPI thing, just put it in the translation
       // NOTE: this will overwrite existing expressions
-      // TODO: warning / error here
+      // TODO (error)
       trans.trMap[name.contents.value][field.value] = fexpr;
       return trans;
     }
@@ -450,12 +447,6 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
       } else if (fieldRes.tag === "FGPI") {
         const [, properties] = fieldRes.contents;
         properties[prop.value] = expr;
-
-        // COMBAK revert
-        if (prop.value === "w") {
-          // debugger;
-        }
-
         return trans;
       } else { throw Error("unexpected tag"); }
     }
@@ -649,7 +640,6 @@ export const findExpr = (
 
         } else throw Error("access path lookup is invalid");
       } else throw Error("access path lookup is invalid");
-      // COMBAK ERROR (see `lookupPath` in `GenOptProblem.hs`)
     }
   }
 
@@ -666,11 +656,6 @@ export const exprToNumber = (e: Expr): number => {
   if (e.tag === "Fix") { return e.contents; }
   throw Error("expecting expr to be number");
 };
-
-// TODO: Import/export this
-// const dummySourceLoc = (): SourceLoc => {
-//   return { line: -1, col: -1 };
-// };
 
 export const numToExpr = (n: number): Expr => {
   return {
