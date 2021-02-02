@@ -74,11 +74,15 @@ export const collectLabels = async (allShapes: Shape[]) => {
   return Promise.all(
     allShapes.map(async ({ shapeType, properties }: Shape) => {
       if (shapeType === "Text" || shapeType === "TextTransform") {
+
+        const size: string = properties.fontSize.contents as string;
+
         // HACK: getting type errors for not being able to resolve the Value type
         const { body, width, height } = await tex2svg(
           properties.string.contents as string,
           properties.name.contents as string,
-          properties.fontSize.contents as string
+          // COMBAK / ISSUE: #458
+          size.slice(1, size.length - 1) as string
         );
         // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
         // TODO: need to give a type to this kind of updated shape

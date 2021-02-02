@@ -303,7 +303,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     const [vtype, env1] = unsafelyUnwrap(res1);
 
     // G |- E : T2
-    const res2 = checkExpr(toSubExpr(rel.expr), varEnv);
+    const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
 
     // TODO (error)
     if (isErr(res2)) {
@@ -490,12 +490,17 @@ const substituteBform = (lv: any, subst: Subst, bform: BindingForm): BindingForm
 
 const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
   // theta(f[E]) = f([theta(E)]
-  if (expr.tag !== "SEBind" && ["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(expr.tag)) { // COMBAK: Remove SEFuncOrValCons
+  if (expr.tag === "SEBind") {
+    return {
+      ...expr,
+      contents: substituteBform({ tag: "Nothing" }, subst, expr.contents)
+    };
+  } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(expr.tag)) { // COMBAK: Remove SEFuncOrValCons?
     return {
       ...expr,
       args: expr.args.map(arg => substituteExpr(subst, arg))
     };
-  } else throw Error("unsupported tag");
+  } else { debugger; throw Error("unsupported tag"); }
 };
 
 const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
@@ -733,7 +738,8 @@ const substituteBlock = ([subst, si]: [Subst, number], [block, bi]: [Block, numb
 //#endregion Applying a substitution to a block
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
-const toSubExpr = (e: SelExpr): SubExpr => {
+// Note: the env is needed to disambiguate SEFuncOrValCons
+const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
   if (e.tag === "SEBind") {
     return e.contents.contents;
   } else if (e.tag === "SEFunc") {
@@ -741,17 +747,25 @@ const toSubExpr = (e: SelExpr): SubExpr => {
       ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
       tag: "ApplyFunction",
       name: e.name,
-      args: e.args.map(toSubExpr)
+      args: e.args.map(e => toSubExpr(env, e))
     };
   } else if (e.tag === "SEValCons") {
     return {
       ...e,
       tag: "ApplyConstructor",
       name: e.name,
-      args: e.args.map(toSubExpr)
+      args: e.args.map(e => toSubExpr(env, e))
     };
   } else if (e.tag === "SEFuncOrValCons") {
-    throw Error("compiler should have disambiguated func/val cons");
+    let res = {
+      ...e,
+      tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
+      name: e.name,
+      args: e.args.map(e => toSubExpr(env, e))
+    };
+
+    disambiguateSubNode(env, res); // mutates res
+    return res as SubExpr;
   } else throw Error("unknown tag");
 };
 
@@ -912,7 +926,7 @@ const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationP
     } else if (s2.id.tag === "SubVar") {
       // B |- E = |E
       const [subVar, sVar] = [s1.variable, s2.id.contents.value];
-      const selExpr = toSubExpr(s2.expr);
+      const selExpr = toSubExpr(typeEnv, s2.expr);
       const subExpr = s1.expr;
       return subVarsEq(subVar, dummyIdentifier(sVar)) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
       // COMBAK: Add this condition when the Substance typechecker is implemented
@@ -2024,9 +2038,8 @@ export const loadProgs = (files: any): [Env, SubstanceEnv, SubProg, StyProg] => 
 };
 
 // NOTE: Mutates stmt
-const traverseTreeReplace = (env: Env, stmt: ASTNode) => {
-
-  stmt.children.forEach(child => traverseTreeReplace(env, child));
+const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
+  stmt.children.forEach(child => disambiguateSubNode(env, child));
 
   if (stmt.tag !== "Func") { return; }
 
@@ -2053,7 +2066,7 @@ const traverseTreeReplace = (env: Env, stmt: ASTNode) => {
 // For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
 // NOTE: mutates Substance AST
 const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => traverseTreeReplace(env, stmt))
+  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt))
 };
 
 // TODO: Improve this type signature

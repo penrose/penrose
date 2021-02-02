@@ -11,9 +11,10 @@ class Image extends React.Component<IGPIProps> {
     const path = shape.path.contents;
     const opacity = shape.opacity.contents;
 
+    // COMBAK / ISSUE: Revert path string manipulation when #458 is fixed
     return (
       <image
-        href={process.env.PUBLIC_URL + path}
+        href={process.env.PUBLIC_URL + path.slice(1, path.length - 1)}
         x={x - w / 2}
         y={y - h / 2}
         opacity={opacity}
