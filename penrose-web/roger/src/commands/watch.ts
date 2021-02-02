@@ -115,6 +115,7 @@ export default class Watch extends Command {
     });
 
     this.wss.on("connection", ws => {
+      console.info(chalk.green(`client connected`));
       this.sendFiles();
       ws.on("message", m => {
         const parsed = JSON.parse(m as string);

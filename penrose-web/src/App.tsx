@@ -27,6 +27,7 @@ interface ICanvasState {
   history: State[];
   showInspector: boolean;
   files: FileSocketResult | null;
+  connected: boolean;
 }
 
 const socketAddress = "ws://localhost:9160";
@@ -39,6 +40,7 @@ class App extends React.Component<any, ICanvasState> {
     penroseVersion: "",
     showInspector: true,
     files: null,
+    connected: false,
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -129,7 +131,7 @@ class App extends React.Component<any, ICanvasState> {
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalShapes(stateAD)
+    const stateEvaled: State = evalShapes(stateAD);
 
     console.log("stateEvaled", stateEvaled);
     const numShapes = stateEvaled.shapes.length;
@@ -150,7 +152,7 @@ class App extends React.Component<any, ICanvasState> {
       labeledShapesWithImgs,
       []
       // COMBAK: This used to be passed in data for some reason? now removed
-      // data.shapeOrdering 
+      // data.shapeOrdering
     );
 
     console.log("sortedShapes (unused due to layering)", sortedShapes);
@@ -172,42 +174,52 @@ class App extends React.Component<any, ICanvasState> {
     console.log("processed (after insertPending)", stateWithPendingProperties);
 
     // COMBAK: I guess we need to eval the shapes again?
-    const stateWithPendingProperties2: State = evalShapes(stateWithPendingProperties);
+    const stateWithPendingProperties2: State = evalShapes(
+      stateWithPendingProperties
+    );
 
     return stateWithPendingProperties2;
   };
 
+  connectToSocket = () => {
+    const fileSocket = FileSocket(
+      socketAddress,
+      async (files) => {
+        this.setState({ files, connected: true });
+
+        // COMBAK: Remove this as all compilation is handled in `compileStyle`
+        const env = compileDomain(files.domain.contents);
+        if (env.isErr()) {
+          console.error(env.error);
+          return;
+        }
+        const sub = compileSubstance(files.substance.contents, env.value);
+
+        if (sub.isErr()) {
+          console.error(sub.error);
+          return;
+        }
+
+        const oldState = this.state.data;
+        if (oldState) {
+          console.error("state already set");
+        }
+
+        // TODO: does `processedInitial` need to be set?
+        await this.setState({ processedInitial: false });
+        const initState = await this.genStateFrontend(files);
+        await this.setState({ data: initState });
+        this.onCanvasState(initState);
+        return;
+      },
+      () => {
+        this.setState({ connected: false });
+      }
+    );
+  };
+
   public async componentDidMount() {
-    const fileSocket = FileSocket(socketAddress, async (files) => {
-      this.setState({ files });
-
-      // COMBAK: Remove this as all compilation is handled in `compileStyle`
-      const env = compileDomain(files.domain.contents);
-      if (env.isErr()) {
-        console.error(env.error);
-        return;
-      }
-      const sub = compileSubstance(files.substance.contents, env.value);
-
-      if (sub.isErr()) {
-        console.error(sub.error);
-        return;
-      }
-      // console.log("substance programs", sub.value);
-      // console.log("files", files);
-
-      const oldState = this.state.data;
-      if (oldState) {
-        console.error("state already set");
-      }
-
-      // TODO: does `processedInitial` need to be set?
-      await this.setState({ processedInitial: false });
-      const initState = await this.genStateFrontend(files);
-      await this.setState({ data: initState });
-      this.onCanvasState(initState);
-      return;
-    });
+    this.connectToSocket();
   }
 
   public updateData = async (data: any) => {
@@ -236,6 +248,7 @@ class App extends React.Component<any, ICanvasState> {
       showInspector,
       history,
       files,
+      connected,
     } = this.state;
     return (
       <div
@@ -261,6 +274,8 @@ class App extends React.Component<any, ICanvasState> {
             showInspector={showInspector}
             files={files}
             ref={this.buttons}
+            connected={connected}
+            reconnect={this.connectToSocket}
           />
         </div>
         <div style={{ flexGrow: 1, position: "relative", overflow: "hidden" }}>
