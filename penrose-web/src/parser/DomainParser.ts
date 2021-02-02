@@ -279,7 +279,7 @@ const grammar: Grammar = {
           ...nodeData([]),
           ...rangeOf(d),
           tag: 'StringLit',
-          contents: d.text
+          contents: d.value
         })
         },
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  
