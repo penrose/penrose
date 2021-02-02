@@ -527,7 +527,7 @@ const grammar: Grammar = {
           ...nodeData([]),
           ...rangeOf(d),
           tag: 'StringLit',
-          contents: d.text
+          contents: d.value
         })
         },
     {"name": "annotated_float", "symbols": [{"literal":"?"}], "postprocess": ([d]): IVary => ({ ...nodeData([]), ...rangeOf(d), tag: 'Vary' })},

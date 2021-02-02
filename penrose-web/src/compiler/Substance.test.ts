@@ -123,11 +123,29 @@ A := D
     `;
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
-    if (res.isOk())
+    if (res.isOk()) {
       hasVars(res.value[1], [
         ["A", "Set"],
         ["l", "List(Set)"],
       ]);
+    }
+  });
+  test("decl bind", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+OpenSet D
+Set B, C, E
+Set A := D
+Set E := Subset(B, C)
+    `;
+    const res = compileSubstance(prog, env);
+    expect(res.isOk()).toBe(true);
+    if (res.isOk()) {
+      expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual("Subset");
+      // TODO: not caching var bindings for now. Add to checker if needed
+      // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
+      hasVars(res.value[1], [["A", "Set"], ["E", "Set"], ["D", "OpenSet"]]);
+    }
   });
   test("func: function", () => {
     const env = envOrError(domainProg);

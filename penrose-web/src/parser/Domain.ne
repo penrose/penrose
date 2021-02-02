@@ -251,7 +251,7 @@ string_lit -> %string_literal {%
     ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',
-    contents: d.text
+    contents: d.value
   })
 %}
 

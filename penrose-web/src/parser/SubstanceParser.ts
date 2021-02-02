@@ -83,6 +83,7 @@ const grammar: Grammar = {
     {"name": "statements", "symbols": ["_", "statement", "_c_", {"literal":"\n"}, "statements"], "postprocess": d => [d[1], ...d[4]]},
     {"name": "statement", "symbols": ["decl"], "postprocess": id},
     {"name": "statement", "symbols": ["bind"], "postprocess": id},
+    {"name": "statement", "symbols": ["decl_bind"], "postprocess": id},
     {"name": "statement", "symbols": ["apply_predicate"], "postprocess": id},
     {"name": "statement", "symbols": ["label_stmt"], "postprocess": id},
     {"name": "statement", "symbols": ["equal_exprs"], "postprocess": id},
@@ -116,6 +117,21 @@ const grammar: Grammar = {
           ...rangeBetween(variable, expr),
           tag: "Bind", variable, expr
         })
+        },
+    {"name": "decl_bind", "symbols": ["type_constructor", "__", "identifier", "_", {"literal":":="}, "_", "sub_expr"], "postprocess": 
+        ([type, , variable, , , , expr]): [Decl, Bind] => {
+          const decl: Decl = {
+            ...nodeData([type, variable]),
+            ...rangeBetween(type, variable),
+            tag: "Decl", type, name: variable
+          };
+          const bind: Bind = {
+            ...nodeData([variable, expr]),
+            ...rangeBetween(variable, expr),
+            tag: "Bind", variable, expr
+          };
+          return [decl, bind];
+        }
         },
     {"name": "apply_predicate$macrocall$2", "symbols": ["pred_arg"]},
     {"name": "apply_predicate$macrocall$3", "symbols": [{"literal":","}]},
@@ -286,7 +302,7 @@ const grammar: Grammar = {
           ...nodeData([]),
           ...rangeOf(d),
           tag: 'StringLit',
-          contents: d.text
+          contents: d.value
         })
         },
     {"name": "tex_literal", "symbols": [(lexer.has("tex_literal") ? {type: "tex_literal"} : tex_literal)], "postprocess":  
