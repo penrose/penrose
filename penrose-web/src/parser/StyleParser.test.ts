@@ -3,6 +3,7 @@ import * as nearley from "nearley";
 import grammar from "./StyleParser";
 import * as path from "path";
 import * as fs from "fs";
+import { result } from "lodash";
 
 const outputDir = "/tmp/asts";
 const saveASTs = true;
@@ -249,6 +250,16 @@ const {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
+    const ast = results[0] as StyProg;
+    const stringAssign = ast.blocks[0].block.statements[0];
+    if (
+      stringAssign.tag === "PathAssign" &&
+      stringAssign.value.tag === "StringLit"
+    ) {
+      expect(stringAssign.value.contents).toEqual(
+        "abs1232189y790yh97dasyhfda7fhnasopufn9"
+      );
+    } else fail("First stmt is not an assignment to string");
   });
 
   test("floating point expr", () => {
