@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {
-  insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst, isPath, defaultLbfgsParams, initConstraintWeight
+  insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst, isPath, defaultLbfgsParams, initConstraintWeight, addWarn
 } from "engine/EngineUtils";
 import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
 import { randFloats } from "utils/Util";
@@ -165,9 +165,10 @@ const initSelEnv = (): SelEnv => { // Note that JS objects are by reference, so 
   return {
     sTypeVarMap: {},
     varProgTypeMap: {},
-    sErrors: [],
     skipBlock: false,
     header: { tag: "Nothing" },
+    warnings: [],
+    errors: []
   };
 }
 
@@ -208,6 +209,14 @@ const addMapping = (k: BindingForm, v: StyT, m: SelEnv, p: ProgType): SelEnv => 
   return m;
 };
 
+// add warning/error to end of existing errors in selector env
+const addErrSel = (selEnv: SelEnv, err: string): SelEnv => {
+  return {
+    ...selEnv,
+    errors: selEnv.errors.concat([err])
+  };
+};
+
 // TODO: Test this
 // Judgment 3. G; g |- |S_o ok ~> g'
 // `checkDeclPattern`
@@ -217,14 +226,14 @@ const checkDeclPatternAndMakeEnv = (varEnv: Env, selEnv: SelEnv, stmt: DeclPatte
   const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
   if (isErr(typeErr)) {
     // TODO(errors)
-    throw Error("substance type error");
+    return addErrSel(selEnv, "substance type error in decl");
   }
 
   const varName: string = bVar.contents.value;
 
   // TODO(errors)
   if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
-    throw Error("Style pattern statement has already declared the variable");
+    return addErrSel(selEnv, "Style pattern statement has already declared the variable");
   }
 
   if (bVar.tag === "StyVar") {
@@ -250,7 +259,7 @@ const checkDeclPatternAndMakeEnv = (varEnv: Env, selEnv: SelEnv, stmt: DeclPatte
     const declType = toSubstanceType(styType);
     if (!isDeclaredSubtype(substanceType, declType, varEnv)) { // COMBAK: Order?
       // TODO(errors)
-      throw Error("mismatched types or wrong subtypes b/t Sub and Sty vars");
+      return addErrSel(selEnv, "mismatched types or wrong subtypes between Substance and Style variables");
     }
 
     return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
@@ -274,7 +283,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     // G |- B : T1
     const res1 = checkVar(rel.id.contents, varEnv);
 
-    // TODO (error)
+    // TODO(error)
     if (isErr(res1)) {
       // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
       return ["substance typecheck error in B"];
@@ -285,7 +294,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     // G |- E : T2
     const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
 
-    // TODO (error)
+    // TODO(error)
     if (isErr(res2)) {
       // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
       return ["substance typecheck error in E"];
@@ -296,7 +305,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     // T1 = T2
     const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
 
-    // TODO (error) -- improve message
+    // TODO(error) -- improve message
     if (!typesEq) {
       return ["types not equal"];
     }
@@ -378,7 +387,7 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
     // TODO(error): The errors returned in the top 3 statements
     return {
       ...selEnv_decls,
-      sErrors: selEnv_decls.sErrors.concat(relErrs) // COMBAK: Reverse the error order?
+      errors: selEnv_decls.errors.concat(relErrs) // COMBAK: Reverse the error order?
     };
   } else if (header.tag === "Namespace") {
     // TODO(error)
@@ -389,14 +398,15 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
 // Returns a sel env for each selector in the Style program, in the same order
 // previously named `checkSels`
 export const checkSelsAndMakeEnv = (varEnv: Env, prog: HeaderBlock[]): SelEnv[] => {
+  // Note that even if there is an error in one selector, it does not stop checking of the other selectors
   const selEnvs: SelEnv[] = prog.map(e => {
     const res = checkHeader(varEnv, e.header);
     // Put selector AST in just for debugging
     res.header = { tag: "Just", contents: e.header };
     return res;
   });
-  // const errors = ... TODO(errors)
-  return selEnvs; // TODO
+
+  return selEnvs;
 };
 
 //#endregion
@@ -820,14 +830,14 @@ const exprToVar = (e: SubExpr): Identifier => {
     return e;
   } else {
     // TODO(errors)
-    throw Error("Style expression matching doesn't yet handle nested exprssions");
+    throw Error("internal error: Style expression matching doesn't yet handle nested exprssions");
   }
 };
 
 const toTypeList = (c: ConstructorDecl): TypeConstructor[] => {
   return c.args.map(p => {
     if (p.type.tag === "TypeConstructor") { return p.type; }
-    throw Error("expected TypeConstructor in type (expected nullary type)");
+    throw Error("internal error: expected TypeConstructor in type (expected nullary type)");
   });
 };
 
@@ -853,13 +863,13 @@ const exprsMatchArr = (varEnv: Env, subE: ApplyConstructor, styE: ApplyConstruct
   const subArrType = varEnv.constructors.get(subE.name.value);
   if (!subArrType) {
     // TODO(errors)
-    throw Error("sub arr type doesn't exist");
+    throw Error("internal error: sub arr type doesn't exist");
   }
 
   const styArrType = varEnv.constructors.get(styE.name.value);
   if (!styArrType) {
     // TODO(errors)
-    throw Error("sty arr type doesn't exist");
+    throw Error("internal error: sty arr type doesn't exist");
   }
 
   if (subE.args.length !== styE.args.length) {
@@ -903,7 +913,7 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationPattern): boolean => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") { // rule Bind-Match
     const bvar = s2.id;
-    if (s2.id.tag === "StyVar") { // COMBAK: Error
+    if (s2.id.tag === "StyVar") { // internal error
       throw Error("Style variable ${rel.id.contents.value} found in relational statement ${ppRel(rel)}. Should not be present!");
 
     } else if (s2.id.tag === "SubVar") {
@@ -911,8 +921,8 @@ const relMatchesLine = (typeEnv: Env, subEnv: SubEnv, s1: SubStmt, s2: RelationP
       const [subVar, sVar] = [s1.variable, s2.id.contents.value];
       const selExpr = toSubExpr(typeEnv, s2.expr);
       const subExpr = s1.expr;
-      return subVarsEq(subVar, dummyIdentifier(sVar)) && exprsMatch(typeEnv, subExpr, selExpr); // TODO ^
-      // COMBAK: Add this condition when the Substance typechecker is implemented
+      return subVarsEq(subVar, dummyIdentifier(sVar)) && exprsMatch(typeEnv, subExpr, selExpr);
+      // COMBAK: Add this condition when this is implemented in the Substance typechecker
       // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
     } else throw Error("unknown tag");
 
@@ -977,7 +987,7 @@ const typesMatched = (varEnv: Env, substanceType: TypeConsApp, styleType: StyT):
 
   // TODO(errors)
   console.log(substanceType, styleType);
-  throw Error("expected two nullary types");
+  throw Error("internal error: expected two nullary types (parametrized types to be implemented)");
 };
 
 // Judgment 10. theta |- x <| B
@@ -1137,13 +1147,6 @@ const initTrans = (): Translation => {
 
 // Related functions in `Evaluator`: findExpr, insertExpr
 
-const addWarn = (tr: Translation, warn: Warning): Translation => {
-  return {
-    ...tr,
-    warnings: tr.warnings.concat(warn)
-  };
-};
-
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier, property: Identifier): Translation => {
   const trn = trans.trMap;
@@ -1156,7 +1159,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
   const fieldDict = trn[nm];
 
   if (!fieldDict) {
-    // TODO (errors / warnings): Should this be fatal?
+    // TODO(errors / warnings): Should this be fatal?
     const err = `Err: Sub obj '${nm}' has no fields; can't delete path '${pathStr}'`;
     return addWarn(trans, err);
   }
@@ -1164,7 +1167,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
   const prop: FieldExpr<VarAD> = fieldDict[fld];
 
   if (!prop) {
-    // TODO (errors / warnings): Should this be fatal?
+    // TODO(errors / warnings): Should this be fatal?
     const err = `Err: Sub obj '${nm}' already lacks field '${fld}'; can't delete path ${pathStr}`;
     return addWarn(trans, err);
   }
@@ -1178,7 +1181,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
       if (prop.contents.contents.tag === "FieldPath") {
         const p = prop.contents.contents;
         if (varsEq(p.name.contents, name.contents) && varsEq(p.field, field)) {
-          // TODO (error)
+          // TODO(error)
           const warn = `path was aliased to itself`;
           return addWarn(trans, warn);
         }
@@ -1186,7 +1189,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
       }
     }
 
-    // TODO (error)
+    // TODO(error)
     const warn = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot delete property '${property.value}'`;
     return addWarn(trans, warn);
 
@@ -1200,7 +1203,7 @@ const deleteProperty = (trans: Translation, name: BindingForm, field: Identifier
 
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteField = (trans: Translation, name: BindingForm, field: Identifier): Translation => {
-  // TODO (errors)
+  // TODO(errors)
   let trn = trans.trMap;
   const fieldDict = trn[name.contents.value];
 
@@ -1240,12 +1243,16 @@ const deletePath = (trans: Translation, path: Path): Either<StyErrors, Translati
 
 // NOTE: This function mutates the translation
 const addPath = (override: boolean, trans: Translation, path: Path, expr: TagExpr<VarAD>): Either<StyErrors, Translation> => {
-  // TODO(errors) <
-  // Extend `insertExpr` with an optional flag to deal with errors and warnings
-  // Move `insertExpr`, etc. into a translation utils file, as currently we import from Evaluator
-  // - Removed: addField, addProperty
+  // Extended `insertExpr` with an optional flag to deal with errors and warnings
+  // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
 
-  return Right(insertExpr(path, expr, trans));
+  // Check insertExpr's errors and warnings first
+  const tr2 = insertExpr(path, expr, trans, true, override);
+  if (tr2.warnings.length > 0) {
+    return Left(tr2.warnings);
+  }
+
+  return Right(tr2);
 };
 
 const translateLine = (trans: Translation, stmt: Stmt): Either<StyErrors, Translation> => {
@@ -1271,7 +1278,7 @@ const translateSubstsBlock = (trans: Translation, substsNum: [Subst, number][], 
 };
 
 const checkBlock = (selEnv: SelEnv, block: Block): StyErrors => {
-  // COMBAK: Block checking and return block errors, not generic sty errors
+  // TODO: Block checking and return block errors, not generic sty errors
   // Static semantics would go here
   return [];
 };
@@ -1281,14 +1288,14 @@ const translatePair = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, trans: Tra
 
   if (hb.header.tag === "Namespace") {
     const selEnv = initSelEnv();
-    const bErrs = checkBlock(selEnv, hb.block); // COMBAK
+    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
 
-    if (selEnv.sErrors.length > 0 || bErrs.length > 0) {
+    if (selEnv.errors.length > 0 || bErrs.length > 0) {
       // This is a namespace, not selector, so we substitute local vars with the namespace's name
       // skip transSubstsBlock; only one subst
       return {
         tag: "Left",
-        contents: selEnv.sErrors.concat(bErrs)
+        contents: selEnv.errors.concat(bErrs)
       }
     }
 
@@ -1298,7 +1305,7 @@ const translatePair = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, trans: Tra
 
   } else if (hb.header.tag === "Selector") {
     const selEnv = checkHeader(varEnv, hb.header);
-    const bErrs = checkBlock(selEnv, hb.block); // COMBAK
+    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
 
     // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
     // skip this block (because the Substance variable won't exist in the translation)
@@ -1307,10 +1314,10 @@ const translatePair = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, trans: Tra
       return Right(trans);
     }
 
-    if (selEnv.sErrors.length > 0 || bErrs.length > 0) {
+    if (selEnv.errors.length > 0 || bErrs.length > 0) {
       return {
         tag: "Left",
-        contents: selEnv.sErrors.concat(bErrs)
+        contents: selEnv.errors.concat(bErrs)
       };
     }
 
@@ -1384,7 +1391,7 @@ const translateStyProg = (varEnv: Env, subEnv: SubEnv, subProg: SubProg, styProg
 
   const trans = res.contents;
   const transWithNames = insertNames(trans);
-  const transWithNamesAndLabels = insertLabels(transWithNames, labelMap); // TODO
+  const transWithNamesAndLabels = insertLabels(transWithNames, labelMap);
 
   // COMBAK: Do this with plugins
   // const styValMap = styJsonToMap(styVals);
@@ -1725,20 +1732,16 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
   if (e.tag === "OptEval") {
     if (e.contents.tag === "Fix") {
       return e.contents.contents;
-    } else throw Error("invalid varying path");
-    // COMBAK: Error
+    } else throw Error("internal error: invalid varying path");
   } else if (e.tag === "Done") {
     if (e.contents.tag === "FloatV") {
       return numOf(e.contents.contents);
-    } else throw Error("invalid varying path");
-    // COMBAK: Error
+    } else throw Error("internal error: invalid varying path");
   } else if (e.tag === "Pending") {
-    throw Error("invalid varying path");
-    // COMBAK: Error
+    throw Error("internal error: invalid varying path");
   } else if (e.tag === "FGPI") {
-    throw Error("invalid varying path");
-    // COMBAK: Error
-  } else throw Error("unknown tag");
+    throw Error("internal error: invalid varying path");
+  } else throw Error("internal error: unknown tag");
 };
 
 // ported from `lookupPaths`
@@ -1856,8 +1859,7 @@ const initProperty = (shapeType: ShapeTypeStr, properties: GPIProps<VarAD>,
     return properties;
   }
 
-  // TODO: error
-  throw Error("invalid value for property");
+  throw Error("internal error: unknown tag or invalid value for property");
 };
 
 const mkShapeName = (s: string, f: Field): string => {
@@ -2094,6 +2096,14 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
   // Check selectors; return list of selector environments (`checkSels`)
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
+  // TODO(errors/warn): distinguish between errors and warnings
+  const selErrs: StyErrors = _.flatMap(selEnvs, e => e.warnings.concat(e.errors));
+
+  if (selErrs.length > 0) {
+    const err = `Could not compile. Error(s) in Style while checking selectors:`;
+    return Left([err].concat(selErrs));
+  }
+
   // Leaving these logs in because they are still useful for debugging, but TODO: remove them
   console.log("selEnvs", selEnvs);
 
@@ -2111,12 +2121,14 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
   const translateRes = translateStyProg(varEnv, subEnv, subProg, styProg, labelMap, styVals);
+  // TODO(error return) ^
 
   console.log("translation (before genOptProblem)", translateRes);
 
-  // Translation failed somewhere. TODO (errors/warnings)
+  // Translation failed somewhere. // TODO: Check that errors are returned in a consistent order
   if (translateRes.tag === "Left") {
-    return translateRes;
+    const err = `Could not compile. Error(s) in Style while generating translation:`;
+    return Left([err].concat(translateRes.contents));
   }
 
   const trans = translateRes.contents;
