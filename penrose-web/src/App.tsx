@@ -111,7 +111,8 @@ class App extends React.Component<any, ICanvasState> {
     if (res.tag === "Left") {
       // TODO(error)
       console.error("style error", res.contents);
-      throw Error("style error");
+      const styErrors = res.contents.join(";\n");
+      throw Error(`style error: ${styErrors}`);
     }
 
     const state: State = res.contents;

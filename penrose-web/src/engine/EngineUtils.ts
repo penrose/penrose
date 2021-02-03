@@ -405,12 +405,13 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
         }
       }
 
-      // For any non-GPI thing, just put it in the translation
-      // NOTE: this will overwrite existing expressions
+      // Check overrides before initialization
       if (compiling && !override && trans.trMap[name.contents.value].hasOwnProperty(field.value)) {
-        trans = addWarn(trans, "warning: overriding expression without override flag set"); // TODO(error): Should this be an error?
+        trans = addWarn(trans, "warning: overriding field expression without override flag set"); // TODO(error): Should this be an error?
       }
 
+      // For any non-GPI thing, just put it in the translation
+      // NOTE: this will overwrite existing expressions
       trans.trMap[name.contents.value][field.value] = fexpr;
       return trans;
     }
@@ -453,9 +454,10 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
       } else if (fieldRes.tag === "FGPI") {
         const [, properties] = fieldRes.contents;
 
+        // TODO(error): check for field/property overrides of paths that don't already exist
+        // TODO(error): if there are multiple matches, override errors behave oddly...
         if (compiling && !override && properties.hasOwnProperty(prop.value)) {
-          trans = addWarn(trans, "warning: overriding expression without override flag set");
-          // TODO(error): Should this be an error?
+          trans = addWarn(trans, "warning: overriding property expression without override flag set");
         }
 
         properties[prop.value] = expr;

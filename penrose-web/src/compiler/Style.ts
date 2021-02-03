@@ -2100,7 +2100,7 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
   const selErrs: StyErrors = _.flatMap(selEnvs, e => e.warnings.concat(e.errors));
 
   if (selErrs.length > 0) {
-    const err = `Could not compile. Error(s) in Style while checking selectors:`;
+    const err = `Could not compile. Error(s) in Style while checking selectors`;
     return Left([err].concat(selErrs));
   }
 
@@ -2127,7 +2127,7 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
 
   // Translation failed somewhere. // TODO: Check that errors are returned in a consistent order
   if (translateRes.tag === "Left") {
-    const err = `Could not compile. Error(s) in Style while generating translation:`;
+    const err = `Could not compile. Error(s) in Style while generating translation`;
     return Left([err].concat(translateRes.contents));
   }
 
