@@ -2,6 +2,7 @@ import { compileDomain, compileSubstance, parseSubstance } from "API";
 import { checkExpr, checkPredicate, checkVar, LabelMap, SubstanceEnv } from "compiler/Substance";
 import { constOf, numOf } from "engine/Autodiff";
 import { addWarn, defaultLbfgsParams, findExpr, initConstraintWeight, insertExpr, insertExprs, insertGPI, isPath, valueNumberToAutodiffConst } from "engine/EngineUtils";
+import { Graph, alg } from "graphlib";
 import * as _ from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
