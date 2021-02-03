@@ -1,6 +1,6 @@
 import * as S from "compiler/Style";
 import { possibleSubsts, selEnvs } from "compiler/StyleTestData";
-import * as _ from "lodash";
+import _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 
 const clone = require("rfdc")({ proto: false, circles: false });
@@ -69,41 +69,37 @@ describe("Compiler", () => {
   // Compiler finds the right substitutions for LA Style program
   // Note that this doesn't test subtypes
   test("finds the right substitutions for LA Style program", () => {
-    // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
-    // Not sure why the checker throws an error on `.default` below (or, alternatively, needs the type coercions), but the test runs + passes
-    const info = stateJSON.contents;
-    const subOut: SubOut = info[3] as unknown as SubOut;
+    //   // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
+    //   // Not sure why the checker throws an error on `.default` below (or, alternatively, needs the type coercions), but the test runs + passes
+    //   const info = stateJSON.contents;
+    //   const styProgInit: StyProg = styJSON as unknown as StyProg;
+    //   const subOut: SubOut = info[3] as unknown as SubOut;
 
-    const subProg: SubProg = subOut[0];
-    const varEnv: VarEnv = subOut[1][0];
-    const subEnv: SubEnv = subOut[1][1];
+    //   const subProg: SubProg = subOut[0];
+    //   const varEnv: VarEnv = subOut[1][0];
+    //   const subEnv: SubEnv = subOut[1][1];
 
-    console.log("TODO: Put this test back in");
-    console.log("TODO: Update tests to load new programs");
+    //   const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
+    //   const subss = S.findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
 
-    expect(true).toEqual(true);
-
-    // const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    // const subss = S.findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
-
-    // for (const [res, expected] of _.zip(subss, correctSubsts)) {
-    //   expect(res).toEqual(expected);
-    // }
+    //   for (const [res, expected] of _.zip(subss, correctSubsts)) {
+    //     expect(res).toEqual(expected);
+    //   }
   });
 
+  // COMBAK: Put this test back in
 
   // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `S.nameAnonStatements` working)
-  // COMBAK: revert
-  // test("There are no anonymous statements", () => {
-  //   const styProgInit: StyProg = styJSON as unknown as StyProg;
-  //   const styProg: StyProg = S.nameAnonStatements(styProgInit);
+  test("There are no anonymous statements", () => {
+    // const styProgInit: StyProg = styJSON as unknown as StyProg;
+    // const styProg: StyProg = S.nameAnonStatements(styProgInit);
 
-  //   for (const hb of styProg.blocks) {
-  //     for (const stmt of hb.block.statements) {
-  //       expect(stmt.tag).not.toEqual("AnonAssign");
-  //     }
-  //   }
-  // });
+    // for (const hb of styProg.blocks) {
+    //   for (const stmt of hb.block.statements) {
+    //     expect(stmt.tag).not.toEqual("AnonAssign");
+    //   }
+    // }
+  });
 
   const sum = (acc: number, n: number, i: number): Either<String, number> => i > 2 ? S.Left("error") : S.Right(acc + n);
 
@@ -125,5 +121,7 @@ describe("Compiler", () => {
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
+
+  // 
 
 });

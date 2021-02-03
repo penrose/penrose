@@ -111,7 +111,8 @@ class App extends React.Component<any, ICanvasState> {
     if (res.tag === "Left") {
       // TODO(error)
       console.error("style error", res.contents);
-      throw Error("style error");
+      const styErrors = res.contents.join(";\n");
+      throw Error(`style error: ${styErrors}`);
     }
 
     const state: State = res.contents;
@@ -150,16 +151,14 @@ class App extends React.Component<any, ICanvasState> {
     // Unused
     const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
-      []
       // COMBAK: This used to be passed in data for some reason? now removed
-      // data.shapeOrdering
+      stateEvaled.shapeOrdering
     );
 
-    console.log("sortedShapes (unused due to layering)", sortedShapes);
     console.assert(sortedShapes.length === numShapes);
 
     // COMBAK: Use the sorted shapes; removed since we don't have layering
-    const nonEmpties = await labeledShapesWithImgs.filter(Canvas.notEmptyLabel);
+    const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
 
     console.log("nonempties", nonEmpties);
     console.assert(nonEmpties.length === numShapes);

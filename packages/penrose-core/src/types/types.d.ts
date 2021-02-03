@@ -1574,9 +1574,10 @@ interface ISelEnv {
   sTypeVarMap: { [k: string]: StyT }; // B : |T
   varProgTypeMap: { [k: string]: [ProgType, BindingForm] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
   // Variable => [Substance or Style variable, original data structure with program locs etc]
-  sErrors: string[]; // TODO(errors): Store errors properly
   skipBlock: Bool;
   header: Maybe<Header>; // Just for debugging
+  warnings: StyErrors;
+  errors: StyErrors;
 }
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
 
