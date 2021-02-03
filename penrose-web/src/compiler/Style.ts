@@ -623,9 +623,6 @@ const substituteField = (lv: LocalVarSubst, subst: Subst, field: PropertyDecl): 
 };
 
 const substituteBlockExpr = (lv: LocalVarSubst, subst: Subst, expr: Expr): Expr => {
-  // COMBAK delete this
-  // console.error("expr", expr);
-
   if (isPath(expr)) {
     return substitutePath(lv, subst, expr);
   } else if (expr.tag === "CompApp" || expr.tag === "ObjFn" || expr.tag === "ConstrFn") {

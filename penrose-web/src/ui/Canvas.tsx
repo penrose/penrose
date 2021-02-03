@@ -10,9 +10,6 @@ import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
 import * as Shapes from "shapes/ShapeDef";
 
-// COMBAK: Clean this up
-// import * as stateJSON from "__tests__/orthogonalVectors.json";
-// import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
 import { compileStyle } from "compiler/Style";
 
 interface ICanvasProps {
