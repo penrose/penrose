@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { compact, flatten } from "lodash";
 import * as moo from "moo";
 
@@ -16,7 +17,10 @@ export const basicSymbols: moo.Rules = {
   rparen: ")",
   apos: "'",
   comma: ",",
-  string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+  string_literal: {
+    match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+    value: (s:string):string => s.slice(1, -1),
+  },
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
   comment: /--.*?$/,
   multiline_comment: {
@@ -55,8 +59,8 @@ const tokenStart = (token: any) => {
 const tokenEnd = (token: any) => {
   const { text } = token;
   const nl = /\r\n|\r|\n/;
-  var newlines = 0;
-  var textLength = text.length;
+  let newlines = 0;
+  let textLength = text.length;
   if (token.lineBreaks) {
     newlines = text.split(nl).length;
     textLength = text.substring(text.lastIndexOf(nl) + 1);
@@ -166,5 +170,5 @@ export const idOf = (value: string, nodeType: string): Identifier => ({
   end: { line: 1, col: 1 },
   tag: "Identifier",
   type: "identifier",
-  value: value,
+  value,
 });

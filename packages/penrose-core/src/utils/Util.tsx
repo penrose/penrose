@@ -299,14 +299,14 @@ export const hsvToRGB = (
   return h < 60
     ? hsv2rgb(c, x, 0, m)
     : h < 120
-    ? hsv2rgb(x, c, 0, m)
-    : h < 180
-    ? hsv2rgb(0, c, x, m)
-    : h < 240
-    ? hsv2rgb(0, x, c, m)
-    : h < 300
-    ? hsv2rgb(x, 0, c, m)
-    : hsv2rgb(c, 0, x, m);
+      ? hsv2rgb(x, c, 0, m)
+      : h < 180
+        ? hsv2rgb(0, c, x, m)
+        : h < 240
+          ? hsv2rgb(0, x, c, m)
+          : h < 300
+            ? hsv2rgb(x, 0, c, m)
+            : hsv2rgb(c, 0, x, m);
 };
 
 export const toHex = (color: any): string => {

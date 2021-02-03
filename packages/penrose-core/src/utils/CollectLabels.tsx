@@ -74,6 +74,7 @@ export const collectLabels = async (allShapes: Shape[]) => {
   return Promise.all(
     allShapes.map(async ({ shapeType, properties }: Shape) => {
       if (shapeType === "Text" || shapeType === "TextTransform") {
+
         // HACK: getting type errors for not being able to resolve the Value type
         const { body, width, height } = await tex2svg(
           properties.string.contents as string,
@@ -85,6 +86,7 @@ export const collectLabels = async (allShapes: Shape[]) => {
         const obj2: any = { ...properties };
         obj2.w.updated = { tag: "FloatV", contents: width };
         obj2.h.updated = { tag: "FloatV", contents: height };
+
         // HACK: this behavior needs to be encoded in our type system
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = { contents: body, omit: true };

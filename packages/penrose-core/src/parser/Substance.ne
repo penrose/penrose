@@ -83,7 +83,7 @@ statements
 statement 
   -> decl            {% id %}
   |  bind            {% id %}
-  # |  decl_bind   {% id %} # TODO: shorthand for bind
+  |  decl_bind       {% id %} 
   |  apply_predicate {% id %}
   |  label_stmt      {% id %}
   |  equal_exprs     {% id %}
@@ -103,6 +103,22 @@ bind -> identifier _ ":=" _ sub_expr {%
     ...rangeBetween(variable, expr),
     tag: "Bind", variable, expr
   })
+%}
+
+decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
+  ([type, , variable, , , , expr]): [Decl, Bind] => {
+    const decl: Decl = {
+      ...nodeData([type, variable]),
+      ...rangeBetween(type, variable),
+      tag: "Decl", type, name: variable
+    };
+    const bind: Bind = {
+      ...nodeData([variable, expr]),
+      ...rangeBetween(variable, expr),
+      tag: "Bind", variable, expr
+    };
+    return [decl, bind];
+  }
 %}
 
 apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
@@ -214,7 +230,7 @@ string_lit -> %string_literal {%
     ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',
-    contents: d.text
+    contents: d.value
   })
 %}
 

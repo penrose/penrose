@@ -1,8 +1,4 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
-import { insertExpr } from "engine/Evaluator";
-import { valueNumberToAutodiff } from "engine/EngineUtils";
+import { valueNumberToAutodiff, insertExpr, exprToNumber } from "engine/EngineUtils";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
@@ -12,15 +8,23 @@ import { valueNumberToAutodiff } from "engine/EngineUtils";
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
   const getProperty = (path: IPropertyPath) => {
-    const [
-      { contents: subName },
-      field,
-      prop,
-    ] = (path as IPropertyPath).contents;
+    const [subName, field, prop,]: [string, string, string] =
+      [(path as IPropertyPath).name.contents.value, path.field.value, path.property.value];
+
     // HACK: this depends on the name encoding
     const shape = shapes.find(
-      (s: any) => s.properties.name.contents === `${subName}.${field}`
+      (s: any) => {
+        const [nameStr, fieldStr]: [string, string] = [subName, field];
+        const currName: string = s.properties.name.contents;
+        return currName === `${nameStr}.${fieldStr}`;
+      }
     );
+
+    if (!shape) {
+      console.log("shapes", shapes, shapes.map((s: Shape) => s.properties.name.contents));
+      throw Error(`shape not found: ${subName}.${field}`);
+    }
+
     return shape.properties[prop];
   };
   switch (path.tag) {
@@ -30,19 +34,17 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
       return getProperty(path);
     }
     case "AccessPath": {
-      const [propertyPath, indices] = (path as IAccessPath).contents;
+      const [propertyPath, indices] = [(path as IAccessPath).path, path.indices];
       if (propertyPath.tag === "PropertyPath") {
         const property = getProperty(propertyPath);
         // walk the structure to access all indices
         let res = property.contents;
         for (let i of indices) {
-          res = res[i];
+          res = res[exprToNumber(i)];
         }
         return res;
       } else {
-        throw new Error(
-          `pending paths must be property paths but got ${propertyPath.tag}`
-        );
+        throw new Error(`pending paths must be property paths but got ${propertyPath.tag}`);
       }
     }
   }
@@ -56,6 +58,10 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
  * @todo: test with an initial state that has pending values
  */
 export const insertPending = (state: State) => {
+  // debugger;
+
+  console.log("insertPending");
+
   return {
     ...state,
     // clear up pending paths now that they are updated properly
@@ -66,14 +72,8 @@ export const insertPending = (state: State) => {
       // .updated is from `collectLabels` updating pending properties.
       // TODO: `v` can only be any for now due to `updated`
       .reduce(
-        (trans: Translation, [path, v]: any) =>
-          insertExpr(
-            path,
-            { tag: "Done", contents: valueNumberToAutodiff(v) },
-            trans
-          ),
-        state.translation
-      ),
+        (trans: Translation, [path, v]: any) => insertExpr(path, { tag: "Done", contents: valueNumberToAutodiff(v) }, trans),
+        state.translation),
   };
 };
 
@@ -88,10 +88,8 @@ export const updateVaryingValues = (state: State): State => {
     // TODO: add a branch for `FieldPath` when this is no longer the case
     if (path.tag === "PropertyPath") {
       newVaryingValues[index] = findShapeProperty(state.shapes, path).contents;
-    } else if (
-      path.tag === "AccessPath" &&
-      path.contents[0].tag === "PropertyPath"
-    ) {
+    } else if (path.tag === "AccessPath"
+      && path.path.tag === "PropertyPath") {
       newVaryingValues[index] = findShapeProperty(state.shapes, path);
     }
   });

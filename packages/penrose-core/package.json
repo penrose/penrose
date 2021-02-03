@@ -5,6 +5,7 @@
   "module": "build/dist/module.js",
   "types": "build/dist/types.js",
   "dependencies": {
+    "@babel/core": "^7.7.7",
     "@penrose/linear-algebra": "^1.0.0",
     "@reach/tabs": "^0.9.0",
     "@types/graphlib": "^2.1.7",
@@ -45,8 +46,8 @@
     "prestart": "npm run build:parsers",
     "pretest": "npm run build:parsers",
     "prebuild-lib": "npm run build:parsers",
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "CI=false && react-scripts --max_old_space_size=4096 build",
+    "start": "react-scripts --max_old_space_size=8192 start",
+    "build": "CI=false && react-scripts --max_old_space_size=8192 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test --watchAll=false",

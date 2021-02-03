@@ -1,10 +1,13 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
 import * as _ from "lodash";
 
 const RAND_RANGE = 100;
 const TOL = 1e-3;
+
+// HACK: Copied from EngineUtils
+export const exprToNumber = (e: Expr): number => {
+  if (e.tag === "Fix") { return e.contents; }
+  throw Error("expecting expr to be number");
+};
 
 export const normList = (xs: number[]) =>
   Math.sqrt(_.sum(xs.map((e) => e * e)));
@@ -63,49 +66,52 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 // ---------- Printing utils
 
-const prettyPrintExpr = (arg: Expr): string => {
-  // TODO: only handles paths and floats for now; generalize to other exprs
-  if (arg.tag === "EPath") {
-    const obj = arg.contents.contents;
-    const varName = obj[0].contents;
-    const varField = obj[1];
+// COMBAK: Copied from `EngineUtils`; consolidate
+export const isPath = (expr: Expr): expr is Path => {
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
+};
+
+export const prettyPrintPath = (p: Expr): string => {
+  if (p.tag === "FieldPath") {
+    const varName = p.name.contents.value;
+    const varField = p.field.value;
     return [varName, varField].join(".");
-  } else if (arg.tag === "AFloat") {
-    if (arg.contents.tag === "Fix") {
-      const val = arg.contents.contents;
-      return String(val);
-    } else {
-      throw Error(
-        "Should not be asked to pretty-print varying float; has it been replaced?"
-      );
-    }
+  } else if (p.tag === "PropertyPath") {
+    const varName = p.name.contents.value;
+    const varField = p.field.value;
+    const property = p.property.value;
+    return [varName, varField, property].join(".");
+  } else if (p.tag === "AccessPath") {
+    const pstr: string = prettyPrintPath(p.path);
+    const indices: number[] = p.indices.map(exprToNumber);
+    return `${pstr}[${indices.toString() as string}]`;
+  } else {
+    console.error("unexpected path type in", p);
+    return JSON.stringify(p);
+  }
+};
+
+export const prettyPrintExpr = (arg: Expr): string => {
+  // TODO: only handles paths and floats for now; generalize to other exprs
+  if (isPath(arg)) {
+    return prettyPrintPath(arg);
+  } else if (arg.tag === "Fix") {
+    const val = arg.contents;
+    return String(val);
   } else if (arg.tag === "CompApp") {
-    const [fnName, fnArgs] = arg.contents;
-    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
-      ""
-    );
+    const [fnName, fnArgs] = [arg.name.value, arg.args];
+    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join("");
   } else {
     // TODO: Finish writing pretty-printer for rest of expressions (UOp, BinOp)
     const res = JSON.stringify(arg);
-    // log.trace("arg", arg);
-    // log.trace(`warning: argument of type ${arg.tag} not yet handled in pretty-printer; returning stopgap`, res);
     return res;
   }
 };
 
-const prettyPrintFn = (fn: any) => {
+export const prettyPrintFn = (fn: any) => {
   const name = fn.fname;
   const args = fn.fargs.map(prettyPrintExpr).join(", ");
   return [name, "(", args, ")"].join("");
-};
-
-// TODO: only handles property paths for now
-export const prettyPrintProperty = (arg: any) => {
-  const obj = arg.contents;
-  const varName = obj[0].contents;
-  const varField = obj[1];
-  const property = obj[2];
-  return [varName, varField, property].join(".");
 };
 
 export const prettyPrintFns = (state: any) =>

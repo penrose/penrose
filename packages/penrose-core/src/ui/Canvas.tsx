@@ -8,6 +8,12 @@ import { insertPending, updateVaryingValues } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
 import { evalShapes, decodeState } from "engine/Evaluator";
 import { makeTranslationDifferentiable } from "engine/EngineUtils";
+import * as Shapes from "shapes/ShapeDef";
+
+// COMBAK: Clean this up
+// import * as stateJSON from "__tests__/orthogonalVectors.json";
+// import * as styJSON from "compiler/asts/linear-algebra-paper-simple.ast.json";
+import { compileStyle } from "compiler/Style";
 
 interface ICanvasProps {
   lock: boolean;
@@ -25,54 +31,25 @@ interface ICanvasProps {
  * Hard-coded canvas size
  * @type {[number, number]}
  */
-export const canvasSize: [number, number] = [800, 700];
+// export const canvasSize: [number, number] = [800, 700];
+export const canvasSize: [number, number] = Shapes.canvasSize;
 
 class Canvas extends React.Component<ICanvasProps> {
   public static sortShapes = (shapes: Shape[], ordering: string[]) => {
+    // COMBAK: Deal with nonexistent shapes
     return ordering.map((name) =>
       shapes.find(({ properties }) => properties.name.contents === name)
     ); // assumes that all names are unique
   };
 
-  public static notEmptyLabel = ({ shapeType, properties }: any) => {
+  public static notEmptyLabel = (shape: any) => {
+    if (!shape) {
+      // COMBAK: temp hack, revert when labels are generated
+      console.error("Skipping undefined shape");
+      return true;
+    }
+    const { shapeType, properties } = shape;
     return shapeType === "Text" ? !(properties.string.contents === "") : true;
-  };
-
-  /**
-   * Decode
-   * NOTE: this function is only used for compilerOutput now. Will deprecate as soon as style compiler is in the frontend
-   * @static
-   * @memberof Canvas
-   */
-  public static processData = async (data: any) => {
-    const state: State = decodeState(data);
-
-    // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
-    // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
-    const translationAD = makeTranslationDifferentiable(state.translation);
-    const stateAD = {
-      ...state,
-      originalTranslation: state.originalTranslation,
-      translation: translationAD,
-    };
-
-    // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
-    // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalShapes(stateAD);
-    // TODO: add return types
-    const labeledShapes: any = await collectLabels(stateEvaled.shapes);
-    const labeledShapesWithImgs: any = await loadImages(labeledShapes);
-    const sortedShapes: any = await Canvas.sortShapes(
-      labeledShapesWithImgs,
-      data.shapeOrdering
-    );
-    const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-    const processed = await insertPending({
-      ...stateEvaled,
-      shapes: nonEmpties,
-    });
-
-    return processed;
   };
 
   // public readonly canvasSize: [number, number] = [400, 400];
@@ -305,12 +282,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-          } on ${new Date()
-            .toISOString()
-            .slice(
-              0,
-              10
-            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            } on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
