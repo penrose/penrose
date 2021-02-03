@@ -89,8 +89,6 @@ export const evalShapes = (s: State): State => {
     [[], trans]
   );
 
-  // COMBAK: Re-sort the shapes by layering, as currently it's not available
-
   if (s.shapeOrdering.length < shapesEvaled.length) {
     console.error("Invalid shape layering of length", s.shapeOrdering.length);
   }
@@ -102,12 +100,10 @@ export const evalShapes = (s: State): State => {
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: shapesEvaled };
+  return { ...s, shapes: sortedShapesEvaled };
 };
 
 const sameName = (given: Value<number>, expected: string): boolean => {
-  console.log("given, expected", given.contents, expected);
-
   if (given.tag !== "StrV") { return false; }
   if (typeof given.contents !== "string") { throw Error("expected string GPI name"); }
   return given.contents === expected;
