@@ -15,7 +15,7 @@ const clone = require("rfdc")({ proto: false, circles: false });
 
 // Load file in format "domain-dir/file.extension"
 const loadFile = (examplePath: string): string => {
-  const file = path.join("../examples/", examplePath);
+  const file = path.join("../../examples/", examplePath);
   const prog = fs.readFileSync(file, "utf8");
   return prog;
 };
