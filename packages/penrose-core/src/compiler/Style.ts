@@ -2424,7 +2424,7 @@ const topSortLayering = (
 
   try {
     const globalOrdering: string[] = alg.topsort(layerGraph);
-  console.log("layering", globalOrdering, allGPINames, partialOrderings);
+    console.log("layering", globalOrdering, allGPINames, partialOrderings);
     return { tag: "Just", contents: globalOrdering };
   } catch (e) {
     return { tag: "Nothing" };
@@ -2449,7 +2449,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
     throw Error("no shape ordering possible from layering");
   }
 
-  
+
 
   return shapeOrdering.contents;
 };
@@ -2533,15 +2533,8 @@ export const parseStyle = (p: string): StyProg => {
 };
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
-export const loadProgs = (
-  files: any
-): [Env, SubstanceEnv, SubProg, StyProg] => {
-  const [domainStr, subStr, styStr]: [string, string, string] = [
-    files.domain.contents,
-    files.substance.contents,
-    files.style.contents,
-  ];
-
+// files must follow schema: { domain, substance, style }
+export const loadProgs = ([domainStr, subStr, styStr]: [string, string, string]): [Env, SubstanceEnv, SubProg, StyProg] => {
   const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
   const env0: Env = unsafelyUnwrap(domainProgRes);
 
@@ -2555,13 +2548,7 @@ export const loadProgs = (
   const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
   const styProg: StyProg = parseStyle(styStr);
 
-  const res: [Env, SubstanceEnv, SubProg, StyProg] = [
-    varEnv,
-    subEnv,
-    subProg,
-    styProg,
-  ];
-  console.log("results from loading programs", res);
+  const res: [Env, SubstanceEnv, SubProg, StyProg] = [varEnv, subEnv, subProg, styProg];
   return res;
 };
 
@@ -2599,17 +2586,17 @@ const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
 
 // For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
 // NOTE: mutates Substance AST
-const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
+export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
+  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt))
 };
 
 export const compileStyle = (files: any): Either<StyErrors, State> => {
-  const [varEnv, subEnv, subProg, styProgInit]: [
-    Env,
-    SubstanceEnv,
-    SubProg,
-    StyProg
-  ] = loadProgs(files);
+  const triple: [string, string, string] = [files.domain.contents, files.substance.contents, files.style.contents];
+
+  const loadedProgs: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(triple);
+  console.log("results from loading programs", loadedProgs);
+
+  const [varEnv, subEnv, subProg, styProgInit] = loadedProgs;
 
   // disambiguate Func into the right form in Substance grammar #453 -- mutates Substance AST since children are references
   disambiguateFunctions(varEnv, subProg);

@@ -104,8 +104,6 @@ export const evalShapes = (s: State): State => {
 };
 
 const sameName = (given: Value<number>, expected: string): boolean => {
-  console.log("given, expected", given.contents, expected);
-
   if (given.tag !== "StrV") { return false; }
   if (typeof given.contents !== "string") { throw Error("expected string GPI name"); }
   return given.contents === expected;
