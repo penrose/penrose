@@ -1,0 +1,23 @@
+{
+  "repository": "penrose/penrose",
+  "author": "Penrose Team (https://penrose.ink)",
+  "private": true,
+  "packages": [
+    "packages/*"
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "test": "lerna run test --stream",
+    "new-version": "lerna version --conventional-commits --yes",
+    "diff": "lerna diff"
+  },
+  "devDependencies": {
+    "husky": "^4.3.8",
+    "lerna": "^3.22.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
+  }
+}
