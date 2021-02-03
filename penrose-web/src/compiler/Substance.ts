@@ -51,7 +51,7 @@ export const compileSubstance = (
   });
 };
 
-type LabelMap = Map<string, Maybe<string>>;
+export type LabelMap = Map<string, Maybe<string>>;
 export interface SubstanceEnv {
   exprEqualities: [SubExpr, SubExpr][];
   predEqualities: [ApplyPredicate, ApplyPredicate][];
@@ -187,7 +187,7 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   }
 };
 
-const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
+export const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
   const { name, args } = stmt;
   const predDecl = env.predicates.get(name.value);
   // check if predicate exists and retrieve its decl
@@ -241,7 +241,7 @@ const checkPredArg = (
 };
 
 // TODO: in general, true-myth seem to have trouble transforming data within the monad when the transformation itself can go wrong. If the transformation function cannot return errors, it's completely fine to use `ap`. This particular scenario is technically handled by `andThen`, but it seems to have problems with curried functions.
-const subtypeOf = (
+export const subtypeOf = (
   type1: ResultWithType,
   type2: ResultWithType,
   expr1: SubExpr,
@@ -270,7 +270,7 @@ const withType = (env: Env, type: TypeConsApp): ResultWithType =>
 const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
   andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
 
-const checkExpr = (
+export const checkExpr = (
   expr: SubExpr,
   env: Env,
   variable?: Identifier
@@ -482,7 +482,7 @@ const checkField = (decons: Deconstructor, env: Env): ResultWithType => {
   } else return err(deconstructNonconstructor(decons));
 };
 
-const checkVar = (variable: Identifier, env: Env): ResultWithType => {
+export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
   const type = env.vars.get(variable.value);
   if (type) {
     return ok([type, env]);

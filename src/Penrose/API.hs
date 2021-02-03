@@ -2,6 +2,7 @@
 
 module Penrose.API
   ( compileTrio
+  , compileTrio2
   , step
   , stepUntilConvergence
   , reconcileNext
@@ -90,6 +91,32 @@ compileTrio substance style element
   let optConfig = defaultOptConfig
   state <- {- trace ("Style AST: \n" ++ ppShow styProg) $ -} compileStyle styProg subOut' styVals optConfig
   return (state, env)
+
+compileTrio2 ::
+     String -- ^ a Substance program
+  -> String -- ^ a Style program
+  -> String -- ^ an Element program
+  -> Either CompilerError (State, VarEnv, StyProg, SubOut) -- ^ an initial state and compiler context for language services
+compileTrio2 substance style element
+  -- Parsing and desugaring phase
+ = do
+  env <- parseElement "" element
+  styProg <- parseStyle "" style env
+  let subDesugared = sugarStmts substance env -- TODO: errors?
+  subOut@(SubOut _ (subEnv, _) _) <- parseSubstance "" subDesugared env
+  -- Plugin phase
+  pluginRes <- runPlugin subOut style env
+  (subOut', styVals) <-
+    case pluginRes of
+      Nothing -> pure (subOut, [])
+      Just (subPlugin, styVals) -> do
+        subOutPlugin <-
+          parseSubstance "" (subDesugared ++ "\n" ++ subPlugin) env
+        return (subOutPlugin, styVals)
+  -- Compilation phase
+  let optConfig = defaultOptConfig
+  state <- {- trace ("Style AST: \n" ++ ppShow styProg) $ -} compileStyle styProg subOut' styVals optConfig
+  return (state, env, styProg, subOut)
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
 getEnv ::

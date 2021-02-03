@@ -1,11 +1,7 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
-import { valueNumberToAutodiff } from "engine/EngineUtils";
-import { evalShapes, insertExpr } from "engine/Evaluator";
-import { initConstraintWeight } from "engine/Optimizer";
+import { valueNumberToAutodiff, tagExprNumberToAutodiff, insertExpr } from "engine/EngineUtils";
+import { evalShapes } from "engine/Evaluator";
+import { initConstraintWeight } from "engine/EngineUtils";
 import { mapValues, zip } from "lodash";
-import { canvasSize } from "ui/Canvas";
 import { randFloat, randFloats, safe } from "utils/Util";
 
 //#region shapedef helpers and samplers
@@ -17,8 +13,11 @@ type ConstSampler = (type: PropType, value: PropContents) => Value<number>;
 
 type Range = [number, number];
 
-const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
-const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
+// NOTE: I moved `canvasSize` here from Canvas.tsx, which re-exports it, to avoid a circular import in `Style`.
+
+export const canvasSize: [number, number] = [800, 700];
+export const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
+export const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
   tag: "FloatV",
@@ -87,21 +86,19 @@ const emptyPoly: IPolygonV<number> = {
 //#endregion
 
 //#region shapedefs
-type ShapeDef = IShapeDef;
+export type ShapeDef = IShapeDef;
 
 // type HasTag<T, N> = T extends { tag: N } ? T : never;
 
-type PropType = Value<number>["tag"];
-type IPropModel = {
-  [k: string]: [PropType, Sampler];
-};
+export type PropType = Value<number>["tag"];
+export type IPropModel = { [k: string]: [PropType, Sampler]; };
 
-interface IShapeDef {
+export interface IShapeDef {
   shapeType: string;
   properties: IPropModel;
 }
 
-type Sampler = () => Value<number>;
+export type Sampler = () => Value<number>;
 
 export const circleDef: ShapeDef = {
   shapeType: "Circle",
@@ -245,7 +242,7 @@ export const shapedefs: ShapeDef[] = [
   arrowDef,
 ];
 
-const findDef = (type: string): ShapeDef => {
+export const findDef = (type: string): ShapeDef => {
   const res = shapedefs.find(({ shapeType }: ShapeDef) => shapeType === type);
   if (res) return res;
   else throw new Error(`${type} is not a valid shape definition.`);
@@ -322,17 +319,19 @@ const sampleFields = ({ varyingPaths }: State): number[] => {
 };
 
 const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
+  if (path.tag === "LocalVar" || path.tag === "InternalLocalVar") {
+    throw Error("local path shouldn't appear in GPI");
+  }
+
   // HACK: for access and field paths, sample within the canvas width
   if (path.tag === "AccessPath" || path.tag === "FieldPath") {
     return constValue("FloatV", randFloat(...canvasXRange));
   }
   // for property path, use the sampler in shapedef
   else {
-    const [{ contents: subName }, field, prop] = path.contents;
+    const [subName, field, prop]: [string, string, string] = [path.name.contents.value, path.field.value, path.property.value];
     const { shapeType } = safe(
-      shapes.find(
-        (s: any) => s.properties.name.contents === `${subName}.${field}`
-      ),
+      shapes.find((s: any) => s.properties.name.contents === `${subName}.${field}`),
       `Cannot find shape ${subName}.${field}`
     );
     const shapeDef = findDef(shapeType);
@@ -359,7 +358,7 @@ export const resampleBest = (state: State, numSamples: number): State => {
   ][];
 
   const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path, Expr]) => insertExpr(p, e, tr),
+    (tr: Translation, [p, e]: [Path, TagExpr<number>]) => insertExpr(p, tagExprNumberToAutodiff(e), tr),
     state.translation
   );
 

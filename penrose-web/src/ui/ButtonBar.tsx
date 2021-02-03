@@ -7,6 +7,7 @@ interface IProps {
   initial: boolean;
   showInspector: boolean;
   files: FileSocketResult | null;
+  connected: boolean;
 
   toggleInspector(): void;
   downloadPDF(): void;
@@ -14,8 +15,8 @@ interface IProps {
   downloadSVG(): void;
   autoStepToggle(): void;
   step(): void;
-  // stepUntilConvergence(): void;
   resample(): void;
+  reconnect(): void;
 }
 class ButtonBar extends React.Component<IProps> {
   public render() {
@@ -27,11 +28,12 @@ class ButtonBar extends React.Component<IProps> {
       downloadPDF,
       downloadSVG,
       step,
-      // stepUntilConvergence,
       resample,
       toggleInspector,
       showInspector,
       files,
+      connected,
+      reconnect,
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -78,6 +80,9 @@ class ButtonBar extends React.Component<IProps> {
             ? "no files received from server"
             : `sub: ${files.substance.fileName} sty: ${files.style.fileName} dsl: ${files.domain.fileName}`}
         </div>
+        <button onClick={reconnect} disabled={connected}>
+          {connected ? "connected" : "reconnect"}
+        </button>
       </div>
     );
   }

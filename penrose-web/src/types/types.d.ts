@@ -41,15 +41,30 @@ interface IVal<T> {
   contents: Value<T>;
 }
 
+type Field = string;
+type Name = string;
+type Property = string;
+type FExpr = FieldExpr<VarAD>;
+type ShapeTypeStr = string;
+type PropID = string;
+type GPIMap = { [k: string]: TagExpr<VarAD> };
+type FieldDict = { [k: string]: FieldExpr<VarAD> };
+
+type StyleOptFn = [string, Expr[]] // Objective or constraint
+
 // NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
  * Translation represents the computational graph compiled from a trio of Penrose programs.
  */
 type Translation = ITrans<VarAD>;
 
+type Trans = TrMap<VarAD>;
+
+type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
+
 interface ITrans<T> {
   // TODO: compGraph
-  trMap: { [k: string]: { [k: string]: FieldExpr<T> } };
+  trMap: TrMap<T>;
   warnings: string[];
 }
 
@@ -64,6 +79,8 @@ interface IFGPI<T> {
   tag: "FGPI";
   contents: GPIExpr<T>;
 }
+
+type GPIProps<T> = { [k: string]: TagExpr<T> };
 
 type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
 type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;
@@ -127,10 +144,11 @@ interface IBoolLit extends ASTNode {
   contents: boolean;
 }
 
-interface IEVar {
-  tag: "EVar";
-  contents: LocalVar;
-}
+// COMBAK: This seems to be unused, delete
+// interface IEVar {
+//   tag: "EVar";
+//   contents: LocalVar;
+// }
 
 // NOTE: no longer using EPath, and use Path instead in Expr
 // interface IEPath {
@@ -253,7 +271,8 @@ interface PropertyDecl extends ASTNode {
 }
 
 // TODO: check how the evaluator/compiler should interact with ASTNode
-type Path = IFieldPath | IPropertyPath | IAccessPath;
+type Path = IFieldPath | IPropertyPath | IAccessPath | LocalVar | IInternalLocalVar;
+// LocalVar is only used internally by the compiler
 // Unused
 // | ITypePropertyPath;
 
@@ -276,6 +295,17 @@ interface IAccessPath extends ASTNode {
   indices: Expr[];
 }
 
+// COMBAK: This is named inconsistently since the parser calls it `LocalVar`, should be ILocalVar
+interface LocalVar extends ASTNode {
+  tag: "LocalVar";
+  contents: Identifier;
+}
+
+interface IInternalLocalVar extends ASTNode { // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
+  tag: "InternalLocalVar";
+  contents: string;
+}
+
 // Unused
 // interface ITypePropertyPath {
 //   tag: "TypePropertyPath";
@@ -290,11 +320,6 @@ interface SubVar extends ASTNode {
 
 interface StyVar extends ASTNode {
   tag: "StyVar";
-  contents: Identifier;
-}
-
-interface LocalVar extends ASTNode {
-  tag: "LocalVar";
   contents: Identifier;
 }
 
@@ -507,6 +532,18 @@ interface IQuadBezJoin<T> {
  * The diagram state modeling the original Haskell types
  */
 interface IState {
+  // COMBAK: Just for getting the JSON; remove this
+
+  // subProg: SubProg;
+  // styProg: StyProg;
+  // TODO: Get this into the Style compiler when available
+  // -- | 'SubOut' is the output of the Substance compiler, comprised of:
+  // -- * Substance AST
+  // -- * (Variable environment, Substance environment)
+  // -- * A mapping from Substance ids to their coresponding labels
+  // data SubOut =
+  //   SubOut SubProg (VarEnv, SubEnv) LabelMap
+
   varyingPaths: Path[];
   shapePaths: Path[];
   shapeProperties: any; // TODO: types
@@ -515,7 +552,7 @@ interface IState {
   objFns: Fn[];
   constrFns: Fn[];
   rng: prng;
-  selecterMatches: any; // TODO: types
+  selectorMatches: any; // TODO: types
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
@@ -881,6 +918,7 @@ interface DeclPattern extends ASTNode {
 }
 
 type RelationPattern = RelBind | RelPred;
+
 interface RelationPatterns extends ASTNode {
   tag: "RelationPatterns";
   contents: RelationPattern[];
@@ -891,6 +929,7 @@ interface RelBind extends ASTNode {
   id: BindingForm;
   expr: SelExpr;
 }
+
 interface RelPred extends ASTNode {
   tag: "RelPred";
   name: Identifier;
@@ -1257,6 +1296,83 @@ interface IPred2 {
   contents: Predicate2;
 }
 
+// TODO: remove this
+// type SubPredArg = IPE | IPP;
+
+// interface IPE {
+//   tag: "PE";
+//   contents: SubExpr;
+// }
+
+// interface IPP {
+//   tag: "PP";
+//   contents: SubPredicate;
+// }
+
+// type LabelOption = IDefault | IIDs;
+
+// interface IDefault {
+//   tag: "Default";
+// }
+
+// interface IIDs {
+//   tag: "IDs";
+//   contents: Var[];
+// }
+
+
+// type Var = string;
+
+// type SubStmt =
+//   | IDecl
+//   | IBind
+//   | IEqualE
+//   | IEqualQ
+//   | IApplyP
+//   | ILabelDecl
+//   | IAutoLabel
+//   | INoLabel;
+
+// interface IDecl {
+//   tag: "Decl";
+//   contents: [T, Var];
+// }
+
+// interface IBind {
+//   tag: "Bind";
+//   contents: [Var, SubExpr];
+// }
+
+// interface IEqualE {
+//   tag: "EqualE";
+//   contents: [SubExpr, SubExpr];
+// }
+
+// interface IEqualQ {
+//   tag: "EqualQ";
+//   contents: [SubPredicate, SubPredicate];
+// }
+
+// interface IApplyP {
+//   tag: "ApplyP";
+//   contents: SubPredicate;
+// }
+
+// interface ILabelDecl {
+//   tag: "LabelDecl";
+//   contents: [Var, string];
+// }
+
+// interface IAutoLabel {
+//   tag: "AutoLabel";
+//   contents: LabelOption;
+// }
+
+// interface INoLabel {
+//   tag: "NoLabel";
+//   contents: Var[];
+// }
+
 type StmtNotationRule = IStmtNotationRule;
 
 interface IStmtNotationRule {
@@ -1427,6 +1543,73 @@ interface IProp {
 
 //#endregion
 
+//#region Style semantics
+
+// Style static semantics for selectors
+
+// Whether a variable in a selector is a Style variable or a Substance variable -- NOTE: This is new from the semantics because we can only store string in sTypeVarMap. So you have to look up the ProgType here too
+// const enum ProgType {
+//   Sub,
+//   Sty
+// }
+// TODO why doesn't this work
+
+type ProgType =
+  | ISubProgT
+  | IStyProgT
+
+interface ISubProgT {
+  tag: "SubProgT";
+}
+
+interface IStyProgT {
+  tag: "StyProgT";
+}
+
+// g ::= B => |T
+// Assumes nullary type constructors (i.e. Style type = Substance type)
+interface ISelEnv {
+  // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
+  // Variable => Type
+  sTypeVarMap: { [k: string]: StyT }; // B : |T
+  varProgTypeMap: { [k: string]: [ProgType, BindingForm] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
+  // Variable => [Substance or Style variable, original data structure with program locs etc]
+  skipBlock: Bool;
+  header: Maybe<Header>; // Just for debugging
+  warnings: StyErrors;
+  errors: StyErrors;
+}
+// Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
+
+type SelEnv = ISelEnv;
+
+//#endregion
+
+//#region Selector dynamic semantics (matching)
+
+// Type declarations
+
+// A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
+// COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
+type Subst = { [k: string]: Var };
+
+type LocalVarSubst = LocalVarId | NamespaceId;
+
+interface LocalVarId {
+  tag: "LocalVarId";
+  contents: [number, number];
+  // Index of the block, paired with the index of the current substitution
+  // Should be unique across blocks and substitutions
+};
+
+interface NamespaceId {
+  tag: "NamespaceId"
+  contents: string;
+  // Namespace's name, e.g. things that are parsed as local vars (e.g. Const { red ... }) get turned into paths "Const.red"
+}
+
+//#endregion
+
 //#region AST nodes
 interface SourceLoc {
   line: number;
@@ -1447,8 +1630,50 @@ interface ASTNode {
 
 interface Identifier extends ASTNode {
   tag: "Identifier";
-  type: string;
-  value: string;
+  type: string; // meta-info: either `value` or `type-identifier` according to the parser
+  value: string; // the actual value
 }
 
+//#endregion
+
+//#region
+
+type StyErrors = string[];
+// TODO: Convert this to StyleError[]
+
+interface Left<A> {
+  tag: 'Left'
+  contents: A;
+}
+
+interface Right<B> {
+  tag: 'Right'
+  contents: B;
+}
+
+type Either<A, B> = Left<A> | Right<B>;
+
+//#endregion
+
+//#region
+type PenroseError = LanguageError | RuntimeError;
+type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
+type RuntimeError = OptimizerError | EvaluatorError;
+type StyleError = StyleParseError | StyleCheckError | TranslationError;
+
+interface LanguageError {
+  message: string;
+  sources: ErrorSource[];
+}
+
+interface StyleError {
+  sources: ErrorSource[];
+  message: FormatString; // Style match failed with Substance object $1 and select in Style $2
+}
+
+interface ErrorSource {
+  node: ASTNode;
+}
+
+type Warning = string;
 //#endregion

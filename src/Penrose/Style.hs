@@ -793,44 +793,27 @@ toSubPred stypred =
 
 ----------- Selector static semantics
 -- For `B := E`, make sure `B : T` and `E : T`
-compareTypes ::
-     RelationPattern
-  -> BindingForm
-  -> SelExpr
-  -> Maybe T
-  -> Maybe T
-  -> Maybe Error
+compareTypes :: RelationPattern -> BindingForm -> SelExpr -> Maybe T -> Maybe T -> Maybe Error
 compareTypes stmt var expr vtype etype =
   case (vtype, etype) of
     (Nothing, Nothing) ->
-      Just $
-      "In Style statement '" ++
-      show stmt ++ "', the var and expr" ++ " are both of invalid type."
+      Just $ "In Style statement '" ++ show stmt ++ "', the var and expr" ++ " are both of invalid type."
     (Just vtype', Nothing) ->
       Just $
-      "In Style statement '" ++
-      show stmt ++
-      "', the expr '" ++
-      show expr ++
-      " should have type '" ++ show vtype' ++ "' but does not have a type."
+      "In Style statement '" ++ show stmt ++ "', the expr '" ++
+      show expr ++ " should have type '" ++ show vtype' ++ "' but does not have a type."
     (Nothing, Just etype') ->
       Just $
-      "In Style statement '" ++
-      show stmt ++
-      "', the var '" ++
-      show var ++
-      " should have type '" ++ show etype' ++ "' but does not have a type."
+      "In Style statement '" ++ show stmt ++ "', the var '" ++
+      show var ++ " should have type '" ++ show etype' ++ "' but does not have a type."
     (Just vtype', Just etype') ->
       if typesEq
            (trM2 ("VTYPE: " ++ show vtype') vtype')
            (trM2 ("ETYPE: " ++ show etype') etype')
         then Nothing
         else Just $
-             "In Style statement '" ++
-             show stmt ++
-             "', the var and expr" ++
-             " should have the same type, but have types '" ++
-             show vtype' ++ "' and '" ++ show etype' ++ "'."
+             "In Style statement '" ++ show stmt ++ "', the var and expr" ++
+             " should have the same type, but have types '" ++ show vtype' ++ "' and '" ++ show etype' ++ "'."
 
 -- Judgment 5. G |- [|S_r] ok
 checkRelPatterns :: VarEnv -> [RelationPattern] -> [Error]
@@ -839,32 +822,23 @@ checkRelPatterns varEnv rels = concatMap (checkRelPattern varEnv) rels
   where
     checkRelPattern :: VarEnv -> RelationPattern -> [Error]
     checkRelPattern varEnv rel =
-      case rel
-              -- rule Bind-Context
-            of
-        RelBind bVar sExpr
+      case rel of -- rule Bind-Context
+        RelBind bVar sExpr ->
                       -- TODO: use checkSubStmt here (and in paper)?
                       -- TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
                       -- G |- B : T1
-         ->
           let (error1, vtype) =
-                C.checkVarE
-                  varEnv
-                  (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar)
+                C.checkVarE varEnv (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar)
                       -- G |- E : T2
            in let (error2, etype) =
-                    C.checkExpression
-                      varEnv
-                      (trM2 ("E: " ++ show (toSubExpr sExpr)) $ toSubExpr sExpr)
+                    C.checkExpression varEnv (trM2 ("E: " ++ show (toSubExpr sExpr)) $ toSubExpr sExpr)
                       -- T1 = T2
                in let err3 = compareTypes rel bVar sExpr vtype etype
                    in case trM2 ("ERR3: " ++ show err3) err3 of
                         Nothing -> [error1, error2]
                         Just e3 -> [error1, error2, e3]
               -- rule Pred-Context
-        RelPred pred
-                      -- G |- Q : Prop
-         ->
+        RelPred pred ->  -- G |- Q : Prop
           let varEnv' = C.checkPredicate varEnv $ toSubPred pred
            in [errors varEnv']
 
@@ -875,118 +849,64 @@ checkDeclPatterns varEnv selEnv decls =
     -- Judgment 3. G; g |- |S_o ok ~> g'
   where
     checkDeclPattern :: VarEnv -> SelEnv -> DeclPattern -> SelEnv
-    checkDeclPattern varEnv selEnv stmt@(PatternDecl styType bVar)
-             -- G |- |T : type
-     =
+    checkDeclPattern varEnv selEnv stmt@(PatternDecl styType bVar) = -- G |- |T : type
       let errT = errors $ checkT varEnv (toSubType styType)
        in let selEnv' = addErr errT selEnv
-           in case bVar
-             -- rule Decl-Sty-Context
-                    of
-                bsv@(BStyVar (StyVar styVar))
-                     -- NOTE: this does not aggregate *all* possible error May just return first error.
+           in case bVar of
+                -- rule Decl-Sty-Context
+                bsv@(BStyVar (StyVar styVar)) ->
+                     -- NOTE: this does not aggregate *all* possible errors. May just return first error.
                      -- y \not\in dom(g)
-                 ->
                   if M.member bsv (sTypeVarMap selEnv')
-                    then let err =
-                               "Style pattern statement " ++
-                               show stmt ++
-                               " declares Style variable '" ++
+                    then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++
                                styVar ++ "' twice"
                           in addErr err selEnv'
-                    else if M.member
-                              (BSubVar (VarConst styVar))
-                              (sTypeVarMap selEnv')
-                           then let err =
-                                      "Style pattern statement " ++
-                                      show stmt ++
-                                      " declares Style variable '" ++
-                                      styVar ++
-                                      "'" ++
-                                      " in the same selector as a Substance variable of the same name"
+                    else if M.member (BSubVar (VarConst styVar)) (sTypeVarMap selEnv')
+                           then let err = "Style pattern statement " ++ show stmt ++ " declares Style variable '" ++ styVar ++ "'" ++ " in the same selector as a Substance variable of the same name"
                                  in addErr err selEnv'
                            else addMapping bsv styType selEnv'
-             -- rule Decl-Sub-Context
-                bsv@(BSubVar subVar@(VarConst sVar))
+                -- rule Decl-Sub-Context
+                bsv@(BSubVar subVar@(VarConst sVar)) ->
                      -- x \not\in dom(g)
-                 ->
                   if M.member bsv (sTypeVarMap selEnv')
                     then let err =
-                               "Style pattern statement " ++
-                               show stmt ++
-                               " declares Substance variable '" ++
-                               sVar ++ "' twice"
+                               "Style pattern statement " ++ show stmt ++ " declares Substance variable '" ++ sVar ++ "' twice"
                           in addErr err selEnv'
-                    else if M.member
-                              (BStyVar (StyVar sVar))
-                              (sTypeVarMap selEnv')
-                           then let err =
-                                      "Style pattern statement " ++
-                                      show stmt ++
-                                      " declares Substance variable '" ++
-                                      sVar ++
-                                      "'" ++
-                                      " in the same selector as a Style variable of the same name"
+                    else if M.member (BStyVar (StyVar sVar)) (sTypeVarMap selEnv')
+                           then let err = "Style pattern statement " ++ show stmt ++ " declares Substance variable '" ++
+                                      sVar ++ "'" ++ " in the same selector as a Style variable of the same name"
                                  in addErr err selEnv'
-                         -- G(x) = T
+                           -- G(x) = T
                            else let subType = M.lookup subVar $ varMap varEnv
                                  in case subType of
                                       Nothing -> selEnv' {skipBlock = True}
                                     -- If any Substance variable doesn't exist in env, ignore it,
                                     -- but flag it so we know to not translate the lines in the block later.
-                                    {- let err = "Substance variable '" ++ show subVar ++
-                                              "' does not exist in environment. \n" {- ++ show varEnv -} in
-                                    addErr err selEnv' -}
-                                      Just subType'
-                             -- check "T <: |T", assuming type constructors are nullary
-                                       ->
+                                      Just subType' ->
+                                        -- check "T <: |T", assuming type constructors are nullary
                                         let declType = toSubType styType
-                                         in if subType' == declType ||
-                                               isSubtype
-                                                 subType'
-                                                 declType
-                                                 varEnv
-                                              then addMapping
-                                                     bsv
-                                                     styType
-                                                     selEnv'
+                                         in if subType' == declType || isSubtype subType' declType varEnv
+                                              then addMapping bsv styType selEnv'
                                               else let err =
-                                                         "Mismatched types between Substance and Style var\n" ++
-                                                         "Sub var '" ++
-                                                         show subVar ++
-                                                         "' has type '" ++
-                                                         show subType' ++
-                                                         "in Substance but has type '" ++
-                                                         show declType ++
-                                                         "' in Style."
+                                                         "Mismatched types between Substance and Style var\n" ++ "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++ "in Substance but has type '" ++ show declType ++ "' in Style."
                                                     in addErr err selEnv'
 
 -- Judgment 7. G |- Sel ok ~> g
 checkSel :: VarEnv -> Selector -> SelEnv
-checkSel varEnv sel
-         -- Check head statements
- =
+checkSel varEnv sel = -- Check head statements
   let selEnv_afterHead = checkDeclPatterns varEnv initSelEnv (selHead sel)
          -- Check `with` statements
    in let selEnv_decls = checkDeclPatterns varEnv selEnv_afterHead (selWith sel)
          -- Check relational statements
-       in let rel_errs =
-                checkRelPatterns (mergeEnv varEnv selEnv_decls) (selWhere sel)
+       in let rel_errs = checkRelPatterns (mergeEnv varEnv selEnv_decls) (selWhere sel)
            in selEnv_decls
-                { sErrors =
-                    filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs
-                }
+                { sErrors = filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs }
 
 checkNamespace :: String -> VarEnv -> SelEnv
-checkNamespace name varEnv
-    -- A Substance variable cannot have the same name as a namespace
- =
+checkNamespace name varEnv = -- A Substance variable cannot have the same name as a namespace
   let error =
         if M.member (VarConst name) (varMap varEnv)
-          then [ "Substance variable '" ++
-                 name ++
-                 "' has the same name as a namespace in the Style program"
-               ]
+          then [ "Substance variable '" ++ name ++ "' has the same name as a namespace in the Style program" ]
           else []
    in addErrs error initSelEnv
 
@@ -1224,10 +1144,7 @@ varsEq = (==)
 
 exprToVar :: C.SubExpr -> Var
 exprToVar (C.VarE v) = v
-exprToVar e =
-  error $
-  "Style expression matching does not yet handle nested expressions: '" ++
-  show e ++ "'"
+exprToVar e = error $ "Style expression matching does not yet handle nested expressions: '" ++ show e ++ "'"
 
 findType :: VarEnv -> String -> [T]
 findType typeEnv name =
@@ -1248,12 +1165,7 @@ exprsMatchArr typeEnv subE styE =
    in let res =
             isSubtypeArrow subArrType styArrType typeEnv &&
             (all (uncurry varsEq) $ zip subVarArgs styVarArgs)
-       in trM1
-            ("subArrType: " ++
-             show subArrType ++
-             "\nstyArrType: " ++
-             show styArrType ++
-             "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv))
+       in trM1 ("subArrType: " ++ show subArrType ++ "\nstyArrType: " ++ show styArrType ++ "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv))
             res
 
 -- New judgment (COMBAK number): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
@@ -1279,32 +1191,21 @@ relMatchesLine :: VarEnv -> C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
 relMatchesLine typeEnv subEnv s1@(C.Bind var expr) s2@(RelBind bvar sExpr) =
   case bvar of
-    BStyVar v ->
-      error
-        ("Style variable '" ++
-         show v ++
-         "' found in relational statement '" ++
-         show (RelBind bvar sExpr) ++ "'. Should not be present!")
+    BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" 
+                               ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
     BSubVar sVar ->
       let selExpr = toSubExpr sExpr
        in let res =
                 (varsEq var sVar && exprsMatch typeEnv expr selExpr) ||
                 C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
-           in trM1
-                ("Bind-Match: trying to match exprs \n'" ++
-                 show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $
-              res
+           in trM1 ("Bind-Match: trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
 -- rule Pred-Match
 relMatchesLine typeEnv subEnv s1@(C.ApplyP pred) s2@(RelPred sPred) =
   let selPred = toSubPred sPred
       res =
-        pred == selPred ||
-        C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
-   in trM1
-        ("Pred-Match: trying to match exprs \n'" ++
-         show pred ++
-         "'\n'" ++ show selPred ++ "'\n'" ++ "res: " ++ show res ++ "'\n\n") $
-      res
+        pred == selPred || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+   in trM1 ("Pred-Match: trying to match exprs \n'" ++
+                         show pred ++ "'\n'" ++ show selPred ++ "'\n'" ++ "res: " ++ show res ++ "'\n\n") $ res
 relMatchesLine _ _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r
@@ -1347,14 +1248,7 @@ filterRels typeEnv subEnv subProg rels substs =
   let subProgFiltered = filter (couldMatchRels typeEnv rels) subProg
            -- trace ("\n----------\n\nrels:\n" ++ ppShow rels
            --        ++ "\nsub prog filtered\n: " ++ ppShow subProgFiltered) $
-   in filter
-        (\subst ->
-           allRelsMatch
-             typeEnv
-             subEnv
-             subProgFiltered
-             (substituteRels subst rels))
-        substs
+   in filter (\subst -> allRelsMatch typeEnv subEnv subProgFiltered (substituteRels subst rels)) substs
 
 ----- Match declaration statements
 -- Judgment 9. G; theta |- T <| |T
@@ -1532,44 +1426,28 @@ deleteField trans name field =
   let trn = trMap trans
    in case M.lookup name trn of
         Nothing ->
-          let err =
-                "Err: Sub obj '" ++
-                name ++ "' has no fields; can't delete field '" ++ field ++ "'"
-           in addWarn trans err
+          let err = "Err: Sub obj '" ++ name ++ "' has no fields; can't delete field '" ++ field ++ "'"
+          in addWarn trans err
         Just fieldDict ->
           if field `M.notMember` fieldDict
-            then let warn =
-                       "Warn: Sub obj '" ++
-                       name ++ "' already lacks field '" ++ field ++ "'"
+            then let warn = "Warn: Sub obj '" ++ name ++ "' already lacks field '" ++ field ++ "'"
                   in addWarn trans warn
             else let fieldDict' = M.delete field fieldDict
                      trn' = M.insert name fieldDict' trn
                   in trans {trMap = trn'}
 
-deleteProperty ::
-     (Autofloat a)
-  => Translation a
-  -> Name
-  -> Field
-  -> Property
-  -> Translation a
+deleteProperty :: (Autofloat a) => Translation a -> Name -> Field -> Property -> Translation a
 deleteProperty trans name field property =
   let trn = trMap trans
       path = pathStr3 name field property
    in case M.lookup name trn of
         Nothing ->
-          let err =
-                "Err: Sub obj '" ++
-                name ++ "' has no fields; can't delete path '" ++ path ++ "'"
+          let err = "Err: Sub obj '" ++ name ++ "' has no fields; can't delete path '" ++ path ++ "'"
            in addWarn trans err
         Just fieldDict ->
           case M.lookup field fieldDict of
             Nothing ->
-              let err =
-                    "Err: Sub obj '" ++
-                    name ++
-                    "' already lacks field '" ++
-                    field ++ "'; can't delete path " ++ path
+              let err = "Err: Sub obj '" ++ name ++ "' already lacks field '" ++ field ++ "'; can't delete path " ++ path
                in addWarn trans err
         -- Deal with path aliasing as in `addProperty`
             Just (FExpr e) ->
@@ -1577,29 +1455,19 @@ deleteProperty trans name field property =
                 OptEval (EPath p@(FieldPath bvar newField)) ->
                   let newName = trName bvar
                    in if newName == name && newField == field
-                        then let err =
-                                   "Error: path '" ++
-                                   pathStr p ++ "' was aliased to itself"
+                        then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
                               in addWarn trans err
                         else deleteProperty trans newName newField property
                 res ->
-                  let err =
-                        "Error: Sub obj '" ++
-                        name ++
-                        "' does not have GPI '" ++
-                        field ++
-                        "'; cannot delete property '" ++ property ++ "'"
+                  let err = "Error: Sub obj '" ++ name ++ "' does not have GPI '"
+                            ++ field ++ "'; cannot delete property '" ++ property ++ "'"
                    in addWarn trans err
             Just (FGPI ctor properties)
            -- If the field is GPI, check if property already exists
              ->
               if property `M.notMember` properties
-                then let warn =
-                           "Warning: property '" ++
-                           property ++
-                           "' already does not exist in path '" ++
-                           pathStr3 name field property ++
-                           "'; deletion does nothing"
+                then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '" ++
+                           pathStr3 name field property ++ "'; deletion does nothing"
                       in addWarn trans warn
                 else let properties' = M.delete property properties
                          fieldDict' =
@@ -1610,14 +1478,7 @@ deleteProperty trans name field property =
 -- Implements two rules for fields:
 -- x.n = Ctor { n_i = e_i }, rule Line-Set-Ctor, for GPI
 -- x.n = e, rule Line-Set-Field-Expr
-addField ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> Name
-  -> Field
-  -> TagExpr a
-  -> Translation a
+addField :: (Autofloat a) => OverrideFlag -> Translation a -> Name -> Field -> TagExpr a -> Translation a
 addField override trans name field texpr =
   let trn = trMap trans
    in let fieldDict =
@@ -1627,27 +1488,18 @@ addField override trans name field texpr =
      -- Warn using override if x doesn't exist
        in let warn1 =
                 if fieldDict == M.empty && override
-                  then Just $
-                       "Warning: Sub obj '" ++
-                       name ++ "' has no fields, but override was declared"
+                  then Just $ "Warning: Sub obj '" ++ name ++ "' has no fields, but override was declared"
                   else Nothing
      -- Warn using override if x.n already exists
            in let warn2 =
                     if (field `M.member` fieldDict) && (not override)
-                      then Just $
-                           "Warning: Sub obj '" ++
-                           name ++
-                           "''s field '" ++
-                           field ++
-                           "' is overridden, but was not declared an override"
+                      then Just $ "Warning: Sub obj '" ++ name ++ "''s field '" ++
+                           field ++ "' is overridden, but was not declared an override"
                       else Nothing
      -- Warn using override if x.n doesn't exist
                in let warn3 =
                         if (field `M.notMember` fieldDict) && override
-                          then Just $
-                               "Warning: field '" ++
-                               field ++
-                               "' declared override, but has not been initialized"
+                          then Just $ "Warning: field '" ++ field ++ "' declared override, but has not been initialized"
                           else Nothing
     -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
                    in let fieldExpr =
@@ -1659,39 +1511,21 @@ addField override trans name field texpr =
                               trn' = M.insert name fieldDict' trn
                            in trans
                                 { trMap = trn'
-                                , warnings =
-                                    addMaybes
-                                      (warnings trans)
-                                      [warn1, warn2, warn3]
-                                }
+                                , warnings = addMaybes (warnings trans) [warn1, warn2, warn3] }
 
-addProperty ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> Name
-  -> Field
-  -> Property
-  -> TagExpr a
-  -> Translation a
+addProperty :: (Autofloat a) => OverrideFlag -> Translation a -> Name -> Field -> Property -> TagExpr a -> Translation a
 addProperty override trans name field property texpr =
   let trn = trMap trans
     -- Setting a field's property should require that field to already exist and be a GPI
     -- TODO: distinguish b/t errors and warns
    in case M.lookup name trn of
         Nothing ->
-          let err =
-                "Error: Sub obj '" ++
-                name ++ "' has no fields; cannot add property"
-           in addWarn trans err
+          let err = "Error: Sub obj '" ++ name ++ "' has no fields; cannot add property" in addWarn trans err
         Just fieldDict ->
           case M.lookup field fieldDict of
             Nothing ->
-              let err =
-                    "Error: Sub obj '" ++
-                    name ++
-                    "' does not have field '" ++
-                    field ++ "'; cannot add property '" ++ property ++ "'"
+              let err = "Error: Sub obj '" ++ name ++ "' does not have field '"
+                        ++ field ++ "'; cannot add property '" ++ property ++ "'"
                in addWarn trans err
         -- If looking up "f.domain" yields a *different* path (i.e. that path was an alias)
         -- e.g. "f.domain" is aliased to "I.shape"
@@ -1701,58 +1535,32 @@ addProperty override trans name field property texpr =
                 OptEval (EPath p@(FieldPath bvar newField)) ->
                   let newName = trName bvar
                    in if newName == name && newField == field
-                        then let err =
-                                   "Error: path '" ++
-                                   pathStr p ++ "' was aliased to itself"
+                        then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
                               in addWarn trans err
-                        else addProperty
-                               override
-                               trans
-                               newName
-                               newField
-                               property
-                               texpr
+                        else addProperty override trans newName newField property texpr
                 res ->
-                  let err =
-                        "Error: Sub obj '" ++
-                        name ++
-                        "' does not have GPI '" ++
-                        field ++
-                        "'; found expr '" ++
-                        show res ++
-                        "'; cannot add property '" ++ property ++ "'"
+                  let err = "Error: Sub obj '" ++ name ++ "' does not have GPI '" ++ field 
+                            ++ "'; found expr '" ++ show res ++ "'; cannot add property '" ++ property ++ "'"
                    in addWarn trans err
-            Just (FGPI ctor properties)
+            Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
-             ->
               let warn =
                     if (property `M.notMember` properties) && override
-                      then Just $
-                           "Warning: property '" ++
-                           property ++
-                           "' does not exist in path '" ++
-                           pathStr3 name field property ++
-                           "' but override was set"
+                      then Just $ "Warning: property '" ++ property ++
+                           "' does not exist in path '" ++ pathStr3 name field property ++ "' but override was set"
                       else if property `M.member` properties && (not override)
-                             then Just $
-                                  "Warning: property '" ++
-                                  property ++
-                                  "' already exists in path '" ++
-                                  pathStr3 name field property ++
-                                  "' but override was not set"
+                             then Just $ "Warning: property '" ++ property ++
+                                  "' already exists in path '" ++ pathStr3 name field property ++ "' but override was not set"
                              else Nothing
                in let properties' = M.insert property texpr properties
                       fieldDict' =
                         M.insert field (FGPI ctor properties') fieldDict
                       trn' = M.insert name fieldDict' trn
-                   in trans
-                        { trMap = trn'
-                        , warnings = addMaybe (warnings trans) warn
-                        }
+                   in trans { trMap = trn'
+                            , warnings = addMaybe (warnings trans) warn }
 
 -- rule Line-Delete
-deletePath ::
-     (Autofloat a) => Translation a -> Path -> Either [Error] (Translation a)
+deletePath :: (Autofloat a) => Translation a -> Path -> Either [Error] (Translation a)
 deletePath trans path =
   case path of
     FieldPath bvar field ->
@@ -1764,13 +1572,7 @@ deletePath trans path =
           trans' = deleteProperty trans name field property
        in Right trans'
 
-addPath ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> Path
-  -> TagExpr a
-  -> Either [Error] (Translation a)
+addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> TagExpr a -> Either [Error] (Translation a)
 addPath override trans path expr =
   case path
     -- rule Line-Set-Field-Expr, Line-Set-Ctor
@@ -1792,39 +1594,23 @@ addPath override trans path expr =
               name = trName bvar
               trans' = addField override trans name field (OptEval (Vector es'))
            in Right trans'
-        _ ->
-          error
-            "expected access of vector with at least one varying float, putting in a float"
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
     -- a.x.y[0] = e
     AccessPath (PropertyPath bvar field property) [i] ->
       case (lookupProperty bvar field property trans, expr) of
         (OptEval (Vector es), Done (FloatV n)) ->
           let es' = replaceAtIndex i (AFloat $ Fix $ r2f n) es
               name = trName bvar
-              trans' =
-                addProperty
-                  override
-                  trans
-                  name
-                  field
-                  property
-                  (OptEval (Vector es'))
+              trans' = addProperty override trans name field property (OptEval (Vector es'))
            in Right trans'
-        _ ->
-          error
-            "expected access of vector with at least one varying float, putting in a float"
+        _ -> error "expected access of vector with at least one varying float, putting in a float"
 
 replaceAtIndex :: Int -> a -> [a] -> [a]
 replaceAtIndex n item ls = a ++ (item : b)
   where
     (a, (_:b)) = splitAt n ls
 
-addPaths ::
-     (Autofloat a)
-  => OverrideFlag
-  -> Translation a
-  -> [(Path, TagExpr a)]
-  -> Either [Error] (Translation a)
+addPaths :: (Autofloat a) => OverrideFlag -> Translation a -> [(Path, TagExpr a)] -> Either [Error] (Translation a)
 addPaths override = foldM (\trans (p, e) -> addPath override trans p e)
 
 ----- Translation judgments
@@ -1838,8 +1624,7 @@ addPaths override = foldM (\trans (p, e) -> addPath override trans p e)
    foldM f [] [1, 9] = Right [9,1]  -}
 -- Judgment 26. D |- phi ~> D'
 -- This is where interesting things actually happen (each line is interpreted and added to the translation)
-translateLine ::
-     (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
+translateLine :: (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
 translateLine trans stmt =
   case stmt of
     PathAssign _ path expr -> addPath False trans path (OptEval expr)
@@ -1847,37 +1632,21 @@ translateLine trans stmt =
     Delete path            -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-translateBlock ::
-     (Autofloat a)
-  => Maybe NamespaceName
-  -> (Block, Int)
-  -> Translation a
-  -> (Subst, Int)
-  -> Either [Error] (Translation a)
+translateBlock :: (Autofloat a) => 
+               Maybe NamespaceName -> (Block, Int) -> Translation a -> (Subst, Int) -> Either [Error] (Translation a)
 translateBlock name blockWithNum trans substWithNum =
   let block' = substituteBlock substWithNum blockWithNum name
    in foldM translateLine trans block'
 
 -- Judgment 24. [theta]; D |- |B ~> D'
 -- This is a selector, not a namespace, so we substitute local vars with the subst/block IDs
-translateSubstsBlock ::
-     (Autofloat a)
-  => Translation a
-  -> [(Subst, Int)]
-  -> (Block, Int)
-  -> Either [Error] (Translation a)
+translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] -> (Block, Int) -> Either [Error] (Translation a)
 translateSubstsBlock trans substsNum blockWithNum =
   foldM (translateBlock Nothing blockWithNum) trans substsNum
 
 -- Judgment 23, contd.
-translatePair ::
-     (Autofloat a)
-  => VarEnv
-  -> C.SubEnv
-  -> C.SubProg
-  -> Translation a
-  -> ((Header, Block), Int)
-  -> Either [Error] (Translation a)
+translatePair :: (Autofloat a)
+  => VarEnv -> C.SubEnv -> C.SubProg -> Translation a -> ((Header, Block), Int) -> Either [Error] (Translation a)
 translatePair varEnv subEnv subProg trans ((Namespace (StyVar name), block), blockNum) =
   let selEnv = initSelEnv
       bErrs = checkBlock selEnv block
@@ -1897,10 +1666,7 @@ translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNu
                then let substs =
                           find_substs_sel varEnv subEnv subProg (header, selEnv)
                      in let numberedSubsts = zip substs [0 ..] -- For creating unique local var names
-                         in translateSubstsBlock
-                              trans
-                              numberedSubsts
-                              (block, blockNum)
+                         in translateSubstsBlock trans numberedSubsts (block, blockNum)
                else Left $ sErrors selEnv ++ bErrs
 
 insertLabels ::
@@ -1908,10 +1674,7 @@ insertLabels ::
 insertLabels trans labels =
   trans
     { trMap = M.mapWithKey insertLabel (trMap trans)
-    , warnings =
-        warnings trans ++
-        [ "Note: Text GPIs are automatically deleted if their Substance object has no label"
-        ]
+    , warnings = warnings trans ++ [ "Note: Text GPIs are automatically deleted if their Substance object has no label"]
             -- TODO: print out the names of the GPIs that were auto-deleted
     }
   where
@@ -2041,15 +1804,8 @@ evalPluginAccess valMap trans =
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
-translateStyProg ::
-     forall a. (Autofloat a)
-  => VarEnv
-  -> C.SubEnv
-  -> C.SubProg
-  -> HeaderBlocks
-  -> C.LabelMap
-  -> [J.StyVal]
-  -> Either [Error] (Translation a)
+translateStyProg :: forall a. (Autofloat a)
+  => VarEnv -> C.SubEnv -> C.SubProg -> HeaderBlocks -> C.LabelMap -> [J.StyVal] -> Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg labelMap styVals =
   let numberedProg = zip styProg [0 ..] -- For creating unique local var names
    in case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
@@ -2109,16 +1865,12 @@ lookupField bvar field trans =
    in let trn = trMap trans
        in case M.lookup name trn of
             Nothing ->
-              error
-                ("path '" ++
-                 pathStr2 name field ++ "''s name doesn't exist in trans")
+              error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
                -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
             Just fieldDict ->
               case M.lookup field fieldDict of
                 Nothing ->
-                  error
-                    ("path '" ++
-                     pathStr2 name field ++ "'s field doesn't exist in trans")
+                  error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
                 Just fexpr -> fexpr
               -- TODO: This is the right way to look up fields, but doing so causes a frontend undefined error. Why?
               -- case fexpr of
@@ -2147,21 +1899,13 @@ lookupProperty bvar field property trans =
           case e of
             OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) ->
               if bvar == bvarSynonym && field == fieldSynonym
-                then error
-                       ("nontermination in lookupProperty with path '" ++
-                        pathStr3 name field property ++ "' set to itself")
+                then error ("nontermination in lookupProperty with path '" ++ pathStr3 name field property ++ "' set to itself")
                 else lookupProperty bvarSynonym fieldSynonym property trans
         -- the only thing that might have properties is another field path
-            _ ->
-              error
-                ("path '" ++
-                 pathStr3 name field property ++ "' has no properties")
+            _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
         FGPI ctor properties ->
           case M.lookup property properties of
-            Nothing ->
-              error
-                ("path '" ++
-                 pathStr3 name field property ++ "'s property does not exist")
+            Nothing -> error ("path '" ++ pathStr3 name field property ++ "'s property does not exist")
             Just texpr -> texpr
 
 shapeType ::
@@ -2169,12 +1913,10 @@ shapeType ::
 shapeType bvar field trans =
   case lookupField bvar field trans of
     FGPI stype _ -> stype
-              -- -- Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
+              --Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
     FExpr (OptEval (EPath (FieldPath bvarSynonym fieldSynonym))) ->
       if bvar == bvarSynonym && field == fieldSynonym
-        then error
-               ("nontermination in lookupField with path '" ++
-                pathStr (FieldPath bvar field) ++ "' set to itself")
+        then error ("nontermination in lookupField with path '" ++ pathStr (FieldPath bvar field) ++ "' set to itself")
         else shapeType bvarSynonym fieldSynonym trans {- trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) -}
     FExpr e -> error ("path " ++ show e ++ " is not a GPI; cannot get type")
 

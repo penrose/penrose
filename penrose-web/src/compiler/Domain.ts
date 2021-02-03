@@ -275,7 +275,7 @@ const computeTypeGraph = (env: Env): CheckerResult => {
  * @param superType
  * @param env
  */
-const isDeclaredSubtype = (
+export const isDeclaredSubtype = (
   subType: TypeConstructor,
   superType: TypeConstructor,
   env: Env

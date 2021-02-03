@@ -1,14 +1,12 @@
-// @ts-nocheck
-// TODO: COMBAK: HACK: remove this directive to re-enable tsc. Temporarily turned off to accommondate new AST types
-
 import { checkComp, compDict } from "contrib/Functions";
-import { mapTranslation, valueAutodiffToNumber } from "engine/EngineUtils";
+import { mapTranslation, valueAutodiffToNumber, insertExpr, isPath, exprToNumber, numToExpr } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom, { prng } from "seedrandom";
-import { floatVal } from "utils/OtherUtils";
+import { floatVal, prettyPrintPath, prettyPrintExpr, prettyPrintFn } from "utils/OtherUtils";
 import {
   add,
   constOf,
+  constOfIf,
   differentiable,
   div,
   mul,
@@ -36,6 +34,22 @@ const clone = require("rfdc")({ proto: false, circles: false });
  * - Analyze the comp graph first and mark all non-varying props or fields (including those that don't depend on varying vals) permanantly "Done".
  */
 
+// COMBAK: Import the dummy functions from Style -> EngineUtils
+const dummySourceLoc = (): SourceLoc => {
+  return { line: -1, col: -1 };
+};
+
+const dummyIdentifier = (name: string): Identifier => {
+  return {
+    nodeType: "dummyNode",
+    children: [],
+    type: "value",
+    value: name,
+    tag: "Identifier",
+    start: dummySourceLoc(),
+    end: dummySourceLoc()
+  }
+};
 /**
  * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
  * @param s the current state, which contains the `Translation` to be evaluated
@@ -45,20 +59,15 @@ const clone = require("rfdc")({ proto: false, circles: false });
 export const evalShapes = (s: State): State => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
+
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
-  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [
-    Path,
-    VarAD
-  ][];
+  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [Path, VarAD][];
 
   const optDebugInfo = {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
-    gradientPreconditioned: genPathMap(
-      s.varyingPaths,
-      s.params.lastGradientPreconditioned
-    ),
+    gradientPreconditioned: genPathMap(s.varyingPaths, s.params.lastGradientPreconditioned),
   };
 
   // Insert all varying vals
@@ -68,26 +77,36 @@ export const evalShapes = (s: State): State => {
   const trans = clone(transWithVarying);
 
   // Find out all the GPI expressions in the translation
-  const shapeExprs = s.shapePaths.map(
-    (p: Path) => findExpr(trans, p) as IFGPI<VarAD>
-  );
+  const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map((p: Path) => findExpr(trans, p) as IFGPI<VarAD>);
+
+  console.log("shapePaths", s.shapePaths.map(prettyPrintPath));
+  // throw Error("TODO");
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
-  const [shapesEvaled, transEvaled] = shapeExprs.reduce(
+  const [shapesEvaled, transEvaled]: [IShape[], Translation] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
       evalShape(e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
 
+  if (s.shapeOrdering.length < shapesEvaled.length) {
+    console.error("Invalid shape layering of length", s.shapeOrdering.length);
+  }
+
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled = s.shapeOrdering.map(
-    (name) =>
-      shapesEvaled.find(({ properties }) => properties.name.contents === name)!
+  const sortedShapesEvaled: IShape[] = s.shapeOrdering.map(
+    (name) => shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
   return { ...s, shapes: sortedShapesEvaled };
+};
+
+const sameName = (given: Value<number>, expected: string): boolean => {
+  if (given.tag !== "StrV") { return false; }
+  if (typeof given.contents !== "string") { throw Error("expected string GPI name"); }
+  return given.contents === expected;
 };
 
 const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
@@ -169,19 +188,17 @@ export const evalShape = (
       if (prop.tag === "OptEval") {
         // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
         // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-        const res: Value<VarAD> = (evalExpr(
-          prop.contents,
-          trans,
-          varyingVars,
-          optDebugInfo
-        ) as IVal<VarAD>).contents;
+        const res: Value<VarAD> = (evalExpr(prop.contents, trans, varyingVars, optDebugInfo) as IVal<VarAD>).contents;
         const resDisplay: Value<number> = valueAutodiffToNumber(res);
         return resDisplay;
       } else if (prop.tag === "Done") {
         return valueAutodiffToNumber(prop.contents);
-      } else {
+      } else if (prop.tag === "Pending") {
         // Pending expressions are just converted because they get converted back to numbers later
-        return valueAutodiffToNumber(prop.contents);
+        const res = valueAutodiffToNumber(prop.contents);
+        return res;
+      } else {
+        throw Error("unknown tag");
       }
     }
   );
@@ -254,10 +271,14 @@ export const evalExpr = (
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
+
+  // console.log("evalExpr", e);
+
   switch (e.tag) {
-    case "IntLit": {
-      return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
-    }
+    // COMBAK: Deal with ints
+    // case "IntLit": {
+    //   return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
+    // }
 
     case "StringLit": {
       return { tag: "Val", contents: { tag: "StrV", contents: e.contents } };
@@ -267,29 +288,27 @@ export const evalExpr = (
       return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } };
     }
 
-    case "AFloat": {
-      if (e.contents.tag === "Vary") {
-        console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
-        throw new Error("encountered an unsubstituted varying value");
-      } else {
-        const val = e.contents.contents;
+    case "Vary": {
+      console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
+      throw new Error("encountered an unsubstituted varying value");
+    }
 
-        // Don't convert to VarAD if it's already been converted
-        return {
-          tag: "Val",
-          // Fixed number is stored in translation as number, made differentiable when encountered
-          contents: {
-            tag: "FloatV",
-            contents: val.tag ? val : constOf(val),
-          },
-        };
-      }
+    case "Fix": {
+      const val = e.contents;
+
+      // Don't convert to VarAD if it's already been converted
+      return {
+        tag: "Val",
+        // Fixed number is stored in translation as number, made differentiable when encountered
+        contents: {
+          tag: "FloatV",
+          contents: constOfIf(val),
+        }
+      };
     }
 
     case "UOp": {
-      const {
-        contents: [uOp, expr],
-      } = e as IUOp;
+      const [uOp, expr] = [e.op, e.arg];
       // TODO: use the type system to narrow down Value to Float and Int?
       const arg = evalExpr(expr, trans, varyingVars, optDebugInfo).contents;
       return {
@@ -300,7 +319,8 @@ export const evalExpr = (
     }
 
     case "BinOp": {
-      const [binOp, e1, e2] = e.contents;
+      const [binOp, e1, e2] = [e.op, e.left, e.right];
+
       const [val1, val2] = evalExprs(
         [e1, e2],
         trans,
@@ -415,7 +435,11 @@ export const evalExpr = (
     }
 
     case "VectorAccess": {
+      // COMBAK: Deprecate Vector/MatrixAccess
+      // throw Error("deprecated");
+
       const [e1, e2] = e.contents;
+
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2 = evalExpr(e2, trans, varyingVars, optDebugInfo);
 
@@ -425,11 +449,22 @@ export const evalExpr = (
       if (v2.tag !== "Val") {
         throw Error("expected val");
       }
+
+      // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
+      if (v2.contents.tag === "FloatV") {
+        // COMBAK: (ISSUE): Indices should not have "Fix"
+        const iObj: IVarAD = v2.contents.contents;
+        v2.contents = {
+          tag: "IntV",
+          contents: Math.floor(numOf(iObj))
+        }
+      }
+
       if (v2.contents.tag !== "IntV") {
         throw Error("expected int");
       }
 
-      const i = v2.contents.contents as number;
+      const i: number = v2.contents.contents;
 
       // LList access (since any expr with brackets is parsed as a vector access
       if (v1.contents.tag === "LListV") {
@@ -453,6 +488,9 @@ export const evalExpr = (
     }
 
     case "MatrixAccess": {
+      // COMBAK: Deprecate Vector/MatrixAccess
+      // throw Error("deprecated");
+
       const [e1, e2] = e.contents;
       const v1 = resolvePath(e1, trans, varyingVars, optDebugInfo);
       const v2s = evalExprs(e2, trans, varyingVars, optDebugInfo);
@@ -493,40 +531,44 @@ export const evalExpr = (
       };
     }
 
-    case "EPath":
-      return resolvePath(e.contents, trans, varyingVars, optDebugInfo);
-
     case "CompApp": {
-      const [fnName, argExprs] = e.contents;
+      const [fnName, argExprs] = [e.name.value, e.args];
 
       if (fnName === "derivative" || fnName === "derivativePreconditioned") {
         // Special function: don't look up the path's value, but its gradient's value
 
         if (argExprs.length !== 1) {
-          throw Error(
-            `expected 1 argument to ${fnName}; got ${argExprs.length}`
-          );
+          throw Error(`expected 1 argument to ${fnName}; got ${argExprs.length}`);
         }
 
-        let p = argExprs[0];
+        let p = argExprs[0]; // special function can only have one argument
 
         // Vector and matrix accesses are the only way to refer to an anon varying var
-        if (
-          p.tag !== "EPath" &&
-          p.tag !== "VectorAccess" &&
-          p.tag !== "MatrixAccess"
-        ) {
+        // p.tag !== "EPath"
+        if (!isPath(p) && p.tag !== "VectorAccess" && p.tag !== "MatrixAccess") {
           throw Error(`expected 1 path as argument to ${fnName}; got ${p.tag}`);
         }
 
-        if (p.tag === "VectorAccess" || p.tag === "MatrixAccess") {
-          p = {
-            // convert to AccessPath schema
-            tag: "EPath",
-            contents: {
-              tag: "AccessPath",
-              contents: [p.contents[0], [p.contents[1].contents]],
-            },
+        if (p.tag === "VectorAccess") {
+          p = { // convert to AccessPath schema
+            nodeType: "dummyNode",
+            children: [],
+            start: dummySourceLoc(),
+            end: dummySourceLoc(),
+            tag: "AccessPath",
+            // contents: [p.contents[0], [p.contents[1].contents]],
+            path: p.contents[0],
+            indices: [p.contents[1]],
+          };
+        } else if (p.tag === "MatrixAccess") {
+          p = { // convert to AccessPath schema
+            nodeType: "dummyNode",
+            children: [],
+            start: dummySourceLoc(),
+            end: dummySourceLoc(),
+            tag: "AccessPath",
+            path: p.contents[0],
+            indices: p.contents[1],
           };
         }
 
@@ -534,7 +576,7 @@ export const evalExpr = (
           tag: "Val",
           contents: compDict[fnName](
             optDebugInfo as OptDebugInfo,
-            JSON.stringify(p.contents)
+            JSON.stringify(p) // COMBAK: Test that derivatives still work. Might break due to JSON.stringify(p) changing?
           ),
         };
       }
@@ -554,6 +596,10 @@ export const evalExpr = (
     }
 
     default: {
+      if (isPath(e)) {
+        return resolvePath(e, trans, varyingVars, optDebugInfo);
+      }
+
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
     }
   }
@@ -580,13 +626,43 @@ export const resolvePath = (
     return floatVal(varyingVal);
   } else {
     // NOTE: a VectorAccess or MatrixAccess to varying variables isn't looked up in the varying paths (since `VectorAccess`, etc. in `evalExpr` don't call `resolvePath`; it works because varying vars are inserted into the translation (see `evalEnergyOn`)
+    // NOTE: varyingMap includes vars of form AccessPath but not Vector/Matrix access
     if (path.tag === "AccessPath") {
-      throw Error("TODO");
+      // Evaluate it as Vector or Matrix access as appropriate (COMBAK: Deprecate Vector/Matrix access on second pass, and also remove Vector/Matrix conversion to accesspath for derivative debugging computations)
+
+      // console.log("path", path);
+      // console.log("trans", trans);
+      // console.log("varyingMap", varyingMap);
+
+      if (path.indices.length === 1) { // Vector
+
+        // if (path.path.tag === "FieldPath") {
+        //   if (path.path.field.value === "markerLine") {
+        //     debugger;
+        //   }
+        // }
+
+        const e: Expr = {
+          ...path,
+          tag: "VectorAccess",
+          contents: [path.path, path.indices[0]]
+        };
+        return evalExpr(e, trans, varyingMap, optDebugInfo);
+      } else if (path.indices.length === 2) { // Matrix
+        const e: Expr = {
+          ...path,
+          tag: "MatrixAccess",
+          contents: [path.path, path.indices]
+        };
+        return evalExpr(e, trans, varyingMap, optDebugInfo);
+      } else throw Error("unsupported number of indices in AccessPath");
+    }
+
+    if (path.tag === "InternalLocalVar" || path.tag === "LocalVar") {
+      throw Error("should not encounter local var in evaluation");
     }
 
     const gpiOrExpr = findExpr(trans, path);
-
-    console.log(path);
 
     switch (gpiOrExpr.tag) {
       case "FGPI": {
@@ -595,22 +671,18 @@ export const resolvePath = (
         // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
         const evaledProps = mapValues(props, (p, propName) => {
           const propertyPath: IPropertyPath = {
+            ...path,
             tag: "PropertyPath",
-            contents: concat(path.contents, propName) as [
-              BindingForm,
-              string,
-              string
-            ],
+            name: path.name,
+            field: path.field,
+            property: dummyIdentifier(propName)
           };
 
           if (p.tag === "OptEval") {
             // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const propertyPathExpr = {
-              tag: "EPath",
-              contents: propertyPath,
-            } as IEPath;
+            const propertyPathExpr = propertyPath as Path;
             const val: Value<VarAD> = (evalExpr(
               propertyPathExpr,
               trans,
@@ -647,24 +719,13 @@ export const resolvePath = (
 
         if (expr.tag === "OptEval") {
           // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
-          const res: ArgVal<VarAD> = evalExpr(
-            expr.contents,
-            trans,
-            varyingMap,
-            optDebugInfo
-          );
+          const res: ArgVal<VarAD> = evalExpr(expr.contents, trans, varyingMap, optDebugInfo);
 
           if (res.tag === "Val") {
-            const transNew = insertExpr(
-              path,
-              { tag: "Done", contents: res.contents },
-              trans
-            );
+            const transNew = insertExpr(path, { tag: "Done", contents: res.contents }, trans);
             return res;
           } else if (res.tag === "GPI") {
-            throw Error(
-              "Field expression evaluated to GPI when this case was eliminated"
-            );
+            throw Error("Field expression evaluated to GPI when this case was eliminated");
           } else {
             throw Error("Unknown tag");
           }
@@ -832,22 +893,16 @@ export const evalUOp = (
 ): Value<VarAD> => {
   if (arg.tag === "FloatV") {
     switch (op) {
-      case "UPlus":
-        throw new Error("unary plus is undefined");
       case "UMinus":
         return { ...arg, contents: neg(arg.contents) };
     }
   } else if (arg.tag === "IntV") {
     switch (op) {
-      case "UPlus":
-        throw new Error("unary plus is undefined");
       case "UMinus":
         return { ...arg, contents: -arg.contents };
     }
   } else if (arg.tag === "VectorV") {
     switch (op) {
-      case "UPlus":
-        throw new Error("unary plus is undefined");
       case "UMinus":
         return { ...arg, contents: ops.vneg(arg.contents) };
     }
@@ -871,14 +926,14 @@ export const findExpr = (
   let name, field, prop;
 
   switch (path.tag) {
-    case "FieldPath":
-      [name, field] = path.contents;
+    case "FieldPath": {
+      [name, field] = [path.name, path.field];
       // Type cast to field expression
-      const fieldExpr = trans.trMap[name.contents][field];
+      const fieldExpr = trans.trMap[name.contents.value][field.value];
 
       if (!fieldExpr) {
         throw Error(
-          `Could not find field '${JSON.stringify(path)}' in translation`
+          `Could not find field '${prettyPrintPath(path)}' in translation`
         );
       }
 
@@ -888,15 +943,16 @@ export const findExpr = (
         case "FExpr":
           return fieldExpr.contents;
       }
+    }
 
-    case "PropertyPath":
-      [name, field, prop] = path.contents;
+    case "PropertyPath": {
+      [name, field, prop] = [path.name, path.field, path.property];
       // Type cast to FGPI and get the properties
-      const gpi = trans.trMap[name.contents][field];
+      const gpi = trans.trMap[name.contents.value][field.value];
 
       if (!gpi) {
         throw Error(
-          `Could not find GPI '${JSON.stringify(path)}' in translation`
+          `Could not find GPI '${prettyPrintPath(path)}' in translation`
         );
       }
 
@@ -905,120 +961,16 @@ export const findExpr = (
           throw new Error("field path leads to an expression, not a GPI");
         case "FGPI":
           const [, propDict] = gpi.contents;
-          return propDict[prop];
+          return propDict[prop.value];
       }
-
-    case "AccessPath":
-      throw Error("TODO");
-  }
-};
-
-const floatValToExpr = (e: Value<VarAD>): Expr => {
-  if (e.tag !== "FloatV") {
-    throw Error("expected to insert vector elem of type float");
-  }
-  return {
-    tag: "AFloat",
-    contents: { tag: "Fix", contents: e.contents },
-  };
-};
-
-/**
- * Insert an expression into the translation (mutating it), returning a reference to the mutated translation for convenience
- * @param path path to a field or property
- * @param expr new expression
- * @param initTrans initial translation
- *
- */
-export const insertExpr = (
-  path: Path,
-  expr: TagExpr<VarAD>,
-  initTrans: Translation
-): Translation => {
-  const trans = initTrans;
-  let name, field, prop;
-  switch (path.tag) {
-    case "FieldPath": {
-      [name, field] = path.contents;
-      // NOTE: this will overwrite existing expressions
-      trans.trMap[name.contents][field] = { tag: "FExpr", contents: expr };
-      return trans;
     }
-    case "PropertyPath": {
-      [name, field, prop] = path.contents;
-      const gpi = trans.trMap[name.contents][field];
-      const [, properties] = gpi.contents;
-      properties[prop] = expr;
-      return trans;
-    }
+
     case "AccessPath": {
-      const [innerPath, indices] = path.contents;
+      throw Error("TODO");
+    }
 
-      switch (innerPath.tag) {
-        case "FieldPath": {
-          // a.x[0] = e
-          [name, field] = innerPath.contents;
-          const res = trans.trMap[name.contents][field];
-          if (res.tag !== "FExpr") {
-            throw Error("did not expect GPI in vector access");
-          }
-          const res2 = res.contents;
-          // Deal with vector expressions
-          if (res2.tag === "OptEval") {
-            const res3 = res2.contents;
-            if (res3.tag !== "Vector") {
-              throw Error("expected Vector");
-            }
-            const res4 = res3.contents;
-            res4[indices[0]] = floatValToExpr(expr.contents);
-            return trans;
-          } else if (res2.tag === "Done") {
-            // Deal with vector values
-            const res3 = res2.contents;
-            if (res3.tag !== "VectorV") {
-              throw Error("expected Vector");
-            }
-            const res4 = res3.contents;
-            res4[indices[0]] = expr.contents.contents;
-            return trans;
-          } else {
-            throw Error("unexpected tag");
-          }
-        }
-
-        case "PropertyPath": {
-          // a.x.y[0] = e
-          [name, field, prop] = (innerPath as IPropertyPath).contents;
-          const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
-          const [, properties] = gpi.contents;
-          const res = properties[prop];
-
-          if (res.tag === "OptEval") {
-            // Deal with vector expresions
-            const res2 = res.contents;
-            if (res2.tag !== "Vector") {
-              throw Error("expected Vector");
-            }
-            const res3 = res2.contents;
-            res3[indices[0]] = floatValToExpr(expr.contents);
-            return trans;
-          } else if (res.tag === "Done") {
-            // Deal with vector values
-            const res2 = res.contents;
-            if (res2.tag !== "VectorV") {
-              throw Error("expected Vector");
-            }
-            const res3 = res2.contents;
-            res3[indices[0]] = expr.contents.contents;
-            return trans;
-          } else {
-            throw Error("unexpected tag");
-          }
-        }
-
-        default:
-          throw Error("should not have nested AccessPath in AccessPath");
-      }
+    default: {
+      throw Error("unsupported tag in findExpr");
     }
   }
 };
@@ -1111,9 +1063,9 @@ export function genPathMap<T>(
     console.log(paths, vals);
     throw new Error(
       "Different numbers of varying vars vs. paths: " +
-        paths.length +
-        ", " +
-        vals.length
+      paths.length +
+      ", " +
+      vals.length
     );
   }
   const res = new Map();

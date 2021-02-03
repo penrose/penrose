@@ -1479,12 +1479,9 @@ foldlPropertyDefs ::
   -> b
 foldlPropertyDefs f accum (_, propDict) = M.foldl' f accum propDict
 
-foldlPropertyMappings ::
-     (Autofloat a)
-  => (b -> PropID -> (ValueType, SampledValue a) -> b)
-  -> b
-  -> ShapeDef a
-  -> b
+foldlPropertyMappings :: (Autofloat a) => 
+                      (b -> PropID -> (ValueType, SampledValue a) -> b) 
+                         -> b -> ShapeDef a -> b
 foldlPropertyMappings f accum (_, propDict) = M.foldlWithKey f accum propDict
 
 --------------------------------------------------------------------------------

@@ -342,33 +342,19 @@ mkVaryMap varyPaths varyVals =
 
 ------------------- Translation helper functions
 ------ Generic functions for folding over a translation
-foldFields ::
-     (Autofloat a)
-  => (String -> Field -> FieldExpr a -> [b] -> [b])
-  -> Name
-  -> FieldDict a
-  -> [b]
-  -> [b]
+foldFields :: (Autofloat a)
+  => (String -> Field -> FieldExpr a -> [b] -> [b]) 
+     -> Name -> FieldDict a -> [b] -> [b]
 foldFields f name fieldDict acc =
   let res = M.foldrWithKey (f name) [] fieldDict
   in res ++ acc
 
-foldSubObjs ::
-     (Autofloat a)
-  => (String -> Field -> FieldExpr a -> [b] -> [b])
-  -> Translation a
-  -> [b]
+foldSubObjs :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b]) 
+                                -> Translation a -> [b]
 foldSubObjs f trans = M.foldrWithKey (foldFields f) [] (trMap trans)
 
 ------- Inserting into a translation
-insertGPI ::
-     (Autofloat a)
-  => Translation a
-  -> String
-  -> Field
-  -> ShapeTypeStr
-  -> PropertyDict a
-  -> Translation a
+insertGPI :: (Autofloat a) => Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a -> Translation a
 insertGPI trans n field t propDict =
   case M.lookup n $ trMap trans of
     Nothing -> error "Substance ID does not exist"
@@ -572,14 +558,7 @@ findNestedVarying _ _ = []
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
-findPropertyVarying ::
-     (Autofloat a)
-  => String
-  -> Field
-  -> M.Map String (TagExpr a)
-  -> String
-  -> [Path]
-  -> [Path]
+findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) -> String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
   case M.lookup floatProperty properties of
     Nothing ->
@@ -626,14 +605,7 @@ findPending = foldSubObjs findFieldPending
       in map (\p -> mkPath [name, field, p]) pendingProps ++ acc
 
 --- Find uninitialized (non-float) paths
-findPropertyUninitialized ::
-     (Autofloat a)
-  => String
-  -> Field
-  -> M.Map String (TagExpr a)
-  -> String
-  -> [Path]
-  -> [Path]
+findPropertyUninitialized :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) -> String -> [Path] -> [Path]
 findPropertyUninitialized name field properties nonfloatProperty acc =
   case M.lookup nonfloatProperty properties
     -- nonfloatProperty is a non-float property that is NOT set by the user and thus we can sample it
@@ -641,18 +613,13 @@ findPropertyUninitialized name field properties nonfloatProperty acc =
     Nothing   -> mkPath [name, field, nonfloatProperty] : acc
     Just expr -> acc
 
-findFieldUninitialized ::
-     (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
+findFieldUninitialized :: (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
 -- NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
 findFieldUninitialized name field (FExpr expr) acc = acc
 findFieldUninitialized name field (FGPI typ properties) acc =
   let ctorNonfloats = filter (/= "name") $ propertiesNotOf FloatT typ
   in let uninitializedProps = ctorNonfloats
-     in let vs =
-              foldr
-                (findPropertyUninitialized name field properties)
-                []
-                uninitializedProps
+     in let vs = foldr (findPropertyUninitialized name field properties) [] uninitializedProps
         in vs ++ acc
 
 -- | Find the paths to all uninitialized, non-float, non-name properties
@@ -664,13 +631,8 @@ findObjfnsConstrs ::
      (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
 findObjfnsConstrs = foldSubObjs findFieldFns
   where
-    findFieldFns ::
-         (Autofloat a)
-      => String
-      -> Field
-      -> FieldExpr a
-      -> [Either StyleOptFn StyleOptFn]
-      -> [Either StyleOptFn StyleOptFn]
+    findFieldFns :: (Autofloat a)
+      => String -> Field -> FieldExpr a -> [Either StyleOptFn StyleOptFn] -> [Either StyleOptFn StyleOptFn]
     findFieldFns name field (FExpr (OptEval expr)) acc =
       case expr of
         ObjFn fname args    -> Left (fname, args) : acc
@@ -680,17 +642,12 @@ findObjfnsConstrs = foldSubObjs findFieldFns
     findFieldFns name field (FExpr (Done _)) acc = acc
     findFieldFns name field (FGPI _ _) acc = acc
 
-findDefaultFns ::
-     (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
+findDefaultFns :: (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
 findDefaultFns = foldSubObjs findFieldDefaultFns
   where
-    findFieldDefaultFns ::
-         (Autofloat a)
-      => String
-      -> Field
-      -> FieldExpr a
-      -> [Either StyleOptFn StyleOptFn]
-      -> [Either StyleOptFn StyleOptFn]
+    findFieldDefaultFns :: (Autofloat a) => 
+                     String -> Field -> FieldExpr a 
+                        -> [Either StyleOptFn StyleOptFn] -> [Either StyleOptFn StyleOptFn]
     findFieldDefaultFns name field gpi@(FGPI typ props) acc =
       let args = [EPath $ FieldPath (BSubVar (VarConst name)) field]
           objs = map (Left . addArgs args) $ defaultObjFnsOf typ
@@ -704,27 +661,15 @@ findDefaultFns = foldSubObjs findFieldDefaultFns
 findShapeNames :: (Autofloat a) => Translation a -> [(String, Field)]
 findShapeNames = foldSubObjs findGPIName
   where
-    findGPIName ::
-         (Autofloat a)
-      => String
-      -> Field
-      -> FieldExpr a
-      -> [(String, Field)]
-      -> [(String, Field)]
+    findGPIName :: (Autofloat a) => String -> Field -> FieldExpr a -> [(String, Field)] -> [(String, Field)]
     findGPIName name field (FGPI _ _) acc = (name, field) : acc
     findGPIName _ _ (FExpr _) acc         = acc
 
-findShapesProperties ::
-     (Autofloat a) => Translation a -> [(String, Field, Property)]
+findShapesProperties :: (Autofloat a) => Translation a -> [(String, Field, Property)]
 findShapesProperties = foldSubObjs findShapeProperties
   where
-    findShapeProperties ::
-         (Autofloat a)
-      => String
-      -> Field
-      -> FieldExpr a
-      -> [(String, Field, Property)]
-      -> [(String, Field, Property)]
+    findShapeProperties :: (Autofloat a) => 
+                        String -> Field -> FieldExpr a -> [(String, Field, Property)] -> [(String, Field, Property)]
     findShapeProperties name field (FGPI ctor properties) acc =
       let paths = map (\property -> (name, field, property)) (M.keys properties)
       in paths ++ acc
@@ -1210,13 +1155,9 @@ evalEnergy s =
 -- 2. Initialize all properties of all GPIs
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
-initProperty ::
-     (Autofloat a)
-  => ShapeTypeStr
-  -> (PropertyDict a, StdGen)
-  -> String
-  -> (ValueType, SampledValue a)
-  -> (PropertyDict a, StdGen)
+initProperty :: (Autofloat a) => 
+             ShapeTypeStr -> (PropertyDict a, StdGen) -> String -> 
+                          (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
 initProperty shapeType (properties, g) pID (typ, sampleF) =
   let (v, g') = sampleF g
       autoRndVal = Done v
@@ -1234,11 +1175,7 @@ initProperty shapeType (properties, g) pID (typ, sampleF) =
            else (M.insert pID autoRndVal properties, g')
        _ -> error ("not handled: " ++ pID ++ ", " ++ show (M.lookup pID properties))
 
-initShape ::
-     (Autofloat a)
-  => (Translation a, StdGen)
-  -> (String, Field)
-  -> (Translation a, StdGen)
+initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
 initShape (trans, g) (n, field) =
   case lookupField (BSubVar (VarConst n)) field trans of
     FGPI shapeType propDict ->
@@ -1252,12 +1189,7 @@ initShape (trans, g) (n, field) =
       in (insertGPI trans n field shapeType propDict'', g')
     _ -> error "expected GPI but got field"
 
-initShapes ::
-     (Autofloat a)
-  => Translation a
-  -> [(String, Field)]
-  -> StdGen
-  -> (Translation a, StdGen)
+initShapes :: (Autofloat a) => Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
 initShapes trans shapePaths gen = foldl' initShape (trans, gen) shapePaths
 
 resampleFields :: (Autofloat a) => [Path] -> StdGen -> ([a], StdGen)
@@ -1269,12 +1201,7 @@ resampleFields varyingPaths g =
 -- example: A.val = OPTIMIZED
 -- This also samples varying access paths, e.g.
 -- Circle { center : (1.1, ?) ... } <-- the latter is an access path that gets initialized here
-initFields ::
-     (Autofloat a)
-  => [Path]
-  -> Translation a
-  -> StdGen
-  -> (Translation a, StdGen)
+initFields :: (Autofloat a) => [Path] -> Translation a -> StdGen -> (Translation a, StdGen)
 initFields varyingPaths trans g =
   let varyingFields = filter isFieldOrAccessPath varyingPaths
       (sampledVals, g') =

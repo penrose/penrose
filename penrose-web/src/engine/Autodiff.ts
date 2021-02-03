@@ -25,20 +25,39 @@ export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 /**
  * Make a number into a gradient `VarAD`. Don't use this!
  */
-export const gvarOf = (x: number, vname = "", metadata = ""): VarAD =>
+export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => {
+  if (typeof x !== "number") {
+    console.error("x", x);
+    throw Error("expected number");
+  }
+
   // Grad var, level 1
-  variableAD(x, vname, metadata, false);
+  return variableAD(x, vname, metadata, false);
+}
 
 /**
  * Make a number into a `VarAD`.
  */
-export const varOf = (x: number, vname = "", metadata = ""): VarAD =>
-  variableAD(x, vname, metadata);
+export const varOf = (x: number, vname = "", metadata = ""): VarAD => {
+  if (typeof x !== "number") {
+    console.error("x", x);
+    throw Error("expected number");
+  }
+
+  return variableAD(x, vname, metadata);
+}
 
 /**
  * Return a new `VarAD` that's a constant.
  */
-export const constOf = (x: number): VarAD => variableAD(x, String(x), "const");
+export const constOf = (x: number): VarAD => {
+  if (typeof x !== "number") {
+    console.error("x", x);
+    throw Error("expected number");
+  }
+
+  return variableAD(x, String(x), "const");
+}
 
 export const constOfIf = (x: number | VarAD): VarAD => {
   if (typeof x === "number") {
