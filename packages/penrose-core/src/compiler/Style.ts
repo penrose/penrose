@@ -1,21 +1,16 @@
+import { compileDomain, compileSubstance, parseSubstance } from "API";
+import { checkExpr, checkPredicate, checkVar, LabelMap, SubstanceEnv } from "compiler/Substance";
+import { constOf, numOf } from "engine/Autodiff";
+import { defaultLbfgsParams, findExpr, initConstraintWeight, insertExpr, insertExprs, insertGPI, isPath, valueNumberToAutodiffConst } from "engine/EngineUtils";
 import * as _ from "lodash";
-import {
-  insertExpr, insertGPI, findExpr, insertExprs, valueNumberToAutodiff, valueNumberToAutodiffConst, isPath, defaultLbfgsParams, initConstraintWeight
-} from "engine/EngineUtils";
-import { canvasXRange, shapedefs, findDef, ShapeDef, PropType, IPropModel, IShapeDef, Sampler } from "shapes/ShapeDef";
-import { randFloats } from "utils/Util";
-import { numOf, constOf } from "engine/Autodiff";
-import { compileDomain, compileSubstance, checkDomain, checkSubstance, parseSubstance, parseDomain } from "API";
-
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
-import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr, subtypeOf } from "compiler/Substance";
-import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
+import { canvasXRange, findDef, PropType, Sampler, ShapeDef } from "shapes/ShapeDef";
+import { isErr, Result, unsafelyUnwrap } from "utils/Error";
+import { randFloats } from "utils/Util";
+import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 
-import { Env, isDeclaredSubtype, checkTypeConstructor } from "./Domain";
-import { Map } from "immutable"; // Note: Domain maps are immutable!!!
 
-import { domainStr, subStrSugared, subStrUnsugared, styStr } from "compiler/TestDebug";
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
