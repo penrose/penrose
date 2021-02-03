@@ -1,11 +1,36 @@
+// Must be run from penrose-web for loading files
+
 import * as _ from "lodash";
 import * as stateJSON from "__tests__/orthogonalVectors.json";
 import { selEnvs, possibleSubsts, correctSubsts } from "compiler/StyleTestData";
 import * as S from "compiler/Style";
 
+import * as fs from "fs";
+import * as path from "path";
+
+import { SubstanceEnv, LabelMap, checkPredicate, checkVar, checkExpr, subtypeOf } from "compiler/Substance";
+import { Env, isDeclaredSubtype, checkTypeConstructor } from "./Domain";
+import { Result, ok, err, unsafelyUnwrap, isErr } from "utils/Error";
+
 const clone = require("rfdc")({ proto: false, circles: false });
 
 // TODO: Reorganize and name tests by compiler stage
+
+// Load file in format "domain-dir/file.extension"
+const loadFile = (examplePath: string): string => {
+  const file = path.join("../examples/", examplePath);
+  const prog = fs.readFileSync(file, "utf8");
+  return prog;
+};
+
+const loadFiles = (paths: string[]): string[] => {
+  return paths.map(loadFile);
+};
+
+// Load dsl, sub, sty (in that order)
+const loadProgs = (triple: [string, string, string]): [Env, SubstanceEnv, SubProg, StyProg] => {
+  return S.loadProgs(loadFiles(triple) as [string, string, string]);
+};
 
 describe("Compiler", () => {
 
@@ -64,41 +89,66 @@ describe("Compiler", () => {
     }
   });
 
-  // COMBAK: Put this test back in. Removed only because of schema change for sub/sty/dsl
-
   // Compiler finds the right substitutions for LA Style program
   // Note that this doesn't test subtypes
   test("finds the right substitutions for LA Style program", () => {
-    //   // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
-    //   // Not sure why the checker throws an error on `.default` below (or, alternatively, needs the type coercions), but the test runs + passes
-    //   const info = stateJSON.contents;
-    //   const styProgInit: StyProg = styJSON as unknown as StyProg;
-    //   const subOut: SubOut = info[3] as unknown as SubOut;
+    // This code is cleaned up from `S.compileStyle`; runs the beginning of compiler checking from scratch
+    const triple: [string, string, string] = [
+      "linear-algebra-domain/linear-algebra.dsl",
+      "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
+      "linear-algebra-domain/linear-algebra-paper-simple.sty",
+    ];
 
-    //   const subProg: SubProg = subOut[0];
-    //   const varEnv: VarEnv = subOut[1][0];
-    //   const subEnv: SubEnv = subOut[1][1];
+    const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(triple);
 
-    //   const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    //   const subss = S.findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
+    S.disambiguateFunctions(varEnv, subProg);
+    const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
-    //   for (const [res, expected] of _.zip(subss, correctSubsts)) {
-    //     expect(res).toEqual(expected);
-    //   }
+    const selErrs: StyErrors = _.flatMap(selEnvs, e => e.warnings.concat(e.errors));
+
+    if (selErrs.length > 0) {
+      const err = `Could not compile. Error(s) in Style while checking selectors`;
+      console.log([err].concat(selErrs));
+      expect(false).toEqual(true);
+    }
+
+    const subss = S.findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
+
+    if (subss.length !== correctSubsts.length) {
+      expect(false).toEqual(true);
+    }
+
+    for (const [res, expected] of _.zip(subss, correctSubsts)) {
+      expect(res).toEqual(expected);
+    }
   });
-
-  // COMBAK: Put this test back in
 
   // There are no AnonAssign statements, i.e. they have all been substituted out (proxy test for `S.nameAnonStatements` working)
   test("There are no anonymous statements", () => {
-    // const styProgInit: StyProg = styJSON as unknown as StyProg;
-    // const styProg: StyProg = S.nameAnonStatements(styProgInit);
+    const triple: [string, string, string] = [
+      "linear-algebra-domain/linear-algebra.dsl",
+      "linear-algebra-domain/twoVectorsPerp-unsugared.sub",
+      "linear-algebra-domain/linear-algebra-paper-simple.sty",
+    ];
 
-    // for (const hb of styProg.blocks) {
-    //   for (const stmt of hb.block.statements) {
-    //     expect(stmt.tag).not.toEqual("AnonAssign");
-    //   }
-    // }
+    const [varEnv, subEnv, subProg, styProgInit]: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(triple);
+    S.disambiguateFunctions(varEnv, subProg);
+    const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
+    const selErrs: StyErrors = _.flatMap(selEnvs, e => e.warnings.concat(e.errors));
+
+    if (selErrs.length > 0) {
+      const err = `Could not compile. Error(s) in Style while checking selectors`;
+      console.log([err].concat(selErrs));
+      expect(false).toEqual(true);
+    }
+
+    const styProg: StyProg = S.nameAnonStatements(styProgInit);
+
+    for (const hb of styProg.blocks) {
+      for (const stmt of hb.block.statements) {
+        expect(stmt.tag).not.toEqual("AnonAssign");
+      }
+    }
   });
 
   const sum = (acc: number, n: number, i: number): Either<String, number> => i > 2 ? S.Left("error") : S.Right(acc + n);
