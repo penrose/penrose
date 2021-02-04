@@ -3,7 +3,7 @@ jobs:
   docs-deploy:
     docker:
       - image: circleci/node:11.10.1
-    working_directory: ~/penrose/penrose-web
+    working_directory: ~/penrose/packages/penrose-core
     steps:
       - checkout:
           path: ~/penrose
