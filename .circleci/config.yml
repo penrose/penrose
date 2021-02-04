@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   docs-deploy:
     docker:
-      - image: circleci/node:11.10.1
+      - image: circleci/node:12.19.0
     working_directory: ~/penrose/packages/penrose-core
     steps:
       - checkout:
@@ -11,7 +11,7 @@ jobs:
           name: Install deps
           command: |
             sudo npm install -g --silent gh-pages
-            npm install
+            yarn
             git config user.email "ci-build@penrose.ink"
             git config user.name "ci-build"
       - add_ssh_keys:
@@ -19,7 +19,7 @@ jobs:
             - "e0:22:08:03:8f:eb:1c:b7:59:4e:48:00:6d:2d:a7:be"
       - run:
           name: Generate docs
-          command: npm run docs
+          command: yarn docs
       - run:
           name: Add nojekyll
           command: touch docs/.nojekyll
@@ -28,32 +28,23 @@ jobs:
           command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
   build:
     docker:
-      - image: circleci/node:11.10.1
+      - image: circleci/node:12.19.0
     steps:
       - checkout:
           path: ~/penrose
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
       - run:
-          name: Install Lerna
-          command: sudo npm install -g lerna
-          working_directory: ~/penrose
-      - run:
-          name: Install npm deps
-          command: npm install
+          name: Install deps and link roger
+          command: sudo yarn
           working_directory: ~/penrose
       - save_cache:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
           paths:
             - ~/penrose/node_modules
       - run:
-          name: Build normally
-          command: lerna bootstrap
-          resource_class: large
-          working_directory: ~/penrose
-      - run:
           name: Run all tests
-          command: npm test
+          command: yarn test
           working_directory: ~/penrose/
       - run:
           name: Make test report dir
@@ -61,7 +52,7 @@ jobs:
           working_directory: ~/penrose/packages/penrose-core
       - run:
           name: Run core tests and generate test data
-          command: npm run coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
+          command: yarn coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
           working_directory: ~/penrose/packages/penrose-core
       - run:
           name: Move test report
