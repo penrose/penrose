@@ -6,8 +6,12 @@
     "packages/*"
   ],
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "postinstall": "lerna run build --scope=roger",
+    "build": "lerna run build --stream",
+    "clean": "lerna clean",
+    "start": "lerna run watch --stream --scope=penrose-core",
     "test": "lerna run test --stream",
+    "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --yes",
     "diff": "lerna diff"
   },
@@ -19,5 +23,8 @@
     "hooks": {
       "pre-commit": "npm test"
     }
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
