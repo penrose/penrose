@@ -5,12 +5,12 @@
 function id(d: any[]): any {
   return d[0];
 }
-declare let string_literal: any;
-declare let float_literal: any;
-declare let identifier: any;
-declare let comment: any;
-declare let multiline_comment: any;
-declare let ws: any;
+declare var string_literal: any;
+declare var float_literal: any;
+declare var identifier: any;
+declare var comment: any;
+declare var multiline_comment: any;
+declare var ws: any;
 
 /* eslint-disable */
 import * as moo from "moo";

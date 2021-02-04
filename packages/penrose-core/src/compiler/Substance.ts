@@ -17,14 +17,14 @@ import {
   typeMismatch,
   typeNotFound,
   unexpectedExprForNestedPred,
-  varNotFound
+  varNotFound,
 } from "utils/Error";
 import {
   bottomType,
   checkTypeConstructor,
   Env,
   isSubtype,
-  topType
+  topType,
 } from "./Domain";
 
 export const parseSubstance = (prog: string): SubProg => {

@@ -11,6 +11,7 @@
     "clean": "lerna clean",
     "start": "lerna run watch --stream --scope=penrose-core",
     "test": "lerna run test --stream",
+    "posttest": "yarn format",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --yes",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
@@ -18,11 +19,6 @@
     "diff": "lerna diff"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.14.2",
-    "@typescript-eslint/parser": "^4.14.2",
-    "eslint": "^7.19.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-react": "^7.22.0",
     "husky": "^4.3.8",
     "lerna": "^3.22.1",
     "prettier": "2.2.1",
