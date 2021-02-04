@@ -17,15 +17,29 @@ import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result } from "utils/Error";
 import { loadImages } from "utils/Util";
 
+/**
+ * Resample all shapes in the state by generating a number of samples (`numSamples`) and picking the sample with the lowest initial energy value.
+ * @param state current state
+ * @param numSamples number of samples to choose from
+ */
 export const resample = (state: State, numSamples: number): State => {
   return resampleBest(state, numSamples);
 };
 
+/**
+ * Take one step in the optimizer given the current state.
+ * @param state current state
+ */
 export const stepState = (state: State): State => {
   const numSteps = 1;
   return step(state, numSteps);
 };
 
+/**
+ * Embed a Penrose `Embed` component in a DOM node
+ * @param data a Penrose state
+ * @param node a node in the DOM tree
+ */
 export const diagram = async (
   data: State,
   node: HTMLElement
@@ -34,6 +48,12 @@ export const diagram = async (
   ReactDOM.render(<Embed data={data} />, node);
 };
 
+/**
+ * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`. Note that this function does _not_ evaluate the shapes. Generation of shapes is handled in `prepareState`.
+ * @param domainProg a Domain program string
+ * @param subProg a Substance program string
+ * @param styProg a Style program string
+ */
 export const compileTrio = (
   domainProg: string,
   subProg: string,
@@ -54,8 +74,12 @@ export const compileTrio = (
   return styRes;
 };
 
-// TODO:L errors
+/**
+ * Generate all shapes and collect labels and images (if applicable) given an initial `State`.
+ * @param state an initial diagram state
+ */
 export const prepareState = async (state: State): Promise<State> => {
+  // TODO:L errors
   const stateAD = {
     ...state,
     originalTranslation: state.originalTranslation,
