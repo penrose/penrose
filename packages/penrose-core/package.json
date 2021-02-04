@@ -1,6 +1,6 @@
 {
   "name": "penrose-core",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "main": "build/dist/module.js",
   "module": "build/dist/module.js",
   "types": "build/dist/types.js",
