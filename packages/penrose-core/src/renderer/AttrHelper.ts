@@ -33,6 +33,20 @@ export const attrCoords = (
   );
 };
 
+export const attrSideCoords = (
+  { properties }: IShape,
+  canvasSize: [number, number],
+  elem: SVGElement
+) => {
+  const center = properties.center as IVectorV<number>;
+  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const side = properties.side as IFloatV<number>;
+  elem.setAttribute(
+    "transform",
+    `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
+  );
+};
+
 export const attrRadius = ({ properties }: IShape, elem: SVGElement) => {
   const r = properties.r as IFloatV<number>;
   elem.setAttribute("r", r.contents.toString());
@@ -50,6 +64,12 @@ export const attrWH = ({ properties }: IShape, elem: SVGElement) => {
   const h = properties.h as IFloatV<number>;
   elem.setAttribute("width", w.contents.toString());
   elem.setAttribute("height", h.contents.toString());
+};
+
+export const attrSide = ({ properties }: IShape, elem: SVGElement) => {
+  const side = properties.side as IFloatV<number>;
+  elem.setAttribute("width", side.contents.toString());
+  elem.setAttribute("height", side.contents.toString());
 };
 
 const DASH_ARRAY = "7,5";
