@@ -1,21 +1,24 @@
 import {
   useCenter,
   useFill,
-  useRadius,
+  useRadii,
   useStroke,
   useTitle,
 } from "./AttrHelper";
 
-const Circle = (shape: IShape, canvasSize: [number, number]) => {
+const Ellipse = (shape: IShape, canvasSize: [number, number]) => {
   const { properties } = shape;
 
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  const elem = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "ellipse"
+  );
   useFill(shape, elem);
   useCenter(shape, canvasSize, elem);
-  useRadius(shape, elem);
+  useRadii(shape, elem);
   useStroke(shape, elem);
   useTitle(shape, elem);
 
   return elem;
 };
-export default Circle;
+export default Ellipse;

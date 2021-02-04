@@ -7,17 +7,27 @@ export const useFill = ({ properties }: IShape, elem: SVGElement) => {
   elem.setAttribute("fill-opacity", alpha.toString());
 };
 
-export const useCircular = (
+export const useCenter = (
   { properties }: IShape,
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  const r = properties.r as IFloatV<number>;
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
+};
+
+export const useRadius = ({ properties }: IShape, elem: SVGElement) => {
+  const r = properties.r as IFloatV<number>;
   elem.setAttribute("r", r.contents.toString());
+};
+
+export const useRadii = ({ properties }: IShape, elem: SVGElement) => {
+  const rx = properties.rx as IFloatV<number>;
+  const ry = properties.ry as IFloatV<number>;
+  elem.setAttribute("rx", rx.contents.toString());
+  elem.setAttribute("ry", rx.contents.toString());
 };
 
 const DASH_ARRAY = "7,5";
