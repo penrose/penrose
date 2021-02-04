@@ -29,7 +29,11 @@ export const parseDomain = (prog: string): DomainProg => {
   return ast;
 };
 
-// TODO: wrap errors in PenroseError type
+/**
+ * Top-level function for the Domain parser and checker. Given Domain program string, it outputs either a `PenroseError` or an `Env` context.
+ *
+ * @param prog Domain program string
+ */
 export const compileDomain = (prog: string): Result<Env, PenroseError> => {
   const ast = parseDomain(prog);
   return checkDomain(ast).match({
