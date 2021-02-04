@@ -36,7 +36,7 @@ jobs:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
       - run:
           name: Install deps and link roger
-          command: yarn
+          command: sudo yarn
           working_directory: ~/penrose
       - save_cache:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
