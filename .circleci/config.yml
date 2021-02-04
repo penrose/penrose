@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   docs-deploy:
     docker:
-      - image: circleci/node:11.10.1
+      - image: circleci/node:12.19.0
     working_directory: ~/penrose/packages/penrose-core
     steps:
       - checkout:
@@ -28,7 +28,7 @@ jobs:
           command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
   build:
     docker:
-      - image: circleci/node:11.10.1
+      - image: circleci/node:12.19.0
     steps:
       - checkout:
           path: ~/penrose
