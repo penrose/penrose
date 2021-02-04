@@ -1,8 +1,10 @@
 // TODO: move into the `types` folder?
 
 export interface IGPIProps {
+  // shape: Properties;
   shape: any;
   canvasSize: [number, number];
+  labels: LabelCache;
 }
 
 export interface IGPIPropsDraggable extends IGPIProps {

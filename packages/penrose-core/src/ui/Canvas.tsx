@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-
 import { interactiveMap, staticMap } from "shapes/componentMap";
 import Log from "utils/Log";
 import { loadImages } from "utils/Util";
@@ -56,7 +55,7 @@ class Canvas extends React.Component<ICanvasProps> {
    * Retrieve data from drag events and update varying state accordingly
    * @memberof Canvas
    */
-  public dragEvent = async (id: string, dx: number, dy: number) => {
+  public dragEvent = (id: string, dx: number, dy: number): void => {
     if (this.props.updateData && this.props.data) {
       const updated: State = {
         ...this.props.data,
@@ -71,13 +70,13 @@ class Canvas extends React.Component<ICanvasProps> {
         ),
       };
       // TODO: need to retrofit this implementation to the new State type
-      const updatedWithVaryingState = await updateVaryingValues(updated);
+      const updatedWithVaryingState = updateVaryingValues(updated);
       this.props.updateData(updatedWithVaryingState);
     }
   };
 
   // TODO: factor out position props in shapedef
-  public dragShape = (shape: Shape, offset: [number, number]) => {
+  public dragShape = (shape: Shape, offset: [number, number]): Shape => {
     const { shapeType, properties } = shape;
     switch (shapeType) {
       case "Path":
@@ -110,10 +109,9 @@ class Canvas extends React.Component<ICanvasProps> {
     properties: Properties,
     propsToMove: string[],
     [dx, dy]: [number, number]
-  ) => {
+  ): Properties => {
     const moveProperty = (props: Properties, propertyID: string) => {
       const [x, y] = props[propertyID].contents as [number, number];
-      console.log(props[propertyID], dx, dy);
       props[propertyID].contents = [x + dx, y + dy];
       return props;
     };
@@ -227,7 +225,38 @@ class Canvas extends React.Component<ICanvasProps> {
     frame.remove();
   };
 
-  public renderGPI = ({ shapeType, properties }: Shape, key: number) => {
+  public downloadState = () => {
+    const state: State = this.props.data!;
+    const params = {
+      ...state.params,
+      energyGraph: {},
+      xsVars: [],
+      constrWeightNode: undefined,
+      epWeightNode: undefined,
+      graphs: undefined,
+    };
+    const content = JSON.stringify({ ...state, params });
+    const blob = new Blob([content], {
+      type: "text/plain",
+    });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = `state.json`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
+  componentDidMount() {
+    this.forceUpdate();
+  }
+
+  public renderGPI = (
+    { shapeType, properties }: Shape,
+    labels: LabelCache,
+    key: number
+  ) => {
     const component = this.props.lock
       ? staticMap[shapeType]
       : interactiveMap[shapeType];
@@ -236,16 +265,17 @@ class Canvas extends React.Component<ICanvasProps> {
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
     if (!this.props.lock && this.svg.current === null) {
-      Log.error("SVG ref is null");
-      return <g key={key}>broken!</g>;
+      return <g key={key}>Pending</g>;
     }
     const { dragEvent } = this;
     return React.createElement(component, {
       key,
       shape: properties,
+      labels,
       canvasSize,
       dragEvent,
-      ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null,
+      ctm: !this.props.lock ? this.svg.current?.getScreenCTM() : null,
+      // ctm: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 20.511363191791812 },
     });
   };
 
@@ -264,7 +294,7 @@ class Canvas extends React.Component<ICanvasProps> {
       return <svg ref={this.svg} />;
     }
 
-    const { shapes } = data;
+    const { shapes, labelCache } = data;
 
     return (
       <svg
@@ -279,18 +309,18 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes && shapes.map(this.renderGPI)}
+        {shapes && shapes.map((s, k) => this.renderGPI(s, labelCache, k))}
       </svg>
     );
   }

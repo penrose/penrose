@@ -1,4 +1,8 @@
-import { valueNumberToAutodiff, tagExprNumberToAutodiff, insertExpr } from "engine/EngineUtils";
+import {
+  valueNumberToAutodiff,
+  tagExprNumberToAutodiff,
+  insertExpr,
+} from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
 import { initConstraintWeight } from "engine/EngineUtils";
 import { mapValues, zip } from "lodash";
@@ -18,6 +22,16 @@ type Range = [number, number];
 export const canvasSize: [number, number] = [800, 700];
 export const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
 export const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
+
+/** Generate a single string based on a path to a shape */
+export const getShapeName = (p: Path): string => {
+  if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
+    const { name, field } = p;
+    return `${name.contents.value}.${field.value}`;
+  } else {
+    throw new Error("Can only derive shape name from field or property path.");
+  }
+};
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
   tag: "FloatV",
@@ -91,7 +105,7 @@ export type ShapeDef = IShapeDef;
 // type HasTag<T, N> = T extends { tag: N } ? T : never;
 
 export type PropType = Value<number>["tag"];
-export type IPropModel = { [k: string]: [PropType, Sampler]; };
+export type IPropModel = { [k: string]: [PropType, Sampler] };
 
 export interface IShapeDef {
   shapeType: string;
@@ -300,10 +314,11 @@ const sampleProperty = (
   const propModels: IPropModel = shapeDef.properties;
   const sampler = propModels[property];
   if (sampler) return sampler[1]();
-  else
+  else {
     throw new Error(
       `${property} is not a valid property to be sampled for shape ${shapeDef.shapeType}.`
     );
+  }
 };
 
 /**
@@ -329,9 +344,15 @@ const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
   }
   // for property path, use the sampler in shapedef
   else {
-    const [subName, field, prop]: [string, string, string] = [path.name.contents.value, path.field.value, path.property.value];
+    const [subName, field, prop]: [string, string, string] = [
+      path.name.contents.value,
+      path.field.value,
+      path.property.value,
+    ];
     const { shapeType } = safe(
-      shapes.find((s: any) => s.properties.name.contents === `${subName}.${field}`),
+      shapes.find(
+        (s: any) => s.properties.name.contents === `${subName}.${field}`
+      ),
       `Cannot find shape ${subName}.${field}`
     );
     const shapeDef = findDef(shapeType);
@@ -358,7 +379,8 @@ export const resampleBest = (state: State, numSamples: number): State => {
   ][];
 
   const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path, TagExpr<number>]) => insertExpr(p, tagExprNumberToAutodiff(e), tr),
+    (tr: Translation, [p, e]: [Path, TagExpr<number>]) =>
+      insertExpr(p, tagExprNumberToAutodiff(e), tr),
     state.translation
   );
 

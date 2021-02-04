@@ -1,28 +1,20 @@
 {
     "shapeType": "Arrow",
     "properties": {
-        "startX": {
-            "inputType": "range",
-            "min": "CANVASL",
-            "max": "CANVASR",
+        "start": {
+            "inputType": "ptrange",
+            "minX": "CANVASL",
+            "maxX": "CANVASR",
+            "minY": "CANVASB",
+            "maxY": "CANVAST",
             "showValue": "true"
         },
-        "startY": {
-            "inputType": "range",
-            "min": "CANVASB",
-            "max": "CANVAST",
-            "showValue": "true"
-        },
-        "endX": {
-            "inputType": "range",
-            "min": "CANVASL",
-            "max": "CANVASR",
-            "showValue": "true"
-        },
-        "endY": {
-            "inputType": "range",
-            "min": "CANVASB",
-            "max": "CANVAST",
+        "end": {
+            "inputType": "ptrange",
+            "minX": "CANVASL",
+            "maxX": "CANVASR",
+            "minY": "CANVASB",
+            "maxY": "CANVAST",
             "showValue": "true"
         },
         "thickness": {
@@ -48,7 +40,7 @@
         },
         "arrowheadStyle": {
             "inputType": "select",
-            "options": ["arrowhead-1", "arrowhead-2"],
+            "options": ["arrowhead-2", "arrowhead-1"],
             "showValue": "false"
         }
     }

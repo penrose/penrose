@@ -27,7 +27,7 @@ import {
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 const clone = require("rfdc")({ proto: false, circles: false });
 
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 // Evaluator
 /**
  * NOTE: possible eval optimization:
@@ -52,6 +52,7 @@ const dummyIdentifier = (name: string): Identifier => {
 };
 /**
  * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
+ *
  * @param s the current state, which contains the `Translation` to be evaluated
  *
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
@@ -98,6 +99,9 @@ export const evalShapes = (s: State): State => {
     (name) => shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
+  // TODO: do we still need this check for non-empty labels?
+  // const nonEmpties = sortedShapes.filter(notEmptyLabel);
+
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
   return { ...s, shapes: sortedShapesEvaled };
@@ -134,6 +138,7 @@ export const insertVaryings = (
 
 /**
  * Given a list of objectives or constraints, evaluate all of their arguments and replace pure JS numbers with autodiff numbers.
+ *
  * @param fns A list of function expressions
  * @param trans The current translation
  * @param varyingMap Varying paths and values
@@ -156,15 +161,14 @@ const evalFn = (
 
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap, noOptDebugInfo) as ArgVal<
-      VarAD
-    >[],
+    args: evalExprs(fn.fargs, trans, varyingMap, noOptDebugInfo) ,
     optType: fn.optType,
   };
 };
 
 /**
  * Evaluate all properties in a shape.
+ *
  * @param shapeExpr unevaluated shape expression, where all props are expressions
  * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingVars varying variables and their values
@@ -210,6 +214,7 @@ export const evalShape = (
 
 /**
  * Evaluate a list of expressions.
+ *
  * @param es a list of expressions
  * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingVars varying variables and their values
@@ -257,6 +262,7 @@ function toVecVal<T>(a: ArgVal<T>): T[] {
 
 /**
  * Evaluate the input expression to a value.
+ *
  * @param e the expression to be evaluated.
  * @param trans the `Translation` so far (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
@@ -378,7 +384,7 @@ export const evalExpr = (
             tag: "Val",
             contents: {
               tag: "ListV",
-              contents: argVals.map(toFloatVal) as VarAD[],
+              contents: argVals.map(toFloatVal) ,
             },
           };
         } else if (argVals[0].contents.tag === "VectorV") {
@@ -387,7 +393,7 @@ export const evalExpr = (
             tag: "Val",
             contents: {
               tag: "LListV", // NOTE: The type has changed from ListV to LListV! That's because ListV's `T` is "not parametric enough" to represent a list of elements
-              contents: argVals.map(toVecVal) as VarAD[][],
+              contents: argVals.map(toVecVal) ,
             } as ILListV<VarAD>,
           };
         }
@@ -483,7 +489,7 @@ export const evalExpr = (
 
       return {
         tag: "Val",
-        contents: { tag: "FloatV", contents: vec[i] as VarAD },
+        contents: { tag: "FloatV", contents: vec[i]  },
       };
     }
 
@@ -527,7 +533,7 @@ export const evalExpr = (
 
       return {
         tag: "Val",
-        contents: { tag: "FloatV", contents: vec[j] as VarAD },
+        contents: { tag: "FloatV", contents: vec[j]  },
       };
     }
 
@@ -587,7 +593,7 @@ export const evalExpr = (
         trans,
         varyingVars,
         optDebugInfo
-      ) as ArgVal<VarAD>[];
+      ) ;
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
 
@@ -607,6 +613,7 @@ export const evalExpr = (
 
 /**
  * Given a path to a field or property, resolve to a fully evaluated GPI (where all props are evaluated) or an evaluated value.
+ *
  * @param path path to a field (GPI or Expr) or a property (Expr only)
  * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingMap list of varying variables and their values
@@ -756,6 +763,7 @@ export const intToFloat = (v: IIntV): IFloatV<VarAD> => {
 
 /**
  * Evaluate a binary operation such as +, -, *, /, or ^.
+ *
  * @param op a binary operater
  * @param arg the argument, must be float or int
  */
@@ -884,6 +892,7 @@ export const evalBinOp = (
 
 /**
  * Evaluate an unary operation such as + and -.
+ *
  * @param op an unary operater
  * @param arg the argument, must be float or int
  */
@@ -913,6 +922,7 @@ export const evalUOp = (
 
 /**
  * Finds an expression in a translation given a field or property path.
+ *
  * @param trans - a translation from `State`
  * @param path - a path to an expression
  * @returns an expression
@@ -977,21 +987,14 @@ export const findExpr = (
 
 /**
  * Gives types to a serialized `State`
+ *
  * @param json plain object encoding `State` of the diagram
  */
 export const decodeState = (json: any): State => {
-  // Find out the values of varying variables
-
-  console.log("varying paths", json.varyingPaths);
-  // json.varyingPaths.forEach((p: any, i: any) => console.log(JSON.stringify(p), i));
-  // throw Error("TODO");
-
   const rng: prng = seedrandom(json.rng, { global: true });
   const state = {
     ...json,
     varyingValues: json.varyingState,
-    varyingState: json.varyingState,
-    // translation: decodeTranslation(json.transr),
     translation: json.transr,
     originalTranslation: clone(json.transr),
     shapes: json.shapesr.map(([n, props]: any) => {
@@ -999,7 +1002,8 @@ export const decodeState = (json: any): State => {
     }),
     varyingMap: genPathMap(json.varyingPaths, json.varyingState),
     params: json.paramsr,
-    rng: rng,
+    pendingMap: new Map(),
+    rng,
   };
   // cache energy function
   // state.overallObjective = evalEnergyOn(state);
@@ -1013,6 +1017,7 @@ export const decodeState = (json: any): State => {
 /**
  * Serialize the state to match the backend format
  * NOTE: only called on resample now
+ *
  * @param state typed `State` object
  */
 export const encodeState = (state: State): any => {
@@ -1076,14 +1081,15 @@ export function genPathMap<T>(
   return res;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 // Types
 
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 // Unused functions
 
 /**
  * Gives types to a serialized `Translation`
+ *
  * @param json plain object encoding `Translation`
  */
 // const decodeTranslation = (json: any): Translation => {

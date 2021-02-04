@@ -33,7 +33,7 @@
     "react-styled-flexboxgrid": "^3.2.1",
     "rfdc": "^1.1.4",
     "seedrandom": "^3.0.5",
-    "styled-components": "^5.0.1",
+    "styled-components": "^5.2.1",
     "svg2pdf.js": "^1.5.0",
     "true-myth": "^4.1.0",
     "ts-jest": "^26.4.4",
@@ -49,6 +49,7 @@
     "start": "react-scripts --max_old_space_size=8192 start",
     "build": "CI=false && react-scripts --max_old_space_size=8192 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
+    "build:bundle": "webpack --config webpack.config.js",
     "docs": "typedoc --out docs src",
     "test": "react-scripts test --watchAll=false",
     "test:watch": "react-scripts test",
@@ -70,7 +71,7 @@
     "@types/react": "^16.9.32",
     "@types/react-dom": "^16.9.6",
     "@types/react-inspector": "^4.0.0",
-    "@types/styled-components": "^5.1.0",
+    "@types/styled-components": "^5.1.5",
     "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
     "canvas": "^2.6.1",
     "enzyme": "^3.11.0",
@@ -87,7 +88,8 @@
     "ttypescript": "^1.5.12",
     "typedoc": "^0.19.2",
     "typescript": "^3.9.5",
-    "typescript-transform-paths": "^2.0.1"
+    "typescript-transform-paths": "^2.0.1",
+    "webpack-cli": "^4.2.0"
   },
   "browserslist": [
     ">0.2%",

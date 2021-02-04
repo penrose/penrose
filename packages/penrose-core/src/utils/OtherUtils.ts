@@ -129,7 +129,6 @@ export function fromJust<T>(n: MaybeVal<T>): T {
 
 export const close = (x: number, y: number) => {
   const EPS = 1e-15;
-  console.log("x, y", x, y); // TODO make the assert better
   return Math.abs(x - y) < EPS;
 };
 

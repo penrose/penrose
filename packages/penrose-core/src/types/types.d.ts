@@ -1,11 +1,3 @@
-/**
- * Output of label generation.
- */
-interface LabelData {
-  rendered: SVGSVGElement;
-  width: number;
-  height: number;
-}
 
 //#region Shape/Evaluator-related types
 
@@ -560,10 +552,22 @@ interface IState {
   translation: Translation;
   originalTranslation: Translation;
   shapeOrdering: string[];
+  labelCache: LabelCache;
   shapes: Shape[];
   varyingMap: VaryMap;
 }
 type State = IState;
+
+/**
+ * Output of label generation.
+ */
+interface LabelData {
+  w: Value<number>;
+  h: Value<number>;
+  rendered: HTMLElement;
+}
+
+type LabelCache = [string, LabelData][];
 
 type VaryMap<T = VarAD> = Map<string, T>;
 

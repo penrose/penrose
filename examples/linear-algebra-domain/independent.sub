@@ -1,0 +1,6 @@
+VectorSpace V
+Vector u ∈ V
+Vector v ∈ V
+Independent(u, v)
+Label u $\vec{u}$
+Label v $\vec{v}$

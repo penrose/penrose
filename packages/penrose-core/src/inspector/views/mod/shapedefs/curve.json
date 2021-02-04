@@ -46,7 +46,7 @@
             "showValue": "false"
         },
         "pathData": {
-            "inputType": "ptrange",
+            "inputType": "mulptrange",
             "showValue": "true",
             "minX": "CANVASL",
             "maxX": "CANVASR",

@@ -2425,7 +2425,6 @@ const topSortLayering = (
 
   try {
     const globalOrdering: string[] = alg.topsort(layerGraph);
-    console.log("layering", globalOrdering, allGPINames, partialOrderings);
     return { tag: "Just", contents: globalOrdering };
   } catch (e) {
     return { tag: "Nothing" };
@@ -2513,6 +2512,7 @@ const genOptProblemAndState = (trans: Translation): State => {
       EPround: -1,
     } as unknown) as Params,
 
+    labelCache: [],
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,

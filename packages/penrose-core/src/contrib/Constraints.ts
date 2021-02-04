@@ -494,7 +494,7 @@ const centerArrow2 = (
   [o1, o2]: VarAD[]
 ): VarAD => {
   const vec = ops.vsub(center2, center1); // direction the arrow should point to
-  const dir = ops.vnormalize(vec);
+  const dir = ops.vunit(vec);
 
   let start = center1;
   let end = center2;

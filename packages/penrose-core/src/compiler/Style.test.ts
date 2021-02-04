@@ -106,13 +106,13 @@ describe("Compiler", () => {
     if (selErrs.length > 0) {
       const err = `Could not compile. Error(s) in Style while checking selectors`;
       console.log([err].concat(selErrs));
-      expect(false).toEqual(true);
+      fail();
     }
 
     const subss = S.findSubstsProg(varEnv, subEnv, subProg, styProgInit.blocks, selEnvs); // TODO: Use `eqEnv`
 
     if (subss.length !== correctSubsts.length) {
-      expect(false).toEqual(true);
+      fail();
     }
 
     for (const [res, expected] of _.zip(subss, correctSubsts)) {
