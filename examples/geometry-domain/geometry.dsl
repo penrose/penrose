@@ -60,7 +60,7 @@ predicate Acute : Angle
 predicate Obtuse : Angle
 predicate Right : Angle
 predicate On : Point * Linelike
-predicate Not : Predicate
+predicate Not : Prop
 predicate Parallel : Linelike * Linelike
 predicate Perpendicular : Linelike * Linelike
 predicate EquilateralT : Triangle

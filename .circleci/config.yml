@@ -26,179 +26,77 @@ jobs:
       - run:
           name: Deploy to gh-pages
           command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
-  build_frontend:
+  build:
     docker:
       - image: circleci/node:11.10.1
     steps:
       - checkout:
           path: ~/penrose
       - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ arch }}
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
+      - run:
+          name: Install Lerna
+          command: sudo npm install -g lerna
+          working_directory: ~/penrose
       - run:
           name: Install npm deps
           command: npm install
-          working_directory: ~/penrose/penrose-web
+          working_directory: ~/penrose
       - save_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ arch }}
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
           paths:
-            - ~/penrose/penrose-web/node_modules
+            - ~/penrose/node_modules
       - run:
           name: Build normally
-          command: npm run build
-          working_directory: ~/penrose/penrose-web
+          command: lerna bootstrap
+          resource_class: large
+          working_directory: ~/penrose
       - run:
-          name: Build-lib
-          command: npm run build-lib
-          working_directory: ~/penrose/penrose-web
+          name: Run all tests
+          command: npm test
+          working_directory: ~/penrose/
+      - run:
+          name: Make test report dir
+          command: mkdir -p reports/junit
+          working_directory: ~/penrose/packages/penrose-core
+      - run:
+          name: Run core tests and generate test data
+          command: npm run coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
+          working_directory: ~/penrose/packages/penrose-core
+      - run:
+          name: Move test report
+          command: mv junit.xml reports/junit/
+          working_directory: ~/penrose/packages/penrose-core
+      - run:
+          name: Upload test coverage to codecov
+          command: bash <(curl -s https://codecov.io/bash)
+          working_directory: ~/penrose/packages/penrose-core
+      - store_test_results:
+          path: ~/penrose/packages/penrose-core/reports/junit/
       - store_artifacts:
-          path: ~/penrose/penrose-web/build
-          destination: penrose-web-built
-  build:
-    docker:
-      - image: fpco/stack-build:lts-13.24
-    #    parallelism: 4
-    steps:
-      - checkout
-      - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          name: Restore Cached Dependencies
-          keys:
-            - penrose-cache-{{ checksum "penrose.cabal" }}
-      - run:
-          name: Manually install Alex and Happy
-          command: stack install alex happy
-      - run:
-          name: Resolve/Update Dependencies
-          command: stack build
-      - run:
-          name: Run tests
-          command: stack test
-      - run:
-          name: Install executable
-          command: stack install
-      - save_cache:
-          name: Cache Dependencies
-          key: penrose-cache-{{ checksum "penrose.cabal" }}
-          paths:
-            - ".stack"
-            - ".stack-work"
-            - "$HOME/.ghc"
-            - "$HOME/.cabal"
-            - "$HOME/.stack"
-            - "/root/.stack"
-            - "/root/.stack-work"
-
-      - store_artifacts:
-          # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: ~/.local/bin/penrose
-          destination: penrose-bin
-      - persist_to_workspace:
-          root: ~/.local/bin
-          paths:
-            - penrose
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - src/
-  headless_test:
-    docker:
-      - image: fpco/stack-build:lts-13.24
-    steps:
-      - run:
-          name: Add node repo
-          command: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-      - run:
-          name: Install nodejs/npm
-          command: sudo apt-get update && sudo apt-get install -y nodejs
-      - checkout:
-          path: ~/penrose
-      - attach_workspace:
-          at: ~/.local/bin
-      - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
-      - run:
-          name: Install deps for penrose-web
-          command: npm install
-          working_directory: ~/penrose/penrose-web
-      - run:
-          name: Build penrose-web as a library
-          command: npm run build-lib
-          working_directory: ~/penrose/penrose-web
-      - run:
-          name: Create link penrose-web
-          command: sudo npm link
-          working_directory: ~/penrose/penrose-web
-      - run:
-          name: Link to penrose-web in automator
-          command: npm link penrose-web
-          working_directory: ~/penrose/automator
-      - run:
-          name: Install deps for automator
-          command: npm install
-          working_directory: ~/penrose/automator
-      - run:
-          name: Link to penrose-web in automator again
-          command: npm link penrose-web
-          working_directory: ~/penrose/automator
-      - save_cache:
-          key: dependency-cache-{{ checksum "~/penrose/penrose-web/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
-          paths:
-            - ~/penrose/penrose-web/node_modules
-            - ~/penrose/automator/node_modules
-      - run:
-          name: Make output dir
-          command: mkdir -p /root/out
-          working_directory: ~/
-      - run:
-          name: Alias penrose command
-          command: echo 'alias penrose=~/.local/bin/penrose' >> ~/.bashrc && source ~/.bashrc
-          working_directory: ~/
-      - run:
-          name: Run all in registry
-          command: npm start -- batch substanceLibrary.json styleLibrary.json elementLibrary.json /root/out
-          working_directory: ~/penrose/automator
-      - store_artifacts:
-          path: ~/out
-          destination: output
-
+          path: ~/penrose/packages/penrose-core/reports/junit/
+      - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: ~/penrose/packages/penrose-core/coverage
+      # - store_artifacts:
+      #     path: ~/penrose/penrose-web/build
+      #     destination: penrose-web-built
 workflows:
   version: 2.1
   build_other_branches:
     jobs:
-      - build_frontend:
-          filters:
-            branches:
-              ignore:
-                - master
       - build:
           filters:
             branches:
               ignore:
                 - master
-      - headless_test:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore:
-                - master
+
   build_master_deploy:
     jobs:
       - docs-deploy:
           filters:
             branches:
               only: master
-      - build_frontend:
-          filters:
-            branches:
-              only: master
       - build:
-          filters:
-            branches:
-              only: master
-      - headless_test:
-          requires:
-            - build
           filters:
             branches:
               only: master

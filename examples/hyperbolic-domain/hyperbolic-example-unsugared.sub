@@ -1,0 +1,9 @@
+HyperbolicPlane H
+IdealPoint p, q
+Horocycle g, h
+
+In(p, H)
+In(q, H)
+
+IsCenter( p, g )
+IsCenter( q, h )
