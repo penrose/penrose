@@ -13,6 +13,8 @@
     "@oclif/plugin-help": "^3.2.1",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.1",
+    "eslint": "^7.19.0",
+    "eslint-config-xo": "^0.34.0",
     "tslib": "^1.14.1",
     "ws": "^7.4.2"
   },
@@ -54,6 +56,7 @@
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "build": "npm link",
     "test": "echo NO TESTS",
     "version": "oclif-dev readme && git add README.md"
   },
