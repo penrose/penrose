@@ -11,7 +11,6 @@
     "clean": "lerna clean",
     "start": "lerna run watch --stream --scope=penrose-core",
     "test": "lerna run test --stream",
-    "posttest": "yarn format",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --yes",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
