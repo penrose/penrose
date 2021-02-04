@@ -45,6 +45,13 @@ export const attrRadii = ({ properties }: IShape, elem: SVGElement) => {
   elem.setAttribute("ry", rx.contents.toString());
 };
 
+export const attrWH = ({ properties }: IShape, elem: SVGElement) => {
+  const w = properties.w as IFloatV<number>;
+  const h = properties.h as IFloatV<number>;
+  elem.setAttribute("width", w.contents.toString());
+  elem.setAttribute("height", h.contents.toString());
+};
+
 const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: IShape, elem: SVGElement) => {

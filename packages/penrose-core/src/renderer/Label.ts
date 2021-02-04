@@ -1,5 +1,5 @@
 import { retrieveLabel } from "utils/CollectLabels";
-import { attrCoords, attrFill, attrTitle } from "./AttrHelper";
+import { attrCoords, attrFill, attrTitle, attrWH } from "./AttrHelper";
 
 const Label = (
   shape: IShape,
@@ -13,14 +13,11 @@ const Label = (
   if (retrieveLabel(name.contents, labels) !== undefined) {
     const renderedLabel = retrieveLabel(name.contents, labels)!.rendered;
     attrFill(shape, renderedLabel.getElementsByTagName("g")[0]);
+    attrWH(shape, renderedLabel as any);
     renderedLabel.getElementsByTagName("g")[0].setAttribute("stroke", "none");
     renderedLabel
       .getElementsByTagName("g")[0]
       .setAttribute("stroke-width", "0");
-    const w = shape.properties.w as IFloatV<number>;
-    const h = shape.properties.h as IFloatV<number>;
-    renderedLabel.setAttribute("width", w.contents.toString());
-    renderedLabel.setAttribute("height", h.contents.toString());
     const fontSize = shape.properties.fontSize as IStrV<string>;
     renderedLabel.setAttribute(
       "style",

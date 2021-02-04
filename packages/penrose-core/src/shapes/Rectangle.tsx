@@ -1,35 +1,16 @@
 import * as React from "react";
-import { toScreen, toHex } from "utils/Util";
+import { useEffect, useRef } from "react";
 import { IGPIProps } from "types";
+import VanillaRectangle from "renderer/Rectangle";
 
-class Rectangle extends React.Component<IGPIProps> {
-  public render() {
-    const { shape } = this.props;
-    const { canvasSize } = this.props;
-    const [x, y] = toScreen(shape.center.contents, canvasSize);
-    const fillColor = toHex(shape.color.contents);
-    const fillAlpha = shape.color.contents.contents[3];
-    const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeAlpha = shape.strokeColor.contents.contents[3];
-    const thickness = shape.strokeWidth.contents;
-
-    return (
-      <rect
-        x={x - shape.w.contents / 2}
-        y={y - shape.h.contents / 2}
-        width={shape.w.contents}
-        height={shape.h.contents}
-        fill={fillColor}
-        fillOpacity={fillAlpha}
-        stroke={strokeColor}
-        strokeOpacity={strokeAlpha}
-        strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
-        strokeWidth={thickness}
-      // transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
-      >
-        <title>{shape.name.contents}</title>
-      </rect>
-    );
-  }
-}
+const Rectangle = ({ canvasSize, shape }: IGPIProps) => {
+  const ref = useRef<SVGGElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      const elem = VanillaRectangle({ properties: shape } as any, canvasSize);
+      ref.current.innerHTML = elem.outerHTML;
+    }
+  }, [canvasSize, shape, ref]);
+  return <g ref={ref} />;
+};
 export default Rectangle;
