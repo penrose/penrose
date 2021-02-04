@@ -1,35 +1,16 @@
 import * as React from "react";
-import { toScreen, toHex } from "utils/Util";
+import { useEffect, useRef } from "react";
 import { IGPIProps } from "types";
+import VanillaEllipse from "renderer/Ellipse";
 
-class Ellipse extends React.Component<IGPIProps> {
-  public render() {
-    const { shape } = this.props;
-    const { canvasSize } = this.props;
-    const [x, y] = toScreen(shape.center.contents, canvasSize);
-
-    const fillColor = toHex(shape.color.contents);
-    const fillAlpha = shape.color.contents.contents[3];
-    const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeAlpha = shape.strokeColor.contents.contents[3];
-    const stokeWidth = shape.strokeWidth.contents;
-
-    return (
-      <ellipse
-        cx={x}
-        cy={y}
-        rx={shape.rx.contents}
-        ry={shape.ry.contents}
-        fill={fillColor}
-        fillOpacity={fillAlpha}
-        stroke={strokeColor}
-        strokeOpacity={strokeAlpha}
-        strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
-        strokeWidth={stokeWidth}
-      >
-        <title>{shape.name.contents}</title>
-      </ellipse>
-    );
-  }
-}
+const Ellipse = ({ canvasSize, shape }: IGPIProps) => {
+  const ref = useRef<SVGGElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      const elem = VanillaEllipse({ properties: shape } as any, canvasSize);
+      ref.current.innerHTML = elem.outerHTML;
+    }
+  }, [canvasSize, shape, ref]);
+  return <g ref={ref} />;
+};
 export default Ellipse;

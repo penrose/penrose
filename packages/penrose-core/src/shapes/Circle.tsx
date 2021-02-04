@@ -4,7 +4,7 @@ import { IGPIProps } from "types";
 import VanillaCircle from "renderer/Circle";
 
 const Circle = ({ canvasSize, shape }: IGPIProps) => {
-  const ref = useRef<SVGCircleElement>(null);
+  const ref = useRef<SVGGElement>(null);
   useEffect(() => {
     if (ref.current) {
       const elem = VanillaCircle({ properties: shape } as any, canvasSize);
