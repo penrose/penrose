@@ -81,27 +81,27 @@ export const showError = (error: DomainError | SubstanceError): string => {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `${expectedType.args.length} arguments expected for type ${
         expectedType.name.value
-        } (defined at ${loc(expectedExpr)}), but ${
+      } (defined at ${loc(expectedExpr)}), but ${
         sourceType.args.length
-        } arguments were given for ${sourceType.name.value} at ${loc(
-          sourceExpr
-        )} `;
+      } arguments were given for ${sourceType.name.value} at ${loc(
+        sourceExpr
+      )} `;
     }
     case "ArgLengthMismatch": {
       const { name, argsGiven, argsExpected, sourceExpr, expectedExpr } = error;
       return `${name.value} expects ${
         argsExpected.length
-        } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
+      } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
         argsGiven.length
-        } arguments instead at ${loc(sourceExpr)}.`;
+      } arguments instead at ${loc(sourceExpr)}.`;
     }
     case "DeconstructNonconstructor": {
       const { variable, field } = error.deconstructor;
       return `Becuase ${variable.value} is not bound to a constructor, ${
         variable.value
-        }.${field.value} (at ${loc(
-          error.deconstructor
-        )}) does not correspond to a field value.`;
+      }.${field.value} (at ${loc(
+        error.deconstructor
+      )}) does not correspond to a field value.`;
     }
     case "UnexpectedExprForNestedPred": {
       const { sourceExpr, sourceType, expectedExpr } = error;
@@ -239,7 +239,7 @@ export const fatalError = (message: string): FatalError => ({
 // TODO: Show file name
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1} of ${
-  node.nodeType
+    node.nodeType
   } program`;
 
 export const every = <Ok, Error>(
@@ -286,4 +286,16 @@ export const all = <Ok, Error>(
 };
 
 // NOTE: re-export all true-myth types to reduce boilerplate
-export { Maybe, Result, and, or, ok, err, andThen, ap, match, unsafelyUnwrap, isErr };
+export {
+  Maybe,
+  Result,
+  and,
+  or,
+  ok,
+  err,
+  andThen,
+  ap,
+  match,
+  unsafelyUnwrap,
+  isErr,
+};

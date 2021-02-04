@@ -1,5 +1,4 @@
-roger
-=====
+# roger
 
 The command line for penrose
 
@@ -9,11 +8,15 @@ The command line for penrose
 [![License](https://img.shields.io/npm/l/roger.svg)](https://github.com/penrose/penrose/blob/master/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g roger
 $ roger COMMAND
@@ -25,11 +28,15 @@ USAGE
   $ roger COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`roger help [COMMAND]`](#roger-help-command)
-* [`roger watch SUBSTANCE STYLE DOMAIN`](#roger-watch-substance-style-domain)
+
+- [`roger help [COMMAND]`](#roger-help-command)
+- [`roger watch SUBSTANCE STYLE DOMAIN`](#roger-watch-substance-style-domain)
 
 ## `roger help [COMMAND]`
 
@@ -62,4 +69,5 @@ OPTIONS
 ```
 
 _See code: [src/commands/watch.ts](https://github.com/penrose/penrose/blob/v1.0.0/src/commands/watch.ts)_
+
 <!-- commandsstop -->

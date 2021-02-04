@@ -141,10 +141,16 @@ Set E := Subset(B, C)
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
-      expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual("Subset");
+      expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual(
+        "Subset"
+      );
       // TODO: not caching var bindings for now. Add to checker if needed
       // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
-      hasVars(res.value[1], [["A", "Set"], ["E", "Set"], ["D", "OpenSet"]]);
+      hasVars(res.value[1], [
+        ["A", "Set"],
+        ["E", "Set"],
+        ["D", "OpenSet"],
+      ]);
     }
   });
   test("func: function", () => {

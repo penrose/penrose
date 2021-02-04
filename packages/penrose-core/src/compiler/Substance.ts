@@ -1,6 +1,5 @@
 import { Map } from "immutable";
-import { findIndex, zip, zipWith } from "lodash";
-import { states } from "moo";
+import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
@@ -18,14 +17,14 @@ import {
   typeMismatch,
   typeNotFound,
   unexpectedExprForNestedPred,
-  varNotFound,
+  varNotFound
 } from "utils/Error";
 import {
   bottomType,
   checkTypeConstructor,
   Env,
   isSubtype,
-  topType,
+  topType
 } from "./Domain";
 
 export const parseSubstance = (prog: string): SubProg => {
@@ -187,7 +186,10 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   }
 };
 
-export const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
+export const checkPredicate = (
+  stmt: ApplyPredicate,
+  env: Env
+): CheckerResult => {
   const { name, args } = stmt;
   const predDecl = env.predicates.get(name.value);
   // check if predicate exists and retrieve its decl

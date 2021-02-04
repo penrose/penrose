@@ -315,7 +315,6 @@ export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
   return mapTranslation(numOf, trans);
 };
 
-
 //#region translation operations
 
 const dummySourceLoc = (): SourceLoc => {
@@ -332,15 +331,17 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
     start: dummySourceLoc(),
     end: dummySourceLoc(),
     tag: "Fix",
-    contents: e.contents.val
+    contents: e.contents.val,
     // COMBAK: This apparently held a VarAD before the AFloat grammar change? Is doing ".val" going to break something?
   };
 };
 
-const mkPropertyDict = (decls: PropertyDecl[]): { [k: string]: TagExpr<VarAD> } => {
+const mkPropertyDict = (
+  decls: PropertyDecl[]
+): { [k: string]: TagExpr<VarAD> } => {
   const gpi = {};
 
-  for (let decl of decls) {
+  for (const decl of decls) {
     // TODO(error/warning): Warn if any of these properties are duplicated or do not exist in the shape constructor
     gpi[decl.name.value] = { tag: "OptEval", contents: decl.value };
   }
@@ -357,7 +358,11 @@ const mkPropertyDict = (decls: PropertyDecl[]): { [k: string]: TagExpr<VarAD> } 
  */
 
 // TODO: Test this
-export const insertGPI = (path: Path, gpi: IFGPI<VarAD>, trans: Translation): Translation => {
+export const insertGPI = (
+  path: Path,
+  gpi: IFGPI<VarAD>,
+  trans: Translation
+): Translation => {
   let name, field;
 
   switch (path.tag) {
@@ -377,7 +382,13 @@ export const insertGPI = (path: Path, gpi: IFGPI<VarAD>, trans: Translation): Tr
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
 // `inCompilePhase` = true = put errors and warnings in the translation, otherwise throw them at runtime
 // TODO(error/warn): Improve these warning/error messages (especially for overrides) and distinguish the fatal ones
-export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translation, compiling = false, override = false): Translation => {
+export const insertExpr = (
+  path: Path,
+  expr: TagExpr<VarAD>,
+  initTrans: Translation,
+  compiling = false,
+  override = false
+): Translation => {
   let trans = initTrans;
   let name, field, prop;
 
@@ -396,18 +407,28 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
       if (expr.tag === "OptEval") {
         const gpi: Expr = expr.contents;
         if (gpi.tag === "GPIDecl") {
-          const [nm, decls]: [Identifier, PropertyDecl[]] = [gpi.shapeName, gpi.properties];
+          const [nm, decls]: [Identifier, PropertyDecl[]] = [
+            gpi.shapeName,
+            gpi.properties,
+          ];
 
           fexpr = {
             tag: "FGPI",
-            contents: [nm.value, mkPropertyDict(decls)]
+            contents: [nm.value, mkPropertyDict(decls)],
           };
         }
       }
 
       // Check overrides before initialization
-      if (compiling && !override && trans.trMap[name.contents.value].hasOwnProperty(field.value)) {
-        trans = addWarn(trans, "warning: overriding field expression without override flag set"); // TODO(error): Should this be an error?
+      if (
+        compiling &&
+        !override &&
+        trans.trMap[name.contents.value].hasOwnProperty(field.value)
+      ) {
+        trans = addWarn(
+          trans,
+          "warning: overriding field expression without override flag set"
+        ); // TODO(error): Should this be an error?
       }
 
       // For any non-GPI thing, just put it in the translation
@@ -423,7 +444,8 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
         trans.trMap[name.contents.value] = {};
       }
 
-      const fieldRes: FieldExpr<IVarAD> = trans.trMap[name.contents.value][field.value];
+      const fieldRes: FieldExpr<IVarAD> =
+        trans.trMap[name.contents.value][field.value];
 
       if (fieldRes.tag === "FExpr") {
         // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
@@ -431,41 +453,56 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
         if (fieldRes.contents.tag === "OptEval") {
           if (fieldRes.contents.contents.tag === "FieldPath") {
             const p = fieldRes.contents.contents;
-            if (p.name.contents.value === name.contents.value && p.field.value === field.value) {
+            if (
+              p.name.contents.value === name.contents.value &&
+              p.field.value === field.value
+            ) {
               const err = `path was aliased to itself`;
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
             const newPath = clone(path);
-            return insertExpr({
-              ...newPath,
-              tag: "PropertyPath",
-              name: p.name, // Note use of alias
-              field: p.field,  // Note use of alias
-              property: path.property
-            }, expr, trans);
+            return insertExpr(
+              {
+                ...newPath,
+                tag: "PropertyPath",
+                name: p.name, // Note use of alias
+                field: p.field, // Note use of alias
+                property: path.property,
+              },
+              expr,
+              trans
+            );
           }
         }
 
         const err = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot add property '${prop.value}'`;
-        if (compiling) { return addWarn(trans, err); }
+        if (compiling) {
+          return addWarn(trans, err);
+        }
         throw Error(err);
-
       } else if (fieldRes.tag === "FGPI") {
         const [, properties] = fieldRes.contents;
 
         // TODO(error): check for field/property overrides of paths that don't already exist
         // TODO(error): if there are multiple matches, override errors behave oddly...
         if (compiling && !override && properties.hasOwnProperty(prop.value)) {
-          trans = addWarn(trans, "warning: overriding property expression without override flag set");
+          trans = addWarn(
+            trans,
+            "warning: overriding property expression without override flag set"
+          );
         }
 
         properties[prop.value] = expr;
         return trans;
-      } else { throw Error("unexpected tag"); }
+      } else {
+        throw Error("unexpected tag");
+      }
     }
 
-    // TODO(error): deal with override for accesspaths? I don't know if you can currently write something like `override A.shape.center[0] = 5.` in Style 
+    // TODO(error): deal with override for accesspaths? I don't know if you can currently write something like `override A.shape.center[0] = 5.` in Style
     case "AccessPath": {
       const [innerPath, indices] = [path.path, path.indices];
 
@@ -476,7 +513,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
           const res = trans.trMap[name.contents.value][field.value];
           if (res.tag !== "FExpr") {
             const err = "did not expect GPI in vector access";
-            if (compiling) { return addWarn(trans, err); }
+            if (compiling) {
+              return addWarn(trans, err);
+            }
             throw Error(err);
           }
           const res2: TagExpr<IVarAD> = res.contents;
@@ -485,7 +524,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res3: Expr = res2.contents;
             if (res3.tag !== "Vector") {
               const err = "expected Vector";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
             const res4: Expr[] = res3.contents;
@@ -496,7 +537,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
               res4[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               const err = "unexpected pending val";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
 
@@ -506,7 +549,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res3: Value<IVarAD> = res2.contents;
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
             const res4: IVarAD[] = res3.contents;
@@ -515,14 +560,18 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
               res4[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
               const err = "unexpected val";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
 
             return trans;
           } else {
             const err = "unexpected tag";
-            if (compiling) { return addWarn(trans, err); }
+            if (compiling) {
+              return addWarn(trans, err);
+            }
             throw Error(err);
           }
         }
@@ -531,7 +580,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
           const ip = innerPath as IPropertyPath;
           // a.x.y[0] = e
           [name, field, prop] = [ip.name, ip.field, ip.property];
-          const gpi = trans.trMap[name.contents.value][field.value] as IFGPI<VarAD>;
+          const gpi = trans.trMap[name.contents.value][
+            field.value
+          ] as IFGPI<VarAD>;
           const [, properties] = gpi.contents;
           const res = properties[prop.value];
 
@@ -540,7 +591,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res2 = res.contents;
             if (res2.tag !== "Vector") {
               const err = "expected Vector";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
             const res3 = res2.contents;
@@ -551,7 +604,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
               res3[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               const err = "unexpected pending val";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
 
@@ -561,7 +616,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
             const res2 = res.contents;
             if (res2.tag !== "VectorV") {
               const err = "expected Vector";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
             const res3 = res2.contents;
@@ -570,7 +627,9 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
               res3[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
               const err = "unexpected val";
-              if (compiling) { return addWarn(trans, err); }
+              if (compiling) {
+                return addWarn(trans, err);
+              }
               throw Error(err);
             }
 
@@ -590,8 +649,14 @@ export const insertExpr = (path: Path, expr: TagExpr<VarAD>, initTrans: Translat
 };
 
 // Mutates translation
-export const insertExprs = (ps: Path[], es: TagExpr<VarAD>[], tr: Translation): Translation => {
-  if (ps.length !== es.length) { throw Error("length should be the same"); }
+export const insertExprs = (
+  ps: Path[],
+  es: TagExpr<VarAD>[],
+  tr: Translation
+): Translation => {
+  if (ps.length !== es.length) {
+    throw Error("length should be the same");
+  }
 
   let tr2 = tr;
   for (let i = 0; i < ps.length; i++) {
@@ -623,7 +688,9 @@ export const findExpr = (
       const fieldExpr = trans.trMap[name][field];
 
       if (!fieldExpr) {
-        throw Error(`Could not find field '${JSON.stringify(path)}' in translation`);
+        throw Error(
+          `Could not find field '${JSON.stringify(path)}' in translation`
+        );
       }
 
       switch (fieldExpr.tag) {
@@ -634,12 +701,18 @@ export const findExpr = (
       }
 
     case "PropertyPath":
-      [name, field, prop] = [path.name.contents.value, path.field.value, path.property.value];
+      [name, field, prop] = [
+        path.name.contents.value,
+        path.field.value,
+        path.property.value,
+      ];
       // Type cast to FGPI and get the properties
       const gpi = trans.trMap[name][field];
 
       if (!gpi) {
-        throw Error(`Could not find GPI '${JSON.stringify(path)}' in translation`);
+        throw Error(
+          `Could not find GPI '${JSON.stringify(path)}' in translation`
+        );
       }
 
       switch (gpi.tag) {
@@ -651,7 +724,7 @@ export const findExpr = (
       }
 
     case "AccessPath": {
-      // Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves 
+      // Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves
       const res = findExpr(trans, path.path);
       const i = exprToNumber(path.indices[0]); // COMBAK VECTORS: Currently only supports 1D vectors
 
@@ -661,14 +734,11 @@ export const findExpr = (
         if (res2.tag === "Vector") {
           const inner: Expr = res2.contents[i];
           return { tag: "OptEval", contents: inner };
-
         } else throw Error("access path lookup is invalid");
       } else if (res.tag === "Done") {
         if (res.contents.tag === "VectorV") {
-
           const inner: VarAD = res.contents.contents[i];
           return { tag: "Done", contents: { tag: "FloatV", contents: inner } };
-
         } else throw Error("access path lookup is invalid");
       } else throw Error("access path lookup is invalid");
     }
@@ -680,11 +750,15 @@ export const findExpr = (
 //#endregion
 
 export const isPath = (expr: Expr): expr is Path => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
+    expr.tag
+  );
 };
 
 export const exprToNumber = (e: Expr): number => {
-  if (e.tag === "Fix") { return e.contents; }
+  if (e.tag === "Fix") {
+    return e.contents;
+  }
   throw Error("expecting expr to be number");
 };
 
@@ -695,7 +769,7 @@ export const numToExpr = (n: number): Expr => {
     start: dummySourceLoc(),
     end: dummySourceLoc(),
     tag: "Fix",
-    contents: n
+    contents: n,
   };
 };
 
@@ -703,7 +777,7 @@ export const numToExpr = (n: number): Expr => {
 export const addWarn = (tr: Translation, warn: Warning): Translation => {
   return {
     ...tr,
-    warnings: tr.warnings.concat(warn)
+    warnings: tr.warnings.concat(warn),
   };
 };
 

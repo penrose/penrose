@@ -1,17 +1,37 @@
 import { compileDomain, compileSubstance, parseSubstance } from "API";
-import { checkExpr, checkPredicate, checkVar, LabelMap, SubstanceEnv } from "compiler/Substance";
+import {
+  checkExpr,
+  checkPredicate,
+  checkVar,
+  LabelMap,
+  SubstanceEnv,
+} from "compiler/Substance";
 import { constOf, numOf } from "engine/Autodiff";
-import { addWarn, defaultLbfgsParams, findExpr, initConstraintWeight, insertExpr, insertExprs, insertGPI, isPath, valueNumberToAutodiffConst } from "engine/EngineUtils";
+import {
+  addWarn,
+  defaultLbfgsParams,
+  findExpr,
+  initConstraintWeight,
+  insertExpr,
+  insertExprs,
+  insertGPI,
+  isPath,
+  valueNumberToAutodiffConst,
+} from "engine/EngineUtils";
 import { Graph, alg } from "graphlib";
 import * as _ from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
-import { canvasXRange, findDef, PropType, Sampler, ShapeDef } from "shapes/ShapeDef";
+import {
+  canvasXRange,
+  findDef,
+  PropType,
+  Sampler,
+  ShapeDef,
+} from "shapes/ShapeDef";
 import { isErr, Result, unsafelyUnwrap } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
-
-
 
 const clone = require("rfdc")({ proto: false, circles: false });
 
@@ -874,7 +894,7 @@ const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
       args: e.args.map((e) => toSubExpr(env, e)),
     };
   } else if (e.tag === "SEFuncOrValCons") {
-    let res = {
+    const res = {
       ...e,
       tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
       name: e.name,
@@ -1473,7 +1493,7 @@ const deleteField = (
   field: Identifier
 ): Translation => {
   // TODO(errors)
-  let trn = trans.trMap;
+  const trn = trans.trMap;
   const fieldDict = trn[name.contents.value];
 
   if (!fieldDict) {
@@ -1503,7 +1523,7 @@ const deletePath = (
     const transWithWarnings = deleteField(trans, path.name, path.field);
     return Right(transWithWarnings);
   } else if (path.tag === "PropertyPath") {
-    let transWithWarnings = deleteProperty(
+    const transWithWarnings = deleteProperty(
       trans,
       path.name,
       path.field,
@@ -1776,7 +1796,7 @@ function foldSubObjs<T>(
 // Find varying (float) paths
 // For now, don't optimize these float-valued properties of a GPI
 // (use whatever they are initialized to in Shapes or set to in Style)
-const unoptimizedFloatProperties: String[] = [
+const unoptimizedFloatProperties: string[] = [
   "rotation",
   "strokeWidth",
   "thickness",
@@ -2449,8 +2469,6 @@ const computeShapeOrdering = (tr: Translation): string[] => {
     throw Error("no shape ordering possible from layering");
   }
 
-
-
   return shapeOrdering.contents;
 };
 
@@ -2535,7 +2553,11 @@ export const parseStyle = (p: string): StyProg => {
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 // files must follow schema: { domain, substance, style }
-export const loadProgs = ([domainStr, subStr, styStr]: [string, string, string]): [Env, SubstanceEnv, SubProg, StyProg] => {
+export const loadProgs = ([domainStr, subStr, styStr]: [
+  string,
+  string,
+  string
+]): [Env, SubstanceEnv, SubProg, StyProg] => {
   const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
   const env0: Env = unsafelyUnwrap(domainProgRes);
 
@@ -2549,7 +2571,12 @@ export const loadProgs = ([domainStr, subStr, styStr]: [string, string, string])
   const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
   const styProg: StyProg = parseStyle(styStr);
 
-  const res: [Env, SubstanceEnv, SubProg, StyProg] = [varEnv, subEnv, subProg, styProg];
+  const res: [Env, SubstanceEnv, SubProg, StyProg] = [
+    varEnv,
+    subEnv,
+    subProg,
+    styProg,
+  ];
   return res;
 };
 
@@ -2588,11 +2615,15 @@ const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
 // For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
 // NOTE: mutates Substance AST
 export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt))
+  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
 };
 
 export const compileStyle = (files: any): Either<StyErrors, State> => {
-  const triple: [string, string, string] = [files.domain.contents, files.substance.contents, files.style.contents];
+  const triple: [string, string, string] = [
+    files.domain.contents,
+    files.substance.contents,
+    files.style.contents,
+  ];
 
   const loadedProgs: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(triple);
   console.log("results from loading programs", loadedProgs);

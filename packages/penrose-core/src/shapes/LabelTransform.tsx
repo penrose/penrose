@@ -32,8 +32,9 @@ class LabelTransform extends React.Component<IGPIProps> {
       <g
         transform={
           transformStr +
-          ` matrix(1 0 0 -1 0 0) translate(${-w.contents / 2},${-h.contents /
-            2})`
+          ` matrix(1 0 0 -1 0 0) translate(${-w.contents / 2},${
+            -h.contents / 2
+          })`
         }
         // TODO: width and height aren't set correctly WRT transform
         // will it cause problems to remove this?

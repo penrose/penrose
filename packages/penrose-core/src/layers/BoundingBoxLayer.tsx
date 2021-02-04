@@ -10,7 +10,8 @@ class BoundingBoxLayer extends React.Component<ILayerProps> {
         {shapes.map(({ shapeType, properties }: Shape, key: number) => {
           // TODO: add bb support to other shapes
           if (shapeType === "Text") {
-            const [x, y] = toScreen(properties.center.contents as [number, number],
+            const [x, y] = toScreen(
+              properties.center.contents as [number, number],
               canvasSize
             );
             const w = properties.w.contents as number;

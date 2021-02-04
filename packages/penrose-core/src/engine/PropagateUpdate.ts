@@ -55,7 +55,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
         const property = getProperty(propertyPath);
         // walk the structure to access all indices
         let res = property.contents;
-        for (let i of indices) {
+        for (const i of indices) {
           res = res[exprToNumber(i)];
         }
         return res;

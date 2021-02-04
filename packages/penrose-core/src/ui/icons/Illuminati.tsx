@@ -12,7 +12,7 @@ export default ({
     y="0px"
     width={width}
     viewBox="0 0 100 125"
-    enable-background="new 0 0 100 100"
+    enableBackground="new 0 0 100 100"
   >
     <path
       fill={color}

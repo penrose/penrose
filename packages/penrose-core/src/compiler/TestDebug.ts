@@ -35,8 +35,7 @@ notation "f: A -> B" ~ "Map f; From(f, A, B)"
 export const subStrSugared = `
 `;
 
-export const subStrUnsugared =
-  `
+export const subStrUnsugared = `
 Set A, B, C
 IsSubset(B, A)
 IsSubset(C, A)
