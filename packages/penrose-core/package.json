@@ -44,6 +44,7 @@
     "pretest": "npm run build:parsers",
     "prebuild-lib": "npm run build:parsers",
     "start": "react-scripts --max_old_space_size=8192 start",
+    "watch": "CI=true react-scripts --max_old_space_size=8192 start",
     "build": "CI=false && react-scripts --max_old_space_size=8192 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
     "build:bundle": "webpack --config webpack.config.js",
