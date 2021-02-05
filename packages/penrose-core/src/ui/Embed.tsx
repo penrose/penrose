@@ -1,12 +1,11 @@
 import { resample, stepState } from "API";
+import { converged } from "packets";
 import * as React from "react";
+import styled from "styled-components";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
-import { converged } from "packets";
-import Resample from "ui/icons/Resample";
 import Logo from "ui/icons/Logo";
-import styled from "styled-components";
-import Illuminati from "./icons/Illuminati";
+import Resample from "ui/icons/Resample";
 
 const EmbedContainer = styled.div`
   position: relative;

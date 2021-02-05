@@ -114,7 +114,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
       // NOTE: params are not reused, so no need to check
-      const { name, params } = stmt;
+      const { name } = stmt;
       // check name duplicate
       if (env.types.has(name.value))
         return err(duplicateName(name, stmt, env.types.get(name.value)!));

@@ -1,4 +1,4 @@
-import { compileDomain, compileSubstance, parseSubstance } from "API";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   checkExpr,
   checkPredicate,

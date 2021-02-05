@@ -318,7 +318,7 @@ const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
  * @param shapes Old shapes
  * @ignore
  */
-const sampleShapes = (shapes: Shape[]): Shape[] =>
+export const sampleShapes = (shapes: Shape[]): Shape[] =>
   shapes.map((shape: Shape) => sampleShape(shape, findDef(shape.shapeType)));
 
 /**
@@ -361,7 +361,7 @@ const sampleProperty = (
  * @param state State that contains a list of varying paths
  * @ignore
  */
-const sampleFields = ({ varyingPaths }: State): number[] => {
+export const sampleFields = ({ varyingPaths }: State): number[] => {
   const fieldPaths = varyingPaths.filter(
     ({ tag }: Path) => tag === "AccessPath" || tag === "FieldPath"
   );

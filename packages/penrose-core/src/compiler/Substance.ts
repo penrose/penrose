@@ -288,8 +288,8 @@ export const subtypeOf = (
 
 const withType = (env: Env, type: TypeConsApp): ResultWithType =>
   ok([type, env]);
-const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
-  andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
+// const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
+//   andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
 
 export const checkExpr = (
   expr: SubExpr,
