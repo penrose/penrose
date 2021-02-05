@@ -33,6 +33,37 @@ export const getShapeName = (p: Path): string => {
   }
 };
 
+/**
+ * Sort shapes given a list of ordered shape names.
+ *
+ * @param shapes unsorted shapes
+ * @param ordering global ordering of shapes
+ */
+export const sortShapes = (shapes: Shape[], ordering: string[]): Shape[] => {
+  return ordering.map(
+    (name) =>
+      // COMBAK: Deal with nonexistent shapes
+      shapes.find(
+        ({ properties }) => properties.name.contents === name
+      ) as Shape
+  ); // assumes that all names are unique
+};
+
+/**
+ * Checks if a `Text` shape has non-empty content
+ *
+ * @param shape a `Text` shape
+ */
+export const notEmptyLabel = (shape: Shape): boolean => {
+  if (!shape) {
+    // COMBAK: temp hack, revert when labels are generated
+    console.error("Skipping undefined shape");
+    return true;
+  }
+  const { shapeType, properties } = shape;
+  return shapeType === "Text" ? !(properties.string.contents === "") : true;
+};
+
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
   tag: "FloatV",
   contents: randFloat(min, max),
@@ -283,6 +314,7 @@ const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
 
 /**
  * Resample all shapes properties using their samplers.
+ *
  * @param shapes Old shapes
  * @ignore
  */
@@ -291,6 +323,7 @@ const sampleShapes = (shapes: Shape[]): Shape[] =>
 
 /**
  * Resample all properties of one shape.
+ *
  * @param shape existing shape
  * @param shapeDef shape definition
  * @ignore
@@ -304,6 +337,7 @@ const sampleShape = (shape: Shape, shapeDef: ShapeDef): Shape => ({
 
 /**
  * Sample a property based on a shape definition.
+ *
  * @param property property name
  * @param shapeDef shape definition
  */
@@ -323,6 +357,7 @@ const sampleProperty = (
 
 /**
  * Sample varying fields, which are assumed to be positional values. They are sampled with the canvas dimensions.
+ *
  * @param state State that contains a list of varying paths
  * @ignore
  */

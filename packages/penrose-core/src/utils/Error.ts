@@ -2,9 +2,18 @@ import { showType } from "compiler/Domain";
 import { Maybe, Result } from "true-myth";
 const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr } = Result;
 
+// #region error rendering and construction
+
 // TODO: fix template formatting
-export const showError = (error: DomainError | SubstanceError): string => {
+export const showError = (
+  error: DomainError | SubstanceError | StyleError
+): string => {
   switch (error.tag) {
+    case "GenericStyleError": {
+      return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
+    }
+    case "ParseError":
+      return error.message;
     case "TypeDeclared": {
       return `Type ${error.typeName.value} already exists.`;
     }
@@ -43,11 +52,11 @@ export const showError = (error: DomainError | SubstanceError): string => {
       )}) already exists, first declared at ${loc(firstDefined)}.`;
     }
     case "NotTypeConsInSubtype": {
-      if (error.type.tag === "Prop")
+      if (error.type.tag === "Prop") {
         return `Prop (at ${loc(
           error.type
         )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
-      else {
+      } else {
         return `${error.type.name.value} (at ${loc(
           error.type
         )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
@@ -59,11 +68,11 @@ export const showError = (error: DomainError | SubstanceError): string => {
       )}`;
     }
     case "NotTypeConsInPrelude": {
-      if (error.type.tag === "Prop")
+      if (error.type.tag === "Prop") {
         return `Prop (at ${loc(
           error.type
         )}) is not a type constructor. Only type constructors are allowed for prelude values.`;
-      else {
+      } else {
         return `${error.type.name.value} (at ${loc(
           error.type
         )}) is not a type constructor. Only type constructors are allowed in prelude values.`;
@@ -235,12 +244,27 @@ export const fatalError = (message: string): FatalError => ({
   message,
 });
 
+export const parseError = (message: string): ParseError => ({
+  tag: "ParseError",
+  message,
+});
+
+export const genericStyleError = (messages: string[]): PenroseError => ({
+  errorType: "StyleError",
+  tag: "GenericStyleError",
+  messages,
+});
+
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1} of ${
     node.nodeType
   } program`;
+
+// #endregion
+
+// #region Either monad
 
 export const every = <Ok, Error>(
   ...results: Result<Ok, Error>[]
@@ -299,3 +323,5 @@ export {
   unsafelyUnwrap,
   isErr,
 };
+
+// #endregion

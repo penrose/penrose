@@ -1,14 +1,10 @@
-import * as path from "path";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
+import * as path from "path";
 import { Result, showError } from "utils/Error";
 import { compileDomain, Env, showType } from "./Domain";
-import {
-  compileSubstance,
-  postprocessSubstance,
-  SubstanceEnv,
-} from "./Substance";
+import { compileSubstance, SubstanceEnv } from "./Substance";
 
 const printError = false;
 const saveContexts = false;
@@ -240,7 +236,7 @@ NoLabel B, C
 
 describe("Errors", () => {
   const expectErrorOf = (
-    result: Result<[SubstanceEnv, Env], SubstanceError | DomainError>,
+    result: Result<[SubstanceEnv, Env], PenroseError>,
     errorType: string
   ) => {
     if (result.isErr()) {
@@ -250,6 +246,14 @@ describe("Errors", () => {
       fail(`Error ${errorType} was suppoed to occur.`);
     }
   };
+  test("parse error", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C ;;; shouldn't parse
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "ParseError");
+  });
   test("type not found", () => {
     const env = envOrError(domainProg);
     const prog = `

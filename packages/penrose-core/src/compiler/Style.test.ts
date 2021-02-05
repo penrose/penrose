@@ -2,13 +2,16 @@
 
 import * as S from "compiler/Style";
 import { correctSubsts, possibleSubsts, selEnvs } from "compiler/StyleTestData";
-import { SubstanceEnv } from "compiler/Substance";
+import {
+  compileSubstance,
+  parseSubstance,
+  SubstanceEnv,
+} from "compiler/Substance";
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
-import { Env } from "./Domain";
-
-const clone = require("rfdc")({ proto: false, circles: false });
+import { unsafelyUnwrap, Result } from "utils/Error";
+import { compileDomain, Env } from "./Domain";
 
 // TODO: Reorganize and name tests by compiler stage
 
@@ -23,11 +26,33 @@ const loadFiles = (paths: string[]): string[] => {
   return paths.map(loadFile);
 };
 
-// Load dsl, sub, sty (in that order)
-const loadProgs = (
-  triple: [string, string, string]
-): [Env, SubstanceEnv, SubProg, StyProg] => {
-  return S.loadProgs(loadFiles(triple) as [string, string, string]);
+// Run the Domain + Substance parsers and checkers to yield the Style compiler's input
+// files must follow schema: { domain, substance, style }
+export const loadProgs = ([domainStr, subStr, styStr]: [
+  string,
+  string,
+  string
+]): [Env, SubstanceEnv, SubProg, StyProg] => {
+  const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
+  const env0: Env = unsafelyUnwrap(domainProgRes);
+
+  // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
+  const subProg: SubProg = unsafelyUnwrap(parseSubstance(subStr));
+  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(
+    subStr,
+    env0
+  );
+
+  const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
+  const styProg: StyProg = unsafelyUnwrap(S.parseStyle(styStr));
+
+  const res: [Env, SubstanceEnv, SubProg, StyProg] = [
+    varEnv,
+    subEnv,
+    subProg,
+    styProg,
+  ];
+  return res;
 };
 
 describe("Compiler", () => {
@@ -107,7 +132,7 @@ describe("Compiler", () => {
       SubstanceEnv,
       SubProg,
       StyProg
-    ] = loadProgs(triple);
+    ] = loadProgs(loadFiles(triple) as [string, string, string]);
 
     S.disambiguateFunctions(varEnv, subProg);
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
@@ -152,7 +177,7 @@ describe("Compiler", () => {
       SubstanceEnv,
       SubProg,
       StyProg
-    ] = loadProgs(triple);
+    ] = loadProgs(loadFiles(triple) as [string, string, string]);
     S.disambiguateFunctions(varEnv, subProg);
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
     const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>

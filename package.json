@@ -29,7 +29,12 @@
       "pre-commit": "yarn test && pretty-quick --staged"
     }
   },
-  "workspaces": [
-    "packages/*"
-  ]
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@types/jest"
+    ]
+  }
 }

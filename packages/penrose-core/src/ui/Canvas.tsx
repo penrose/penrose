@@ -1,15 +1,9 @@
+import { updateVaryingValues } from "engine/PropagateUpdate";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { interactiveMap, staticMap } from "shapes/componentMap";
-import Log from "utils/Log";
-import { loadImages } from "utils/Util";
-import { insertPending, updateVaryingValues } from "engine/PropagateUpdate";
-import { collectLabels } from "utils/CollectLabels";
-import { evalShapes, decodeState } from "engine/Evaluator";
-import { makeTranslationDifferentiable } from "engine/EngineUtils";
 import * as Shapes from "shapes/ShapeDef";
-
-import { compileStyle } from "compiler/Style";
+import Log from "utils/Log";
 
 interface ICanvasProps {
   lock: boolean;
@@ -31,23 +25,6 @@ interface ICanvasProps {
 export const canvasSize: [number, number] = Shapes.canvasSize;
 
 class Canvas extends React.Component<ICanvasProps> {
-  public static sortShapes = (shapes: Shape[], ordering: string[]) => {
-    // COMBAK: Deal with nonexistent shapes
-    return ordering.map((name) =>
-      shapes.find(({ properties }) => properties.name.contents === name)
-    ); // assumes that all names are unique
-  };
-
-  public static notEmptyLabel = (shape: any) => {
-    if (!shape) {
-      // COMBAK: temp hack, revert when labels are generated
-      console.error("Skipping undefined shape");
-      return true;
-    }
-    const { shapeType, properties } = shape;
-    return shapeType === "Text" ? !(properties.string.contents === "") : true;
-  };
-
   // public readonly canvasSize: [number, number] = [400, 400];
   public readonly svg = React.createRef<SVGSVGElement>();
 
