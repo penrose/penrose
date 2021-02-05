@@ -3,6 +3,7 @@ import { compileTrio, prepareState, resample, stepState } from "API";
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
+import RenderStatic from "renderer/Renderer";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
@@ -31,7 +32,7 @@ class App extends React.Component<any, ICanvasState> {
     files: null,
     connected: false,
   };
-  public readonly canvas = React.createRef<Canvas>();
+  public readonly canvas = React.createRef<HTMLDivElement>();
   public readonly buttons = React.createRef<ButtonBar>();
 
   public modShapes = async (state: State) => {
@@ -64,17 +65,17 @@ class App extends React.Component<any, ICanvasState> {
   };
   public downloadSVG = (): void => {
     if (this.canvas.current !== null) {
-      void this.canvas.current.downloadSVG();
+      // void this.canvas.current.downloadSVG();
     }
   };
   public downloadPDF = () => {
     if (this.canvas.current !== null) {
-      void this.canvas.current.downloadPDF();
+      // void this.canvas.current.downloadPDF();
     }
   };
   public downloadState = () => {
     if (this.canvas.current !== null) {
-      this.canvas.current.downloadState();
+      // this.canvas.current.downloadState();
     }
   };
   public autoStepToggle = async () => {
@@ -202,13 +203,15 @@ class App extends React.Component<any, ICanvasState> {
             className={this.state.showInspector ? "" : "soloPane1"}
             pane2Style={{ overflow: "hidden" }}
           >
-            <Canvas
-              data={data}
-              updateData={this.updateData}
-              lock={false}
-              ref={this.canvas}
-              penroseVersion={penroseVersion}
-            />
+            {data && (
+              <div
+                ref={this.canvas}
+                style={{ width: "100%", height: "100%" }}
+                dangerouslySetInnerHTML={{
+                  __html: RenderStatic(data.shapes, data.labelCache).outerHTML,
+                }}
+              />
+            )}
             {showInspector && (
               <Inspector
                 history={history}

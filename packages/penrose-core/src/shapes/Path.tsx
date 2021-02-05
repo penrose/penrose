@@ -1,5 +1,5 @@
 import * as React from "react";
-import { toScreen, toHex, Arrowhead, Shadow } from "utils/Util";
+import { toScreen, toHex } from "utils/Util";
 import { flatten } from "lodash";
 import { IGPIProps } from "types";
 
@@ -81,7 +81,7 @@ class Path extends React.Component<IGPIProps> {
     // TODO: distinguish between fill opacity and stroke opacity
     return (
       <g>
-        {shape.leftArrowhead.contents === true ? (
+        {/* {shape.leftArrowhead.contents === true ? (
           <Arrowhead
             id={leftArrowId}
             color={strokeColor}
@@ -99,7 +99,7 @@ class Path extends React.Component<IGPIProps> {
             size={arrowheadSize}
           />
         ) : null}
-        <Shadow id={shadowId} />
+        <Shadow id={shadowId} /> */}
         <path
           stroke={strokeColor}
           fill={fillColor}

@@ -1,8 +1,7 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
 import { ObjectInspector } from "react-inspector";
-import { makeViewBoxes } from 'utils/Util';
-
+import makeViewBoxes from "inspector/makeViewBoxes";
 
 interface IState {
   selectedShape: number;

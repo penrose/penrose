@@ -1,11 +1,8 @@
 import { retrieveLabel } from "utils/CollectLabels";
 import { attrCoords, attrFill, attrTitle, attrWH } from "./AttrHelper";
+import { ShapeProps } from "./Renderer";
 
-const Label = (
-  shape: IShape,
-  labels: LabelCache,
-  canvasSize: [number, number]
-) => {
+const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   attrCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);

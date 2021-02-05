@@ -1,4 +1,5 @@
 import * as React from "react";
+import RenderStatic from "renderer/Renderer";
 
 import styled from "styled-components";
 import Canvas from "ui/Canvas";
@@ -53,9 +54,10 @@ class Timeline extends React.Component<IViewProps> {
               selected={k === frameIndex}
               key={k}
               onClick={() => this.props.selectFrame(k)}
-            >
-              <Canvas data={frame} lock={true} updateData={() => void 0} />
-            </TimelineItem>
+              dangerouslySetInnerHTML={{
+                __html: RenderStatic(frame.shapes, frame.labelCache).outerHTML,
+              }}
+            />
           );
         })}
       </TimelineStyled>

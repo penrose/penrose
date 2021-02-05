@@ -1,20 +1,14 @@
 import * as React from "react";
 
 import { IGPIProps } from "types";
-import { toScreen, toHex, Arrowhead } from "utils/Util";
+import { toScreen, toHex } from "utils/Util";
 
 class Line extends React.Component<IGPIProps> {
   public render() {
     const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
-    const [sx, sy] = toScreen(
-      shape.start.contents,
-      canvasSize
-    );
-    const [ex, ey] = toScreen(
-      shape.end.contents,
-      canvasSize
-    );
+    const [sx, sy] = toScreen(shape.start.contents, canvasSize);
+    const [ex, ey] = toScreen(shape.end.contents, canvasSize);
 
     // Rounding for illustrator? Doesn't seem to work
     /* sx = round2(sx);
@@ -35,7 +29,7 @@ class Line extends React.Component<IGPIProps> {
 
     return (
       <g>
-        <Arrowhead
+        {/* <Arrowhead
           id={leftArrowId}
           color={color}
           opacity={opacity}
@@ -48,7 +42,7 @@ class Line extends React.Component<IGPIProps> {
           opacity={opacity}
           style={arrowheadStyle}
           size={arrowheadSize}
-        />
+        /> */}
 
         <path
           d={path}

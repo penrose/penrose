@@ -1,6 +1,3 @@
-import * as React from "react";
-import styled from "styled-components";
-import { staticMap } from "../shapes/componentMap";
 import memoize from "fast-memoize";
 import { times } from "lodash";
 
@@ -102,113 +99,22 @@ export const bBoxDims = (properties: Properties, shapeType: string) => {
   return [w, h];
 };
 
-// styling for shape inside viewbox - see ShapeView or Mod
-export const ShapeItem = styled.li<any>`
-  display: block;
-  padding: 1em;
-  margin-top: -1px;
-  border: 1px solid #d1d1d1;
-  background-color: ${({ selected }: any) =>
-    selected ? "#F9F9F9" : "#f0f0f0"};
-  color: rgba(0, 0, 0, 0.5);
-  font-family: monospace;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  cursor: pointer;
-`;
-
-export const makeViewBoxes = (
-  shapes: IShape[],
-  selectedShape: number,
-  setSelectedShape: (key: number) => void
-) => {
-  return (
-    <div style={{ overflowY: "auto", height: "100%" }}>
-      <ul
-        style={{
-          listStyleType: "none",
-          padding: "0 0 1em 0",
-          margin: 0,
-          top: 0,
-          left: 0,
-          right: 0,
-        }}
-      >
-        {shapes.map(({ properties, shapeType }: Shape, key: number) => {
-          // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
-          // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
-          const [w, h] = bBoxDims(properties, shapeType);
-          return (
-            <ShapeItem
-              key={`shapePreview-${key}`}
-              selected={selectedShape === key}
-              onClick={() => setSelectedShape(key)}
-            >
-              <div>
-                <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
-                  {React.createElement(staticMap[shapeType], {
-                    shape: {
-                      ...properties,
-                      x: { tag: "FloatV", contents: 0 },
-                      y: { tag: "FloatV", contents: 0 },
-                    },
-                    canvasSize: [w, h],
-                  })}
-                </svg>
-              </div>
-              <div style={{ margin: "0.5em" }}>
-                <span>{properties.name.contents}</span>
-              </div>
-            </ShapeItem>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
-
-export const Shadow = (props: { id: string }) => {
-  return (
-    <filter id={props.id} x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-  );
-};
-
-export const Arrowhead = (props: {
-  id: string;
-  color: string;
-  opacity: number;
-  style: string;
-  size: number;
-}) => {
-  const { size, style } = props;
-  const arrow = arrowheads[style];
-  return (
-    <marker
-      id={props.id}
-      markerUnits="strokeWidth"
-      markerWidth={round2(arrow.width * size)}
-      markerHeight={round2(arrow.height * size)}
-      viewBox={arrow.viewbox}
-      refX={arrow.refX}
-      refY={arrow.refY}
-      orient="auto-start-reverse"
-    >
-      <path d={arrow.path} fill={props.color} fillOpacity={props.opacity} />
-    </marker>
-  );
-};
+// export const Shadow = (props: { id: string }) => {
+//   return (
+//     <filter id={props.id} x="0" y="0" width="200%" height="200%">
+//       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+//       <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+//       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+//       <feComponentTransfer>
+//         <feFuncA type="linear" slope="0.5" />
+//       </feComponentTransfer>
+//       <feMerge>
+//         <feMergeNode />
+//         <feMergeNode in="SourceGraphic" />
+//       </feMerge>
+//     </filter>
+//   );
+// };
 
 export const toScreen = (
   [x, y]: [number, number],

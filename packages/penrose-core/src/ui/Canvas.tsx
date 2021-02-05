@@ -1,7 +1,6 @@
 import { updateVaryingValues } from "engine/PropagateUpdate";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { interactiveMap, staticMap } from "shapes/componentMap";
 import * as Shapes from "shapes/ShapeDef";
 import Log from "utils/Log";
 
@@ -234,26 +233,7 @@ class Canvas extends React.Component<ICanvasProps> {
     labels: LabelCache,
     key: number
   ) => {
-    const component = this.props.lock
-      ? staticMap[shapeType]
-      : interactiveMap[shapeType];
-    if (component === undefined) {
-      Log.error(`Could not render GPI ${shapeType}.`);
-      return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
-    }
-    if (!this.props.lock && this.svg.current === null) {
-      return <g key={key}>Pending</g>;
-    }
-    const { dragEvent } = this;
-    return React.createElement(component, {
-      key,
-      shape: properties,
-      labels,
-      canvasSize,
-      dragEvent,
-      ctm: !this.props.lock ? this.svg.current?.getScreenCTM() : null,
-      // ctm: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 20.511363191791812 },
-    });
+    return <div />;
   };
 
   public render() {
@@ -297,7 +277,7 @@ class Canvas extends React.Component<ICanvasProps> {
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes && shapes.map((s, k) => this.renderGPI(s, labelCache, k))}
+        {/* {shapes && shapes.map((s, k) => this.renderGPI(s, labelCache, k))} */}
       </svg>
     );
   }

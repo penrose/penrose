@@ -5,8 +5,9 @@ import {
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
+import { ShapeProps } from "./Renderer";
 
-const Circle = (shape: IShape, canvasSize: [number, number]) => {
+const Circle = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   attrFill(shape, elem);
   attrCenter(shape, canvasSize, elem);

@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { IGPIProps } from "types";
-import { toHex, svgTransformString, Arrowhead } from "utils/Util";
+import { toHex, svgTransformString } from "utils/Util";
 
 class LineTransform extends React.Component<IGPIProps> {
   public render() {
@@ -28,7 +28,7 @@ class LineTransform extends React.Component<IGPIProps> {
 
     return (
       <g>
-        <Arrowhead
+        {/* <Arrowhead
           id={leftArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
@@ -41,7 +41,7 @@ class LineTransform extends React.Component<IGPIProps> {
           opacity={strokeOpacity}
           style={arrowheadStyle}
           size={arrowheadSize}
-        />
+        /> */}
 
         <path
           d={path}

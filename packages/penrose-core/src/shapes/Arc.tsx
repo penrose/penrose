@@ -1,5 +1,5 @@
 import * as React from "react";
-import { toScreen, toHex, Arrowhead } from "utils/Util";
+// import { toScreen, toHex, Arrowhead } from "utils/Util";
 import { IGPIPropsDraggable, IGPIProps } from "types";
 
 const polarToCartesian = (
@@ -48,7 +48,8 @@ const describeArc = (
 
 class Arc extends React.Component<IGPIProps> {
   public render() {
-    const { shape } = this.props;
+    return <div />;
+    /*const { shape } = this.props;
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.strokeColor.contents);
@@ -108,6 +109,7 @@ class Arc extends React.Component<IGPIProps> {
         </path>
       </g>
     );
+    */
   }
 }
 export default Arc;

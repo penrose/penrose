@@ -1,5 +1,5 @@
 import * as React from "react";
-import { svgTransformString, toHex, Arrowhead } from "utils/Util";
+import { svgTransformString, toHex } from "utils/Util";
 import { flatten } from "lodash";
 import { IGPIProps } from "types";
 
@@ -80,7 +80,7 @@ class CurveTransform extends React.Component<IGPIProps> {
 
     return (
       <g>
-        <Arrowhead
+        {/* <Arrowhead
           id={leftArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
@@ -93,7 +93,7 @@ class CurveTransform extends React.Component<IGPIProps> {
           opacity={strokeOpacity}
           style={arrowheadStyle}
           size={arrowheadSize}
-        />
+        /> */}
         <path
           stroke={strokeColor}
           fill={fillColor}

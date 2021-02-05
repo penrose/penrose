@@ -5,7 +5,6 @@ import {
 } from "engine/EngineUtils";
 import { getShapeName } from "shapes/ShapeDef";
 import { retrieveLabel } from "utils/CollectLabels";
-import Label from "shapes/Label";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.

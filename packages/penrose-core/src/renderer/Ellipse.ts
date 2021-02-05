@@ -5,8 +5,9 @@ import {
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
+import { ShapeProps } from "./Renderer";
 
-const Ellipse = (shape: IShape, canvasSize: [number, number]) => {
+const Ellipse = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "ellipse"
