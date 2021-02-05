@@ -24,7 +24,12 @@
       "pre-commit": "npm test"
     }
   },
-  "workspaces": [
-    "packages/*"
-  ]
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@types/jest"
+    ]
+  }
 }
