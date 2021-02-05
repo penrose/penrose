@@ -72,7 +72,7 @@ export const attrSide = ({ properties }: IShape, elem: SVGElement) => {
   elem.setAttribute("height", side.contents.toString());
 };
 
-const DASH_ARRAY = "7,5";
+export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: IShape, elem: SVGElement) => {
   const strokeColor = properties.strokeColor as IColorV<number>;
@@ -86,7 +86,7 @@ export const attrStroke = ({ properties }: IShape, elem: SVGElement) => {
     dashArray = (properties.strokeDashArray as IStrV<string>).contents;
   }
   if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("strokeDasharray", dashArray.toString());
+    elem.setAttribute("stroke-dash-array", dashArray.toString());
   }
 };
 

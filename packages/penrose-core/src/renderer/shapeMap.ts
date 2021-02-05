@@ -5,6 +5,7 @@ import Square from "./Square";
 import Rectangle from "./Rectangle";
 import Arrow from "./Arrow";
 import { ShapeProps } from "./Renderer";
+import Path from "./Path";
 
 const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Circle,
@@ -13,6 +14,7 @@ const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Rectangle,
   Text: Label,
   Arrow,
+  Path,
 };
 
 export default shapeMap;

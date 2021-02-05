@@ -1,5 +1,5 @@
 import { arrowheads, round2, toHex, toScreen } from "utils/Util";
-import { attrTitle } from "./AttrHelper";
+import { attrFill, attrStroke, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 export const arrowHead = (
@@ -18,7 +18,7 @@ export const arrowHead = (
   marker.setAttribute("marker-units", "strokeWidth");
   marker.setAttribute("marker-width", round2(arrow.width * size).toString());
   marker.setAttribute("marker-height", round2(arrow.height * size).toString());
-  marker.setAttribute("view-box", arrow.viewBox);
+  marker.setAttribute("view-box", arrow.viewbox);
   marker.setAttribute("ref-x", arrow.refX.toString());
   marker.setAttribute("ref-y", arrow.refY.toString());
   marker.setAttribute("orient", "auto-start-reverse");
@@ -65,6 +65,20 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
     `M${sx} ${sy} L${
       Math.abs(offsetX) < Math.abs(ex - sx) ? ex - offsetX : ex
     } ${Math.abs(offsetY) < Math.abs(ey - sy) ? ey - offsetY : ey}`
+  );
+  path.setAttribute("marker-end", `url(#${id})`);
+  attrFill(shape, path);
+  path.setAttribute("stroke", color);
+  let dashArray = DASH_ARRAY;
+  if ("strokeDashArray" in shape.properties) {
+    dashArray = (shape.properties.strokeDashArray as IStrV<string>).contents;
+  }
+  if (shape.properties.style.contents === "dashed") {
+    elem.setAttribute("stroke-dash-array", dashArray.toString());
+  }
+  path.setAttribute(
+    "stroke-width",
+    shape.properties.thickness.contents.toString()
   );
   elem.appendChild(path);
   attrTitle(shape, elem);
