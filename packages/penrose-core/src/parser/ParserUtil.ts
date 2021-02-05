@@ -19,7 +19,7 @@ export const basicSymbols: moo.Rules = {
   comma: ",",
   string_literal: {
     match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
-    value: (s:string):string => s.slice(1, -1),
+    value: (s: string): string => s.slice(1, -1),
   },
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
   comment: /--.*?$/,
@@ -151,7 +151,7 @@ export const convertTokenId = ([token]: any) => {
 };
 
 export const nth = (n: number) => {
-  return function(d: any[]) {
+  return function (d: any[]) {
     return d[n];
   };
 };

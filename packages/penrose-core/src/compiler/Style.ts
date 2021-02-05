@@ -1,4 +1,4 @@
-import { compileDomain, compileSubstance, parseSubstance } from "API";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   checkExpr,
   checkPredicate,
@@ -1807,7 +1807,7 @@ function foldSubObjs<T>(
 // Find varying (float) paths
 // For now, don't optimize these float-valued properties of a GPI
 // (use whatever they are initialized to in Shapes or set to in Style)
-const unoptimizedFloatProperties: String[] = [
+const unoptimizedFloatProperties: string[] = [
   "rotation",
   "strokeWidth",
   "thickness",

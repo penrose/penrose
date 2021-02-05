@@ -25,7 +25,7 @@ class Rectangle extends React.Component<IGPIProps> {
         strokeOpacity={strokeAlpha}
         strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         strokeWidth={thickness}
-      // transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
+        // transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
       >
         <title>{shape.name.contents}</title>
       </rect>

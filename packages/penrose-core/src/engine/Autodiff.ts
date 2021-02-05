@@ -33,7 +33,7 @@ export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => {
 
   // Grad var, level 1
   return variableAD(x, vname, metadata, false);
-}
+};
 
 /**
  * Make a number into a `VarAD`.
@@ -45,7 +45,7 @@ export const varOf = (x: number, vname = "", metadata = ""): VarAD => {
   }
 
   return variableAD(x, vname, metadata);
-}
+};
 
 /**
  * Return a new `VarAD` that's a constant.
@@ -57,7 +57,7 @@ export const constOf = (x: number): VarAD => {
   }
 
   return variableAD(x, String(x), "const");
-}
+};
 
 export const constOfIf = (x: number | VarAD): VarAD => {
   if (typeof x === "number") {
@@ -914,14 +914,13 @@ export const ops = {
   /**
    * Return the Euclidean distance squared between vectors `v` and `w`.
    */
-  vdistsq:
-    (v: VarAD[], w: VarAD[]): VarAD => {
-      if (v.length !== w.length) {
-        throw Error("expected vectors of same length");
-      }
+  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
 
-      return ops.vnormsq(ops.vsub(v, w));
-    },
+    return ops.vnormsq(ops.vsub(v, w));
+  },
 
   /**
    * Return the dot product of vectors `v1, v2`.
@@ -1047,7 +1046,7 @@ const genCode = (
     // log.trace("res output", res.output);
   }
 
-  let returnStmt: string = "";
+  let returnStmt = "";
 
   if (setting === "energy") {
     // Return single scalar
@@ -1132,7 +1131,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       };
     }
 
-    let stmts = [];
+    const stmts = [];
     let stmt;
     // Otherwise bind const in body
     if (z.op === "noGrad") {
@@ -1182,7 +1181,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 
     const op = z.op;
 
-    let stmts = [];
+    const stmts = [];
     let stmt;
 
     if (z.op === "squared") {
@@ -1256,7 +1255,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     z.name = parName;
 
     const op = z.op;
-    let stmts = [];
+    const stmts = [];
     let stmt;
     if (op === "max") {
       stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
@@ -1322,7 +1321,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     z.name = parName;
 
     const op = z.op;
-    let stmts = [];
+    const stmts = [];
     let stmt;
 
     // Deals with ifCond nodes (ternary)

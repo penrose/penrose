@@ -27,8 +27,9 @@ class ImageTransform extends React.Component<IGPIProps> {
         // Same idea as labels: need to flip vertically about the origin first
         transform={
           transformStr +
-          ` matrix(1 0 0 -1 0 0) translate(${-initWidth / 2},${-initHeight /
-            2})`
+          ` matrix(1 0 0 -1 0 0) translate(${-initWidth / 2},${
+            -initHeight / 2
+          })`
         }
       >
         <title>{shape.name.contents}</title>

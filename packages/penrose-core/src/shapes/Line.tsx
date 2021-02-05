@@ -7,14 +7,8 @@ class Line extends React.Component<IGPIProps> {
   public render() {
     const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
-    const [sx, sy] = toScreen(
-      shape.start.contents,
-      canvasSize
-    );
-    const [ex, ey] = toScreen(
-      shape.end.contents,
-      canvasSize
-    );
+    const [sx, sy] = toScreen(shape.start.contents, canvasSize);
+    const [ex, ey] = toScreen(shape.end.contents, canvasSize);
 
     // Rounding for illustrator? Doesn't seem to work
     /* sx = round2(sx);

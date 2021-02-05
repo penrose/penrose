@@ -55,15 +55,14 @@ export const sortShapes = (shapes: Shape[], ordering: string[]): Shape[] => {
  * @param shape a `Text` shape
  */
 export const notEmptyLabel = (shape: Shape): boolean => {
-    if (!shape) {
-      // COMBAK: temp hack, revert when labels are generated
-      console.error("Skipping undefined shape");
-      return true;
-    }
-    const { shapeType, properties } = shape;
-    return shapeType === "Text" ? !(properties.string.contents === "") : true;
-  };
-
+  if (!shape) {
+    // COMBAK: temp hack, revert when labels are generated
+    console.error("Skipping undefined shape");
+    return true;
+  }
+  const { shapeType, properties } = shape;
+  return shapeType === "Text" ? !(properties.string.contents === "") : true;
+};
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
   tag: "FloatV",
@@ -319,7 +318,7 @@ const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
  * @param shapes Old shapes
  * @ignore
  */
-const sampleShapes = (shapes: Shape[]): Shape[] =>
+export const sampleShapes = (shapes: Shape[]): Shape[] =>
   shapes.map((shape: Shape) => sampleShape(shape, findDef(shape.shapeType)));
 
 /**
@@ -362,7 +361,7 @@ const sampleProperty = (
  * @param state State that contains a list of varying paths
  * @ignore
  */
-const sampleFields = ({ varyingPaths }: State): number[] => {
+export const sampleFields = ({ varyingPaths }: State): number[] => {
   const fieldPaths = varyingPaths.filter(
     ({ tag }: Path) => tag === "AccessPath" || tag === "FieldPath"
   );

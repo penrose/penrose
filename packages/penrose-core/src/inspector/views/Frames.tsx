@@ -4,7 +4,7 @@ import IViewProps from "./IViewProps";
 // https://goessner.net/articles/JsonPath/
 class Frames extends React.Component<IViewProps> {
   public render() {
-    const {history, frame} = this.props;
+    const { history, frame } = this.props;
     if (frame === null) {
       return <p>empty</p>;
     }
