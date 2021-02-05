@@ -49,7 +49,7 @@
     "build-lib": "ttsc --project tsconfig.lib.json",
     "build:bundle": "webpack --config webpack.config.js",
     "docs": "typedoc --out docs src",
-    "test": "react-scripts test --watchAll=false",
+    "test": "CI=true react-scripts test --watchAll=false",
     "test:watch": "react-scripts test",
     "coverage": "npm test -- --coverage --watchAll=false",
     "lint": "eslint --ext js,ts,tsx src",
