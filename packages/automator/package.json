@@ -1,0 +1,31 @@
+{
+  "name": "automator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.tsx",
+  "scripts": {
+    "start": "ts-node ./index.tsx",
+    "test": "echo \"no test specified for automator\" && exit 0"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/react": "^16.9.52",
+    "chalk": "^3.0.0",
+    "child_process": "^1.0.2",
+    "convert-hrtime": "^3.0.0",
+    "mathjax-node": "^2.1.1",
+    "neodoc": "^2.0.2",
+    "penrose-core": "^1.0.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-ssr": "^2.0.0-beta.6",
+    "tslib": "^2.0.3",
+    "uniqid": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.68",
+    "ts-node": "^9.0.0",
+    "typescript": "^3.9.7"
+  }
+}

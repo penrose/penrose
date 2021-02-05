@@ -1,0 +1,40 @@
+{
+  "repository": "penrose/penrose",
+  "author": "Penrose Team (https://penrose.ink)",
+  "private": true,
+  "packages": [
+    "packages/*"
+  ],
+  "scripts": {
+    "postinstall": "lerna run build --scope=roger",
+    "build": "lerna run build --stream",
+    "clean": "lerna clean",
+    "start": "lerna run watch --stream --scope=penrose-core",
+    "test": "lerna run test --stream",
+    "lerna": "lerna",
+    "new-version": "lerna version --conventional-commits --yes",
+    "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
+    "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
+    "diff": "lerna diff"
+  },
+  "devDependencies": {
+    "husky": "^4.3.8",
+    "lerna": "^3.22.1",
+    "prettier": "2.2.1",
+    "pretty-quick": "^3.1.0",
+    "typescript": "^4.1.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn test && pretty-quick --staged"
+    }
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@types/jest"
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-const {
+const { -- 0
   scalar perpLen = 20.0
   -- For unit mark
   scalar markerPadding = 15.0
@@ -11,7 +11,7 @@ const {
   bool boolForTesting = true
 }
 
-C {
+C { -- 1
     -- black = #000000
     color black = rgba(0.,0.,0.,1.)
     white = rgba(1., 1., 1., 1.)
@@ -25,7 +25,7 @@ C {
 }
 
 -- Just some weird definitions to test parser. Not used in rest of program
-testing {
+testing { -- 2
   -- COMBAK: Test that plugins still run
   -- pluginVar = "ddg"["a"]["length"]
         x = { 1, {2, 3} }
@@ -48,38 +48,7 @@ testing {
         -- test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
 }
 
-forall Vector u; VectorSpace U
-where In(u,U) {
-  u.text = Text {
-    -- center : (?, ?) -- This should be done automatically
-    string : u.label
-    color : u.arrow.color
-    w: 30.0
-    h: 30.0
-  }
-
-  u.arrow = Arrow {
-    start : U.origin
-    end : (?, ?)
-    thickness : 3.0
-    color : C.lightBlue
-    arrowheadSize : const.arrowheadSize
-  }
-
-  u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
-
-  ensure contains(U.background, u.arrow)
-  ensure contains(U.background, u.text)
-  ensure atDist(u.arrow, u.text, 15.0)
-  ensure minSize(u.arrow)
-
-  u.text above U.xAxis
-  u.text above U.yAxis
-  U.background below u.text
-  U.background below u.arrow
-}
-
-forall VectorSpace U {
+forall VectorSpace U { -- 3
     scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
     vec2 U.origin = (0., 0.)
     vec2 o = U.origin
@@ -87,8 +56,7 @@ forall VectorSpace U {
 
     shape U.background = Square {
         center : U.origin
-        w: const.vectorSpaceSize
-        h: const.vectorSpaceSize
+        side : const.vectorSpaceSize
         color : C.none
         strokeColor : C.none
         -- strokeWidth : 2.0
@@ -100,8 +68,8 @@ forall VectorSpace U {
         thickness : const.lineThickness
         style : "solid"
         color : U.axisColor
-        leftArrowhead: True
-        rightArrowhead: True
+        leftArrowhead: true
+        rightArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -111,8 +79,8 @@ forall VectorSpace U {
        thickness : const.lineThickness
            style : "solid"
            color : U.axisColor
-           leftArrowhead: True
-           rightArrowhead: True
+           leftArrowhead: true
+           rightArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -123,30 +91,42 @@ forall VectorSpace U {
     }
 }
 
+forall Vector u; VectorSpace U -- 4
+where In(u,U) {
+  u.text = Text {
+    -- center : (?, ?) -- This should be done automatically
+    string : u.label
+    color : u.arrow.color
+  }
 
+  u.arrow = Arrow {
+    start : U.origin
+    end : (?, ?)
+    thickness : 3.0
+    color : C.lightBlue
+    arrowheadSize : const.arrowheadSize
+  }
 
-forall Vector u; Vector v
-with VectorSpace U
-where Dependent(u, v); In(u, U); In(v, U) {
-    -- determinant should be zero if linearly dependent
-    encourage equal(u.vector[0] * v.vector[1] - u.vector[1] * v.vector[0], 0.0) 
+   u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
+
+   ensure contains(U.background, u.arrow)
+   ensure contains(U.background, u.text)
+   ensure atDist(u.arrow, u.text, 15.0)
+   ensure minSize(u.arrow)
+
+  layer u.text above U.xAxis
+  layer u.text above U.yAxis
 }
 
-forall Vector u; Vector v
-with VectorSpace U
-where Independent(u, v); In(u, U); In(v, U) {
-    encourage equal(u.vector[0] * v.vector[1] - u.vector[1] * v.vector[0], 15.0) 
-}
-
-forall Vector u; Vector v
+forall Vector u; Vector v -- 5
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
       startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
       endR = u.arrow.end
       startL = v.arrow.start
       endL = v.arrow.end
-      dirR = unit(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
-      dirL = unit(endL - startL)
+      dirR = normalize(endR - startR)  -- Syntax sugar for vectors (better in Style because JS doesn't allow it!)
+      dirL = normalize(endL - startL)
       ptL = startR + const.perpLen * dirL
       ptR = startR + const.perpLen * dirR
       ptLR = ptL + const.perpLen * dirR
@@ -163,6 +143,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       }
 
       -- Make sure vectors are orthogonal (use ensure?)
+      -- eq = functions.equal
       encourage equal(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
 -- COMBAK: Test parsing the expressions that involve local vars 
@@ -170,7 +151,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       layer u.arrow above perpMark
 }
 
-forall Vector v
+forall Vector v -- 6
 with VectorSpace U; Vector w
 where In(v, U); Unit(v); Orthogonal(v, w) {
       -- Usually, the unit vector shouldn't need to know about orthogonal vectors
@@ -182,7 +163,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
       -- The start and end of the body of the unit marker line
       -- NOTE: We need to have lists of vectors
-      dir = unit(w.arrow.end - w.arrow.start)
+      dir = normalize(w.arrow.end - w.arrow.start)
       normal = -dir
       markStart = v.arrow.start + padding * normal
       markEnd = v.arrow.end + padding * normal
@@ -197,7 +178,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
       -- Could use normal instead, just doing this to demonstrate how to use matrices
       mat2x2 rot90CW = ((0., 1.), (-1., 0.))
-      vec2 markNormal = mul(rot90CW, unit(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
+      vec2 markNormal = mul(rot90CW, normalize(v.arrow.end - v.arrow.start)) -- TODO: Do we want syntactic sugar for matrix-vector multiplication? Or a better name?
       scalar c = const.barSize
       vec2 halfvec = c * markNormal
 
@@ -228,6 +209,6 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       layer v.unitMarkerLine above U.yAxis
 }
 
-forall Vector `v` {
-       override `v`.arrow.color = C.green
+forall Vector `x2` { -- 7
+       override `x2`.arrow.color = C.green
 }

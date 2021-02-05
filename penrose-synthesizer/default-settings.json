@@ -1,9 +1,0 @@
-{
-  "lengthRange": [1, 10],
-  "argOption": "existing",
-  "weights": {
-    "type": 0.1,
-    "predicate": 0.3,
-    "constructor": 0.0
-  }
-}
