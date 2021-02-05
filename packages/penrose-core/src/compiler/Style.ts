@@ -7,12 +7,12 @@ import * as _ from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
 import { canvasXRange, findDef, PropType, Sampler, ShapeDef } from "shapes/ShapeDef";
-import { isErr, Result, unsafelyUnwrap } from "utils/Error";
+import { err, isErr, ok, Result, styleError, unsafelyUnwrap } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
+import consola, { LogLevel } from "consola";
 
-
-
+const log = consola.create({ level: LogLevel.Warn }).withScope("Style Compiler");
 const clone = require("rfdc")({ proto: false, circles: false });
 
 //#region consts
@@ -509,7 +509,7 @@ const couldMatchRels = (
 };
 
 //#region (subregion? TODO fix) Applying a substitution
-//// Apply a substitution to various parts of Style (relational statements, exprs, blocks)
+// // Apply a substitution to various parts of Style (relational statements, exprs, blocks)
 
 // Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable
 // If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
@@ -619,7 +619,7 @@ const substituteRels = (
 
 //#region Applying a substitution to a block
 
-//// Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
+// // Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
 
 const mkLocalVarName = (lv: LocalVarSubst): string => {
   if (lv.tag === "LocalVarId") {
@@ -828,9 +828,9 @@ const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
       contents: substitutePath(lv, subst, line.contents),
     };
   } else
-    throw Error(
+    {throw Error(
       "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-    );
+    );}
 };
 
 // Assumes a full substitution
@@ -874,7 +874,7 @@ const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
       args: e.args.map((e) => toSubExpr(env, e)),
     };
   } else if (e.tag === "SEFuncOrValCons") {
-    let res = {
+    const res = {
       ...e,
       tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
       name: e.name,
@@ -1154,9 +1154,9 @@ const filterRels = (
   );
 };
 
-//// Match declaration statements
+// // Match declaration statements
 
-//// Substitution helper functions
+// // Substitution helper functions
 // (+) operator combines two substitutions: subst -> subst -> subst
 const combine = (s1: Subst, s2: Subst): Subst => {
   return { ...s1, ...s2 };
@@ -1389,7 +1389,7 @@ const initTrans = (): Translation => {
   return { trMap: {}, warnings: [] };
 };
 
-///////// Translation judgments
+// /////// Translation judgments
 /* Note: All of the folds below use foldM.
    foldM stops accumulating when the first fatal error is reached, using "Either [Error]" as a monad
    (Non-fatal errors are stored as warnings in the translation)
@@ -1473,7 +1473,7 @@ const deleteField = (
   field: Identifier
 ): Translation => {
   // TODO(errors)
-  let trn = trans.trMap;
+  const trn = trans.trMap;
   const fieldDict = trn[name.contents.value];
 
   if (!fieldDict) {
@@ -1503,7 +1503,7 @@ const deletePath = (
     const transWithWarnings = deleteField(trans, path.name, path.field);
     return Right(transWithWarnings);
   } else if (path.tag === "PropertyPath") {
-    let transWithWarnings = deleteProperty(
+    const transWithWarnings = deleteProperty(
       trans,
       path.name,
       path.field,
@@ -1681,8 +1681,6 @@ const insertNames = (trans: Translation): Translation => {
 
 // Note, this mutates the translation
 const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
-  console.log("labels", labels);
-
   const insertLabel = (
     name: string,
     fieldDict: FieldDict
@@ -2262,7 +2260,7 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
   return tr2;
 };
 
-////////////// Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
+// //////////// Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 // 1. Initialize all varying fields
 // 2. Initialize all properties of all GPIs
 // NOTE: since we store all varying paths separately, it is okay to mark the default values as Done // they will still be optimized, if needed.
@@ -2585,19 +2583,18 @@ const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
   }
 };
 
+
 // For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
 // NOTE: mutates Substance AST
 export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
   subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt))
 };
 
-export const compileStyle = (files: any): Either<StyErrors, State> => {
-  const triple: [string, string, string] = [files.domain.contents, files.substance.contents, files.style.contents];
 
-  const loadedProgs: [Env, SubstanceEnv, SubProg, StyProg] = loadProgs(triple);
-  console.log("results from loading programs", loadedProgs);
+export const compileStyle = (stySource: string,  subEnv: SubstanceEnv, varEnv: Env) : Result<State, PenroseError> => {
 
-  const [varEnv, subEnv, subProg, styProgInit] = loadedProgs;
+  const subProg = subEnv.ast;
+  const styProgInit = parseStyle(stySource);
 
   // disambiguate Func into the right form in Substance grammar #453 -- mutates Substance AST since children are references
   disambiguateFunctions(varEnv, subProg);
@@ -2613,12 +2610,11 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
   );
 
   if (selErrs.length > 0) {
-    const err = `Could not compile. Error(s) in Style while checking selectors`;
-    return Left([err].concat(selErrs));
+    return err(styleError(selErrs));
   }
 
   // Leaving these logs in because they are still useful for debugging, but TODO: remove them
-  console.log("selEnvs", selEnvs);
+  log.info("selEnvs", selEnvs);
 
   // Find substitutions (`find_substs_prog`)
   const subss = findSubstsProg(
@@ -2629,13 +2625,13 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
     selEnvs
   ); // TODO: Use `eqEnv`
 
-  console.log("substitutions", subss);
+  log.info("substitutions", subss);
 
   // Name anon statements
   const styProg: StyProg = nameAnonStatements(styProgInit);
 
-  console.log("old prog", styProgInit);
-  console.log("new prog, substituted", styProg);
+  log.info("old prog", styProgInit);
+  log.info("new prog, substituted", styProg);
 
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
@@ -2649,21 +2645,18 @@ export const compileStyle = (files: any): Either<StyErrors, State> => {
   );
   // TODO(error return) ^
 
-  console.log("translation (before genOptProblem)", translateRes);
+  log.info("translation (before genOptProblem)", translateRes);
 
   // Translation failed somewhere. // TODO: Check that errors are returned in a consistent order
   if (translateRes.tag === "Left") {
-    const err = `Could not compile. Error(s) in Style while generating translation`;
-    return Left([err].concat(translateRes.contents));
+    // const err = `Could not compile. Error(s) in Style while generating translation`;
+    return err(styleError(translateRes.contents));
   }
 
   const trans = translateRes.contents;
   const initState = genOptProblemAndState(trans);
 
-  console.log("init state from GenOptProblem", initState);
+  log.info("init state from GenOptProblem", initState);
 
-  return {
-    tag: "Right",
-    contents: initState,
-  };
+  return ok(initState);
 };

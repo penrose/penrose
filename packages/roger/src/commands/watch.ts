@@ -95,7 +95,7 @@ export default class Watch extends Command {
         '✅',
         chalk.blueBright(`${type}`) +
           chalk.whiteBright(` ${fileName}`) +
-          chalk.blueBright(' updated, sending...')
+          chalk.blueBright(' updated, sending...'),
       )
       this.sendFiles()
     })

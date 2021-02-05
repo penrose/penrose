@@ -2,6 +2,8 @@ import { showType } from "compiler/Domain";
 import { Maybe, Result } from "true-myth";
 const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr } = Result;
 
+// #region error rendering and construction
+
 // TODO: fix template formatting
 export const showError = (error: DomainError | SubstanceError): string => {
   switch (error.tag) {
@@ -44,9 +46,9 @@ export const showError = (error: DomainError | SubstanceError): string => {
     }
     case "NotTypeConsInSubtype": {
       if (error.type.tag === "Prop")
-        return `Prop (at ${loc(
+        {return `Prop (at ${loc(
           error.type
-        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
+        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;}
       else {
         return `${error.type.name.value} (at ${loc(
           error.type
@@ -60,9 +62,9 @@ export const showError = (error: DomainError | SubstanceError): string => {
     }
     case "NotTypeConsInPrelude": {
       if (error.type.tag === "Prop")
-        return `Prop (at ${loc(
+        {return `Prop (at ${loc(
           error.type
-        )}) is not a type constructor. Only type constructors are allowed for prelude values.`;
+        )}) is not a type constructor. Only type constructors are allowed for prelude values.`;}
       else {
         return `${error.type.name.value} (at ${loc(
           error.type
@@ -235,12 +237,21 @@ export const fatalError = (message: string): FatalError => ({
   message,
 });
 
+export const styleError = (messages: string[]): PenroseError => ({
+  errorType: "StyleError",
+  messages,
+});
+
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1} of ${
   node.nodeType
   } program`;
+
+// #endregion
+
+// #region Either monad
 
 export const every = <Ok, Error>(
   ...results: Result<Ok, Error>[]
@@ -287,3 +298,5 @@ export const all = <Ok, Error>(
 
 // NOTE: re-export all true-myth types to reduce boilerplate
 export { Maybe, Result, and, or, ok, err, andThen, ap, match, unsafelyUnwrap, isErr };
+
+// #endregion

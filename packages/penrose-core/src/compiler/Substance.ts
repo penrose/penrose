@@ -38,7 +38,12 @@ export const parseSubstance = (prog: string): SubProg => {
   return ast;
 };
 
-// TODO: wrap errors in PenroseError type
+/**
+ * Top-level function for the Substance parser and checker. Given a Substance program string and Domain environment, it outputs either a `PenroseError` or `Env` and `SubstanceEnv` contexts.
+ *
+ * @param prog Substance program string
+ * @param env  Domain environment
+ */
 export const compileSubstance = (
   prog: string,
   env: Env
@@ -58,19 +63,21 @@ export interface SubstanceEnv {
   bindings: Map<string, SubExpr>;
   labels: LabelMap;
   predicates: ApplyPredicate[];
+  ast: SubProg;
 }
 
-const initEnv = (): SubstanceEnv => ({
+const initEnv = (ast: SubProg): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
   bindings: Map(),
   labels: Map(),
   predicates: [],
+  ast
 });
 
 //#region Postprocessing
 export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
-  const subEnv = initEnv();
+  const subEnv = initEnv(prog);
   return prog.statements.reduce(
     (e, stmt) => postprocessStmt(stmt, env, e),
     subEnv
@@ -138,6 +145,7 @@ const stringType: TypeConsApp = {
 
 /**
  * Top-level function for the Substance semantic checker. Given a Substance AST and an initial context, it outputs either a `SubstanceError` or an `Env` context.
+ *
  * @param prog compiled AST of a Domain program
  * @param env  environment from the Domain checker
  */
@@ -203,12 +211,12 @@ export const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult =>
     // NOTE: throw away the substitution because this layer above doesn't need to typecheck
     return andThen(([_, e]) => ok(e), argsOk);
   } else
-    return err(
+    {return err(
       typeNotFound(
         name,
         [...env.predicates.values()].map((p) => p.name)
       )
-    );
+    );}
 };
 
 const checkPredArg = (
@@ -219,7 +227,7 @@ const checkPredArg = (
 ): SubstitutionResult => {
   // HACK: predicate-typed args are parsed into `Func` type first, explicitly check and change it to predicate if the func is actually a predicate in the context
   if (arg.tag === "Func" && env.predicates.get(arg.name.value))
-    arg = { ...arg, tag: "ApplyPredicate" };
+    {arg = { ...arg, tag: "ApplyPredicate" };}
   if (arg.tag === "ApplyPredicate") {
     // if the argument is a nested predicate, call checkPredicate again
     const predOk = checkPredicate(arg, env);
@@ -296,6 +304,7 @@ type SubstitutionResult = Result<[SubstitutionEnv, Env], SubstanceError>; // inc
 
 /**
  * Given a concrete type in Substance and the formal type in Domain (which may include type variables), check if the concrete type is well-formed and possibly add to the substitution map.
+ *
  * @param type concrete type from Substance
  * @param formalType Domain type from Domain
  * @param sourceExpr the expression with the Substance type (for error reporting)
@@ -315,9 +324,9 @@ const substituteArg = (
     // TODO: check ordering of types
     if (expectedArgs.length !== type.args.length) {
       if (type.name.value === formalType.name.value)
-        return err(
+        {return err(
           typeArgLengthMismatch(type, formalType, sourceExpr, expectedExpr)
-        );
+        );}
       else return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
     } else {
       // if there are no arguments, check for type equality and return mismatch error if types do not match
@@ -344,7 +353,7 @@ const substituteArg = (
       if (isSubtype(expectedType, type, env)) return ok([substEnv, env]);
       // type doesn't match with the previous substitution
       else
-        return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));
+        {return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));}
     } else {
       // if type var is not substituted yet, add new substitution to the env
       return ok([substEnv.set(formalType.name.value, type), env]);

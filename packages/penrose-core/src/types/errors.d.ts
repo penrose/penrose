@@ -6,7 +6,8 @@
 // type StyleError = StyleParseError | StyleCheckError | TranslationError;
 type PenroseError =
   | (DomainError & { errorType: "DomainError" })
-  | (SubstanceError & { errorType: "SubstanceError" });
+  | (SubstanceError & { errorType: "SubstanceError" })
+  | (StyleError & { errorType: "StyleError" });
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 type SubstanceError =
@@ -29,6 +30,10 @@ type DomainError =
   | CyclicSubtypes
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
+
+interface StyleError {
+  messages: string[]
+}
 
 interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
@@ -108,10 +113,6 @@ interface DeconstructNonconstructor {
 interface FatalError {
   tag: "Fatal";
   message: string;
-}
-interface StyleError {
-  sources: ErrorSource[];
-  message: FormatString; // Style matched failed with Substance object $1 and select in Style $2
 }
 
 // NOTE: aliased to ASTNode for now, can include more types for different errors
