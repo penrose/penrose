@@ -1,6 +1,6 @@
 import * as React from "react";
 import { toScreen, toHex, Arrowhead } from "utils/Util";
-import { IGPIPropsDraggable, IGPIProps } from "types";
+import { IGPIProps } from "types";
 
 const polarToCartesian = (
   centerX: number,
