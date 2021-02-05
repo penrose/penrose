@@ -11,6 +11,7 @@ type PenroseError =
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 type SubstanceError =
+  | ParseError
   | DuplicateName
   | TypeNotFound
   | TypeVarNotFound
@@ -23,6 +24,7 @@ type SubstanceError =
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 type DomainError =
+  | ParseError
   | TypeDeclared
   | TypeVarNotFound
   | TypeNotFound
@@ -31,8 +33,16 @@ type DomainError =
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
 
-interface StyleError {
-  messages: string[]
+type StyleError = ParseError | GenericStyleError;
+
+interface GenericStyleError {
+  tag: "GenericStyleError";
+  messages: string[];
+}
+
+interface ParseError {
+  tag: "ParseError";
+  message: string;
 }
 
 interface UnexpectedExprForNestedPred {

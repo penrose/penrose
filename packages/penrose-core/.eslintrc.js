@@ -33,4 +33,5 @@ module.exports = {
     "eslint-plugin-jsdoc",
     "eslint-plugin-react",
   ],
+  ignorePatterns: ["**/*.test.ts", "**/*.test.tsx"],
 };
