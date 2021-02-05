@@ -14,8 +14,8 @@ Include a high-level summary of the implementation strategy and list important d
 
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] My changes generate no new warnings
-- [ ] New and existing tests pass locally using `npm test`
-- [ ] I ran `npm run docs` and there were no errors when generating the HTML site
+- [ ] New and existing tests pass locally using `yarn test`
+- [ ] I ran `yarn docs` and there were no errors when generating the HTML site
 - [ ] My code follows the style guidelines of this project (e.g.: no ESLint warnings)
 
 # Open questions
