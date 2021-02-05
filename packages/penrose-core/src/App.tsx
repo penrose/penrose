@@ -7,8 +7,6 @@ import { loadImages } from "utils/Util";
 import { insertPending, updateVaryingValues } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
 import { evalShapes, decodeState } from "engine/Evaluator";
-import { makeTranslationDifferentiable } from "engine/EngineUtils";
-import * as Shapes from "shapes/ShapeDef";
 
 import Inspector from "inspector/Inspector";
 import * as React from "react";
@@ -16,8 +14,6 @@ import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import Canvas from "ui/Canvas";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
-import Embed from "ui/Embed";
-import Log from "utils/Log";
 import { converged, initial } from "./packets";
 
 interface ICanvasState {
