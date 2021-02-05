@@ -79,15 +79,15 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
 
-  build_master_deploy:
+  build_main_deploy:
     jobs:
       - docs-deploy:
           filters:
             branches:
-              only: master
+              only: main
       - build:
           filters:
             branches:
-              only: master
+              only: main

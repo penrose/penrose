@@ -5,7 +5,7 @@ The command line for penrose
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/roger.svg)](https://npmjs.org/package/roger)
 [![Downloads/week](https://img.shields.io/npm/dw/roger.svg)](https://npmjs.org/package/roger)
-[![License](https://img.shields.io/npm/l/roger.svg)](https://github.com/penrose/penrose/blob/master/package.json)
+[![License](https://img.shields.io/npm/l/roger.svg)](https://github.com/penrose/penrose/blob/main/package.json)
 
 <!-- toc -->
 
