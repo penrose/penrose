@@ -15,12 +15,12 @@ export const arrowHead = (
     "marker"
   );
   marker.setAttribute("id", id);
-  marker.setAttribute("marker-units", "strokeWidth");
-  marker.setAttribute("marker-width", round2(arrow.width * size).toString());
-  marker.setAttribute("marker-height", round2(arrow.height * size).toString());
-  marker.setAttribute("view-box", arrow.viewbox);
-  marker.setAttribute("ref-x", arrow.refX.toString());
-  marker.setAttribute("ref-y", arrow.refY.toString());
+  marker.setAttribute("markerUnits", "strokeWidth");
+  marker.setAttribute("markerWidth", round2(arrow.width * size).toString());
+  marker.setAttribute("markerHeight", round2(arrow.height * size).toString());
+  marker.setAttribute("viewBox", arrow.viewbox);
+  marker.setAttribute("refX", arrow.refX.toString());
+  marker.setAttribute("refY", arrow.refY.toString());
   marker.setAttribute("orient", "auto-start-reverse");
   const path = document.createElementNS("svg", "path");
   path.setAttribute("d", arrow.path);
