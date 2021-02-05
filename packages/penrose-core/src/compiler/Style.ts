@@ -1,18 +1,50 @@
 import { compileDomain, compileSubstance, parseSubstance } from "API";
-import { checkExpr, checkPredicate, checkVar, LabelMap, SubstanceEnv } from "compiler/Substance";
+import {
+  checkExpr,
+  checkPredicate,
+  checkVar,
+  LabelMap,
+  SubstanceEnv,
+} from "compiler/Substance";
 import { constOf, numOf } from "engine/Autodiff";
-import { addWarn, defaultLbfgsParams, findExpr, initConstraintWeight, insertExpr, insertExprs, insertGPI, isPath, valueNumberToAutodiffConst } from "engine/EngineUtils";
+import {
+  addWarn,
+  defaultLbfgsParams,
+  findExpr,
+  initConstraintWeight,
+  insertExpr,
+  insertExprs,
+  insertGPI,
+  isPath,
+  valueNumberToAutodiffConst,
+} from "engine/EngineUtils";
 import { Graph, alg } from "graphlib";
 import * as _ from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
-import { canvasXRange, findDef, PropType, Sampler, ShapeDef } from "shapes/ShapeDef";
-import { err, isErr, ok, Result, styleError, unsafelyUnwrap } from "utils/Error";
+import {
+  canvasXRange,
+  findDef,
+  PropType,
+  Sampler,
+  ShapeDef,
+} from "shapes/ShapeDef";
+import {
+  err,
+  isErr,
+  ok,
+  parseError,
+  Result,
+  genericStyleError,
+  unsafelyUnwrap,
+} from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import consola, { LogLevel } from "consola";
 
-const log = consola.create({ level: LogLevel.Warn }).withScope("Style Compiler");
+const log = consola
+  .create({ level: LogLevel.Warn })
+  .withScope("Style Compiler");
 const clone = require("rfdc")({ proto: false, circles: false });
 
 //#region consts
@@ -827,10 +859,11 @@ const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
       ...line,
       contents: substitutePath(lv, subst, line.contents),
     };
-  } else
-    {throw Error(
+  } else {
+    throw Error(
       "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-    );}
+    );
+  }
 };
 
 // Assumes a full substitution
@@ -2447,8 +2480,6 @@ const computeShapeOrdering = (tr: Translation): string[] => {
     throw Error("no shape ordering possible from layering");
   }
 
-
-
   return shapeOrdering.contents;
 };
 
@@ -2523,32 +2554,15 @@ const genOptProblemAndState = (trans: Translation): State => {
 
 //#endregion
 
-export const parseStyle = (p: string): StyProg => {
+export const parseStyle = (p: string): Result<StyProg, ParseError> => {
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
-
-  const { results } = parser.feed(p);
-  const ast: StyProg = results[0] as StyProg;
-  return ast;
-};
-
-// Run the Domain + Substance parsers and checkers to yield the Style compiler's input
-// files must follow schema: { domain, substance, style }
-export const loadProgs = ([domainStr, subStr, styStr]: [string, string, string]): [Env, SubstanceEnv, SubProg, StyProg] => {
-  const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
-  const env0: Env = unsafelyUnwrap(domainProgRes);
-
-  // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
-  const subProg: SubProg = parseSubstance(subStr);
-  const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(
-    subStr,
-    env0
-  );
-
-  const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
-  const styProg: StyProg = parseStyle(styStr);
-
-  const res: [Env, SubstanceEnv, SubProg, StyProg] = [varEnv, subEnv, subProg, styProg];
-  return res;
+  try {
+    const { results } = parser.feed(p);
+    const ast: StyProg = results[0] as StyProg;
+    return ok(ast);
+  } catch (e) {
+    return err(parseError(e));
+  }
 };
 
 // NOTE: Mutates stmt
@@ -2583,18 +2597,26 @@ const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
   }
 };
 
-
 // For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
 // NOTE: mutates Substance AST
 export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt))
+  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
 };
 
-
-export const compileStyle = (stySource: string,  subEnv: SubstanceEnv, varEnv: Env) : Result<State, PenroseError> => {
-
+export const compileStyle = (
+  stySource: string,
+  subEnv: SubstanceEnv,
+  varEnv: Env
+): Result<State, PenroseError> => {
   const subProg = subEnv.ast;
-  const styProgInit = parseStyle(stySource);
+
+  const astOk = parseStyle(stySource);
+  let styProgInit;
+  if (astOk.isOk()) {
+    styProgInit = astOk.value;
+  } else {
+    return err({ ...astOk.error, errorType: "StyleError" });
+  }
 
   // disambiguate Func into the right form in Substance grammar #453 -- mutates Substance AST since children are references
   disambiguateFunctions(varEnv, subProg);
@@ -2610,7 +2632,7 @@ export const compileStyle = (stySource: string,  subEnv: SubstanceEnv, varEnv: E
   );
 
   if (selErrs.length > 0) {
-    return err(styleError(selErrs));
+    return err(genericStyleError(selErrs));
   }
 
   // Leaving these logs in because they are still useful for debugging, but TODO: remove them
@@ -2650,7 +2672,7 @@ export const compileStyle = (stySource: string,  subEnv: SubstanceEnv, varEnv: E
   // Translation failed somewhere. // TODO: Check that errors are returned in a consistent order
   if (translateRes.tag === "Left") {
     // const err = `Could not compile. Error(s) in Style while generating translation`;
-    return err(styleError(translateRes.contents));
+    return err(genericStyleError(translateRes.contents));
   }
 
   const trans = translateRes.contents;

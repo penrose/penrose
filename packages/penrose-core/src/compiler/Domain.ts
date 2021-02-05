@@ -1,32 +1,36 @@
-import domainGrammar from "parser/DomainParser";
 import { alg, Graph } from "graphlib";
 import { Map } from "immutable";
-import { every, keyBy, result, zipWith } from "lodash";
+import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
+import domainGrammar from "parser/DomainParser";
 import { idOf } from "parser/ParserUtil";
 import {
-  every as everyResult,
   and,
   andThen,
-  argLengthMismatch,
   cyclicSubtypes,
   duplicateName,
   err,
+  every as everyResult,
   notTypeConsInPrelude,
   notTypeConsInSubtype,
   ok,
+  parseError,
   Result,
   safeChain,
   typeNotFound,
 } from "utils/Error";
 
-export const parseDomain = (prog: string): DomainProg => {
+export const parseDomain = (prog: string): Result<DomainProg, ParseError> => {
   const parser = new nearley.Parser(
     nearley.Grammar.fromCompiled(domainGrammar)
   );
-  const { results } = parser.feed(prog);
-  const ast: DomainProg = results[0] as DomainProg;
-  return ast;
+  try {
+    const { results } = parser.feed(prog);
+    const ast: DomainProg = results[0] as DomainProg;
+    return ok(ast);
+  } catch (e) {
+    return err(parseError(e));
+  }
 };
 
 /**
@@ -35,11 +39,16 @@ export const parseDomain = (prog: string): DomainProg => {
  * @param prog Domain program string
  */
 export const compileDomain = (prog: string): Result<Env, PenroseError> => {
-  const ast = parseDomain(prog);
-  return checkDomain(ast).match({
-    Ok: (env) => ok(env),
-    Err: (e) => err({ ...e, errorType: "DomainError" }),
-  });
+  const astOk = parseDomain(prog);
+  if (astOk.isOk()) {
+    const ast = astOk.value;
+    return checkDomain(ast).match({
+      Ok: (env) => ok(env),
+      Err: (e) => err({ ...e, errorType: "DomainError" }),
+    });
+  } else {
+    return err({ ...astOk.error, errorType: "DomainError" });
+  }
 };
 
 export type CheckerResult = Result<Env, DomainError>;

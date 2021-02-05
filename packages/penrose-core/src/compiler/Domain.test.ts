@@ -1,4 +1,4 @@
-import { CheckerResult, compileDomain, Env, isSubtype } from "compiler/Domain";
+import { compileDomain, Env, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
@@ -150,6 +150,12 @@ describe("Errors", () => {
       fail(`Error ${errorType} was suppoed to occur.`);
     }
   };
+  test("Parse error", () => {
+    const prog = `
+type Set somethingthatshouldn'tparse
+    `;
+    expectErrorOf(prog, "ParseError");
+  });
   test("Duplicate names", () => {
     const prog = `
 type Set 

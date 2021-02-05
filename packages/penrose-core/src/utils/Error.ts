@@ -5,8 +5,15 @@ const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr } = Result;
 // #region error rendering and construction
 
 // TODO: fix template formatting
-export const showError = (error: DomainError | SubstanceError): string => {
+export const showError = (
+  error: DomainError | SubstanceError | StyleError
+): string => {
   switch (error.tag) {
+    case "GenericStyleError": {
+      return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
+    }
+    case "ParseError":
+      return error.message;
     case "TypeDeclared": {
       return `Type ${error.typeName.value} already exists.`;
     }
@@ -45,11 +52,11 @@ export const showError = (error: DomainError | SubstanceError): string => {
       )}) already exists, first declared at ${loc(firstDefined)}.`;
     }
     case "NotTypeConsInSubtype": {
-      if (error.type.tag === "Prop")
-        {return `Prop (at ${loc(
+      if (error.type.tag === "Prop") {
+        return `Prop (at ${loc(
           error.type
-        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;}
-      else {
+        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
+      } else {
         return `${error.type.name.value} (at ${loc(
           error.type
         )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
@@ -61,11 +68,11 @@ export const showError = (error: DomainError | SubstanceError): string => {
       )}`;
     }
     case "NotTypeConsInPrelude": {
-      if (error.type.tag === "Prop")
-        {return `Prop (at ${loc(
+      if (error.type.tag === "Prop") {
+        return `Prop (at ${loc(
           error.type
-        )}) is not a type constructor. Only type constructors are allowed for prelude values.`;}
-      else {
+        )}) is not a type constructor. Only type constructors are allowed for prelude values.`;
+      } else {
         return `${error.type.name.value} (at ${loc(
           error.type
         )}) is not a type constructor. Only type constructors are allowed in prelude values.`;
@@ -83,27 +90,27 @@ export const showError = (error: DomainError | SubstanceError): string => {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `${expectedType.args.length} arguments expected for type ${
         expectedType.name.value
-        } (defined at ${loc(expectedExpr)}), but ${
+      } (defined at ${loc(expectedExpr)}), but ${
         sourceType.args.length
-        } arguments were given for ${sourceType.name.value} at ${loc(
-          sourceExpr
-        )} `;
+      } arguments were given for ${sourceType.name.value} at ${loc(
+        sourceExpr
+      )} `;
     }
     case "ArgLengthMismatch": {
       const { name, argsGiven, argsExpected, sourceExpr, expectedExpr } = error;
       return `${name.value} expects ${
         argsExpected.length
-        } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
+      } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
         argsGiven.length
-        } arguments instead at ${loc(sourceExpr)}.`;
+      } arguments instead at ${loc(sourceExpr)}.`;
     }
     case "DeconstructNonconstructor": {
       const { variable, field } = error.deconstructor;
       return `Becuase ${variable.value} is not bound to a constructor, ${
         variable.value
-        }.${field.value} (at ${loc(
-          error.deconstructor
-        )}) does not correspond to a field value.`;
+      }.${field.value} (at ${loc(
+        error.deconstructor
+      )}) does not correspond to a field value.`;
     }
     case "UnexpectedExprForNestedPred": {
       const { sourceExpr, sourceType, expectedExpr } = error;
@@ -237,8 +244,14 @@ export const fatalError = (message: string): FatalError => ({
   message,
 });
 
-export const styleError = (messages: string[]): PenroseError => ({
+export const parseError = (message: string): ParseError => ({
+  tag: "ParseError",
+  message,
+});
+
+export const genericStyleError = (messages: string[]): PenroseError => ({
   errorType: "StyleError",
+  tag: "GenericStyleError",
   messages,
 });
 
@@ -246,7 +259,7 @@ export const styleError = (messages: string[]): PenroseError => ({
 // TODO: Show file name
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1} of ${
-  node.nodeType
+    node.nodeType
   } program`;
 
 // #endregion
@@ -297,6 +310,18 @@ export const all = <Ok, Error>(
 };
 
 // NOTE: re-export all true-myth types to reduce boilerplate
-export { Maybe, Result, and, or, ok, err, andThen, ap, match, unsafelyUnwrap, isErr };
+export {
+  Maybe,
+  Result,
+  and,
+  or,
+  ok,
+  err,
+  andThen,
+  ap,
+  match,
+  unsafelyUnwrap,
+  isErr,
+};
 
 // #endregion
