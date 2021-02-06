@@ -7,6 +7,11 @@ export const attrFill = ({ properties }: IShape, elem: SVGElement) => {
   elem.setAttribute("fill-opacity", alpha.toString());
 };
 
+export const attrOpacity = ({ properties }: IShape, elem: SVGElement) => {
+  const opacity = (properties.opacity as IFloatV<number>).contents;
+  elem.setAttribute("opacity", opacity.toString());
+};
+
 export const attrCenter = (
   { properties }: IShape,
   canvasSize: [number, number],
@@ -18,7 +23,7 @@ export const attrCenter = (
   elem.setAttribute("cy", y.toString());
 };
 
-export const attrCoords = (
+export const attrTransformCoords = (
   { properties }: IShape,
   canvasSize: [number, number],
   elem: SVGElement
@@ -31,6 +36,19 @@ export const attrCoords = (
     "transform",
     `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
   );
+};
+
+export const attrXY = (
+  { properties }: IShape,
+  canvasSize: [number, number],
+  elem: SVGElement
+) => {
+  const center = properties.center as IVectorV<number>;
+  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const w = properties.w as IFloatV<number>;
+  const h = properties.h as IFloatV<number>;
+  elem.setAttribute("x", (x - w.contents / 2).toString());
+  elem.setAttribute("y", (y - h.contents / 2).toString());
 };
 
 export const attrSideCoords = (

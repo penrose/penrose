@@ -1,11 +1,9 @@
 import {
-  attrCoords,
   attrFill,
   attrSide,
   attrSideCoords,
   attrStroke,
   attrTitle,
-  attrWH,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 

@@ -1,10 +1,10 @@
 import { retrieveLabel } from "utils/CollectLabels";
-import { attrCoords, attrFill, attrTitle, attrWH } from "./AttrHelper";
+import { attrFill, attrTitle, attrTransformCoords, attrWH } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  attrCoords(shape, canvasSize, elem);
+  attrTransformCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);
   const name = shape.properties.name as IStrV<string>;
   if (retrieveLabel(name.contents, labels) !== undefined) {
