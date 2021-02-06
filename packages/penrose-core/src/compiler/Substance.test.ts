@@ -71,6 +71,17 @@ describe("Common", () => {
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
   });
+  test("trailing comment", () => {
+    const prog = `
+Set A
+Set B
+Set C
+Set D
+-- Set E`;
+    const env = envOrError(domainProg);
+    const res = compileSubstance(prog, env);
+    expect(res.isOk()).toBe(true);
+  });
 });
 
 describe("Postprocess", () => {

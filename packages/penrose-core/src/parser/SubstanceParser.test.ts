@@ -78,6 +78,26 @@ AutoLabel All
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+  test("no trailing newline", () => {
+    const prog = `
+Set A
+Set B
+Set C
+Set D
+Set E`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  test("trailing comment", () => {
+    const prog = `
+Set A
+Set B
+Set C
+Set D
+-- Set E`;
+    const { results } = parser.feed(prog).feed("\n");
+    sameASTs(results);
+  });
 });
 
 describe("statements", () => {
