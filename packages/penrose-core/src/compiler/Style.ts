@@ -6,7 +6,7 @@ import { Graph, alg } from "graphlib";
 import * as _ from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
-import { canvasXRange, findDef, PropType, Sampler, ShapeDef } from "shapes/ShapeDef";
+import { canvasXRange, findDef, PropType, Sampler, ShapeDef } from "renderer/ShapeDef";
 import { err, isErr, ok, Result, styleError, unsafelyUnwrap } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";

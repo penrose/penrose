@@ -1,5 +1,5 @@
 import shapeMap from "./shapeMap";
-import { canvasSize } from "shapes/ShapeDef";
+import { canvasSize } from "renderer/ShapeDef";
 
 export interface ShapeProps {
   shape: IShape;

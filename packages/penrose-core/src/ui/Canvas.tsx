@@ -1,7 +1,7 @@
 import { updateVaryingValues } from "engine/PropagateUpdate";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import * as Shapes from "shapes/ShapeDef";
+import * as Shapes from "renderer/ShapeDef";
 import Log from "utils/Log";
 
 interface ICanvasProps {

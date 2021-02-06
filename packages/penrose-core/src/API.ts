@@ -9,9 +9,8 @@ import {
 import { evalShapes } from "engine/Evaluator";
 import { step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
-import React from "react";
-import ReactDOM from "react-dom";
-import { notEmptyLabel, resampleBest, sortShapes } from "shapes/ShapeDef";
+import RenderStatic from "renderer/Renderer";
+import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
 import Embed from "ui/Embed";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result } from "utils/Error";
@@ -45,7 +44,7 @@ export const diagram = async (
   node: HTMLElement
 ): Promise<void> => {
   data.labelCache = await collectLabels(data.shapes);
-  ReactDOM.render(<Embed data={data} />, node);
+  node.appendChild(RenderStatic(data.shapes, data.labelCache));
 };
 
 /**
