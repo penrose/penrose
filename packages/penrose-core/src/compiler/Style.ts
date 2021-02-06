@@ -2557,7 +2557,7 @@ const genOptProblemAndState = (trans: Translation): State => {
 export const parseStyle = (p: string): Result<StyProg, ParseError> => {
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
   try {
-    const { results } = parser.feed(p);
+    const { results } = parser.feed(p).feed("\n");
     const ast: StyProg = results[0] as StyProg;
     return ok(ast);
   } catch (e) {

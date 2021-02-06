@@ -25,7 +25,7 @@ export const parseDomain = (prog: string): Result<DomainProg, ParseError> => {
     nearley.Grammar.fromCompiled(domainGrammar)
   );
   try {
-    const { results } = parser.feed(prog);
+    const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
     const ast: DomainProg = results[0] as DomainProg;
     return ok(ast);
   } catch (e) {

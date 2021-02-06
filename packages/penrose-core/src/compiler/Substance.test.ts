@@ -77,8 +77,7 @@ Set A
 Set B
 Set C
 Set D
--- Set E
-    `;
+-- Set E`;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);

@@ -33,7 +33,7 @@ export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
     nearley.Grammar.fromCompiled(substanceGrammar)
   );
   try {
-    const { results } = parser.feed(prog);
+    const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
     const ast: SubProg = results[0] as SubProg;
     return ok(ast);
   } catch (e) {
