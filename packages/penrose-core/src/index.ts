@@ -11,7 +11,6 @@ import { step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic from "renderer/Renderer";
 import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
-import Embed from "ui/Embed";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result } from "utils/Error";
 import { loadImages } from "utils/Util";

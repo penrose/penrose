@@ -1,5 +1,9 @@
 {
-  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "extends": [
+    "tslint:recommended",
+    "tslint-react",
+    "tslint-config-prettier"
+  ],
   "linterOptions": {
     "exclude": [
       "config/**/*.js",
@@ -10,7 +14,10 @@
     ]
   },
   "rules": {
-    "curly": [true, "ignore-same-line"],
+    "curly": [
+      true,
+      "ignore-same-line"
+    ],
     "no-console": false,
     "jsx-no-lambda": false,
     "object-literal-sort-keys": false,
@@ -19,7 +26,10 @@
     "array-type": false,
     "one-variable-per-declaration": false,
     "variable-name": {
-      "options": ["allow-snake-case", "allow-pascal-case"]
+      "options": [
+        "allow-snake-case",
+        "allow-pascal-case"
+      ]
     },
     "member-ordering": false
   }

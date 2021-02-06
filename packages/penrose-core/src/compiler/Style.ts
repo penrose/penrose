@@ -1,4 +1,4 @@
-import { compileDomain, compileSubstance, parseSubstance } from "API";
+import { compileDomain, compileSubstance, parseSubstance } from "index";
 import { checkExpr, checkPredicate, checkVar, LabelMap, SubstanceEnv } from "compiler/Substance";
 import { constOf, numOf } from "engine/Autodiff";
 import { addWarn, defaultLbfgsParams, findExpr, initConstraintWeight, insertExpr, insertExprs, insertGPI, isPath, valueNumberToAutodiffConst } from "engine/EngineUtils";
