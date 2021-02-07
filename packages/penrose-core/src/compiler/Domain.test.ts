@@ -209,7 +209,7 @@ constructor Cons ['X] : 'X head * List('X) tail -> List('X)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveContexts && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 

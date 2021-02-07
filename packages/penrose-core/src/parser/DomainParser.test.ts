@@ -214,7 +214,7 @@ List('T) <: List('U)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveASTs && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 

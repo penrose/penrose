@@ -171,7 +171,7 @@ CreateSubset(A, B) = CreateSubset(B, C)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveASTs && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 
