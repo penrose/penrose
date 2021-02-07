@@ -6,7 +6,7 @@ import * as path from "path";
 import { Result, showError } from "utils/Error";
 
 const outputDir = "/tmp/contexts";
-const saveContexts = true;
+const saveContexts = false;
 const printError = false;
 
 const domainPaths = [
