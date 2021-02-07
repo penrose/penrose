@@ -6,7 +6,7 @@ import * as fs from "fs";
 import { result } from "lodash";
 
 const outputDir = "/tmp/asts";
-const saveASTs = true;
+const saveASTs = false;
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
@@ -427,7 +427,7 @@ testing {
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveASTs && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 

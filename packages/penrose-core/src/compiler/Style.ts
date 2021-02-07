@@ -41,6 +41,7 @@ import {
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import consola, { LogLevel } from "consola";
+import seedrandom from "seedrandom";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -2495,7 +2496,6 @@ const genOptProblemAndState = (trans: Translation): State => {
   const shapePathList: [string, string][] = findShapeNames(trans);
   const shapePaths = shapePathList.map(mkPath);
 
-  // COMBAK: Use pseudorandomness
   // sample varying fieldsr
   const transInitFields = initFields(varyingPaths, trans);
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation

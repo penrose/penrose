@@ -441,7 +441,7 @@ l := Cons(A, nil)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveContexts && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 

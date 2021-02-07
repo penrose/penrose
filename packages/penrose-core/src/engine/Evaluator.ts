@@ -1039,7 +1039,7 @@ export const findExpr = (
  * @param json plain object encoding `State` of the diagram
  */
 export const decodeState = (json: any): State => {
-  const rng: prng = seedrandom(json.rng, { global: true });
+  // const rng: prng = seedrandom(json.rng, { global: true });
   const state = {
     ...json,
     varyingValues: json.varyingState,
@@ -1051,7 +1051,7 @@ export const decodeState = (json: any): State => {
     varyingMap: genPathMap(json.varyingPaths, json.varyingState),
     params: json.paramsr,
     pendingMap: new Map(),
-    rng,
+    rng: undefined,
   };
   // cache energy function
   // state.overallObjective = evalEnergyOn(state);

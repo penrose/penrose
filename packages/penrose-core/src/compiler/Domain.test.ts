@@ -6,7 +6,7 @@ import * as path from "path";
 import { Result, showError } from "utils/Error";
 
 const outputDir = "/tmp/contexts";
-const saveContexts = true;
+const saveContexts = false;
 const printError = false;
 
 const domainPaths = [
@@ -209,7 +209,7 @@ constructor Cons ['X] : 'X head * List('X) tail -> List('X)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveContexts && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 
