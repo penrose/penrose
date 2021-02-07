@@ -3,9 +3,9 @@ import { ShapeProps } from "./Renderer";
 
 const Image = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "image");
-  const path = shape.properties.path.contents;
+  const path = (shape.properties.path as IStrV<string>).contents;
   // TODO: will this work?
-  elem.setAttribute("href", process.env.PUBLIC_URL + path);
+  elem.setAttribute("href", path);
   attrOpacity(shape, elem);
   attrXY(shape, canvasSize, elem);
   attrWH(shape, elem);

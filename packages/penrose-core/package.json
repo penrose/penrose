@@ -13,6 +13,7 @@
     "test": "jest --watchAll=false",
     "test:watch": "jest",
     "build": "rollup -c",
+    "start": "./build.js -watch",
     "pretest": "npm run build:parsers",
     "prebuild-lib": "npm run build:parsers",
     "docs": "typedoc --out docs src",
@@ -23,6 +24,8 @@
   "dependencies": {
     "@penrose/linear-algebra": "^1.0.0",
     "consola": "^2.15.2",
+    "fast-memoize": "^2.5.2",
+    "graphlib": "^2.1.8",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",
@@ -32,7 +35,6 @@
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.1.1",
     "@types/graphlib": "^2.1.7",
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.149",
@@ -47,7 +49,9 @@
     "eslint-plugin-jsdoc": "^30.7.3",
     "jest": "^26.6.3",
     "rollup": "^2.38.5",
+    "rollup-plugin-typescript2": "^0.29.0",
     "ts-jest": "^26.4.4",
+    "tslib": "^2.1.0",
     "typedoc": "^0.19.2",
     "typescript": "^4.1.3"
   }

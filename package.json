@@ -13,18 +13,29 @@
     "test": "lerna run test --stream",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --yes",
+    "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
+    "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
     "diff": "lerna diff"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "husky": "^4.3.8",
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "prettier": "2.2.1",
+    "pretty-quick": "^3.1.0",
+    "typescript": "^4.1.3"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test"
+      "pre-commit": "yarn test && pretty-quick --staged"
     }
   },
-  "workspaces": [
-    "packages/*"
-  ]
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@types/jest"
+    ]
+  }
 }

@@ -21,7 +21,7 @@
     "skipLibCheck": true,
     "downlevelIteration": true,
     "types": ["jest", "node", "tslib"],
-    "typeRoots": ["src/types", "node_modules/@types", "../node_modules/@types"],
+    "typeRoots": ["src/types", "node_modules/@types"],
     "esModuleInterop": true,
     "isolatedModules": true,
     "noEmit": true,

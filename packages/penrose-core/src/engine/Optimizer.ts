@@ -14,7 +14,7 @@ import {
   makeTranslationDifferentiable,
   makeTranslationNumeric,
   defaultLbfgsParams,
-  initConstraintWeight
+  initConstraintWeight,
 } from "engine/EngineUtils";
 import { normList, repeat, prettyPrintPath } from "utils/OtherUtils";
 import {
@@ -153,11 +153,21 @@ export const step = (state: State, steps: number, evaluate = true) => {
   let xs: number[] = state.varyingValues;
 
   console.log("===============");
-  console.log("step | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
+  console.log(
+    "step | weight: ",
+    weight,
+    "| EP round: ",
+    optParams.EPround,
+    " | UO round: ",
+    optParams.UOround
+  );
   console.log("params: ", optParams);
   // console.log("state: ", state);
   console.log("fns: ", prettyPrintFns(state));
-  console.log("variables: ", state.varyingPaths.map((p: Path): string => prettyPrintPath(p)));
+  console.log(
+    "variables: ",
+    state.varyingPaths.map((p: Path): string => prettyPrintPath(p))
+  );
 
   switch (optStatus.tag) {
     case "NewIter": {
@@ -253,12 +263,24 @@ export const step = (state: State, steps: number, evaluate = true) => {
       // NOTE: use cached varying values
       console.log("step step, xs", xs);
 
-      const res = minimize(xs, state.params.currObjective, state.params.currGradient, state.params.lbfgsInfo, state.varyingPaths.map((p) => JSON.stringify(p)));
+      const res = minimize(
+        xs,
+        state.params.currObjective,
+        state.params.currGradient,
+        state.params.lbfgsInfo,
+        state.varyingPaths.map((p) => JSON.stringify(p))
+      );
       xs = res.xs;
 
       // the new `xs` is put into the `newState`, which is returned at end of function
       // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
-      const { energyVal, normGrad, newLbfgsInfo, gradient, gradientPreconditioned } = res;
+      const {
+        energyVal,
+        normGrad,
+        newLbfgsInfo,
+        gradient,
+        gradientPreconditioned,
+      } = res;
 
       optParams.lastUOstate = xs;
       optParams.lastUOenergy = energyVal;
@@ -826,7 +848,12 @@ const minimize = (
 
       for (let [name, x, dx] of pathMap) {
         if (isNaN(dx)) {
-          console.log("NaN in varying val's gradient", name, "(current val):", x);
+          console.log(
+            "NaN in varying val's gradient",
+            name,
+            "(current val):",
+            x
+          );
         }
       }
 
@@ -886,7 +913,9 @@ export const evalEnergyOnCustom = (state: State) => {
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
     const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: VarAD[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
+    const constrEngs: VarAD[] = constrEvaled.map((c) =>
+      fns.toPenalty(applyFn(c, constrDict))
+    );
 
     // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // The energies are in the val field of the results (w/o grads)
@@ -899,16 +928,26 @@ export const evalEnergyOnCustom = (state: State) => {
     }
 
     // This is fixed during the whole optimization
-    const constrWeightNode = varOf(constraintWeight, String(constraintWeight), "constraintWeight");
+    const constrWeightNode = varOf(
+      constraintWeight,
+      String(constraintWeight),
+      "constraintWeight"
+    );
 
     // This changes with the EP round, gets bigger to weight the constraints
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight (-1 is an index; means it appears as the first argument)
-    const epWeightNode = markInput(varOf(state.params.weight, String(state.params.weight), "epWeight"), -1);
+    const epWeightNode = markInput(
+      varOf(state.params.weight, String(state.params.weight), "epWeight"),
+      -1
+    );
 
     const objEng: VarAD = ops.vsum(objEngs);
     const constrEng: VarAD = ops.vsum(constrEngs);
     // F(x) = o(x) + c0 * penalty * c(x)
-    const overallEng: VarAD = add(objEng, mul(constrEng, mul(constrWeightNode, epWeightNode)));
+    const overallEng: VarAD = add(
+      objEng,
+      mul(constrEng, mul(constrWeightNode, epWeightNode))
+    );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
     overallEng.gradVal = { tag: "Just", contents: 1.0 };
