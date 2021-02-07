@@ -5,7 +5,7 @@ import * as fs from "fs";
 import { result } from "lodash";
 
 const outputDir = "/tmp/asts";
-const saveASTs = true;
+const saveASTs = false;
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
