@@ -145,6 +145,7 @@ const cartesianProduct = (...a: any[]) =>
   a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())));
 
 const pathString = (p: Path): string => {
+  // COMBAK: This should be replaced by prettyPrintPath
   if (p.tag === "FieldPath") {
     return `${p.name.contents.value}.${p.field.value}`;
   } else if (p.tag === "PropertyPath") {
@@ -1451,6 +1452,7 @@ const deleteProperty = (
   property: Identifier
 ): Translation => {
   const trn = trans.trMap;
+  // TODO(errors): pass in the original path here, and use it in the errors
   const pathStr = pathString({
     tag: "PropertyPath",
     name,
@@ -1466,16 +1468,23 @@ const deleteProperty = (
 
   if (!fieldDict) {
     // TODO(errors / warnings): Should this be fatal?
-    const err = `Err: Sub obj '${nm}' has no fields; can't delete path '${pathStr}'`;
-    return addWarn(trans, err);
+    return addWarn(trans, {
+      tag: "DeletedPropWithNoSubObjError",
+      subObj: name,
+      path: { tag: "PropertyPath", name, field, property, } as Path
+    });
   }
 
   const prop: FieldExpr<VarAD> = fieldDict[fld];
 
   if (!prop) {
     // TODO(errors / warnings): Should this be fatal?
-    const err = `Err: Sub obj '${nm}' already lacks field '${fld}'; can't delete path ${pathStr}`;
-    return addWarn(trans, err);
+    return addWarn(trans, {
+      tag: "DeletedPropWithNoFieldError",
+      subObj: name,
+      field,
+      path: { tag: "PropertyPath", name, field, property, } as Path
+    });
   }
 
   if (prop.tag === "FExpr") {
@@ -1488,16 +1497,20 @@ const deleteProperty = (
         const p = prop.contents.contents;
         if (varsEq(p.name.contents, name.contents) && varsEq(p.field, field)) {
           // TODO(error)
-          const warn = `path was aliased to itself`;
-          return addWarn(trans, warn);
+          return addWarn(trans, { tag: "CircularPathAlias", path: { tag: "FieldPath", name, field } as Path });
         }
         return deleteProperty(trans, p.name, p.field, property);
       }
     }
 
     // TODO(error)
-    const warn = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot delete property '${property.value}'`;
-    return addWarn(trans, warn);
+    return addWarn(trans, {
+      tag: "DeletedPropWithNoGPIError",
+      subObj: name,
+      field,
+      property,
+      path: { tag: "PropertyPath", name, field, property, } as Path
+    });
   } else if (prop.tag === "FGPI") {
     // TODO(error, warning): check if the property is member of properties of GPI
     const gpiDict = prop.contents[1];
@@ -1512,20 +1525,29 @@ const deleteField = (
   name: BindingForm,
   field: Identifier
 ): Translation => {
-  // TODO(errors)
+
+  // TODO(errors): Pass in the original path for error reporting
   const trn = trans.trMap;
   const fieldDict = trn[name.contents.value];
 
   if (!fieldDict) {
     // TODO(errors / warnings)
-    const warn = `Err: Sub obj '${name.contents.value}' has no fields; can't delete field '${field.value}'`;
-    return addWarn(trans, warn);
+    return addWarn(trans, {
+      tag: "DeletedNonexistentFieldError",
+      subObj: name,
+      field,
+      path: { tag: "FieldPath", name, field } as Path
+    });
   }
 
   if (!(field.value in fieldDict)) {
     // TODO(errors / warnings)
-    const warn = `Warn: SubObj '${name.contents.value}' already lacks field '${field.value}'`;
-    return addWarn(trans, warn);
+    return addWarn(trans, {
+      tag: "DeletedNonexistentFieldError",
+      subObj: name,
+      field,
+      path: { tag: "FieldPath", name, field } as Path
+    });
   }
 
   delete fieldDict[field.value];
@@ -1538,7 +1560,6 @@ const deletePath = (
   trans: Translation,
   path: Path
 ): Either<StyErrors, Translation> => {
-  // TODO(errors): Maybe fix how warnings are reported? Right now they are put into the "translation"
   if (path.tag === "FieldPath") {
     const transWithWarnings = deleteField(trans, path.name, path.field);
     return Right(transWithWarnings);
@@ -1552,7 +1573,8 @@ const deletePath = (
     return Right(transWithWarnings);
   } else if (path.tag === "AccessPath") {
     // TODO(error)
-    return Left([`Cannot delete an element of a vector: ${path}`]);
+    const err: StyError = { tag: "DeletedVectorElemError", path };
+    return Left([err]);
   } else if (path.tag === "InternalLocalVar") {
     throw Error(
       "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"

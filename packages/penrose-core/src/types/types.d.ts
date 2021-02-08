@@ -56,7 +56,7 @@ type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
 interface ITrans<T> {
   // TODO: compGraph
   trMap: TrMap<T>;
-  warnings: string[];
+  warnings: StyError[];
 }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
@@ -1681,7 +1681,7 @@ interface ErrorSource {
   node: ASTNode;
 }
 
-type Warning = string;
+type Warning = StyError;
 //#endregion
 
 //#region Style errors
@@ -1695,6 +1695,12 @@ type StyError =
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
   | TaggedSubstanceError
+  | DeletedPropWithNoSubObjError
+  | DeletedPropWithNoFieldError
+  | DeletedPropWithNoGPIError
+  | CircularPathAlias
+  | DeletedNonexistentFieldError
+  | DeletedVectorElemError
   | string;
 
 interface SelectorDeclTypeError {
@@ -1723,4 +1729,43 @@ interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
   error: SubstanceError
 };
+
+interface DeletedPropWithNoSubObjError {
+  tag: "DeletedPropWithNoSubObjError";
+  subObj: BindingForm;
+  path: Path;
+};
+
+interface DeletedPropWithNoFieldError {
+  tag: "DeletedPropWithNoFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  path: Path;
+};
+
+interface CircularPathAlias {
+  tag: "CircularPathAlias";
+  path: Path;
+};
+
+interface DeletedPropWithNoGPIError {
+  tag: "DeletedPropWithNoGPIError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+};
+
+interface DeletedNonexistentFieldError {
+  tag: "DeletedNonexistentFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  path: Path;
+};
+
+interface DeletedVectorElemError {
+  tag: "DeletedVectorElemError";
+  path: Path;
+};
+
 //#endregion

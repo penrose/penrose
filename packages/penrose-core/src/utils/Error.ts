@@ -1,9 +1,18 @@
 import { showType } from "compiler/Domain";
+import { prettyPrintPath } from "utils/OtherUtils";
 import { Maybe, Result } from "true-myth";
 const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr, unsafelyGetErr } = Result;
 
 //#region Style errors
 // COMBAK combine with overall `show` function
+
+// COMBAK What's a better way to model warnings?
+export const styWarnings = [
+  "DeletedPropWithNoSubObjError",
+  "DeletedPropWithNoFieldError",
+  "DeletedPropWithNoGPIError",
+  "DeletedNonexistentFieldError",
+];
 
 // COMBAK suggest improvements
 export const showStyErr = (e: StyError): string => {
@@ -30,6 +39,31 @@ export const showStyErr = (e: StyError): string => {
 
       case "TaggedSubstanceError": {
         return showError(e.error); // Substance error
+      };
+
+      case "DeletedPropWithNoSubObjError": {
+        return `Sub obj '${e.subObj.contents.value}' has no fields; can't delete path '${prettyPrintPath(e.path)}'`;
+      };
+
+      case "DeletedPropWithNoFieldError": {
+        return `Sub obj '${e.subObj.contents.value}' already lacks field ${e.field.value}; can't delete path '${prettyPrintPath(e.path)}'`;
+      };
+
+      case "CircularPathAlias": {
+        return `Path ${prettyPrintPath(e.path)} was aliased to itself`;
+      };
+
+      case "DeletedPropWithNoGPIError": {
+        return `Sub obj '${e.subObj.contents.value}' does not have GPI '${e.field.value}'; cannot delete property '${e.property.value} in ${prettyPrintPath(e.path)}'`;
+      };
+
+      // TODO: Use input path to report location?
+      case "DeletedNonexistentFieldError": {
+        return `Trying to delete '${e.field.value} from SubObj '${e.subObj.contents.value}', which already lacks the field`;
+      };
+
+      case "DeletedVectorElemError": {
+        return `Cannot delete an element of a vector: ${prettyPrintPath(e.path)}`;
       };
 
       default: {
