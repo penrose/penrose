@@ -33,7 +33,13 @@ type DomainError =
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
 
-type StyleError = ParseError | GenericStyleError;
+// COMBAK: Move it from the other file
+type StyleError =
+  // Selector errors (from Substance)
+  // | SelectorDeclTypeError
+  // Misc errors
+  | ParseError
+  | GenericStyleError;
 
 interface GenericStyleError {
   tag: "GenericStyleError";

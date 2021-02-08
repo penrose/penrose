@@ -37,6 +37,7 @@ import {
   Result,
   genericStyleError,
   unsafelyUnwrap,
+  unsafelyGetErr,
 } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
@@ -259,7 +260,7 @@ const addMapping = (
 };
 
 // add warning/error to end of existing errors in selector env
-const addErrSel = (selEnv: SelEnv, err: string): SelEnv => {
+const addErrSel = (selEnv: SelEnv, err: StyError): SelEnv => {
   return {
     ...selEnv,
     errors: selEnv.errors.concat([err]),
@@ -279,7 +280,7 @@ const checkDeclPatternAndMakeEnv = (
   const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
   if (isErr(typeErr)) {
     // TODO(errors)
-    return addErrSel(selEnv, "substance type error in decl");
+    return addErrSel(selEnv, { tag: "SelectorDeclTypeError", typeName: styType });
   }
 
   const varName: string = bVar.contents.value;
@@ -288,7 +289,7 @@ const checkDeclPatternAndMakeEnv = (
   if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
     return addErrSel(
       selEnv,
-      "Style pattern statement has already declared the variable"
+      { tag: "SelectorVarMultipleDecl", varName: bVar }
     );
   }
 
@@ -317,7 +318,7 @@ const checkDeclPatternAndMakeEnv = (
       // TODO(errors)
       return addErrSel(
         selEnv,
-        "mismatched types or wrong subtypes between Substance and Style variables"
+        { tag: "SelectorDeclTypeMismatch", subType: declType, styType: substanceType }
       );
     }
 
@@ -350,8 +351,10 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
 
     // TODO(error)
     if (isErr(res1)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
-      return ["substance typecheck error in B"];
+      const subErr1: SubstanceError = unsafelyGetErr(res1);
+      // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
+      // return ["substance typecheck error in B"];
+      return [{ tag: "TaggedSubstanceError", error: subErr1 }];
     }
 
     const [vtype, env1] = unsafelyUnwrap(res1);
@@ -362,17 +365,20 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     // TODO(error)
     if (isErr(res2)) {
       // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
-      return ["substance typecheck error in E"];
+      const subErr2: SubstanceError = unsafelyGetErr(res2);
+      return [{ tag: "TaggedSubstanceError", error: subErr2 }];
+      // return ["substance typecheck error in E"];
     }
 
-    const [etype, env2] = unsafelyUnwrap(res1);
+    const [etype, env2] = unsafelyUnwrap(res2);
 
     // T1 = T2
     const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
 
     // TODO(error) -- improve message
     if (!typesEq) {
-      return ["types not equal"];
+      return [{ tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype }];
+      // return ["types not equal"];
     }
 
     return [];
@@ -382,8 +388,9 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
       // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
-      // return unsafelyUnwrapErr(res);
-      return ["substance typecheck error in Pred"];
+      const subErr3: SubstanceError = unsafelyGetErr(res);
+      return [{ tag: "TaggedSubstanceError", error: subErr3 }];
+      // return ["substance typecheck error in Pred"];
     }
     return [];
   } else {
@@ -2682,3 +2689,4 @@ export const compileStyle = (
 
   return ok(initState);
 };
+

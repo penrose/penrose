@@ -1,3 +1,13 @@
+-- SelectorDeclTypeError
+-- forall Setfhjh x { }
+
+-- SelectorVarMultipleDecl
+-- forall Set x; Set x { }
+
+-- SelectorRelTypeMismatch
+-- forall Point x; Set y; Set z
+-- where x := Union(y, z) { }
+
 forall Set x {
     x.icon = Circle {
         strokeWidth : 0.0

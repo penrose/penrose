@@ -1644,7 +1644,7 @@ interface Identifier extends ASTNode {
 
 //#region
 
-type StyErrors = string[];
+type StyErrors = StyError[];
 // TODO: Convert this to StyleError[]
 
 interface Left<A> {
@@ -1682,4 +1682,45 @@ interface ErrorSource {
 }
 
 type Warning = string;
+//#endregion
+
+//#region Style errors
+// COMBAK move out into Error.ts and combine with Error after all style types are converted, and remove string, and get rid of showStyErr
+// At that point, remove genericStyleError use
+
+type StyError =
+  // Selector errors (from Substance)
+  | SelectorDeclTypeError
+  | SelectorVarMultipleDecl
+  | SelectorDeclTypeMismatch
+  | SelectorRelTypeMismatch
+  | TaggedSubstanceError
+  | string;
+
+interface SelectorDeclTypeError {
+  tag: "SelectorDeclTypeError";
+  typeName: identifier;
+};
+
+interface SelectorVarMultipleDecl {
+  tag: "SelectorVarMultipleDecl";
+  varName: BindingForm;
+};
+
+interface SelectorDeclTypeMismatch {
+  tag: "SelectorDeclTypeMismatch";
+  subType: TypeConsApp;
+  styType: TypeConsApp;
+};
+
+interface SelectorRelTypeMismatch {
+  tag: "SelectorRelTypeMismatch";
+  varType: TypeConsApp;
+  exprType: TypeConsApp;
+};
+
+interface TaggedSubstanceError {
+  tag: "TaggedSubstanceError";
+  error: SubstanceError
+};
 //#endregion

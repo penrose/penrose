@@ -1,6 +1,48 @@
 import { showType } from "compiler/Domain";
 import { Maybe, Result } from "true-myth";
-const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr } = Result;
+const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr, unsafelyGetErr } = Result;
+
+//#region Style errors
+// COMBAK combine with overall `show` function
+
+// COMBAK suggest improvements
+export const showStyErr = (e: StyError): string => {
+  // COMBAK fix these matches after strings are gone
+  console.log("showing sty err COMBAK", e);
+
+  if (typeof e === "object") {
+    switch (e.tag) {
+      case "SelectorDeclTypeError": {
+        return "Substance type error in declaration in selector";
+      }
+
+      case "SelectorVarMultipleDecl": {
+        return "Style pattern statement has already declared the variable";
+      }
+
+      case "SelectorDeclTypeMismatch": {
+        return "mismatched types or wrong subtypes between Substance and Style variables in selector";
+      };
+
+      case "SelectorRelTypeMismatch": {
+        return "mismatched types or wrong subtypes between variable and expression in relational statement in selector";
+      };
+
+      case "TaggedSubstanceError": {
+        return showError(e.error); // Substance error
+      };
+
+      default: {
+        throw Error("unknown error");
+      }
+    }
+  } else if (typeof e === "string") {
+    return e;
+  }
+  throw Error("unknown tag");
+};
+
+//#endregion
 
 // #region error rendering and construction
 
@@ -90,27 +132,27 @@ export const showError = (
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `${expectedType.args.length} arguments expected for type ${
         expectedType.name.value
-      } (defined at ${loc(expectedExpr)}), but ${
+        } (defined at ${loc(expectedExpr)}), but ${
         sourceType.args.length
-      } arguments were given for ${sourceType.name.value} at ${loc(
-        sourceExpr
-      )} `;
+        } arguments were given for ${sourceType.name.value} at ${loc(
+          sourceExpr
+        )} `;
     }
     case "ArgLengthMismatch": {
       const { name, argsGiven, argsExpected, sourceExpr, expectedExpr } = error;
       return `${name.value} expects ${
         argsExpected.length
-      } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
+        } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
         argsGiven.length
-      } arguments instead at ${loc(sourceExpr)}.`;
+        } arguments instead at ${loc(sourceExpr)}.`;
     }
     case "DeconstructNonconstructor": {
       const { variable, field } = error.deconstructor;
       return `Becuase ${variable.value} is not bound to a constructor, ${
         variable.value
-      }.${field.value} (at ${loc(
-        error.deconstructor
-      )}) does not correspond to a field value.`;
+        }.${field.value} (at ${loc(
+          error.deconstructor
+        )}) does not correspond to a field value.`;
     }
     case "UnexpectedExprForNestedPred": {
       const { sourceExpr, sourceType, expectedExpr } = error;
@@ -249,17 +291,17 @@ export const parseError = (message: string): ParseError => ({
   message,
 });
 
-export const genericStyleError = (messages: string[]): PenroseError => ({
+export const genericStyleError = (messages: StyError[]): PenroseError => ({
   errorType: "StyleError",
   tag: "GenericStyleError",
-  messages,
+  messages: messages.map(showStyErr),
 });
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1} of ${
-    node.nodeType
+  node.nodeType
   } program`;
 
 // #endregion
@@ -322,6 +364,7 @@ export {
   match,
   unsafelyUnwrap,
   isErr,
+  unsafelyGetErr
 };
 
 // #endregion
