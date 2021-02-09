@@ -35,6 +35,8 @@
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.1.1",
     "@types/graphlib": "^2.1.7",
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.149",

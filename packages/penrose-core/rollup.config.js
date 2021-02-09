@@ -1,4 +1,6 @@
 import typescript from "rollup-plugin-typescript2";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
 import pkg from "./package.json";
 
 const input = "./src/index.ts";
@@ -6,6 +8,8 @@ const plugins = [
   typescript({
     tsconfig: "tsconfig.json",
   }),
+  nodeResolve(),
+  commonjs(),
 ];
 export default [
   {
