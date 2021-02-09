@@ -7,7 +7,8 @@
 type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
-  | (StyleError & { errorType: "StyleError" });
+  | (StyleError & { errorType: "StyleError" })
+  | StyError; // COMBAK: Remove this
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 type SubstanceError =
@@ -32,24 +33,6 @@ type DomainError =
   | CyclicSubtypes
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
-
-// COMBAK: Move it from the other file
-type StyleError =
-  // Selector errors (from Substance)
-  // | SelectorDeclTypeError
-  // Misc errors
-  | ParseError
-  | GenericStyleError;
-
-interface GenericStyleError {
-  tag: "GenericStyleError";
-  messages: string[];
-}
-
-interface ParseError {
-  tag: "ParseError";
-  message: string;
-}
 
 interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
@@ -135,3 +118,100 @@ interface FatalError {
 type ErrorSource = ASTNode;
 
 //#endregion
+
+//#region Style errors
+
+type StyleError =
+  // Misc errors
+  | ParseError
+  | GenericStyleError
+  // Selector errors (from Substance)
+  | SelectorDeclTypeError
+  | SelectorVarMultipleDecl
+  | SelectorDeclTypeMismatch
+  | SelectorRelTypeMismatch
+  | TaggedSubstanceError
+  // Block errors (deletion)
+  | DeletedPropWithNoSubObjError
+  | DeletedPropWithNoFieldError
+  | DeletedPropWithNoGPIError
+  | CircularPathAlias
+  | DeletedNonexistentFieldError
+  | DeletedVectorElemError;
+
+interface GenericStyleError {
+  tag: "GenericStyleError";
+  messages: string[];
+}
+
+interface ParseError {
+  tag: "ParseError";
+  message: string;
+}
+
+interface SelectorDeclTypeError {
+  tag: "SelectorDeclTypeError";
+  typeName: identifier;
+};
+
+interface SelectorVarMultipleDecl {
+  tag: "SelectorVarMultipleDecl";
+  varName: BindingForm;
+};
+
+interface SelectorDeclTypeMismatch {
+  tag: "SelectorDeclTypeMismatch";
+  subType: TypeConsApp;
+  styType: TypeConsApp;
+};
+
+interface SelectorRelTypeMismatch {
+  tag: "SelectorRelTypeMismatch";
+  varType: TypeConsApp;
+  exprType: TypeConsApp;
+};
+
+interface TaggedSubstanceError {
+  tag: "TaggedSubstanceError";
+  error: SubstanceError
+};
+
+interface DeletedPropWithNoSubObjError {
+  tag: "DeletedPropWithNoSubObjError";
+  subObj: BindingForm;
+  path: Path;
+};
+
+interface DeletedPropWithNoFieldError {
+  tag: "DeletedPropWithNoFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  path: Path;
+};
+
+interface CircularPathAlias {
+  tag: "CircularPathAlias";
+  path: Path;
+};
+
+interface DeletedPropWithNoGPIError {
+  tag: "DeletedPropWithNoGPIError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+};
+
+interface DeletedNonexistentFieldError {
+  tag: "DeletedNonexistentFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  path: Path;
+};
+
+interface DeletedVectorElemError {
+  tag: "DeletedVectorElemError";
+  path: Path;
+};
+
+//#endregion Style errors

@@ -1582,8 +1582,8 @@ interface ISelEnv {
   // Variable => [Substance or Style variable, original data structure with program locs etc]
   skipBlock: Bool;
   header: Maybe<Header>; // Just for debugging
-  warnings: StyErrors;
-  errors: StyErrors;
+  warnings: StyleErrors;
+  errors: StyleErrors;
 }
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
 
@@ -1644,7 +1644,7 @@ interface Identifier extends ASTNode {
 
 //#region
 
-type StyErrors = StyError[];
+type StyleErrors = StyleError[];
 // TODO: Convert this to StyleError[]
 
 interface Left<A> {
@@ -1681,91 +1681,5 @@ interface ErrorSource {
   node: ASTNode;
 }
 
-type Warning = StyError;
-//#endregion
-
-//#region Style errors
-// COMBAK move out into Error.ts and combine with Error after all style types are converted, and remove string, and get rid of showStyErr
-// At that point, remove genericStyleError use
-
-type StyError =
-  // Selector errors (from Substance)
-  | SelectorDeclTypeError
-  | SelectorVarMultipleDecl
-  | SelectorDeclTypeMismatch
-  | SelectorRelTypeMismatch
-  | TaggedSubstanceError
-  | DeletedPropWithNoSubObjError
-  | DeletedPropWithNoFieldError
-  | DeletedPropWithNoGPIError
-  | CircularPathAlias
-  | DeletedNonexistentFieldError
-  | DeletedVectorElemError
-  | string;
-
-interface SelectorDeclTypeError {
-  tag: "SelectorDeclTypeError";
-  typeName: identifier;
-};
-
-interface SelectorVarMultipleDecl {
-  tag: "SelectorVarMultipleDecl";
-  varName: BindingForm;
-};
-
-interface SelectorDeclTypeMismatch {
-  tag: "SelectorDeclTypeMismatch";
-  subType: TypeConsApp;
-  styType: TypeConsApp;
-};
-
-interface SelectorRelTypeMismatch {
-  tag: "SelectorRelTypeMismatch";
-  varType: TypeConsApp;
-  exprType: TypeConsApp;
-};
-
-interface TaggedSubstanceError {
-  tag: "TaggedSubstanceError";
-  error: SubstanceError
-};
-
-interface DeletedPropWithNoSubObjError {
-  tag: "DeletedPropWithNoSubObjError";
-  subObj: BindingForm;
-  path: Path;
-};
-
-interface DeletedPropWithNoFieldError {
-  tag: "DeletedPropWithNoFieldError";
-  subObj: BindingForm;
-  field: Identifier;
-  path: Path;
-};
-
-interface CircularPathAlias {
-  tag: "CircularPathAlias";
-  path: Path;
-};
-
-interface DeletedPropWithNoGPIError {
-  tag: "DeletedPropWithNoGPIError";
-  subObj: BindingForm;
-  field: Identifier;
-  property: Identifier;
-  path: Path;
-};
-
-interface DeletedNonexistentFieldError {
-  tag: "DeletedNonexistentFieldError";
-  subObj: BindingForm;
-  field: Identifier;
-  path: Path;
-};
-
-interface DeletedVectorElemError {
-  tag: "DeletedVectorElemError";
-  path: Path;
-};
-
+type Warning = StyleError;
 //#endregion

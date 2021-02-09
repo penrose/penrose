@@ -38,6 +38,7 @@ import {
   genericStyleError,
   unsafelyUnwrap,
   unsafelyGetErr,
+  firstStyleError
 } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
@@ -261,7 +262,7 @@ const addMapping = (
 };
 
 // add warning/error to end of existing errors in selector env
-const addErrSel = (selEnv: SelEnv, err: StyError): SelEnv => {
+const addErrSel = (selEnv: SelEnv, err: StyleError): SelEnv => {
   return {
     ...selEnv,
     errors: selEnv.errors.concat([err]),
@@ -342,7 +343,7 @@ const checkDeclPatternsAndMakeEnv = (
 
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
-const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
+const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
   // rule Bind-Context
   if (rel.tag === "RelBind") {
     // TODO: use checkSubStmt here (and in paper)?
@@ -365,7 +366,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
 
     // TODO(error)
     if (isErr(res2)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
+      // TODO(error): extract and return error -- how to convert from SubstanceError to StyleError?
       const subErr2: SubstanceError = unsafelyGetErr(res2);
       return [{ tag: "TaggedSubstanceError", error: subErr2 }];
       // return ["substance typecheck error in E"];
@@ -388,7 +389,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     // G |- Q : Prop
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
+      // TODO(error): extract and return error -- how to convert from SubstanceError to StyleError?
       const subErr3: SubstanceError = unsafelyGetErr(res);
       return [{ tag: "TaggedSubstanceError", error: subErr3 }];
       // return ["substance typecheck error in Pred"];
@@ -400,10 +401,10 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
 };
 
 // Judgment 5. G |- [|S_r] ok
-const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyErrors => {
+const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyleErrors => {
   return _.flatMap(
     rels,
-    (rel: RelationPattern): StyErrors => checkRelPattern(varEnv, rel)
+    (rel: RelationPattern): StyleErrors => checkRelPattern(varEnv, rel)
   );
 };
 
@@ -1559,7 +1560,7 @@ const deleteField = (
 const deletePath = (
   trans: Translation,
   path: Path
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   if (path.tag === "FieldPath") {
     const transWithWarnings = deleteField(trans, path.name, path.field);
     return Right(transWithWarnings);
@@ -1573,7 +1574,7 @@ const deletePath = (
     return Right(transWithWarnings);
   } else if (path.tag === "AccessPath") {
     // TODO(error)
-    const err: StyError = { tag: "DeletedVectorElemError", path };
+    const err: StyleError = { tag: "DeletedVectorElemError", path };
     return Left([err]);
   } else if (path.tag === "InternalLocalVar") {
     throw Error(
@@ -1588,7 +1589,7 @@ const addPath = (
   trans: Translation,
   path: Path,
   expr: TagExpr<VarAD>
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
 
@@ -1604,7 +1605,7 @@ const addPath = (
 const translateLine = (
   trans: Translation,
   stmt: Stmt
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   if (stmt.tag === "PathAssign") {
     return addPath(false, trans, stmt.path, {
       tag: "OptEval",
@@ -1626,7 +1627,7 @@ const translateBlock = (
   blockWithNum: [Block, number],
   trans: Translation,
   substWithNum: [Subst, number]
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
   return foldM(blockSubsted.statements, translateLine, trans);
 };
@@ -1637,7 +1638,7 @@ const translateSubstsBlock = (
   trans: Translation,
   substsNum: [Subst, number][],
   blockWithNum: [Block, number]
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   return foldM(
     substsNum,
     (trans, substNum, i) =>
@@ -1646,7 +1647,7 @@ const translateSubstsBlock = (
   );
 };
 
-const checkBlock = (selEnv: SelEnv, block: Block): StyErrors => {
+const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
   // TODO: Block checking and return block errors, not generic sty errors
   // Static semantics would go here
   return [];
@@ -1660,7 +1661,7 @@ const translatePair = (
   trans: Translation,
   hb: HeaderBlock,
   blockNum: number
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   if (hb.header.tag === "Namespace") {
     const selEnv = initSelEnv();
     const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
@@ -1777,7 +1778,7 @@ const translateStyProg = (
   styProg: StyProg,
   labelMap: LabelMap,
   styVals: number[]
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
 
   const res = foldM(
@@ -2656,12 +2657,13 @@ export const compileStyle = (
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
   // TODO(errors/warn): distinguish between errors and warnings
-  const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>
+  const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
     e.warnings.concat(e.errors)
   );
 
   if (selErrs.length > 0) {
-    return err(genericStyleError(selErrs));
+    // TODO(errors): Report all of them, not just the first?
+    return err(firstStyleError(selErrs));
   }
 
   // Leaving these logs in because they are still useful for debugging, but TODO: remove them
@@ -2694,17 +2696,22 @@ export const compileStyle = (
     labelMap,
     styVals
   );
-  // TODO(error return) ^
 
   log.info("translation (before genOptProblem)", translateRes);
 
-  // Translation failed somewhere. // TODO: Check that errors are returned in a consistent order
+  // Translation failed somewhere
   if (translateRes.tag === "Left") {
-    // const err = `Could not compile. Error(s) in Style while generating translation`;
-    return err(genericStyleError(translateRes.contents));
+    return err(firstStyleError(translateRes.contents));
   }
 
   const trans = translateRes.contents;
+
+  if (trans.warnings.length > 0) {
+    // TODO(errors): these errors are currently returned as warnings -- maybe systematize it?
+    console.log("Returning warnings as errors");
+    return err(firstStyleError(trans.warnings));
+  }
+
   const initState = genOptProblemAndState(trans);
 
   log.info("init state from GenOptProblem", initState);

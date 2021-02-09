@@ -1,48 +1,11 @@
--- SelectorDeclTypeError
--- forall Setfhjh x { }
-
--- SelectorVarMultipleDecl
--- forall Set x; Set x { }
-
--- SelectorRelTypeMismatch
--- forall Point x; Set y; Set z
--- where x := Union(y, z) { }
-
--- forall Point p {
---        delete p.f
--- }
-
 forall Set x {
-   -- DeletedNonexistentFieldError
-   -- delete x.z
-
     x.icon = Circle {
         strokeWidth : 0.0
-        -- center: (0.0, 0.0)
     }
-
-    -- DeletedVectorElemError
-    -- delete x.icon[0]
-
-   -- DeletedNonexistentFieldError
-   -- delete x.z
 
     x.text = Text {
         string : x.label
     }
-
-    -- COMBAK: Should this have a warning? Currently doesn't
-    -- delete x.icon.z 
-
-    -- DeletedPropWithNoSubObjError
-    -- delete y.z
-
-    -- DeletedPropWithNoFieldError
-    -- delete x.z.p
-
-    -- These both cause a weird crash that's not caught
-    -- override x.icon = x.icon
-    -- ensure contains(x.icon, x.text2)
 
     -- DeletedPropWithNoGPIError
     -- x.z = 0.0

@@ -7,6 +7,14 @@ const clone = require("rfdc")({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
+// For wrapping temp Style errors until figuring out how they should be categorized
+export const wrapErr = (s: string): StyleError => {
+  return {
+    tag: "GenericStyleError",
+    messages: [s]
+  };
+};
+
 // Generic utils for mapping over values
 
 export function mapTup2<T, S>(f: (arg: T) => S, t: [T, T]): [S, S] {
@@ -427,7 +435,7 @@ export const insertExpr = (
       ) {
         trans = addWarn(
           trans,
-          "warning: overriding field expression without override flag set"
+          wrapErr("warning: overriding field expression without override flag set")
         ); // TODO(error): Should this be an error?
       }
 
@@ -459,7 +467,7 @@ export const insertExpr = (
             ) {
               const err = `path was aliased to itself`;
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -480,7 +488,7 @@ export const insertExpr = (
 
         const err = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot add property '${prop.value}'`;
         if (compiling) {
-          return addWarn(trans, err);
+          return addWarn(trans, wrapErr(err));
         }
         throw Error(err);
       } else if (fieldRes.tag === "FGPI") {
@@ -491,7 +499,7 @@ export const insertExpr = (
         if (compiling && !override && properties.hasOwnProperty(prop.value)) {
           trans = addWarn(
             trans,
-            "warning: overriding property expression without override flag set"
+            wrapErr("warning: overriding property expression without override flag set")
           );
         }
 
@@ -514,7 +522,7 @@ export const insertExpr = (
           if (res.tag !== "FExpr") {
             const err = "did not expect GPI in vector access";
             if (compiling) {
-              return addWarn(trans, err);
+              return addWarn(trans, wrapErr(err));
             }
             throw Error(err);
           }
@@ -525,7 +533,7 @@ export const insertExpr = (
             if (res3.tag !== "Vector") {
               const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -538,7 +546,7 @@ export const insertExpr = (
             } else {
               const err = "unexpected pending val";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -550,7 +558,7 @@ export const insertExpr = (
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -561,7 +569,7 @@ export const insertExpr = (
             } else {
               const err = "unexpected val";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -570,7 +578,7 @@ export const insertExpr = (
           } else {
             const err = "unexpected tag";
             if (compiling) {
-              return addWarn(trans, err);
+              return addWarn(trans, wrapErr(err));
             }
             throw Error(err);
           }
@@ -592,7 +600,7 @@ export const insertExpr = (
             if (res2.tag !== "Vector") {
               const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -605,7 +613,7 @@ export const insertExpr = (
             } else {
               const err = "unexpected pending val";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -617,7 +625,7 @@ export const insertExpr = (
             if (res2.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }
@@ -628,7 +636,7 @@ export const insertExpr = (
             } else {
               const err = "unexpected val";
               if (compiling) {
-                return addWarn(trans, err);
+                return addWarn(trans, wrapErr(err));
               }
               throw Error(err);
             }

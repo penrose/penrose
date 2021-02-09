@@ -3,8 +3,7 @@ import { prettyPrintPath } from "utils/OtherUtils";
 import { Maybe, Result } from "true-myth";
 const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr, unsafelyGetErr } = Result;
 
-//#region Style errors
-// COMBAK combine with overall `show` function
+// #region error rendering and construction
 
 // COMBAK What's a better way to model warnings?
 export const styWarnings = [
@@ -13,72 +12,6 @@ export const styWarnings = [
   "DeletedPropWithNoGPIError",
   "DeletedNonexistentFieldError",
 ];
-
-// COMBAK suggest improvements
-export const showStyErr = (e: StyError): string => {
-  // COMBAK fix these matches after strings are gone
-  console.log("showing sty err COMBAK", e);
-
-  if (typeof e === "object") {
-    switch (e.tag) {
-      case "SelectorDeclTypeError": {
-        return "Substance type error in declaration in selector";
-      }
-
-      case "SelectorVarMultipleDecl": {
-        return "Style pattern statement has already declared the variable";
-      }
-
-      case "SelectorDeclTypeMismatch": {
-        return "mismatched types or wrong subtypes between Substance and Style variables in selector";
-      };
-
-      case "SelectorRelTypeMismatch": {
-        return "mismatched types or wrong subtypes between variable and expression in relational statement in selector";
-      };
-
-      case "TaggedSubstanceError": {
-        return showError(e.error); // Substance error
-      };
-
-      case "DeletedPropWithNoSubObjError": {
-        return `Sub obj '${e.subObj.contents.value}' has no fields; can't delete path '${prettyPrintPath(e.path)}'`;
-      };
-
-      case "DeletedPropWithNoFieldError": {
-        return `Sub obj '${e.subObj.contents.value}' already lacks field ${e.field.value}; can't delete path '${prettyPrintPath(e.path)}'`;
-      };
-
-      case "CircularPathAlias": {
-        return `Path ${prettyPrintPath(e.path)} was aliased to itself`;
-      };
-
-      case "DeletedPropWithNoGPIError": {
-        return `Sub obj '${e.subObj.contents.value}' does not have GPI '${e.field.value}'; cannot delete property '${e.property.value} in ${prettyPrintPath(e.path)}'`;
-      };
-
-      // TODO: Use input path to report location?
-      case "DeletedNonexistentFieldError": {
-        return `Trying to delete '${e.field.value} from SubObj '${e.subObj.contents.value}', which already lacks the field`;
-      };
-
-      case "DeletedVectorElemError": {
-        return `Cannot delete an element of a vector: ${prettyPrintPath(e.path)}`;
-      };
-
-      default: {
-        throw Error("unknown error");
-      }
-    }
-  } else if (typeof e === "string") {
-    return e;
-  }
-  throw Error("unknown tag");
-};
-
-//#endregion
-
-// #region error rendering and construction
 
 // TODO: fix template formatting
 export const showError = (
@@ -196,6 +129,57 @@ export const showError = (
         sourceType
       )}' type was given at ${loc(sourceExpr)}.`;
     }
+
+    // ---- BEGIN STYLE ERRORS
+    // COMBAK suggest improvements after reporting errors
+
+    case "SelectorDeclTypeError": {
+      return "Substance type error in declaration in selector";
+    }
+
+    case "SelectorVarMultipleDecl": {
+      return "Style pattern statement has already declared the variable";
+    }
+
+    case "SelectorDeclTypeMismatch": {
+      return "mismatched types or wrong subtypes between Substance and Style variables in selector";
+    };
+
+    case "SelectorRelTypeMismatch": {
+      return "mismatched types or wrong subtypes between variable and expression in relational statement in selector";
+    };
+
+    case "TaggedSubstanceError": {
+      return showError(error.error); // Substance error
+    };
+
+    case "DeletedPropWithNoSubObjError": {
+      return `Sub obj '${error.subObj.contents.value}' has no fields; can't delete path '${prettyPrintPath(error.path)}'`;
+    };
+
+    case "DeletedPropWithNoFieldError": {
+      return `Sub obj '${error.subObj.contents.value}' already lacks field ${error.field.value}; can't delete path '${prettyPrintPath(error.path)}'`;
+    };
+
+    case "CircularPathAlias": {
+      return `Path ${prettyPrintPath(error.path)} was aliased to itself`;
+    };
+
+    case "DeletedPropWithNoGPIError": {
+      return `Sub obj '${error.subObj.contents.value}' does not have GPI '${error.field.value}'; cannot delete property '${error.property.value} in ${prettyPrintPath(error.path)}'`;
+    };
+
+    // TODO: Use input path to report location?
+    case "DeletedNonexistentFieldError": {
+      return `Trying to delete '${error.field.value} from SubObj '${error.subObj.contents.value}', which already lacks the field`;
+    };
+
+    case "DeletedVectorElemError": {
+      return `Cannot delete an element of a vector: ${prettyPrintPath(error.path)}`;
+    };
+
+    // ----- END STYLE ERRORS
+
     case "Fatal": {
       return `FATAL: ${error.message}`;
     }
@@ -325,10 +309,23 @@ export const parseError = (message: string): ParseError => ({
   message,
 });
 
-export const genericStyleError = (messages: StyError[]): PenroseError => ({
+// If there are multiple errors, just return the tag of the first one
+export const firstStyleError = (messages: StyleError[]): PenroseError => {
+  if (!messages.length) {
+    throw Error("internal error: expected at least one Style error");
+  }
+
+  return {
+    errorType: "StyleError",
+    tag: messages[0].tag, // COMBAK: is this confusing for showError?
+    messages: messages.map(showError),
+  }
+};
+
+export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   errorType: "StyleError",
   tag: "GenericStyleError",
-  messages: messages.map(showStyErr),
+  messages: messages.map(showError),
 });
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
