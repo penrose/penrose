@@ -178,6 +178,23 @@ export const showError = (
       return `Cannot delete an element of a vector: ${prettyPrintPath(error.path)}`;
     };
 
+    case "InsertedPathWithoutOverrideError": {
+      return "Overriding path ${prettyPrintPath(error.path)} without override flag set";
+    };
+
+    case "InsertedPropWithNoFieldError": {
+      return `Sub obj '${error.subObj.contents.value}' does not have Field '${error.field.value}'; cannot add property '${error.property.value} in ${prettyPrintPath(error.path)}'`;
+    };
+
+    case "InsertedPropWithNoGPIError": {
+      return `Sub obj '${error.subObj.contents.value}' has field but does not have GPI '${error.field.value}'; cannot add property '${error.property.value} in ${prettyPrintPath(error.path)}'. Expected GPI.`;
+    };
+
+    // TODO(errors): use identifiers here
+    case "RuntimeValueTypeError": {
+      return `Runtime type error in looking up path '${prettyPrintPath(error.path)}''s value in translation. Expected type: ${error.expectedType}. Got type: ${error.actualType}.`;
+    };
+
     // ----- END STYLE ERRORS
 
     case "Fatal": {

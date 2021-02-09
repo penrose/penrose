@@ -264,40 +264,83 @@ describe("Compiler", () => {
 
     const errorStyProgs = {
       // ------ Selector errors (from Substance)
-      SelectorDeclTypeError: `forall Setfhjh x { }`,
-      SelectorVarMultipleDecl: `forall Set x; Set x { }`,
+      SelectorDeclTypeError: [`forall Setfhjh x { }`],
+      SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
-      SelectorDeclTypeMismatch: "forall Point `A` { }",
+      SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
 
-      SelectorRelTypeMismatch: `forall Point x; Set y; Set z
-      where x := Union(y, z) { } `,
+      SelectorRelTypeMismatch: [`forall Point x; Set y; Set z
+      where x := Union(y, z) { } `],
 
-      TaggedSubstanceError: `forall Set x; Point y
-where IsSubset(y, x) { }`,
+      TaggedSubstanceError: [`forall Set x; Point y
+where IsSubset(y, x) { }`],
 
-      // ------- Block errors (deletion)
-      DeletedPropWithNoSubObjError: `forall Set x { delete y.z.p }`,
-      DeletedPropWithNoFieldError: `forall Set x { x.icon = Circle { }
-delete x.z.p }`,
+      // ------- Translation errors (deletion)
+      DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
+      DeletedPropWithNoFieldError: [`forall Set x { x.icon = Circle { }
+delete x.z.p }`],
 
-      DeletedPropWithNoGPIError: `forall Set x { x.z = 0.0
-delete x.z.p }`,
+      DeletedPropWithNoGPIError: [`forall Set x { x.z = 0.0
+delete x.z.p }`],
 
       // COMBAK: This doesn't catch the error
       // COMBAK: Style appears to throw parse error if line ends with a trailing space
       // COMBAK: Why is this a parse error??
-      //       CircularPathAlias: `forall Set x { x.icon = Circle { }
-      // x.icon.center = x.icon.center }`,
+      // COMBAK: Test the instance in `insertExpr` as well as in `compileStyle`
+      //       CircularPathAlias: [`forall Set x { x.icon = Circle { }
+      // x.icon.center = x.icon.center }`],
 
-      DeletedNonexistentFieldError: `forall Set x { delete x.z }`,
+      DeletedNonexistentFieldError: [`forall Set x { delete x.z }`],
       DeletedVectorElemError:
-        `forall Set x {  
+        [`forall Set x {  
          x.icon = Circle { 
            center: (0.0, 0.0) 
          }
-         delete x.icon[0] }`,
+         delete x.icon[0] }`],
+
+      // ---------- Translation errors (insertion)
+
+      InsertedPathWithoutOverrideError:
+        [`forall Set x { 
+           x.z = 1.0 
+           x.z = 2.0
+}`,
+          `forall Set x { 
+         x.icon = Circle { 
+           center: (0.0, 0.0) 
+         }
+           x.icon.center = 2.0
+}`],
+
+      InsertedPropWithNoFieldError:
+        [`forall Set x {
+    x.icon.r = 0.0
+}`],
+
+      InsertedPropWithNoGPIError:
+        [`forall Set x {
+    x.icon = "hello"
+    x.icon.r = 0.0
+}`],
+
+      // ---------- Runtime errors (insertExpr)
+
+      // COMBAK / TODO(errors): Test this more thoroughly
+      // COMBAK / NOTE: runtime errors aren't caught if an expr isn't evaluated, since we don't have statics. Test these separately.
+
+      //       RuntimeValueTypeError: [
+      //         `forall Set x { 
+      //          x.icon = Circle { 
+      //            center: (0.0, 0.0) 
+      //          }
+      //            x.icon.center[0] = "hello"
+      //            x.icon.center[1] = x.icon.center[0]
+      // }`]
+
     };
+
+    // ---------- Errors that should maybe be modeled + tested
 
     // COMBAK: Should this have a warning/error? Currently doesn't
     // `forall Set x { x.icon = Circle { }; delete x.icon.z }
@@ -314,8 +357,10 @@ delete x.z.p }`,
     // }
 
     // Test that each program yields its error type
-    for (const [errorType, styProg] of Object.entries(errorStyProgs)) {
-      testStyProgForError(styProg, errorType);
+    for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
+      for (const styProg of styProgs) {
+        testStyProgForError(styProg, errorType);
+      }
     }
   });
 

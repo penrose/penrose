@@ -15,6 +15,16 @@ export const wrapErr = (s: string): StyleError => {
   };
 };
 
+// TODO(errors): should these kinds of errors be caught by block statics rather than failing at runtime?
+export const runtimeValueTypeError = (path: Path, expectedType: string, actualType: string): StyleError => {
+  return {
+    tag: "RuntimeValueTypeError",
+    path,
+    expectedType,
+    actualType
+  };
+};
+
 // Generic utils for mapping over values
 
 export function mapTup2<T, S>(f: (arg: T) => S, t: [T, T]): [S, S] {
@@ -435,7 +445,7 @@ export const insertExpr = (
       ) {
         trans = addWarn(
           trans,
-          wrapErr("warning: overriding field expression without override flag set")
+          { tag: "InsertedPathWithoutOverrideError", path }
         ); // TODO(error): Should this be an error?
       }
 
@@ -455,6 +465,12 @@ export const insertExpr = (
       const fieldRes: FieldExpr<IVarAD> =
         trans.trMap[name.contents.value][field.value];
 
+      // TODO(errors): Catch error if SubObj, etc don't exist -- but should these kinds of errors be caught by block statics rather than failing at runtime?
+      if (!fieldRes) {
+        // TODO(errors): Catch error if field doesn't exist
+        return addWarn(trans, { tag: "InsertedPropWithNoFieldError", subObj: name, field, property: prop, path });
+      }
+
       if (fieldRes.tag === "FExpr") {
         // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
         // TODO: Test this
@@ -465,10 +481,11 @@ export const insertExpr = (
               p.name.contents.value === name.contents.value &&
               p.field.value === field.value
             ) {
-              const err = `path was aliased to itself`;
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, { tag: "CircularPathAlias", path });
               }
+              // TODO(errors): Use "showErrors" not these ad-hoc errors
+              const err = `path was aliased to itself`;
               throw Error(err);
             }
             const newPath = clone(path);
@@ -486,10 +503,11 @@ export const insertExpr = (
           }
         }
 
-        const err = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot add property '${prop.value}'`;
+        // TODO(error)
         if (compiling) {
-          return addWarn(trans, wrapErr(err));
+          return addWarn(trans, { tag: "InsertedPropWithNoGPIError", subObj: name, field, property: prop, path });
         }
+        const err = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot add property '${prop.value}'`;
         throw Error(err);
       } else if (fieldRes.tag === "FGPI") {
         const [, properties] = fieldRes.contents;
@@ -499,7 +517,7 @@ export const insertExpr = (
         if (compiling && !override && properties.hasOwnProperty(prop.value)) {
           trans = addWarn(
             trans,
-            wrapErr("warning: overriding property expression without override flag set")
+            { tag: "InsertedPathWithoutOverrideError", path }
           );
         }
 
@@ -520,10 +538,10 @@ export const insertExpr = (
           [name, field] = [innerPath.name, innerPath.field];
           const res = trans.trMap[name.contents.value][field.value];
           if (res.tag !== "FExpr") {
-            const err = "did not expect GPI in vector access";
             if (compiling) {
-              return addWarn(trans, wrapErr(err));
+              return addWarn(trans, runtimeValueTypeError(path, "Float", "GPI"));
             }
+            const err = "did not expect GPI in vector access";
             throw Error(err);
           }
           const res2: TagExpr<IVarAD> = res.contents;
@@ -531,10 +549,10 @@ export const insertExpr = (
           if (res2.tag === "OptEval") {
             const res3: Expr = res2.contents;
             if (res3.tag !== "Vector") {
-              const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Vector", res3.tag));
               }
+              const err = "expected Vector";
               throw Error(err);
             }
             const res4: Expr[] = res3.contents;
@@ -544,10 +562,10 @@ export const insertExpr = (
             } else if (expr.tag === "Done") {
               res4[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
-              const err = "unexpected pending val";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Float", "Pending float"));
               }
+              const err = "unexpected pending val";
               throw Error(err);
             }
 
@@ -558,7 +576,7 @@ export const insertExpr = (
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Vector", "res3.tag"));
               }
               throw Error(err);
             }
@@ -567,19 +585,20 @@ export const insertExpr = (
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
               res4[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
-              const err = "unexpected val";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Float", expr.tag));
               }
+              const err = "unexpected val";
               throw Error(err);
             }
 
             return trans;
           } else {
-            const err = "unexpected tag";
             if (compiling) {
-              return addWarn(trans, wrapErr(err));
+              // TODO(errors): expected type?
+              return addWarn(trans, runtimeValueTypeError(path, "Float", res2.tag));
             }
+            const err = "unexpected tag";
             throw Error(err);
           }
         }
@@ -598,10 +617,10 @@ export const insertExpr = (
             // Deal with vector expresions
             const res2 = res.contents;
             if (res2.tag !== "Vector") {
-              const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Vector", res2.tag));
               }
+              const err = "expected Vector";
               throw Error(err);
             }
             const res3 = res2.contents;
@@ -611,10 +630,10 @@ export const insertExpr = (
             } else if (expr.tag === "Done") {
               res3[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
-              const err = "unexpected pending val";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Float", expr.tag));
               }
+              const err = "unexpected pending val";
               throw Error(err);
             }
 
@@ -623,10 +642,10 @@ export const insertExpr = (
             // Deal with vector values
             const res2 = res.contents;
             if (res2.tag !== "VectorV") {
-              const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Vector", res2.tag));
               }
+              const err = "expected Vector";
               throw Error(err);
             }
             const res3 = res2.contents;
@@ -634,21 +653,21 @@ export const insertExpr = (
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
               res3[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
-              const err = "unexpected val";
               if (compiling) {
-                return addWarn(trans, wrapErr(err));
+                return addWarn(trans, runtimeValueTypeError(path, "Float", expr.tag));
               }
+              const err = "unexpected val";
               throw Error(err);
             }
 
             return trans;
           } else {
-            throw Error("unexpected tag");
+            throw Error("internal error: unexpected tag");
           }
         }
 
         default:
-          throw Error("should not have nested AccessPath in AccessPath");
+          throw Error("internal error: should not have nested AccessPath in AccessPath");
       }
     }
   }

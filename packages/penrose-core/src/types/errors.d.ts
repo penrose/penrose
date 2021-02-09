@@ -131,13 +131,20 @@ type StyleError =
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
   | TaggedSubstanceError
-  // Block errors (deletion)
+  // Translation errors (deletion)
   | DeletedPropWithNoSubObjError
   | DeletedPropWithNoFieldError
   | DeletedPropWithNoGPIError
   | CircularPathAlias
   | DeletedNonexistentFieldError
-  | DeletedVectorElemError;
+  | DeletedVectorElemError
+  // Translation errors (insertion)
+  | InsertedPathWithoutOverrideError
+  | InsertedPropWithNoFieldError
+  | InsertedPropWithNoGPIError
+  // Runtime errors
+  | RuntimeValueTypeError
+  ;
 
 interface GenericStyleError {
   tag: "GenericStyleError";
@@ -212,6 +219,35 @@ interface DeletedNonexistentFieldError {
 interface DeletedVectorElemError {
   tag: "DeletedVectorElemError";
   path: Path;
+};
+
+interface InsertedPathWithoutOverrideError {
+  tag: "InsertedPathWithoutOverrideError";
+  path: Path;
+};
+
+interface InsertedPropWithNoFieldError {
+  tag: "InsertedPropWithNoFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+};
+
+interface InsertedPropWithNoGPIError {
+  tag: "InsertedPropWithNoGPIError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+};
+
+// TODO(errors): use identifiers here
+interface RuntimeValueTypeError {
+  tag: "RuntimeValueTypeError";
+  path: Path;
+  expectedType: string;
+  actualType: string;
 };
 
 //#endregion Style errors
