@@ -1,3 +1,4 @@
+declare module "eigen";
 //#region Shape/Evaluator-related types
 
 type Shape = IShape;

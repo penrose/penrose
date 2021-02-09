@@ -2406,11 +2406,6 @@
     "@octokit/openapi-types" "^4.0.0"
     "@types/node" ">= 8"
 
-"@penrose/linear-algebra@^1.0.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@penrose/linear-algebra/-/linear-algebra-1.0.1.tgz#9af934a56091b9e292edd24fedb1419611ff568a"
-  integrity sha512-e7CbBqHnTYBqtgoKvcWcBwL47j1v02YzP+k5rIzfpljedbEnsVts2uoQZulX1bCej4Hmxv8RoQ33sDs+GUSuLw==
-
 "@reach/auto-id@^0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@reach/auto-id/-/auto-id-0.9.0.tgz#73b5d34bcf432f3e73b235b9dcaa89ea05a0d4db"
@@ -5986,6 +5981,13 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
+eigen@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/eigen/-/eigen-0.2.0.tgz#55f35e1bbbf31cbeefb57639a1eb2c680ece18be"
+  integrity sha512-x5jgZoidIHzxbUlTY9lIlIRL9E6ve0E7y1/AbAzixx0gXscu8erUEiW7A4eJppNU1uIqC3cBrGHDaY39LH+YiA==
+  dependencies:
+    hashmap "^2.4.0"
+
 electron-to-chromium@^1.3.378, electron-to-chromium@^1.3.649:
   version "1.3.654"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.654.tgz#f1b82d59bdeafa65af75794356df54f92b41c4de"
@@ -7800,6 +7802,11 @@ hash.js@^1.0.0, hash.js@^1.0.3:
   dependencies:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
+
+hashmap@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/hashmap/-/hashmap-2.4.0.tgz#4bcfe01fbbd2713db9d9254ce936b838412af884"
+  integrity sha512-Ngj48lhnxJdnBAEVbubKBJuN1elfVLZJs94ZixRi98X3GCU4v6pgj9qRkHt6H8WaVJ69Wv0r1GhtS7hvF9zCgg==
 
 he@^1.2.0:
   version "1.2.0"

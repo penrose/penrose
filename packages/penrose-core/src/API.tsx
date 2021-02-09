@@ -4,10 +4,10 @@ import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
-  SubstanceEnv,
+  SubstanceEnv
 } from "compiler/Substance";
 import { evalShapes } from "engine/Evaluator";
-import { step } from "engine/Optimizer";
+import { initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -62,12 +62,12 @@ export const compileTrio = (
   const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(subProg, env),
+    env => compileSubstance(subProg, env),
     domainRes
   );
 
   const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(styProg, ...res),
+    res => compileStyle(styProg, ...res),
     subRes
   );
 
@@ -79,10 +79,11 @@ export const compileTrio = (
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
+  await initializeMat();
   // TODO:L errors
   const stateAD = {
     ...state,
-    originalTranslation: state.originalTranslation,
+    originalTranslation: state.originalTranslation
   };
 
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
@@ -103,7 +104,7 @@ export const prepareState = async (state: State): Promise<State> => {
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
     labelCache,
-    shapes: nonEmpties,
+    shapes: nonEmpties
   });
 
   return stateWithPendingProperties;
@@ -115,5 +116,5 @@ export {
   checkDomain,
   checkSubstance,
   parseSubstance,
-  parseDomain,
+  parseDomain
 };
