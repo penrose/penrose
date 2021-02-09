@@ -7,16 +7,6 @@ forall Set x {
         string : x.label
     }
 
-    -- DeletedPropWithNoGPIError
-    -- x.z = 0.0
-    -- delete x.z.p
-
-    x.icon2 = x.icon
-    -- this works
-    x.icon2.strokeWidth = 5.0
-    -- COMBAK: This does not appear to have worked
-    delete x.icon2.strokeWidth
-
     ensure contains(x.icon, x.text)
     ensure minSize(x.icon)
     ensure maxSize(x.icon)
