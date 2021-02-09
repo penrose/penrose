@@ -1,4 +1,4 @@
-import { CheckerResult, compileDomain, Env, isSubtype } from "compiler/Domain";
+import { compileDomain, Env, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
@@ -6,7 +6,7 @@ import * as path from "path";
 import { Result, showError } from "utils/Error";
 
 const outputDir = "/tmp/contexts";
-const saveContexts = true;
+const saveContexts = false;
 const printError = false;
 
 const domainPaths = [
@@ -150,6 +150,12 @@ describe("Errors", () => {
       fail(`Error ${errorType} was suppoed to occur.`);
     }
   };
+  test("Parse error", () => {
+    const prog = `
+type Set somethingthatshouldn'tparse
+    `;
+    expectErrorOf(prog, "ParseError");
+  });
   test("Duplicate names", () => {
     const prog = `
 type Set 
@@ -203,7 +209,7 @@ constructor Cons ['X] : 'X head * List('X) tail -> List('X)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveContexts && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 

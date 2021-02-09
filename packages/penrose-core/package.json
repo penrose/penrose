@@ -22,7 +22,6 @@
     "install-cli": "cd ../roger && npm install && npm link"
   },
   "dependencies": {
-    "@penrose/linear-algebra": "^1.0.0",
     "consola": "^2.15.2",
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",
@@ -45,6 +44,7 @@
     "@types/node": "^10.17.21",
     "@types/seedrandom": "^2.4.28",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.13.0",

@@ -5,7 +5,9 @@ const TOL = 1e-3;
 
 // HACK: Copied from EngineUtils
 export const exprToNumber = (e: Expr): number => {
-  if (e.tag === "Fix") { return e.contents; }
+  if (e.tag === "Fix") {
+    return e.contents;
+  }
   throw Error("expecting expr to be number");
 };
 
@@ -68,7 +70,9 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 // COMBAK: Copied from `EngineUtils`; consolidate
 export const isPath = (expr: Expr): expr is Path => {
-  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(expr.tag);
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
+    expr.tag
+  );
 };
 
 export const prettyPrintPath = (p: Expr): string => {
@@ -100,7 +104,9 @@ export const prettyPrintExpr = (arg: Expr): string => {
     return String(val);
   } else if (arg.tag === "CompApp") {
     const [fnName, fnArgs] = [arg.name.value, arg.args];
-    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join("");
+    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
+      ""
+    );
   } else {
     // TODO: Finish writing pretty-printer for rest of expressions (UOp, BinOp)
     const res = JSON.stringify(arg);

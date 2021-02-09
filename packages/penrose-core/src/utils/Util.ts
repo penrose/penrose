@@ -1,5 +1,8 @@
 import memoize from "fast-memoize";
 import { times } from "lodash";
+import seedrandom from "seedrandom";
+
+seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive

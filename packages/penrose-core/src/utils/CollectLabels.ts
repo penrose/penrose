@@ -88,7 +88,7 @@ export const collectLabels = async (
   allShapes: Shape[]
 ): Promise<LabelCache> => {
   const labels: LabelCache = [];
-  for (let s of allShapes) {
+  for (const s of allShapes) {
     const { shapeType, properties } = s;
     if (shapeType === "Text" || shapeType === "TextTransform") {
       const shapeName: string = properties.name.contents as string;

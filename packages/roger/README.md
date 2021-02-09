@@ -1,19 +1,22 @@
-roger
-=====
+# roger
 
 The command line for penrose
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/roger.svg)](https://npmjs.org/package/roger)
 [![Downloads/week](https://img.shields.io/npm/dw/roger.svg)](https://npmjs.org/package/roger)
-[![License](https://img.shields.io/npm/l/roger.svg)](https://github.com/penrose/penrose/blob/master/package.json)
+[![License](https://img.shields.io/npm/l/roger.svg)](https://github.com/penrose/penrose/blob/main/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g roger
 $ roger COMMAND
@@ -25,11 +28,15 @@ USAGE
   $ roger COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`roger help [COMMAND]`](#roger-help-command)
-* [`roger watch SUBSTANCE STYLE DOMAIN`](#roger-watch-substance-style-domain)
+
+- [`roger help [COMMAND]`](#roger-help-command)
+- [`roger watch SUBSTANCE STYLE DOMAIN`](#roger-watch-substance-style-domain)
 
 ## `roger help [COMMAND]`
 
@@ -62,4 +69,5 @@ OPTIONS
 ```
 
 _See code: [src/commands/watch.ts](https://github.com/penrose/penrose/blob/v1.0.0/src/commands/watch.ts)_
+
 <!-- commandsstop -->

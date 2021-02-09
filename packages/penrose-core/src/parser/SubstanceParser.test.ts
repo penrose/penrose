@@ -5,7 +5,7 @@ import * as fs from "fs";
 import { result } from "lodash";
 
 const outputDir = "/tmp/asts";
-const saveASTs = true;
+const saveASTs = false;
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
@@ -76,6 +76,26 @@ AutoLabel All
 
     `;
     const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  test("no trailing newline", () => {
+    const prog = `
+Set A
+Set B
+Set C
+Set D
+Set E`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  test("trailing comment", () => {
+    const prog = `
+Set A
+Set B
+Set C
+Set D
+-- Set E`;
+    const { results } = parser.feed(prog).feed("\n");
     sameASTs(results);
   });
 });
@@ -171,7 +191,7 @@ CreateSubset(A, B) = CreateSubset(B, C)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveASTs && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 

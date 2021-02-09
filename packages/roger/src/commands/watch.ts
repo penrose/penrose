@@ -1,41 +1,41 @@
-import {Command, flags} from '@oclif/command'
-import WebSocket from 'ws'
-import chokidar from 'chokidar'
-import fs from 'fs'
-import chalk from 'chalk'
+import { Command, flags } from "@oclif/command";
+import WebSocket from "ws";
+import chokidar from "chokidar";
+import fs from "fs";
+import chalk from "chalk";
 // eslint-disable-next-line node/no-unsupported-features/node-builtins
-const fsp = fs.promises
+const fsp = fs.promises;
 
 export default class Watch extends Command {
-  static description = 'watches files for changes';
+  static description = "watches files for changes";
 
   static examples = [];
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    help: flags.help({ char: "h" }),
     port: flags.integer({
-      char: 'p',
-      description: 'websocket port to serve to frontend',
+      char: "p",
+      description: "websocket port to serve to frontend",
       default: 9160,
     }),
   };
 
   static args = [
-    {name: 'substance', required: true},
-    {name: 'style', required: true},
-    {name: 'domain', required: true},
+    { name: "substance", required: true },
+    { name: "style", required: true },
+    { name: "domain", required: true },
   ];
 
   current: { [type: string]: string } = {
-    substance: '',
-    style: '',
-    domain: '',
+    substance: "",
+    style: "",
+    domain: "",
   };
 
   currentFilenames: { [type: string]: string } = {
-    substance: '',
-    style: '',
-    domain: '',
+    substance: "",
+    style: "",
+    domain: "",
   };
 
   wss: WebSocket.Server | null = null;
@@ -45,8 +45,8 @@ export default class Watch extends Command {
       substance: substanceFilename,
       style: styleFilename,
       domain: domainFilename,
-    } = this.currentFilenames
-    const {substance, style, domain} = this.current
+    } = this.currentFilenames;
+    const { substance, style, domain } = this.current;
     const result = {
       substance: {
         fileName: substanceFilename,
@@ -60,19 +60,19 @@ export default class Watch extends Command {
         fileName: domainFilename,
         contents: domain,
       },
-    }
-    this.wss?.clients.forEach(client => {
-      client.send(JSON.stringify(result))
-    })
+    };
+    this.wss?.clients.forEach((client) => {
+      client.send(JSON.stringify(result));
+    });
   };
 
   readFile = async (fileName: string) => {
     try {
-      const read = await fsp.readFile(fileName, 'utf8')
-      return read
+      const read = await fsp.readFile(fileName, "utf8");
+      return read;
     } catch (error) {
-      console.error(`❌ Could not open ${fileName}: ${error}`)
-      this.exit(1)
+      console.error(`❌ Could not open ${fileName}: ${error}`);
+      this.exit(1);
     }
   };
 
@@ -82,48 +82,48 @@ export default class Watch extends Command {
         pollInterval: 100,
         stabilityThreshold: 300, // increase to make file listen faster
       },
-    })
-    this.currentFilenames[type] = fileName
-    watcher.on('error', (err: Error) => {
-      console.error(`❌ Could not open ${fileName} ${type}: ${err}`)
-      this.exit(1)
-    })
-    watcher.on('change', async () => {
-      const str = await this.readFile(fileName)
-      this.current[type] = str
+    });
+    this.currentFilenames[type] = fileName;
+    watcher.on("error", (err: Error) => {
+      console.error(`❌ Could not open ${fileName} ${type}: ${err}`);
+      this.exit(1);
+    });
+    watcher.on("change", async () => {
+      const str = await this.readFile(fileName);
+      this.current[type] = str;
       console.info(
-        '✅',
+        "✅",
         chalk.blueBright(`${type}`) +
           chalk.whiteBright(` ${fileName}`) +
-          chalk.blueBright(' updated, sending...'),
-      )
-      this.sendFiles()
-    })
-    const str = await this.readFile(fileName)
-    this.current[type] = str
+          chalk.blueBright(" updated, sending...")
+      );
+      this.sendFiles();
+    });
+    const str = await this.readFile(fileName);
+    this.current[type] = str;
   };
 
   async run() {
-    const {args, flags} = this.parse(Watch)
+    const { args, flags } = this.parse(Watch);
 
-    console.info(chalk.blue(`💂 starting on port ${flags.port}...`))
+    console.info(chalk.blue(`💂 starting on port ${flags.port}...`));
 
-    await this.watchFile(args.substance, 'substance')
-    await this.watchFile(args.style, 'style')
-    await this.watchFile(args.domain, 'domain')
+    await this.watchFile(args.substance, "substance");
+    await this.watchFile(args.style, "style");
+    await this.watchFile(args.domain, "domain");
 
     this.wss = new WebSocket.Server({
       port: flags.port,
-    })
+    });
 
-    this.wss.on('connection', ws => {
-      this.sendFiles()
-      ws.on('message', m => {
-        const parsed = JSON.parse(m as string)
-        console.log('got message', parsed)
-      })
-    })
+    this.wss.on("connection", (ws) => {
+      this.sendFiles();
+      ws.on("message", (m) => {
+        const parsed = JSON.parse(m as string);
+        console.log("got message", parsed);
+      });
+    });
 
-    await this.sendFiles()
+    await this.sendFiles();
   }
 }

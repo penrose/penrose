@@ -1,6 +1,5 @@
 import { Map } from "immutable";
-import { findIndex, zip, zipWith } from "lodash";
-import { states } from "moo";
+import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
@@ -12,6 +11,7 @@ import {
   every,
   Maybe,
   ok,
+  parseError,
   Result,
   safeChain,
   typeArgLengthMismatch,
@@ -28,14 +28,17 @@ import {
   topType,
 } from "./Domain";
 
-export const parseSubstance = (prog: string): SubProg => {
+export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
   const parser = new nearley.Parser(
     nearley.Grammar.fromCompiled(substanceGrammar)
   );
-  const { results } = parser.feed(prog);
-  const ast: SubProg = results[0] as SubProg;
-  // TODO: report errors
-  return ast;
+  try {
+    const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
+    const ast: SubProg = results[0] as SubProg;
+    return ok(ast);
+  } catch (e) {
+    return err(parseError(e));
+  }
 };
 
 /**
@@ -48,12 +51,17 @@ export const compileSubstance = (
   prog: string,
   env: Env
 ): Result<[SubstanceEnv, Env], PenroseError> => {
-  const ast = parseSubstance(prog);
-  const checkerOk = checkSubstance(ast, env);
-  return checkerOk.match({
-    Ok: (env) => ok([postprocessSubstance(ast, env), env]),
-    Err: (e) => err({ ...e, errorType: "SubstanceError" }),
-  });
+  const astOk = parseSubstance(prog);
+  if (astOk.isOk()) {
+    const ast = astOk.value;
+    const checkerOk = checkSubstance(ast, env);
+    return checkerOk.match({
+      Ok: (env) => ok([postprocessSubstance(ast, env), env]),
+      Err: (e) => err({ ...e, errorType: "SubstanceError" }),
+    });
+  } else {
+    return err({ ...astOk.error, errorType: "SubstanceError" });
+  }
 };
 
 export type LabelMap = Map<string, Maybe<string>>;
@@ -72,7 +80,7 @@ const initEnv = (ast: SubProg): SubstanceEnv => ({
   bindings: Map(),
   labels: Map(),
   predicates: [],
-  ast
+  ast,
 });
 
 //#region Postprocessing
@@ -195,7 +203,10 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   }
 };
 
-export const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult => {
+export const checkPredicate = (
+  stmt: ApplyPredicate,
+  env: Env
+): CheckerResult => {
   const { name, args } = stmt;
   const predDecl = env.predicates.get(name.value);
   // check if predicate exists and retrieve its decl
@@ -210,13 +221,14 @@ export const checkPredicate = (stmt: ApplyPredicate, env: Env): CheckerResult =>
     );
     // NOTE: throw away the substitution because this layer above doesn't need to typecheck
     return andThen(([_, e]) => ok(e), argsOk);
-  } else
-    {return err(
+  } else {
+    return err(
       typeNotFound(
         name,
         [...env.predicates.values()].map((p) => p.name)
       )
-    );}
+    );
+  }
 };
 
 const checkPredArg = (
@@ -226,8 +238,9 @@ const checkPredArg = (
   env: Env
 ): SubstitutionResult => {
   // HACK: predicate-typed args are parsed into `Func` type first, explicitly check and change it to predicate if the func is actually a predicate in the context
-  if (arg.tag === "Func" && env.predicates.get(arg.name.value))
-    {arg = { ...arg, tag: "ApplyPredicate" };}
+  if (arg.tag === "Func" && env.predicates.get(arg.name.value)) {
+    arg = { ...arg, tag: "ApplyPredicate" };
+  }
   if (arg.tag === "ApplyPredicate") {
     // if the argument is a nested predicate, call checkPredicate again
     const predOk = checkPredicate(arg, env);
@@ -275,8 +288,8 @@ export const subtypeOf = (
 
 const withType = (env: Env, type: TypeConsApp): ResultWithType =>
   ok([type, env]);
-const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
-  andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
+// const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
+//   andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
 
 export const checkExpr = (
   expr: SubExpr,
@@ -323,11 +336,12 @@ const substituteArg = (
     const expectedArgs = formalType.args;
     // TODO: check ordering of types
     if (expectedArgs.length !== type.args.length) {
-      if (type.name.value === formalType.name.value)
-        {return err(
+      if (type.name.value === formalType.name.value) {
+        return err(
           typeArgLengthMismatch(type, formalType, sourceExpr, expectedExpr)
-        );}
-      else return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
+        );
+      } else
+        return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
     } else {
       // if there are no arguments, check for type equality and return mismatch error if types do not match
       if (type.args.length === 0 && !isSubtype(type, formalType, env)) {
@@ -352,8 +366,9 @@ const substituteArg = (
       // substitutions OK, moving on
       if (isSubtype(expectedType, type, env)) return ok([substEnv, env]);
       // type doesn't match with the previous substitution
-      else
-        {return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));}
+      else {
+        return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));
+      }
     } else {
       // if type var is not substituted yet, add new substitution to the env
       return ok([substEnv.set(formalType.name.value, type), env]);

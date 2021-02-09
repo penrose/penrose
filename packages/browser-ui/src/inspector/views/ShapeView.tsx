@@ -25,7 +25,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
           display: "flex",
           width: "100%",
           height: "100%",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
         {makeViewBoxes(frame.shapes, selectedShape, this.setSelectedShape)}
@@ -36,7 +36,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
             overflow: "auto",
             height: "100%",
             flexGrow: 1,
-            boxSizing: "border-box",
+            boxSizing: "border-box"
           }}
         >
           {frame.shapes[selectedShape] && (

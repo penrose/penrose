@@ -1,4 +1,4 @@
-
+declare module "eigen";
 //#region Shape/Evaluator-related types
 
 type Shape = IShape;
@@ -42,7 +42,7 @@ type PropID = string;
 type GPIMap = { [k: string]: TagExpr<VarAD> };
 type FieldDict = { [k: string]: FieldExpr<VarAD> };
 
-type StyleOptFn = [string, Expr[]] // Objective or constraint
+type StyleOptFn = [string, Expr[]]; // Objective or constraint
 
 // NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
@@ -263,7 +263,12 @@ interface PropertyDecl extends ASTNode {
 }
 
 // TODO: check how the evaluator/compiler should interact with ASTNode
-type Path = IFieldPath | IPropertyPath | IAccessPath | LocalVar | IInternalLocalVar;
+type Path =
+  | IFieldPath
+  | IPropertyPath
+  | IAccessPath
+  | LocalVar
+  | IInternalLocalVar;
 // LocalVar is only used internally by the compiler
 // Unused
 // | ITypePropertyPath;
@@ -293,7 +298,8 @@ interface LocalVar extends ASTNode {
   contents: Identifier;
 }
 
-interface IInternalLocalVar extends ASTNode { // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
+interface IInternalLocalVar extends ASTNode {
+  // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
   tag: "InternalLocalVar";
   contents: string;
 }
@@ -1324,7 +1330,6 @@ interface IPred2 {
 //   contents: Var[];
 // }
 
-
 // type Var = string;
 
 // type SubStmt =
@@ -1558,9 +1563,7 @@ interface IProp {
 // }
 // TODO why doesn't this work
 
-type ProgType =
-  | ISubProgT
-  | IStyProgT
+type ProgType = ISubProgT | IStyProgT;
 
 interface ISubProgT {
   tag: "SubProgT";
@@ -1604,10 +1607,10 @@ interface LocalVarId {
   contents: [number, number];
   // Index of the block, paired with the index of the current substitution
   // Should be unique across blocks and substitutions
-};
+}
 
 interface NamespaceId {
-  tag: "NamespaceId"
+  tag: "NamespaceId";
   contents: string;
   // Namespace's name, e.g. things that are parsed as local vars (e.g. Const { red ... }) get turned into paths "Const.red"
 }
@@ -1646,12 +1649,12 @@ type StyErrors = string[];
 // TODO: Convert this to StyleError[]
 
 interface Left<A> {
-  tag: 'Left'
+  tag: "Left";
   contents: A;
 }
 
 interface Right<B> {
-  tag: 'Right'
+  tag: "Right";
   contents: B;
 }
 

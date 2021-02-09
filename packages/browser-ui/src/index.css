@@ -101,22 +101,28 @@ div.SplitPane.soloPane2.horizontal > .Pane2 {
   height: 100% !important;
 }
 
-div.labinput, div.sublabinput {
+div.labinput,
+div.sublabinput {
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 20px;
   text-align: left;
 }
-div.labinput * , div.sublabinput *{
+div.labinput *,
+div.sublabinput * {
   display: block;
   margin: auto;
 }
 
-div.labinput span, div.labinput label , div.sublabinput span, div.sublabinput label{
+div.labinput span,
+div.labinput label,
+div.sublabinput span,
+div.sublabinput label {
   text-align: center;
 }
 
-div.labinput label, div.sublabinput label{
+div.labinput label,
+div.sublabinput label {
   font-style: italic;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }

@@ -282,7 +282,7 @@ const batchProcess = async (
   );
   console.log(`Processing ${substanceLibrary.length} substance files...`);
 
-  var finalMetadata = {};
+  const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { name, substanceURI, element, style } of substanceLibrary) {

@@ -1,14 +1,10 @@
-import * as path from "path";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
+import * as path from "path";
 import { Result, showError } from "utils/Error";
 import { compileDomain, Env, showType } from "./Domain";
-import {
-  compileSubstance,
-  postprocessSubstance,
-  SubstanceEnv,
-} from "./Substance";
+import { compileSubstance, SubstanceEnv } from "./Substance";
 
 const printError = false;
 const saveContexts = false;
@@ -71,6 +67,17 @@ beforeEach(() => {
 describe("Common", () => {
   test("empty program", () => {
     const prog = ``;
+    const env = envOrError(domainProg);
+    const res = compileSubstance(prog, env);
+    expect(res.isOk()).toBe(true);
+  });
+  test("trailing comment", () => {
+    const prog = `
+Set A
+Set B
+Set C
+Set D
+-- Set E`;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
@@ -141,10 +148,16 @@ Set E := Subset(B, C)
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
-      expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual("Subset");
+      expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual(
+        "Subset"
+      );
       // TODO: not caching var bindings for now. Add to checker if needed
       // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
-      hasVars(res.value[1], [["A", "Set"], ["E", "Set"], ["D", "OpenSet"]]);
+      hasVars(res.value[1], [
+        ["A", "Set"],
+        ["E", "Set"],
+        ["D", "OpenSet"],
+      ]);
     }
   });
   test("func: function", () => {
@@ -234,7 +247,7 @@ NoLabel B, C
 
 describe("Errors", () => {
   const expectErrorOf = (
-    result: Result<[SubstanceEnv, Env], SubstanceError | DomainError>,
+    result: Result<[SubstanceEnv, Env], PenroseError>,
     errorType: string
   ) => {
     if (result.isErr()) {
@@ -244,6 +257,14 @@ describe("Errors", () => {
       fail(`Error ${errorType} was suppoed to occur.`);
     }
   };
+  test("parse error", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C ;;; shouldn't parse
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "ParseError");
+  });
   test("type not found", () => {
     const env = envOrError(domainProg);
     const prog = `
@@ -420,7 +441,7 @@ l := Cons(A, nil)
 
 describe("Real Programs", () => {
   // create output folder
-  if (!fs.existsSync(outputDir)) {
+  if (saveContexts && !fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
 
