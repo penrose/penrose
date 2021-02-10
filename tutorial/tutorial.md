@@ -29,9 +29,10 @@ Some of you who have experiences with set theory may recognize that ellipses are
 ### DOMAIN
 It follows naturally that our mathematical **domain** is the set theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`. Now recall what does a `.dsl` file do? It defines the language we use to describe the specific mathematical domain. Now I have a question for you,
 
-#### 📒 What's the most fundamental element in set theory? (hint: the name gives it away.)
+#### QUESTION: What's the most fundamental element in set theory? (hint: the name gives it away.)
 
 The answer is a **Set**! A set is a **type** of element in set theory. Therefore in our `setTheory.dsl`, we write the following line,
+*.dsl file*
 ```typescript
 type Set
 ```
@@ -44,6 +45,7 @@ For style, we have a little more work to do. A `.sty` file is essentially a `.cs
 
 ![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
 
+*.sty file*
 ```typescript
 forall Set x {
     x.icon = Circle {
@@ -63,10 +65,28 @@ forall Set x {
 ```
 
 ### SUBSTANCE
-They are our mathematical **substances** that we want to visualize. Therefore... (drumroll 🥁)
-    
+Since we are only visualizing 2 sets named A and B, they are our mathematical **substances** for this diagram. 
+
+We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here.
+
+*.sub file*
 ```typescript
 Set A
 Set B 
 AutoLabel All
 ```
+The last line does all the labeling work for you, so everything would be labled properly with the name you declared. To maunally label somethin would look like this. 
+
+*manual labeling*
+```typescript
+Set Rn
+Label Rn $\mathbb{R}^n$
+```
+So we highly encourage you to add that line in just so no labels go missing. :) 
+
+### COMPILE
+Now it's time to see all of our hardwork! (drumroll 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
+* two terminals opened both at the penrose root directory
+* run `yarn start` in one to get the browser window to pop out
+* run `roger watch NAME.sub NAME.sty NAME.dsl` to send the files over to the server
+* Refresh! 
