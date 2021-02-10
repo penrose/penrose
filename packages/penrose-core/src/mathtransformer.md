@@ -68,9 +68,7 @@ To mark an AST node (basically any unit in TS, e.g. function, string, variable, 
 
 CLI usage for jscodeshift can be found [here](https://github.com/facebook/jscodeshift).
 
-`jscodeshift tests.ts -t toCustomAD.ts -p -d`
-
-The answer key to these tests (i.e. what the ideal output is) can be found at `testkey.ts`.
+You can run the default JSCodeshift tests by running `npm test` from the `__tests__` directory. If you're getting errors, make sure you've installed JSCodeshift in the `__tests__` directory.
 
 Template: `jscodeshift YOURFILE.ts -t toCustomAD.ts -p -d`
 
