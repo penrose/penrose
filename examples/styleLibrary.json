@@ -25,11 +25,11 @@
   },
   {
     "value": 3,
-    "label": "cartesian",
+    "label": "vectors in R^2",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Cartesian.svg?sanitize=true",
     "plugin": false,
     "element": 1,
-    "uri": "linear-algebra-domain/linear-algebra.sty"
+    "uri": "linear-algebra-domain/linear-algebra-paper-simple.sty"
   },
   {
     "value": 4,
@@ -118,5 +118,13 @@
     "element": 5,
     "plugin": true,
     "uri": "raytracing-domain/raytracing.sty"
+  },
+  {
+    "value": 15,
+    "label": "domain interop",
+    "element": 6,
+    "plugin": false,
+    "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Venn.svg?sanitize=true",
+    "uri": "mesh-set-domain/DomainInterop.sty"
   }
 ]

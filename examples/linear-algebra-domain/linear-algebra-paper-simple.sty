@@ -1,4 +1,4 @@
-const {
+const { -- 0
   scalar perpLen = 20.0
   -- For unit mark
   scalar markerPadding = 15.0
@@ -11,7 +11,7 @@ const {
   bool boolForTesting = true
 }
 
-C {
+C { -- 1
     -- black = #000000
     color black = rgba(0.,0.,0.,1.)
     white = rgba(1., 1., 1., 1.)
@@ -25,7 +25,7 @@ C {
 }
 
 -- Just some weird definitions to test parser. Not used in rest of program
-testing {
+testing { -- 2
   -- COMBAK: Test that plugins still run
   -- pluginVar = "ddg"["a"]["length"]
         x = { 1, {2, 3} }
@@ -48,7 +48,7 @@ testing {
         -- test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
 }
 
-forall VectorSpace U {
+forall VectorSpace U { -- 3
     scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
     vec2 U.origin = (0., 0.)
     vec2 o = U.origin
@@ -68,8 +68,8 @@ forall VectorSpace U {
         thickness : const.lineThickness
         style : "solid"
         color : U.axisColor
-        leftArrowhead: True
-        rightArrowhead: True
+        leftArrowhead: true
+        rightArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -79,8 +79,8 @@ forall VectorSpace U {
        thickness : const.lineThickness
            style : "solid"
            color : U.axisColor
-           leftArrowhead: True
-           rightArrowhead: True
+           leftArrowhead: true
+           rightArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -91,7 +91,7 @@ forall VectorSpace U {
     }
 }
 
-forall Vector u; VectorSpace U
+forall Vector u; VectorSpace U -- 4
 where In(u,U) {
   u.text = Text {
     -- center : (?, ?) -- This should be done automatically
@@ -118,7 +118,7 @@ where In(u,U) {
   layer u.text above U.yAxis
 }
 
-forall Vector u; Vector v
+forall Vector u; Vector v -- 5
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
       startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
@@ -151,7 +151,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       layer u.arrow above perpMark
 }
 
-forall Vector v
+forall Vector v -- 6
 with VectorSpace U; Vector w
 where In(v, U); Unit(v); Orthogonal(v, w) {
       -- Usually, the unit vector shouldn't need to know about orthogonal vectors
@@ -209,6 +209,6 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       layer v.unitMarkerLine above U.yAxis
 }
 
-forall Vector `x2` {
+forall Vector `x2` { -- 7
        override `x2`.arrow.color = C.green
 }

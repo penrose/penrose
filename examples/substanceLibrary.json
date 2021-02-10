@@ -33,5 +33,19 @@
     "style": 0,
     "previewURI": "https://gist.githubusercontent.com/maxkrieger/b91450f8c0cc3df6085c40ecf4ad888f/raw/11a7c69a2890a99e14ae6cb6cc7b341d9be7430d/nested.svg?sanitize=true",
     "name": "nested"
+  },
+  {
+    "substanceURI": "mesh-set-domain/DomainInterop.sub",
+    "element": 6,
+    "style": 15,
+    "previewURI": "https://user-images.githubusercontent.com/2762356/99040469-323a5c00-2557-11eb-80ea-ca3226c4b8d1.png",
+    "name": "mesh-set interop"
+  },
+ {
+    "substanceURI": "linear-algebra-domain/twoVectorsPerp.sub",
+    "element": 1,
+    "style": 3,
+    "previewURI": "https://user-images.githubusercontent.com/2762356/99040363-028b5400-2557-11eb-9740-a983e689cc3f.png",
+    "name": "orthogonal vectors"
   }
 ]

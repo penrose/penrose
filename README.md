@@ -1,4 +1,4 @@
-# Penrose [![CircleCI](https://circleci.com/gh/penrose/penrose/tree/master.svg?style=svg)](https://circleci.com/gh/penrose/penrose/tree/master)
+# Penrose [![CircleCI](https://circleci.com/gh/penrose/penrose/tree/main.svg?style=svg)](https://circleci.com/gh/penrose/penrose/tree/main)
 
 **Penrose is an early-stage system that is still in development.** Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
 
@@ -67,4 +67,4 @@ It's specified by the following Substance and Style programs.
 
 Here's how the optimization looks live in the UI. 
 
-<img src="https://github.com/penrose/penrose/blob/master/assets/penrose_readme.gif?raw=true" width=500>
+<img src="https://i.imgur.com/Q27Xgbn.gif" width=500>

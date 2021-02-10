@@ -1,0 +1,886 @@
+{
+  "start": {
+    "line": 3,
+    "col": 9
+  },
+  "end": {
+    "line": 11,
+    "col": 1
+  },
+  "tag": "StyProg",
+  "contents": [
+    {
+      "start": {
+        "line": 3,
+        "col": 9
+      },
+      "end": {
+        "line": 11,
+        "col": 1
+      },
+      "tag": "HeaderBlock",
+      "header": {
+        "start": {
+          "line": 3,
+          "col": 9
+        },
+        "end": {
+          "line": 6,
+          "col": 8
+        },
+        "tag": "Selector",
+        "head": {
+          "start": {
+            "line": 3,
+            "col": 9
+          },
+          "end": {
+            "line": 3,
+            "col": 24
+          },
+          "tag": "DeclPatterns",
+          "contents": [
+            {
+              "start": {
+                "line": 3,
+                "col": 9
+              },
+              "end": {
+                "line": 3,
+                "col": 14
+              },
+              "tag": "DeclPattern",
+              "type": {
+                "start": {
+                  "line": 3,
+                  "col": 9
+                },
+                "end": {
+                  "line": 3,
+                  "col": 12
+                },
+                "token": "Set",
+                "type": "identifier"
+              },
+              "id": {
+                "start": {
+                  "line": 3,
+                  "col": 13
+                },
+                "end": {
+                  "line": 3,
+                  "col": 14
+                },
+                "tag": "StyVar",
+                "contents": {
+                  "start": {
+                    "line": 3,
+                    "col": 13
+                  },
+                  "end": {
+                    "line": 3,
+                    "col": 14
+                  },
+                  "token": "A",
+                  "type": "identifier"
+                }
+              }
+            },
+            {
+              "start": {
+                "line": 3,
+                "col": 9
+              },
+              "end": {
+                "line": 3,
+                "col": 17
+              },
+              "tag": "DeclPattern",
+              "type": {
+                "start": {
+                  "line": 3,
+                  "col": 9
+                },
+                "end": {
+                  "line": 3,
+                  "col": 12
+                },
+                "token": "Set",
+                "type": "identifier"
+              },
+              "id": {
+                "start": {
+                  "line": 3,
+                  "col": 16
+                },
+                "end": {
+                  "line": 3,
+                  "col": 17
+                },
+                "tag": "StyVar",
+                "contents": {
+                  "start": {
+                    "line": 3,
+                    "col": 16
+                  },
+                  "end": {
+                    "line": 3,
+                    "col": 17
+                  },
+                  "token": "B",
+                  "type": "identifier"
+                }
+              }
+            },
+            {
+              "start": {
+                "line": 3,
+                "col": 19
+              },
+              "end": {
+                "line": 3,
+                "col": 24
+              },
+              "tag": "DeclPattern",
+              "type": {
+                "start": {
+                  "line": 3,
+                  "col": 19
+                },
+                "end": {
+                  "line": 3,
+                  "col": 22
+                },
+                "token": "Map",
+                "type": "identifier"
+              },
+              "id": {
+                "start": {
+                  "line": 3,
+                  "col": 23
+                },
+                "end": {
+                  "line": 3,
+                  "col": 24
+                },
+                "tag": "StyVar",
+                "contents": {
+                  "start": {
+                    "line": 3,
+                    "col": 23
+                  },
+                  "end": {
+                    "line": 3,
+                    "col": 24
+                  },
+                  "token": "f",
+                  "type": "identifier"
+                }
+              }
+            }
+          ]
+        },
+        "with": {
+          "start": {
+            "line": 5,
+            "col": 6
+          },
+          "end": {
+            "line": 5,
+            "col": 93
+          },
+          "tag": "RelationPatterns",
+          "contents": [
+            {
+              "start": {
+                "line": 5,
+                "col": 6
+              },
+              "end": {
+                "line": 5,
+                "col": 34
+              },
+              "tag": "RelBind",
+              "id": {
+                "start": {
+                  "line": 5,
+                  "col": 6
+                },
+                "end": {
+                  "line": 5,
+                  "col": 7
+                },
+                "tag": "StyVar",
+                "contents": {
+                  "start": {
+                    "line": 5,
+                    "col": 6
+                  },
+                  "end": {
+                    "line": 5,
+                    "col": 7
+                  },
+                  "token": "C",
+                  "type": "identifier"
+                }
+              },
+              "expr": {
+                "start": {
+                  "line": 5,
+                  "col": 11
+                },
+                "end": {
+                  "line": 5,
+                  "col": 34
+                },
+                "tag": "SEFuncOrValCons",
+                "name": {
+                  "start": {
+                    "line": 5,
+                    "col": 11
+                  },
+                  "end": {
+                    "line": 5,
+                    "col": 20
+                  },
+                  "token": "intersect",
+                  "type": "identifier"
+                },
+                "args": [
+                  {
+                    "start": {
+                      "line": 5,
+                      "col": 23
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 24
+                    },
+                    "tag": "SEBind",
+                    "contents": {
+                      "start": {
+                        "line": 5,
+                        "col": 23
+                      },
+                      "end": {
+                        "line": 5,
+                        "col": 24
+                      },
+                      "tag": "StyVar",
+                      "contents": {
+                        "start": {
+                          "line": 5,
+                          "col": 23
+                        },
+                        "end": {
+                          "line": 5,
+                          "col": 24
+                        },
+                        "token": "A",
+                        "type": "identifier"
+                      }
+                    }
+                  },
+                  {
+                    "start": {
+                      "line": 5,
+                      "col": 26
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 27
+                    },
+                    "tag": "SEBind",
+                    "contents": {
+                      "start": {
+                        "line": 5,
+                        "col": 26
+                      },
+                      "end": {
+                        "line": 5,
+                        "col": 27
+                      },
+                      "tag": "StyVar",
+                      "contents": {
+                        "start": {
+                          "line": 5,
+                          "col": 26
+                        },
+                        "end": {
+                          "line": 5,
+                          "col": 27
+                        },
+                        "token": "B",
+                        "type": "identifier"
+                      }
+                    }
+                  },
+                  {
+                    "start": {
+                      "line": 5,
+                      "col": 29
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 34
+                    },
+                    "tag": "SEFuncOrValCons",
+                    "name": {
+                      "start": {
+                        "line": 5,
+                        "col": 29
+                      },
+                      "end": {
+                        "line": 5,
+                        "col": 32
+                      },
+                      "token": "Not",
+                      "type": "identifier"
+                    },
+                    "args": [
+                      {
+                        "start": {
+                          "line": 5,
+                          "col": 33
+                        },
+                        "end": {
+                          "line": 5,
+                          "col": 34
+                        },
+                        "tag": "SEBind",
+                        "contents": {
+                          "start": {
+                            "line": 5,
+                            "col": 33
+                          },
+                          "end": {
+                            "line": 5,
+                            "col": 34
+                          },
+                          "tag": "StyVar",
+                          "contents": {
+                            "start": {
+                              "line": 5,
+                              "col": 33
+                            },
+                            "end": {
+                              "line": 5,
+                              "col": 34
+                            },
+                            "token": "f",
+                            "type": "identifier"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "start": {
+                "line": 5,
+                "col": 40
+              },
+              "end": {
+                "line": 5,
+                "col": 54
+              },
+              "tag": "RelPred",
+              "name": {
+                "start": {
+                  "line": 5,
+                  "col": 40
+                },
+                "end": {
+                  "line": 5,
+                  "col": 48
+                },
+                "token": "IsSubset",
+                "type": "identifier"
+              },
+              "args": [
+                {
+                  "start": {
+                    "line": 5,
+                    "col": 50
+                  },
+                  "end": {
+                    "line": 5,
+                    "col": 51
+                  },
+                  "tag": "StyVar",
+                  "contents": {
+                    "start": {
+                      "line": 5,
+                      "col": 50
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 51
+                    },
+                    "token": "A",
+                    "type": "identifier"
+                  }
+                },
+                {
+                  "start": {
+                    "line": 5,
+                    "col": 53
+                  },
+                  "end": {
+                    "line": 5,
+                    "col": 54
+                  },
+                  "tag": "StyVar",
+                  "contents": {
+                    "start": {
+                      "line": 5,
+                      "col": 53
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 54
+                    },
+                    "token": "B",
+                    "type": "identifier"
+                  }
+                }
+              ]
+            },
+            {
+              "start": {
+                "line": 5,
+                "col": 58
+              },
+              "end": {
+                "line": 5,
+                "col": 81
+              },
+              "tag": "RelPred",
+              "name": {
+                "start": {
+                  "line": 5,
+                  "col": 58
+                },
+                "end": {
+                  "line": 5,
+                  "col": 66
+                },
+                "token": "IsSubset",
+                "type": "identifier"
+              },
+              "args": [
+                {
+                  "start": {
+                    "line": 5,
+                    "col": 68
+                  },
+                  "end": {
+                    "line": 5,
+                    "col": 77
+                  },
+                  "tag": "RelPred",
+                  "name": {
+                    "start": {
+                      "line": 5,
+                      "col": 68
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 73
+                    },
+                    "token": "Union",
+                    "type": "identifier"
+                  },
+                  "args": [
+                    {
+                      "start": {
+                        "line": 5,
+                        "col": 74
+                      },
+                      "end": {
+                        "line": 5,
+                        "col": 75
+                      },
+                      "tag": "StyVar",
+                      "contents": {
+                        "start": {
+                          "line": 5,
+                          "col": 74
+                        },
+                        "end": {
+                          "line": 5,
+                          "col": 75
+                        },
+                        "token": "A",
+                        "type": "identifier"
+                      }
+                    },
+                    {
+                      "start": {
+                        "line": 5,
+                        "col": 76
+                      },
+                      "end": {
+                        "line": 5,
+                        "col": 77
+                      },
+                      "tag": "StyVar",
+                      "contents": {
+                        "start": {
+                          "line": 5,
+                          "col": 76
+                        },
+                        "end": {
+                          "line": 5,
+                          "col": 77
+                        },
+                        "token": "B",
+                        "type": "identifier"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "start": {
+                    "line": 5,
+                    "col": 80
+                  },
+                  "end": {
+                    "line": 5,
+                    "col": 81
+                  },
+                  "tag": "StyVar",
+                  "contents": {
+                    "start": {
+                      "line": 5,
+                      "col": 80
+                    },
+                    "end": {
+                      "line": 5,
+                      "col": 81
+                    },
+                    "token": "C",
+                    "type": "identifier"
+                  }
+                }
+              ]
+            },
+            {
+              "start": {
+                "line": 5,
+                "col": 84
+              },
+              "end": {
+                "line": 5,
+                "col": 93
+              },
+              "tag": "RelPred",
+              "name": {
+                "start": {
+                  "line": 5,
+                  "col": 84
+                },
+                "end": {
+                  "line": 5,
+                  "col": 93
+                },
+                "token": "Intersect",
+                "type": "identifier"
+              },
+              "args": []
+            }
+          ]
+        },
+        "where": {
+          "start": {
+            "line": 6,
+            "col": 3
+          },
+          "end": {
+            "line": 6,
+            "col": 8
+          },
+          "tag": "Namespace",
+          "contents": {
+            "start": {
+              "line": 6,
+              "col": 3
+            },
+            "end": {
+              "line": 6,
+              "col": 8
+            },
+            "token": "Const",
+            "type": "identifier"
+          }
+        }
+      },
+      "block": {
+        "start": {
+          "line": 6,
+          "col": 9
+        },
+        "end": {
+          "line": 11,
+          "col": 1
+        },
+        "statements": [
+          {
+            "start": {
+              "line": 8,
+              "col": 2
+            },
+            "end": {
+              "line": 8,
+              "col": 26
+            },
+            "tag": "PathAssign",
+            "type": null,
+            "path": {
+              "start": {
+                "line": 8,
+                "col": 2
+              },
+              "end": {
+                "line": 8,
+                "col": 19
+              },
+              "tag": "PropertyPath",
+              "contents": [
+                {
+                  "start": {
+                    "line": 8,
+                    "col": 2
+                  },
+                  "end": {
+                    "line": 8,
+                    "col": 3
+                  },
+                  "tag": "StyVar",
+                  "contents": {
+                    "start": {
+                      "line": 8,
+                      "col": 2
+                    },
+                    "end": {
+                      "line": 8,
+                      "col": 3
+                    },
+                    "token": "A",
+                    "type": "identifier"
+                  }
+                },
+                {
+                  "start": {
+                    "line": 8,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 8,
+                    "col": 10
+                  },
+                  "token": "circle",
+                  "type": "identifier"
+                },
+                {
+                  "start": {
+                    "line": 8,
+                    "col": 11
+                  },
+                  "end": {
+                    "line": 8,
+                    "col": 19
+                  },
+                  "token": "boolProp",
+                  "type": "identifier"
+                }
+              ]
+            },
+            "expr": {
+              "start": {
+                "line": 8,
+                "col": 22
+              },
+              "end": {
+                "line": 8,
+                "col": 26
+              },
+              "tag": "BoolLit",
+              "contents": true
+            }
+          },
+          {
+            "start": {
+              "line": 9,
+              "col": 2
+            },
+            "end": {
+              "line": 9,
+              "col": 28
+            },
+            "tag": "PathAssign",
+            "type": null,
+            "path": {
+              "start": {
+                "line": 9,
+                "col": 2
+              },
+              "end": {
+                "line": 9,
+                "col": 20
+              },
+              "tag": "PropertyPath",
+              "contents": [
+                {
+                  "start": {
+                    "line": 9,
+                    "col": 2
+                  },
+                  "end": {
+                    "line": 9,
+                    "col": 3
+                  },
+                  "tag": "StyVar",
+                  "contents": {
+                    "start": {
+                      "line": 9,
+                      "col": 2
+                    },
+                    "end": {
+                      "line": 9,
+                      "col": 3
+                    },
+                    "token": "A",
+                    "type": "identifier"
+                  }
+                },
+                {
+                  "start": {
+                    "line": 9,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 9,
+                    "col": 10
+                  },
+                  "token": "circle",
+                  "type": "identifier"
+                },
+                {
+                  "start": {
+                    "line": 9,
+                    "col": 11
+                  },
+                  "end": {
+                    "line": 9,
+                    "col": 20
+                  },
+                  "token": "boolProp1",
+                  "type": "identifier"
+                }
+              ]
+            },
+            "expr": {
+              "start": {
+                "line": 9,
+                "col": 23
+              },
+              "end": {
+                "line": 9,
+                "col": 28
+              },
+              "tag": "BoolLit",
+              "contents": false
+            }
+          },
+          {
+            "start": {
+              "line": 10,
+              "col": 2
+            },
+            "end": {
+              "line": 10,
+              "col": 45
+            },
+            "tag": "PathAssign",
+            "type": null,
+            "path": {
+              "start": {
+                "line": 10,
+                "col": 2
+              },
+              "end": {
+                "line": 10,
+                "col": 18
+              },
+              "tag": "PropertyPath",
+              "contents": [
+                {
+                  "start": {
+                    "line": 10,
+                    "col": 2
+                  },
+                  "end": {
+                    "line": 10,
+                    "col": 3
+                  },
+                  "tag": "StyVar",
+                  "contents": {
+                    "start": {
+                      "line": 10,
+                      "col": 2
+                    },
+                    "end": {
+                      "line": 10,
+                      "col": 3
+                    },
+                    "token": "A",
+                    "type": "identifier"
+                  }
+                },
+                {
+                  "start": {
+                    "line": 10,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 10,
+                    "col": 10
+                  },
+                  "token": "circle",
+                  "type": "identifier"
+                },
+                {
+                  "start": {
+                    "line": 10,
+                    "col": 11
+                  },
+                  "end": {
+                    "line": 10,
+                    "col": 18
+                  },
+                  "token": "strProp",
+                  "type": "identifier"
+                }
+              ]
+            },
+            "expr": {
+              "start": {
+                "line": 10,
+                "col": 21
+              },
+              "end": {
+                "line": 10,
+                "col": 45
+              },
+              "tag": "StringLit",
+              "contents": "ABCdef1243_dfds&(*($#@"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

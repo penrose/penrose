@@ -1,6 +1,6 @@
 # Description
 
-Related issues: # (issue)
+Related issue/PR: # (issue/PR)
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
 
@@ -13,11 +13,10 @@ Include a high-level summary of the implementation strategy and list important d
 # Checklist
 
 - [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I ran [Haddock](https://github.com/penrose/penrose/wiki/Writing-and-generating-documentation#generating-html-documentation-site) and there were no errors when generating the HTML site
 - [ ] My changes generate no new warnings
-- [ ] New and existing tests pass locally using `stack test`
-- [ ] My code follows the style guidelines of this project (e.g.: no HLint warnings)
-
+- [ ] New and existing tests pass locally using `yarn test`
+- [ ] I ran `yarn docs` and there were no errors when generating the HTML site
+- [ ] My code follows the style guidelines of this project (e.g.: no ESLint warnings)
 
 # Open questions
 
