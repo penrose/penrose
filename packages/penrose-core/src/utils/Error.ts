@@ -134,19 +134,22 @@ export const showError = (
     // COMBAK suggest improvements after reporting errors
 
     case "SelectorDeclTypeError": {
+      // COMBAK Maybe this should be a TaggedSubstanceError?
       return "Substance type error in declaration in selector";
     }
 
     case "SelectorVarMultipleDecl": {
-      return "Style pattern statement has already declared the variable";
+      return "Style pattern statement has already declared the variable ${error.varName.value}";
     }
 
     case "SelectorDeclTypeMismatch": {
-      return "mismatched types or wrong subtypes between Substance and Style variables in selector";
+      // COMBAK: Add code for prettyprinting types
+      return "Mismatched types or wrong subtypes between Substance and Style variables in selector";
     };
 
     case "SelectorRelTypeMismatch": {
-      return "mismatched types or wrong subtypes between variable and expression in relational statement in selector";
+      // COMBAK: Add code for prettyprinting types
+      return "Mismatched types or wrong subtypes between variable and expression in relational statement in selector";
     };
 
     case "TaggedSubstanceError": {

@@ -156,6 +156,7 @@ interface ParseError {
   message: string;
 }
 
+// COMBAK Maybe this should be a TaggedSubstanceError?
 interface SelectorDeclTypeError {
   tag: "SelectorDeclTypeError";
   typeName: identifier;
