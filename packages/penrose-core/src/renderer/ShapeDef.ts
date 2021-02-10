@@ -7,6 +7,7 @@ import { evalShapes } from "engine/Evaluator";
 import { initConstraintWeight } from "engine/EngineUtils";
 import { mapValues, zip } from "lodash";
 import { randFloat, randFloats, safe } from "utils/Util";
+import { Value } from "types/shapeTypes";
 
 //#region shapedef helpers and samplers
 

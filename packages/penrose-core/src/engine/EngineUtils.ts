@@ -3,6 +3,7 @@
 // TODO: Fix imports
 import { varOf, numOf, constOf, constOfIf } from "engine/Autodiff";
 import * as _ from "lodash";
+import { Elem, SubPath, Value } from "types/shapeTypes";
 const clone = require("rfdc")({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?

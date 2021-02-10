@@ -1,4 +1,3 @@
-import { compileDomain, compileSubstance, parseSubstance } from "index";
 import {
   checkExpr,
   checkPredicate,
@@ -41,7 +40,7 @@ import {
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import consola, { LogLevel } from "consola";
-import seedrandom from "seedrandom";
+import { Value } from "types/shapeTypes";
 
 const log = consola
   .create({ level: LogLevel.Warn })

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { toHex } from "../../../utils/Util";
 import { round, cloneDeep } from "lodash";
 
 interface IProps {

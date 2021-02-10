@@ -322,29 +322,6 @@ interface StyVar extends ASTNode {
   contents: Identifier;
 }
 
-/**
- * A value in the penrose system.
- */
-type Value<T> =
-  | IFloatV<T>
-  | IIntV
-  | IBoolV<T>
-  | IStrV<T>
-  | IPtV<T>
-  | IPathDataV<T>
-  | IPtListV<T>
-  | IColorV<T>
-  | IPaletteV<T>
-  | IFileV<T>
-  | IStyleV<T>
-  | IListV<T>
-  | IVectorV<T>
-  | IMatrixV<T>
-  | ITupV<T>
-  | ILListV<T>
-  | IHMatrixV<T>
-  | IPolygonV<T>;
-
 /** A floating point number **/
 interface IFloatV<T> {
   tag: "FloatV";
@@ -457,18 +434,6 @@ interface IPolygonV<T> {
   contents: [[T, T][][], [T, T][][], [[T, T], [T, T]], [T, T][]];
 }
 
-type SubPath<T> = IClosed<T> | IOpen<T>;
-
-interface IClosed<T> {
-  tag: "Closed";
-  contents: Elem<T>[];
-}
-
-interface IOpen<T> {
-  tag: "Open";
-  contents: Elem<T>[];
-}
-
 type HMatrix<T> = IHMatrix<T>;
 
 interface IHMatrix<T> {
@@ -491,13 +456,6 @@ interface IHSVA<T> {
   tag: "HSVA";
   contents: [T, T, T, T];
 }
-
-type Elem<T> =
-  | IPt<T>
-  | ICubicBez<T>
-  | ICubicBezJoin<T>
-  | IQuadBez<T>
-  | IQuadBezJoin<T>;
 
 interface IPt<T> {
   tag: "Pt";

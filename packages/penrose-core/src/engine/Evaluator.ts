@@ -9,6 +9,7 @@ import {
 } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom, { prng } from "seedrandom";
+import { Value } from "types/shapeTypes";
 import {
   floatVal,
   prettyPrintPath,
