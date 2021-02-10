@@ -41,11 +41,11 @@ And that is all we need for this exercise!
 > If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
 ### STYLE
-For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). The syntax for declaring styles goes like this,
+For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). Since we are only styling our diagram for the two sets, we will rename our `.sty` file to `twosets.sty`. The syntax for declaring styles goes like this,
 
 ![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
 
-`.sty`
+`twosets.sty`
 ```typescript
 forall Set x {
     x.icon = Circle {
@@ -67,9 +67,9 @@ forall Set x {
 ### SUBSTANCE
 Since we are only visualizing 2 sets named A and B, they are our mathematical **substances** for this diagram. 
 
-We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here.
+We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. Again, we will rename our file to be more descriptive of the content, therefore rename the `.sub` file to `twosets.sub`. 
 
-`.sub`
+`twosets.sub`
 ```typescript
 Set A
 Set B 
@@ -85,8 +85,8 @@ Label Rn $\mathbb{R}^n$
 So we highly encourage you to add that line in just so no labels go missing. :) 
 
 ### COMPILE
-Now it's time to see all of our hardwork! (drumroll 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
+Now it's time to see all of our hardwork! (drumroll please 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
 * two terminals opened both at the penrose root directory
 * run `yarn start` in one to get the browser window to pop out
-* run `roger watch NAME.sub NAME.sty NAME.dsl` to send the files over to the server
+* run `roger watch twosets.sub twosets.sty setTheory.dsl` to send the files over to the server
 * Refresh! 
