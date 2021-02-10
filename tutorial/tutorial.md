@@ -35,8 +35,9 @@ The answer is a **Set**! A set is a **type** of element in set theory. Therefore
 ```typescript
 type Set
 ```
+And that is all we need for this exercise! 
 
-If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
+> If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
 ### STYLE
 For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). The syntax for declaring styles goes like this,
