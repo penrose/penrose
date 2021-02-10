@@ -33,7 +33,7 @@
     "build": "CI=false && react-scripts --max_old_space_size=8192 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
     "build:bundle": "webpack --config webpack.config.js",
-    "test": "react-scripts test --watchAll=false",
+    "test": "echo NO TESTS",
     "docs": "typedoc --out docs src",
     "test:watch": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",

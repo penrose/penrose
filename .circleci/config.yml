@@ -43,6 +43,10 @@ jobs:
           paths:
             - ~/penrose/node_modules
       - run:
+          name: Run all builds
+          command: yarn build
+          working_directory: ~/penrose/
+      - run:
           name: Run all tests
           command: yarn test
           working_directory: ~/penrose/
