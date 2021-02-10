@@ -1,7 +1,6 @@
 import * as React from "react";
-import { RenderShape } from "renderer/Renderer";
+import { RenderShape, bBoxDims, ShapeTypes } from "penrose-core";
 import styled from "styled-components";
-import { bBoxDims } from "utils/Util";
 
 // styling for shape inside viewbox - see ShapeView or Mod
 export const ShapeItem = styled.li<any>`
@@ -20,7 +19,7 @@ export const ShapeItem = styled.li<any>`
 `;
 
 export default (
-  shapes: IShape[],
+  shapes: ShapeTypes.Shape[],
   selectedShape: number,
   setSelectedShape: (key: number) => void
 ) => {
@@ -33,36 +32,38 @@ export default (
           margin: 0,
           top: 0,
           left: 0,
-          right: 0,
+          right: 0
         }}
       >
-        {shapes.map(({ properties, shapeType }: Shape, key: number) => {
-          // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
-          // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
-          const [w, h] = bBoxDims(properties, shapeType);
-          return (
-            <ShapeItem
-              key={`shapePreview-${key}`}
-              selected={selectedShape === key}
-              onClick={() => setSelectedShape(key)}
-            >
-              <div>
-                <svg
-                  viewBox={`0 0 ${w} ${h}`}
-                  width="50"
-                  height="50"
-                  dangerouslySetInnerHTML={{
-                    __html: RenderShape({ properties, shapeType }, [], [w, h])
-                      .outerHTML,
-                  }}
-                />
-              </div>
-              <div style={{ margin: "0.5em" }}>
-                <span>{properties.name.contents}</span>
-              </div>
-            </ShapeItem>
-          );
-        })}
+        {shapes.map(
+          ({ properties, shapeType }: ShapeTypes.Shape, key: number) => {
+            // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
+            // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
+            const [w, h] = bBoxDims(properties, shapeType);
+            return (
+              <ShapeItem
+                key={`shapePreview-${key}`}
+                selected={selectedShape === key}
+                onClick={() => setSelectedShape(key)}
+              >
+                <div>
+                  <svg
+                    viewBox={`0 0 ${w} ${h}`}
+                    width="50"
+                    height="50"
+                    dangerouslySetInnerHTML={{
+                      __html: RenderShape({ properties, shapeType }, [], [w, h])
+                        .outerHTML
+                    }}
+                  />
+                </div>
+                <div style={{ margin: "0.5em" }}>
+                  <span>{properties.name.contents}</span>
+                </div>
+              </ShapeItem>
+            );
+          }
+        )}
       </ul>
     </div>
   );

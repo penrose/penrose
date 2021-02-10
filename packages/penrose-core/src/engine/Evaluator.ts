@@ -9,7 +9,7 @@ import {
 } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom, { prng } from "seedrandom";
-import { Value } from "types/shapeTypes";
+import { Shape, Value } from "types/shapeTypes";
 import {
   floatVal,
   prettyPrintPath,
@@ -106,7 +106,7 @@ export const evalShapes = (s: State): State => {
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled]: [
-    IShape[],
+    Shape[],
     Translation
   ] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
@@ -119,7 +119,7 @@ export const evalShapes = (s: State): State => {
   }
 
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled: IShape[] = s.shapeOrdering.map(
+  const sortedShapesEvaled: Shape[] = s.shapeOrdering.map(
     (name) =>
       shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );

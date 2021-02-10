@@ -9,11 +9,13 @@ import {
 import { evalShapes } from "engine/Evaluator";
 import { initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
-import RenderStatic from "renderer/Renderer";
+import RenderStatic, { RenderShape } from "renderer/Renderer";
 import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
+import * as ShapeTypes from "types/shapeTypes";
+import { Shape } from "types/shapeTypes";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result } from "utils/Error";
-import { loadImages } from "utils/Util";
+import { bBoxDims, loadImages, toHex } from "utils/Util";
 
 /**
  * Resample all shapes in the state by generating a number of samples (`numSamples`) and picking the sample with the lowest initial energy value.
@@ -132,4 +134,8 @@ export {
   parseSubstance,
   parseDomain,
   RenderStatic,
+  RenderShape,
+  ShapeTypes,
+  bBoxDims,
+  toHex,
 };

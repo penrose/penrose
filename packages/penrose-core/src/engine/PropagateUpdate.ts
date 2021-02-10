@@ -4,7 +4,7 @@ import {
   exprToNumber,
 } from "engine/EngineUtils";
 import { getShapeName } from "renderer/ShapeDef";
-import { Value } from "types/shapeTypes";
+import { Shape, Value } from "types/shapeTypes";
 import { retrieveLabel } from "utils/CollectLabels";
 
 /**

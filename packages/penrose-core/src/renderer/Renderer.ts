@@ -1,8 +1,9 @@
 import shapeMap from "./shapeMap";
 import { canvasSize } from "renderer/ShapeDef";
+import { Shape } from "types/shapeTypes";
 
 export interface ShapeProps {
-  shape: IShape;
+  shape: Shape;
   labels: LabelCache;
   canvasSize: [number, number];
   //   TODO: `document` object
@@ -14,7 +15,7 @@ export interface ShapeProps {
  * @param labels
  */
 export const RenderShape = (
-  shape: IShape,
+  shape: Shape,
   labels: LabelCache,
   canvasSizeCustom?: [number, number]
 ) => {
@@ -35,7 +36,7 @@ export const RenderShape = (
  * @param shapes
  * @param labels
  */
-const RenderStatic = (shapes: IShape[], labels: LabelCache) => {
+const RenderStatic = (shapes: Shape[], labels: LabelCache) => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");

@@ -4,11 +4,12 @@ import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
 import Timeline from "./views/Timeline";
 import viewMap from "./views/viewMap";
+import { PenroseState } from "penrose-core";
 
 interface IProps {
-  history: State[];
+  history: PenroseState[];
   onClose(): void;
-  modShapes(state: State): void;
+  modShapes(state: PenroseState): void;
 }
 
 export interface IInspectState {
@@ -21,14 +22,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
     // connectionLog: [],
     selectedFrame: -1,
-    selectedView: "frames",
+    selectedView: "frames"
   };
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
-      selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
+      selectedFrame: frame === this.state.selectedFrame ? -1 : frame
     });
   };
   public render() {
@@ -45,7 +46,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       frame: currentFrame,
       frameIndex: selectedFrame,
       history,
-      modShapes,
+      modShapes
     };
     return (
       <div
@@ -55,7 +56,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          paddingBottom: "1em",
+          paddingBottom: "1em"
         }}
       >
         <Timeline {...commonProps} />
@@ -73,7 +74,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                     style={{
                       height: "100%",
                       overflow: "auto",
-                      boxSizing: "border-box",
+                      boxSizing: "border-box"
                     }}
                   >
                     <ErrorBoundary>

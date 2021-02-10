@@ -1,10 +1,11 @@
 import * as React from "react";
 import LabeledInput from "./LabeledInput";
+import { ShapeTypes } from "penrose-core";
 
 interface IProps {
-  shape: IShape;
+  shape: ShapeTypes.Shape;
   sAttrs: IShapeDef;
-  modAttr(attrname: string, attrval: Value<any>): void;
+  modAttr(attrname: string, attrval: ShapeTypes.Value<any>): void;
 }
 
 interface IShapeDef {

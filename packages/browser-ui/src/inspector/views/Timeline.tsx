@@ -1,8 +1,7 @@
+import { PenroseState, RenderStatic } from "penrose-core";
 import * as React from "react";
-import RenderStatic from "renderer/Renderer";
 
 import styled from "styled-components";
-import Canvas from "ui/Canvas";
 import IViewProps from "./IViewProps";
 
 const TimelineStyled = styled.ul`
@@ -48,14 +47,14 @@ class Timeline extends React.Component<IViewProps> {
     const { frameIndex, history } = this.props;
     return (
       <TimelineStyled ref={this.timelineRef}>
-        {history.map((frame: State, k: number) => {
+        {history.map((frame: PenroseState, k: number) => {
           return (
             <TimelineItem
               selected={k === frameIndex}
               key={k}
               onClick={() => this.props.selectFrame(k)}
               dangerouslySetInnerHTML={{
-                __html: RenderStatic(frame.shapes, frame.labelCache).outerHTML,
+                __html: RenderStatic(frame.shapes, frame.labelCache).outerHTML
               }}
             />
           );

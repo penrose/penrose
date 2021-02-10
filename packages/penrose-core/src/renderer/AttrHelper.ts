@@ -1,19 +1,20 @@
+import { Shape } from "types/shapeTypes";
 import { toHex, toScreen } from "utils/Util";
 
-export const attrFill = ({ properties }: IShape, elem: SVGElement) => {
+export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const color = properties.color as IColorV<number>;
   const alpha = color.contents.contents[3];
   elem.setAttribute("fill", toHex(color.contents));
   elem.setAttribute("fill-opacity", alpha.toString());
 };
 
-export const attrOpacity = ({ properties }: IShape, elem: SVGElement) => {
+export const attrOpacity = ({ properties }: Shape, elem: SVGElement) => {
   const opacity = (properties.opacity as IFloatV<number>).contents;
   elem.setAttribute("opacity", opacity.toString());
 };
 
 export const attrCenter = (
-  { properties }: IShape,
+  { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
@@ -24,7 +25,7 @@ export const attrCenter = (
 };
 
 export const attrTransformCoords = (
-  { properties }: IShape,
+  { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
@@ -39,7 +40,7 @@ export const attrTransformCoords = (
 };
 
 export const attrXY = (
-  { properties }: IShape,
+  { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
@@ -52,7 +53,7 @@ export const attrXY = (
 };
 
 export const attrSideCoords = (
-  { properties }: IShape,
+  { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
@@ -65,26 +66,26 @@ export const attrSideCoords = (
   );
 };
 
-export const attrRadius = ({ properties }: IShape, elem: SVGElement) => {
+export const attrRadius = ({ properties }: Shape, elem: SVGElement) => {
   const r = properties.r as IFloatV<number>;
   elem.setAttribute("r", r.contents.toString());
 };
 
-export const attrRadii = ({ properties }: IShape, elem: SVGElement) => {
+export const attrRadii = ({ properties }: Shape, elem: SVGElement) => {
   const rx = properties.rx as IFloatV<number>;
   const ry = properties.ry as IFloatV<number>;
   elem.setAttribute("rx", rx.contents.toString());
   elem.setAttribute("ry", rx.contents.toString());
 };
 
-export const attrWH = ({ properties }: IShape, elem: SVGElement) => {
+export const attrWH = ({ properties }: Shape, elem: SVGElement) => {
   const w = properties.w as IFloatV<number>;
   const h = properties.h as IFloatV<number>;
   elem.setAttribute("width", w.contents.toString());
   elem.setAttribute("height", h.contents.toString());
 };
 
-export const attrSide = ({ properties }: IShape, elem: SVGElement) => {
+export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
   const side = properties.side as IFloatV<number>;
   elem.setAttribute("width", side.contents.toString());
   elem.setAttribute("height", side.contents.toString());
@@ -92,7 +93,7 @@ export const attrSide = ({ properties }: IShape, elem: SVGElement) => {
 
 export const DASH_ARRAY = "7,5";
 
-export const attrStroke = ({ properties }: IShape, elem: SVGElement) => {
+export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   const strokeColor = properties.strokeColor as IColorV<number>;
   const strokeAlpha = strokeColor.contents.contents[3];
   const thickness = properties.strokeWidth.contents;
@@ -108,7 +109,7 @@ export const attrStroke = ({ properties }: IShape, elem: SVGElement) => {
   }
 };
 
-export const attrTitle = ({ properties }: IShape, elem: SVGElement) => {
+export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
   const name = properties.name as IStrV<string>;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;

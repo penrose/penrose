@@ -1,11 +1,12 @@
 import * as React from "react";
 import { round, cloneDeep } from "lodash";
+import { ShapeTypes, toHex } from "penrose-core";
 
 interface IProps {
   inputProps: IInputProps;
   eAttr: string;
-  eValue: Value<any>; // is this the best typing?
-  modAttr(attrname: string, attrval: Value<any>): void;
+  eValue: ShapeTypes.Value<any>; // is this the best typing?
+  modAttr(attrname: string, attrval: ShapeTypes.Value<any>): void;
 }
 
 type InputType =
@@ -67,7 +68,12 @@ class LabeledInput extends React.Component<IProps> {
   } // todo - will subpath<x> always have typeof x = number?
   public updateAttr = (
     id: string,
-    evalue: string | number | Color<number> | boolean | SubPath<number>[]
+    evalue:
+      | string
+      | number
+      | ShapeTypes.Color<number>
+      | boolean
+      | ShapeTypes.SubPath<number>[]
   ) => {
     const newstate = {
       eValue: {
@@ -76,7 +82,7 @@ class LabeledInput extends React.Component<IProps> {
       }
     };
     this.setState(newstate); // will update span values - could be phased out if spans are set manually
-    this.props.modAttr(id, newstate.eValue as Value<any>);
+    this.props.modAttr(id, newstate.eValue as ShapeTypes.Value<any>);
   };
   public handleChange = (
     eattr: string,
@@ -205,12 +211,12 @@ class LabeledInput extends React.Component<IProps> {
     // todo - refactor the whole file so you can call makerange() and makelabel() with params
     return (
       <React.Fragment>
-        {subpaths.map((subpath: SubPath<number>, index: number) => {
+        {subpaths.map((subpath: ShapeTypes.SubPath<number>, index: number) => {
           const ptarray = subpath.contents;
           // note - prob will crash on bezier stuff
           return (
             <React.Fragment key={"S" + index}>
-              {ptarray.map((pt: Elem<number>, subindex: number) => {
+              {ptarray.map((pt: ShapeTypes.Elem<number>, subindex: number) => {
                 // todo clean up following lines
                 if (pt.tag !== "Pt")
                   throw new Error("No current support for Bezier curves!");

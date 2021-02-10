@@ -1,4 +1,5 @@
 import memoize from "fast-memoize";
+import { Shape } from "types/shapeTypes";
 const mathjax = require("mathjax-full/js/mathjax.js").mathjax;
 const TeX = require("mathjax-full/js/input/tex.js").TeX;
 const SVG = require("mathjax-full/js/output/svg.js").SVG;
