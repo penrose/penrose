@@ -32,7 +32,7 @@ It follows naturally that our mathematical **domain** is the set theory. Therefo
 #### QUESTION: What's the most fundamental element in set theory? (hint: the name gives it away.)
 
 The answer is a **Set**! A set is a **type** of element in set theory. Therefore in our `setTheory.dsl`, we write the following line,
-*.dsl file*
+`.dsl`
 ```typescript
 type Set
 ```
@@ -45,7 +45,7 @@ For style, we have a little more work to do. A `.sty` file is essentially a `.cs
 
 ![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
 
-*.sty file*
+`.sty`
 ```typescript
 forall Set x {
     x.icon = Circle {
@@ -69,7 +69,7 @@ Since we are only visualizing 2 sets named A and B, they are our mathematical **
 
 We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here.
 
-*.sub file*
+`.sub`
 ```typescript
 Set A
 Set B 
