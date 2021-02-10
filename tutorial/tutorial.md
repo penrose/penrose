@@ -1,6 +1,6 @@
 # ✨ Welcome, we are so glad you are here.
 
-This tutorial consists of 3 individual exercises, teaching you all the skills you would need to make your own domain from scratch! Each exercise builds on the concepts taught in the previous exercise(s), so we highly recommend you to follow through and understand each exercise as you go. Feel free to shoot us a message if you get stuck anywhere at [insert contact info].
+This tutorial consists of 3 individual exercises, teaching you all the skills you would need to make your own domain from scratch! Each exercise builds on the concepts taught in the previous exercise(s), so we highly recommend you to follow through and understand each exercise as you go. Feel free to shoot us a message if you get stuck anywhere at team@penrose.ink.
 
 # Installation
 💻 We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Getting-started). Come back when you are done. 
