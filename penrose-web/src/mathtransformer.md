@@ -1,11 +1,11 @@
 # Math Transformer
 
 ## Prerequisities
-You must install [jscodeshift](https://www.npmjs.com/package/jscodeshift).
+You must install [jscodeshift](https://www.npmjs.com/package/jscodeshift) by running `npm i jscodeshift`. If you want to run the JSCodeshift tests, run it in the `__tests__` directory. You may also want to install the corresponding types module: `npm i @types/jscodeshift`.
 
 ## Code Breakdown
 
-Understanding the code in `toCustomAD.ts` is essential to extending it. The code is broken down into multiple sections. To easily extend the code, you should be able to understand which section to modify.
+Understanding the code in `toCustomAD.ts` is essential to extending it. The code is broken down into multiple sections. To easily extend the code, you should be able to understand which section to modify. You should also understand the different types of nodes that the typescript parser produces (i.e. what MemberExpression, CallExpression, etc. mean). A really helpful resource for this is the [AST Parser](https://astexplorer.net). We use the `typescript-eslint` parser.
 
 ### Section 0: Utilities
 
@@ -21,7 +21,7 @@ This section contains instructions on how to transform one type of node to anoth
 
 #### Subsection 2: Match Target Functions
 
-A match target function extracts the information necessary to match a node to a target in Subsection 3 (Transform Maps). It's important to understand that JSCodeshift doesn't support searching by name (e.g. find all nodes that have name `pow`). Instead, we have to isolate nodes of the desired type (e.g. binary expressions), and then check if those nodes match some pattern that we want to transform. For example, the function `ME2STR` returns the `name` property of a member expression as a string. Later, we check to see if this string matches any of the names of specific member expressions we want to translate. 
+A match target function extracts the information necessary to match a node to a target in Subsection 3 (Transform Maps). It's important to understand that JSCodeshift doesn't support searching by name (e.g. find all nodes that have name `pow`). Instead, we have to isolate nodes of the desired type (e.g. binary expressions), and then check if those nodes match some pattern that we want to transform. For example, the function `ME2STR` returns the `name` property of a member expression as a string. Later, we check to see if this string matches any of the names of specific member expressions we want to translate. It is important to note that all of the "to string" methods do not add spaces between syntactic units. For instance, converting the node representing the ternary expression `x ? y : z` to a string would return `x?y:z` without the spacing. This may be relevant when testing for a match.
 
 #### Subsection 3: Transform Maps
 
@@ -29,7 +29,7 @@ This is the section you will probably need to modify the most. This section cont
 
 #### Subsection 4: Marktag
 
-This section indicates how a user should tag a node that they want to transform. The current tag is `autodiff`, so piece of code that has `autodiff` commented above it will be flagged for possible transforming.
+This section indicates how a user should tag a node that they want to transform. The current tag is `autodiff`, so a piece of code that has `autodiff` commented above it will be flagged for possible transforming.
 
 #### Subsection 5: Preset Calls
 
@@ -68,11 +68,13 @@ To mark an AST node (basically any unit in TS, e.g. function, string, variable, 
 
 CLI usage for jscodeshift can be found [here](https://github.com/facebook/jscodeshift).
 
-`jscodeshift bugtest.ts -t toCustomAD.ts -p -d`
+`jscodeshift tests.ts -t toCustomAD.ts -p -d`
 
-`jscodeshift mathtest.ts -t toCustomAD.ts -p -d`
+The answer key to these tests (i.e. what the ideal output is) can be found at `testkey.ts`.
 
 Template: `jscodeshift YOURFILE.ts -t toCustomAD.ts -p -d`
+
+
 
 ### IMPORTANT NOTE - JSCODESHIFT MODIFIES THE INPUT FILE!
 

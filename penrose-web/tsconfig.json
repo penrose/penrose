@@ -76,8 +76,7 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts",
-    "src/mathtransform"
+    "src/setupTests.ts"
   ],
   "typedocOptions": {
     "inputFiles": [
