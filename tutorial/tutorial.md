@@ -14,7 +14,7 @@ Every Penrose program consists of 3 files: A `.dsl`  file that defines the langu
 
 After following the getting started page, you should now have forked Penrose and have created a new folder in the `penrose/examples` path. So you should have something like this.
 
-![initialize files](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/initialize_file.png)
+![initialize files](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/initializa_file.png)
 
 # 📖 Exercise (1)
 This is the first diagram we will make together. This is the equivalent of ```print("Hello World")``` program for Penrose. 
