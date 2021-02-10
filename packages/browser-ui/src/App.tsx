@@ -43,7 +43,7 @@ class App extends React.Component<any, ICanvasState> {
   public readonly buttons = React.createRef<ButtonBar>();
 
   public modShapes = async (state: PenroseState) => {
-    this.modCanvas(state); // is this the right way to call it
+    await this.modCanvas(state); // is this the right way to call it
   };
 
   // same as onCanvasState but doesn't alter timeline or involve optimization
@@ -88,13 +88,13 @@ class App extends React.Component<any, ICanvasState> {
   public autoStepToggle = async () => {
     this.setState({ autostep: !this.state.autostep });
     if (this.state.autostep && this.state.processedInitial) {
-      void this.step();
+      await this.step();
     }
   };
 
   public step = async () => {
     const stepped = stepState(this.state.data!);
-    void this.onCanvasState(stepped);
+    await this.onCanvasState(stepped);
   };
 
   public resample = async () => {
