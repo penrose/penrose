@@ -1,0 +1,20 @@
+Graph G1
+Vertex v1, v2, v3, v4
+
+Edge e1 := MkEdge(v1, v2)
+Edge e2 := MkEdge(v1, v3)
+Edge e3 := MkEdge(v3, v4)
+Edge e4 := MkEdge(v3, v2)
+
+-- InV(v1, G1)
+-- InV(v2, G1)
+-- InE(e1, G1)
+
+-- Graph G2
+-- Face f1 := FindFace(G2)
+-- Vertex vf1 := FindVertex(f1)
+-- Vertex vf2 := FindVertex(G2)
+-- Edge ef12 := MkEdge(vf1, vf2)
+-- SelectedE(ef12)
+
+AutoLabel All
