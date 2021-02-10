@@ -16,5 +16,54 @@ After following the getting started page, you should now have forked Penrose and
 
 ![initialize files](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/initializa_file.png)
 
+
 # 📖 Exercise (1)
-This is the first diagram we will make together. This is the equivalent of ```print("Hello World")``` program for Penrose. 
+This is the first diagram we will make together. This is the equivalent of ```print("Hello World")``` program for Penrose.
+
+![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/2sets.png)
+This is what you will end up with at the end of our exercise 1. 
+
+### What is this? 
+Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets, set A and set B. 
+
+### DOMAIN
+It follows naturally that our mathematical **domain** is the set theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`. Now recall what does a `.dsl` file do? It defines the language we use to describe the specific mathematical domain. Now I have a question for you,
+
+#### 📒 What's the most fundamental element in set theory? (hint: the name gives it away.)
+
+The answer is a **Set**! A set is a **type** of element in set theory. Therefore in our `setTheory.dsl`, we write the following line,
+```typescript
+type Set
+```
+
+If you look closely, we have a `examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
+
+### STYLE
+For style, we have a little more work to do. 
+
+```typescript
+forall Set x {
+    x.icon = Circle {
+        strokeWidth : 0.0
+    }
+
+    x.text = Text {
+        string : x.label
+    }
+
+    ensure contains(x.icon, x.text)
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
+    encourage sameCenter(x.text, x.icon)
+    x.textLayering = x.text above x.icon
+}
+```
+
+### SUBSTANCE
+They are our mathematical **substances** that we want to visualize. Therefore... (drumroll 🥁)
+    
+```typescript
+Set A
+Set B 
+AutoLabel All
+```
