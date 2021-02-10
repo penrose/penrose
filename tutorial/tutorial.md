@@ -8,7 +8,7 @@ We have a detailed wiki page on how to get Penrose up and running on your comput
 # What makes a Penrose program? 
 Every Penrose program consists of 3 files: A `.dsl`  file that defines the language specific to the domain, a `.sub` file that creates substances of mathematical content, and lastly, a `.sty` file that specifies the style of the visual representation. We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be used together a "triple." 
 
-[triple](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/triple.png)
+![triple](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/triple.png)
 
 > Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose. 
 
