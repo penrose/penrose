@@ -1,5 +1,5 @@
 import * as React from "react";
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends React.Component<{ children: any }> {
   public readonly state = { hasError: false };
 
   public static getDerivedStateFromError(error: any) {

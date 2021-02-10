@@ -10,7 +10,7 @@ interface IProps {
 
 interface IShapeDef {
   shapeType: string;
-  properties: object;
+  properties: any;
 }
 
 // Q - should this update shape properties in state? not really necessary functionally but maybe ideologically

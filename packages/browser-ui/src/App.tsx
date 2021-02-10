@@ -92,9 +92,9 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
 
-  public step = async () => {
-    const stepped = stepState(this.state.data!);
-    await this.onCanvasState(stepped);
+  public step = (): void => {
+    const stepped = stepState(this.state.data);
+    void this.onCanvasState(stepped);
   };
 
   public resample = async () => {

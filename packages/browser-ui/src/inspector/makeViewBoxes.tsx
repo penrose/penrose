@@ -18,7 +18,7 @@ export const ShapeItem = styled.li<any>`
   cursor: pointer;
 `;
 
-export default (
+const makeViewBoxes = (
   shapes: ShapeTypes.Shape[],
   selectedShape: number,
   setSelectedShape: (key: number) => void
@@ -68,3 +68,5 @@ export default (
     </div>
   );
 };
+
+export default makeViewBoxes;
