@@ -39,7 +39,9 @@ type Set
 If you look closely, we have a `examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
 ### STYLE
-For style, we have a little more work to do. 
+For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). The syntax for declaring styles goes like this,
+
+![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
 
 ```typescript
 forall Set x {
