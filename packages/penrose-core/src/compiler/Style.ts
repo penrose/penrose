@@ -38,7 +38,8 @@ import {
   genericStyleError,
   unsafelyUnwrap,
   unsafelyGetErr,
-  firstStyleError
+  firstStyleError,
+  Maybe
 } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
@@ -1748,13 +1749,21 @@ const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
     name: string,
     fieldDict: FieldDict
   ): [string, FieldDict] => {
-    let label: string = labels[name];
-    if (!label) {
-      label = name;
-      // Note that there's no reason for a shape to have no label; by default, it will be its substance name
+    let labelRes = labels.get(name);
+
+    if (!labelRes) {
+      // We skip here, to avoid putting spurious labels in for namespaces in the translation.
+      return [name, fieldDict];
     }
 
-    // COMBAK: Model this better WRT Maybes; need to distinguish between "no label mapping" and "no label" so we can delete the relevant text GPIs (see Haskell for code)
+    let label;
+    if (labelRes.isJust()) {
+      label = labelRes.value;
+    } else {
+      // TODO: Distinguish between no label and empty label?
+      label = "";
+    }
+
     fieldDict[LABEL_FIELD] = {
       tag: "FExpr",
       contents: {

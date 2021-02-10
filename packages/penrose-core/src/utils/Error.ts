@@ -179,7 +179,7 @@ export const showError = (
     };
 
     case "InsertedPathWithoutOverrideError": {
-      return "Overriding path ${prettyPrintPath(error.path)} without override flag set";
+      return `Overriding path ${prettyPrintPath(error.path)} without override flag set`;
     };
 
     case "InsertedPropWithNoFieldError": {
