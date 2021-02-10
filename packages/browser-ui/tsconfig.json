@@ -22,11 +22,12 @@
     "skipLibCheck": true,
     "downlevelIteration": true,
     "types": ["react", "jest", "node", "tslib"],
-    "typeRoots": ["src/types", "node_modules/@types"],
+    "typeRoots": ["node_modules/@types"],
     "esModuleInterop": true,
     "isolatedModules": true,
     "noEmit": true,
-    "strict": true
+    "strict": true,
+    "noFallthroughCasesInSwitch": true
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,

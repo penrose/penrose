@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "build/dist/index.js",
   "module": "build/dist/index.esm.js",
-  "types": "build/dist/types.d.ts",
+  "types": "build/dist/index.d.ts",
   "author": "maxkrieger",
   "license": "MIT",
   "scripts": {

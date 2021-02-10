@@ -4,7 +4,7 @@ import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
-  SubstanceEnv
+  SubstanceEnv,
 } from "compiler/Substance";
 import { evalShapes } from "engine/Evaluator";
 import { initializeMat, step } from "engine/Optimizer";
@@ -60,12 +60,12 @@ export const compileTrio = (
   const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    env => compileSubstance(subProg, env),
+    (env) => compileSubstance(subProg, env),
     domainRes
   );
 
   const styRes: Result<State, PenroseError> = andThen(
-    res => compileStyle(styProg, ...res),
+    (res) => compileStyle(styProg, ...res),
     subRes
   );
 
@@ -81,7 +81,7 @@ export const prepareState = async (state: State): Promise<State> => {
   // TODO:L errors
   const stateAD = {
     ...state,
-    originalTranslation: state.originalTranslation
+    originalTranslation: state.originalTranslation,
   };
 
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
@@ -102,11 +102,27 @@ export const prepareState = async (state: State): Promise<State> => {
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
     labelCache,
-    shapes: nonEmpties
+    shapes: nonEmpties,
   });
 
   return stateWithPendingProperties;
 };
+
+/**
+ * Returns true if state is converged
+ * @param state current state
+ */
+export const stateConverged = (state: State): boolean =>
+  state.params.optStatus.tag === "EPConverged";
+
+/**
+ * Returns true if state is the initial frame
+ * @param state current state
+ */
+export const stateInitial = (state: State): boolean =>
+  state.params.optStatus.tag === "NewIter";
+
+export type PenroseState = State;
 
 export {
   compileDomain,
@@ -114,5 +130,6 @@ export {
   checkDomain,
   checkSubstance,
   parseSubstance,
-  parseDomain
+  parseDomain,
+  RenderStatic,
 };

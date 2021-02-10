@@ -1,20 +1,27 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { compileTrio, prepareState, resample, stepState } from "API";
+import {
+  RenderStatic,
+  PenroseState,
+  stateConverged,
+  stepState,
+  resample,
+  compileTrio,
+  prepareState,
+  stateInitial
+} from "penrose-core";
+
 import Inspector from "inspector/Inspector";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import RenderStatic from "renderer/Renderer";
 import ButtonBar from "ui/ButtonBar";
-import Canvas from "ui/Canvas";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
-import { converged, initial } from "./packets";
 
 interface ICanvasState {
-  data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
+  data: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
   autostep: boolean;
   processedInitial: boolean;
   penroseVersion: string;
-  history: State[];
+  history: PenroseState[];
   showInspector: boolean;
   files: FileSocketResult | null;
   connected: boolean;
@@ -30,36 +37,36 @@ class App extends React.Component<any, ICanvasState> {
     penroseVersion: "",
     showInspector: true,
     files: null,
-    connected: false,
+    connected: false
   };
   public readonly canvas = React.createRef<HTMLDivElement>();
   public readonly buttons = React.createRef<ButtonBar>();
 
-  public modShapes = async (state: State) => {
+  public modShapes = async (state: PenroseState) => {
     this.modCanvas(state); // is this the right way to call it
   };
 
   // same as onCanvasState but doesn't alter timeline or involve optimization
   // used only in modshapes
-  public modCanvas = async (canvasState: State) => {
-    await new Promise((r) => setTimeout(r, 1));
+  public modCanvas = async (canvasState: PenroseState) => {
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
-      processedInitial: true,
+      processedInitial: true
     });
   };
-  public onCanvasState = async (canvasState: State) => {
+  public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
       history: [...this.state.history, canvasState],
-      processedInitial: true,
+      processedInitial: true
     });
     const { autostep } = this.state;
-    if (autostep && !converged(canvasState)) {
+    if (autostep && !stateConverged(canvasState)) {
       await this.step();
     }
   };
@@ -103,7 +110,7 @@ class App extends React.Component<any, ICanvasState> {
   connectToSocket = () => {
     FileSocket(
       socketAddress,
-      async (files) => {
+      async files => {
         const { domain, substance, style } = files;
         this.setState({ files, connected: true });
 
@@ -120,7 +127,7 @@ class App extends React.Component<any, ICanvasState> {
           style.contents
         );
         if (compileRes.isOk()) {
-          const initState: State = await prepareState(compileRes.value);
+          const initState: PenroseState = await prepareState(compileRes.value);
           this.setState({ data: initState });
           void this.onCanvasState(initState);
         } else {
@@ -163,7 +170,7 @@ class App extends React.Component<any, ICanvasState> {
       showInspector,
       history,
       files,
-      connected,
+      connected
     } = this.state;
     return (
       <div
@@ -172,7 +179,7 @@ class App extends React.Component<any, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
         <div style={{ flexShrink: 0 }}>
@@ -185,8 +192,8 @@ class App extends React.Component<any, ICanvasState> {
             step={this.step}
             autoStepToggle={this.autoStepToggle}
             resample={this.resample}
-            converged={data ? converged(data) : false}
-            initial={data ? initial(data) : false}
+            converged={data ? stateConverged(data) : false}
+            initial={data ? stateInitial(data) : false}
             toggleInspector={this.toggleInspector}
             showInspector={showInspector}
             files={files}
@@ -208,7 +215,7 @@ class App extends React.Component<any, ICanvasState> {
                 ref={this.canvas}
                 style={{ width: "100%", height: "100%" }}
                 dangerouslySetInnerHTML={{
-                  __html: RenderStatic(data.shapes, data.labelCache).outerHTML,
+                  __html: RenderStatic(data.shapes, data.labelCache).outerHTML
                 }}
               />
             )}
