@@ -1,17 +1,23 @@
 import { showType } from "compiler/Domain";
+import { prettyPrintPath } from "utils/OtherUtils";
 import { Maybe, Result } from "true-myth";
-const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr } = Result;
+const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr, unsafelyGetErr } = Result;
 
 // #region error rendering and construction
+
+// COMBAK What's a better way to model warnings?
+export const styWarnings = [
+  "DeletedPropWithNoSubObjError",
+  "DeletedPropWithNoFieldError",
+  "DeletedPropWithNoGPIError",
+  "DeletedNonexistentFieldError",
+];
 
 // TODO: fix template formatting
 export const showError = (
   error: DomainError | SubstanceError | StyleError
 ): string => {
   switch (error.tag) {
-    case "GenericStyleError": {
-      return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
-    }
     case "ParseError":
       return error.message;
     case "TypeDeclared": {
@@ -90,27 +96,27 @@ export const showError = (
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `${expectedType.args.length} arguments expected for type ${
         expectedType.name.value
-      } (defined at ${loc(expectedExpr)}), but ${
+        } (defined at ${loc(expectedExpr)}), but ${
         sourceType.args.length
-      } arguments were given for ${sourceType.name.value} at ${loc(
-        sourceExpr
-      )} `;
+        } arguments were given for ${sourceType.name.value} at ${loc(
+          sourceExpr
+        )} `;
     }
     case "ArgLengthMismatch": {
       const { name, argsGiven, argsExpected, sourceExpr, expectedExpr } = error;
       return `${name.value} expects ${
         argsExpected.length
-      } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
+        } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
         argsGiven.length
-      } arguments instead at ${loc(sourceExpr)}.`;
+        } arguments instead at ${loc(sourceExpr)}.`;
     }
     case "DeconstructNonconstructor": {
       const { variable, field } = error.deconstructor;
       return `Becuase ${variable.value} is not bound to a constructor, ${
         variable.value
-      }.${field.value} (at ${loc(
-        error.deconstructor
-      )}) does not correspond to a field value.`;
+        }.${field.value} (at ${loc(
+          error.deconstructor
+        )}) does not correspond to a field value.`;
     }
     case "UnexpectedExprForNestedPred": {
       const { sourceExpr, sourceType, expectedExpr } = error;
@@ -120,6 +126,85 @@ export const showError = (
         sourceType
       )}' type was given at ${loc(sourceExpr)}.`;
     }
+
+    // ---- BEGIN STYLE ERRORS
+    // COMBAK suggest improvements after reporting errors
+
+    case "GenericStyleError": {
+      return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
+    }
+
+    case "SelectorDeclTypeError": {
+      // COMBAK Maybe this should be a TaggedSubstanceError?
+      return "Substance type error in declaration in selector";
+    }
+
+    case "StyleErrorList": {
+      return error.errors.map(showError).join(", ");
+    }
+
+    case "SelectorVarMultipleDecl": {
+      return "Style pattern statement has already declared the variable ${error.varName.value}";
+    }
+
+    case "SelectorDeclTypeMismatch": {
+      // COMBAK: Add code for prettyprinting types
+      return "Mismatched types or wrong subtypes between Substance and Style variables in selector";
+    };
+
+    case "SelectorRelTypeMismatch": {
+      // COMBAK: Add code for prettyprinting types
+      return "Mismatched types or wrong subtypes between variable and expression in relational statement in selector";
+    };
+
+    case "TaggedSubstanceError": {
+      return showError(error.error); // Substance error
+    };
+
+    case "DeletedPropWithNoSubObjError": {
+      return `Sub obj '${error.subObj.contents.value}' has no fields; can't delete path '${prettyPrintPath(error.path)}'`;
+    };
+
+    case "DeletedPropWithNoFieldError": {
+      return `Sub obj '${error.subObj.contents.value}' already lacks field ${error.field.value}; can't delete path '${prettyPrintPath(error.path)}'`;
+    };
+
+    case "CircularPathAlias": {
+      return `Path ${prettyPrintPath(error.path)} was aliased to itself`;
+    };
+
+    case "DeletedPropWithNoGPIError": {
+      return `Sub obj '${error.subObj.contents.value}' does not have GPI '${error.field.value}'; cannot delete property '${error.property.value} in ${prettyPrintPath(error.path)}'`;
+    };
+
+    // TODO: Use input path to report location?
+    case "DeletedNonexistentFieldError": {
+      return `Trying to delete '${error.field.value} from SubObj '${error.subObj.contents.value}', which already lacks the field`;
+    };
+
+    case "DeletedVectorElemError": {
+      return `Cannot delete an element of a vector: ${prettyPrintPath(error.path)}`;
+    };
+
+    case "InsertedPathWithoutOverrideError": {
+      return `Overriding path ${prettyPrintPath(error.path)} without override flag set`;
+    };
+
+    case "InsertedPropWithNoFieldError": {
+      return `Sub obj '${error.subObj.contents.value}' does not have Field '${error.field.value}'; cannot add property '${error.property.value} in ${prettyPrintPath(error.path)}'`;
+    };
+
+    case "InsertedPropWithNoGPIError": {
+      return `Sub obj '${error.subObj.contents.value}' has field but does not have GPI '${error.field.value}'; cannot add property '${error.property.value} in ${prettyPrintPath(error.path)}'. Expected GPI.`;
+    };
+
+    // TODO(errors): use identifiers here
+    case "RuntimeValueTypeError": {
+      return `Runtime type error in looking up path '${prettyPrintPath(error.path)}''s value in translation. Expected type: ${error.expectedType}. Got type: ${error.actualType}.`;
+    };
+
+    // ----- END STYLE ERRORS
+
     case "Fatal": {
       return `FATAL: ${error.message}`;
     }
@@ -249,17 +334,30 @@ export const parseError = (message: string): ParseError => ({
   message,
 });
 
-export const genericStyleError = (messages: string[]): PenroseError => ({
+// If there are multiple errors, just return the tag of the first one
+export const toStyleErrors = (errors: StyleError[]): PenroseError => {
+  if (!errors.length) {
+    throw Error("internal error: expected at least one Style error");
+  }
+
+  return {
+    errorType: "StyleError",
+    tag: "StyleErrorList",
+    errors
+  };
+};
+
+export const genericStyleError = (messages: StyleError[]): PenroseError => ({
   errorType: "StyleError",
   tag: "GenericStyleError",
-  messages,
+  messages: messages.map(showError),
 });
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
 const loc = (node: ASTNode) =>
   `line ${node.start.line}, column ${node.start.col + 1} of ${
-    node.nodeType
+  node.nodeType
   } program`;
 
 // #endregion
@@ -322,6 +420,7 @@ export {
   match,
   unsafelyUnwrap,
   isErr,
+  unsafelyGetErr
 };
 
 // #endregion

@@ -123,7 +123,7 @@ class App extends React.Component<any, ICanvasState> {
           this.setState({ data: initState });
           void this.onCanvasState(initState);
         } else {
-          void console.error(compileRes.error);
+          void console.error("Failed to compile with errors:", compileRes.error);
         }
       },
       () => {

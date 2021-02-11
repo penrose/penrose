@@ -339,7 +339,7 @@ Point `C` {
 Angle theta
 where theta := InteriorAngle(q, p, r); Right(theta)
 with Point p; Point q; Point r {
-      theta.perpSize = 13.0
+      override theta.perpSize = 13.0
 
       -- override theta.shape = Path {
       -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)

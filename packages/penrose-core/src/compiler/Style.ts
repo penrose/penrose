@@ -35,8 +35,10 @@ import {
   ok,
   parseError,
   Result,
-  genericStyleError,
+  toStyleErrors,
   unsafelyUnwrap,
+  unsafelyGetErr,
+  Maybe
 } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
@@ -145,6 +147,7 @@ const cartesianProduct = (...a: any[]) =>
   a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())));
 
 const pathString = (p: Path): string => {
+  // COMBAK: This should be replaced by prettyPrintPath
   if (p.tag === "FieldPath") {
     return `${p.name.contents.value}.${p.field.value}`;
   } else if (p.tag === "PropertyPath") {
@@ -260,7 +263,7 @@ const addMapping = (
 };
 
 // add warning/error to end of existing errors in selector env
-const addErrSel = (selEnv: SelEnv, err: string): SelEnv => {
+const addErrSel = (selEnv: SelEnv, err: StyleError): SelEnv => {
   return {
     ...selEnv,
     errors: selEnv.errors.concat([err]),
@@ -280,7 +283,7 @@ const checkDeclPatternAndMakeEnv = (
   const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
   if (isErr(typeErr)) {
     // TODO(errors)
-    return addErrSel(selEnv, "substance type error in decl");
+    return addErrSel(selEnv, { tag: "SelectorDeclTypeError", typeName: styType });
   }
 
   const varName: string = bVar.contents.value;
@@ -289,7 +292,7 @@ const checkDeclPatternAndMakeEnv = (
   if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
     return addErrSel(
       selEnv,
-      "Style pattern statement has already declared the variable"
+      { tag: "SelectorVarMultipleDecl", varName: bVar }
     );
   }
 
@@ -318,7 +321,7 @@ const checkDeclPatternAndMakeEnv = (
       // TODO(errors)
       return addErrSel(
         selEnv,
-        "mismatched types or wrong subtypes between Substance and Style variables"
+        { tag: "SelectorDeclTypeMismatch", subType: declType, styType: substanceType }
       );
     }
 
@@ -341,7 +344,7 @@ const checkDeclPatternsAndMakeEnv = (
 
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
-const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
+const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
   // rule Bind-Context
   if (rel.tag === "RelBind") {
     // TODO: use checkSubStmt here (and in paper)?
@@ -351,29 +354,33 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
 
     // TODO(error)
     if (isErr(res1)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
-      return ["substance typecheck error in B"];
+      const subErr1: SubstanceError = res1.error;
+      // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
+      // return ["substance typecheck error in B"];
+      return [{ tag: "TaggedSubstanceError", error: subErr1 }];
     }
 
-    const [vtype, env1] = unsafelyUnwrap(res1);
+    const [vtype, env1] = res1.value;
 
     // G |- E : T2
     const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
 
     // TODO(error)
     if (isErr(res2)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
-      return ["substance typecheck error in E"];
+      const subErr2: SubstanceError = res2.error;
+      return [{ tag: "TaggedSubstanceError", error: subErr2 }];
+      // return ["substance typecheck error in E"];
     }
 
-    const [etype, env2] = unsafelyUnwrap(res1);
+    const [etype, env2] = res2.value;
 
     // T1 = T2
     const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
 
     // TODO(error) -- improve message
     if (!typesEq) {
-      return ["types not equal"];
+      return [{ tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype }];
+      // return ["types not equal"];
     }
 
     return [];
@@ -382,9 +389,9 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
     // G |- Q : Prop
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyError?
-      // return unsafelyUnwrapErr(res);
-      return ["substance typecheck error in Pred"];
+      const subErr3: SubstanceError = res.error;
+      return [{ tag: "TaggedSubstanceError", error: subErr3 }];
+      // return ["substance typecheck error in Pred"];
     }
     return [];
   } else {
@@ -393,10 +400,10 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyErrors => {
 };
 
 // Judgment 5. G |- [|S_r] ok
-const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyErrors => {
+const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyleErrors => {
   return _.flatMap(
     rels,
-    (rel: RelationPattern): StyErrors => checkRelPattern(varEnv, rel)
+    (rel: RelationPattern): StyleErrors => checkRelPattern(varEnv, rel)
   );
 };
 
@@ -1440,17 +1447,12 @@ const initTrans = (): Translation => {
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (
   trans: Translation,
+  path: Path, // used for ASTNode info
   name: BindingForm,
   field: Identifier,
   property: Identifier
 ): Translation => {
   const trn = trans.trMap;
-  const pathStr = pathString({
-    tag: "PropertyPath",
-    name,
-    field,
-    property,
-  } as Path);
 
   const nm = name.contents.value;
   const fld = field.value;
@@ -1460,16 +1462,23 @@ const deleteProperty = (
 
   if (!fieldDict) {
     // TODO(errors / warnings): Should this be fatal?
-    const err = `Err: Sub obj '${nm}' has no fields; can't delete path '${pathStr}'`;
-    return addWarn(trans, err);
+    return addWarn(trans, {
+      tag: "DeletedPropWithNoSubObjError",
+      subObj: name,
+      path
+    });
   }
 
   const prop: FieldExpr<VarAD> = fieldDict[fld];
 
   if (!prop) {
     // TODO(errors / warnings): Should this be fatal?
-    const err = `Err: Sub obj '${nm}' already lacks field '${fld}'; can't delete path ${pathStr}`;
-    return addWarn(trans, err);
+    return addWarn(trans, {
+      tag: "DeletedPropWithNoFieldError",
+      subObj: name,
+      field,
+      path
+    });
   }
 
   if (prop.tag === "FExpr") {
@@ -1482,16 +1491,20 @@ const deleteProperty = (
         const p = prop.contents.contents;
         if (varsEq(p.name.contents, name.contents) && varsEq(p.field, field)) {
           // TODO(error)
-          const warn = `path was aliased to itself`;
-          return addWarn(trans, warn);
+          return addWarn(trans, { tag: "CircularPathAlias", path: { tag: "FieldPath", name, field } as Path });
         }
-        return deleteProperty(trans, p.name, p.field, property);
+        return deleteProperty(trans, p, p.name, p.field, property);
       }
     }
 
     // TODO(error)
-    const warn = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot delete property '${property.value}'`;
-    return addWarn(trans, warn);
+    return addWarn(trans, {
+      tag: "DeletedPropWithNoGPIError",
+      subObj: name,
+      field,
+      property,
+      path
+    });
   } else if (prop.tag === "FGPI") {
     // TODO(error, warning): check if the property is member of properties of GPI
     const gpiDict = prop.contents[1];
@@ -1503,23 +1516,33 @@ const deleteProperty = (
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteField = (
   trans: Translation,
+  path: Path,
   name: BindingForm,
   field: Identifier
 ): Translation => {
-  // TODO(errors)
+
+  // TODO(errors): Pass in the original path for error reporting
   const trn = trans.trMap;
   const fieldDict = trn[name.contents.value];
 
   if (!fieldDict) {
     // TODO(errors / warnings)
-    const warn = `Err: Sub obj '${name.contents.value}' has no fields; can't delete field '${field.value}'`;
-    return addWarn(trans, warn);
+    return addWarn(trans, {
+      tag: "DeletedNonexistentFieldError",
+      subObj: name,
+      field,
+      path
+    });
   }
 
   if (!(field.value in fieldDict)) {
     // TODO(errors / warnings)
-    const warn = `Warn: SubObj '${name.contents.value}' already lacks field '${field.value}'`;
-    return addWarn(trans, warn);
+    return addWarn(trans, {
+      tag: "DeletedNonexistentFieldError",
+      subObj: name,
+      field,
+      path
+    });
   }
 
   delete fieldDict[field.value];
@@ -1531,14 +1554,14 @@ const deleteField = (
 const deletePath = (
   trans: Translation,
   path: Path
-): Either<StyErrors, Translation> => {
-  // TODO(errors): Maybe fix how warnings are reported? Right now they are put into the "translation"
+): Either<StyleErrors, Translation> => {
   if (path.tag === "FieldPath") {
-    const transWithWarnings = deleteField(trans, path.name, path.field);
+    const transWithWarnings = deleteField(trans, path, path.name, path.field);
     return Right(transWithWarnings);
   } else if (path.tag === "PropertyPath") {
     const transWithWarnings = deleteProperty(
       trans,
+      path,
       path.name,
       path.field,
       path.property
@@ -1546,7 +1569,8 @@ const deletePath = (
     return Right(transWithWarnings);
   } else if (path.tag === "AccessPath") {
     // TODO(error)
-    return Left([`Cannot delete an element of a vector: ${path}`]);
+    const err: StyleError = { tag: "DeletedVectorElemError", path };
+    return Left([err]);
   } else if (path.tag === "InternalLocalVar") {
     throw Error(
       "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"
@@ -1560,7 +1584,7 @@ const addPath = (
   trans: Translation,
   path: Path,
   expr: TagExpr<VarAD>
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
 
@@ -1576,7 +1600,7 @@ const addPath = (
 const translateLine = (
   trans: Translation,
   stmt: Stmt
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   if (stmt.tag === "PathAssign") {
     return addPath(false, trans, stmt.path, {
       tag: "OptEval",
@@ -1598,7 +1622,7 @@ const translateBlock = (
   blockWithNum: [Block, number],
   trans: Translation,
   substWithNum: [Subst, number]
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
   return foldM(blockSubsted.statements, translateLine, trans);
 };
@@ -1609,7 +1633,7 @@ const translateSubstsBlock = (
   trans: Translation,
   substsNum: [Subst, number][],
   blockWithNum: [Block, number]
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   return foldM(
     substsNum,
     (trans, substNum, i) =>
@@ -1618,7 +1642,7 @@ const translateSubstsBlock = (
   );
 };
 
-const checkBlock = (selEnv: SelEnv, block: Block): StyErrors => {
+const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
   // TODO: Block checking and return block errors, not generic sty errors
   // Static semantics would go here
   return [];
@@ -1632,7 +1656,7 @@ const translatePair = (
   trans: Translation,
   hb: HeaderBlock,
   blockNum: number
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   if (hb.header.tag === "Namespace") {
     const selEnv = initSelEnv();
     const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
@@ -1719,13 +1743,21 @@ const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
     name: string,
     fieldDict: FieldDict
   ): [string, FieldDict] => {
-    let label: string = labels[name];
-    if (!label) {
-      label = name;
-      // Note that there's no reason for a shape to have no label; by default, it will be its substance name
+    let labelRes = labels.get(name);
+
+    if (!labelRes) {
+      // We skip here, to avoid putting spurious labels in for namespaces in the translation.
+      return [name, fieldDict];
     }
 
-    // COMBAK: Model this better WRT Maybes; need to distinguish between "no label mapping" and "no label" so we can delete the relevant text GPIs (see Haskell for code)
+    let label;
+    if (labelRes.isJust()) {
+      label = labelRes.value;
+    } else {
+      // TODO: Distinguish between no label and empty label?
+      label = "";
+    }
+
     fieldDict[LABEL_FIELD] = {
       tag: "FExpr",
       contents: {
@@ -1749,7 +1781,7 @@ const translateStyProg = (
   styProg: StyProg,
   labelMap: LabelMap,
   styVals: number[]
-): Either<StyErrors, Translation> => {
+): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
 
   const res = foldM(
@@ -2627,12 +2659,13 @@ export const compileStyle = (
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
   // TODO(errors/warn): distinguish between errors and warnings
-  const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>
+  const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
     e.warnings.concat(e.errors)
   );
 
   if (selErrs.length > 0) {
-    return err(genericStyleError(selErrs));
+    // TODO(errors): Report all of them, not just the first?
+    return err(toStyleErrors(selErrs));
   }
 
   // Leaving these logs in because they are still useful for debugging, but TODO: remove them
@@ -2665,20 +2698,26 @@ export const compileStyle = (
     labelMap,
     styVals
   );
-  // TODO(error return) ^
 
   log.info("translation (before genOptProblem)", translateRes);
 
-  // Translation failed somewhere. // TODO: Check that errors are returned in a consistent order
+  // Translation failed somewhere
   if (translateRes.tag === "Left") {
-    // const err = `Could not compile. Error(s) in Style while generating translation`;
-    return err(genericStyleError(translateRes.contents));
+    return err(toStyleErrors(translateRes.contents));
   }
 
   const trans = translateRes.contents;
+
+  if (trans.warnings.length > 0) {
+    // TODO(errors): these errors are currently returned as warnings -- maybe systematize it?
+    console.log("Returning warnings as errors");
+    return err(toStyleErrors(trans.warnings));
+  }
+
   const initState = genOptProblemAndState(trans);
 
   log.info("init state from GenOptProblem", initState);
 
   return ok(initState);
 };
+
