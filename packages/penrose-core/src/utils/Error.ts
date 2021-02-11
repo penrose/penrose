@@ -18,9 +18,6 @@ export const showError = (
   error: DomainError | SubstanceError | StyleError
 ): string => {
   switch (error.tag) {
-    case "GenericStyleError": {
-      return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
-    }
     case "ParseError":
       return error.message;
     case "TypeDeclared": {
@@ -133,9 +130,17 @@ export const showError = (
     // ---- BEGIN STYLE ERRORS
     // COMBAK suggest improvements after reporting errors
 
+    case "GenericStyleError": {
+      return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
+    }
+
     case "SelectorDeclTypeError": {
       // COMBAK Maybe this should be a TaggedSubstanceError?
       return "Substance type error in declaration in selector";
+    }
+
+    case "StyleErrorList": {
+      return error.errors.map(showError).join(", ");
     }
 
     case "SelectorVarMultipleDecl": {
@@ -330,16 +335,16 @@ export const parseError = (message: string): ParseError => ({
 });
 
 // If there are multiple errors, just return the tag of the first one
-export const firstStyleError = (messages: StyleError[]): PenroseError => {
-  if (!messages.length) {
+export const toStyleErrors = (errors: StyleError[]): PenroseError => {
+  if (!errors.length) {
     throw Error("internal error: expected at least one Style error");
   }
 
   return {
     errorType: "StyleError",
-    tag: messages[0].tag, // COMBAK: is this confusing for showError?
-    messages: messages.map(showError),
-  }
+    tag: "StyleErrorList",
+    errors
+  };
 };
 
 export const genericStyleError = (messages: StyleError[]): PenroseError => ({

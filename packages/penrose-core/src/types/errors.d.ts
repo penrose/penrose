@@ -7,8 +7,7 @@
 type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
-  | (StyleError & { errorType: "StyleError" })
-  | StyError; // COMBAK: Remove this
+  | (StyleError & { errorType: "StyleError" });
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 type SubstanceError =
@@ -125,6 +124,7 @@ type StyleError =
   // Misc errors
   | ParseError
   | GenericStyleError
+  | StyleErrorList
   // Selector errors (from Substance)
   | SelectorDeclTypeError
   | SelectorVarMultipleDecl
@@ -151,12 +151,16 @@ interface GenericStyleError {
   messages: string[];
 }
 
+interface StyleErrorList {
+  tag: "StyleErrorList";
+  errors: StyleError[];
+}
+
 interface ParseError {
   tag: "ParseError";
   message: string;
 }
 
-// COMBAK Maybe this should be a TaggedSubstanceError?
 interface SelectorDeclTypeError {
   tag: "SelectorDeclTypeError";
   typeName: identifier;

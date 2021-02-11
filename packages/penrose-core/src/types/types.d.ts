@@ -56,7 +56,7 @@ type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
 interface ITrans<T> {
   // TODO: compGraph
   trMap: TrMap<T>;
-  warnings: StyError[];
+  warnings: StyleError[];
 }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;

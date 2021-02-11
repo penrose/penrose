@@ -231,10 +231,18 @@ describe("Compiler", () => {
 
   const expectErrorOf = (result: Result<State, PenroseError>, errorType: string) => {
     if (result.isErr()) {
-      // NOTE: Can't call showError as Style returns a composite result in firstStyleError
-      // if (printError) console.log(showError(result.error));
-      if (PRINT_ERRORS) console.log(result.error.messages);
-      expect(result.error.tag).toBe(errorType);
+      const res: PenroseError = result.error;
+      if (res.errorType !== "StyleError") {
+        fail(`Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`);
+      }
+
+      if (res.tag !== "StyleErrorList") {
+        fail(`Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`);
+      }
+
+      if (PRINT_ERRORS) { console.log(result.error); }
+
+      expect(res.errors[0].tag).toBe(errorType);
     } else {
       fail(`Error ${errorType} was supposed to occur.`);
     }

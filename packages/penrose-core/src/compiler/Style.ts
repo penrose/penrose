@@ -35,10 +35,9 @@ import {
   ok,
   parseError,
   Result,
-  genericStyleError,
+  toStyleErrors,
   unsafelyUnwrap,
   unsafelyGetErr,
-  firstStyleError,
   Maybe
 } from "utils/Error";
 import { randFloats } from "utils/Util";
@@ -354,26 +353,25 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
 
     // TODO(error)
     if (isErr(res1)) {
-      const subErr1: SubstanceError = unsafelyGetErr(res1);
+      const subErr1: SubstanceError = res1.error;
       // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
       // return ["substance typecheck error in B"];
       return [{ tag: "TaggedSubstanceError", error: subErr1 }];
     }
 
-    const [vtype, env1] = unsafelyUnwrap(res1);
+    const [vtype, env1] = res1.value;
 
     // G |- E : T2
     const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
 
     // TODO(error)
     if (isErr(res2)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyleError?
-      const subErr2: SubstanceError = unsafelyGetErr(res2);
+      const subErr2: SubstanceError = res2.error;
       return [{ tag: "TaggedSubstanceError", error: subErr2 }];
       // return ["substance typecheck error in E"];
     }
 
-    const [etype, env2] = unsafelyUnwrap(res2);
+    const [etype, env2] = res2.value;
 
     // T1 = T2
     const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
@@ -390,8 +388,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
     // G |- Q : Prop
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
-      // TODO(error): extract and return error -- how to convert from SubstanceError to StyleError?
-      const subErr3: SubstanceError = unsafelyGetErr(res);
+      const subErr3: SubstanceError = res.error;
       return [{ tag: "TaggedSubstanceError", error: subErr3 }];
       // return ["substance typecheck error in Pred"];
     }
@@ -1449,18 +1446,12 @@ const initTrans = (): Translation => {
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (
   trans: Translation,
+  path: Path, // used for ASTNode info
   name: BindingForm,
   field: Identifier,
   property: Identifier
 ): Translation => {
   const trn = trans.trMap;
-  // TODO(errors): pass in the original path here, and use it in the errors
-  const pathStr = pathString({
-    tag: "PropertyPath",
-    name,
-    field,
-    property,
-  } as Path);
 
   const nm = name.contents.value;
   const fld = field.value;
@@ -1473,7 +1464,7 @@ const deleteProperty = (
     return addWarn(trans, {
       tag: "DeletedPropWithNoSubObjError",
       subObj: name,
-      path: { tag: "PropertyPath", name, field, property, } as Path
+      path
     });
   }
 
@@ -1485,7 +1476,7 @@ const deleteProperty = (
       tag: "DeletedPropWithNoFieldError",
       subObj: name,
       field,
-      path: { tag: "PropertyPath", name, field, property, } as Path
+      path
     });
   }
 
@@ -1501,7 +1492,7 @@ const deleteProperty = (
           // TODO(error)
           return addWarn(trans, { tag: "CircularPathAlias", path: { tag: "FieldPath", name, field } as Path });
         }
-        return deleteProperty(trans, p.name, p.field, property);
+        return deleteProperty(trans, p, p.name, p.field, property);
       }
     }
 
@@ -1511,7 +1502,7 @@ const deleteProperty = (
       subObj: name,
       field,
       property,
-      path: { tag: "PropertyPath", name, field, property, } as Path
+      path
     });
   } else if (prop.tag === "FGPI") {
     // TODO(error, warning): check if the property is member of properties of GPI
@@ -1524,6 +1515,7 @@ const deleteProperty = (
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteField = (
   trans: Translation,
+  path: Path,
   name: BindingForm,
   field: Identifier
 ): Translation => {
@@ -1538,7 +1530,7 @@ const deleteField = (
       tag: "DeletedNonexistentFieldError",
       subObj: name,
       field,
-      path: { tag: "FieldPath", name, field } as Path
+      path
     });
   }
 
@@ -1548,7 +1540,7 @@ const deleteField = (
       tag: "DeletedNonexistentFieldError",
       subObj: name,
       field,
-      path: { tag: "FieldPath", name, field } as Path
+      path
     });
   }
 
@@ -1563,11 +1555,12 @@ const deletePath = (
   path: Path
 ): Either<StyleErrors, Translation> => {
   if (path.tag === "FieldPath") {
-    const transWithWarnings = deleteField(trans, path.name, path.field);
+    const transWithWarnings = deleteField(trans, path, path.name, path.field);
     return Right(transWithWarnings);
   } else if (path.tag === "PropertyPath") {
     const transWithWarnings = deleteProperty(
       trans,
+      path,
       path.name,
       path.field,
       path.property
@@ -2672,7 +2665,7 @@ export const compileStyle = (
 
   if (selErrs.length > 0) {
     // TODO(errors): Report all of them, not just the first?
-    return err(firstStyleError(selErrs));
+    return err(toStyleErrors(selErrs));
   }
 
   // Leaving these logs in because they are still useful for debugging, but TODO: remove them
@@ -2710,7 +2703,7 @@ export const compileStyle = (
 
   // Translation failed somewhere
   if (translateRes.tag === "Left") {
-    return err(firstStyleError(translateRes.contents));
+    return err(toStyleErrors(translateRes.contents));
   }
 
   const trans = translateRes.contents;
@@ -2718,7 +2711,7 @@ export const compileStyle = (
   if (trans.warnings.length > 0) {
     // TODO(errors): these errors are currently returned as warnings -- maybe systematize it?
     console.log("Returning warnings as errors");
-    return err(firstStyleError(trans.warnings));
+    return err(toStyleErrors(trans.warnings));
   }
 
   const initState = genOptProblemAndState(trans);
