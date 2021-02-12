@@ -1,8 +1,8 @@
 # ✨ Welcome, we are so glad you are here.
-Ready to make some beautiful diagrams? You are at the right place. 
+Ready to make some beautiful diagrams? You are at the right place. This tutorial is targeted towards absolute beginners who are excited to curate visualizations on mathematical topics with Penrose. :student:
 
 # What's in this tutorial? 
-This tutorial consists 3 individual sections, which each contains the following content:
+This tutorial consists 3 individual sections, each containing the following content:
 - **A Worked Example**
     - We will hold your hand to write and most importantly understand each line of code. Furthermore, we will be teaching you how to navigate in the Penrose repository for all the resources you need in the future. 
 - **Exercises (with solutions)**
@@ -11,7 +11,7 @@ This tutorial consists 3 individual sections, which each contains the following 
 The sections build on top of each other, using the skillset we've acquired in the previous exercises, therefore we highly recommend you to follow through one by one. 
 
 # Installation
-We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). Come back when you are done. 
+We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). :partying_face: Come back when you are done.
 
 After following the Building & Running page, you should now have forked Penrose and have created a new folder in the `penrose/examples` path. So you should have something like this.
 
@@ -35,7 +35,7 @@ It will most likely involve the following steps,
 * **Explore different visual styles**
     * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different **styles**. 
 
-#### In fact, the process of creating a Penrose diagram is _extremely_ similar to our intuitive process of diagramming. :tada: 
+#### In fact, the process of creating a Penrose diagram is _extremely_ similar to our intuitive process of analogue diagramming. :tada: 
 
 # What makes a Penrose program? 
 Every Penrose program consists of 3 files: A `.dsl`  file that defines the language specific to the domain, a `.sub` file that creates substances of mathematical content, and lastly, a `.sty` file that specifies the style of the visual representation. We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be used together a "triple." 
