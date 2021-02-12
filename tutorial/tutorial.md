@@ -70,6 +70,7 @@ It follows naturally that our mathematical **domain** is the set theory. Therefo
 #### :question: POP QUIZ: What's the most fundamental type of element in set theory? (hint: the name gives it away.)
 
 The answer is a **Set**! A set is a **type** of element in set theory. Therefore in our `setTheory.dsl`, we write the following line,
+
 `setTheory.dsl`
 ```typescript
 type Set
@@ -79,7 +80,7 @@ And that is all we need for this exercise in `.dsl`! :tada:
 If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
 ### :page_facing_up: SUBSTANCE
-Since we are only visualizing 2 sets named A and B, they are our mathematical **substances** for this diagram. 
+Since we are only visualizing 2 sets, they are our mathematical **substances** for this diagram. 
 
 We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. Again, we will rename our file to be more descriptive of the content, therefore rename the `.sub` file to `twosets.sub`. 
 
@@ -135,3 +136,9 @@ Now it's time to see all of our hardwork! (drumroll please 🥁) To compile your
 * run `yarn start` in one to get the browser window to pop out
 * run `roger watch twosets.sub twosets.sty setTheory.dsl` to send the files over to the server
 * Refresh! 
+
+# Exercise (1) 
+Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. 
+* **Challenge 1:** Add another `Set` to the diagram. So you should have 3 circles on your screen.
+* **Challenge 2:** Represent `Set` as squares with `width` equal to `3.0`. 
+* **Challenge 3:** Represent `Set` as rectangels with `rotation` equal to 45 degrees. 
