@@ -13,7 +13,7 @@
     "test": "jest --watchAll=false",
     "test:watch": "jest",
     "build": "rollup -c",
-    "start": "./build.js -watch",
+    "start": "rollup -c -w",
     "pretest": "npm run build:parsers",
     "prebuild-lib": "npm run build:parsers",
     "docs": "typedoc --out docs src",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.1.1",
     "@types/graphlib": "^2.1.7",
     "@types/jest": "^26.0.20",
