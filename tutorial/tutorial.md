@@ -5,7 +5,7 @@ Ready to make some beautiful diagrams? You are at the right place.
 This tutorial consists 3 individual sections, which each contains the following content:
 - A Worked Example
     - We will hold your hand to write and most importantly understand each line of code. Furthermore, we will be teaching you how to navigate in the Penrose repository for all the resources you need in the future. 
-- 2 Exercises
+- 2 Exercises (with solutions)
     - These exercises acts as sanity checks that you have comprehended the worked example. The exercises will be very similar to the worked example, and will be a walk in the park if you fully understood the worked examples. We also have the solutions available for you to check your work. 
 
 # Installation
