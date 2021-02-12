@@ -116,7 +116,7 @@ So, what are the shapes we can use? Currently, the system supports 12 different 
 
 ![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
 
-When we construct the `Circle` object for our Set, we can pass in arguments for the listed attributes to override the default values. Our desired circles here are strokeless, therefore we will set `strokeWidth: 0.0`.  
+When we construct the `Circle` object for our Set, we can customize our circle by passing in specific values for its properties. Our desired circles here are strokeless, therefore we will set `strokeWidth: 0.0`.  
 
 `twosets.sty`
 ```typescript
@@ -138,7 +138,7 @@ Now it's time to see all of our hardwork (drumroll please 🥁)!  To compile you
 # Exercise (1) 
 Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. 
 * **Challenge 1:** Add another `Set` to the diagram. So you should have 3 circles on your screen.
-* **Challenge 2:** Represent `Set` as squares with `width` equal to `3.0`. 
+* **Challenge 2:** Represent `Set` as squares with `side` equal to `3.0`. 
 * **Challenge 3:** Represent `Set` as rectangels with `rotation` equal to 45 degrees. 
 
 [SOLUTIONS](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md)
