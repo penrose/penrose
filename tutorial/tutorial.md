@@ -22,13 +22,13 @@ With the neccessary tools set up, we can finally start making Penrose programs t
 # How do we diagram by hand? 
 Now, for a second, I want you to recall how you would normally diagram a concept using a pen or pencil. It will most likely involve the following steps,
 * **_Decide on what you are diagramming_**
-    * There must be something that you wanted to diagram, so you are here pondering how to diagram it. Let's say we are making a diagram of all the plants 🪴 in your house, then plants would be our 🔹**domain**🔹 of objects that we are working with. 
+    * There must be something that you wanted to diagram, so you are here pondering how to diagram it. Let's say we are making a diagram of all the plants 🪴 in your house, then plants would be our 🔹**domain** of objects that we are working with. 
 * **_Have a (mental) list of the objects you want to include in the diagram_**
-    * We either write down, or mentally construct the list of plants that will be included in our diagram. They are the 🔹**substances**🔹 of our diagram that we will see. 
+    * We either write down, or mentally construct the list of plants that will be included in our diagram. They are the 🔹**substances** of our diagram that we will see. 
 * **_Figure out the relationships between the objects_**
     *  If we were only to put the list of things on paper, that would not be an interesting nor useful diagram. Normally, there are relationships we want to visualize through diagramming. For example, we could group the plants based on the number of times they need to be watered on a weekly basis. Then we would have visual clusters of elements.
 * **_Explore different visual styles_**
-    * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different 🔹**styles**🔹. 
+    * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different 🔹**styles**. 
 
 # What makes a Penrose program? 
 Every Penrose program consists of 3 files: A `.dsl`  file that defines the language specific to the domain, a `.sub` file that creates substances of mathematical content, and lastly, a `.sty` file that specifies the style of the visual representation. We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be used together a "triple." 
