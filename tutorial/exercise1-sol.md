@@ -5,6 +5,7 @@ Add another `Set` to the diagram. So you should have 3 circles on your screen.
 type Set
 ```
 _With changes:_
+
 `.sub`
 ```
 Set A
