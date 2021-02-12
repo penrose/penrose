@@ -11,6 +11,7 @@
     "consola": "^2.15.0",
     "console-feed": "^2.8.11",
     "debug": "^4.1.1",
+    "penrose-core": "^1.0.0",
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",
     "node-pre-gyp": "^0.14.0",
