@@ -63,7 +63,7 @@ Some of you who have experiences with set theory may recognize that ellipses are
 ### :page_facing_up: DOMAIN
 It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`.  
 
-Recall that a `.dsl` file defines the possible types of objects in our domain. We are _teaching_ Penrose the neccessary vocabulary that we use to communicate. For example, Penrose has no idea that there are objects of type plant or furniture in a house, but no worries, we can let Penrose know with several lines of code. :speaker:
+Recall that a `.dsl` file defines the possible types of objects in our domain. We are _teaching_ Penrose the neccessary vocabulary that we use to communicate. For example, Penrose has no idea that there are objects of type plant or furniture in a house, but no worries, we can let Penrose know with several lines of code :speaker:. We declare a new type following the syntax of `type TYPE_NAME`. For example, if we want Penrose to know that there are plants, we would do `type Plant` or `type plant`. We normally capitalize type names. 
 
 #### :question: POP QUIZ: What's the most fundamental type of element in Set Theory? (hint: the name gives it away.)
 
@@ -73,7 +73,7 @@ The answer is a **Set**! A set is a **type** of element in set theory. Therefore
 ```typescript
 type Set
 ```
-And that is all we need for this exercise in `.dsl`! :tada:
+And that is all we need for this exercise in `.dsl`! :tada: Now Penrose knows that there are objects of type Set. 
 
 If you look closely at the repository, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
