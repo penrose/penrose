@@ -102,14 +102,32 @@ The syntax for declaring styles goes like this,
 
 ![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
 
-Here we have 
+Note that the syntax is _very_ similar to the mathematical way of talking about objects, so it should be pretty natural for people with some backgrounds in higher math. 
 
-Currently, the system supports 12 different shapes listed [here](https://github.com/penrose/penrose/wiki/Shape-library). Look for the spec for circle. 
+Here we have our `type t` as `Set`, and we want to all of our sets to be a circle. We can make that happen by setting the `.icon` field to a shape object. 
+
+`twosets.sty`
+```typescript
+forall Set x {
+    x.icon = (* some shape object *)
+}
+```
+
+So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for everyshape [here](https://github.com/penrose/penrose/wiki/Shape-library).
 
 ![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
 
-When we construct the `Circle` object for our Set, we can pass in arguments for each other listed attributed and have our desired circle. 
+When we construct the `Circle` object for our Set, we can pass in arguments for the listed attributes to override the default values. Our desired circles here are strokeless, therefore we will set `strokeWidth: 0.0`.  
 
+`twosets.sty`
+```typescript
+forall Set x {
+    x.icon =  Circle {
+        strokeWidth : 0.0
+    }
+}
+```
+And that's a wrap! :tada: 
 
 ### COMPILE
 Now it's time to see all of our hardwork! (drumroll please 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
