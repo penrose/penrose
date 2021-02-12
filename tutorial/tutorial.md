@@ -61,21 +61,36 @@ This is the first diagram we will make together. This is the equivalent of ```pr
 This is what you will end up with at the end of our exercise 1. 
 
 ### What is this? 
-Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets, set A and set B. 
+Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later :grimacing:).
 
 ### DOMAIN
-It follows naturally that our mathematical **domain** is the set theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`. Now recall what does a `.dsl` file do? It defines the language we use to describe the specific mathematical domain. Now I have a question for you,
+It follows naturally that our mathematical **domain** is the set theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`. Now recall what does a `.dsl` file do? It defines the language we use to describe the specific mathematical domain. 
 
-#### :question: QUESTION: What's the most fundamental element in set theory? (hint: the name gives it away.)
+#### :question: POP QUIZ: What's the most fundamental type of element in set theory? (hint: the name gives it away.)
 
 The answer is a **Set**! A set is a **type** of element in set theory. Therefore in our `setTheory.dsl`, we write the following line,
-`.dsl`
+`setTheory.dsl`
 ```typescript
 type Set
 ```
-And that is all we need for this exercise! 
+And that is all we need for this exercise in `.dsl`!
 
 If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
+
+### SUBSTANCE
+Since we are only visualizing 2 sets named A and B, they are our mathematical **substances** for this diagram. 
+
+We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. Again, we will rename our file to be more descriptive of the content, therefore rename the `.sub` file to `twosets.sub`. 
+
+We want two sets in our diagram, and since they are nameless, it doesn't really matter what you name them. We simply need to declare two sets. 
+
+`twosets.sub`
+```typescript
+Set A 
+Set B 
+```
+
+Now, Penrose will know that you want two substances of type `Set` in your diagram. 
 
 ### STYLE
 For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). Since we are only styling our diagram for the two sets, we will rename our `.sty` file to `twosets.sty`. The syntax for declaring styles goes like this,
@@ -91,25 +106,6 @@ forall Set x {
 }
 ```
 
-### SUBSTANCE
-Since we are only visualizing 2 sets named A and B, they are our mathematical **substances** for this diagram. 
-
-We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. Again, we will rename our file to be more descriptive of the content, therefore rename the `.sub` file to `twosets.sub`. 
-
-`twosets.sub`
-```typescript
-Set A
-Set B 
-AutoLabel All
-```
-The last line does all the labeling work for you, so everything would be labled properly with the name you declared. To maunally label somethin would look like this. 
-
-*manual labeling*
-```typescript
-Set Rn
-Label Rn $\mathbb{R}^n$
-```
-So we highly encourage you to add that line in just so no labels go missing. :) 
 
 ### COMPILE
 Now it's time to see all of our hardwork! (drumroll please 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
