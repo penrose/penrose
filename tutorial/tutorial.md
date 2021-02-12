@@ -140,3 +140,4 @@ Now, you understand the differences between and usage of the `.dsl`, `.sub` and 
 * **Challenge 1:** Add another `Set` to the diagram. So you should have 3 circles on your screen.
 * **Challenge 2:** Represent `Set` as squares with `width` equal to `3.0`. 
 * **Challenge 3:** Represent `Set` as rectangels with `rotation` equal to 45 degrees. 
+[SOLUTIONS](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md)
