@@ -44,7 +44,7 @@ jobs:
             - ~/penrose/node_modules
       - run:
           name: Run all builds
-          command: yarn build
+          command: sudo yarn build
           working_directory: ~/penrose/
       - run:
           name: Run all tests
