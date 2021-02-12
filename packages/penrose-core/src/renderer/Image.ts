@@ -10,7 +10,7 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     return elem;
   }
   elem.innerHTML = images[path];
-  attrOpacity(shape, elem);
+  attrOpacity(shape, elem.firstChild as SVGElement);
   attrWH(shape, elem.firstChild as SVGElement);
   attrTransformCoords(shape, canvasSize, elem);
   return elem;
