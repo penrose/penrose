@@ -20,7 +20,9 @@ After following the Building & Running page, you should now have forked Penrose 
 With the neccessary tools set up, we can finally start making Penrose programs that will produce beautiful visualizations for you. Before talking about any code, a basic understanding of a Penrose program will benefit you so you feel less overwhelmed. Learning a new environment can be intimidating, and we want to make that process go as smooth as it can possibly be.
 
 # How do we diagram by hand? 
-Now, for a second, I want you to recall how you would normally diagram a concept using a pen or pencil. It will most likely involve the following steps,
+Now, for a second, I want you to recall how you would normally diagram a concept using a pen or pencil. 
+
+It will most likely involve the following steps,
 * **_Decide on what you are diagramming_**
     * There must be something that you wanted to diagram, so you are here pondering how to diagram it. 
     * Let's say we are making a diagram of all the plants 🪴 in your house, then plants would be our :small_blue_diamond: **domain** of objects that we are working with. 
