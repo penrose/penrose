@@ -56,7 +56,8 @@ In general, for each diagram, you will have an individual `.sub` file that conta
 # Example (1)
 This is the first diagram we will make together. This is the equivalent of ```print("Hello World")``` program for Penrose.
 
-![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/2sets.png)
+![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/2sets_nolabel.png)
+
 This is what you will end up with at the end of our exercise 1. 
 
 ### What is this? 
