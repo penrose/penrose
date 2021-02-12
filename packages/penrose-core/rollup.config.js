@@ -17,6 +17,18 @@ export default [
   {
     input,
     output: {
+      file: pkg.bundle,
+      name: "penrose", // this is the name of the global object
+      esModule: false,
+      exports: "named",
+      format: "umd",
+      sourcemap: true,
+    },
+    plugins,
+  },
+  {
+    input,
+    output: {
       file: pkg.module,
       format: "esm",
       sourcemap: true,

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "build/dist/index.js",
   "module": "build/dist/index.esm.js",
+  "bundle": "build/dist/penrose.min.js",
   "types": "build/dist/index.d.ts",
   "author": "maxkrieger",
   "license": "MIT",
