@@ -64,7 +64,7 @@ This is what you will end up with at the end of our exercise 1.
 ### What is this? 
 Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later :grimacing:).
 
-### DOMAIN
+### :page_facing_up: DOMAIN
 It follows naturally that our mathematical **domain** is the set theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`. Now recall what does a `.dsl` file do? It defines the language we use to describe the specific mathematical domain. 
 
 #### :question: POP QUIZ: What's the most fundamental type of element in set theory? (hint: the name gives it away.)
@@ -74,11 +74,11 @@ The answer is a **Set**! A set is a **type** of element in set theory. Therefore
 ```typescript
 type Set
 ```
-And that is all we need for this exercise in `.dsl`!
+And that is all we need for this exercise in `.dsl`! :tada:
 
 If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
-### SUBSTANCE
+### :page_facing_up: SUBSTANCE
 Since we are only visualizing 2 sets named A and B, they are our mathematical **substances** for this diagram. 
 
 We declare a substance by first declaring it's *type* followed by it's *name*. Therefore if we want to have a set named A in our visualization, we declare it using `Set A`. Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. Again, we will rename our file to be more descriptive of the content, therefore rename the `.sub` file to `twosets.sub`. 
@@ -91,21 +91,24 @@ Set A
 Set B 
 ```
 
-Now, Penrose will know that you want two substances of type `Set` in your diagram. 
+Now, Penrose will know that you want two substances of type `Set` in your diagram. :tada:
 
-### STYLE
-For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). Since we are only styling our diagram for the two sets, we will rename our `.sty` file to `twosets.sty`. The syntax for declaring styles goes like this,
+### :page_facing_up: STYLE
+For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). Since we are only styling our diagram for the two sets, we will rename our `.sty` file to `twosets.sty`. 
+
+Now, Penrose do _not_ know what a set is, it does _not_ know a set is commonly represented as a circle. **We need to style our elements from scratch.** This might seem strange, but this way you are given absolute freedom in how you want to represent your substances in the diagram. Your Set doesn't have to be a circle, it can be square, a rectangle, etc. But for this example, we will be representing sets as circles. 
+
+The syntax for declaring styles goes like this,
 
 ![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
 
-`twosets.sty`
-```typescript
-forall Set x {
-    x.icon = Circle {
-        strokeWidth : 0.0
-    }
-}
-```
+Here we have 
+
+Currently, the system supports 12 different shapes listed [here](https://github.com/penrose/penrose/wiki/Shape-library). Look for the spec for circle. 
+
+![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
+
+When we construct the `Circle` object for our Set, we can pass in arguments for each other listed attributed and have our desired circle. 
 
 
 ### COMPILE
