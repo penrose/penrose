@@ -114,7 +114,7 @@ forall Set x {
 }
 ```
 
-So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for everyshape [here](https://github.com/penrose/penrose/wiki/Shape-library).
+So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](https://github.com/penrose/penrose/wiki/Shape-library).
 
 ![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
 
@@ -130,7 +130,7 @@ forall Set x {
 ```
 And that's a wrap! :tada: 
 
-### COMPILE
+### :building_construction: COMPILE
 Now it's time to see all of our hardwork! (drumroll please 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
 * two terminals opened both at the penrose root directory
 * run `yarn start` in one to get the browser window to pop out
