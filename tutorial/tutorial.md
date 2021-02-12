@@ -35,12 +35,16 @@ It will most likely involve the following steps,
 * **Explore different visual styles**
     * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different **styles**. 
 
+#### In fact, the process of creating a Penrose diagram is _extremely_ similar to our intuitive process of diagramming. :tada: 
+
 # What makes a Penrose program? 
 Every Penrose program consists of 3 files: A `.dsl`  file that defines the language specific to the domain, a `.sub` file that creates substances of mathematical content, and lastly, a `.sty` file that specifies the style of the visual representation. We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be used together a "triple." 
 
 ![triple](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/triple.png)
 
 > Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose. 
+
+In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.dsl` files, but we would have a main `linearAlgebra.dsl` file and `linearAlgebra.sty` file. 
 
 # 📖 Example (1)
 This is the first diagram we will make together. This is the equivalent of ```print("Hello World")``` program for Penrose.
