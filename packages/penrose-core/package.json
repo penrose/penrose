@@ -14,6 +14,7 @@
     "test:watch": "jest",
     "build": "rollup -c",
     "start": "rollup -c -w",
+    "watch": "rollup -c -w",
     "pretest": "npm run build:parsers",
     "prebuild-lib": "npm run build:parsers",
     "docs": "typedoc --out docs src",
