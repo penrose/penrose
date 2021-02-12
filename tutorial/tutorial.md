@@ -129,7 +129,7 @@ forall Set x {
 And that's a wrap! :tada: 
 
 ### :building_construction: COMPILE
-Now it's time to see all of our hardwork! (drumroll please 🥁) To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need 
+Now it's time to see all of our hardwork (drumroll please 🥁)!  To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need: 
 * two terminals opened both at the penrose root directory
 * run `yarn start` in one to get the browser window to pop out
 * run `roger watch twosets.sub twosets.sty setTheory.dsl` to send the files over to the server
