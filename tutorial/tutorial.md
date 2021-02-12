@@ -6,7 +6,7 @@ This tutorial consists of 3 individual sections, each containing the following c
 - **Example**
     - We will hold your hand to write and most importantly understand each line of code. Furthermore, we will be teaching you how to navigate in the Penrose repository for all the resources you will need. Each example teaches a specific set of skills. 
 - **Exercises (with solutions)**
-    - These exercises act as sanity checks to confirm that you have comprehended the example, consolidating your knowledge and testing your understanding. We also have the solutions available for you to check your work. 
+    - These exercises act as sanity checks to confirm that you have comprehended the example. It consolidates your knowledge and tests your understanding. We also have the solutions available for you to check your work. 
   
 The sections build on top of each other, using the skillsets we've acquired in the previous exercises, therefore we highly recommend you to follow through the exercises in order.  
 
