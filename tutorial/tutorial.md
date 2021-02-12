@@ -38,7 +38,7 @@ It will most likely involve the following steps,
 ### In fact, the process of creating a Penrose diagram is _extremely_ similar to our intuitive process of analogue diagramming. :tada: 
 
 # What makes a Penrose program? 
-It follows naturally from the process of diagramming by hand, we need to store information about our **domain** of objects so Penrose understands you, the specific **substances** we want to include in our diagrams, and the **styles** we want to visualize our concept in. Each of these corresponds to a specific file with an intuitive file extension design for accessibility. 
+It follows naturally from the process of diagramming by hand, we need to store information about our **domain** of objects so Penrose understands you, the specific **substances** we want to include in our diagrams, and the **styles** we want to visualize our concept in. Each of these corresponds to a specific file with an intuitive file extension designed for accessibility. 
 
 Every Penrose program consists of 3 files: 
 * A `.dsl`  file that defines the language specific to the domain.
@@ -49,7 +49,7 @@ We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be use
 
 ![triple](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/triple.png)
 
-Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose. 
+:seedling: Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose.
 
 In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.dsl` files, but we would have a main `linearAlgebra.dsl` file and `linearAlgebra.sty` file. 
 
