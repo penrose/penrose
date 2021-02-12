@@ -7,7 +7,8 @@ import {
   resample,
   compileTrio,
   prepareState,
-  stateInitial
+  stateInitial,
+  DownloadSVG
 } from "penrose-core";
 
 import Inspector from "inspector/Inspector";
@@ -39,7 +40,6 @@ class App extends React.Component<any, ICanvasState> {
     files: null,
     connected: false
   };
-  public readonly canvas = React.createRef<HTMLDivElement>();
   public readonly buttons = React.createRef<ButtonBar>();
 
   public modShapes = async (state: PenroseState) => {
@@ -71,19 +71,34 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public downloadSVG = (): void => {
-    if (this.canvas.current !== null) {
-      // void this.canvas.current.downloadSVG();
-    }
+    DownloadSVG(
+      RenderStatic(this.state.data.shapes, this.state.data.labelCache)
+    );
   };
-  public downloadPDF = () => {
-    if (this.canvas.current !== null) {
-      // void this.canvas.current.downloadPDF();
-    }
+  public downloadPDF = (): void => {
+    console.error("PDF download not implemented");
   };
-  public downloadState = () => {
-    if (this.canvas.current !== null) {
-      // this.canvas.current.downloadState();
-    }
+  public downloadState = (): void => {
+    const state = this.state.data;
+    const params = {
+      ...state.params,
+      energyGraph: {},
+      xsVars: [],
+      constrWeightNode: undefined,
+      epWeightNode: undefined,
+      graphs: undefined
+    };
+    const content = JSON.stringify({ ...state, params });
+    const blob = new Blob([content], {
+      type: "text/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = `state.json`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   };
   public autoStepToggle = async () => {
     this.setState({ autostep: !this.state.autostep });
@@ -212,7 +227,6 @@ class App extends React.Component<any, ICanvasState> {
           >
             {data && (
               <div
-                ref={this.canvas}
                 style={{ width: "100%", height: "100%" }}
                 dangerouslySetInnerHTML={{
                   __html: RenderStatic(data.shapes, data.labelCache).outerHTML
