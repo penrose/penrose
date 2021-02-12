@@ -25,10 +25,11 @@ Now, for a second, I want you to recall how you would normally diagram a concept
 It will most likely involve the following steps,
 * **Decide on what you are diagramming**
     * There must be something that you wanted to diagram, so you are here pondering how to diagram it. 
-    * Let's say we are making a diagram of all the plants 🪴 in your house, then plants would be our **domain** of objects that we are working with. 
+    * Let's say we are making a diagram of things in your house, then the **domain** of objects that we are working with includes furnitures, plants, utensils, and everything that is in your house. Furthermore, furniture / plants / utensils are specific types of objects in your houses (the domain). 
 * **Have a (mental) list of the objects you want to include in the diagram**
-    * We either write down, or mentally construct the list of plants that will be included in our diagram.
+    * We either write down, or mentally construct the list of objects that will be included in our diagram.
     * They are the **substances** of our diagram that we will see. 
+    * For example, your chair :chair: is a particular instance of an object in the domain that has the type of _furniture_. If you wanted to include your chair in the diagram, then it is a substance of the diagram. 
 * **Figure out the relationships between the objects**
     *  If we were only to put the list of things on paper, that would not be an interesting nor useful diagram. Normally, there are relationships we want to visualize through diagramming. 
     * For example, we could group the plants based on the number of times they need to be watered on a weekly basis. Then we would have visual clusters of elements.
