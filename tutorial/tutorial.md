@@ -35,14 +35,21 @@ It will most likely involve the following steps,
 * **Explore different visual styles**
     * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different **styles**. 
 
-#### In fact, the process of creating a Penrose diagram is _extremely_ similar to our intuitive process of analogue diagramming. :tada: 
+### In fact, the process of creating a Penrose diagram is _extremely_ similar to our intuitive process of analogue diagramming. :tada: 
 
 # What makes a Penrose program? 
-Every Penrose program consists of 3 files: A `.dsl`  file that defines the language specific to the domain, a `.sub` file that creates substances of mathematical content, and lastly, a `.sty` file that specifies the style of the visual representation. We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be used together a "triple." 
+It follows naturally from the process of diagramming by hand, we need to store information about our **domain** of objects so Penrose understands you, the specific **substances** we want to include in our diagrams, and the **styles** we want to visualize our concept in. Each of these corresponds to a specific file with an intuitive file extension design for accessibility. 
+
+Every Penrose program consists of 3 files: 
+* A `.dsl`  file that defines the language specific to the domain.
+* A `.sub` file that creates substances of mathematical content.
+* A `.sty` file that specifies the style of the visual representation. 
+
+We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be used together a "triple." 
 
 ![triple](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/triple.png)
 
-> Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose. 
+Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose. 
 
 In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.dsl` files, but we would have a main `linearAlgebra.dsl` file and `linearAlgebra.sty` file. 
 
@@ -67,7 +74,7 @@ type Set
 ```
 And that is all we need for this exercise! 
 
-> If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
+If you look closely, we have a `penrose/examples/set-theory-domain/setTheory.dsl` file that contains more extensive operations common in set theory such as `Intersection, Union, Subset`, and more. 
 
 ### STYLE
 For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html`(which wouold be our `.sub` file). Since we are only styling our diagram for the two sets, we will rename our `.sty` file to `twosets.sty`. The syntax for declaring styles goes like this,
