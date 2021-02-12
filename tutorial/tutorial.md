@@ -49,11 +49,11 @@ We call a group of these programs (**DOMAIN, SUBSTANCE, STYLE**) that can be use
 
 ![triple](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/triple.png)
 
-:seedling: Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose.
+:seedling: _Rest assured, you do not need to understand how it is compiled and rendered to start creating diagrams using Penrose._
 
-In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.dsl` files, but we would have a main `linearAlgebra.dsl` file and `linearAlgebra.sty` file. 
+In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.sub` files, but we would have a main `linearAlgebra.dsl` file and `linearAlgebra.sty` file. 
 
-# 📖 Example (1)
+# Example (1)
 This is the first diagram we will make together. This is the equivalent of ```print("Hello World")``` program for Penrose.
 
 ![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/2sets.png)
@@ -65,7 +65,7 @@ Some of you who have experiences with set theory may recognize that ellipses are
 ### DOMAIN
 It follows naturally that our mathematical **domain** is the set theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`. Now recall what does a `.dsl` file do? It defines the language we use to describe the specific mathematical domain. Now I have a question for you,
 
-#### QUESTION: What's the most fundamental element in set theory? (hint: the name gives it away.)
+#### :question: QUESTION: What's the most fundamental element in set theory? (hint: the name gives it away.)
 
 The answer is a **Set**! A set is a **type** of element in set theory. Therefore in our `setTheory.dsl`, we write the following line,
 `.dsl`
