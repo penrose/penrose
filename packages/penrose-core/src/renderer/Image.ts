@@ -10,8 +10,32 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     return elem;
   }
   elem.innerHTML = images[path];
-  attrOpacity(shape, elem.firstChild as SVGElement);
-  attrWH(shape, elem.firstChild as SVGElement);
+  // HACK: generate unique ids
+  const svg = elem.firstChild as SVGSVGElement;
+  const defs = svg.getElementsByTagName("defs");
+  if (defs.length > 0) {
+    defs[0].querySelectorAll("*").forEach((node: any) => {
+      if (node.id !== "") {
+        // BUG: not matching on fill="url(#...)", only hrefs
+        const users = svg.querySelectorAll(
+          `[*|href="#${node.id}"]:not([href])`
+        );
+        users.forEach((user: any) => {
+          const unique = `${
+            (shape.properties.name as IStrV<string>).contents
+          }-ns-${node.id}`;
+          user.setAttributeNS(
+            "http://www.w3.org/1999/xlink",
+            "href",
+            "#" + unique
+          );
+          node.setAttribute("id", unique);
+        });
+      }
+    });
+  }
+  attrOpacity(shape, svg);
+  attrWH(shape, svg);
   attrTransformCoords(shape, canvasSize, elem);
   return elem;
 };
