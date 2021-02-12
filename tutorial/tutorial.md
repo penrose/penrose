@@ -57,7 +57,7 @@ This is the first diagram we will make together. This is the equivalent of the `
 
 This is what you will achieve at the end of Example (1). 
 
-### What is this? 
+### :speaking_head: WHAT IS THIS?
 Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later :grimacing:).
 
 ### :page_facing_up: DOMAIN
