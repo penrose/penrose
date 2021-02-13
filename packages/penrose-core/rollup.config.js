@@ -1,4 +1,5 @@
 import typescript from "rollup-plugin-typescript2";
+import visualizer from "rollup-plugin-visualizer";
 import { terser } from "rollup-plugin-terser";
 import nodePolyfills from "rollup-plugin-node-polyfills";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
@@ -38,7 +39,7 @@ export default [
       sourcemap: true,
     },
     onwarn,
-    plugins: [...plugins, terser()],
+    plugins: [...plugins, terser(), visualizer()],
   },
   {
     input,
