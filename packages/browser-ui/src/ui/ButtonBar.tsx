@@ -16,6 +16,7 @@ interface IProps {
   downloadState?(): void;
   autoStepToggle?(): void;
   step(): void;
+  stepUntilConvergence(): void;
   resample(): void;
   reconnect(): void;
 }
@@ -30,6 +31,7 @@ class ButtonBar extends React.Component<IProps> {
       downloadSVG,
       downloadState,
       step,
+      stepUntilConvergence,
       resample,
       toggleInspector,
       showInspector,
@@ -45,7 +47,7 @@ class ButtonBar extends React.Component<IProps> {
           </button>
         )}
         <button onClick={step}>step</button>
-        {/* <button onClick={stepUntilConvergence}>step until convergence</button> */}
+        <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
           onClick={resample}
           disabled={!converged && !initial && autostep}

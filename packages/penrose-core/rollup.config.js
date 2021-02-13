@@ -1,5 +1,5 @@
 import typescript from "rollup-plugin-typescript2";
-import replace from "@rollup/plugin-replace";
+import { terser } from "rollup-plugin-terser";
 import nodePolyfills from "rollup-plugin-node-polyfills";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
@@ -11,10 +11,21 @@ const plugins = [
   typescript({
     tsconfig: "tsconfig.json",
   }),
-  nodeResolve(),
+  nodeResolve({
+    preferBuiltins: false,
+    browser: true,
+  }),
   commonjs(),
+  nodePolyfills(),
   json(),
 ];
+
+const onwarn = (warning, defaultHandler) => {
+  if (warning.code !== "CIRCULAR_DEPENDENCY") {
+    defaultHandler(warning);
+  }
+};
+
 export default [
   {
     input,
@@ -26,21 +37,8 @@ export default [
       format: "umd",
       sourcemap: true,
     },
-    plugins: [
-      typescript({
-        tsconfig: "tsconfig.json",
-      }),
-      nodeResolve({
-        browser: true,
-      }),
-      commonjs(),
-      json(),
-      nodePolyfills(),
-      replace({
-        "process.env.NODE_ENV": JSON.stringify("production"),
-      }),
-    ],
-    // plugins,
+    onwarn,
+    plugins: [...plugins, terser()],
   },
   {
     input,
@@ -49,6 +47,7 @@ export default [
       format: "esm",
       sourcemap: true,
     },
+    onwarn,
     plugins,
   },
   {
@@ -58,6 +57,7 @@ export default [
       format: "cjs",
       sourcemap: true,
     },
+    onwarn,
     plugins,
   },
 ];

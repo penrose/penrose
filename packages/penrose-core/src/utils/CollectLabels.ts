@@ -1,19 +1,18 @@
 import memoize from "fast-memoize";
 import { Shape } from "types/shapeTypes";
-const mathjax = require("mathjax-full/js/mathjax.js").mathjax;
-const TeX = require("mathjax-full/js/input/tex.js").TeX;
-const SVG = require("mathjax-full/js/output/svg.js").SVG;
+import { mathjax } from "mathjax-full/js/mathjax.js";
+import { TeX } from "mathjax-full/js/input/tex.js";
+import { SVG } from "mathjax-full/js/output/svg.js";
+
 // Auto-switch between browser and native (Lite) --
 // not sure about the latter's fallback behavior
-const { chooseAdaptor } = require("mathjax-full/js/adaptors/chooseAdaptor.js");
-const RegisterHTMLHandler = require("mathjax-full/js/handlers/html.js")
-  .RegisterHTMLHandler;
-const AllPackages = require("mathjax-full/js/input/tex/AllPackages.js")
-  .AllPackages;
+import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
+import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
+import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 const adaptor = chooseAdaptor();
-RegisterHTMLHandler(adaptor);
+RegisterHTMLHandler(adaptor as any);
 const tex = new TeX({
   packages: AllPackages,
   inlineMath: [

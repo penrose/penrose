@@ -14,7 +14,7 @@ import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
 import * as ShapeTypes from "types/shapeTypes";
 import { Shape } from "types/shapeTypes";
 import { collectLabels } from "utils/CollectLabels";
-import { andThen, Result } from "utils/Error";
+import { andThen, Result, showError } from "utils/Error";
 import { bBoxDims, toHex } from "utils/Util";
 
 /**
@@ -27,25 +27,49 @@ export const resample = (state: State, numSamples: number): State => {
 };
 
 /**
- * Take one step in the optimizer given the current state.
+ * Take n steps in the optimizer given the current state.
  * @param state current state
+ * @param numSteps number of steps to take (default: 1)
  */
-export const stepState = (state: State): State => {
-  const numSteps = 1;
+export const stepState = (state: State, numSteps = 1): State => {
   return step(state, numSteps);
 };
 
 /**
+ * Repeatedly take one step in the optimizer given the current state until convergence.
+ * @param state current state
+ */
+export const stepUntilConvergence = (state: State): State => {
+  const numSteps = 1;
+  let currentState = state;
+  while (!stateConverged(currentState))
+    currentState = step(currentState, numSteps);
+  return currentState;
+};
+
+/**
  * Embed a Penrose `Embed` component in a DOM node
- * @param data a Penrose state
+ *
+ * @param domainProg a Domain program string
+ * @param subProg a Substance program string
+ * @param styProg a Style program string
  * @param node a node in the DOM tree
  */
 export const diagram = async (
-  data: State,
+  domainProg: string,
+  subProg: string,
+  styProg: string,
   node: HTMLElement
 ): Promise<void> => {
-  data.labelCache = await collectLabels(data.shapes);
-  node.appendChild(RenderStatic(data.shapes, data.labelCache));
+  const res = compileTrio(domainProg, subProg, styProg);
+  if (res.isOk()) {
+    const state: State = await prepareState(res.value);
+    const optimized = stepUntilConvergence(state);
+    node.appendChild(RenderStatic(optimized.shapes, optimized.labelCache));
+  } else
+    throw Error(
+      `Error when generating Penrose diagram: ${showError(res.error)}`
+    );
 };
 
 /**
