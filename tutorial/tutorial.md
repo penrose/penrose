@@ -139,8 +139,8 @@ Now it's time to see all of our hardwork (drumroll please 🥁)!  To compile you
 Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. 
 * **Challenge 1:** Add another `Set` to the diagram. So you should have 3 circles on your screen.
 ![challenge 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c1.png)
-* **Challenge 2:** Represent `Set` as squares with `side` equal to `3.0`. Keep 3 sets. 
+* **Challenge 2:** Keep 3 sets. Represent `Set` as squares with `side` equal to `3.0`. 
 ![challenge 2 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c2.png)
-* **Challenge 3:** Represent `Set` as rectangels with `rotation` equal to 45 degrees. 
+* **Challenge 3:** Keep 3 sets. Represent `Set` as rectangels with `rotation` equal to 45 degrees. 
 
 [SOLUTIONS](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md)
