@@ -137,7 +137,7 @@ Now it's time to see all of our hardwork (drumroll please 🥁)!  To compile you
 
 # Exercise (1) 
 Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. 
-* **Challenge 1:** Add another `Set` to the diagram. So you should have 3 circles on your screen.
+* **Challenge 1:** Add another `Set` to the diagram. 
 ![challenge 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c1.png)
 * **Challenge 2:** Keep 3 sets. Represent `Set` as squares with `side` equal to `3.0`. 
 ![challenge 2 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c2.png)
