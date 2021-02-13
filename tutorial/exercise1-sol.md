@@ -1,5 +1,6 @@
 # Challenge 1: 
 Add another `Set` to the diagram. So you should have 3 circles on your screen.
+
 `.dsl`
 ```typescript
 type Set
@@ -24,6 +25,7 @@ Set C
 
 # Challenge 2:
 Keep 3 sets. Represent `Set` as squares with `side` equal to `50.0`.
+
 `.sub`
 ```
 Set A
@@ -48,6 +50,7 @@ forall Set x {
 
 # Challenge 3:
 Keep 3 sets. Represent `Set` as rectangles with `rotation` equal to 45 degrees. 
+
 `.sub`
 ```
 Set A
