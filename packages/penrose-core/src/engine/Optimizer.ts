@@ -36,11 +36,12 @@ import {
   prettyPrintFns,
 } from "utils/OtherUtils";
 import consola, { LogLevel } from "consola";
+import rfdc from "rfdc";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
-const clone = require("rfdc")({ proto: false, circles: false });
+const clone = rfdc({ proto: false, circles: false });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals

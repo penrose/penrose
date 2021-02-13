@@ -38,7 +38,8 @@ import {
 
 // For deep-cloning the translation
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
-const clone = require("rfdc")({ proto: false, circles: false });
+import rfdc from "rfdc";
+const clone = rfdc({ proto: false, circles: false });
 
 // //////////////////////////////////////////////////////////////////////////////
 // Evaluator

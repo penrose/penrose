@@ -15,7 +15,7 @@ import * as ShapeTypes from "types/shapeTypes";
 import { Shape } from "types/shapeTypes";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result } from "utils/Error";
-import { bBoxDims, loadImages, toHex } from "utils/Util";
+import { bBoxDims, toHex } from "utils/Util";
 
 /**
  * Resample all shapes in the state by generating a number of samples (`numSamples`) and picking the sample with the lowest initial energy value.
@@ -90,12 +90,10 @@ export const prepareState = async (state: State): Promise<State> => {
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = evalShapes(stateAD);
 
-  const labeledShapesWithImgs: any = await loadImages(stateEvaled.shapes);
-
   const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
 
   const sortedShapes: Shape[] = sortShapes(
-    labeledShapesWithImgs,
+    stateEvaled.shapes,
     stateEvaled.shapeOrdering
   );
 

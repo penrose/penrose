@@ -41,11 +41,12 @@ import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import consola, { LogLevel } from "consola";
 import { Value } from "types/shapeTypes";
+import rfdc from "rfdc";
 
 const log = consola
   .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
-const clone = require("rfdc")({ proto: false, circles: false });
+const clone = rfdc({ proto: false, circles: false });
 
 //#region consts
 const ANON_KEYWORD = "ANON";

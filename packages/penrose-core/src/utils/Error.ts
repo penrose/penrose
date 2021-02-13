@@ -1,9 +1,25 @@
-import { showType } from "compiler/Domain";
 import { Maybe, Result } from "true-myth";
 const { or, and, ok, err, andThen, match, ap, unsafelyUnwrap, isErr } = Result;
 
 // #region error rendering and construction
 
+/**
+ * Type pretty printing function.
+ * @param t Type to be printed
+ */
+export const showType = (t: Type): string => {
+  if (t.tag === "Prop") {
+    return "Prop";
+  } else if (t.tag === "TypeVar") {
+    return `'${t.name.value}`;
+  } else {
+    const { name, args } = t;
+    if (args.length > 0) {
+      const argStrs = args.map(showType);
+      return `${name.value}(${argStrs.join(", ")})`;
+    } else return `${name.value}`;
+  }
+};
 // TODO: fix template formatting
 export const showError = (
   error: DomainError | SubstanceError | StyleError

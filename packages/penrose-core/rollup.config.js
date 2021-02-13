@@ -1,4 +1,6 @@
 import typescript from "rollup-plugin-typescript2";
+import replace from "@rollup/plugin-replace";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
@@ -24,7 +26,21 @@ export default [
       format: "umd",
       sourcemap: true,
     },
-    plugins,
+    plugins: [
+      typescript({
+        tsconfig: "tsconfig.json",
+      }),
+      nodeResolve({
+        browser: true,
+      }),
+      commonjs(),
+      json(),
+      nodePolyfills(),
+      replace({
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      }),
+    ],
+    // plugins,
   },
   {
     input,
