@@ -116,7 +116,7 @@ So, what are the shapes we can use? Currently, the system supports 12 different 
 
 ![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
 
-When we construct the `Circle` object for our Set, we can customize our circle by passing in specific values for its properties. Our desired circles here are strokeless, therefore we will set `strokeWidth: 0.0`.  
+When we construct the `Circle` object for our Set, we can customize our circle by passing in specific values for its properties. Our desired circles here are strokeless, therefore we will set `strokeWidth: 0.0`.  For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization. 
 
 `twosets.sty`
 ```typescript
