@@ -12,7 +12,7 @@
     "prebuild": "yarn build:parsers",
     "prestart": "yarn build:parsers",
     "test": "jest --watchAll=false",
-    "test:watch": "jest",
+    "test:watch": "jest --watchAll",
     "build": "rollup -c",
     "start": "rollup -c -w",
     "watch": "rollup -c -w",

@@ -31,7 +31,7 @@ import {
 } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { Value } from "types/shapeTypes";
-import { err, isErr, ok, Result, toStyleErrors } from "utils/Error";
+import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 
@@ -2708,7 +2708,7 @@ export const compileStyle = (
 
   if (trans.warnings.length > 0) {
     // TODO(errors): these errors are currently returned as warnings -- maybe systematize it?
-    console.log("Returning warnings as errors");
+    log.info("Returning warnings as errors");
     return err(toStyleErrors(trans.warnings));
   }
 

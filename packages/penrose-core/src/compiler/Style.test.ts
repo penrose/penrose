@@ -10,7 +10,7 @@ import {
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
-import { andThen, unsafelyUnwrap, Result, showError, showStyErr } from "utils/Error";
+import { andThen, unsafelyUnwrap, Result, showError } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
 // TODO: Reorganize and name tests by compiler stage
 
@@ -138,13 +138,13 @@ describe("Compiler", () => {
 
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
-    const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>
+    const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
       e.warnings.concat(e.errors)
     );
 
     if (selErrs.length > 0) {
       const err = `Could not compile. Error(s) in Style while checking selectors`;
-      console.log([err].concat(selErrs));
+      console.log([err].concat(selErrs.map((e) => showError(e))));
       fail();
     }
 
@@ -181,13 +181,13 @@ describe("Compiler", () => {
     ] = loadProgs(loadFiles(triple) as [string, string, string]);
 
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
-    const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>
+    const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
       e.warnings.concat(e.errors)
     );
 
     if (selErrs.length > 0) {
       const err = `Could not compile. Error(s) in Style while checking selectors`;
-      console.log([err].concat(selErrs));
+      console.log([err].concat(selErrs.map((e) => showError(e))));
       expect(false).toEqual(true);
     }
 
@@ -229,18 +229,27 @@ describe("Compiler", () => {
   // Test errors
   const PRINT_ERRORS = false;
 
-  const expectErrorOf = (result: Result<State, PenroseError>, errorType: string) => {
+  const expectErrorOf = (
+    result: Result<State, PenroseError>,
+    errorType: string
+  ) => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
       if (res.errorType !== "StyleError") {
-        fail(`Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`);
+        fail(
+          `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
+        );
       }
 
       if (res.tag !== "StyleErrorList") {
-        fail(`Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`);
+        fail(
+          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
+        );
       }
 
-      if (PRINT_ERRORS) { console.log(result.error); }
+      if (PRINT_ERRORS) {
+        console.log(result.error);
+      }
 
       expect(res.errors[0].tag).toBe(errorType);
     } else {
@@ -249,11 +258,10 @@ describe("Compiler", () => {
   };
 
   describe("Errors", () => {
-
     const subProg = loadFile("set-theory-domain/twosets-simple.sub");
     const domainProg = loadFile("set-theory-domain/setTheory.dsl");
     // We test variations on this Style program
-    // const styPath = "set-theory-domain/venn.sty"; 
+    // const styPath = "set-theory-domain/venn.sty";
 
     const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
@@ -278,19 +286,27 @@ describe("Compiler", () => {
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
       SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
 
-      SelectorRelTypeMismatch: [`forall Point x; Set y; Set z
-      where x := Union(y, z) { } `],
+      SelectorRelTypeMismatch: [
+        `forall Point x; Set y; Set z
+      where x := Union(y, z) { } `,
+      ],
 
-      TaggedSubstanceError: [`forall Set x; Point y
-where IsSubset(y, x) { }`],
+      TaggedSubstanceError: [
+        `forall Set x; Point y
+where IsSubset(y, x) { }`,
+      ],
 
       // ------- Translation errors (deletion)
       DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
-      DeletedPropWithNoFieldError: [`forall Set x { x.icon = Circle { }
-delete x.z.p }`],
+      DeletedPropWithNoFieldError: [
+        `forall Set x { x.icon = Circle { }
+delete x.z.p }`,
+      ],
 
-      DeletedPropWithNoGPIError: [`forall Set x { x.z = 0.0
-delete x.z.p }`],
+      DeletedPropWithNoGPIError: [
+        `forall Set x { x.z = 0.0
+delete x.z.p }`,
+      ],
 
       // COMBAK: This doesn't catch the error
       // COMBAK: Style appears to throw parse error if line ends with a trailing space
@@ -300,37 +316,41 @@ delete x.z.p }`],
       // x.icon.center = x.icon.center }`],
 
       DeletedNonexistentFieldError: [`forall Set x { delete x.z }`],
-      DeletedVectorElemError:
-        [`forall Set x {  
+      DeletedVectorElemError: [
+        `forall Set x {  
          x.icon = Circle { 
            center: (0.0, 0.0) 
          }
-         delete x.icon[0] }`],
+         delete x.icon[0] }`,
+      ],
 
       // ---------- Translation errors (insertion)
 
-      InsertedPathWithoutOverrideError:
-        [`forall Set x { 
+      InsertedPathWithoutOverrideError: [
+        `forall Set x { 
            x.z = 1.0 
            x.z = 2.0
 }`,
-          `forall Set x { 
+        `forall Set x { 
          x.icon = Circle { 
            center: (0.0, 0.0) 
          }
            x.icon.center = 2.0
-}`],
+}`,
+      ],
 
-      InsertedPropWithNoFieldError:
-        [`forall Set x {
+      InsertedPropWithNoFieldError: [
+        `forall Set x {
     x.icon.r = 0.0
-}`],
+}`,
+      ],
 
-      InsertedPropWithNoGPIError:
-        [`forall Set x {
+      InsertedPropWithNoGPIError: [
+        `forall Set x {
     x.icon = "hello"
     x.icon.r = 0.0
-}`],
+}`,
+      ],
 
       // ---------- Runtime errors (insertExpr)
 
@@ -338,14 +358,13 @@ delete x.z.p }`],
       // COMBAK / NOTE: runtime errors aren't caught if an expr isn't evaluated, since we don't have statics. Test these separately.
 
       //       RuntimeValueTypeError: [
-      //         `forall Set x { 
-      //          x.icon = Circle { 
-      //            center: (0.0, 0.0) 
+      //         `forall Set x {
+      //          x.icon = Circle {
+      //            center: (0.0, 0.0)
       //          }
       //            x.icon.center[0] = "hello"
       //            x.icon.center[1] = x.icon.center[0]
       // }`]
-
     };
 
     // ---------- Errors that should maybe be modeled + tested
@@ -371,5 +390,4 @@ delete x.z.p }`],
       }
     }
   });
-
 });
