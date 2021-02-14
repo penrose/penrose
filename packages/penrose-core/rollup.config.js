@@ -39,6 +39,7 @@ export default [
       sourcemap: true,
     },
     onwarn,
+    watch: false, // no need to rebuild during watch
     plugins: [...plugins, terser(), visualizer()],
   },
   {
@@ -58,6 +59,7 @@ export default [
       format: "cjs",
       sourcemap: true,
     },
+    watch: false, // no need to rebuild during watch - targeting node only
     onwarn,
     plugins,
   },
