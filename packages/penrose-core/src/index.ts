@@ -51,7 +51,7 @@ export const stepUntilConvergence = (state: State): State => {
 };
 
 /**
- * Embed a Penrose `Embed` component in a DOM node
+ * Embed a static Penrose diagram in a DOM node.
  *
  * @param domainProg a Domain program string
  * @param subProg a Substance program string
@@ -69,6 +69,38 @@ export const diagram = async (
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergence(state);
     node.appendChild(RenderStatic(optimized));
+  } else
+    throw Error(
+      `Error when generating Penrose diagram: ${showError(res.error)}`
+    );
+};
+
+/**
+ * Embed an interactive Penrose diagram in a DOM node.
+ *
+ * @param domainProg a Domain program string
+ * @param subProg a Substance program string
+ * @param styProg a Style program string
+ * @param node a node in the DOM tree
+ */
+export const interactiveDiagram = async (
+  domainProg: string,
+  subProg: string,
+  styProg: string,
+  node: HTMLElement
+): Promise<void> => {
+  const updateData = (state: State) => {
+    const stepped = stepUntilConvergence(state);
+    node.replaceChild(
+      RenderInteractive(stepped, updateData),
+      node.firstChild as Node
+    );
+  };
+  const res = compileTrio(domainProg, subProg, styProg);
+  if (res.isOk()) {
+    const state: State = await prepareState(res.value);
+    const optimized = stepUntilConvergence(state);
+    node.appendChild(RenderInteractive(optimized, updateData));
   } else
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
