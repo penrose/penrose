@@ -78,6 +78,7 @@ class App extends React.Component<any, ICanvasState> {
       data: canvasState,
       processedInitial: true
     });
+    this.renderCanvas(canvasState);
   };
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
@@ -208,13 +209,14 @@ class App extends React.Component<any, ICanvasState> {
   public renderCanvas = (state: PenroseState) => {
     if (this.canvasRef.current !== null) {
       const current = this.canvasRef.current;
+      const rendered =
+        stateConverged(state) || stateInitial(state)
+          ? RenderInteractive(state, this.updateData)
+          : RenderStatic(state);
       if (current.firstChild !== null) {
-        current.replaceChild(
-          RenderInteractive(state, this.updateData),
-          current.firstChild
-        );
+        current.replaceChild(rendered, current.firstChild);
       } else {
-        current.appendChild(RenderInteractive(state, this.updateData));
+        current.appendChild(rendered);
       }
     }
   };
