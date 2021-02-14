@@ -10,9 +10,13 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     return elem;
   }
   elem.innerHTML = images[path];
-  // HACK: generate unique ids
   const svg = elem.firstChild as SVGSVGElement;
   const defs = svg.getElementsByTagName("defs");
+  /**
+   * HACK:
+   * We generate Unique IDs because of potential collisions when multiple images
+   * are integrated in one diagram.
+   */
   if (defs.length > 0) {
     defs[0].querySelectorAll("*").forEach((node: any) => {
       if (node.id !== "") {
