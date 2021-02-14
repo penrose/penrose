@@ -131,6 +131,8 @@ type StyleError =
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
   | TaggedSubstanceError
+  // Block static errors
+  // TODO
   // Translation errors (deletion)
   | DeletedPropWithNoSubObjError
   | DeletedPropWithNoFieldError
@@ -145,6 +147,21 @@ type StyleError =
   // Runtime errors
   | RuntimeValueTypeError
   ;
+
+type StyleWarning =
+  | IntOrFloat;
+
+type StyleWarnings = StyleWarning[];
+
+interface StyleResults {
+  errors: StyleErrors;
+  warnings: StyleWarnings;
+}
+
+interface IntOrFloat {
+  tag: "IntOrFloat";
+  message: string;
+}; // COMBAK: Use this in block checking
 
 interface GenericStyleError {
   tag: "GenericStyleError";

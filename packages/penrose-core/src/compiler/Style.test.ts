@@ -284,6 +284,10 @@ describe("Compiler", () => {
       TaggedSubstanceError: [`forall Set x; Point y
 where IsSubset(y, x) { }`],
 
+      // ---------- Block static errors
+
+      // TODO
+
       // ------- Translation errors (deletion)
       DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
       DeletedPropWithNoFieldError: [`forall Set x { x.icon = Circle { }

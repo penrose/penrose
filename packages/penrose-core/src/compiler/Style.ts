@@ -1641,11 +1641,83 @@ const translateSubstsBlock = (
   );
 };
 
-const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
-  // TODO: Block checking and return block errors, not generic sty errors
-  // Static semantics would go here
-  return [];
+//#region Block statics
+const emptyErrs = () => {
+  return { errors: [], warnings: [] };
 };
+
+const combineErrs = (e1: StyleResults, e2: StyleResults): StyleResults => {
+  return {
+    errors: e1.errors.concat(e2.errors),
+    warnings: e1.warnings.concat(e2.warnings),
+  };
+};
+
+const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
+  // TODO <
+  return emptyErrs();
+};
+
+const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
+  // TODO <
+  return emptyErrs();
+};
+
+const checkLine = (selEnv: SelEnv, line: Stmt, acc: StyleResults): StyleResults => {
+  if (line.tag === "PathAssign") {
+    const pErrs = checkBlockPath(selEnv, line.path);
+    const eErrs = checkBlockExpr(selEnv, line.value);
+    return combineErrs(combineErrs(acc, pErrs), eErrs);
+
+    // return {
+    //   ...line,
+    //   path: substitutePath(lv, subst, line.path),
+    //   value: substituteBlockExpr(lv, subst, line.value),
+    // };
+  } else if (line.tag === "Override") {
+    // TODO <
+    return acc;
+
+    // return {
+    //   ...line,
+    //   path: substitutePath(lv, subst, line.path),
+    //   value: substituteBlockExpr(lv, subst, line.value),
+    // };
+  } else if (line.tag === "Delete") {
+    // TODO <
+    return acc;
+
+    // return {
+    //   ...line,
+    //   contents: substitutePath(lv, subst, line.contents),
+    // };
+  } else {
+    throw Error(
+      "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
+    );
+  }
+};
+
+const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
+  // Block checking; static semantics 
+  // The below properties are checked in one pass (a fold) over the Style AST:
+
+  // Check that every shape name and shape property name in a shape constructor exists (TODO <)
+  // Check that every function, objective, and constraint exists
+  // At path construction time, check that every Substance object exists in the environment of the block + selector [Checked only for non-local vars]
+
+  const res: StyleResults = block.statements.reduce(
+    (acc: StyleResults, stmt: Stmt): StyleResults => checkLine(selEnv, stmt, acc),
+    emptyErrs());
+
+  // TODO(errors): Return warnings (non-fatally);
+  console.log("warnings", res.warnings);
+  throw Error("TODO");
+
+  return res.errors;
+};
+
+//#endregion Block statics
 
 // Judgment 23, contd.
 const translatePair = (
@@ -2655,8 +2727,14 @@ export const compileStyle = (
 
   const labelMap = subEnv.labels;
 
+  // Name anon statements
+  const styProg: StyProg = nameAnonStatements(styProgInit);
+
+  log.info("old prog", styProgInit);
+  log.info("new prog, with named anon statements", styProg);
+
   // Check selectors; return list of selector environments (`checkSels`)
-  const selEnvs = checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
+  const selEnvs = checkSelsAndMakeEnv(varEnv, styProg.blocks);
 
   // TODO(errors/warn): distinguish between errors and warnings
   const selErrs: StyleErrors = _.flatMap(selEnvs, (e) =>
@@ -2676,17 +2754,11 @@ export const compileStyle = (
     varEnv,
     subEnv,
     subProg,
-    styProgInit.blocks,
+    styProg.blocks,
     selEnvs
   ); // TODO: Use `eqEnv`
 
   log.info("substitutions", subss);
-
-  // Name anon statements
-  const styProg: StyProg = nameAnonStatements(styProgInit);
-
-  log.info("old prog", styProgInit);
-  log.info("new prog, substituted", styProg);
 
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
