@@ -188,6 +188,35 @@ export const showError = (
       return showError(error.error); // Substance error
     }
 
+    // --- BEGIN BLOCK STATIC ERRORS
+
+    case "InvalidGPITypeError": {
+      return `Got invalid GPI type ${error.givenType.value}.`;
+      // COMBAK: GPI type suggestions, or just print the list
+    };
+
+    case "InvalidGPIPropertyError": {
+      return `Got invalid GPI property ${error.givenProperty.value}.`;
+      // COMBAK: GPI property suggestions, or just print the list
+    };
+
+    case "InvalidFunctionNameError": {
+      return `Got invalid Function name ${error.givenName.value}.`;
+      // COMBAK: Function suggestions, or just print the list
+    };
+
+    case "InvalidObjectiveNameError": {
+      return `Got invalid objective name ${error.givenName.value}.`;
+      // COMBAK: Objective suggestions, or just print the list
+    };
+
+    case "InvalidConstraintNameError": {
+      return `Got invalid constraint name ${error.givenName.value}.`;
+      // COMBAK: Constraint suggestions, or just print the list
+    };
+
+    // --- END BLOCK STATIC ERRORS
+
     case "DeletedPropWithNoSubObjError": {
       return `Sub obj '${
         error.subObj.contents.value
@@ -246,6 +275,34 @@ export const showError = (
         error.path
       )}'. Expected GPI.`;
     }
+
+    // ----- BEGIN TRANSLATION VALIDATION ERRORS
+
+    case "NonexistentNameError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Name ${error.name.value} does not exist.`;
+    };
+
+    case "NonexistentFieldError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Field ${error.field.value} does not exist.`;
+    };
+
+    case "NonexistentGPIError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. GPI ${error.gpi.value} does not exist.`;
+    };
+
+    case "NonexistentPropertyError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Property ${error.property.value} does not exist.`;
+    };
+
+    case "ExpectedGPIGotFieldError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Expected GPI ${error.field.value} does not exist; got a field instead.`;
+    };
+
+    case "InvalidAccessPathError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation.`;
+    };
+
+    // ----- END TRANSLATION VALIDATION ERRORS
 
     // TODO(errors): use identifiers here
     case "RuntimeValueTypeError": {

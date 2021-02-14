@@ -2,6 +2,7 @@
 
 // TODO: Fix imports
 import { varOf, numOf, constOf, constOfIf } from "engine/Autodiff";
+import { showError } from "utils/Error";
 import * as _ from "lodash";
 import { Elem, SubPath, Value } from "types/shapeTypes";
 import rfdc from "rfdc";
@@ -406,6 +407,7 @@ export const insertGPI = (
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
 // `inCompilePhase` = true = put errors and warnings in the translation, otherwise throw them at runtime
 // TODO(error/warn): Improve these warning/error messages (especially for overrides) and distinguish the fatal ones
+// TODO(error): rewrite to use the same pattern as `findExprSafe`
 export const insertExpr = (
   path: Path,
   expr: TagExpr<VarAD>,
@@ -744,6 +746,24 @@ export const insertExprs = (
   return tr2;
 };
 
+export const isTagExpr = (e: any): e is TagExpr<VarAD> => {
+  return e.tag === "OptEval" || e.tag === "Done" || e.tag === "Pending";
+};
+
+// Version of findExpr if you expect to not encounter any errors (e.g., if it's being used after the translation has already been checked)
+export const findExprSafe = (
+  trans: Translation,
+  path: Path
+): TagExpr<VarAD> | IFGPI<VarAD> => {
+
+  const res = findExpr(trans, path);
+  if (res.tag !== "FGPI" && !isTagExpr(res)) { // Is an error
+    throw Error(showError(res));
+  }
+
+  return res;
+};
+
 /**
  * Finds an expression in a translation given a field or property path.
  * @param trans - a translation from `State`
@@ -755,19 +775,22 @@ export const insertExprs = (
 export const findExpr = (
   trans: Translation,
   path: Path
-): TagExpr<VarAD> | IFGPI<VarAD> => {
+): TagExpr<VarAD> | IFGPI<VarAD> | StyleError => {
   let name, field, prop;
 
   switch (path.tag) {
-    case "FieldPath":
+    case "FieldPath": {
       [name, field] = [path.name.contents.value, path.field.value];
+      const fields = trans.trMap[name];
+      if (!fields) {
+        return { tag: "NonexistentNameError", name: path.name.contents, path };
+      }
+
       // Type cast to field expression
-      const fieldExpr = trans.trMap[name][field];
+      const fieldExpr = fields[field];
 
       if (!fieldExpr) {
-        throw Error(
-          `Could not find field '${JSON.stringify(path)}' in translation`
-        );
+        return { tag: "NonexistentFieldError", field: path.field, path };
       }
 
       switch (fieldExpr.tag) {
@@ -776,34 +799,46 @@ export const findExpr = (
         case "FExpr":
           return fieldExpr.contents;
       }
+    }
 
-    case "PropertyPath":
+    case "PropertyPath": {
       [name, field, prop] = [
         path.name.contents.value,
         path.field.value,
         path.property.value,
       ];
+
+      const fieldsP = trans.trMap[name];
+      if (!fieldsP) {
+        return { tag: "NonexistentNameError", name: path.name.contents, path };
+      }
+
       // Type cast to FGPI and get the properties
-      const gpi = trans.trMap[name][field];
+      const gpi = fieldsP[field];
 
       if (!gpi) {
-        throw Error(
-          `Could not find GPI '${JSON.stringify(path)}' in translation`
-        );
+        return { tag: "NonexistentGPIError", gpi: path.field, path };
       }
 
       switch (gpi.tag) {
-        case "FExpr":
-          throw new Error("field path leads to an expression, not a GPI");
-        case "FGPI":
+        case "FExpr": {
+          return { tag: "ExpectedGPIGotFieldError", field: path.field, path };
+        }
+        case "FGPI": {
           const [, propDict] = gpi.contents;
-          return propDict[prop];
+          const propRes = propDict[prop];
+          if (!propRes) {
+            return { tag: "NonexistentPropertyError", property: path.property, path };
+          }
+        }
       }
+    }
 
     case "AccessPath": {
       // Have to look up AccessPaths first, since they make a recursive call, and are not invalid paths themselves
-      const res = findExpr(trans, path.path);
-      const i = exprToNumber(path.indices[0]); // COMBAK VECTORS: Currently only supports 1D vectors
+      const p2: IAccessPath = path as IAccessPath; // COMBAK: Not sure why it can't infer AccessPath type here?
+      const res = findExpr(trans, p2.path);
+      const i = exprToNumber(p2.indices[0]); // COMBAK VECTORS: Currently only supports 1D vectors
 
       if (res.tag === "OptEval") {
         const res2: Expr = res.contents;
@@ -811,13 +846,19 @@ export const findExpr = (
         if (res2.tag === "Vector") {
           const inner: Expr = res2.contents[i];
           return { tag: "OptEval", contents: inner };
-        } else throw Error("access path lookup is invalid");
+        } else {
+          return { tag: "InvalidAccessPathError", path };
+        }
       } else if (res.tag === "Done") {
         if (res.contents.tag === "VectorV") {
           const inner: VarAD = res.contents.contents[i];
           return { tag: "Done", contents: { tag: "FloatV", contents: inner } };
-        } else throw Error("access path lookup is invalid");
-      } else throw Error("access path lookup is invalid");
+        } else {
+          return { tag: "InvalidAccessPathError", path };
+        }
+      } else {
+        return { tag: "InvalidAccessPathError", path };
+      }
     }
   }
 

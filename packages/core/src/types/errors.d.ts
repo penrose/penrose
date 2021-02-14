@@ -131,6 +131,12 @@ type StyleError =
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
   | TaggedSubstanceError
+  // Block static errors
+  | InvalidGPITypeError
+  | InvalidGPIPropertyError
+  | InvalidFunctionNameError
+  | InvalidObjectiveNameError
+  | InvalidConstraintNameError
   // Translation errors (deletion)
   | DeletedPropWithNoSubObjError
   | DeletedPropWithNoFieldError
@@ -142,8 +148,30 @@ type StyleError =
   | InsertedPathWithoutOverrideError
   | InsertedPropWithNoFieldError
   | InsertedPropWithNoGPIError
+  // Translation validation errors
+  | NonexistentNameError
+  | NonexistentFieldError
+  | NonexistentGPIError
+  | NonexistentPropertyError
+  | ExpectedGPIGotFieldError
+  | InvalidAccessPathError
   // Runtime errors
   | RuntimeValueTypeError;
+
+type StyleWarning =
+  | IntOrFloat;
+
+type StyleWarnings = StyleWarning[];
+
+interface StyleResults {
+  errors: StyleErrors;
+  warnings: StyleWarnings;
+}
+
+interface IntOrFloat {
+  tag: "IntOrFloat";
+  message: string;
+}; // COMBAK: Use this in block checking
 
 interface GenericStyleError {
   tag: "GenericStyleError";
@@ -186,6 +214,40 @@ interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
   error: SubstanceError;
 }
+
+//#region Block statics
+
+interface InvalidGPITypeError {
+  tag: "InvalidGPITypeError";
+  givenType: Identifier;
+  // expectedType: string;
+};
+
+interface InvalidGPIPropertyError {
+  tag: "InvalidGPIPropertyError";
+  givenProperty: Identifier;
+  // expectedProperty: string;
+};
+
+interface InvalidFunctionNameError {
+  tag: "InvalidFunctionNameError";
+  givenName: Identifier;
+  // expectedName: string;
+};
+
+interface InvalidObjectiveNameError {
+  tag: "InvalidObjectiveNameError";
+  givenName: Identifier;
+  // expectedName: string;
+};
+
+interface InvalidConstraintNameError {
+  tag: "InvalidConstraintNameError";
+  givenName: Identifier;
+  // expectedName: string;
+};
+
+//#endregion Block statics
 
 interface DeletedPropWithNoSubObjError {
   tag: "DeletedPropWithNoSubObjError";
@@ -245,6 +307,45 @@ interface InsertedPropWithNoGPIError {
   property: Identifier;
   path: Path;
 }
+
+//#region Translation validation errors
+
+interface NonexistentNameError {
+  tag: "NonexistentNameError";
+  name: Identifier;
+  path: Path;
+};
+
+interface NonexistentFieldError {
+  tag: "NonexistentFieldError";
+  field: Identifier;
+  path: Path;
+};
+
+interface NonexistentGPIError {
+  tag: "NonexistentGPIError";
+  gpi: Identifier;
+  path: Path;
+};
+
+interface NonexistentPropertyError {
+  tag: "NonexistentPropertyError";
+  property: Identifier;
+  path: Path;
+};
+
+interface ExpectedGPIGotFieldError {
+  tag: "ExpectedGPIGotFieldError";
+  field: Identifier;
+  path: Path;
+};
+
+interface InvalidAccessPathError {
+  tag: "InvalidAccessPathError";
+  path: Path;
+};
+
+//#endregion Translation validation errors
 
 // TODO(errors): use identifiers here
 interface RuntimeValueTypeError {
