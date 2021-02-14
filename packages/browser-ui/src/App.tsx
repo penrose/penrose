@@ -8,9 +8,29 @@ import {
   compileTrio,
   prepareState,
   stateInitial,
-  DownloadSVG,
-  stepUntilConvergence,
+  stepUntilConvergence
 } from "penrose-core";
+
+/**
+ * (browser-only) Downloads any given exported SVG to the user's computer
+ * @param svg
+ * @param title the filename
+ */
+export const DownloadSVG = (
+  svg: SVGSVGElement,
+  title = "illustration"
+): void => {
+  const blob = new Blob([svg.outerHTML], {
+    type: "image/svg+xml;charset=utf-8"
+  });
+  const url = URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = url;
+  downloadLink.download = `${title}.svg`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+};
 
 import Inspector from "inspector/Inspector";
 import * as React from "react";
@@ -39,7 +59,7 @@ class App extends React.Component<any, ICanvasState> {
     penroseVersion: "",
     showInspector: true,
     files: null,
-    connected: false,
+    connected: false
   };
   public readonly buttons = React.createRef<ButtonBar>();
 
@@ -50,21 +70,21 @@ class App extends React.Component<any, ICanvasState> {
   // same as onCanvasState but doesn't alter timeline or involve optimization
   // used only in modshapes
   public modCanvas = async (canvasState: PenroseState) => {
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
-      processedInitial: true,
+      processedInitial: true
     });
   };
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
       history: [...this.state.history, canvasState],
-      processedInitial: true,
+      processedInitial: true
     });
     const { autostep } = this.state;
     if (autostep && !stateConverged(canvasState)) {
@@ -87,11 +107,11 @@ class App extends React.Component<any, ICanvasState> {
       xsVars: [],
       constrWeightNode: undefined,
       epWeightNode: undefined,
-      graphs: undefined,
+      graphs: undefined
     };
     const content = JSON.stringify({ ...state, params });
     const blob = new Blob([content], {
-      type: "text/json",
+      type: "text/json"
     });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -131,7 +151,7 @@ class App extends React.Component<any, ICanvasState> {
   connectToSocket = () => {
     FileSocket(
       socketAddress,
-      async (files) => {
+      async files => {
         const { domain, substance, style } = files;
         this.setState({ files, connected: true });
 
@@ -191,7 +211,7 @@ class App extends React.Component<any, ICanvasState> {
       showInspector,
       history,
       files,
-      connected,
+      connected
     } = this.state;
     return (
       <div
@@ -200,7 +220,7 @@ class App extends React.Component<any, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
         <div style={{ flexShrink: 0 }}>
@@ -235,7 +255,7 @@ class App extends React.Component<any, ICanvasState> {
               <div
                 style={{ width: "100%", height: "100%" }}
                 dangerouslySetInnerHTML={{
-                  __html: RenderStatic(data.shapes, data.labelCache).outerHTML,
+                  __html: RenderStatic(data.shapes, data.labelCache).outerHTML
                 }}
               />
             )}

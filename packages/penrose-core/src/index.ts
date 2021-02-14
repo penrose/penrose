@@ -9,7 +9,7 @@ import {
 import { evalShapes } from "engine/Evaluator";
 import { initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
-import RenderStatic, { DownloadSVG, RenderShape } from "renderer/Renderer";
+import RenderStatic, { RenderShape } from "renderer/Renderer";
 import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
 import * as ShapeTypes from "types/shapeTypes";
 import { Shape } from "types/shapeTypes";
@@ -158,7 +158,6 @@ export {
   RenderStatic,
   RenderShape,
   ShapeTypes,
-  DownloadSVG,
   bBoxDims,
   toHex,
 };
