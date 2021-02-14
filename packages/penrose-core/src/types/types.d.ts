@@ -1,16 +1,6 @@
+// TODO: find a way to put this in index.d.ts
+declare module "eigen";
 //#region Shape/Evaluator-related types
-
-type Shape = IShape;
-
-type Properties = { [k: string]: Value<number> };
-
-/**
- * A shape (Graphical Primitive Instance, aka GPI) in penrose has a type (_e.g._ `Circle`) and a set of properties (_e.g._ `center`). This type is specifically used for rendering. See {@link GPI} for the version used for the runtime.
- */
-interface IShape {
-  shapeType: string;
-  properties: Properties;
-}
 
 /**
  * The input parameters to computations/objectives/constraints in Style. It can be either an entire shape (`IGPI`) or a value (`IVal`).
@@ -320,29 +310,6 @@ interface StyVar extends ASTNode {
   contents: Identifier;
 }
 
-/**
- * A value in the penrose system.
- */
-type Value<T> =
-  | IFloatV<T>
-  | IIntV
-  | IBoolV<T>
-  | IStrV<T>
-  | IPtV<T>
-  | IPathDataV<T>
-  | IPtListV<T>
-  | IColorV<T>
-  | IPaletteV<T>
-  | IFileV<T>
-  | IStyleV<T>
-  | IListV<T>
-  | IVectorV<T>
-  | IMatrixV<T>
-  | ITupV<T>
-  | ILListV<T>
-  | IHMatrixV<T>
-  | IPolygonV<T>;
-
 /** A floating point number **/
 interface IFloatV<T> {
   tag: "FloatV";
@@ -455,18 +422,6 @@ interface IPolygonV<T> {
   contents: [[T, T][][], [T, T][][], [[T, T], [T, T]], [T, T][]];
 }
 
-type SubPath<T> = IClosed<T> | IOpen<T>;
-
-interface IClosed<T> {
-  tag: "Closed";
-  contents: Elem<T>[];
-}
-
-interface IOpen<T> {
-  tag: "Open";
-  contents: Elem<T>[];
-}
-
 type HMatrix<T> = IHMatrix<T>;
 
 interface IHMatrix<T> {
@@ -489,13 +444,6 @@ interface IHSVA<T> {
   tag: "HSVA";
   contents: [T, T, T, T];
 }
-
-type Elem<T> =
-  | IPt<T>
-  | ICubicBez<T>
-  | ICubicBezJoin<T>
-  | IQuadBez<T>
-  | IQuadBezJoin<T>;
 
 interface IPt<T> {
   tag: "Pt";

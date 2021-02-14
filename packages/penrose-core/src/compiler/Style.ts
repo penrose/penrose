@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   checkExpr,
   checkPredicate,
@@ -6,6 +5,7 @@ import {
   LabelMap,
   SubstanceEnv,
 } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { constOf, numOf } from "engine/Autodiff";
 import {
   addWarn,
@@ -18,8 +18,8 @@ import {
   isPath,
   valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
-import { Graph, alg } from "graphlib";
-import * as _ from "lodash";
+import { alg, Graph } from "graphlib";
+import _ from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
 import {
@@ -28,27 +28,17 @@ import {
   PropType,
   Sampler,
   ShapeDef,
-} from "shapes/ShapeDef";
-import {
-  err,
-  isErr,
-  ok,
-  parseError,
-  Result,
-  toStyleErrors,
-  unsafelyUnwrap,
-  unsafelyGetErr,
-  Maybe
-} from "utils/Error";
+} from "renderer/ShapeDef";
+import rfdc from "rfdc";
+import { Value } from "types/shapeTypes";
+import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
-import consola, { LogLevel } from "consola";
-import seedrandom from "seedrandom";
 
 const log = consola
   .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
-const clone = require("rfdc")({ proto: false, circles: false });
+const clone = rfdc({ proto: false, circles: false });
 
 //#region consts
 const ANON_KEYWORD = "ANON";
@@ -283,17 +273,17 @@ const checkDeclPatternAndMakeEnv = (
   const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
   if (isErr(typeErr)) {
     // TODO(errors)
-    return addErrSel(selEnv, { tag: "SelectorDeclTypeError", typeName: styType });
+    return addErrSel(selEnv, {
+      tag: "SelectorDeclTypeError",
+      typeName: styType,
+    });
   }
 
   const varName: string = bVar.contents.value;
 
   // TODO(errors)
   if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
-    return addErrSel(
-      selEnv,
-      { tag: "SelectorVarMultipleDecl", varName: bVar }
-    );
+    return addErrSel(selEnv, { tag: "SelectorVarMultipleDecl", varName: bVar });
   }
 
   if (bVar.tag === "StyVar") {
@@ -319,10 +309,11 @@ const checkDeclPatternAndMakeEnv = (
     if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
       // COMBAK: Order?
       // TODO(errors)
-      return addErrSel(
-        selEnv,
-        { tag: "SelectorDeclTypeMismatch", subType: declType, styType: substanceType }
-      );
+      return addErrSel(selEnv, {
+        tag: "SelectorDeclTypeMismatch",
+        subType: declType,
+        styType: substanceType,
+      });
     }
 
     return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
@@ -379,7 +370,9 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
 
     // TODO(error) -- improve message
     if (!typesEq) {
-      return [{ tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype }];
+      return [
+        { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
+      ];
       // return ["types not equal"];
     }
 
@@ -400,7 +393,10 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
 };
 
 // Judgment 5. G |- [|S_r] ok
-const checkRelPatterns = (varEnv: Env, rels: RelationPattern[]): StyleErrors => {
+const checkRelPatterns = (
+  varEnv: Env,
+  rels: RelationPattern[]
+): StyleErrors => {
   return _.flatMap(
     rels,
     (rel: RelationPattern): StyleErrors => checkRelPattern(varEnv, rel)
@@ -1465,7 +1461,7 @@ const deleteProperty = (
     return addWarn(trans, {
       tag: "DeletedPropWithNoSubObjError",
       subObj: name,
-      path
+      path,
     });
   }
 
@@ -1477,7 +1473,7 @@ const deleteProperty = (
       tag: "DeletedPropWithNoFieldError",
       subObj: name,
       field,
-      path
+      path,
     });
   }
 
@@ -1491,7 +1487,10 @@ const deleteProperty = (
         const p = prop.contents.contents;
         if (varsEq(p.name.contents, name.contents) && varsEq(p.field, field)) {
           // TODO(error)
-          return addWarn(trans, { tag: "CircularPathAlias", path: { tag: "FieldPath", name, field } as Path });
+          return addWarn(trans, {
+            tag: "CircularPathAlias",
+            path: { tag: "FieldPath", name, field } as Path,
+          });
         }
         return deleteProperty(trans, p, p.name, p.field, property);
       }
@@ -1503,7 +1502,7 @@ const deleteProperty = (
       subObj: name,
       field,
       property,
-      path
+      path,
     });
   } else if (prop.tag === "FGPI") {
     // TODO(error, warning): check if the property is member of properties of GPI
@@ -1520,7 +1519,6 @@ const deleteField = (
   name: BindingForm,
   field: Identifier
 ): Translation => {
-
   // TODO(errors): Pass in the original path for error reporting
   const trn = trans.trMap;
   const fieldDict = trn[name.contents.value];
@@ -1531,7 +1529,7 @@ const deleteField = (
       tag: "DeletedNonexistentFieldError",
       subObj: name,
       field,
-      path
+      path,
     });
   }
 
@@ -1541,7 +1539,7 @@ const deleteField = (
       tag: "DeletedNonexistentFieldError",
       subObj: name,
       field,
-      path
+      path,
     });
   }
 
@@ -2710,7 +2708,7 @@ export const compileStyle = (
 
   if (trans.warnings.length > 0) {
     // TODO(errors): these errors are currently returned as warnings -- maybe systematize it?
-    console.log("Returning warnings as errors");
+    log.info("Returning warnings as errors");
     return err(toStyleErrors(trans.warnings));
   }
 
@@ -2720,4 +2718,3 @@ export const compileStyle = (
 
   return ok(initState);
 };
-

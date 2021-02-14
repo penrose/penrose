@@ -3,7 +3,8 @@ import {
   insertExpr,
   exprToNumber,
 } from "engine/EngineUtils";
-import { getShapeName } from "shapes/ShapeDef";
+import { getShapeName } from "renderer/ShapeDef";
+import { Shape, Value } from "types/shapeTypes";
 import { retrieveLabel } from "utils/CollectLabels";
 
 /**

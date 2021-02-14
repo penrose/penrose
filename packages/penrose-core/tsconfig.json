@@ -2,12 +2,11 @@
   "compilerOptions": {
     "baseUrl": "src",
     "outDir": "build/dist",
-    "module": "esnext",
+    "module": "es2015",
     "target": "es5",
     "lib": ["es5", "es6", "es7", "esnext", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "jsx": "react",
     "moduleResolution": "node",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
@@ -21,12 +20,14 @@
     "noUnusedLocals": false,
     "skipLibCheck": true,
     "downlevelIteration": true,
-    "types": ["react", "jest", "node", "tslib"],
+    "types": ["jest", "node", "tslib"],
     "typeRoots": ["src/types", "node_modules/@types"],
     "esModuleInterop": true,
     "isolatedModules": true,
     "noEmit": true,
-    "strict": true
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
@@ -45,7 +46,6 @@
     "insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
     "insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
     "insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
-    "insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": false,
     "insertSpaceBeforeFunctionParenthesis": false,
     "placeOpenBraceOnNewLineForFunctions": false,
     "placeOpenBraceOnNewLineForControlBlocks": false
@@ -59,9 +59,7 @@
     "src/__tests__",
     "scripts",
     "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts"
+    "webpack"
   ],
   "typedocOptions": {
     "inputFiles": ["./src"],

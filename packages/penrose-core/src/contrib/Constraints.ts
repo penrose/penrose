@@ -19,8 +19,8 @@ import {
   varOf,
 } from "engine/Autodiff";
 import * as _ from "lodash";
-import { canvasSize } from "ui/Canvas";
 import { linePts } from "utils/OtherUtils";
+import { canvasSize } from "renderer/ShapeDef";
 
 export const objDict = {
   /**

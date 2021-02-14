@@ -17,6 +17,7 @@ import {
   sin,
   neg,
 } from "engine/Autodiff";
+import { Elem, SubPath } from "types/shapeTypes";
 
 /**
  * Static dictionary of computation functions

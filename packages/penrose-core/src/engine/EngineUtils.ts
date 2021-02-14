@@ -3,7 +3,9 @@
 // TODO: Fix imports
 import { varOf, numOf, constOf, constOfIf } from "engine/Autodiff";
 import * as _ from "lodash";
-const clone = require("rfdc")({ proto: false, circles: false });
+import { Elem, SubPath, Value } from "types/shapeTypes";
+import rfdc from "rfdc";
+const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -11,17 +13,21 @@ const clone = require("rfdc")({ proto: false, circles: false });
 export const wrapErr = (s: string): StyleError => {
   return {
     tag: "GenericStyleError",
-    messages: [s]
+    messages: [s],
   };
 };
 
 // TODO(errors): should these kinds of errors be caught by block statics rather than failing at runtime?
-export const runtimeValueTypeError = (path: Path, expectedType: string, actualType: string): StyleError => {
+export const runtimeValueTypeError = (
+  path: Path,
+  expectedType: string,
+  actualType: string
+): StyleError => {
   return {
     tag: "RuntimeValueTypeError",
     path,
     expectedType,
-    actualType
+    actualType,
   };
 };
 
@@ -443,10 +449,10 @@ export const insertExpr = (
         !override &&
         trans.trMap[name.contents.value].hasOwnProperty(field.value)
       ) {
-        trans = addWarn(
-          trans,
-          { tag: "InsertedPathWithoutOverrideError", path }
-        ); // TODO(error): Should this be an error?
+        trans = addWarn(trans, {
+          tag: "InsertedPathWithoutOverrideError",
+          path,
+        }); // TODO(error): Should this be an error?
       }
 
       // For any non-GPI thing, just put it in the translation
@@ -468,7 +474,13 @@ export const insertExpr = (
       // TODO(errors): Catch error if SubObj, etc don't exist -- but should these kinds of errors be caught by block statics rather than failing at runtime?
       if (!fieldRes) {
         // TODO(errors): Catch error if field doesn't exist
-        return addWarn(trans, { tag: "InsertedPropWithNoFieldError", subObj: name, field, property: prop, path });
+        return addWarn(trans, {
+          tag: "InsertedPropWithNoFieldError",
+          subObj: name,
+          field,
+          property: prop,
+          path,
+        });
       }
 
       if (fieldRes.tag === "FExpr") {
@@ -505,7 +517,13 @@ export const insertExpr = (
 
         // TODO(error)
         if (compiling) {
-          return addWarn(trans, { tag: "InsertedPropWithNoGPIError", subObj: name, field, property: prop, path });
+          return addWarn(trans, {
+            tag: "InsertedPropWithNoGPIError",
+            subObj: name,
+            field,
+            property: prop,
+            path,
+          });
         }
         const err = `Err: Sub obj '${name.contents.value}' does not have GPI '${field.value}'; cannot add property '${prop.value}'`;
         throw Error(err);
@@ -515,10 +533,10 @@ export const insertExpr = (
         // TODO(error): check for field/property overrides of paths that don't already exist
         // TODO(error): if there are multiple matches, override errors behave oddly...
         if (compiling && !override && properties.hasOwnProperty(prop.value)) {
-          trans = addWarn(
-            trans,
-            { tag: "InsertedPathWithoutOverrideError", path }
-          );
+          trans = addWarn(trans, {
+            tag: "InsertedPathWithoutOverrideError",
+            path,
+          });
         }
 
         properties[prop.value] = expr;
@@ -539,7 +557,10 @@ export const insertExpr = (
           const res = trans.trMap[name.contents.value][field.value];
           if (res.tag !== "FExpr") {
             if (compiling) {
-              return addWarn(trans, runtimeValueTypeError(path, "Float", "GPI"));
+              return addWarn(
+                trans,
+                runtimeValueTypeError(path, "Float", "GPI")
+              );
             }
             const err = "did not expect GPI in vector access";
             throw Error(err);
@@ -550,7 +571,10 @@ export const insertExpr = (
             const res3: Expr = res2.contents;
             if (res3.tag !== "Vector") {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Vector", res3.tag));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Vector", res3.tag)
+                );
               }
               const err = "expected Vector";
               throw Error(err);
@@ -563,7 +587,10 @@ export const insertExpr = (
               res4[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Float", "Pending float"));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Float", "Pending float")
+                );
               }
               const err = "unexpected pending val";
               throw Error(err);
@@ -576,7 +603,10 @@ export const insertExpr = (
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Vector", "res3.tag"));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Vector", "res3.tag")
+                );
               }
               throw Error(err);
             }
@@ -586,7 +616,10 @@ export const insertExpr = (
               res4[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Float", expr.tag));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Float", expr.tag)
+                );
               }
               const err = "unexpected val";
               throw Error(err);
@@ -596,7 +629,10 @@ export const insertExpr = (
           } else {
             if (compiling) {
               // TODO(errors): expected type?
-              return addWarn(trans, runtimeValueTypeError(path, "Float", res2.tag));
+              return addWarn(
+                trans,
+                runtimeValueTypeError(path, "Float", res2.tag)
+              );
             }
             const err = "unexpected tag";
             throw Error(err);
@@ -618,7 +654,10 @@ export const insertExpr = (
             const res2 = res.contents;
             if (res2.tag !== "Vector") {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Vector", res2.tag));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Vector", res2.tag)
+                );
               }
               const err = "expected Vector";
               throw Error(err);
@@ -631,7 +670,10 @@ export const insertExpr = (
               res3[exprToNumber(indices[0])] = floatValToExpr(expr.contents);
             } else {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Float", expr.tag));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Float", expr.tag)
+                );
               }
               const err = "unexpected pending val";
               throw Error(err);
@@ -643,7 +685,10 @@ export const insertExpr = (
             const res2 = res.contents;
             if (res2.tag !== "VectorV") {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Vector", res2.tag));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Vector", res2.tag)
+                );
               }
               const err = "expected Vector";
               throw Error(err);
@@ -654,7 +699,10 @@ export const insertExpr = (
               res3[exprToNumber(indices[0])] = expr.contents.contents;
             } else {
               if (compiling) {
-                return addWarn(trans, runtimeValueTypeError(path, "Float", expr.tag));
+                return addWarn(
+                  trans,
+                  runtimeValueTypeError(path, "Float", expr.tag)
+                );
               }
               const err = "unexpected val";
               throw Error(err);
@@ -667,7 +715,9 @@ export const insertExpr = (
         }
 
         default:
-          throw Error("internal error: should not have nested AccessPath in AccessPath");
+          throw Error(
+            "internal error: should not have nested AccessPath in AccessPath"
+          );
       }
     }
   }

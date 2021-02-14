@@ -143,8 +143,7 @@ type StyleError =
   | InsertedPropWithNoFieldError
   | InsertedPropWithNoGPIError
   // Runtime errors
-  | RuntimeValueTypeError
-  ;
+  | RuntimeValueTypeError;
 
 interface GenericStyleError {
   tag: "GenericStyleError";
@@ -164,47 +163,47 @@ interface ParseError {
 interface SelectorDeclTypeError {
   tag: "SelectorDeclTypeError";
   typeName: identifier;
-};
+}
 
 interface SelectorVarMultipleDecl {
   tag: "SelectorVarMultipleDecl";
   varName: BindingForm;
-};
+}
 
 interface SelectorDeclTypeMismatch {
   tag: "SelectorDeclTypeMismatch";
   subType: TypeConsApp;
   styType: TypeConsApp;
-};
+}
 
 interface SelectorRelTypeMismatch {
   tag: "SelectorRelTypeMismatch";
   varType: TypeConsApp;
   exprType: TypeConsApp;
-};
+}
 
 interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
-  error: SubstanceError
-};
+  error: SubstanceError;
+}
 
 interface DeletedPropWithNoSubObjError {
   tag: "DeletedPropWithNoSubObjError";
   subObj: BindingForm;
   path: Path;
-};
+}
 
 interface DeletedPropWithNoFieldError {
   tag: "DeletedPropWithNoFieldError";
   subObj: BindingForm;
   field: Identifier;
   path: Path;
-};
+}
 
 interface CircularPathAlias {
   tag: "CircularPathAlias";
   path: Path;
-};
+}
 
 interface DeletedPropWithNoGPIError {
   tag: "DeletedPropWithNoGPIError";
@@ -212,24 +211,24 @@ interface DeletedPropWithNoGPIError {
   field: Identifier;
   property: Identifier;
   path: Path;
-};
+}
 
 interface DeletedNonexistentFieldError {
   tag: "DeletedNonexistentFieldError";
   subObj: BindingForm;
   field: Identifier;
   path: Path;
-};
+}
 
 interface DeletedVectorElemError {
   tag: "DeletedVectorElemError";
   path: Path;
-};
+}
 
 interface InsertedPathWithoutOverrideError {
   tag: "InsertedPathWithoutOverrideError";
   path: Path;
-};
+}
 
 interface InsertedPropWithNoFieldError {
   tag: "InsertedPropWithNoFieldError";
@@ -237,7 +236,7 @@ interface InsertedPropWithNoFieldError {
   field: Identifier;
   property: Identifier;
   path: Path;
-};
+}
 
 interface InsertedPropWithNoGPIError {
   tag: "InsertedPropWithNoGPIError";
@@ -245,7 +244,7 @@ interface InsertedPropWithNoGPIError {
   field: Identifier;
   property: Identifier;
   path: Path;
-};
+}
 
 // TODO(errors): use identifiers here
 interface RuntimeValueTypeError {
@@ -253,6 +252,6 @@ interface RuntimeValueTypeError {
   path: Path;
   expectedType: string;
   actualType: string;
-};
+}
 
 //#endregion Style errors

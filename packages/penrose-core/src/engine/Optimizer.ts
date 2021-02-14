@@ -1,4 +1,4 @@
-import { DenseMatrix as la, memoryManager } from "@penrose/linear-algebra";
+import eig from "eigen";
 import {
   makeADInputVars,
   energyAndGradCompiled,
@@ -36,12 +36,13 @@ import {
   prettyPrintFns,
 } from "utils/OtherUtils";
 import consola, { LogLevel } from "consola";
+import rfdc from "rfdc";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
-const clone = require("rfdc")({ proto: false, circles: false });
+const clone = rfdc({ proto: false, circles: false });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -144,10 +145,17 @@ export const stepUntilConvergence = async (state: State) => {
   }
 };
 
-export const step = (state: State, steps: number, evaluate = true) => {
-  log.info("step");
-  log.info(state);
+export const initializeMat = async () => {
+  await eig.ready;
+};
 
+/**
+ * Requires await initializeMat() to be called first
+ * @param state
+ * @param steps
+ * @param evaluate
+ */
+export const step = (state: State, steps: number, evaluate = true) => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
@@ -206,7 +214,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
           weightInfo
         );
 
-        memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
+        eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
 
         const newParams: Params = {
           ...state.params,
@@ -295,7 +303,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
       // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
       if (unconstrainedConverged2(normGrad)) {
         optParams.optStatus.tag = "UnconstrainedConverged";
-        memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
+        eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
         optParams.lbfgsInfo = defaultLbfgsParams;
         log.info(
           "Unconstrained converged with energy",
@@ -544,7 +552,7 @@ const awLineSearch2 = (
 const vecList = (xs: any): number[] => {
   // Prints a col vector (nx1)
   const res = [];
-  for (let i = 0; i < xs.nRows(); i++) {
+  for (let i = 0; i < xs.rows(); i++) {
     res.push(xs.get(i, 0));
   }
   return res;
@@ -558,8 +566,8 @@ const printVec = (xs: any) => {
 const colVec = (xs: number[]): any => {
   // Return a col vector (nx1)
   // TODO: What is the performance of this?
-  const m = la.zeros(xs.length, 1); // rows x cols
-  xs.forEach((e, i) => m.set(e, i, 0));
+  const m = eig.Matrix.constant(xs.length, 1, 0); // rows x cols
+  xs.forEach((e, i) => m.set(i, 0, e));
 
   // log.info("original xs", xs);
   // printVec(m);
@@ -567,8 +575,7 @@ const colVec = (xs: number[]): any => {
 };
 
 // v is a col vec, w is a col vec, they need to be the same size, returns v dot w (removed from its container)
-const dotVec = (v: any, w: any): number =>
-  v.transpose().timesDense(w).get(0, 0);
+const dotVec = (v: any, w: any): number => v.transpose().matMul(w).get(0, 0);
 
 // Precondition the gradient:
 // Approximate the inverse of the Hessian times the gradient
@@ -593,7 +600,7 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
     const [rho_i, s_i, y_i] = curr;
 
     const alpha_i: number = rho_i * dotVec(s_i, q_i_plus_1);
-    const q_i: any = q_i_plus_1.minus(y_i.timesReal(alpha_i));
+    const q_i: any = q_i_plus_1.matSub(y_i.mul(alpha_i));
 
     return [q_i, alphas2.concat([alpha_i])]; // alphas, left to right
   };
@@ -601,8 +608,8 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   // takes two column vectors (nx1), returns a square matrix (nxn)
   const estimate_hess = (y_km1: any, s_km1: any): any => {
     const gamma_k = dotVec(s_km1, y_km1) / (dotVec(y_km1, y_km1) + EPSD);
-    const n = y_km1.nRows();
-    return la.identity(n, n).timesReal(gamma_k);
+    const n = y_km1.rows();
+    return eig.Matrix.identity(n, n).mul(gamma_k);
   };
 
   // `any` = column vec
@@ -612,7 +619,7 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   ): any => {
     const [[rho_i, alpha_i], [s_i, y_i]] = curr;
     const beta_i: number = rho_i * dotVec(y_i, r_i);
-    const r_i_plus_1 = r_i.plus(s_i.timesReal(alpha_i - beta_i));
+    const r_i_plus_1 = r_i.matAdd(s_i.mul(alpha_i - beta_i));
     return r_i_plus_1;
   };
 
@@ -631,7 +638,7 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
 
   // FORWARD: for i = k-m .. k-1
   // below: [nxn matrix * nx1 (col) vec] -> nx1 (col) vec
-  const r_k_minus_m = h_0_k.timesDense(q_k_minus_m);
+  const r_k_minus_m = h_0_k.matMul(q_k_minus_m);
   // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
   // NOTE: `reverse` mutates the array in-place, which is fine because we don't need it later
   const inputs = _.zip(_.zip(rhos, alphas), _.zip(ss, ys)).reverse() as any;
@@ -702,8 +709,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
     // Newest vectors added to front
 
-    const s_km1 = x_k.minus(x_km1);
-    const y_km1 = grad_fx_k.minus(grad_fx_km1);
+    const s_km1 = x_k.matSub(x_km1);
+    const y_km1 = grad_fx_k.matSub(grad_fx_km1);
 
     // The limited-memory part: drop stale vectors
     // Haskell `ss` -> JS `ss_km2`; Haskell `ss'` -> JS `ss_km1`
