@@ -40,7 +40,11 @@ export default [
     },
     onwarn,
     watch: false, // no need to rebuild during watch
-    plugins: [...plugins, terser(), visualizer()],
+    plugins: [
+      ...plugins,
+      terser(),
+      // visualizer()
+    ],
   },
   {
     input,

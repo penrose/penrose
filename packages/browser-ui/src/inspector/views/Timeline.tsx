@@ -54,7 +54,7 @@ class Timeline extends React.Component<IViewProps> {
               key={k}
               onClick={() => this.props.selectFrame(k)}
               dangerouslySetInnerHTML={{
-                __html: RenderStatic(frame.shapes, frame.labelCache).outerHTML
+                __html: RenderStatic(frame).outerHTML
               }}
             />
           );

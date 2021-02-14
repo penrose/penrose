@@ -9,7 +9,10 @@ import {
 import { evalShapes } from "engine/Evaluator";
 import { initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
-import RenderStatic, { RenderShape } from "renderer/Renderer";
+import RenderStatic, {
+  RenderInteractive,
+  RenderShape,
+} from "renderer/Renderer";
 import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
 import * as ShapeTypes from "types/shapeTypes";
 import { Shape } from "types/shapeTypes";
@@ -65,7 +68,7 @@ export const diagram = async (
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergence(state);
-    node.appendChild(RenderStatic(optimized.shapes, optimized.labelCache));
+    node.appendChild(RenderStatic(optimized));
   } else
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
@@ -157,6 +160,7 @@ export {
   parseDomain,
   RenderStatic,
   RenderShape,
+  RenderInteractive,
   ShapeTypes,
   bBoxDims,
   toHex,

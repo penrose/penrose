@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   RenderStatic,
+  RenderInteractive,
   PenroseState,
   stateConverged,
   stepState,
@@ -62,6 +63,7 @@ class App extends React.Component<any, ICanvasState> {
     connected: false
   };
   public readonly buttons = React.createRef<ButtonBar>();
+  public readonly canvasRef = React.createRef<HTMLDivElement>();
 
   public modShapes = async (state: PenroseState) => {
     await this.modCanvas(state); // is this the right way to call it
@@ -86,15 +88,14 @@ class App extends React.Component<any, ICanvasState> {
       history: [...this.state.history, canvasState],
       processedInitial: true
     });
+    this.renderCanvas(canvasState);
     const { autostep } = this.state;
     if (autostep && !stateConverged(canvasState)) {
       await this.step();
     }
   };
   public downloadSVG = (): void => {
-    DownloadSVG(
-      RenderStatic(this.state.data.shapes, this.state.data.labelCache)
-    );
+    DownloadSVG(RenderStatic(this.state.data));
   };
   public downloadPDF = (): void => {
     console.error("PDF download not implemented");
@@ -169,7 +170,6 @@ class App extends React.Component<any, ICanvasState> {
         );
         if (compileRes.isOk()) {
           const initState: PenroseState = await prepareState(compileRes.value);
-          this.setState({ data: initState });
           void this.onCanvasState(initState);
         } else {
           void console.error(compileRes.error);
@@ -185,11 +185,13 @@ class App extends React.Component<any, ICanvasState> {
     this.connectToSocket();
   }
 
-  public updateData = async (data: any) => {
+  public updateData = async (data: PenroseState) => {
     this.setState({ data: { ...data } });
     if (this.state.autostep) {
       const stepped = stepState(data);
       this.onCanvasState(stepped);
+    } else {
+      this.renderCanvas(data);
     }
   };
   public setInspector = async (showInspector: boolean) => {
@@ -201,6 +203,22 @@ class App extends React.Component<any, ICanvasState> {
   };
   public hideInspector = async () => {
     await this.setInspector(false);
+  };
+
+  public renderCanvas = (state: PenroseState) => {
+    if (this.canvasRef.current !== null) {
+      const current = this.canvasRef.current;
+      if (current.firstChild !== null) {
+        current.replaceChild(
+          // RenderInteractive(state, console.log),
+          RenderStatic(state),
+          current.firstChild
+        );
+      } else {
+        // current.appendChild(RenderInteractive(state, console.log));
+        current.appendChild(RenderStatic(state));
+      }
+    }
   };
 
   private renderApp() {
@@ -254,9 +272,7 @@ class App extends React.Component<any, ICanvasState> {
             {data && (
               <div
                 style={{ width: "100%", height: "100%" }}
-                dangerouslySetInnerHTML={{
-                  __html: RenderStatic(data.shapes, data.labelCache).outerHTML
-                }}
+                ref={this.canvasRef}
               />
             )}
             {showInspector && (
