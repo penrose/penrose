@@ -210,13 +210,11 @@ class App extends React.Component<any, ICanvasState> {
       const current = this.canvasRef.current;
       if (current.firstChild !== null) {
         current.replaceChild(
-          // RenderInteractive(state, console.log),
-          RenderStatic(state),
+          RenderInteractive(state, this.updateData),
           current.firstChild
         );
       } else {
-        // current.appendChild(RenderInteractive(state, console.log));
-        current.appendChild(RenderStatic(state));
+        current.appendChild(RenderInteractive(state, this.updateData));
       }
     }
   };

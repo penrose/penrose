@@ -1,6 +1,7 @@
 import shapeMap from "./shapeMap";
 import { canvasSize } from "renderer/ShapeDef";
 import { Shape } from "types/shapeTypes";
+import { dragUpdate } from "./dragUtils";
 
 export interface ShapeProps {
   shape: Shape;
@@ -64,7 +65,6 @@ export const DraggableShape = (
   const elem = RenderShape(shape, labels, canvasSizeCustom);
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.appendChild(elem);
-  g.setAttribute("transform", "translate(0, 0)");
 
   const onMouseDown = (e: MouseEvent) => {
     const tempX = getPosition(e, parentSVG).x;
@@ -80,7 +80,6 @@ export const DraggableShape = (
     };
     const onMouseUp = () => {
       g.setAttribute("opacity", "1");
-      g.setAttribute(`transform`, `translate(0,0)`);
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
       onDrag((shape.properties.name as IStrV<string>).contents, dx, dy);
@@ -103,7 +102,7 @@ export const RenderInteractive = (
   svg.setAttribute("viewBox", `0 0 ${canvasSize[0]} ${canvasSize[1]}`);
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   const onDrag = (id: string, dx: number, dy: number) => {
-    console.log(id, dx, dy);
+    updateState(dragUpdate(state, id, dx, dy));
   };
   state.shapes.forEach((shape) =>
     svg.appendChild(DraggableShape(shape, state.labelCache, onDrag, svg))
