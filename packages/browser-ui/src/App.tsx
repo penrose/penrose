@@ -9,7 +9,7 @@ import {
   compileTrio,
   prepareState,
   stateInitial,
-  stepUntilConvergence
+  stepUntilConvergence,
 } from "penrose-core";
 
 /**
@@ -22,7 +22,7 @@ export const DownloadSVG = (
   title = "illustration"
 ): void => {
   const blob = new Blob([svg.outerHTML], {
-    type: "image/svg+xml;charset=utf-8"
+    type: "image/svg+xml;charset=utf-8",
   });
   const url = URL.createObjectURL(blob);
   const downloadLink = document.createElement("a");
@@ -60,7 +60,7 @@ class App extends React.Component<any, ICanvasState> {
     penroseVersion: "",
     showInspector: true,
     files: null,
-    connected: false
+    connected: false,
   };
   public readonly buttons = React.createRef<ButtonBar>();
   public readonly canvasRef = React.createRef<HTMLDivElement>();
@@ -72,22 +72,22 @@ class App extends React.Component<any, ICanvasState> {
   // same as onCanvasState but doesn't alter timeline or involve optimization
   // used only in modshapes
   public modCanvas = async (canvasState: PenroseState) => {
-    await new Promise(r => setTimeout(r, 1));
+    await new Promise((r) => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
-      processedInitial: true
+      processedInitial: true,
     });
     this.renderCanvas(canvasState);
   };
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise(r => setTimeout(r, 1));
+    await new Promise((r) => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
       history: [...this.state.history, canvasState],
-      processedInitial: true
+      processedInitial: true,
     });
     this.renderCanvas(canvasState);
     const { autostep } = this.state;
@@ -109,11 +109,11 @@ class App extends React.Component<any, ICanvasState> {
       xsVars: [],
       constrWeightNode: undefined,
       epWeightNode: undefined,
-      graphs: undefined
+      graphs: undefined,
     };
     const content = JSON.stringify({ ...state, params });
     const blob = new Blob([content], {
-      type: "text/json"
+      type: "text/json",
     });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -153,7 +153,7 @@ class App extends React.Component<any, ICanvasState> {
   connectToSocket = () => {
     FileSocket(
       socketAddress,
-      async files => {
+      async (files) => {
         const { domain, substance, style } = files;
         this.setState({ files, connected: true });
 
@@ -173,7 +173,10 @@ class App extends React.Component<any, ICanvasState> {
           const initState: PenroseState = await prepareState(compileRes.value);
           void this.onCanvasState(initState);
         } else {
-          void console.error(compileRes.error);
+          void console.error(
+            "Failed to compile with errors:",
+            compileRes.error
+          );
         }
       },
       () => {
@@ -229,7 +232,7 @@ class App extends React.Component<any, ICanvasState> {
       showInspector,
       history,
       files,
-      connected
+      connected,
     } = this.state;
     return (
       <div
@@ -238,7 +241,7 @@ class App extends React.Component<any, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         <div style={{ flexShrink: 0 }}>

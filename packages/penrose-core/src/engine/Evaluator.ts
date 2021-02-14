@@ -102,7 +102,6 @@ export const evalShapes = (s: State): State => {
     (p: Path) => findExpr(trans, p) as IFGPI<VarAD>
   );
 
-  console.log("shapePaths", s.shapePaths.map(prettyPrintPath));
   // throw Error("TODO");
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)

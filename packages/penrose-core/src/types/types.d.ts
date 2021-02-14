@@ -46,7 +46,7 @@ type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
 interface ITrans<T> {
   // TODO: compGraph
   trMap: TrMap<T>;
-  warnings: string[];
+  warnings: StyleError[];
 }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
@@ -1530,8 +1530,8 @@ interface ISelEnv {
   // Variable => [Substance or Style variable, original data structure with program locs etc]
   skipBlock: Bool;
   header: Maybe<Header>; // Just for debugging
-  warnings: StyErrors;
-  errors: StyErrors;
+  warnings: StyleErrors;
+  errors: StyleErrors;
 }
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
 
@@ -1592,7 +1592,7 @@ interface Identifier extends ASTNode {
 
 //#region
 
-type StyErrors = string[];
+type StyleErrors = StyleError[];
 // TODO: Convert this to StyleError[]
 
 interface Left<A> {
@@ -1629,5 +1629,5 @@ interface ErrorSource {
   node: ASTNode;
 }
 
-type Warning = string;
+type Warning = StyleError;
 //#endregion

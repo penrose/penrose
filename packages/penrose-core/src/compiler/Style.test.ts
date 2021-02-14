@@ -10,9 +10,8 @@ import {
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
-import { unsafelyUnwrap, Result } from "utils/Error";
+import { andThen, unsafelyUnwrap, Result, showError, showStyErr } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
-
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"
@@ -28,6 +27,7 @@ const loadFiles = (paths: string[]): string[] => {
 
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
 // files must follow schema: { domain, substance, style }
+// Disambiguates functions as well
 export const loadProgs = ([domainStr, subStr, styStr]: [
   string,
   string,
@@ -52,6 +52,8 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
     subProg,
     styProg,
   ];
+
+  S.disambiguateFunctions(varEnv, subProg);
   return res;
 };
 
@@ -134,7 +136,6 @@ describe("Compiler", () => {
       StyProg
     ] = loadProgs(loadFiles(triple) as [string, string, string]);
 
-    S.disambiguateFunctions(varEnv, subProg);
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
 
     const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>
@@ -178,7 +179,7 @@ describe("Compiler", () => {
       SubProg,
       StyProg
     ] = loadProgs(loadFiles(triple) as [string, string, string]);
-    S.disambiguateFunctions(varEnv, subProg);
+
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
     const selErrs: StyErrors = _.flatMap(selEnvs, (e) =>
       e.warnings.concat(e.errors)
@@ -225,5 +226,150 @@ describe("Compiler", () => {
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
 
-  //
+  // Test errors
+  const PRINT_ERRORS = false;
+
+  const expectErrorOf = (result: Result<State, PenroseError>, errorType: string) => {
+    if (result.isErr()) {
+      const res: PenroseError = result.error;
+      if (res.errorType !== "StyleError") {
+        fail(`Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`);
+      }
+
+      if (res.tag !== "StyleErrorList") {
+        fail(`Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`);
+      }
+
+      if (PRINT_ERRORS) { console.log(result.error); }
+
+      expect(res.errors[0].tag).toBe(errorType);
+    } else {
+      fail(`Error ${errorType} was supposed to occur.`);
+    }
+  };
+
+  describe("Errors", () => {
+
+    const subProg = loadFile("set-theory-domain/twosets-simple.sub");
+    const domainProg = loadFile("set-theory-domain/setTheory.dsl");
+    // We test variations on this Style program
+    // const styPath = "set-theory-domain/venn.sty"; 
+
+    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+
+    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+      (env) => compileSubstance(subProg, env),
+      domainRes
+    );
+
+    const testStyProgForError = (styProg: string, errorType: string) => {
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) => S.compileStyle(styProg, ...res),
+        subRes
+      );
+      expectErrorOf(styRes, errorType);
+    };
+
+    const errorStyProgs = {
+      // ------ Selector errors (from Substance)
+      SelectorDeclTypeError: [`forall Setfhjh x { }`],
+      SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
+
+      // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
+      SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+
+      SelectorRelTypeMismatch: [`forall Point x; Set y; Set z
+      where x := Union(y, z) { } `],
+
+      TaggedSubstanceError: [`forall Set x; Point y
+where IsSubset(y, x) { }`],
+
+      // ------- Translation errors (deletion)
+      DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
+      DeletedPropWithNoFieldError: [`forall Set x { x.icon = Circle { }
+delete x.z.p }`],
+
+      DeletedPropWithNoGPIError: [`forall Set x { x.z = 0.0
+delete x.z.p }`],
+
+      // COMBAK: This doesn't catch the error
+      // COMBAK: Style appears to throw parse error if line ends with a trailing space
+      // COMBAK: Why is this a parse error??
+      // COMBAK: Test the instance in `insertExpr` as well as in `compileStyle`
+      //       CircularPathAlias: [`forall Set x { x.icon = Circle { }
+      // x.icon.center = x.icon.center }`],
+
+      DeletedNonexistentFieldError: [`forall Set x { delete x.z }`],
+      DeletedVectorElemError:
+        [`forall Set x {  
+         x.icon = Circle { 
+           center: (0.0, 0.0) 
+         }
+         delete x.icon[0] }`],
+
+      // ---------- Translation errors (insertion)
+
+      InsertedPathWithoutOverrideError:
+        [`forall Set x { 
+           x.z = 1.0 
+           x.z = 2.0
+}`,
+          `forall Set x { 
+         x.icon = Circle { 
+           center: (0.0, 0.0) 
+         }
+           x.icon.center = 2.0
+}`],
+
+      InsertedPropWithNoFieldError:
+        [`forall Set x {
+    x.icon.r = 0.0
+}`],
+
+      InsertedPropWithNoGPIError:
+        [`forall Set x {
+    x.icon = "hello"
+    x.icon.r = 0.0
+}`],
+
+      // ---------- Runtime errors (insertExpr)
+
+      // COMBAK / TODO(errors): Test this more thoroughly
+      // COMBAK / NOTE: runtime errors aren't caught if an expr isn't evaluated, since we don't have statics. Test these separately.
+
+      //       RuntimeValueTypeError: [
+      //         `forall Set x { 
+      //          x.icon = Circle { 
+      //            center: (0.0, 0.0) 
+      //          }
+      //            x.icon.center[0] = "hello"
+      //            x.icon.center[1] = x.icon.center[0]
+      // }`]
+
+    };
+
+    // ---------- Errors that should maybe be modeled + tested
+
+    // COMBAK: Should this have a warning/error? Currently doesn't
+    // `forall Set x { x.icon = Circle { }; delete x.icon.z }
+
+    // COMBAK: These both cause a weird crash that's not caught
+    // override x.icon = x.icon
+    // ensure contains(x.icon, x.text2)
+
+    // forall Set x { x.icon = Circle { }
+    // x.icon2 = x.icon
+    // x.icon2.strokeWidth = 5.0
+    // -- COMBAK: This line does not appear to have worked
+    // delete x.icon2.strokeWidth
+    // }
+
+    // Test that each program yields its error type
+    for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
+      for (const styProg of styProgs) {
+        testStyProgForError(styProg, errorType);
+      }
+    }
+  });
+
 });

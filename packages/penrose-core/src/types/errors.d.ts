@@ -33,18 +33,6 @@ type DomainError =
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
 
-type StyleError = ParseError | GenericStyleError;
-
-interface GenericStyleError {
-  tag: "GenericStyleError";
-  messages: string[];
-}
-
-interface ParseError {
-  tag: "ParseError";
-  message: string;
-}
-
 interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
   sourceType: TypeConstructor;
@@ -129,3 +117,141 @@ interface FatalError {
 type ErrorSource = ASTNode;
 
 //#endregion
+
+//#region Style errors
+
+type StyleError =
+  // Misc errors
+  | ParseError
+  | GenericStyleError
+  | StyleErrorList
+  // Selector errors (from Substance)
+  | SelectorDeclTypeError
+  | SelectorVarMultipleDecl
+  | SelectorDeclTypeMismatch
+  | SelectorRelTypeMismatch
+  | TaggedSubstanceError
+  // Translation errors (deletion)
+  | DeletedPropWithNoSubObjError
+  | DeletedPropWithNoFieldError
+  | DeletedPropWithNoGPIError
+  | CircularPathAlias
+  | DeletedNonexistentFieldError
+  | DeletedVectorElemError
+  // Translation errors (insertion)
+  | InsertedPathWithoutOverrideError
+  | InsertedPropWithNoFieldError
+  | InsertedPropWithNoGPIError
+  // Runtime errors
+  | RuntimeValueTypeError;
+
+interface GenericStyleError {
+  tag: "GenericStyleError";
+  messages: string[];
+}
+
+interface StyleErrorList {
+  tag: "StyleErrorList";
+  errors: StyleError[];
+}
+
+interface ParseError {
+  tag: "ParseError";
+  message: string;
+}
+
+interface SelectorDeclTypeError {
+  tag: "SelectorDeclTypeError";
+  typeName: identifier;
+}
+
+interface SelectorVarMultipleDecl {
+  tag: "SelectorVarMultipleDecl";
+  varName: BindingForm;
+}
+
+interface SelectorDeclTypeMismatch {
+  tag: "SelectorDeclTypeMismatch";
+  subType: TypeConsApp;
+  styType: TypeConsApp;
+}
+
+interface SelectorRelTypeMismatch {
+  tag: "SelectorRelTypeMismatch";
+  varType: TypeConsApp;
+  exprType: TypeConsApp;
+}
+
+interface TaggedSubstanceError {
+  tag: "TaggedSubstanceError";
+  error: SubstanceError;
+}
+
+interface DeletedPropWithNoSubObjError {
+  tag: "DeletedPropWithNoSubObjError";
+  subObj: BindingForm;
+  path: Path;
+}
+
+interface DeletedPropWithNoFieldError {
+  tag: "DeletedPropWithNoFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  path: Path;
+}
+
+interface CircularPathAlias {
+  tag: "CircularPathAlias";
+  path: Path;
+}
+
+interface DeletedPropWithNoGPIError {
+  tag: "DeletedPropWithNoGPIError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+}
+
+interface DeletedNonexistentFieldError {
+  tag: "DeletedNonexistentFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  path: Path;
+}
+
+interface DeletedVectorElemError {
+  tag: "DeletedVectorElemError";
+  path: Path;
+}
+
+interface InsertedPathWithoutOverrideError {
+  tag: "InsertedPathWithoutOverrideError";
+  path: Path;
+}
+
+interface InsertedPropWithNoFieldError {
+  tag: "InsertedPropWithNoFieldError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+}
+
+interface InsertedPropWithNoGPIError {
+  tag: "InsertedPropWithNoGPIError";
+  subObj: BindingForm;
+  field: Identifier;
+  property: Identifier;
+  path: Path;
+}
+
+// TODO(errors): use identifiers here
+interface RuntimeValueTypeError {
+  tag: "RuntimeValueTypeError";
+  path: Path;
+  expectedType: string;
+  actualType: string;
+}
+
+//#endregion Style errors
