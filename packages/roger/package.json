@@ -2,7 +2,7 @@
   "name": "roger",
   "description": "💂 The command line for penrose.",
   "version": "1.0.1-alpha.0",
-  "author": "maxkrieger @maxkrieger",
+  "author": "Penrose Team (https://penrose.ink)",
   "bin": {
     "roger": "./bin/run"
   },

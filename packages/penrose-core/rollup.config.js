@@ -31,7 +31,7 @@ export default [
   {
     input,
     output: {
-      file: pkg.bundle,
+      file: pkg.unpkg,
       name: "penrose", // this is the name of the global object
       esModule: false,
       exports: "named",

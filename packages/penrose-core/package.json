@@ -3,9 +3,9 @@
   "version": "1.0.1-alpha.0",
   "main": "build/dist/index.js",
   "module": "build/dist/index.esm.js",
-  "bundle": "build/dist/penrose.min.js",
+  "unpkg": "build/dist/penrose.min.js",
   "types": "build/dist/index.d.ts",
-  "author": "maxkrieger",
+  "author": "Penrose Team (https://penrose.ink)",
   "license": "MIT",
   "scripts": {
     "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
