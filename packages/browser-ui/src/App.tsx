@@ -10,7 +10,7 @@ import {
   prepareState,
   stateInitial,
   stepUntilConvergence,
-} from "penrose-core";
+} from "@penrose/core";
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer

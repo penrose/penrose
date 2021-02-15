@@ -1,4 +1,4 @@
-import { PenroseState, RenderStatic } from "penrose-core";
+import { PenroseState, RenderStatic } from "@penrose/core";
 import * as React from "react";
 
 import styled from "styled-components";
@@ -54,7 +54,7 @@ class Timeline extends React.Component<IViewProps> {
               key={k}
               onClick={() => this.props.selectFrame(k)}
               dangerouslySetInnerHTML={{
-                __html: RenderStatic(frame).outerHTML
+                __html: RenderStatic(frame).outerHTML,
               }}
             />
           );

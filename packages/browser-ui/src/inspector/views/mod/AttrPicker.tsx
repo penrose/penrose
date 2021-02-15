@@ -1,6 +1,6 @@
 import * as React from "react";
 import LabeledInput from "./LabeledInput";
-import { ShapeTypes } from "penrose-core";
+import { ShapeTypes } from "@penrose/core";
 
 interface IProps {
   shape: ShapeTypes.Shape;

@@ -3,8 +3,8 @@ import {
   stepState,
   stateConverged,
   PenroseState,
-  RenderStatic
-} from "penrose-core";
+  RenderStatic,
+} from "@penrose/core";
 import * as React from "react";
 import styled from "styled-components";
 import Logo from "ui/icons/Logo";
@@ -51,9 +51,9 @@ class Embed extends React.Component<any, IEmbedState> {
 
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise(r => setTimeout(r, 1));
+    await new Promise((r) => setTimeout(r, 1));
     this.setState({
-      data: canvasState
+      data: canvasState,
     });
     if (!stateConverged(canvasState)) {
       this.step();
@@ -89,7 +89,7 @@ class Embed extends React.Component<any, IEmbedState> {
             <div
               style={{ width: "100%", height: "100%" }}
               dangerouslySetInnerHTML={{
-                __html: RenderStatic(data.shapes, data.labelCache).outerHTML
+                __html: RenderStatic(data.shapes, data.labelCache).outerHTML,
               }}
             />
           )}

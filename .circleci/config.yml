@@ -3,7 +3,7 @@ jobs:
   docs-deploy:
     docker:
       - image: circleci/node:12.19.0
-    working_directory: ~/penrose/packages/penrose-core
+    working_directory: ~/penrose/packages/core
     steps:
       - checkout:
           path: ~/penrose
@@ -48,30 +48,30 @@ jobs:
           working_directory: ~/penrose/
       - run:
           name: Run all tests
-          command: yarn test
+          command: sudo yarn test
           working_directory: ~/penrose/
       - run:
           name: Make test report dir
           command: mkdir -p reports/junit
-          working_directory: ~/penrose/packages/penrose-core
+          working_directory: ~/penrose/packages/core
       - run:
           name: Run core tests and generate test data
-          command: yarn coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
-          working_directory: ~/penrose/packages/penrose-core
+          command: sudo yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
+          working_directory: ~/penrose/packages/core
       - run:
           name: Move test report
           command: mv junit.xml reports/junit/
-          working_directory: ~/penrose/packages/penrose-core
+          working_directory: ~/penrose/packages/core
       - run:
           name: Upload test coverage to codecov
           command: bash <(curl -s https://codecov.io/bash)
-          working_directory: ~/penrose/packages/penrose-core
+          working_directory: ~/penrose/packages/core
       - store_test_results:
-          path: ~/penrose/packages/penrose-core/reports/junit/
+          path: ~/penrose/packages/core/reports/junit/
       - store_artifacts:
-          path: ~/penrose/packages/penrose-core/reports/junit/
+          path: ~/penrose/packages/core/reports/junit/
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: ~/penrose/packages/penrose-core/coverage
+          path: ~/penrose/packages/core/coverage
       # - store_artifacts:
       #     path: ~/penrose/penrose-web/build
       #     destination: penrose-web-built

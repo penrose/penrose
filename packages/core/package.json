@@ -1,12 +1,15 @@
 {
-  "name": "penrose-core",
-  "version": "1.0.0",
+  "name": "@penrose/core",
+  "version": "1.0.0-alpha.3",
   "main": "build/dist/index.js",
   "module": "build/dist/index.esm.js",
-  "bundle": "build/dist/penrose.min.js",
+  "unpkg": "build/dist/penrose.min.js",
   "types": "build/dist/index.d.ts",
-  "author": "maxkrieger",
+  "author": "Penrose Team (https://penrose.ink)",
   "license": "MIT",
+  "files": [
+    "/build"
+  ],
   "scripts": {
     "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "prebuild": "yarn build:parsers",
@@ -17,10 +20,10 @@
     "start": "rollup -c -w",
     "watch": "rollup -c -w",
     "pretest": "yarn build:parsers",
-    "prebuild-lib": "yarn build:parsers",
     "docs": "typedoc --out docs src",
-    "coverage": "yarn test -- --coverage --watchAll=false",
-    "lint": "eslint --ext js,ts,tsx src"
+    "coverage": "yarn test --coverage --watchAll=false",
+    "lint": "eslint --ext js,ts,tsx src",
+    "prepack": "yarn build"
   },
   "dependencies": {
     "consola": "^2.15.2",

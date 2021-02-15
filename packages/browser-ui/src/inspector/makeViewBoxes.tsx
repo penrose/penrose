@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RenderShape, bBoxDims, ShapeTypes } from "penrose-core";
+import { RenderShape, bBoxDims, ShapeTypes } from "@penrose/core";
 import styled from "styled-components";
 
 // styling for shape inside viewbox - see ShapeView or Mod
@@ -32,7 +32,7 @@ const makeViewBoxes = (
           margin: 0,
           top: 0,
           left: 0,
-          right: 0
+          right: 0,
         }}
       >
         {shapes.map(
@@ -53,7 +53,7 @@ const makeViewBoxes = (
                     height="50"
                     dangerouslySetInnerHTML={{
                       __html: RenderShape({ properties, shapeType }, [], [w, h])
-                        .outerHTML
+                        .outerHTML,
                     }}
                   />
                 </div>

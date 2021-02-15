@@ -1,4 +1,4 @@
-import { PenroseState } from "penrose-core";
+import { PenroseState } from "@penrose/core";
 
 export interface IViewProps {
   // Switches the current frame to index in history
