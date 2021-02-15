@@ -23,7 +23,7 @@ $ npm install -g @penrose/roger
 $ roger COMMAND
 running command...
 $ roger (-v|--version|version)
-@penrose/roger/1.0.0-alpha.0 darwin-x64 node-v12.19.0
+@penrose/roger/1.0.0 darwin-x64 node-v12.19.0
 $ roger --help [COMMAND]
 USAGE
   $ roger COMMAND
@@ -69,6 +69,6 @@ OPTIONS
   -p, --port=port  [default: 9160] websocket port to serve to frontend
 ```
 
-_See code: [src/commands/watch.ts](https://github.com/penrose/penrose/blob/v1.0.0-alpha.0/src/commands/watch.ts)_
+_See code: [src/commands/watch.ts](https://github.com/penrose/penrose/blob/v1.0.0/src/commands/watch.ts)_
 
 <!-- commandsstop -->
