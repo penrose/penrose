@@ -20,7 +20,7 @@
     "react-fast-compare": "^2.0.4",
     "react-inspector": "^4.0.1",
     "react-scripts": "^4.0.2",
-    "react-split-pane": "^0.1.89",
+    "react-split-pane": "^0.1.92",
     "react-styled-flexboxgrid": "^3.2.1",
     "rfdc": "^1.1.4",
     "styled-components": "^5.2.1",
