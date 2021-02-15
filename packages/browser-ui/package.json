@@ -42,7 +42,8 @@
     "test:watch": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",
     "eject": "react-scripts eject",
-    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json"
+    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
+    "prepack": "yarn build"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
