@@ -1,6 +1,6 @@
 {
   "name": "@penrose/browser-ui",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "main": "build/dist/module.js",
   "module": "build/dist/module.js",
   "types": "build/dist/types.js",
