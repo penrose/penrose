@@ -15,7 +15,8 @@
     "new-version": "lerna version --conventional-commits --yes",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
     "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
-    "diff": "lerna diff"
+    "diff": "lerna diff",
+    "release": "lerna publish from-package"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
