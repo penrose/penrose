@@ -11,12 +11,13 @@
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
     "test": "lerna run test --stream",
     "lerna": "lerna",
-    "new-version": "lerna version --conventional-commits",
+    "new-version": "lerna version --conventional-commits --create-release github",
+    "graduate": "lerna version --conventional-commits --conventional-graduate",
     "prerelease": "lerna version --conventional-prerelease",
+    "release": "lerna publish from-package",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
     "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
-    "diff": "lerna diff",
-    "release": "lerna publish from-package"
+    "diff": "lerna diff"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
