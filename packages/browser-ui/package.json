@@ -28,6 +28,9 @@
     "ts-node": "^9.0.0",
     "tslib": "^2.0.3"
   },
+  "files": [
+    "/build"
+  ],
   "scripts": {
     "start": "react-scripts --max_old_space_size=8192 start",
     "watch": "CI=true react-scripts --max_old_space_size=8192 start",
