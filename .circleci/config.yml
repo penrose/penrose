@@ -56,7 +56,7 @@ jobs:
           working_directory: ~/penrose/packages/core
       - run:
           name: Run core tests and generate test data
-          command: yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
+          command: sudo yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
           working_directory: ~/penrose/packages/core
       - run:
           name: Move test report
