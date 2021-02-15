@@ -48,7 +48,7 @@ jobs:
           working_directory: ~/penrose/
       - run:
           name: Run all tests
-          command: yarn test
+          command: sudo yarn test
           working_directory: ~/penrose/
       - run:
           name: Make test report dir
@@ -56,7 +56,7 @@ jobs:
           working_directory: ~/penrose/packages/penrose-core
       - run:
           name: Run core tests and generate test data
-          command: yarn coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
+          command: yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
           working_directory: ~/penrose/packages/penrose-core
       - run:
           name: Move test report
