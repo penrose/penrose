@@ -1,4 +1,4 @@
-# penrose-core
+# @penrose/core
 
 See the [wiki](https://github.com/penrose/penrose/wiki) for more details about the system in general.
 

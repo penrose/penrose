@@ -3,7 +3,7 @@ import * as React from "react";
 import IViewProps from "./IViewProps";
 import AttrPicker from "./mod/AttrPicker";
 import defmap from "./mod/defmap";
-import { ShapeTypes, PenroseState } from "penrose-core";
+import { ShapeTypes, PenroseState } from "@penrose/core";
 
 interface IState {
   selectedShape: number;
@@ -30,7 +30,7 @@ class Mod extends React.Component<IViewProps, IState> {
       shape.properties[attrname] = attrval;
       const newFrame = {
         ...frame!,
-        shapes: newShapes
+        shapes: newShapes,
       } as PenroseState;
       modShapes(newFrame);
     } else throw new Error("Shape does not have property " + attrname + " .");
@@ -48,7 +48,7 @@ class Mod extends React.Component<IViewProps, IState> {
           display: "flex",
           width: "100%",
           height: "100%",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         {makeViewBoxes(frame.shapes, selectedShape, this.setSelectedShape)}
@@ -60,7 +60,7 @@ class Mod extends React.Component<IViewProps, IState> {
             height: "100%",
             flexBasis: 0,
             flexGrow: 1,
-            boxSizing: "border-box"
+            boxSizing: "border-box",
           }}
         >
           {frame.shapes[selectedShape] && (

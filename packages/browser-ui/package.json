@@ -1,5 +1,5 @@
 {
-  "name": "browser-ui",
+  "name": "@penrose/browser-ui",
   "version": "1.0.1-alpha.0",
   "main": "build/dist/module.js",
   "module": "build/dist/module.js",
@@ -14,7 +14,7 @@
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",
     "node-pre-gyp": "^0.14.0",
-    "penrose-core": "^1.0.1-alpha.0",
+    "@penrose/core": "^1.0.1-alpha.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",

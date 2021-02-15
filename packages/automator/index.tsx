@@ -6,7 +6,7 @@ import {
   PropagateUpdate,
   Optimizer,
   Evaluator,
-} from "penrose-core";
+} from "@penrose/core";
 
 const fs = require("fs");
 const mathjax = require("mathjax-node");
