@@ -37,7 +37,9 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/@types/jest"
+      "**/@types/jest",
+      "**/@types/react",
+      "**/@types/react-dom"
     ]
   }
 }
