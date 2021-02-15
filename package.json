@@ -6,7 +6,6 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "lerna run build --scope=@penrose/roger",
     "build": "lerna run build --stream",
     "clean": "lerna clean && lerna exec -- rimraf build",
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
@@ -37,9 +36,7 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/@types/jest",
-      "**/@types/react",
-      "**/@types/react-dom"
+      "**/@types/jest"
     ]
   }
 }

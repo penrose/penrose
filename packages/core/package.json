@@ -21,7 +21,7 @@
     "watch": "rollup -c -w",
     "pretest": "yarn build:parsers",
     "docs": "typedoc --out docs src",
-    "coverage": "yarn test -- --coverage --watchAll=false",
+    "coverage": "yarn test --coverage --watchAll=false",
     "lint": "eslint --ext js,ts,tsx src",
     "prepack": "yarn build"
   },
