@@ -11,7 +11,7 @@
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
     "test": "lerna run test --stream",
     "lerna": "lerna",
-    "version": "lerna version --conventional-commits",
+    "new-version": "lerna version --conventional-commits",
     "prerelease": "lerna version --conventional-prerelease",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
     "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
@@ -22,9 +22,9 @@
     "cross-env": "^7.0.3",
     "husky": "^4.3.8",
     "lerna": "^3.22.1",
-    "rimraf": "^3.0.2",
     "prettier": "2.2.1",
     "pretty-quick": "^3.1.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.1.3"
   },
   "husky": {
@@ -39,5 +39,6 @@
     "nohoist": [
       "**/@types/jest"
     ]
-  }
+  },
+  "version": "0.0.0"
 }
