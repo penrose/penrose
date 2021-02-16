@@ -13,11 +13,11 @@ The sections build on top of each other, using the skillsets we've acquired in t
 # Installation
 We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). :partying_face: Come back when you are done.
 
-After following the Building & Running page, you should now have forked Penrose and have created a new folder in the `penrose/examples` path So you should have something like this.
+After following the Building & Running page, you should now have forked Penrose and have created a new folder in the `penrose/examples` path. So you should have something like this.
 
 ![initialize files](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/initializa_file.png)
 
-With the neccessary tools set up, we can finally start making Penrose programs that will produce beautiful visualizations. Before touching code, a basic understanding of a Penrose program will benefit you so you feel less overwhelmed. Learning a new environment can be intimidating, and we want to make it as smooth as possible.
+Before getting into the granularity of code, a basic understanding of a Penrose program will make you feel less overwhelmed. Learning a new environment can be intimidating, and we want to make it as smooth as possible.
 
 # How do we diagram by hand? 
 Now, for a second, I want you to recall how you would normally diagram a concept using a pen or pencil. 
@@ -29,9 +29,9 @@ It will most likely involve the following steps,
 * **Have a (mental) list of the objects you want to include in the diagram**
     * We either write down, or mentally construct the list of objects that will be included in our diagram.
     * They are the **substances** of our diagram that will be visualized. 
-    * For example, your chair :chair: is a particular instance of an object in the domain :house: that has the type of _furniture_. If the chair is in the diagram, then it is a substance of the diagram. 
+    * For example, your chair :chair: is a particular instance of an object in the domain :house:, and :chair: has the type of _furniture_. If the chair is in the diagram, then it is a substance of the diagram. 
 * **Figure out the relationships between the objects**
-    *  If we were only to put the list of things on paper, that would not be an interesting nor useful diagram. Normally, there are relationships that we want to visualize. 
+    *  If we were only to put the list of things on paper one by one, that would not be an interesting nor useful diagram. Normally, there are relationships that we want to visualize. 
     * For example, we could group the plants based on the number of times they need to be watered on a weekly basis. Then we would have visual clusters of elements.
 * **Explore different visual styles**
     * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different **styles**. 
@@ -42,13 +42,15 @@ It will most likely involve the following steps,
 It follows naturally from the process of diagramming by hand, we need to keep track of certain information as described above. The way we do that is by writing code in three specific files. First, we need to define our **domain** of objects because Penrose does not know what is in your house, or what a chair is. You need to define the types of objects and operations in your domain. For example, you can _push_ a chair, or _sit_ on a chair, which are operations related to a chair. Second, we need to store the specific **substances** we want to include in our diagrams, so Penrose knows exactly what to draw for you. Lastly, we need to define the **styles** that we want to visualize our substances in. Each of these corresponds to a specific file with an intuitive file extension designed for accessibility. 
 
 Every Penrose program consists of 3 files: 
-* A `.dsl`  file that defines the language specific to the domain.
+* A `.dsl`  file that defines the language specific to the domain. 
 * A `.sub` file that creates substances of mathematical content.
 * A `.sty` file that specifies the style of the visual representation.
 
+> dsl stands for Domain Specific Language. 
+
 # ( diagram about files )
 
-In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.sub` files, but we would have a main `linearAlgebra.dsl` file and `linearAlgebra.sty` file. 
+In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.sub` files, but we would have a main `linearAlgebra.dsl` file and maybe several `linearAlgebra.sty` file for different styles. 
 
 # Example (1)
 This is the first diagram we will make together. This is the equivalent of the ```print("Hello World")``` program for Penrose.
@@ -95,13 +97,14 @@ Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wr
 ### :page_facing_up: STYLE
 For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html` (which wouold be our `.sub` file). We will rename our `.sty` file to `twosets.sty`. 
 
-Now, Penrose does _not_ know a set is commonly represented as a circle. **We need to style our elements from scratch.** This might seem strange, but this way you are given absolute freedom in how you want to represent your substances in the diagram. Your Set doesn't have to be a circle, it can be square, a rectangle, etc. But for this example, we will be representing sets as circles. 
+Now, Penrose does _not_ know a set is commonly represented as a circle. **We need to style our elements from scratch.** This might seem strange, but this way you are given absolute freedom in how you want to represent your substances in the diagram. Your set doesn't have to be a circle, it can be square, a rectangle, etc. But for this example, we will be representing sets as circles. 
 
 The syntax for declaring styles goes like this,
 
 ![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
+## WILL REPLACE 
 
-Note that the syntax is _very_ similar to the mathematical way of talking about objects, so it should be pretty natural for people with some backgrounds in math. If you don't, that's completely fine too! You can interpret the syntax as:  we go through the substances in the diagram, and _for all_ the substances of type `t` that we see, we apply the same styling. 
+Note that the syntax is _very_ similar to the mathematical way of talking about objects, so it should be pretty natural for people with some backgrounds in math. If you don't, that's completely fine too! You can interpret the syntax as:  we go through the substances in the diagram, and _for all_ the substances of type `t` that we see, we apply the same styling as defined in the `{ }`. 
 
 Here we have our `type t` as `Set`, and we want to all of our sets to be a circle. We can make that happen by setting the `.icon` field to a shape object. 
 
@@ -112,11 +115,13 @@ forall Set x {
 }
 ```
 
-So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](https://github.com/penrose/penrose/wiki/Shape-library).
+So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](https://github.com/penrose/penrose/wiki/Shape-library). It is a page that you will visit frequently as you work in Penrose. 
 
 ![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
 
-When we construct the `Circle` object for our Set, we can customize our circle by passing in specific values for its properties. Our desired circles here are strokeless, therefore we will set `strokeWidth: 0.0`.  For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization. 
+This is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a sample diagram of how the shape will look like, and a table that lists out the different properties you can manipulate. 
+
+When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles are strokeless, therefore we will set `strokeWidth: 0.0`.  For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, or in other words, Penrose will choose the best for you.  
 
 `twosets.sty`
 ```typescript
@@ -136,11 +141,11 @@ Now it's time to see all of our hardwork (drumroll please 🥁)!  To compile you
 * Refresh! 
 
 # Exercise (1) 
-Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. Hint: Make use of the shape specs [here](https://github.com/penrose/penrose/wiki/Shape-library).
+Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. **Hint:** Make use of the shape specs [here](https://github.com/penrose/penrose/wiki/Shape-library).
 * **Challenge 1:** Add another `Set` to the diagram. 
 ![challenge 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c1.png)
 * **Challenge 2:** Keep 3 sets. Represent `Set` as squares with `side` equal to `50.0`. 
 ![challenge 2 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c2.png)
-* **Challenge 3:** Keep 3 sets. Represent `Set` as rectangles with `rotation` equal to 45 degrees. 
+* **Challenge 3:** Keep 3 sets. Represent `Set` as rectangles with `strokeWidth` equal to 15. 
 
 [SOLUTIONS](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md)
