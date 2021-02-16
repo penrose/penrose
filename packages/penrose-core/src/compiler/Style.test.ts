@@ -286,7 +286,25 @@ where IsSubset(y, x) { }`],
 
       // ---------- Block static errors
 
-      // TODO
+      InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
+
+      // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
+      InvalidGPIPropertyError:
+        [`forall Set x {  
+          x.icon = Circle { 
+           centre: (0.0, 0.0) 
+           r: 9.
+           diameter: 100.
+         } 
+       }`],
+
+      // TODO < Have to do a nested search in expressions for this. Fix it
+      // InvalidFunctionNameError: [`forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
+      //   `forall Set x { x.icon = Circle { r: get(0.0, sjkfhsdk("hi")) } }`],
+
+      InvalidObjectiveNameError: [`forall Set x { encourage sjdhfksha(0.0) }`],
+
+      InvalidConstraintNameError: [`forall Set x { ensure jahfkjdhf(0.0) }`],
 
       // ------- Translation errors (deletion)
       DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],

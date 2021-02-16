@@ -161,6 +161,35 @@ export const showError = (
       return showError(error.error); // Substance error
     };
 
+    // --- BEGIN BLOCK STATIC ERRORS
+
+    case "InvalidGPITypeError": {
+      return `Got invalid GPI type ${error.givenType.value}.`;
+      // COMBAK: GPI type suggestions, or just print the list
+    };
+
+    case "InvalidGPIPropertyError": {
+      return `Got invalid GPI property ${error.givenProperty.value}.`;
+      // COMBAK: GPI property suggestions, or just print the list
+    };
+
+    case "InvalidFunctionNameError": {
+      return `Got invalid Function name ${error.givenName.value}.`;
+      // COMBAK: Function suggestions, or just print the list
+    };
+
+    case "InvalidObjectiveNameError": {
+      return `Got invalid objective name ${error.givenName.value}.`;
+      // COMBAK: Objective suggestions, or just print the list
+    };
+
+    case "InvalidConstraintNameError": {
+      return `Got invalid constraint name ${error.givenName.value}.`;
+      // COMBAK: Constraint suggestions, or just print the list
+    };
+
+    // --- END BLOCK STATIC ERRORS
+
     case "DeletedPropWithNoSubObjError": {
       return `Sub obj '${error.subObj.contents.value}' has no fields; can't delete path '${prettyPrintPath(error.path)}'`;
     };

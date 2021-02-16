@@ -132,7 +132,11 @@ type StyleError =
   | SelectorRelTypeMismatch
   | TaggedSubstanceError
   // Block static errors
-  // TODO
+  | InvalidGPITypeError
+  | InvalidGPIPropertyError
+  | InvalidFunctionNameError
+  | InvalidObjectiveNameError
+  | InvalidConstraintNameError
   // Translation errors (deletion)
   | DeletedPropWithNoSubObjError
   | DeletedPropWithNoFieldError
@@ -204,6 +208,40 @@ interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
   error: SubstanceError
 };
+
+//#region Block statics
+
+interface InvalidGPITypeError {
+  tag: "InvalidGPITypeError";
+  givenType: Identifier;
+  // expectedType: string;
+};
+
+interface InvalidGPIPropertyError {
+  tag: "InvalidGPIPropertyError";
+  givenProperty: Identifier;
+  // expectedProperty: string;
+};
+
+interface InvalidFunctionNameError {
+  tag: "InvalidFunctionNameError";
+  givenName: Identifier;
+  // expectedName: string;
+};
+
+interface InvalidObjectiveNameError {
+  tag: "InvalidObjectiveNameError";
+  givenName: Identifier;
+  // expectedName: string;
+};
+
+interface InvalidConstraintNameError {
+  tag: "InvalidConstraintNameError";
+  givenName: Identifier;
+  // expectedName: string;
+};
+
+//#endregion Block statics
 
 interface DeletedPropWithNoSubObjError {
   tag: "DeletedPropWithNoSubObjError";

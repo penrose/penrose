@@ -28,6 +28,7 @@ import {
   PropType,
   Sampler,
   ShapeDef,
+  shapedefs
 } from "shapes/ShapeDef";
 import {
   err,
@@ -49,6 +50,10 @@ const log = consola
   .withScope("Style Compiler");
 const clone = require("rfdc")({ proto: false, circles: false });
 
+// Dicts (runtime data)
+import { compDict } from "contrib/Functions";
+import { objDict, constrDict } from "contrib/Constraints";
+
 //#region consts
 const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
@@ -56,6 +61,19 @@ const LOCAL_KEYWORD = "$LOCAL";
 const LABEL_FIELD = "label";
 
 const UnknownTagError = new Error("unknown tag");
+
+// For statically checking existence
+const FN_DICT = {
+  CompApp: compDict,
+  ObjFn: objDict,
+  ConstrFn: constrDict
+};
+
+const FN_ERR_TYPE = {
+  CompApp: "InvalidFunctionNameError" as "InvalidFunctionNameError",
+  ObjFn: "InvalidObjectiveNameError" as "InvalidObjectiveNameError",
+  ConstrFn: "InvalidConstraintNameError" as "InvalidConstraintNameError",
+};
 
 //#endregion
 
@@ -1646,6 +1664,10 @@ const emptyErrs = () => {
   return { errors: [], warnings: [] };
 };
 
+const oneErr = (err: StyleError): StyleResults => {
+  return { errors: [err], warnings: [] };
+};
+
 const combineErrs = (e1: StyleResults, e2: StyleResults): StyleResults => {
   return {
     errors: e1.errors.concat(e2.errors),
@@ -1654,8 +1676,57 @@ const combineErrs = (e1: StyleResults, e2: StyleResults): StyleResults => {
 };
 
 const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
-  // TODO <
-  return emptyErrs();
+  // Check that every shape name and shape property name in a shape constructor exists
+  if (expr.tag === "GPIDecl") {
+    const styName: string = expr.shapeName.value;
+
+    let errors: StyleErrors = [];
+    let warnings: StyleWarnings = [];
+
+    const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
+    if (!shapeNames.includes(styName)) {
+      // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
+      return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
+    }
+
+    // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
+    const shapeDef: ShapeDef = findDef(styName);
+    const givenProperties: Identifier[] = expr.properties.map(e => e.name);
+    const expectedProperties: String[] = Object.entries(shapeDef.properties).map(e => e[0]);
+
+    for (let gp of givenProperties) {
+      // Check multiple properties, as each one is not fatal if wrong
+      if (!expectedProperties.includes(gp.value)) {
+        errors.push({ tag: "InvalidGPIPropertyError", givenProperty: gp });
+      }
+    }
+
+    return { errors, warnings };
+
+  } else if (expr.tag === "CompApp"
+    || expr.tag === "ObjFn"
+    || expr.tag === "ConstrFn"
+  ) {
+    // Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
+
+    const fnDict = FN_DICT[expr.tag];
+    if (!fnDict) { throw Error("internal error: unexpected tag"); }
+
+    const fnNames: string[] = Object.entries(fnDict).map(e => e[0]); // Names of built-in functions of that kind
+
+    const givenFnName: Identifier = expr.name;
+
+    if (!fnNames.includes(givenFnName.value)) {
+      const fnErrorType = FN_ERR_TYPE[expr.tag];
+      if (!fnErrorType) { throw Error("internal error: unexpected tag"); }
+      return oneErr({ tag: fnErrorType, givenName: givenFnName });
+    }
+
+    return emptyErrs();
+
+  } else {
+    return emptyErrs();
+  }
 };
 
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
@@ -1711,8 +1782,9 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
     emptyErrs());
 
   // TODO(errors): Return warnings (non-fatally);
-  console.log("warnings", res.warnings);
-  throw Error("TODO");
+  console.error("errors", res.errors);
+  console.error("warnings", res.warnings);
+  // throw Error("TODO");
 
   return res.errors;
 };
