@@ -45,14 +45,14 @@ import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import consola, { LogLevel } from "consola";
 
+// Dicts (runtime data)
+import { compDict } from "contrib/Functions";
+import { objDict, constrDict } from "contrib/Constraints";
+
 const log = consola
   .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
 const clone = require("rfdc")({ proto: false, circles: false });
-
-// Dicts (runtime data)
-import { compDict } from "contrib/Functions";
-import { objDict, constrDict } from "contrib/Constraints";
 
 //#region consts
 const ANON_KEYWORD = "ANON";
