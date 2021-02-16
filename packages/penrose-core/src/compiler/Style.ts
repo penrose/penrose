@@ -43,16 +43,17 @@ import {
 } from "utils/Error";
 import { randFloats } from "utils/Util";
 import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
+
+// Dicts (runtime data)
+import { compDict } from "contrib/Functions";
+import { objDict, constrDict } from "contrib/Constraints";
+
 import consola, { LogLevel } from "consola";
 
 const log = consola
   .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
 const clone = require("rfdc")({ proto: false, circles: false });
-
-// Dicts (runtime data)
-import { compDict } from "contrib/Functions";
-import { objDict, constrDict } from "contrib/Constraints";
 
 //#region consts
 const ANON_KEYWORD = "ANON";
@@ -719,7 +720,7 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
     };
   } else if (path.tag === "InternalLocalVar") {
     // Note that the local var becomes a path
-    // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference 'LOCAL_<ids>.v'
+    // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference '$LOCAL_<ids>.v'
     // where <ids> is a string generated to be unique to this selector match for this block
 
     // COMBAK / HACK: Is there some way to get rid of all these dummy values?
@@ -1798,6 +1799,7 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
 };
 
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
+  debugger;
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
   return emptyErrs();
@@ -1829,7 +1831,7 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
   // Block checking; static semantics 
   // The below properties are checked in one pass (a fold) over the Style AST:
 
-  // Check that every shape name and shape property name in a shape constructor exists (TODO <)
+  // Check that every shape name and shape property name in a shape constructor exists
   // Check that every function, objective, and constraint exists
   // At path construction time, check that every Substance object exists in the environment of the block + selector [Checked only for non-local vars]
 
