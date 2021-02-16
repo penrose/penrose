@@ -148,4 +148,4 @@ Now, you understand the differences between and usage of the `.dsl`, `.sub` and 
 ![challenge 2 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c2.png)
 * **Challenge 3:** Keep 3 sets. Represent `Set` as rectangles with `strokeWidth` equal to 15. 
 
-[SOLUTIONS](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md)
+After you are done, you can double check your work with [solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md).
