@@ -68,7 +68,7 @@ _With changes:_
 ```typescript
 forall Set x {
     x.icon = Rectangle {
-        rotation : 45.0
+        strokeWidth : 15.0
     }
 }
 ```
