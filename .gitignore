@@ -1,4 +1,5 @@
 *.o
+.env
 settheory
 constraint
 Main

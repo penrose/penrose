@@ -14,6 +14,7 @@
     "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "prebuild": "yarn build:parsers",
     "prestart": "yarn build:parsers",
+    "prewatch": "yarn build:parsers",
     "test": "jest --watchAll=false",
     "test:watch": "jest --watchAll",
     "build": "rollup -c",
