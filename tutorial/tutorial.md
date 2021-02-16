@@ -121,7 +121,7 @@ So, what are the shapes we can use? Currently, the system supports 12 different 
 
 This is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a sample diagram of how the shape will look like, and a table that lists out the different properties you can manipulate. 
 
-When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles are strokeless, therefore we will set `strokeWidth: 0.0`.  For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, or in other words, Penrose will choose the best for you.  
+When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles are strokeless, therefore we will set `strokeWidth: 0.0`.  For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, or in other words, Penrose will choose the best for you, so you do not have to worry.  
 
 `twosets.sty`
 ```typescript
