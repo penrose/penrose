@@ -1675,62 +1675,131 @@ const combineErrs = (e1: StyleResults, e2: StyleResults): StyleResults => {
   };
 };
 
+const flatErrs = (es: StyleResults[]): StyleResults => {
+  return {
+    errors: _.flatMap(es, e => e.errors),
+    warnings: _.flatMap(es, e => e.warnings)
+  };
+};
+
+// Check that every shape name and shape property name in a shape constructor exists
+const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
+  const styName: string = expr.shapeName.value;
+
+  let errors: StyleErrors = [];
+  let warnings: StyleWarnings = [];
+
+  const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
+  if (!shapeNames.includes(styName)) {
+    // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
+    return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
+  }
+
+  // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
+  const shapeDef: ShapeDef = findDef(styName);
+  const givenProperties: Identifier[] = expr.properties.map(e => e.name);
+  const expectedProperties: String[] = Object.entries(shapeDef.properties).map(e => e[0]);
+
+  for (let gp of givenProperties) {
+    // Check multiple properties, as each one is not fatal if wrong
+    if (!expectedProperties.includes(gp.value)) {
+      errors.push({ tag: "InvalidGPIPropertyError", givenProperty: gp });
+    }
+  }
+
+  return { errors, warnings };
+};
+
+// Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
+const checkFunctionName = (selEnv: SelEnv, expr: Expr): StyleResults => {
+  if (!(expr.tag === "CompApp" || expr.tag === "ObjFn" || expr.tag === "ConstrFn")) {
+    throw Error("internal error: expected function");
+  }
+
+  const fnDict = FN_DICT[expr.tag];
+  if (!fnDict) { throw Error("internal error: unexpected tag"); }
+
+  const fnNames: string[] = Object.entries(fnDict).map(e => e[0]); // Names of built-in functions of that kind
+
+  const givenFnName: Identifier = expr.name;
+
+  if (!fnNames.includes(givenFnName.value)) {
+    const fnErrorType = FN_ERR_TYPE[expr.tag];
+    if (!fnErrorType) { throw Error("internal error: unexpected tag"); }
+    return oneErr({ tag: fnErrorType, givenName: givenFnName });
+  }
+
+  return emptyErrs();
+};
+
+// Written recursively on exprs, just accumulating possible expr errors
 const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
-  // Check that every shape name and shape property name in a shape constructor exists
-  if (expr.tag === "GPIDecl") {
-    const styName: string = expr.shapeName.value;
+  // Closure for brevity
+  const check = (e: Expr): StyleResults => checkBlockExpr(selEnv, e);
 
-    let errors: StyleErrors = [];
-    let warnings: StyleWarnings = [];
-
-    const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
-    if (!shapeNames.includes(styName)) {
-      // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
-      return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
-    }
-
-    // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
-    const shapeDef: ShapeDef = findDef(styName);
-    const givenProperties: Identifier[] = expr.properties.map(e => e.name);
-    const expectedProperties: String[] = Object.entries(shapeDef.properties).map(e => e[0]);
-
-    for (let gp of givenProperties) {
-      // Check multiple properties, as each one is not fatal if wrong
-      if (!expectedProperties.includes(gp.value)) {
-        errors.push({ tag: "InvalidGPIPropertyError", givenProperty: gp });
-      }
-    }
-
-    return { errors, warnings };
-
-  } else if (expr.tag === "CompApp"
-    || expr.tag === "ObjFn"
-    || expr.tag === "ConstrFn"
+  if (isPath(expr)) {
+    return emptyErrs();
+  } else if (
+    expr.tag === "CompApp" ||
+    expr.tag === "ObjFn" ||
+    expr.tag === "ConstrFn"
   ) {
-    // Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
+    const e1 = checkFunctionName(selEnv, expr);
+    const e2 = expr.args.map(check);
+    return flatErrs([e1].concat(e2));
 
-    const fnDict = FN_DICT[expr.tag];
-    if (!fnDict) { throw Error("internal error: unexpected tag"); }
+  } else if (expr.tag === "BinOp") {
+    return flatErrs([check(expr.left), check(expr.right)]);
 
-    const fnNames: string[] = Object.entries(fnDict).map(e => e[0]); // Names of built-in functions of that kind
+  } else if (expr.tag === "UOp") {
+    return check(expr.arg);
 
-    const givenFnName: Identifier = expr.name;
+  } else if (
+    expr.tag === "List" ||
+    expr.tag === "Vector" ||
+    expr.tag === "Matrix"
+  ) {
+    return flatErrs(expr.contents.map(check));
 
-    if (!fnNames.includes(givenFnName.value)) {
-      const fnErrorType = FN_ERR_TYPE[expr.tag];
-      if (!fnErrorType) { throw Error("internal error: unexpected tag"); }
-      return oneErr({ tag: fnErrorType, givenName: givenFnName });
-    }
-
+  } else if (expr.tag === "ListAccess") {
     return emptyErrs();
 
+  } else if (expr.tag === "GPIDecl") {
+    const e1: StyleResults = checkGPIInfo(selEnv, expr);
+    const e2: StyleResults[] = expr.properties.map(p => check(p.value));
+    return flatErrs([e1].concat(e2));
+
+  } else if (expr.tag === "Layering") {
+    return flatErrs([check(expr.below), check(expr.above)]);
+
+  } else if (expr.tag === "PluginAccess") {
+    return flatErrs([check(expr.contents[1]), check(expr.contents[2])]);
+
+  } else if (expr.tag === "Tuple") {
+    return flatErrs([check(expr.contents[0]), check(expr.contents[1])]);
+
+  } else if (expr.tag === "VectorAccess") {
+    return check(expr.contents[1]);
+
+  } else if (expr.tag === "MatrixAccess") {
+    return flatErrs(expr.contents[1].map(check));
+
+  } else if (
+    expr.tag === "Fix" ||
+    expr.tag === "Vary" ||
+    expr.tag === "StringLit" ||
+    expr.tag === "BoolLit"
+  ) {
+    return emptyErrs();
   } else {
-    return emptyErrs();
+    console.error("expr", expr);
+    throw Error("unknown tag");
   }
 };
 
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
-  // TODO <
+  // TODO(errors) / Block statics
+  // Currently there is nothing to check for paths
   return emptyErrs();
 };
 
@@ -1740,28 +1809,15 @@ const checkLine = (selEnv: SelEnv, line: Stmt, acc: StyleResults): StyleResults 
     const eErrs = checkBlockExpr(selEnv, line.value);
     return combineErrs(combineErrs(acc, pErrs), eErrs);
 
-    // return {
-    //   ...line,
-    //   path: substitutePath(lv, subst, line.path),
-    //   value: substituteBlockExpr(lv, subst, line.value),
-    // };
   } else if (line.tag === "Override") {
-    // TODO <
-    return acc;
+    const pErrs = checkBlockPath(selEnv, line.path);
+    const eErrs = checkBlockExpr(selEnv, line.value);
+    return combineErrs(combineErrs(acc, pErrs), eErrs);
 
-    // return {
-    //   ...line,
-    //   path: substitutePath(lv, subst, line.path),
-    //   value: substituteBlockExpr(lv, subst, line.value),
-    // };
   } else if (line.tag === "Delete") {
-    // TODO <
-    return acc;
+    const pErrs = checkBlockPath(selEnv, line.contents);
+    return combineErrs(acc, pErrs);
 
-    // return {
-    //   ...line,
-    //   contents: substitutePath(lv, subst, line.contents),
-    // };
   } else {
     throw Error(
       "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
@@ -1784,7 +1840,6 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
   // TODO(errors): Return warnings (non-fatally);
   console.error("errors", res.errors);
   console.error("warnings", res.warnings);
-  // throw Error("TODO");
 
   return res.errors;
 };

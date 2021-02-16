@@ -298,9 +298,10 @@ where IsSubset(y, x) { }`],
          } 
        }`],
 
-      // TODO < Have to do a nested search in expressions for this. Fix it
-      // InvalidFunctionNameError: [`forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
-      //   `forall Set x { x.icon = Circle { r: get(0.0, sjkfhsdk("hi")) } }`],
+      // Have to do a nested search in expressions for this
+      InvalidFunctionNameError: [`forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
+        `forall Set x { x.icon = Circle { r: get(0.0, sjkfhsdk("hi")) } }`,
+        `forall Set x { x.icon = Circle { r: wjhkej(0.0, sjkfhsdk("hi")) } }`],
 
       InvalidObjectiveNameError: [`forall Set x { encourage sjdhfksha(0.0) }`],
 
