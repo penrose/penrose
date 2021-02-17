@@ -10,8 +10,8 @@ import { constOf, numOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,
-  findExprSafe,
     findExpr,
+    findExprSafe,
   initConstraintWeight,
   insertExpr,
   insertExprs,
@@ -42,6 +42,7 @@ import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { objDict, constrDict } from "contrib/Constraints";
+import { prettyPrintPath } from "utils/OtherUtils";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -1800,7 +1801,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
 };
 
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
-  debugger;
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
   return emptyErrs();
@@ -2444,7 +2444,7 @@ const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
 
 // Extract number from a more complicated type
 // also ported from `lookupPaths`
-const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
+const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): number => {
   if (e.tag === "OptEval") {
     if (e.contents.tag === "Fix") {
       return e.contents.contents;
@@ -2457,13 +2457,15 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
     throw Error("internal error: invalid varying path");
   } else if (e.tag === "FGPI") {
     throw Error("internal error: invalid varying path");
-  } else throw Error("internal error: unknown tag");
+  } else {
+      throw Error("internal error: unknown tag");
+  }
 };
 
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
-  return ps.map((path) => findExprSafe(tr, path)).map(getNum);
+  return ps.map((path) => findExpr(tr, path)).map(getNum);
 };
 
 const findFieldPending = (
@@ -2599,7 +2601,7 @@ const initShape = (
   [n, field]: [string, Field]
 ): Translation => {
   const path = mkPath([n, field]);
-  const res = findExprSafe(tr, path);
+  const res = findExprSafe(tr, path); // This is safe (as used in GenOptProblem) since we only initialize shapes with paths from the translation
 
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents as [string, GPIProps<VarAD>];
@@ -2745,7 +2747,8 @@ const genOptProblemAndState = (trans: Translation): State => {
   ];
 
   const [initialGPIs, transEvaled] = [[], transInit];
-  const initVaryingState = lookupNumericPaths(varyingPaths, transEvaled);
+    const initVaryingState: number[] = lookupNumericPaths(varyingPaths, transEvaled);
+
   const pendingPaths = findPending(transInit);
   const shapeOrdering = computeShapeOrdering(transInit); // deal with layering
 
@@ -2784,7 +2787,7 @@ const genOptProblemAndState = (trans: Translation): State => {
     varyingMap: {} as any, // TODO: Should this be empty?
   };
 
-  return initState;
+    return initState;
 };
 
 //#endregion
@@ -2936,7 +2939,8 @@ const findPathsField = (name: string,
 // Check translation integrity
 const checkTranslation = (trans: Translation): StyleErrors => {
   // Look up all paths used anywhere in the translation's expressions and verify they exist in the translation
-  const allPaths = foldSubObjs(findPathsField, trans);
+    const allPaths: Path[] = foldSubObjs(findPathsField, trans);
+    const allPathsUniq: Path[] = _.uniqBy(allPaths, prettyPrintPath);
   const exprs = allPaths.map(p => findExpr(trans, p));
   const errs = exprs.filter(isStyErr);
   return errs as StyleErrors; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.
@@ -3023,15 +3027,15 @@ export const compileStyle = (
     return err(toStyleErrors(trans.warnings));
   }
 
-  const transErrs = checkTranslation(trans);
+    // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
+  const initState = genOptProblemAndState(trans);
+  log.info("init state from GenOptProblem", initState);
 
+    // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
+  const transErrs = checkTranslation(initState.translation);
   if (transErrs.length > 0) {
     return err(toStyleErrors(transErrs));
   }
-
-  const initState = genOptProblemAndState(trans);
-
-  log.info("init state from GenOptProblem", initState);
 
   return ok(initState);
 };

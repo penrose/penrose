@@ -1,8 +1,6 @@
 Set x {
     x.shape = Circle {
-    -- Test case
-        -- strokeWidth : 0
-        strokeWidth : x.r
+        strokeWidth : 0.
     }
 
     x.shading = Image {
@@ -26,18 +24,12 @@ Set x {
         h: 0.5 * x.shape.r
     }
 
-    -- Test case 1
     ensure contains(x.shape, x.text)
-    -- ensure contains(x.shape.zzz, x.text)
-
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
     encourage sameCenter(x.text, x.shape)
 
-    -- Test case 2
     x.shape below x.text
-    -- x.kdjhfd below x.text
-
     x.shading below x.shape
     x.shadow below x.shading
 }

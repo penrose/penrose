@@ -1,17 +1,17 @@
 import { checkDomain, compileDomain, Env, parseDomain } from "compiler/Domain";
 import { compileStyle } from "compiler/Style";
 import {
-  checkSubstance,
-  compileSubstance,
-  parseSubstance,
-  SubstanceEnv,
+    checkSubstance,
+    compileSubstance,
+    parseSubstance,
+    SubstanceEnv,
 } from "compiler/Substance";
 import { evalShapes } from "engine/Evaluator";
 import { initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
-  RenderInteractive,
-  RenderShape,
+    RenderInteractive,
+    RenderShape,
 } from "renderer/Renderer";
 import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
 import * as ShapeTypes from "types/shapeTypes";
@@ -26,7 +26,7 @@ import { bBoxDims, toHex } from "utils/Util";
  * @param numSamples number of samples to choose from
  */
 export const resample = (state: State, numSamples: number): State => {
-  return resampleBest(state, numSamples);
+    return resampleBest(state, numSamples);
 };
 
 /**
@@ -35,7 +35,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 1): State => {
-  return step(state, numSteps);
+    return step(state, numSteps);
 };
 
 /**
@@ -43,11 +43,11 @@ export const stepState = (state: State, numSteps = 1): State => {
  * @param state current state
  */
 export const stepUntilConvergence = (state: State): State => {
-  const numSteps = 1;
-  let currentState = state;
-  while (!stateConverged(currentState))
-    currentState = step(currentState, numSteps);
-  return currentState;
+    const numSteps = 1;
+    let currentState = state;
+    while (!stateConverged(currentState))
+        currentState = step(currentState, numSteps);
+    return currentState;
 };
 
 /**
@@ -59,20 +59,20 @@ export const stepUntilConvergence = (state: State): State => {
  * @param node a node in the DOM tree
  */
 export const diagram = async (
-  domainProg: string,
-  subProg: string,
-  styProg: string,
-  node: HTMLElement
+    domainProg: string,
+    subProg: string,
+    styProg: string,
+    node: HTMLElement
 ): Promise<void> => {
-  const res = compileTrio(domainProg, subProg, styProg);
-  if (res.isOk()) {
-    const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergence(state);
-    node.appendChild(RenderStatic(optimized));
-  } else
-    throw Error(
-      `Error when generating Penrose diagram: ${showError(res.error)}`
-    );
+    const res = compileTrio(domainProg, subProg, styProg);
+    if (res.isOk()) {
+        const state: State = await prepareState(res.value);
+        const optimized = stepUntilConvergence(state);
+        node.appendChild(RenderStatic(optimized));
+    } else
+        throw Error(
+            `Error when generating Penrose diagram: ${showError(res.error)}`
+        );
 };
 
 /**
@@ -84,27 +84,27 @@ export const diagram = async (
  * @param node a node in the DOM tree
  */
 export const interactiveDiagram = async (
-  domainProg: string,
-  subProg: string,
-  styProg: string,
-  node: HTMLElement
+    domainProg: string,
+    subProg: string,
+    styProg: string,
+    node: HTMLElement
 ): Promise<void> => {
-  const updateData = (state: State) => {
-    const stepped = stepUntilConvergence(state);
-    node.replaceChild(
-      RenderInteractive(stepped, updateData),
-      node.firstChild as Node
-    );
-  };
-  const res = compileTrio(domainProg, subProg, styProg);
-  if (res.isOk()) {
-    const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergence(state);
-    node.appendChild(RenderInteractive(optimized, updateData));
-  } else
-    throw Error(
-      `Error when generating Penrose diagram: ${showError(res.error)}`
-    );
+    const updateData = (state: State) => {
+        const stepped = stepUntilConvergence(state);
+        node.replaceChild(
+            RenderInteractive(stepped, updateData),
+            node.firstChild as Node
+        );
+    };
+    const res = compileTrio(domainProg, subProg, styProg);
+    if (res.isOk()) {
+        const state: State = await prepareState(res.value);
+        const optimized = stepUntilConvergence(state);
+        node.appendChild(RenderInteractive(optimized, updateData));
+    } else
+        throw Error(
+            `Error when generating Penrose diagram: ${showError(res.error)}`
+        );
 };
 
 /**
@@ -114,23 +114,23 @@ export const interactiveDiagram = async (
  * @param styProg a Style program string
  */
 export const compileTrio = (
-  domainProg: string,
-  subProg: string,
-  styProg: string
+    domainProg: string,
+    subProg: string,
+    styProg: string
 ): Result<State, PenroseError> => {
-  const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
 
-  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(subProg, env),
-    domainRes
-  );
+    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+        (env) => compileSubstance(subProg, env),
+        domainRes
+    );
 
-  const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(styProg, ...res),
-    subRes
-  );
+    const styRes: Result<State, PenroseError> = andThen(
+        (res) => compileStyle(styProg, ...res),
+        subRes
+    );
 
-  return styRes;
+    return styRes;
 };
 
 /**
@@ -138,33 +138,33 @@ export const compileTrio = (
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
-  await initializeMat();
-  // TODO:L errors
-  const stateAD = {
-    ...state,
-    originalTranslation: state.originalTranslation,
-  };
+    await initializeMat();
+    // TODO:L errors
+    const stateAD = {
+        ...state,
+        originalTranslation: state.originalTranslation,
+    };
 
-  // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
-  // The results of the pending values are then stored back in the translation as autodiff types
-  const stateEvaled: State = evalShapes(stateAD);
+    // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
+    // The results of the pending values are then stored back in the translation as autodiff types
+    const stateEvaled: State = evalShapes(stateAD);
 
-  const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
+    const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
 
-  const sortedShapes: Shape[] = sortShapes(
-    stateEvaled.shapes,
-    stateEvaled.shapeOrdering
-  );
+    const sortedShapes: Shape[] = sortShapes(
+        stateEvaled.shapes,
+        stateEvaled.shapeOrdering
+    );
 
-  const nonEmpties = sortedShapes.filter(notEmptyLabel);
+    const nonEmpties = sortedShapes.filter(notEmptyLabel);
 
-  const stateWithPendingProperties = insertPending({
-    ...stateEvaled,
-    labelCache,
-    shapes: nonEmpties,
-  });
+    const stateWithPendingProperties = insertPending({
+        ...stateEvaled,
+        labelCache,
+        shapes: nonEmpties,
+    });
 
-  return stateWithPendingProperties;
+    return stateWithPendingProperties;
 };
 
 /**
@@ -172,28 +172,29 @@ export const prepareState = async (state: State): Promise<State> => {
  * @param state current state
  */
 export const stateConverged = (state: State): boolean =>
-  state.params.optStatus.tag === "EPConverged";
+    state.params.optStatus.tag === "EPConverged";
 
 /**
  * Returns true if state is the initial frame
  * @param state current state
  */
 export const stateInitial = (state: State): boolean =>
-  state.params.optStatus.tag === "NewIter";
+    state.params.optStatus.tag === "NewIter";
 
 export type PenroseState = State;
 
 export {
-  compileDomain,
-  compileSubstance,
-  checkDomain,
-  checkSubstance,
-  parseSubstance,
-  parseDomain,
-  RenderStatic,
-  RenderShape,
-  RenderInteractive,
-  ShapeTypes,
-  bBoxDims,
-  toHex,
+    compileDomain,
+    compileSubstance,
+    checkDomain,
+    checkSubstance,
+    parseSubstance,
+    parseDomain,
+    RenderStatic,
+    RenderShape,
+    RenderInteractive,
+    ShapeTypes,
+    bBoxDims,
+    toHex,
+    showError
 };
