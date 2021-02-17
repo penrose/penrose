@@ -12,9 +12,10 @@
     "test": "lerna run test --stream",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github",
+    "new-version:prerelease": "lerna version --conventional-prerelease",
     "graduate": "lerna version --conventional-commits --conventional-graduate",
-    "prerelease": "lerna version --conventional-prerelease",
-    "release": "lerna publish from-package",
+    "publish:canary": "lerna publish --canary --dist-tag develop",
+    "publish": "lerna publish from-package",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
     "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
     "diff": "lerna diff"

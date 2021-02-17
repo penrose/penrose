@@ -35,7 +35,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
       - run:
-          name: Install deps and link roger
+          name: Install deps
           command: sudo yarn
           working_directory: ~/penrose
       - save_cache:
@@ -75,6 +75,33 @@ jobs:
       # - store_artifacts:
       #     path: ~/penrose/penrose-web/build
       #     destination: penrose-web-built
+  canary_release:
+    docker:
+      - image: circleci/node:12.19.0
+    steps:
+      - checkout:
+          path: ~/penrose
+      - restore_cache:
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
+      - run:
+          name: Install deps
+          command: sudo yarn
+          working_directory: ~/penrose
+      - save_cache:
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
+          paths:
+            - ~/penrose/node_modules
+      - run:
+          name: Run all builds
+          command: sudo yarn build
+          working_directory: ~/penrose/
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/penrose/.npmrc
+      - run:
+          name: Publish canary release
+          command: yarn publish:canary --yes
+          working_directory: ~/penrose/
 workflows:
   version: 2.1
   build_other_branches:
@@ -92,6 +119,10 @@ workflows:
             branches:
               only: main
       - build:
+          filters:
+            branches:
+              only: main
+      - canary_release:
           filters:
             branches:
               only: main
