@@ -20,6 +20,9 @@ After following the Building & Running page, you should now have your own direct
 Before getting into the granularity of code, a basic understanding of a Penrose program will make you feel less overwhelmed. Learning a new environment can be intimidating, and we want to make it as smooth as possible.
 
 # How do we diagram by hand? 
+
+### TODO: Make the transition from chair examples here to sets in the next section smoother
+
 Now, for a second, I want you to recall how you would normally diagram a concept using a pen or pencil. 
 
 It will most likely involve the following steps,
