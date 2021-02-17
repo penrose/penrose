@@ -2465,7 +2465,7 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
-  return ps.map((path) => findExpr(tr, path)).map(getNum);
+  return ps.map((path) => findExprSafe(tr, path)).map(getNum);
 };
 
 const findFieldPending = (
@@ -2726,7 +2726,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
 // ---- MAIN FUNCTION
 
 // COMBAK: Add optConfig as param?
-const genOptProblemAndState = (trans: Translation): State => {
+const genOptProblemAndState = (trans: Translation): Result<State, StyleErrors> => {
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const uninitializedPaths = findUninitialized(trans);
@@ -2737,6 +2737,13 @@ const genOptProblemAndState = (trans: Translation): State => {
   const transInitFields = initFields(varyingPaths, trans);
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   const transInit = initShapes(transInitFields, shapePathList);
+
+    // CHECK TRANSLATION
+    // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
+  const transErrs = checkTranslation(transInit);
+  if (transErrs.length > 0) {
+      return err(transErrs);
+  }
 
   const shapeProperties = findShapesProperties(transInit);
   const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInit);
@@ -2787,7 +2794,7 @@ const genOptProblemAndState = (trans: Translation): State => {
     varyingMap: {} as any, // TODO: Should this be empty?
   };
 
-    return initState;
+    return ok(initState);
 };
 
 //#endregion
@@ -3028,14 +3035,12 @@ export const compileStyle = (
   }
 
     // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState = genOptProblemAndState(trans);
+    const initState: Result<State, StyleErrors> = genOptProblemAndState(trans);
   log.info("init state from GenOptProblem", initState);
 
-    // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
-  const transErrs = checkTranslation(initState.translation);
-  if (transErrs.length > 0) {
-    return err(toStyleErrors(transErrs));
-  }
+    if (initState.isErr()) {
+        return err(toStyleErrors(initState.error));
+    }
 
-  return ok(initState);
+    return ok(initState.value);
 };
