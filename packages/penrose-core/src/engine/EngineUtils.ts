@@ -728,8 +728,6 @@ export const findExpr = (
 ): TagExpr<VarAD> | IFGPI<VarAD> | StyleError => {
   let name, field, prop;
 
-  console.log("findExpr", path);
-
   switch (path.tag) {
     case "FieldPath": {
       [name, field] = [path.name.contents.value, path.field.value];

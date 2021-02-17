@@ -1835,15 +1835,17 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
 
   // Check that every shape name and shape property name in a shape constructor exists
   // Check that every function, objective, and constraint exists
-  // At path construction time, check that every Substance object exists in the environment of the block + selector [Checked only for non-local vars]
+  // NOT CHECKED as this requires more advanced env-building work: At path construction time, check that every Substance object exists in the environment of the block + selector, or that it's defined as a local variable
 
   const res: StyleResults = block.statements.reduce(
     (acc: StyleResults, stmt: Stmt): StyleResults => checkLine(selEnv, stmt, acc),
     emptyErrs());
 
-  // TODO(errors): Return warnings (non-fatally);
-  console.error("errors", res.errors);
-  console.error("warnings", res.warnings);
+  // TODO(errors): Return warnings (non-fatally); currently there are no warnings though
+  if (res.warnings.length > 0) {
+    console.error("warnings", res.warnings);
+    throw Error("Internal error: report these warnings");
+  }
 
   return res.errors;
 };
@@ -2843,31 +2845,100 @@ export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
 const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
   res.tag !== "FGPI" && !isTagExpr(res);
 
-const findPath = (name: string,
+const findPathsExpr = (expr: Expr): Path[] => {
+
+  // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
+  if (isPath(expr)) {
+    return [expr];
+
+  } else if (
+    expr.tag === "CompApp" ||
+    expr.tag === "ObjFn" ||
+    expr.tag === "ConstrFn"
+  ) {
+    return _.flatMap(expr.args, findPathsExpr);
+
+  } else if (expr.tag === "BinOp") {
+    return _.flatMap([expr.left, expr.right], findPathsExpr);
+
+  } else if (expr.tag === "UOp") {
+    return findPathsExpr(expr.arg);
+
+  } else if (
+    expr.tag === "List" ||
+    expr.tag === "Vector" ||
+    expr.tag === "Matrix"
+  ) {
+    return _.flatMap(expr.contents, findPathsExpr);
+
+  } else if (expr.tag === "ListAccess") {
+    return [expr.contents[0]];
+
+  } else if (expr.tag === "GPIDecl") {
+    return _.flatMap(expr.properties.map(p => p.value), findPathsExpr);
+
+  } else if (expr.tag === "Layering") {
+    return [expr.below, expr.above];
+
+  } else if (expr.tag === "PluginAccess") {
+    return _.flatMap([expr.contents[1], expr.contents[2]], findPathsExpr);
+
+  } else if (expr.tag === "Tuple") {
+    return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
+
+  } else if (expr.tag === "VectorAccess") {
+    return [expr.contents[0]].concat(findPathsExpr(expr.contents[1]));
+
+  } else if (expr.tag === "MatrixAccess") {
+    return [expr.contents[0]].concat(_.flatMap(expr.contents[1], findPathsExpr));
+
+  } else if (
+    expr.tag === "Fix" ||
+    expr.tag === "Vary" ||
+    expr.tag === "StringLit" ||
+    expr.tag === "BoolLit"
+  ) {
+    return [];
+  } else {
+    console.error("expr", expr);
+    throw Error("unknown tag");
+  }
+};
+
+// Find all paths given explicitly anywhere in an expression in the translation. 
+// (e.g. `x.shape above y.shape` <-- return [`x.shape`, `y.shape`])
+const findPathsField = (name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
   acc: Path[]
 ): Path[] => {
 
-  // TODO(errors): Model on `findFieldVarying`, but have to fold over all `Expr`s
-  // Factor it out from `checkBlockExpr`
+  if (fexpr.tag === "FExpr") {
+    // Only look deeper in expressions, because that's where paths might be
+    if (fexpr.contents.tag === "OptEval") {
+      const res: Path[] = findPathsExpr(fexpr.contents.contents);
+      return acc.concat(res);
+    } else {
+      return acc;
+    }
+  } else if (fexpr.tag === "FGPI") {
+    // Get any exprs that the properties are set to
+    const propExprs: Expr[] = Object.entries(fexpr.contents[1])
+      .map(e => e[1])
+      .filter((e: TagExpr<VarAD>): boolean => e.tag === "OptEval")
+      .map(e => e as IOptEval<VarAD>) // Have to cast because TypeScript doesn't know the type changed from the filter above
+      .map((e: IOptEval<VarAD>): Expr => e.contents);
+    const res: Path[] = _.flatMap(propExprs, findPathsExpr);
+    return acc.concat(res);
+  }
 
-  // if (fexpr.tag === "FExpr") {
-  //     if (declaredVarying(fexpr.contents)) {
-  //       return [mkPath([name, field])].concat(acc);
-  //     }
-
-  //     const paths = findNestedVarying(fexpr.contents, mkPath([name, field]));
-  //     return paths.concat(acc);
-  //   }
-
-  // TODO <
-  return acc;
+  throw Error("unknown tag");
 };
 
-// Check translation integrity (currently, that all paths exist in the translation)
+// Check translation integrity
 const checkTranslation = (trans: Translation): StyleErrors => {
-  const allPaths = foldSubObjs(findPath, trans);
+  // Look up all paths used anywhere in the translation's expressions and verify they exist in the translation
+  const allPaths = foldSubObjs(findPathsField, trans);
   const exprs = allPaths.map(p => findExpr(trans, p));
   const errs = exprs.filter(isStyErr);
   return errs as StyleErrors; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.

@@ -360,7 +360,8 @@ delete x.z.p }`],
       // ----------- Translation validation errors
       // TODO(errors): check multiple errors
 
-      // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError
+      // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError -- correctly throws error but may be misleading
+
       // NonexistentNameError:
       //   [`forall Set x { A.z = 0. }`],
 
@@ -424,7 +425,7 @@ delete x.z.p }`],
     for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
       for (const styProg of styProgs) {
         // TODO(error): improve this so it becomes individual tests, using the framework
-        console.log("testing", errorType);
+        // console.log("testing", errorType);
         testStyProgForError(styProg, errorType);
       }
     }
