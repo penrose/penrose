@@ -42,7 +42,7 @@ export default [
     watch: false, // no need to rebuild during watch
     plugins: [
       ...plugins,
-      terser(),
+      terser({ format: { comments: false } }),
       // visualizer()
     ],
   },
