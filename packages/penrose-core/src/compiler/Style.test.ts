@@ -267,7 +267,9 @@ describe("Compiler", () => {
         (res) => S.compileStyle(styProg, ...res),
         subRes
       );
-      expectErrorOf(styRes, errorType);
+      describe(errorType, () => {
+        expectErrorOf(styRes, errorType);
+      });
     };
 
     const errorStyProgs = {
@@ -354,6 +356,37 @@ delete x.z.p }`],
     x.icon.r = 0.0
 }`],
 
+      // ----------- Translation validation errors
+      // TODO(errors): check multiple errors
+
+      // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError
+      // NonexistentNameError:
+      //   [`forall Set x { A.z = 0. }`],
+
+      NonexistentFieldError:
+        [`forall Set x { x.icon = Circle { r: x.r } }`],
+      NonexistentGPIError:
+        [`forall Set x {  
+         x.z = x.c.p
+       }`],
+      NonexistentPropertyError:
+        [`forall Set x {  
+          x.icon = Circle { 
+           r: 9.
+           center: (x.icon.z, 0.0)
+         } 
+       }`],
+      ExpectedGPIGotFieldError:
+        [`forall Set x { 
+           x.z = 1.0 
+           x.y = x.z.p
+}`],
+      InvalidAccessPathError:
+        [`forall Set x { 
+           x.z = 1.0 
+           x.y = x.z[0]
+}`],
+
       // ---------- Runtime errors (insertExpr)
 
       // COMBAK / TODO(errors): Test this more thoroughly
@@ -389,6 +422,8 @@ delete x.z.p }`],
     // Test that each program yields its error type
     for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
       for (const styProg of styProgs) {
+        // TODO(error): improve this so it becomes individual tests, using the framework
+        console.log("testing", errorType);
         testStyProgForError(styProg, errorType);
       }
     }

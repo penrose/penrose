@@ -227,6 +227,34 @@ export const showError = (
       return `Sub obj '${error.subObj.contents.value}' has field but does not have GPI '${error.field.value}'; cannot add property '${error.property.value} in ${prettyPrintPath(error.path)}'. Expected GPI.`;
     };
 
+    // ----- BEGIN TRANSLATION VALIDATION ERRORS
+
+    case "NonexistentNameError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Name ${error.name.value} does not exist.`;
+    };
+
+    case "NonexistentFieldError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Field ${error.field.value} does not exist.`;
+    };
+
+    case "NonexistentGPIError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. GPI ${error.gpi.value} does not exist.`;
+    };
+
+    case "NonexistentPropertyError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Property ${error.property.value} does not exist.`;
+    };
+
+    case "ExpectedGPIGotFieldError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation. Expected GPI ${error.field.value} does not exist; got a field instead.`;
+    };
+
+    case "InvalidAccessPathError": {
+      return `Error looking up path '${prettyPrintPath(error.path)}'' in translation.`;
+    };
+
+    // ----- END TRANSLATION VALIDATION ERRORS
+
     // TODO(errors): use identifiers here
     case "RuntimeValueTypeError": {
       return `Runtime type error in looking up path '${prettyPrintPath(error.path)}''s value in translation. Expected type: ${error.expectedType}. Got type: ${error.actualType}.`;

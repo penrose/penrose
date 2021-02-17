@@ -10,13 +10,15 @@ import { constOf, numOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,
-  findExpr,
+  findExprSafe,
+  findExpr
   initConstraintWeight,
   insertExpr,
   insertExprs,
   insertGPI,
   isPath,
   valueNumberToAutodiffConst,
+  isTagExpr,
 } from "engine/EngineUtils";
 import { Graph, alg } from "graphlib";
 import * as _ from "lodash";
@@ -1459,7 +1461,7 @@ const initTrans = (): Translation => {
 // Judgment 26. D |- phi ~> D'
 // This is where interesting things actually happen (each line is interpreted and added to the translation)
 
-// Related functions in `Evaluator`: findExpr, insertExpr
+// Related functions in `Evaluator`: findExprSafe, insertExpr
 
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (
@@ -1676,8 +1678,10 @@ const combineErrs = (e1: StyleResults, e2: StyleResults): StyleResults => {
 };
 
 const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
-  // Check that every shape name and shape property name in a shape constructor exists
-  if (expr.tag === "GPIDecl") {
+  if (isPath(expr)) {
+    return checkBlockPath(selEnv, expr);
+  } else if (expr.tag === "GPIDecl") {
+    // Check that every shape name and shape property name in a shape constructor exists
     const styName: string = expr.shapeName.value;
 
     let errors: StyleErrors = [];
@@ -2403,7 +2407,7 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
-  return ps.map((path) => findExpr(tr, path)).map(getNum);
+  return ps.map((path) => findExprSafe(tr, path)).map(getNum);
 };
 
 const findFieldPending = (
@@ -2539,7 +2543,7 @@ const initShape = (
   [n, field]: [string, Field]
 ): Translation => {
   const path = mkPath([n, field]);
-  const res = findExpr(tr, path);
+  const res = findExprSafe(tr, path);
 
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents as [string, GPIProps<VarAD>];
@@ -2779,6 +2783,43 @@ export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
   subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
 };
 
+//#region Checking translation
+
+const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
+  res.tag !== "FGPI" && !isTagExpr(res);
+
+const findPath = (name: string,
+  field: Field,
+  fexpr: FieldExpr<VarAD>,
+  acc: Path[]
+): Path[] => {
+
+  // TODO(errors): Model on `findFieldVarying`, but have to fold over all `Expr`s
+  // Factor it out from `checkBlockExpr`
+
+  // if (fexpr.tag === "FExpr") {
+  //     if (declaredVarying(fexpr.contents)) {
+  //       return [mkPath([name, field])].concat(acc);
+  //     }
+
+  //     const paths = findNestedVarying(fexpr.contents, mkPath([name, field]));
+  //     return paths.concat(acc);
+  //   }
+
+  // TODO <
+  return acc;
+};
+
+// Check translation integrity (currently, that all paths exist in the translation)
+const checkTranslation = (trans: Translation): StyleErrors => {
+  const allPaths = foldSubObjs(findPath, trans);
+  const exprs = allPaths.map(p => findExpr(trans, p));
+  const errs = exprs.filter(isStyErr);
+  return errs as StyleErrors; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.
+};
+
+//#endregion Checking translation
+
 export const compileStyle = (
   stySource: string,
   subEnv: SubstanceEnv,
@@ -2856,6 +2897,12 @@ export const compileStyle = (
     // TODO(errors): these errors are currently returned as warnings -- maybe systematize it?
     console.log("Returning warnings as errors");
     return err(toStyleErrors(trans.warnings));
+  }
+
+  const transErrs = checkTranslation(trans);
+
+  if (transErrs.length > 0) {
+    return err(toStyleErrors(transErrs));
   }
 
   const initState = genOptProblemAndState(trans);

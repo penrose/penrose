@@ -6,6 +6,7 @@ import {
   isPath,
   exprToNumber,
   numToExpr,
+  findExprSafe
 } from "engine/EngineUtils";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom, { prng } from "seedrandom";
@@ -97,11 +98,10 @@ export const evalShapes = (s: State): State => {
 
   // Find out all the GPI expressions in the translation
   const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map(
-    (p: Path) => findExpr(trans, p) as IFGPI<VarAD>
+    (p: Path) => findExprSafe(trans, p) as IFGPI<VarAD>
   );
 
   console.log("shapePaths", s.shapePaths.map(prettyPrintPath));
-  // throw Error("TODO");
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled]: [
@@ -706,7 +706,7 @@ export const resolvePath = (
       throw Error("should not encounter local var in evaluation");
     }
 
-    const gpiOrExpr = findExpr(trans, path);
+    const gpiOrExpr = findExprSafe(trans, path);
 
     switch (gpiOrExpr.tag) {
       case "FGPI": {
@@ -969,71 +969,6 @@ export const evalUOp = (
 };
 
 /**
- * Finds an expression in a translation given a field or property path.
- *
- * @param trans - a translation from `State`
- * @param path - a path to an expression
- * @returns an expression
- *
- * TODO: the optional type here exist because GPI is not an expression in Style yet. It's not the most sustainable pattern w.r.t to our current way to typecasting the result using `as`.
- */
-export const findExpr = (
-  trans: Translation,
-  path: Path
-): TagExpr<VarAD> | IFGPI<VarAD> => {
-  let name, field, prop;
-
-  switch (path.tag) {
-    case "FieldPath": {
-      [name, field] = [path.name, path.field];
-      // Type cast to field expression
-      const fieldExpr = trans.trMap[name.contents.value][field.value];
-
-      if (!fieldExpr) {
-        throw Error(
-          `Could not find field '${prettyPrintPath(path)}' in translation`
-        );
-      }
-
-      switch (fieldExpr.tag) {
-        case "FGPI":
-          return fieldExpr;
-        case "FExpr":
-          return fieldExpr.contents;
-      }
-    }
-
-    case "PropertyPath": {
-      [name, field, prop] = [path.name, path.field, path.property];
-      // Type cast to FGPI and get the properties
-      const gpi = trans.trMap[name.contents.value][field.value];
-
-      if (!gpi) {
-        throw Error(
-          `Could not find GPI '${prettyPrintPath(path)}' in translation`
-        );
-      }
-
-      switch (gpi.tag) {
-        case "FExpr":
-          throw new Error("field path leads to an expression, not a GPI");
-        case "FGPI":
-          const [, propDict] = gpi.contents;
-          return propDict[prop.value];
-      }
-    }
-
-    case "AccessPath": {
-      throw Error("TODO");
-    }
-
-    default: {
-      throw Error("unsupported tag in findExpr");
-    }
-  }
-};
-
-/**
  * Gives types to a serialized `State`
  *
  * @param json plain object encoding `State` of the diagram
@@ -1116,9 +1051,9 @@ export function genPathMap<T>(
     console.log(paths, vals);
     throw new Error(
       "Different numbers of varying vars vs. paths: " +
-        paths.length +
-        ", " +
-        vals.length
+      paths.length +
+      ", " +
+      vals.length
     );
   }
   const res = new Map();
