@@ -4,7 +4,7 @@ Ready to make some beautiful diagrams? You are at the right place. Penrose is ac
 # What's in this tutorial? 
 This tutorial consists of 3 individual sections, each containing the following content:
 - **Example**
-    - We will hold your hand to write and most importantly understand each line of code. Furthermore, we will be teaching you how to navigate in the Penrose repository for all the resources you will need. Each example teaches a specific set of skills. 
+    - We will show and guide you to understand each line of the code that produces a specific diagram. Furthermore, we will be teaching you how to navigate in the Penrose repository for all the resources you will need. Each example teaches a specific set of skills. 
 - **Exercises (with solutions)**
     - These exercises act as sanity checks to confirm that you have comprehended the example. It consolidates your knowledge and tests your understanding. We also have the solutions available for you to check your work. 
   
@@ -13,7 +13,7 @@ The sections build on top of each other, using the skillsets we've acquired in t
 # Installation
 We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). :partying_face: Come back when you are done.
 
-After following the Building & Running page, you should now have forked Penrose and have created a new folder in the `penrose/examples` path. So you should have something like this.
+After following the Building & Running page, you should now have your own directory to run your code. It might look something like this,
 
 ![initialize files](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/initializa_file.png)
 
@@ -36,7 +36,7 @@ It will most likely involve the following steps,
 * **Explore different visual styles**
     * Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different **styles**. 
 
-### The process of creating a Penrose diagram is _extremely_ similar to our intuitive process of analogue diagramming. :tada: 
+### The process of creating a Penrose diagram is similar to our intuitive process of analogue diagramming. :tada: 
 
 # What makes a Penrose program? 
 It follows naturally from the process of diagramming by hand, we need to keep track of certain information as described above. The way we do that is by writing code in three specific files. First, we need to define our **domain** of objects because Penrose does not know what is in your house, or what a chair is. You need to define the types of objects and operations in your domain. For example, you can _push_ a chair, or _sit_ on a chair, which are operations related to a chair. Second, we need to store the specific **substances** we want to include in our diagrams, so Penrose knows exactly what to draw for you. Lastly, we need to define the **styles** that we want to visualize our substances in. Each of these corresponds to a specific file with an intuitive file extension designed for accessibility. 
