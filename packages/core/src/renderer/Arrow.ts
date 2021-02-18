@@ -74,7 +74,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
     dashArray = (shape.properties.strokeDashArray as IStrV<string>).contents;
   }
   if (shape.properties.style.contents === "dashed") {
-    elem.setAttribute("stroke-dash-array", dashArray.toString());
+    elem.setAttribute("stroke-dasharray", dashArray.toString());
   }
   path.setAttribute(
     "stroke-width",

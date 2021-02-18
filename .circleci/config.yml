@@ -97,10 +97,10 @@ jobs:
           working_directory: ~/penrose/
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/penrose/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/penrose/.npmrc
       - run:
           name: Publish canary release
-          command: yarn publish:canary --yes
+          command: sudo yarn publish:canary --yes
           working_directory: ~/penrose/
 workflows:
   version: 2.1
