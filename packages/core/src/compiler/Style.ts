@@ -1701,14 +1701,18 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
   const shapeDef: ShapeDef = findDef(styName);
   const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
-  const expectedProperties: String[] = Object.entries(shapeDef.properties).map(
+  const expectedProperties: string[] = Object.entries(shapeDef.properties).map(
     (e) => e[0]
   );
 
   for (let gp of givenProperties) {
     // Check multiple properties, as each one is not fatal if wrong
     if (!expectedProperties.includes(gp.value)) {
-      errors.push({ tag: "InvalidGPIPropertyError", givenProperty: gp });
+      errors.push({
+        tag: "InvalidGPIPropertyError",
+        givenProperty: gp,
+        expectedProperties,
+      });
     }
   }
 
@@ -1716,27 +1720,16 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
 };
 
 // Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
-const checkFunctionName = (selEnv: SelEnv, expr: Expr): StyleResults => {
-  if (
-    !(expr.tag === "CompApp" || expr.tag === "ObjFn" || expr.tag === "ConstrFn")
-  ) {
-    throw Error("internal error: expected function");
-  }
-
+const checkFunctionName = (
+  selEnv: SelEnv,
+  expr: ICompApp | IObjFn | IConstrFn
+): StyleResults => {
   const fnDict = FN_DICT[expr.tag];
-  if (!fnDict) {
-    throw Error("internal error: unexpected tag");
-  }
-
-  const fnNames: string[] = Object.entries(fnDict).map((e) => e[0]); // Names of built-in functions of that kind
-
+  const fnNames: string[] = _.keys(fnDict); // Names of built-in functions of that kind
   const givenFnName: Identifier = expr.name;
 
   if (!fnNames.includes(givenFnName.value)) {
     const fnErrorType = FN_ERR_TYPE[expr.tag];
-    if (!fnErrorType) {
-      throw Error("internal error: unexpected tag");
-    }
     return oneErr({ tag: fnErrorType, givenName: givenFnName });
   }
 
