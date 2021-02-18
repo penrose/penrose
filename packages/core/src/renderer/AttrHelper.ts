@@ -105,7 +105,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
     dashArray = (properties.strokeDashArray as IStrV<string>).contents;
   }
   if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("stroke-dash-array", dashArray.toString());
+    elem.setAttribute("stroke-dasharray", dashArray.toString());
   }
 };
 
