@@ -14,8 +14,8 @@
     "new-version": "lerna version --conventional-commits --create-release github",
     "new-version:prerelease": "lerna version --conventional-prerelease",
     "graduate": "lerna version --conventional-commits --conventional-graduate",
-    "publish:canary": "lerna publish --canary --dist-tag develop",
-    "publish": "lerna publish from-package",
+    "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
+    "release": "lerna publish from-package",
     "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
     "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
     "diff": "lerna diff"
