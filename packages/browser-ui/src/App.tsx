@@ -10,6 +10,7 @@ import {
   prepareState,
   stateInitial,
   stepUntilConvergence,
+  showError
 } from "@penrose/core";
 
 /**
@@ -175,7 +176,8 @@ class App extends React.Component<any, ICanvasState> {
         } else {
           void console.error(
             "Failed to compile with errors:",
-            compileRes.error
+            compileRes.error,
+            compileRes.error.errors.map(showError)
           );
         }
       },

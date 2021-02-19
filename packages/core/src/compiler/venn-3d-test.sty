@@ -1,6 +1,10 @@
+-- Program for real test cases for Style errors
+
 Set x {
     x.shape = Circle {
+        -- Test case 0
         strokeWidth : 0.
+        -- strokeWidth : x.r
     }
 
     x.shading = Image {
@@ -24,12 +28,18 @@ Set x {
         h: 0.5 * x.shape.r
     }
 
+    -- Test case 1
     ensure contains(x.shape, x.text)
+    -- ensure contains(x.shape.zzz, x.text)
+
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
     encourage sameCenter(x.text, x.shape)
 
+    -- Test case 2
     x.shape below x.text
+    -- x.kdjhfd below x.text
+
     x.shading below x.shape
     x.shadow below x.shading
 }
@@ -40,7 +50,11 @@ where IsSubset(x, y) {
     ensure outsideOf(y.text, x.shape)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape
+
+    -- Test case 3
     y.text below x.shape
+    -- y.text.z below x.shape
+
     x.shadow above y.shape
 }
 
