@@ -6,3 +6,4 @@ type Path
 type Image
 type Line
 type Arrow
+type Polygon

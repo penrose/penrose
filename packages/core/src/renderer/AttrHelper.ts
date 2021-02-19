@@ -86,6 +86,11 @@ export const attrWH = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("height", h.contents.toString());
 };
 
+export const attrPoints = ({ properties }: Shape, elem: SVGElement) => {
+  const points = properties.points as IPtListV<number>;
+  elem.setAttribute("points", points.contents.toString());
+};
+
 export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
   const side = properties.side as IFloatV<number>;
   elem.setAttribute("width", side.contents.toString());
