@@ -5,6 +5,13 @@ import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
 import { idOf } from "parser/ParserUtil";
 import {
+  ParseError,
+  DomainError,
+  TypeNotFound,
+  TypeVarNotFound,
+  PenroseError,
+} from "types/errors";
+import {
   and,
   andThen,
   cyclicSubtypes,

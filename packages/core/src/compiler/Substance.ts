@@ -3,6 +3,7 @@ import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
+import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
   andThen,
   argLengthMismatch,
