@@ -4,13 +4,15 @@
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 // type RuntimeError = OptimizerError | EvaluatorError;
 // type StyleError = StyleParseError | StyleCheckError | TranslationError;
-type PenroseError =
+export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
   | (StyleError & { errorType: "StyleError" });
 
+export type Warning = StyleError;
+
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
-type SubstanceError =
+export type SubstanceError =
   | ParseError
   | DuplicateName
   | TypeNotFound
@@ -23,7 +25,7 @@ type SubstanceError =
   | UnexpectedExprForNestedPred
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
-type DomainError =
+export type DomainError =
   | ParseError
   | TypeDeclared
   | TypeVarNotFound
@@ -33,59 +35,59 @@ type DomainError =
   | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
 
-interface UnexpectedExprForNestedPred {
+export interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
   sourceType: TypeConstructor;
   sourceExpr: ASTNode;
   expectedExpr: ASTNode;
 }
 
-interface CyclicSubtypes {
+export interface CyclicSubtypes {
   tag: "CyclicSubtypes";
   cycles: string[][];
 }
-interface NotTypeConsInPrelude {
+export interface NotTypeConsInPrelude {
   tag: "NotTypeConsInPrelude";
   type: Prop | TypeVar;
 }
 
-interface NotTypeConsInSubtype {
+export interface NotTypeConsInSubtype {
   tag: "NotTypeConsInSubtype";
   type: Prop | TypeVar;
 }
-interface TypeDeclared {
+export interface TypeDeclared {
   tag: "TypeDeclared";
   typeName: Identifier;
 }
-interface DuplicateName {
+export interface DuplicateName {
   tag: "DuplicateName";
   name: Identifier;
   location: ASTNode;
   firstDefined: ASTNode;
 }
-interface TypeVarNotFound {
+export interface TypeVarNotFound {
   tag: "TypeVarNotFound";
   typeVar: TypeVar;
 }
-interface TypeNotFound {
+export interface TypeNotFound {
   tag: "TypeNotFound";
   typeName: Identifier;
   possibleTypes?: Identifier[];
 }
-interface VarNotFound {
+export interface VarNotFound {
   tag: "VarNotFound";
   variable: Identifier;
   possibleVars?: string[]; // TODO: use Identifier type, but need to store them in env
 }
 
-interface TypeMismatch {
+export interface TypeMismatch {
   tag: "TypeMismatch";
   sourceType: TypeConstructor;
   expectedType: TypeConstructor;
   sourceExpr: ASTNode;
   expectedExpr: ASTNode;
 }
-interface ArgLengthMismatch {
+export interface ArgLengthMismatch {
   tag: "ArgLengthMismatch";
   name: Identifier;
   argsGiven: SubExpr[];
@@ -94,7 +96,7 @@ interface ArgLengthMismatch {
   expectedExpr: ASTNode;
 }
 
-interface TypeArgLengthMismatch {
+export interface TypeArgLengthMismatch {
   tag: "TypeArgLengthMismatch";
   sourceType: TypeConstructor;
   expectedType: TypeConstructor;
@@ -102,25 +104,25 @@ interface TypeArgLengthMismatch {
   expectedExpr: ASTNode;
 }
 
-interface DeconstructNonconstructor {
+export interface DeconstructNonconstructor {
   tag: "DeconstructNonconstructor";
   deconstructor: Deconstructor;
 }
 
 // NOTE: for debugging purposes
-interface FatalError {
+export interface FatalError {
   tag: "Fatal";
   message: string;
 }
 
 // NOTE: aliased to ASTNode for now, can include more types for different errors
-type ErrorSource = ASTNode;
+export type ErrorSource = ASTNode;
 
 //#endregion
 
 //#region Style errors
 
-type StyleError =
+export type StyleError =
   // Misc errors
   | ParseError
   | GenericStyleError
@@ -158,89 +160,89 @@ type StyleError =
   // Runtime errors
   | RuntimeValueTypeError;
 
-type StyleWarning = IntOrFloat;
+export type StyleWarning = IntOrFloat;
 
-type StyleWarnings = StyleWarning[];
+export type StyleWarnings = StyleWarning[];
 
-interface StyleResults {
+export interface StyleResults {
   errors: StyleErrors;
   warnings: StyleWarnings;
 }
 
-interface IntOrFloat {
+export interface IntOrFloat {
   tag: "IntOrFloat";
   message: string;
 } // COMBAK: Use this in block checking
 
-interface GenericStyleError {
+export interface GenericStyleError {
   tag: "GenericStyleError";
   messages: string[];
 }
 
-interface StyleErrorList {
+export interface StyleErrorList {
   tag: "StyleErrorList";
   errors: StyleError[];
 }
 
-interface ParseError {
+export interface ParseError {
   tag: "ParseError";
   message: string;
 }
 
-interface SelectorDeclTypeError {
+export interface SelectorDeclTypeError {
   tag: "SelectorDeclTypeError";
-  typeName: identifier;
+  typeName: Identifier;
 }
 
-interface SelectorVarMultipleDecl {
+export interface SelectorVarMultipleDecl {
   tag: "SelectorVarMultipleDecl";
   varName: BindingForm;
 }
 
-interface SelectorDeclTypeMismatch {
+export interface SelectorDeclTypeMismatch {
   tag: "SelectorDeclTypeMismatch";
   subType: TypeConsApp;
   styType: TypeConsApp;
 }
 
-interface SelectorRelTypeMismatch {
+export interface SelectorRelTypeMismatch {
   tag: "SelectorRelTypeMismatch";
   varType: TypeConsApp;
   exprType: TypeConsApp;
 }
 
-interface TaggedSubstanceError {
+export interface TaggedSubstanceError {
   tag: "TaggedSubstanceError";
   error: SubstanceError;
 }
 
 //#region Block statics
 
-interface InvalidGPITypeError {
+export interface InvalidGPITypeError {
   tag: "InvalidGPITypeError";
   givenType: Identifier;
   // expectedType: string;
 }
 
-interface InvalidGPIPropertyError {
+export interface InvalidGPIPropertyError {
   tag: "InvalidGPIPropertyError";
   givenProperty: Identifier;
   expectedProperties: string[];
 }
 
-interface InvalidFunctionNameError {
+export interface InvalidFunctionNameError {
   tag: "InvalidFunctionNameError";
   givenName: Identifier;
   // expectedName: string;
 }
 
-interface InvalidObjectiveNameError {
+export interface InvalidObjectiveNameError {
   tag: "InvalidObjectiveNameError";
   givenName: Identifier;
   // expectedName: string;
 }
 
-interface InvalidConstraintNameError {
+export interface InvalidConstraintNameError {
   tag: "InvalidConstraintNameError";
   givenName: Identifier;
   // expectedName: string;
@@ -248,25 +250,25 @@ interface InvalidConstraintNameError {
 
 //#endregion Block statics
 
-interface DeletedPropWithNoSubObjError {
+export interface DeletedPropWithNoSubObjError {
   tag: "DeletedPropWithNoSubObjError";
   subObj: BindingForm;
   path: Path;
 }
 
-interface DeletedPropWithNoFieldError {
+export interface DeletedPropWithNoFieldError {
   tag: "DeletedPropWithNoFieldError";
   subObj: BindingForm;
   field: Identifier;
   path: Path;
 }
 
-interface CircularPathAlias {
+export interface CircularPathAlias {
   tag: "CircularPathAlias";
   path: Path;
 }
 
-interface DeletedPropWithNoGPIError {
+export interface DeletedPropWithNoGPIError {
   tag: "DeletedPropWithNoGPIError";
   subObj: BindingForm;
   field: Identifier;
@@ -274,24 +276,24 @@ interface DeletedPropWithNoGPIError {
   path: Path;
 }
 
-interface DeletedNonexistentFieldError {
+export interface DeletedNonexistentFieldError {
   tag: "DeletedNonexistentFieldError";
   subObj: BindingForm;
   field: Identifier;
   path: Path;
 }
 
-interface DeletedVectorElemError {
+export interface DeletedVectorElemError {
   tag: "DeletedVectorElemError";
   path: Path;
 }
 
-interface InsertedPathWithoutOverrideError {
+export interface InsertedPathWithoutOverrideError {
   tag: "InsertedPathWithoutOverrideError";
   path: Path;
 }
 
-interface InsertedPropWithNoFieldError {
+export interface InsertedPropWithNoFieldError {
   tag: "InsertedPropWithNoFieldError";
   subObj: BindingForm;
   field: Identifier;
@@ -299,7 +301,7 @@ interface InsertedPropWithNoFieldError {
   path: Path;
 }
 
-interface InsertedPropWithNoGPIError {
+export interface InsertedPropWithNoGPIError {
   tag: "InsertedPropWithNoGPIError";
   subObj: BindingForm;
   field: Identifier;
@@ -309,37 +311,37 @@ interface InsertedPropWithNoGPIError {
 
 //#region Translation validation errors
 
-interface NonexistentNameError {
+export interface NonexistentNameError {
   tag: "NonexistentNameError";
   name: Identifier;
   path: Path;
 }
 
-interface NonexistentFieldError {
+export interface NonexistentFieldError {
   tag: "NonexistentFieldError";
   field: Identifier;
   path: Path;
 }
 
-interface NonexistentGPIError {
+export interface NonexistentGPIError {
   tag: "NonexistentGPIError";
   gpi: Identifier;
   path: Path;
 }
 
-interface NonexistentPropertyError {
+export interface NonexistentPropertyError {
   tag: "NonexistentPropertyError";
   property: Identifier;
   path: Path;
 }
 
-interface ExpectedGPIGotFieldError {
+export interface ExpectedGPIGotFieldError {
   tag: "ExpectedGPIGotFieldError";
   field: Identifier;
   path: Path;
 }
 
-interface InvalidAccessPathError {
+export interface InvalidAccessPathError {
   tag: "InvalidAccessPathError";
   path: Path;
 }
@@ -347,7 +349,7 @@ interface InvalidAccessPathError {
 //#endregion Translation validation errors
 
 // TODO(errors): use identifiers here
-interface RuntimeValueTypeError {
+export interface RuntimeValueTypeError {
   tag: "RuntimeValueTypeError";
   path: Path;
   expectedType: string;
