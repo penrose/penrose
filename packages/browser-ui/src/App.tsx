@@ -10,7 +10,8 @@ import {
   prepareState,
   stateInitial,
   stepUntilConvergence,
-  showError
+  showError,
+  PenroseError
 } from "@penrose/core";
 
 /**
@@ -23,7 +24,7 @@ export const DownloadSVG = (
   title = "illustration"
 ): void => {
   const blob = new Blob([svg.outerHTML], {
-    type: "image/svg+xml;charset=utf-8",
+    type: "image/svg+xml;charset=utf-8"
   });
   const url = URL.createObjectURL(blob);
   const downloadLink = document.createElement("a");
@@ -42,6 +43,7 @@ import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
 interface ICanvasState {
   data: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
+  error: PenroseError | null;
   autostep: boolean;
   processedInitial: boolean;
   penroseVersion: string;
@@ -55,13 +57,14 @@ const socketAddress = "ws://localhost:9160";
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
+    error: null,
     history: [],
     autostep: true,
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
     showInspector: true,
     files: null,
-    connected: false,
+    connected: false
   };
   public readonly buttons = React.createRef<ButtonBar>();
   public readonly canvasRef = React.createRef<HTMLDivElement>();
@@ -73,22 +76,23 @@ class App extends React.Component<any, ICanvasState> {
   // same as onCanvasState but doesn't alter timeline or involve optimization
   // used only in modshapes
   public modCanvas = async (canvasState: PenroseState) => {
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
-      processedInitial: true,
+      processedInitial: true
     });
     this.renderCanvas(canvasState);
   };
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
       history: [...this.state.history, canvasState],
       processedInitial: true,
+      error: null
     });
     this.renderCanvas(canvasState);
     const { autostep } = this.state;
@@ -110,11 +114,11 @@ class App extends React.Component<any, ICanvasState> {
       xsVars: [],
       constrWeightNode: undefined,
       epWeightNode: undefined,
-      graphs: undefined,
+      graphs: undefined
     };
     const content = JSON.stringify({ ...state, params });
     const blob = new Blob([content], {
-      type: "text/json",
+      type: "text/json"
     });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -154,14 +158,9 @@ class App extends React.Component<any, ICanvasState> {
   connectToSocket = () => {
     FileSocket(
       socketAddress,
-      async (files) => {
+      async files => {
         const { domain, substance, style } = files;
         this.setState({ files, connected: true });
-
-        const oldState = this.state.data;
-        if (oldState) {
-          console.error("state already set");
-        }
 
         // TODO: does `processedInitial` need to be set?
         this.setState({ processedInitial: false });
@@ -174,11 +173,7 @@ class App extends React.Component<any, ICanvasState> {
           const initState: PenroseState = await prepareState(compileRes.value);
           void this.onCanvasState(initState);
         } else {
-          void console.error(
-            "Failed to compile with errors:",
-            compileRes.error,
-            compileRes.error.errors.map(showError)
-          );
+          this.setState({ error: compileRes.error, data: undefined });
         }
       },
       () => {
@@ -234,7 +229,8 @@ class App extends React.Component<any, ICanvasState> {
       showInspector,
       history,
       files,
-      connected,
+      error,
+      connected
     } = this.state;
     return (
       <div
@@ -243,7 +239,7 @@ class App extends React.Component<any, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
         <div style={{ flexShrink: 0 }}>
@@ -274,15 +270,19 @@ class App extends React.Component<any, ICanvasState> {
             className={this.state.showInspector ? "" : "soloPane1"}
             pane2Style={{ overflow: "hidden" }}
           >
-            {data && (
-              <div
-                style={{ width: "100%", height: "100%" }}
-                ref={this.canvasRef}
-              />
-            )}
+            <div>
+              {data && (
+                <div
+                  style={{ width: "100%", height: "100%" }}
+                  ref={this.canvasRef}
+                />
+              )}
+              {error && <pre>errors encountered, check inspector</pre>}
+            </div>
             {showInspector && (
               <Inspector
                 history={history}
+                error={error}
                 onClose={this.toggleInspector}
                 modShapes={this.modShapes}
               />
