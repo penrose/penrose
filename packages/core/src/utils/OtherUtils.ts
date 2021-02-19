@@ -8,6 +8,7 @@ export const exprToNumber = (e: Expr): number => {
   if (e.tag === "Fix") {
     return e.contents;
   }
+  console.log("got e", e);
   throw Error("expecting expr to be number");
 };
 
@@ -87,8 +88,8 @@ export const prettyPrintPath = (p: Expr): string => {
     return [varName, varField, property].join(".");
   } else if (p.tag === "AccessPath") {
     const pstr: string = prettyPrintPath(p.path);
-    const indices: number[] = p.indices.map(exprToNumber);
-    return `${pstr}[${indices.toString() as string}]`;
+    const indices: string[] = p.indices.map(prettyPrintExpr);
+    return `${pstr}[${indices.toString()}]`;
   } else {
     console.error("unexpected path type in", p);
     return JSON.stringify(p);
