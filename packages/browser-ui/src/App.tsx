@@ -270,7 +270,7 @@ class App extends React.Component<any, ICanvasState> {
             className={this.state.showInspector ? "" : "soloPane1"}
             pane2Style={{ overflow: "hidden" }}
           >
-            <div>
+            <div style={{ width: "100%", height: "100%" }}>
               {data && (
                 <div
                   style={{ width: "100%", height: "100%" }}
