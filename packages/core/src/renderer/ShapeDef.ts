@@ -175,6 +175,19 @@ export const rectDef: ShapeDef = {
   },
 };
 
+export const polygonDef: ShapeDef = {
+  shapeType: "Polygon",
+  properties: {
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
+    points: ["PtListV", () => constValue("PtListV", [[0,0],[0,10],[10,0]])],
+  },
+};
+
 export const imageDef: ShapeDef = {
   shapeType: "Image",
   properties: {
@@ -281,6 +294,7 @@ export const shapedefs: ShapeDef[] = [
   circleDef,
   textDef,
   rectDef,
+  polygonDef,
   squareDef,
   curveDef,
   imageDef,
