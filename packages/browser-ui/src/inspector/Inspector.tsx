@@ -4,10 +4,11 @@ import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
 import Timeline from "./views/Timeline";
 import viewMap from "./views/viewMap";
-import { PenroseState } from "@penrose/core";
+import { PenroseError, PenroseState } from "@penrose/core";
 
 interface IProps {
   history: PenroseState[];
+  error: PenroseError | null;
   onClose(): void;
   modShapes(state: PenroseState): void;
 }
@@ -34,7 +35,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
   };
   public render() {
     const { selectedFrame } = this.state;
-    const { history, modShapes } = this.props;
+    const { history, modShapes, error } = this.props;
     const currentFrame =
       history.length === 0
         ? null
@@ -47,6 +48,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       frameIndex: selectedFrame,
       history,
       modShapes,
+      error,
     };
     return (
       <div
@@ -64,7 +66,15 @@ class Inspector extends React.Component<IProps, IInspectState> {
           <Tabs>
             <TabList>
               {Object.keys(viewMap).map((view: string) => (
-                <Tab key={`tab-${view}`}>{view}</Tab>
+                <Tab key={`tab-${view}`}>
+                  {view}
+                  {view === "errors" && error && (
+                    <span style={{ fontWeight: 800, color: "#ff5c5c" }}>
+                      {" "}
+                      (1)
+                    </span>
+                  )}
+                </Tab>
               ))}
             </TabList>
             <TabPanels>

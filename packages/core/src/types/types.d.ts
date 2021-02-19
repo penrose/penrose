@@ -1608,26 +1608,3 @@ interface Right<B> {
 type Either<A, B> = Left<A> | Right<B>;
 
 //#endregion
-
-//#region
-type PenroseError = LanguageError | RuntimeError;
-type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
-type RuntimeError = OptimizerError | EvaluatorError;
-type StyleError = StyleParseError | StyleCheckError | TranslationError;
-
-interface LanguageError {
-  message: string;
-  sources: ErrorSource[];
-}
-
-interface StyleError {
-  sources: ErrorSource[];
-  message: FormatString; // Style match failed with Substance object $1 and select in Style $2
-}
-
-interface ErrorSource {
-  node: ASTNode;
-}
-
-type Warning = StyleError;
-//#endregion

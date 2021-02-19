@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
+import { PenroseError } from "types/errors";
 import { Result, showError } from "utils/Error";
 
 const outputDir = "/tmp/contexts";

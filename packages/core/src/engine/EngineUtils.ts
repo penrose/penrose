@@ -6,6 +6,7 @@ import { showError } from "utils/Error";
 import * as _ from "lodash";
 import { Elem, SubPath, Value } from "types/shapeTypes";
 import rfdc from "rfdc";
+import { StyleError, Warning } from "types/errors";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
