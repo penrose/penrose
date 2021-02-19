@@ -365,6 +365,16 @@ export const compDict = {
   },
 
   /**
+   * Return the normalized version of vector `v`.
+   */
+  unit: (v: VarAD[]): IVectorV<VarAD> => {
+    return {
+      tag: "VectorV",
+      contents: ops.vnormalize(v),
+    };
+  },
+
+  /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
   sampleColor: (alpha: VarAD, colorType: string): IColorV<VarAD> => {

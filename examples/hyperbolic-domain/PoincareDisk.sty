@@ -21,7 +21,7 @@ forall HyperbolicPlane H {
       strokeWidth : Global.thinStroke
       strokeColor : Colors.black
       strokeStyle : "dashed"
-      strokeDashArray : "20,10,5,5,5,10"
+      -- strokeDashArray : "20,10,5,5,5,10"
    }
 }
 
@@ -44,7 +44,7 @@ where In( p, H ) {
 
    scalar R = H.diskShape.r
 
-   shape p.dotShape = Circle {
+   override p.dotShape = Circle {
       center : R*(cos(p.angle), sin(p.angle))
       r : Global.pointSize
       strokeWidth : 0.0

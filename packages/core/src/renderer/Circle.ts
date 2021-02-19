@@ -14,7 +14,6 @@ const Circle = ({ shape, canvasSize }: ShapeProps) => {
   attrRadius(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
-  console.log(elem);
 
   return elem;
 };

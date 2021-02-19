@@ -317,6 +317,7 @@ export const curveDef: ShapeDef = {
     polyline: ["PtListV", () => constValue("PtListV", [])],
     polygon: ["PolygonV", () => emptyPoly],
     pathData: ["PathDataV", () => constValue("PathDataV", [])],
+    strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "solid")],
     effect: ["StrV", () => constValue("StrV", "none")],
     color: ["ColorV", colorSampler],
