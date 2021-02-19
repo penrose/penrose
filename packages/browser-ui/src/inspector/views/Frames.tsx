@@ -6,7 +6,7 @@ class Frames extends React.Component<IViewProps> {
   public render() {
     const { history, frame } = this.props;
     if (frame === null) {
-      return <p>empty</p>;
+      return <p style={{ padding: "1em" }}>empty</p>;
     }
     return (
       <div style={{ padding: "1em" }}>

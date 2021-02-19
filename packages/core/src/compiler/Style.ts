@@ -43,6 +43,14 @@ import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import { compDict } from "contrib/Functions";
 import { objDict, constrDict } from "contrib/Constraints";
 import { prettyPrintPath } from "utils/OtherUtils";
+import {
+  SubstanceError,
+  StyleResults,
+  StyleWarnings,
+  ParseError,
+  PenroseError,
+  StyleError,
+} from "types/errors";
 
 const log = consola
   .create({ level: LogLevel.Warn })

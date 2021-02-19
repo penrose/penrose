@@ -6,6 +6,7 @@ import { showError } from "utils/Error";
 import * as _ from "lodash";
 import { Elem, SubPath, Value } from "types/shapeTypes";
 import rfdc from "rfdc";
+import { StyleError, Warning } from "types/errors";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -850,9 +851,6 @@ export const findExpr = (
         if (res2.tag === "Vector") {
           const inner: Expr = res2.contents[i];
           return { tag: "OptEval", contents: inner };
-        } else if (res2.tag === "PropertyPath" || res2.tag === "FieldPath") {
-          // COMBAK: This deals with accessing elements of path aliases. Maybe there is a nicer way to do it.
-          return findExpr(trans, { ...path, path: res2 });
         } else {
           return { tag: "InvalidAccessPathError", path };
         }

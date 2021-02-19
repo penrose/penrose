@@ -14,6 +14,25 @@ const {
 } = Result;
 
 import { ShapeDef, shapedefs } from "renderer/ShapeDef";
+import {
+  DomainError,
+  SubstanceError,
+  CyclicSubtypes,
+  NotTypeConsInPrelude,
+  NotTypeConsInSubtype,
+  DuplicateName,
+  TypeNotFound,
+  VarNotFound,
+  TypeMismatch,
+  UnexpectedExprForNestedPred,
+  ArgLengthMismatch,
+  TypeArgLengthMismatch,
+  DeconstructNonconstructor,
+  FatalError,
+  ParseError,
+  PenroseError,
+  StyleError,
+} from "types/errors";
 // #region error rendering and construction
 
 /**
@@ -331,6 +350,12 @@ export const showError = (
 
     case "Fatal": {
       return `FATAL: ${error.message}`;
+    }
+
+    default: {
+      return `Meta: Cannot render error with contents: ${JSON.stringify(
+        error
+      )}`;
     }
   }
 };
