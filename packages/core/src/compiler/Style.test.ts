@@ -8,6 +8,7 @@ import {
   SubstanceEnv,
 } from "compiler/Substance";
 import * as fs from "fs";
+import { PenroseError } from "types/errors";
 import _ from "lodash";
 import * as path from "path";
 import { andThen, unsafelyUnwrap, Result, showError } from "utils/Error";
@@ -303,19 +304,22 @@ where IsSubset(y, x) { }`,
       InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
 
       // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
-      InvalidGPIPropertyError:
-        [`forall Set x {  
+      InvalidGPIPropertyError: [
+        `forall Set x {  
           x.icon = Circle { 
            centre: (0.0, 0.0) 
            r: 9.
            diameter: 100.
          } 
-       }`],
+       }`,
+      ],
 
       // Have to do a nested search in expressions for this
-      InvalidFunctionNameError: [`forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
+      InvalidFunctionNameError: [
+        `forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
         `forall Set x { x.icon = Circle { r: get(0.0, sjkfhsdk("hi")) } }`,
-        `forall Set x { x.icon = Circle { r: wjhkej(0.0, sjkfhsdk("hi")) } }`],
+        `forall Set x { x.icon = Circle { r: wjhkej(0.0, sjkfhsdk("hi")) } }`,
+      ],
 
       InvalidObjectiveNameError: [`forall Set x { encourage sjdhfksha(0.0) }`],
 
@@ -385,29 +389,32 @@ delete x.z.p }`,
       // NonexistentNameError:
       //   [`forall Set x { A.z = 0. }`],
 
-      NonexistentFieldError:
-        [`forall Set x { x.icon = Circle { r: x.r } }`],
-      NonexistentGPIError:
-        [`forall Set x {  
+      NonexistentFieldError: [`forall Set x { x.icon = Circle { r: x.r } }`],
+      NonexistentGPIError: [
+        `forall Set x {  
          x.z = x.c.p
-       }`],
-      NonexistentPropertyError:
-        [`forall Set x {  
+       }`,
+      ],
+      NonexistentPropertyError: [
+        `forall Set x {  
           x.icon = Circle { 
            r: 9.
            center: (x.icon.z, 0.0)
          } 
-       }`],
-      ExpectedGPIGotFieldError:
-        [`forall Set x { 
+       }`,
+      ],
+      ExpectedGPIGotFieldError: [
+        `forall Set x { 
            x.z = 1.0 
            x.y = x.z.p
-}`],
-      InvalidAccessPathError:
-        [`forall Set x { 
+}`,
+      ],
+      InvalidAccessPathError: [
+        `forall Set x { 
            x.z = 1.0 
            x.y = x.z[0]
-}`],
+}`,
+      ],
 
       // ---------- Runtime errors (insertExpr)
 
