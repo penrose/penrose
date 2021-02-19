@@ -275,7 +275,9 @@ describe("Compiler", () => {
         (res) => S.compileStyle(styProg, ...res),
         subRes
       );
-      expectErrorOf(styRes, errorType);
+      describe(errorType, () => {
+        expectErrorOf(styRes, errorType);
+      });
     };
 
     const errorStyProgs = {
@@ -295,6 +297,29 @@ describe("Compiler", () => {
         `forall Set x; Point y
 where IsSubset(y, x) { }`,
       ],
+
+      // ---------- Block static errors
+
+      InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
+
+      // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
+      InvalidGPIPropertyError:
+        [`forall Set x {  
+          x.icon = Circle { 
+           centre: (0.0, 0.0) 
+           r: 9.
+           diameter: 100.
+         } 
+       }`],
+
+      // Have to do a nested search in expressions for this
+      InvalidFunctionNameError: [`forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
+        `forall Set x { x.icon = Circle { r: get(0.0, sjkfhsdk("hi")) } }`,
+        `forall Set x { x.icon = Circle { r: wjhkej(0.0, sjkfhsdk("hi")) } }`],
+
+      InvalidObjectiveNameError: [`forall Set x { encourage sjdhfksha(0.0) }`],
+
+      InvalidConstraintNameError: [`forall Set x { ensure jahfkjdhf(0.0) }`],
 
       // ------- Translation errors (deletion)
       DeletedPropWithNoSubObjError: [`forall Set x { delete y.z.p }`],
@@ -352,6 +377,38 @@ delete x.z.p }`,
 }`,
       ],
 
+      // ----------- Translation validation errors
+      // TODO(errors): check multiple errors
+
+      // TODO(errors): This throws too early, gives InsertedPathWithoutOverrideError -- correctly throws error but may be misleading
+
+      // NonexistentNameError:
+      //   [`forall Set x { A.z = 0. }`],
+
+      NonexistentFieldError:
+        [`forall Set x { x.icon = Circle { r: x.r } }`],
+      NonexistentGPIError:
+        [`forall Set x {  
+         x.z = x.c.p
+       }`],
+      NonexistentPropertyError:
+        [`forall Set x {  
+          x.icon = Circle { 
+           r: 9.
+           center: (x.icon.z, 0.0)
+         } 
+       }`],
+      ExpectedGPIGotFieldError:
+        [`forall Set x { 
+           x.z = 1.0 
+           x.y = x.z.p
+}`],
+      InvalidAccessPathError:
+        [`forall Set x { 
+           x.z = 1.0 
+           x.y = x.z[0]
+}`],
+
       // ---------- Runtime errors (insertExpr)
 
       // COMBAK / TODO(errors): Test this more thoroughly
@@ -386,6 +443,8 @@ delete x.z.p }`,
     // Test that each program yields its error type
     for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
       for (const styProg of styProgs) {
+        // TODO(error): improve this so it becomes individual tests, using the framework
+        // console.log("testing", errorType);
         testStyProgForError(styProg, errorType);
       }
     }
