@@ -154,3 +154,6 @@ Now, you understand the differences between and usage of the `.dsl`, `.sub` and 
 * **Challenge 3:** Keep 3 sets. Represent `Set` as rectangles with `strokeWidth` equal to 15. 
 
 After you are done, you can double check your work with [solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md).
+
+# Example (2)
+
