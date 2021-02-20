@@ -67,7 +67,7 @@ This is what you will achieve at the end of Example (1).
 ### :speaking_head: WHAT IS THIS?
 Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later :grimacing:).
 
-### :page_facing_up: DOMAIN
+### :page_facing_up: :green_book: DOMAIN
 It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`.  
 
 Recall that a `.dsl` file defines the possible types of objects in our domain. Essentially, we are _teaching_ Penrose the neccessary vocabulary that we use to communicate our concept. For example, Penrose has no idea that there are objects of type plant or furniture in a house, but no worries, we can let Penrose know with several lines of code :speaker:. We declare a new type following the syntax of `type TYPE_NAME`. For example, if we want Penrose to know that there are objects of type plant, we would do `type Plant` or `type plant`. We normally capitalize type names. 
@@ -84,12 +84,12 @@ And that is all we need for this exercise in `.dsl`! :tada: Now Penrose knows th
 
 If you look closely at the repository, we have a [domain file](https://github.com/penrose/penrose/blob/main/examples/set-theory-domain/setTheory.dsl) that contains more extensive operations common in Set Theory such as `Intersection`, `Union`, `Subset`, and more. 
 
-### :page_facing_up: SUBSTANCE
+### :page_facing_up: :black_square_button: SUBSTANCE
 Since we are visualizing 2 sets, they are our **substances** for this diagram. 
 
 We declare a substance by first declaring its *type* followed by its *name*. The name will not appear in the diagram unless you choose to label your substances, therefore in this exercise, it doesn't matter how you name your sets. 
 
-`twosets.sub`
+`twoSets.sub`
 ```typescript
 Set A 
 Set B 
@@ -99,7 +99,7 @@ Now, Penrose will know that you want two substances of type `Set` in your diagra
 
 Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. There is no magic here, you define your Penrose world completely. :earth_americas: :sparkles:
 
-### :page_facing_up: STYLE
+### :page_facing_up: :tophat: STYLE
 For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html` (which wouold be our `.sub` file). We will rename our `.sty` file to `twosets.sty`. 
 
 Now, Penrose does _not_ know a set is commonly represented as a circle. **We need to style our elements from scratch.** This might seem strange, but this way you are given absolute freedom in how you want to represent your substances in the diagram. Your set doesn't have to be a circle, it can be square, a rectangle, etc. But for this example, we will be representing sets as circles. 
