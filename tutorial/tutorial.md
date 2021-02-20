@@ -41,6 +41,10 @@ It will most likely involve the following steps,
 
 ### The process of creating a Penrose diagram is similar to our intuitive process of analogue diagramming. :tada: 
 
+![chair in house & vector in linear algebra](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/chair-vector.jpg)
+
+Let's circle back to what Penrose is meant to do: create beautiful diagrams from mathematical statements, therefore we will now transition from talking about chairs and plants in a house to elements in a mathematical domain. The relationship between a chair being an object in a house, is the same as a vector being an object in Linear Algebra. With Penrose, you can build any mathematical domain with concepts that you wish to visualize. :paintbrush:
+
 # What makes a Penrose program? 
 It follows naturally from the process of diagramming by hand, we need to keep track of certain information as described above. The way we do that is by writing code in three specific files. First, we need to define our **domain** of objects because Penrose does not know what is in your house, or what a chair is. You need to define the types of objects and operations in your domain. For example, you can _push_ a chair, or _sit_ on a chair, which are operations related to a chair. Second, we need to store the specific **substances** we want to include in our diagrams, so Penrose knows exactly what to draw for you. Lastly, we need to define the **styles** that we want to visualize our substances in. Each of these corresponds to a specific file with an intuitive file extension designed for accessibility. 
 
