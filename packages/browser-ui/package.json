@@ -1,0 +1,86 @@
+{
+  "name": "@penrose/browser-ui",
+  "version": "1.0.0",
+  "main": "build/dist/module.js",
+  "module": "build/dist/module.js",
+  "types": "build/dist/types.js",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.7.7",
+    "@penrose/core": "^1.0.0",
+    "@reach/tabs": "^0.9.0",
+    "consola": "^2.15.0",
+    "console-feed": "^2.8.11",
+    "debug": "^4.1.1",
+    "fast-memoize": "^2.5.2",
+    "graphlib": "^2.1.8",
+    "node-pre-gyp": "^0.14.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-fast-compare": "^2.0.4",
+    "react-inspector": "^4.0.1",
+    "react-scripts": "^4.0.2",
+    "react-split-pane": "^0.1.92",
+    "react-styled-flexboxgrid": "^3.2.1",
+    "rfdc": "^1.1.4",
+    "styled-components": "^5.2.1",
+    "svg2pdf.js": "^1.5.0",
+    "ts-node": "^9.0.0",
+    "tslib": "^2.0.3"
+  },
+  "files": [
+    "/build"
+  ],
+  "scripts": {
+    "start": "react-scripts --max_old_space_size=8192 start",
+    "watch": "CI=true react-scripts --max_old_space_size=8192 start",
+    "build": "CI=false && react-scripts --max_old_space_size=8192 build",
+    "build-lib": "ttsc --project tsconfig.lib.json",
+    "build:bundle": "webpack --config webpack.config.js",
+    "test": "echo NO TESTS",
+    "docs": "typedoc --out docs src",
+    "test:watch": "react-scripts test",
+    "lint": "eslint --ext js,ts,tsx src",
+    "eject": "react-scripts eject",
+    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
+    "prepack": "yarn build"
+  },
+  "devDependencies": {
+    "@types/debug": "0.0.31",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/react": "^16.9.32",
+    "@types/react-dom": "^16.9.6",
+    "@types/react-inspector": "^4.0.0",
+    "@types/styled-components": "^5.1.5",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "canvas": "^2.6.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-to-json": "^3.4.4",
+    "eslint-config-prettier": "^6.13.0",
+    "eslint-plugin-jsdoc": "^30.7.3",
+    "eslint-plugin-prefer-arrow": "^1.2.2",
+    "jest-junit": "^12.0.0",
+    "prettier": "^1.19.1",
+    "terser": "^5.5.1",
+    "true-myth": "^4.1.0",
+    "ttypescript": "^1.5.12",
+    "typescript": "^3.9.5",
+    "typescript-transform-paths": "^2.0.1",
+    "webpack-cli": "^4.2.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "jest": {
+    "snapshotSerializers": [
+      "enzyme-to-json"
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+-- Program for real test cases for Style errors
+
+Set x {
+    x.shape = Circle {
+        -- Test case 0
+        strokeWidth : 0.
+        -- strokeWidth : x.r
+    }
+
+    x.shading = Image {
+        center : x.shape.center 
+        w : x.shape.r * 2.0
+        h : x.shape.r * 2.0
+        path : "shading.svg"
+    }
+
+    x.shadow = Image {
+        path : "shadow.svg"
+        w : x.shape.r * 2.15
+        h : x.shape.r * 2.22
+        center : (x.shape.center[0] + 0.03 * x.shading.w, x.shape.center[1] - 0.051 * x.shading.h)
+    }
+
+    x.text = Text {
+        string : x.label
+        color: rgba(1.0, 1.0, 1.0, 1.0)
+        w: 0.5 * x.shape.r
+        h: 0.5 * x.shape.r
+    }
+
+    -- Test case 1
+    ensure contains(x.shape, x.text)
+    -- ensure contains(x.shape.zzz, x.text)
+
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
+    encourage sameCenter(x.text, x.shape)
+
+    -- Test case 2
+    x.shape below x.text
+    -- x.kdjhfd below x.text
+
+    x.shading below x.shape
+    x.shadow below x.shading
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure contains(y.shape, x.shape, 5.0)
+    x.shape above y.shape
+
+    -- Test case 3
+    y.text below x.shape
+    -- y.text.z below x.shape
+
+    x.shadow above y.shape
+}
+
+Set x; Set y
+where Not(Intersecting(x, y)) {
+    ensure disjoint(x.shape, y.shape)
+}
+
+Set x; Set y
+where Intersecting(x, y) {
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
+}

@@ -3,7 +3,7 @@ jobs:
   docs-deploy:
     docker:
       - image: circleci/node:12.19.0
-    working_directory: ~/penrose/packages/penrose-core
+    working_directory: ~/penrose/packages/core
     steps:
       - checkout:
           path: ~/penrose
@@ -35,7 +35,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
       - run:
-          name: Install deps and link roger
+          name: Install deps
           command: sudo yarn
           working_directory: ~/penrose
       - save_cache:
@@ -43,34 +43,65 @@ jobs:
           paths:
             - ~/penrose/node_modules
       - run:
+          name: Run all builds
+          command: sudo yarn build
+          working_directory: ~/penrose/
+      - run:
           name: Run all tests
-          command: yarn test
+          command: sudo yarn test
           working_directory: ~/penrose/
       - run:
           name: Make test report dir
           command: mkdir -p reports/junit
-          working_directory: ~/penrose/packages/penrose-core
+          working_directory: ~/penrose/packages/core
       - run:
           name: Run core tests and generate test data
-          command: yarn coverage -- --ci --runInBand --reporters=default --reporters=jest-junit
-          working_directory: ~/penrose/packages/penrose-core
+          command: sudo yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
+          working_directory: ~/penrose/packages/core
       - run:
           name: Move test report
           command: mv junit.xml reports/junit/
-          working_directory: ~/penrose/packages/penrose-core
+          working_directory: ~/penrose/packages/core
       - run:
           name: Upload test coverage to codecov
           command: bash <(curl -s https://codecov.io/bash)
-          working_directory: ~/penrose/packages/penrose-core
+          working_directory: ~/penrose/packages/core
       - store_test_results:
-          path: ~/penrose/packages/penrose-core/reports/junit/
+          path: ~/penrose/packages/core/reports/junit/
       - store_artifacts:
-          path: ~/penrose/packages/penrose-core/reports/junit/
+          path: ~/penrose/packages/core/reports/junit/
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: ~/penrose/packages/penrose-core/coverage
+          path: ~/penrose/packages/core/coverage
       # - store_artifacts:
       #     path: ~/penrose/penrose-web/build
       #     destination: penrose-web-built
+  canary_release:
+    docker:
+      - image: circleci/node:12.19.0
+    steps:
+      - checkout:
+          path: ~/penrose
+      - restore_cache:
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
+      - run:
+          name: Install deps
+          command: sudo yarn
+          working_directory: ~/penrose
+      - save_cache:
+          key: dependency-cache-{{ checksum "~/penrose/package.json" }}-{{ arch }}
+          paths:
+            - ~/penrose/node_modules
+      - run:
+          name: Run all builds
+          command: sudo yarn build
+          working_directory: ~/penrose/
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/penrose/.npmrc
+      - run:
+          name: Publish canary release
+          command: sudo yarn publish:canary --yes
+          working_directory: ~/penrose/
 workflows:
   version: 2.1
   build_other_branches:
@@ -79,15 +110,19 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
 
-  build_master_deploy:
+  build_main_deploy:
     jobs:
       - docs-deploy:
           filters:
             branches:
-              only: master
+              only: main
       - build:
           filters:
             branches:
-              only: master
+              only: main
+      - canary_release:
+          filters:
+            branches:
+              only: main

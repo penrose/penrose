@@ -1,6 +1,6 @@
 Set x {
     x.shape = Circle {
-        strokeWidth : 0
+        strokeWidth : 0.
     }
 
     x.shading = Image {
@@ -28,6 +28,7 @@ Set x {
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
     encourage sameCenter(x.text, x.shape)
+
     x.shape below x.text
     x.shading below x.shape
     x.shadow below x.shading

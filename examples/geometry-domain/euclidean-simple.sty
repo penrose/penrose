@@ -72,8 +72,7 @@ const {
 
     label = "E^2"
     text = Text {
-	x : (dim / 2.0) - textPadding2
-	y : (dim / 2.0) - textPadding2
+	center : ((dim / 2.0) - textPadding2, (dim / 2.0) - textPadding2)
 	string : label
 	fontSize : fontSize
     }
@@ -82,12 +81,11 @@ const {
 
     -- inner: #f3f4f9, outer: #8e93c4
     plane = Rectangle {
-    	    angle : 0.0
+    	    -- angle : 0.0
 	    color : Colors.verylightpurple
 	    strokeColor : Colors.purple3
 	    strokeWidth : 2.0
-	    x : 0.0
-	    y : 0.0
+	    center : (0.0, 0.0)
 	    w : dim
 	    h : dim
     }
@@ -339,7 +337,7 @@ Point `C` {
 Angle theta
 where theta := InteriorAngle(q, p, r); Right(theta)
 with Point p; Point q; Point r {
-      theta.perpSize = 13.0
+      override theta.perpSize = 13.0
 
       -- override theta.shape = Path {
       -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)

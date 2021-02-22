@@ -15,12 +15,12 @@ Set x {
         strokeColor : Colors.black
         strokeStyle : "solid"
         strokeWidth : 1.0
-        rotation : 0.0
+        -- rotation : 0.0
     }
 
     x.text    = Text {
       string : x.label
-      rotation : 0.0
+      -- rotation : 0.0
     }
 
     x.labelFn = ensure contains(x.icon, x.text)
@@ -54,7 +54,7 @@ with Set X; Set Y; Set R1; Set R2 {
       -- x : (f.icon.startX + f.icon.endX) / 2.0
       -- y : (f.icon.startY + f.icon.endY) / 2.0 + 1.1 * f.text.h
       string : f.label
-      rotation : 0.0
+      -- rotation : 0.0
     }
 
     encourage centerLabel(f.icon, f.text, 5.0)
@@ -80,7 +80,7 @@ Set `Rn` {
       -- x : -100.0
       -- y = 0.0
       color : Colors.lightYellow
-      rotation : 0.0
+      -- rotation : 0.0
       strokeWidth : Const.strokeWidth
       strokeColor : Colors.black
     }
@@ -101,7 +101,7 @@ with Set `Rn` {
         color : Colors.lightYellow
         center : (`Rn`.icon.center[0] + 400.0, `Rn`.icon.center[1])
         side  : `Rn`.icon.side
-        rotation : 0.0
+        -- rotation : 0.0
         strokeWidth : 1.0
         strokeColor : Colors.black
     }

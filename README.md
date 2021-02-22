@@ -1,4 +1,4 @@
-# Penrose [![CircleCI](https://circleci.com/gh/penrose/penrose/tree/master.svg?style=svg)](https://circleci.com/gh/penrose/penrose/tree/master)
+# Penrose [![CircleCI](https://circleci.com/gh/penrose/penrose/tree/main.svg?style=svg)](https://circleci.com/gh/penrose/penrose/tree/main)
 
 **Penrose is an early-stage system that is still in development.** Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
 
