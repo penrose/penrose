@@ -55,8 +55,6 @@ Every Penrose program consists of 3 files:
 
 > dsl stands for Domain Specific Language. 
 
-# ( diagram about files )
-
 In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.sub` files, but we would have a main `linearAlgebra.dsl` file and maybe several `linearAlgebra.sty` file for different styles. 
 
 # Example (1)
@@ -108,8 +106,7 @@ Now, Penrose does _not_ know a set is commonly represented as a circle. **We nee
 
 The syntax for declaring styles goes like this,
 
-![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/style_syntax.png)
-## WILL REPLACE 
+![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/syntax.png)
 
 Note that the syntax is _very_ similar to the mathematical way of talking about objects, so it should be pretty natural for people with some backgrounds in math. If you don't, that's completely fine too! You can interpret the syntax as:  we go through the substances in the diagram, and _for all_ the substances of type `t` that we see, we apply the same styling as defined in the `{ }`. 
 
