@@ -851,6 +851,9 @@ export const findExpr = (
         if (res2.tag === "Vector") {
           const inner: Expr = res2.contents[i];
           return { tag: "OptEval", contents: inner };
+        } else if (res2.tag === "List") {
+          const inner: Expr = res2.contents[i];
+          return { tag: "OptEval", contents: inner };
         } else if (res2.tag === "PropertyPath" || res2.tag === "FieldPath") {
           // COMBAK: This deals with accessing elements of path aliases. Maybe there is a nicer way to do it.
           return findExpr(trans, { ...path, path: res2 });
