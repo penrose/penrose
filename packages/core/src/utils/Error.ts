@@ -14,6 +14,25 @@ const {
 } = Result;
 
 import { ShapeDef, shapedefs } from "renderer/ShapeDef";
+import {
+  DomainError,
+  SubstanceError,
+  CyclicSubtypes,
+  NotTypeConsInPrelude,
+  NotTypeConsInSubtype,
+  DuplicateName,
+  TypeNotFound,
+  VarNotFound,
+  TypeMismatch,
+  UnexpectedExprForNestedPred,
+  ArgLengthMismatch,
+  TypeArgLengthMismatch,
+  DeconstructNonconstructor,
+  FatalError,
+  ParseError,
+  PenroseError,
+  StyleError,
+} from "types/errors";
 // #region error rendering and construction
 
 /**
@@ -201,17 +220,17 @@ export const showError = (
     }
 
     case "InvalidFunctionNameError": {
-      return `Got invalid Function name ${error.givenName.value}.`;
+      return `Got invalid Function name '${error.givenName.value}'.`;
       // COMBAK: Function suggestions, or just print the list
     }
 
     case "InvalidObjectiveNameError": {
-      return `Got invalid objective name ${error.givenName.value}.`;
+      return `Got invalid objective name '${error.givenName.value}'.`;
       // COMBAK: Objective suggestions, or just print the list
     }
 
     case "InvalidConstraintNameError": {
-      return `Got invalid constraint name ${error.givenName.value}.`;
+      return `Got invalid constraint name '${error.givenName.value}'.`;
       // COMBAK: Constraint suggestions, or just print the list
     }
 
@@ -230,38 +249,38 @@ export const showError = (
     }
 
     case "CircularPathAlias": {
-      return `Path ${prettyPrintPath(error.path)} was aliased to itself`;
+      return `Path '${prettyPrintPath(error.path)}' was aliased to itself`;
     }
 
     case "DeletedPropWithNoGPIError": {
       return `Sub obj '${error.subObj.contents.value}' does not have GPI '${
         error.field.value
-      }'; cannot delete property '${error.property.value} in ${prettyPrintPath(
-        error.path
-      )}'`;
+      }'; cannot delete property '${
+        error.property.value
+      }' in '${prettyPrintPath(error.path)}'`;
     }
 
     // TODO: Use input path to report location?
     case "DeletedNonexistentFieldError": {
-      return `Trying to delete '${error.field.value} from SubObj '${error.subObj.contents.value}', which already lacks the field`;
+      return `Trying to delete '${error.field.value}' from SubObj '${error.subObj.contents.value}', which already lacks the field`;
     }
 
     case "DeletedVectorElemError": {
-      return `Cannot delete an element of a vector: ${prettyPrintPath(
+      return `Cannot delete an element of a vector: '${prettyPrintPath(
         error.path
-      )}`;
+      )}'`;
     }
 
     case "InsertedPathWithoutOverrideError": {
-      return `Overriding path ${prettyPrintPath(
+      return `Overriding path '${prettyPrintPath(
         error.path
-      )} without override flag set`;
+      )}' without override flag set`;
     }
 
     case "InsertedPropWithNoFieldError": {
-      return `Sub obj '${error.subObj.contents.value}' does not have Field '${
+      return `Sub obj '${error.subObj.contents.value}' does not have field '${
         error.field.value
-      }'; cannot add property '${error.property.value} in ${prettyPrintPath(
+      }'; cannot add property '${error.property.value}' in '${prettyPrintPath(
         error.path
       )}'`;
     }
@@ -271,7 +290,7 @@ export const showError = (
         error.subObj.contents.value
       }' has field but does not have GPI '${
         error.field.value
-      }'; cannot add property '${error.property.value} in ${prettyPrintPath(
+      }'; cannot add property '${error.property.value}' in '${prettyPrintPath(
         error.path
       )}'. Expected GPI.`;
     }
@@ -281,33 +300,33 @@ export const showError = (
     case "NonexistentNameError": {
       return `Error looking up path '${prettyPrintPath(
         error.path
-      )}' in translation. Name ${error.name.value} does not exist.`;
+      )}' in translation. Name '${error.name.value}' does not exist.`;
     }
 
     case "NonexistentFieldError": {
       return `Error looking up path '${prettyPrintPath(
         error.path
-      )}' in translation. Field ${error.field.value} does not exist.`;
+      )}' in translation. Field '${error.field.value}' does not exist.`;
     }
 
     case "NonexistentGPIError": {
       return `Error looking up path '${prettyPrintPath(
         error.path
-      )}' in translation. GPI ${error.gpi.value} does not exist.`;
+      )}' in translation. GPI '${error.gpi.value}' does not exist.`;
     }
 
     case "NonexistentPropertyError": {
       return `Error looking up path '${prettyPrintPath(
         error.path
-      )}' in translation. Property ${error.property.value} does not exist.`;
+      )}' in translation. Property '${error.property.value}' does not exist.`;
     }
 
     case "ExpectedGPIGotFieldError": {
       return `Error looking up path '${prettyPrintPath(
         error.path
-      )}' in translation. Expected GPI ${
+      )}' in translation. Expected GPI '${
         error.field.value
-      } does not exist; got a field instead.`;
+      }' does not exist; got a field instead.`;
     }
 
     case "InvalidAccessPathError": {
@@ -322,15 +341,21 @@ export const showError = (
     case "RuntimeValueTypeError": {
       return `Runtime type error in looking up path '${prettyPrintPath(
         error.path
-      )}''s value in translation. Expected type: ${
+      )}''s value in translation. Expected type: '${
         error.expectedType
-      }. Got type: ${error.actualType}.`;
+      }]. Got type: ]${error.actualType}].`;
     }
 
     // ----- END STYLE ERRORS
 
     case "Fatal": {
       return `FATAL: ${error.message}`;
+    }
+
+    default: {
+      return `Meta: Cannot render error with contents: ${JSON.stringify(
+        error
+      )}`;
     }
   }
 };

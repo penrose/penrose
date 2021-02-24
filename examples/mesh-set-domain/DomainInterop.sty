@@ -191,7 +191,7 @@ SimplicialComplex K {
            center : (K.center_x, K.center_y)
 	       w : K.size_x
 	       h : K.size_y
-	       rotation : 0.0
+	       -- rotation : 0.0
 	       color : setOpacity(Colors.gainsboro, 0.2)
 	       strokeColor : Colors.black
 	       strokeWidth : global.sc_rect_stroke
@@ -202,7 +202,7 @@ SimplicialComplex K {
        K.text = Text {
          center : (K.icon.center[0] - K.icon.w / 2.0 + K.padding, K.icon.center[1] - K.icon.h / 2.0 + K.padding)
          string : K.label
-         rotation : 0.0
+         -- rotation : 0.0
          color : Colors.black
        }
 
@@ -216,7 +216,7 @@ SimplicialComplex K {
        K.const_text = Text {
        	 center : (K.icon.center[0], K.icon.center[1] - (K.size_y / 2.0) - K.expr_padding)
        	 string : "\text{ }"
-       	 rotation : 0.0
+       	 -- rotation : 0.0
        	 color : global.starColor
        }
 
@@ -229,7 +229,9 @@ SimplicialComplex K1; SimplicialComplex K2 {
 
 	 -- TODO: improve this for rectangles by not just using the x size
 	 ensure disjoint(K1.icon, K2.icon, padding)
-	 ensure sameHeight(K1.icon, K2.icon)
+         -- COMBAK: Put `sameHeight` back in?
+	 -- ensure sameHeight(K1.icon, K2.icon)
+
 	 -- distFn = ensure distBetween(K1.icon, K2.icon, padding)
 }
 
@@ -254,7 +256,7 @@ with SimplicialComplex K {
 	                 -- v.icon.y + global.padding
 	 string : v.label
 	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
-	 rotation : 0.0
+	 -- rotation : 0.0
 	 color : v.icon.color
        }
 
@@ -328,7 +330,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      e.text = Text {
        center : (?, ?)
        string : e.label
-       rotation : 0.0
+       -- rotation : 0.0
        color : Colors.black
      }
 
@@ -352,7 +354,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        center : (average2(e.icon.start[0], e.icon.end[0]) + global.padding, average2(e.icon.start[1], e.icon.end[1]) + global.padding)
        -- string : e.label
        string : "\\text{ }" 
-       rotation : 0.0
+       -- rotation : 0.0
        color : e.icon.color
      }
 
@@ -370,14 +372,14 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
 	     strokeWidth : 0.0
 	     fill : setOpacity(f.color, 0.8)
 	     color : setOpacity(f.color, 0.8)
-	     rotation : 0.0
+	     -- rotation : 0.0
      }
 
      f.text = Text {
        -- Makes assumptions about vertex order in constructor
        center : (average([e1.icon.start[0], e2.icon.start[0], e3.icon.start[0]]), average([e1.icon.start[1], e2.icon.start[1], e3.icon.start[1]]))
        string : f.label
-       rotation : 0.0
+       -- rotation : 0.0
        color : Colors.black
      }
 

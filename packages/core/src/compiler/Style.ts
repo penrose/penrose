@@ -43,6 +43,14 @@ import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 import { compDict } from "contrib/Functions";
 import { objDict, constrDict } from "contrib/Constraints";
 import { prettyPrintPath } from "utils/OtherUtils";
+import {
+  SubstanceError,
+  StyleResults,
+  StyleWarnings,
+  ParseError,
+  PenroseError,
+  StyleError,
+} from "types/errors";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -2938,7 +2946,7 @@ const checkTranslation = (trans: Translation): StyleErrors => {
   // Look up all paths used anywhere in the translation's expressions and verify they exist in the translation
   const allPaths: Path[] = foldSubObjs(findPathsField, trans);
   const allPathsUniq: Path[] = _.uniqBy(allPaths, prettyPrintPath);
-  const exprs = allPaths.map((p) => findExpr(trans, p));
+  const exprs = allPathsUniq.map((p) => findExpr(trans, p));
   const errs = exprs.filter(isStyErr);
   return errs as StyleErrors; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.
 };
