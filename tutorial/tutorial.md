@@ -164,5 +164,6 @@ After you are done, you can double check your work with [solutions](https://gith
 * We define the substances in our diagram by declaring its type and its variable name in `.sub`.
 * We define the styles using the syntax `forall TYPE_NAME x { /* declarations */ }` in `.sty`. 
 
+Now we are going to start our second example that teaches skills 
 # Example (2)
 
