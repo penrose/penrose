@@ -190,6 +190,9 @@ For our relationship, it follows naturally that the name should be `IsSubset`, a
 type Set
 predicate IsSubset : Set s1 * Set s2
 ```
+
+Now we are free to use the predicate `IsSubset` in our `.sub` and define what it means visually in our `.sty`. 
+
 ### :page_facing_up: :black_square_button: SUBSTANCE
 
 
