@@ -179,11 +179,23 @@ To define a relationship between objects in the domain, there are a few things w
 * Numbers of arguments, i.e. how many objects are involves in this relationship
 * The type of arguments, i.e. what are the type of objects that are involes in this relationship 
 
-For our relationship, it follows naturally that the name should be `IsSubset`, and we have 2 arguments of type `Set`. For syntax, we use the `predicate` keyword to let Penrose know that we are defining a relationship. 
+The syntax for declaring a relationship is through the use of keyword `predicate`, and then inputting the neccessary information to construct the predicate,
+
+![predicate syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/predicateSyntax.png)
+
+For our relationship, it follows naturally that the name should be `IsSubset`, and we have 2 arguments of type `Set`. 
 
 `setTheory.dsl`
 ```typescript
 type Set
 predicate IsSubset : Set s1 * Set s2
 ```
+### :page_facing_up: :black_square_button: SUBSTANCE
 
+
+`.sub`
+```typescript
+Set A, B, C
+IsSubset(B, A)
+IsSubset(C, A)
+```
