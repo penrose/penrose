@@ -48,11 +48,11 @@ The style program will be the most complex part, and you will see that it is nor
 Recall that we learned about predicates that are defined in `.dsl` and used in `.sub`, and now we need to define the visual definition of the predicate. 
 
 To visually represent a set is a subset of another set is through this:
-# Insert subset diagram 
+### Insert subset diagram 
 
 To do that, we need to somehow specify that the circle of the subset needs to be smaller than, and contained in the bigger set. Notice that in our first example, we did not care about the size of our circle/square/rectangle, but now we do care about the size since we want specific hiearchy of sizes, and in the process of forcing containments of the circles, the circles could get **TOO BIG** or **TOO SMALL**. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy! 
 
-# Insert messed up diagram 
+### Insert messed up diagram 
 This is what might happen when you don't constrain the sizes. 
 
 Since we care about the sizes of **all** the sets, and need to **ensure** all of their sizes, we will now make use of our newly introduced keyword `ensures`. 
