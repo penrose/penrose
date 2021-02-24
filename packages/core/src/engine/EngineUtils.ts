@@ -858,7 +858,8 @@ export const findExpr = (
           // COMBAK: This deals with accessing elements of path aliases. Maybe there is a nicer way to do it.
           return findExpr(trans, { ...path, path: res2 });
         } else {
-          return { tag: "InvalidAccessPathError", path };
+          // NOTE: we cannot check because we cannot evaluate right now. Returning the result directly instead
+          return res;
         }
       } else if (res.tag === "Done") {
         if (res.contents.tag === "VectorV") {
