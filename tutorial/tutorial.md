@@ -194,11 +194,18 @@ predicate IsSubset : Set s1 * Set s2
 Now we are free to use the predicate `IsSubset` in our `.sub` and define what it means visually in our `.sty`. 
 
 ### :page_facing_up: :black_square_button: SUBSTANCE
-
+In our goal diagram, we have 3 sets, therefore we will declare 3 different sets in our `.sub`. Note that how we declared two sets in separate lines in the previous example, and another way to declare multiple objects with the same type would be `Set A, B, C`, where we first declare the type of objects follows by a list of variable names separated by commas. 
+`Set A, B, C` is the equivalent of 
+```typescript
+Set A
+Set B
+Set C
+```
+Then we want to declare the relationship between the sets. 
 
 `.sub`
 ```typescript
 Set A, B, C
 IsSubset(B, A)
-IsSubset(C, A)
+IsSubset(C, B)
 ```
