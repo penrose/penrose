@@ -173,6 +173,12 @@ class App extends React.Component<any, ICanvasState> {
           const initState: PenroseState = await prepareState(compileRes.value);
           void this.onCanvasState(initState);
         } else {
+          void console.error(
+            "Failed to compile with errors:",
+            compileRes.error,
+            compileRes.error.errors.map(showError)
+          );
+
           this.setState({ error: compileRes.error, data: undefined });
         }
       },
