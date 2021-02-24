@@ -11,11 +11,14 @@ import {
   add,
   addN,
   max,
+  min,
   div,
   mul,
   cos,
   sin,
   neg,
+  sqrt,
+  absVal,
 } from "engine/Autodiff";
 import { Elem, SubPath } from "types/shapeTypes";
 
@@ -431,6 +434,77 @@ export const compDict = {
       tag: "VectorV",
       contents: m.map((row) => ops.vdot(row, v)),
     };
+  },
+
+  // ------ Utility functions
+
+  /**
+   * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
+   */
+  sqrt: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: sqrt(x) };
+  },
+
+  /**
+   * Return the max of the numbers `x`, `y`.
+   */
+  max: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: max(x, y) };
+  },
+
+  /**
+   * Return the min of the numbers `x`, `y`.
+   */
+  min: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: min(x, y) };
+  },
+
+  /**
+   * Return the absolute value of the number `x`.
+   */
+  abs: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: absVal(x) };
+  },
+
+  /**
+   * Return the Euclidean norm of the vector `v`.
+   */
+  norm: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vnorm(v) };
+  },
+
+  /**
+   * Return the Euclidean norm squared of the vector `v`.
+   */
+  normsq: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vnormsq(v) };
+  },
+
+  /**
+   * Return the Euclidean distance between the vectors `v` and `w`.
+   */
+  vdist: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vdist(v, w) };
+  },
+
+  /**
+   * Return the Euclidean distance squared between the vectors `v` and `w`.
+   */
+  vdistsq: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+  },
+
+  // ------ Geometry/graphics utils
+
+  /**
+   * Rotate a 2D vector `v` by 90 degrees clockwise.
+   */
+  rot90: (v: VarAD[]) => {
+    if (v.length !== 2) {
+      throw Error("expected 2D vector in `rot90`");
+    }
+    const [x, y] = v;
+    return { tag: "VectorV", contents: [neg(y), x] };
   },
 };
 

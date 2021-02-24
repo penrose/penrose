@@ -25,21 +25,18 @@ global {
 }
 
 Vertex V {
-       V.shape = Circle { 
-         r : 6.0
-	 color : Colors.black	 
-	 strokeWidth : 0.0
+       V.shape = Rectangle { 
+         -- r : 10.0
+	 -- color : Colors.black	 
+	 strokeWidth : 1.
        }
 
        V.text = Text {
-	 center: V.shape.center + (global.padding, global.padding)
+	 center: V.shape.center
 	 string : V.label
 	 rotation : 0.0
-	 color : V.shape.color
+	 color : Colors.black
        }
-
--- TODO: make the vertices be labels
-
 -- TODO: Improve labels
 }
 
@@ -51,6 +48,7 @@ with Vertex v1; Vertex v2 {
      	     end : v2.shape.center
 	     color : Colors.black
 	     thickness : 3.0
+             leftArrowhead: true
      }
 
      E.text = Text {

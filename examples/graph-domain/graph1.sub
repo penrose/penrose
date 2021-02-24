@@ -18,3 +18,12 @@ Edge e4 := MkEdge(v3, v2)
 -- SelectedE(ef12)
 
 AutoLabel All
+Label v1 $\text{lemon pie}$
+Label v2 $\int_0^\infty x^2$
+Label v3 $\text{this is a tall} \\ \text{label with many} \\ \text{lines}$
+-- TODO: Parbox doesn't work
+-- $\parbox{15em}{I have discovered a truly marvelous proof of this,\\which this margin is too narrow to contain.}$
+
+Label e1 $\text{this is a really long label}$
+-- Label e2 $\frac{1}{e^x^2}$
+Label e2 $\frac{1}{e^x}$
