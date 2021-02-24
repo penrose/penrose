@@ -138,7 +138,7 @@ forall Set x {
 And that's a wrap! :tada: 
 
 ### :building_construction: COMPILE
-Now it's time to see all of our hardwork (drumroll please 🥁)!  To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need: 
+Now it's time to see all of our hardwork (drumroll please :drum:)!  To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need: 
 * two terminals opened both at the penrose root directory
 * run `yarn start` in one to get the browser window to pop out
 * run `roger watch twosets.sub twosets.sty setTheory.dsl` to send the files over to the server
@@ -154,6 +154,15 @@ Now, you understand the differences between and usage of the `.dsl`, `.sub` and 
 ![challenge 3 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c3.jpeg)
 
 After you are done, you can double check your work with [solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md).
+
+## Congratulations on finishing your first Penrose diagram! Along the way, you learned about:
+* For each Penrose diagram, we need three files. 
+    * `.dsl` file defines the domain.
+    * `.sub` file defines the substances of the particular diagram.
+    * `.sty` file defines how we want to visually represent the mathematical objects. 
+* We define a type of object in our domain with `type TYPE_NAME` in `.dsl`.
+* We define the substances in our diagram by declaring its type and its variable name in `.sub`.
+* We define the styles using the syntax `forall TYPE_NAME x { // declarations }` in `.sty`. 
 
 # Example (2)
 
