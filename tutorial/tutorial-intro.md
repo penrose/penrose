@@ -1,7 +1,5 @@
 # Introduction
 
-# Navigation
-
 # Installation
 We have a detailed wiki page on how to get Penrose up and running on your computer [here](https://github.com/penrose/penrose/wiki/Building-and-running). :partying_face: Come back when you are done.
 
