@@ -209,3 +209,26 @@ Set A, B, C
 IsSubset(B, A)
 IsSubset(C, B)
 ```
+
+### :page_facing_up: :tophat: STYLE
+The style program will be the most complex part, and you will see that it is normally this way developing with Penrose. 
+
+`.sty`
+```typescript
+forall Set x {
+    x.icon = Circle {
+        strokeWidth : 0.0
+    }
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+    ensure smallerThan(x.icon, y.icon)
+    ensure contains(y.icon, x.icon, 5.0)
+    x.icon above y.icon
+}
+```
+
+
