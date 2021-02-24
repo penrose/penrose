@@ -164,6 +164,26 @@ After you are done, you can double check your work with [solutions](https://gith
 * We define the substances in our diagram by declaring its type and its variable name in `.sub`.
 * We define the styles using the syntax `forall TYPE_NAME x { /* declarations */ }` in `.sty`. 
 
-Now we are going to start our second example that teaches skills 
+Now we are going to start our second example that teaches a set of new skills, allowing you to create more intricate and complex diagrams with Penrose. 
+
 # Example (2)
+
+## Insert goal diagram
+In the second example, we will work to diagram the relationship of a set is a **subset** of the other. The common way to visually represent A is a subset of B is by drawing A as a smaller circle that is fully contained in the circle that represents B. For those who doesn't know what a subset is, a short explanation would be A is a subset of B if and only if all the elements in A are in B. For example, the set of erasers would be a subset of the set of stationeries, since every single eraser is a stationary, thus being contained in the set of stationeries. 
+
+### :page_facing_up: :green_book: DOMAIN
+To illustrate the subset relationship, we have to expand our domain file to let Penrose know that an arbitrary set can be a subset of another arbitrary set. Remember in last example, we defined objects of type `Set` using `type Set`, and now we want to define a _**relationship**_ between two sets. 
+
+To define a relationship between objects in the domain, there are a few things we need to decide on:
+* Name of the relationship
+* Numbers of arguments, i.e. how many objects are involves in this relationship
+* The type of arguments, i.e. what are the type of objects that are involes in this relationship 
+
+For our relationship, it follows naturally that the name should be `IsSubset`, and we have 2 arguments of type `Set`. For syntax, we use the `predicate` keyword to let Penrose know that we are defining a relationship. 
+
+`setTheory.dsl`
+```typescript
+type Set
+predicate IsSubset : Set s1 * Set s2
+```
 
