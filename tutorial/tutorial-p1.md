@@ -1,4 +1,4 @@
-# Example (1)
+# Part 1: Penrose Basics
 This is the first diagram we will make together. This is the equivalent of the ```print("Hello World")``` program for Penrose.
 
 ![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/2sets_nolabel.png)
