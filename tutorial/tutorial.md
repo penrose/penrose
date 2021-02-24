@@ -162,7 +162,7 @@ After you are done, you can double check your work with [solutions](https://gith
     * `.sty` file defines how we want to visually represent the mathematical objects. 
 * We define a type of object in our domain with `type TYPE_NAME` in `.dsl`.
 * We define the substances in our diagram by declaring its type and its variable name in `.sub`.
-* We define the styles using the syntax `forall TYPE_NAME x { // declarations }` in `.sty`. 
+* We define the styles using the syntax `forall TYPE_NAME x { /* declarations */ }` in `.sty`. 
 
 # Example (2)
 
