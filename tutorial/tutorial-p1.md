@@ -8,7 +8,7 @@ This is the first diagram we will make together. This is the equivalent of the `
 * [Substance File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#page_facing_up-substance)
 * [Style File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#page_facing_up-style)
 * [Take-aways](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#take-aways)
-* [Next Tutorial](https://github.com/penrose/penrose/edit/docs-edit/tutorial/tutorial-p2.md)
+* [Next Tutorial: Predicates & Constraints](https://github.com/penrose/penrose/edit/docs-edit/tutorial/tutorial-p2.md)
 
 ## Goal
 
