@@ -85,7 +85,7 @@ Now it's time to see all of our hardwork (drumroll please :drum:)!  To compile y
 * run `roger watch twosets.sub twosets.sty setTheory.dsl` to send the files over to the server
 * Refresh! 
 
-# Exercise (1) 
+# Exercise 
 Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. **Hint:** Make use of the shape specs [here](https://github.com/penrose/penrose/wiki/Shape-library).
 * **Challenge 1:** Add another `Set` to the diagram. 
 ![challenge 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/e1c1.png)
