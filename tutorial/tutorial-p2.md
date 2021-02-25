@@ -113,3 +113,8 @@ forall Set x {
 
 
 ## Exercise
+*
+*
+*
+
+## Take-aways
