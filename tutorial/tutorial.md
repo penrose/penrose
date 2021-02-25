@@ -3,6 +3,9 @@ Ready to make some beautiful diagrams? You are at the right place. Penrose is ac
 
 # Table of Contents
 * [Introduction to Penrose Programs](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#introduction)
+   * [Installation](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#installation)
+   * [How do we diagram by hand?](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#how-do-we-diagram-by-hand)
+   * [What makes a Penrose program?](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#what-makes-a-penrose-program)
 * [Part 1: Make Your First Diagram](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md)
 * [Part 2: Predicates & Contraints](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md)
 
