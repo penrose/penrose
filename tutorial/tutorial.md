@@ -7,7 +7,11 @@ Ready to make some beautiful diagrams? You are at the right place. Penrose is ac
    * [How do we diagram by hand?](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#how-do-we-diagram-by-hand)
    * [What makes a Penrose program?](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#what-makes-a-penrose-program)
 * [Part 1: Make Your First Diagram](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md)
+   * [Tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#part-1-penrose-basics)
+   * [Exercise w/ solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#exercise)
 * [Part 2: Predicates & Contraints](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md)
+   * [Tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#part-2-predicates--constraints)
+   * [Exercise w/ solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#exercise)
 
 The sections build on top of each other, using the skillsets we've acquired in the previous exercises, therefore we highly recommend you to follow through the exercises in order. Each individual part contains a detailed walk through of a particular example and several exercises for you to consolidate your knowledge. 
 
