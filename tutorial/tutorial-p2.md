@@ -77,3 +77,5 @@ where IsSubset(x, y) {
     x.icon above y.icon
 }
 ```
+
+# Exercise
