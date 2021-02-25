@@ -6,6 +6,7 @@ In Penrose, we are not only gifted with the power to represent mathematical obje
 * [Domain File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#page_facing_up-domain)
 * [Substance File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#page_facing_up-substance)
 * [Style File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#page_facing_up-style)
+* [Exercises](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#exercises)
 * [Take-aways](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#take-aways)
 * Next Tutorial: Coming Up! 
 
