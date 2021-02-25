@@ -33,8 +33,8 @@
   ],
   "scripts": {
     "start": "react-scripts --max_old_space_size=8192 start",
-    "watch": "CI=true react-scripts --max_old_space_size=8192 start",
-    "build": "CI=false && react-scripts --max_old_space_size=8192 build",
+    "watch": "cross-env CI=true react-scripts --max_old_space_size=8192 start",
+    "build": "cross-env CI=false && react-scripts --max_old_space_size=8192 build",
     "build-lib": "ttsc --project tsconfig.lib.json",
     "build:bundle": "webpack --config webpack.config.js",
     "test": "echo NO TESTS",
