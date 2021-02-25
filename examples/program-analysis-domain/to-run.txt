@@ -1,0 +1,4 @@
+         roger watch nested.sub venn.sty setTheory.dsl
+         "yarn start" in penrose/packages/penrose-core
+         navigate to http://192.168.4.40:3000/
+         reference: https://github.com/penrose/penrose/wiki/Building-and-running

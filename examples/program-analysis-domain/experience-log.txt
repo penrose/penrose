@@ -150,19 +150,18 @@ Node `start` {
 }
 
 
--- TODO LEFT OFF HERE
 Node n1
 where Edge(n1, n2, lab)
 with Node n2 {
     E.shape = Line { 
-        startX = v1.shape.x
-        startY = v1.shape.y
-        endX = v2.shape.x
-        endY = v2.shape.y
-        color = Colors.black
-        thickness = 3.0
+        start: n1.programPoint.center + (0.0, N.programPoint.height/2.0)
+        end: n2.shape.center
+        leftArrowhead: true
+        color: Colors.black
+        thickness: 3.0
     }
 
+    -- TODO LEFT OFF HERE
     E.text = Text {
         x = midpointX(E.shape) + global.padding
         y = midpointY(E.shape) + global.padding
