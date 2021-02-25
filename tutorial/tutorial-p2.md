@@ -124,3 +124,5 @@ forall Set x {
 Reference [solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise2-sol.md)
 
 ## Take-aways
+* We use the keyword `predicate` to define relationship between objects.
+* We use the keyword `ensure` to define constraints on the diagram. 
