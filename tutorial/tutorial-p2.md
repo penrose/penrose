@@ -115,7 +115,7 @@ forall Set x {
 ```
 
 
-## Exercise
+## Exercises
 * Define a predicate `Intersecting` that takes in two sets, and outputs 2 circles that overlap. 
 ![exercise 1 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/e1c1.png)
 * Define a predicate that is the opposite of `Intersecting` that takes in two sets, and outputs 2 circles that are disjoint. 
