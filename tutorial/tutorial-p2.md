@@ -64,6 +64,8 @@ Recall that we learned about predicates that are defined in `.dsl` and used in `
 
 Therefore we call the corresponding `ensure` functions on the `.icon` fields (that we used to define the shape of objects in tutorial part 1) of two arbitray sets that have the relationship of `IsSubset`. 
 
+Now our selector is not just `forall Set A` since we only want to appy these styling rules to the sets that have the relationship `isSubset`, therefore we need to condition on the arbitrary sets we are looping through in the program with the keyword `where HasRelationshipR(A, B)` where the `HasRelationshipR` is `IsSubset` for this particular case. 
+
 `.sty`
 ```
 forall Set A; Set B
