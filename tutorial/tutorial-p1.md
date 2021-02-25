@@ -13,7 +13,7 @@ This is the first diagram we will make together. This is the equivalent of the `
 
 ![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/2sets_nolabel.png)
 
-This is what you will achieve at the end of Example (1). 
+This is what you will achieve at the end of this tutorial.
 
 ### :speaking_head: WHAT IS THIS?
 Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later :grimacing:).
