@@ -2,6 +2,7 @@
 In Penrose, we are not only gifted with the power to represent mathematical objects with shapes, but also we are able to represent potentially complicated relationships. In this tutorial, we will learn about defining `predicate` and visually represent `predicate` with the constraint keyword `ensure`. After this tutorial, you should be equipped to diagrams relationships between objects with Penrose. 
 
 ## Table of Contents
+* [Tutorial Homepage](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md)
 * [Goal](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#goal)
 * [Domain File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#page_facing_up-domain)
 * [Substance File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#page_facing_up-substance)
