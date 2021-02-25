@@ -11,7 +11,7 @@ This tutorial consists of 3 individual sections, each containing the following c
 The sections build on top of each other, using the skillsets we've acquired in the previous exercises, therefore we highly recommend you to follow through the exercises in order.  
 
 # Table of Contents
-* Introduction 
+* [Introduction](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#introduction)
 * [Make your first Penrose Program](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md)
 * [Predicates & Contraints](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md)
 
