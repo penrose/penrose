@@ -484,6 +484,8 @@ class LabeledInput extends React.Component<IProps> {
       case "range":
         return this.makeRange();
       case "mulptrange":
+        console.log("MulPointRange unimplemented");
+        return ;
         return this.makeMulPointRange();
       case "color":
         return this.makeColor();

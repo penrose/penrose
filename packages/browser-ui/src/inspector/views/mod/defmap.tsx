@@ -4,6 +4,7 @@ import EllipseDef from "./shapedefs/ellipse.json";
 import SquareDef from "./shapedefs/square.json";
 import RectangleDef from "./shapedefs/rectangle.json";
 import PolygonDef from "./shapedefs/polygon.json";
+import PolylineDef from "./shapedefs/polyline.json";
 import ArrowDef from "./shapedefs/arrow.json";
 import ImageDef from "./shapedefs/image.json";
 import TextDef from "./shapedefs/text.json";
@@ -16,6 +17,7 @@ const defMap = {
   Square: SquareDef,
   Rectangle: RectangleDef,
   Polygon: PolygonDef,
+  Polyline: PolylineDef,
   Arrow: ArrowDef,
   Image: ImageDef,
   Text: TextDef,

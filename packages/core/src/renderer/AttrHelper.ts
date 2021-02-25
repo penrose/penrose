@@ -8,6 +8,10 @@ export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("fill-opacity", alpha.toString());
 };
 
+export const attrNoFill = ({ properties }: Shape, elem: SVGElement) => {
+  elem.setAttribute("fill", "none");
+};
+
 export const attrOpacity = ({ properties }: Shape, elem: SVGElement) => {
   const opacity = (properties.opacity as IFloatV<number>).contents;
   elem.setAttribute("opacity", opacity.toString());
