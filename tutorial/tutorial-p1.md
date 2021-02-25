@@ -1,5 +1,5 @@
 # Part 1: Penrose Basics
-This is the first diagram we will make together. This is the equivalent of the ```print("Hello World")``` program for Penrose.
+This is the first diagram we will make together. This is the equivalent of the ```python print("Hello World")``` program for Penrose. To 
 
 ## Table of Contents
 * [Goal]()
