@@ -1,7 +1,7 @@
 # Part 1: Penrose Basics
 This is the first diagram we will make together. This is the equivalent of the ```print("Hello World")``` program for Penrose.
 
-![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/2sets_nolabel.png)
+![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/2sets_nolabel.png)
 
 This is what you will achieve at the end of Example (1). 
 
@@ -47,7 +47,7 @@ Now, Penrose does _not_ know a set is commonly represented as a circle. **We nee
 
 The syntax for declaring styles goes like this,
 
-![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/syntax.png)
+![style syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/syntax.png)
 
 Note that the syntax is _very_ similar to the mathematical way of talking about objects, so it should be pretty natural for people with some backgrounds in math. If you don't, that's completely fine too! You can interpret the syntax as:  we go through the substances in the diagram, and _for all_ the substances of type `t` that we see, we apply the same styling as defined in the `{ }`. 
 
@@ -62,7 +62,7 @@ forall Set x {
 
 So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](https://github.com/penrose/penrose/wiki/Shape-library). It is a page that you will visit frequently as you work in Penrose. 
 
-![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/circle_spec.png)
+![Circle Spec](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/circle_spec.png)
 
 This is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a sample diagram of how the shape will look like, and a table that lists out the different properties you can manipulate. 
 
