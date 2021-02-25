@@ -55,7 +55,7 @@ IsSubset(C, B)
 ```
 
 ## :page_facing_up: Style
-The style program will be the most complex part, and you will see that it is normally this way developing with Penrose. In this example, we introduce a new keyword `ensure`, which allows you to constrain certain aspects of certain shapes. 
+The style program will be the most complex part, and you will see that it is normally this way developing with Penrose. In this example, we introduce a new keyword `ensure`, which allows you to constrain certain aspects of certain shapes. Essentially, we use `ensure` to let Penrose know that these are rules the diagram **must** satisfy. Hence, we also call `ensure` statements _constraints_. 
 
 Recall that we learned about predicates that are defined in `.dsl` and used in `.sub`, and now we need to define the visual definition of the predicate. To show that A is a subset of B, we need the following visual characterstics: 
 * A's circle needs to be smaller than B's circle
@@ -80,7 +80,7 @@ Notice that in our first example, we did not care about the size of our circle/s
 
 This is what might happen when you don't constrain the sizes. :imp:
 
-Since we care about the sizes of **all** the sets, and need to **ensure** all of their sizes are within a reasonable range, we will again make use of our newly introduced keyword `ensure`. We call `ensure` on the fields of the object we want to make sure that are within reasonable range. Since we want to constrain the size of the shapes, we call `ensure MinSize(x.icon` and `ensure maxSize(x.icon)`. 
+Since we care about the sizes of **all** the sets, and need to **ensure** all of their sizes are within a reasonable range, we will again make use of our newly introduced keyword `ensure`. We call `ensure` on the fields of the object we want to make sure that are within reasonable range. Since we want to constrain the size of the shapes, we call `ensure MinSize(x.icon)` and `ensure maxSize(x.icon)`. 
 
 `.sty`
 ```typescript
