@@ -57,7 +57,7 @@ IsSubset(C, B)
 ## :page_facing_up: Style
 The style program will be the most complex part, and you will see that it is normally this way developing with Penrose. In this example, we introduce a new keyword `ensure`, which allows you to constrain certain aspects of certain shapes. 
 
-Recall that we learned about predicates that are defined in `.dsl` and used in `.sub`, and now we need to define the visual definition of the predicate. To visually represent a set is a subset of another set is through drawing a smaller circle that is entirely inside a bigger circle. To show that A is a subset of B, we need the following visual characterstics: 
+Recall that we learned about predicates that are defined in `.dsl` and used in `.sub`, and now we need to define the visual definition of the predicate. To show that A is a subset of B, we need the following visual characterstics: 
 * A's circle needs to be smaller than B's circle
 * A's circle needs to be contained within B'c circle (their borders should not be intersecting in any way) 
 * A's circle is on top of B's circle
