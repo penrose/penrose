@@ -9,13 +9,13 @@ This is the first diagram we will make together. This is the equivalent of the `
 * [Take-aways]()
 * [Next Tutorial]()
 
-# Goal
+## Goal
 
 ![exercise 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/2sets_nolabel.png)
 
 This is what you will achieve at the end of this tutorial. Some of you who have experiences with set theory may recognize that ellipses are common for representing sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later :grimacing:).
 
-# :page_facing_up: DOMAIN
+## :page_facing_up: DOMAIN
 It follows naΩturally that our mathematical **domain** is Set Theory. Therefore, we can rename our `.dsl` file to `setTheory.dsl`.  
 
 Recall that a `.dsl` file defines the possible types of objects in our domain. Essentially, we are _teaching_ Penrose the neccessary vocabulary that we use to communicate our concept. For example, Penrose has no idea that there are objects of type plant or furniture in a house, but no worries, we can let Penrose know with several lines of code :speaker:. We declare a new type following the syntax of `type TYPE_NAME`. For example, if we want Penrose to know that there are objects of type plant, we would do `type Plant` or `type plant`. We normally capitalize type names. 
@@ -32,7 +32,7 @@ And that is all we need for this exercise in `.dsl`! :tada: Now Penrose knows th
 
 If you look closely at the repository, we have a [domain file](https://github.com/penrose/penrose/blob/main/examples/set-theory-domain/setTheory.dsl) that contains more extensive operations common in Set Theory such as `Intersection`, `Union`, `Subset`, and more. 
 
-# :page_facing_up: SUBSTANCE
+## :page_facing_up: SUBSTANCE
 Since we are visualizing 2 sets, they are our **substances** for this diagram. 
 
 We declare a substance by first declaring its *type* followed by its *name*. The name will not appear in the diagram unless you choose to label your substances, therefore in this exercise, it doesn't matter how you name your sets. 
@@ -47,7 +47,7 @@ Now, Penrose will know that you want two substances of type `Set` in your diagra
 
 Here we have capitalized `Set` because recall in our `setTheory.dsl` file, we wrote `type Set`, and if we did `type set` instead, we would declare our set with `set A` here. There is no magic here, you define your Penrose world completely. :earth_americas: :sparkles:
 
-# :page_facing_up: STYLE
+## :page_facing_up: STYLE
 For style, we have a little more work to do. A `.sty` file is essentially a `.css` file for your `html` (which wouold be our `.sub` file). We will rename our `.sty` file to `twosets.sty`. 
 
 Now, Penrose does _not_ know a set is commonly represented as a circle. **We need to style our elements from scratch.** This might seem strange, but this way you are given absolute freedom in how you want to represent your substances in the diagram. Your set doesn't have to be a circle, it can be square, a rectangle, etc. But for this example, we will be representing sets as circles. 
@@ -85,14 +85,14 @@ forall Set x {
 ```
 And that's a wrap! :tada: 
 
-# :building_construction: COMPILE
+## :building_construction: COMPILE
 Now it's time to see all of our hardwork (drumroll please :drum:)!  To compile your Penrose programs (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need: 
 * two terminals opened both at the penrose root directory
 * run `yarn start` in one to get the browser window to pop out
 * run `roger watch twosets.sub twosets.sty setTheory.dsl` to send the files over to the server
 * Refresh! 
 
-# Exercise 
+## Exercise 
 Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. **Hint:** Make use of the shape specs [here](https://github.com/penrose/penrose/wiki/Shape-library).
 * **Challenge 1:** Add another `Set` to the diagram. 
 ![challenge 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/e1c1.png)
@@ -105,7 +105,7 @@ Now, you understand the differences between and usage of the `.dsl`, `.sub` and 
 
 After you are done, you can double check your work with [solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise1-sol.md).
 
-# Take-aways
+## Take-aways
 * For each Penrose diagram, we need three files. 
     * `.dsl` file defines the domain.
     * `.sub` file defines the substances of the particular diagram.
