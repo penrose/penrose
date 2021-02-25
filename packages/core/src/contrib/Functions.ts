@@ -19,8 +19,10 @@ import {
   neg,
   sqrt,
   absVal,
+  ifCond,
 } from "engine/Autodiff";
 import { Elem, SubPath } from "types/shapeTypes";
+import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
 
 /**
  * Static dictionary of computation functions
@@ -319,6 +321,33 @@ export const compDict = {
     } else {
       throw Error("orientedSquare undefined for types ${t1}, ${t2}");
     }
+  },
+
+  /**
+   * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the relevant side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+   */
+  intersectingSideSize: (
+    start: VecAD,
+    end: VecAD,
+    [t1, s1]: [string, any]
+  ): IFloatV<VarAD> => {
+    // if (s1.rotation.contents) { throw Error("assumed AABB"); }
+    if (t1 !== "Rectangle" && t1 !== "Text") {
+      throw Error("expected box-like shape");
+    }
+
+    const [w, h] = [s1.w.contents, s1.h.contents];
+    // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
+    const rect = bbox(s1.center.contents, w, h);
+
+    // Intersects top or bottom => return w
+    // i.e. endX \in [minX, maxX] -- if not this, the other must be true
+
+    // Intersects right or left => return h
+    // i.e. endY \in [minY, maxY]
+
+    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), w, h);
+    return { tag: "FloatV", contents: dim };
   },
 
   /**

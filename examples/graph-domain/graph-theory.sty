@@ -29,6 +29,8 @@ global {
                color: Colors.none
                strokeColor: Colors.black
     }
+
+-- TODO: Can we have a "below everything" directive? or something broader than pairwise
 }
 
 Vertex V {
@@ -49,26 +51,36 @@ Vertex V {
 	 color : Colors.black
        }
 
-       -- ensure contains(V.shape, V.text)
-       V.text above V.shape
-
--- TODO: Make this work WRT rectangle dimensions
+-- TODO: Make this work WRT rectangle dimensions (right now it's overapproximated w/ squares)
        ensure contains(global.box, V.shape)
+
+       V.text above V.shape
+       V.shape above global.box
 }
 
 Edge E
 where E := MkEdge(v1, v2)
 with Vertex v1; Vertex v2 {
 
-     dir = normalize(v2.shape.center - v1.shape.center)
-     padding = 10.
+     vec2 dir = normalize(v2.shape.center - v1.shape.center)
+     scalar padding = 20.
+     scalar arrowheadSize = 10. -- Guess
 
 -- TODO: Figure out the line offset factor (would be the distance from center to shape border, plus some offset in that direction)
 
+-- Figure out which side of the rectangle the v1->v2 edge between their centers is hitting
+-- TODO: This locks up the opt / works very poorly....
+   -- scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
+   -- scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
+
+   scalar startSideDim = v1.shape.w
+   scalar endSideDim = v2.shape.w
+
      E.shape = Line { 
      -- TODO(errors): If you do v * c, then the type fails? very badly
-     	     start : v1.shape.center + (v1.shape.w / 2.) * dir
-     	     end : v2.shape.center - (v2.shape.h / 2.) * dir
+     -- If you accidentally do a scalar when a vector was expected, also bad
+     	     start : v1.shape.center + (startSideDim / 2. + padding) * dir
+     	     end : v2.shape.center - (endSideDim / 2. + arrowheadSize + padding) * dir
 	     color : Colors.black
 	     thickness : 2.0
              rightArrowhead: true
@@ -87,29 +99,42 @@ with Vertex v1; Vertex v2 {
 
 -- TODO: Make this work WRT rectangle dimensions
      encourage centerLabel(E.shape, E.text, 5.0)
+     -- Also, it should really have two local minima (on either side of the line), which it currently doesn't, resulting in weird labels
+
+     ensure disjoint(E.text, E.shape) -- TODO: Indeed, this doesn't use the dimensions... so the layout looks weird
+     ensure contains(global.box, E.text)
 
 -- TODO: encourage edge to be horizontal
 -- Um... but if it's calculated I guess you want to encourage the nodes to be horizontal
-   -- encourage equal(v1.shape.center[1], v2.shape.center[1]) -- encourage horizontal (same y-coord)
+   encourage equal(v1.shape.center[1], v2.shape.center[1]) -- encourage horizontal (same y-coord)
    ensure lessThan(v1.shape.center[0], v2.shape.center[0]) -- ensure arrows are left-to-right
    -- The problem is now that they're horizontal, but don't respect directionality...
    -- TODO: Add lessThan, equal..
 
+   ensure minSize(E.shape)
+
      v1.shape above E.shape
      v2.shape above E.shape
+     E.text above global.box
+     E.shape above global.box
 }
 
 Vertex v1; Vertex v2 {
 -- TODO: Make this work WRT rectangle dimensions
        ensure disjoint(v1.shape, v2.shape, 10.)
+       encourage repel(v1.shape, v2.shape)
 }
 
 Edge e1; Edge e2 {
 -- TODO: Minimize edge crossings
 -- I guess an alternative is that no line intersects a box
+   ensure disjoint(e1.text, e2.text)
    ensure notCrossing(e1.shape, e2.shape)
 }
 
 Vertex v; Edge e {
        ensure disjoint(v.shape, e.shape)
+       ensure disjoint(v.shape, e.text)
 }
+
+-- TODO: It's hard to select the thing to drag when shapes are overlapping, which is exactly when you want to drag, to make them not overlap
