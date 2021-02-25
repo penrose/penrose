@@ -4,7 +4,7 @@ import * as moo from "moo";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,
-  nl: { match: "\n", lineBreaks: true },
+  nl: { match: /\r\n|\r|\n/, lineBreaks: true },
   subtypeOf: "<:",
   lte: "<=",
   lt: "<",
