@@ -28,8 +28,11 @@ const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 const EX_CONSTANT = 10;
 
 const convert = (input: string, fontSize: string) => {
+  // HACK: workaround for newlines
+  // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
+  const newline_escaped = `\\displaylines{${input}}`;
   // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
-  const node = html.convert(input, { ex: EX_CONSTANT });
+  const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
   // Not sure if this call does anything:
   // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
   adaptor.setStyle(node, "font-size", fontSize);

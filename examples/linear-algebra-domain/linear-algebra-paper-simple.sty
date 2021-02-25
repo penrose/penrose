@@ -16,7 +16,8 @@ C { -- 1
     color black = rgba(0.,0.,0.,1.)
     white = rgba(1., 1., 1., 1.)
     lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
-    darkBlue = rgba(lightBlue.r / 2., lightBlue.g / 2., lightBlue.b / 2., 0.5)
+    -- Note: we don't currently support color accessors r,g,b
+    -- darkBlue = rgba(lightBlue.r / 2., lightBlue.g / 2., lightBlue.b / 2., 0.5)
     darkGray = rgba(0.4, 0.4, 0.4, 1.)
     gray = rgba(0.6, 0.6, 0.6, 1.)
     green = rgba(0., 0.8, 0., 1.)
@@ -36,6 +37,7 @@ testing { -- 2
         v = (a + (2., 900.))  / (4.0 + 3.)
         -- z = Colors.black.g
         asum = a[1] + a[0]
+        -- Currently not supported: indexing a vector or list by a variable
         -- c = 0
         -- b = 1
         -- msum = m[1][0] + m[c][b]

@@ -64,6 +64,7 @@ export const DraggableShape = (
 ): SVGGElement => {
   const elem = RenderShape(shape, labels, canvasSizeCustom);
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("pointer-events", "bounding-box");
   g.appendChild(elem);
 
   const onMouseDown = (e: MouseEvent) => {
