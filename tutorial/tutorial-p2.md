@@ -1,5 +1,5 @@
 # Part 2: Predicates & Constraints
-In Penrose, we are not only gifted with the power to represent mathematical objects with shapes, but also we are able to represent potentially complicated relationships. In this tutorial, we will learn about defining `predicate` and visually represent `predicate` with the constraint keyword `ensures`. After this tutorial, you should be equipped to diagrams relationships between objects with Penrose. 
+In Penrose, we are not only gifted with the power to represent mathematical objects with shapes, but also we are able to represent potentially complicated relationships. In this tutorial, we will learn about defining `predicate` and visually represent `predicate` with the constraint keyword `ensure`. After this tutorial, you should be equipped to diagrams relationships between objects with Penrose. 
 
 ## Table of Contents
 * [Goal](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#goal)
@@ -55,17 +55,17 @@ IsSubset(C, B)
 ```
 
 ## :page_facing_up: Style
-The style program will be the most complex part, and you will see that it is normally this way developing with Penrose. In this example, we introduce a new keyword `ensures`, which allows you to constrain certain aspects of certain shapes. 
+The style program will be the most complex part, and you will see that it is normally this way developing with Penrose. In this example, we introduce a new keyword `ensure`, which allows you to constrain certain aspects of certain shapes. 
 
 Recall that we learned about predicates that are defined in `.dsl` and used in `.sub`, and now we need to define the visual definition of the predicate. To visually represent a set is a subset of another set is through drawing a smaller circle that is entirely inside a bigger circle. To do that, we need to somehow specify that the circle of the subset needs to be smaller than, and contained in the bigger set.
 
-Notice that in our first example, we did not care about the size of our circle/square/rectangle, but now we do care about the size since we want specific hiearchy of sizes, and in the process of forcing containments of the circles, the circles could get **_TOO BIG_** or **_TOO SMALL_**. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy! 
+Notice that in our first example, we did not care about the size of our circle/square/rectangle, but now we do care about the size since we want specific hiearchy of sizes, and in the process of forcing containments of the circles, the circles can get **_TOO BIG_** or **_TOO SMALL_**. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy. 
 
 ![no ensures leads to trouble](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/no_ensures.png)
 
 This is what might happen when you don't constrain the sizes. :imp:
 
-Since we care about the sizes of **all** the sets, and need to **ensure** all of their sizes, we will now make use of our newly introduced keyword `ensures`. 
+Since we care about the sizes of **all** the sets, and need to **ensure** all of their sizes are within a reasonable range, we will now make use of our newly introduced keyword `ensure`. We call `ensure` on the fields of the object we want to make sure that are within reasonable range. Since we want to constrain the size of the shapes (that we defined with `.icon` field in tutorial 1), we call `ensure MinSize(x.icon` and `ensure maxSize(x.icon)`. 
 
 `.sty`
 ```typescript
