@@ -58,7 +58,7 @@ The syntax for declaring styles goes like this,
 
 Note that the syntax is _very_ similar to the mathematical way of talking about objects, so it should be pretty natural for people with some backgrounds in math. If you don't, that's completely fine too! You can interpret the syntax as:  we go through the substances in the diagram, and _for all_ the substances of type `t` that we see, we apply the same styling as defined in the `{ }`. 
 
-Here we have our `type t` as `Set`, and we want to all of our sets to be a circle. We can make that happen by setting the `.icon` field to a shape object. 
+Here we have our `type t` as `Set`, and we want to all of our sets to be a circle. We can make that happen by setting the `.icon` field to a shape object. You can also self-define the field with a name you prefer to assign the shape of the object. For example, `.foo` would work the same. 
 
 `twosets.sty`
 ```typescript
