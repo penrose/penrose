@@ -308,11 +308,11 @@ statements
     # base case
     -> _ {% () => [] %} 
     # whitespaces at the beginning (NOTE: comments are allowed)
-    |  _c_ "\n" statements {% nth(2) %} # 
+    |  _c_ nl statements {% nth(2) %} # 
     # spaces around each statement (NOTE: still wrap in list to spread later)
     |  _ statement _ {% d => [d[1]] %}
     # whitespaces in between and at the end (NOTE: comments are allowed)
-    |  _ statement _c_ "\n" statements {% d => [d[1], ...d[4]] %}
+    |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
   -> delete {% id %}
@@ -599,11 +599,11 @@ property_decl_list
     # base case
     -> _ {% () => [] %} 
     # whitespaces at the beginning (NOTE: comments are allowed)
-    |  _c_ "\n" property_decl_list {% nth(2) %} # 
+    |  _c_ nl property_decl_list {% nth(2) %} # 
     # spaces around each decl (NOTE: still wrap in list to spread later)
     |  _ property_decl _ {% d => [d[1]] %}
     # whitespaces in between and at the end (NOTE: comments are allowed)
-    |  _ property_decl _c_ "\n" property_decl_list {% d => [d[1], ...d[4]] %}
+    |  _ property_decl _c_ nl property_decl_list {% d => [d[1], ...d[4]] %}
   
 property_decl -> identifier _ ":" _ expr {%
   ([name, , , , value]): PropertyDecl => ({
@@ -638,8 +638,10 @@ _ml -> multi_line_ws_char:*
 
 multi_line_ws_char
     -> %ws
-    |  "\n"
+    |  %nl
     | comment # skip comments
+
+nl -> %nl
 
 __ -> %ws:+ 
 
