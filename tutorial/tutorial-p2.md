@@ -64,8 +64,9 @@ To visually represent a set is a subset of another set is through this:
 
 To do that, we need to somehow specify that the circle of the subset needs to be smaller than, and contained in the bigger set. Notice that in our first example, we did not care about the size of our circle/square/rectangle, but now we do care about the size since we want specific hiearchy of sizes, and in the process of forcing containments of the circles, the circles could get **TOO BIG** or **TOO SMALL**. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy! 
 
-### Insert messed up diagram 
-This is what might happen when you don't constrain the sizes. 
+![no ensures leads to trouble](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/no_ensures.jpg)
+
+This is what might happen when you don't constrain the sizes. :imp:
 
 Since we care about the sizes of **all** the sets, and need to **ensure** all of their sizes, we will now make use of our newly introduced keyword `ensures`. 
 
