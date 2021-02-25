@@ -107,4 +107,4 @@ After you are done, you can double check your work with [solutions](https://gith
 * We define the substances in our diagram by declaring its type and its variable name in `.sub`.
 * We define the styles using the syntax `forall TYPE_NAME x { /* declarations */ }` in `.sty`. 
 
-Now we are going to start our [second tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md) that teaches a set of new skills, allowing you to create more intricate and complex diagrams with Penrose. Take a stretch or a little walk, and get ready to be one step closer to being a Penrose expert. 
+Now we are going to start our [second tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md) that teaches a set of new skills, allowing you to create more intricate and complex diagrams with Penrose. Take a stretch or a little walk, and get ready to be one step closer to being a Penrose expert! :smile:
