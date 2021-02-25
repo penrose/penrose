@@ -53,14 +53,14 @@ describe("Common", () => {
     const { results } = parser.feed("");
     sameASTs(results);
   });
-  test("comments", () => {
+  test("comments and white spaces", () => {
     const prog = `
 -- Top-level comments
-Set A, B, C, D, E, F, G -- inline comments
+Set A, B, C, D, E, F, G -- inline comments\r\n
 
 /*
-IsSubset(B, A)
-IsSubset(C, A)
+IsSubset(B, A)\r
+IsSubset(C, A)\r\n
 IsSubset(D, B)
 IsSubset(E, B)
 IsSubset(F, C)
