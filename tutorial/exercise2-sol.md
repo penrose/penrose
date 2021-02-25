@@ -1,9 +1,10 @@
 # Challenge 1: 
-Add another `Set` to the diagram. So you should have 3 circles on your screen.
+Define a predicate `Intersecting` that takes in two sets, and outputs 2 circles that overlap.
 
 `.dsl`
 ```typescript
 type Set
+predicate Intersecting : Set s1 * Set s2
 ```
 
 `.sty`
@@ -12,38 +13,52 @@ forall Set x {
     x.icon = Circle {
         strokeWidth : 0.0
     }
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
+}
+
+forall Set x; Set y
+where Intersecting(x, y) {
+    ensure overlapping(x.icon, y.icon)
 }
 ```
 
-_With changes:_
 `.sub`
 ```
 Set A
 Set B
-Set C
+Intersecting(A, B)
 ```
 
 # Challenge 2:
-Keep 3 sets. Represent `Set` as squares with `side` equal to `50.0`.
-
-`.sub`
-```
-Set A
-Set B
-Set C
-```
+Define a predicate that is the opposite of Intersecting that takes in two sets, and outputs 2 circles that are disjoint.
 
 `.dsl`
 ```typescript
 type Set
+predicate Intersecting : Set s1 * Set s2
 ```
 
-_With changes:_
 `.sty`
 ```typescript
 forall Set x {
-    x.icon = Square {
-        side : 50.0
+    x.icon = Circle {
+        strokeWidth : 0.0
     }
+    ensure minSize(x.icon)
+    ensure maxSize(x.icon)
 }
+
+forall Set x; Set y
+where Not(Intersecting(x, y)) {
+    ensure disjoint(x.icon, y.icon)
+}
+
+```
+
+`.sub`
+```
+Set A
+Set B
+NotIntersecting(A, B)
 ```
