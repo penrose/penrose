@@ -64,7 +64,7 @@ Recall that we learned about predicates that are defined in `.dsl` and used in `
 
 Therefore we call the corresponding `ensure` functions on the `.icon` fields (that we used to define the shape of objects in tutorial part 1) of two arbitray sets that have the relationship of `IsSubset`. 
 
-Now our selector is not just `forall Set A` since we only want to appy these styling rules to the sets that have the relationship `isSubset`, therefore we need to condition on the arbitrary sets we are looping through in the program with the keyword `where HasRelationshipR(A, B)` where the `HasRelationshipR` is `IsSubset` for this particular case. 
+Now our selector is not just `forall Set A` since we only want to apply these styling rules to the sets that have the relationship `isSubset`, therefore we need to condition on the arbitrary sets we are looping through in the program with the keyword `where HasRelationshipR(A, B)` where the `HasRelationshipR` is `IsSubset` for this particular case. 
 
 `.sty`
 ```
@@ -76,7 +76,7 @@ where IsSubset(A, B) {
 }
 ```
 
-Notice that in our first example, we did not care about the size of our circle/square/rectangle, but now we do care about the size since we want specific hiearchy of sizes, and in the process of forcing containments of the circles, the circles can get **_TOO BIG_** or **_TOO SMALL_**. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy. 
+Notice that in our first example, we did not care about the size of our shapes, but now we do care about the size since we want specific hiearchy of sizes, and in the process of forcing containments of the circles, the circles can get **_TOO BIG_** or **_TOO SMALL_**. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy. 
 
 ![no ensures leads to trouble](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/no_ensures.png)
 
@@ -115,8 +115,7 @@ forall Set x {
 
 
 ## Exercise
-*
-*
-*
+* Define a predicate `Intersecting` that takes in two sets, and outputs circles that overlap. 
+* Define a predicate that is the opposite of `Intersecting` that takes in two sets, and outputs circles that are disjoint. 
 
 ## Take-aways
