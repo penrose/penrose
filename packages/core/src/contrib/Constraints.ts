@@ -17,6 +17,10 @@ import {
   squared,
   sub,
   varOf,
+  ifCond,
+  lt,
+  eq,
+  and,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
@@ -119,7 +123,10 @@ export const objDict = {
     [t2, s2]: [string, any],
     w: number
   ): VarAD => {
-    if (typesAre([t1, t2], ["Arrow", "Text"])) {
+    if (
+      typesAre([t1, t2], ["Arrow", "Text"]) ||
+      typesAre([t1, t2], ["Line", "Text"])
+    ) {
       const arr = s1;
       const text1 = s2;
       const mx = div(
@@ -240,7 +247,10 @@ export const constrDict = {
       const sq = s1.center.contents;
       const d = ops.vdist(sq, fns.center(s2));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
-    } else if (t1 === "Rectangle" && t2 === "Text") {
+    } else if (
+      (t1 === "Rectangle" && t2 === "Text") ||
+      typesAre([t1, t2], ["Rectangle", "Rectangle"])
+    ) {
       // contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
       // TODO: implement precisely, max (w, h)? How about diagonal case?
       // dist (getX l, getY l) (getX r, getY r) - getNum r "w" / 2 +
@@ -290,16 +300,64 @@ export const constrDict = {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
-    } else if (typesAre([t1, t2], ["Text", "Line"])) {
+    } else if (
+      typesAre([t1, t2], ["Text", "Line"]) ||
+      typesAre([t1, t2], ["Rectangle", "Line"]) ||
+      typesAre([t1, t2], ["Image", "Line"])
+    ) {
       const [text, seg] = [s1, s2];
       const centerT = fns.center(text);
       const endpts = linePts(seg);
       const cp = closestPt_PtSeg(centerT, endpts);
       const lenApprox = div(text.w.contents, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
-    } else throw new Error(`${[t1, t2]} not supported for disjoint`);
+    } else if (
+      typesAre([t1, t2], ["Rectangle", "Rectangle"]) ||
+      typesAre([t1, t2], ["Image", "Image"]) ||
+      typesAre([t1, t2], ["Text", "Text"])
+    ) {
+      // Arbitrarily using x size, TODO: fix this to work more generally
+      // TODO generalize the shape types
+      // TODO: Should this be min or max...?
+      const r1 = mul(constOf(0.5), min(s1.w.contents, s1.h.contents));
+      const r2 = mul(constOf(0.5), min(s2.w.contents, s2.h.contents));
+      return noIntersect(s1.center.contents, r1, s2.center.contents, r2);
+    } else {
+      // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
+      throw new Error(`${[t1, t2]} not supported for disjoint`);
+    }
   },
 
+  /**
+   * Require that two linelike shapes `l1` and `l2` are not crossing (with optional offset `offset` -- TODO: currently not accounted for).
+   */
+  notCrossing: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    offset = 5.0
+  ) => {
+    if (typesAre([t1, t2], ["Line", "Line"])) {
+      // If the lines intersect, return the smallest distance squared between their endpoints (assuming the starts and ends "correspond" -- but not geometrically necessary.) TODO -- Try every pair of distances? (end -> start)
+      // Else, return 0.
+      // The idea is to minimize the distance between the 'crossing' endpoints, so the lines uncross. Though I guess taking the min may make this discontinuous?
+
+      return ifCond(
+        intersects(
+          s1.start.contents,
+          s1.end.contents,
+          s2.start.contents,
+          s2.end.contents
+        ),
+        min(
+          ops.vdistsq(s1.start.contents, s2.start.contents),
+          ops.vdistsq(s1.start.contents, s2.start.contents)
+        ),
+        constOf(0)
+      );
+    } else {
+      throw new Error(`${[t1, t2]} not supported for notCrossing`);
+    }
+  },
   /**
    * Require that shape `s1` is smaller than `s2` with some offset `offset`.
    */
@@ -435,6 +493,28 @@ export const constrDict = {
   inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
     return mul(sub(x, x0), sub(x, x1));
   },
+
+  /**
+   * Require that the value `x` is less than the value `y`
+   */
+  equal: (x: VarAD, y: VarAD) => {
+    return equalHard(x, y);
+  },
+
+  /**
+   * Require that the value `x` is less than the value `y` with optional offset `padding`
+   */
+  lessThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(x, y), constOfIf(padding));
+  },
+
+  /**
+   * Require that the value `x` is less than the value `y`, with steeper penalty
+   */
+  lessThanSq: (x: VarAD, y: VarAD) => {
+    // if x < y then 0 else (x - y)^2
+    return ifCond(lt(x, y), constOf(0), squared(sub(x, y)));
+  },
 };
 
 // -------- Helpers for writing objectives
@@ -460,7 +540,7 @@ const equalHard = (x: VarAD, y: VarAD) => {
 };
 
 /**
- * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2`.
+ * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")
  */
 const noIntersect = (
   center1: VarAD[],
@@ -601,4 +681,43 @@ const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
  */
 const clamp = ([l, r]: number[], x: VarAD): VarAD => {
   return max(constOf(l), min(constOf(r), x));
+};
+
+/**
+ * returns true iff the line from `(a,b)` -> `(c,d)` intersects with `(p,q)` -> `(r,s)`
+ */
+// https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
+// TODO < Check this function
+const intersects = (
+  l1_p1: VarAD[],
+  l1_p2: VarAD[],
+  l2_p1: VarAD[],
+  l2_p2: VarAD[]
+) => {
+  const [[a, b], [c, d]] = [l1_p1, l1_p2];
+  const [[p, q], [r, s]] = [l2_p1, l2_p2];
+
+  // const det = (c - a) * (s - q) - (r - p) * (d - b);
+  const det = sub(mul(sub(c, a), sub(s, q)), mul(sub(r, p), sub(d, b)));
+  // const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+  // const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+  const lambda = div(
+    add(mul(sub(s, q), sub(r, a)), mul(sub(p, r), sub(s, b))),
+    det
+  );
+  const gamma = div(
+    add(mul(sub(b, d), sub(r, a)), mul(sub(c, a), sub(s, b))),
+    det
+  );
+  const o = constOf(0);
+  const l = constOf(1);
+  const fals = constOf(0);
+
+  // if (det === 0) { return false; }
+  // return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+  return ifCond(
+    eq(det, o),
+    fals,
+    and(and(lt(o, lambda), lt(lambda, l)), and(lt(o, gamma), lt(gamma, l)))
+  );
 };

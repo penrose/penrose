@@ -6,24 +6,13 @@ Edge e2 := MkEdge(v1, v3)
 Edge e3 := MkEdge(v3, v4)
 Edge e4 := MkEdge(v3, v2)
 
--- InV(v1, G1)
--- InV(v2, G1)
--- InE(e1, G1)
-
--- Graph G2
--- Face f1 := FindFace(G2)
--- Vertex vf1 := FindVertex(f1)
--- Vertex vf2 := FindVertex(G2)
--- Edge ef12 := MkEdge(vf1, vf2)
--- SelectedE(ef12)
-
 AutoLabel All
-Label v1 $\text{lemon pie}$
+Label v1 $\text{this is another long label}$
 Label v2 $\int_0^\infty x^2$
-Label v3 $\text{this is a tall} \\ \text{label with many} \\ \text{lines}$
--- TODO: Parbox doesn't work
--- $\parbox{15em}{I have discovered a truly marvelous proof of this,\\which this margin is too narrow to contain.}$
+Label v3 $\text{this is}\\\text{a tall label}\\\text{with many lines}$
+Label v4 $v_4$
 
 Label e1 $\text{this is a really long label}$
--- Label e2 $\frac{1}{e^x^2}$
 Label e2 $\frac{1}{e^x}$
+Label e3 $e_3$
+Label e4 $e_4$

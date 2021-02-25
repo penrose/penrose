@@ -22,33 +22,57 @@ Colors {
 global {
     global.padding = 20.0
     global.stroke = 2.0
+    global.box = Rectangle {
+               center: (0., 0.)
+               w: 700.
+               h: 500.
+               color: Colors.none
+               strokeColor: Colors.black
+    }
 }
 
 Vertex V {
+       -- TODO: Can we have boxes with rounded corners
        V.shape = Rectangle { 
+         w: V.text.w + global.padding
+         h: V.text.h + global.padding
          -- r : 10.0
-	 -- color : Colors.black	 
-	 strokeWidth : 1.
+	 color : Colors.none
+	 strokeWidth : 2.
+         strokeColor: Colors.black
        }
 
        V.text = Text {
+       -- ERROR: You get the divide by 0 from `contains` if the text center is set... How to detect these conflicts? the divide by 0 was due to a hardcoded distance of 0?
 	 center: V.shape.center
 	 string : V.label
-	 rotation : 0.0
 	 color : Colors.black
        }
--- TODO: Improve labels
+
+       -- ensure contains(V.shape, V.text)
+       V.text above V.shape
+
+-- TODO: Make this work WRT rectangle dimensions
+       ensure contains(global.box, V.shape)
 }
 
 Edge E
 where E := MkEdge(v1, v2)
 with Vertex v1; Vertex v2 {
+
+     dir = normalize(v2.shape.center - v1.shape.center)
+     padding = 10.
+
+-- TODO: Figure out the line offset factor (would be the distance from center to shape border, plus some offset in that direction)
+
      E.shape = Line { 
-     	     start : v1.shape.center
-     	     end : v2.shape.center
+     -- TODO(errors): If you do v * c, then the type fails? very badly
+     	     start : v1.shape.center + (v1.shape.w / 2.) * dir
+     	     end : v2.shape.center - (v2.shape.h / 2.) * dir
 	     color : Colors.black
-	     thickness : 3.0
-             leftArrowhead: true
+	     thickness : 2.0
+             rightArrowhead: true
+             arrowheadSize: 0.7
      }
 
      E.text = Text {
@@ -56,11 +80,36 @@ with Vertex v1; Vertex v2 {
      -- Unhandled Rejection (TypeError): Cannot read property 'tag' of undefined
        -- center : average(E.shape.center) + (global.padding, global.padding)
 
-       center : (E.shape.start + E.shape.end) / 2. + (global.padding, global.padding)
+       -- center : (E.shape.start + E.shape.end) / 2. + (global.padding, global.padding)
        string : E.label
        rotation : 0.0
      }
 
+-- TODO: Make this work WRT rectangle dimensions
+     encourage centerLabel(E.shape, E.text, 5.0)
+
+-- TODO: encourage edge to be horizontal
+-- Um... but if it's calculated I guess you want to encourage the nodes to be horizontal
+   -- encourage equal(v1.shape.center[1], v2.shape.center[1]) -- encourage horizontal (same y-coord)
+   ensure lessThan(v1.shape.center[0], v2.shape.center[0]) -- ensure arrows are left-to-right
+   -- The problem is now that they're horizontal, but don't respect directionality...
+   -- TODO: Add lessThan, equal..
+
      v1.shape above E.shape
      v2.shape above E.shape
+}
+
+Vertex v1; Vertex v2 {
+-- TODO: Make this work WRT rectangle dimensions
+       ensure disjoint(v1.shape, v2.shape, 10.)
+}
+
+Edge e1; Edge e2 {
+-- TODO: Minimize edge crossings
+-- I guess an alternative is that no line intersects a box
+   ensure notCrossing(e1.shape, e2.shape)
+}
+
+Vertex v; Edge e {
+       ensure disjoint(v.shape, e.shape)
 }
