@@ -119,5 +119,6 @@ forall Set x {
 ![exercise 1 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/e1c1.png)
 * Define a predicate that is the opposite of `Intersecting` that takes in two sets, and outputs 2 circles that are disjoint. 
 ![exercise 2 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/e1c2.png)
+Reference [solutions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/exercise2-sol.md)
 
 ## Take-aways
