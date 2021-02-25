@@ -14,7 +14,7 @@ To define a relationship between objects in the domain, there are a few things w
 
 The syntax for declaring a relationship is through the use of keyword `predicate`, and then inputting the neccessary information to construct the predicate,
 
-![predicate syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/predicateSyntax.png)
+![predicate syntax](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/predicateSyntax.png)
 
 For our relationship, it follows naturally that the name should be `IsSubset`, and we have 2 arguments of type `Set`. 
 
