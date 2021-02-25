@@ -7,6 +7,13 @@ type Set
 predicate Intersecting : Set s1 * Set s2
 ```
 
+`.sub`
+```
+Set A
+Set B
+Intersecting(A, B)
+```
+
 `.sty`
 ```typescript
 forall Set x {
@@ -23,13 +30,6 @@ where Intersecting(x, y) {
 }
 ```
 
-`.sub`
-```
-Set A
-Set B
-Intersecting(A, B)
-```
-
 # Challenge 2:
 Define a predicate that is the opposite of Intersecting that takes in two sets, and outputs 2 circles that are disjoint.
 
@@ -37,6 +37,13 @@ Define a predicate that is the opposite of Intersecting that takes in two sets, 
 ```typescript
 type Set
 predicate Intersecting : Set s1 * Set s2
+```
+
+`.sub`
+```
+Set A
+Set B
+NotIntersecting(A, B)
 ```
 
 `.sty`
@@ -54,11 +61,4 @@ where Not(Intersecting(x, y)) {
     ensure disjoint(x.icon, y.icon)
 }
 
-```
-
-`.sub`
-```
-Set A
-Set B
-NotIntersecting(A, B)
 ```
