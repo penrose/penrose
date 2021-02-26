@@ -58,8 +58,8 @@ It follows naturally from the process of diagramming by hand, we need to keep tr
 
 Every Penrose program consists of 3 files: 
 * A `.dsl`  file that defines the language specific to the domain. 
-* A `.sub` file that creates substances of mathematical content.
 * A `.sty` file that specifies the style of the visual representation.
+* A `.sub` file that creates substances of mathematical content.
 
 > dsl stands for Domain Specific Language. 
 
