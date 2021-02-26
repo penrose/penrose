@@ -277,7 +277,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         state.params.currObjective,
         state.params.currGradient,
         state.params.lbfgsInfo,
-        state.varyingPaths.map((p) => JSON.stringify(p))
+        state.varyingPaths.map((p) => prettyPrintPath(p))
       );
       xs = res.xs;
 
