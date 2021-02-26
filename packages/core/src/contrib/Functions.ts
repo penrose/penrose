@@ -11,13 +11,18 @@ import {
   add,
   addN,
   max,
+  min,
   div,
   mul,
   cos,
   sin,
   neg,
+  sqrt,
+  absVal,
+  ifCond,
 } from "engine/Autodiff";
 import { Elem, SubPath } from "types/shapeTypes";
+import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
 
 /**
  * Static dictionary of computation functions
@@ -319,6 +324,33 @@ export const compDict = {
   },
 
   /**
+   * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the relevant side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+   */
+  intersectingSideSize: (
+    start: VecAD,
+    end: VecAD,
+    [t1, s1]: [string, any]
+  ): IFloatV<VarAD> => {
+    // if (s1.rotation.contents) { throw Error("assumed AABB"); }
+    if (t1 !== "Rectangle" && t1 !== "Text") {
+      throw Error("expected box-like shape");
+    }
+
+    const [w, h] = [s1.w.contents, s1.h.contents];
+    // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
+    const rect = bbox(s1.center.contents, w, h);
+
+    // Intersects top or bottom => return w
+    // i.e. endX \in [minX, maxX] -- if not this, the other must be true
+
+    // Intersects right or left => return h
+    // i.e. endY \in [minY, maxY]
+
+    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), w, h);
+    return { tag: "FloatV", contents: dim };
+  },
+
+  /**
    * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
    */
   triangle: (
@@ -431,6 +463,77 @@ export const compDict = {
       tag: "VectorV",
       contents: m.map((row) => ops.vdot(row, v)),
     };
+  },
+
+  // ------ Utility functions
+
+  /**
+   * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
+   */
+  sqrt: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: sqrt(x) };
+  },
+
+  /**
+   * Return the max of the numbers `x`, `y`.
+   */
+  max: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: max(x, y) };
+  },
+
+  /**
+   * Return the min of the numbers `x`, `y`.
+   */
+  min: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: min(x, y) };
+  },
+
+  /**
+   * Return the absolute value of the number `x`.
+   */
+  abs: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: absVal(x) };
+  },
+
+  /**
+   * Return the Euclidean norm of the vector `v`.
+   */
+  norm: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vnorm(v) };
+  },
+
+  /**
+   * Return the Euclidean norm squared of the vector `v`.
+   */
+  normsq: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vnormsq(v) };
+  },
+
+  /**
+   * Return the Euclidean distance between the vectors `v` and `w`.
+   */
+  vdist: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vdist(v, w) };
+  },
+
+  /**
+   * Return the Euclidean distance squared between the vectors `v` and `w`.
+   */
+  vdistsq: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+  },
+
+  // ------ Geometry/graphics utils
+
+  /**
+   * Rotate a 2D vector `v` by 90 degrees clockwise.
+   */
+  rot90: (v: VarAD[]) => {
+    if (v.length !== 2) {
+      throw Error("expected 2D vector in `rot90`");
+    }
+    const [x, y] = v;
+    return { tag: "VectorV", contents: [neg(y), x] };
   },
 };
 
