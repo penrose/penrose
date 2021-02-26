@@ -45,13 +45,13 @@ Vertex V {
        }
 
        V.text = Text {
-       -- ERROR: You get the divide by 0 from `contains` if the text center is set... How to detect these conflicts? the divide by 0 was due to a hardcoded distance of 0?
+       -- ERROR: You get the divide by 0 from `contains` if the text center is set. How to detect these conflicts? the divide by 0 was due to a hardcoded distance of 0?
 	 center: V.shape.center
 	 string : V.label
 	 color : Colors.black
        }
 
--- TODO: Make this work WRT rectangle dimensions (right now it's overapproximated w/ squares)
+       -- TODO: Make this work WRT rectangle dimensions (right now it's overapproximated w/ squares)
        ensure contains(global.box, V.shape)
 
        V.text above V.shape
@@ -66,10 +66,10 @@ with Vertex v1; Vertex v2 {
      scalar padding = 20.
      scalar arrowheadSize = 10. -- Guess
 
--- TODO: Figure out the line offset factor (would be the distance from center to shape border, plus some offset in that direction)
+     -- TODO: Figure out the line offset factor (would be the distance from center to shape border, plus some offset in that direction)
 
--- Figure out which side of the rectangle the v1->v2 edge between their centers is hitting
--- TODO: This locks up the opt / works very poorly....
+     -- Figure out which side of the rectangle the v1->v2 edge between their centers is hitting
+     -- TODO: This locks up the opt / works very poorly....
    -- scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
    -- scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
 
@@ -77,7 +77,7 @@ with Vertex v1; Vertex v2 {
    scalar endSideDim = v2.shape.w
 
      E.shape = Line { 
-     -- TODO(errors): If you do v * c, then the type fails? very badly
+     -- TODO(errors): If you do v * c, then the type fails very badly
      -- If you accidentally do a scalar when a vector was expected, also bad
      	     start : v1.shape.center + (startSideDim / 2. + padding) * dir
      	     end : v2.shape.center - (endSideDim / 2. + arrowheadSize + padding) * dir
@@ -88,29 +88,21 @@ with Vertex v1; Vertex v2 {
      }
 
      E.text = Text {
-     -- If you refer to a nonexistent shape property, bad crash
-     -- Unhandled Rejection (TypeError): Cannot read property 'tag' of undefined
-       -- center : average(E.shape.center) + (global.padding, global.padding)
-
-       -- center : (E.shape.start + E.shape.end) / 2. + (global.padding, global.padding)
        string : E.label
        rotation : 0.0
      }
 
--- TODO: Make this work WRT rectangle dimensions
-     encourage centerLabel(E.shape, E.text, 5.0)
-     -- Also, it should really have two local minima (on either side of the line), which it currently doesn't, resulting in weird labels
+     -- TODO(errors): If you refer to a nonexistent shape property, bad crash
+     -- Unhandled Rejection (TypeError): Cannot read property 'tag' of undefined
 
-     ensure disjoint(E.text, E.shape) -- TODO: Indeed, this doesn't use the dimensions... so the layout looks weird
+     -- TODO: Make this work WRT rectangle dimensions
+     encourage centerLabel(E.shape, E.text, 5.0)
+     ensure disjoint(E.text, E.shape) -- TODO: fix this to use bbox dimensions
      ensure contains(global.box, E.text)
 
--- TODO: encourage edge to be horizontal
--- Um... but if it's calculated I guess you want to encourage the nodes to be horizontal
+     -- TODO: encourage edge to be horizontal
    encourage equal(v1.shape.center[1], v2.shape.center[1]) -- encourage horizontal (same y-coord)
    ensure lessThan(v1.shape.center[0], v2.shape.center[0]) -- ensure arrows are left-to-right
-   -- The problem is now that they're horizontal, but don't respect directionality...
-   -- TODO: Add lessThan, equal..
-
    ensure minSize(E.shape)
 
      v1.shape above E.shape
@@ -120,14 +112,14 @@ with Vertex v1; Vertex v2 {
 }
 
 Vertex v1; Vertex v2 {
--- TODO: Make this work WRT rectangle dimensions
+       -- TODO: Make this work WRT rectangle dimensions
        ensure disjoint(v1.shape, v2.shape, 10.)
        encourage repel(v1.shape, v2.shape)
 }
 
 Edge e1; Edge e2 {
--- TODO: Minimize edge crossings
--- I guess an alternative is that no line intersects a box
+     -- TODO: Minimize edge crossings
+     -- I guess an alternative is that no line intersects a box
    ensure disjoint(e1.text, e2.text)
    ensure notCrossing(e1.shape, e2.shape)
 }

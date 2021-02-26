@@ -707,7 +707,7 @@ export const eq = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 /**
- * Return a boolean (number) `v && w` -- TODO: Is this derivative right?
+ * Return a boolean (number) `v && w`
  */
 export const and = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val * w.val, "and");
@@ -731,7 +731,7 @@ export const and = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 /**
- * Return a boolean (number) `v || w` -- TODO: Is this derivative right?
+ * Return a boolean (number) `v || w`
  */
 export const or = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val + w.val, "or");
