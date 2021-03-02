@@ -49,7 +49,7 @@ forall Set x {
 ```
 
 # Challenge 3:
-Keep 3 sets. Represent `Set` as rectangles with `rotation` equal to 45 degrees. 
+Keep 3 sets. Represent `Set` as rectangles with `strokeWidth` set to `15.0`.
 
 `.sub`
 ```
