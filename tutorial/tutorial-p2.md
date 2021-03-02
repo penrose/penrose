@@ -9,7 +9,7 @@ In Penrose, we are not only given the power to represent mathematical objects wi
 * [Style File](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#page_facing_up-style)
 * [Exercises](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#exercises)
 * [Take-aways](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#take-aways)
-* Next Tutorial: Coming Up! 
+* [Next Tutorial: Functions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md)
 
 ## Goal
 
