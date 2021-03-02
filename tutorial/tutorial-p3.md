@@ -1,4 +1,6 @@
-# Starter Code
+# Part 3: Functions 
+
+## Starter Code
 
 `.dsl`
 ```typescript
