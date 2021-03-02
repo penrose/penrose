@@ -34,5 +34,13 @@ From(f, U, V)
 
 ## :page_facing_up: Style
 
-## Starter Code
+### Starter Code
+`.sty`
+```typescript
+
+```
+
+## Exercises
+
+## Take-aways
 
