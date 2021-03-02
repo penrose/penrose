@@ -95,7 +95,9 @@ Now it's time to see all of our hardwork (drumroll please :drum:)!  To compile y
 
 ## Exercise 
 Now, you understand the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have 3 challanges for you that will not require you to create new files, but only work within the existing files. **Hint:** Make use of the shape specs [here](https://github.com/penrose/penrose/wiki/Shape-library).
-_Since we are not defining all the properties that control how the shape will look on screen (location, color, etc), Penrose will optimize and make those decisions for you. Therefore when you click the resample button, you will get a new diagram that might have varying appearances, and here we've provided some sample results of the same Penrose program. So do not worry if your diagram does not look the exact same as ours. _
+
+_Since we are not defining all the properties that control how the shape will look on screen (location, color, etc), Penrose will optimize and make those decisions for you. Therefore when you click the resample button, you will get a new diagram that might have varying appearances, and here we've provided some sample results of the same Penrose program. So do not worry if your diagram does not look the exact same as ours._
+
 * **Challenge 1:** Add another `Set` to the diagram. 
 ![challenge 1 result](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part1/tutorial1c1.png)
 
