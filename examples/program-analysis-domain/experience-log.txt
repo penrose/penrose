@@ -161,15 +161,13 @@ with Node n2 {
         thickness: 3.0
     }
 
-    -- TODO LEFT OFF HERE
     E.text = Text {
-        x = midpointX(E.shape) + global.padding
-        y = midpointY(E.shape) + global.padding
-        string = lab
+        center : E.shape.center
+        string : lab
         rotation = 0.0
+	    color : Colors.black	 
     }
 
-    E.layering1 = v1.shape above E.shape
-    E.layering2 = v2.shape above E.shape
+    E.layering1 = E.text above E.shape
 }
 

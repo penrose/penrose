@@ -1,0 +1,5 @@
+Node n1, n2
+
+Edge(n1, n2)
+
+AutoLabel All

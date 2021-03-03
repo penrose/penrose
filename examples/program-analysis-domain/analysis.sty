@@ -1,0 +1,23 @@
+global {
+    padding = 20.0
+    stroke = 2.0
+}
+
+Colors {
+    black = rgba(0.0, 0.0, 0.0, 1.0)
+}
+
+Node N {
+    N.shape = Rectangle { 
+        w : global.padding*2.0
+        h : global.padding*2.0
+	    color : Colors.black	 
+    }
+}
+
+Node n1
+where Edge(n1, n2)
+with Node n2 {
+    E.shape = Line { 
+    }
+}
