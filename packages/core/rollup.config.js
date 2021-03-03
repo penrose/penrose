@@ -55,6 +55,7 @@ export default [
     },
     onwarn,
     plugins,
+    watch: false, // no need to rebuild during watch - targeting node only
     cache: pkg.module, // for incremental builds
   },
   {
@@ -64,7 +65,7 @@ export default [
       format: "cjs",
       sourcemap: true,
     },
-    watch: false, // no need to rebuild during watch - targeting node only
+    // watch: false, // no need to rebuild during watch - targeting node only
     onwarn,
     plugins,
     cache: pkg.main, // for incremental builds

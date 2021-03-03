@@ -10,9 +10,12 @@ import {
 
 describe("Render", () => {
   const triple = [
+    // "../../examples/set-theory-domain/setTheory.dsl",
+    // "../../examples/set-theory-domain/tree.sub",
+    // "../../examples/set-theory-domain/venn-3d.sty",
     "../../examples/set-theory-domain/setTheory.dsl",
-    "../../examples/set-theory-domain/tree.sub",
-    "../../examples/set-theory-domain/venn-3d.sty",
+    "../../examples/set-theory-domain/continuousmap.sub",
+    "../../examples/set-theory-domain/continuousmap.sty",
   ].map((p) => fs.readFileSync(p).toString()) as [string, string, string];
   test("Diagram", async () => {
     const res = compileTrio(...triple);

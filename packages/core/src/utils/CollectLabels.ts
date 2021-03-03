@@ -7,11 +7,13 @@ import { SVG } from "mathjax-full/js/output/svg.js";
 // Auto-switch between browser and native (Lite) --
 // not sure about the latter's fallback behavior
 import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-const adaptor = chooseAdaptor();
+// const adaptor = chooseAdaptor();
+const adaptor = browserAdaptor();
 RegisterHTMLHandler(adaptor as any);
 const tex = new TeX({
   packages: AllPackages,
@@ -36,9 +38,6 @@ const convert = (input: string, fontSize: string) => {
   // Not sure if this call does anything:
   // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
   adaptor.setStyle(node, "font-size", fontSize);
-  const inner = adaptor.innerHTML(node);
-  // console.log(inner, node.firstChild);
-  // const doc = new DOMParser().parseFromString(inner, "text/html").body .firstChild as any;
   return node.firstChild as SVGSVGElement;
 };
 
