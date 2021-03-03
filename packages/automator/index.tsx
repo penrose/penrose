@@ -1,12 +1,11 @@
-import * as React from "react";
 import {
-  Canvas,
-  EngineUtils,
-  Packets,
-  PropagateUpdate,
-  Optimizer,
-  Evaluator,
+  compileTrio,
+  prepareState,
+  initializeMat,
+  RenderStatic,
+  stepUntilConvergence,
 } from "@penrose/core";
+import "global-jsdom/register";
 
 const fs = require("fs");
 const mathjax = require("mathjax-node");
@@ -48,96 +47,76 @@ const nonZeroConstraints = (
 };
 
 /**
- * Run the penrose binary using the supplied packet as the input
- * @param packet packet to be processed by the backend
- */
-const runPenrose = (packet: object) =>
-  new Promise((resolve, reject) => {
-    const penrose = spawn("penrose", ["runAPI"]);
-    // penrose.stdin.setEncoding("utf-8");
-    penrose.stdin.write(JSON.stringify(packet) + "\n");
-    let data = "";
-    penrose.stdout.on("data", async (d: { toString: () => string }) => {
-      data += d.toString();
-    });
-    penrose.stdout.on("close", async (cl: any) => {
-      resolve(data);
-    });
-
-    penrose.stdin.end();
-  }) as any;
-
-/**
  * Collect all the labels in the state by calling MathJax
  * @param state initial state
  * @param includeRendered whether to include the rendered SVG nodes in the output state
  */
-const collectLabels = async (state: any, includeRendered: boolean) => {
-  if (!state.shapes) {
-    console.error(`Could not find shapes key in returned state: ${state}`);
-    return;
-  }
-  const allShapes = state.shapes;
+// const collectLabels = async (state: any, includeRendered: boolean) => {
+//   if (!state.shapes) {
+//     console.error(`Could not find shapes key in returned state: ${state}`);
+//     return;
+//   }
+//   const allShapes = state.shapes;
 
-  const collected = await Promise.all(
-    allShapes.map(async ({ shapeType, properties }: any) => {
-      if (shapeType === "Text" || shapeType === "TextTransform") {
-        const data = await mathjax.typeset({
-          math: properties.string.contents,
-          format: "TeX",
-          svg: true,
-          svgNode: true,
-          useFontCache: false,
-          useGlobalCache: false,
-          ex: 12,
-        });
-        if (data.errors) {
-          console.error(
-            `Could not render ${properties.string.contents}: `,
-            data.errors
-          );
-          return;
-        }
-        const { width, height } = data;
-        const textGPI = { ...properties };
-        const SCALE_FACTOR = 7; // HACK: empirically determined conversion factor from em to Penrose unit
-        const computedWidth =
-          +width.substring(0, width.length - 2) * SCALE_FACTOR;
-        const computedHeight =
-          +height.substring(0, height.length - 2) * SCALE_FACTOR;
+//   const collected = await Promise.all(
+//     allShapes.map(async ({ shapeType, properties }: any) => {
+//       if (shapeType === "Text" || shapeType === "TextTransform") {
+//         const data = await mathjax.typeset({
+//           math: properties.string.contents,
+//           format: "TeX",
+//           svg: true,
+//           svgNode: true,
+//           useFontCache: false,
+//           useGlobalCache: false,
+//           ex: 12,
+//         });
+//         if (data.errors) {
+//           console.error(
+//             `Could not render ${properties.string.contents}: `,
+//             data.errors
+//           );
+//           return;
+//         }
+//         const { width, height } = data;
+//         const textGPI = { ...properties };
+//         const SCALE_FACTOR = 7; // HACK: empirically determined conversion factor from em to Penrose unit
+//         const computedWidth =
+//           +width.substring(0, width.length - 2) * SCALE_FACTOR;
+//         const computedHeight =
+//           +height.substring(0, height.length - 2) * SCALE_FACTOR;
 
-        // Take substring to omit `ex`
-        textGPI.w.updated = { tag: "FloatV", contents: computedWidth };
-        textGPI.h.updated = { tag: "FloatV", contents: computedHeight };
+//         // Take substring to omit `ex`
+//         textGPI.w.updated = { tag: "FloatV", contents: computedWidth };
+//         textGPI.h.updated = { tag: "FloatV", contents: computedHeight };
 
-        data.svgNode.setAttribute(
-          "style",
-          `font-size: ${properties.fontSize.contents}`
-        );
-        // TODO: this is not setting the width and height correctly, why?
-        data.svgNode.setAttribute("width", computedWidth.toString());
-        data.svgNode.setAttribute("height", computedHeight.toString());
+//         data.svgNode.setAttribute(
+//           "style",
+//           `font-size: ${properties.fontSize.contents}`
+//         );
+//         // TODO: this is not setting the width and height correctly, why?
+//         data.svgNode.setAttribute("width", computedWidth.toString());
+//         data.svgNode.setAttribute("height", computedHeight.toString());
 
-        if (includeRendered) {
-          textGPI.rendered = {
-            contents: data.svgNode,
-          };
-        }
-        return { shapeType, properties: textGPI };
-      }
-      return { shapeType, properties };
-    })
-  );
-  // TODO: images (see prepareSVG method in canvas)
-  const sortedShapes = await Canvas.sortShapes(collected, state.shapeOrdering);
-  const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-  // update the state with newly generated labels and label dimensions
-  const updated = await PropagateUpdate.insertPending({
-    ...state,
-    shapes: nonEmpties,
-  });
-  return updated;
-};
+//         if (includeRendered) {
+//           textGPI.rendered = {
+//             contents: data.svgNode,
+//           };
+//         }
+//         return { shapeType, properties: textGPI };
+//       }
+//       return { shapeType, properties };
+//     })
+//   );
+//   // TODO: images (see prepareSVG method in canvas)
+//   const sortedShapes = await Canvas.sortShapes(collected, state.shapeOrdering);
+//   const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
+//   // update the state with newly generated labels and label dimensions
+//   const updated = await PropagateUpdate.insertPending({
+//     ...state,
+//     shapes: nonEmpties,
+//   });
+//   return updated;
+// };
 
 const toMs = (hr: any) => hr[1] / 1000000;
 
@@ -157,72 +136,53 @@ const singleProcess = async (
   }
 ) => {
   // Fetch Substance, Style, and Domain files
-  const trio = [sub, sty, dsl].map((arg) =>
+  const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
     fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
   );
 
   // Compilation
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
-  const compilePacket = Packets.CompileTrio(...trio);
   const compileStart = process.hrtime();
-  const compilerOutput = await runPenrose(compilePacket);
+  const compilerOutput = compileTrio(dslIn, subIn, styIn);
   const compileEnd = process.hrtime(compileStart);
   let compiledState;
-  try {
-    compiledState = JSON.parse(compilerOutput);
-  } catch (e) {
-    console.error(`Cannot parse compiler output "${compilerOutput}": ${e}`);
-    process.exit(1);
-  }
-  if (compiledState.type === "error") {
-    const err = compiledState.contents;
+  if (compilerOutput.isOk()) {
+    compiledState = compilerOutput.value;
+  } else {
+    const err = compiledState.error;
     console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
     process.exit(1);
   }
 
-  // State preparation: decode, autodiff types, and evaluation
-  const decodedState = Evaluator.decodeState(compiledState.contents[0]);
-  const stateAD = {
-    ...decodedState,
-    translation: EngineUtils.makeTranslationDifferentiable(
-      decodedState.translation
-    ),
-  };
-  const stateEvaled = Evaluator.evalShapes(stateAD);
+  await initializeMat();
+  const initialState = await prepareState(compiledState);
+  // const initialState = compiledState;
 
-  // Labeling and resolving pending vars
-  const labelStart = process.hrtime();
-  const initialState = await collectLabels(stateEvaled, false);
-  const labelEnd = process.hrtime(labelStart);
+  // TODO: Labeling and resolving pending vars
 
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = await Optimizer.stepUntilConvergence(initialState);
+  const optimizedState = stepUntilConvergence(initialState);
   const convergeEnd = process.hrtime(convergeStart);
-
-  // We don't time this individually since it's usually memoized anyway
-  const labeledState: any = await collectLabels(optimizedState, true);
 
   // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
-
-  const canvas = ReactDOMServer.renderToString(
-    <Canvas data={labeledState} lock={true} />
-  );
+  const canvas = RenderStatic(optimizedState).outerHTML;
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
+
   if (folders) {
-    // Check for non-zero constraints
-    const energies = JSON.parse(
-      await runPenrose(Packets.EnergyValues(optimizedState))
-    );
-    const constrs = nonZeroConstraints(optimizedState, energies.contents[1], 1);
-    if (constrs.length > 0) {
-      console.log("This instance has non-zero constraints: ");
-      // return;
-    }
+    // TODO: check for non-zero constraints
+    // const energies = JSON.parse(
+    //   await runPenrose(Packets.EnergyValues(optimizedState))
+    // );
+    // const constrs = nonZeroConstraints(optimizedState, energies.contents[1], 1);
+    // if (constrs.length > 0) {
+    //   console.log("This instance has non-zero constraints: ");
+    //   // return;
+    // }
 
     const metadata = {
       ...meta,
@@ -231,12 +191,12 @@ const singleProcess = async (
         // includes overhead like JSON, recollecting labels
         overall: convertHrtime(overallEnd).milliseconds,
         compilation: convertHrtime(compileEnd).milliseconds,
-        labelling: convertHrtime(labelEnd).milliseconds,
+        // labelling: convertHrtime(labelEnd).milliseconds,
         optimization: convertHrtime(convergeEnd).milliseconds,
         rendering: convertHrtime(reactRenderEnd).milliseconds,
       },
-      violatingConstraints: constrs,
-      nonzeroConstraints: constrs.length > 0,
+      // violatingConstraints: constrs,
+      // nonzeroConstraints: constrs.length > 0,
       selectorMatches: optimizedState.selectorMatches,
       optProblem: {
         constraintCount: optimizedState.constrFns.length,
@@ -247,9 +207,9 @@ const singleProcess = async (
       fs.mkdirSync(out);
     }
     fs.writeFileSync(`${out}/output.svg`, canvas);
-    fs.writeFileSync(`${out}/substance.sub`, trio[0]);
-    fs.writeFileSync(`${out}/style.sty`, trio[1]);
-    fs.writeFileSync(`${out}/domain.dsl`, trio[2]);
+    fs.writeFileSync(`${out}/substance.sub`, subIn);
+    fs.writeFileSync(`${out}/style.sty`, styIn);
+    fs.writeFileSync(`${out}/domain.dsl`, dslIn);
     fs.writeFileSync(`${out}/meta.json`, JSON.stringify(metadata));
     console.log(`The diagram and metadata has been saved to ${out}`);
     // returning metadata for aggregation

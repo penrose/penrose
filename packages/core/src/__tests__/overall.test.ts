@@ -17,8 +17,8 @@ describe("Render", () => {
   test("Diagram", async () => {
     const res = compileTrio(...triple);
     if (res.isOk()) {
-      const state = await prepareState(res.value);
-      const optimized = stepUntilConvergence(state);
+      // const state = await prepareState(res.value);
+      // const optimized = stepUntilConvergence(state);
       // const rendered = RenderStatic(optimized);
       // console.log(rendered.outerHTML);
       // fs.writeFileSync("/tmp/output.svg", rendered.outerHTML, "utf8");
