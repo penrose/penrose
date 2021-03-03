@@ -182,7 +182,12 @@ export const stateConverged = (state: State): boolean =>
 export const stateInitial = (state: State): boolean =>
   state.params.optStatus.tag === "NewIter";
 
-export const readRegistry = (registry: any): Trio[] => {
+/**
+ * Read and flatten the registry file for Penrose examples into a list of program trios.
+ *
+ * @param registry JSON file of the registry
+ */
+export const readRegistry = (registry: Registry): Trio[] => {
   const { substances, styles, domains, trios } = registry;
   const res = [];
   for (const { domain: dslID, style: styID, substance: subID } of trios) {

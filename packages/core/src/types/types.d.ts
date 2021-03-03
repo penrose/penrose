@@ -4,7 +4,7 @@ declare module "eigen";
 //#region File IO
 
 /**
- * Data structure for reading a trio from the registry
+ * Data structure for information of a program trio
  */
 interface Trio {
   substanceURI: string;
@@ -14,6 +14,16 @@ interface Trio {
   styleName: string;
   domainName: string;
   name: string;
+}
+
+/**
+ * Schema for the registry of working examples
+ */
+interface Registry {
+  substances: { name: string; URI: string };
+  styles: { name: string; URI: string };
+  domains: { name: string; URI: string };
+  trios: { substance: string; style: string; domain: string }[];
 }
 
 //#endregion

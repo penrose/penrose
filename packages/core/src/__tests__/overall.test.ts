@@ -13,7 +13,7 @@ const EXAMPLES = "../../examples";
 const registryPath = path.join(EXAMPLES, "registry.json");
 const saveDiagrams = true;
 
-describe("Render", () => {
+describe("End-to-end testing of existing diagrams", () => {
   const registry = JSON.parse(fs.readFileSync(registryPath).toString());
   const trios = readRegistry(registry);
   for (const trio of trios) {
