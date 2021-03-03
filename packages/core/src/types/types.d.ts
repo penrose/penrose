@@ -477,18 +477,6 @@ interface IQuadBezJoin<T> {
  * The diagram state modeling the original Haskell types
  */
 interface IState {
-  // COMBAK: Just for getting the JSON; remove this
-
-  // subProg: SubProg;
-  // styProg: StyProg;
-  // TODO: Get this into the Style compiler when available
-  // -- | 'SubOut' is the output of the Substance compiler, comprised of:
-  // -- * Substance AST
-  // -- * (Variable environment, Substance environment)
-  // -- * A mapping from Substance ids to their coresponding labels
-  // data SubOut =
-  //   SubOut SubProg (VarEnv, SubEnv) LabelMap
-
   varyingPaths: Path[];
   shapePaths: Path[];
   shapeProperties: any; // TODO: types

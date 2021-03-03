@@ -37,7 +37,7 @@ const convert = (input: string, fontSize: string) => {
   // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
   adaptor.setStyle(node, "font-size", fontSize);
   const inner = adaptor.innerHTML(node);
-  const doc = new DOMParser().parseFromString(inner, "text/html").body
+  const doc = new window.DOMParser().parseFromString(inner, "text/html").body
     .firstChild as any;
   return doc as SVGSVGElement;
 };

@@ -199,5 +199,6 @@ export {
   ShapeTypes,
   bBoxDims,
   toHex,
+  initializeMat,
   showError,
 };

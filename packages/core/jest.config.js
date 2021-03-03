@@ -1,5 +1,5 @@
 module.exports = {
   preset: "ts-jest",
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   modulePaths: ["node_modules", "<rootDir>/src/"],
 };
