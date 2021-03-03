@@ -19,5 +19,6 @@ build({
   format: "cjs",
   tsconfig: "./tsconfig.json",
   platform: "node",
+  silent: true,
   //   incremental: true
 });
