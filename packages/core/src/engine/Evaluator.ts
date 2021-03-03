@@ -628,7 +628,7 @@ export const evalExpr = (
           tag: "Val",
           contents: compDict[fnName](
             optDebugInfo as OptDebugInfo,
-            JSON.stringify(p) // COMBAK: Test that derivatives still work. Might break due to JSON.stringify(p) changing?
+            prettyPrintPath(p) // COMBAK: Test that derivatives still work
           ),
         };
       }
@@ -668,7 +668,7 @@ export const resolvePath = (
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal = varyingMap?.get(JSON.stringify(path));
+  let varyingVal = varyingMap?.get(prettyPrintPath(path));
 
   if (varyingVal) {
     return floatVal(varyingVal);
@@ -747,7 +747,7 @@ export const resolvePath = (
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
-            varyingVal = varyingMap?.get(JSON.stringify(propertyPath));
+            varyingVal = varyingMap?.get(prettyPrintPath(propertyPath));
             if (varyingVal) {
               return { tag: "FloatV", contents: varyingVal };
             } else {
@@ -1063,7 +1063,7 @@ export function genPathMap<T>(
     );
   }
   const res = new Map();
-  paths.forEach((path, index) => res.set(JSON.stringify(path), vals[index]));
+  paths.forEach((path, index) => res.set(prettyPrintPath(path), vals[index]));
 
   // console.log("gen path map", res);
   // throw Error("TODO");
