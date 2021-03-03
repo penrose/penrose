@@ -39,7 +39,7 @@ import consola, { LogLevel } from "consola";
 import rfdc from "rfdc";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 
 // For deep-cloning the translation
 const clone = rfdc({ proto: false, circles: false });

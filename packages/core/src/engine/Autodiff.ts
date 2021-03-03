@@ -3,11 +3,12 @@ import { all, fromJust, randList, eqList } from "utils/OtherUtils";
 import { settings } from "cluster";
 import consola, { LogLevel } from "consola";
 
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+// To view logs, use LogLevel.Trace
+const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
-const DEBUG_ENERGY = false;
+const DEBUG_ENERGY = true;
 const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
 

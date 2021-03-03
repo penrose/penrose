@@ -324,7 +324,7 @@ export const compDict = {
   },
 
   /**
-   * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the relevant side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+   * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
    */
   intersectingSideSize: (
     start: VecAD,
@@ -346,7 +346,8 @@ export const compDict = {
     // Intersects right or left => return h
     // i.e. endY \in [minY, maxY]
 
-    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), w, h);
+    // Return the OTHER side, which is needed for arrow placement
+    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), h, w);
     return { tag: "FloatV", contents: dim };
   },
 
