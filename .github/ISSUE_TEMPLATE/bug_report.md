@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. If there is an error in the inspector pane, please paste that string in.
 
 **To Reproduce**
 Please include what repository you are working from (e.g. if it is a fork, include URL), the branch of the repository (if not `main`), and the specific commit where this occurs. 
