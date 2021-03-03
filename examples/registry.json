@@ -70,6 +70,11 @@
       "name": "Two Perpendicular Vectors",
       "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
     },
+    "continuousmap": {
+      "domain": "set-theory",
+      "name": "Continuous Map",
+      "URI": "set-theory-domain/continuousmap.sub"
+    },
     "nested": {
       "domain": "set-theory",
       "name": "Nested",

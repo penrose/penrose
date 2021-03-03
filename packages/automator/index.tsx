@@ -17,13 +17,11 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator SUBSTANCE STYLE DOMAIN [--folders] [--outFile=PATH] [--src-prefix=PREFIX]
-  automator batch SUBSTANCELIB STYLELIB DOMAINLIB OUTFOLDER [--folders]  [--src-prefix=PREFIX]
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
-  "type": "module"
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
 `;
 
@@ -148,60 +146,48 @@ const singleProcess = async (
 
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
 const batchProcess = async (
-  sublib: any,
-  stylib: any,
-  dsllib: string,
+  lib: any,
   folders: boolean,
   out: string,
   prefix: string
 ) => {
-  const substanceLibrary = JSON.parse(
-    fs.readFileSync(`${prefix}/${sublib}`).toString()
-  );
-  const styleLibrary = JSON.parse(
-    fs.readFileSync(`${prefix}/${stylib}`).toString()
-  );
-  const domainLibrary = JSON.parse(
-    fs.readFileSync(`${prefix}/${dsllib}`).toString()
-  );
+  const registry = JSON.parse(fs.readFileSync(`${prefix}/${lib}`).toString());
+  const substanceLibrary = registry["substances"];
+  const styleLibrary = registry["styles"];
+  const domainLibrary = registry["domains"];
+  const trioLibrary = registry["trios"];
   console.log(`Processing ${substanceLibrary.length} substance files...`);
 
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
-  for (const { name, substanceURI, element, style } of substanceLibrary) {
-    // TODO: find JSON by value
-    if (styleLibrary[style].plugin) {
+  for (const { domain, style, substance } of trioLibrary) {
+    const name = `${substance}-${style}`;
+    const { name: subName, URI: subURI } = substanceLibrary[substance];
+    const { name: styName, URI: styURI, plugin } = styleLibrary[style];
+    const { name: dslName, URI: dslURI } = domainLibrary[domain];
+
+    if (plugin) {
       console.log(
         chalk.red(
-          `Skipping "${name}" (${substanceURI}) for now; this domain requires a plugin or has known issues.`
+          `Skipping "${name}" (${subURI}) for now; this domain requires a plugin or has known issues.`
         )
       );
       continue;
     }
-    const foundStyle = styleLibrary.find(({ value }: any) => value === style);
-    const foundDomain = domainLibrary.find(
-      ({ value }: any) => value === element
-    );
-
-    const stylePath = foundStyle.uri;
-    const domainPath = foundDomain.uri;
-    const styleName = foundStyle.label;
-    const domainName = foundDomain.label;
     // Warning: will face id conflicts if parallelism used
     const id = uniqid("instance-");
-
     const meta = await singleProcess(
-      substanceURI,
-      stylePath,
-      domainPath,
+      subURI,
+      styURI,
+      dslURI,
       folders,
       `${out}/${name}-${id}${folders ? "" : ".svg"}`,
       prefix,
       {
-        substanceName: name,
-        styleName,
-        domainName,
+        substanceName: subName,
+        styleName: styName,
+        domainName: dslName,
         id,
       }
     );
@@ -229,14 +215,7 @@ const batchProcess = async (
   const prefix = args["--src-prefix"];
 
   if (args.batch) {
-    await batchProcess(
-      args.SUBSTANCELIB,
-      args.STYLELIB,
-      args.DOMAINLIB,
-      folders,
-      args.OUTFOLDER,
-      prefix
-    );
+    await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
   } else {
     await singleProcess(
       args.SUBSTANCE,
