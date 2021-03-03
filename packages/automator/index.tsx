@@ -79,7 +79,9 @@ const singleProcess = async (
   }
 
   await initializeMat();
+  const labelStart = process.hrtime();
   const initialState = await prepareState(compiledState);
+  const labelEnd = process.hrtime(labelStart);
 
   // TODO: Labeling and resolving pending vars
 
@@ -113,7 +115,7 @@ const singleProcess = async (
         // includes overhead like JSON, recollecting labels
         overall: convertHrtime(overallEnd).milliseconds,
         compilation: convertHrtime(compileEnd).milliseconds,
-        // labelling: convertHrtime(labelEnd).milliseconds,
+        labelling: convertHrtime(labelEnd).milliseconds,
         optimization: convertHrtime(convergeEnd).milliseconds,
         rendering: convertHrtime(reactRenderEnd).milliseconds,
       },
@@ -133,12 +135,14 @@ const singleProcess = async (
     fs.writeFileSync(`${out}/style.sty`, styIn);
     fs.writeFileSync(`${out}/domain.dsl`, dslIn);
     fs.writeFileSync(`${out}/meta.json`, JSON.stringify(metadata));
-    console.log(`The diagram and metadata has been saved to ${out}`);
+    console.log(
+      chalk.green(`The diagram and metadata has been saved to ${out}`)
+    );
     // returning metadata for aggregation
     return metadata;
   } else {
     fs.writeFileSync(out, canvas);
-    console.log(`The diagram has been saved as ${out}`);
+    console.log(chalk.green(`The diagram has been saved as ${out}`));
     // HACK: return empty metadata??
     return null;
   }
@@ -156,7 +160,7 @@ const batchProcess = async (
   const styleLibrary = registry["styles"];
   const domainLibrary = registry["domains"];
   const trioLibrary = registry["trios"];
-  console.log(`Processing ${substanceLibrary.length} substance files...`);
+  console.log(`Processing ${trioLibrary.length} substance files...`);
 
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.

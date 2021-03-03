@@ -182,6 +182,27 @@ export const stateConverged = (state: State): boolean =>
 export const stateInitial = (state: State): boolean =>
   state.params.optStatus.tag === "NewIter";
 
+export const readRegistry = (registry: any): Trio[] => {
+  const { substances, styles, domains, trios } = registry;
+  const res = [];
+  for (const { domain: dslID, style: styID, substance: subID } of trios) {
+    const domain = domains[dslID];
+    const substance = substances[subID];
+    const style = styles[styID];
+    const trio = {
+      substanceURI: substance.URI,
+      styleURI: style.URI,
+      domainURI: domain.URI,
+      substanceName: substance.name,
+      styleName: style.name,
+      domainName: domain.name,
+      name: `${subID}-${styID}`,
+    };
+    res.push(trio);
+  }
+  return res;
+};
+
 export type PenroseState = State;
 
 export type { PenroseError } from "./types/errors";

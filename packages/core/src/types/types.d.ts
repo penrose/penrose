@@ -1,5 +1,23 @@
 // TODO: find a way to put this in index.d.ts
 declare module "eigen";
+
+//#region File IO
+
+/**
+ * Data structure for reading a trio from the registry
+ */
+interface Trio {
+  substanceURI: string;
+  styleURI: string;
+  domainURI: string;
+  substanceName: string;
+  styleName: string;
+  domainName: string;
+  name: string;
+}
+
+//#endregion
+
 //#region Shape/Evaluator-related types
 
 /**

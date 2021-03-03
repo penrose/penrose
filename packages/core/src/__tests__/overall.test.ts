@@ -1,32 +1,43 @@
-import * as path from "path";
 import * as fs from "fs";
+import * as path from "path";
 import {
   compileTrio,
   prepareState,
-  initializeMat,
+  readRegistry,
   RenderStatic,
   stepUntilConvergence,
 } from "../index";
 
+const OUTPUT = "/tmp/diagrams";
+const EXAMPLES = "../../examples";
+const registryPath = path.join(EXAMPLES, "registry.json");
+const saveDiagrams = true;
+
 describe("Render", () => {
-  const triple = [
-    // "../../examples/set-theory-domain/setTheory.dsl",
-    // "../../examples/set-theory-domain/tree.sub",
-    // "../../examples/set-theory-domain/venn-3d.sty",
-    "../../examples/set-theory-domain/setTheory.dsl",
-    "../../examples/set-theory-domain/continuousmap.sub",
-    "../../examples/set-theory-domain/continuousmap.sty",
-  ].map((p) => fs.readFileSync(p).toString()) as [string, string, string];
-  test("Diagram", async () => {
-    const res = compileTrio(...triple);
-    if (res.isOk()) {
-      const state = await prepareState(res.value);
-      const optimized = stepUntilConvergence(state);
-      const rendered = RenderStatic(optimized);
-      console.log(rendered.outerHTML);
-      fs.writeFileSync("/tmp/output.svg", rendered.outerHTML, "utf8");
-    } else {
-      fail(res.error);
-    }
-  });
+  const registry = JSON.parse(fs.readFileSync(registryPath).toString());
+  const trios = readRegistry(registry);
+  for (const trio of trios) {
+    const { name, substanceURI, domainURI, styleURI } = trio;
+    const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map((uri) =>
+      fs.readFileSync(path.join(EXAMPLES, uri)).toString()
+    );
+    test(name, async () => {
+      if (saveDiagrams && !fs.existsSync(OUTPUT)) {
+        fs.mkdirSync(OUTPUT);
+      }
+      const res = compileTrio(dsl, sub, sty);
+      if (res.isOk()) {
+        const state = await prepareState(res.value);
+        const optimized = stepUntilConvergence(state);
+        const rendered = RenderStatic(optimized);
+        fs.writeFileSync(
+          path.join(OUTPUT, `${name}.svg`),
+          rendered.outerHTML,
+          "utf8"
+        );
+      } else {
+        fail(res.error);
+      }
+    });
+  }
 });
