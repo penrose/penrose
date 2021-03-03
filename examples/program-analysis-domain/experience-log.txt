@@ -3,6 +3,15 @@ Jonathan's Penrose Experiences
 To install WSL:
     Enable-WindowsOptionalFeature -Online -FeatureName $("VirtualMachinePlatform", "Microsoft-Windows-Subsystem-Linux")
 
+Using git with penrose
+    git status
+    git add <filenames> (if need be)
+    git commit -m "domain: [program-analysis-domain] <what I did>"
+        NOTE: this doesn't work for Jonathan in github desktop, have to use command line
+    git push
+    
+    [will be easier if I set up ssh key with command line - or just push with desktop]
+    
     
 Windows Installation steps
 --------------------------

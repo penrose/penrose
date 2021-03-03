@@ -1,5 +1,21 @@
-Node n1, n2
+Node start
+Label start $\mbox{start}$
 
+Node n1, n2, n3, n4, n5, n6
+
+Label n1 $1: \mbox{if}~x=0~\mbox{goto}~4$
+Label n2 $2: y := 0$
+Label n3 $3: \mbox{goto}~6$
+Label n4 $4: y := 1$
+Label n5 $5: x := 1$
+Label n6 $6: z := y$
+
+Edge(start, n1)
 Edge(n1, n2)
+Edge(n1, n4)
+Edge(n2, n3)
+Edge(n3, n6)
+Edge(n4, n5)
+Edge(n5, n6)
 
-AutoLabel All
+-- we left of trying to label edges

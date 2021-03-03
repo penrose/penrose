@@ -5,19 +5,45 @@ global {
 
 Colors {
     black = rgba(0.0, 0.0, 0.0, 1.0)
+    green = rgba(0.0, 1.0, 0.0, 1.0)
 }
 
 Node N {
     N.shape = Rectangle { 
-        w : global.padding*2.0
-        h : global.padding*2.0
-	    color : Colors.black	 
+        w : N.text.w + global.padding*2.0
+        h : N.text.h + global.padding*2.0
+	    color : Colors.green	 
     }
+    N.text = Text {
+        center : N.shape.center
+        string : N.label
+        rotation : 0.0
+        color : Colors.black
+    }
+    N.h = N.shape.h
+    N.text above N.shape
+}
+
+Node `start` {
+    -- maybe replace with Octagon?  requires path magic
+    override `start`.shape = Circle {
+        r : max(`start`.text.w, `start`.text.h)/2.0 + global.padding
+	    color : Colors.green
+    }
+    override `start`.text = Text {
+        center : `start`.shape.center
+        string : "start"
+        rotation : 0.0
+        color : Colors.black
+    }
+    override `start`.h=`start`.text.h/2.0
 }
 
 Node n1
 where Edge(n1, n2)
 with Node n2 {
-    E.shape = Line { 
+    theLine = Line { 
+        start: n1.shape.center + (0.0, n1.h/2.0)
+        end: n2.shape.center
     }
 }
