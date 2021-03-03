@@ -1,0 +1,43 @@
+{
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
+  "domains": {
+    "set-theory": {
+      "name": "Set Theory",
+      "URI": "set-theory-domain/setTheory.dsl"
+    }
+  },
+  "styles": {
+    "venn": {
+      "domain": "set-theory",
+      "name": "Venn",
+      "URI": "set-theory-domain/venn.sty"
+    },
+    "tree": {
+      "domain": "set-theory",
+      "name": "Tree",
+      "URI": "set-theory-domain/tree.sty"
+    },
+    "continuousmap": {
+      "domain": "set-theory",
+      "name": "Continuous Map",
+      "URI": "set-theory-domain/continuousmap.sty"
+    },
+    "venn-3d": {
+      "domain": "set-theory",
+      "name": "Venn 3D",
+      "URI": "set-theory-domain/venn-3d.sty"
+    }
+  },
+  "substances": {
+    "nested": {
+      "domain": "set-theory",
+      "name": "Nested",
+      "URI": "set-theory-domain/nested.sub"
+    }
+  },
+  "tree": {
+    "domain": "set-theory",
+    "name": "Tree",
+    "URI": "set-theory-domain/tree.sub"
+  }
+}
