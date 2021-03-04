@@ -140,7 +140,7 @@ export const compileTrio = (
  */
 export const prepareState = async (state: State): Promise<State> => {
   await initializeMat();
-  // TODO:L errors
+  // TODO: errors
   const stateAD = {
     ...state,
     originalTranslation: state.originalTranslation,
@@ -152,17 +152,9 @@ export const prepareState = async (state: State): Promise<State> => {
 
   const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
 
-  const sortedShapes: Shape[] = sortShapes(
-    stateEvaled.shapes,
-    stateEvaled.shapeOrdering
-  );
-
-  const nonEmpties = sortedShapes.filter(notEmptyLabel);
-
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
     labelCache,
-    shapes: nonEmpties,
   });
 
   return stateWithPendingProperties;
@@ -227,4 +219,5 @@ export {
   toHex,
   initializeMat,
   showError,
+  Result,
 };
