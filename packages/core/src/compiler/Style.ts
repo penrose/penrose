@@ -21,7 +21,7 @@ import {
   isTagExpr,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
-import _ from "lodash";
+import _, { last, result } from "lodash";
 import nearley from "nearley";
 import styleGrammar from "parser/StyleParser";
 import {
@@ -51,6 +51,7 @@ import {
   PenroseError,
   StyleError,
 } from "types/errors";
+import { lastLocation } from "parser/ParserUtil";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -2809,10 +2810,14 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
   try {
     const { results } = parser.feed(p).feed("\n");
-    const ast: StyProg = results[0] as StyProg;
-    return ok(ast);
+    if (results.length > 0) {
+      const ast: StyProg = results[0] as StyProg;
+      return ok(ast);
+    } else {
+      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+    }
   } catch (e) {
-    return err(parseError(e));
+    return err(parseError(e, lastLocation(parser)));
   }
 };
 

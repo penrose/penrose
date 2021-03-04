@@ -187,6 +187,7 @@ export interface StyleErrorList {
 export interface ParseError {
   tag: "ParseError";
   message: string;
+  location?: SourceLoc;
 }
 
 export interface SelectorDeclTypeError {
