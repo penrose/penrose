@@ -1,5 +1,5 @@
 import typescript from "rollup-plugin-typescript2";
-import visualizer from "rollup-plugin-visualizer";
+// import visualizer from "rollup-plugin-visualizer";
 import { terser } from "rollup-plugin-terser";
 import nodePolyfills from "rollup-plugin-node-polyfills";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
@@ -55,6 +55,7 @@ export default [
     },
     onwarn,
     plugins,
+    cache: pkg.module, // for incremental builds
   },
   {
     input,
@@ -66,5 +67,6 @@ export default [
     watch: false, // no need to rebuild during watch - targeting node only
     onwarn,
     plugins,
+    cache: pkg.main, // for incremental builds
   },
 ];

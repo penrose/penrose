@@ -7,11 +7,13 @@ import { SVG } from "mathjax-full/js/output/svg.js";
 // Auto-switch between browser and native (Lite) --
 // not sure about the latter's fallback behavior
 import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-const adaptor = chooseAdaptor();
+// const adaptor = chooseAdaptor();
+const adaptor = browserAdaptor();
 RegisterHTMLHandler(adaptor as any);
 const tex = new TeX({
   packages: AllPackages,
@@ -36,10 +38,7 @@ const convert = (input: string, fontSize: string) => {
   // Not sure if this call does anything:
   // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
   adaptor.setStyle(node, "font-size", fontSize);
-  const inner = adaptor.innerHTML(node);
-  const doc = new DOMParser().parseFromString(inner, "text/html").body
-    .firstChild as any;
-  return doc as SVGSVGElement;
+  return node.firstChild as SVGSVGElement;
 };
 
 /**
@@ -57,7 +56,11 @@ const tex2svg = memoize(
           resolve({ output: undefined, width: 0, height: 0 });
           return;
         }
-        const { width, height } = output.viewBox.baseVal;
+        // console.log(output);
+        // console.log(output.viewBox.baseVal);
+        const viewBox = output.getAttribute("viewBox")!.split(" ");
+        const width = parseFloat(viewBox[2]);
+        const height = parseFloat(viewBox[3]);
 
         // rescaling according to
         // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248

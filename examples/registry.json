@@ -1,0 +1,89 @@
+{
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
+  "trios": [
+    {
+      "substance": "tree",
+      "style": "venn",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "tree",
+      "style": "tree",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "tree",
+      "style": "venn-3d",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "continuousmap",
+      "style": "continuousmap",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "two-vectors-perp",
+      "style": "linear-algebra-simple",
+      "domain": "linear-algebra"
+    }
+  ],
+  "domains": {
+    "set-theory": {
+      "name": "Set Theory",
+      "URI": "set-theory-domain/setTheory.dsl"
+    },
+    "linear-algebra": {
+      "name": "Linear Algebra",
+      "URI": "linear-algebra-domain/linear-algebra.dsl"
+    }
+  },
+  "styles": {
+    "venn": {
+      "domain": "set-theory",
+      "name": "Venn",
+      "URI": "set-theory-domain/venn.sty"
+    },
+    "tree": {
+      "domain": "set-theory",
+      "name": "Tree",
+      "URI": "set-theory-domain/tree.sty"
+    },
+    "continuousmap": {
+      "domain": "set-theory",
+      "name": "Continuous Map",
+      "URI": "set-theory-domain/continuousmap.sty"
+    },
+    "venn-3d": {
+      "domain": "set-theory",
+      "name": "Venn 3D",
+      "URI": "set-theory-domain/venn-3d.sty"
+    },
+    "linear-algebra-simple": {
+      "domain": "linear-algebra",
+      "name": "Linear Algebra 2D",
+      "URI": "linear-algebra-domain/linear-algebra-paper-simple.sty"
+    }
+  },
+  "substances": {
+    "two-vectors-perp": {
+      "domain": "linear-algebra",
+      "name": "Two Perpendicular Vectors",
+      "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
+    },
+    "continuousmap": {
+      "domain": "set-theory",
+      "name": "Continuous Map",
+      "URI": "set-theory-domain/continuousmap.sub"
+    },
+    "nested": {
+      "domain": "set-theory",
+      "name": "Nested",
+      "URI": "set-theory-domain/nested.sub"
+    },
+    "tree": {
+      "domain": "set-theory",
+      "name": "Tree",
+      "URI": "set-theory-domain/tree.sub"
+    }
+  }
+}
