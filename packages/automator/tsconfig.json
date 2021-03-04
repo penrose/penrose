@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "allowJs": true,
     "esModuleInterop": true,
     "target": "es6",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "sourceMap": true,
     "outDir": "dist",
     "jsx": "react",
