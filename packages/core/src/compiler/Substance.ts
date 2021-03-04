@@ -1,7 +1,7 @@
 import { Map } from "immutable";
 import { findIndex, zip } from "lodash";
 import nearley from "nearley";
-import { idOf } from "parser/ParserUtil";
+import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
@@ -35,10 +35,14 @@ export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
   );
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
-    const ast: SubProg = results[0] as SubProg;
-    return ok(ast);
+    if (results.length > 0) {
+      const ast: SubProg = results[0] as SubProg;
+      return ok(ast);
+    } else {
+      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+    }
   } catch (e) {
-    return err(parseError(e));
+    return err(parseError(e, lastLocation(parser)));
   }
 };
 

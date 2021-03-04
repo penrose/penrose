@@ -1,9 +1,9 @@
 // const grammar = require("./Style.ne");
-import * as nearley from "nearley";
-import grammar from "./StyleParser";
-import * as path from "path";
+import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
-import { result } from "lodash";
+import * as nearley from "nearley";
+import * as path from "path";
+import grammar from "./StyleParser";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;
@@ -53,6 +53,14 @@ describe("Common", () => {
   test("empty program", () => {
     const { results } = parser.feed("");
     sameASTs(results);
+  });
+  test("unbalanced curly", () => {
+    const prog = `
+    forall Set x {
+      x.shape = Circle { 
+  }
+    `;
+    expect(parseStyle(prog).isErr()).toEqual(true);
   });
   test("type keyword check", () => {
     const prog = `
