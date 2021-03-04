@@ -121,7 +121,8 @@ const singleProcess = async (
       },
       // violatingConstraints: constrs,
       // nonzeroConstraints: constrs.length > 0,
-      selectorMatches: optimizedState.selectorMatches,
+      // selectorMatches: optimizedState.selectorMatches,
+      selectorMatches: [],
       optProblem: {
         constraintCount: optimizedState.constrFns.length,
         objectiveCount: optimizedState.objFns.length,
