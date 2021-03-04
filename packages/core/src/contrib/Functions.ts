@@ -347,6 +347,12 @@ export const compDict = {
     // i.e. endY \in [minY, maxY]
 
     // Return the OTHER side, which is needed for arrow placement
+
+    // TODO:
+    // I'm pretty sure this function is just wrong -- the `end` doesn't have to lie in any range, and the start always does
+    // Find some other way to calculate what side intersects the ray between the poitns
+    // Also, this wasn't the main function w/ the problem. It was also disjoint rectangles, rect-line etc. <<<
+
     const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), h, w);
     return { tag: "FloatV", contents: dim };
   },

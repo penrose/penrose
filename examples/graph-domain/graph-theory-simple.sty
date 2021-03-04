@@ -59,8 +59,11 @@ with Vertex v1; Vertex v2 {
 
      vec2 dir = normalize(v2.shape.center - v1.shape.center)
      scalar padding = 20.
-     scalar arrowheadSize = 17. -- Guess
+     -- scalar arrowheadSize = 17. -- Guess
 
+     -- TODO: This doesn't appear to work correctly even with all the constraints/objectives off. and no arrowhead. Why? What code is generated?
+     -- Oh, this is not the full calculation. x1 = (l/2) / cos theta
+     -- If it's just for the shapes evaluation round, it's evaluated in the translation, not compiled.
    scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
    scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
 
@@ -69,11 +72,11 @@ with Vertex v1; Vertex v2 {
 
      E.shape = Line { 
      	     start : v1.shape.center + (startSideDim / 2. + padding) * dir
-     	     end : v2.shape.center - (endSideDim / 2. + arrowheadSize + padding) * dir
+     	     end : v2.shape.center - (endSideDim / 2. + padding) * dir
 	     color : Colors.black
 	     thickness : 2.0
-             rightArrowhead: true
-             arrowheadSize: 0.7
+             -- rightArrowhead: true
+             -- arrowheadSize: 0.7
      }
 
      E.text = Text {
@@ -83,18 +86,18 @@ with Vertex v1; Vertex v2 {
 
 -- DEBUG: Maybe it has to do with optimizing WRT the shape of the arrow??
 
-     encourage centerLabel(E.shape, E.text, 5.0)
-     ensure disjoint(E.text, E.shape)
-     ensure contains(global.box, E.text)
+     -- encourage centerLabel(E.shape, E.text, 5.0)
+     -- ensure disjoint(E.text, E.shape)
+     -- ensure contains(global.box, E.text)
 
 -- DEBUG: Or, adding this `equal` makes it slower? Maybe because it involves v1.shape.center?
 -- Or, adding multiple functions that involve the arrow and box makes things slow, because there's a blowup?
 
 -- DEBUG: What exactly is slow? Is it the optimization itself, or the grad gen or something else?
 
-   encourage equal(v1.shape.center[1], v2.shape.center[1]) 
-   ensure lessThan(v1.shape.center[0], v2.shape.center[0]) 
-   ensure minSize(E.shape)
+   -- encourage equal(v1.shape.center[1], v2.shape.center[1]) 
+   -- ensure lessThan(v1.shape.center[0], v2.shape.center[0]) 
+   -- ensure minSize(E.shape)
 
      v1.shape above E.shape
      v2.shape above E.shape
@@ -105,17 +108,17 @@ with Vertex v1; Vertex v2 {
 Vertex v1; Vertex v2 {
 -- DEBUG: These two together appear to cause a horrible slowdown, but not individually??
 -- Maybe because there are constraints and objectives??
-       ensure disjoint(v1.shape, v2.shape, 10.)
-       encourage repel(v1.shape, v2.shape)
+       -- ensure disjoint(v1.shape, v2.shape, 10.)
+       -- encourage repel(v1.shape, v2.shape)
 }
 
 Edge e1; Edge e2 {
-   ensure disjoint(e1.text, e2.text)
-   ensure notCrossing(e1.shape, e2.shape)
+   -- ensure disjoint(e1.text, e2.text)
+   -- ensure notCrossing(e1.shape, e2.shape)
 }
 
 Vertex v; Edge e {
 -- DEBUG: These two also appear to cause a big slowdown?
-       ensure disjoint(v.shape, e.shape)
-       ensure disjoint(v.shape, e.text)
+       -- ensure disjoint(v.shape, e.shape)
+       -- ensure disjoint(v.shape, e.text)
 }
