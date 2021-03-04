@@ -478,9 +478,13 @@ export const fatalError = (message: string): FatalError => ({
   message,
 });
 
-export const parseError = (message: string): ParseError => ({
+export const parseError = (
+  message: string,
+  location?: SourceLoc
+): ParseError => ({
   tag: "ParseError",
   message,
+  location,
 });
 
 // If there are multiple errors, just return the tag of the first one

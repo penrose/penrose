@@ -172,3 +172,15 @@ export const idOf = (value: string, nodeType: string): Identifier => ({
   type: "identifier",
   value,
 });
+
+export const lastLocation = (parser: nearley.Parser): SourceLoc | undefined => {
+  const lexerState = parser.lexerState;
+  if (lexerState) {
+    return {
+      line: lexerState.line,
+      col: lexerState.col,
+    };
+  } else {
+    return undefined;
+  }
+};
