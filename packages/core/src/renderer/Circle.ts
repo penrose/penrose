@@ -3,7 +3,7 @@ import {
   attrFill,
   attrRadius,
   attrStroke,
-  attrTitle,
+  attrTitle
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 

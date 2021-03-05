@@ -73,6 +73,14 @@ const widthSampler: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
   contents: randFloat(3, canvasSize[0] / 6),
 });
+const zeroFloat: Sampler = (): IFloatV<number> => ({
+  tag: "FloatV",
+  contents: 0.0
+});
+const pathLengthSampler: Sampler = (): IFloatV<number> => ({
+  tag: "FloatV",
+  contents: 1.0
+});
 const heightSampler: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
   contents: randFloat(3, canvasSize[1] / 6),
@@ -149,6 +157,24 @@ export const circleDef: ShapeDef = {
   properties: {
     center: ["VectorV", vectorSampler],
     r: ["FloatV", widthSampler],
+    pathLength: ["FloatV", pathLengthSampler],
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultCircle")],
+  },
+};
+
+
+export const ellipseDef: ShapeDef = {
+  shapeType: "Ellipse",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    rx: ["FloatV", widthSampler],
+    ry: ["FloatV", heightSampler],
+    pathLength: ["FloatV", pathLengthSampler],
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
@@ -165,6 +191,7 @@ export const rectDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
+    rx: ["FloatV", zeroFloat],
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
@@ -224,6 +251,7 @@ export const squareDef: ShapeDef = {
     side: ["FloatV", widthSampler],
     rotation: ["FloatV", () => constValue("FloatV", 0)],
     style: ["StrV", () => constValue("StrV", "none")],
+    rx: ["FloatV", zeroFloat],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -311,6 +339,7 @@ export const curveDef: ShapeDef = {
  */
 export const shapedefs: ShapeDef[] = [
   circleDef,
+  ellipseDef,
   textDef,
   rectDef,
   polygonDef,
