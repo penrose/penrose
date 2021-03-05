@@ -75,6 +75,22 @@ export const attrRadius = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("r", r.contents.toString());
 };
 
+export const attrPathLength = ({ properties }: Shape, elem: SVGElement) => {
+  const pathLength = properties.pathLength as IFloatV<number>;
+  elem.setAttribute("pathLength", pathLength.contents.toString());
+};
+
+
+export const attrRadiusX = ({ properties }: Shape, elem: SVGElement) => {
+  const rx = properties.rx as IFloatV<number>;
+  elem.setAttribute("rx", rx.contents.toString());
+};
+
+export const attrRadiusY = ({ properties }: Shape, elem: SVGElement) => {
+  const ry = properties.ry as IFloatV<number>;
+  elem.setAttribute("ry", ry.contents.toString());
+};
+
 export const attrRadii = ({ properties }: Shape, elem: SVGElement) => {
   const rx = properties.rx as IFloatV<number>;
   const ry = properties.ry as IFloatV<number>;

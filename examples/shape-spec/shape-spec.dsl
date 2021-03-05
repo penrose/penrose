@@ -1,9 +1,18 @@
-type Circle
-type Text
+-- -- Basic shapes
+
+type Polygon
+type Polyline
 type Rectangle
-type Square
+type Circle
+type Ellipse
+type Line
+
+-- -- Graphics Elements
+
+type Text
 type Path
 type Image
-type Line
+
+-- -- 
 type Arrow
-type Polygon
+type Square
