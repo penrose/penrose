@@ -7,7 +7,13 @@ import {
   SubstanceEnv,
 } from "compiler/Substance";
 import { evalShapes } from "engine/Evaluator";
-import { initializeMat, step } from "engine/Optimizer";
+import {
+  evalEnergy,
+  evalEnergyOnCustom,
+  genOptProblem,
+  initializeMat,
+  step,
+} from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
@@ -135,7 +141,7 @@ export const compileTrio = (
 };
 
 /**
- * Generate all shapes and collect labels and images (if applicable) given an initial `State`.
+ * Generate all shapes, collect labels and images (if applicable), and generate the optimization problem given an initial `State`.
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
@@ -157,7 +163,9 @@ export const prepareState = async (state: State): Promise<State> => {
     labelCache,
   });
 
-  return stateWithPendingProperties;
+  const withOptProblem = genOptProblem(stateWithPendingProperties);
+
+  return withOptProblem;
 };
 
 /**
@@ -219,5 +227,6 @@ export {
   toHex,
   initializeMat,
   showError,
+  evalEnergy,
   Result,
 };

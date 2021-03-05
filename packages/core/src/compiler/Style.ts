@@ -2728,9 +2728,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
 // ---- MAIN FUNCTION
 
 // COMBAK: Add optConfig as param?
-const genOptProblemAndState = (
-  trans: Translation
-): Result<State, StyleErrors> => {
+const genState = (trans: Translation): Result<State, StyleErrors> => {
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const uninitializedPaths = findUninitialized(trans);
@@ -2773,7 +2771,7 @@ const genOptProblemAndState = (
     shapeOrdering,
 
     translation: transInit, // This is the result of the data processing
-    originalTranslation: clone(trans),
+    originalTranslation: clone(trans), // COMBAK: never used, remove later
 
     varyingPaths,
     varyingValues: initVaryingState,
@@ -3038,7 +3036,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleErrors> = genOptProblemAndState(trans);
+  const initState: Result<State, StyleErrors> = genState(trans);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {

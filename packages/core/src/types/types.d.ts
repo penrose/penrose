@@ -626,8 +626,8 @@ interface IParams {
   functionsCompiled: boolean;
 
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objective: any; // number -> (number[] -> number)
-  gradient: any; // number -> (number[] -> number[])
+  objective: (epWeight: number) => (xs: number[]) => number;
+  gradient: (epWeight: number) => (xs: number[]) => number[];
 
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
   currObjective(xs: number[]): number;

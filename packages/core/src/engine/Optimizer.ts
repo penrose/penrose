@@ -15,6 +15,7 @@ import {
   makeTranslationNumeric,
   defaultLbfgsParams,
   initConstraintWeight,
+  insertGPI,
 } from "engine/EngineUtils";
 import { normList, repeat, prettyPrintPath } from "utils/OtherUtils";
 import {
@@ -185,65 +186,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       if (true) {
-        // Compile objective and gradient
-        log.info("Compiling objective and gradient");
-
-        // `overallEnergy` is a partially applied function, waiting for an input.
-        // When applied, it will interpret the energy via lookups on the computational graph
-        // TODO: Could save the interpreted energy graph across amples
-        const overallObjective = evalEnergyOnCustom(state);
-        const xsVars: VarAD[] = makeADInputVars(xs);
-        const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
-        // `energyGraph` is a VarAD that is a handle to the top of the graph
-
-        log.info("interpreted energy graph", res.energyGraph);
-        log.info("input vars", xsVars);
-
-        const weightInfo = {
-          // TODO: factor out
-          constrWeightNode: res.constrWeightNode,
-          epWeightNode: res.epWeightNode,
-          constrWeight: constraintWeight,
-          epWeight: initConstraintWeight,
-        };
-
-        const { graphs, f, gradf } = energyAndGradCompiled(
-          xs,
-          xsVars,
-          res.energyGraph,
-          weightInfo
-        );
-
-        eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
-
-        const newParams: Params = {
-          ...state.params,
-          xsVars,
-
-          lastGradient: repeat(xs.length, 0),
-          lastGradientPreconditioned: repeat(xs.length, 0),
-
-          graphs,
-          objective: f,
-          gradient: gradf,
-
-          functionsCompiled: true,
-
-          currObjective: f(initConstraintWeight),
-          currGradient: gradf(initConstraintWeight),
-
-          energyGraph: res.energyGraph,
-          constrWeightNode: res.constrWeightNode,
-          epWeightNode: res.epWeightNode,
-          weight: initConstraintWeight,
-          UOround: 0,
-          EPround: 0,
-          optStatus: { tag: "UnconstrainedRunning" },
-
-          lbfgsInfo: defaultLbfgsParams,
-        };
-
-        return { ...state, params: newParams, overallObjective };
+        return genOptProblem(state);
       } else {
         // Reuse compiled functions for resample; set other initialization params accordingly
         // The computational graph gets destroyed in resample (just for now, because it can't get serialized)
@@ -959,4 +902,85 @@ export const evalEnergyOnCustom = (state: State) => {
       epWeightNode,
     };
   };
+};
+
+export const genOptProblem = (state: State): State => {
+  const xs: number[] = state.varyingValues;
+  log.trace("step newIter, xs", xs);
+
+  // if (!state.params.functionsCompiled) {
+  // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
+  // Compile objective and gradient
+  log.info("Compiling objective and gradient");
+
+  // `overallEnergy` is a partially applied function, waiting for an input.
+  // When applied, it will interpret the energy via lookups on the computational graph
+  // TODO: Could save the interpreted energy graph across amples
+  const overallObjective = evalEnergyOnCustom(state);
+  const xsVars: VarAD[] = makeADInputVars(xs);
+  const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+  // `energyGraph` is a VarAD that is a handle to the top of the graph
+
+  log.info("interpreted energy graph", res.energyGraph);
+  log.info("input vars", xsVars);
+
+  const weightInfo = {
+    // TODO: factor out
+    constrWeightNode: res.constrWeightNode,
+    epWeightNode: res.epWeightNode,
+    constrWeight: constraintWeight,
+    epWeight: initConstraintWeight,
+  };
+
+  const { graphs, f, gradf } = energyAndGradCompiled(
+    xs,
+    xsVars,
+    res.energyGraph,
+    weightInfo
+  );
+
+  eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
+
+  const newParams: Params = {
+    ...state.params,
+    xsVars,
+
+    lastGradient: repeat(xs.length, 0),
+    lastGradientPreconditioned: repeat(xs.length, 0),
+
+    graphs,
+    objective: f,
+    gradient: gradf,
+
+    functionsCompiled: true,
+
+    currObjective: f(initConstraintWeight),
+    currGradient: gradf(initConstraintWeight),
+
+    energyGraph: res.energyGraph,
+    constrWeightNode: res.constrWeightNode,
+    epWeightNode: res.epWeightNode,
+    weight: initConstraintWeight,
+    UOround: 0,
+    EPround: 0,
+    optStatus: { tag: "UnconstrainedRunning" },
+
+    lbfgsInfo: defaultLbfgsParams,
+  };
+
+  return { ...state, params: newParams };
+};
+
+export const evalEnergy = (s: State): number => {
+  const { objective, weight } = s.params;
+  // NOTE: `prepareState`
+  if (!objective) {
+    log.warn(
+      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
+    );
+    const newState = genOptProblem(s);
+    // TODO: caching
+    return evalEnergy(newState);
+  }
+  return objective(weight)(s.varyingValues);
 };
