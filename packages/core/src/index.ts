@@ -173,14 +173,14 @@ export const prepareState = async (state: State): Promise<State> => {
  * @param state current state
  */
 export const stateConverged = (state: State): boolean =>
-  state.params.optStatus.tag === "EPConverged";
+  state.params.optStatus === "EPConverged";
 
 /**
  * Returns true if state is the initial frame
  * @param state current state
  */
 export const stateInitial = (state: State): boolean =>
-  state.params.optStatus.tag === "NewIter";
+  state.params.optStatus === "NewIter";
 
 /**
  * Read and flatten the registry file for Penrose examples into a list of program trios.

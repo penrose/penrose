@@ -559,28 +559,11 @@ interface IFn {
 }
 type OptType = "ObjFn" | "ConstrFn";
 
-// TODO: use strings for status
 type OptStatus =
-  | INewIter
-  | IUnconstrainedRunning
-  | IUnconstrainedConverged
-  | IEPConverged;
-
-interface INewIter {
-  tag: "NewIter";
-}
-
-interface IUnconstrainedRunning {
-  tag: "UnconstrainedRunning";
-}
-
-interface IUnconstrainedConverged {
-  tag: "UnconstrainedConverged";
-}
-
-interface IEPConverged {
-  tag: "EPConverged";
-}
+  | "NewIter"
+  | "UnconstrainedRunning"
+  | "UnconstrainedConverged"
+  | "EPConverged";
 
 type LbfgsParams = ILbfgsParams;
 

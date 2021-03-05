@@ -2784,7 +2784,7 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
 
     // `params` are initialized properly by optimization; the only thing it needs is the weight (for the objective function synthesis)
     params: ({
-      optStatus: { tag: "NewIter" },
+      optStatus: "NewIter" as const,
       weight: initConstraintWeight,
       lbfgsInfo: defaultLbfgsParams,
       UOround: -1,
