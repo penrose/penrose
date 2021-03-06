@@ -207,6 +207,26 @@ export const objDict = {
 
 export const constrDict = {
     /**
+     * Require that the end point of line `s1` is to the right of the start point
+     */
+    rightwards: ([t1, s1]: [string, any]) => {
+        if (t1 === "Line") {
+            // const x1 = debug(s1.start.contents[0], "x1");
+            // const x2 = debug(s1.end.contents[0], "x2");
+            const x1 = s1.start.contents[0];
+            const x2 = s1.end.contents[0];
+
+            // max(x1-x2, 0)^2
+            // return debug(sub(x1, x2), "energy");
+            const res = sub(x1, x2);
+            // debugger;
+            return res;
+        } else {
+            throw Error(`unsupported shape for 'rightwards': ${t1}`);
+        }
+    },
+
+    /**
      * Require that a shape have a size less than some constant maximum, based on the type of the shape.
      */
     maxSize: ([shapeType, props]: [string, any]) => {
