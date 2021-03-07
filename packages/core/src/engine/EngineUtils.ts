@@ -351,14 +351,14 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
   if (e.tag !== "FloatV") {
     throw Error("expected to insert vector elem of type float");
   }
+
   return {
     nodeType: "dummyExpr",
     children: [],
     start: dummySourceLoc(),
     end: dummySourceLoc(),
-    tag: "Fix",
-    contents: e.contents.val,
-    // COMBAK: This apparently held a VarAD before the AFloat grammar change? Is doing ".val" going to break something?
+    tag: "VaryAD",
+    contents: e.contents,
   };
 };
 

@@ -2450,7 +2450,13 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
   if (e.tag === "OptEval") {
     if (e.contents.tag === "Fix") {
       return e.contents.contents;
-    } else throw Error("internal error: invalid varying path");
+    }
+    if (e.contents.tag === "VaryAD") {
+      return e.contents.contents.val;
+    } else {
+      console.error("input", e);
+      throw Error("internal error: invalid varying path");
+    }
   } else if (e.tag === "Done") {
     if (e.contents.tag === "FloatV") {
       return numOf(e.contents.contents);
@@ -2516,7 +2522,10 @@ const isFieldOrAccessPath = (p: Path): boolean => {
 // This also samples varying access paths, e.g.
 // Circle { center : (1.1, ?) ... } <// the latter is an access path that gets initialized here
 // NOTE: Mutates translation
-const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
+const initFieldsAndAccessPaths = (
+  varyingPaths: Path[],
+  tr: Translation
+): Translation => {
   const varyingFields = varyingPaths.filter(isFieldOrAccessPath);
   const sampledVals = randFloats(varyingFields.length, canvasXRange);
   const vals: TagExpr<VarAD>[] = sampledVals.map(
@@ -2539,6 +2548,7 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
 // NOTE: since we store all varying paths separately, it is okay to mark the default values as Done // they will still be optimized, if needed.
 // TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
 
+// TODO: Doesn't sample partial shape properties, like start: (?, 1.) <- this is actually sampled by initFieldsAndAccessPaths
 // NOTE: Shape properties are mutated; they are returned as a courtesy
 const initProperty = (
   shapeType: ShapeTypeStr,
@@ -2738,7 +2748,7 @@ const genOptProblemAndState = (
   const shapePaths = shapePathList.map(mkPath);
 
   // sample varying fieldsr
-  const transInitFields = initFields(varyingPaths, trans);
+  const transInitFields = initFieldsAndAccessPaths(varyingPaths, trans);
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   const transInit = initShapes(transInitFields, shapePathList);
 
@@ -2906,6 +2916,7 @@ const findPathsExpr = (expr: Expr): Path[] => {
   } else if (
     expr.tag === "Fix" ||
     expr.tag === "Vary" ||
+    expr.tag === "VaryAD" ||
     expr.tag === "StringLit" ||
     expr.tag === "BoolLit"
   ) {

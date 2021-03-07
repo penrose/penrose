@@ -14,12 +14,13 @@ Colors {
 
 -- (1) Optimizing on fields
 
--- (1a) DOES NOT WORK:
+-- (1a) DOES NOT WORK: (but does work after fix)
 
 Object o {
     vec2 o.v1 = (?, ?)
     vec2 o.v2 = (?, ?)
 
+    -- This shape is properly optimized after fix
     shape o.shape = Line {
         start: o.v1
         end: o.v2
@@ -29,9 +30,17 @@ Object o {
     }
 
     ensure rightwards(o.shape)
+
+    shape o.shape1 = Line {
+        color: rgba(0., 0., 0., 1.)
+        thickness: 5.
+        rightArrowhead: true
+    }
+
+    ensure rightwards(o.shape1)
 }
 
--- (1b) DOES WORK:
+-- (1b) DOES WORK: (before fix)
 
 -- Object o {
 --     shape o.shape = Line {
