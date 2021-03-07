@@ -37,7 +37,7 @@ class ButtonBar extends React.Component<IProps> {
       showInspector,
       files,
       connected,
-      reconnect,
+      reconnect
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -76,7 +76,7 @@ class ButtonBar extends React.Component<IProps> {
                 ? "#55de55"
                 : initial
                 ? "#4286f4"
-                : "#ff9d23",
+                : "#ff9d23"
           }}
         />
         <div
@@ -84,7 +84,7 @@ class ButtonBar extends React.Component<IProps> {
             display: "inline-block",
             marginLeft: "1em",
             color: "#303030",
-            fontSize: "14px",
+            fontSize: "14px"
           }}
         >
           {files === null
