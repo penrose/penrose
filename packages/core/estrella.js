@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-const { build } = require("estrella");
+const { build, file } = require("estrella");
 const common = {
   entry: "./src/index.ts",
   bundle: true,
-  sourcemap: true,
+  sourcemap: "inline",
+  keepNames: true,
   tsconfig: "./tsconfig.json",
   platform: "browser",
   external: ["path", "fs", "crypto"],
-  //   incremental: true
 };
 build({ ...common, outfile: "./build/dist/index.esm.js", format: "esm" });
 
