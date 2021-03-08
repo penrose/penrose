@@ -1617,6 +1617,7 @@ const addPath = (
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
 
+  debugger;
   // Check insertExpr's errors and warnings first
   const tr2 = insertExpr(path, expr, trans, true, override);
   if (tr2.warnings.length > 0) {
@@ -2473,6 +2474,7 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
+  debugger;
   return ps.map((path) => findExprSafe(tr, path)).map(getNum);
 };
 
@@ -2509,9 +2511,9 @@ const isFieldOrAccessPath = (p: Path): boolean => {
   if (p.tag === "FieldPath") {
     return true;
   } else if (p.tag === "AccessPath") {
-    if (p.path.tag === "FieldPath") {
+    if (p.path.tag === "FieldPath" || p.path.tag === "PropertyPath") {
       return true;
-    }
+    } else throw Error("unexpected sub-accesspath type");
   }
 
   return false;
@@ -2526,8 +2528,11 @@ const initFieldsAndAccessPaths = (
   varyingPaths: Path[],
   tr: Translation
 ): Translation => {
-  const varyingFields = varyingPaths.filter(isFieldOrAccessPath);
-  const sampledVals = randFloats(varyingFields.length, canvasXRange);
+  const varyingFieldsAndAccessPaths = varyingPaths.filter(isFieldOrAccessPath);
+  const sampledVals = randFloats(
+    varyingFieldsAndAccessPaths.length,
+    canvasXRange
+  );
   const vals: TagExpr<VarAD>[] = sampledVals.map(
     (v: number): TagExpr<VarAD> => ({
       tag: "Done",
@@ -2537,8 +2542,9 @@ const initFieldsAndAccessPaths = (
       },
     })
   );
-  const tr2 = insertExprs(varyingFields, vals, tr);
+  const tr2 = insertExprs(varyingFieldsAndAccessPaths, vals, tr);
 
+  debugger;
   return tr2;
 };
 
@@ -2747,34 +2753,36 @@ const genOptProblemAndState = (
   const shapePathList: [string, string][] = findShapeNames(trans);
   const shapePaths = shapePathList.map(mkPath);
 
-  // sample varying fieldsr
-  const transInitFields = initFieldsAndAccessPaths(varyingPaths, trans);
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
-  const transInit = initShapes(transInitFields, shapePathList);
+  // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
+  const transInitShapes = initShapes(trans, shapePathList);
+
+  // sample varying fields and access paths, and put them in the translation
+  const transInitAll = initFieldsAndAccessPaths(varyingPaths, transInitShapes);
 
   // CHECK TRANSLATION
   // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
-  const transErrs = checkTranslation(transInit);
+  const transErrs = checkTranslation(transInitAll);
   if (transErrs.length > 0) {
     return err(transErrs);
   }
 
-  const shapeProperties = findShapesProperties(transInit);
-  const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInit);
-  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInit);
+  const shapeProperties = findShapesProperties(transInitAll);
+  const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInitAll);
+  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInitAll);
   const [objFns, constrFns] = [
     objfnsDecl.concat(objfnsDefault),
     constrfnsDecl.concat(constrfnsDefault),
   ];
 
-  const [initialGPIs, transEvaled] = [[], transInit];
+  const [initialGPIs, transEvaled] = [[], transInitAll];
   const initVaryingState: number[] = lookupNumericPaths(
     varyingPaths,
     transEvaled
   );
 
-  const pendingPaths = findPending(transInit);
-  const shapeOrdering = computeShapeOrdering(transInit); // deal with layering
+  const pendingPaths = findPending(transInitAll);
+  const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
   const initState = {
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
@@ -2782,7 +2790,7 @@ const genOptProblemAndState = (
     shapeProperties,
     shapeOrdering,
 
-    translation: transInit, // This is the result of the data processing
+    translation: transInitAll, // This is the result of the data processing
     originalTranslation: clone(trans),
 
     varyingPaths,

@@ -569,6 +569,7 @@ export const insertExpr = (
             throw Error(err);
           }
           const res2: TagExpr<IVarAD> = res.contents;
+
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
             const res3: Expr = res2.contents;
@@ -651,6 +652,8 @@ export const insertExpr = (
           ] as IFGPI<VarAD>;
           const [, properties] = gpi.contents;
           const res = properties[prop.value];
+
+          // debugger;
 
           if (res.tag === "OptEval") {
             // Deal with vector expresions
