@@ -1,0 +1,63 @@
+canvas {
+    width = 1000.
+    height = 600.
+
+    shape box = Rectangle {
+        w: width
+        h: height
+
+        center: (0., 0.)
+
+        strokeColor: rgba(0., 0., 0., 1.)
+        strokeWidth: 3.
+
+        color: rgba(1., 1., 1., 0.)
+    }
+}
+
+Object o {
+    naturalLength = 150.
+    o.tensorRank = 1.
+    o.tensorImbalance = 0.
+
+    o.left = -canvas.width/2.
+    o.right = canvas.width/2.
+
+    o.minY = -canvas.height/2.
+    o.maxY = canvas.height/2.
+
+    vec2 o.v1 = (?, ?)
+    vec2 o.v2 = (?, ?)
+
+    shape o.shape = Line {
+        start: o.v1
+        end: o.v2
+        color: rgba(0., 0., 0., 1.)
+        thickness: 5.
+        rightArrowhead: true
+    }
+
+    shape o.shape2 = Line {
+        -- start: o.v1 -- (Doesn't work for now)
+        -- end: o.v2
+        color: rgba(0., 0., 0., 1.)
+        thickness: 5.
+        rightArrowhead: true
+    }
+
+    ensure rightwards(o.shape)
+    ensure equal(o.shape.start[1], o.shape.end[1]) -- lines are horizontal
+
+    override o.shape2.start[0] = o.shape.start[0]
+    override o.shape2.start[1] = o.shape.start[1]
+    -- ensure lessThan(o.shape.start[0], o.shape.end[0]) -- lines move from left to right
+
+    -- ensure equal(o.shape.start[0], o.left) -- once vec2s are fixed, don't use optimizer for this
+    -- ensure equal(o.shape.end[0], o.right)
+
+    -- ensure lessThan(o.shape.start[1], o.maxY, 30.)
+    -- ensure lessThan(o.minY, o.shape.start[1], 30.)
+
+    -- encourage lengthNear(o.shape, naturalLength)
+    o.shape above canvas.box
+}

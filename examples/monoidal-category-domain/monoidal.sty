@@ -1,0 +1,14 @@
+Object o {
+    vec2 o.v1 = (?, ?)
+    vec2 o.v2 = (?, ?)
+
+    shape o.shape = Line {
+        start: o.v1
+        end: o.v2
+        color: rgba(0., 0., 0., 1.)
+        thickness: 5.
+        rightArrowhead: true
+    }
+
+    ensure rightwards(o.shape)
+}
