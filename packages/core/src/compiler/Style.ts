@@ -19,6 +19,7 @@ import {
   isPath,
   valueNumberToAutodiffConst,
   isTagExpr,
+  dummyASTNode,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
 import _, { last, result } from "lodash";
@@ -256,16 +257,6 @@ const dummyIdentifier = (name: string): Identifier => {
     tag: "Identifier",
     start: dummySourceLoc(),
     end: dummySourceLoc(),
-  };
-};
-
-const dummyASTNode = (o: any): ASTNode => {
-  return {
-    ...o,
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
-    nodeType: "dummyASTNode", // COMBAK: Is this ok?
-    children: [],
   };
 };
 
@@ -629,7 +620,6 @@ const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
       args: expr.args.map((arg) => substituteExpr(subst, arg)),
     };
   } else {
-    debugger;
     throw Error("unsupported tag");
   }
 };
@@ -1617,7 +1607,6 @@ const addPath = (
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
 
-  debugger;
   // Check insertExpr's errors and warnings first
   const tr2 = insertExpr(path, expr, trans, true, override);
   if (tr2.warnings.length > 0) {
@@ -2474,7 +2463,6 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
 export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
-  debugger;
   return ps.map((path) => findExprSafe(tr, path)).map(getNum);
 };
 
@@ -2544,7 +2532,6 @@ const initFieldsAndAccessPaths = (
   );
   const tr2 = insertExprs(varyingFieldsAndAccessPaths, vals, tr);
 
-  debugger;
   return tr2;
 };
 

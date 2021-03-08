@@ -225,6 +225,65 @@ describe("Compiler", () => {
     ]);
   });
 
+  describe("Correct Style programs", () => {
+    const domainProg = "type Object";
+    const subProg = "Object o";
+    // TODO: Name these programs
+    const styProgs = [
+      // These are mostly to test setting shape properties as vectors or accesspaths
+      `Object o {
+    shape o.shape = Line {}
+    o.shape.start[0] = 0.
+}
+`,
+      `Object o {
+    shape o.shape = Line {
+        start: (0., ?)
+    }
+}`,
+      `Object o {
+    shape o.shape = Line {
+          start: (?, ?)
+    }
+    o.shape.start[0] = 0.
+}`,
+      `Object o {
+    o.y = ?
+    shape o.shape = Line {
+        start: (0., o.y)
+    }
+}`,
+      // Set field
+      `Object o {
+       o.f = (?, ?)
+       o.f[0] = 0.
+       o.shape = Circle {}
+}`,
+    ];
+
+    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+
+    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+      (env) => compileSubstance(subProg, env),
+      domainRes
+    );
+
+    for (const styProg of styProgs) {
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) => S.compileStyle(styProg, ...res),
+        subRes
+      );
+
+      if (!styRes.isOk()) {
+        fail(
+          `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+        );
+      } else {
+        expect(true).toEqual(true);
+      }
+    }
+  });
+
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
 
   // Test errors
@@ -258,7 +317,7 @@ describe("Compiler", () => {
     }
   };
 
-  describe("Errors", () => {
+  describe("Expected Style errors", () => {
     const subProg = loadFile("set-theory-domain/twosets-simple.sub");
     const domainProg = loadFile("set-theory-domain/setTheory.dsl");
     // We test variations on this Style program
