@@ -97,6 +97,15 @@ export const objDict = {
   },
 
   /**
+   * Repel scalar `c` from another scalar `d`.
+   */
+  // TODO: Try to avoid NaNs/blowing up? add eps in denominator if c=d?
+  repelScalar: (c: any, d: any) => {
+    // 1/(c-d)^2
+    return inverse(squared(sub(constOfIf(c), constOfIf(d))));
+  },
+
+  /**
    * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
    */
   centerArrow: (
@@ -202,6 +211,14 @@ export const objDict = {
    */
   nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
     return ops.vdistsq(fns.center(s1), [constOfIf(x), constOfIf(y)]);
+  },
+
+  /**
+   * Try to make scalar `c` near another scalar `goal`.
+   */
+  // TODO: Can these be typed as `VarAD`?
+  nearScalar: (c: any, goal: any) => {
+    return squared(sub(constOfIf(c), constOfIf(goal)));
   },
 };
 
@@ -335,6 +352,19 @@ export const constrDict = {
         constrDict.inRange(endY, ly, ry),
       ]);
     } else throw new Error(`${[t1, t2]} not supported for contains`);
+  },
+
+  /**
+   * Make scalar `c` disjoint from a range `left, right`.
+   */
+  // TODO: NOTE: This doesn't seem to work super well w/ optimizer (though the math seems right). May be due to use of ifCond / discontinuous function.
+  disjointScalar: (c: any, left: any, right: any) => {
+    // if (x \in [l, r]) then min((x-l)^2, (x-r)^2) else 0
+    return ifCond(
+      inRange(constOfIf(c), constOfIf(left), constOfIf(right)),
+      min(squared(sub(c, left)), squared(sub(c, right))),
+      constOf(0)
+    );
   },
 
   /**
