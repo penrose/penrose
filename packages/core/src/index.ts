@@ -13,7 +13,8 @@ import RenderStatic, {
   RenderInteractive,
   RenderShape,
 } from "renderer/Renderer";
-import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
+import { notEmptyLabel, sortShapes } from "renderer/ShapeDef";
+import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
 import * as ShapeTypes from "types/shapeTypes";
 import { Shape } from "types/shapeTypes";

@@ -1,10 +1,10 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-// TODO: Fix imports
-import { varOf, numOf, constOf, constOfIf } from "engine/Autodiff";
+import { varOf, numOf, constOfIf } from "engine/Autodiff";
 import { showError } from "utils/Error";
 import * as _ from "lodash";
 import { Elem, SubPath, Value } from "types/shapeTypes";
+import { shapedefs, findDef } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { StyleError, Warning } from "types/errors";
 const clone = rfdc({ proto: false, circles: false });
@@ -347,18 +347,28 @@ const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
 };
 
+export const dummyASTNode = (o: any): ASTNode => {
+  return {
+    ...o,
+    start: dummySourceLoc(),
+    end: dummySourceLoc(),
+    nodeType: "dummyASTNode", // COMBAK: Is this ok?
+    children: [],
+  };
+};
+
 const floatValToExpr = (e: Value<VarAD>): Expr => {
   if (e.tag !== "FloatV") {
     throw Error("expected to insert vector elem of type float");
   }
+
   return {
     nodeType: "dummyExpr",
     children: [],
     start: dummySourceLoc(),
     end: dummySourceLoc(),
-    tag: "Fix",
-    contents: e.contents.val,
-    // COMBAK: This apparently held a VarAD before the AFloat grammar change? Is doing ".val" going to break something?
+    tag: "VaryAD",
+    contents: e.contents,
   };
 };
 
@@ -403,6 +413,23 @@ export const insertGPI = (
       throw Error("expected GPI");
     }
   }
+};
+
+const defaultVec2 = (): Expr => {
+  const e1: AnnoFloat = {
+    ...dummyASTNode({}),
+    tag: "Vary",
+  };
+  const e2: AnnoFloat = {
+    ...dummyASTNode({}),
+    tag: "Vary",
+  };
+  const v2: IVector = {
+    ...dummyASTNode({}),
+    tag: "Vector",
+    contents: [e1, e2],
+  };
+  return v2;
 };
 
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
@@ -569,6 +596,7 @@ export const insertExpr = (
             throw Error(err);
           }
           const res2: TagExpr<IVarAD> = res.contents;
+
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
             const res3: Expr = res2.contents;
@@ -649,7 +677,37 @@ export const insertExpr = (
           const gpi = trans.trMap[name.contents.value][
             field.value
           ] as IFGPI<VarAD>;
-          const [, properties] = gpi.contents;
+          const [gpiType, properties] = gpi.contents;
+
+          // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
+          // If the expected property is a non-vector type, throw an error, as we can't insert an expression into an uninitialized non-vector (list or other composite type).
+          const shapeDef = findDef(gpiType);
+          if (!(prop.value in shapeDef.properties)) {
+            return addWarn(trans, {
+              tag: "InvalidGPIPropertyError",
+              givenProperty: prop,
+              expectedProperties: Object.entries(shapeDef.properties).map(
+                (e) => e[0]
+              ),
+            });
+          }
+
+          if (shapeDef.properties[prop.value][0] !== "VectorV") {
+            throw Error(
+              "internal error: Cannot insert expression into an uninitialized non-vector. this feature is currently not supported."
+            );
+          }
+
+          // Otherwise, it's a vector type, so if the value hasn't been set, initialize it with a default vector (?, ?)
+          // TODO(vec): Note this assumes a 2D vector. Otherwise we wouldn't know the size of the vector to initialize.
+          if (!(prop.value in properties)) {
+            properties[prop.value] = {
+              tag: "OptEval",
+              contents: defaultVec2(),
+            };
+          }
+
+          // Continue as usual with insertion. TODO: Deal with overrides? Not sure how to distinguish a user-set `?` from a default-generated `?`
           const res = properties[prop.value];
 
           if (res.tag === "OptEval") {

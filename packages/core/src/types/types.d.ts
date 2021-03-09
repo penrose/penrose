@@ -138,10 +138,10 @@ interface IIntLit {
   contents: number;
 }
 
-interface IAFloat {
-  tag: "AFloat";
-  contents: AnnoFloat;
-}
+// interface IAFloat {
+//     tag: "AFloat";
+//     contents: AnnoFloat;
+// }
 
 interface IStringLit extends ASTNode {
   tag: "StringLit";
@@ -262,7 +262,7 @@ interface IThenOp {
   contents: [Expr, Expr];
 }
 
-type AnnoFloat = IFix | IVary;
+type AnnoFloat = IFix | IVary | IVaryAD;
 
 interface IFix extends ASTNode {
   tag: "Fix";
@@ -271,6 +271,11 @@ interface IFix extends ASTNode {
 
 interface IVary extends ASTNode {
   tag: "Vary";
+}
+
+interface IVaryAD extends ASTNode {
+  tag: "VaryAD";
+  contents: VarAD;
 }
 
 interface PropertyDecl extends ASTNode {
