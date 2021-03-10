@@ -644,8 +644,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: colVec(xs) },
-        lastGrad: { tag: "Just", contents: colVec(gradfxs) },
+        lastState: { tag: "Just" as const, contents: colVec(xs) },
+        lastGrad: { tag: "Just" as const, contents: colVec(gradfxs) },
         s_list: [],
         y_list: [],
         numUnconstrSteps: 1,
@@ -695,8 +695,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         gradfxsPreconditioned: gradfxs,
         updatedLbfgsInfo: {
           ...lbfgsInfo,
-          lastState: { tag: "Just", contents: x_k },
-          lastGrad: { tag: "Just", contents: grad_fx_k },
+          lastState: { tag: "Just" as const, contents: x_k },
+          lastGrad: { tag: "Just" as const, contents: grad_fx_k },
           s_list: [],
           y_list: [],
           numUnconstrSteps: 1,
@@ -715,8 +715,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: vecList(gradPreconditioned),
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: x_k },
-        lastGrad: { tag: "Just", contents: grad_fx_k },
+        lastState: { tag: "Just" as const, contents: x_k },
+        lastGrad: { tag: "Just" as const, contents: grad_fx_k },
         s_list: ss_km1,
         y_list: ys_km1,
         numUnconstrSteps: km1 + 1,
@@ -911,7 +911,7 @@ export const evalEnergyOnCustom = (state: State) => {
     );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    overallEng.gradVal = { tag: "Just", contents: 1.0 };
+    overallEng.gradVal = { tag: "Just" as const, contents: 1.0 };
     log.info("overall eng from custom AD", overallEng, overallEng.val);
 
     return {

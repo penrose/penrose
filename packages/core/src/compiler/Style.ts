@@ -613,7 +613,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   const valsSet = {};
 
   for (let i = 0; i < vals.length; i++) {
-    valsSet[vals[i].value] = 0; // This 0 means nothing, we just want to create a set of values
+    valsSet[vals[i]] = 0; // This 0 means nothing, we just want to create a set of values
   }
 
   // All entries were unique if length didn't change (ie the nub didn't change)
@@ -658,7 +658,7 @@ const substituteBform = (
         contents: {
           ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
           type: "value",
-          value: res.value, // COMBAK: double check please
+          value: res, // COMBAK: double check please
         },
       };
     } else {

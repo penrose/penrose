@@ -48,7 +48,7 @@ export type SelEnv = ISelEnv;
 
 // A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
 // COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
-export type Subst = { [k: string]: Var };
+export type Subst = { [k: string]: string };
 
 export type LocalVarSubst = LocalVarId | NamespaceId;
 
