@@ -19,6 +19,7 @@ import {
   isPath,
   valueNumberToAutodiffConst,
   isTagExpr,
+  dummyASTNode,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
 import _, { last, result } from "lodash";
@@ -256,16 +257,6 @@ const dummyIdentifier = (name: string): Identifier => {
     tag: "Identifier",
     start: dummySourceLoc(),
     end: dummySourceLoc(),
-  };
-};
-
-const dummyASTNode = (o: any): ASTNode => {
-  return {
-    ...o,
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
-    nodeType: "dummyASTNode", // COMBAK: Is this ok?
-    children: [],
   };
 };
 
@@ -629,7 +620,6 @@ const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
       args: expr.args.map((arg) => substituteExpr(subst, arg)),
     };
   } else {
-    debugger;
     throw Error("unsupported tag");
   }
 };
@@ -2450,7 +2440,13 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
   if (e.tag === "OptEval") {
     if (e.contents.tag === "Fix") {
       return e.contents.contents;
-    } else throw Error("internal error: invalid varying path");
+    }
+    if (e.contents.tag === "VaryAD") {
+      return e.contents.contents.val;
+    } else {
+      console.error("input", e);
+      throw Error("internal error: invalid varying path");
+    }
   } else if (e.tag === "Done") {
     if (e.contents.tag === "FloatV") {
       return numOf(e.contents.contents);
@@ -2503,9 +2499,9 @@ const isFieldOrAccessPath = (p: Path): boolean => {
   if (p.tag === "FieldPath") {
     return true;
   } else if (p.tag === "AccessPath") {
-    if (p.path.tag === "FieldPath") {
+    if (p.path.tag === "FieldPath" || p.path.tag === "PropertyPath") {
       return true;
-    }
+    } else throw Error("unexpected sub-accesspath type");
   }
 
   return false;
@@ -2516,9 +2512,15 @@ const isFieldOrAccessPath = (p: Path): boolean => {
 // This also samples varying access paths, e.g.
 // Circle { center : (1.1, ?) ... } <// the latter is an access path that gets initialized here
 // NOTE: Mutates translation
-const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
-  const varyingFields = varyingPaths.filter(isFieldOrAccessPath);
-  const sampledVals = randFloats(varyingFields.length, canvasXRange);
+const initFieldsAndAccessPaths = (
+  varyingPaths: Path[],
+  tr: Translation
+): Translation => {
+  const varyingFieldsAndAccessPaths = varyingPaths.filter(isFieldOrAccessPath);
+  const sampledVals = randFloats(
+    varyingFieldsAndAccessPaths.length,
+    canvasXRange
+  );
   const vals: TagExpr<VarAD>[] = sampledVals.map(
     (v: number): TagExpr<VarAD> => ({
       tag: "Done",
@@ -2528,7 +2530,7 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
       },
     })
   );
-  const tr2 = insertExprs(varyingFields, vals, tr);
+  const tr2 = insertExprs(varyingFieldsAndAccessPaths, vals, tr);
 
   return tr2;
 };
@@ -2539,6 +2541,7 @@ const initFields = (varyingPaths: Path[], tr: Translation): Translation => {
 // NOTE: since we store all varying paths separately, it is okay to mark the default values as Done // they will still be optimized, if needed.
 // TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
 
+// TODO: Doesn't sample partial shape properties, like start: (?, 1.) <- this is actually sampled by initFieldsAndAccessPaths
 // NOTE: Shape properties are mutated; they are returned as a courtesy
 const initProperty = (
   shapeType: ShapeTypeStr,
@@ -2735,34 +2738,36 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
   const shapePathList: [string, string][] = findShapeNames(trans);
   const shapePaths = shapePathList.map(mkPath);
 
-  // sample varying fieldsr
-  const transInitFields = initFields(varyingPaths, trans);
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
-  const transInit = initShapes(transInitFields, shapePathList);
+  // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
+  const transInitShapes = initShapes(trans, shapePathList);
+
+  // sample varying fields and access paths, and put them in the translation
+  const transInitAll = initFieldsAndAccessPaths(varyingPaths, transInitShapes);
 
   // CHECK TRANSLATION
   // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
-  const transErrs = checkTranslation(transInit);
+  const transErrs = checkTranslation(transInitAll);
   if (transErrs.length > 0) {
     return err(transErrs);
   }
 
-  const shapeProperties = findShapesProperties(transInit);
-  const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInit);
-  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInit);
+  const shapeProperties = findShapesProperties(transInitAll);
+  const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInitAll);
+  const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInitAll);
   const [objFns, constrFns] = [
     objfnsDecl.concat(objfnsDefault),
     constrfnsDecl.concat(constrfnsDefault),
   ];
 
-  const [initialGPIs, transEvaled] = [[], transInit];
+  const [initialGPIs, transEvaled] = [[], transInitAll];
   const initVaryingState: number[] = lookupNumericPaths(
     varyingPaths,
     transEvaled
   );
 
-  const pendingPaths = findPending(transInit);
-  const shapeOrdering = computeShapeOrdering(transInit); // deal with layering
+  const pendingPaths = findPending(transInitAll);
+  const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
   const initState = {
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
@@ -2770,8 +2775,8 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     shapeProperties,
     shapeOrdering,
 
-    translation: transInit, // This is the result of the data processing
-    originalTranslation: clone(trans), // COMBAK: never used, remove later
+    translation: transInitAll, // This is the result of the data processing
+    originalTranslation: clone(trans),
 
     varyingPaths,
     varyingValues: initVaryingState,
@@ -2904,6 +2909,7 @@ const findPathsExpr = (expr: Expr): Path[] => {
   } else if (
     expr.tag === "Fix" ||
     expr.tag === "Vary" ||
+    expr.tag === "VaryAD" ||
     expr.tag === "StringLit" ||
     expr.tag === "BoolLit"
   ) {

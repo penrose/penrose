@@ -5,7 +5,6 @@ Vector x2
 In(x2, X)
 Unit(x1)
 Orthogonal(x1, x2)
+AutoLabel All
 Label x1 $x_1$
 Label x2 $x_2$
-
-AutoLabel All
