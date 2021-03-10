@@ -2,7 +2,6 @@ require("global-jsdom/register");
 import {
   compileTrio,
   prepareState,
-  initializeMat,
   RenderStatic,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -78,7 +77,6 @@ const singleProcess = async (
     process.exit(1);
   }
 
-  await initializeMat();
   const labelStart = process.hrtime();
   const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
