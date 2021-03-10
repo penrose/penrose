@@ -1,3 +1,29 @@
+import {
+  IFloatV,
+  IIntV,
+  IBoolV,
+  IStrV,
+  IPtV,
+  IPathDataV,
+  IPtListV,
+  IColorV,
+  IPaletteV,
+  IFileV,
+  IStyleV,
+  IListV,
+  IVectorV,
+  IMatrixV,
+  ITupV,
+  ILListV,
+  IHMatrixV,
+  IPolygonV,
+  IPt,
+  ICubicBez,
+  ICubicBezJoin,
+  IQuadBez,
+  IQuadBezJoin,
+} from "./shapeEvalTypes";
+
 export type Shape = IShape;
 
 export type Properties = { [k: string]: Value<number> };

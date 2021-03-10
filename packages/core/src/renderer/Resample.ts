@@ -15,6 +15,9 @@ import {
 import { Shape, Value } from "types/shapeTypes";
 import { randFloat, randFloats, safe } from "utils/Util";
 import { mapValues, zip } from "lodash";
+import { Path, TagExpr, Translation } from "types/shapeEvalTypes";
+import { VarAD } from "types/adTypes";
+import { State } from "types/stateTypes";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {

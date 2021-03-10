@@ -38,6 +38,9 @@ import {
 } from "utils/OtherUtils";
 import consola, { LogLevel } from "consola";
 import rfdc from "rfdc";
+import { Path } from "types/shapeEvalTypes";
+import { VarAD, OptInfo } from "types/adTypes";
+import { FnDone, State, Params, LbfgsParams, VaryMap } from "types/stateTypes";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");

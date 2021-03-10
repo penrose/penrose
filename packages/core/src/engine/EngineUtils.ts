@@ -7,6 +7,37 @@ import { Elem, SubPath, Value } from "types/shapeTypes";
 import { shapedefs, findDef } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { StyleError, Warning } from "types/errors";
+import {
+  Path,
+  IFloatV,
+  IPtV,
+  IPtListV,
+  IListV,
+  IVectorV,
+  ITupV,
+  ILListV,
+  IMatrixV,
+  IHMatrixV,
+  IPolygonV,
+  IPathDataV,
+  Color,
+  IColorV,
+  IPaletteV,
+  TagExpr,
+  GPIExpr,
+  ITrans,
+  Translation,
+  Expr,
+  PropertyDecl,
+  IFGPI,
+  AnnoFloat,
+  IVector,
+  FieldExpr,
+  IPropertyPath,
+} from "types/shapeEvalTypes";
+import { VarAD, IVarAD } from "types/adTypes";
+import { SourceLoc, ASTNode, Identifier } from "types/ASTTypes";
+import { LbfgsParams } from "types/stateTypes";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?

@@ -25,6 +25,7 @@ import {
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
 import { canvasSize } from "renderer/ShapeDef";
+import { VarAD, VecAD } from "types/adTypes";
 
 // Kinds of shapes
 /**

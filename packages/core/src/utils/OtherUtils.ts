@@ -1,4 +1,7 @@
 import * as _ from "lodash";
+import { VarAD } from "types/adTypes";
+import { MaybeVal } from "types/helperTypes";
+import { Expr, ArgVal, Path } from "types/shapeEvalTypes";
 
 const RAND_RANGE = 100;
 const TOL = 1e-3;

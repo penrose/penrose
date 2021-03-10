@@ -23,6 +23,17 @@ import {
 } from "engine/Autodiff";
 import { Elem, SubPath } from "types/shapeTypes";
 import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import {
+  IFloatV,
+  IColorV,
+  IVectorV,
+  IPathDataV,
+  IPtListV,
+  ITupV,
+  Color,
+  ArgVal,
+} from "types/shapeEvalTypes";
+import { OptDebugInfo, VarAD, Pt2, VecAD } from "types/adTypes";
 
 /**
  * Static dictionary of computation functions

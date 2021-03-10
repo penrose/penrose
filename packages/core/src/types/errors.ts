@@ -1,5 +1,11 @@
 //#region ErrorTypes
 
+import { ASTNode, Identifier, SourceLoc } from "./ASTTypes";
+import { TypeConstructor, Prop, TypeVar, Arg } from "./domainASTTypes";
+import { StyleErrors } from "./helperTypes";
+import { BindingForm, Path } from "./shapeEvalTypes";
+import { SubExpr, Deconstructor, TypeConsApp } from "./substanceASTTypes";
+
 // type PenroseError = LanguageError | RuntimeError;
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
 // type RuntimeError = OptimizerError | EvaluatorError;

@@ -1,3 +1,4 @@
+import { IColorV, IFloatV, IVectorV, IStrV } from "types/shapeEvalTypes";
 import { Shape } from "types/shapeTypes";
 import { toHex, toScreen } from "utils/Util";
 

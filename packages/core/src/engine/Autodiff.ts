@@ -2,6 +2,9 @@ import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
 import { settings } from "cluster";
 import consola, { LogLevel } from "consola";
+import { VarAD, IVarAD, GradGraphs } from "types/adTypes";
+import { MaybeVal } from "types/helperTypes";
+import { WeightInfo } from "types/stateTypes";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 

@@ -8,6 +8,10 @@
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
+import { ASTNode, Identifier } from "types/ASTTypes";
+import { IStringLit } from "types/shapeEvalTypes";
+import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "types/substanceASTTypes";
+
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({

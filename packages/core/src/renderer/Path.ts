@@ -3,6 +3,7 @@ import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle } from "./AttrHelper";
+import { IFloatV, IStrV } from "types/shapeEvalTypes";
 
 const toCmdString = (cmd: any, canvasSize: [number, number]) => {
   switch (cmd.tag) {

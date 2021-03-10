@@ -53,6 +53,70 @@ import {
   StyleError,
 } from "types/errors";
 import { lastLocation } from "parser/ParserUtil";
+import {
+  BindingForm,
+  Field,
+  StyVar,
+  PropertyDecl,
+  Expr,
+  Translation,
+  FieldExpr,
+  TagExpr,
+  GPIDecl,
+  ICompApp,
+  IObjFn,
+  IConstrFn,
+  FieldDict,
+  ShapeTypeStr,
+  PropID,
+  IAccessPath,
+  GPIMap,
+  Property,
+  StyleOptFn,
+  IFGPI,
+  GPIProps,
+  ILayering,
+  IOptEval,
+  Path,
+} from "types/shapeEvalTypes";
+import { VarAD } from "types/adTypes";
+import { SourceLoc, Identifier, ASTNode } from "types/ASTTypes";
+import { ConstructorDecl, TypeConstructor } from "types/domainASTTypes";
+import { Either, MaybeVal, StyleErrors } from "types/helperTypes";
+import { Fn, OptType, State, Params } from "types/stateTypes";
+import {
+  SelExpr,
+  PredArg,
+  RelBind,
+  RelPred,
+  RelationPattern,
+  StyT,
+  DeclPattern,
+  Header,
+  Selector,
+  HeaderBlock,
+  Stmt,
+  Block,
+  StyProg,
+} from "types/styleASTTypes";
+import {
+  SelEnv,
+  ProgType,
+  Subst,
+  LocalVarSubst,
+} from "types/styleSemanticsTypes";
+import {
+  TypeConsApp,
+  SubStmt,
+  SubExpr,
+  SubPredArg,
+  ApplyPredicate,
+  ApplyConstructor,
+  SubProg,
+  Func,
+  ApplyFunction,
+} from "types/substanceASTTypes";
+import { Left, Right } from "types/helperTypes";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -549,7 +613,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
   const valsSet = {};
 
   for (let i = 0; i < vals.length; i++) {
-    valsSet[vals[i]] = 0; // This 0 means nothing, we just want to create a set of values
+    valsSet[vals[i].value] = 0; // This 0 means nothing, we just want to create a set of values
   }
 
   // All entries were unique if length didn't change (ie the nub didn't change)
@@ -594,7 +658,7 @@ const substituteBform = (
         contents: {
           ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
           type: "value",
-          value: res,
+          value: res.value, // COMBAK: double check please
         },
       };
     } else {
@@ -1133,7 +1197,7 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 // After all Substance variables from a Style substitution are substituted in, check if
 const relMatchesLine = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   s1: SubStmt,
   s2: RelationPattern
 ): boolean => {
@@ -1172,7 +1236,7 @@ const relMatchesLine = (
 // Judgment 13. b |- [S] <| |S_r
 const relMatchesProg = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   rel: RelationPattern
 ): boolean => {
@@ -1184,7 +1248,7 @@ const relMatchesProg = (
 // Judgment 15. b |- [S] <| [|S_r]
 const allRelsMatch = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   rels: RelationPattern[]
 ): boolean => {
@@ -1195,7 +1259,7 @@ const allRelsMatch = (
 // Folds over [theta]
 const filterRels = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   rels: RelationPattern[],
   substs: Subst[]
@@ -1336,7 +1400,7 @@ const matchDecls = (
 // ported from `find_substs_sel`
 const findSubstsSel = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   [header, selEnv]: [Header, SelEnv]
 ): Subst[] => {
@@ -1367,7 +1431,7 @@ const findSubstsSel = (
 // Find a list of substitutions for each selector in the Sty program. (ported from `find_substs_prog`)
 export const findSubstsProg = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   styProg: HeaderBlock[],
   selEnvs: SelEnv[]
@@ -1846,7 +1910,7 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
 // Judgment 23, contd.
 const translatePair = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   trans: Translation,
   hb: HeaderBlock,
@@ -1971,7 +2035,7 @@ const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
 
 const translateStyProg = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   styProg: StyProg,
   labelMap: LabelMap,

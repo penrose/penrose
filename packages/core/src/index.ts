@@ -18,6 +18,7 @@ import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/ioTypes";
 import * as ShapeTypes from "types/shapeTypes";
+import { State, LabelCache } from "types/stateTypes";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { bBoxDims, toHex } from "utils/Util";
@@ -224,8 +225,7 @@ export const evalEnergy = (s: State): number => {
   return objective(weight)(s.varyingValues);
 };
 
-export type PenroseState = State;
-
+export type { State as PenroseState } from "./types/stateTypes";
 export type { PenroseError } from "./types/errors";
 export {
   compileDomain,

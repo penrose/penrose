@@ -13,6 +13,11 @@ import _ from "lodash";
 import * as path from "path";
 import { andThen, unsafelyUnwrap, Result, showError } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
+import { StyleErrors, Either } from "types/helperTypes";
+import { State } from "types/stateTypes";
+import { StyProg, RelationPattern } from "types/styleASTTypes";
+import { Subst } from "types/styleSemanticsTypes";
+import { SubProg } from "types/substanceASTTypes";
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"

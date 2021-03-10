@@ -1,5 +1,12 @@
 import { randFloat } from "utils/Util";
 import { Shape, Value } from "types/shapeTypes";
+import {
+  Path,
+  IFloatV,
+  IVectorV,
+  IColorV,
+  IPolygonV,
+} from "types/shapeEvalTypes";
 
 //#region shapedef helpers and samplers
 

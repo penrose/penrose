@@ -3,7 +3,21 @@ import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
+import { Identifier } from "types/ASTTypes";
+import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domainASTTypes";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
+import {
+  SubProg,
+  SubExpr,
+  ApplyPredicate,
+  SubStmt,
+  TypeConsApp,
+  SubPredArg,
+  Func,
+  ApplyConstructor,
+  ApplyFunction,
+  Deconstructor,
+} from "types/substanceASTTypes";
 import {
   andThen,
   argLengthMismatch,

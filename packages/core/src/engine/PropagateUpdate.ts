@@ -4,7 +4,14 @@ import {
   exprToNumber,
 } from "engine/EngineUtils";
 import { getShapeName } from "renderer/ShapeDef";
+import {
+  Path,
+  IPropertyPath,
+  IAccessPath,
+  Translation,
+} from "types/shapeEvalTypes";
 import { Shape, Value } from "types/shapeTypes";
+import { State, LabelCache } from "types/stateTypes";
 import { retrieveLabel } from "utils/CollectLabels";
 
 /**
