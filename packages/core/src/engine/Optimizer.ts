@@ -985,17 +985,3 @@ export const genOptProblem = (state: State): State => {
 
   return { ...state, params: newParams };
 };
-
-export const evalEnergy = (s: State): number => {
-  const { objective, weight } = s.params;
-  // NOTE: `prepareState`
-  if (!objective) {
-    log.warn(
-      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
-    );
-    const newState = genOptProblem(s);
-    // TODO: caching
-    return evalEnergy(newState);
-  }
-  return objective(weight)(s.varyingValues);
-};

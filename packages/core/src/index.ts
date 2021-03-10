@@ -6,27 +6,22 @@ import {
   parseSubstance,
   SubstanceEnv,
 } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import {
-  evalEnergy,
-  evalEnergyOnCustom,
-  genOptProblem,
-  initializeMat,
-  step,
-} from "engine/Optimizer";
+import { genOptProblem, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
   RenderShape,
 } from "renderer/Renderer";
-import { notEmptyLabel, sortShapes } from "renderer/ShapeDef";
 import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
 import * as ShapeTypes from "types/shapeTypes";
-import { Shape } from "types/shapeTypes";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { bBoxDims, toHex } from "utils/Util";
+
+const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
  * Resample all shapes in the state by generating a number of samples (`numSamples`) and picking the sample with the lowest initial energy value.
@@ -209,10 +204,28 @@ export const readRegistry = (registry: Registry): Trio[] => {
   return res;
 };
 
+/**
+ * Evaluate the overall energy of a `State`. If the `State` already has an optimization problem initialized (i.e. it has a defined `objective` field), this function will call `genOptProblem`. Otherwise, it will evaluate the cached objective function.
+ * @param s a state with or without an optimization problem initialized
+ * @returns a scaler value of the current energy
+ */
+export const evalEnergy = (s: State): number => {
+  const { objective, weight } = s.params;
+  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
+  if (!objective) {
+    log.warn(
+      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
+    );
+    const newState = genOptProblem(s);
+    // TODO: caching
+    return evalEnergy(newState);
+  }
+  return objective(weight)(s.varyingValues);
+};
+
 export type PenroseState = State;
 
 export type { PenroseError } from "./types/errors";
-
 export {
   compileDomain,
   compileSubstance,
@@ -228,6 +241,5 @@ export {
   toHex,
   initializeMat,
   showError,
-  evalEnergy,
   Result,
 };
