@@ -16,6 +16,7 @@ import RenderStatic, {
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
+import { Registry, Trio } from "types/ioTypes";
 import * as ShapeTypes from "types/shapeTypes";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
