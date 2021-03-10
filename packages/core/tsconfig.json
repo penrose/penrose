@@ -24,7 +24,6 @@
     "typeRoots": ["src/types", "node_modules/@types"],
     "esModuleInterop": true,
     "isolatedModules": true,
-    "noEmit": true,
     "strict": true,
     "declaration": true,
     "declarationMap": true
