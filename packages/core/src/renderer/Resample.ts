@@ -147,7 +147,7 @@ export const resampleBest = (state: State, numSamples: number): State => {
     params: {
       ...params,
       weight: initConstraintWeight,
-      optStatus: { tag: "NewIter" },
+      optStatus: "NewIter" as const,
     },
     // pendingPaths: findPending(translation),
   };

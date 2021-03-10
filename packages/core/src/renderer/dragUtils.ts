@@ -12,7 +12,7 @@ export const dragUpdate = (
 ): State => {
   const updated: State = {
     ...state,
-    params: { ...state.params, optStatus: { tag: "NewIter" } },
+    params: { ...state.params, optStatus: "NewIter" },
     shapes: state.shapes.map(({ shapeType, properties }: Shape) => {
       if (properties.name.contents === id) {
         return dragShape({ shapeType, properties }, [dx, dy]);

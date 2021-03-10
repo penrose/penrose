@@ -1,22 +1,18 @@
+import consola, { LogLevel } from "consola";
 import { checkComp, compDict } from "contrib/Functions";
 import {
-  mapTranslation,
-  valueAutodiffToNumber,
+  findExprSafe,
   insertExpr,
   isPath,
-  exprToNumber,
-  numToExpr,
-  findExprSafe,
+  valueAutodiffToNumber,
 } from "engine/EngineUtils";
-import { concat, mapValues, pickBy, values, zip } from "lodash";
-import seedrandom, { prng } from "seedrandom";
+import { mapValues, zip } from "lodash";
+import { notEmptyLabel } from "renderer/ShapeDef";
+// For deep-cloning the translation
+// Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
+import rfdc from "rfdc";
 import { Shape, Value } from "types/shapeTypes";
-import {
-  floatVal,
-  prettyPrintPath,
-  prettyPrintExpr,
-  prettyPrintFn,
-} from "utils/OtherUtils";
+import { floatVal, prettyPrintPath } from "utils/OtherUtils";
 import {
   add,
   constOf,
@@ -28,20 +24,8 @@ import {
   numOf,
   ops,
   sub,
-  squared,
-  sqrt,
-  inverse,
-  absVal,
-  gt,
-  lt,
-  ifCond,
 } from "./Autodiff";
 
-import consola, { LogLevel } from "consola";
-
-// For deep-cloning the translation
-// Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
-import rfdc from "rfdc";
 const clone = rfdc({ proto: false, circles: false });
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Evaluator");
@@ -129,12 +113,11 @@ export const evalShapes = (s: State): State => {
       shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
-  // TODO: do we still need this check for non-empty labels?
-  // const nonEmpties = sortedShapes.filter(notEmptyLabel);
+  const nonEmpties = sortedShapesEvaled.filter(notEmptyLabel);
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: sortedShapesEvaled };
+  return { ...s, shapes: nonEmpties };
 };
 
 const sameName = (given: Value<number>, expected: string): boolean => {
@@ -979,76 +962,6 @@ export const evalUOp = (
   }
 };
 
-/**
- * Gives types to a serialized `State`
- *
- * @param json plain object encoding `State` of the diagram
- */
-export const decodeState = (json: any): State => {
-  // const rng: prng = seedrandom(json.rng, { global: true });
-  const state = {
-    ...json,
-    varyingValues: json.varyingState,
-    translation: json.transr,
-    originalTranslation: clone(json.transr),
-    shapes: json.shapesr.map(([n, props]: any) => {
-      return { shapeType: n, properties: props };
-    }),
-    varyingMap: genPathMap(json.varyingPaths, json.varyingState),
-    params: json.paramsr,
-    pendingMap: new Map(),
-    rng: undefined,
-  };
-  // cache energy function
-  // state.overallObjective = evalEnergyOn(state);
-  delete state.shapesr;
-  delete state.transr;
-  delete state.paramsr;
-  // delete state.varyingState;
-  return state as State;
-};
-
-/**
- * Serialize the state to match the backend format
- * NOTE: only called on resample now
- *
- * @param state typed `State` object
- */
-export const encodeState = (state: State): any => {
-  // console.log("mapped translation", mapTranslation(numOf, state.translation));
-  // console.log("original translation", state.originalTranslation);
-
-  // console.log("shapes", state.shapes);
-  // console.log("shapesr", state.shapes
-  //   .map(values)
-  //   .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]));
-
-  const json = {
-    ...state,
-    varyingState: state.varyingValues,
-    paramsr: state.params, // TODO: careful about the list of variables
-    // transr: mapTranslation(numOf, state.translation), // Only send numbers to backend
-    transr: state.originalTranslation, // Only send numbers to backend
-    // NOTE: clean up all additional props and turn objects into lists
-    shapesr: state.shapes
-      .map(values)
-      .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]),
-  } as any;
-  delete json.varyingMap;
-  delete json.translation;
-  delete json.varyingValues;
-  delete json.shapes;
-  delete json.params;
-  json.paramsr.optStatus = { tag: "NewIter" };
-  return json;
-};
-
-export const cleanShapes = (shapes: Shape[]): Shape[] =>
-  shapes.map(({ shapeType, properties }: Shape) => ({
-    shapeType,
-    properties: pickBy(properties, (p: any) => !p.omit),
-  })) as Shape[];
-
 // Generate a map from paths to values, where the key is the JSON stringified version of the path
 export function genPathMap<T>(
   paths: Path[],
@@ -1074,48 +987,3 @@ export function genPathMap<T>(
   // throw Error("TODO");
   return res;
 }
-
-// //////////////////////////////////////////////////////////////////////////////
-// Types
-
-// //////////////////////////////////////////////////////////////////////////////
-// Unused functions
-
-/**
- * Gives types to a serialized `Translation`
- *
- * @param json plain object encoding `Translation`
- */
-// const decodeTranslation = (json: any): Translation => {
-//   const decodeFieldExpr = (expr: any): FieldExpr<number> => {
-//     switch (expr.tag) {
-//       case "FGPI":
-//         const [shapeType, properties] = expr.contents;
-//         return {
-//           tag: "FGPI",
-//           contents: [shapeType],
-//         };
-//       case "FExpr":
-//         return expr;
-//       default:
-//         throw new Error(`error decoding field expression ${expr}`);
-//     }
-//   };
-
-//   const trans = new Map(
-//     Object.entries(json.trMap).map(([subName, es]: any) => [
-//       subName,
-//       new Map(
-//         Object.entries(es).map(([fieldName, e]: any) => [
-//           fieldName,
-//           decodeFieldExpr(e),
-//         ])
-//       ) as FieldDict<number>,
-//     ])
-//   ) as TransDict<number>;
-
-//   return {
-//     warnings: json.warnings,
-//     compGraph: trans,
-//   };
-// };
