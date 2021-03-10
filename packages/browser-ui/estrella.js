@@ -14,13 +14,13 @@ build({
   external: ["path", "crypto", "fs"],
   define: {
     "process.env.NODE_ENV": '"development"',
-    global: "window"
-  }
+    global: "window",
+  },
 });
 
 cliopts.watch &&
   require("serve-http").createServer({
     port: 3000,
     pubdir: ".",
-    indexFilename: "index-estrella.html"
+    indexFilename: "index-estrella.html",
   });
