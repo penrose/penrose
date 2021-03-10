@@ -9,7 +9,12 @@ const common = {
   platform: "browser",
   external: ["path", "fs", "crypto"],
 };
-build({ ...common, outfile: "./build/dist/index.esm.js", format: "esm" });
+build({
+  ...common,
+  outfile: "./build/dist/index.esm.js",
+  format: "esm",
+  run: "yarn run build-decls",
+});
 
 build({
   ...common,

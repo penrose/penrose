@@ -22,6 +22,7 @@
     "watch-slow": "rollup -c -w",
     "watch-fast": "node estrella.js -watch",
     "watch": "yarn watch-fast",
+    "build-decls": "tsc --emitDeclarationOnly --outDir build/dist",
     "pretest": "yarn build:parsers",
     "docs": "typedoc --out docs src",
     "predocs": "yarn build:parsers",
