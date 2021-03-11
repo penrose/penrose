@@ -19,7 +19,7 @@ Here we have 2 vectors in a vector space labeled U.
 
 ## Goal
 ![Tutorial 3 Goal]()
-We will be defining a function `addV` that takes in 2 two dimensional vectors `u`, `v` and outputs a new vector `w` in the normal vector addition way, i.e. `u =<a, b>, v = <c, d>, w = u + v = <a + c, b + d>`. 
+We will be defining a function `addV` that takes in 2 two dimensional vectors `v`, `w` and outputs a new vector `u` in the normal vector addition way, i.e. `v =<a, b>, w = <c, d>, u = v + w = <a + c, b + d>`. 
 
 ## :page_facing_up: Domain
 Now we will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which takes in 2 vectors and outputs a single vector. 
@@ -40,7 +40,22 @@ In(u, U)
 AutoLabel All
 ```
 ## :page_facing_up: Style
+First we write our selector in similar fashion we've done in the earlier examples. Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
+```
+forall Vector u; Vector v; Vector w; VectorSpace U
+where u := addV(v,w); In(u, U); In(v, U); In(w, U)
+```
+Now we will move onto actually visualizing the vector addition. Let's come back and look at our goal diagram. 
+# INSERT GOAL DIAGRAM WITH NOTATIONS
 
+Add this to both `dashed_w` and `dashed_v` styles, or feel free to choose your own stylings. 
+```typescript
+thickness : const.arrowThickness2
+style : "dashed"
+arrowheadSize : const.arrowheadSize
+```
+
+Now putting everything together, we have the following code added to our `.sty` file. 
 ```typescript
 /* new lines in .sty file */
 forall Vector u; Vector v; Vector w; VectorSpace U
@@ -48,7 +63,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   override u.shape.end[0] = v.shape.end[0] + w.shape.end[0] - U.origin[0]
   override u.shape.end[1] = v.shape.end[1] + w.shape.end[1] - U.origin[1]
 
-  u.slider_v = Arrow {
+  u.dashed_v = Arrow {
     start: (w.shape.end[0], w.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
     thickness : const.arrowThickness2
@@ -56,7 +71,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     arrowheadSize : const.arrowheadSize
   }
 
-  u.slider_w = Arrow {
+  u.dashed_w = Arrow {
     start: (v.shape.end[0], v.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
     thickness : const.arrowThickness2
@@ -64,8 +79,8 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     arrowheadSize : const.arrowheadSize
   }
 
-  u.sw_layering = u.slider_w below u.shape
-  u.sv_layering = u.slider_v below u.shape
+  u.sw_layering = u.dashed_w below u.shape
+  u.sv_layering = u.dashed_v below u.shape
 }
 ```
 ## Exercises
