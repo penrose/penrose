@@ -1,4 +1,4 @@
-const { -- 0
+const { 
   scalar perpLen = 20.0
   -- For unit mark
   scalar markerPadding = 15.0
@@ -13,23 +13,18 @@ const { -- 0
   const.arrowThickness2 = 1.5
 }
 
-C { -- 1
-    -- black = #000000
-    color black = rgba(0.,0.,0.,1.)
+C { color black = rgba(0.,0.,0.,1.)
     white = rgba(1., 1., 1., 1.)
     lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
-    -- Note: we don't currently support color accessors r,g,b
-    -- darkBlue = rgba(lightBlue.r / 2., lightBlue.g / 2., lightBlue.b / 2., 0.5)
     darkGray = rgba(0.4, 0.4, 0.4, 1.)
     gray = rgba(0.6, 0.6, 0.6, 1.)
     green = rgba(0., 0.8, 0., 1.)
-    -- blue = #0000ff
     none = rgba(0., 0., 0., 0.)
 }
 
 
-forall VectorSpace U { -- 3
-    scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
+forall VectorSpace U {
+    scalar axisSize = const.vectorSpaceSize / 2.0 
     vec2 U.origin = (0., 0.)
     vec2 o = U.origin
     U.axisColor = C.gray
@@ -39,11 +34,10 @@ forall VectorSpace U { -- 3
         side : const.vectorSpaceSize
         color : C.none
         strokeColor : C.none
-        -- strokeWidth : 2.0
     }
 
     shape U.xAxis = Line {
-        start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
+        start : (o[0] - axisSize, o[1])
         end : (o[0] + axisSize, o[1])
         thickness : const.lineThickness
         style : "solid"
@@ -71,10 +65,9 @@ forall VectorSpace U { -- 3
     }
 }
 
-forall Vector u; VectorSpace U -- 4
+forall Vector u; VectorSpace U
 where In(u,U) {
   u.text = Text {
-    -- center : (?, ?) -- This should be done automatically
     string : u.label
     color : u.shape.color
   }
@@ -96,33 +89,4 @@ where In(u,U) {
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
-}
-
-
-forall Vector u; Vector v; Vector w; VectorSpace U
-where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
-  override u.shape.end[0] = v.shape.end[0] + w.shape.end[0] - U.origin[0]
-  override u.shape.end[1] = v.shape.end[1] + w.shape.end[1] - U.origin[1]
-  --override u.shape.color = blendColor(v.shape.color, w.shape.color
-
-  u.slider_v = Arrow {
-    start: (w.shape.end[0], w.shape.end[1])
-    end: (u.shape.end[0], u.shape.end[1])
-    thickness : const.arrowThickness2
-    --color : scaleColor(v.color, const.lightenFrac)
-    style : "dashed"
-    arrowheadSize : const.arrowheadSize
-  }
-
-  u.slider_w = Arrow {
-    start: (v.shape.end[0], v.shape.end[1])
-    end: (u.shape.end[0], u.shape.end[1])
-    thickness : const.arrowThickness2
-    --color : scaleColor(w.color, const.lightenFrac)
-    style : "dashed"
-    arrowheadSize : const.arrowheadSize
-  }
-
-  u.sw_layering = u.slider_w below u.shape
-  u.sv_layering = u.slider_v below u.shape
 }
