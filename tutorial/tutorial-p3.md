@@ -45,7 +45,6 @@ forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   override u.shape.end[0] = v.shape.end[0] + w.shape.end[0] - U.origin[0]
   override u.shape.end[1] = v.shape.end[1] + w.shape.end[1] - U.origin[1]
-  --override u.shape.color = blendColor(v.shape.color, w.shape.color
 
   u.slider_v = Arrow {
     start: (w.shape.end[0], w.shape.end[1])
