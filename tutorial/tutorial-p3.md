@@ -51,7 +51,6 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     start: (w.shape.end[0], w.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
     thickness : const.arrowThickness2
-    --color : scaleColor(v.color, const.lightenFrac)
     style : "dashed"
     arrowheadSize : const.arrowheadSize
   }
@@ -60,7 +59,6 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     start: (v.shape.end[0], v.shape.end[1])
     end: (u.shape.end[0], u.shape.end[1])
     thickness : const.arrowThickness2
-    --color : scaleColor(w.color, const.lightenFrac)
     style : "dashed"
     arrowheadSize : const.arrowheadSize
   }
