@@ -12,7 +12,7 @@ So far, we've directly declared substances in our diagram, which can then have s
 * Next Tutorial: Coming Up! 
 
 ## Goal
-![Tutorial 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/p3goal.png)
+![Tutorial 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/goal_withlabel.png)
 We will be defining a function `addV` that takes in 2 two dimensional vectors `v`, `w` and outputs a new vector `u` in the normal vector addition way, i.e. `v =<a, b>, w = <c, d>, u = v + w = <a + c, b + d>`. 
 
 ## Starter Code
