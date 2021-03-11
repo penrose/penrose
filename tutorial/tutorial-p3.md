@@ -15,7 +15,7 @@ So far, we've directly declared substances in our diagram, which can then have s
 
 ## Starter Code
 This example is a bit more involved than the previous tutorials, therefore we will be providing you some starter code to get things running. 
-[Starter Code]()
+[Starter Code](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3)
 
 ## :page_facing_up: Domain
 
