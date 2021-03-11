@@ -20,8 +20,15 @@ Download the [starter code here](https://github.com/penrose/penrose/tree/docs-ed
 We will be defining a function `addV` that takes in 2 two dimensional vectors `u`, `v` and outputs a new vector `w` in the normal vector addition way, i.e. `u =<a, b>, v = <c, d>, w = u + v = <a + c, b + d>`. 
 
 ## :page_facing_up: Domain
+Now we will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which takes in 2 vectors and outputs a single vector. 
+```typescript
+/* new line in .dsl file */
+function addV: Vector * Vector -> Vector
+```
+We use the keyword `function` and `->` to denote the output type.
 
 ## :page_facing_up: Substance
+There are no imperative functions in Penrose, only functional functions. When we have `y=f(x)`, it's read like `y` is defined as `f(x)`. 
 
 ## :page_facing_up: Style
 
