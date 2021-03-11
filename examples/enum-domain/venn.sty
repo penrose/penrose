@@ -24,9 +24,10 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    x.containFn = ensure contains(y.shape, x.shape, 20.0)
-    x.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    y.outsideFn = ensure outsideOf(y.text, x.shape)
+    ensure contains(y.shape, x.shape, 20.0)
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    x.shape above y.shape
 }
 
 -- Set x; Set y; Set z
@@ -36,20 +37,16 @@ where IsSubset(x, y) {
 -- }
 
 
-Set x; Set y
-where IsSubset(x, y); IsSubset(y, x); {
-    delete x.containFn 
-    delete x.sizeFn    
-    delete x.outsideFn 
-
-    override y.text.string = "hello"
-    -- concat(y.label, "=", x.label)
-
-    -- override y.labelFn = ensure contains(y.shape, y.text)
-    -- override y.layering = y.shape below y.text
+Set x
+with Set y
+where Equal(x, y) {
     y.centerFn = encourage sameCenter(x.shape, y.shape)
     y.eqFn = encourage equal(x.shape.r, y.shape.r)
 
+    -- override y.text.string = concat(y.label, "=", x.label)
+    -- override x.text.string = 
+    -- override y.labelFn = ensure contains(y.shape, y.text)
+    -- override y.layering = y.shape below y.text
     -- delete x.text
     -- delete x.labelFn
     -- delete x.layering

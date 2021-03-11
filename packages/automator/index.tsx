@@ -1,6 +1,7 @@
 require("global-jsdom/register");
 import {
   compileTrio,
+  evalEnergy,
   prepareState,
   RenderStatic,
   stepUntilConvergence,
@@ -16,12 +17,13 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX]
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
+  --repeat TIMES the number of instances 
 `;
 
 const nonZeroConstraints = (
@@ -55,7 +57,9 @@ const singleProcess = async (
     styleName: sty,
     domainName: dsl,
     id: uniqid("instance-"),
-  }
+  },
+  reference?,
+  referenceState?
 ) => {
   // Fetch Substance, Style, and Domain files
   const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
@@ -95,6 +99,8 @@ const singleProcess = async (
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
 
+  // cross-instance energy evaluation
+
   if (folders) {
     // TODO: check for non-zero constraints
     // const energies = JSON.parse(
@@ -105,6 +111,15 @@ const singleProcess = async (
     //   console.log("This instance has non-zero constraints: ");
     //   // return;
     // }
+    let crossEnergy = undefined;
+    if (referenceState) {
+      const crossState = {
+        ...optimizedState,
+        constrFns: referenceState.constrFns,
+        objFns: referenceState.objFns,
+      };
+      crossEnergy = evalEnergy(await prepareState(crossState));
+    }
 
     const metadata = {
       ...meta,
@@ -125,6 +140,8 @@ const singleProcess = async (
         constraintCount: optimizedState.constrFns.length,
         objectiveCount: optimizedState.objFns.length,
       },
+      reference,
+      ciee: crossEnergy,
     };
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out);
@@ -138,7 +155,7 @@ const singleProcess = async (
       chalk.green(`The diagram and metadata has been saved to ${out}`)
     );
     // returning metadata for aggregation
-    return metadata;
+    return { metadata, state: optimizedState };
   } else {
     fs.writeFileSync(out, canvas);
     console.log(chalk.green(`The diagram has been saved as ${out}`));
@@ -161,6 +178,10 @@ const batchProcess = async (
   const trioLibrary = registry["trios"];
   console.log(`Processing ${trioLibrary.length} substance files...`);
 
+  let referenceFlag = true;
+  let reference = trioLibrary[0];
+  let referenceState = undefined;
+
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
@@ -180,7 +201,7 @@ const batchProcess = async (
     }
     // Warning: will face id conflicts if parallelism used
     const id = uniqid("instance-");
-    const meta = await singleProcess(
+    const { metadata, state } = await singleProcess(
       subURI,
       styURI,
       dslURI,
@@ -192,12 +213,19 @@ const batchProcess = async (
         styleName: styName,
         domainName: dslName,
         id,
-      }
+      },
+      reference,
+      referenceState
     );
+    if (referenceFlag) {
+      referenceState = state;
+      referenceFlag = false;
+    }
     if (folders) {
-      finalMetadata[id] = meta;
+      finalMetadata[id] = metadata;
     }
   }
+
   if (folders) {
     fs.writeFileSync(
       `${out}/aggregateData.json`,
@@ -215,10 +243,12 @@ const batchProcess = async (
   // Determine the output file path
   const folders = args["--folders"] || false;
   const outFile = args["--outFile"];
+  const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
   if (args.batch) {
-    await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
+    for (let i = 0; i < times; i++)
+      await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
   } else {
     await singleProcess(
       args.SUBSTANCE,

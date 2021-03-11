@@ -205,11 +205,10 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  concat: (...strings: IStrV[]): IStrV => {
-    const strVals = strings.map((s) => s.contents);
+  concat: (...strings: string[]): IStrV => {
     return {
       tag: "StrV",
-      contents: strVals.join(""),
+      contents: strings.join(""),
     };
   },
 

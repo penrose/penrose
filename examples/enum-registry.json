@@ -1,0 +1,60 @@
+{
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
+  "trios": [
+    {
+      "substance": "correct",
+      "style": "venn",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "correct-special-case",
+      "style": "venn",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "incorrect-random",
+      "style": "venn",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "incorrect-distractor",
+      "style": "venn",
+      "domain": "set-theory"
+    }
+  ],
+  "domains": {
+    "set-theory": {
+      "name": "Set Theory",
+      "URI": "enum-domain/setTheory.dsl"
+    }
+  },
+  "styles": {
+    "venn": {
+      "domain": "set-theory",
+      "name": "Venn",
+      "URI": "enum-domain/venn.sty"
+    }
+  },
+  "substances": {
+    "correct": {
+      "domain": "set-theory",
+      "name": "Correct",
+      "URI": "enum-domain/correct.sub"
+    },
+    "correct-special-case": {
+      "domain": "set-theory",
+      "name": "Correct: special case",
+      "URI": "enum-domain/correct-special-case.sub"
+    },
+    "incorrect-random": {
+      "domain": "set-theory",
+      "name": "Incorrect: random",
+      "URI": "enum-domain/incorrect-random.sub"
+    },
+    "incorrect-distractor": {
+      "domain": "set-theory",
+      "name": "Incorrect: distractor",
+      "URI": "enum-domain/incorrect-distractor.sub"
+    }
+  }
+}

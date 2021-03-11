@@ -1,0 +1,4 @@
+Set A, B, C
+IsSubset(C, A)
+Equal(A, B)
+AutoLabel All 

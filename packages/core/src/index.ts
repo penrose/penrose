@@ -151,7 +151,6 @@ export const prepareState = async (state: State): Promise<State> => {
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = evalShapes(stateAD);
-  console.log(stateEvaled.shapes);
 
   const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
 
