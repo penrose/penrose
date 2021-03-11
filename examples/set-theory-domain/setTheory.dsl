@@ -17,6 +17,7 @@ predicate From : Map f * Set domain * Set codomain
 predicate Empty : Set s
 predicate Intersecting : Set s1 * Set s2
 predicate IsSubset : Set s1 * Set s2
+predicate Equal : Set s1 * Set s2
 predicate PointIn : Set s * Point p
 predicate In : Point p * Set s
 predicate Injection : Map m

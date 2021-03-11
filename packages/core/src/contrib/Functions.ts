@@ -203,6 +203,17 @@ export const compDict = {
   },
 
   /**
+   * Return the length of the line or arrow shape `[type, props]`.
+   */
+  concat: (...strings: IStrV[]): IStrV => {
+    const strVals = strings.map((s) => s.contents);
+    return {
+      tag: "StrV",
+      contents: strVals.join(""),
+    };
+  },
+
+  /**
    * Return the normalized version of vector `v`.
    */
   normalize: (v: VarAD[]): IVectorV<VarAD> => {

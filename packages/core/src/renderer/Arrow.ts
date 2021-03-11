@@ -37,8 +37,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   const color = toHex(shape.properties.color.contents);
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV<string>)
-    .contents;
+  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const alpha = (shape.properties.color as IColorV<number>).contents
     .contents[3];
   elem.appendChild(arrowHead(id, color, alpha, arrowheadStyle, arrowheadSize));
@@ -71,7 +70,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   path.setAttribute("stroke", color);
   let dashArray = DASH_ARRAY;
   if ("strokeDashArray" in shape.properties) {
-    dashArray = (shape.properties.strokeDashArray as IStrV<string>).contents;
+    dashArray = (shape.properties.strokeDashArray as IStrV).contents;
   }
   if (shape.properties.style.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", dashArray.toString());

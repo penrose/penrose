@@ -362,7 +362,7 @@ interface IBoolV<T> {
 }
 
 /** A string literal **/
-interface IStrV<T> {
+interface IStrV {
   tag: "StrV";
   contents: string;
 }

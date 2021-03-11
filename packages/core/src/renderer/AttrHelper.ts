@@ -102,7 +102,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("stroke-width", thickness.toString());
   let dashArray = DASH_ARRAY;
   if ("strokeDashArray" in properties) {
-    dashArray = (properties.strokeDashArray as IStrV<string>).contents;
+    dashArray = (properties.strokeDashArray as IStrV).contents;
   }
   if (properties.strokeStyle.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", dashArray.toString());
@@ -110,7 +110,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
 };
 
 export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
-  const name = properties.name as IStrV<string>;
+  const name = properties.name as IStrV;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;
   elem.appendChild(title);

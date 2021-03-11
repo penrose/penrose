@@ -83,7 +83,7 @@ export const DraggableShape = (
       g.setAttribute("opacity", "1");
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
-      onDrag((shape.properties.name as IStrV<string>).contents, dx, dy);
+      onDrag((shape.properties.name as IStrV).contents, dx, dy);
     };
     document.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mousemove", onMouseMove);

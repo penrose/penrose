@@ -6,7 +6,7 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   attrTransformCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);
-  const name = shape.properties.name as IStrV<string>;
+  const name = shape.properties.name as IStrV;
   if (retrieveLabel(name.contents, labels) !== undefined) {
     const renderedLabel = retrieveLabel(name.contents, labels)!.rendered;
     attrFill(shape, renderedLabel.getElementsByTagName("g")[0]);
@@ -15,7 +15,7 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
     renderedLabel
       .getElementsByTagName("g")[0]
       .setAttribute("stroke-width", "0");
-    const fontSize = shape.properties.fontSize as IStrV<string>;
+    const fontSize = shape.properties.fontSize as IStrV;
     renderedLabel.setAttribute(
       "style",
       `font-size: ${fontSize.contents.toString()}`
