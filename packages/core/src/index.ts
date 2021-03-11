@@ -8,7 +8,7 @@ import {
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import { genOptProblem, initializeMat, step } from "engine/Optimizer";
+import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
@@ -19,6 +19,7 @@ import { PenroseError } from "types/errors";
 import * as ShapeTypes from "types/shapeTypes";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
+import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -159,9 +160,10 @@ export const prepareState = async (state: State): Promise<State> => {
     labelCache,
   });
 
-  const withOptProblem = genOptProblem(stateWithPendingProperties);
+  const withOptProblem: State = genOptProblem(stateWithPendingProperties);
+  const withOptProblemAndCachedFns: State = genFns(withOptProblem);
 
-  return withOptProblem;
+  return withOptProblemAndCachedFns;
 };
 
 /**
@@ -221,6 +223,41 @@ export const evalEnergy = (s: State): number => {
     return evalEnergy(newState);
   }
   return objective(weight)(s.varyingValues);
+};
+
+/**
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`
+ * TODO: comment this properly
+ * NOTE: The type has to be passed in because otherwise we can't distinguish between the kinds of functions
+ */
+export const evalFns = (fns: Fn[], s: State): number[] => {
+  const { objFnCache, constrFnCache } = s.params;
+
+  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
+  if (!objFnCache || !constrFnCache) {
+    log.warn(
+      "State is not prepared for energy evaluation. Call `prepareState` to initialize the cached objective/constraint functions first."
+    );
+    const newState = genFns(s);
+    // TODO: caching
+    return evalFns(fns, newState);
+  }
+
+  // Evaluate the energy of each requested function (of the given type) on the varying values in the state
+  const xs = s.varyingValues;
+  return fns.map((fn: Fn) => {
+    const fnsCached = fn.optType === "ObjFn" ? objFnCache : constrFnCache;
+    const fnStr = prettyPrintFn(fn);
+
+    if (!(fnStr in fnsCached)) {
+      console.log("fns", fnsCached);
+      throw Error(
+        `Internal error: could not find ${fn.optType} ${fnStr} in cached functions`
+      );
+    }
+    const cachedFnInfo = fnsCached[fnStr];
+    return cachedFnInfo.f(xs); // Could also return gradient if desired
+  });
 };
 
 export type PenroseState = State;
