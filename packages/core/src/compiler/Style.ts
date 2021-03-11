@@ -178,11 +178,11 @@ export function isRight<B>(val: any): val is Right<B> {
   return false;
 }
 
-export function Left<A>(val: A): Left<A> {
+export function toLeft<A>(val: A): Left<A> {
   return { contents: val, tag: "Left" };
 }
 
-export function Right<B>(val: B): Right<B> {
+export function toRight<B>(val: B): Right<B> {
   return { contents: val, tag: "Right" };
 }
 
@@ -200,7 +200,7 @@ export function foldM<A, B, C>(
   init: B
 ): Either<C, B> {
   let res = init;
-  let resW: Either<C, B> = Right(init); // wrapped
+  let resW: Either<C, B> = toRight(init); // wrapped
 
   for (let i = 0; i < xs.length; i++) {
     resW = f(res, xs[i], i);
@@ -1640,7 +1640,7 @@ const deletePath = (
 ): Either<StyleErrors, Translation> => {
   if (path.tag === "FieldPath") {
     const transWithWarnings = deleteField(trans, path, path.name, path.field);
-    return Right(transWithWarnings);
+    return toRight(transWithWarnings);
   } else if (path.tag === "PropertyPath") {
     const transWithWarnings = deleteProperty(
       trans,
@@ -1649,11 +1649,11 @@ const deletePath = (
       path.field,
       path.property
     );
-    return Right(transWithWarnings);
+    return toRight(transWithWarnings);
   } else if (path.tag === "AccessPath") {
     // TODO(error)
     const err: StyleError = { tag: "DeletedVectorElemError", path };
-    return Left([err]);
+    return toLeft([err]);
   } else if (path.tag === "InternalLocalVar") {
     throw Error(
       "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"
@@ -1674,10 +1674,10 @@ const addPath = (
   // Check insertExpr's errors and warnings first
   const tr2 = insertExpr(path, expr, trans, true, override);
   if (tr2.warnings.length > 0) {
-    return Left(tr2.warnings);
+    return toLeft(tr2.warnings);
   }
 
-  return Right(tr2);
+  return toRight(tr2);
 };
 
 const translateLine = (
@@ -1948,7 +1948,7 @@ const translatePair = (
     // skip this block (because the Substance variable won't exist in the translation)
 
     if (selEnv.skipBlock) {
-      return Right(trans);
+      return toRight(trans);
     }
 
     if (selEnv.errors.length > 0 || bErrs.length > 0) {
@@ -2061,7 +2061,7 @@ const translateStyProg = (
   // const styValMap = styJsonToMap(styVals);
   // const transWithPlugins = evalPluginAccess(styValMap, transWithNamesAndLabels);
   // return Right(transWithPlugins);
-  return Right(transWithNamesAndLabels);
+  return toRight(transWithNamesAndLabels);
 };
 
 //#endregion
