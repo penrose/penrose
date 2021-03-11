@@ -14,6 +14,8 @@ So far, we've directly declared substances in our diagram, which can then have s
 ## Starter Code
 This example is a bit more involved than the previous tutorials, therefore we will be providing you some starter code to get things running. 
 Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3), and you should see this in your browser. 
+# INSERT PHOTO
+Here we have 2 vectors in a vector space labeled U. 
 
 ## Goal
 ![Tutorial 3 Goal]()
