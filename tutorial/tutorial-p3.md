@@ -32,7 +32,9 @@ We use the keyword `function` and `->` to denote the output type.
 ## :page_facing_up: Substance
 There are no imperative functions in Penrose, only functional functions. When we have `y = f(x)`, it's read like `y` is defined as `f(x)`. 
 
-The syntax for composing a new object using a function involves a new operator `:=`, which is the assignment operator. We write `y := f(x)` to define `y` as `f(x)`. Therefore we define a new vector by `Vector u := addV(v, w)`. Furthermore, we want `u` to be in our original vector space along with our existing vectors `v` and `w`, therefore we use the already defined predicate `In` on `u` and `U` by writing `In(u, U)`. 
+The syntax for composing a new object using a function involves a new operator `:=`, which is the assignment operator. 
+
+We write `y := f(x)` to define `y` as `f(x)`. Therefore we define a new vector by `Vector u := addV(v, w)`. Furthermore, we want `u` to be in our original vector space along with our existing vectors `v` and `w`, therefore we use the already defined predicate `In` on `u` and `U` by writing `In(u, U)`. 
 
 ```typescript
 /* new lines in .sub file ******/
