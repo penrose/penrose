@@ -31,7 +31,7 @@ We use the keyword `function` and `->` to denote the output type.
 There are no imperative functions in Penrose, only functional functions. When we have `y=f(x)`, it's read like `y` is defined as `f(x)`. 
 
 ```typescript
-/* new line in .sty file ******/
+/* new line in .sub file ******/
 Vector u := addV(v, w)
 In(u, U)
 /* autolabel on the last line */
@@ -39,6 +39,36 @@ AutoLabel All
 ```
 ## :page_facing_up: Style
 
+```typescript
+/* new lines in .sty file */
+forall Vector u; Vector v; Vector w; VectorSpace U
+where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
+  override u.shape.end[0] = v.shape.end[0] + w.shape.end[0] - U.origin[0]
+  override u.shape.end[1] = v.shape.end[1] + w.shape.end[1] - U.origin[1]
+  --override u.shape.color = blendColor(v.shape.color, w.shape.color
+
+  u.slider_v = Arrow {
+    start: (w.shape.end[0], w.shape.end[1])
+    end: (u.shape.end[0], u.shape.end[1])
+    thickness : const.arrowThickness2
+    --color : scaleColor(v.color, const.lightenFrac)
+    style : "dashed"
+    arrowheadSize : const.arrowheadSize
+  }
+
+  u.slider_w = Arrow {
+    start: (v.shape.end[0], v.shape.end[1])
+    end: (u.shape.end[0], u.shape.end[1])
+    thickness : const.arrowThickness2
+    --color : scaleColor(w.color, const.lightenFrac)
+    style : "dashed"
+    arrowheadSize : const.arrowheadSize
+  }
+
+  u.sw_layering = u.slider_w below u.shape
+  u.sv_layering = u.slider_v below u.shape
+}
+```
 ## Exercises
 
 ## Take-aways
