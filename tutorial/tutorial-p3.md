@@ -17,7 +17,7 @@ Download the [starter code here](https://github.com/penrose/penrose/tree/docs-ed
 
 ## Goal
 ![Tutorial 3 Goal]()
-We will be defining a function `addV` that takes in 2 two dimensional vectors `u`, `v` and outputs a new vector `w` in the normal vector addition way, i.e. `u=<a, b>, v=<c,d>, w=u+v=<a+c, b+d>`. 
+We will be defining a function `addV` that takes in 2 two dimensional vectors `u`, `v` and outputs a new vector `w` in the normal vector addition way, i.e. `u =<a, b>, v = <c, d>, w = u + v = <a + c, b + d>`. 
 
 ## :page_facing_up: Domain
 
