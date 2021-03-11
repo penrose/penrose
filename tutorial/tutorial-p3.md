@@ -31,10 +31,10 @@ We use the keyword `function` and `->` to denote the output type.
 There are no imperative functions in Penrose, only functional functions. When we have `y=f(x)`, it's read like `y` is defined as `f(x)`. 
 
 ```typescript
-/* new line in .sty file */
+/* new line in .sty file ******/
 Vector u := addV(v, w)
 In(u, U)
-/* put autolabel on the last line */
+/* autolabel on the last line */
 AutoLabel All
 ```
 ## :page_facing_up: Style
