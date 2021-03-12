@@ -66,11 +66,6 @@ Now we will move onto actually visualizing the vector addition. There are two st
 * __Step 2:__
   * Draw the two dashed lines that connects the tips of the three vectors. 
 
-
-# INSERT GOAL DIAGRAM WITH NOTATIONS
-
-
-
 Add this to both `dashed_w` and `dashed_v` styles, or feel free to choose your own stylings. 
 ```typescript
 thickness : const.arrowThickness2
