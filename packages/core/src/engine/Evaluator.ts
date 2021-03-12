@@ -183,7 +183,7 @@ export const evalFns = (
   varyingMap: VaryMap<VarAD>
 ): FnDone<VarAD>[] => fns.map((f) => evalFn(f, trans, varyingMap));
 
-const evalFn = (
+export const evalFn = (
   fn: Fn,
   trans: Translation,
   varyingMap: VaryMap<VarAD>

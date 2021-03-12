@@ -1,10 +1,9 @@
 import { prng } from "seedrandom";
-import { GradGraphs, VarAD } from "types/ad";
-import { MaybeVal } from "types/common";
-import { Translation, ArgVal } from "types/value";
-import { Shape } from "types/shape";
-import { Value } from "types/value";
-import { Expr, Path } from "types/style";
+import { VarAD, GradGraphs } from "./ad";
+import { MaybeVal } from "./common";
+import { Shape } from "./shape";
+import { Expr, Path } from "./style";
+import { ArgVal, Translation, Value } from "./value";
 
 /**
  * The diagram state modeling the original Haskell types
@@ -55,7 +54,7 @@ export interface IFnDone<T> {
 export type Fn = IFn;
 
 /**
- * Generic interface for constraint or objective functions
+ * Generic export interface for constraint or objective functions
  */
 export interface IFn {
   fname: string;
@@ -125,6 +124,18 @@ export interface IParams {
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
   constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
   epWeightNode: VarAD; // similar to constrWeightNode
+
+  // Cached versions of compiling each objective and constraint into a function and gradient
+  objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
+  constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
+}
+
+export type FnCached = IFnCached;
+
+// Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
+export interface IFnCached {
+  f(xs: number[]): number;
+  gradf(xs: number[]): number[];
 }
 
 export type WeightInfo = IWeightInfo;

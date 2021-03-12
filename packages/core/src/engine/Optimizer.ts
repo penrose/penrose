@@ -1,46 +1,58 @@
+import consola, { LogLevel } from "consola";
+import { constrDict, objDict } from "contrib/Constraints";
 import eig from "eigen";
 import {
-  makeADInputVars,
-  energyAndGradCompiled,
-  ops,
-  fns,
   add,
-  mul,
-  varOf,
-  markInput,
   differentiable,
+  energyAndGradCompiled,
+  fns,
+  makeADInputVars,
+  markInput,
+  mul,
+  ops,
+  varOf,
 } from "engine/Autodiff";
 import {
-  makeTranslationDifferentiable,
-  makeTranslationNumeric,
   defaultLbfgsParams,
   initConstraintWeight,
-  insertGPI,
+  makeTranslationDifferentiable,
+  makeTranslationNumeric,
 } from "engine/EngineUtils";
-import { normList, repeat, prettyPrintPath } from "utils/OtherUtils";
 import {
   argValue,
-  evalShapes,
-  insertVaryings,
-  genPathMap,
+  evalFn,
   evalFns,
+  evalShapes,
+  genPathMap,
+  insertVaryings,
 } from "engine/Evaluator";
-
 import * as _ from "lodash";
-import { constrDict, objDict } from "contrib/Constraints";
-import {
-  scalev,
-  addv,
-  subv,
-  negv,
-  dot,
-  prettyPrintFns,
-} from "utils/OtherUtils";
-import consola, { LogLevel } from "consola";
 import rfdc from "rfdc";
-import { VarAD, OptInfo } from "types/ad";
-import { FnDone, State, Params, LbfgsParams, VaryMap } from "types/state";
+import { OptInfo, VarAD } from "types/ad";
+import { MaybeVal } from "types/common";
+import {
+  Fn,
+  FnCached,
+  FnDone,
+  LbfgsParams,
+  Params,
+  State,
+  VaryMap,
+  WeightInfo,
+} from "types/state";
 import { Path } from "types/style";
+import {
+  addv,
+  dot,
+  negv,
+  normList,
+  prettyPrintFn,
+  prettyPrintFns,
+  prettyPrintPath,
+  repeat,
+  scalev,
+  subv,
+} from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
@@ -845,7 +857,7 @@ const minimize = (
 };
 
 /**
- * Generate an energy function from the current state (using VarADs only, unlike evalEnergyOn)
+ * Generate an energy function from the current state (using VarADs only)
  *
  * @param {State} state
  * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
@@ -954,7 +966,7 @@ export const genOptProblem = (state: State): State => {
     xs,
     xsVars,
     res.energyGraph,
-    weightInfo
+    { tag: "Just", contents: weightInfo }
   );
 
   eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
@@ -987,4 +999,68 @@ export const genOptProblem = (state: State): State => {
   };
 
   return { ...state, params: newParams };
+};
+
+// Eval a single function on the state (using VarADs). Based off of `evalEnergyOfCustom` -- see that function for comments.
+const evalFnOn = (fn: Fn, s: State) => {
+  const dict = fn.optType === "ObjFn" ? objDict : constrDict;
+
+  return (...xsVars: VarAD[]): VarAD => {
+    const { varyingPaths } = s;
+
+    const translationInit = makeTranslationDifferentiable(
+      clone(makeTranslationNumeric(s.translation))
+    );
+
+    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    const translation = insertVaryings(translationInit, varyingMapList);
+    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+
+    // NOTE: This will mutate the var inputs
+    const fnArgsEvaled: FnDone<VarAD> = evalFn(fn, translation, varyingMap);
+    const fnEnergy: VarAD = applyFn(fnArgsEvaled, dict);
+
+    return fnEnergy;
+  };
+};
+
+// For a given objective or constraint, precompile it and its gradient, without any weights. (variation on `genOptProblem`)
+const genFn = (fn: Fn, s: State): FnCached => {
+  const xs: number[] = clone(s.varyingValues);
+
+  const overallObjective = evalFnOn(fn, s);
+  const xsVars: VarAD[] = makeADInputVars(xs);
+  const energyGraph: VarAD = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+
+  const weightInfo: MaybeVal<WeightInfo> = { tag: "Nothing" };
+
+  const { graphs, f, gradf } = energyAndGradCompiled(
+    xs,
+    xsVars,
+    energyGraph,
+    weightInfo
+  );
+
+  // Note this throws away the energy/gradient graphs (`VarAD`s). Presumably not needed?
+  return { f, gradf };
+};
+
+// For each objective and constraint, precompile it and its gradient and cache it in the state.
+export const genFns = (s: State): State => {
+  const p = s.params;
+  const objCache = {};
+  const constrCache = {};
+
+  for (const f of s.objFns) {
+    objCache[prettyPrintFn(f)] = genFn(f, s);
+  }
+
+  for (const f of s.constrFns) {
+    constrCache[prettyPrintFn(f)] = genFn(f, s);
+  }
+
+  p.objFnCache = objCache;
+  p.constrFnCache = constrCache;
+
+  return s;
 };
