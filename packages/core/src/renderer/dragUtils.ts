@@ -1,5 +1,6 @@
 import { updateVaryingValues } from "engine/PropagateUpdate";
-import { Properties, Shape } from "types/shapeTypes";
+import { Properties, Shape } from "types/shape";
+import { State } from "types/state";
 
 /**
  * Retrieve data from drag events and update varying state accordingly

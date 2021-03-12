@@ -1,5 +1,5 @@
 import memoize from "fast-memoize";
-import { Shape } from "types/shapeTypes";
+import { Shape } from "types/shape";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
@@ -10,6 +10,7 @@ import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
 import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
+import { LabelCache, LabelData } from "types/state";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();

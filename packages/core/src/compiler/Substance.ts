@@ -1,9 +1,25 @@
-import { Map } from "immutable";
 import { findIndex, zip } from "lodash";
+import { Map } from "immutable";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
+import { Identifier } from "types/ast";
+import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
+import {
+  SubProg,
+  SubExpr,
+  ApplyPredicate,
+  SubStmt,
+  TypeConsApp,
+  SubPredArg,
+  Func,
+  ApplyConstructor,
+  ApplyFunction,
+  Deconstructor,
+  LabelMap,
+  SubstanceEnv,
+} from "types/substance";
 import {
   andThen,
   argLengthMismatch,
@@ -68,16 +84,6 @@ export const compileSubstance = (
     return err({ ...astOk.error, errorType: "SubstanceError" });
   }
 };
-
-export type LabelMap = Map<string, Maybe<string>>;
-export interface SubstanceEnv {
-  exprEqualities: [SubExpr, SubExpr][];
-  predEqualities: [ApplyPredicate, ApplyPredicate][];
-  bindings: Map<string, SubExpr>;
-  labels: LabelMap;
-  predicates: ApplyPredicate[];
-  ast: SubProg;
-}
 
 const initEnv = (ast: SubProg): SubstanceEnv => ({
   exprEqualities: [],
