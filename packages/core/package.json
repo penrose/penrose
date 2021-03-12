@@ -24,7 +24,7 @@
     "watch": "yarn watch-fast",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist",
     "pretest": "yarn build:parsers",
-    "docs": "typedoc --out docs src",
+    "docs": "typedoc --out docs src --ignoreCompilerErrors",
     "predocs": "yarn build:parsers",
     "coverage": "yarn test --coverage --watchAll=false",
     "lint": "eslint --ext js,ts,tsx src",
