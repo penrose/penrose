@@ -61,13 +61,15 @@ Now we will move onto actually visualizing the vector addition. There are two st
   override u.shape.end[0] = v.shape.end[0] + w.shape.end[0] - U.origin[0]
   override u.shape.end[1] = v.shape.end[1] + w.shape.end[1] - U.origin[1]
   ```
+  * Compile,  and you should have three vectors in your vector space. 
+  ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png)
 * __Step 2:__
   * Draw the two dashed lines that connects the tips of the three vectors. 
 
 
 # INSERT GOAL DIAGRAM WITH NOTATIONS
 
-![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png)
+
 
 Add this to both `dashed_w` and `dashed_v` styles, or feel free to choose your own stylings. 
 ```typescript
