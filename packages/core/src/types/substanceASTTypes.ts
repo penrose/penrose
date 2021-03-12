@@ -1,7 +1,18 @@
-import { LabelMap } from "compiler/Substance";
+import { Maybe } from "utils/Error";
 import { ASTNode, Identifier } from "./ASTTypes";
 import { TypeConstructor } from "./domainASTTypes";
 import { IStringLit } from "./shapeEvalTypes";
+import { Map } from "immutable";
+
+export type LabelMap = Map<string, Maybe<string>>;
+export interface SubstanceEnv {
+  exprEqualities: [SubExpr, SubExpr][];
+  predEqualities: [ApplyPredicate, ApplyPredicate][];
+  bindings: Map<string, SubExpr>;
+  labels: LabelMap;
+  predicates: ApplyPredicate[];
+  ast: SubProg;
+}
 
 //#region Substance AST
 export interface SubProg {

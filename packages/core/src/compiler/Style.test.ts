@@ -1,11 +1,8 @@
 // Must be run from penrose-web for loading files
 
 import * as S from "compiler/Style";
-import {
-  compileSubstance,
-  parseSubstance,
-  SubstanceEnv,
-} from "compiler/Substance";
+import { compileSubstance, parseSubstance } from "compiler/Substance";
+import { SubstanceEnv } from "types/substanceASTTypes";
 import * as fs from "fs";
 import { PenroseError } from "types/errors";
 import _ from "lodash";

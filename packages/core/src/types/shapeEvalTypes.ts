@@ -126,19 +126,6 @@ export interface IBoolLit extends ASTNode {
   contents: boolean;
 }
 
-// COMBAK: This seems to be unused, delete
-// interface IEVar {
-//   tag: "EVar";
-//   contents: LocalVar;
-// }
-
-// NOTE: no longer using EPath, and use Path instead in Expr
-// interface IEPath {
-//   tag: "EPath";
-//   contents: Path;
-//   // value
-// }
-
 export interface ICompApp extends ASTNode {
   tag: "CompApp";
   name: Identifier;

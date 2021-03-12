@@ -4,8 +4,8 @@ import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
-  SubstanceEnv,
 } from "compiler/Substance";
+import { SubstanceEnv } from "types/substanceASTTypes";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
 import { genOptProblem, initializeMat, step } from "engine/Optimizer";

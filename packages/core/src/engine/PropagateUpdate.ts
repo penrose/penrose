@@ -80,7 +80,6 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
  *
  * @param state initial state with pending values
  *
- * @todo state shouldn't have the type `State` yet because the shapes are augumented with extra properties.
  */
 export const insertPending = (state: State): State => {
   const findLabelValue = (p: Path, labels: LabelCache): Value<number> => {

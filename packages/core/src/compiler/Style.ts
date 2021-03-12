@@ -1,10 +1,5 @@
-import {
-  checkExpr,
-  checkPredicate,
-  checkVar,
-  LabelMap,
-  SubstanceEnv,
-} from "compiler/Substance";
+import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
+import { LabelMap, SubstanceEnv } from "types/substanceASTTypes";
 import consola, { LogLevel } from "consola";
 import { constOf, numOf } from "engine/Autodiff";
 import {
