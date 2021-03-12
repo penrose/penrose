@@ -1,9 +1,9 @@
 import shapeMap from "./shapeMap";
 import { canvasSize } from "renderer/ShapeDef";
-import { Shape } from "types/shapeTypes";
+import { Shape } from "types/shape";
 import { dragUpdate } from "./dragUtils";
-import { IStrV } from "types/shapeEvalTypes";
-import { LabelCache, State } from "types/stateTypes";
+import { IStrV } from "types/value";
+import { LabelCache, State } from "types/state";
 
 export interface ShapeProps {
   shape: Shape;

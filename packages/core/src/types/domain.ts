@@ -1,8 +1,6 @@
 //#region Domain AST
 
-import { ASTNode, Identifier } from "./ASTTypes";
-import { IStringLit } from "./shapeEvalTypes";
-import { SourcePos } from "./styleASTTypes";
+import { IStringLit, ASTNode, Identifier } from "./ast";
 
 export type Var = Identifier;
 

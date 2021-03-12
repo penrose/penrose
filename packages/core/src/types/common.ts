@@ -1,5 +1,3 @@
-import { StyleError } from "./errors";
-
 export interface Nothing<T> {
   tag: "Nothing";
 }
@@ -10,9 +8,6 @@ export interface Just<T> {
 }
 
 export type MaybeVal<T> = Nothing<T> | Just<T>;
-
-export type StyleErrors = StyleError[];
-// TODO: Convert this to StyleError[]
 
 export interface Left<A> {
   tag: "Left";

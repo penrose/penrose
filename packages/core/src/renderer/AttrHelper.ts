@@ -1,5 +1,5 @@
-import { IColorV, IFloatV, IVectorV, IStrV } from "types/shapeEvalTypes";
-import { Shape } from "types/shapeTypes";
+import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
+import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
 
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {

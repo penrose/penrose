@@ -1,4 +1,4 @@
-import { IFloatV, IStrV, IColorV, IVectorV } from "types/shapeEvalTypes";
+import { IFloatV, IStrV, IColorV, IVectorV } from "types/value";
 import { arrowheads, round2, toHex, toScreen } from "utils/Util";
 import { attrFill, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";

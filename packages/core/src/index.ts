@@ -5,7 +5,7 @@ import {
   compileSubstance,
   parseSubstance,
 } from "compiler/Substance";
-import { SubstanceEnv } from "types/substanceASTTypes";
+import { SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
 import { genOptProblem, initializeMat, step } from "engine/Optimizer";
@@ -16,9 +16,9 @@ import RenderStatic, {
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
-import { Registry, Trio } from "types/ioTypes";
-import * as ShapeTypes from "types/shapeTypes";
-import { State, LabelCache } from "types/stateTypes";
+import { Registry, Trio } from "types/io";
+import * as ShapeTypes from "types/shape";
+import { State, LabelCache } from "types/state";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { bBoxDims, toHex } from "utils/Util";
@@ -225,7 +225,7 @@ export const evalEnergy = (s: State): number => {
   return objective(weight)(s.varyingValues);
 };
 
-export type { State as PenroseState } from "./types/stateTypes";
+export type { State as PenroseState } from "./types/state";
 export type { PenroseError } from "./types/errors";
 export {
   compileDomain,

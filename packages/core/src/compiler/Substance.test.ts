@@ -6,7 +6,7 @@ import { PenroseError } from "types/errors";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
 import { compileSubstance } from "./Substance";
-import { SubstanceEnv } from "types/substanceASTTypes";
+import { SubstanceEnv } from "types/substance";
 
 const printError = false;
 const saveContexts = false;

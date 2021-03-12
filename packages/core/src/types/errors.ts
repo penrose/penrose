@@ -1,10 +1,9 @@
 //#region ErrorTypes
 
-import { ASTNode, Identifier, SourceLoc } from "./ASTTypes";
-import { TypeConstructor, Prop, TypeVar, Arg } from "./domainASTTypes";
-import { StyleErrors } from "./helperTypes";
-import { BindingForm, Path } from "./shapeEvalTypes";
-import { SubExpr, Deconstructor, TypeConsApp } from "./substanceASTTypes";
+import { ASTNode, Identifier, SourceLoc } from "./ast";
+import { TypeConstructor, Prop, TypeVar, Arg } from "./domain";
+import { BindingForm, Path } from "./style";
+import { SubExpr, Deconstructor, TypeConsApp } from "./substance";
 
 // type PenroseError = LanguageError | RuntimeError;
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
@@ -16,6 +15,7 @@ export type PenroseError =
   | (StyleError & { errorType: "StyleError" });
 
 export type Warning = StyleError;
+export type StyleErrors = StyleError[];
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 export type SubstanceError =

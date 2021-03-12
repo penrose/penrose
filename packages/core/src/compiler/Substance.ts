@@ -3,8 +3,8 @@ import { Map } from "immutable";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
-import { Identifier } from "types/ASTTypes";
-import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domainASTTypes";
+import { Identifier } from "types/ast";
+import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
   SubProg,
@@ -19,7 +19,7 @@ import {
   Deconstructor,
   LabelMap,
   SubstanceEnv,
-} from "types/substanceASTTypes";
+} from "types/substance";
 import {
   andThen,
   argLengthMismatch,

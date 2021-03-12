@@ -1,7 +1,6 @@
 import { Maybe } from "utils/Error";
-import { ASTNode, Identifier } from "./ASTTypes";
-import { TypeConstructor } from "./domainASTTypes";
-import { IStringLit } from "./shapeEvalTypes";
+import { IStringLit, ASTNode, Identifier } from "./ast";
+import { TypeConstructor } from "./domain";
 import { Map } from "immutable";
 
 export type LabelMap = Map<string, Maybe<string>>;

@@ -11,27 +11,24 @@ import { notEmptyLabel } from "renderer/ShapeDef";
 // For deep-cloning the translation
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";
-import { VarAD, OptDebugInfo, IVarAD } from "types/adTypes";
-import { Identifier, SourceLoc } from "types/ASTTypes";
+import { VarAD, OptDebugInfo, IVarAD } from "types/ad";
+import { Identifier, SourceLoc } from "types/ast";
 import {
-  Path,
   IFGPI,
   Translation,
   TagExpr,
   IVal,
-  Expr,
   ArgVal,
   IFloatV,
   IIntV,
   ILListV,
-  IPropertyPath,
   GPI,
-  BinaryOp,
-  UnaryOp,
   IVectorV,
-} from "types/shapeEvalTypes";
-import { Shape, Value } from "types/shapeTypes";
-import { State, Fn, VaryMap, FnDone } from "types/stateTypes";
+} from "types/value";
+import { Shape } from "types/shape";
+import { Value } from "types/value";
+import { State, Fn, VaryMap, FnDone } from "types/state";
+import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
 import { floatVal, prettyPrintPath } from "utils/OtherUtils";
 import {
   add,

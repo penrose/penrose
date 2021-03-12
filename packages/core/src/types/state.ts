@@ -1,9 +1,10 @@
 import { prng } from "seedrandom";
-import { Maybe } from "utils/Error";
-import { GradGraphs, VarAD } from "./adTypes";
-import { MaybeVal } from "./helperTypes";
-import { Translation, ArgVal, Expr, Path } from "./shapeEvalTypes";
-import { Shape, Value } from "./shapeTypes";
+import { GradGraphs, VarAD } from "types/ad";
+import { MaybeVal } from "types/common";
+import { Translation, ArgVal } from "types/value";
+import { Shape } from "types/shape";
+import { Value } from "types/value";
+import { Expr, Path } from "types/style";
 
 /**
  * The diagram state modeling the original Haskell types

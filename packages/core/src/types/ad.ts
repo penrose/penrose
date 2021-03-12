@@ -1,7 +1,7 @@
 //#region Types for reverse-mode autodiff
 
-import { MaybeVal } from "./helperTypes";
-import { LbfgsParams } from "./stateTypes";
+import { MaybeVal } from "./common";
+import { LbfgsParams } from "./state";
 
 // ----- Core types
 

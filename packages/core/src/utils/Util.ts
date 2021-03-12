@@ -1,7 +1,7 @@
 import memoize from "fast-memoize";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
-import { Properties } from "types/shapeTypes";
+import { Properties } from "types/shape";
 
 seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 

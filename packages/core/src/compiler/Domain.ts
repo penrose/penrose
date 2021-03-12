@@ -15,7 +15,7 @@ import {
   DomainStmt,
   Type,
   Arg,
-} from "types/domainASTTypes";
+} from "types/domain";
 import {
   ParseError,
   DomainError,
@@ -23,7 +23,7 @@ import {
   TypeVarNotFound,
   PenroseError,
 } from "types/errors";
-import { ApplyConstructor, TypeConsApp } from "types/substanceASTTypes";
+import { ApplyConstructor, TypeConsApp } from "types/substance";
 import {
   and,
   andThen,

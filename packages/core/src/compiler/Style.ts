@@ -1,10 +1,13 @@
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
-import { LabelMap, SubstanceEnv } from "types/substanceASTTypes";
 import consola, { LogLevel } from "consola";
+import { constrDict, objDict } from "contrib/Constraints";
+// Dicts (runtime data)
+import { compDict } from "contrib/Functions";
 import { constOf, numOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,
+  dummyASTNode,
   findExpr,
   findExprSafe,
   initConstraintWeight,
@@ -12,13 +15,13 @@ import {
   insertExprs,
   insertGPI,
   isPath,
-  valueNumberToAutodiffConst,
   isTagExpr,
-  dummyASTNode,
+  valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
-import _, { last, result } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
+import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import {
   canvasXRange,
@@ -28,90 +31,81 @@ import {
   ShapeDef,
   shapedefs,
 } from "renderer/ShapeDef";
-
 import rfdc from "rfdc";
-import { Value } from "types/shapeTypes";
-import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
-import { randFloats } from "utils/Util";
-import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
-
-// Dicts (runtime data)
-import { compDict } from "contrib/Functions";
-import { objDict, constrDict } from "contrib/Constraints";
-import { prettyPrintPath } from "utils/OtherUtils";
+import { VarAD } from "types/ad";
+import { ASTNode, Identifier, SourceLoc } from "types/ast";
+import { ConstructorDecl, TypeConstructor } from "types/domain";
 import {
-  SubstanceError,
-  StyleResults,
-  StyleWarnings,
   ParseError,
   PenroseError,
   StyleError,
+  StyleErrors,
+  StyleResults,
+  StyleWarnings,
+  SubstanceError,
 } from "types/errors";
-import { lastLocation } from "parser/ParserUtil";
+import { Either, Left, MaybeVal, Right } from "types/common";
+import {
+  Field,
+  FieldDict,
+  FieldExpr,
+  GPIMap,
+  GPIProps,
+  IFGPI,
+  IOptEval,
+  Property,
+  PropID,
+  ShapeTypeStr,
+  StyleOptFn,
+  TagExpr,
+  Translation,
+  Value,
+} from "types/value";
+import { Fn, OptType, Params, State } from "types/state";
 import {
   BindingForm,
-  Field,
-  StyVar,
-  PropertyDecl,
+  Block,
+  DeclPattern,
   Expr,
-  Translation,
-  FieldExpr,
-  TagExpr,
   GPIDecl,
-  ICompApp,
-  IObjFn,
-  IConstrFn,
-  FieldDict,
-  ShapeTypeStr,
-  PropID,
+  Header,
+  HeaderBlock,
   IAccessPath,
-  GPIMap,
-  Property,
-  StyleOptFn,
-  IFGPI,
-  GPIProps,
+  ICompApp,
+  IConstrFn,
   ILayering,
-  IOptEval,
+  IObjFn,
   Path,
-} from "types/shapeEvalTypes";
-import { VarAD } from "types/adTypes";
-import { SourceLoc, Identifier, ASTNode } from "types/ASTTypes";
-import { ConstructorDecl, TypeConstructor } from "types/domainASTTypes";
-import { Either, MaybeVal, StyleErrors } from "types/helperTypes";
-import { Fn, OptType, State, Params } from "types/stateTypes";
-import {
-  SelExpr,
   PredArg,
+  PropertyDecl,
+  RelationPattern,
   RelBind,
   RelPred,
-  RelationPattern,
-  StyT,
-  DeclPattern,
-  Header,
   Selector,
-  HeaderBlock,
+  SelExpr,
   Stmt,
-  Block,
   StyProg,
-} from "types/styleASTTypes";
+  StyT,
+  StyVar,
+} from "types/style";
+import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
-  SelEnv,
-  ProgType,
-  Subst,
-  LocalVarSubst,
-} from "types/styleSemanticsTypes";
-import {
-  TypeConsApp,
-  SubStmt,
+  ApplyConstructor,
+  ApplyFunction,
+  ApplyPredicate,
+  Func,
+  LabelMap,
   SubExpr,
   SubPredArg,
-  ApplyPredicate,
-  ApplyConstructor,
   SubProg,
-  Func,
-  ApplyFunction,
-} from "types/substanceASTTypes";
-import { Left, Right } from "types/helperTypes";
+  SubstanceEnv,
+  SubStmt,
+  TypeConsApp,
+} from "types/substance";
+import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
+import { prettyPrintPath } from "utils/OtherUtils";
+import { randFloats } from "utils/Util";
+import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -134,9 +128,9 @@ const FN_DICT = {
 };
 
 const FN_ERR_TYPE = {
-  CompApp: "InvalidFunctionNameError" as "InvalidFunctionNameError",
-  ObjFn: "InvalidObjectiveNameError" as "InvalidObjectiveNameError",
-  ConstrFn: "InvalidConstraintNameError" as "InvalidConstraintNameError",
+  CompApp: "InvalidFunctionNameError" as const,
+  ObjFn: "InvalidObjectiveNameError" as const,
+  ConstrFn: "InvalidConstraintNameError" as const,
 };
 
 //#endregion
@@ -1747,8 +1741,8 @@ const flatErrs = (es: StyleResults[]): StyleResults => {
 const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   const styName: string = expr.shapeName.value;
 
-  let errors: StyleErrors = [];
-  let warnings: StyleWarnings = [];
+  const errors: StyleErrors = [];
+  const warnings: StyleWarnings = [];
 
   const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
   if (!shapeNames.includes(styName)) {

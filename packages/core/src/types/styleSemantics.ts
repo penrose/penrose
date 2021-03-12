@@ -1,9 +1,8 @@
 //#region Style semantics
 
-import { Var } from "./domainASTTypes";
-import { MaybeVal, StyleErrors } from "./helperTypes";
-import { BindingForm } from "./shapeEvalTypes";
-import { StyT, Header } from "./styleASTTypes";
+import { MaybeVal } from "./common";
+import { StyleErrors } from "./errors";
+import { StyT, Header, BindingForm } from "./style";
 
 // Style static semantics for selectors
 

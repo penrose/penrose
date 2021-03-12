@@ -2,18 +2,16 @@
 
 import * as S from "compiler/Style";
 import { compileSubstance, parseSubstance } from "compiler/Substance";
-import { SubstanceEnv } from "types/substanceASTTypes";
 import * as fs from "fs";
-import { PenroseError } from "types/errors";
 import _ from "lodash";
 import * as path from "path";
-import { andThen, unsafelyUnwrap, Result, showError } from "utils/Error";
+import { Either } from "types/common";
+import { PenroseError, StyleErrors } from "types/errors";
+import { State } from "types/state";
+import { StyProg } from "types/style";
+import { SubProg, SubstanceEnv } from "types/substance";
+import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
-import { StyleErrors, Either } from "types/helperTypes";
-import { State } from "types/stateTypes";
-import { StyProg, RelationPattern } from "types/styleASTTypes";
-import { Subst } from "types/styleSemanticsTypes";
-import { SubProg } from "types/substanceASTTypes";
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"

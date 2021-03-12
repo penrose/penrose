@@ -21,5 +21,8 @@ export interface Identifier extends ASTNode {
   type: string; // meta-info: either `value` or `type-identifier` according to the parser
   value: string; // the actual value
 }
-
+export interface IStringLit extends ASTNode {
+  tag: "StringLit";
+  contents: string;
+}
 //#endregion
