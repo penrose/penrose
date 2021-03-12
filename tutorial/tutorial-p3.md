@@ -17,9 +17,9 @@ We will be defining a function `addV` that takes in 2 two dimensional vectors `v
 
 ## Starter Code
 This example is a bit more involved than the previous tutorials, therefore we will be providing you some starter code to get things running. 
-Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3), and you should see this in your browser. 
+Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/starter_code.png)
-You should compile the starter code right now, and you should have something similar to this. Here we have 2 vectors `u`, `w` in a vector space labeled `U`. 
+You should compile the starter code and have something similar to this. Here we have 2 vectors `u`, `w` in a vector space labeled `U`. 
 
 ## :page_facing_up: Domain
 Now we will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which takes in 2 vectors and outputs a single vector. 
