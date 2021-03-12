@@ -207,9 +207,9 @@ export const readRegistry = (registry: Registry): Trio[] => {
 };
 
 /**
- * Evaluate the overall energy of a `State`. If the `State` already has an optimization problem initialized (i.e. it has a defined `objective` field), this function will call `genOptProblem`. Otherwise, it will evaluate the cached objective function.
+ * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objective` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
  * @param s a state with or without an optimization problem initialized
- * @returns a scaler value of the current energy
+ * @returns a scalar value of the current energy
  */
 export const evalEnergy = (s: State): number => {
   const { objective, weight } = s.params;
@@ -226,9 +226,10 @@ export const evalEnergy = (s: State): number => {
 };
 
 /**
- * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`
- * TODO: comment this properly
- * NOTE: The type has to be passed in because otherwise we can't distinguish between the kinds of functions
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. If the `State` doesn't have the constraints/objectives compiled, it will generate them first. Otherwise, it will evaluate the cached functions.
+ * @param fns a list of constraints/objectives
+ * @param s a state with or without its opt functions cached
+ * @returns a list of scalar values of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
 export const evalFns = (fns: Fn[], s: State): number[] => {
   const { objFnCache, constrFnCache } = s.params;

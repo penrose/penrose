@@ -159,22 +159,4 @@ describe("Run individual functions", () => {
       console.log(showError(res.error));
     }
   });
-
-  // test("filtered constraints", async () => {
-  //   const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-  //   const res = compileTrio(setDomain, twoSubsets, vennStyle);
-
-  //   if (res.isOk()) {
-  //     // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
-  //     const state = res.value;
-  //     const smallerThanFns = state.constrFns.filter(
-  //       (c) => c.fname === "smallerThan"
-  //     );
-  //     const stateFiltered = { ...state, constrFns: smallerThanFns };
-  //     expect(evalEnergy(state)).toBeGreaterThan(evalEnergy(stateFiltered));
-
-  //   } else {
-  //     console.log(showError(res.error));
-  //   }
-  // });
 });
