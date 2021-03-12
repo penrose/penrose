@@ -50,9 +50,7 @@ forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U)
 ```
 Now we will move onto actually visualizing the vector addition. 
-![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png)
-
-Draw the new vector `u` that is the sum of the two vectors `v, w`. 
+![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png) 
 
 When we manually add 2 vectors, we add their x values and y values to get the new vector's x,y values. The new vector already has some x, y values chosen by Penrose for optimization, therefore we will need to override the existing values using the `override` keyword. (Every vector in a vector space is anchored at the origin, therefore we are only changing the end point of any vector. )
 
