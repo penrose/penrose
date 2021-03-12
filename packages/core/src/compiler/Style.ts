@@ -1,15 +1,13 @@
-import {
-  checkExpr,
-  checkPredicate,
-  checkVar,
-  LabelMap,
-  SubstanceEnv,
-} from "compiler/Substance";
+import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
+import { constrDict, objDict } from "contrib/Constraints";
+// Dicts (runtime data)
+import { compDict } from "contrib/Functions";
 import { constOf, numOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,
+  dummyASTNode,
   findExpr,
   findExprSafe,
   initConstraintWeight,
@@ -17,13 +15,13 @@ import {
   insertExprs,
   insertGPI,
   isPath,
-  valueNumberToAutodiffConst,
   isTagExpr,
-  dummyASTNode,
+  valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
-import _, { last, result } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
+import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import {
   canvasXRange,
@@ -33,26 +31,81 @@ import {
   ShapeDef,
   shapedefs,
 } from "renderer/ShapeDef";
-
 import rfdc from "rfdc";
-import { Value } from "types/shapeTypes";
-import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
-import { randFloats } from "utils/Util";
-import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
-
-// Dicts (runtime data)
-import { compDict } from "contrib/Functions";
-import { objDict, constrDict } from "contrib/Constraints";
-import { prettyPrintPath } from "utils/OtherUtils";
+import { VarAD } from "types/ad";
+import { ASTNode, Identifier, SourceLoc } from "types/ast";
+import { ConstructorDecl, TypeConstructor } from "types/domain";
 import {
-  SubstanceError,
-  StyleResults,
-  StyleWarnings,
   ParseError,
   PenroseError,
   StyleError,
+  StyleErrors,
+  StyleResults,
+  StyleWarnings,
+  SubstanceError,
 } from "types/errors";
-import { lastLocation } from "parser/ParserUtil";
+import { Either, Left, MaybeVal, Right } from "types/common";
+import {
+  Field,
+  FieldDict,
+  FieldExpr,
+  GPIMap,
+  GPIProps,
+  IFGPI,
+  IOptEval,
+  Property,
+  PropID,
+  ShapeTypeStr,
+  StyleOptFn,
+  TagExpr,
+  Translation,
+  Value,
+} from "types/value";
+import { Fn, OptType, Params, State } from "types/state";
+import {
+  BindingForm,
+  Block,
+  DeclPattern,
+  Expr,
+  GPIDecl,
+  Header,
+  HeaderBlock,
+  IAccessPath,
+  ICompApp,
+  IConstrFn,
+  ILayering,
+  IObjFn,
+  Path,
+  PredArg,
+  PropertyDecl,
+  RelationPattern,
+  RelBind,
+  RelPred,
+  Selector,
+  SelExpr,
+  Stmt,
+  StyProg,
+  StyT,
+  StyVar,
+} from "types/style";
+import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
+import {
+  ApplyConstructor,
+  ApplyFunction,
+  ApplyPredicate,
+  Func,
+  LabelMap,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubstanceEnv,
+  SubStmt,
+  TypeConsApp,
+} from "types/substance";
+import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
+import { prettyPrintPath } from "utils/OtherUtils";
+import { randFloats } from "utils/Util";
+import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -75,9 +128,9 @@ const FN_DICT = {
 };
 
 const FN_ERR_TYPE = {
-  CompApp: "InvalidFunctionNameError" as "InvalidFunctionNameError",
-  ObjFn: "InvalidObjectiveNameError" as "InvalidObjectiveNameError",
-  ConstrFn: "InvalidConstraintNameError" as "InvalidConstraintNameError",
+  CompApp: "InvalidFunctionNameError" as const,
+  ObjFn: "InvalidObjectiveNameError" as const,
+  ConstrFn: "InvalidConstraintNameError" as const,
 };
 
 //#endregion
@@ -114,11 +167,11 @@ export function isRight<B>(val: any): val is Right<B> {
   return false;
 }
 
-export function Left<A>(val: A): Left<A> {
+export function toLeft<A>(val: A): Left<A> {
   return { contents: val, tag: "Left" };
 }
 
-export function Right<B>(val: B): Right<B> {
+export function toRight<B>(val: B): Right<B> {
   return { contents: val, tag: "Right" };
 }
 
@@ -136,7 +189,7 @@ export function foldM<A, B, C>(
   init: B
 ): Either<C, B> {
   let res = init;
-  let resW: Either<C, B> = Right(init); // wrapped
+  let resW: Either<C, B> = toRight(init); // wrapped
 
   for (let i = 0; i < xs.length; i++) {
     resW = f(res, xs[i], i);
@@ -594,7 +647,7 @@ const substituteBform = (
         contents: {
           ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
           type: "value",
-          value: res,
+          value: res, // COMBAK: double check please
         },
       };
     } else {
@@ -1133,7 +1186,7 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 // After all Substance variables from a Style substitution are substituted in, check if
 const relMatchesLine = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   s1: SubStmt,
   s2: RelationPattern
 ): boolean => {
@@ -1172,7 +1225,7 @@ const relMatchesLine = (
 // Judgment 13. b |- [S] <| |S_r
 const relMatchesProg = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   rel: RelationPattern
 ): boolean => {
@@ -1184,7 +1237,7 @@ const relMatchesProg = (
 // Judgment 15. b |- [S] <| [|S_r]
 const allRelsMatch = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   rels: RelationPattern[]
 ): boolean => {
@@ -1195,7 +1248,7 @@ const allRelsMatch = (
 // Folds over [theta]
 const filterRels = (
   typeEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   rels: RelationPattern[],
   substs: Subst[]
@@ -1336,7 +1389,7 @@ const matchDecls = (
 // ported from `find_substs_sel`
 const findSubstsSel = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   [header, selEnv]: [Header, SelEnv]
 ): Subst[] => {
@@ -1367,7 +1420,7 @@ const findSubstsSel = (
 // Find a list of substitutions for each selector in the Sty program. (ported from `find_substs_prog`)
 export const findSubstsProg = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   styProg: HeaderBlock[],
   selEnvs: SelEnv[]
@@ -1576,7 +1629,7 @@ const deletePath = (
 ): Either<StyleErrors, Translation> => {
   if (path.tag === "FieldPath") {
     const transWithWarnings = deleteField(trans, path, path.name, path.field);
-    return Right(transWithWarnings);
+    return toRight(transWithWarnings);
   } else if (path.tag === "PropertyPath") {
     const transWithWarnings = deleteProperty(
       trans,
@@ -1585,11 +1638,11 @@ const deletePath = (
       path.field,
       path.property
     );
-    return Right(transWithWarnings);
+    return toRight(transWithWarnings);
   } else if (path.tag === "AccessPath") {
     // TODO(error)
     const err: StyleError = { tag: "DeletedVectorElemError", path };
-    return Left([err]);
+    return toLeft([err]);
   } else if (path.tag === "InternalLocalVar") {
     throw Error(
       "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"
@@ -1610,10 +1663,10 @@ const addPath = (
   // Check insertExpr's errors and warnings first
   const tr2 = insertExpr(path, expr, trans, true, override);
   if (tr2.warnings.length > 0) {
-    return Left(tr2.warnings);
+    return toLeft(tr2.warnings);
   }
 
-  return Right(tr2);
+  return toRight(tr2);
 };
 
 const translateLine = (
@@ -1688,8 +1741,8 @@ const flatErrs = (es: StyleResults[]): StyleResults => {
 const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   const styName: string = expr.shapeName.value;
 
-  let errors: StyleErrors = [];
-  let warnings: StyleWarnings = [];
+  const errors: StyleErrors = [];
+  const warnings: StyleWarnings = [];
 
   const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
   if (!shapeNames.includes(styName)) {
@@ -1846,7 +1899,7 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
 // Judgment 23, contd.
 const translatePair = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   trans: Translation,
   hb: HeaderBlock,
@@ -1884,7 +1937,7 @@ const translatePair = (
     // skip this block (because the Substance variable won't exist in the translation)
 
     if (selEnv.skipBlock) {
-      return Right(trans);
+      return toRight(trans);
     }
 
     if (selEnv.errors.length > 0 || bErrs.length > 0) {
@@ -1971,7 +2024,7 @@ const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
 
 const translateStyProg = (
   varEnv: Env,
-  subEnv: SubEnv,
+  subEnv: SubstanceEnv,
   subProg: SubProg,
   styProg: StyProg,
   labelMap: LabelMap,
@@ -1997,7 +2050,7 @@ const translateStyProg = (
   // const styValMap = styJsonToMap(styVals);
   // const transWithPlugins = evalPluginAccess(styValMap, transWithNamesAndLabels);
   // return Right(transWithPlugins);
-  return Right(transWithNamesAndLabels);
+  return toRight(transWithNamesAndLabels);
 };
 
 //#endregion

@@ -4,8 +4,8 @@ import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
-  SubstanceEnv,
 } from "compiler/Substance";
+import { SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
 import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
@@ -16,7 +16,9 @@ import RenderStatic, {
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
-import * as ShapeTypes from "types/shapeTypes";
+import { Registry, Trio } from "types/io";
+import * as ShapeTypes from "types/shape";
+import { State, LabelCache, Fn } from "types/state";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn } from "utils/OtherUtils";
@@ -73,10 +75,11 @@ export const diagram = async (
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergence(state);
     node.appendChild(RenderStatic(optimized));
-  } else
+  } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
     );
+  }
 };
 
 /**
@@ -105,10 +108,11 @@ export const interactiveDiagram = async (
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergence(state);
     node.appendChild(RenderInteractive(optimized, updateData));
-  } else
+  } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
     );
+  }
 };
 
 /**

@@ -1,46 +1,58 @@
+import consola, { LogLevel } from "consola";
+import { constrDict, objDict } from "contrib/Constraints";
 import eig from "eigen";
 import {
-  makeADInputVars,
-  energyAndGradCompiled,
-  ops,
-  fns,
   add,
-  mul,
-  varOf,
-  constOf,
-  markInput,
   differentiable,
+  energyAndGradCompiled,
+  fns,
+  makeADInputVars,
+  markInput,
+  mul,
+  ops,
+  varOf,
 } from "engine/Autodiff";
 import {
-  makeTranslationDifferentiable,
-  makeTranslationNumeric,
   defaultLbfgsParams,
   initConstraintWeight,
-  insertGPI,
+  makeTranslationDifferentiable,
+  makeTranslationNumeric,
 } from "engine/EngineUtils";
-import { normList, repeat, prettyPrintPath } from "utils/OtherUtils";
 import {
   argValue,
-  evalShapes,
-  insertVaryings,
-  genPathMap,
-  evalFns,
   evalFn,
+  evalFns,
+  evalShapes,
+  genPathMap,
+  insertVaryings,
 } from "engine/Evaluator";
-
 import * as _ from "lodash";
-import { constrDict, objDict } from "contrib/Constraints";
-import {
-  scalev,
-  addv,
-  subv,
-  negv,
-  dot,
-  prettyPrintFns,
-  prettyPrintFn,
-} from "utils/OtherUtils";
-import consola, { LogLevel } from "consola";
 import rfdc from "rfdc";
+import { OptInfo, VarAD } from "types/ad";
+import { MaybeVal } from "types/common";
+import {
+  Fn,
+  FnCached,
+  FnDone,
+  LbfgsParams,
+  Params,
+  State,
+  VaryMap,
+  WeightInfo,
+} from "types/state";
+import { Path } from "types/style";
+import {
+  addv,
+  dot,
+  negv,
+  normList,
+  prettyPrintFn,
+  prettyPrintFns,
+  prettyPrintPath,
+  repeat,
+  scalev,
+  subv,
+} from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
@@ -644,8 +656,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: colVec(xs) },
-        lastGrad: { tag: "Just", contents: colVec(gradfxs) },
+        lastState: { tag: "Just" as const, contents: colVec(xs) },
+        lastGrad: { tag: "Just" as const, contents: colVec(gradfxs) },
         s_list: [],
         y_list: [],
         numUnconstrSteps: 1,
@@ -695,8 +707,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         gradfxsPreconditioned: gradfxs,
         updatedLbfgsInfo: {
           ...lbfgsInfo,
-          lastState: { tag: "Just", contents: x_k },
-          lastGrad: { tag: "Just", contents: grad_fx_k },
+          lastState: { tag: "Just" as const, contents: x_k },
+          lastGrad: { tag: "Just" as const, contents: grad_fx_k },
           s_list: [],
           y_list: [],
           numUnconstrSteps: 1,
@@ -715,8 +727,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: vecList(gradPreconditioned),
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: x_k },
-        lastGrad: { tag: "Just", contents: grad_fx_k },
+        lastState: { tag: "Just" as const, contents: x_k },
+        lastGrad: { tag: "Just" as const, contents: grad_fx_k },
         s_list: ss_km1,
         y_list: ys_km1,
         numUnconstrSteps: km1 + 1,
@@ -911,7 +923,7 @@ export const evalEnergyOnCustom = (state: State) => {
     );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    overallEng.gradVal = { tag: "Just", contents: 1.0 };
+    overallEng.gradVal = { tag: "Just" as const, contents: 1.0 };
     log.info("overall eng from custom AD", overallEng, overallEng.val);
 
     return {

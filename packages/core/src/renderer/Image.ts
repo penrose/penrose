@@ -1,6 +1,7 @@
 import { attrOpacity, attrTransformCoords, attrWH } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 import images from "contrib/images.json";
+import { IStrV } from "types/value";
 
 const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
