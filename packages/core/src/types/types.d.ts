@@ -625,6 +625,18 @@ interface IParams {
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
   constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
   epWeightNode: VarAD; // similar to constrWeightNode
+
+  // Cached versions of compiling each objective and constraint into a function and gradient
+  objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
+  constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
+}
+
+type FnCached = IFnCached;
+
+// Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
+interface IFnCached {
+  f(xs: number[]): number;
+  gradf(xs: number[]): number[];
 }
 
 type WeightInfo = IWeightInfo;

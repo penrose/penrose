@@ -4,6 +4,7 @@ import seedrandom from "seedrandom";
 import {
   compileTrio,
   evalEnergy,
+  evalFns,
   prepareState,
   readRegistry,
   RenderStatic,
@@ -110,6 +111,52 @@ describe("Cross-instance energy eval", () => {
       // console.log(RenderStatic(crossState21).outerHTML);
     } else {
       fail("compilation failed");
+    }
+  });
+});
+
+describe("Run individual functions", () => {
+  // TODO: Test evalFns vs overall objective? Also, test individual functions more thoroughly
+  const EPS = 1e-3; // Minimized objectives should be close to 0
+
+  test("Check each individual function is minimized/satisfied", async () => {
+    const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
+    const res = compileTrio(setDomain, twoSubsets, vennStyle);
+
+    if (res.isOk()) {
+      const stateEvaled = await prepareState(res.value);
+      const stateOptimized = stepUntilConvergence(stateEvaled);
+
+      // console.log("# objectives", stateEvaled.objFns.length);
+      // console.log("# constraints", stateEvaled.constrFns.length);
+
+      // Test objectives
+      const initEngsObj = evalFns(stateEvaled.objFns, stateEvaled);
+      const optedEngsObj = evalFns(stateEvaled.objFns, stateOptimized);
+
+      for (let i = 0; i < initEngsObj.length; i++) {
+        // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);
+        expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);
+        expect(optedEngsObj[i]).toBeLessThanOrEqual(EPS);
+      }
+
+      // Test constraints
+      const initEngsConstr = evalFns(stateEvaled.constrFns, stateEvaled);
+      const optedEngsConstr = evalFns(stateEvaled.constrFns, stateOptimized);
+
+      for (let i = 0; i < initEngsConstr.length; i++) {
+        // console.log("constr energies", initEngsConstr[i], optedEngsConstr[i]);
+        if (initEngsConstr[i] < 0 && optedEngsConstr[i] < 0) {
+          // If it was already satisfied and stays satisfied, the magnitude of the constraint doesn't matter (i.e. both are negative)
+          expect(true).toEqual(true);
+        } else {
+          expect(initEngsConstr[i]).toBeGreaterThanOrEqual(optedEngsConstr[i]);
+          // Check constraint satisfaction (< 0)
+          expect(optedEngsConstr[i]).toBeLessThanOrEqual(0);
+        }
+      }
+    } else {
+      console.log(showError(res.error));
     }
   });
 });
