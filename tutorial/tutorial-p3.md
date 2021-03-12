@@ -53,8 +53,10 @@ Now we will move onto actually visualizing the vector addition. There are two st
 ![Tutorial 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/goal_withlabel.png)
 * __Step 1:__
   * Draw the new vector `u` that is the sum of the two vectors `v, w`. 
-  * When we manually add 2 vectors, we add their x values and y values to get the new vector's x,y values. The new vector already has some x, y values chosen by Penrose for optimization, therefore we will need to override the existing values using the `override` keyword.
+  * When we manually add 2 vectors, we add their x values and y values to get the new vector's x,y values. The new vector already has some x, y values chosen by Penrose for optimization, therefore we will need to override the existing values using the `override` keyword. (Every vector in a vector space is anchored at the origin, therefore we are only changing the end point of any vector. )
   * The x and y values of any vector in our current environment can be accessed using the array indexing syntax of `[0]` for `x` and `[1]` for `y`. 
+  * Putting our thoughts together, we need to change the end values of `u`, which consists of `end[0]`(x) and `end[1]`(y). The value for our new x is the sum of `v.shape.end[0] + w.shape.end[0]` and furthermore, we need to subtract `U.origin[0]` from the sum since we are anchored at the origin. The logic for the y value is symmetric. 
+  * New lines in `.sty` inside the selector block: 
   ```typescript
   override u.shape.end[0] = v.shape.end[0] + w.shape.end[0] - U.origin[0]
   override u.shape.end[1] = v.shape.end[1] + w.shape.end[1] - U.origin[1]
