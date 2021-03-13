@@ -145,11 +145,65 @@ AutoLabel All
 Now, things are going to be a bit tricky, but rest assured, we will get through it together! 
 
 There are two tasks we need to do in our style program on top of the starter code:
-* Draw vectors in a vector space
-* Draw vectors that are the sum of two existing vectors 
+* Task 1: Draw vectors in a vector space
+* Task 2: Draw vectors that are the sum of two existing vectors 
+
 
 ### Task 1: Vectors In Vector Space
+Every vector exists in a vector space, and we draw them at the origin of the specific vector space it belongs to. In the given `.dsl` file, you will find a defined predicate called `In` that takes in a vector and a vector space. The way we work with `In` is very similar to the `isSubset` predicate we have worked with in tutorial 2. 
 
+We start with writing the selector, selecting vectors that are in a vector space.
+```typescript
+forall Vector u; VectorSpace U
+where In(u,U) {
+  /* draw a vector in vector space */
+}
+```
+Next, vectors are commonly visually represented by single-head arrows, where the dull end is anchored at the origin, and the arrow head points at the vector position in space. Therefore we will draw an arrow on the screen. 
+
+```typescript
+u.shape = Arrow {
+  start: U.origin
+  end : (?, ?)
+  thickness : 3.0
+  color : const.lightBlue
+  arrowheadSize : const.arrowheadSize
+}
+```
+Note that the field name `shape` can be replaced by anything you want, we just need to assign the penrose shape object to some field (remember in tutorial 1 we used `.icon`). Here we are simply defining some properties of the `Arrow` shape object. One thing that might be confusing is the `(?, ?)` vector for `end`. It simply means that it is undetermined at the moment, and Penrose will decide for us. It is the equivalent of not defining it and Penrose will figure it out for us, but we are putting it here to explicitly show you how arbitray vectors will get arbitrary values. 
+
+The value of the vector we draw in the diagram may be shifted by the vector space origin, therefore we also need to store the actual vector value in another field for future computations. 
+```typescript
+u.vector = u.shape.end - u.shape.start
+```
+
+Lastly, we need a field to write the variable name of our vector in the diagram.
+```typescript
+u.text = Text {
+  string : u.label
+  color : u.shape.color
+}
+```
+
+Just one more step for this task! We will need to place some constraints on how we draw the diagram. Think about drawing a diagram like our goal diagram by hand and check the following to see if you've catched everything we need to watch out for:
+* Vector is indeed inside the vector space
+* The name of our vector is beside our vector, and is inside the vector space
+* The name of our vector does not get covered by the 2 axis
+
+So we write the following lines to let Penrose know the above:
+```typescript
+  ensure contains(U.background, u.shape)
+  ensure contains(U.background, u.text)
+  ensure atDist(u.shape, u.text, 15.0)
+  ensure minSize(u.shape)
+
+  layer u.text above U.xAxis
+  layer u.text above U.yAxis
+}
+```
+🔥 Yes! You made it! We are halfway there. Now you should see something similar to the following diagram. 
+# INSERT DIAGRAM
+[Complete code for drawing vector in vector space](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty#L71)
 
 ### Task 2: Vector As Sum of Two Existing Vectors
 Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
