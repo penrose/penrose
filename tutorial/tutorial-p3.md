@@ -26,7 +26,7 @@ Download the [starter code here](https://github.com/penrose/penrose/tree/docs-ed
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
 You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
 
-Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. In this exercise we are only going to be adding more code to the style file, thus the given starter code provides you with the full `.sub` and `.dsl` file we need. 
+Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. In this exercise we are mainly working on the `.sty` file, thus the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurence for you if you are a domain expert, crafting different visualizations for a domain. 
 
 #### :point_right: Read along for more in-depth explanation on the starter code, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
 
@@ -35,9 +35,8 @@ Now we are going to spend some time going over the starter code. There are comme
 type VectorSpace
 type Vector
 predicate In: Vector * VectorSpace V
-function addV: Vector * Vector -> Vector
 ```
-Here we have 2 types, 1 predicate, and 1 function. We have implemented drawing a vector space for you and we will together draw a vector in a vector space and vector addition. 
+Here we have 2 types, 1 predicate. Together we will define a new function. Furthermore, we have implemented drawing a vector space for you and we will together draw a vector in a vector space and vector addition. 
 
 * Substance
 ```typescript
@@ -46,10 +45,8 @@ Vector v
 Vector w
 In(v, U)
 In(w, U)
-Vector u := addV(v, w)
-In(u, U)
 ```
-The substance file contains the objects in the goal diagram, and we will go on to make it come to life step by step together. 
+The substance file contains the lines for putting two vectors in the same vector space `U`. Later we will compose a new vector as the sum of the two existing vectors. 
 
 * Style 
 The style file is a bit more involved, therefore we provide a very detailed step through of the code. __Again, feel free to [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain) if you feel confident reading and comprehending the code by yourself__.
