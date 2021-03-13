@@ -114,7 +114,7 @@ ensure minSize(u.shape)
 layer u.text above U.xAxis
 layer u.text above U.yAxis
 ```
-🔥 Yes! You made it! We are halfway there. Now you should see something similar to the following diagram. 
+🔥 Yes! We are halfway there. Now you should see something similar to the following diagram. 
 ![2 vectors](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/2vectors_wg.png)
 [Complete code for drawing vector in vector space](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty#L71)
 
@@ -142,9 +142,12 @@ This is easier than you expected, right? 😄 You're all done with this tutorial
 [Complete code for the example.](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty)
 
 ## Exercises
-* Exercise 1: 
-* Exercise 2: 
-* Exercise 3: Parallelogram method of vector addition
+_FYI: All the sample goal diagrams are only a single sampling of many possible variations._
+* Exercise 1: Create a new function that computes vector subtraction, and draws the difference vector. 
+![Exercise 1 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorsub_wg.png)
+* Exercise 2: Create a new function that computes scalar multiplication, and draws the scaled vector. 
+![Exercise 2 Goal]
+* Exercise 3: Add more lines of code to the `addV` block in style file to visualize the Parallelogram method of vector addition. 
 ![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/dashed_wg1.png)
 
 ## Take-aways
