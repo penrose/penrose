@@ -2,7 +2,7 @@
 This is an supplementary document to tutorial 3, which teaches functions in Penrose by using function in penrose. This document goes through the given starter code for the tutorial in detail. 
 
 ## :runner: Starter Code Diagram
-![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
+![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace_wg.png)
 Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
 
 
