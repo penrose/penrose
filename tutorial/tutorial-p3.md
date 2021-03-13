@@ -17,18 +17,18 @@ Now we will introduce functions in Penrose, which allow us to compose atomic sub
 We've had a good time with Set Theory, now we will move on to visualizing vectors in Linear Algebra :sparkles:. 
 
 In this tutorial, you do not need any advanced Linear Algebra knowledge. We are simply adding 2 vectors together to get a new vector. 
-![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png)
+![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/addtion_wg.png)
 At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
 
 ## Starter Code
 This example is a bit more involved than the previous tutorials but no worries! We are providing you some starter code to get things running :runner:. The starter code has some helpful constants to draw a vector space with its x and y axis. 
 Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
-![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
+![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace_wg.png)
 You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
 
 There are comments in the starter code that documents each block briefly. In this exercise we are mainly working on the `.sty` file, thus the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurence for you if you are a domain expert, crafting different visualizations for a domain. 
 
-#### :point_right: For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/penrose/blob/docs-edit/tutorial/starter-code/tutorial-p3/starter-code-walk-through.md). 
+### :point_right: _For more in-depth explanations on the starter code, we prepared a separate document_ [here](https://github.com/penrose/penrose/blob/docs-edit/tutorial/starter-code/tutorial-p3/starter-code-walk-through.md). 
 
 ## :page_facing_up: Domain
 We will write our first function in Penrose together :dizzy:!
@@ -115,7 +115,7 @@ layer u.text above U.xAxis
 layer u.text above U.yAxis
 ```
 🔥 Yes! You made it! We are halfway there. Now you should see something similar to the following diagram. 
-# INSERT DIAGRAM
+![2 vectors](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/2vectors_wg.png)
 [Complete code for drawing vector in vector space](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty#L71)
 
 ### Task 2: Vector As Sum of Two Existing Vectors
@@ -142,8 +142,9 @@ This is easier than you expected, right? 😄 You're all done with this tutorial
 
 ## Exercises
 * Exercise 1: 
-* Exercise 2:
-* Exercise 3: 
+* Exercise 2: 
+* Exercise 3: Parallelogram method of vector addition
+![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/dashed_wg1.png)
 
 ## Take-aways
 * `.dsl`
