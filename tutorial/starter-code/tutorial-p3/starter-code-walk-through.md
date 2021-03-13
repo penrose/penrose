@@ -1,9 +1,12 @@
 # Starter Code Walk Through
 This is an supplementary document to tutorial 3, which teaches functions in Penrose by using function in penrose. This document goes through the given starter code for the tutorial in detail. 
-Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
-![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
 
-### :runner: Domain
+## :runner: Starter Code Diagram
+![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
+Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
+
+
+## :runner: Domain
 ```typescript
 type VectorSpace
 type Vector
@@ -11,7 +14,7 @@ predicate In: Vector * VectorSpace V
 ```
 Here we have 2 types, 1 predicate. Together we will define a new function. Furthermore, we have implemented drawing a vector space for you and we will together draw a vector in a vector space and vector addition. 
 
-### :runner: Substance
+## :runner: Substance
 ```typescript
 VectorSpace U
 Vector v 
@@ -21,7 +24,7 @@ In(w, U)
 ```
 The substance file contains the lines for putting two vectors in the same vector space `U`. Later we will compose a new vector as the sum of the two existing vectors. 
 
-### :runner: Style 
+## :runner: Style 
 
 The style file is a bit more involved, therefore we provide a very detailed step through of the code. __Again, feel free to [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain) if you feel confident reading and comprehending the code by yourself__.
 
