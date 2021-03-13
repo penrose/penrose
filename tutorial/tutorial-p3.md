@@ -12,14 +12,15 @@ So far, we've directly declared substances in our diagram, which can then have s
 * Next Tutorial: Coming Up! 
 
 ## Goal
+We've had a good time with Set Theory, now we will move on to visualizing vectors in Linear Algebra. :sparkles: In this tutorial, you do not need any advanced Linear Algebra knowledge. We are simply adding 2 vectors together to get a new vector. 
 ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png)
-We will be defining a function `addV` that takes in 2 two dimensional vectors `v`, `w` and outputs a new vector `u`.
+At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
 
 ## Starter Code
 This example is a bit more involved than the previous tutorials, therefore we will be providing you some starter code to get things running. 
 Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
-![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/starter_code.png)
-You should compile the starter code and have something similar to this. Here we have 2 vectors `u`, `w` in a vector space labeled `U`. 
+![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
+You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
 
 ## :page_facing_up: Domain
 Now we will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which takes in 2 vectors and outputs a single vector. 
