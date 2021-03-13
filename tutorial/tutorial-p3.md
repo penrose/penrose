@@ -129,7 +129,8 @@ Now we will move onto actually visualizing the vector addition.
 
 When we manually add 2 vectors, we add their x values and y values to get the new vector's x, y values. The new vector already has some x, y values chosen by Penrose for optimization, therefore we will need to override the existing values using the `override` keyword. (Every vector in a vector space is anchored at the origin, therefore we are only changing the end point of any vector. )
 
-We add the following code to our `.sty` file. 
+Since Penrose supports vector in the style program (read about more features [here](https://github.com/penrose/penrose/wiki/Style-language-spec#vectors-and-matrices)), to get the sum of two vectors we simply need to add them using the `+` operator. But don't forget that all the vectors are offsetted by the origin vector, therefore we also need to subtract the origin from our sum. 
+
 ```typescript
 /* new lines in .sty file */
 forall Vector u; Vector v; Vector w; VectorSpace U
@@ -137,9 +138,18 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   override u.shape.end = v.shape.end + w.shape.end - U.origin
 }
 ```
+This is easier than you expected, right? 😄 You're all done with this tutorial! Take a sip of water and come back to solifidy your knowledge with the following exercises. 
 
 ## Exercises
+* Exercise 1: 
+* Exercise 2:
+* Exercise 3: 
 
 ## Take-aways
-
-
+* `.dsl`
+  * `function funcName : inputType -> outputType` is the syntax for defining functions in `.dsl`.
+* `.sub`
+  * `:=` is the assignment operator for composing objects. 
+* `.sty`
+  * `?` means undetermined value that will be decided by Penrose for optimization.
+  * We can do computation inside `.sty` to draw objects in relation to some data. 
