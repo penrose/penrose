@@ -52,6 +52,7 @@ The substance file contains the lines for putting two vectors in the same vector
 
 The style file is a bit more involved, therefore we provide a very detailed step through of the code. __Again, feel free to [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain) if you feel confident reading and comprehending the code by yourself__.
 
+On the very top of the file, you see this block of code. 
 ```typescript
 const { 
   scalar vectorSpaceSize = 350.0
@@ -62,9 +63,9 @@ const {
   none = rgba(0., 0., 0., 0.)
 }
 ```
-This is helpful way and a good practice to organize your constants in an object. Here we have some constants that helps with drawing out the vector space. Feel free to add more useful constants in here. 
+This is helpful way and a good practice to organize your constants in an object. Here we have some constants that helps with drawing out the vector space. Feel free to add more useful constants in here for your explorations.
 
-To draw a vector space, we have an origin, x-axis and y-aixs. The x-axis and y-axis have each of their center on the origin of the vector space, and extends out to opposing directions. It follows that their length is half of the length of vector space (which is a square). 
+The real fun starts! 🥁 To draw a vector space, we have an origin, x-axis and y-aixs. The x-axis and y-axis have each of their center on the origin of the vector space, and extends out to opposing directions. It follows that their length is half of the length of vector space (which is a square). 
 
 ```typescript
 scalar axisSize = const.vectorSpaceSize / 2.0
