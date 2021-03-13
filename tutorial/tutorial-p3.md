@@ -145,9 +145,9 @@ This is easier than you expected, right? 😄 You're all done with this tutorial
 _FYI: All the sample goal diagrams are only a single sampling of many possible variations._
 
 We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. 
-* Exercise 1: Create a new function that computes vector subtraction, and draws the difference vector. 
+* Exercise 1: Create a new function that computes vector subtraction, and draws the difference vector, i.e. `u = v - w`.
 ![Exercise 1 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorsub_wg.png)
-* Exercise 2: Create a new function that computes scalar multiplication, and draws the scaled vector. 
+* Exercise 2: Create a new function that computes scalar multiplication, and draws the scaled vector, i.e. `u = a * v` where `a` is a scalar. 
 ![Exercise 2 Goal]
 * Exercise 3: Add more lines of code to the `addV` block in style file to visualize the Parallelogram method of vector addition. 
 ![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/dashed_wg1.png)
