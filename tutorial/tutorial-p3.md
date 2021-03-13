@@ -117,7 +117,9 @@ U.text = Text {
 Lastly we just have some styling on the label. That's it! :cartwheeling: 
 
 ## :page_facing_up: Domain
-We will write our first function in Penrose together :dizzy:. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which adds two vectors. 
+We will write our first function in Penrose together :dizzy:!
+
+In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which adds two vectors. 
 
 ```typescript
 /* new line in .dsl file */
@@ -140,7 +142,17 @@ In(u, U)
 AutoLabel All
 ```
 ## :page_facing_up: Style
-First we write our selector in similar fashion we've done in the earlier examples. Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
+Now, things are going to be a bit tricky, but rest assured, we will get through it together! 
+
+There are two tasks we need to do in our style program on top of the starter code:
+* Draw vectors in a vector space
+* Draw vectors that are the sum of two existing vectors 
+
+### Task 1: Vectors In Vector Space
+
+
+### Task 2: Vector As Sum of Two Existing Vectors
+Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
 ```
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U)
