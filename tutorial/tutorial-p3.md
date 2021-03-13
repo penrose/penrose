@@ -143,6 +143,7 @@ This is easier than you expected, right? 😄 You're all done with this tutorial
 
 ## Exercises
 _FYI: All the sample goal diagrams are only a single sampling of many possible variations._
+We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. 
 * Exercise 1: Create a new function that computes vector subtraction, and draws the difference vector. 
 ![Exercise 1 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorsub_wg.png)
 * Exercise 2: Create a new function that computes scalar multiplication, and draws the scaled vector. 
