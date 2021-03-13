@@ -138,7 +138,8 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 }
 ```
 This is easier than you expected, right? 😄 You're all done with this tutorial! Take a sip of water and come back to solifidy your knowledge with the following exercises. 🌴
-[Full Code](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty)
+
+[Complete code for the example.](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty)
 
 ## Exercises
 * Exercise 1: 
