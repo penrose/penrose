@@ -26,9 +26,33 @@ Download the [starter code here](https://github.com/penrose/penrose/tree/docs-ed
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
 You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
 
-Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. 
+Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. In this exercise we are only going to be adding more code to the style file, thus the given starter code provides you with the full `.sub` and `.dsl` file we need. 
 
 #### :point_right: Read along for more in-depth explanation on the starter code, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
+
+* Domain
+```typescript
+type VectorSpace
+type Vector
+predicate In: Vector * VectorSpace V
+function addV: Vector * Vector -> Vector
+```
+Here we have 2 types, 1 predicate, and 1 function. We have implemented drawing a vector space for you and we will together draw a vector in a vector space and vector addition. 
+
+* Substance
+```typescript
+VectorSpace U
+Vector v 
+Vector w
+In(v, U)
+In(w, U)
+Vector u := addV(v, w)
+In(u, U)
+```
+The substance file contains the objects in the goal diagram, and we will go on to make it come to life step by step together. 
+
+* Style 
+The style file is a bit more involved, therefore we provide a very detailed step through of the code. __Again, feel free to [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain) if you feel confident reading and comprehending the code by yourself__.
 
 ```typescript
 const { 
@@ -86,7 +110,7 @@ We will write our first function in Penrose together. In Penrose, functions are 
 /* new line in .dsl file */
 function addV: Vector * Vector -> Vector
 ```
-The syntax for function is similar to defining elementary objects and predicates. As usual we have the type keyword, which is `function` in this case at the front. Then we write the function name followed by a colon `:` that signifies what comes after is the input tyep. The input type can be a tuple of multiple elements connected by `*`. Lastly, we write `->` before the output type. 
+The syntax for function is similar to defining elementary objects and predicates. As usual we have the type keyword, which is `function` in this case at the front. Then we write the function name followed by a colon `:` that signifies what comes after is the input type. The input type can be multiple elements connected by `*`. Lastly, we write `->` before the output type. 
 
 ## :page_facing_up: Substance
 There are no imperative functions in Penrose, only functional functions (And more broadly, Penrose is purely functional). When we have `y = f(x)`, it's read like `y` is defined as `f(x)`. 
