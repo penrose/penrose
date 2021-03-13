@@ -73,31 +73,6 @@ forall VectorSpace U {
     }
 }
 
-forall Vector u; VectorSpace U
-where In(u,U) {
-  u.text = Text {
-    string : u.label
-    color : u.shape.color
-  }
-
-  u.shape = Arrow {
-    start: U.origin
-    end : (?, ?)
-    thickness : 3.0
-    color : C.lightBlue
-    arrowheadSize : const.arrowheadSize
-  }
-
-  u.vector = (u.shape.end[0] - u.shape.start[0], u.shape.end[1] -u.shape.start[1])
-
-  ensure contains(U.background, u.shape)
-  ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
-  ensure minSize(u.shape)
-
-  layer u.text above U.xAxis
-  layer u.text above U.yAxis
-}
 /**************DO NOT TOUCH ZONE - END**************/
 
 /**************YOUR CODE - START**************/
