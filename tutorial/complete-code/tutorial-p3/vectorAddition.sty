@@ -97,3 +97,9 @@ where In(u,U) {
 }
 
 /*************CODE FOR DRAWING VECTOR ADDITION***************/
+
+forall Vector u; Vector v; Vector w; VectorSpace U
+where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
+  override u.shape.end = v.shape.end + w.shape.end - U.origin
+}
+
