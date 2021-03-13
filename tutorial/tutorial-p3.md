@@ -1,7 +1,7 @@
 # Part 3: Functions 
 So far, we've directly declared substances in our diagram, which can then have some relationship with other substances in the diagram by the use of predicates. 
 
-Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define _new_ substances based on _existing_ ones. It's a very powerful feature and you will find it super convenient in your journey as a Penrose developer :airplane: :rose:.
+Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define __new__ substances based on __existing__ ones. It's a very powerful feature and you will find it super convenient in your journey as a Penrose developer :airplane: :rose:.
 
 ## Table of Contents
 * [Tutorial Homepage](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md)
@@ -28,7 +28,7 @@ You should compile the starter code and see a vector space labeled `U` with its 
 
 There are comments in the starter code that documents each block briefly. In this exercise we are mainly working on the `.sty` file, thus the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurence for you if you are a domain expert, crafting different visualizations for a domain. 
 
-### :point_right: _For more in-depth explanations on the starter code, we prepared a separate document_ [here](https://github.com/penrose/penrose/blob/docs-edit/tutorial/starter-code/tutorial-p3/starter-code-walk-through.md). 
+### :point_right: For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/penrose/blob/docs-edit/tutorial/starter-code/tutorial-p3/starter-code-walk-through.md). 
 
 ## :page_facing_up: Domain
 We will write our first function in Penrose together :dizzy:!
@@ -73,7 +73,7 @@ where In(u,U) {
   /* draw a vector in vector space */
 }
 ```
-Next, vectors are commonly visually represented by single-head arrows, where the dull end is anchored at the origin, and the arrow head points at the vector position in space. Therefore we will draw an arrow on the screen. 
+Next, vectors are commonly visually represented by single-head arrows ➡️, where the dull end is anchored at the origin, and the arrow head points at the vector position in space. Therefore we will draw an arrow on the screen. 
 
 ```typescript
 u.shape = Arrow {
