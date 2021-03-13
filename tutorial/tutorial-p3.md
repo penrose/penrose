@@ -30,7 +30,7 @@ Now we are going to spend some time going over the starter code. There are comme
 
 #### :point_right: Read along for more in-depth explanation on the starter code, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
 
-* Domain
+### * Domain
 ```typescript
 type VectorSpace
 type Vector
@@ -38,7 +38,7 @@ predicate In: Vector * VectorSpace V
 ```
 Here we have 2 types, 1 predicate. Together we will define a new function. Furthermore, we have implemented drawing a vector space for you and we will together draw a vector in a vector space and vector addition. 
 
-* Substance
+### * Substance
 ```typescript
 VectorSpace U
 Vector v 
@@ -48,7 +48,7 @@ In(w, U)
 ```
 The substance file contains the lines for putting two vectors in the same vector space `U`. Later we will compose a new vector as the sum of the two existing vectors. 
 
-* Style 
+### * Style 
 
 The style file is a bit more involved, therefore we provide a very detailed step through of the code. __Again, feel free to [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain) if you feel confident reading and comprehending the code by yourself__.
 
