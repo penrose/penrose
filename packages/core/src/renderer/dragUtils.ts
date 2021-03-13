@@ -1,6 +1,7 @@
 import { updateVaryingValues } from "engine/PropagateUpdate";
 import { Properties, Shape } from "types/shape";
 import { State } from "types/state";
+import { findDef, positionalProps } from "./ShapeDef";
 
 /**
  * Retrieve data from drag events and update varying state accordingly
@@ -26,28 +27,17 @@ export const dragUpdate = (
   return updatedWithVaryingState;
 };
 
-// TODO: factor out position props in shapedef
 const dragShape = (shape: Shape, offset: [number, number]): Shape => {
   const { shapeType, properties } = shape;
-  switch (shapeType) {
-    case "Path":
-      console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
-      return shape;
-    case "Line":
-      return {
-        ...shape,
-        properties: moveProperties(properties, ["start", "end"], offset),
-      };
-    case "Arrow":
-      return {
-        ...shape,
-        properties: moveProperties(properties, ["start", "end"], offset),
-      };
-    default:
-      return {
-        ...shape,
-        properties: moveProperties(properties, ["center"], offset),
-      };
+  const propsToMove = positionalProps(shapeType);
+  if (propsToMove) {
+    return {
+      ...shape,
+      properties: moveProperties(properties, propsToMove, offset),
+    };
+  } else {
+    console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
+    return shape;
   }
 };
 
