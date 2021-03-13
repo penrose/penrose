@@ -1,7 +1,7 @@
 # Part 3: Functions 
 So far, we've directly declared substances in our diagram, which can then have some relationship with other substances in the diagram by the use of predicates. 
 
-Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define _new_ substances based on _existing_ ones. It's a very powerful feature and you will find it super convenient in your journey as a Penrose developer :airplane:.
+Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define _new_ substances based on _existing_ ones. It's a very powerful feature and you will find it super convenient in your journey as a Penrose developer :airplane: :rose:.
 
 ## Table of Contents
 * [Tutorial Homepage](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md)
