@@ -49,7 +49,7 @@ vec2 o = U.origin /* just so we don't need to type U.origin everytime */
 U.axisColor = const.gray
 ```
 
-Next, we go on to drawing the axis. The code for the x and y axis are symmetric. 
+Next, we go on to drawing the axis. The code for the `x` and `y` axis are symmetric. 
 
 An axis is a line with arrowheads on both ends. As defined by the code above, `axisSize = vectorSpaceSize / 2.0`, and the center of the axis line is at the origin. Therefore we have the start `x` value as origin's `x` subtracted by the axis size, and the end `x` value as origin's `x` added by the axis size. 
 
@@ -65,6 +65,8 @@ U.xAxis = Line {
     arrowheadSize : const.arrowheadSize * 2.
 }
 ```
+
+Refer to [here](https://github.com/penrose/penrose/wiki/Shape-library#line) for more information on the line shape. 
 
 ```typescript
 U.text = Text {
