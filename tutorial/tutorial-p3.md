@@ -26,7 +26,9 @@ Download the [starter code here](https://github.com/penrose/penrose/tree/docs-ed
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace.png)
 You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
 
-Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. Read along for more in-depth explanations, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
+Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. 
+
+### Read along for more in-depth explanations, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
 
 ```typescript
 const { 
