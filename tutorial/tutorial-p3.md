@@ -80,15 +80,16 @@ U.text = Text {
 Lastly we just have some styling on the label. That's it! :cartwheeling: 
 
 ## :page_facing_up: Domain
-We will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which takes in 2 vectors and outputs a single vector. 
+We will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which adds two vectors. 
+
 ```typescript
 /* new line in .dsl file */
 function addV: Vector * Vector -> Vector
 ```
-We use the keyword `function` and `->` to denote the output type.
+The syntax for function is similar to defining elementary objects and predicates. As usual we have the type keyword, which is `function` in this case at the front. Then we write the function name followed by a colon `:` that signifies what comes after is the input tyep. The input type can be a tuple of multiple elements connected by `*`. Lastly, we write `->` before the output type. 
 
 ## :page_facing_up: Substance
-There are no imperative functions in Penrose, only functional functions. When we have `y = f(x)`, it's read like `y` is defined as `f(x)`. 
+There are no imperative functions in Penrose, only functional functions (And more broadly, Penrose is purely functional). When we have `y = f(x)`, it's read like `y` is defined as `f(x)`. 
 
 The syntax for composing a new object using a function involves a new operator `:=`, which is the assignment operator. 
 
