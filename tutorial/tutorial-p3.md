@@ -61,7 +61,7 @@ Now, things are going to be a bit tricky, but rest assured, we will get through 
 There are two tasks we need to do in our style program on top of the starter code:
 * Task 1: Draw vectors in a vector space
 * Task 2: Draw vectors that are the sum of two existing vectors 
-
+Task 1 involves more lines of code but it should be pretty easy to follow (if you followed through the previous tutorials), and Task 2 teaches how to do simple computations for objects that are composed by existing objects. 
 
 ### Task 1: Vectors In Vector Space
 Every vector exists in a vector space, and we draw them at the origin of the specific vector space it belongs to. In the given `.dsl` file, you will find a defined predicate called `In` that takes in a vector and a vector space. The way we work with `In` is very similar to the `isSubset` predicate we have worked with in tutorial 2. 
