@@ -1,51 +1,33 @@
 /* This is the starter code for the style program for the tutorial
- * that teaches functions in Penrose. It's totally normal if you 
- * can't fully understand the existing code. Scroll down to the 
+ * that teaches functions in Penrose. Scroll down to the 
  * bottom and follow along with the write-up. Good luck! :)
  */
- 
-/**************DO NOT TOUCH ZONE - START**************/
+
+ /**************DO NOT TOUCH ZONE - START**************/
+/* here are some useful constants that we use to draw
+ * the vector space 
+ */
 const { 
-  scalar perpLen = 20.0
-  -- For unit mark
-  scalar markerPadding = 15.0
-  scalar barSize = 5.0
   scalar vectorSpaceSize = 350.0
-  scalar repelWeight = 0.7
   scalar arrowheadSize = 0.7
   scalar lineThickness = 1.
-  int intForTesting = 1
-  bool boolForTesting = true
-  const.arrowThickness = 2.5
-  const.arrowThickness2 = 1.5
+  scalar arrowThickness = 1.5
+  gray = rgba(0.6, 0.6, 0.6, 1.)
+  none = rgba(0., 0., 0., 0.)
 }
 
-C { 
-    color black = rgba(0.,0.,0.,1.)
-    white = rgba(1., 1., 1., 1.)
-    lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
-    darkGray = rgba(0.4, 0.4, 0.4, 1.)
-    gray = rgba(0.6, 0.6, 0.6, 1.)
-    green = rgba(0., 0.8, 0., 1.)
-    none = rgba(0., 0., 0., 0.)
-}
-
-
-forall VectorSpace U {
+/* here we draw a vector space by defining an origin
+ * of the vector space, and x-axis, y-axis that are 
+ * centered at the origin 
+ */
+forall VectorSpace U { 
     scalar axisSize = const.vectorSpaceSize / 2.0 
     vec2 U.origin = (0., 0.)
-    vec2 o = U.origin
-    U.axisColor = C.gray
+    vec2 o = U.origin /* just so we don't need to type U.origin everytime */
+    U.axisColor = const.gray
 
-    shape U.background = Square {
-        center : U.origin
-        side : const.vectorSpaceSize
-        color : C.none
-        strokeColor : C.none
-    }
-
-    shape U.xAxis = Line {
-        start : (o[0] - axisSize, o[1])
+    U.xAxis = Line {
+        start : (o[0] - axisSize, o[1]) 
         end : (o[0] + axisSize, o[1])
         thickness : const.lineThickness
         style : "solid"
@@ -72,6 +54,7 @@ forall VectorSpace U {
         color : U.axisColor
     }
 }
+
 
 /**************DO NOT TOUCH ZONE - END**************/
 
