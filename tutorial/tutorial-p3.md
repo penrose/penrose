@@ -188,25 +188,26 @@ u.text = Text {
 Just one more step for this task! We will need to place some constraints on how we draw the diagram. Think about drawing a diagram like our goal diagram by hand and check the following to see if you've catched everything we need to watch out for:
 * Vector is indeed inside the vector space
 * The name of our vector is beside our vector, and is inside the vector space
-* The name of our vector does not get covered by the 2 axis
+* The name of our vector does not get covered by the 2 axes
 
 So we write the following lines to let Penrose know the above:
 ```typescript
-  ensure contains(U.background, u.shape)
-  ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
-  ensure minSize(u.shape)
+ensure contains(U.background, u.shape)
+ensure contains(U.background, u.text)
+ensure atDist(u.shape, u.text, 15.0)
+ensure minSize(u.shape)
 
-  layer u.text above U.xAxis
-  layer u.text above U.yAxis
-}
+layer u.text above U.xAxis
+layer u.text above U.yAxis
 ```
 🔥 Yes! You made it! We are halfway there. Now you should see something similar to the following diagram. 
 # INSERT DIAGRAM
 [Complete code for drawing vector in vector space](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty#L71)
 
+Now you are ready to tackle the most challenging and rewarding part of this tutorial. 🎯
+
 ### Task 2: Vector As Sum of Two Existing Vectors
-Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
+Again, we start with writing a selector. Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
 ```
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U)
