@@ -117,7 +117,7 @@ U.text = Text {
 Lastly we just have some styling on the label. That's it! :cartwheeling: 
 
 ## :page_facing_up: Domain
-We will write our first function in Penrose together. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which adds two vectors. 
+We will write our first function in Penrose together :dizzy:. In Penrose, functions are declarative, just like everything else. Functions allow us to compose already defined elements into new elements. They only have inputs and outputs. We will add a new line to our `.dsl` file that defines `addV`, which adds two vectors. 
 
 ```typescript
 /* new line in .dsl file */
