@@ -73,15 +73,15 @@ where In(u,U) {
   /* draw a vector in vector space */
 }
 ```
-Next, vectors are commonly visually represented by single-head arrows ➡️, where the dull end is anchored at the origin, and the arrow head points at the vector position in space. Therefore we will draw an arrow on the screen. 
+Next, vectors are commonly visually represented by single-head arrows ➡️, where the dull end is anchored at the origin, and the arrow head points at the vector position in space. Therefore we will need to assign some field of `u` to an arrow shape object to draw an arrow on the screen. 
 
 ```typescript
 u.shape = Arrow {
-  start: U.origin
+  start: U.origin 
   end : (?, ?)
-  thickness : 3.0
-  color : const.lightBlue
-  arrowheadSize : const.arrowheadSize
+  thickness : 3.0 
+  color : const.lightBlue /* or any color you want */
+  arrowheadSize : const.arrowheadSize /* feel free to play with other values */
 }
 ```
 Note that the field name `shape` can be replaced by anything you want, we just need to assign the penrose shape object to some field (remember in tutorial 1 we used `.icon`). Here we are simply defining some properties of the `Arrow` shape object. One thing that might be confusing is the `(?, ?)` vector for `end`. It simply means that it is undetermined at the moment, and Penrose will decide for us. It is the equivalent of not defining it and Penrose will figure it out for us, but we are putting it here to explicitly show you how arbitray vectors will get arbitrary values. 
@@ -95,7 +95,7 @@ Lastly, we need a field to write the variable name of our vector in the diagram.
 ```typescript
 u.text = Text {
   string : u.label
-  color : u.shape.color
+  color : u.shape.color /* this way it changes accordingly when we change the arrow's color */
 }
 ```
 
