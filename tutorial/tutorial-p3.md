@@ -28,7 +28,7 @@ You should compile the starter code and see a vector space labeled `U` with its 
 
 Now we are going to spend some time going over the starter code. There are comments in the starter code that documents each block briefly. 
 
-### Read along for more in-depth explanations, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
+#### Read along for more in-depth explanation on the starter code, or [skip to the example](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain).
 
 ```typescript
 const { 
