@@ -1,5 +1,6 @@
 # Part 3: Functions 
 So far, we've directly declared substances in our diagram, which can then have some relationship with other substances in the diagram by the use of predicates. 
+
 Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define _new_ substances based on _existing_ ones. It's a very powerful feature and you will find it super convenient in your journey as a Penrose developer :airplane: :rose:.
 
 ## Table of Contents
@@ -14,6 +15,7 @@ Now we will introduce functions in Penrose, which allow us to compose atomic sub
 
 ## Goal
 We've had a good time with Set Theory, now we will move on to visualizing vectors in Linear Algebra :sparkles:. 
+
 In this tutorial, you do not need any advanced Linear Algebra knowledge. We are simply adding 2 vectors together to get a new vector. 
 ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png)
 At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
