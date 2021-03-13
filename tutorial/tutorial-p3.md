@@ -138,7 +138,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
   override u.shape.end = v.shape.end + w.shape.end - U.origin
 }
 ```
-This is easier than you expected, right? 😄 You're all done with this tutorial! Take a sip of water and come back to solifidy your knowledge with the following exercises. 
+This is easier than you expected, right? 😄 You're all done with this tutorial! Take a sip of water and come back to solifidy your knowledge with the following exercises. 🌴
 
 ## Exercises
 * Exercise 1: 
