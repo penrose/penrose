@@ -65,16 +65,30 @@ const {
 ```
 This is helpful way and a good practice to organize your constants in an object. Here we have some constants that helps with drawing out the vector space. Feel free to add more useful constants in here for your explorations.
 
-The real fun starts! 🥁 To draw a vector space, we have an origin, x-axis and y-aixs. The x-axis and y-axis have each of their center on the origin of the vector space, and extends out to opposing directions. It follows that their length is half of the length of vector space (which is a square). 
+The real fun starts! 🥁 To draw a vector space, we have a background, an origin, x-axis and y-aixs. 
 
+* __Background__
+```typescript
+U.background = Square {
+    center : U.origin
+    side : const.vectorSpaceSize
+    color : const.lightGray
+    strokeColor : const.none
+}
+ ```
+The background is a simple square :white_large_square:. Feel free to add a new constant to the `const` object and assign a new color to the background. 
+
+* __Origin__
 ```typescript
 scalar axisSize = const.vectorSpaceSize / 2.0
 vec2 U.origin = (0., 0.)
 vec2 o = U.origin /* just so we don't need to type U.origin everytime */
 U.axisColor = const.gray
 ```
+For any vector space, we need an origin, and everything else will be centered on the origin. 
 
-Next, we go on to drawing the axis. The code for the `x` and `y` axis are symmetric. 
+* __Axis__
+The x-axis and y-axis have each of their center on the origin of the vector space, and extends out to opposing directions. It follows that their length is half of the length of vector space (which is a square). 
 
 An axis is a line with arrowheads on both ends. As defined by the code above, `axisSize = vectorSpaceSize / 2.0`, and the center of the axis line is at the origin. Therefore we have the start `x` value as origin's `x` subtracted by the axis size, and the end `x` value as origin's `x` added by the axis size. 
 
@@ -134,7 +148,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U)
 Now we will move onto actually visualizing the vector addition. 
 ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/without_dash.png) 
 
-When we manually add 2 vectors, we add their x values and y values to get the new vector's x,y values. The new vector already has some x, y values chosen by Penrose for optimization, therefore we will need to override the existing values using the `override` keyword. (Every vector in a vector space is anchored at the origin, therefore we are only changing the end point of any vector. )
+When we manually add 2 vectors, we add their x values and y values to get the new vector's x, y values. The new vector already has some x, y values chosen by Penrose for optimization, therefore we will need to override the existing values using the `override` keyword. (Every vector in a vector space is anchored at the origin, therefore we are only changing the end point of any vector. )
 
 The x and y values of any vector in our current environment can be accessed using the array indexing syntax of `[0]` for `x` and `[1]` for `y`. 
 
