@@ -68,7 +68,7 @@ U.xAxis = Line {
 }
 ```
 
-Refer to [here](https://github.com/penrose/penrose/wiki/Shape-library#line) for more information on the line shape. 
+:point_right: Refer to [here](https://github.com/penrose/penrose/wiki/Shape-library#line) for more information on the line shape. 
 
 ```typescript
 U.text = Text {
