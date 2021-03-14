@@ -1,7 +1,0 @@
-VectorSpace U
-Vector v 
-Vector w
-In(v, U)
-In(w, U)
-
-AutoLabel All
