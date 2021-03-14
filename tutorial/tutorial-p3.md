@@ -22,7 +22,7 @@ At the end of the tutorial, you will be able to work with functions in Penrose t
 
 ## Starter Code
 This example is a bit more involved than the previous tutorials but no worries! We are providing you some starter code to get things running :runner:. The starter code has some helpful constants to draw a vector space with its x and y axis. 
-Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
+Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/starter-code).
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace_wg.png)
 You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
 
@@ -116,7 +116,7 @@ layer u.text above U.yAxis
 ```
 🔥 Yes! We are halfway there. Now you should see something similar to the following diagram. 
 ![2 vectors](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/2vectors_wg.png)
-[Complete code for drawing vector in vector space](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty#L71)
+[Complete code for drawing vector in vector space](https://github.com/penrose/penrose/blob/docs-edit/tutorial/code/tutorial3/complete-code/vector.sty#L69)
 
 ### Task 2: Vector As Sum of Two Existing Vectors
 Again, we start with writing a selector. Here we have a bit more selection to do, since we have 3 vectors and 1 vector space involved. Furthermore, we want make sure that both `u,v,w` are indeed in the same vector space. Therefore, our selector will be the following,
@@ -139,7 +139,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 ```
 This is easier than you expected, right? 😄 You're all done with this tutorial! Take a sip of water and come back to solifidy your knowledge with the following exercises. 🌴
 
-[Complete code for the example.](https://github.com/penrose/penrose/blob/docs-edit/tutorial/complete-code/tutorial-p3/vectorAddition.sty)
+[Complete code for the example.](https://github.com/penrose/penrose/blob/docs-edit/tutorial/code/tutorial3/complete-code/vector.sty#L69)
 
 ## Exercises
 _FYI: All the sample goal diagrams are only a single sampling of many possible variations._
@@ -151,6 +151,8 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 ![Exercise 2 Goal]
 * **Exercise 3:** Add more lines of code to the `addV` block in style file to visualize the Parallelogram method of vector addition. 
 ![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/dashed_wg1.png)
+
+[Sample Solutions](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/complete-code)
 
 ## Take-aways
 * `.dsl`
