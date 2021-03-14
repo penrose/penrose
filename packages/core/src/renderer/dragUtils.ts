@@ -22,7 +22,6 @@ export const dragUpdate = (
       return { shapeType, properties };
     }),
   };
-  // TODO: need to retrofit this implementation to the new State type
   const updatedWithVaryingState = updateVaryingValues(updated);
   return updatedWithVaryingState;
 };
@@ -50,6 +49,7 @@ const moveProperties = (
   [dx, dy]: [number, number]
 ): Properties => {
   const moveProperty = (props: Properties, propertyID: string) => {
+    // TODO: deal with vectors, list of vectors, and perhaps curve data
     const [x, y] = props[propertyID].contents as [number, number];
     props[propertyID].contents = [x + dx, y + dy];
     return props;

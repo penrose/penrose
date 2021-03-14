@@ -49,6 +49,7 @@ import {
   Field,
   FieldDict,
   FieldExpr,
+  GPIExpr,
   GPIMap,
   GPIProps,
   IFGPI,
@@ -2400,6 +2401,35 @@ const findShapeProperties = (
   } else throw Error("unknown tag");
 };
 
+// trace the origin of a path
+const tracePath = (
+  tr: Translation,
+  path: Path
+): [Path, Expr | Value<VarAD> | GPIExpr<VarAD>] => {
+  const tagExpr = findExprSafe(tr, path);
+  if (tagExpr.tag === "OptEval") {
+    const expr = tagExpr.contents;
+    // if the expression is a path, keep tracing
+    if (isPath(expr)) {
+      return tracePath(tr, expr);
+    } else {
+      // if the expression is a computed, fix, or optimized value, return
+      return [path, expr];
+    }
+  } else {
+    // in all other cases, the "origin" of a path is just itself
+    return [path, tagExpr.contents];
+  }
+};
+
+const findPropOrigins = (
+  tr: Translation,
+  propPaths: Path[]
+): [Path, Expr | Value<VarAD> | GPIExpr<VarAD>][] => {
+  const pathPairs = propPaths.map((path) => tracePath(tr, path));
+  return pathPairs;
+};
+
 // Find paths that are the properties of shapes
 const findShapesProperties = (tr: Translation): [string, string, string][] => {
   return foldSubObjs(findShapeProperties, tr);
@@ -2822,11 +2852,19 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
   const pendingPaths = findPending(transInitAll);
   const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
+  const propOrigins = findPropOrigins(
+    transInitAll,
+    shapeProperties.map((p) => mkPath(p))
+  );
+  console.log("hello");
+
   const initState = {
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapePaths,
     shapeProperties,
     shapeOrdering,
+
+    propOrigins,
 
     translation: transInitAll, // This is the result of the data processing
     originalTranslation: clone(trans),
