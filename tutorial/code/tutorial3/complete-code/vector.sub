@@ -1,0 +1,20 @@
+VectorSpace U
+Vector v 
+Vector w
+In(v, U)
+In(w, U)
+/******** Example **********/
+Vector u := addV(v, w)
+In(u, U)
+/******** Exercises ********/
+/*********** (1) ***********/
+Vector p := subV(v, w)
+In(p, U)
+/*********** (2) ***********/
+Scalar a 
+Vector q := scalarMult(a, v)
+In(q, U)
+/* For exercise 3, comment out the code for 
+ * exercise (1) & (2). 
+ */
+AutoLabel All
