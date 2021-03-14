@@ -12,6 +12,9 @@ Ready to make some beautiful diagrams? You are at the right place. Penrose is ac
 * [Part 2: Predicates & Contraints](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md)
    * [Tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#part-2-predicates--constraints)
    * [Exercise](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p2.md#exercise)
+* [Part 3: Functions](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md)
+   * [Tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#part-3-functions)
+   * [Exercise](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#exercises)
 
 The sections build on top of each other, using the skillsets we've acquired in the previous exercises, therefore we highly recommend you to follow through the tutorials in order. Each individual part contains a detailed walk through of a particular example and several exercises for you to consolidate your knowledge. 
 
