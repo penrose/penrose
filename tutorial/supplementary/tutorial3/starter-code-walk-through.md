@@ -3,7 +3,7 @@ This is an supplementary document to tutorial 3, which teaches functions in Penr
 
 ## :runner: Starter Code Diagram
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace_wg.png)
-Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/starter-code/tutorial-p3).
+Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/starter-code).
 
 
 ## :runner: Domain
