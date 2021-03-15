@@ -11,10 +11,6 @@ In(u, U)
 Vector p := subV(v, w)
 In(p, U)
 /*********** (2) ***********/
-Scalar a 
-Vector q := scalarMult(a, v)
+Vector q := scalarMult(v)
 In(q, U)
-/* For exercise 3, comment out the code for 
- * exercise (1) & (2). 
- */
 AutoLabel All
