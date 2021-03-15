@@ -5,5 +5,4 @@ predicate In: Vector * VectorSpace V
 function addV: Vector * Vector -> Vector
 /******** Exercises ********/
 function subV: Vector * Vector -> Vector
-type Scalar
-function scalarMult: Scalar * Vector -> Vector
+function scalarMult: Vector -> Vector
