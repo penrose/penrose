@@ -1,4 +1,5 @@
 import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
+import { Map } from "immutable";
 import consola, { LogLevel } from "consola";
 import { constrDict, objDict } from "contrib/Constraints";
 // Dicts (runtime data)
@@ -2223,18 +2224,16 @@ const findPropertyVarying = (
   return paths.concat(acc);
 };
 
-const findNestedPaths = (tagExpr: TagExpr<VarAD>, p: Path): Path[] => {
-  if (tagExpr.tag === "OptEval") {
-    const expr = tagExpr.contents;
-    if (isCollection(expr)) {
-      const elems: Expr[] = expr.contents;
-      const indices: Path[] = elems
-        .map((e: Expr, i): [Expr, number] => [e, i])
-        .map(([e, i]: [Expr, number]): IAccessPath => dummyAccessPath(p, i));
-      return indices;
-    }
+const findNestedPaths = (expr: Expr, p: Path): Path[] => {
+  if (isCollection(expr)) {
+    const elems: Expr[] = expr.contents;
+    const indices: Path[] = elems.map(
+      (e: Expr, i): IAccessPath => dummyAccessPath(p, i)
+    );
+    return indices;
+  } else {
+    return [];
   }
-  return [];
 };
 
 // Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
@@ -2443,7 +2442,7 @@ const findPropOrigins = (
   tr: Translation,
   propPaths: Path[]
 ): { [pathString: string]: Path[] } => {
-  let pathPairs: [string, Path[]][] = [];
+  let res = Map<string, Path[]>();
   propPaths.forEach((path: Path) => {
     // first find if this property is a collection
     const tagExpr = findExprSafe(tr, path);
@@ -2454,18 +2453,26 @@ const findPropOrigins = (
         const accessPaths = findNestedPaths(tagExpr, path);
         return accessPaths.forEach((p: Path) => {
           const originPaths = tracePath(tr, p);
-          originPaths.forEach((origin: Path) =>
-            pathPairs.push([prettyPrintPath(origin), [p]])
-          );
+          originPaths.forEach((origin: Path) => {
+            res = res.update(prettyPrintPath(origin), (ps) =>
+              ps ? [...ps, p] : [p]
+            );
+          });
         });
       } else {
-        pathPairs.push([prettyPrintPath(path), tracePath(tr, path)]);
+        const origins = tracePath(tr, path);
+        res = res.update(prettyPrintPath(path), (ps) =>
+          ps ? [...ps, ...origins] : origins
+        );
       }
     } else {
-      pathPairs.push([prettyPrintPath(path), [path]]);
+      res = res.update(prettyPrintPath(path), (ps) =>
+        ps ? [...ps, path] : [path]
+      );
     }
+    console.log(res);
   });
-  return _.fromPairs(pathPairs);
+  return res.toObject();
 };
 
 // Find paths that are the properties of shapes
