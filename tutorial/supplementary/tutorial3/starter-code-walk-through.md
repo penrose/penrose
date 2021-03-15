@@ -91,3 +91,5 @@ U.text = Text {
 }
 ```
 Lastly we just have some styling on the label. That's it! :cartwheeling: 
+
+Now you are ready to draw some vectors and vectors addition. [Continue with tutorial here.](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#page_facing_up-domain)
