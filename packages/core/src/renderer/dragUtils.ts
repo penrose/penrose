@@ -12,7 +12,7 @@ export const dragUpdate = (
   dx: number,
   dy: number
 ): State => {
-  const updated: State = {
+  const dragged: State = {
     ...state,
     params: { ...state.params, optStatus: "NewIter" },
     shapes: state.shapes.map(({ shapeType, properties }: Shape) => {
@@ -22,7 +22,7 @@ export const dragUpdate = (
       return { shapeType, properties };
     }),
   };
-  const updatedWithVaryingState = updateVaryingValues(updated);
+  const updatedWithVaryingState = updateVaryingValues(dragged);
   return updatedWithVaryingState;
 };
 

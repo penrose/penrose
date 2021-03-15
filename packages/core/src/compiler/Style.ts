@@ -15,8 +15,10 @@ import {
   insertExprs,
   insertGPI,
   isPath,
+  isCollection,
   isTagExpr,
   valueNumberToAutodiffConst,
+  dummyAccessPath,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
 import _ from "lodash";
@@ -2221,7 +2223,22 @@ const findPropertyVarying = (
   return paths.concat(acc);
 };
 
+const findNestedPaths = (tagExpr: TagExpr<VarAD>, p: Path): Path[] => {
+  if (tagExpr.tag === "OptEval") {
+    const expr = tagExpr.contents;
+    if (isCollection(expr)) {
+      const elems: Expr[] = expr.contents;
+      const indices: Path[] = elems
+        .map((e: Expr, i): [Expr, number] => [e, i])
+        .map(([e, i]: [Expr, number]): IAccessPath => dummyAccessPath(p, i));
+      return indices;
+    }
+  }
+  return [];
+};
+
 // Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
+// TODO: combine with `findNestedPaths`
 const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
   if (e.tag === "OptEval") {
     const res = e.contents;
@@ -2402,32 +2419,53 @@ const findShapeProperties = (
 };
 
 // trace the origin of a path
-const tracePath = (
-  tr: Translation,
-  path: Path
-): [Path, Expr | Value<VarAD> | GPIExpr<VarAD>] => {
+const tracePath = (tr: Translation, path: Path): Path[] => {
   const tagExpr = findExprSafe(tr, path);
   if (tagExpr.tag === "OptEval") {
     const expr = tagExpr.contents;
     // if the expression is a path, keep tracing
     if (isPath(expr)) {
       return tracePath(tr, expr);
+    } else if (isCollection(expr)) {
+      const accessPaths = findNestedPaths(tagExpr, path);
+      return _.flatten(accessPaths.map((p) => tracePath(tr, p)));
     } else {
       // if the expression is a computed, fix, or optimized value, return
-      return [path, expr];
+      return [path];
     }
   } else {
     // in all other cases, the "origin" of a path is just itself
-    return [path, tagExpr.contents];
+    return [path];
   }
 };
 
 const findPropOrigins = (
   tr: Translation,
   propPaths: Path[]
-): [Path, Expr | Value<VarAD> | GPIExpr<VarAD>][] => {
-  const pathPairs = propPaths.map((path) => tracePath(tr, path));
-  return pathPairs;
+): { [pathString: string]: Path[] } => {
+  let pathPairs: [string, Path[]][] = [];
+  propPaths.forEach((path: Path) => {
+    // first find if this property is a collection
+    const tagExpr = findExprSafe(tr, path);
+    if (tagExpr.tag === "OptEval") {
+      const expr = tagExpr.contents;
+      // if it's a collection, trace origins of all members
+      if (isCollection(expr)) {
+        const accessPaths = findNestedPaths(tagExpr, path);
+        return accessPaths.forEach((p: Path) => {
+          const originPaths = tracePath(tr, p);
+          originPaths.forEach((origin: Path) =>
+            pathPairs.push([prettyPrintPath(origin), [p]])
+          );
+        });
+      } else {
+        pathPairs.push([prettyPrintPath(path), tracePath(tr, path)]);
+      }
+    } else {
+      pathPairs.push([prettyPrintPath(path), [path]]);
+    }
+  });
+  return _.fromPairs(pathPairs);
 };
 
 // Find paths that are the properties of shapes
@@ -2856,7 +2894,6 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     transInitAll,
     shapeProperties.map((p) => mkPath(p))
   );
-  console.log("hello");
 
   const initState = {
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator

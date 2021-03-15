@@ -20,7 +20,7 @@ export interface IState {
   varyingValues: number[];
   translation: Translation;
   originalTranslation: Translation; // TODO: this prop is not really use anywhere. Consider removal
-  propOrigins: any;
+  propOrigins: { [pathString: string]: Path[] };
   shapeOrdering: string[];
   labelCache: LabelCache;
   shapes: Shape[];
