@@ -3,6 +3,7 @@ import grammar from "./SubstanceParser";
 import * as path from "path";
 import * as fs from "fs";
 import { result } from "lodash";
+import { ASTNode } from "types/ast";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;

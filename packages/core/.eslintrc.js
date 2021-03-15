@@ -31,6 +31,10 @@ module.exports = {
     "eslint-plugin-import",
     "eslint-plugin-jsdoc",
     "eslint-plugin-react",
+    "eslint-plugin-import",
   ],
+  rules: {
+    "import/no-cycle": 2,
+  },
   ignorePatterns: ["**/*.test.ts", "**/*.test.tsx"],
 };

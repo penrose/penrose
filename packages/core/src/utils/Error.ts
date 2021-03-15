@@ -33,6 +33,9 @@ import {
   PenroseError,
   StyleError,
 } from "types/errors";
+import { Identifier, ASTNode, SourceLoc } from "types/ast";
+import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
+import { SubExpr, Deconstructor } from "types/substance";
 // #region error rendering and construction
 
 /**
@@ -478,9 +481,13 @@ export const fatalError = (message: string): FatalError => ({
   message,
 });
 
-export const parseError = (message: string): ParseError => ({
+export const parseError = (
+  message: string,
+  location?: SourceLoc
+): ParseError => ({
   tag: "ParseError",
   message,
+  location,
 });
 
 // If there are multiple errors, just return the tag of the first one

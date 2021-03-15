@@ -1,42 +1,58 @@
+import consola, { LogLevel } from "consola";
+import { constrDict, objDict } from "contrib/Constraints";
 import eig from "eigen";
 import {
-  makeADInputVars,
-  energyAndGradCompiled,
-  ops,
-  fns,
   add,
-  mul,
-  varOf,
-  markInput,
   differentiable,
+  energyAndGradCompiled,
+  fns,
+  makeADInputVars,
+  markInput,
+  mul,
+  ops,
+  varOf,
 } from "engine/Autodiff";
 import {
-  makeTranslationDifferentiable,
-  makeTranslationNumeric,
   defaultLbfgsParams,
   initConstraintWeight,
+  makeTranslationDifferentiable,
+  makeTranslationNumeric,
 } from "engine/EngineUtils";
-import { normList, repeat, prettyPrintPath } from "utils/OtherUtils";
 import {
   argValue,
-  evalShapes,
-  insertVaryings,
-  genPathMap,
+  evalFn,
   evalFns,
+  evalShapes,
+  genPathMap,
+  insertVaryings,
 } from "engine/Evaluator";
-
 import * as _ from "lodash";
-import { constrDict, objDict } from "contrib/Constraints";
-import {
-  scalev,
-  addv,
-  subv,
-  negv,
-  dot,
-  prettyPrintFns,
-} from "utils/OtherUtils";
-import consola, { LogLevel } from "consola";
 import rfdc from "rfdc";
+import { OptInfo, VarAD } from "types/ad";
+import { MaybeVal } from "types/common";
+import {
+  Fn,
+  FnCached,
+  FnDone,
+  LbfgsParams,
+  Params,
+  State,
+  VaryMap,
+  WeightInfo,
+} from "types/state";
+import { Path } from "types/style";
+import {
+  addv,
+  dot,
+  negv,
+  normList,
+  prettyPrintFn,
+  prettyPrintFns,
+  prettyPrintPath,
+  repeat,
+  scalev,
+  subv,
+} from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
@@ -139,7 +155,7 @@ export const stepUntilConvergence = async (state: State) => {
   let newState = state;
   while (true) {
     newState = step(newState, 1, true);
-    if (newState.params.optStatus.tag === "EPConverged") {
+    if (newState.params.optStatus === "EPConverged") {
       return newState;
     }
   }
@@ -178,72 +194,29 @@ export const step = (state: State, steps: number, evaluate = true) => {
     state.varyingPaths.map((p: Path): string => prettyPrintPath(p))
   );
 
-  switch (optStatus.tag) {
+  switch (optStatus) {
     case "NewIter": {
       log.trace("step newIter, xs", xs);
 
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       if (true) {
-        // Compile objective and gradient
-        log.info("Compiling objective and gradient");
-
-        // `overallEnergy` is a partially applied function, waiting for an input.
-        // When applied, it will interpret the energy via lookups on the computational graph
-        // TODO: Could save the interpreted energy graph across amples
-        const overallObjective = evalEnergyOnCustom(state);
-        const xsVars: VarAD[] = makeADInputVars(xs);
-        const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
-        // `energyGraph` is a VarAD that is a handle to the top of the graph
-
-        log.info("interpreted energy graph", res.energyGraph);
-        log.info("input vars", xsVars);
-
-        const weightInfo = {
-          // TODO: factor out
-          constrWeightNode: res.constrWeightNode,
-          epWeightNode: res.epWeightNode,
-          constrWeight: constraintWeight,
-          epWeight: initConstraintWeight,
-        };
-
-        const { graphs, f, gradf } = energyAndGradCompiled(
-          xs,
-          xsVars,
-          res.energyGraph,
-          weightInfo
-        );
-
-        eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
-
-        const newParams: Params = {
-          ...state.params,
-          xsVars,
-
-          lastGradient: repeat(xs.length, 0),
-          lastGradientPreconditioned: repeat(xs.length, 0),
-
-          graphs,
-          objective: f,
-          gradient: gradf,
-
-          functionsCompiled: true,
-
-          currObjective: f(initConstraintWeight),
-          currGradient: gradf(initConstraintWeight),
-
-          energyGraph: res.energyGraph,
-          constrWeightNode: res.constrWeightNode,
-          epWeightNode: res.epWeightNode,
-          weight: initConstraintWeight,
-          UOround: 0,
-          EPround: 0,
-          optStatus: { tag: "UnconstrainedRunning" },
-
-          lbfgsInfo: defaultLbfgsParams,
-        };
-
-        return { ...state, params: newParams, overallObjective };
+        const { objective, gradient } = state.params;
+        if (!objective || !gradient) {
+          return genOptProblem(state);
+        } else {
+          return {
+            ...state,
+            params: {
+              ...state.params,
+              weight: initConstraintWeight,
+              UOround: 0,
+              EPround: 0,
+              optStatus: "UnconstrainedRunning" as const,
+              lbfgsInfo: defaultLbfgsParams,
+            },
+          };
+        }
       } else {
         // Reuse compiled functions for resample; set other initialization params accordingly
         // The computational graph gets destroyed in resample (just for now, because it can't get serialized)
@@ -260,7 +233,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
           weight: initConstraintWeight,
           UOround: 0,
           EPround: 0,
-          optStatus: { tag: "UnconstrainedRunning" },
+          optStatus: "UnconstrainedRunning",
           lbfgsInfo: defaultLbfgsParams,
         };
 
@@ -302,7 +275,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
       // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
       if (unconstrainedConverged2(normGrad)) {
-        optParams.optStatus.tag = "UnconstrainedConverged";
+        optParams.optStatus = "UnconstrainedConverged";
         eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
         optParams.lbfgsInfo = defaultLbfgsParams;
         log.info(
@@ -312,7 +285,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
           normGrad
         );
       } else {
-        optParams.optStatus.tag = "UnconstrainedRunning";
+        optParams.optStatus = "UnconstrainedRunning";
         // Note that lbfgs prams have already been updated
         log.info(
           `Took ${steps} steps. Current energy`,
@@ -346,7 +319,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
           optParams.lastUOenergy
         )
       ) {
-        optParams.optStatus.tag = "EPConverged";
+        optParams.optStatus = "EPConverged";
         log.info("EP converged with energy", optParams.lastUOenergy);
       } else {
         // If EP has not converged, increase weight and continue.
@@ -354,7 +327,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         log.info(
           "step: UO converged but EP did not converge; starting next round"
         );
-        optParams.optStatus.tag = "UnconstrainedRunning";
+        optParams.optStatus = "UnconstrainedRunning";
 
         optParams.weight = weightGrowthFactor * weight;
         optParams.EPround = optParams.EPround + 1;
@@ -683,8 +656,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: colVec(xs) },
-        lastGrad: { tag: "Just", contents: colVec(gradfxs) },
+        lastState: { tag: "Just" as const, contents: colVec(xs) },
+        lastGrad: { tag: "Just" as const, contents: colVec(gradfxs) },
         s_list: [],
         y_list: [],
         numUnconstrSteps: 1,
@@ -734,8 +707,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         gradfxsPreconditioned: gradfxs,
         updatedLbfgsInfo: {
           ...lbfgsInfo,
-          lastState: { tag: "Just", contents: x_k },
-          lastGrad: { tag: "Just", contents: grad_fx_k },
+          lastState: { tag: "Just" as const, contents: x_k },
+          lastGrad: { tag: "Just" as const, contents: grad_fx_k },
           s_list: [],
           y_list: [],
           numUnconstrSteps: 1,
@@ -754,8 +727,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: vecList(gradPreconditioned),
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: x_k },
-        lastGrad: { tag: "Just", contents: grad_fx_k },
+        lastState: { tag: "Just" as const, contents: x_k },
+        lastGrad: { tag: "Just" as const, contents: grad_fx_k },
         s_list: ss_km1,
         y_list: ys_km1,
         numUnconstrSteps: km1 + 1,
@@ -884,7 +857,7 @@ const minimize = (
 };
 
 /**
- * Generate an energy function from the current state (using VarADs only, unlike evalEnergyOn)
+ * Generate an energy function from the current state (using VarADs only)
  *
  * @param {State} state
  * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
@@ -950,7 +923,7 @@ export const evalEnergyOnCustom = (state: State) => {
     );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    overallEng.gradVal = { tag: "Just", contents: 1.0 };
+    overallEng.gradVal = { tag: "Just" as const, contents: 1.0 };
     log.info("overall eng from custom AD", overallEng, overallEng.val);
 
     return {
@@ -959,4 +932,135 @@ export const evalEnergyOnCustom = (state: State) => {
       epWeightNode,
     };
   };
+};
+
+export const genOptProblem = (state: State): State => {
+  const xs: number[] = state.varyingValues;
+  log.trace("step newIter, xs", xs);
+
+  // if (!state.params.functionsCompiled) {
+  // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
+  // Compile objective and gradient
+  log.info("Compiling objective and gradient");
+
+  // `overallEnergy` is a partially applied function, waiting for an input.
+  // When applied, it will interpret the energy via lookups on the computational graph
+  // TODO: Could save the interpreted energy graph across amples
+  const overallObjective = evalEnergyOnCustom(state);
+  const xsVars: VarAD[] = makeADInputVars(xs);
+  const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+  // `energyGraph` is a VarAD that is a handle to the top of the graph
+
+  log.info("interpreted energy graph", res.energyGraph);
+  log.info("input vars", xsVars);
+
+  const weightInfo = {
+    // TODO: factor out
+    constrWeightNode: res.constrWeightNode,
+    epWeightNode: res.epWeightNode,
+    constrWeight: constraintWeight,
+    epWeight: initConstraintWeight,
+  };
+
+  const { graphs, f, gradf } = energyAndGradCompiled(
+    xs,
+    xsVars,
+    res.energyGraph,
+    { tag: "Just", contents: weightInfo }
+  );
+
+  eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
+
+  const newParams: Params = {
+    ...state.params,
+    xsVars,
+
+    lastGradient: repeat(xs.length, 0),
+    lastGradientPreconditioned: repeat(xs.length, 0),
+
+    graphs,
+    objective: f,
+    gradient: gradf,
+
+    functionsCompiled: true,
+
+    currObjective: f(initConstraintWeight),
+    currGradient: gradf(initConstraintWeight),
+
+    energyGraph: res.energyGraph,
+    constrWeightNode: res.constrWeightNode,
+    epWeightNode: res.epWeightNode,
+    weight: initConstraintWeight,
+    UOround: 0,
+    EPround: 0,
+    optStatus: "UnconstrainedRunning",
+
+    lbfgsInfo: defaultLbfgsParams,
+  };
+
+  return { ...state, params: newParams };
+};
+
+// Eval a single function on the state (using VarADs). Based off of `evalEnergyOfCustom` -- see that function for comments.
+const evalFnOn = (fn: Fn, s: State) => {
+  const dict = fn.optType === "ObjFn" ? objDict : constrDict;
+
+  return (...xsVars: VarAD[]): VarAD => {
+    const { varyingPaths } = s;
+
+    const translationInit = makeTranslationDifferentiable(
+      clone(makeTranslationNumeric(s.translation))
+    );
+
+    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    const translation = insertVaryings(translationInit, varyingMapList);
+    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+
+    // NOTE: This will mutate the var inputs
+    const fnArgsEvaled: FnDone<VarAD> = evalFn(fn, translation, varyingMap);
+    const fnEnergy: VarAD = applyFn(fnArgsEvaled, dict);
+
+    return fnEnergy;
+  };
+};
+
+// For a given objective or constraint, precompile it and its gradient, without any weights. (variation on `genOptProblem`)
+const genFn = (fn: Fn, s: State): FnCached => {
+  const xs: number[] = clone(s.varyingValues);
+
+  const overallObjective = evalFnOn(fn, s);
+  const xsVars: VarAD[] = makeADInputVars(xs);
+  const energyGraph: VarAD = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+
+  const weightInfo: MaybeVal<WeightInfo> = { tag: "Nothing" };
+
+  const { graphs, f, gradf } = energyAndGradCompiled(
+    xs,
+    xsVars,
+    energyGraph,
+    weightInfo
+  );
+
+  // Note this throws away the energy/gradient graphs (`VarAD`s). Presumably not needed?
+  return { f, gradf };
+};
+
+// For each objective and constraint, precompile it and its gradient and cache it in the state.
+export const genFns = (s: State): State => {
+  const p = s.params;
+  const objCache = {};
+  const constrCache = {};
+
+  for (const f of s.objFns) {
+    objCache[prettyPrintFn(f)] = genFn(f, s);
+  }
+
+  for (const f of s.constrFns) {
+    constrCache[prettyPrintFn(f)] = genFn(f, s);
+  }
+
+  p.objFnCache = objCache;
+  p.constrFnCache = constrCache;
+
+  return s;
 };

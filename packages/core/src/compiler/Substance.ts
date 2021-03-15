@@ -1,9 +1,25 @@
-import { Map } from "immutable";
 import { findIndex, zip } from "lodash";
+import { Map } from "immutable";
 import nearley from "nearley";
-import { idOf } from "parser/ParserUtil";
+import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
+import { Identifier } from "types/ast";
+import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
+import {
+  SubProg,
+  SubExpr,
+  ApplyPredicate,
+  SubStmt,
+  TypeConsApp,
+  SubPredArg,
+  Func,
+  ApplyConstructor,
+  ApplyFunction,
+  Deconstructor,
+  LabelMap,
+  SubstanceEnv,
+} from "types/substance";
 import {
   andThen,
   argLengthMismatch,
@@ -35,10 +51,14 @@ export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
   );
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
-    const ast: SubProg = results[0] as SubProg;
-    return ok(ast);
+    if (results.length > 0) {
+      const ast: SubProg = results[0] as SubProg;
+      return ok(ast);
+    } else {
+      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+    }
   } catch (e) {
-    return err(parseError(e));
+    return err(parseError(e, lastLocation(parser)));
   }
 };
 
@@ -64,16 +84,6 @@ export const compileSubstance = (
     return err({ ...astOk.error, errorType: "SubstanceError" });
   }
 };
-
-export type LabelMap = Map<string, Maybe<string>>;
-export interface SubstanceEnv {
-  exprEqualities: [SubExpr, SubExpr][];
-  predEqualities: [ApplyPredicate, ApplyPredicate][];
-  bindings: Map<string, SubExpr>;
-  labels: LabelMap;
-  predicates: ApplyPredicate[];
-  ast: SubProg;
-}
 
 const initEnv = (ast: SubProg): SubstanceEnv => ({
   exprEqualities: [],

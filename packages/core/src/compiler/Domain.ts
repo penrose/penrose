@@ -3,7 +3,19 @@ import { Map } from "immutable";
 import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
-import { idOf } from "parser/ParserUtil";
+import { idOf, lastLocation } from "parser/ParserUtil";
+import {
+  DomainProg,
+  TypeDecl,
+  ConstructorDecl,
+  FunctionDecl,
+  PredicateDecl,
+  TypeVar,
+  TypeConstructor,
+  DomainStmt,
+  Type,
+  Arg,
+} from "types/domain";
 import {
   ParseError,
   DomainError,
@@ -11,6 +23,7 @@ import {
   TypeVarNotFound,
   PenroseError,
 } from "types/errors";
+import { ApplyConstructor, TypeConsApp } from "types/substance";
 import {
   and,
   andThen,
@@ -33,10 +46,14 @@ export const parseDomain = (prog: string): Result<DomainProg, ParseError> => {
   );
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
-    const ast: DomainProg = results[0] as DomainProg;
-    return ok(ast);
+    if (results.length > 0) {
+      const ast: DomainProg = results[0] as DomainProg;
+      return ok(ast);
+    } else {
+      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+    }
   } catch (e) {
-    return err(parseError(e));
+    return err(parseError(e, lastLocation(parser)));
   }
 };
 

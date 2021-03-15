@@ -4,22 +4,27 @@ import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
-  SubstanceEnv,
 } from "compiler/Substance";
+import { SubstanceEnv } from "types/substance";
+import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import { initializeMat, step } from "engine/Optimizer";
+import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
   RenderShape,
 } from "renderer/Renderer";
-import { notEmptyLabel, resampleBest, sortShapes } from "renderer/ShapeDef";
+import { resampleBest } from "renderer/Resample";
 import { PenroseError } from "types/errors";
-import * as ShapeTypes from "types/shapeTypes";
-import { Shape } from "types/shapeTypes";
+import { Registry, Trio } from "types/io";
+import * as ShapeTypes from "types/shape";
+import { State, LabelCache, Fn } from "types/state";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
+import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
+
+const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
  * Resample all shapes in the state by generating a number of samples (`numSamples`) and picking the sample with the lowest initial energy value.
@@ -70,10 +75,11 @@ export const diagram = async (
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergence(state);
     node.appendChild(RenderStatic(optimized));
-  } else
+  } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
     );
+  }
 };
 
 /**
@@ -102,10 +108,11 @@ export const interactiveDiagram = async (
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergence(state);
     node.appendChild(RenderInteractive(optimized, updateData));
-  } else
+  } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
     );
+  }
 };
 
 /**
@@ -135,12 +142,12 @@ export const compileTrio = (
 };
 
 /**
- * Generate all shapes and collect labels and images (if applicable) given an initial `State`.
+ * Generate all shapes, collect labels and images (if applicable), and generate the optimization problem given an initial `State`.
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
   await initializeMat();
-  // TODO:L errors
+  // TODO: errors
   const stateAD = {
     ...state,
     originalTranslation: state.originalTranslation,
@@ -152,20 +159,15 @@ export const prepareState = async (state: State): Promise<State> => {
 
   const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
 
-  const sortedShapes: Shape[] = sortShapes(
-    stateEvaled.shapes,
-    stateEvaled.shapeOrdering
-  );
-
-  const nonEmpties = sortedShapes.filter(notEmptyLabel);
-
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
     labelCache,
-    shapes: nonEmpties,
   });
 
-  return stateWithPendingProperties;
+  const withOptProblem: State = genOptProblem(stateWithPendingProperties);
+  const withOptProblemAndCachedFns: State = genFns(withOptProblem);
+
+  return withOptProblemAndCachedFns;
 };
 
 /**
@@ -173,19 +175,99 @@ export const prepareState = async (state: State): Promise<State> => {
  * @param state current state
  */
 export const stateConverged = (state: State): boolean =>
-  state.params.optStatus.tag === "EPConverged";
+  state.params.optStatus === "EPConverged";
 
 /**
  * Returns true if state is the initial frame
  * @param state current state
  */
 export const stateInitial = (state: State): boolean =>
-  state.params.optStatus.tag === "NewIter";
+  state.params.optStatus === "NewIter";
+
+/**
+ * Read and flatten the registry file for Penrose examples into a list of program trios.
+ *
+ * @param registry JSON file of the registry
+ */
+export const readRegistry = (registry: Registry): Trio[] => {
+  const { substances, styles, domains, trios } = registry;
+  const res = [];
+  for (const { domain: dslID, style: styID, substance: subID } of trios) {
+    const domain = domains[dslID];
+    const substance = substances[subID];
+    const style = styles[styID];
+    const trio = {
+      substanceURI: substance.URI,
+      styleURI: style.URI,
+      domainURI: domain.URI,
+      substanceName: substance.name,
+      styleName: style.name,
+      domainName: domain.name,
+      name: `${subID}-${styID}`,
+    };
+    res.push(trio);
+  }
+  return res;
+};
+
+/**
+ * Evaluate the overall energy of a `State`. If the `State` does not have an optimization problem initialized (i.e. it doesn't have a defined `objective` field), this function will call `genOptProblem` to initialize it. Otherwise, it will evaluate the cached objective function.
+ * @param s a state with or without an optimization problem initialized
+ * @returns a scalar value of the current energy
+ */
+export const evalEnergy = (s: State): number => {
+  const { objective, weight } = s.params;
+  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
+  if (!objective) {
+    log.warn(
+      "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
+    );
+    const newState = genOptProblem(s);
+    // TODO: caching
+    return evalEnergy(newState);
+  }
+  return objective(weight)(s.varyingValues);
+};
+
+/**
+ * Evaluate a list of constraints/objectives: this will be useful if a user want to apply a subset of constrs/objs on a `State`. If the `State` doesn't have the constraints/objectives compiled, it will generate them first. Otherwise, it will evaluate the cached functions.
+ * @param fns a list of constraints/objectives
+ * @param s a state with or without its opt functions cached
+ * @returns a list of scalar values of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
+ */
+export const evalFns = (fns: Fn[], s: State): number[] => {
+  const { objFnCache, constrFnCache } = s.params;
+
+  // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
+  if (!objFnCache || !constrFnCache) {
+    log.warn(
+      "State is not prepared for energy evaluation. Call `prepareState` to initialize the cached objective/constraint functions first."
+    );
+    const newState = genFns(s);
+    // TODO: caching
+    return evalFns(fns, newState);
+  }
+
+  // Evaluate the energy of each requested function (of the given type) on the varying values in the state
+  const xs = s.varyingValues;
+  return fns.map((fn: Fn) => {
+    const fnsCached = fn.optType === "ObjFn" ? objFnCache : constrFnCache;
+    const fnStr = prettyPrintFn(fn);
+
+    if (!(fnStr in fnsCached)) {
+      console.log("fns", fnsCached);
+      throw Error(
+        `Internal error: could not find ${fn.optType} ${fnStr} in cached functions`
+      );
+    }
+    const cachedFnInfo = fnsCached[fnStr];
+    return cachedFnInfo.f(xs); // Could also return gradient if desired
+  });
+};
 
 export type PenroseState = State;
 
 export type { PenroseError } from "./types/errors";
-
 export {
   compileDomain,
   compileSubstance,
@@ -199,5 +281,7 @@ export {
   ShapeTypes,
   bBoxDims,
   toHex,
+  initializeMat,
   showError,
+  Result,
 };

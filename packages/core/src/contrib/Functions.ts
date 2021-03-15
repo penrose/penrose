@@ -1,28 +1,36 @@
-import { range, maxBy } from "lodash";
-import { randFloat } from "utils/Util";
-import { mapTup2 } from "engine/EngineUtils";
-import { linePts, getStart, getEnd } from "utils/OtherUtils";
+import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
-  ops,
-  fns,
-  varOf,
-  numOf,
-  constOf,
+  absVal,
   add,
   addN,
+  constOf,
+  cos,
+  div,
+  ifCond,
   max,
   min,
-  div,
   mul,
-  cos,
-  sin,
   neg,
+  numOf,
+  ops,
+  sin,
   sqrt,
-  absVal,
-  ifCond,
 } from "engine/Autodiff";
-import { Elem, SubPath } from "types/shapeTypes";
-import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { maxBy, range } from "lodash";
+import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
+import { Elem, SubPath } from "types/value";
+import {
+  ArgVal,
+  Color,
+  IColorV,
+  IFloatV,
+  IPathDataV,
+  IPtListV,
+  ITupV,
+  IVectorV,
+} from "types/value";
+import { getStart, linePts } from "utils/OtherUtils";
+import { randFloat } from "utils/Util";
 
 /**
  * Static dictionary of computation functions

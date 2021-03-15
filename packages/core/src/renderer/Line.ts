@@ -1,3 +1,4 @@
+import { IVectorV, IFloatV, IColorV, IStrV } from "types/value";
 import { toHex, toScreen } from "utils/Util";
 import { arrowHead } from "./Arrow";
 import { attrTitle } from "./AttrHelper";
