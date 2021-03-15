@@ -28,7 +28,7 @@ You should compile the starter code and see a vector space labeled `U` with its 
 
 There are comments in the starter code that documents each block briefly. In this exercise we are mainly working on the `.sty` file, thus the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurence for you if you are a domain expert, crafting different visualizations for a domain. 
 
-### :point_right: For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/penrose/blob/docs-edit/tutorial/starter-code/tutorial-p3/starter-code-walk-through.md). 
+### :point_right: For more in-depth explanations on the starter code, we prepared a separate document [here](https://github.com/penrose/penrose/blob/docs-edit/tutorial/supplementary/tutorial3/starter-code-walk-through.md). 
 
 ## :page_facing_up: Domain
 We will write our first function in Penrose together :dizzy:!
