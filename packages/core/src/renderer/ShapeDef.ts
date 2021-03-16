@@ -210,9 +210,11 @@ export const polygonDef: ShapeDef = {
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
+    center: ["VectorV", vectorSampler],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: ["PtListV", () => constValue("PtListV", [[0,0],[0,10],[10,0]])],
   },
+  positionalProps: ["center"],
 };
 
 
@@ -220,6 +222,7 @@ export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
     strokeWidth: ["FloatV", strokeSampler],
+    center: ["VectorV", vectorSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -227,6 +230,7 @@ export const polylineDef: ShapeDef = {
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: ["PtListV", () => constValue("PtListV", [[0,0],[0,10],[10,0]])],
   },
+  positionalProps: ["center"],
 };
 
 export const imageDef: ShapeDef = {

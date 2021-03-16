@@ -1,4 +1,4 @@
-import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
+import { IColorV, IFloatV, IVectorV, IStrV, IPtListV, ILListV } from "types/value";
 import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
 
@@ -27,6 +27,32 @@ export const attrCenter = (
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
+};
+
+
+export const attrPolyCenter = (
+  { properties }: Shape,
+  canvasSize: [number, number],
+  elem: SVGElement
+) => {
+  const points = properties.points as IPtListV<number>;
+  const xs = points.contents.map(xy => xy[0]);
+  const ys = points.contents.map(xy => xy[1]);
+
+
+  const minX = Math.min(...xs),
+        minY = Math.min(...ys),
+        maxX = Math.max(...xs),
+        maxY = Math.max(...ys);
+
+  const cx = (minX+maxX)/2,
+        cy = (minY+maxY)/2;
+
+  const [x, y] = toScreen([cx,cy] as [number, number], canvasSize);
+
+  elem.setAttribute("cx", x.toString());
+  elem.setAttribute("cy", y.toString());
+
 };
 
 export const attrTransformCoords = (
