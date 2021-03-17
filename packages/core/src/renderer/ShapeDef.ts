@@ -250,6 +250,7 @@ export const arrowDef: ShapeDef = {
     style: ["StrV", () => constValue("StrV", "solid")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultArrow")],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
   },
 };
 
