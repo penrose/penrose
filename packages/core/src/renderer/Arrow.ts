@@ -70,6 +70,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   path.setAttribute("marker-end", `url(#${id})`);
   attrFill(shape, path);
   path.setAttribute("stroke", color);
+  // factor out an AttrHelper
   if (
     "strokeDashArray" in shape.properties &&
     shape.properties.strokeDashArray.contents !== ""
@@ -78,8 +79,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
       "stroke-dasharray",
       (shape.properties.strokeDashArray as IStrV<string>).contents
     );
-  }
-  if (shape.properties.style.contents === "dashed") {
+  } else if (shape.properties.style.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
   path.setAttribute(
