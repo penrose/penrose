@@ -32,15 +32,19 @@ Object de := tensor(D, E)
 Morphism G := join(de, F)
 
 -- TODO: Might need a plugin. Is there any way to naturally state this in the math, anyway?
-ChildOf(A, F2)
-ChildOf(B, F2)
-ChildOf(C, F2)
+InputOf(A, F2)
+InputOf(B, F2)
+InputOf(C, F2)
 
-ChildOf(D, G)
-ChildOf(E, G)
+InputOf(D, G)
+InputOf(E, G)
 
-NotChildOf(E, F2)
--- OutputOf(E, F2)
+NotInputOf(E, F2)
+
+-- Not really needed
+-- OutputOf(D, F2)
+-- OutputOf(F, G)
+
 -- Presumably you would generate these by analyzing the "chain"? What would be the right thing to state here?
 
 AutoLabel All
