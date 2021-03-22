@@ -219,6 +219,27 @@ export const polygonDef: ShapeDef = {
 };
 
 
+export const freeformPolygonDef: ShapeDef = {
+  shapeType: "FreeformPolygon",
+  properties: {
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
+    points: [
+      "PtListV",
+      () =>
+        constValue("PtListV", [
+          [0, 0],
+          [0, 10],
+          [10, 0],
+        ]),
+    ],
+  },
+};
+
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
@@ -349,6 +370,7 @@ export const shapedefs: ShapeDef[] = [
   textDef,
   rectDef,
   polygonDef,
+  freeformPolygonDef,
   polylineDef,
   squareDef,
   curveDef,
