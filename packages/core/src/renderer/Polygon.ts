@@ -1,4 +1,4 @@
-import { attrFill, attrPoints, attrPolyCenter, attrStroke, attrTitle } from "./AttrHelper";
+import { attrFill, attrPoints, attrPolyCenter, attrScale, attrStroke, attrTitle } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Polygon = ({ shape, canvasSize }: ShapeProps) => {
@@ -10,6 +10,7 @@ const Polygon = ({ shape, canvasSize }: ShapeProps) => {
   attrTitle(shape, elem);
   attrPoints(shape, elem);
   attrPolyCenter(shape, canvasSize, elem);
+  attrScale(shape, elem);
 
   return elem;
 

@@ -1,4 +1,11 @@
-import { IColorV, IFloatV, IVectorV, IStrV, IPtListV, ILListV } from "types/value";
+import {
+  IColorV,
+  IFloatV,
+  IVectorV,
+  IStrV,
+  IPtListV,
+  ILListV,
+} from "types/value";
 import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
 
@@ -29,30 +36,42 @@ export const attrCenter = (
   elem.setAttribute("cy", y.toString());
 };
 
-
 export const attrPolyCenter = (
   { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  const points = properties.points as IPtListV<number>;
-  const xs = points.contents.map(xy => xy[0]);
-  const ys = points.contents.map(xy => xy[1]);
+  if (properties.center) {
+    const [x, y] = toScreen(properties.center.contents as [number, number], canvasSize);
+    elem.setAttribute("cx", x.toString());
+    elem.setAttribute("cy", y.toString());
+  } else {
+    const points = properties.points as IPtListV<number>;
+    const xs = points.contents.map((xy) => xy[0]);
+    const ys = points.contents.map((xy) => xy[1]);
 
+    const minX = Math.min(...xs),
+      minY = Math.min(...ys),
+      maxX = Math.max(...xs),
+      maxY = Math.max(...ys);
 
-  const minX = Math.min(...xs),
-        minY = Math.min(...ys),
-        maxX = Math.max(...xs),
-        maxY = Math.max(...ys);
+    const cx = (minX + maxX) / 2,
+      cy = (minY + maxY) / 2;
 
-  const cx = (minX+maxX)/2,
-        cy = (minY+maxY)/2;
+    const [x, y] = toScreen([cx, cy] as [number, number], canvasSize);
+    elem.setAttribute("cx", x.toString());
+    elem.setAttribute("cy", y.toString());
+  }
 
-  const [x, y] = toScreen([cx,cy] as [number, number], canvasSize);
+};
 
-  elem.setAttribute("cx", x.toString());
-  elem.setAttribute("cy", y.toString());
-
+export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
+  let scale = properties.scale.contents;
+  scale ||= 1;
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
+  elem.setAttribute("transform", transform);
 };
 
 export const attrTransformCoords = (
@@ -64,10 +83,12 @@ export const attrTransformCoords = (
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   const w = properties.w as IFloatV<number>;
   const h = properties.h as IFloatV<number>;
-  elem.setAttribute(
-    "transform",
-    `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
-  );
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null
+      ? `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
+      : transform + `translate(${x - w.contents / 2}, ${y - h.contents / 2})`;
+  elem.setAttribute("transform", transform);
 };
 
 export const attrXY = (

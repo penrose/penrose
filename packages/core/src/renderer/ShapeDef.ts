@@ -209,6 +209,7 @@ export const polygonDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
     center: ["VectorV", vectorSampler],
+    scale: ["FloatV", () => constValue("FloatV", 1)],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: ["PtListV", () => constValue("PtListV", [[0,0],[0,10],[10,0]])],
   },
@@ -221,6 +222,7 @@ export const polylineDef: ShapeDef = {
   properties: {
     strokeWidth: ["FloatV", strokeSampler],
     center: ["VectorV", vectorSampler],
+    scale: ["FloatV", () => constValue("FloatV", 1)],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -348,6 +350,12 @@ export const shapedefs: ShapeDef[] = [
   lineDef,
   arrowDef,
 ];
+
+export const positionalProps = (type: string): string[] | undefined => {
+  const res = shapedefs.find(({ shapeType }: ShapeDef) => (shapeType === type));
+  if (!res) return undefined;
+  return res.positionalProps;
+};
 
 export const findDef = (type: string): ShapeDef => {
   const res = shapedefs.find(({ shapeType }: ShapeDef) => shapeType === type);

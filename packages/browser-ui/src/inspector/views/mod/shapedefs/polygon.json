@@ -11,6 +11,12 @@
       "max": "20",
       "showValue": "true"
     },
+    "scale": {
+      "inputType": "range",
+      "min": "0.0",
+      "max": "20.0",
+      "showValue": "true"
+    },
     "strokeColor": {
       "inputType": "color",
       "showValue": "false"
