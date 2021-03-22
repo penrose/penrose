@@ -24,6 +24,7 @@ forall Circle e {
 forall Rectangle f {
     f.icon = Rectangle { 
         rx: 20
+        center: (20,20)
     }
 }
 
@@ -44,8 +45,8 @@ forall Image i {
 forall Polygon j {
 	j.icon = Polygon { 
         points: ((-80.0, 0.0), (100.0, 0.0), (10.0, 50.0))
-        strokeWidth: 200
-        -- pathLength :2000
+        strokeWidth: 20
+        scale : 1
 	}
 }
 
@@ -53,6 +54,8 @@ forall Polyline k {
 	k.icon = Polyline { 
         points: ((-20.0, 0.0), (100.0, 0.0), (10.0, 50.0))
         strokeWidth: 100
+        scale : 2
+        center : (2,3)
 	}
 }
 
