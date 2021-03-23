@@ -127,12 +127,14 @@ where u := subV(v,w); In(u, U); In(v, U); In(w, U){
 /**************Exercise 1: Vector Subtraction(end)**************/
 
 /**************Exercise 2: Scalar Multipilication(start)********/
-forall Vector u; Vector v; VectorSpace U
-where u := scalarMult(v); In(u, U); In(v, U){
-   --v.scalar = 5. /* fixed value */
-   v.scalar = ?
-   ensure inRange(v.scalar, 2., 5.) 
-   override u.shape.end = (v.scalar * v.shape.end) - U.origin 
+forall Scalar a {
+  --a.scalar = 5. /* fixed value scalar */
+  a.scalar = ?  /* randomized value decided by Penrose */
+  ensure inRange(a.scalar, 2., 5.);
+}
+forall Scalar a; forall Vector u; Vector v; VectorSpace U
+where u := scalarMult(a, v); In(u, U); In(v, U){
+   override u.shape.end = (a.scalar * v.shape.end) - U.origin 
 }
 /**************Exercise 2: Scalar Multipilication(end)**********/
 /**************YOUR CODE - END**************/
