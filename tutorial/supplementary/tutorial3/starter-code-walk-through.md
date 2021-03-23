@@ -35,8 +35,10 @@ const {
   scalar arrowheadSize = 0.7
   scalar lineThickness = 1.
   scalar arrowThickness = 1.5
-  gray = rgba(0.6, 0.6, 0.6, 1.)
-  none = rgba(0., 0., 0., 0.)
+  color gray = rgba(0.6, 0.6, 0.6, 1.)
+  color lightBlue = rgba(0.2, 0.4, 0.8, 1.0)
+  color lightGray = rgba(252, 252, 252, 0.015)
+  color none = rgba(0., 0., 0., 0.)
 }
 ```
 This is helpful way and a good practice to organize your constants in an object. Here we have some constants that helps with drawing out the vector space. Feel free to add more useful constants in here for your explorations.
