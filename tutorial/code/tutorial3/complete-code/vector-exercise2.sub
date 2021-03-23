@@ -1,0 +1,11 @@
+VectorSpace U
+Vector v 
+Vector w
+In(v, U)
+In(w, U)
+/*********** (2) ***********/
+Scalar a;
+Vector u := scalarMult(a, v)
+In(u, U)
+/*********** (2) ***********/
+AutoLabel All
