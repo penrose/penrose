@@ -56,7 +56,7 @@ In(u, U)
 AutoLabel All
 ```
 ## :page_facing_up: Style
-Now, things are going to be a bit tricky, but rest assured, we will get through it together! 
+Now the real fun starts! 🖌️
 
 There are two tasks we need to do in our style program on top of the starter code:
 * Task 1: Draw vectors in a vector space
