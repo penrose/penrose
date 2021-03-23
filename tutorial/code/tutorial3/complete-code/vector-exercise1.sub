@@ -1,0 +1,10 @@
+VectorSpace U
+Vector v 
+Vector w
+In(v, U)
+In(w, U)
+/*********** (1) ***********/
+Vector u := subV(v, w)
+In(u, U)
+/*********** (1) ***********/
+AutoLabel All
