@@ -171,15 +171,15 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 [Sample Solutions](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/complete-code)
 
 ## Take-aways
-#### Principle of Styling:
+#### 🧑‍🎨 Principle of Styling:
 * Define base objects.
 * Casecase styles.
 * Override if needed. 
-#### Substance is abstract! No numbers!
+#### 💭 Substance is abstract! No numbers!
 * The visual meaning is in the style program, including all the concrete numerical things. 
 * Substance program is **infinitely** flexible. ***Nothing is built in.***
 * Define your wolrd in domain file. 
-#### New Syntax:
+#### 🖋️ New Syntax:
 * `.dsl`
   * `function funcName : inputType -> outputType` is the syntax for defining functions in `.dsl`.
 * `.sub`
