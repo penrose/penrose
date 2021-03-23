@@ -14,7 +14,7 @@ Now we will introduce functions in Penrose, which allow us to compose atomic sub
 * Next Tutorial: Coming Up! 
 
 ## Goal
-We've had a good time with Set Theory, now we will move on to visualizing :sparkles: **vectors** :sparkles: that you have mostly likely first encountered in your highschool physics or math. 
+We've had a good time with Set Theory, now we will move on to visualizing :sparkles: **vectors** :sparkles: that you have mostly likely encountered in your highschool physics or math class. 
 
 In particular, we are visualizing vector addtion. 
 ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/addtion_wg.png)
