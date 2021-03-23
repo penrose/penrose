@@ -99,7 +99,7 @@ u.shape = Arrow {
 ```
 Note that the field name `shape` can be replaced by anything you want, we just need to assign the penrose shape object to some field (remember in tutorial 1 we used `.icon`). Here we are simply defining some properties of the `Arrow` shape object. 
 
-Side note: **3.0 is not the same as 3**. This is important when you need a **float** versus an **int**. We often write **3.**, thus ignoring the zero after the decimal point for convenience. 
+🗒️ Side note: **3.0 is not the same as 3**. This is important when you need a **float** versus an **int**. We often write **3.**, thus ignoring the zero after the decimal point for convenience. 
 
 Lastly, we need a field to write the variable name of our vector in the diagram.
 ```typescript
