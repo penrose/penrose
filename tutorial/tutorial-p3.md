@@ -58,7 +58,11 @@ AutoLabel All
 ## :page_facing_up: Style
 Now the real fun starts! 🖌️ But before that, we will get a bit theoretical and understand why Penrose is the way it is. 
 
-The goal of Penrose is to visualize mathematical relationships. These relationships can be instantiated in many concrete ways. Therefore, Penrose does not include any built in numeric types. For example, when we define a Vector, we don't assign it concrete values (e.g. we don't write Vector v := (1,2)). Instead we simply declare the Vector and associate it with a `VectorSpace` using the In predicate. It's a good rule of thumb that we **DO NOT** touch concrete numbers until we get into the `.sty` file. 
+> The goal of Penrose is to visualize mathematical relationships.
+
+These relationships can be instantiated in **many** concrete ways. Therefore, Penrose does not include any built in numeric types. 
+
+For example, when we define a Vector, we don't assign it concrete values (e.g. we don't write `Vector v := (1,2)`). Instead we simply declare the Vector and associate it with a `VectorSpace` using the `In` predicate. It's a good rule of thumb that we **DO NOT** touch concrete numbers until we get into the `.sty` file. 
 
 There are two tasks we need to do in our style program on top of the starter code:
 * [Task 1](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p3.md#task-1-vectors-in-vector-space): Draw vectors in a vector space
