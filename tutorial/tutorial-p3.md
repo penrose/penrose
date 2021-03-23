@@ -179,9 +179,9 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 * Override if needed. 
   * Penrose is *purely* functional, i.e. every value that is set is supposedly fixed. Therefore if you want to reassign a value, you *need* to use the `override` keyword. 
 #### 💭 Substance is abstract! No numbers!
-* The visual meaning is in the style program, including all the concrete numerical things. 
-* Substance program is **infinitely** flexible. ***Nothing is built in.***
-* Define your world in the domain file. Domain program is **infinitely** flexible. ***Nothing is built in.***
+* The visual meaning is in the style program, including all the concrete numerical things. We have built-in types such as `scalar, color, ...` in our style program for readability. Currently we don't support type checking. 
+* Substance program is **infinitely** flexible. ***Nothing is built-in.***
+* Define your world in the domain file. Domain program is **infinitely** flexible. ***Nothing is built-in.***
 #### 🖋️ New Syntax:
 * `.dsl`
   * `function funcName : inputType -> outputType` is the syntax for defining functions in `.dsl`.
