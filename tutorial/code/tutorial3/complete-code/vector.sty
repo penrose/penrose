@@ -1,6 +1,5 @@
-/* This is the starter code for the style program for the tutorial
- * that teaches functions in Penrose. Scroll down to the 
- * bottom and follow along with the write-up. Good luck! :)
+/* This is the complete code for the style program for the tutorial
+ * that teaches functions in Penrose. 
  */
 
  /**************DO NOT TOUCH ZONE - START**************/
@@ -73,9 +72,11 @@ where In(u,U) {
     color : u.shape.color
   }
 
+  u.vector = (?, ?)
+  
   u.shape = Arrow {
     start: U.origin
-    end : (?, ?)
+    end : U.origin + u.vector
     thickness : 3.0
     color : const.lightBlue
     arrowheadSize : const.arrowheadSize
