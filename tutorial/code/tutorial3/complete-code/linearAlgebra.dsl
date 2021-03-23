@@ -1,8 +1,7 @@
 type VectorSpace
 type Vector
+type Scalar
 predicate In: Vector * VectorSpace V
-/******** Example **********/
 function addV: Vector * Vector -> Vector
-/******** Exercises ********/
 function subV: Vector * Vector -> Vector
-function scalarMult: Vector -> Vector
+function scalarMult: Scalar * Vector -> Vector
