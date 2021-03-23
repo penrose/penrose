@@ -173,8 +173,11 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 ## Take-aways
 #### 🧑‍🎨 Principle of Styling:
 * Define base objects.
+  * In our Exercise 2, we first defined `Scalar`, and defined their values in the style program. Then we could use `Scalar` in a function with `Vector`, and we can access the scalar's value to actually scale a vector! Here `Scalar` and `Vector` are the atomic elements that we can play with and build more complex objects. 
 * Casecase styles.
+  * Very similar to CSS, we use selectors and inherit stylings from the atomic elements. When we defined new vectors from `addV`, the vector with it's new tail value still has the same styling as other vectors. 
 * Override if needed. 
+  * Penrose is *purely* functional, i.e. every value that is set is supposedly fixed. Therefore if you want to reassign a value, you *need* to use the `override` keyword. 
 #### 💭 Substance is abstract! No numbers!
 * The visual meaning is in the style program, including all the concrete numerical things. 
 * Substance program is **infinitely** flexible. ***Nothing is built in.***
