@@ -41,7 +41,7 @@ const {
   color none = rgba(0., 0., 0., 0.)
 }
 ```
-This is helpful way and a good practice to organize your constants in an object. Here we have some constants that helps with drawing out the vector space. Feel free to add more useful constants in here for your explorations.
+This is helpful way and a good practice to organize your constants in an object. Here we have some constants that helps with drawing out the vector space. Feel free to add more useful constants in here for your explorations. Also note how penrose has built-in `scalar` and `color` types for `.sty` programs for your readability. 
 
 The real fun starts! 🥁 To draw a vector space, we have a background, an origin, x-axis and y-aixs. 
 
