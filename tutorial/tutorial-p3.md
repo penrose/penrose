@@ -158,7 +158,8 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 * **Exercise 2:** Create a new function that computes scalar multiplication, and draws the scaled vector, i.e. `u = a * v` where `a` is a scalar. Start with having a fixed valued scalar, eg. let the scalar be 5 for all vectors. Then make use of `?` and constraints to have arbitrary scalars. Hint: `inRange` is a helpful function, and `(2, 5)` is a nice bound. 
 ![Exercise 2 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/scalar_mult_label.png)
 * **Exercise 3:** Add more lines of code to the `addV` block in style file to visualize the Parallelogram method of vector addition.
-📏 **Parallelogram Method Steps**: 
+
+📏 *Parallelogram Method Steps*: 
   * Anchor the two vectors `v, w` at the same origin. This is already been done by how we draw our vectors at the origin. 
   * Draw a line (often dashed) from the tail of `v` to the tail of `w`, now you have a parallelogram. 
   * The diagonal from the origin point to the new connected point of `v, w` will be the sum vector's tail position. 
