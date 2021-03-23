@@ -132,6 +132,7 @@ forall Scalar a {
   a.scalar = ?  /* randomized value decided by Penrose */
   ensure inRange(a.scalar, 2., 5.);
 }
+
 forall Scalar a; forall Vector u; Vector v; VectorSpace U
 where u := scalarMult(a, v); In(u, U); In(v, U){
    override u.shape.end = (a.scalar * v.shape.end) - U.origin 
