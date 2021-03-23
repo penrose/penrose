@@ -156,7 +156,7 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 * **Exercise 1:** Create a new function that computes vector subtraction, and draws the difference vector, i.e. `u = v - w`.
 ![Exercise 1 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vector_sub_label.png)
 * **Exercise 2:** Create a new function that computes scalar multiplication, and draws the scaled vector, i.e. `u = a * v` where `a` is a scalar. Start with having a fixed valued scalar, eg. let the scalar be 5 for all vectors. Then make use of `?` and constraints to have arbitrary scalars. Hint: `inRange` is a helpful function, and `(2, 5)` is a nice bound. 
-![Exercise 2 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/scalarmult_wg.png)
+![Exercise 2 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/scalar_mult_label.png)
 * **Exercise 3:** Add more lines of code to the `addV` block in style file to visualize the Parallelogram method of vector addition. 
 ![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/sum_wdash_label.png)
 
