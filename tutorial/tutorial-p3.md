@@ -16,7 +16,7 @@ Now we will introduce functions in Penrose, which allow us to compose atomic sub
 ## Goal
 We've had a good time with Set Theory, now we will move on to visualizing :sparkles: **vectors** :sparkles: that you have mostly likely encountered in your highschool physics or math class. 
 
-In particular, we are visualizing vector addtion. 
+In particular, we are visualizing vector addtion. Below is the goal diagram for this tutorial. 
 ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/addtion_wg.png)
 At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
 
@@ -24,7 +24,7 @@ At the end of the tutorial, you will be able to work with functions in Penrose t
 This example is a bit more involved than the previous tutorials but no worries! We are providing you some starter code to get things running :runner:. The starter code has some helpful constants to draw a vector space with its x and y axis. 
 Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/starter-code).
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace_wg.png)
-You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis. 
+You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis that looks like the above image. 
 
 There are comments in the starter code that documents each block briefly. In this exercise we are mainly working on the `.sty` file, thus the given `.dsl` and `.sub` file contains almost everything we need. This will be a common occurence for you if you are a domain expert, crafting different visualizations for a domain. 
 
