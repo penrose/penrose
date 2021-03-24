@@ -225,7 +225,7 @@ export const freeformPolygonDef: ShapeDef = {
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
+    name: ["StrV", () => constValue("StrV", "defaultFreeformPolygon")],
     points: [
       "PtListV",
       () =>
@@ -236,6 +236,7 @@ export const freeformPolygonDef: ShapeDef = {
         ]),
     ],
   },
+  positionalProps: [],
 };
 
 export const polylineDef: ShapeDef = {

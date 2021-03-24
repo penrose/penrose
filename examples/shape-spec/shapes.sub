@@ -1,7 +1,8 @@
 -- -- Basic shapes
 
 
-Polygon K
+-- Polygon K
+FreeformPolygon I
 -- Polyline J
 Rectangle F
 -- Circle E
