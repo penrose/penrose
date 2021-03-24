@@ -108,25 +108,31 @@ class App extends React.Component<any, ICanvasState> {
   };
   public downloadState = (): void => {
     const state = this.state.data;
-    const params = {
-      ...state.params,
-      energyGraph: {},
-      xsVars: [],
-      constrWeightNode: undefined,
-      epWeightNode: undefined,
-      graphs: undefined,
-    };
-    const content = JSON.stringify({ ...state, params });
-    const blob = new Blob([content], {
-      type: "text/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const downloadLink = document.createElement("a");
-    downloadLink.href = url;
-    downloadLink.download = `state.json`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    if (state) {
+      const params = {
+        ...state.params,
+        energyGraph: {},
+        xsVars: [],
+        constrWeightNode: undefined,
+        epWeightNode: undefined,
+        graphs: undefined,
+      };
+      const content = JSON.stringify({ ...state, params });
+      const blob = new Blob([content], {
+        type: "text/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = `state.json`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      console.warn(
+        "Warning: cannot download the state because state is currently empty."
+      );
+    }
   };
   public autoStepToggle = async () => {
     this.setState({ autostep: !this.state.autostep });

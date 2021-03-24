@@ -1,4 +1,5 @@
-import { Shape } from "types/shapeTypes";
+import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
+import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
 
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
@@ -100,12 +101,16 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("stroke", toHex(strokeColor.contents));
   elem.setAttribute("stroke-opacity", strokeAlpha.toString());
   elem.setAttribute("stroke-width", thickness.toString());
-  let dashArray = DASH_ARRAY;
-  if ("strokeDashArray" in properties) {
-    dashArray = (properties.strokeDashArray as IStrV<string>).contents;
-  }
-  if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("stroke-dasharray", dashArray.toString());
+  if (
+    "strokeDashArray" in properties &&
+    properties.strokeDashArray.contents !== ""
+  ) {
+    elem.setAttribute(
+      "stroke-dasharray",
+      (properties.strokeDashArray as IStrV<string>).contents
+    );
+  } else if (properties.strokeStyle.contents === "dashed") {
+    elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
 };
 

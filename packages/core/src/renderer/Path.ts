@@ -2,7 +2,8 @@ import { toHex, toScreen } from "utils/Util";
 import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
-import { attrTitle } from "./AttrHelper";
+import { attrTitle, DASH_ARRAY } from "./AttrHelper";
+import { IFloatV, IStrV } from "types/value";
 
 const toCmdString = (cmd: any, canvasSize: [number, number]) => {
   switch (cmd.tag) {
@@ -131,6 +132,19 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   path.setAttribute("stroke-width", strokeWidth.toString());
   path.setAttribute("stroke-opacity", strokeOpacity);
   path.setAttribute("fill-opacity", fillOpacity);
+  // factor out an AttrHelper
+  if (
+    "strokeDashArray" in shape.properties &&
+    shape.properties.strokeDashArray.contents !== ""
+  ) {
+    path.setAttribute(
+      "stroke-dasharray",
+      (shape.properties.strokeDashArray as IStrV<string>).contents
+    );
+  } else if (shape.properties.style.contents === "dashed") {
+    path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+  }
+  // TODO: ded
   path.setAttribute(
     "d",
     toPathString(shape.properties.pathData.contents as any[], canvasSize)

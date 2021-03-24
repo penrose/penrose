@@ -1,5 +1,6 @@
 import { updateVaryingValues } from "engine/PropagateUpdate";
-import { Properties, Shape } from "types/shapeTypes";
+import { Properties, Shape } from "types/shape";
+import { State } from "types/state";
 
 /**
  * Retrieve data from drag events and update varying state accordingly
@@ -12,7 +13,7 @@ export const dragUpdate = (
 ): State => {
   const updated: State = {
     ...state,
-    params: { ...state.params, optStatus: { tag: "NewIter" } },
+    params: { ...state.params, optStatus: "NewIter" },
     shapes: state.shapes.map(({ shapeType, properties }: Shape) => {
       if (properties.name.contents === id) {
         return dragShape({ shapeType, properties }, [dx, dy]);

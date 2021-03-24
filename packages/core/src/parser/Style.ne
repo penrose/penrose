@@ -7,6 +7,9 @@
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
+import { ASTNode, Identifier, IStringLit  } from "types/ast";
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelPred, SEFuncOrValCons, SEBind, Block, IAnonAssign, Delete, IOverride, PathAssign, StyType, BindingForm, Path, ILayering, BinaryOp, Expr, IBinOp, SubVar, StyVar, IPropertyPath, IFieldPath, LocalVar, IAccessPath, IUOp, IList, ITuple, IVector, IBoolLit, IVary, IFix, ICompApp, IObjFn, IConstrFn, GPIDecl, PropertyDecl, 
+} from "types/style";
 
 const styleTypes: string[] =
   [ "scalar"

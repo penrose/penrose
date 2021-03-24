@@ -1,7 +1,7 @@
 import memoize from "fast-memoize";
 import { times } from "lodash";
 import seedrandom from "seedrandom";
-import { Properties } from "types/shapeTypes";
+import { Properties } from "types/shape";
 
 seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 
@@ -318,7 +318,7 @@ export function mapMap(map: Map<any, any>, fn: any) {
  * @param argument Possible unsafe function call
  * @param message Error message
  */
-export const safe = <T extends {}>(
+export const safe = <T extends unknown>(
   argument: T | undefined | null,
   message: string
 ): T => {

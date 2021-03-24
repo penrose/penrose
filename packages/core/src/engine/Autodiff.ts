@@ -2,9 +2,12 @@ import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
 import { settings } from "cluster";
 import consola, { LogLevel } from "consola";
+import { VarAD, IVarAD, GradGraphs } from "types/ad";
+import { MaybeVal } from "types/common";
+import { WeightInfo } from "types/state";
 
-// To view logs, use LogLevel.Trace
-const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
+// To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
+const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
@@ -1550,7 +1553,7 @@ export const energyAndGradCompiled = (
   xs: number[],
   xsVars: VarAD[],
   energyGraph: VarAD,
-  weightInfo: WeightInfo,
+  weightInfo: MaybeVal<WeightInfo>,
   debug = false
 ) => {
   // Zero xsvars vals, gradients, and caching setting
@@ -1558,7 +1561,9 @@ export const energyAndGradCompiled = (
   clearVisitedNodesOutput(energyGraph);
 
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
-  setWeights(weightInfo);
+  if (weightInfo.tag === "Just") {
+    setWeights(weightInfo.contents);
+  }
 
   // Set the leaves of the graph to have the new input values
   setInputs(xsVars, xs);
@@ -1567,11 +1572,16 @@ export const energyAndGradCompiled = (
   // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom)
   const gradGraph = gradAllSymbolic(energyGraph, xsVars);
 
+  const epWeightNode: MaybeVal<VarAD> =
+    weightInfo.tag === "Just"
+      ? just(weightInfo.contents.epWeightNode)
+      : { tag: "Nothing" }; // Generate energy and gradient without weight
+
   const graphs: GradGraphs = {
     inputs: xsVars,
     energyOutput: energyGraph,
     gradOutputs: gradGraph,
-    weight: { tag: "Just", contents: weightInfo.epWeightNode },
+    weight: epWeightNode,
   };
 
   // Synthesize energy and gradient code

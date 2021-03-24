@@ -21,10 +21,8 @@
     "skipLibCheck": true,
     "downlevelIteration": true,
     "types": ["jest", "node", "tslib"],
-    "typeRoots": ["src/types", "node_modules/@types"],
     "esModuleInterop": true,
     "isolatedModules": true,
-    "noEmit": true,
     "strict": true,
     "declaration": true,
     "declarationMap": true
@@ -50,7 +48,7 @@
     "placeOpenBraceOnNewLineForFunctions": false,
     "placeOpenBraceOnNewLineForControlBlocks": false
   },
-  "include": ["src"],
+  "include": ["src", "index.d.ts"],
   "exclude": [
     "node_modules",
     "build",
