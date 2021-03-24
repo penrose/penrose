@@ -1,6 +1,7 @@
 -- -- Basic shapes
 
 type Polygon
+type FreeformPolygon
 type Polyline
 type Rectangle
 type Circle

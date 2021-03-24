@@ -1,4 +1,4 @@
-import { attrFill, attrPoints, attrPolyCenter, attrScale, attrStroke, attrTitle } from "./AttrHelper";
+import { attrFill, attrPoints, attrStroke, attrTitle } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 // polygon without a calculated center
