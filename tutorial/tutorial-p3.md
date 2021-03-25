@@ -16,7 +16,7 @@ Now we will introduce functions in Penrose, which allow us to compose atomic sub
 ## Goal
 We've had a good time with Set Theory, now we will move on to visualizing :sparkles: **vectors** :sparkles: that you have mostly likely encountered in your highschool physics or math class. 
 
-In particular, we are visualizing vector addtion. Below is the goal diagram for this tutorial. 
+In particular, we are visualizing vector addtion. Below is the goal diagram for this tutorial, which shows vector addition of vectors `v` and `w`, that results in a vector `u = v + w`.
 ![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/addtion_wg.png)
 At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
 
