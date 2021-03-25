@@ -17,7 +17,7 @@ Now we will introduce functions in Penrose, which allow us to compose atomic sub
 We've had a good time with Set Theory, now we will move on to visualizing :sparkles: **vectors** :sparkles: that you have mostly likely encountered in your highschool physics or math class. 
 
 In particular, we are visualizing vector addtion. Below is the goal diagram for this tutorial, which shows vector addition of vectors `v` and `w`, that results in a vector `u = v + w`.
-![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/addtion_wg.png)
+![no dash addition](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/sum.jpeg)
 At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
 
 ## Starter Code
@@ -156,9 +156,9 @@ _FYI: All the sample goal diagrams are only a single sampling of many possible v
 
 We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. 
 * **Exercise 1:** Create a new function that computes vector subtraction, and draws the difference vector, i.e. `u = v - w`.
-![Exercise 1 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vector_sub_label.png)
+![Exercise 1 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/difference.jpeg)
 * **Exercise 2:** Create a new function that computes scalar multiplication, and draws the scaled vector, i.e. `u = a * v` where `a` is a scalar. Start with defining a new type `Scalar`, and define the function accordingly. Wtih styles, first try having a fixed valued scalar, eg. let the scalar be `5.0`. Then make use of `?` and constraints to have arbitrary scalars. Hint: `inRange` is a helpful function, and `(2, 5)` is a nice bound. 
-![Exercise 2 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/scalar_mult_label.png)
+![Exercise 2 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/scaled.jpeg)
 * **Exercise 3:** Add more lines of code to the `addV` block in style file to visualize the Parallelogram method of vector addition.
 
 📏 *Parallelogram Method Steps*: 
@@ -166,7 +166,7 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
   * Draw a line (often dashed) from the tail of `v` to the tail of `w`, now you have a parallelogram. 
   * The diagonal from the origin point to the new connected point of `v, w` will be the sum vector's tail position. 
   * Read more on parallelogram method [here](https://www.varsitytutors.com/hotmath/hotmath_help/topics/adding-and-subtracting-vectors).
-![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/sum_wdash_label.png)
+![Exercise 3 Goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/parallelogram.jpeg)
 
 [Sample Solutions](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/complete-code)
 
