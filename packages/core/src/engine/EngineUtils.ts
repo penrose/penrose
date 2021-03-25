@@ -375,7 +375,7 @@ export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
 
 //#region translation operations
 
-const dummySourceLoc = (): SourceLoc => {
+export const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
 };
 
@@ -386,6 +386,20 @@ export const dummyASTNode = (o: any): ASTNode => {
     end: dummySourceLoc(),
     nodeType: "dummyASTNode", // COMBAK: Is this ok?
     children: [],
+  };
+};
+
+// COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
+export const dummyIdentifier = (name: string): Identifier => {
+  return {
+    // COMBAK: Is this ok?
+    nodeType: "dummyNode",
+    children: [],
+    type: "value",
+    value: name,
+    tag: "Identifier",
+    start: dummySourceLoc(),
+    end: dummySourceLoc(),
   };
 };
 
