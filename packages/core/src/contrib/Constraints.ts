@@ -21,6 +21,8 @@ import {
   lt,
   eq,
   and,
+  or,
+  debug,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
@@ -388,10 +390,22 @@ export const constrDict = {
       const lenApprox = div(text.w.contents, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (isRectlike(t1) && isRectlike(t2)) {
-      // Arbitrarily using x size, TODO: fix this to work more generally
-      const r1 = mul(constOf(0.5), min(s1.w.contents, s1.h.contents));
-      const r2 = mul(constOf(0.5), min(s2.w.contents, s2.h.contents));
-      return noIntersect(s1.center.contents, r1, s2.center.contents, r2);
+      // Assuming AABB
+      const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
+      const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
+
+      const overlapX = overlap1D(
+        [box1.minX, box1.maxX],
+        [box2.minX, box2.maxX]
+      );
+      const overlapY = overlap1D(
+        [box1.minY, box1.maxY],
+        [box2.minY, box2.maxY]
+      );
+
+      // Push away in both X and Y directions, and account for padding
+      // return add(add(overlapX, overlapY), constOfIf(offset));
+      return add(debug(overlapX, "overlapX"), debug(overlapY, "overlapY"));
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
@@ -511,7 +525,7 @@ export const constrDict = {
       // TODO: Rewrite this with `ifCond`
       // If the point is inside the box, push it outside w/ `noIntersect`
       if (pointInBox(pt, rect)) {
-        return noIntersect(
+        return noIntersectCircles(
           textCenter,
           text.w.contents,
           fns.center(s1),
@@ -593,7 +607,7 @@ const equalHard = (x: VarAD, y: VarAD) => {
 /**
  * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")
  */
-const noIntersect = (
+const noIntersectCircles = (
   center1: VarAD[],
   r1: VarAD,
   center2: VarAD[],
@@ -770,6 +784,22 @@ const intersects = (
     eq(det, o),
     fals,
     and(and(lt(o, lambda), lt(lambda, l)), and(lt(o, gamma), lt(gamma, l)))
+  );
+};
+
+/**
+ * Return the amount of overlap between two intervals. (0 if none)
+ */
+export const overlap1D = (
+  [l1, r1]: [VarAD, VarAD],
+  [l2, r2]: [VarAD, VarAD]
+): VarAD => {
+  const d = (x: VarAD, y: VarAD) => absVal(sub(x, y)); // Distance between two reals
+  // const d = (x: VarAD, y: VarAD) => squared(sub(x, y)); // Distance squared, if just the asymptotic behavior matters
+  return ifCond(
+    or(lt(r1, l2), lt(r2, l1)), // disjoint intervals => overlap is 0
+    constOf(0),
+    min(d(l2, r1), d(l1, r2))
   );
 };
 

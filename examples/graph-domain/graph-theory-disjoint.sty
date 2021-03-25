@@ -19,24 +19,28 @@ Colors {
 global {
     global.padding = 20.0
     global.stroke = 2.0
+    global.width = 600.
     global.box = Rectangle {
                center: (0., 0.)
-               w: 700.
-               h: 500.
+               w: global.width
+               h: global.width
                color: Colors.none
                strokeColor: Colors.black
     }
+    global.vertexWidth = 150.
 }
 
 Vertex V {
-       V.val = VARYING_INIT(100.)
-       -- TODO(error): ultra misleading error for `v.val = 100.`
-       -- Not really sure why `contains` doesn't just push the rectangle in...?
+       V.x = ? -- VARYING_INIT(0.)
+       V.y = ? -- VARYING_INIT(0.)
+       -- I guess if they're all in the same loc, there's a divide by 0
 
        V.shape = Rectangle { 
-         center: (V.val, VARYING_INIT(-200.))
-         w: V.text.w + global.padding
-         h: V.text.h + global.padding
+         center: (V.x, V.y)
+         -- w: V.text.w + global.padding
+         -- h: V.text.h + global.padding
+         w: global.vertexWidth
+         h: global.vertexWidth
          color : Colors.none
          strokeWidth : 2.
          strokeColor: Colors.black
@@ -48,6 +52,7 @@ Vertex V {
 	 color : Colors.black
        }
 
+       -- NOTE: This doesn't work super well due to dimensions of the box. If the boxes are lopsided it's uneven.
        ensure contains(global.box, V.shape)
 
        V.text above V.shape
@@ -84,9 +89,21 @@ with Vertex v1; Vertex v2 {
      E.shape above global.box
 }
 
-Vertex v1; Vertex v2 {
-       -- ensure disjoint(v1.shape, v2.shape)
-       -- encourage repel(v1.shape, v2.shape)
+-- This is applied to each pair twice (as (a,b) then (b,a)) -- is that ok?
+-- Vertex v1; Vertex v2 {
+--        ensure disjoint(v1.shape, v2.shape)
+-- }
+
+Vertex `v1`; Vertex `v2` {
+       ensure disjoint(`v1`.shape, `v2`.shape)
+}
+
+Vertex `v2`; Vertex `v3` {
+       ensure disjoint(`v2`.shape, `v3`.shape)
+}
+
+Vertex `v1`; Vertex `v3` {
+       ensure disjoint(`v1`.shape, `v3`.shape)
 }
 
 Edge e1; Edge e2 {
