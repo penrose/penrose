@@ -1,7 +1,9 @@
 Graph G1
-Vertex v1, v2
-Edge e1 := MkEdge(v1, v2)
+Vertex v1, v2, v3, v4
+-- Edge e1 := MkEdge(v1, v2)
 
 AutoLabel All
 Label v1 $\text{this is another very long label}$
 Label v2 $\text{this is}\\\text{a tall label}\\\text{many lines}\\\text{so many}\\\text{lines}\\\text{wow}$
+Label v3 $zzzzzzzzzzzzzzzzzzzzzzz$
+Label v4 $aaa \\ aaaa \\ aaaa \\ aaa \\ aaa$

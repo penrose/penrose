@@ -64,11 +64,11 @@ with Vertex v1; Vertex v2 {
      -- TODO: This doesn't appear to work correctly even with all the constraints/objectives off. and no arrowhead. Why? What code is generated?
      -- Oh, this is not the full calculation. x1 = (l/2) / cos theta
      -- If it's just for the shapes evaluation round, it's evaluated in the translation, not compiled.
-   scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
-   scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
+   -- scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
+   -- scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
 
-   -- scalar startSideDim = v1.shape.w
-   -- scalar endSideDim = v2.shape.w
+   scalar startSideDim = v1.shape.w
+   scalar endSideDim = v2.shape.w
 
      E.shape = Line { 
      	     start : v1.shape.center + (startSideDim / 2. + padding) * dir

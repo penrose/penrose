@@ -4,6 +4,7 @@ import {
   insertExpr,
   initConstraintWeight,
 } from "engine/EngineUtils";
+import { prettyPrintPath } from "utils/OtherUtils";
 import { evalShapes } from "engine/Evaluator";
 import {
   canvasXRange,
@@ -94,9 +95,21 @@ export const sampleFields = ({ varyingPaths }: State): number[] => {
   return randFloats(fieldPaths.length, canvasXRange);
 };
 
-const samplePath = (path: Path, shapes: Shape[]): Value<number> => {
+const samplePath = (
+  path: Path,
+  shapes: Shape[],
+  varyingInitInfo: { [pathStr: string]: number }
+): Value<number> => {
   if (path.tag === "LocalVar" || path.tag === "InternalLocalVar") {
     throw Error("local path shouldn't appear in GPI");
+  }
+
+  const pathStr = prettyPrintPath(path);
+  if (pathStr in varyingInitInfo) {
+    return {
+      tag: "FloatV",
+      contents: varyingInitInfo[pathStr],
+    };
   }
 
   // HACK: for access and field paths, sample within the canvas width
@@ -126,10 +139,10 @@ export const resampleBest = (state: State, numSamples: number): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path) =>
-    samplePath(p, shapes)
+    samplePath(p, shapes, state.varyingInitInfo)
   );
   const uninitValues: Value<VarAD>[] = uninitializedPaths.map((p: Path) =>
-    valueNumberToAutodiff(samplePath(p, shapes))
+    valueNumberToAutodiff(samplePath(p, shapes, state.varyingInitInfo))
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)

@@ -1,0 +1,96 @@
+-- GOAL: Get all lines and boxes disjoint from each other.
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+global {
+    global.padding = 20.0
+    global.stroke = 2.0
+    global.box = Rectangle {
+               center: (0., 0.)
+               w: 700.
+               h: 500.
+               color: Colors.none
+               strokeColor: Colors.black
+    }
+}
+
+Vertex V {
+       V.val = VARYING_INIT(100.)
+       -- TODO(error): ultra misleading error for `v.val = 100.`
+       -- Not really sure why `contains` doesn't just push the rectangle in...?
+
+       V.shape = Rectangle { 
+         center: (V.val, VARYING_INIT(-200.))
+         w: V.text.w + global.padding
+         h: V.text.h + global.padding
+         color : Colors.none
+         strokeWidth : 2.
+         strokeColor: Colors.black
+       }
+
+       V.text = Text {
+	 center: V.shape.center
+	 string : V.label
+	 color : Colors.black
+       }
+
+       ensure contains(global.box, V.shape)
+
+       V.text above V.shape
+       V.shape above global.box
+}
+
+Edge E
+where E := MkEdge(v1, v2)
+with Vertex v1; Vertex v2 {
+
+     vec2 dir = normalize(v2.shape.center - v1.shape.center)
+     scalar padding = 20.
+
+   scalar startSideDim = v1.shape.w
+   scalar endSideDim = v2.shape.h
+
+     E.shape = Line { 
+     	     -- start : v1.shape.center + (startSideDim / 2. + padding) * dir
+     	     -- end : v2.shape.center - (endSideDim / 2. + padding) * dir
+	     color : Colors.black
+	     thickness : 2.0
+             rightArrowhead: true
+             arrowheadSize: 0.7
+     }
+
+     E.text = Text {
+       string : E.label
+       rotation : 0.0
+     }
+
+     v1.shape above E.shape
+     v2.shape above E.shape
+     E.text above global.box
+     E.shape above global.box
+}
+
+Vertex v1; Vertex v2 {
+       -- ensure disjoint(v1.shape, v2.shape)
+       -- encourage repel(v1.shape, v2.shape)
+}
+
+Edge e1; Edge e2 {
+}
+
+Vertex v; Edge e {
+}
