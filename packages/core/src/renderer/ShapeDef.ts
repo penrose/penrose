@@ -153,6 +153,7 @@ export const circleDef: ShapeDef = {
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
@@ -168,6 +169,7 @@ export const rectDef: ShapeDef = {
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultRect")],
   },
@@ -198,6 +200,7 @@ export const squareDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultSquare")],
   },
@@ -234,6 +237,7 @@ export const lineDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     style: ["StrV", () => constValue("StrV", "solid")],
     stroke: ["StrV", () => constValue("StrV", "none")],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
     name: ["StrV", () => constValue("StrV", "defaultLine")],
   },
 };
@@ -250,6 +254,7 @@ export const arrowDef: ShapeDef = {
     style: ["StrV", () => constValue("StrV", "solid")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultArrow")],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
   },
 };
 
@@ -262,6 +267,7 @@ export const curveDef: ShapeDef = {
     pathData: ["PathDataV", () => constValue("PathDataV", [])],
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "solid")],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
     effect: ["StrV", () => constValue("StrV", "none")],
     color: ["ColorV", colorSampler],
     fill: ["ColorV", colorSampler],

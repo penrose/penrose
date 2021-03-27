@@ -25,6 +25,16 @@
       "substance": "two-vectors-perp",
       "style": "linear-algebra-simple",
       "domain": "linear-algebra"
+    },
+    {
+      "substance": "two-vectors-perp",
+      "style": "vectors-dashed",
+      "domain": "linear-algebra"
+    },
+    {
+      "substance": "allShapes",
+      "style": "dashedShapes",
+      "domain": "shape-spec"
     }
   ],
   "domains": {
@@ -35,6 +45,10 @@
     "linear-algebra": {
       "name": "Linear Algebra",
       "URI": "linear-algebra-domain/linear-algebra.dsl"
+    },
+    "shape-spec": {
+      "name": "Shapes",
+      "URI": "shape-spec/shape-spec-dashes.dsl"
     }
   },
   "styles": {
@@ -62,6 +76,16 @@
       "domain": "linear-algebra",
       "name": "Linear Algebra 2D",
       "URI": "linear-algebra-domain/linear-algebra-paper-simple.sty"
+    },
+    "dashedShapes": {
+      "domain": "shape-spec",
+      "name": "Shapes with dashed lines",
+      "URI": "shape-spec/shape-spec-dashes.sty"
+    },
+    "vectors-dashed": {
+      "domain": "linear-algebra",
+      "name": "Vectors with Dashed Arrows",
+      "URI": "linear-algebra-domain/linearalgebra-paper-dashes.sty"
     }
   },
   "substances": {
@@ -84,6 +108,11 @@
       "domain": "set-theory",
       "name": "Tree",
       "URI": "set-theory-domain/tree.sub"
+    },
+    "allShapes": {
+      "domain": "shape-spec",
+      "name": "All Shapes",
+      "URI": "shape-spec/shapes-dashes.sub"
     }
   }
 }
