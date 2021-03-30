@@ -40,7 +40,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
         highlightOnHover={true}
         striped={true}
         columns={[
-          { name: "Expression", sortable: true, selector: "name" },
+          { name: "Expression", selector: "name", sortable: true },
           { name: "Energy", selector: "energy", sortable: true },
           { name: "Type", selector: "type", sortable: true },
           { name: "Satisfied?", selector: "sat", sortable: true }
