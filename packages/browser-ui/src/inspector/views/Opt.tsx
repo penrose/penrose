@@ -47,9 +47,9 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
         ]}
         conditionalRowStyles={[
           {
-            when: row => row.sat === "yes",
+            when: row => row.sat === "no",
             style: {
-              backgroundColor: `#A2E5B2 !important`
+              backgroundColor: `#ffcabe !important`
             }
           }
         ]}
