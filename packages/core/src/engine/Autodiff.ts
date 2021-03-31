@@ -14,7 +14,7 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 const PRINT_TEST_RESULTS = true;
 const DEBUG_ENERGY = true;
 const DEBUG_GRADIENT = true;
-const DEBUG_GRADIENT_UNIT_TESTS = true;
+const DEBUG_GRADIENT_UNIT_TESTS = false;
 
 // Consts
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
@@ -1600,8 +1600,7 @@ export const energyAndGradCompiled = (
   if (DEBUG_GRADIENT_UNIT_TESTS) {
     log.trace("Running gradient unit tests", graphs);
     testGradSymbolicAll();
-    // TODO revert
-    throw Error("done with gradient unit tests");
+    // throw Error("done with gradient unit tests");
   }
 
   if (DEBUG_GRADIENT) {

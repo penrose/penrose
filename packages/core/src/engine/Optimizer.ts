@@ -72,7 +72,7 @@ const weightGrowthFactor = 10;
 
 // weight for constraints
 // const constraintWeight = 10e4; // HACK: constant constraint weight
-const constraintWeight = 1; // TODO < remove
+const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
 
 // EP method convergence criteria
 const epStop = 1e-3;

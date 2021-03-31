@@ -362,22 +362,15 @@ export const constrDict = {
    */
   // TODO: NOTE: This doesn't seem to work super well w/ optimizer (though the math seems right). May be due to use of ifCond / discontinuous function.
   disjointScalar: (c: any, left: any, right: any) => {
-    // TODO < Doing eliminations to see which one has the wrong gradient ...
 
     const d = (x: VarAD, y: VarAD) => absVal(sub(x, y));
     // const d = (x: VarAD, y: VarAD) => squared(sub(x, y));
 
     // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
-
-    // return min(d(c, left), d(c, right));
-
     return ifCond(
       inRange(c, left, right),
-      left,
-      right // just for testing
-      // min(d(c, left), d(c, right)),
-      // constOf(1),
-      // constOf(0)
+      min(d(c, left), d(c, right)),
+      constOf(0.)
     );
   },
 
