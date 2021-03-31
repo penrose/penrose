@@ -22,9 +22,10 @@ global {
 Vertex V {
 }
 
--- Point
+-- Point with DOF or not
 Vertex `v1` {
        `v1`.val = ?
+       -- `v1`.val = 0.
        `v1`.shape = Circle {
                   r: 10.
                   center: (`v1`.val, 0.)
@@ -33,9 +34,12 @@ Vertex `v1` {
 }
 
 Vertex `v2` {
-       len = 200.
-       `v2`.left = -len/2.
-       `v2`.right = len/2.
+       len = 300.
+       -- With an additional DOF, tends to repel both
+       `v2`.center = ?
+       -- `v2`.center = 0.
+       `v2`.left = -len/2. + `v2`.center
+       `v2`.right = len/2. + `v2`.center
 
        `v2`.shape = Line {
                   start: (`v2`.left, 0.)
@@ -47,6 +51,5 @@ Vertex `v2` {
 
 -- Point-line
 Vertex `v1`; Vertex `v2` {
-       -- This appears to work OK, but if they are disjoint, it flings the object off into nowhere (~ -5000..)
        ensure disjointScalar(`v1`.val, `v2`.left, `v2`.right)
 }

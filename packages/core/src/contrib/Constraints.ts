@@ -360,17 +360,27 @@ export const constrDict = {
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
-  // TODO: NOTE: This doesn't seem to work super well w/ optimizer (though the math seems right). May be due to use of ifCond / discontinuous function.
   disjointScalar: (c: any, left: any, right: any) => {
-
     const d = (x: VarAD, y: VarAD) => absVal(sub(x, y));
-    // const d = (x: VarAD, y: VarAD) => squared(sub(x, y));
 
     // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0
     return ifCond(
       inRange(c, left, right),
       min(d(c, left), d(c, right)),
-      constOf(0.)
+      constOf(0)
+    );
+  },
+
+  /**
+   * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
+   */
+  disjointIntervals: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    if (!isLinelike(t1) || !isLinelike(t2)) {
+      throw Error("expected two line-like shapes");
+    }
+    return overlap1D(
+      [s1.start.contents[0], s1.end.contents[0]],
+      [s2.start.contents[0], s2.end.contents[0]]
     );
   },
 
@@ -380,7 +390,7 @@ export const constrDict = {
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    offset = 5.0
+    offset = 0.0
   ) => {
     if (t1 === "Circle" && t2 === "Circle") {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
@@ -395,6 +405,7 @@ export const constrDict = {
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (isRectlike(t1) && isRectlike(t2)) {
       // Assuming AABB
+      // TODO: Write this to use the minimum distance between rectangles, as this can only move in horiz/vert directions (i.e. results in worse local minima)
       const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
       const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
 
@@ -408,8 +419,8 @@ export const constrDict = {
       );
 
       // Push away in both X and Y directions, and account for padding
-      // return add(add(overlapX, overlapY), constOfIf(offset));
-      return add(debug(overlapX, "overlapX"), debug(overlapY, "overlapY"));
+      // TODO: Not sure why the padding isn't accounted for. It converges with energy=padding
+      return add(min(overlapX, overlapY), constOfIf(offset));
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
