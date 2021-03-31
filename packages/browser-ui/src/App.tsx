@@ -46,6 +46,7 @@ const LOCALSTORAGE_SETTINGS = "browser-ui-settings-penrose";
 interface ISettings {
   showInspector: boolean;
   autostep: boolean;
+  autoStepSize: number;
 }
 
 interface ICanvasState {
@@ -71,7 +72,8 @@ class App extends React.Component<any, ICanvasState> {
     connected: false,
     settings: {
       autostep: false,
-      showInspector: true
+      showInspector: true,
+      autoStepSize: 10000
     }
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -163,7 +165,11 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public stepUntilConvergence = (): void => {
-    const stepped = stepUntilConvergence(this.state.data);
+    const stepped = stepUntilConvergence(
+      this.state.data,
+      // this.state.settings.autoStepSize
+      1
+    );
     void this.onCanvasState(stepped);
   };
 
@@ -206,10 +212,14 @@ class App extends React.Component<any, ICanvasState> {
 
   public componentDidMount(): void {
     const settings = localStorage.getItem(LOCALSTORAGE_SETTINGS);
-    if (!settings) {
+    // Overwrites if schema in-memory has more stuff than in-storage
+    if (
+      !settings ||
+      Object.keys(settings).length !== Object.keys(this.state.settings).length
+    ) {
       localStorage.setItem(
         LOCALSTORAGE_SETTINGS,
-        JSON.stringify({ autostep: false, showInspector: true })
+        JSON.stringify(this.state.settings)
       );
     } else {
       const parsed = JSON.parse(settings);

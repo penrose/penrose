@@ -23,14 +23,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
     // connectionLog: [],
     selectedFrame: -1,
-    selectedView: "frames",
+    selectedView: "frames"
   };
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
-      selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
+      selectedFrame: frame === this.state.selectedFrame ? -1 : frame
     });
   };
   public render() {
@@ -48,7 +48,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       frameIndex: selectedFrame,
       history,
       modShapes,
-      error,
+      error
     };
     return (
       <div
@@ -58,7 +58,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          paddingBottom: "1em",
+          marginBottom: "1em"
         }}
       >
         <Timeline {...commonProps} />
@@ -85,6 +85,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       height: "100%",
                       overflow: "auto",
                       boxSizing: "border-box",
+                      paddingBottom: "100px"
                     }}
                   >
                     <ErrorBoundary>

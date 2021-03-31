@@ -48,8 +48,7 @@ export const stepState = (state: State, numSteps = 1): State => {
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
-export const stepUntilConvergence = (state: State): State => {
-  const numSteps = 1;
+export const stepUntilConvergence = (state: State, numSteps = 1): State => {
   let currentState = state;
   while (!stateConverged(currentState))
     currentState = step(currentState, numSteps);
