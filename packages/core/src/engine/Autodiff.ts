@@ -7,6 +7,7 @@ import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
+// const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
@@ -776,6 +777,10 @@ export const ifCond = (
     const vNode = ifCond(cond, gvarOf(1.0), gvarOf(0.0), false);
     const wNode = ifCond(cond, gvarOf(0.0), gvarOf(1.0), false);
 
+    // TODO: Test this
+    // const vNode = ifCond(cond, v.gradNode, gvarOf(0.0), false);
+    // const wNode = ifCond(cond, gvarOf(0.0), w.gradNode, false);
+
     z.children.push({ node: cond, sensitivityNode: just(noGrad) });
     z.children.push({ node: v, sensitivityNode: just(vNode) });
     z.children.push({ node: w, sensitivityNode: just(wNode) });
@@ -1142,10 +1147,10 @@ const genCode = (
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
-  log.trace("progInputs", "progStr", progInputs, progStr);
+  // log.trace("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
-  log.trace("generated f\n", f);
+  log.trace("generated f with setting =", setting, "\n", f);
 
   let g;
   if (weightNode.tag === "Nothing") {
@@ -1414,6 +1419,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     // Deals with ifCond nodes (ternary)
     // (eval c; eval d; eval e; const xNUM = c ? d : e;)
     // codegen doesn't short-circuit -- it generates code for both branches of the `if` first
+    // TODO: Fix this so it doesn't *evaluate* both branches of the `if`, just the one that's relevant to the condition
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {

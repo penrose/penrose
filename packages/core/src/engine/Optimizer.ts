@@ -55,6 +55,7 @@ import {
 } from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
+// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
@@ -70,7 +71,8 @@ const clone = rfdc({ proto: false, circles: false });
 const weightGrowthFactor = 10;
 
 // weight for constraints
-const constraintWeight = 10e4; // HACK: constant constraint weight
+// const constraintWeight = 10e4; // HACK: constant constraint weight
+const constraintWeight = 1; // TODO < remove
 
 // EP method convergence criteria
 const epStop = 1e-3;

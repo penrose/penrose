@@ -20,13 +20,13 @@ global {
     global.padding = 20.0
     global.stroke = 2.0
     global.width = 600.
-    global.box = Rectangle {
-               center: (0., 0.)
-               w: global.width
-               h: global.width
-               color: Colors.none
-               strokeColor: Colors.black
-    }
+    -- global.box = Rectangle {
+    --            center: (0., 0.)
+    --            w: global.width
+    --            h: global.width
+    --            color: Colors.none
+    --            strokeColor: Colors.black
+    -- }
     global.vertexWidth = 150.
 }
 
@@ -53,10 +53,10 @@ Vertex V {
        }
 
        -- NOTE: This doesn't work super well due to dimensions of the box. If the boxes are lopsided it's uneven.
-       ensure contains(global.box, V.shape)
+       -- ensure contains(global.box, V.shape)
 
        V.text above V.shape
-       V.shape above global.box
+       -- V.shape above global.box
 }
 
 Edge E
