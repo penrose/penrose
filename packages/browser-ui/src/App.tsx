@@ -11,7 +11,7 @@ import {
   stateInitial,
   stepUntilConvergence,
   showError,
-  PenroseError,
+  PenroseError
 } from "@penrose/core";
 
 /**
@@ -24,7 +24,7 @@ export const DownloadSVG = (
   title = "illustration"
 ): void => {
   const blob = new Blob([svg.outerHTML], {
-    type: "image/svg+xml;charset=utf-8",
+    type: "image/svg+xml;charset=utf-8"
   });
   const url = URL.createObjectURL(blob);
   const downloadLink = document.createElement("a");
@@ -41,16 +41,22 @@ import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
+const LOCALSTORAGE_SETTINGS = "browser-ui-settings-penrose";
+
+interface ISettings {
+  showInspector: boolean;
+  autostep: boolean;
+}
+
 interface ICanvasState {
   data: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
   error: PenroseError | null;
-  autostep: boolean;
   processedInitial: boolean;
   penroseVersion: string;
   history: PenroseState[];
-  showInspector: boolean;
   files: FileSocketResult | null;
   connected: boolean;
+  settings: ISettings;
 }
 
 const socketAddress = "ws://localhost:9160";
@@ -59,12 +65,14 @@ class App extends React.Component<any, ICanvasState> {
     data: undefined,
     error: null,
     history: [],
-    autostep: true,
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
-    showInspector: true,
     files: null,
     connected: false,
+    settings: {
+      autostep: false,
+      showInspector: true
+    }
   };
   public readonly buttons = React.createRef<ButtonBar>();
   public readonly canvasRef = React.createRef<HTMLDivElement>();
@@ -76,27 +84,28 @@ class App extends React.Component<any, ICanvasState> {
   // same as onCanvasState but doesn't alter timeline or involve optimization
   // used only in modshapes
   public modCanvas = async (canvasState: PenroseState) => {
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
-      processedInitial: true,
+      processedInitial: true
     });
     this.renderCanvas(canvasState);
   };
+  // TODO: reset history on resample/got stuff
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise((r) => setTimeout(r, 1));
+    await new Promise(r => setTimeout(r, 1));
 
     this.setState({
       data: canvasState,
       history: [...this.state.history, canvasState],
       processedInitial: true,
-      error: null,
+      error: null
     });
     this.renderCanvas(canvasState);
-    const { autostep } = this.state;
-    if (autostep && !stateConverged(canvasState)) {
+    const { settings } = this.state;
+    if (settings.autostep && !stateConverged(canvasState)) {
       await this.step();
     }
   };
@@ -115,11 +124,11 @@ class App extends React.Component<any, ICanvasState> {
         xsVars: [],
         constrWeightNode: undefined,
         epWeightNode: undefined,
-        graphs: undefined,
+        graphs: undefined
       };
       const content = JSON.stringify({ ...state, params });
       const blob = new Blob([content], {
-        type: "text/json",
+        type: "text/json"
       });
       const url = URL.createObjectURL(blob);
       const downloadLink = document.createElement("a");
@@ -135,9 +144,16 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public autoStepToggle = async () => {
-    this.setState({ autostep: !this.state.autostep });
-    if (this.state.autostep && this.state.processedInitial) {
-      await this.step();
+    const newSettings = {
+      ...this.state.settings,
+      autostep: !this.state.settings.autostep
+    };
+    this.setState({
+      settings: newSettings
+    });
+    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(newSettings));
+    if (newSettings.autostep) {
+      await this.stepUntilConvergence();
     }
   };
 
@@ -164,7 +180,7 @@ class App extends React.Component<any, ICanvasState> {
   connectToSocket = () => {
     FileSocket(
       socketAddress,
-      async (files) => {
+      async files => {
         const { domain, substance, style } = files;
         this.setState({ files, connected: true });
 
@@ -189,12 +205,22 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public componentDidMount(): void {
+    const settings = localStorage.getItem(LOCALSTORAGE_SETTINGS);
+    if (!settings) {
+      localStorage.setItem(
+        LOCALSTORAGE_SETTINGS,
+        JSON.stringify({ autostep: false, showInspector: true })
+      );
+    } else {
+      const parsed = JSON.parse(settings);
+      this.setState({ settings: parsed });
+    }
     this.connectToSocket();
   }
 
   public updateData = async (data: PenroseState) => {
     this.setState({ data: { ...data } });
-    if (this.state.autostep) {
+    if (this.state.settings.autostep) {
       const stepped = stepState(data);
       this.onCanvasState(stepped);
     } else {
@@ -202,11 +228,12 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public setInspector = async (showInspector: boolean) => {
-    this.setState({ showInspector });
-    // localStorage.setItem("showInspector", showInspector ? "true" : "false");
+    const newSettings = { ...this.state.settings, showInspector };
+    this.setState({ settings: newSettings });
+    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(newSettings));
   };
   public toggleInspector = async () => {
-    await this.setInspector(!this.state.showInspector);
+    await this.setInspector(!this.state.settings.showInspector);
   };
   public hideInspector = async () => {
     await this.setInspector(false);
@@ -230,13 +257,12 @@ class App extends React.Component<any, ICanvasState> {
   private renderApp() {
     const {
       data,
-      autostep,
+      settings,
       penroseVersion,
-      showInspector,
       history,
       files,
       error,
-      connected,
+      connected
     } = this.state;
     return (
       <div
@@ -245,7 +271,7 @@ class App extends React.Component<any, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
         <div style={{ flexShrink: 0 }}>
@@ -254,14 +280,14 @@ class App extends React.Component<any, ICanvasState> {
             downloadSVG={this.downloadSVG}
             downloadState={this.downloadState}
             stepUntilConvergence={this.stepUntilConvergence}
-            autostep={autostep}
+            autostep={settings.autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}
             resample={this.resample}
             converged={data ? stateConverged(data) : false}
             initial={data ? stateInitial(data) : false}
             toggleInspector={this.toggleInspector}
-            showInspector={showInspector}
+            showInspector={settings.showInspector}
             files={files}
             ref={this.buttons}
             connected={connected}
@@ -273,7 +299,7 @@ class App extends React.Component<any, ICanvasState> {
             split="horizontal"
             defaultSize={400}
             style={{ position: "inherit" }}
-            className={this.state.showInspector ? "" : "soloPane1"}
+            className={this.state.settings.showInspector ? "" : "soloPane1"}
             pane2Style={{ overflow: "hidden" }}
           >
             <div style={{ width: "100%", height: "100%" }}>
@@ -285,13 +311,15 @@ class App extends React.Component<any, ICanvasState> {
               )}
               {error && <pre>errors encountered, check inspector</pre>}
             </div>
-            {showInspector && (
+            {settings.showInspector ? (
               <Inspector
                 history={history}
                 error={error}
                 onClose={this.toggleInspector}
                 modShapes={this.modShapes}
               />
+            ) : (
+              <div />
             )}
           </SplitPane>
         </div>
