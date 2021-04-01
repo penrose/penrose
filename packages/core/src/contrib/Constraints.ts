@@ -279,6 +279,14 @@ export const constrDict = {
   },
 
   /**
+   * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
+   */
+  contains1D: ([l1, r1]: [VarAD, VarAD], [l2, r2]: [VarAD, VarAD]): VarAD => {
+    // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
+    return add(constrDict.lessThanSq(l1, l2), constrDict.lessThanSq(r2, r1));
+  },
+
+  /**
    * Require that a shape `s1` contains another shape `s2`, based on the type of the shape, and with an optional `offset` between the sizes of the shapes (e.g. if `s1` should contain `s2` with margin `offset`).
    */
   contains: (
@@ -315,22 +323,16 @@ export const constrDict = {
       const d = ops.vdist(sq, fns.center(s2));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
     } else if (isRectlike(t1) && isRectlike(t2)) {
-      // contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
-      // TODO: implement precisely, max (w, h)? How about diagonal case?
-      // dist (getX l, getY l) (getX r, getY r) - getNum r "w" / 2 +
-      //   getNum l "w" / 2 + padding
+      const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
+      const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
 
-      // TODO: This uses an approximation of each rect:
-      // Containee overapproximation: square of its max (w,h)^2
-      // Container underapproximation: square of its min (w,h)^2
-      // s1 `contains` s2
-      // (Is `max` bad for opt bc discontinuous?)
-      const a1 = ops.vdist(fns.center(s1), fns.center(s2));
-      const a2 = div(min(s1.h.contents, s1.w.contents), constOf(2.0));
-      const a3 = div(max(s2.h.contents, s2.w.contents), constOf(2.0));
-      const c = offset ? offset : constOf(0.0);
-      return add(add(sub(a1, a2), a3), c);
+      // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
+      return add(
+        constrDict.contains1D([box1.minX, box1.maxX], [box2.minX, box2.maxX]),
+        constrDict.contains1D([box1.minY, box1.maxY], [box2.minY, box2.maxY])
+      );
     } else if (t1 === "Square" && isRectlike(t2)) {
+      // TODO: Use the better new code
       const a1 = ops.vdist(fns.center(s1), fns.center(s2));
       const a2 = div(s1.side.contents, constOf(2.0));
       const a3 = div(s2.w.contents, constOf(2.0)); // TODO: Implement w/ exact text dims
@@ -385,6 +387,75 @@ export const constrDict = {
   },
 
   /**
+   * Make an AABB rectangle contain a vertical line. (Special case of rect-rect disjoint)
+   */
+  containsRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    if (!isRectlike(t1) || !isLinelike(t2)) {
+      throw Error("expected two line-like shapes");
+    }
+
+    const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
+
+    return constrDict.contains1D(
+      [box.minY, box.maxY],
+      [s2.start.contents[1], s2.end.contents[1]]
+    );
+  },
+
+  /**
+   * Make an AABB rectangle disjoint from a vertical line. (Special case of rect-rect disjoint)
+   */
+  disjointRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    if (!isRectlike(t1) || !isLinelike(t2)) {
+      throw Error("expected two line-like shapes");
+    }
+
+    const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
+    // TODO: Compute the bbox of the line in a nicer way
+    const line = bbox(
+      ops.vdiv(ops.vadd(s2.start.contents, s2.end.contents), constOf(2)),
+      constOf(1),
+      absVal(sub(s2.start.contents[1], s2.end.contents[1]))
+    );
+
+    return ifCond(
+      areDisjointBoxes(box, line),
+      constOf(0),
+      overlap1D(
+        [box.minY, box.maxY],
+        [s2.start.contents[1], s2.end.contents[1]]
+      )
+    );
+  },
+
+  /**
+   * Make an AABB rectangle disjoint from a horizontal line. (Special case of rect-rect disjoint) TODO: Test this
+   */
+  // TODO: Consolidate with disjointRectLineAA; test it
+  disjointRectLineAAH: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    if (!isRectlike(t1) || !isLinelike(t2)) {
+      throw Error("expected rect + line-like shapes");
+    }
+
+    const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
+    // TODO: Compute the bbox of the line in a nicer way
+    const line = bbox(
+      ops.vdiv(ops.vadd(s2.start.contents, s2.end.contents), constOf(2)),
+      absVal(sub(s2.start.contents[0], s2.end.contents[0])),
+      constOf(1)
+    );
+
+    return ifCond(
+      areDisjointBoxes(box, line),
+      constOf(0),
+      overlap1D(
+        [box.minX, box.maxX],
+        [s2.start.contents[0], s2.end.contents[0]]
+      )
+    );
+  },
+
+  /**
    * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `offset` between them (e.g. if `s1` should be disjoint from `s2` with margin `offset`).
    */
   disjoint: (
@@ -404,7 +475,7 @@ export const constrDict = {
       const lenApprox = div(text.w.contents, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (isRectlike(t1) && isRectlike(t2)) {
-      // Assuming AABB
+      // Assuming AABB (they are axis-aligned [bounding] boxes)
       // TODO: Write this to use the minimum distance between rectangles, as this can only move in horiz/vert directions (i.e. results in worse local minima)
       const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
       const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
@@ -420,7 +491,11 @@ export const constrDict = {
 
       // Push away in both X and Y directions, and account for padding
       // TODO: Not sure why the padding isn't accounted for. It converges with energy=padding
-      return add(min(overlapX, overlapY), constOfIf(offset));
+      return ifCond(
+        areDisjointBoxes(box1, box2),
+        constOf(0),
+        add(min(overlapX, overlapY), constOfIf(offset))
+      );
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
@@ -803,7 +878,7 @@ const intersects = (
 };
 
 /**
- * Return the amount of overlap between two intervals. (0 if none)
+ * Return the amount of overlap between two intervals in R. (0 if none)
  */
 export const overlap1D = (
   [l1, r1]: [VarAD, VarAD],
@@ -852,4 +927,19 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
   const fals = constOf(0);
   const tru = constOf(1);
   return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
+};
+
+/**
+ * Return numerically-encoded boolean indicating whether the two bboxes are disjoint.
+ */
+export const areDisjointBoxes = (a: any, b: any): VarAD => {
+  const fals = constOf(0);
+  const tru = constOf(1);
+
+  const c1 = lt(a.maxX, b.minX);
+  const c2 = gt(a.minX, b.maxX);
+  const c3 = lt(a.maxY, b.minY);
+  const c4 = gt(a.minY, b.maxY);
+
+  return ifCond(or(or(or(c1, c2), c3), c4), tru, fals);
 };

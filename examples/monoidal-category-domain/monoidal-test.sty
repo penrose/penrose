@@ -170,6 +170,15 @@ where ChildOf(o, m) {
       encourage repelScalar(o.y, m.bot)
 }
 
+-- TODO: These are not working
+-- Object o; Morphism m {
+--        ensure disjointRectLineAAH(m.shape, o.shape)
+-- }
+
+-- Morphism m1; Morphism m2 {
+--          ensure disjoint(m1.shape, m2.shape)
+-- }
+
 -- Problem is that "child" objects don't all know each other
 -- So, it's hard (impossible?) to select the every object/morphism pair where the object is not a child of the morphism
 
