@@ -50,8 +50,9 @@ export const stepState = (state: State, numSteps = 1): State => {
  */
 export const stepUntilConvergence = (state: State, numSteps = 1): State => {
   let currentState = state;
-  while (!stateConverged(currentState))
-    currentState = step(currentState, numSteps);
+  while (!stateConverged(currentState)) {
+    currentState = step(currentState, numSteps, true);
+  }
   return currentState;
 };
 

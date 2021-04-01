@@ -108,7 +108,7 @@ class App extends React.Component<any, ICanvasState> {
     this.renderCanvas(canvasState);
     const { settings } = this.state;
     if (settings.autostep && !stateConverged(canvasState)) {
-      await this.step();
+      await this.stepUntilConvergence();
     }
   };
   public downloadSVG = (): void => {
@@ -168,7 +168,7 @@ class App extends React.Component<any, ICanvasState> {
     const stepped = stepUntilConvergence(
       this.state.data,
       // this.state.settings.autoStepSize
-      1
+      1000
     );
     void this.onCanvasState(stepped);
   };
