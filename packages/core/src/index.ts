@@ -5,6 +5,7 @@ import {
   compileSubstance,
   parseSubstance,
 } from "compiler/Substance";
+import { prettyPrintFn } from "utils/OtherUtils";
 import { SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
@@ -21,7 +22,6 @@ import * as ShapeTypes from "types/shape";
 import { State, LabelCache, Fn } from "types/state";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
-import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -284,4 +284,5 @@ export {
   initializeMat,
   showError,
   Result,
+  prettyPrintFn,
 };
