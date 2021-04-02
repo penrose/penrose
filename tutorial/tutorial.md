@@ -74,6 +74,8 @@ Now, you are equipped to embark on your Penrose journey to make your [first penr
 * Tutorial 1: Diagram containing 2 sets
   * ![tutorial 1 goal](https://github.com/penrose/penrose/raw/docs-edit/assets/tutorial/part1/2sets_nolabel.png)
 * Tutorial 2: Diagram illustrating the concept of `subset`
+  * ![tutorial 2 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/goal.svg)
 * Tutorial 3: Diagram showing vector addition
+  * ![tutorial 3 goal] https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/sum.jpeg
 
 
