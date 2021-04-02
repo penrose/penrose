@@ -21,7 +21,7 @@ In particular, we are visualizing vector addtion. Below is the goal diagram for 
 At the end of the tutorial, you will be able to work with functions in Penrose to create objects from existing objects, enjoying the convenience of compositionality. 
 
 ## Starter Code
-This example is a bit more involved than the previous tutorials but no worries! We are providing you some starter code to get things running :runner:. The starter code has some helpful constants to draw a vector space with its x and y axis. 
+This example is a bit more involved than the previous tutorials so we are providing you some starter code to get things running :runner:. The starter code has some helpful constants to draw a vector space with its x and y axis. 
 Download the [starter code here](https://github.com/penrose/penrose/tree/docs-edit/tutorial/code/tutorial3/starter-code).
 ![starter code image](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/vectorspace_wg.png)
 You should compile the starter code and see a vector space labeled `U` with its x-axis and y-axis that looks like the above image. 
@@ -56,7 +56,7 @@ In(u, U)
 AutoLabel All
 ```
 ## :page_facing_up: Style
-Now the real fun starts! 🖌️ But before that, we will get a bit theoretical and understand why Penrose is the way it is. 
+Now the real fun starts 🖌️. But before that, we will get a bit theoretical and understand why Penrose is the way it is. 
 
 > The goal of Penrose is to visualize mathematical relationships.
 
@@ -109,7 +109,7 @@ u.text = Text {
 }
 ```
 
-Just one more step for this task! We will need to place some constraints on how we draw the diagram. Think about drawing a diagram like our goal diagram by hand and check the following to see if you've catched everything we need to watch out for:
+Just one more step for this task. We will need to place some constraints on how we draw the diagram. Think about drawing a diagram like our goal diagram by hand and check the following to see if you've catched everything we need to watch out for:
 * Vector is indeed inside the vector space
 * The name of our vector is beside our vector, and is inside the vector space
 * The name of our vector does not get covered by the 2 axes
