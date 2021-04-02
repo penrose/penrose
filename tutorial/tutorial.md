@@ -1,5 +1,5 @@
 # ✨ Welcome, we are so glad you are here.
-Ready to make some beautiful diagrams? You are at the right place. Penrose is accessible for people with a variety of backgrounds including mathematical domain experts as well as people with no programming experiences. 
+Ready to make some beautiful diagrams? Penrose is accessible for people with a variety of backgrounds including mathematical domain experts as well as people with no programming experiences. 
 
 # Table of Contents
 * [Introduction to Penrose Programs](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#introduction)
@@ -76,6 +76,6 @@ Now, you are equipped to embark on your Penrose journey to make your [first penr
 * Tutorial 2: Diagram illustrating the concept of `subset`
   * ![tutorial 2 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/goal.svg)
 * Tutorial 3: Diagram showing vector addition
-  * ![tutorial 3 goal] https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/sum.jpeg
+  * ![tutorial 3 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/sum.jpeg)
 
 
