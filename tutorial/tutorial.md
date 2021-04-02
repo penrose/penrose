@@ -68,6 +68,9 @@ Every Penrose program consists of 3 files:
 
 In general, for each diagram, you will have an individual `.sub` file that contains the specific instances for the diagram, while the `.dsl` and `.sty` files can be applied to a number of different diagrams. For example, we can have various diagrams in the domain of Linear Algebra that visualizes different concepts with different `.sub` files, but we would have a main `linearAlgebra.dsl` file and maybe several `linearAlgebra.sty` file for different styles. 
 
-Now, you are equipped to embark on your Penrose journey to make your [first penrose diagram](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md).
+Now, you are equipped to embark on your Penrose journey to make your [first penrose diagram](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md). But if you are curious about what we are going to make together, read on. 
+
+## Sneak peak of the tutorials
+
 
 
