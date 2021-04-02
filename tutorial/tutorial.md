@@ -71,6 +71,9 @@ In general, for each diagram, you will have an individual `.sub` file that conta
 Now, you are equipped to embark on your Penrose journey to make your [first penrose diagram](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md). But if you are curious about what we are going to make together, read on. 
 
 ## Sneak peak of the tutorials
-
+* Tutorial 1: Diagram containing 2 sets
+  * ![tutorial 1 goal](https://github.com/penrose/penrose/raw/docs-edit/assets/tutorial/part1/2sets_nolabel.png)
+* Tutorial 2: Diagram illustrating the concept of `subset`
+* Tutorial 3: Diagram showing vector addition
 
 
