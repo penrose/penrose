@@ -6,6 +6,7 @@ Ready to make some beautiful diagrams? Penrose is accessible for people with a v
    * [Installation](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#installation)
    * [How do we diagram by hand?](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#how-do-we-diagram-by-hand)
    * [What makes a Penrose program?](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#what-makes-a-penrose-program)
+   * [Sneak peak of the tutorials]((https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial.md#sneak-peak-of-the-tutorials)
 * [Part 1: Make Your First Diagram](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md)
    * [Tutorial](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#part-1-penrose-basics)
    * [Exercise](https://github.com/penrose/penrose/blob/docs-edit/tutorial/tutorial-p1.md#exercise)
@@ -77,5 +78,3 @@ Now, you are equipped to embark on your Penrose journey to make your [first penr
   * ![tutorial 2 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part2/goal.svg)
 * Tutorial 3: Diagram showing vector addition
   * ![tutorial 3 goal](https://github.com/penrose/penrose/blob/docs-edit/assets/tutorial/part3/using/sum.jpeg)
-
-
