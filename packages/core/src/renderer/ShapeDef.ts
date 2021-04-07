@@ -75,11 +75,11 @@ const widthSampler: Sampler = (): IFloatV<number> => ({
 });
 const zeroFloat: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
-  contents: 0.0
+  contents: 0.0,
 });
 const pathLengthSampler: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
-  contents: 1.0
+  contents: 1.0,
 });
 const heightSampler: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
@@ -148,6 +148,7 @@ export type IPropModel = { [k: string]: [PropType, Sampler] };
 export interface IShapeDef {
   shapeType: string;
   properties: IPropModel;
+  positionalProps?: string[];
 }
 
 export type Sampler = () => Value<number>;
@@ -157,7 +158,7 @@ export const circleDef: ShapeDef = {
   properties: {
     center: ["VectorV", vectorSampler],
     r: ["FloatV", widthSampler],
-    pathLength: ["FloatV", pathLengthSampler],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
@@ -167,14 +168,13 @@ export const circleDef: ShapeDef = {
   },
 };
 
-
 export const ellipseDef: ShapeDef = {
   shapeType: "Ellipse",
   properties: {
     center: ["VectorV", vectorSampler],
     rx: ["FloatV", widthSampler],
     ry: ["FloatV", heightSampler],
-    pathLength: ["FloatV", pathLengthSampler],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
@@ -213,11 +213,18 @@ export const polygonDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", () => constValue("FloatV", 1)],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
-    points: ["PtListV", () => constValue("PtListV", [[0,0],[0,10],[10,0]])],
+    points: [
+      "PtListV",
+      () =>
+        constValue("PtListV", [
+          [0, 0],
+          [0, 10],
+          [10, 0],
+        ]),
+    ],
   },
   positionalProps: ["center"],
 };
-
 
 export const freeformPolygonDef: ShapeDef = {
   shapeType: "FreeformPolygon",
@@ -252,7 +259,15 @@ export const polylineDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
-    points: ["PtListV", () => constValue("PtListV", [[0,0],[0,10],[10,0]])],
+    points: [
+      "PtListV",
+      () =>
+        constValue("PtListV", [
+          [0, 0],
+          [0, 10],
+          [10, 0],
+        ]),
+    ],
   },
   positionalProps: ["center"],
 };
@@ -381,7 +396,7 @@ export const shapedefs: ShapeDef[] = [
 ];
 
 export const positionalProps = (type: string): string[] | undefined => {
-  const res = shapedefs.find(({ shapeType }: ShapeDef) => (shapeType === type));
+  const res = shapedefs.find(({ shapeType }: ShapeDef) => shapeType === type);
   if (!res) return undefined;
   return res.positionalProps;
 };
