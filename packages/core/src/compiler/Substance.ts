@@ -4,7 +4,13 @@ import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import { Identifier } from "types/ast";
-import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domain";
+import {
+  Arg,
+  Type,
+  ConstructorDecl,
+  FunctionDecl,
+  TypeConstructor,
+} from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
   SubProg,
@@ -19,6 +25,7 @@ import {
   Deconstructor,
   LabelMap,
   SubstanceEnv,
+  Decl,
 } from "types/substance";
 import {
   andThen,
@@ -44,6 +51,7 @@ import {
   isSubtype,
   topType,
 } from "./Domain";
+import { dummyIdentifier, dummySourceLoc } from "engine/EngineUtils";
 
 export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
   const parser = new nearley.Parser(
@@ -75,9 +83,19 @@ export const compileSubstance = (
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
-    const checkerOk = checkSubstance(ast, env);
+    // convert and append prelude values to the substance AST
+    const preludeDecls = [...env.preludeValues.toArray()];
+    const preludeValues: Decl[] = preludeDecls.map(
+      ([id, decl]: [string, TypeConstructor]) => toSubDecl(id, decl)
+    );
+    const astWithPrelude: SubProg = {
+      ...ast,
+      statements: ast.statements.concat(preludeValues),
+    };
+    // check the substance ast and produce an env or report errors
+    const checkerOk = checkSubstance(astWithPrelude, env);
     return checkerOk.match({
-      Ok: (env) => ok([postprocessSubstance(ast, env), env]),
+      Ok: (env) => ok([postprocessSubstance(astWithPrelude, env), env]),
       Err: (e) => err({ ...e, errorType: "SubstanceError" }),
     });
   } else {
@@ -96,12 +114,26 @@ const initEnv = (ast: SubProg): SubstanceEnv => ({
 
 //#region Postprocessing
 export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
+  // post process all statements
   const subEnv = initEnv(prog);
   return prog.statements.reduce(
     (e, stmt) => postprocessStmt(stmt, env, e),
     subEnv
   );
 };
+
+const toSubDecl = (idString: string, decl: TypeConstructor): Decl => ({
+  start: dummySourceLoc(),
+  end: dummySourceLoc(),
+  nodeType: "dummyDecl",
+  children: [],
+  tag: "Decl",
+  type: {
+    ...decl,
+    args: [],
+  },
+  name: dummyIdentifier(idString),
+});
 
 const postprocessStmt = (
   stmt: SubStmt,
@@ -527,5 +559,4 @@ export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
     return err(varNotFound(variable, possibleVars));
   }
 };
-
 //#endregion

@@ -16,6 +16,7 @@
     "graphlib": "^2.1.8",
     "node-pre-gyp": "^0.14.0",
     "react": "^16.13.1",
+    "react-data-table-component": "^6.11.7",
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",
     "react-inspector": "^4.0.1",
