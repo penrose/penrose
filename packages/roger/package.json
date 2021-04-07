@@ -1,8 +1,8 @@
 {
-  "name": "roger",
+  "name": "@penrose/roger",
   "description": "💂 The command line for penrose.",
   "version": "1.0.0",
-  "author": "maxkrieger @maxkrieger",
+  "author": "Penrose Team (https://penrose.ink)",
   "bin": {
     "roger": "./bin/run"
   },
@@ -52,7 +52,7 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "build": "npm link",
+    "build": "yarn link",
     "test": "echo NO TESTS",
     "version": "oclif-dev readme && git add README.md"
   },
