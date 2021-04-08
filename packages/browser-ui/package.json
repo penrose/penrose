@@ -19,6 +19,7 @@
     "react-data-table-component": "^6.11.7",
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",
+    "react-graph-vis": "^1.0.7",
     "react-inspector": "^4.0.1",
     "react-scripts": "^4.0.2",
     "react-split-pane": "^0.1.92",

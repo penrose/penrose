@@ -3,6 +3,7 @@ import IViewProps from "./IViewProps";
 import { prettyPrintFn, evalFns } from "@penrose/core";
 import { zip } from "lodash";
 import DataTable from "react-data-table-component";
+
 const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   if (!frame) {
     return (
@@ -11,6 +12,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       </div>
     );
   }
+
   const constrInfos = zip(
     frame.constrFns.map(prettyPrintFn),
     evalFns(frame.constrFns, frame)

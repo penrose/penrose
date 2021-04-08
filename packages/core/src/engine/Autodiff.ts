@@ -109,6 +109,7 @@ export const variableAD = (
     gradVal: { tag: "Nothing" },
     gradNode: { tag: "Nothing" },
     index: -100,
+      id: -1,
 
     debug: false,
     debugInfo: "",
@@ -1196,6 +1197,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     const leafName = c + String(i);
 
     // Mark node as visited, with its name as reference for its computed/cached value
+      z.id = i;
     z.nodeVisited = true;
     z.name = leafName;
 
@@ -1256,6 +1258,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     const parName = c + String(parCounter);
 
     // Mark node as visited with name as reference
+      z.id = parCounter;
     z.nodeVisited = true;
     z.name = parName;
 
@@ -1331,6 +1334,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     const parName = c + String(parCounter);
 
     // Mark node as visited with name as reference
+      z.id = parCounter;
     z.nodeVisited = true;
     z.name = parName;
 
@@ -1402,7 +1406,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     const parName = c + String(counter);
 
     // Mark node as visited with name as reference
-    // TODO: factor out these 2 lines from all cases
+    // TODO: factor out these 3 lines from all cases
+      z.id = counter;
     z.nodeVisited = true;
     z.name = parName;
 
@@ -1451,6 +1456,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 // Top-down
 const clearVisitedNodesOutput = (z: VarAD) => {
   z.nodeVisited = false;
+    // z.id = -2; // the ids are actually needed
   // z.name = "";
   z.children.forEach((e) => clearVisitedNodesOutput(e.node));
   z.childrenGrad.forEach((e) => clearVisitedNodesOutput(e.node));
@@ -1460,6 +1466,7 @@ const clearVisitedNodesOutput = (z: VarAD) => {
 // Bottom-up
 const clearVisitedNodesInput = (x: VarAD) => {
   x.nodeVisited = false;
+    // x.id = -2; // the ids are actually needed
   // x.name = "";
   x.parents.forEach((e) => clearVisitedNodesInput(e.node));
   x.parentsGrad.forEach((e) => clearVisitedNodesInput(e.node));
