@@ -12,9 +12,14 @@ import {
   ShapeDef,
   IPropModel,
 } from "renderer/ShapeDef";
-import { Shape, Value } from "types/shapeTypes";
+import { Shape } from "types/shape";
+import { Value } from "types/value";
 import { randFloat, randFloats, safe } from "utils/Util";
 import { mapValues, zip } from "lodash";
+import { TagExpr, Translation } from "types/value";
+import { VarAD } from "types/ad";
+import { State } from "types/state";
+import { Path } from "types/style";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {

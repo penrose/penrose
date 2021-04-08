@@ -3,6 +3,8 @@ import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import * as path from "path";
+import { ASTNode } from "types/ast";
+import { StyProg } from "types/style";
 import grammar from "./StyleParser";
 
 const outputDir = "/tmp/asts";

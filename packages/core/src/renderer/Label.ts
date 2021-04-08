@@ -1,3 +1,4 @@
+import { IStrV } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 import { attrFill, attrTitle, attrTransformCoords, attrWH } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";

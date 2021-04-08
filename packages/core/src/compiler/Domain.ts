@@ -5,12 +5,25 @@ import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import {
+  DomainProg,
+  TypeDecl,
+  ConstructorDecl,
+  FunctionDecl,
+  PredicateDecl,
+  TypeVar,
+  TypeConstructor,
+  DomainStmt,
+  Type,
+  Arg,
+} from "types/domain";
+import {
   ParseError,
   DomainError,
   TypeNotFound,
   TypeVarNotFound,
   PenroseError,
 } from "types/errors";
+import { ApplyConstructor, TypeConsApp } from "types/substance";
 import {
   and,
   andThen,

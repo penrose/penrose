@@ -33,6 +33,9 @@ import {
   PenroseError,
   StyleError,
 } from "types/errors";
+import { Identifier, ASTNode, SourceLoc } from "types/ast";
+import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
+import { SubExpr, Deconstructor } from "types/substance";
 // #region error rendering and construction
 
 /**

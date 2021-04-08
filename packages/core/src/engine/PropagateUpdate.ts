@@ -4,7 +4,11 @@ import {
   exprToNumber,
 } from "engine/EngineUtils";
 import { getShapeName } from "renderer/ShapeDef";
-import { Shape, Value } from "types/shapeTypes";
+import { Translation } from "types/value";
+import { Shape } from "types/shape";
+import { Value } from "types/value";
+import { State, LabelCache } from "types/state";
+import { Path, IPropertyPath, IAccessPath } from "types/style";
 import { retrieveLabel } from "utils/CollectLabels";
 
 /**
@@ -73,9 +77,8 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
  *
  * @param state initial state with pending values
  *
- * @todo state shouldn't have the type `State` yet because the shapes are augumented with extra properties.
  */
-export const insertPending = (state: State) => {
+export const insertPending = (state: State): State => {
   const findLabelValue = (p: Path, labels: LabelCache): Value<number> => {
     if (p.tag === "PropertyPath") {
       const { property } = p;

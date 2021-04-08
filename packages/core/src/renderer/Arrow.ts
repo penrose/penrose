@@ -1,3 +1,4 @@
+import { IFloatV, IStrV, IColorV, IVectorV } from "types/value";
 import { arrowheads, round2, toHex, toScreen } from "utils/Util";
 import { attrFill, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
@@ -68,12 +69,17 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   path.setAttribute("marker-end", `url(#${id})`);
   attrFill(shape, path);
   path.setAttribute("stroke", color);
-  let dashArray = DASH_ARRAY;
-  if ("strokeDashArray" in shape.properties) {
-    dashArray = (shape.properties.strokeDashArray as IStrV).contents;
-  }
-  if (shape.properties.style.contents === "dashed") {
-    elem.setAttribute("stroke-dasharray", dashArray.toString());
+  // factor out an AttrHelper
+  if (
+    "strokeDashArray" in shape.properties &&
+    shape.properties.strokeDashArray.contents !== ""
+  ) {
+    elem.setAttribute(
+      "stroke-dasharray",
+      (shape.properties.strokeDashArray as IStrV).contents
+    );
+  } else if (shape.properties.style.contents === "dashed") {
+    elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
   path.setAttribute(
     "stroke-width",

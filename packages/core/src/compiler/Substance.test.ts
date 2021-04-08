@@ -5,7 +5,8 @@ import * as path from "path";
 import { PenroseError } from "types/errors";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain, Env } from "./Domain";
-import { compileSubstance, SubstanceEnv } from "./Substance";
+import { compileSubstance } from "./Substance";
+import { SubstanceEnv } from "types/substance";
 
 const printError = false;
 const saveContexts = false;
@@ -22,6 +23,13 @@ const subPaths = [
   // "geometry-domain/pythagorean-theorem-sugared.sub",
   // "mesh-set-domain/DomainInterop.sub",
 ];
+
+const hasVars = (env: Env, vars: [string, string][]) => {
+  vars.map(([name, type]: [string, string]) => {
+    expect(env.vars.has(name)).toBe(true);
+    expect(showType(env.vars.get(name)!)).toEqual(type);
+  });
+};
 
 const domainProg = `
 type Set
@@ -42,6 +50,7 @@ predicate Both : Prop p1 * Prop p2
 predicate Empty : Set s
 predicate Intersecting : Set s1 * Set s2
 predicate IsSubset : Set s1 * Set s2
+value X: Set
 `;
 
 const envOrError = (prog: string): Env => {
@@ -83,6 +92,24 @@ Set D
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
   });
+  test("preludes", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+List(Set) l
+OpenSet D
+A := D
+    `;
+    const res = compileSubstance(prog, env);
+    expect(res.isOk()).toBe(true);
+    if (res.isOk()) {
+      hasVars(res.value[1], [
+        ["A", "Set"],
+        ["X", "Set"], // defined in prelude
+        ["l", "List(Set)"],
+      ]);
+    }
+  });
 });
 
 describe("Postprocess", () => {
@@ -115,12 +142,6 @@ NoLabel D, E
 });
 
 describe("Check statements", () => {
-  const hasVars = (env: Env, vars: [string, string][]) => {
-    vars.map(([name, type]: [string, string]) => {
-      expect(env.vars.has(name)).toBe(true);
-      expect(showType(env.vars.get(name)!)).toEqual(type);
-    });
-  };
   test("decls", () => {
     const env = envOrError(domainProg);
     const prog = `
