@@ -1,0 +1,45 @@
+{
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
+  "trios": [
+    {
+      "substance": "independent",
+      "style": "linear-algebra-simple",
+      "domain": "linear-algebra"
+    },
+    {
+      "substance": "two-vectors-perp",
+      "style": "linear-algebra-simple",
+      "domain": "linear-algebra"
+    }
+  ],
+  "domains": {
+    "linear-algebra": {
+      "name": "Linear Algebra",
+      "URI": "linear-algebra-domain/linear-algebra.dsl"
+    }
+  },
+  "styles": {
+    "linear-algebra-simple": {
+      "domain": "linear-algebra",
+      "name": "Linear Algebra 2D",
+      "URI": "linear-algebra-domain/linear-algebra-paper-simple.sty"
+    }
+  },
+  "substances": {
+    "two-vectors-perp": {
+      "domain": "linear-algebra",
+      "name": "Two Perpendicular Vectors",
+      "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
+    },
+    "independent": {
+      "domain": "linear-algebra",
+      "name": "Two Linearly Independent Vectors",
+      "URI": "linear-algebra-domain/independent.sub"
+    },
+    "dependent": {
+      "domain": "linear-algebra",
+      "name": "Two Linearly Dependent Vectors",
+      "URI": "linear-algebra-domain/dependent.sub"
+    }
+  }
+}

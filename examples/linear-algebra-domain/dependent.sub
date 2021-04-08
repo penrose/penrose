@@ -1,10 +1,9 @@
 VectorSpace V
 Vector u 
-In(u, V)
 Vector v 
+In(u, V)
 In(v, V)
-Unit(u)
-Orthogonal(v, u)
+Dependent(u, v)
 AutoLabel All
 Label u $\vec{u}$
 Label v $\vec{v}$

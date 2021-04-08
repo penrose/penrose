@@ -20,12 +20,21 @@
       "substance": "incorrect-distractor",
       "style": "venn",
       "domain": "set-theory"
+    },
+    {
+      "substance": "right-triangle",
+      "style": "euclidean",
+      "domain": "geometry"
     }
   ],
   "domains": {
     "set-theory": {
       "name": "Set Theory",
       "URI": "enum-domain/setTheory.dsl"
+    },
+    "geometry": {
+      "name": "Geometry",
+      "URI": "geometry-domain/geometry.dsl"
     }
   },
   "styles": {
@@ -33,9 +42,19 @@
       "domain": "set-theory",
       "name": "Venn",
       "URI": "enum-domain/venn.sty"
+    },
+    "euclidean": {
+      "domain": "geometry",
+      "name": "Euclidean",
+      "URI": "geometry-domain/euclidean-simple.sty"
     }
   },
   "substances": {
+    "right-triangle": {
+      "domain": "geometry",
+      "name": "Right Triangle",
+      "URI": "geometry-domain/right-triangle.sub"
+    },
     "correct": {
       "domain": "set-theory",
       "name": "Correct",

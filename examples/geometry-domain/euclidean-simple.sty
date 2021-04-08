@@ -97,6 +97,7 @@ Point p {
       p.x = ?
       p.y = ?
       p.vec = (p.x, p.y)
+      p.color = Colors.black
 
        p.icon = Circle {
          center: p.vec
@@ -151,20 +152,20 @@ with Point p; Point q {
      e.icon above const.plane
 }
 
-Point `A` {
-      override `A`.icon.color = Colors.red
-      override `A`.text.color = Colors.red
-}
+-- Point `A` {
+--       override `A`.icon.color = Colors.red
+--       override `A`.text.color = Colors.red
+-- }
 
-Point `B` {
-      override `B`.icon.color = Colors.sky
-      override `B`.text.color = Colors.sky
-}
+-- Point `B` {
+--       override `B`.icon.color = Colors.sky
+--       override `B`.text.color = Colors.sky
+-- }
 
-Point `C` {
-      override `C`.icon.color = Colors.silver
-      override `C`.text.color = Colors.silver
-}
+-- Point `C` {
+--       override `C`.icon.color = Colors.silver
+--       override `C`.text.color = Colors.silver
+-- }
 
 -- -----------------------------------------------------------------------------
 
@@ -212,22 +213,39 @@ Point `C` {
 --       override p.y = get(p.vec, 1)
 -- }
 
--- Triangle t
--- where t := MkTriangle(p, q, r)
--- with Point p; Point q; Point r {
---      t.color = setOpacity(Colors.darkpurple, 0.4)
+Triangle t
+where t := MkTriangle(p, q, r)
+with Point p; Point q; Point r {
+     t.color = setOpacity(Colors.darkpurple, 0.4)
+     t.side1 = Line {
+     	     start : p.icon.center
+     	     end : q.icon.center
+	     color : t.color
+	     thickness : const.strokeWidth
+	     stroke : "none"
+	     style : "solid"
+     }
+     t.side2 = Line {
+     	     start : q.icon.center
+     	     end : r.icon.center
+	     color : t.color
+	     thickness : const.strokeWidth
+	     stroke : "none"
+	     style : "solid"
+     }
+     t.side3 = Line {
+     	     start : p.icon.center
+     	     end : r.icon.center
+	     color : t.color
+	     thickness : const.strokeWidth
+	     stroke : "none"
+	     style : "solid"
+     }
 
---      -- TODO: layer all labels on top of filled shapes
---      t.shape = Path {
---      	     pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
--- 	     strokeWidth : 0.0
--- 	     fill : t.color
--- 	     color : Colors.black
--- 	     rotation : 0.0
---      }
-
---      t.layering = t.icon above const.plane
--- }
+     t.side1 above const.plane
+     t.side2 above const.plane
+     t.side3 above const.plane
+}
 
 -- -- Should the rectangle be constructed from the points, or vice versa?
 -- Rectangle R

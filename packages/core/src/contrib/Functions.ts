@@ -211,7 +211,7 @@ export const compDict = {
   },
 
   /**
-   * Return the length of the line or arrow shape `[type, props]`.
+   * Concatenate a list of strings
    */
   concat: (...strings: string[]): IStrV => {
     return {
