@@ -139,9 +139,14 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   }, []);
 
   return (
-    <div style={{ height: "100%" }}>
-      <h1>Computation graph of the energy (atomic ops only)</h1>
-      <div ref={graphRef} style={{ width: "100%", height: "100%" }} />
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ fontSize: "12px" }}>
+        Computation graph of the energy (atomic ops only)
+      </div>
+      <div
+        ref={graphRef}
+        style={{ width: "100%", height: "100%", flexGrow: 1 }}
+      />
     </div>
   );
 };

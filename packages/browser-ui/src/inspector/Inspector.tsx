@@ -90,7 +90,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       boxSizing: "border-box"
                     }}
                   >
-                    {idx === selectedView && (
+                    {(view !== "compGraph" || idx === selectedView) && (
                       <ErrorBoundary>
                         {React.createElement(viewMap[view], commonProps)}
                       </ErrorBoundary>
