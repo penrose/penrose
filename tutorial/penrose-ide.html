@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+      .rainbow-text {
+        background-image: linear-gradient(
+          to left,
+          violet,
+          indigo,
+          blue,
+          green,
+          yellow,
+          orange,
+          red
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    </style>
+    <title>Penrose</title>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/@penrose/core@1.0.0/build/dist/penrose.min.js"
+    ></script>
+    <script type="text/javascript">
+        function penrosify() {
+            const elem = document.getElementById("root");
+            const styArea = document.getElementById("styArea");
+            const subArea = document.getElementById("subArea");
+            const dslArea = document.getElementById("dslArea");
+            const style = styArea.value;
+            const substance = subArea.value;
+            const domain = dslArea.value;
+            elem.innerHTML = ""
+            penrose.interactiveDiagram(domain, substance, style, elem);
+        }
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <h1 style="text-align: center; width: 300px; margin:auto" class="rainbow-text">
+        Penrose IDE!!!!!!!!!!!
+    </h1>
+    <div id="codeColumn" style="float: left; width: 50%;">
+    <p>Substance:</p>
+    <div>
+    <textarea id="subArea" cols="80" rows=20 wrap="soft">
+Set A, B, C, D, E, F, G
+
+IsSubset(B, A)
+IsSubset(C, A)
+IsSubset(D, B)
+IsSubset(E, B)
+IsSubset(F, C)
+IsSubset(G, C)
+  
+Not(Intersecting(E, D))
+Not(Intersecting(F, G))
+Not(Intersecting(B, C))
+  
+AutoLabel All
+    </textarea></div>
+    <p>Style:</p>
+    <div>
+    <textarea id="styArea" cols="80" rows=20 wrap="soft">
+Set x {
+    x.shape = Circle {
+        strokeWidth : 0
+    }
+
+    x.shading = Image {
+        center : x.shape.center 
+        w : x.shape.r * 2.0
+        h : x.shape.r * 2.0
+        path : "shading.svg"
+    }
+
+    x.shadow = Image {
+        path : "shadow.svg"
+        w : x.shape.r * 2.15
+        h : x.shape.r * 2.22
+        center : (x.shape.center[0] + 0.03 * x.shading.w, x.shape.center[1] - 0.051 * x.shading.h)
+    }
+
+    x.text = Text {
+        string : x.label
+        color: rgba(1.0, 1.0, 1.0, 1.0)
+        w: 0.5 * x.shape.r
+        h: 0.5 * x.shape.r
+    }
+
+    ensure contains(x.shape, x.text)
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
+    encourage sameCenter(x.text, x.shape)
+    x.shape below x.text
+    x.shading below x.shape
+    x.shadow below x.shading
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure contains(y.shape, x.shape, 5.0)
+    x.shape above y.shape
+    y.text below x.shape
+    x.shadow above y.shape
+}
+
+Set x; Set y
+where Not(Intersecting(x, y)) {
+    ensure disjoint(x.shape, y.shape)
+}
+
+Set x; Set y
+where Intersecting(x, y) {
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
+}
+    </textarea></div>
+    <p>DSL:</p>
+    <div>
+    <textarea id="dslArea" cols="80" rows=20 wrap="soft">
+type Set
+type Point
+type Map
+
+constructor Singleton : Point p -> Set
+
+function Intersection : Set a * Set b -> Set
+function Union : Set a * Set b -> Set
+function Subtraction : Set a * Set b -> Set
+function CartesianProduct : Set a * Set b -> Set
+function Difference : Set a * Set b -> Set
+function Subset : Set a * Set b -> Set
+function AddPoint : Point p * Set s1 -> Set
+
+predicate Not : Prop p1
+predicate From : Map f * Set domain * Set codomain
+predicate Empty : Set s
+predicate Intersecting : Set s1 * Set s2
+predicate IsSubset : Set s1 * Set s2
+predicate PointIn : Set s * Point p
+predicate In : Point p * Set s
+predicate Injection : Map m
+predicate Surjection : Map m
+predicate Bijection : Map m
+predicate PairIn : Point * Point * Map
+    </textarea>
+    </div>
+    <p>
+        <button type="button"onclick="penrosify()">Penrosify</button>
+    </p>
+    </div>
+    <div id="root" style=" height: 100vh; float: left; width: 50%;"></div>
+  </body>
+</html>
