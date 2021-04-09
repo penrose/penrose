@@ -16,25 +16,25 @@ interface IProps {
 export interface IInspectState {
   // connectionLog: Array<ConnectionStatus | string>;
   selectedFrame: number;
-  selectedView: string;
+  selectedView: number;
 }
 
 class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
     // connectionLog: [],
     selectedFrame: -1,
-    selectedView: "frames",
+    selectedView: 0
   };
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
-      selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
+      selectedFrame: frame === this.state.selectedFrame ? -1 : frame
     });
   };
   public render() {
-    const { selectedFrame } = this.state;
+    const { selectedFrame, selectedView } = this.state;
     const { history, modShapes, error } = this.props;
     const currentFrame =
       history.length === 0
@@ -48,7 +48,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       frameIndex: selectedFrame,
       history,
       modShapes,
-      error,
+      error
     };
     return (
       <div
@@ -58,12 +58,15 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          paddingBottom: "1em",
+          paddingBottom: "1em"
         }}
       >
         <Timeline {...commonProps} />
         <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
-          <Tabs>
+          <Tabs
+            index={selectedView}
+            onChange={(idx: number) => this.setState({ selectedView: idx })}
+          >
             <TabList>
               {Object.keys(viewMap).map((view: string) => (
                 <Tab key={`tab-${view}`}>
@@ -78,18 +81,20 @@ class Inspector extends React.Component<IProps, IInspectState> {
               ))}
             </TabList>
             <TabPanels>
-              {Object.keys(viewMap).map((view: string) => (
+              {Object.keys(viewMap).map((view: string, idx: number) => (
                 <TabPanel key={`panel-${view}`}>
                   <div
                     style={{
                       height: "100%",
                       overflow: "auto",
-                      boxSizing: "border-box",
+                      boxSizing: "border-box"
                     }}
                   >
-                    <ErrorBoundary>
-                      {React.createElement(viewMap[view], commonProps)}
-                    </ErrorBoundary>
+                    {idx === selectedView && (
+                      <ErrorBoundary>
+                        {React.createElement(viewMap[view], commonProps)}
+                      </ErrorBoundary>
+                    )}
                   </div>
                 </TabPanel>
               ))}

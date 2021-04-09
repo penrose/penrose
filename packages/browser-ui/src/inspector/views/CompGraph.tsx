@@ -1,10 +1,6 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
-import { prettyPrintFn, evalFns } from "@penrose/core";
-import { zip, uniqBy } from "lodash";
-import DataTable from "react-data-table-component";
-import Graph from 'react-graph-vis';
-import cytoscape from 'cytoscape';
+import cytoscape from "cytoscape";
 
 // import { VarAD } from "@penrose/core/";
 
@@ -85,76 +81,67 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   //   }
   // };
 
-  const graphRef = React.useRef<HTMLElement>();
-  React.useEffect(e => {
+  const graphRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
     if (graphRef.current !== null) {
-      console.log("GR", graphRef.current);
-
-      var cy = cytoscape({
-
-        // container: document.getElementById('cy'), // container to render in
+      const cy = cytoscape({
         container: graphRef.current, // container to render in
 
-        elements: [ // list of graph elements to start with
-          { // node a
-            data: { id: 'a' }
+        elements: [
+          // list of graph elements to start with
+          {
+            // node a
+            data: { id: "a" }
           },
-          { // node b
-            data: { id: 'b' }
+          {
+            // node b
+            data: { id: "b" }
           },
-          { // edge ab
-            data: { id: 'ab', source: 'a', target: 'b' }
+          {
+            // edge ab
+            data: { id: "ab", source: "a", target: "b" }
           }
         ],
 
-        style: [ // the stylesheet for the graph
+        style: [
+          // the stylesheet for the graph
           {
-            selector: 'node',
+            selector: "node",
             style: {
-              'background-color': '#666',
-              'label': 'data(id)'
+              "background-color": "#666",
+              label: "data(id)"
             }
           },
 
           {
-            selector: 'edge',
+            selector: "edge",
             style: {
-              'width': 3,
-              'line-color': '#ccc',
-              'target-arrow-color': '#ccc',
-              'target-arrow-shape': 'triangle',
-              'curve-style': 'bezier'
+              width: 3,
+              "line-color": "#ccc",
+              "target-arrow-color": "#ccc",
+              "target-arrow-shape": "triangle",
+              "curve-style": "bezier"
             }
           }
         ],
 
         layout: {
-          name: 'grid',
-          rows: 1
-        },
-
-        pan: { x: 100, y: 100 }
-
+          name: "grid",
+          rows: 1,
+          fit: true
+        }
       });
 
-      // var layout = cy.layout({
-      //   // name: 'random'
-      //   name: 'grid',
-      //   fit: true,
-      //   avoidOverlap: true
-      // });
-
-      // layout.run();
-      console.log("cy", cy);
-      return () => { cy.destroy(); };
-
+      return () => {
+        cy.destroy();
+      };
     }
   }, []);
 
   return (
     <div style={{ height: "100%" }}>
       <h1>Computation graph of the energy (atomic ops only)</h1>
-      <div id="cy" ref={graphRef} style={{ width: "100%", height: "100%" }} />
+      <div ref={graphRef} style={{ width: "100%", height: "100%" }} />
     </div>
   );
 };

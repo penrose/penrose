@@ -11,6 +11,6 @@ const viewMap = {
   shapes: ShapeView,
   mod: Mod,
   opt: Opt,
-  compGraph: CompGraph,
+  compGraph: CompGraph
 };
 export default viewMap;
