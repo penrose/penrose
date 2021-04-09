@@ -12,6 +12,7 @@
     "consola": "^2.15.0",
     "console-feed": "^2.8.11",
     "cytoscape": "^3.18.2",
+    "cytoscape-dagre": "^2.3.2",
     "debug": "^4.1.1",
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",
