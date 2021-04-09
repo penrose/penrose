@@ -160,15 +160,14 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public step = (): void => {
-    const stepped = stepState(this.state.data);
+    const stepped = stepState(this.state.data, 1);
     void this.onCanvasState(stepped);
   };
 
   public stepUntilConvergence = (): void => {
     const stepped = stepUntilConvergence(
       this.state.data,
-      // this.state.settings.autoStepSize
-      1000
+      this.state.settings.autoStepSize
     );
     void this.onCanvasState(stepped);
   };
