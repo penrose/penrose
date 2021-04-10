@@ -14,6 +14,8 @@ import {
   PenroseError
 } from "@penrose/core";
 
+import { isEqual } from "lodash";
+
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
  * @param svg
@@ -43,7 +45,7 @@ import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
 const LOCALSTORAGE_SETTINGS = "browser-ui-settings-penrose";
 
-interface ISettings {
+export interface ISettings {
   showInspector: boolean;
   autostep: boolean;
   autoStepSize: number;
@@ -79,12 +81,7 @@ class App extends React.Component<any, ICanvasState> {
   public readonly buttons = React.createRef<ButtonBar>();
   public readonly canvasRef = React.createRef<HTMLDivElement>();
 
-  public modShapes = async (state: PenroseState) => {
-    await this.modCanvas(state); // is this the right way to call it
-  };
-
   // same as onCanvasState but doesn't alter timeline or involve optimization
-  // used only in modshapes
   public modCanvas = async (canvasState: PenroseState) => {
     await new Promise(r => setTimeout(r, 1));
 
@@ -145,15 +142,16 @@ class App extends React.Component<any, ICanvasState> {
       );
     }
   };
+  public setSettings = (settings: ISettings) => {
+    this.setState({ settings });
+    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
+  };
   public autoStepToggle = async () => {
     const newSettings = {
       ...this.state.settings,
       autostep: !this.state.settings.autostep
     };
-    this.setState({
-      settings: newSettings
-    });
-    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(newSettings));
+    this.setSettings(newSettings);
     if (newSettings.autostep) {
       await this.stepUntilConvergence();
     }
@@ -211,10 +209,13 @@ class App extends React.Component<any, ICanvasState> {
 
   public componentDidMount(): void {
     const settings = localStorage.getItem(LOCALSTORAGE_SETTINGS);
-    // Overwrites if schema in-memory has more stuff than in-storage
+    // Overwrites if schema in-memory has different properties than in-storage
     if (
       !settings ||
-      Object.keys(settings).length !== Object.keys(this.state.settings).length
+      !isEqual(
+        Object.keys(JSON.parse(settings)),
+        Object.keys(this.state.settings)
+      )
     ) {
       localStorage.setItem(
         LOCALSTORAGE_SETTINGS,
@@ -238,8 +239,7 @@ class App extends React.Component<any, ICanvasState> {
   };
   public setInspector = async (showInspector: boolean) => {
     const newSettings = { ...this.state.settings, showInspector };
-    this.setState({ settings: newSettings });
-    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(newSettings));
+    this.setSettings(newSettings);
   };
   public toggleInspector = async () => {
     await this.setInspector(!this.state.settings.showInspector);
@@ -325,7 +325,9 @@ class App extends React.Component<any, ICanvasState> {
                 history={history}
                 error={error}
                 onClose={this.toggleInspector}
-                modShapes={this.modShapes}
+                modCanvas={this.modCanvas}
+                settings={settings}
+                setSettings={this.setSettings}
               />
             ) : (
               <div />
@@ -337,12 +339,6 @@ class App extends React.Component<any, ICanvasState> {
   }
 
   public render() {
-    // NOTE: uncomment to render embeddable component
-    // return (
-    //   <div style={{ margin: "0 auto", width: "50%", height: "50%" }}>
-    //     {this.state.data && <Embed data={this.state.data} />}
-    //   </div>
-    // );
     return this.renderApp();
   }
 }
