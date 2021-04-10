@@ -8,6 +8,8 @@ import {
   addWarn,
   defaultLbfgsParams,
   dummyASTNode,
+  dummyIdentifier,
+  dummySourceLoc,
   findExpr,
   findExprSafe,
   initConstraintWeight,
@@ -292,24 +294,6 @@ const initSelEnv = (): SelEnv => {
     header: { tag: "Nothing" },
     warnings: [],
     errors: [],
-  };
-};
-
-const dummySourceLoc = (): SourceLoc => {
-  return { line: -1, col: -1 };
-};
-
-// COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
-const dummyIdentifier = (name: string): Identifier => {
-  return {
-    // COMBAK: Is this ok?
-    nodeType: "dummyNode",
-    children: [],
-    type: "value",
-    value: name,
-    tag: "Identifier",
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
   };
 };
 
