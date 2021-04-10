@@ -387,7 +387,7 @@ export const constrDict = {
   },
 
   /**
-   * Make an AABB rectangle contain a vertical line. (Special case of rect-rect disjoint)
+   * Make an AABB rectangle contain an AABB (vertical or horizontal) line. (Special case of rect-rect disjoint). AA = axis-aligned
    */
   containsRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     if (!isRectlike(t1) || !isLinelike(t2)) {
@@ -396,16 +396,26 @@ export const constrDict = {
 
     const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
 
-    return constrDict.contains1D(
-      [box.minY, box.maxY],
-      [s2.start.contents[1], s2.end.contents[1]]
+    // Contains line both vertically and horizontally
+    return add(
+      constrDict.contains1D(
+        [box.minX, box.maxX],
+        [s2.start.contents[0], s2.end.contents[0]]
+      ),
+      constrDict.contains1D(
+        [box.minY, box.maxY],
+        [s2.start.contents[1], s2.end.contents[1]]
+      )
     );
   },
 
   /**
    * Make an AABB rectangle disjoint from a vertical line. (Special case of rect-rect disjoint)
    */
-  disjointRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  disjointRectLineAAVert: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
     if (!isRectlike(t1) || !isLinelike(t2)) {
       throw Error("expected two line-like shapes");
     }
@@ -414,7 +424,7 @@ export const constrDict = {
     // TODO: Compute the bbox of the line in a nicer way
     const line = bbox(
       ops.vdiv(ops.vadd(s2.start.contents, s2.end.contents), constOf(2)),
-      constOf(1),
+      constOf(2),
       absVal(sub(s2.start.contents[1], s2.end.contents[1]))
     );
 
@@ -432,7 +442,10 @@ export const constrDict = {
    * Make an AABB rectangle disjoint from a horizontal line. (Special case of rect-rect disjoint) TODO: Test this
    */
   // TODO: Consolidate with disjointRectLineAA; test it
-  disjointRectLineAAH: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  disjointRectLineAAHoriz: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
     if (!isRectlike(t1) || !isLinelike(t2)) {
       throw Error("expected rect + line-like shapes");
     }
@@ -442,7 +455,7 @@ export const constrDict = {
     const line = bbox(
       ops.vdiv(ops.vadd(s2.start.contents, s2.end.contents), constOf(2)),
       absVal(sub(s2.start.contents[0], s2.end.contents[0])),
-      constOf(1)
+      constOf(2)
     );
 
     return ifCond(

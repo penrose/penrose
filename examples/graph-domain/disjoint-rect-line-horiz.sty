@@ -1,4 +1,4 @@
--- GOAL: Get all lines and boxes to be disjoint from each other. (AABB)
+-- GOAL: Get all lines and boxes to be disjoint from each other. (AABB - horizontal)
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -67,14 +67,14 @@ Vertex V {
 Edge e {
        e.len = 200.
        e.center = ?
-       e.x = ?
+       e.y = ?
 
        e.left = -e.len/2. + e.center
        e.right = e.len/2. + e.center
 
        e.shape = Line {
-                  start: (e.x, e.left)
-                  end: (e.x, e.right)
+                  start: (e.left, e.y)
+                  end: (e.right, e.y)
                   thickness: 10.
        }
 
@@ -106,7 +106,7 @@ Vertex v1; Vertex v2 {
 -- }
 
 Vertex v; Edge e {
-       ensure disjointRectLineAA(v.shape, e.shape)
+       ensure disjointRectLineAAHoriz(v.shape, e.shape)
 }
 
 -- Vertex `v1`; Vertex `v2` {
