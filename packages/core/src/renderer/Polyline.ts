@@ -1,9 +1,18 @@
-import { attrNoFill, attrPoints, attrScale, attrPolyCenter, attrStroke, attrTitle } from "./AttrHelper";
+import {
+  attrNoFill,
+  attrPoints,
+  attrScale,
+  attrPolyCenter,
+  attrStroke,
+  attrTitle,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const Polyline = ({ shape, canvasSize}: ShapeProps) => {
-
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+const Polyline = ({ shape, canvasSize }: ShapeProps) => {
+  const elem = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "polyline"
+  );
 
   attrNoFill(shape, elem);
   attrStroke(shape, elem);
@@ -13,7 +22,5 @@ const Polyline = ({ shape, canvasSize}: ShapeProps) => {
   attrScale(shape, elem);
 
   return elem;
-
 };
 export default Polyline;
-

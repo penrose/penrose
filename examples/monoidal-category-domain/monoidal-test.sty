@@ -32,7 +32,7 @@ canvas {
         color: rgba(1., 1., 1., 0.)
     }
 
-    -- TODO(bug): file issue as the local var `box` doesn't seem to work here...
+    -- TODO(bug): file issue as the local var `box` doesn't seem to work here
          left = canvas.box.center[0] - canvas.box.w/2.
          right = canvas.box.center[0] + canvas.box.w/2.
          top = canvas.box.center[1] + canvas.box.h/2.
@@ -59,13 +59,46 @@ Object o {
         arrowheadSize: 0.5
     }
 
+    shape o.text = Text {
+           center: (o.shape.start + o.shape.end) / 2.
+           string: o.label
+           fontSize: "20pt"
+    }
+
     ensure inRange(o.y, o.minY, o.maxY)
 
-    -- These two don't seem to interact super well
     ensure lessThan(o.shape.start[0], o.shape.end[0], 50.)
 
     -- ensure minSize(o.shape)
     o.shape above canvas.box
+}
+
+Morphism m {
+         -- The floating vars are the rect centers
+         shape m.shape = Rectangle { 
+                  center: (?, ?)
+                  w: 100. 
+                  h: 300.
+               color: rgba(1.,1.,1.,0.)
+               strokeColor: rgba(0., 0., 0., 1.)
+               strokeWidth: 3.
+         }
+
+         shape m.text = Text {
+               center: m.shape.center
+               string: m.label
+                  fontSize: "20pt"
+         }
+
+         m.left = m.shape.center[0] - m.shape.w/2.
+         m.right = m.shape.center[0] + m.shape.w/2.
+         m.top = m.shape.center[1] + m.shape.h/2.
+         m.bot = m.shape.center[1] - m.shape.h/2.
+
+         ensure contains(canvas.box, m.shape)
+
+         m.shape above canvas.box
+         m.text above m.shape
 }
 
 Object p
@@ -92,35 +125,6 @@ where p := tensor(a, b) {
 
       -- Repel the `y`s of the input objects from each other? TODO: Will this work for "base" objects and not "phantom' ones? And not be applied too many times? Problem is that "child" objects don't all know each other
       -- encourage repelScalar(a.y, b.y)
-}
-
-Morphism m {
-         -- The floating vars are the rect centers
-         shape m.shape = Rectangle { 
-                  center: (?, ?)
-                  w: 100. 
-                  h: 300.
-               color: rgba(1.,1.,1.,0.)
-               strokeColor: rgba(0., 0., 0., 1.)
-               strokeWidth: 3.
-         }
-
-         shape m.text = Text {
-               center: m.shape.center
-               string: m.label
-                  fontSize: "20pt"
-         }
-
-         m.left = m.shape.center[0] - m.shape.w/2.
-         m.right = m.shape.center[0] + m.shape.w/2.
-         m.top = m.shape.center[1] + m.shape.h/2.
-         m.bot = m.shape.center[1] - m.shape.h/2.
-
-         -- TODO: Fix this, as it uses a rect approximation (behaves badly when w, h are free)
-         ensure contains(canvas.box, m.shape)
-
-         m.shape above canvas.box
-         m.text above m.shape
 }
 
 Morphism m
@@ -153,30 +157,38 @@ where m := join(a, b) {
       b.shape above m.shape
 }
 
+Object o; Morphism m
+where NotChildOf(o, m) {
+       ensure disjointRectLineAAHoriz(m.shape, o.shape)
+}
+
+Morphism m1; Morphism m2 {
+         ensure disjoint(m1.shape, m2.shape)
+}
+
 -- TODO: each object's `y` should be attracted to the center of the morphism, and repel all other objects
 -- TODO: each object's `y` should be out of the range of all morphisms' `y`s
--- TODO: an object between the morphisms should have a `y` that's in the range of both morphisms, though I don't see why the current overrides don't work
+-- TODO: an object between the morphisms should have a `y` that's in the range of both morphisms
 
 -- TODO: Maybe these are conflicting with `nearScalar`?
-Object o; Object p; Morphism m
-where ChildOf(o, m); ChildOf(p, m) {
-      encourage repelScalar(o.y, p.y)
+-- Object o; Object p; Morphism m
+-- where ChildOf(o, m); ChildOf(p, m) {
+--       encourage repelScalar(o.y, p.y)
 
-}
+-- }
 
-Object o; Morphism m
-where ChildOf(o, m) {
-      encourage repelScalar(o.y, m.top)
-      encourage repelScalar(o.y, m.bot)
-}
+-- Object o; Morphism m
+-- where ChildOf(o, m) {
+--       encourage repelScalar(o.y, m.top)
+--       encourage repelScalar(o.y, m.bot)
+-- }
 
 -- Problem is that "child" objects don't all know each other
 -- So, it's hard (impossible?) to select the every object/morphism pair where the object is not a child of the morphism
 
--- TODO: how exactly would you state this predicate? "NotChildOf" is not unique to this case
-Object o; Morphism m
-where NotChildOf(o, m) {
+-- TODO: how would you state this predicate? "NotChildOf" is not unique to this case
+-- Object o; Morphism m
+-- where NotChildOf(o, m) {
        -- Would want `o.y` disjoint from `[m.bot, m.top]`
-       -- TODO: This really slows down the optimization -- there are some problems with if-conditionals or discontinuous functions, not sure which
        -- ensure disjointScalar(o.y, m.bot, m.top)
-}
+-- }

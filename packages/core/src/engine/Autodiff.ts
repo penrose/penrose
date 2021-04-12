@@ -6,6 +6,8 @@ import { VarAD, IVarAD, GradGraphs } from "types/ad";
 import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
 
+// To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
+// const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
@@ -432,8 +434,10 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // const vFn = (arg: "unit"): number =< v.val < w.val ? 1.0 : 0.0;
   // const wFn = (arg: "unit"): number =< v.val < w.val ? 0.0 : 1.0;
 
-  const vNode = ifCond(lt(v, w, false), gvarOf(1.0), gvarOf(0.0), false);
-  const wNode = ifCond(lt(v, w, false), gvarOf(0.0), gvarOf(1.0), false);
+  const cond = lt(v, w, false);
+
+  const vNode = ifCond(cond, gvarOf(1.0), gvarOf(0.0), false);
+  const wNode = ifCond(cond, gvarOf(0.0), gvarOf(1.0), false);
   // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
@@ -630,7 +634,7 @@ export const absVal = (v: VarAD, isCompNode = true): VarAD => {
 /**
  * Return a variable with no gradient.
  */
-const noGrad: VarAD = gvarOf(1.0, "noGrad");
+const noGrad: VarAD = gvarOf(0.0, "noGrad");
 
 /**
  * Return a conditional `v > w`.
@@ -1141,10 +1145,10 @@ const genCode = (
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
-  log.trace("progInputs", "progStr", progInputs, progStr);
+  // log.trace("progInputs", "progStr", progInputs, progStr);
 
   const f = new Function(...progInputs, progStr);
-  log.trace("generated f\n", f);
+  log.trace("generated f with setting =", setting, "\n", f);
 
   let g;
   if (weightNode.tag === "Nothing") {
@@ -1215,7 +1219,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     let stmt;
     // Otherwise bind const in body
     if (z.op === "noGrad") {
-      stmt = `const ${leafName} = 1.0;`;
+      stmt = `const ${leafName} = 0.0; // No grad`;
     } else {
       stmt = `const ${leafName} = ${z.op};`;
     }
@@ -1413,6 +1417,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     // Deals with ifCond nodes (ternary)
     // (eval c; eval d; eval e; const xNUM = c ? d : e;)
     // codegen doesn't short-circuit -- it generates code for both branches of the `if` first
+    // TODO: Fix this so it doesn't *evaluate* both branches of the `if`, just the one that's relevant to the condition
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {
@@ -1653,6 +1658,11 @@ const testGradFiniteDiff = () => {
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   log.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+
+  log.trace("head node (energy output)", graphs.energyOutput);
+  log.trace("inputs", graphs.inputs);
+  log.trace("grad node(s)", graphs.gradOutputs);
+
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = genCode(
@@ -1825,6 +1835,71 @@ const gradGraph4 = (): GradGraphs => {
   };
 };
 
+// Test ifCond
+const gradGraph5 = (): GradGraphs => {
+  // Build energy graph
+  log.info("test ifCond");
+  const [tru, fals] = [constOf(500), constOf(-500)];
+
+  const x0 = markInput(variableAD(100.0), 0);
+  const x1 = markInput(variableAD(-100.0), 0);
+  const inputs = [x0, x1];
+
+  const head = ifCond(lt(x0, constOf(33)), squared(x1), squared(x0));
+
+  // Build gradient graph
+  const dxs = gradAllSymbolic(head, inputs);
+
+  return {
+    inputs,
+    energyOutput: head,
+    gradOutputs: dxs,
+    weight: { tag: "Nothing" },
+  };
+};
+
+// Test max
+const gradGraph6 = (): GradGraphs => {
+  // Build energy graph
+  log.info("test max");
+
+  const x0 = markInput(variableAD(100.0), 0);
+  const inputs = [x0];
+  const head = max(squared(x0), constOf(0));
+
+  // Build gradient graph
+  const dxs = gradAllSymbolic(head, inputs);
+
+  return {
+    inputs,
+    energyOutput: head,
+    gradOutputs: dxs,
+    weight: { tag: "Nothing" },
+  };
+};
+
+// Test div
+// TODO < Test all ops automatically
+const gradGraph7 = (): GradGraphs => {
+  // Build energy graph
+  log.info("test div");
+
+  const x0 = markInput(variableAD(100.0), 0);
+  const x1 = markInput(variableAD(-100.0), 0);
+  const inputs = [x0, x1];
+  const head = div(x0, x1);
+
+  // Build gradient graph
+  const dxs = gradAllSymbolic(head, inputs);
+
+  return {
+    inputs,
+    energyOutput: head,
+    gradOutputs: dxs,
+    weight: { tag: "Nothing" },
+  };
+};
+
 export const testGradSymbolicAll = () => {
   log.trace("testing symbolic gradients");
 
@@ -1836,6 +1911,9 @@ export const testGradSymbolicAll = () => {
     gradGraph2(),
     gradGraph3(),
     gradGraph4(),
+    gradGraph5(),
+    gradGraph6(),
+    gradGraph7(),
   ];
 
   const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));

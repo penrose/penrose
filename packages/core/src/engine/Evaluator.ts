@@ -342,6 +342,11 @@ export const evalExpr = (
       throw new Error("encountered an unsubstituted varying value");
     }
 
+    case "VaryInit": {
+      console.error("expr", e, "trans", trans, "varyingVars", varyingVars);
+      throw new Error("encountered an unsubstituted varying (with init) value");
+    }
+
     case "Fix": {
       const val = e.contents;
 

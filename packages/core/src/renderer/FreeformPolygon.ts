@@ -4,8 +4,10 @@ import { ShapeProps } from "./Renderer";
 // polygon without a calculated center
 // to be used with ? values
 const FreeformPolygon = ({ shape, canvasSize }: ShapeProps) => {
-
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  const elem = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "polygon"
+  );
 
   attrFill(shape, elem);
   attrStroke(shape, elem);
@@ -13,6 +15,5 @@ const FreeformPolygon = ({ shape, canvasSize }: ShapeProps) => {
   attrPoints(shape, elem);
 
   return elem;
-
 };
 export default FreeformPolygon;

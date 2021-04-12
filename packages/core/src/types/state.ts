@@ -10,6 +10,7 @@ import { ArgVal, Translation, Value } from "./value";
  */
 export interface IState {
   varyingPaths: Path[];
+  varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   shapePaths: Path[];
   shapeProperties: any; // TODO: types
   uninitializedPaths: any; // TODO: types

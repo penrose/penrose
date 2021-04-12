@@ -11,6 +11,6 @@ const viewMap = {
   shapes: ShapeView,
   mod: Mod,
   opt: Opt,
-  settings: Settings
+  settings: Settings,
 };
 export default viewMap;
