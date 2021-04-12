@@ -1,4 +1,4 @@
--- GOAL: Get all lines and boxes disjoint from each other.
+-- Get all boxes disjoint from each other.
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -31,20 +31,14 @@ global {
 }
 
 Vertex V {
-       V.x = ? -- VARYING_INIT(0.)
-       V.y = ? -- VARYING_INIT(0.)
-       -- I guess if they're all in the same loc, there's a divide by 0
-
-       -- V.xpad = VARYING_INIT(100.)
-       -- V.ypad = VARYING_INIT(50.)
+       V.x = ?
+       V.y = ?
 
        V.xpad = 0.
        V.ypad = 60.
 
        V.shape = Rectangle { 
          center: (V.x, V.y)
-         -- w: V.text.w + global.padding
-         -- h: V.text.h + global.padding
          w: global.vertexWidth + V.xpad
          h: global.vertexWidth + V.ypad
          color : Colors.none
@@ -58,66 +52,17 @@ Vertex V {
 	 color : Colors.black
        }
 
-       -- NOTE: This doesn't work super well due to dimensions of the box. If the boxes are lopsided it's uneven.
        ensure contains(global.box, V.shape)
 
        V.text above V.shape
-       -- V.shape above global.box
+       V.shape above global.box
 }
-
--- Edge E
--- where E := MkEdge(v1, v2)
--- with Vertex v1; Vertex v2 {
-
---      vec2 dir = normalize(v2.shape.center - v1.shape.center)
---      scalar padding = 20.
-
---    scalar startSideDim = v1.shape.w
---    scalar endSideDim = v2.shape.h
-
---      E.shape = Line { 
---      	     -- start : v1.shape.center + (startSideDim / 2. + padding) * dir
---      	     -- end : v2.shape.center - (endSideDim / 2. + padding) * dir
--- 	     color : Colors.black
--- 	     thickness : 2.0
---              rightArrowhead: true
---              arrowheadSize: 0.7
---      }
-
---      E.text = Text {
---        string : E.label
---        rotation : 0.0
---      }
-
---      v1.shape above E.shape
---      v2.shape above E.shape
---      E.text above global.box
---      E.shape above global.box
--- }
 
 Vertex `v1` {
        override `v1`.shape.w = 500.
 }
 
--- This is applied to each pair twice (as (a,b) then (b,a)) -- is that ok?
+-- This is applied to each pair twice (as (a,b) then (b,a))
 Vertex v1; Vertex v2 {
        ensure disjoint(v1.shape, v2.shape, 0.)
 }
-
--- Vertex `v1`; Vertex `v2` {
---        ensure disjoint(`v1`.shape, `v2`.shape)
--- }
-
--- Vertex `v2`; Vertex `v3` {
---        ensure disjoint(`v2`.shape, `v3`.shape)
--- }
-
--- Vertex `v1`; Vertex `v3` {
---        ensure disjoint(`v1`.shape, `v3`.shape)
--- }
-
--- Edge e1; Edge e2 {
--- }
-
--- Vertex v; Edge e {
--- }

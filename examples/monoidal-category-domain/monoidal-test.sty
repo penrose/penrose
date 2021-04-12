@@ -32,7 +32,7 @@ canvas {
         color: rgba(1., 1., 1., 0.)
     }
 
-    -- TODO(bug): file issue as the local var `box` doesn't seem to work here...
+    -- TODO(bug): file issue as the local var `box` doesn't seem to work here
          left = canvas.box.center[0] - canvas.box.w/2.
          right = canvas.box.center[0] + canvas.box.w/2.
          top = canvas.box.center[1] + canvas.box.h/2.
@@ -67,7 +67,6 @@ Object o {
 
     ensure inRange(o.y, o.minY, o.maxY)
 
-    -- These two don't seem to interact super well
     ensure lessThan(o.shape.start[0], o.shape.end[0], 50.)
 
     -- ensure minSize(o.shape)
@@ -169,7 +168,7 @@ Morphism m1; Morphism m2 {
 
 -- TODO: each object's `y` should be attracted to the center of the morphism, and repel all other objects
 -- TODO: each object's `y` should be out of the range of all morphisms' `y`s
--- TODO: an object between the morphisms should have a `y` that's in the range of both morphisms, though I don't see why the current overrides don't work
+-- TODO: an object between the morphisms should have a `y` that's in the range of both morphisms
 
 -- TODO: Maybe these are conflicting with `nearScalar`?
 -- Object o; Object p; Morphism m
@@ -187,10 +186,9 @@ Morphism m1; Morphism m2 {
 -- Problem is that "child" objects don't all know each other
 -- So, it's hard (impossible?) to select the every object/morphism pair where the object is not a child of the morphism
 
--- TODO: how exactly would you state this predicate? "NotChildOf" is not unique to this case
+-- TODO: how would you state this predicate? "NotChildOf" is not unique to this case
 -- Object o; Morphism m
 -- where NotChildOf(o, m) {
        -- Would want `o.y` disjoint from `[m.bot, m.top]`
-       -- TODO: This really slows down the optimization -- there are some problems with if-conditionals or discontinuous functions, not sure which
        -- ensure disjointScalar(o.y, m.bot, m.top)
 -- }

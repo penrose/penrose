@@ -489,7 +489,7 @@ export const constrDict = {
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (isRectlike(t1) && isRectlike(t2)) {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
-      // TODO: Write this to use the minimum distance between rectangles, as this can only move in horiz/vert directions (i.e. results in worse local minima)
+      // TODO: Write this to use the area of rectangle overlap, as this can currently only move in horiz/vert directions (i.e. results in worse local minima sometimes)
       const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
       const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
 

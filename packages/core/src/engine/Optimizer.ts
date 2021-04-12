@@ -55,8 +55,8 @@ import {
 } from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
 const clone = rfdc({ proto: false, circles: false });
@@ -89,8 +89,8 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
+// const DEBUG_GRAD_DESCENT = true;
 const DEBUG_GRAD_DESCENT = false;
-// const DEBUG_GRAD_DESCENT = false; // COMBAK: Revert
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;

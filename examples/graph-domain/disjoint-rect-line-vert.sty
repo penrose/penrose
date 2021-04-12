@@ -1,4 +1,4 @@
--- GOAL: Get all lines and boxes to be disjoint from each other. (AABB - vertical)
+-- Get all lines and boxes to be disjoint from each other. (AABB - vertical axis-aligned bounding boxes)
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -31,20 +31,14 @@ global {
 }
 
 Vertex V {
-       V.x = ? -- VARYING_INIT(0.)
-       V.y = ? -- VARYING_INIT(0.)
-       -- I guess if they're all in the same loc, there's a divide by 0
-
-       -- V.xpad = VARYING_INIT(100.)
-       -- V.ypad = VARYING_INIT(50.)
+       V.x = ?
+       V.y = ?
 
        V.xpad = 0.
        V.ypad = 60.
 
        V.shape = Rectangle { 
          center: (V.x, V.y)
-         -- w: V.text.w + global.padding
-         -- h: V.text.h + global.padding
          w: global.vertexWidth + V.xpad
          h: global.vertexWidth + V.ypad
          color : Colors.none
@@ -61,7 +55,7 @@ Vertex V {
        ensure contains(global.box, V.shape)
 
        V.text above V.shape
-       -- V.shape above global.box
+       V.shape above global.box
 }
 
 Edge e {
@@ -95,29 +89,11 @@ Vertex `v1` {
        override `v1`.shape.w = 500.
 }
 
--- This is applied to each pair twice (as (a,b) then (b,a)) -- is that ok?
+-- This is applied to each pair twice (as (a,b) then (b,a))
 Vertex v1; Vertex v2 {
        ensure disjoint(v1.shape, v2.shape, 0.)
 }
 
--- This cannot apply pairwise as containment will make them equal!
--- Edge `e1`; Edge `e2` {
---      ensure contains1D([`e1`.left, `e1`.right], [`e2`.left, `e2`.right])
--- }
-
 Vertex v; Edge e {
        ensure disjointRectLineAAVert(v.shape, e.shape)
 }
-
--- Vertex `v1`; Vertex `v2` {
---        ensure disjoint(`v1`.shape, `v2`.shape)
--- }
-
--- Vertex `v2`; Vertex `v3` {
---        ensure disjoint(`v2`.shape, `v3`.shape)
--- }
-
--- Vertex `v1`; Vertex `v3` {
---        ensure disjoint(`v1`.shape, `v3`.shape)
--- }
-

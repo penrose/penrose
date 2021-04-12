@@ -12,7 +12,7 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
-const DEBUG_ENERGY = true;
+const DEBUG_ENERGY = false;
 const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
 
@@ -1839,13 +1839,13 @@ const gradGraph4 = (): GradGraphs => {
 const gradGraph5 = (): GradGraphs => {
   // Build energy graph
   log.info("test ifCond");
-  const [tru, fals] = [constOf(500.), constOf(-500.)];
+  const [tru, fals] = [constOf(500), constOf(-500)];
 
   const x0 = markInput(variableAD(100.0), 0);
   const x1 = markInput(variableAD(-100.0), 0);
   const inputs = [x0, x1];
 
-  const head = ifCond(lt(x0, constOf(33.)), squared(x1), squared(x0));
+  const head = ifCond(lt(x0, constOf(33)), squared(x1), squared(x0));
 
   // Build gradient graph
   const dxs = gradAllSymbolic(head, inputs);
@@ -1865,7 +1865,7 @@ const gradGraph6 = (): GradGraphs => {
 
   const x0 = markInput(variableAD(100.0), 0);
   const inputs = [x0];
-  const head = max(squared(x0), constOf(0.));
+  const head = max(squared(x0), constOf(0));
 
   // Build gradient graph
   const dxs = gradAllSymbolic(head, inputs);
