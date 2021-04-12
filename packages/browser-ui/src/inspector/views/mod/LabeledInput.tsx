@@ -208,6 +208,10 @@ class LabeledInput extends React.Component<IProps> {
   public makeMulPointRange = () => {
     const { inputProps, eAttr } = this.props;
     const subpaths = this.props.eValue.contents;
+    if (subpaths.contents == undefined) {
+      console.log("polygon pointrange mod unimplemented");
+      return;
+    }
     // todo - refactor the whole file so you can call makerange() and makelabel() with params
     return (
       <React.Fragment>

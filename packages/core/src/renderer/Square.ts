@@ -4,6 +4,8 @@ import {
   attrSideCoords,
   attrStroke,
   attrTitle,
+  attrRadiusX,
+  attrRadiusY,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -16,6 +18,9 @@ const Square = ({ shape, canvasSize }: ShapeProps) => {
   attrFill(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
+
+  attrRadiusX(shape, elem);
+
   return elem;
 };
 export default Square;

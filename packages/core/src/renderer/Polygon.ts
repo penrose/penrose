@@ -1,28 +1,26 @@
 import {
-  attrCenter,
   attrFill,
-  attrRadii,
-  attrRadiusX,
-  attrRadiusY,
+  attrPoints,
+  attrPolyCenter,
+  attrScale,
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const Ellipse = ({ shape, canvasSize }: ShapeProps) => {
+const Polygon = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "ellipse"
+    "polygon"
   );
+
   attrFill(shape, elem);
-  attrCenter(shape, canvasSize, elem);
-  attrRadii(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
-
-  attrRadiusX(shape, elem);
-  attrRadiusY(shape, elem);
+  attrPoints(shape, elem);
+  attrPolyCenter(shape, canvasSize, elem);
+  attrScale(shape, elem);
 
   return elem;
 };
-export default Ellipse;
+export default Polygon;

@@ -1,4 +1,12 @@
-import { attrFill, attrStroke, attrTitle, attrWH, attrXY } from "./AttrHelper";
+import {
+  attrFill,
+  attrRadiusX,
+  attrRadiusY,
+  attrStroke,
+  attrTitle,
+  attrWH,
+  attrXY,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Rectangle = ({ shape, canvasSize }: ShapeProps) => {
@@ -8,6 +16,9 @@ const Rectangle = ({ shape, canvasSize }: ShapeProps) => {
   attrFill(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
+
+  attrRadiusX(shape, elem);
+
   return elem;
 };
 export default Rectangle;
