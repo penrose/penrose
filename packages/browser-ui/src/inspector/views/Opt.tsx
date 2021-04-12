@@ -34,7 +34,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
 
   // TODO: hyperlink the shapes
   return (
-    <div>
+    <div style={{ boxSizing: "border-box" }}>
       <DataTable
         data={[...constrInfos, ...objInfos]}
         title={"Optimization"}
