@@ -2,7 +2,7 @@ import * as React from "react";
 import IViewProps from "./IViewProps";
 import cytoscape from "cytoscape";
 import { uniqBy } from "lodash";
-import dagre from 'cytoscape-dagre';
+import dagre from "cytoscape-dagre";
 
 cytoscape.use(dagre);
 
@@ -21,7 +21,10 @@ const merge = (arr: any) => [].concat.apply([], arr);
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: any): any => {
   const parNode = { id: par.id, label: par.op };
-  const edges = par.children.map(edge => ({ from: parNode.id, to: edge.node.id }));
+  const edges = par.children.map(edge => ({
+    from: parNode.id,
+    to: edge.node.id
+  }));
 
   const subgraphs = par.children.map(edge => traverseGraphTopDown(edge.node));
   const subnodes = merge(subgraphs.map(g => g.nodes));
@@ -38,7 +41,7 @@ const traverseUnique = (par: any): any => {
   const g = traverseGraphTopDown(par);
   return {
     ...g,
-    nodes: uniqBy(g.nodes, e => e.id)
+    nodes: uniqBy(g.nodes, (e: any) => e.id)
   };
 };
 
@@ -81,7 +84,7 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
 
         elements: {
           nodes: nodes2,
-          edges: edges2,
+          edges: edges2
         },
 
         style: [
@@ -104,7 +107,7 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
               "curve-style": "bezier"
             }
           }
-        ],
+        ]
 
         // layout: {
         //   name: "grid",
