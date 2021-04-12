@@ -33,6 +33,12 @@ const dragShape = (shape: Shape, offset: [number, number]): Shape => {
     case "Path":
       console.log("Path drag unimplemented", shape); // Just to prevent crashing on accidental drag
       return shape;
+    case "Polygon":
+      console.log("Polygon drag unimplemented", shape); // Just to prevent crashing on accidental drag
+      return shape;
+    case "Polyline":
+      console.log("Polyline drag unimplemented", shape); // Just to prevent crashing on accidental drag
+      return shape;
     case "Line":
       return {
         ...shape,

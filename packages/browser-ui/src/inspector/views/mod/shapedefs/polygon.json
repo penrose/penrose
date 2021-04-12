@@ -1,0 +1,39 @@
+{
+  "shapeType": "Polygon",
+  "properties": {
+    "color": {
+      "inputType": "color",
+      "showValue": "false"
+    },
+    "strokeWidth": {
+      "inputType": "range",
+      "min": "0",
+      "max": "20",
+      "showValue": "true"
+    },
+    "scale": {
+      "inputType": "range",
+      "min": "0.0",
+      "max": "20.0",
+      "showValue": "true"
+    },
+    "strokeColor": {
+      "inputType": "color",
+      "showValue": "false"
+    },
+    "strokeStyle": {
+      "inputType": "select",
+      "options": ["solid", "dashed"],
+      "showValue": "false"
+    },
+    "points": {
+      "inputType": "mulptrange",
+      "showValue": "true",
+      "options": ["solid", "dashed"],
+      "minX": "CANVASL",
+      "maxX": "CANVASR",
+      "minY": "CANVASB",
+      "maxY": "CANVAST"
+    }
+  }
+}

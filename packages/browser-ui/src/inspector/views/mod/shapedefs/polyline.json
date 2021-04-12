@@ -1,0 +1,39 @@
+{
+  "shapeType": "Polyline",
+  "properties": {
+    "color": {
+      "inputType": "color",
+      "showValue": "false"
+    },
+    "strokeWidth": {
+      "inputType": "range",
+      "min": "0",
+      "max": "20",
+      "showValue": "true"
+    },
+    "strokeColor": {
+      "inputType": "color",
+      "showValue": "false"
+    },
+    "strokeStyle": {
+      "inputType": "select",
+      "options": ["solid", "dashed"],
+      "showValue": "false"
+    },
+    "scale": {
+      "inputType": "range",
+      "min": "0",
+      "max": "20",
+      "showValue": "true"
+    },
+    "points": {
+      "inputType": "mulptrange",
+      "showValue": "true",
+      "options": ["solid", "dashed"],
+      "minX": "CANVASL",
+      "maxX": "CANVASR",
+      "minY": "CANVASB",
+      "maxY": "CANVAST"
+    }
+  }
+}
