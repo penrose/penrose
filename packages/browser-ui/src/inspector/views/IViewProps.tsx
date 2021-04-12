@@ -1,4 +1,5 @@
 import { PenroseError, PenroseState } from "@penrose/core";
+import { ISettings } from "App";
 
 export interface IViewProps {
   // Switches the current frame to index in history
@@ -11,5 +12,7 @@ export interface IViewProps {
   frameIndex: number;
   modShapes(state: PenroseState): void; // todo - null check
   error: PenroseError | null;
+  settings: ISettings;
+  setSettings(settings: ISettings): void;
 }
 export default IViewProps;
