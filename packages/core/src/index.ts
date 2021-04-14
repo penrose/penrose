@@ -5,7 +5,11 @@ import {
   compileSubstance,
   parseSubstance,
 } from "compiler/Substance";
-import { prettyPrintFn } from "utils/OtherUtils";
+import {
+  prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
+} from "utils/OtherUtils";
 import { SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
@@ -266,6 +270,7 @@ export const evalFns = (fns: Fn[], s: State): number[] => {
 };
 
 export type PenroseState = State;
+export type PenroseFn = Fn;
 
 export type { PenroseError } from "./types/errors";
 export {
@@ -285,4 +290,6 @@ export {
   showError,
   Result,
   prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
 };

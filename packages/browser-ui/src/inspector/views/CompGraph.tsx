@@ -3,6 +3,14 @@ import IViewProps from "./IViewProps";
 import cytoscape from "cytoscape";
 import { uniqBy } from "lodash";
 import dagre from "cytoscape-dagre";
+import {
+  ShapeTypes,
+  PenroseState,
+  PenroseFn,
+  prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
+} from "@penrose/core";
 
 cytoscape.use(dagre);
 
@@ -21,29 +29,106 @@ const merge = (arr: any) => [].concat.apply([], arr);
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: any): any => {
   const parNode = { id: par.id, label: par.op };
-  const edges = par.children.map(edge => ({
+  const edges = par.children.map((edge) => ({
     from: parNode.id,
-    to: edge.node.id
+    to: edge.node.id,
   }));
 
-  const subgraphs = par.children.map(edge => traverseGraphTopDown(edge.node));
-  const subnodes = merge(subgraphs.map(g => g.nodes));
-  const subedges = merge(subgraphs.map(g => g.edges));
+  const subgraphs = par.children.map((edge) => traverseGraphTopDown(edge.node));
+  const subnodes = merge(subgraphs.map((g) => g.nodes));
+  const subedges = merge(subgraphs.map((g) => g.edges));
 
   return {
     nodes: [parNode].concat(subnodes),
-    edges: edges.concat(subedges)
+    edges: edges.concat(subedges),
   };
 };
 
-// Return unique nodes after all nodes are merged
+// For building atomic op graph. Returns unique nodes after all nodes are merged
 const traverseUnique = (par: any): any => {
   const g = traverseGraphTopDown(par);
   return {
     ...g,
-    nodes: uniqBy(g.nodes, (e: any) => e.id)
+    nodes: uniqBy(g.nodes, (e: any) => e.id),
   };
 };
+
+// Convert from `traverseUnique` schema to cytoscape schema
+const convertSchema = (graph: any): any => {
+  const { nodes, edges } = graph;
+
+  const nodes2 = nodes.map((e) => ({
+    data: {
+      id: String(e.id), // this needs to be unique
+      label: e.label,
+    },
+  }));
+
+  const edges2 = edges.map((e) => ({
+    data: {
+      id: String(e.from) + " -> " + String(e.to), // NOTE: No duplicate edges
+      source: String(e.from),
+      target: String(e.to),
+      // No label
+    },
+  }));
+
+  return { nodes: nodes2, edges: edges2 };
+};
+
+// -----
+
+// For opt fn graph
+// TODO: Import `Fn` for the types
+// TODO: Hover to show outgoing edges (cytoscape)
+// TODO / NOTE: This does not work with inline computations (e.g. f(g(p), x)). Everything needs to be a path
+const toGraph = (objfns: PenroseFn[], constrfns: PenroseFn[]): any => {
+  // One node for each unique path, id = path name, name = path name
+  // One node for each unique obj/constr application, id = the function w/ its args, name = function name
+  // One edge for each function=>path application, id = from + to names, name = none
+
+  // TODO: Could instead be the union of shapePaths and varyingPaths if we want to show all optimizable paths, not just the ones that are optimized
+  const allFns = objfns.concat(constrfns);
+  const allPaths: string[] = merge(
+    allFns.map((f) => f.fargs.map(prettyPrintExpr))
+  ); // TODO: This also includes constants, etc.
+  const pathNodes = allPaths.map((p) => ({
+    data: {
+      id: p,
+      label: p,
+    },
+  }));
+
+  // TODO: Show objectives separately from constraints?? Or at least style them differently
+  const fnNodes = allFns.map((f) => ({
+    data: {
+      id: prettyPrintFn(f),
+      label: f.fname,
+      type: f.optType,
+    },
+  }));
+
+  const nodes = pathNodes.concat(fnNodes);
+
+  const edges = merge(
+    allFns.map((f) =>
+      f.fargs.map((arg) => ({
+        data: {
+          id: prettyPrintFn(f) + " -> " + prettyPrintExpr(arg),
+          source: prettyPrintFn(f), // Matches existing fn ids
+          target: prettyPrintExpr(arg), // Matches existing path ids
+        },
+      }))
+    )
+  );
+
+  return {
+    nodes,
+    edges,
+  };
+};
+
+// ----------
 
 const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   if (!frame) {
@@ -54,27 +139,20 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     );
   }
 
-  const top = frame.params.energyGraph;
-  const graph = traverseUnique(top);
+  // Find nodes and edges for atomic op graph, from top energy node
+  const graphAtomic = convertSchema(traverseUnique(frame.params.energyGraph));
 
-  // convert between schemas
-  const { nodes, edges } = graph;
-  const nodes2 = nodes.map(e => ({
-    data: {
-      id: String(e.id),
-      label: e.label
-    }
-  }));
-  const edges2 = edges.map(e => ({
-    data: {
-      id: String(e.from) + " " + String(e.to), // NOTE: No duplicate edges
-      source: String(e.from),
-      target: String(e.to)
-      // No label
-    }
-  }));
+  // Find nodes and edges for opt comp graph
+  const graphOpt = toGraph(frame.objFns, frame.constrFns);
 
-  console.log("graph # nodes", nodes2.length, "# edges", edges2.length);
+  const graph = graphOpt; // NOTE: Add dropdown to choose between the above two graphs
+
+  console.log(
+    "graph # nodes",
+    graph.nodes.length,
+    "# edges",
+    graph.edges.length
+  );
 
   const graphRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -82,10 +160,7 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       const cy = cytoscape({
         container: graphRef.current, // container to render in
 
-        elements: {
-          nodes: nodes2,
-          edges: edges2
-        },
+        elements: graph,
 
         style: [
           // the stylesheet for the graph
@@ -93,8 +168,8 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
             selector: "node",
             style: {
               "background-color": "#666",
-              label: "data(label)"
-            }
+              label: "data(label)", // label comes from a field of the node
+            },
           },
 
           {
@@ -104,10 +179,10 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
               "line-color": "#ccc",
               "target-arrow-color": "#ccc",
               "target-arrow-shape": "triangle",
-              "curve-style": "bezier"
-            }
-          }
-        ]
+              "curve-style": "bezier",
+            },
+          },
+        ],
 
         // layout: {
         //   name: "grid",
@@ -117,7 +192,7 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       });
 
       cy.layout({
-        name: "dagre"
+        name: "dagre",
       }).run();
 
       return () => {
