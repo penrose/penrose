@@ -184,7 +184,9 @@ const toGraphTrans = (trans: any, varyingPaths: any) => {
             edges.push(fieldEdge);
 
             if (fexpr.tag === "FExpr") {
-                // TODO: Fill this in
+                // TODO <<< Do FExpr: TagExpr<VarAD>
+                // Look up if varying path, and make special ? node
+                // Else use checkBlockExpr 
 
             } else if (fexpr.tag === "FGPI") {
                 const [typ, props] = fexpr.contents;
@@ -232,6 +234,11 @@ const toGraphTrans = (trans: any, varyingPaths: any) => {
 
                     nodes.push(propNode);
                     edges.push(propEdge);
+
+                    // TODO <<< Do propExpr: TagExpr<VarAD>
+                    // Look up if varying path, and make special ? node
+                    // Else use checkBlockExpr 
+
                 } // end property loop
 
             } // end gpi case
