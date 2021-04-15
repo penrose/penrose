@@ -1,5 +1,5 @@
 import { checkDomain, compileDomain, Env, parseDomain } from "compiler/Domain";
-import { compileStyle } from "compiler/Style";
+import { compileStyle, graphOfBlockExpr } from "compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
@@ -292,4 +292,5 @@ export {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
+  graphOfBlockExpr,
 };
