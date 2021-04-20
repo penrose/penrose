@@ -327,7 +327,8 @@ const {
     const prog = `
 const {
   -- literals
-  A.circle = Circle { -- comment begin
+  A.circle = Circle -- C-style braces
+  { -- comment begin
     strokeStyle: "dashed"
     -- comment between lines
     beautiful: true --comment inline
