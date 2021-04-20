@@ -193,17 +193,17 @@ const toGraphTrans = (trans: any, varyingPaths: any) => {
           const e = res.contents;
           const graph = graphOfBlockExpr(e);
           // TODO: Make sure the head node is the first one in the result
-          const headNode = graph.nodes[0];
+          head = graph.nodes[0];
           console.log("expr", e);
-          console.log("resulting graph", graph, headNode);
-          console.log("in", fieldNode, headNode);
+          console.log("resulting graph", graph, head);
+          console.log("in", fieldNode, head);
 
           // Connect the head node to its parent
           const exprEdge = {
             data: {
-              id: fieldNode.data.id + " -> " + headNode.data.id,
+              id: fieldNode.data.id + " -> " + head.data.id,
               source: fieldNode.data.id,
-              target: headNode.data.id,
+              target: head.data.id,
             },
           };
 
