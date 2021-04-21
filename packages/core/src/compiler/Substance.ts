@@ -26,6 +26,7 @@ import {
   LabelMap,
   SubstanceEnv,
   Decl,
+  LabelOption,
 } from "types/substance";
 import {
   andThen,
@@ -559,4 +560,87 @@ export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
     return err(varNotFound(variable, possibleVars));
   }
 };
+//#endregion
+
+//#region Substance pretty printer
+
+export const prettySubstance = (prog: SubProg): string =>
+  prog.statements.map((stmt) => prettyStmt(stmt)).join("\n");
+
+const prettyStmt = (stmt: SubStmt): string => {
+  switch (stmt.tag) {
+    case "Decl": {
+      const { type, name } = stmt;
+      return `${prettyType(type)} ${prettyVar(name)}`;
+    }
+    case "Bind": {
+      const { variable, expr } = stmt;
+      return `${prettyVar(variable)} := ${prettyExpr(expr)}`;
+    }
+    case "AutoLabel":
+      return `AutoLabel ${prettyLabelOpt(stmt.option)}`;
+    case "NoLabel":
+      return `NoLabel ${stmt.args.map((a) => prettyVar(a)).join(", ")}`;
+    case "LabelDecl":
+      return `Label ${prettyVar(stmt.variable)} \$${stmt.label.contents}\$`;
+    case "ApplyPredicate":
+      return prettyPredicate(stmt);
+    case "EqualExprs":
+      return `${prettyExpr(stmt.left)} = ${prettyExpr(stmt.right)}`;
+    case "EqualPredicates":
+      return `${prettyPredicate(stmt.left)} <-> ${prettyPredicate(stmt.right)}`;
+  }
+};
+
+const prettyPredicate = (pred: ApplyPredicate): string => {
+  const { name, args } = pred;
+  const argStr = args.map((a) => prettyPredArg(a)).join(", ");
+  return `${prettyVar(name)}(${argStr})`;
+};
+
+const prettyPredArg = (arg: SubPredArg): string => {
+  if (arg.tag === "ApplyPredicate") return prettyPredicate(arg);
+  else return prettyExpr(arg);
+};
+
+const prettyType = (type: TypeConsApp): string => {
+  const { name, args } = type;
+  if (args.length > 0) {
+    const argStr = args.map((a) => prettyType(a)).join(", ");
+    return `${prettyVar(name)}(${argStr})`;
+  } else {
+    return `${prettyVar(name)}`;
+  }
+};
+
+const prettyLabelOpt = (opt: LabelOption): string => {
+  switch (opt.tag) {
+    case "DefaultLabels":
+      return "All";
+    case "LabelIDs":
+      return opt.variables.map((v) => prettyVar(v)).join(", ");
+  }
+};
+
+const prettyVar = (v: Identifier): string => v.value;
+const prettyExpr = (expr: SubExpr): string => {
+  switch (expr.tag) {
+    case "Identifier":
+      return prettyVar(expr);
+    case "StringLit":
+      return expr.contents;
+    case "Deconstructor": {
+      const { variable, field } = expr;
+      return `${prettyVar(variable)}.${prettyVar(field)}`;
+    }
+    case "ApplyFunction":
+    case "Func":
+    case "ApplyConstructor": {
+      const { name, args } = expr;
+      const argStr = args.map((arg) => prettyExpr(arg)).join(", ");
+      return `${prettyVar(name)}(${argStr})`;
+    }
+  }
+};
+
 //#endregion
