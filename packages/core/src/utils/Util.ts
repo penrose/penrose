@@ -97,6 +97,12 @@ export const bBoxDims = (properties: Properties, shapeType: string) => {
     ];
   } else if (shapeType === "Path") {
     [w, h] = [20, 20]; // todo find a better measure for this... check with max?
+  } else if (shapeType === "Polygon") {
+    [w, h] = [20, 20]; // todo find a better measure for this... check with max?
+  } else if (shapeType === "FreeformPolygon") {
+    [w, h] = [20, 20]; // todo find a better measure for this... check with max?
+  } else if (shapeType === "Polyline") {
+    [w, h] = [20, 20]; // todo find a better measure for this... check with max?
   } else {
     [w, h] = [properties.w.contents as number, properties.h.contents as number];
   }

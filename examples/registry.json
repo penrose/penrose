@@ -35,6 +35,16 @@
       "substance": "allShapes",
       "style": "dashedShapes",
       "domain": "shape-spec"
+    },
+    {
+      "substance": "small-graph",
+      "style": "disjoint-rects",
+      "domain": "graph-theory"
+    },
+    {
+      "substance": "small-graph",
+      "style": "disjoint-rect-line-horiz",
+      "domain": "graph-theory"
     }
   ],
   "domains": {
@@ -49,6 +59,10 @@
     "shape-spec": {
       "name": "Shapes",
       "URI": "shape-spec/shape-spec-dashes.dsl"
+    },
+    "graph-theory": {
+      "name": "Graph Theory",
+      "URI": "graph-domain/graph-theory.dsl"
     }
   },
   "styles": {
@@ -86,6 +100,16 @@
       "domain": "linear-algebra",
       "name": "Vectors with Dashed Arrows",
       "URI": "linear-algebra-domain/linearalgebra-paper-dashes.sty"
+    },
+    "disjoint-rects": {
+      "domain": "graph-theory",
+      "name": "Disjoint rectangles in box",
+      "URI": "graph-domain/disjoint-rects.sty"
+    },
+    "disjoint-rect-line-horiz": {
+      "domain": "graph-theory",
+      "name": "Disjoint rectangles and lines in box",
+      "URI": "graph-domain/disjoint-rect-line-horiz.sty"
     }
   },
   "substances": {
@@ -113,6 +137,11 @@
       "domain": "shape-spec",
       "name": "All Shapes",
       "URI": "shape-spec/shapes-dashes.sub"
+    },
+    "small-graph": {
+      "domain": "graph-theory",
+      "name": "Small graph",
+      "URI": "graph-domain/small-graph.sub"
     }
   }
 }

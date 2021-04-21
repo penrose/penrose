@@ -40,7 +40,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param state current state
  * @param numSteps number of steps to take (default: 1)
  */
-export const stepState = (state: State, numSteps = 1): State => {
+export const stepState = (state: State, numSteps = 10000): State => {
   return step(state, numSteps);
 };
 
@@ -48,11 +48,11 @@ export const stepState = (state: State, numSteps = 1): State => {
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
-export const stepUntilConvergence = (state: State): State => {
-  const numSteps = 1;
+export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   let currentState = state;
-  while (!stateConverged(currentState))
-    currentState = step(currentState, numSteps);
+  while (!stateConverged(currentState)) {
+    currentState = step(currentState, numSteps, true);
+  }
   return currentState;
 };
 

@@ -1,4 +1,11 @@
-import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
+import {
+  IColorV,
+  IFloatV,
+  IVectorV,
+  IStrV,
+  IPtListV,
+  ILListV,
+} from "types/value";
 import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
 
@@ -7,6 +14,10 @@ export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const alpha = color.contents.contents[3];
   elem.setAttribute("fill", toHex(color.contents));
   elem.setAttribute("fill-opacity", alpha.toString());
+};
+
+export const attrNoFill = ({ properties }: Shape, elem: SVGElement) => {
+  elem.setAttribute("fill", "none");
 };
 
 export const attrOpacity = ({ properties }: Shape, elem: SVGElement) => {
@@ -25,6 +36,46 @@ export const attrCenter = (
   elem.setAttribute("cy", y.toString());
 };
 
+export const attrPolyCenter = (
+  { properties }: Shape,
+  canvasSize: [number, number],
+  elem: SVGElement
+) => {
+  if (properties.center) {
+    const [x, y] = toScreen(
+      properties.center.contents as [number, number],
+      canvasSize
+    );
+    elem.setAttribute("cx", x.toString());
+    elem.setAttribute("cy", y.toString());
+  } else {
+    const points = properties.points as IPtListV<number>;
+    const xs = points.contents.map((xy) => xy[0]);
+    const ys = points.contents.map((xy) => xy[1]);
+
+    const minX = Math.min(...xs),
+      minY = Math.min(...ys),
+      maxX = Math.max(...xs),
+      maxY = Math.max(...ys);
+
+    const cx = (minX + maxX) / 2,
+      cy = (minY + maxY) / 2;
+
+    const [x, y] = toScreen([cx, cy] as [number, number], canvasSize);
+    elem.setAttribute("cx", x.toString());
+    elem.setAttribute("cy", y.toString());
+  }
+};
+
+export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
+  let scale = properties?.scale?.contents;
+  scale ||= 1;
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
+  elem.setAttribute("transform", transform);
+};
+
 export const attrTransformCoords = (
   { properties }: Shape,
   canvasSize: [number, number],
@@ -34,10 +85,12 @@ export const attrTransformCoords = (
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   const w = properties.w as IFloatV<number>;
   const h = properties.h as IFloatV<number>;
-  elem.setAttribute(
-    "transform",
-    `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
-  );
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null
+      ? `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
+      : transform + `translate(${x - w.contents / 2}, ${y - h.contents / 2})`;
+  elem.setAttribute("transform", transform);
 };
 
 export const attrXY = (
@@ -72,6 +125,21 @@ export const attrRadius = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("r", r.contents.toString());
 };
 
+export const attrPathLength = ({ properties }: Shape, elem: SVGElement) => {
+  const pathLength = properties.pathLength as IFloatV<number>;
+  elem.setAttribute("pathLength", pathLength.contents.toString());
+};
+
+export const attrRadiusX = ({ properties }: Shape, elem: SVGElement) => {
+  const rx = properties.rx as IFloatV<number>;
+  elem.setAttribute("rx", rx.contents.toString());
+};
+
+export const attrRadiusY = ({ properties }: Shape, elem: SVGElement) => {
+  const ry = properties.ry as IFloatV<number>;
+  elem.setAttribute("ry", ry.contents.toString());
+};
+
 export const attrRadii = ({ properties }: Shape, elem: SVGElement) => {
   const rx = properties.rx as IFloatV<number>;
   const ry = properties.ry as IFloatV<number>;
@@ -84,6 +152,11 @@ export const attrWH = ({ properties }: Shape, elem: SVGElement) => {
   const h = properties.h as IFloatV<number>;
   elem.setAttribute("width", w.contents.toString());
   elem.setAttribute("height", h.contents.toString());
+};
+
+export const attrPoints = ({ properties }: Shape, elem: SVGElement) => {
+  const points = properties.points as IPtListV<number>;
+  elem.setAttribute("points", points.contents.toString());
 };
 
 export const attrSide = ({ properties }: Shape, elem: SVGElement) => {

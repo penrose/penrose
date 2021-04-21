@@ -836,7 +836,9 @@ export const insertExpr = (
 export const insertExprs = (
   ps: Path[],
   es: TagExpr<VarAD>[],
-  tr: Translation
+  tr: Translation,
+  compiling = false,
+  override = false
 ): Translation => {
   if (ps.length !== es.length) {
     throw Error("length should be the same");
@@ -845,7 +847,7 @@ export const insertExprs = (
   let tr2 = tr;
   for (let i = 0; i < ps.length; i++) {
     // Tr gets mutated
-    tr2 = insertExpr(ps[i], es[i], tr);
+    tr2 = insertExpr(ps[i], es[i], tr, compiling, override);
   }
 
   return tr2;
