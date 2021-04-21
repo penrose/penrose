@@ -36,6 +36,7 @@ import {
 import { Identifier, ASTNode, SourceLoc } from "types/ast";
 import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
 import { SubExpr, Deconstructor } from "types/substance";
+import { isConcrete } from "engine/EngineUtils";
 // #region error rendering and construction
 
 /**
@@ -511,10 +512,15 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
-const loc = (node: ASTNode) =>
-  `line ${node.start.line}, column ${node.start.col + 1} of ${
-    node.nodeType
-  } program`;
+const loc = (node: ASTNode): string => {
+  if (isConcrete(node)) {
+    return `line ${node.start.line}, column ${node.start.col + 1} of ${
+      node.nodeType
+    } program`;
+  } else {
+    return `generated code by the compiler`; // TODO: better description of where the node is coming from
+  }
+};
 
 // #endregion
 

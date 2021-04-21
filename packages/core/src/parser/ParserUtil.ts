@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { compact, flatten } from "lodash";
 import * as moo from "moo";
-import { SourceLoc, Identifier } from "types/ast";
+import { SourceLoc, Identifier, NodeType } from "types/ast";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,
@@ -164,7 +164,7 @@ export const tokensIn = (tokenList: any[]): any[] =>
   flatten(compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-export const idOf = (value: string, nodeType: string): Identifier => ({
+export const idOf = (value: string, nodeType: NodeType): Identifier => ({
   nodeType,
   children: [],
   start: { line: 1, col: 1 },

@@ -124,16 +124,14 @@ export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
 };
 
 const toSubDecl = (idString: string, decl: TypeConstructor): Decl => ({
-  start: dummySourceLoc(),
-  end: dummySourceLoc(),
-  nodeType: "dummyDecl",
+  nodeType: "SyntheticSubstance",
   children: [],
   tag: "Decl",
   type: {
     ...decl,
     args: [],
   },
-  name: dummyIdentifier(idString),
+  name: dummyIdentifier(idString, "SyntheticSubstance"),
 });
 
 const postprocessStmt = (

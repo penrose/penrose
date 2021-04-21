@@ -4,7 +4,14 @@ import { constOfIf, numOf, varOf } from "engine/Autodiff";
 import { findDef } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { IVarAD, VarAD } from "types/ad";
-import { ASTNode, Identifier, SourceLoc } from "types/ast";
+import {
+  ASTNode,
+  ConcreteNode,
+  Identifier,
+  NodeType,
+  SourceLoc,
+  SyntheticNode,
+} from "types/ast";
 import { StyleError, Warning } from "types/errors";
 import { Elem, SubPath, Value } from "types/value";
 import { LbfgsParams } from "types/state";
@@ -379,27 +386,30 @@ export const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
 };
 
-export const dummyASTNode = (o: any): ASTNode => {
+export const dummyASTNode = (o: any, nodeType: NodeType): SyntheticNode => {
   return {
     ...o,
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
-    nodeType: "dummyASTNode", // COMBAK: Is this ok?
-    children: [],
+    nodeType,
   };
 };
 
+export const isConcrete = (node: ASTNode): node is ConcreteNode =>
+  node.nodeType === "Substance" ||
+  node.nodeType === "Style" ||
+  node.nodeType === "Domain";
+
 // COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
-export const dummyIdentifier = (name: string): Identifier => {
+export const dummyIdentifier = (
+  name: string,
+  nodeType: NodeType
+): Identifier => {
   return {
+    nodeType,
     // COMBAK: Is this ok?
-    nodeType: "dummyNode",
     children: [],
     type: "value",
     value: name,
     tag: "Identifier",
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
   };
 };
 
@@ -409,10 +419,8 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
   }
 
   return {
-    nodeType: "dummyExpr",
+    nodeType: "SyntheticStyle",
     children: [],
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
     tag: "VaryAD",
     contents: e.contents,
   };
@@ -463,15 +471,15 @@ export const insertGPI = (
 
 const defaultVec2 = (): Expr => {
   const e1: AnnoFloat = {
-    ...dummyASTNode({}),
+    ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
   const e2: AnnoFloat = {
-    ...dummyASTNode({}),
+    ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
   const v2: IVector = {
-    ...dummyASTNode({}),
+    ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vector",
     contents: [e1, e2],
   };
@@ -1000,10 +1008,8 @@ export const exprToNumber = (e: Expr): number => {
 
 export const numToExpr = (n: number): Expr => {
   return {
-    nodeType: "dummyExpr",
+    nodeType: "SyntheticStyle",
     children: [],
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
     tag: "Fix",
     contents: n,
   };
