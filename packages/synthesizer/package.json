@@ -1,0 +1,43 @@
+{
+  "name": "@penrose/synthesizer",
+  "version": "1.0.0",
+  "description": "Synthesis engine for Penrose",
+  "keywords": [
+    "program synthesis",
+    "diagramming"
+  ],
+  "homepage": "http://penrose.ink/",
+  "license": "MIT",
+  "main": "src/index.js",
+  "directories": {
+    "test": "__tests__"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/penrose/penrose.git"
+  },
+  "scripts": {
+    "start": "ts-node ./index.tsx",
+    "test": "echo \"no test specified for synthesizer\" && exit 0"
+  },
+  "bugs": {
+    "url": "https://github.com/penrose/penrose/issues"
+  },
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "@penrose/core": "^1.1.0",
+    "neodoc": "^2.0.2",
+    "true-myth": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.68",
+    "ts-node": "^9.0.0",
+    "typescript": "^3.9.7"
+  }
+}

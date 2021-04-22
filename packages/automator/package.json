@@ -8,7 +8,7 @@
     "test": "echo \"no test specified for automator\" && exit 0"
   },
   "author": "Penrose Team (https://penrose.ink)",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@penrose/core": "^1.0.0",
     "@types/react": "^16.9.32",

@@ -2719,6 +2719,24 @@
   dependencies:
     "@octokit/openapi-types" "^4.0.3"
 
+"@penrose/core@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@penrose/core/-/core-1.1.0.tgz#2f75ae7de3e56c96b31e482dad7d7410946e64d0"
+  integrity sha512-r+119nunJshdnbgXs8Mt5jMiCJ3G1j4t5eTAlp3GFOUw8p+ilCYtl56LnWr6bRlvqfaTs6Di6YQtBoXTkBBfsQ==
+  dependencies:
+    consola "^2.15.2"
+    eigen "^0.2.0"
+    fast-memoize "^2.5.2"
+    graphlib "^2.1.8"
+    immutable "^4.0.0-rc.12"
+    lodash "^4.17.15"
+    mathjax-full "^3.0.1"
+    moo "^0.5.1"
+    nearley "^2.20.1"
+    rfdc "^1.2.0"
+    seedrandom "^3.0.5"
+    "true-myth" "^4.1.0"
+
 "@pmmmwh/react-refresh-webpack-plugin@0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.4.3.tgz#1eec460596d200c0236bf195b078a5d1df89b766"
