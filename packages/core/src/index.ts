@@ -1,12 +1,13 @@
-import { checkDomain, compileDomain, Env, parseDomain } from "compiler/Domain";
+import { checkDomain, compileDomain, parseDomain } from "compiler/Domain";
 import { compileStyle } from "compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
+  prettySubstance,
 } from "compiler/Substance";
 import { prettyPrintFn } from "utils/OtherUtils";
-import { SubstanceEnv } from "types/substance";
+import { SubProg, SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
 import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
@@ -23,6 +24,8 @@ import { State, LabelCache, Fn } from "types/state";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { bBoxDims, toHex } from "utils/Util";
+import { Env } from "types/domain";
+import { Synthesizer } from "synthesis/Synthesizer";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -265,9 +268,15 @@ export const evalFns = (fns: Fn[], s: State): number[] => {
   });
 };
 
+export const synthesizePrograms = (env: Env, numProgs: number): SubProg[] => {
+  const synth: Synthesizer = new Synthesizer(env);
+  return synth.generateSubstances(numProgs);
+};
+
 export type PenroseState = State;
 
 export type { PenroseError } from "./types/errors";
+export type { Env };
 export {
   compileDomain,
   compileSubstance,
@@ -280,6 +289,7 @@ export {
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
+  prettySubstance,
   toHex,
   initializeMat,
   showError,

@@ -9,7 +9,6 @@ import {
   defaultLbfgsParams,
   dummyASTNode,
   dummyIdentifier,
-  dummySourceLoc,
   findExpr,
   findExprSafe,
   initConstraintWeight,
@@ -35,8 +34,9 @@ import {
 } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { VarAD } from "types/ad";
-import { ASTNode, Identifier, SourceLoc, SyntheticNode } from "types/ast";
-import { ConstructorDecl, TypeConstructor } from "types/domain";
+import { ASTNode, Identifier } from "types/ast";
+import { Either, Just, Left, MaybeVal, Right } from "types/common";
+import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
   ParseError,
   PenroseError,
@@ -46,23 +46,6 @@ import {
   StyleWarnings,
   SubstanceError,
 } from "types/errors";
-import { Either, Left, Right, MaybeVal, Just, Nothing } from "types/common";
-import {
-  Field,
-  FieldDict,
-  FieldExpr,
-  GPIMap,
-  GPIProps,
-  IFGPI,
-  IOptEval,
-  Property,
-  PropID,
-  ShapeTypeStr,
-  StyleOptFn,
-  TagExpr,
-  Translation,
-  Value,
-} from "types/value";
 import { Fn, OptType, Params, State } from "types/state";
 import {
   BindingForm,
@@ -104,10 +87,26 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import {
+  Field,
+  FieldDict,
+  FieldExpr,
+  GPIMap,
+  GPIProps,
+  IFGPI,
+  IOptEval,
+  Property,
+  PropID,
+  ShapeTypeStr,
+  StyleOptFn,
+  TagExpr,
+  Translation,
+  Value,
+} from "types/value";
 import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
-import { prettyPrintPath, prettyPrintExpr } from "utils/OtherUtils";
-import { randFloats, randFloat } from "utils/Util";
-import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
+import { prettyPrintPath } from "utils/OtherUtils";
+import { randFloat } from "utils/Util";
+import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
   .create({ level: LogLevel.Warn })

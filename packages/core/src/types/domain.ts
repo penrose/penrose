@@ -1,6 +1,9 @@
 //#region Domain AST
 
+import { Graph } from "graphlib";
 import { IStringLit, ASTNode, Identifier } from "./ast";
+import { ApplyConstructor, TypeConsApp } from "./substance";
+import { Map } from "immutable";
 
 export type Var = Identifier;
 
@@ -84,4 +87,19 @@ export interface SubTypeDecl extends ASTNode {
   superType: Type;
 }
 
+//#endregion
+
+//#region Domain context
+export interface Env {
+  types: Map<string, TypeDecl>;
+  constructors: Map<string, ConstructorDecl>;
+  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
+  functions: Map<string, FunctionDecl>;
+  vars: Map<string, TypeConsApp>; // TODO: use Identifier as key?
+  predicates: Map<string, PredicateDecl>;
+  typeVars: Map<string, TypeVar>;
+  preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
+  subTypes: [TypeConstructor, TypeConstructor][];
+  typeGraph: Graph;
+}
 //#endregion

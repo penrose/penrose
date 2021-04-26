@@ -10,6 +10,7 @@ import {
   ConstructorDecl,
   FunctionDecl,
   TypeConstructor,
+  Env,
 } from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
@@ -45,13 +46,7 @@ import {
   unexpectedExprForNestedPred,
   varNotFound,
 } from "utils/Error";
-import {
-  bottomType,
-  checkTypeConstructor,
-  Env,
-  isSubtype,
-  topType,
-} from "./Domain";
+import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
 import { dummyIdentifier, dummySourceLoc } from "engine/EngineUtils";
 
 export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {

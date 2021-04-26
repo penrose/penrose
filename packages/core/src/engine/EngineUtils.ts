@@ -405,7 +405,6 @@ export const dummyIdentifier = (
 ): Identifier => {
   return {
     nodeType,
-    // COMBAK: Is this ok?
     children: [],
     type: "value",
     value: name,

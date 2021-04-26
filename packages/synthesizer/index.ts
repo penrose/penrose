@@ -1,6 +1,12 @@
-const fs = require("fs");
+require("global-jsdom/register");
+import { readFileSync } from "fs";
+import * as neodoc from "neodoc";
+import {
+  compileDomain,
+  prettySubstance,
+  synthesizePrograms,
+} from "@penrose/core";
 // const chalk = require("chalk");
-const neodoc = require("neodoc");
 
 const USAGE = `
 Penrose Synthesizer.
@@ -27,7 +33,13 @@ Options:
 
   // Determine the output file path
   const substance = args["--substance"];
-  const domainPath = args.domain;
-  const domainSrc = fs.readFileSync(domainPath, "utf8").toString();
-  console.log(domainSrc);
+  const domainPath = args["<domain>"];
+  const numPrograms = +args["--num-programs"]; // NOTE: convert to number
+  const domainSrc = readFileSync(domainPath, "utf8").toString();
+  const envOrError = compileDomain(domainSrc);
+  if (envOrError.isOk()) {
+    const env = envOrError.value;
+    const progs = synthesizePrograms(env, numPrograms);
+    progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
+  }
 })();

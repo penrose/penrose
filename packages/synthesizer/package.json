@@ -8,7 +8,7 @@
   ],
   "homepage": "http://penrose.ink/",
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "index.ts",
   "directories": {
     "test": "__tests__"
   },
@@ -23,7 +23,7 @@
     "url": "git+https://github.com/penrose/penrose.git"
   },
   "scripts": {
-    "start": "ts-node ./index.tsx",
+    "start": "ts-node ./index.ts",
     "test": "echo \"no test specified for synthesizer\" && exit 0"
   },
   "bugs": {
@@ -33,7 +33,8 @@
     "chalk": "^3.0.0",
     "@penrose/core": "^1.1.0",
     "neodoc": "^2.0.2",
-    "true-myth": "^4.1.1"
+    "true-myth": "^4.1.1",
+    "global-jsdom": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^12.12.68",

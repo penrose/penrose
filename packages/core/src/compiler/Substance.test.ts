@@ -4,9 +4,10 @@ import grammar from "parser/SubstanceParser";
 import * as path from "path";
 import { PenroseError } from "types/errors";
 import { Result, showError, showType } from "utils/Error";
-import { compileDomain, Env } from "./Domain";
+import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
 import { SubstanceEnv } from "types/substance";
+import { Env } from "types/domain";
 
 const printError = false;
 const saveContexts = false;

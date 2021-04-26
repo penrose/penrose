@@ -5,25 +5,22 @@ import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import {
-  DomainProg,
-  TypeDecl,
-  ConstructorDecl,
-  FunctionDecl,
-  PredicateDecl,
-  TypeVar,
-  TypeConstructor,
-  DomainStmt,
-  Type,
   Arg,
+  DomainProg,
+  DomainStmt,
+  Env,
+  Type,
+  TypeConstructor,
+  TypeDecl,
 } from "types/domain";
 import {
-  ParseError,
   DomainError,
+  ParseError,
+  PenroseError,
   TypeNotFound,
   TypeVarNotFound,
-  PenroseError,
 } from "types/errors";
-import { ApplyConstructor, TypeConsApp } from "types/substance";
+import { TypeConsApp } from "types/substance";
 import {
   and,
   andThen,
@@ -76,21 +73,6 @@ export const compileDomain = (prog: string): Result<Env, PenroseError> => {
 };
 
 export type CheckerResult = Result<Env, DomainError>;
-
-//#region Domain context
-export interface Env {
-  types: Map<string, TypeDecl>;
-  constructors: Map<string, ConstructorDecl>;
-  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
-  functions: Map<string, FunctionDecl>;
-  vars: Map<string, TypeConsApp>; // TODO: use Identifier as key?
-  predicates: Map<string, PredicateDecl>;
-  typeVars: Map<string, TypeVar>;
-  preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
-  subTypes: [TypeConstructor, TypeConstructor][];
-  typeGraph: Graph;
-}
-//#endregion
 
 /* Built in types for all Domain programs */
 const builtinTypes: [string, TypeDecl][] = [
