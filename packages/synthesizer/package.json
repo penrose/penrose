@@ -30,11 +30,12 @@
     "url": "https://github.com/penrose/penrose/issues"
   },
   "dependencies": {
-    "chalk": "^3.0.0",
     "@penrose/core": "^1.1.0",
+    "chalk": "^3.0.0",
+    "global-jsdom": "^8.0.0",
     "neodoc": "^2.0.2",
-    "true-myth": "^4.1.1",
-    "global-jsdom": "^8.0.0"
+    "pandemonium": "^2.0.0",
+    "true-myth": "^4.1.1"
   },
   "devDependencies": {
     "@types/node": "^12.12.68",

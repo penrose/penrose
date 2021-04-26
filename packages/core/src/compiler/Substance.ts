@@ -1,33 +1,34 @@
-import { findIndex, zip } from "lodash";
+import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
+import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import { Identifier } from "types/ast";
 import {
   Arg,
-  Type,
   ConstructorDecl,
-  FunctionDecl,
-  TypeConstructor,
   Env,
+  FunctionDecl,
+  Type,
+  TypeConstructor,
 } from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
-  SubProg,
-  SubExpr,
-  ApplyPredicate,
-  SubStmt,
-  TypeConsApp,
-  SubPredArg,
-  Func,
   ApplyConstructor,
   ApplyFunction,
-  Deconstructor,
-  LabelMap,
-  SubstanceEnv,
+  ApplyPredicate,
   Decl,
+  Deconstructor,
+  Func,
+  LabelMap,
   LabelOption,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubstanceEnv,
+  SubStmt,
+  TypeConsApp,
 } from "types/substance";
 import {
   andThen,
@@ -47,7 +48,6 @@ import {
   varNotFound,
 } from "utils/Error";
 import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
-import { dummyIdentifier, dummySourceLoc } from "engine/EngineUtils";
 
 export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
   const parser = new nearley.Parser(

@@ -1,11 +1,7 @@
 require("global-jsdom/register");
 import { readFileSync } from "fs";
 import * as neodoc from "neodoc";
-import {
-  compileDomain,
-  prettySubstance,
-  synthesizePrograms,
-} from "@penrose/core";
+import { compileDomain, prettySubstance, Synthesizer } from "@penrose/core";
 // const chalk = require("chalk");
 
 const USAGE = `
@@ -39,7 +35,8 @@ Options:
   const envOrError = compileDomain(domainSrc);
   if (envOrError.isOk()) {
     const env = envOrError.value;
-    const progs = synthesizePrograms(env, numPrograms);
+    const synth: Synthesizer = new Synthesizer(env);
+    const progs = synth.generateSubstances(numPrograms);
     progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
   }
 })();

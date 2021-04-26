@@ -268,11 +268,6 @@ export const evalFns = (fns: Fn[], s: State): number[] => {
   });
 };
 
-export const synthesizePrograms = (env: Env, numProgs: number): SubProg[] => {
-  const synth: Synthesizer = new Synthesizer(env);
-  return synth.generateSubstances(numProgs);
-};
-
 export type PenroseState = State;
 
 export type { PenroseError } from "./types/errors";
@@ -286,6 +281,7 @@ export {
   parseDomain,
   RenderStatic,
   RenderShape,
+  Synthesizer,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,

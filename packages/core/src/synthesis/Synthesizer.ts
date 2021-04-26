@@ -1,10 +1,17 @@
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
-import { sample, times } from "lodash";
-import { type } from "os";
+import { times } from "lodash";
+import { choice } from "pandemonium";
 import { Identifier } from "types/ast";
-import { Env, TypeDecl } from "types/domain";
-import { Decl, SubProg, SubStmt, TypeConsApp } from "types/substance";
+import { Env, PredicateDecl, TypeDecl } from "types/domain";
+import {
+  ApplyPredicate,
+  Decl,
+  SubPredArg,
+  SubProg,
+  SubStmt,
+  TypeConsApp,
+} from "types/substance";
 
 class SynthesisContext {
   names: Map<string, number>;
@@ -28,8 +35,8 @@ class SynthesisContext {
     }
   };
 
-  generateID = (type: TypeConsApp): Identifier => {
-    const typeStr = type.name.value;
+  generateID = (typeName: Identifier): Identifier => {
+    const typeStr = typeName.value;
     const prefix = typeStr[0].toLowerCase();
     const index = this.nextIndex(prefix);
     const id: Identifier = dummyIdentifier(
@@ -80,17 +87,38 @@ export class Synthesizer {
   generateType = (): Decl => {
     // pick a type
     // TODO: handle null case
-    const type: TypeDecl = sample(this.env.types.toArray().map(([, b]) => b))!;
+    const type: TypeDecl = choice(this.env.types.toArray().map(([, b]) => b));
     const typeCons: TypeConsApp = applyType(type);
     return {
       tag: "Decl",
       nodeType: "SyntheticSubstance",
       children: [],
       type: typeCons,
-      name: this.cxt.generateID(typeCons),
+      name: this.cxt.generateID(typeCons.name),
     };
   };
+
+  generatePredicate = (): ApplyPredicate => {
+    const pred: PredicateDecl = choice(
+      this.env.predicates.toArray().map(([, b]) => b)
+    );
+    const name = this.cxt.generateID(pred.name);
+  };
 }
+
+const applyPredicate = (
+  decl: PredicateDecl,
+  args: SubPredArg[]
+): ApplyPredicate => {
+  const { name } = decl;
+  return {
+    tag: "ApplyPredicate",
+    name,
+    nodeType: "SyntheticSubstance",
+    children: [],
+    args,
+  };
+};
 
 const applyType = (decl: TypeDecl): TypeConsApp => {
   const { name } = decl;
