@@ -27,7 +27,7 @@ Options:
 `;
 
 const defaultSetting = {
-  lengthRange: [1, 10],
+  lengthRange: [1, 5],
   argOption: "mixed",
   weights: {
     type: 0.1,
