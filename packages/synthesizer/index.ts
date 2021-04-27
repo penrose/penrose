@@ -29,13 +29,25 @@ Options:
 
   // Determine the output file path
   const substance = args["--substance"];
+  const settingPath = args["--synth-setting"];
   const domainPath = args["<domain>"];
   const numPrograms = +args["--num-programs"]; // NOTE: convert to number
   const domainSrc = readFileSync(domainPath, "utf8").toString();
   const envOrError = compileDomain(domainSrc);
+
+  const defaultSetting = {
+    lengthRange: [1, 10],
+    argOption: "mixed",
+    weights: {
+      type: 0.1,
+      predicate: 0.3,
+      constructor: 0.0,
+    },
+  };
+
   if (envOrError.isOk()) {
     const env = envOrError.value;
-    const synth: Synthesizer = new Synthesizer(env);
+    const synth: Synthesizer = new Synthesizer(env, defaultSetting);
     const progs = synth.generateSubstances(numPrograms);
     progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
   }

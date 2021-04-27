@@ -1,9 +1,17 @@
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
 import { times } from "lodash";
+import { type } from "os";
 import { choice } from "pandemonium";
 import { Identifier } from "types/ast";
-import { Env, PredicateDecl, TypeDecl } from "types/domain";
+import {
+  Arg,
+  Env,
+  PredicateDecl,
+  Type,
+  TypeConstructor,
+  TypeDecl,
+} from "types/domain";
 import {
   ApplyPredicate,
   Decl,
@@ -13,17 +21,45 @@ import {
   TypeConsApp,
 } from "types/substance";
 
+type ArgOption = "existing" | "generated" | "mixed";
+interface SynthesizerSetting {
+  lengthRange: [number, number];
+  argOption: ArgOption;
+  weights: {
+    type: number;
+    predicate: number;
+    constructor: number;
+  };
+}
+
 class SynthesisContext {
   names: Map<string, number>;
   declaredIDs: Map<string, Identifier[]>;
+  prog: SubProg;
 
   constructor() {
     this.names = Map();
     this.declaredIDs = Map();
+    this.prog = {
+      tag: "SubProg",
+      statements: [],
+    };
   }
+
+  // append a statement to the generated program
+  appendStmt = (stmt: SubStmt) => {
+    this.prog = {
+      ...this.prog,
+      statements: [...this.prog.statements, stmt],
+    };
+  };
 
   reset = () => {
     this.names = Map();
+    this.prog = {
+      tag: "SubProg",
+      statements: [],
+    };
   };
 
   addID = (typeStr: string, id: Identifier) => {
@@ -33,6 +69,12 @@ class SynthesisContext {
     } else {
       this.declaredIDs = this.declaredIDs.set(typeStr, [id]);
     }
+  };
+
+  pickID = (typeStr: string): Identifier | undefined => {
+    const possibleIDs = this.declaredIDs.get(typeStr);
+    if (possibleIDs) return choice([...possibleIDs]);
+    else return undefined;
   };
 
   generateID = (typeName: Identifier): Identifier => {
@@ -62,10 +104,12 @@ class SynthesisContext {
 export class Synthesizer {
   env: Env;
   cxt: SynthesisContext;
+  setting: SynthesizerSetting;
 
-  constructor(env: Env) {
+  constructor(env: Env, setting: SynthesizerSetting) {
     this.env = env;
     this.cxt = new SynthesisContext();
+    this.setting = setting;
   }
 
   generateSubstances = (numProgs: number): SubProg[] =>
@@ -77,34 +121,81 @@ export class Synthesizer {
 
   generateSubstance = (): SubProg => {
     const numStmts = 10; // COMBAK: parametrize or randomize
-    const stmts: SubStmt[] = times(numStmts, () => this.generateType());
-    return {
-      tag: "SubProg",
-      statements: stmts,
-    };
+    times(numStmts, () => this.generateStmt());
+    return this.cxt.prog;
   };
 
-  generateType = (): Decl => {
+  generateStmt = (): void => {
+    const stmtTypes = ["Decl", "Predicate"];
+    const chosenType = choice(stmtTypes);
+    switch (chosenType) {
+      case "Decl":
+        this.generateType();
+      case "Predicate":
+        this.generatePredicate();
+    }
+  };
+
+  generateType = (typeName?: Identifier): Decl => {
     // pick a type
-    // TODO: handle null case
-    const type: TypeDecl = choice(this.env.types.toArray().map(([, b]) => b));
-    const typeCons: TypeConsApp = applyType(type);
-    return {
+    let typeCons: TypeConsApp;
+    if (typeName) {
+      typeCons = nullaryTypeCons(typeName);
+    } else {
+      const type: TypeDecl = choice(this.env.types.toArray().map(([, b]) => b));
+      typeCons = applyTypeDecl(type);
+    }
+    const stmt: Decl = {
       tag: "Decl",
       nodeType: "SyntheticSubstance",
       children: [],
       type: typeCons,
       name: this.cxt.generateID(typeCons.name),
     };
+    this.cxt.appendStmt(stmt);
+    return stmt;
   };
 
   generatePredicate = (): ApplyPredicate => {
     const pred: PredicateDecl = choice(
       this.env.predicates.toArray().map(([, b]) => b)
     );
-    const name = this.cxt.generateID(pred.name);
+    const args: SubPredArg[] = this.generateArgs(pred.args);
+    const stmt: ApplyPredicate = applyPredicate(pred, args);
+    this.cxt.appendStmt(stmt);
+    return stmt;
+  };
+
+  generateArgs = (args: Arg[]): SubPredArg[] =>
+    args.map((arg) => this.generateArg(arg, this.setting.argOption));
+
+  generateArg = (arg: Arg, option: ArgOption): SubPredArg => {
+    // TODO: handle other kinds of args
+    const argType: Type = arg.type;
+    if (argType.tag !== "TypeConstructor") {
+      throw new Error(`${argType.tag} not supported for argument generation`);
+    }
+    switch (option) {
+      case "existing": {
+        const existingID = this.cxt.pickID(argType.name.value);
+        if (!existingID) {
+          return this.generateArg(arg, "generated");
+        } else {
+          return existingID;
+        }
+      }
+      case "generated":
+        this.generateType(argType.name);
+        return this.generateArg(arg, "existing");
+      case "mixed":
+        return this.generateArg(arg, choice(["existing", "generated"]));
+    }
   };
 }
+
+// const argType = (arg: Arg) => {
+//   const typeDecl: Type = arg.type;
+// };
 
 const applyPredicate = (
   decl: PredicateDecl,
@@ -120,14 +211,22 @@ const applyPredicate = (
   };
 };
 
-const applyType = (decl: TypeDecl): TypeConsApp => {
+// const applyTypeCons = (typeCons: TypeConstructor): TypeConsApp => ({
+//   ...typeCons,
+//   args: typeCons.args.map(arg => )
+// })
+
+// TODO: generate arguments as well
+const applyTypeDecl = (decl: TypeDecl): TypeConsApp => {
   const { name } = decl;
-  return {
-    tag: "TypeConstructor",
-    name,
-    args: [],
-  };
+  return nullaryTypeCons(name);
 };
+
+const nullaryTypeCons = (name: Identifier): TypeConsApp => ({
+  tag: "TypeConstructor",
+  name,
+  args: [],
+});
 
 // { names         :: Names
 // , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
