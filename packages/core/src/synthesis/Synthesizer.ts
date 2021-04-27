@@ -1,8 +1,7 @@
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
 import { times } from "lodash";
-import { type } from "os";
-import { choice } from "pandemonium";
+import { random, choice } from "pandemonium";
 import { Identifier } from "types/ast";
 import {
   Arg,
@@ -103,13 +102,19 @@ class SynthesisContext {
 
 export class Synthesizer {
   env: Env;
+  spec: Env;
   cxt: SynthesisContext;
   setting: SynthesizerSetting;
 
-  constructor(env: Env, setting: SynthesizerSetting) {
+  constructor(env: Env, setting: SynthesizerSetting, spec?: Env) {
     this.env = env;
     this.cxt = new SynthesisContext();
     this.setting = setting;
+    if (spec) {
+      this.spec = spec;
+    } else {
+      this.spec = env;
+    }
   }
 
   generateSubstances = (numProgs: number): SubProg[] =>
@@ -120,11 +125,12 @@ export class Synthesizer {
     });
 
   generateSubstance = (): SubProg => {
-    const numStmts = 10; // COMBAK: parametrize or randomize
+    const numStmts = random(...this.setting.lengthRange);
     times(numStmts, () => this.generateStmt());
     return this.cxt.prog;
   };
 
+  // NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
   generateStmt = (): void => {
     const stmtTypes = ["Decl", "Predicate"];
     const chosenType = choice(stmtTypes);
