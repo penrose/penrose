@@ -6,6 +6,7 @@ import { random, choice } from "pandemonium";
 import { Identifier } from "types/ast";
 import {
   Arg,
+  DomainStmt,
   Env,
   FunctionDecl,
   PredicateDecl,
@@ -21,18 +22,30 @@ import {
   SubExpr,
   SubPredArg,
   SubProg,
+  SubstanceEnv,
   SubStmt,
   TypeConsApp,
 } from "types/substance";
 
+type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
-interface SynthesizerSetting {
+export interface SynthesizerSetting {
   lengthRange: [number, number];
   argOption: ArgOption;
   weights: {
     type: number;
     predicate: number;
     constructor: number;
+  };
+  add: {
+    type: string[] | All;
+    predicate: string[] | All;
+    constructor: string[] | All;
+  };
+  delete: {
+    type: string[] | All;
+    predicate: string[] | All;
+    constructor: string[] | All;
   };
 }
 
@@ -43,14 +56,18 @@ class SynthesisContext {
   numStmts: number;
   maxStmts: number;
 
-  constructor() {
+  constructor(subEnv?: SubstanceEnv) {
     this.numStmts = 0;
     this.names = Map();
     this.declaredIDs = Map();
-    this.prog = {
-      tag: "SubProg",
-      statements: [],
-    };
+    if (subEnv) {
+      this.prog = subEnv.ast;
+    } else {
+      this.prog = {
+        tag: "SubProg",
+        statements: [],
+      };
+    }
     this.maxStmts = 0;
   }
 
@@ -114,19 +131,13 @@ class SynthesisContext {
 
 export class Synthesizer {
   env: Env;
-  spec: Env;
   cxt: SynthesisContext;
   setting: SynthesizerSetting;
 
-  constructor(env: Env, setting: SynthesizerSetting, spec?: Env) {
+  constructor(env: Env, setting: SynthesizerSetting, subEnv?: SubstanceEnv) {
     this.env = env;
-    this.cxt = new SynthesisContext();
+    this.cxt = new SynthesisContext(subEnv);
     this.setting = setting;
-    if (spec) {
-      this.spec = spec;
-    } else {
-      this.spec = env;
-    }
   }
 
   generateSubstances = (numProgs: number): SubProg[] =>
@@ -144,15 +155,17 @@ export class Synthesizer {
 
   // NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
   generateStmt = (): void => {
-    const stmtTypes = ["Decl", "Predicate"];
+    const stmtTypes = getDeclTypes(this.env);
     const chosenType = choice(stmtTypes);
+    console.log(stmtTypes, chosenType);
+
     switch (chosenType) {
-      case "Decl":
+      case "TypeDecl":
         this.generateType();
-      case "Predicate":
+      case "PredicateDecl":
         this.generatePredicate();
-      case "Function":
-        this.generateFunction();
+      // case "FunctionDecl":
+      //   this.generateFunction();
     }
   };
 
@@ -162,9 +175,7 @@ export class Synthesizer {
     if (typeName) {
       typeCons = nullaryTypeCons(typeName);
     } else {
-      const type: TypeDecl = choice(
-        this.spec.types.toArray().map(([, b]) => b)
-      );
+      const type: TypeDecl = choice(this.env.types.toArray().map(([, b]) => b));
       typeCons = applyTypeDecl(type);
     }
     const stmt: Decl = {
@@ -180,7 +191,7 @@ export class Synthesizer {
 
   generatePredicate = (): ApplyPredicate => {
     const pred: PredicateDecl = choice(
-      this.spec.predicates.toArray().map(([, b]) => b)
+      this.env.predicates.toArray().map(([, b]) => b)
     );
     const args: SubPredArg[] = this.generatePredArgs(pred.args);
     const stmt: ApplyPredicate = applyPredicate(pred, args);
@@ -190,7 +201,7 @@ export class Synthesizer {
 
   generateFunction = (): Bind => {
     const func: FunctionDecl = choice(
-      this.spec.functions.toArray().map(([, b]) => b)
+      this.env.functions.toArray().map(([, b]) => b)
     );
     const args: SubExpr[] = this.generateArgs(func.args);
     const rhs: ApplyFunction = applyFunction(func, args);
@@ -290,6 +301,32 @@ const nullaryTypeCons = (name: Identifier): TypeConsApp => ({
   name,
   args: [],
 });
+
+const declTypes: DomainStmt["tag"][] = [
+  // "ConstructorDecl", // TODO: implement
+  "FunctionDecl",
+  "TypeDecl",
+  "PredicateDecl",
+];
+
+const declMap = (
+  env: Env,
+  declType: DomainStmt["tag"]
+): Map<string, DomainStmt> => {
+  switch (declType) {
+    case "TypeDecl":
+      return env.types;
+    case "FunctionDecl":
+      return env.functions;
+    case "PredicateDecl":
+      return env.predicates;
+  }
+  throw new Error(`${declType} not supported by the synthesizer`);
+};
+
+const getDeclTypes = (env: Env): DomainStmt["tag"][] => {
+  return declTypes.filter((typ) => !declMap(env, typ).isEmpty());
+};
 
 // { names         :: Names
 // , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type

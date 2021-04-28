@@ -6,26 +6,26 @@ import {
   parseSubstance,
   prettySubstance,
 } from "compiler/Substance";
-import { prettyPrintFn } from "utils/OtherUtils";
-import { SubProg, SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
+import { genFns, genOptProblem, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
   RenderShape,
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
+import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
+import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
-import { State, LabelCache, Fn } from "types/state";
+import { Fn, LabelCache, State } from "types/state";
+import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
+import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
-import { Env } from "types/domain";
-import { Synthesizer } from "synthesis/Synthesizer";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -292,3 +292,4 @@ export {
   Result,
   prettyPrintFn,
 };
+export type { SynthesizerSetting };
