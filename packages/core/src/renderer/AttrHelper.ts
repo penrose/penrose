@@ -165,6 +165,11 @@ export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("height", side.contents.toString());
 };
 
+export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
+  const d = properties.data as IStrV<string>;
+  elem.setAttribute("d", d.contents.toString());
+};
+
 export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
