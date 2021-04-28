@@ -69,7 +69,7 @@ export const attrPolyCenter = (
 
 export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
   let scale = properties?.scale?.contents;
-  scale ||= 1;
+  scale = scale || 1;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
