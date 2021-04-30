@@ -157,15 +157,13 @@ export class Synthesizer {
   generateStmt = (): void => {
     const stmtTypes = getDeclTypes(this.env);
     const chosenType = choice(stmtTypes);
-    console.log(stmtTypes, chosenType);
-
     switch (chosenType) {
       case "TypeDecl":
         this.generateType();
       case "PredicateDecl":
         this.generatePredicate();
-      // case "FunctionDecl":
-      //   this.generateFunction();
+      case "FunctionDecl":
+        this.generateFunction();
     }
   };
 
