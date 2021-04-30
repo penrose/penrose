@@ -1,3 +1,4 @@
+import { prettyStmt, prettySubstance } from "compiler/Substance";
 import { max } from "engine/Autodiff";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
@@ -137,6 +138,20 @@ class SynthesisContext {
     this.numStmts++;
   };
 
+  removeStmt = (stmt: SubStmt) => {
+    const index = this.prog.statements.indexOf(stmt);
+    if (index > -1) {
+      this.prog.statements.splice(index, 1);
+    } else {
+      throw new Error(
+        `Statement cannot be removed because it doesn't exist: ${prettyStmt(
+          stmt
+        )}`
+      );
+    }
+    // COMBAK: increment counter?
+  };
+
   reset = (maxStmts: number) => {
     this.maxStmts = maxStmts;
     this.names = Map();
@@ -207,8 +222,15 @@ export class Synthesizer {
   generateSubstance = (): SubProg => {
     const numStmts = random(...this.setting.lengthRange);
     this.cxt.reset(numStmts);
-    times(numStmts, () => this.addStmt());
+    times(numStmts, () => this.mutateProgram());
     return this.cxt.prog;
+  };
+
+  mutateProgram = (): void => {
+    const ops = ["add", "delete"];
+    const op = choice(ops);
+    if (op === "add") this.addStmt();
+    else if (op === "delete") this.deleteStmt();
   };
 
   // NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
@@ -233,23 +255,47 @@ export class Synthesizer {
 
   deleteStmt = (): void => {
     this.cxt.findCandidates(this.env, this.setting.delete);
-    console.log(this.cxt.candidateTypes());
-
     const chosenType = choice(this.cxt.candidateTypes());
-    // switch (chosenType) {
-    //   case "TypeDecl":
-    //     this.generateType();
-    //     return;
-    //   case "PredicateDecl":
-    //     this.generatePredicate();
-    //     return;
-    //   case "FunctionDecl":
-    //     this.generateFunction();
-    //     return;
-    //   case "ConstructorDecl":
-    //     this.generateConstructor();
-    //     return;
-    // }
+    const candidates = [...this.cxt.getCandidates(chosenType).keys()];
+    const chosenName = choice(candidates);
+    switch (chosenType) {
+      case "TypeDecl": {
+        const stmt = this.findStmt("Decl", chosenName);
+        if (stmt) this.cxt.removeStmt(stmt);
+      }
+      case "PredicateDecl": {
+        const stmt = this.findStmt("ApplyPredicate", chosenName);
+        if (stmt) this.cxt.removeStmt(stmt);
+      }
+      case "FunctionDecl": {
+        const stmt = this.findStmt("ApplyFunction", chosenName);
+        if (stmt) this.cxt.removeStmt(stmt);
+      }
+      case "ConstructorDecl": {
+        const stmt = this.findStmt("ApplyConstructor", chosenName);
+        if (stmt) this.cxt.removeStmt(stmt);
+      }
+    }
+  };
+
+  findStmt = (
+    stmtType: "Decl" | "ApplyPredicate" | "ApplyFunction" | "ApplyConstructor",
+    name: string
+  ): SubStmt | undefined => {
+    // console.log("finding", stmtType, name);
+    const stmts = this.cxt.prog.statements.filter((s) => {
+      return s.tag === stmtType && s.name.value === name;
+    });
+    if (stmts.length > 0) {
+      const stmt = choice(stmts);
+      return stmt;
+    } else {
+      // console.log(
+      //   `Warning: cannot find a ${stmtType} statement with name ${name}. Current program:\n${prettySubstance(
+      //     this.cxt.prog
+      //   )}`
+      // );
+    }
   };
 
   generateType = (typeName?: Identifier): Decl => {

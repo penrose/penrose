@@ -563,7 +563,7 @@ export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
 export const prettySubstance = (prog: SubProg): string =>
   prog.statements.map((stmt) => prettyStmt(stmt)).join("\n");
 
-const prettyStmt = (stmt: SubStmt): string => {
+export const prettyStmt = (stmt: SubStmt): string => {
   switch (stmt.tag) {
     case "Decl": {
       const { type, name } = stmt;

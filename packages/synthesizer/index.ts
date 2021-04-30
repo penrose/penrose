@@ -30,7 +30,7 @@ Options:
 `;
 
 const defaultSetting: SynthesizerSetting = {
-  lengthRange: [1, 2],
+  lengthRange: [0, 5],
   argOption: "existing",
   weights: {
     type: 0.1,
@@ -42,6 +42,13 @@ const defaultSetting: SynthesizerSetting = {
     function: [],
     constructor: [],
     predicate: ["Equal"],
+    // predicate: [],
+  },
+  delete: {
+    type: [],
+    function: [],
+    constructor: [],
+    predicate: ["IsSubset"],
   },
 };
 
