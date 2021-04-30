@@ -26,6 +26,7 @@ import {
   SubExpr,
   SubPredArg,
   SubProg,
+  SubRes,
   SubstanceEnv,
   SubStmt,
   TypeConsApp,
@@ -75,7 +76,7 @@ export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
 export const compileSubstance = (
   prog: string,
   env: Env
-): Result<[SubstanceEnv, Env], PenroseError> => {
+): Result<SubRes, PenroseError> => {
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
@@ -138,7 +139,9 @@ const postprocessStmt = (
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
         const [...ids] = env.vars.keys();
-        const newLabels: LabelMap = Map(ids.map((id) => [id, Maybe.just(id)]));
+        const newLabels: LabelMap = Map(
+          ids.map((id) => [id.value, Maybe.just(id.value)])
+        );
         return {
           ...subEnv,
           labels: newLabels,
@@ -206,7 +209,7 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
     case "Decl": {
       const { type, name } = stmt;
       const typeOk = checkTypeConstructor(type, env);
-      const updatedEnv: Env = { ...env, vars: env.vars.set(name.value, type) };
+      const updatedEnv: Env = { ...env, vars: env.vars.set(name, type) };
       return every(typeOk, ok(updatedEnv));
     }
     case "Bind": {
@@ -544,7 +547,7 @@ const checkField = (decons: Deconstructor, env: Env): ResultWithType => {
 };
 
 export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
-  const type = env.vars.get(variable.value);
+  const type = env.vars.find((_, key) => key.value === variable.value);
   if (type) {
     return ok([type, env]);
   } else {

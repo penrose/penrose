@@ -81,7 +81,7 @@ export const showError = (
         variable
       )}) does not exist.`;
       if (possibleVars) {
-        const suggestions = possibleVars.join(", ");
+        const suggestions = possibleVars.map((v) => v.value).join(", ");
         return msg + ` Declared variables are: ${suggestions}`;
       } else return msg;
     }
@@ -411,7 +411,7 @@ export const typeNotFound = (
 
 export const varNotFound = (
   variable: Identifier,
-  possibleVars?: string[]
+  possibleVars?: Identifier[]
 ): VarNotFound => ({
   tag: "VarNotFound",
   variable,

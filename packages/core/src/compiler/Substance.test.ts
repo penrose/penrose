@@ -27,8 +27,12 @@ const subPaths = [
 
 const hasVars = (env: Env, vars: [string, string][]) => {
   vars.map(([name, type]: [string, string]) => {
-    expect(env.vars.has(name)).toBe(true);
-    expect(showType(env.vars.get(name)!)).toEqual(type);
+    const id = env.vars.findEntry((type, id) => id.value === name);
+    if (id) {
+      expect(showType(id[1])).toEqual(type);
+    } else {
+      fail(`The environment does not contain variable ${name} of type ${type}`);
+    }
   });
 };
 

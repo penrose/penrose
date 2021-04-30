@@ -83,7 +83,7 @@ export interface TypeNotFound {
 export interface VarNotFound {
   tag: "VarNotFound";
   variable: Identifier;
-  possibleVars?: string[]; // TODO: use Identifier type, but need to store them in env
+  possibleVars?: Identifier[]; // TODO: use Identifier type, but need to store them in env
 }
 
 export interface TypeMismatch {

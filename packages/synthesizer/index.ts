@@ -31,15 +31,18 @@ Options:
 
 const defaultSetting: SynthesizerSetting = {
   lengthRange: [1, 5],
-  argOption: "mixed",
+  argOption: "existing",
   weights: {
     type: 0.1,
     predicate: 0.3,
     constructor: 0.0,
   },
-  // add: {
-  //   type: "*",
-  // }
+  add: {
+    type: ["Set"],
+    function: [],
+    constructor: [],
+    predicate: ["IsSubset"],
+  },
 };
 
 // Main function
@@ -76,15 +79,16 @@ const defaultSetting: SynthesizerSetting = {
 
   if (envOrError.isOk()) {
     const env = envOrError.value;
-    let subEnv;
+    let subResult;
     if (substancePath) {
       const substanceSrc = readFileSync(substancePath, "utf8").toString();
       const subRes = compileSubstance(substanceSrc, env);
       if (subRes.isOk()) {
-        subEnv = subRes[1];
+        subResult = subRes.value;
       }
     }
-    const synth = new Synthesizer(env, defaultSetting, subEnv);
+
+    const synth = new Synthesizer(env, defaultSetting, subResult);
     const progs = synth.generateSubstances(numPrograms);
     progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
   }

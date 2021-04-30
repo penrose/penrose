@@ -358,7 +358,9 @@ const checkDeclPatternAndMakeEnv = (
     // rule Decl-Sub-Context
     // x \not\in dom(g)
 
-    const substanceType = varEnv.vars.get(varName);
+    const substanceType = varEnv.vars.find(
+      (value, key) => key.value === bVar.contents.value
+    );
     // If any Substance variable doesn't exist in env, ignore it,
     // but flag it so we know to not translate the lines in the block later.
     if (!substanceType) {
@@ -495,10 +497,7 @@ const mergeMapping = (
     // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
     return {
       ...varEnv,
-      vars: varEnv.vars.set(
-        bindingForm.contents.value,
-        toSubstanceType(styType)
-      ),
+      vars: varEnv.vars.set(bindingForm.contents, toSubstanceType(styType)),
     };
   } else {
     throw Error("unknown tag");

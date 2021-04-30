@@ -92,11 +92,11 @@ export interface SubTypeDecl extends ASTNode {
 //#region Domain context
 export interface Env {
   types: Map<string, TypeDecl>;
+  functions: Map<string, FunctionDecl>;
+  predicates: Map<string, PredicateDecl>;
   constructors: Map<string, ConstructorDecl>;
   constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
-  functions: Map<string, FunctionDecl>;
-  vars: Map<string, TypeConsApp>; // TODO: use Identifier as key?
-  predicates: Map<string, PredicateDecl>;
+  vars: Map<Identifier, TypeConsApp>;
   typeVars: Map<string, TypeVar>;
   preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
   subTypes: [TypeConstructor, TypeConstructor][];
