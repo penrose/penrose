@@ -231,6 +231,27 @@ export class Synthesizer {
     }
   };
 
+  deleteStmt = (): void => {
+    this.cxt.findCandidates(this.env, this.setting.delete);
+    console.log(this.cxt.candidateTypes());
+
+    const chosenType = choice(this.cxt.candidateTypes());
+    // switch (chosenType) {
+    //   case "TypeDecl":
+    //     this.generateType();
+    //     return;
+    //   case "PredicateDecl":
+    //     this.generatePredicate();
+    //     return;
+    //   case "FunctionDecl":
+    //     this.generateFunction();
+    //     return;
+    //   case "ConstructorDecl":
+    //     this.generateConstructor();
+    //     return;
+    // }
+  };
+
   generateType = (typeName?: Identifier): Decl => {
     // pick a type
     let typeCons: TypeConsApp;

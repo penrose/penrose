@@ -30,7 +30,7 @@ Options:
 `;
 
 const defaultSetting: SynthesizerSetting = {
-  lengthRange: [1, 5],
+  lengthRange: [1, 2],
   argOption: "existing",
   weights: {
     type: 0.1,
@@ -38,10 +38,10 @@ const defaultSetting: SynthesizerSetting = {
     constructor: 0.0,
   },
   add: {
-    type: ["Set"],
+    type: [],
     function: [],
     constructor: [],
-    predicate: ["IsSubset"],
+    predicate: ["Equal"],
   },
 };
 
@@ -85,6 +85,12 @@ const defaultSetting: SynthesizerSetting = {
       const subRes = compileSubstance(substanceSrc, env);
       if (subRes.isOk()) {
         subResult = subRes.value;
+      } else {
+        console.log(
+          `Error when compiling the template Substance program: ${showError(
+            subRes.error
+          )}`
+        );
       }
     }
 
