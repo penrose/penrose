@@ -49,7 +49,7 @@ interface DeclTypes {
   function: MatchSetting;
 }
 export interface SynthesizerSetting {
-  lengthRange: [number, number];
+  mutationCount: [number, number];
   argOption: ArgOption;
   weights: {
     type: number;
@@ -220,7 +220,7 @@ export class Synthesizer {
     });
 
   generateSubstance = (): SubProg => {
-    const numStmts = random(...this.setting.lengthRange);
+    const numStmts = random(...this.setting.mutationCount);
     this.cxt.reset(numStmts);
     times(numStmts, () => this.mutateProgram());
     return this.cxt.prog;

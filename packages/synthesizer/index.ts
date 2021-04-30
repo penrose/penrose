@@ -30,7 +30,7 @@ Options:
 `;
 
 const defaultSetting: SynthesizerSetting = {
-  lengthRange: [0, 5],
+  mutationCount: [0, 1],
   argOption: "existing",
   weights: {
     type: 0.1,
