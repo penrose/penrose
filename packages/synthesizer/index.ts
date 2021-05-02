@@ -30,7 +30,7 @@ Options:
 `;
 
 const defaultSetting: SynthesizerSetting = {
-  mutationCount: [0, 1],
+  mutationCount: [0, 4],
   argOption: "existing",
   weights: {
     type: 0.1,
@@ -103,6 +103,6 @@ const defaultSetting: SynthesizerSetting = {
 
     const synth = new Synthesizer(env, defaultSetting, subResult);
     const progs = synth.generateSubstances(numPrograms);
-    progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
+    // progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
   }
 })();

@@ -1,9 +1,8 @@
 import { prettyStmt, prettySubstance } from "compiler/Substance";
-import { max } from "engine/Autodiff";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
-import { times } from "lodash";
-import { random, choice } from "pandemonium";
+import { clone, cloneDeep, times } from "lodash";
+import { choice, random } from "pandemonium";
 import { Identifier } from "types/ast";
 import {
   Arg,
@@ -26,7 +25,6 @@ import {
   SubPredArg,
   SubProg,
   SubRes,
-  SubstanceEnv,
   SubStmt,
   TypeConsApp,
 } from "types/substance";
@@ -35,6 +33,17 @@ type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
 
 type MatchSetting = string[] | All;
+
+type Mutation = Add | Delete;
+
+interface Add {
+  tag: "Add";
+  stmt: SubStmt;
+}
+interface Delete {
+  tag: "Delete";
+  stmt: SubStmt;
+}
 
 interface Candidates {
   types: Map<string, TypeDecl>;
@@ -68,6 +77,7 @@ class SynthesisContext {
   maxStmts: number;
   candidates: Candidates;
   subRes: SubRes | undefined;
+  ops: Mutation[];
 
   constructor(subRes?: SubRes) {
     this.numStmts = 0;
@@ -85,13 +95,14 @@ class SynthesisContext {
       tag: "SubProg",
       statements: [],
     };
+    this.ops = [];
   }
 
   loadTemplate = () => {
     // If there is a template substance program, load in the relevant info
     if (this.subRes) {
       const [subEnv, env] = this.subRes;
-      this.prog = subEnv.ast;
+      this.prog = cloneDeep(subEnv.ast);
       env.vars.forEach((type, id) => this.addID(type.name.value, id));
     }
   };
@@ -136,12 +147,14 @@ class SynthesisContext {
       statements: [...this.prog.statements, stmt],
     };
     this.numStmts++;
+    this.ops.push({ tag: "Add", stmt });
   };
 
   removeStmt = (stmt: SubStmt) => {
     const index = this.prog.statements.indexOf(stmt);
     if (index > -1) {
       this.prog.statements.splice(index, 1);
+      this.ops.push({ tag: "Delete", stmt });
     } else {
       throw new Error(
         `Statement cannot be removed because it doesn't exist: ${prettyStmt(
@@ -152,7 +165,12 @@ class SynthesisContext {
     // COMBAK: increment counter?
   };
 
+  showOps = (): string => {
+    return this.ops.map((op) => `${op.tag} ${prettyStmt(op.stmt)}`).join("\n");
+  };
+
   reset = (maxStmts: number) => {
+    this.ops = [];
     this.maxStmts = maxStmts;
     this.names = Map();
     this.declaredIDs = Map();
@@ -223,6 +241,10 @@ export class Synthesizer {
     const numStmts = random(...this.setting.mutationCount);
     this.cxt.reset(numStmts);
     times(numStmts, () => this.mutateProgram());
+    console.log(prettySubstance(this.cxt.prog));
+    console.log("Operations: ");
+    console.log(this.cxt.showOps());
+    console.log("----------");
     return this.cxt.prog;
   };
 
