@@ -8,8 +8,9 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   attrTransformCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);
   const name = shape.properties.name as IStrV<string>;
-  if (retrieveLabel(name.contents, labels) !== undefined) {
-    const renderedLabel = retrieveLabel(name.contents, labels)!.rendered;
+  const retrievedLabel = retrieveLabel(name.contents, labels);
+  if (retrievedLabel && retrievedLabel.rendered) {
+    const renderedLabel = retrievedLabel.rendered;
     attrFill(shape, renderedLabel.getElementsByTagName("g")[0]);
     attrWH(shape, renderedLabel as any);
     renderedLabel.getElementsByTagName("g")[0].setAttribute("stroke", "none");

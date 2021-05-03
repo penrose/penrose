@@ -130,11 +130,11 @@ export const evalShapes = (s: State): State => {
       shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
-  const nonEmpties = sortedShapesEvaled.filter(notEmptyLabel);
+  // const nonEmpties = sortedShapesEvaled.filter(notEmptyLabel);
 
   // Update the state with the new list of shapes
   // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: nonEmpties };
+  return { ...s, shapes: sortedShapesEvaled };
 };
 
 const sameName = (given: Value<number>, expected: string): boolean => {
