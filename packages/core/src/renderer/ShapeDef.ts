@@ -51,11 +51,6 @@ export const sortShapes = (shapes: Shape[], ordering: string[]): Shape[] => {
  * @param shape a `Text` shape
  */
 export const notEmptyLabel = (shape: Shape): boolean => {
-  if (!shape) {
-    // COMBAK: temp hack, revert when labels are generated
-    console.error("Skipping undefined shape");
-    return true;
-  }
   const { shapeType, properties } = shape;
   return shapeType === "Text" ? !(properties.string.contents === "") : true;
 };
