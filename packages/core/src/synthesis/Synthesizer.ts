@@ -1,4 +1,5 @@
 import { prettyStmt, prettySubstance } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
 import { clone, cloneDeep, times } from "lodash";
@@ -28,6 +29,10 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+
+const log = consola
+  .create({ level: LogLevel.Info })
+  .withScope("Substance Synthesizer");
 
 type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
@@ -103,7 +108,10 @@ class SynthesisContext {
     if (this.subRes) {
       const [subEnv, env] = this.subRes;
       this.prog = cloneDeep(subEnv.ast);
-      env.vars.forEach((type, id) => this.addID(type.name.value, id));
+      env.varIDs.forEach((id) => {
+        const type = env.vars.get(id.value);
+        this.addID(type!.name.value, id); // TODO: enforce the existence of var types
+      });
     }
   };
 
@@ -133,6 +141,8 @@ class SynthesisContext {
         return this.candidates.functions;
       case "PredicateDecl":
         return this.candidates.predicates;
+      case undefined:
+        return Map();
     }
     throw new Error(`${type} is not supported by the synthesizer`);
   };
@@ -140,7 +150,7 @@ class SynthesisContext {
   candidateTypes = (): DomainStmt["tag"][] =>
     declTypes.filter((type) => !this.getCandidates(type).isEmpty());
 
-  // append a statement to the generated program
+  //n append a statement to the generated program
   appendStmt = (stmt: SubStmt) => {
     this.prog = {
       ...this.prog,
@@ -242,8 +252,7 @@ export class Synthesizer {
     this.cxt.reset(numStmts);
     times(numStmts, () => this.mutateProgram());
     console.log(prettySubstance(this.cxt.prog));
-    console.log("Operations: ");
-    console.log(this.cxt.showOps());
+    log.info("Operations:\n", this.cxt.showOps());
     console.log("----------");
     return this.cxt.prog;
   };
@@ -257,6 +266,7 @@ export class Synthesizer {
 
   // NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
   addStmt = (): void => {
+    log.debug("Adding statement");
     this.cxt.findCandidates(this.env, this.setting.add);
     const chosenType = choice(this.cxt.candidateTypes());
     switch (chosenType) {
@@ -277,6 +287,7 @@ export class Synthesizer {
 
   deleteStmt = (): void => {
     this.cxt.findCandidates(this.env, this.setting.delete);
+    log.debug("Deleting statement");
     const chosenType = choice(this.cxt.candidateTypes());
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
     const chosenName = choice(candidates);
@@ -297,6 +308,8 @@ export class Synthesizer {
         const stmt = this.findStmt("ApplyConstructor", chosenName);
         if (stmt) this.cxt.removeStmt(stmt);
       }
+      case undefined:
+        return;
     }
   };
 
@@ -304,7 +317,6 @@ export class Synthesizer {
     stmtType: "Decl" | "ApplyPredicate" | "ApplyFunction" | "ApplyConstructor",
     name: string
   ): SubStmt | undefined => {
-    // console.log("finding", stmtType, name);
     const stmts = this.cxt.prog.statements.filter((s) => {
       return s.tag === stmtType && s.name.value === name;
     });

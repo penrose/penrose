@@ -24,7 +24,9 @@
     "react-ssr": "^2.0.0-beta.6",
     "true-myth": "^4.1.1",
     "tslib": "^2.0.3",
-    "uniqid": "^5.2.0"
+    "uniqid": "^5.2.0",
+    "pug": "^2.0.4",
+    "vega-lite": "^4.0.2"
   },
   "devDependencies": {
     "@types/node": "^12.12.68",

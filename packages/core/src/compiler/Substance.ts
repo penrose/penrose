@@ -139,9 +139,7 @@ const postprocessStmt = (
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
         const [...ids] = env.vars.keys();
-        const newLabels: LabelMap = Map(
-          ids.map((id) => [id.value, Maybe.just(id.value)])
-        );
+        const newLabels: LabelMap = Map(ids.map((id) => [id, Maybe.just(id)]));
         return {
           ...subEnv,
           labels: newLabels,
@@ -209,7 +207,11 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
     case "Decl": {
       const { type, name } = stmt;
       const typeOk = checkTypeConstructor(type, env);
-      const updatedEnv: Env = { ...env, vars: env.vars.set(name, type) };
+      const updatedEnv: Env = {
+        ...env,
+        vars: env.vars.set(name.value, type),
+        varIDs: [name, ...env.varIDs],
+      };
       return every(typeOk, ok(updatedEnv));
     }
     case "Bind": {
@@ -547,11 +549,11 @@ const checkField = (decons: Deconstructor, env: Env): ResultWithType => {
 };
 
 export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
-  const type = env.vars.find((_, key) => key.value === variable.value);
+  const type = env.vars.find((_, key) => key === variable.value);
   if (type) {
     return ok([type, env]);
   } else {
-    const [...possibleVars] = env.vars.keys();
+    const possibleVars = env.varIDs;
     // TODO: find vars of the same type for error reporting (need to check expr first)
     return err(varNotFound(variable, possibleVars));
   }

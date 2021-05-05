@@ -28,6 +28,7 @@ import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
 import { canvasSize } from "renderer/ShapeDef";
 import { VarAD, VecAD } from "types/ad";
+import { every } from "lodash";
 
 // Kinds of shapes
 /**
@@ -683,6 +684,28 @@ export const constrDict = {
     // if x < y then 0 else (x - y)^2
     return ifCond(lt(x, y), constOf(0), squared(sub(x, y)));
   },
+
+  collinear: (
+    [, p0]: [string, any],
+    [, p1]: [string, any],
+    [, p2]: [string, any]
+  ) => {
+    if (every([p0, p1, p2].map((props) => props["center"]))) {
+      const c1 = fns.center(p0);
+      const c2 = fns.center(p1);
+      const c3 = fns.center(p2);
+      const v1 = ops.vsub(c1, c2);
+      const v2 = ops.vsub(c2, c3);
+      const v3 = ops.vsub(c1, c3);
+
+      return max(
+        constOf(0),
+        sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3))
+      );
+    } else {
+      throw new Error("collinear: all input shapes need to have centers");
+    }
+  },
 };
 
 // -------- Helpers for writing objectives
@@ -798,7 +821,7 @@ const dsqBP = (p: any, rect: any): VarAD => {
  * Linearly interpolate between left `l` and right `r` endpoints, at fraction `k` of interpolation.
  */
 const lerp = (l: VarAD, r: VarAD, k: VarAD): VarAD => {
-  // TODO: Rewrite the lerp code to be more concise
+  // TODO: Rewrite the lerp code to be1more concise
   return add(mul(l, sub(constOf(1.0), k)), mul(r, k));
 };
 

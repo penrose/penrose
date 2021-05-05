@@ -358,9 +358,8 @@ const checkDeclPatternAndMakeEnv = (
     // rule Decl-Sub-Context
     // x \not\in dom(g)
 
-    const substanceType = varEnv.vars.find(
-      (value, key) => key.value === bVar.contents.value
-    );
+    const substanceType = varEnv.vars.get(varName);
+
     // If any Substance variable doesn't exist in env, ignore it,
     // but flag it so we know to not translate the lines in the block later.
     if (!substanceType) {
@@ -497,7 +496,10 @@ const mergeMapping = (
     // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
     return {
       ...varEnv,
-      vars: varEnv.vars.set(bindingForm.contents, toSubstanceType(styType)),
+      vars: varEnv.vars.set(
+        bindingForm.contents.value,
+        toSubstanceType(styType)
+      ),
     };
   } else {
     throw Error("unknown tag");
@@ -2947,7 +2949,7 @@ const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
     ((func as any) as ApplyPredicate).tag = "ApplyPredicate";
   } else if (!isCtor && !isFn && !isPred) {
     throw Error(
-      "Substance internal error: expected val of type Func to be disambiguable in env, but was not found"
+      `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`
     );
   } else {
     throw Error(

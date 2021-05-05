@@ -92,6 +92,7 @@ const builtinTypes: [string, TypeDecl][] = [
 const initEnv = (): Env => ({
   types: Map(builtinTypes),
   typeVars: Map(),
+  varIDs: [],
   vars: Map(),
   constructors: Map(),
   constructorsBindings: Map(),

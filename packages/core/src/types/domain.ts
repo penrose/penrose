@@ -96,7 +96,8 @@ export interface Env {
   predicates: Map<string, PredicateDecl>;
   constructors: Map<string, ConstructorDecl>;
   constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
-  vars: Map<Identifier, TypeConsApp>;
+  vars: Map<string, TypeConsApp>;
+  varIDs: Identifier[];
   typeVars: Map<string, TypeVar>;
   preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
   subTypes: [TypeConstructor, TypeConstructor][];

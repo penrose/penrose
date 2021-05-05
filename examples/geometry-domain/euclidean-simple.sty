@@ -69,62 +69,69 @@ const {
     pointSize = 4.0
     pointStroke = 0.0
     thetaRadius = 40.0
+}
 
-    label = "E^2"
-    text = Text {
-	center : ((dim / 2.0) - textPadding2, (dim / 2.0) - textPadding2)
-	string : label
-	fontSize : fontSize
-    }
+Plane p {
+  dim = 400.0
+  p.text = Text {
+    center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
+    string : p.label
+    fontSize : const.fontSize
+  }
 
-    dim = 400.0
+  -- inner: #f3f4f9, outer: #8e93c4
+  p.icon = Rectangle {
+    -- angle : 0.0
+    color : Colors.verylightpurple
+    strokeColor : Colors.purple3
+    strokeWidth : 2.0
+    center : (0.0, 0.0)
+    w : dim
+    h : dim
+  }
 
-    -- inner: #f3f4f9, outer: #8e93c4
-    plane = Rectangle {
-    	    -- angle : 0.0
-	    color : Colors.verylightpurple
-	    strokeColor : Colors.purple3
-	    strokeWidth : 2.0
-	    center : (0.0, 0.0)
-	    w : dim
-	    h : dim
-    }
-
-   textLayering = text above plane
+  p.text above p.icon
 }
 
 Point p {
-      p.x = ?
-      p.y = ?
-      p.vec = (p.x, p.y)
-      p.color = Colors.black
+  p.x = ?
+  p.y = ?
+  p.vec = (p.x, p.y)
+  p.color = Colors.black
 
-       p.icon = Circle {
-         center: p.vec
-         r : const.pointSize
-	 color : Colors.black
-	 strokeWidth : 0.0
-	 strokeColor : Colors.black
-       }
+    p.icon = Circle {
+      center: p.vec
+      r : const.pointSize
+      color : Colors.black
+      strokeWidth : 0.0
+      strokeColor : Colors.black
+    }
 
-       p.text = Text {
-         string : p.label
-         rotation : 0.0
-         color : Colors.black
-         fontSize : const.fontSize
-       }
+    p.text = Text {
+      string : p.label
+      rotation : 0.0
+      color : Colors.black
+      fontSize : const.fontSize
+    }
 
-       -- TODO: put these constraints back in
-       ensure atDist(p.icon, p.text, const.textPadding)
+    ensure atDist(p.icon, p.text, const.textPadding)
+}
 
-       -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
-       -- There's a choice of whether to put padding on the point or the text for containment
-       
-       ensure contains(const.plane, p.icon, const.containPadding)
-       ensure contains(const.plane, p.text, 0.0)
+Point p
+with Plane P
+where In(p, P) {
+  -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
+  -- There's a choice of whether to put padding on the point or the text for containment
+  ensure contains(P.icon, p.icon, const.containPadding)
+  ensure contains(P.icon, p.text, 0.0)
 
-       p.icon above const.plane
-       p.text above const.plane
+  p.icon above P.icon
+  p.text above P.icon
+}
+
+Point p, q, r
+where Collinear(p, q, r) {
+  ensure collinear(p.icon, q.icon, r.icon)
 }
 
 Segment e
@@ -135,8 +142,8 @@ with Point p; Point q {
      e.color = Colors.black
 
      e.icon = Line {
-     	     start : p.icon.center
-     	     end : q.icon.center
+       start : p.icon.center
+       end : q.icon.center
 	     color : e.color
 	     thickness : const.strokeWidth
 	     stroke : "none"
@@ -149,23 +156,12 @@ with Point p; Point q {
      encourage repel(e.icon, p.text, const.repelWeight)
      encourage repel(e.icon, q.text, const.repelWeight)
 
-     e.icon above const.plane
+    --  e.icon above const.plane
 }
 
--- Point `A` {
---       override `A`.icon.color = Colors.red
---       override `A`.text.color = Colors.red
--- }
-
--- Point `B` {
---       override `B`.icon.color = Colors.sky
---       override `B`.text.color = Colors.sky
--- }
-
--- Point `C` {
---       override `C`.icon.color = Colors.silver
---       override `C`.text.color = Colors.silver
--- }
+Segment e; Plane p {
+  e.icon above p.icon
+}
 
 -- -----------------------------------------------------------------------------
 
@@ -218,24 +214,24 @@ where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
      t.color = setOpacity(Colors.darkpurple, 0.4)
      t.side1 = Line {
-     	     start : p.icon.center
-     	     end : q.icon.center
+     	 start : p.icon.center
+     	 end : q.icon.center
 	     color : t.color
 	     thickness : const.strokeWidth
 	     stroke : "none"
 	     style : "solid"
      }
      t.side2 = Line {
-     	     start : q.icon.center
-     	     end : r.icon.center
+       start : q.icon.center
+       end : r.icon.center
 	     color : t.color
 	     thickness : const.strokeWidth
 	     stroke : "none"
 	     style : "solid"
      }
      t.side3 = Line {
-     	     start : p.icon.center
-     	     end : r.icon.center
+     	 start : p.icon.center
+     	 end : r.icon.center
 	     color : t.color
 	     thickness : const.strokeWidth
 	     stroke : "none"
@@ -248,21 +244,28 @@ with Point p; Point q; Point r {
 }
 
 -- -- Should the rectangle be constructed from the points, or vice versa?
--- Rectangle R
--- where R := MkRectangle(p, q, r, s) 
--- with Point p; Point q; Point r; Point s {
---      R.color = setOpacity(Colors.blue, 0.2)
+Rectangle R
+where R := MkRectangle(p, q, r, s); In(p, P)
+with Point p; Point q; Point r; Point s; Plane P  {
+  R.color = setOpacity(Colors.blue, 0.2)
 
---      R.shape = Path {
---      	     pathData : rectangle(p.x, p.y, q.x, q.y, r.x, r.y, s.x, s.y)
--- 	     strokeWidth : const.strokeWidth
--- 	     fill : R.color
--- 	     color : Colors.black
--- 	     rotation : 0.0
---      }
+  R.icon = Path {
+    pathData : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
+    strokeWidth : const.strokeWidth
+    fill : R.color
+    color : Colors.black
+  }
 
---      R.layering = R.icon above const.plane
--- }
+  ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
+  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
+  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
+  ensure equal(dot(p.icon.center - q.icon.center, q.icon.center - r.icon.center), 0)
+  ensure equal(dot(q.icon.center - r.icon.center, r.icon.center - s.icon.center), 0)
+  -- ensure lessThan(10.0, norm(p.icon.center - q.icon.center))
+  -- ensure lessThan(10.0, norm(q.icon.center - r.icon.center))
+
+  R.icon above P.icon
+}
 
 -- -- We don't know if the points in the triangle actually include the points in the square or not
 -- -- TODO: this doesn't seem to match -- and the matches take way too long!!
@@ -337,35 +340,35 @@ with Point p; Point q; Point r {
 --      theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
 
 --      theta.shape = Path {
---      		 pathData : polygonFromPoints(theta.arcPath)
--- 		 strokeWidth : const.strokeWidth
--- 		 color : Colors.darkpurple
--- 		 fill : setOpacity(Colors.white, 0.5)
+--        pathData : polygonFromPoints(theta.arcPath)
+--        strokeWidth : const.strokeWidth
+--        color : Colors.darkpurple
+--        fill : setOpacity(Colors.white, 0.5)
 --      }
 
---      theta.layering1 = theta.icon above const.plane
---      theta.layering2 = theta.icon below p.icon
---      theta.layering3 = theta.icon below q.icon
---      theta.layering4 = theta.icon below r.icon
+--      theta.icon above const.plane
+--      theta.icon below p.icon
+--      theta.icon below q.icon
+--      theta.icon below r.icon
 
 --      -- TODO: or could be minimum constraint function
---      theta.sizeFn = encourage repel(q.icon, r.icon, 100.0)
+--      encourage repel(q.icon, r.icon, 100.0)
 -- }
 
-Angle theta
-where theta := InteriorAngle(q, p, r); Right(theta)
-with Point p; Point q; Point r {
-      override theta.perpSize = 13.0
+-- Angle theta
+-- where theta := InteriorAngle(q, p, r); Right(theta)
+-- with Point p; Point q; Point r {
+--       override theta.perpSize = 13.0
 
-      -- override theta.shape = Path {
-      -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)
-      -- 		 strokeWidth : 1.25
-      -- 		 color : Colors.black
-      -- 		 fill : setOpacity(Colors.white, 0.5)
-      -- }
+--       -- override theta.shape = Path {
+--       -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)
+--       -- 		 strokeWidth : 1.25
+--       -- 		 color : Colors.black
+--       -- 		 fill : setOpacity(Colors.white, 0.5)
+--       -- }
 
-      ensure perpendicular(q.vec, p.vec, r.vec)
-}
+--       ensure perpendicular(q.vec, p.vec, r.vec)
+-- }
 
 -- Ray r {
 --     r.length = const.rayLength
