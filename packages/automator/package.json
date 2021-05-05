@@ -5,7 +5,8 @@
   "main": "index.tsx",
   "scripts": {
     "start": "ts-node ./index.tsx",
-    "test": "echo \"no test specified for automator\" && exit 0"
+    "test": "echo \"no test specified for automator\" && exit 0",
+    "clean": "rimraf artifacts browser"
   },
   "author": "Penrose Team (https://penrose.ink)",
   "license": "MIT",

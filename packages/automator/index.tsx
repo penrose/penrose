@@ -6,6 +6,7 @@ import {
   RenderStatic,
   stepUntilConvergence,
 } from "@penrose/core";
+import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
 const chalk = require("chalk");
@@ -17,7 +18,8 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES]
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER]
+  automator render ARTIFACTSFOLDER OUTFOLDER
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -144,7 +146,7 @@ const singleProcess = async (
       ciee: crossEnergy,
     };
     if (!fs.existsSync(out)) {
-      fs.mkdirSync(out);
+      fs.mkdirSync(out, { recursive: true });
     }
     fs.writeFileSync(`${out}/output.svg`, canvas);
     fs.writeFileSync(`${out}/substance.sub`, subIn);
@@ -242,13 +244,20 @@ const batchProcess = async (
 
   // Determine the output file path
   const folders = args["--folders"] || false;
+  const browserFolder = args["--render"];
   const outFile = args["--outFile"];
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
   if (args.batch) {
-    for (let i = 0; i < times; i++)
+    for (let i = 0; i < times; i++) {
       await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
+    }
+    if (browserFolder) {
+      renderArtifacts(args.OUTFOLDER, browserFolder);
+    }
+  } else if (args.render) {
+    renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else {
     await singleProcess(
       args.SUBSTANCE,
