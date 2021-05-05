@@ -1,0 +1,23 @@
+-- Some globals that can be optimized over:
+globals {
+    scalar radius = ?
+    ensure nonNegative(radius)
+}
+
+colors {
+    color black = rgba(0.,0.,0.,1.)
+    color white = rgba(1., 1., 1., 1.)
+}
+
+-- style the variables:
+forall Variable variable {
+    vec2 variable.position = (?, ?)
+    shape variable.shape = Circle {
+        center: variable.position
+        r: globals.radius
+        color : colors.white
+        strokeColor : colors.black
+        strokeWidth : 1.0 -- svg units, whatever that is :-)
+    }
+}
+
