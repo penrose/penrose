@@ -1,6 +1,6 @@
 {
   "mutationCount": [1, 4],
-  "argOption": "mixed",
+  "argOption": "existing",
   "weights": {
     "type": 0.1,
     "predicate": 0.3,
@@ -16,6 +16,6 @@
     "type": [],
     "function": [],
     "constructor": [],
-    "predicate": []
+    "predicate": ["Collinear"]
   }
 }

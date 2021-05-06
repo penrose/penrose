@@ -1201,7 +1201,9 @@ const relMatchesLine = (
     if (s2.id.tag === "StyVar") {
       // internal error
       throw Error(
-        "Style variable ${rel.id.contents.value} found in relational statement ${ppRel(rel)}. Should not be present!"
+        `Style variable ${
+          s2.id.contents.value
+        } found in relational statement ${ppRel(s2)}. Should not be present!`
       );
     } else if (s2.id.tag === "SubVar") {
       // B |- E = |E

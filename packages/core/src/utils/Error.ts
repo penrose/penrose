@@ -195,7 +195,7 @@ export const showError = (
     }
 
     case "SelectorVarMultipleDecl": {
-      return "Style pattern statement has already declared the variable ${error.varName.value}";
+      return `Style pattern statement has already declared the variable ${error.varName.contents.value}`;
     }
 
     case "SelectorDeclTypeMismatch": {

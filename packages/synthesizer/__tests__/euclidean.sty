@@ -162,10 +162,13 @@ with Point p; Point q {
 Segment e; Plane p {
   e.icon above p.icon
 }
-Triangle e; Plane p {
---   e.side1 above p.icon
---   e.side2 above p.icon
---   e.side3 above p.icon
+
+Triangle t; Plane P 
+where t := MkTriangle(p, q, r)
+with Point p; Point q; Point r {
+  t.side1 above P.icon
+  t.side2 above P.icon
+  t.side3 above P.icon
 }
 
 
