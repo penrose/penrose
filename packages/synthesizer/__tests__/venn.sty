@@ -61,6 +61,11 @@ where Equal(x, y); IsSubset(x, y) {
     delete x.subsetFn2
 }
 
+Set x, y {
+    ensure disjoint(x.text, y.text)
+}
+
+
 -- This block is just for A=B<-C
 -- Set x; Set y; Set z
 -- where IsSubset(x, y); IsSubset(y, x); IsSubset(z, x) {

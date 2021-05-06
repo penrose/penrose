@@ -1,0 +1,21 @@
+{
+  "mutationCount": [1, 4],
+  "argOption": "mixed",
+  "weights": {
+    "type": 0.1,
+    "predicate": 0.3,
+    "constructor": 0.0
+  },
+  "add": {
+    "type": ["Point"],
+    "function": [],
+    "constructor": ["MkTriangle", "MkRectangle"],
+    "predicate": ["In", "Collinear"]
+  },
+  "delete": {
+    "type": [],
+    "function": [],
+    "constructor": [],
+    "predicate": []
+  }
+}

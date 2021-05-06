@@ -124,7 +124,6 @@ const writePrograms = (
   const stylePath = args["--style"];
   const numPrograms = +args["--num-programs"]; // NOTE: convert to number
   const domainSrc = readFileSync(domainPath, "utf8").toString();
-  const styleSrc = readFileSync(stylePath, "utf8").toString();
   const envOrError = compileDomain(domainSrc);
   const registryPath = args["--registry"];
 
@@ -147,7 +146,14 @@ const writePrograms = (
       }
     }
 
-    const synth = new Synthesizer(env, defaultSetting, subResult);
+    let settings;
+    if (settingPath) {
+      settings = JSON.parse(readFileSync(settingPath, "utf8").toString());
+    } else {
+      settings = defaultSetting;
+    }
+
+    const synth = new Synthesizer(env, settings, subResult);
     let progs = synth.generateSubstances(numPrograms);
     const template: SubProg | undefined = synth.getTemplate();
 
@@ -156,10 +162,13 @@ const writePrograms = (
     }
 
     // write progs
-    if (stylePath) {
-      writePrograms(progs, domainSrc, outputPath, styleSrc, registryPath);
-    } else {
-      writePrograms(progs, domainPath, outputPath);
+    if (outputPath) {
+      if (stylePath) {
+        const styleSrc = readFileSync(stylePath, "utf8").toString();
+        writePrograms(progs, domainSrc, outputPath, styleSrc, registryPath);
+      } else {
+        writePrograms(progs, domainPath, outputPath);
+      }
     }
 
     // progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
