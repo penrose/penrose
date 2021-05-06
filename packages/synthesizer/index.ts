@@ -6,15 +6,12 @@ import {
   prettySubstance,
   showError,
   Synthesizer,
+  SubProg,
   SynthesizerSetting,
 } from "@penrose/core";
-import { SubProg } from "@penrose/core/build/dist/types/substance";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";
-// const chalk = require("chalk");
-
-// process.env.NODE_ENV = "production";
 
 const USAGE = `
 Penrose Synthesizer.
@@ -85,6 +82,8 @@ const writePrograms = (
   if (!existsSync(prefix)) {
     mkdirSync(prefix, { recursive: true });
   }
+
+  // Push all substance programs
   for (let i = 0; i < progs.length; i++) {
     const subID = `prog-${i}`;
     const fileName = `${subID}.sub`;
@@ -149,7 +148,12 @@ const writePrograms = (
     }
 
     const synth = new Synthesizer(env, defaultSetting, subResult);
-    const progs = synth.generateSubstances(numPrograms);
+    let progs = synth.generateSubstances(numPrograms);
+    const template: SubProg | undefined = synth.getTemplate();
+
+    if (template) {
+      progs = [template, ...progs];
+    }
 
     // write progs
     if (stylePath) {
@@ -159,5 +163,9 @@ const writePrograms = (
     }
 
     // progs.map((prog) => console.log(prettySubstance(prog) + "\n-------"));
+  } else {
+    console.log(
+      `Error when compiling the domain program:\n${showError(envOrError.error)}`
+    );
   }
 })();

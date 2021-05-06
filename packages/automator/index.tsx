@@ -4,6 +4,7 @@ import {
   evalEnergy,
   prepareState,
   RenderStatic,
+  resample,
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -80,8 +81,6 @@ const singleProcess = async (
     compiledState = compilerOutput.value;
   } else {
     const err = compilerOutput.error;
-    console.log(err);
-
     console.error(`Compilation failed:\n${showError(err)}`);
     process.exit(1);
   }
@@ -95,7 +94,7 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState);
+  const optimizedState = stepUntilConvergence(initialState, 10000);
   const convergeEnd = process.hrtime(convergeStart);
 
   // TODO: include metadata prop?
@@ -116,6 +115,7 @@ const singleProcess = async (
     //   console.log("This instance has non-zero constraints: ");
     //   // return;
     // }
+    console.log(chalk.yellow(`Computing cross energy...`));
     let crossEnergy = undefined;
     if (referenceState) {
       const crossState = {
@@ -123,7 +123,13 @@ const singleProcess = async (
         constrFns: referenceState.constrFns,
         objFns: referenceState.objFns,
       };
-      crossEnergy = evalEnergy(await prepareState(crossState));
+      try {
+        crossEnergy = evalEnergy(await prepareState(crossState));
+      } catch (e) {
+        console.warn(
+          chalk.red(`Cross-instance energy failed. Returning infinity instead.`)
+        );
+      }
     }
 
     const metadata = {

@@ -84,6 +84,7 @@ class SynthesisContext {
   candidates: Candidates;
   subRes: SubRes | undefined;
   ops: Mutation[];
+  template: SubProg | undefined;
 
   constructor(subRes?: SubRes) {
     this.numStmts = 0;
@@ -108,6 +109,7 @@ class SynthesisContext {
     // If there is a template substance program, load in the relevant info
     if (this.subRes) {
       const [subEnv, env] = this.subRes;
+      this.template = cloneDeep(subEnv.ast);
       this.prog = cloneDeep(subEnv.ast);
       env.varIDs.forEach((id) => {
         const type = env.vars.get(id.value);
@@ -153,10 +155,7 @@ class SynthesisContext {
 
   //n append a statement to the generated program
   appendStmt = (stmt: SubStmt) => {
-    this.prog = {
-      ...this.prog,
-      statements: [...this.prog.statements, stmt],
-    };
+    this.prog = appendStmt(this.prog, stmt);
     this.numStmts++;
     this.ops.push({ tag: "Add", stmt });
   };
@@ -230,19 +229,7 @@ class SynthesisContext {
     }
   };
 
-  autoLabel = (): void => {
-    const stmt: AutoLabel = {
-      tag: "AutoLabel",
-      option: {
-        tag: "DefaultLabels",
-        nodeType: "SyntheticSubstance",
-        children: [],
-      },
-      nodeType: "SyntheticSubstance",
-      children: [],
-    };
-    this.appendStmt(stmt);
-  };
+  autoLabel = (): void => this.appendStmt(autoLabelStmt);
 }
 
 export class Synthesizer {
@@ -448,6 +435,11 @@ export class Synthesizer {
       return this.generateArg(arg, option);
     }
   };
+
+  getTemplate = (): SubProg | undefined =>
+    this.cxt.template
+      ? appendStmt(this.cxt.template, autoLabelStmt)
+      : undefined;
 }
 
 const applyConstructor = (
@@ -509,6 +501,17 @@ const nullaryTypeCons = (name: Identifier): TypeConsApp => ({
   args: [],
 });
 
+const autoLabelStmt: AutoLabel = {
+  tag: "AutoLabel",
+  option: {
+    tag: "DefaultLabels",
+    nodeType: "SyntheticSubstance",
+    children: [],
+  },
+  nodeType: "SyntheticSubstance",
+  children: [],
+};
+
 const declTypes: DomainStmt["tag"][] = [
   "ConstructorDecl",
   "FunctionDecl",
@@ -526,3 +529,8 @@ const filterBySetting = <T>(
     return decls.filter((_, key) => setting.includes(key));
   }
 };
+
+const appendStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
+  ...prog,
+  statements: [...prog.statements, stmt],
+});

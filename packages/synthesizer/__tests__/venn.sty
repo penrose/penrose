@@ -24,9 +24,9 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    ensure contains(y.shape, x.shape, 20.0)
-    ensure smallerThan(x.shape, y.shape)
-    ensure outsideOf(y.text, x.shape)
+    x.subsetFn0 = ensure contains(y.shape, x.shape, 20.0)
+    x.subsetFn1 = ensure smallerThan(x.shape, y.shape)
+    x.subsetFn2 = ensure outsideOf(y.text, x.shape)
     x.shape above y.shape
 }
 
@@ -40,8 +40,8 @@ where IsSubset(x, y) {
 Set x
 with Set y
 where Equal(x, y) {
-    override y.centerFn = encourage sameCenter(x.shape, y.shape)
-    override y.eqFn = encourage equal(x.shape.r, y.shape.r)
+    encourage sameCenter(x.shape, y.shape)
+    encourage equal(x.shape.r, y.shape.r)
 
     -- override y.text.string = concat(y.label, "=", x.label)
     -- override x.text.string = 
@@ -52,6 +52,13 @@ where Equal(x, y) {
     -- delete x.layering
     -- delete x.centerFn 
     -- delete x.eqFn 
+}
+
+Set x, y
+where Equal(x, y); IsSubset(x, y) {
+    delete x.subsetFn0
+    delete x.subsetFn1
+    delete x.subsetFn2
 }
 
 -- This block is just for A=B<-C

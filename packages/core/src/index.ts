@@ -294,3 +294,4 @@ export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };
 export type { Env };
 export type { SynthesizerSetting };
+export type { SubProg } from "types/substance";
