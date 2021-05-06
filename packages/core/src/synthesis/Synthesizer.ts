@@ -20,6 +20,7 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  AutoLabel,
   Bind,
   Decl,
   SubExpr,
@@ -228,6 +229,20 @@ class SynthesisContext {
       return 0;
     }
   };
+
+  autoLabel = (): void => {
+    const stmt: AutoLabel = {
+      tag: "AutoLabel",
+      option: {
+        tag: "DefaultLabels",
+        nodeType: "SyntheticSubstance",
+        children: [],
+      },
+      nodeType: "SyntheticSubstance",
+      children: [],
+    };
+    this.appendStmt(stmt);
+  };
 }
 
 export class Synthesizer {
@@ -251,6 +266,9 @@ export class Synthesizer {
     const numStmts = random(...this.setting.mutationCount);
     this.cxt.reset(numStmts);
     times(numStmts, () => this.mutateProgram());
+    // add autolabel statement
+    this.cxt.autoLabel();
+    // DEBUG: report results
     console.log(prettySubstance(this.cxt.prog));
     log.info("Operations:\n", this.cxt.showOps());
     console.log("----------");

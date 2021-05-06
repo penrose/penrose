@@ -4,6 +4,7 @@ import {
   evalEnergy,
   prepareState,
   RenderStatic,
+  showError,
   stepUntilConvergence,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
@@ -24,7 +25,7 @@ Usage:
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
-  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
+  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
 `;
 
@@ -78,8 +79,10 @@ const singleProcess = async (
   if (compilerOutput.isOk()) {
     compiledState = compilerOutput.value;
   } else {
-    const err = compiledState.error;
-    console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
+    const err = compilerOutput.error;
+    console.log(err);
+
+    console.error(`Compilation failed:\n${showError(err)}`);
     process.exit(1);
   }
 

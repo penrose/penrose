@@ -270,8 +270,6 @@ export const evalFns = (fns: Fn[], s: State): number[] => {
 
 export type PenroseState = State;
 
-export type { PenroseError } from "./types/errors";
-export type { Env };
 export {
   compileDomain,
   compileSubstance,
@@ -292,4 +290,7 @@ export {
   Result,
   prettyPrintFn,
 };
+export type { PenroseError } from "./types/errors";
+export type { Registry, Trio };
+export type { Env };
 export type { SynthesizerSetting };
