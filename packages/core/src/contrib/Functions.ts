@@ -18,7 +18,7 @@ import {
 } from "engine/Autodiff";
 import { maxBy, range } from "lodash";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Elem, SubPath } from "types/value";
+import { Elem, IPt, SubPath } from "types/value";
 import {
   ArgVal,
   Color,
@@ -42,6 +42,30 @@ import { randFloat } from "utils/Util";
 // These all return a Value<VarAD>
 export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
+
+  makePath: (start: [IVarAD, IVarAD], end: [IVarAD, IVarAD]) : IPathDataV<IVarAD> => 
+  {
+    const startPt: IPt<IVarAD> = {
+      tag: "Pt",
+      contents: start
+    };
+    const endPt: IPt<IVarAD> = {
+      tag: "Pt",
+      contents: end
+    };
+    return {
+      tag: "PathDataV",
+      contents: [
+        {
+          tag: "Closed",
+          contents: [
+            startPt,
+            endPt
+          ]
+        }
+      ]
+    };
+  },
 
   /**
    * Return the derivative of `varName`.

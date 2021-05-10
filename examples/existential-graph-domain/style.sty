@@ -26,15 +26,14 @@ forall Graph A
 
 forall Variable V
 {
-    V.icon = Line {
+    V.icon = Path {
         color: rgba(0.0, 0.0, 0.0, 0.0)
     }
 }
 
 forall Variable V; Graph A; Graph B where some(V, A, B)
 {
-    override V.icon.start = A.text.center
-    override V.icon.end = B.text.center
+    override V.icon.pathData = makePath(A.icon.center, B.icon.center)
     override V.icon.color = rgba(0.0, 0.0, 0.0, 1.0)
 
     V.icon above A.text

@@ -116,7 +116,7 @@ export const objDict = {
     [t2, text1]: [string, any],
     [t3, text2]: [string, any]
   ): VarAD => {
-    const spacing = varOf(1.1); // arbitrary
+    const spacing = varOf(2.0); // arbitrary
 
     if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
       // HACK: Arbitrarily pick the height of the text
