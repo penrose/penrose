@@ -1,0 +1,13 @@
+Graph p
+Graph q
+
+Graph u := if(p,q)
+
+
+Graph a
+Variable x
+
+some(x, p, q)
+
+
+AutoLabel All

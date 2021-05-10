@@ -17,7 +17,7 @@ import {
   sqrt,
 } from "engine/Autodiff";
 import { maxBy, range } from "lodash";
-import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
+import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import { Elem, SubPath } from "types/value";
 import {
   ArgVal,
@@ -140,6 +140,18 @@ export const compDict = {
         tag: "RGBA",
         contents: [r, g, b, a],
       },
+    };
+  },
+
+  selectColor: (color1: Color<VarAD>, color2: Color<VarAD>, level: IVarAD): IColorV<VarAD> => 
+  {
+    if (level.val % 2 == 0) return {
+      tag: "ColorV",
+      contents: color1
+    };
+    return {
+      tag: "ColorV",
+      contents: color2
     };
   },
 
