@@ -9,13 +9,13 @@
   "add": {
     "type": ["Point"],
     "function": [],
-    "constructor": ["MkTriangle", "MkRectangle"],
+    "constructor": ["MkTriangle", "MkRectangle", "MkSegment"],
     "predicate": ["In", "Collinear"]
   },
   "delete": {
-    "type": [],
+    "type": ["Point"],
     "function": [],
-    "constructor": [],
+    "constructor": ["MkSegment"],
     "predicate": ["Collinear"]
   }
 }

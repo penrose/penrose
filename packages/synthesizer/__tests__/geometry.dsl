@@ -58,9 +58,9 @@ constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 -- function Altitude : Triangle * Angle -> Segment
 -- function Endpoint : Segment -> Point
 
--- predicate Acute : Angle
--- predicate Obtuse : Angle
--- predicate Right : Angle
+predicate Acute : Angle
+predicate Obtuse : Angle
+predicate Right : Angle
 -- predicate On : Point * Linelike
 predicate In : Point * Plane
 predicate Not : Prop

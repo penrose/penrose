@@ -166,6 +166,7 @@ export const circleDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
+  positionalProps: ["center"],
 };
 
 export const ellipseDef: ShapeDef = {
@@ -183,6 +184,7 @@ export const ellipseDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
+  positionalProps: ["center"],
 };
 
 export const rectDef: ShapeDef = {
@@ -200,6 +202,7 @@ export const rectDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultRect")],
   },
+  positionalProps: ["center"],
 };
 
 export const polygonDef: ShapeDef = {
@@ -285,6 +288,7 @@ export const imageDef: ShapeDef = {
     path: ["StrV", () => constValue("StrV", "missing image path")],
     name: ["StrV", () => constValue("StrV", "defaultImage")],
   },
+  positionalProps: ["center"],
 };
 
 export const squareDef: ShapeDef = {
@@ -302,6 +306,7 @@ export const squareDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultSquare")],
   },
+  positionalProps: ["center"],
 };
 
 export const textDef: ShapeDef = {
@@ -320,6 +325,7 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
     polygon: ["PolygonV", () => emptyPoly],
   },
+  positionalProps: ["center"],
 };
 
 export const lineDef: ShapeDef = {
@@ -338,6 +344,7 @@ export const lineDef: ShapeDef = {
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     name: ["StrV", () => constValue("StrV", "defaultLine")],
   },
+  positionalProps: ["start", "end"],
 };
 
 export const arrowDef: ShapeDef = {
@@ -354,6 +361,7 @@ export const arrowDef: ShapeDef = {
     name: ["StrV", () => constValue("StrV", "defaultArrow")],
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
   },
+  positionalProps: ["start", "end"],
 };
 
 export const curveDef: ShapeDef = {

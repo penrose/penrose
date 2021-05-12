@@ -1,24 +1,3 @@
-/* # TODO
-
-- make the diagram the right size for the PDF
-
-# OBJECTS TODO
-
-- ray head is contained in box and is not fixed length
-  - Add a rect-point constraint (or just use inRange?)
-- rays don't overlap other rays (or segments)
-- Maybe it would make more sense to sample in range of the box, rather than the canvas, and then optimize?? Can that be customizable in Style?
-
-# LABELS TODO
-
-- make `m` and `s` labels better (esp placing above segment)
-- labels don't pairwise overlap
-  - nothing overlaps the E^2 label (no other labels or primitives)
-- sometimes the labels end up on TOP of the points due to the distance objective not being signed -- fix that
-- account for label size in rect-label constraint (doesn't deal w/ non-square labels)
-
-*/
-
 Colors {
     -- Keenan palette
     black = rgba(0.0, 0.0, 0.0, 1.0)
