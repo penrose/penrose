@@ -1,0 +1,72 @@
+global {
+       nodeR = 6.
+
+       lineThickness = 3.
+
+       calloutPadding = 30.
+       calloutThickness = 20.
+       calloutEndPadding = 40.
+       maxCalloutDist = 200.
+}
+
+colors {
+       black = rgba(0., 0., 0., 1.)
+       none = rgba(0., 0., 0., 0.)
+}
+
+Node n {
+     n.shape = Circle { 
+             r: global.nodeR
+             strokeWidth: 0.
+             color: colors.black
+     }
+
+     n.text = Text {
+            -- center: (0., 0.)
+            string: n.label
+     }
+
+     n.callout = Rectangle {
+               strokeWidth: global.lineThickness
+               strokeColor: colors.black
+               color: colors.none
+               center: n.text.center
+               w: n.text.w + global.calloutPadding
+               h: n.text.h + global.calloutPadding
+     }
+
+     vec = normalize(n.callout.center - n.shape.center)
+
+     n.anchorStart = n.shape.center + global.calloutEndPadding * vec
+
+     n.line = Line {
+            start: n.anchorStart
+            end: n.callout.center
+            thickness: global.calloutThickness
+            color: rgba(0.5, 0.5, 0.5, 0.5)
+     }
+
+     -- TODO: add rounded corners for rectangles -- rx, ry
+
+     n.line1 = Line {
+             start: n.anchorStart
+             end: n.callout.center
+             thickness: global.lineThickness
+             color: colors.black
+     }
+
+     n.line1 above n.line
+
+     -- TODO: Draw lines from anchorStart to the intersection point of the +/- normal points with the relevant line segment of the rectangle
+
+      -- TODO: Encode this as a new shape - https://docs.google.com/document/d/1OwAbazADJhqzWRQ_3_Jll58xaLjvbqNxoaxCGo33tRU/edit
+
+     dist = norm(n.callout.center - n.shape.center)
+     -- TODO: dist should include dimension of rectangle
+     ensure lessThan(dist, 200.)
+
+     -- Not working so well?
+     ensure disjoint(n.callout, n.shape)
+}
+
+-- TODO: Note that units are in pixels for the current renderers
