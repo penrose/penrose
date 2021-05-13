@@ -6,12 +6,23 @@ import {
   attrPathData,
   attrWH,
   attrXY,
+  attrRotation,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const PathString = ({ shape, canvasSize }: ShapeProps): SVGSVGElement => {
+const PathString = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  attrRotation(
+    shape,
+    shape.properties.center,
+    shape.properties.w,
+    shape.properties.h,
+    canvasSize,
+    g
+  );
 
   attrFill(shape, elem);
   attrStroke(shape, elem);
@@ -25,6 +36,7 @@ const PathString = ({ shape, canvasSize }: ShapeProps): SVGSVGElement => {
   svg.setAttribute("viewBox", viewBox.contents);
 
   svg.appendChild(elem);
-  return svg;
+  g.appendChild(svg);
+  return g;
 };
 export default PathString;

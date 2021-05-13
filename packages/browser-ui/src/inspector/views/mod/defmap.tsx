@@ -10,6 +10,7 @@ import ArrowDef from "./shapedefs/arrow.json";
 import ImageDef from "./shapedefs/image.json";
 import TextDef from "./shapedefs/text.json";
 import CurveDef from "./shapedefs/curve.json";
+import PathStrDef from "./shapedefs/pathStr.json";
 
 const defMap = {
   Circle: CircDef,
@@ -24,5 +25,6 @@ const defMap = {
   Image: ImageDef,
   Text: TextDef,
   Path: CurveDef,
+  PathString: PathStrDef
 };
 export default defMap;

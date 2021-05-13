@@ -17,8 +17,9 @@ interface IShapeDef {
 class AttrPicker extends React.Component<IProps> {
   public render() {
     const { sAttrs, shape, modAttr } = this.props;
-    if (!sAttrs.hasOwnProperty("properties"))
+    if (!sAttrs.hasOwnProperty("properties")) {
       throw new Error("JSON missing the 'properties' attribute.");
+    }
     return (
       <div
         id="attrPicker"

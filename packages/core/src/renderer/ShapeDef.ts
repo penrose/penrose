@@ -371,7 +371,6 @@ export const arrowDef: ShapeDef = {
     start: ["VectorV", vectorSampler],
     end: ["VectorV", vectorSampler],
     thickness: ["FloatV", () => sampleFloatIn(5, 15)],
-    rotation: ["FloatV", () => constValue("FloatV", 0.0)],
     arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
     arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
     style: ["StrV", () => constValue("StrV", "solid")],
