@@ -110,7 +110,7 @@ export const attrXY = (
 /**
  * Rotates a GPI by n degrees about a center
  * Note: elem must be `transform`able
- * NOTE: must be called before transform coords (matrix)
+ * NOTE: must be called before transform translate coords (matrix rules)
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
  */
 export const attrRotation = (
