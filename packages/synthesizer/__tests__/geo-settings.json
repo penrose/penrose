@@ -18,5 +18,11 @@
     "function": [],
     "constructor": ["MkSegment"],
     "predicate": ["Collinear"]
+  },
+  "edit": {
+    "type": ["Point"],
+    "function": [],
+    "constructor": ["MkSegment", "MkRectangle", "MkTriangle"],
+    "predicate": ["Collinear"]
   }
 }
