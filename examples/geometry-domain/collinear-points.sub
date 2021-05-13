@@ -9,6 +9,3 @@ In(D, R)
 
 Rectangle r 
 r := MkRectangle(A, B, C, D)
-
-
-AutoLabel All

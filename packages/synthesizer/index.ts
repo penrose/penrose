@@ -34,6 +34,7 @@ Options:
 const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 4],
   argOption: "existing",
+  argReuse: "distinct",
   weights: {
     type: 0.1,
     predicate: 0.3,

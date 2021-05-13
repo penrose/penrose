@@ -37,6 +37,7 @@ const log = consola
 
 type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
+type ArgReuse = "distinct" | "repeated";
 
 type MatchSetting = string[] | All;
 
@@ -66,6 +67,7 @@ interface DeclTypes {
 export interface SynthesizerSetting {
   mutationCount: [number, number];
   argOption: ArgOption;
+  argReuse: ArgReuse;
   weights: {
     type: number;
     predicate: number;
@@ -85,6 +87,7 @@ class SynthesisContext {
   subRes: SubRes | undefined;
   ops: Mutation[];
   template: SubProg | undefined;
+  argCxt: Identifier[];
 
   constructor(subRes?: SubRes) {
     this.numStmts = 0;
@@ -103,6 +106,7 @@ class SynthesisContext {
       statements: [],
     };
     this.ops = [];
+    this.argCxt = [];
   }
 
   loadTemplate = () => {
@@ -179,6 +183,14 @@ class SynthesisContext {
     return this.ops.map((op) => `${op.tag} ${prettyStmt(op.stmt)}`).join("\n");
   };
 
+  addArg = (id: Identifier): void => {
+    this.argCxt.push(id);
+  };
+
+  resetArgContext = (): void => {
+    this.argCxt = [];
+  };
+
   reset = (maxStmts: number) => {
     this.ops = [];
     this.maxStmts = maxStmts;
@@ -188,6 +200,7 @@ class SynthesisContext {
       tag: "SubProg",
       statements: [],
     };
+    this.argCxt = [];
     this.loadTemplate();
   };
 
@@ -200,10 +213,17 @@ class SynthesisContext {
     }
   };
 
-  pickID = (typeStr: string): Identifier | undefined => {
+  pickID = (
+    typeStr: string,
+    excludeList?: Identifier[]
+  ): Identifier | undefined => {
     const possibleIDs = this.declaredIDs.get(typeStr);
-    if (possibleIDs) return choice([...possibleIDs]);
-    else return undefined;
+    if (possibleIDs) {
+      const candidates = possibleIDs.filter((id) =>
+        excludeList ? !excludeList.includes(id) : true
+      );
+      return choice([...candidates]);
+    } else return undefined;
   };
 
   generateID = (typeName: Identifier): Identifier => {
@@ -398,26 +418,44 @@ export class Synthesizer {
     return stmt;
   };
 
-  generateArgs = (args: Arg[]): SubExpr[] =>
-    args.map((arg) => this.generateArg(arg, this.setting.argOption));
+  generateArgs = (args: Arg[]): SubExpr[] => {
+    const res = args.map((arg) =>
+      this.generateArg(arg, this.setting.argOption, this.setting.argReuse)
+    );
+    this.cxt.resetArgContext();
+    return res;
+  };
 
-  generateArg = (arg: Arg, option: ArgOption): SubExpr => {
+  generateArg = (
+    arg: Arg,
+    option: ArgOption,
+    reuseOption: ArgReuse
+  ): SubExpr => {
     const argType: Type = arg.type;
     if (argType.tag === "TypeConstructor") {
       switch (option) {
         case "existing": {
-          const existingID = this.cxt.pickID(argType.name.value);
+          // TODO: clean up the logic
+          const existingID =
+            reuseOption === "distinct"
+              ? this.cxt.pickID(argType.name.value, this.cxt.argCxt)
+              : this.cxt.pickID(argType.name.value);
           if (!existingID) {
-            return this.generateArg(arg, "generated");
+            return this.generateArg(arg, "generated", reuseOption);
           } else {
+            this.cxt.addArg(existingID);
             return existingID;
           }
         }
         case "generated":
           this.generateType(argType.name);
-          return this.generateArg(arg, "existing");
+          return this.generateArg(arg, "existing", reuseOption);
         case "mixed":
-          return this.generateArg(arg, choice(["existing", "generated"]));
+          return this.generateArg(
+            arg,
+            choice(["existing", "generated"]),
+            reuseOption
+          );
       }
     } else {
       throw new Error(`${argType.tag} not supported for argument generation`);
@@ -425,14 +463,20 @@ export class Synthesizer {
   };
 
   generatePredArgs = (args: Arg[]): SubPredArg[] =>
-    args.map((arg) => this.generatePredArg(arg, this.setting.argOption));
+    args.map((arg) =>
+      this.generatePredArg(arg, this.setting.argOption, this.setting.argReuse)
+    );
 
-  generatePredArg = (arg: Arg, option: ArgOption): SubPredArg => {
+  generatePredArg = (
+    arg: Arg,
+    option: ArgOption,
+    reuseOption: ArgReuse
+  ): SubPredArg => {
     const argType: Type = arg.type;
     if (argType.tag === "Prop") {
       return this.generatePredicate();
     } else {
-      return this.generateArg(arg, option);
+      return this.generateArg(arg, option, reuseOption);
     }
   };
 
