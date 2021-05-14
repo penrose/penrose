@@ -206,6 +206,30 @@ with Point p; Point q; Point r; Point s; Plane P  {
   R.icon above P.icon
 }
 
+-- Angle theta
+-- where theta := InteriorAngle(q, p, r)
+-- with Point p; Point q; Point r {
+
+--      theta.radius = const.thetaRadius
+--      -- TODO: always take the acute angle, not the obtuse angle
+--      theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
+
+--      theta.shape = Path {
+--        pathData : polygonFromPoints(theta.arcPath)
+--        strokeWidth : const.strokeWidth
+--        color : Colors.darkpurple
+--        fill : setOpacity(Colors.white, 0.5)
+--      }
+
+--      theta.icon above const.plane
+--      theta.icon below p.icon
+--      theta.icon below q.icon
+--      theta.icon below r.icon
+
+--      -- TODO: or could be minimum constraint function
+--      encourage repel(q.icon, r.icon, 100.0)
+-- }
+
 -- -- We don't know if the points in the triangle actually include the points in the square or not
 -- -- TODO: this doesn't seem to match -- and the matches take way too long!!
 
@@ -270,29 +294,6 @@ with Point p; Point q; Point r; Point s; Plane P  {
 --     override S.path = squareAt(p.vec, q.vec, c.vec)
 -- }
 
--- Angle theta
--- where theta := InteriorAngle(q, p, r)
--- with Point p; Point q; Point r {
-
---      theta.radius = const.thetaRadius
---      -- TODO: always take the acute angle, not the obtuse angle
---      theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
-
---      theta.shape = Path {
---        pathData : polygonFromPoints(theta.arcPath)
---        strokeWidth : const.strokeWidth
---        color : Colors.darkpurple
---        fill : setOpacity(Colors.white, 0.5)
---      }
-
---      theta.icon above const.plane
---      theta.icon below p.icon
---      theta.icon below q.icon
---      theta.icon below r.icon
-
---      -- TODO: or could be minimum constraint function
---      encourage repel(q.icon, r.icon, 100.0)
--- }
 
 -- Angle theta
 -- where theta := InteriorAngle(q, p, r); Right(theta)

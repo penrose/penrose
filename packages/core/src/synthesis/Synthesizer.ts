@@ -23,6 +23,7 @@ import {
   AutoLabel,
   Bind,
   Decl,
+  Func,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -96,6 +97,13 @@ interface Candidates {
   predicates: Map<string, PredicateDecl>;
   constructors: Map<string, ConstructorDecl>;
 }
+
+interface SynthesizedSubstance {
+  prog: SubProg;
+  // ops: Mutation[];
+  ops: string;
+}
+
 class SynthesisContext {
   names: Map<string, number>;
   declaredIDs: Map<string, Identifier[]>;
@@ -303,13 +311,13 @@ export class Synthesizer {
     this.setting = setting;
   }
 
-  generateSubstances = (numProgs: number): SubProg[] =>
+  generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
     times(numProgs, () => {
       const sub = this.generateSubstance();
       return sub;
     });
 
-  generateSubstance = (): SubProg => {
+  generateSubstance = (): SynthesizedSubstance => {
     const numStmts = random(...this.setting.mutationCount);
     this.cxt.reset(numStmts);
     times(numStmts, () => this.mutateProgram());
@@ -319,11 +327,15 @@ export class Synthesizer {
     console.log(prettySubstance(this.cxt.prog));
     log.info("Operations:\n", this.cxt.showOps());
     console.log("----------");
-    return this.cxt.prog;
+    return {
+      prog: this.cxt.prog,
+      ops: this.cxt.showOps(),
+    };
   };
 
   mutateProgram = (): void => {
     const ops = ["add", "delete", "edit"];
+    // const ops = ["edit"];
     const op = choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
@@ -360,6 +372,10 @@ export class Synthesizer {
           }
         }
       }
+    } else {
+      log.debug(
+        `Failed to find a statement when editing. Candidates are: ${candidates}. Chosen name to find is ${chosenName} of ${chosenType}`
+      );
     }
   };
 
@@ -411,11 +427,9 @@ export class Synthesizer {
       const stmt = choice(stmts);
       return stmt;
     } else {
-      // console.log(
-      //   `Warning: cannot find a ${stmtType} statement with name ${name}. Current program:\n${prettySubstance(
-      //     this.cxt.prog
-      //   )}`
-      // );
+      log.debug(
+        `Warning: cannot find a ${stmtType} statement with name ${name}.`
+      );
     }
   };
 
@@ -559,12 +573,13 @@ const domainToSubType = (
   | ApplyPredicate["tag"]
   | ApplyFunction["tag"]
   | ApplyConstructor["tag"]
+  | Func["tag"]
   | undefined => {
   switch (domainType) {
     case "ConstructorDecl":
-      return "ApplyConstructor";
+      return "Func";
     case "FunctionDecl":
-      return "ApplyFunction";
+      return "Func";
     case "PredicateDecl":
       return "ApplyPredicate";
     case "TypeDecl":

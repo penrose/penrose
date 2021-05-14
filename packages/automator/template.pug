@@ -45,7 +45,10 @@ mixin row(artifact)
                     ul(class="list-group")
                         li(class="list-group-item d-flex justify-content-between align-items-center")
                             | Cross-instance energy
-                            span(class="badge badge-dark badge-pill") #{artifact.metadata.ciee ? artifact.metadata.ciee : "Infinity"}
+                            span(class="badge badge-dark badge-pill") #{artifact.metadata.ciee !== undefined ? artifact.metadata.ciee : "Infinity"}
+                        li(class="list-group-item d-flex justify-content-between align-items-center")
+                            | Operations
+                            pre #{artifact.metadata.extra.ops}
         div(class="col-6")
             | !{artifact.rendered}
 

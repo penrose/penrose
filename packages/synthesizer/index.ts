@@ -89,9 +89,18 @@ const writePrograms = (
     const subID = `prog-${i}`;
     const fileName = `${subID}.sub`;
     const subPath = join(prefix, fileName);
-    writeFileSync(subPath, prettySubstance(progs[i]));
+    const metaName = `${subID}-meta.json`;
+    const metaPath = join(prefix, metaName);
+    const { prog, ops } = progs[i];
+    writeFileSync(subPath, prettySubstance(prog));
+    writeFileSync(metaPath, JSON.stringify({ ops }));
     substances[subID] = { name: subID, URI: fileName };
-    trios.push({ substance: subID, style: styID, domain: domainID });
+    trios.push({
+      substance: subID,
+      style: styID,
+      domain: domainID,
+      meta: metaName,
+    });
   }
   // TODO: change name style and domain
   const registry: Registry = {
@@ -159,7 +168,7 @@ const writePrograms = (
     const template: SubProg | undefined = synth.getTemplate();
 
     if (template) {
-      progs = [template, ...progs];
+      progs = [{ prog: template }, ...progs];
     }
 
     // write progs

@@ -63,7 +63,8 @@ const singleProcess = async (
     id: uniqid("instance-"),
   },
   reference?,
-  referenceState?
+  referenceState?,
+  extrameta?
 ) => {
   // Fetch Substance, Style, and Domain files
   const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
@@ -81,8 +82,7 @@ const singleProcess = async (
     compiledState = compilerOutput.value;
   } else {
     const err = compilerOutput.error;
-    console.error(`Compilation failed:\n${showError(err)}`);
-    process.exit(1);
+    throw new Error(`Compilation failed:\n${showError(err)}`);
   }
 
   const labelStart = process.hrtime();
@@ -127,9 +127,19 @@ const singleProcess = async (
         crossEnergy = evalEnergy(await prepareState(crossState));
       } catch (e) {
         console.warn(
-          chalk.red(`Cross-instance energy failed. Returning infinity instead.`)
+          chalk.red(
+            `Cross-instance energy failed. Returning infinity instead. Error message\n:${e}`
+          )
         );
       }
+    }
+
+    // fetch metadata if available
+    let extraMetadata;
+    if (extrameta) {
+      extraMetadata = JSON.parse(
+        fs.readFileSync(`${prefix}/${extrameta}`, "utf8").toString()
+      );
     }
 
     const metadata = {
@@ -153,6 +163,7 @@ const singleProcess = async (
       },
       reference,
       ciee: crossEnergy,
+      extra: extraMetadata,
     };
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out, { recursive: true });
@@ -196,7 +207,7 @@ const batchProcess = async (
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
-  for (const { domain, style, substance } of trioLibrary) {
+  for (const { domain, style, substance, meta } of trioLibrary) {
     const name = `${substance}-${style}`;
     const { name: subName, URI: subURI } = substanceLibrary[substance];
     const { name: styName, URI: styURI, plugin } = styleLibrary[style];
@@ -210,30 +221,41 @@ const batchProcess = async (
       );
       continue;
     }
-    // Warning: will face id conflicts if parallelism used
+
     const id = uniqid("instance-");
-    const { metadata, state } = await singleProcess(
-      subURI,
-      styURI,
-      dslURI,
-      folders,
-      `${out}/${name}-${id}${folders ? "" : ".svg"}`,
-      prefix,
-      {
-        substanceName: subName,
-        styleName: styName,
-        domainName: dslName,
-        id,
-      },
-      reference,
-      referenceState
-    );
-    if (referenceFlag) {
-      referenceState = state;
-      referenceFlag = false;
-    }
-    if (folders) {
-      finalMetadata[id] = metadata;
+    // try to render the diagram
+    try {
+      // Warning: will face id conflicts if parallelism used
+      const { metadata, state } = await singleProcess(
+        subURI,
+        styURI,
+        dslURI,
+        folders,
+        `${out}/${name}-${id}${folders ? "" : ".svg"}`,
+        prefix,
+        {
+          substanceName: subName,
+          styleName: styName,
+          domainName: dslName,
+          id,
+        },
+        reference,
+        referenceState,
+        meta
+      );
+      if (referenceFlag) {
+        referenceState = state;
+        referenceFlag = false;
+      }
+      if (folders) {
+        finalMetadata[id] = metadata;
+      }
+    } catch (e) {
+      console.log(
+        chalk.red(
+          `${id} exited with an error. The Substance program ID is ${subName}. The error message is:\n${e}`
+        )
+      );
     }
   }
 

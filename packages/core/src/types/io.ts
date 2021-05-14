@@ -18,5 +18,5 @@ export interface Registry {
   substances: { [subID: string]: { name: string; URI: string } }[];
   styles: { [styID: string]: { name: string; URI: string } }[];
   domains: { [domID: string]: { name: string; URI: string } }[];
-  trios: { substance: string; style: string; domain: string }[];
+  trios: { substance: string; style: string; domain: string; meta?: string }[];
 }
