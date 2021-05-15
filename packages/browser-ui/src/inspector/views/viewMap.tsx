@@ -7,10 +7,9 @@ import Settings from "./Settings";
 const viewMap = {
   frames: Frames,
   errors: Errors,
-  // logs: LogView,
   shapes: ShapeView,
   mod: Mod,
   opt: Opt,
-  settings: Settings,
+  settings: Settings
 };
 export default viewMap;

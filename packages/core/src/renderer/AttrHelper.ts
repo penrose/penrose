@@ -5,6 +5,7 @@ import {
   IStrV,
   IPtListV,
   ILListV,
+  Value,
 } from "types/value";
 import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
@@ -106,6 +107,35 @@ export const attrXY = (
   elem.setAttribute("y", (y - h.contents / 2).toString());
 };
 
+/**
+ * Rotates a GPI by n degrees about a center
+ * Note: elem must be `transform`able
+ * NOTE: must be called before transform translate coords (matrix rules)
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+ */
+export const attrRotation = (
+  { properties }: Shape,
+  center: Value<number>,
+  w: Value<number>,
+  h: Value<number>,
+  canvasSize: [number, number],
+  elem: SVGElement
+): void => {
+  const rotation = (properties.rotation as IFloatV<number>).contents;
+  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null
+      ? `rotate(${rotation}, ${x - (w.contents as number) / 2}, ${
+          y - (h.contents as number) / 2
+        })`
+      : transform +
+        `rotate(${rotation}, ${x - (w.contents as number) / 2}, ${
+          y - (h.contents as number) / 2
+        })`;
+  elem.setAttribute("transform", transform);
+};
+
 export const attrSideCoords = (
   { properties }: Shape,
   canvasSize: [number, number],
@@ -114,10 +144,13 @@ export const attrSideCoords = (
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   const side = properties.side as IFloatV<number>;
-  elem.setAttribute(
-    "transform",
-    `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
-  );
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null
+      ? `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
+      : transform +
+        `translate(${x - side.contents / 2}, ${y - side.contents / 2})`;
+  elem.setAttribute("transform", transform);
 };
 
 export const attrRadius = ({ properties }: Shape, elem: SVGElement) => {
@@ -163,6 +196,11 @@ export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
   const side = properties.side as IFloatV<number>;
   elem.setAttribute("width", side.contents.toString());
   elem.setAttribute("height", side.contents.toString());
+};
+
+export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
+  const d = properties.data as IStrV<string>;
+  elem.setAttribute("d", d.contents.toString());
 };
 
 export const DASH_ARRAY = "7,5";

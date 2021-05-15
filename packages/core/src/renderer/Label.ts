@@ -1,10 +1,24 @@
 import { IStrV } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
-import { attrFill, attrTitle, attrTransformCoords, attrWH } from "./AttrHelper";
+import {
+  attrFill,
+  attrRotation,
+  attrTitle,
+  attrTransformCoords,
+  attrWH,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  attrRotation(
+    shape,
+    shape.properties.center,
+    shape.properties.w,
+    shape.properties.h,
+    canvasSize,
+    elem
+  );
   attrTransformCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);
   const name = shape.properties.name as IStrV<string>;
