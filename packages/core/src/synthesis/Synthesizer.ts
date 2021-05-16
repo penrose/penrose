@@ -1,3 +1,4 @@
+import { appendStmt, replaceStmt, swapArgs } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
@@ -192,12 +193,7 @@ class SynthesisContext {
   };
 
   replaceStmt = (originalStmt: SubStmt, newStmt: SubStmt): void => {
-    this.prog = {
-      ...this.prog,
-      statements: this.prog.statements.map((s) =>
-        s === originalStmt ? newStmt : s
-      ),
-    };
+    this.prog = replaceStmt(this.prog, originalStmt, newStmt);
     this.ops.push({ tag: "Replace", old: originalStmt, new: newStmt });
   };
 
@@ -335,7 +331,6 @@ export class Synthesizer {
 
   mutateProgram = (): void => {
     const ops = ["add", "delete", "edit"];
-    // const ops = ["edit"];
     const op = choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
@@ -379,7 +374,7 @@ export class Synthesizer {
     }
   };
 
-  // NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
+  // NOTE: every synthesizer that 'addStmt' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
   addStmt = (): void => {
     log.debug("Adding statement");
     this.cxt.findCandidates(this.env, this.setting.add);
@@ -587,23 +582,6 @@ const domainToSubType = (
   }
 };
 
-const swapArgs = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction,
-  [index1, index2]: [number, number]
-): ApplyConstructor | ApplyPredicate | ApplyFunction => {
-  return {
-    ...stmt,
-    args: swap(stmt.args, index1, index2),
-  };
-};
-
-const swap = (arr: any[], a: number, b: number) =>
-  arr.map((current, idx) => {
-    if (idx === a) return arr[b];
-    if (idx === b) return arr[a];
-    return current;
-  });
-
 const applyConstructor = (
   decl: ConstructorDecl,
   args: SubExpr[]
@@ -691,10 +669,5 @@ const filterBySetting = <T>(
     return decls.filter((_, key) => setting.includes(key));
   }
 };
-
-const appendStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
-  ...prog,
-  statements: [...prog.statements, stmt],
-});
 
 //#endregion
