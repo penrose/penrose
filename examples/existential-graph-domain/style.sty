@@ -33,10 +33,24 @@ forall Variable V
     }
 }
 
+
+
+forall Variable v1; Variable v2 where equal(v1,v2){
+    
+    override v2.icon.pathData = makePath(v1.start, v2.start, 50,10)
+    override v1.icon.strokeWidth = 0.0
+}
+
+
+
 forall Variable V; Graph A; Graph B where some(V, A, B)
 {
     override V.icon.pathData = makePath(A.text.center, B.text.center, 50, 10)
     override V.icon.color = rgba(0.0, 0.0, 0.0, 1.0)
+
+    V.start = A.text.center
+    V.end = B.text.center
+
 
     V.icon above A.text
     V.icon above B.text
@@ -73,6 +87,16 @@ where Result := or(A, B)
     A.text above Result.icon2
     B.text above Result.icon2
 }
+
+
+forall Graph a where invisibleGraph(a){
+    override a.text = Circle{
+        strokeWidth: 0.0
+        color: rgba(0.0, 0.0, 0.0, 0.0)
+    }
+}
+
+
 
 forall Graph A; Graph B; Graph Result 
 where Result := if(A, B) 

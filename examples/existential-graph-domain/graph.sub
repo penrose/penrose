@@ -7,7 +7,21 @@ Graph u := if(p,q)
 Graph a
 Variable x
 
+
+Variable y
+Graph b
+invisibleGraph(b)
+
+
+Variable c
+Graph d 
+invisibleGraph(d)
+
+some(c, a, d)
 some(x, p, q)
+some(y, b, p)
+
+equal(c,y)
 
 
 AutoLabel All
