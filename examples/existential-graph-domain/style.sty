@@ -27,13 +27,15 @@ forall Graph A
 forall Variable V
 {
     V.icon = Path {
+        fill: rgba(0.0, 0.0, 0.0, 0.0)
         color: rgba(0.0, 0.0, 0.0, 0.0)
+        strokeWidth: 2.0
     }
 }
 
 forall Variable V; Graph A; Graph B where some(V, A, B)
 {
-    override V.icon.pathData = makePath(A.icon.center, B.icon.center)
+    override V.icon.pathData = makePath(A.text.center, B.text.center, 50, 10)
     override V.icon.color = rgba(0.0, 0.0, 0.0, 1.0)
 
     V.icon above A.text
@@ -68,6 +70,8 @@ where Result := or(A, B)
 
     A.icon above Result.icon2
     B.icon above Result.icon2
+    A.text above Result.icon2
+    B.text above Result.icon2
 }
 
 forall Graph A; Graph B; Graph Result 
@@ -85,7 +89,7 @@ where Result := if(A, B)
         color: selectColor(variable.primary, variable.secondary, Result.level + 1)
     }
 
-    override Result.text.string = "."
+    override Result.text.string = ""
 
     override Result.icon2.r = Result.icon.r / 1.6
 
@@ -103,5 +107,7 @@ where Result := if(A, B)
 
 
     Result.icon2 above Result.icon
+    Result.icon2 below A.icon
+    Result.icon2 below B.icon
 
 }
