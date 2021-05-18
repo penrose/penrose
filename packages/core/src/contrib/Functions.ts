@@ -231,6 +231,33 @@ export const compDict = {
   },
 
   /**
+   * return the path for a callout (TODO: Remove)
+   */
+  makeCallout: (textCenter: VarAD[], textWidth: VarAD, textHeight: VarAD, anchor: VarAD[], calloutPadding: VarAD, calloutThickness: VarAD, calloutEndPadding: VarAD): IPtListV<VarAD> => {
+
+    // TODO(error): it is very confusing that the function types and args are not typechecked and fail silently
+    // console.log("textCenter, anchor", textCenter, anchor, calloutPadding, calloutThickness, calloutEndPadding);
+
+    // callout center -> anchor, Parallel to callout direction
+    const vec = ops.vnormalize(ops.vsub(textCenter, anchor));
+    const stemStart = ops.vmove(anchor, calloutEndPadding, vec); // Pointy part
+
+    // Extrusions from normal on either side of the stem
+    const t = ops.vnorm(ops.vsub(textCenter, stemStart))
+    const stemSide1Start = ops.vmove(stemStart, div(calloutThickness, constOf(2.)), rot90v(vec));
+    const stemSide1End = ops.vmove(stemSide1Start, t, vec)
+
+    // TODO: Compute stemSide1 segment's intersection with the rectangle
+
+    const stemSide2Start = ops.vmove(stemStart, div(calloutThickness, constOf(2.)), rot90v(rot90v(rot90v(vec))));
+
+    return {
+      tag: "PtListV",
+      contents: [stemSide1End, stemSide1Start, stemSide2Start].map(toPt),
+    };
+  },
+
+  /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
   unitMark: (
@@ -602,6 +629,13 @@ const perpPathFlat = (
  * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
+  return [neg(y), x];
+};
+
+/**
+ * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ */
+const rot90v = ([x, y]: VarAD[]): VarAD[] => {
   return [neg(y), x];
 };
 

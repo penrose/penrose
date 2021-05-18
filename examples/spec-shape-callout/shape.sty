@@ -102,7 +102,7 @@ Node n {
      -- Not working so well? TODO
      -- ensure disjoint(n.callout, n.shape)
 
-     calloutPoints = makeCallout(n.text.center, global.calloutPadding, global.calloutThickness, global.calloutEndPadding)
+     calloutPoints = makeCallout(n.text.center, n.text.w, n.text.h, n.shape.center, global.calloutPadding, global.calloutThickness, global.calloutEndPadding)
      n.calloutShape = Path {
                     -- pathData: pathFromPoints("closed", [(0., 0.), (100., 100.), (200., 0.), (0., 0.)])
                     pathData: pathFromPoints("closed", calloutPoints)
