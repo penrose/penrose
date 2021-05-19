@@ -6,6 +6,7 @@ import {
   attrTitle,
   attrRadiusX,
   attrRadiusY,
+  attrRotation,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -13,11 +14,19 @@ import { ShapeProps } from "./Renderer";
 
 const Square = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  attrSideCoords(shape, canvasSize, elem);
   attrSide(shape, elem);
   attrFill(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
+  attrRotation(
+    shape,
+    shape.properties.center,
+    shape.properties.side,
+    shape.properties.side,
+    canvasSize,
+    elem
+  );
+  attrSideCoords(shape, canvasSize, elem);
 
   attrRadiusX(shape, elem);
 

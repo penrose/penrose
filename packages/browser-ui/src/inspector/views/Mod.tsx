@@ -10,7 +10,7 @@ interface IState {
 }
 
 class Mod extends React.Component<IViewProps, IState> {
-  public readonly state = { selectedShape: -1 };
+  public readonly state = { selectedShape: 0 };
   public setSelectedShape = (key: number) => {
     this.setState({ selectedShape: key });
   };
@@ -30,7 +30,7 @@ class Mod extends React.Component<IViewProps, IState> {
       shape.properties[attrname] = attrval;
       const newFrame = {
         ...frame!,
-        shapes: newShapes,
+        shapes: newShapes
       } as PenroseState;
       modShapes(newFrame);
     } else throw new Error("Shape does not have property " + attrname + " .");
@@ -42,13 +42,21 @@ class Mod extends React.Component<IViewProps, IState> {
     }
 
     const { selectedShape } = this.state;
+    const def = defmap[frame.shapes[selectedShape].shapeType];
+    if (!def) {
+      return (
+        <div style={{ padding: "1em" }}>
+          {frame.shapes[selectedShape].shapeType} is not in defmap
+        </div>
+      );
+    }
     return (
       <div
         style={{
           display: "flex",
           width: "100%",
           height: "100%",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
         {makeViewBoxes(frame.shapes, selectedShape, this.setSelectedShape)}
@@ -60,13 +68,13 @@ class Mod extends React.Component<IViewProps, IState> {
             height: "100%",
             flexBasis: 0,
             flexGrow: 1,
-            boxSizing: "border-box",
+            boxSizing: "border-box"
           }}
         >
           {frame.shapes[selectedShape] && (
             <AttrPicker
               shape={frame.shapes[selectedShape]}
-              sAttrs={defmap[frame.shapes[selectedShape].shapeType]}
+              sAttrs={def}
               modAttr={this.modAttr}
             />
           )}

@@ -17,3 +17,5 @@ type Image
 -- -- 
 type Arrow
 type Square
+
+type PathString

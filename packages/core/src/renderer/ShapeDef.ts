@@ -243,6 +243,31 @@ export const freeformPolygonDef: ShapeDef = {
   positionalProps: [],
 };
 
+const DEFAULT_PATHSTR = `M 10,30
+A 20,20 0,0,1 50,30
+A 20,20 0,0,1 90,30
+Q 90,60 50,90
+Q 10,60 10,30 z`;
+
+export const pathStringDef: ShapeDef = {
+  shapeType: "PathString",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", widthSampler],
+    h: ["FloatV", heightSampler],
+    rotation: ["FloatV", () => constValue("FloatV", 0)],
+    opacity: ["FloatV", () => constValue("FloatV", 1.0)],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
+    data: ["StrV", () => constValue("StrV", DEFAULT_PATHSTR)],
+    viewBox: ["StrV", () => constValue("StrV", "0 0 100 100")],
+  },
+  positionalProps: ["center"],
+};
+
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
@@ -341,7 +366,6 @@ export const arrowDef: ShapeDef = {
     start: ["VectorV", vectorSampler],
     end: ["VectorV", vectorSampler],
     thickness: ["FloatV", () => sampleFloatIn(5, 15)],
-    rotation: ["FloatV", () => constValue("FloatV", 0.0)],
     arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
     arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
     style: ["StrV", () => constValue("StrV", "solid")],
@@ -383,6 +407,7 @@ export const shapedefs: ShapeDef[] = [
   polygonDef,
   freeformPolygonDef,
   polylineDef,
+  pathStringDef,
   squareDef,
   curveDef,
   imageDef,
