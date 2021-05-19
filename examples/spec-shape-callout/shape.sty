@@ -3,14 +3,17 @@ global {
 
        lineThickness = 3.
 
-       calloutPadding = 30.
-       calloutThickness = 20.
-       calloutEndPadding = 40.
+       calloutPadding = 30. -- Padding around the text for rect
+       calloutThickness = 30. -- Thickness of base of stem
+       calloutEndPadding = 40. -- Space between the external anchor point and the stem
        maxCalloutDist = 200.
 }
 
 colors {
        black = rgba(0., 0., 0., 1.)
+       red = rgba(1., 0., 0., 1.)
+       green = rgba(0., 1., 0., 1.)
+       blue = rgba(0., 0., 1., 1.)
        none = rgba(0., 0., 0., 0.)
 }
 
@@ -35,10 +38,12 @@ Node n {
                h: n.text.h + global.calloutPadding
      }
 
+     -- Parallel to callout direction
      vec = normalize(n.callout.center - n.shape.center)
 
      n.anchorStart = n.shape.center + global.calloutEndPadding * vec
 
+     -- Thick line
      n.line = Line {
             start: n.anchorStart
             end: n.callout.center
@@ -48,6 +53,7 @@ Node n {
 
      -- TODO: add rounded corners for rectangles -- rx, ry
 
+     -- Thin line
      n.line1 = Line {
              start: n.anchorStart
              end: n.callout.center
@@ -57,6 +63,34 @@ Node n {
 
      n.line1 above n.line
 
+     -- Perpendicular location - start of segment
+     segStart = n.anchorStart + global.calloutThickness / 2. * rot90(vec)
+     n.circle1 = Circle {
+               color: colors.red
+               r: 5.
+               strokeWidth: 0.
+               center: segStart
+     }
+
+     -- Seg endpt
+     t = norm(n.callout.center - n.anchorStart)
+     segEnd = segStart + t * vec
+
+     n.circle2 = Circle {
+               color: colors.red
+               r: 5.
+               strokeWidth: 0.
+               center: segEnd
+     }
+
+     -- hit point 1
+     n.circle3 = Circle {
+               color: colors.blue
+               r: 5.
+               strokeWidth: 0.
+               -- center: 
+     }
+
      -- TODO: Draw lines from anchorStart to the intersection point of the +/- normal points with the relevant line segment of the rectangle
 
       -- TODO: Encode this as a new shape - https://docs.google.com/document/d/1OwAbazADJhqzWRQ_3_Jll58xaLjvbqNxoaxCGo33tRU/edit
@@ -65,8 +99,16 @@ Node n {
      -- TODO: dist should include dimension of rectangle
      ensure lessThan(dist, 200.)
 
-     -- Not working so well?
-     ensure disjoint(n.callout, n.shape)
+     -- Not working so well? TODO
+     -- ensure disjoint(n.callout, n.shape)
+
+     calloutPoints = makeCallout(n.text.center, n.text.w, n.text.h, n.shape.center, global.calloutPadding, global.calloutThickness, global.calloutEndPadding)
+     n.calloutShape = Path {
+                    -- pathData: pathFromPoints("closed", [(0., 0.), (100., 100.), (200., 0.), (0., 0.)])
+                    pathData: pathFromPoints("closed", calloutPoints)
+                    strokeWidth: 5.0
+                    color: colors.blue
+     }
 }
 
 -- TODO: Note that units are in pixels for the current renderers
