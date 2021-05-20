@@ -1,4 +1,16 @@
-import { appendStmt, replaceStmt, swapArgs } from "analysis/SubstanceAnalysis";
+import {
+  appendStmt,
+  applyBind,
+  applyConstructor,
+  applyFunction,
+  applyPredicate,
+  applyTypeDecl,
+  autoLabelStmt,
+  domainToSubType,
+  nullaryTypeCons,
+  replaceStmt,
+  swapArgs,
+} from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
@@ -560,97 +572,6 @@ export class Synthesizer {
 //#endregion
 
 //#region Helpers
-
-const domainToSubType = (
-  domainType: DomainStmt["tag"]
-):
-  | Decl["tag"]
-  | ApplyPredicate["tag"]
-  | ApplyFunction["tag"]
-  | ApplyConstructor["tag"]
-  | Func["tag"]
-  | undefined => {
-  switch (domainType) {
-    case "ConstructorDecl":
-      return "Func";
-    case "FunctionDecl":
-      return "Func";
-    case "PredicateDecl":
-      return "ApplyPredicate";
-    case "TypeDecl":
-      return "Decl";
-  }
-};
-
-const applyConstructor = (
-  decl: ConstructorDecl,
-  args: SubExpr[]
-): ApplyConstructor => {
-  const { name } = decl;
-  return {
-    tag: "ApplyConstructor",
-    name,
-    nodeType: "SyntheticSubstance",
-    children: [],
-    args,
-  };
-};
-
-const applyFunction = (decl: FunctionDecl, args: SubExpr[]): ApplyFunction => {
-  const { name } = decl;
-  return {
-    tag: "ApplyFunction",
-    name,
-    nodeType: "SyntheticSubstance",
-    children: [],
-    args,
-  };
-};
-
-const applyPredicate = (
-  decl: PredicateDecl,
-  args: SubPredArg[]
-): ApplyPredicate => {
-  const { name } = decl;
-  return {
-    tag: "ApplyPredicate",
-    name,
-    nodeType: "SyntheticSubstance",
-    children: [],
-    args,
-  };
-};
-
-// TODO: generate arguments as well
-const applyTypeDecl = (decl: TypeDecl): TypeConsApp => {
-  const { name } = decl;
-  return nullaryTypeCons(name);
-};
-
-const applyBind = (variable: Identifier, expr: SubExpr): Bind => ({
-  tag: "Bind",
-  children: [],
-  nodeType: "SyntheticSubstance",
-  variable,
-  expr,
-});
-
-const nullaryTypeCons = (name: Identifier): TypeConsApp => ({
-  tag: "TypeConstructor",
-  name,
-  args: [],
-});
-
-const autoLabelStmt: AutoLabel = {
-  tag: "AutoLabel",
-  option: {
-    tag: "DefaultLabels",
-    nodeType: "SyntheticSubstance",
-    children: [],
-  },
-  nodeType: "SyntheticSubstance",
-  children: [],
-};
 
 const declTypes: DomainStmt["tag"][] = [
   "ConstructorDecl",

@@ -4,7 +4,6 @@ import {
   evalEnergy,
   prepareState,
   RenderStatic,
-  resample,
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -89,15 +88,12 @@ const singleProcess = async (
   const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
-  // TODO: Labeling and resolving pending vars
-
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
   const optimizedState = stepUntilConvergence(initialState, 10000);
   const convergeEnd = process.hrtime(convergeStart);
 
-  // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
   const canvas = RenderStatic(optimizedState).outerHTML;
   const reactRenderEnd = process.hrtime(reactRenderStart);
@@ -127,8 +123,8 @@ const singleProcess = async (
         crossEnergy = evalEnergy(await prepareState(crossState));
       } catch (e) {
         console.warn(
-          chalk.red(
-            `Cross-instance energy failed. Returning infinity instead. Error message\n:${e}`
+          chalk.yellow(
+            `Cross-instance energy failed. Returning infinity instead. \n${e}`
           )
         );
       }
@@ -226,7 +222,7 @@ const batchProcess = async (
     // try to render the diagram
     try {
       // Warning: will face id conflicts if parallelism used
-      const { metadata, state } = await singleProcess(
+      const res = await singleProcess(
         subURI,
         styURI,
         dslURI,
@@ -243,11 +239,12 @@ const batchProcess = async (
         referenceState,
         meta
       );
-      if (referenceFlag) {
-        referenceState = state;
-        referenceFlag = false;
-      }
       if (folders) {
+        const { metadata, state } = res;
+        if (referenceFlag) {
+          referenceState = state;
+          referenceFlag = false;
+        }
         finalMetadata[id] = metadata;
       }
     } catch (e) {
