@@ -31,6 +31,7 @@
     "prepack": "yarn build"
   },
   "dependencies": {
+    "@thi.ng/vectors": "^6.0.0",
     "consola": "^2.15.2",
     "eigen": "^0.2.0",
     "fast-memoize": "^2.5.2",

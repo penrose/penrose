@@ -10,6 +10,8 @@ import {
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
+import * as v from "@thi.ng/vectors";
+
 const makeCallout = (): [number, number][] => {
   const pts: [number, number][] = [
     [0, 0],
@@ -17,6 +19,14 @@ const makeCallout = (): [number, number][] => {
     [200, 0],
     [0, 0],
   ];
+
+  const [z, x, y] = [[], [1, 2, 3, 4], [10, 20, 30, 40]]; // z is mutated; x and y are not
+  const res = v.add(z, x, y); // also returns result
+  const res2 = v.dist([1, 2], [100, 200]);
+
+  console.log("vectors", res, res2);
+  console.log("z, x, y", z, x, y);
+
   return pts;
 };
 
