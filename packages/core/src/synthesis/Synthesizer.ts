@@ -15,7 +15,7 @@ import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
-import { clone, cloneDeep, range, times, without } from "lodash";
+import { cloneDeep, range, times, without } from "lodash";
 import { choice, random } from "pandemonium";
 import { Identifier } from "types/ast";
 import {
@@ -33,10 +33,8 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
-  AutoLabel,
   Bind,
   Decl,
-  Func,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -113,7 +111,6 @@ interface Candidates {
 
 interface SynthesizedSubstance {
   prog: SubProg;
-  // ops: Mutation[];
   ops: string;
 }
 
@@ -319,6 +316,11 @@ export class Synthesizer {
     this.setting = setting;
   }
 
+  /**
+   * Top-level function for generating multiple Substance programs.
+   * @param numProgs number of Substance programs to generate
+   * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
+   */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
     times(numProgs, () => {
       const sub = this.generateSubstance();
@@ -346,6 +348,7 @@ export class Synthesizer {
     const op = choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
+    // TODO: make a random choice among edit operations after they are implemented
     else if (op === "edit") this.editStmt("Swap");
   };
 
@@ -366,7 +369,7 @@ export class Synthesizer {
             this.cxt.replaceStmt(
               stmt,
               swapArgs(stmt, [idx1, idx2]) as ApplyPredicate
-            ); // TODO: type
+            ); // TODO: improve types to avoid casting
           } else {
             const expr = stmt.expr as ApplyConstructor | ApplyFunction;
             const indices = range(0, expr.args.length);
@@ -375,7 +378,7 @@ export class Synthesizer {
             this.cxt.replaceStmt(stmt, {
               ...stmt,
               expr: swapArgs(stmt.expr as any, [idx1, idx2]),
-            } as Bind); // TODO: resolve types
+            } as Bind); // TODO: improve types to avoid casting
           }
         }
       }
