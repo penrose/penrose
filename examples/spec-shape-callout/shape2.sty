@@ -37,4 +37,8 @@ Node n {
              h: n.text.h
              -- TODO: Add more params
      }
+
+     dist = norm(n.callout.center - n.shape.center)
+     ensure lessThan(dist, 300.)
+     -- ensure disjoint(n.callout, n.shape)
 }
