@@ -1,4 +1,10 @@
-import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import {
+  bbox,
+  bboxSegs,
+  intersectsSegSeg,
+  intersectionSegSeg,
+  inRange,
+} from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -233,8 +239,15 @@ export const compDict = {
   /**
    * return the path for a callout (TODO: Remove)
    */
-  makeCallout: (textCenter: VarAD[], textWidth: VarAD, textHeight: VarAD, anchor: VarAD[], calloutPadding: VarAD, calloutThickness: VarAD, calloutEndPadding: VarAD): IPtListV<VarAD> => {
-
+  makeCallout: (
+    textCenter: VarAD[],
+    textWidth: VarAD,
+    textHeight: VarAD,
+    anchor: VarAD[],
+    calloutPadding: VarAD,
+    calloutThickness: VarAD,
+    calloutEndPadding: VarAD
+  ): IPtListV<VarAD> => {
     // TODO(error): it is very confusing that the function types and args are not typechecked and fail silently
     // console.log("textCenter, anchor", textCenter, anchor, calloutPadding, calloutThickness, calloutEndPadding);
 
@@ -243,17 +256,58 @@ export const compDict = {
     const stemStart = ops.vmove(anchor, calloutEndPadding, vec); // Pointy part
 
     // Extrusions from normal on either side of the stem
-    const t = ops.vnorm(ops.vsub(textCenter, stemStart))
-    const stemSide1Start = ops.vmove(stemStart, div(calloutThickness, constOf(2.)), rot90v(vec));
-    const stemSide1End = ops.vmove(stemSide1Start, t, vec)
+    const t = ops.vnorm(ops.vsub(textCenter, stemStart));
+    const stemSide1Start = ops.vmove(
+      stemStart,
+      div(calloutThickness, constOf(2)),
+      rot90v(vec)
+    );
+    const stemSide1End = ops.vmove(stemSide1Start, t, vec);
+    const stemSeg1 = [stemSide1Start, stemSide1End];
 
     // TODO: Compute stemSide1 segment's intersection with the rectangle
 
-    const stemSide2Start = ops.vmove(stemStart, div(calloutThickness, constOf(2.)), rot90v(rot90v(rot90v(vec))));
+    // Rectangle segments
+    const rect = bboxSegs(textCenter, textWidth, textHeight);
+
+    const temp = [0, 0].map(constOf); // If no intersection, return (0,0) -- HACK/COMBAK
+
+    // TODO: calculate this better as it does 2x the work needed
+    // TODO: How even to have a vector-valued if statement...
+
+    // probably just do it in normal math? is that possible?
+
+    // const intersectPt = ifCond(intersectsSegSeg(rect.top),
+    //     intersectionSegSeg(rect.top, stemSeg1),
+    //     ifCond(intersectsSegSeg(rect.bot),
+    //         intersectionSegSeg(rect.bot, stemSeg1),
+    //         ifCond(intersectsSegSeg(rect.left),
+    //             intersectionSegSeg(rect.left, stemSeg1),
+    //             ifCond(intersectsSegSeg(rect.right),
+    //                 intersectionSegSeg(rect.right, stemSeg1),
+    //                 temp)
+    //         )
+    //     )
+    // );
+
+    // const intersectPts =
+    //     [intersectionSegSeg(rect.top, stemSeg1),
+    //     intersectionSegSeg(rect.bot, stemSeg1),
+    //     intersectionSegSeg(rect.left, stemSeg1),
+    //     intersectionSegSeg(rect.right, stemSeg1)];
+
+    const stemSide2Start = ops.vmove(
+      stemStart,
+      div(calloutThickness, constOf(2)),
+      rot90v(rot90v(rot90v(vec)))
+    );
 
     return {
       tag: "PtListV",
-      contents: [stemSide1End, stemSide1Start, stemSide2Start].map(toPt),
+      // contents: [stemSide1End, stemSide1Start, stemSide2Start].map(toPt),
+      contents: [stemSide1Start, intersectionSegSeg(rect.bot, stemSeg1)].map(
+        toPt
+      ),
     };
   },
 
@@ -359,10 +413,10 @@ export const compDict = {
   },
 
   /**
-       * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-    
-   @deprecated Don't use this function, it does not fully work
-       */
+         * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+      
+     @deprecated Don't use this function, it does not fully work
+         */
   intersectingSideSize: (
     start: VecAD,
     end: VecAD,

@@ -1,0 +1,40 @@
+global {
+       nodeR = 6.
+
+       lineThickness = 3.
+
+       calloutPadding = 30. -- Padding around the text for rect
+       calloutThickness = 30. -- Thickness of base of stem
+       calloutEndPadding = 40. -- Space between the external anchor point and the stem
+       maxCalloutDist = 200.
+}
+
+colors {
+       black = rgba(0., 0., 0., 1.)
+       red = rgba(1., 0., 0., 1.)
+       green = rgba(0., 1., 0., 1.)
+       blue = rgba(0., 0., 1., 1.)
+       none = rgba(0., 0., 0., 0.)
+}
+
+Node n {
+     n.shape = Circle { 
+             r: global.nodeR
+             strokeWidth: 0.
+             color: colors.black
+             -- center: (0., 0.)
+     }
+
+     n.text = Text {
+            -- center: (100., 100.)
+            string: n.label
+     }
+
+     n.callout = Callout {
+             anchor: n.shape.center -- TODO: Not yet used
+             center: n.text.center
+             w: n.text.w
+             h: n.text.h
+             -- TODO: Add more params
+     }
+}

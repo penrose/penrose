@@ -197,6 +197,24 @@ export const rectDef: ShapeDef = {
   },
 };
 
+export const calloutDef: ShapeDef = {
+  shapeType: "Callout",
+  properties: {
+    anchor: ["VectorV", vectorSampler],
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", widthSampler],
+    h: ["FloatV", heightSampler],
+    rx: ["FloatV", zeroFloat],
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    strokeDashArray: ["StrV", () => constValue("StrV", "")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultCallout")],
+  },
+};
+
 export const polygonDef: ShapeDef = {
   shapeType: "Polygon",
   properties: {
@@ -404,6 +422,7 @@ export const shapedefs: ShapeDef[] = [
   ellipseDef,
   textDef,
   rectDef,
+  calloutDef,
   polygonDef,
   freeformPolygonDef,
   polylineDef,
