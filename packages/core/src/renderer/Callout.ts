@@ -1,17 +1,11 @@
 import { toScreen } from "utils/Util";
-import {
-  attrFill,
-  attrRadiusX,
-  attrRadiusY,
-  attrStroke,
-  attrTitle,
-  attrWH,
-  attrXY,
-} from "./AttrHelper";
+import { attrFill, attrStroke, attrTitle } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-import * as v from "@thi.ng/vectors";
-import * as _ from "lodash";
+import { angleBetween2, normalize } from "@thi.ng/vectors";
+import { zipWith, reduce, sortBy } from "lodash";
+
+// TODO: Move some of the below functions to a numeric utils for frontend?
 
 /**
  * Some vector operations that can be used on lists.
@@ -35,7 +29,7 @@ export const ops = {
       throw Error("expected vectors of same length");
     }
 
-    const res = _.zipWith(v1, v2, (a, b) => a + b);
+    const res = zipWith(v1, v2, (a, b) => a + b);
     return res;
   },
 
@@ -47,7 +41,7 @@ export const ops = {
       throw Error("expected vectors of same length");
     }
 
-    const res = _.zipWith(v1, v2, (a, b) => a - b);
+    const res = zipWith(v1, v2, (a, b) => a - b);
     return res;
   },
 
@@ -56,7 +50,7 @@ export const ops = {
    */
   vnormsq: (v: number[]): number => {
     const res = v.map((e) => e * e);
-    return _.reduce(res, (x, y) => x + y, 0.0); // TODO: Will this one (var(0)) have its memory freed?
+    return reduce(res, (x, y) => x + y, 0.0); // TODO: Will this one (var(0)) have its memory freed?
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
@@ -128,15 +122,15 @@ export const ops = {
       throw Error("expected vectors of same length");
     }
 
-    const res = _.zipWith(v1, v2, (a, b) => a * b);
-    return _.reduce(res, (x, y) => x + y, 0.0);
+    const res = zipWith(v1, v2, (a, b) => a * b);
+    return reduce(res, (x, y) => x + y, 0.0);
   },
 
   /**
    * Return the sum of elements in vector `v`.
    */
   vsum: (v: number[]): number => {
-    return _.reduce(v, (x, y) => x + y, 0.0);
+    return reduce(v, (x, y) => x + y, 0.0);
   },
 
   /**
@@ -268,25 +262,25 @@ const pointInBox = (p: any, rect: any): boolean => {
   );
 };
 
+// This construction is visualized in `examples/spec-shape-callout`: `roger watch shape.sub shape.sty shape.dsl`.
+// Where the thick gray line intersects the text rectangle with padding is where the stem points are drawn (plus the anchor in between)
 const makeCallout = (
   anchor: [number, number],
   center: [number, number],
   contentsW: number,
-  contentsH: number
+  contentsH: number,
+  padding: number
 ): [number, number][] => {
-  // const makeCallout = (anchor: any, center: any, w: any, h: any): [number, number][] => {
-  console.log("params", [anchor, center, contentsW, contentsH]);
-
-  const calloutPadding = 30; // Padding around the text for rect
-  const calloutThickness = 30; // Thickness of base of stem
+  const calloutPadding = padding ? padding : 30; // Padding around the text for rect
+  const calloutThickness = 30; // Thickness of base of stem. TODO: Parametrize this
   const calloutEndPadding = 40; // Space between the external anchor point and the stem
   const maxCalloutDist = 200;
 
   // Rectangle segments
   const { ptsR, cornersR, segsR, linesR } = bboxSegs(
     center,
-    contentsW,
-    contentsH
+    contentsW + calloutPadding,
+    contentsH + calloutPadding
   );
 
   if (pointInBox(toPt(anchor), linesR)) {
@@ -338,9 +332,6 @@ const makeCallout = (
     // throw Error("no intersection for point 1");
   }
 
-  // console.log("rect", ptsR, cornersR, segsR);
-  // console.log("intersectPt1", intersectPt1);
-
   let intersectPt2 = undefined;
   let side2 = undefined;
 
@@ -361,9 +352,6 @@ const makeCallout = (
     // throw Error("no intersection for point 2");
   }
 
-  // console.log("rect", ptsR, cornersR, segsR);
-  // console.log("intersectPt1", intersectPt1);
-
   const stemPts = [
     intersectPt1 ? intersectPt1 : stemSide1End,
     anchor,
@@ -379,10 +367,10 @@ const makeCallout = (
   );
 
   // Sort points by their angle to the center of the callout
-  const ptsSorted = _.sortBy(ptsR.concat(stemPts), (pt) =>
-    v.angleBetween2(
+  const ptsSorted = sortBy(ptsR.concat(stemPts), (pt) =>
+    angleBetween2(
       ops.vsub(zeroAngleVec, center),
-      v.normalize([], ops.vsub(pt, center))
+      normalize([], ops.vsub(pt, center))
     )
   );
 
@@ -399,17 +387,19 @@ const Callout = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
 
-  const [anchor, center, w, h] = [
+  const [anchor, center, w, h, padding] = [
     shape.properties.anchor.contents as [number, number],
     shape.properties.center.contents as [number, number],
     shape.properties.w.contents as number,
     shape.properties.h.contents as number,
+    shape.properties.padding.contents as number,
   ];
 
-  const pts = makeCallout(anchor, center, w, h);
+  const pts = makeCallout(anchor, center, w, h, padding);
   const ptsScreen = pts.map((p) => toScreen(p, canvasSize));
   elem.setAttribute("points", ptsScreen.toString());
 
+  // TODO: Use an SVG path instead, so we can have rounded corners
   return elem;
 };
 export default Callout;

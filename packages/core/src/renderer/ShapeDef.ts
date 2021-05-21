@@ -204,7 +204,8 @@ export const calloutDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
-    rx: ["FloatV", zeroFloat],
+    padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
+    rx: ["FloatV", zeroFloat], // currently unused
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
