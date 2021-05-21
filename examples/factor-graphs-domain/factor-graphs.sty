@@ -2,6 +2,7 @@
 globals {
     scalar radius = ?
     ensure nonNegative(radius)
+    ensure lessThan(radius, 50)
 }
 
 colors {
@@ -19,5 +20,16 @@ forall Variable variable {
         strokeColor : colors.black
         strokeWidth : 1.0 -- svg units, whatever that is :-)
     }
+    text variable.text = Text {
+        string: variable.label
+        center: variable.shape.center
+        w: variable.shape.r * 1.2
+        h: variable.shape.r * 1.2
+    }
+
+    variable.text above variable.shape
+
+    -- ensure equal2(variable.text.center, variable.shape.center)
+    ensure minSize(variable.shape)
 }
 

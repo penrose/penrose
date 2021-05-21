@@ -16,3 +16,5 @@ AutoLabel All
 Label x1 $x_1$
 Label x2 $x_2$
 Label x3 $x_3$
+
+-- IsMarkovChain (x1,x2,x3) -- Chain of 3 variables connect by binary factors, horizontally aligned

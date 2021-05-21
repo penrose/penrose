@@ -672,8 +672,17 @@ export const constrDict = {
   /**
    * Require that the value `x` is equal to the value `y`
    */
-  equal: (x: VarAD, y: VarAD) => {
+  equal: (x: VarAD, y: VarAD): VarAD => {
     return equalHard(x, y);
+  },
+
+  /**
+   * Require that the 2-vector `x` is equal to the value `y`
+   */
+  equal2: (x: VarAD[], y: VarAD[]): VarAD => {
+    if (x.length !== 2 || y.length !== 2)
+      throw Error("x and y need to be two-vectors");
+    return add(equalHard(x[0], y[0]), equalHard(x[1], y[1]));
   },
 
   /**
