@@ -1,0 +1,18 @@
+-- Tracking example (Fig 2a in Dellaert21ar)
+
+Variable x1,x2,x3
+
+Factor p1 := Unary(x1)
+
+Factor m1 := Unary(x1)
+Factor m2 := Unary(x2)
+Factor m3 := Unary(x3)
+
+Factor b12 := Binary(x1,x2)
+Factor b23 := Binary(x2,x3)
+
+AutoLabel All
+
+Label x1 $x_1$
+Label x2 $x_2$
+Label x3 $x_3$
