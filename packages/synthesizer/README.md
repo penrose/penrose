@@ -22,6 +22,11 @@ Options:
   --synth-setting=SET  A JSON file containing parameters for the synthesizerI
 ```
 
+## Getting started
+
+- Follow the instruction in the [wiki page](https://github.com/penrose/penrose/wiki/Building-and-running) to install Penrose.
+- Run one of the examples below to try out the synthesizer.
+
 ## Examples (w/ batch-rendering via `@penrose/automator`)
 
 Examples are currently encoded as scripts in `package.json`. The source files are stored in `__tests__`.
