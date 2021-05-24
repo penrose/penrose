@@ -21,7 +21,7 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   );
   attrTransformCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);
-  const name = shape.properties.name as IStrV<string>;
+  const name = shape.properties.name as IStrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
   if (retrievedLabel && retrievedLabel.rendered) {
     const renderedLabel = retrievedLabel.rendered;

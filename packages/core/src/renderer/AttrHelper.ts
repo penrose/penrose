@@ -199,7 +199,7 @@ export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
 };
 
 export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
-  const d = properties.data as IStrV<string>;
+  const d = properties.data as IStrV;
   elem.setAttribute("d", d.contents.toString());
 };
 
