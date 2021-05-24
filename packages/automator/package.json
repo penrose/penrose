@@ -1,6 +1,6 @@
 {
   "name": "@penrose/automator",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "index.tsx",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "Penrose Team (https://penrose.ink)",
   "license": "MIT",
   "dependencies": {
-    "@penrose/core": "^1.1.0",
+    "@penrose/core": "^1.2.0",
     "@types/react": "^16.9.32",
     "chalk": "^3.0.0",
     "child_process": "^1.0.2",
@@ -21,13 +21,13 @@
     "jsdom": "^16.4.0",
     "mathjax-node": "^2.1.1",
     "neodoc": "^2.0.2",
+    "pug": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-ssr": "^2.0.0-beta.6",
     "true-myth": "^4.1.1",
     "tslib": "^2.0.3",
     "uniqid": "^5.2.0",
-    "pug": "^2.0.4",
     "vega-lite": "^4.0.2"
   },
   "devDependencies": {
