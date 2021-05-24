@@ -1,0 +1,11 @@
+Plane R
+Rectangle r
+Segment s
+Point M, N, Q, P
+r := MkRectangle(M, N, P, Q)
+s := MkSegment(N, Q)
+In(M, R)
+In(N, R)
+In(P, R)
+In(Q, R)
+AutoLabel All
