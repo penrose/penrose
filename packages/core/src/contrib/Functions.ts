@@ -18,7 +18,7 @@ import {
 } from "engine/Autodiff";
 import { maxBy, range } from "lodash";
 import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Elem, SubPath } from "types/value";
+import { Elem, IStrV, SubPath } from "types/value";
 import {
   ArgVal,
   Color,
@@ -207,6 +207,16 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: ops.vdist(p1, p2),
+    };
+  },
+
+  /**
+   * Concatenate a list of strings
+   */
+  concat: (...strings: string[]): IStrV => {
+    return {
+      tag: "StrV",
+      contents: strings.join(""),
     };
   },
 

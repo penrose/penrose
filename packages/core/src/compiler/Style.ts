@@ -9,7 +9,6 @@ import {
   defaultLbfgsParams,
   dummyASTNode,
   dummyIdentifier,
-  dummySourceLoc,
   findExpr,
   findExprSafe,
   initConstraintWeight,
@@ -35,8 +34,9 @@ import {
 } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { VarAD } from "types/ad";
-import { ASTNode, Identifier, SourceLoc } from "types/ast";
-import { ConstructorDecl, TypeConstructor } from "types/domain";
+import { ASTNode, Identifier } from "types/ast";
+import { Either, Just, Left, MaybeVal, Right } from "types/common";
+import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
   ParseError,
   PenroseError,
@@ -46,23 +46,6 @@ import {
   StyleWarnings,
   SubstanceError,
 } from "types/errors";
-import { Either, Left, Right, MaybeVal, Just, Nothing } from "types/common";
-import {
-  Field,
-  FieldDict,
-  FieldExpr,
-  GPIMap,
-  GPIProps,
-  IFGPI,
-  IOptEval,
-  Property,
-  PropID,
-  ShapeTypeStr,
-  StyleOptFn,
-  TagExpr,
-  Translation,
-  Value,
-} from "types/value";
 import { Fn, OptType, Params, State } from "types/state";
 import {
   BindingForm,
@@ -104,10 +87,26 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import {
+  Field,
+  FieldDict,
+  FieldExpr,
+  GPIMap,
+  GPIProps,
+  IFGPI,
+  IOptEval,
+  Property,
+  PropID,
+  ShapeTypeStr,
+  StyleOptFn,
+  TagExpr,
+  Translation,
+  Value,
+} from "types/value";
 import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
-import { prettyPrintPath, prettyPrintExpr } from "utils/OtherUtils";
-import { randFloats, randFloat } from "utils/Util";
-import { checkTypeConstructor, Env, isDeclaredSubtype } from "./Domain";
+import { prettyPrintPath } from "utils/OtherUtils";
+import { randFloat } from "utils/Util";
+import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
   .create({ level: LogLevel.Warn })
@@ -140,6 +139,9 @@ const FN_ERR_TYPE = {
 //#endregion
 
 //#region utils
+
+const dummyId = (name: string): Identifier =>
+  dummyIdentifier(name, "SyntheticStyle");
 
 // numbers from 0 to r-1 w/ increment of 1
 const numbers = (r: number): number[] => {
@@ -357,6 +359,7 @@ const checkDeclPatternAndMakeEnv = (
     // x \not\in dom(g)
 
     const substanceType = varEnv.vars.get(varName);
+
     // If any Substance variable doesn't exist in env, ignore it,
     // but flag it so we know to not translate the lines in the block later.
     if (!substanceType) {
@@ -739,19 +742,15 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
     };
   } else if (path.tag === "LocalVar") {
     return {
-      nodeType: "dummyNode",
+      nodeType: "SyntheticStyle",
       children: [],
-      start: dummySourceLoc(),
-      end: dummySourceLoc(),
       tag: "FieldPath",
       name: {
-        nodeType: "dummyNode",
         children: [],
-        start: dummySourceLoc(),
-        end: dummySourceLoc(),
+        nodeType: "SyntheticStyle",
         tag: "SubVar",
         contents: {
-          ...dummyIdentifier(mkLocalVarName(lv)),
+          ...dummyId(mkLocalVarName(lv)),
         },
       },
       field: path.contents,
@@ -763,22 +762,18 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
 
     // COMBAK / HACK: Is there some way to get rid of all these dummy values?
     return {
-      nodeType: "dummyNode",
+      nodeType: "SyntheticStyle",
       children: [],
-      start: dummySourceLoc(),
-      end: dummySourceLoc(),
       tag: "FieldPath",
       name: {
-        nodeType: "dummyNode", // COMBAK: Is this ok?
+        nodeType: "SyntheticStyle",
         children: [],
-        start: dummySourceLoc(),
-        end: dummySourceLoc(),
         tag: "SubVar",
         contents: {
-          ...dummyIdentifier(mkLocalVarName(lv)),
+          ...dummyId(mkLocalVarName(lv)),
         },
       },
-      field: dummyIdentifier(path.contents),
+      field: dummyId(path.contents),
     };
   } else if (path.tag === "AccessPath") {
     // COMBAK: Check if this works / is needed (wasn't present in original code)
@@ -829,7 +824,7 @@ const substituteBlockExpr = (
         }
 
         return {
-          ...dummyASTNode({}),
+          ...dummyASTNode({}, "SyntheticStyle"),
           tag: "VaryInit",
           contents: expr.args[0].contents,
         };
@@ -1206,7 +1201,9 @@ const relMatchesLine = (
     if (s2.id.tag === "StyVar") {
       // internal error
       throw Error(
-        "Style variable ${rel.id.contents.value} found in relational statement ${ppRel(rel)}. Should not be present!"
+        `Style variable ${
+          s2.id.contents.value
+        } found in relational statement ${ppRel(s2)}. Should not be present!`
       );
     } else if (s2.id.tag === "SubVar") {
       // B |- E = |E
@@ -1214,7 +1211,7 @@ const relMatchesLine = (
       const selExpr = toSubExpr(typeEnv, s2.expr);
       const subExpr = s1.expr;
       return (
-        subVarsEq(subVar, dummyIdentifier(sVar)) &&
+        subVarsEq(subVar, dummyId(sVar)) &&
         exprsMatch(typeEnv, subExpr, selExpr)
       );
       // COMBAK: Add this condition when this is implemented in the Substance typechecker
@@ -1471,9 +1468,7 @@ const nameAnonStatement = (
       path: {
         tag: "InternalLocalVar",
         contents: `\$${ANON_KEYWORD}_${i}`,
-        start: dummySourceLoc(),
-        end: dummySourceLoc(), // Unused bc compiler internal
-        nodeType: "dummy",
+        nodeType: "SyntheticStyle",
         children: [], // Unused bc compiler internal
       },
       value: s.contents,
@@ -2129,42 +2124,34 @@ const mkPath = (strs: string[]): Path => {
     const [name, field] = strs;
     return {
       tag: "FieldPath",
-      start: dummySourceLoc(),
-      end: dummySourceLoc(),
-      nodeType: "dummyPath",
+      nodeType: "SyntheticStyle",
       children: [],
       name: {
-        nodeType: "dummyPath",
+        nodeType: "SyntheticStyle",
         children: [],
-        start: dummySourceLoc(),
-        end: dummySourceLoc(),
         tag: "SubVar",
         contents: {
-          ...dummyIdentifier(name),
+          ...dummyId(name),
         },
       },
-      field: dummyIdentifier(field),
+      field: dummyId(field),
     };
   } else if (strs.length === 3) {
     const [name, field, prop] = strs;
     return {
       tag: "PropertyPath",
-      start: dummySourceLoc(),
-      end: dummySourceLoc(),
-      nodeType: "dummyPath",
+      nodeType: "SyntheticStyle",
       children: [],
       name: {
-        nodeType: "dummyPath",
+        nodeType: "SyntheticStyle",
         children: [],
-        start: dummySourceLoc(),
-        end: dummySourceLoc(),
         tag: "SubVar",
         contents: {
-          ...dummyIdentifier(name),
+          ...dummyId(name),
         },
       },
-      field: dummyIdentifier(field),
-      property: dummyIdentifier(prop),
+      field: dummyId(field),
+      property: dummyId(prop),
     };
   } else throw Error("bad # inputs");
 };
@@ -2205,14 +2192,12 @@ const findPropertyVarying = (
       const defaultVec2: TagExpr<VarAD> = {
         tag: "OptEval",
         contents: {
-          start: dummySourceLoc(),
-          end: dummySourceLoc(),
-          nodeType: "dummyVec",
+          nodeType: "SyntheticStyle",
           children: [],
           tag: "Vector",
           contents: [
-            dummyASTNode({ tag: "Vary" }) as Expr,
-            dummyASTNode({ tag: "Vary" }) as Expr,
+            dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr,
+            dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr,
           ],
         },
       };
@@ -2244,13 +2229,13 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
         .map(
           ([e, i]: [Expr, number]): IAccessPath =>
             ({
-              nodeType: "dummyAccessPath",
+              nodeType: "SyntheticStyle",
               children: [],
-              start: dummySourceLoc(),
-              end: dummySourceLoc(),
               tag: "AccessPath",
               path: p,
-              indices: [dummyASTNode({ tag: "Fix", contents: i })],
+              indices: [
+                dummyASTNode({ tag: "Fix", contents: i }, "SyntheticStyle"),
+              ],
             } as IAccessPath)
         );
 
@@ -2966,7 +2951,7 @@ const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
     ((func as any) as ApplyPredicate).tag = "ApplyPredicate";
   } else if (!isCtor && !isFn && !isPred) {
     throw Error(
-      "Substance internal error: expected val of type Func to be disambiguable in env, but was not found"
+      `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`
     );
   } else {
     throw Error(

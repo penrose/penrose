@@ -1,0 +1,40 @@
+{
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
+  "trios": [
+    {
+      "substance": "triangle",
+      "style": "euclidean",
+      "domain": "geometry"
+    },
+    {
+      "substance": "right-triangle",
+      "style": "euclidean",
+      "domain": "geometry"
+    }
+  ],
+  "domains": {
+    "geometry": {
+      "name": "Geometry",
+      "URI": "geometry-domain/geometry.dsl"
+    }
+  },
+  "styles": {
+    "euclidean": {
+      "domain": "geometry",
+      "name": "Euclidean",
+      "URI": "geometry-domain/euclidean-simple.sty"
+    }
+  },
+  "substances": {
+    "right-triangle": {
+      "domain": "geometry",
+      "name": "Right Triangle",
+      "URI": "geometry-domain/right-triangle.sub"
+    },
+    "triangle": {
+      "domain": "geometry",
+      "name": "General Triangle",
+      "URI": "geometry-domain/general-triangle.sub"
+    }
+  }
+}

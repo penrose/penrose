@@ -32,7 +32,7 @@ const PathString = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrWH(shape, svg);
   attrXY(shape, canvasSize, svg);
 
-  const viewBox = shape.properties.viewBox as IStrV<string>;
+  const viewBox = shape.properties.viewBox as IStrV;
   svg.setAttribute("viewBox", viewBox.contents);
 
   svg.appendChild(elem);

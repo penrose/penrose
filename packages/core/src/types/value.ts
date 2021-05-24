@@ -88,7 +88,7 @@ export type Value<T> =
   | IFloatV<T>
   | IIntV
   | IBoolV<T>
-  | IStrV<T>
+  | IStrV
   | IPtV<T>
   | IPathDataV<T>
   | IPtListV<T>
@@ -146,7 +146,7 @@ export interface IBoolV<T> {
 }
 
 /** A string literal **/
-export interface IStrV<T> {
+export interface IStrV {
   tag: "StrV";
   contents: string;
 }

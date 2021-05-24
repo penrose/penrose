@@ -1,0 +1,3 @@
+Set A, B, C
+IsSubset(B, A)
+IsSubset(C, A)

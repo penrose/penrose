@@ -36,6 +36,7 @@ import {
 import { Identifier, ASTNode, SourceLoc } from "types/ast";
 import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
 import { SubExpr, Deconstructor } from "types/substance";
+import { isConcrete } from "engine/EngineUtils";
 // #region error rendering and construction
 
 /**
@@ -80,7 +81,7 @@ export const showError = (
         variable
       )}) does not exist.`;
       if (possibleVars) {
-        const suggestions = possibleVars.join(", ");
+        const suggestions = possibleVars.map((v) => v.value).join(", ");
         return msg + ` Declared variables are: ${suggestions}`;
       } else return msg;
     }
@@ -194,7 +195,7 @@ export const showError = (
     }
 
     case "SelectorVarMultipleDecl": {
-      return "Style pattern statement has already declared the variable ${error.varName.value}";
+      return `Style pattern statement has already declared the variable ${error.varName.contents.value}`;
     }
 
     case "SelectorDeclTypeMismatch": {
@@ -410,7 +411,7 @@ export const typeNotFound = (
 
 export const varNotFound = (
   variable: Identifier,
-  possibleVars?: string[]
+  possibleVars?: Identifier[]
 ): VarNotFound => ({
   tag: "VarNotFound",
   variable,
@@ -511,10 +512,15 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
-const loc = (node: ASTNode) =>
-  `line ${node.start.line}, column ${node.start.col + 1} of ${
-    node.nodeType
-  } program`;
+const loc = (node: ASTNode): string => {
+  if (isConcrete(node)) {
+    return `line ${node.start.line}, column ${node.start.col + 1} of ${
+      node.nodeType
+    } program`;
+  } else {
+    return `generated code by the compiler`; // TODO: better description of where the node is coming from
+  }
+};
 
 // #endregion
 

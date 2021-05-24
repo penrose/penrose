@@ -70,7 +70,7 @@ export const attrPolyCenter = (
 
 export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
   let scale = properties?.scale?.contents;
-  scale ||= 1;
+  scale = scale || 1;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
@@ -199,7 +199,7 @@ export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
 };
 
 export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
-  const d = properties.data as IStrV<string>;
+  const d = properties.data as IStrV;
   elem.setAttribute("d", d.contents.toString());
 };
 
@@ -218,7 +218,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   ) {
     elem.setAttribute(
       "stroke-dasharray",
-      (properties.strokeDashArray as IStrV<string>).contents
+      (properties.strokeDashArray as IStrV).contents
     );
   } else if (properties.strokeStyle.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
@@ -226,7 +226,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
 };
 
 export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
-  const name = properties.name as IStrV<string>;
+  const name = properties.name as IStrV;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;
   elem.appendChild(title);

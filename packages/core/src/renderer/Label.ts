@@ -21,7 +21,7 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   );
   attrTransformCoords(shape, canvasSize, elem);
   attrTitle(shape, elem);
-  const name = shape.properties.name as IStrV<string>;
+  const name = shape.properties.name as IStrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
   if (retrievedLabel && retrievedLabel.rendered) {
     const renderedLabel = retrievedLabel.rendered;
@@ -31,7 +31,7 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
     renderedLabel
       .getElementsByTagName("g")[0]
       .setAttribute("stroke-width", "0");
-    const fontSize = shape.properties.fontSize as IStrV<string>;
+    const fontSize = shape.properties.fontSize as IStrV;
     renderedLabel.setAttribute(
       "style",
       `font-size: ${fontSize.contents.toString()}`

@@ -25,6 +25,6 @@ const defMap = {
   Image: ImageDef,
   Text: TextDef,
   Path: CurveDef,
-  PathString: PathStrDef
+  PathString: PathStrDef,
 };
 export default defMap;

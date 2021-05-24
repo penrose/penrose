@@ -56,7 +56,7 @@ const lexer = moo.compile({
 });
 
 const nodeData = (children: ASTNode[]) => ({
-  nodeType: "Style",
+  nodeType: "Style" as const,
   children
 });
 

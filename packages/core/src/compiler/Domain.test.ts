@@ -1,5 +1,6 @@
-import { compileDomain, Env, isSubtype } from "compiler/Domain";
+import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
+import { Env } from "types/domain";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";

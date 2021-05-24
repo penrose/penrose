@@ -1,6 +1,7 @@
 import consola, { LogLevel } from "consola";
 import { checkComp, compDict } from "contrib/Functions";
 import {
+  dummyIdentifier,
   findExprSafe,
   insertExpr,
   isPath,
@@ -59,17 +60,6 @@ const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
 };
 
-const dummyIdentifier = (name: string): Identifier => {
-  return {
-    nodeType: "dummyNode",
-    children: [],
-    type: "value",
-    value: name,
-    tag: "Identifier",
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
-  };
-};
 /**
  * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
  *
@@ -612,10 +602,8 @@ export const evalExpr = (
         if (p.tag === "VectorAccess") {
           p = {
             // convert to AccessPath schema
-            nodeType: "dummyNode",
+            nodeType: "SyntheticStyle",
             children: [],
-            start: dummySourceLoc(),
-            end: dummySourceLoc(),
             tag: "AccessPath",
             // contents: [p.contents[0], [p.contents[1].contents]],
             path: p.contents[0],
@@ -624,10 +612,8 @@ export const evalExpr = (
         } else if (p.tag === "MatrixAccess") {
           p = {
             // convert to AccessPath schema
-            nodeType: "dummyNode",
+            nodeType: "SyntheticStyle",
             children: [],
-            start: dummySourceLoc(),
-            end: dummySourceLoc(),
             tag: "AccessPath",
             path: p.contents[0],
             indices: p.contents[1],
@@ -735,7 +721,7 @@ export const resolvePath = (
             tag: "PropertyPath",
             name: path.name,
             field: path.field,
-            property: dummyIdentifier(propName),
+            property: dummyIdentifier(propName, "SyntheticStyle"),
           };
 
           if (p.tag === "OptEval") {

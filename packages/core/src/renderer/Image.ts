@@ -10,7 +10,7 @@ import { IStrV } from "types/value";
 
 const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const path = (shape.properties.path as IStrV<string>).contents;
+  const path = (shape.properties.path as IStrV).contents;
   if (!(path in images)) {
     console.error(`Could not find image path ${path}`);
     return elem;
@@ -31,9 +31,9 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
           `[*|href="#${node.id}"]:not([href])`
         );
         users.forEach((user: any) => {
-          const unique = `${
-            (shape.properties.name as IStrV<string>).contents
-          }-ns-${node.id}`;
+          const unique = `${(shape.properties.name as IStrV).contents}-ns-${
+            node.id
+          }`;
           user.setAttributeNS(
             "http://www.w3.org/1999/xlink",
             "href",
