@@ -1,5 +1,6 @@
 {
   "name": "@penrose/synthesizer",
+  "private": true,
   "version": "1.2.0",
   "description": "Synthesis engine for Penrose",
   "keywords": [
