@@ -12,8 +12,10 @@ Rectangle F
 
 -- -- Graphics Elements
 
--- Text H
+Text H
 -- Path A
 -- Arrow C
--- Square D
+Square D
 -- Image I
+
+PathString PS

@@ -11,7 +11,7 @@
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
     "test": "lerna run test --stream",
     "lerna": "lerna",
-    "new-version": "lerna version --conventional-commits --create-release github",
+    "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
     "graduate": "lerna version --conventional-commits --conventional-graduate",
     "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",

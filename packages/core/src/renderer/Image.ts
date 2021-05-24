@@ -1,4 +1,9 @@
-import { attrOpacity, attrTransformCoords, attrWH } from "./AttrHelper";
+import {
+  attrOpacity,
+  attrRotation,
+  attrTransformCoords,
+  attrWH,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 import images from "contrib/images.json";
 import { IStrV } from "types/value";
@@ -42,6 +47,15 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrOpacity(shape, svg);
   attrWH(shape, svg);
   attrTransformCoords(shape, canvasSize, elem);
+  attrRotation(
+    shape,
+    shape.properties.center,
+    shape.properties.w,
+    shape.properties.h,
+    canvasSize,
+    elem
+  );
+
   return elem;
 };
 export default Image;
