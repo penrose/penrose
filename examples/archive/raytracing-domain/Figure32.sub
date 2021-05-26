@@ -1,5 +1,0 @@
-PathType t 
-HasForm(t, "L(D|S)S*E") 
-Path p := Sample(t)
-
-AutoLabel All

@@ -1,8 +1,0 @@
-Set A, B
-f: A -> B
-OneToOne(f)
-Onto(f)
-
-AutoLabel All
-Label A $x$
-Label B $f(x)$
