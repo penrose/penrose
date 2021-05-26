@@ -13,6 +13,7 @@
     "@oclif/plugin-help": "^3.2.1",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.1",
+    "penrose": "^0.2.18",
     "tslib": "^1.14.1",
     "ws": "^7.4.2"
   },

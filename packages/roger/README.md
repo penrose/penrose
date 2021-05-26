@@ -23,7 +23,7 @@ $ npm install -g @penrose/roger
 $ roger COMMAND
 running command...
 $ roger (-v|--version|version)
-@penrose/roger/1.0.0 darwin-x64 node-v12.19.0
+@penrose/roger/1.0.0 linux-x64 node-v12.13.1
 $ roger --help [COMMAND]
 USAGE
   $ roger COMMAND
@@ -37,6 +37,7 @@ USAGE
 <!-- commands -->
 
 - [`roger help [COMMAND]`](#roger-help-command)
+- [`roger svg_tst [FILE]`](#roger-svg_tst-file)
 - [`roger watch SUBSTANCE STYLE DOMAIN`](#roger-watch-substance-style-domain)
 
 ## `roger help [COMMAND]`
@@ -55,6 +56,22 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
+
+## `roger svg_tst [FILE]`
+
+describe the command here
+
+```
+USAGE
+  $ roger svg_tst [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+```
+
+_See code: [src/commands/svg_tst.ts](https://github.com/penrose/penrose/blob/v1.0.0/src/commands/svg_tst.ts)_
 
 ## `roger watch SUBSTANCE STYLE DOMAIN`
 

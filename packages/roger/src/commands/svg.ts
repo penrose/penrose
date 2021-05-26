@@ -11,11 +11,14 @@ const fsp = fs.promises;
           and outputs errors to console
 */
 
-import { RenderShape, compileTrio, RenderStatic } from "@penrose/core";
+import {
+  //  RenderShape,
+  compileTrio,
+  //  RenderStatic
+} from "@penrose/core";
 
 export default class ToSvg extends Command {
   static description = "compiles to svg locally";
-
 
   static examples = [];
 
@@ -49,7 +52,7 @@ export default class ToSvg extends Command {
     svgPath: "output.svg",
   };
 
-  compileSVG = ({ shapes, labelCache }: any): SVGSVGElement => {
+  compileSVG = ({ shapes, labelCache }: any): any => {
     // const svg = this.fakeDocument.createElementNS(
     //   "http://www.w3.org/2000/svg",
     //   "svg"
@@ -62,9 +65,7 @@ export default class ToSvg extends Command {
     // shapes.forEach((shape: any) =>
     //   svg.appendChild(RenderShape(shape, labelCache))
     // );
-    // return svg;
-
-    return RenderStatic({shapes, labelCache});
+    // return RenderStatic({shapes, labelCache});
   };
 
   sendFiles = async () => {
@@ -75,12 +76,24 @@ export default class ToSvg extends Command {
     } = this.currentFilenames;
     const { substance, style, domain } = this.current;
 
-    const result = compileTrio(domain, substance, style);
+    // this is where the code is hitting an issue:
+    // @penrose/core doesn't properly compile because the module mathjax-full
+    // references the browser's window object
+    // and a cli too has no such object
+    // Therefore, any reference to penrose functions
+    // like compileTrio
+    // will stop the command from compiling
 
-    if (result.variant == "Ok") {
-      let svg = this.compileSVG(result);
-      console.info(svg);
-    }
+    // you can see the error msg with
+    // DEBUG=* npx roger
+
+    const ahhhhh = compileTrio(domain, substance, style);
+    // console.log(ahhhhh);
+
+    // if (result.variant == "Ok") {
+    //   let svg = this.compileSVG(result);
+    //   console.info(svg);
+    // }
 
     // this is probably where you'd call RenderShape
 
@@ -89,6 +102,8 @@ export default class ToSvg extends Command {
     // });
 
     // *write to file svgPath*
+
+    return;
   };
 
   readFile = async (fileName: string) => {
