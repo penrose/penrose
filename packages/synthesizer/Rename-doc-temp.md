@@ -10,7 +10,8 @@
   - Seems like Synthesizer will make a random choice between add/edit/delete regardless if they are defined in the JSON file, and just return no change if there are no valid options?
 - Within `core/src/synthesis`, `Synthesizer.ts`:
   - Make a random choice between edit operations now that there are 2 (line 351)
-  - Create a new type called `Rename`, add it to `Modify` type
+  - Create a new interface called `Rename`, add it to `Modify` type
+  - There’s already an interface called `Replace` that is included in the `Modify` type which seems to have some logic implemented already, how is it different than the intended Rename functionality?
   - Add logic in `editStmt()` method to handle switch case for `Rename`
     - Similar to what is being done in `swap` case but call `Rename` instead. Also don't need to find indices since those orrespond to the parameters passed into the constructor/function and are specific to the `swap` functionality.
   - What is the difference between `Bind`, `EqualPredicate` and `ApplyPredicate`?
