@@ -884,12 +884,21 @@ const clamp = ([l, r]: number[], x: VarAD): VarAD => {
  */
 // https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
 // TODO: Check this function more thoroughly (seems to work fine in Style, though)
+export const intersectsSegSeg = (s1: VarAD[][], s2: VarAD[][]): VarAD => {
+  return intersects(s1[0], s1[1], s2[0], s2[1]);
+};
+
+/**
+ * returns true iff the line from `(a,b)` -> `(c,d)` intersects with `(p,q)` -> `(r,s)`
+ */
+// https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
+// TODO: Check this function more thoroughly (seems to work fine in Style, though)
 const intersects = (
   l1_p1: VarAD[],
   l1_p2: VarAD[],
   l2_p1: VarAD[],
   l2_p2: VarAD[]
-) => {
+): VarAD => {
   const [[a, b], [c, d]] = [l1_p1, l1_p2];
   const [[p, q], [r, s]] = [l2_p1, l2_p2];
 
@@ -919,6 +928,33 @@ const intersects = (
 };
 
 /**
+ * returns the intersection point between line segments, `s1` from `(a,b)` -> `(c,d)` and `s2` from `(p,q)` -> `(r,s)`. NOTE: Expects the line segments to intersect. You should use `intersect` to check if they do intersect.
+ */
+// https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
+// https://stackoverflow.com/posts/58657254/revisions
+export const intersectionSegSeg = (s1: VarAD[][], s2: VarAD[][]): VarAD[] => {
+  const [l1_p1, l1_p2, l2_p1, l2_p2] = [s1[0], s1[1], s2[0], s2[1]];
+  const [[a, b], [c, d]] = [l1_p1, l1_p2];
+  const [[p, q], [r, s]] = [l2_p1, l2_p2];
+
+  // Divide by 0 error...
+
+  const det = sub(mul(sub(c, a), sub(s, q)), mul(sub(r, p), sub(d, b)));
+  const lambda = div(
+    add(mul(sub(s, q), sub(r, a)), mul(sub(p, r), sub(s, b))),
+    det
+  );
+  const gamma = div(
+    add(mul(sub(b, d), sub(r, a)), mul(sub(c, a), sub(s, b))),
+    det
+  );
+
+  // from1 + lambda * dv
+  const dv = ops.vsub(l1_p2, l1_p1);
+  return ops.vmove(l1_p1, lambda, dv);
+};
+
+/**
  * Return the amount of overlap between two intervals in R. (0 if none)
  */
 export const overlap1D = (
@@ -935,7 +971,7 @@ export const overlap1D = (
 };
 
 /**
- * Return the bounding box of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `minX, maxX, minY, maxY`.
+ * Return the bounding box (as 4 points) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `minX, maxX, minY, maxY`.
  */
 export const bbox = (center: VecAD, w: VarAD, h: VarAD): any => {
   const halfWidth = div(w, constOf(2.0));
@@ -955,6 +991,39 @@ export const bbox = (center: VecAD, w: VarAD, h: VarAD): any => {
     maxX: pts[0][0],
     minY: pts[2][1],
     maxY: pts[0][1],
+  };
+
+  return rect;
+};
+
+/**
+ * Return the bounding box (as 4 segments) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `top, bot, left, right`.
+ */
+export const bboxSegs = (center: VecAD, w: VarAD, h: VarAD): any => {
+  const halfWidth = div(w, constOf(2.0));
+  const halfHeight = div(h, constOf(2.0));
+  const nhalfWidth = neg(halfWidth);
+  const nhalfHeight = neg(halfHeight);
+  // CCW: TR, TL, BL, BR
+  const pts = [
+    [halfWidth, halfHeight],
+    [nhalfWidth, halfHeight],
+    [nhalfWidth, nhalfHeight],
+    [halfWidth, nhalfHeight],
+  ].map((p) => ops.vadd(center, p));
+
+  const corners = {
+    topRight: pts[0],
+    topLeft: pts[1],
+    bottomLeft: pts[2],
+    bottomRight: pts[3],
+  };
+
+  const rect = {
+    top: [corners.topLeft, corners.topRight],
+    bot: [corners.bottomLeft, corners.bottomRight],
+    left: [corners.bottomLeft, corners.topLeft],
+    right: [corners.bottomRight, corners.topRight],
   };
 
   return rect;

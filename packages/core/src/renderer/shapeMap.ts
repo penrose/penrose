@@ -3,6 +3,7 @@ import Label from "./Label";
 import Ellipse from "./Ellipse";
 import Square from "./Square";
 import Rectangle from "./Rectangle";
+import Callout from "./Callout";
 import Polygon from "./Polygon";
 import FreeformPolygon from "./Polygon";
 import Polyline from "./Polyline";
@@ -18,6 +19,7 @@ const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Ellipse,
   Square,
   Rectangle,
+  Callout,
   Polygon,
   FreeformPolygon,
   Polyline,
