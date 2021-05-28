@@ -9,6 +9,7 @@ import {
   domainToSubType,
   nullaryTypeCons,
   replaceStmt,
+  renamePred,
   swapArgs,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
@@ -78,7 +79,7 @@ export interface SynthesizerSetting {
 //#region Synthesis context
 
 type Mutation = Add | Delete | Modify;
-type Modify = Swap | Replace;
+type Modify = Swap | Replace | Rename;
 
 interface Add {
   tag: "Add";
@@ -100,6 +101,11 @@ interface Swap {
   stmt: SubStmt;
   elem1: number;
   elem2: number;
+}
+
+interface Rename {
+  tag: "Rename";
+  stmt: SubStmt;
 }
 
 interface Candidates {
@@ -348,11 +354,11 @@ export class Synthesizer {
     const op = choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
-    // TODO: make a random choice among edit operations after they are implemented
-    else if (op === "edit") this.editStmt("Swap");
+    else if (op === "edit") this.editStmt(choice(["Swap", "Rename"]));
   };
 
   editStmt = (op: Modify["tag"]): void => {
+    log.info(op);
     this.cxt.findCandidates(this.env, this.setting.edit);
     log.debug("Editing statement");
     const chosenType = choice(this.cxt.candidateTypes());
@@ -379,6 +385,21 @@ export class Synthesizer {
               ...stmt,
               expr: swapArgs(stmt.expr as any, [idx1, idx2]),
             } as Bind); // TODO: improve types to avoid casting
+          }
+        }
+        case "Rename": {
+          if (stmt.tag === "ApplyPredicate") {
+            this.cxt.replaceStmt(
+              stmt,
+              renamePred(stmt, this.env) as ApplyPredicate
+            );
+          } else {
+            const expr = stmt.expr as ApplyConstructor | ApplyFunction;
+            this.cxt.replaceStmt(stmt, {
+              ...stmt,
+              // TODO CALL THIS SOMETHING ELSE
+              expr: renamePred(stmt.expr as any, this.env),
+            } as Bind);
           }
         }
       }
