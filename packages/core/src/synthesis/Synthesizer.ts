@@ -358,7 +358,6 @@ export class Synthesizer {
   };
 
   editStmt = (op: Modify["tag"]): void => {
-    log.info(op);
     this.cxt.findCandidates(this.env, this.setting.edit);
     log.debug("Editing statement");
     const chosenType = choice(this.cxt.candidateTypes());
