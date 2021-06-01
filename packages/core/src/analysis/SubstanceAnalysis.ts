@@ -3,13 +3,11 @@ import { Identifier } from "types/ast";
 import { Map } from "immutable";
 import { choice } from "pandemonium";
 import {
-  Arg,
   ConstructorDecl,
   DomainStmt,
   Env,
   FunctionDecl,
   PredicateDecl,
-  Type,
   TypeConstructor,
   TypeDecl,
 } from "types/domain";
@@ -63,17 +61,16 @@ export const swapArgs = (
 };
 
 /**
- * Rename a Substance statement
- *
+ * Replace a Substance statement with another substance statement with the same signature.
+ * NOTE: When no suitable replacement exists, returns original program without errors.
  * @param stmt a Substance statement
  * @returns a new Substance statement
  */
-export const renamePred = (
+export const replaceStmtName = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction,
   env: Env
 ): ApplyConstructor | ApplyPredicate | ApplyFunction => {
   let options = matchingSignatures(stmt, env);
-  //pick a random option
   printStmts(options);
   let pick = options.length > 0 ? choice(options) : stmt;
   return {
@@ -134,8 +131,8 @@ const swap = (arr: any[], a: number, b: number) =>
 //#region Helpers
 
 /**
- * Find all signatures that match a given statement. NOTE: returns an empty list if
- * no matches are found.
+ * Find all signatures that match a reference statement. NOTE: returns an empty list if
+ * no matches are found; does not include the reference statement in list of matches.
  *
  * @param stmtName string value of a statement, i.e. "isSubset"
  * @param opts all possible declaration options
@@ -146,12 +143,14 @@ export const findMatches = (
   opts: Map<string, any>
 ): any[] => {
   let matches: any[] = [];
+  // find signature of original statement in map
   let orig = opts.get(stmtName);
   if (orig) {
+    //generate signature for the original statement
     var origSignature = getSignature(orig);
     opts.map((decl) => {
-      // loop through declarations
       if (orig !== decl) {
+        // does not add original statement to list of matches
         if (signatureEquals(origSignature, getSignature(decl))) {
           matches.push(decl);
         }
