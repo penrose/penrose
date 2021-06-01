@@ -389,16 +389,18 @@ export class Synthesizer {
         }
         case "ReplaceName": {
           if (stmt.tag === "ApplyPredicate") {
-            this.cxt.replaceStmt(
-              stmt,
-              replaceStmtName(stmt, this.env) as ApplyPredicate
-            );
-          } else {
-            const expr = stmt.expr as ApplyConstructor | ApplyFunction;
-            this.cxt.replaceStmt(stmt, {
-              ...stmt,
-              expr: replaceStmtName(stmt.expr as any, this.env),
-            } as Bind); // TODO: improve types to avoid casting
+            let newStmt = replaceStmtName(stmt, this.env);
+            if (newStmt.name !== stmt.name) {
+              this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate);
+            }
+          } else if (stmt.tag === "Bind") {
+            let newStmt = replaceStmtName(stmt.expr as any, this.env);
+            if (newStmt.name !== (stmt.expr as ApplyConstructor).name) {
+              this.cxt.replaceStmt(stmt, {
+                ...stmt,
+                expr: newStmt,
+              } as Bind); // TODO: improve types to avoid casting
+            }
           }
         }
       }

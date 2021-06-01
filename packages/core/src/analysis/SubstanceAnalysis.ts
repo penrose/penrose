@@ -67,9 +67,9 @@ export const swapArgs = (
  * @returns a new Substance statement
  */
 export const replaceStmtName = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction,
+  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
   env: Env
-): ApplyConstructor | ApplyPredicate | ApplyFunction => {
+): ApplyConstructor | ApplyPredicate | ApplyFunction | Func => {
   let options = matchingSignatures(stmt, env);
   printStmts(options);
   let pick = options.length > 0 ? choice(options) : stmt;
@@ -169,13 +169,20 @@ export const findMatches = (
  * @returns an Array of all other statements that match the stmt signature
  */
 export const matchingSignatures = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction,
+  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
   env: Env
 ): any[] => {
   let matches: any[] = [];
   switch (stmt.tag) {
     case "ApplyPredicate": {
       return findMatches(stmt.name.value, env.predicates);
+    }
+    case "Func": {
+      // handling for Bind case: parser tags constructors & funcs with
+      // the "Func" tag before checker fixes types
+      let conMatches = findMatches(stmt.name.value, env.constructors);
+      if (conMatches.length > 0) return conMatches;
+      return findMatches(stmt.name.value, env.functions);
     }
     case "ApplyConstructor": {
       return findMatches(stmt.name.value, env.constructors);
