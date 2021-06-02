@@ -143,20 +143,18 @@ export const findMatches = (
   stmtName: string,
   opts: Map<string, ArgStmtDecl>
 ): ArgStmtDecl[] => {
-  let matches: any[] = [];
   // find signature of original statement in map
   const orig = opts.get(stmtName);
   if (orig) {
     //generate signature for the original statement
     const origSignature = getSignature(orig);
-    opts.map((d) => {
-      if (orig !== d && signatureEquals(origSignature, getSignature(d))) {
-        // does not add original statement to list of matches
-        matches.push(d);
-      }
-    });
+    // does not add original statement to list of matches
+    const decls: ArgStmtDecl[] = [...opts.values()];
+    return decls.filter(
+      (d) => orig !== d && signatureEquals(origSignature, getSignature(d))
+    );
   }
-  return matches;
+  return [];
 };
 
 /**
