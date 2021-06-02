@@ -10,6 +10,7 @@
     "clean": "lerna clean && lerna exec -- rimraf build",
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
     "test": "lerna run test --stream",
+    "docs": "lerna run docs --stream",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
