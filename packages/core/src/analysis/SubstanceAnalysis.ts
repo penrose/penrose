@@ -1,4 +1,4 @@
-import { pullAt } from "lodash";
+import { pullAt, map } from "lodash";
 import { Identifier } from "types/ast";
 import { Map } from "immutable";
 import { choice } from "pandemonium";
@@ -30,6 +30,8 @@ export interface Signature {
   args: string[];
   output?: string;
 }
+
+export type ArgStmtDecl = PredicateDecl | FunctionDecl | ConstructorDecl;
 
 /**
  * Append a statement to a Substance program
@@ -70,9 +72,8 @@ export const replaceStmtName = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
   env: Env
 ): ApplyConstructor | ApplyPredicate | ApplyFunction | Func => {
-  let options = matchingSignatures(stmt, env);
-  printStmts(options);
-  let pick = options.length > 0 ? choice(options) : stmt;
+  const options = matchingSignatures(stmt, env);
+  const pick = options.length > 0 ? choice(options) : stmt;
   return {
     ...stmt,
     name: pick.name,
@@ -140,24 +141,21 @@ const swap = (arr: any[], a: number, b: number) =>
  */
 export const findMatches = (
   stmtName: string,
-  opts: Map<string, any>
-): any[] => {
+  opts: Map<string, ArgStmtDecl>
+): ArgStmtDecl[] => {
   let matches: any[] = [];
   // find signature of original statement in map
-  let orig = opts.get(stmtName);
+  const orig = opts.get(stmtName);
   if (orig) {
     //generate signature for the original statement
-    var origSignature = getSignature(orig);
-    opts.map((decl) => {
-      if (orig !== decl) {
+    const origSignature = getSignature(orig);
+    opts.map((d) => {
+      if (orig !== d && signatureEquals(origSignature, getSignature(d))) {
         // does not add original statement to list of matches
-        if (signatureEquals(origSignature, getSignature(decl))) {
-          matches.push(decl);
-        }
+        matches.push(d);
       }
     });
   }
-
   return matches;
 };
 
@@ -202,24 +200,18 @@ export const matchingSignatures = (
  * @param decl a Declaration object
  * @returns a new Signature object
  */
-export const getSignature = (
-  decl: PredicateDecl | ConstructorDecl | FunctionDecl
-): Signature => {
+export const getSignature = (decl: ArgStmtDecl): Signature => {
   let argTypes: string[] = [];
   let outType: string | undefined;
   if (decl.args) {
-    decl.args.forEach((arg) => {
-      if (arg.type.tag === "TypeConstructor") {
-        let a = arg.type as TypeConstructor;
-        argTypes.push(a.name.value);
-      }
+    decl.args.forEach((a) => {
+      if (a.type.tag === "TypeConstructor") argTypes.push(a.type.name.value);
     });
   }
   // see if there is an output field:
-  let d = decl as ConstructorDecl;
+  const d = decl as ConstructorDecl;
   if (d.output && d.output.type.tag === "TypeConstructor") {
-    let o = d.output.type as TypeConstructor;
-    outType = o.name.value;
+    outType = d.output.type.name.value;
   }
   return {
     args: argTypes,
@@ -235,7 +227,6 @@ export const getSignature = (
  * @returns true if signatures are equal
  */
 export const signatureEquals = (a: Signature, b: Signature): boolean => {
-  console.log(a, b);
   return (
     a.output === b.output &&
     a.args.length === b.args.length &&
