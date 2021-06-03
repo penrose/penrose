@@ -1,10 +1,14 @@
-import { pullAt } from "lodash";
+import { pullAt, map } from "lodash";
 import { Identifier } from "types/ast";
+import { Map } from "immutable";
+import { choice } from "pandemonium";
 import {
   ConstructorDecl,
   DomainStmt,
+  Env,
   FunctionDecl,
   PredicateDecl,
+  TypeConstructor,
   TypeDecl,
 } from "types/domain";
 import {
@@ -21,6 +25,13 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+
+export interface Signature {
+  args: string[];
+  output?: string;
+}
+
+export type ArgStmtDecl = PredicateDecl | FunctionDecl | ConstructorDecl;
 
 /**
  * Append a statement to a Substance program
@@ -48,6 +59,24 @@ export const swapArgs = (
   return {
     ...stmt,
     args: swap(stmt.args, index1, index2),
+  };
+};
+
+/**
+ * Replace a Substance statement with another substance statement with the same signature.
+ * NOTE: When no suitable replacement exists, returns original program without errors.
+ * @param stmt a Substance statement
+ * @returns a new Substance statement
+ */
+export const replaceStmtName = (
+  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
+  env: Env
+): ApplyConstructor | ApplyPredicate | ApplyFunction | Func => {
+  const options = matchingSignatures(stmt, env);
+  const pick = options.length > 0 ? choice(options) : stmt;
+  return {
+    ...stmt,
+    name: pick.name,
   };
 };
 
@@ -101,6 +130,118 @@ const swap = (arr: any[], a: number, b: number) =>
 //#endregion
 
 //#region Helpers
+
+/**
+ * Find all signatures that match a reference statement. NOTE: returns an empty list if
+ * no matches are found; does not include the reference statement in list of matches.
+ *
+ * @param stmtName string value of a statement, i.e. "isSubset"
+ * @param opts all possible declaration options
+ * @returns Array of any statements that have the same signature as input statement
+ */
+export const findMatches = (
+  stmtName: string,
+  opts: Map<string, ArgStmtDecl>
+): ArgStmtDecl[] => {
+  // find signature of original statement in map
+  const orig = opts.get(stmtName);
+  if (orig) {
+    //generate signature for the original statement
+    const origSignature = getSignature(orig);
+    // does not add original statement to list of matches
+    const decls: ArgStmtDecl[] = [...opts.values()];
+    return decls.filter(
+      (d) => orig !== d && signatureEquals(origSignature, getSignature(d))
+    );
+  }
+  return [];
+};
+
+/**
+ * Find matching signatures for a given statement
+ *
+ * @param stmt any supported Statement object (constructor, predicate, function)
+ * @param env an Env object with domain/substance metadata
+ * @returns an Array of all other statements that match the stmt signature
+ */
+export const matchingSignatures = (
+  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
+  env: Env
+): any[] => {
+  let matches: any[] = [];
+  switch (stmt.tag) {
+    case "ApplyPredicate": {
+      return findMatches(stmt.name.value, env.predicates);
+    }
+    case "Func": {
+      // handling for Bind case: parser tags constructors & funcs with
+      // the "Func" tag before checker fixes types
+      let conMatches = findMatches(stmt.name.value, env.constructors);
+      if (conMatches.length > 0) return conMatches;
+      return findMatches(stmt.name.value, env.functions);
+    }
+    case "ApplyConstructor": {
+      return findMatches(stmt.name.value, env.constructors);
+    }
+    case "ApplyFunction": {
+      return findMatches(stmt.name.value, env.functions);
+    }
+    default: {
+      return matches;
+    }
+  }
+};
+
+/**
+ * Get signature of a declaration
+ *
+ * @param decl a Declaration object
+ * @returns a new Signature object
+ */
+export const getSignature = (decl: ArgStmtDecl): Signature => {
+  let argTypes: string[] = [];
+  let outType: string | undefined;
+  if (decl.args) {
+    decl.args.forEach((a) => {
+      if (a.type.tag === "TypeConstructor") argTypes.push(a.type.name.value);
+    });
+  }
+  // see if there is an output field:
+  const d = decl as ConstructorDecl;
+  if (d.output && d.output.type.tag === "TypeConstructor") {
+    outType = d.output.type.name.value;
+  }
+  return {
+    args: argTypes,
+    output: outType,
+  };
+};
+
+/**
+ * Check if 2 signatures are equal
+ *
+ * @param a a Signature
+ * @param b a Signature
+ * @returns true if signatures are equal
+ */
+export const signatureEquals = (a: Signature, b: Signature): boolean => {
+  return (
+    a.output === b.output &&
+    a.args.length === b.args.length &&
+    a.args.every((val, index) => val === b.args[index])
+  );
+};
+
+export const printStmts = (
+  stmts: PredicateDecl[] | ConstructorDecl[] | FunctionDecl[]
+): void => {
+  let outStr = "";
+  let s = stmts as PredicateDecl[];
+  s.forEach((stmt) => {
+    outStr += stmt.name.value + " ";
+  });
+  console.log(`[${outStr}]`);
+};
 
 export const domainToSubType = (
   domainType: DomainStmt["tag"]
