@@ -161,10 +161,23 @@ export interface IInputProps {
   maxY?: number;
   options?: string[];
 }
+
 export interface IProp {
+  /**
+   * The datatype of the property
+   */
   propType: PropType;
+  /**
+   * The sampling function to generate the property
+   */
   sampler: Sampler;
+  /**
+   * Optional parameters for the inspector to render the property
+   */
   inspection?: IInputProps;
+  /**
+   * Documentation of the property
+   */
   description?: string;
 }
 
