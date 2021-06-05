@@ -32,6 +32,7 @@ describe("End-to-end testing of existing diagrams", () => {
     const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map((uri) =>
       fs.readFileSync(path.join(EXAMPLES, uri)).toString()
     );
+
     test(name, async () => {
       seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
       if (saveDiagrams && !fs.existsSync(OUTPUT)) {

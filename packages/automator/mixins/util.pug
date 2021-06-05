@@ -1,0 +1,17 @@
+mixin navBar(gridLink, statLink)
+    nav(class="navbar navbar-expand-lg navbar-light bg-light")
+        a(class="navbar-brand" href="#")
+            | Penrose Artifacts
+        div(class="collapse navbar-collapse" id="navbarNav")
+        ul(class="nav navbar-nav navbar-center")
+            li(class="nav-item")
+                a(class="nav-link" href="index.html")
+                    | List View 
+                    span(class="sr-only")
+                        | (current)
+            li(class="nav-item")
+                a(class="nav-link disabled" href=gridLink)
+                    | Grid View 
+            li(class="nav-item")
+                a(class="nav-link" href=statLink)
+                    | Summary Stat

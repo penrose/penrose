@@ -55,6 +55,7 @@
     "docs",
     "dist",
     "src/__tests__",
+    "src/__testfixtures__",
     "scripts",
     "acceptance-tests",
     "webpack"

@@ -22,8 +22,7 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
     .contents[3];
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV<string>)
-    .contents;
+  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
 
@@ -50,7 +49,7 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   ) {
     pathElem.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDashArray as IStrV<string>).contents
+      (shape.properties.strokeDashArray as IStrV).contents
     );
   } else if (shape.properties.style.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());

@@ -1,8 +1,21 @@
--- Path A
-Arrow C
-Square D
-Circle E
+-- -- Basic shapes
+
+
+-- Polygon K
+FreeformPolygon I
+-- Polyline J
 Rectangle F
-Line G
+-- Circle E
+-- Ellipse L
+-- Line G
+
+
+-- -- Graphics Elements
+
 Text H
-Image I
+-- Path A
+-- Arrow C
+Square D
+-- Image I
+
+PathString PS

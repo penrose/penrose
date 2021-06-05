@@ -1,24 +1,35 @@
-import { findIndex, zip } from "lodash";
+import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
+import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
 import { Identifier } from "types/ast";
-import { Arg, Type, ConstructorDecl, FunctionDecl } from "types/domain";
+import {
+  Arg,
+  ConstructorDecl,
+  Env,
+  FunctionDecl,
+  Type,
+  TypeConstructor,
+} from "types/domain";
 import { ParseError, PenroseError, SubstanceError } from "types/errors";
 import {
-  SubProg,
-  SubExpr,
-  ApplyPredicate,
-  SubStmt,
-  TypeConsApp,
-  SubPredArg,
-  Func,
   ApplyConstructor,
   ApplyFunction,
+  ApplyPredicate,
+  Decl,
   Deconstructor,
+  Func,
   LabelMap,
+  LabelOption,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubRes,
   SubstanceEnv,
+  SubStmt,
+  TypeConsApp,
 } from "types/substance";
 import {
   andThen,
@@ -37,13 +48,7 @@ import {
   unexpectedExprForNestedPred,
   varNotFound,
 } from "utils/Error";
-import {
-  bottomType,
-  checkTypeConstructor,
-  Env,
-  isSubtype,
-  topType,
-} from "./Domain";
+import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
 
 export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
   const parser = new nearley.Parser(
@@ -71,13 +76,23 @@ export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
 export const compileSubstance = (
   prog: string,
   env: Env
-): Result<[SubstanceEnv, Env], PenroseError> => {
+): Result<SubRes, PenroseError> => {
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
-    const checkerOk = checkSubstance(ast, env);
+    // convert and append prelude values to the substance AST
+    const preludeDecls = [...env.preludeValues.toArray()];
+    const preludeValues: Decl[] = preludeDecls.map(
+      ([id, decl]: [string, TypeConstructor]) => toSubDecl(id, decl)
+    );
+    const astWithPrelude: SubProg = {
+      ...ast,
+      statements: ast.statements.concat(preludeValues),
+    };
+    // check the substance ast and produce an env or report errors
+    const checkerOk = checkSubstance(astWithPrelude, env);
     return checkerOk.match({
-      Ok: (env) => ok([postprocessSubstance(ast, env), env]),
+      Ok: (env) => ok([postprocessSubstance(astWithPrelude, env), env]),
       Err: (e) => err({ ...e, errorType: "SubstanceError" }),
     });
   } else {
@@ -96,12 +111,24 @@ const initEnv = (ast: SubProg): SubstanceEnv => ({
 
 //#region Postprocessing
 export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
+  // post process all statements
   const subEnv = initEnv(prog);
   return prog.statements.reduce(
     (e, stmt) => postprocessStmt(stmt, env, e),
     subEnv
   );
 };
+
+const toSubDecl = (idString: string, decl: TypeConstructor): Decl => ({
+  nodeType: "SyntheticSubstance",
+  children: [],
+  tag: "Decl",
+  type: {
+    ...decl,
+    args: [],
+  },
+  name: dummyIdentifier(idString, "SyntheticSubstance"),
+});
 
 const postprocessStmt = (
   stmt: SubStmt,
@@ -180,7 +207,11 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
     case "Decl": {
       const { type, name } = stmt;
       const typeOk = checkTypeConstructor(type, env);
-      const updatedEnv: Env = { ...env, vars: env.vars.set(name.value, type) };
+      const updatedEnv: Env = {
+        ...env,
+        vars: env.vars.set(name.value, type),
+        varIDs: [name, ...env.varIDs],
+      };
       return every(typeOk, ok(updatedEnv));
     }
     case "Bind": {
@@ -518,13 +549,95 @@ const checkField = (decons: Deconstructor, env: Env): ResultWithType => {
 };
 
 export const checkVar = (variable: Identifier, env: Env): ResultWithType => {
-  const type = env.vars.get(variable.value);
+  const type = env.vars.find((_, key) => key === variable.value);
   if (type) {
     return ok([type, env]);
   } else {
-    const [...possibleVars] = env.vars.keys();
+    const possibleVars = env.varIDs;
     // TODO: find vars of the same type for error reporting (need to check expr first)
     return err(varNotFound(variable, possibleVars));
+  }
+};
+//#endregion
+
+//#region Substance pretty printer
+
+export const prettySubstance = (prog: SubProg): string =>
+  prog.statements.map((stmt) => prettyStmt(stmt)).join("\n");
+
+export const prettyStmt = (stmt: SubStmt): string => {
+  switch (stmt.tag) {
+    case "Decl": {
+      const { type, name } = stmt;
+      return `${prettyType(type)} ${prettyVar(name)}`;
+    }
+    case "Bind": {
+      const { variable, expr } = stmt;
+      return `${prettyVar(variable)} := ${prettyExpr(expr)}`;
+    }
+    case "AutoLabel":
+      return `AutoLabel ${prettyLabelOpt(stmt.option)}`;
+    case "NoLabel":
+      return `NoLabel ${stmt.args.map((a) => prettyVar(a)).join(", ")}`;
+    case "LabelDecl":
+      return `Label ${prettyVar(stmt.variable)} \$${stmt.label.contents}\$`;
+    case "ApplyPredicate":
+      return prettyPredicate(stmt);
+    case "EqualExprs":
+      return `${prettyExpr(stmt.left)} = ${prettyExpr(stmt.right)}`;
+    case "EqualPredicates":
+      return `${prettyPredicate(stmt.left)} <-> ${prettyPredicate(stmt.right)}`;
+  }
+};
+
+const prettyPredicate = (pred: ApplyPredicate): string => {
+  const { name, args } = pred;
+  const argStr = args.map((a) => prettyPredArg(a)).join(", ");
+  return `${prettyVar(name)}(${argStr})`;
+};
+
+const prettyPredArg = (arg: SubPredArg): string => {
+  if (arg.tag === "ApplyPredicate") return prettyPredicate(arg);
+  else return prettyExpr(arg);
+};
+
+const prettyType = (type: TypeConsApp): string => {
+  const { name, args } = type;
+  if (args.length > 0) {
+    const argStr = args.map((a) => prettyType(a)).join(", ");
+    return `${prettyVar(name)}(${argStr})`;
+  } else {
+    return `${prettyVar(name)}`;
+  }
+};
+
+const prettyLabelOpt = (opt: LabelOption): string => {
+  switch (opt.tag) {
+    case "DefaultLabels":
+      return "All";
+    case "LabelIDs":
+      return opt.variables.map((v) => prettyVar(v)).join(", ");
+  }
+};
+
+const prettyVar = (v: Identifier): string => v.value;
+const prettyExpr = (expr: SubExpr): string => {
+  switch (expr.tag) {
+    case "Identifier":
+      return prettyVar(expr);
+    case "StringLit":
+      return expr.contents;
+    case "Deconstructor": {
+      const { variable, field } = expr;
+      return `${prettyVar(variable)}.${prettyVar(field)}`;
+    }
+    case "ApplyFunction":
+    case "Func":
+    case "ApplyConstructor": {
+      const { name, args } = expr;
+      const argStr = args.map((arg) => prettyExpr(arg)).join(", ");
+      return `${prettyVar(name)}(${argStr})`;
+    }
   }
 };
 

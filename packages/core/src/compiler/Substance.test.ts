@@ -4,9 +4,10 @@ import grammar from "parser/SubstanceParser";
 import * as path from "path";
 import { PenroseError } from "types/errors";
 import { Result, showError, showType } from "utils/Error";
-import { compileDomain, Env } from "./Domain";
-import { compileSubstance } from "./Substance";
+import { compileDomain } from "./Domain";
+import { compileSubstance, prettySubstance } from "./Substance";
 import { SubstanceEnv } from "types/substance";
+import { Env } from "types/domain";
 
 const printError = false;
 const saveContexts = false;
@@ -23,6 +24,13 @@ const subPaths = [
   // "geometry-domain/pythagorean-theorem-sugared.sub",
   // "mesh-set-domain/DomainInterop.sub",
 ];
+
+const hasVars = (env: Env, vars: [string, string][]) => {
+  vars.map(([name, type]: [string, string]) => {
+    expect(env.vars.has(name)).toBe(true);
+    expect(showType(env.vars.get(name)!)).toEqual(type);
+  });
+};
 
 const domainProg = `
 type Set
@@ -43,6 +51,28 @@ predicate Both : Prop p1 * Prop p2
 predicate Empty : Set s
 predicate Intersecting : Set s1 * Set s2
 predicate IsSubset : Set s1 * Set s2
+`;
+
+const domainProgWithPrelude = `
+type Set
+type OpenSet
+type Vector
+type List('T)
+type Tuple('T, 'U)
+type Point
+OpenSet <: Set
+constructor Subset: Set A * Set B -> Set
+constructor Intersection: Set A * Set B -> Set
+constructor Cons ['X] : 'X head * List('X) tail -> List('X)
+constructor Nil['X] -> List('X)
+constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
+function AddPoint : Point p * Set s1 -> Set
+predicate Not : Prop p1
+predicate Both : Prop p1 * Prop p2
+predicate Empty : Set s
+predicate Intersecting : Set s1 * Set s2
+predicate IsSubset : Set s1 * Set s2
+value X: Set
 `;
 
 const envOrError = (prog: string): Env => {
@@ -84,6 +114,24 @@ Set D
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
   });
+  test("preludes", () => {
+    const env = envOrError(domainProgWithPrelude);
+    const prog = `
+Set A, B, C
+List(Set) l
+OpenSet D
+A := D
+    `;
+    const res = compileSubstance(prog, env);
+    expect(res.isOk()).toBe(true);
+    if (res.isOk()) {
+      hasVars(res.value[1], [
+        ["A", "Set"],
+        ["X", "Set"], // defined in prelude
+        ["l", "List(Set)"],
+      ]);
+    }
+  });
 });
 
 describe("Postprocess", () => {
@@ -116,12 +164,6 @@ NoLabel D, E
 });
 
 describe("Check statements", () => {
-  const hasVars = (env: Env, vars: [string, string][]) => {
-    vars.map(([name, type]: [string, string]) => {
-      expect(env.vars.has(name)).toBe(true);
-      expect(showType(env.vars.get(name)!)).toEqual(type);
-    });
-  };
   test("decls", () => {
     const env = envOrError(domainProg);
     const prog = `
@@ -469,3 +511,47 @@ describe("Real Programs", () => {
     });
   });
 });
+
+describe("Pretty printer", () => {
+  test("decls and args", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set A
+Set B
+Set C
+Set D
+Set E
+Vector v
+C := Subset(A, B)
+D := C.A
+E := C.B
+List(Set) l
+List(OpenSet) nil
+nil := Nil()
+OpenSet A
+l := Cons(A, nil)
+Empty(C)
+IsSubset(D, E)
+IsSubset(D, A)
+IsSubset(A, B) <-> IsSubset(B, C)
+Subset(A, B) = Subset(B, C)
+AutoLabel All
+Label A $\\vec{A}$
+Label B $B_1$
+NoLabel D, E`;
+    const res = compileSubstance(prog, env);
+    sameAsSource(prog, res);
+  });
+});
+
+const sameAsSource = (
+  source: string,
+  res: Result<[SubstanceEnv, Env], PenroseError>
+) => {
+  if (res.isOk()) {
+    const ast = res.value[0].ast;
+    const strFromAST = prettySubstance(ast);
+    expect(strFromAST).toEqual(source);
+  } else {
+    fail(`unexpected error ${showError(res.error)}`);
+  }
+};

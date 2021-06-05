@@ -70,11 +70,11 @@ with Vertex v1; Vertex v2 {
 
      -- Figure out which side of the rectangle the v1->v2 edge between their centers is hitting
      -- TODO: This locks up the opt / works very poorly....
-   -- scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
-   -- scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
+   scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
+   scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
 
-   scalar startSideDim = v1.shape.w
-   scalar endSideDim = v2.shape.w
+   -- scalar startSideDim = v1.shape.w
+   -- scalar endSideDim = v2.shape.w
 
      E.shape = Line { 
      -- TODO(errors): If you do v * c, then the type fails very badly

@@ -5,12 +5,15 @@ import ErrorBoundary from "./ErrorBoundary";
 import Timeline from "./views/Timeline";
 import viewMap from "./views/viewMap";
 import { PenroseError, PenroseState } from "@penrose/core";
+import { ISettings } from "App";
 
 interface IProps {
   history: PenroseState[];
   error: PenroseError | null;
   onClose(): void;
-  modShapes(state: PenroseState): void;
+  modCanvas(state: PenroseState): void;
+  settings: ISettings;
+  setSettings(ISettings): void;
 }
 
 export interface IInspectState {
@@ -32,10 +35,17 @@ class Inspector extends React.Component<IProps, IInspectState> {
     this.setState({
       selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
     });
+    this.props.modCanvas(
+      this.props.history[
+        frame === this.state.selectedFrame
+          ? this.props.history.length - 1
+          : frame
+      ]
+    );
   };
   public render() {
     const { selectedFrame } = this.state;
-    const { history, modShapes, error } = this.props;
+    const { history, modCanvas, error, settings, setSettings } = this.props;
     const currentFrame =
       history.length === 0
         ? null
@@ -47,8 +57,10 @@ class Inspector extends React.Component<IProps, IInspectState> {
       frame: currentFrame,
       frameIndex: selectedFrame,
       history,
-      modShapes,
+      modShapes: modCanvas,
       error,
+      settings,
+      setSettings,
     };
     return (
       <div
@@ -58,7 +70,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          paddingBottom: "1em",
+          marginBottom: "1em",
         }}
       >
         <Timeline {...commonProps} />
@@ -85,6 +97,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       height: "100%",
                       overflow: "auto",
                       boxSizing: "border-box",
+                      paddingBottom: "100px",
                     }}
                   >
                     <ErrorBoundary>

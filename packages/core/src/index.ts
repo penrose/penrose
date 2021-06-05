@@ -1,27 +1,30 @@
-import { checkDomain, compileDomain, Env, parseDomain } from "compiler/Domain";
+import { checkDomain, compileDomain, parseDomain } from "compiler/Domain";
 import { compileStyle } from "compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
+  prettySubstance,
 } from "compiler/Substance";
-import { prettyPrintFn } from "utils/OtherUtils";
-import { SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
+import { genFns, genOptProblem, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
   RenderShape,
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
+import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
+import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
-import { State, LabelCache, Fn } from "types/state";
+import { Fn, LabelCache, State } from "types/state";
+import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
+import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -40,7 +43,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param state current state
  * @param numSteps number of steps to take (default: 1)
  */
-export const stepState = (state: State, numSteps = 1): State => {
+export const stepState = (state: State, numSteps = 10000): State => {
   return step(state, numSteps);
 };
 
@@ -48,11 +51,11 @@ export const stepState = (state: State, numSteps = 1): State => {
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
-export const stepUntilConvergence = (state: State): State => {
-  const numSteps = 1;
+export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   let currentState = state;
-  while (!stateConverged(currentState))
-    currentState = step(currentState, numSteps);
+  while (!stateConverged(currentState)) {
+    currentState = step(currentState, numSteps, true);
+  }
   return currentState;
 };
 
@@ -267,7 +270,6 @@ export const evalFns = (fns: Fn[], s: State): number[] => {
 
 export type PenroseState = State;
 
-export type { PenroseError } from "./types/errors";
 export {
   compileDomain,
   compileSubstance,
@@ -277,12 +279,19 @@ export {
   parseDomain,
   RenderStatic,
   RenderShape,
+  Synthesizer,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
+  prettySubstance,
   toHex,
   initializeMat,
   showError,
   Result,
   prettyPrintFn,
 };
+export type { PenroseError } from "./types/errors";
+export type { Registry, Trio };
+export type { Env };
+export type { SynthesizerSetting };
+export type { SubProg } from "types/substance";

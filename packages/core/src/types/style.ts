@@ -333,7 +333,7 @@ export interface IThenOp {
   contents: [Expr, Expr];
 }
 
-export type AnnoFloat = IFix | IVary | IVaryAD;
+export type AnnoFloat = IFix | IVary | IVaryInit | IVaryAD;
 
 export interface IFix extends ASTNode {
   tag: "Fix";
@@ -342,6 +342,12 @@ export interface IFix extends ASTNode {
 
 export interface IVary extends ASTNode {
   tag: "Vary";
+}
+
+// Varying float that is initialized at some number as specified by the style-writer
+export interface IVaryInit extends ASTNode {
+  tag: "VaryInit";
+  contents: number;
 }
 
 export interface IVaryAD extends ASTNode {

@@ -1,10 +1,10 @@
-VectorSpace X
-Vector x1 
-In(x1, X)
-Vector x2 
-In(x2, X)
-Unit(x1)
-Orthogonal(x1, x2)
+VectorSpace V
+Vector u 
+In(u, V)
+Vector v 
+In(v, V)
+Unit(u)
+Orthogonal(v, u)
 AutoLabel All
-Label x1 $x_1$
-Label x2 $x_2$
+Label u $\vec{u}$
+Label v $\vec{v}$

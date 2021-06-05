@@ -46,7 +46,7 @@ class ButtonBar extends React.Component<IProps> {
             autostep {autostep ? "(on)" : "(off)"}
           </button>
         )}
-        <button onClick={step}>step</button>
+        <button onClick={step}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
           onClick={resample}

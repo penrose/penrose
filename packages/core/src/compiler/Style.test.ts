@@ -6,12 +6,13 @@ import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
 import { Either } from "types/common";
+import { Env } from "types/domain";
 import { PenroseError, StyleErrors } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
-import { compileDomain, Env } from "./Domain";
+import { compileDomain } from "./Domain";
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"

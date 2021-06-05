@@ -56,7 +56,7 @@ const lexer = moo.compile({
 });
 
 const nodeData = (children: ASTNode[]) => ({
-  nodeType: "Style",
+  nodeType: "Style" as const,
   children
 });
 
@@ -588,7 +588,7 @@ expr_list
   -> _ {% d => [] %}
   |  _ sepBy1[expr, ","] _ {% nth(1) %}
 
-gpi_decl -> identifier _ "{" property_decl_list "}" {%
+gpi_decl -> identifier _ml "{" property_decl_list "}" {%
   ([shapeName, , , properties, rbrace]): GPIDecl => ({
     ...nodeData([shapeName, ...properties]),
     ...rangeBetween(shapeName, rbrace),
