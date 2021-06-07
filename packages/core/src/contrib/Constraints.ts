@@ -947,6 +947,8 @@ export const bbox = ([t, s]: [string, any]): BBox => {
   }
 
   // TODO: Compute the bbox of the line in a nicer way
+
+  // initialize center, w, and h depending on whether the input shape is line-like or rect/square-like
   const center = isLinelike(t)
     ? ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2))
     : s.center.contents;
