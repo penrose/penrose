@@ -1,13 +1,17 @@
 -- Some globals that can be optimized over:
 globals {
-    scalar radius = ?
-    ensure nonNegative(radius)
-    ensure lessThan(radius, 50)
+    scalar radius = 50
+
+    -- We might at one point want to optimize over radius:
+    -- scalar radius = ?
+    -- ensure nonNegative(radius)
+    -- ensure lessThan(radius, 50)
 }
 
 colors {
     color black = rgba(0.,0.,0.,1.)
     color white = rgba(1., 1., 1., 1.)
+    color red = rgba(1., 0., 0., 1.)
 }
 
 -- style the variables:
@@ -29,7 +33,70 @@ forall Variable variable {
 
     variable.text above variable.shape
 
-    -- ensure equal2(variable.text.center, variable.shape.center)
-    ensure minSize(variable.shape)
+    -- might be needed if radius a variable:
+    -- ensure minSize(variable.shape)
 }
 
+-- style the variables:
+forall Factor factor {
+    vec2 factor.position = (?, ?)
+    shape factor.shape = Circle {
+        center: factor.position
+        r: 10.0 -- rumored to be pixels
+        color : colors.black
+        strokeColor : colors.black
+        strokeWidth : 0.0
+    }
+}
+
+-- draw lines for binary factors:
+Factor factor
+where factor := Unary(variable)
+with Variable variable {
+    factor.line = Line {
+        start : factor.shape.center
+        end : variable.shape.center
+        color : colors.black
+        thickness : 1.0
+        stroke : "none"
+        style : "solid"
+    }
+
+    factor.shape above factor.line
+    variable.shape above factor.line
+
+    --  encourage repel(factor.line, variable.text, const.repelWeight)
+    --  encourage repel(factor.line, q.text, const.repelWeight)
+}
+
+-- draw lines for binary factors:
+Factor factor
+where factor := Binary(variable1, variable2)
+with Variable variable1; Variable variable2 {
+    override factor.position = (variable1.position + variable2.position)/2.0
+    factor.line1 = Line {
+        start : factor.shape.center
+        end : variable1.shape.center
+	    color : colors.red
+	    thickness : 1.0
+	    stroke : "none"
+	    style : "solid"
+    }
+
+    factor.line2 = Line {
+        start : factor.shape.center
+        end : variable2.shape.center
+        color : colors.red
+        thickness : 1.0
+        stroke : "none"
+        style : "solid"
+    }
+
+    factor.shape above factor.line1
+    factor.shape above factor.line2
+    variable1.shape above factor.line1
+    variable2.shape above factor.line2
+
+    --  encourage repel(factor.line, variable1.text, const.repelWeight)
+    --  encourage repel(factor.line, variable2.text, const.repelWeight)
+}
