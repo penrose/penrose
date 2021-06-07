@@ -1,4 +1,10 @@
-import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import {
+  bbox,
+  bboxSegs,
+  intersectsSegSeg,
+  intersectionSegSeg,
+  inRange,
+} from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -18,7 +24,7 @@ import {
 } from "engine/Autodiff";
 import { maxBy, range } from "lodash";
 import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Elem, SubPath } from "types/value";
+import { Elem, IStrV, SubPath } from "types/value";
 import {
   ArgVal,
   Color,
@@ -211,6 +217,16 @@ export const compDict = {
   },
 
   /**
+   * Concatenate a list of strings
+   */
+  concat: (...strings: string[]): IStrV => {
+    return {
+      tag: "StrV",
+      contents: strings.join(""),
+    };
+  },
+
+  /**
    * Return the normalized version of vector `v`.
    */
   normalize: (v: VarAD[]): IVectorV<VarAD> => {
@@ -332,10 +348,10 @@ export const compDict = {
   },
 
   /**
-       * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-    
-   @deprecated Don't use this function, it does not fully work
-       */
+           * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+        
+       @deprecated Don't use this function, it does not fully work
+           */
   intersectingSideSize: (
     start: VecAD,
     end: VecAD,
@@ -602,6 +618,13 @@ const perpPathFlat = (
  * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
+  return [neg(y), x];
+};
+
+/**
+ * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ */
+const rot90v = ([x, y]: VarAD[]): VarAD[] => {
   return [neg(y), x];
 };
 
