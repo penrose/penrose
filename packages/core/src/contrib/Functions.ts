@@ -1,6 +1,5 @@
 import {
   bbox,
-  bboxSegs,
   intersectsSegSeg,
   intersectionSegSeg,
   inRange,
