@@ -27,9 +27,8 @@ import {
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
 import { canvasSize } from "renderer/ShapeDef";
-import { VarAD, VecAD } from "types/ad";
+import { VarAD, VecAD, BBox, Pt2 } from "types/ad";
 import { every } from "lodash";
-import { IVarAD } from "../../build/dist/types/ad";
 
 // Kinds of shapes
 /**
@@ -936,21 +935,11 @@ export const overlap1D = (
   );
 };
 
-export interface IBBox {
-  minX: IVarAD;
-  maxX: IVarAD;
-  minY: IVarAD;
-  maxY: IVarAD;
-  center: [IVarAD, IVarAD];
-  w: IVarAD;
-  h: IVarAD;
-}
-
 /**
  * Input: A rect-like shape.
  * Output: A bbox corresponding to the rect.
  */
-export const bbox = ([t, s]: [string, any]): IBBox => {
+export const bbox = ([t, s]: [string, any]): BBox => {
   if (!(isRectlike(t) || isLinelike(t))) {
     throw new Error(
       `Bbox expected a rect-like or line-like shape, but got ${t}`
@@ -980,7 +969,7 @@ export const bbox = ([t, s]: [string, any]): IBBox => {
   const halfHeight = div(h, constOf(2.0));
   const nhalfWidth = neg(halfWidth);
   const nhalfHeight = neg(halfHeight);
-  const pts = [
+  const pts = <Pt2[]>[
     [halfWidth, halfHeight],
     [nhalfWidth, halfHeight],
     [nhalfWidth, nhalfHeight],
@@ -999,42 +988,13 @@ export const bbox = ([t, s]: [string, any]): IBBox => {
     maxX: corners.bottomRight[0],
     minY: corners.bottomRight[1],
     maxY: corners.topLeft[1],
+    top: <[Pt2, Pt2]>[corners.topLeft, corners.topRight],
+    bot: <[Pt2, Pt2]>[corners.bottomLeft, corners.bottomRight],
+    left: <[Pt2, Pt2]>[corners.bottomLeft, corners.topLeft],
+    right: <[Pt2, Pt2]>[corners.bottomRight, corners.topRight],
     center,
     w,
     h,
-  };
-
-  return rect;
-};
-
-/**
- * Return the bounding box (as 4 segments) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `top, bot, left, right`.
- */
-export const bboxSegs = (center: VecAD, w: VarAD, h: VarAD): any => {
-  const halfWidth = div(w, constOf(2.0));
-  const halfHeight = div(h, constOf(2.0));
-  const nhalfWidth = neg(halfWidth);
-  const nhalfHeight = neg(halfHeight);
-  // CCW: TR, TL, BL, BR
-  const pts = [
-    [halfWidth, halfHeight],
-    [nhalfWidth, halfHeight],
-    [nhalfWidth, nhalfHeight],
-    [halfWidth, nhalfHeight],
-  ].map((p) => ops.vadd(center, p));
-
-  const corners = {
-    topRight: pts[0],
-    topLeft: pts[1],
-    bottomLeft: pts[2],
-    bottomRight: pts[3],
-  };
-
-  const rect = {
-    top: [corners.topLeft, corners.topRight],
-    bot: [corners.bottomLeft, corners.bottomRight],
-    left: [corners.bottomLeft, corners.topLeft],
-    right: [corners.bottomRight, corners.topRight],
   };
 
   return rect;
