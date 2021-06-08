@@ -6,6 +6,7 @@ import {
   applyPredicate,
   applyTypeDecl,
   autoLabelStmt,
+  changeType,
   domainToSubType,
   nullaryTypeCons,
   replaceStmt,
@@ -79,7 +80,7 @@ export interface SynthesizerSetting {
 //#region Synthesis context
 
 type Mutation = Add | Delete | Modify;
-type Modify = Swap | Replace | ReplaceName;
+type Modify = Swap | Replace | ReplaceName | TypeChange;
 
 interface Add {
   tag: "Add";
@@ -105,6 +106,11 @@ interface Swap {
 
 interface ReplaceName {
   tag: "ReplaceName";
+  stmt: SubStmt;
+}
+
+interface TypeChange {
+  tag: "TypeChange";
   stmt: SubStmt;
 }
 
@@ -306,6 +312,11 @@ class SynthesisContext {
   };
 
   autoLabel = (): void => this.appendStmt(autoLabelStmt);
+
+  getIDValues = (): string[] => {
+    const idList = [...this.declaredIDs.values()];
+    return idList.flatMap((i) => i.map((en) => en.value));
+  };
 }
 
 //#endregion
@@ -354,7 +365,8 @@ export class Synthesizer {
     const op = choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
-    else if (op === "edit") this.editStmt(choice(["Swap", "ReplaceName"]));
+    else if (op === "edit")
+      this.editStmt(choice(["Swap", "ReplaceName", "TypeChange"]));
   };
 
   editStmt = (op: Modify["tag"]): void => {
@@ -388,18 +400,26 @@ export class Synthesizer {
         }
         case "ReplaceName": {
           if (stmt.tag === "ApplyPredicate") {
-            let newStmt = replaceStmtName(stmt, this.env);
+            const newStmt = replaceStmtName(stmt, this.env);
             if (newStmt.name !== stmt.name) {
               this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate);
             }
           } else if (stmt.tag === "Bind") {
-            let newStmt = replaceStmtName(stmt.expr as any, this.env);
+            const newStmt = replaceStmtName(stmt.expr as any, this.env);
             if (newStmt.name !== (stmt.expr as ApplyConstructor).name) {
               this.cxt.replaceStmt(stmt, {
                 ...stmt,
                 expr: newStmt,
               } as Bind); // TODO: improve types to avoid casting
             }
+          }
+        }
+        case "TypeChange": {
+          console.log("WE ARE TYPE CHANGING");
+          const allIDs = this.cxt.getIDValues();
+          const newStmt = changeType(stmt, this.env, allIDs);
+          if (newStmt !== stmt) {
+            this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate);
           }
         }
       }

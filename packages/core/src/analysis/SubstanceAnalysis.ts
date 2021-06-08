@@ -1,4 +1,4 @@
-import { pullAt, map } from "lodash";
+import { pullAt, map, range } from "lodash";
 import { Identifier } from "types/ast";
 import { Map } from "immutable";
 import { choice } from "pandemonium";
@@ -72,12 +72,55 @@ export const replaceStmtName = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
   env: Env
 ): ApplyConstructor | ApplyPredicate | ApplyFunction | Func => {
-  const options = matchingSignatures(stmt, env);
+  const options = matchSignatures(stmt, env, "replaceStmtName");
   const pick = options.length > 0 ? choice(options) : stmt;
   return {
     ...stmt,
     name: pick.name,
   };
+};
+
+/**
+ * Replace a Substance statement with another substance statement with the same signature.
+ * NOTE: When no suitable replacement exists, returns original program without errors.
+ * @param stmt a Substance statement
+ * @returns a new Substance statement
+ */
+export const changeType = (
+  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind,
+  env: Env,
+  ids: string[]
+): ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind => {
+  //find matches for all 3 types
+  let options = (s: any) => {
+    return [
+      findMatches(s.name.value, env.constructors, "typeChange"),
+      findMatches(s.name.value, env.predicates, "typeChange"),
+      findMatches(s.name.value, env.functions, "typeChange"),
+    ].flat();
+  };
+  let opts = stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
+  console.log(opts);
+  if (opts.length > 0) {
+    // pick random option
+    const pick = choice(opts);
+    const s = stmt.tag === "Bind" ? stmt.expr : stmt;
+    if (pick.tag === "PredicateDecl") {
+      return applyPredicate(pick, (s as ApplyPredicate).args);
+    } else {
+      const castArgs = (s as ApplyConstructor).args;
+      let m =
+        pick.tag === "ConstructorDecl"
+          ? applyConstructor(pick, castArgs)
+          : applyFunction(pick, castArgs);
+      // make into a Bind if the pick returns something
+      return getSignature(pick).output !== undefined
+        ? applyBind(newBindVar(ids), m)
+        : m;
+    }
+  }
+  // return unchanged statement if no matches were found
+  return stmt;
 };
 
 /**
@@ -141,7 +184,8 @@ const swap = (arr: any[], a: number, b: number) =>
  */
 export const findMatches = (
   stmtName: string,
-  opts: Map<string, ArgStmtDecl>
+  opts: Map<string, ArgStmtDecl>,
+  editType: string
 ): ArgStmtDecl[] => {
   // find signature of original statement in map
   const orig = opts.get(stmtName);
@@ -150,11 +194,40 @@ export const findMatches = (
     const origSignature = getSignature(orig);
     // does not add original statement to list of matches
     const decls: ArgStmtDecl[] = [...opts.values()];
-    return decls.filter(
-      (d) => orig !== d && signatureEquals(origSignature, getSignature(d))
-    );
+    return decls.filter((d) => {
+      if (orig !== d) {
+        if (editType === "typeChange") {
+          return signatureArgsEqual(origSignature, getSignature(d));
+        } else if (editType === "replaceStmtName") {
+          return signatureEquals(origSignature, getSignature(d));
+        }
+      }
+    });
   }
   return [];
+};
+
+export const newBindVar = (ids: string[]): Identifier => {
+  // choose a potential bind
+  const letters = [...range(65, 90, 1), ...range(97, 122, 1)];
+  console.log(letters);
+  let pick = `${ids[0]}2`;
+  let attempts = 10;
+  while (attempts > 0) {
+    let pick = String.fromCharCode(choice(letters));
+    if (ids.find((id) => id === pick) === undefined) {
+      break;
+    }
+    attempts--;
+  }
+
+  return {
+    tag: "Identifier",
+    type: "type-identifier", // or value
+    value: pick,
+    nodeType: "SyntheticSubstance",
+    children: [],
+  };
 };
 
 /**
@@ -162,34 +235,30 @@ export const findMatches = (
  *
  * @param stmt any supported Statement object (constructor, predicate, function)
  * @param env an Env object with domain/substance metadata
+ * @param editType a string corresponding to the type of edit mutation occurring
  * @returns an Array of all other statements that match the stmt signature
  */
-export const matchingSignatures = (
+export const matchSignatures = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
-  env: Env
-): any[] => {
-  let matches: any[] = [];
-  switch (stmt.tag) {
-    case "ApplyPredicate": {
-      return findMatches(stmt.name.value, env.predicates);
+  env: Env,
+  editType: string
+): ArgStmtDecl[] => {
+  let matches: ArgStmtDecl[] = [];
+  if (stmt.tag === "ApplyPredicate") {
+    matches = findMatches(stmt.name.value, env.predicates, editType);
+  } else if (stmt.tag === "Func") {
+    // handling for Bind case: parser tags constructors & funcs with
+    // the "Func" tag before checker fixes types
+    matches = findMatches(stmt.name.value, env.constructors, editType);
+    if (matches.length < 0) {
+      matches = findMatches(stmt.name.value, env.functions, editType);
     }
-    case "Func": {
-      // handling for Bind case: parser tags constructors & funcs with
-      // the "Func" tag before checker fixes types
-      let conMatches = findMatches(stmt.name.value, env.constructors);
-      if (conMatches.length > 0) return conMatches;
-      return findMatches(stmt.name.value, env.functions);
-    }
-    case "ApplyConstructor": {
-      return findMatches(stmt.name.value, env.constructors);
-    }
-    case "ApplyFunction": {
-      return findMatches(stmt.name.value, env.functions);
-    }
-    default: {
-      return matches;
-    }
+  } else if (stmt.tag === "ApplyConstructor") {
+    matches = findMatches(stmt.name.value, env.constructors, editType);
+  } else if (stmt.tag === "ApplyFunction") {
+    matches = findMatches(stmt.name.value, env.functions, editType);
   }
+  return matches;
 };
 
 /**
@@ -225,8 +294,18 @@ export const getSignature = (decl: ArgStmtDecl): Signature => {
  * @returns true if signatures are equal
  */
 export const signatureEquals = (a: Signature, b: Signature): boolean => {
+  return a.output === b.output && signatureArgsEqual(a, b);
+};
+
+/**
+ * Check if the types of 2 signatures' arguments are equal
+ *
+ * @param a a Signature
+ * @param b a Signature
+ * @returns true if signatures take the same number and type of args
+ */
+export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
   return (
-    a.output === b.output &&
     a.args.length === b.args.length &&
     a.args.every((val, index) => val === b.args[index])
   );

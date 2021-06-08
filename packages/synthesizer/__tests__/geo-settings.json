@@ -29,6 +29,6 @@
       "InteriorAngle",
       "TriangleVertex"
     ],
-    "predicate": []
+    "predicate": ["Collinear"]
   }
 }
