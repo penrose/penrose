@@ -220,14 +220,16 @@ class SynthesisContext {
 
   removeStmt = (stmt: SubStmt) => {
     // there are two versions of this?
-    console.log(this.prog.statements[this.prog.statements.length - 1], stmt);
+    console.log(this.prog.statements[this.prog.statements.length - 1] == stmt);
     const index = this.prog.statements.indexOf(stmt);
     // console.log("deleting", stmt, index);
     // console.log(this.prog.statements);
     if (index > -1) {
       this.prog.statements.splice(index, 1);
       this.ops.push({ tag: "Delete", stmt });
+      console.log("SUCCESSFULLY DELETED");
     } else {
+      console.log(this.prog.statements);
       throw new Error(
         `Statement cannot be removed because it doesn't exist: ${prettyStmt(
           stmt
