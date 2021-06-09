@@ -103,7 +103,7 @@ export const changeType = (
       : [];
   };
   const opts = stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
-  console.log("final options", opts.length);
+  // console.log("final options", opts.length);
   if (opts.length > 0) {
     // pick random option
     const pick = choice(opts);

@@ -95,6 +95,7 @@ interface Replace {
   tag: "Replace";
   old: SubStmt;
   new: SubStmt;
+  mutationType: string;
 }
 
 interface Swap {
@@ -213,9 +214,18 @@ class SynthesisContext {
     this.ops.push({ tag: "Add", stmt });
   };
 
-  replaceStmt = (originalStmt: SubStmt, newStmt: SubStmt): void => {
+  replaceStmt = (
+    originalStmt: SubStmt,
+    newStmt: SubStmt,
+    mutationType: string
+  ): void => {
     this.prog = replaceStmt(this.prog, originalStmt, newStmt);
-    this.ops.push({ tag: "Replace", old: originalStmt, new: newStmt });
+    this.ops.push({
+      tag: "Replace",
+      old: originalStmt,
+      new: newStmt,
+      mutationType,
+    });
   };
 
   removeStmt = (stmt: SubStmt) => {
@@ -245,7 +255,9 @@ class SynthesisContext {
 
   showOp = (op: Mutation) => {
     if (op.tag === "Replace") {
-      return `${op.tag} ${prettyStmt(op.old)} by ${prettyStmt(op.new)}`;
+      return `${op.tag} ${prettyStmt(op.old)} by ${prettyStmt(op.new)} via ${
+        op.mutationType
+      }`;
     } else {
       return `${op.tag} ${prettyStmt(op.stmt)}`;
     }
@@ -353,7 +365,14 @@ export class Synthesizer {
   generateSubstance = (): SynthesizedSubstance => {
     const numStmts = random(...this.setting.mutationCount);
     this.cxt.reset(numStmts);
-    times(numStmts, () => this.mutateProgram());
+    times(numStmts, (n) => {
+      this.mutateProgram();
+      log.debug(
+        `Mutation #${n} done. The program so far:\n${prettySubstance(
+          this.cxt.prog
+        )}`
+      );
+    });
     // add autolabel statement
     this.cxt.autoLabel();
     // DEBUG: report results
@@ -377,12 +396,12 @@ export class Synthesizer {
 
   editStmt = (op: Modify["tag"]): void => {
     this.cxt.findCandidates(this.env, this.setting.edit);
-    log.debug("Editing statement");
     const chosenType = choice(this.cxt.candidateTypes());
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
     const chosenName = choice(candidates);
     const stmt = this.findStmt(chosenType, chosenName);
     if (stmt && (stmt.tag === "ApplyPredicate" || stmt.tag === "Bind")) {
+      log.debug(`Editing statement: ${prettyStmt(stmt)}`);
       switch (op) {
         case "Swap": {
           if (stmt.tag === "ApplyPredicate") {
@@ -391,41 +410,52 @@ export class Synthesizer {
             const idx2 = choice(without(indices, idx1));
             this.cxt.replaceStmt(
               stmt,
-              swapArgs(stmt, [idx1, idx2]) as ApplyPredicate
+              swapArgs(stmt, [idx1, idx2]) as ApplyPredicate,
+              op
             ); // TODO: improve types to avoid casting
           } else {
             const expr = stmt.expr as ApplyConstructor | ApplyFunction;
             const indices = range(0, expr.args.length);
             const idx1 = choice(indices);
             const idx2 = choice(without(indices, idx1));
-            this.cxt.replaceStmt(stmt, {
-              ...stmt,
-              expr: swapArgs(stmt.expr as any, [idx1, idx2]),
-            } as Bind); // TODO: improve types to avoid casting
+            this.cxt.replaceStmt(
+              stmt,
+              {
+                ...stmt,
+                expr: swapArgs(stmt.expr as any, [idx1, idx2]),
+              } as Bind,
+              op
+            ); // TODO: improve types to avoid castingA
           }
+          break;
         }
         case "ReplaceName": {
           if (stmt.tag === "ApplyPredicate") {
             const newStmt = replaceStmtName(stmt, this.env);
             if (newStmt.name !== stmt.name) {
-              this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate);
+              this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate, op);
             }
           } else if (stmt.tag === "Bind") {
             const newStmt = replaceStmtName(stmt.expr as any, this.env);
             if (newStmt.name !== (stmt.expr as ApplyConstructor).name) {
-              this.cxt.replaceStmt(stmt, {
-                ...stmt,
-                expr: newStmt,
-              } as Bind); // TODO: improve types to avoid casting
+              this.cxt.replaceStmt(
+                stmt,
+                {
+                  ...stmt,
+                  expr: newStmt,
+                } as Bind,
+                op
+              ); // TODO: improve types to avoid casting
             }
           }
+          break;
         }
         case "TypeChange": {
-          console.log("WE ARE TYPE CHANGING");
-          console.log("starting statement", stmt);
+          // console.log("WE ARE TYPE CHANGING");
+          // console.log("starting statement", stmt);
           const allIDs = this.cxt.getIDValues();
           const newStmt = changeType(stmt, this.env, allIDs);
-          console.log("new statement", newStmt);
+          // console.log("new statement", newStmt);
           // if new statement has output of different type, then cascade delete, otherwise just simple delete.
           if (
             newStmt.tag === "Bind" &&
@@ -444,6 +474,7 @@ export class Synthesizer {
             this.cxt.appendStmt(newStmt as SubStmt);
             //add statement
           }
+          break;
         }
       }
     } else {
