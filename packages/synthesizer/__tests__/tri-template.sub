@@ -1,12 +1,11 @@
 Plane R
-Point A, B, C
+Point A, B, C, D, E
 Triangle t := MkTriangle(A, B, C)
+Angle an := TriangleVertex(A, B, C)
+Segment s := Altitude(t, an)
 In(A, R)
 In(B, R)
 In(C, R)
--- Collinear(B, D, E)
+Collinear(B, D, E)
 
 AutoLabel All
-
--- Rectangle r 
--- r := MkRectangle(A, B, C, D)

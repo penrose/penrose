@@ -229,7 +229,11 @@ class SynthesisContext {
   };
 
   removeStmt = (stmt: SubStmt) => {
+    // there are two versions of this?
+    console.log(this.prog.statements[this.prog.statements.length - 1], stmt);
     const index = this.prog.statements.indexOf(stmt);
+    // console.log("deleting", stmt, index);
+    // console.log(this.prog.statements);
     if (index > -1) {
       this.prog.statements.splice(index, 1);
       this.ops.push({ tag: "Delete", stmt });
@@ -446,10 +450,27 @@ export class Synthesizer {
         }
         case "TypeChange": {
           // console.log("WE ARE TYPE CHANGING");
+          // console.log("starting statement", stmt);
           const allIDs = this.cxt.getIDValues();
           const newStmt = changeType(stmt, this.env, allIDs);
-          if (newStmt !== stmt) {
-            this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate, op);
+          // console.log("new statement", newStmt);
+          // if new statement has output of different type, then cascade delete, otherwise just simple delete.
+          if (
+            newStmt.tag === "Bind" &&
+            stmt.tag === "Bind" &&
+            newStmt.variable.type !== stmt.variable.type
+          ) {
+            // old bind statement has been replaced with a bind with different type, so remove all old references
+            this.cascadingDelete(stmt);
+          } else if (newStmt !== stmt) {
+            // otherwise it is ok to just simple delete
+            this.cxt.removeStmt(stmt);
+            //add declaration if necessary
+            if (newStmt.tag === "Bind") {
+              this.cxt.appendStmt(this.generateType(newStmt.variable));
+            }
+            this.cxt.appendStmt(newStmt as SubStmt);
+            //add statement
           }
           break;
         }
@@ -489,7 +510,42 @@ export class Synthesizer {
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
     const chosenName = choice(candidates);
     const stmt = this.findStmt(chosenType, chosenName);
-    if (stmt) this.cxt.removeStmt(stmt);
+    // if (stmt) this.cxt.removeStmt(stmt);
+    console.log("stmt to delete", stmt);
+    // if statement was chosen with return value, delete all references to it
+    if (stmt)
+      stmt.tag === "Bind" || stmt.tag === "Decl"
+        ? this.cascadingDelete(stmt)
+        : this.cxt.removeStmt(stmt);
+  };
+
+  cascadingDelete = (dec: Bind | Decl): void => {
+    // given a statement which returns a value that is staged to be deleted, iteratively find and delete any other statements that would use the statement's returned variable
+    const findArg = (s: ApplyPredicate, ref: Identifier | undefined) =>
+      s.args.filter((a) => a === ref).length > 0;
+    console.log("HELLO WE ARE CASCADING");
+    let stmts = this.cxt.prog.statements;
+    let ids = [dec.tag === "Bind" ? dec.variable : dec.name];
+    while (ids.length > 0) {
+      console.log(ids);
+      let id = ids.pop();
+      console.log("looking for matches for: ", id);
+      stmts = stmts.filter((s) => {
+        if (s.tag === "Bind") {
+          const expr = (s.expr as unknown) as ApplyPredicate;
+          const willDelete = findArg(expr, id);
+          if (willDelete) ids.push(s.variable); // push anything that returns a value IF it will be deleted
+          return willDelete;
+        } else if (s.tag === "ApplyPredicate") {
+          return findArg(s, id);
+        } else if (s.tag === "Decl") {
+          return s.name === id;
+        }
+      });
+      console.log(stmts.length, stmts);
+      // if any statements are binds, run filter again until the types work out
+      stmts.forEach((stmt) => this.cxt.removeStmt(stmt));
+    }
   };
 
   findStmt = (
@@ -501,6 +557,8 @@ export class Synthesizer {
       if (s.tag === "Bind") {
         const expr = s.expr;
         return expr.tag === subType && expr.name.value === name;
+      } else if (s.tag === "Decl") {
+        return s.tag === subType && s.type.name.value === name;
       } else {
         return s.tag === subType && s.name.value === name;
       }

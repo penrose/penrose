@@ -92,15 +92,18 @@ export const changeType = (
   ids: string[]
 ): ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind => {
   //find matches for all 3 types
-  let options = (s: any) => {
-    return [
-      findMatches(s.name.value, env.constructors, "typeChange"),
-      findMatches(s.name.value, env.predicates, "typeChange"),
-      findMatches(s.name.value, env.functions, "typeChange"),
-    ].flat();
+  const options = (s: any) => {
+    const [st] = findStmt(s.name.value, env);
+    return st
+      ? [
+          findMatches(st, env.constructors, "typeChange"),
+          findMatches(st, env.predicates, "typeChange"),
+          findMatches(st, env.functions, "typeChange"),
+        ].flat()
+      : [];
   };
-  let opts = stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
-  // console.log(opts);
+  const opts = stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
+  // console.log("final options", opts.length);
   if (opts.length > 0) {
     // pick random option
     const pick = choice(opts);
@@ -109,7 +112,7 @@ export const changeType = (
       return applyPredicate(pick, (s as ApplyPredicate).args);
     } else {
       const castArgs = (s as ApplyConstructor).args;
-      let m =
+      const m =
         pick.tag === "ConstructorDecl"
           ? applyConstructor(pick, castArgs)
           : applyFunction(pick, castArgs);
@@ -136,7 +139,7 @@ export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => {
   if (index > -1) {
     return {
       ...prog,
-      statements: pullAt(prog.statements, index),
+      statements: pullAt(prog.statements, index), // TODO: hmm?
     };
   } else {
     return prog;
@@ -183,34 +186,48 @@ const swap = (arr: any[], a: number, b: number) =>
  * @returns Array of any statements that have the same signature as input statement
  */
 export const findMatches = (
-  stmtName: string,
+  stmt: ArgStmtDecl,
   opts: Map<string, ArgStmtDecl>,
   editType: string
 ): ArgStmtDecl[] => {
   // find signature of original statement in map
-  const orig = opts.get(stmtName);
-  if (orig) {
-    //generate signature for the original statement
-    const origSignature = getSignature(orig);
-    // does not add original statement to list of matches
-    const decls: ArgStmtDecl[] = [...opts.values()];
-    return decls.filter((d) => {
-      if (orig !== d) {
-        if (editType === "typeChange") {
-          return signatureArgsEqual(origSignature, getSignature(d));
-        } else if (editType === "replaceStmtName") {
-          return signatureEquals(origSignature, getSignature(d));
-        }
+  // const orig = opts.get(stmtName);
+  // console.log("orig", orig);
+  // if (orig) {
+  //generate signature for the original statement
+  const origSignature = getSignature(stmt);
+  // does not add original statement to list of matches
+  const decls: ArgStmtDecl[] = [...opts.values()];
+  return decls.filter((d) => {
+    if (stmt !== d) {
+      if (editType === "typeChange") {
+        return signatureArgsEqual(origSignature, getSignature(d));
+      } else if (editType === "replaceStmtName") {
+        return signatureEquals(origSignature, getSignature(d));
       }
-    });
-  }
-  return [];
+    }
+  });
+  // } else {
+  //   return [];
+  // }
+};
+
+export const findStmt = (
+  stmtName: string,
+  env: Env
+): [ArgStmtDecl | undefined, Map<string, ArgStmtDecl>] => {
+  let match: ArgStmtDecl | undefined;
+  match = env.predicates.get(stmtName);
+  if (match !== undefined) return [match, env.predicates];
+  match = env.functions.get(stmtName);
+  if (match !== undefined) return [match, env.functions];
+  match = env.constructors.get(stmtName);
+  return [match, env.constructors];
 };
 
 export const newBindVar = (ids: string[]): Identifier => {
   // choose a potential bind
   const letters = [...range(65, 90, 1), ...range(97, 122, 1)];
-  console.log(letters);
   let pick = `${ids[0]}2`;
   let attempts = 10;
   while (attempts > 0) {
@@ -243,22 +260,27 @@ export const matchSignatures = (
   env: Env,
   editType: string
 ): ArgStmtDecl[] => {
-  let matches: ArgStmtDecl[] = [];
-  if (stmt.tag === "ApplyPredicate") {
-    matches = findMatches(stmt.name.value, env.predicates, editType);
-  } else if (stmt.tag === "Func") {
-    // handling for Bind case: parser tags constructors & funcs with
-    // the "Func" tag before checker fixes types
-    matches = findMatches(stmt.name.value, env.constructors, editType);
-    if (matches.length < 0) {
-      matches = findMatches(stmt.name.value, env.functions, editType);
-    }
-  } else if (stmt.tag === "ApplyConstructor") {
-    matches = findMatches(stmt.name.value, env.constructors, editType);
-  } else if (stmt.tag === "ApplyFunction") {
-    matches = findMatches(stmt.name.value, env.functions, editType);
+  // let matches: ArgStmtDecl[] = [];
+  let [st, opts] = findStmt(stmt.name.value, env);
+  if (st) {
+    return findMatches(st, opts, editType);
   }
-  return matches;
+  return [];
+  // if (stmt.tag === "ApplyPredicate") {
+  //   matches = findMatches(stmt.name.value, env.predicates, editType);
+  // } else if (stmt.tag === "Func") {
+  //   // handling for Bind case: parser tags constructors & funcs with
+  //   // the "Func" tag before checker fixes types
+  //   matches = findMatches(stmt.name.value, env.constructors, editType);
+  //   if (matches.length < 0) {
+  //     matches = findMatches(stmt.name.value, env.functions, editType);
+  //   }
+  // } else if (stmt.tag === "ApplyConstructor") {
+  //   matches = findMatches(stmt.name.value, env.constructors, editType);
+  // } else if (stmt.tag === "ApplyFunction") {
+  //   matches = findMatches(stmt.name.value, env.functions, editType);
+  // }
+  // return matches;
 };
 
 /**
@@ -270,9 +292,11 @@ export const matchSignatures = (
 export const getSignature = (decl: ArgStmtDecl): Signature => {
   let argTypes: string[] = [];
   let outType: string | undefined;
+  // console.log(decl.name.value, "args", decl.args);
   if (decl.args) {
     decl.args.forEach((a) => {
       if (a.type.tag === "TypeConstructor") argTypes.push(a.type.name.value);
+      // if there is no type provided in the args, need to reverse lookup to find the type? or look at the actual declaration in domain file
     });
   }
   // see if there is an output field:
