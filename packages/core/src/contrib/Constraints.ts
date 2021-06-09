@@ -320,8 +320,7 @@ export const constrDict = {
       //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
 
       // TODO: `rL` is probably a hack for dimensions
-      const s1BBox = bbox([t1, s1]);
-      const rL = div(min(s1BBox.w, s1BBox.h), varOf(2.0));
+      const rL = div(min(s1.w.contents, s1.h.contents), varOf(2.0));
       const diff = sub(rL, s2.r.contents);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return add(sub(d, diff), offset);
@@ -446,7 +445,7 @@ export const constrDict = {
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
     } else if (isRectlike(t1) && isLinelike(t2)) {
-      const [text, seg] = [s1, s2];
+      const seg = s2;
       const textBB = bbox([t1, s1]);
       const centerT = textBB.center;
       const endpts = linePts(seg);
