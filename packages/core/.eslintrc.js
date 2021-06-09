@@ -35,7 +35,7 @@ module.exports = {
   ],
   rules: {
     "import/no-cycle": 2,
-    "no-fallthrough": "error",
+    "no-fallthrough": 2,
   },
   ignorePatterns: ["**/*.test.ts", "**/*.test.tsx"],
 };
