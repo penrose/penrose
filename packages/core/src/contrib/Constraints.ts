@@ -429,7 +429,7 @@ export const constrDict = {
     return ifCond(
       areDisjointBoxes(box, line),
       constOf(0),
-      min(overlapX, overlapY)
+      add(overlapX, overlapY)
     );
   },
 
@@ -458,22 +458,22 @@ export const constrDict = {
       // TODO: Write this to use the area of rectangle overlap, as this can currently only move in horiz/vert directions (i.e. results in worse local minima sometimes)
       const box1 = bbox([t1, s1]);
       const box2 = bbox([t2, s2]);
+      const inflatedBox1 = inflateBBox(box1, constOfIf(offset));
 
       const overlapX = overlap1D(
-        [box1.minX, box1.maxX],
+        [inflatedBox1.minX, inflatedBox1.maxX],
         [box2.minX, box2.maxX]
       );
       const overlapY = overlap1D(
-        [box1.minY, box1.maxY],
+        [inflatedBox1.minY, inflatedBox1.maxY],
         [box2.minY, box2.maxY]
       );
 
       // Push away in both X and Y directions, and account for padding
-      // TODO: Not sure why the padding isn't accounted for. It converges with energy=padding
       return ifCond(
-        areDisjointBoxes(box1, box2),
+        areDisjointBoxes(inflatedBox1, box2),
         constOf(0),
-        add(min(overlapX, overlapY), constOfIf(offset))
+        add(overlapX, overlapY)
       );
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
@@ -936,37 +936,10 @@ export const overlap1D = (
 };
 
 /**
- * Input: A rect-like shape.
- * Output: A bbox corresponding to the rect.
+ * Input: A width, height, and center.
+ * Output: A bbox with those parameters.
  */
-export const bbox = ([t, s]: [string, any]): BBox => {
-  if (!(isRectlike(t) || isLinelike(t))) {
-    throw new Error(
-      `Bbox expected a rect-like or line-like shape, but got ${t}`
-    );
-  }
-
-  // TODO: Compute the bbox of the line in a nicer way
-
-  // initialize center, w, and h depending on whether the input shape is line-like or rect/square-like
-  const center = isLinelike(t)
-    ? ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2))
-    : s.center.contents;
-
-  const w =
-    t === "Square"
-      ? s.side.contents
-      : isLinelike(t)
-      ? max(absVal(sub(s.start.contents[0], s.end.contents[0])), constOf(2))
-      : s.w.contents;
-
-  const h =
-    t === "Square"
-      ? s.side.contents
-      : isLinelike(t)
-      ? max(absVal(sub(s.start.contents[1], s.end.contents[1])), constOf(2))
-      : s.h.contents;
-
+export const bboxFromWHC = (w: VarAD, h: VarAD, center: Pt2): BBox => {
   const halfWidth = div(w, constOf(2.0));
   const halfHeight = div(h, constOf(2.0));
   const nhalfWidth = neg(halfWidth);
@@ -1000,6 +973,52 @@ export const bbox = ([t, s]: [string, any]): BBox => {
   };
 
   return rect;
+};
+
+/**
+ * Input: A rect-like shape.
+ * Output: A bbox corresponding to the rect.
+ */
+export const bbox = ([t, s]: [string, any]): BBox => {
+  if (!(isRectlike(t) || isLinelike(t))) {
+    throw new Error(
+      `Bbox expected a rect-like or line-like shape, but got ${t}`
+    );
+  }
+
+  // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
+  const w =
+    t === "Square"
+      ? s.side.contents
+      : isLinelike(t)
+      ? max(absVal(sub(s.start.contents[0], s.end.contents[0])), constOf(2))
+      : s.w.contents;
+
+  const h =
+    t === "Square"
+      ? s.side.contents
+      : isLinelike(t)
+      ? max(absVal(sub(s.start.contents[1], s.end.contents[1])), constOf(2))
+      : s.h.contents;
+
+  // TODO: Compute the bbox of the line in a nicer way
+  const center = isLinelike(t)
+    ? ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2))
+    : s.center.contents;
+
+  return bboxFromWHC(w, h, center);
+};
+
+/**
+ * Input: A bbox and an inflation parameter delta.
+ * Output: A bbox inflated on all sides by delta.
+ */
+export const inflateBBox = (bbox: BBox, delta: VarAD): BBox => {
+  return bboxFromWHC(
+    add(bbox.w, add(delta, delta)),
+    add(bbox.h, add(delta, delta)),
+    bbox.center
+  );
 };
 
 /**
