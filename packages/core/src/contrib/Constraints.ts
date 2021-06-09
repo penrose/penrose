@@ -986,24 +986,31 @@ export const bbox = ([t, s]: [string, any]): BBox => {
   }
 
   // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
-  const w =
-    t === "Square"
-      ? s.side.contents
-      : isLinelike(t)
-      ? max(absVal(sub(s.start.contents[0], s.end.contents[0])), constOf(2))
-      : s.w.contents;
+  let w;
+  if (t == "Square") {
+    w = s.side.contents;
+  } else if (isLinelike(t)) {
+    w = max(absVal(sub(s.start.contents[0], s.end.contents[0])), constOf(2));
+  } else {
+    w = s.h.contents;
+  }
 
-  const h =
-    t === "Square"
-      ? s.side.contents
-      : isLinelike(t)
-      ? max(absVal(sub(s.start.contents[1], s.end.contents[1])), constOf(2))
-      : s.h.contents;
+  let h;
+  if (t == "Square") {
+    h = s.side.contents;
+  } else if (isLinelike(t)) {
+    h = max(absVal(sub(s.start.contents[1], s.end.contents[1])), constOf(2));
+  } else {
+    h = s.h.contents;
+  }
 
-  // TODO: Compute the bbox of the line in a nicer way
-  const center = isLinelike(t)
-    ? ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2))
-    : s.center.contents;
+  let center;
+  if (isLinelike(t)) {
+    // TODO: Compute the bbox of the line in a nicer way
+    center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
+  } else {
+    center = s.center.contents;
+  }
 
   return bboxFromWHC(w, h, center);
 };
