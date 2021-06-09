@@ -16,19 +16,13 @@
   "delete": {
     "type": ["Point"],
     "function": [],
-    "constructor": ["MkSegment"],
-    "predicate": ["Collinear"]
+    "constructor": ["MkSegment", "MkTriangle"],
+    "predicate": []
   },
   "edit": {
     "type": ["Point"],
     "function": [],
-    "constructor": [
-      "MkSegment",
-      "MkRectangle",
-      "MkTriangle",
-      "InteriorAngle",
-      "TriangleVertex"
-    ],
-    "predicate": []
+    "constructor": ["MkTriangle", "InteriorAngle", "TriangleVertex"],
+    "predicate": ["Collinear"]
   }
 }

@@ -1,4 +1,4 @@
-import { pullAt, map, range } from "lodash";
+import { pullAt, range } from "lodash";
 import { Identifier } from "types/ast";
 import { Map } from "immutable";
 import { choice } from "pandemonium";
@@ -8,7 +8,6 @@ import {
   Env,
   FunctionDecl,
   PredicateDecl,
-  TypeConstructor,
   TypeDecl,
 } from "types/domain";
 import {
@@ -32,6 +31,8 @@ export interface Signature {
 }
 
 export type ArgStmtDecl = PredicateDecl | FunctionDecl | ConstructorDecl;
+
+type EditType = "typeChange" | "replaceStmtName";
 
 /**
  * Append a statement to a Substance program
@@ -66,6 +67,7 @@ export const swapArgs = (
  * Replace a Substance statement with another substance statement with the same signature.
  * NOTE: When no suitable replacement exists, returns original program without errors.
  * @param stmt a Substance statement
+ * @param env Env of the program
  * @returns a new Substance statement
  */
 export const replaceStmtName = (
@@ -81,9 +83,11 @@ export const replaceStmtName = (
 };
 
 /**
- * Replace a Substance statement with another substance statement with the same signature.
+ * Replace a Substance statement with another statement that takes the same arguments.
  * NOTE: When no suitable replacement exists, returns original program without errors.
  * @param stmt a Substance statement
+ * @param env Env of the program
+ * @param ids array containing the names of each Identifier in program
  * @returns a new Substance statement
  */
 export const changeType = (
@@ -103,7 +107,6 @@ export const changeType = (
       : [];
   };
   const opts = stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
-  // console.log("final options", opts.length);
   if (opts.length > 0) {
     // pick random option
     const pick = choice(opts);
@@ -139,7 +142,7 @@ export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => {
   if (index > -1) {
     return {
       ...prog,
-      statements: pullAt(prog.statements, index), // TODO: hmm?
+      statements: pullAt(prog.statements, index),
     };
   } else {
     return prog;
@@ -183,17 +186,14 @@ const swap = (arr: any[], a: number, b: number) =>
  *
  * @param stmtName string value of a statement, i.e. "isSubset"
  * @param opts all possible declaration options
+ * @param editType type of edit mutation that calls findMatches
  * @returns Array of any statements that have the same signature as input statement
  */
 export const findMatches = (
   stmt: ArgStmtDecl,
   opts: Map<string, ArgStmtDecl>,
-  editType: string
+  editType: EditType
 ): ArgStmtDecl[] => {
-  // find signature of original statement in map
-  // const orig = opts.get(stmtName);
-  // console.log("orig", orig);
-  // if (orig) {
   //generate signature for the original statement
   const origSignature = getSignature(stmt);
   // does not add original statement to list of matches
@@ -207,11 +207,17 @@ export const findMatches = (
       }
     }
   });
-  // } else {
-  //   return [];
-  // }
 };
 
+/**
+ * Find a given statement's declaration from Domain.
+ * NOTE: match will be undefined if the statement could not
+ * be found in list of predicates, functions, or constructors
+ *
+ * @param stmtName string value of a statement, i.e. "isSubset"
+ * @param env Env for current program
+ * @returns Array of length 2, with entries corresponding to: [matching decl, list where decl was found]
+ */
 export const findStmt = (
   stmtName: string,
   env: Env
@@ -225,22 +231,28 @@ export const findStmt = (
   return [match, env.constructors];
 };
 
+/**
+ * Returns a new bind variable distinct from all other existing variables.
+ *
+ * @param ids string value of a statement, i.e. "isSubset"
+ * @returns new Identifier with unique value
+ */
 export const newBindVar = (ids: string[]): Identifier => {
-  // choose a potential bind
-  const letters = [...range(65, 90, 1), ...range(97, 122, 1)];
-  let pick = `${ids[0]}2`;
+  const letters = [...range(97, 122, 1)]; // a-z in ASCII
+  // find an unused variable
+  let pick = ids[0];
   let attempts = 10;
   while (attempts > 0) {
-    let pick = String.fromCharCode(choice(letters));
+    pick = String.fromCharCode(choice(letters));
     if (ids.find((id) => id === pick) === undefined) {
       break;
     }
     attempts--;
   }
-
+  // create new Identifier for the variable
   return {
     tag: "Identifier",
-    type: "type-identifier", // or value
+    type: "type-identifier",
     value: pick,
     nodeType: "SyntheticSubstance",
     children: [],
@@ -252,35 +264,19 @@ export const newBindVar = (ids: string[]): Identifier => {
  *
  * @param stmt any supported Statement object (constructor, predicate, function)
  * @param env an Env object with domain/substance metadata
- * @param editType a string corresponding to the type of edit mutation occurring
+ * @param editType the type of edit mutation occurring
  * @returns an Array of all other statements that match the stmt signature
  */
 export const matchSignatures = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
   env: Env,
-  editType: string
+  editType: EditType
 ): ArgStmtDecl[] => {
-  // let matches: ArgStmtDecl[] = [];
-  let [st, opts] = findStmt(stmt.name.value, env);
+  const [st, opts] = findStmt(stmt.name.value, env);
   if (st) {
     return findMatches(st, opts, editType);
   }
   return [];
-  // if (stmt.tag === "ApplyPredicate") {
-  //   matches = findMatches(stmt.name.value, env.predicates, editType);
-  // } else if (stmt.tag === "Func") {
-  //   // handling for Bind case: parser tags constructors & funcs with
-  //   // the "Func" tag before checker fixes types
-  //   matches = findMatches(stmt.name.value, env.constructors, editType);
-  //   if (matches.length < 0) {
-  //     matches = findMatches(stmt.name.value, env.functions, editType);
-  //   }
-  // } else if (stmt.tag === "ApplyConstructor") {
-  //   matches = findMatches(stmt.name.value, env.constructors, editType);
-  // } else if (stmt.tag === "ApplyFunction") {
-  //   matches = findMatches(stmt.name.value, env.functions, editType);
-  // }
-  // return matches;
 };
 
 /**
@@ -290,13 +286,11 @@ export const matchSignatures = (
  * @returns a new Signature object
  */
 export const getSignature = (decl: ArgStmtDecl): Signature => {
-  let argTypes: string[] = [];
+  const argTypes: string[] = [];
   let outType: string | undefined;
-  // console.log(decl.name.value, "args", decl.args);
   if (decl.args) {
     decl.args.forEach((a) => {
       if (a.type.tag === "TypeConstructor") argTypes.push(a.type.name.value);
-      // if there is no type provided in the args, need to reverse lookup to find the type? or look at the actual declaration in domain file
     });
   }
   // see if there is an output field:
@@ -339,7 +333,7 @@ export const printStmts = (
   stmts: PredicateDecl[] | ConstructorDecl[] | FunctionDecl[]
 ): void => {
   let outStr = "";
-  let s = stmts as PredicateDecl[];
+  const s = stmts as PredicateDecl[];
   s.forEach((stmt) => {
     outStr += stmt.name.value + " ";
   });
