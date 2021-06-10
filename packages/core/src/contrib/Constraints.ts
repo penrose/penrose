@@ -421,11 +421,7 @@ export const constrDict = {
     const overlapY = overlap1D(box.yRange, line.yRange);
 
     // Push away in both X and Y directions
-    return ifCond(
-      areDisjointBoxes(box, line),
-      constOf(0),
-      mul(overlapX, overlapY)
-    );
+    return mul(overlapX, overlapY);
   },
 
   /**
@@ -458,11 +454,7 @@ export const constrDict = {
       const overlapY = overlap1D(inflatedBox1.yRange, box2.yRange);
 
       // Push away in both X and Y directions, and account for padding
-      return ifCond(
-        areDisjointBoxes(inflatedBox1, box2),
-        constOf(0),
-        mul(overlapX, overlapY)
-      );
+      return mul(overlapX, overlapY);
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
