@@ -1,85 +1,39 @@
-import { hsvToRGB } from "utils/Util";
 import { viridis_data } from "./ColorData";
 
-//
 export type RGB = [number, number, number];
-type HSV = [number, number, number];
 
-const value2hsv = (value: number, hue?: number, sat?: number): HSV => {
-  return [
-    typeof hue === "undefined" ? 0 : hue,
-    typeof sat === "undefined" ? 0 : sat,
-    value,
-  ];
-};
+/**
+ * @type Adjacency matrix storing edge weights between nodes
+ */
+export type Graph = number[][];
 
-const value2RGB = (value: number): RGB => {
-  return hsvToRGB(value2hsv(value));
-};
-
-export const sampleUniformGrayscale = (
-  numColors: number,
-  start?: number,
-  end?: number
-): RGB[] => {
-  // default for grayscale
-  if (typeof start === "undefined") start = 0.1;
-  if (typeof end === "undefined") end = 0.9;
-
-  const stepSize = (end - start) / numColors;
-
-  var valueArr: number[] = [];
-  for (var i = 0; i < numColors; i++) {
-    valueArr.push(start + i * stepSize);
-  }
-
-  const colorList = valueArr.map(value2RGB);
-
-  return colorList;
-};
-
-// graph library
-
-export const sampleUniformPalette = (
-  numColorsRequested: number,
-  palette?: RGB[]
-): RGB[] => {
-  if (numColorsRequested === 0) return [];
-
-  // default palette
-  if (typeof palette === "undefined") palette = viridis_data;
-
-  // this needs to be made more general (currently uniform sampling)
-  // doesn't work if num colors requested > palette length
-  const stepSize = Math.floor(palette.length / numColorsRequested);
-
-  var rgbList: RGB[] = [];
-  for (var i = 0; i < numColorsRequested; i++) {
-    rgbList.push(palette[i * stepSize]);
-  }
-
-  return rgbList;
-};
-
-interface Edge {
+/**
+ * Stores information about edges
+ * @property start_node_index : first node connected by the edge
+ * @property end_node_index : second node connected by the edge
+ * @property weight : edge weight
+ * @property norm_weight? : normalized edge weight, to be initialized using info about the entire graph
+ */
+export interface Edge {
   start_node_index: number;
   end_node_index: number;
+
   weight: number;
   norm_weight?: number;
 }
 
-type Graph = number[][];
-
-/*
-res > 0 if e1 > e2
-res === 0 if e1 === e2
-res < 0 if e1 < e2
-*/
-const compareEdges = (e1: Edge, e2: Edge): number => {
+/**
+ * Comparison fn, used for sorting a list of Edges
+ * @returns res > 0 if e1 > e2; res === 0 if e1 === e2; res < 0 if e1 < e2
+ */
+export const compareEdges = (e1: Edge, e2: Edge): number => {
   return e1.weight - e2.weight;
 };
 
-const is_square_matrix = (graph: Graph): boolean => {
+/**
+ * Checks that # of rows === # of cols within a graph (list of num lists)
+ */
+export const is_square_matrix = (graph: Graph): boolean => {
   for (var i = 0; i < graph.length; i++) {
     if (graph[i].length !== graph.length) {
       return false;
@@ -88,63 +42,122 @@ const is_square_matrix = (graph: Graph): boolean => {
   return true;
 };
 
-export const samplePalette = (object_graph: Graph, palette?: RGB[]): RGB[] => {
-  if (!is_square_matrix(object_graph)) {
-    throw new Error("Invalid graph matrix");
+/**
+ * Checks that an edge exists between every pair of nodes & no self loops exist
+ */
+export const is_complete_graph = (graph: Graph): boolean => {
+  if (!is_square_matrix(graph)) return false;
+  for (var i = 0; i < graph.length; i++) {
+    for (var j = 0; j < graph.length; j++) {
+      // no self loops
+      if (i == j && graph[i][j] !== 0) return false;
+      // an edge exists between distinct nodes
+      // else if (graph[i][j] === 0) return false;
+      // edge weights are symmetric
+      else if (i != j && graph[i][j] !== graph[j][i]) return false;
+    }
+  }
+  return true;
+}; // maybe I can add memoization to this?
+
+/**
+ * Main sampling function: assigns colors based on random node
+ * @param object_graph a complete graph (nxn adjacency matrix for n objects)
+ * @param palette optional param, a list of colors in the RGB space
+ * @returns a list of colors, where the index === object node number
+ */ export const samplePalette = (
+  object_graph: Graph,
+  node_to_sort_around?: number,
+  palette = viridis_data
+): RGB[] => {
+  if (!is_complete_graph(object_graph)) {
+    throw Error("Invalid graph input");
+  }
+  const numberOfNodes = object_graph.length;
+
+  if (
+    typeof node_to_sort_around !== "undefined" &&
+    node_to_sort_around >= numberOfNodes
+  ) {
+    throw Error("Invalid node to sort around");
   }
 
-  // pick a random point
-  const numObjects = object_graph.length;
-  const random_node = Math.floor(Math.random() * (numObjects - 1));
+  // handle 0 node case
+  if (numberOfNodes === 0) return [];
+  // handle 1 node case
+  else if (numberOfNodes === 1) {
+    // pick a random color
+    const random_index = Math.floor(Math.random() * (palette.length - 1));
+    return [palette[random_index]];
+  }
 
-  var edges_from_random_node: Edge[] = [];
-  for (var i = 0; i < numObjects; i++) {
-    if (i != random_node) {
-      edges_from_random_node.push({
-        start_node_index: random_node,
-        end_node_index: i,
-        weight: object_graph[random_node][i],
-      });
+  // pick a random node to sort edge weights using
+  const random_node = Math.floor(Math.random() * (numberOfNodes - 1));
+  if (typeof node_to_sort_around === "undefined")
+    node_to_sort_around = random_node;
+
+  // gather up the edge weights of the edges attached to the node
+  var edges_from_selected_node: Edge[] = [];
+  for (var i = 0; i < numberOfNodes; i++) {
+    if (i != node_to_sort_around) {
+      // no self edges
+      edges_from_selected_node.push(
+        // this is an Edge type object
+        {
+          start_node_index: node_to_sort_around,
+          end_node_index: i,
+          weight: object_graph[node_to_sort_around][i],
+        }
+      );
     }
   }
 
-  // sort edges from matrix
-  // need a generic sort?
-  edges_from_random_node.sort(compareEdges);
+  // sort the edges
+  edges_from_selected_node.sort(compareEdges);
 
-  // map edge weights to [0, 1] [normalized]
-  const max_edge_index = edges_from_random_node.length - 1;
-  const max_edge_weight = edges_from_random_node[max_edge_index].weight;
-  const min_edge_weight = edges_from_random_node[0].weight;
+  const max_edge_index = edges_from_selected_node.length - 1;
+  const max_edge_weight = edges_from_selected_node[max_edge_index].weight;
+  const min_edge_weight = edges_from_selected_node[0].weight;
 
+  // norm weight is the difference between the max and min edge weights
   const norm_magnitude = max_edge_weight - min_edge_weight;
-  for (var i = 0; i < edges_from_random_node.length; i++) {
-    edges_from_random_node[i].norm_weight =
-      edges_from_random_node[i].weight / norm_magnitude;
+
+  // give all Edge objects a norm weight property in the range [0, 1]
+  for (var i = 0; i < edges_from_selected_node.length; i++) {
+    edges_from_selected_node[i].norm_weight =
+      edges_from_selected_node[i].weight / norm_magnitude;
   }
 
   // assign colors from palette
 
-  // initializing
+  // initializing a RGB array of the appropriate size (length = n)
   var colorList: RGB[] = [];
-  for (var i = 0; i < numObjects; i++) {
+  for (var i = 0; i < numberOfNodes; i++) {
     colorList.push([-1, -1, -1]);
   }
 
-  if (typeof palette === "undefined") palette = viridis_data;
+  // use a default palette if no palette was passed in
+  // if (typeof palette === "undefined") palette = viridis_data;
 
-  // array
-  // index = node
-  // entry = color assigned
+  // assign node 0 to the first color in the palette
   colorList[0] = palette[0];
-  for (var i = 0; i < edges_from_random_node.length; i++) {
-    var curr_norm_weight = edges_from_random_node[i].norm_weight;
+
+  // assign colors to the nodes connected to node 0
+  for (var i = 0; i < edges_from_selected_node.length; i++) {
+    var curr_norm_weight = edges_from_selected_node[i].norm_weight;
+
+    // a check to make typescript happy (technically shouldn't happen)
     if (typeof curr_norm_weight === "undefined") {
-      throw new Error("norm weight not defined");
+      throw Error("Norm weight not defined in Edge");
     }
+
+    // get the index for extracting the color from the palette
     var palette_index = Math.floor(curr_norm_weight * palette.length);
 
-    var curr_node_index = edges_from_random_node[i].end_node_index;
+    // get the index of the node connected to node 0 at the current edge
+    var curr_node_index = edges_from_selected_node[i].end_node_index;
+
+    // set the color
     colorList[curr_node_index] = palette[palette_index];
   }
 
