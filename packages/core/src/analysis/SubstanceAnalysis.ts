@@ -120,9 +120,7 @@ export const changeType = (
           ? applyConstructor(pick, castArgs)
           : applyFunction(pick, castArgs);
       // make into a Bind if the pick returns something
-      return getSignature(pick).output !== undefined
-        ? applyBind(newBindVar(ids), m)
-        : m;
+      return pick.output.variable ? applyBind(pick.output.variable, m) : m;
     }
   }
   // return unchanged statement if no matches were found
@@ -252,7 +250,7 @@ export const newBindVar = (ids: string[]): Identifier => {
   // create new Identifier for the variable
   return {
     tag: "Identifier",
-    type: "type-identifier",
+    type: "value",
     value: pick,
     nodeType: "SyntheticSubstance",
     children: [],

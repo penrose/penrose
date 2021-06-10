@@ -2,7 +2,7 @@ Plane R
 Point A, B, C, D, E
 Triangle t := MkTriangle(A, B, C)
 Angle an := TriangleVertex(A, B, C)
-Segment s := Altitude(t, an)
+Scalene(t)
 In(A, R)
 In(B, R)
 In(C, R)

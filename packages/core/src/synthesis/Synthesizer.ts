@@ -287,6 +287,21 @@ class SynthesisContext {
     }
   };
 
+  removeID = (typeStr: string, id: Identifier) => {
+    const ids = this.declaredIDs.get(typeStr);
+    if (ids) {
+      const index = ids.map((v) => v.value).indexOf(id.value);
+      if (index > -1) {
+        ids.splice(index, 1);
+        this.declaredIDs = this.declaredIDs.set(typeStr, ids);
+      } else {
+        throw new Error(`could not remove ID for ${id}, type ${typeStr}`);
+      }
+    } else {
+      log.warn(`Could not find any IDs for ${typeStr}`);
+    }
+  };
+
   pickID = (
     typeStr: string,
     excludeList?: Identifier[]
@@ -462,6 +477,12 @@ export class Synthesizer {
               this.cxt.appendStmt(this.generateType(newStmt.variable));
             }
             this.cxt.appendStmt(newStmt as SubStmt); //add statement
+            this.cxt.ops.push({
+              tag: "Replace",
+              old: stmt,
+              new: newStmt as ApplyPredicate,
+              mutationType: op,
+            });
           }
           break;
         }
@@ -531,7 +552,8 @@ export class Synthesizer {
           const willDelete = findArg(expr, id);
           // push its return value IF bind will be deleted
           if (willDelete) ids.push(s.variable);
-          return willDelete;
+          // delete if arg is found in either return type or args
+          return willDelete || s.variable.value === id?.value;
         } else if (s.tag === "ApplyPredicate") {
           // will not return value
           return findArg(s, id);
@@ -541,7 +563,13 @@ export class Synthesizer {
       });
       log.debug(`stmts with id: ${id?.value}, num stmts: ${toDelete.length}`);
       // remove list of filtered statements
-      toDelete.forEach((stmt) => this.cxt.removeStmt(stmt));
+      toDelete.forEach((stmt) => {
+        // remove Identifier from added IDs
+        if (stmt.tag === "Decl")
+          this.cxt.removeID(stmt.type.name.value, stmt.name);
+        // remove statement from list of statements
+        this.cxt.removeStmt(stmt);
+      });
     }
     log.debug("final stmts", this.cxt.prog.statements.length);
   };
