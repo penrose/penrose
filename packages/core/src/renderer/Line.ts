@@ -23,9 +23,8 @@ const makeRoomForArrows = (shape: Shape) => {
     arrowheads[arrowheadStyle].height * arrowheadSize * thickness;
   const length = Math.sqrt((lineSX - lineEX) ** 2 + (lineSY - lineEY) ** 2);
 
-  //   TODO: these should only happen if there is actually an arrow on that side
-  // subtract off a the arrowHeight from each side
-
+  // Subtract off the arrowHeight from each side.
+  // See https://math.stackexchange.com/a/2045181 for a derivation.
   const [arrowSX, arrowSY] = shape.properties.leftArrowhead.contents
     ? [
         lineSX - (arrowHeight / length) * (lineSX - lineEX),
