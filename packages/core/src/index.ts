@@ -44,7 +44,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(state, numSteps);
+  return step(state, numSteps, true);
 };
 
 /**

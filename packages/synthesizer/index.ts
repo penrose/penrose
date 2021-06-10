@@ -31,7 +31,7 @@ Options:
   --synth-setting=SET  A JSON file containing parameters for the synthesizer
 `;
 
-const defaultSetting: SynthesizerSetting = {
+export const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 4],
   argOption: "existing",
   argReuse: "distinct",
