@@ -424,7 +424,7 @@ export const constrDict = {
     return ifCond(
       areDisjointBoxes(box, line),
       constOf(0),
-      add(overlapX, overlapY)
+      mul(overlapX, overlapY)
     );
   },
 
@@ -450,14 +450,9 @@ export const constrDict = {
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (isRectlike(t1) && isRectlike(t2)) {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
-      // TODO: Write this to use the area of rectangle overlap, as this can currently only move in horiz/vert directions (i.e. results in worse local minima sometimes)
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
       const inflatedBox1 = BBox.inflate(box1, constOfIf(offset));
-      //   const _iminX = debug(inflatedBox1.minX, "inflated minX");
-      //   const _imaxX = debug(inflatedBox1.maxX, "inflated maxX");
-      //   const _minX = debug(box2.minX, "minX");
-      //   const _maxX = debug(box2.maxX, "maxX");
 
       const overlapX = overlap1D(inflatedBox1.xRange, box2.xRange);
       const overlapY = overlap1D(inflatedBox1.yRange, box2.yRange);
@@ -466,7 +461,7 @@ export const constrDict = {
       return ifCond(
         areDisjointBoxes(inflatedBox1, box2),
         constOf(0),
-        add(overlapX, overlapY)
+        mul(overlapX, overlapY)
       );
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
