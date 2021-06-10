@@ -119,19 +119,19 @@ export const objDict = {
    */
   centerArrow: (
     [t1, arr]: [string, any],
-    [t2, text1]: [string, any],
-    [t3, text2]: [string, any]
+    [t2, s2]: [string, any],
+    [t3, s3]: [string, any]
   ): VarAD => {
     const spacing = varOf(1.1); // arbitrary
 
     if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
-      const text1BB = bboxFromShape(t2, text1);
-      const text2BB = bboxFromShape(t3, text2);
+      const s2BB = bboxFromShape(t2, s2);
+      const s3BB = bboxFromShape(t3, s3);
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, text1BB.center, text2BB.center, [
-        mul(spacing, text1BB.h),
-        neg(mul(text2BB.h, spacing)),
+      return centerArrow2(arr, s2BB.center, s3BB.center, [
+        mul(spacing, s2BB.h),
+        neg(mul(s3BB.h, spacing)),
       ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
