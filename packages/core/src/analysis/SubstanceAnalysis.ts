@@ -1,7 +1,6 @@
 import { pullAt } from "lodash";
 import { Identifier } from "types/ast";
 import { Map } from "immutable";
-import { choice } from "pandemonium";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -31,8 +30,6 @@ export interface Signature {
 }
 
 export type ArgStmtDecl = PredicateDecl | FunctionDecl | ConstructorDecl;
-
-type EditType = "typeChange" | "replaceStmtName";
 
 /**
  * Append a statement to a Substance program
@@ -64,66 +61,51 @@ export const swapArgs = (
 };
 
 /**
- * Replace a Substance statement with another substance statement with the same signature.
- * NOTE: When no suitable replacement exists, returns original program without errors.
- * @param stmt a Substance statement
- * @param env Env of the program
- * @returns a new Substance statement
- */
-export const replaceStmtName = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
-  env: Env
-): ApplyConstructor | ApplyPredicate | ApplyFunction | Func => {
-  const options = matchSignatures(stmt, env, "replaceStmtName");
-  const pick = options.length > 0 ? choice(options) : stmt;
-  return {
-    ...stmt,
-    name: pick.name,
-  };
-};
-
-/**
  * Replace a Substance statement with another statement that takes the same arguments.
- * NOTE: When no suitable replacement exists, returns original program without errors.
  * @param stmt a Substance statement
- * @param env Env of the program
- * @param ids array containing the names of each Identifier in program
+ * @param pick ArgStmtDecl chosen to replace stmt
  * @returns a new Substance statement
  */
 export const changeType = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind,
-  env: Env
+  pick: ArgStmtDecl
 ): ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind => {
-  //find matches for all 3 types
+  const s = stmt.tag === "Bind" ? stmt.expr : stmt;
+  if (pick.tag === "PredicateDecl") {
+    return applyPredicate(pick, (s as ApplyPredicate).args);
+  } else {
+    const castArgs = (s as ApplyConstructor).args;
+    const m =
+      pick.tag === "ConstructorDecl"
+        ? applyConstructor(pick, castArgs)
+        : applyFunction(pick, castArgs);
+    // make into a Bind if the pick returns something
+    return pick.output.variable ? applyBind(pick.output.variable, m) : m;
+  }
+};
+
+/**
+ * Find all declarations that take the same number and type of args as
+ * original statement
+ * @param stmt a Substance statement
+ * @param env Env of the program
+ * @returns a new Substance statement
+ */
+export const argMatches = (
+  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind,
+  env: Env
+): ArgStmtDecl[] => {
   const options = (s: any) => {
-    const [st] = findStmt(s.name.value, env);
+    const [st] = findDecl(s.name.value, env);
     return st
       ? [
-          findMatches(st, env.constructors, "typeChange"),
-          findMatches(st, env.predicates, "typeChange"),
-          findMatches(st, env.functions, "typeChange"),
+          matchDecls(st, env.constructors, signatureArgsEqual),
+          matchDecls(st, env.predicates, signatureArgsEqual),
+          matchDecls(st, env.functions, signatureArgsEqual),
         ].flat()
       : [];
   };
-  const opts = stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
-  if (opts.length > 0) {
-    // pick random option
-    const pick = choice(opts);
-    const s = stmt.tag === "Bind" ? stmt.expr : stmt;
-    if (pick.tag === "PredicateDecl") {
-      return applyPredicate(pick, (s as ApplyPredicate).args);
-    } else {
-      const castArgs = (s as ApplyConstructor).args;
-      const m =
-        pick.tag === "ConstructorDecl"
-          ? applyConstructor(pick, castArgs)
-          : applyFunction(pick, castArgs);
-      // make into a Bind if the pick returns something
-      return pick.output.variable ? applyBind(pick.output.variable, m) : m;
-    }
-  }
-  // return unchanged statement if no matches were found
-  return stmt;
+  return stmt.tag === "Bind" ? options(stmt.expr) : options(stmt);
 };
 
 /**
@@ -183,26 +165,20 @@ const swap = (arr: any[], a: number, b: number) =>
  *
  * @param stmtName string value of a statement, i.e. "isSubset"
  * @param opts all possible declaration options
- * @param editType type of edit mutation that calls findMatches
+ * @param matchFunc function that determines condition for a match
  * @returns Array of any statements that have the same signature as input statement
  */
-export const findMatches = (
+export const matchDecls = (
   stmt: ArgStmtDecl,
   opts: Map<string, ArgStmtDecl>,
-  editType: EditType
+  matchFunc: (a: Signature, b: Signature) => boolean
 ): ArgStmtDecl[] => {
   //generate signature for the original statement
   const origSignature = getSignature(stmt);
-  // does not add original statement to list of matches
   const decls: ArgStmtDecl[] = [...opts.values()];
   return decls.filter((d) => {
-    if (stmt !== d) {
-      if (editType === "typeChange") {
-        return signatureArgsEqual(origSignature, getSignature(d));
-      } else if (editType === "replaceStmtName") {
-        return signatureEquals(origSignature, getSignature(d));
-      }
-    }
+    // does not add original statement to list of matches
+    return stmt !== d && matchFunc(origSignature, getSignature(d));
   });
 };
 
@@ -215,7 +191,7 @@ export const findMatches = (
  * @param env Env for current program
  * @returns Array of length 2, with entries corresponding to: [matching decl, list where decl was found]
  */
-export const findStmt = (
+export const findDecl = (
   stmtName: string,
   env: Env
 ): [ArgStmtDecl | undefined, Map<string, ArgStmtDecl>] => {
@@ -238,12 +214,11 @@ export const findStmt = (
  */
 export const matchSignatures = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
-  env: Env,
-  editType: EditType
+  env: Env
 ): ArgStmtDecl[] => {
-  const [st, opts] = findStmt(stmt.name.value, env);
+  const [st, opts] = findDecl(stmt.name.value, env);
   if (st) {
-    return findMatches(st, opts, editType);
+    return matchDecls(st, opts, signatureEquals);
   }
   return [];
 };

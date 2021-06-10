@@ -5,12 +5,13 @@ import {
   applyFunction,
   applyPredicate,
   applyTypeDecl,
+  argMatches,
   autoLabelStmt,
   changeType,
   domainToSubType,
+  matchSignatures,
   nullaryTypeCons,
   replaceStmt,
-  replaceStmtName,
   swapArgs,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
@@ -287,16 +288,18 @@ class SynthesisContext {
     }
   };
 
+  /**
+   * Remove a declared ID, NOTE: this should be called whenever we delete a Decl
+   * statement from list of statements to keep them in sync.
+   * @param typeStr either a Bind or Decl that is staged to be deleted
+   * @param id the identifier that is being removed
+   */
   removeID = (typeStr: string, id: Identifier) => {
     const ids = this.declaredIDs.get(typeStr);
     if (ids) {
-      const index = ids.map((v) => v.value).indexOf(id.value);
-      if (index > -1) {
-        ids.splice(index, 1);
-        this.declaredIDs = this.declaredIDs.set(typeStr, ids);
-      } else {
-        throw new Error(`could not remove ID for ${id}, type ${typeStr}`);
-      }
+      // keep all IDs that aren't id
+      const newIDs = ids.filter((otherID) => otherID.value !== id.value);
+      this.declaredIDs = this.declaredIDs.set(typeStr, newIDs);
     } else {
       log.warn(`Could not find any IDs for ${typeStr}`);
     }
@@ -408,25 +411,19 @@ export class Synthesizer {
       log.debug(`Editing statement: ${prettyStmt(stmt)}`);
       switch (op) {
         case "Swap": {
+          const s = (stmt.tag === "Bind" ? stmt.expr : stmt) as ApplyPredicate;
+          const indices = range(0, s.args.length);
+          const idx1 = choice(indices);
+          const idx2 = choice(without(indices, idx1));
+          const newStmt = swapArgs(s, [idx1, idx2]);
           if (stmt.tag === "ApplyPredicate") {
-            const indices = range(0, stmt.args.length);
-            const idx1 = choice(indices);
-            const idx2 = choice(without(indices, idx1));
-            this.cxt.replaceStmt(
-              stmt,
-              swapArgs(stmt, [idx1, idx2]) as ApplyPredicate,
-              op
-            ); // TODO: improve types to avoid casting
+            this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate, op); // TODO: improve types to avoid casting
           } else {
-            const expr = stmt.expr as ApplyConstructor | ApplyFunction;
-            const indices = range(0, expr.args.length);
-            const idx1 = choice(indices);
-            const idx2 = choice(without(indices, idx1));
             this.cxt.replaceStmt(
               stmt,
               {
                 ...stmt,
-                expr: swapArgs(stmt.expr as any, [idx1, idx2]),
+                expr: newStmt,
               } as Bind,
               op
             ); // TODO: improve types to avoid casting
@@ -434,19 +431,28 @@ export class Synthesizer {
           break;
         }
         case "ReplaceName": {
-          if (stmt.tag === "ApplyPredicate") {
-            const newStmt = replaceStmtName(stmt, this.env);
-            if (newStmt.name !== stmt.name) {
-              this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate, op);
-            }
-          } else if (stmt.tag === "Bind") {
-            const newStmt = replaceStmtName(stmt.expr as any, this.env);
-            if (newStmt.name !== (stmt.expr as ApplyConstructor).name) {
+          const s = (stmt.tag === "Bind" ? stmt.expr : stmt) as ApplyPredicate;
+          const options = matchSignatures(s, this.env);
+          const pick = options.length > 0 ? choice(options) : s;
+          if (stmt.tag === "ApplyPredicate" && pick.name !== s.name) {
+            this.cxt.replaceStmt(
+              stmt,
+              {
+                ...stmt,
+                name: pick.name,
+              } as ApplyPredicate,
+              op
+            );
+          } else if (stmt.tag === "Bind" && pick.name !== s.name) {
+            if (pick.name !== s.name) {
               this.cxt.replaceStmt(
                 stmt,
                 {
                   ...stmt,
-                  expr: newStmt,
+                  expr: {
+                    ...stmt.expr,
+                    name: pick.name,
+                  },
                 } as Bind,
                 op
               ); // TODO: improve types to avoid casting
@@ -455,26 +461,36 @@ export class Synthesizer {
           break;
         }
         case "TypeChange": {
-          const newStmt = changeType(stmt, this.env);
-          if (
-            newStmt.tag === "Bind" &&
-            stmt.tag === "Bind" &&
-            newStmt.variable.type !== stmt.variable.type
-          ) {
-            // old bind was replaced by a bind with diff type
-            this.cascadingDelete(stmt); // remove refs to the old bind
-          } else if (newStmt !== stmt) {
-            // otherwise we can simple delete
-            this.cxt.removeStmt(stmt);
+          const options = argMatches(stmt, this.env);
+          if (options.length > 0) {
+            const pick = choice(options);
+            const newStmt = changeType(stmt, pick);
+            // remove old statement
+            if (
+              newStmt.tag === "Bind" &&
+              stmt.tag === "Bind" &&
+              newStmt.variable.type !== stmt.variable.type
+            ) {
+              // old bind was replaced by a bind with diff type
+              this.cascadingDelete(stmt); // remove refs to the old bind
+            } else if (newStmt !== stmt) {
+              // otherwise we can simple delete
+              this.cxt.removeStmt(stmt);
+            }
+            // add new statement
             if (newStmt.tag === "Bind") {
               //add declaration of new variable
               this.cxt.appendStmt(this.generateType(newStmt.variable));
             }
             this.cxt.appendStmt(newStmt as SubStmt); //add statement
+            // add type change operation to operation list
             this.cxt.ops.push({
               tag: "Replace",
               old: stmt,
-              new: newStmt as ApplyPredicate,
+              new:
+                newStmt.tag === "Bind"
+                  ? (newStmt as Bind)
+                  : ({ ...newStmt, tag: "ApplyPredicate" } as ApplyPredicate), // tag = ApplyPredicate so op can be prettyPrinted
               mutationType: op,
             });
           }
@@ -525,8 +541,9 @@ export class Synthesizer {
 
   /**
    * Given a statement which returns a value
-   * that is staged to be deleted, iteratively find and delete any other statements
-   * that would use the statement's returned variable
+   * that is staged to be deleted, iteratively find and delete any other
+   * statements that would use the statement's returned variable
+   * TODO: Refactor to a pure function and put in SubstanceAnalysis.ts!
    * @param dec either a Bind or Decl that is staged to be deleted
    */
   cascadingDelete = (dec: Bind | Decl): void => {
