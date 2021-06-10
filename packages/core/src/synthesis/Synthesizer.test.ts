@@ -60,11 +60,11 @@ describe("Synthesizer Operations", () => {
   test("cascading delete", () => {
     const original = `Set A
 Set B
-Set C
-Set D := Intersection(A, B)
-Set E := Subset(D,C)`;
+Set D
+Set C := Subset(B, A)
+Set E := Intersection(D,C)`;
     const expected = `Set B
-Set C`;
+Set D`;
     const synth = initSynth(original, {
       ...defaultSetting,
       delete: {
