@@ -1,19 +1,55 @@
 import { IVectorV, IFloatV, IColorV, IStrV } from "types/value";
-import { toHex, toScreen } from "utils/Util";
+import { arrowheads, toHex, toScreen } from "utils/Util";
 import { arrowHead } from "./Arrow";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
+import { Shape } from "types/shape";
+
+const makeRoomForArrows = (shape: Shape) => {
+  const [lineSX, lineSY] = (shape.properties.start as IVectorV<number>)
+    .contents as [number, number];
+  const [lineEX, lineEY] = (shape.properties.end as IVectorV<number>)
+    .contents as [number, number];
+
+  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
+  const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
+    .contents;
+  const thickness = (shape.properties.thickness as IFloatV<number>).contents;
+
+  // height * size = Penrose computed arrow size
+  // multiplied by thickness since the arrow size uses markerUnits, which is strokeWidth by default:
+  // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/markerUnits
+  const arrowHeight =
+    arrowheads[arrowheadStyle].height * arrowheadSize * thickness;
+  const length = Math.sqrt((lineSX - lineEX) ** 2 + (lineSY - lineEY) ** 2);
+
+  //   TODO: these should only happen if there is actually an arrow on that side
+  // subtract off a the arrowHeight from each side
+
+  const [arrowSX, arrowSY] = shape.properties.leftArrowhead.contents
+    ? [
+        lineSX - (arrowHeight / length) * (lineSX - lineEX),
+        lineSY - (arrowHeight / length) * (lineSY - lineEY),
+      ]
+    : [lineSX, lineSY];
+  const [arrowEX, arrowEY] = shape.properties.rightArrowhead.contents
+    ? [
+        lineEX - (arrowHeight / length) * (lineEX - lineSX),
+        lineEY - (arrowHeight / length) * (lineEY - lineSY),
+      ]
+    : [lineEX, lineEY];
+
+  return [
+    [arrowSX, arrowSY],
+    [arrowEX, arrowEY],
+  ];
+};
 
 const Line = ({ shape, canvasSize }: ShapeProps) => {
   const style = shape.properties.style.contents;
-  const [sx, sy] = toScreen(
-    (shape.properties.start as IVectorV<number>).contents as [number, number],
-    canvasSize
-  );
-  const [ex, ey] = toScreen(
-    (shape.properties.end as IVectorV<number>).contents as [number, number],
-    canvasSize
-  );
+  const [[arrowSX, arrowSY], [arrowEX, arrowEY]] = makeRoomForArrows(shape);
+  const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
+  const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toHex(shape.properties.color.contents);
   const thickness = (shape.properties.thickness as IFloatV<number>).contents;
