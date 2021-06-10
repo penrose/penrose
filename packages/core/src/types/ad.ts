@@ -61,22 +61,6 @@ export type VecAD = VarAD[];
 
 export type Pt2 = [VarAD, VarAD];
 
-export interface IBBox {
-  minX: VarAD;
-  maxX: VarAD;
-  minY: VarAD;
-  maxY: VarAD;
-  top: [Pt2, Pt2];
-  bot: [Pt2, Pt2];
-  left: [Pt2, Pt2];
-  right: [Pt2, Pt2];
-  center: Pt2;
-  w: VarAD;
-  h: VarAD;
-}
-
-export type BBox = IBBox;
-
 export type GradGraphs = IGradGraphs;
 
 export interface IGradGraphs {

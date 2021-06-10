@@ -1,5 +1,4 @@
 import {
-  bbox,
   intersectsSegSeg,
   intersectionSegSeg,
   inRange,
@@ -37,6 +36,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
+import { bboxFromShape } from "./Constraints";
 
 /**
  * Static dictionary of computation functions
@@ -363,7 +363,7 @@ export const compDict = {
     }
 
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bbox([t1, s1]);
+    const rect = bboxFromShape(t1, s1);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true

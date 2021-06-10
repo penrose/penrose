@@ -27,8 +27,9 @@ import {
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
 import { canvasSize } from "renderer/ShapeDef";
-import { VarAD, VecAD, BBox, Pt2 } from "types/ad";
+import { VarAD, VecAD, Pt2 } from "types/ad";
 import { every } from "lodash";
+import { BBox } from "engine/BBox";
 
 // Kinds of shapes
 /**
@@ -124,8 +125,8 @@ export const objDict = {
     const spacing = varOf(1.1); // arbitrary
 
     if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
-      const text1BB = bbox([t2, text1]);
-      const text2BB = bbox([t3, text2]);
+      const text1BB = bboxFromShape(t2, text1);
+      const text2BB = bboxFromShape(t3, text2);
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, text1BB.center, text2BB.center, [
@@ -168,7 +169,7 @@ export const objDict = {
       );
 
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-      const textBB = bbox([t2, text]);
+      const textBB = bboxFromShape(t2, text);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
         sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
@@ -193,7 +194,7 @@ export const objDict = {
         constOf(2.0)
       );
       const padding = constOf(10);
-      const textBB = bbox([t2, text]);
+      const textBB = bboxFromShape(t2, text);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
         sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
@@ -308,7 +309,7 @@ export const constrDict = {
       const res = sub(d, o);
       return res;
     } else if (t1 === "Circle" && isRectlike(t2)) {
-      const s2BBox = bbox([t2, s2]);
+      const s2BBox = bboxFromShape(t2, s2);
       const d = ops.vdist(fns.center(s1), s2BBox.center);
       const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
@@ -330,13 +331,13 @@ export const constrDict = {
       const d = ops.vdist(sq, fns.center(s2));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
     } else if (isRectlike(t1) && isRectlike(t2)) {
-      const box1 = bbox([t1, s1]);
-      const box2 = bbox([t2, s2]);
+      const box1 = bboxFromShape(t1, s1);
+      const box2 = bboxFromShape(t2, s2);
 
       // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
       return add(
-        constrDict.contains1D([box1.minX, box1.maxX], [box2.minX, box2.maxX]),
-        constrDict.contains1D([box1.minY, box1.maxY], [box2.minY, box2.maxY])
+        constrDict.contains1D(box1.xRange, box2.xRange),
+        constrDict.contains1D(box1.yRange, box2.yRange)
       );
     } else if (t1 === "Square" && isLinelike(t2)) {
       const [[startX, startY], [endX, endY]] = linePts(s2);
@@ -394,18 +395,13 @@ export const constrDict = {
       throw Error("expected two line-like shapes");
     }
 
-    const box = bbox([t1, s1]);
+    const box = bboxFromShape(t1, s1);
+    const line = bboxFromShape(t2, s2);
 
     // Contains line both vertically and horizontally
     return add(
-      constrDict.contains1D(
-        [box.minX, box.maxX],
-        [s2.start.contents[0], s2.end.contents[0]]
-      ),
-      constrDict.contains1D(
-        [box.minY, box.maxY],
-        [s2.start.contents[1], s2.end.contents[1]]
-      )
+      constrDict.contains1D(box.xRange, line.xRange),
+      constrDict.contains1D(box.yRange, line.yRange)
     );
   },
 
@@ -418,11 +414,11 @@ export const constrDict = {
       throw Error("expected two line-like shapes");
     }
 
-    const box = bbox([t1, s1]);
-    const line = bbox([t2, s2]);
+    const box = bboxFromShape(t1, s1);
+    const line = bboxFromShape(t2, s2);
 
-    const overlapX = overlap1D([box.minX, box.maxX], [line.minX, line.maxX]);
-    const overlapY = overlap1D([box.minY, box.maxY], [line.minY, line.maxY]);
+    const overlapX = overlap1D(box.xRange, line.xRange);
+    const overlapY = overlap1D(box.yRange, line.yRange);
 
     // Push away in both X and Y directions
     return ifCond(
@@ -446,7 +442,7 @@ export const constrDict = {
       return sub(addN(o), d);
     } else if (isRectlike(t1) && isLinelike(t2)) {
       const seg = s2;
-      const textBB = bbox([t1, s1]);
+      const textBB = bboxFromShape(t1, s1);
       const centerT = textBB.center;
       const endpts = linePts(seg);
       const cp = closestPt_PtSeg(centerT, endpts);
@@ -455,18 +451,16 @@ export const constrDict = {
     } else if (isRectlike(t1) && isRectlike(t2)) {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
       // TODO: Write this to use the area of rectangle overlap, as this can currently only move in horiz/vert directions (i.e. results in worse local minima sometimes)
-      const box1 = bbox([t1, s1]);
-      const box2 = bbox([t2, s2]);
-      const inflatedBox1 = inflateBBox(box1, constOfIf(offset));
+      const box1 = bboxFromShape(t1, s1);
+      const box2 = bboxFromShape(t2, s2);
+      const inflatedBox1 = BBox.inflate(box1, constOfIf(offset));
+      //   const _iminX = debug(inflatedBox1.minX, "inflated minX");
+      //   const _imaxX = debug(inflatedBox1.maxX, "inflated maxX");
+      //   const _minX = debug(box2.minX, "minX");
+      //   const _maxX = debug(box2.maxX, "maxX");
 
-      const overlapX = overlap1D(
-        [inflatedBox1.minX, inflatedBox1.maxX],
-        [box2.minX, box2.maxX]
-      );
-      const overlapY = overlap1D(
-        [inflatedBox1.minY, inflatedBox1.maxY],
-        [box2.minY, box2.maxY]
-      );
+      const overlapX = overlap1D(inflatedBox1.xRange, box2.xRange);
+      const overlapY = overlap1D(inflatedBox1.yRange, box2.yRange);
 
       // Push away in both X and Y directions, and account for padding
       return ifCond(
@@ -528,7 +522,7 @@ export const constrDict = {
     padding = 10
   ) => {
     if (isRectlike(t1) && t2 === "Circle") {
-      const s1BBox = bbox([t1, s1]);
+      const s1BBox = bboxFromShape(t1, s1);
       const textR = max(s1BBox.w, s1BBox.h);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
@@ -588,7 +582,7 @@ export const constrDict = {
       // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
       // I wrote a version simplified to work for rectangles
       const text = s2;
-      const rect = bbox([t2, text]);
+      const rect = bboxFromShape(t2, text);
 
       // TODO: Rewrite this with `ifCond`
       // If the point is inside the box, push it outside w/ `noIntersect`
@@ -935,53 +929,39 @@ export const overlap1D = (
 };
 
 /**
- * Input: A width, height, and center.
- * Output: A bbox with those parameters.
+ * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
-export const bboxFromWHC = (w: VarAD, h: VarAD, center: Pt2): BBox => {
-  const halfWidth = div(w, constOf(2.0));
-  const halfHeight = div(h, constOf(2.0));
-  const nhalfWidth = neg(halfWidth);
-  const nhalfHeight = neg(halfHeight);
-  const pts = <Pt2[]>[
-    [halfWidth, halfHeight],
-    [nhalfWidth, halfHeight],
-    [nhalfWidth, nhalfHeight],
-    [halfWidth, nhalfHeight],
-  ].map((p) => ops.vadd(center, p));
-
-  const corners = {
-    topRight: pts[0],
-    topLeft: pts[1],
-    bottomLeft: pts[2],
-    bottomRight: pts[3],
-  };
-
-  const rect = {
-    minX: corners.topLeft[0],
-    maxX: corners.bottomRight[0],
-    minY: corners.bottomRight[1],
-    maxY: corners.topLeft[1],
-    top: <[Pt2, Pt2]>[corners.topLeft, corners.topRight],
-    bot: <[Pt2, Pt2]>[corners.bottomLeft, corners.bottomRight],
-    left: <[Pt2, Pt2]>[corners.bottomLeft, corners.topLeft],
-    right: <[Pt2, Pt2]>[corners.bottomRight, corners.topRight],
-    center,
-    w,
-    h,
-  };
-
-  return rect;
+export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
+  if (l.val > r.val) throw Error("invalid range"); // TODO do this range check better
+  const fals = constOf(0);
+  const tru = constOf(1);
+  return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
 };
 
 /**
- * Input: A rect-like shape.
- * Output: A bbox corresponding to the rect.
+ * Return numerically-encoded boolean indicating whether the two bboxes are disjoint.
  */
-export const bbox = ([t, s]: [string, any]): BBox => {
+export const areDisjointBoxes = (a: BBox, b: BBox): VarAD => {
+  const fals = constOf(0);
+  const tru = constOf(1);
+
+  const c1 = lt(a.maxX, b.minX);
+  const c2 = gt(a.minX, b.maxX);
+  const c3 = lt(a.maxY, b.minY);
+  const c4 = gt(a.minY, b.maxY);
+
+  return ifCond(or(or(or(c1, c2), c3), c4), tru, fals);
+};
+
+/**
+ * Input: A rect- or line-like shape.
+ * Output: A new BBox
+ * Errors: Throws an error if the input shape is not rect- or line-like.
+ */
+export const bboxFromShape = (t: string, s: any): BBox => {
   if (!(isRectlike(t) || isLinelike(t))) {
     throw new Error(
-      `Bbox expected a rect-like or line-like shape, but got ${t}`
+      `BBox expected a rect-like or line-like shape, but got ${t}`
     );
   }
 
@@ -1012,42 +992,5 @@ export const bbox = ([t, s]: [string, any]): BBox => {
     center = s.center.contents;
   }
 
-  return bboxFromWHC(w, h, center);
-};
-
-/**
- * Input: A bbox and an inflation parameter delta.
- * Output: A bbox inflated on all sides by delta.
- */
-export const inflateBBox = (bbox: BBox, delta: VarAD): BBox => {
-  return bboxFromWHC(
-    add(bbox.w, add(delta, delta)),
-    add(bbox.h, add(delta, delta)),
-    bbox.center
-  );
-};
-
-/**
- * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
- */
-export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
-  if (l.val > r.val) throw Error("invalid range"); // TODO do this range check better
-  const fals = constOf(0);
-  const tru = constOf(1);
-  return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
-};
-
-/**
- * Return numerically-encoded boolean indicating whether the two bboxes are disjoint.
- */
-export const areDisjointBoxes = (a: any, b: any): VarAD => {
-  const fals = constOf(0);
-  const tru = constOf(1);
-
-  const c1 = lt(a.maxX, b.minX);
-  const c2 = gt(a.minX, b.maxX);
-  const c3 = lt(a.maxY, b.minY);
-  const c4 = gt(a.minY, b.maxY);
-
-  return ifCond(or(or(or(c1, c2), c3), c4), tru, fals);
+  return new BBox(w, h, center);
 };
