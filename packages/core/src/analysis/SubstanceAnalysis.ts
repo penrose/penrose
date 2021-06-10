@@ -1,4 +1,4 @@
-import { pullAt, range } from "lodash";
+import { pullAt } from "lodash";
 import { Identifier } from "types/ast";
 import { Map } from "immutable";
 import { choice } from "pandemonium";
@@ -92,8 +92,7 @@ export const replaceStmtName = (
  */
 export const changeType = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind,
-  env: Env,
-  ids: string[]
+  env: Env
 ): ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind => {
   //find matches for all 3 types
   const options = (s: any) => {
@@ -227,34 +226,6 @@ export const findStmt = (
   if (match !== undefined) return [match, env.functions];
   match = env.constructors.get(stmtName);
   return [match, env.constructors];
-};
-
-/**
- * Returns a new bind variable distinct from all other existing variables.
- *
- * @param ids string value of a statement, i.e. "isSubset"
- * @returns new Identifier with unique value
- */
-export const newBindVar = (ids: string[]): Identifier => {
-  const letters = [...range(97, 122, 1)]; // a-z in ASCII
-  // find an unused variable
-  let pick = ids[0];
-  let attempts = 10;
-  while (attempts > 0) {
-    pick = String.fromCharCode(choice(letters));
-    if (ids.find((id) => id === pick) === undefined) {
-      break;
-    }
-    attempts--;
-  }
-  // create new Identifier for the variable
-  return {
-    tag: "Identifier",
-    type: "value",
-    value: pick,
-    nodeType: "SyntheticSubstance",
-    children: [],
-  };
 };
 
 /**

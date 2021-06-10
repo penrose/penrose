@@ -339,11 +339,6 @@ class SynthesisContext {
   };
 
   autoLabel = (): void => this.appendStmt(autoLabelStmt);
-
-  getIDValues = (): string[] => {
-    const idList = [...this.declaredIDs.values()];
-    return idList.flatMap((i) => i.map((en) => en.value));
-  };
 }
 
 //#endregion
@@ -460,8 +455,7 @@ export class Synthesizer {
           break;
         }
         case "TypeChange": {
-          const allIDs = this.cxt.getIDValues();
-          const newStmt = changeType(stmt, this.env, allIDs);
+          const newStmt = changeType(stmt, this.env);
           if (
             newStmt.tag === "Bind" &&
             stmt.tag === "Bind" &&
@@ -538,8 +532,9 @@ export class Synthesizer {
   cascadingDelete = (dec: Bind | Decl): void => {
     const findArg = (s: ApplyPredicate, ref: Identifier | undefined) =>
       ref &&
-      s.args.filter((a) => a.tag === ref.tag && a.value === ref.value).length >
-        0;
+      s.args.filter((a) => {
+        return a.tag === ref.tag && a.value === ref.value;
+      }).length > 0;
     const ids = [dec.tag === "Bind" ? dec.variable : dec.name]; // stack of variables to delete
     log.debug("before cascading", this.cxt.prog.statements.length);
     while (ids.length > 0) {
@@ -555,7 +550,6 @@ export class Synthesizer {
           // delete if arg is found in either return type or args
           return willDelete || s.variable.value === id?.value;
         } else if (s.tag === "ApplyPredicate") {
-          // will not return value
           return findArg(s, id);
         } else if (s.tag === "Decl") {
           return s.name === id;
@@ -565,9 +559,9 @@ export class Synthesizer {
       // remove list of filtered statements
       toDelete.forEach((stmt) => {
         // remove Identifier from added IDs
-        if (stmt.tag === "Decl")
+        if (stmt.tag === "Decl") {
           this.cxt.removeID(stmt.type.name.value, stmt.name);
-        // remove statement from list of statements
+        }
         this.cxt.removeStmt(stmt);
       });
     }
