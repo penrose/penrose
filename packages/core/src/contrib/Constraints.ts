@@ -992,7 +992,7 @@ export const bbox = ([t, s]: [string, any]): BBox => {
   } else if (isLinelike(t)) {
     w = max(absVal(sub(s.start.contents[0], s.end.contents[0])), constOf(2));
   } else {
-    w = s.h.contents;
+    w = s.w.contents;
   }
 
   let h;
