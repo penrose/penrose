@@ -941,6 +941,9 @@ export const areDisjointBoxes = (a: BBox, b: BBox): VarAD => {
 };
 
 /**
+ * Preconditions:
+ *   If the input is line-like, it must be axis-aligned.
+ *   Assumes line-like shapes are longer than they are thick.
  * Input: A rect- or line-like shape.
  * Output: A new BBox
  * Errors: Throws an error if the input shape is not rect- or line-like.
@@ -957,7 +960,10 @@ export const bboxFromShape = (t: string, s: any): BBox => {
   if (t == "Square") {
     w = s.side.contents;
   } else if (isLinelike(t)) {
-    w = max(absVal(sub(s.start.contents[0], s.end.contents[0])), constOf(2));
+    w = max(
+      absVal(sub(s.start.contents[0], s.end.contents[0])),
+      s.thickness.contents
+    );
   } else {
     w = s.w.contents;
   }
@@ -966,7 +972,10 @@ export const bboxFromShape = (t: string, s: any): BBox => {
   if (t == "Square") {
     h = s.side.contents;
   } else if (isLinelike(t)) {
-    h = max(absVal(sub(s.start.contents[1], s.end.contents[1])), constOf(2));
+    h = max(
+      absVal(sub(s.start.contents[1], s.end.contents[1])),
+      s.thickness.contents
+    );
   } else {
     h = s.h.contents;
   }
