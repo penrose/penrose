@@ -17,7 +17,6 @@ export type Graph = number[][];
 export interface Edge {
   start_node_index: number;
   end_node_index: number;
-
   weight: number;
   norm_weight?: number;
 }
@@ -51,54 +50,19 @@ export const is_complete_graph = (graph: Graph): boolean => {
     for (var j = 0; j < graph.length; j++) {
       // no self loops
       if (i == j && graph[i][j] !== 0) return false;
-      // an edge exists between distinct nodes
-      // else if (graph[i][j] === 0) return false;
       // edge weights are symmetric
       else if (i != j && graph[i][j] !== graph[j][i]) return false;
     }
   }
   return true;
-}; // maybe I can add memoization to this?
+};
 
-/**
- * Main sampling function: assigns colors based on random node
- * @param object_graph a complete graph (nxn adjacency matrix for n objects)
- * @param palette optional param, a list of colors in the RGB space
- * @returns a list of colors, where the index === object node number
- */ export const samplePalette = (
+export const getSortedEdges = (
   object_graph: Graph,
-  node_to_sort_around?: number,
-  palette = viridis_data
-): RGB[] => {
-  if (!is_complete_graph(object_graph)) {
-    throw Error("Invalid graph input");
-  }
-  const numberOfNodes = object_graph.length;
-
-  if (
-    typeof node_to_sort_around !== "undefined" &&
-    node_to_sort_around >= numberOfNodes
-  ) {
-    throw Error("Invalid node to sort around");
-  }
-
-  // handle 0 node case
-  if (numberOfNodes === 0) return [];
-  // handle 1 node case
-  else if (numberOfNodes === 1) {
-    // pick a random color
-    const random_index = Math.floor(Math.random() * (palette.length - 1));
-    return [palette[random_index]];
-  }
-
-  // pick a random node to sort edge weights using
-  const random_node = Math.floor(Math.random() * (numberOfNodes - 1));
-  if (typeof node_to_sort_around === "undefined")
-    node_to_sort_around = random_node;
-
-  // gather up the edge weights of the edges attached to the node
+  node_to_sort_around: number
+): Edge[] => {
   var edges_from_selected_node: Edge[] = [];
-  for (var i = 0; i < numberOfNodes; i++) {
+  for (var i = 0; i < object_graph.length; i++) {
     if (i != node_to_sort_around) {
       // no self edges
       edges_from_selected_node.push(
@@ -117,16 +81,62 @@ export const is_complete_graph = (graph: Graph): boolean => {
 
   const max_edge_index = edges_from_selected_node.length - 1;
   const max_edge_weight = edges_from_selected_node[max_edge_index].weight;
-  const min_edge_weight = edges_from_selected_node[0].weight;
 
-  // norm weight is the difference between the max and min edge weights
-  const norm_magnitude = max_edge_weight - min_edge_weight;
+  // norm weight is calculated relative to the max weight
+  const norm_magnitude = max_edge_weight;
 
   // give all Edge objects a norm weight property in the range [0, 1]
   for (var i = 0; i < edges_from_selected_node.length; i++) {
     edges_from_selected_node[i].norm_weight =
       edges_from_selected_node[i].weight / norm_magnitude;
   }
+  return edges_from_selected_node;
+};
+
+/**
+ * Main sampling function: assigns colors based on random node
+ * @param object_graph a complete graph (nxn adjacency matrix for n objects)
+ * @param node_to_sort_around the node to collect edges from
+ * @param palette optional param, a list of colors in the RGB space
+ * @returns a list of colors, where the index === node number,
+ *          and entry === color assigned to the node
+ */
+export const samplePalette = (
+  object_graph: Graph,
+  node_to_sort_around?: number,
+  palette = viridis_data
+): RGB[] => {
+  if (!is_complete_graph(object_graph)) {
+    throw new Error("Invalid graph input");
+  }
+  const numberOfNodes = object_graph.length;
+
+  if (
+    typeof node_to_sort_around !== "undefined" &&
+    (node_to_sort_around >= numberOfNodes || node_to_sort_around < 0)
+  ) {
+    throw new Error("Invalid node to sort around");
+  }
+
+  // handle 0 node case
+  if (numberOfNodes === 0) return [];
+  // handle 1 node case
+  else if (numberOfNodes === 1) {
+    // pick a random color
+    const random_index = Math.floor(Math.random() * (palette.length - 1));
+    return [palette[random_index]];
+  }
+
+  // pick a random node to sort edge weights
+  if (typeof node_to_sort_around === "undefined") {
+    const random_node = Math.floor(Math.random() * (numberOfNodes - 1));
+    node_to_sort_around = random_node;
+  }
+
+  const edges_from_selected_node = getSortedEdges(
+    object_graph,
+    node_to_sort_around
+  );
 
   // assign colors from palette
 
@@ -136,26 +146,23 @@ export const is_complete_graph = (graph: Graph): boolean => {
     colorList.push([-1, -1, -1]);
   }
 
-  // use a default palette if no palette was passed in
-  // if (typeof palette === "undefined") palette = viridis_data;
+  // assign selected to the first color in the palette
+  colorList[node_to_sort_around] = palette[0];
 
-  // assign node 0 to the first color in the palette
-  colorList[0] = palette[0];
-
-  // assign colors to the nodes connected to node 0
+  // assign colors to the nodes connected to selected node
   for (var i = 0; i < edges_from_selected_node.length; i++) {
-    var curr_norm_weight = edges_from_selected_node[i].norm_weight;
+    const curr_norm_weight = edges_from_selected_node[i].norm_weight;
 
     // a check to make typescript happy (technically shouldn't happen)
     if (typeof curr_norm_weight === "undefined") {
-      throw Error("Norm weight not defined in Edge");
+      throw new Error("Norm weight not defined in Edge");
     }
 
     // get the index for extracting the color from the palette
-    var palette_index = Math.floor(curr_norm_weight * palette.length);
+    const palette_index = Math.floor(curr_norm_weight * (palette.length - 1));
 
-    // get the index of the node connected to node 0 at the current edge
-    var curr_node_index = edges_from_selected_node[i].end_node_index;
+    // get the index of the node connected to selected node at the current edge
+    const curr_node_index = edges_from_selected_node[i].end_node_index;
 
     // set the color
     colorList[curr_node_index] = palette[palette_index];
@@ -163,3 +170,13 @@ export const is_complete_graph = (graph: Graph): boolean => {
 
   return colorList;
 };
+
+// greedy algorithm
+/*
+const samplePalette2 = (
+  object_graph: Graph,
+  palette = viridis_data
+): RGB[] => {
+  return []
+}
+*/

@@ -2,10 +2,11 @@ import {
   is_square_matrix,
   is_complete_graph,
   compareEdges,
+  getSortedEdges,
   samplePalette,
 } from "./Color";
 
-import { RGB } from "./Color";
+import { RGB, Edge } from "./Color";
 
 test("first test", () => {
   expect(true).toBe(true);
@@ -155,21 +156,74 @@ describe("testing samplePalette", () => {
     }).toThrowError("Invalid graph input");
   });
 
-  /*test('samplePalette, complete graph test'), () => {
-    
-  }*/
-
   /*
-  const square_arr = [[1,2,3],[4,5,6],[7,8,9]];
-  const self_loops = square_arr
-  const incomplete_graph = [[0,0],[0,0]];
-  const asymmetric_graph = [[0,2],[5,0]];
-  const complete_graph = [[0,2,3],[2,0,5],[3,5,0]];
+  const complete_graph = [
+     0 . 1 . 2
+  0  [0, 2, 3],
+  1  [2, 0, 5],
+  2  [3, 5, 0],
+  
+  ];
   */
-});
+  const sortedEdgeList = getSortedEdges(complete_graph, 0);
+  const res = samplePalette(complete_graph, 0);
 
-/*
-test('failed test', () => {
-    expect(false).toBe(true);
-})
-*/
+  // console.log(res);
+
+  test("samplePalette, complete graph length test", () => {
+    //expect(typeof res).not.toBe('undefined');
+    expect(res.length).toStrictEqual(complete_graph.length);
+  });
+
+  const has_valid_colors = (
+    accumulator: boolean,
+    currentColor: RGB
+  ): boolean => {
+    return (
+      accumulator &&
+      currentColor[0] != -1 &&
+      currentColor[1] != -1 &&
+      currentColor[2] != -1
+    );
+  };
+
+  const foldedres = res.reduce(has_valid_colors, true);
+
+  test("samplePalette, complete graph result", () => {
+    expect(foldedres).toBe(true);
+  });
+
+  test("getSortedEdges, testing correctness, first edge", () => {
+    expect(sortedEdgeList[0].end_node_index).toBe(1);
+  });
+
+  test("getSortedEdges, testing correctness, second edge", () => {
+    expect(sortedEdgeList[1].end_node_index).toBe(2);
+  });
+
+  const has_valid_edges = (
+    accumulator: boolean,
+    currentEdge: Edge
+  ): boolean => {
+    return (
+      typeof currentEdge.norm_weight !== "undefined" &&
+      currentEdge.norm_weight >= 0 &&
+      currentEdge.norm_weight <= 1
+    );
+  };
+
+  const foldedEdgeRes = sortedEdgeList.reduce(has_valid_edges, true);
+
+  test("getSortedEdges, testing edge weights in [0,1]", () => {
+    expect(foldedEdgeRes).toBe(true);
+  });
+
+  test("getSortedEdges, testing sortedness", () => {
+    expect(
+      sortedEdgeList[0].weight <= sortedEdgeList[1].weight &&
+        typeof sortedEdgeList[0].norm_weight !== "undefined" &&
+        typeof sortedEdgeList[1].norm_weight !== "undefined" &&
+        sortedEdgeList[0].norm_weight <= sortedEdgeList[1].norm_weight
+    ).toBe(true);
+  });
+});
