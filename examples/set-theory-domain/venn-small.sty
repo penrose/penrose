@@ -42,7 +42,7 @@ forall Set x {
     encourage sameCenter(x.text, x.icon)
 
     ensure minSize(x.icon)
-    ensure maxSize(x.icon)
+    ensure maxSize(x.icon, canvas.height / 3.)
 
     layer x.text above x.icon
 }

@@ -31,7 +31,7 @@ Set x {
 
     ensure contains(x.shape, x.text)
     ensure minSize(x.shape)
-    ensure maxSize(x.shape)
+    ensure maxSize(x.shape, canvas.height / 3.)
     encourage sameCenter(x.text, x.shape)
 
     x.shape below x.text

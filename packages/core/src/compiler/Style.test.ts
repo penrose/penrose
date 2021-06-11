@@ -58,6 +58,12 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
   return res;
 };
 
+const canvasPreamble = `canvas {
+  width = 800
+  height = 700
+}
+`;
+
 describe("Compiler", () => {
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // Each possible substitution should be full WRT its selector
@@ -275,7 +281,7 @@ describe("Compiler", () => {
 
     for (const styProg of styProgs) {
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(styProg, ...res),
+        (res) => S.compileStyle(canvasPreamble + styProg, ...res),
         subRes
       );
 
@@ -337,7 +343,7 @@ describe("Compiler", () => {
 
     const testStyProgForError = (styProg: string, errorType: string) => {
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(styProg, ...res),
+        (res) => S.compileStyle(canvasPreamble + styProg, ...res),
         subRes
       );
       describe(errorType, () => {
