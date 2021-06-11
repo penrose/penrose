@@ -29,7 +29,7 @@ import { linePts } from "utils/OtherUtils";
 import { canvasSize } from "renderer/ShapeDef";
 import { VarAD, VecAD, Pt2 } from "types/ad";
 import { every } from "lodash";
-import { BBox } from "engine/BBox";
+import * as BBox from "engine/BBox";
 
 // Kinds of shapes
 /**
@@ -336,8 +336,8 @@ export const constrDict = {
 
       // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
       return add(
-        constrDict.contains1D(box1.xRange, box2.xRange),
-        constrDict.contains1D(box1.yRange, box2.yRange)
+        constrDict.contains1D(BBox.xRange(box1), BBox.xRange(box2)),
+        constrDict.contains1D(BBox.yRange(box1), BBox.yRange(box2))
       );
     } else if (t1 === "Square" && isLinelike(t2)) {
       const [[startX, startY], [endX, endY]] = linePts(s2);
@@ -400,8 +400,8 @@ export const constrDict = {
 
     // Contains line both vertically and horizontally
     return add(
-      constrDict.contains1D(box.xRange, line.xRange),
-      constrDict.contains1D(box.yRange, line.yRange)
+      constrDict.contains1D(BBox.xRange(box), BBox.xRange(line)),
+      constrDict.contains1D(BBox.yRange(box), BBox.yRange(line))
     );
   },
 
@@ -417,8 +417,8 @@ export const constrDict = {
     const box = bboxFromShape(t1, s1);
     const line = bboxFromShape(t2, s2);
 
-    const overlapX = overlap1D(box.xRange, line.xRange);
-    const overlapY = overlap1D(box.yRange, line.yRange);
+    const overlapX = overlap1D(BBox.xRange(box), BBox.xRange(line));
+    const overlapY = overlap1D(BBox.yRange(box), BBox.yRange(line));
 
     // Push away in both X and Y directions
     return mul(overlapX, overlapY);
@@ -450,8 +450,8 @@ export const constrDict = {
       const box2 = bboxFromShape(t2, s2);
       const inflatedBox1 = BBox.inflate(box1, constOfIf(offset));
 
-      const overlapX = overlap1D(inflatedBox1.xRange, box2.xRange);
-      const overlapY = overlap1D(inflatedBox1.yRange, box2.yRange);
+      const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
+      const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
 
       // Push away in both X and Y directions, and account for padding
       return mul(overlapX, overlapY);
@@ -761,9 +761,15 @@ const pointInBox = (p: any, rect: any): boolean => {
  * compute the positive distance squared from point `p` to box `rect` (not the signed distance).
  * https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
  */
-const dsqBP = (p: any, rect: any): VarAD => {
-  const dx = max(max(sub(rect.minX, p.x), constOf(0.0)), sub(p.x, rect.maxX));
-  const dy = max(max(sub(rect.minY, p.y), constOf(0.0)), sub(p.y, rect.maxY));
+const dsqBP = (p: any, rect: BBox.BBox): VarAD => {
+  const dx = max(
+    max(sub(BBox.minX(rect), p.x), constOf(0.0)),
+    sub(p.x, BBox.maxX(rect))
+  );
+  const dy = max(
+    max(sub(BBox.minY(rect), p.y), constOf(0.0)),
+    sub(p.y, BBox.maxY(rect))
+  );
   return add(squared(dx), squared(dy));
 };
 
@@ -928,14 +934,14 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
 /**
  * Return numerically-encoded boolean indicating whether the two bboxes are disjoint.
  */
-export const areDisjointBoxes = (a: BBox, b: BBox): VarAD => {
+export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
   const fals = constOf(0);
   const tru = constOf(1);
 
-  const c1 = lt(a.maxX, b.minX);
-  const c2 = gt(a.minX, b.maxX);
-  const c3 = lt(a.maxY, b.minY);
-  const c4 = gt(a.minY, b.maxY);
+  const c1 = lt(BBox.maxX(a), BBox.minX(b));
+  const c2 = gt(BBox.minX(a), BBox.maxX(b));
+  const c3 = lt(BBox.maxY(a), BBox.minY(b));
+  const c4 = gt(BBox.minY(a), BBox.maxY(b));
 
   return ifCond(or(or(or(c1, c2), c3), c4), tru, fals);
 };
@@ -948,7 +954,7 @@ export const areDisjointBoxes = (a: BBox, b: BBox): VarAD => {
  * Output: A new BBox
  * Errors: Throws an error if the input shape is not rect- or line-like.
  */
-export const bboxFromShape = (t: string, s: any): BBox => {
+export const bboxFromShape = (t: string, s: any): BBox.BBox => {
   if (!(isRectlike(t) || isLinelike(t))) {
     throw new Error(
       `BBox expected a rect-like or line-like shape, but got ${t}`
@@ -988,5 +994,5 @@ export const bboxFromShape = (t: string, s: any): BBox => {
     center = s.center.contents;
   }
 
-  return new BBox(w, h, center);
+  return BBox.bbox(w, h, center);
 };
