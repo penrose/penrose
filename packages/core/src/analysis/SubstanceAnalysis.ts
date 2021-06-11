@@ -1,4 +1,4 @@
-import { pullAt, range } from "lodash";
+import { pullAt } from "lodash";
 import { Identifier } from "types/ast";
 import { Map } from "immutable";
 import {
