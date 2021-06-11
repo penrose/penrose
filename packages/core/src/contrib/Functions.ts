@@ -3,6 +3,7 @@ import {
   intersectionSegSeg,
   inRange,
   isRectlike,
+  bboxFromShape,
 } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
@@ -36,7 +37,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
-import { bboxFromShape } from "./Constraints";
+import * as BBox from "engine/BBox";
 
 /**
  * Static dictionary of computation functions
@@ -378,7 +379,11 @@ export const compDict = {
     // Find some other way to calculate what side intersects the ray between the points
     // Check if this works better WRT new disjoint rectangles, rect-line etc.
 
-    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), rect.h, rect.w);
+    const dim = ifCond(
+      inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
+      rect.h,
+      rect.w
+    );
     return { tag: "FloatV", contents: dim };
   },
 
