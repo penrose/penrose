@@ -35,14 +35,22 @@ interface IInputProps {
 
 const toCanvas = (jsonVal: string, canvas: Canvas): string => {
   switch (jsonVal) {
-    case "CANVASL":
+    case "CANVAS_MIN_X":
       return (-canvas.width / 2).toString();
-    case "CANVASR":
+    case "CANVAS_MAX_X":
       return (canvas.width / 2).toString();
-    case "CANVASB":
+    case "CANVAS_MIN_Y":
       return (-canvas.height / 2).toString();
-    case "CANVAST":
+    case "CANVAS_MAX_Y":
       return (canvas.height / 2).toString();
+    case "CANVAS_MIN_DIM":
+      return Math.min(canvas.width, canvas.height).toString();
+    case "CANVAS_HALF_MIN_DIM":
+      return (Math.min(canvas.width, canvas.height) / 2).toString();
+    case "CANVAS_WIDTH":
+      return canvas.width.toString();
+    case "CANVAS_HEIGHT":
+      return canvas.height.toString();
     default:
       return jsonVal;
   }
