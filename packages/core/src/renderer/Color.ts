@@ -57,6 +57,12 @@ export const is_complete_graph = (graph: Graph): boolean => {
   return true;
 };
 
+/**
+ * Helper function for samplePalette
+ * @param object_graph a complete graph (nxn adjacency matrix for n objects)
+ * @param node_to_sort_around the node to collect edges from
+ * @returns a list of Edges connected to node_to_sort_around, sorted by edge weight
+ */
 export const getSortedEdges = (
   object_graph: Graph,
   node_to_sort_around: number
@@ -79,17 +85,16 @@ export const getSortedEdges = (
   // sort the edges
   edges_from_selected_node.sort(compareEdges);
 
-  const max_edge_index = edges_from_selected_node.length - 1;
-  const max_edge_weight = edges_from_selected_node[max_edge_index].weight;
-
   // norm weight is calculated relative to the max weight
-  const norm_magnitude = max_edge_weight;
+  const max_edge_weight_index = edges_from_selected_node.length - 1;
+  const norm_magnitude = edges_from_selected_node[max_edge_weight_index].weight;
 
   // give all Edge objects a norm weight property in the range [0, 1]
   for (var i = 0; i < edges_from_selected_node.length; i++) {
     edges_from_selected_node[i].norm_weight =
       edges_from_selected_node[i].weight / norm_magnitude;
   }
+
   return edges_from_selected_node;
 };
 
@@ -133,6 +138,7 @@ export const samplePalette = (
     node_to_sort_around = random_node;
   }
 
+  // get the sorted edges
   const edges_from_selected_node = getSortedEdges(
     object_graph,
     node_to_sort_around
