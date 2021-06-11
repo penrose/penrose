@@ -35,35 +35,36 @@ const makeViewBoxes = (
           right: 0,
         }}
       >
-        {shapes.map(
-          ({ properties, shapeType }: ShapeTypes.Shape, key: number) => {
-            // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
-            // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
-            const [w, h] = bBoxDims(properties, shapeType);
-            return (
-              <ShapeItem
-                key={`shapePreview-${key}`}
-                selected={selectedShape === key}
-                onClick={() => setSelectedShape(key)}
-              >
-                <div>
-                  <svg
-                    viewBox={`0 0 ${w} ${h}`}
-                    width="50"
-                    height="50"
-                    dangerouslySetInnerHTML={{
-                      __html: RenderShape({ properties, shapeType }, [], [w, h])
-                        .outerHTML,
-                    }}
-                  />
-                </div>
-                <div style={{ margin: "0.5em" }}>
-                  <span>{properties.name.contents}</span>
-                </div>
-              </ShapeItem>
-            );
-          }
-        )}
+        {shapes.map((shape: ShapeTypes.Shape, key: number) => {
+          // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
+          // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
+          const [w, h] = bBoxDims(shape.properties, shape.shapeType);
+          return (
+            <ShapeItem
+              key={`shapePreview-${key}`}
+              selected={selectedShape === key}
+              onClick={() => setSelectedShape(key)}
+            >
+              <div>
+                <svg
+                  viewBox={`0 0 ${w} ${h}`}
+                  width="50"
+                  height="50"
+                  dangerouslySetInnerHTML={{
+                    // TODO: return to this!!!
+                    __html: RenderShape({ shape, canvasSize: [800, 700] }, [
+                      w,
+                      h,
+                    ]).outerHTML,
+                  }}
+                />
+              </div>
+              <div style={{ margin: "0.5em" }}>
+                <span>{shape.properties.name.contents}</span>
+              </div>
+            </ShapeItem>
+          );
+        })}
       </ul>
     </div>
   );

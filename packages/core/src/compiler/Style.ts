@@ -25,7 +25,7 @@ import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import {
-  canvasXRange,
+  Canvas,
   findDef,
   PropType,
   Sampler,
@@ -2568,11 +2568,12 @@ const initFieldsAndAccessPaths = (
   tr: Translation
 ): Translation => {
   const varyingFieldsAndAccessPaths = varyingPaths.filter(isFieldOrAccessPath);
+  const canvas = getCanvas(tr);
 
   const initVals = varyingFieldsAndAccessPaths.map(
     (p: Path): TagExpr<VarAD> => {
       // by default, sample randomly in canvas X range
-      let initVal = randFloat(canvasXRange[0], canvasXRange[1]);
+      let initVal = randFloat(...canvas.xRange);
 
       // unless it's a VaryInit, in which case, don't sample, set to the init value
       // TODO: This could technically use `varyingInitPathsAndVals`?
@@ -2615,9 +2616,10 @@ const initFieldsAndAccessPaths = (
 const initProperty = (
   shapeType: ShapeTypeStr,
   properties: GPIProps<VarAD>,
-  [propName, [propType, propSampler]]: [string, [PropType, Sampler]]
+  [propName, [propType, propSampler]]: [string, [PropType, Sampler]],
+  canvas: Canvas
 ): GPIProps<VarAD> => {
-  const propVal: Value<number> = propSampler();
+  const propVal: Value<number> = propSampler(canvas);
   const propValAD: Value<VarAD> = valueNumberToAutodiffConst(propVal);
   const propValDone: TagExpr<VarAD> = { tag: "Done", contents: propValAD };
   const styleSetting: TagExpr<VarAD> = properties[propName];
@@ -2698,7 +2700,8 @@ const initShape = (
       (
         newGPI: GPIProps<VarAD>,
         propTemplate: [string, [PropType, Sampler]]
-      ): GPIProps<VarAD> => initProperty(stype, newGPI, propTemplate),
+      ): GPIProps<VarAD> =>
+        initProperty(stype, newGPI, propTemplate, getCanvas(tr)),
       clone(props)
     ); // NOTE: `initProperty` mutates its input, so the `props` from the translation is cloned here, so the one in the translation itself isn't mutated
 
@@ -2906,6 +2909,8 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     oConfig: undefined as any,
     selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
+
+    canvas: getCanvas(trans),
   };
 
   return ok(initState);
@@ -3066,6 +3071,21 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 };
 
 //#endregion Checking translation
+
+export const getCanvas = (tr: Translation): Canvas => {
+  // TODO: error handling and remove ignores!!!
+  // @ts-ignore
+  const width = tr.trMap.canvas.width.contents.contents.contents;
+  // @ts-ignore
+  const height = tr.trMap.canvas.height.contents.contents.contents;
+  return {
+    width,
+    height,
+    size: [width, height],
+    xRange: [-width / 2, width / 2],
+    yRange: [-height / 2, height / 2],
+  };
+};
 
 export const compileStyle = (
   stySource: string,

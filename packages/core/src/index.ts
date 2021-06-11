@@ -15,6 +15,7 @@ import RenderStatic, {
   RenderShape,
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
+import { Canvas } from "renderer/ShapeDef";
 import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";

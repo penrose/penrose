@@ -26,7 +26,6 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { canvasSize } from "renderer/ShapeDef";
 import { VarAD, VecAD } from "types/ad";
 import { every } from "lodash";
 
@@ -243,13 +242,12 @@ export const constrDict = {
   /**
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
-  maxSize: ([shapeType, props]: [string, any]) => {
-    const limit = Math.max(...canvasSize);
+  maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
     switch (shapeType) {
       case "Circle":
-        return sub(props.r.contents, constOf(limit / 6.0));
+        return sub(props.r.contents, div(limit, constOf(2)));
       case "Square":
-        return sub(props.side.contents, constOf(limit / 3.0));
+        return sub(props.side.contents, limit);
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
