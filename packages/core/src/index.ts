@@ -7,6 +7,8 @@ import {
   prettySubstance,
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
+import { constrDict } from "contrib/Constraints";
+import { compDict } from "contrib/Functions";
 import { evalShapes } from "engine/Evaluator";
 import { genFns, genOptProblem, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
@@ -284,6 +286,8 @@ export {
   RenderInteractive,
   ShapeTypes,
   shapedefs,
+  compDict,
+  constrDict,
   bBoxDims,
   prettySubstance,
   toHex,

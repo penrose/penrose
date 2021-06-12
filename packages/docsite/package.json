@@ -1,0 +1,38 @@
+{
+  "name": "@penrose/documentation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Penrose Documentation",
+  "author": "maxkrieger",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "watch": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.4.0",
+    "@emotion/styled": "^11.3.0",
+    "@mdx-js/mdx": "^1.6.22",
+    "@mdx-js/react": "^1.6.22",
+    "@penrose/core": "^1.2.0",
+    "gatsby": "^3.6.2",
+    "gatsby-plugin-emotion": "^6.7.1",
+    "gatsby-plugin-manifest": "^3.7.1",
+    "gatsby-plugin-mdx": "^2.7.1",
+    "gatsby-plugin-react-helmet": "^4.7.1",
+    "gatsby-plugin-sitemap": "^4.3.1",
+    "gatsby-source-filesystem": "^3.7.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-helmet": "^6.1.0"
+  },
+  "devDependencies": {
+    "gatsby-plugin-ts-config": "^1.1.5"
+  }
+}
