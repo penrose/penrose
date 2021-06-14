@@ -46,7 +46,9 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   }
   attrOpacity(shape, svg);
   attrWH(shape, svg);
+
   attrTransformCoords(shape, canvasSize, elem);
+
   attrRotation(
     shape,
     shape.properties.center,

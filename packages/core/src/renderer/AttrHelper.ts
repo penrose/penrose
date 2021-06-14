@@ -8,7 +8,7 @@ import {
   Value,
 } from "types/value";
 import { Shape } from "types/shape";
-import { toHex, toScreen } from "utils/Util";
+import { toHex, getCoords, toScreen } from "utils/Util";
 
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const color = properties.color as IColorV<number>;
@@ -32,40 +32,9 @@ export const attrCenter = (
   elem: SVGElement
 ) => {
   const center = properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const [x, y] = getCoords(properties, elem);
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
-};
-
-export const attrPolyCenter = (
-  { properties }: Shape,
-  canvasSize: [number, number],
-  elem: SVGElement
-) => {
-  if (properties.center) {
-    const [x, y] = toScreen(
-      properties.center.contents as [number, number],
-      canvasSize
-    );
-    elem.setAttribute("cx", x.toString());
-    elem.setAttribute("cy", y.toString());
-  } else {
-    const points = properties.points as IPtListV<number>;
-    const xs = points.contents.map((xy) => xy[0]);
-    const ys = points.contents.map((xy) => xy[1]);
-
-    const minX = Math.min(...xs),
-      minY = Math.min(...ys),
-      maxX = Math.max(...xs),
-      maxY = Math.max(...ys);
-
-    const cx = (minX + maxX) / 2,
-      cy = (minY + maxY) / 2;
-
-    const [x, y] = toScreen([cx, cy] as [number, number], canvasSize);
-    elem.setAttribute("cx", x.toString());
-    elem.setAttribute("cy", y.toString());
-  }
 };
 
 export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
@@ -83,7 +52,7 @@ export const attrTransformCoords = (
   elem: SVGElement
 ) => {
   const center = properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const [x, y] = getCoords(properties, elem);
   const w = properties.w as IFloatV<number>;
   const h = properties.h as IFloatV<number>;
   let transform = elem.getAttribute("transform");
@@ -99,12 +68,35 @@ export const attrXY = (
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  const center = properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const [x, y] = getCoords(properties, elem);
   const w = properties.w as IFloatV<number>;
   const h = properties.h as IFloatV<number>;
   elem.setAttribute("x", (x - w.contents / 2).toString());
   elem.setAttribute("y", (y - h.contents / 2).toString());
+};
+
+export const attrcXcY = (
+  { properties }: Shape,
+  canvasSize: [number, number],
+  elem: SVGElement
+) => {
+  console.log({
+    properties: properties,
+    elem: elem,
+  });
+
+  const [x, y] = getCoords(properties, elem);
+
+  if (elem.nodeName === "circle") {
+    const r = properties.r as IFloatV<number>;
+    elem.setAttribute("cx", (x - r.contents / 2).toString());
+    elem.setAttribute("cy", (x - r.contents / 2).toString());
+  } else {
+    const rx = properties.rx as IFloatV<number>;
+    const ry = properties.ry as IFloatV<number>;
+    elem.setAttribute("cx", (x - rx.contents / 2).toString());
+    elem.setAttribute("cy", (y - ry.contents / 2).toString());
+  }
 };
 
 /**
@@ -122,7 +114,7 @@ export const attrRotation = (
   elem: SVGElement
 ): void => {
   const rotation = (properties.rotation as IFloatV<number>).contents;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const [x, y] = getCoords(properties, elem);
   let transform = elem.getAttribute("transform");
   transform =
     transform == null
@@ -142,7 +134,7 @@ export const attrSideCoords = (
   elem: SVGElement
 ) => {
   const center = properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const [x, y] = getCoords(properties, elem);
   const side = properties.side as IFloatV<number>;
   let transform = elem.getAttribute("transform");
   transform =

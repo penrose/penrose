@@ -39,6 +39,10 @@ forall Text h {
     h.icon = Text { 
         string: "i am a label"
         rotation: 45
+        fontSize:200
+
+        x: 200
+        y: 200
     }
 }
 
@@ -81,8 +85,6 @@ forall FreeformPolygon u {
 
 forall PathString p {
     p.icon = PathString {
-        w: 300
-        h: 300
         data: "M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80"
         viewBox: "0 0 200 200"
     }

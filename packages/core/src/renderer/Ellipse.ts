@@ -1,5 +1,5 @@
 import {
-  attrCenter,
+  attrcXcY,
   attrFill,
   attrRadii,
   attrRadiusX,
@@ -15,7 +15,7 @@ const Ellipse = ({ shape, canvasSize }: ShapeProps) => {
     "ellipse"
   );
   attrFill(shape, elem);
-  attrCenter(shape, canvasSize, elem);
+  attrcXcY(shape, canvasSize, elem);
   attrRadii(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);

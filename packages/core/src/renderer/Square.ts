@@ -18,15 +18,6 @@ const Square = ({ shape, canvasSize }: ShapeProps) => {
   attrFill(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
-  attrRotation(
-    shape,
-    shape.properties.center,
-    shape.properties.side,
-    shape.properties.side,
-    canvasSize,
-    elem
-  );
-  attrSideCoords(shape, canvasSize, elem);
 
   attrRadiusX(shape, elem);
 

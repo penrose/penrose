@@ -352,8 +352,8 @@ export const textDef: ShapeDef = {
   properties: {
     x: ["FloatV", widthSampler],
     y: ["FloatV", heightSampler],
-    w: ["FloatV", () => constValue("FloatV", 0)],
-    h: ["FloatV", () => constValue("FloatV", 0)],
+    w: ["FloatV", () => constValue("FloatV", 200)],
+    h: ["FloatV", () => constValue("FloatV", 200)],
     fontSize: ["StrV", () => constValue("StrV", "12pt")],
     rotation: ["FloatV", () => constValue("FloatV", 0)],
     style: ["StrV", () => constValue("StrV", "none")],

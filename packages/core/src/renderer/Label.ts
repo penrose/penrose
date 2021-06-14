@@ -11,15 +11,17 @@ import { ShapeProps } from "./Renderer";
 
 const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  attrRotation(
-    shape,
-    shape.properties.center,
-    shape.properties.w,
-    shape.properties.h,
-    canvasSize,
-    elem
-  );
-  attrTransformCoords(shape, canvasSize, elem);
+
+  // attrRotation(
+  //   shape,
+  //   shape.properties.center,
+  //   shape.properties.w,
+  //   shape.properties.h,
+  //   canvasSize,
+  //   elem
+  // );
+  // attrTransformCoords(shape, canvasSize, elem);
+
   attrTitle(shape, elem);
   const name = shape.properties.name as IStrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);

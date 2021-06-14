@@ -1,20 +1,20 @@
 -- -- Basic shapes
 
 
--- Polygon K
+Polygon K
 FreeformPolygon I
--- Polyline J
+Polyline J
 Rectangle F
--- Circle E
--- Ellipse L
--- Line G
+Circle E
+Ellipse L
+Line G
 
 
 -- -- Graphics Elements
 
 Text H
--- Path A
--- Arrow C
+Path A
+Arrow C
 Square D
 -- Image I
 
