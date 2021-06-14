@@ -52,7 +52,7 @@ const dragShape = (shape: Shape, offset: [number, number]): Shape => {
     default:
       return {
         ...shape,
-        properties: moveProperties(properties, ["center"], offset),
+        properties: moveProperties(properties, ["x","y"], offset),
       };
   }
 };

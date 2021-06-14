@@ -64,6 +64,7 @@ const vectorSampler: Sampler = (): IVectorV<number> => ({
   tag: "VectorV",
   contents: [randFloat(...canvasXRange), randFloat(...canvasYRange)],
 });
+
 const widthSampler: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
   contents: randFloat(3, canvasSize[0] / 6),
@@ -151,7 +152,8 @@ export type Sampler = () => Value<number>;
 export const circleDef: ShapeDef = {
   shapeType: "Circle",
   properties: {
-    center: ["VectorV", vectorSampler],
+    cx: ["FloatV", widthSampler],
+    cy: ["FloatV", heightSampler],
     r: ["FloatV", widthSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
@@ -161,13 +163,14 @@ export const circleDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
-  positionalProps: ["center"],
+  positionalProps: ["cx","cy"],
 };
 
 export const ellipseDef: ShapeDef = {
   shapeType: "Ellipse",
   properties: {
-    center: ["VectorV", vectorSampler],
+    cx: ["FloatV", widthSampler],
+    cy: ["FloatV", heightSampler],
     rx: ["FloatV", widthSampler],
     ry: ["FloatV", heightSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
@@ -179,13 +182,14 @@ export const ellipseDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
-  positionalProps: ["center"],
+  positionalProps: ["cx","cy"],
 };
 
 export const rectDef: ShapeDef = {
   shapeType: "Rectangle",
   properties: {
-    center: ["VectorV", vectorSampler],
+    x: ["FloatV", widthSampler],
+    y: ["FloatV", heightSampler],
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     rx: ["FloatV", zeroFloat],
@@ -197,7 +201,7 @@ export const rectDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultRect")],
   },
-  positionalProps: ["center"],
+  positionalProps: ["x","y"],
 };
 
 export const calloutDef: ShapeDef = {
@@ -227,7 +231,6 @@ export const polygonDef: ShapeDef = {
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
-    center: ["VectorV", vectorSampler],
     scale: ["FloatV", () => constValue("FloatV", 1)],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: [
@@ -240,7 +243,6 @@ export const polygonDef: ShapeDef = {
         ]),
     ],
   },
-  positionalProps: ["center"],
 };
 
 export const freeformPolygonDef: ShapeDef = {
@@ -274,9 +276,8 @@ Q 10,60 10,30 z`;
 export const pathStringDef: ShapeDef = {
   shapeType: "PathString",
   properties: {
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", widthSampler],
-    h: ["FloatV", heightSampler],
+    data: ["StrV", () => constValue("StrV", DEFAULT_PATHSTR)], // path
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     rotation: ["FloatV", () => constValue("FloatV", 0)],
     opacity: ["FloatV", () => constValue("FloatV", 1.0)],
     strokeWidth: ["FloatV", strokeSampler],
@@ -284,17 +285,14 @@ export const pathStringDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
-    data: ["StrV", () => constValue("StrV", DEFAULT_PATHSTR)],
     viewBox: ["StrV", () => constValue("StrV", "0 0 100 100")],
   },
-  positionalProps: ["center"],
 };
 
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
     strokeWidth: ["FloatV", strokeSampler],
-    center: ["VectorV", vectorSampler],
     scale: ["FloatV", () => constValue("FloatV", 1)],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
@@ -311,13 +309,13 @@ export const polylineDef: ShapeDef = {
         ]),
     ],
   },
-  positionalProps: ["center"],
 };
 
 export const imageDef: ShapeDef = {
   shapeType: "Image",
   properties: {
-    center: ["VectorV", vectorSampler],
+    x: ["FloatV", widthSampler],
+    y: ["FloatV", heightSampler],
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     rotation: ["FloatV", () => constValue("FloatV", 0)],
@@ -327,13 +325,14 @@ export const imageDef: ShapeDef = {
     path: ["StrV", () => constValue("StrV", "missing image path")],
     name: ["StrV", () => constValue("StrV", "defaultImage")],
   },
-  positionalProps: ["center"],
+  positionalProps: ["x","y"],
 };
 
 export const squareDef: ShapeDef = {
   shapeType: "Square",
   properties: {
-    center: ["VectorV", vectorSampler],
+    x: ["FloatV", widthSampler],
+    y: ["FloatV", heightSampler],
     side: ["FloatV", widthSampler],
     rotation: ["FloatV", () => constValue("FloatV", 0)],
     style: ["StrV", () => constValue("StrV", "none")],
@@ -345,13 +344,14 @@ export const squareDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultSquare")],
   },
-  positionalProps: ["center"],
+  positionalProps: ["x","y"],
 };
 
 export const textDef: ShapeDef = {
   shapeType: "Text",
   properties: {
-    center: ["VectorV", vectorSampler],
+    x: ["FloatV", widthSampler],
+    y: ["FloatV", heightSampler],
     w: ["FloatV", () => constValue("FloatV", 0)],
     h: ["FloatV", () => constValue("FloatV", 0)],
     fontSize: ["StrV", () => constValue("StrV", "12pt")],
@@ -364,7 +364,7 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
     polygon: ["PolygonV", () => emptyPoly],
   },
-  positionalProps: ["center"],
+  positionalProps: ["x","y"],
 };
 
 export const lineDef: ShapeDef = {

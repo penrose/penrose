@@ -15,7 +15,8 @@ forall Square d {
 
 forall Circle e {
     e.icon = Circle {
-        center: [20,20]
+        cx: 20
+        cy: 20
         r: 40.0
         -- fill: rgba(255.0,43.0,0.0,0.0)
         -- pathLength: 6.0
@@ -25,7 +26,8 @@ forall Circle e {
 forall Rectangle f {
     f.icon = Rectangle { 
         rx: 20
-        center: (20,20)
+        x: 20
+        y: 20
     }
 }
 
@@ -57,13 +59,13 @@ forall Polyline k {
         points: ((-20.0, 0.0), (100.0, 0.0), (10.0, 50.0))
         strokeWidth: 100
         scale : 2
-        center : (2,3)
 	}
 }
 
 forall Ellipse l {
     l.icon = Ellipse {
-        center: [20,20]
+        cx: 20
+        cy: 20
         rx: 20
         ry: 20
      }
