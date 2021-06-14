@@ -16,10 +16,11 @@ export interface ShapeProps {
  * @param shape
  * @param labels
  */
-export const RenderShape = (
-  { shape, labels, canvasSize }: ShapeProps,
-  canvasSizeCustom?: [number, number]
-): SVGElement => {
+export const RenderShape = ({
+  shape,
+  labels,
+  canvasSize,
+}: ShapeProps): SVGElement => {
   if (!(shape.shapeType in shapeMap)) {
     console.error(`${shape.shapeType} shape doesn't exist in shapeMap`);
     return document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -27,7 +28,7 @@ export const RenderShape = (
   return shapeMap[shape.shapeType]({
     shape,
     labels,
-    canvasSize: canvasSizeCustom ?? canvasSize,
+    canvasSize,
   });
 };
 
@@ -60,7 +61,10 @@ export const DraggableShape = (
   parentSVG: SVGSVGElement,
   canvasSizeCustom?: [number, number]
 ): SVGGElement => {
-  const elem = RenderShape(shapeProps, canvasSizeCustom);
+  const elem = RenderShape({
+    ...shapeProps,
+    canvasSize: canvasSizeCustom ?? shapeProps.canvasSize,
+  });
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.setAttribute("pointer-events", "bounding-box");
   g.appendChild(elem);
