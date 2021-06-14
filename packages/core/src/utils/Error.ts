@@ -339,7 +339,7 @@ export const showError = (
       )}' in translation.`;
     }
 
-    case "NonexistentCanvasError": {
+    case "CanvasNonexistentError": {
       return `Canvas properties are not defined.\nTry adding:
 canvas {
     width = <my desired width>
@@ -347,7 +347,7 @@ canvas {
 }`;
     }
 
-    case "NonexistentCanvasDimsError": {
+    case "CanvasNonexistentDimsError": {
       switch (error.kind) {
         case "missing":
           return `Canvas ${error.attr} is not defined.\nTry adding:

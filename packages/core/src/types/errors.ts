@@ -163,8 +163,8 @@ export type StyleError =
   | NonexistentPropertyError
   | ExpectedGPIGotFieldError
   | InvalidAccessPathError
-  | NonexistentCanvasError
-  | NonexistentCanvasDimsError
+  | CanvasNonexistentError
+  | CanvasNonexistentDimsError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -355,12 +355,12 @@ export interface InvalidAccessPathError {
   path: Path;
 }
 
-export interface NonexistentCanvasError {
-  tag: "NonexistentCanvasError";
+export interface CanvasNonexistentError {
+  tag: "CanvasNonexistentError";
 }
 
-export interface NonexistentCanvasDimsError {
-  tag: "NonexistentCanvasDimsError";
+export interface CanvasNonexistentDimsError {
+  tag: "CanvasNonexistentDimsError";
   attr: "width" | "height";
   kind: "missing" | "GPI" | "uninitialized" | "wrong type";
   type?: string;

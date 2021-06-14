@@ -3084,7 +3084,7 @@ export const checkCanvas = (tr: Translation): StyleErrors => {
 
   if (!("canvas" in tr.trMap)) {
     errs.push({
-      tag: "NonexistentCanvasError",
+      tag: "CanvasNonexistentError",
     });
 
     return errs;
@@ -3092,19 +3092,19 @@ export const checkCanvas = (tr: Translation): StyleErrors => {
 
   if (!("width" in tr.trMap.canvas)) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "width",
       kind: "missing",
     });
   } else if (!("contents" in tr.trMap.canvas.width.contents)) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "width",
       kind: "GPI",
     });
   } else if (!("contents" in tr.trMap.canvas.width.contents.contents)) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "width",
       kind: "uninitialized",
     });
@@ -3112,7 +3112,7 @@ export const checkCanvas = (tr: Translation): StyleErrors => {
     typeof tr.trMap.canvas.width.contents.contents.contents !== "number"
   ) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "width",
       kind: "wrong type",
       type: typeof tr.trMap.canvas.width.contents.contents.contents,
@@ -3121,19 +3121,19 @@ export const checkCanvas = (tr: Translation): StyleErrors => {
 
   if (!("height" in tr.trMap.canvas)) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "height",
       kind: "missing",
     });
   } else if (!("contents" in tr.trMap.canvas.height.contents)) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "height",
       kind: "GPI",
     });
   } else if (!("contents" in tr.trMap.canvas.height.contents.contents)) {
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "height",
       kind: "uninitialized",
     });
@@ -3149,7 +3149,7 @@ export const checkCanvas = (tr: Translation): StyleErrors => {
     }
 
     errs.push({
-      tag: "NonexistentCanvasDimsError",
+      tag: "CanvasNonexistentDimsError",
       attr: "height",
       kind: "wrong type",
       type,

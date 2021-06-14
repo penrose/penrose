@@ -3,7 +3,7 @@
 import * as S from "compiler/Style";
 import { compileSubstance, parseSubstance } from "compiler/Substance";
 import * as fs from "fs";
-import _ from "lodash";
+import _, { startsWith } from "lodash";
 import * as path from "path";
 import { Either } from "types/common";
 import { Env } from "types/domain";
@@ -342,8 +342,9 @@ describe("Compiler", () => {
     );
 
     const testStyProgForError = (styProg: string, errorType: string) => {
+      let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(canvasPreamble + styProg, ...res),
+        (res) => S.compileStyle(preamble + styProg, ...res),
         subRes
       );
       describe(errorType, () => {
@@ -477,6 +478,43 @@ delete x.z.p }`,
         `forall Set x { 
            x.z = 1.0 
            x.y = x.z.p
+}`,
+      ],
+      CanvasNonexistentError: [
+        `foo { 
+  bar = 1.0
+}`,
+      ],
+      CanvasNonexistentDimsError: [
+        `canvas { 
+  height = 100
+}`,
+        `canvas {
+  width = Circle {}
+  height = 100
+}`,
+        `canvas {
+  width = ?
+  height = 100
+}`,
+        `canvas {
+  width = (1.0, 1.0)
+  height = 100
+}`,
+        `canvas { 
+  width = 100
+}`,
+        `canvas {
+  width = 100
+  height = Circle {}
+}`,
+        `canvas {
+  width = 100
+  height = ?
+}`,
+        `canvas {
+  width = 100
+  height = (1.0, 1.0)
 }`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
