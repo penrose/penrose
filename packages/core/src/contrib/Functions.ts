@@ -1,9 +1,9 @@
 import {
-  bbox,
-  bboxSegs,
   intersectsSegSeg,
   intersectionSegSeg,
   inRange,
+  isRectlike,
+  bboxFromShape,
 } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
@@ -37,6 +37,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
+import * as BBox from "engine/BBox";
 
 /**
  * Static dictionary of computation functions
@@ -358,13 +359,12 @@ export const compDict = {
     [t1, s1]: [string, any]
   ): IFloatV<VarAD> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (t1 !== "Rectangle" && t1 !== "Text") {
-      throw Error("expected box-like shape");
+    if (!isRectlike(t1)) {
+      throw Error("expected rect-like shape");
     }
 
-    const [w, h] = [s1.w.contents, s1.h.contents];
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bbox(s1.center.contents, w, h);
+    const rect = bboxFromShape(t1, s1);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
@@ -379,7 +379,11 @@ export const compDict = {
     // Find some other way to calculate what side intersects the ray between the points
     // Check if this works better WRT new disjoint rectangles, rect-line etc.
 
-    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), h, w);
+    const dim = ifCond(
+      inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
+      rect.h,
+      rect.w
+    );
     return { tag: "FloatV", contents: dim };
   },
 
