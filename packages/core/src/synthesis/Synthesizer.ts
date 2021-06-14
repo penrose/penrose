@@ -19,7 +19,6 @@ import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
 import { cloneDeep, range, times, without } from "lodash";
-import { choice } from "pandemonium";
 import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
@@ -351,8 +350,8 @@ export class Synthesizer {
   env: Env;
   cxt: SynthesisContext;
   setting: SynthesizerSetting;
-  choice: <T>(array: Array<T>) => T;
-  random: RandomFunction;
+  private choice: <T>(array: Array<T>) => T;
+  private random: RandomFunction;
 
   constructor(
     env: Env,
@@ -717,7 +716,7 @@ export class Synthesizer {
             reuseOption === "distinct"
               ? this.cxt.findIDs(argType.name.value, this.cxt.argCxt)
               : this.cxt.findIDs(argType.name.value);
-          const existingID = choice(possibleIDs);
+          const existingID = this.choice(possibleIDs);
           if (!existingID) {
             return this.generateArg(arg, "generated", reuseOption);
           } else {
