@@ -179,6 +179,11 @@ class LabeledInput extends React.Component<IProps> {
   // todo - maybe make toCanvas definable in JSON? range doesn't cover all possible use cases for toCanvas
   public makeRange = () => {
     const { inputProps, eAttr } = this.props;
+    if (this.state.eValue === undefined) {
+      console.log(`error: failed get x and y values for pointRange  `);
+      console.log({ eAttr: eAttr, inputProps: inputProps });
+      return;
+    }
     return (
       <input
         id={eAttr}
@@ -306,8 +311,13 @@ class LabeledInput extends React.Component<IProps> {
   public makePointRange = () => {
     const { eAttr, inputProps } = this.props;
     const xid = "x_" + eAttr;
-    const xspan = round(this.state.eValue.contents[0]).toString();
-    const yspan = round(this.state.eValue.contents[1]).toString();
+    if (this.state.eValue === undefined) {
+      console.log(`error: failed get x and y values for pointRange  `);
+      console.log({ eAttr: eAttr, inputProps: inputProps });
+      return;
+    }
+    const xspan = round(this.state?.eValue?.contents[0] || 0).toString();
+    const yspan = round(this.state.eValue.contents[1] || 0).toString(); //
     const yid = "y_" + eAttr;
     const pt = this.state.eValue.contents;
     return (
@@ -454,8 +464,8 @@ class LabeledInput extends React.Component<IProps> {
   // todo refactor to take params
   public getSpan = () => {
     const { inputType } = this.props.inputProps;
-    if (inputType === "color") return toHex(this.state.eValue.contents);
-    else if (inputType === "range") return round(this.state.eValue.contents);
+    if (inputType === "color") return toHex(this.state?.eValue?.contents || 0);  // default value=0
+    else if (inputType === "range") return round(this.state?.eValue?.contents || 0); // default value=0
     else return this.state.eValue.contents.toString();
   };
   public makeSpan = () => {
