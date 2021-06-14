@@ -65,4 +65,3 @@ After creating the mod file, add it to `mod/defmap.tsx`.
 
 - The `pathData` attribute is only modifiable if it contains a list of `IPt`. Currently does not work with Bezier curves.
 - If the types in `types.d.ts` change form, `LabeledInput.tsx` will likely need to be modified. For example, if the structure of `IPathData` is changed, attempting to modify the `pathData` attribute will result in a crash.
-- Uses the fact that the canvas is hardcoded. Needs to be updated when that changes.
