@@ -2844,6 +2844,11 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
   const shapePathList: [string, string][] = findShapeNames(trans);
   const shapePaths = shapePathList.map(mkPath);
 
+  const canvasErrs = checkCanvas(trans);
+  if (canvasErrs.length > 0) {
+    return err(canvasErrs);
+  }
+
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
   const transInitShapes = initShapes(trans, shapePathList);
@@ -3072,12 +3077,95 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 
 //#endregion Checking translation
 
+export const checkCanvas = (tr: Translation): StyleErrors => {
+  let errs: StyleErrors = [];
+
+  /* TODO: type error reporting is wrong! */
+
+  if (!("canvas" in tr.trMap)) {
+    errs.push({
+      tag: "NonexistentCanvasError",
+    });
+
+    return errs;
+  }
+
+  if (!("width" in tr.trMap.canvas)) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "width",
+      kind: "missing",
+    });
+  } else if (!("contents" in tr.trMap.canvas.width.contents)) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "width",
+      kind: "GPI",
+    });
+  } else if (!("contents" in tr.trMap.canvas.width.contents.contents)) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "width",
+      kind: "uninitialized",
+    });
+  } else if (
+    typeof tr.trMap.canvas.width.contents.contents.contents !== "number"
+  ) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "width",
+      kind: "wrong type",
+      type: typeof tr.trMap.canvas.width.contents.contents.contents,
+    });
+  }
+
+  if (!("height" in tr.trMap.canvas)) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "height",
+      kind: "missing",
+    });
+  } else if (!("contents" in tr.trMap.canvas.height.contents)) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "height",
+      kind: "GPI",
+    });
+  } else if (!("contents" in tr.trMap.canvas.height.contents.contents)) {
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "height",
+      kind: "uninitialized",
+    });
+  } else if (
+    typeof tr.trMap.canvas.height.contents.contents.contents !== "number"
+  ) {
+    const val = tr.trMap.canvas.height.contents.contents;
+    let type;
+    if (typeof val === "object" && "tag" in val) {
+      type = val.tag;
+    } else {
+      type = typeof val;
+    }
+
+    errs.push({
+      tag: "NonexistentCanvasDimsError",
+      attr: "height",
+      kind: "wrong type",
+      type,
+    });
+  }
+
+  return errs;
+};
+
 export const getCanvas = (tr: Translation): Canvas => {
-  // TODO: error handling and remove ignores!!!
-  // @ts-ignore
-  const width = tr.trMap.canvas.width.contents.contents.contents;
-  // @ts-ignore
-  const height = tr.trMap.canvas.height.contents.contents.contents;
+  /* TODO: assume precondition of checkCanvas. */
+  /* TODO: these casts are not safe!! */
+  let width = (tr.trMap.canvas.width.contents as any).contents
+    .contents as number;
+  let height = (tr.trMap.canvas.height.contents as any).contents
+    .contents as number;
   return {
     width,
     height,
