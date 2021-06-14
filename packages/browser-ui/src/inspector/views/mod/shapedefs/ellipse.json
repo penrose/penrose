@@ -1,12 +1,16 @@
 {
   "shapeType": "Ellipse",
   "properties": {
-    "center": {
-      "inputType": "ptrange",
-      "minX": "CANVASL",
-      "maxX": "CANVASR",
-      "minY": "CANVASB",
-      "maxY": "CANVAST",
+    "cx": {
+      "inputType": "range",
+      "min": "CANVASL",
+      "max": "CANVASR",
+      "showValue": "true"
+    },
+    "cy": {
+      "inputType": "range",
+      "min": "CANVASB",
+      "max": "CANVAST",
       "showValue": "true"
     },
     "rx": {

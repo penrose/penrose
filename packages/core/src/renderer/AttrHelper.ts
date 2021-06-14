@@ -80,11 +80,6 @@ export const attrcXcY = (
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  console.log({
-    properties: properties,
-    elem: elem,
-  });
-
   const [x, y] = getCoords(properties, elem);
 
   if (elem.nodeName === "circle") {

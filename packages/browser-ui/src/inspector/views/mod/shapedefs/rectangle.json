@@ -1,12 +1,16 @@
 {
   "shapeType": "Rectangle",
   "properties": {
-    "center": {
-      "inputType": "ptrange",
-      "minX": "CANVASL",
-      "maxX": "CANVASR",
-      "minY": "CANVASB",
-      "maxY": "CANVAST",
+    "x": {
+      "inputType": "range",
+      "min": "CANVASL",
+      "max": "CANVASR",
+      "showValue": "true"
+    },
+    "y": {
+      "inputType": "range",
+      "min": "CANVASB",
+      "max": "CANVAST",
       "showValue": "true"
     },
     "w": {
