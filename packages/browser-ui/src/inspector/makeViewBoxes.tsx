@@ -35,10 +35,10 @@ const makeViewBoxes = (
           right: 0,
         }}
       >
-        {shapes.map((shape: ShapeTypes.Shape, key: number) => {
+        {shapes.map(({ properties, shapeType }, key: number) => {
           // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
           // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
-          const [w, h] = bBoxDims(shape.properties, shape.shapeType);
+          const [w, h] = bBoxDims(properties, shapeType);
           return (
             <ShapeItem
               key={`shapePreview-${key}`}
@@ -51,15 +51,15 @@ const makeViewBoxes = (
                   width="50"
                   height="50"
                   dangerouslySetInnerHTML={{
-                    __html: RenderShape({ shape, canvasSize: undefined }, [
-                      w,
-                      h,
-                    ]).outerHTML,
+                    __html: RenderShape(
+                      { properties, shapeType, canvasSize: undefined },
+                      [w, h]
+                    ).outerHTML,
                   }}
                 />
               </div>
               <div style={{ margin: "0.5em" }}>
-                <span>{shape.properties.name.contents}</span>
+                <span>{properties.name.contents}</span>
               </div>
             </ShapeItem>
           );
