@@ -27,6 +27,10 @@ import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 
+//
+import {updateCircleColors} from "renderer/ColorProcesses";
+//
+
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
@@ -36,6 +40,7 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
  */
 export const resample = (state: State, numSamples: number): State => {
   return resampleBest(state, numSamples);
+  //return resampleBest(updateCircleColors(state), numSamples); 
 };
 
 /**
@@ -44,6 +49,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
+  //state = updateCircleColors(state);
   return step(state, numSteps);
 };
 
@@ -56,7 +62,11 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
+  currentState = updateCircleColors(currentState)
+  // hook
+  // all colors have already been assigned -- overwrite colors
   return currentState;
+  // return currentState;
 };
 
 /**

@@ -95,11 +95,17 @@ export const getSortedEdges = (
       edges_from_selected_node[i].weight / norm_magnitude;
   }
 
+  // edges_from_selected_node.reverse();
+
   return edges_from_selected_node;
+
+
 };
 
 /**
- * Main sampling function: assigns colors based on random node
+ * Main sampling function: assigns colors based on random node,
+ * Treats edge weights as "repelling energy" between two nodes 
+ *  (how much the nodes want to have contrasting colors)
  * @param object_graph a complete graph (nxn adjacency matrix for n objects)
  * @param node_to_sort_around the node to collect edges from
  * @param palette optional param, a list of colors in the RGB space
@@ -186,3 +192,6 @@ const samplePalette2 = (
   return []
 }
 */
+
+// consider also: Spectral clustering (can identify shapes close to each other?)
+

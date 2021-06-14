@@ -165,6 +165,7 @@ describe("testing samplePalette", () => {
   
   ];
   */
+ 
   const sortedEdgeList = getSortedEdges(complete_graph, 0);
   const res = samplePalette(complete_graph, 0);
 
@@ -226,4 +227,5 @@ describe("testing samplePalette", () => {
         sortedEdgeList[0].norm_weight <= sortedEdgeList[1].norm_weight
     ).toBe(true);
   });
+  
 });
