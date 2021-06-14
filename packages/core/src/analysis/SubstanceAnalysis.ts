@@ -61,30 +61,6 @@ export const swapArgs = (
 };
 
 /**
- * Replace a Substance statement with another statement that takes the same arguments.
- * @param stmt a Substance statement
- * @param pick ArgStmtDecl chosen to replace stmt
- * @returns a new Substance statement
- */
-export const changeType = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind,
-  pick: ArgStmtDecl
-): ApplyConstructor | ApplyPredicate | ApplyFunction | Func | Bind => {
-  const s = stmt.tag === "Bind" ? stmt.expr : stmt;
-  if (pick.tag === "PredicateDecl") {
-    return applyPredicate(pick, (s as ApplyPredicate).args);
-  } else {
-    const castArgs = (s as ApplyConstructor).args;
-    const m =
-      pick.tag === "ConstructorDecl"
-        ? applyConstructor(pick, castArgs)
-        : applyFunction(pick, castArgs);
-    // make into a Bind if the pick returns something
-    return pick.output.variable ? applyBind(pick.output.variable, m) : m;
-  }
-};
-
-/**
  * Find all declarations that take the same number and type of args as
  * original statement
  * @param stmt a Substance statement
