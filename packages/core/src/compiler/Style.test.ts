@@ -270,6 +270,9 @@ describe("Compiler", () => {
        o.f[0] = 0.
        o.shape = Circle {}
 }`,
+      `canvas {
+  override width = 500.0
+}`,
     ];
 
     const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
