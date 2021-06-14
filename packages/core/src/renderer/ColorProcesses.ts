@@ -1,4 +1,3 @@
-
 /*
 colorPickerMatrix = stateToColorPickerMatrix(state)
 
@@ -9,15 +8,11 @@ colorList --> modified state
 */
 
 import {State} from "types/state";
-import {Shape, Properties} from "types/shape";
-import {Value, IVectorV} from "types/value";
+import {Shape} from "types/shape";
 
-import {Graph, RGB, samplePalette} from "./Color";
+import {Graph, samplePalette, is_complete_graph} from "./Color";
 
-const isCircle = (shape : Shape) : boolean => {
-  return shape.shapeType === 'Circle';
-}
-
+// initializes a matrix of all 0.s
 const createMatrix = (rows : number, cols : number) : Graph => {
   var matrix : number[][] = []
   for (var i=0; i<cols; i++){
@@ -30,6 +25,7 @@ const createMatrix = (rows : number, cols : number) : Graph => {
   return matrix;
 }
 
+// euclidean distance between two vectors
 const dist = (v1 : number[], v2 : number[]):number => {
   if (v1.length != v2.length){
     throw new Error("Vector inputs are not of the same dimension");
@@ -39,67 +35,70 @@ const dist = (v1 : number[], v2 : number[]):number => {
     squaredSum += ((v1[i]-v2[i]) * (v1[i]-v2[i]));
   }
   return Math.sqrt(squaredSum);
+};
+
+// excluding shapes that don't have a center or color attribute, or
+// shapes that have appropriate default colors (like text)
+const includeInColorAdjustment = (shape: Shape) : boolean => {
+  return !(shape.shapeType === 'FreeformPolygon' || 
+           shape.shapeType === 'Line' ||
+           shape.shapeType === 'Arrow' ||
+           shape.shapeType === 'Path' || 
+           shape.shapeType === 'Text' ||
+           shape.shapeType === 'Image')
 }
 
+// given a state, generates a matrix that records the 
+// * repellant energy * between objects 
+// (closer objects will have greater repellant energy)
 const stateToColorPickerMatrix = (state : State) : Graph => {
 
-  // state.shapes : Shape[]
+  const shapeList = state.shapes.filter(includeInColorAdjustment);
 
-  const shapeList = state.shapes
+  // initializing a matrix of 0.'s 
+  var object_graph = createMatrix(shapeList.length, shapeList.length);
 
-  // get the circles first, as a test.
-  const circleList = shapeList.filter(isCircle);
+  // filling in the matrix
+  for (var i=0; i<shapeList.length; i++){
+    for (var j=i+1; j<shapeList.length; j++){
 
-  // construct a matrix of 0's
-  var object_graph = createMatrix(circleList.length, circleList.length);
+      const shape1 = shapeList[i];
+      const shape2 = shapeList[j];
 
-  // fill in the matrix w/ euclidean distance between objects
-  // also keep track of a max dist value
-  var max_dist = 0.;
-  for (var i=0; i<circleList.length; i++){
-    for (var j=i+1; j<circleList.length; j++){
-      
-      const circle1 = circleList[i];
-      const circle2 = circleList[j];
+      //for now, the only thing used will be the centers
 
-      
-      const v1 = circle1.properties.center;
-      const v2 = circle2.properties.center;
-      
+      var v1 = shape1.properties.center; 
+      var v2 = shape2.properties.center;
+           
       if ((!Array.isArray(v1.contents)) || (!Array.isArray(v2.contents))
-        || (v1.contents.length !== v2.contents.length)
-        || (typeof v1.contents[0] !== 'number') 
-        || (typeof v2.contents[0] !== 'number')){
-          throw new Error('bad center input: not number[]');
-        }
+      || (v1.contents.length !== v2.contents.length)
+      || (typeof v1.contents[0] !== 'number') 
+      || (typeof v2.contents[0] !== 'number')){
+        throw new Error('bad center prop input: not number[]');
+      }
 
       // this is hacky, is there a better way to typecheck
       const centerDist = dist(v1.contents as number[], v2.contents as number[]);
-
-      
-      if (centerDist > max_dist) {
-        max_dist = centerDist;
-      }
       
       // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
       object_graph[i][j] = (1/(Math.sqrt(centerDist)+20.))*10e4;
       object_graph[j][i] = object_graph[i][j];
-      // object_graph[i][j] = centerDist;
     }
   }
-  
-  console.log("sqrted graph")
-  console.log(object_graph);
-  return object_graph; 
-}
 
-// idk, stuff is fucked
-const updateColors = (state : State, colorList : [number,number,number][]) : State => {
-  // assumes all colors map to the order of objects in state
+  return object_graph; 
+
+};
+
+// create a new state with newly assigned colors
+// assigns the alpha of colors to be 0.5 arbitrarily
+const updateColors 
+= (state : State, colorList : [number,number,number][]) : State => {
+  // assumes all colors map to the order of appropriate objects in state
   var newState = state;
   var j = 0;
   for (var i=0; i<newState.shapes.length; i++){
-    if (isCircle(newState.shapes[i])){
+    if (includeInColorAdjustment(newState.shapes[i])){
       newState.shapes[i].properties.color
       = {
         tag: "ColorV",
@@ -114,94 +113,38 @@ const updateColors = (state : State, colorList : [number,number,number][]) : Sta
   return newState;
 }
 
+// find the first pair 0 dist apart, or the closest one
+// this assumes that the graph matrix records * repellant energy *, so a 
+// greater matrix entry indicates that the nodes are closer together
+// (and should repel each other more for color)
+const findTwoClosestNodes = (graph : Graph) : [number, number] => {
+  if (!is_complete_graph(graph)){
+    throw new Error("Invalid graph input in findTwoClosestNodes");
+  }
+
+  // init
+  var closestNodes;
+  for (var i=0; i<graph.length; i++){
+    for (var j=i+1; j<graph.length; j++){
+      if (typeof closestNodes === 'undefined'){
+        closestNodes = [i,j];
+      }
+      else if (graph[i][j] > graph[closestNodes[0]][closestNodes[1]]){
+        closestNodes = [i,j];
+      }
+    }
+  }
+  if (typeof closestNodes === 'undefined'){
+    throw new Error("No pair of closest nodes found in findTwoClosestNodes")
+  }
+  return closestNodes as [number, number];
+}
+
+// find the min distance, and use that as the pivot node.
 export const updateCircleColors = (state : State) : State => {
   const graph = stateToColorPickerMatrix(state);
-  const colorList = samplePalette(graph, 0); 
+  const [node1, node2] = findTwoClosestNodes(graph);
+  const colorList = samplePalette(graph, node1); 
   const newState = updateColors(state, colorList);
   return newState;
 }
-  // map over the shapeList for their properties? 
-
-  // list of diff shapes: 
-  /*
-  Circle,
-	Ellipse,
-	Square,
-	Rectangle,
-	Callout,
-	Polygon,
-	FreeformPolygon,
-	Polyline,
-	Text: Label,
-	Arrow,
-	Path,
-	Line,
-	Image,
-	PathString
-  */
-  // I'll start with Circle, Square, Rectangle
-  
-  // Well, to start, what can I use from the properties the graph (matrix)? 
-  // oof, this is gonna be computationally expensive...                          
-
-  // each shape: 
-
-  /*
-  // types/shape
-    interface IShape {
-      shapeType: string;
-      properties: Properties;
-    }
-
-    export type Properties = { [k: string]: Value<number> };
-
-  // types/value
-    export type Value<T> =
-  | IFloatV<T>
-  | IIntV
-  | IBoolV<T>
-  | IStrV
-  | IPtV<T>
-  | IPathDataV<T>
-  | IPtListV<T>
-  | IColorV<T>
-  | IPaletteV<T>
-  | IFileV<T>
-  | IStyleV<T>
-  | IListV<T>
-  | IVectorV<T>
-  | IMatrixV<T>
-  | ITupV<T>
-  | ILListV<T>
-  | IHMatrixV<T>
-  | IPolygonV<T>;
-
-  export interface IFloatV<T> {
-  tag: "FloatV";
-  contents: T;
-  }
-
-  export interface IPtV<T> {
-  tag: "PtV";
-  contents: [T, T];
-  }
-
-  export interface IColorV<T> {
-  tag: "ColorV";
-  contents: Color<T>;
-  }
-  
-  export type Color<T> = IRGBA<T> | IHSVA<T>;
-
-	export interface IRGBA<T> {
-	tag: "RGBA";
-	contents: [T, T, T, T];
-	}
-
-	export interface IHSVA<T> {
-	tag: "HSVA";
-	contents: [T, T, T, T];
-	}
-  */
-
-
