@@ -26,8 +26,10 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { VarAD, VecAD } from "types/ad";
+import { canvasSize } from "renderer/ShapeDef";
+import { VarAD, VecAD, Pt2 } from "types/ad";
 import { every } from "lodash";
+import * as BBox from "engine/BBox";
 
 // Kinds of shapes
 /**
@@ -35,7 +37,10 @@ import { every } from "lodash";
  */
 export const isRectlike = (shapeType: string): boolean => {
   return (
-    shapeType == "Rectangle" || shapeType == "Image" || shapeType == "Text"
+    shapeType == "Rectangle" ||
+    shapeType == "Square" ||
+    shapeType == "Image" ||
+    shapeType == "Text"
   );
 };
 
@@ -68,8 +73,9 @@ export const objDict = {
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`. Only works for shapes with property `center`.
    */
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-    ops.vdistsq(fns.center(s1), fns.center(s2)),
+  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    return ops.vdistsq(fns.center(s1), fns.center(s2));
+  },
 
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
@@ -113,17 +119,19 @@ export const objDict = {
    */
   centerArrow: (
     [t1, arr]: [string, any],
-    [t2, text1]: [string, any],
-    [t3, text2]: [string, any]
+    [t2, s2]: [string, any],
+    [t3, s3]: [string, any]
   ): VarAD => {
     const spacing = varOf(1.1); // arbitrary
 
     if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
+      const s2BB = bboxFromShape(t2, s2);
+      const s3BB = bboxFromShape(t3, s3);
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, fns.center(text1), fns.center(text2), [
-        mul(spacing, text1.h.contents),
-        neg(mul(text2.h.contents, spacing)),
+      return centerArrow2(arr, s2BB.center, s3BB.center, [
+        mul(spacing, s2BB.h),
+        neg(mul(s3BB.h, spacing)),
       ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
@@ -161,12 +169,10 @@ export const objDict = {
       );
 
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-      const lh = squared(sub(mx, text.center.contents[0]));
+      const textBB = bboxFromShape(t2, text);
+      const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
-        sub(
-          add(my, mul(text.h.contents, constOf(1.1))),
-          text.center.contents[1]
-        )
+        sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
       );
       return mul(add(lh, rh), constOfIf(w));
     } else throw Error("unsupported shapes");
@@ -188,9 +194,10 @@ export const objDict = {
         constOf(2.0)
       );
       const padding = constOf(10);
+      const textBB = bboxFromShape(t2, text);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
-        sub(ops.vdistsq(midpt, text.center.contents), squared(text.w.contents)),
+        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
         squared(padding)
       );
     } else if (isRectlike(t1) && isRectlike(t2)) {
@@ -301,10 +308,11 @@ export const constrDict = {
       const res = sub(d, o);
       return res;
     } else if (t1 === "Circle" && isRectlike(t2)) {
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      const textR = max(s2.w.contents, s2.h.contents);
+      const s2BBox = bboxFromShape(t2, s2);
+      const d = ops.vdist(fns.center(s1), s2BBox.center);
+      const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
-    } else if (isRectlike(t1) && t2 === "Circle") {
+    } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
       // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
       // -- HACK: reusing test impl, revert later
       //    let r_l = min (getNum r "w") (getNum r "h") / 2
@@ -322,21 +330,14 @@ export const constrDict = {
       const d = ops.vdist(sq, fns.center(s2));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
     } else if (isRectlike(t1) && isRectlike(t2)) {
-      const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
-      const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
+      const box1 = bboxFromShape(t1, s1);
+      const box2 = bboxFromShape(t2, s2);
 
       // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
       return add(
-        constrDict.contains1D([box1.minX, box1.maxX], [box2.minX, box2.maxX]),
-        constrDict.contains1D([box1.minY, box1.maxY], [box2.minY, box2.maxY])
+        constrDict.contains1D(BBox.xRange(box1), BBox.xRange(box2)),
+        constrDict.contains1D(BBox.yRange(box1), BBox.yRange(box2))
       );
-    } else if (t1 === "Square" && isRectlike(t2)) {
-      // TODO: Use the better new code
-      const a1 = ops.vdist(fns.center(s1), fns.center(s2));
-      const a2 = div(s1.side.contents, constOf(2.0));
-      const a3 = div(s2.w.contents, constOf(2.0)); // TODO: Implement w/ exact text dims
-      const c = offset ? offset : constOf(0.0);
-      return add(add(sub(a1, a2), a3), c);
     } else if (t1 === "Square" && isLinelike(t2)) {
       const [[startX, startY], [endX, endY]] = linePts(s2);
       const [x, y] = fns.center(s1);
@@ -393,78 +394,33 @@ export const constrDict = {
       throw Error("expected two line-like shapes");
     }
 
-    const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
+    const box = bboxFromShape(t1, s1);
+    const line = bboxFromShape(t2, s2);
 
     // Contains line both vertically and horizontally
     return add(
-      constrDict.contains1D(
-        [box.minX, box.maxX],
-        [s2.start.contents[0], s2.end.contents[0]]
-      ),
-      constrDict.contains1D(
-        [box.minY, box.maxY],
-        [s2.start.contents[1], s2.end.contents[1]]
-      )
+      constrDict.contains1D(BBox.xRange(box), BBox.xRange(line)),
+      constrDict.contains1D(BBox.yRange(box), BBox.yRange(line))
     );
   },
 
   /**
-   * Make an AABB rectangle disjoint from a vertical line. (Special case of rect-rect disjoint)
+   * Make an AABB rectangle disjoint from a vertical or horizontal line.
+   * (Special case of rect-rect disjoint)
    */
-  disjointRectLineAAVert: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any]
-  ) => {
+  disjointRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     if (!isRectlike(t1) || !isLinelike(t2)) {
       throw Error("expected two line-like shapes");
     }
 
-    const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
-    // TODO: Compute the bbox of the line in a nicer way
-    const line = bbox(
-      ops.vdiv(ops.vadd(s2.start.contents, s2.end.contents), constOf(2)),
-      constOf(2),
-      absVal(sub(s2.start.contents[1], s2.end.contents[1]))
-    );
+    const box = bboxFromShape(t1, s1);
+    const line = bboxFromShape(t2, s2);
 
-    return ifCond(
-      areDisjointBoxes(box, line),
-      constOf(0),
-      overlap1D(
-        [box.minY, box.maxY],
-        [s2.start.contents[1], s2.end.contents[1]]
-      )
-    );
-  },
+    const overlapX = overlap1D(BBox.xRange(box), BBox.xRange(line));
+    const overlapY = overlap1D(BBox.yRange(box), BBox.yRange(line));
 
-  /**
-   * Make an AABB rectangle disjoint from a horizontal line. (Special case of rect-rect disjoint) TODO: Test this
-   */
-  // TODO: Consolidate with disjointRectLineAA; test it
-  disjointRectLineAAHoriz: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any]
-  ) => {
-    if (!isRectlike(t1) || !isLinelike(t2)) {
-      throw Error("expected rect + line-like shapes");
-    }
-
-    const box = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
-    // TODO: Compute the bbox of the line in a nicer way
-    const line = bbox(
-      ops.vdiv(ops.vadd(s2.start.contents, s2.end.contents), constOf(2)),
-      absVal(sub(s2.start.contents[0], s2.end.contents[0])),
-      constOf(2)
-    );
-
-    return ifCond(
-      areDisjointBoxes(box, line),
-      constOf(0),
-      overlap1D(
-        [box.minX, box.maxX],
-        [s2.start.contents[0], s2.end.contents[0]]
-      )
-    );
+    // Push away in both X and Y directions
+    return mul(overlapX, overlapY);
   },
 
   /**
@@ -480,34 +436,24 @@ export const constrDict = {
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
     } else if (isRectlike(t1) && isLinelike(t2)) {
-      const [text, seg] = [s1, s2];
-      const centerT = fns.center(text);
+      const seg = s2;
+      const textBB = bboxFromShape(t1, s1);
+      const centerT = textBB.center;
       const endpts = linePts(seg);
       const cp = closestPt_PtSeg(centerT, endpts);
-      const lenApprox = div(text.w.contents, constOf(2.0));
+      const lenApprox = div(textBB.w, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (isRectlike(t1) && isRectlike(t2)) {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
-      // TODO: Write this to use the area of rectangle overlap, as this can currently only move in horiz/vert directions (i.e. results in worse local minima sometimes)
-      const box1 = bbox(s1.center.contents, s1.w.contents, s1.h.contents);
-      const box2 = bbox(s2.center.contents, s2.w.contents, s2.h.contents);
+      const box1 = bboxFromShape(t1, s1);
+      const box2 = bboxFromShape(t2, s2);
+      const inflatedBox1 = BBox.inflate(box1, constOfIf(offset));
 
-      const overlapX = overlap1D(
-        [box1.minX, box1.maxX],
-        [box2.minX, box2.maxX]
-      );
-      const overlapY = overlap1D(
-        [box1.minY, box1.maxY],
-        [box2.minY, box2.maxY]
-      );
+      const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
+      const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
 
       // Push away in both X and Y directions, and account for padding
-      // TODO: Not sure why the padding isn't accounted for. It converges with energy=padding
-      return ifCond(
-        areDisjointBoxes(box1, box2),
-        constOf(0),
-        add(min(overlapX, overlapY), constOfIf(offset))
-      );
+      return mul(overlapX, overlapY);
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
@@ -562,7 +508,8 @@ export const constrDict = {
     padding = 10
   ) => {
     if (isRectlike(t1) && t2 === "Circle") {
-      const textR = max(s1.w.contents, s1.h.contents);
+      const s1BBox = bboxFromShape(t1, s1);
+      const textR = max(s1BBox.w, s1BBox.h);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
@@ -621,15 +568,14 @@ export const constrDict = {
       // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
       // I wrote a version simplified to work for rectangles
       const text = s2;
-      const textCenter = fns.center(text);
-      const rect = bbox(textCenter, text.w.contents, text.h.contents);
+      const rect = bboxFromShape(t2, text);
 
       // TODO: Rewrite this with `ifCond`
       // If the point is inside the box, push it outside w/ `noIntersect`
       if (pointInBox(pt, rect)) {
         return noIntersectCircles(
-          textCenter,
-          text.w.contents,
+          rect.center,
+          rect.w,
           fns.center(s1),
           constOf(2.0)
         );
@@ -814,9 +760,15 @@ const pointInBox = (p: any, rect: any): boolean => {
  * compute the positive distance squared from point `p` to box `rect` (not the signed distance).
  * https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
  */
-const dsqBP = (p: any, rect: any): VarAD => {
-  const dx = max(max(sub(rect.minX, p.x), constOf(0.0)), sub(p.x, rect.maxX));
-  const dy = max(max(sub(rect.minY, p.y), constOf(0.0)), sub(p.y, rect.maxY));
+const dsqBP = (p: any, rect: BBox.BBox): VarAD => {
+  const dx = max(
+    max(sub(BBox.minX(rect), p.x), constOf(0.0)),
+    sub(p.x, BBox.maxX(rect))
+  );
+  const dy = max(
+    max(sub(BBox.minY(rect), p.y), constOf(0.0)),
+    sub(p.y, BBox.maxY(rect))
+  );
   return add(squared(dx), squared(dy));
 };
 
@@ -969,65 +921,6 @@ export const overlap1D = (
 };
 
 /**
- * Return the bounding box (as 4 points) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `minX, maxX, minY, maxY`.
- */
-export const bbox = (center: VecAD, w: VarAD, h: VarAD): any => {
-  const halfWidth = div(w, constOf(2.0));
-  const halfHeight = div(h, constOf(2.0));
-  const nhalfWidth = neg(halfWidth);
-  const nhalfHeight = neg(halfHeight);
-  // CCW: TR, TL, BL, BR
-  const pts = [
-    [halfWidth, halfHeight],
-    [nhalfWidth, halfHeight],
-    [nhalfWidth, nhalfHeight],
-    [halfWidth, nhalfHeight],
-  ].map((p) => ops.vadd(center, p));
-
-  const rect = {
-    minX: pts[1][0],
-    maxX: pts[0][0],
-    minY: pts[2][1],
-    maxY: pts[0][1],
-  };
-
-  return rect;
-};
-
-/**
- * Return the bounding box (as 4 segments) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `top, bot, left, right`.
- */
-export const bboxSegs = (center: VecAD, w: VarAD, h: VarAD): any => {
-  const halfWidth = div(w, constOf(2.0));
-  const halfHeight = div(h, constOf(2.0));
-  const nhalfWidth = neg(halfWidth);
-  const nhalfHeight = neg(halfHeight);
-  // CCW: TR, TL, BL, BR
-  const pts = [
-    [halfWidth, halfHeight],
-    [nhalfWidth, halfHeight],
-    [nhalfWidth, nhalfHeight],
-    [halfWidth, nhalfHeight],
-  ].map((p) => ops.vadd(center, p));
-
-  const corners = {
-    topRight: pts[0],
-    topLeft: pts[1],
-    bottomLeft: pts[2],
-    bottomRight: pts[3],
-  };
-
-  const rect = {
-    top: [corners.topLeft, corners.topRight],
-    bot: [corners.bottomLeft, corners.bottomRight],
-    left: [corners.bottomLeft, corners.topLeft],
-    right: [corners.bottomRight, corners.topRight],
-  };
-
-  return rect;
-};
-
-/**
  * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
 export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
@@ -1040,14 +933,65 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
 /**
  * Return numerically-encoded boolean indicating whether the two bboxes are disjoint.
  */
-export const areDisjointBoxes = (a: any, b: any): VarAD => {
+export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
   const fals = constOf(0);
   const tru = constOf(1);
 
-  const c1 = lt(a.maxX, b.minX);
-  const c2 = gt(a.minX, b.maxX);
-  const c3 = lt(a.maxY, b.minY);
-  const c4 = gt(a.minY, b.maxY);
+  const c1 = lt(BBox.maxX(a), BBox.minX(b));
+  const c2 = gt(BBox.minX(a), BBox.maxX(b));
+  const c3 = lt(BBox.maxY(a), BBox.minY(b));
+  const c4 = gt(BBox.minY(a), BBox.maxY(b));
 
   return ifCond(or(or(or(c1, c2), c3), c4), tru, fals);
+};
+
+/**
+ * Preconditions:
+ *   If the input is line-like, it must be axis-aligned.
+ *   Assumes line-like shapes are longer than they are thick.
+ * Input: A rect- or line-like shape.
+ * Output: A new BBox
+ * Errors: Throws an error if the input shape is not rect- or line-like.
+ */
+export const bboxFromShape = (t: string, s: any): BBox.BBox => {
+  if (!(isRectlike(t) || isLinelike(t))) {
+    throw new Error(
+      `BBox expected a rect-like or line-like shape, but got ${t}`
+    );
+  }
+
+  // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
+  let w;
+  if (t == "Square") {
+    w = s.side.contents;
+  } else if (isLinelike(t)) {
+    w = max(
+      absVal(sub(s.start.contents[0], s.end.contents[0])),
+      s.thickness.contents
+    );
+  } else {
+    w = s.w.contents;
+  }
+
+  let h;
+  if (t == "Square") {
+    h = s.side.contents;
+  } else if (isLinelike(t)) {
+    h = max(
+      absVal(sub(s.start.contents[1], s.end.contents[1])),
+      s.thickness.contents
+    );
+  } else {
+    h = s.h.contents;
+  }
+
+  let center;
+  if (isLinelike(t)) {
+    // TODO: Compute the bbox of the line in a nicer way
+    center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
+  } else {
+    center = s.center.contents;
+  }
+
+  return BBox.bbox(w, h, center);
 };
