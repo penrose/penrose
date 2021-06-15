@@ -5,6 +5,7 @@ import {
   compileSubstance,
   prettySubstance,
   showError,
+  showOps,
   Synthesizer,
   SubProg,
   SynthesizerSetting,
@@ -93,7 +94,7 @@ const writePrograms = (
     const metaPath = join(prefix, metaName);
     const { prog, ops } = progs[i];
     writeFileSync(subPath, prettySubstance(prog));
-    writeFileSync(metaPath, JSON.stringify({ ops }));
+    writeFileSync(metaPath, JSON.stringify({ ops: showOps(ops) }));
     substances[subID] = { name: subID, URI: fileName };
     trios.push({
       substance: subID,
@@ -145,8 +146,13 @@ const writePrograms = (
     if (substancePath) {
       const substanceSrc = readFileSync(substancePath, "utf8").toString();
       const subRes = compileSubstance(substanceSrc, env);
-      if (subRes.isOk()) {
-        subResult = subRes.value;
+      } else {
+        console.log(
+          `Error when compiling the template Substance program: ${showError(
+            subRes.error
+          )}`
+        );
+      }        subResult = subRes.value;
       } else {
         console.log(
           `Error when compiling the template Substance program: ${showError(

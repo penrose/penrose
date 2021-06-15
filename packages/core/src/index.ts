@@ -15,7 +15,11 @@ import RenderStatic, {
   RenderShape,
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
-import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
+import {
+  showOps,
+  Synthesizer,
+  SynthesizerSetting,
+} from "synthesis/Synthesizer";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/io";
@@ -280,6 +284,7 @@ export {
   RenderStatic,
   RenderShape,
   Synthesizer,
+  showOps,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,

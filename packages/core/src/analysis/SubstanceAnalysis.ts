@@ -167,8 +167,8 @@ export const findMatches = (
 export const matchingSignatures = (
   stmt: ApplyConstructor | ApplyPredicate | ApplyFunction | Func,
   env: Env
-): any[] => {
-  let matches: any[] = [];
+): ArgStmtDecl[] => {
+  const matches: ArgStmtDecl[] = [];
   switch (stmt.tag) {
     case "ApplyPredicate": {
       return findMatches(stmt.name.value, env.predicates);
@@ -176,7 +176,7 @@ export const matchingSignatures = (
     case "Func": {
       // handling for Bind case: parser tags constructors & funcs with
       // the "Func" tag before checker fixes types
-      let conMatches = findMatches(stmt.name.value, env.constructors);
+      const conMatches = findMatches(stmt.name.value, env.constructors);
       if (conMatches.length > 0) return conMatches;
       return findMatches(stmt.name.value, env.functions);
     }
@@ -199,7 +199,7 @@ export const matchingSignatures = (
  * @returns a new Signature object
  */
 export const getSignature = (decl: ArgStmtDecl): Signature => {
-  let argTypes: string[] = [];
+  const argTypes: string[] = [];
   let outType: string | undefined;
   if (decl.args) {
     decl.args.forEach((a) => {
@@ -236,7 +236,7 @@ export const printStmts = (
   stmts: PredicateDecl[] | ConstructorDecl[] | FunctionDecl[]
 ): void => {
   let outStr = "";
-  let s = stmts as PredicateDecl[];
+  const s = stmts as PredicateDecl[];
   s.forEach((stmt) => {
     outStr += stmt.name.value + " ";
   });

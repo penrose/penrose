@@ -78,8 +78,8 @@ export interface SynthesizerSetting {
 
 //#region Synthesis context
 
-type Mutation = Add | Delete | Modify;
-type Modify = Swap | Replace | ReplaceName;
+export type Mutation = Add | Delete | Modify;
+export type Modify = Swap | Replace | ReplaceName;
 
 interface Add {
   tag: "Add";
@@ -115,9 +115,9 @@ interface Candidates {
   constructors: Map<string, ConstructorDecl>;
 }
 
-interface SynthesizedSubstance {
+export interface SynthesizedSubstance {
   prog: SubProg;
-  ops: string;
+  ops: Mutation[];
 }
 
 class SynthesisContext {
@@ -227,17 +227,9 @@ class SynthesisContext {
     // COMBAK: increment counter?
   };
 
-  showOps = (): string => {
-    return this.ops.map((op) => this.showOp(op)).join("\n");
-  };
+  getOps = (): Mutation[] => this.ops;
 
-  showOp = (op: Mutation) => {
-    if (op.tag === "Replace") {
-      return `${op.tag} ${prettyStmt(op.old)} by ${prettyStmt(op.new)}`;
-    } else {
-      return `${op.tag} ${prettyStmt(op.stmt)}`;
-    }
-  };
+  showOps = (): string => showOps(this.ops);
 
   addArg = (id: Identifier): void => {
     this.argCxt.push(id);
@@ -345,7 +337,7 @@ export class Synthesizer {
     console.log("----------");
     return {
       prog: this.cxt.prog,
-      ops: this.cxt.showOps(),
+      ops: this.cxt.getOps(),
     };
   };
 
@@ -615,4 +607,15 @@ const filterBySetting = <T>(
   }
 };
 
+export const showOps = (ops: Mutation[]): string => {
+  return ops.map((op) => showOp(op)).join("\n");
+};
+
+const showOp = (op: Mutation): string => {
+  if (op.tag === "Replace") {
+    return `${op.tag} ${prettyStmt(op.old)} by ${prettyStmt(op.new)}`;
+  } else {
+    return `${op.tag} ${prettyStmt(op.stmt)}`;
+  }
+};
 //#endregion
