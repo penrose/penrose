@@ -49,15 +49,6 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   attrTransformCoords(shape, canvasSize, elem);
 
-  attrRotation(
-    shape,
-    shape.properties.center,
-    shape.properties.w,
-    shape.properties.h,
-    canvasSize,
-    elem
-  );
-
   return elem;
 };
 export default Image;

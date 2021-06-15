@@ -1,7 +1,6 @@
 import {
   attrFill,
   attrPoints,
-  attrScale,
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
@@ -17,7 +16,6 @@ const Polygon = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
   attrPoints(shape, elem);
-  attrScale(shape, elem);
 
   return elem;
 };

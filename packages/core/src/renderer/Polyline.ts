@@ -1,7 +1,6 @@
 import {
   attrNoFill,
   attrPoints,
-  attrScale,
   attrStroke,
   attrTitle,
 } from "./AttrHelper";
@@ -17,7 +16,6 @@ const Polyline = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
   attrPoints(shape, elem);
-  attrScale(shape, elem);
 
   return elem;
 };

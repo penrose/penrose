@@ -231,7 +231,6 @@ export const polygonDef: ShapeDef = {
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
-    scale: ["FloatV", () => constValue("FloatV", 1)],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: [
       "PtListV",
@@ -293,7 +292,6 @@ export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
     strokeWidth: ["FloatV", strokeSampler],
-    scale: ["FloatV", () => constValue("FloatV", 1)],
     style: ["StrV", () => constValue("StrV", "filled")],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
