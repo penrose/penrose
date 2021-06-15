@@ -269,7 +269,8 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             optParams.times.push(time);
 
             // TODO: Replace console.log with log.whatever
-            const ts = optParams.times;
+            // Drop the first time later as it's usually longer
+            const ts = optParams.times.length > 1 ? optParams.times.slice(1) : optParams.times;
             console.log("Performance: Times (ms for each 1 call to minimize)", ts);
             console.log(`Mean: ${_.mean(ts)} | Median: ${median(ts)}`);
 
