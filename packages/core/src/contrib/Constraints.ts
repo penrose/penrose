@@ -26,8 +26,7 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { canvasSize } from "renderer/ShapeDef";
-import { VarAD, VecAD, Pt2 } from "types/ad";
+import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
 
