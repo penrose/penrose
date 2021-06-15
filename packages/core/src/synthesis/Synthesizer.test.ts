@@ -46,7 +46,7 @@ const initSynth = (
   if (subRes.isOk()) {
     subResult = subRes.value;
   }
-  const synth = new Synthesizer(env, setting, subResult);
+  const synth = new Synthesizer(env, setting, subResult, "seed");
   synth.cxt.loadTemplate();
   return synth;
 };
