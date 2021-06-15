@@ -1,5 +1,10 @@
 import { compileDomain, compileSubstance, showError } from "index";
-import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
+import {
+  SynthesizedSubstance,
+  Synthesizer,
+  SynthesizerSetting,
+} from "synthesis/Synthesizer";
+import { synthesizeConfig } from "./Search";
 
 const SEED = "testSearch";
 
@@ -13,16 +18,16 @@ const settings: SynthesizerSetting = {
     constructor: 0.0,
   },
   add: {
-    // type: "*",
-    type: [],
-    function: [],
-    constructor: [],
-    // constructor: "*",
-    predicate: ["Equal"],
-    // predicate: [],
+    type: "*",
+    // type: [],
+    function: "*",
+    // constructor: [],
+    constructor: "*",
+    // predicate: ["Equal"],
+    predicate: "*",
   },
   delete: {
-    type: [],
+    type: ["Set"],
     function: [],
     constructor: [],
     predicate: ["IsSubset"],
@@ -100,6 +105,7 @@ const initSynth = (
 describe("Synthesizer tests", () => {
   test("next config", () => {
     const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
-    synth.generateSubstances(10);
+    const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
+    synthesizeConfig(progs);
   });
 });

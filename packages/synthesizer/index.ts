@@ -146,13 +146,8 @@ const writePrograms = (
     if (substancePath) {
       const substanceSrc = readFileSync(substancePath, "utf8").toString();
       const subRes = compileSubstance(substanceSrc, env);
-      } else {
-        console.log(
-          `Error when compiling the template Substance program: ${showError(
-            subRes.error
-          )}`
-        );
-      }        subResult = subRes.value;
+      if (subRes.isOk()) {
+        subResult = subRes.value;
       } else {
         console.log(
           `Error when compiling the template Substance program: ${showError(

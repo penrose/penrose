@@ -51,7 +51,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Warn })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -382,9 +382,9 @@ export class Synthesizer {
     // add autolabel statement
     this.cxt.autoLabel();
     // DEBUG: report results
-    console.log(prettySubstance(this.cxt.prog));
+    log.info(prettySubstance(this.cxt.prog));
     log.info("Operations:\n", this.cxt.showOps());
-    console.log("----------");
+    log.info("----------");
     return {
       prog: this.cxt.prog,
       ops: this.cxt.getOps(),
