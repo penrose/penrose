@@ -13,11 +13,11 @@ import { Shape } from "types/shape";
 import { Graph, samplePalette, is_complete_graph } from "./Color";
 
 // initializes a matrix of all 0.s
-const createMatrix = (rows: number, cols: number): Graph => {
+export const createMatrix = (rows: number, cols: number): Graph => {
   var matrix: number[][] = [];
-  for (var i = 0; i < cols; i++) {
+  for (var i = 0; i < rows; i++) {
     var row: number[] = [];
-    for (var j = 0; j < rows; j++) {
+    for (var j = 0; j < cols; j++) {
       row.push(0);
     }
     matrix.push(row);
@@ -51,9 +51,8 @@ const includeInColorAdjustment = (shape: Shape): boolean => {
 };
 
 // given a state, generates a matrix that records the
-// * repellant energy * between objects
-// (closer objects will have greater repellant energy)
-const stateToColorPickerMatrix = (state: State): Graph => {
+// distance between objects.
+export const stateToDistanceGraph = (state: State): Graph => {
   const shapeList = state.shapes.filter(includeInColorAdjustment);
 
   // initializing a matrix of 0.'s
@@ -84,7 +83,8 @@ const stateToColorPickerMatrix = (state: State): Graph => {
       const centerDist = dist(v1.contents as number[], v2.contents as number[]);
 
       // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
-      object_graph[i][j] = (1 / (Math.sqrt(centerDist) + 20)) * 10e4;
+      //object_graph[i][j] = (1 / (Math.sqrt(centerDist) + 20)) * 10e4;
+      object_graph[i][j] = centerDist;
       object_graph[j][i] = object_graph[i][j];
     }
   }
@@ -92,9 +92,20 @@ const stateToColorPickerMatrix = (state: State): Graph => {
   return object_graph;
 };
 
+export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
+  var newGraph = graph;
+  for (var i = 0; i < graph.length; i++) {
+    for (var j = i + 1; j < graph.length; j++) {
+      newGraph[i][j] = (1 / (Math.sqrt(graph[i][j]) + 20)) * 10e4;
+      newGraph[j][i] = newGraph[i][j];
+    }
+  }
+  return newGraph;
+};
+
 // create a new state with newly assigned colors
 // assigns the alpha of colors to be 0.5 arbitrarily
-const updateColors = (
+export const assignNewColors = (
   state: State,
   colorList: [number, number, number][]
 ): State => {
@@ -145,14 +156,15 @@ const findTwoClosestNodes = (graph: Graph): [number, number] => {
 };
 
 // find the min distance, and use that as the pivot node.
-export const updateCircleColors = (state: State): State => {
-  const graph = stateToColorPickerMatrix(state);
-  if (graph.length <= 1) {
-    var colorList = samplePalette(graph);
+export const updateColors = (state: State): State => {
+  const distGraph = stateToDistanceGraph(state);
+  const energyGraph = distanceGraphToEnergyGraph(distGraph);
+  if (energyGraph.length <= 1) {
+    var colorList = samplePalette(energyGraph);
   } else {
-    const [node1, node2] = findTwoClosestNodes(graph);
-    var colorList = samplePalette(graph, node1);
+    const [node1, node2] = findTwoClosestNodes(energyGraph);
+    var colorList = samplePalette(energyGraph, 0);
   }
-  const newState = updateColors(state, colorList);
+  const newState = assignNewColors(state, colorList);
   return newState;
 };
