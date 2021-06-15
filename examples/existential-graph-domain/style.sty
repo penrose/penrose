@@ -35,10 +35,17 @@ forall Variable V
 
 
 
-forall Variable v1; Variable v2 where equal(v1,v2){
-    
-    override v2.icon.pathData = makePath(v1.start, v2.start, 50,10)
+forall Variable v1; Variable v2 where equal(v1,v2) {
+    --Overriding (v2.icon.pathData or v2.icon) has no effect, creating new object
+    v2.icon2 = Path {
+        pathData: makePath(v1.start, v2.start, 50, 10)
+        fill: rgba(0.0, 0.0, 0.0, 0.0)
+        color: rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 2.0
+    }
+
     override v1.icon.strokeWidth = 0.0
+    override v2.icon.strokeWidth = 0.0
 }
 
 
@@ -50,7 +57,6 @@ forall Variable V; Graph A; Graph B where some(V, A, B)
 
     V.start = A.text.center
     V.end = B.text.center
-
 
     V.icon above A.text
     V.icon above B.text
@@ -90,10 +96,7 @@ where Result := or(A, B)
 
 
 forall Graph a where invisibleGraph(a){
-    override a.text = Circle{
-        strokeWidth: 0.0
-        color: rgba(0.0, 0.0, 0.0, 0.0)
-    }
+    override a.text.color = rgba(1.0, 0.0, 0.0, 0.0)
 }
 
 

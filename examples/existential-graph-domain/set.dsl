@@ -12,3 +12,4 @@ function or : Graph * Graph -> Graph
 predicate equal: Variable v1 * Variable v2
 predicate invisibleGraph: Graph p1
 predicate some : Variable * Graph * Graph
+predicate all : Variable * Graph * Graph

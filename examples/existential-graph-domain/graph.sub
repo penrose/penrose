@@ -1,27 +1,23 @@
+/*Graph a
+Graph aInv
+invisibleGraph(aInv)
+Variable x
+some(x, a, aInv)
+
+Graph b
+Graph bInv
+invisibleGraph(bInv)
+Variable y
+some(y, b, bInv)
+
+equal(x, y)*/
+
 Graph p
 Graph q
 
-Graph u := if(p,q)
+Graph r := if(p, q)
 
-
-Graph a
 Variable x
-
-
-Variable y
-Graph b
-invisibleGraph(b)
-
-
-Variable c
-Graph d 
-invisibleGraph(d)
-
-some(c, a, d)
 some(x, p, q)
-some(y, b, p)
-
-equal(c,y)
-
 
 AutoLabel All
