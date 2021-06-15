@@ -68,7 +68,7 @@ predicate Not : Prop
 -- predicate Perpendicular : Linelike * Linelike
 -- predicate EquilateralT : Triangle
 -- predicate RightT : Triangle
--- predicate Scalene : Triangle
+predicate Scalene : Triangle
 -- predicate Similar : Triangle * Triangle
 -- predicate Disjoint : Set * Set
 predicate Collinear : Point * Point * Point
