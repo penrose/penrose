@@ -3,7 +3,7 @@
 import * as S from "compiler/Style";
 import { compileSubstance, parseSubstance } from "compiler/Substance";
 import * as fs from "fs";
-import _, { startsWith } from "lodash";
+import _ from "lodash";
 import * as path from "path";
 import { Either } from "types/common";
 import { Env } from "types/domain";

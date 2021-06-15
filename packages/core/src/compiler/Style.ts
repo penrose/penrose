@@ -3159,13 +3159,12 @@ export const checkCanvas = (tr: Translation): StyleErrors => {
   return errs;
 };
 
+/* Precondition: checkCanvas returns without error */
 export const getCanvas = (tr: Translation): Canvas => {
-  /* TODO: assume precondition of checkCanvas. */
-  /* TODO: these casts are not safe!! */
-  let width = (tr.trMap.canvas.width.contents as any).contents
-    .contents as number;
-  let height = (tr.trMap.canvas.height.contents as any).contents
-    .contents as number;
+  let width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
+    .contents as Value<VarAD>).contents as number;
+  let height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
+    .contents as Value<VarAD>).contents as number;
   return {
     width,
     height,

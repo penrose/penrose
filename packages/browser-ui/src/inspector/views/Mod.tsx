@@ -3,7 +3,7 @@ import * as React from "react";
 import IViewProps from "./IViewProps";
 import AttrPicker from "./mod/AttrPicker";
 import defmap from "./mod/defmap";
-import { Canvas, ShapeTypes, PenroseState } from "@penrose/core";
+import { ShapeTypes, PenroseState } from "@penrose/core";
 
 interface IState {
   selectedShape: number;

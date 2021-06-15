@@ -25,6 +25,7 @@ export const RenderShape = ({
     console.error(`${shape.shapeType} shape doesn't exist in shapeMap`);
     return document.createElementNS("http://www.w3.org/2000/svg", "g");
   }
+
   return shapeMap[shape.shapeType]({
     shape,
     labels,
