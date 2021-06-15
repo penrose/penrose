@@ -7,12 +7,12 @@ import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
-// const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
-const DEBUG_ENERGY = false;
+const DEBUG_ENERGY = true;
 const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
 
@@ -291,6 +291,8 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   } else {
     const z = variableAD(_.sum(_.map(xs, (x) => x.val)), "+ list");
     z.isCompNode = isCompNode;
+
+      console.error("number of children", xs.length);
 
     if (isCompNode) {
       for (const x of xs) {
@@ -1487,7 +1489,9 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = ${childNames[0]} ? ${childNames[1]} : ${childNames[2]};`;
     } else if (op === "+ list") {
       const childList = "[".concat(childNames.join(", ")).concat("]");
-      stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
+        // TODO: revert the console.log. also probably name the child list?
+      stmt = `console.log("reduce", ${childList}.length); 
+const ${parName} = ${childList}.reduce((x, y) => x + y);`;
     } else {
       log.trace("node", z, z.op);
       throw Error("unknown n-ary operation");
