@@ -51,7 +51,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: LogLevel.Info })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -60,7 +60,7 @@ type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
 type ArgReuse = "distinct" | "repeated";
 type MatchSetting = string[] | All;
-interface DeclTypes {
+export interface DeclTypes {
   type: MatchSetting;
   predicate: MatchSetting;
   constructor: MatchSetting;

@@ -1,5 +1,6 @@
 import { compileDomain, compileSubstance, showError } from "index";
 import {
+  DeclTypes,
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
@@ -7,6 +8,19 @@ import {
 import { synthesizeConfig } from "./Search";
 
 const SEED = "testSearch";
+
+const all: DeclTypes = {
+  type: "*",
+  function: "*",
+  constructor: "*",
+  predicate: "*",
+};
+const none: DeclTypes = {
+  type: [],
+  function: [],
+  constructor: [],
+  predicate: [],
+};
 
 const settings: SynthesizerSetting = {
   mutationCount: [1, 4],
@@ -17,27 +31,14 @@ const settings: SynthesizerSetting = {
     predicate: 0.3,
     constructor: 0.0,
   },
-  add: {
-    type: "*",
-    // type: [],
-    function: "*",
-    // constructor: [],
-    constructor: "*",
-    // predicate: ["Equal"],
-    predicate: "*",
-  },
-  delete: {
-    type: ["Set"],
-    function: [],
-    constructor: [],
-    predicate: ["IsSubset"],
-  },
+  add: all,
+  delete: none,
+  // edit: all,
   edit: {
     type: [],
     function: [],
     constructor: [],
     predicate: ["IsSubset"],
-    // predicate: [],
   },
 };
 

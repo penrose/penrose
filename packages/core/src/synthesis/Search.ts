@@ -1,5 +1,5 @@
 import { prettyStmt } from "compiler/Substance";
-import _, { groupBy } from "lodash";
+import _, { flow, groupBy, map } from "lodash";
 import {
   Mutation,
   SynthesizedSubstance,
@@ -17,16 +17,21 @@ export const synthesizeConfig = (examples: SynthesizedSubstance[]) => {
   const ops: Mutation[] = examples
     .map((ex: SynthesizedSubstance) => ex.ops)
     .flat();
-  const taggedMutations: any = _.chain(ops)
-    .groupBy("tag")
-    .map((value: Mutation[], key: Mutation["tag"]) => {
-      return {
+
+  const grouped = groupBy(ops, "tag");
+
+  const taggedMutations: TaggedMutationSet[] = map(
+    grouped,
+    (value: Mutation[], key: Mutation["tag"]): TaggedMutationSet => {
+      const set: TaggedMutationSet = {
         tag: key,
         stmts: value.map(editedStmt),
       };
-    })
-    .value();
-  console.log(showMutationSets(taggedMutations as any));
+      return set;
+    }
+  ) as any; // TODO: resolve types: why is it `boolean[]`?
+
+  console.log(showMutationSets(taggedMutations));
 
   // return {};
 };
