@@ -49,6 +49,12 @@ const dragShape = (shape: Shape, offset: [number, number]): Shape => {
         ...shape,
         properties: moveProperties(properties, ["start", "end"], offset),
       };
+    case "Circle":
+    case "Ellipse":
+      return {
+        ...shape,
+        properties: moveProperties(properties, ["cx","cy"], offset),
+      };
     default:
       return {
         ...shape,
