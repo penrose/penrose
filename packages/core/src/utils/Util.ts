@@ -136,31 +136,13 @@ export const toScreen = (
   return [width / 2 + x, height / 2 - y];
 };
 
-export const getCoords = (
-  properties: Properties,
-  elem: SVGElement
-): [number, number] => {
-  switch (elem.nodeName) {
-    case "rect":
-      return [properties.x.contents as number, properties.y.contents as number];
-      break;
+export const getCoords = (properties: any, elem: string): [number, number] => {
+  const [x, y] = [
+    (properties?.x?.contents || properties?.cx?.contents) as number,
+    (properties?.y?.contents || properties?.cy?.contents) as number,
+  ];
 
-    case "ellipse":
-    case "circle":
-      return [
-        properties.cx.contents as number,
-        properties.cy.contents as number,
-      ];
-      break;
-
-    default:
-      console.log({
-        properties: properties,
-        elem: elem,
-      });
-      return [0, 0];
-      break;
-  }
+  return [x, y];
 };
 
 export const penroseToSVG = (canvasSize: [number, number]) => {

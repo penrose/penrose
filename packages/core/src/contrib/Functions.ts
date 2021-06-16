@@ -21,6 +21,7 @@ import {
   ops,
   sin,
   sqrt,
+  debug,
 } from "engine/Autodiff";
 import { maxBy, range } from "lodash";
 import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
@@ -36,7 +37,7 @@ import {
   IVectorV,
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
-import { randFloat } from "utils/Util";
+import { getCoords, randFloat } from "utils/Util";
 
 /**
  * Static dictionary of computation functions
@@ -364,7 +365,7 @@ export const compDict = {
 
     const [w, h] = [s1.w.contents, s1.h.contents];
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bbox(s1.center.contents, w, h);
+    const rect = bbox([s1.x.contents, s1.y.contents], w, h);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
@@ -567,6 +568,14 @@ export const compDict = {
     }
     const [x, y] = v;
     return { tag: "VectorV", contents: [neg(y), x] };
+  },
+
+  center: ([type, props]: [string, any]): IVectorV<VarAD> => {
+    const [x, y] = getCoords(props, type);
+    console.log(
+      "center currently only returns the coordinates of its arguments, not its center. It will be properly implemented soon"
+    );
+    return { tag: "VectorV", contents: [constOf(x), constOf(y)] };
   },
 };
 
