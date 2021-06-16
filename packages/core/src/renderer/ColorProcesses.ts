@@ -1,12 +1,3 @@
-/*
-colorPickerMatrix = stateToColorPickerMatrix(state)
-
-colorList = samplePalette(colorPickerMatrix)
-
-// one last fn
-colorList --> modified state
-*/
-
 import { State } from "types/state";
 import { Shape } from "types/shape";
 
@@ -79,12 +70,11 @@ export const stateToDistanceGraph = (state: State): Graph => {
         throw new Error("bad center prop input: not number[]");
       }
 
-      // this is hacky, is there a better way to typecheck
       const centerDist = dist(v1.contents as number[], v2.contents as number[]);
 
-      // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
-      //object_graph[i][j] = (1 / (Math.sqrt(centerDist) + 20)) * 10e4;
       object_graph[i][j] = centerDist;
+
+      // symmetric graph
       object_graph[j][i] = object_graph[i][j];
     }
   }
@@ -96,8 +86,15 @@ export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
   var newGraph = graph;
   for (var i = 0; i < graph.length; i++) {
     for (var j = i + 1; j < graph.length; j++) {
-      // typically small, needs to be bigger
-      newGraph[i][j] = (1 / (Math.sqrt(graph[i][j]) + 20)) * 10e4;
+      // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
+
+      const epsilon = 20;
+      const weight = 10e4; // necessary, since values are typically small
+      // try max here?
+
+      newGraph[i][j] = (1 / (graph[i][j] + epsilon)) * weight;
+
+      // symmetric graph
       newGraph[j][i] = newGraph[i][j];
     }
   }
@@ -108,7 +105,8 @@ export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
 // assigns the alpha of colors to be 0.5 arbitrarily
 export const assignNewColors = (
   state: State,
-  colorList: [number, number, number][]
+  colorList: [number, number, number][],
+  alpha: number = 0.8
 ): State => {
   // assumes all colors map to the order of appropriate objects in state
   var newState = state;
@@ -119,7 +117,7 @@ export const assignNewColors = (
         tag: "ColorV",
         contents: {
           tag: "RGBA",
-          contents: [colorList[j][0], colorList[j][1], colorList[j][2], 1],
+          contents: [colorList[j][0], colorList[j][1], colorList[j][2], alpha],
         },
       };
       j += 1;
@@ -136,7 +134,7 @@ const findTwoClosestNodes = (graph: Graph): [number, number] => {
   if (!is_complete_graph(graph) || graph.length == 0) {
     throw new Error("Invalid graph input in findTwoClosestNodes");
   } else if (graph.length == 1) {
-    return [0, 0]; // hacky
+    return [0, 0]; // only the first node is used, so second num is arbitrary
   }
 
   // init
