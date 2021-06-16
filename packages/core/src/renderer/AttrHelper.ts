@@ -32,7 +32,7 @@ export const attrCenter = (
   elem: SVGElement
 ) => {
   const center = properties.center as IVectorV<number>;
-  const [x, y] = getCoords(properties, elem);
+  const [x, y] = getCoords(properties);
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
 };
@@ -52,9 +52,9 @@ export const attrTransformCoords = (
   elem: SVGElement
 ) => {
   const center = properties.center as IVectorV<number>;
-  const [x, y] = getCoords(properties, elem);
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+  const [x, y] = getCoords(properties);
+  const w = properties.width as IFloatV<number>;
+  const h = properties.hidth as IFloatV<number>;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null
@@ -68,7 +68,7 @@ export const attrXY = (
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  const [x, y] = getCoords(properties, elem);
+  const [x, y] = getCoords(properties);
   const w = properties.w as IFloatV<number>;
   const h = properties.h as IFloatV<number>;
   elem.setAttribute("x", (x - w.contents / 2).toString());
@@ -80,7 +80,7 @@ export const attrcXcY = (
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  const [x, y] = getCoords(properties, elem);
+  const [x, y] = getCoords(properties);
 
   if (elem.nodeName === "circle") {
     const r = properties.r as IFloatV<number>;
@@ -109,7 +109,7 @@ export const attrRotation = (
   elem: SVGElement
 ): void => {
   const rotation = (properties.rotation as IFloatV<number>).contents;
-  const [x, y] = getCoords(properties, elem);
+  const [x, y] = getCoords(properties);
   let transform = elem.getAttribute("transform");
   transform =
     transform == null
@@ -128,8 +128,7 @@ export const attrSideCoords = (
   canvasSize: [number, number],
   elem: SVGElement
 ) => {
-  const center = properties.center as IVectorV<number>;
-  const [x, y] = getCoords(properties, elem);
+  const [x, y] = getCoords(properties);
   const side = properties.side as IFloatV<number>;
   let transform = elem.getAttribute("transform");
   transform =

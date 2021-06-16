@@ -7,7 +7,6 @@ import {
   attrRadiusX,
   attrRadiusY,
   attrRotation,
-  attrXY,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 

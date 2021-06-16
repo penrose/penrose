@@ -136,7 +136,7 @@ export const toScreen = (
   return [width / 2 + x, height / 2 - y];
 };
 
-export const getCoords = (properties: any, elem: string): [number, number] => {
+export const getCoords = (properties: any): [number, number] => {
   const [x, y] = [
     (properties?.x?.contents || properties?.cx?.contents) as number,
     (properties?.y?.contents || properties?.cy?.contents) as number,
