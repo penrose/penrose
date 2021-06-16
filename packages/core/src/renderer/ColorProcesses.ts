@@ -96,6 +96,7 @@ export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
   var newGraph = graph;
   for (var i = 0; i < graph.length; i++) {
     for (var j = i + 1; j < graph.length; j++) {
+      // typically small, needs to be bigger
       newGraph[i][j] = (1 / (Math.sqrt(graph[i][j]) + 20)) * 10e4;
       newGraph[j][i] = newGraph[i][j];
     }
@@ -118,7 +119,7 @@ export const assignNewColors = (
         tag: "ColorV",
         contents: {
           tag: "RGBA",
-          contents: [colorList[j][0], colorList[j][1], colorList[j][2], 0.5],
+          contents: [colorList[j][0], colorList[j][1], colorList[j][2], 1],
         },
       };
       j += 1;
@@ -163,7 +164,7 @@ export const updateColors = (state: State): State => {
     var colorList = samplePalette(energyGraph);
   } else {
     const [node1, node2] = findTwoClosestNodes(energyGraph);
-    var colorList = samplePalette(energyGraph, 0);
+    var colorList = samplePalette(energyGraph, node1);
   }
   const newState = assignNewColors(state, colorList);
   return newState;

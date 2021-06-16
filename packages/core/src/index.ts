@@ -63,7 +63,7 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-  // currentState = updateColors(currentState)
+  //currentState = updateColors(currentState)
   currentState = updateColorsWithKNN(currentState);
   // hook
   // all colors have already been assigned -- overwrite colors
