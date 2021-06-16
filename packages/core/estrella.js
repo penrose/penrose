@@ -3,17 +3,17 @@ const { build, file } = require("estrella");
 const common = {
   entry: "./src/index.ts",
   bundle: true,
-  sourcemap: "inline",
   keepNames: true,
   tsconfig: "./tsconfig.json",
-  platform: "browser",
-  external: ["path", "fs", "crypto"],
 };
 build({
   ...common,
   outfile: "./build/dist/index.esm.js",
+  platform: "browser",
   format: "esm",
   run: "yarn run build-decls",
+  sourcemap: "inline",
+  external: ["path", "fs", "crypto"],
 });
 
 build({
@@ -23,5 +23,5 @@ build({
   minify: false,
   format: "cjs",
   // silent: true,
-  sourcemap: "both",
+  sourcemap: "external",
 });

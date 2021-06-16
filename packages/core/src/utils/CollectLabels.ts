@@ -13,8 +13,8 @@ import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { LabelCache, LabelData } from "types/state";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-// const adaptor = chooseAdaptor();
-const adaptor = browserAdaptor();
+const adaptor =
+  typeof window !== "undefined" ? browserAdaptor() : chooseAdaptor();
 RegisterHTMLHandler(adaptor as any);
 const tex = new TeX({
   packages: AllPackages,

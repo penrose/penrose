@@ -20,7 +20,7 @@
     "@emotion/styled": "^11.3.0",
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
-    "@penrose/core": "^1.2.0",
+    "@penrose/core": "*",
     "gatsby": "^3.6.2",
     "gatsby-plugin-emotion": "^6.7.1",
     "gatsby-plugin-manifest": "^3.7.1",
@@ -32,7 +32,5 @@
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0"
   },
-  "devDependencies": {
-    "gatsby-plugin-ts-config": "^1.1.5"
-  }
+  "devDependencies": {}
 }
