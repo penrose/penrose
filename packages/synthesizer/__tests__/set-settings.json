@@ -1,0 +1,23 @@
+{
+  "mutationCount": [1, 4],
+  "argOption": "existing",
+  "argReuse": "distinct",
+  "add": {
+    "type": [],
+    "function": [],
+    "constructor": [],
+    "predicate": ["Equal"]
+  },
+  "delete": {
+    "type": [],
+    "function": [],
+    "constructor": [],
+    "predicate": ["IsSubset"]
+  },
+  "edit": {
+    "type": [],
+    "function": [],
+    "constructor": [],
+    "predicate": ["IsSubset"]
+  }
+}

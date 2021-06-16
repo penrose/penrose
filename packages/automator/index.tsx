@@ -1,10 +1,13 @@
 require("global-jsdom/register");
 import {
   compileTrio,
+  evalEnergy,
   prepareState,
   RenderStatic,
+  showError,
   stepUntilConvergence,
 } from "@penrose/core";
+import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
 const chalk = require("chalk");
@@ -16,12 +19,14 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX]
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER]
+  automator render ARTIFACTSFOLDER OUTFOLDER
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
-  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
+  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
+  --repeat TIMES the number of instances 
 `;
 
 const nonZeroConstraints = (
@@ -55,7 +60,10 @@ const singleProcess = async (
     styleName: sty,
     domainName: dsl,
     id: uniqid("instance-"),
-  }
+  },
+  reference?,
+  referenceState?,
+  extrameta?
 ) => {
   // Fetch Substance, Style, and Domain files
   const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
@@ -72,28 +80,26 @@ const singleProcess = async (
   if (compilerOutput.isOk()) {
     compiledState = compilerOutput.value;
   } else {
-    const err = compiledState.error;
-    console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
-    process.exit(1);
+    const err = compilerOutput.error;
+    throw new Error(`Compilation failed:\n${showError(err)}`);
   }
 
   const labelStart = process.hrtime();
   const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
-  // TODO: Labeling and resolving pending vars
-
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState);
+  const optimizedState = stepUntilConvergence(initialState, 10000);
   const convergeEnd = process.hrtime(convergeStart);
 
-  // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
   const canvas = RenderStatic(optimizedState).outerHTML;
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
+
+  // cross-instance energy evaluation
 
   if (folders) {
     // TODO: check for non-zero constraints
@@ -105,6 +111,32 @@ const singleProcess = async (
     //   console.log("This instance has non-zero constraints: ");
     //   // return;
     // }
+    console.log(chalk.yellow(`Computing cross energy...`));
+    let crossEnergy = undefined;
+    if (referenceState) {
+      const crossState = {
+        ...optimizedState,
+        constrFns: referenceState.constrFns,
+        objFns: referenceState.objFns,
+      };
+      try {
+        crossEnergy = evalEnergy(await prepareState(crossState));
+      } catch (e) {
+        console.warn(
+          chalk.yellow(
+            `Cross-instance energy failed. Returning infinity instead. \n${e}`
+          )
+        );
+      }
+    }
+
+    // fetch metadata if available
+    let extraMetadata;
+    if (extrameta) {
+      extraMetadata = JSON.parse(
+        fs.readFileSync(`${prefix}/${extrameta}`, "utf8").toString()
+      );
+    }
 
     const metadata = {
       ...meta,
@@ -125,9 +157,12 @@ const singleProcess = async (
         constraintCount: optimizedState.constrFns.length,
         objectiveCount: optimizedState.objFns.length,
       },
+      reference,
+      ciee: crossEnergy,
+      extra: extraMetadata,
     };
     if (!fs.existsSync(out)) {
-      fs.mkdirSync(out);
+      fs.mkdirSync(out, { recursive: true });
     }
     fs.writeFileSync(`${out}/output.svg`, canvas);
     fs.writeFileSync(`${out}/substance.sub`, subIn);
@@ -138,7 +173,7 @@ const singleProcess = async (
       chalk.green(`The diagram and metadata has been saved to ${out}`)
     );
     // returning metadata for aggregation
-    return metadata;
+    return { metadata, state: optimizedState };
   } else {
     fs.writeFileSync(out, canvas);
     console.log(chalk.green(`The diagram has been saved as ${out}`));
@@ -161,10 +196,14 @@ const batchProcess = async (
   const trioLibrary = registry["trios"];
   console.log(`Processing ${trioLibrary.length} substance files...`);
 
+  let referenceFlag = true;
+  let reference = trioLibrary[0];
+  let referenceState = undefined;
+
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
-  for (const { domain, style, substance } of trioLibrary) {
+  for (const { domain, style, substance, meta } of trioLibrary) {
     const name = `${substance}-${style}`;
     const { name: subName, URI: subURI } = substanceLibrary[substance];
     const { name: styName, URI: styURI, plugin } = styleLibrary[style];
@@ -178,26 +217,45 @@ const batchProcess = async (
       );
       continue;
     }
-    // Warning: will face id conflicts if parallelism used
+
     const id = uniqid("instance-");
-    const meta = await singleProcess(
-      subURI,
-      styURI,
-      dslURI,
-      folders,
-      `${out}/${name}-${id}${folders ? "" : ".svg"}`,
-      prefix,
-      {
-        substanceName: subName,
-        styleName: styName,
-        domainName: dslName,
-        id,
+    // try to render the diagram
+    try {
+      // Warning: will face id conflicts if parallelism used
+      const res = await singleProcess(
+        subURI,
+        styURI,
+        dslURI,
+        folders,
+        `${out}/${name}-${id}${folders ? "" : ".svg"}`,
+        prefix,
+        {
+          substanceName: subName,
+          styleName: styName,
+          domainName: dslName,
+          id,
+        },
+        reference,
+        referenceState,
+        meta
+      );
+      if (folders) {
+        const { metadata, state } = res;
+        if (referenceFlag) {
+          referenceState = state;
+          referenceFlag = false;
+        }
+        finalMetadata[id] = metadata;
       }
-    );
-    if (folders) {
-      finalMetadata[id] = meta;
+    } catch (e) {
+      console.log(
+        chalk.red(
+          `${id} exited with an error. The Substance program ID is ${subName}. The error message is:\n${e}`
+        )
+      );
     }
   }
+
   if (folders) {
     fs.writeFileSync(
       `${out}/aggregateData.json`,
@@ -214,11 +272,20 @@ const batchProcess = async (
 
   // Determine the output file path
   const folders = args["--folders"] || false;
+  const browserFolder = args["--render"];
   const outFile = args["--outFile"];
+  const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
   if (args.batch) {
-    await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
+    for (let i = 0; i < times; i++) {
+      await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
+    }
+    if (browserFolder) {
+      renderArtifacts(args.OUTFOLDER, browserFolder);
+    }
+  } else if (args.render) {
+    renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else {
     await singleProcess(
       args.SUBSTANCE,

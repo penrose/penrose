@@ -10,7 +10,7 @@ interface IState {
 }
 
 class Mod extends React.Component<IViewProps, IState> {
-  public readonly state = { selectedShape: -1 };
+  public readonly state = { selectedShape: 0 };
   public setSelectedShape = (key: number) => {
     this.setState({ selectedShape: key });
   };
@@ -42,6 +42,14 @@ class Mod extends React.Component<IViewProps, IState> {
     }
 
     const { selectedShape } = this.state;
+    const def = defmap[frame.shapes[selectedShape].shapeType];
+    if (!def) {
+      return (
+        <div style={{ padding: "1em" }}>
+          {frame.shapes[selectedShape].shapeType} is not in defmap
+        </div>
+      );
+    }
     return (
       <div
         style={{
@@ -66,7 +74,7 @@ class Mod extends React.Component<IViewProps, IState> {
           {frame.shapes[selectedShape] && (
             <AttrPicker
               shape={frame.shapes[selectedShape]}
-              sAttrs={defmap[frame.shapes[selectedShape].shapeType]}
+              sAttrs={def}
               modAttr={this.modAttr}
             />
           )}

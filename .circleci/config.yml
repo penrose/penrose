@@ -25,7 +25,7 @@ jobs:
           command: touch docs/.nojekyll
       - run:
           name: Deploy to gh-pages
-          command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
+          command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/ -r https://github.com/penrose/penrose.git
   build:
     docker:
       - image: circleci/node:12.19.0

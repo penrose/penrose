@@ -4,11 +4,25 @@ export interface SourceLoc {
   col: number;
 }
 
-export interface ASTNode {
+type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
+
+export type ASTNode = Optional<ConcreteNode, "start" | "end">;
+
+export type NodeType =
+  | "Substance"
+  | "Style"
+  | "Domain"
+  | "SyntheticSubstance"
+  | "SyntheticStyle";
+
+export interface SyntheticNode extends ASTNode {
+  nodeType: "SyntheticSubstance" | "SyntheticStyle";
+}
+export interface ConcreteNode {
   tag: string;
   start: SourceLoc;
   end: SourceLoc;
-  nodeType: string;
+  nodeType: NodeType;
   children: ASTNode[];
   // TODO: add file source and node type
   // sourceFile: FilePath

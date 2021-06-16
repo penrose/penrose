@@ -1,5 +1,0 @@
-Set domainOuter, codomain, domain, image, cartesianProduct 
--- `CartesianProduct domain image`?
-Subset domain domainOuter
-Subset image codomain
-Bijection q domain image

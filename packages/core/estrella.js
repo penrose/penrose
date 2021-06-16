@@ -19,6 +19,9 @@ build({
 build({
   ...common,
   outfile: "./build/dist/index.js",
+  platform: "node",
+  minify: false,
   format: "cjs",
-  silent: true,
+  // silent: true,
+  sourcemap: "both",
 });

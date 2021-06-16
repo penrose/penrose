@@ -84,6 +84,7 @@ export const insertPending = (state: State): State => {
       const { property } = p;
       const prop: string = property.value;
       const labelData = retrieveLabel(getShapeName(p), labels);
+
       if (labelData) {
         if (prop === "w") return labelData.w;
         else if (prop === "h") return labelData.h;

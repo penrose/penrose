@@ -1,4 +1,4 @@
-import { bbox, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -16,18 +16,22 @@ import {
   sin,
   sqrt,
 } from "engine/Autodiff";
+import * as BBox from "engine/BBox";
 import { maxBy, range } from "lodash";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Elem, IPt, SubPath } from "types/value";
 import {
   ArgVal,
   Color,
+  Elem,
   IColorV,
   IFloatV,
   IPathDataV,
+  IPt,
   IPtListV,
+  IStrV,
   ITupV,
   IVectorV,
+  SubPath,
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
@@ -279,6 +283,16 @@ export const compDict = {
   },
 
   /**
+   * Concatenate a list of strings
+   */
+  concat: (...strings: string[]): IStrV => {
+    return {
+      tag: "StrV",
+      contents: strings.join(""),
+    };
+  },
+
+  /**
    * Return the normalized version of vector `v`.
    */
   normalize: (v: VarAD[]): IVectorV<VarAD> => {
@@ -400,23 +414,22 @@ export const compDict = {
   },
 
   /**
-       * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-    
-   @deprecated Don't use this function, it does not fully work
-       */
+           * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
+        
+       @deprecated Don't use this function, it does not fully work
+           */
   intersectingSideSize: (
     start: VecAD,
     end: VecAD,
     [t1, s1]: [string, any]
   ): IFloatV<VarAD> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (t1 !== "Rectangle" && t1 !== "Text") {
-      throw Error("expected box-like shape");
+    if (!isRectlike(t1)) {
+      throw Error("expected rect-like shape");
     }
 
-    const [w, h] = [s1.w.contents, s1.h.contents];
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bbox(s1.center.contents, w, h);
+    const rect = bboxFromShape(t1, s1);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
@@ -431,7 +444,11 @@ export const compDict = {
     // Find some other way to calculate what side intersects the ray between the points
     // Check if this works better WRT new disjoint rectangles, rect-line etc.
 
-    const dim = ifCond(inRange(end[0], rect.minX, rect.maxX), h, w);
+    const dim = ifCond(
+      inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
+      rect.h,
+      rect.w
+    );
     return { tag: "FloatV", contents: dim };
   },
 
@@ -670,6 +687,13 @@ const perpPathFlat = (
  * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
+  return [neg(y), x];
+};
+
+/**
+ * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ */
+const rot90v = ([x, y]: VarAD[]): VarAD[] => {
   return [neg(y), x];
 };
 
