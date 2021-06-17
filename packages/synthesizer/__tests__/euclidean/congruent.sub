@@ -1,0 +1,6 @@
+Point A, B
+--Angle a1 := InteriorAngle(A,B,C)
+--Angle a2 := InteriorAngle(D,C,B)
+--EqualAngleMarker1(a1, a2)
+Arc ar := MkArc(A, B)
+AutoLabel All

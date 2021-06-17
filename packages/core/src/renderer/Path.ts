@@ -17,9 +17,24 @@ const toCmdString = (cmd: any, canvasSize: [number, number]) => {
       return pathCommandString("Q", cmd.contents, canvasSize);
     case "QuadBezJoin":
       return pathCommandString("T", cmd.contents, canvasSize);
+    case "Arc":
+      return arcCommandString("A", cmd.contents, canvasSize);
     default:
       return " ";
   }
+};
+
+const arcCommandString = (
+  command: string,
+  pts: [number, number][],
+  canvasSize: [number, number]
+) => {
+  // A, rx, ry, rotation, arc, sweep, ex, ey
+  const [radius, flags, endpt] = pts;
+  return `${command} ${radius.join(" ")} ${flags.join(" ")} ${toScreen(
+    endpt,
+    canvasSize
+  ).join(" ")}`;
 };
 
 const pathCommandString = (
