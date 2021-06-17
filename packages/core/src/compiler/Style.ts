@@ -3080,8 +3080,6 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 export const checkCanvas = (tr: Translation): StyleErrors => {
   let errs: StyleErrors = [];
 
-  /* TODO: type error reporting is wrong! */
-
   if (!("canvas" in tr.trMap)) {
     errs.push({
       tag: "CanvasNonexistentError",
