@@ -14,7 +14,24 @@ for (let i = NUM_PRE_VARS; i < NUM_PRE_VARS + NUM_VARS; i++) {
 }
 
 progStr += `const res = [${xs}].reduce((x, y) => x + y);\n`;
+progStr += `console.log("res", res);\n`;
+progStr += `return res;`;
 
-progStr += `console.log("res", res);`;
+// f(x) => { do all the stuff with xs and ignore the args, for now }
 
-console.log(progStr);
+const NUM_ARGS = 60;
+let args = [];
+let inputs = [];
+
+for (let i = 0; i < 60; i++) {
+  args.push(`c${i}`);
+  inputs.push(i);
+}
+
+console.log("body", progStr);
+
+const f = new Function(...args, progStr);
+console.log("function", f);
+console.log("args", args);
+console.log("inputs", inputs);
+console.log("f(inputs)", f(...inputs));

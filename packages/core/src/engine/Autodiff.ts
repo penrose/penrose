@@ -1490,9 +1490,10 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
         } else if (op === "+ list") {
             const childList = "[".concat(childNames.join(", ")).concat("]");
             // TODO: revert the console.log. also probably name the child list?
-            // stmt = `console.log("reduce", ${childList}.length); 
-            // const ${ parName } = ${ childList }.reduce((x, y) => x + y); `;
-            stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y); `;
+            stmt = `console.log("reduce", ${childList}.length);\n
+            const ${parName} = ${childList}.reduce((x, y) => x + y); `;
+
+            // stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y); `;
         } else {
             log.trace("node", z, z.op);
             throw Error("unknown n-ary operation");
