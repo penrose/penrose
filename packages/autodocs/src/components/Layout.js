@@ -1,5 +1,5 @@
 import React from "react";
-import { useStaticQuery, graphql } from "gatsby";
+import { useStaticQuery, graphql, Link } from "gatsby";
 import { EuiPage, EuiPageSideBar, EuiPageBody, EuiSideNav } from "@elastic/eui";
 import "@elastic/eui/dist/eui_theme_amsterdam_light.css";
 

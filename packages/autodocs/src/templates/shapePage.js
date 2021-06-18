@@ -5,6 +5,7 @@ import {
   EuiPageContent,
   EuiPageContentBody,
   EuiPageHeader,
+  EuiBasicTable,
 } from "@elastic/eui";
 
 const ShapePage = ({ data }) => {
@@ -17,7 +18,13 @@ const ShapePage = ({ data }) => {
       />
       <EuiPageContent>
         <EuiPageContentBody restrictWidth={800}>
-          <div>{JSON.stringify(data)}</div>
+          <EuiBasicTable
+            columns={[
+              { name: "Property", field: "name" },
+              { name: "Type", field: "propType" },
+            ]}
+            items={data.shape.properties}
+          />
         </EuiPageContentBody>
       </EuiPageContent>
     </Layout>
