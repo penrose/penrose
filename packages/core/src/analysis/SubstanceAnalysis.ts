@@ -1,5 +1,5 @@
-import { pullAt } from "lodash";
-import { Identifier } from "types/ast";
+import { isEqual, isEqualWith, omit, pullAt } from "lodash";
+import { ASTNode, Identifier, metaProps } from "types/ast";
 import { Map } from "immutable";
 import {
   ConstructorDecl,
@@ -23,6 +23,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { metaProperty } from "jscodeshift";
 
 export interface Signature {
   args: string[];
@@ -122,18 +123,13 @@ export const replaceStmt = (
   statements: prog.statements.map((s) => (s === originalStmt ? newStmt : s)),
 });
 
-//#region helpers
-
+//#region Helpers
 const swap = (arr: any[], a: number, b: number) =>
   arr.map((current, idx) => {
     if (idx === a) return arr[b];
     if (idx === b) return arr[a];
     return current;
   });
-
-//#endregion
-
-//#region Helpers
 
 /**
  * Find all signatures that match a reference statement. NOTE: returns an empty list if
@@ -353,5 +349,17 @@ export const autoLabelStmt: AutoLabel = {
   nodeType: "SyntheticSubstance",
   children: [],
 };
+
+/**
+ * Compare two AST nodes by their contents, ignoring structural properties such as `children` and positional properties like `start` and `end`.
+ *
+ * @param node1 the first AST node
+ * @param node2 the second AST node
+ * @returns a boolean value
+ */
+export const nodesEqual = (node1: ASTNode, node2: ASTNode): boolean =>
+  isEqualWith(node1, node2, (node1: any, node2: any) =>
+    isEqual(omit(node1, ...metaProps), omit(node2, ...metaProps))
+  );
 
 //#endregion

@@ -1,12 +1,47 @@
 import { prettyStmt } from "compiler/Substance";
-import _, { flow, groupBy, map } from "lodash";
 import {
-  Mutation,
-  SynthesizedSubstance,
-  SynthesizerSetting,
-} from "synthesis/Synthesizer";
-import { SubStmt } from "types/substance";
+  groupBy,
+  intersectionBy,
+  intersectionWith,
+  isEqual,
+  map,
+  omit,
+} from "lodash";
+import { getDiff, rdiffResult } from "recursive-diff";
+import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
+import { metaProps } from "types/ast";
+import { SubProg, SubStmt } from "types/substance";
 
+//#region Generalized edits
+
+type Edit = Mutation;
+
+const generalizedEdits = (
+  original: SubProg,
+  editedProgs: SubProg[],
+  mode: "exact"
+): Edit => {
+  switch (mode) {
+    case "exact":
+      return {} as any; // COMBAK: complete the function
+  }
+};
+
+export const diffSubprogs = (left: SubProg, right: SubProg): rdiffResult[] => {
+  const diffs: rdiffResult[] = getDiff(left, right);
+  // remove all diffs related to meta-properties
+  const concreteDiffs: rdiffResult[] = diffs.filter(
+    (diff: rdiffResult) =>
+      !diff.path.some((key: string | number) =>
+        metaProps.includes(key.toString())
+      )
+  );
+  return concreteDiffs;
+};
+
+//#endregion
+
+//#region Specification synthesis
 interface TaggedMutationSet {
   tag: Mutation["tag"];
   stmts: SubStmt[];
@@ -31,9 +66,10 @@ export const synthesizeConfig = (examples: SynthesizedSubstance[]) => {
     }
   ) as any; // TODO: resolve types: why is it `boolean[]`?
 
-  console.log(showMutationSets(taggedMutations));
+  // console.log(showMutationSets(taggedMutations));
 
-  // return {};
+  // TODO: finish this function
+  return {} as any;
 };
 
 const showMutationSets = (sets: TaggedMutationSet[]): string =>
@@ -54,3 +90,5 @@ const editedStmt = (mutation: Mutation): SubStmt => {
       return mutation.stmt;
   }
 };
+
+//#endregion

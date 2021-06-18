@@ -1,11 +1,19 @@
-import { compileDomain, compileSubstance, showError } from "index";
+import {
+  compileDomain,
+  compileSubstance,
+  prettySubstance,
+  showError,
+} from "index";
+import { cloneDeep } from "lodash";
+import { applyDiff, rdiffResult } from "recursive-diff";
 import {
   DeclTypes,
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
 } from "synthesis/Synthesizer";
-import { synthesizeConfig } from "./Search";
+import { SubProg, SubRes } from "types/substance";
+import { diffSubprogs, synthesizeConfig } from "./Search";
 
 const SEED = "testSearch";
 
@@ -77,30 +85,34 @@ IsSubset(B, A)
 IsSubset(C, A)
 `;
 
-const initSynth = (
-  domainSrc: string,
-  substanceSrc: string,
-  settings: SynthesizerSetting
-): Synthesizer => {
+const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
   const envOrError = compileDomain(domainSrc);
   if (envOrError.isOk()) {
     const env = envOrError.value;
     const subRes = compileSubstance(substanceSrc, env);
     if (subRes.isOk()) {
       const subResult = subRes.value;
-      return new Synthesizer(env, settings, subResult, SEED);
+      return subResult;
     } else {
       throw new Error(
-        `Error when compiling the template Substance program: ${showError(
-          subRes.error
-        )}`
+        `Error when compiling the Substance program: ${showError(subRes.error)}`
       );
     }
   } else {
     throw new Error(
-      `Error when compiling the domain program:\n${showError(envOrError.error)}`
+      `Error when compiling the Domain program:\n${showError(envOrError.error)}`
     );
   }
+};
+
+const initSynth = (
+  domainSrc: string,
+  substanceSrc: string,
+  settings: SynthesizerSetting
+): Synthesizer => {
+  const subRes = getSubRes(domainSrc, substanceSrc);
+  const env = subRes[1];
+  return new Synthesizer(env, settings, subRes, SEED);
 };
 
 describe("Synthesizer tests", () => {
@@ -108,5 +120,30 @@ describe("Synthesizer tests", () => {
     const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
     const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
     synthesizeConfig(progs);
+  });
+
+  test("applying exact AST diff", () => {
+    const prog1 = `
+    Set A, B, C
+    IsSubset(C, A)
+    IsSubset(A,B)
+    `;
+    const prog2 = `
+    Set A, B, C
+    IsSubset(C,A)
+    IsSubset(B, A)
+    `;
+    const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const diffs: rdiffResult[] = diffSubprogs(ast1, ast2);
+    // because we filtered out all the noisy diffs, the exact formatting should not matter much
+    expect(diffs).toHaveLength(2);
+    // NOTE: `applyDiff` actually mutates the object :(
+    const ast2From1 = applyDiff(cloneDeep(ast1), diffs);
+    // the exact objects won't be equal, because the ASTs don't have the same positional info
+    expect(ast2From1).not.toEqual(ast2);
+    // ...but the ASTs are actually the same, which can be shown by checking the trees
+    expect(prettySubstance(ast2From1)).toEqual(prettySubstance(ast2));
+    expect(prettySubstance(ast2From1)).not.toEqual(prettySubstance(ast1));
   });
 });

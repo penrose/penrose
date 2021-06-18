@@ -6,13 +6,45 @@ import {
 } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Env } from "types/domain";
-import { SubStmt } from "types/substance";
-import { appendStmt, removeStmt, replaceStmt } from "./SubstanceAnalysis";
+import { DefaultLabels, SubProg, SubStmt } from "types/substance";
+import {
+  appendStmt,
+  nodesEqual,
+  removeStmt,
+  replaceStmt,
+} from "./SubstanceAnalysis";
 
 const domain = `
 type Set
 `;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
+
+describe("Substance AST queries", () => {
+  test("Node equality check", () => {
+    const id1 = dummyIdentifier("A", "SyntheticSubstance");
+    const id2 = dummyIdentifier("B", "SyntheticSubstance");
+    expect(nodesEqual(id1, id2)).toBe(false);
+    expect(nodesEqual(id2, id2)).toBe(true);
+    // create two SubStmts with different source locs and children and the equality check should still return true
+    const prog1: DefaultLabels = {
+      children: [],
+      tag: "DefaultLabels",
+      nodeType: "Substance",
+      start: { line: 0, col: 0 },
+      end: { line: 0, col: 0 },
+    };
+    const prog2: DefaultLabels = {
+      children: [prog1],
+      tag: "DefaultLabels",
+      nodeType: "Substance",
+      start: { line: 5, col: 0 },
+      end: { line: 8, col: 0 },
+    };
+    const prog3 = { ...prog2, tag: "AutoLabel" };
+    expect(nodesEqual(prog1, prog2)).toBe(true);
+    expect(nodesEqual(prog3, prog2)).toBe(false);
+  });
+});
 
 describe("AST mutation operations", () => {
   test("addition", () => {
