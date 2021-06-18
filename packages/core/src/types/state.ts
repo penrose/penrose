@@ -1,3 +1,4 @@
+import { Canvas } from "renderer/ShapeDef";
 import { prng } from "seedrandom";
 import { VarAD, GradGraphs } from "./ad";
 import { MaybeVal } from "./common";
@@ -29,6 +30,7 @@ export interface IState {
   labelCache: LabelCache;
   shapes: Shape[];
   varyingMap: VaryMap;
+  canvas: Canvas;
 }
 export type State = IState;
 
