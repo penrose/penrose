@@ -48,6 +48,7 @@ const {
     pointSize = 4.0
     pointStroke = 0.0
     thetaRadius = 40.0
+    bigThetaRadius = 50.0
 }
 
 Plane p {
@@ -151,24 +152,57 @@ where EqualAngleMarker1(a, b) {
   endB1 = b.p
   endB2 = b.r
 
-  startA = angleMarker(centerA, endA1, a.radius)
-  endA = angleMarker(centerA, endA2, a.radius)
-
   startB = angleMarker(centerB, endB1, b.radius)
   endB = angleMarker(centerB, endB2, b.radius)
 
   a.angleMark = Path {
-    pathData : arc("open", startA, endA, (a.radius, a.radius))
+    pathData : arc("open", angleMarker(a.q, a.p, a.radius), angleMarker(a.q, a.r, a.radius), (a.radius, a.radius))
    strokeWidth : 2.0
     color : Colors.black
-    fill : "none"
+    fill: Colors.none
  }
   b.angleMark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius))
     strokeWidth : 2.0
     color : Colors.black
-    fill : "none"
+    fill: Colors.none
  }
+
+}
+
+Angle a, b
+where EqualAngleMarker2(a, b) {
+  --find points from p->q, then q->r for each vector. draw vectors for each
+  radiusA = (a.radius, a.radius)
+  radiusB = (b.radius, b.radius)
+
+  a.angleMark = Path {
+    pathData : arc("open", angleMarker(a.p, a.q, a.radius), angleMarker(a.p, a.r, a.radius), radiusA)
+   strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+   a.angleMark2 = Path {
+    pathData : arc("open", angleMarker(b.p, b.q, b.radius), angleMarker(b.p, b.r, b.radius), radiusB)
+   strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+
+  bigRad = const.bigThetaRadius
+  b.angleMark = Path {
+    pathData : arc("open", angleMarker(a.p, a.q, bigRad), angleMarker(a.p, a.r, bigRad), (bigRad, bigRad))
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+  b.angleMark2 = Path {
+    pathData : arc("open", angleMarker(b.p, b.q, bigRad), angleMarker(b.p, b.r, bigRad), (bigRad, bigRad))
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+
 }
 
 Arc A;
@@ -180,7 +214,7 @@ with Point p; Point q {
     pathData : arc("open", start, end, (const.thetaRadius, const.thetaRadius))
     strokeWidth : 2.0
     color : Colors.black
-    fill : "none"
+    fill: Colors.none
   }
 }
 
@@ -276,7 +310,6 @@ with Point p; Point q; Point r {
     style : "solid"
   }
   theta.radius = const.thetaRadius
-
 }
  --    theta.radius = const.thetaRadius
 --     -- TODO: always take the acute angle, not the obtuse angle

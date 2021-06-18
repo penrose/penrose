@@ -187,6 +187,7 @@ function mapPolygon<T, S>(f: (arg: T) => S, v: IPolygonV<T>): IPolygonV<S> {
 
 function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
   if (e.tag === "Pt" || e.tag === "QuadBezJoin") {
+    console.log("pt", e);
     return {
       tag: e.tag,
       contents: mapTup2(f, e.contents),
@@ -200,6 +201,18 @@ function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
     return {
       tag: e.tag,
       contents: mapTup3((x) => mapTup2(f, x), e.contents),
+    };
+  } else if (e.tag === "Arc") {
+    console.log("arc", e);
+    const l: [[S, S], [S, S, S], [S, S]] = [
+      // TODO sad :(
+      mapTup2(f, e.contents[0]),
+      mapTup3(f, e.contents[1]),
+      mapTup2(f, e.contents[2]),
+    ];
+    return {
+      tag: e.tag,
+      contents: l,
     };
   } else {
     throw Error("unknown tag in bezier curve type conversion");

@@ -9,10 +9,14 @@ import {
   absVal,
   add,
   addN,
+  and,
   constOf,
   cos,
   div,
+  eq,
+  gt,
   ifCond,
+  lt,
   max,
   min,
   mul,
@@ -27,7 +31,15 @@ import {
 } from "engine/Autodiff";
 import { maxBy, range } from "lodash";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Elem, IArc, IPt, IStrV, SubPath } from "types/value";
+import {
+  Elem,
+  IArc,
+  ICubicBez,
+  ICubicBezJoin,
+  IPt,
+  IStrV,
+  SubPath,
+} from "types/value";
 import {
   ArgVal,
   Color,
@@ -43,6 +55,7 @@ import { randFloat } from "utils/Util";
 import * as BBox from "engine/BBox";
 import { attrRotation } from "renderer/AttrHelper";
 import { arch } from "os";
+import { Var } from "types/domain";
 
 /**
  * Static dictionary of computation functions
@@ -300,17 +313,17 @@ export const compDict = {
 
   arc: (
     pathType: string,
-    [start, end, radius]: [Pt2, Pt2, Pt2]
+    start: Pt2,
+    end: Pt2,
+    radius: Pt2
   ): IPathDataV<VarAD> => {
     const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    // const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-    const st = { tag: "Pt", contents: start } as IPt<IVarAD>;
-    const arc = {
+    const st: IPt<IVarAD> = { tag: "Pt", contents: start };
+    const arc: IArc<IVarAD> = {
       tag: "Arc",
       contents: [radius, [constOf(0), constOf(0), constOf(0)], end],
-    } as IArc<IVarAD>;
+    };
     const elems: Elem<VarAD>[] = [st, arc];
-
     return {
       tag: "PathDataV",
       contents: [
@@ -322,14 +335,17 @@ export const compDict = {
     };
   },
 
-  angleMarker: ([x1, y1]: any, [x2, y2]: any, r: any): Pt2 => {
+  angleMarker: (
+    [x1, y1]: VarAD[],
+    [x2, y2]: VarAD[],
+    r: VarAD
+  ): IVectorV<VarAD> => {
     // calculate start/end points of each line
-    const x = sub(x2, x1);
-    const y = sub(y2, y1);
-    const scale = div(sqrt(add(squared(x), squared(y))), constOf(r));
-    const newx = add(mul(x, scale), x1);
-    const newy = add(mul(y, scale), y1);
-    return [newx, newy];
+    const [x, y] = [sub(x2, x1), sub(y2, y1)];
+    const scale = div(sqrt(add(squared(x), squared(y))), r);
+    const newx: IVarAD = add(div(x, scale), x1);
+    const newy: IVarAD = add(div(y, scale), y1);
+    return { tag: "VectorV", contents: [newx, newy] };
   },
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
@@ -693,24 +709,10 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
   return res[0] as VarAD[];
 };
 
-// const arcPathEuclidean = (center: VarAD[], start: VarAD[], end: VarAD[], radius: VarAD): VarAD[][] => {
-//   if (!center || !start || !end) {
-//     throw Error("Expected nonempty point list");
-//   }
-//   // L x y determines starting pt of arc
-//   // given triangle ABC, angle B, start = B +/- AB/radius
-//   // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
-//   // rx ry = radius
-//   // rotation = 0
-//   // radius x, radius y, rotation, , , end pt of arc
-//   // always want the minor arc? large arc flag set to false
-//   // sweep flag?
-// }
-
-// const tickPathEuclidean = (start: VarAD[], end: VarAD[], tickSize: VarAD): VarAD[][] => {
-//   const tickStart = rot90v(start);
-//   const tickEnd = rot90v(end);
-//   const tickX = div(absVal(sub(tickEnd[0],tickStart[0])), tickSize);
-//   const tickY = div(absVal(sub(tickEnd[1], tickStart[1])), tickSize);
-//   return [tickX, tickY];
+// const arcSweepFlag = (p: Pt2, q: Pt2, r: Pt2): number => {
+//   const upLeft = (a: IVarAD,b: IVarAD) => and(gt(a[0], b[0]), lt(a[1], b[1]));
+//   const upRight = (a: IVarAD, b:IVarAD) => and(lt(a[0],b[0]),lt(a[1],b[1]));
+//   const lowLeft = (a: IVarAD, b:IVarAD) => and(gt(a[0],b[0]), gt(a[1],b[1]));
+//   const lowRight = (a: IVarAD, b: IVarAD) => and(lt(a[0],b[0]), gt(a[1],b[1]));
+//   ifCond(and(upLeft(p, q),))
 // }

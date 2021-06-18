@@ -79,6 +79,8 @@ predicate Scalene : Triangle
 -- predicate Disjoint : Set * Set
 predicate Collinear : Point * Point * Point
 predicate EqualAngleMarker1 : Angle * Angle
+predicate EqualAngleMarker: Angle * Angle
+predicate EqualAngleMarker2 : Angle * Angle
 -- predicate EqualLengthMarker : Segment * Segment
 predicate EqualAngle : Angle * Angle
 predicate EqualLength : Segment * Segment 
