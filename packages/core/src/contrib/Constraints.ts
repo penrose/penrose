@@ -45,7 +45,7 @@ export const isRectlike = (shapeType: string): boolean => {
 };
 
 /**
- * Takes a `shapeType`, returns whether it's linelike. (TODO: Account for arrowhead size)
+ * Takes a `shapeType`, returns whether it's linelike.
  */
 export const isLinelike = (shapeType: string): boolean => {
   return shapeType == "Line" || shapeType == "Arrow";
