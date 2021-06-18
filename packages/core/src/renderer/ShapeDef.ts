@@ -206,24 +206,24 @@ export const rectDef: ShapeDef = {
   positionalProps: ["x", "y"],
 };
 
-export const calloutDef: ShapeDef = {
-  shapeType: "Callout",
-  properties: {
-    anchor: ["VectorV", vectorSampler],
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", widthSampler],
-    h: ["FloatV", heightSampler],
-    padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
-    rx: ["FloatV", zeroFloat], // currently unused
-    style: ["StrV", () => constValue("StrV", "filled")],
-    strokeWidth: ["FloatV", strokeSampler],
-    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    strokeDashArray: ["StrV", () => constValue("StrV", "")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultCallout")],
-  },
-};
+// export const calloutDef: ShapeDef = {
+//   shapeType: "Callout",
+//   properties: {
+//     anchor: ["VectorV", vectorSampler],
+//     center: ["VectorV", vectorSampler],
+//     w: ["FloatV", widthSampler],
+//     h: ["FloatV", heightSampler],
+//     padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
+//     rx: ["FloatV", zeroFloat], // currently unused
+//     style: ["StrV", () => constValue("StrV", "filled")],
+//     strokeWidth: ["FloatV", strokeSampler],
+//     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+//     strokeColor: ["ColorV", colorSampler],
+//     strokeDashArray: ["StrV", () => constValue("StrV", "")],
+//     color: ["ColorV", colorSampler],
+//     name: ["StrV", () => constValue("StrV", "defaultCallout")],
+//   },
+// };
 
 export const polygonDef: ShapeDef = {
   shapeType: "Polygon",
@@ -375,16 +375,18 @@ export const textDef: ShapeDef = {
 export const lineDef: ShapeDef = {
   shapeType: "Line",
   properties: {
-    // TODO: reimplement "start" as x1,x2,y1,y2
-    start: ["VectorV", vectorSampler],
-    end: ["VectorV", vectorSampler],
+    // TODO: reimplement "start" as x1,x2,y1,y2 in Line.ts
+    x1: ["FloatV", widthSampler],
+    x2: ["FloatV", widthSampler],
+    y1: ["FloatV", heightSampler],
+    y2: ["FloatV", heightSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+    // thickness: ["FloatV", () => sampleFloatIn(5, 15)],
     // TODO: 
-    leftArrowhead: ["BoolV", () => constValue("BoolV", false)],
-    rightArrowhead: ["BoolV", () => constValue("BoolV", false)],
-    arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
-    arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
+    // leftArrowhead: ["BoolV", () => constValue("BoolV", false)],
+    // rightArrowhead: ["BoolV", () => constValue("BoolV", false)],
+    // arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
+    // arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
     color: ["ColorV", colorSampler],
     style: ["StrV", () => constValue("StrV", "solid")],
     stroke: ["StrV", () => constValue("StrV", "none")],
@@ -394,44 +396,44 @@ export const lineDef: ShapeDef = {
   positionalProps: ["start", "end"],
 };
 
-// TODO: type without a constructing function
-export const arrowDef: ShapeDef = {
-  shapeType: "Arrow",
-  properties: {
-    start: ["VectorV", vectorSampler],
-    end: ["VectorV", vectorSampler],
-    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
-    arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
-    arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
-    style: ["StrV", () => constValue("StrV", "solid")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultArrow")],
-    strokeDashArray: ["StrV", () => constValue("StrV", "")],
-  },
-  positionalProps: ["start", "end"],
-};
+// // TODO: type without a constructing function
+// export const arrowDef: ShapeDef = {
+//   shapeType: "Arrow",
+//   properties: {
+//     start: ["VectorV", vectorSampler],
+//     end: ["VectorV", vectorSampler],
+//     thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+//     arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
+//     arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
+//     style: ["StrV", () => constValue("StrV", "solid")],
+//     color: ["ColorV", colorSampler],
+//     name: ["StrV", () => constValue("StrV", "defaultArrow")],
+//     strokeDashArray: ["StrV", () => constValue("StrV", "")],
+//   },
+//   positionalProps: ["start", "end"],
+// };
 
-// TODO: type without a constructing function
-export const curveDef: ShapeDef = {
-  shapeType: "Path",
-  properties: {
-    path: ["PtListV", () => constValue("PtListV", [])],
-    polyline: ["PtListV", () => constValue("PtListV", [])],
-    polygon: ["PolygonV", () => emptyPoly],
-    pathData: ["PathDataV", () => constValue("PathDataV", [])],
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", () => constValue("StrV", "solid")],
-    strokeDashArray: ["StrV", () => constValue("StrV", "")],
-    effect: ["StrV", () => constValue("StrV", "none")],
-    color: ["ColorV", colorSampler],
-    fill: ["ColorV", colorSampler],
-    leftArrowhead: ["BoolV", () => constValue("BoolV", false)],
-    rightArrowhead: ["BoolV", () => constValue("BoolV", false)],
-    arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
-    arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
-    name: ["StrV", () => constValue("StrV", "defaultCurve")],
-  },
-};
+// // TODO: type without a constructing function
+// export const curveDef: ShapeDef = {
+//   shapeType: "Path",
+//   properties: {
+//     path: ["PtListV", () => constValue("PtListV", [])],
+//     polyline: ["PtListV", () => constValue("PtListV", [])],
+//     polygon: ["PolygonV", () => emptyPoly],
+//     pathData: ["PathDataV", () => constValue("PathDataV", [])],
+//     strokeWidth: ["FloatV", strokeSampler],
+//     style: ["StrV", () => constValue("StrV", "solid")],
+//     strokeDashArray: ["StrV", () => constValue("StrV", "")],
+//     effect: ["StrV", () => constValue("StrV", "none")],
+//     color: ["ColorV", colorSampler],
+//     fill: ["ColorV", colorSampler],
+//     leftArrowhead: ["BoolV", () => constValue("BoolV", false)],
+//     rightArrowhead: ["BoolV", () => constValue("BoolV", false)],
+//     arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
+//     arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
+//     name: ["StrV", () => constValue("StrV", "defaultCurve")],
+//   },
+// };
 
 /**
  * A registry of all types of shape definitions in the Penrose system.
@@ -441,16 +443,16 @@ export const shapedefs: ShapeDef[] = [
   ellipseDef,
   textDef,
   rectDef,
-  calloutDef,
+  // calloutDef,
   polygonDef,
   freeformPolygonDef,
   polylineDef,
   pathStringDef,
   squareDef,
-  curveDef,
+  // curveDef,
   imageDef,
   lineDef,
-  arrowDef,
+  // arrowDef,
 ];
 
 export const positionalProps = (type: string): string[] | undefined => {
