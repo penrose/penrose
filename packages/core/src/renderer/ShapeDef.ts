@@ -156,14 +156,14 @@ export const circleDef: ShapeDef = {
     cy: ["FloatV", heightSampler],
     r: ["FloatV", widthSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", colorSampler], // to add: rest of stroke attributes
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
-  positionalProps: ["cx","cy"],
+  positionalProps: ["cx", "cy"],
 };
 
 export const ellipseDef: ShapeDef = {
@@ -174,15 +174,15 @@ export const ellipseDef: ShapeDef = {
     rx: ["FloatV", widthSampler],
     ry: ["FloatV", heightSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
   },
-  positionalProps: ["cx","cy"],
+  positionalProps: ["cx", "cy"],
 };
 
 export const rectDef: ShapeDef = {
@@ -193,15 +193,17 @@ export const rectDef: ShapeDef = {
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     rx: ["FloatV", zeroFloat],
-    strokeWidth: ["FloatV", strokeSampler],
+    ry: ["FloatV", zeroFloat],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultRect")],
   },
-  positionalProps: ["x","y"],
+  positionalProps: ["x", "y"],
 };
 
 export const calloutDef: ShapeDef = {
@@ -213,8 +215,8 @@ export const calloutDef: ShapeDef = {
     h: ["FloatV", heightSampler],
     padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
     rx: ["FloatV", zeroFloat], // currently unused
-    strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
@@ -226,12 +228,6 @@ export const calloutDef: ShapeDef = {
 export const polygonDef: ShapeDef = {
   shapeType: "Polygon",
   properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", () => constValue("StrV", "filled")],
-    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: [
       "PtListV",
       () =>
@@ -241,18 +237,19 @@ export const polygonDef: ShapeDef = {
           [10, 0],
         ]),
     ],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
   },
 };
 
 export const freeformPolygonDef: ShapeDef = {
   shapeType: "FreeformPolygon",
   properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", () => constValue("StrV", "filled")],
-    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultFreeformPolygon")],
     points: [
       "PtListV",
       () =>
@@ -262,6 +259,13 @@ export const freeformPolygonDef: ShapeDef = {
           [10, 0],
         ]),
     ],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultFreeformPolygon")],
   },
   positionalProps: [],
 };
@@ -277,7 +281,6 @@ export const pathStringDef: ShapeDef = {
   properties: {
     data: ["StrV", () => constValue("StrV", DEFAULT_PATHSTR)], // path
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    rotation: ["FloatV", () => constValue("FloatV", 0)],
     opacity: ["FloatV", () => constValue("FloatV", 1.0)],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
@@ -291,12 +294,6 @@ export const pathStringDef: ShapeDef = {
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", () => constValue("StrV", "filled")],
-    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     points: [
       "PtListV",
       () =>
@@ -306,6 +303,13 @@ export const polylineDef: ShapeDef = {
           [10, 0],
         ]),
     ],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    style: ["StrV", () => constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", () => constValue("StrV", "defaultPolygon")],
   },
 };
 
@@ -316,23 +320,24 @@ export const imageDef: ShapeDef = {
     y: ["FloatV", heightSampler],
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
-    rotation: ["FloatV", () => constValue("FloatV", 0)],
     opacity: ["FloatV", () => constValue("FloatV", 1.0)],
     style: ["StrV", () => constValue("StrV", "filled")],
     stroke: ["StrV", () => constValue("StrV", "none")],
     path: ["StrV", () => constValue("StrV", "missing image path")],
     name: ["StrV", () => constValue("StrV", "defaultImage")],
+    // TODO: add preserveAspectRation and crossorigin properties
   },
-  positionalProps: ["x","y"],
+  positionalProps: ["x", "y"],
 };
 
+// TODO: is a square absolutely necessary?
 export const squareDef: ShapeDef = {
   shapeType: "Square",
   properties: {
     x: ["FloatV", widthSampler],
     y: ["FloatV", heightSampler],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     side: ["FloatV", widthSampler],
-    rotation: ["FloatV", () => constValue("FloatV", 0)],
     style: ["StrV", () => constValue("StrV", "none")],
     rx: ["FloatV", zeroFloat],
     strokeWidth: ["FloatV", strokeSampler],
@@ -342,7 +347,7 @@ export const squareDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultSquare")],
   },
-  positionalProps: ["x","y"],
+  positionalProps: ["x", "y"],
 };
 
 export const textDef: ShapeDef = {
@@ -350,10 +355,12 @@ export const textDef: ShapeDef = {
   properties: {
     x: ["FloatV", widthSampler],
     y: ["FloatV", heightSampler],
-    w: ["FloatV", () => constValue("FloatV", 200)],
-    h: ["FloatV", () => constValue("FloatV", 200)],
+    dx: ["FloatV", widthSampler],
+    dy: ["FloatV", heightSampler],
+    rotation: ["FloatV", () => constValue("FloatV", 0)], 
+    // to my astonishment, the svg text element does have a rotate property
+    // TODO: add lengthAdjust and textLength Attributes
     fontSize: ["StrV", () => constValue("StrV", "12pt")],
-    rotation: ["FloatV", () => constValue("FloatV", 0)],
     style: ["StrV", () => constValue("StrV", "none")],
     stroke: ["StrV", () => constValue("StrV", "none")],
     color: ["ColorV", () => black],
@@ -362,15 +369,18 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
     polygon: ["PolygonV", () => emptyPoly],
   },
-  positionalProps: ["x","y"],
+  positionalProps: ["x", "y"],
 };
 
 export const lineDef: ShapeDef = {
   shapeType: "Line",
   properties: {
+    // TODO: reimplement "start" as x1,x2,y1,y2
     start: ["VectorV", vectorSampler],
     end: ["VectorV", vectorSampler],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+    // TODO: 
     leftArrowhead: ["BoolV", () => constValue("BoolV", false)],
     rightArrowhead: ["BoolV", () => constValue("BoolV", false)],
     arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
@@ -384,6 +394,7 @@ export const lineDef: ShapeDef = {
   positionalProps: ["start", "end"],
 };
 
+// TODO: type without a constructing function
 export const arrowDef: ShapeDef = {
   shapeType: "Arrow",
   properties: {
@@ -400,6 +411,7 @@ export const arrowDef: ShapeDef = {
   positionalProps: ["start", "end"],
 };
 
+// TODO: type without a constructing function
 export const curveDef: ShapeDef = {
   shapeType: "Path",
   properties: {
