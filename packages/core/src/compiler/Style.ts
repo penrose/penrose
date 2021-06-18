@@ -3098,11 +3098,19 @@ const checkCanvas = (tr: Translation): StyleErrors => {
   } else if (
     typeof tr.trMap.canvas.width.contents.contents.contents !== "number"
   ) {
+    const val = tr.trMap.canvas.width.contents.contents;
+    let type;
+    if (typeof val === "object" && "tag" in val) {
+      type = val.tag;
+    } else {
+      type = typeof val;
+    }
+
     errs.push({
       tag: "CanvasNonexistentDimsError",
       attr: "width",
       kind: "wrong type",
-      type: typeof tr.trMap.canvas.width.contents.contents.contents,
+      type,
     });
   }
 
