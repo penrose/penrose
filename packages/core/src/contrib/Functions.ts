@@ -571,7 +571,7 @@ export const compDict = {
   },
 
   center: ([type, props]: [string, any]): IVectorV<VarAD> => {
-    const [x, y] = getCoords(props, type);
+    const [x, y] = getCoords(props);
     console.log(
       "center currently only returns the coordinates of its arguments, not its center. It will be properly implemented soon"
     );
