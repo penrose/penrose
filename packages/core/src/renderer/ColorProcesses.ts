@@ -29,23 +29,26 @@ const dist = (v1: number[], v2: number[]): number => {
 };
 
 // excluding shapes that don't have a center or color attribute, or
-// shapes that have appropriate default colors (like text)
-const includeInColorAdjustment = (shape: Shape): boolean => {
+// shapes that alredy have appropriate default colors, like text (black)
+// or this includes shapes that i haven't gotten too yet
+export const includeShapesOnly = (shape: Shape): boolean => {
   return !(
     shape.shapeType === "FreeformPolygon" ||
+    shape.shapeType === "Polygon" ||
     shape.shapeType === "Line" ||
     shape.shapeType === "Arrow" ||
     shape.shapeType === "Path" ||
     shape.shapeType === "Text" ||
-    shape.shapeType === "Image"
+    shape.shapeType === "Image" ||
+    shape.shapeType === "PathString" ||
+    shape.shapeType === "Polyline"
   );
 };
 
 // given a state, generates a matrix that records the
 // distance between objects.
-export const stateToDistanceGraph = (state: State): Graph => {
-  const shapeList = state.shapes.filter(includeInColorAdjustment);
 
+export const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   // initializing a matrix of 0.'s
   var object_graph = createMatrix(shapeList.length, shapeList.length);
 
@@ -56,7 +59,6 @@ export const stateToDistanceGraph = (state: State): Graph => {
       const shape2 = shapeList[j];
 
       //for now, the only thing used will be the centers
-
       var v1 = shape1.properties.center;
       var v2 = shape2.properties.center;
 
@@ -82,6 +84,11 @@ export const stateToDistanceGraph = (state: State): Graph => {
   return object_graph;
 };
 
+export const stateToDistanceGraph = (state: State): Graph => {
+  const shapeList = state.shapes.filter(includeShapesOnly);
+  return shapeListToDistanceGraph(shapeList);
+};
+
 export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
   var newGraph = graph;
   for (var i = 0; i < graph.length; i++) {
@@ -89,9 +96,9 @@ export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
       // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
 
       const epsilon = 20;
-      const weight = 10e4; // necessary, since values are typically small
-      // try max here?
+      const weight = 10e4; // scaling factor, since values are typically small
 
+      // invert the distance to get a "repellant energy" value
       newGraph[i][j] = (1 / (graph[i][j] + epsilon)) * weight;
 
       // symmetric graph
@@ -106,13 +113,14 @@ export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
 export const assignNewColors = (
   state: State,
   colorList: [number, number, number][],
+  includeInColorAdjustmentFn: (s: Shape) => boolean = includeShapesOnly,
   alpha: number = 0.8
 ): State => {
   // assumes all colors map to the order of appropriate objects in state
   var newState = state;
   var j = 0;
   for (var i = 0; i < newState.shapes.length; i++) {
-    if (includeInColorAdjustment(newState.shapes[i])) {
+    if (includeInColorAdjustmentFn(newState.shapes[i])) {
       newState.shapes[i].properties.color = {
         tag: "ColorV",
         contents: {

@@ -24,12 +24,16 @@ import { Fn, LabelCache, State } from "types/state";
 import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
-import { prettyPrintFn } from "utils/OtherUtils";
+import { prettyPrintFn, prettyPrintPath } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 
 //
-import { updateColors } from "renderer/ColorProcesses";
+// hook
 import { updateColorsWithKNN } from "renderer/KNNColorProcesses";
+import {
+  colorUninitShapes,
+  colorUninitText,
+} from "renderer/AssignUninitValues";
 //
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -50,7 +54,6 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  //state = updateCircleColors(state);
   return step(state, numSteps);
 };
 
@@ -63,12 +66,15 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-  //currentState = updateColors(currentState)
-  currentState = updateColorsWithKNN(currentState);
   // hook
   // all colors have already been assigned -- overwrite colors
+  // currentState = updateColorsWithKNN(currentState);
+
+  // console.log(stateToUninitShapes(currentState));
+  currentState = colorUninitText(colorUninitShapes(currentState));
+  //console.log(currentState.uninitializedPaths.map(prettyPrintPath))
+  // console.log(currentState.shapeOrdering);
   return currentState;
-  // return currentState;
 };
 
 /**

@@ -13,7 +13,7 @@ type Ajlist = number[][];
 // build KNN graph (an adjacency list)
 // from a graph of the distances between objects
 // assumes k > 0
-const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
+export const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
   if (k >= distGraph.length) {
     throw new Error("Warning: more neighbors requested than graph elems");
   }
@@ -75,7 +75,7 @@ const sampleUniformPalette = (
 };
 
 // creates a colorList mapping index (node) --> color from a KNN graph
-const KNNGraphToColorList = (
+export const KNNGraphToColorList = (
   KNNGraph: Graph,
   k: number,
   palette: RGB[] = viridis_data
@@ -147,6 +147,7 @@ const KNNGraphToColorList = (
   return colorList;
 };
 
+// returns a new state with updated colors (overwrites existing colors)
 export const updateColorsWithKNN = (state: State): State => {
   const distGraph = stateToDistanceGraph(state);
 
@@ -155,17 +156,14 @@ export const updateColorsWithKNN = (state: State): State => {
   } else {
     var k = 3; // arbitrary k
   }
-
   if (k === 0) {
     // don't make a KNN graph, it causes problems when k===0
     return updateColors(state); //default to the method from ColorProcesses
   } else {
     // our main method
     const KNNGraph = distGraphToKNNGraph(distGraph, k);
-
     const colorList = KNNGraphToColorList(KNNGraph, k, random_palette());
-
-    const newState = assignNewColors(state, colorList);
+    const newState = assignNewColors(state, colorList, 1);
     return newState;
   }
 };
