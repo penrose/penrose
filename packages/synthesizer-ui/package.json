@@ -39,7 +39,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "echo NO TESTS",
     "watch": "node estrella.js -w",
     "eject": "react-scripts eject"
   },
