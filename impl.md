@@ -54,3 +54,10 @@ TRADEOFFS:
 LIMITATIONS:
 - Requires knowing which constraints/objectives are "spatially related" (i.e. for which ones the grid pruning is even effective). Right now we just use `disjoint` which has to be spatial.
 - Requires that objects are fixed-size.
+
+# Debugging notes
+- 18 vertices but *without* the contains constraints => works fine
+  - 18 but *without* the disjoint constraints => works fine
+
+Could it be a problem with the total number of variables in the function? (119k)
+How does `Function` work, could it be related to anything after the reduce error at all, or is it purely interpreted?
