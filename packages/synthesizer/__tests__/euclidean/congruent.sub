@@ -1,9 +1,9 @@
 Point A, B, C, D
 Angle a1 := InteriorAngle(A,B,C)
 Angle a2 := InteriorAngle(D,C,B)
-Angle a3 := InteriorAngle(B,C,A)
-Angle a4 := InteriorAngle(C,B,D)
+--Angle a3 := InteriorAngle(B,C,A)
+--Angle a4 := InteriorAngle(C,B,D)
 EqualAngleMarker1(a1, a2)
-EqualAngleMarker2(a3, a4)
+--EqualAngleMarker2(a3, a4)
 
 AutoLabel All

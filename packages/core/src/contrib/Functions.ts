@@ -10,6 +10,7 @@ import {
   add,
   addN,
   and,
+  atan2,
   constOf,
   cos,
   div,
@@ -36,6 +37,7 @@ import {
   IArc,
   ICubicBez,
   ICubicBezJoin,
+  IIntV,
   IPt,
   IStrV,
   SubPath,
@@ -312,23 +314,24 @@ export const compDict = {
   },
 
   arc: (
-    pathType: string,
     start: Pt2,
     end: Pt2,
-    radius: Pt2
+    radius: Pt2,
+    arcSweep: IVarAD
   ): IPathDataV<VarAD> => {
-    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
+    // console.log(start[0].val, start[1].val, end[0].val, end[1].val, arcSweep.val)
+    // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
     const st: IPt<IVarAD> = { tag: "Pt", contents: start };
     const arc: IArc<IVarAD> = {
       tag: "Arc",
-      contents: [radius, [constOf(0), constOf(0), constOf(0)], end],
+      contents: [radius, [constOf(0), constOf(0), arcSweep], end],
     };
     const elems: Elem<VarAD>[] = [st, arc];
     return {
       tag: "PathDataV",
       contents: [
         {
-          tag: pathTypeStr,
+          tag: "Open",
           contents: elems,
         },
       ],
@@ -346,6 +349,23 @@ export const compDict = {
     const newx: IVarAD = add(div(x, scale), x1);
     const newy: IVarAD = add(div(y, scale), y1);
     return { tag: "VectorV", contents: [newx, newy] };
+  },
+
+  arcSweepFlag: ([x1, y1]: VarAD[], start: Pt2, end: Pt2): IFloatV<VarAD> => {
+    const zero = varOf(0);
+    const pi = varOf(180);
+    const angle = (x: IVarAD, y: IVarAD) =>
+      ifCond(lt(x, zero), add(atan2(y, x), pi), atan2(y, x));
+    const [xs, ys] = [sub(start[0], x1), sub(start[1], y1)];
+    const [xe, ye] = [sub(end[0], x1), sub(end[1], y1)];
+    const thetaStart = angle(xs, ys);
+    const thetaEnd = angle(xe, ye);
+    console.log("arctan", `${ys.val}, ${xs.val}`, atan2(ys, xs).val);
+    console.log(thetaStart.val, thetaEnd.val, sub(thetaEnd, thetaStart).val);
+    return {
+      tag: "FloatV",
+      contents: ifCond(gt(sub(thetaEnd, thetaStart), pi), varOf(1), zero),
+    };
   },
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
@@ -708,11 +728,3 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
 
   return res[0] as VarAD[];
 };
-
-// const arcSweepFlag = (p: Pt2, q: Pt2, r: Pt2): number => {
-//   const upLeft = (a: IVarAD,b: IVarAD) => and(gt(a[0], b[0]), lt(a[1], b[1]));
-//   const upRight = (a: IVarAD, b:IVarAD) => and(lt(a[0],b[0]),lt(a[1],b[1]));
-//   const lowLeft = (a: IVarAD, b:IVarAD) => and(gt(a[0],b[0]), gt(a[1],b[1]));
-//   const lowRight = (a: IVarAD, b: IVarAD) => and(lt(a[0],b[0]), gt(a[1],b[1]));
-//   ifCond(and(upLeft(p, q),))
-// }
