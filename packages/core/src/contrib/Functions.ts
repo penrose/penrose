@@ -319,7 +319,6 @@ export const compDict = {
     radius: Pt2,
     arcSweep: IVarAD
   ): IPathDataV<VarAD> => {
-    // console.log(start[0].val, start[1].val, end[0].val, end[1].val, arcSweep.val)
     // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
     const st: IPt<IVarAD> = { tag: "Pt", contents: start };
     const arc: IArc<IVarAD> = {
@@ -352,19 +351,13 @@ export const compDict = {
   },
 
   arcSweepFlag: ([x1, y1]: VarAD[], start: Pt2, end: Pt2): IFloatV<VarAD> => {
-    const zero = varOf(0);
-    const pi = varOf(180);
-    const angle = (x: IVarAD, y: IVarAD) =>
-      ifCond(lt(x, zero), add(atan2(y, x), pi), atan2(y, x));
-    const [xs, ys] = [sub(start[0], x1), sub(start[1], y1)];
-    const [xe, ye] = [sub(end[0], x1), sub(end[1], y1)];
-    const thetaStart = angle(xs, ys);
-    const thetaEnd = angle(xe, ye);
-    console.log("arctan", `${ys.val}, ${xs.val}`, atan2(ys, xs).val);
-    console.log(thetaStart.val, thetaEnd.val, sub(thetaEnd, thetaStart).val);
+    // checks sign of the cross product to determine the angle of rotation. If cross<0 then need to rotate CW instead of CCW.
+    const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
+    const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
+    const cross = ops.cross2(st, en);
     return {
       tag: "FloatV",
-      contents: ifCond(gt(sub(thetaEnd, thetaStart), pi), varOf(1), zero),
+      contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
     };
   },
   /**
