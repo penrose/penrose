@@ -61,3 +61,5 @@ LIMITATIONS:
 
 Could it be a problem with the total number of variables in the function? (119k)
 How does `Function` work, could it be related to anything after the reduce error at all, or is it purely interpreted?
+
+Is the code for `disjoint` or `contains` written in a uniquely 'wasteful' way?
