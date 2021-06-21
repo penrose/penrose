@@ -1491,7 +1491,10 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
             const childList = "[".concat(childNames.join(", ")).concat("]");
             // TODO: revert the console.log. also probably name the child list?
             stmt = `console.log("reduce", ${childList}.length);\n
-            const ${parName} = ${childList}.reduce((x, y) => x + y); `;
+            let ${parName} = 0;\n
+            for (const $child of ${childList}) {\n
+              ${parName} += $child;\n
+            }`;
 
             // stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y); `;
         } else {
