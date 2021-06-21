@@ -29,11 +29,7 @@ import { bBoxDims, toHex } from "utils/Util";
 
 //
 // hook
-import { updateColorsWithKNN } from "renderer/KNNColorProcesses";
-import {
-  colorUninitShapes,
-  colorUninitText,
-} from "renderer/AssignUninitValues";
+import { colorUninitShapes, colorUninitText } from "renderer/Color";
 //
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
