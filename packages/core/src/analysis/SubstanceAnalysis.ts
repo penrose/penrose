@@ -1,4 +1,4 @@
-import { isEqual, isEqualWith, omit, pullAt } from "lodash";
+import { isEqual, isEqualWith, omit, pullAt, sortBy } from "lodash";
 import { ASTNode, Identifier, metaProps } from "types/ast";
 import { Map } from "immutable";
 import {
@@ -23,7 +23,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
-import { metaProperty } from "jscodeshift";
+import { prettyStmt } from "compiler/Substance";
 
 export interface Signature {
   args: string[];
@@ -358,8 +358,13 @@ export const autoLabelStmt: AutoLabel = {
  * @returns a boolean value
  */
 export const nodesEqual = (node1: ASTNode, node2: ASTNode): boolean =>
-  isEqualWith(node1, node2, (node1: any, node2: any) =>
+  isEqualWith(node1, node2, (node1: ASTNode, node2: ASTNode) =>
     isEqual(omit(node1, ...metaProps), omit(node2, ...metaProps))
   );
+
+export const sortStmts = (prog: SubProg): SubProg => ({
+  ...prog,
+  statements: sortBy(prog.statements, (stmt: SubStmt) => prettyStmt(stmt)),
+});
 
 //#endregion

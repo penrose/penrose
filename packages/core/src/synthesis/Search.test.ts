@@ -120,8 +120,25 @@ describe("Synthesizer tests", () => {
     const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
     const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
     synthesizeConfig(progs);
+    // COMBAK: complete test once `synthesizeConfig` is working
   });
 
+  test("applying AST diff regardless of stmt ordering", () => {
+    const prog1 = `
+    Set A, B, C
+    IsSubset(A,B)
+    IsSubset(C, A)
+    `;
+    const prog2 = `
+    Set A, B, C
+    IsSubset(C,A)
+    IsSubset(B, A)
+    `;
+    const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const diffs: rdiffResult[] = diffSubprogs(ast1, ast2);
+    console.log(diffs);
+  });
   test("applying exact AST diff", () => {
     const prog1 = `
     Set A, B, C

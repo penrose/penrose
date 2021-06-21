@@ -12,10 +12,13 @@ import {
   nodesEqual,
   removeStmt,
   replaceStmt,
+  sortStmts,
 } from "./SubstanceAnalysis";
 
 const domain = `
 type Set
+predicate IsSubset: Set * Set
+function Subset : Set a * Set b -> Set
 `;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
 
@@ -47,6 +50,27 @@ describe("Substance AST queries", () => {
 });
 
 describe("AST mutation operations", () => {
+  test("sorting", () => {
+    const original = `
+Set B
+Set A
+Set C
+IsSubset(A, B)
+IsSubset(B, A)
+C := Subset(A, B)
+`;
+    const expected = `\
+C := Subset(A, B)
+IsSubset(A, B)
+IsSubset(B, A)
+Set A
+Set B
+Set C\
+`;
+    const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
+    const sortedAST = sortStmts(originalAST);
+    expect(prettySubstance(sortedAST)).toEqual(expected);
+  });
   test("addition", () => {
     const original = `Set A
 Set B`;

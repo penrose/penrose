@@ -1,12 +1,5 @@
 import { prettyStmt } from "compiler/Substance";
-import {
-  groupBy,
-  intersectionBy,
-  intersectionWith,
-  isEqual,
-  map,
-  omit,
-} from "lodash";
+import { groupBy, map } from "lodash";
 import { getDiff, rdiffResult } from "recursive-diff";
 import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
 import { metaProps } from "types/ast";
