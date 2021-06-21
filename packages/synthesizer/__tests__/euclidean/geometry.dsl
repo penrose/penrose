@@ -81,10 +81,10 @@ predicate Collinear : Point * Point * Point
 predicate EqualAngleMarker1 : Angle * Angle
 predicate EqualAngleMarker: Angle * Angle
 predicate EqualAngleMarker2 : Angle * Angle
--- predicate EqualLengthMarker : Segment * Segment
+predicate EqualLengthMarker : Segment * Segment
 predicate EqualAngle : Angle * Angle
 predicate EqualLength : Segment * Segment 
--- predicate Increment(Count, Count)
+
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"
 -- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"

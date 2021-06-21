@@ -52,7 +52,7 @@ const {
 }
 
 Plane p {
-  dim = 400.0
+  dim = 700.0
   p.text = Text {
     center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
     string : p.label
@@ -141,6 +141,11 @@ with Point p; Point q {
     --  e.icon above const.plane
 }
 
+Segment s, t
+where EqualLength(s, t) {
+  encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
+}
+
 Angle a, b
 where EqualAngleMarker1(a, b) {
   --find points from p->q, then q->r for each vector. draw vectors for each
@@ -152,13 +157,13 @@ where EqualAngleMarker1(a, b) {
   endB = angleMarker(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
-  a.angleMark = Path {
+  override a.angleMark = Path {
     pathData : arc(startA, endA, (a.radius, a.radius), sweepA)
    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark = Path {
+  override b.angleMark = Path {
     pathData : arc(startB, endB, (b.radius, b.radius), sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -177,13 +182,13 @@ where EqualAngleMarker2(a, b) {
   endB = angleMarker(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
-  a.angleMark = Path {
+  override a.angleMark = Path {
     pathData : arc(startA, endA, (a.radius, a.radius), sweepA)
    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark = Path {
+  override b.angleMark = Path {
     pathData : arc(startB, endB, (b.radius, b.radius), sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -197,13 +202,13 @@ where EqualAngleMarker2(a, b) {
   startBbig = angleMarker(b.q, b.p, bigRad)
   endBbig = angleMarker(b.q, b.r, bigRad)
 
-  a.angleMark2 = Path {
+  override a.angleMark2 = Path {
     pathData : arc(startAbig, endAbig, (bigRad, bigRad), arcSweepFlag(a.q, startAbig, endAbig))
     strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark2 = Path {
+  override b.angleMark2 = Path {
     pathData : arc(startBbig, endBbig, (bigRad, bigRad), arcSweepFlag(b.q, startBbig, endBbig))
     strokeWidth : 2.0
     color : Colors.black
@@ -212,17 +217,9 @@ where EqualAngleMarker2(a, b) {
 
 }
 
-Arc A;
-where A := MkArc(p,q)
-with Point p; Point q {
-  start = p.vec
-  end = q.vec
-  A.shape = Path {
-    pathData : arc("open", start, end, (const.thetaRadius, const.thetaRadius))
-    strokeWidth : 2.0
-    color : Colors.black
-    fill: Colors.none
-  }
+Angle a; Plane p {
+  a.angleMark above p.icon
+  a.angleMark2 above p.icon
 }
 
 Segment e; Plane p {
@@ -236,8 +233,6 @@ with Point p; Point q; Point r {
   t.side2 above P.icon
   t.side3 above P.icon
 }
-
-
 
 Triangle t
 where t := MkTriangle(p, q, r)
