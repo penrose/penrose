@@ -368,23 +368,27 @@ export const compDict = {
   },
 
   arc: (
+    pathType: string,
     start: Pt2,
     end: Pt2,
     radius: Pt2,
+    rotation: IVarAD,
+    largeArc: IVarAD,
     arcSweep: IVarAD
   ): IPathDataV<VarAD> => {
-    // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
+    console.log(rotation, largeArc, arcSweep);
+    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
     const st: IPt<IVarAD> = { tag: "Pt", contents: start };
     const arc: IArc<IVarAD> = {
       tag: "Arc",
-      contents: [radius, [constOf(0), constOf(0), arcSweep], end],
+      contents: [radius, [rotation, largeArc, arcSweep], end],
     };
     const elems: Elem<VarAD>[] = [st, arc];
     return {
       tag: "PathDataV",
       contents: [
         {
-          tag: "Open",
+          tag: pathTypeStr,
           contents: elems,
         },
       ],
@@ -426,9 +430,14 @@ export const compDict = {
       const [start1, end1] = linePts(s1);
       // TODO: Cache these operations in Style!
       const dir = ops.vnormalize(ops.vsub(end1, start1));
-      const normalDir = ops.vneg(dir);
+      const normalDir = rot90v(dir);
+      console.log(
+        dir.map((m) => m.val),
+        normalDir.map((m) => m.val)
+      );
       const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
+      // console.log(midpointLoc.map(m => m.val), midpointOffsetLoc.map(m => m.val));
       return {
         tag: "TupV",
         contents: toPt(midpointOffsetLoc),
