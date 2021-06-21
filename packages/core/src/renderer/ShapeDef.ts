@@ -330,25 +330,25 @@ export const imageDef: ShapeDef = {
   positionalProps: ["x", "y"],
 };
 
-// TODO: is a square absolutely necessary?
-export const squareDef: ShapeDef = {
-  shapeType: "Square",
-  properties: {
-    x: ["FloatV", widthSampler],
-    y: ["FloatV", heightSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    side: ["FloatV", widthSampler],
-    style: ["StrV", () => constValue("StrV", "none")],
-    rx: ["FloatV", zeroFloat],
-    strokeWidth: ["FloatV", strokeSampler],
-    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    strokeDashArray: ["StrV", () => constValue("StrV", "")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultSquare")],
-  },
-  positionalProps: ["x", "y"],
-};
+// // TODO: is a square absolutely necessary?
+// export const squareDef: ShapeDef = {
+//   shapeType: "Square",
+//   properties: {
+//     x: ["FloatV", widthSampler],
+//     y: ["FloatV", heightSampler],
+//     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+//     side: ["FloatV", widthSampler],
+//     style: ["StrV", () => constValue("StrV", "none")],
+//     rx: ["FloatV", zeroFloat],
+//     strokeWidth: ["FloatV", strokeSampler],
+//     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
+//     strokeColor: ["ColorV", colorSampler],
+//     strokeDashArray: ["StrV", () => constValue("StrV", "")],
+//     color: ["ColorV", colorSampler],
+//     name: ["StrV", () => constValue("StrV", "defaultSquare")],
+//   },
+//   positionalProps: ["x", "y"],
+// };
 
 export const textDef: ShapeDef = {
   shapeType: "Text",
