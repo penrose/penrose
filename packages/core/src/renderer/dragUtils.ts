@@ -53,12 +53,12 @@ const dragShape = (shape: Shape, offset: [number, number]): Shape => {
     case "Ellipse":
       return {
         ...shape,
-        properties: moveProperties(properties, ["cx","cy"], offset),
+        properties: moveProperties(properties, ["cx", "cy"], offset),
       };
     default:
       return {
         ...shape,
-        properties: moveProperties(properties, ["x","y"], offset),
+        properties: moveProperties(properties, ["x", "y"], offset),
       };
   }
 };
@@ -72,6 +72,8 @@ const moveProperties = (
   [dx, dy]: [number, number]
 ): Properties => {
   const moveProperty = (props: Properties, propertyID: string) => {
+    console.log(props[propertyID]);
+
     const [x, y] = props[propertyID].contents as [number, number];
     props[propertyID].contents = [x + dx, y + dy];
     return props;

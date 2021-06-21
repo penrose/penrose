@@ -1,7 +1,7 @@
 import { IVectorV, IFloatV, IColorV, IStrV } from "types/value";
 import { toHex, toScreen } from "utils/Util";
 import { arrowHead } from "./Arrow";
-import { attrTitle, DASH_ARRAY } from "./AttrHelper";
+import { attrPathLength, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Line = ({ shape, canvasSize }: ShapeProps) => {
@@ -62,7 +62,10 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
     pathElem.setAttribute("marker-end", `url(#${rightArrowId})`);
   }
   elem.appendChild(pathElem);
+
   attrTitle(shape, elem);
+  attrPathLength(shape,elem);
+
   return elem;
 };
 export default Line;

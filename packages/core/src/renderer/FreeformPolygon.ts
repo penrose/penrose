@@ -1,4 +1,10 @@
-import { attrFill, attrPoints, attrStroke, attrTitle } from "./AttrHelper";
+import {
+  attrFill,
+  attrPathLength,
+  attrPoints,
+  attrStroke,
+  attrTitle,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 // polygon without a calculated center
@@ -13,6 +19,7 @@ const FreeformPolygon = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
   attrPoints(shape, elem);
+  attrPathLength(shape, elem);
 
   return elem;
 };

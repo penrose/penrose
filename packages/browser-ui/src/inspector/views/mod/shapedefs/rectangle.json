@@ -37,6 +37,12 @@
       "max": "50",
       "showValue": "true"
     },
+    "pathLength": {
+      "inputType": "range",
+      "min": "0",
+      "max": "1000",
+      "showValue": "true"
+    },
     "color": {
       "inputType": "color",
       "showValue": "false"

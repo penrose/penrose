@@ -13,6 +13,12 @@
       "max": "CANVAST",
       "showValue": "true"
     },
+    "pathLength": {
+      "inputType": "range",
+      "min": "0",
+      "max": "1000",
+      "showValue": "true"
+    },
     "side": {
       "inputType": "range",
       "min": "0",

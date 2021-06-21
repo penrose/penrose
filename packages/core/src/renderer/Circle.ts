@@ -4,6 +4,7 @@ import {
   attrTitle,
   attrcXcY,
   attrRadius,
+  attrPathLength,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -14,6 +15,7 @@ const Circle = ({ shape, canvasSize }: ShapeProps) => {
   attrRadius(shape, elem);
   attrStroke(shape, elem);
   attrTitle(shape, elem);
+  attrPathLength(shape,elem);
 
   return elem;
 };

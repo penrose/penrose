@@ -6,6 +6,7 @@ import {
   attrPathData,
   attrWH,
   attrXY,
+  attrPathLength,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -18,6 +19,7 @@ const PathString = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
   attrPathData(shape, elem);
+  attrPathLength(shape,elem);
 
   const viewBox = shape.properties.viewBox as IStrV;
   svg.setAttribute("viewBox", viewBox.contents);

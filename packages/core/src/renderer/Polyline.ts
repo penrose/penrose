@@ -1,5 +1,6 @@
 import {
   attrNoFill,
+  attrPathLength,
   attrPoints,
   attrStroke,
   attrTitle,
@@ -16,6 +17,7 @@ const Polyline = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
   attrPoints(shape, elem);
+  attrPathLength(shape,elem);
 
   return elem;
 };
