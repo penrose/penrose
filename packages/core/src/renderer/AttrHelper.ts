@@ -101,17 +101,18 @@ export const attrXY = (
   elem: SVGElement
 ) => {
   const [x, y] = getCoords(properties);
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
-  elem.setAttribute("x", (x - w.contents / 2).toString());
-  elem.setAttribute("y", (y - h.contents / 2).toString());
+  // console.log({ x: x, y: y });
+  // const w = properties.w as IFloatV<number>;
+  // const h = properties.h as IFloatV<number>;
+  elem.setAttribute("x", x.toString());
+  elem.setAttribute("y", y.toString());
 };
 /**
  * @param  {Shape} {properties}
  * @param  {[number} canvasSize
  * @param  {} number]
  * @param  {SVGElement} elem
- * @requires shape defines attributes 'cx' and 'cy', and shape has at least one radius attribute
+ * @requires shape defines attributes 'cx' and 'cy'
  * @description set attributes 'cx', 'cy'
  */
 export const attrcXcY = (
@@ -122,14 +123,11 @@ export const attrcXcY = (
   const [x, y] = getCoords(properties);
 
   if (elem.nodeName === "circle") {
-    const r = properties.r as IFloatV<number>;
-    elem.setAttribute("cx", (x - r.contents / 2).toString());
-    elem.setAttribute("cy", (x - r.contents / 2).toString());
+    elem.setAttribute("cx", x.toString());
+    elem.setAttribute("cy", y.toString());
   } else {
-    const rx = properties.rx as IFloatV<number>;
-    const ry = properties.ry as IFloatV<number>;
-    elem.setAttribute("cx", (x - rx.contents / 2).toString());
-    elem.setAttribute("cy", (y - ry.contents / 2).toString());
+    elem.setAttribute("cx", x.toString());
+    elem.setAttribute("cy", y.toString());
   }
 };
 
