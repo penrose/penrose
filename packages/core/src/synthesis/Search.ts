@@ -1,6 +1,8 @@
+import { getStmt } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
-import { groupBy, map } from "lodash";
-import { getDiff, rdiffResult } from "recursive-diff";
+import { diff } from "deep-object-diff";
+import { cloneDeep, groupBy, map } from "lodash";
+import rdiff, { applyDiff, getDiff, rdiffResult } from "recursive-diff";
 import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
 import { metaProps } from "types/ast";
 import { SubProg, SubStmt } from "types/substance";
@@ -8,6 +10,10 @@ import { SubProg, SubStmt } from "types/substance";
 //#region Generalized edits
 
 type Edit = Mutation;
+interface StmtDiff {
+  diff: rdiffResult;
+  stmt: SubStmt;
+}
 
 const generalizedEdits = (
   original: SubProg,
@@ -31,6 +37,53 @@ export const diffSubprogs = (left: SubProg, right: SubProg): rdiffResult[] => {
   );
   return concreteDiffs;
 };
+
+export const toStmtDiff = (diff: rdiffResult, ast: SubProg): StmtDiff => {
+  const [, stmtIndex, ...path] = diff.path;
+  // TODO: encode this in a more principled way
+  const stmt = getStmt(ast, stmtIndex as number);
+  return {
+    diff: {
+      ...diff,
+      path,
+    },
+    stmt,
+  };
+};
+
+export const showStmtDiff = (d: StmtDiff): string =>
+  `Changed ${prettyStmt(d.stmt)}: ${d.diff.path} -> ${d.diff.val}`;
+
+export const applyStmtDiff = (prog: SubProg, stmtDiff: StmtDiff): SubProg => {
+  const { diff, stmt } = stmtDiff;
+  return {
+    ...prog,
+    statements: prog.statements.map((s: SubStmt) => {
+      if (s === stmt) {
+        const res: SubStmt = applyDiff(cloneDeep(s), [diff]);
+        return res;
+      } else return s;
+    }),
+  };
+};
+
+/**
+ * Apply a set of statement diffs on a Substance program.
+ * NOTE: instead of sequencially applying each diff, we find all applicable diffs and apply them in a batch for each Substance statement
+ *
+ * @param prog the origianl Substance program
+ * @param diffs a set of diffs to apply
+ * @returns
+ */
+export const applyStmtDiffs = (prog: SubProg, diffs: StmtDiff[]): SubProg => ({
+  ...prog,
+  statements: prog.statements.map((stmt: SubStmt) =>
+    applyDiff(stmt, findDiffs(stmt, diffs))
+  ),
+});
+
+export const findDiffs = (stmt: SubStmt, diffs: StmtDiff[]): rdiffResult[] =>
+  diffs.filter((d) => d.stmt === stmt).map((d) => d.diff);
 
 //#endregion
 

@@ -1,3 +1,4 @@
+import { sortStmts } from "analysis/SubstanceAnalysis";
 import {
   compileDomain,
   compileSubstance,
@@ -13,7 +14,13 @@ import {
   SynthesizerSetting,
 } from "synthesis/Synthesizer";
 import { SubProg, SubRes } from "types/substance";
-import { diffSubprogs, synthesizeConfig } from "./Search";
+import {
+  applyStmtDiffs,
+  diffSubprogs,
+  showStmtDiff,
+  synthesizeConfig,
+  toStmtDiff,
+} from "./Search";
 
 const SEED = "testSearch";
 
@@ -136,8 +143,23 @@ describe("Synthesizer tests", () => {
     `;
     const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
-    const diffs: rdiffResult[] = diffSubprogs(ast1, ast2);
-    console.log(diffs);
+    const diffs: rdiffResult[] = diffSubprogs(sortStmts(ast1), sortStmts(ast2));
+    // the ASTs have normalized ordering, so there should be only two diffs
+    expect(diffs).toHaveLength(2);
+    // convert the raw diffs to include the original stmt in the AST
+    const stmtDiffs = diffs.map((d: rdiffResult) =>
+      toStmtDiff(d, sortStmts(ast1))
+    );
+    // apply the stmt diffs, grouped by target statements
+    const ast2From1 = applyStmtDiffs(ast1, stmtDiffs);
+    console.log(prettySubstance(ast2From1));
+
+    // the result should be semantically equivalent to the second program
+    expect(prettySubstance(sortStmts(ast2From1))).toEqual(
+      prettySubstance(sortStmts(ast2))
+    );
+    // ...but different in the source because the diff is applied to the 2nd statement
+    expect(prettySubstance(ast2From1)).not.toEqual(prettySubstance(ast2));
   });
   test("applying exact AST diff", () => {
     const prog1 = `

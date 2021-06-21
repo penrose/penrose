@@ -123,6 +123,16 @@ export const replaceStmt = (
   statements: prog.statements.map((s) => (s === originalStmt ? newStmt : s)),
 });
 
+/**
+ * Get a Substance statement by index
+ *
+ * @param prog a Substance program
+ * @param index the index of a Substance statement in the program
+ * @returns
+ */
+export const getStmt = (prog: SubProg, index: number): SubStmt =>
+  prog.statements[index];
+
 //#region Helpers
 const swap = (arr: any[], a: number, b: number) =>
   arr.map((current, idx) => {
