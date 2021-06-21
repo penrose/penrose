@@ -155,22 +155,22 @@ where EqualLength(s, t) {
 Segment s, t 
 where EqualLengthMarker(s, t) {
   s.tick = Line {
-    start : midpointOffset((s.icon.start, s.icon.end), s.icon, 10.)
-    end : midpointOffset((s.icon.start, s.icon.end), s.icon, -10.)
+    start : midpointOffset(s.icon, 10.)
+    end : midpointOffset(s.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  t.tick = Line {
+    start : midpointOffset(t.icon, 10.)
+    end : midpointOffset(t.icon, -10.)
     color : Colors.black
     thickness : 2.0
     stroke : "none"
     style : "solid"
   }
   s.tick above s.icon
-  t.tick = Line {
-    start : midpointOffset((t.icon.start, t.icon.end), t.icon, 10.)
-    end : midpointOffset((t.icon.start, t.icon.end), t.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
   t.tick above t.icon
 }
 

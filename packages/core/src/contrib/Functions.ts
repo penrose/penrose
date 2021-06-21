@@ -3,15 +3,11 @@ import {
   absVal,
   add,
   addN,
-  and,
-  atan2,
   constOf,
   cos,
   div,
-  eq,
   gt,
   ifCond,
-  lt,
   max,
   min,
   mul,
@@ -366,7 +362,17 @@ export const compDict = {
       contents: [markStart, markEnd].map(toPt),
     };
   },
-
+  /**
+   * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
+   * @param pathType: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point
+   * @param start: coordinate to start drawing the arc
+   * @param end: coordinate to finish drawing the arc
+   * @param radius: width and height of the ellipse to draw the arc along (i.e. [width, height])
+   * @param rotation: angle in degrees to rotate ellipse about its center
+   * @param largeArc: 0 to draw shorter of 2 arcs, 1 to draw longer
+   * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
+   * @returns: Elements that can be passed to Path shape spec to render an SVG arc
+   */
   arc: (
     pathType: string,
     start: Pt2,
@@ -394,7 +400,13 @@ export const compDict = {
       ],
     };
   },
-
+  /**
+   * Find intersection between a circle centered at [x1, y1] with radius r and a line segment between [x1, y1] and [x2, y2].
+   * @param x1, y1: centerpoint of circle, one endpoint of line segment
+   * @param x2, y2: endpoint of line segment
+   * @param r: radius of circle
+   * @returns: vector representation of the point of intersection
+   */
   angleMarker: (
     [x1, y1]: VarAD[],
     [x2, y2]: VarAD[],
@@ -407,9 +419,14 @@ export const compDict = {
     const newy: IVarAD = add(div(y, scale), y1);
     return { tag: "VectorV", contents: [newx, newy] };
   },
-
+  /**
+   * Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
+   * @param x1, y1: x, y coordinates of the circle/ellipse that the arc is drawn on
+   * @param start: start point of the arc
+   * @param end: end point of the arc
+   * @returns: 0 or 1 depending on CCW or CW rotation
+   */
   arcSweepFlag: ([x1, y1]: VarAD[], start: Pt2, end: Pt2): IFloatV<VarAD> => {
-    // checks sign of the cross product to determine the angle of rotation. If cross<0 then need to rotate CW instead of CCW.
     const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
     const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
     const cross = ops.cross2(st, en);
@@ -421,23 +438,13 @@ export const compDict = {
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: (
-    [start, end]: [Pt2, Pt2],
-    [t1, s1]: [string, any],
-    padding: VarAD
-  ): ITupV<VarAD> => {
+  midpointOffset: ([t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
-      const [start1, end1] = linePts(s1);
+      const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
-      const dir = ops.vnormalize(ops.vsub(end1, start1));
-      const normalDir = rot90v(dir);
-      console.log(
-        dir.map((m) => m.val),
-        normalDir.map((m) => m.val)
-      );
+      const normalDir = rot90v(ops.vnormalize(ops.vsub(end, start)));
       const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
-      // console.log(midpointLoc.map(m => m.val), midpointOffsetLoc.map(m => m.val));
       return {
         tag: "TupV",
         contents: toPt(midpointOffsetLoc),
