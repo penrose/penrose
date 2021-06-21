@@ -156,7 +156,7 @@ export const circleDef: ShapeDef = {
     cy: ["FloatV", heightSampler],
     r: ["FloatV", widthSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler], // to add: rest of stroke attributes
@@ -174,7 +174,7 @@ export const ellipseDef: ShapeDef = {
     rx: ["FloatV", widthSampler],
     ry: ["FloatV", heightSampler],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -195,7 +195,7 @@ export const rectDef: ShapeDef = {
     rx: ["FloatV", zeroFloat],
     ry: ["FloatV", zeroFloat],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -238,7 +238,7 @@ export const polygonDef: ShapeDef = {
         ]),
     ],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -260,7 +260,7 @@ export const freeformPolygonDef: ShapeDef = {
         ]),
     ],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -304,7 +304,7 @@ export const polylineDef: ShapeDef = {
         ]),
     ],
     pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", () => constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
@@ -321,7 +321,7 @@ export const imageDef: ShapeDef = {
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     opacity: ["FloatV", () => constValue("FloatV", 1.0)],
-    style: ["StrV", () => constValue("StrV", "filled")],
+    // style: ["StrV", () => constValue("StrV", "filled")],
     stroke: ["StrV", () => constValue("StrV", "none")],
     path: ["StrV", () => constValue("StrV", "missing image path")],
     name: ["StrV", () => constValue("StrV", "defaultImage")],
@@ -361,7 +361,7 @@ export const textDef: ShapeDef = {
     // to my astonishment, the svg text element does have a rotate property
     // TODO: add lengthAdjust and textLength Attributes
     fontSize: ["StrV", () => constValue("StrV", "12pt")],
-    style: ["StrV", () => constValue("StrV", "none")],
+    // style: ["StrV", () => constValue("StrV", "none")],
     stroke: ["StrV", () => constValue("StrV", "none")],
     color: ["ColorV", () => black],
     name: ["StrV", () => constValue("StrV", "defaultText")],
@@ -388,7 +388,7 @@ export const lineDef: ShapeDef = {
     // arrowheadStyle: ["StrV", () => constValue("StrV", "arrowhead-2")],
     // arrowheadSize: ["FloatV", () => constValue("FloatV", 1.0)],
     color: ["ColorV", colorSampler],
-    style: ["StrV", () => constValue("StrV", "solid")],
+    // style: ["StrV", () => constValue("StrV", "solid")],
     stroke: ["StrV", () => constValue("StrV", "none")],
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     name: ["StrV", () => constValue("StrV", "defaultLine")],
