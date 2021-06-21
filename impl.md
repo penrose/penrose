@@ -24,6 +24,7 @@ New TODO
   - new objective and its gradient are produced programmatically and passed to `minimize`
     - genNewEnergyAndGradient: TODO ???
   - compare benchmark time
+    - presumably, do this inside Penrose (with and without the `pruneOptProblem` over `minimize` called with some number of steps)
 
 - test:
   - factor out `accelerate all pairs` as a flag

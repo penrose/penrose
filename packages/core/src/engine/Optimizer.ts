@@ -56,8 +56,8 @@ import {
 } from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
 const clone = rfdc({ proto: false, circles: false });
@@ -271,8 +271,8 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             // TODO: Replace console.log with log.whatever
             // Drop the first time later as it's usually longer
             const ts = optParams.times.length > 1 ? optParams.times.slice(1) : optParams.times;
-            console.log("Performance: Times (ms for each 1 call to minimize)", ts);
-            console.log(`Mean: ${_.mean(ts)} | Median: ${median(ts)}`);
+            console.log(`Performance: times (ms for each 1 call to minimize) over ${ts.length} samples`);
+            console.log(`Mean: ${_.mean(ts)} ms | Median: ${median(ts)} ms`);
 
             // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
