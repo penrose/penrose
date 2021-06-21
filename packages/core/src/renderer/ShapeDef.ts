@@ -448,7 +448,7 @@ export const shapedefs: ShapeDef[] = [
   freeformPolygonDef,
   polylineDef,
   pathStringDef,
-  squareDef,
+  // squareDef,
   // curveDef,
   imageDef,
   lineDef,
