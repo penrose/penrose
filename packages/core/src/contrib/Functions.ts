@@ -1,10 +1,4 @@
-import {
-  intersectsSegSeg,
-  intersectionSegSeg,
-  inRange,
-  isRectlike,
-  bboxFromShape,
-} from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -30,34 +24,26 @@ import {
   sub,
   varOf,
 } from "engine/Autodiff";
+import * as BBox from "engine/BBox";
 import { maxBy, range } from "lodash";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import {
-  Elem,
-  IArc,
-  ICubicBez,
-  ICubicBezJoin,
-  IIntV,
-  IPt,
-  IStrV,
-  SubPath,
-} from "types/value";
-import {
   ArgVal,
   Color,
+  Elem,
+  IArc,
   IColorV,
   IFloatV,
   IPathDataV,
+  IPt,
   IPtListV,
+  IStrV,
   ITupV,
   IVectorV,
+  SubPath,
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
-import * as BBox from "engine/BBox";
-import { attrRotation } from "renderer/AttrHelper";
-import { arch } from "os";
-import { Var } from "types/domain";
 
 /**
  * Static dictionary of computation functions
@@ -69,6 +55,58 @@ import { Var } from "types/domain";
 // These all return a Value<VarAD>
 export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
+
+  makePath: (
+    start: [IVarAD, IVarAD],
+    end: [IVarAD, IVarAD],
+    curveHeight: IVarAD,
+    padding: IVarAD
+  ): IPathDataV<IVarAD> => {
+    // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
+    const unit: IVarAD[] = ops.vnormalize(ops.vsub(start, end));
+    const normalVec: IVarAD[] = rot90(toPt(unit));
+    // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
+    const halfLen: IVarAD = div(ops.vdist(start, end), constOf(2));
+    const controlPt: IVarAD[] = ops.vmove(
+      ops.vmove(end, halfLen, unit),
+      curveHeight,
+      normalVec
+    );
+    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
+    const startPt: IPt<IVarAD> = {
+      tag: "Pt",
+      contents: toPt(ops.vmove(start, padding, ops.vneg(unit))),
+    };
+    const curveEnd: IVarAD[] = ops.vmove(end, padding, unit);
+    return {
+      tag: "PathDataV",
+      contents: [
+        {
+          tag: "Open",
+          contents: [
+            startPt,
+            {
+              tag: "QuadBez",
+              contents: [toPt(controlPt), toPt(curveEnd)],
+            },
+          ],
+        },
+      ],
+    };
+
+    // return {
+    //   tag: "PathDataV",
+    //   contents: [
+    //     {
+    //       tag: "Closed",
+    //       contents: [
+    //         startPt,
+    //         endPt
+    //       ]
+    //     }
+    //   ]
+    // };
+  },
 
   /**
    * Return the derivative of `varName`.
@@ -167,6 +205,22 @@ export const compDict = {
         tag: "RGBA",
         contents: [r, g, b, a],
       },
+    };
+  },
+
+  selectColor: (
+    color1: Color<VarAD>,
+    color2: Color<VarAD>,
+    level: IVarAD
+  ): IColorV<VarAD> => {
+    if (level.val % 2 == 0)
+      return {
+        tag: "ColorV",
+        contents: color1,
+      };
+    return {
+      tag: "ColorV",
+      contents: color2,
     };
   },
 

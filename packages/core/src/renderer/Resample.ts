@@ -7,11 +7,11 @@ import {
 import { prettyPrintPath } from "utils/OtherUtils";
 import { evalShapes } from "engine/Evaluator";
 import {
-  canvasXRange,
   constValue,
   findDef,
   ShapeDef,
   IPropModel,
+  Canvas,
 } from "renderer/ShapeDef";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
@@ -45,8 +45,10 @@ const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
  * @param shapes Old shapes
  * @ignore
  */
-export const sampleShapes = (shapes: Shape[]): Shape[] =>
-  shapes.map((shape: Shape) => sampleShape(shape, findDef(shape.shapeType)));
+export const sampleShapes = (shapes: Shape[], canvas: Canvas): Shape[] =>
+  shapes.map((shape: Shape) =>
+    sampleShape(shape, findDef(shape.shapeType), canvas)
+  );
 
 /**
  * Resample all properties of one shape.
@@ -55,10 +57,14 @@ export const sampleShapes = (shapes: Shape[]): Shape[] =>
  * @param shapeDef shape definition
  * @ignore
  */
-const sampleShape = (shape: Shape, shapeDef: ShapeDef): Shape => ({
+const sampleShape = (
+  shape: Shape,
+  shapeDef: ShapeDef,
+  canvas: Canvas
+): Shape => ({
   ...shape,
   properties: mapValues(shape.properties, (_: Value<number>, prop: string) =>
-    sampleProperty(prop, shapeDef)
+    sampleProperty(prop, shapeDef, canvas)
   ),
 });
 
@@ -70,11 +76,12 @@ const sampleShape = (shape: Shape, shapeDef: ShapeDef): Shape => ({
  */
 const sampleProperty = (
   property: string,
-  shapeDef: ShapeDef
+  shapeDef: ShapeDef,
+  canvas: Canvas
 ): Value<number> => {
   const propModels: IPropModel = shapeDef.properties;
   const sampler = propModels[property];
-  if (sampler) return sampler[1]();
+  if (sampler) return sampler[1](canvas);
   else {
     throw new Error(
       `${property} is not a valid property to be sampled for shape ${shapeDef.shapeType}.`
@@ -88,17 +95,21 @@ const sampleProperty = (
  * @param state State that contains a list of varying paths
  * @ignore
  */
-export const sampleFields = ({ varyingPaths }: State): number[] => {
+export const sampleFields = (
+  { varyingPaths }: State,
+  canvas: Canvas
+): number[] => {
   const fieldPaths = varyingPaths.filter(
     ({ tag }: Path) => tag === "AccessPath" || tag === "FieldPath"
   );
-  return randFloats(fieldPaths.length, canvasXRange);
+  return randFloats(fieldPaths.length, canvas.xRange);
 };
 
 const samplePath = (
   path: Path,
   shapes: Shape[],
-  varyingInitInfo: { [pathStr: string]: number }
+  varyingInitInfo: { [pathStr: string]: number },
+  canvas: Canvas
 ): Value<number> => {
   if (path.tag === "LocalVar" || path.tag === "InternalLocalVar") {
     throw Error("local path shouldn't appear in GPI");
@@ -114,7 +125,7 @@ const samplePath = (
 
   // HACK: for access and field paths, sample within the canvas width
   if (path.tag === "AccessPath" || path.tag === "FieldPath") {
-    return constValue("FloatV", randFloat(...canvasXRange));
+    return constValue("FloatV", randFloat(...canvas.xRange))(canvas);
   }
   // for property path, use the sampler in shapedef
   else {
@@ -130,7 +141,7 @@ const samplePath = (
       `Cannot find shape ${subName}.${field}`
     );
     const shapeDef = findDef(shapeType);
-    const sampledProp: Value<number> = sampleProperty(prop, shapeDef);
+    const sampledProp: Value<number> = sampleProperty(prop, shapeDef, canvas);
     return sampledProp;
   }
 };
@@ -139,10 +150,12 @@ export const resampleBest = (state: State, numSamples: number): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path) =>
-    samplePath(p, shapes, state.varyingInitInfo)
+    samplePath(p, shapes, state.varyingInitInfo, state.canvas)
   );
   const uninitValues: Value<VarAD>[] = uninitializedPaths.map((p: Path) =>
-    valueNumberToAutodiff(samplePath(p, shapes, state.varyingInitInfo))
+    valueNumberToAutodiff(
+      samplePath(p, shapes, state.varyingInitInfo, state.canvas)
+    )
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)

@@ -1,3 +1,8 @@
+canvas {
+  width = 800
+  height = 700
+}
+
 Const {
   Const.strokeWidth = 1.5
   Const.padding = 20.0
@@ -91,7 +96,7 @@ Set `Rn` {
     delete `Rn`.outsideFn
 
     ensure minSize(`Rn`.icon)
-    ensure maxSize(`Rn`.icon)
+    ensure maxSize(`Rn`.icon, canvas.height / 3.)
 }
 
 Set `Rm`
@@ -115,5 +120,5 @@ with Set `Rn` {
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.icon)
 
     ensure minSize(`Rm`.icon)
-    ensure maxSize(`Rm`.icon)
+    ensure maxSize(`Rm`.icon, canvas.height / 3.)
 }
