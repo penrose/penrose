@@ -13,7 +13,8 @@ import { toHex, getCoords, toScreen } from "utils/Util";
 /**
  * @param  {Shape} {properties}
  * @param  {SVGElement} elem
- * @description sets 'fill' and 'fill-opacity'
+ * @requires shape defines attribute 'color'
+ * @description sets 'fill' and 'fill-opacity' from attribute 'color'
  */
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const color = properties.color as IColorV<number>;
@@ -226,7 +227,7 @@ export const attrRadii = ({ properties }: Shape, elem: SVGElement) => {
   const rx = properties.rx as IFloatV<number>;
   const ry = properties.ry as IFloatV<number>;
   elem.setAttribute("rx", rx.contents.toString());
-  elem.setAttribute("ry", rx.contents.toString());
+  elem.setAttribute("ry", ry.contents.toString());
 };
 /**
  * @param  {Shape} {properties}
