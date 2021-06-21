@@ -58,6 +58,7 @@ export const is_complete_graph = (graph: Graph): boolean => {
 };
 
 /**
+ * @deprecated
  * Helper function for samplePalette
  * @param object_graph a complete graph (nxn adjacency matrix for n objects)
  * @param node_to_sort_around the node to collect edges from
@@ -99,6 +100,7 @@ export const getSortedEdges = (
 };
 
 /**
+ * @deprecated
  * Main sampling function: assigns colors based on random node,
  * Treats edge weights as "repelling energy" between two nodes
  *  (how much the nodes want to have contrasting colors)

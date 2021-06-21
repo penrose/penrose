@@ -3,9 +3,9 @@ forall Set x {
         strokeWidth : 0.0
     }
 
-    x.foo = Square {
-        color : rgba(0,0,0,1)
-    }
+    -- x.foo = Square {
+    --    color : rgba(0,0,0,1)
+    -- }
 
     x.text = Text {
         string : x.label
@@ -16,7 +16,6 @@ forall Set x {
     ensure minSize(x.icon)
     ensure maxSize(x.icon)
     encourage sameCenter(x.text, x.icon)
-    x.icon above x.foo
     x.textLayering = x.text above x.icon
     
 }

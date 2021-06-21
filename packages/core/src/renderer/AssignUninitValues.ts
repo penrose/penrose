@@ -59,7 +59,7 @@ export const colorUninitShapes = (state: State): State => {
     state,
     isUninitializedColorShape,
     random_palette(),
-    0.8
+    0.5
   );
 };
 
@@ -67,7 +67,7 @@ const getNewlyColoredState = (
   state: State,
   includeInColorAdjustmentFn: (s: Shape) => boolean,
   palette = random_palette(),
-  alpha = 0.8
+  alpha = 0.5
 ): State => {
   const shapesToAssignColors = state.shapes.filter(includeInColorAdjustmentFn);
   const distanceGraph = shapeListToDistanceGraph(shapesToAssignColors);
@@ -78,6 +78,8 @@ const getNewlyColoredState = (
   }
   if (k <= 0) {
     // figure something out here, refactor the previous functions
+    // this happens if distanceGraph.length <= 1, in which case
+    // we don't need to do special coloring (a single object is uncolored)
     return state;
   } else {
     const KNNGraph = distGraphToKNNGraph(distanceGraph, k);

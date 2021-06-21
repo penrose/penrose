@@ -88,15 +88,6 @@ export const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   return object_graph;
 };
 
-// generates a distance graph from a state (uses all viable shapes:
-// does not distinguish between whether they have
-// an initialized or uninitialized color path
-/**@deprecated */
-export const stateToDistanceGraph = (state: State): Graph => {
-  const shapeList = state.shapes.filter(includeShapesOnly);
-  return shapeListToDistanceGraph(shapeList);
-};
-
 // converts a matrix that stores distance between objects
 // to one that stores "repellant energy" between objects
 // ex. graph[i][j] === *how much* objs i and j should repel each other
@@ -151,6 +142,15 @@ export const assignNewColors = (
     }
   }
   return newState;
+};
+
+// generates a distance graph from a state (uses all viable shapes:
+// does not distinguish between whether they have
+// an initialized or uninitialized color path
+/**@deprecated */
+export const stateToDistanceGraph = (state: State): Graph => {
+  const shapeList = state.shapes.filter(includeShapesOnly);
+  return shapeListToDistanceGraph(shapeList);
 };
 
 // find the first pair 0 dist apart, or the closest one
