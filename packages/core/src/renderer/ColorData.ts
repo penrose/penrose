@@ -1,4 +1,7 @@
 /*
+note: add some categorical color palettes
+continuous colormaps are unfit for venn-diagram style diagrams?
+
 viridis_data, plasma_data, inferno_data, magma_data from
 https://github.com/BIDS/colormap/blob/master/colormaps.py
 
@@ -1056,9 +1059,6 @@ const magma_data: RGB[] = [
 ];
 
 const default_palettes = [viridis_data, plasma_data, inferno_data, magma_data];
-
-// inferno and magma have blackish extremes, not great for random color assignment
-// const default_palettes = [viridis_data, plasma_data];
 
 export const random_palette = (): RGB[] => {
   const index = Math.round(Math.random() * (default_palettes.length - 1));

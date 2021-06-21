@@ -1,7 +1,7 @@
 import { State } from "types/state";
 import { Shape } from "types/shape";
 
-import { Graph, samplePalette, is_complete_graph } from "./Color";
+import { Graph, samplePalette, is_complete_graph, RGB } from "./Color";
 
 // initializes a matrix of all 0.s
 export const createMatrix = (rows: number, cols: number): Graph => {
@@ -48,6 +48,8 @@ export const includeShapesOnly = (shape: Shape): boolean => {
 // given a state, generates a matrix that records the
 // distance between objects.
 
+// given a list of shapes, create a matrix that records distance between objects
+// ex. graph[i][j] === distance between shape i and shape j
 export const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   // initializing a matrix of 0.'s
   var object_graph = createMatrix(shapeList.length, shapeList.length);
@@ -58,10 +60,12 @@ export const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
       const shape1 = shapeList[i];
       const shape2 = shapeList[j];
 
-      //for now, the only thing used will be the centers
+      // for now, the only thing used to determine distance will be the centers
+      // of each shape
       var v1 = shape1.properties.center;
       var v2 = shape2.properties.center;
 
+      // some legality checks
       if (
         !Array.isArray(v1.contents) ||
         !Array.isArray(v2.contents) ||
@@ -72,11 +76,11 @@ export const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
         throw new Error("bad center prop input: not number[]");
       }
 
+      // calculate & set the distance
       const centerDist = dist(v1.contents as number[], v2.contents as number[]);
-
       object_graph[i][j] = centerDist;
 
-      // symmetric graph
+      // symmetric matrix (we are creating an undirected graph)
       object_graph[j][i] = object_graph[i][j];
     }
   }
@@ -84,18 +88,26 @@ export const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   return object_graph;
 };
 
+// generates a distance graph from a state (uses all viable shapes:
+// does not distinguish between whether they have
+// an initialized or uninitialized color path
+/**@deprecated */
 export const stateToDistanceGraph = (state: State): Graph => {
   const shapeList = state.shapes.filter(includeShapesOnly);
   return shapeListToDistanceGraph(shapeList);
 };
 
+// converts a matrix that stores distance between objects
+// to one that stores "repellant energy" between objects
+// ex. graph[i][j] === *how much* objs i and j should repel each other
+// (repel each other in terms of color)
 export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
   var newGraph = graph;
   for (var i = 0; i < graph.length; i++) {
     for (var j = i + 1; j < graph.length; j++) {
       // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
 
-      const epsilon = 20;
+      const epsilon = 20; // prevent division by 0
       const weight = 10e4; // scaling factor, since values are typically small
 
       // invert the distance to get a "repellant energy" value
@@ -108,11 +120,18 @@ export const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
   return newGraph;
 };
 
-// create a new state with newly assigned colors
-// assigns the alpha of colors to be 0.5 arbitrarily
+// create a new state with newly assigned colors to some shapes
+// only shapes that satisfy includeInColorAdjustmentFn have their colors revised
+// the colors are selected from colorList, in the order they appear
+
+// ex. the first shape s for which includeInColorAdjustmentFn(s) === true
+// will be assigned colorList[0] as its color
+
+// the last shape sLast for which includeInColorAdjustmentFn(sLast) === true
+// will be assigned colorList[colorList.length - 1] as its color
 export const assignNewColors = (
   state: State,
-  colorList: [number, number, number][],
+  colorList: RGB[],
   includeInColorAdjustmentFn: (s: Shape) => boolean = includeShapesOnly,
   alpha: number = 0.8
 ): State => {
@@ -135,17 +154,19 @@ export const assignNewColors = (
 };
 
 // find the first pair 0 dist apart, or the closest one
-// this assumes that the graph matrix records * repellant energy *, so a
+// this assumes that the graph matrix records *repellant energy*, so a
 // greater matrix entry indicates that the nodes are closer together
 // (and should repel each other more for color)
+/**@deprecated */
 const findTwoClosestNodes = (graph: Graph): [number, number] => {
   if (!is_complete_graph(graph) || graph.length == 0) {
     throw new Error("Invalid graph input in findTwoClosestNodes");
   } else if (graph.length == 1) {
-    return [0, 0]; // only the first node is used, so second num is arbitrary
+    // hack: only the first num in the tuple is used, so second num is arbitrary
+    return [0, 0];
   }
 
-  // init
+  // initialize the variable for the pair of closest nodes
   var closestNodes;
   for (var i = 0; i < graph.length; i++) {
     for (var j = i + 1; j < graph.length; j++) {
@@ -162,7 +183,10 @@ const findTwoClosestNodes = (graph: Graph): [number, number] => {
   return closestNodes as [number, number];
 };
 
-// find the min distance, and use that as the pivot node.
+// find the minimum weighted edge between two nodes
+// and use one of those nodes as the "pivot" nodes to select colors from (according to edges)
+// do not use: color assignment is not as effective as updateColorsWithKNN
+/**@deprecated */
 export const updateColors = (state: State): State => {
   const distGraph = stateToDistanceGraph(state);
   const energyGraph = distanceGraphToEnergyGraph(distGraph);

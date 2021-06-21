@@ -8,18 +8,22 @@ import { Graph, RGB } from "./Color";
 import { viridis_data, random_palette } from "./ColorData";
 import { State } from "types/state";
 
+// Adjacency List data structure type
+// given adj : Ajlist,
+// adj[i] is a list of the nodes that have edges connected to node i
 type Ajlist = number[][];
 
 // build KNN graph (an adjacency list)
 // from a graph of the distances between objects
-// assumes k > 0
+// assumes k > 0 (k < 0 causes some problems)
 export const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
   if (k >= distGraph.length) {
     throw new Error("Warning: more neighbors requested than graph elems");
   }
 
   // ajlist will store the k closest neighbors for each node, in sorted order
-  var ajlist = createMatrix(distGraph.length, k);
+  // first initialize the matrix
+  var ajlist: Ajlist = createMatrix(distGraph.length, k);
 
   // fill up the adjacency list
   for (var i = 0; i < distGraph.length; i++) {
@@ -33,6 +37,7 @@ export const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
     });
 
     // remove node i from the list
+    // (we don't include the node itself in its list of nbors)
     indexedRow = indexedRow.filter((elemIndexPair) => {
       return i !== elemIndexPair[1];
     });
@@ -56,9 +61,10 @@ const sampleUniformPalette = (
   numColorsRequested: number,
   palette: RGB[] = viridis_data
 ): RGB[] => {
+  // handle 0 case, to prevent division by 0 later on
   if (numColorsRequested === 0) return [];
 
-  // doesn't work if num colors requested > palette length
+  // this fn doesn't work if num colors requested > palette length
   if (numColorsRequested > palette.length) {
     throw new Error("More colors requested than available in palette");
   }
@@ -74,12 +80,13 @@ const sampleUniformPalette = (
   return rgbList;
 };
 
-// creates a colorList mapping index (node) --> color from a KNN graph
+// takes in a KNN graph (adjacency list)
+// creates a colorList, i.e. a list that maps node --> its assigned color
 export const KNNGraphToColorList = (
-  KNNGraph: Graph,
+  KNNGraph: Ajlist,
   k: number,
   palette: RGB[] = viridis_data
-) => {
+): RGB[] => {
   // what's the minimum number of colors needed to color a graph, given k neighbors?
   const numColorsRequested = 2 * k; // this is sufficient?
 
@@ -148,6 +155,8 @@ export const KNNGraphToColorList = (
 };
 
 // returns a new state with updated colors (overwrites existing colors)
+// doesn't take into consideration uninitialized vs. initialized paths
+/**@deprecated */
 export const updateColorsWithKNN = (state: State): State => {
   const distGraph = stateToDistanceGraph(state);
 
@@ -163,7 +172,7 @@ export const updateColorsWithKNN = (state: State): State => {
     // our main method
     const KNNGraph = distGraphToKNNGraph(distGraph, k);
     const colorList = KNNGraphToColorList(KNNGraph, k, random_palette());
-    const newState = assignNewColors(state, colorList, 1);
+    const newState = assignNewColors(state, colorList);
     return newState;
   }
 };
