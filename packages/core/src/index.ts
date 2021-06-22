@@ -64,11 +64,8 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   }
   // hook
   // all colors have already been assigned -- overwrite colors
-  // currentState = updateColorsWithKNN(currentState);
-
-  // console.log(stateToUninitShapes(currentState));
   currentState = colorUninitText(colorUninitShapes(currentState));
-  //console.log(currentState.uninitializedPaths.map(prettyPrintPath))
+  // console.log(currentState.uninitializedPaths.map(prettyPrintPath))
   // console.log(currentState.shapeOrdering);
   return currentState;
 };

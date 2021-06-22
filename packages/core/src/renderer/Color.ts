@@ -53,7 +53,7 @@ export const colorUninitShapes = (state: State): State => {
  * Given a state, returns a new state where text w/ uninitialized colors
  * have been colored according to the color of the topmost shape the text
  * is drawn on top of.
- * @function meant to be called after colorUninitShapes has been called
+ * Meant to be called after colorUninitShapes has been called.
  */
 /* 
   TODO: take into consideration the "total background color", not just
