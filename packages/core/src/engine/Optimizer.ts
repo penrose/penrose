@@ -52,7 +52,8 @@ import {
     repeat,
     scalev,
     subv,
-    median
+    median,
+    prettyPrintExpr
 } from "utils/OtherUtils";
 import { Shape } from "types/shape";
 
@@ -165,6 +166,8 @@ const pruneOptProblem = (s: State): any => {
         throw Error("expected functions to have been cached");
     }
 
+    // TODO: Note that this ignores a shape if it's not in the grid. In practice, this may result in worse convergence as "disjoint" is not applied until a shape is fully contained.
+
     // TODO: Filter out background shape, and text, more generally
     const CONTAINER = "global.box";
     const shapes = s.shapes.filter(o => o.properties.name.contents !== CONTAINER && o.shapeType !== "Text");
@@ -242,28 +245,58 @@ const pruneOptProblem = (s: State): any => {
     console.log(gridStr);
 
     // Ignore all non-disjoint functions
-    const relevantFns = s.constrFns.filter(f => f.fname === "disjoint" && f.optType === "ConstrFn");
+    let allRelevantConstrs: Fn[] = s.constrFns.filter(f => f.fname === "disjoint" && f.optType === "ConstrFn");
+    let activeConstrs: Fn[] = [];
+    let neighbors: string[][] = [];
 
     const plus2 = (v: number[], w: number[]): number[] => [v[0] + w[0], v[1] + w[1]]; // TODO: import the right util
+    const includesList = (xss: [string, string][], ys: [string, string]): boolean => _.some(xss, xs => xs[0] === ys[0] && xs[1] === ys[1]); // TODO make this parametric. `.includes` doesn't work with objects
 
     // For shape A, look at its neighbors Bi in the grid.
-    // Add a `disjoint` constraint to the list of active constraints if it's applied to (A, Bi) or (Bi, A) (and remove it from the list of possibly active constraints as we don't want to double-count it.)
     for (let i = 0; i < shapes.length; i++) {
         const cell = cells[i] as number[];
         // Ignore out-of-bounds ones
         if (cell[0] === undefined || cell[1] === undefined) { continue; }
 
         const name = shapes[i].properties.name.contents;
-        const neighbors: string[] = _.flatten([[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, 0]] // (x,y)
+        const neighboringShapes: string[] = _.flatten([[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, 0]] // (x,y)
             .map(v => plus2(v, cell)) // (x,y)
             .filter(inBounds)
             .map(e => grid[e[1]][e[0]]))
             .filter(e => e !== name); // (y,x)
 
-        console.log("shape:", name, "cell:", cell, "neighbors:", neighbors);
+        // console.log("shape:", name, "cell:", cell, "neighbors:", neighboringShapes);
+        neighbors.push(neighboringShapes);
+        // Note that neighbor is a symmetric relation
+
+        // Add a `disjoint` constraint to the list of active constraints if it's applied to (A, Bi) or (Bi, A) (and remove it from the list of possibly active constraints as we don't want to double-count it.)
+        const neighborPairs: [string, string][] = neighboringShapes.map(n => ([name, n] as [string, string]).sort()); // Sort for comparison to `disjoint` args
+
+        let cellRelevantConstrs = [];
+        [cellRelevantConstrs, allRelevantConstrs] =
+            _.partition(allRelevantConstrs,
+                f => {
+                    const args = f.fargs.map(prettyPrintExpr);
+                    if (args.length < 2) throw Error("expected 2+ args");
+                    let argsSorted: [string, string] = args.slice(0, 2).sort() as [string, string]; // For comparison
+                    // console.log("f args", args, argsSorted, includesList(neighborPairs, argsSorted));
+                    return includesList(neighborPairs, argsSorted); // TODO: Check if this equality check will work
+                });
+
+        // console.log("neighborPairs", neighborPairs);
+        // console.log("new allRelevantConstrs len", allRelevantConstrs.map(prettyPrintFn).length);
+        // console.log("cellRelevantConstrs", cellRelevantConstrs.map(prettyPrintFn));
+
+        activeConstrs = activeConstrs.concat(cellRelevantConstrs);
+
+        // TODO: Could alternatively iterate through each neighbor, then each function and use array.splice() to remove elements - might be more efficient 
     }
 
-    // Turn the list of active `disjoint` constraints, as well as all remaining constraints, into a new energy and gradient for minimize
+    // (After all shapes are iterated over, constraints that are not active in this grid will be the ones left over in allRelevantConstrs.)
+    console.log("number of inactive constraints", allRelevantConstrs.length);
+    console.log("all cellRelevantConstrs", activeConstrs.map(prettyPrintFn));
+
+    // Turn the list of active `disjoint` constraints, as well as all remaining objectives and constraints, into a new energy and gradient for `minimize` (using the same method of combining everything)
     // TODO <<<
 
     // NOTE that we have to keep optimizing the `contains` functions.
