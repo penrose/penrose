@@ -149,6 +149,10 @@ export interface IShapeDef {
 
 export type Sampler = () => Value<number>;
 
+const genericAttributes : IPropModel = {
+  clipPath : ["StrV",() => constValue("StrV","none")]
+}
+
 export const circleDef: ShapeDef = {
   shapeType: "Circle",
   properties: {
@@ -162,6 +166,7 @@ export const circleDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler], // to add: rest of stroke attributes
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
+    ...genericAttributes
   },
   positionalProps: ["cx", "cy"],
 };
