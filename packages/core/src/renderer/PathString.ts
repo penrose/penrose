@@ -7,6 +7,7 @@ import {
   attrWH,
   attrXY,
   attrPathLength,
+  attrGeneric,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -26,6 +27,10 @@ const PathString = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   svg.appendChild(elem);
   g.appendChild(svg);
+
+
+  attrGeneric(shape,elem);
+
   return g;
 };
 export default PathString;

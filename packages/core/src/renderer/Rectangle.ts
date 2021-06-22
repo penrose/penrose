@@ -1,5 +1,6 @@
 import {
   attrFill,
+  attrGeneric,
   attrPathLength,
   attrRadii,
   attrStroke,
@@ -20,6 +21,8 @@ const Rectangle = ({ shape, canvasSize }: ShapeProps) => {
   attrPathLength(shape,elem);
 
   attrRadii(shape, elem);
+
+  attrGeneric(shape,elem);
 
   return elem;
 };

@@ -1,7 +1,7 @@
 import { IVectorV, IFloatV, IColorV, IStrV } from "types/value";
 import { toHex, toScreen } from "utils/Util";
 // import { arrowHead } from "./Arrow";
-import { attrPathLength, attrTitle, DASH_ARRAY } from "./AttrHelper";
+import { attrGeneric, attrPathLength, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Line = ({ shape, canvasSize }: ShapeProps) => {
@@ -63,6 +63,8 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
 
   attrTitle(shape, elem);
   attrPathLength(shape,elem);
+
+  attrGeneric(shape,elem);
 
   return elem;
 };

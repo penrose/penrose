@@ -1,4 +1,5 @@
 import {
+  attrGeneric,
   attrNoFill,
   attrPathLength,
   attrPoints,
@@ -18,6 +19,8 @@ const Polyline = ({ shape, canvasSize }: ShapeProps) => {
   attrTitle(shape, elem);
   attrPoints(shape, elem);
   attrPathLength(shape,elem);
+
+  attrGeneric(shape,elem);
 
   return elem;
 };

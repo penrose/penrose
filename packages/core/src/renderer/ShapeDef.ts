@@ -209,6 +209,7 @@ export const ellipseDef: ShapeDef = {
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultCircle")],
+    ...genericAttributes
   },
   positionalProps: ["cx", "cy"],
 };
@@ -230,6 +231,7 @@ export const rectDef: ShapeDef = {
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultRect")],
+    ...genericAttributes
   },
   positionalProps: ["x", "y"],
 };
@@ -272,6 +274,7 @@ export const polygonDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
+    ...genericAttributes
   },
 };
 
@@ -294,6 +297,7 @@ export const freeformPolygonDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultFreeformPolygon")],
+    ...genericAttributes
   },
   positionalProps: [],
 };
@@ -316,6 +320,7 @@ export const pathStringDef: ShapeDef = {
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
     viewBox: ["StrV", () => constValue("StrV", "0 0 100 100")],
+    ...genericAttributes
   },
 };
 
@@ -338,6 +343,7 @@ export const polylineDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     fill: ["ColorV", colorSampler],
     name: ["StrV", () => constValue("StrV", "defaultPolygon")],
+    ...genericAttributes
   },
 };
 
@@ -354,6 +360,7 @@ export const imageDef: ShapeDef = {
     path: ["StrV", () => constValue("StrV", "missing image path")],
     name: ["StrV", () => constValue("StrV", "defaultImage")],
     // TODO: add preserveAspectRation and crossorigin properties
+    ...genericAttributes
   },
   positionalProps: ["x", "y"],
 };
@@ -396,6 +403,7 @@ export const textDef: ShapeDef = {
     string: ["StrV", () => constValue("StrV", "defaultLabelText")],
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
     polygon: ["PolygonV", () => emptyPoly],
+    ...genericAttributes
   },
   positionalProps: ["x", "y"],
 };
@@ -420,6 +428,7 @@ export const lineDef: ShapeDef = {
     stroke: ["StrV", () => constValue("StrV", "none")],
     strokeDashArray: ["StrV", () => constValue("StrV", "")],
     name: ["StrV", () => constValue("StrV", "defaultLine")],
+    ...genericAttributes
   },
   positionalProps: ["start", "end"],
 };

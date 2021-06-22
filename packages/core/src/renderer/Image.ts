@@ -1,4 +1,5 @@
 import {
+  attrGeneric,
   attrOpacity,
   attrRotation,
   attrTransformCoords,
@@ -48,6 +49,8 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrWH(shape, svg);
 
   attrTransformCoords(shape, canvasSize, elem);
+
+  attrGeneric(shape,elem);
 
   return elem;
 };

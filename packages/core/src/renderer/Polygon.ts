@@ -1,5 +1,6 @@
 import {
   attrFill,
+  attrGeneric,
   attrPathLength,
   attrPoints,
   attrStroke,
@@ -18,6 +19,8 @@ const Polygon = ({ shape, canvasSize }: ShapeProps) => {
   attrTitle(shape, elem);
   attrPoints(shape, elem);
   attrPathLength(shape,elem);
+
+  attrGeneric(shape,elem);
 
   return elem;
 };
