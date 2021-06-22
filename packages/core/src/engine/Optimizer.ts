@@ -55,6 +55,7 @@ import {
     median,
     prettyPrintExpr
 } from "utils/OtherUtils";
+import { ops as vec } from "utils/Util";
 import { Shape } from "types/shape";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
@@ -245,7 +246,8 @@ const pruneOptProblem = (s: State): any => {
     console.log(gridStr);
 
     // Ignore all non-disjoint functions
-    let allRelevantConstrs: Fn[] = s.constrFns.filter(f => f.fname === "disjoint" && f.optType === "ConstrFn");
+    let [allRelevantConstrs, remainingConstrs]: [Fn[], Fn[]] = _.partition(s.constrFns,
+        f => f.fname === "disjoint" && f.optType === "ConstrFn");
     let activeConstrs: Fn[] = [];
     let neighbors: string[][] = [];
 
@@ -297,17 +299,38 @@ const pruneOptProblem = (s: State): any => {
     console.log("all cellRelevantConstrs", activeConstrs.map(prettyPrintFn));
 
     // Turn the list of active `disjoint` constraints, as well as all remaining objectives and constraints, into a new energy and gradient for `minimize` (using the same method of combining everything)
-    // TODO <<<
-
     // NOTE that we have to keep optimizing the `contains` functions.
 
-    console.error("todo: regenerate overall fns");
+    const prunedConstrFns = remainingConstrs.concat(activeConstrs);
+    const objectiveFns = s.objFns;
 
-    return {
-        objectives: [],
-        constraints: []
+    // Assuming all have already been properly cached
+    const compiledConstrs: FnCached[] = prunedConstrFns.map(f => params.constrFnCache[prettyPrintFn(f)]);
+    const compiledObjectives: FnCached[] = objectiveFns.map(f => params.objFnCache[prettyPrintFn(f)]);
+
+    console.log("compiled fns", compiledConstrs, compiledObjectives);
+
+    // F(x) = o(x) + c0 * penalty * c(x)
+    // grad F(x) = grad o(x) + c0 * penalty * grad c(x) --- grad o(x) and grad c(x) are the sums of their individual gradients
+
+    // TODO: Not sure about efficiency of this, since it includes overall function closure?
+    const prunedObjective = (zs: number[]): number => {
+        const energies = _.sum(compiledObjectives.map(e => e.f(zs)));
+        const constrEnergies = _.sum(compiledConstrs.map(e => e.f(zs)));
+        return energies + constraintWeight * s.params.weight * constrEnergies;
     };
 
+    const prunedGradient = (zs: number[]): number[] => {
+        const init = Array(s.varyingValues.length).fill(0);
+        const gradEnergies = compiledObjectives.length ? vec.vaddList(compiledObjectives.map(e => e.gradf(zs))) : init;
+        const gradConstrEnergies = compiledConstrs.length ? vec.vaddList(compiledConstrs.map(e => e.gradf(zs))) : init;
+        return vec.vadd(gradEnergies, vec.vmul(constraintWeight * s.params.weight, gradConstrEnergies));
+    };
+
+    return {
+        prunedObjective,
+        prunedGradient
+    };
 };
 
 /**
@@ -395,12 +418,20 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             // NOTE: use cached varying values
             log.info("step with state UnconstrainedRunning`, xs", xs);
 
-            const newFns = pruneOptProblem(state);
+            const { prunedObjective, prunedGradient } = pruneOptProblem(state);
+
+            const USE_PRUNED = true;
+            let energyToUse, gradientToUse;
+            if (USE_PRUNED) {
+                [energyToUse, gradientToUse] = [prunedObjective, prunedGradient];
+            } else {
+                [energyToUse, gradientToUse] = [state.params.currObjective, state.params.currGradient];
+            }
 
             const res: OptInfo = minimize(
                 xs,
-                state.params.currObjective,
-                state.params.currGradient,
+                energyToUse,
+                gradientToUse,
                 state.params.lbfgsInfo,
                 state.varyingPaths.map((p) => prettyPrintPath(p)),
                 steps
@@ -422,7 +453,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             optParams.lastUOenergy = energyVal;
             optParams.UOround = optParams.UOround + 1;
             optParams.lbfgsInfo = newLbfgsInfo;
-            optParams.lastGradient = gradient;
+            optParams.lastGradient = gradientToUse;
             optParams.lastGradientPreconditioned = gradientPreconditioned;
             optParams.times.push(time);
 

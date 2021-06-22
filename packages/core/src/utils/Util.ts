@@ -357,7 +357,7 @@ export const ops = {
     dist: (c1: number, c2: number) => ops.vnorm([c1, c2]),
 
     /**
-     * Return the sum of vectors `v1, v2.
+     * Return the sum of vectors `v1`, `v2`.
      */
     vadd: (v1: number[], v2: number[]): number[] => {
         if (v1.length !== v2.length) {
@@ -365,6 +365,14 @@ export const ops = {
         }
 
         const res = zipWith(v1, v2, (a, b) => a + b);
+        return res;
+    },
+
+    /**
+     * Return the sum of vectors in a list (assuming they all have the same length).
+     */
+    vaddList: (vs: number[][]): number[] => {
+        const res = vs.reduce(ops.vadd);
         return res;
     },
 
