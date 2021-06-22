@@ -29,8 +29,9 @@ const arcCommandString = (
   pts: [number, number][],
   canvasSize: [number, number]
 ) => {
-  // A, rx, ry, rotation, arc, sweep, ex, ey
+  // See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
   const [radius, flags, endpt] = pts;
+  // A, rx, ry, rotation, arc, sweep, ex, ey
   return `${command} ${radius.join(" ")} ${flags.join(" ")} ${toScreen(
     endpt,
     canvasSize

@@ -382,7 +382,6 @@ export const compDict = {
     largeArc: IVarAD,
     arcSweep: IVarAD
   ): IPathDataV<VarAD> => {
-    console.log(rotation, largeArc, arcSweep);
     const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
     const st: IPt<IVarAD> = { tag: "Pt", contents: start };
     const arc: IArc<IVarAD> = {
