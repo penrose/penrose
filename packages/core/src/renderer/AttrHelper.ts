@@ -10,6 +10,37 @@ import {
 import { Shape } from "types/shape";
 import { toHex, getCoords, toScreen } from "utils/Util";
 
+export const attrGeneric =  ({ properties }: Shape, elem: SVGElement) => {
+  const clipRule = properties.clipRule.contents
+  elem.setAttribute("clipRule",clipRule.toString())
+  const colorInterpolation = properties.colorInterpolation.contents
+  elem.setAttribute("colorInterpolation",colorInterpolation.toString())
+  const fillRule = properties.fillRule.contents
+  elem.setAttribute("fillRule",fillRule.toString())
+  const shapeRendering = properties.shapeRendering.contents
+  elem.setAttribute("shapeRendering",shapeRendering.toString())
+  const strokeDashOffset = properties.strokeDashOffset.contents
+  elem.setAttribute("strokeDashOffset",strokeDashOffset.toString())
+  const strokeLinecap = properties.strokeLinecap.contents
+  elem.setAttribute("strokeLinecap",strokeLinecap.toString())
+  const strokeLinejoin = properties.strokeLinejoin.contents
+  elem.setAttribute("strokeLinejoin",strokeLinejoin.toString())
+  const strokeMiterlimit = properties.strokeMiterlimit.contents
+  elem.setAttribute("strokeMiterlimit",strokeMiterlimit.toString())
+  const visibility = properties.visibility.contents
+  elem.setAttribute("visibility",visibility.toString())
+
+  // D-tier difficulty
+  const display = properties.display.contents
+  elem.setAttribute("display",display.toString())
+  const vectorEffect = properties.vectorEffect.contents
+  elem.setAttribute("vectorEffect",vectorEffect.toString())
+};
+
+
+
+
+
 /**
  * @param  {Shape} {properties}
  * @param  {SVGElement} elem
