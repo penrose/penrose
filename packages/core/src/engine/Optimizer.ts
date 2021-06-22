@@ -93,8 +93,8 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
+const DEBUG_GRAD_DESCENT = false;
 // const DEBUG_GRAD_DESCENT = true;
-const DEBUG_GRAD_DESCENT = true;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -184,7 +184,7 @@ const pruneOptProblem = (s: State): any => {
     // const GRID_CELL_DIM = SHAPE_DIM / 2.; // TODO: This actually seems too small
     const GRID_CELL_DIM = SHAPE_DIM;
 
-    console.log("cached functions", objFnCache, constrFnCache);
+    // console.log("cached functions", objFnCache, constrFnCache);
     // console.log("bboxes", bboxes);
 
     // Determine which bbox is in which grid cell.
@@ -200,8 +200,7 @@ const pruneOptProblem = (s: State): any => {
         }
     }
 
-    console.log("init grid", grid);
-
+    // console.log("init grid", grid);
     const cells = [];
 
     // Clamp an int to be a grid coordinate. 
@@ -219,8 +218,8 @@ const pruneOptProblem = (s: State): any => {
         const center = shapes[i].properties.center.contents;
         const cell = [Math.floor((center[0] + GRID_DIMS.w / 2.) / GRID_CELL_DIM),
         Math.floor((-center[1] + GRID_DIMS.h / 2.) / GRID_CELL_DIM)];
-        console.log("center", center);
-        console.log("cell", cell);
+        // console.log("center", center);
+        // console.log("cell", cell);
 
         // A shape might go out of bounds; in that case, it's ignored
         if (inBounds(cell)) {
@@ -232,10 +231,10 @@ const pruneOptProblem = (s: State): any => {
         }
     }
 
-    console.log("cells", cells);
-    console.log("new grid", grid);
+    // console.log("cells", cells);
+    // console.log("new grid", grid);
 
-    console.log("grid occupants");
+    // console.log("grid occupants");
     let gridStr = ``;
     for (let i = 0; i < ROWS; i++) {
         for (let j = 0; j < COLS; j++) {
@@ -243,7 +242,7 @@ const pruneOptProblem = (s: State): any => {
         }
         gridStr += `\n`;
     }
-    console.log(gridStr);
+    // console.log(gridStr);
 
     // Ignore all non-disjoint functions
     let [allRelevantConstrs, remainingConstrs]: [Fn[], Fn[]] = _.partition(s.constrFns,
@@ -295,8 +294,8 @@ const pruneOptProblem = (s: State): any => {
     }
 
     // (After all shapes are iterated over, constraints that are not active in this grid will be the ones left over in allRelevantConstrs.)
-    console.log("number of inactive constraints", allRelevantConstrs.length);
-    console.log("all cellRelevantConstrs", activeConstrs.map(prettyPrintFn));
+    // console.log("number of inactive constraints", allRelevantConstrs.length);
+    // console.log("all cellRelevantConstrs", activeConstrs.map(prettyPrintFn));
 
     // Turn the list of active `disjoint` constraints, as well as all remaining objectives and constraints, into a new energy and gradient for `minimize` (using the same method of combining everything)
     // NOTE that we have to keep optimizing the `contains` functions.
@@ -308,7 +307,7 @@ const pruneOptProblem = (s: State): any => {
     const compiledConstrs: FnCached[] = prunedConstrFns.map(f => params.constrFnCache[prettyPrintFn(f)]);
     const compiledObjectives: FnCached[] = objectiveFns.map(f => params.objFnCache[prettyPrintFn(f)]);
 
-    console.log("compiled fns", compiledConstrs, compiledObjectives);
+    // console.log("compiled fns", compiledConstrs, compiledObjectives);
 
     // F(x) = o(x) + c0 * penalty * c(x)
     // grad F(x) = grad o(x) + c0 * penalty * grad c(x) --- grad o(x) and grad c(x) are the sums of their individual gradients
@@ -418,15 +417,20 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             // NOTE: use cached varying values
             log.info("step with state UnconstrainedRunning`, xs", xs);
 
-            const { prunedObjective, prunedGradient } = pruneOptProblem(state);
-
             const USE_PRUNED = true;
             let energyToUse, gradientToUse;
             if (USE_PRUNED) {
+                const t0 = performance.now();
+                const { prunedObjective, prunedGradient } = pruneOptProblem(state);
+                const t1 = performance.now();
+                console.log(`Time to prune for ${state.shapes.length} shapes and ${state.objFns.length + state.constrFns.length} objectives/constraints: ${t1 - t0} ms`);
+
                 [energyToUse, gradientToUse] = [prunedObjective, prunedGradient];
             } else {
                 [energyToUse, gradientToUse] = [state.params.currObjective, state.params.currGradient];
             }
+
+            // TODO: The time taken should really include the time to prune the optimization problem...
 
             const res: OptInfo = minimize(
                 xs,
@@ -459,7 +463,8 @@ export const step = (state: State, steps: number, evaluate = true): State => {
 
             // TODO: Replace console.log with log.whatever
             // Drop the first time later as it's usually longer
-            const ts = optParams.times.length > 1 ? optParams.times.slice(1) : optParams.times;
+            // const ts = optParams.times.length > 1 ? optParams.times.slice(1) : optParams.times;
+            const ts = optParams.times;
             console.log(`Performance: times (ms for each 1 call to minimize) over ${ts.length} samples`);
             console.log(`Mean: ${_.mean(ts)} ms | Median: ${median(ts)} ms`);
 

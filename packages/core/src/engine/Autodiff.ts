@@ -292,8 +292,6 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
         const z = variableAD(_.sum(_.map(xs, (x) => x.val)), "+ list");
         z.isCompNode = isCompNode;
 
-        console.error("number of children", xs.length);
-
         if (isCompNode) {
             for (const x of xs) {
                 x.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
