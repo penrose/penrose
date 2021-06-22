@@ -94,7 +94,7 @@ const uoStop = 1e-2;
 // const uoStop = 10;
 
 // const DEBUG_GRAD_DESCENT = true;
-const DEBUG_GRAD_DESCENT = false;
+const DEBUG_GRAD_DESCENT = true;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -453,7 +453,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             optParams.lastUOenergy = energyVal;
             optParams.UOround = optParams.UOround + 1;
             optParams.lbfgsInfo = newLbfgsInfo;
-            optParams.lastGradient = gradientToUse;
+            optParams.lastGradient = gradient;
             optParams.lastGradientPreconditioned = gradientPreconditioned;
             optParams.times.push(time);
 
