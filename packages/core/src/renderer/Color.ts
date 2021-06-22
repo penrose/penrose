@@ -27,13 +27,16 @@ export type Ajlist = number[][];
 /*                        Main Coloring Functions                       */
 /************************************************************************/
 
-// assign colors to the shapes w/ uninitialized colors
+/**
+ * Given a state, returns a new state where shapes w/ uninitialized colors
+ * have been colored according to K-Nearest Neighbors
+ */
 export const colorUninitShapes = (state: State): State => {
   // get the fn that checks if a shape has an uninitialized color
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 
   // make a new (stricter) fn that also checks
-  // if a shape obj satisfies includeShapesOnly
+  // if a shape obj satisfies includeShapesOnly as well
   const isUninitializedColorShape = (shape: Shape): boolean => {
     return hasUninitializedColor(shape) && includeShapesOnly(shape);
   };
@@ -46,12 +49,22 @@ export const colorUninitShapes = (state: State): State => {
   );
 };
 
-// to be called after shape colors have all been assigned
+/**
+ * Given a state, returns a new state where text w/ uninitialized colors
+ * have been colored according to the color of the topmost shape the text
+ * is drawn on top of.
+ * @function meant to be called after colorUninitShapes has been called
+ */
+/* 
+  TODO: take into consideration the "total background color", not just
+  the color of the topmost shape (especially when shapes are assigned
+  transparent alphas) 
+*/
 export const colorUninitText = (state: State): State => {
   // fn that checks if a shape has an uninitialized color path
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 
-  // fn that checks if a shape is a text & has an uninit color path
+  // fn that checks if a shape is a text obj & has an uninit color path
   const isUninitializedColorText = (shape: Shape): boolean => {
     return hasUninitializedColor(shape) && shape.shapeType === "Text";
   };
@@ -59,7 +72,8 @@ export const colorUninitText = (state: State): State => {
   // get the text shapes that we need to assign colors to
   const textToAssignColors = state.shapes.filter(isUninitializedColorText);
 
-  const shapeNameAndShapeList = getShapeNameAndShapePairList(state);
+  // get a list of [shapeName, shape] : [string, Shape] objects
+  const shapeNameAndShapeList = getOrderedShapeNameAndShapePairList(state);
 
   // get the colorlist for the text objects
   const colorList = createTextColorList(
@@ -75,8 +89,11 @@ export const colorUninitText = (state: State): State => {
 /*       Transition Functions between different coloring states         */
 /************************************************************************/
 
-// given a list of shapes, create a matrix that records distance between objects
-// ex. graph[i][j] === distance between shape i and shape j
+/**
+ * Create a graph (matrix) that records the distance between nodes;
+ * i.e. graph[i][j] === distance between shape i and shape j
+ * @param shapeList a list of shapes (each shape will act as a node)
+ */
 const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   // initializing a matrix of 0.'s
   var object_graph = createMatrix(shapeList.length, shapeList.length);
@@ -89,6 +106,7 @@ const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
 
       // for now, the only thing used to determine distance will be the centers
       // of each shape
+      // TODO: use bounding boxes and/or more accurate measure of distance
       var v1 = shape1.properties.center;
       var v2 = shape2.properties.center;
 
@@ -115,17 +133,22 @@ const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   return object_graph;
 };
 
-// build KNN graph (an adjacency list)
-// from a graph of the distances between objects
-// assumes k > 0 (k < 0 causes some problems)
+/**
+ * Creates a KNN Graph (adjacency list) where two nodes are connected
+ * if they are within each other's k nearest neighbors
+ * @param distGraph distance graph, created by shapeListToDistanceGraph
+ * @param k number of nearest neighbors, assumed k > 0 (k<=0 causes problems)
+ */
 const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
   if (k >= distGraph.length) {
     throw new Error("Warning: more neighbors requested than graph elems");
   }
 
   // ajlist will store the k closest neighbors for each node, in sorted order
+  var ajlist: Ajlist;
+
   // first initialize the matrix
-  var ajlist: Ajlist = createMatrix(distGraph.length, k);
+  ajlist = createMatrix(distGraph.length, k);
 
   // fill up the adjacency list
   for (var i = 0; i < distGraph.length; i++) {
@@ -160,6 +183,14 @@ const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
 
 // takes in a KNN graph (adjacency list)
 // creates a colorList, i.e. a list that maps node --> its assigned color
+/**
+ * Creates a colorlist c, where for every node i,
+ * c[i] === the color assigned to node i
+ * @param KNNGraph k-nearest neighbor graph (adjacency list),
+ *  created by distGraphToKNNGraph
+ * @param k number of nearest neighbors, assumed k > 0 (k<=0 causes problems)
+ * @param palette optional param, a list of colors to choose from
+ */
 const KNNGraphToColorList = (
   KNNGraph: Ajlist,
   k: number,
@@ -178,11 +209,14 @@ const KNNGraphToColorList = (
   }
 
   // now assign the colors to the nodes of the graph in a greedy fashion.
+
+  // for every node...
   for (var node = 0; node < KNNGraph.length; node++) {
+    // get its k nearest nbors...
     const nodeNbors = KNNGraph[node];
 
     var colorsThatCannotBeUsed: RGB[] = [];
-    // loop through the nbors, check if any have already been assigned a color
+    // loop through its nbors, checking if any have already been assigned a color
     for (
       var nbornodeindex = 0;
       nbornodeindex < nodeNbors.length;
@@ -193,8 +227,10 @@ const KNNGraphToColorList = (
         // then it has been assigned a color already
         // (since we assign colors to the nodes in order)
 
-        // get the color that it has been assigned
+        // get the color that it has been assigned,
         const alreadyUsedColor = colorList[currNbor];
+
+        // and mark it as a color that we cannot use for the current node
         colorsThatCannotBeUsed.push(alreadyUsedColor);
       }
     }
@@ -206,7 +242,8 @@ const KNNGraphToColorList = (
       });
     });
 
-    // now assign a color to nodeNbors (one that isn't a part of colorsThatCannotBeUsed)
+    // now assign a color to node (one that isn't a part of colorsThatCannotBeUsed)
+
     // to do this, we first create a list of indexes corresponding to the colors that
     // we CAN assign to the current node
     var availableColorIndexes: number[] = [];
@@ -232,20 +269,67 @@ const KNNGraphToColorList = (
   return colorList;
 };
 
-// create a new state with newly assigned colors to some shapes
-// only shapes that satisfy includeInColorAdjustmentFn have their colors revised
-// the colors are selected from colorList, in the order they appear
+/**
+ * Creates a new state with newly assigned colors to the shapes that
+ * satisfy includeInColorAdjustmentFn, using greedy KNN assignment.
+ * @param state old state
+ * @param includeInColorAdjustmentFn a fn that determines whether or not
+ * a shape s should be assigned a new color
+ * @param palette optional param, the palette used during KNN color assignment
+ * @param alpha optional param, the opacity value assigned to all new colors.
+ */
+const getNewlyColoredState = (
+  state: State,
+  includeInColorAdjustmentFn: (s: Shape) => boolean,
+  palette = random_palette(),
+  alpha = 0.5
+): State => {
+  const shapesToAssignColors = state.shapes.filter(includeInColorAdjustmentFn);
+  const distanceGraph = shapeListToDistanceGraph(shapesToAssignColors);
+  if (distanceGraph.length <= 3) {
+    var k = distanceGraph.length - 1; // number of neighbors
+  } else {
+    var k = 3;
+  }
+  if (k <= 0) {
+    // this happens if distanceGraph.length <= 1,
+    // in which case we don't need to do special coloring
+    // (a single object or no object(s) has an unspecified color)
+    return state;
+  } else {
+    const KNNGraph = distGraphToKNNGraph(distanceGraph, k);
+    const colorList = KNNGraphToColorList(KNNGraph, k, palette);
+    const newState = assignNewColors(
+      state,
+      colorList,
+      includeInColorAdjustmentFn,
+      alpha
+    );
+    return newState;
+  }
+};
 
-// ex. the first shape s for which includeInColorAdjustmentFn(s) === true
-// will be assigned colorList[0] as its color
-
-// the last shape sLast for which includeInColorAdjustmentFn(sLast) === true
-// will be assigned colorList[colorList.length - 1] as its color
+/**
+ * Creates a new state with newly assigned colors to the shapes that
+ * satisfy includeInColorAdjustmentFn.
+ * The colors are selected from colorList, in the order that they appear.
+ * Ex. the first shape s for which includeInColorAdjustmentFn(s) === true
+ * will be assigned colorList[0] as its color.
+ * And the last shape for which includeInColorAdjustmentFn(s) === true
+ * will be assigned colorList[colorList.length - 1] as its color.
+ * It is assumed that:
+ *  state.shapes.filter(includeInColorAdjustmentFn).length === colorList.length.
+ * @param state old state
+ * @param colorList list of colors to assign to shapes
+ * @param includeInColorAdjustmentFn a fn that determines whether or not
+ * a shape s should be assigned a new color
+ * @param alpha optional param, the opacity value assigned to all new colors.
+ */
 const assignNewColors = (
   state: State,
   colorList: RGB[],
   includeInColorAdjustmentFn: (s: Shape) => boolean = includeShapesOnly,
-  alpha: number = 0.8
+  alpha: number = 0.5
 ): State => {
   // assumes all colors map to the order of appropriate objects in state
   var newState = state;
@@ -265,43 +349,16 @@ const assignNewColors = (
   return newState;
 };
 
-const getNewlyColoredState = (
-  state: State,
-  includeInColorAdjustmentFn: (s: Shape) => boolean,
-  palette = random_palette(),
-  alpha = 0.5
-): State => {
-  const shapesToAssignColors = state.shapes.filter(includeInColorAdjustmentFn);
-  const distanceGraph = shapeListToDistanceGraph(shapesToAssignColors);
-  if (distanceGraph.length <= 3) {
-    var k = distanceGraph.length - 1; // number of neighbors
-  } else {
-    var k = 3;
-  }
-  if (k <= 0) {
-    // figure something out here, refactor the previous functions
-    // this happens if distanceGraph.length <= 1, in which case
-    // we don't need to do special coloring (a single object is uncolored)
-    return state;
-  } else {
-    const KNNGraph = distGraphToKNNGraph(distanceGraph, k);
-    const colorList = KNNGraphToColorList(KNNGraph, k, palette);
-    const newState = assignNewColors(
-      state,
-      colorList,
-      includeInColorAdjustmentFn,
-      alpha
-    );
-    return newState;
-  }
-};
-
 /************************************************************************/
 /*                       Helper (Utility) Functions                     */
 /************************************************************************/
 
-// initializes a matrix of all 0.s
-const createMatrix = (rows: number, cols: number): Graph => {
+/**
+ * Initializes a matrix of all 0.s, of rows * cols dimension
+ * @param rows number of rows, assumed >= 0
+ * @param cols number of cols, assumed >= 0
+ */
+const createMatrix = (rows: number, cols: number): number[][] => {
   var matrix: number[][] = [];
   for (var i = 0; i < rows; i++) {
     var row: number[] = [];
@@ -313,7 +370,10 @@ const createMatrix = (rows: number, cols: number): Graph => {
   return matrix;
 };
 
-// euclidean distance between two vectors
+/**
+ * Calculates euclidean distance between two vectors.
+ * Assumes v1.length === v2.length.
+ */
 const dist = (v1: number[], v2: number[]): number => {
   if (v1.length != v2.length) {
     throw new Error("Vector inputs are not of the same dimension");
@@ -325,9 +385,13 @@ const dist = (v1: number[], v2: number[]): number => {
   return Math.sqrt(squaredSum);
 };
 
-// excluding shapes that don't have a center or color attribute, or
-// shapes that alredy have appropriate default colors, like text (black)
-// or this includes shapes that i haven't gotten too yet
+/**
+ * Returns true if a shape is to be included in color assignment,
+ * and false otherwise.
+ * Currently excludes shapes that don't have a color/center attribute,
+ * shapes whose coloring are handled not using this fn (ex. text), and
+ * shapes whose edge detection has not yet been implemented (ex. Polygon).
+ */
 const includeShapesOnly = (shape: Shape): boolean => {
   return !(
     shape.shapeType === "FreeformPolygon" ||
@@ -342,7 +406,12 @@ const includeShapesOnly = (shape: Shape): boolean => {
   );
 };
 
-// returns a list of colors from the palette, sampled uniformly
+/**
+ * Returns a list of color from the passed in palette,
+ * sampled at uniform intervals.
+ * @param numColorsRequested equal to the length of the result array
+ * @param palette optional param, the palette to sample colors from
+ */
 const sampleUniformPalette = (
   numColorsRequested: number,
   palette: RGB[] = viridis_data
@@ -366,9 +435,11 @@ const sampleUniformPalette = (
   return rgbList;
 };
 
-// given a state, returns a (shape => bool) function f:
-// f(s) === true if shape s has an uninitialized color path
-// f(s) === false if shape s has a (user) initialized color path
+/**
+ * Given a state, returns a (shape => bool) function f, such that
+ * f(s) === true if shape s has an uninitialized color path, and
+ * f(s) === false if shape s has a (user) initialized color path.
+ */
 const getUninitializedColorCheckerFn = (
   state: State
 ): ((shape: Shape) => boolean) => {
@@ -400,10 +471,18 @@ const getUninitializedColorCheckerFn = (
   return hasUninitializedColor;
 };
 
-const getShapeNameAndShapePairList = (state: State): [string, Shape][] => {
+/**
+ * Given a state, return a list of [shapeName, shapeObj] tuples.
+ * The list will be sorted accordingly to which shape is drawn last.
+ * (i.e. the shapes at the front of the list are the ones drawn most recently).
+ */
+const getOrderedShapeNameAndShapePairList = (
+  state: State
+): [string, Shape][] => {
   // get all color-able shapes (circle, square, rect, ellipse, callout)
   const colorShapes = state.shapes.filter(includeShapesOnly);
 
+  // get the shape names (strings)
   const colorShapeNames = colorShapes.map((elem) => {
     return elem.properties.name.contents;
   });
@@ -444,9 +523,13 @@ const getShapeNameAndShapePairList = (state: State): [string, Shape][] => {
   return shapeNameAndShapePairsAll;
 };
 
-// detects if an (x,y) point is contained within a (limited) number of shapes
-// used to determine whether (uninitialized color) text should be black or white
-// pointInShape(s, p) === true if p is contained in s, and false otherwise
+/**
+ * Determines if an (x,y) point is contained within a shape.
+ * Used to determine whether (uninitialized color) text should be black or white.
+ * @param shape currently supported shapes:
+ *  Circle, ELlipse, Rectangle, Callout, Square
+ * @param point (x,y) 2D vector
+ */
 const pointInShape = (shape: Shape, point: [number, number]): boolean => {
   const [px, py] = point;
 
@@ -513,6 +596,11 @@ const pointInShape = (shape: Shape, point: [number, number]): boolean => {
   }
 };
 
+/**
+ * Creates a list of colors to be assigned to the text paths in textPathList
+ * @param textPathList a list of paths of text objs w/ uninitialized color fields
+ * @param shapeNameAndShapePairList a list of shapes, sorted from drawn last --> drawn first
+ */
 const createTextColorList = (
   textPathList: any[],
   shapeNameAndShapePairList: [string, Shape][]
