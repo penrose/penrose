@@ -406,17 +406,10 @@ export const compDict = {
    * @param r: radius of circle
    * @returns: vector representation of the point of intersection
    */
-  angleMarker: (
-    [x1, y1]: VarAD[],
-    [x2, y2]: VarAD[],
-    r: VarAD
-  ): IVectorV<VarAD> => {
-    // calculate start/end points of each line
-    const [x, y] = [sub(x2, x1), sub(y2, y1)];
-    const scale = div(sqrt(add(squared(x), squared(y))), r);
-    const newx: IVarAD = add(div(x, scale), x1);
-    const newy: IVarAD = add(div(y, scale), y1);
-    return { tag: "VectorV", contents: [newx, newy] };
+  angleMarker: (p1: VarAD[], p2: VarAD[], r: VarAD): IVectorV<VarAD> => {
+    // find unit vector pointing towards v2
+    const unit = ops.vnormalize(ops.vsub(p2, p1));
+    return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
   },
   /**
    * Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
