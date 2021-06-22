@@ -177,7 +177,8 @@ const pruneOptProblem = (s: State): any => {
     // TODO: Calculate this from some shape?
     // The diagonal length of the grid should be equal to the maximum "radius of influence" (here, since we're using disjoint, it's just the diagonal length of each box). See https://pen-rose.slack.com/archives/C2EUR2TV4/p1623846253022200
     // Grid has all square cells.
-    const GRID_CELL_DIM = SHAPE_DIM / 2.;
+    // const GRID_CELL_DIM = SHAPE_DIM / 2.; // TODO: This actually seems too small
+    const GRID_CELL_DIM = SHAPE_DIM;
 
     console.log("cached functions", objFnCache, constrFnCache);
     // console.log("bboxes", bboxes);
@@ -240,14 +241,32 @@ const pruneOptProblem = (s: State): any => {
     }
     console.log(gridStr);
 
+    // Ignore all non-disjoint functions
+    const relevantFns = s.constrFns.filter(f => f.fname === "disjoint" && f.optType === "ConstrFn");
+
+    const plus2 = (v: number[], w: number[]): number[] => [v[0] + w[0], v[1] + w[1]]; // TODO: import the right util
+
     // For shape A, look at its neighbors Bi in the grid.
-    // Add a `disjoint` constraint to the list of active constraints if it's applied to (A, Bi) or (Bi, A) (and remove it from the list of possibly active constraints as we don't want to double-count it.
+    // Add a `disjoint` constraint to the list of active constraints if it's applied to (A, Bi) or (Bi, A) (and remove it from the list of possibly active constraints as we don't want to double-count it.)
+    for (let i = 0; i < shapes.length; i++) {
+        const cell = cells[i] as number[];
+        // Ignore out-of-bounds ones
+        if (cell[0] === undefined || cell[1] === undefined) { continue; }
+
+        const name = shapes[i].properties.name.contents;
+        const neighbors: string[] = _.flatten([[1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, 0]] // (x,y)
+            .map(v => plus2(v, cell)) // (x,y)
+            .filter(inBounds)
+            .map(e => grid[e[1]][e[0]]))
+            .filter(e => e !== name); // (y,x)
+
+        console.log("shape:", name, "cell:", cell, "neighbors:", neighbors);
+    }
+
+    // Turn the list of active `disjoint` constraints, as well as all remaining constraints, into a new energy and gradient for minimize
     // TODO <<<
 
-    // Turn the list of active constraints into a new energy and gradient for minimize
-    // TODO <<<
-
-    // NOTE that we have to keep optimizing the `containsa functions.
+    // NOTE that we have to keep optimizing the `contains` functions.
 
     console.error("todo: regenerate overall fns");
 
