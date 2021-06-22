@@ -28,7 +28,6 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps) => {
   if (retrievedLabel && retrievedLabel.rendered) {
     const renderedLabel = retrievedLabel.rendered;
     attrFill(shape, renderedLabel.getElementsByTagName("g")[0]);
-    attrWH(shape, renderedLabel as any);
     renderedLabel.getElementsByTagName("g")[0].setAttribute("stroke", "none");
     renderedLabel
       .getElementsByTagName("g")[0]

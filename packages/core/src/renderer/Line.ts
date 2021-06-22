@@ -1,13 +1,30 @@
 import { IVectorV, IFloatV, IColorV, IStrV } from "types/value";
 import { toHex, toScreen } from "utils/Util";
 // import { arrowHead } from "./Arrow";
-import { attrGeneric, attrPathLength, attrTitle, DASH_ARRAY } from "./AttrHelper";
+import {
+  attrGeneric,
+  attrPathLength,
+  attrTitle,
+  DASH_ARRAY,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Line = ({ shape, canvasSize }: ShapeProps) => {
-  const style = shape.properties.style.contents;
-  const [sx, sy] = toScreen([shape.properties.x1.contents,shape.properties.y1.contents] as [number,number],canvasSize);
-  const [ex, ey] = toScreen([shape.properties.x2.contents,shape.properties.y2.contents] as [number,number],canvasSize);
+  const style = shape.properties.strokeDashArray.contents;
+  const [sx, sy] = toScreen(
+    [shape.properties.x1.contents, shape.properties.y1.contents] as [
+      number,
+      number
+    ],
+    canvasSize
+  );
+  const [ex, ey] = toScreen(
+    [shape.properties.x2.contents, shape.properties.y2.contents] as [
+      number,
+      number
+    ],
+    canvasSize
+  );
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toHex(shape.properties.fill.contents);
   const thickness = (shape.properties.strokeWidth as IFloatV<number>).contents;
@@ -47,7 +64,7 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
       "stroke-dasharray",
       (shape.properties.strokeDashArray as IStrV).contents
     );
-  } else if (shape.properties.style.contents === "dashed") {
+  } else if (shape.properties.strokeDashArray.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
 
@@ -62,9 +79,9 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   elem.appendChild(pathElem);
 
   attrTitle(shape, elem);
-  attrPathLength(shape,elem);
+  attrPathLength(shape, elem);
 
-  attrGeneric(shape,elem);
+  attrGeneric(shape, elem);
 
   return elem;
 };
