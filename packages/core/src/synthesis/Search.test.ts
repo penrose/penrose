@@ -16,8 +16,9 @@ import {
 import { SubProg, SubRes } from "types/substance";
 import {
   applyStmtDiffs,
-  diffSubprogs,
-  showStmtDiff,
+  diffSubProgs,
+  diffSubStmts,
+  StmtDiff,
   synthesizeConfig,
   toStmtDiff,
 } from "./Search";
@@ -143,17 +144,11 @@ describe("Synthesizer tests", () => {
     `;
     const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
-    const diffs: rdiffResult[] = diffSubprogs(sortStmts(ast1), sortStmts(ast2));
+    const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     // the ASTs have normalized ordering, so there should be only two diffs
     expect(diffs).toHaveLength(2);
-    // convert the raw diffs to include the original stmt in the AST
-    const stmtDiffs = diffs.map((d: rdiffResult) =>
-      toStmtDiff(d, sortStmts(ast1))
-    );
     // apply the stmt diffs, grouped by target statements
-    const ast2From1 = applyStmtDiffs(ast1, stmtDiffs);
-    console.log(prettySubstance(ast2From1));
-
+    const ast2From1 = applyStmtDiffs(ast1, diffs);
     // the result should be semantically equivalent to the second program
     expect(prettySubstance(sortStmts(ast2From1))).toEqual(
       prettySubstance(sortStmts(ast2))
@@ -174,7 +169,7 @@ describe("Synthesizer tests", () => {
     `;
     const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
-    const diffs: rdiffResult[] = diffSubprogs(ast1, ast2);
+    const diffs: rdiffResult[] = diffSubProgs(ast1, ast2);
     // because we filtered out all the noisy diffs, the exact formatting should not matter much
     expect(diffs).toHaveLength(2);
     // NOTE: `applyDiff` actually mutates the object :(

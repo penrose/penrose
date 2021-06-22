@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "consola": "^2.15.2",
-    "deep-object-diff": "^1.1.0",
     "eigen": "^0.2.0",
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",

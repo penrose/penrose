@@ -1,8 +1,7 @@
-import { getStmt } from "analysis/SubstanceAnalysis";
+import { getStmt, sortStmts } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
-import { diff } from "deep-object-diff";
 import { cloneDeep, groupBy, map } from "lodash";
-import rdiff, { applyDiff, getDiff, rdiffResult } from "recursive-diff";
+import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
 import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
 import { metaProps } from "types/ast";
 import { SubProg, SubStmt } from "types/substance";
@@ -10,7 +9,7 @@ import { SubProg, SubStmt } from "types/substance";
 //#region Generalized edits
 
 type Edit = Mutation;
-interface StmtDiff {
+export interface StmtDiff {
   diff: rdiffResult;
   stmt: SubStmt;
 }
@@ -26,7 +25,14 @@ const generalizedEdits = (
   }
 };
 
-export const diffSubprogs = (left: SubProg, right: SubProg): rdiffResult[] => {
+/**
+ * Compute the exact diffs between two Substance ASTs.
+ *
+ * @param left the original Substance program
+ * @param right the changed Substance program
+ * @returns a list of diffs
+ */
+export const diffSubProgs = (left: SubProg, right: SubProg): rdiffResult[] => {
   const diffs: rdiffResult[] = getDiff(left, right);
   // remove all diffs related to meta-properties
   const concreteDiffs: rdiffResult[] = diffs.filter(
@@ -38,9 +44,22 @@ export const diffSubprogs = (left: SubProg, right: SubProg): rdiffResult[] => {
   return concreteDiffs;
 };
 
+/**
+ * Compute statement-insensitive diffs between two Substance ASTs.
+ *
+ * @param left the original Substance program
+ * @param right the changed Substance program
+ * @returns a list of diffs tagged with the original statement
+ */
+export const diffSubStmts = (left: SubProg, right: SubProg): StmtDiff[] => {
+  const [leftSorted, rightSorted] = [sortStmts(left), sortStmts(right)];
+  const exactDiffs: rdiffResult[] = diffSubProgs(leftSorted, rightSorted);
+  return exactDiffs.map((d) => toStmtDiff(d, leftSorted));
+};
+
 export const toStmtDiff = (diff: rdiffResult, ast: SubProg): StmtDiff => {
   const [, stmtIndex, ...path] = diff.path;
-  // TODO: encode this in a more principled way
+  // TODO: encode the paths to AST in a more principled way
   const stmt = getStmt(ast, stmtIndex as number);
   return {
     diff: {
