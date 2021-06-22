@@ -7,8 +7,8 @@ import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
-const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
-// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;

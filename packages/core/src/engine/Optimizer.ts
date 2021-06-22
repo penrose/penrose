@@ -1,5 +1,5 @@
 import consola, { LogLevel } from "consola";
-import { constrDict, objDict } from "contrib/Constraints";
+import { constrDict, objDict, bboxFromShape } from "contrib/Constraints";
 import eig from "eigen";
 import {
     add,
@@ -54,6 +54,7 @@ import {
     subv,
     median
 } from "utils/OtherUtils";
+import { Shape } from "types/shape";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
@@ -157,6 +158,106 @@ export const initializeMat = async () => {
     await eig.ready;
 };
 
+const pruneOptProblem = (s: State): any => {
+    const params = s.params;
+
+    if (!params.objFnCache || !params.constrFnCache) {
+        throw Error("expected functions to have been cached");
+    }
+
+    // TODO: Filter out background shape, and text, more generally
+    const CONTAINER = "global.box";
+    const shapes = s.shapes.filter(o => o.properties.name.contents !== CONTAINER && o.shapeType !== "Text");
+    // const bboxes = shapes.map((s: Shape) => bboxFromShape(s.shapeType, s.properties));
+    const objFnCache = s.params.objFnCache;
+    const constrFnCache = s.params.constrFnCache;
+
+    const GRID_DIMS = { w: 700, h: 700 }; // This is hardcoded from our usual canvas dimensions (and in `disjoint.rects-big.sty`'s `global.box`).
+    const SHAPE_DIM = 100; // TODO: Just for now, assuming square shapes, all of the same size, for which GRID_DIMS are divisible
+    // TODO: Calculate this from some shape?
+    // The diagonal length of the grid should be equal to the maximum "radius of influence" (here, since we're using disjoint, it's just the diagonal length of each box). See https://pen-rose.slack.com/archives/C2EUR2TV4/p1623846253022200
+    // Grid has all square cells.
+    const GRID_CELL_DIM = SHAPE_DIM / 2.;
+
+    console.log("cached functions", objFnCache, constrFnCache);
+    // console.log("bboxes", bboxes);
+
+    // Determine which bbox is in which grid cell.
+    // A grid is a 2D array where (i,j) corresponds to a cell ((row, col) from left to right, top to bottom - that is, (y, x)) that can contain a list of shapes
+    // `i` is the row, which is `y`. `j` is the col, which is `x`
+    let grid: string[][][] = [];
+    const ROWS = GRID_DIMS.w / GRID_CELL_DIM; // TODO: Deal with non-evenly-divible sizes
+    const COLS = GRID_DIMS.h / GRID_CELL_DIM;
+    for (let i = 0; i < ROWS; i++) {
+        grid[i] = [];
+        for (let j = 0; j < COLS; j++) {
+            grid[i][j] = [];
+        }
+    }
+
+    console.log("init grid", grid);
+
+    const cells = [];
+
+    // Clamp an int to be a grid coordinate. 
+    const clampX = (x: number): number => Math.min(Math.max(0, x), ROWS - 1);
+    const clampY = (y: number): number => Math.min(Math.max(0, y), COLS - 1);
+    const inBounds = (p: number[]): boolean => {
+        const [x, y] = p;
+        return x >= 0 && x < ROWS && y >= 0 && y < COLS;
+    };
+
+    // A bbox is in the cell corresponding to its grid-ified center location.
+    // Each shape should know what cell its bbox is in.
+    for (let i = 0; i < shapes.length; i++) {
+        // const center = bboxes[i].center;
+        const center = shapes[i].properties.center.contents;
+        const cell = [Math.floor((center[0] + GRID_DIMS.w / 2.) / GRID_CELL_DIM),
+        Math.floor((-center[1] + GRID_DIMS.h / 2.) / GRID_CELL_DIM)];
+        console.log("center", center);
+        console.log("cell", cell);
+
+        // A shape might go out of bounds; in that case, it's ignored
+        if (inBounds(cell)) {
+            // NOTE: grid index goes in [y, x] order (which maps to (i, j) or (rows, cols))
+            grid[cell[1]][cell[0]].push(shapes[i].properties.name.contents as string);
+            cells.push(cell);
+        } else {
+            cells.push([undefined, undefined]);
+        }
+    }
+
+    console.log("cells", cells);
+    console.log("new grid", grid);
+
+    console.log("grid occupants");
+    let gridStr = ``;
+    for (let i = 0; i < ROWS; i++) {
+        for (let j = 0; j < COLS; j++) {
+            gridStr += `${grid[i][j].length} `;
+        }
+        gridStr += `\n`;
+    }
+    console.log(gridStr);
+
+    // For shape A, look at its neighbors Bi in the grid.
+    // Add a `disjoint` constraint to the list of active constraints if it's applied to (A, Bi) or (Bi, A) (and remove it from the list of possibly active constraints as we don't want to double-count it.
+    // TODO <<<
+
+    // Turn the list of active constraints into a new energy and gradient for minimize
+    // TODO <<<
+
+    // NOTE that we have to keep optimizing the `containsa functions.
+
+    console.error("todo: regenerate overall fns");
+
+    return {
+        objectives: [],
+        constraints: []
+    };
+
+};
+
 /**
  * Requires await initializeMat() to be called first
  * @param state
@@ -195,7 +296,10 @@ export const step = (state: State, steps: number, evaluate = true): State => {
             if (true) {
                 const { objective, gradient } = state.params;
                 if (!objective || !gradient) {
-                    return genOptProblem(state);
+                    if (!state.params.objFnCache || !state.params.constrFnCache) {
+                        state = genFns(state); // Compile each individual energy and gradient
+                    }
+                    return genOptProblem(state); // Compile the overall energy and gradient
                 } else {
                     return {
                         ...state,
@@ -237,7 +341,9 @@ export const step = (state: State, steps: number, evaluate = true): State => {
 
         case "UnconstrainedRunning": {
             // NOTE: use cached varying values
-            log.info("step step, xs", xs);
+            log.info("step with state UnconstrainedRunning`, xs", xs);
+
+            const newFns = pruneOptProblem(state);
 
             const res: OptInfo = minimize(
                 xs,
@@ -1047,6 +1153,7 @@ const genFn = (fn: Fn, s: State): FnCached => {
 };
 
 // For each objective and constraint, precompile it and its gradient and cache it in the state.
+// `s` is mutated, but also returned for convenience.
 export const genFns = (s: State): State => {
     const p = s.params;
     const objCache = {};

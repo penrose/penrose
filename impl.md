@@ -11,8 +11,8 @@ GOAL: Implement an MVP layout hack and see if it improves speed/scalability, as 
   Is this still going to be applicable if `contains` is in the mix, and has to be?
 
 New TODO
-- `NewIter`: cache the obj/constr functions
-  - move/re-export caching from `index.ts`
+- `NewIter`: call `genFns`
+  - does `evalFns` need to be moved out of `index.ts`?
 
 - on each new step:
   - make bboxes of each shape
@@ -40,7 +40,7 @@ New TODO
   - On each optimization step, compose the energy/gradient based on the functions that are active in each cell.
     - Make a 2D array of grid pixels, containing each object in it.
       - indices (i, j) => (i*cellSize, j*cellSize) (top left of cell)
-      - coordinates (x, y) => (floor((x-h/2)/cellSize), floor((-y-h/2)/cellSize)) ... something like that
+      - coordinates (x, y) => (floor((x-w/2)/cellSize), floor((-y-h/2)/cellSize)) ... something like that
         ...do something involving (0,0) at top-left vs center
     - PREV: For each cell-with-neighborhood, for each shape x in the central cell, add terms f(x,y) for each term y in a neighboring cell
       - TODO: Doesn't the original algorithm double-count, if you iterate over *every* cell?
