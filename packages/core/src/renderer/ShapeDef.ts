@@ -73,6 +73,15 @@ const zeroFloat: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
   contents: 0.0,
 });
+const oneFloat: Sampler = (): IFloatV<number> => ({
+  tag: "FloatV",
+  contents: 1.0,
+});
+const toSampler = (x : number) : Sampler => () => ({
+  tag: "FloatV",
+  contents: x,
+})
+
 const pathLengthSampler: Sampler = (): IFloatV<number> => ({
   tag: "FloatV",
   contents: 1.0,
@@ -150,7 +159,21 @@ export interface IShapeDef {
 export type Sampler = () => Value<number>;
 
 const genericAttributes : IPropModel = {
-  clipPath : ["StrV",() => constValue("StrV","none")]
+  // F-tier difficulty
+  clipRule: ["StrV",() => constValue("StrV","none")],
+  colorInterpolation: ["StrV",() => constValue("StrV","auto")],
+  fillOpacity: ["FloatV",toSampler(1)],
+  fillRule: ["StrV",() => constValue("StrV","nonzero")],
+  shapeRendering: ["StrV",() => constValue("StrV","auto")],
+  strokeDashOffset: ["FloatV",zeroFloat],
+  strokeLinecap: ["StrV",() => constValue("StrV","square")],
+  strokeLinejoin: ["StrV",() => constValue("StrV","miter")],
+  strokeMiterlimit: ["FloatV",toSampler(4)],
+  visibility: ["StrV",() => constValue("StrV","visible")],
+
+  // D-tier difficulty
+  display: ["StrV",() => constValue("StrV","inline")],
+  vectorEffect: ["StrV",() => constValue("StrV","none")],
 }
 
 export const circleDef: ShapeDef = {
