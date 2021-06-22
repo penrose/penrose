@@ -13,13 +13,13 @@ import { toHex, getCoords, toScreen } from "utils/Util";
 /**
  * @param  {Shape} {properties}
  * @param  {SVGElement} elem
- * @requires shape defines attribute 'color'
- * @description sets 'fill' and 'fill-opacity' from attribute 'color'
+ * @requires shape defines attribute 'fill'
+ * @description sets 'fill' from attribute 'fill', sets 'fill-opacity' from 'fill' (or from 'fill-opacity' if it's defined)
  */
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
-  const color = properties.color as IColorV<number>;
-  const alpha = color.contents.contents[3];
-  elem.setAttribute("fill", toHex(color.contents));
+  const fill = properties.fill as IColorV<number>;
+  const alpha = fill.contents.contents[3];
+  elem.setAttribute("fill", toHex(fill.contents));
   elem.setAttribute("fill-opacity", alpha.toString());
 };
 /**

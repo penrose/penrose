@@ -1,7 +1,7 @@
 {
   "shapeType": "FreeformPolygon",
   "properties": {
-    "color": {
+    "fill": {
       "inputType": "color",
       "showValue": "false"
     },

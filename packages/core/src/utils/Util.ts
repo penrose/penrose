@@ -88,8 +88,8 @@ export const bBoxDims = (properties: Properties, shapeType: string) => {
     ];
   } else if (shapeType === "Arrow" || shapeType === "Line") {
     const [[sx, sy], [ex, ey]] = [
-      properties.start.contents as [number, number],
-      properties.end.contents as [number, number],
+      [properties.x1.contents,properties.y1.contents] as [number, number],
+      [properties.x2.contents,properties.y2.contents]      as [number, number],
     ];
     const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
     [w, h] = [

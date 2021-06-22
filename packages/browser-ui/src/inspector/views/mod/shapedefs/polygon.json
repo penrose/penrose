@@ -1,7 +1,7 @@
 {
   "shapeType": "Polygon",
   "properties": {
-    "color": {
+    "fill": {
       "inputType": "color",
       "showValue": "false"
     },

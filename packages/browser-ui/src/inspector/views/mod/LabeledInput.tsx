@@ -180,7 +180,7 @@ class LabeledInput extends React.Component<IProps> {
   public makeRange = () => {
     const { inputProps, eAttr } = this.props;
     if (this.state.eValue === undefined) {
-      console.log(`error: failed get x and y values for pointRange  `);
+      console.error(`error: failed get x and y values for pointRange  `);
       console.log({ eAttr: eAttr, inputProps: inputProps });
       return;
     }

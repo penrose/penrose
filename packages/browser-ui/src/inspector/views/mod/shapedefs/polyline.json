@@ -1,7 +1,7 @@
 {
   "shapeType": "Polyline",
   "properties": {
-    "color": {
+    "fill": {
       "inputType": "color",
       "showValue": "false"
     },

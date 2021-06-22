@@ -25,7 +25,7 @@
       "max": "350",
       "showValue": "true"
     },
-    "color": {
+    "fill": {
       "inputType": "color",
       "showValue": "false"
     },

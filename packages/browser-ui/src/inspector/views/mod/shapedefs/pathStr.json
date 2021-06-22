@@ -1,7 +1,7 @@
 {
   "shapeType": "PathString",
   "properties": {
-    "color": {
+    "fill": {
       "inputType": "color",
       "showValue": "true"
     },
