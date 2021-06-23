@@ -377,4 +377,16 @@ export const sortStmts = (prog: SubProg): SubProg => ({
   statements: sortBy(prog.statements, (stmt: SubStmt) => prettyStmt(stmt)),
 });
 
+/**
+ * Finds the type of a Substance identifer.
+ *
+ * @param id an identifer
+ * @param env the environment
+ * @returns
+ */
+export const typeOf = (id: string, env: Env): string | undefined =>
+  env.vars.get(id)?.name.value;
+
+// export const filterIDs = (ids: Identifier[], criteria: (id: Identifier) => boolean): Identifier[] => ids.fil
+
 //#endregion

@@ -1,11 +1,12 @@
-import { sortStmts } from "analysis/SubstanceAnalysis";
+import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
+import { createChoice } from "pandemonium/choice";
 import {
   compileDomain,
   compileSubstance,
   prettySubstance,
   showError,
 } from "index";
-import { cloneDeep } from "lodash";
+import { cloneDeep, without } from "lodash";
 import { applyDiff, rdiffResult } from "recursive-diff";
 import {
   DeclTypes,
@@ -18,10 +19,13 @@ import {
   applyStmtDiffs,
   diffSubProgs,
   diffSubStmts,
+  showStmtDiff,
   StmtDiff,
+  swapDiffID,
   synthesizeConfig,
   toStmtDiff,
 } from "./Search";
+import seedrandom from "seedrandom";
 
 const SEED = "testSearch";
 
@@ -57,6 +61,9 @@ const settings: SynthesizerSetting = {
     predicate: ["IsSubset"],
   },
 };
+
+const RNG = seedrandom("seed5");
+const choice: <T>(array: Array<T>) => T = createChoice(RNG);
 
 const domainSrc = `
 type Set
@@ -130,6 +137,42 @@ describe("Synthesizer tests", () => {
     synthesizeConfig(progs);
     // COMBAK: complete test once `synthesizeConfig` is working
   });
+  test("applying AST diff with id swap", () => {
+    const prog1 = `
+    Set A, B, C, D, E, F
+    IsSubset(B, A)
+    IsSubset(C, A)
+    D := Union(A, B)
+    `;
+    const prog2 = `
+    Set A, B, C, D, E, F
+    IsSubset(B, A)
+    IsSubset(D, A)
+    C := Union(A, B)
+    `;
+    const res1: SubRes = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = res1[0].ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
+    const env = res1[1];
+    const ids = env.varIDs;
+    const swappedDiffs: StmtDiff[] = diffs.map((d: StmtDiff) => {
+      if (d.diffType === "Identifier") {
+        const matchingIDs = ids.filter(
+          (id) => typeOf(id.value, env) === typeOf(d.diff.val, env)
+        );
+        const choices = matchingIDs.filter(
+          (id) => ![d.diff.val, d.originalValue].includes(id.value)
+        );
+        return swapDiffID(d, choice(choices));
+      } else return d;
+    });
+
+    console.log(`Original diffs:\n${diffs.map(showStmtDiff).join("\n")}`);
+    console.log(`Swapped diffs:\n${swappedDiffs.map(showStmtDiff).join("\n")}`);
+    const res = applyStmtDiffs(ast1, swappedDiffs);
+    console.log(prettySubstance(res));
+  });
 
   test("applying AST diff regardless of stmt ordering", () => {
     const prog1 = `
@@ -147,6 +190,8 @@ describe("Synthesizer tests", () => {
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     // the ASTs have normalized ordering, so there should be only two diffs
     expect(diffs).toHaveLength(2);
+    console.log(diffs.map(showStmtDiff).join("\n"));
+
     // apply the stmt diffs, grouped by target statements
     const ast2From1 = applyStmtDiffs(ast1, diffs);
     // the result should be semantically equivalent to the second program
