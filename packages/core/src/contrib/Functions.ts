@@ -447,6 +447,9 @@ export const compDict = {
       throw Error("unsupported shape ${t1} in midpointOffset");
     }
   },
+  /**
+   * Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
+   */
   innerPointOffset: (
     pt1: VarAD[],
     pt2: VarAD[],

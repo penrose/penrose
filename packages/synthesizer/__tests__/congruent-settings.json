@@ -5,7 +5,7 @@
   "weights": {
     "type": 0.1,
     "predicate": 0.3,
-    "constructor": 0.0
+    "constructor": 0.1
   },
   "add": {
     "type": [],

@@ -185,13 +185,13 @@ where EqualAngleMarker1(a, b) {
   endB = ptOnLine(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
-  a.angleMark = Path {
+  override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark = Path {
+  override b.mark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -209,13 +209,13 @@ where EqualAngleMarker2(a, b) {
   endB = ptOnLine(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
-  a.angleMark = Path {
+  override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark = Path {
+  override b.mark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -229,13 +229,13 @@ where EqualAngleMarker2(a, b) {
   startBbig = ptOnLine(b.q, b.p, bigR)
   endBbig = ptOnLine(b.q, b.r, bigR)
 
-  a.angleMark2 = Path {
+  override a.mark2 = Path {
     pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark2 = Path { -- TODO: rename these to b.tick, b.tick2
+  override b.mark2 = Path {
     pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -253,19 +253,19 @@ where EqualAngle(a, b) {
 
 Angle a
 where RightUnmarked(a) {
-  ensure equal(0, dot(normalize(a.p - a.q), normalize(a.r - a.q)))
+  ensure equal(dot(a.p - a.q, a.r - a.q), 0)
 }
 
 Angle a
 where RightMarked(a) {
   --render half square path of size a.radius
-  a.mark = Path {
+  override a.mark = Path {
     pathData : pathFromPoints("open", [ptOnLine(a.q, a.p, 20.), innerPointOffset(a.q, a.p, a.r, 20.), ptOnLine(a.q, a.r, 20.)])
     strokeWidth : 2.0
     color : Colors.black
     fill : Colors.none
   }
-  ensure equal(dot(normalize(a.p - a.q), normalize(a.r - a.q)), 0)
+  ensure equal(dot(a.p - a.q, a.r - a.q), 0)
 }
 
 Segment e; Plane p {
