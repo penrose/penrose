@@ -1,4 +1,13 @@
-import { isEqual, isEqualWith, omit, pullAt, sortBy } from "lodash";
+import {
+  cloneDeepWith,
+  intersectionWith,
+  isEqual,
+  isEqualWith,
+  omit,
+  partition,
+  pullAt,
+  sortBy,
+} from "lodash";
 import { ASTNode, Identifier, metaProps } from "types/ast";
 import { Map } from "immutable";
 import {
@@ -23,7 +32,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
-import { prettyStmt } from "compiler/Substance";
+import { prettyStmt, prettySubstance } from "compiler/Substance";
 
 export interface Signature {
   args: string[];
@@ -368,14 +377,34 @@ export const autoLabelStmt: AutoLabel = {
  * @returns a boolean value
  */
 export const nodesEqual = (node1: ASTNode, node2: ASTNode): boolean =>
-  isEqualWith(node1, node2, (node1: ASTNode, node2: ASTNode) =>
-    isEqual(omit(node1, ...metaProps), omit(node2, ...metaProps))
+  isEqualWith(node1, node2, (node1: ASTNode, node2: ASTNode) => {
+    return isEqual(node1, node2);
+  });
+
+export const intersection = (left: SubProg, right: SubProg): SubStmt[] =>
+  intersectionWith(left.statements, right.statements, (s1, s2) =>
+    nodesEqual(s1, s2)
   );
 
-export const sortStmts = (prog: SubProg): SubProg => ({
-  ...prog,
-  statements: sortBy(prog.statements, (stmt: SubStmt) => prettyStmt(stmt)),
-});
+/**
+ * Sort the statements in a Substance AST by statement type and then by lexicographic ordering of source text.
+ * @param prog A Substance AST
+ * @returns A sorted Substance AST
+ */
+export const sortStmts = (prog: SubProg): SubProg => {
+  const { statements } = prog;
+  // first sort by statement type, and then by lexicographic ordering of source text
+  const newStmts: SubStmt[] = sortBy(statements, [
+    "tag",
+    (s: SubStmt) => prettyStmt(s),
+  ]);
+  return {
+    ...prog,
+    statements: newStmts,
+  };
+};
+
+export const cleanTree = (prog: SubProg): SubProg => omitDeep(prog, metaProps);
 
 /**
  * Finds the type of a Substance identifer.
@@ -387,6 +416,16 @@ export const sortStmts = (prog: SubProg): SubProg => ({
 export const typeOf = (id: string, env: Env): string | undefined =>
   env.vars.get(id)?.name.value;
 
-// export const filterIDs = (ids: Identifier[], criteria: (id: Identifier) => boolean): Identifier[] => ids.fil
+// helper function for omitting properties in an object
+const omitDeep = (collection: any, excludeKeys: string[]): any => {
+  const omitFn = (value: any) => {
+    if (value && typeof value === "object") {
+      excludeKeys.forEach((key) => {
+        delete value[key];
+      });
+    }
+  };
+  return cloneDeepWith(collection, omitFn);
+};
 
 //#endregion

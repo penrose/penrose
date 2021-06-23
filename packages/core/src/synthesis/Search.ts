@@ -1,6 +1,13 @@
 import { getStmt, sortStmts } from "analysis/SubstanceAnalysis";
-import { prettyStmt } from "compiler/Substance";
-import { cloneDeep, get, groupBy, map } from "lodash";
+import { prettyStmt, prettySubstance } from "compiler/Substance";
+import {
+  cloneDeep,
+  get,
+  groupBy,
+  intersectionWith,
+  map,
+  zipWith,
+} from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
 import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
 import { ASTNode, Identifier, metaProps } from "types/ast";
@@ -60,8 +67,31 @@ export const diffSubStmts = (left: SubProg, right: SubProg): StmtDiff[] => {
   const [leftSorted, rightSorted] = [sortStmts(left), sortStmts(right)];
   // compute the exact diffs between two normalized ASTs
   const exactDiffs: rdiffResult[] = diffSubProgs(leftSorted, rightSorted);
-  // tag the diffs with
   return exactDiffs.map((d) => toStmtDiff(d, leftSorted));
+};
+
+// COMBAK: finish this function
+const similarStmts = (left: SubStmt, right: SubStmt): boolean => true;
+
+interface SimilarMapping {
+  source: SubStmt;
+  similarStmts: SubStmt[];
+}
+
+export const similarMappings = (
+  leftSet: SubStmt[],
+  rightSet: SubStmt[]
+): SimilarMapping[] => {
+  const mappings: SimilarMapping[] = [];
+  for (const stmt of leftSet) {
+    const similarSet: SubStmt[] = rightSet.filter((s) => similarStmts(stmt, s));
+    if (similarStmts.length > 0)
+      mappings.push({
+        source: stmt,
+        similarStmts: similarSet,
+      });
+  }
+  return mappings;
 };
 
 export const toStmtDiff = (diff: rdiffResult, ast: SubProg): StmtDiff => {

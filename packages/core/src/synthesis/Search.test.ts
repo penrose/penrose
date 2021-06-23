@@ -139,21 +139,23 @@ describe("Synthesizer tests", () => {
   });
   test("applying AST diff with id swap", () => {
     const prog1 = `
-    Set A, B, C, D, E, F
+    Set A, B, C, D, E, F, Z
     IsSubset(B, A)
     IsSubset(C, A)
-    D := Union(A, B)
+    -- D := Union(A, B)
+    Z := Union(A, B) -- This will mess up the ordering
     `;
     const prog2 = `
-    Set A, B, C, D, E, F
+    Set A, B, C, D, E, F, Z
     IsSubset(B, A)
     IsSubset(D, A)
-    C := Union(A, B)
+    F := Union(A, B)
     `;
     const res1: SubRes = getSubRes(domainSrc, prog1);
     const ast1: SubProg = res1[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
+    console.log(`Original diffs:\n${diffs.map(showStmtDiff).join("\n")}`);
     const env = res1[1];
     const ids = env.varIDs;
     const swappedDiffs: StmtDiff[] = diffs.map((d: StmtDiff) => {
@@ -168,7 +170,6 @@ describe("Synthesizer tests", () => {
       } else return d;
     });
 
-    console.log(`Original diffs:\n${diffs.map(showStmtDiff).join("\n")}`);
     console.log(`Swapped diffs:\n${swappedDiffs.map(showStmtDiff).join("\n")}`);
     const res = applyStmtDiffs(ast1, swappedDiffs);
     console.log(prettySubstance(res));
