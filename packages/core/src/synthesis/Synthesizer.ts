@@ -51,7 +51,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Debug })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -404,6 +404,7 @@ export class Synthesizer {
   mutateProgram = (): void => {
     const ops = ["add", "delete", "edit"];
     const op = this.choice(ops);
+    console.log(op);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
     else if (op === "edit")
@@ -411,6 +412,7 @@ export class Synthesizer {
   };
 
   editStmt = (op: Modify["tag"]): void => {
+    console.log(op);
     this.cxt.findCandidates(this.env, this.setting.edit);
     const chosenType = this.choice(this.cxt.candidateTypes());
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
@@ -418,15 +420,18 @@ export class Synthesizer {
     const stmt = this.findStmt(chosenType, chosenName);
     if (stmt && (stmt.tag === "ApplyPredicate" || stmt.tag === "Bind")) {
       log.debug(`Editing statement: ${prettyStmt(stmt)}`);
+      console.log("editing", stmt);
       switch (op) {
         case "Swap": {
           const s = (stmt.tag === "Bind" ? stmt.expr : stmt) as ApplyPredicate;
           const indices = range(0, s.args.length);
           const idx1 = this.choice(indices);
           const idx2 = this.choice(without(indices, idx1));
-          const newStmt = swapArgs(s, [idx1, idx2]);
+          const newStmt = idx1 && idx2 ? swapArgs(s, [idx1, idx2]) : stmt;
+          console.log(newStmt);
           if (stmt.tag === "ApplyPredicate") {
             this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate, op); // TODO: improve types to avoid casting
+            console.log("Replaced statement");
           } else {
             this.cxt.replaceStmt(
               stmt,

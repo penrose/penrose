@@ -1,5 +1,5 @@
 {
-  "mutationCount": [1, 3],
+  "mutationCount": [1, 2],
   "argOption": "existing",
   "argReuse": "distinct",
   "weights": {

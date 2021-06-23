@@ -453,22 +453,23 @@ export const compDict = {
     pt3: VarAD[],
     padding: VarAD
   ): IVectorV<VarAD> => {
-    const dir = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(rot90v(dir)); // rot90 rotates CW, neg to point in CCW direction
+    // unit vector towards first corner
+    const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
+    const normalDir = ops.vneg(rot90v(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
 
     // move along line between p1 and p2, then move perpendicularly
-    const ref = ops.vmove(pt1, padding, dir);
-    const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
-    const endpt = ops.vmove(pt1, padding, vec2unit);
+    const ref = ops.vmove(pt1, padding, vec1unit);
     const [xp, yp] = ops.vmove(ref, padding, normalDir);
     const [xn, yn] = ops.vmove(ref, padding, ops.vneg(normalDir));
 
-    const fromInpointToEnd = ops.vsub([xp, yp], endpt);
-    // vector from B->E needs to be perpendicular
-    const cond = gt(
-      ops.vdot(ops.vnormalize(dir), ops.vnormalize(fromInpointToEnd)),
-      varOf(0.95)
-    );
+    // unit vector towards end point
+    const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
+    const endpt = ops.vmove(pt1, padding, vec2unit);
+
+    // unit vector from midpoint to end point
+    const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
+    // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), varOf(0.95));
     return {
       tag: "VectorV",
       contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
