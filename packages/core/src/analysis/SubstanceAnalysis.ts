@@ -338,6 +338,13 @@ export const applyPredicate = (
   };
 };
 
+export const subProg = (statements: SubStmt[]): SubProg => ({
+  tag: "SubProg",
+  statements,
+  children: statements,
+  nodeType: "SyntheticSubstance",
+});
+
 // TODO: generate arguments as well
 export const applyTypeDecl = (decl: TypeDecl): TypeConsApp => {
   const { name } = decl;

@@ -17,10 +17,13 @@ import {
 import { SubProg, SubRes } from "types/substance";
 import {
   applyStmtDiffs,
+  DiffSet,
   diffSubProgs,
   diffSubStmts,
+  showDiffset,
   showStmtDiff,
   StmtDiff,
+  subProgDiffs,
   swapDiffID,
   synthesizeConfig,
   toStmtDiff,
@@ -137,6 +140,29 @@ describe("Synthesizer tests", () => {
     synthesizeConfig(progs);
     // COMBAK: complete test once `synthesizeConfig` is working
   });
+
+  test("Compute AST diff based on tree sets", () => {
+    const original = `
+    Set A, B, C, D, E
+    D := Union(A, B)
+    IsSubset(B, A)
+    IsSubset(C, A)
+    Equal(E, E)
+    `;
+    const edited = `
+    Set A, B, C, D, E
+    IsSubset(B, A)
+    IsSubset(D, A)
+    E := Union(A, B)
+    `;
+    const res1: SubRes = getSubRes(domainSrc, original);
+    const ast1: SubProg = res1[0].ast;
+    const ast2: SubProg = getSubRes(domainSrc, edited)[0].ast;
+    const diffs: DiffSet = subProgDiffs(ast1, ast2);
+    console.log(diffs);
+    console.log(showDiffset(diffs));
+  });
+
   test("applying AST diff with id swap", () => {
     const prog1 = `
     Set A, B, C, D, E, F, Z
@@ -155,8 +181,11 @@ describe("Synthesizer tests", () => {
     const ast1: SubProg = res1[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
-    console.log();
-    console.log(`Original diffs:\n${diffs.map(showStmtDiff).join("\n")}`);
+    expect(diffs).toHaveLength(2);
+    expect(diffs.map(showStmtDiff)).toEqual([
+      "Changed IsSubset(C, A) (Identifier): C (args,0,value) -> D",
+      "Changed Z := Union(A, B) (Identifier): Z (variable,value) -> F",
+    ]);
     const env = res1[1];
     const ids = env.varIDs;
     const swappedDiffs: StmtDiff[] = diffs.map((d: StmtDiff) => {
@@ -174,6 +203,7 @@ describe("Synthesizer tests", () => {
     console.log(`Swapped diffs:\n${swappedDiffs.map(showStmtDiff).join("\n")}`);
     const res = applyStmtDiffs(ast1, swappedDiffs);
     console.log(prettySubstance(res));
+    // TODO: add assertions
   });
 
   test("applying AST diff regardless of stmt ordering", () => {
