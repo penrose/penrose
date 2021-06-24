@@ -1,15 +1,16 @@
+import { prettyStmt } from "compiler/Substance";
+import { Map } from "immutable";
 import {
+  cloneDeep,
   cloneDeepWith,
   intersectionWith,
   isEqual,
   isEqualWith,
   omit,
-  partition,
   pullAt,
   sortBy,
 } from "lodash";
 import { ASTNode, Identifier, metaProps } from "types/ast";
-import { Map } from "immutable";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -32,7 +33,6 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
-import { prettyStmt, prettySubstance } from "compiler/Substance";
 
 export interface Signature {
   args: string[];
@@ -378,7 +378,7 @@ export const autoLabelStmt: AutoLabel = {
  */
 export const nodesEqual = (node1: ASTNode, node2: ASTNode): boolean =>
   isEqualWith(node1, node2, (node1: ASTNode, node2: ASTNode) => {
-    return isEqual(node1, node2);
+    return isEqual(cleanNode(node1), cleanNode(node2));
   });
 
 export const intersection = (left: SubProg, right: SubProg): SubStmt[] =>
@@ -404,7 +404,7 @@ export const sortStmts = (prog: SubProg): SubProg => {
   };
 };
 
-export const cleanTree = (prog: SubProg): SubProg => omitDeep(prog, metaProps);
+export const cleanNode = (prog: ASTNode): ASTNode => omitDeep(prog, metaProps);
 
 /**
  * Finds the type of a Substance identifer.
@@ -417,7 +417,9 @@ export const typeOf = (id: string, env: Env): string | undefined =>
   env.vars.get(id)?.name.value;
 
 // helper function for omitting properties in an object
-const omitDeep = (collection: any, excludeKeys: string[]): any => {
+const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
+  // TODO: `omitFn` mutates the collection
+  const collection = cloneDeep(originalCollection);
   const omitFn = (value: any) => {
     if (value && typeof value === "object") {
       excludeKeys.forEach((key) => {

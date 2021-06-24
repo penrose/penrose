@@ -1,12 +1,19 @@
-import { getStmt, sortStmts } from "analysis/SubstanceAnalysis";
-import { prettyStmt, prettySubstance } from "compiler/Substance";
+import {
+  cleanNode,
+  getStmt,
+  nodesEqual,
+  sortStmts,
+} from "analysis/SubstanceAnalysis";
+import { prettyStmt, prettySubNode } from "compiler/Substance";
 import {
   cloneDeep,
   get,
   groupBy,
   intersectionWith,
+  isEqual,
+  isMatch,
   map,
-  zipWith,
+  some,
 } from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
 import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
@@ -70,8 +77,34 @@ export const diffSubStmts = (left: SubProg, right: SubProg): StmtDiff[] => {
   return exactDiffs.map((d) => toStmtDiff(d, leftSorted));
 };
 
-// COMBAK: finish this function
-const similarStmts = (left: SubStmt, right: SubStmt): boolean => true;
+export const similarNodes = (left: ASTNode, right: ASTNode): boolean => {
+  const equalNodes = nodesEqual(left, right);
+  const similarChildren = intersectionWith(
+    left.children,
+    right.children,
+    similarNodes
+  );
+
+  const similarLeft = intersectionWith([left], right.children, similarNodes);
+  const similarRight = intersectionWith(left.children, [right], similarNodes);
+
+  // console.log(
+  //   prettySubNode(left as any),
+  //   prettySubNode(right as any),
+  //   equalNodes,
+  //   similarChildren.map((n) => prettySubNode(n as any)),
+  //   similarLeft.map((n) => prettySubNode(n as any)),
+  //   similarRight.map((n) => prettySubNode(n as any))
+  // );
+  // console.log(left, right);
+
+  return (
+    equalNodes ||
+    similarChildren.length > 0 ||
+    similarLeft.length > 0 ||
+    similarRight.length > 0
+  );
+};
 
 interface SimilarMapping {
   source: SubStmt;
@@ -84,8 +117,8 @@ export const similarMappings = (
 ): SimilarMapping[] => {
   const mappings: SimilarMapping[] = [];
   for (const stmt of leftSet) {
-    const similarSet: SubStmt[] = rightSet.filter((s) => similarStmts(stmt, s));
-    if (similarStmts.length > 0)
+    const similarSet: SubStmt[] = rightSet.filter((s) => similarNodes(stmt, s));
+    if (similarSet.length > 0)
       mappings.push({
         source: stmt,
         similarStmts: similarSet,

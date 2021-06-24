@@ -155,6 +155,7 @@ describe("Synthesizer tests", () => {
     const ast1: SubProg = res1[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
+    console.log();
     console.log(`Original diffs:\n${diffs.map(showStmtDiff).join("\n")}`);
     const env = res1[1];
     const ids = env.varIDs;

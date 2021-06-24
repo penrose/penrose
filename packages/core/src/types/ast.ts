@@ -30,7 +30,7 @@ export interface ConcreteNode {
   // parent: ASTNode; // NOTE: pointer type; don't serialize this
 }
 
-export const metaProps: string[] = ["children", "start", "end"];
+export const metaProps: string[] = ["nodeType", "children", "start", "end"];
 
 export interface Identifier extends ASTNode {
   tag: "Identifier";
