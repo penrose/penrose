@@ -12,6 +12,7 @@ import {
   prettyPrintExpr,
   graphOfBlockExpr,
 } from "@penrose/core";
+import { FieldDict, Translation } from '@penrose/core/build/dist/types/value';
 
 cytoscape.use(dagre);
 
@@ -22,7 +23,7 @@ cytoscape.use(dagre);
 // TODO: Visualize the gradient too (multi inputs)
 
 // Flatten a list of lists into a single list of elements
-const merge = (arr: any) => [].concat.apply([], arr);
+const merge = (arr: any) => [].concat(...arr);
 
 // Given a parent node, returns the graph corresponding to nodes and edges of children
 // May contain duplicate nodes
@@ -134,7 +135,7 @@ const toGraphOpt = (objfns: PenroseFn[], constrfns: PenroseFn[]): any => {
 // For translation (render) graph
 
 // TODO: import translation
-const toGraphTrans = (trans: any, varyingPaths: any) => {
+const toGraphTrans = (trans: Translation, varyingPaths: any) => {
   const tr = trans.trMap;
 
   // Top nodes = All Substance objects, fields, and properties [Translation]
@@ -161,7 +162,9 @@ const toGraphTrans = (trans: any, varyingPaths: any) => {
     nodes.push(subNode);
 
     // cytoscape insanity - can't use "x.y" syntax in string arguments as it somehow escapes the string and causes a crash
-    for (const [field, fexpr] of Object.entries(fieldDict)) {
+    // also TODO - not sure how to type vars in loops (fieldDict)
+    const fieldDict2: FieldDict = fieldDict;
+    for (const [field, fexpr] of Object.entries(fieldDict2)) {
       const fieldStr = subObj + ":" + field;
 
       const fieldNode = {

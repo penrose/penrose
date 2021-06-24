@@ -19,7 +19,7 @@ interface IProps {
 export interface IInspectState {
   // connectionLog: Array<ConnectionStatus | string>;
   selectedFrame: number;
-  selectedView: number;
+  selectedView: string;
 }
 
 class Inspector extends React.Component<IProps, IInspectState> {
@@ -39,9 +39,9 @@ class Inspector extends React.Component<IProps, IInspectState> {
     });
     this.props.modCanvas(
       this.props.history[
-        frame === this.state.selectedFrame
-          ? this.props.history.length - 1
-          : frame
+      frame === this.state.selectedFrame
+        ? this.props.history.length - 1
+        : frame
       ]
     );
   };
@@ -52,8 +52,8 @@ class Inspector extends React.Component<IProps, IInspectState> {
       history.length === 0
         ? null
         : selectedFrame === -1
-        ? history[history.length - 1]
-        : history[selectedFrame];
+          ? history[history.length - 1]
+          : history[selectedFrame];
     const commonProps = {
       selectFrame: this.selectFrame,
       frame: currentFrame,
@@ -77,10 +77,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       >
         <Timeline {...commonProps} />
         <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
-          <Tabs
-            index={selectedView}
-            onChange={(idx: number) => this.setState({ selectedView: idx })}
-          >
+          <Tabs>
             <TabList>
               {Object.keys(viewMap).map((view: string) => (
                 <Tab key={`tab-${view}`}>
@@ -95,7 +92,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
               ))}
             </TabList>
             <TabPanels>
-              {Object.keys(viewMap).map((view: string, idx: number) => (
+              {Object.keys(viewMap).map((view: string) => (
                 <TabPanel key={`panel-${view}`}>
                   <div
                     style={{
@@ -105,7 +102,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       paddingBottom: "100px",
                     }}
                   >
-                    {(view !== "compGraph" || idx === selectedView) && (
+                    {(view !== "compGraph") && (
                       <ErrorBoundary>
                         {React.createElement(viewMap[view], commonProps)}
                       </ErrorBoundary>
