@@ -1,3 +1,4 @@
+import { Canvas } from "renderer/ShapeDef";
 import { prng } from "seedrandom";
 import { VarAD, GradGraphs } from "./ad";
 import { MaybeVal } from "./common";
@@ -10,6 +11,7 @@ import { ArgVal, Translation, Value } from "./value";
  */
 export interface IState {
   varyingPaths: Path[];
+  varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   shapePaths: Path[];
   shapeProperties: any; // TODO: types
   uninitializedPaths: any; // TODO: types
@@ -28,6 +30,7 @@ export interface IState {
   labelCache: LabelCache;
   shapes: Shape[];
   varyingMap: VaryMap;
+  canvas: Canvas;
 }
 export type State = IState;
 

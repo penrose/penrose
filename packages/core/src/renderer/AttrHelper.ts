@@ -5,6 +5,7 @@ import {
   IStrV,
   IPtListV,
   ILListV,
+  Value,
 } from "types/value";
 import { Shape } from "types/shape";
 import { toHex, toScreen } from "utils/Util";
@@ -42,7 +43,10 @@ export const attrPolyCenter = (
   elem: SVGElement
 ) => {
   if (properties.center) {
-    const [x, y] = toScreen(properties.center.contents as [number, number], canvasSize);
+    const [x, y] = toScreen(
+      properties.center.contents as [number, number],
+      canvasSize
+    );
     elem.setAttribute("cx", x.toString());
     elem.setAttribute("cy", y.toString());
   } else {
@@ -62,12 +66,11 @@ export const attrPolyCenter = (
     elem.setAttribute("cx", x.toString());
     elem.setAttribute("cy", y.toString());
   }
-
 };
 
 export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
   let scale = properties?.scale?.contents;
-  scale ||= 1;
+  scale = scale || 1;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
@@ -104,6 +107,35 @@ export const attrXY = (
   elem.setAttribute("y", (y - h.contents / 2).toString());
 };
 
+/**
+ * Rotates a GPI by n degrees about a center
+ * Note: elem must be `transform`able
+ * NOTE: must be called before transform translate coords (matrix rules)
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+ */
+export const attrRotation = (
+  { properties }: Shape,
+  center: Value<number>,
+  w: Value<number>,
+  h: Value<number>,
+  canvasSize: [number, number],
+  elem: SVGElement
+): void => {
+  const rotation = (properties.rotation as IFloatV<number>).contents;
+  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null
+      ? `rotate(${rotation}, ${x - (w.contents as number) / 2}, ${
+          y - (h.contents as number) / 2
+        })`
+      : transform +
+        `rotate(${rotation}, ${x - (w.contents as number) / 2}, ${
+          y - (h.contents as number) / 2
+        })`;
+  elem.setAttribute("transform", transform);
+};
+
 export const attrSideCoords = (
   { properties }: Shape,
   canvasSize: [number, number],
@@ -112,10 +144,13 @@ export const attrSideCoords = (
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   const side = properties.side as IFloatV<number>;
-  elem.setAttribute(
-    "transform",
-    `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
-  );
+  let transform = elem.getAttribute("transform");
+  transform =
+    transform == null
+      ? `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
+      : transform +
+        `translate(${x - side.contents / 2}, ${y - side.contents / 2})`;
+  elem.setAttribute("transform", transform);
 };
 
 export const attrRadius = ({ properties }: Shape, elem: SVGElement) => {
@@ -127,7 +162,6 @@ export const attrPathLength = ({ properties }: Shape, elem: SVGElement) => {
   const pathLength = properties.pathLength as IFloatV<number>;
   elem.setAttribute("pathLength", pathLength.contents.toString());
 };
-
 
 export const attrRadiusX = ({ properties }: Shape, elem: SVGElement) => {
   const rx = properties.rx as IFloatV<number>;
@@ -164,6 +198,11 @@ export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("height", side.contents.toString());
 };
 
+export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
+  const d = properties.data as IStrV;
+  elem.setAttribute("d", d.contents.toString());
+};
+
 export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
@@ -179,7 +218,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   ) {
     elem.setAttribute(
       "stroke-dasharray",
-      (properties.strokeDashArray as IStrV<string>).contents
+      (properties.strokeDashArray as IStrV).contents
     );
   } else if (properties.strokeStyle.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
@@ -187,7 +226,7 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
 };
 
 export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
-  const name = properties.name as IStrV<string>;
+  const name = properties.name as IStrV;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;
   elem.appendChild(title);

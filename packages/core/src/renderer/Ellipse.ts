@@ -20,10 +20,8 @@ const Ellipse = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
 
-
   attrRadiusX(shape, elem);
   attrRadiusY(shape, elem);
-
 
   return elem;
 };

@@ -1,7 +1,0 @@
-Set A, B
-Point p
-IsSubset(A, B) -- Meaning that `A` is a subset of `B`
-PointIn(A, p)
-Not(PointIn(B, p))
-
-AutoLabel All

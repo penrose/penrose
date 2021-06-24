@@ -20,7 +20,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     name,
     energy,
     type: "constraint",
-    sat: energy! <= 0 ? "yes" : "no"
+    sat: energy! <= 0 ? "yes" : "no",
   }));
   const objInfos = zip(
     frame.objFns.map(prettyPrintFn),
@@ -29,7 +29,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     name,
     energy,
     type: "objective",
-    sat: energy! <= 0 ? "yes" : "no"
+    sat: energy! <= 0 ? "yes" : "no",
   }));
 
   // TODO: hyperlink the shapes
@@ -45,15 +45,15 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
           { name: "Expression", selector: "name", sortable: true },
           { name: "Energy", selector: "energy", sortable: true },
           { name: "Type", selector: "type", sortable: true },
-          { name: "Satisfied?", selector: "sat", sortable: true }
+          { name: "Satisfied?", selector: "sat", sortable: true },
         ]}
         conditionalRowStyles={[
           {
-            when: row => row.sat === "no",
+            when: (row) => row.sat === "no",
             style: {
-              backgroundColor: `#ffcabe !important`
-            }
-          }
+              backgroundColor: `#ffcabe !important`,
+            },
+          },
         ]}
       />
     </div>

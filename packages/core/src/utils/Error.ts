@@ -36,6 +36,7 @@ import {
 import { Identifier, ASTNode, SourceLoc } from "types/ast";
 import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
 import { SubExpr, Deconstructor } from "types/substance";
+import { isConcrete } from "engine/EngineUtils";
 // #region error rendering and construction
 
 /**
@@ -80,7 +81,7 @@ export const showError = (
         variable
       )}) does not exist.`;
       if (possibleVars) {
-        const suggestions = possibleVars.join(", ");
+        const suggestions = possibleVars.map((v) => v.value).join(", ");
         return msg + ` Declared variables are: ${suggestions}`;
       } else return msg;
     }
@@ -194,7 +195,7 @@ export const showError = (
     }
 
     case "SelectorVarMultipleDecl": {
-      return "Style pattern statement has already declared the variable ${error.varName.value}";
+      return `Style pattern statement has already declared the variable ${error.varName.contents.value}`;
     }
 
     case "SelectorDeclTypeMismatch": {
@@ -338,6 +339,30 @@ export const showError = (
       )}' in translation.`;
     }
 
+    case "CanvasNonexistentError": {
+      return `Canvas properties are not defined.\nTry adding:
+canvas {
+    width = <my desired width>
+    height = <my desired height>
+}`;
+    }
+
+    case "CanvasNonexistentDimsError": {
+      switch (error.kind) {
+        case "missing":
+          return `Canvas ${error.attr} is not defined.\nTry adding:
+canvas {
+    ${error.attr} = <my desired ${error.attr}>
+}`;
+        case "GPI":
+          return `Canvas ${error.attr} must be a numeric literal, but it is a shape.`;
+        case "uninitialized":
+          return `Canvas ${error.attr} must be a numeric literal, but it is an expression or uninitialized.`;
+        case "wrong type":
+          return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
+      }
+    }
+
     // ----- END TRANSLATION VALIDATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -410,7 +435,7 @@ export const typeNotFound = (
 
 export const varNotFound = (
   variable: Identifier,
-  possibleVars?: string[]
+  possibleVars?: Identifier[]
 ): VarNotFound => ({
   tag: "VarNotFound",
   variable,
@@ -511,10 +536,15 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
-const loc = (node: ASTNode) =>
-  `line ${node.start.line}, column ${node.start.col + 1} of ${
-    node.nodeType
-  } program`;
+const loc = (node: ASTNode): string => {
+  if (isConcrete(node)) {
+    return `line ${node.start.line}, column ${node.start.col + 1} of ${
+      node.nodeType
+    } program`;
+  } else {
+    return `generated code by the compiler`; // TODO: better description of where the node is coming from
+  }
+};
 
 // #endregion
 

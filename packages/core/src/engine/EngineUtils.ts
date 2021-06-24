@@ -4,7 +4,14 @@ import { constOfIf, numOf, varOf } from "engine/Autodiff";
 import { findDef } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { IVarAD, VarAD } from "types/ad";
-import { ASTNode, Identifier, SourceLoc } from "types/ast";
+import {
+  ASTNode,
+  ConcreteNode,
+  Identifier,
+  NodeType,
+  SourceLoc,
+  SyntheticNode,
+} from "types/ast";
 import { StyleError, Warning } from "types/errors";
 import { Elem, SubPath, Value } from "types/value";
 import { LbfgsParams } from "types/state";
@@ -194,6 +201,17 @@ function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
       tag: e.tag,
       contents: mapTup3((x) => mapTup2(f, x), e.contents),
     };
+  } else if (e.tag === "Arc") {
+    const l: [[S, S], [S, S, S], [S, S]] = [
+      // TODO sad :(
+      mapTup2(f, e.contents[0]),
+      mapTup3(f, e.contents[1]),
+      mapTup2(f, e.contents[2]),
+    ];
+    return {
+      tag: e.tag,
+      contents: l,
+    };
   } else {
     throw Error("unknown tag in bezier curve type conversion");
   }
@@ -379,27 +397,29 @@ export const dummySourceLoc = (): SourceLoc => {
   return { line: -1, col: -1 };
 };
 
-export const dummyASTNode = (o: any): ASTNode => {
+export const dummyASTNode = (o: any, nodeType: NodeType): SyntheticNode => {
   return {
     ...o,
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
-    nodeType: "dummyASTNode", // COMBAK: Is this ok?
-    children: [],
+    nodeType,
   };
 };
 
+export const isConcrete = (node: ASTNode): node is ConcreteNode =>
+  node.nodeType === "Substance" ||
+  node.nodeType === "Style" ||
+  node.nodeType === "Domain";
+
 // COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
-export const dummyIdentifier = (name: string): Identifier => {
+export const dummyIdentifier = (
+  name: string,
+  nodeType: NodeType
+): Identifier => {
   return {
-    // COMBAK: Is this ok?
-    nodeType: "dummyNode",
+    nodeType,
     children: [],
     type: "value",
     value: name,
     tag: "Identifier",
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
   };
 };
 
@@ -409,10 +429,8 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
   }
 
   return {
-    nodeType: "dummyExpr",
+    nodeType: "SyntheticStyle",
     children: [],
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
     tag: "VaryAD",
     contents: e.contents,
   };
@@ -463,15 +481,15 @@ export const insertGPI = (
 
 const defaultVec2 = (): Expr => {
   const e1: AnnoFloat = {
-    ...dummyASTNode({}),
+    ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
   const e2: AnnoFloat = {
-    ...dummyASTNode({}),
+    ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
   const v2: IVector = {
-    ...dummyASTNode({}),
+    ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vector",
     contents: [e1, e2],
   };
@@ -836,7 +854,9 @@ export const insertExpr = (
 export const insertExprs = (
   ps: Path[],
   es: TagExpr<VarAD>[],
-  tr: Translation
+  tr: Translation,
+  compiling = false,
+  override = false
 ): Translation => {
   if (ps.length !== es.length) {
     throw Error("length should be the same");
@@ -845,7 +865,7 @@ export const insertExprs = (
   let tr2 = tr;
   for (let i = 0; i < ps.length; i++) {
     // Tr gets mutated
-    tr2 = insertExpr(ps[i], es[i], tr);
+    tr2 = insertExpr(ps[i], es[i], tr, compiling, override);
   }
 
   return tr2;
@@ -998,10 +1018,8 @@ export const exprToNumber = (e: Expr): number => {
 
 export const numToExpr = (n: number): Expr => {
   return {
-    nodeType: "dummyExpr",
+    nodeType: "SyntheticStyle",
     children: [],
-    start: dummySourceLoc(),
-    end: dummySourceLoc(),
     tag: "Fix",
     contents: n,
   };

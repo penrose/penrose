@@ -52,8 +52,11 @@ const makeViewBoxes = (
                     width="50"
                     height="50"
                     dangerouslySetInnerHTML={{
-                      __html: RenderShape({ properties, shapeType }, [], [w, h])
-                        .outerHTML,
+                      __html: RenderShape({
+                        shape: { properties, shapeType },
+                        labels: [],
+                        canvasSize: [w, h],
+                      }).outerHTML,
                     }}
                   />
                 </div>

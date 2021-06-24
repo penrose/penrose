@@ -54,7 +54,8 @@ import {
   subv,
 } from "utils/OtherUtils";
 
-// NOTE: to view logs, change `level` below to `LogLevel.Info`
+// NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
+// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
@@ -71,6 +72,7 @@ const weightGrowthFactor = 10;
 
 // weight for constraints
 const constraintWeight = 10e4; // HACK: constant constraint weight
+// const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
 
 // EP method convergence criteria
 const epStop = 1e-3;
@@ -88,7 +90,7 @@ const uoStop = 1e-2;
 // const uoStop = 10;
 
 // const DEBUG_GRAD_DESCENT = true;
-const DEBUG_GRAD_DESCENT = false; // COMBAK: Revert
+const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;

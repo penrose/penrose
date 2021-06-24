@@ -1,19 +1,14 @@
-import { IVectorV, IFloatV, IColorV, IStrV } from "types/value";
+import { IFloatV, IColorV, IStrV } from "types/value";
 import { toHex, toScreen } from "utils/Util";
-import { arrowHead } from "./Arrow";
+import { arrowHead, makeRoomForArrows } from "./Arrow";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Line = ({ shape, canvasSize }: ShapeProps) => {
   const style = shape.properties.style.contents;
-  const [sx, sy] = toScreen(
-    (shape.properties.start as IVectorV<number>).contents as [number, number],
-    canvasSize
-  );
-  const [ex, ey] = toScreen(
-    (shape.properties.end as IVectorV<number>).contents as [number, number],
-    canvasSize
-  );
+  const [[arrowSX, arrowSY], [arrowEX, arrowEY]] = makeRoomForArrows(shape);
+  const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
+  const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toHex(shape.properties.color.contents);
   const thickness = (shape.properties.thickness as IFloatV<number>).contents;
@@ -22,8 +17,7 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
     .contents[3];
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV<string>)
-    .contents;
+  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
 
@@ -50,7 +44,7 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   ) {
     pathElem.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDashArray as IStrV<string>).contents
+      (shape.properties.strokeDashArray as IStrV).contents
     );
   } else if (shape.properties.style.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());

@@ -17,9 +17,25 @@ const toCmdString = (cmd: any, canvasSize: [number, number]) => {
       return pathCommandString("Q", cmd.contents, canvasSize);
     case "QuadBezJoin":
       return pathCommandString("T", cmd.contents, canvasSize);
+    case "Arc":
+      return arcCommandString("A", cmd.contents, canvasSize);
     default:
       return " ";
   }
+};
+
+const arcCommandString = (
+  command: string,
+  pts: [number, number][],
+  canvasSize: [number, number]
+) => {
+  // See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
+  const [radius, flags, endpt] = pts;
+  // A, rx, ry, rotation, arc, sweep, ex, ey
+  return `${command} ${radius.join(" ")} ${flags.join(" ")} ${toScreen(
+    endpt,
+    canvasSize
+  ).join(" ")}`;
 };
 
 const pathCommandString = (
@@ -99,8 +115,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   const strokeOpacity = (shape.properties.color.contents as any).contents[3];
   const fillColor = toHex(shape.properties.fill.contents);
   const fillOpacity = (shape.properties.fill.contents as any).contents[3];
-  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV<string>)
-    .contents;
+  const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
   if (shape.properties.leftArrowhead.contents === true) {
@@ -139,7 +154,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   ) {
     path.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDashArray as IStrV<string>).contents
+      (shape.properties.strokeDashArray as IStrV).contents
     );
   } else if (shape.properties.style.contents === "dashed") {
     path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());

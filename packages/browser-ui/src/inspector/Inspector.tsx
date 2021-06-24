@@ -26,14 +26,16 @@ class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
     // connectionLog: [],
     selectedFrame: -1,
-    selectedView: 0
+    // selectedView: 0
+    // TODO: What should be the selectedView (for performance reasons)?
+    selectedView: "frames",
   };
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
-      selectedFrame: frame === this.state.selectedFrame ? -1 : frame
+      selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
     });
     this.props.modCanvas(
       this.props.history[
@@ -60,7 +62,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       modShapes: modCanvas,
       error,
       settings,
-      setSettings
+      setSettings,
     };
     return (
       <div
@@ -70,7 +72,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          marginBottom: "1em"
+          marginBottom: "1em",
         }}
       >
         <Timeline {...commonProps} />
@@ -100,7 +102,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       height: "100%",
                       overflow: "auto",
                       boxSizing: "border-box",
-                      paddingBottom: "100px"
+                      paddingBottom: "100px",
                     }}
                   >
                     {(view !== "compGraph" || idx === selectedView) && (

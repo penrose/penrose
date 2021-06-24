@@ -1,3 +1,8 @@
+canvas {
+  width = 800
+  height = 700
+}
+
 const { -- 0
   scalar perpLen = 20.0
   -- For unit mark
@@ -97,6 +102,7 @@ forall Vector u; VectorSpace U -- 4
 where In(u,U) {
   u.text = Text {
     -- center : (?, ?) -- This should be done automatically
+    fontSize: "40pt"
     string : u.label
     color : u.arrow.color
   }
@@ -209,6 +215,10 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 
       layer v.unitMarkerLine above U.xAxis
       layer v.unitMarkerLine above U.yAxis
+}
+
+forall Vector `u` { -- 7
+       override `u`.arrow.color = C.green
 }
 
 forall Vector `x2` { -- 7

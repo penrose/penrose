@@ -1,9 +1,18 @@
-import { attrFill, attrPoints, attrPolyCenter, attrScale, attrStroke, attrTitle } from "./AttrHelper";
+import {
+  attrFill,
+  attrPoints,
+  attrPolyCenter,
+  attrScale,
+  attrStroke,
+  attrTitle,
+} from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Polygon = ({ shape, canvasSize }: ShapeProps) => {
-
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  const elem = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "polygon"
+  );
 
   attrFill(shape, elem);
   attrStroke(shape, elem);
@@ -13,6 +22,5 @@ const Polygon = ({ shape, canvasSize }: ShapeProps) => {
   attrScale(shape, elem);
 
   return elem;
-
 };
 export default Polygon;

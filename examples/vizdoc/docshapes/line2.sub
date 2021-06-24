@@ -1,8 +1,0 @@
-Lin A
-Box B
-Point ps
-Point pe
-
-AutoLabel A, B
-Label ps $(startX, startY)$
-Label pe $(endX, endY)$

@@ -1,32 +1,36 @@
-import { checkDomain, compileDomain, Env, parseDomain } from "compiler/Domain";
+import { checkDomain, compileDomain, parseDomain } from "compiler/Domain";
 import { compileStyle, graphOfBlockExpr } from "compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
+  prettySubstance,
 } from "compiler/Substance";
-import {
-  prettyPrintFn,
-  prettyPrintPath,
-  prettyPrintExpr,
-} from "utils/OtherUtils";
-import { SubstanceEnv } from "types/substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import { genOptProblem, genFns, initializeMat, step } from "engine/Optimizer";
+import { genFns, genOptProblem, initializeMat, step } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
   RenderShape,
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
+import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
+import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
-import { State, LabelCache, Fn } from "types/state";
+import { Fn, LabelCache, State } from "types/state";
+import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
+import { 
+  prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
+} from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
+import { Canvas } from "renderer/ShapeDef";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -272,7 +276,6 @@ export const evalFns = (fns: Fn[], s: State): number[] => {
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export type { PenroseError } from "./types/errors";
 export {
   compileDomain,
   compileSubstance,
@@ -282,9 +285,11 @@ export {
   parseDomain,
   RenderStatic,
   RenderShape,
+  Synthesizer,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
+  prettySubstance,
   toHex,
   initializeMat,
   showError,
@@ -294,3 +299,9 @@ export {
   prettyPrintExpr,
   graphOfBlockExpr,
 };
+export type { PenroseError } from "./types/errors";
+export type { Registry, Trio };
+export type { Env };
+export type { SynthesizerSetting };
+export type { SubProg } from "types/substance";
+export type { Canvas };

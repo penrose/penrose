@@ -6,12 +6,13 @@ import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
 import { Either } from "types/common";
+import { Env } from "types/domain";
 import { PenroseError, StyleErrors } from "types/errors";
 import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
-import { compileDomain, Env } from "./Domain";
+import { compileDomain } from "./Domain";
 // TODO: Reorganize and name tests by compiler stage
 
 // Load file in format "domain-dir/file.extension"
@@ -56,6 +57,12 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
   S.disambiguateFunctions(varEnv, subProg);
   return res;
 };
+
+const canvasPreamble = `canvas {
+  width = 800
+  height = 700
+}
+`;
 
 describe("Compiler", () => {
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
@@ -263,6 +270,9 @@ describe("Compiler", () => {
        o.f[0] = 0.
        o.shape = Circle {}
 }`,
+      `canvas {
+  override width = 500.0
+}`,
     ];
 
     const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
@@ -274,7 +284,7 @@ describe("Compiler", () => {
 
     for (const styProg of styProgs) {
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(styProg, ...res),
+        (res) => S.compileStyle(canvasPreamble + styProg, ...res),
         subRes
       );
 
@@ -335,8 +345,9 @@ describe("Compiler", () => {
     );
 
     const testStyProgForError = (styProg: string, errorType: string) => {
+      let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(styProg, ...res),
+        (res) => S.compileStyle(preamble + styProg, ...res),
         subRes
       );
       describe(errorType, () => {
@@ -470,6 +481,43 @@ delete x.z.p }`,
         `forall Set x { 
            x.z = 1.0 
            x.y = x.z.p
+}`,
+      ],
+      CanvasNonexistentError: [
+        `foo { 
+  bar = 1.0
+}`,
+      ],
+      CanvasNonexistentDimsError: [
+        `canvas { 
+  height = 100
+}`,
+        `canvas {
+  width = Circle {}
+  height = 100
+}`,
+        `canvas {
+  width = ?
+  height = 100
+}`,
+        `canvas {
+  width = (1.0, 1.0)
+  height = 100
+}`,
+        `canvas { 
+  width = 100
+}`,
+        `canvas {
+  width = 100
+  height = Circle {}
+}`,
+        `canvas {
+  width = 100
+  height = ?
+}`,
+        `canvas {
+  width = 100
+  height = (1.0, 1.0)
 }`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
