@@ -1,7 +1,7 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
 import { prettyPrintFn, evalFns } from "@penrose/core";
-import { zip, sum } from "lodash";
+import { zipWith, sum } from "lodash";
 import DataTable from "react-data-table-component";
 
 export const EPS = 10e-3;
@@ -18,27 +18,29 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       </div>
     );
   }
-  const constrInfos = zip(
+  const constrInfos = zipWith(
     frame.constrFns.map(prettyPrintFn),
-    evalFns(frame.constrFns, frame)
-  ).map(([name, fnEvaled]) => {
-    const energy = Math.max(fnEvaled?.f!, 0);
-    return {
-      name,
-      energy,
-      sat: energy <= EPS ? "yes" : "no",
-    };
-  });
-  const objInfos = zip(
+    evalFns(frame.constrFns, frame),
+    (name, fnEvaled) => {
+      const energy = Math.max(fnEvaled.f, 0);
+      return {
+        name,
+        energy,
+        sat: energy <= EPS ? "yes" : "no",
+      };
+    }
+  );
+  const objInfos = zipWith(
     frame.objFns.map(prettyPrintFn),
-    evalFns(frame.objFns, frame)
-  ).map(([name, fnEvaled]) => {
-    const gradientNorm = vnorm(fnEvaled?.gradf!);
-    return {
-      name,
-      gradientNorm,
-    };
-  });
+    evalFns(frame.objFns, frame),
+    (name, fnEvaled) => {
+      const gradientNorm = vnorm(fnEvaled.gradf);
+      return {
+        name,
+        gradientNorm,
+      };
+    }
+  );
 
   // TODO: hyperlink the shapes
   return (
