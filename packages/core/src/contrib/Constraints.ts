@@ -242,7 +242,7 @@ export const objDict = {
     );
   },
   /**
-   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
+   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees. NOTE: angles between 10 and 170 degrees are considered satisfied.
    */
   nonDegenerateAngle: (
     [, p0]: [string, any],
@@ -258,14 +258,22 @@ export const objDict = {
       const l1 = ops.vsub(c0, c1);
       const l2 = ops.vsub(c2, c1);
 
-      const force = mul(
-        constOfIf(strength),
-        div(squared(ops.vdot(l1, l2)), mul(ops.vnormsq(l1), ops.vnormsq(l2)))
+      // angles between 10 and 170 degrees do not need to be pushed
+      return ifCond(
+        lt(
+          absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2))),
+          varOf(0.985) // cos10 deg = .9848, abs(cos170) = .9848
+        ),
+        varOf(0),
+        mul(
+          constOfIf(strength),
+          div(squared(ops.vdot(l1, l2)), mul(ops.vnormsq(l1), ops.vnormsq(l2)))
+        )
       );
-
-      return force;
     } else {
-      throw new Error("collinear: all input shapes need to have centers");
+      throw new Error(
+        "nonDegenerateAngle: all input shapes need to have centers"
+      );
     }
   },
 };
