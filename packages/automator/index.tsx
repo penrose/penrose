@@ -9,6 +9,11 @@ import {
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 
+//
+import { getListOfStagedStates } from "../core/src/renderer/Comic";
+import { State } from "../core/build/dist/types/state";
+//
+
 const fs = require("fs");
 const chalk = require("chalk");
 const neodoc = require("neodoc");
@@ -19,14 +24,16 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER]
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] 
   automator render ARTIFACTSFOLDER OUTFOLDER
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--folders] [--src-prefix=PREFIX] [--staged]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
+  --staged Generate staged SVGs of the final diagram
 `;
 
 const nonZeroConstraints = (
@@ -47,6 +54,12 @@ const nonZeroConstraints = (
 
 const toMs = (hr: any) => hr[1] / 1000000;
 
+//
+const renderStaticOuterHTML = (state: State) => {
+  return RenderStatic(state).outerHTML;
+};
+//
+
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
   sub: any,
@@ -55,6 +68,7 @@ const singleProcess = async (
   folders: boolean,
   out: string,
   prefix: string,
+  staged: boolean, // added
   meta = {
     substanceName: sub,
     styleName: sty,
@@ -78,7 +92,7 @@ const singleProcess = async (
   const compileEnd = process.hrtime(compileStart);
   let compiledState;
   if (compilerOutput.isOk()) {
-    compiledState = compilerOutput.value;
+    compiledState = compilerOutput.value; // type State
   } else {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
@@ -91,11 +105,20 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState, 10000);
+  const optimizedState = stepUntilConvergence(initialState, 10000); // stEp UntIL cOnvERgeNcE
   const convergeEnd = process.hrtime(convergeStart);
 
   const reactRenderStart = process.hrtime();
-  const canvas = RenderStatic(optimizedState).outerHTML;
+
+  //
+  if (staged) {
+    const listOfStagedStates = getListOfStagedStates(optimizedState);
+    var listOfCanvasData = listOfStagedStates.map(renderStaticOuterHTML);
+  } else {
+    var canvas = RenderStatic(optimizedState).outerHTML; // this gets written out at the end
+  }
+  //
+
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
 
@@ -164,7 +187,16 @@ const singleProcess = async (
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out, { recursive: true });
     }
-    fs.writeFileSync(`${out}/output.svg`, canvas);
+    if (staged) {
+      const writeFileOut = (canvasData: any, index: number) => {
+        var filename = `${out}/output${index.toString()}.svg`;
+        fs.writeFileSync(filename, canvasData);
+        console.log(chalk.green(`The diagram has been saved as ${filename}`));
+      };
+      listOfCanvasData.map(writeFileOut);
+    } else {
+      fs.writeFileSync(`${out}/output.svg`, canvas);
+    }
     fs.writeFileSync(`${out}/substance.sub`, subIn);
     fs.writeFileSync(`${out}/style.sty`, styIn);
     fs.writeFileSync(`${out}/domain.dsl`, dslIn);
@@ -175,8 +207,22 @@ const singleProcess = async (
     // returning metadata for aggregation
     return { metadata, state: optimizedState };
   } else {
-    fs.writeFileSync(out, canvas);
-    console.log(chalk.green(`The diagram has been saved as ${out}`));
+    // write multiple svg files out
+    if (staged) {
+      const writeFileOut = (canvasData: any, index: number) => {
+        var filename = out.slice(0, out.indexOf("svg") - 1);
+        var newStr = filename + index.toString() + ".svg";
+        fs.writeFileSync(newStr, canvasData);
+        console.log(chalk.green(`The diagram has been saved as ${newStr}`));
+      };
+      listOfCanvasData.map(writeFileOut);
+    }
+    // just the final diagram
+    else {
+      fs.writeFileSync(out, canvas); // gets written here!
+      console.log(chalk.green(`The diagram has been saved as ${out}`));
+    }
+
     // HACK: return empty metadata??
     return null;
   }
@@ -187,7 +233,8 @@ const batchProcess = async (
   lib: any,
   folders: boolean,
   out: string,
-  prefix: string
+  prefix: string,
+  staged: boolean
 ) => {
   const registry = JSON.parse(fs.readFileSync(`${prefix}/${lib}`).toString());
   const substanceLibrary = registry["substances"];
@@ -222,13 +269,14 @@ const batchProcess = async (
     // try to render the diagram
     try {
       // Warning: will face id conflicts if parallelism used
-      const res = await singleProcess(
+      var res = await singleProcess(
         subURI,
         styURI,
         dslURI,
         folders,
         `${out}/${name}-${id}${folders ? "" : ".svg"}`,
         prefix,
+        staged, // make something else to fix singleProcess?
         {
           substanceName: subName,
           styleName: styName,
@@ -273,13 +321,16 @@ const batchProcess = async (
   // Determine the output file path
   const folders = args["--folders"] || false;
   const browserFolder = args["--render"];
-  const outFile = args["--outFile"];
+  const outFile = args["--outFile"] || `${args.OUTFOLDER}/output.svg`;
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
+  // integrate this boolean into the other fxns
+  const staged = args["--staged"] || false;
+
   if (args.batch) {
     for (let i = 0; i < times; i++) {
-      await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix);
+      await batchProcess(args.LIB, folders, args.OUTFOLDER, prefix, staged);
     }
     if (browserFolder) {
       renderArtifacts(args.OUTFOLDER, browserFolder);
@@ -293,7 +344,8 @@ const batchProcess = async (
       args.DOMAIN,
       folders,
       outFile,
-      prefix
+      prefix,
+      staged
     );
   }
 })();
