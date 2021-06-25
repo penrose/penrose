@@ -60,22 +60,6 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-
-  //const listOfStagedStates = getListOfStagedStates(currentState);
-
-  //currentState = listOfStagedStates[2];
-  // getShapesInComicOrder(currentState);
-  // currentState = getShapesInComicOrder(currentState);
-  // console.log(currentState.translation.trMap);
-  /*
-  for (var k in currentState.translation.trMap) {
-    console.log(k, typeof k, currentState.translation.trMap.k)
-  }
-  console.log(currentState.translation.trMap.A);
-  */
-  /*
-  console.log(Object.keys(currentState.translation.trMap), typeof Object.keys(currentState.translation.trMap));
-  */
   return currentState;
 };
 
