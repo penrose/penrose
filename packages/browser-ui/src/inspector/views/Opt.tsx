@@ -60,7 +60,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
           {
             when: (row) => row.sat === "no",
             style: {
-              backgroundColor: `rgb(255, 202, 190) !important`,
+              backgroundColor: `#ffcabe !important`,
             },
           },
         ]}
