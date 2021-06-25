@@ -9,7 +9,7 @@ const viewMap = {
   errors: Errors,
   shapes: ShapeView,
   mod: Mod,
-  opt: Opt,
+  "optimization status": Opt,
   settings: Settings,
 };
 export default viewMap;
