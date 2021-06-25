@@ -3363,6 +3363,8 @@ export const graphOfBlockExpr = (expr: Expr): PGraph => {
   } else if (
     expr.tag === "Fix" ||
     expr.tag === "Vary" ||
+    expr.tag === "VaryInit" ||
+    expr.tag === "VaryAD" ||
     expr.tag === "StringLit" ||
     expr.tag === "BoolLit"
   ) {

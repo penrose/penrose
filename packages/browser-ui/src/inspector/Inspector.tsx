@@ -102,11 +102,9 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       paddingBottom: "100px",
                     }}
                   >
-                    {(view !== "compGraph") && (
-                      <ErrorBoundary>
-                        {React.createElement(viewMap[view], commonProps)}
-                      </ErrorBoundary>
-                    )}
+                    <ErrorBoundary>
+                      {React.createElement(viewMap[view], commonProps)}
+                    </ErrorBoundary>
                   </div>
                 </TabPanel>
               ))}
