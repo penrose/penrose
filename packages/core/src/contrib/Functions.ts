@@ -53,6 +53,11 @@ export const compDict = {
     curveHeight: IVarAD,
     padding: IVarAD
   ): IPathDataV<IVarAD> => {
+    console.log(
+      start.map((v) => v.val),
+      end.map((v) => v.val)
+    );
+
     // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
     const unit: IVarAD[] = ops.vnormalize(ops.vsub(start, end));
     const normalVec: IVarAD[] = rot90(toPt(unit));
