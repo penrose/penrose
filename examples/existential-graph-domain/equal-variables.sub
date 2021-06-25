@@ -1,0 +1,16 @@
+
+
+Variable x, y
+Graph p, q
+
+Graph pInv
+invisibleGraph(pInv)
+some(x, p, pInv)
+
+Graph qInv
+invisibleGraph(qInv)
+some(y, q, qInv)
+
+equal(x, y)
+
+AutoLabel All
