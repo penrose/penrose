@@ -3,29 +3,22 @@ import { Shape } from "../types/shape";
 import { State } from "../types/state";
 import { FieldExpr } from "../types/value";
 
-// filter out trmap
-
 export const getListOfStagedStates = (state: State): State[] => {
+  // encodes the order in which the user defines GPIs in substance
+  // as obj properties
   const trMap = state.translation.trMap;
-  // console.log(trMap);
+
+  // turn trMap's properties into a list
   var objArr = Object.entries(trMap);
 
   // filter out non-shapes (non - FGPI things)
-
-  // objArr = objArr.filter(areLocallyDefined);
-
   objArr = objArr.filter(hasGPIProperties);
-  // console.log(objArr)
 
-  // each entry in test2 is a list of objs to "include" in a panel in the comic
-
-  // now just run whatever the fuck is happening with testArr down there on each of them
-  // and return a state
-  // ez. map over the arr. ez.
+  // each element in listOfStagedObjArrs is a list of objs to draw
+  // in a panel in the comic
+  // ex. for a final diagram with objects A,B,C
+  // listOfStagedObjArrs = [[A], [A,B], [A,B,C]]
   var listOfStagedObjArrs = objArr.map(tabulateObjArrs);
-
-  // console.log(test2.length, objArr.length);
-  // console.log(test2)
 
   const newState = state;
 
@@ -33,60 +26,24 @@ export const getListOfStagedStates = (state: State): State[] => {
     return getStateFromObjArrAndLocalState(arr, newState);
   };
 
+  // map each object array to a state (modify the shapelist of the og state)
   var listOfStagedStates = listOfStagedObjArrs.map(getStateFromObjArr);
 
   return listOfStagedStates;
-
-  // test2.map (what is happening down there)
-
-  // make a list of objArr.length states (one for each state)
-
-  // now create a list of 7 "states?"
-  // pass objArr into another fxn
-
-  // excludes the last elem
-  /*
-  var testArr = objArr.slice(0, objArr.length-4)
-  var testArrNames = testArr.map((elem) => {return elem[0]})
-  // make a newState (replace list of shapes) 
-  var newShapeList : Shape[] = [];
-  for (var i=0; i<state.shapes.length; i++){
-    var shap = state.shapes[i];
-    var shapPropPathName = shap.properties.name.contents as string;
-    const dotIndex = shapPropPathName.indexOf('.');
-    if (dotIndex === -1){
-      throw new Error("shape property doesn't have a .");
-    }
-    var shapName = shapPropPathName.slice(0, dotIndex);
-    // console.log(shapName);
-    if (testArrNames.includes(shapName)){
-      newShapeList.push(shap);
-    }
-  }
-
-  // console.log(newShapeList);
-
-  var newState = state
-  newState.shapes = newShapeList;
-
-  return newState;
- 
-  // console.log(testArr)
-  */
 };
 
-// helpers
+// cannot use-- see tree.sty for an example, where
+// anonymous elements like IsSubset have FGPI (arrows) assoc. w/ them
+// if you filter these elements out, the arrows will not be drawn
 const areLocallyDefined = (elem: any) => {
   return !elem[0].includes("$LOCAL");
 };
 
+// determines if an object has any GPI tagged properties
 const hasGPIProperties = (elem: any) => {
   const arr = elem[1];
-  //console.log(arr)
+
   const objArr: [string, any][] = Object.entries(arr);
-  //console.log("here")
-  //console.log(objArr)
-  //console.log("sad")
 
   // filter over this array
   const hasGPIAsTag = (object: any) => {
@@ -100,7 +57,11 @@ const hasGPIProperties = (elem: any) => {
   );
 };
 
+// local typedef for ease of typing expressions
 type StringObjPair = [string, { [k: string]: FieldExpr<IVarAD> }];
+
+// used to make list of objects for each "comic panel"
+// used as the fn for .map
 const tabulateObjArrs = (
   objArr: StringObjPair,
   index: number,
@@ -109,11 +70,12 @@ const tabulateObjArrs = (
   return arr.slice(0, index + 1);
 };
 
-// this should be nested within the same function, for state to be in scope.
-
 // after you declare it, just call test2.map(getStateFromObjArr)
 // to get a list of states
 // then just render each state, ez money
+
+// returns a modified state RES, where only shapes
+// that belong to objects in arr are kept in RES.shape (the state's shapelist)
 const getStateFromObjArrAndLocalState = (
   arr: StringObjPair[],
   state: State
@@ -121,10 +83,12 @@ const getStateFromObjArrAndLocalState = (
   var testArrNames = arr.map((elem) => {
     return elem[0];
   });
-  console.log("obj arr");
-  console.log(arr);
-  console.log("obj names");
-  console.log(testArrNames);
+  /*
+  console.log('obj arr')
+  console.log(arr)
+  console.log('obj names')
+  console.log(testArrNames)
+  */
   // make a newState (replace list of shapes)
   var newShapeList: Shape[] = [];
   console.log(state.shapes.length);
@@ -142,13 +106,8 @@ const getStateFromObjArrAndLocalState = (
       newShapeList.push(shap);
     }
   }
-
-  /*
-	var newShapeOrdering : string[] = []
-	for (var i=0; i<state.shapeOrdering.length; i++){
-		var shapeName = state.shapeOrdering[i];
-	}
-	*/
+  // to be cleaner, i should technically update shapeOrdering as well
+  // but not modifying that doesn't seem to affect the creation of the SVG
 
   // console.log(newShapeList);
 

@@ -24,7 +24,7 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] 
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--folders] [--src-prefix=PREFIX] [--staged]
 
@@ -105,19 +105,19 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState, 10000); // stEp UntIL cOnvERgeNcE
+  const optimizedState = stepUntilConvergence(initialState, 10000);
   const convergeEnd = process.hrtime(convergeStart);
 
   const reactRenderStart = process.hrtime();
 
-  //
+  // make a list of canvas data if staged (prepare to generate multiple SVGs)
   if (staged) {
     const listOfStagedStates = getListOfStagedStates(optimizedState);
     var listOfCanvasData = listOfStagedStates.map(renderStaticOuterHTML);
   } else {
+    // if not staged, we just need one canvas data (for the final diagram)
     var canvas = RenderStatic(optimizedState).outerHTML; // this gets written out at the end
   }
-  //
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -187,16 +187,22 @@ const singleProcess = async (
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out, { recursive: true });
     }
+
+    // if staged, write each canvas data out as an SVG
     if (staged) {
       const writeFileOut = (canvasData: any, index: number) => {
+        // add an index num to the output filename so the user knows the order
+        // and also to keep unique filenames
         var filename = `${out}/output${index.toString()}.svg`;
         fs.writeFileSync(filename, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${filename}`));
       };
       listOfCanvasData.map(writeFileOut);
     } else {
+      // not staged --> just need one diagram
       fs.writeFileSync(`${out}/output.svg`, canvas);
     }
+
     fs.writeFileSync(`${out}/substance.sub`, subIn);
     fs.writeFileSync(`${out}/style.sty`, styIn);
     fs.writeFileSync(`${out}/domain.dsl`, dslIn);
@@ -325,7 +331,7 @@ const batchProcess = async (
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
-  // integrate this boolean into the other fxns
+  // new optional arg for generating staged diagrams
   const staged = args["--staged"] || false;
 
   if (args.batch) {
@@ -338,6 +344,7 @@ const batchProcess = async (
   } else if (args.render) {
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else {
+    // this assumes that yarn start draw was called.
     await singleProcess(
       args.SUBSTANCE,
       args.STYLE,
