@@ -45,7 +45,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     <div style={{ boxSizing: "border-box" }}>
       <DataTable
         data={constrInfos}
-        title={"Constraint Status"}
+        title={"Constraints"}
         dense={true}
         highlightOnHover={true}
         striped={true}
@@ -65,7 +65,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       />
       <DataTable
         data={objInfos}
-        title={"Objective Status"}
+        title={"Objectives"}
         dense={true}
         highlightOnHover={true}
         striped={true}
