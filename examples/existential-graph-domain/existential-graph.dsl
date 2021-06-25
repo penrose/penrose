@@ -10,3 +10,7 @@ predicate equal: Variable v1 * Variable v2
 predicate invisibleGraph: Graph p1
 predicate some : Variable * Graph * Graph
 predicate all : Variable * Graph * Graph
+
+predicate doubleElliminate : Graph
+predicate connect: Graph * Graph
+predicate deiterate: Graph

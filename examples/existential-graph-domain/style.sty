@@ -84,12 +84,9 @@ where Result := or(A, B)
     B.text above Result.icon2
 }
 
-
 forall Graph a where invisibleGraph(a){
     override a.text.color = rgba(1.0, 0.0, 0.0, 0.0)
 }
-
-
 
 forall Graph A; Graph B; Graph Result 
 where Result := if(A, B) 
@@ -127,4 +124,18 @@ where Result := if(A, B)
     Result.icon2 below A.icon
     Result.icon2 below B.icon
 
+}
+
+forall Graph A; Graph B where and(A, B) {
+    ensure disjoint(A.icon, B.icon)
+}
+
+forall Graph R where doubleElliminate(R) {
+    override R.icon.color = rgba(0, 0, 0, 0)
+    override R.icon2.color = rgba(0, 0, 0, 0)
+}
+
+forall Graph A; Graph B where deiterate(A); connect(A, B) {
+    override A.text.color = deiterateSelect(A.level, B.level, A.text.color)
+    override B.text.color = deiterateSelect(A.level, B.level, B.text.color)
 }
