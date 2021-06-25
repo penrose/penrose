@@ -229,6 +229,45 @@ export const objDict = {
   nearScalar: (c: any, goal: any) => {
     return squared(sub(constOfIf(c), constOfIf(goal)));
   },
+  /**
+   * try to make distance between a point and a segment `s1` = padding.
+   */
+  closestPtToSeg: ([, s1]: [string, any], point: VarAD[], padding: VarAD) => {
+    return equalHard(
+      ops.vdist(
+        closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
+        point
+      ),
+      padding
+    );
+  },
+  /**
+   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
+   */
+  nonDegenerateAngle: (
+    [, p0]: [string, any],
+    [, p1]: [string, any],
+    [, p2]: [string, any],
+    strength = 20
+  ) => {
+    if (every([p0, p1, p2].map((props) => props["center"]))) {
+      const c0 = fns.center(p0);
+      const c1 = fns.center(p1);
+      const c2 = fns.center(p2);
+
+      const l1 = ops.vsub(c0, c1);
+      const l2 = ops.vsub(c2, c1);
+
+      const force = mul(
+        constOfIf(strength),
+        div(squared(ops.vdot(l1, l2)), mul(ops.vnormsq(l1), ops.vnormsq(l2)))
+      );
+
+      return force;
+    } else {
+      throw new Error("collinear: all input shapes need to have centers");
+    }
+  },
 };
 
 export const constrDict = {
