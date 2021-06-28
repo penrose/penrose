@@ -658,7 +658,7 @@ export const constrDict = {
   /**
    * Require that the `center`s of three shapes to be collinear. Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
    */
-  collinear_unordered: (
+  collinearUnordered: (
     [, p0]: [string, any],
     [, p1]: [string, any],
     [, p2]: [string, any]
