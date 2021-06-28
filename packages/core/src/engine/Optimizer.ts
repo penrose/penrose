@@ -100,6 +100,15 @@ const EPS = uoStop;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const serializeGraph = (g: VarAD): any => {
+  return {
+    val: g.val,
+    name: g.name,
+    op: g.op,
+    children: g.children.map((ch) => serializeGraph(ch.node)),
+  };
+};
+
 const unconstrainedConverged2 = (normGrad: number): boolean => {
   if (DEBUG_GRAD_DESCENT) {
     log.info("UO convergence check: ||grad f(x)||", normGrad);
@@ -1006,6 +1015,7 @@ export const genOptProblem = (state: State, reset: boolean = true): State => {
       currGradient: gradf(initConstraintWeight),
 
       energyGraph: res.energyGraph,
+      energyGraphSer: serializeGraph(res.energyGraph),
       constrWeightNode: res.constrWeightNode,
       epWeightNode: res.epWeightNode,
       weight: initConstraintWeight,
@@ -1032,6 +1042,7 @@ export const genOptProblem = (state: State, reset: boolean = true): State => {
       currGradient: gradf(initConstraintWeight),
 
       energyGraph: res.energyGraph,
+      energyGraphSer: serializeGraph(res.energyGraph),
       constrWeightNode: res.constrWeightNode,
       epWeightNode: res.epWeightNode,
 
