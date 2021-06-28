@@ -230,18 +230,6 @@ export const objDict = {
     return squared(sub(constOfIf(c), constOfIf(goal)));
   },
   /**
-   * try to make distance between a point and a segment `s1` = padding.
-   */
-  closestPtToSeg: ([, s1]: [string, any], point: VarAD[], padding: VarAD) => {
-    return equalHard(
-      ops.vdist(
-        closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
-        point
-      ),
-      padding
-    );
-  },
-  /**
    * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees. NOTE: angles between 10 and 170 degrees are considered satisfied.
    */
   nonDegenerateAngle: (
@@ -270,6 +258,24 @@ export const objDict = {
         "nonDegenerateAngle: all input shapes need to have centers"
       );
     }
+  },
+  /**
+   * try to make distance between a point and a segment `s1` = padding.
+   */
+  pointAtDistFromClosestPt: (
+    [, s1]: [string, any],
+    point: VarAD[],
+    padding: VarAD
+  ) => {
+    return squared(
+      equalHard(
+        ops.vdist(
+          closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
+          point
+        ),
+        padding
+      )
+    );
   },
 };
 
