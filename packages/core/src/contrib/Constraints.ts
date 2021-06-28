@@ -23,6 +23,7 @@ import {
   and,
   or,
   debug,
+  cos,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
@@ -230,13 +231,15 @@ export const objDict = {
     return squared(sub(constOfIf(c), constOfIf(goal)));
   },
   /**
-   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees. NOTE: angles between 10 and 170 degrees are considered satisfied.
+   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
+   * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
    */
   nonDegenerateAngle: (
     [, p0]: [string, any],
     [, p1]: [string, any],
     [, p2]: [string, any],
-    strength = 20
+    strength = 20,
+    range = 10
   ) => {
     if (every([p0, p1, p2].map((props) => props["center"]))) {
       const c0 = fns.center(p0);
@@ -245,11 +248,10 @@ export const objDict = {
 
       const l1 = ops.vsub(c0, c1);
       const l2 = ops.vsub(c2, c1);
-
       const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
-      // angles between 10 and 170 degrees do not need to be pushed
+      // angles that are more than `range` deg from 0 or 180 do not need to be pushed
       return ifCond(
-        lt(cosine, varOf(0.985)), // cos10 deg = .9848, abs(cos170) = .9848
+        lt(cosine, varOf(range * (Math.PI / 180))),
         varOf(0),
         mul(constOfIf(strength), cosine)
       );
@@ -262,11 +264,7 @@ export const objDict = {
   /**
    * try to make distance between a point and a segment `s1` = padding.
    */
-  pointAtDistFromClosestPt: (
-    [, s1]: [string, any],
-    point: VarAD[],
-    padding: VarAD
-  ) => {
+  pointLineDist: ([, s1]: [string, any], point: VarAD[], padding: VarAD) => {
     return squared(
       equalHard(
         ops.vdist(
