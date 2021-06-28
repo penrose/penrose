@@ -95,6 +95,7 @@ const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
 const ONE_AT_A_TIME = false;
+const LOG_GRAPHS = false;
 
 const EPS = uoStop;
 
@@ -198,6 +199,10 @@ export const step = (state: State, steps: number, evaluate = true) => {
   switch (optStatus) {
     case "NewIter": {
       log.trace("step newIter, xs", xs);
+      if (LOG_GRAPHS) {
+        state.params.historyUOenergy = [];
+        state.params.historyAllEnergies = [];
+      }
 
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
@@ -276,6 +281,32 @@ export const step = (state: State, steps: number, evaluate = true) => {
       optParams.lbfgsInfo = newLbfgsInfo;
       optParams.lastGradient = gradient;
       optParams.lastGradientPreconditioned = gradientPreconditioned;
+
+      // TODO: Delete this
+      if (LOG_GRAPHS) {
+        optParams.historyUOenergy = [...optParams.historyUOenergy, energyVal];
+        let xsVars = makeADInputVars(state.varyingValues);
+        const { objFns, constrFns, varyingPaths } = state;
+        const translationInit = makeTranslationDifferentiable(
+          clone(makeTranslationNumeric(state.translation))
+        );
+        const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+        const translation = insertVaryings(translationInit, varyingMapList);
+        const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+        const objEvaled = evalFns(objFns, translation, varyingMap);
+        const constrEvaled = evalFns(constrFns, translation, varyingMap);
+        const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
+        const constrEngs: VarAD[] = constrEvaled.map((c) =>
+          fns.toPenalty(applyFn(c, constrDict))
+        );
+        optParams.historyAllEnergies = [
+          ...optParams.historyAllEnergies,
+          {
+            objEngs: objEngs.map((e) => e.val),
+            constrEngs: constrEngs.map((e) => e.val),
+          },
+        ];
+      }
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
