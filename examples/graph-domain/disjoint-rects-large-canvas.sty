@@ -1,7 +1,8 @@
--- Get all lines and boxes to be disjoint from each other. (AABB - horizontal axis-aligned bounding boxes)
+-- Get all boxes disjoint from each other.
+
 canvas {
-  width = 800
-  height = 700
+  width = 1600
+  height = 1200
 }
 
 Colors {
@@ -23,11 +24,10 @@ Colors {
 global {
     global.padding = 20.0
     global.stroke = 2.0
-    global.width = 600.
     global.box = Rectangle {
                center: (0., 0.)
-               w: global.width + 300.
-               h: global.width
+               w: canvas.width
+               h: canvas.height
                color: Colors.none
                strokeColor: Colors.black
     }
@@ -62,42 +62,11 @@ Vertex V {
        V.shape above global.box
 }
 
-Edge e {
-       e.len = 200.
-       e.center = ?
-       e.y = ?
-
-       e.left = -e.len/2. + e.center
-       e.right = e.len/2. + e.center
-
-       e.shape = Line {
-                  start: (e.left, e.y)
-                  end: (e.right, e.y)
-                  thickness: 10.
-       }
-
-       e.text = Text {
-	 center: (e.shape.start + e.shape.end) / 2.
-	 string : e.label
-	 color : Colors.black
-       }
-
-       ensure containsRectLineAA(global.box, e.shape)
-}
-
-Edge `e2` {
-     override `e2`.len = 100.
-}
-
 Vertex `v1` {
-       override `v1`.shape.w = 500.
+       override `v1`.shape.w = 300.
 }
 
 -- This is applied to each pair twice (as (a,b) then (b,a))
 Vertex v1; Vertex v2 {
        ensure disjoint(v1.shape, v2.shape, 0.)
-}
-
-Vertex v; Edge e {
-       ensure disjointRectLineAA(v.shape, e.shape)
 }

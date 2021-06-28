@@ -1,10 +1,4 @@
-import {
-  intersectsSegSeg,
-  intersectionSegSeg,
-  inRange,
-  isRectlike,
-  bboxFromShape,
-} from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -12,6 +6,7 @@ import {
   constOf,
   cos,
   div,
+  gt,
   ifCond,
   max,
   min,
@@ -21,23 +16,30 @@ import {
   ops,
   sin,
   sqrt,
+  squared,
+  sub,
+  varOf,
 } from "engine/Autodiff";
+import * as BBox from "engine/BBox";
 import { maxBy, range } from "lodash";
-import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Elem, IStrV, SubPath } from "types/value";
+import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import {
   ArgVal,
   Color,
+  Elem,
+  IArc,
   IColorV,
   IFloatV,
   IPathDataV,
+  IPt,
   IPtListV,
+  IStrV,
   ITupV,
   IVectorV,
+  SubPath,
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
-import * as BBox from "engine/BBox";
 
 /**
  * Static dictionary of computation functions
@@ -49,6 +51,58 @@ import * as BBox from "engine/BBox";
 // These all return a Value<VarAD>
 export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
+
+  makePath: (
+    start: [IVarAD, IVarAD],
+    end: [IVarAD, IVarAD],
+    curveHeight: IVarAD,
+    padding: IVarAD
+  ): IPathDataV<IVarAD> => {
+    // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
+    const unit: IVarAD[] = ops.vnormalize(ops.vsub(start, end));
+    const normalVec: IVarAD[] = rot90(toPt(unit));
+    // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
+    const halfLen: IVarAD = div(ops.vdist(start, end), constOf(2));
+    const controlPt: IVarAD[] = ops.vmove(
+      ops.vmove(end, halfLen, unit),
+      curveHeight,
+      normalVec
+    );
+    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
+    const startPt: IPt<IVarAD> = {
+      tag: "Pt",
+      contents: toPt(ops.vmove(start, padding, ops.vneg(unit))),
+    };
+    const curveEnd: IVarAD[] = ops.vmove(end, padding, unit);
+    return {
+      tag: "PathDataV",
+      contents: [
+        {
+          tag: "Open",
+          contents: [
+            startPt,
+            {
+              tag: "QuadBez",
+              contents: [toPt(controlPt), toPt(curveEnd)],
+            },
+          ],
+        },
+      ],
+    };
+
+    // return {
+    //   tag: "PathDataV",
+    //   contents: [
+    //     {
+    //       tag: "Closed",
+    //       contents: [
+    //         startPt,
+    //         endPt
+    //       ]
+    //     }
+    //   ]
+    // };
+  },
 
   /**
    * Return the derivative of `varName`.
@@ -147,6 +201,22 @@ export const compDict = {
         tag: "RGBA",
         contents: [r, g, b, a],
       },
+    };
+  },
+
+  selectColor: (
+    color1: Color<VarAD>,
+    color2: Color<VarAD>,
+    level: IVarAD
+  ): IColorV<VarAD> => {
+    if (level.val % 2 == 0)
+      return {
+        tag: "ColorV",
+        contents: color1,
+      };
+    return {
+      tag: "ColorV",
+      contents: color2,
     };
   },
 
@@ -292,20 +362,79 @@ export const compDict = {
       contents: [markStart, markEnd].map(toPt),
     };
   },
-
+  /**
+   * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
+   * @param pathType: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point
+   * @param start: coordinate to start drawing the arc
+   * @param end: coordinate to finish drawing the arc
+   * @param radius: width and height of the ellipse to draw the arc along (i.e. [width, height])
+   * @param rotation: angle in degrees to rotate ellipse about its center
+   * @param largeArc: 0 to draw shorter of 2 arcs, 1 to draw longer
+   * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
+   * @returns: Elements that can be passed to Path shape spec to render an SVG arc
+   */
+  arc: (
+    pathType: string,
+    start: Pt2,
+    end: Pt2,
+    radius: Pt2,
+    rotation: IVarAD,
+    largeArc: IVarAD,
+    arcSweep: IVarAD
+  ): IPathDataV<VarAD> => {
+    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
+    const st: IPt<IVarAD> = { tag: "Pt", contents: start };
+    const arc: IArc<IVarAD> = {
+      tag: "Arc",
+      contents: [radius, [rotation, largeArc, arcSweep], end],
+    };
+    const elems: Elem<VarAD>[] = [st, arc];
+    return {
+      tag: "PathDataV",
+      contents: [
+        {
+          tag: pathTypeStr,
+          contents: elems,
+        },
+      ],
+    };
+  },
+  /**
+   * Find intersection between a circle centered at [x1, y1] with radius r and a line segment between [x1, y1] and [x2, y2].
+   * @param x1, y1: centerpoint of circle, one endpoint of line segment
+   * @param x2, y2: endpoint of line segment
+   * @param r: radius of circle
+   * @returns: vector representation of the point of intersection
+   */
+  angleMarker: (p1: VarAD[], p2: VarAD[], r: VarAD): IVectorV<VarAD> => {
+    // find unit vector pointing towards v2
+    const unit = ops.vnormalize(ops.vsub(p2, p1));
+    return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
+  },
+  /**
+   * Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
+   * @param x1, y1: x, y coordinates of the circle/ellipse that the arc is drawn on
+   * @param start: start point of the arc
+   * @param end: end point of the arc
+   * @returns: 0 or 1 depending on CCW or CW rotation
+   */
+  arcSweepFlag: ([x1, y1]: VarAD[], start: Pt2, end: Pt2): IFloatV<VarAD> => {
+    const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
+    const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
+    const cross = ops.cross2(st, en);
+    return {
+      tag: "FloatV",
+      contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
+    };
+  },
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: (
-    [start, end]: [Pt2, Pt2],
-    [t1, s1]: [string, any],
-    padding: VarAD
-  ): ITupV<VarAD> => {
+  midpointOffset: ([t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
-      const [start1, end1] = linePts(s1);
+      const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
-      const dir = ops.vnormalize(ops.vsub(end1, start1));
-      const normalDir = ops.vneg(dir);
+      const normalDir = rot90v(ops.vnormalize(ops.vsub(end, start)));
       const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
       return {

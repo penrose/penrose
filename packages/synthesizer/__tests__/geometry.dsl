@@ -7,6 +7,7 @@ type Point
 type Segment
 
 type Angle
+type Arc
 
 type Triangle
 -- type Square
@@ -48,6 +49,7 @@ constructor MkTriangle : Point p * Point q * Point r -> Triangle
 -- constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
 -- constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
+constructor MkArc : Point p * Point q -> Arc
 
 -- -- TODO: subtyping on the return types
 -- function Midpoint : Linelike -> Point
@@ -72,6 +74,12 @@ predicate Scalene : Triangle
 -- predicate Similar : Triangle * Triangle
 -- predicate Disjoint : Set * Set
 predicate Collinear : Point * Point * Point
+predicate EqualAngleMarker1 : Angle * Angle
+predicate EqualAngleMarker2 : Angle * Angle
+predicate EqualLengthMarker : Segment * Segment
+predicate EqualAngle : Angle * Angle
+predicate EqualLength : Segment * Segment 
+
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"
 -- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"
