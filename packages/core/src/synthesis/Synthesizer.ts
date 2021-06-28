@@ -159,6 +159,8 @@ class SynthesisContext {
     this.prog = {
       tag: "SubProg",
       statements: [],
+      nodeType: "SyntheticSubstance",
+      children: [], // TODO: add statements as children
     };
     this.ops = [];
     this.argCxt = [];
@@ -266,6 +268,8 @@ class SynthesisContext {
     this.prog = {
       tag: "SubProg",
       statements: [],
+      nodeType: "SyntheticSubstance",
+      children: [],
     };
     this.argCxt = [];
     this.loadTemplate();
