@@ -30,7 +30,7 @@ const style = [
   },
 ];
 
-const graph = [
+const graph1 = [
   { data: { id: "a" } },
   { data: { id: "b" } },
   {
@@ -42,24 +42,46 @@ const graph = [
   },
 ];
 
+const graph2 = [
+  { data: { id: "a" } },
+  { data: { id: "b" } },
+  { data: { id: "c" } },
+  {
+    data: {
+      id: "ab",
+      source: "a",
+      target: "b",
+    },
+  },
+  {
+    data: {
+      id: "ac",
+      source: "a",
+      target: "c",
+    },
+  },
+];
+
 function GraphForm() {
   const [items] = React.useState([
+    { label: "none", value: "none" },
     { label: "Optimization functions", value: "opt" },
     { label: "Atomic operations in energy", value: "atomic" },
     { label: "Translation", value: "trans" },
   ]);
 
-  const [value, setValue] = React.useState("opt");
+  const [value, setValue] = React.useState("none"); // init value of state to use
 
   const graphRef: React.RefObject<HTMLDivElement> = React.useRef<HTMLDivElement>(
     null
   );
 
   React.useEffect(() => {
+    console.log(`running effect with ${value}`);
     if (graphRef.current !== null) {
       const cy = cytoscape({
         container: graphRef.current, // container to render in
-        elements: graph,
+        elements: value === "trans" ? graph1 : graph2,
         style: style,
       });
 
@@ -71,10 +93,12 @@ function GraphForm() {
         cy.destroy();
       };
     }
-  }, []);
+  });
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div>Graph to show: {value}</div>
+
       <select value={value} onChange={(e) => setValue(e.currentTarget.value)}>
         {items.map(({ label, value }) => (
           <option key={value} value={value}>
@@ -82,13 +106,8 @@ function GraphForm() {
           </option>
         ))}
       </select>
-      <div>Current value:</div>
-      <div>{value}</div>
 
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <div style={{ fontSize: "12px" }}>
-          Computation graph of the energy (atomic ops only)
-        </div>
         <div
           ref={graphRef}
           style={{ width: "100%", height: "100%", flexGrow: 1 }}
