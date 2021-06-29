@@ -24,16 +24,7 @@ const Select: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     );
   }
 
-  return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div>
-        {" "}
-        <GraphForm />{" "}
-      </div>
-      <div style={{ width: "100%", height: "100%", flexGrow: 1 }} />
-      GRAPH REF GOES HERE
-    </div>
-  );
+  return <GraphForm />;
 };
 
 export default Select;

@@ -2,107 +2,100 @@ import * as React from "react";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 
-// const renderGraph = () => {
-//   const graph = [
-//     { data: { id: 'a' } },
-//     { data: { id: 'b' } },
-//     {
-//       data: {
-//         id: 'ab',
-//         source: 'a',
-//         target: 'b'
-//       }
-//     }];
+const style = [
+  // the stylesheet for the graph
+  {
+    selector: "node",
+    style: {
+      "background-color": "#666",
+    },
+  },
 
-//   const graphRef: React.RefObject<HTMLDivElement> = React.useRef<HTMLDivElement>(null);
+  {
+    selector: "node[label]",
+    style: {
+      label: "data(label)", // label comes from a field of the node
+    },
+  },
 
-//   React.useEffect(() => {
-//     if (graphRef.current !== null) {
-//       const cy = cytoscape({
-//         container: graphRef.current, // container to render in
+  {
+    selector: "edge",
+    style: {
+      width: 3,
+      "line-color": "#ccc",
+      "target-arrow-color": "#ccc",
+      "target-arrow-shape": "triangle",
+      "curve-style": "bezier",
+    },
+  },
+];
 
-//         elements: graph,
+const graph = [
+  { data: { id: "a" } },
+  { data: { id: "b" } },
+  {
+    data: {
+      id: "ab",
+      source: "a",
+      target: "b",
+    },
+  },
+];
 
-//         style: [
-//           // the stylesheet for the graph
-//           {
-//             selector: "node",
-//             style: {
-//               "background-color": "#666",
-//             },
-//           },
+function GraphForm() {
+  const [items] = React.useState([
+    { label: "Optimization functions", value: "opt" },
+    { label: "Atomic operations in energy", value: "atomic" },
+    { label: "Translation", value: "trans" },
+  ]);
 
-//           {
-//             selector: "node[label]",
-//             style: {
-//               label: "data(label)", // label comes from a field of the node
-//             },
-//           },
+  const [value, setValue] = React.useState("opt");
 
-//           {
-//             selector: "edge",
-//             style: {
-//               width: 3,
-//               "line-color": "#ccc",
-//               "target-arrow-color": "#ccc",
-//               "target-arrow-shape": "triangle",
-//               "curve-style": "bezier",
-//             },
-//           },
-//         ],
-//       });
+  const graphRef: React.RefObject<HTMLDivElement> = React.useRef<HTMLDivElement>(
+    null
+  );
 
-//       cy.layout({
-//         name: "dagre",
-//       }).run();
+  React.useEffect(() => {
+    if (graphRef.current !== null) {
+      const cy = cytoscape({
+        container: graphRef.current, // container to render in
+        elements: graph,
+        style: style,
+      });
 
-//       return () => {
-//         cy.destroy();
-//       };
-//     }
-//   }, []);
-// };
+      cy.layout({
+        name: "dagre",
+      }).run();
 
-class GraphForm extends React.Component<{}, { value: string }> {
-  constructor(props) {
-    super(props);
-    this.state = { value: "atomic" };
+      return () => {
+        cy.destroy();
+      };
+    }
+  }, []);
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <select value={value} onChange={(e) => setValue(e.currentTarget.value)}>
+        {items.map(({ label, value }) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+      <div>Current value:</div>
+      <div>{value}</div>
 
-  handleChange(event) {
-    this.setState({ value: event.target.value });
-  }
-
-  handleSubmit(event) {
-    console.log("The chosen graph is: " + this.state.value);
-
-    // renderGraph();
-
-    event.preventDefault();
-  }
-
-  render() {
-    return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Pick the graph:
-            <select value={this.state.value} onChange={this.handleChange}>
-              <option value="atomic">Atomic operations in energy</option>
-              <option value="opt">Optimization functions</option>
-              <option value="translation">Translation</option>
-            </select>
-          </label>
-          <input type="submit" value="Submit" />
-        </form>
-
-        <div style={{ width: "100%", height: "100%", flexGrow: 1 }} />
+        <div style={{ fontSize: "12px" }}>
+          Computation graph of the energy (atomic ops only)
+        </div>
+        <div
+          ref={graphRef}
+          style={{ width: "100%", height: "100%", flexGrow: 1 }}
+        />
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default GraphForm;
