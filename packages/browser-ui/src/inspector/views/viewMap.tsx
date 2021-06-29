@@ -5,6 +5,8 @@ import Errors from "inspector/views/Errors";
 import Opt from "./Opt";
 import CompGraph from "./CompGraph";
 import Settings from "./Settings";
+import Select from "./Select";
+
 const viewMap = {
   frames: Frames,
   errors: Errors,
@@ -13,5 +15,7 @@ const viewMap = {
   opt: Opt,
   compGraph: CompGraph,
   settings: Settings,
+  select: Select,
 };
+
 export default viewMap;
