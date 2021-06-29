@@ -91,7 +91,7 @@ const getStateFromObjArrAndLocalState = (
   */
   // make a newState (replace list of shapes)
   var newShapeList: Shape[] = [];
-  console.log(state.shapes.length);
+  //console.log(state.shapes.length);
   for (var i = 0; i < state.shapes.length; i++) {
     var shap = state.shapes[i];
     var shapPropPathName = shap.properties.name.contents as string;
@@ -100,7 +100,7 @@ const getStateFromObjArrAndLocalState = (
       throw new Error("shape property doesn't have a .");
     }
     var shapName = shapPropPathName.slice(0, dotIndex);
-    console.log("shapeName", shapName);
+    //console.log("shapeName", shapName);
 
     if (testArrNames.includes(shapName)) {
       newShapeList.push(shap);
