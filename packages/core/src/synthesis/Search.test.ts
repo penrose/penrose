@@ -1,13 +1,14 @@
 import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
-import { createChoice } from "pandemonium/choice";
 import {
   compileDomain,
   compileSubstance,
   prettySubstance,
   showError,
 } from "index";
-import { cloneDeep, without } from "lodash";
+import { cloneDeep } from "lodash";
+import { createChoice } from "pandemonium/choice";
 import { applyDiff, rdiffResult } from "recursive-diff";
+import seedrandom from "seedrandom";
 import {
   DeclTypes,
   SynthesizedSubstance,
@@ -25,10 +26,7 @@ import {
   StmtDiff,
   subProgDiffs,
   swapDiffID,
-  synthesizeConfig,
-  toStmtDiff,
 } from "./Search";
-import seedrandom from "seedrandom";
 
 const SEED = "testSearch";
 
@@ -134,12 +132,12 @@ const initSynth = (
 };
 
 describe("Synthesizer tests", () => {
-  test("next config", () => {
-    const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
-    const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
-    synthesizeConfig(progs);
-    // COMBAK: complete test once `synthesizeConfig` is working
-  });
+  // test("next config", () => {
+  //   const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
+  //   const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
+  //   synthesizeConfig(progs);
+  //   // COMBAK: complete test once `synthesizeConfig` is working
+  // });
 
   test("Compute AST diff based on tree sets", () => {
     const original = `

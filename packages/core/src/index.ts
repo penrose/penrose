@@ -15,11 +15,7 @@ import RenderStatic, {
   RenderShape,
 } from "renderer/Renderer";
 import { resampleBest } from "renderer/Resample";
-import {
-  showOps,
-  Synthesizer,
-  SynthesizerSetting,
-} from "synthesis/Synthesizer";
+import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/io";
@@ -31,6 +27,7 @@ import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
+import { showOps } from "synthesis/Mutation";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 

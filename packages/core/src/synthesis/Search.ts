@@ -4,7 +4,6 @@ import {
   intersection,
   nodesEqual,
   sortStmts,
-  subProg,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
 import {
@@ -17,10 +16,10 @@ import {
   sortBy,
 } from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
-import { Mutation, SynthesizedSubstance } from "synthesis/Synthesizer";
+import { SynthesizedSubstance } from "synthesis/Synthesizer";
 import { ASTNode, Identifier, metaProps } from "types/ast";
-import { Delete } from "types/style";
 import { SubProg, SubStmt } from "types/substance";
+import { Mutation } from "synthesis/Mutation";
 
 //#region Generalized edits
 
@@ -344,53 +343,53 @@ export const findDiffs = (stmt: SubStmt, diffs: StmtDiff[]): rdiffResult[] =>
 //#endregion
 
 //#region Specification synthesis
-interface TaggedMutationSet {
-  tag: Mutation["tag"];
-  stmts: SubStmt[];
-}
+// interface TaggedMutationSet {
+//   tag: Mutation["tag"];
+//   stmts: SubStmt[];
+// }
 
-export const synthesizeConfig = (examples: SynthesizedSubstance[]) => {
-  // ): SynthesizerSetting => {
-  const ops: Mutation[] = examples
-    .map((ex: SynthesizedSubstance) => ex.ops)
-    .flat();
+// export const synthesizeConfig = (examples: SynthesizedSubstance[]) => {
+//   // ): SynthesizerSetting => {
+//   const ops: Mutation[] = examples
+//     .map((ex: SynthesizedSubstance) => ex.ops)
+//     .flat();
 
-  const grouped = groupBy(ops, "tag");
+//   const grouped = groupBy(ops, "tag");
 
-  const taggedMutations: TaggedMutationSet[] = map(
-    grouped,
-    (value: Mutation[], key: Mutation["tag"]): TaggedMutationSet => {
-      const set: TaggedMutationSet = {
-        tag: key,
-        stmts: value.map(editedStmt),
-      };
-      return set;
-    }
-  ) as any; // TODO: resolve types: why is it `boolean[]`?
+//   const taggedMutations: TaggedMutationSet[] = map(
+//     grouped,
+//     (value: Mutation[], key: Mutation["tag"]): TaggedMutationSet => {
+//       const set: TaggedMutationSet = {
+//         tag: key,
+//         stmts: value.map(editedStmt),
+//       };
+//       return set;
+//     }
+//   ) as any; // TODO: resolve types: why is it `boolean[]`?
 
-  // console.log(showMutationSets(taggedMutations));
+//   // console.log(showMutationSets(taggedMutations));
 
-  // TODO: finish this function
-  return {} as any;
-};
+//   // TODO: finish this function
+//   return {} as any;
+// };
 
-const showMutationSets = (sets: TaggedMutationSet[]): string =>
-  sets.map(showMutationSet).join("\n\n");
+// const showMutationSets = (sets: TaggedMutationSet[]): string =>
+//   sets.map(showMutationSet).join("\n\n");
 
-const showMutationSet = (set: TaggedMutationSet): string =>
-  `${set.tag}:\n${set.stmts.map(prettyStmt).join("\n")}`;
+// const showMutationSet = (set: TaggedMutationSet): string =>
+//   `${set.tag}:\n${set.stmts.map(prettyStmt).join("\n")}`;
 
-const editedStmt = (mutation: Mutation): SubStmt => {
-  switch (mutation.tag) {
-    case "Replace":
-      return mutation.old;
-    case "Add":
-    case "Delete":
-    case "Swap":
-    case "ReplaceName":
-    case "TypeChange":
-      return mutation.stmt;
-  }
-};
+// const editedStmt = (mutation: Mutation): SubStmt => {
+//   switch (mutation.tag) {
+//     case "Replace":
+//       return mutation.old;
+//     case "Add":
+//     case "Delete":
+//     // case "Swap":
+//     // case "ReplaceName":
+//     case "TypeChange":
+//       return mutation.stmt;
+//   }
+// };
 
 //#endregion

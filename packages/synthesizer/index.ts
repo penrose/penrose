@@ -169,7 +169,7 @@ const writePrograms = (
     const template: SubProg | undefined = synth.getTemplate();
 
     if (template) {
-      progs = [{ prog: template }, ...progs];
+      progs = [{ prog: template, ops: [] }, ...progs];
     }
 
     // write progs

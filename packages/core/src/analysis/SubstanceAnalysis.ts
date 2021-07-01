@@ -10,6 +10,7 @@ import {
   pullAt,
   sortBy,
 } from "lodash";
+import { SwapExprArgs, SwapStmtArgs } from "synthesis/Mutation";
 import { ASTNode, Identifier, metaProps } from "types/ast";
 import {
   ConstructorDecl,
@@ -33,6 +34,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { exprToNumber } from "utils/OtherUtils";
 
 export interface Signature {
   args: string[];
@@ -40,6 +42,10 @@ export interface Signature {
 }
 
 export type ArgStmtDecl = PredicateDecl | FunctionDecl | ConstructorDecl;
+
+export type ArgStmt = ApplyFunction | ApplyPredicate | ApplyConstructor;
+
+export type ArgExpr = ApplyFunction | ApplyConstructor | Func;
 
 /**
  * Append a statement to a Substance program
@@ -56,18 +62,40 @@ export const appendStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
 /**
  * Swap two arguments of a Substance statement
  *
- * @param stmt a Substance statement with the `args` property
- * @param param1 a tuple of indices to swap
- * @returns a new Substance statement
+ * @param param0 the swap mutation data
+ * @param prog a Substance program
+ * @returns a new Substance program
  */
-export const swapArgs = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction,
-  [index1, index2]: [number, number]
-): ApplyConstructor | ApplyPredicate | ApplyFunction => {
-  return {
+export const swapStmtArgs = (
+  { stmt, elem1, elem2 }: SwapStmtArgs,
+  prog: SubProg
+): SubProg => {
+  const newStmt: SubStmt = {
     ...stmt,
-    args: swap(stmt.args, index1, index2),
+    args: swap(stmt.args, elem1, elem2),
   };
+  return replaceStmt(prog, stmt, newStmt);
+};
+
+/**
+ * Swap two arguments of a Substance expression
+ *
+ * @param param0 the swap mutation data
+ * @param prog a Substance program
+ * @returns a new Substance program
+ */
+export const swapExprArgs = (
+  { stmt, expr, elem1, elem2 }: SwapExprArgs,
+  prog: SubProg
+): SubProg => {
+  const newStmt: SubStmt = {
+    ...stmt,
+    expr: {
+      ...expr,
+      args: swap(expr.args, elem1, elem2),
+    } as SubExpr, // TODO: fix types to avoid casting
+  };
+  return replaceStmt(prog, stmt, newStmt);
 };
 
 /**
