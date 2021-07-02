@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useStaticQuery, graphql, Link } from "gatsby";
-import { EuiPage, EuiPageSideBar, EuiPageBody, EuiSideNav } from "@elastic/eui";
+import {
+  EuiPage,
+  EuiPageSideBar,
+  EuiPageBody,
+  EuiSideNav,
+  EuiHeader,
+  EuiHeaderLogo,
+} from "@elastic/eui";
 import "@elastic/eui/dist/eui_theme_amsterdam_light.css";
 
 const Layout = ({ children, itemId }) => {
@@ -16,18 +23,46 @@ const Layout = ({ children, itemId }) => {
   `);
   const sideItems = allShape.nodes.map((item) => ({
     ...item,
-    href: `/shape/${item.name}`,
     isSelected: itemId === item.id,
+    renderItem: ({ children }) => {
+      return (
+        <Link
+          to={`/shape/${item.name}`}
+          className="euiSideNavItemButton euiSideNavItemButton--isClickable"
+          activeClassName="euiSideNavItemButton-isSelected"
+        >
+          {children}
+        </Link>
+      );
+    },
   }));
+  const [isSideNavOpenOnMobile, setisSideNavOpenOnMobile] = useState(false);
+
+  const toggleOpenOnMobile = () => {
+    setisSideNavOpenOnMobile((val) => !val);
+  };
   return (
-    <EuiPage paddingSize="none">
-      <EuiPageSideBar paddingSize="m" sticky>
-        <EuiSideNav
-          items={[{ id: "shapes", name: "Shapes", items: sideItems }]}
-        />
-      </EuiPageSideBar>
-      <EuiPageBody panelled>{children}</EuiPageBody>
-    </EuiPage>
+    <>
+      <EuiHeader
+        position="fixed"
+        sections={[
+          {
+            items: [<EuiHeaderLogo href="/">Penrose</EuiHeaderLogo>],
+          },
+        ]}
+      />
+      <EuiPage paddingSize="s" style={{ marginTop: "48px" }}>
+        <EuiPageSideBar paddingSize="m" sticky>
+          <EuiSideNav
+            toggleOpenOnMobile={toggleOpenOnMobile}
+            isOpenOnMobile={isSideNavOpenOnMobile}
+            mobileTitle="Menu"
+            items={[{ id: "shapes", name: "Shapes", items: sideItems }]}
+          />
+        </EuiPageSideBar>
+        <EuiPageBody panelled>{children}</EuiPageBody>
+      </EuiPage>
+    </>
   );
 };
 

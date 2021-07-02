@@ -5,21 +5,28 @@ import {
   EuiCard,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiIcon,
+  EuiPanel,
 } from "@elastic/eui";
+import { navigate } from "gatsby";
 
 const IndexPage = () => {
   return (
     <Layout>
       <EuiPageHeader pageTitle="Penrose Docs" />
-      <EuiFlexGroup gutterSize="l">
-        <EuiFlexItem>
-          <EuiCard
-            layout="horizontal"
-            title="Shapes"
-            description="Shape definitions"
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      <EuiPanel hasShadow={false}>
+        <EuiFlexGroup gutterSize="l">
+          <EuiFlexItem>
+            <EuiCard
+              layout="horizontal"
+              title="Shapes"
+              description="Shape definitions"
+              icon={<EuiIcon size="xxl" type="heatmap" />}
+              onClick={() => navigate("/shape")}
+            />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiPanel>
     </Layout>
   );
 };
