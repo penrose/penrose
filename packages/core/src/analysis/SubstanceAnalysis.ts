@@ -60,45 +60,6 @@ export const appendStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
 });
 
 /**
- * Swap two arguments of a Substance statement
- *
- * @param param0 the swap mutation data
- * @param prog a Substance program
- * @returns a new Substance program
- */
-export const swapStmtArgs = (
-  { stmt, elem1, elem2 }: SwapStmtArgs,
-  prog: SubProg
-): SubProg => {
-  const newStmt: SubStmt = {
-    ...stmt,
-    args: swap(stmt.args, elem1, elem2),
-  };
-  return replaceStmt(prog, stmt, newStmt);
-};
-
-/**
- * Swap two arguments of a Substance expression
- *
- * @param param0 the swap mutation data
- * @param prog a Substance program
- * @returns a new Substance program
- */
-export const swapExprArgs = (
-  { stmt, expr, elem1, elem2 }: SwapExprArgs,
-  prog: SubProg
-): SubProg => {
-  const newStmt: SubStmt = {
-    ...stmt,
-    expr: {
-      ...expr,
-      args: swap(expr.args, elem1, elem2),
-    } as SubExpr, // TODO: fix types to avoid casting
-  };
-  return replaceStmt(prog, stmt, newStmt);
-};
-
-/**
  * Find all declarations that take the same number and type of args as
  * original statement
  * @param stmt a Substance statement
@@ -171,13 +132,6 @@ export const getStmt = (prog: SubProg, index: number): SubStmt =>
   prog.statements[index];
 
 //#region Helpers
-const swap = (arr: any[], a: number, b: number) =>
-  arr.map((current, idx) => {
-    if (idx === a) return arr[b];
-    if (idx === b) return arr[a];
-    return current;
-  });
-
 /**
  * Find all signatures that match a reference statement. NOTE: returns an empty list if
  * no matches are found; does not include the reference statement in list of matches.

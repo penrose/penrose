@@ -5,9 +5,11 @@ import {
   applyFunction,
   applyPredicate,
   applyTypeDecl,
+  ArgExpr,
   ArgStmtDecl,
   autoLabelStmt,
   domainToSubType,
+  matchSignatures,
   nullaryTypeCons,
   replaceStmt,
 } from "analysis/SubstanceAnalysis";
@@ -20,9 +22,11 @@ import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
 import {
+  checkReplaceExprName,
   checkSwapExprArgs,
   checkSwapStmtArgs,
   executeMutation,
+  IMutation,
   Mutation,
   showOp,
   showOps,
@@ -52,6 +56,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { checkReplaceStmtName } from "./Mutation";
 
 type RandomFunction = (min: number, max: number) => number;
 
@@ -145,6 +150,7 @@ class SynthesisContext {
         const type = env.vars.get(id.value);
         this.addID(type!.name.value, id); // TODO: enforce the existence of var types
       });
+      log.debug(`Loaded template:\n${prettySubstance(this.prog)}`);
     }
   };
 
@@ -199,12 +205,13 @@ class SynthesisContext {
     mutationType: string
   ): void => {
     this.prog = replaceStmt(this.prog, originalStmt, newStmt);
-    this.ops.push({
-      tag: "Replace",
-      old: originalStmt,
-      new: newStmt,
-      mutationType,
-    });
+    // COMBAK: fix this
+    // this.ops.push({
+    //   tag: "Replace",
+    //   old: originalStmt,
+    //   new: newStmt,
+    //   mutationType,
+    // });
   };
 
   removeStmt = (stmt: SubStmt) => {
@@ -371,17 +378,35 @@ export class Synthesizer {
   findMutations = (stmt: SubStmt): Mutation[] => {
     log.debug(`Finding mutations for ${prettyStmt(stmt)}`);
     const ops: (Mutation | undefined)[] = [
-      checkSwapStmtArgs(stmt, (p) => {
+      checkSwapStmtArgs(stmt, (p: ApplyPredicate) => {
         const indices = range(0, p.args.length);
         const elem1 = this.choice(indices);
         const elem2 = this.choice(without(indices, elem1));
         return [elem1, elem2];
       }),
-      checkSwapExprArgs(stmt, (f) => {
+      checkSwapExprArgs(stmt, (f: ArgExpr) => {
         const indices = range(0, f.args.length);
         const elem1 = this.choice(indices);
         const elem2 = this.choice(without(indices, elem1));
         return [elem1, elem2];
+      }),
+      checkReplaceStmtName(stmt, (p: ApplyPredicate) => {
+        const matchingNames: string[] = matchSignatures(p, this.env).map(
+          (decl) => decl.name.value
+        );
+        const options = without(matchingNames, p.name.value);
+        const pick = this.choice(options);
+        // TODO: check length of options
+        return pick;
+      }),
+      checkReplaceExprName(stmt, (e: ArgExpr) => {
+        const matchingNames: string[] = matchSignatures(e, this.env).map(
+          (decl) => decl.name.value
+        );
+        const options = without(matchingNames, e.name.value);
+        const pick = this.choice(options);
+        // TODO: check length of options
+        return pick;
       }),
     ];
     return compact(ops);
@@ -393,15 +418,20 @@ export class Synthesizer {
     const op = this.choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
-    else if (op === "edit") this.editStmt();
+    else if (op === "edit") {
+      this.cxt.findCandidates(this.env, this.setting.edit);
+      this.editStmt();
+    }
   };
 
   editStmt = (): void => {
     log.debug(`Picking a statement to edit...`);
-    this.cxt.findCandidates(this.env, this.setting.edit);
     const chosenType = this.choice(this.cxt.candidateTypes());
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
     const chosenName = this.choice(candidates);
+    log.debug(
+      `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`
+    );
     const stmt = this.findStmt(chosenType, chosenName);
     if (stmt !== undefined) {
       log.debug(`Editing statement: ${prettyStmt(stmt)}`);
@@ -409,7 +439,7 @@ export class Synthesizer {
       const mutations = this.findMutations(stmt);
       // if there's any valid mutation, pick one to execute
       if (mutations.length > 0) {
-        const mutation = this.choice(mutations);
+        const mutation: Mutation = this.choice(mutations);
         log.debug(`Picked mutation: ${showOp(mutation)}`);
         const newProg: SubProg = executeMutation(this.cxt.prog, mutation);
         this.cxt.ops.push(mutation);
@@ -432,7 +462,6 @@ export class Synthesizer {
   //   if (stmt && (stmt.tag === "ApplyPredicate" || stmt.tag === "Bind")) {
   //     log.debug(`Editing statement: ${prettyStmt(stmt)}`);
   //     switch (op) {
-
   //       case "ReplaceName": {
   //         const s = (stmt.tag === "Bind" ? stmt.expr : stmt) as ApplyPredicate;
   //         const options = matchSignatures(s, this.env);
@@ -501,12 +530,13 @@ export class Synthesizer {
       // otherwise we can simple delete
       this.cxt.removeStmt(oldStmt);
     }
-    this.cxt.ops.push({
-      tag: "Replace",
-      old: oldStmt,
-      new: newStmt,
-      mutationType: "TypeChange",
-    });
+    // COMBAK: fix
+    // this.cxt.ops.push({
+    //   tag: "Replace",
+    //   stmt: oldStmt,
+    //   newStmt: newStmt,
+    //   mutationType: "TypeChange",
+    // });
   };
 
   // NOTE: every synthesizer that 'addStmt' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
@@ -524,7 +554,8 @@ export class Synthesizer {
     } else if (chosenType === "ConstructorDecl") {
       stmt = this.generateConstructor();
     }
-    if (stmt) this.cxt.ops.push({ tag: "Add", stmt });
+    // COMBAK: fix
+    // if (stmt) this.cxt.ops.push({ tag: "Add", stmt });
   };
 
   deleteStmt = (): void => {
@@ -538,11 +569,13 @@ export class Synthesizer {
       if (stmt.tag === "Bind" || stmt.tag === "Decl") {
         // if statement returns value, delete all refs to value
         this.cascadingDelete(stmt).forEach((s) => {
-          this.cxt.ops.push({ tag: "Delete", stmt: s });
+          // COMBAK: fix
+          // this.cxt.ops.push({ tag: "Delete", stmt: s });
         });
       } else {
         this.cxt.removeStmt(stmt);
-        this.cxt.ops.push({ tag: "Delete", stmt });
+        // COMBAK: fix
+        // this.cxt.ops.push({ tag: "Delete", stmt });
       }
     }
   };
