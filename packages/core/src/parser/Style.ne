@@ -73,21 +73,20 @@ const declList = (type: StyT, ids: BindingForm[]): DeclPattern[] => {
   return ids.map((i: BindingForm) => decl(type, i));
 }
 
-
 const selector = (
   hd: DeclPatterns,
   wth?: DeclPatterns,
   whr?: RelationPatterns,
-  namespace?: Namespace
+  //namespace?: Namespace
 ): Selector => {
   return {
-    ...nodeData(compact([hd, wth, whr, namespace])),
-    ...rangeFrom(compact([hd, wth, whr, namespace])),
+    ...nodeData(compact([hd, wth, whr])), //, namespace])),
+    ...rangeFrom(compact([hd, wth, whr])), //, namespace])),
     tag: "Selector",
     head: hd,
     with: wth,
     where: whr,
-    namespace,
+    //namespace,
   };
 }
 
@@ -161,17 +160,27 @@ header
   -> selector  {% id %}
   |  namespace {% id %}
 
-selector -> 
-    forall:? decl_patterns _ml select_as:?  
-    {% (d) => selector(d[1], undefined, undefined, d[3]) %} 
-  | forall:? decl_patterns _ml select_where select_as:? 
-    {% (d) => selector(d[1], undefined, d[3], d[4]) %} 
-  | forall:? decl_patterns _ml select_with select_as:? 
-    {% (d) => selector(d[1], d[3], undefined, d[4]) %} 
-  | forall:? decl_patterns _ml select_where select_with select_as:? 
-    {% (d) => selector(d[1], d[4], d[3], d[5]) %} 
-  | forall:? decl_patterns _ml select_with select_where select_as:? 
-    {% (d) => selector(d[1], d[3], d[4], d[5]) %}
+#### #### #### #### 
+#const selector = (
+#  hd: DeclPatterns,
+#  wth?: DeclPatterns,
+#  whr?: RelationPatterns,
+#  //namespace?: Namespace
+#): Selector
+#### #### #### ####
+
+selector -> # deprecate select_as
+    forall:? decl_patterns _ml #select_as:?  
+    {% (d) => selector(d[1], undefined, undefined) %} #%, d[3]) %} 
+  | forall:? decl_patterns _ml select_where # select_as:? 
+    {% (d) => selector(d[1], undefined, d[3]) %} #%, d[4]) %} 
+  | forall:? decl_patterns _ml select_with #select_as:? 
+    {% (d) => selector(d[1], d[3], undefined)%} # , d[4])  
+  | forall:? decl_patterns _ml select_where select_with # select_as:? 
+    {% (d) => selector(d[1], d[4], d[3]) %} #%, d[5]) %} 
+  | forall:? decl_patterns _ml select_with select_where #select_as:? 
+    {% (d) => selector(d[1], d[3], d[4]) %} #%, d[5]) %}
+####
 
 forall -> "forall" __ {% nth(0) %}
 
@@ -209,21 +218,40 @@ relation
   -> rel_bind {% id %} 
   |  rel_pred {% id %}
 
-rel_bind -> binding_form _ ":=" _ sel_expr {%
-  ([id, , , , expr]): RelBind => ({
-    ...nodeData([id, expr]), 
-    ...rangeFrom([id, expr]),
-    tag: "RelBind", id, expr
-  })
-%}
 
-rel_pred -> identifier _ "(" pred_arg_list ")" {% 
-  ([name, , , args, ]): RelPred => ({
-    ...nodeData([name, ...args]), 
-    ...rangeFrom([name, ...args]),
-    tag: "RelPred", name, args
-  }) 
-%}
+rel_bind 
+  -> binding_form _ ":=" _ sel_expr __ml alias_as {% 
+    ([id, , , , expr, , a]): RelBind => ({
+      ...nodeData([id, expr, a]),
+      ...rangeFrom([id, expr, a]),
+      tag: "RelBind", id, expr, alias: a,
+    })
+  %}
+  | binding_form _ ":=" _ sel_expr {% 
+    ([id, , , , expr]): RelBind => ({
+      ...nodeData([id, expr]),
+      ...rangeFrom([id, expr]),
+      tag: "RelBind", id, expr,
+    })
+  %}
+
+rel_pred 
+  -> identifier _ "(" pred_arg_list ")" __ml alias_as {% 
+    ([name, , , args, , , a]): RelPred => ({
+        ...nodeData([name, ...args, a]),
+        ...rangeFrom([name, ...args, a]),
+        tag: "RelPred", name, args, alias: a
+    })
+  %} 
+  | identifier _ "(" pred_arg_list ")" {% 
+    ([name, , , args, ,]): RelPred => ({
+        ...nodeData([name, ...args]),
+        ...rangeFrom([name, ...args]),
+        tag: "RelPred", name, args,
+    })
+  %} 
+
+alias_as -> "as" __ identifier {% d => d[2] %} 
 
 sel_expr_list 
   -> _ {% d => [] %}
@@ -244,7 +272,6 @@ sel_expr
       tag: "SEBind", contents: d
     }) 
   %}
-
 
 pred_arg_list 
   -> _ {% d => [] %}
@@ -283,7 +310,6 @@ styVar -> identifier {%
 %}
 
 # NOTE: do not expect more ws after namespace because it's already parsing them for standalone use
-select_as -> "as" __ namespace {% nth(2) %}
 
 namespace -> styVar _ml {%
   ([contents]): Namespace => ({
@@ -293,7 +319,6 @@ namespace -> styVar _ml {%
     contents
   })
 %}
-
 
 ################################################################################
 # Block grammar
@@ -638,6 +663,8 @@ comment
 _c_ -> (%ws | comment):* 
 
 _ml -> multi_line_ws_char:* 
+
+__ml -> multi_line_ws_char:+
 
 multi_line_ws_char
     -> %ws

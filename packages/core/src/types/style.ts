@@ -29,7 +29,7 @@ export interface Selector extends ASTNode {
   head: DeclPatterns;
   with?: DeclPatterns;
   where?: RelationPatterns;
-  namespace?: Namespace;
+  // amespace?: Namespace;
 }
 
 // NOTE: Instead of a js array typed child. I explicitly wrap them in an ASTNode so location and ancestry info can be better preserved.
@@ -61,12 +61,14 @@ export interface RelBind extends ASTNode {
   tag: "RelBind";
   id: BindingForm;
   expr: SelExpr;
+  alias?: Identifier;
 }
 
 export interface RelPred extends ASTNode {
   tag: "RelPred";
   name: Identifier;
   args: PredArg[];
+  alias?: Identifier;
 }
 
 export type PredArg = SEBind | RelPred;
