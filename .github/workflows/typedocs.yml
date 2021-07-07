@@ -8,8 +8,9 @@ jobs:
   Install-And-Build:
     runs-on: ubuntu-latest
     steps:
-      - run: yarn
-      - run: yarn docs
+      - run: |
+          yarn
+          yarn docs
       - run: touch docs/.nojekyll
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.4
