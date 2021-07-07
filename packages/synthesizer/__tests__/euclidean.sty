@@ -56,6 +56,7 @@ const {
     bigThetaRadius = 40.0
 }
 
+--Plane
 Plane p {
   dim = 700.0
   p.text = Text {
@@ -79,6 +80,7 @@ Plane p {
   p.text above p.icon
 }
 
+--Point
 Point p {
   p.x = ?
   p.y = ?
@@ -122,6 +124,7 @@ where Collinear(p, q, r) {
 --  encourage equal(vdist(q.vec, p.vec), vdist(r.vec,q.vec))
 }
 
+--Segment
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
@@ -147,14 +150,18 @@ with Point p; Point q {
     --  e.icon above const.plane
 }
 
+Segment e; Plane p {
+  e.icon above p.icon
+}
+
 Segment s, t
 where EqualLength(s, t) {
   encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
 Segment s, t 
-where EqualLengthMarker(s, t) {
-  s.tick = Line {
+where EqualLengthMarker1(s, t) {
+  override s.tick = Line {
     start : midpointOffset(s.icon, 10.)
     end : midpointOffset(s.icon, -10.)
     color : Colors.black
@@ -162,7 +169,7 @@ where EqualLengthMarker(s, t) {
     stroke : "none"
     style : "solid"
   }
-  t.tick = Line {
+  override t.tick = Line {
     start : midpointOffset(t.icon, 10.)
     end : midpointOffset(t.icon, -10.)
     color : Colors.black
@@ -172,6 +179,133 @@ where EqualLengthMarker(s, t) {
   }
   s.tick above s.icon
   t.tick above t.icon
+}
+
+Segment s, t 
+where EqualLengthMarker2(s, t) {
+  --need slope of line, then need to equally distribute the tick marks
+  override s.tick = Line {
+    start : midpointOffset(s.icon, 10.)
+    end : midpointOffset(s.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override t.tick = Line {
+    start : midpointOffset(t.icon, 10.)
+    end : midpointOffset(t.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override s.tick2 = Line {
+    start : midpointOffset(s.icon, 10.)
+    end : midpointOffset(s.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override t.tick2 = Line {
+    start : midpointOffset(t.icon, 10.)
+    end : midpointOffset(t.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  s.tick above s.icon
+  s.tick2 above s.icon
+  t.tick above t.icon
+  t.tick2 above t.icon
+}
+
+Segment s, t 
+where EqualLengthMarker3(s, t) {
+  --need slope of line, then need to equally distribute the tick marks
+  override s.tick = Line {
+    start : midpointOffset(s.icon, 10.)
+    end : midpointOffset(s.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override t.tick = Line {
+    start : midpointOffset(t.icon, 10.)
+    end : midpointOffset(t.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override s.tick2 = Line {
+    start : midpointOffset(s.icon, 10.)
+    end : midpointOffset(s.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override t.tick2 = Line {
+    start : midpointOffset(t.icon, 10.)
+    end : midpointOffset(t.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+    override s.tick3 = Line {
+    start : midpointOffset(s.icon, 10.)
+    end : midpointOffset(s.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  override t.tick3 = Line {
+    start : midpointOffset(t.icon, 10.)
+    end : midpointOffset(t.icon, -10.)
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  s.tick above s.icon
+  s.tick2 above s.icon
+  s.tick3 above s.icon
+  t.tick above t.icon
+  t.tick2 above t.icon
+  t.tick3 above t.icon
+}
+
+--Angle
+Angle theta
+where theta := InteriorAngle(p, q, r)
+with Point p; Point q; Point r {
+  theta.p = p.vec
+  theta.q = q.vec
+  theta.r = r.vec
+  theta.color = setOpacity(Colors.darkpurple, 0.4)
+  theta.side1 = Line {
+    start : p.icon.center
+    end : q.icon.center
+    color : theta.color
+    thickness : const.strokeWidth
+    stroke : 2.
+    style : "solid"
+  }
+  theta.side2 = Line {
+    start : q.icon.center
+    end : r.icon.center
+    color : theta.color
+    thickness : const.strokeWidth
+    stroke : 2.
+    style : "solid"
+  }
+  theta.radius = const.thetaRadius
 }
 
 Angle a, b
@@ -209,13 +343,13 @@ where EqualAngleMarker2(a, b) {
   endB = angleMarker(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
-  a.angleMark = Path {
+  override a.angleMark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark = Path {
+  override b.angleMark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -229,13 +363,13 @@ where EqualAngleMarker2(a, b) {
   startBbig = angleMarker(b.q, b.p, bigR)
   endBbig = angleMarker(b.q, b.r, bigR)
 
-  a.angleMark2 = Path {
+  override a.angleMark2 = Path {
     pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
-  b.angleMark2 = Path {
+  override b.angleMark2 = Path {
     pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
     color : Colors.black
@@ -244,6 +378,70 @@ where EqualAngleMarker2(a, b) {
 
 }
 Angle a, b
+where EqualAngleMarker3(a, b) {
+  startA = angleMarker(a.q, a.p, a.radius)
+  endA = angleMarker(a.q, a.r, a.radius)
+  sweepA = arcSweepFlag(a.q, startA, endA)
+
+  startB = angleMarker(b.q, b.p, b.radius)
+  endB = angleMarker(b.q, b.r, b.radius)
+  sweepB = arcSweepFlag(b.q, startB, endB)
+
+  override a.angleMark = Path {
+    pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
+   strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+  override b.angleMark = Path {
+    pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+
+  midR = const.bigThetaRadius
+  startAbig = angleMarker(a.q, a.p, midR)
+  endAbig = angleMarker(a.q, a.r, midR)
+
+  startBbig = angleMarker(b.q, b.p, midR)
+  endBbig = angleMarker(b.q, b.r, midR)
+
+  override a.angleMark2 = Path {
+    pathData : arc("open", startAbig, endAbig, (midR, midR), 0, 0, sweepA)
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+  override b.angleMark2 = Path {
+    pathData : arc("open", startBbig, endBbig, (midR, midR), 0, 0, sweepB)
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+
+  bigR = const.bigThetaRadius + 20.
+  startAbig = angleMarker(a.q, a.p, bigR)
+  endAbig = angleMarker(a.q, a.r, bigR)
+
+  startBbig = angleMarker(b.q, b.p, bigR)
+  endBbig = angleMarker(b.q, b.r, bigR)
+
+  override a.angleMark3 = Path {
+    pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+  override b.angleMark3 = Path {
+    pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
+    strokeWidth : 2.0
+    color : Colors.black
+    fill: Colors.none
+ }
+}
+
+Angle a, b
 where EqualAngle(a, b) {
   -- make sure angle a is equal to angle b
   dotA = dot(normalize(a.p - a.q), normalize(a.r - a.q))
@@ -251,10 +449,7 @@ where EqualAngle(a, b) {
   ensure equal(dotA, dotB)
 }
 
-Segment e; Plane p {
-  e.icon above p.icon
-}
-
+--Triangle
 Triangle t; Plane P 
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
@@ -293,6 +488,7 @@ with Point p; Point q; Point r {
      }
 }
 
+--Rectangle
 -- -- Should the rectangle be constructed from the points, or vice versa?
 Rectangle R
 where R := MkRectangle(p, q, r, s); In(p, P)
@@ -317,50 +513,6 @@ with Point p; Point q; Point r; Point s; Plane P  {
   R.icon above P.icon
 }
 
-Angle theta
-where theta := InteriorAngle(p, q, r)
-with Point p; Point q; Point r {
-  theta.p = p.vec
-  theta.q = q.vec
-  theta.r = r.vec
-  theta.color = setOpacity(Colors.darkpurple, 0.4)
-  theta.side1 = Line {
-    start : p.icon.center
-    end : q.icon.center
-    color : theta.color
-    thickness : const.strokeWidth
-    stroke : 2.
-    style : "solid"
-  }
-  theta.side2 = Line {
-    start : q.icon.center
-    end : r.icon.center
-    color : theta.color
-    thickness : const.strokeWidth
-    stroke : 2.
-    style : "solid"
-  }
-  theta.radius = const.thetaRadius
-}
- --    theta.radius = const.thetaRadius
---     -- TODO: always take the acute angle, not the obtuse angle
---     theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
---
---     theta.shape = Path {
---       pathData : polygonFromPoints(theta.arcPath)
---      strokeWidth : const.strokeWidth
---       color : Colors.darkpurple
---       fill : setOpacity(Colors.white, 0.5)
---     }
-
---     theta.icon above const.plane
---     theta.icon below p.icon
---     theta.icon below q.icon
---     theta.icon below r.icon
-
---     -- TODO: or could be minimum constraint function
---     encourage repel(q.icon, r.icon, 100.0)
--- }
 
 -- -- We don't know if the points in the triangle actually include the points in the square or not
 -- -- TODO: this doesn't seem to match -- and the matches take way too long!!

@@ -18,5 +18,5 @@ EqualAngle(a1, a2)
 EqualAngleMarker2(a3, a4)
 EqualAngle(a3, a4)
 EqualLength(s1, s2)
-EqualLengthMarker(s1, s2)
+EqualLengthMarker1(s1, s2)
 AutoLabel All

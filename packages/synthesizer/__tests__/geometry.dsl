@@ -1,7 +1,7 @@
 -- type Set
 type Point
 
--- type Linelike
+type Linelike
 -- type Ray
 -- type Line
 type Segment
@@ -12,7 +12,7 @@ type Arc
 type Triangle
 -- type Square
 type Rectangle
--- type Circle
+type Circle
 
 type Plane
 
@@ -35,8 +35,8 @@ type Plane
 
 -- TODO: rename to MakeSegment and MakeTriangle (etc.) everywhere
 constructor MkSegment : Point p * Point q -> Segment
--- constructor MkRay : Point base * Point direction -> Ray
--- constructor MkLine : Point p * Point q -> Point
+constructor MkRay : Point base * Point direction -> Linelike
+constructor MkLine : Point p * Point q -> Linelike
 
 -- constructor InteriorAngle : Linelike l * Linelike m -> Angle
 constructor InteriorAngle : Point p * Point q * Point r -> Angle
@@ -44,8 +44,8 @@ constructor TriangleVertex : Point p * Point q * Point r -> Angle
 
 constructor MkTriangle : Point p * Point q * Point r -> Triangle
 -- constructor MkTriangleL : Linelike l * Linelike m * Linelike n -> Triangle
--- constructor MkCircleR : Point center * Point radius -> Circle
--- constructor MkCircleD : Point diam1 * Point diam2 -> Circle
+constructor MkCircleR : Point center * Point radius -> Circle
+constructor MkCircleD : Point diam1 * Point diam2 -> Circle
 -- constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
 -- constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
@@ -71,12 +71,14 @@ predicate Not : Prop
 -- predicate EquilateralT : Triangle
 -- predicate RightT : Triangle
 predicate Scalene : Triangle
--- predicate Similar : Triangle * Triangle
--- predicate Disjoint : Set * Set
+predicate Similar : Triangle * Triangle
 predicate Collinear : Point * Point * Point
 predicate EqualAngleMarker1 : Angle * Angle
 predicate EqualAngleMarker2 : Angle * Angle
-predicate EqualLengthMarker : Segment * Segment
+predicate EqualAngleMarker3 : Angle * Angle
+predicate EqualLengthMarker1 : Segment * Segment
+predicate EqualLengthMarker2 : Segment * Segment
+predicate EqualLengthMarker3 : Segment * Segment
 predicate EqualAngle : Angle * Angle
 predicate EqualLength : Segment * Segment 
 
