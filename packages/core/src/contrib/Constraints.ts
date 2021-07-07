@@ -264,7 +264,10 @@ export const objDict = {
   /**
    * try to make distance between a point and a segment `s1` = padding.
    */
-  pointLineDist: ([, s1]: [string, any], point: VarAD[], padding: VarAD) => {
+  pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
+    if (!isLinelike(t1)) {
+      throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
+    }
     return squared(
       equalHard(
         ops.vdist(
