@@ -4,6 +4,9 @@ on:
     branches:
       - main
       - max/gh-actions
+defaults:
+  run:
+    working-directory: ./packages/core
 jobs:
   Install-And-Build:
     runs-on: ubuntu-latest
