@@ -28,7 +28,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: docs
+          folder: packages/core/docs
           target-folder: typedoc
       - name: Add .nojekyll
         run: |
@@ -38,4 +38,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: extra
+          folder: packages/core/extra
