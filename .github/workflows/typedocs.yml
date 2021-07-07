@@ -8,13 +8,22 @@ jobs:
   Install-And-Build:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          yarn
-          yarn docs
-      - run: touch docs/.nojekyll
-      - name: Deploy
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: yarn
+      - name: Build docs
+        run: yarn docs
+      - name: Deploy docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
           folder: docs
           target-folder: typedoc
+      - name: Add .nojekyll
+        run: touch extra/.nojekyll
+      - name: Deploy .nojekyll
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: extra
