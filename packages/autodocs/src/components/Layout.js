@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { useStaticQuery, graphql, Link } from "gatsby";
+import { Helmet } from "react-helmet";
 import {
   EuiPage,
   EuiPageSideBar,
   EuiPageBody,
   EuiSideNav,
   EuiHeader,
-  EuiHeaderLogo,
+  EuiTitle,
 } from "@elastic/eui";
 import "@elastic/eui/dist/eui_theme_amsterdam_light.css";
 
-const Layout = ({ children, itemId }) => {
+const Layout = ({ children, itemId, title }) => {
   const { allShape } = useStaticQuery(graphql`
     query SidebarQuery {
       allShape {
@@ -43,11 +44,18 @@ const Layout = ({ children, itemId }) => {
   };
   return (
     <>
+      <Helmet title={title ? `${title} - Penrose` : "Penrose Docs"} />
       <EuiHeader
         position="fixed"
         sections={[
           {
-            items: [<EuiHeaderLogo href="/">Penrose</EuiHeaderLogo>],
+            items: [
+              <Link to={"/"}>
+                <EuiTitle size={"s"}>
+                  <h1>Penrose</h1>
+                </EuiTitle>
+              </Link>,
+            ],
           },
         ]}
       />
@@ -57,7 +65,24 @@ const Layout = ({ children, itemId }) => {
             toggleOpenOnMobile={toggleOpenOnMobile}
             isOpenOnMobile={isSideNavOpenOnMobile}
             mobileTitle="Menu"
-            items={[{ id: "shapes", name: "Shapes", items: sideItems }]}
+            items={[
+              {
+                id: "shapes",
+                name: "Shapes",
+                items: sideItems,
+                renderItem: ({ children }) => {
+                  return (
+                    <Link
+                      to={`/shape`}
+                      className="euiSideNavItemButton euiSideNavItemButton--isClickable"
+                      activeClassName="euiSideNavItemButton-isSelected"
+                    >
+                      {children}
+                    </Link>
+                  );
+                },
+              },
+            ]}
           />
         </EuiPageSideBar>
         <EuiPageBody panelled>{children}</EuiPageBody>

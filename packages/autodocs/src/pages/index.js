@@ -8,22 +8,24 @@ import {
   EuiIcon,
   EuiPanel,
 } from "@elastic/eui";
-import { navigate } from "gatsby";
+import { navigate, Link } from "gatsby";
 
 const IndexPage = () => {
   return (
-    <Layout>
+    <Layout title={"Home"}>
       <EuiPageHeader pageTitle="Penrose Docs" />
       <EuiPanel hasShadow={false}>
         <EuiFlexGroup gutterSize="l">
           <EuiFlexItem>
-            <EuiCard
-              layout="horizontal"
-              title="Shapes"
-              description="Shape definitions"
-              icon={<EuiIcon size="xxl" type="heatmap" />}
-              onClick={() => navigate("/shape")}
-            />
+            <Link to="/shape">
+              <EuiCard
+                layout="horizontal"
+                title="Shapes"
+                description="Shape definitions"
+                icon={<EuiIcon size="xxl" type="heatmap" />}
+                onClick={() => navigate("/shape")}
+              />
+            </Link>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiPanel>

@@ -10,7 +10,7 @@ import {
 
 const ShapePage = ({ data }) => {
   return (
-    <Layout itemId={data.shape.id}>
+    <Layout itemId={data.shape.id} title={data.shape.name}>
       <EuiPageHeader
         restrictWidth={800}
         pageTitle={data.shape.name}
