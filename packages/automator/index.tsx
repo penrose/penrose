@@ -11,7 +11,7 @@ import { renderArtifacts } from "./artifacts";
 
 //
 import { getListOfStagedStates } from "../core/src/renderer/Comic";
-import { State } from "../core/build/dist/types/state";
+import { State } from "../core/src/types/state";
 //
 
 const fs = require("fs");
