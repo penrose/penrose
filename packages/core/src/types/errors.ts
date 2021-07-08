@@ -163,6 +163,8 @@ export type StyleError =
   | NonexistentPropertyError
   | ExpectedGPIGotFieldError
   | InvalidAccessPathError
+  | CanvasNonexistentError
+  | CanvasNonexistentDimsError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -351,6 +353,17 @@ export interface ExpectedGPIGotFieldError {
 export interface InvalidAccessPathError {
   tag: "InvalidAccessPathError";
   path: Path;
+}
+
+export interface CanvasNonexistentError {
+  tag: "CanvasNonexistentError";
+}
+
+export interface CanvasNonexistentDimsError {
+  tag: "CanvasNonexistentDimsError";
+  attr: "width" | "height";
+  kind: "missing" | "GPI" | "uninitialized" | "wrong type";
+  type?: string;
 }
 
 //#endregion Translation validation errors

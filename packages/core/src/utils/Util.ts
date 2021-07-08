@@ -1,5 +1,5 @@
 import memoize from "fast-memoize";
-import { times } from "lodash";
+import { zipWith, reduce, times } from "lodash";
 import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
 
@@ -337,3 +337,286 @@ export const safe = <T extends unknown>(
   }
   return argument;
 };
+
+// ----------------
+
+//#region Some geometry-related utils.
+
+/**
+ * Some vector operations that can be used on lists.
+ */
+export const ops = {
+  /**
+   * Return the norm of the 2-vector `[c1, c2]`.
+   */
+  norm: (c1: number, c2: number) => ops.vnorm([c1, c2]),
+
+  /**
+   * Return the Euclidean distance between scalars `c1, c2`.
+   */
+  dist: (c1: number, c2: number) => ops.vnorm([c1, c2]),
+
+  /**
+   * Return the sum of vectors `v1, v2.
+   */
+  vadd: (v1: number[], v2: number[]): number[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = zipWith(v1, v2, (a, b) => a + b);
+    return res;
+  },
+
+  /**
+   * Return the difference of vectors `v1, v2.
+   */
+  vsub: (v1: number[], v2: number[]): number[] => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = zipWith(v1, v2, (a, b) => a - b);
+    return res;
+  },
+
+  /**
+   * Return the Euclidean norm squared of vector `v`.
+   */
+  vnormsq: (v: number[]): number => {
+    const res = v.map((e) => e * e);
+    return reduce(res, (x, y) => x + y, 0.0); // TODO: Will this one (var(0)) have its memory freed?
+    // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
+  },
+
+  /**
+   * Return the Euclidean norm of vector `v`.
+   */
+  vnorm: (v: number[]): number => {
+    const res = ops.vnormsq(v);
+    return Math.sqrt(res);
+  },
+
+  /**
+   * Return the vector `v` scaled by scalar `c`.
+   */
+  vmul: (c: number, v: number[]): number[] => {
+    return v.map((e) => c * e);
+  },
+
+  /**
+   * Return the vector `v`, scaled by `-1`.
+   */
+  vneg: (v: number[]): number[] => {
+    return ops.vmul(-1.0, v);
+  },
+
+  /**
+   * Return the vector `v` divided by scalar `c`.
+   */
+  vdiv: (v: number[], c: number): number[] => {
+    return v.map((e) => e / c);
+  },
+
+  /**
+   * Return the vector `v`, normalized.
+   */
+  vnormalize: (v: number[]): number[] => {
+    const vsize = ops.vnorm(v) + 10e-10;
+    return ops.vdiv(v, vsize);
+  },
+
+  /**
+   * Return the Euclidean distance between vectors `v` and `w`.
+   */
+  vdist: (v: number[], w: number[]): number => {
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    return ops.vnorm(ops.vsub(v, w));
+  },
+
+  /**
+   * Return the Euclidean distance squared between vectors `v` and `w`.
+   */
+  vdistsq: (v: number[], w: number[]): number => {
+    if (v.length !== w.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    return ops.vnormsq(ops.vsub(v, w));
+  },
+
+  /**
+   * Return the dot product of vectors `v1, v2`.
+   * Note: if you want to compute a norm squared, use `vnormsq` instead, it generates a smaller computational graph
+   */
+  vdot: (v1: number[], v2: number[]): number => {
+    if (v1.length !== v2.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    const res = zipWith(v1, v2, (a, b) => a * b);
+    return reduce(res, (x, y) => x + y, 0.0);
+  },
+
+  /**
+   * Return the sum of elements in vector `v`.
+   */
+  vsum: (v: number[]): number => {
+    return reduce(v, (x, y) => x + y, 0.0);
+  },
+
+  /**
+   * Return `v + c * u`.
+   */
+  vmove: (v: number[], c: number, u: number[]) => {
+    return ops.vadd(v, ops.vmul(c, u));
+  },
+
+  /**
+   * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+   */
+  rot90: ([x, y]: number[]): number[] => {
+    return [-y, x];
+  },
+
+  /**
+   * Return 2D determinant/cross product of 2D vectors
+   */
+  cross2: (v: number[], w: number[]): number => {
+    if (v.length !== 2 || w.length !== 2) {
+      throw Error("expected two 2-vectors");
+    }
+    return v[0] * w[1] - v[1] * w[0];
+  },
+
+  /**
+   * Return the angle between two 2D vectors `v` and `w` in radians.
+   * From https://github.com/thi-ng/umbrella/blob/develop/packages/vectors/src/angle-between.ts#L11
+   */
+  angleBetween2: (v: number[], w: number[]): number => {
+    if (v.length !== 2 || w.length !== 2) {
+      throw Error("expected two 2-vectors");
+    }
+    const t = Math.atan2(ops.cross2(v, w), ops.vdot(v, w));
+    return t;
+  },
+};
+
+/**
+ * Return the bounding box (as 4 segments) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `top, bot, left, right`.
+ */
+export const bboxSegs = (center: number[], w: number, h: number): any => {
+  const halfWidth = w / 2;
+  const halfHeight = h / 2;
+  const nhalfWidth = -halfWidth;
+  const nhalfHeight = -halfHeight;
+  // CCW: TR, TL, BL, BR
+  const ptsR = [
+    [halfWidth, halfHeight],
+    [nhalfWidth, halfHeight],
+    [nhalfWidth, nhalfHeight],
+    [halfWidth, nhalfHeight],
+  ].map((p) => ops.vadd(center, p));
+
+  const cornersR = {
+    topRight: ptsR[0],
+    topLeft: ptsR[1],
+    bottomLeft: ptsR[2],
+    bottomRight: ptsR[3],
+  };
+
+  const segsR = {
+    top: [cornersR.topLeft, cornersR.topRight],
+    bot: [cornersR.bottomLeft, cornersR.bottomRight],
+    left: [cornersR.bottomLeft, cornersR.topLeft],
+    right: [cornersR.bottomRight, cornersR.topRight],
+  };
+
+  const linesR = {
+    minX: cornersR.topLeft[0],
+    maxX: cornersR.topRight[0],
+    minY: cornersR.bottomLeft[1],
+    maxY: cornersR.topLeft[1],
+  };
+
+  return { ptsR, cornersR, segsR, linesR };
+};
+
+// returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
+export const intersects = (s1: number[][], s2: number[][]): boolean => {
+  const [l1_p1, l1_p2, l2_p1, l2_p2] = [s1[0], s1[1], s2[0], s2[1]];
+  const [[a, b], [c, d]] = [l1_p1, l1_p2];
+  const [[p, q], [r, s]] = [l2_p1, l2_p2];
+
+  var det, gamma, lambda;
+  det = (c - a) * (s - q) - (r - p) * (d - b);
+  if (det === 0) {
+    return false;
+  } else {
+    lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+  }
+};
+
+export interface Point2D {
+  x: number;
+  y: number;
+}
+
+export const toPt = (v: number[]): Point2D => ({ x: v[0], y: v[1] });
+
+export function intersection(s1: number[][], s2: number[][]): number[] {
+  const [from1, to1, from2, to2] = [s1[0], s1[1], s2[0], s2[1]];
+  const res = intersection2(toPt(from1), toPt(to1), toPt(from2), toPt(to2));
+  return [res.x, res.y];
+}
+
+// https://stackoverflow.com/posts/58657254/revisions
+// Assumes lines don'intersect! Use intersect to check it first
+function intersection2(
+  from1: Point2D,
+  to1: Point2D,
+  from2: Point2D,
+  to2: Point2D
+): Point2D {
+  const dX: number = to1.x - from1.x;
+  const dY: number = to1.y - from1.y;
+
+  const determinant: number = dX * (to2.y - from2.y) - (to2.x - from2.x) * dY;
+  if (determinant === 0) {
+    throw Error("parallel lines");
+  } // parallel lines
+
+  const lambda: number =
+    ((to2.y - from2.y) * (to2.x - from1.x) +
+      (from2.x - to2.x) * (to2.y - from1.y)) /
+    determinant;
+  const gamma: number =
+    ((from1.y - to1.y) * (to2.x - from1.x) + dX * (to2.y - from1.y)) /
+    determinant;
+
+  // check if there is an intersection
+  if (!(0 <= lambda && lambda <= 1) || !(0 <= gamma && gamma <= 1)) {
+    throw Error("lines don't intersect");
+  }
+
+  return {
+    x: from1.x + lambda * dX,
+    y: from1.y + lambda * dY,
+  };
+}
+
+/**
+ * Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
+ */
+export const pointInBox = (p: any, rect: any): boolean => {
+  return (
+    p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
+  );
+};
+
+//#endregion

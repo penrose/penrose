@@ -7,6 +7,7 @@ type Point
 type Segment
 
 type Angle
+type Arc
 
 type Triangle
 -- type Square
@@ -38,8 +39,8 @@ constructor MkSegment : Point p * Point q -> Segment
 -- constructor MkLine : Point p * Point q -> Point
 
 -- constructor InteriorAngle : Linelike l * Linelike m -> Angle
--- constructor InteriorAngle : Point p * Point q * Point r -> Angle
--- constructor TriangleVertex : Point p * Point q * Point r -> Angle
+constructor InteriorAngle : Point p * Point q * Point r -> Angle
+constructor TriangleVertex : Point p * Point q * Point r -> Angle
 
 constructor MkTriangle : Point p * Point q * Point r -> Triangle
 -- constructor MkTriangleL : Linelike l * Linelike m * Linelike n -> Triangle
@@ -68,10 +69,18 @@ predicate Not : Prop
 -- predicate Perpendicular : Linelike * Linelike
 -- predicate EquilateralT : Triangle
 -- predicate RightT : Triangle
--- predicate Scalene : Triangle
+predicate Scalene : Triangle
 -- predicate Similar : Triangle * Triangle
 -- predicate Disjoint : Set * Set
 predicate Collinear : Point * Point * Point
+predicate EqualAngleMarker1 : Angle * Angle
+predicate EqualAngleMarker2 : Angle * Angle
+predicate EqualLengthMarker : Segment * Segment
+predicate EqualAngle : Angle * Angle
+predicate EqualLength : Segment * Segment 
+predicate RightMarked : Angle
+predicate RightUnmarked : Angle
+
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"
 -- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"

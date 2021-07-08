@@ -22,7 +22,13 @@
   "edit": {
     "type": ["Point"],
     "function": [],
-    "constructor": ["MkSegment", "MkRectangle", "MkTriangle"],
+    "constructor": [
+      "MkSegment",
+      "MkRectangle",
+      "MkTriangle",
+      "InteriorAngle",
+      "TriangleVertex"
+    ],
     "predicate": []
   }
 }
