@@ -308,6 +308,7 @@ export const showError = (
     }
 
     case "NonexistentFieldError": {
+      // error appears right here
       return `Error looking up path '${prettyPrintPath(
         error.path
       )}' in translation. Field '${error.field.value}' does not exist.`;

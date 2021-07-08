@@ -160,8 +160,15 @@ as Const
     const prog = `
 forall Set A, B, C, D
 where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
-{ }`;
+{ 
+  foo.arrow = Arrow{}
+}`;
     const { results } = parser.feed(prog);
+    /*
+    var json = JSON.stringify(results[0]);
+    fs.writeFileSync('./myjsonfile3.json', json, "utf8");
+    console.log('done')
+    */
     sameASTs(results);
   });
 });

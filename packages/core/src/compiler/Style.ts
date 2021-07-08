@@ -208,7 +208,7 @@ export function foldM<A, B, C>(
   return resW;
 }
 
-function justs<T>(xs: MaybeVal<T>[]): T[] {
+export function justs<T>(xs: MaybeVal<T>[]): T[] {
   return xs
     .filter((x) => x.tag === "Just")
     .map((x) => {
@@ -219,7 +219,7 @@ function justs<T>(xs: MaybeVal<T>[]): T[] {
     });
 }
 
-const safeContentsList = (x: any) => (x ? x.contents : []);
+export const safeContentsList = (x: any) => (x ? x.contents : []);
 
 const toString = (x: BindingForm): string => x.contents.value;
 
@@ -518,13 +518,18 @@ const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
 const checkHeader = (varEnv: Env, header: Header): SelEnv => {
   if (header.tag === "Selector") {
+    // hook here, + aliasing
     // Judgment 7. G |- Sel ok ~> g
     const sel: Selector = header;
+    // i can work with this.
+
+    // this is checking for stuff like `Set x, Set y`?
     const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
       varEnv,
       initSelEnv(),
-      sel.head.contents
+      sel.head.contents // list of decl patterns
     );
+
     // Check `with` statements
     // TODO: Did we get rid of `with` statements?
     const selEnv_decls = checkDeclPatternsAndMakeEnv(
@@ -533,10 +538,29 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
       safeContentsList(sel.with)
     );
 
+    // here? checking relation patterns... need to check aliases too
     const relErrs = checkRelPatterns(
       mergeEnv(varEnv, selEnv_decls),
       safeContentsList(sel.where)
     );
+
+    /* 
+    checkRelPatternsAndAddAliasKeysToEnv(
+      selEnv_decls, safeContentsList(sel.where)
+    )
+    things to add:
+    - alias keys (what each where clause is aliased as)
+    - possible aliasing errors (if they collide with existing domain keywords
+      (ex. IsSubset, Set) or other keywords in scope (ex. X,Y))
+    - override stuff?
+    */
+
+    /*
+    console.log('sel\n', sel);
+    console.log('selev afterhead\n', selEnv_afterHead);
+    console.log('selEnv_decls\n', selEnv_decls);
+    console.log('merged envs\n', mergeEnv(varEnv, selEnv_decls));
+    */
 
     // TODO(error): The errors returned in the top 3 statements
     return {
@@ -562,6 +586,23 @@ export const checkSelsAndMakeEnv = (
     res.header = { tag: "Just", contents: e.header };
     return res;
   });
+
+  /*
+  console.log('start');
+
+  console.log(selEnvs[0]);
+
+  const x : SelEnv = selEnvs[0]
+  const y = x.header
+  if (y.tag === 'Just'){
+    console.log('header contents\n', y.contents);
+    console.log(typeof y.contents);
+  }
+  
+  console.log('end');
+  */
+
+  // console.log(selEnvs[0].header as Header)
 
   return selEnvs;
 };
@@ -750,7 +791,7 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
         nodeType: "SyntheticStyle",
         tag: "SubVar",
         contents: {
-          ...dummyId(mkLocalVarName(lv)),
+          ...dummyId(mkLocalVarName(lv)), // hook, change this?
         },
       },
       field: path.contents,
@@ -1189,7 +1230,7 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if
-const relMatchesLine = (
+export const relMatchesLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   s1: SubStmt,
@@ -1253,7 +1294,7 @@ const allRelsMatch = (
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // Folds over [theta]
-const filterRels = (
+export const filterRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg,
@@ -1283,7 +1324,7 @@ const combine = (s1: Subst, s2: Subst): Subst => {
 // TODO check for duplicate keys (and vals)
 // (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
 // the way merge is used, I think each subst in the second argument only contains one mapping
-const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
+export const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
   if (s2.length === 0) {
     return s1;
   }
@@ -1379,7 +1420,7 @@ const matchDecl = (
 
 // Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 // Folds over [|S_o]
-const matchDecls = (
+export const matchDecls = (
   varEnv: Env,
   subProg: SubProg,
   decls: DeclPattern[],
@@ -1405,10 +1446,18 @@ const findSubstsSel = (
     const decls = sel.head.contents.concat(safeContentsList(sel.with));
     const rels = safeContentsList(sel.where);
     const initSubsts: Subst[] = [];
+
+    // rawDeclSubsts
     const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
+
+    // const rawRelSubsts = matchRels(varEnv, subProg, rels, initSubsts)
+
+    // declSubstCandidates
     const substCandidates = rawSubsts.filter((subst) =>
       fullSubst(selEnv, subst)
     );
+
+    // declFilteredSubsts
     const filteredSubsts = filterRels(
       varEnv,
       subEnv,
@@ -1416,7 +1465,18 @@ const findSubstsSel = (
       rels,
       substCandidates
     );
+
+    // correctDeclSubsts
     const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+    // console.log('here\n', correctSubsts[0].x)
+
+    /*
+    console.log('raw substs\n', rawSubsts);
+    console.log('subst candidates\n', substCandidates);
+    console.log('filtered rels\n', filteredSubsts);
+    console.log('final substs\n', correctSubsts);
+    */
+
     return correctSubsts;
   } else if (header.tag === "Namespace") {
     // No substitutions for a namespace (not in paper)
@@ -1854,6 +1914,12 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
+
+  // do i add stuff here?
+  // keywords?? to watch out for???
+  // i can use selEnv
+  // ... :(
+
   return emptyErrs();
 };
 
@@ -1939,8 +2005,9 @@ const translatePair = (
       [subst, 0]
     );
   } else if (hb.header.tag === "Selector") {
-    const selEnv = checkHeader(varEnv, hb.header);
-    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
+    // here
+    const selEnv = checkHeader(varEnv, hb.header); // whys this being called again monkaS
+    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics // so i leave this alone for now?
 
     // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
     // skip this block (because the Substance variable won't exist in the translation)

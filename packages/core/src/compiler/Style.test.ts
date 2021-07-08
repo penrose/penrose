@@ -569,3 +569,35 @@ delete x.z.p }`,
     }
   });
 });
+
+describe("hfy sty test", () => {
+  const domainProg = "type Set\npredicate IsSubset : Set s1 * Set s2";
+  const subProg = "Set A\nSet B\nIsSubset(A,B)";
+  // TODO: Name these programs
+  const styProgs = [
+    // These are mostly to test setting shape properties as vectors or accesspaths
+    `Set x; Set y where IsSubset(x,y) as foo {}`,
+  ];
+
+  const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+
+  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+    (env) => compileSubstance(subProg, env),
+    domainRes
+  );
+
+  for (const styProg of styProgs) {
+    const styRes: Result<State, PenroseError> = andThen(
+      (res) => S.compileStyle(canvasPreamble + styProg, ...res),
+      subRes
+    );
+
+    if (!styRes.isOk()) {
+      fail(
+        `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+      );
+    } else {
+      expect(true).toEqual(true);
+    }
+  }
+});
