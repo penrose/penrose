@@ -11,7 +11,6 @@ export const getListOfStagedStates = (state: State): State[] => {
   // turn trMap's properties into a list
   var objArr = Object.entries(trMap);
 
-  // filter out non-shapes (non - FGPI things)
   objArr = objArr.filter(hasGPIProperties);
 
   // each element in listOfStagedObjArrs is a list of objs to draw
@@ -45,7 +44,6 @@ const hasGPIProperties = (elem: any) => {
 
   const objArr: [string, any][] = Object.entries(arr);
 
-  // filter over this array
   const hasGPIAsTag = (object: any) => {
     return object[1].tag === "FGPI";
   };
@@ -70,10 +68,6 @@ const tabulateObjArrs = (
   return arr.slice(0, index + 1);
 };
 
-// after you declare it, just call test2.map(getStateFromObjArr)
-// to get a list of states
-// then just render each state, ez money
-
 // returns a modified state RES, where only shapes
 // that belong to objects in arr are kept in RES.shape (the state's shapelist)
 const getStateFromObjArrAndLocalState = (
@@ -83,15 +77,10 @@ const getStateFromObjArrAndLocalState = (
   var testArrNames = arr.map((elem) => {
     return elem[0];
   });
-  /*
-  console.log('obj arr')
-  console.log(arr)
-  console.log('obj names')
-  console.log(testArrNames)
-  */
+
   // make a newState (replace list of shapes)
   var newShapeList: Shape[] = [];
-  //console.log(state.shapes.length);
+
   for (var i = 0; i < state.shapes.length; i++) {
     var shap = state.shapes[i];
     var shapPropPathName = shap.properties.name.contents as string;
@@ -100,7 +89,6 @@ const getStateFromObjArrAndLocalState = (
       throw new Error("shape property doesn't have a .");
     }
     var shapName = shapPropPathName.slice(0, dotIndex);
-    //console.log("shapeName", shapName);
 
     if (testArrNames.includes(shapName)) {
       newShapeList.push(shap);
@@ -108,8 +96,6 @@ const getStateFromObjArrAndLocalState = (
   }
   // to be cleaner, i should technically update shapeOrdering as well
   // but not modifying that doesn't seem to affect the creation of the SVG
-
-  // console.log(newShapeList);
 
   // shallow copy, otherwise weird aliasing issues
   var newState = { ...state };
