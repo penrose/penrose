@@ -1,14 +1,10 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
-import { prettyPrintFn, evalFns } from "@penrose/core";
-import { zipWith, sum } from "lodash";
+import { prettyPrintFn, evalFns, ops } from "@penrose/core";
+import { zipWith } from "lodash";
 import DataTable from "react-data-table-component";
 
 export const EPS = 10e-3;
-
-const vnorm = (v: number[]): number => {
-  return Math.sqrt(sum(v.map((e) => e * e)));
-};
 
 const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   if (!frame) {
@@ -34,7 +30,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     frame.objFns.map(prettyPrintFn),
     evalFns(frame.objFns, frame),
     (name, fnEvaled) => {
-      const gradientNorm = vnorm(fnEvaled.gradf);
+      const gradientNorm = ops.vnorm(fnEvaled.gradf);
       return {
         name,
         gradientNorm,

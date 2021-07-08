@@ -25,7 +25,7 @@ import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn } from "utils/OtherUtils";
-import { bBoxDims, toHex } from "utils/Util";
+import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -300,6 +300,7 @@ export {
   showError,
   Result,
   prettyPrintFn,
+  ops,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };
