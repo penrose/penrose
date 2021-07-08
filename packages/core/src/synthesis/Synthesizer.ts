@@ -22,6 +22,8 @@ import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
 import {
+  checkAddStmt,
+  checkAddStmts,
   checkReplaceExprName,
   checkSwapExprArgs,
   checkSwapStmtArgs,
@@ -61,7 +63,7 @@ import { checkReplaceStmtName } from "./Mutation";
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Debug })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -106,7 +108,7 @@ export interface SynthesizedSubstance {
   ops: Mutation[];
 }
 
-class SynthesisContext {
+export class SynthesisContext {
   names: Map<string, number>;
   declaredIDs: Map<string, Identifier[]>;
   prog: SubProg;
@@ -195,7 +197,7 @@ class SynthesisContext {
     this.numStmts++;
   };
 
-  updateProg = (prog: SubProg) => {
+  updateProg = (prog: SubProg): void => {
     this.prog = prog;
   };
 
@@ -320,6 +322,12 @@ class SynthesisContext {
 //#endregion
 
 //#region Main synthesizer
+
+interface WithStmts<T> {
+  res: T;
+  stmts: SubStmt[];
+}
+
 export class Synthesizer {
   env: Env;
   cxt: SynthesisContext;
@@ -409,7 +417,11 @@ export class Synthesizer {
         return pick;
       }),
     ];
-    return compact(ops);
+    const mutations = compact(ops);
+    log.debug(
+      `Available mutations for ${prettyStmt(stmt)}:\n${showOps(mutations)}`
+    );
+    return mutations;
   };
 
   mutateProgram = (): void => {
@@ -424,10 +436,14 @@ export class Synthesizer {
     }
   };
 
+  // TODO: add max iteration # to terminate the search if no applicable edit is found
   editStmt = (): void => {
     log.debug(`Picking a statement to edit...`);
+    // pick a kind of statement to edit
     const chosenType = this.choice(this.cxt.candidateTypes());
+    // get all possible types within this kind
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
+    // choose a name
     const chosenName = this.choice(candidates);
     log.debug(
       `Chosen name is ${chosenName}, candidates ${candidates}, chosen type ${chosenType}`
@@ -462,36 +478,6 @@ export class Synthesizer {
   //   if (stmt && (stmt.tag === "ApplyPredicate" || stmt.tag === "Bind")) {
   //     log.debug(`Editing statement: ${prettyStmt(stmt)}`);
   //     switch (op) {
-  //       case "ReplaceName": {
-  //         const s = (stmt.tag === "Bind" ? stmt.expr : stmt) as ApplyPredicate;
-  //         const options = matchSignatures(s, this.env);
-  //         const pick = options.length > 0 ? this.choice(options) : s;
-  //         if (stmt.tag === "ApplyPredicate" && pick.name !== s.name) {
-  //           this.cxt.replaceStmt(
-  //             stmt,
-  //             {
-  //               ...stmt,
-  //               name: pick.name,
-  //             } as ApplyPredicate,
-  //             op
-  //           );
-  //         } else if (stmt.tag === "Bind" && pick.name !== s.name) {
-  //           if (pick.name !== s.name) {
-  //             this.cxt.replaceStmt(
-  //               stmt,
-  //               {
-  //                 ...stmt,
-  //                 expr: {
-  //                   ...stmt.expr,
-  //                   name: pick.name,
-  //                 },
-  //               } as Bind,
-  //               op
-  //             ); // TODO: improve types to avoid casting
-  //           }
-  //         }
-  //         break;
-  //       }
   //       case "TypeChange": {
   //         const options = argMatches(stmt, this.env);
   //         if (options.length > 0) {
@@ -544,15 +530,39 @@ export class Synthesizer {
     log.debug("Adding statement");
     this.cxt.findCandidates(this.env, this.setting.add);
     const chosenType = this.choice(this.cxt.candidateTypes());
-    let stmt;
+    let addOps: Mutation[] | undefined;
     if (chosenType === "TypeDecl") {
-      stmt = this.generateType();
+      const op = checkAddStmt(
+        this.cxt.prog,
+        this.cxt,
+        (cxt: SynthesisContext) => {
+          const type: TypeDecl = this.choice(
+            cxt.candidates.types.toArray().map(([, b]) => b)
+          );
+          return this.generateType(type, cxt);
+        }
+      );
+      addOps = [op];
     } else if (chosenType === "PredicateDecl") {
-      stmt = this.generatePredicate();
+      addOps = checkAddStmts(
+        this.cxt.prog,
+        this.cxt,
+        (cxt: SynthesisContext) => {
+          const pred = this.choice(
+            this.cxt.candidates.predicates.toArray().map(([, b]) => b)
+          );
+          return this.generatePredicate(pred, cxt);
+        }
+      );
     } else if (chosenType === "FunctionDecl") {
       stmt = this.generateFunction();
     } else if (chosenType === "ConstructorDecl") {
       stmt = this.generateConstructor();
+    }
+    if (addOp) {
+      const newProg: SubProg = executeMutation(this.cxt.prog, addOp);
+      this.cxt.ops.push(addOp);
+      this.cxt.updateProg(newProg);
     }
     // COMBAK: fix
     // if (stmt) this.cxt.ops.push({ tag: "Add", stmt });
@@ -629,6 +639,7 @@ export class Synthesizer {
     return removedStmts;
   };
 
+  // TODO: add an option to distinguish between edited vs original statements?
   findStmt = (
     stmtType: DomainStmt["tag"],
     name: string
@@ -655,39 +666,29 @@ export class Synthesizer {
     }
   };
 
-  generateType = (typeName?: Identifier): Decl => {
-    // pick a type
-    let typeCons: TypeConsApp;
-    if (typeName) {
-      typeCons = nullaryTypeCons(typeName);
-    } else {
-      const type: TypeDecl = this.choice(
-        this.cxt.candidates.types.toArray().map(([, b]) => b)
-      );
-
-      typeCons = applyTypeDecl(type);
-    }
+  generateType = (type: TypeDecl, cxt: SynthesisContext): Decl => {
+    const typeCons = applyTypeDecl(type);
+    const name = cxt.generateID(typeCons.name);
     const stmt: Decl = {
       tag: "Decl",
       nodeType: "SyntheticSubstance",
       children: [],
       type: typeCons,
-      name: this.cxt.generateID(typeCons.name),
+      name,
     };
-    this.cxt.appendStmt(stmt);
     return stmt;
   };
 
-  generatePredicate = (pred?: PredicateDecl): ApplyPredicate => {
-    if (!pred) {
-      pred = this.choice(
-        this.cxt.candidates.predicates.toArray().map(([, b]) => b)
-      );
-    }
-    const args: SubPredArg[] = this.generatePredArgs(pred.args);
-    const stmt: ApplyPredicate = applyPredicate(pred, args);
-    this.cxt.appendStmt(stmt);
-    return stmt;
+  generatePredicate = (
+    pred: PredicateDecl,
+    cxt: SynthesisContext
+  ): WithStmts<ApplyPredicate> => {
+    const { res, stmts }: WithStmts<SubPredArg[]> = this.generatePredArgs(
+      pred.args,
+      cxt
+    );
+    const p: ApplyPredicate = applyPredicate(pred, res);
+    return { res: p, stmts };
   };
 
   generateFunction = (func?: FunctionDecl): Bind => {
@@ -706,35 +707,42 @@ export class Synthesizer {
     return stmt;
   };
 
-  generateConstructor = (cons?: ConstructorDecl): Bind => {
+  generateConstructor = (
+    cons?: ConstructorDecl,
+    cxt: SynthesisContext
+  ): Bind => {
     if (!cons) {
       cons = this.choice(
         this.cxt.candidates.constructors.toArray().map(([, b]) => b)
       );
     }
-    const args: SubExpr[] = this.generateArgs(cons.args);
+    const args: SubExpr[] = this.generateArgs(cons.args, cxt);
     const rhs: ApplyConstructor = applyConstructor(cons, args);
     const outputType = cons.output.type as TypeConstructor;
     // TODO: choose between generating vs. reusing
-    const lhs: Identifier = this.generateType(outputType.name).name;
-    const stmt: Bind = applyBind(lhs, rhs);
+    const lhs: Decl = this.generateType(outputType, cxt);
+    const stmt: Bind = applyBind(lhs.name, rhs);
     this.cxt.appendStmt(stmt);
     return stmt;
   };
 
-  generateArgs = (args: Arg[]): SubExpr[] => {
+  generateArgs = (args: Arg[], cxt: SynthesisContext): WithStmts<Arg[]> => {
     const res = args.map((arg) =>
-      this.generateArg(arg, this.setting.argOption, this.setting.argReuse)
+      this.generateArg(arg, cxt, this.setting.argOption, this.setting.argReuse)
     );
-    this.cxt.resetArgContext();
-    return res;
+    cxt.resetArgContext();
+    return {
+      res: res.map((r) => r.args).flat(),
+      stmts: res.map((r) => r.stmts).flat(),
+    };
   };
 
   generateArg = (
     arg: Arg,
+    cxt: SynthesisContext,
     option: ArgOption,
     reuseOption: ArgReuse
-  ): SubExpr => {
+  ): WithStmts<Arg> | undefined => {
     const argType: Type = arg.type;
     if (argType.tag === "TypeConstructor") {
       switch (option) {
@@ -742,22 +750,28 @@ export class Synthesizer {
           // TODO: clean up the logic
           const possibleIDs =
             reuseOption === "distinct"
-              ? this.cxt.findIDs(argType.name.value, this.cxt.argCxt)
-              : this.cxt.findIDs(argType.name.value);
+              ? cxt.findIDs(argType.name.value, cxt.argCxt)
+              : cxt.findIDs(argType.name.value);
           const existingID = this.choice(possibleIDs);
           if (!existingID) {
-            return this.generateArg(arg, "generated", reuseOption);
+            return this.generateArg(arg, cxt, "generated", reuseOption);
           } else {
-            this.cxt.addArg(existingID);
+            cxt.addArg(existingID);
             return existingID;
           }
         }
         case "generated":
-          this.generateType(argType.name);
-          return this.generateArg(arg, "existing", reuseOption);
+          const argTypeDecl = cxt
+            .getCandidates("TypeDecl")
+            .get(argType.name.value);
+          if (argTypeDecl) {
+            //   return this.generateType(argTypeDecl, cxt);
+            return this.generateArg(arg, cxt, "existing", reuseOption);
+          } else return undefined;
         case "mixed":
           return this.generateArg(
             arg,
+            cxt,
             this.choice(["existing", "generated"]),
             reuseOption
           );
@@ -767,21 +781,39 @@ export class Synthesizer {
     }
   };
 
-  generatePredArgs = (args: Arg[]): SubPredArg[] =>
-    args.map((arg) =>
-      this.generatePredArg(arg, this.setting.argOption, this.setting.argReuse)
+  generatePredArgs = (
+    args: Arg[],
+    cxt: SynthesisContext
+  ): WithStmts<SubPredArg[]> => {
+    const res = args.map((arg) =>
+      this.generatePredArg(
+        arg,
+        cxt,
+        this.setting.argOption,
+        this.setting.argReuse
+      )
     );
+    return {
+      res: res.map((r) => r.res).flat(),
+      stmts: res.map((r) => r.stmts).flat(),
+    };
+  };
 
   generatePredArg = (
     arg: Arg,
+    cxt: SynthesisContext,
     option: ArgOption,
     reuseOption: ArgReuse
-  ): SubPredArg => {
+  ): WithStmts<SubPredArg> => {
     const argType: Type = arg.type;
     if (argType.tag === "Prop") {
-      return this.generatePredicate();
+      // TODO: check if the candidates are correct
+      const pred = this.choice(
+        this.cxt.candidates.predicates.toArray().map(([, b]) => b)
+      );
+      return this.generatePredicate(pred, cxt);
     } else {
-      return this.generateArg(arg, option, reuseOption);
+      return this.generateArg(arg, cxt, option, reuseOption);
     }
   };
 

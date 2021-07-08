@@ -1,4 +1,4 @@
-import { ArgExpr, replaceStmt } from "analysis/SubstanceAnalysis";
+import { appendStmt, ArgExpr, replaceStmt } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
 import {
@@ -8,6 +8,7 @@ import {
   SubProg,
   SubStmt,
 } from "types/substance";
+import { SynthesisContext } from "./Synthesizer";
 
 //#region Mutation types
 
@@ -110,6 +111,12 @@ export const showOp = (op: Mutation): string => {
 export const executeMutation = (prog: SubProg, mutation: Mutation): SubProg =>
   mutation.mutate(mutation as any, prog); // TODO: typecheck this?
 
+export const executeMutations = (
+  prog: SubProg,
+  mutations: Mutation[]
+): SubProg =>
+  mutations.reduce((p: SubProg, m: Mutation) => m.mutate(m as any, p), prog); // TODO: typecheck this?
+
 const swap = (arr: any[], a: number, b: number) =>
   arr.map((current, idx) => {
     if (idx === a) return arr[b];
@@ -159,6 +166,32 @@ export const swapExprArgs = (
 //#endregion
 
 //#region Mutation pre-flight checks
+
+export const checkAddStmts = (
+  prog: SubProg,
+  cxt: SynthesisContext,
+  newStmts: (cxt: SynthesisContext) => SubStmt[]
+): Add[] | undefined => {
+  const stmts: SubStmt[] = newStmts(cxt);
+  return stmts.map((stmt: SubStmt) => ({
+    tag: "Add",
+    stmt,
+    mutate: ({ stmt }: Add, p) => appendStmt(p, stmt),
+  }));
+};
+
+export const checkAddStmt = (
+  prog: SubProg,
+  cxt: SynthesisContext,
+  newStmt: (cxt: SynthesisContext) => SubStmt
+): Add | undefined => {
+  const stmt: SubStmt = newStmt(cxt);
+  return {
+    tag: "Add",
+    stmt,
+    mutate: ({ stmt }: Add, p) => appendStmt(p, stmt),
+  };
+};
 
 export const checkSwapStmtArgs = (
   stmt: SubStmt,
@@ -249,6 +282,8 @@ export const checkReplaceExprName = (
   } else return undefined;
 };
 
-// export const checkChangeStmtType = (stmt: SubStmt, )
+// export const checkChangeStmtType = (stmt: SubStmt, ) => {
+
+// }
 
 //#endregion
