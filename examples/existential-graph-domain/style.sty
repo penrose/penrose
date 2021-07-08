@@ -12,6 +12,7 @@ forall Graph A
 
     A.text = Text{
         string: A.label
+        fontSize: "28pt"
     }
 
     A.level = 0
@@ -93,6 +94,8 @@ where Result := if(A, B)
 {
     override Result.level = A.level + 1
 
+    override A.level = B.level + 1
+
     override Result.icon = Circle{
         strokeWidth: 0.0
         color: selectColor(variable.primary, variable.secondary, Result.level)
@@ -115,9 +118,9 @@ where Result := if(A, B)
     ensure minSize(Result.icon)
     ensure maxSize(Result.icon2)
     ensure minSize(Result.icon2)
-    ensure contains(Result.icon, Result.icon2, 5.0)
+    ensure contains(Result.icon, Result.icon2, 20.0)
 
-    ensure contains(Result.icon2, B.icon, 5.0)
+    ensure contains(Result.icon2, B.icon, 20.0)
 
 
     Result.icon2 above Result.icon
@@ -136,6 +139,14 @@ forall Graph R where doubleElliminate(R) {
 }
 
 forall Graph A; Graph B where deiterate(A); connect(A, B) {
-    override A.text.color = deiterateSelect(A.level, B.level, A.text.color)
-    override B.text.color = deiterateSelect(A.level, B.level, B.text.color)
+    color1 = rgba(0, 0, 0, 1)
+    color2 = rgba(0, 0, 0, 0)
+    override A.text.color = deiterateSelect(A.level, B.level, color1, color2)
+    override B.text.color = deiterateSelect(B.level, A.level, color1, color2)
+}
+
+forall Graph A where erase(A) {
+    color1 = rgba(0, 0, 0, 1)
+    color2 = rgba(0, 0, 0, 0)
+    override A.text.color = eraseSelect(A.level, color1, color2)
 }

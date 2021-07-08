@@ -1,11 +1,11 @@
 Graph p
 Graph q
 
-invisibleGraph(p)
 Graph r := if(p, q)
 
 Graph p0
 
+deiterate(p)
 connect(p, p0)
 
 and(r, p0)

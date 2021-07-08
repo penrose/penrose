@@ -14,3 +14,4 @@ predicate all : Variable * Graph * Graph
 predicate doubleElliminate : Graph
 predicate connect: Graph * Graph
 predicate deiterate: Graph
+predicate erase: Graph

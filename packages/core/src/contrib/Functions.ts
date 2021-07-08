@@ -643,18 +643,34 @@ export const compDict = {
     return { tag: "VectorV", contents: [neg(y), x] };
   },
 
-  deiterateSelect: (aLevel: IVarAD, bLevel: IVarAD, color: IColorV<IVarAD>) => {
+  deiterateSelect: (
+    aLevel: IVarAD,
+    bLevel: IVarAD,
+    color: IColorV<IVarAD>,
+    color2: IColorV<IVarAD>
+  ) => {
     let outColor: IColorV<IVarAD> = color;
-    if (aLevel >= bLevel)
-      outColor = {
-        tag: "ColorV",
-        contents: {
-          tag: "RGBA",
-          contents: [constOf(0), constOf(0), constOf(0), constOf(0)],
-        },
-      };
+    //console.log(`A level: ${aLevel.val} B level: ${bLevel.val}`);
+    if (aLevel.val >= bLevel.val) outColor = color2;
 
-    return outColor;
+    return {
+      tag: "ColorV",
+      contents: outColor,
+    };
+  },
+
+  eraseSelect: (
+    aLevel: IVarAD,
+    color: IColorV<IVarAD>,
+    color2: IColorV<IVarAD>
+  ) => {
+    let outColor: IColorV<IVarAD> = color;
+    if (aLevel.val % 2 == 0) outColor = color2;
+
+    return {
+      tag: "ColorV",
+      contents: outColor,
+    };
   },
 };
 

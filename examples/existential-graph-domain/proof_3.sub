@@ -1,15 +1,16 @@
 Graph p
 Graph q
 
-invisibleGraph(p)
 Graph r := if(p, q)
 
 Graph p0
-invisibleGraph(p0)
+
+deiterate(p)
+connect(p, p0)
+
+erase(p0)
 
 and(r, p0)
 
-doubleElliminate(r)
-
 AutoLabel All
---Label p0 $p$
+Label p0 $p$
