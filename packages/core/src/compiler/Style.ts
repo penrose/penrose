@@ -2609,7 +2609,8 @@ const initFieldsAndAccessPaths = (
 const initProperty = (
   shapeType: ShapeTypeStr,
   properties: GPIProps<VarAD>,
-  [propName, { propType, sampler: propSampler }]: [string, IProp]
+  [propName, { propType, sampler: propSampler }]: [string, IProp],
+  canvas: Canvas
 ): GPIProps<VarAD> => {
   const propVal: Value<number> = propSampler(canvas);
   const propValAD: Value<VarAD> = valueNumberToAutodiffConst(propVal);

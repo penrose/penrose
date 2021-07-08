@@ -1,13 +1,10 @@
-name: Generate Typedocs
+name: Generate Docs
 on:
   push:
     branches:
       - main
-defaults:
-  run:
-    working-directory: ./packages/core
 jobs:
-  Install-And-Build:
+  Typedocs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,6 +26,7 @@ jobs:
           branch: gh-pages
           folder: packages/core/docs
           target-folder: typedoc
+          clean: true
       - name: Add .nojekyll
         run: |
           mkdir extra
@@ -37,5 +35,5 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: packages/core/extra
+          folder: extra
           clean: false
