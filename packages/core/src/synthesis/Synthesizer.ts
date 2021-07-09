@@ -424,7 +424,10 @@ export class Synthesizer {
           const indices = range(0, s.args.length);
           const idx1 = this.choice(indices);
           const idx2 = this.choice(without(indices, idx1));
-          const newStmt = swapArgs(s, [idx1, idx2]);
+          const newStmt =
+            idx1 !== undefined && idx2 !== undefined
+              ? swapArgs(s, [idx1, idx2])
+              : s;
           if (stmt.tag === "ApplyPredicate") {
             this.cxt.replaceStmt(stmt, newStmt as ApplyPredicate, op); // TODO: improve types to avoid casting
           } else {
