@@ -80,7 +80,7 @@ const makeGraph = (frame: any, value: string): any => {
 
   if (value === "opt") {
     // Find nodes and edges for opt comp graph
-    graph = toGraphOpt(frame.objFns, frame.constrFns);
+    graph = toGraphOpt(frame.objFns, frame.constrFns, frame.varyingPaths);
   } else if (value === "atomic") {
     // Find nodes and edges for atomic op graph, from top energy node
     graph = convertSchema(traverseUnique(frame.params.energyGraph));

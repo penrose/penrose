@@ -74,7 +74,8 @@ export const convertSchema = (graph: any): any => {
 // TODO / NOTE: This does not work with inline computations (e.g. f(g(p), x)). Everything needs to be a path
 export const toGraphOpt = (
   objfns: PenroseFn[],
-  constrfns: PenroseFn[]
+  constrfns: PenroseFn[],
+  varyingPaths: any[]
 ): any => {
   // One node for each unique path, id = path name, name = path name
   // One node for each unique obj/constr application, id = the function w/ its args, name = function name
@@ -82,15 +83,27 @@ export const toGraphOpt = (
 
   // TODO: Could instead be the union of shapePaths and varyingPaths if we want to show all optimizable paths, not just the ones that are optimized
   const allFns = objfns.concat(constrfns);
-  const allPaths: string[] = merge(
+  const allArgs: string[] = merge(
     allFns.map((f) => f.fargs.map(prettyPrintExpr))
   ); // TODO: This also includes constants, etc.
-  const pathNodes = allPaths.map((p) => ({
+
+  const argNodes = allArgs.map((p) => ({
     data: {
       id: p,
       label: p,
     },
   }));
+
+  // TODO <<< Put in edges for varyingPathNodes?
+  const varyingPathNodes = varyingPaths.map((p) => {
+    const res = prettyPrintPath(p);
+    return {
+      data: {
+        id: res,
+        label: res,
+      },
+    };
+  });
 
   // TODO: Show objectives separately from constraints?? Or at least style them differently
   const fnNodes = allFns.map((f) => ({
@@ -101,7 +114,7 @@ export const toGraphOpt = (
     },
   }));
 
-  const nodes = pathNodes.concat(fnNodes);
+  const nodes = argNodes.concat(fnNodes).concat(varyingPathNodes);
 
   const edges = merge(
     allFns.map((f) =>
