@@ -9,6 +9,8 @@ import {
 } from "@penrose/core";
 import { FieldDict, Translation } from "@penrose/core/build/dist/types/value";
 import { uniqBy } from "lodash";
+import { Path } from "@penrose/core/build/dist/types/style";
+import { Fn } from "@penrose/core/build/dist/types/state";
 
 // Flatten a list of lists into a single list of elements
 const merge = (arr: any) => [].concat(...arr);
@@ -68,6 +70,71 @@ export const convertSchema = (graph: any): any => {
 
 // -----
 
+// Make nodes and edges related to showing DOF nodes
+
+// TODO: export Path type
+export const toGraphDOF = (
+  varyingPaths: Path[],
+  allFns: Fn[],
+  allArgs: string[]
+) => {
+  const varyingPathNodes = varyingPaths.map((p) => {
+    const res = prettyPrintPath(p);
+    return {
+      data: {
+        id: res,
+        label: res,
+      },
+    };
+  });
+
+  // Put in edges for varyingPathNodes
+  // The edges connecting it are: one additional edge for each layer of nesting, plus a node
+  // e.g. A.shape -> A.shape.center -> A.shape.center[0]
+
+  let intermediateNodes: any[] = [];
+  let intermediateEdges: any[] = [];
+
+  for (let p of varyingPaths) {
+    // If the varying path is a shape arg AND its shape arg appears in the function arguments, then make intermediate nodes to connect the varying path with the shape arg
+
+    if (p.tag === "FieldPath") {
+      continue;
+    } else if (p.tag === "PropertyPath") {
+      const fp = {
+        ...p,
+        tag: "FieldPath",
+        name: p.name,
+        field: p.field,
+      };
+
+      if (!allArgs.includes(prettyPrintPath(fp))) {
+        continue;
+      }
+
+      // Connect X.shape to A.shape.property
+      const edge = {
+        data: {
+          id: 0,
+          source: 0,
+          target: 0,
+        },
+      }; // TODO <<< make this edge
+
+      intermediateEdges.push(edge);
+    } else if (p.tag === "AccessPath") {
+      throw Error("TODO <<<");
+    } else if (p.tag === "LocalVar" || "InternalLocalVar") {
+      throw Error("unexpected node type: local var in varying var");
+    }
+  }
+
+  return {
+    nodes: merge([varyingPathNodes, intermediateNodes]),
+    edges: merge([intermediateEdges]),
+  };
+};
+
 // For opt fn graph
 // TODO: Import `Fn` for the types
 // TODO: Hover to show outgoing edges (cytoscape)
@@ -94,17 +161,6 @@ export const toGraphOpt = (
     },
   }));
 
-  // TODO <<< Put in edges for varyingPathNodes?
-  const varyingPathNodes = varyingPaths.map((p) => {
-    const res = prettyPrintPath(p);
-    return {
-      data: {
-        id: res,
-        label: res,
-      },
-    };
-  });
-
   // TODO: Show objectives separately from constraints?? Or at least style them differently
   const fnNodes = allFns.map((f) => ({
     data: {
@@ -114,9 +170,11 @@ export const toGraphOpt = (
     },
   }));
 
-  const nodes = argNodes.concat(fnNodes).concat(varyingPathNodes);
+  const varyingGraph = toGraphDOF(varyingPaths, allFns, allArgs);
 
-  const edges = merge(
+  const nodes = merge([argNodes, fnNodes, varyingGraph.nodes]);
+
+  const fnEdges = merge(
     allFns.map((f) =>
       f.fargs.map((arg) => ({
         data: {
@@ -127,6 +185,8 @@ export const toGraphOpt = (
       }))
     )
   );
+
+  const edges = merge([fnEdges, varyingGraph.edges]);
 
   return {
     nodes,
