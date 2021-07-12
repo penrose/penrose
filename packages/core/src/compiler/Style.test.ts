@@ -571,12 +571,21 @@ delete x.z.p }`,
 });
 
 describe("hfy sty test", () => {
-  const domainProg = "type Set\npredicate IsSubset : Set s1 * Set s2";
+  const domainProg =
+    "type Set\npredicate IsSubset : Set s1 * Set s2\npredicate Intersect : Set s1 * Set s2\
+\npredicate Union : Set s1 * Set s2";
+  // const subProg = "Set A\nSet B\nSet C\nSet D\nIsSubset(A,B)\nIntersect(Union(A,C),B)\nIsSubset(B,C)\nUnion(A,B)";
   const subProg = "Set A\nSet B\nIsSubset(A,B)";
   // TODO: Name these programs
   const styProgs = [
     // These are mostly to test setting shape properties as vectors or accesspaths
-    `Set x; Set y where IsSubset(x,y) as foo {}`,
+    `-- Set x; Set y; Set z where IsSubset(x,y) as foo; Union(x,y) as bee {}
+-- Set u; Set v where IsSubset(u,v) as bar; Intersect(u,v) as baz {}
+Set a; Set b where IsSubset(a,b) as foo {
+  a.icon = Circle{}
+  foo.icon = Square{}
+  -- adding in foo.something causes problems...
+}`,
   ];
 
   const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);

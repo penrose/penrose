@@ -501,6 +501,7 @@ const defaultVec2 = (): Expr => {
 // TODO(error/warn): Improve these warning/error messages (especially for overrides) and distinguish the fatal ones
 // TODO(error): rewrite to use the same pattern as `findExprSafe`
 export const insertExpr = (
+  // hook is here // check to see if the path is an alias (if so, figure out which alias)
   path: Path,
   expr: TagExpr<VarAD>,
   initTrans: Translation,
