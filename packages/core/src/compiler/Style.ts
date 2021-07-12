@@ -107,7 +107,7 @@ import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
 
-import * as fs from "fs";
+// import * as fs from "fs";
 import {
   addAliasSubsts,
   findRelStrSubstsProg,
@@ -532,7 +532,6 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
     // hook here, + aliasing
     // Judgment 7. G |- Sel ok ~> g
     const sel: Selector = header;
-    // i can work with this.
 
     // this is checking for stuff like `Set x, Set y`?
     const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
@@ -718,14 +717,12 @@ const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
   }
 };
 
-/*
 const substituteAlias = (subst: Subst, alias: Identifier): Identifier => {
   return {
     ...alias,
-    value: subst.value
-  }
-}
- */
+    value: subst[alias.value],
+  };
+};
 
 const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
   if (predArg.tag === "RelPred") {
@@ -752,6 +749,14 @@ export const substituteRel = (
   // console.log('alias', rel.alias)
   if (rel.tag === "RelBind") {
     // theta(B := E) |-> theta(B) := theta(E)
+    /*
+    if (rel.alias) return  {
+      ...rel,
+      id: substituteBform({ tag: "Nothing" }, subst, rel.id),
+      expr: substituteExpr(subst, rel.expr),
+      alias: substituteAlias(subst, rel.alias)
+    };
+    */
     return {
       ...rel,
       id: substituteBform({ tag: "Nothing" }, subst, rel.id),
@@ -760,6 +765,13 @@ export const substituteRel = (
     };
   } else if (rel.tag === "RelPred") {
     // theta(Q([a]) = Q([theta(a)])
+    /*
+    if (rel.alias) return {
+      ...rel,
+      args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+      alias: substituteAlias(subst, rel.alias)
+    };
+    */
     return {
       ...rel,
       args: rel.args.map((arg) => substitutePredArg(subst, arg)),
@@ -1524,16 +1536,17 @@ const findSubstsSel = (
     */
 
     // map over the correctSubsts with the relations?
-    return correctSubsts;
+
+    // return correctSubsts;
 
     const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
       addAliasSubsts(subst, rels)
     );
 
-    // console.log('x')
-    // console.log(correctSubsts);
+    console.log("correct substs", correctSubsts);
 
-    // console.log(correctSubstsWithAliasSubsts);
+    console.log("added aliases", correctSubstsWithAliasSubsts);
+
     return correctSubstsWithAliasSubsts;
   } else if (header.tag === "Namespace") {
     // No substitutions for a namespace (not in paper)
@@ -1853,15 +1866,20 @@ const translateBlock = (
 
   // i want to do some substitution here with the block
   // substitue the aliases in
+
+  // the substituting seems to be ok
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
 
-  console.log("start");
-  var ogblock = JSON.stringify(blockWithNum[0]);
-  fs.writeFileSync("ogblock.json", ogblock, "utf8");
-  var substblock = JSON.stringify(blockSubsted);
-  fs.writeFileSync("substblock.json", substblock, "utf8");
-  console.log("done");
+  //console.log("start");
+  /*
+  var ogblock = JSON.stringify(blockWithNum[0].statements);
+  fs.writeFileSync(`ogblock${blockWithNum[1]}_${substWithNum[1]}.json`, ogblock, "utf8");
+  var substblock = JSON.stringify(blockSubsted.statements);
+  fs.writeFileSync(`substblock${blockWithNum[1]}_${substWithNum[1]}.json`, substblock, "utf8");
+  // console.log("done");
+  */
 
+  // but folding causes problems
   return foldM(blockSubsted.statements, translateLine, trans);
 };
 
