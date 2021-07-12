@@ -15,6 +15,8 @@ import {
 
 cytoscape.use(dagre);
 
+// TODO: Style edges to DOF vs edges to constants differently
+
 const style = [
   // the stylesheet for the graph
   {
@@ -28,6 +30,27 @@ const style = [
     selector: "node[label]",
     style: {
       label: "data(label)", // label comes from a field of the node
+    },
+  },
+
+  {
+    selector: "node[ObjFn]",
+    style: {
+      "background-color": "orange",
+    },
+  },
+
+  {
+    selector: "node[ConstrFn]",
+    style: {
+      "background-color": "blue",
+    },
+  },
+
+  {
+    selector: "node[DOF]",
+    style: {
+      "background-color": "red",
     },
   },
 
@@ -128,7 +151,7 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   );
 
   React.useEffect(() => {
-    console.log(`running effect with ${value}`);
+    // console.log(`running effect with ${value}`);
     if (graphRef.current !== null) {
       const cy = cytoscape({
         container: graphRef.current, // container to render in
@@ -149,8 +172,23 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <div>
-        Select the computation graph to display (Note: large graphs may take 1-2
-        minutes to load. You can pan and zoom in the frame)
+        Select the computation graph to display. (Note: large graphs may take
+        1-2 minutes to load.)
+      </div>
+
+      <div>
+        <b>Navigation:</b> You can pan and zoom in the frame, and drag nodes.
+      </div>
+
+      <div>
+        <b>Key:</b> orange = objective; blue = constraint; red = degree of
+        freedom (DOF, aka varying variable); gray = other
+      </div>
+
+      <div>
+        <b>Note:</b> Only Style paths in objective/constraint function arguments
+        are visualized; expressions are currently not visualized (which may lead
+        to slightly misleading graphs)
       </div>
 
       <select value={value} onChange={(e) => setValue(e.currentTarget.value)}>

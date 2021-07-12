@@ -70,10 +70,70 @@ export const convertSchema = (graph: any): any => {
 
 // -----
 
+// Make nodes and edges related to showing one DOF node (p is a varying path)
+export const toGraphDOF = (p: Path, allArgs: string[]) => {
+  const empty = { nodes: [], edges: [] };
+
+  if (p.tag === "FieldPath") {
+    return empty;
+  } else if (p.tag === "PropertyPath") {
+    const fp = {
+      ...p,
+      tag: "FieldPath",
+      name: p.name,
+      field: p.field,
+    };
+
+    if (!allArgs.includes(prettyPrintPath(fp))) {
+      return empty;
+    }
+
+    // TODO: Could all the prettyprinting cause performance issues for large graphs..?
+
+    // Connect X.shape to X.shape.property
+    const edge = {
+      data: {
+        id: prettyPrintPath(fp) + " -> " + prettyPrintPath(p),
+        source: prettyPrintPath(fp),
+        target: prettyPrintPath(p),
+      },
+    };
+
+    return { nodes: [], edges: [edge] };
+  } else if (p.tag === "AccessPath") {
+    // If X.shape exists, connect X.shape to X.shape.property to X.shape.property[i]
+    const graph0 = toGraphDOF(p.path, allArgs);
+
+    // Make node for X.shape.property (the one for X.shape.property[i] already exists)
+    const propNode = {
+      data: {
+        id: prettyPrintPath(p.path),
+        label: prettyPrintPath(p.path),
+      },
+    };
+
+    // Make edge for X.shape.property to X.shape.property[i]
+    const propEdge = {
+      data: {
+        id: prettyPrintPath(p.path) + " -> " + prettyPrintPath(p),
+        source: prettyPrintPath(p.path),
+        target: prettyPrintPath(p),
+      },
+    };
+
+    return {
+      // TODO: Use graph combination function
+      nodes: graph0.nodes.concat([propNode]),
+      edges: graph0.edges.concat([propEdge]),
+    };
+  } else if (p.tag === "LocalVar" || "InternalLocalVar") {
+    throw Error("unexpected node type: local var in varying var");
+  }
+};
+
 // Make nodes and edges related to showing DOF nodes
 
-// TODO: export Path type
-export const toGraphDOF = (
+export const toGraphDOFs = (
   varyingPaths: Path[],
   allFns: Fn[],
   allArgs: string[]
@@ -84,6 +144,7 @@ export const toGraphDOF = (
       data: {
         id: res,
         label: res,
+        DOF: true,
       },
     };
   });
@@ -97,36 +158,9 @@ export const toGraphDOF = (
 
   for (let p of varyingPaths) {
     // If the varying path is a shape arg AND its shape arg appears in the function arguments, then make intermediate nodes to connect the varying path with the shape arg
-
-    if (p.tag === "FieldPath") {
-      continue;
-    } else if (p.tag === "PropertyPath") {
-      const fp = {
-        ...p,
-        tag: "FieldPath",
-        name: p.name,
-        field: p.field,
-      };
-
-      if (!allArgs.includes(prettyPrintPath(fp))) {
-        continue;
-      }
-
-      // Connect X.shape to A.shape.property
-      const edge = {
-        data: {
-          id: 0,
-          source: 0,
-          target: 0,
-        },
-      }; // TODO <<< make this edge
-
-      intermediateEdges.push(edge);
-    } else if (p.tag === "AccessPath") {
-      throw Error("TODO <<<");
-    } else if (p.tag === "LocalVar" || "InternalLocalVar") {
-      throw Error("unexpected node type: local var in varying var");
-    }
+    const pGraph = toGraphDOF(p, allArgs);
+    intermediateNodes = intermediateNodes.concat(pGraph!.nodes);
+    intermediateEdges = intermediateEdges.concat(pGraph!.edges);
   }
 
   return {
@@ -166,11 +200,11 @@ export const toGraphOpt = (
     data: {
       id: prettyPrintFn(f),
       label: f.fname,
-      type: f.optType,
+      [f.optType]: true,
     },
   }));
 
-  const varyingGraph = toGraphDOF(varyingPaths, allFns, allArgs);
+  const varyingGraph = toGraphDOFs(varyingPaths, allFns, allArgs);
 
   const nodes = merge([argNodes, fnNodes, varyingGraph.nodes]);
 
