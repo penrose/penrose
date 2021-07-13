@@ -6,12 +6,7 @@ import cytoscape from "cytoscape";
 import { uniqBy } from "lodash";
 import dagre from "cytoscape-dagre";
 import { FieldDict, Translation } from "@penrose/core/build/dist/types/value";
-import {
-  traverseUnique,
-  convertSchema,
-  toGraphOpt,
-  toGraphTrans,
-} from "./GraphUtils";
+import { traverseUnique, convertSchema, toGraphOpt } from "./GraphUtils";
 
 cytoscape.use(dagre);
 
@@ -177,14 +172,15 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       </div>
 
       <div>
-        <b>Key:</b> orange = objective; blue = constraint; red = degree of
-        freedom (DOF, aka varying variable); gray = other
+        <b>Key for optimization graph:</b> orange = objective; blue =
+        constraint; red = degree of freedom (DOF, aka varying variable); gray =
+        other
       </div>
 
       <div>
-        <b>Note:</b> Only Style paths in objective/constraint function arguments
-        are visualized; expressions are currently not visualized (which may lead
-        to slightly misleading graphs)
+        <b>Note:</b> In the optimization graph, only Style paths in
+        objective/constraint function arguments are visualized; expressions are
+        currently not visualized (which may lead to slightly misleading graphs)
       </div>
 
       <select value={value} onChange={(e) => setValue(e.currentTarget.value)}>

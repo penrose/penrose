@@ -5,12 +5,12 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-  graphOfBlockExpr,
 } from "@penrose/core";
 import { FieldDict, Translation } from "@penrose/core/build/dist/types/value";
 import { uniqBy } from "lodash";
 import { Path } from "@penrose/core/build/dist/types/style";
 import { Fn } from "@penrose/core/build/dist/types/state";
+import { flatMap } from "lodash";
 
 // Flatten a list of lists into a single list of elements
 const merge = (arr: any) => [].concat(...arr);
@@ -27,8 +27,8 @@ const emptyGraph = (): PGraph => {
 const flatGraph = (es: PGraph[]): PGraph => {
   // TODO < Make edges between all
   return {
-    nodes: _.flatMap(es, (e) => e.nodes),
-    edges: _.flatMap(es, (e) => e.edges),
+    nodes: flatMap(es, (e) => e.nodes),
+    edges: flatMap(es, (e) => e.edges),
   };
 };
 
@@ -245,177 +245,4 @@ export const toGraphOpt = (
     nodes,
     edges,
   };
-};
-
-// ----------
-
-// For translation (render) graph
-
-// TODO: import translation
-export const toGraphTrans = (trans: Translation, varyingPaths: any) => {
-  const tr = trans.trMap;
-
-  // Top nodes = All Substance objects, fields, and properties [Translation]
-  // + Middle nodes = All computations -- involving all operations and paths
-  // + Leaf nodes = All constants, paths, and varying vars
-
-  // Edges from top to middle = All subpaths (from Substance objects to their fields and/or properties)
-  // Edges from middle to bottom = All path values (assignments to paths) and computations
-
-  // TODO: Write using a for-loop, and a form of checkBlockExpr
-
-  let nodes: any[] = [];
-  let edges: any[] = [];
-
-  for (const [subObj, fieldDict] of Object.entries(tr)) {
-    const subNode = {
-      data: {
-        id: subObj,
-        label: subObj,
-        type: "sub obj",
-      },
-    };
-
-    nodes.push(subNode);
-
-    // cytoscape insanity - can't use "x.y" syntax in string arguments as it somehow escapes the string and causes a crash
-    // also TODO - not sure how to type vars in loops (fieldDict)
-    const fieldDict2: FieldDict = fieldDict;
-    for (const [field, fexpr] of Object.entries(fieldDict2)) {
-      const fieldStr = subObj + ":" + field;
-
-      const fieldNode = {
-        data: {
-          id: fieldStr,
-          label: field,
-          type: "field",
-        },
-      };
-
-      const fieldEdge = {
-        data: {
-          id: subObj + " -> " + fieldStr,
-          source: subObj,
-          target: fieldStr,
-        },
-      };
-
-      nodes.push(fieldNode);
-      edges.push(fieldEdge);
-
-      if (fexpr.tag === "FExpr") {
-        // TODO <<< Look up if varying path, and make special ? node
-        // Else use checkBlockExpr
-        const res = fexpr.contents;
-        let head;
-
-        if (res.tag === "OptEval") {
-          const e = res.contents;
-          const graph = graphOfBlockExpr(e);
-          // TODO: Make sure the head node is the first one in the result
-          head = graph.nodes[0];
-          console.log("expr", e);
-          console.log("resulting graph", graph, head);
-          console.log("in", fieldNode, head);
-
-          // Connect the head node to its parent
-          const exprEdge = {
-            data: {
-              id: fieldNode.data.id + " -> " + head.data.id,
-              source: fieldNode.data.id,
-              target: head.data.id,
-            },
-          };
-
-          nodes = nodes.concat(graph.nodes);
-          edges = edges.concat(graph.edges);
-          edges.push(exprEdge);
-
-          console.log("exprEdge", exprEdge, nodes, edges);
-        } else if (res.tag === "Done") {
-          // Const, TODO
-          // Make a const node and connect it to its parent
-          const constNode = {
-            data: {
-              // TODO: Fix this id
-              id: JSON.stringify(res.contents),
-              // TODO: Fix this label
-              label: "const",
-              type: "const",
-            },
-          };
-
-          head = constNode;
-        } else if (res.tag === "Pending") {
-          // Const, TODO
-          // Make a const node and connect it to its parent
-          throw Error("Pending");
-        }
-
-        const constEdge = {
-          data: {
-            id: fieldStr + " -> " + head.data.id,
-            source: fieldStr,
-            target: head.data.id,
-          },
-        };
-
-        nodes.push(head);
-        edges.push(constEdge);
-      } else if (fexpr.tag === "FGPI") {
-        const [typ, props] = fexpr.contents;
-        const typeStr = fieldStr + ":" + typ;
-        const typeNode = {
-          data: {
-            id: typeStr,
-            label: typ,
-            type: "shape ctor",
-          },
-        };
-
-        const typeEdge = {
-          data: {
-            id: fieldStr + " -> " + typ,
-            source: fieldStr,
-            target: typeStr,
-          },
-        };
-
-        // console.log("fexpr", fexpr, typeStr, typeNode, typeEdge);
-
-        nodes.push(typeNode);
-        edges.push(typeEdge);
-
-        for (const [prop, propExpr] of Object.entries(props)) {
-          const propStr = typeStr + ":" + prop; // Because more than one shape can have the same property
-          const propNode = {
-            data: {
-              id: propStr,
-              label: prop,
-              type: "property",
-            },
-          };
-
-          const propEdge = {
-            data: {
-              id: typeStr + " -> " + propStr,
-              source: typeStr,
-              target: propStr,
-            },
-          };
-
-          console.log("prop", prop, propStr, propNode, propEdge);
-
-          nodes.push(propNode);
-          edges.push(propEdge);
-
-          // TODO <<< Do propExpr: TagExpr<VarAD>
-          // Look up if varying path, and make special ? node
-          // Else use checkBlockExpr
-        } // end property loop
-      } // end gpi case
-    } // end field case
-  } // end sub obj case
-
-  return { nodes, edges };
 };

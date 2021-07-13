@@ -1,5 +1,5 @@
 import { checkDomain, compileDomain, parseDomain } from "compiler/Domain";
-import { compileStyle, graphOfBlockExpr } from "compiler/Style";
+import { compileStyle } from "compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
@@ -307,7 +307,6 @@ export {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-  graphOfBlockExpr,
   ops,
 };
 export type { PenroseError } from "./types/errors";
