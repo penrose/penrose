@@ -81,14 +81,14 @@ const makeGraph = (frame: any, value: string): PGraph => {
     throw Error(`unexpected value '${value}'`);
   }
 
-  console.log(`graph of ${value}`, graph);
+  // console.log(`graph of ${value}`, graph);
 
-  console.log(
-    "graph # nodes",
-    graph.nodes.length,
-    "# edges",
-    graph.edges.length
-  );
+  // console.log(
+  //   "graph # nodes",
+  //   graph.nodes.length,
+  //   "# edges",
+  //   graph.edges.length
+  // );
 
   return graph;
 };
