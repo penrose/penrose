@@ -220,14 +220,7 @@ relation
 
 
 rel_bind 
-  -> binding_form _ ":=" _ sel_expr __ml alias_as {% 
-    ([id, , , , expr, , a]): RelBind => ({
-      ...nodeData([id, expr, a]),
-      ...rangeFrom([id, expr, a]),
-      tag: "RelBind", id, expr, alias: a,
-    })
-  %}
-  | binding_form _ ":=" _ sel_expr {% 
+  -> binding_form _ ":=" _ sel_expr {% 
     ([id, , , , expr]): RelBind => ({
       ...nodeData([id, expr]),
       ...rangeFrom([id, expr]),
@@ -236,7 +229,7 @@ rel_bind
   %}
 
 rel_pred 
-  -> identifier _ "(" pred_arg_list ")" __ml alias_as {% 
+  -> identifier _ "(" pred_arg_list ")" __ml alias_as {% // aliasing case
     ([name, , , args, , , a]): RelPred => ({
         ...nodeData([name, ...args, a]),
         ...rangeFrom([name, ...args, a]),

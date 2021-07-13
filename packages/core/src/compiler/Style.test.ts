@@ -373,6 +373,15 @@ describe("Compiler", () => {
 where IsSubset(y, x) { }`,
       ],
 
+      SelectorAliasNamingError: [
+        `forall Set x; Set y where IsSubset(x,y) as Set { }`,
+        `forall Set x; Set y where IsSubset(x,y) as IsSubset { }`,
+        `Set x; Set y where IsSubset(x,y) as Union {}`,
+        `Set x; Set y where IsSubset(x,y) as x {}`,
+        `Set x; Set y where IsSubset(x,y) as y {}`,
+        `Set A; Set B where IsSubset(A,B) as A {}`, // this fails to generate an error, because A and B shadow substance vars [fixed]
+      ],
+
       // ---------- Block static errors
 
       InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
@@ -585,7 +594,148 @@ Set a; Set b where IsSubset(a,b) as foo { -- as Set passes, not great
   a.icon = Circle{}
   foo.icon = Square{}
 }
-Set u; Set v; Set z where z := Baz(v){}
+Set u; Set v where IsSubset(u,v) as A {} -- this should not pass. 
+`,
+  ];
+
+  const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+
+  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+    (env) => compileSubstance(subProg, env),
+    domainRes
+  );
+
+  for (const styProg of styProgs) {
+    const styRes: Result<State, PenroseError> = andThen(
+      (res) => S.compileStyle(canvasPreamble + styProg, ...res),
+      subRes
+    );
+
+    if (!styRes.isOk()) {
+      fail(
+        `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+      );
+    } else {
+      expect(true).toEqual(true);
+    }
+  }
+});
+
+describe("subtype test", () => {
+  const domainProg = `
+type HyperbolicPlane
+type Point
+type IdealPoint
+type Segment
+type Horocycle
+
+IdealPoint <: Point
+
+predicate In: Point * HyperbolicPlane
+predicate IsCenter: IdealPoint * Horocycle
+
+constructor MakeSegment: Point endpoint1 * Point endpoint2 -> Segment
+notation "{ a, b }" ~ "MakeSegment( a, b )"
+notation "p ∈ H" ~ "In( p, H )"
+
+`;
+  // const subProg = "Set A\nSet B\nSet C\nSet D\nIsSubset(A,B)\nIntersect(Union(A,C),B)\nIsSubset(B,C)\nUnion(A,B)";
+  const subProg = `
+HyperbolicPlane H
+IdealPoint p, q
+Horocycle g, h
+IsCenter( p, g )
+IsCenter( q, h )
+`;
+  // TODO: Name these programs
+  const styProgs = [
+    // These are mostly to test setting shape properties as vectors or accesspaths
+    `Global {
+  scalar width = 800.0
+  scalar height = 700.0
+  scalar pointSize = width/100.0
+  scalar thinStroke = width/200.0
+  scalar planeSize = 0.9*height
+}
+
+Colors {
+  color none = rgba(0.0, 0.0, 0.0, 0.0)
+  color black = rgba( 0.0, 0.0, 0.0, 1.0 )
+  color blue = rgba( 0.8, 0.7, 1.0, 0.2 )
+  color red = rgba( 1.0, 0.0, 0.0, 0.5 )
+}
+
+forall HyperbolicPlane H {
+  shape H.diskShape = Circle {
+     center : (0.0, 0.)
+     r : Global.planeSize/2.0
+     color : Colors.blue
+     strokeWidth : Global.thinStroke
+     strokeColor : Colors.black
+     strokeStyle : "dashed"
+     -- strokeDashArray : "20,10,5,5,5,10"
+  }
+}
+
+forall Point p; HyperbolicPlane H
+where In( p, H ) {
+  shape p.dotShape = Circle {
+     r : Global.pointSize/2.0
+     strokeWidth : 0.0
+     color : Colors.black
+  }
+
+  --ensure contains( H.diskShape, p.dotShape )
+}
+
+-- TODO: Fix that we can't add new functions with new names w/o backend complaining
+
+forall IdealPoint p; HyperbolicPlane H
+where In( p, H ) {
+  scalar p.angle = ?
+
+  scalar R = H.diskShape.r
+
+  override p.dotShape = Circle {
+     center : R*(cos(p.angle), sin(p.angle))
+     r : Global.pointSize
+     strokeWidth : 0.0
+     color : Colors.black
+  }
+}
+
+forall Horocycle h; HyperbolicPlane H {
+ shape h.circleShape = Circle {
+   color : Colors.none
+   strokeWidth : 2.0
+   strokeColor : Colors.black
+ }
+
+ scalar R = H.diskShape.r
+
+ ensure inRange(h.circleShape.r, R/8., R/2.)
+ constraint h.inDisk      = ensure contains(H.diskShape, h.circleShape)
+ constraint h.tangentDisk = ensure tangentTo(H.diskShape, h.circleShape)
+}
+
+forall IdealPoint p; Horocycle h; HyperbolicPlane H
+where IsCenter( p, h ); In( p, H ) {
+
+  scalar R = H.diskShape.r
+  scalar r = h.circleShape.r
+  vec2 x = p.dotShape.center
+
+  -- -- set the center of the horocycle h so that it is
+  -- -- tangent to the hyperbolic plane H at ideal point p
+  scalar a = R - r
+  h.circleShape.center = a*unit(x)
+
+  -- since we've computed the location of the center
+  -- explicitly, we should no longer need constraints to
+  -- ensure containment/tangency in the Poincaré disk
+  delete h.inDisk
+  delete h.tangentDisk
+}
 `,
   ];
 

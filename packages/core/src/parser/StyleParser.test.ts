@@ -156,12 +156,14 @@ as Const
     sameASTs(results);
   });
 
-  test("multiple as clauses", () => {
+  test("multiple as clauses for predicates", () => {
     const prog = `
 forall Set A, B, C, D
 where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
 { 
   foo.arrow = Arrow{}
+  yeet.circle = Circle{}
+  bar.square = Square{}
 }`;
     const { results } = parser.feed(prog);
     /*
@@ -170,6 +172,16 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
     console.log('done')
     */
     sameASTs(results);
+  });
+  test("cannot as clauses for bindings", () => {
+    const prog = `
+    forall Set x; Set y where y := Baz(x) as foo {}
+    `;
+    expect(parseStyle(prog).isErr()).toEqual(true);
+  });
+  test("cannot set subVars as aliases", () => {
+    const prog = "Set x; Set y where IsSubset(x,y) as `A` {}";
+    expect(parseStyle(prog).isErr()).toEqual(true);
   });
 });
 

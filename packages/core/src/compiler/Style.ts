@@ -107,7 +107,10 @@ import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
 
-import { addAliasSubsts } from "./Aliasing";
+import {
+  addRelPredAliasSubsts,
+  aliasConflictsWithDomainOrSelectorKeyword,
+} from "./Aliasing";
 
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
@@ -405,7 +408,11 @@ const checkDeclPatternsAndMakeEnv = (
 
 // add something called checkAlias (rel.alias : Identifier, varEnv: Env) : ?
 
-const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
+const checkRelPattern = (
+  varEnv: Env,
+  selEnv: SelEnv,
+  rel: RelationPattern
+): StyleErrors => {
   // rule Bind-Context
   // console.log(varEnv.varIDs)
   if (rel.tag === "RelBind") {
@@ -451,6 +458,14 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
   } else if (rel.tag === "RelPred") {
     // rule Pred-Context
     // G |- Q : Prop
+
+    if (
+      rel.alias &&
+      aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
+    ) {
+      return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
+    }
+
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
       const subErr3: SubstanceError = res.error;
@@ -466,11 +481,12 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
 // Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
   varEnv: Env,
+  selEnv: SelEnv,
   rels: RelationPattern[]
 ): StyleErrors => {
   return _.flatMap(
     rels,
-    (rel: RelationPattern): StyleErrors => checkRelPattern(varEnv, rel)
+    (rel: RelationPattern): StyleErrors => checkRelPattern(varEnv, selEnv, rel)
   );
 };
 
@@ -504,6 +520,7 @@ const mergeMapping = (
     return {
       ...varEnv,
       vars: varEnv.vars.set(
+        // :( the style variables are turned into substance variables
         bindingForm.contents.value,
         toSubstanceType(styType)
       ),
@@ -547,8 +564,31 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
     // here? checking relation patterns... need to check aliases too
     const relErrs = checkRelPatterns(
       mergeEnv(varEnv, selEnv_decls),
+      selEnv_decls,
       safeContentsList(sel.where)
     );
+
+    // console.log('header head')
+
+    // console.log('regular varEnv\n', varEnv);
+    // console.log('merged env\n', mergeEnv(varEnv, selEnv_decls));
+
+    /*
+    if (header.where){
+      for (var relPattern of header.where.contents){
+        if (relPattern.tag === 'RelPred' && relPattern.alias){
+          // console.log('header head contents (declpattern[])\n', header.head.contents);
+          aliasConflictsWithDomainOrSelectorKeyword(relPattern.alias, mergeEnv(varEnv, selEnv_decls))
+          console.log('actual selectorkeywords\n', Object.keys(selEnv_decls.sTypeVarMap));
+          // console.log('varIDs?\n', mergeEnv(varEnv, selEnv_decls).varIDs)
+        }
+      }
+    }
+    */
+
+    // console.log('what is this\n', selEnv_decls.sTypeVarMap);
+    // need to include Object.keys(selEnv_decls.sTypeVarMap) as part of my well-formedness check
+    // console.log('what is this pt 2\n', selEnv_decls.varProgTypeMap);
 
     /* 
     checkRelPatternsAndAddAliasKeysToEnv(
@@ -1536,12 +1576,12 @@ const findSubstsSel = (
     // return correctSubsts;
 
     const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
-      addAliasSubsts(subst, rels)
+      addRelPredAliasSubsts(subst, rels)
     );
 
-    console.log("correct substs", correctSubsts);
+    // console.log("correct substs", correctSubsts);
 
-    console.log("added aliases", correctSubstsWithAliasSubsts);
+    // console.log("added aliases", correctSubstsWithAliasSubsts);
 
     return correctSubstsWithAliasSubsts;
   } else if (header.tag === "Namespace") {

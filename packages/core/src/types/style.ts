@@ -61,7 +61,6 @@ export interface RelBind extends ASTNode {
   tag: "RelBind";
   id: BindingForm;
   expr: SelExpr;
-  alias?: Identifier;
 }
 
 export interface RelPred extends ASTNode {
