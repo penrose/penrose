@@ -747,7 +747,7 @@ export class Synthesizer {
       cons.args,
       cxt
     );
-    const rhs: ApplyConstructor = applyConstructor(cons, args.res);
+    const rhs: ApplyConstructor = applyConstructor(cons, args);
     const outputType = cons.output.type as TypeConstructor;
     const outputTypeDecl: TypeDecl | undefined = this.cxt.candidates.types.find(
       (decl, typeName) => typeName === outputType.name.value
