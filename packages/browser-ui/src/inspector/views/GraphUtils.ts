@@ -11,18 +11,32 @@ import { uniqBy } from "lodash";
 import { Path } from "@penrose/core/build/dist/types/style";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { flatMap } from "lodash";
+import { VarAD } from "../../../../core/build/dist/types/ad";
 
-// Flatten a list of lists into a single list of elements
-const merge = (arr: any) => [].concat(...arr);
+// TODO: The nodes and edges are left untyped for now because adding new keys to them (e.g. `DOF: true`) is used to style their CSS - not sure how to accommodate this as a TS type
 
 export interface PGraph {
+  // Graph for cytoscape (see `graph1` for example + schema)
   nodes: any;
   edges: any;
 }
 
-const emptyGraph = (): PGraph => {
-  return { nodes: [], edges: [] } as PGraph;
-};
+// Example graph schema: 2 nodes, 1 edge between them; `selectorName` can be styled, for example
+const graph1 = [
+  { data: { id: "a" } },
+  { data: { id: "b" } },
+  {
+    data: {
+      id: "ab",
+      source: "a",
+      target: "b",
+      selectorName: true,
+    },
+  },
+];
+
+// Flatten a list of lists into a single list of elements
+const merge = (arr: any) => [].concat(...arr);
 
 const flatGraph = (es: PGraph[]): PGraph => {
   return {
@@ -36,7 +50,7 @@ const flatGraph = (es: PGraph[]): PGraph => {
 // Given a parent node, returns the graph corresponding to nodes and edges of children
 // May contain duplicate nodes
 // TODO: Add type for graph and VarAD
-const traverseGraphTopDown = (par: any): any => {
+const traverseGraphTopDown = (par: VarAD): PGraph => {
   const parNode = { id: par.id, label: par.op };
   const edges = par.children.map((edge) => ({
     from: parNode.id,
@@ -54,7 +68,7 @@ const traverseGraphTopDown = (par: any): any => {
 };
 
 // For building atomic op graph. Returns unique nodes after all nodes are merged
-export const traverseUnique = (par: any): any => {
+export const traverseUnique = (par: VarAD): PGraph => {
   const g = traverseGraphTopDown(par);
   return {
     ...g,
@@ -63,7 +77,7 @@ export const traverseUnique = (par: any): any => {
 };
 
 // Convert from `traverseUnique` schema to cytoscape schema
-export const convertSchema = (graph: any): any => {
+export const convertSchema = (graph: PGraph): PGraph => {
   const { nodes, edges } = graph;
 
   const nodes2 = nodes.map((e) => ({
@@ -88,7 +102,7 @@ export const convertSchema = (graph: any): any => {
 // -----
 
 // Make nodes and edges related to showing one DOF node (p is a varying path)
-export const toGraphDOF = (p: Path, allArgs: string[]) => {
+export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
   const empty = { nodes: [], edges: [] };
 
   if (p.tag === "FieldPath") {
@@ -145,6 +159,8 @@ export const toGraphDOF = (p: Path, allArgs: string[]) => {
   } else if (p.tag === "LocalVar" || "InternalLocalVar") {
     throw Error("unexpected node type: local var in varying var");
   }
+
+  return empty;
 };
 
 // Make nodes and edges related to showing DOF nodes
@@ -153,7 +169,7 @@ export const toGraphDOFs = (
   varyingPaths: Path[],
   allFns: Fn[],
   allArgs: string[]
-) => {
+): PGraph => {
   const varyingPathNodes = varyingPaths.map((p) => {
     const res = prettyPrintPath(p);
     return {
@@ -192,7 +208,7 @@ export const toGraphOpt = (
   objfns: PenroseFn[],
   constrfns: PenroseFn[],
   varyingPaths: any[]
-): any => {
+): PGraph => {
   // One node for each unique path, id = path name, name = path name
   // One node for each unique obj/constr application, id = the function w/ its args, name = function name
   // One edge for each function=>path application, id = from + to names, name = none

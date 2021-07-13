@@ -6,7 +6,12 @@ import cytoscape from "cytoscape";
 import { uniqBy } from "lodash";
 import dagre from "cytoscape-dagre";
 import { FieldDict, Translation } from "@penrose/core/build/dist/types/value";
-import { traverseUnique, convertSchema, toGraphOpt } from "./GraphUtils";
+import {
+  traverseUnique,
+  convertSchema,
+  toGraphOpt,
+  PGraph,
+} from "./GraphUtils";
 
 cytoscape.use(dagre);
 
@@ -61,20 +66,7 @@ const style = [
   },
 ];
 
-// Example graph schema: 2 nodes, 1 edge between them
-const graph1 = [
-  { data: { id: "a" } },
-  { data: { id: "b" } },
-  {
-    data: {
-      id: "ab",
-      source: "a",
-      target: "b",
-    },
-  },
-];
-
-const makeGraph = (frame: any, value: string): any => {
+const makeGraph = (frame: any, value: string): PGraph => {
   let graph;
 
   if (value === "opt") {
@@ -84,7 +76,7 @@ const makeGraph = (frame: any, value: string): any => {
     // Find nodes and edges for atomic op graph, from top energy node
     graph = convertSchema(traverseUnique(frame.params.energyGraph));
   } else if (value === "none") {
-    return;
+    return { nodes: [], edges: [] };
   } else {
     throw Error(`unexpected value '${value}'`);
   }
