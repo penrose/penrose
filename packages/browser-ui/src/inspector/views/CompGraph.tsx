@@ -5,7 +5,7 @@ import IViewProps from "./IViewProps";
 import cytoscape from "cytoscape";
 import { uniqBy } from "lodash";
 import dagre from "cytoscape-dagre";
-import { FieldDict, Translation } from "@penrose/core/build/dist/types/value";
+import { FieldDict, Translation } from "@penrose/core";
 import {
   traverseUnique,
   convertSchema,
