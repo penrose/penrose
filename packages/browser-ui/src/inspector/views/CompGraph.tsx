@@ -61,6 +61,7 @@ const style = [
   },
 ];
 
+// Example graph schema: 2 nodes, 1 edge between them
 const graph1 = [
   { data: { id: "a" } },
   { data: { id: "b" } },
@@ -69,26 +70,6 @@ const graph1 = [
       id: "ab",
       source: "a",
       target: "b",
-    },
-  },
-];
-
-const graph2 = [
-  { data: { id: "a" } },
-  { data: { id: "b" } },
-  { data: { id: "c" } },
-  {
-    data: {
-      id: "ab",
-      source: "a",
-      target: "b",
-    },
-  },
-  {
-    data: {
-      id: "ac",
-      source: "a",
-      target: "c",
     },
   },
 ];
@@ -142,7 +123,6 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
   );
 
   React.useEffect(() => {
-    // console.log(`running effect with ${value}`);
     if (graphRef.current !== null) {
       const cy = cytoscape({
         container: graphRef.current, // container to render in

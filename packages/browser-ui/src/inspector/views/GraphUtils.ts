@@ -25,7 +25,6 @@ const emptyGraph = (): PGraph => {
 };
 
 const flatGraph = (es: PGraph[]): PGraph => {
-  // TODO < Make edges between all
   return {
     nodes: flatMap(es, (e) => e.nodes),
     edges: flatMap(es, (e) => e.edges),
@@ -36,7 +35,6 @@ const flatGraph = (es: PGraph[]): PGraph => {
 
 // Given a parent node, returns the graph corresponding to nodes and edges of children
 // May contain duplicate nodes
-// TODO: Move this to utils?
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: any): any => {
   const parNode = { id: par.id, label: par.op };
@@ -107,8 +105,7 @@ export const toGraphDOF = (p: Path, allArgs: string[]) => {
       return empty;
     }
 
-    // TODO: Could all the prettyprinting cause performance issues for large graphs..?
-
+    // TODO: Could all the prettyprinting cause performance issues for large graphs?
     // Connect X.shape to X.shape.property
     const edge = {
       data: {
@@ -189,7 +186,6 @@ export const toGraphDOFs = (
 };
 
 // For opt fn graph
-// TODO: Import `Fn` for the types
 // TODO: Hover to show outgoing edges (cytoscape)
 // TODO / NOTE: This does not work with inline computations (e.g. f(g(p), x)). Everything needs to be a path
 export const toGraphOpt = (
@@ -201,11 +197,10 @@ export const toGraphOpt = (
   // One node for each unique obj/constr application, id = the function w/ its args, name = function name
   // One edge for each function=>path application, id = from + to names, name = none
 
-  // TODO: Could instead be the union of shapePaths and varyingPaths if we want to show all optimizable paths, not just the ones that are optimized
   const allFns = objfns.concat(constrfns);
   const allArgs: string[] = merge(
     allFns.map((f) => f.fargs.map(prettyPrintExpr))
-  ); // TODO: This also includes constants, etc.
+  ); // This also includes constants, etc.
 
   const argNodes = allArgs.map((p) => ({
     data: {
@@ -214,7 +209,6 @@ export const toGraphOpt = (
     },
   }));
 
-  // TODO: Show objectives separately from constraints?? Or at least style them differently
   const fnNodes = allFns.map((f) => ({
     data: {
       id: prettyPrintFn(f),
