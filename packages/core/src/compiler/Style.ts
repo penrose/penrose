@@ -405,9 +405,6 @@ const checkDeclPatternsAndMakeEnv = (
 
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
-
-// add something called checkAlias (rel.alias : Identifier, varEnv: Env) : ?
-
 const checkRelPattern = (
   varEnv: Env,
   selEnv: SelEnv,
@@ -520,7 +517,6 @@ const mergeMapping = (
     return {
       ...varEnv,
       vars: varEnv.vars.set(
-        // :( the style variables are turned into substance variables
         bindingForm.contents.value,
         toSubstanceType(styType)
       ),
@@ -542,15 +538,13 @@ const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
 const checkHeader = (varEnv: Env, header: Header): SelEnv => {
   if (header.tag === "Selector") {
-    // hook here, + aliasing
     // Judgment 7. G |- Sel ok ~> g
     const sel: Selector = header;
 
-    // this is checking for stuff like `Set x, Set y`?
     const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
       varEnv,
       initSelEnv(),
-      sel.head.contents // list of decl patterns
+      sel.head.contents
     );
 
     // Check `with` statements
@@ -561,52 +555,11 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
       safeContentsList(sel.with)
     );
 
-    // here? checking relation patterns... need to check aliases too
     const relErrs = checkRelPatterns(
       mergeEnv(varEnv, selEnv_decls),
       selEnv_decls,
       safeContentsList(sel.where)
     );
-
-    // console.log('header head')
-
-    // console.log('regular varEnv\n', varEnv);
-    // console.log('merged env\n', mergeEnv(varEnv, selEnv_decls));
-
-    /*
-    if (header.where){
-      for (var relPattern of header.where.contents){
-        if (relPattern.tag === 'RelPred' && relPattern.alias){
-          // console.log('header head contents (declpattern[])\n', header.head.contents);
-          aliasConflictsWithDomainOrSelectorKeyword(relPattern.alias, mergeEnv(varEnv, selEnv_decls))
-          console.log('actual selectorkeywords\n', Object.keys(selEnv_decls.sTypeVarMap));
-          // console.log('varIDs?\n', mergeEnv(varEnv, selEnv_decls).varIDs)
-        }
-      }
-    }
-    */
-
-    // console.log('what is this\n', selEnv_decls.sTypeVarMap);
-    // need to include Object.keys(selEnv_decls.sTypeVarMap) as part of my well-formedness check
-    // console.log('what is this pt 2\n', selEnv_decls.varProgTypeMap);
-
-    /* 
-    checkRelPatternsAndAddAliasKeysToEnv(
-      selEnv_decls, safeContentsList(sel.where)
-    )
-    things to add:
-    - alias keys (what each where clause is aliased as)
-    - possible aliasing errors (if they collide with existing domain keywords
-      (ex. IsSubset, Set) or other keywords in scope (ex. X,Y))
-    - override stuff?
-    */
-
-    /*
-    console.log('sel\n', sel);
-    console.log('selev afterhead\n', selEnv_afterHead);
-    console.log('selEnv_decls\n', selEnv_decls);
-    console.log('merged envs\n', mergeEnv(varEnv, selEnv_decls));
-    */
 
     // TODO(error): The errors returned in the top 3 statements
     return {
@@ -632,24 +585,6 @@ export const checkSelsAndMakeEnv = (
     res.header = { tag: "Just", contents: e.header };
     return res;
   });
-
-  /*
-  console.log('start');
-
-  console.log(selEnvs[0]);
-
-  const x : SelEnv = selEnvs[0]
-  const y = x.header
-  if (y.tag === 'Just'){
-    console.log('header contents\n', y.contents);
-    console.log(typeof y.contents);
-  }
-  
-  console.log('end');
-  */
-
-  // console.log(selEnvs[0].header as Header)
-
   return selEnvs;
 };
 
@@ -782,37 +717,27 @@ export const substituteRel = (
   subst: Subst,
   rel: RelationPattern
 ): RelationPattern => {
-  // console.log('alias', rel.alias)
   if (rel.tag === "RelBind") {
     // theta(B := E) |-> theta(B) := theta(E)
-    /*
-    if (rel.alias) return  {
-      ...rel,
-      id: substituteBform({ tag: "Nothing" }, subst, rel.id),
-      expr: substituteExpr(subst, rel.expr),
-      alias: substituteAlias(subst, rel.alias)
-    };
-    */
     return {
       ...rel,
       id: substituteBform({ tag: "Nothing" }, subst, rel.id),
       expr: substituteExpr(subst, rel.expr),
-      // alias: substituteAlias(subst, rel.alias)
     };
   } else if (rel.tag === "RelPred") {
     // theta(Q([a]) = Q([theta(a)])
-    /*
-    if (rel.alias) return {
-      ...rel,
-      args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-      alias: substituteAlias(subst, rel.alias)
-    };
-    */
-    return {
-      ...rel,
-      args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-      // alias: substituteAlias(subst, rel.alias)
-    };
+
+    if (rel.alias)
+      return {
+        ...rel,
+        args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+        alias: substituteAlias(subst, rel.alias), // having this substituted doesn't affect the aliasing, just for debugging
+      };
+    else
+      return {
+        ...rel,
+        args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+      };
   } else throw Error("unknown tag");
 };
 
@@ -843,13 +768,11 @@ const mkLocalVarName = (lv: LocalVarSubst): string => {
 
 const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
   if (path.tag === "FieldPath") {
-    // ????
     return {
       ...path,
       name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
     };
   } else if (path.tag === "PropertyPath") {
-    /// ?????
     return {
       ...path,
       name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
@@ -864,7 +787,7 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
         nodeType: "SyntheticStyle",
         tag: "SubVar",
         contents: {
-          ...dummyId(mkLocalVarName(lv)), // hook, change this?
+          ...dummyId(mkLocalVarName(lv)),
         },
       },
       field: path.contents,
@@ -1069,9 +992,9 @@ const substituteBlock = (
   [block, bi]: [Block, number],
   name: MaybeVal<string>
 ): Block => {
-  const lvSubst: LocalVarSubst = // change this (?) // change the contents if it's a keyword?
+  const lvSubst: LocalVarSubst =
     name.tag === "Nothing"
-      ? { tag: "LocalVarId", contents: [bi, si] } // keep the contents, but maybe add another 'alias' field
+      ? { tag: "LocalVarId", contents: [bi, si] }
       : { tag: "NamespaceId", contents: name.contents };
 
   return {
@@ -1380,29 +1303,9 @@ export const filterRels = (
       couldMatchRels(typeEnv, rels, line)
     ),
   };
-
-  /*
-  const test = substs.filter((subst) =>
-  allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))
-  ) 
-
-  if (substs.length > 0){
-    console.log('first subst', substs[0]);
-    console.log('og rels', rels);
-    var jsonog = JSON.stringify(rels);
-    fs.writeFileSync('ogrels.json', jsonog, "utf8");
-    var subs = substituteRels(substs[0], rels)
-    console.log('substituted rels', subs);
-    var jsonsubst = JSON.stringify(subs);
-    fs.writeFileSync('subrels.json', jsonsubst, "utf8"); 
-  }
-  */
-
   return substs.filter((subst) =>
     allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))
   );
-
-  // this gives me substs for which all relations match the substitution
 };
 
 // // Match declaration statements
@@ -1505,8 +1408,6 @@ const matchDecl = (
   );
   const res = merge(initSubsts, justs(newSubsts)); // TODO inline
   // COMBAK: Inline this
-  // console.log("substs to combine:", initSubsts, justs(newSubsts));
-  // console.log("res", res);
   return res;
 };
 
@@ -1539,20 +1440,13 @@ const findSubstsSel = (
     const rels = safeContentsList(sel.where);
     const initSubsts: Subst[] = [];
 
-    // rawDeclSubsts
     const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
 
-    // declSubstCandidates
     const substCandidates = rawSubsts.filter((subst) =>
       fullSubst(selEnv, subst)
     );
 
-    // declFilteredSubsts
-    /*
-    ex. add in foo: 'IsSubset_A_B'
-     */
     const filteredSubsts = filterRels(
-      // #### i can add in rels here.
       varEnv,
       subEnv,
       subProg,
@@ -1560,28 +1454,11 @@ const findSubstsSel = (
       substCandidates
     );
 
-    // correctDeclSubsts
     const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-    // console.log('here\n', correctSubsts[0].x)
-
-    /*
-    console.log('raw substs\n', rawSubsts);
-    console.log('subst candidates\n', substCandidates);
-    console.log('filtered rels\n', filteredSubsts);
-    console.log('final substs\n', correctSubsts);
-    */
-
-    // map over the correctSubsts with the relations?
-
-    // return correctSubsts;
 
     const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
       addRelPredAliasSubsts(subst, rels)
     );
-
-    // console.log("correct substs", correctSubsts);
-
-    // console.log("added aliases", correctSubstsWithAliasSubsts);
 
     return correctSubstsWithAliasSubsts;
   } else if (header.tag === "Namespace") {
@@ -1605,20 +1482,6 @@ export const findSubstsProg = (
     styProg.map((e: HeaderBlock) => e.header),
     selEnvs
   ); // TODO: Why can't I type it [Header, SelEnv][]? It shouldn't be undefined after the length check
-
-  // just want to test stuff
-  // this works as a predicate alias map (for now)
-
-  /*
-  console.log('testing');
-
-  const predicateAliasMap = _.flatMap(selsWithEnvs, 
-    (selAndEnv) => findRelSubstsSel(varEnv, subEnv, subProg, selAndEnv as [Header, SelEnv]) 
-    )
-  console.log(predicateAliasMap);
-  //selsWithEnvs.map((selAndEnv) =>
-  //findRelSubstsSel(varEnv, subEnv, subProg, selAndEnv as [Header, SelEnv]))
-  */
 
   return selsWithEnvs.map((selAndEnv) =>
     findSubstsSel(varEnv, subEnv, subProg, selAndEnv as [Header, SelEnv])
@@ -1855,13 +1718,10 @@ const addPath = (
 };
 
 const translateLine = (
-  //hook here! : smile :
   trans: Translation,
   stmt: Stmt
 ): Either<StyleErrors, Translation> => {
   if (stmt.tag === "PathAssign") {
-    // check to see if this is normal path, or if it's to an alias
-    // if it's an alias, replace stmt.path with the actual path (IsSubset_A_B) in this case (?)
     return addPath(false, trans, stmt.path, {
       tag: "OptEval",
       contents: stmt.value,
@@ -1883,39 +1743,8 @@ const translateBlock = (
   trans: Translation,
   substWithNum: [Subst, number]
 ): Either<StyleErrors, Translation> => {
-  // here, figure out if any aliasing occurs..
-  // if so, store:
-
-  // within each block statement (?)
-  // store the alias name, and what variable in the translation it refers to
-
-  /*
-  console.log('first subst', substs[0]);
-  console.log('og rels', rels);
-  var jsonog = JSON.stringify(rels);
-  fs.writeFileSync('ogrels.json', jsonog, "utf8");
-  var subs = substituteRels(substs[0], rels)
-  console.log('substituted rels', subs);
-  var jsonsubst = JSON.stringify(subs);
-  fs.writeFileSync('subrels.json', jsonsubst, "utf8"); 
-  */
-
-  // i want to do some substitution here with the block
-  // substitue the aliases in
-
-  // the substituting seems to be ok
   const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
 
-  //console.log("start");
-  /*
-  var ogblock = JSON.stringify(blockWithNum[0].statements);
-  fs.writeFileSync(`ogblock${blockWithNum[1]}_${substWithNum[1]}.json`, ogblock, "utf8");
-  var substblock = JSON.stringify(blockSubsted.statements);
-  fs.writeFileSync(`substblock${blockWithNum[1]}_${substWithNum[1]}.json`, substblock, "utf8");
-  // console.log("done");
-  */
-
-  // but folding causes problems
   return foldM(blockSubsted.statements, translateLine, trans);
 };
 
@@ -1927,13 +1756,10 @@ const translateSubstsBlock = (
   blockWithNum: [Block, number]
 ): Either<StyleErrors, Translation> => {
   return foldM(
-    substsNum, // the stuff we're folding into the translation (arr)
-    (
-      trans,
-      substNum,
-      i // the fn used to fold
-    ) => translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum),
-    trans // the translation
+    substsNum,
+    (trans, substNum, i) =>
+      translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum),
+    trans
   );
 };
 
@@ -2072,12 +1898,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
-
-  // do i add stuff here?
-  // keywords?? to watch out for???
-  // i can use selEnv
-  // ... :(
-
   return emptyErrs();
 };
 
@@ -2131,7 +1951,6 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
 
 // Judgment 23, contd.
 const translatePair = (
-  //fold the hb into the trans
   varEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg,
@@ -2164,11 +1983,8 @@ const translatePair = (
       [subst, 0]
     );
   } else if (hb.header.tag === "Selector") {
-    // # # # # # # here
-
-    // i probably add some of my own checks to checkHeader (for it to be safe)
-    const selEnv = checkHeader(varEnv, hb.header); // whys this being called again
-    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics // so i leave this alone for now?
+    const selEnv = checkHeader(varEnv, hb.header);
+    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
 
     // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
     // skip this block (because the Substance variable won't exist in the translation)
@@ -2184,38 +2000,7 @@ const translatePair = (
       };
     }
 
-    // # # # # finds substs for local vars?
-    // look at this for ref
     const substs = findSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv]);
-    // console.log(substs);
-    //const predicateAliasMapping = findRelSubstsSel(varEnv, subEnv, subProg, [hb.header,])
-
-    // i can call findRelStrSubstsSel(subProg, [hb.header, selEnv]) here to get the aliasmap?
-    // not great, i need to add some header and block checks here, since selEnv is used (?)
-    // this function doesn't actually use selEnv anyway (?)
-    //const predicateAliasMap = findRelStrSubstsSel(subProg, [hb.header, selEnv]);
-    // const rawPredicateAliasMap = findRelSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv])
-
-    // console.log('substs', substs);
-    // console.log('predicate map', rawPredicateAliasMap);
-    // console.log('predicate map name', findRelStrSubstsSel(subProg, [hb.header, selEnv]));
-
-    //////// these are the possible aliasing things that can happen
-    // console.log('header alias keywords', getHeaderAliasKeywords(hb.header));
-
-    // const headerAliasKeywords = getHeaderAliasKeywords(hb.header);
-
-    // const substsPredicateMap = getSubstsAliasMap(substs, rawPredicateAliasMap);
-
-    // change this function, i guess (make new fn? pass in predicateAliasMap)?
-    // call numbered(predicateAliasMap);
-
-    // maybe i should zip up predicateAliasMap with substsNum (?)
-    // if the corresponding array in substs is empty, then you skip the block entirely (nothing matches)
-
-    // if the corresponding array in predicateAliasMap is empty, then you translate the block as normal
-
-    // if it's not, and the block has a match (substs entry is not empty) then you have to fold the block into the translation differently (w/ aliases)
 
     return translateSubstsBlock(trans, numbered(substs), [hb.block, blockNum]);
   } else throw Error("unknown tag");
@@ -3495,26 +3280,9 @@ export const compileStyle = (
 
   log.info("substitutions", subss);
 
-  // console.log('regular substs?\n', subss)
-
-  /*
-  console.log('predicate alias map\n', findRelSubstsProg(
-    varEnv, subEnv, subProg, styProg.blocks, selEnvs
-  ))
-  */
-
-  /*
-  console.log('predicate alias map\n', findRelStrSubstsProg(
-    subProg, styProg.blocks, selEnvs
-  ));
-  */
-
-  // i think styVals is the number used to generate the local vars (?)
-
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
   const translateRes = translateStyProg(
-    // change the way this works
     varEnv,
     subEnv,
     subProg,
