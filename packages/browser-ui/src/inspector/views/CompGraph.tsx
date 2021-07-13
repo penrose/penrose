@@ -107,9 +107,6 @@ const makeGraph = (frame: any, value: string): any => {
   } else if (value === "atomic") {
     // Find nodes and edges for atomic op graph, from top energy node
     graph = convertSchema(traverseUnique(frame.params.energyGraph));
-  } else if (value === "trans") {
-    // Find nodes and edges for translation graph (computational/render graph of shapes)
-    graph = toGraphTrans(frame.translation, frame.varyingPaths);
   } else if (value === "none") {
     return;
   } else {
@@ -141,7 +138,6 @@ const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     { label: "none", value: "none" },
     { label: "Optimization functions", value: "opt" },
     { label: "Atomic operations in energy", value: "atomic" },
-    { label: "Translation", value: "trans" },
   ]);
 
   const [value, setValue] = React.useState("none"); // init value of state to use

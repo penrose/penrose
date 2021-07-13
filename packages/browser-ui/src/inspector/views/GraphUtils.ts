@@ -15,6 +15,25 @@ import { Fn } from "@penrose/core/build/dist/types/state";
 // Flatten a list of lists into a single list of elements
 const merge = (arr: any) => [].concat(...arr);
 
+export interface PGraph {
+  nodes: any;
+  edges: any;
+}
+
+const emptyGraph = (): PGraph => {
+  return { nodes: [], edges: [] } as PGraph;
+};
+
+const flatGraph = (es: PGraph[]): PGraph => {
+  // TODO < Make edges between all
+  return {
+    nodes: _.flatMap(es, (e) => e.nodes),
+    edges: _.flatMap(es, (e) => e.edges),
+  };
+};
+
+// ---------
+
 // Given a parent node, returns the graph corresponding to nodes and edges of children
 // May contain duplicate nodes
 // TODO: Move this to utils?
