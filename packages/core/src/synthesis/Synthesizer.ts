@@ -28,6 +28,7 @@ import {
   checkSwapExprArgs,
   checkSwapStmtArgs,
   executeMutation,
+  executeMutations,
   IMutation,
   Mutation,
   showOp,
@@ -165,7 +166,7 @@ export class SynthesisContext {
     };
   };
 
-  printCandidates = () => {
+  irintCandidates = () => {
     console.log("types: ", ...this.candidates.types.keys());
     console.log("predicates: ", ...this.candidates.predicates.keys());
     console.log("functions: ", ...this.candidates.functions.keys());
@@ -302,6 +303,7 @@ export class SynthesisContext {
       "SyntheticSubstance"
     );
     this.addID(typeStr, id);
+    log.debug(`generated an ID ${prefix}${index} for ${typeName.value}`);
     return id;
   };
 
@@ -426,7 +428,8 @@ export class Synthesizer {
 
   mutateProgram = (): void => {
     // const ops = ["add", "delete", "edit"];
-    const ops = ["edit"];
+    const ops = ["add"];
+    // const ops = ["edit"];
     const op = this.choice(ops);
     if (op === "add") this.addStmt();
     else if (op === "delete") this.deleteStmt();
@@ -494,43 +497,43 @@ export class Synthesizer {
   //   }
   // };
 
-  typeChange = (oldStmt: ApplyPredicate | Bind, pick: ArgStmtDecl): void => {
-    let newStmt = oldStmt;
-    if (pick.tag === "PredicateDecl") {
-      newStmt = this.generatePredicate(pick);
-    } else if (pick.tag === "FunctionDecl") {
-      newStmt = this.generateFunction(pick);
-    } else {
-      newStmt = this.generateConstructor(pick);
-    }
-    // remove old statement
-    if (
-      newStmt.tag === "Bind" &&
-      oldStmt.tag === "Bind" &&
-      newStmt.variable.type !== oldStmt.variable.type
-    ) {
-      // old bind was replaced by a bind with diff type
-      this.cascadingDelete(oldStmt); // remove refs to the old bind
-      newStmt = newStmt as Bind;
-    } else {
-      // otherwise we can simple delete
-      this.cxt.removeStmt(oldStmt);
-    }
-    // COMBAK: fix
-    // this.cxt.ops.push({
-    //   tag: "Replace",
-    //   stmt: oldStmt,
-    //   newStmt: newStmt,
-    //   mutationType: "TypeChange",
-    // });
-  };
+  //   // COMBAK: fix
+  // typeChange = (oldStmt: ApplyPredicate | Bind, pick: ArgStmtDecl): void => {
+  //   let newStmt = oldStmt;
+  //   if (pick.tag === "PredicateDecl") {
+  //     newStmt = this.generatePredicate(pick);
+  //   } else if (pick.tag === "FunctionDecl") {
+  //     newStmt = this.generateFunction(pick);
+  //   } else {
+  //     newStmt = this.generateConstructor(pick);
+  //   }
+  //   // remove old statement
+  //   if (
+  //     newStmt.tag === "Bind" &&
+  //     oldStmt.tag === "Bind" &&
+  //     newStmt.variable.type !== oldStmt.variable.type
+  //   ) {
+  //     // old bind was replaced by a bind with diff type
+  //     this.cascadingDelete(oldStmt); // remove refs to the old bind
+  //     newStmt = newStmt as Bind;
+  //   } else {
+  //     // otherwise we can simple delete
+  //     this.cxt.removeStmt(oldStmt);
+  //   }
+  //   // this.cxt.ops.push({
+  //   //   tag: "Replace",
+  //   //   stmt: oldStmt,
+  //   //   newStmt: newStmt,
+  //   //   mutationType: "TypeChange",
+  //   // });
+  // };
 
   // NOTE: every synthesizer that 'addStmt' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
   addStmt = (): void => {
-    log.debug("Adding statement");
     this.cxt.findCandidates(this.env, this.setting.add);
     const chosenType = this.choice(this.cxt.candidateTypes());
-    let addOps: Mutation[] | undefined;
+    let possibleOps: Mutation[] | undefined;
+    log.debug(`Adding statement of ${chosenType} type`);
     if (chosenType === "TypeDecl") {
       const op = checkAddStmt(
         this.cxt.prog,
@@ -542,30 +545,49 @@ export class Synthesizer {
           return this.generateType(type, cxt);
         }
       );
-      addOps = [op];
+      possibleOps = op ? [op] : undefined;
     } else if (chosenType === "PredicateDecl") {
-      addOps = checkAddStmts(
+      possibleOps = checkAddStmts(
         this.cxt.prog,
         this.cxt,
         (cxt: SynthesisContext) => {
           const pred = this.choice(
             this.cxt.candidates.predicates.toArray().map(([, b]) => b)
           );
-          return this.generatePredicate(pred, cxt);
+          const { res, stmts } = this.generatePredicate(pred, cxt);
+          return [...stmts, res];
         }
       );
     } else if (chosenType === "FunctionDecl") {
-      stmt = this.generateFunction();
+      possibleOps = checkAddStmts(
+        this.cxt.prog,
+        this.cxt,
+        (cxt: SynthesisContext) => {
+          const func = this.choice(
+            this.cxt.candidates.functions.toArray().map(([, b]) => b)
+          );
+          const { res, stmts } = this.generateFunction(func, cxt);
+          return [...stmts, res];
+        }
+      );
     } else if (chosenType === "ConstructorDecl") {
-      stmt = this.generateConstructor();
+      possibleOps = checkAddStmts(
+        this.cxt.prog,
+        this.cxt,
+        (cxt: SynthesisContext) => {
+          const cons = this.choice(
+            this.cxt.candidates.constructors.toArray().map(([, b]) => b)
+          );
+          const { res, stmts } = this.generateConstructor(cons, cxt);
+          return [...stmts, res];
+        }
+      );
     }
-    if (addOp) {
-      const newProg: SubProg = executeMutation(this.cxt.prog, addOp);
-      this.cxt.ops.push(addOp);
+    if (possibleOps) {
+      const newProg: SubProg = executeMutations(this.cxt.prog, possibleOps);
+      this.cxt.ops.concat(possibleOps);
       this.cxt.updateProg(newProg);
     }
-    // COMBAK: fix
-    // if (stmt) this.cxt.ops.push({ tag: "Add", stmt });
   };
 
   deleteStmt = (): void => {
@@ -691,48 +713,64 @@ export class Synthesizer {
     return { res: p, stmts };
   };
 
-  generateFunction = (func?: FunctionDecl): Bind => {
-    if (!func) {
-      func = this.choice(
-        this.cxt.candidates.functions.toArray().map(([, b]) => b)
-      );
-    }
-    const args: SubExpr[] = this.generateArgs(func.args);
+  generateFunction = (
+    func: FunctionDecl,
+    cxt: SynthesisContext
+  ): WithStmts<Bind> => {
+    const { res: args, stmts: decls }: WithStmts<SubExpr[]> = this.generateArgs(
+      func.args,
+      cxt
+    );
     const rhs: ApplyFunction = applyFunction(func, args);
+    // find the `TypeDecl` for the output type
     const outputType = func.output.type as TypeConstructor;
-    // TODO: choose between generating vs. reusing
-    const lhs: Identifier = this.generateType(outputType.name).name;
-    const stmt: Bind = applyBind(lhs, rhs);
-    this.cxt.appendStmt(stmt);
-    return stmt;
+    const outputTypeDecl: TypeDecl | undefined = cxt.candidates.types.find(
+      (decl, typeName) => typeName === outputType.name.value
+    );
+    if (outputTypeDecl) {
+      // TODO: choose between generating vs. reusing
+      const lhsDecl: Decl = this.generateType(outputTypeDecl, cxt);
+      const lhs: Identifier = lhsDecl.name;
+      const stmt: Bind = applyBind(lhs, rhs);
+      return { res: stmt, stmts: [...decls, lhsDecl] };
+    } else
+      throw new Error(
+        `${outputType.name.value} is not found in the candidate list`
+      );
   };
 
   generateConstructor = (
-    cons?: ConstructorDecl,
+    cons: ConstructorDecl,
     cxt: SynthesisContext
-  ): Bind => {
-    if (!cons) {
-      cons = this.choice(
-        this.cxt.candidates.constructors.toArray().map(([, b]) => b)
-      );
-    }
-    const args: SubExpr[] = this.generateArgs(cons.args, cxt);
-    const rhs: ApplyConstructor = applyConstructor(cons, args);
+  ): WithStmts<Bind> => {
+    const { res: args, stmts: decls }: WithStmts<SubExpr[]> = this.generateArgs(
+      cons.args,
+      cxt
+    );
+    const rhs: ApplyConstructor = applyConstructor(cons, args.res);
     const outputType = cons.output.type as TypeConstructor;
-    // TODO: choose between generating vs. reusing
-    const lhs: Decl = this.generateType(outputType, cxt);
-    const stmt: Bind = applyBind(lhs.name, rhs);
-    this.cxt.appendStmt(stmt);
-    return stmt;
+    const outputTypeDecl: TypeDecl | undefined = this.cxt.candidates.types.find(
+      (decl, typeName) => typeName === outputType.name.value
+    );
+    if (outputTypeDecl) {
+      // TODO: choose between generating vs. reusing
+      const lhsDecl: Decl = this.generateType(outputTypeDecl, cxt);
+      const lhs: Identifier = lhsDecl.name;
+      const stmt: Bind = applyBind(lhs, rhs);
+      return { res: stmt, stmts: [...decls, lhsDecl] };
+    } else
+      throw new Error(
+        `${outputType.name.value} is not found in the candidate list`
+      );
   };
 
-  generateArgs = (args: Arg[], cxt: SynthesisContext): WithStmts<Arg[]> => {
+  generateArgs = (args: Arg[], cxt: SynthesisContext): WithStmts<SubExpr[]> => {
     const res = args.map((arg) =>
       this.generateArg(arg, cxt, this.setting.argOption, this.setting.argReuse)
     );
     cxt.resetArgContext();
     return {
-      res: res.map((r) => r.args).flat(),
+      res: res.map((r) => r.res).flat(),
       stmts: res.map((r) => r.stmts).flat(),
     };
   };
@@ -742,7 +780,7 @@ export class Synthesizer {
     cxt: SynthesisContext,
     option: ArgOption,
     reuseOption: ArgReuse
-  ): WithStmts<Arg> | undefined => {
+  ): WithStmts<SubExpr> => {
     const argType: Type = arg.type;
     if (argType.tag === "TypeConstructor") {
       switch (option) {
@@ -753,21 +791,28 @@ export class Synthesizer {
               ? cxt.findIDs(argType.name.value, cxt.argCxt)
               : cxt.findIDs(argType.name.value);
           const existingID = this.choice(possibleIDs);
+          log.debug(
+            `generating an argument with possbilities ${possibleIDs.map(
+              (i) => i.value
+            )}`
+          );
           if (!existingID) {
             return this.generateArg(arg, cxt, "generated", reuseOption);
           } else {
             cxt.addArg(existingID);
-            return existingID;
+            return { res: existingID, stmts: [] };
           }
         }
         case "generated":
-          const argTypeDecl = cxt
-            .getCandidates("TypeDecl")
-            .get(argType.name.value);
+          const argTypeDecl = cxt.candidates.types.get(argType.name.value);
           if (argTypeDecl) {
-            //   return this.generateType(argTypeDecl, cxt);
-            return this.generateArg(arg, cxt, "existing", reuseOption);
-          } else return undefined;
+            const decl = this.generateType(argTypeDecl, cxt);
+            return { res: decl.name, stmts: [decl] };
+          } else {
+            throw new Error(
+              `${argType.name.value} not found in the candidate list`
+            );
+          }
         case "mixed":
           return this.generateArg(
             arg,
