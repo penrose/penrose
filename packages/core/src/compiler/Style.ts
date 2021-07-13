@@ -107,16 +107,8 @@ import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
 
-// import * as fs from "fs";
-import {
-  addAliasSubsts,
-  findRelStrSubstsProg,
-  findRelStrSubstsSel,
-  findRelSubstsProg,
-  findRelSubstsSel,
-  getHeaderAliasKeywords,
-  getSubstsAliasMap,
-} from "./Aliasing";
+import { addAliasSubsts } from "./Aliasing";
+
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -410,8 +402,12 @@ const checkDeclPatternsAndMakeEnv = (
 
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
+
+// add something called checkAlias (rel.alias : Identifier, varEnv: Env) : ?
+
 const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
   // rule Bind-Context
+  // console.log(varEnv.varIDs)
   if (rel.tag === "RelBind") {
     // TODO: use checkSubStmt here (and in paper)?
     // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)

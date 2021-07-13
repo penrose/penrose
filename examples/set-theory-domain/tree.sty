@@ -26,7 +26,7 @@ where IsSubset(x, y) as foo {
     -- foo.square = Square {} -- oddly, this calls for an override flag (and afterwards compiles fine)
 
     -- Draw the arrow from y to x
-    encourage centerArrow(foo.arrow, x.icon, y.icon)
+    foo.center = encourage centerArrow(foo.arrow, x.icon, y.icon)
 
     -- Position y above x
     encourage above(y.icon, x.icon)
@@ -38,7 +38,15 @@ where IsSubset(x, y) as foo {
 Set x; Set y
 where IsSubset(x,y) as bar {
   bar.circle = Circle{}
+  override bar.arrow.color = rgba(0.2, 0.1, 0.8, 1.0)
 }
+
+/*
+Set u; Set v
+where  Not(Intersecting(u, v)) as bee {
+  bee.square = Square{}
+}
+*/
 
 /*
 -- TODO: This one currently causes convergence to become very slow but works eventually

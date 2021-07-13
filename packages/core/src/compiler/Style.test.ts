@@ -573,7 +573,7 @@ delete x.z.p }`,
 describe("hfy sty test", () => {
   const domainProg =
     "type Set\npredicate IsSubset : Set s1 * Set s2\npredicate Intersect : Set s1 * Set s2\
-\npredicate Union : Set s1 * Set s2";
+\npredicate Union : Set s1 * Set s2\nfunction Baz : Set -> Set";
   // const subProg = "Set A\nSet B\nSet C\nSet D\nIsSubset(A,B)\nIntersect(Union(A,C),B)\nIsSubset(B,C)\nUnion(A,B)";
   const subProg = "Set A\nSet B\nIsSubset(A,B)\nSet C\nIsSubset(B,C)";
   // TODO: Name these programs
@@ -584,8 +584,9 @@ describe("hfy sty test", () => {
 Set a; Set b where IsSubset(a,b) as foo { -- as Set passes, not great
   a.icon = Circle{}
   foo.icon = Square{}
-  -- adding in foo.something causes problems...
-}`,
+}
+Set u; Set v; Set z where z := Baz(v){}
+`,
   ];
 
   const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
