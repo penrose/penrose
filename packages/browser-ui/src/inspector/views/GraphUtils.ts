@@ -188,7 +188,7 @@ export const toGraphDOFs = (
   let intermediateNodes: any[] = [];
   let intermediateEdges: any[] = [];
 
-  for (let p of varyingPaths) {
+  for (const p of varyingPaths) {
     // If the varying path is a shape arg AND its shape arg appears in the function arguments, then make intermediate nodes to connect the varying path with the shape arg
     const pGraph = toGraphDOF(p, allArgs);
     intermediateNodes = intermediateNodes.concat(pGraph!.nodes);
