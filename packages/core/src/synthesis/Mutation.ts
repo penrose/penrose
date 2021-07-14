@@ -28,7 +28,6 @@ export type Update =
   | ChangeStmtType
   | ChangeExprType
   | Replace;
-// | TypeChange;
 
 export interface Add extends IMutation {
   tag: "Add";
@@ -198,6 +197,7 @@ export const checkSwapStmtArgs = (
   elems: (p: ApplyPredicate) => [number, number]
 ): SwapStmtArgs | undefined => {
   if (stmt.tag === "ApplyPredicate") {
+    if (stmt.args.length < 2) return undefined;
     const [elem1, elem2] = elems(stmt);
     return {
       tag: "SwapStmtArgs",
@@ -220,6 +220,7 @@ export const checkSwapExprArgs = (
       expr.tag === "ApplyFunction" ||
       expr.tag === "Func"
     ) {
+      if (expr.args.length < 2) return undefined;
       const [elem1, elem2] = elems(expr);
       return {
         tag: "SwapExprArgs",

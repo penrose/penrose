@@ -428,12 +428,15 @@ export class Synthesizer {
 
   mutateProgram = (): void => {
     // const ops = ["add", "delete", "edit"];
-    const ops = ["add"];
-    // const ops = ["edit"];
+    const ops = ["add", "edit"];
     const op = this.choice(ops);
-    if (op === "add") this.addStmt();
-    else if (op === "delete") this.deleteStmt();
-    else if (op === "edit") {
+    if (op === "add") {
+      this.cxt.findCandidates(this.env, this.setting.add);
+      this.addStmt();
+    } else if (op === "delete") {
+      this.cxt.findCandidates(this.env, this.setting.delete);
+      this.deleteStmt();
+    } else if (op === "edit") {
       this.cxt.findCandidates(this.env, this.setting.edit);
       this.editStmt();
     }
@@ -456,6 +459,7 @@ export class Synthesizer {
       log.debug(`Editing statement: ${prettyStmt(stmt)}`);
       // find all available mutations for the given statement
       const mutations = this.findMutations(stmt);
+      log.debug(`Possible mutations:\n${showOps(mutations)}`);
       // if there's any valid mutation, pick one to execute
       if (mutations.length > 0) {
         const mutation: Mutation = this.choice(mutations);
@@ -584,6 +588,7 @@ export class Synthesizer {
       );
     }
     if (possibleOps) {
+      log.debug(`Mutations selected for add:\n${showOps(possibleOps)}`);
       const newProg: SubProg = executeMutations(this.cxt.prog, possibleOps);
       this.cxt.ops.concat(possibleOps);
       this.cxt.updateProg(newProg);
@@ -591,7 +596,6 @@ export class Synthesizer {
   };
 
   deleteStmt = (): void => {
-    this.cxt.findCandidates(this.env, this.setting.delete);
     log.debug("Deleting statement");
     const chosenType = this.choice(this.cxt.candidateTypes());
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
