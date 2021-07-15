@@ -156,6 +156,7 @@ export const compileTrio = (
  */
 export const prepareState = async (state: State): Promise<State> => {
   await initializeMat();
+
   // TODO: errors
   const stateAD = {
     ...state,
