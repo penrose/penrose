@@ -29,6 +29,7 @@ export interface IState {
   labelCache: LabelCache;
   shapes: Shape[];
   varyingMap: VaryMap;
+  shapeColorsInitialized: boolean;
 }
 export type State = IState;
 

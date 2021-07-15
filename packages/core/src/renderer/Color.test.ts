@@ -1,19 +1,12 @@
 import { Graph } from "./Color";
 
-test("first test", () => {
-  expect(true).toBe(true);
-});
-
 /**
  * Checks that # of rows === # of cols within a graph (list of num lists)
  */
 const is_square_matrix = (graph: Graph): boolean => {
-  for (var i = 0; i < graph.length; i++) {
-    if (graph[i].length !== graph.length) {
-      return false;
-    }
-  }
-  return true;
+  return graph.every((row) => {
+    return row.length === graph.length;
+  });
 };
 
 /**
@@ -32,7 +25,6 @@ const is_complete_graph = (graph: Graph): boolean => {
   return true;
 };
 
-/*
 // some vars to use
 const empty_arr: number[][] = [];
 const jagged_arr = [
@@ -106,34 +98,3 @@ describe("testing is_complete_graph", () => {
     expect(is_complete_graph(complete_graph)).toBe(true);
   });
 });
-
-// compareEdges
-describe("testing compareEdges", () => {
-  const e1 = { start_node_index: 0, end_node_index: 2, weight: 0 };
-  const e2 = { start_node_index: 1, end_node_index: 5, weight: 0 };
-  const e3 = { start_node_index: 2, end_node_index: 6, weight: 10 };
-  const e4 = { start_node_index: 4, end_node_index: 7, weight: 8 };
-
-  test("compareEdges, equality", () => {
-    expect(compareEdges(e1, e2)).toBe(0);
-  });
-
-  test("compareEdges, equality swapped", () => {
-    expect(compareEdges(e2, e1)).toBe(0);
-  });
-
-  test("compareEdges, less than", () => {
-    expect(compareEdges(e1, e3)).toBeLessThan(0);
-  });
-
-  test("compareEdges, greater than", () => {
-    expect(compareEdges(e3, e1)).toBeGreaterThan(0);
-  });
-
-  test("compareEdges, sorting", () => {
-    const hopefully_sorted = [e1, e3, e4];
-    hopefully_sorted.sort(compareEdges);
-    expect(hopefully_sorted).toStrictEqual([e1, e4, e3]);
-  });
-});
-*/

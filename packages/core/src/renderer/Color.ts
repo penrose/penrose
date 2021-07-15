@@ -2,15 +2,18 @@ import { random_palette, viridis_data } from "./ColorData";
 import { State } from "types/state";
 import { Shape } from "types/shape";
 import { Color } from "types/value";
+import { ops } from "utils/Util";
+import { IPropertyPath, Path } from "types/style";
+const colormap = require("colormap");
 
-/************************************************************************/
-/*                   Color Function Type Declarations                   */
-/************************************************************************/
+//#region Color Function Type Declarations
 
 /**
  * @type Stores RGB color as [R,G,B]; each number is a decimal between 0 & 1
  */
 export type RGB = [number, number, number];
+
+export type RGBA = [number, number, number, number];
 
 /**
  * @type Adjacency matrix storing edge weights between nodes
@@ -23,22 +26,24 @@ export type Graph = number[][];
  */
 export type Ajlist = number[][];
 
-/************************************************************************/
-/*                        Main Coloring Functions                       */
-/************************************************************************/
+//#endregion
+
+//#region Main Coloring Functions
 
 /**
  * Given a state, returns a new state where shapes w/ uninitialized colors
  * have been colored according to K-Nearest Neighbors
  */
 export const colorUninitShapes = (state: State): State => {
+  // invariant for running shape & text color assignment in the correct order
+  state.shapeColorsInitialized = true;
   // get the fn that checks if a shape has an uninitialized color
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 
   // make a new (stricter) fn that also checks
-  // if a shape obj satisfies includeShapesOnly as well
+  // if a shape obj satisfies isSupportedShape as well
   const isUninitializedColorShape = (shape: Shape): boolean => {
-    return hasUninitializedColor(shape) && includeShapesOnly(shape);
+    return hasUninitializedColor(shape) && isSupportedShape(shape);
   };
 
   return getNewlyColoredState(
@@ -61,6 +66,11 @@ export const colorUninitShapes = (state: State): State => {
   transparent alphas) 
 */
 export const colorUninitText = (state: State): State => {
+  if (!state.shapeColorsInitialized) {
+    throw new Error(
+      "Attempted to assign colors to text without assigning colors to shapes first"
+    );
+  }
   // fn that checks if a shape has an uninitialized color path
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 
@@ -85,9 +95,9 @@ export const colorUninitText = (state: State): State => {
   return assignNewColors(state, colorList, isUninitializedColorText, 1);
 };
 
-/************************************************************************/
-/*       Transition Functions between different coloring states         */
-/************************************************************************/
+//#endregion
+
+//#region Transition Functions between different coloring states
 
 /**
  * Create a graph (matrix) that records the distance between nodes;
@@ -96,19 +106,19 @@ export const colorUninitText = (state: State): State => {
  */
 const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
   // initializing a matrix of 0.'s
-  var object_graph = createMatrix(shapeList.length, shapeList.length);
+  let object_graph = createMatrix(shapeList.length, shapeList.length);
 
   // filling in the matrix
-  for (var i = 0; i < shapeList.length; i++) {
-    for (var j = i + 1; j < shapeList.length; j++) {
+  for (let i = 0; i < shapeList.length; i++) {
+    for (let j = i + 1; j < shapeList.length; j++) {
       const shape1 = shapeList[i];
       const shape2 = shapeList[j];
 
       // for now, the only thing used to determine distance will be the centers
       // of each shape
       // TODO: use bounding boxes and/or more accurate measure of distance
-      var v1 = shape1.properties.center;
-      var v2 = shape2.properties.center;
+      let v1 = shape1.properties.center;
+      let v2 = shape2.properties.center;
 
       // some legality checks
       if (
@@ -122,7 +132,10 @@ const shapeListToDistanceGraph = (shapeList: Shape[]): Graph => {
       }
 
       // calculate & set the distance
-      const centerDist = dist(v1.contents as number[], v2.contents as number[]);
+      const centerDist = ops.vdist(
+        v1.contents as number[],
+        v2.contents as number[]
+      );
       object_graph[i][j] = centerDist;
 
       // symmetric matrix (we are creating an undirected graph)
@@ -145,19 +158,19 @@ const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
   }
 
   // ajlist will store the k closest neighbors for each node, in sorted order
-  var ajlist: Ajlist;
+  let ajlist: Ajlist;
 
   // first initialize the matrix
   ajlist = createMatrix(distGraph.length, k);
 
   // fill up the adjacency list
-  for (var i = 0; i < distGraph.length; i++) {
+  for (let i = 0; i < distGraph.length; i++) {
     // list of all the neighbors of node i (includes itself)
-    var currRow = distGraph[i];
+    let currRow = distGraph[i];
 
     //  record the index of each neighbor
     //  along with its distance away from node i
-    var indexedRow = currRow.map((element, index) => {
+    let indexedRow = currRow.map((element, index) => {
       return [element, index];
     });
 
@@ -173,7 +186,7 @@ const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
     });
 
     // put the indexes of the closest k neighbors in the ajlist
-    for (var j = 0; j < k; j++) {
+    for (let j = 0; j < k; j++) {
       ajlist[i][j] = indexedRow[j][1]; // add the indexes in sorted order
     }
   }
@@ -203,40 +216,31 @@ const KNNGraphToColorList = (
   const colorsToAssign = sampleUniformPalette(numColorsRequested, palette);
 
   // initialize a colorlist
-  var colorList: RGB[] = [];
-  for (var i = 0; i < KNNGraph.length; i++) {
+  let colorList: RGB[] = [];
+  for (let i = 0; i < KNNGraph.length; i++) {
     colorList.push([-1, -1, -1]);
   }
 
   // now assign the colors to the nodes of the graph in a greedy fashion.
 
   // for every node...
-  for (var node = 0; node < KNNGraph.length; node++) {
+  for (let node = 0; node < KNNGraph.length; node++) {
     // get its k nearest nbors...
     const nodeNbors = KNNGraph[node];
 
-    var colorsThatCannotBeUsed: RGB[] = [];
-    // loop through its nbors, checking if any have already been assigned a color
-    for (
-      var nbornodeindex = 0;
-      nbornodeindex < nodeNbors.length;
-      nbornodeindex++
-    ) {
-      const currNbor = nodeNbors[nbornodeindex];
-      if (currNbor < node) {
-        // then it has been assigned a color already
-        // (since we assign colors to the nodes in order)
+    // of the nboring nodes, find the ones that have already been assigned a color
+    // these nodes have been assigned a color already
+    // (since we assign colors to the nodes in order)
+    const nodeNborsWithAssignedColors = nodeNbors.filter((nodeNbor) => {
+      return nodeNbor < node;
+    });
 
-        // get the color that it has been assigned,
-        const alreadyUsedColor = colorList[currNbor];
-
-        // and mark it as a color that we cannot use for the current node
-        colorsThatCannotBeUsed.push(alreadyUsedColor);
-      }
-    }
+    const unavailableColors = nodeNborsWithAssignedColors.map((nodeNbor) => {
+      return colorList[nodeNbor];
+    });
 
     // get a list of the indexes that map to the already used colors
-    const unavailableColorIndexes = colorsThatCannotBeUsed.map((elem) => {
+    const unavailableColorIndexes = unavailableColors.map((elem) => {
       return colorsToAssign.findIndex((color) => {
         return color === elem;
       });
@@ -246,21 +250,25 @@ const KNNGraphToColorList = (
 
     // to do this, we first create a list of indexes corresponding to the colors that
     // we CAN assign to the current node
-    var availableColorIndexes: number[] = [];
-    for (var i = 0; i < colorsToAssign.length; i++) {
-      if (!unavailableColorIndexes.includes(i)) {
-        availableColorIndexes.push(i);
+
+    const colorIndexPairs = colorsToAssign.map((color, index): [
+      RGB,
+      number
+    ] => {
+      return [color, index];
+    });
+
+    const availableColorIndexPairs = colorIndexPairs.filter(
+      ([color, index]) => {
+        return !unavailableColorIndexes.includes(index);
       }
-    }
-
-    // now pick a random index that maps to the a viable color
-    const randomColorIndexIndex = Math.floor(
-      Math.random() * (availableColorIndexes.length - 1)
     );
-    const randomColorIndex = availableColorIndexes[randomColorIndexIndex];
 
-    // get its color
-    const randomColor = colorsToAssign[randomColorIndex];
+    const randomIndex = Math.floor(
+      Math.random() * (availableColorIndexPairs.length - 1)
+    );
+
+    const randomColor = availableColorIndexPairs[randomIndex][0];
 
     // set the random color
     colorList[node] = randomColor;
@@ -286,10 +294,11 @@ const getNewlyColoredState = (
 ): State => {
   const shapesToAssignColors = state.shapes.filter(includeInColorAdjustmentFn);
   const distanceGraph = shapeListToDistanceGraph(shapesToAssignColors);
+  let k;
   if (distanceGraph.length <= 3) {
-    var k = distanceGraph.length - 1; // number of neighbors
+    k = distanceGraph.length - 1; // number of neighbors
   } else {
-    var k = 3;
+    k = 3;
   }
   if (k <= 0) {
     // this happens if distanceGraph.length <= 1,
@@ -328,13 +337,13 @@ const getNewlyColoredState = (
 const assignNewColors = (
   state: State,
   colorList: RGB[],
-  includeInColorAdjustmentFn: (s: Shape) => boolean = includeShapesOnly,
+  includeInColorAdjustmentFn: (s: Shape) => boolean = isSupportedShape,
   alpha: number = 0.5
 ): State => {
   // assumes all colors map to the order of appropriate objects in state
-  var newState = state;
-  var j = 0;
-  for (var i = 0; i < newState.shapes.length; i++) {
+  let newState = state;
+  let j = 0;
+  for (let i = 0; i < newState.shapes.length; i++) {
     if (includeInColorAdjustmentFn(newState.shapes[i])) {
       newState.shapes[i].properties.color = {
         tag: "ColorV",
@@ -349,9 +358,9 @@ const assignNewColors = (
   return newState;
 };
 
-/************************************************************************/
-/*                       Helper (Utility) Functions                     */
-/************************************************************************/
+//#endregion
+
+//#region Helper (Utility) Functions
 
 /**
  * Initializes a matrix of all 0.s, of rows * cols dimension
@@ -359,10 +368,10 @@ const assignNewColors = (
  * @param cols number of cols, assumed >= 0
  */
 const createMatrix = (rows: number, cols: number): number[][] => {
-  var matrix: number[][] = [];
-  for (var i = 0; i < rows; i++) {
-    var row: number[] = [];
-    for (var j = 0; j < cols; j++) {
+  let matrix: number[][] = [];
+  for (let i = 0; i < rows; i++) {
+    let row: number[] = [];
+    for (let j = 0; j < cols; j++) {
       row.push(0);
     }
     matrix.push(row);
@@ -371,40 +380,31 @@ const createMatrix = (rows: number, cols: number): number[][] => {
 };
 
 /**
- * Calculates euclidean distance between two vectors.
- * Assumes v1.length === v2.length.
+ * Returns true if a shape is to be included in color assignment,
+ * and false otherwise.
  */
-const dist = (v1: number[], v2: number[]): number => {
-  if (v1.length != v2.length) {
-    throw new Error("Vector inputs are not of the same dimension");
-  }
-  var squaredSum = 0;
-  for (var i = 0; i < v1.length; i++) {
-    squaredSum += (v1[i] - v2[i]) * (v1[i] - v2[i]);
-  }
-  return Math.sqrt(squaredSum);
+const isSupportedShape = (shape: Shape): boolean => {
+  return supportedShapes.includes(shape.shapeType);
 };
 
 /**
- * Returns true if a shape is to be included in color assignment,
- * and false otherwise.
+ * Shapes that are considered during color assignment
+ *
  * Currently excludes shapes that don't have a color/center attribute,
- * shapes whose coloring are handled not using this fn (ex. text), and
+ * shapes whose coloring are handled not using this fn (ex. Text), and
  * shapes whose edge detection has not yet been implemented (ex. Polygon).
+ *
+ * Unsupported shapes include:
+ * - FreeformPolygon, Polygon, Line, Arrow, Path,
+ *   Text, Image, PathString, Polyline
  */
-const includeShapesOnly = (shape: Shape): boolean => {
-  return !(
-    shape.shapeType === "FreeformPolygon" ||
-    shape.shapeType === "Polygon" ||
-    shape.shapeType === "Line" ||
-    shape.shapeType === "Arrow" ||
-    shape.shapeType === "Path" ||
-    shape.shapeType === "Text" ||
-    shape.shapeType === "Image" ||
-    shape.shapeType === "PathString" ||
-    shape.shapeType === "Polyline"
-  );
-};
+const supportedShapes: string[] = [
+  "Circle",
+  "Ellipse",
+  "Rectangle",
+  "Callout",
+  "Square",
+];
 
 /**
  * Returns a list of color from the passed in palette,
@@ -426,13 +426,26 @@ const sampleUniformPalette = (
 
   const stepSize = Math.floor(palette.length / numColorsRequested);
 
-  var rgbList: RGB[] = [];
+  let rgbList: RGB[] = [];
 
-  for (var i = 0; i < numColorsRequested; i++) {
+  for (let i = 0; i < numColorsRequested; i++) {
     rgbList.push(palette[i * stepSize]);
   }
 
   return rgbList;
+};
+
+const sampleUniformColorMap = (
+  numColorsRequested: number,
+  paletteName: string = "viridis",
+  alphaVal: number = 0.5
+): RGBA[] => {
+  return colormap({
+    colormap: paletteName,
+    nshades: numColorsRequested,
+    format: "float",
+    alpha: alphaVal,
+  });
 };
 
 /**
@@ -446,21 +459,20 @@ const getUninitializedColorCheckerFn = (
   // the list of uninitialized paths from the state
   const uninitPathsList = state.uninitializedPaths;
 
-  // checks if a path is a color path
-  const isColorPath = (path: any): boolean => {
-    return path.tag === "PropertyPath" && path.property.value === "color";
-  };
+  // need to filter out varying paths here
 
   // gets the list of uninitialized color paths
-  const uninitColorPathList = uninitPathsList.filter(isColorPath);
-
-  // given a path, returns the name of the shape it belongs to (ex. H.icon)
-  const getPathName = (path: any): string => {
-    return path.name.contents.value + "." + path.field.value;
-  };
+  const uninitColorPathList = uninitPathsList.filter((path: Path) => {
+    return path.tag === "PropertyPath" && path.property.value === "color";
+  });
 
   // get the corresponding shape names of the uninitialized color paths
-  const pathNameList = uninitColorPathList.map(getPathName);
+  // given a path, get the name of the shape it belongs to (ex. H.icon)
+  const pathNameList = uninitColorPathList.map(
+    (path: IPropertyPath): string => {
+      return `${path.name.contents.value}.${path.field.value}`;
+    }
+  );
 
   // determines if a shape has an uninitialized color path
   const hasUninitializedColor = (shape: Shape): boolean => {
@@ -480,7 +492,7 @@ const getOrderedShapeNameAndShapePairList = (
   state: State
 ): [string, Shape][] => {
   // get all color-able shapes (circle, square, rect, ellipse, callout)
-  const colorShapes = state.shapes.filter(includeShapesOnly);
+  const colorShapes = state.shapes.filter(isSupportedShape);
 
   // get the shape names (strings)
   const colorShapeNames = colorShapes.map((elem) => {
@@ -515,12 +527,28 @@ const getOrderedShapeNameAndShapePairList = (
     const matchesName = isMatchingShape(shapeName);
     const shape = colorShapes.find(matchesName);
     if (typeof shape === "undefined") {
-      throw new Error("im sad");
+      throw new Error(`Shape with name ${shapeName} not found`);
     }
     return [shapeName, shape];
   });
 
   return shapeNameAndShapePairsAll;
+};
+
+/**
+ * Helper fxn for @function pointInShape
+ * Determines if a point [px, py] is inside a rectangle
+ */
+const pointInRect = (
+  point: [number, number],
+  center: [number, number],
+  width: number,
+  height: number
+): boolean => {
+  const [px, py] = point;
+  const [cx, cy] = center;
+  const [w, h] = [width, height];
+  return cx - w <= px && px <= cx + w && cy - h <= py && py <= cy + h;
 };
 
 /**
@@ -532,22 +560,23 @@ const getOrderedShapeNameAndShapePairList = (
  */
 const pointInShape = (shape: Shape, point: [number, number]): boolean => {
   const [px, py] = point;
+  let cx, cy, w, h; // centerpoint, width, height of shape
 
   switch (shape.shapeType) {
     case "Circle":
-      var [cx, cy] = shape.properties.center.contents as [number, number];
-      var r = shape.properties.r.contents;
+      [cx, cy] = shape.properties.center.contents as [number, number];
+      let r = shape.properties.r.contents;
       return Math.sqrt((cx - px) * (cx - px) + (cy - py) * (cy - py)) <= r;
 
     case "Ellipse":
-      var [cx, cy] = shape.properties.center.contents as [number, number];
-      var [dx, dy] = [px - cx, py - cy];
-      var theta = Math.atan2(dy, dx); // this is in radians
-      var [rx, ry] = [
+      [cx, cy] = shape.properties.center.contents as [number, number];
+      let [dx, dy] = [px - cx, py - cy];
+      let theta = Math.atan2(dy, dx); // this is in radians
+      let [rx, ry] = [
         shape.properties.rx.contents,
         shape.properties.ry.contents,
       ] as [number, number]; // width, height of ellipse
-      var [xcomp, ycomp] = [dx * Math.cos(theta), dy * Math.sin(theta)];
+      let [xcomp, ycomp] = [dx * Math.cos(theta), dy * Math.sin(theta)];
       return (
         cx - rx <= xcomp &&
         xcomp <= cx + rx &&
@@ -556,35 +585,35 @@ const pointInShape = (shape: Shape, point: [number, number]): boolean => {
       );
 
     case "Rectangle":
-      var [cx, cy] = shape.properties.center.contents as [number, number];
-      var [w, h] = [
-        shape.properties.w.contents,
-        shape.properties.h.contents,
-      ] as [number, number];
-      return cx - w <= px && px <= cx + w && cy - h <= py && py <= cy + h;
+      [cx, cy] = shape.properties.center.contents as [number, number];
+      [w, h] = [shape.properties.w.contents, shape.properties.h.contents] as [
+        number,
+        number
+      ];
+      return pointInRect(point, [cx, cy], w, h);
 
     // note: doesn't do precise calculation of the callout anchor,
     // only the main rectangle box
     case "Callout":
-      var [cx, cy] = shape.properties.center.contents as [number, number];
-      var [w, h] = [
-        shape.properties.w.contents,
-        shape.properties.h.contents,
-      ] as [number, number];
-      return cx - w <= px && px <= cx + w && cy - h <= py && py <= cy + h;
+      [cx, cy] = shape.properties.center.contents as [number, number];
+      [w, h] = [shape.properties.w.contents, shape.properties.h.contents] as [
+        number,
+        number
+      ];
+      return pointInRect(point, [cx, cy], w, h);
 
     case "Square":
-      var [cx, cy] = shape.properties.center.contents as [number, number];
-      var s = shape.properties.side.contents as number;
-      return cx - s <= px && px <= cx + s && cy - s <= py && py <= cy + s;
+      [cx, cy] = shape.properties.center.contents as [number, number];
+      let s = shape.properties.side.contents as number;
+      return pointInRect(point, [cx, cy], s, s);
 
     default:
       throw new Error(
-        "pointInShape detection of " + shape.shapeType + " is not yet supported"
+        `pointInShape detection of ${shape.shapeType} is not yet supported`
       );
     /* 
       unsupported shapes, currently ignored by fns that call this function 
-       (and also excluded by includeShapesOnly): 
+       (and also excluded by isSupportedShape): 
 
        - Line, Arrow, Path, Image, PathString, Polyline
        - FreeformPolygon, Polygon
@@ -605,111 +634,89 @@ const createTextColorList = (
   textPathList: any[],
   shapeNameAndShapePairList: [string, Shape][]
 ): RGB[] => {
-  // colorlist to fill up w/ text colors (black or white)
-  var colorList: RGB[] = [];
-
-  // push a color into the colorlist, corresponding to each text path object
-  for (var i = 0; i < textPathList.length; i++) {
-    var textObj = textPathList[i];
-
-    var textCenter = textObj.properties.center.contents as [number, number];
-
-    // the shape that the text is immediately on top of
-    var topmostShapeThatPointIsIn;
-
-    // find a shape, if any, that the text center is contained in
-    for (var j = 0; j < shapeNameAndShapePairList.length; j++) {
-      const [shapeName, shape] = shapeNameAndShapePairList[j];
-      if (pointInShape(shape, textCenter)) {
-        topmostShapeThatPointIsIn = shape;
-        break;
-      }
-    }
-
-    // initialize a color variable
-    var color = undefined;
-
-    // the text center was not found to be inside any shape, so it will be
-    // drawn against a white canvas
-    if (typeof topmostShapeThatPointIsIn === "undefined") {
-      color = [0, 0, 0]; // black, for visibility against a white canvas
-    }
-    // the text center WAS found to be inside of a shape
-    else {
-      // check the color that the shape was assigned
-      const shapeColorObj = topmostShapeThatPointIsIn.properties.color
-        .contents as Color<number>;
-      var shapeColor = shapeColorObj.contents;
-      var shapeColorType = shapeColorObj.tag;
-
-      if (shapeColorType === "RGBA") {
-        // "convert" to HSV to get the V value
-        const [r, g, b, a] = [
-          shapeColor[0],
-          shapeColor[1],
-          shapeColor[2],
-          shapeColor[3],
-        ];
-
-        // https://math.stackexchange.com/questions/556341/rgb-to-hsv-color-conversion-algorithm
-        const v = Math.max(r, g, b);
-
-        // the h and s values are not used, placeholder for now
-        shapeColor = [-1, -1, v, a];
-        shapeColorType = "HSVA";
-      }
-
-      // assign color based on the "V" value
-      if (shapeColorType === "HSVA") {
-        // check the v value
-        const [v, a] = [shapeColor[2], shapeColor[3]];
-
-        // the following alpha and value thresholds are arbitrary
-        if (a <= 0.35) {
-          color = [0, 0, 0]; // black, if it's mostly transparent
-        } else if (v < 0.7) {
-          // alpha <= 0.6
-          color = [1, 1, 1]; // white
-        } else {
-          // alpha > 0.6 and value >= 0.5
-          color = [0, 0, 0]; // black
-        }
-      }
-    }
-
-    // a check to make typescript happy
-    // also, Color<number> objects only have "RGBA" or "HSVA" as tags,
-    // so this case should never be reached
-    if (typeof color === "undefined") {
-      throw new Error("Color not assigned");
-    }
-
-    colorList.push(color as RGB);
-  }
-  return colorList;
+  return textPathList.map(
+    (textObj): RGB => getTextColor(textObj, shapeNameAndShapePairList)
+  );
 };
 
-/**@deprecated */
-// not currently in use
-// converts a matrix that stores distance between objects
-// to one that stores "repellant energy" between objects
-// ex. graph[i][j] === *how much* objs i and j should repel each other
-// (repel each other in terms of color)
-const distanceGraphToEnergyGraph = (graph: Graph): Graph => {
-  var newGraph = graph;
-  for (var i = 0; i < graph.length; i++) {
-    for (var j = i + 1; j < graph.length; j++) {
-      // super hacky, uses some guidelines fron Constraints.ts (repel fxns)
+/**
+ * Gets the color to be assigned to a text object
+ * @param textPath a path of a text object w/ an uninitialized color field
+ * @param shapeNameAndShapePairList a list of shapes, sorted from drawn last --> drawn first
+ */
+const getTextColor = (
+  textPath: any,
+  shapeNameAndShapePairList: [string, Shape][]
+): RGB => {
+  const textCenter = textPath.properties.center.contents as [number, number];
 
-      const epsilon = 20; // prevent division by 0
-      const weight = 10e4; // scaling factor, since values are typically small
+  const shapeNameAndShapesThatPointIsIn = shapeNameAndShapePairList.filter(
+    ([shapeName, shape]) => {
+      return pointInShape(shape, textCenter);
+    }
+  );
 
-      // invert the distance to get a "repellant energy" value
-      newGraph[i][j] = (1 / (graph[i][j] + epsilon)) * weight;
+  // the shape that the text is immediately on top of
+  let topmostShapeThatPointIsIn =
+    shapeNameAndShapesThatPointIsIn.length === 0
+      ? undefined
+      : shapeNameAndShapesThatPointIsIn[0][1];
+  // the first one (topmost shape, index 0) + get the shape (index 1)
 
-      // symmetric graph
-      newGraph[j][i] = newGraph[i][j];
+  // initialize a color variable
+  let color;
+
+  // the text center was not found to be inside any shape, so it will be
+  // drawn against a white canvas
+  if (typeof topmostShapeThatPointIsIn === "undefined") {
+    color = [0, 0, 0]; // black, for visibility against a white canvas
+  }
+  // the text center WAS found to be inside of a shape
+  else {
+    // check the color that the shape was assigned
+    const shapeColorObj = topmostShapeThatPointIsIn.properties.color
+      .contents as Color<number>;
+    let shapeColor = shapeColorObj.contents;
+    let shapeColorType = shapeColorObj.tag;
+
+    if (shapeColorType === "RGBA") {
+      // "convert" to HSV to get the V value
+      const [r, g, b, a] = shapeColor;
+
+      // https://math.stackexchange.com/questions/556341/rgb-to-hsv-color-conversion-algorithm
+      const v = Math.max(r, g, b);
+
+      // the h and s values are not used, placeholder for now
+      shapeColor = [-1, -1, v, a];
+      shapeColorType = "HSVA";
+    }
+
+    // assign color based on the "V" value
+    if (shapeColorType === "HSVA") {
+      // check the v value
+      const [v, a] = [shapeColor[2], shapeColor[3]];
+
+      // the following alpha and value thresholds are arbitrary
+      if (a <= 0.35) {
+        color = [0, 0, 0]; // black, if it's mostly transparent
+      } else if (v < 0.7) {
+        // alpha <= 0.6
+        color = [1, 1, 1]; // white
+      } else {
+        // alpha > 0.6 and value >= 0.5
+        color = [0, 0, 0]; // black
+      }
     }
   }
-  return newGraph;
+
+  // a check to make typescript happy
+  // also, Color<number> objects only have "RGBA" or "HSVA" as tags,
+  // so this case should never be reached
+  if (typeof color === "undefined") {
+    throw new Error("Color not assigned");
+  }
+
+  return color as RGB;
 };
+
+//#endregion

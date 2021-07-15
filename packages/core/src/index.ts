@@ -26,11 +26,7 @@ import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn, prettyPrintPath } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
-
-//
-// hook
 import { colorUninitShapes, colorUninitText } from "renderer/Color";
-//
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -41,7 +37,6 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
  */
 export const resample = (state: State, numSamples: number): State => {
   return resampleBest(state, numSamples);
-  //return resampleBest(updateCircleColors(state), numSamples);
 };
 
 /**
@@ -62,17 +57,12 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-  // hook
-  // all colors have already been assigned -- overwrite colors
   currentState = colorUninitText(colorUninitShapes(currentState));
-  // console.log(currentState.uninitializedPaths.map(prettyPrintPath))
-  // console.log(currentState.shapeOrdering);
   return currentState;
 };
 
 /**
  * Embed a static Penrose diagram in a DOM node.
- *
  * @param domainProg a Domain program string
  * @param subProg a Substance program string
  * @param styProg a Style program string

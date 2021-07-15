@@ -2906,6 +2906,9 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     oConfig: undefined as any,
     selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
+
+    // ordering invariant for assigning colors to uninit shapes & text in final state
+    shapeColorsInitialized: false,
   };
 
   return ok(initState);
