@@ -1,4 +1,3 @@
-import { random_palette, viridis_data } from "./ColorData";
 import { State } from "types/state";
 import { Shape } from "types/shape";
 import { Color } from "types/value";
@@ -11,9 +10,12 @@ const colormap = require("colormap");
 /**
  * @type Stores RGB color as [R,G,B]; each number is a decimal between 0 & 1
  */
-export type RGB = [number, number, number];
+type RGB = [number, number, number];
 
-export type RGBA = [number, number, number, number];
+/**
+ * @type Stores RGBA color as [R,G,B,A]; each number is a decimal between 0 & 1
+ */
+type RGBA = [number, number, number, number];
 
 /**
  * @type Adjacency matrix storing edge weights between nodes
@@ -49,7 +51,7 @@ export const colorUninitShapes = (state: State): State => {
   return getNewlyColoredState(
     state,
     isUninitializedColorShape,
-    random_palette(),
+    getColorMap(),
     0.5
   );
 };
@@ -207,7 +209,7 @@ const distGraphToKNNGraph = (distGraph: Graph, k: number): Ajlist => {
 const KNNGraphToColorList = (
   KNNGraph: Ajlist,
   k: number,
-  palette: RGB[] = viridis_data
+  palette: RGB[] = getColorMap("viridis")
 ): RGB[] => {
   // what's the minimum number of colors needed to color a graph, given k neighbors?
   const numColorsRequested = 2 * k; // this is sufficient?
@@ -250,7 +252,6 @@ const KNNGraphToColorList = (
 
     // to do this, we first create a list of indexes corresponding to the colors that
     // we CAN assign to the current node
-
     const colorIndexPairs = colorsToAssign.map((color, index): [
       RGB,
       number
@@ -270,8 +271,7 @@ const KNNGraphToColorList = (
 
     const randomColor = availableColorIndexPairs[randomIndex][0];
 
-    // set the random color
-    colorList[node] = randomColor;
+    colorList[node] = randomColor; // set the random color
   }
 
   return colorList;
@@ -289,7 +289,7 @@ const KNNGraphToColorList = (
 const getNewlyColoredState = (
   state: State,
   includeInColorAdjustmentFn: (s: Shape) => boolean,
-  palette = random_palette(),
+  palette = getColorMap("viridis"),
   alpha = 0.5
 ): State => {
   const shapesToAssignColors = state.shapes.filter(includeInColorAdjustmentFn);
@@ -380,7 +380,7 @@ const createMatrix = (rows: number, cols: number): number[][] => {
 };
 
 /**
- * Returns true if a shape is to be included in color assignment,
+ * Returns true if @param shape is to be included in color assignment,
  * and false otherwise.
  */
 const isSupportedShape = (shape: Shape): boolean => {
@@ -407,6 +407,110 @@ const supportedShapes: string[] = [
 ];
 
 /**
+ * Valid colormap names (supported by the 'colormap' module)
+ */
+// this excludes transparent colormaps, since I handle alpha separately)
+const validColorMapNames: string[] = [
+  "jet",
+  "hsv",
+  "hot",
+  "cool",
+  "spring",
+  "summer",
+  "autumn",
+  "winter",
+  "bone",
+  "copper",
+  "greys",
+  "YIGnBu",
+  "greens",
+  "YIOrRd",
+  "bluered",
+  "RdBu",
+  "picnic",
+  "rainbow",
+  "portland",
+  "blackbody",
+  "earth",
+  "electric",
+  "viridis",
+  "inferno",
+  "magma",
+  "plasma",
+  "warm",
+  "cool",
+  "rainbow-soft",
+  "bathymetry",
+  "cdom",
+  "chlorophyll",
+  "density",
+  "freesurface-blue",
+  "freesurface-red",
+  "oxygen",
+  "par",
+  "phase",
+  "salinity",
+  "temperature",
+  "turbidity",
+  "velocity-blue",
+  "velocity-green",
+  "cubehelix",
+];
+
+/**
+ * Preferred colormaps that allow for the greatest contrast (use as default)
+ */
+const highContrastColorMapNames: string[] = [
+  "viridis",
+  "inferno",
+  "magma",
+  "plasma",
+];
+
+/**
+ * Checks if @param name is a valid colormap module name
+ */
+const isValidColorMapName = (name: string): boolean => {
+  return validColorMapNames.includes(name);
+};
+
+/**
+ * Returns a random colormap name
+ * @param highContrast optional param, generates a high contrast colormap name
+ */
+const randomColorMapName = (highContrast: boolean = true): string => {
+  if (highContrast) {
+    const index = Math.floor(
+      Math.random() * (highContrastColorMapNames.length - 1)
+    );
+    return highContrastColorMapNames[index];
+  }
+  const index = Math.floor(Math.random() * (validColorMapNames.length - 1));
+  return validColorMapNames[index];
+};
+
+/**
+ * Gets an RGB palette to use
+ * @param name optional param for specifying the exact colormap, if valid
+ */
+const getColorMap = (name?: string): RGB[] => {
+  name = name && isValidColorMapName(name) ? name : randomColorMapName();
+
+  const rgba_map = colormap({
+    colormap: name,
+    nshades: 72, // max number of shades
+    format: "float",
+    alpha: 0.5,
+  });
+
+  const rgb_map = rgba_map.map(([r, g, b, a]: RGBA) => {
+    return [r, g, b];
+  }) as RGB[];
+
+  return rgb_map;
+};
+
+/**
  * Returns a list of color from the passed in palette,
  * sampled at uniform intervals.
  * @param numColorsRequested equal to the length of the result array
@@ -414,7 +518,7 @@ const supportedShapes: string[] = [
  */
 const sampleUniformPalette = (
   numColorsRequested: number,
-  palette: RGB[] = viridis_data
+  palette: RGB[] = getColorMap("viridis")
 ): RGB[] => {
   // handle 0 case, to prevent division by 0 later on
   if (numColorsRequested === 0) return [];
@@ -433,19 +537,6 @@ const sampleUniformPalette = (
   }
 
   return rgbList;
-};
-
-const sampleUniformColorMap = (
-  numColorsRequested: number,
-  paletteName: string = "viridis",
-  alphaVal: number = 0.5
-): RGBA[] => {
-  return colormap({
-    colormap: paletteName,
-    nshades: numColorsRequested,
-    format: "float",
-    alpha: alphaVal,
-  });
 };
 
 /**
