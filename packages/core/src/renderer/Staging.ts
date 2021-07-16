@@ -6,6 +6,70 @@ import { FieldExpr } from "../types/value";
 // local typedefs for ease of typing expressions
 type StringObjPair = [string, { [k: string]: FieldExpr<IVarAD> }];
 
+export type Comic = { [k: string]: string[] };
+
+export const testcomic: Comic = {
+  "1": ["A", "B"],
+  "2": ["A", "B", "IsSubset_B_A"],
+};
+
+export const getComicPanelStates = (state: State, comic: Comic): State[] => {
+  const panels = Object.values(comic);
+  // console.log(panels)
+  return panels.map((panel) => getStateForPanel(panel, state));
+};
+
+const getStateForPanel = (panel: string[], state: State): State => {
+  const newShapeList = state.shapes.filter((shape) =>
+    shapeIsPartOfPanel(shape, panel, state)
+  );
+  let newState = { ...state };
+  newState.shapes = newShapeList;
+  return newState;
+};
+
+const shapeIsPartOfPanel = (
+  shape: Shape,
+  panel: string[],
+  state: State
+): boolean => {
+  // console.log('panel', panel);
+  return panel.some((trMapName) =>
+    shapeIsPartOfTrMapObj(trMapName, shape, state)
+  );
+};
+
+const shapeIsPartOfTrMapObj = (
+  trMapName: string,
+  shape: Shape,
+  state: State
+): boolean => {
+  if (!state.translation.trMap[trMapName]) {
+    console.log(`${trMapName} is not a valid key`);
+    return false;
+  } // the requested name doesn't exist
+
+  const trmapObj = state.translation.trMap[trMapName];
+
+  const matchingKeyEntryGPIPairs = Object.entries(trmapObj).filter(
+    ([fieldName, obj]) => {
+      return (
+        obj.tag === "FGPI" &&
+        `${trMapName}.${fieldName}` === shape.properties.name.contents
+      );
+    }
+  );
+
+  if (matchingKeyEntryGPIPairs.length > 1) {
+    // shouldn't happen (no duplicates)
+    console.log("dupes?");
+    console.log(matchingKeyEntryGPIPairs);
+  }
+
+  // either it matches or it doesn't
+  return matchingKeyEntryGPIPairs.length === 1;
+};
+
 /**
  * Returns a list of states, one state per diagram in a series of staged diagrams
  */

@@ -8,7 +8,11 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
-import { getListOfStagedStates } from "../core/src/renderer/Staging";
+import {
+  Comic,
+  getComicPanelStates,
+  getListOfStagedStates,
+} from "../core/src/renderer/Staging";
 import { State } from "../core/src/types/state";
 
 const fs = require("fs");
@@ -24,6 +28,7 @@ Usage:
   automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--folders] [--src-prefix=PREFIX] [--staged]
+  automator comic SUBSTANCE STYLE DOMAIN COMICJSON OUTFOLDER [--src-prefix=PREFIX]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -313,6 +318,73 @@ const batchProcess = async (
   console.log("done.");
 };
 
+// modified copy of singleProcess
+const comicProcess = async (
+  sub: any,
+  sty: any,
+  dsl: string,
+  comic: string,
+  out: string,
+  prefix: string
+) => {
+  // Fetch Substance, Style, and Domain files
+  const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
+    fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
+  );
+
+  // Fetch comic file
+  const comicObj: Comic = JSON.parse(fs.readFileSync(comic, "utf8").toString());
+  console.log(comicObj, typeof comicObj);
+
+  // Compilation
+  console.log(`Compiling for ${out}/${sub} ...`);
+  const overallStart = process.hrtime();
+  const compileStart = process.hrtime();
+  const compilerOutput = compileTrio(dslIn, subIn, styIn);
+  const compileEnd = process.hrtime(compileStart);
+  let compiledState;
+  if (compilerOutput.isOk()) {
+    compiledState = compilerOutput.value;
+  } else {
+    const err = compilerOutput.error;
+    throw new Error(`Compilation failed:\n${showError(err)}`);
+  }
+
+  const labelStart = process.hrtime();
+  const initialState = await prepareState(compiledState);
+  const labelEnd = process.hrtime(labelStart);
+
+  console.log(`Stepping for ${out} ...`);
+
+  const convergeStart = process.hrtime();
+  const optimizedState = stepUntilConvergence(initialState, 10000);
+  const convergeEnd = process.hrtime(convergeStart);
+
+  const reactRenderStart = process.hrtime();
+
+  // make a list of canvas data if staged (prepare to generate multiple SVGs)
+  const listOfComicStates = getComicPanelStates(optimizedState, comicObj);
+  const listOfCanvasData = listOfComicStates.map((state: State) => {
+    return RenderStatic(state).outerHTML;
+  });
+
+  const reactRenderEnd = process.hrtime(reactRenderStart);
+  const overallEnd = process.hrtime(overallStart);
+
+  // cross-instance energy evaluation
+
+  const writeFileOut = (canvasData: any, index: number) => {
+    let filename = out.slice(0, out.indexOf("svg") - 1);
+    let newStr = filename + index.toString() + ".svg";
+    fs.writeFileSync(newStr, canvasData);
+    console.log(chalk.green(`The diagram has been saved as ${newStr}`));
+  };
+  listOfCanvasData.map(writeFileOut);
+
+  // HACK: return empty metadata??
+  return null;
+};
+
 (async () => {
   // Process command-line arguments
   const args = neodoc.run(USAGE, { smartOptions: true });
@@ -335,7 +407,7 @@ const batchProcess = async (
     }
   } else if (args.render) {
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
-  } else {
+  } else if (args.draw) {
     // this assumes that yarn start draw was called.
     await singleProcess(
       args.SUBSTANCE,
@@ -345,6 +417,16 @@ const batchProcess = async (
       outFile,
       prefix,
       staged
+    );
+  } else {
+    // args.comic
+    await comicProcess(
+      args.SUBSTANCE,
+      args.STYLE,
+      args.DOMAIN,
+      args.COMICJSON,
+      outFile,
+      prefix
     );
   }
 })();
