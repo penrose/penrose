@@ -13,6 +13,7 @@ import { SelEnv, Subst } from "types/styleSemantics";
 import { Identifier } from "types/ast";
 import _ from "lodash";
 
+// helper for debugging fxn
 const extractAliasFromRelationPattern = (rel: RelationPattern): string[] => {
   if (rel.tag === "RelPred" && rel.alias) {
     return [rel.alias.value];
@@ -21,13 +22,13 @@ const extractAliasFromRelationPattern = (rel: RelationPattern): string[] => {
 };
 
 // for debugging
-export const getHeaderAliasKeywords = (header: Header): string[] => {
+const getHeaderAliasKeywords = (header: Header): string[] => {
   if (header.tag === "Selector") {
     const sel = header;
     const rels = safeContentsList(sel.where);
     return _.flatMap(rels, extractAliasFromRelationPattern);
   } else {
-    // namespace has no alias
+    // namespace has no aliases
     return [];
   }
 };
@@ -66,7 +67,7 @@ const isValidRelSubst = (subst: Subst, rel: RelationPattern): boolean => {
   }
 };
 
-// IsSubset(B,A) --> `IsSubset_B_A
+// IsSubset(B,A) --> `IsSubset_B_A`
 // IsSubset(Union(B,C),A) --> `IsSubset_Union_B_C_A`
 // this can be refactored for a more descriptive name for nested cases
 const getRelPredAliasInstanceName = (
@@ -142,23 +143,6 @@ const getDomainKeywords = (varEnv: Env): string[] => {
   return keywords.concat(subtypeKeywords);
 };
 
-const getSelectorKeywords = (varEnv: Env): string[] => {
-  const substanceVarNames = varEnv.varIDs.map((identifier) => {
-    return identifier.value;
-  });
-
-  // this fails if the selector style variable names shadow substance variable names
-  // so if .sub declares `Set A, B; IsSubset(A,B)`
-  // then `Set A; Set B where IsSubset(A,B) as A` in .sty
-  // will not raise an error (false positive)
-  const selectorStyVarNames = getKeyWordsFromMap(varEnv.vars).filter(
-    (keyword) => {
-      return !substanceVarNames.includes(keyword);
-    }
-  );
-  return selectorStyVarNames;
-};
-
 const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
   return Object.keys(selEnv.sTypeVarMap);
 };
@@ -170,10 +154,6 @@ export const aliasConflictsWithDomainOrSelectorKeyword = (
 ): boolean => {
   const domainKeywords = getDomainKeywords(varEnv);
   const selectorKeywords = getSelectorStyVarNames(selEnv);
-
-  // console.log('domainkeywords\n', domainKeywords);
-  // console.log('selectorkeywords\n', selectorKeywords);
-
   return (
     domainKeywords.includes(alias.value) ||
     selectorKeywords.includes(alias.value)

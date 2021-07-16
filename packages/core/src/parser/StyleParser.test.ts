@@ -181,7 +181,6 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
 });
 
 describe("Block Grammar", () => {
-  // got rid of "as Const" after Map f
   test("empty block with comments and blank lines", () => {
     const prog = `
 forall Set A, B; Map f {
@@ -197,7 +196,6 @@ forall Set A, B; Map f {
   });
 
   test("single statement", () => {
-    // got rid of "as Const" after Map f
     const prog = `
 forall Set A, B; Map f {
   delete A.arrow.center
@@ -207,7 +205,6 @@ forall Set A, B; Map f {
   });
 
   test("delete statements with field, property paths", () => {
-    // got rid of "as Const" after Map f
     const prog = `
 forall Set A, B; Map f {
   delete A.arrow.center
@@ -219,7 +216,6 @@ forall Set A, B; Map f {
   });
 
   test("line comments among statements", () => {
-    // got rid of "as Const" after Map f
     const prog = `
 forall Set A, B; Map f {
   -- beginning comment
@@ -234,7 +230,6 @@ forall Set A, B; Map f {
   });
 
   test("line comments after statements", () => {
-    // got rid of "as Const" after Map f
     const prog = `
 forall Set A, B; Map f {
   delete A.arrow.center -- end of statement comment

@@ -8,7 +8,7 @@ import * as path from "path";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError, StyleErrors } from "types/errors";
-import { IState, State } from "types/state";
+import { State } from "types/state";
 import { StyProg } from "types/style";
 import { SubProg, SubstanceEnv } from "types/substance";
 import { andThen, Result, showError, unsafelyUnwrap } from "utils/Error";
@@ -300,7 +300,7 @@ describe("Compiler", () => {
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
 
-  describe("Style programs with predicate aliasing", () => {
+  describe("Correct style programs with predicate aliasing", () => {
     const domainProg = "type Set\npredicate IsSubset : Set s1 * Set s2";
     const subProg = "Set A\nSet B\nSet C\nIsSubset(B,A)\nIsSubset(C,B)";
     // TODO: Name these programs

@@ -411,7 +411,6 @@ const checkRelPattern = (
   rel: RelationPattern
 ): StyleErrors => {
   // rule Bind-Context
-  // console.log(varEnv.varIDs)
   if (rel.tag === "RelBind") {
     // TODO: use checkSubStmt here (and in paper)?
     // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
@@ -1408,6 +1407,8 @@ const matchDecl = (
   );
   const res = merge(initSubsts, justs(newSubsts)); // TODO inline
   // COMBAK: Inline this
+  // console.log("substs to combine:", initSubsts, justs(newSubsts));
+  // console.log("res", res);
   return res;
 };
 
