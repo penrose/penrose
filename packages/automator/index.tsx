@@ -8,11 +8,8 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
-
-//
-import { getListOfStagedStates } from "../core/src/renderer/Comic";
+import { getListOfStagedStates } from "../core/src/renderer/Staging";
 import { State } from "../core/src/types/state";
-//
 
 const fs = require("fs");
 const chalk = require("chalk");
@@ -54,12 +51,6 @@ const nonZeroConstraints = (
 
 const toMs = (hr: any) => hr[1] / 1000000;
 
-//
-const renderStaticOuterHTML = (state: State) => {
-  return RenderStatic(state).outerHTML;
-};
-//
-
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
   sub: any,
@@ -68,7 +59,7 @@ const singleProcess = async (
   folders: boolean,
   out: string,
   prefix: string,
-  staged: boolean, // added
+  staged: boolean,
   meta = {
     substanceName: sub,
     styleName: sty,
@@ -92,7 +83,7 @@ const singleProcess = async (
   const compileEnd = process.hrtime(compileStart);
   let compiledState;
   if (compilerOutput.isOk()) {
-    compiledState = compilerOutput.value; // type State
+    compiledState = compilerOutput.value;
   } else {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
@@ -111,12 +102,15 @@ const singleProcess = async (
   const reactRenderStart = process.hrtime();
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
+  let listOfCanvasData, canvas;
   if (staged) {
     const listOfStagedStates = getListOfStagedStates(optimizedState);
-    var listOfCanvasData = listOfStagedStates.map(renderStaticOuterHTML);
+    listOfCanvasData = listOfStagedStates.map((state: State) => {
+      return RenderStatic(state).outerHTML;
+    });
   } else {
     // if not staged, we just need one canvas data (for the final diagram)
-    var canvas = RenderStatic(optimizedState).outerHTML; // this gets written out at the end
+    canvas = RenderStatic(optimizedState).outerHTML;
   }
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
@@ -193,7 +187,7 @@ const singleProcess = async (
       const writeFileOut = (canvasData: any, index: number) => {
         // add an index num to the output filename so the user knows the order
         // and also to keep unique filenames
-        var filename = `${out}/output${index.toString()}.svg`;
+        let filename = `${out}/output${index.toString()}.svg`;
         fs.writeFileSync(filename, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${filename}`));
       };
@@ -213,19 +207,18 @@ const singleProcess = async (
     // returning metadata for aggregation
     return { metadata, state: optimizedState };
   } else {
-    // write multiple svg files out
     if (staged) {
+      // write multiple svg files out
       const writeFileOut = (canvasData: any, index: number) => {
-        var filename = out.slice(0, out.indexOf("svg") - 1);
-        var newStr = filename + index.toString() + ".svg";
+        let filename = out.slice(0, out.indexOf("svg") - 1);
+        let newStr = filename + index.toString() + ".svg";
         fs.writeFileSync(newStr, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${newStr}`));
       };
       listOfCanvasData.map(writeFileOut);
-    }
-    // just the final diagram
-    else {
-      fs.writeFileSync(out, canvas); // gets written here!
+    } else {
+      // just the final diagram
+      fs.writeFileSync(out, canvas);
       console.log(chalk.green(`The diagram has been saved as ${out}`));
     }
 
@@ -275,7 +268,7 @@ const batchProcess = async (
     // try to render the diagram
     try {
       // Warning: will face id conflicts if parallelism used
-      var res = await singleProcess(
+      let res = await singleProcess(
         subURI,
         styURI,
         dslURI,
@@ -331,7 +324,6 @@ const batchProcess = async (
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
-  // new optional arg for generating staged diagrams
   const staged = args["--staged"] || false;
 
   if (args.batch) {
