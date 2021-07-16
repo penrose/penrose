@@ -210,7 +210,7 @@ export function foldM<A, B, C>(
   return resW;
 }
 
-export function justs<T>(xs: MaybeVal<T>[]): T[] {
+function justs<T>(xs: MaybeVal<T>[]): T[] {
   return xs
     .filter((x) => x.tag === "Just")
     .map((x) => {
@@ -221,7 +221,7 @@ export function justs<T>(xs: MaybeVal<T>[]): T[] {
     });
 }
 
-export const safeContentsList = (x: any) => (x ? x.contents : []);
+const safeContentsList = (x: any) => (x ? x.contents : []);
 
 const toString = (x: BindingForm): string => x.contents.value;
 
