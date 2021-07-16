@@ -3,49 +3,46 @@ import { Shape } from "../types/shape";
 import { State } from "../types/state";
 import { FieldExpr } from "../types/value";
 
-export const getListOfStagedStates = (state: State): State[] => {
-  // encodes the order in which the user defines GPIs in substance
-  // as obj properties
-  const trMap = state.translation.trMap;
-  let objArr = Object.entries(trMap);
+// local typedefs for ease of typing expressions
+type StringObjPair = [string, { [k: string]: FieldExpr<IVarAD> }];
 
+/**
+ * Returns a list of states, one state per diagram in a series of staged diagrams
+ */
+export const getListOfStagedStates = (state: State): State[] => {
+  // encodes the order in which the user defines GPIs in substance as obj properties
+  let objArr = Object.entries(state.translation.trMap);
   objArr = objArr.filter(hasGPIProperties);
 
   // each element in listOfStagedObjArrs is a list of objs to draw
   // in a panel in the comic
   // ex. for a final diagram with objects A,B,C
   // listOfStagedObjArrs = [[A], [A,B], [A,B,C]]
-  let listOfStagedObjArrs = objArr.map(tabulateObjArrs);
+  const listOfStagedObjArrs = objArr.map(tabulateObjArrs);
 
   const getStateFromObjArr = (arr: StringObjPair[]) => {
     return getStateFromObjArrAndLocalState(arr, state);
   };
 
   // map each object array to a state (modify the shapelist of the og state)
-  let listOfStagedStates = listOfStagedObjArrs.map(getStateFromObjArr);
+  const listOfStagedStates = listOfStagedObjArrs.map(getStateFromObjArr);
 
   return listOfStagedStates;
 };
 
 // determines if an object has any GPI tagged properties
-const hasGPIProperties = (elem: any) => {
+const hasGPIProperties = (elem: StringObjPair) => {
   const arr = elem[1];
-
-  const objArr: [string, any][] = Object.entries(arr);
-
-  const hasGPIAsTag = (object: any) => {
+  const objArr: [string, FieldExpr<IVarAD>][] = Object.entries(arr);
+  const hasGPIAsTag = (object: [string, FieldExpr<IVarAD>]) => {
     return object[1].tag === "FGPI";
   };
-
   return (
     objArr.filter((elem) => {
       return hasGPIAsTag(elem);
     }).length !== 0
   );
 };
-
-// local typedef for ease of typing expressions
-type StringObjPair = [string, { [k: string]: FieldExpr<IVarAD> }];
 
 // used to make list of objects for each "comic panel"
 // used as the fn for .map
@@ -79,28 +76,10 @@ const getStateFromObjArrAndLocalState = (
 
   const newShapeList = state.shapes.filter(includeShape);
 
-  /*
-  let newShapeList: Shape[] = [];
-  for (let i = 0; i < state.shapes.length; i++) {
-    let shap = state.shapes[i];
-    let shapPropPathName = shap.properties.name.contents as string;
-    const dotIndex = shapPropPathName.indexOf(".");
-    if (dotIndex === -1) {
-      throw new Error("shape property doesn't have a .");
-    }
-    let shapName = shapPropPathName.slice(0, dotIndex);
-
-    if (testArrNames.includes(shapName)) {
-      newShapeList.push(shap);
-    }
-  }
-  */
-
   // to be cleaner, i should technically update shapeOrdering as well
   // but not modifying that doesn't seem to affect the creation of the SVG
 
-  // shallow copy, otherwise weird aliasing issues
-  let newState = { ...state };
+  let newState = { ...state }; // shallow copy, otherwise weird aliasing issues
 
   newState.shapes = newShapeList;
 
