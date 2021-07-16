@@ -109,7 +109,8 @@ export type Elem<T> =
   | ICubicBez<T>
   | ICubicBezJoin<T>
   | IQuadBez<T>
-  | IQuadBezJoin<T>;
+  | IQuadBezJoin<T>
+  | IArc<T>;
 
 export type SubPath<T> = IClosed<T> | IOpen<T>;
 interface IClosed<T> {
@@ -285,4 +286,9 @@ export interface IQuadBez<T> {
 export interface IQuadBezJoin<T> {
   tag: "QuadBezJoin";
   contents: [T, T];
+}
+
+export interface IArc<T> {
+  tag: "Arc";
+  contents: [[T, T], [T, T, T], [T, T]];
 }

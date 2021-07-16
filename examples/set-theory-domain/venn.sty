@@ -1,3 +1,8 @@
+canvas {
+  width = 800
+  height = 700
+}
+
 forall Set x {
    x.icon = Circle {
         strokeWidth : 0.0
@@ -10,7 +15,7 @@ forall Set x {
 
     ensure contains(x.icon, x.text)
     ensure minSize(x.icon)
-    ensure maxSize(x.icon)
+    ensure maxSize(x.icon, canvas.height / 3.)
     encourage sameCenter(x.text, x.icon)
     x.textLayering = x.text above x.icon
     
