@@ -15,6 +15,7 @@ import _ from "lodash";
 
 // helper for debugging fxn
 const extractAliasFromRelationPattern = (rel: RelationPattern): string[] => {
+  // get rid of
   if (rel.tag === "RelPred" && rel.alias) {
     return [rel.alias.value];
   }
@@ -23,6 +24,7 @@ const extractAliasFromRelationPattern = (rel: RelationPattern): string[] => {
 
 // for debugging
 const getHeaderAliasKeywords = (header: Header): string[] => {
+  // get rid of
   if (header.tag === "Selector") {
     const sel = header;
     const rels = safeContentsList(sel.where);
@@ -34,6 +36,7 @@ const getHeaderAliasKeywords = (header: Header): string[] => {
 };
 
 const sebindExistsInSubst = (sebind: SEBind, subst: Subst): boolean => {
+  // finding substs
   if (sebind.contents.tag !== "StyVar") {
     throw new Error("expected sty var");
   }
@@ -42,6 +45,7 @@ const sebindExistsInSubst = (sebind: SEBind, subst: Subst): boolean => {
 };
 
 const selExprExistsInSubst = (expr: SelExpr, subst: Subst): boolean => {
+  // finding substs
   if (expr.tag === "SEBind") {
     return sebindExistsInSubst(expr, subst);
   } else if (expr.tag === ("SEFunc" || "SEValCons" || "SEFuncOrValCons")) {
@@ -50,6 +54,7 @@ const selExprExistsInSubst = (expr: SelExpr, subst: Subst): boolean => {
 };
 
 const predArgExistsInSubst = (arg: PredArg, subst: Subst): boolean => {
+  // finding substs
   if (arg.tag === "RelPred") {
     return isValidRelSubst(subst, arg);
   } else if (arg.tag === "SEBind") {
@@ -58,6 +63,7 @@ const predArgExistsInSubst = (arg: PredArg, subst: Subst): boolean => {
 };
 
 const isValidRelSubst = (subst: Subst, rel: RelationPattern): boolean => {
+  // finding substs
   if (rel.tag === "RelPred") {
     return rel.args.every((arg) => predArgExistsInSubst(arg, subst));
   } else if (rel.tag === "RelBind") {
@@ -71,6 +77,7 @@ const isValidRelSubst = (subst: Subst, rel: RelationPattern): boolean => {
 // IsSubset(Union(B,C),A) --> `IsSubset_Union_B_C_A`
 // this can be refactored for a more descriptive name for nested cases
 const getRelPredAliasInstanceName = (
+  // finding substs
   relPred: RelPred,
   subst: Subst
 ): string => {
@@ -89,6 +96,7 @@ const getRelPredAliasInstanceName = (
 };
 
 const getBindingFormAliasInstanceName = (
+  // finding substs
   bf: BindingForm,
   subst: Subst
 ): string => {
@@ -100,6 +108,7 @@ const getBindingFormAliasInstanceName = (
 };
 
 export const addRelPredAliasSubsts = (
+  // finding substs
   subst: Subst,
   rels: RelationPattern[]
 ): Subst => {
@@ -117,6 +126,7 @@ export const addRelPredAliasSubsts = (
 };
 
 const getKeyWordsFromMap = (m: any): string[] => {
+  // selector checking
   let acc: string[] = [];
   const iterator = m.keys();
   for (let i = 0; i < m.size; i++) {
@@ -126,6 +136,7 @@ const getKeyWordsFromMap = (m: any): string[] => {
 };
 
 const getDomainKeywords = (varEnv: Env): string[] => {
+  // selector checking
   const keyWordMaps = [
     varEnv.types,
     varEnv.functions,
@@ -148,6 +159,7 @@ const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
 };
 
 export const aliasConflictsWithDomainOrSelectorKeyword = (
+  // selector checking
   alias: Identifier,
   varEnv: Env,
   selEnv: SelEnv
