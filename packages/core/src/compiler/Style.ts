@@ -1226,7 +1226,7 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if
-export const relMatchesLine = (
+const relMatchesLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   s1: SubStmt,
@@ -1290,7 +1290,7 @@ const allRelsMatch = (
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // Folds over [theta]
-export const filterRels = (
+const filterRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg,
@@ -1319,7 +1319,7 @@ const combine = (s1: Subst, s2: Subst): Subst => {
 // TODO check for duplicate keys (and vals)
 // (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
 // the way merge is used, I think each subst in the second argument only contains one mapping
-export const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
+const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
   if (s2.length === 0) {
     return s1;
   }
@@ -1413,7 +1413,7 @@ const matchDecl = (
 
 // Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 // Folds over [|S_o]
-export const matchDecls = (
+const matchDecls = (
   varEnv: Env,
   subProg: SubProg,
   decls: DeclPattern[],
@@ -2000,6 +2000,7 @@ const translatePair = (
       };
     }
 
+    // For creating unique local var names
     const substs = findSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv]);
 
     return translateSubstsBlock(trans, numbered(substs), [hb.block, blockNum]);
@@ -2085,7 +2086,6 @@ const translateStyProg = (
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
 
-  // fold each headerblock into the translation
   const res = foldM(
     styProg.blocks,
     (trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i),

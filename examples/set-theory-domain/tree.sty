@@ -15,18 +15,14 @@ Set x; Set y {
 -- TODO: Phase this back in
 
 Set x; Set y
-where IsSubset(x, y) as foo {
-    foo.arrow = Arrow { -- why does this need an override flag?
+where IsSubset(x, y) {
+    arrow = Arrow { 
       thickness : 2.0
       color : rgba(0.0, 0.0, 0.0, 1.0)
     }
 
-    -- x.square = Square { color : rgba (0.5, 0.4, 0.2, 0.5)}
-
-    -- foo.square = Square {} -- oddly, this calls for an override flag (and afterwards compiles fine)
-
     -- Draw the arrow from y to x
-    foo.center = encourage centerArrow(foo.arrow, x.icon, y.icon)
+    center = encourage centerArrow(arrow, x.icon, y.icon)
 
     -- Position y above x
     encourage above(y.icon, x.icon)
@@ -34,18 +30,6 @@ where IsSubset(x, y) as foo {
     -- Have sets 'fight' to be aligned with the superset's x-position
     encourage equal(x.icon.center[0], y.icon.center[0])
 }
-
-Set x; Set y
-where IsSubset(x,y) as bar {
-  bar.circle = Circle{}
-  override bar.arrow.color = rgba(0.2, 0.1, 0.8, 1.0)
-}
-
-Set u; Set v
-where  Not(Intersecting(u, v)) as bee {
-  bee.square = Square{}
-}
-
 
 /*
 -- TODO: This one currently causes convergence to become very slow but works eventually

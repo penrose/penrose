@@ -166,11 +166,6 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
   bar.square = Square{}
 }`;
     const { results } = parser.feed(prog);
-    /*
-    var json = JSON.stringify(results[0]);
-    fs.writeFileSync('./myjsonfile3.json', json, "utf8");
-    console.log('done')
-    */
     sameASTs(results);
   });
   test("cannot as clauses for bindings", () => {

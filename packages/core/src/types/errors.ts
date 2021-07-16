@@ -139,7 +139,7 @@ export type StyleError =
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
   | TaggedSubstanceError
-  | SelectorAliasNamingError // new error?
+  | SelectorAliasNamingError
   // Block static errors
   | InvalidGPITypeError
   | InvalidGPIPropertyError
