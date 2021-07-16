@@ -23,11 +23,11 @@ import {
   and,
   or,
   debug,
+  cos,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { canvasSize } from "renderer/ShapeDef";
-import { VarAD, VecAD, Pt2 } from "types/ad";
+import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
 
@@ -45,7 +45,7 @@ export const isRectlike = (shapeType: string): boolean => {
 };
 
 /**
- * Takes a `shapeType`, returns whether it's linelike. (TODO: Account for arrowhead size)
+ * Takes a `shapeType`, returns whether it's linelike.
  */
 export const isLinelike = (shapeType: string): boolean => {
   return shapeType == "Line" || shapeType == "Arrow";
@@ -230,6 +230,54 @@ export const objDict = {
   nearScalar: (c: any, goal: any) => {
     return squared(sub(constOfIf(c), constOfIf(goal)));
   },
+  /**
+   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
+   * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
+   */
+  nonDegenerateAngle: (
+    [, p0]: [string, any],
+    [, p1]: [string, any],
+    [, p2]: [string, any],
+    strength = 20,
+    range = 10
+  ) => {
+    if (every([p0, p1, p2].map((props) => props["center"]))) {
+      const c0 = fns.center(p0);
+      const c1 = fns.center(p1);
+      const c2 = fns.center(p2);
+
+      const l1 = ops.vsub(c0, c1);
+      const l2 = ops.vsub(c2, c1);
+      const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
+      // angles that are more than `range` deg from 0 or 180 do not need to be pushed
+      return ifCond(
+        lt(cosine, varOf(range * (Math.PI / 180))),
+        varOf(0),
+        mul(constOfIf(strength), cosine)
+      );
+    } else {
+      throw new Error(
+        "nonDegenerateAngle: all input shapes need to have centers"
+      );
+    }
+  },
+  /**
+   * try to make distance between a point and a segment `s1` = padding.
+   */
+  pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
+    if (!isLinelike(t1)) {
+      throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
+    }
+    return squared(
+      equalHard(
+        ops.vdist(
+          closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
+          point
+        ),
+        padding
+      )
+    );
+  },
 };
 
 export const constrDict = {
@@ -249,13 +297,12 @@ export const constrDict = {
   /**
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
-  maxSize: ([shapeType, props]: [string, any]) => {
-    const limit = Math.max(...canvasSize);
+  maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
     switch (shapeType) {
       case "Circle":
-        return sub(props.r.contents, constOf(limit / 6.0));
+        return sub(props.r.contents, div(limit, constOf(2)));
       case "Square":
-        return sub(props.side.contents, constOf(limit / 3.0));
+        return sub(props.side.contents, limit);
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -651,6 +698,36 @@ export const constrDict = {
       return max(
         constOf(0),
         sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3))
+      );
+    } else {
+      throw new Error("collinear: all input shapes need to have centers");
+    }
+  },
+
+  /**
+   * Require that the `center`s of three shapes to be collinear. Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
+   */
+  collinearUnordered: (
+    [, p0]: [string, any],
+    [, p1]: [string, any],
+    [, p2]: [string, any]
+  ) => {
+    if (every([p0, p1, p2].map((props) => props["center"]))) {
+      const c1 = fns.center(p0);
+      const c2 = fns.center(p1);
+      const c3 = fns.center(p2);
+
+      const v1 = ops.vnorm(ops.vsub(c1, c2));
+      const v2 = ops.vnorm(ops.vsub(c2, c3));
+      const v3 = ops.vnorm(ops.vsub(c1, c3));
+
+      // Use triangle inequality (v1 + v2 <= v3) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+      return max(
+        constOf(0),
+        min(
+          min(sub(add(v1, v2), v3), sub(add(v1, v3), v2)),
+          sub(add(v2, v3), v1)
+        )
       );
     } else {
       throw new Error("collinear: all input shapes need to have centers");
