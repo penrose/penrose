@@ -46,3 +46,8 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 
 - Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=../../examples/set-theory-domain` in this directory to generate an output SVG.
 - Add the `--staged` flag to the command to generate multiple staged SVGs for the sub/sty/dsl trio.
+
+## 07/16/2021 Update: Staged Diagram Generation w/ greater control
+
+- Run `yarn start comic tree.sub tree.sty setTheory.dsl panel.json out --src-prefix=../../examples/set-theory-domain` in this directory to generate output SVGs based on the "panels" in `panel.json`.
+- The entries in each `Comic` object (i.e. the contents of `panel.json`) must be valid keys in the state's translation trMap.
