@@ -73,6 +73,7 @@ export const colorUninitText = (state: State): State => {
       "Attempted to assign colors to text without assigning colors to shapes first"
     );
   }
+
   // fn that checks if a shape has an uninitialized color path
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 
@@ -409,7 +410,6 @@ const supportedShapes: string[] = [
 /**
  * Valid colormap names (supported by the 'colormap' module)
  */
-// this excludes transparent colormaps, since I handle alpha separately)
 const validColorMapNames: string[] = [
   "jet",
   "hsv",
@@ -455,6 +455,12 @@ const validColorMapNames: string[] = [
   "velocity-blue",
   "velocity-green",
   "cubehelix",
+  "jet with transparency",
+  "hsv with transparency",
+  "hot with transparency",
+  "cool with transparency",
+  "spring with transparency",
+  "summer with transparency",
 ];
 
 /**
@@ -550,12 +556,12 @@ const getUninitializedColorCheckerFn = (
   // the list of uninitialized paths from the state
   const uninitPathsList = state.uninitializedPaths;
 
-  // need to filter out varying paths here
-
   // gets the list of uninitialized color paths
   const uninitColorPathList = uninitPathsList.filter((path: Path) => {
     return path.tag === "PropertyPath" && path.property.value === "color";
   });
+
+  // TODO filter out varying paths?
 
   // get the corresponding shape names of the uninitialized color paths
   // given a path, get the name of the shape it belongs to (ex. H.icon)
