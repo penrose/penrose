@@ -13,7 +13,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { Elem, SubPath, Value } from "types/value";
+import { Elem, IPath, SubPath, Value } from "types/value";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -36,7 +36,6 @@ import {
   IMatrixV,
   IPaletteV,
   IPathDataV,
-  IPolygonV,
   IPtListV,
   IPtV,
   ITrans,
@@ -71,26 +70,60 @@ export const runtimeValueTypeError = (
     actualType,
   };
 };
+// function guard<T>(o: any): o is T {
+//   return o instanceof T;
+// }
+export function mapTupRecursive<T, S>(
+  f: (arg: T) => S,
+  t: unknown[]
+): unknown[] {
+  return t.map((nest) => {
+    if (!Array.isArray(t)) {
+      if (nest === null) {
+        return (varOf(0.0) as unknown) as S;
+      }
 
+      return f(nest as T);
+    } else {
+      mapTupRecursive(f, nest as unknown[]);
+    }
+  });
+}
 // Generic utils for mapping over values
 
-export function mapTup2<T, S>(f: (arg: T) => S, t: [T, T]): [S, S] {
+// export function mapTup2<T, S>(f: (arg: T) => S, t: [T, T]): [S, S] {
+//   // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
+//   // TODO: Should do null checks more systematically across the translation
+//   if (t[0] === null || t[1] === null) {
+//     return ([varOf(0.0), varOf(0.0)] as unknown) as [S, S];
+//   }
+
+//   return [f(t[0]), f(t[1])];
+// }
+
+export function mapTuple<T, S>(f: (arg: T) => S, t: T[]): S[] {
   // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
   // TODO: Should do null checks more systematically across the translation
-  if (t[0] === null || t[1] === null) {
-    return ([varOf(0.0), varOf(0.0)] as unknown) as [S, S];
-  }
+  return t.map((tup) => {
+    if (tup === null) {
+      return (varOf(0.0) as unknown) as S;
+    }
 
-  return [f(t[0]), f(t[1])];
+    return f(tup);
+  });
 }
+export function mapTupNested<T, S>(f: (arg: T) => S, t: T[][]): S[][] {
+  return t.map((tup) => {
+    return mapTuple(f, tup);
+  });
+}
+// function mapTup3<T, S>(f: (arg: T) => S, t: [T, T, T]): [S, S, S] {
+//   return [f(t[0]), f(t[1]), f(t[2])];
+// }
 
-function mapTup3<T, S>(f: (arg: T) => S, t: [T, T, T]): [S, S, S] {
-  return [f(t[0]), f(t[1]), f(t[2])];
-}
-
-function mapTup4<T, S>(f: (arg: T) => S, t: [T, T, T, T]): [S, S, S, S] {
-  return [f(t[0]), f(t[1]), f(t[2]), f(t[3])];
-}
+// function mapTup4<T, S>(f: (arg: T) => S, t: [T, T, T, T]): [S, S, S, S] {
+//   return [f(t[0]), f(t[1]), f(t[2]), f(t[3])];
+// }
 
 function mapTup2LList<T, S>(f: (arg: T) => S, xss: [T, T][][]): [S, S][][] {
   return xss.map((xs) => xs.map((t) => [f(t[0]), f(t[1])]));
@@ -108,14 +141,14 @@ function mapFloat<T, S>(f: (arg: T) => S, v: IFloatV<T>): IFloatV<S> {
 function mapPt<T, S>(f: (arg: T) => S, v: IPtV<T>): IPtV<S> {
   return {
     tag: "PtV",
-    contents: mapTup2(f, v.contents) as [S, S],
+    contents: mapTuple(f, v.contents),
   };
 }
 
 function mapPtList<T, S>(f: (arg: T) => S, v: IPtListV<T>): IPtListV<S> {
   return {
     tag: "PtListV",
-    contents: v.contents.map((t) => mapTup2(f, t)),
+    contents: mapTupNested(f, v.contents),
   };
 }
 
@@ -136,7 +169,7 @@ function mapVector<T, S>(f: (arg: T) => S, v: IVectorV<T>): IVectorV<S> {
 function mapTup<T, S>(f: (arg: T) => S, v: ITupV<T>): ITupV<S> {
   return {
     tag: "TupV",
-    contents: mapTup2(f, v.contents),
+    contents: mapTuple(f, v.contents),
   };
 }
 
@@ -170,64 +203,43 @@ function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
   };
 }
 
-function mapPolygon<T, S>(f: (arg: T) => S, v: IPolygonV<T>): IPolygonV<S> {
-  const xs0 = mapTup2LList(f, v.contents[0]);
-  const xs1 = mapTup2LList(f, v.contents[1]);
-  const xs2 = [mapTup2(f, v.contents[2][0]), mapTup2(f, v.contents[2][1])] as [
-    [S, S],
-    [S, S]
-  ];
-  const xs3 = v.contents[3].map((e) => mapTup2(f, e));
-
-  return {
-    tag: "PolygonV",
-    contents: [xs0, xs1, xs2, xs3],
-  };
-}
-
 function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
   if (e.tag === "Pt" || e.tag === "QuadBezJoin") {
     return {
       tag: e.tag,
-      contents: mapTup2(f, e.contents),
+      contents: mapTuple(f, e.contents),
     };
-  } else if (e.tag === "CubicBezJoin" || e.tag === "QuadBez") {
+  } else if (
+    e.tag === "CubicBezJoin" ||
+    e.tag === "QuadBez" ||
+    e.tag === "CubicBez" ||
+    e.tag === "Arc"
+  ) {
     return {
       tag: e.tag,
-      contents: mapTup2((x) => mapTup2(f, x), e.contents),
-    };
-  } else if (e.tag === "CubicBez") {
-    return {
-      tag: e.tag,
-      contents: mapTup3((x) => mapTup2(f, x), e.contents),
-    };
-  } else if (e.tag === "Arc") {
-    const l: [[S, S], [S, S, S], [S, S]] = [
-      // TODO sad :(
-      mapTup2(f, e.contents[0]),
-      mapTup3(f, e.contents[1]),
-      mapTup2(f, e.contents[2]),
-    ];
-    return {
-      tag: e.tag,
-      contents: l,
+      contents: mapTupNested(f, e.contents),
     };
   } else {
     throw Error("unknown tag in bezier curve type conversion");
   }
 }
 
-function mapSubpath<T, S>(f: (arg: T) => S, s: SubPath<T>): SubPath<S> {
-  return {
-    tag: s.tag,
-    contents: s.contents.map((e) => mapElem(f, e)),
-  };
-}
+// function mapSubpath<T, S>(f: (arg: T) => S, s: SubPath<T>): SubPath<S> {
+//   return {
+//     tag: s.tag,
+//     contents: s.contents.map((e) => mapElem(f, e)),
+//   };
+// }
 
 function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
   return {
     tag: "PathDataV",
-    contents: v.contents.map((e) => mapSubpath(f, e)),
+    contents: v.contents.map((e) => {
+      return {
+        tag: e.tag,
+        contents: e.contents.map((elem) => mapElem(f, elem)),
+      };
+    }),
   };
 }
 
@@ -236,13 +248,13 @@ function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
     const rgb = v.contents;
     return {
       tag: "RGBA",
-      contents: mapTup4(f, rgb),
+      contents: mapTuple(f, rgb),
     };
   } else if (v.tag === "HSVA") {
     const hsv = v.contents;
     return {
       tag: "HSVA",
-      contents: mapTup4(f, hsv),
+      contents: mapTuple(f, hsv),
     };
   } else {
     throw Error("unexpected color tag");
@@ -264,6 +276,76 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 }
 
 // Utils for converting types of values
+export class PathCls {
+  private path: IPath<IVarAD>[];
+  constructor() {
+    this.path = [];
+  }
+  moveTo = (x: IVarAD, y: IVarAD) => {
+    this.path.push({
+      cmd: "M",
+      contents: [x, y],
+    });
+  };
+  closePath = () => {
+    this.path.push({
+      cmd: "Z",
+      contents: [],
+    });
+  };
+  lineTo = (x: IVarAD, y: IVarAD) => {
+    this.path.push({
+      cmd: "L",
+      contents: [x, y],
+    });
+  };
+  quadraticCurveTo = (cpx: IVarAD, cpy: IVarAD, x: IVarAD, y: IVarAD) => {
+    this.path.push({
+      cmd: "Q",
+      contents: [cpx, cpy, x, y],
+    });
+  };
+  bezierCurveTo = (
+    cpx1: IVarAD,
+    cpy1: IVarAD,
+    cpx2: IVarAD,
+    cpy2: IVarAD,
+    x: IVarAD,
+    y: IVarAD
+  ) => {
+    this.path.push({
+      cmd: "C",
+      contents: [cpx1, cpy1, cpx2, cpy2, x, y],
+    });
+  };
+  quadraticCurveJoin = (x: IVarAD, y: IVarAD) => {
+    this.path.push({
+      cmd: "T",
+      contents: [x, y],
+    });
+  };
+  cubicCurveJoin = (cpx: IVarAD, cpy: IVarAD, x: IVarAD, y: IVarAD) => {
+    this.path.push({
+      cmd: "S",
+      contents: [cpx, cpy, x, y],
+    });
+  };
+  arcTo = (
+    x1: IVarAD,
+    y1: IVarAD,
+    rx: IVarAD,
+    ry: IVarAD,
+    x2: IVarAD,
+    y2: IVarAD,
+    [rotation, majorArc, sweep]: IVarAD[]
+  ) => {
+    this.moveTo(x1, y1);
+    this.path.push({
+      cmd: "A",
+      contents: [rx, ry, rotation, majorArc, sweep, x2, y2],
+    });
+  };
+}
 
 // Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
@@ -296,8 +378,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     return mapLList(f, v);
   } else if (v.tag === "HMatrixV") {
     return mapHMatrix(f, v);
-  } else if (v.tag === "PolygonV") {
-    return mapPolygon(f, v);
   } else if (v.tag === "ColorV") {
     return mapColor(f, v);
   } else if (v.tag === "PaletteV") {

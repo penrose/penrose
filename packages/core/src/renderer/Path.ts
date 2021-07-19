@@ -42,13 +42,14 @@ const pathCommandString = (
   command: string,
   pts: [number, number][],
   canvasSize: [number, number]
-) =>
-  command +
-  flatten(
+) => {
+  const ptStr = flatten(
     pts.map((coords: [number, number]) => {
       return toScreen(coords, canvasSize);
     })
   ).join(" ");
+  return `${command} ${ptStr}`;
+};
 
 const fstCmdString = (pathCmd: any, canvasSize: [number, number]) => {
   if (pathCmd.tag === "Pt") {
@@ -76,8 +77,21 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
     .map((subPath: any) => {
       const { tag, contents } = subPath;
-      const subPathStr = toSubPathString(contents, canvasSize);
-      return subPathStr + (tag === "Closed" ? "Z" : "");
+      // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
+      if (!contents || !contents.length) {
+        console.error("WARNING: empty path");
+        return "";
+      }
+      const subPathStr = contents
+        .map((cmd: any, idx: number) => {
+          if (idx === 0 && cmd.tag === "Pt")
+            return `M ${toScreen(cmd.contents, canvasSize).join(" ")}`;
+          return toCmdString(cmd, canvasSize);
+        })
+        .join(" ");
+      const subPathStr2 = toSubPathString(contents, canvasSize);
+      console.log(subPathStr, "2nd", subPathStr2);
+      return `${subPathStr} ${tag === "Closed" ? "Z" : ""}`;
     })
     .join(" ");
 
