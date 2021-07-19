@@ -24,6 +24,7 @@ import seedrandom from "seedrandom";
 import {
   checkAddStmt,
   checkAddStmts,
+  checkDeleteStmt,
   checkReplaceExprName,
   checkSwapExprArgs,
   checkSwapStmtArgs,
@@ -601,6 +602,7 @@ export class Synthesizer {
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
     const chosenName = this.choice(candidates);
     const stmt = this.findStmt(chosenType, chosenName);
+    let possibleOps: Mutation[] = [];
     if (stmt) {
       if (stmt.tag === "Bind" || stmt.tag === "Decl") {
         // if statement returns value, delete all refs to value
@@ -609,10 +611,19 @@ export class Synthesizer {
           // this.cxt.ops.push({ tag: "Delete", stmt: s });
         });
       } else {
-        this.cxt.removeStmt(stmt);
-        // COMBAK: fix
-        // this.cxt.ops.push({ tag: "Delete", stmt });
+        const del = checkDeleteStmt(this.cxt.prog, this.cxt, (cxt) => {
+          // TODO: check if there's really no need to remove ID here?
+          // cxt.removeID(stmt.type.name.value, stmt.name);
+          return stmt;
+        });
+        possibleOps = del ? [del] : [];
       }
+    }
+    if (possibleOps) {
+      log.debug(`Mutations selected for delete:\n${showOps(possibleOps)}`);
+      const newProg: SubProg = executeMutations(this.cxt.prog, possibleOps);
+      this.cxt.ops.concat(possibleOps);
+      this.cxt.updateProg(newProg);
     }
   };
 
@@ -654,10 +665,10 @@ export class Synthesizer {
       // remove list of filtered statements
       toDelete.forEach((stmt) => {
         // remove Identifier from added IDs
-        if (stmt.tag === "Decl") {
-          this.cxt.removeID(stmt.type.name.value, stmt.name);
-        }
-        this.cxt.removeStmt(stmt);
+        // if (stmt.tag === "Decl") {
+        //   this.cxt.removeID(stmt.type.name.value, stmt.name);
+        // }
+        // this.cxt.removeStmt(stmt);
         removedStmts.push(stmt);
       });
     }

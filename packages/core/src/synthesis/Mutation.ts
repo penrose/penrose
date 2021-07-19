@@ -1,4 +1,10 @@
-import { appendStmt, ArgExpr, replaceStmt } from "analysis/SubstanceAnalysis";
+import {
+  appendStmt,
+  ArgExpr,
+  removeStmt,
+  replaceStmt,
+  stmtExists,
+} from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
 import {
@@ -280,6 +286,21 @@ export const checkReplaceExprName = (
         },
       };
     } else return undefined;
+  } else return undefined;
+};
+
+export const checkDeleteStmt = (
+  prog: SubProg,
+  cxt: SynthesisContext,
+  stmt: (cxt: SynthesisContext) => SubStmt
+): Delete | undefined => {
+  const s = stmt(cxt);
+  if (stmtExists(s, prog)) {
+    return {
+      tag: "Delete",
+      stmt: s,
+      mutate: ({ stmt }: Delete, prog) => removeStmt(prog, stmt),
+    };
   } else return undefined;
 };
 

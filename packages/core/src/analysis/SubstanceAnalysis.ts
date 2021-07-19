@@ -393,6 +393,10 @@ export const sortStmts = (prog: SubProg): SubProg => {
   };
 };
 
+// TODO: compare clean nodes instead?
+export const stmtExists = (stmt: SubStmt, prog: SubProg): boolean =>
+  prog.statements.find((s) => isEqual(stmt, s)) !== undefined;
+
 export const cleanNode = (prog: ASTNode): ASTNode => omitDeep(prog, metaProps);
 
 /**
