@@ -242,26 +242,29 @@ export const checkSwapExprArgs = (
 
 export const checkReplaceStmtName = (
   stmt: SubStmt,
-  newName: (p: ApplyPredicate) => string
+  newName: (p: ApplyPredicate) => string | undefined
 ): ReplaceStmtName | undefined => {
   if (stmt.tag === "ApplyPredicate") {
-    return {
-      tag: "ReplaceStmtName",
-      stmt,
-      newName: newName(stmt),
-      mutate: ({ stmt, newName }: ReplaceStmtName, prog) => {
-        return replaceStmt(prog, stmt, {
-          ...stmt,
-          name: dummyIdentifier(newName, "SyntheticSubstance"),
-        });
-      },
-    };
+    const name = newName(stmt);
+    if (name) {
+      return {
+        tag: "ReplaceStmtName",
+        stmt,
+        newName: name,
+        mutate: ({ stmt, newName }: ReplaceStmtName, prog) => {
+          return replaceStmt(prog, stmt, {
+            ...stmt,
+            name: dummyIdentifier(newName, "SyntheticSubstance"),
+          });
+        },
+      };
+    } else return undefined;
   } else return undefined;
 };
 
 export const checkReplaceExprName = (
   stmt: SubStmt,
-  newName: (p: ArgExpr) => string
+  newName: (p: ArgExpr) => string | undefined
 ): ReplaceExprName | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -270,21 +273,24 @@ export const checkReplaceExprName = (
       expr.tag === "ApplyFunction" ||
       expr.tag === "Func"
     ) {
-      return {
-        tag: "ReplaceExprName",
-        stmt,
-        expr,
-        newName: newName(expr),
-        mutate: ({ stmt, expr, newName }: ReplaceExprName, prog) => {
-          return replaceStmt(prog, stmt, {
-            ...stmt,
-            expr: {
-              ...expr,
-              name: dummyIdentifier(newName, "SyntheticSubstance"),
-            },
-          });
-        },
-      };
+      const name = newName(expr);
+      if (name) {
+        return {
+          tag: "ReplaceExprName",
+          stmt,
+          expr,
+          newName: name,
+          mutate: ({ stmt, expr, newName }: ReplaceExprName, prog) => {
+            return replaceStmt(prog, stmt, {
+              ...stmt,
+              expr: {
+                ...expr,
+                name: dummyIdentifier(newName, "SyntheticSubstance"),
+              },
+            });
+          },
+        };
+      } else return undefined;
     } else return undefined;
   } else return undefined;
 };

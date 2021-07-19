@@ -9,6 +9,7 @@ import {
   omit,
   pullAt,
   sortBy,
+  without,
 } from "lodash";
 import { SwapExprArgs, SwapStmtArgs } from "synthesis/Mutation";
 import { ASTNode, Identifier, metaProps } from "types/ast";
@@ -96,7 +97,7 @@ export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => {
   if (index > -1) {
     return {
       ...prog,
-      statements: pullAt(prog.statements, index),
+      statements: without(prog.statements, stmt),
     };
   } else {
     return prog;

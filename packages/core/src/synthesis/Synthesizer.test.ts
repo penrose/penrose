@@ -1,3 +1,4 @@
+import { removeStmt } from "analysis/SubstanceAnalysis";
 import { compileDomain } from "compiler/Domain";
 import {
   compileSubstance,
@@ -5,8 +6,13 @@ import {
   prettySubstance,
 } from "compiler/Substance";
 import { Env } from "types/domain";
-import { Decl } from "types/substance";
-import { Synthesizer, SynthesizerSetting } from "./Synthesizer";
+import { Decl, SubStmt } from "types/substance";
+import { Delete, executeMutation, executeMutations, showOps } from "./Mutation";
+import {
+  cascadingDelete,
+  Synthesizer,
+  SynthesizerSetting,
+} from "./Synthesizer";
 
 const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 1],
@@ -75,8 +81,13 @@ Set D`;
     synth.cxt.loadTemplate();
     const toDelete = synth.cxt.prog.statements[0] as Decl;
     expect("Set A").toEqual(prettyStmt(toDelete));
-    synth.cascadingDelete(toDelete);
-    const newAST = synth.cxt.prog;
+    const cascadedStmts: SubStmt[] = cascadingDelete(toDelete, synth.cxt.prog);
+    const ops: Delete[] = cascadedStmts.map((stmt) => ({
+      tag: "Delete",
+      stmt,
+      mutate: ({ stmt }: Delete, prog) => removeStmt(prog, stmt),
+    }));
+    const newAST = executeMutations(synth.cxt.prog, ops);
     expect(prettySubstance(newAST)).toEqual(expected);
   });
 });
