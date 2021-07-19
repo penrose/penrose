@@ -1,0 +1,9 @@
+Point J, K, L, P, m
+Triangle JKL := MkTriangle(J, K, L)
+Incenter(P, JKL)
+Segment KL := MkSegment(K, L)
+m := MkMidpoint(KL)
+Triangle PLM := MkTriangle(P, L, m)
+Angle PML := InteriorAngle(P, m, L)
+RightMarked(PML)
+AutoLabel All

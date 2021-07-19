@@ -1,0 +1,13 @@
+-- Point J, K, L, M, N
+Point p, q, r, s
+Quadrilateral JKLM := MkQuadrilateral(p, q, r, s)
+Parallelogram(JKLM)
+-- Segment JK := MkSegment(J, K)
+-- Segment LM := MkSegment(L, M)
+-- Segment KM := MkSegment(K, M)
+-- Segment JL := MkSegment(J, L)
+-- Midpoint(JL, N)
+-- Midpoint(KM, N)
+-- ParallelMarker1(JK, LM)
+-- Parallel(JK, LM)
+AutoLabel All

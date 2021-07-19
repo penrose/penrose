@@ -2,8 +2,8 @@
 type Point
 
 type Linelike
--- type Ray
--- type Line
+type Ray
+type Line
 type Segment
 
 type Angle
@@ -12,6 +12,7 @@ type Arc
 type Triangle
 -- type Square
 type Rectangle
+type Quadrilateral
 type Circle
 
 type Plane
@@ -19,9 +20,10 @@ type Plane
 -- TOOD: fix my syntax highlighting
 
 -- Subtypes. Should Linelike be a typeclass?
--- Ray <: Linelike
--- Line <: Linelike
--- Segment <: Linelike
+Ray <: Linelike
+Line <: Linelike
+Segment <: Linelike
+Rectangle <: Quadrilateral
 -- Square <: Rectangle
 
 -- Point <: Set
@@ -35,8 +37,8 @@ type Plane
 
 -- TODO: rename to MakeSegment and MakeTriangle (etc.) everywhere
 constructor MkSegment : Point p * Point q -> Segment
-constructor MkRay : Point base * Point direction -> Linelike
-constructor MkLine : Point p * Point q -> Linelike
+constructor MkRay : Point base * Point direction -> Ray
+constructor MkLine : Point p * Point q -> Line
 
 -- constructor InteriorAngle : Linelike l * Linelike m -> Angle
 constructor InteriorAngle : Point p * Point q * Point r -> Angle
@@ -49,26 +51,28 @@ constructor MkCircleD : Point diam1 * Point diam2 -> Circle
 -- constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
 -- constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
+constructor MkQuadrilateral : Point p * Point q * Point r * Point s -> Quadrilateral
+constructor MkMidpoint : Linelike l -> Point
 
 -- -- TODO: subtyping on the return types
--- function Midpoint : Linelike -> Point
--- function Bisector : Angle -> Ray
+function Bisector : Angle -> Segment
 -- function PerpendicularBisector : Linelike -> Ray
 -- function Sum : Angle * Angle -> Angle
 -- function Intersection : Linelike * Linelike -> Point
 -- function Altitude : Triangle * Angle -> Segment
 -- function Endpoint : Segment -> Point
+function MidSegment : Triangle * Point * Point -> Segment
 
-predicate Acute : Angle
-predicate Obtuse : Angle
-predicate Right : Angle
--- predicate On : Point * Linelike
+-- predicate Acute : Angle
+-- predicate Obtuse : Angle
+predicate On : Point * Linelike
 predicate In : Point * Plane
 predicate Not : Prop
--- predicate Parallel : Linelike * Linelike
+predicate ParallelMarker1 : Linelike * Linelike
 -- predicate Perpendicular : Linelike * Linelike
 -- predicate EquilateralT : Triangle
 -- predicate RightT : Triangle
+predicate Midpoint : Linelike * Point
 predicate Scalene : Triangle
 predicate Similar : Triangle * Triangle
 predicate Collinear : Point * Point * Point
@@ -82,6 +86,10 @@ predicate EqualAngle : Angle * Angle
 predicate EqualLength : Segment * Segment 
 predicate RightMarked : Angle
 predicate RightUnmarked : Angle
+predicate Supplementary : Angle -- TODO fix implementation
+predicate Parallel : Linelike * Linelike
+predicate Incenter : Point * Triangle
+predicate Parallelogram : Quadrilateral
 
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"

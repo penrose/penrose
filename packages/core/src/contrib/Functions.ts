@@ -19,6 +19,7 @@ import {
   sqrt,
   squared,
   sub,
+  variableAD,
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
@@ -430,6 +431,21 @@ export const compDict = {
     };
   },
   /**
+   * Return a point located at the midpoint of a line `s1`
+   */
+  midpoint: ([t1, s1]: [string, any]): IVectorV<VarAD> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      const [start, end] = linePts(s1);
+      const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      return {
+        tag: "VectorV", // TODO what is the difference between returning a vector and a tuple?
+        contents: toPt(midpointLoc),
+      };
+    } else {
+      throw Error(`unsupported shape ${t1} in midpoint`);
+    }
+  },
+  /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
   midpointOffset: ([t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
@@ -444,7 +460,31 @@ export const compDict = {
         contents: toPt(midpointOffsetLoc),
       };
     } else {
-      throw Error("unsupported shape ${t1} in midpointOffset");
+      throw Error(`unsupported shape ${t1} in midpointOffset`);
+    }
+  },
+  chevron: (
+    [t1, s1]: [string, any],
+    padding: VarAD,
+    ticks: VarAD
+  ): IPtListV<VarAD> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      const [start, end] = linePts(s1);
+      const dir = ops.vnormalize(ops.vsub(end, start));
+      const startDir = ops.vrot(dir, varOf(135));
+      const endDir = ops.vrot(dir, varOf(225));
+      const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      // if even, evenly divide tick marks about center. if odd, start in center and move outwards
+      return {
+        tag: "PtListV",
+        contents: [
+          ops.vmove(center, padding, startDir),
+          center,
+          ops.vmove(center, padding, endDir),
+        ].map(toPt),
+      };
+    } else {
+      throw Error(`unsupported shape ${t1} in chevron`);
     }
   },
   /**

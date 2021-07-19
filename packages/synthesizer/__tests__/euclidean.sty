@@ -68,8 +68,8 @@ Plane p {
   -- inner: #f3f4f9, outer: #8e93c4
   p.icon = Rectangle {
     -- angle : 0.0
-    --color : Colors.verylightpurple
-    color : Colors.none -- TODO: arrange angle markers so plane can be opaque
+    color : Colors.purple2
+    -- color : Colors.none -- TODO: arrange angle markers so plane can be opaque
     strokeColor : Colors.purple3
     strokeWidth : 2.0
     center : (0.0, 0.0)
@@ -124,15 +124,89 @@ where Collinear(p, q, r) {
 --  encourage equal(vdist(q.vec, p.vec), vdist(r.vec,q.vec))
 }
 
+--Linelike
+Linelike l {
+  l.color = Colors.black
+
+  l.icon = Line {
+    start : ?
+    end : ?
+    color : l.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+}
+
+Ray r
+where r := MkRay(base, direction)
+with Point base; Point direction {
+  r.vec = (direction.x - base.x, direction.y - base.y)
+
+  override r.icon = Line {
+    start : base.icon.center
+    end : ptOnLine(base.vec, direction.vec, norm(r.vec) + 40.)
+    color : r.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+    arrowheadStyle: "arrowhead-2"
+    rightArrowhead : true
+    leftArrowhead : false
+    arrowheadSize: const.arrowheadSize
+  }
+
+}
+
+Line l
+where l := MkLine(p, q)
+with Point p; Point q {
+  l.vec = (q.x - p.x, q.y - p.y)
+  override l.icon = Line {
+    start : ptOnLine(p.vec,q.vec, -40.)
+    end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
+    color : l.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+    arrowheadStyle: "arrowhead-2"
+    rightArrowhead : true
+    leftArrowhead : true
+    arrowheadSize: const.arrowheadSize
+  }
+}
+
+Linelike l1, l2 -- should this work with rays and lines?
+where ParallelMarker1(l1, l2) {
+  l1.tick1 = Path {
+    pathData : pathFromPoints("open", chevron(l1.icon, 20., 1))
+    strokeWidth : 2.0
+    color : Colors.black
+    fill : Colors.none
+  }
+  l2.tick1 = Path {
+    pathData : pathFromPoints("open", chevron(l2.icon, 20., 1))
+    strokeWidth : 2.0
+    color : Colors.black
+    fill : Colors.none
+  }
+}
+
+Linelike l1, l2
+where Parallel(l1, l2) {
+  -- make slopes 
+  l1s = (l1.icon.end[1]-l1.icon.start[1])/(l1.icon.end[0]-l1.icon.start[0]) * 10000
+  l2s = (l2.icon.end[1]-l2.icon.start[1])/(l2.icon.end[0]-l2.icon.start[0]) * 10000
+  ensure equal(l1s, l2s)
+  -- encourage equal(abs(normalize(l1.vec))-l1.icon.start, abs(normalize(l2.vec))-l2.icon.start)
+}
 --Segment
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
-     e.vec = [q.x - p.x, q.y - p.y]
+     override e.vec = [q.x - p.x, q.y - p.y]
 
-     e.color = Colors.black
-
-     e.icon = Line {
+     override e.icon = Line {
        start : p.icon.center
        end : q.icon.center
 	     color : e.color
@@ -222,6 +296,7 @@ where EqualLengthMarker2(s, t) {
   t.tick2 above t.icon
 }
 
+-- TODO
 Segment s, t 
 where EqualLengthMarker3(s, t) {
   --need slope of line, then need to equally distribute the tick marks
@@ -379,12 +454,12 @@ where EqualAngleMarker2(a, b) {
 }
 Angle a, b
 where EqualAngleMarker3(a, b) {
-  startA = angleMarker(a.q, a.p, a.radius)
-  endA = angleMarker(a.q, a.r, a.radius)
+  startA = ptOnLine(a.q, a.p, a.radius)
+  endA = ptOnLine(a.q, a.r, a.radius)
   sweepA = arcSweepFlag(a.q, startA, endA)
 
-  startB = angleMarker(b.q, b.p, b.radius)
-  endB = angleMarker(b.q, b.r, b.radius)
+  startB = ptOnLine(b.q, b.p, b.radius)
+  endB = ptOnLine(b.q, b.r, b.radius)
   sweepB = arcSweepFlag(b.q, startB, endB)
 
   override a.mark = Path {
@@ -401,31 +476,31 @@ where EqualAngleMarker3(a, b) {
  }
 
   midR = const.bigThetaRadius
-  startAbig = angleMarker(a.q, a.p, midR)
-  endAbig = angleMarker(a.q, a.r, midR)
+  startAmid = ptOnLine(a.q, a.p, midR)
+  endAmid = ptOnLine(a.q, a.r, midR)
 
-  startBbig = angleMarker(b.q, b.p, midR)
-  endBbig = angleMarker(b.q, b.r, midR)
+  startBmid = ptOnLine(b.q, b.p, midR)
+  endBmid = ptOnLine(b.q, b.r, midR)
 
   override a.mark2 = Path {
-    pathData : arc("open", startAbig, endAbig, (midR, midR), 0, 0, sweepA)
+    pathData : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
     strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
   override b.mark2 = Path {
-    pathData : arc("open", startBbig, endBbig, (midR, midR), 0, 0, sweepB)
+    pathData : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
     strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
 
-  bigR = const.bigThetaRadius + 20.
-  startAbig = angleMarker(a.q, a.p, bigR)
-  endAbig = angleMarker(a.q, a.r, bigR)
+  bigR = const.bigThetaRadius + 10.
+  startAbig = ptOnLine(a.q, a.p, bigR)
+  endAbig = ptOnLine(a.q, a.r, bigR)
 
-  startBbig = angleMarker(b.q, b.p, bigR)
-  endBbig = angleMarker(b.q, b.r, bigR)
+  startBbig = ptOnLine(b.q, b.p, bigR)
+  endBbig = ptOnLine(b.q, b.r, bigR)
 
   override a.mark3 = Path {
     pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
@@ -466,8 +541,9 @@ where RightMarked(a) {
   ensure equal(dot(a.p - a.q, a.r - a.q), 0)
 }
 
-Segment e; Plane p {
-  e.icon above p.icon
+Angle a
+where Supplementary(a) {
+  ensure inRange(dot(a.p - a.q, a.r - a.q), 0., 1.)
 }
 
 Triangle t; Plane P 
@@ -508,31 +584,132 @@ with Point p; Point q; Point r {
      }
 }
 
+Point p
+where Incenter(p, T)
+with Triangle T {
+  
+}
+
 --Rectangle
 -- -- Should the rectangle be constructed from the points, or vice versa?
 Rectangle R
-where R := MkRectangle(p, q, r, s); In(p, P)
-with Point p; Point q; Point r; Point s; Plane P  {
-  override R.color = setOpacity(Colors.blue, 0.2)
+where R := MkRectangle(p, q, r, s)
+with Point p; Point q; Point r; Point s {
+  override R.color = Colors.none
+  override R.icon = Path {
+      pathData : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
+      strokeWidth : const.strokeWidth
+      fill : R.color
+      color : Colors.black
+    }
+  ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
+  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
 
-  R.icon = Path {
-    pathData : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
-    strokeWidth : const.strokeWidth
-    fill : R.color
-    color : Colors.black
+  ensure equal(dot(p.icon.center - q.icon.center, q.icon.center - r.icon.center), 0)
+  ensure equal(dot(q.icon.center - s.icon.center, s.icon.center - r.icon.center), 0)
+
+  -- R.icon above P.icon
+}
+
+Quadrilateral Q
+where Q := MkQuadrilateral(p, q, r, s)
+with Point p; Point q; Point r; Point s {
+  override Q.color = Colors.black
+  Q.side1 = Line {
+    start : p.icon.center
+    end : q.icon.center
+    color : Q.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
   }
+  Q.side2 = Line {
+    start : r.icon.center
+    end : q.icon.center
+    color : Q.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  Q.side3 = Line {
+    start : s.icon.center
+    end : r.icon.center
+    color : Q.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  Q.side4 = Line {
+    start : p.icon.center
+    end : s.icon.center
+    color : Q.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }  
+}
+
+--TODO broken as well lol
+Quadrilateral Q
+where Parallelogram(Q) {
+  pq = (Q.side1.end[1]-Q.side1.start[1])/(Q.side1.end[0]-Q.side1.start[0]) * 10000
+  rs = (Q.side3.end[1]-Q.side3.start[1])/(Q.side3.end[0]-Q.side3.start[0]) * 10000
+
+  qr = (Q.side2.end[1]-Q.side2.start[1])/(Q.side2.end[0]-Q.side2.start[0]) * 10000
+  ps = (Q.side4.end[1]-Q.side4.start[1])/(Q.side4.end[0]-Q.side4.start[0]) * 10000
 
   ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
   ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
-  ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
-  ensure equal(dot(p.icon.center - q.icon.center, q.icon.center - r.icon.center), 0)
-  ensure equal(dot(q.icon.center - r.icon.center, r.icon.center - s.icon.center), 0)
-  -- ensure lessThan(10.0, norm(p.icon.center - q.icon.center))
-  -- ensure lessThan(10.0, norm(q.icon.center - r.icon.center))
-
-  R.icon above P.icon
+  ensure equal(pq, rs)
+  -- ensure equal(qr, ps)
 }
 
+--FUNCTIONS
+Segment s
+where s := MidSegment(T, p, q)
+with Triangle T; Point p; Point q {
+  override p.vec = midpoint(T.side1)
+  override q.vec = midpoint(T.side3)
+  override s.icon = Line {
+    start : p.icon.center
+    end : q.icon.center
+    color : s.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+}
+
+Point p
+where p := MkMidpoint(l)
+with Linelike l {
+  override p.vec = midpoint(l.icon)
+}
+
+Point p
+where Midpoint(l, p)
+with Linelike l {
+  ensure equal(vdist(p.icon.center, l.icon.start), vdist(p.icon.center, l.icon.end))
+}
+
+-- TODO broken
+Segment s
+where s := Bisector(a)
+with Angle a {
+  end = (?, ?)
+  override s.icon = Line {
+    start : a.side2.start
+    end :  a.side1.end
+    color : Colors.black
+    thickness : 2.0
+    stroke : "none"
+    style : "solid"
+  }
+  dotA = dot(normalize(a.p - a.q), normalize(a.p - a.r))
+  dotB = dot(normalize(a.p - a.r), normalize(a.r - a.q))
+  ensure equal(dotA, dotB)
+  ensure equal(a.p - a.r + a.q, s.icon.end)
+}
 
 -- -- We don't know if the points in the triangle actually include the points in the square or not
 -- -- TODO: this doesn't seem to match -- and the matches take way too long!!

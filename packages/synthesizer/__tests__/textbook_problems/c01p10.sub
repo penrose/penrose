@@ -1,0 +1,19 @@
+Point M, N, Q, P
+-- Rectangle r := MkRectangle(M, N, P, Q)
+Segment NQ := MkSegment(N, Q)
+Angle QMN := InteriorAngle(Q, M, N)
+Angle QPN := InteriorAngle(Q, P, N)
+RightMarked(QMN)
+RightMarked(QPN)
+-- -- optionally, add all of the tick marks, but you also need to declare each segment of the rectangle
+-- --ALTERNATIVELY: express rectangle as series of segments so that deletions are simpler
+Segment MN := MkSegment(M, N)
+Segment MQ := MkSegment(M, Q)
+Segment QP := MkSegment(Q, P)
+Segment PN := MkSegment (P, N)
+-- Segment NQ := MkSegment(N, Q)
+-- Angle QMN := InteriorAngle(Q, M, N)
+-- Angle NPQ := InteriorAngle(N, Q, P)
+-- RightMarked(QMN)
+-- RightMarked(NQP)
+AutoLabel All

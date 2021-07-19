@@ -19,4 +19,10 @@ EqualAngleMarker2(a3, a4)
 EqualAngle(a3, a4)
 EqualLength(s1, s2)
 EqualLengthMarker1(s1, s2)
+-- should become
+-- Triangle ABC := MkTriangle(A, B, C)
+-- Triangle DCE := MkTriangle(C, D, E)
+-- EqualLengthMarker1(AC, BC)
+-- EqualAngleMarker1(aABC, aBAC)
+-- EqualAngleMarker2(aDCE, aCED)
 AutoLabel All
