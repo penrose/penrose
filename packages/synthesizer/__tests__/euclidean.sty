@@ -650,7 +650,7 @@ with Point p; Point q; Point r; Point s {
   }  
 }
 
---TODO broken as well lol
+--TODO corner case shoves points far off canvas
 Quadrilateral Q
 where Parallelogram(Q) {
   pq = (Q.side1.end[1]-Q.side1.start[1])/(Q.side1.end[0]-Q.side1.start[0]) * 10000
@@ -659,12 +659,18 @@ where Parallelogram(Q) {
   qr = (Q.side2.end[1]-Q.side2.start[1])/(Q.side2.end[0]-Q.side2.start[0]) * 10000
   ps = (Q.side4.end[1]-Q.side4.start[1])/(Q.side4.end[0]-Q.side4.start[0]) * 10000
 
+  -- make opposite sides same length
   ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
   ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
+
+  -- make opposite sides have parallel
   ensure equal(pq, rs)
   ensure equal(qr, ps)
-  ensure lessThan(0, vdist(p.icon.center, q.icon.center) * vdist(r.icon.center, s.icon.center))
-  -- ensure inRange(dot(Q.side1.end - Q.side1.start, Q.side2.start - Q.side2.end), 0.2, .9)
+
+  -- area must be at least a certain size
+  v1 = Q.side1.end-Q.side1.start
+  v2 = Q.side2.start-Q.side2.end
+  ensure lessThan(10000, (v1[0]*v2[1])-(v1[1]*v2[0])) -- 2D cross product
 }
 
 --FUNCTIONS
