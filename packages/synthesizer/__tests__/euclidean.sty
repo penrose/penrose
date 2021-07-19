@@ -218,8 +218,8 @@ with Point p; Point q {
      p.icon above e.icon
      q.icon above e.icon
 
-    --  encourage repel(e.icon, p.text, const.repelWeight)
-    --  encourage repel(e.icon, q.text, const.repelWeight)
+     encourage pointLineDist(p.text.center, e.icon, 30.)
+     encourage pointLineDist(q.text.center, e.icon, 30.)
 
     --  e.icon above const.plane
 }
@@ -381,6 +381,7 @@ with Point p; Point q; Point r {
     style : "solid"
   }
   theta.radius = const.thetaRadius
+  encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
 }
 
 Angle a, b
