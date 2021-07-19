@@ -401,7 +401,7 @@ const checkDeclPatternsAndMakeEnv = (
 
 /**
  * Helper fxn for checking well-formedness of selectors with predicate aliases
- * @param m : Map<string, any>
+ * @param m : Map<string, any> (only the keys of the map are used)
  */
 const getKeyWordsFromMap = (m: any): string[] => {
   let keywords: string[] = [];
@@ -511,9 +511,6 @@ const checkRelPattern = (
 
     return [];
   } else if (rel.tag === "RelPred") {
-    // rule Pred-Context
-    // G |- Q : Prop
-
     if (
       rel.alias &&
       aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
@@ -521,6 +518,8 @@ const checkRelPattern = (
       return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
     }
 
+    // rule Pred-Context
+    // G |- Q : Prop
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
       const subErr3: SubstanceError = res.error;
