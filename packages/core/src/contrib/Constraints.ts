@@ -617,6 +617,7 @@ export const constrDict = {
    * Require that the value `x` is less than the value `y` with optional offset `padding`
    */
   lessThan: (x: VarAD, y: VarAD, padding = 0) => {
+    console.log(x, y);
     return add(sub(x, y), constOfIf(padding));
   },
 

@@ -661,7 +661,9 @@ where Parallelogram(Q) {
   ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
   ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
   ensure equal(pq, rs)
-  -- ensure equal(qr, ps)
+  ensure equal(qr, ps)
+  ensure lessThan(0, vdist(p.icon.center, q.icon.center) * vdist(r.icon.center, s.icon.center))
+  -- ensure inRange(dot(Q.side1.end - Q.side1.start, Q.side2.start - Q.side2.end), 0.2, .9)
 }
 
 --FUNCTIONS
