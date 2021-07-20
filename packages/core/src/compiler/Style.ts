@@ -66,6 +66,7 @@ import {
   RelationPattern,
   RelBind,
   RelPred,
+  SEBind,
   Selector,
   SelExpr,
   Stmt,
@@ -106,11 +107,6 @@ import {
 import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
-
-import {
-  addRelPredAliasSubsts,
-  aliasConflictsWithDomainOrSelectorKeyword,
-} from "./Aliasing";
 
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
@@ -214,7 +210,7 @@ export function foldM<A, B, C>(
   return resW;
 }
 
-export function justs<T>(xs: MaybeVal<T>[]): T[] {
+function justs<T>(xs: MaybeVal<T>[]): T[] {
   return xs
     .filter((x) => x.tag === "Just")
     .map((x) => {
@@ -225,7 +221,7 @@ export function justs<T>(xs: MaybeVal<T>[]): T[] {
     });
 }
 
-export const safeContentsList = (x: any) => (x ? x.contents : []);
+const safeContentsList = (x: any) => (x ? x.contents : []);
 
 const toString = (x: BindingForm): string => x.contents.value;
 
@@ -403,6 +399,69 @@ const checkDeclPatternsAndMakeEnv = (
   );
 };
 
+/**
+ * Helper fxn for checking well-formedness of selectors with predicate aliases
+ * @param m : Map<string, any> (only the keys of the map are used)
+ */
+const getKeyWordsFromMap = (m: any): string[] => {
+  let keywords: string[] = [];
+  const iterator = m.keys();
+  for (let i = 0; i < m.size; i++) {
+    keywords.push(iterator.next().value);
+  }
+  return keywords;
+};
+
+/**
+ * Helper fxn for checking that predicate alias names don't conflict with
+ * existing domain keywords
+ *
+ * Returns a list of domain keywords that the aliases cannot match
+ */
+const getDomainKeywords = (varEnv: Env): string[] => {
+  const keyWordMaps = [
+    varEnv.types,
+    varEnv.functions,
+    varEnv.predicates,
+    varEnv.constructors,
+    varEnv.constructorsBindings,
+  ];
+
+  const keywords = _.flatMap(keyWordMaps, getKeyWordsFromMap);
+
+  const subtypeKeywords = varEnv.subTypes.map(([t1, t2]) => {
+    return t1.name.value;
+  });
+
+  return keywords.concat(subtypeKeywords);
+};
+
+/**
+ * Helper fxn for checking that predicate alias names don't conflict with
+ * existing selector style variable names
+ *
+ * Returns a list of selector keywords that the aliases cannot match
+ */
+const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
+  return Object.keys(selEnv.sTypeVarMap);
+};
+
+/**
+ * Checks for if an alias name conflicts with domain or selector keywords
+ */
+const aliasConflictsWithDomainOrSelectorKeyword = (
+  alias: Identifier,
+  varEnv: Env,
+  selEnv: SelEnv
+): boolean => {
+  const domainKeywords = getDomainKeywords(varEnv);
+  const selectorKeywords = getSelectorStyVarNames(selEnv);
+  return (
+    domainKeywords.includes(alias.value) ||
+    selectorKeywords.includes(alias.value)
+  );
+};
+
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
 const checkRelPattern = (
@@ -411,7 +470,6 @@ const checkRelPattern = (
   rel: RelationPattern
 ): StyleErrors => {
   // rule Bind-Context
-  // console.log(varEnv.varIDs)
   if (rel.tag === "RelBind") {
     // TODO: use checkSubStmt here (and in paper)?
     // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
@@ -453,9 +511,6 @@ const checkRelPattern = (
 
     return [];
   } else if (rel.tag === "RelPred") {
-    // rule Pred-Context
-    // G |- Q : Prop
-
     if (
       rel.alias &&
       aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
@@ -463,6 +518,8 @@ const checkRelPattern = (
       return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
     }
 
+    // rule Pred-Context
+    // G |- Q : Prop
     const res = checkPredicate(toSubPred(rel), varEnv);
     if (isErr(res)) {
       const subErr3: SubstanceError = res.error;
@@ -628,6 +685,126 @@ const couldMatchRels = (
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
   return true;
+};
+
+/**
+ * Helper fxn for @function isValidRelSubst.
+ *
+ * Determines if all the variables in @param sebind
+ * exist as valid keys in @param subst.
+ */
+const sebindExistsInSubst = (sebind: SEBind, subst: Subst): boolean => {
+  if (sebind.contents.tag !== "StyVar") {
+    throw new Error("expected sty var");
+  }
+  const validKeywords = Object.keys(subst);
+  return validKeywords.includes(sebind.contents.contents.value);
+};
+
+/**
+ * Helper fxn for @function isValidRelSubst.
+ *
+ * Determines if all the variables in @param expr
+ * exist as valid keys in @param subst.
+ */
+const selExprExistsInSubst = (expr: SelExpr, subst: Subst): boolean => {
+  if (expr.tag === "SEBind") {
+    return sebindExistsInSubst(expr, subst);
+  } else if (expr.tag === ("SEFunc" || "SEValCons" || "SEFuncOrValCons")) {
+    return expr.args.every((arg) => selExprExistsInSubst(arg, subst));
+  } else throw new Error("unknown tag");
+};
+
+/**
+ * Helper fxn for @function isValidRelSubst.
+ *
+ * Determines if all the variables in @param arg
+ * exist as valid keys in @param subst.
+ */
+const predArgExistsInSubst = (arg: PredArg, subst: Subst): boolean => {
+  if (arg.tag === "RelPred") {
+    return isValidRelSubst(subst, arg);
+  } else if (arg.tag === "SEBind") {
+    return sebindExistsInSubst(arg, subst);
+  } else throw new Error("unknown tag");
+};
+
+/**
+ * Determines if all the variables in @param rel exist as valid
+ * keys in @param subst.
+ *
+ * Ex, IsSubset(x,y) must have 'x' and 'y' exist as keys in @param subst
+ * for the relation to be valid.
+ */
+const isValidRelSubst = (subst: Subst, rel: RelationPattern): boolean => {
+  if (rel.tag === "RelPred") {
+    return rel.args.every((arg) => predArgExistsInSubst(arg, subst));
+  } else if (rel.tag === "RelBind") {
+    return false; // these don't have aliases
+  } else {
+    throw new Error("unknown tag");
+  }
+};
+
+/**
+ * Helper fxn for @function getRelPredAliasInstanceName
+ *
+ * Returns the substitution for a bindingform
+ */
+const getBindingFormAliasInstanceName = (
+  bf: BindingForm,
+  subst: Subst
+): string => {
+  if (bf.tag === "SubVar") {
+    return bf.contents.value;
+  } else if (bf.tag === "StyVar") {
+    return subst[bf.contents.value];
+  } else throw new Error("unknown tag");
+};
+
+/**
+ * Returns the substitution for a predicate alias
+ */
+// IsSubset(B,A) --> `IsSubset_B_A`
+// IsSubset(Union(B,C),A) --> `IsSubset_Union_B_C_A`
+// TODO: this can be refactored for a more descriptive name for nested cases
+// TODO: adding parentheses into the strings messes with GPIs sometimes?
+const getRelPredAliasInstanceName = (
+  relPred: RelPred,
+  subst: Subst
+): string => {
+  let name = relPred.name.value;
+  for (let arg of relPred.args) {
+    if (arg.tag === "RelPred") {
+      name = name.concat("_").concat(getRelPredAliasInstanceName(arg, subst));
+    } else if (arg.tag === "SEBind") {
+      name = name
+        .concat("_")
+        .concat(getBindingFormAliasInstanceName(arg.contents, subst));
+    } else throw new Error("unknown tag");
+  }
+  return name;
+};
+
+/**
+ * Adds predicate alias substitutions to an existing valid subst
+ * @param subst a valid substitution for a given style selector
+ * @param rels a list of relations for the same style selector
+ */
+const addRelPredAliasSubsts = (
+  subst: Subst,
+  rels: RelationPattern[]
+): Subst => {
+  subst = { ...subst }; // a shallow copy
+
+  // only consider valid predicates in context of each subst
+  for (let rel of rels) {
+    if (rel.tag === "RelPred" && rel.alias && isValidRelSubst(subst, rel)) {
+      subst[rel.alias.value] = getRelPredAliasInstanceName(rel, subst);
+    }
+  }
+
+  return subst;
 };
 
 //#region (subregion? TODO fix) Applying a substitution
@@ -1226,7 +1403,7 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 
 // Judgment 11. b; theta |- S <| |S_r
 // After all Substance variables from a Style substitution are substituted in, check if
-export const relMatchesLine = (
+const relMatchesLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   s1: SubStmt,
@@ -1290,7 +1467,7 @@ const allRelsMatch = (
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 // Folds over [theta]
-export const filterRels = (
+const filterRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg,
@@ -1319,7 +1496,7 @@ const combine = (s1: Subst, s2: Subst): Subst => {
 // TODO check for duplicate keys (and vals)
 // (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
 // the way merge is used, I think each subst in the second argument only contains one mapping
-export const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
+const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
   if (s2.length === 0) {
     return s1;
   }
@@ -1408,12 +1585,14 @@ const matchDecl = (
   );
   const res = merge(initSubsts, justs(newSubsts)); // TODO inline
   // COMBAK: Inline this
+  // console.log("substs to combine:", initSubsts, justs(newSubsts));
+  // console.log("res", res);
   return res;
 };
 
 // Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 // Folds over [|S_o]
-export const matchDecls = (
+const matchDecls = (
   varEnv: Env,
   subProg: SubProg,
   decls: DeclPattern[],
@@ -2000,6 +2179,7 @@ const translatePair = (
       };
     }
 
+    // For creating unique local var names
     const substs = findSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv]);
 
     return translateSubstsBlock(trans, numbered(substs), [hb.block, blockNum]);
@@ -2085,7 +2265,6 @@ const translateStyProg = (
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
 
-  // fold each headerblock into the translation
   const res = foldM(
     styProg.blocks,
     (trans, hb, i) => translatePair(varEnv, subEnv, subProg, trans, hb, i),

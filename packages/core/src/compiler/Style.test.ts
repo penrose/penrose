@@ -300,6 +300,113 @@ describe("Compiler", () => {
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
 
+  describe("Correct style programs with predicate aliasing", () => {
+    const domainProg = "type Set\npredicate IsSubset : Set s1 * Set s2";
+    const subProg = "Set A\nSet B\nSet C\nIsSubset(B,A)\nIsSubset(C,B)";
+    // TODO: Name these programs
+    const styProgs = [
+      // These are mostly to test setting shape properties as vectors or accesspaths
+      `Set x; Set y where IsSubset(x,y) as foo {}
+`,
+      `Set x; Set y where IsSubset(x,y) as foo {
+  foo.icon = Circle{}
+}`,
+      `Set a; Set b where IsSubset(a,b) as foo {
+  foo.icon = Square{}
+}
+
+Set u; Set v where IsSubset(u,v) as bar {
+  bar.icon2 = Ellipse{}
+}
+`,
+      `Set x; Set y where IsSubset(x,y) as foo {
+  foo.arrow = Arrow { thickness : 2.0 }
+}
+Set A; Set B where IsSubset(A,B) as bar {
+  override bar.arrow.thickness = 1.5
+}
+`,
+      `canvas {
+  override width = 500.0
+}`,
+    ];
+
+    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+
+    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+      (env) => compileSubstance(subProg, env),
+      domainRes
+    );
+
+    // specific tests
+    for (let i = 0; i < styProgs.length; i++) {
+      const styProg = styProgs[i];
+      const styRes: Result<State, PenroseError> = andThen(
+        (res) => S.compileStyle(canvasPreamble + styProg, ...res),
+        subRes
+      );
+
+      if (!styRes.isOk()) {
+        fail(
+          `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+        );
+      } else {
+        const initialState = styRes.value;
+        const existsInTr = (str: string) => {
+          return Object.keys(initialState.translation.trMap).includes(str);
+        };
+        const existsInNamedObj = (name: string, field: string) => {
+          return Object.keys(initialState.translation.trMap[name]).includes(
+            field
+          );
+        };
+        if (i === 1) {
+          expect(["IsSubset_B_A", "IsSubset_C_B"].every(existsInTr)).toBe(true);
+        } else if (i === 2) {
+          test("aliased keys exist", () => {
+            expect(["IsSubset_B_A", "IsSubset_C_B"].every(existsInTr)).toBe(
+              true
+            );
+          });
+          test("all fields exist", () => {
+            expect(
+              [
+                ["IsSubset_B_A", "icon"],
+                ["IsSubset_B_A", "icon2"],
+                ["IsSubset_C_B", "icon"],
+                ["IsSubset_C_B", "icon2"],
+              ].every(([name, field]) => existsInNamedObj(name, field))
+            ).toBe(true);
+          });
+        } else if (i === 3) {
+          test("aliased keys exist", () => {
+            expect(["IsSubset_B_A", "IsSubset_C_B"].every(existsInTr)).toBe(
+              true
+            );
+          });
+          test("arrow field exists", () => {
+            expect(
+              [
+                ["IsSubset_B_A", "arrow"],
+                ["IsSubset_C_B", "arrow"],
+              ].every(([name, field]) => existsInNamedObj(name, field))
+            ).toBe(true);
+          });
+          test("arrow thickness field is correct", () => {
+            expect(
+              ["IsSubset_B_A", "IsSubset_C_B"].every((name) => {
+                return (
+                  initialState.translation.trMap[name]["arrow"].contents[1]
+                    .thickness.contents.contents === 1.5
+                );
+              })
+            ).toBe(true);
+          });
+        }
+      }
+    }
+  });
+
   // Test errors
   const PRINT_ERRORS = false;
 
@@ -379,7 +486,7 @@ where IsSubset(y, x) { }`,
         `Set x; Set y where IsSubset(x,y) as Union {}`,
         `Set x; Set y where IsSubset(x,y) as x {}`,
         `Set x; Set y where IsSubset(x,y) as y {}`,
-        `Set A; Set B where IsSubset(A,B) as A {}`, // this fails to generate an error, because A and B shadow substance vars [fixed]
+        `Set A; Set B where IsSubset(A,B) as A {}`,
       ],
 
       // ---------- Block static errors
@@ -577,187 +684,4 @@ delete x.z.p }`,
       }
     }
   });
-});
-
-describe("hfy sty test", () => {
-  const domainProg =
-    "type Set\npredicate IsSubset : Set s1 * Set s2\npredicate Intersect : Set s1 * Set s2\
-\npredicate Union : Set s1 * Set s2\nfunction Baz : Set -> Set";
-  // const subProg = "Set A\nSet B\nSet C\nSet D\nIsSubset(A,B)\nIntersect(Union(A,C),B)\nIsSubset(B,C)\nUnion(A,B)";
-  const subProg = "Set A\nSet B\nIsSubset(A,B)\nSet C\nIsSubset(B,C)";
-  // TODO: Name these programs
-  const styProgs = [
-    // These are mostly to test setting shape properties as vectors or accesspaths
-    `-- Set x; Set y; Set z where IsSubset(x,y) as foo; Union(x,y) as bee {}
--- Set u; Set v where IsSubset(u,v) as bar; Intersect(u,v) as baz {}
-Set a; Set b where IsSubset(a,b) as foo { -- as Set passes, not great
-  a.icon = Circle{}
-  foo.icon = Square{}
-}
-Set u; Set v where IsSubset(u,v) as A {} -- this should not pass. 
-`,
-  ];
-
-  const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
-
-  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(subProg, env),
-    domainRes
-  );
-
-  for (const styProg of styProgs) {
-    const styRes: Result<State, PenroseError> = andThen(
-      (res) => S.compileStyle(canvasPreamble + styProg, ...res),
-      subRes
-    );
-
-    if (!styRes.isOk()) {
-      fail(
-        `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
-      );
-    } else {
-      expect(true).toEqual(true);
-    }
-  }
-});
-
-describe("subtype test", () => {
-  const domainProg = `
-type HyperbolicPlane
-type Point
-type IdealPoint
-type Segment
-type Horocycle
-
-IdealPoint <: Point
-
-predicate In: Point * HyperbolicPlane
-predicate IsCenter: IdealPoint * Horocycle
-
-constructor MakeSegment: Point endpoint1 * Point endpoint2 -> Segment
-notation "{ a, b }" ~ "MakeSegment( a, b )"
-notation "p ∈ H" ~ "In( p, H )"
-
-`;
-  // const subProg = "Set A\nSet B\nSet C\nSet D\nIsSubset(A,B)\nIntersect(Union(A,C),B)\nIsSubset(B,C)\nUnion(A,B)";
-  const subProg = `
-HyperbolicPlane H
-IdealPoint p, q
-Horocycle g, h
-IsCenter( p, g )
-IsCenter( q, h )
-`;
-  // TODO: Name these programs
-  const styProgs = [
-    // These are mostly to test setting shape properties as vectors or accesspaths
-    `Global {
-  scalar width = 800.0
-  scalar height = 700.0
-  scalar pointSize = width/100.0
-  scalar thinStroke = width/200.0
-  scalar planeSize = 0.9*height
-}
-
-Colors {
-  color none = rgba(0.0, 0.0, 0.0, 0.0)
-  color black = rgba( 0.0, 0.0, 0.0, 1.0 )
-  color blue = rgba( 0.8, 0.7, 1.0, 0.2 )
-  color red = rgba( 1.0, 0.0, 0.0, 0.5 )
-}
-
-forall HyperbolicPlane H {
-  shape H.diskShape = Circle {
-     center : (0.0, 0.)
-     r : Global.planeSize/2.0
-     color : Colors.blue
-     strokeWidth : Global.thinStroke
-     strokeColor : Colors.black
-     strokeStyle : "dashed"
-     -- strokeDashArray : "20,10,5,5,5,10"
-  }
-}
-
-forall Point p; HyperbolicPlane H
-where In( p, H ) {
-  shape p.dotShape = Circle {
-     r : Global.pointSize/2.0
-     strokeWidth : 0.0
-     color : Colors.black
-  }
-
-  --ensure contains( H.diskShape, p.dotShape )
-}
-
--- TODO: Fix that we can't add new functions with new names w/o backend complaining
-
-forall IdealPoint p; HyperbolicPlane H
-where In( p, H ) {
-  scalar p.angle = ?
-
-  scalar R = H.diskShape.r
-
-  override p.dotShape = Circle {
-     center : R*(cos(p.angle), sin(p.angle))
-     r : Global.pointSize
-     strokeWidth : 0.0
-     color : Colors.black
-  }
-}
-
-forall Horocycle h; HyperbolicPlane H {
- shape h.circleShape = Circle {
-   color : Colors.none
-   strokeWidth : 2.0
-   strokeColor : Colors.black
- }
-
- scalar R = H.diskShape.r
-
- ensure inRange(h.circleShape.r, R/8., R/2.)
- constraint h.inDisk      = ensure contains(H.diskShape, h.circleShape)
- constraint h.tangentDisk = ensure tangentTo(H.diskShape, h.circleShape)
-}
-
-forall IdealPoint p; Horocycle h; HyperbolicPlane H
-where IsCenter( p, h ); In( p, H ) {
-
-  scalar R = H.diskShape.r
-  scalar r = h.circleShape.r
-  vec2 x = p.dotShape.center
-
-  -- -- set the center of the horocycle h so that it is
-  -- -- tangent to the hyperbolic plane H at ideal point p
-  scalar a = R - r
-  h.circleShape.center = a*unit(x)
-
-  -- since we've computed the location of the center
-  -- explicitly, we should no longer need constraints to
-  -- ensure containment/tangency in the Poincaré disk
-  delete h.inDisk
-  delete h.tangentDisk
-}
-`,
-  ];
-
-  const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
-
-  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(subProg, env),
-    domainRes
-  );
-
-  for (const styProg of styProgs) {
-    const styRes: Result<State, PenroseError> = andThen(
-      (res) => S.compileStyle(canvasPreamble + styProg, ...res),
-      subRes
-    );
-
-    if (!styRes.isOk()) {
-      fail(
-        `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
-      );
-    } else {
-      expect(true).toEqual(true);
-    }
-  }
 });

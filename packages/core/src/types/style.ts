@@ -29,7 +29,6 @@ export interface Selector extends ASTNode {
   head: DeclPatterns;
   with?: DeclPatterns;
   where?: RelationPatterns;
-  // amespace?: Namespace;
 }
 
 // NOTE: Instead of a js array typed child. I explicitly wrap them in an ASTNode so location and ancestry info can be better preserved.

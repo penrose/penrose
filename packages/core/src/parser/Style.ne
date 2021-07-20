@@ -77,16 +77,14 @@ const selector = (
   hd: DeclPatterns,
   wth?: DeclPatterns,
   whr?: RelationPatterns,
-  //namespace?: Namespace
 ): Selector => {
   return {
-    ...nodeData(compact([hd, wth, whr])), //, namespace])),
-    ...rangeFrom(compact([hd, wth, whr])), //, namespace])),
+    ...nodeData(compact([hd, wth, whr])),
+    ...rangeFrom(compact([hd, wth, whr])),
     tag: "Selector",
     head: hd,
     with: wth,
     where: whr,
-    //namespace,
   };
 }
 
@@ -160,27 +158,17 @@ header
   -> selector  {% id %}
   |  namespace {% id %}
 
-#### #### #### #### 
-#const selector = (
-#  hd: DeclPatterns,
-#  wth?: DeclPatterns,
-#  whr?: RelationPatterns,
-#  //namespace?: Namespace
-#): Selector
-#### #### #### ####
-
-selector -> # deprecate select_as
-    forall:? decl_patterns _ml #select_as:?  
-    {% (d) => selector(d[1], undefined, undefined) %} #%, d[3]) %} 
-  | forall:? decl_patterns _ml select_where # select_as:? 
-    {% (d) => selector(d[1], undefined, d[3]) %} #%, d[4]) %} 
-  | forall:? decl_patterns _ml select_with #select_as:? 
-    {% (d) => selector(d[1], d[3], undefined)%} # , d[4])  
-  | forall:? decl_patterns _ml select_where select_with # select_as:? 
-    {% (d) => selector(d[1], d[4], d[3]) %} #%, d[5]) %} 
-  | forall:? decl_patterns _ml select_with select_where #select_as:? 
-    {% (d) => selector(d[1], d[3], d[4]) %} #%, d[5]) %}
-####
+selector -> 
+    forall:? decl_patterns _ml  
+    {% (d) => selector(d[1], undefined, undefined) %}
+  | forall:? decl_patterns _ml select_where 
+    {% (d) => selector(d[1], undefined, d[3]) %} 
+  | forall:? decl_patterns _ml select_with 
+    {% (d) => selector(d[1], d[3], undefined)%}   
+  | forall:? decl_patterns _ml select_where select_with 
+    {% (d) => selector(d[1], d[4], d[3]) %} 
+  | forall:? decl_patterns _ml select_with select_where 
+    {% (d) => selector(d[1], d[3], d[4]) %} 
 
 forall -> "forall" __ {% nth(0) %}
 

@@ -6,6 +6,7 @@ import { FieldExpr } from "../types/value";
 // local typedefs for ease of typing expressions
 type StringObjPair = [string, { [k: string]: FieldExpr<IVarAD> }];
 
+// Internal type for now...
 export type Comic = { [k: string]: string[] };
 
 export const testcomic: Comic = {
@@ -15,7 +16,6 @@ export const testcomic: Comic = {
 
 export const getComicPanelStates = (state: State, comic: Comic): State[] => {
   const panels = Object.values(comic);
-  // console.log(panels)
   return panels.map((panel) => getStateForPanel(panel, state));
 };
 
@@ -23,9 +23,10 @@ const getStateForPanel = (panel: string[], state: State): State => {
   const newShapeList = state.shapes.filter((shape) =>
     shapeIsPartOfPanel(shape, panel, state)
   );
-  let newState = { ...state };
-  newState.shapes = newShapeList;
-  return newState;
+  return {
+    ...state,
+    shapes: newShapeList,
+  };
 };
 
 const shapeIsPartOfPanel = (
@@ -33,7 +34,6 @@ const shapeIsPartOfPanel = (
   panel: string[],
   state: State
 ): boolean => {
-  // console.log('panel', panel);
   return panel.some((trMapName) =>
     shapeIsPartOfTrMapObj(trMapName, shape, state)
   );

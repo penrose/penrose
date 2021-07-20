@@ -334,7 +334,7 @@ const comicProcess = async (
 
   // Fetch comic file
   const comicObj: Comic = JSON.parse(fs.readFileSync(comic, "utf8").toString());
-  console.log(comicObj, typeof comicObj);
+  // console.log(comicObj, typeof comicObj);
 
   // Compilation
   console.log(`Compiling for ${out}/${sub} ...`);
@@ -374,8 +374,8 @@ const comicProcess = async (
   // cross-instance energy evaluation
 
   const writeFileOut = (canvasData: any, index: number) => {
-    let filename = out.slice(0, out.indexOf("svg") - 1);
-    let newStr = filename + index.toString() + ".svg";
+    let filename = Object.keys(comicObj)[index]; // out.slice(0, out.indexOf("svg") - 1);
+    let newStr = `${filename}.svg`; //filename + index.toString() + ".svg";
     fs.writeFileSync(newStr, canvasData);
     console.log(chalk.green(`The diagram has been saved as ${newStr}`));
   };
@@ -408,7 +408,6 @@ const comicProcess = async (
   } else if (args.render) {
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else if (args.draw) {
-    // this assumes that yarn start draw was called.
     await singleProcess(
       args.SUBSTANCE,
       args.STYLE,
@@ -418,7 +417,7 @@ const comicProcess = async (
       prefix,
       staged
     );
-  } else {
+  } else if (args.comic) {
     // args.comic
     await comicProcess(
       args.SUBSTANCE,
