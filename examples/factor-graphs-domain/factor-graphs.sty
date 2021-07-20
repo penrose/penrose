@@ -9,7 +9,7 @@ globals {
 }
 
 const {
-    repelWeight = 1.0
+    repelWeight = 10.0
 }
 
 colors {
@@ -137,15 +137,15 @@ with Variable x {
     factor.shape above factor.line
     x.shape above factor.line
 
-    --  encourage repel(factor.line, x.text, const.repelWeight)
-    --  encourage repel(factor.line, q.text, const.repelWeight)
+    --  encourage repel(x.text, factor.line, const.repelWeight)
+    --  encourage repel(q.text, factor.line, const.repelWeight)
 }
 
 -- This gets annoying: stay away from all lines as well, but this means I have
 -- to enumerate all unary and binary factors separately to get access to the lines:
 forall Factor factor; Factor unary_factor
 where HasBubble(factor); unary_factor := Unary(x) with Variable x {
-     encourage repel(factor.callout, unary_factor.line, const.repelWeight)
+     encourage repel(unary_factor.line, factor.callout, const.repelWeight)
 }
 
 -- extra styling for prior factors:
@@ -198,8 +198,8 @@ with Variable x1; Variable x2 {
 forall Factor factor; Factor binary_factor
 where HasBubble(factor); binary_factor := Binary(x1, x2)
 with Variable x1; Variable x2 {
-     encourage repel(factor.callout, binary_factor.line1, const.repelWeight)
-     encourage repel(factor.callout, binary_factor.line2, const.repelWeight)
+     encourage repel(binary_factor.line1, factor.callout, const.repelWeight)
+     encourage repel(binary_factor.line2, factor.callout, const.repelWeight)
 }
 
 -- extra styling for ternary factors:
@@ -257,8 +257,8 @@ with Variable x1; Variable x2; Variable x3 {
 forall Factor factor; Factor ternary_factor
 where HasBubble(factor); ternary_factor := Ternary(x1, x2, x3)
 with Variable x1; Variable x2; Variable x3 {
-     encourage repel(factor.callout, ternary_factor.line1, const.repelWeight)
-     encourage repel(factor.callout, ternary_factor.line2, const.repelWeight)
-     encourage repel(factor.callout, ternary_factor.line3, const.repelWeight)
+     encourage repel(ternary_factor.line1, factor.callout, const.repelWeight)
+     encourage repel(ternary_factor.line2, factor.callout, const.repelWeight)
+     encourage repel(ternary_factor.line3, factor.callout, const.repelWeight)
 }
 
