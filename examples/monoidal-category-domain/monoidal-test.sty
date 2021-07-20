@@ -150,8 +150,8 @@ where m := join(a, b) {
       -- TODO: Repel the `y` from both top and bot of shape, on each side
 
       -- The "invisible object" is placed near the center 
-      encourage nearScalar(a.y, m.shape.center[1])
-      encourage nearScalar(b.y, m.shape.center[1])
+      encourage equal(a.y, m.shape.center[1])
+      encourage equal(b.y, m.shape.center[1])
 
       a.shape above m.shape
       b.shape above m.shape
@@ -170,7 +170,7 @@ Morphism m1; Morphism m2 {
 -- TODO: each object's `y` should be out of the range of all morphisms' `y`s
 -- TODO: an object between the morphisms should have a `y` that's in the range of both morphisms
 
--- TODO: Maybe these are conflicting with `nearScalar`?
+-- TODO: Maybe these are conflicting with `equal`?
 -- Object o; Object p; Morphism m
 -- where ChildOf(o, m); ChildOf(p, m) {
 --       encourage repelScalar(o.y, p.y)

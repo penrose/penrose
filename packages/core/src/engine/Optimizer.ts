@@ -130,7 +130,7 @@ const applyFn = (f: FnDone<VarAD>, dict: any) => {
     return dict[f.name](...f.args.map(argValue));
   } else {
     throw new Error(
-      `constraint or objective ${f.name} not found in dirctionary`
+      `constraint or objective ${f.name} not found in dictionary`
     );
   }
 };
@@ -745,7 +745,7 @@ const minimize = (
   log.info("-------------------------------------");
   log.info("minimize, num steps", numSteps);
 
-  // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
+  // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `equalCenterOffset` or just `contains`, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
 
   let xs = [...xs0]; // Don't use xs

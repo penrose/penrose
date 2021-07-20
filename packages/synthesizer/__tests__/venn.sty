@@ -40,7 +40,7 @@ where IsSubset(x, y) {
 Set x
 with Set y
 where Equal(x, y) {
-    encourage sameCenter(x.shape, y.shape)
+    encourage equalCenterOffset(x.shape, y.shape)
     encourage equal(x.shape.r, y.shape.r)
 
     -- override y.text.string = concat(y.label, "=", x.label)
@@ -103,9 +103,9 @@ Set x, y {
 --         fontSize: "20pt"
 --     }
 --     z.labelFn = ensure contains(z.shape, z.text)
---     z.centerFn = encourage sameCenter(x.shape, y.shape)
---     z.centerFn2 = encourage sameCenter(x.shape, z.shape)
---     z.centerFn2 = encourage sameCenter(y.shape, z.shape)
+--     z.centerFn = encourage equalCenterOffset(x.shape, y.shape)
+--     z.centerFn2 = encourage equalCenterOffset(x.shape, z.shape)
+--     z.centerFn2 = encourage equalCenterOffset(y.shape, z.shape)
 
 --     LOCAL.r = ?
 --     x.shape.r = LOCAL.r
@@ -135,8 +135,8 @@ Set x, y {
 --         fontSize: "20pt"
 --     }
 --     z.labelFn = ensure contains(z.shape, z.text)
---     z.centerFn = encourage sameCenter(x.shape, y.shape)
---     z.centerFn2 = encourage sameCenter(x.shape, z.shape)
+--     z.centerFn = encourage equalCenterOffset(x.shape, y.shape)
+--     z.centerFn2 = encourage equalCenterOffset(x.shape, z.shape)
 --     x.shape.r = LOCAL.r
 --     y.shape.r = LOCAL.r
 --     z.shape.r = LOCAL.r

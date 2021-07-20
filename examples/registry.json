@@ -2,6 +2,11 @@
   "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
   "trios": [
     {
+      "substance": "two-sets-simple",
+      "style": "venn-small",
+      "domain": "set-theory"
+    },
+    {
       "substance": "tree",
       "style": "venn",
       "domain": "set-theory"
@@ -22,6 +27,21 @@
       "domain": "set-theory"
     },
     {
+      "substance": "hyperbolic",
+      "style": "poincare",
+      "domain": "hyperbolic"
+    },
+    {
+      "substance": "multisets",
+      "style": "venn-comp",
+      "domain": "set-theory"
+    },
+    {
+      "substance": "cross-domain",
+      "style": "mesh-set",
+      "domain": "mesh-set"
+    },
+    {
       "substance": "two-vectors-perp",
       "style": "linear-algebra-simple",
       "domain": "linear-algebra"
@@ -39,6 +59,11 @@
     {
       "substance": "small-graph",
       "style": "disjoint-rects",
+      "domain": "graph-theory"
+    },
+    {
+      "substance": "graph1",
+      "style": "graph-theory",
       "domain": "graph-theory"
     },
     {
@@ -73,6 +98,18 @@
     "graph-theory": {
       "name": "Graph Theory",
       "URI": "graph-domain/graph-theory.dsl"
+    },
+    "hyperbolic": {
+      "name": "Hyperbolic Geometry",
+      "URI": "hyperbolic-domain/hyperbolic.dsl"
+    },
+    "geometry": {
+      "name": "Euclidean Geometry",
+      "URI": "geometry-domain/geometry.dsl"
+    },
+    "mesh-set": {
+      "name": "Mesh Set",
+      "URI": "mesh-set-domain/DomainInterop.dsl"
     }
   },
   "styles": {
@@ -80,6 +117,11 @@
       "domain": "set-theory",
       "name": "Venn",
       "URI": "set-theory-domain/venn.sty"
+    },
+    "venn-small": {
+      "domain": "set-theory",
+      "name": "Venn Small",
+      "URI": "set-theory-domain/venn-small.sty"
     },
     "tree": {
       "domain": "set-theory",
@@ -96,6 +138,31 @@
       "name": "Venn 3D",
       "URI": "set-theory-domain/venn-3d.sty"
     },
+    "poincare": {
+      "domain": "hyperbolic",
+      "name": "Poincare Disk",
+      "URI": "hyperbolic-domain/PoincareDisk.sty"
+    },
+    "euclidean-simple": {
+      "domain": "geometry",
+      "name": "Simple Euclidean Geometry",
+      "URI": "geometry-domain/euclidean-simple.sty"
+    },
+    "euclidean": {
+      "domain": "geometry",
+      "name": "Euclidean Geometry",
+      "URI": "geometry-domain/euclidean.sty"
+    },
+    "venn-comp": {
+      "domain": "set-theory",
+      "name": "Venn Computation",
+      "URI": "set-theory-domain/venn-comp-test.sty"
+    },
+    "mesh-set": {
+      "domain": "mesh-set",
+      "name": "Mesh Set",
+      "URI": "mesh-set-domain/DomainInterop.sty"
+    },
     "linear-algebra-simple": {
       "domain": "linear-algebra",
       "name": "Linear Algebra 2D",
@@ -110,6 +177,11 @@
       "domain": "linear-algebra",
       "name": "Vectors with Dashed Arrows",
       "URI": "linear-algebra-domain/linearalgebra-paper-dashes.sty"
+    },
+    "graph-theory": {
+      "domain": "graph-theory",
+      "name": "Graph Theory",
+      "URI": "graph-domain/graph-theory.sty"
     },
     "disjoint-rects": {
       "domain": "graph-theory",
@@ -138,6 +210,11 @@
       "name": "Two Perpendicular Vectors",
       "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.sub"
     },
+    "two-sets-simple": {
+      "domain": "set-theory",
+      "name": "Two Nested Sets",
+      "URI": "set-theory-domain/twosets-simple.sub"
+    },
     "continuousmap": {
       "domain": "set-theory",
       "name": "Continuous Map",
@@ -152,6 +229,31 @@
       "domain": "set-theory",
       "name": "Tree",
       "URI": "set-theory-domain/tree.sub"
+    },
+    "hyperbolic": {
+      "domain": "hyperbolic",
+      "name": "Hyperbolic",
+      "URI": "hyperbolic-domain/hyperbolic-example-unsugared.sub"
+    },
+    "pythagorean-theorem": {
+      "domain": "geometry",
+      "name": "Pythagorean Theorem",
+      "URI": "geometry-domain/pythagorean-theorem-unsugared.sub"
+    },
+    "multisets": {
+      "domain": "set-theory",
+      "name": "Multisets",
+      "URI": "set-theory-domain/multisets.sub"
+    },
+    "cross-domain": {
+      "domain": "mesh-set",
+      "name": "Cross-Domain Example",
+      "URI": "mesh-set-domain/DomainInterop-unsugared.sub"
+    },
+    "graph1": {
+      "domain": "graph-theory",
+      "name": "Graph Example",
+      "URI": "graph-domain/graph1.sub"
     },
     "allShapes": {
       "domain": "shape-spec",

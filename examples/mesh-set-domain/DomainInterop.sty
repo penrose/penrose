@@ -27,7 +27,7 @@ Set x {
     ensure contains(x.icon, x.text)
     ensure minSize(x.icon)
     ensure maxSize(x.icon, canvas.height / 3.)
-    -- encourage sameCenter(x.text, x.icon)
+    -- encourage equalCenterOffset(x.text, x.icon)
     x.icon below x.text
 }
 
@@ -285,7 +285,7 @@ with SimplicialComplex K {
       override v.icon.color = global.closureColor
 
       v.offset = 10.0
-     encourage near(v.text, v.icon, v.offset)
+     encourage equalCenterOffset(v.text, v.icon, v.offset)
 
       /*
        -- Optimize the label padding, only for the distinguished vertex
@@ -339,7 +339,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        color : Colors.black
      }
 
-     encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
+     encourage equalPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
      ensure disjoint(e.text, e.icon, 5.0)
 
      v1.icon above e.icon

@@ -51,11 +51,36 @@ export const isLinelike = (shapeType: string): boolean => {
   return shapeType == "Line" || shapeType == "Arrow";
 };
 
-export const objDict = {
+export const constrDict = {
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
   equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+
+  /**
+   * Strongly encourage the inputs to have the same value: `(x - y)^2`
+   */
+  equalHard: (x: VarAD, y: VarAD) => equalHard(x, y),
+
+  /**
+   * Try to place center of shape `s1` at distance `offset` from center of shape `s2`
+   */
+  equalCenterOffset: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    offset = 0.0
+  ) => {
+    // This only works for two objects with centers (x,y)
+    const res = ops.vdistsq(fns.center(s1), fns.center(s2));
+    return sub(res, squared(constOfIf(offset)));
+  },
+
+  /**
+   * Try to place shape `s1` near a location `(x, y)`.
+   */
+  equalPt: ([t1, s1]: [string, any], x: any, y: any) => {
+    return ops.vdistsq(fns.center(s1), [constOfIf(x), constOfIf(y)]);
+  },
 
   /**
    * Encourage shape `top` to be above shape `bottom`. Only works for shapes with property `center`.
@@ -65,76 +90,11 @@ export const objDict = {
     [t2, bottom]: [string, any],
     offset = 100
   ) =>
-    // (getY top - getY bottom - offset) ^ 2
-    squared(
-      sub(sub(top.center.contents[1], bottom.center.contents[1]), varOf(offset))
+    vecDirMag(
+      ops.vsub(top.center.contents, bottom.center.contents),
+      [constOf(0), constOf(1)],
+      constOfIf(offset)
     ),
-
-  /**
-   * Encourage shape `s1` to have the same center position as shape `s2`. Only works for shapes with property `center`.
-   */
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    return ops.vdistsq(fns.center(s1), fns.center(s2));
-  },
-
-  /**
-   * Try to repel shapes `s1` and `s2` with some weight.
-   */
-  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
-    // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
-    // TODO: find this out programmatically
-    const repelWeight = 10e6;
-
-    let res;
-
-    // Repel a line `s1` from another shape `s2` with a center.
-    if (isLinelike(t1)) {
-      const line = s1;
-      const c2 = fns.center(s2);
-      const lineSamplePts = sampleSeg(linePts(line));
-      const allForces = addN(
-        lineSamplePts.map((p) => repelPt(constOfIf(weight), c2, p))
-      );
-      res = mul(constOfIf(weight), allForces);
-    } else {
-      // Repel any two shapes with a center.
-      // 1 / (d^2(cx, cy) + eps)
-      res = inverse(ops.vdistsq(fns.center(s1), fns.center(s2)));
-    }
-
-    return mul(res, constOf(repelWeight));
-  },
-
-  /**
-   * Repel scalar `c` from another scalar `d`.
-   */
-  // TODO: Try to avoid NaNs/blowing up? add eps in denominator if c=d?
-  repelScalar: (c: any, d: any) => {
-    // 1/(c-d)^2
-    return inverse(squared(sub(constOfIf(c), constOfIf(d))));
-  },
-
-  /**
-   * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
-   */
-  centerArrow: (
-    [t1, arr]: [string, any],
-    [t2, s2]: [string, any],
-    [t3, s3]: [string, any]
-  ): VarAD => {
-    const spacing = varOf(1.1); // arbitrary
-
-    if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
-      const s2BB = bboxFromShape(t2, s2);
-      const s3BB = bboxFromShape(t3, s3);
-      // HACK: Arbitrarily pick the height of the text
-      // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.h),
-        neg(mul(s3BB.h, spacing)),
-      ]);
-    } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
-  },
 
   /**
    * Encourage shape `bottom` to be below shape `top`. Only works for shapes with property `center`.
@@ -144,143 +104,12 @@ export const objDict = {
     [t2, top]: [string, any],
     offset = 100
   ) =>
-    // TODO: can this be made more efficient (code-wise) by calling "above" and swapping arguments?
-    squared(
-      sub(
-        sub(top.center.contents[1], bottom.center.contents[1]),
-        constOfIf(offset)
-      )
+    vecDirMag(
+      ops.vsub(top.center.contents, bottom.center.contents),
+      [constOf(0), constOf(-1)],
+      constOfIf(offset)
     ),
 
-  centerLabelAbove: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    w: number
-  ): VarAD => {
-    if (isLinelike(t1) && isRectlike(t2)) {
-      const [arr, text] = [s1, s2];
-      const mx = div(
-        add(arr.start.contents[0], arr.end.contents[0]),
-        constOf(2.0)
-      );
-      const my = div(
-        add(arr.start.contents[1], arr.end.contents[1]),
-        constOf(2.0)
-      );
-
-      // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-      const textBB = bboxFromShape(t2, text);
-      const lh = squared(sub(mx, textBB.center[0]));
-      const rh = squared(
-        sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
-      );
-      return mul(add(lh, rh), constOfIf(w));
-    } else throw Error("unsupported shapes");
-  },
-
-  /**
-   * Try to center a label `s2` with respect to some shape `s1`.
-   */
-  centerLabel: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    w: number
-  ): VarAD => {
-    if (isLinelike(t1) && isRectlike(t2)) {
-      // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
-      const [arr, text] = [s1, s2];
-      const midpt = ops.vdiv(
-        ops.vadd(arr.start.contents, arr.end.contents),
-        constOf(2.0)
-      );
-      const padding = constOf(10);
-      const textBB = bboxFromShape(t2, text);
-      // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
-      return add(
-        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
-        squared(padding)
-      );
-    } else if (isRectlike(t1) && isRectlike(t2)) {
-      // Try to center label in the rectangle
-      // TODO: This should be applied generically on any two GPIs with a center
-      return objDict.sameCenter([t1, s1], [t2, s2]);
-    } else throw new Error(`${[t1, t2]} not supported for centerLabel`);
-  },
-
-  /**
-   * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
-   */
-  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
-    // This only works for two objects with centers (x,y)
-    const res = absVal(ops.vdistsq(fns.center(s1), fns.center(s2)));
-    return sub(res, squared(constOfIf(offset)));
-  },
-
-  /**
-   * Try to place shape `s1` near a location `(x, y)`.
-   */
-  nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
-    return ops.vdistsq(fns.center(s1), [constOfIf(x), constOfIf(y)]);
-  },
-
-  /**
-   * Try to make scalar `c` near another scalar `goal`.
-   */
-  // TODO: Can these be typed as `VarAD`?
-  nearScalar: (c: any, goal: any) => {
-    return squared(sub(constOfIf(c), constOfIf(goal)));
-  },
-  /**
-   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
-   * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
-   */
-  nonDegenerateAngle: (
-    [, p0]: [string, any],
-    [, p1]: [string, any],
-    [, p2]: [string, any],
-    strength = 20,
-    range = 10
-  ) => {
-    if (every([p0, p1, p2].map((props) => props["center"]))) {
-      const c0 = fns.center(p0);
-      const c1 = fns.center(p1);
-      const c2 = fns.center(p2);
-
-      const l1 = ops.vsub(c0, c1);
-      const l2 = ops.vsub(c2, c1);
-      const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
-      // angles that are more than `range` deg from 0 or 180 do not need to be pushed
-      return ifCond(
-        lt(cosine, varOf(range * (Math.PI / 180))),
-        varOf(0),
-        mul(constOfIf(strength), cosine)
-      );
-    } else {
-      throw new Error(
-        "nonDegenerateAngle: all input shapes need to have centers"
-      );
-    }
-  },
-  /**
-   * try to make distance between a point and a segment `s1` = padding.
-   */
-  pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
-    if (!isLinelike(t1)) {
-      throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
-    }
-    return squared(
-      equalHard(
-        ops.vdist(
-          closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
-          point
-        ),
-        padding
-      )
-    );
-  },
-};
-
-export const constrDict = {
   /**
    * Require that the end point of line `s1` is to the right of the start point
    */
@@ -656,13 +485,6 @@ export const constrDict = {
   },
 
   /**
-   * Require that the value `x` is less than the value `y`
-   */
-  equal: (x: VarAD, y: VarAD) => {
-    return equalHard(x, y);
-  },
-
-  /**
    * Require that the value `x` is less than the value `y` with optional offset `padding`
    */
   lessThan: (x: VarAD, y: VarAD, padding = 0) => {
@@ -735,6 +557,184 @@ export const constrDict = {
   },
 };
 
+export const objDict = Object.assign(
+  {
+    // appends constrDict
+    /**
+     * Try to repel shapes `s1` and `s2` with some weight.
+     */
+    repel: (
+      [t1, s1]: [string, any],
+      [t2, s2]: [string, any],
+      weight = 10.0
+    ) => {
+      // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
+      // TODO: find this out programmatically
+      const repelWeight = 10e6;
+
+      let res;
+
+      // Repel a line `s1` from another shape `s2` with a center.
+      if (isLinelike(t1)) {
+        const line = s1;
+        const c2 = fns.center(s2);
+        const lineSamplePts = sampleSeg(linePts(line));
+        const allForces = addN(
+          lineSamplePts.map((p) => repelPt(constOfIf(weight), c2, p))
+        );
+        res = mul(constOfIf(weight), allForces);
+      } else {
+        // Repel any two shapes with a center.
+        // 1 / (d^2(cx, cy) + eps)
+        res = inverse(ops.vdistsq(fns.center(s1), fns.center(s2)));
+      }
+
+      return mul(res, constOf(repelWeight));
+    },
+
+    /**
+     * Repel scalar `c` from another scalar `d`.
+     */
+    // TODO: Try to avoid NaNs/blowing up? add eps in denominator if c=d?
+    repelScalar: (c: any, d: any) => {
+      // 1/(c-d)^2
+      return inverse(squared(sub(constOfIf(c), constOfIf(d))));
+    },
+
+    /**
+     * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
+     */
+    centerArrow: (
+      [t1, arr]: [string, any],
+      [t2, s2]: [string, any],
+      [t3, s3]: [string, any]
+    ): VarAD => {
+      const spacing = varOf(1.1); // arbitrary
+
+      if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
+        const s2BB = bboxFromShape(t2, s2);
+        const s3BB = bboxFromShape(t3, s3);
+        // HACK: Arbitrarily pick the height of the text
+        // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
+        return centerArrow2(arr, s2BB.center, s3BB.center, [
+          mul(spacing, s2BB.h),
+          neg(mul(s3BB.h, spacing)),
+        ]);
+      } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
+    },
+
+    centerLabelAbove: (
+      [t1, s1]: [string, any],
+      [t2, s2]: [string, any],
+      w: number
+    ): VarAD => {
+      if (isLinelike(t1) && isRectlike(t2)) {
+        const [arr, text] = [s1, s2];
+        const mx = div(
+          add(arr.start.contents[0], arr.end.contents[0]),
+          constOf(2.0)
+        );
+        const my = div(
+          add(arr.start.contents[1], arr.end.contents[1]),
+          constOf(2.0)
+        );
+
+        // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
+        const textBB = bboxFromShape(t2, text);
+        const lh = squared(sub(mx, textBB.center[0]));
+        const rh = squared(
+          sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
+        );
+        return mul(add(lh, rh), constOfIf(w));
+      } else throw Error("unsupported shapes");
+    },
+
+    /**
+     * Try to center a label `s2` with respect to some shape `s1`.
+     */
+    centerLabel: (
+      [t1, s1]: [string, any],
+      [t2, s2]: [string, any],
+      padding: VarAD
+    ): VarAD => {
+      if (isLinelike(t1) && isRectlike(t2)) {
+        // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
+        const [arr, text] = [s1, s2];
+        // midpoint = avg of two endpoints of line
+        const midpt = ops.vdiv(
+          ops.vadd(arr.start.contents, arr.end.contents),
+          constOf(2.0)
+        );
+        const textBB = bboxFromShape(t2, text);
+        // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
+
+        // distance between midpoint and center of text is (equal to?) text "radius" plus padding
+        return sub(ops.vdistsq(midpt, textBB.center), squared(padding));
+      } else if (isRectlike(t1) && isRectlike(t2)) {
+        // Try to center label in the rectangle
+        // TODO: This should be applied generically on any two GPIs with a center
+        return constrDict.equalCenterOffset([t1, s1], [t2, s2]);
+      } else throw new Error(`${[t1, t2]} not supported for centerLabel`);
+    },
+
+    /**
+     * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
+     * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
+     */
+    nonDegenerateAngle: (
+      [, p0]: [string, any],
+      [, p1]: [string, any],
+      [, p2]: [string, any],
+      strength = 20,
+      range = 10
+    ) => {
+      if (every([p0, p1, p2].map((props) => props["center"]))) {
+        const c0 = fns.center(p0);
+        const c1 = fns.center(p1);
+        const c2 = fns.center(p2);
+
+        const l1 = ops.vsub(c0, c1);
+        const l2 = ops.vsub(c2, c1);
+        const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
+        // angles that are more than `range` deg from 0 or 180 do not need to be pushed
+        return ifCond(
+          lt(cosine, varOf(range * (Math.PI / 180))),
+          varOf(0),
+          mul(constOfIf(strength), cosine)
+        );
+      } else {
+        throw new Error(
+          "nonDegenerateAngle: all input shapes need to have centers"
+        );
+      }
+    },
+    /**
+     * try to make distance between a point and a segment `s1` = padding.
+     */
+    pointLineDist: (
+      point: VarAD[],
+      [t1, s1]: [string, any],
+      padding: VarAD
+    ) => {
+      if (!isLinelike(t1)) {
+        throw new Error(
+          `pointLineDist: expected a point and a line, got ${t1}`
+        );
+      }
+      return squared(
+        equalHard(
+          ops.vdist(
+            closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
+            point
+          ),
+          padding
+        )
+      );
+    },
+  },
+  constrDict
+);
+
 // -------- Helpers for writing objectives
 
 /**
@@ -745,6 +745,34 @@ const typesAre = (inputs: string[], expected: string[]): boolean =>
   _.every(_.zip(inputs, expected).map(([i, e]) => i === e));
 
 // -------- (Hidden) helpers for objective/constraints/computations
+
+/**
+ * Check whether vectors v and w are parallel and in the same direction.
+ * @param v first vector
+ * @param w second vector
+ * @returns deviation of normalized dot product from 1
+ */
+const parallel = (v: VarAD[], w: VarAD[]): VarAD => {
+  return equal(constOf(1), ops.vdot(ops.vnormalize(v), ops.vnormalize(w)));
+};
+
+/**
+ * Checks whether
+ * @param vec a vector
+ * @param dir direction of vec (not necessarily normalized)
+ * @param mag magnitude of vec
+ * @returns sum of deviations of vec from dir and mag
+ */
+const vecDirMag = (vec: VarAD[], dir: VarAD[], mag: VarAD): VarAD => {
+  return add(parallel(vec, dir), equal(ops.vnorm(vec), mag));
+};
+
+/**
+ * Require that `x` equals `y`.
+ */
+const equal = (x: VarAD, y: VarAD) => {
+  return squared(sub(x, y));
+};
 
 /**
  * Require that `x` equals `y`.

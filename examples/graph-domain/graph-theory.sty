@@ -101,7 +101,7 @@ with Vertex v1; Vertex v2 {
      -- Unhandled Rejection (TypeError): Cannot read property 'tag' of undefined
 
      -- TODO: Make this work WRT rectangle dimensions
-     encourage centerLabel(E.shape, E.text, 5.0)
+     encourage centerLabel(E.shape, E.text, 10.0)
      ensure disjoint(E.text, E.shape) -- TODO: fix this to use bbox dimensions
      ensure contains(global.box, E.text)
 
