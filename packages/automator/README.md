@@ -42,12 +42,13 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 
 ![](docs/penrose-artifacts.png)
 
-## Staged Diagram Generation
+## Basic Staged Diagram Generation
 
+<img width="912" alt="Screen Shot 2021-06-28 at 12 46 16 PM" src="https://user-images.githubusercontent.com/59301744/123673749-d7682300-d80e-11eb-942a-0b6ae01cc8ea.png">
 - Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=../../examples/set-theory-domain` in this directory to generate an output SVG.
 - Add the `--staged` flag to the command to generate multiple staged SVGs for the sub/sty/dsl trio.
 
-## 07/16/2021 Update: Staged Diagram Generation w/ greater control
+## Staged Diagram Generation w/ User-specified Panels
 
-- Run `yarn start comic tree.sub tree.sty setTheory.dsl panel.json out --src-prefix=../../examples/set-theory-domain` in this directory to generate output SVGs based on the "panels" in `panel.json`.
+- Run `yarn start comic tree.sub tree.sty setTheory.dsl panel.json out --src-prefix=../../packages/core/src/__tests__/predicate_aliasing_examples/` in this directory to generate output SVGs based on the "panels" in `panel.json`.
 - The entries in each `Comic` object (i.e. the contents of `panel.json`) must be valid keys in the state's translation trMap.

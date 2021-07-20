@@ -2,5 +2,5 @@
   "first": ["A", "B"],
   "second": ["A", "B", "IsSubset_B_A"],
   "third": ["A", "B", "IsSubset_B_A", "C", "D", "IsSubset_C_A", "IsSubset_D_B"],
-  "fourth": ["C", "D", "F", "IsSubset_B_A", "uwu"]
+  "fourth": ["C", "D", "F", "IsSubset_B_A"]
 }

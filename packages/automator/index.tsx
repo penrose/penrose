@@ -367,7 +367,7 @@ const comicProcess = async (
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
   const listOfComicStates = getComicPanelStates(optimizedState, comicObj);
-  const listOfCanvasData = listOfComicStates.map((state: State) => {
+  const listOfCanvasData = listOfComicStates.map((state: PenroseState) => {
     return RenderStatic(state).outerHTML;
   });
 
