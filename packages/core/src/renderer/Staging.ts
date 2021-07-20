@@ -43,7 +43,6 @@ export const getTrmapKeyComic = (json: Comic, subProg: string): Comic => {
   });
 
   // otherwise they are all valid, so translate them
-
   for (let i = 0; i < Object.keys(obj).length; i++) {
     const key = Object.keys(obj)[i];
     obj[key] = newPanelStmtList[i];
@@ -87,28 +86,13 @@ const getTrMapKey = (stmt: string, subAst: SubProg): string => {
   return name;
 };
 
-/*
-export type SubStmt =
-  | Decl
-  | Bind
-  | EqualExprs
-  | EqualPredicates
-  | ApplyPredicate
-  | LabelDecl
-  | AutoLabel
-  | NoLabel;
-*/
 const subStmtToInternalStr = (stmt: SubStmt): string => {
-  // console.log('\nstmt', stmt);
   switch (stmt.tag) {
     case "Decl":
-      // console.log('decl')
       return stmt.name.value;
     case "ApplyPredicate":
-      // console.log('applypred')
       return getPredicateKeyName(stmt);
     default:
-      // console.log('neither')
       return ""; // return an empty str, doesn't show up in trmap
   }
 };
@@ -118,7 +102,6 @@ const getPredicateKeyName = (stmt: ApplyPredicate): string => {
   for (let arg of stmt.args) {
     name = name.concat("_").concat(getSubPredArgKeyName(arg));
   }
-  // console.log(name)
   return name;
 };
 
