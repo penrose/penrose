@@ -6,7 +6,6 @@ import {
   constOf,
   cos,
   div,
-  eq,
   gt,
   ifCond,
   max,
@@ -17,30 +16,23 @@ import {
   ops,
   sin,
   sqrt,
-  squared,
   sub,
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
-import { SVGPath } from "engine/EngineUtils";
+import { PathBuilder } from "engine/EngineUtils";
 import { maxBy, range } from "lodash";
-import Path from "renderer/Path";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Var } from "types/domain";
 import {
   ArgVal,
   Color,
-  Elem,
-  IArc,
   IColorV,
   IFloatV,
   IPathDataV,
-  IPt,
   IPtListV,
   IStrV,
   ITupV,
   IVectorV,
-  SubPath,
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
@@ -74,42 +66,11 @@ export const compDict = {
     );
     const curveEnd: IVarAD[] = ops.vmove(end, padding, unit);
     // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
-    const path = new SVGPath();
-    path.moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))));
-    path.quadraticCurveTo(toPt(controlPt), toPt(curveEnd));
-    // const startPt: IPt<IVarAD> = {
-    //   tag: "Pt",
-    //   contents: toPt(ops.vmove(start, padding, ops.vneg(unit))),
-    // };
-    return path.getPath();
-    // return {
-    //   tag: "PathDataV",
-    //   contents: [
-    //     {
-    //       tag: "Open",
-    //       contents: [
-    //         startPt,
-    //         {
-    //           tag: "QuadBez",
-    //           contents: [toPt(controlPt), toPt(curveEnd)],
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // };
-
-    // return {
-    //   tag: "PathDataV",
-    //   contents: [
-    //     {
-    //       tag: "Closed",
-    //       contents: [
-    //         startPt,
-    //         endPt
-    //       ]
-    //     }
-    //   ]
-    // };
+    const path = new PathBuilder();
+    return path
+      .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
+      .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
+      .getPath();
   },
 
   /**
@@ -319,15 +280,11 @@ export const compDict = {
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
   pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<IVarAD> => {
-    const path = new SVGPath();
+    const path = new PathBuilder();
     const [start, ...tailpts] = pts;
     path.moveTo(start);
     tailpts.map((pt: Pt2) => path.lineTo(pt));
     if (pathType === "closed") path.closePath();
-    // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    // const elems: Elem<VarAD>[] = pts.map((e) => ({ tag: "Pt", contents: e }));
-    // const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
-    // return { tag: "PathDataV", contents: [path] };
     return path.getPath();
   },
 
@@ -388,6 +345,7 @@ export const compDict = {
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
   arc: (
+    pathType: string,
     start: Pt2,
     end: Pt2,
     radius: Pt2,
@@ -395,14 +353,9 @@ export const compDict = {
     largeArc: IVarAD,
     arcSweep: IVarAD
   ): IPathDataV<IVarAD> => {
-    // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    // const st: IPt<IVarAD> = { tag: "Pt", contents: start };
-    // const arc: IArc<IVarAD> = {
-    //   tag: "Arc",
-    //   contents: [radius, [rotation, largeArc, arcSweep], end],
-    // };
-    const path = new SVGPath();
-    path.arcTo(start, radius, end, [rotation, largeArc, arcSweep]);
+    const path = new PathBuilder();
+    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+    if (pathType === "closed") path.closePath();
     return path.getPath();
   },
   /**
@@ -498,21 +451,14 @@ export const compDict = {
     ) {
       const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
-      const path = new SVGPath();
-      path.moveTo(toPt(ptL));
-      path.lineTo(toPt(ptLR));
-      path.lineTo(toPt(ptR));
-      path.lineTo(intersection);
-      path.closePath();
-      // const elems: Elem<VarAD>[] = [
-      //   { tag: "Pt", contents: toPt(ptL) },
-      //   { tag: "Pt", contents: toPt(ptLR) },
-      //   { tag: "Pt", contents: toPt(ptR) },
-      //   { tag: "Pt", contents: intersection },
-      // ];
-      // const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
-
-      return path.getPath();
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(ptL))
+        .lineTo(toPt(ptLR))
+        .lineTo(toPt(ptR))
+        .lineTo(intersection)
+        .closePath()
+        .getPath();
     } else {
       throw Error("orientedSquare undefined for types ${t1}, ${t2}");
     }
@@ -566,22 +512,13 @@ export const compDict = {
     [t3, l3]: any
   ): IPathDataV<IVarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
-      // As temp hack around furthestFrom, assumes triangle is drawn in a consistent order (first point of each line)
-      // const elems: Elem<VarAD>[] = [
-      // { tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
-      //   { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
-      //   { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] },
-      // ];
-
-      // const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
-
-      // return { tag: "PathDataV", contents: [path] };
-      const path = new SVGPath();
-      path.moveTo(toPt(getStart(l1)));
-      path.lineTo(toPt(getStart(l2)));
-      path.lineTo(toPt(getStart(l3)));
-      path.closePath();
-      return path.getPath();
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(getStart(l1)))
+        .lineTo(toPt(getStart(l2)))
+        .lineTo(toPt(getStart(l3)))
+        .closePath()
+        .getPath();
     } else {
       console.error([t1, l1], [t2, l2], [t3, l3]);
       throw Error("Triangle function expected three lines");

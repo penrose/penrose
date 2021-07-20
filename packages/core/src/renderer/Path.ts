@@ -3,76 +3,7 @@ import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IStrV, ISubPath } from "types/value";
-import { ellipseDef } from "./ShapeDef";
-
-const toCmdString = (cmd: any, canvasSize: [number, number]) => {
-  switch (cmd.tag) {
-    case "Pt":
-      return "L" + toScreen(cmd.contents, canvasSize).join(" ");
-    case "CubicBez":
-      return pathCommandString("C", cmd.contents, canvasSize);
-    case "CubicBezJoin":
-      return pathCommandString("S", cmd.contents, canvasSize);
-    case "QuadBez":
-      return pathCommandString("Q", cmd.contents, canvasSize);
-    case "QuadBezJoin":
-      return pathCommandString("T", cmd.contents, canvasSize);
-    case "Arc":
-      return arcCommandString("A", cmd.contents, canvasSize);
-    default:
-      return " ";
-  }
-};
-
-const arcCommandString = (
-  command: string,
-  pts: [number, number][],
-  canvasSize: [number, number]
-) => {
-  // See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
-  const [radius, flags, endpt] = pts;
-  // A, rx, ry, rotation, arc, sweep, ex, ey
-  return `${command} ${radius.join(" ")} ${flags.join(" ")} ${toScreen(
-    endpt,
-    canvasSize
-  ).join(" ")}`;
-};
-
-const pathCommandString = (
-  command: string,
-  pts: [number, number][],
-  canvasSize: [number, number]
-) => {
-  const ptStr = flatten(
-    pts.map((coords: [number, number]) => {
-      return toScreen(coords, canvasSize);
-    })
-  ).join(" ");
-  return `${command} ${ptStr}`;
-};
-
-const fstCmdString = (pathCmd: any, canvasSize: [number, number]) => {
-  if (pathCmd.tag === "Pt") {
-    return "M" + toScreen(pathCmd.contents, canvasSize).join(" ");
-  } else {
-    return toCmdString(pathCmd, canvasSize);
-  }
-};
-
-const toSubPathString = (commands: any[], canvasSize: [number, number]) => {
-  // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
-  if (!commands || !commands.length) {
-    console.error("WARNING: empty path");
-    return "";
-  }
-
-  const [headCommand, ...tailCommands] = commands;
-  return (
-    fstCmdString(headCommand, canvasSize) +
-    tailCommands.map((cmd: any) => toCmdString(cmd, canvasSize)).join(" ")
-  );
-};
+import { IFloatV, IStrV } from "types/value";
 
 const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
@@ -95,28 +26,6 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
       return `${cmd} ${pathStr}`; // TODO need to convert to pt
     })
     .join(" ");
-
-// const toPathString = (pathData: any[], canvasSize: [number, number]) =>
-//   pathData
-//     .map((subPath: any) => {
-//       const { tag, contents } = subPath;
-//       // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
-//       if (!contents || !contents.length) {
-//         console.error("WARNING: empty path");
-//         return "";
-//       }
-//       const subPathStr = contents
-//         .map((cmd: any, idx: number) => {
-//           if (idx === 0 && cmd.tag === "Pt")
-//             return `M ${toScreen(cmd.contents, canvasSize).join(" ")}`;
-//           return toCmdString(cmd, canvasSize);
-//         })
-//         .join(" ");
-//       const subPathStr2 = toSubPathString(contents, canvasSize);
-//       console.log(subPathStr, "2nd", subPathStr2);
-//       return `${subPathStr} ${tag === "Closed" ? "Z" : ""}`;
-//     })
-//     .join(" ");
 
 const Shadow = (id: string) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "filter");

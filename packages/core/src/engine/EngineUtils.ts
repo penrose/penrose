@@ -13,7 +13,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { Elem, IPathCmd, ISubPath, Value } from "types/value";
+import { IPathCmd, ISubPath, Value } from "types/value";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -90,17 +90,6 @@ export function mapTupRecursive<T, S>(
   });
 }
 // Generic utils for mapping over values
-
-// export function mapTup2<T, S>(f: (arg: T) => S, t: [T, T]): [S, S] {
-//   // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
-//   // TODO: Should do null checks more systematically across the translation
-//   if (t[0] === null || t[1] === null) {
-//     return ([varOf(0.0), varOf(0.0)] as unknown) as [S, S];
-//   }
-
-//   return [f(t[0]), f(t[1])];
-// }
-
 export function mapTuple<T, S>(f: (arg: T) => S, t: T[]): S[] {
   // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
   // TODO: Should do null checks more systematically across the translation
@@ -116,17 +105,6 @@ export function mapTupNested<T, S>(f: (arg: T) => S, t: T[][]): S[][] {
   return t.map((tup) => {
     return mapTuple(f, tup);
   });
-}
-// function mapTup3<T, S>(f: (arg: T) => S, t: [T, T, T]): [S, S, S] {
-//   return [f(t[0]), f(t[1]), f(t[2])];
-// }
-
-// function mapTup4<T, S>(f: (arg: T) => S, t: [T, T, T, T]): [S, S, S, S] {
-//   return [f(t[0]), f(t[1]), f(t[2]), f(t[3])];
-// }
-
-function mapTup2LList<T, S>(f: (arg: T) => S, xss: [T, T][][]): [S, S][][] {
-  return xss.map((xs) => xs.map((t) => [f(t[0]), f(t[1])]));
 }
 
 // Mapping over values
@@ -203,34 +181,7 @@ function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
   };
 }
 
-function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
-  if (e.tag === "Pt" || e.tag === "QuadBezJoin") {
-    return {
-      tag: e.tag,
-      contents: mapTuple(f, e.contents),
-    };
-  } else if (
-    e.tag === "CubicBezJoin" ||
-    e.tag === "QuadBez" ||
-    e.tag === "CubicBez" ||
-    e.tag === "Arc"
-  ) {
-    return {
-      tag: e.tag,
-      contents: mapTupNested(f, e.contents),
-    };
-  } else {
-    throw Error("unknown tag in bezier curve type conversion");
-  }
-}
-
-// function mapSubpath<T, S>(f: (arg: T) => S, s: SubPath<T>): SubPath<S> {
-//   return {
-//     tag: s.tag,
-//     contents: s.contents.map((e) => mapElem(f, e)),
-//   };
-// }
-
+// convert all IVarADs to numbers for use in Shape def
 function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
   return {
     tag: "PathDataV",
@@ -248,15 +199,6 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
       };
     }),
   };
-  // return {
-  //   tag: "PathDataV",
-  //   contents: v.contents.map((e) => {
-  //     return {
-  //       tag: e.tag,
-  //       contents: e.contents.map((elem) => mapElem(f, elem)),
-  //     };
-  //   }),
-  // };
 }
 
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
@@ -292,7 +234,8 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 }
 
 // Utils for converting types of values
-export class SVGPath {
+
+export class PathBuilder {
   private path: IPathDataV<IVarAD>;
   constructor() {
     this.path = {
@@ -315,24 +258,41 @@ export class SVGPath {
 
   getPath = () => this.path;
 
+  /**
+   * Moves SVG cursor to coordinate [x,y]
+   */
   moveTo = ([x, y]: [IVarAD, IVarAD]) => {
     this.path.contents.push({
       cmd: "M",
       contents: [this.newCoord(x, y)],
     });
+    return this;
   };
+  /**
+   * closes the SVG path by drawing a line between the last point and
+   * the start point
+   */
   closePath = () => {
     this.path.contents.push({
       cmd: "Z",
       contents: [],
     });
+    return this;
   };
+  /**
+   * Draws a line to point [x,y]
+   */
   lineTo = ([x, y]: [IVarAD, IVarAD]) => {
     this.path.contents.push({
       cmd: "L",
       contents: [this.newCoord(x, y)],
     });
+    return this;
   };
+  /**
+   * Draws a quadratic bezier curve ending at [x,y] with one control point
+   * at [cpx, cpy]
+   */
   quadraticCurveTo = (
     [cpx, cpy]: [IVarAD, IVarAD],
     [x, y]: [IVarAD, IVarAD]
@@ -341,7 +301,12 @@ export class SVGPath {
       cmd: "Q",
       contents: [this.newCoord(cpx, cpy), this.newCoord(x, y)],
     });
+    return this;
   };
+  /**
+   * Draws a cubic bezier curve ending at [x, y] with first control pt at
+   * [cpx1, cpy1] and the second control pt at [cpx2, cpy2]
+   */
   bezierCurveTo = (
     [cpx1, cpy1]: [IVarAD, IVarAD],
     [cpx2, cpy2]: [IVarAD, IVarAD],
@@ -355,39 +320,53 @@ export class SVGPath {
         this.newCoord(x, y),
       ],
     });
+    return this;
   };
+  /**
+   * Shortcut quadratic bezier curve command ending at [x,y]
+   */
   quadraticCurveJoin = ([x, y]: [IVarAD, IVarAD]) => {
     this.path.contents.push({
       cmd: "T",
       contents: [this.newCoord(x, y)],
     });
+    return this;
   };
+  /**
+   * Shortcut cubic bezier curve command ending at [x, y]. The second control
+   * pt is inferred to be the reflection of the first control pt, [cpx, cpy].
+   */
   cubicCurveJoin = ([cpx, cpy]: [IVarAD, IVarAD], [x, y]: [IVarAD, IVarAD]) => {
     this.path.contents.push({
       cmd: "S",
       contents: [this.newCoord(cpx, cpy), this.newCoord(x, y)],
     });
+    return this;
   };
+  /**
+   * Create an arc along ellipse with radius [rx, ry], ending at [x, y]
+   * @param rotation: angle in degrees to rotate ellipse about its center
+   * @param largeArc: 0 to draw shorter of 2 arcs, 1 to draw longer
+   * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
+   */
   arcTo = (
-    [x1, y1]: [IVarAD, IVarAD],
     [rx, ry]: [IVarAD, IVarAD],
-    [x2, y2]: [IVarAD, IVarAD],
+    [x, y]: [IVarAD, IVarAD],
     [rotation, majorArc, sweep]: IVarAD[]
   ) => {
-    this.moveTo([x1, y1]);
     this.path.contents.push({
       cmd: "A",
       contents: [
         this.newValue([rx, ry, rotation, majorArc, sweep]),
-        this.newCoord(x2, y2),
+        this.newCoord(x, y),
       ],
     });
+    return this;
   };
 }
 
 // Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
-// TODO come back to this for conversion from varAD to number
 export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   const nonnumericValueTypes = [
     "BoolV",

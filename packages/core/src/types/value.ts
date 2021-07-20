@@ -315,11 +315,6 @@ export interface IArc<T> {
 }
 
 // SVG spec types
-// export type IPath = {
-//   tag: "Path";
-//   contents: IPathCmd[];
-// };
-
 export type ISubPath<T> = IValueV<T> | ICoordV<T>;
 
 export interface IPathCmd<T> {
