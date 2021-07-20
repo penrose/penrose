@@ -1,4 +1,4 @@
-import { IVarAD, VarAD } from "./ad";
+import { VarAD } from "./ad";
 import { StyleError } from "./errors";
 import { Expr } from "./style";
 
@@ -102,25 +102,6 @@ export type Value<T> =
   | ITupV<T>
   | ILListV<T>
   | IHMatrixV<T>;
-
-export type Elem<T> =
-  | IPt<T>
-  | ICubicBez<T>
-  | ICubicBezJoin<T>
-  | IQuadBez<T>
-  | IQuadBezJoin<T>
-  | IArc<T>;
-
-export type SubPath<T> = IClosed<T> | IOpen<T>;
-interface IClosed<T> {
-  tag: "Closed";
-  contents: Elem<T>[];
-}
-
-interface IOpen<T> {
-  tag: "Open";
-  contents: Elem<T>[];
-}
 
 // Unused
 // interface ITypePropertyPath {
@@ -252,66 +233,6 @@ export interface IRGBA<T> {
 export interface IHSVA<T> {
   tag: "HSVA";
   contents: T[];
-}
-
-// export interface IPt<T> {
-//   tag: "Pt";
-//   contents: [T, T];
-// }
-
-// export interface ICubicBez<T> {
-//   tag: "CubicBez";
-//   contents: [[T, T], [T, T], [T, T]];
-// }
-
-// export interface ICubicBezJoin<T> {
-//   tag: "CubicBezJoin";
-//   contents: [[T, T], [T, T]];
-// }
-
-// export interface IQuadBez<T> {
-//   tag: "QuadBez";
-//   contents: [[T, T], [T, T]];
-// }
-
-// export interface IQuadBezJoin<T> {
-//   tag: "QuadBezJoin";
-//   contents: [T, T];
-// }
-
-// export interface IArc<T> {
-//   tag: "Arc";
-//   contents: [[T, T], [T, T, T], [T, T]];
-// }
-
-export interface IPt<T> {
-  tag: "Pt";
-  contents: T[];
-}
-
-export interface ICubicBez<T> {
-  tag: "CubicBez";
-  contents: T[][];
-}
-
-export interface ICubicBezJoin<T> {
-  tag: "CubicBezJoin";
-  contents: T[][];
-}
-
-export interface IQuadBez<T> {
-  tag: "QuadBez";
-  contents: T[][];
-}
-
-export interface IQuadBezJoin<T> {
-  tag: "QuadBezJoin";
-  contents: T[];
-}
-
-export interface IArc<T> {
-  tag: "Arc";
-  contents: T[][];
 }
 
 // SVG spec types
