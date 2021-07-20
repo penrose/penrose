@@ -42,7 +42,7 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 
 ![](docs/penrose-artifacts.png)
 
-## 06/25/2021 Update: Staged Diagram Generation
+## Staged Diagram Generation
 
 - Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=../../examples/set-theory-domain` in this directory to generate an output SVG.
 - Add the `--staged` flag to the command to generate multiple staged SVGs for the sub/sty/dsl trio.
