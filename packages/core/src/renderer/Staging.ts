@@ -45,7 +45,9 @@ const shapeIsPartOfTrMapObj = (
   state: State
 ): boolean => {
   if (!state.translation.trMap[trMapName]) {
-    console.log(`${trMapName} is not a valid key`);
+    console.log(
+      `WARNING: ${trMapName} is not a valid key. This object will not be rendered.`
+    );
     return false;
   } // the requested name doesn't exist
 
