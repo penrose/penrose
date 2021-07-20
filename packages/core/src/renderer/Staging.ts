@@ -64,8 +64,8 @@ const shapeIsPartOfTrMapObj = (
 
   if (matchingKeyEntryGPIPairs.length > 1) {
     // shouldn't happen (no duplicates)
-    console.log("dupes?");
     console.log(matchingKeyEntryGPIPairs);
+    throw new Error("There are duplicates");
   }
 
   // either it matches or it doesn't
