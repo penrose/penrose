@@ -70,25 +70,6 @@ export const runtimeValueTypeError = (
     actualType,
   };
 };
-// function guard<T>(o: any): o is T {
-//   return o instanceof T;
-// }
-export function mapTupRecursive<T, S>(
-  f: (arg: T) => S,
-  t: unknown[]
-): unknown[] {
-  return t.map((nest) => {
-    if (!Array.isArray(t)) {
-      if (nest === null) {
-        return (varOf(0.0) as unknown) as S;
-      }
-
-      return f(nest as T);
-    } else {
-      mapTupRecursive(f, nest as unknown[]);
-    }
-  });
-}
 // Generic utils for mapping over values
 export function mapTuple<T, S>(f: (arg: T) => S, t: T[]): S[] {
   // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
