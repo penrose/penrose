@@ -20,11 +20,16 @@ import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
+import { FieldDict, Translation } from "types/value";
 import { Fn, LabelCache, State } from "types/state";
 import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, Result, showError } from "utils/Error";
-import { prettyPrintFn } from "utils/OtherUtils";
+import {
+  prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
+} from "utils/OtherUtils";
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
 
@@ -151,6 +156,7 @@ export const compileTrio = (
  */
 export const prepareState = async (state: State): Promise<State> => {
   await initializeMat();
+
   // TODO: errors
   const stateAD = {
     ...state,
@@ -280,6 +286,7 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
 };
 
 export type PenroseState = State;
+export type PenroseFn = Fn;
 
 export {
   compileDomain,
@@ -300,6 +307,8 @@ export {
   showError,
   Result,
   prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
   ops,
 };
 export type { PenroseError } from "./types/errors";
@@ -308,3 +317,5 @@ export type { Env };
 export type { SynthesizerSetting };
 export type { SubProg } from "types/substance";
 export type { Canvas };
+export type { FieldDict };
+export type { Translation };
