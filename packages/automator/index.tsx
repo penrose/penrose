@@ -6,15 +6,18 @@ import {
   RenderStatic,
   showError,
   stepUntilConvergence,
+  PenroseState,
+  getListOfStagedStates,
+  Comic,
+  getComicPanelStates,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
+/*
 import {
   Comic,
   getComicPanelStates,
-  getListOfStagedStates,
 } from "../core/src/renderer/Staging";
-import { State } from "../core/src/types/state";
-
+*/
 const fs = require("fs");
 const chalk = require("chalk");
 const neodoc = require("neodoc");
@@ -27,7 +30,7 @@ Penrose Automator.
 Usage:
   automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--folders] [--src-prefix=PREFIX] [--staged]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
   automator comic SUBSTANCE STYLE DOMAIN COMICJSON OUTFOLDER [--src-prefix=PREFIX]
 
 Options:
@@ -110,7 +113,7 @@ const singleProcess = async (
   let listOfCanvasData, canvas;
   if (staged) {
     const listOfStagedStates = getListOfStagedStates(optimizedState);
-    listOfCanvasData = listOfStagedStates.map((state: State) => {
+    listOfCanvasData = listOfStagedStates.map((state: PenroseState) => {
       return RenderStatic(state).outerHTML;
     });
   } else {
@@ -216,7 +219,7 @@ const singleProcess = async (
       // write multiple svg files out
       const writeFileOut = (canvasData: any, index: number) => {
         let filename = out.slice(0, out.indexOf("svg") - 1);
-        let newStr = filename + index.toString() + ".svg";
+        let newStr = `${filename}${index.toString()}.svg`;
         fs.writeFileSync(newStr, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${newStr}`));
       };
@@ -273,14 +276,14 @@ const batchProcess = async (
     // try to render the diagram
     try {
       // Warning: will face id conflicts if parallelism used
-      let res = await singleProcess(
+      const res = await singleProcess(
         subURI,
         styURI,
         dslURI,
         folders,
         `${out}/${name}-${id}${folders ? "" : ".svg"}`,
         prefix,
-        staged, // make something else to fix singleProcess?
+        staged,
         {
           substanceName: subName,
           styleName: styName,
@@ -418,7 +421,6 @@ const comicProcess = async (
       staged
     );
   } else if (args.comic) {
-    // args.comic
     await comicProcess(
       args.SUBSTANCE,
       args.STYLE,
@@ -427,5 +429,7 @@ const comicProcess = async (
       outFile,
       prefix
     );
+  } else {
+    throw new Error("Invalid command line argument");
   }
 })();

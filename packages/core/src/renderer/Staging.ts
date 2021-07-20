@@ -143,9 +143,8 @@ const getStateFromObjArrAndLocalState = (
   // to be cleaner, i should technically update shapeOrdering as well
   // but not modifying that doesn't seem to affect the creation of the SVG
 
-  let newState = { ...state }; // shallow copy, otherwise weird aliasing issues
-
-  newState.shapes = newShapeList;
-
-  return newState;
+  return {
+    ...state,
+    shapes: newShapeList,
+  };
 };

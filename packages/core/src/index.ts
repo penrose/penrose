@@ -27,6 +27,7 @@ import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
+import { getListOfStagedStates } from "renderer/Staging";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -301,6 +302,7 @@ export {
   Result,
   prettyPrintFn,
   ops,
+  getListOfStagedStates,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };
