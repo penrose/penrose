@@ -3,7 +3,8 @@ import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IStrV } from "types/value";
+import { IFloatV, IStrV, ISubPath } from "types/value";
+import { ellipseDef } from "./ShapeDef";
 
 const toCmdString = (cmd: any, canvasSize: [number, number]) => {
   switch (cmd.tag) {
@@ -75,25 +76,47 @@ const toSubPathString = (commands: any[], canvasSize: [number, number]) => {
 
 const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
-    .map((subPath: any) => {
-      const { tag, contents } = subPath;
-      // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
-      if (!contents || !contents.length) {
+    .map((pathCmd) => {
+      const { cmd, contents } = pathCmd;
+      if (contents.length === 0 && cmd !== "Z") {
         console.error("WARNING: empty path");
         return "";
       }
-      const subPathStr = contents
-        .map((cmd: any, idx: number) => {
-          if (idx === 0 && cmd.tag === "Pt")
-            return `M ${toScreen(cmd.contents, canvasSize).join(" ")}`;
-          return toCmdString(cmd, canvasSize);
+      const pathStr = flatten(
+        contents.map((c: any) => {
+          if (c.tag === "CoordV") return toScreen(c.contents, canvasSize);
+          else if (c.tag === "ValueV") return c.contents;
+          else {
+            console.error("WARNING: improperly formed pathData");
+            return;
+          }
         })
-        .join(" ");
-      const subPathStr2 = toSubPathString(contents, canvasSize);
-      console.log(subPathStr, "2nd", subPathStr2);
-      return `${subPathStr} ${tag === "Closed" ? "Z" : ""}`;
+      ).join(" ");
+      return `${cmd} ${pathStr}`; // TODO need to convert to pt
     })
     .join(" ");
+
+// const toPathString = (pathData: any[], canvasSize: [number, number]) =>
+//   pathData
+//     .map((subPath: any) => {
+//       const { tag, contents } = subPath;
+//       // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
+//       if (!contents || !contents.length) {
+//         console.error("WARNING: empty path");
+//         return "";
+//       }
+//       const subPathStr = contents
+//         .map((cmd: any, idx: number) => {
+//           if (idx === 0 && cmd.tag === "Pt")
+//             return `M ${toScreen(cmd.contents, canvasSize).join(" ")}`;
+//           return toCmdString(cmd, canvasSize);
+//         })
+//         .join(" ");
+//       const subPathStr2 = toSubPathString(contents, canvasSize);
+//       console.log(subPathStr, "2nd", subPathStr2);
+//       return `${subPathStr} ${tag === "Closed" ? "Z" : ""}`;
+//     })
+//     .join(" ");
 
 const Shadow = (id: string) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "filter");

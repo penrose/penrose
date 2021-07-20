@@ -13,7 +13,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { Elem, IPath, SubPath, Value } from "types/value";
+import { Elem, IPathCmd, ISubPath, Value } from "types/value";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -234,13 +234,29 @@ function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
 function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
   return {
     tag: "PathDataV",
-    contents: v.contents.map((e) => {
+    contents: v.contents.map((pathCmd: IPathCmd<T>) => {
       return {
-        tag: e.tag,
-        contents: e.contents.map((elem) => mapElem(f, elem)),
+        cmd: pathCmd.cmd,
+        contents: pathCmd.contents.map(
+          (subCmd: ISubPath<T>): ISubPath<S> => {
+            return {
+              tag: subCmd.tag,
+              contents: mapTuple(f, subCmd.contents),
+            };
+          }
+        ),
       };
     }),
   };
+  // return {
+  //   tag: "PathDataV",
+  //   contents: v.contents.map((e) => {
+  //     return {
+  //       tag: e.tag,
+  //       contents: e.contents.map((elem) => mapElem(f, elem)),
+  //     };
+  //   }),
+  // };
 }
 
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
@@ -276,79 +292,102 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 }
 
 // Utils for converting types of values
-export class PathCls {
-  private path: IPath<IVarAD>[];
+export class SVGPath {
+  private path: IPathDataV<IVarAD>;
   constructor() {
-    this.path = [];
+    this.path = {
+      tag: "PathDataV",
+      contents: [],
+    };
   }
-  moveTo = (x: IVarAD, y: IVarAD) => {
-    this.path.push({
-      cmd: "M",
+  private newCoord = (x: IVarAD, y: IVarAD): ISubPath<IVarAD> => {
+    return {
+      tag: "CoordV",
       contents: [x, y],
+    };
+  };
+  private newValue = (v: IVarAD[]): ISubPath<IVarAD> => {
+    return {
+      tag: "ValueV",
+      contents: v,
+    };
+  };
+
+  getPath = () => this.path;
+
+  moveTo = ([x, y]: [IVarAD, IVarAD]) => {
+    this.path.contents.push({
+      cmd: "M",
+      contents: [this.newCoord(x, y)],
     });
   };
   closePath = () => {
-    this.path.push({
+    this.path.contents.push({
       cmd: "Z",
       contents: [],
     });
   };
-  lineTo = (x: IVarAD, y: IVarAD) => {
-    this.path.push({
+  lineTo = ([x, y]: [IVarAD, IVarAD]) => {
+    this.path.contents.push({
       cmd: "L",
-      contents: [x, y],
+      contents: [this.newCoord(x, y)],
     });
   };
-  quadraticCurveTo = (cpx: IVarAD, cpy: IVarAD, x: IVarAD, y: IVarAD) => {
-    this.path.push({
+  quadraticCurveTo = (
+    [cpx, cpy]: [IVarAD, IVarAD],
+    [x, y]: [IVarAD, IVarAD]
+  ) => {
+    this.path.contents.push({
       cmd: "Q",
-      contents: [cpx, cpy, x, y],
+      contents: [this.newCoord(cpx, cpy), this.newCoord(x, y)],
     });
   };
   bezierCurveTo = (
-    cpx1: IVarAD,
-    cpy1: IVarAD,
-    cpx2: IVarAD,
-    cpy2: IVarAD,
-    x: IVarAD,
-    y: IVarAD
+    [cpx1, cpy1]: [IVarAD, IVarAD],
+    [cpx2, cpy2]: [IVarAD, IVarAD],
+    [x, y]: [IVarAD, IVarAD]
   ) => {
-    this.path.push({
+    this.path.contents.push({
       cmd: "C",
-      contents: [cpx1, cpy1, cpx2, cpy2, x, y],
+      contents: [
+        this.newCoord(cpx1, cpy1),
+        this.newCoord(cpx2, cpy2),
+        this.newCoord(x, y),
+      ],
     });
   };
-  quadraticCurveJoin = (x: IVarAD, y: IVarAD) => {
-    this.path.push({
+  quadraticCurveJoin = ([x, y]: [IVarAD, IVarAD]) => {
+    this.path.contents.push({
       cmd: "T",
-      contents: [x, y],
+      contents: [this.newCoord(x, y)],
     });
   };
-  cubicCurveJoin = (cpx: IVarAD, cpy: IVarAD, x: IVarAD, y: IVarAD) => {
-    this.path.push({
+  cubicCurveJoin = ([cpx, cpy]: [IVarAD, IVarAD], [x, y]: [IVarAD, IVarAD]) => {
+    this.path.contents.push({
       cmd: "S",
-      contents: [cpx, cpy, x, y],
+      contents: [this.newCoord(cpx, cpy), this.newCoord(x, y)],
     });
   };
   arcTo = (
-    x1: IVarAD,
-    y1: IVarAD,
-    rx: IVarAD,
-    ry: IVarAD,
-    x2: IVarAD,
-    y2: IVarAD,
+    [x1, y1]: [IVarAD, IVarAD],
+    [rx, ry]: [IVarAD, IVarAD],
+    [x2, y2]: [IVarAD, IVarAD],
     [rotation, majorArc, sweep]: IVarAD[]
   ) => {
-    this.moveTo(x1, y1);
-    this.path.push({
+    this.moveTo([x1, y1]);
+    this.path.contents.push({
       cmd: "A",
-      contents: [rx, ry, rotation, majorArc, sweep, x2, y2],
+      contents: [
+        this.newValue([rx, ry, rotation, majorArc, sweep]),
+        this.newCoord(x2, y2),
+      ],
     });
   };
 }
 
 // Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
+// TODO come back to this for conversion from varAD to number
 export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   const nonnumericValueTypes = [
     "BoolV",

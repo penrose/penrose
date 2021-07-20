@@ -1,4 +1,4 @@
-import { VarAD } from "./ad";
+import { IVarAD, VarAD } from "./ad";
 import { StyleError } from "./errors";
 import { Expr } from "./style";
 
@@ -160,7 +160,7 @@ export interface IPtV<T> {
 /** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
 export interface IPathDataV<T> {
   tag: "PathDataV";
-  contents: SubPath<T>[];
+  contents: IPathCmd<T>[];
 }
 
 /** A list of points **/
@@ -314,8 +314,25 @@ export interface IArc<T> {
   contents: T[][];
 }
 
-export type IPath<IVarAD> = IPathCmd<IVarAD>;
-export interface IPathCmd<IVarAD> {
+// SVG spec types
+// export type IPath = {
+//   tag: "Path";
+//   contents: IPathCmd[];
+// };
+
+export type ISubPath<T> = IValueV<T> | ICoordV<T>;
+
+export interface IPathCmd<T> {
   cmd: string;
-  contents: IVarAD[];
+  contents: ISubPath<T>[];
+}
+
+export interface IValueV<T> {
+  tag: "ValueV";
+  contents: T[];
+}
+
+export interface ICoordV<T> {
+  tag: "CoordV";
+  contents: T[];
 }

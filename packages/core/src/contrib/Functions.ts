@@ -22,7 +22,9 @@ import {
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
+import { SVGPath } from "engine/EngineUtils";
 import { maxBy, range } from "lodash";
+import Path from "renderer/Path";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import { Var } from "types/domain";
 import {
@@ -70,27 +72,31 @@ export const compDict = {
       curveHeight,
       normalVec
     );
-    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
-    const startPt: IPt<IVarAD> = {
-      tag: "Pt",
-      contents: toPt(ops.vmove(start, padding, ops.vneg(unit))),
-    };
     const curveEnd: IVarAD[] = ops.vmove(end, padding, unit);
-    return {
-      tag: "PathDataV",
-      contents: [
-        {
-          tag: "Open",
-          contents: [
-            startPt,
-            {
-              tag: "QuadBez",
-              contents: [toPt(controlPt), toPt(curveEnd)],
-            },
-          ],
-        },
-      ],
-    };
+    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
+    const path = new SVGPath();
+    path.moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))));
+    path.quadraticCurveTo(toPt(controlPt), toPt(curveEnd));
+    // const startPt: IPt<IVarAD> = {
+    //   tag: "Pt",
+    //   contents: toPt(ops.vmove(start, padding, ops.vneg(unit))),
+    // };
+    return path.getPath();
+    // return {
+    //   tag: "PathDataV",
+    //   contents: [
+    //     {
+    //       tag: "Open",
+    //       contents: [
+    //         startPt,
+    //         {
+    //           tag: "QuadBez",
+    //           contents: [toPt(controlPt), toPt(curveEnd)],
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // };
 
     // return {
     //   tag: "PathDataV",
@@ -312,11 +318,17 @@ export const compDict = {
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<VarAD> => {
-    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    const elems: Elem<VarAD>[] = pts.map((e) => ({ tag: "Pt", contents: e }));
-    const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
-    return { tag: "PathDataV", contents: [path] };
+  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<IVarAD> => {
+    const path = new SVGPath();
+    const [start, ...tailpts] = pts;
+    path.moveTo(start);
+    tailpts.map((pt: Pt2) => path.lineTo(pt));
+    if (pathType === "closed") path.closePath();
+    // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
+    // const elems: Elem<VarAD>[] = pts.map((e) => ({ tag: "Pt", contents: e }));
+    // const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
+    // return { tag: "PathDataV", contents: [path] };
+    return path.getPath();
   },
 
   /**
@@ -376,30 +388,22 @@ export const compDict = {
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
   arc: (
-    pathType: string,
     start: Pt2,
     end: Pt2,
     radius: Pt2,
     rotation: IVarAD,
     largeArc: IVarAD,
     arcSweep: IVarAD
-  ): IPathDataV<VarAD> => {
-    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    const st: IPt<IVarAD> = { tag: "Pt", contents: start };
-    const arc: IArc<IVarAD> = {
-      tag: "Arc",
-      contents: [radius, [rotation, largeArc, arcSweep], end],
-    };
-    const elems: Elem<VarAD>[] = [st, arc];
-    return {
-      tag: "PathDataV",
-      contents: [
-        {
-          tag: pathTypeStr,
-          contents: elems,
-        },
-      ],
-    };
+  ): IPathDataV<IVarAD> => {
+    // const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
+    // const st: IPt<IVarAD> = { tag: "Pt", contents: start };
+    // const arc: IArc<IVarAD> = {
+    //   tag: "Arc",
+    //   contents: [radius, [rotation, largeArc, arcSweep], end],
+    // };
+    const path = new SVGPath();
+    path.arcTo(start, radius, end, [rotation, largeArc, arcSweep]);
+    return path.getPath();
   },
   /**
    * Find the point that is located at dist r along a line between p1 and p2.
@@ -487,23 +491,28 @@ export const compDict = {
     [t2, s2]: [string, any],
     intersection: Pt2,
     len: VarAD
-  ): IPathDataV<VarAD> => {
+  ): IPathDataV<IVarAD> => {
     if (
       (t1 === "Arrow" || t1 === "Line") &&
       (t2 === "Arrow" || t2 === "Line")
     ) {
       const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
+      const path = new SVGPath();
+      path.moveTo(toPt(ptL));
+      path.lineTo(toPt(ptLR));
+      path.lineTo(toPt(ptR));
+      path.lineTo(intersection);
+      path.closePath();
+      // const elems: Elem<VarAD>[] = [
+      //   { tag: "Pt", contents: toPt(ptL) },
+      //   { tag: "Pt", contents: toPt(ptLR) },
+      //   { tag: "Pt", contents: toPt(ptR) },
+      //   { tag: "Pt", contents: intersection },
+      // ];
+      // const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 
-      const elems: Elem<VarAD>[] = [
-        { tag: "Pt", contents: toPt(ptL) },
-        { tag: "Pt", contents: toPt(ptLR) },
-        { tag: "Pt", contents: toPt(ptR) },
-        { tag: "Pt", contents: intersection },
-      ];
-      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
-
-      return { tag: "PathDataV", contents: [path] };
+      return path.getPath();
     } else {
       throw Error("orientedSquare undefined for types ${t1}, ${t2}");
     }
@@ -555,18 +564,24 @@ export const compDict = {
     [t1, l1]: any,
     [t2, l2]: any,
     [t3, l3]: any
-  ): IPathDataV<VarAD> => {
+  ): IPathDataV<IVarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
       // As temp hack around furthestFrom, assumes triangle is drawn in a consistent order (first point of each line)
-      const elems: Elem<VarAD>[] = [
-        { tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
-        { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
-        { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] },
-      ];
+      // const elems: Elem<VarAD>[] = [
+      // { tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
+      //   { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
+      //   { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] },
+      // ];
 
-      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
+      // const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 
-      return { tag: "PathDataV", contents: [path] };
+      // return { tag: "PathDataV", contents: [path] };
+      const path = new SVGPath();
+      path.moveTo(toPt(getStart(l1)));
+      path.lineTo(toPt(getStart(l2)));
+      path.lineTo(toPt(getStart(l3)));
+      path.closePath();
+      return path.getPath();
     } else {
       console.error([t1, l1], [t2, l2], [t3, l3]);
       throw Error("Triangle function expected three lines");
