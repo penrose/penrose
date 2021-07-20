@@ -1,3 +1,11 @@
+import { parseSubstance } from "../compiler/Substance";
+import {
+  ApplyPredicate,
+  SubExpr,
+  SubPredArg,
+  SubProg,
+  SubStmt,
+} from "../types/substance";
 import { IVarAD } from "../types/ad";
 import { Shape } from "../types/shape";
 import { State } from "../types/state";
@@ -12,6 +20,128 @@ export type Comic = { [k: string]: string[] };
 export const testcomic: Comic = {
   "1": ["A", "B"],
   "2": ["A", "B", "IsSubset_B_A"],
+};
+
+export const getTrmapKeyComic = (json: Comic, subProg: string): Comic => {
+  const obj: Comic = json; // JSON.parse(fs.readFileSync(json, "utf8").toString());
+
+  const astOk = parseSubstance(subProg);
+  if (!astOk.isOk()) {
+    throw new Error("Substance program could not be parsed");
+  }
+  const subAst = astOk.value;
+
+  // check obj that all obj values are legal
+  const panelStmtList = Object.values(obj); // flatten one level
+
+  // checks if all the substance stmts are valid
+  // will throw an error on the first stmt that is not valid.
+  const newPanelStmtList = panelStmtList.map((substStmtList) => {
+    return getTrMapKeys(substStmtList, subAst).filter((name) => {
+      return name !== "";
+    });
+  });
+
+  // otherwise they are all valid, so translate them
+
+  for (let i = 0; i < Object.keys(obj).length; i++) {
+    const key = Object.keys(obj)[i];
+    obj[key] = newPanelStmtList[i];
+  }
+
+  return obj;
+};
+
+const getTrMapKeys = (stmtList: string[], subAst: SubProg): string[] => {
+  return stmtList.map((stmt) => getTrMapKey(stmt, subAst));
+};
+
+const getTrMapKey = (stmt: string, subAst: SubProg): string => {
+  // turn string IsSubset ( B, A )
+  // into the substance 'name'
+  // first parse as a substance statement
+
+  const stmtAstOk = parseSubstance(stmt);
+  if (!stmtAstOk.isOk()) {
+    throw new Error(`Statement ${stmt} could not be parsed.`);
+  }
+
+  // otherwise, it can be parsed
+  const stmtAst = stmtAstOk.value;
+
+  if (stmtAst.statements.length !== 1) {
+    throw new Error(`Expected single substance construct from ${stmt}.`);
+  }
+
+  // get its name
+  // console.log('name', stmt)
+  const name = subStmtToInternalStr(stmtAst.statements[0]);
+
+  // the list of possible names
+  const subAstNames = subAst.statements.map(subStmtToInternalStr);
+
+  if (!subAstNames.includes(name) && name !== "") {
+    throw new Error(`Statement ${stmt} is not declared in substance.`);
+  }
+
+  return name;
+};
+
+/*
+export type SubStmt =
+  | Decl
+  | Bind
+  | EqualExprs
+  | EqualPredicates
+  | ApplyPredicate
+  | LabelDecl
+  | AutoLabel
+  | NoLabel;
+*/
+const subStmtToInternalStr = (stmt: SubStmt): string => {
+  // console.log('\nstmt', stmt);
+  switch (stmt.tag) {
+    case "Decl":
+      // console.log('decl')
+      return stmt.name.value;
+    case "ApplyPredicate":
+      // console.log('applypred')
+      return getPredicateKeyName(stmt);
+    default:
+      // console.log('neither')
+      return ""; // return an empty str, doesn't show up in trmap
+  }
+};
+
+const getPredicateKeyName = (stmt: ApplyPredicate): string => {
+  let name = stmt.name.value;
+  for (let arg of stmt.args) {
+    name = name.concat("_").concat(getSubPredArgKeyName(arg));
+  }
+  // console.log(name)
+  return name;
+};
+
+const getSubPredArgKeyName = (arg: SubPredArg): string => {
+  if (arg.tag === "ApplyPredicate") return getPredicateKeyName(arg);
+  return getSubExprKeyName(arg);
+};
+
+const getSubExprKeyName = (expr: SubExpr): string => {
+  //let name;
+  if (expr.tag === "Identifier") {
+    return expr.value;
+  } else if (expr.tag === "Deconstructor") {
+    return `${expr.variable.value}_${expr.field.value}`;
+  } else if (expr.tag === "StringLit") {
+    return expr.contents;
+  } else if (expr.tag === "Func" || "ApplyConstructor" || "ApplyFunction") {
+    let str = expr.name.value;
+    for (let arg of expr.args) {
+      str = str.concat("_").concat(getSubExprKeyName(arg));
+    }
+    return str;
+  } else throw new Error("unknown tag");
 };
 
 export const getComicPanelStates = (state: State, comic: Comic): State[] => {

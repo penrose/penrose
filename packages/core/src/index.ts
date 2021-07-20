@@ -31,6 +31,7 @@ import {
   getListOfStagedStates,
   getComicPanelStates,
   Comic,
+  getTrmapKeyComic,
 } from "renderer/Staging";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -308,6 +309,7 @@ export {
   ops,
   getListOfStagedStates,
   getComicPanelStates,
+  getTrmapKeyComic,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };

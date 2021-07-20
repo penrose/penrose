@@ -10,14 +10,10 @@ import {
   getListOfStagedStates,
   Comic,
   getComicPanelStates,
+  getTrmapKeyComic,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
-/*
-import {
-  Comic,
-  getComicPanelStates,
-} from "../core/src/renderer/Staging";
-*/
+
 const fs = require("fs");
 const chalk = require("chalk");
 const neodoc = require("neodoc");
@@ -336,8 +332,9 @@ const comicProcess = async (
   );
 
   // Fetch comic file
-  const comicObj: Comic = JSON.parse(fs.readFileSync(comic, "utf8").toString());
-  // console.log(comicObj, typeof comicObj);
+  const initComicObj: Comic = JSON.parse(
+    fs.readFileSync(comic, "utf8").toString()
+  );
 
   // Compilation
   console.log(`Compiling for ${out}/${sub} ...`);
@@ -357,16 +354,27 @@ const comicProcess = async (
   const initialState = await prepareState(compiledState);
   const labelEnd = process.hrtime(labelStart);
 
+  // optimizing
   console.log(`Stepping for ${out} ...`);
-
   const convergeStart = process.hrtime();
   const optimizedState = stepUntilConvergence(initialState, 10000);
   const convergeEnd = process.hrtime(convergeStart);
 
-  const reactRenderStart = process.hrtime();
+  // reading in comic file
+  console.log(`Converting ${comic} to internal form ...`);
+  const comicConversionStart = process.hrtime();
+  const trMapComicObj = getTrmapKeyComic(initComicObj, subIn);
+  const comicConversionEnd = process.hrtime(comicConversionStart);
 
-  // make a list of canvas data if staged (prepare to generate multiple SVGs)
-  const listOfComicStates = getComicPanelStates(optimizedState, comicObj);
+  // getting staged states per comic panel
+  console.log(`Fetching states for comic panels ...`);
+  const comicStatesFetchingStart = process.hrtime();
+  const listOfComicStates = getComicPanelStates(optimizedState, trMapComicObj);
+  const comicStatesFetchingEnd = process.hrtime(comicStatesFetchingStart);
+
+  // rendering start
+  console.log(`Rendering all states ...`);
+  const reactRenderStart = process.hrtime();
   const listOfCanvasData = listOfComicStates.map((state: PenroseState) => {
     return RenderStatic(state).outerHTML;
   });
@@ -374,18 +382,16 @@ const comicProcess = async (
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
 
-  // cross-instance energy evaluation
-
-  const writeFileOut = (canvasData: any, index: number) => {
-    let filename = Object.keys(comicObj)[index]; // out.slice(0, out.indexOf("svg") - 1);
-    let newStr = `${filename}.svg`; //filename + index.toString() + ".svg";
+  // writing files out
+  const writeFileOut = (canvasData: any, index: number): void => {
+    let filename = Object.keys(trMapComicObj)[index]; // out.slice(0, out.indexOf("svg") - 1);
+    let newStr = `${out}/${filename}.svg`; //filename + index.toString() + ".svg";
     fs.writeFileSync(newStr, canvasData);
-    console.log(chalk.green(`The diagram has been saved as ${newStr}`));
+    console.log(
+      chalk.green(`Diagram ${index + 1} has been saved as ${newStr}`)
+    );
   };
   listOfCanvasData.map(writeFileOut);
-
-  // HACK: return empty metadata??
-  return null;
 };
 
 (async () => {
@@ -426,7 +432,7 @@ const comicProcess = async (
       args.STYLE,
       args.DOMAIN,
       args.COMICJSON,
-      outFile,
+      args.OUTFOLDER,
       prefix
     );
   } else {

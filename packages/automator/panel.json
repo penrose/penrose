@@ -1,6 +1,19 @@
 {
-  "first": ["A", "B"],
-  "second": ["A", "B", "IsSubset_B_A"],
-  "third": ["A", "B", "IsSubset_B_A", "C", "D", "IsSubset_C_A", "IsSubset_D_B"],
-  "fourth": ["C", "D", "F", "IsSubset_B_A"]
+  "first": ["Set A", "Set B"],
+  "second": [
+    "Set A",
+    "Set B",
+    "IsSubset( B, A)",
+    " Not ( Intersecting(E,D) ) "
+  ],
+  "third": [
+    "Set A",
+    "Set B",
+    " IsSubset (B,A) ",
+    "Set C",
+    "Set D",
+    "IsSubset( C,A)  ",
+    " IsSubset(D,B)"
+  ],
+  "fourth": ["Set C", "Set D", "Set F", " IsSubset(B, A) "]
 }

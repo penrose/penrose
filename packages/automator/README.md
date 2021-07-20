@@ -51,4 +51,4 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 ## Staged Diagram Generation w/ User-specified Panels
 
 - Run `yarn start comic tree.sub tree.sty setTheory.dsl panel.json out --src-prefix=../../packages/core/src/__tests__/predicate_aliasing_examples/` in this directory to generate output SVGs based on the "panels" in `panel.json`.
-- The entries in each `Comic` object (i.e. the contents of `panel.json`) must be valid keys in the state's translation trMap.
+- The entries in each `Comic` object (i.e. the contents of `panel.json`) must be valid declarations from the `.sub` file.
