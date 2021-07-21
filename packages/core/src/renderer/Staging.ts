@@ -93,7 +93,7 @@ const subStmtToInternalStr = (stmt: SubStmt): string => {
     case "ApplyPredicate":
       return getPredicateKeyName(stmt);
     default:
-      return ""; // return an empty str, doesn't show up in trmap
+      return ""; // only var decls and predicates (if aliased) show up in trmap
   }
 };
 
@@ -107,7 +107,7 @@ const getPredicateKeyName = (stmt: ApplyPredicate): string => {
 
 const getSubPredArgKeyName = (arg: SubPredArg): string => {
   if (arg.tag === "ApplyPredicate") return getPredicateKeyName(arg);
-  return getSubExprKeyName(arg);
+  else return getSubExprKeyName(arg);
 };
 
 const getSubExprKeyName = (expr: SubExpr): string => {
@@ -159,7 +159,7 @@ const shapeIsPartOfTrMapObj = (
 ): boolean => {
   if (!state.translation.trMap[trMapName]) {
     console.log(
-      `WARNING: ${trMapName} is not a valid key. This object will not be rendered.`
+      `WARNING: ${trMapName} has no associated GPIs or expressions. This object will not be rendered.`
     );
     return false;
   } // the requested name doesn't exist
@@ -176,12 +176,10 @@ const shapeIsPartOfTrMapObj = (
   );
 
   if (matchingKeyEntryGPIPairs.length > 1) {
-    // shouldn't happen (no duplicates)
-    console.log(matchingKeyEntryGPIPairs);
-    throw new Error("There are duplicates");
+    throw new Error(`There are duplicates: ${matchingKeyEntryGPIPairs}`);
   }
 
-  // either it matches or it doesn't
+  // either it matches (==1) or it doesn't (==0)
   return matchingKeyEntryGPIPairs.length === 1;
 };
 
