@@ -6,13 +6,13 @@ import {
   applyPredicate,
   applyTypeDecl,
   ArgExpr,
-  ArgStmtDecl,
+  argMatches,
   autoLabelStmt,
+  cascadingDelete,
   domainToSubType,
   matchSignatures,
   nullaryTypeCons,
   removeStmt,
-  replaceStmt,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
@@ -23,17 +23,19 @@ import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
 import {
+  Add,
   checkAddStmt,
   checkAddStmts,
+  checkChangeExprType,
+  checkChangeStmtType,
   checkDeleteStmt,
   checkReplaceExprName,
   checkSwapExprArgs,
   checkSwapStmtArgs,
-  executeMutation,
+  Delete,
   executeMutations,
-  IMutation,
   Mutation,
-  showOp,
+  MutationGroup,
   showOps,
 } from "synthesis/Mutation";
 import { Identifier } from "types/ast";
@@ -66,7 +68,7 @@ import { checkReplaceStmtName } from "./Mutation";
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: LogLevel.Info })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -354,7 +356,7 @@ export class Synthesizer {
     };
   };
 
-  findMutations = (stmt: SubStmt): Mutation[] => {
+  findMutations = (stmt: SubStmt): MutationGroup[] => {
     log.debug(`Finding mutations for ${prettyStmt(stmt)}`);
     const ops: (Mutation | undefined)[] = [
       checkSwapStmtArgs(stmt, (p: ApplyPredicate) => {
@@ -387,31 +389,110 @@ export class Synthesizer {
           return this.choice(options);
         } else return undefined;
       }),
+      checkChangeStmtType(
+        stmt,
+        this.cxt,
+        (oldStmt: ApplyPredicate, cxt: SynthesisContext) => {
+          const options = argMatches(oldStmt, this.env);
+          if (options.length > 0) {
+            const pick = this.choice(options);
+            let newStmts: WithStmts<SubStmt>;
+            if (pick.tag === "PredicateDecl") {
+              newStmts = this.generatePredicate(pick, cxt);
+            } else if (pick.tag === "FunctionDecl") {
+              newStmts = this.generateFunction(pick, cxt);
+            } else {
+              newStmts = this.generateConstructor(pick, cxt);
+            }
+            const { res, stmts } = newStmts;
+            const deleteOp: Delete = {
+              tag: "Delete",
+              stmt: oldStmt,
+              mutate: ({ stmt }: Delete, prog: SubProg) =>
+                removeStmt(prog, stmt),
+            };
+            const addOps: Add[] = stmts.map((stmt) => ({
+              tag: "Add",
+              stmt,
+              mutate: ({ stmt }: Add, prog: SubProg) => appendStmt(prog, stmt),
+            }));
+            return {
+              newStmt: res,
+              additionalMutations: [deleteOp, ...addOps],
+            };
+          } else return undefined;
+        }
+      ),
+      checkChangeExprType(
+        stmt,
+        this.cxt,
+        (oldStmt: Bind, oldExpr: ArgExpr, cxt: SynthesisContext) => {
+          const options = argMatches(oldStmt, this.env);
+          if (options.length > 0) {
+            const pick = this.choice(options);
+            let newStmts: WithStmts<SubStmt>;
+            if (pick.tag === "PredicateDecl") {
+              newStmts = this.generatePredicate(pick, cxt);
+            } else if (pick.tag === "FunctionDecl") {
+              newStmts = this.generateFunction(pick, cxt);
+            } else {
+              newStmts = this.generateConstructor(pick, cxt);
+            }
+            const { res, stmts } = newStmts;
+            let toDelete: SubStmt[];
+            // remove old statement
+            if (
+              res.tag === "Bind" &&
+              res.variable.type !== oldStmt.variable.type
+            ) {
+              // old bind was replaced by a bind with diff type
+              toDelete = cascadingDelete(oldStmt, this.cxt.prog); // remove refs to the old bind
+            } else {
+              toDelete = [oldStmt];
+            }
+            const deleteOps: Delete[] = toDelete.map((s) => ({
+              tag: "Delete",
+              stmt: s,
+              mutate: ({ stmt }: Delete, prog: SubProg) =>
+                removeStmt(prog, stmt),
+            }));
+            const addOps: Add[] = stmts.map((stmt) => ({
+              tag: "Add",
+              stmt,
+              mutate: ({ stmt }: Add, prog: SubProg) => appendStmt(prog, stmt),
+            }));
+            return {
+              newStmt: res,
+              additionalMutations: [...deleteOps, ...addOps],
+            };
+          } else return undefined;
+        }
+      ),
     ];
     const mutations = compact(ops);
     log.debug(
       `Available mutations for ${prettyStmt(stmt)}:\n${showOps(mutations)}`
     );
-    return mutations;
+    return mutations.map((m) => [m]);
   };
 
   mutateProgram = (): void => {
-    const ops = ["add", "delete", "edit"];
-    const op = this.choice(ops);
-    if (op === "add") {
-      this.cxt.findCandidates(this.env, this.setting.add);
-      this.addStmt();
-    } else if (op === "delete") {
-      this.cxt.findCandidates(this.env, this.setting.delete);
-      this.deleteStmt();
-    } else if (op === "edit") {
-      this.cxt.findCandidates(this.env, this.setting.edit);
-      this.editStmt();
-    }
+    this.cxt.findCandidates(this.env, this.setting.add);
+    const addOps = this.addStmt();
+    this.cxt.findCandidates(this.env, this.setting.delete);
+    const deleteOps = this.deleteStmt();
+    this.cxt.findCandidates(this.env, this.setting.edit);
+    const editOps = this.editStmt();
+    const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps];
+    log.debug(`Possible operations: ${mutations.map(showOps).join("\n")}`);
+    const mutationGroup: MutationGroup = this.choice(mutations);
+    log.debug(`Picked mutation group: ${showOps(mutationGroup)}`);
+    const newProg: SubProg = executeMutations(this.cxt.prog, mutationGroup);
+    this.cxt.ops.push(...mutationGroup);
+    this.cxt.updateProg(newProg);
   };
 
-  // TODO: add max iteration # to terminate the search if no applicable edit is found
-  editStmt = (): void => {
+  editStmt = (): MutationGroup[] => {
     log.debug(`Picking a statement to edit...`);
     // pick a kind of statement to edit
     const chosenType = this.choice(this.cxt.candidateTypes());
@@ -425,86 +506,23 @@ export class Synthesizer {
     const stmt = this.findStmt(chosenType, chosenName);
     if (stmt !== undefined) {
       log.debug(`Editing statement: ${prettyStmt(stmt)}`);
-      // find all available mutations for the given statement
+      // find all available edit mutations for the given statement
       const mutations = this.findMutations(stmt);
-      log.debug(`Possible mutations:\n${showOps(mutations)}`);
+      log.debug(`Possible edits:\n${mutations.map(showOps).join("\n")}`);
       // if there's any valid mutation, pick one to execute
-      if (mutations.length > 0) {
-        const mutation: Mutation = this.choice(mutations);
-        log.debug(`Picked mutation: ${showOp(mutation)}`);
-        const newProg: SubProg = executeMutation(this.cxt.prog, mutation);
-        this.cxt.ops.push(mutation);
-        this.cxt.updateProg(newProg);
-      } else this.editStmt(); // if there's no good option, repeat
-    } else {
-      log.debug(
-        `Couldn't find a statement to edit. Repeating the edit action...`
-      );
-      this.editStmt(); // if there's no good option, repeat
-    }
+      return mutations;
+    } else return [];
   };
-
-  // editStmt = (op: Update["tag"]): void => {
-  //   this.cxt.findCandidates(this.env, this.setting.edit);
-  //   const chosenType = this.choice(this.cxt.candidateTypes());
-  //   const candidates = [...this.cxt.getCandidates(chosenType).keys()];
-  //   const chosenName = this.choice(candidates);
-  //   const stmt = this.findStmt(chosenType, chosenName);
-  //   if (stmt && (stmt.tag === "ApplyPredicate" || stmt.tag === "Bind")) {
-  //     log.debug(`Editing statement: ${prettyStmt(stmt)}`);
-  //     switch (op) {
-  //       case "TypeChange": {
-  //         const options = argMatches(stmt, this.env);
-  //         if (options.length > 0) {
-  //           const pick = this.choice(options);
-  //           this.typeChange(stmt, pick);
-  //         }
-  //         break;
-  //       }
-  //     }
-  //   } else {
-  //     log.debug(
-  //       `Failed to find a statement when editing. Candidates are: ${candidates}. Chosen name to find is ${chosenName} of ${chosenType}`
-  //     );
-  //   }
-  // };
 
   //   // COMBAK: fix
   // typeChange = (oldStmt: ApplyPredicate | Bind, pick: ArgStmtDecl): void => {
-  //   let newStmt = oldStmt;
-  //   if (pick.tag === "PredicateDecl") {
-  //     newStmt = this.generatePredicate(pick);
-  //   } else if (pick.tag === "FunctionDecl") {
-  //     newStmt = this.generateFunction(pick);
-  //   } else {
-  //     newStmt = this.generateConstructor(pick);
-  //   }
-  //   // remove old statement
-  //   if (
-  //     newStmt.tag === "Bind" &&
-  //     oldStmt.tag === "Bind" &&
-  //     newStmt.variable.type !== oldStmt.variable.type
-  //   ) {
-  //     // old bind was replaced by a bind with diff type
-  //     this.cascadingDelete(oldStmt); // remove refs to the old bind
-  //     newStmt = newStmt as Bind;
-  //   } else {
-  //     // otherwise we can simple delete
-  //     this.cxt.removeStmt(oldStmt);
-  //   }
-  //   // this.cxt.ops.push({
-  //   //   tag: "Replace",
-  //   //   stmt: oldStmt,
-  //   //   newStmt: newStmt,
-  //   //   mutationType: "TypeChange",
-  //   // });
   // };
 
   // NOTE: every synthesizer that 'addStmt' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
-  addStmt = (): void => {
+  addStmt = (): MutationGroup => {
     this.cxt.findCandidates(this.env, this.setting.add);
     const chosenType = this.choice(this.cxt.candidateTypes());
-    let possibleOps: Mutation[] | undefined;
+    let possibleOps: MutationGroup | undefined;
     log.debug(`Adding statement of ${chosenType} type`);
     if (chosenType === "TypeDecl") {
       const op = checkAddStmt(
@@ -557,13 +575,11 @@ export class Synthesizer {
     }
     if (possibleOps) {
       log.debug(`Mutations selected for add:\n${showOps(possibleOps)}`);
-      const newProg: SubProg = executeMutations(this.cxt.prog, possibleOps);
-      this.cxt.ops.push(...possibleOps);
-      this.cxt.updateProg(newProg);
-    }
+      return possibleOps;
+    } else return [];
   };
 
-  deleteStmt = (): void => {
+  deleteStmt = (): MutationGroup => {
     log.debug("Deleting statement");
     const chosenType = this.choice(this.cxt.candidateTypes());
     const candidates = [...this.cxt.getCandidates(chosenType).keys()];
@@ -577,7 +593,9 @@ export class Synthesizer {
           // COMBAK: fix
           const del = checkDeleteStmt(this.cxt.prog, this.cxt, (cxt) => {
             // TODO: check if there's really no need to remove ID here?
-            // cxt.removeID(stmt.type.name.value, stmt.name);
+            if (s.tag === "Decl") {
+              cxt.removeID(s.type.name.value, s.name);
+            }
             return s;
           });
           if (del) {
@@ -585,20 +603,14 @@ export class Synthesizer {
           }
         });
       } else {
-        const del = checkDeleteStmt(this.cxt.prog, this.cxt, (cxt) => {
-          // TODO: check if there's really no need to remove ID here?
-          // cxt.removeID(stmt.type.name.value, stmt.name);
-          return stmt;
-        });
+        const del = checkDeleteStmt(this.cxt.prog, this.cxt, () => stmt);
         possibleOps = del ? [del] : [];
       }
     }
     if (possibleOps) {
       log.debug(`Mutations selected for delete:\n${showOps(possibleOps)}`);
-      const newProg: SubProg = executeMutations(this.cxt.prog, possibleOps);
-      this.cxt.ops.concat(possibleOps);
-      this.cxt.updateProg(newProg);
-    }
+      return possibleOps;
+    } else return [];
   };
 
   // TODO: add an option to distinguish between edited vs original statements?
@@ -847,53 +859,3 @@ const filterBySetting = <T>(
     return decls.filter((_, key) => setting.includes(key));
   }
 };
-
-/**
- * Given a statement which returns a value
- * that is staged to be deleted, iteratively find and delete any other
- * statements that would use the statement's returned variable
- * TODO: Refactor to a pure function and put in SubstanceAnalysis.ts!
- * @param dec either a Bind or Decl that is staged to be deleted
- */
-export const cascadingDelete = (dec: Bind | Decl, prog: SubProg): SubStmt[] => {
-  const findArg = (s: ApplyPredicate, ref: Identifier | undefined) =>
-    ref &&
-    s.args.filter((a) => {
-      return a.tag === ref.tag && a.value === ref.value;
-    }).length > 0;
-  const ids = [dec.tag === "Bind" ? dec.variable : dec.name]; // stack of variables to delete
-  const removedStmts: Set<SubStmt> = new Set();
-  while (ids.length > 0) {
-    const id = ids.pop();
-    log.debug("looking for instances of:", id?.value);
-    // look for statements that take id as arg
-    const toDelete = prog.statements.filter((s) => {
-      if (s.tag === "Bind") {
-        const expr = (s.expr as unknown) as ApplyPredicate;
-        const willDelete = findArg(expr, id);
-        // push its return value IF bind will be deleted
-        if (willDelete) ids.push(s.variable);
-        // delete if arg is found in either return type or args
-        return willDelete || s.variable.value === id?.value;
-      } else if (s.tag === "ApplyPredicate") {
-        return findArg(s, id);
-      } else if (s.tag === "Decl") {
-        return s.name === id;
-      }
-    });
-    log.debug(`stmts with id: ${id?.value}, num stmts: ${toDelete.length}`);
-    // remove list of filtered statements
-    toDelete.forEach((stmt) => {
-      // TODO: remove Identifier from added IDs
-      // if (stmt.tag === "Decl") {
-      //   this.cxt.removeID(stmt.type.name.value, stmt.name);
-      // }
-      // currentProg = removeStmt(currentProg, stmt);
-      log.debug(`pushing statement to delete ${prettyStmt(stmt)}`);
-      removedStmts.add(stmt);
-    });
-  }
-  return [...removedStmts.values()];
-};
-
-//#endregion

@@ -1,4 +1,4 @@
-import { removeStmt } from "analysis/SubstanceAnalysis";
+import { cascadingDelete, removeStmt } from "analysis/SubstanceAnalysis";
 import { compileDomain } from "compiler/Domain";
 import {
   compileSubstance,
@@ -8,11 +8,7 @@ import {
 import { Env } from "types/domain";
 import { Decl, SubStmt } from "types/substance";
 import { Delete, executeMutation, executeMutations, showOps } from "./Mutation";
-import {
-  cascadingDelete,
-  Synthesizer,
-  SynthesizerSetting,
-} from "./Synthesizer";
+import { Synthesizer, SynthesizerSetting } from "./Synthesizer";
 
 const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 1],

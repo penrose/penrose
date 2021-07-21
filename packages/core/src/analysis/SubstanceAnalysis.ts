@@ -6,12 +6,9 @@ import {
   intersectionWith,
   isEqual,
   isEqualWith,
-  omit,
-  pullAt,
   sortBy,
   without,
 } from "lodash";
-import { SwapExprArgs, SwapStmtArgs } from "synthesis/Mutation";
 import { ASTNode, Identifier, metaProps } from "types/ast";
 import {
   ConstructorDecl,
@@ -35,7 +32,6 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
-import { exprToNumber } from "utils/OtherUtils";
 
 export interface Signature {
   args: string[];
@@ -92,17 +88,10 @@ export const argMatches = (
  * @param stmt a statement to delete
  * @returns a new Substance program with the statement removed
  */
-export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => {
-  const index = prog.statements.indexOf(stmt);
-  if (index > -1) {
-    return {
-      ...prog,
-      statements: without(prog.statements, stmt),
-    };
-  } else {
-    return prog;
-  }
-};
+export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
+  ...prog,
+  statements: without(prog.statements, stmt),
+});
 
 /**
  * Replace a statement in a Substance program.
@@ -246,6 +235,49 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
     a.args.every((val, index) => val === b.args[index])
   );
 };
+
+/**
+ * Given a statement which returns a value
+ * that is staged to be deleted, iteratively find and delete any other
+ * statements that would use the statement's returned variable
+ *
+ * @param dec either a Bind or Decl that is staged to be deleted
+ * @param prog the Substance program
+ */
+export const cascadingDelete = (dec: Bind | Decl, prog: SubProg): SubStmt[] => {
+  const findArg = (s: ApplyPredicate, ref: Identifier | undefined) =>
+    ref &&
+    s.args.filter((a) => {
+      return a.tag === ref.tag && a.value === ref.value;
+    }).length > 0;
+  const ids = [dec.tag === "Bind" ? dec.variable : dec.name]; // stack of variables to delete
+  const removedStmts: Set<SubStmt> = new Set();
+  while (ids.length > 0) {
+    const id = ids.pop();
+    // look for statements that take id as arg
+    const toDelete = prog.statements.filter((s) => {
+      if (s.tag === "Bind") {
+        const expr = (s.expr as unknown) as ApplyPredicate;
+        const willDelete = findArg(expr, id);
+        // push its return value IF bind will be deleted
+        if (willDelete) ids.push(s.variable);
+        // delete if arg is found in either return type or args
+        return willDelete || s.variable.value === id?.value;
+      } else if (s.tag === "ApplyPredicate") {
+        return findArg(s, id);
+      } else if (s.tag === "Decl") {
+        return s.name === id;
+      }
+    });
+    // remove list of filtered statements
+    toDelete.forEach((stmt) => {
+      removedStmts.add(stmt);
+    });
+  }
+  return [...removedStmts.values()];
+};
+
+//#endregion
 
 export const printStmts = (
   stmts: PredicateDecl[] | ConstructorDecl[] | FunctionDecl[]

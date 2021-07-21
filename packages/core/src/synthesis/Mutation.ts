@@ -18,11 +18,13 @@ import { SynthesisContext } from "./Synthesizer";
 
 //#region Mutation types
 
+export type MutationGroup = Mutation[];
 export type Mutation = Add | Delete | Update;
 export type MutationType = Mutation["tag"];
 
 export interface IMutation {
   tag: MutationType;
+  additionalMutations?: Mutation[];
   mutate: (op: this, prog: SubProg) => SubProg;
 }
 
@@ -32,8 +34,7 @@ export type Update =
   | ReplaceStmtName
   | ReplaceExprName
   | ChangeStmtType
-  | ChangeExprType
-  | Replace;
+  | ChangeExprType;
 
 export interface Add extends IMutation {
   tag: "Add";
@@ -42,13 +43,6 @@ export interface Add extends IMutation {
 export interface Delete extends IMutation {
   tag: "Delete";
   stmt: SubStmt;
-}
-
-export interface Replace extends IMutation {
-  tag: "Replace";
-  stmt: SubStmt;
-  newStmt: SubStmt;
-  mutationType: string;
 }
 
 export interface SwapStmtArgs extends IMutation {
@@ -81,14 +75,16 @@ export interface ReplaceExprName extends IMutation {
 export interface ChangeStmtType extends IMutation {
   tag: "ChangeStmtType";
   stmt: ApplyPredicate;
-  newExpr: ArgExpr;
+  newStmt: SubStmt;
+  additionalMutations: Mutation[];
 }
 
 export interface ChangeExprType extends IMutation {
   tag: "ChangeExprType";
   stmt: Bind;
   expr: ArgExpr;
-  newExpr: ArgExpr;
+  newStmt: SubStmt;
+  additionalMutations: Mutation[];
 }
 
 export const showOps = (ops: Mutation[]): string => {
@@ -105,7 +101,15 @@ export const showOp = (op: Mutation): string => {
       return `Swap arguments of ${prettySubNode(op.expr)} in ${prettyStmt(
         op.stmt
       )}`;
-    default:
+    case "ChangeStmtType":
+    case "ChangeExprType":
+      return `Change ${prettyStmt(op.stmt)} to ${prettyStmt(op.newStmt)}`;
+    case "ReplaceExprName":
+    case "ReplaceStmtName":
+      return `Replace the name of ${prettyStmt(op.stmt)} with ${op.newName}`;
+    // default:
+    case "Add":
+    case "Delete":
       return `${op.tag} ${prettySubNode(op.stmt)}`;
   }
 };
@@ -310,8 +314,77 @@ export const checkDeleteStmt = (
   } else return undefined;
 };
 
-// export const checkChangeStmtType = (stmt: SubStmt, ) => {
+export const checkChangeStmtType = (
+  stmt: SubStmt,
+  cxt: SynthesisContext,
+  getMutations: (
+    s: ApplyPredicate,
+    cxt: SynthesisContext
+  ) => { newStmt: SubStmt; additionalMutations: Mutation[] } | undefined
+): ChangeStmtType | undefined => {
+  if (stmt.tag === "ApplyPredicate") {
+    const res = getMutations(stmt, cxt);
+    if (res) {
+      const { newStmt, additionalMutations } = res;
+      return {
+        tag: "ChangeStmtType",
+        stmt,
+        newStmt,
+        additionalMutations,
+        mutate: (
+          { stmt, newStmt, additionalMutations }: ChangeStmtType,
+          prog: SubProg
+        ) => {
+          return replaceStmt(
+            executeMutations(prog, additionalMutations),
+            stmt,
+            newStmt
+          );
+        },
+      };
+    } else return undefined;
+  } else undefined;
+};
 
-// }
+export const checkChangeExprType = (
+  stmt: SubStmt,
+  cxt: SynthesisContext,
+  getMutations: (
+    oldStmt: Bind,
+    oldExpr: ArgExpr,
+    cxt: SynthesisContext
+  ) => { newStmt: SubStmt; additionalMutations: Mutation[] } | undefined
+): ChangeExprType | undefined => {
+  if (stmt.tag === "Bind") {
+    const { expr } = stmt;
+    if (
+      expr.tag === "ApplyConstructor" ||
+      expr.tag === "ApplyFunction" ||
+      expr.tag === "Func"
+    ) {
+      const res = getMutations(stmt, expr, cxt);
+      if (res) {
+        const { newStmt, additionalMutations } = res;
+        return {
+          tag: "ChangeExprType",
+          stmt,
+          expr,
+          newStmt,
+          additionalMutations,
+          mutate: (
+            { stmt, newStmt, additionalMutations }: ChangeExprType,
+            prog: SubProg
+          ) => {
+            return replaceStmt(
+              executeMutations(prog, additionalMutations),
+              stmt,
+              newStmt
+            );
+          },
+        };
+      } else return undefined;
+    } else return undefined;
+  } else return undefined;
+};
 
 //#endregion
