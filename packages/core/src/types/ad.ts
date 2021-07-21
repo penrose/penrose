@@ -82,6 +82,7 @@ export interface IOptInfo {
   newLbfgsInfo: LbfgsParams;
   gradient: number[];
   gradientPreconditioned: number[];
+  failed: boolean;
 }
 
 export type OptDebugInfo = IOptDebugInfo;

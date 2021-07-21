@@ -59,7 +59,11 @@ export const stepState = (state: State, numSteps = 10000): State => {
  */
 export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   let currentState = state;
-  while (!stateConverged(currentState)) {
+  while (
+    !stateConverged(currentState) &&
+    !(currentState.params.optStatus === "Error")
+  ) {
+    console.log("optStatus: " + currentState.params.optStatus);
     currentState = step(currentState, numSteps, true);
   }
   return currentState;
