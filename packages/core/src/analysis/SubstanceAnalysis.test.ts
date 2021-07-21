@@ -174,7 +174,7 @@ Set C`;
 Set B`;
     const expected = `Set B`;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
-    const toDelete = originalAST.statements[1];
+    const toDelete = originalAST.statements[0];
     const newAST = removeStmt(originalAST, toDelete);
     expect(expected).toEqual(prettySubstance(newAST));
   });
