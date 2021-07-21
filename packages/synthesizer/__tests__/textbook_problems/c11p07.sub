@@ -1,0 +1,15 @@
+Point P, Q, U, S, T, R
+Circle c := MkCircleD(R, T)
+-- Secant RPS := MkSecant(c, R, P, S)
+Segment PR := MkSegment(P, R)
+Segment PS := MkSegment(P, S)
+Segment PQ := MkSegment(P, Q)
+Segment PU := MkSegment(P, U)
+Collinear(P, Q, R)
+Collinear(P, U, S)
+OnCircle(c, Q)
+OnCircle(c, U)
+OnCircle(c, P)
+OnCircle(c, R)
+Segment ST := MkChord(c, S, T)
+AutoLabel All

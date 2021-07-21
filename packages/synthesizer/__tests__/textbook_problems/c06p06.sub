@@ -1,5 +1,4 @@
 Point J, K, L, M, N
--- Point p, q, r, s
 Quadrilateral JKLM := MkQuadrilateral(J, K, L, M)
 Parallelogram(JKLM)
 Segment JK := MkSegment(J, K)

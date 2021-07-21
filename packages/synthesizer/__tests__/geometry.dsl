@@ -43,19 +43,24 @@ constructor MkLine : Point p * Point q -> Line
 -- constructor InteriorAngle : Linelike l * Linelike m -> Angle
 constructor InteriorAngle : Point p * Point q * Point r -> Angle
 constructor TriangleVertex : Point p * Point q * Point r -> Angle
-
 constructor MkTriangle : Point p * Point q * Point r -> Triangle
 -- constructor MkTriangleL : Linelike l * Linelike m * Linelike n -> Triangle
-constructor MkCircleR : Point center * Point radius -> Circle
-constructor MkCircleD : Point diam1 * Point diam2 -> Circle
+
 -- constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
 -- constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 constructor MkQuadrilateral : Point p * Point q * Point r * Point s -> Quadrilateral
 constructor MkMidpoint : Linelike l -> Point
 
+--circle related
+constructor MkCircleR : Point center * Point radius -> Circle
+constructor MkCircleD : Point diam1 * Point diam2 -> Circle
+constructor MkRadius : Circle c * Point p -> Segment
+constructor MkChord : Circle c * Point p * Point q -> Segment
+constructor MkDiameter : Circle c * Point p * Point q -> Segment
+
 -- -- TODO: subtyping on the return types
-function Bisector : Angle -> Segment
+function Bisector : Angle * Point -> Segment
 -- function PerpendicularBisector : Linelike -> Ray
 -- function Sum : Angle * Angle -> Angle
 -- function Intersection : Linelike * Linelike -> Point
@@ -90,6 +95,7 @@ predicate Supplementary : Angle -- TODO fix implementation
 predicate Parallel : Linelike * Linelike
 predicate Incenter : Point * Triangle
 predicate Parallelogram : Quadrilateral
+predicate OnCircle : Circle * Point 
 
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"

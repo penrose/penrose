@@ -1,0 +1,9 @@
+Point A, B, C, D
+Circle c
+Segment AB := MkChord(c, A, B)
+Segment CD := MKChord(c, C, D)
+Segment DB := MkChord(c, D, B)
+Segment AC := MkChord(c, A, C)
+ParallelMarker1(AB, CD)
+Parallel(AB, CD)
+AutoLabel All

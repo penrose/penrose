@@ -1,0 +1,7 @@
+Point J, K, L, M, Y
+Circle c := MkCircleD(J, K)
+Segment JK := MkDiameter(c, J, K)
+Segment LM := MkDiameter(c, L, M)
+Collinear(J, Y, K)
+Collinear(L, Y, M)
+AutoLabel All

@@ -1,0 +1,15 @@
+Point A, B, C, D, E, F
+Triangle ABC := MkTriangle(A, B, C)
+Triangle CDE := MkTriangle(C, D, E)
+Triangle DEF := MkTriangle(D, E, F)
+MarkedMidpoint1(B, C, E)
+MarkedMidpoint2(A, C, D)
+Angle CEF := InteriorAngle(C, E, F)
+Segment DE := MkSegment(D, E)
+Segment CA := MkSegment(C, A)
+Segment BC := MkSegment(B, C)
+Segment CE := MkSegment(C, E)
+Segment CD := MkSegment(C, D)
+EqualLengthMarker2(AC, CD)
+EqualLengthMarker1(BC, CE)
+AutoLabel All

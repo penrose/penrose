@@ -1,0 +1,12 @@
+Point A, B, C, D, E
+Line AB := MkLine(A, B)
+Line CD := MkLine(C, D)
+Parallel(AB, CD)
+Line AC := MKLine(A, C)
+Line BD := MkLine(B, D)
+Collinear(A, E, D)
+Collinear(C, E, B)
+Segment AD := MkSegment(A, D)
+Segment CB := MKSegment(C, D)
+EqualLengthMarker1(AB, CD)
+AutoLabel All

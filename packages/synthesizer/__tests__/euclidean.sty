@@ -54,6 +54,7 @@ const {
     pointStroke = 0.0
     thetaRadius = 30.0
     bigThetaRadius = 40.0
+    circleRadius = 150.0
 }
 
 --Plane
@@ -708,12 +709,11 @@ with Linelike l {
 
 -- TODO broken
 Segment s
-where s := Bisector(a)
-with Angle a {
-  end = (?, ?)
+where s := Bisector(a, p)
+with Angle a; Point p {
   override s.icon = Line {
     start : a.side2.start
-    end :  a.side1.end
+    end :  p.vec
     color : Colors.black
     thickness : 2.0
     stroke : "none"
@@ -725,6 +725,92 @@ with Angle a {
   ensure equal(a.p - a.r + a.q, s.icon.end)
 }
 
+Circle c {
+  c.radius = const.circleRadius
+  c.x = ?
+  c.y = ?
+  c.vec = (c.x, c.y)
+
+  c.icon = Circle {
+    center : c.vec
+    r : c.radius
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.black
+    color : "none"
+  }
+}
+
+Circle c
+where c := MkCircleR(p, q)
+with Point p, q {
+  override c.radius = vdist(p.vec, q.vec)
+  override c.center = p.vec
+}
+
+Circle c
+where c := MkCircleD(p, q)
+with Point p, q {
+  override c.radius = vdist(p.vec, q.vec) / 2
+}
+
+Segment s
+where s := MkChord(c, p, q)
+with Circle c; Point p, q {
+  override s.vec = [q.x - p.x, q.y - p.y]
+  override s.icon = Line {
+    start : p.icon.center
+    end : q.icon.center
+    color : s.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+
+  p.icon above c.icon
+  q.icon above c.icon
+  ensure overlapping(c.icon, p.icon)
+  ensure overlapping(c.icon, q.icon)
+}
+
+Segment s
+where s := MkRadius(c, p)
+with Circle c; Point p {
+  override s.vec = [p.x - c.x, p.y - c.y]
+  override s.icon = Line {
+    start : c.center
+    end : p.icon.center
+    color : s.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  p.icon above c.icon
+  ensure overlapping(c.icon, q.icon)
+}
+
+Segment s
+where s := MkDiameter(c, p, q)
+with Circle c; Point p, q {
+  override s.vec = [q.x - p.x, q.y - p.y]
+  override s.icon = Line {
+    start : c.center
+    end : p.icon.center
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  p.icon above c.icon
+  q.icon above c.icon
+  ensure overlapping(c.icon, q.icon)
+  ensure overlapping(c.icon, p.icon)
+  ensure overlapping(c.icon.center, s.icon)
+}
+
+Point p
+where OnCircle(c, p)
+with Circle c {
+  ensure overlapping(c.icon, p.icon)
+}
 -- -- We don't know if the points in the triangle actually include the points in the square or not
 -- -- TODO: this doesn't seem to match -- and the matches take way too long!!
 
