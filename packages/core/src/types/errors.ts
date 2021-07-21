@@ -1,5 +1,4 @@
 //#region ErrorTypes
-
 import { ASTNode, Identifier, SourceLoc } from "./ast";
 import { TypeConstructor, Prop, TypeVar, Arg } from "./domain";
 import { BindingForm, Path } from "./style";
@@ -12,7 +11,15 @@ import { SubExpr, Deconstructor, TypeConsApp } from "./substance";
 export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
-  | (StyleError & { errorType: "StyleError" });
+  | (StyleError & { errorType: "StyleError" })
+  | (RuntimeError & { errorType: "RuntimeError" });
+
+export type RuntimeError = RuntimeErrorWithContents;
+
+export interface RuntimeErrorWithContents {
+  tag: "RuntimeError";
+  message: string;
+}
 
 export type Warning = StyleError;
 export type StyleErrors = StyleError[];

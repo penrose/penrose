@@ -32,6 +32,7 @@ import {
   ParseError,
   PenroseError,
   StyleError,
+  RuntimeError,
 } from "types/errors";
 import { Identifier, ASTNode, SourceLoc } from "types/ast";
 import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
@@ -66,9 +67,12 @@ export const styWarnings = [
 
 // TODO: fix template formatting
 export const showError = (
-  error: DomainError | SubstanceError | StyleError
+  error: DomainError | SubstanceError | StyleError | RuntimeError
 ): string => {
   switch (error.tag) {
+    case "RuntimeError": {
+      return error.message;
+    }
     case "ParseError":
       return error.message;
     case "TypeDeclared": {

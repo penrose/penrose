@@ -825,6 +825,7 @@ const minimize = (
         number,
         number
       ][];
+
       log.info("[varying paths, current val, gradient of val]", pathMap);
 
       for (const [name, x, dx] of pathMap) {
