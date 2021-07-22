@@ -4,7 +4,7 @@ import Mod from "./Mod";
 import Errors from "inspector/views/Errors";
 import Opt from "./Opt";
 import Settings from "./Settings";
-import Jacobian from "./Jacobian";
+import Jacobian from "inspector/views/Jacobian";
 const viewMap = {
   frames: Frames,
   errors: Errors,
