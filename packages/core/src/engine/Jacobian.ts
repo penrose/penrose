@@ -1,5 +1,7 @@
 import { numbered } from "compiler/Style";
 import eig from "eigen";
+import { State } from "types/state";
+import { genFns } from "./Optimizer";
 
 // internal typing
 type Matrix = number[][];
@@ -33,6 +35,8 @@ export const getNullspaceBasisVectors = (jacobian: Matrix): Matrix => {
     return zeroSingularValueIndexes.includes(index);
   });
 
+  // eig.GC.flush();
+
   return nullspaceEvecs;
 };
 
@@ -46,4 +50,29 @@ export const eigObjToMatrix = (obj: any): Matrix => {
     m.push(row);
   }
   return m;
+};
+
+export const getConstrFnGradientList = (s: State): Matrix => {
+  // : Matrix
+  const { objFnCache, constrFnCache } = s.params;
+  if (!constrFnCache) {
+    const newState = genFns(s);
+    return getConstrFnGradientList(newState);
+  }
+
+  // variable list
+  const xs = s.varyingValues;
+
+  // keys (fn names) don't matter
+  // console.log(Object.keys(constrFnCache));
+
+  const gradientObjs = Object.values(constrFnCache);
+
+  const res = gradientObjs.map((gradientObj) => {
+    return gradientObj.gradf(xs);
+  });
+
+  // console.log(res);
+
+  return res;
 };

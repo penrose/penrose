@@ -10,7 +10,8 @@ const getPairs = <T>(arr: T[]): [T, T][] => {
   const pairsForElemAtIndexI = (i: number): [T, T][] => {
     // j!==i to avoid self comparison.
     // j<i excluded to avoid double-counting pairs,
-    // i.e. we don't want both [1,2] and [2,1]
+    // i.e. we don't want both
+    //	[<index 1 obj>, <index 2 obj>] and [<index 2 obj>, <index 1 obj>]
     return arr
       .filter((elem, j) => {
         return j > i;
@@ -174,3 +175,5 @@ describe("keenans example test", () => {
     ).toBe(true);
   });
 });
+
+// eig.GC.flush();

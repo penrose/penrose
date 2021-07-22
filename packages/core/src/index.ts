@@ -33,6 +33,10 @@ import {
   Comic,
   getTrmapKeyComic,
 } from "renderer/Staging";
+import {
+  getConstrFnGradientList,
+  getNullspaceBasisVectors,
+} from "engine/Jacobian";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -63,6 +67,11 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
+  // getConstrFnGradientList(currentState);
+  // const j = getConstrFnGradientList(currentState);
+  // const nspvcs = getNullspaceBasisVectors(j);
+  // console.log(nspvcs);
+
   return currentState;
 };
 
