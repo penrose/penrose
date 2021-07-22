@@ -82,7 +82,7 @@ export const getConstrFnGradientList = (s: State): Matrix => {
     return gradientObj.gradf(xs);
   });
 
-  return res;
+  // return res;
 
   // should I also use the objective fns?
   const gradientObjs2 = Object.values(objFnCache);

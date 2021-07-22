@@ -71,23 +71,13 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   }
 
   if (currentState.params.nullspaceVectors) {
-    console.log("hi");
-    // currentState = addVecToVaryingVals(currentState, currentState.params.nullspaceVectors[0], 10)
-    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[1], 20);
+    // console.log("hi");
+    // currentState = addVecToVaryingVals(currentState, currentState.params.nullspaceVectors[0], 4)
+    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[3], 4)
+    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[3], 4)
+    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[1], 0.5);
     // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[5], 10);
     // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[10], 10);
-    /*console.log('vary', currentState.varyingValues); // i think I have to change varyingMap instead.
-    let testVaryingMap = currentState.varyingMap;
-    testVaryingMap.set('H.icon.center[0]', {
-      ...(testVaryingMap.get('H.icon.center[0]')),
-      val: 100
-    });
-    console.log('ok')
-    return {
-      ...currentState,
-      varyingMap: testVaryingMap
-    }
-    */
   } else {
     currentState = putNullspaceBasisVectorsInState(currentState);
   }

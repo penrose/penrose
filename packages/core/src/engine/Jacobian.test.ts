@@ -109,7 +109,7 @@ if (TESTING) {
     });
   });
 
-  describe("keenans example test", () => {
+  describe("larger matrix test", () => {
     const r1 = [
       2.49862,
       -1.08258,
