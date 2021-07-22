@@ -36,6 +36,8 @@ import {
 import {
   getConstrFnGradientList,
   getNullspaceBasisVectors,
+  addVecToVaryingVals,
+  putNullspaceBasisVectorsInState,
 } from "engine/Jacobian";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -67,11 +69,26 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-  // getConstrFnGradientList(currentState);
-  const j = getConstrFnGradientList(currentState);
-  if (j.length > 0 && j[0].length > 0) {
-    // can't run SVD on empty matrices
-    const nspvcs = getNullspaceBasisVectors(j);
+
+  if (currentState.params.nullspaceVectors) {
+    // console.log('hi')
+    //currentState = addVecToVaryingVals(currentState, currentState.params.nullspaceVectors[0], 10)
+    //currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[1], 20);
+    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[10], 10);
+    /*console.log('vary', currentState.varyingValues); // i think I have to change varyingMap instead.
+    let testVaryingMap = currentState.varyingMap;
+    testVaryingMap.set('H.icon.center[0]', {
+      ...(testVaryingMap.get('H.icon.center[0]')),
+      val: 100
+    });
+    console.log('ok')
+    return {
+      ...currentState,
+      varyingMap: testVaryingMap
+    }
+    */
+  } else {
+    currentState = putNullspaceBasisVectorsInState(currentState);
   }
 
   return currentState;

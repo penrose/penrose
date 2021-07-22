@@ -1,6 +1,11 @@
 import { numbered } from "compiler/Style";
 import eig from "eigen";
+import _ from "lodash";
+import { VarAD } from "types/ad";
 import { State } from "types/state";
+import { Path } from "types/style";
+import { differentiable } from "./Autodiff";
+import { evalShapes, insertVaryings } from "./Evaluator";
 import { genFns } from "./Optimizer";
 
 // internal typing
@@ -80,4 +85,47 @@ export const getConstrFnGradientList = (s: State): Matrix => {
   // console.log(res);
 
   return res;
+};
+
+export const putNullspaceBasisVectorsInState = (state: State): State => {
+  // jacobian stuff
+  const j = getConstrFnGradientList(state);
+  if (j.length > 0 && j[0].length > 0) {
+    // can't run SVD on empty matrices
+    const nspvcs = getNullspaceBasisVectors(j);
+    let s = {
+      ...state,
+      params: {
+        ...state.params,
+        nullspaceVectors: nspvcs,
+      },
+    };
+
+    return s; // put the nspacevecs in the state
+  }
+  return state; // don't modify
+};
+
+// update state
+export const addVecToVaryingVals = (
+  s: State,
+  nullSpaceVec: number[],
+  scalingFactor: number = 10
+): State => {
+  const xs = s.varyingValues;
+  const v1 = new eig.Matrix(xs);
+  const v2 = new eig.Matrix(nullSpaceVec);
+  const sum = v1.matAdd(v2.mul(scalingFactor));
+
+  // update the rest of state
+  const varyingValues = eigObjToMatrix(sum).flat();
+
+  s.translation = insertVaryings(
+    s.translation,
+    _.zip(s.varyingPaths, varyingValues.map(differentiable)) as [Path, VarAD][]
+  );
+
+  s.varyingValues = varyingValues;
+  s = evalShapes(s);
+  return s;
 };

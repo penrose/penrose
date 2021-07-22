@@ -59,7 +59,10 @@ class Mod extends React.Component<IViewProps, IState> {
           overflow: "hidden",
         }}
       >
-        {makeViewBoxes(frame.shapes, selectedShape, this.setSelectedShape)}
+        {
+          // each of the view boxes...
+          makeViewBoxes(frame.shapes, selectedShape, this.setSelectedShape)
+        }
         <div
           style={{
             // BUG: scroll doesnt really work
@@ -71,14 +74,17 @@ class Mod extends React.Component<IViewProps, IState> {
             boxSizing: "border-box",
           }}
         >
-          {frame.shapes[selectedShape] && (
-            <AttrPicker
-              shape={frame.shapes[selectedShape]}
-              sAttrs={def}
-              modAttr={this.modAttr}
-              canvas={frame.canvas}
-            />
-          )}
+          {
+            // the actual attributes and stuff
+            frame.shapes[selectedShape] && ( // why is this here?
+              <AttrPicker
+                shape={frame.shapes[selectedShape]}
+                sAttrs={def}
+                modAttr={this.modAttr}
+                canvas={frame.canvas}
+              />
+            )
+          }
         </div>
       </div>
     );

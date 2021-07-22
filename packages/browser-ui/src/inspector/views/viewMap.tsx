@@ -4,6 +4,7 @@ import Mod from "./Mod";
 import Errors from "inspector/views/Errors";
 import Opt from "./Opt";
 import Settings from "./Settings";
+import Jacobian from "./Jacobian";
 const viewMap = {
   frames: Frames,
   errors: Errors,
@@ -11,5 +12,6 @@ const viewMap = {
   mod: Mod,
   "optimization status": Opt,
   settings: Settings,
+  jacobian: Jacobian,
 };
 export default viewMap;

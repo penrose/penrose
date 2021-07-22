@@ -15,6 +15,7 @@ interface IShapeDef {
 }
 
 // Q - should this update shape properties in state? not really necessary functionally but maybe ideologically
+// ideally this should update shape properties in state...
 class AttrPicker extends React.Component<IProps> {
   public render() {
     const { sAttrs, shape, modAttr, canvas } = this.props;
