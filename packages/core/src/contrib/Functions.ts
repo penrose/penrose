@@ -187,7 +187,14 @@ export const compDict = {
    */
   get: (xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];
+    return {
+      tag: "FloatV",
+      contents: res,
+    };
+  },
 
+  getVar: (xs: VarAD[], i: VarAD): IFloatV<any> => {
+    const res = xs[i.val];
     return {
       tag: "FloatV",
       contents: res,
@@ -438,7 +445,7 @@ export const compDict = {
       const [start, end] = linePts(s1);
       const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
       return {
-        tag: "VectorV", // TODO what is the difference between returning a vector and a tuple?
+        tag: "VectorV",
         contents: toPt(midpointLoc),
       };
     } else {
@@ -470,7 +477,7 @@ export const compDict = {
   ): IPtListV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start, end] = linePts(s1);
-      const dir = ops.vnormalize(ops.vsub(end, start));
+      const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
       const startDir = ops.vrot(dir, varOf(135));
       const endDir = ops.vrot(dir, varOf(225));
       const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
@@ -754,6 +761,10 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdist(v, w) };
   },
 
+  vmul: (s: VarAD, v: VarAD[]): IVectorV<VarAD> => {
+    return { tag: "VectorV", contents: ops.vmul(s, v) };
+  },
+
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
@@ -783,7 +794,6 @@ export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
 // Make sure all arguments are not numbers (they should be VarADs if floats)
 const checkFloat = (x: any) => {
   if (typeof x === "number") {
-    console.log("x", x);
     throw Error("expected float converted to VarAD; got number (int?)");
   }
 };

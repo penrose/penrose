@@ -1,15 +1,13 @@
 Point P, Q, U, S, T, R
-Circle c := MkCircleD(R, T)
--- Secant RPS := MkSecant(c, R, P, S)
+Circle c
 Segment PR := MkSegment(P, R)
 Segment PS := MkSegment(P, S)
-Segment PQ := MkSegment(P, Q)
-Segment PU := MkSegment(P, U)
+Segment RT := Diameter(c, R, T)
 Collinear(P, Q, R)
 Collinear(P, U, S)
 OnCircle(c, Q)
 OnCircle(c, U)
-OnCircle(c, P)
+OnCircle(c, S)
 OnCircle(c, R)
-Segment ST := MkChord(c, S, T)
+Segment ST := Chord(c, S, T)
 AutoLabel All

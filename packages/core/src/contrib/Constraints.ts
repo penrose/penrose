@@ -595,6 +595,19 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 
+  ptCircleIntersect: (p: VarAD[], [t, s]: [string, any]) => {
+    if (t === "Circle") {
+      const r = s.r.contents;
+      const c = fns.center(s);
+      return squared(sub(ops.vdist(p, c), r));
+    } else throw new Error(`${t} not supported for ptCircleIntersect`);
+  },
+
+  ptLineIntersect: (p: VarAD[], [t, s]: [string, any]) => {
+    if (isLinelike(t)) {
+    } else throw new Error(`ptLineIntersect: ${t} is not Linelike`);
+  },
+
   /**
    * Require that label `s2` is at a distance of `offset` from a point-like shape `s1`.
    */
@@ -666,7 +679,6 @@ export const constrDict = {
    * Require that the value `x` is less than the value `y` with optional offset `padding`
    */
   lessThan: (x: VarAD, y: VarAD, padding = 0) => {
-    console.log(x, y);
     return add(sub(x, y), constOfIf(padding));
   },
 
@@ -833,6 +845,11 @@ const pointInBox = (p: any, rect: any): boolean => {
     p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
   );
 };
+
+// const ptLineIntersect = (p: VarAD[], l: [string, any]): VarAD => {
+//   const [px, py] = p;
+//   // const l.contents
+// };
 
 /**
  * Assuming `rect` is an axis-aligned bounding box (AABB),

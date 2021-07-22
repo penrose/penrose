@@ -54,19 +54,19 @@ constructor MkMidpoint : Linelike l -> Point
 
 --circle related
 constructor MkCircleR : Point center * Point radius -> Circle
-constructor MkCircleD : Point diam1 * Point diam2 -> Circle
-constructor MkRadius : Circle c * Point p -> Segment
-constructor MkChord : Circle c * Point p * Point q -> Segment
-constructor MkDiameter : Circle c * Point p * Point q -> Segment
+-- constructor MkCircleD : Point diam1 * Point diam2 -> Circle
 
 -- -- TODO: subtyping on the return types
-function Bisector : Angle * Point -> Segment
+function Bisector : Angle * Point -> Segment -- TODO verify
 -- function PerpendicularBisector : Linelike -> Ray
 -- function Sum : Angle * Angle -> Angle
 -- function Intersection : Linelike * Linelike -> Point
 -- function Altitude : Triangle * Angle -> Segment
 -- function Endpoint : Segment -> Point
 function MidSegment : Triangle * Point * Point -> Segment
+function Radius : Circle c * Point p -> Segment
+function Chord : Circle c * Point p * Point q -> Segment
+function Diameter : Circle c * Point p * Point q -> Segment
 
 -- predicate Acute : Angle
 -- predicate Obtuse : Angle
@@ -79,13 +79,13 @@ predicate ParallelMarker1 : Linelike * Linelike
 -- predicate RightT : Triangle
 predicate Midpoint : Linelike * Point
 predicate Scalene : Triangle
-predicate Similar : Triangle * Triangle
+predicate Similar : Triangle * Triangle -- TODO implement
 predicate Collinear : Point * Point * Point
 predicate EqualAngleMarker1 : Angle * Angle
 predicate EqualAngleMarker2 : Angle * Angle
 predicate EqualAngleMarker3 : Angle * Angle
 predicate EqualLengthMarker1 : Segment * Segment
-predicate EqualLengthMarker2 : Segment * Segment
+predicate EqualLengthMarker2 : Segment * Segment -- TODO implement
 predicate EqualLengthMarker3 : Segment * Segment
 predicate EqualAngle : Angle * Angle
 predicate EqualLength : Segment * Segment 
@@ -93,9 +93,9 @@ predicate RightMarked : Angle
 predicate RightUnmarked : Angle
 predicate Supplementary : Angle -- TODO fix implementation
 predicate Parallel : Linelike * Linelike
-predicate Incenter : Point * Triangle
+predicate Incenter : Point * Triangle -- TODO implement
 predicate Parallelogram : Quadrilateral
-predicate OnCircle : Circle * Point 
+predicate OnCircle : Circle * Point -- TODO needs constraint
 
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"

@@ -559,7 +559,7 @@ with Point p; Point q; Point r {
 Triangle t
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
-     t.color = setOpacity(Colors.darkpurple, 0.4)
+     t.color = Colors.black
      t.side1 = Line {
      	 start : p.icon.center
      	 end : q.icon.center
@@ -589,7 +589,26 @@ with Point p; Point q; Point r {
 Point p
 where Incenter(p, T)
 with Triangle T {
-  
+  s1 = T.side1.start
+  s2 = T.side2.start
+  s3 = T.side3.end
+
+  a = vdist(s2, s3)
+  b = vdist(s3, s1)
+  c = vdist(s1, s2)
+  denom =  a + b + c
+  vec = vmul(a, s1) + vmul(b, s2) + vmul(c, s3)
+  -- override p.vec = (275 / 42, 156 / 42)
+  override p.vec = vmul(1/denom, vec)
+
+  semip = (a + b + c) / 2
+  T.icon = Circle {
+    center : p.vec
+    r : sqrt(((semip - a) * (semip - b) * (semip - c))/ semip)
+    strokeWidth : const.strokeWidth
+    strokeColor : setOpacity(Colors.darkpurple, 0.4)
+    color : Colors.none
+  }
 }
 
 --Rectangle
@@ -704,7 +723,7 @@ with Linelike l {
 Point p
 where Midpoint(l, p)
 with Linelike l {
-  ensure equal(vdist(p.icon.center, l.icon.start), vdist(p.icon.center, l.icon.end))
+  override p.vec = midpoint(l.icon)
 }
 
 -- TODO broken
@@ -727,16 +746,14 @@ with Angle a; Point p {
 
 Circle c {
   c.radius = const.circleRadius
-  c.x = ?
-  c.y = ?
-  c.vec = (c.x, c.y)
+  c.vec = (?, ?)
 
   c.icon = Circle {
     center : c.vec
     r : c.radius
     strokeWidth : const.strokeWidth
     strokeColor : Colors.black
-    color : "none"
+    color : Colors.none
   }
 }
 
@@ -744,19 +761,27 @@ Circle c
 where c := MkCircleR(p, q)
 with Point p, q {
   override c.radius = vdist(p.vec, q.vec)
-  override c.center = p.vec
+  override c.vec = p.icon.center
+  override c.icon = Circle {
+    center : c.vec
+    r : c.radius
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.black
+    color : Colors.none
+  }
 }
 
-Circle c
-where c := MkCircleD(p, q)
-with Point p, q {
-  override c.radius = vdist(p.vec, q.vec) / 2
-}
+-- TODO this can be reimplemented when issue #621 is resolved
+-- Circle c
+-- where c := MkCircleD(p, q)
+-- with Point p, q {
+--   override c.radius = vdist(p.vec, q.vec) / 2
+-- }
 
 Segment s
-where s := MkChord(c, p, q)
+where s := Chord(c, p, q)
 with Circle c; Point p, q {
-  override s.vec = [q.x - p.x, q.y - p.y]
+  override s.vec = q.vec - p.vec
   override s.icon = Line {
     start : p.icon.center
     end : q.icon.center
@@ -768,48 +793,51 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure overlapping(c.icon, p.icon)
-  ensure overlapping(c.icon, q.icon)
+  ensure ptCircleIntersect(p.vec, c.icon)
+  ensure ptCircleIntersect(q.vec, c.icon)
+  ensure lessThan(norm(s.vec), c.icon.r * 2)
 }
 
 Segment s
-where s := MkRadius(c, p)
+where s := Radius(c, p)
 with Circle c; Point p {
-  override s.vec = [p.x - c.x, p.y - c.y]
+  override s.vec = p.vec - c.vec
   override s.icon = Line {
-    start : c.center
+    start : c.vec
     end : p.icon.center
-    color : s.color
+    color : Colors.black
     thickness : const.strokeWidth
     stroke : "none"
     style : "solid"
   }
   p.icon above c.icon
-  ensure overlapping(c.icon, q.icon)
+  ensure ptCircleIntersect(p.vec, c.icon)
 }
 
 Segment s
-where s := MkDiameter(c, p, q)
+where s := Diameter(c, p, q)
 with Circle c; Point p, q {
-  override s.vec = [q.x - p.x, q.y - p.y]
+  override s.vec = q.vec - p.vec
   override s.icon = Line {
-    start : c.center
-    end : p.icon.center
+    start : p.icon.center
+    end : q.icon.center
     thickness : const.strokeWidth
     stroke : "none"
     style : "solid"
+    color : Colors.black
   }
+
   p.icon above c.icon
   q.icon above c.icon
-  ensure overlapping(c.icon, q.icon)
-  ensure overlapping(c.icon, p.icon)
-  ensure overlapping(c.icon.center, s.icon)
+  ensure collinear(p.icon, c.icon, q.icon)
+  ensure ptCircleIntersect(p.vec, c.icon)
+  ensure ptCircleIntersect(q.vec, c.icon)
 }
 
 Point p
 where OnCircle(c, p)
 with Circle c {
-  ensure overlapping(c.icon, p.icon)
+  ensure ptCircleIntersect(p.vec, c.icon)
 }
 -- -- We don't know if the points in the triangle actually include the points in the square or not
 -- -- TODO: this doesn't seem to match -- and the matches take way too long!!

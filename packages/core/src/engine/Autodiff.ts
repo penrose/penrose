@@ -1022,7 +1022,6 @@ export const ops = {
     if (v.length !== w.length) {
       throw Error("expected vectors of same length");
     }
-
     return ops.vnorm(ops.vsub(v, w));
   },
 

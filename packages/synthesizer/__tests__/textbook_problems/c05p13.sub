@@ -2,7 +2,7 @@ Point J, K, L, P, m
 Triangle JKL := MkTriangle(J, K, L)
 Incenter(P, JKL)
 Segment KL := MkSegment(K, L)
-m := MkMidpoint(KL)
+Collinear(K, m, L)
 Triangle PLM := MkTriangle(P, L, m)
 Angle PML := InteriorAngle(P, m, L)
 RightMarked(PML)
