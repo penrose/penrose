@@ -170,7 +170,7 @@ export class SynthesisContext {
     };
   };
 
-  irintCandidates = () => {
+  printCandidates = () => {
     console.log("types: ", ...this.candidates.types.keys());
     console.log("predicates: ", ...this.candidates.predicates.keys());
     console.log("functions: ", ...this.candidates.functions.keys());
@@ -476,6 +476,9 @@ export class Synthesizer {
     return mutations.map((m) => [m]);
   };
 
+  /**
+   * Find a list of possible mutations for the current Substance program stored in the context, and execute one of the mutations.
+   */
   mutateProgram = (): void => {
     this.cxt.findCandidates(this.env, this.setting.add);
     const addOps = this.addStmt();
@@ -484,7 +487,7 @@ export class Synthesizer {
     this.cxt.findCandidates(this.env, this.setting.edit);
     const editOps = this.editStmt();
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps];
-    log.debug(`Possible operations: ${mutations.map(showOps).join("\n")}`);
+    log.debug(`Possible mutations: ${mutations.map(showOps).join("\n")}`);
     const mutationGroup: MutationGroup = this.choice(mutations);
     log.debug(`Picked mutation group: ${showOps(mutationGroup)}`);
     const newProg: SubProg = executeMutations(this.cxt.prog, mutationGroup);
@@ -492,6 +495,10 @@ export class Synthesizer {
     this.cxt.updateProg(newProg);
   };
 
+  /**
+   * Pick a random statement in the Substance program and enumerate all the applicable mutations.
+   * @returns a list of mutation groups, each representing a series of `Update` mutations
+   */
   editStmt = (): MutationGroup[] => {
     log.debug(`Picking a statement to edit...`);
     // pick a kind of statement to edit
@@ -505,20 +512,21 @@ export class Synthesizer {
     );
     const stmt = this.findStmt(chosenType, chosenName);
     if (stmt !== undefined) {
-      log.debug(`Editing statement: ${prettyStmt(stmt)}`);
       // find all available edit mutations for the given statement
       const mutations = this.findMutations(stmt);
-      log.debug(`Possible edits:\n${mutations.map(showOps).join("\n")}`);
-      // if there's any valid mutation, pick one to execute
+      log.debug(
+        `Possible update mutations for ${prettyStmt(
+          stmt
+        )} are:\n${mutations.map(showOps).join("\n")}`
+      );
       return mutations;
     } else return [];
   };
 
-  //   // COMBAK: fix
-  // typeChange = (oldStmt: ApplyPredicate | Bind, pick: ArgStmtDecl): void => {
-  // };
-
-  // NOTE: every synthesizer that 'addStmt' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
+  /**
+   * From the configuration, pick one Substance construct to generate, and return the new construct along with all other related constructs as a group of `Add` mutations.
+   * @returns a group of `Add` mutations
+   */
   addStmt = (): MutationGroup => {
     this.cxt.findCandidates(this.env, this.setting.add);
     const chosenType = this.choice(this.cxt.candidateTypes());
@@ -574,11 +582,15 @@ export class Synthesizer {
       );
     }
     if (possibleOps) {
-      log.debug(`Mutations selected for add:\n${showOps(possibleOps)}`);
+      log.debug(`Found mutations for add:\n${showOps(possibleOps)}`);
       return possibleOps;
     } else return [];
   };
 
+  /**
+   * From the configuration, pick one Substance statement to delete, and return one or more `Delete` mutations depending on if there will be cascading delete.
+   * @returns a group of `Delete` mutations
+   */
   deleteStmt = (): MutationGroup => {
     log.debug("Deleting statement");
     const chosenType = this.choice(this.cxt.candidateTypes());
@@ -590,7 +602,6 @@ export class Synthesizer {
       if (stmt.tag === "Bind" || stmt.tag === "Decl") {
         // if statement returns value, delete all refs to value
         cascadingDelete(stmt, this.cxt.prog).forEach((s) => {
-          // COMBAK: fix
           const del = checkDeleteStmt(this.cxt.prog, this.cxt, (cxt) => {
             // TODO: check if there's really no need to remove ID here?
             if (s.tag === "Decl") {
@@ -608,7 +619,7 @@ export class Synthesizer {
       }
     }
     if (possibleOps) {
-      log.debug(`Mutations selected for delete:\n${showOps(possibleOps)}`);
+      log.debug(`Found mutations for delete:\n${showOps(possibleOps)}`);
       return possibleOps;
     } else return [];
   };
@@ -756,7 +767,6 @@ export class Synthesizer {
               ? cxt.findIDs(argType.name.value, cxt.argCxt)
               : cxt.findIDs(argType.name.value);
           const existingID = this.choice(possibleIDs);
-
           log.debug(
             `generating an argument with possbilities ${possibleIDs.map(
               (i) => i.value
@@ -822,7 +832,6 @@ export class Synthesizer {
   ): WithStmts<SubPredArg> => {
     const argType: Type = arg.type;
     if (argType.tag === "Prop") {
-      // TODO: check if the candidates are correct
       const pred = this.choice(
         this.cxt.candidates.predicates.toArray().map(([, b]) => b)
       );
@@ -859,3 +868,5 @@ const filterBySetting = <T>(
     return decls.filter((_, key) => setting.includes(key));
   }
 };
+
+//#endregion

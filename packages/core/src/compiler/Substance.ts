@@ -600,7 +600,6 @@ export const prettySubNode = (
       return prettyType(node);
     case "Bind":
     case "Decl":
-    case "ApplyPredicate":
     case "AutoLabel":
     case "NoLabel":
     case "LabelDecl":
