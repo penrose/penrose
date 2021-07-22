@@ -6,6 +6,9 @@ import { genFns } from "./Optimizer";
 // internal typing
 type Matrix = number[][];
 
+// toggle on to run Jacobian.test.ts
+export const TESTING = false;
+
 // returns nspacevectors as rows of the output matrix
 export const getNullspaceBasisVectors = (jacobian: Matrix): Matrix => {
   const J = new eig.Matrix(jacobian);
@@ -35,7 +38,9 @@ export const getNullspaceBasisVectors = (jacobian: Matrix): Matrix => {
     return zeroSingularValueIndexes.includes(index);
   });
 
-  // eig.GC.flush();
+  if (!TESTING) {
+    // eig.GC.flush(); // can't flush if testing; needs to reference matrix objs
+  }
 
   return nullspaceEvecs;
 };

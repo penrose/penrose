@@ -68,9 +68,11 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
     currentState = step(currentState, numSteps, true);
   }
   // getConstrFnGradientList(currentState);
-  // const j = getConstrFnGradientList(currentState);
-  // const nspvcs = getNullspaceBasisVectors(j);
-  // console.log(nspvcs);
+  const j = getConstrFnGradientList(currentState);
+  if (j.length > 0 && j[0].length > 0) {
+    // can't run SVD on empty matrices
+    const nspvcs = getNullspaceBasisVectors(j);
+  }
 
   return currentState;
 };
