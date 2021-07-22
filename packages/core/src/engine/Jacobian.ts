@@ -82,9 +82,17 @@ export const getConstrFnGradientList = (s: State): Matrix => {
     return gradientObj.gradf(xs);
   });
 
+  return res;
+
+  // should I also use the objective fns?
+  const gradientObjs2 = Object.values(objFnCache);
+  const res2 = gradientObjs2.map((gradientObj) => {
+    return gradientObj.gradf(xs);
+  });
+
   // console.log(res);
 
-  return res;
+  return res.concat(res2);
 };
 
 export const putNullspaceBasisVectorsInState = (state: State): State => {
