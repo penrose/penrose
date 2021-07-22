@@ -162,7 +162,7 @@ export const initializeMat = async () => {
  * @param steps
  * @param evaluate
  */
-export const step = (state: State, steps: number, evaluate = true) => {
+export const step = (state: State, steps: number, evaluate = true): State => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
@@ -351,6 +351,10 @@ export const step = (state: State, steps: number, evaluate = true) => {
     case "EPConverged": {
       // do nothing if converged
       log.info("step: EP converged");
+      return state;
+    }
+    case "Error": {
+      log.warn("step: Error");
       return state;
     }
   }

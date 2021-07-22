@@ -17,14 +17,14 @@ import RenderStatic, {
 import { resampleBest } from "renderer/Resample";
 import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
 import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
+import { PenroseError, RuntimeError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
 import { FieldDict, Translation } from "types/value";
 import { Fn, LabelCache, State } from "types/state";
 import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
-import { andThen, Result, showError } from "utils/Error";
+import { andThen, err, nanError, ok, Result, showError } from "utils/Error";
 import {
   prettyPrintFn,
   prettyPrintPath,
@@ -57,16 +57,33 @@ export const stepState = (state: State, numSteps = 10000): State => {
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
-export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
+export const stepUntilConvergence = (
+  state: State,
+  numSteps = 10000
+): Result<State, RuntimeError> => {
   let currentState = state;
   while (
     !stateConverged(currentState) &&
     !(currentState.params.optStatus === "Error")
   ) {
-    console.log("optStatus: " + currentState.params.optStatus);
     currentState = step(currentState, numSteps, true);
   }
-  return currentState;
+  if (currentState.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", currentState),
+    });
+  }
+  return ok(currentState);
+};
+
+const stepUntilConvergenceOrThrow = (state: State): State => {
+  const result = stepUntilConvergence(state);
+  if (result.isErr()) {
+    throw Error(showError(result.error));
+  } else {
+    return result.value;
+  }
 };
 
 /**
@@ -86,8 +103,7 @@ export const diagram = async (
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergence(state);
-    node.appendChild(RenderStatic(optimized));
+    const optimized = stepUntilConvergenceOrThrow(state);
   } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
@@ -110,7 +126,7 @@ export const interactiveDiagram = async (
   node: HTMLElement
 ): Promise<void> => {
   const updateData = (state: State) => {
-    const stepped = stepUntilConvergence(state);
+    const stepped = stepUntilConvergenceOrThrow(state);
     node.replaceChild(
       RenderInteractive(stepped, updateData),
       node.firstChild as Node
@@ -119,7 +135,7 @@ export const interactiveDiagram = async (
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergence(state);
+    const optimized = stepUntilConvergenceOrThrow(state);
     node.appendChild(RenderInteractive(optimized, updateData));
   } else {
     throw Error(
