@@ -351,8 +351,10 @@ export const constrDict = {
 
     // how far away are the shapes? (0 if intersecting)
     const distancePenalty = ClosestDistance.exact([t1, s1], [t2, s2]);
-    // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not intersecting)
-    const overlapPenalty = div(DifferenceArea.exact([t2, s2], [t1, s1]), Area.exact([t2, s2]));
+    // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not
+    // intersecting)
+    // TODO: should this be lower or upper bound?
+    const overlapPenalty = div(DifferenceArea.upperBound([t2, s2], [t1, s1]), Area.exact([t2, s2]));
     return add(distancePenalty, overlapPenalty);
   },
 

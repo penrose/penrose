@@ -41,7 +41,6 @@ Set x {
 
 forall Set x; Set y
 where IsSubset(x, y) {
-    ensure smallerThan(x.shape, y.shape)
     ensure disjoint(y.text, x.shape)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape

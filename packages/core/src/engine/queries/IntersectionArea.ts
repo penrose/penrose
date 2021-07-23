@@ -3,6 +3,7 @@ import { VarAD, Pt2 } from "types/ad";
 import { ops, add, min, max, mul, constOf, absVal, sub, div, ifCond, or, lt, atan2, sqrt, squared, neg, addN, debug } from 'engine/Autodiff';
 import { overboxFromShape, underboxFromShape } from 'engine/BBox';
 import * as BBox from 'engine/BBox';
+import { EPS_DENOM } from '../Autodiff';
 
 /**
  * Computes the area of A ∩ B.
@@ -69,7 +70,10 @@ const AABBOverlap = (
 }
 
 // TODO: add acos to autodiff directly
-const acos = (x: VarAD): VarAD => atan2(sqrt(sub(constOf(1), squared(x))), x);
+// const acos = (x: VarAD): VarAD => atan2(sqrt(sub(constOf(1), squared(x))), x);
+// TODO: is this approximation good? is it necessary?
+// https://stackoverflow.com/a/3380723
+const acos = (x: VarAD): VarAD => add(mul(sub(mul(constOf(-0.69813170079773212), squared(x)), constOf(0.87266462599716477)), x), constOf(1.5707963267948966))
 
 export const lowerBound = (
   [t1, s1]: [string, any],
@@ -116,9 +120,10 @@ export const exact = (
       const d = add(r1, r2);
       const d1 = div(addN([squared(r1), neg(squared(r2)), squared(d)]), mul(constOf(2), d));
       const d2 = sub(d, d1);
+      // TODO: can I remove the epsilons here?
       return add(
-        sub(mul(squared(r1), acos(div(d1, r1))), mul(d1, sqrt(sub(squared(r1), squared(d1))))),
-        sub(mul(squared(r2), acos(div(d2, r2))), mul(d2, sqrt(sub(squared(r2), squared(d2))))),
+        sub(mul(squared(r1), acos(div(d1, r1))), mul(d1, sqrt(add(sub(squared(r1), squared(d1)), constOf(EPS_DENOM))))),
+        sub(mul(squared(r2), acos(div(d2, r2))), mul(d2, sqrt(add(sub(squared(r2), squared(d2)), constOf(EPS_DENOM))))),
       )
     } else if ((t1 === "Circle" && t2 === "Ellipse") || (t1 === "Ellipse" && t2 === "Circle")) {
       // There may be an exact way to compute this.

@@ -251,7 +251,7 @@ export const exact = (
       // TODO: there may be a nice way to compute this
       throw Error(`exact closest-distance query not supported for ${t1} and ${t2}`)
     } else if (t1 === "Circle" && t2 === "Circle") {
-      return max(constOf(0), sub(sub(ops.dist(s1.center.contents, s2.center.contents), s1.r.contents), s2.r.contents));
+      return max(constOf(0), sub(sub(ops.vdist(s1.center.contents, s2.center.contents), s1.r.contents), s2.r.contents));
     } else if (t1 === "Circle" && t2 === "Ellipse") {
       // TODO: there may be a nice way to compute this
       throw Error(`exact closest-distance query not supported for ${t1} and ${t2}`)
