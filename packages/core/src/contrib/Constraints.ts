@@ -24,12 +24,16 @@ import {
   or,
   debug,
   cos,
+  sqrt,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { VarAD } from "types/ad";
+import { Pt2, VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
+import { Area, ClosestDistance, DifferenceArea, IntersectionArea } from '../engine/queries/Queries';
+import { overboxFromShape, underboxFromShape } from 'engine/BBox';
+import { upperBound } from '../engine/queries/Area';
 
 // Kinds of shapes
 /**
@@ -298,15 +302,8 @@ export const constrDict = {
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
   maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
-    switch (shapeType) {
-      case "Circle":
-        return sub(props.r.contents, div(limit, constOf(2)));
-      case "Square":
-        return sub(props.side.contents, limit);
-      default:
-        // HACK: report errors systematically
-        throw new Error(`${shapeType} doesn't have a maxSize`);
-    }
+    const overbox = overboxFromShape(shapeType, props);
+    return sub(max(overbox.w, overbox.h), limit);
   },
 
   /**
@@ -321,15 +318,8 @@ export const constrDict = {
       return sub(constOf(minLen), ops.vnorm(vec));
     }
 
-    switch (shapeType) {
-      case "Circle":
-        return sub(constOf(limit), props.r.contents);
-      case "Square":
-        return sub(constOf(limit), props.side.contents);
-      default:
-        // HACK: report errors systematically
-        throw new Error(`${shapeType} doesn't have a minSize`);
-    }
+    const underbox = underboxFromShape(shapeType, props);
+    return sub(constOf(limit), min(underbox.w, underbox.h));
   },
 
   /**
@@ -346,65 +336,24 @@ export const constrDict = {
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    offset: VarAD
+    offset = 0,
   ) => {
-    if (t1 === "Circle" && t2 === "Circle") {
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      const o = offset
-        ? sub(sub(s1.r.contents, s2.r.contents), offset)
-        : sub(s1.r.contents, s2.r.contents);
-      const res = sub(d, o);
-      return res;
-    } else if (t1 === "Circle" && isRectlike(t2)) {
-      const s2BBox = bboxFromShape(t2, s2);
-      const d = ops.vdist(fns.center(s1), s2BBox.center);
-      const textR = max(s2BBox.w, s2BBox.h);
-      return add(sub(d, s1.r.contents), textR);
-    } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
-      // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
-      // -- HACK: reusing test impl, revert later
-      //    let r_l = min (getNum r "w") (getNum r "h") / 2
-      //        diff = r_l - getNum c "r"
-      //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
+    // const box1 = underboxFromShape(t1, s1);
+    // const box2 = overboxFromShape(t2, s2);
+    // // const inflatedBox2 = BBox.inflate(box2, constOfIf(offset));
+    // const inflatedBox2 = box2;
+    // return add(
+    //   constrDict.contains1D(BBox.xRange(box1), BBox.xRange(inflatedBox2)),
+    //   constrDict.contains1D(BBox.yRange(box1), BBox.yRange(inflatedBox2))
+    // )
 
-      // TODO: `rL` is probably a hack for dimensions
-      const rL = div(min(s1.w.contents, s1.h.contents), varOf(2.0));
-      const diff = sub(rL, s2.r.contents);
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      return add(sub(d, diff), offset);
-    } else if (t1 === "Square" && t2 === "Circle") {
-      // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-      const sq = s1.center.contents;
-      const d = ops.vdist(sq, fns.center(s2));
-      return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
-    } else if (isRectlike(t1) && isRectlike(t2)) {
-      const box1 = bboxFromShape(t1, s1);
-      const box2 = bboxFromShape(t2, s2);
+    // TODO: how to incorporate offset? as an area thing or as a padding thing?
 
-      // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
-      return add(
-        constrDict.contains1D(BBox.xRange(box1), BBox.xRange(box2)),
-        constrDict.contains1D(BBox.yRange(box1), BBox.yRange(box2))
-      );
-    } else if (t1 === "Square" && isLinelike(t2)) {
-      const [[startX, startY], [endX, endY]] = linePts(s2);
-      const [x, y] = fns.center(s1);
-
-      const r = div(s1.side.contents, constOf(2.0));
-      const f = constOf(0.75); // 0.25 padding
-      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
-      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
-      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
-      //    inRange endY ly ry
-      const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
-      const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
-      return addN([
-        constrDict.inRange(startX, lx, rx),
-        constrDict.inRange(startY, ly, ry),
-        constrDict.inRange(endX, lx, rx),
-        constrDict.inRange(endY, ly, ry),
-      ]);
-    } else throw new Error(`${[t1, t2]} not supported for contains`);
+    // how far away are the shapes? (0 if intersecting)
+    const distancePenalty = ClosestDistance.exact([t1, s1], [t2, s2]);
+    // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not intersecting)
+    const overlapPenalty = div(DifferenceArea.exact([t2, s2], [t1, s1]), Area.exact([t2, s2]));
+    return add(distancePenalty, overlapPenalty);
   },
 
   /**
@@ -435,76 +384,47 @@ export const constrDict = {
   },
 
   /**
-   * Make an AABB rectangle contain an AABB (vertical or horizontal) line. (Special case of rect-rect disjoint). AA = axis-aligned
-   */
-  containsRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isRectlike(t1) || !isLinelike(t2)) {
-      throw Error("expected two line-like shapes");
-    }
-
-    const box = bboxFromShape(t1, s1);
-    const line = bboxFromShape(t2, s2);
-
-    // Contains line both vertically and horizontally
-    return add(
-      constrDict.contains1D(BBox.xRange(box), BBox.xRange(line)),
-      constrDict.contains1D(BBox.yRange(box), BBox.yRange(line))
-    );
-  },
-
-  /**
    * Make an AABB rectangle disjoint from a vertical or horizontal line.
    * (Special case of rect-rect disjoint)
    */
-  disjointRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isRectlike(t1) || !isLinelike(t2)) {
-      throw Error("expected two line-like shapes");
-    }
-
-    const box = bboxFromShape(t1, s1);
-    const line = bboxFromShape(t2, s2);
-
-    const overlapX = overlap1D(BBox.xRange(box), BBox.xRange(line));
-    const overlapY = overlap1D(BBox.yRange(box), BBox.yRange(line));
-
-    // Push away in both X and Y directions
-    return mul(overlapX, overlapY);
-  },
-
-  /**
-   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `offset` between them (e.g. if `s1` should be disjoint from `s2` with margin `offset`).
-   */
-  disjoint: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    offset = 0.0
-  ) => {
-    if (t1 === "Circle" && t2 === "Circle") {
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
-      return sub(addN(o), d);
-    } else if (isRectlike(t1) && isLinelike(t2)) {
+  disjointRectLine: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 0) => {
+    if (isRectlike(t1) && isLinelike(t2)) {
       const seg = s2;
-      const textBB = bboxFromShape(t1, s1);
+      const textBB = overboxFromShape(t1, s1);
       const centerT = textBB.center;
       const endpts = linePts(seg);
       const cp = closestPt_PtSeg(centerT, endpts);
       const lenApprox = div(textBB.w, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
-    } else if (isRectlike(t1) && isRectlike(t2)) {
-      // Assuming AABB (they are axis-aligned [bounding] boxes)
-      const box1 = bboxFromShape(t1, s1);
-      const box2 = bboxFromShape(t2, s2);
-      const inflatedBox1 = BBox.inflate(box1, constOfIf(offset));
-
-      const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
-      const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
-
-      // Push away in both X and Y directions, and account for padding
-      return mul(overlapX, overlapY);
+    } else if (isLinelike(t1) && isRectlike(t2)) {
+      const seg = s1;
+      const textBB = overboxFromShape(t2, s2);
+      const centerT = textBB.center;
+      const endpts = linePts(seg);
+      const cp = closestPt_PtSeg(centerT, endpts);
+      const lenApprox = div(textBB.w, constOf(2.0));
+      return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else {
-      // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
-      throw new Error(`${[t1, t2]} not supported for disjoint`);
+      throw Error(`expected a rect-like and a line-like shape, but got ${t1} and ${t2}`);
+    }
+  },
+
+  disjoint: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    padding = 0,
+  ) => {
+    const EPS0 = varOf(10e-3);
+    // TODO: does not handle line-like objects, which are assumed to have no intersection area
+    if (IntersectionArea.hasExactImpl(t1, t2)) {
+      return add(
+        IntersectionArea.exact([t1, s1], [t2, s2]),
+        ifCond(
+          lt(constOfIf(padding), EPS0),
+          constOf(0),
+          max(constOf(0), sub(constOfIf(padding), ClosestDistance.exact([t1, s1], [t2, s2])))));
+    } else {
+      return IntersectionArea.lowerBound([t1, s1], [t2, s2]);
     }
   },
 
@@ -542,44 +462,24 @@ export const constrDict = {
    * Require that shape `s1` is smaller than `s2` with some offset `offset`.
    */
   smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    // TODO: area or diameter?
+    // TODO: inner diameter or outer diameter?
     // s1 is smaller than s2
     const offset = mul(varOf(0.4), s2.r.contents);
     return sub(sub(s1.r.contents, s2.r.contents), offset);
   },
 
-  /**
-   * Require that shape `s1` outside of `s2` with some offset `padding`.
-   */
-  outsideOf: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding = 10
-  ) => {
-    if (isRectlike(t1) && t2 === "Circle") {
-      const s1BBox = bboxFromShape(t1, s1);
-      const textR = max(s1BBox.w, s1BBox.h);
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
-    } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
-  },
-
-  /**
-   * Require that shape `s1` overlaps shape `s2` with some offset `padding`.
-   */
+  // TODO: does not handle line overlapping
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 10
+    overlapArea = 0,
   ) => {
-    if (t1 === "Circle" && t2 === "Circle") {
-      return looseIntersect(
-        fns.center(s1),
-        s1.r.contents,
-        fns.center(s2),
-        s2.r.contents,
-        constOfIf(padding)
-      );
-    } else throw new Error(`${[t1, t2]} not supported for overlapping`);
+    if (IntersectionArea.hasExactImpl(t1, t2)) {
+      return sub(constOfIf(overlapArea), IntersectionArea.exact([t1, s1], [t2, s2]));
+    } else {
+      return sub(constOfIf(overlapArea), IntersectionArea.lowerBound([t1, s1], [t2, s2]));
+    }
   },
 
   /**

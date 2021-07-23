@@ -4,7 +4,7 @@ canvas {
 }
 
 forall Set x {
-    x.icon = Circle {
+    x.icon = Rectangle {
         strokeWidth : 0.0
     }
 
@@ -12,9 +12,9 @@ forall Set x {
         string : x.label
     }
 
-    ensure contains(x.icon, x.text)
+    ensure contains(x.icon, x.text, 10.0)
     ensure minSize(x.icon)
-    ensure maxSize(x.icon, canvas.height / 3.)
+    ensure maxSize(x.icon, canvas.height)
     encourage sameCenter(x.text, x.icon)
     x.textLayering = x.text above x.icon
 }
@@ -22,9 +22,10 @@ forall Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
 
-    ensure smallerThan(x.icon, y.icon)
-    ensure outsideOf(y.text, x.icon)
-    ensure contains(y.icon, x.icon, 5.0)
+    ensure disjoint(y.text, x.icon, 30.0)
+    ensure contains(y.icon, x.icon, 10.0)
+    -- ensure disjoint(y.text, x.icon)
+    -- ensure contains(y.icon, x.icon)
     x.icon above y.icon
 }
 
@@ -35,6 +36,7 @@ where IsSubset(x, y) {
 
 forall Set x; Set y
 where Not(Intersecting(x, y)) {
+    -- ensure disjointBBox(x.icon, y.icon, 20.0)
     ensure disjoint(x.icon, y.icon)
 }
 
@@ -44,8 +46,8 @@ where Not(Intersecting(x, y)) {
 forall Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.icon, y.icon)
-    ensure outsideOf(y.text, x.icon)
-    ensure outsideOf(x.text, y.icon)
+    ensure disjoint(y.text, x.icon)
+    ensure disjoint(x.text, y.icon)
 }
 
 forall Point p {

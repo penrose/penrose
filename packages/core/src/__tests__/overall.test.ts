@@ -10,6 +10,7 @@ import {
   RenderStatic,
   showError,
   stepUntilConvergence,
+  PenroseState,
 } from "../index";
 
 const OUTPUT = "/tmp/diagrams";
