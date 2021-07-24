@@ -591,7 +591,8 @@ export const constrDict = {
       const r1 = s1.r.contents;
       const r2 = s2.r.contents;
       // Since we want equality
-      return absVal(sub(d, sub(r1, r2)));
+      return squared(sub(d, add(r1, r2)));
+      return absVal(sub(d, add(r1, r2)));
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 

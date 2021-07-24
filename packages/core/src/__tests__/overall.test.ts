@@ -38,7 +38,7 @@ describe("End-to-end testing of existing diagrams", () => {
       if (saveDiagrams && !fs.existsSync(OUTPUT)) {
         fs.mkdirSync(OUTPUT);
       }
-      const res = compileTrio(dsl, sub, sty);
+      const res = compileTrio(dsl, sub, sty); // this is not good for some reason...
       if (res.isOk()) {
         const state = await prepareState(res.value);
         const optimized = stepUntilConvergence(state);

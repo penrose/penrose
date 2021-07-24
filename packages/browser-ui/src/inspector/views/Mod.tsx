@@ -32,7 +32,13 @@ class Mod extends React.Component<IViewProps, IState> {
         ...frame!,
         shapes: newShapes,
       } as PenroseState;
-      modShapes(newFrame);
+      modShapes({
+        ...newFrame,
+        params: {
+          ...newFrame.params,
+          optStatus: "NewIter",
+        },
+      });
     } else throw new Error("Shape does not have property " + attrname + " .");
   };
   public render() {
@@ -40,7 +46,6 @@ class Mod extends React.Component<IViewProps, IState> {
     if (frame === null) {
       return <div />;
     }
-
     const { selectedShape } = this.state;
     const def = defmap[frame.shapes[selectedShape].shapeType];
     if (!def) {

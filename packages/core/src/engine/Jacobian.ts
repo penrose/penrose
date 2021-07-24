@@ -11,15 +11,17 @@ import { genFns } from "./Optimizer";
 // internal typing
 type Matrix = number[][];
 
-// toggle on to run Jacobian.test.ts
-export const TESTING = false;
-
 // returns nspacevectors as rows of the output matrix
-export const getNullspaceBasisVectors = (jacobian: Matrix): Matrix => {
+
+// SVD gives more vectors than QR?
+// ....
+
+export const getNullspaceBasisVectorsSVD = (jacobian: Matrix): Matrix => {
   const J = new eig.Matrix(jacobian);
 
   // induced matrix, we use to find nullspace vecs
   const A = J.transpose().matMul(J);
+  // try J^T J vs just J?
 
   const svd = eig.Decompositions.svd(A, false);
 
@@ -39,15 +41,64 @@ export const getNullspaceBasisVectors = (jacobian: Matrix): Matrix => {
   // transpose svd.V, since I want columns of V
   const evecsAsRows = eigObjToMatrix(svd.V.transpose());
 
+  /*
+  evecsAsRows.map(
+    (vec, index) => {
+      const v = new eig.Matrix(vec);
+      const res = J.matMul(v);
+      res.print(`svd ${index}`)
+    }
+  ) */
+
   const nullspaceEvecs = evecsAsRows.filter((evec, index) => {
     return zeroSingularValueIndexes.includes(index);
   });
-
-  if (!TESTING) {
-    // eig.GC.flush(); // can't flush if testing; needs to reference matrix objs
-  }
-
   return nullspaceEvecs;
+};
+
+export const getNullspaceBasisVectorsQR = (jacobian: Matrix): Matrix => {
+  const J = new eig.Matrix(jacobian);
+
+  // J.print('J')
+
+  const qr = eig.Decompositions.qr(J.transpose());
+  // how do I figure out which ones are the nullspace vectors?
+
+  // I want the cols, as rows to be easily parseable
+  const qCols = eigObjToMatrix(qr.Q.transpose());
+
+  // qr.Q.print('q');
+  // qr.R.print('r');
+
+  // console.log(J.rows())
+  // console.log(J.cols())
+
+  // debugging
+
+  /*
+  qCols.map(
+    (vec, index) => {
+      const v = new eig.Matrix(vec);
+      const res = J.matMul(v);
+      res.print(`qr ${index}`)
+    }
+  )
+  */
+
+  // return qCols;
+
+  return qCols.filter((vec, index) => {
+    const v = new eig.Matrix(vec);
+    const res = J.matMul(v);
+    const resNorm = Math.sqrt(res.dot(res));
+    return resNorm < 10e-6;
+  });
+
+  // get columns m+1 to n.
+  // if J is mxn, then J is nxm, and
+  // columns m+1 ... n of Q are the nullspace basis of J
+
+  // I cannot assume this, since J might not be full (row) rank.
 };
 
 export const eigObjToMatrix = (obj: any): Matrix => {
@@ -76,21 +127,21 @@ export const getConstrFnGradientList = (s: State): Matrix => {
   // keys (fn names) don't matter
   // console.log(Object.keys(constrFnCache));
 
-  const gradientObjs = Object.values(constrFnCache);
+  const gradientObjs = Object.values(constrFnCache).concat(
+    Object.values(objFnCache)
+  );
 
   const res = gradientObjs.map((gradientObj) => {
     return gradientObj.gradf(xs);
   });
 
-  // return res;
+  return res;
 
   // should I also use the objective fns?
   const gradientObjs2 = Object.values(objFnCache);
   const res2 = gradientObjs2.map((gradientObj) => {
     return gradientObj.gradf(xs);
   });
-
-  // console.log(res);
 
   return res.concat(res2);
 };
@@ -100,7 +151,8 @@ export const putNullspaceBasisVectorsInState = (state: State): State => {
   const j = getConstrFnGradientList(state);
   if (j.length > 0 && j[0].length > 0) {
     // can't run SVD on empty matrices
-    const nspvcs = getNullspaceBasisVectors(j);
+    const nspvcs = getNullspaceBasisVectorsQR(j);
+    // getNullspaceBasisVectorsQR(j);
     let s = {
       ...state,
       params: {
@@ -115,11 +167,12 @@ export const putNullspaceBasisVectorsInState = (state: State): State => {
 };
 
 // update state
-export const addVecToVaryingVals = (
+//
+const addVecToVaryingVals = (
   s: State,
   nullSpaceVec: number[],
   scalingFactor: number = 10
-): State => {
+): [State, State] => {
   const xs = s.varyingValues;
   const v1 = new eig.Matrix(xs);
   const v2 = new eig.Matrix(nullSpaceVec);
@@ -128,12 +181,65 @@ export const addVecToVaryingVals = (
   // update the rest of state
   const varyingValues = eigObjToMatrix(sum).flat();
 
-  s.translation = insertVaryings(
-    s.translation,
-    _.zip(s.varyingPaths, varyingValues.map(differentiable)) as [Path, VarAD][]
+  let newState = { ...s };
+
+  newState.translation = insertVaryings(
+    newState.translation,
+    _.zip(newState.varyingPaths, varyingValues.map(differentiable)) as [
+      Path,
+      VarAD
+    ][]
   );
 
-  s.varyingValues = varyingValues;
-  s = evalShapes(s);
-  return s;
+  newState.varyingValues = varyingValues;
+  newState = evalShapes(newState);
+  return [newState, s];
+};
+
+export const getNewVaryingVals = (
+  s: State,
+  nullSpaceVec: number[],
+  scalingFactor: number
+): number[] => {
+  const xs = s.varyingValues;
+  const v1 = new eig.Matrix(xs);
+  const v2 = new eig.Matrix(nullSpaceVec);
+  const sum = v1.matAdd(v2.mul(scalingFactor));
+
+  const varyingValues = eigObjToMatrix(sum).flat();
+  return varyingValues;
+};
+
+export const addWeightedVecs = (
+  v1: number[],
+  w1: number,
+  v2: number[],
+  w2: number
+): number[] => {
+  console.log(v1, v2);
+  const vecObj1 = new eig.Matrix(v1);
+  const vecObj2 = new eig.Matrix(v2);
+  const sum = vecObj1.mul(w1).matAdd(vecObj2.mul(w2));
+  const res = eigObjToMatrix(sum).flat();
+  // console.log('res', res)
+  return res;
+};
+
+export const updateStateVaryingVals = (
+  s: State,
+  varyingValues: number[]
+): State => {
+  let newState = { ...s };
+
+  newState.translation = insertVaryings(
+    newState.translation,
+    _.zip(newState.varyingPaths, varyingValues.map(differentiable)) as [
+      Path,
+      VarAD
+    ][]
+  );
+
+  newState.varyingValues = varyingValues;
+  newState = evalShapes(newState);
+  return newState;
 };

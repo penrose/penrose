@@ -162,7 +162,7 @@ export const circleDef: ShapeDef = {
   properties: {
     center: ["VectorV", vectorSampler],
     r: ["FloatV", widthSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    // pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
@@ -179,7 +179,7 @@ export const ellipseDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     rx: ["FloatV", widthSampler],
     ry: ["FloatV", heightSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    // pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],

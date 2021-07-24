@@ -34,10 +34,10 @@ import {
   getTrmapKeyComic,
 } from "renderer/Staging";
 import {
-  getConstrFnGradientList,
-  getNullspaceBasisVectors,
-  addVecToVaryingVals,
   putNullspaceBasisVectorsInState,
+  getNewVaryingVals,
+  updateStateVaryingVals,
+  addWeightedVecs,
 } from "engine/Jacobian";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -69,19 +69,7 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-
-  if (currentState.params.nullspaceVectors) {
-    // console.log("hi");
-    // currentState = addVecToVaryingVals(currentState, currentState.params.nullspaceVectors[0], 4)
-    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[3], 4)
-    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[3], 4)
-    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[1], 0.5);
-    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[5], 10);
-    // currentState = addVecToVaryingVals(currentState, currentState.params!.nullspaceVectors[10], 10);
-  } else {
-    currentState = putNullspaceBasisVectorsInState(currentState);
-  }
-
+  currentState = putNullspaceBasisVectorsInState(currentState);
   return currentState;
 };
 
@@ -329,6 +317,9 @@ export {
   getListOfStagedStates,
   getComicPanelStates,
   getTrmapKeyComic,
+  getNewVaryingVals,
+  updateStateVaryingVals,
+  addWeightedVecs,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };
