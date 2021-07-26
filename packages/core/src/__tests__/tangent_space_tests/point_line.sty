@@ -1,0 +1,28 @@
+canvas {
+	width = 700
+	height = 400
+}
+
+forall Point p {
+	p.icon = Circle {
+			strokeWidth : 0.0
+			color : rgba(1.0, 0.0, 0.0, 1.0)
+			r : 3.0
+	}
+}
+
+forall Line l {
+	l.icon = Line { 
+		thickness : 5.0 
+		color : rgba(0.1, 0.8, 0.8, 1.0)
+	}
+	-- ensure equal(l.icon.start[1], 100.) -- fixed y coord of line start 
+	-- ensure equal(l.icon.start[1], l.icon.end[1]) -- horizontally oriented line
+	-- ensure equal(l.icon.start[0] - l.icon.end[0], 50.) -- fixed length of line 
+	-- ensure equal(l.icon.start[0], 300.)	-- fixed x coord of line start
+}
+
+Point p; Line l 
+where IsOn(p, l) {
+  encourage pointLineDist(p.icon.center, l.icon, 0) -- point must be on line
+}

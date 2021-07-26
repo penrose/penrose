@@ -19,6 +19,7 @@ interface IProps {
   stepUntilConvergence(): void;
   resample(): void;
   reconnect(): void;
+  calculateNullspace(): void;
 }
 class ButtonBar extends React.Component<IProps> {
   public render() {
@@ -38,6 +39,7 @@ class ButtonBar extends React.Component<IProps> {
       files,
       connected,
       reconnect,
+      calculateNullspace,
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -48,6 +50,7 @@ class ButtonBar extends React.Component<IProps> {
         )}
         <button onClick={step}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
+        <button onClick={calculateNullspace}>calculate nullspace basis</button>
         <button
           onClick={resample}
           disabled={!converged && !initial && autostep}

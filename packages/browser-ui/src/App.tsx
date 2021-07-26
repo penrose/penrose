@@ -12,6 +12,7 @@ import {
   stepUntilConvergence,
   showError,
   PenroseError,
+  putNullspaceBasisVectorsInState,
 } from "@penrose/core";
 
 import { isEqual } from "lodash";
@@ -170,7 +171,18 @@ class App extends React.Component<any, ICanvasState> {
       this.state.data,
       this.state.settings.autoStepSize
     );
+    stepped.params.nullspaceVectors = undefined;
     void this.onCanvasState(stepped);
+    // const addedNspace = putNullspaceBasisVectorsInState(stepped)
+    // void this.onCanvasState(addedNspace);
+  };
+
+  public putNullspaceBasisVectorsInState = (): void => {
+    if (this.state.data.params.optStatus !== "EPConverged") {
+      return; // do nothing
+    }
+    const newstate = putNullspaceBasisVectorsInState(this.state.data);
+    void this.onCanvasState(newstate);
   };
 
   public resample = async () => {
@@ -304,6 +316,7 @@ class App extends React.Component<any, ICanvasState> {
             ref={this.buttons}
             connected={connected}
             reconnect={this.connectToSocket}
+            calculateNullspace={this.putNullspaceBasisVectorsInState}
           />
         </div>
         <div style={{ flexGrow: 1, position: "relative", overflow: "hidden" }}>

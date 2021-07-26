@@ -152,12 +152,16 @@ export const putNullspaceBasisVectorsInState = (state: State): State => {
   if (j.length > 0 && j[0].length > 0) {
     // can't run SVD on empty matrices
     const nspvcs = getNullspaceBasisVectorsQR(j);
+    const zeroWeights = nspvcs.map((vec) => {
+      return 0;
+    });
     // getNullspaceBasisVectorsQR(j);
-    let s = {
+    const s = {
       ...state,
       params: {
         ...state.params,
         nullspaceVectors: nspvcs,
+        nullspaceVectorWeights: zeroWeights,
       },
     };
 

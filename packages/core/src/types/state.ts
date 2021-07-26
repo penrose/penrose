@@ -135,6 +135,7 @@ export interface IParams {
   // nullspace vectors of Jacobian final optimized state
   // vecs as rows
   nullspaceVectors?: number[][];
+  nullspaceVectorWeights?: number[];
 }
 
 export type FnCached = IFnCached;

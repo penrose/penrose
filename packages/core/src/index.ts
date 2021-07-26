@@ -69,7 +69,6 @@ export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
   while (!stateConverged(currentState)) {
     currentState = step(currentState, numSteps, true);
   }
-  currentState = putNullspaceBasisVectorsInState(currentState);
   return currentState;
 };
 
@@ -320,6 +319,7 @@ export {
   getNewVaryingVals,
   updateStateVaryingVals,
   addWeightedVecs,
+  putNullspaceBasisVectorsInState,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };

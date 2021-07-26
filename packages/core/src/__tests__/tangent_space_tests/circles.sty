@@ -1,0 +1,25 @@
+canvas {
+	width = 700
+	height = 400
+}
+
+forall Circle x {
+	x.icon = Circle {}
+	-- ensure minSize(x.icon)
+	-- ensure maxSize(x.icon.r, 50)
+	-- ensure minSize(x.icon.r, 5)
+	-- ensure lessThan(x.icon.r, 50.)
+	-- ensure minSize(x.icon)
+	-- ensure maxSize(x.icon, 100) 
+		-- as soon as this is added, the circle sizes are
+		-- 	no longer considered by the constraint jacobian null space
+		--  this depends on implementation? 
+	-- ensure minSize(x.icon)
+		-- same as above.
+	-- ensure inRange(x.icon.r, 5, 100)
+}
+
+Circle x; Circle y where Tangent(x,y) {
+	ensure tangentTo(x.icon, y.icon)
+	ensure disjoint(x.icon, y.icon, 0.)
+}
