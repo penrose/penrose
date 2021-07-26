@@ -232,12 +232,64 @@ Segment e; Plane p {
   e.icon above p.icon
 }
 
-Segment s, t
+Linelike s, t
 where EqualLength(s, t) {
   encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
-Segment s, t 
+--TODO eventually this should also provide an equal length marker since it is bisecting the segment
+Segment s
+where s := PerpendicularBisector(s2, p)
+with Segment s2; Point p {
+  override s.icon = Line {
+    start : p.icon.center
+    end : midpoint(s2.icon)
+    color : s.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
+  endA = ptOnLine(s.icon.end, s2.icon.end, const.thetaRadius)
+  sweepA = arcSweepFlag(s.icon.end, startA, endA)
+
+  s.mark = Path {
+    pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
+    strokeWidth : 2.0
+    color : Colors.black
+    fill : Colors.none
+  }
+
+  ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
+}
+
+Segment s
+where s := PerpendicularBisectorLabelPts(s2, p1, p2)
+with Segment s2; Point p1, p2 {
+  override p2.vec = midpoint(s2.icon)
+  override s.icon = Line {
+    start : p1.icon.center
+    end : p2.vec
+    color : s.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
+  endA = ptOnLine(s.icon.end, s2.icon.end, const.thetaRadius)
+  sweepA = arcSweepFlag(s.icon.end, startA, endA)
+
+  s.mark = Path {
+    pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
+    strokeWidth : 2.0
+    color : Colors.black
+    fill : Colors.none
+  }
+
+  ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
+}
+
+Linelike s, t 
 where EqualLengthMarker1(s, t) {
   override s.tick = Line {
     start : midpointOffset(s.icon, 10.)
@@ -259,7 +311,7 @@ where EqualLengthMarker1(s, t) {
   t.tick above t.icon
 }
 
-Segment s, t 
+Linelike s, t 
 where EqualLengthMarker2(s, t) {
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Line {
@@ -301,7 +353,7 @@ where EqualLengthMarker2(s, t) {
 }
 
 -- TODO
-Segment s, t 
+Linelike s, t 
 where EqualLengthMarker3(s, t) {
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Line {
@@ -843,17 +895,15 @@ with Linelike l {
   override p.vec = midpoint(l.icon)
 }
 
--- TODO broken
+-- TODO sometimes bisector becomes a scaled version of either side length PQ or QR of angle PQR
 Linelike s
-where Bisector(a, s, p)
+where AngleBisector(a, s)
 with Angle a; Point p {
-  override s.start = a.side2.start
-  override s.end =  p.vec
-
-  dotA = dot(normalize(a.p - a.q), normalize(a.p - s.end))
-  dotB = dot(normalize(a.p - a.r), normalize(a.p - s.end))
+  -- first angle = p, q, end
+  -- second angle = end, q, r
+  dotA = dot(normalize(a.p - a.q), normalize(s.end - a.q)) * 100
+  dotB = dot(normalize(s.end - a.q), normalize(a.r - a.q)) * 100
   ensure equal(dotA, dotB)
-  -- ensure equal(a.p - a.r + a.q, s.end)
 }
 
 Circle c {

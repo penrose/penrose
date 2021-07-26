@@ -1,4 +1,5 @@
-Point J, K, L, P
+-- name in registry: incenter-triangle
+Point J, K, L, P, m
 Triangle JKL := MkTriangle(J, K, L)
 Incenter(P, JKL)
 -- Centroid(P, JKL)

@@ -1,4 +1,10 @@
+Plane P -- TODO remove when points will stay on canvas automatically, plane used to keep points on screen for now
 Point J, K, L, M, N
+In(J, P)
+In(K, P)
+In(L, P)
+In(M, P)
+In(N, P)
 Quadrilateral JKLM := MkQuadrilateral(J, K, L, M)
 Parallelogram(JKLM)
 Segment JK := MkSegment(J, K)
@@ -8,5 +14,5 @@ Segment JL := MkSegment(J, L)
 Midpoint(JL, N)
 Midpoint(KM, N)
 ParallelMarker1(JK, ML)
--- Parallel(JK, LM)
+-- Parallel(JK, ML)
 AutoLabel All

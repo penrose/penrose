@@ -1,15 +1,20 @@
+-- TODO one of the triangles crosses with the other segments on a regular basis
 Point A, B, C, D, E, F
 Triangle ABC := MkTriangle(A, B, C)
 Triangle CDE := MkTriangle(C, D, E)
 Triangle DEF := MkTriangle(D, E, F)
-MarkedMidpoint1(B, C, E)
-MarkedMidpoint2(A, C, D)
+-- MarkedMidpoint1(B, C, E)
+-- MarkedMidpoint2(A, C, D)
+Collinear(B, C, E)
+Collinear(A, C, D)
 Angle CEF := InteriorAngle(C, E, F)
 Segment DE := MkSegment(D, E)
 Segment CA := MkSegment(C, A)
 Segment BC := MkSegment(B, C)
 Segment CE := MkSegment(C, E)
 Segment CD := MkSegment(C, D)
-EqualLengthMarker2(AC, CD)
+EqualLengthMarker2(CA, CD)
+EqualLength(CA, CD)
+EqualLength(BC, CE)
 EqualLengthMarker1(BC, CE)
 AutoLabel All
