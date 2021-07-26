@@ -55,7 +55,7 @@ import {
 } from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+//const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
 const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
@@ -162,7 +162,7 @@ export const initializeMat = async () => {
  * @param steps
  * @param evaluate
  */
-export const step = (state: State, steps: number, evaluate = true) => {
+export const step = (state: State, steps: number, evaluate = true): State => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
@@ -254,6 +254,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
         newLbfgsInfo,
         gradient,
         gradientPreconditioned,
+        failed,
       } = res;
 
       optParams.lastUOstate = xs;
@@ -285,6 +286,11 @@ export const step = (state: State, steps: number, evaluate = true) => {
           "gradient norm",
           normGrad
         );
+      }
+      if (failed) {
+        log.warn("Error detected after stepping");
+        optParams.optStatus = "Error";
+        return newState;
       }
 
       break;
@@ -345,6 +351,10 @@ export const step = (state: State, steps: number, evaluate = true) => {
     case "EPConverged": {
       // do nothing if converged
       log.info("step: EP converged");
+      return state;
+    }
+    case "Error": {
+      log.warn("step: Error");
       return state;
     }
   }
@@ -755,12 +765,21 @@ const minimize = (
   let normGradfxs = 0.0;
   let i = 0;
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
+  let failed = false;
 
   let newLbfgsInfo = { ...lbfgsInfo };
 
   while (i < numSteps) {
+    if (containsNaN(xs)) {
+      log.info("xs", xs);
+      throw Error("NaN in xs");
+    }
     fxs = f(xs);
     gradfxs = gradf(xs);
+    if (containsNaN(gradfxs)) {
+      log.info("gradfxs", gradfxs);
+      throw Error("NaN in gradfxs");
+    }
 
     const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(
       xs,
@@ -802,7 +821,7 @@ const minimize = (
       log.info("t", t, "use line search:", USE_LINE_SEARCH);
     }
 
-    if (isNaN(fxs) || isNaN(normGrad)) {
+    if (Number.isNaN(fxs) || Number.isNaN(normGrad)) {
       log.info("-----");
 
       const pathMap = _.zip(varyingPaths, xs, gradfxs) as [
@@ -814,7 +833,7 @@ const minimize = (
       log.info("[varying paths, current val, gradient of val]", pathMap);
 
       for (const [name, x, dx] of pathMap) {
-        if (isNaN(dx)) {
+        if (Number.isNaN(dx)) {
           log.info("NaN in varying val's gradient", name, "(current val):", x);
         }
       }
@@ -826,7 +845,9 @@ const minimize = (
       log.info("grad (grad(f)(xs)):", gradfxs);
       log.info("|grad f(x)|:", normGrad);
       log.info("t", t, "use line search:", USE_LINE_SEARCH);
-      throw Error("NaN reached in optimization energy or gradient norm!");
+      failed = true;
+      break;
+      //throw Error("NaN reached in optimization energy or gradient norm!");
     }
 
     xs = xs.map((x, j) => x - t * gradfxsPreconditioned[j]); // The GD update uses the conditioned search direction, as well as the timestep found by moving along it
@@ -842,6 +863,7 @@ const minimize = (
     newLbfgsInfo,
     gradient: gradfxs,
     gradientPreconditioned,
+    failed: failed,
   };
 };
 
@@ -1052,4 +1074,13 @@ export const genFns = (s: State): State => {
   p.constrFnCache = constrCache;
 
   return s;
+};
+
+const containsNaN = (numberList: number[]): boolean => {
+  for (var n in numberList) {
+    if (Number.isNaN(n)) {
+      return true;
+    }
+  }
+  return false;
 };

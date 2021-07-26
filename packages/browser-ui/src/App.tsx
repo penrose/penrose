@@ -165,9 +165,11 @@ class App extends React.Component<any, ICanvasState> {
       const stepped = stepState(this.state.data, 1);
       void this.onCanvasState(stepped);
     } catch (e) {
-        const error: PenroseError = {
-          errorType: "RuntimeError", tag: "RuntimeError", message: `Runtime error encountered: '${e}' Check console for more information.`
-        };
+      const error: PenroseError = {
+        errorType: "RuntimeError",
+        tag: "RuntimeError",
+        message: `Runtime error encountered: '${e}' Check console for more information.`,
+      };
 
       const errorWrapper = { error, data: undefined };
       this.setState(errorWrapper);
@@ -176,19 +178,15 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public stepUntilConvergence = (): void => {
-    try {
-      const stepped = stepUntilConvergence(
-        this.state.data,
-        this.state.settings.autoStepSize
-      );
-      void this.onCanvasState(stepped);
-    } catch (e) {
-        const error: PenroseError = {
-          errorType: "RuntimeError", tag: "RuntimeError", message: `Runtime error encountered: '${e}' Check console for more information.`
-        };
-      const errorWrapper = { error, data: undefined };
+    const stepped = stepUntilConvergence(
+      this.state.data,
+      this.state.settings.autoStepSize
+    );
+    if (stepped.isErr()) {
+      const errorWrapper = { error: stepped.error, data: undefined };
       this.setState(errorWrapper);
-      throw e;
+    } else {
+      void this.onCanvasState(stepped);
     }
   };
 
@@ -218,12 +216,16 @@ class App extends React.Component<any, ICanvasState> {
         );
         if (compileRes.isOk()) {
           try {
-            const initState: PenroseState = await prepareState(compileRes.value);
+            const initState: PenroseState = await prepareState(
+              compileRes.value
+            );
             void this.onCanvasState(initState);
           } catch (e) {
-              const error: PenroseError = {
-                errorType: "RuntimeError", tag: "RuntimeError", message: `Runtime error encountered: '${e}' Check console for more information.`
-              };
+            const error: PenroseError = {
+              errorType: "RuntimeError",
+              tag: "RuntimeError",
+              message: `Runtime error encountered: '${e}' Check console for more information.`,
+            };
 
             const errorWrapper = { error, data: undefined };
             this.setState(errorWrapper);
@@ -362,8 +364,8 @@ class App extends React.Component<any, ICanvasState> {
                 setSettings={this.setSettings}
               />
             ) : (
-                <div />
-              )}
+              <div />
+            )}
           </SplitPane>
         </div>
       </div>
