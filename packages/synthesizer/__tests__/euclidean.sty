@@ -119,10 +119,9 @@ where In(p, P) {
 
 Point p, q, r
 where Collinear(p, q, r) {
-  ensure collinear(p.icon, q.icon, r.icon)
+  ensure collinear(p.icon.center, q.icon.center, r.icon.center)
   encourage repel(p.icon, q.icon, const.repelWeight)
   encourage repel(q.icon, r.icon, const.repelWeight)
---  encourage equal(vdist(q.vec, p.vec), vdist(r.vec,q.vec))
 }
 
 --Linelike
@@ -142,7 +141,9 @@ Linelike l {
 Ray r
 where r := MkRay(base, direction)
 with Point base; Point direction {
-  r.vec = (direction.x - base.x, direction.y - base.y)
+  r.start = base.vec
+  r.end = direction.vec
+  r.vec = direction.vec - base.vec
 
   override r.icon = Line {
     start : base.icon.center
@@ -162,6 +163,8 @@ with Point base; Point direction {
 Line l
 where l := MkLine(p, q)
 with Point p; Point q {
+  l.start = p.vec
+  l.end = q.vec
   l.vec = (q.x - p.x, q.y - p.y)
   override l.icon = Line {
     start : ptOnLine(p.vec,q.vec, -40.)
@@ -180,13 +183,13 @@ with Point p; Point q {
 Linelike l1, l2 -- should this work with rays and lines?
 where ParallelMarker1(l1, l2) {
   l1.tick1 = Path {
-    pathData : pathFromPoints("open", chevron(l1.icon, 20., 1))
+    pathData : pathFromPoints("open", chevron(l1.icon, 20., 6))
     strokeWidth : 2.0
     color : Colors.black
     fill : Colors.none
   }
   l2.tick1 = Path {
-    pathData : pathFromPoints("open", chevron(l2.icon, 20., 1))
+    pathData : pathFromPoints("open", chevron(l2.icon, 20., 5))
     strokeWidth : 2.0
     color : Colors.black
     fill : Colors.none
@@ -205,24 +208,24 @@ where Parallel(l1, l2) {
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
-     override e.vec = [q.x - p.x, q.y - p.y]
+  override e.vec = [q.x - p.x, q.y - p.y]
+  e.start = p.vec
+  e.end = q.vec
 
-     override e.icon = Line {
-       start : p.icon.center
-       end : q.icon.center
-	     color : e.color
-	     thickness : const.strokeWidth
-	     stroke : "none"
-	     style : "solid"
-     }
+  override e.icon = Line {
+    start : p.icon.center
+    end : q.icon.center
+    color : e.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
 
-     p.icon above e.icon
-     q.icon above e.icon
+  p.icon above e.icon
+  q.icon above e.icon
 
-     encourage pointLineDist(p.text.center, e.icon, 30.)
-     encourage pointLineDist(q.text.center, e.icon, 30.)
-
-    --  e.icon above const.plane
+  encourage pointLineDist(p.text.center, e.icon, 30.)
+  encourage pointLineDist(q.text.center, e.icon, 30.)
 }
 
 Segment e; Plane p {
@@ -528,7 +531,7 @@ where EqualAngle(a, b) {
 
 Angle a
 where RightUnmarked(a) {
-  ensure equal(dot(a.p - a.q, a.r - a.q), 0)
+  ensure perpendicular(a.p, a.q, a.r)
 }
 
 Angle a
@@ -540,9 +543,10 @@ where RightMarked(a) {
     color : Colors.black
     fill : Colors.none
   }
-  ensure equal(dot(a.p - a.q, a.r - a.q), 0)
+  ensure perpendicular(a.p, a.q, a.r)
 }
 
+-- TODO inRange NaN's
 Angle a
 where Supplementary(a) {
   ensure inRange(dot(a.p - a.q, a.r - a.q), 0, 1)
@@ -551,47 +555,47 @@ where Supplementary(a) {
 Triangle t; Plane P 
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
-  t.side1 above P.icon
-  t.side2 above P.icon
-  t.side3 above P.icon
+  t.PQ above P.icon
+  t.QR above P.icon
+  t.RP above P.icon
 }
 
 Triangle t
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
-     t.color = Colors.black
-     t.side1 = Line {
-     	 start : p.icon.center
-     	 end : q.icon.center
-	     color : t.color
-	     thickness : const.strokeWidth
-	     stroke : "none"
-	     style : "solid"
-     }
-     t.side2 = Line {
-       start : q.icon.center
-       end : r.icon.center
-	     color : t.color
-	     thickness : const.strokeWidth
-	     stroke : "none"
-	     style : "solid"
-     }
-     t.side3 = Line {
-     	 start : p.icon.center
-     	 end : r.icon.center
-	     color : t.color
-	     thickness : const.strokeWidth
-	     stroke : "none"
-	     style : "solid"
-     }
+  t.color = Colors.black
+  t.PQ = Line {
+    start : p.icon.center
+    end : q.icon.center
+    color : t.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  t.QR = Line {
+    start : q.icon.center
+    end : r.icon.center
+    color : t.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  t.RP = Line {
+    start : r.icon.center
+    end : p.icon.center
+    color : t.color
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
 }
 
 Point p
 where Incenter(p, T)
 with Triangle T {
-  s1 = T.side1.start
-  s2 = T.side2.start
-  s3 = T.side3.end
+  s1 = T.PQ.start
+  s2 = T.QR.start
+  s3 = T.RP.start
 
   a = vdist(s2, s3)
   b = vdist(s3, s1)
@@ -602,13 +606,126 @@ with Triangle T {
   override p.vec = vmul(1/denom, vec)
 
   semip = (a + b + c) / 2
-  T.icon = Circle {
+  clr = setOpacity(Colors.darkpurple, 0.6)
+  override T.icon = Circle {
     center : p.vec
     r : sqrt(((semip - a) * (semip - b) * (semip - c))/ semip)
     strokeWidth : const.strokeWidth
-    strokeColor : setOpacity(Colors.darkpurple, 0.4)
+    strokeColor : clr
     color : Colors.none
   }
+}
+
+Point p
+where Circumcenter(p, T)
+with Triangle T {
+  clr = setOpacity(Colors.darkpurple, 0.6)
+  override p.icon = Circle {
+    center : p.vec
+    r : const.pointSize
+    strokeWidth : const.strokeWidth
+    strokeColor : clr
+    color : clr
+  }
+  T.icon = Circle {
+    center : p.vec
+    r : ?
+    strokeWidth : const.strokeWidth
+    strokeColor : clr
+    color : Colors.none
+  }
+  ensure ptCircleIntersect(T.PQ.start, T.icon)
+  ensure ptCircleIntersect(T.QR.start, T.icon)
+  ensure ptCircleIntersect(T.RP.start, T.icon)
+  encourage repelPt(const.repelWeight, T.PQ.start, T.QR.start)
+  encourage repelPt(const.repelWeight, T.QR.start, T.RP.start)
+}
+
+Point p
+where Centroid(p, T)
+with Triangle T {
+  clr = setOpacity(Colors.darkpurple, 0.6)
+  override p.vec = vmul(1/3, T.PQ.start + T.QR.start + T.RP.start)
+  override p.icon = Circle {
+    center : p.vec
+    r : const.pointSize
+    strokeWidth : const.strokeWidth
+    strokeColor : clr
+    color : clr
+  }
+  override T.icon = Line {
+    start : T.PQ.start
+    end : midpoint(T.QR)
+    color : clr
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  override T.line2 = Line {
+    start : T.QR.start
+    end : midpoint(T.RP)
+    color : clr
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  override T.icon3 = Line {
+    start : T.RP.start
+    end : midpoint(T.PQ)
+    color : clr
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+}
+
+Point p
+where Orthocenter(p, T)
+with Triangle T {
+  clr = setOpacity(Colors.darkpurple, 0.6)
+  T.icon = Line {
+    start : (?, ?)
+    end : p.vec
+    color : clr
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  T.icon2 = Line {
+    start : (?, ?)
+    end : p.vec
+    color : clr
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+  T.icon3 = Line {
+    start : (?, ?)
+    end : p.vec
+    color : clr
+    thickness : const.strokeWidth
+    stroke : "none"
+    style : "solid"
+  }
+
+  -- TODO make it so that predicates can reference other predicates. 3/4 of these are copy-pasted from the Collinear predicate
+  ensure collinear(T.PQ.start, T.icon.start, T.PQ.end)
+  ensure collinear(T.QR.start, T.icon2.start, T.QR.end)  
+  ensure collinear(T.RP.start, T.icon3.start, T.RP.end)
+
+  ensure perpendicular(T.PQ.start, T.icon.start, p.vec)
+  ensure perpendicular(T.QR.start, T.icon2.start, p.vec)  
+  ensure perpendicular(T.RP.start, T.icon3.start, p.vec)
+
+  encourage repelPt(const.repelWeight, T.PQ.start, T.icon.start)
+  encourage repelPt(const.repelWeight, T.PQ.end, T.icon.start)
+
+  encourage repelPt(const.repelWeight, T.QR.start, T.icon2.start)
+  encourage repelPt(const.repelWeight, T.QR.end, T.icon2.start)
+
+  encourage repelPt(const.repelWeight, T.RP.start, T.icon3.start)
+  encourage repelPt(const.repelWeight, T.RP.end, T.icon3.start)
+
 }
 
 --Rectangle
@@ -626,8 +743,8 @@ with Point p; Point q; Point r; Point s {
   ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
   ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
 
-  ensure equal(dot(p.icon.center - q.icon.center, q.icon.center - r.icon.center), 0)
-  ensure equal(dot(q.icon.center - s.icon.center, s.icon.center - r.icon.center), 0)
+  ensure perpendicular(p.icon.center, q.icon.center, r.icon.center)
+  ensure perpendicular(q.icon.center, s.icon.center, r.icon.center)
 
   -- R.icon above P.icon
 }
@@ -702,8 +819,8 @@ where Parallelogram(Q) {
 Segment s
 where s := MidSegment(T, p, q)
 with Triangle T; Point p; Point q {
-  override p.vec = midpoint(T.side1)
-  override q.vec = midpoint(T.side3)
+  override p.vec = midpoint(T.PQ)
+  override q.vec = midpoint(T.RP)
   override s.icon = Line {
     start : p.icon.center
     end : q.icon.center
@@ -727,21 +844,16 @@ with Linelike l {
 }
 
 -- TODO broken
-Segment s
-where s := Bisector(a, p)
+Linelike s
+where Bisector(a, s, p)
 with Angle a; Point p {
-  override s.icon = Line {
-    start : a.side2.start
-    end :  p.vec
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-  dotA = dot(normalize(a.p - a.q), normalize(a.p - a.r))
-  dotB = dot(normalize(a.p - a.r), normalize(a.r - a.q))
+  override s.start = a.side2.start
+  override s.end =  p.vec
+
+  dotA = dot(normalize(a.p - a.q), normalize(a.p - s.end))
+  dotB = dot(normalize(a.p - a.r), normalize(a.p - s.end))
   ensure equal(dotA, dotB)
-  ensure equal(a.p - a.r + a.q, s.icon.end)
+  -- ensure equal(a.p - a.r + a.q, s.end)
 }
 
 Circle c {
@@ -829,7 +941,7 @@ with Circle c; Point p, q {
 
   p.icon above c.icon
   q.icon above c.icon
-  ensure collinear(p.icon, c.icon, q.icon)
+  ensure collinear(p.icon.center, c.icon.center, q.icon.center)
   ensure ptCircleIntersect(p.vec, c.icon)
   ensure ptCircleIntersect(q.vec, c.icon)
 }
@@ -839,282 +951,9 @@ where OnCircle(c, p)
 with Circle c {
   ensure ptCircleIntersect(p.vec, c.icon)
 }
--- -- We don't know if the points in the triangle actually include the points in the square or not
--- -- TODO: this doesn't seem to match -- and the matches take way too long!!
 
--- -- Square S
--- -- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(a, b, c)
--- -- with Point p; Point q; Point r; Point s; Triangle T; Point a; Point b; Point c {
-
--- -- Need overrides because Square <: Rectangle
-
--- Square S
--- where S := MkSquare(p, q, r, s)
--- with Point p; Point q; Point r; Point s {
-
---      -- Assuming (p,q) are the segment of a triangle
---      -- TODO: this should really do that match in Style...
---      -- and r,s are the other two points of the square
-
---     override S.color = setOpacity(Colors.midnightblue, 0.4)
-
---     S.path = squareAt(p.vec, q.vec)
-
---     override S.shape = Path {
--- 	    pathData : polygonFromPoints(S.path)
--- 	    -- Assumes that the last two points are the new corners (r, s) that need to be set
--- 	    strokeWidth : const.strokeWidth
--- 	    fill : S.color
--- 	    color : Colors.black
--- 	    rotation : 0.0
---     }
-
---     -- Position the points at the corner of the square
---     override r.vec = get(S.path, 2)
---     override r.x = get(r.vec, 0)
---     override r.y = get(r.vec, 1)
-
---     override s.vec = get(S.path, 3)
---     override s.x = get(s.vec, 0)
---     override s.y = get(s.vec, 1)
--- }
-
--- -- These more specific matches are so we can figure out which third point of the triangle to push the square away from
--- -- Note: order of the variables really matters!
-
--- Square S
--- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(c, q, p)
--- with Point p; Point q; Point r; Point s; Triangle T; Point c {
-
---     override S.path = squareAt(p.vec, q.vec, c.vec)
--- }
-
--- Square S
--- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(q, p, c)
--- with Point p; Point q; Point r; Point s; Triangle T; Point c {
-
---     override S.path = squareAt(p.vec, q.vec, c.vec)
--- }
-
--- Square S
--- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(p, c, q)
--- with Point p; Point q; Point r; Point s; Triangle T; Point c {
-
---     override S.path = squareAt(p.vec, q.vec, c.vec)
--- }
-
-
--- Angle theta
--- where theta := InteriorAngle(q, p, r); Right(theta)
--- with Point p; Point q; Point r {
---       override theta.perpSize = 13.0
-
---       -- override theta.shape = Path {
---       -- 		 pathData : perpPath(q.vec, p.vec, r.vec, theta.perpSize)
---       -- 		 strokeWidth : 1.25
---       -- 		 color : Colors.black
---       -- 		 fill : setOpacity(Colors.white, 0.5)
---       -- }
-
---       ensure perpendicular(q.vec, p.vec, r.vec)
--- }
-
--- Ray r {
---     r.length = const.rayLength
--- }
-
--- Point p
--- where p := Midpoint(s)
--- with Segment s {
---      override p.icon.x = midpointX(s.icon)
---      override p.icon.y = midpointY(s.icon)
-
---      override p.icon.strokeWidth = 1.0
---      override p.icon.color = Colors.white
---      override p.icon.r = 3.2
---      p.midLayering = p.icon above s.icon
--- }
-
--- Ray r
--- with Angle theta; Point x; Point y; Point z
--- where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
-
---       r.tail = [x.x, x.y]
---       r.head = angleBisectorEuclidean(x.vec, y.vec, z.vec, r.length)
-
---       r.icon = Line {
---       	      startX : x.x
--- 	      startY : x.y
--- 	      -- TODO: figure out how long this should be
--- 	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
--- 	      endX : get(r.head, 0)
--- 	      endY : get(r.head, 1)
--- 	      thickness : const.strokeWidth
--- 	      color : Colors.darkpurple
---       	      rightArrowhead : True
--- 	      arrowheadSize : const.arrowheadSize
---       }
-
---       -- Bisect the arc twice more to get the bisector mark locations
---       -- Throw away z coordinate for each
---       theta.bisectpt1 = angleBisectorEuclidean(x.vec, y.vec, r.head, theta.radius)
---       theta.bisectpt2 = angleBisectorEuclidean(x.vec, z.vec, r.head, theta.radius)
---       theta.markLen = 10.0
-
---       -- Angle bisector marks: two tick marks
---       theta.bisectMark1 = Path {
---       	      pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
---       	      strokeWidth : const.strokeWidth
---       	      fill : Colors.none
---       	      color : Colors.darkpurple
---       	      rotation : 0.0
---       	      rightArrowhead : False
---       	      arrowheadSize : 0.0
---       }
-
---       theta.bisectMark2 = Path {
---       	      pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
---       	      strokeWidth : const.strokeWidth
---       	      fill : Colors.none
---       	      color : Colors.darkpurple
---       	      rotation : 0.0
---       	      rightArrowhead : False
---       	      arrowheadSize : 0.0
---       }
-
---       theta.layeringMark1 = theta.bisectMark1 above theta.icon
---       theta.layeringMark2 = theta.bisectMark2 above theta.icon
---       r.layering = r.icon above const.plane
--- }
-
--- Ray r
--- with Linelike s; Point m
--- where r := PerpendicularBisector(s); m := Midpoint(s) {
-
---       r.icon = Line {
---       	      startX : midpointX(s.icon)
--- 	      startY : midpointY(s.icon)
--- 	      endX : perpX(s.icon, r.icon.startX, r.icon.startY, r.length)
--- 	      endY : perpY(s.icon, r.icon.startX, r.icon.startY, r.length)
--- 	      thickness : const.strokeWidth
--- 	      color : Colors.darkpurple
--- 	      style : "dotted"
---       	      rightArrowhead : True
--- 	      arrowheadSize : const.arrowheadSize
---       }
-
---       r.perpSize = 10.0
-
---       r.perpMark = Path {
---       		 pathData : perpPath(r.shape, s.shape, (r.shape.startX, r.shape.startY), r.perpSize)
--- 		 strokeWidth : 1.25
--- 		 color : Colors.black
--- 		 fill : setOpacity(Colors.white, 0.5)
---       }
-
---       r.layering1 = r.icon above const.plane
---       r.layering2 = r.perpMark above const.plane
-
---       r.markLayering1 = r.perpMark below s.icon
---       r.markLayering2 = r.perpMark below r.icon
---       -- r.markLayering3 = r.perpMark above const.sphere
---       r.markLayering4 = r.perpMark below p.icon
---       r.markLayering5 = r.perpMark below q.icon
---       r.markLayering6 = r.perpMark below r.icon
---       r.markLayering7 = r.perpMark below m.icon
-
---      labelAvoidFn_Mark = encourage repel(r.icon, m.text, const.repelWeight)
---      labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, const.repelWeight)
---      labelAvoidFn_Seg = encourage repel(s.icon, m.text, const.repelWeight)
--- }
-
--- -- TODO: trying to just add a repel function on the point that's not in a segment... this might be too many repels for the ones that are in a segment though
-
--- -- TODO: should we use const.repelWeight below?
-
--- Ray r; Point p {
---     labelAvoidFn = encourage repel(r.icon, p.text, const.repelWeight)
---     layering = r.icon below p.icon
--- }
-
--- Segment s; Point p {
---      -- TODO: Maybe the optimization would be faster if I used lines instead of curves for the segments?	
---      labelAvoidFn_p = encourage repel(s.icon, p.text, const.repelWeight)
--- }
-
--- Triangle t; Point p {
---     layering1 = t.icon below p.icon
---     layering2 = t.icon below p.text
--- }
-
--- Square s; Point p {
---     layering1 = s.icon below p.icon
---     layering2 = s.icon below p.text
--- }
-
--- Rectangle r; Point p {
---     layering1 = r.icon below p.icon
---     layering2 = r.icon below p.text
--- }
-
--- Triangle t; Segment e {
---     layering1 = t.icon below e.icon
--- }
-
--- Square s; Segment e {
---     layering1 = s.icon below e.icon
--- }
-
--- Rectangle r; Segment e {
---     layering1 = r.icon below e.icon
--- }
-
--- Triangle t; Angle theta {
--- 	 layering = theta.icon above t.icon
--- }
-
---- -----------------------------------------------------------------------------
-
--- -- TODO: Take the altitude at a particular angle that happens to be right
--- -- Might not need to specify the angle if we know the triangle's right
--- Segment e
--- where e := Altitude(t, theta); Right(theta); theta := InteriorAngle(q, p, r) -- `p` is the point of the angle
--- with Triangle t; Angle theta; Point p; Point q; Point r {
-
---      e.color = Colors.black
---      e.proj_pt = project(q.vec, p.vec, r.vec)
-
---      e.icon = Line {
---      	     startX : p.x
---      	     startY : p.y
---      	     endX : get(e.proj_pt, 0)
---      	     endY : get(e.proj_pt, 1)
--- 	     style : "dashed"
--- 	     color : e.color
--- 	     thickness : const.strokeWidth
--- 	     stroke : "none"
---      }
-
---      -- TODO: layering
--- }
-
--- -- Set the location of an endpoint of an altitude to be the result of the altitude on the edge
--- Point p
--- with Segment e; Triangle t; Angle theta
--- where p := Endpoint(e); e := Altitude(t, theta) {
-
---       override p.x = get(e.proj_pt, 0)
---       override p.y = get(e.proj_pt, 1)
--- }
-
--- -- Special case for KL
--- Point p
--- with Segment ba; Segment cp; Point a; Point b; Point c
--- where ba := MkSegment(b, a); On(p, ba); cp := MkSegment(c, p); Perpendicular(cp, ba) {
-
---       -- BA is the existing segment; C is an existing point that defines the angle
---       -- p's location is really another altitude of the angle ACB
---       override p.vec = project(a.vec, c.vec, b.vec) 
---       override p.x = get(p.vec, 0)
---       override p.y = get(p.vec, 1)
--- }- -- TODO: Appendices removed for now
+Point p
+where CircleCenter(c, p)
+with Circle c {
+  override p.vec = c.vec
+}

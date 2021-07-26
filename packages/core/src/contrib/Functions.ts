@@ -92,19 +92,6 @@ export const compDict = {
         },
       ],
     };
-
-    // return {
-    //   tag: "PathDataV",
-    //   contents: [
-    //     {
-    //       tag: "Closed",
-    //       contents: [
-    //         startPt,
-    //         endPt
-    //       ]
-    //     }
-    //   ]
-    // };
   },
 
   /**
@@ -372,6 +359,7 @@ export const compDict = {
       contents: [markStart, markEnd].map(toPt),
     };
   },
+
   /**
    * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
    * @param pathType: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point
@@ -471,11 +459,13 @@ export const compDict = {
     }
   },
   chevron: (
+    // TODO reimplement with variable tick marks when #629 is merged
     [t1, s1]: [string, any],
     padding: VarAD,
     ticks: VarAD
   ): IPtListV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
+      // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
       const startDir = ops.vrot(dir, varOf(135));
@@ -864,4 +854,23 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
   }
 
   return res[0] as VarAD[];
+};
+
+const tickPlacement = (
+  padding: VarAD,
+  numPts: VarAD,
+  multiplier = varOf(1)
+): VarAD[] => {
+  if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
+  const even = numOf(numPts) % 2 === 0;
+  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  for (let i = 1; i < numOf(numPts); i++) {
+    if (even && i === 1) multiplier = neg(multiplier);
+    const shift =
+      i % 2 == 0
+        ? mul(padding, mul(neg(varOf(i)), multiplier))
+        : mul(padding, mul(varOf(i), multiplier));
+    pts.push(add(pts[i - 1], shift));
+  }
+  return pts;
 };

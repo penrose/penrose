@@ -4,6 +4,8 @@ Ray DB := MkRay(D, B)
 Ray DC := MkRay(D, C)
 Angle ADB := InteriorAngle(A, D, B)
 Angle BDC := InteriorAngle(B, D, C)
+-- Bisector(BDC, DB, B)
+-- Angle ADC := InteriorAngle(A, D, C)
 EqualAngleMarker1(ADB, BDC)
 EqualAngle(ADB, BDC)
 AutoLabel All
