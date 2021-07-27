@@ -171,7 +171,7 @@ export const subProgDiffs = (left: SubProg, right: SubProg): DiffSet => {
   return { update, add, delete: deleted };
 };
 
-const showSubDiff = (d: SubDiff) => {
+export const showSubDiff = (d: SubDiff) => {
   switch (d.diffType) {
     case "Add":
     case "Delete":

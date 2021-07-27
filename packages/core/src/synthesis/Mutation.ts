@@ -14,7 +14,7 @@ import {
   SubProg,
   SubStmt,
 } from "types/substance";
-import { SynthesisContext } from "./Synthesizer";
+import { addID, removeID, SynthesisContext, WithContext } from "./Synthesizer";
 
 //#region Mutation types
 
@@ -25,7 +25,11 @@ export type MutationType = Mutation["tag"];
 export interface IMutation {
   tag: MutationType;
   additionalMutations?: Mutation[];
-  mutate: (op: this, prog: SubProg) => SubProg;
+  mutate: (
+    op: this,
+    prog: SubProg,
+    ctx: SynthesisContext
+  ) => WithContext<SubProg>;
 }
 
 export type Update =
@@ -117,14 +121,23 @@ export const showOp = (op: Mutation): string => {
 //#endregion
 
 //#region Mutation execution
-export const executeMutation = (prog: SubProg, mutation: Mutation): SubProg =>
-  mutation.mutate(mutation as any, prog); // TODO: typecheck this?
+
+export const executeMutation = (
+  mutation: Mutation,
+  prog: SubProg,
+  ctx: SynthesisContext
+): WithContext<SubProg> => mutation.mutate(mutation as any, prog, ctx); // TODO: typecheck this?
 
 export const executeMutations = (
+  mutations: Mutation[],
   prog: SubProg,
-  mutations: Mutation[]
-): SubProg =>
-  mutations.reduce((p: SubProg, m: Mutation) => m.mutate(m as any, p), prog); // TODO: typecheck this?
+  ctx: SynthesisContext
+): WithContext<SubProg> =>
+  mutations.reduce(
+    ({ res, ctx }: WithContext<SubProg>, m: Mutation) =>
+      m.mutate(m as any, res, ctx),
+    { res: prog, ctx }
+  );
 
 const swap = (arr: any[], a: number, b: number) =>
   arr.map((current, idx) => {
@@ -133,48 +146,40 @@ const swap = (arr: any[], a: number, b: number) =>
     return current;
   });
 
-/**
- * Swap two arguments of a Substance statement
- *
- * @param param0 the swap mutation data
- * @param prog a Substance program
- * @returns a new Substance program
- */
-export const swapStmtArgs = (
-  { stmt, elem1, elem2 }: SwapStmtArgs,
-  prog: SubProg
-): SubProg => {
-  const newStmt: SubStmt = {
-    ...stmt,
-    args: swap(stmt.args, elem1, elem2),
-  };
-  return replaceStmt(prog, stmt, newStmt);
-};
-
-/**
- * Swap two arguments of a Substance expression
- *
- * @param param0 the swap mutation data
- * @param prog a Substance program
- * @returns a new Substance program
- */
-export const swapExprArgs = (
-  { stmt, expr, elem1, elem2 }: SwapExprArgs,
-  prog: SubProg
-): SubProg => {
-  const newStmt: SubStmt = {
-    ...stmt,
-    expr: {
-      ...expr,
-      args: swap(expr.args, elem1, elem2),
-    } as SubExpr, // TODO: fix types to avoid casting
-  };
-  return replaceStmt(prog, stmt, newStmt);
-};
-
 //#endregion
 
-//#region Mutation pre-flight checks
+//#region Mutation guard functions
+
+const withCtx = <T>(res: T, ctx: SynthesisContext): WithContext<T> => ({
+  res,
+  ctx,
+});
+
+export const appendStmtCtx = (
+  { stmt }: Add,
+  p: SubProg,
+  ctx: SynthesisContext
+): WithContext<SubProg> => {
+  if (stmt.tag === "Decl") {
+    const newCtx = addID(ctx, stmt.type.name.value, stmt.name);
+    return withCtx(appendStmt(p, stmt), newCtx);
+  } else {
+    return withCtx(appendStmt(p, stmt), ctx);
+  }
+};
+
+export const removeStmtCtx = (
+  { stmt }: Delete,
+  prog: SubProg,
+  ctx: SynthesisContext
+): WithContext<SubProg> => {
+  if (stmt.tag === "Decl") {
+    const newCtx = removeID(ctx, stmt.type.name.value, stmt.name);
+    return withCtx(removeStmt(prog, stmt), newCtx);
+  } else {
+    return withCtx(removeStmt(prog, stmt), ctx);
+  }
+};
 
 export const checkAddStmts = (
   prog: SubProg,
@@ -185,7 +190,7 @@ export const checkAddStmts = (
   return stmts.map((stmt: SubStmt) => ({
     tag: "Add",
     stmt,
-    mutate: ({ stmt }: Add, p) => appendStmt(p, stmt),
+    mutate: appendStmtCtx,
   }));
 };
 
@@ -198,7 +203,7 @@ export const checkAddStmt = (
   return {
     tag: "Add",
     stmt,
-    mutate: ({ stmt }: Add, p) => appendStmt(p, stmt),
+    mutate: appendStmtCtx,
   };
 };
 
@@ -214,7 +219,17 @@ export const checkSwapStmtArgs = (
       stmt,
       elem1,
       elem2,
-      mutate: swapStmtArgs,
+      mutate: (
+        { stmt, elem1, elem2 }: SwapStmtArgs,
+        prog: SubProg,
+        ctx: SynthesisContext
+      ): WithContext<SubProg> => {
+        const newStmt: SubStmt = {
+          ...stmt,
+          args: swap(stmt.args, elem1, elem2),
+        };
+        return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+      },
     };
   } else return undefined;
 };
@@ -238,7 +253,20 @@ export const checkSwapExprArgs = (
         expr,
         elem1,
         elem2,
-        mutate: swapExprArgs,
+        mutate: (
+          { stmt, expr, elem1, elem2 }: SwapExprArgs,
+          prog: SubProg,
+          ctx: SynthesisContext
+        ): WithContext<SubProg> => {
+          const newStmt: SubStmt = {
+            ...stmt,
+            expr: {
+              ...expr,
+              args: swap(expr.args, elem1, elem2),
+            } as SubExpr, // TODO: fix types to avoid casting
+          };
+          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+        },
       };
     } else return undefined;
   } else return undefined;
@@ -255,11 +283,14 @@ export const checkReplaceStmtName = (
         tag: "ReplaceStmtName",
         stmt,
         newName: name,
-        mutate: ({ stmt, newName }: ReplaceStmtName, prog) => {
-          return replaceStmt(prog, stmt, {
-            ...stmt,
-            name: dummyIdentifier(newName, "SyntheticSubstance"),
-          });
+        mutate: ({ stmt, newName }: ReplaceStmtName, prog, ctx) => {
+          return withCtx(
+            replaceStmt(prog, stmt, {
+              ...stmt,
+              name: dummyIdentifier(newName, "SyntheticSubstance"),
+            }),
+            ctx
+          );
         },
       };
     } else return undefined;
@@ -284,14 +315,17 @@ export const checkReplaceExprName = (
           stmt,
           expr,
           newName: name,
-          mutate: ({ stmt, expr, newName }: ReplaceExprName, prog) => {
-            return replaceStmt(prog, stmt, {
-              ...stmt,
-              expr: {
-                ...expr,
-                name: dummyIdentifier(newName, "SyntheticSubstance"),
-              },
-            });
+          mutate: ({ stmt, expr, newName }: ReplaceExprName, prog, ctx) => {
+            return withCtx(
+              replaceStmt(prog, stmt, {
+                ...stmt,
+                expr: {
+                  ...expr,
+                  name: dummyIdentifier(newName, "SyntheticSubstance"),
+                },
+              }),
+              ctx
+            );
           },
         };
       } else return undefined;
@@ -301,15 +335,14 @@ export const checkReplaceExprName = (
 
 export const checkDeleteStmt = (
   prog: SubProg,
-  cxt: SynthesisContext,
-  stmt: (cxt: SynthesisContext) => SubStmt
+  stmt: SubStmt
 ): Delete | undefined => {
-  const s = stmt(cxt);
+  const s = stmt;
   if (stmtExists(s, prog)) {
     return {
       tag: "Delete",
       stmt: s,
-      mutate: ({ stmt }: Delete, prog) => removeStmt(prog, stmt),
+      mutate: removeStmtCtx,
     };
   } else return undefined;
 };
@@ -333,13 +366,15 @@ export const checkChangeStmtType = (
         additionalMutations,
         mutate: (
           { stmt, newStmt, additionalMutations }: ChangeStmtType,
-          prog: SubProg
+          prog: SubProg,
+          ctx: SynthesisContext
         ) => {
-          return replaceStmt(
-            executeMutations(prog, additionalMutations),
-            stmt,
-            newStmt
+          const { res: newProg, ctx: newCtx } = executeMutations(
+            additionalMutations,
+            prog,
+            ctx
           );
+          return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
         },
       };
     } else return undefined;
@@ -373,13 +408,15 @@ export const checkChangeExprType = (
           additionalMutations,
           mutate: (
             { stmt, newStmt, additionalMutations }: ChangeExprType,
-            prog: SubProg
+            prog: SubProg,
+            ctx: SynthesisContext
           ) => {
-            return replaceStmt(
-              executeMutations(prog, additionalMutations),
-              stmt,
-              newStmt
+            const { res: newProg, ctx: newCtx } = executeMutations(
+              additionalMutations,
+              prog,
+              ctx
             );
+            return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
           },
         };
       } else return undefined;

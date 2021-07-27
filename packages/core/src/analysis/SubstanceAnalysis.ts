@@ -3,6 +3,7 @@ import { Map } from "immutable";
 import {
   cloneDeep,
   cloneDeepWith,
+  filter,
   intersectionWith,
   isEqual,
   isEqualWith,
@@ -90,7 +91,7 @@ export const argMatches = (
  */
 export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
   ...prog,
-  statements: without(prog.statements, stmt),
+  statements: filter(prog.statements, (s) => !nodesEqual(stmt, s)),
 });
 
 /**

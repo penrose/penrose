@@ -23,6 +23,7 @@ import {
   diffSubStmts,
   showDiffset,
   showStmtDiff,
+  showSubDiff,
   StmtDiff,
   subProgDiffs,
   swapDiffID,
@@ -156,9 +157,12 @@ describe("Synthesizer tests", () => {
     const res1: SubRes = getSubRes(domainSrc, original);
     const ast1: SubProg = res1[0].ast;
     const ast2: SubProg = getSubRes(domainSrc, edited)[0].ast;
-    const diffs: DiffSet = subProgDiffs(ast1, ast2);
-    console.log(diffs);
-    console.log(showDiffset(diffs));
+    const d: DiffSet = subProgDiffs(ast1, ast2);
+    expect([...d.add, ...d.delete, ...d.update].map(showSubDiff)).toEqual([
+      "Delete: Equal(E, E)",
+      "Update: D := Union(A, B) -> E := Union(A, B)\n\tChanged D := Union(A, B) : D (variable,value) -> E",
+      "Update: IsSubset(C, A) -> IsSubset(D, A)\n\tChanged IsSubset(C, A) : C (args,0,value) -> D",
+    ]);
   });
 
   test("applying AST diff with id swap", () => {
@@ -197,11 +201,11 @@ describe("Synthesizer tests", () => {
         return swapDiffID(d, choice(choices));
       } else return d;
     });
-
-    console.log(`Swapped diffs:\n${swappedDiffs.map(showStmtDiff).join("\n")}`);
+    const original = prettySubstance(ast1);
+    // TODO: check if applystmtdiffs mutates the AST
     const res = applyStmtDiffs(ast1, swappedDiffs);
-    console.log(prettySubstance(res));
-    // TODO: add assertions
+    expect(prettySubstance(res)).not.toEqual(original);
+    // TODO: add more detailed assertions
   });
 
   test("applying AST diff regardless of stmt ordering", () => {
@@ -220,7 +224,7 @@ describe("Synthesizer tests", () => {
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     // the ASTs have normalized ordering, so there should be only two diffs
     expect(diffs).toHaveLength(2);
-    console.log(diffs.map(showStmtDiff).join("\n"));
+    // console.log(diffs.map(showStmtDiff).join("\n"));
 
     // apply the stmt diffs, grouped by target statements
     const ast2From1 = applyStmtDiffs(ast1, diffs);
