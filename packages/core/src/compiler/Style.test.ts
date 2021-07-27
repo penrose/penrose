@@ -306,8 +306,7 @@ describe("Compiler", () => {
     // TODO: Name these programs
     const styProgs = [
       // These are mostly to test setting shape properties as vectors or accesspaths
-      `Set x; Set y where IsSubset(x,y) as foo {}
-`,
+      `Set x; Set y where IsSubset(x,y) as foo {}`,
       `Set x; Set y where IsSubset(x,y) as foo {
   foo.icon = Circle{}
 }`,

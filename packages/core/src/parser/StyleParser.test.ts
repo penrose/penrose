@@ -168,7 +168,34 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
-  test("cannot as clauses for bindings", () => {
+
+  /* note: neither of these progs produce a parsed result (list len === 0)
+  test('no alias ver', () => {
+    const prog = `
+forall Set A, B; Map f
+with Set C, D; Map \`g\`
+where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ); IsSubset( Union(A,B), C); Intersect (   )
+`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  })
+  test("alias expression location test", () => { // why is this failing bro
+    const prog = `
+forall Set A, B; Map f
+with Set C, D; Map \`g\`
+where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as SubsetAB; IsSubset( Union(A,B), C) as nested_Subset; Intersect (   )
+`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+  */
+
+  test("cannot set as clauses for decls", () => {
+    const prog = `forall Set A, B; Map f as Const -- should fail because decls can't be aliased
+`;
+    expect(parseStyle(prog).isErr()).toEqual(true);
+  });
+  test("cannot set as clauses for bindings", () => {
     const prog = `
     forall Set x; Set y where y := Baz(x) as foo {}
     `;

@@ -400,19 +400,6 @@ const checkDeclPatternsAndMakeEnv = (
 };
 
 /**
- * Helper fxn for checking well-formedness of selectors with predicate aliases
- * @param m : Map<string, any> (only the keys of the map are used)
- */
-const getKeyWordsFromMap = (m: any): string[] => {
-  let keywords: string[] = [];
-  const iterator = m.keys();
-  for (let i = 0; i < m.size; i++) {
-    keywords.push(iterator.next().value);
-  }
-  return keywords;
-};
-
-/**
  * Helper fxn for checking that predicate alias names don't conflict with
  * existing domain keywords
  *
@@ -427,7 +414,9 @@ const getDomainKeywords = (varEnv: Env): string[] => {
     varEnv.constructorsBindings,
   ];
 
-  const keywords = _.flatMap(keyWordMaps, getKeyWordsFromMap);
+  const keywords = _.flatMap(keyWordMaps, (m) => {
+    return [...m.keys()];
+  });
 
   const subtypeKeywords = varEnv.subTypes.map(([t1, t2]) => {
     return t1.name.value;
