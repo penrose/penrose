@@ -55,6 +55,36 @@
       "substance": "small-graph",
       "style": "disjoint-rects-large-canvas",
       "domain": "graph-theory"
+    },
+    {
+      "substance": "incenter-triangle",
+      "style": "euclidean",
+      "domain": "geometry"
+    },
+    {
+      "substance": "collinear",
+      "style": "euclidean",
+      "domain": "geometry"
+    },
+    {
+      "substance": "parallel-lines",
+      "style": "euclidean",
+      "domain": "geometry"
+    },
+    {
+      "substance": "midsegment-triangles",
+      "style": "euclidean",
+      "domain": "geometry"
+    },
+    {
+      "substance": "congruent-triangles",
+      "style": "euclidean",
+      "domain": "geometry"
+    },
+    {
+      "substance": "circle-example",
+      "style": "euclidean",
+      "domain": "geometry"
     }
   ],
   "domains": {
@@ -73,6 +103,10 @@
     "graph-theory": {
       "name": "Graph Theory",
       "URI": "graph-domain/graph-theory.dsl"
+    },
+    "geometry": {
+      "name": "Geometry",
+      "URI": "geometry-domain/geometry.dsl"
     }
   },
   "styles": {
@@ -130,6 +164,11 @@
       "domain": "graph-theory",
       "name": "Disjoint rectangles in a large box",
       "URI": "graph-domain/disjoint-rects-large-canvas.sty"
+    },
+    "euclidean": {
+      "domain": "geometry",
+      "name": "Euclidean 2D Geometry",
+      "URI": "geometry-domain/euclidean.sty"
     }
   },
   "substances": {
@@ -162,6 +201,36 @@
       "domain": "graph-theory",
       "name": "Small graph",
       "URI": "graph-domain/small-graph.sub"
+    },
+    "collinear": {
+      "domain": "geometry",
+      "name": "Collinear Points Example",
+      "URI": "geometry-domain/textbook_problems/c01p01.sub"
+    },
+    "incenter-triangle": {
+      "domain": "geometry",
+      "name": "Triangle with Incenter and Right Angle Marker",
+      "URI": "geometry-domain/textbook_problems/c05p13.sub"
+    },
+    "parallel-lines": {
+      "domain": "geometry",
+      "name": "Parallel Lines with Marker",
+      "URI": "geometry-domain/textbook_problems/c03p01.sub"
+    },
+    "midsegment-triangles": {
+      "domain": "geometry",
+      "name": "Nested Triangles with Incenters",
+      "URI": "geometry-domain/textbook_problems/c05p01.sub"
+    },
+    "congruent-triangles": {
+      "domain": "geometry",
+      "name": "Congruent Triangles with Markers",
+      "URI": "geometry-domain/textbook_problems/ex.sub"
+    },
+    "circle-example": {
+      "domain": "geometry",
+      "name": "Circle with Chords, Radii, Diameters",
+      "URI": "geometry-domain/textbook_problems/c11p12.sub"
     }
   }
 }

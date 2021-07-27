@@ -1,3 +1,4 @@
+-- name in registry: circle-example
 Point P, Q, U, S, T, R
 Circle c
 Segment PR := MkSegment(P, R)
@@ -7,7 +8,5 @@ Collinear(P, Q, R)
 Collinear(P, U, S)
 OnCircle(c, Q)
 OnCircle(c, U)
-OnCircle(c, S)
-OnCircle(c, R)
 Segment ST := Chord(c, S, T)
 AutoLabel All

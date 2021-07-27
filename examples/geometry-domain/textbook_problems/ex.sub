@@ -1,4 +1,5 @@
 -- TODO simplify after attributes are implemented
+-- name in registry: congruent-triangles
 Point U, S, T, V, X, Y, Z
 Triangle UTV := MkTriangle(U, T, V)
 Segment UV := MkSegment(U, V)
