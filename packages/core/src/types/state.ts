@@ -132,6 +132,8 @@ export interface IParams {
   // Cached versions of compiling each objective and constraint into a function and gradient
   objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
   constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
+
+  shapeColorsInitialized: boolean;
 }
 
 export type FnCached = IFnCached;

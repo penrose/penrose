@@ -33,6 +33,7 @@ import {
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
 import { getListOfStagedStates } from "renderer/Staging";
+import { colorUninitShapes, colorUninitText } from "renderer/Color";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -69,6 +70,7 @@ export const stepUntilConvergence = (
   ) {
     currentState = step(currentState, numSteps, true);
   }
+  currentState = colorUninitText(colorUninitShapes(currentState));
   if (currentState.params.optStatus === "Error") {
     return err({
       errorType: "RuntimeError",
