@@ -186,7 +186,7 @@ class App extends React.Component<any, ICanvasState> {
       const errorWrapper = { error: stepped.error, data: undefined };
       this.setState(errorWrapper);
     } else {
-      void this.onCanvasState(stepped);
+      void this.onCanvasState(stepped.value);
     }
   };
 
