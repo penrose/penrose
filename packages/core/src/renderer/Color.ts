@@ -39,6 +39,7 @@ export type Ajlist = number[][];
 export const colorUninitShapes = (state: State): State => {
   // invariant for running shape & text color assignment in the correct order
   state.params.shapeColorsInitialized = true;
+  console.log("hi");
   // get the fn that checks if a shape has an uninitialized color
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 

@@ -70,18 +70,28 @@ export const stepUntilConvergence = (
   ) {
     currentState = step(currentState, numSteps, true);
   }
-  currentState = colorUninitText(colorUninitShapes(currentState));
+  // console.log('PLEASE')
+  // currentState = colorUninitText(colorUninitShapes(currentState));
+  // console.log('hi?')
+  // console.log(currentState)
+
+  console.log(currentState.params.optStatus);
+  // console.log(currentState.params.optStatus === 'Error')
+
   if (currentState.params.optStatus === "Error") {
+    console.log("wtf");
     return err({
       errorType: "RuntimeError",
       ...nanError("", currentState),
     });
   }
+  console.log("._.");
   return ok(currentState);
 };
 
 const stepUntilConvergenceOrThrow = (state: State): State => {
   const result = stepUntilConvergence(state);
+  console.log("bro");
   if (result.isErr()) {
     throw Error(showError(result.error));
   } else {
