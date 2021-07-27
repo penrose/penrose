@@ -249,7 +249,7 @@ export const evalEnergy = (s: State): number => {
   const { objective, weight } = s.params;
   // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
   if (!objective) {
-    log.warn(
+    log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
     const newState = genOptProblem(s);
