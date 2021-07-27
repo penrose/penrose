@@ -3,9 +3,12 @@ import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IStrV } from "types/value";
+import { IFloatV, IPathCmd, IStrV } from "types/value";
 
-const toPathString = (pathData: any[], canvasSize: [number, number]) =>
+const toPathString = (
+  pathData: IPathCmd<number>[],
+  canvasSize: [number, number]
+) =>
   pathData
     .map((pathCmd) => {
       const { cmd, contents } = pathCmd;
@@ -23,7 +26,7 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
           }
         })
       ).join(" ");
-      return `${cmd} ${pathStr}`; // TODO need to convert to pt
+      return `${cmd} ${pathStr}`;
     })
     .join(" ");
 
