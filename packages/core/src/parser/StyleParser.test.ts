@@ -180,6 +180,21 @@ where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as isSubsetAB; IsSubset
     sameASTs(results);
   });
 
+  test("alias expression location test, weird spacing", () => {
+    // why is this failing bro
+    const prog =
+      "\
+forall Set A, B, C; Map f \
+with Set C, D; Map `g` \
+where C := intersect ( A, B, Not(f) ) ;\
+ IsSubset( A, B ) \
+ as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; \
+ Intersect (   )  as   ok {}\
+";
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
   test("cannot set as clauses for decls", () => {
     const prog = `forall Set A, B; Map f as Const -- should fail because decls can't be aliased
 `;
