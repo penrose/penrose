@@ -8,9 +8,6 @@ import {
   stepUntilConvergence,
   PenroseState,
   getListOfStagedStates,
-  Comic,
-  getComicPanelStates,
-  getTrmapKeyComic,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 
@@ -27,7 +24,6 @@ Usage:
   automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
-  automator comic SUBSTANCE STYLE DOMAIN COMICJSON OUTFOLDER [--src-prefix=PREFIX]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -317,83 +313,6 @@ const batchProcess = async (
   console.log("done.");
 };
 
-// modified copy of singleProcess
-const comicProcess = async (
-  sub: any,
-  sty: any,
-  dsl: string,
-  comic: string,
-  out: string,
-  prefix: string
-) => {
-  // Fetch Substance, Style, and Domain files
-  const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
-    fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
-  );
-
-  // Fetch comic file
-  const initComicObj: Comic = JSON.parse(
-    fs.readFileSync(comic, "utf8").toString()
-  );
-
-  // Compilation
-  console.log(`Compiling for ${out}/${sub} ...`);
-  const overallStart = process.hrtime();
-  const compileStart = process.hrtime();
-  const compilerOutput = compileTrio(dslIn, subIn, styIn);
-  const compileEnd = process.hrtime(compileStart);
-  let compiledState;
-  if (compilerOutput.isOk()) {
-    compiledState = compilerOutput.value;
-  } else {
-    const err = compilerOutput.error;
-    throw new Error(`Compilation failed:\n${showError(err)}`);
-  }
-
-  const labelStart = process.hrtime();
-  const initialState = await prepareState(compiledState);
-  const labelEnd = process.hrtime(labelStart);
-
-  // optimizing
-  console.log(`Stepping for ${out} ...`);
-  const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState, 10000);
-  const convergeEnd = process.hrtime(convergeStart);
-
-  // reading in comic file
-  console.log(`Converting ${comic} to internal form ...`);
-  const comicConversionStart = process.hrtime();
-  const trMapComicObj = getTrmapKeyComic(initComicObj, subIn);
-  const comicConversionEnd = process.hrtime(comicConversionStart);
-
-  // getting staged states per comic panel
-  console.log(`Fetching states for comic panels ...`);
-  const comicStatesFetchingStart = process.hrtime();
-  const listOfComicStates = getComicPanelStates(optimizedState, trMapComicObj);
-  const comicStatesFetchingEnd = process.hrtime(comicStatesFetchingStart);
-
-  // rendering start
-  console.log(`Rendering all states ...`);
-  const reactRenderStart = process.hrtime();
-  const listOfCanvasData = listOfComicStates.map((state: PenroseState) => {
-    return RenderStatic(state).outerHTML;
-  });
-
-  const reactRenderEnd = process.hrtime(reactRenderStart);
-  const overallEnd = process.hrtime(overallStart);
-
-  // writing files out
-  const writeFileOut = (canvasData: any, index: number): void => {
-    let filename = Object.keys(trMapComicObj)[index]; // out.slice(0, out.indexOf("svg") - 1);
-    let newStr = `${out}/${filename}.svg`; //filename + index.toString() + ".svg";
-    fs.writeFileSync(newStr, canvasData);
-    console.log(
-      chalk.green(`Diagram ${index + 1} has been saved as ${newStr}`)
-    );
-  };
-  listOfCanvasData.map(writeFileOut);
-};
-
 (async () => {
   // Process command-line arguments
   const args = neodoc.run(USAGE, { smartOptions: true });
@@ -404,7 +323,6 @@ const comicProcess = async (
   const outFile = args["--outFile"] || `${args.OUTFOLDER}/output.svg`;
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
-
   const staged = args["--staged"] || false;
 
   if (args.batch) {
@@ -425,15 +343,6 @@ const comicProcess = async (
       outFile,
       prefix,
       staged
-    );
-  } else if (args.comic) {
-    await comicProcess(
-      args.SUBSTANCE,
-      args.STYLE,
-      args.DOMAIN,
-      args.COMICJSON,
-      args.OUTFOLDER,
-      prefix
     );
   } else {
     throw new Error("Invalid command line argument");

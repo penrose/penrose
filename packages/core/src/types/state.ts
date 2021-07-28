@@ -70,7 +70,8 @@ export type OptStatus =
   | "NewIter"
   | "UnconstrainedRunning"
   | "UnconstrainedConverged"
-  | "EPConverged";
+  | "EPConverged"
+  | "Error";
 
 export type LbfgsParams = ILbfgsParams;
 

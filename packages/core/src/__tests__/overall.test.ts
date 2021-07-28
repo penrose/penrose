@@ -41,7 +41,12 @@ describe("End-to-end testing of existing diagrams", () => {
       const res = compileTrio(dsl, sub, sty); // this is not good for some reason...
       if (res.isOk()) {
         const state = await prepareState(res.value);
-        const optimized = stepUntilConvergence(state);
+        const opt = stepUntilConvergence(state);
+        if (opt.isErr()) {
+          fail("optimization failed");
+        }
+        const optimized = opt.value;
+
         const rendered = RenderStatic(optimized);
         fs.writeFileSync(
           path.join(OUTPUT, `${name}.svg`),
@@ -61,7 +66,11 @@ describe("Energy API", () => {
     const res = compileTrio(setDomain, twoSubsets, vennStyle);
     if (res.isOk()) {
       const stateEvaled = await prepareState(res.value);
-      const stateOptimized = stepUntilConvergence(stateEvaled);
+      const stateOpt = stepUntilConvergence(stateEvaled);
+      if (stateOpt.isErr()) {
+        fail("optimization failed");
+      }
+      const stateOptimized = stateOpt.value;
       const initEng = evalEnergy(stateEvaled);
       const optedEng = evalEnergy(stateOptimized);
       expect(initEng).toBeGreaterThan(optedEng);
@@ -96,20 +105,22 @@ describe("Cross-instance energy eval", () => {
     if (state1.isOk() && state2.isOk()) {
       const state1Done = stepUntilConvergence(await prepareState(state1.value));
       const state2Done = stepUntilConvergence(await prepareState(state2.value));
-      const crossState21 = {
-        ...state2Done,
-        constrFns: state1Done.constrFns,
-        objFns: state1Done.objFns,
-      };
-      expect(evalEnergy(await prepareState(crossState21))).toBeCloseTo(0);
-      const crossState12 = {
-        ...state1Done,
-        constrFns: state2Done.constrFns,
-        objFns: state2Done.objFns,
-      };
-      expect(evalEnergy(await prepareState(crossState12))).toBeGreaterThan(0);
-      // console.log(RenderStatic(crossState12).outerHTML);
-      // console.log(RenderStatic(crossState21).outerHTML);
+      if (state1Done.isOk() && state2Done.isOk()) {
+        const crossState21 = {
+          ...state2Done.value,
+          constrFns: state1Done.value.constrFns,
+          objFns: state1Done.value.objFns,
+        };
+        expect(evalEnergy(await prepareState(crossState21))).toBeCloseTo(0);
+        const crossState12 = {
+          ...state1Done.value,
+          constrFns: state2Done.value.constrFns,
+          objFns: state2Done.value.objFns,
+        };
+        expect(evalEnergy(await prepareState(crossState12))).toBeGreaterThan(0);
+      } else {
+        fail("optimization failed");
+      }
     } else {
       fail("compilation failed");
     }
@@ -126,14 +137,18 @@ describe("Run individual functions", () => {
 
     if (res.isOk()) {
       const stateEvaled = await prepareState(res.value);
-      const stateOptimized = stepUntilConvergence(stateEvaled);
+      const stateOpt = stepUntilConvergence(stateEvaled);
+      if (stateOpt.isErr()) {
+        fail("optimization failed");
+      }
+      const stateOptimizedValue = stateOpt.value;
 
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
 
       // Test objectives
       const initEngsObj = evalFns(stateEvaled.objFns, stateEvaled);
-      const optedEngsObj = evalFns(stateEvaled.objFns, stateOptimized);
+      const optedEngsObj = evalFns(stateEvaled.objFns, stateOptimizedValue);
 
       for (let i = 0; i < initEngsObj.length; i++) {
         // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);
@@ -143,7 +158,10 @@ describe("Run individual functions", () => {
 
       // Test constraints
       const initEngsConstr = evalFns(stateEvaled.constrFns, stateEvaled);
-      const optedEngsConstr = evalFns(stateEvaled.constrFns, stateOptimized);
+      const optedEngsConstr = evalFns(
+        stateEvaled.constrFns,
+        stateOptimizedValue
+      );
 
       for (let i = 0; i < initEngsConstr.length; i++) {
         // console.log("constr energies", initEngsConstr[i], optedEngsConstr[i]);
