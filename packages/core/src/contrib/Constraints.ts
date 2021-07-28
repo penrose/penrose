@@ -354,8 +354,30 @@ export const constrDict = {
     // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not
     // intersecting)
     // TODO: should this be lower or upper bound?
-    const overlapPenalty = div(DifferenceArea.upperBound([t2, s2], [t1, s1]), Area.exact([t2, s2]));
+    // area(B - A) / area(B)
+    const overlapPenalty = div(DifferenceArea.exact([t2, s2], [t1, s1]), Area.exact([t2, s2]));
     return add(distancePenalty, overlapPenalty);
+  },
+
+  subset: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    offset = 0,
+  ) => {
+    // TODO: how to incorporate offset? as an area thing or as a padding thing?
+
+    // how far away are the shapes? (0 if intersecting)
+    const distancePenalty = ClosestDistance.exact([t1, s1], [t2, s2]);
+    // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not
+    // intersecting)
+    // TODO: should this be lower or upper bound?
+
+    // area(s1 - s2) / area(s1)
+    // area(x in s1 but x not in s2) / area(x in s1)
+    const EPS0 = constOf(1e-3);
+    const overlapPenalty = div(DifferenceArea.exact([t1, s1], [t2, s2]), add(Area.exact([t1, s1]), EPS0));
+    // const overlapPenalty = DifferenceArea.exact([t1, s1], [t2, s2]);
+    return add(distancePenalty, mul(constOf(10), overlapPenalty));
   },
 
   /**

@@ -12,9 +12,9 @@ forall Set x {
         string : x.label
     }
 
-    ensure contains(x.icon, x.text, 10.0)
+    ensure subset(x.text, x.icon)
     ensure minSize(x.icon)
-    ensure maxSize(x.icon, canvas.height)
+    ensure maxSize(x.icon, canvas.height / 3)
     encourage sameCenter(x.text, x.icon)
     x.textLayering = x.text above x.icon
 }
@@ -23,7 +23,7 @@ forall Set x; Set y
 where IsSubset(x, y) {
 
     ensure disjoint(y.text, x.icon, 30.0)
-    ensure contains(y.icon, x.icon, 10.0)
+    ensure subset(x.icon, y.icon)
     -- ensure disjoint(y.text, x.icon)
     -- ensure contains(y.icon, x.icon)
     x.icon above y.icon
@@ -46,35 +46,35 @@ where Not(Intersecting(x, y)) {
 forall Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.icon, y.icon)
-    ensure disjoint(y.text, x.icon)
-    ensure disjoint(x.text, y.icon)
+    -- ensure disjoint(y.text, x.icon)
+    -- ensure disjoint(x.text, y.icon)
 }
 
-forall Point p {
-    p.offset = 20.0
-    p.icon = Circle {
-        strokeWidth : 0.0
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        r : 3.0
-    }
+-- forall Point p {
+--     p.offset = 20.0
+--     p.icon = Circle {
+--         strokeWidth : 0.0
+--         color : rgba(0.0, 0.0, 0.0, 1.0)
+--         r : 3.0
+--     }
 
-    p.text = Text {
-        string : p.label
-        center : p.icon.center + (p.offset, p.offset)
-    }
+--     p.text = Text {
+--         string : p.label
+--         center : p.icon.center + (p.offset, p.offset)
+--     }
 
-    p.textLayering = p.text above p.icon
-}
+--     p.textLayering = p.text above p.icon
+-- }
 
-Point p
-with Set A
-where PointIn(A, p) {
-    ensure contains(A.icon, p.icon, 0.3 * A.icon.r)
-    p.layering = p.icon above A.icon
-}
+-- Point p
+-- with Set A
+-- where PointIn(A, p) {
+--     ensure subset(p.icon, A.icon)
+--     p.layering = p.icon above A.icon
+-- }
 
-Point p
-with Set A
-where Not(PointIn(A, p)) {
-    ensure disjoint(A.icon, p.icon)
-}
+-- Point p
+-- with Set A
+-- where Not(PointIn(A, p)) {
+--     ensure disjoint(A.icon, p.icon)
+-- }

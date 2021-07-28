@@ -55,8 +55,8 @@ import {
 } from "utils/OtherUtils";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // For deep-cloning the translation
 const clone = rfdc({ proto: false, circles: false });

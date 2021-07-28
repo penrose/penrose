@@ -1,13 +1,13 @@
 Set A
 Set B
 Set C
--- Set D
+Set D
 -- Set E
 -- Set F
 -- Set G
 IsSubset(B, A)
 IsSubset(C, B)
--- IsSubset(D, C)
+IsSubset(D, C)
 -- IsSubset(E, D)
 -- IsSubset(F, E)
 -- IsSubset(G, F)
