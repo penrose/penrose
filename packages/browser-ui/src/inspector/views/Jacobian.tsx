@@ -13,41 +13,21 @@ interface IState {
 }
 
 class Jacobian extends React.Component<IViewProps, IState> {
-  public readonly state = { nullSpaceVecWeights: [] };
+  public readonly state = {
+    nullSpaceVecWeights: this.props.frame.params.nullspaceVectorWeights,
+  };
 
   public setVecWeight = (vecNum: number, weight: number) => {
     const { frame } = this.props;
     if (!frame.params.nullspaceVectors) {
+      return;
       this.setState({ nullSpaceVecWeights: [] }); // if i just resampled
     } else {
       const a = frame.params.nullspaceVectorWeights;
-      a[vecNum] = weight;
+      a[vecNum] = weight; // aliases to the state
       this.setState({ nullSpaceVecWeights: [...a] });
       this.modPenroseState();
     }
-
-    /*
-    if ( //(this.state.nullSpaceVecWeights.length === 0 &&  //  (frame.params.optStatus === 'EPConverged') ?
-    //frame.params.nullspaceVectors && 
-    //frame.params.nullspaceVectors.length  )
-     //|| 
-    (frame.params.optStatus === 'EPConverged')){
-    const allZeroVecWeights = frame.params.nullspaceVectors.map(
-      (vec) => {return 0}
-    )
-    this.setState({
-      nullSpaceVecWeights: allZeroVecWeights,
-    })
-
-    if (vecNum < frame.params.nullspaceVectors.length){
-      const arrCopy = [...this.state.nullSpaceVecWeights] as number[]
-      arrCopy[vecNum] = weight;
-      this.setState({
-        nullSpaceVecWeights : arrCopy,
-      });
-      this.modPenroseState();
-    }
-    */
   };
 
   public modPenroseState = () => {
@@ -84,21 +64,20 @@ Warning: could not add ${frame.params.nullspaceVectors[vecIndex]}\
 
     const newFrame = updateStateVaryingVals({ ...frame }, newVaryingVals);
 
-    modShapes(newFrame);
+    // modShapes(newFrame);
 
     // reset state so stepToConvergence will optimize again
     // this is super buggy, nope
 
     // frame.params.optStatus = 'NewIter'
 
-    /*
     modShapes({
       ...newFrame,
       params: {
         ...newFrame.params,
-        optStatus: 'NewIter'
-      }
-    }); */
+        optStatus: "NewIter",
+      },
+    });
   };
 
   public render() {
@@ -139,7 +118,7 @@ Warning: could not add ${frame.params.nullspaceVectors[vecIndex]}\
                   key={ind}
                   min={-500}
                   max={500}
-                  value={0}
+                  value={frame.params.nullspaceVectorWeights[ind]}
                   canvas={frame.canvas}
                   id={`nullspace vector ${ind} coeff`}
                   num={ind}

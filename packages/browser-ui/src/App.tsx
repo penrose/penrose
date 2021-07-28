@@ -189,12 +189,10 @@ class App extends React.Component<any, ICanvasState> {
     } else {
       // hack
       stepped.value.params.nullspaceVectors = undefined;
-
+      stepped.value.params.nullspaceVectorWeights = undefined;
       //
       void this.onCanvasState(stepped.value);
     }
-    // const addedNspace = putNullspaceBasisVectorsInState(stepped)
-    // void this.onCanvasState(addedNspace);
   };
 
   // probably need to fix this
@@ -202,16 +200,12 @@ class App extends React.Component<any, ICanvasState> {
     if (this.state.data.params.optStatus !== "EPConverged") {
       return; // do nothing
     }
-    const newstate = putNullspaceBasisVectorsInState(this.state.data);
-    void this.onCanvasState(newstate);
-    /*
-    if (stepped.isErr()) {
-      const errorWrapper = { error: stepped.error, data: undefined };
-      this.setState(errorWrapper);
-    } else {
-      void this.onCanvasState(stepped.value);
+    if (!this.state.data) {
+      return;
     }
-    */
+    const newstate = putNullspaceBasisVectorsInState(this.state.data);
+    //this.state.data = newstate;
+    void this.onCanvasState(newstate);
   };
 
   public resample = async () => {
