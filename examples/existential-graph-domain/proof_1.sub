@@ -1,11 +1,12 @@
+AutoLabel All
 Graph p
 Graph q
 
 Graph r := if(p, q)
 
+-- NOTE: declare another instance of `p` and label it as `p`. Although the syntax is cumbersome, there might be values to it, as some logical systems don't allow infinite numbers of copies.
+-- TODO: would be nice if this is auto-labeled? Where should the "level" semantics live? Substance/Style, syntax/semantics?
 Graph p0
+Label p0 $p$
 
 and(r, p0)
-
-AutoLabel All
-Label p0 $p$

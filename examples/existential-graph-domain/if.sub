@@ -1,0 +1,4 @@
+Graph p, q, r
+r := if(p, q)
+
+AutoLabel All

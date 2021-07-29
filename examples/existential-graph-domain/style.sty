@@ -1,10 +1,13 @@
 variable {
+    -- TODO: when making a color strip, might want to keep the colors the same. Find a way to pick just once. In other words, "anchor"/"freeze" sampled instances
     primary = sampleColor(1.0, "rgb")
     secondary = sampleColor(1.0, "rgb")
 }
 
 forall Graph A
 {
+    -- By default, a graph is an invisible circle and a text label, where the label is contained in the invisible circle.
+    -- Cory: we should also allow invisible circle and label, which can be "turned on" depending on the role it plays in the Substance program?
     A.icon = Circle {
         strokeWidth: 0.0
         color: rgba(0.0, 0.0, 0.0, 0.0)
@@ -15,6 +18,7 @@ forall Graph A
         fontSize: "28pt"
     }
 
+    -- Also, each graph has a counter for which "layer" it is in.
     A.level = 0
 
     ensure minSize(A.icon)
@@ -56,15 +60,24 @@ forall Variable v1; Variable v2 where equal(v1, v2) {
 forall Graph A; Graph B; Graph Result 
 where Result := or(A, B) 
 {
+    -- make the operands' icons (i.e. circles) visible
     override A.icon.color = variable.primary
     override B.icon.color = variable.primary
 
+    -- increment the layering count of the result
     override Result.level = A.level + 1
 
+    -- make another circle
+    -- TODO: whenever changing this to `icon`, will get max stack call error (why?)
     Result.icon2 = Circle {
         strokeWidth: 0.0
         center: Result.icon.center
-        r: Result.icon.r - 1.0
+        -- NOTE: this shows double negation
+        -- TODO: `- { n | n > 6.2 }` will cause NaNs. Maybe the padding in `contains`
+        r: Result.icon.r - 6.2
+        -- The alternative: set the radii to be the same to remove the double negation
+        -- r: Result.icon.r
+        -- NOTE: see `Functions.ts` for comments
         color: selectColor(variable.primary, variable.secondary, Result.level)
     }
 
@@ -73,8 +86,8 @@ where Result := or(A, B)
         r : 0.0
     }
 
-    ensure smallerThan(A.icon, Result.icon)
-    ensure smallerThan(B.icon, Result.icon)
+    ensure smallerThan(A.icon, Result.icon2)
+    ensure smallerThan(B.icon, Result.icon2)
     ensure contains(Result.icon2, A.icon, 5.0)
     ensure contains(Result.icon2, B.icon, 5.0)
     ensure disjoint(A.icon, B.icon)
@@ -96,16 +109,18 @@ where Result := if(A, B)
 
     override A.level = B.level + 1
 
-    override Result.icon = Circle{
+    override Result.icon = Circle {
         strokeWidth: 0.0
         color: selectColor(variable.primary, variable.secondary, Result.level)
     }
 
-    override Result.icon2 = Circle{
+    override Result.icon2 = Circle {
         strokeWidth: 0.0
         color: selectColor(variable.primary, variable.secondary, Result.level + 1)
     }
 
+    -- Make the result label disappear
+    -- TODO: alternative - make labels invisible by default and show them on canvas on demand
     override Result.text.string = ""
 
     override Result.icon2.r = Result.icon.r / 1.6
@@ -139,6 +154,8 @@ forall Graph R where doubleElliminate(R) {
 }
 
 forall Graph A; Graph B where deiterate(A); connect(A, B) {
+    -- NOTE: this is one of the "ways of disappearing"
+    -- TODO: although the text is hidden, the dimensions aren't, and shape placement will be affacted. Find a way to make shapes disappear.
     color1 = rgba(0, 0, 0, 1)
     color2 = rgba(0, 0, 0, 0)
     override A.text.color = deiterateSelect(A.level, B.level, color1, color2)

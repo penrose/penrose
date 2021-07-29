@@ -204,6 +204,15 @@ export const compDict = {
     };
   },
 
+  /**
+   * If the level is even, pick the first color. Otherwise, pick the second color.
+   * NOTE: the types are confusing. Not sure what `VarAD` does.
+   *
+   * @param color1 the first color
+   * @param color2 the second color
+   * @param level current level
+   * @returns
+   */
   selectColor: (
     color1: Color<VarAD>,
     color2: Color<VarAD>,

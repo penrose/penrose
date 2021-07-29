@@ -1,0 +1,7 @@
+Graph p, q, r
+r := or(p, q)
+
+Graph a, b
+b := or(a, r)
+
+AutoLabel All
