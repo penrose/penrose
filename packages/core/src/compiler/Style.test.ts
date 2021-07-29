@@ -305,7 +305,6 @@ describe("Compiler", () => {
     const subProg = "Set A\nSet B\nSet C\nIsSubset(B,A)\nIsSubset(C,B)";
     // TODO: Name these programs
     const styProgs = [
-      // These are mostly to test setting shape properties as vectors or accesspaths
       `Set x; Set y where IsSubset(x,y) as foo {}`,
       `Set x; Set y where IsSubset(x,y) as foo {
   foo.icon = Circle{}
@@ -405,6 +404,41 @@ Set A; Set B where IsSubset(A,B) as bar {
       }
     }
   });
+
+  /*
+  describe("Correct style programs with predicate aliasing", () => {
+    const domainProg = "type Set\npredicate IsSubset : Set s1 * Set s2";
+    const subProg = "Set A\nSet B\nSet C\nIsSubset(B,A)\nIsSubset(C,B)";
+    
+    
+    const styProg = ```
+
+
+testing
+
+
+```;
+
+    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+
+    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+      (env) => compileSubstance(subProg, env),
+      domainRes
+    );
+
+    const styRes: Result<State, PenroseError> = andThen(
+      (res) => S.compileStyle(styProg, ...res),
+      subRes
+    );
+
+    if (!styRes.isOk()) {
+      fail(
+        `Expected Style program to work without errors. Got error ${styRes.error.errorType}`
+      );
+    } 
+    
+  });
+  */
 
   // Test errors
   const PRINT_ERRORS = false;
