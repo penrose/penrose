@@ -10,6 +10,6 @@ Segment QP := MkSegment(Q, P)
 Segment PN := MkSegment (P, N)
 EqualLengthMarker1(MQ, PN)
 EqualLength(MQ, PN)
--- EqualLengthMarker2(MN, QP) TODO blocked
+EqualLengthMarker2(MN, QP)
 EqualLength(MN, QP)
 AutoLabel All

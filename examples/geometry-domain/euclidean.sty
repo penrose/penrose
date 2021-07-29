@@ -69,8 +69,8 @@ Plane p {
   -- inner: #f3f4f9, outer: #8e93c4
   p.icon = Rectangle {
     -- angle : 0.0
-    color : Colors.purple2
-    -- color : Colors.none -- TODO: arrange angle markers so plane can be opaque
+    -- color : Colors.purple2
+    color : Colors.none -- TODO: arrange angle markers so plane can be opaque
     strokeColor : Colors.purple3
     strokeWidth : 2.0
     center : (0.0, 0.0)
@@ -957,7 +957,6 @@ with Circle c; Point p, q {
   q.icon above c.icon
   ensure ptCircleIntersect(p.vec, c.icon)
   ensure ptCircleIntersect(q.vec, c.icon)
-  ensure lessThan(norm(s.vec), c.icon.r * 2)
 }
 
 Segment s
