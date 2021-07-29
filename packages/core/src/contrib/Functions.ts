@@ -20,8 +20,8 @@ import {
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
-import { PathBuilder } from "engine/EngineUtils";
 import { maxBy, range } from "lodash";
+import { PathBuilder } from "renderer/PathBuilder";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import {
   ArgVal,
