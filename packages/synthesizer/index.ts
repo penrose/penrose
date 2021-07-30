@@ -1,6 +1,7 @@
 require("global-jsdom/register");
 import {
   Registry,
+  showMutations,
   compileDomain,
   compileSubstance,
   prettySubstance,
@@ -188,6 +189,3 @@ const writePrograms = (
     );
   }
 })();
-function showMutations(ops: any) {
-  throw new Error("Function not implemented.");
-}

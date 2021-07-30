@@ -282,7 +282,7 @@ export {
   RenderStatic,
   RenderShape,
   Synthesizer,
-  showMutations as showOps,
+  showMutations,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
