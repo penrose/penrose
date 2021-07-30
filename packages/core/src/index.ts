@@ -27,7 +27,7 @@ import { andThen, Result, showError } from "utils/Error";
 import { prettyPrintFn } from "utils/OtherUtils";
 import { bBoxDims, toHex } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
-import { showOps } from "synthesis/Mutation";
+import { showMutations } from "synthesis/Mutation";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -282,7 +282,7 @@ export {
   RenderStatic,
   RenderShape,
   Synthesizer,
-  showOps,
+  showMutations as showOps,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,

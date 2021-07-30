@@ -7,12 +7,12 @@ import {
   applyTypeDecl,
   ArgExpr,
   argMatches,
+  ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
   domainToSubType,
   matchSignatures,
   nullaryTypeCons,
-  removeStmt,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
@@ -24,6 +24,7 @@ import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
 import {
   Add,
+  addMutation,
   appendStmtCtx,
   checkAddStmt,
   checkAddStmts,
@@ -34,11 +35,12 @@ import {
   checkSwapExprArgs,
   checkSwapStmtArgs,
   Delete,
-  removeStmtCtx,
+  deleteMutation,
   executeMutations,
   Mutation,
   MutationGroup,
-  showOps,
+  removeStmtCtx,
+  showMutations,
 } from "synthesis/Mutation";
 import { Identifier } from "types/ast";
 import {
@@ -335,7 +337,7 @@ export class Synthesizer {
     this.currentMutations = [];
   };
 
-  showMutations = (): string => showOps(this.currentMutations);
+  showMutations = (): string => showMutations(this.currentMutations);
 
   updateProg = (prog: SubProg): void => {
     this.currentProg = prog;
@@ -388,15 +390,15 @@ export class Synthesizer {
    */
   mutateProgram = (ctx: SynthesisContext): SynthesisContext => {
     const addCtx = filterContext(ctx, this.setting.add);
-    const addOps = this.addStmt(addCtx);
+    const addOps = this.enumerateAdd(addCtx);
     const deleteCtx = filterContext(ctx, this.setting.delete);
-    const deleteOps = this.deleteStmt(deleteCtx);
+    const deleteOps = this.enumerateDelete(deleteCtx);
     const editCtx = filterContext(ctx, this.setting.edit);
-    const editOps = this.editStmt(editCtx);
+    const editOps = this.enumerateUpdate(editCtx);
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps];
-    log.debug(`Possible mutations: ${mutations.map(showOps).join("\n")}`);
+    log.debug(`Possible mutations: ${mutations.map(showMutations).join("\n")}`);
     const mutationGroup: MutationGroup = this.choice(mutations);
-    log.debug(`Picked mutation group: ${showOps(mutationGroup)}`);
+    log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
     // TODO: check if the ctx used is correct
     const { res: prog, ctx: newCtx } = executeMutations(
       mutationGroup,
@@ -406,6 +408,20 @@ export class Synthesizer {
     this.currentMutations.push(...mutationGroup);
     this.updateProg(prog);
     return newCtx;
+  };
+
+  generateArgStmt = (
+    decl: ArgStmtDecl,
+    ctx: SynthesisContext
+  ): WithStmts<Bind | ApplyPredicate> => {
+    switch (decl.tag) {
+      case "PredicateDecl":
+        return this.generatePredicate(decl, ctx);
+      case "FunctionDecl":
+        return this.generateFunction(decl, ctx);
+      case "ConstructorDecl":
+        return this.generateConstructor(decl, ctx);
+    }
   };
 
   findMutations = (stmt: SubStmt, ctx: SynthesisContext): MutationGroup[] => {
@@ -448,25 +464,9 @@ export class Synthesizer {
           const options = argMatches(oldStmt, this.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            let newStmts: WithStmts<SubStmt>;
-            if (pick.tag === "PredicateDecl") {
-              newStmts = this.generatePredicate(pick, ctx);
-            } else if (pick.tag === "FunctionDecl") {
-              newStmts = this.generateFunction(pick, ctx);
-            } else {
-              newStmts = this.generateConstructor(pick, ctx);
-            }
-            const { res, stmts } = newStmts;
-            const deleteOp: Delete = {
-              tag: "Delete",
-              stmt: oldStmt,
-              mutate: removeStmtCtx,
-            };
-            const addOps: Add[] = stmts.map((stmt) => ({
-              tag: "Add",
-              stmt,
-              mutate: appendStmtCtx,
-            }));
+            const { res, stmts } = this.generateArgStmt(pick, ctx);
+            const deleteOp: Delete = deleteMutation(oldStmt);
+            const addOps: Add[] = stmts.map(addMutation);
             return {
               newStmt: res,
               additionalMutations: [deleteOp, ...addOps],
@@ -481,15 +481,7 @@ export class Synthesizer {
           const options = argMatches(oldStmt, this.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            let newStmts: WithStmts<SubStmt>;
-            if (pick.tag === "PredicateDecl") {
-              newStmts = this.generatePredicate(pick, ctx);
-            } else if (pick.tag === "FunctionDecl") {
-              newStmts = this.generateFunction(pick, ctx);
-            } else {
-              newStmts = this.generateConstructor(pick, ctx);
-            }
-            const { res, stmts } = newStmts;
+            const { res, stmts } = this.generateArgStmt(pick, ctx);
             let toDelete: SubStmt[];
             // remove old statement
             if (
@@ -501,16 +493,8 @@ export class Synthesizer {
             } else {
               toDelete = [oldStmt];
             }
-            const deleteOps: Delete[] = toDelete.map((s) => ({
-              tag: "Delete",
-              stmt: s,
-              mutate: removeStmtCtx,
-            }));
-            const addOps: Add[] = stmts.map((stmt) => ({
-              tag: "Add",
-              stmt,
-              mutate: appendStmtCtx,
-            }));
+            const deleteOps: Delete[] = toDelete.map(deleteMutation);
+            const addOps: Add[] = stmts.map(addMutation);
             return {
               newStmt: res,
               additionalMutations: [...deleteOps, ...addOps],
@@ -521,7 +505,9 @@ export class Synthesizer {
     ];
     const mutations = compact(ops);
     log.debug(
-      `Available mutations for ${prettyStmt(stmt)}:\n${showOps(mutations)}`
+      `Available mutations for ${prettyStmt(stmt)}:\n${showMutations(
+        mutations
+      )}`
     );
     return mutations.map((m) => [m]);
   };
@@ -530,7 +516,7 @@ export class Synthesizer {
    * Pick a random statement in the Substance program and enumerate all the applicable mutations.
    * @returns a list of mutation groups, each representing a series of `Update` mutations
    */
-  editStmt = (ctx: SynthesisContext): MutationGroup[] => {
+  enumerateUpdate = (ctx: SynthesisContext): MutationGroup[] => {
     log.debug(`Picking a statement to edit...`);
     // pick a kind of statement to edit
     const chosenType = this.choice(nonEmptyDecls(ctx));
@@ -548,7 +534,7 @@ export class Synthesizer {
       log.debug(
         `Possible update mutations for ${prettyStmt(
           stmt
-        )} are:\n${mutations.map(showOps).join("\n")}`
+        )} are:\n${mutations.map(showMutations).join("\n")}`
       );
       return mutations;
     } else return [];
@@ -558,7 +544,7 @@ export class Synthesizer {
    * From the configuration, pick one Substance construct to generate, and return the new construct along with all other related constructs as a group of `Add` mutations.
    * @returns a group of `Add` mutations
    */
-  addStmt = (ctx: SynthesisContext): MutationGroup => {
+  enumerateAdd = (ctx: SynthesisContext): MutationGroup => {
     const chosenType = this.choice(nonEmptyDecls(ctx));
     let possibleOps: MutationGroup | undefined;
     log.debug(`Adding statement of ${chosenType} type`);
@@ -612,7 +598,7 @@ export class Synthesizer {
       );
     }
     if (possibleOps) {
-      log.debug(`Found mutations for add:\n${showOps(possibleOps)}`);
+      log.debug(`Found mutations for add:\n${showMutations(possibleOps)}`);
       return possibleOps;
     } else return [];
   };
@@ -621,7 +607,7 @@ export class Synthesizer {
    * From the configuration, pick one Substance statement to delete, and return one or more `Delete` mutations depending on if there will be cascading delete.
    * @returns a group of `Delete` mutations
    */
-  deleteStmt = (ctx: SynthesisContext): MutationGroup => {
+  enumerateDelete = (ctx: SynthesisContext): MutationGroup => {
     log.debug("Deleting statement");
     const chosenType = this.choice(nonEmptyDecls(ctx));
     const candidates = [...getDecls(ctx, chosenType).keys()];
@@ -643,7 +629,7 @@ export class Synthesizer {
       }
     }
     if (possibleOps) {
-      log.debug(`Found mutations for delete:\n${showOps(possibleOps)}`);
+      log.debug(`Found mutations for delete:\n${showMutations(possibleOps)}`);
       return possibleOps;
     } else return [];
   };
@@ -727,10 +713,7 @@ export class Synthesizer {
     const rhs: ApplyFunction = applyFunction(func, args);
     // find the `TypeDecl` for the output type
     const outputType = func.output.type as TypeConstructor;
-    // NOTE: the below will bypass the candidate list and generate a new decl, to follow the config more strictly:
-    // const outputTypeDecl: TypeDecl | undefined = ctx.candidates.types.find(
-    //   (decl, typeName) => typeName === outputType.name.value
-    // );
+    // NOTE: the below will bypass the config and generate a new decl using the output type, search first in `ctx` to follow the config more strictly.
     // TODO: choose between generating vs. reusing
     const lhsDecl: Decl = this.generateDeclFromType(
       nullaryTypeCons(outputType.name),
@@ -751,10 +734,7 @@ export class Synthesizer {
     );
     const rhs: ApplyConstructor = applyConstructor(cons, args);
     const outputType = cons.output.type as TypeConstructor;
-    // NOTE: the below will bypass the candidate list and generate a new decl, to follow the config more strictly:
-    // const outputTypeDecl: TypeDecl | undefined = this.ctx.candidates.types.find(
-    //   (decl, typeName) => typeName === outputType.name.value
-    // );
+    // NOTE: the below will bypass the config and generate a new decl using the output type, search first in `ctx` to follow the config more strictly.
     const lhsDecl: Decl = this.generateDeclFromType(
       nullaryTypeCons(outputType.name),
       ctx

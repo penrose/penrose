@@ -5,7 +5,6 @@ import {
   compileSubstance,
   prettySubstance,
   showError,
-  showOps,
   Synthesizer,
   SubProg,
   SynthesizerSetting,
@@ -94,7 +93,7 @@ const writePrograms = (
     const metaPath = join(prefix, metaName);
     const { prog, ops } = progs[i];
     writeFileSync(subPath, prettySubstance(prog));
-    writeFileSync(metaPath, JSON.stringify({ ops: showOps(ops) }));
+    writeFileSync(metaPath, JSON.stringify({ ops: showMutations(ops) }));
     substances[subID] = { name: subID, URI: fileName };
     trios.push({
       substance: subID,
@@ -189,3 +188,6 @@ const writePrograms = (
     );
   }
 })();
+function showMutations(ops: any) {
+  throw new Error("Function not implemented.");
+}

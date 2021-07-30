@@ -8,7 +8,6 @@ import {
   isEqual,
   isEqualWith,
   sortBy,
-  without,
 } from "lodash";
 import { ASTNode, Identifier, metaProps } from "types/ast";
 import {
@@ -239,11 +238,12 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
 
 /**
  * Given a statement which returns a value
- * that is staged to be deleted, iteratively find and delete any other
+ * that is staged to be deleted, iteratively find any other
  * statements that would use the statement's returned variable
  *
- * @param dec either a Bind or Decl that is staged to be deleted
+ * @param dec either a `Bind` or `Decl` that is staged to be deleted
  * @param prog the Substance program
+ * @returns a list of statements to be deleted
  */
 export const cascadingDelete = (dec: Bind | Decl, prog: SubProg): SubStmt[] => {
   const findArg = (s: ApplyPredicate, ref: Identifier | undefined) =>

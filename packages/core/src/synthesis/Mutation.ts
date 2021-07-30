@@ -91,14 +91,12 @@ export interface ChangeExprType extends IMutation {
   additionalMutations: Mutation[];
 }
 
-export const showOps = (ops: Mutation[]): string => {
-  return ops.map((op) => showOp(op)).join("\n");
+export const showMutations = (ops: Mutation[]): string => {
+  return ops.map((op) => showMutation(op)).join("\n");
 };
 
-export const showOp = (op: Mutation): string => {
+export const showMutation = (op: Mutation): string => {
   switch (op.tag) {
-    // case "Replace":
-    //   return `Replace ${prettyStmt(op.old)} by ${prettyStmt(op.new)}`;
     case "SwapStmtArgs":
       return `Swap arguments of ${prettyStmt(op.stmt)}`;
     case "SwapExprArgs":
@@ -111,7 +109,6 @@ export const showOp = (op: Mutation): string => {
     case "ReplaceExprName":
     case "ReplaceStmtName":
       return `Replace the name of ${prettyStmt(op.stmt)} with ${op.newName}`;
-    // default:
     case "Add":
     case "Delete":
       return `${op.tag} ${prettySubNode(op.stmt)}`;
@@ -148,7 +145,23 @@ const swap = (arr: any[], a: number, b: number) =>
 
 //#endregion
 
-//#region Mutation guard functions
+//#region Mutation constructors
+
+export const deleteMutation = (stmt: SubStmt): Delete => ({
+  tag: "Delete",
+  stmt,
+  mutate: removeStmtCtx,
+});
+
+export const addMutation = (stmt: SubStmt): Add => ({
+  tag: "Add",
+  stmt,
+  mutate: appendStmtCtx,
+});
+
+//#endregion
+
+//#region Context-sensitive AST operations
 
 const withCtx = <T>(res: T, ctx: SynthesisContext): WithContext<T> => ({
   res,
@@ -181,17 +194,17 @@ export const removeStmtCtx = (
   }
 };
 
+//#endregion
+
+//#region Mutation guard functions
+
 export const checkAddStmts = (
   prog: SubProg,
   cxt: SynthesisContext,
   newStmts: (cxt: SynthesisContext) => SubStmt[]
 ): Add[] | undefined => {
   const stmts: SubStmt[] = newStmts(cxt);
-  return stmts.map((stmt: SubStmt) => ({
-    tag: "Add",
-    stmt,
-    mutate: appendStmtCtx,
-  }));
+  return stmts.map((stmt: SubStmt) => addMutation(stmt));
 };
 
 export const checkAddStmt = (
@@ -200,11 +213,7 @@ export const checkAddStmt = (
   newStmt: (cxt: SynthesisContext) => SubStmt
 ): Add | undefined => {
   const stmt: SubStmt = newStmt(cxt);
-  return {
-    tag: "Add",
-    stmt,
-    mutate: appendStmtCtx,
-  };
+  return addMutation(stmt);
 };
 
 export const checkSwapStmtArgs = (
@@ -339,12 +348,21 @@ export const checkDeleteStmt = (
 ): Delete | undefined => {
   const s = stmt;
   if (stmtExists(s, prog)) {
-    return {
-      tag: "Delete",
-      stmt: s,
-      mutate: removeStmtCtx,
-    };
+    return deleteMutation(s);
   } else return undefined;
+};
+
+const changeType = (
+  { stmt, newStmt, additionalMutations }: ChangeStmtType | ChangeExprType,
+  prog: SubProg,
+  ctx: SynthesisContext
+) => {
+  const { res: newProg, ctx: newCtx } = executeMutations(
+    additionalMutations,
+    prog,
+    ctx
+  );
+  return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
 };
 
 export const checkChangeStmtType = (
@@ -364,18 +382,7 @@ export const checkChangeStmtType = (
         stmt,
         newStmt,
         additionalMutations,
-        mutate: (
-          { stmt, newStmt, additionalMutations }: ChangeStmtType,
-          prog: SubProg,
-          ctx: SynthesisContext
-        ) => {
-          const { res: newProg, ctx: newCtx } = executeMutations(
-            additionalMutations,
-            prog,
-            ctx
-          );
-          return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
-        },
+        mutate: changeType,
       };
     } else return undefined;
   } else undefined;
@@ -406,18 +413,7 @@ export const checkChangeExprType = (
           expr,
           newStmt,
           additionalMutations,
-          mutate: (
-            { stmt, newStmt, additionalMutations }: ChangeExprType,
-            prog: SubProg,
-            ctx: SynthesisContext
-          ) => {
-            const { res: newProg, ctx: newCtx } = executeMutations(
-              additionalMutations,
-              prog,
-              ctx
-            );
-            return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
-          },
+          mutate: changeType,
         };
       } else return undefined;
     } else return undefined;
