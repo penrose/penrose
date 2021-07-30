@@ -1,6 +1,3 @@
-Set A, B, C
+Set A, B
 IsSubset(B, A)
-IsSubset(C, A)
-Equal(A, B)
--- IsSubset(A, B)
-AutoLabel All -- TODO: Have better error messages if people forgot to label objects, since it often fails to find label GPIs
+AutoLabel All 

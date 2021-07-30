@@ -49,7 +49,6 @@ constructor MkTriangle : Point p * Point q * Point r -> Triangle
 -- constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
 -- constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
-constructor MkArc : Point p * Point q -> Arc
 
 -- -- TODO: subtyping on the return types
 -- function Midpoint : Linelike -> Point
@@ -79,6 +78,8 @@ predicate EqualAngleMarker2 : Angle * Angle
 predicate EqualLengthMarker : Segment * Segment
 predicate EqualAngle : Angle * Angle
 predicate EqualLength : Segment * Segment 
+predicate RightMarked : Angle
+predicate RightUnmarked : Angle
 
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"

@@ -6,6 +6,7 @@ import {
   constOf,
   cos,
   div,
+  eq,
   gt,
   ifCond,
   max,
@@ -23,6 +24,7 @@ import {
 import * as BBox from "engine/BBox";
 import { maxBy, range } from "lodash";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
+import { Var } from "types/domain";
 import {
   ArgVal,
   Color,
@@ -400,13 +402,13 @@ export const compDict = {
     };
   },
   /**
-   * Find intersection between a circle centered at [x1, y1] with radius r and a line segment between [x1, y1] and [x2, y2].
-   * @param x1, y1: centerpoint of circle, one endpoint of line segment
-   * @param x2, y2: endpoint of line segment
-   * @param r: radius of circle
+   * Find the point that is located at dist r along a line between p1 and p2.
+   * @param p1: start point of line segment
+   * @param p2: endpoint of line segment
+   * @param r: distance from p1 to travel along the line
    * @returns: vector representation of the point of intersection
    */
-  angleMarker: (p1: VarAD[], p2: VarAD[], r: VarAD): IVectorV<VarAD> => {
+  ptOnLine: (p1: VarAD[], p2: VarAD[], r: VarAD): IVectorV<VarAD> => {
     // find unit vector pointing towards v2
     const unit = ops.vnormalize(ops.vsub(p2, p1));
     return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
@@ -445,7 +447,37 @@ export const compDict = {
       throw Error("unsupported shape ${t1} in midpointOffset");
     }
   },
+  /**
+   * Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
+   */
+  innerPointOffset: (
+    pt1: VarAD[],
+    pt2: VarAD[],
+    pt3: VarAD[],
+    padding: VarAD
+  ): IVectorV<VarAD> => {
+    // unit vector towards first corner
+    const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
+    const normalDir = ops.vneg(rot90v(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
 
+    // move along line between p1 and p2, then move perpendicularly
+    const ref = ops.vmove(pt1, padding, vec1unit);
+    const [xp, yp] = ops.vmove(ref, padding, normalDir);
+    const [xn, yn] = ops.vmove(ref, padding, ops.vneg(normalDir));
+
+    // unit vector towards end point
+    const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
+    const endpt = ops.vmove(pt1, padding, vec2unit);
+
+    // unit vector from midpoint to end point
+    const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
+    // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), varOf(0.95));
+    return {
+      tag: "VectorV",
+      contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
+    };
+  },
   /**
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.

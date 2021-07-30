@@ -161,8 +161,20 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public step = (): void => {
-    const stepped = stepState(this.state.data, 1);
-    void this.onCanvasState(stepped);
+    try {
+      const stepped = stepState(this.state.data, 1);
+      void this.onCanvasState(stepped);
+    } catch (e) {
+      const error: PenroseError = {
+        errorType: "RuntimeError",
+        tag: "RuntimeError",
+        message: `Runtime error encountered: '${e}' Check console for more information.`,
+      };
+
+      const errorWrapper = { error, data: undefined };
+      this.setState(errorWrapper);
+      throw e;
+    }
   };
 
   public stepUntilConvergence = (): void => {
@@ -170,7 +182,12 @@ class App extends React.Component<any, ICanvasState> {
       this.state.data,
       this.state.settings.autoStepSize
     );
-    void this.onCanvasState(stepped);
+    if (stepped.isErr()) {
+      const errorWrapper = { error: stepped.error, data: undefined };
+      this.setState(errorWrapper);
+    } else {
+      void this.onCanvasState(stepped.value);
+    }
   };
 
   public resample = async () => {
@@ -198,8 +215,22 @@ class App extends React.Component<any, ICanvasState> {
           style.contents
         );
         if (compileRes.isOk()) {
-          const initState: PenroseState = await prepareState(compileRes.value);
-          void this.onCanvasState(initState);
+          try {
+            const initState: PenroseState = await prepareState(
+              compileRes.value
+            );
+            void this.onCanvasState(initState);
+          } catch (e) {
+            const error: PenroseError = {
+              errorType: "RuntimeError",
+              tag: "RuntimeError",
+              message: `Runtime error encountered: '${e}' Check console for more information.`,
+            };
+
+            const errorWrapper = { error, data: undefined };
+            this.setState(errorWrapper);
+            throw e;
+          }
         } else {
           this.setState({ error: compileRes.error, data: undefined });
         }
