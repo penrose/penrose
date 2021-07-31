@@ -176,11 +176,22 @@ class App extends React.Component<any, ICanvasState> {
   public resample = async () => {
     const NUM_SAMPLES = 1;
     const oldState = this.state.data;
+
+    const NUM_CLICKS = 16;
+    let resampled = oldState;
+    let i = 0;
+
+    while (i < NUM_CLICKS) {
+      console.log("i", i);
+      resampled = resample(resampled, NUM_SAMPLES);
+      i++;
+    }
+
     if (oldState) {
       this.setState({ processedInitial: false });
-      const resampled = resample(oldState, NUM_SAMPLES);
       void this.onCanvasState(resampled);
     }
+
   };
 
   connectToSocket = () => {
@@ -333,8 +344,8 @@ class App extends React.Component<any, ICanvasState> {
                 setSettings={this.setSettings}
               />
             ) : (
-              <div />
-            )}
+                <div />
+              )}
           </SplitPane>
         </div>
       </div>

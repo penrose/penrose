@@ -187,33 +187,19 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
   switch (optStatus) {
     case "NewIter": {
-      log.trace("step newIter, xs", xs);
+      const { objective, gradient } = state.params;
 
-      // if (!state.params.functionsCompiled) {
-      // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
-      if (true) {
-        const { objective, gradient } = state.params;
-        if (!objective || !gradient) {
-          return genOptProblem(state);
-        } else {
-          return {
-            ...state,
-            params: {
-              ...state.params,
-              weight: initConstraintWeight,
-              UOround: 0,
-              EPround: 0,
-              optStatus: "UnconstrainedRunning" as const,
-              lbfgsInfo: defaultLbfgsParams,
-            },
-          };
-        }
+      if (!objective || !gradient) {
+        // Generate objective, gradient, and initial state from scratch
+        log.info("step: NewIter: generating objective/gradient/initial state from scratch");
+        return genOptProblem(state);
       } else {
+
         // Reuse compiled functions for resample; set other initialization params accordingly
-        // The computational graph gets destroyed in resample (just for now, because it can't get serialized)
-        // But it's not needed for the optimization
-        log.info("Reusing compiled objective and gradients");
+        log.info("step: NewIter: Reusing compiled objective and gradients");
         const params = state.params;
+
+        eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
 
         const newParams: Params = {
           ...params,
@@ -234,7 +220,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
 
     case "UnconstrainedRunning": {
       // NOTE: use cached varying values
-      log.info("step step, xs", xs);
+      log.info("step: UnconstrainedRunning. xs:", xs);
 
       const res = minimize(
         xs,
@@ -299,7 +285,7 @@ export const step = (state: State, steps: number, evaluate = true) => {
       // Note that lbfgs params have already been reset to default
 
       // TODO. Make a diagram to clarify vocabulary
-      log.info("step: unconstrained converged", optParams);
+      log.info("step: UnconstrainedConverged. optParams: ", optParams);
 
       // We force EP to run at least two rounds (State 0 -> State 1 -> State 2; the first check is only between States 1 and 2)
       if (
