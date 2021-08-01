@@ -75,7 +75,9 @@ class App extends React.Component<any, ICanvasState> {
     settings: {
       autostep: false,
       showInspector: true,
-      autoStepSize: 10000,
+      autoStepSize: 1,
+      // TODO: Revert
+      // autoStepSize: 10000,
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
