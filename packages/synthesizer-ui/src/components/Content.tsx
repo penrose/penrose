@@ -1,10 +1,27 @@
 import React from "react";
-import { SynthesizerSetting } from "../../../core/build/dist";
+import {
+  compileDomain,
+  compileSubstance,
+  showError,
+  SubProg,
+  Synthesizer,
+  SynthesizerSetting,
+} from "@penrose/core";
 import { Grid } from "./Grid";
 import { Header } from "./Header";
 
-export interface ContentProps {
-  content: any[];
+export type ContentProps = any;
+
+export interface SynthesizedSubstance {
+  prog: SubProg;
+  ops: string;
+}
+
+export interface ContentState {
+  setting: SynthesizerSetting;
+  progs: SynthesizedSubstance[];
+  style: string;
+  domain: string;
 }
 
 const defaultSetting: SynthesizerSetting = {
@@ -36,29 +53,64 @@ const defaultSetting: SynthesizerSetting = {
   },
 };
 
-export class Content extends React.Component {
+export class Content extends React.Component<ContentProps, ContentState> {
   constructor(props: ContentProps) {
     super(props);
-    this.setState({
+    this.state = {
       setting: defaultSetting,
       progs: [],
       style: "",
       domain: "",
-    });
+    };
   }
 
   updateSettings = (newSetting: SynthesizerSetting) => {
     this.setState({
-      ...this.state,
       setting: newSetting,
     });
+  };
+
+  generateProgs = () => {
+    const envOrError = compileDomain(this.state.domain);
+
+    // initialize synthesizer
+    if (envOrError.isOk()) {
+      const env = envOrError.value;
+      let subResult;
+      if (this.props.substance.length > 0) {
+        const subRes = compileSubstance(this.props.substance, env);
+        if (subRes.isOk()) {
+          subResult = subRes.value;
+        } else {
+          console.log(
+            `Error when compiling the template Substance program: ${showError(
+              subRes.error
+            )}`
+          );
+        }
+      }
+
+      const synth = new Synthesizer(env, this.props.settings, subResult);
+      let progs = synth.generateSubstances(this.state.setting.numPrograms);
+      const template: SubProg | undefined = synth.getTemplate();
+
+      if (template) {
+        progs = [{ prog: template }, ...progs];
+      }
+      this.setState({ progs });
+    }
+    this.setState({ progs: [] });
   };
 
   render() {
     return (
       <div>
         <Header />
-        <Grid />
+        <Grid
+          style={this.state.style}
+          domain={this.state.domain}
+          progs={this.state.progs}
+        />
       </div>
     );
   }
