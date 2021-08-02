@@ -32,6 +32,7 @@ import {
 } from "utils/OtherUtils";
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
+import { showMutations } from "synthesis/Mutation";
 import { getListOfStagedStates } from "renderer/Staging";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -51,7 +52,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(state, numSteps);
+  return step(state, numSteps, true);
 };
 
 /**
@@ -320,6 +321,7 @@ export {
   RenderStatic,
   RenderShape,
   Synthesizer,
+  showMutations,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
