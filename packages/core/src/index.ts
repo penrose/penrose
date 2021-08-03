@@ -17,16 +17,23 @@ import RenderStatic, {
 import { resampleBest } from "renderer/Resample";
 import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
 import { Env } from "types/domain";
-import { PenroseError } from "types/errors";
+import { PenroseError, RuntimeError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
+import { FieldDict, Translation } from "types/value";
 import { Fn, LabelCache, State } from "types/state";
 import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
-import { andThen, Result, showError } from "utils/Error";
-import { prettyPrintFn } from "utils/OtherUtils";
+import { andThen, err, nanError, ok, Result, showError } from "utils/Error";
+import {
+  prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
+} from "utils/OtherUtils";
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
+import { showMutations } from "synthesis/Mutation";
+import { getListOfStagedStates } from "renderer/Staging";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -45,19 +52,41 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(state, numSteps);
+  return step(state, numSteps, true);
 };
 
 /**
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
-export const stepUntilConvergence = (state: State, numSteps = 10000): State => {
+export const stepUntilConvergence = (
+  state: State,
+  numSteps = 10000
+): Result<State, RuntimeError> => {
   let currentState = state;
-  while (!stateConverged(currentState)) {
+  log.warn(currentState.params.optStatus);
+  while (
+    !(currentState.params.optStatus === "Error") &&
+    !stateConverged(currentState)
+  ) {
     currentState = step(currentState, numSteps, true);
   }
-  return currentState;
+  if (currentState.params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", currentState),
+    });
+  }
+  return ok(currentState);
+};
+
+const stepUntilConvergenceOrThrow = (state: State): State => {
+  const result = stepUntilConvergence(state);
+  if (result.isErr()) {
+    throw Error(showError(result.error));
+  } else {
+    return result.value;
+  }
 };
 
 /**
@@ -77,8 +106,7 @@ export const diagram = async (
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergence(state);
-    node.appendChild(RenderStatic(optimized));
+    const optimized = stepUntilConvergenceOrThrow(state);
   } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
@@ -101,7 +129,7 @@ export const interactiveDiagram = async (
   node: HTMLElement
 ): Promise<void> => {
   const updateData = (state: State) => {
-    const stepped = stepUntilConvergence(state);
+    const stepped = stepUntilConvergenceOrThrow(state);
     node.replaceChild(
       RenderInteractive(stepped, updateData),
       node.firstChild as Node
@@ -110,7 +138,7 @@ export const interactiveDiagram = async (
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergence(state);
+    const optimized = stepUntilConvergenceOrThrow(state);
     node.appendChild(RenderInteractive(optimized, updateData));
   } else {
     throw Error(
@@ -151,6 +179,7 @@ export const compileTrio = (
  */
 export const prepareState = async (state: State): Promise<State> => {
   await initializeMat();
+
   // TODO: errors
   const stateAD = {
     ...state,
@@ -223,7 +252,7 @@ export const evalEnergy = (s: State): number => {
   const { objective, weight } = s.params;
   // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
   if (!objective) {
-    log.warn(
+    log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
     const newState = genOptProblem(s);
@@ -280,6 +309,7 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
 };
 
 export type PenroseState = State;
+export type PenroseFn = Fn;
 
 export {
   compileDomain,
@@ -291,6 +321,7 @@ export {
   RenderStatic,
   RenderShape,
   Synthesizer,
+  showMutations,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
@@ -300,7 +331,10 @@ export {
   showError,
   Result,
   prettyPrintFn,
+  prettyPrintPath,
+  prettyPrintExpr,
   ops,
+  getListOfStagedStates,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };
@@ -308,3 +342,5 @@ export type { Env };
 export type { SynthesizerSetting };
 export type { SubProg } from "types/substance";
 export type { Canvas };
+export type { FieldDict };
+export type { Translation };

@@ -1,6 +1,15 @@
-import { pullAt } from "lodash";
-import { Identifier } from "types/ast";
+import { prettyStmt } from "compiler/Substance";
 import { Map } from "immutable";
+import {
+  cloneDeep,
+  cloneDeepWith,
+  filter,
+  intersectionWith,
+  isEqual,
+  isEqualWith,
+  sortBy,
+} from "lodash";
+import { ASTNode, Identifier, metaProps } from "types/ast";
 import {
   ConstructorDecl,
   DomainStmt,
@@ -31,6 +40,10 @@ export interface Signature {
 
 export type ArgStmtDecl = PredicateDecl | FunctionDecl | ConstructorDecl;
 
+export type ArgStmt = ApplyFunction | ApplyPredicate | ApplyConstructor;
+
+export type ArgExpr = ApplyFunction | ApplyConstructor | Func;
+
 /**
  * Append a statement to a Substance program
  *
@@ -42,23 +55,6 @@ export const appendStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
   ...prog,
   statements: [...prog.statements, stmt],
 });
-
-/**
- * Swap two arguments of a Substance statement
- *
- * @param stmt a Substance statement with the `args` property
- * @param param1 a tuple of indices to swap
- * @returns a new Substance statement
- */
-export const swapArgs = (
-  stmt: ApplyConstructor | ApplyPredicate | ApplyFunction,
-  [index1, index2]: [number, number]
-): ApplyConstructor | ApplyPredicate | ApplyFunction => {
-  return {
-    ...stmt,
-    args: swap(stmt.args, index1, index2),
-  };
-};
 
 /**
  * Find all declarations that take the same number and type of args as
@@ -92,17 +88,10 @@ export const argMatches = (
  * @param stmt a statement to delete
  * @returns a new Substance program with the statement removed
  */
-export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => {
-  const index = prog.statements.indexOf(stmt);
-  if (index > -1) {
-    return {
-      ...prog,
-      statements: pullAt(prog.statements, index),
-    };
-  } else {
-    return prog;
-  }
-};
+export const removeStmt = (prog: SubProg, stmt: SubStmt): SubProg => ({
+  ...prog,
+  statements: filter(prog.statements, (s) => !nodesEqual(stmt, s)),
+});
 
 /**
  * Replace a statement in a Substance program.
@@ -122,19 +111,17 @@ export const replaceStmt = (
   statements: prog.statements.map((s) => (s === originalStmt ? newStmt : s)),
 });
 
-//#region helpers
-
-const swap = (arr: any[], a: number, b: number) =>
-  arr.map((current, idx) => {
-    if (idx === a) return arr[b];
-    if (idx === b) return arr[a];
-    return current;
-  });
-
-//#endregion
+/**
+ * Get a Substance statement by index
+ *
+ * @param prog a Substance program
+ * @param index the index of a Substance statement in the program
+ * @returns
+ */
+export const getStmt = (prog: SubProg, index: number): SubStmt =>
+  prog.statements[index];
 
 //#region Helpers
-
 /**
  * Find all signatures that match a reference statement. NOTE: returns an empty list if
  * no matches are found; does not include the reference statement in list of matches.
@@ -249,6 +236,50 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
   );
 };
 
+/**
+ * Given a statement which returns a value
+ * that is staged to be deleted, iteratively find any other
+ * statements that would use the statement's returned variable
+ *
+ * @param dec either a `Bind` or `Decl` that is staged to be deleted
+ * @param prog the Substance program
+ * @returns a list of statements to be deleted
+ */
+export const cascadingDelete = (dec: Bind | Decl, prog: SubProg): SubStmt[] => {
+  const findArg = (s: ApplyPredicate, ref: Identifier | undefined) =>
+    ref &&
+    s.args.filter((a) => {
+      return a.tag === ref.tag && a.value === ref.value;
+    }).length > 0;
+  const ids = [dec.tag === "Bind" ? dec.variable : dec.name]; // stack of variables to delete
+  const removedStmts: Set<SubStmt> = new Set();
+  while (ids.length > 0) {
+    const id = ids.pop();
+    // look for statements that take id as arg
+    const toDelete = prog.statements.filter((s) => {
+      if (s.tag === "Bind") {
+        const expr = (s.expr as unknown) as ApplyPredicate;
+        const willDelete = findArg(expr, id);
+        // push its return value IF bind will be deleted
+        if (willDelete) ids.push(s.variable);
+        // delete if arg is found in either return type or args
+        return willDelete || s.variable.value === id?.value;
+      } else if (s.tag === "ApplyPredicate") {
+        return findArg(s, id);
+      } else if (s.tag === "Decl") {
+        return s.name === id;
+      }
+    });
+    // remove list of filtered statements
+    toDelete.forEach((stmt) => {
+      removedStmts.add(stmt);
+    });
+  }
+  return [...removedStmts.values()];
+};
+
+//#endregion
+
 export const printStmts = (
   stmts: PredicateDecl[] | ConstructorDecl[] | FunctionDecl[]
 ): void => {
@@ -323,6 +354,13 @@ export const applyPredicate = (
   };
 };
 
+export const subProg = (statements: SubStmt[]): SubProg => ({
+  tag: "SubProg",
+  statements,
+  children: statements,
+  nodeType: "SyntheticSubstance",
+});
+
 // TODO: generate arguments as well
 export const applyTypeDecl = (decl: TypeDecl): TypeConsApp => {
   const { name } = decl;
@@ -352,6 +390,71 @@ export const autoLabelStmt: AutoLabel = {
   },
   nodeType: "SyntheticSubstance",
   children: [],
+};
+
+/**
+ * Compare two AST nodes by their contents, ignoring structural properties such as `children` and positional properties like `start` and `end`.
+ *
+ * @param node1 the first AST node
+ * @param node2 the second AST node
+ * @returns a boolean value
+ */
+export const nodesEqual = (node1: ASTNode, node2: ASTNode): boolean =>
+  isEqualWith(node1, node2, (node1: ASTNode, node2: ASTNode) => {
+    return isEqual(cleanNode(node1), cleanNode(node2));
+  });
+
+export const intersection = (left: SubProg, right: SubProg): SubStmt[] =>
+  intersectionWith(left.statements, right.statements, (s1, s2) =>
+    nodesEqual(s1, s2)
+  );
+
+/**
+ * Sort the statements in a Substance AST by statement type and then by lexicographic ordering of source text.
+ * @param prog A Substance AST
+ * @returns A sorted Substance AST
+ */
+export const sortStmts = (prog: SubProg): SubProg => {
+  const { statements } = prog;
+  // first sort by statement type, and then by lexicographic ordering of source text
+  const newStmts: SubStmt[] = sortBy(statements, [
+    "tag",
+    (s: SubStmt) => prettyStmt(s),
+  ]);
+  return {
+    ...prog,
+    statements: newStmts,
+  };
+};
+
+// TODO: compare clean nodes instead?
+export const stmtExists = (stmt: SubStmt, prog: SubProg): boolean =>
+  prog.statements.find((s) => isEqual(stmt, s)) !== undefined;
+
+export const cleanNode = (prog: ASTNode): ASTNode => omitDeep(prog, metaProps);
+
+/**
+ * Finds the type of a Substance identifer.
+ *
+ * @param id an identifer
+ * @param env the environment
+ * @returns
+ */
+export const typeOf = (id: string, env: Env): string | undefined =>
+  env.vars.get(id)?.name.value;
+
+// helper function for omitting properties in an object
+const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
+  // TODO: `omitFn` mutates the collection
+  const collection = cloneDeep(originalCollection);
+  const omitFn = (value: any) => {
+    if (value && typeof value === "object") {
+      excludeKeys.forEach((key) => {
+        delete value[key];
+      });
+    }
+  };
+  return cloneDeepWith(collection, omitFn);
 };
 
 //#endregion

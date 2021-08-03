@@ -3,81 +3,30 @@ import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IStrV } from "types/value";
+import { IFloatV, IPathCmd, IStrV } from "types/value";
 
-const toCmdString = (cmd: any, canvasSize: [number, number]) => {
-  switch (cmd.tag) {
-    case "Pt":
-      return "L" + toScreen(cmd.contents, canvasSize).join(" ");
-    case "CubicBez":
-      return pathCommandString("C", cmd.contents, canvasSize);
-    case "CubicBezJoin":
-      return pathCommandString("S", cmd.contents, canvasSize);
-    case "QuadBez":
-      return pathCommandString("Q", cmd.contents, canvasSize);
-    case "QuadBezJoin":
-      return pathCommandString("T", cmd.contents, canvasSize);
-    case "Arc":
-      return arcCommandString("A", cmd.contents, canvasSize);
-    default:
-      return " ";
-  }
-};
-
-const arcCommandString = (
-  command: string,
-  pts: [number, number][],
-  canvasSize: [number, number]
-) => {
-  // See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
-  const [radius, flags, endpt] = pts;
-  // A, rx, ry, rotation, arc, sweep, ex, ey
-  return `${command} ${radius.join(" ")} ${flags.join(" ")} ${toScreen(
-    endpt,
-    canvasSize
-  ).join(" ")}`;
-};
-
-const pathCommandString = (
-  command: string,
-  pts: [number, number][],
+const toPathString = (
+  pathData: IPathCmd<number>[],
   canvasSize: [number, number]
 ) =>
-  command +
-  flatten(
-    pts.map((coords: [number, number]) => {
-      return toScreen(coords, canvasSize);
-    })
-  ).join(" ");
-
-const fstCmdString = (pathCmd: any, canvasSize: [number, number]) => {
-  if (pathCmd.tag === "Pt") {
-    return "M" + toScreen(pathCmd.contents, canvasSize).join(" ");
-  } else {
-    return toCmdString(pathCmd, canvasSize);
-  }
-};
-
-const toSubPathString = (commands: any[], canvasSize: [number, number]) => {
-  // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
-  if (!commands || !commands.length) {
-    console.error("WARNING: empty path");
-    return "";
-  }
-
-  const [headCommand, ...tailCommands] = commands;
-  return (
-    fstCmdString(headCommand, canvasSize) +
-    tailCommands.map((cmd: any) => toCmdString(cmd, canvasSize)).join(" ")
-  );
-};
-
-const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
-    .map((subPath: any) => {
-      const { tag, contents } = subPath;
-      const subPathStr = toSubPathString(contents, canvasSize);
-      return subPathStr + (tag === "Closed" ? "Z" : "");
+    .map((pathCmd) => {
+      const { cmd, contents } = pathCmd;
+      if (contents.length === 0 && cmd !== "Z") {
+        console.error("WARNING: empty path");
+        return "";
+      }
+      const pathStr = flatten(
+        contents.map((c: any) => {
+          if (c.tag === "CoordV") return toScreen(c.contents, canvasSize);
+          else if (c.tag === "ValueV") return c.contents;
+          else {
+            console.error("WARNING: improperly formed pathData");
+            return;
+          }
+        })
+      ).join(" ");
+      return `${cmd} ${pathStr}`;
     })
     .join(" ");
 
