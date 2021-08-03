@@ -1,7 +1,7 @@
 import { randFloat } from "utils/Util";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
-import { IFloatV, IVectorV, IColorV, IPolygonV } from "types/value";
+import { IFloatV, IVectorV, IColorV } from "types/value";
 import { Path } from "types/style";
 
 //#region shapedef helpers and samplers
@@ -124,19 +124,6 @@ const black: IColorV<number> = {
     tag: "RGBA",
     contents: [0, 0, 0, 1.0],
   },
-};
-
-const emptyPoly: IPolygonV<number> = {
-  tag: "PolygonV",
-  contents: [
-    [],
-    [],
-    [
-      [-Infinity, Infinity],
-      [-Infinity, Infinity],
-    ],
-    [],
-  ],
 };
 
 //#endregion
@@ -368,7 +355,6 @@ export const textDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultText")],
     string: ["StrV", constValue("StrV", "defaultLabelText")],
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
-    polygon: ["PolygonV", () => emptyPoly],
   },
   positionalProps: ["center"],
 };
@@ -413,7 +399,6 @@ export const curveDef: ShapeDef = {
   properties: {
     path: ["PtListV", constValue("PtListV", [])],
     polyline: ["PtListV", constValue("PtListV", [])],
-    polygon: ["PolygonV", () => emptyPoly],
     pathData: ["PathDataV", constValue("PathDataV", [])],
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "solid")],

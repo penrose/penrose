@@ -32,6 +32,8 @@ import {
 } from "utils/OtherUtils";
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
+import { showMutations } from "synthesis/Mutation";
+import { getListOfStagedStates } from "renderer/Staging";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -50,7 +52,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 1)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(state, numSteps);
+  return step(state, numSteps, true);
 };
 
 /**
@@ -62,9 +64,10 @@ export const stepUntilConvergence = (
   numSteps = 10000
 ): Result<State, RuntimeError> => {
   let currentState = state;
+  log.warn(currentState.params.optStatus);
   while (
-    !stateConverged(currentState) &&
-    !(currentState.params.optStatus === "Error")
+    !(currentState.params.optStatus === "Error") &&
+    !stateConverged(currentState)
   ) {
     currentState = step(currentState, numSteps, true);
   }
@@ -249,7 +252,7 @@ export const evalEnergy = (s: State): number => {
   const { objective, weight } = s.params;
   // NOTE: if `prepareState` hasn't been called before, log a warning message and generate a fresh optimization problem
   if (!objective) {
-    log.warn(
+    log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
     const newState = genOptProblem(s);
@@ -318,6 +321,7 @@ export {
   RenderStatic,
   RenderShape,
   Synthesizer,
+  showMutations,
   RenderInteractive,
   ShapeTypes,
   bBoxDims,
@@ -330,6 +334,7 @@ export {
   prettyPrintPath,
   prettyPrintExpr,
   ops,
+  getListOfStagedStates,
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };

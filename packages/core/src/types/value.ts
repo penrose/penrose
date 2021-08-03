@@ -101,27 +101,7 @@ export type Value<T> =
   | IMatrixV<T>
   | ITupV<T>
   | ILListV<T>
-  | IHMatrixV<T>
-  | IPolygonV<T>;
-
-export type Elem<T> =
-  | IPt<T>
-  | ICubicBez<T>
-  | ICubicBezJoin<T>
-  | IQuadBez<T>
-  | IQuadBezJoin<T>
-  | IArc<T>;
-
-export type SubPath<T> = IClosed<T> | IOpen<T>;
-interface IClosed<T> {
-  tag: "Closed";
-  contents: Elem<T>[];
-}
-
-interface IOpen<T> {
-  tag: "Open";
-  contents: Elem<T>[];
-}
+  | IHMatrixV<T>;
 
 // Unused
 // interface ITypePropertyPath {
@@ -155,19 +135,19 @@ export interface IStrV {
 /** A point in 2D **/
 export interface IPtV<T> {
   tag: "PtV";
-  contents: [T, T];
+  contents: T[];
 }
 
 /** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
 export interface IPathDataV<T> {
   tag: "PathDataV";
-  contents: SubPath<T>[];
+  contents: IPathCmd<T>[];
 }
 
 /** A list of points **/
 export interface IPtListV<T> {
   tag: "PtListV";
-  contents: [T, T][];
+  contents: T[][];
 }
 
 /** A list of colors **/
@@ -215,7 +195,7 @@ export interface IMatrixV<T> {
 /** A 2-tuple **/
 export interface ITupV<T> {
   tag: "TupV";
-  contents: [T, T];
+  contents: T[];
 }
 
 /** A list of lists **/
@@ -230,14 +210,6 @@ export interface ILListV<T> {
 export interface IHMatrixV<T> {
   tag: "HMatrixV";
   contents: HMatrix<T>;
-}
-
-/**
- * @deprecated
- */
-export interface IPolygonV<T> {
-  tag: "PolygonV";
-  contents: [[T, T][][], [T, T][][], [[T, T], [T, T]], [T, T][]];
 }
 
 export type HMatrix<T> = IHMatrix<T>;
@@ -255,40 +227,28 @@ export type Color<T> = IRGBA<T> | IHSVA<T>;
 
 export interface IRGBA<T> {
   tag: "RGBA";
-  contents: [T, T, T, T];
+  contents: T[];
 }
 
 export interface IHSVA<T> {
   tag: "HSVA";
-  contents: [T, T, T, T];
+  contents: T[];
 }
 
-export interface IPt<T> {
-  tag: "Pt";
-  contents: [T, T];
+// SVG spec types
+export type ISubPath<T> = IValueV<T> | ICoordV<T>;
+
+export interface IPathCmd<T> {
+  cmd: string;
+  contents: ISubPath<T>[];
 }
 
-export interface ICubicBez<T> {
-  tag: "CubicBez";
-  contents: [[T, T], [T, T], [T, T]];
+export interface IValueV<T> {
+  tag: "ValueV";
+  contents: T[];
 }
 
-export interface ICubicBezJoin<T> {
-  tag: "CubicBezJoin";
-  contents: [[T, T], [T, T]];
-}
-
-export interface IQuadBez<T> {
-  tag: "QuadBez";
-  contents: [[T, T], [T, T]];
-}
-
-export interface IQuadBezJoin<T> {
-  tag: "QuadBezJoin";
-  contents: [T, T];
-}
-
-export interface IArc<T> {
-  tag: "Arc";
-  contents: [[T, T], [T, T, T], [T, T]];
+export interface ICoordV<T> {
+  tag: "CoordV";
+  contents: T[];
 }
