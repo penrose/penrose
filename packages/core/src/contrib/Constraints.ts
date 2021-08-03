@@ -442,7 +442,7 @@ export const constrDict = {
     // TODO: does not handle line-like objects, which are assumed to have no intersection area
     if (IntersectionArea.hasExactImpl(t1, t2)) {
       return add(
-        IntersectionArea.exact([t1, s1], [t2, s2]),
+        IntersectionArea.exact([t1, s1], [t2, s2]), // TODO remove: divide by min(area.exact([t1, s1]), area.exact([t2, s2])) - may need to multiply by a multiplicative factor - then penalty will be in [0,1] - might stop too soon
         ifCond(
           lt(constOfIf(padding), EPS0),
           constOf(0),

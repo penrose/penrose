@@ -1,7 +1,7 @@
 //#region Types for reverse-mode autodiff
 
 import { MaybeVal } from "./common";
-import { LbfgsParams } from "./state";
+import { LbfgsParams, OptStateInfo } from "./state";
 
 // ----- Core types
 
@@ -82,6 +82,7 @@ export interface IOptInfo {
   newLbfgsInfo: LbfgsParams;
   gradient: number[];
   gradientPreconditioned: number[];
+  optDebugInfo: OptStateInfo;
 }
 
 export type OptDebugInfo = IOptDebugInfo;

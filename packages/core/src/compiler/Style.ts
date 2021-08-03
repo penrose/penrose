@@ -1202,7 +1202,7 @@ const relMatchesLine = (
       // internal error
       throw Error(
         `Style variable ${
-          s2.id.contents.value
+        s2.id.contents.value
         } found in relational statement ${ppRel(s2)}. Should not be present!`
       );
     } else if (s2.id.tag === "SubVar") {
@@ -2914,6 +2914,7 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     oConfig: undefined as any,
     selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
+    optDebugInfo: {} as any,
 
     canvas: getCanvas(trans),
   };

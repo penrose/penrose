@@ -31,6 +31,7 @@ export interface IState {
   shapes: Shape[];
   varyingMap: VaryMap;
   canvas: Canvas;
+  optDebugInfo: OptStateInfo;
 }
 export type State = IState;
 
@@ -148,4 +149,18 @@ export interface IWeightInfo {
   epWeightNode: VarAD; // Changes (input in optimization, but we do NOT need the gradient WRT it)
   constrWeight: number;
   epWeight: number;
+}
+
+export type OptStateInfo = IOptDebugInfo;
+
+export interface IOptDebugInfo {
+  numSteps: number;
+  xs: number[];
+  energy: number;
+  grad: number[];
+  normGrad: number;
+  preconditionedGrad: number[];
+  preconditionedGradNorm: number;
+  lineSearchStepSize: number;
+  pathMap: [string, number, number, number][];
 }
