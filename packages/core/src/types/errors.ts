@@ -1,6 +1,7 @@
 //#region ErrorTypes
 import { ASTNode, Identifier, SourceLoc } from "./ast";
 import { TypeConstructor, Prop, TypeVar, Arg } from "./domain";
+import { State } from "./state";
 import { BindingForm, Path } from "./style";
 import { SubExpr, Deconstructor, TypeConsApp } from "./substance";
 
@@ -14,11 +15,16 @@ export type PenroseError =
   | (StyleError & { errorType: "StyleError" })
   | (RuntimeError & { errorType: "RuntimeError" });
 
-export type RuntimeError = RuntimeErrorWithContents;
+export type RuntimeError = RuntimeErrorWithContents | NaNError;
 
 export interface RuntimeErrorWithContents {
   tag: "RuntimeError";
   message: string;
+}
+export interface NaNError {
+  tag: "NaNError";
+  message: string;
+  lastState: State;
 }
 
 export type Warning = StyleError;

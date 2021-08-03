@@ -13,7 +13,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { Elem, SubPath, Value } from "types/value";
+import { IPathCmd, ISubPath, Value } from "types/value";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -36,7 +36,6 @@ import {
   IMatrixV,
   IPaletteV,
   IPathDataV,
-  IPolygonV,
   IPtListV,
   IPtV,
   ITrans,
@@ -71,29 +70,22 @@ export const runtimeValueTypeError = (
     actualType,
   };
 };
-
 // Generic utils for mapping over values
-
-export function mapTup2<T, S>(f: (arg: T) => S, t: [T, T]): [S, S] {
+export function mapTuple<T, S>(f: (arg: T) => S, t: T[]): S[] {
   // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
   // TODO: Should do null checks more systematically across the translation
-  if (t[0] === null || t[1] === null) {
-    return ([varOf(0.0), varOf(0.0)] as unknown) as [S, S];
-  }
+  return t.map((tup) => {
+    if (tup === null) {
+      return (varOf(0.0) as unknown) as S;
+    }
 
-  return [f(t[0]), f(t[1])];
+    return f(tup);
+  });
 }
-
-function mapTup3<T, S>(f: (arg: T) => S, t: [T, T, T]): [S, S, S] {
-  return [f(t[0]), f(t[1]), f(t[2])];
-}
-
-function mapTup4<T, S>(f: (arg: T) => S, t: [T, T, T, T]): [S, S, S, S] {
-  return [f(t[0]), f(t[1]), f(t[2]), f(t[3])];
-}
-
-function mapTup2LList<T, S>(f: (arg: T) => S, xss: [T, T][][]): [S, S][][] {
-  return xss.map((xs) => xs.map((t) => [f(t[0]), f(t[1])]));
+export function mapTupNested<T, S>(f: (arg: T) => S, t: T[][]): S[][] {
+  return t.map((tup) => {
+    return mapTuple(f, tup);
+  });
 }
 
 // Mapping over values
@@ -108,14 +100,14 @@ function mapFloat<T, S>(f: (arg: T) => S, v: IFloatV<T>): IFloatV<S> {
 function mapPt<T, S>(f: (arg: T) => S, v: IPtV<T>): IPtV<S> {
   return {
     tag: "PtV",
-    contents: mapTup2(f, v.contents) as [S, S],
+    contents: mapTuple(f, v.contents),
   };
 }
 
 function mapPtList<T, S>(f: (arg: T) => S, v: IPtListV<T>): IPtListV<S> {
   return {
     tag: "PtListV",
-    contents: v.contents.map((t) => mapTup2(f, t)),
+    contents: mapTupNested(f, v.contents),
   };
 }
 
@@ -136,7 +128,7 @@ function mapVector<T, S>(f: (arg: T) => S, v: IVectorV<T>): IVectorV<S> {
 function mapTup<T, S>(f: (arg: T) => S, v: ITupV<T>): ITupV<S> {
   return {
     tag: "TupV",
-    contents: mapTup2(f, v.contents),
+    contents: mapTuple(f, v.contents),
   };
 }
 
@@ -170,64 +162,23 @@ function mapHMatrix<T, S>(f: (arg: T) => S, v: IHMatrixV<T>): IHMatrixV<S> {
   };
 }
 
-function mapPolygon<T, S>(f: (arg: T) => S, v: IPolygonV<T>): IPolygonV<S> {
-  const xs0 = mapTup2LList(f, v.contents[0]);
-  const xs1 = mapTup2LList(f, v.contents[1]);
-  const xs2 = [mapTup2(f, v.contents[2][0]), mapTup2(f, v.contents[2][1])] as [
-    [S, S],
-    [S, S]
-  ];
-  const xs3 = v.contents[3].map((e) => mapTup2(f, e));
-
-  return {
-    tag: "PolygonV",
-    contents: [xs0, xs1, xs2, xs3],
-  };
-}
-
-function mapElem<T, S>(f: (arg: T) => S, e: Elem<T>): Elem<S> {
-  if (e.tag === "Pt" || e.tag === "QuadBezJoin") {
-    return {
-      tag: e.tag,
-      contents: mapTup2(f, e.contents),
-    };
-  } else if (e.tag === "CubicBezJoin" || e.tag === "QuadBez") {
-    return {
-      tag: e.tag,
-      contents: mapTup2((x) => mapTup2(f, x), e.contents),
-    };
-  } else if (e.tag === "CubicBez") {
-    return {
-      tag: e.tag,
-      contents: mapTup3((x) => mapTup2(f, x), e.contents),
-    };
-  } else if (e.tag === "Arc") {
-    const l: [[S, S], [S, S, S], [S, S]] = [
-      // TODO sad :(
-      mapTup2(f, e.contents[0]),
-      mapTup3(f, e.contents[1]),
-      mapTup2(f, e.contents[2]),
-    ];
-    return {
-      tag: e.tag,
-      contents: l,
-    };
-  } else {
-    throw Error("unknown tag in bezier curve type conversion");
-  }
-}
-
-function mapSubpath<T, S>(f: (arg: T) => S, s: SubPath<T>): SubPath<S> {
-  return {
-    tag: s.tag,
-    contents: s.contents.map((e) => mapElem(f, e)),
-  };
-}
-
+// convert all IVarADs to numbers for use in Shape def
 function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
   return {
     tag: "PathDataV",
-    contents: v.contents.map((e) => mapSubpath(f, e)),
+    contents: v.contents.map((pathCmd: IPathCmd<T>) => {
+      return {
+        cmd: pathCmd.cmd,
+        contents: pathCmd.contents.map(
+          (subCmd: ISubPath<T>): ISubPath<S> => {
+            return {
+              tag: subCmd.tag,
+              contents: mapTuple(f, subCmd.contents),
+            };
+          }
+        ),
+      };
+    }),
   };
 }
 
@@ -236,13 +187,13 @@ function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
     const rgb = v.contents;
     return {
       tag: "RGBA",
-      contents: mapTup4(f, rgb),
+      contents: mapTuple(f, rgb),
     };
   } else if (v.tag === "HSVA") {
     const hsv = v.contents;
     return {
       tag: "HSVA",
-      contents: mapTup4(f, hsv),
+      contents: mapTuple(f, hsv),
     };
   } else {
     throw Error("unexpected color tag");
@@ -296,8 +247,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     return mapLList(f, v);
   } else if (v.tag === "HMatrixV") {
     return mapHMatrix(f, v);
-  } else if (v.tag === "PolygonV") {
-    return mapPolygon(f, v);
   } else if (v.tag === "ColorV") {
     return mapColor(f, v);
   } else if (v.tag === "PaletteV") {
