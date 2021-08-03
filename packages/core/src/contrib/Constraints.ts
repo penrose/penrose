@@ -606,11 +606,6 @@ export const constrDict = {
     } else throw new Error(`${t} not supported for ptCircleIntersect`);
   },
 
-  ptLineIntersect: (p: VarAD[], [t, s]: [string, any]) => {
-    if (isLinelike(t)) {
-    } else throw new Error(`ptLineIntersect: ${t} is not Linelike`);
-  },
-
   /**
    * Require that label `s2` is at a distance of `offset` from a point-like shape `s1`.
    */

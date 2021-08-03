@@ -243,7 +243,7 @@ where s := PerpendicularBisector(s2, p)
 with Segment s2; Point p {
   override s.icon = Line {
     start : p.icon.center
-    end : midpoint(s2.icon)
+    end : midpoint(s2.icon.start, s2.icon.end)
     color : s.color
     thickness : const.strokeWidth
     stroke : "none"
@@ -266,7 +266,7 @@ with Segment s2; Point p {
 Segment s
 where s := PerpendicularBisectorLabelPts(s2, p1, p2)
 with Segment s2; Point p1, p2 {
-  override p2.vec = midpoint(s2.icon)
+  override p2.vec = midpoint(s2.icon.start, s2.icon.end)
   override s.icon = Line {
     start : p1.icon.center
     end : p2.vec
@@ -289,6 +289,7 @@ with Segment s2; Point p1, p2 {
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
 }
 
+-- NOTE: Get rid of repetition
 Linelike s, t 
 where EqualLengthMarker1(s, t) {
   override s.tick = Line {
@@ -311,6 +312,8 @@ where EqualLengthMarker1(s, t) {
   t.tick above t.icon
 }
 
+-- NOTE: Get rid of repetition
+-- TODO: equally space the tick marks along the segment instead of putting them on top of each other
 Linelike s, t 
 where EqualLengthMarker2(s, t) {
   --need slope of line, then need to equally distribute the tick marks
@@ -352,7 +355,7 @@ where EqualLengthMarker2(s, t) {
   t.tick2 above t.icon
 }
 
--- TODO
+-- NOTE: Get rid of repetition
 Linelike s, t 
 where EqualLengthMarker3(s, t) {
   --need slope of line, then need to equally distribute the tick marks
@@ -440,6 +443,7 @@ with Point p; Point q; Point r {
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
 }
 
+-- NOTE: Get rid of repetition
 Angle a, b
 where EqualAngleMarker1(a, b) {
   --find points from p->q, then q->r for each vector. draw vectors for each
@@ -465,6 +469,7 @@ where EqualAngleMarker1(a, b) {
  }
 }
 
+-- NOTE: Get rid of repetition
 Angle a, b
 where EqualAngleMarker2(a, b) {
   startA = ptOnLine(a.q, a.p, a.radius)
@@ -507,8 +512,9 @@ where EqualAngleMarker2(a, b) {
     color : Colors.black
     fill: Colors.none
  }
-
 }
+
+-- NOTE: Get rid of repetition
 Angle a, b
 where EqualAngleMarker3(a, b) {
   startA = ptOnLine(a.q, a.p, a.radius)
@@ -707,7 +713,7 @@ with Triangle T {
   }
   override T.icon = Line {
     start : T.PQ.start
-    end : midpoint(T.QR)
+    end : midpoint(T.QR.start, T.QR.end)
     color : clr
     thickness : const.strokeWidth
     stroke : "none"
@@ -715,7 +721,7 @@ with Triangle T {
   }
   override T.line2 = Line {
     start : T.QR.start
-    end : midpoint(T.RP)
+    end : midpoint(T.RP.start, T.RP.end)
     color : clr
     thickness : const.strokeWidth
     stroke : "none"
@@ -723,7 +729,7 @@ with Triangle T {
   }
   override T.icon3 = Line {
     start : T.RP.start
-    end : midpoint(T.PQ)
+    end : midpoint(T.PQ.start, T.PQ.end)
     color : clr
     thickness : const.strokeWidth
     stroke : "none"
@@ -871,8 +877,8 @@ where Parallelogram(Q) {
 Segment s
 where s := MidSegment(T, p, q)
 with Triangle T; Point p; Point q {
-  override p.vec = midpoint(T.PQ)
-  override q.vec = midpoint(T.RP)
+  override p.vec = midpoint(T.PQ.start, T.PQ.end)
+  override q.vec = midpoint(T.RP.start, T.RP.end)
   override s.icon = Line {
     start : p.icon.center
     end : q.icon.center
@@ -886,13 +892,13 @@ with Triangle T; Point p; Point q {
 Point p
 where p := MkMidpoint(l)
 with Linelike l {
-  override p.vec = midpoint(l.icon)
+  override p.vec = midpoint(l.icon.start, l.icon.end)
 }
 
 Point p
 where Midpoint(l, p)
 with Linelike l {
-  override p.vec = midpoint(l.icon)
+  override p.vec = midpoint(l.icon.start, l.icon.end)
 }
 
 -- TODO sometimes bisector becomes a scaled version of either side length PQ or QR of angle PQR
