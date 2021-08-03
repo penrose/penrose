@@ -110,7 +110,7 @@ const singleProcess = async (
     });
   } else {
     // if not staged, we just need one canvas data (for the final diagram)
-    canvas = RenderStatic(optimizedState).outerHTML;
+    canvas = optimizedState.canvas;
   }
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
