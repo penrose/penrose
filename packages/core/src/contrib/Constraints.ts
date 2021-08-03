@@ -433,6 +433,28 @@ export const constrDict = {
     }
   },
 
+  disjointOld: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    padding = 0,
+  ) => {
+    if (isRectlike(t1) && isRectlike(t2)) {
+      // Assuming AABB (they are axis-aligned [bounding] boxes)
+      const box1 = bboxFromShape(t1, s1);
+      const box2 = bboxFromShape(t2, s2);
+      const inflatedBox1 = BBox.inflate(box1, constOfIf(padding));
+
+      const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
+      const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
+
+      // Push away in both X and Y directions, and account for padding
+      return mul(overlapX, overlapY);
+    } else {
+      // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
+      throw new Error(`${[t1, t2]} not supported for disjoint`);
+    }
+  },
+
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],

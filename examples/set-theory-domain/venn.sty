@@ -1,3 +1,7 @@
+-- TODO: Choice between `disjoint` (query impl) and `disjointOld` (area overlap using overlap1D)
+-- `disjointOld` works on the NaN one but causes the first one to basically NaN and some of the objectives to be unsatisfied elsewhere
+-- Also choice of padding - without padding, the 1st one NaNs but the 2nd one doesn't
+
 canvas {
   width = 800
   height = 700
@@ -22,15 +26,15 @@ forall Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
 
-    ensure disjoint(y.text, x.icon, 30.0)
+      -- TODO: Revert
+    -- ensure disjoint(y.text, x.icon, 30.0)
+    ensure disjoint(y.text, x.icon, 0.0)
+
     ensure subset(x.icon, y.icon)
     -- ensure disjoint(y.text, x.icon)
     -- ensure contains(y.icon, x.icon)
     x.icon above y.icon
 }
-
--- TODO: Fix that the resample hack breaks on switching examples since it saves the cached functions...
--- TOOD: Also breaks if you resample without generating the function on first sample. Clearly this should be part of the state
 
 ---
 
