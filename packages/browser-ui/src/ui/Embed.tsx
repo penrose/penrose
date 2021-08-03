@@ -89,7 +89,7 @@ class Embed extends React.Component<any, IEmbedState> {
             <div
               style={{ width: "100%", height: "100%" }}
               dangerouslySetInnerHTML={{
-                __html: RenderStatic(data.shapes, data.labelCache).outerHTML,
+                __html: RenderStatic(data.shapes).outerHTML,
               }}
             />
           )}

@@ -3,11 +3,11 @@ import {
   compileTrio,
   evalEnergy,
   prepareState,
-  RenderStatic,
   showError,
   stepUntilConvergence,
   PenroseState,
   getListOfStagedStates,
+  RenderStatic,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 
@@ -96,7 +96,11 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState, 10000);
+  // TODO: report runtime errors
+  const optimizedState = stepUntilConvergence(
+    initialState,
+    10000
+  ).unsafelyUnwrap();
   const convergeEnd = process.hrtime(convergeStart);
 
   const reactRenderStart = process.hrtime();
