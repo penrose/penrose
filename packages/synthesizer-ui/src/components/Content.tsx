@@ -9,6 +9,8 @@ import {
 } from "@penrose/core";
 import { Grid } from "./Grid";
 import { Header } from "./Header";
+import { Settings } from "./Settings";
+import styled from "styled-components";
 
 export type ContentProps = any;
 
@@ -22,6 +24,7 @@ export interface ContentState {
   progs: SynthesizedSubstance[];
   style: string;
   domain: string;
+  template: string;
 }
 
 const defaultSetting: SynthesizerSetting = {
@@ -53,6 +56,13 @@ const defaultSetting: SynthesizerSetting = {
   },
 };
 
+const ContentSection = styled.section`
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: auto;
+`;
+
 export class Content extends React.Component<ContentProps, ContentState> {
   constructor(props: ContentProps) {
     super(props);
@@ -61,6 +71,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       progs: [],
       style: "",
       domain: "",
+      template: "",
     };
   }
 
@@ -77,8 +88,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
     if (envOrError.isOk()) {
       const env = envOrError.value;
       let subResult;
-      if (this.props.substance.length > 0) {
-        const subRes = compileSubstance(this.props.substance, env);
+      if (this.state.template.length > 0) {
+        const subRes = compileSubstance(this.state.template, env);
         if (subRes.isOk()) {
           subResult = subRes.value;
         } else {
@@ -106,11 +117,14 @@ export class Content extends React.Component<ContentProps, ContentState> {
     return (
       <div>
         <Header />
-        <Grid
-          style={this.state.style}
-          domain={this.state.domain}
-          progs={this.state.progs}
-        />
+        <ContentSection>
+          <Settings />
+          <Grid
+            style={this.state.style}
+            domain={this.state.domain}
+            progs={this.state.progs}
+          />
+        </ContentSection>
       </div>
     );
   }

@@ -1,12 +1,22 @@
 import React from "react";
 import { SynthesizedSubstance } from "./Content";
 import { Gridbox } from "./Gridbox";
+import styled from "styled-components";
 
 export interface GridProps {
   style: any;
   domain: any;
   progs: SynthesizedSubstance[];
 }
+
+const Section = styled.section`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-right: 2rem;
+  background-color: green;
+  height: auto;
+`;
 
 export class Grid extends React.Component<GridProps> {
   constructor(props: GridProps) {
@@ -16,8 +26,9 @@ export class Grid extends React.Component<GridProps> {
   updateGrid = () => {};
 
   render() {
+    console.log("making grid", this.props.progs);
     return (
-      <div className="-m-2 flex flex-wrap">
+      <Section>
         {this.props.progs.map((s) => (
           <Gridbox
             substance={s}
@@ -25,7 +36,7 @@ export class Grid extends React.Component<GridProps> {
             style={this.props.style}
           />
         ))}
-      </div>
+      </Section>
     );
   }
 }

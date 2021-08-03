@@ -5,12 +5,20 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import { SynthesizedSubstance } from "./Content";
+import styled from "styled-components";
 
 export interface GridboxProps {
   substance: SynthesizedSubstance;
   domain: string;
   style: string;
 }
+
+const Section = styled.section`
+  margin: 2rem;
+  width: 10rem;
+  height: 10rem;
+  background: blue;
+`;
 
 const generateImg = async (sub: string, dsl: string, sty: string) => {
   const res = compileTrio(dsl, sub, sty);
@@ -30,5 +38,5 @@ const generateImg = async (sub: string, dsl: string, sty: string) => {
 
 export function Gridbox(props: GridboxProps) {
   const img = generateImg(props.substance.prog, props.domain, props.style);
-  return <div className="m-2">{img}</div>;
+  return <Section>{img}</Section>;
 }
