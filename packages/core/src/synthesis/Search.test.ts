@@ -1,4 +1,5 @@
 import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
+import { Set } from "immutable";
 import {
   compileDomain,
   compileSubstance,
@@ -11,11 +12,18 @@ import { applyDiff, rdiffResult } from "recursive-diff";
 import seedrandom from "seedrandom";
 import {
   DeclTypes,
+  initContext,
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
 } from "synthesis/Synthesizer";
 import { SubProg, SubRes } from "types/substance";
+import {
+  enumerateMutations,
+  executeMutation,
+  showMutation,
+  showMutations,
+} from "./Mutation";
 import {
   applyStmtDiffs,
   DiffSet,
@@ -258,5 +266,42 @@ describe("Synthesizer tests", () => {
     // ...but the ASTs are actually the same, which can be shown by checking the trees
     expect(prettySubstance(ast2From1)).toEqual(prettySubstance(ast2));
     expect(prettySubstance(ast2From1)).not.toEqual(prettySubstance(ast1));
+  });
+});
+
+describe("Mutation recognition tests", () => {
+  test("recognizing swap mutation", () => {
+    const prog1 = `
+    Set A, B, C
+    IsSubset(A,B)
+    IsSubset(C, A)
+    `;
+    const prog2 = `
+    Set A, B, C
+    IsSubset(C,A)
+    IsSubset(B, A)
+    `;
+    const [subEnv, env] = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = subEnv.ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
+    expect(diffs).toHaveLength(2);
+    // console.log(diffs.map(showStmtDiff));
+    const fromSet = Set(diffs.map((d) => d.stmt)).toArray();
+    expect(fromSet).toHaveLength(1);
+    const swappedPred = fromSet[0];
+    const mutations = enumerateMutations(swappedPred, env);
+    console.log(showMutations(mutations));
+    const ctx = initContext(env);
+    const matchedMutations = mutations.filter((m) => {
+      const { res: mutatedAST } = executeMutation(m, ast1, ctx);
+      return (
+        prettySubstance(sortStmts(ast2)) ===
+        prettySubstance(sortStmts(mutatedAST))
+      );
+    });
+    expect(matchedMutations).toHaveLength(1);
+    expect(matchedMutations[0].tag).toEqual("SwapStmtArgs");
+    console.log(showMutation(matchedMutations[0]));
   });
 });

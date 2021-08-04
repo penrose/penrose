@@ -8,7 +8,7 @@ import {
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
-import { Env, resample } from "index";
+import { Env } from "index";
 import { range, without } from "lodash";
 import {
   ApplyPredicate,
@@ -440,16 +440,6 @@ const pairs = <T>(list: T[]): [T, T][] => {
   return res;
 };
 
-export const enumerateMutations = (stmt: SubStmt, env: Env): Mutation[] => {
-  const mutationFns = [
-    enumReplaceExprName,
-    enumReplaceStmtName,
-    enumSwapExprArgs,
-    enumSwapStmtArgs,
-  ];
-  return mutationFns.map((fn) => fn(stmt, env)).flat();
-};
-
 export const enumSwapStmtArgs = (stmt: SubStmt, env: Env): SwapStmtArgs[] => {
   if (stmt.tag === "ApplyPredicate" && stmt.args.length > 1) {
     const indexPairs: [number, number][] = pairs(range(0, stmt.args.length));
@@ -570,4 +560,16 @@ export const enumReplaceExprName = (
     } else return [];
   } else return [];
 };
+
+type MutationEnumerator = (stmt: SubStmt, env: Env) => Mutation[];
+
+export const mutationEnumerators: MutationEnumerator[] = [
+  enumReplaceExprName,
+  enumReplaceStmtName,
+  enumSwapExprArgs,
+  enumSwapStmtArgs,
+];
+
+export const enumerateMutations = (stmt: SubStmt, env: Env): Mutation[] =>
+  mutationEnumerators.map((fn) => fn(stmt, env)).flat();
 //#endregion
