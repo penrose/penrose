@@ -1,7 +1,7 @@
--- type Set
+type Set
 type Point
 
--- type Linelike
+type Linelike
 -- type Ray
 -- type Line
 type Segment
@@ -9,9 +9,9 @@ type Segment
 type Angle
 
 type Triangle
--- type Square
+type Square
 type Rectangle
--- type Circle
+type Circle
 
 type Plane
 
@@ -20,15 +20,15 @@ type Plane
 -- Subtypes. Should Linelike be a typeclass?
 -- Ray <: Linelike
 -- Line <: Linelike
--- Segment <: Linelike
+Segment <: Linelike
 -- Square <: Rectangle
 
 -- Point <: Set
 -- Linelike <: Set
--- Triangle <: Set
--- Square <: Set
+Triangle <: Set
+Square <: Set
 -- -- Rectangle <: Set
--- Circle <: Set
+Circle <: Set
 
 -- TODO: optional naming for constructors
 
@@ -46,7 +46,7 @@ constructor MkTriangle : Point p * Point q * Point r -> Triangle
 -- constructor MkCircleR : Point center * Point radius -> Circle
 -- constructor MkCircleD : Point diam1 * Point diam2 -> Circle
 -- constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
--- constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
+constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 
 -- -- TODO: subtyping on the return types
@@ -55,22 +55,22 @@ constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 -- function PerpendicularBisector : Linelike -> Ray
 -- function Sum : Angle * Angle -> Angle
 -- function Intersection : Linelike * Linelike -> Point
--- function Altitude : Triangle * Angle -> Segment
--- function Endpoint : Segment -> Point
+function Altitude : Triangle * Angle -> Segment
+function Endpoint : Segment -> Point
 
 -- predicate Acute : Angle
 -- predicate Obtuse : Angle
 predicate Right : Angle
--- predicate On : Point * Linelike
+predicate On : Point * Linelike
 predicate In : Point * Plane
 predicate Not : Prop
 -- predicate Parallel : Linelike * Linelike
--- predicate Perpendicular : Linelike * Linelike
+predicate Perpendicular : Linelike * Linelike
 -- predicate EquilateralT : Triangle
 -- predicate RightT : Triangle
 -- predicate Scalene : Triangle
 -- predicate Similar : Triangle * Triangle
--- predicate Disjoint : Set * Set
+predicate Disjoint : Set * Set
 predicate Collinear : Point * Point * Point
 
 -- notation "{p, q}" ~ "MkSegment(p, q)"
