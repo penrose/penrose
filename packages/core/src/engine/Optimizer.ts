@@ -53,7 +53,6 @@ import {
   scalev,
   subv,
 } from "utils/OtherUtils";
-import { colorUninitShapes, colorUninitText } from "renderer/Color";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
@@ -376,9 +375,6 @@ export const step = (state: State, steps: number, evaluate = true): State => {
 
     newState.varyingValues = varyingValues;
     newState = evalShapes(newState);
-
-    // color assignment
-    newState = colorUninitText(colorUninitShapes(newState));
   }
 
   return newState;

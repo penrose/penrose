@@ -36,10 +36,9 @@ export type Ajlist = number[][];
  * Given a state, returns a new state where shapes w/ uninitialized colors
  * have been colored according to K-Nearest Neighbors
  */
-export const colorUninitShapes = (state: State): State => {
+export const colorUninitShapes = (state: State, paletteName?: string): State => {
   // invariant for running shape & text color assignment in the correct order
-  state.params.shapeColorsInitialized = true;
-  console.log("hi");
+  state.params.shapeColorsInitialized = true; // get rid of this
   // get the fn that checks if a shape has an uninitialized color
   const hasUninitializedColor = getUninitializedColorCheckerFn(state);
 
@@ -52,7 +51,7 @@ export const colorUninitShapes = (state: State): State => {
   return getNewlyColoredState(
     state,
     isUninitializedColorShape,
-    getColorMap(),
+    getColorMap(paletteName),
     0.5
   );
 };
@@ -411,7 +410,7 @@ const supportedShapes: string[] = [
 /**
  * Valid colormap names (supported by the 'colormap' module)
  */
-const validColorMapNames: string[] = [
+export const validColorMapNames: string[] = [
   "jet",
   "hsv",
   "hot",
@@ -439,7 +438,6 @@ const validColorMapNames: string[] = [
   "magma",
   "plasma",
   "warm",
-  "cool",
   "rainbow-soft",
   "bathymetry",
   "cdom",
@@ -456,12 +454,15 @@ const validColorMapNames: string[] = [
   "velocity-blue",
   "velocity-green",
   "cubehelix",
+  /* these are also valid colormap module names, but since
+  *  the alphas are handled separately here, don't use them
   "jet with transparency",
   "hsv with transparency",
   "hot with transparency",
   "cool with transparency",
   "spring with transparency",
   "summer with transparency",
+  */
 ];
 
 /**

@@ -33,6 +33,7 @@ import {
 import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
 import { getListOfStagedStates } from "renderer/Staging";
+import { colorUninitShapes, colorUninitText, validColorMapNames } from "renderer/Color";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -70,6 +71,7 @@ export const stepUntilConvergence = (
   ) {
     currentState = step(currentState, numSteps, true);
   }
+  // currentState = colorUninitText(colorUninitShapes(currentState, 'viridis'))
   if (currentState.params.optStatus === "Error") {
     return err({
       errorType: "RuntimeError",
@@ -333,6 +335,9 @@ export {
   prettyPrintExpr,
   ops,
   getListOfStagedStates,
+  colorUninitShapes, 
+  colorUninitText,
+  validColorMapNames
 };
 export type { PenroseError } from "./types/errors";
 export type { Registry, Trio };
