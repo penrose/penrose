@@ -9,6 +9,7 @@ import {
   Synthesizer,
   SubProg,
   SynthesizerSetting,
+  SynthesizedSubstance,
 } from "@penrose/core";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
@@ -57,10 +58,16 @@ export const defaultSetting: SynthesizerSetting = {
     predicate: ["IsSubset"],
     // predicate: [],
   },
+  edit: {
+    type: [],
+    function: [],
+    constructor: [],
+    predicate: [],
+  },
 };
 
 const writePrograms = (
-  progs: SubProg[],
+  progs: SynthesizedSubstance[],
   domainSrc: string,
   prefix: string,
   styleSrc?: string,

@@ -1,5 +1,4 @@
 Set A, B, C, D, E, F, G
-Point H
 
 IsSubset(B, A)
 IsSubset(C, A)
