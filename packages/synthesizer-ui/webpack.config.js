@@ -3,6 +3,9 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
 module.exports = {
+  alias: {
+    "styled-components": path.resolve("./node_modules/styled-components"),
+  },
   entry: "./src/module.ts",
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],

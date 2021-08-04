@@ -8,6 +8,7 @@ const Section = styled.section`
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
+  border-bottom: 1px solid gray;
 `;
 
 const BtnContainer = styled.section`
@@ -19,37 +20,48 @@ const BtnContainer = styled.section`
 
 const H1 = styled.h1``;
 
-const Button = styled.button`
+const Btn = styled.button`
   display: inline-block;
   color: gray;
   font-size: 1rem;
   margin: 1rem;
+  width: 4.5rem;
+  height: 2rem;
   padding: 0.25rem 1rem;
   border: 2px solid gray;
-  border-radius: 0.5rem;
-  display: block;
+  border-radius: 0.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
-const ExportButton = styled(Button)`
+const ExportBtn = styled(Btn)`
   background-color: purple;
   border: none;
   color: white;
 `;
-export function Header() {
-  return (
-    <Section>
-      <div className="flex-1 min-w-0">
-        <H1>Edgeworth</H1>
-      </div>
-      <BtnContainer>
-        <span className="hidden sm:block">
-          <ExportButton>Export</ExportButton>
-        </span>
 
-        <span className="sm:ml-3">
-          <Button>Refresh</Button>
-        </span>
-      </BtnContainer>
-    </Section>
-  );
+export interface HeaderProps {
+  update: () => {};
+}
+
+export class Header extends React.Component<HeaderProps> {
+  constructor(props: HeaderProps) {
+    super(props);
+  }
+
+  onClick() {
+    this.props.update();
+  }
+
+  render() {
+    return (
+      <Section>
+        <H1>Edgeworth</H1>
+        <BtnContainer>
+          <ExportBtn>Export</ExportBtn>
+        </BtnContainer>
+      </Section>
+    );
+  }
 }

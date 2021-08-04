@@ -2,6 +2,7 @@ import React from "react";
 import { SynthesizedSubstance } from "./Content";
 import { Gridbox } from "./Gridbox";
 import styled from "styled-components";
+import { prettySubstance } from "@penrose/core";
 
 export interface GridProps {
   style: any;
@@ -12,10 +13,11 @@ export interface GridProps {
 const Section = styled.section`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: flex-start;
-  margin-right: 2rem;
-  background-color: green;
-  height: auto;
+  height: 100%;
+  width: 100%;
+  margin-left: 1rem;
 `;
 
 export class Grid extends React.Component<GridProps> {
@@ -27,16 +29,14 @@ export class Grid extends React.Component<GridProps> {
 
   render() {
     console.log("making grid", this.props.progs);
-    return (
-      <Section>
-        {this.props.progs.map((s) => (
-          <Gridbox
-            substance={s}
-            domain={this.props.domain}
-            style={this.props.style}
-          />
-        ))}
-      </Section>
-    );
+    const boxes = this.props.progs.map((s, i) => (
+      <Gridbox
+        substance={prettySubstance(s.prog)}
+        key={`grid-${i}`}
+        domain={this.props.domain}
+        style={this.props.style}
+      />
+    ));
+    return <Section>{boxes}</Section>;
   }
 }

@@ -8,8 +8,7 @@ import {
   SynthesizerSetting,
 } from "@penrose/core";
 import { Grid } from "./Grid";
-import { Header } from "./Header";
-import { Settings } from "./Settings";
+import { defaultSetting, Settings } from "./Settings";
 import styled from "styled-components";
 
 export type ContentProps = any;
@@ -22,39 +21,9 @@ export interface SynthesizedSubstance {
 export interface ContentState {
   setting: SynthesizerSetting;
   progs: SynthesizedSubstance[];
-  style: string;
-  domain: string;
-  template: string;
+  // style: string;
+  // domain: string;
 }
-
-const defaultSetting: SynthesizerSetting = {
-  mutationCount: [1, 4],
-  argOption: "existing",
-  argReuse: "distinct",
-  weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.2,
-  },
-  add: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: ["Equal"],
-  },
-  delete: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: ["IsSubset"],
-  },
-  edit: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: ["IsSubset"],
-  },
-};
 
 const ContentSection = styled.section`
   display: flex;
@@ -63,33 +32,80 @@ const ContentSection = styled.section`
   height: auto;
 `;
 
+const Header = styled.section`
+  display: flex;
+  flex-direction: row;
+  width: calc(100%-2rem);
+  justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-bottom: 1px solid gray;
+`;
+
+const H1 = styled.h1``;
+
+const Btn = styled.button`
+  display: inline-block;
+  color: gray;
+  font-size: 1rem;
+  margin: 1rem;
+  width: 4.5rem;
+  height: 2rem;
+  padding: 0.25rem 1rem;
+  border: 2px solid gray;
+  border-radius: 0.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ExportBtn = styled(Btn)`
+  background-color: purple;
+  border: none;
+  color: white;
+`;
+
 export class Content extends React.Component<ContentProps, ContentState> {
+  private domain: string;
+  private style: string;
   constructor(props: ContentProps) {
     super(props);
     this.state = {
       setting: defaultSetting,
       progs: [],
-      style: "",
-      domain: "",
-      template: "",
     };
+    this.domain = "";
+    this.style = "";
   }
 
-  updateSettings = (newSetting: SynthesizerSetting) => {
+  componentDidMount() {
+    fetch("public/files/geometry.txt")
+      .then((r) => r.text())
+      .then((text) => {
+        this.domain = text;
+      });
+    fetch("public/files/euclidean.txt")
+      .then((r) => r.text())
+      .then((text) => {
+        this.style = text;
+      });
+  }
+
+  updateSettings = () => (newSetting: SynthesizerSetting) => {
     this.setState({
       setting: newSetting,
     });
   };
 
-  generateProgs = () => {
-    const envOrError = compileDomain(this.state.domain);
+  generateProgs = () => (prompt: string) => {
+    const envOrError = compileDomain(this.domain);
 
     // initialize synthesizer
     if (envOrError.isOk()) {
       const env = envOrError.value;
       let subResult;
-      if (this.state.template.length > 0) {
-        const subRes = compileSubstance(this.state.template, env);
+      if (prompt.length > 0) {
+        const subRes = compileSubstance(prompt, env);
         if (subRes.isOk()) {
           subResult = subRes.value;
         } else {
@@ -100,28 +116,31 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-
-      const synth = new Synthesizer(env, this.props.settings, subResult);
+      const synth = new Synthesizer(env, this.state.setting, subResult);
       let progs = synth.generateSubstances(this.state.setting.numPrograms);
       const template: SubProg | undefined = synth.getTemplate();
-
       if (template) {
-        progs = [{ prog: template }, ...progs];
+        this.setState({ progs: [{ prog: template }, ...progs] });
       }
-      this.setState({ progs });
     }
-    this.setState({ progs: [] });
   };
 
   render() {
+    console.log("re-rendering content", this.state.progs.length);
     return (
       <div>
-        <Header />
+        <Header>
+          <H1>Edgeworth</H1>
+          <ExportBtn>Export</ExportBtn>
+        </Header>
         <ContentSection>
-          <Settings />
+          <Settings
+            updateSettings={this.updateSettings}
+            generateCallback={this.generateProgs()}
+          />
           <Grid
-            style={this.state.style}
-            domain={this.state.domain}
+            style={this.style}
+            domain={this.domain}
             progs={this.state.progs}
           />
         </ContentSection>
