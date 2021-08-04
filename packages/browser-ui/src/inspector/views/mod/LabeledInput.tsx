@@ -1,12 +1,12 @@
 import * as React from "react";
 import { round, cloneDeep } from "lodash";
-import { Canvas, ShapeTypes, toHex } from "@penrose/core";
+import { Canvas, Value, toHex } from "@penrose/core";
 
 interface IProps {
   inputProps: IInputProps;
   eAttr: string;
-  eValue: ShapeTypes.Value<any>; // is this the best typing?
-  modAttr(attrname: string, attrval: ShapeTypes.Value<any>): void;
+  eValue: Value.Value<any>; // is this the best typing?
+  modAttr(attrname: string, attrval: Value.Value<any>): void;
   canvas: Canvas;
 }
 
@@ -72,9 +72,9 @@ class LabeledInput extends React.Component<IProps> {
     evalue:
       | string
       | number
-      | ShapeTypes.Color<number>
+      | Value.Color<number>
       | boolean
-      | ShapeTypes.ISubPath<number>[]
+      | Value.ISubPath<number>[]
   ) => {
     const newstate = {
       eValue: {
@@ -83,7 +83,7 @@ class LabeledInput extends React.Component<IProps> {
       },
     };
     this.setState(newstate); // will update span values - could be phased out if spans are set manually
-    this.props.modAttr(id, newstate.eValue as ShapeTypes.Value<any>);
+    this.props.modAttr(id, newstate.eValue as Value.Value<any>);
   };
   public handleChange = (
     eattr: string,
@@ -216,88 +216,86 @@ class LabeledInput extends React.Component<IProps> {
     // todo - refactor the whole file so you can call makerange() and makelabel() with params
     return (
       <React.Fragment>
-        {subpaths.map((subpath: ShapeTypes.IPathCmd<number>, index: number) => {
+        {subpaths.map((subpath: Value.IPathCmd<number>, index: number) => {
           const ptarray = subpath.contents;
           // note - prob will crash on bezier stuff
           return (
             <React.Fragment key={"S" + index}>
-              {ptarray.map(
-                (pt: ShapeTypes.ISubPath<number>, subindex: number) => {
-                  // todo clean up following lines
-                  const xid = [
-                    "S",
-                    index.toString(),
-                    "x",
-                    subindex.toString(),
-                    eAttr,
-                  ].join("_");
-                  const xltxt =
-                    "S" + index.toString() + "x" + subindex.toString();
-                  const xspan = round(
-                    this.state.eValue.contents[index].contents[subindex]
-                      .contents[0]
-                  ).toString();
-                  const yspan = round(
-                    this.state.eValue.contents[index].contents[subindex]
-                      .contents[1]
-                  ).toString();
-                  const yid = [
-                    "S",
-                    index.toString(),
-                    "y",
-                    subindex.toString(),
-                    eAttr,
-                  ].join("_");
-                  const yltxt =
-                    "S" + index.toString() + "y" + subindex.toString();
-                  return (
-                    <React.Fragment key={"S" + index + "pt" + subindex}>
-                      <div
-                        style={{ display: "inline-block" }}
-                        className="sublabinput"
-                      >
-                        <input
-                          id={xid}
-                          type="range"
-                          onChange={(e) =>
-                            this.handleMulPtRange(eAttr, index, subindex, 0, e)
-                          }
-                          min={toCanvas(inputProps.minX!, canvas)}
-                          max={toCanvas(inputProps.maxX!, canvas)}
-                          value={round(pt.contents[0] as number)}
-                        />
-                        {this.makeSubLabel(
-                          xid,
-                          xspan,
-                          xltxt,
-                          inputProps.showValue === "true"
-                        )}
-                      </div>
-                      <div
-                        className="sublabinput"
-                        style={{ display: "inline-block" }}
-                      >
-                        <input
-                          id={yid}
-                          type="range"
-                          onChange={(e) =>
-                            this.handleMulPtRange(eAttr, index, subindex, 1, e)
-                          }
-                          min={toCanvas(inputProps.minY!, canvas)}
-                          max={toCanvas(inputProps.maxY!, canvas)}
-                          value={round(pt.contents[1] as number)}
-                        />
-                        {this.makeSubLabel(
-                          yid,
-                          yspan,
-                          yltxt,
-                          inputProps.showValue === "true"
-                        )}
-                      </div>
-                    </React.Fragment>
-                  );
-                }
-              )}{" "}
+              {ptarray.map((pt: Value.ISubPath<number>, subindex: number) => {
+                // todo clean up following lines
+                const xid = [
+                  "S",
+                  index.toString(),
+                  "x",
+                  subindex.toString(),
+                  eAttr,
+                ].join("_");
+                const xltxt =
+                  "S" + index.toString() + "x" + subindex.toString();
+                const xspan = round(
+                  this.state.eValue.contents[index].contents[subindex]
+                    .contents[0]
+                ).toString();
+                const yspan = round(
+                  this.state.eValue.contents[index].contents[subindex]
+                    .contents[1]
+                ).toString();
+                const yid = [
+                  "S",
+                  index.toString(),
+                  "y",
+                  subindex.toString(),
+                  eAttr,
+                ].join("_");
+                const yltxt =
+                  "S" + index.toString() + "y" + subindex.toString();
+                return (
+                  <React.Fragment key={"S" + index + "pt" + subindex}>
+                    <div
+                      style={{ display: "inline-block" }}
+                      className="sublabinput"
+                    >
+                      <input
+                        id={xid}
+                        type="range"
+                        onChange={(e) =>
+                          this.handleMulPtRange(eAttr, index, subindex, 0, e)
+                        }
+                        min={toCanvas(inputProps.minX!, canvas)}
+                        max={toCanvas(inputProps.maxX!, canvas)}
+                        value={round(pt.contents[0] as number)}
+                      />
+                      {this.makeSubLabel(
+                        xid,
+                        xspan,
+                        xltxt,
+                        inputProps.showValue === "true"
+                      )}
+                    </div>
+                    <div
+                      className="sublabinput"
+                      style={{ display: "inline-block" }}
+                    >
+                      <input
+                        id={yid}
+                        type="range"
+                        onChange={(e) =>
+                          this.handleMulPtRange(eAttr, index, subindex, 1, e)
+                        }
+                        min={toCanvas(inputProps.minY!, canvas)}
+                        max={toCanvas(inputProps.maxY!, canvas)}
+                        value={round(pt.contents[1] as number)}
+                      />
+                      {this.makeSubLabel(
+                        yid,
+                        yspan,
+                        yltxt,
+                        inputProps.showValue === "true"
+                      )}
+                    </div>
+                  </React.Fragment>
+                );
+              })}{" "}
             </React.Fragment>
           );
         })}
