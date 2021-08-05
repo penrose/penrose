@@ -150,3 +150,30 @@ export interface IWeightInfo {
   constrWeight: number;
   epWeight: number;
 }
+
+export type OptimizerHyperparams = IOptimizerHyperparams;
+
+export interface IOptimizerHyperparams {
+  // growth factor for constraint weights
+  weightGrowthFactor: number;
+  // HACK: constant constraint weight
+  constraintWeight: number;
+  // EP method convergence criteria
+  epStop: number;
+  // Unconstrained method convergence criteria
+  uoStop: number;
+  // TODO: Add description
+  EPSD: number;
+  // Line search related hyperparameters
+  lineSearch: LineSearchHyperparams;
+}
+
+export type LineSearchHyperparams = ILineSearchHyperparams;
+
+export interface ILineSearchHyperparams {
+  maxSteps: number;
+  minInterval: number;
+  c1: number; // Armijo
+  c2: number; // Wolfe
+  t: number;
+}

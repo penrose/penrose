@@ -39,6 +39,8 @@ import {
   State,
   VaryMap,
   WeightInfo,
+  OptimizerHyperparams,
+  LineSearchHyperparams,
 } from "types/state";
 import { Path } from "types/style";
 import {
@@ -67,35 +69,51 @@ const clone = rfdc({ proto: false, circles: false });
 // Printing flags
 // const DEBUG_OPT = false;
 
-// growth factor for constraint weights
-const weightGrowthFactor = 10;
-
-// weight for constraints
-const constraintWeight = 10e4; // HACK: constant constraint weight
-// const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
-
-// EP method convergence criteria
-const epStop = 1e-3;
-// const epStop = 1e-5;
-// const epStop = 1e-7;
-
-const EPSD = 1e-11;
-
-// Unconstrained method convergence criteria
-// TODO. This should REALLY be 10e-10
-// NOTE: The new autodiff + line search seems to be really sensitive to this parameter (`uoStop`). It works for 1e-2, but the line search ends up with too-small intervals with 1e-5
-const uoStop = 1e-2;
-// const uoStop = 1e-3;
-// const uoStop = 1e-5;
-// const uoStop = 10;
-
 // const DEBUG_GRAD_DESCENT = true;
 const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
 
-const EPS = uoStop;
+const DEFAULT_LINESEARCH_HYPERPARAMS: LineSearchHyperparams = {
+  // Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might
+  maxSteps: 10,
+  minInterval: 10e-10,
+  c1: 0.001, // Armijo
+  c2: 0.9, // Wolfe
+
+  // t: 0.002, // for venn_simple.sty
+  // t: 0.1, // for tree.sty
+  t: 1,
+};
+
+export const DEFAULT_HYPERPARAMS: OptimizerHyperparams = {
+  // growth factor for constraint weights
+  weightGrowthFactor: 10,
+
+  // weight for constraints
+  constraintWeight: 10e4, // HACK: constant constraint weight
+  // constraintWeight: 1, // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
+
+  // EP method convergence criteria
+  epStop: 1e-3,
+  // epStop: 1e-5,
+  // epStop: 1e-7,
+
+  EPSD: 1e-11,
+
+  // Unconstrained method convergence criteria
+  // TODO. This should REALLY be 10e-10
+  // NOTE: The new autodiff + line search seems to be really sensitive to this parameter (`uoStop`). It works for 1e-2, but the line search ends up with too-small intervals with 1e-5
+  uoStop: 1e-2,
+  // uoStop: 1e-3,
+  // uoStop: 1e-5,
+  // uoStop: 10,
+
+  lineSearch: DEFAULT_LINESEARCH_HYPERPARAMS,
+};
+
+const EPS = DEFAULT_HYPERPARAMS.uoStop;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -120,18 +138,22 @@ export const extractEnergies = (state: State): any => {
   };
 };
 
-const unconstrainedConverged2 = (normGrad: number): boolean => {
+const unconstrainedConverged2 = (
+  normGrad: number,
+  hyperParams: OptimizerHyperparams
+): boolean => {
   if (DEBUG_GRAD_DESCENT) {
     log.info("UO convergence check: ||grad f(x)||", normGrad);
   }
-  return normGrad < uoStop;
+  return normGrad < hyperParams.uoStop;
 };
 
 const epConverged2 = (
   xs0: number[],
   xs1: number[],
   fxs0: number,
-  fxs1: number
+  fxs1: number,
+  hyperParams: OptimizerHyperparams
 ): boolean => {
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = normList(subv(xs1, xs0));
@@ -143,7 +165,7 @@ const epConverged2 = (
     energyChange
   );
 
-  return stateChange < epStop || energyChange < epStop;
+  return stateChange < hyperParams.epStop || energyChange < hyperParams.epStop;
 };
 
 const applyFn = (f: FnDone<VarAD>, dict: any) => {
@@ -183,7 +205,12 @@ export const initializeMat = async () => {
  * @param steps
  * @param evaluate
  */
-export const step = (state: State, steps: number, evaluate = true): State => {
+export const step = (
+  state: State,
+  steps: number,
+  evaluate = true,
+  hyperParams: OptimizerHyperparams = DEFAULT_HYPERPARAMS
+): State => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
@@ -215,7 +242,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
       if (true) {
         const { objective, gradient } = state.params;
         if (!objective || !gradient) {
-          return genOptProblem(state);
+          return genOptProblem(state, hyperParams);
         } else {
           return {
             ...state,
@@ -263,7 +290,8 @@ export const step = (state: State, steps: number, evaluate = true): State => {
         state.params.currGradient,
         state.params.lbfgsInfo,
         state.varyingPaths.map((p) => prettyPrintPath(p)),
-        steps
+        steps,
+        hyperParams
       );
       xs = res.xs;
 
@@ -288,7 +316,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
       // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
-      if (unconstrainedConverged2(normGrad)) {
+      if (unconstrainedConverged2(normGrad, hyperParams)) {
         optParams.optStatus = "UnconstrainedConverged";
         eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
         optParams.lbfgsInfo = defaultLbfgsParams;
@@ -335,7 +363,8 @@ export const step = (state: State, steps: number, evaluate = true): State => {
           optParams.lastEPstate,
           optParams.lastUOstate,
           optParams.lastEPenergy,
-          optParams.lastUOenergy
+          optParams.lastUOenergy,
+          hyperParams
         )
       ) {
         optParams.optStatus = "EPConverged";
@@ -348,7 +377,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
         );
         optParams.optStatus = "UnconstrainedRunning";
 
-        optParams.weight = weightGrowthFactor * weight;
+        optParams.weight = hyperParams.weightGrowthFactor * weight;
         optParams.EPround = optParams.EPround + 1;
         optParams.UOround = 0;
 
@@ -401,8 +430,6 @@ export const step = (state: State, steps: number, evaluate = true): State => {
   return newState;
 };
 
-// Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might
-
 const awLineSearch2 = (
   xs0: number[],
   f: (zs: number[]) => number,
@@ -410,7 +437,7 @@ const awLineSearch2 = (
 
   gradfxs0: number[],
   fxs0: number,
-  maxSteps = 10
+  hyperParams: LineSearchHyperparams
 ) => {
   const descentDir = negv(gradfxs0); // This is preconditioned by L-BFGS
 
@@ -422,20 +449,15 @@ const awLineSearch2 = (
 
   const dufDescent = duf(descentDir);
   const dufAtx0 = dufDescent(xs0);
-  const minInterval = 10e-10;
 
   // HS (Haskell?): duf, TS: dufDescent
   // HS: x0, TS: xs
-
-  // Hyperparameters
-  const c1 = 0.001; // Armijo
-  const c2 = 0.9; // Wolfe
 
   // Armijo condition
   // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
   const armijo = (ti: number): boolean => {
     const cond1 = f(addv(xs0, scalev(ti, descentDir)));
-    const cond2 = fxs0 + c1 * ti * dufAtx0;
+    const cond2 = fxs0 + hyperParams.c1 * ti * dufAtx0;
     return cond1 <= cond2;
   };
 
@@ -447,7 +469,7 @@ const awLineSearch2 = (
   // |<grad(f)(x0 + t * descentDir), u>| <= c2 * |<grad f(x0), u>|
   const strongWolfe = (ti: number) => {
     const cond1 = Math.abs(dufDescent(addv(xs0, scalev(ti, descentDir))));
-    const cond2 = c2 * Math.abs(dufAtx0);
+    const cond2 = hyperParams.c2 * Math.abs(dufAtx0);
     return cond1 <= cond2;
   };
 
@@ -455,7 +477,7 @@ const awLineSearch2 = (
   // <grad(f)(x0 + t * descentDir), u> >= c2 * <grad f(x0), u>
   const weakWolfe = (ti: number) => {
     const cond1 = dufDescent(addv(xs0, scalev(ti, descentDir)));
-    const cond2 = c2 * dufAtx0;
+    const cond2 = hyperParams.c2 * dufAtx0;
     return cond1 >= cond2;
   };
 
@@ -463,8 +485,8 @@ const awLineSearch2 = (
 
   // Interval check
   const shouldStop = (numUpdates: number, ai: number, bi: number) => {
-    const intervalTooSmall = Math.abs(bi - ai) < minInterval;
-    const tooManySteps = numUpdates > maxSteps;
+    const intervalTooSmall = Math.abs(bi - ai) < hyperParams.minInterval;
+    const tooManySteps = numUpdates > hyperParams.maxSteps;
 
     if (intervalTooSmall && DEBUG_LINE_SEARCH) {
       log.info("line search stopping: interval too small");
@@ -479,12 +501,9 @@ const awLineSearch2 = (
   // Consts / initial values
   // TODO: port comments from original
 
-  // const t = 0.002; // for venn_simple.sty
-  // const t = 0.1; // for tree.sty
-
   let a = 0;
   let b = Infinity;
-  let t = 1.0;
+  let t = hyperParams.t;
   let i = 0;
   const DEBUG_LINE_SEARCH = false;
 
@@ -578,13 +597,18 @@ const dotVec = (v: any, w: any): number => v.transpose().matMul(w).get(0, 0);
 // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
 
 // `any` here is a column vector type
-const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
+const lbfgsInner = (
+  grad_fx_k: any,
+  ss: any[],
+  ys: any[],
+  hyperParams: OptimizerHyperparams
+): any => {
   // TODO: See if using the mutation methods in linear-algebra-js (instead of the return-a-new-matrix ones) yield any speedup
   // Also see if rewriting outside the functional style yields speedup (e.g. less copying of matrix objects -> less garbage collection)
 
   // Helper functions
   const calculate_rho = (s: any, y: any): number => {
-    return 1.0 / (dotVec(y, s) + EPSD);
+    return 1.0 / (dotVec(y, s) + hyperParams.EPSD);
   };
 
   // `any` = column vec
@@ -603,7 +627,8 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
 
   // takes two column vectors (nx1), returns a square matrix (nxn)
   const estimate_hess = (y_km1: any, s_km1: any): any => {
-    const gamma_k = dotVec(s_km1, y_km1) / (dotVec(y_km1, y_km1) + EPSD);
+    const gamma_k =
+      dotVec(s_km1, y_km1) / (dotVec(y_km1, y_km1) + hyperParams.EPSD);
     const n = y_km1.rows();
     return eig.Matrix.identity(n, n).mul(gamma_k);
   };
@@ -646,7 +671,12 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
 
 // Outer loop of lbfgs
 // See Optimizer.hs for any add'l comments
-const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
+const lbfgs = (
+  xs: number[],
+  gradfxs: number[],
+  lbfgsInfo: LbfgsParams,
+  hyperParams: OptimizerHyperparams
+) => {
   // Comments for normal BFGS:
   // For x_{k+1}, to compute H_k, we need the (k-1) info
   // Our convention is that we are always working "at" k to compute k+1
@@ -712,7 +742,12 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Haskell `ss` -> JS `ss_km2`; Haskell `ss'` -> JS `ss_km1`
     const ss_km1 = _.take([s_km1].concat(ss_km2), lbfgsInfo.memSize);
     const ys_km1 = _.take([y_km1].concat(ys_km2), lbfgsInfo.memSize);
-    const gradPreconditioned = lbfgsInner(grad_fx_k, ss_km1, ys_km1);
+    const gradPreconditioned = lbfgsInner(
+      grad_fx_k,
+      ss_km1,
+      ys_km1,
+      hyperParams
+    );
 
     // Reset L-BFGS if the result is not a descent direction, and use steepest descent direction
     // https://github.com/JuliaNLSolvers/Optim.jl/issues/143
@@ -769,7 +804,8 @@ const minimize = (
   gradf: (zs: number[]) => number[],
   lbfgsInfo: LbfgsParams,
   varyingPaths: string[],
-  numSteps: number
+  numSteps: number,
+  hyperParams: OptimizerHyperparams
 ): OptInfo => {
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
@@ -805,7 +841,8 @@ const minimize = (
     const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(
       xs,
       gradfxs,
-      newLbfgsInfo
+      newLbfgsInfo,
+      hyperParams
     );
     newLbfgsInfo = updatedLbfgsInfo;
     gradientPreconditioned = gradfxsPreconditioned;
@@ -813,7 +850,7 @@ const minimize = (
     // Don't take the Euclidean norm. According to Boyd (485), we should use the Newton descent check, with the norm of the gradient pulled back to the nicer space.
     normGradfxs = dot(gradfxs, gradfxsPreconditioned);
 
-    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
+    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs, hyperParams)) {
       // This is on the original gradient, not the preconditioned one
       log.info(
         "descent converged early, on step",
@@ -826,7 +863,14 @@ const minimize = (
     }
 
     if (USE_LINE_SEARCH) {
-      t = awLineSearch2(xs, f, gradf, gradfxsPreconditioned, fxs); // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
+      t = awLineSearch2(
+        xs,
+        f,
+        gradf,
+        gradfxsPreconditioned,
+        fxs,
+        hyperParams.lineSearch
+      ); // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
     }
 
     const normGrad = normList(gradfxs);
@@ -894,7 +938,10 @@ const minimize = (
  * @param {State} state
  * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
  */
-export const evalEnergyOnCustom = (state: State) => {
+export const evalEnergyOnCustom = (
+  state: State,
+  hyperParams: OptimizerHyperparams
+) => {
   // TODO: types
   return (...xsVars: VarAD[]): any => {
     // TODO: Could this line be causing a memory leak?
@@ -934,8 +981,8 @@ export const evalEnergyOnCustom = (state: State) => {
 
     // This is fixed during the whole optimization
     const constrWeightNode = varOf(
-      constraintWeight,
-      String(constraintWeight),
+      hyperParams.constraintWeight,
+      String(hyperParams.constraintWeight),
       "constraintWeight"
     );
 
@@ -966,7 +1013,10 @@ export const evalEnergyOnCustom = (state: State) => {
   };
 };
 
-export const genOptProblem = (state: State): State => {
+export const genOptProblem = (
+  state: State,
+  hyperParams: OptimizerHyperparams = DEFAULT_HYPERPARAMS
+): State => {
   const xs: number[] = state.varyingValues;
   log.trace("step newIter, xs", xs);
 
@@ -978,7 +1028,7 @@ export const genOptProblem = (state: State): State => {
   // `overallEnergy` is a partially applied function, waiting for an input.
   // When applied, it will interpret the energy via lookups on the computational graph
   // TODO: Could save the interpreted energy graph across amples
-  const overallObjective = evalEnergyOnCustom(state);
+  const overallObjective = evalEnergyOnCustom(state, hyperParams);
   const xsVars: VarAD[] = makeADInputVars(xs);
   const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
   // `energyGraph` is a VarAD that is a handle to the top of the graph
@@ -990,7 +1040,7 @@ export const genOptProblem = (state: State): State => {
     // TODO: factor out
     constrWeightNode: res.constrWeightNode,
     epWeightNode: res.epWeightNode,
-    constrWeight: constraintWeight,
+    constrWeight: hyperParams.constraintWeight,
     epWeight: initConstraintWeight,
   };
 
