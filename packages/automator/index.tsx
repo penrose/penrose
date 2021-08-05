@@ -320,12 +320,31 @@ const batchProcess = async (
 
 // Measure optimizer with given hyperparameters performance throught multiple runs
 const runEvaluate = async (
-  compiledState: PenroseState,
+  sub: any,
+  sty: any,
+  dsl: string,
+  prefix: string,
   times: number,
   hyperParams: PenroseOptimizerHyperparams
 ) => {
   let allResults = [];
   for (let i = 0; i < times; i++) {
+    // Prepare the optimization problem
+    console.log(
+      `Preparing optimization problem from ${sub}, ${sty} and ${dsl}.`
+    );
+    const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
+      fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
+    );
+    const compilerOutput = compileTrio(dslIn, subIn, styIn);
+    let compiledState;
+    if (compilerOutput.isOk()) {
+      compiledState = compilerOutput.value;
+    } else {
+      const err = compilerOutput.error;
+      throw new Error(`Compilation failed:\n${showError(err)}`);
+    }
+
     console.log(`Evaluation run ${i} out of ${times}.`);
     const initialState = await prepareState(compiledState);
     const result = trackOptimizationHistory(initialState, 10000, hyperParams);
@@ -347,7 +366,7 @@ const getAllHyperParameters = (): PenroseOptimizerHyperparams[] => {
           c2: c2,
         },
       };
-      hps = [...hps, hp];
+      hps = [...hps, { params: [c1, c2], value: hp }];
     }
   }
   return hps;
@@ -363,34 +382,28 @@ const evaluate = async (
   times: number,
   gridSearch: boolean
 ) => {
-  // Prepare the optimization problem
-  console.log(`Preparing optimization problem from ${sub}, ${sty} and ${dsl}.`);
-  const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
-    fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
-  );
-  const compilerOutput = compileTrio(dslIn, subIn, styIn);
-  let compiledState;
-  if (compilerOutput.isOk()) {
-    compiledState = compilerOutput.value;
-  } else {
-    const err = compilerOutput.error;
-    throw new Error(`Compilation failed:\n${showError(err)}`);
-  }
-
   // Run the optimizer and collect performance metrics
   let results = [];
-  let allHyperParams = [PENROSE_DEFAULT_HYPERPARAMS];
+  let allHyperParams = [
+    { params: "default", value: PENROSE_DEFAULT_HYPERPARAMS },
+  ];
   if (gridSearch) {
     allHyperParams = getAllHyperParameters();
   }
   for (let hp of allHyperParams) {
-    console.log(hp);
-    results = [...results, { hp: runEvaluate(compiledState, times, hp) }];
-  }
+    console.log(`Running with hyperparameters: ${hp.params}.`);
+    results = [
+      ...results,
+      {
+        params: hp.params,
+        results: await runEvaluate(sub, sty, dsl, prefix, times, hp.value),
+      },
+    ];
 
-  // Save results to a json file
-  fs.writeFileSync(`${out}/results.json`, JSON.stringify(results));
-  console.log(`The results have been saved to ${out}.`);
+    // Save results to a json file
+    fs.writeFileSync(`${out}/results.json`, JSON.stringify(results));
+    console.log(`The results have been saved to ${out}.`);
+  }
 };
 
 (async () => {
