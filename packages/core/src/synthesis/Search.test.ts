@@ -22,6 +22,7 @@ import { SubProg, SubRes } from "types/substance";
 import {
   enumerateMutations,
   executeMutation,
+  executeMutations,
   showMutation,
   showMutations,
 } from "./Mutation";
@@ -353,5 +354,13 @@ describe("Mutation recognition tests", () => {
     expect(
       mutationGroups[0].filter((m) => m.tag === "SwapStmtArgs")
     ).toHaveLength(1);
+    const { res: ast2from1 } = executeMutations(
+      mutationGroups[0],
+      ast1,
+      initContext(env)
+    );
+    expect(prettySubstance(sortStmts(ast2from1))).toEqual(
+      prettySubstance(sortStmts(ast2))
+    );
   });
 });
