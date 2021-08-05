@@ -1023,7 +1023,6 @@ export const ops = {
     if (v.length !== w.length) {
       throw Error("expected vectors of same length");
     }
-
     return ops.vnorm(ops.vsub(v, w));
   },
 
@@ -1070,6 +1069,16 @@ export const ops = {
    */
   rot90: ([x, y]: VarAD[]): VarAD[] => {
     return [neg(y), x];
+  },
+
+  /**
+   * Rotate a 2D point `[x, y]` by a degrees counterclockwise.
+   */
+  vrot: ([x, y]: VarAD[], a: VarAD): VarAD[] => {
+    const angle = div(mul(a, varOf(Math.PI)), varOf(180));
+    const x2 = sub(mul(cos(angle), x), mul(sin(angle), y));
+    const y2 = add(mul(sin(angle), x), mul(cos(angle), y));
+    return [x2, y2];
   },
 
   /**
