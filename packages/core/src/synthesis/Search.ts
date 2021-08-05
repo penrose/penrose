@@ -4,26 +4,30 @@ import {
   intersection,
   nodesEqual,
   sortStmts,
+  subProg,
 } from "analysis/SubstanceAnalysis";
-import { prettyStmt } from "compiler/Substance";
-import {
-  cloneDeep,
-  difference,
-  get,
-  groupBy,
-  intersectionWith,
-  map,
-  sortBy,
-} from "lodash";
+import { prettyStmt, prettySubstance } from "compiler/Substance";
+import { cloneDeep, difference, get, intersectionWith, sortBy } from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
-import { SynthesizedSubstance } from "synthesis/Synthesizer";
 import { ASTNode, Identifier, metaProps } from "types/ast";
+import { Env } from "types/domain";
 import { SubProg, SubStmt } from "types/substance";
-import { Mutation } from "synthesis/Mutation";
+import {
+  Add,
+  addMutation,
+  Delete,
+  deleteMutation,
+  enumerateMutations,
+  executeMutation,
+  Mutation,
+  MutationGroup,
+  showMutations,
+  Update,
+} from "./Mutation";
+import { initContext } from "./Synthesizer";
 
-//#region Generalized edits
+//#region Fine-grained diffs
 
-type Edit = Mutation;
 type DiffType = ASTNode["tag"];
 
 export interface StmtDiff {
@@ -55,17 +59,6 @@ export interface DeleteDiff {
   diffType: "Delete";
   source: SubStmt;
 }
-
-const generalizedEdits = (
-  original: SubProg,
-  editedProgs: SubProg[],
-  mode: "exact"
-): Edit => {
-  switch (mode) {
-    case "exact":
-      return {} as any; // COMBAK: complete the function
-  }
-};
 
 /**
  * Compute the exact diffs between two Substance ASTs.
@@ -339,6 +332,65 @@ export const applyStmtDiffs = (
 
 export const findDiffs = (stmt: SubStmt, diffs: StmtDiff[]): rdiffResult[] =>
   diffs.filter((d) => d.stmt === stmt).map((d) => d.diff);
+
+//#endregion
+
+//#region Single-mutation search
+
+const cartesianProduct = <T>(...sets: T[][]) =>
+  sets.reduce<T[][]>(
+    (accSets, set) =>
+      accSets.flatMap((accSet) => set.map((value) => [...accSet, value])),
+    [[]]
+  );
+
+/**
+ * Given two Substance programs, find possible mutation paths that transform from `src` to `dest`.
+ *
+ * @param src The source Substance program
+ * @param dest The changed Substance program
+ * @param srcEnv The environment for the source Substance program
+ */
+export const findMutationPaths = (
+  src: SubProg,
+  dest: SubProg,
+  srcEnv: Env
+): MutationGroup[] => {
+  const diffs: DiffSet = subProgDiffs(src, dest);
+  // pack add and delete mutations
+  const addMutations: Add[] = diffs.add.map((a) => addMutation(a.source));
+  const deleteMutations: Delete[] = diffs.delete.map((a) =>
+    deleteMutation(a.source)
+  );
+  // find all possible updates for each statement in the update set
+  const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
+    const mutations = enumerateMutations(d.source, srcEnv);
+    d.source;
+    const ctx = initContext(srcEnv);
+    const matchedMutations = mutations.filter((m) => {
+      // HACK: assumes each update pair is connected by only one mutation. Therefore packing the source and result stmts into individual programs
+      const prog1 = subProg([d.source]);
+      const prog2 = subProg([d.result]);
+      const { res: mutatedAST } = executeMutation(m, prog1, ctx);
+      return (
+        prettySubstance(sortStmts(prog2)) ===
+        prettySubstance(sortStmts(mutatedAST))
+      );
+    });
+    return matchedMutations;
+  });
+
+  // any combination of candidate mutations for each stmt will be a valid mutation group
+  const updateGroups: MutationGroup[] = cartesianProduct(...matchingUpdates);
+  // for each update group, combine it with add and delete to get each of the candidate mutation group
+  if (updateGroups.length > 0) {
+    return updateGroups.map((updateGroup: MutationGroup) => [
+      ...updateGroup,
+      ...addMutations,
+      ...deleteMutations,
+    ]);
+  } else return [[...addMutations, ...deleteMutations]];
+};
 
 //#endregion
 

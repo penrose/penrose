@@ -1,4 +1,5 @@
 import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
+import { prettyStmt } from "compiler/Substance";
 import { Set } from "immutable";
 import {
   compileDomain,
@@ -29,6 +30,7 @@ import {
   DiffSet,
   diffSubProgs,
   diffSubStmts,
+  findMutationPaths,
   showDiffset,
   showStmtDiff,
   showSubDiff,
@@ -270,7 +272,7 @@ describe("Synthesizer tests", () => {
 });
 
 describe("Mutation recognition tests", () => {
-  test("recognizing swap mutation", () => {
+  test("recognizing swap mutation - auto", () => {
     const prog1 = `
     Set A, B, C
     IsSubset(A,B)
@@ -284,14 +286,39 @@ describe("Mutation recognition tests", () => {
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
-    const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
-    expect(diffs).toHaveLength(2);
-    // console.log(diffs.map(showStmtDiff));
-    const fromSet = Set(diffs.map((d) => d.stmt)).toArray();
+    const mutationGroups = findMutationPaths(ast1, ast2, env);
+    expect(mutationGroups.map(showMutations)).toContain(
+      "Swap arguments 0 and 1 of IsSubset(A, B)"
+    );
+  });
+  test("recognizing swap mutation - stepwise", () => {
+    const prog1 = `
+    Set A, B, C
+    IsSubset(A,B)
+    IsSubset(C, A)
+    `;
+    const prog2 = `
+    Set A, B, C
+    IsSubset(C,A)
+    IsSubset(B, A)
+    `;
+    const [subEnv, env] = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = subEnv.ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    // find diffs between ASTs, which should only have updates
+    const diffs: DiffSet = subProgDiffs(ast1, ast2);
+    expect(diffs.add).toHaveLength(0);
+    expect(diffs.delete).toHaveLength(0);
+    expect(diffs.update).toHaveLength(1);
+    expect(prettyStmt(diffs.update[0].source)).toEqual("IsSubset(A, B)");
+    expect(prettyStmt(diffs.update[0].result)).toEqual("IsSubset(B, A)");
+    // get all the updated statements from ast1. There should be only one statement changed
+    const fromSet = diffs.update.map((d) => d.source);
     expect(fromSet).toHaveLength(1);
+    // enumerate all mutations for the statement
     const swappedPred = fromSet[0];
     const mutations = enumerateMutations(swappedPred, env);
-    console.log(showMutations(mutations));
+    // apply each mutation and see how many of them match with the result
     const ctx = initContext(env);
     const matchedMutations = mutations.filter((m) => {
       const { res: mutatedAST } = executeMutation(m, ast1, ctx);
@@ -302,6 +329,29 @@ describe("Mutation recognition tests", () => {
     });
     expect(matchedMutations).toHaveLength(1);
     expect(matchedMutations[0].tag).toEqual("SwapStmtArgs");
-    console.log(showMutation(matchedMutations[0]));
+  });
+  test("recognizing swap mutation with noise - auto", () => {
+    const prog1 = `
+    Set A, B, C
+    IsSubset(A,B)
+    IsSubset(C, A)
+    `;
+    const prog2 = `
+    Set A, B, C, D, E
+    IsSubset(B, A)
+    Equal(D, E)
+    `;
+    const [subEnv, env] = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = subEnv.ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const mutationGroups = findMutationPaths(ast1, ast2, env);
+    // since there's only one possible update, there should be only one path
+    expect(mutationGroups).toHaveLength(1);
+    // the path should have two adds, one delete, and an update
+    expect(mutationGroups[0].filter((m) => m.tag === "Add")).toHaveLength(3);
+    expect(mutationGroups[0].filter((m) => m.tag === "Delete")).toHaveLength(1);
+    expect(
+      mutationGroups[0].filter((m) => m.tag === "SwapStmtArgs")
+    ).toHaveLength(1);
   });
 });
