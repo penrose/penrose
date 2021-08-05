@@ -8,7 +8,13 @@ import {
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { evalShapes } from "engine/Evaluator";
-import { genFns, genOptProblem, initializeMat, step } from "engine/Optimizer";
+import {
+  genFns,
+  genOptProblem,
+  initializeMat,
+  step,
+  extractEnergies,
+} from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
   RenderInteractive,
@@ -34,6 +40,8 @@ import { bBoxDims, toHex, ops } from "utils/Util";
 import { Canvas } from "renderer/ShapeDef";
 import { showMutations } from "synthesis/Mutation";
 import { getListOfStagedStates } from "renderer/Staging";
+
+const convertHrtime = require("convert-hrtime");
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -78,6 +86,33 @@ export const stepUntilConvergence = (
     });
   }
   return ok(currentState);
+};
+
+/**
+ * Repeatedly take one step in the optimizer given the current state until convergence and return all intermediate energy states.
+ * @param state current state
+ */
+export const trackOptimizationHistory = (
+  state: State,
+  numSteps = 10000
+): any => {
+  let currentState = state;
+  let historyUOenergy: number[] = [];
+  let historyAllEnergies: any[] = [];
+  let stepTimes: number[] = [];
+  while (
+    !(currentState.params.optStatus === "Error") &&
+    !stateConverged(currentState)
+  ) {
+    const stepStart = process.hrtime();
+    currentState = step(currentState, numSteps, true);
+    const stepTime = process.hrtime(stepStart);
+
+    historyUOenergy = [...historyUOenergy, currentState.params.lastUOenergy];
+    historyAllEnergies = [...historyAllEnergies, extractEnergies(currentState)];
+    stepTimes = [...stepTimes, convertHrtime(stepTime).milliseconds];
+  }
+  return { historyUOenergy, historyAllEnergies, stepTimes };
 };
 
 const stepUntilConvergenceOrThrow = (state: State): State => {

@@ -99,6 +99,27 @@ const EPS = uoStop;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+export const extractEnergies = (state: State): any => {
+  let xsVars = makeADInputVars(state.varyingValues);
+  const { objFns, constrFns, varyingPaths } = state;
+  const translationInit = makeTranslationDifferentiable(
+    clone(makeTranslationNumeric(state.translation))
+  );
+  const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+  const translation = insertVaryings(translationInit, varyingMapList);
+  const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+  const objEvaled = evalFns(objFns, translation, varyingMap);
+  const constrEvaled = evalFns(constrFns, translation, varyingMap);
+  const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
+  const constrEngs: VarAD[] = constrEvaled.map((c) =>
+    fns.toPenalty(applyFn(c, constrDict))
+  );
+  return {
+    objEngs: objEngs.map((e) => e.val),
+    constrEngs: constrEngs.map((e) => e.val),
+  };
+};
+
 const unconstrainedConverged2 = (normGrad: number): boolean => {
   if (DEBUG_GRAD_DESCENT) {
     log.info("UO convergence check: ||grad f(x)||", normGrad);

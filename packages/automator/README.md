@@ -46,3 +46,8 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 
 - Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=../../examples/set-theory-domain` in this directory to generate an output SVG.
 - Add the `--staged` flag to the command to generate multiple staged SVGs for the sub/sty/dsl trio.
+
+## Evaluation of optimizer performance
+
+- Run `yarn start evaluate tree.sub venn.sty setTheory.dsl out --src-prefix=../../examples/set-theory-domain --repeat=10` in this directory.
+- The results will be saved to `output/results.json`

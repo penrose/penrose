@@ -6,6 +6,7 @@ import {
   RenderStatic,
   showError,
   stepUntilConvergence,
+  trackOptimizationHistory,
   PenroseState,
   getListOfStagedStates,
 } from "@penrose/core";
@@ -24,6 +25,7 @@ Usage:
   automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
+  automator evaluate SUBSTANCE STYLE DOMAIN OUTFOLDER [--repeat=TIMES] [--src-prefix=PREFIX]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -96,7 +98,7 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  const optimizedState = stepUntilConvergence(initialState, 10000);
+  const optimizedState = stepUntilConvergence(initialState, 10000).value;
   const convergeEnd = process.hrtime(convergeStart);
 
   const reactRenderStart = process.hrtime();
@@ -110,7 +112,7 @@ const singleProcess = async (
     });
   } else {
     // if not staged, we just need one canvas data (for the final diagram)
-    canvas = optimizedState.canvas;
+    canvas = RenderStatic(optimizedState).outerHTML;
   }
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
@@ -313,6 +315,43 @@ const batchProcess = async (
   console.log("done.");
 };
 
+// Measure optimizer performance throught multiple runs
+const evaluate = async (
+  sub: any,
+  sty: any,
+  dsl: string,
+  out: string,
+  prefix: string,
+  times: number
+) => {
+  // Prepare the optimization problem
+  console.log(`Preparing optimization problem from ${sub}, ${sty} and ${dsl}.`);
+  const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
+    fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
+  );
+  const compilerOutput = compileTrio(dslIn, subIn, styIn);
+  let compiledState;
+  if (compilerOutput.isOk()) {
+    compiledState = compilerOutput.value;
+  } else {
+    const err = compilerOutput.error;
+    throw new Error(`Compilation failed:\n${showError(err)}`);
+  }
+
+  // Run the optimizer and collect performance metrics
+  let allResults = [];
+  for (let i = 0; i < times; i++) {
+    console.log(`Evaluation run ${i} out of ${times}.`);
+    const initialState = await prepareState(compiledState);
+    const result = trackOptimizationHistory(initialState, 10000);
+    allResults = [...allResults, result];
+  }
+
+  // Save results to a json file
+  fs.writeFileSync(`${out}/results.json`, JSON.stringify(allResults));
+  console.log(`The results have been saved to ${out}.`);
+};
+
 (async () => {
   // Process command-line arguments
   const args = neodoc.run(USAGE, { smartOptions: true });
@@ -344,6 +383,15 @@ const batchProcess = async (
       outFile,
       prefix,
       staged
+    );
+  } else if (args.evaluate) {
+    await evaluate(
+      args.SUBSTANCE,
+      args.STYLE,
+      args.DOMAIN,
+      args.OUTFOLDER,
+      prefix,
+      times
     );
   } else {
     throw new Error("Invalid command line argument");
