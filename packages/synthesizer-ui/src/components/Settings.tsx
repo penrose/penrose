@@ -78,33 +78,18 @@ export const defaultSetting: SynthesizerSetting = {
   },
 };
 
-const testSub = `
-Plane P
-Point A,B, C, D, E
-In(A, P)
-In(B, P)
-In(C, P)
-In(D, P)
-In(E, P)
-Segment s1 := MkSegment(A,E)
-Segment s2 := MkSegment(E,C)
-Segment s3 := MkSegment(A,B)
-Segment s4 := MkSegment(B,C)
-Segment s5 := MkSegment(C,D)
-Segment s6 := MkSegment(D,A)
-Segment s8 := MkSegment(E,D)
-Collinear(A,E,C)
-Collinear(B,E,D) 
-Angle r := InteriorAngle(B,E,C)
-EqualLength(s1, s2)
-EqualLengthMarker1(s1, s2)
-RightMarked(r)
-`;
-
 export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
-    this.state = { substance: testSub, setting: defaultSetting };
+    this.state = { substance: "", setting: defaultSetting };
+  }
+
+  componentDidMount() {
+    fetch("public/files/sub_example.txt")
+      .then((r) => r.text())
+      .then((text) => {
+        this.updateSubstance(text);
+      });
   }
 
   componentDidUpdate() {
@@ -116,23 +101,69 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       ...this.state,
       substance: newSub,
     });
-    this.props.updateSettings(this.state.setting);
+  };
+
+  updateSetting = (newSetting: SynthesizerSetting) => {
+    this.setState({ setting: newSetting });
   };
 
   onChange = (event: any) => {
     event.preventDefault();
-    const target = event.target;
-    console.log(target);
+    if (event.target.name === "sub") {
+      console.log("changing substance!", event.target.value);
+      this.updateSubstance(event.target.value);
+    } else {
+      console.log("changing ", event.target.name, event.target.value);
+      const typeSelect = (s: string, op: any, arr: any[]) => {
+        if (s === "Type") return { ...op, type: arr };
+        if (s === "Constructor") return { ...op, constructor: arr };
+        if (s === "Function") return { ...op, function: arr };
+        if (s === "Predicate") return { ...op, predicate: arr };
+      };
+      const [op, stmtType] = event.target.name.split("-");
+      const val = event.target.value.replace(/\s/g, "").split(",");
+      let newSetting = this.state.setting;
+      console.log(op);
+      switch (op) {
+        case "Add":
+          newSetting = {
+            ...newSetting,
+            add: typeSelect(stmtType, newSetting.add, val),
+          };
+          break;
+        case "Delete":
+          newSetting = {
+            ...newSetting,
+            delete: typeSelect(stmtType, newSetting.delete, val),
+          };
+          break;
+        case "Edit":
+          newSetting = {
+            ...newSetting,
+            edit: typeSelect(stmtType, newSetting.edit, val),
+          };
+          break;
+        default:
+          break;
+      }
+      console.log(newSetting);
+      this.setState({ setting: newSetting });
+    }
   };
 
-  inputElements() {
+  onGenerateClick = () => {
+    this.props.updateSettings(this.state.setting);
+    this.props.generateCallback(this.state.substance);
+  };
+
+  inputElements = () => {
     const setting = this.state.setting;
     const ops = ["Add", "Edit", "Delete"];
     const types = ["Type", "Constructor", "Function", "Predicate"];
     return [setting.add, setting.delete, setting.edit].map((op, idx) => (
       <InputContainer key={ops[idx]}>
         {`${ops[idx]}:`}
-        {[op.type, op.predicate, op.function, op.predicate].map(
+        {[op.type, op.constructor, op.function, op.predicate].map(
           (type: string[], i: number) => (
             <input
               type="text"
@@ -146,7 +177,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         )}
       </InputContainer>
     ));
-  }
+  };
 
   render() {
     return (
@@ -162,16 +193,12 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             <SubstanceInput
               name="sub"
               onChange={this.onChange}
-              value={testSub}
+              value={this.state.substance}
             />
           </InputContainer>
           <br />
           {this.inputElements()}
-          <Btn
-            onClick={() => this.props.generateCallback(this.state.substance)}
-          >
-            Generate Diagrams
-          </Btn>
+          <Btn onClick={this.onGenerateClick}>Generate Diagrams</Btn>
         </form>
       </Section>
     );

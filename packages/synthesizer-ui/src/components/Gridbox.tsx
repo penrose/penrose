@@ -16,9 +16,9 @@ export interface GridboxProps {
 
 const Section = styled.section`
   margin: 0.5rem;
-  width: 10rem;
-  height: 10rem;
-  background: blue;
+  width: 15rem;
+  height: 15rem;
+  border: 1px solid gray;
 `;
 
 interface GridboxState {
@@ -43,7 +43,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     );
     console.log(res);
     if (res.isOk()) {
-      console.log("result is ok!");
       try {
         const state = await prepareState(res.value);
         const opt = stepUntilConvergence(state);
@@ -52,7 +51,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         }
         const optimized = opt.value;
         this.setState({ diagramSVG: RenderStatic(optimized).outerHTML });
-        console.log("svg!", this.state.diagramSVG);
       } catch (e) {
         this.setState({ isWaiting: false });
         throw e;
@@ -64,6 +62,18 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   }
 
   render() {
-    return <Section>{this.state ? this.state.diagramSVG : ""}</Section>;
+    if (this.state && !this.state.isWaiting) {
+      return (
+        <Section>
+          <div
+            style={{ width: "100%", height: "100%" }}
+            dangerouslySetInnerHTML={{
+              __html: this.state.diagramSVG,
+            }}
+          />
+        </Section>
+      );
+    }
+    return <Section>{"optimizing"}</Section>;
   }
 }
