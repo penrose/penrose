@@ -9,6 +9,8 @@ import {
   trackOptimizationHistory,
   PenroseState,
   getListOfStagedStates,
+  PenroseOptimizerHyperparams,
+  PENROSE_DEFAULT_HYPERPARAMS,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 
@@ -25,7 +27,7 @@ Usage:
   automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
-  automator evaluate SUBSTANCE STYLE DOMAIN OUTFOLDER [--repeat=TIMES] [--src-prefix=PREFIX]
+  automator evaluate SUBSTANCE STYLE DOMAIN OUTFOLDER [--repeat=TIMES] [--src-prefix=PREFIX] [--grid-search]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -33,6 +35,7 @@ Options:
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
   --staged Generate staged SVGs of the final diagram
+  --grid-search Systematically evaluate optimization performance using a predefined list of hyperparameters
 `;
 
 const nonZeroConstraints = (
@@ -315,6 +318,41 @@ const batchProcess = async (
   console.log("done.");
 };
 
+// Measure optimizer with given hyperparameters performance throught multiple runs
+const runEvaluate = async (
+  compiledState: PenroseState,
+  times: number,
+  hyperParams: PenroseOptimizerHyperparams
+) => {
+  let allResults = [];
+  for (let i = 0; i < times; i++) {
+    console.log(`Evaluation run ${i} out of ${times}.`);
+    const initialState = await prepareState(compiledState);
+    const result = trackOptimizationHistory(initialState, 10000, hyperParams);
+    allResults = [...allResults, result];
+  }
+  return allResults;
+};
+
+// Definition of hyperparameters to evaluate uding grid search
+const getAllHyperParameters = (): PenroseOptimizerHyperparams[] => {
+  let hps = [];
+  for (let c1 = 1e-5; c1 <= 1e-1; c1 *= 10) {
+    for (let c2 = 0.1; c2 <= 0.9; c2 += 0.1) {
+      const hp = {
+        ...PENROSE_DEFAULT_HYPERPARAMS,
+        lineSearch: {
+          ...PENROSE_DEFAULT_HYPERPARAMS.lineSearch,
+          c1: c1,
+          c2: c2,
+        },
+      };
+      hps = [...hps, hp];
+    }
+  }
+  return hps;
+};
+
 // Measure optimizer performance throught multiple runs
 const evaluate = async (
   sub: any,
@@ -322,7 +360,8 @@ const evaluate = async (
   dsl: string,
   out: string,
   prefix: string,
-  times: number
+  times: number,
+  gridSearch: boolean
 ) => {
   // Prepare the optimization problem
   console.log(`Preparing optimization problem from ${sub}, ${sty} and ${dsl}.`);
@@ -339,16 +378,18 @@ const evaluate = async (
   }
 
   // Run the optimizer and collect performance metrics
-  let allResults = [];
-  for (let i = 0; i < times; i++) {
-    console.log(`Evaluation run ${i} out of ${times}.`);
-    const initialState = await prepareState(compiledState);
-    const result = trackOptimizationHistory(initialState, 10000);
-    allResults = [...allResults, result];
+  let results = [];
+  let allHyperParams = [PENROSE_DEFAULT_HYPERPARAMS];
+  if (gridSearch) {
+    allHyperParams = getAllHyperParameters();
+  }
+  for (let hp of allHyperParams) {
+    console.log(hp);
+    results = [...results, { hp: runEvaluate(compiledState, times, hp) }];
   }
 
   // Save results to a json file
-  fs.writeFileSync(`${out}/results.json`, JSON.stringify(allResults));
+  fs.writeFileSync(`${out}/results.json`, JSON.stringify(results));
   console.log(`The results have been saved to ${out}.`);
 };
 
@@ -364,6 +405,7 @@ const evaluate = async (
   const prefix = args["--src-prefix"];
 
   const staged = args["--staged"] || false;
+  const gridSearch = args["--grid-search"] || false;
 
   if (args.batch) {
     for (let i = 0; i < times; i++) {
@@ -391,7 +433,8 @@ const evaluate = async (
       args.DOMAIN,
       args.OUTFOLDER,
       prefix,
-      times
+      times,
+      gridSearch
     );
   } else {
     throw new Error("Invalid command line argument");

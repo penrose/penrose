@@ -14,6 +14,7 @@ import {
   initializeMat,
   step,
   extractEnergies,
+  DEFAULT_HYPERPARAMS,
 } from "engine/Optimizer";
 import { insertPending } from "engine/PropagateUpdate";
 import RenderStatic, {
@@ -27,7 +28,7 @@ import { PenroseError, RuntimeError } from "types/errors";
 import { Registry, Trio } from "types/io";
 import * as ShapeTypes from "types/shape";
 import { FieldDict, Translation } from "types/value";
-import { Fn, LabelCache, State } from "types/state";
+import { Fn, LabelCache, OptimizerHyperparams, State } from "types/state";
 import { SubstanceEnv } from "types/substance";
 import { collectLabels } from "utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "utils/Error";
@@ -94,7 +95,8 @@ export const stepUntilConvergence = (
  */
 export const trackOptimizationHistory = (
   state: State,
-  numSteps = 10000
+  numSteps = 10000,
+  hyperParams: OptimizerHyperparams
 ): any => {
   let currentState = state;
   let historyUOenergy: number[] = [];
@@ -105,7 +107,7 @@ export const trackOptimizationHistory = (
     !stateConverged(currentState)
   ) {
     const stepStart = process.hrtime();
-    currentState = step(currentState, numSteps, true);
+    currentState = step(currentState, numSteps, true, hyperParams);
     const stepTime = process.hrtime(stepStart);
 
     historyUOenergy = [...historyUOenergy, currentState.params.lastUOenergy];
@@ -345,6 +347,8 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
 
 export type PenroseState = State;
 export type PenroseFn = Fn;
+export type PenroseOptimizerHyperparams = OptimizerHyperparams;
+export const PENROSE_DEFAULT_HYPERPARAMS = DEFAULT_HYPERPARAMS;
 
 export {
   compileDomain,
