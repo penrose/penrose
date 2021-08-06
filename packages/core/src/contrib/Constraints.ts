@@ -463,32 +463,26 @@ export const constrDict = {
         const EPS0 = varOf(10e-3);
         // TODO: does not handle line-like objects, which are assumed to have no intersection area
 
-        // Overall energy: Take the sum of (1) the sum of the "inward depths" of each of the vertices of A to B , (2) the area of overlap, and (3) the closest distance between them. Each term deals with the corresponding case. https://pen-rose.slack.com/archives/D023ZD3PJAY/p1628028563005600
+        // Overall energy: Take the sum of (1) the sum of the "inward depths" of each of the vertices of A to B, (2) the area of overlap, and (3) the closest distance between them. Each term deals with the corresponding case. https://pen-rose.slack.com/archives/D023ZD3PJAY/p1628028563005600
 
         if (IntersectionArea.hasExactImpl(t1, t2)) {
+            // TODO: Factor this stuff out using the query interface
+            const b1 = overboxFromShape(t1, s1);
+            const b2 = overboxFromShape(t2, s2);
+
             // Case 1: 1 box is contained in the other. 
             // 1a: A contains B. 1b: B contains A.
 
-            // unfortunately, the current AD implementation is going to evaluate both branches of this `if` (and any `if`) :/ #642
-
-            // If B is contained in A, return the swapped version of this?
-
-            // TODO: Write checks, factor out
-            // use `areDisjointBoxes` and `isContainedInBoxes`
-            // add the area of overlap
-
-            // TODO: Factor this stuff out nicely
-            const box1 = overboxFromShape(t1, s1);
-            const box2 = overboxFromShape(t2, s2);
-
-            // TODO: Is there a more efficient way to do this?
-            // const res = ifCond(isContainedInBoxes(box1, box2)
-
-            throw Error("TODO");
+            // TODO: See if summing the inward depths works better
+            // This will behave differently if each box is in the other (e.g. corners)
+            const b1To2InwardDepth = boxBoxInwardDepth(b1, b2);
+            const b2To1InwardDepth = boxBoxInwardDepth(b2, b1);
+            const maxInwardDepth = max(b1To2InwardDepth, b2To1InwardDepth);
 
             // Case 2: Boxes are intersecting. Penalize their intersection area.
             return add(
-                IntersectionArea.exact([t1, s1], [t2, s2]),
+                add(maxInwardDepth,
+                    IntersectionArea.exact([t1, s1], [t2, s2])),
                 ifCond(
                     lt(constOfIf(padding), EPS0),
                     constOf(0),
