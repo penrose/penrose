@@ -54,7 +54,7 @@ constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 -- function Midpoint : Linelike -> Point
 -- function Bisector : Angle -> Ray
 -- function PerpendicularBisector : Linelike -> Ray
--- function Sum : Angle * Angle -> Angle
+function Sum : Angle * Angle -> Angle
 -- function Intersection : Linelike * Linelike -> Point
 -- function Altitude : Triangle * Angle -> Segment
 -- function Endpoint : Segment -> Point

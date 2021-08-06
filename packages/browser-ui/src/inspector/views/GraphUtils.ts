@@ -1,16 +1,12 @@
 import {
-  ShapeTypes,
-  PenroseState,
   PenroseFn,
+  prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
-  prettyPrintExpr,
 } from "@penrose/core";
-import { FieldDict, Translation } from "@penrose/core/build/dist/types/value";
-import { uniqBy } from "lodash";
-import { Path } from "@penrose/core/build/dist/types/style";
 import { Fn } from "@penrose/core/build/dist/types/state";
-import { flatMap } from "lodash";
+import { Path } from "@penrose/core/build/dist/types/style";
+import { flatMap, uniqBy } from "lodash";
 import { VarAD } from "../../../../core/build/dist/types/ad";
 
 // TODO: The nodes and edges are left untyped for now because adding new keys to them (e.g. `DOF: true`) is used to style their CSS - not sure how to accommodate this as a TS type

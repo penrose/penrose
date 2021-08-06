@@ -6,7 +6,6 @@ import {
   constOf,
   cos,
   div,
-  eq,
   gt,
   ifCond,
   max,
@@ -17,28 +16,24 @@ import {
   ops,
   sin,
   sqrt,
-  squared,
   sub,
+  variableAD,
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
 import { maxBy, range } from "lodash";
+import { PathBuilder } from "renderer/PathBuilder";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
-import { Var } from "types/domain";
 import {
   ArgVal,
   Color,
-  Elem,
-  IArc,
   IColorV,
   IFloatV,
   IPathDataV,
-  IPt,
   IPtListV,
   IStrV,
   ITupV,
   IVectorV,
-  SubPath,
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
@@ -70,40 +65,13 @@ export const compDict = {
       curveHeight,
       normalVec
     );
-    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
-    const startPt: IPt<IVarAD> = {
-      tag: "Pt",
-      contents: toPt(ops.vmove(start, padding, ops.vneg(unit))),
-    };
     const curveEnd: IVarAD[] = ops.vmove(end, padding, unit);
-    return {
-      tag: "PathDataV",
-      contents: [
-        {
-          tag: "Open",
-          contents: [
-            startPt,
-            {
-              tag: "QuadBez",
-              contents: [toPt(controlPt), toPt(curveEnd)],
-            },
-          ],
-        },
-      ],
-    };
-
-    // return {
-    //   tag: "PathDataV",
-    //   contents: [
-    //     {
-    //       tag: "Closed",
-    //       contents: [
-    //         startPt,
-    //         endPt
-    //       ]
-    //     }
-    //   ]
-    // };
+    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
+    const path = new PathBuilder();
+    return path
+      .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
+      .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
+      .getPath();
   },
 
   /**
@@ -186,7 +154,14 @@ export const compDict = {
    */
   get: (xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];
+    return {
+      tag: "FloatV",
+      contents: res,
+    };
+  },
 
+  getVar: (xs: VarAD[], i: VarAD): IFloatV<any> => {
+    const res = xs[i.val];
     return {
       tag: "FloatV",
       contents: res,
@@ -312,11 +287,13 @@ export const compDict = {
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<VarAD> => {
-    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    const elems: Elem<VarAD>[] = pts.map((e) => ({ tag: "Pt", contents: e }));
-    const path: SubPath<VarAD> = { tag: pathTypeStr, contents: elems };
-    return { tag: "PathDataV", contents: [path] };
+  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    const [start, ...tailpts] = pts;
+    path.moveTo(start);
+    tailpts.map((pt: Pt2) => path.lineTo(pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
   },
 
   /**
@@ -364,6 +341,7 @@ export const compDict = {
       contents: [markStart, markEnd].map(toPt),
     };
   },
+
   /**
    * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
    * @param pathType: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point
@@ -383,23 +361,11 @@ export const compDict = {
     rotation: IVarAD,
     largeArc: IVarAD,
     arcSweep: IVarAD
-  ): IPathDataV<VarAD> => {
-    const pathTypeStr = pathType === "closed" ? "Closed" : "Open";
-    const st: IPt<IVarAD> = { tag: "Pt", contents: start };
-    const arc: IArc<IVarAD> = {
-      tag: "Arc",
-      contents: [radius, [rotation, largeArc, arcSweep], end],
-    };
-    const elems: Elem<VarAD>[] = [st, arc];
-    return {
-      tag: "PathDataV",
-      contents: [
-        {
-          tag: pathTypeStr,
-          contents: elems,
-        },
-      ],
-    };
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
   },
   /**
    * Find the point that is located at dist r along a line between p1 and p2.
@@ -430,6 +396,16 @@ export const compDict = {
     };
   },
   /**
+   * Return a point located at the midpoint between pts `start` and `end`
+   */
+  midpoint: (start: VarAD[], end: VarAD[]): IVectorV<VarAD> => {
+    const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+    return {
+      tag: "VectorV",
+      contents: toPt(midpointLoc),
+    };
+  },
+  /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
   midpointOffset: ([t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
@@ -444,7 +420,33 @@ export const compDict = {
         contents: toPt(midpointOffsetLoc),
       };
     } else {
-      throw Error("unsupported shape ${t1} in midpointOffset");
+      throw Error(`unsupported shape ${t1} in midpointOffset`);
+    }
+  },
+  chevron: (
+    // TODO reimplement with variable tick marks when #629 is merged
+    [t1, s1]: [string, any],
+    padding: VarAD,
+    ticks: VarAD
+  ): IPtListV<VarAD> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      // tickPlacement(padding, ticks);
+      const [start, end] = linePts(s1);
+      const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
+      const startDir = ops.vrot(dir, varOf(135));
+      const endDir = ops.vrot(dir, varOf(225));
+      const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      // if even, evenly divide tick marks about center. if odd, start in center and move outwards
+      return {
+        tag: "PtListV",
+        contents: [
+          ops.vmove(center, padding, startDir),
+          center,
+          ops.vmove(center, padding, endDir),
+        ].map(toPt),
+      };
+    } else {
+      throw Error(`unsupported shape ${t1} in chevron`);
     }
   },
   /**
@@ -487,23 +489,21 @@ export const compDict = {
     [t2, s2]: [string, any],
     intersection: Pt2,
     len: VarAD
-  ): IPathDataV<VarAD> => {
+  ): IPathDataV<IVarAD> => {
     if (
       (t1 === "Arrow" || t1 === "Line") &&
       (t2 === "Arrow" || t2 === "Line")
     ) {
       const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
-
-      const elems: Elem<VarAD>[] = [
-        { tag: "Pt", contents: toPt(ptL) },
-        { tag: "Pt", contents: toPt(ptLR) },
-        { tag: "Pt", contents: toPt(ptR) },
-        { tag: "Pt", contents: intersection },
-      ];
-      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
-
-      return { tag: "PathDataV", contents: [path] };
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(ptL))
+        .lineTo(toPt(ptLR))
+        .lineTo(toPt(ptR))
+        .lineTo(intersection)
+        .closePath()
+        .getPath();
     } else {
       throw Error("orientedSquare undefined for types ${t1}, ${t2}");
     }
@@ -555,18 +555,15 @@ export const compDict = {
     [t1, l1]: any,
     [t2, l2]: any,
     [t3, l3]: any
-  ): IPathDataV<VarAD> => {
+  ): IPathDataV<IVarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
-      // As temp hack around furthestFrom, assumes triangle is drawn in a consistent order (first point of each line)
-      const elems: Elem<VarAD>[] = [
-        { tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
-        { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
-        { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] },
-      ];
-
-      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
-
-      return { tag: "PathDataV", contents: [path] };
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(getStart(l1)))
+        .lineTo(toPt(getStart(l2)))
+        .lineTo(toPt(getStart(l3)))
+        .closePath()
+        .getPath();
     } else {
       console.error([t1, l1], [t2, l2], [t3, l3]);
       throw Error("Triangle function expected three lines");
@@ -714,6 +711,10 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdist(v, w) };
   },
 
+  vmul: (s: VarAD, v: VarAD[]): IVectorV<VarAD> => {
+    return { tag: "VectorV", contents: ops.vmul(s, v) };
+  },
+
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
@@ -743,7 +744,6 @@ export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
 // Make sure all arguments are not numbers (they should be VarADs if floats)
 const checkFloat = (x: any) => {
   if (typeof x === "number") {
-    console.log("x", x);
     throw Error("expected float converted to VarAD; got number (int?)");
   }
 };
@@ -814,4 +814,23 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
   }
 
   return res[0] as VarAD[];
+};
+
+const tickPlacement = (
+  padding: VarAD,
+  numPts: VarAD,
+  multiplier = varOf(1)
+): VarAD[] => {
+  if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
+  const even = numOf(numPts) % 2 === 0;
+  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  for (let i = 1; i < numOf(numPts); i++) {
+    if (even && i === 1) multiplier = neg(multiplier);
+    const shift =
+      i % 2 == 0
+        ? mul(padding, mul(neg(varOf(i)), multiplier))
+        : mul(padding, mul(varOf(i), multiplier));
+    pts.push(add(pts[i - 1], shift));
+  }
+  return pts;
 };

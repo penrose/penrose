@@ -128,11 +128,8 @@ export const RenderInteractive = (
  * @param shapes
  * @param labels
  */
-const RenderStatic = ({
-  shapes,
-  labelCache: labels,
-  canvas,
-}: State): SVGSVGElement => {
+export const RenderStatic = (state: State): SVGSVGElement => {
+  const { shapes, labelCache: labels, canvas } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
@@ -144,5 +141,3 @@ const RenderStatic = ({
   );
   return svg;
 };
-
-export default RenderStatic;

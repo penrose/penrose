@@ -1168,21 +1168,6 @@
                       ]
                     }
                   },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
-                    }
-                  },
                   "polyline": {
                     "tag": "Done",
                     "contents": {
@@ -4004,21 +3989,6 @@
                       "contents": "x1.text"
                     }
                   },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
-                    }
-                  },
                   "rotation": {
                     "tag": "Done",
                     "contents": {
@@ -4229,21 +4199,6 @@
                       ]
                     }
                   },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
-                    }
-                  },
                   "polyline": {
                     "tag": "Done",
                     "contents": {
@@ -4447,21 +4402,6 @@
                       ]
                     }
                   },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
-                    }
-                  },
                   "polyline": {
                     "tag": "Done",
                     "contents": {
@@ -4609,21 +4549,6 @@
                       ]
                     }
                   },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
-                    }
-                  },
                   "polyline": {
                     "tag": "Done",
                     "contents": {
@@ -4720,21 +4645,6 @@
                     "contents": {
                       "tag": "StrV",
                       "contents": "x1.unitMarkerText"
-                    }
-                  },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
                     }
                   },
                   "rotation": {
@@ -4986,21 +4896,6 @@
                     "contents": {
                       "tag": "StrV",
                       "contents": "x2.text"
-                    }
-                  },
-                  "polygon": {
-                    "tag": "Done",
-                    "contents": {
-                      "tag": "PolygonV",
-                      "contents": [
-                        [],
-                        [],
-                        [
-                          [null, null],
-                          [null, null]
-                        ],
-                        []
-                      ]
                     }
                   },
                   "rotation": {

@@ -1,0 +1,12 @@
+-- name in registry: circle-example
+Point P, Q, U, S, T, R
+Circle c
+Segment PR := MkSegment(P, R)
+Segment PS := MkSegment(P, S)
+Segment RT := Diameter(c, R, T)
+Collinear(P, Q, R)
+Collinear(P, U, S)
+OnCircle(c, Q)
+OnCircle(c, U)
+Segment ST := Chord(c, S, T)
+AutoLabel All

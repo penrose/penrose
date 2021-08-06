@@ -3,7 +3,7 @@ import * as React from "react";
 import IViewProps from "./IViewProps";
 import AttrPicker from "./mod/AttrPicker";
 import defmap from "./mod/defmap";
-import { ShapeTypes, PenroseState } from "@penrose/core";
+import { PenroseState, Value } from "@penrose/core";
 
 interface IState {
   selectedShape: number;
@@ -14,7 +14,7 @@ class Mod extends React.Component<IViewProps, IState> {
   public setSelectedShape = (key: number) => {
     this.setState({ selectedShape: key });
   };
-  public modAttr = (attrname: string, attrval: ShapeTypes.Value<any>) => {
+  public modAttr = (attrname: string, attrval: Value.Value<any>) => {
     const { frame, modShapes, frameIndex, history } = this.props;
     const { selectedShape } = this.state;
     if (frameIndex === -1 || frameIndex === history.length - 1) {

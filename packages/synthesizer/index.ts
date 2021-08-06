@@ -1,6 +1,7 @@
 require("global-jsdom/register");
 import {
   Registry,
+  showMutations,
   compileDomain,
   compileSubstance,
   prettySubstance,
@@ -8,6 +9,7 @@ import {
   Synthesizer,
   SubProg,
   SynthesizerSetting,
+  SynthesizedSubstance,
 } from "@penrose/core";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
@@ -31,7 +33,7 @@ Options:
   --synth-setting=SET  A JSON file containing parameters for the synthesizer
 `;
 
-const defaultSetting: SynthesizerSetting = {
+export const defaultSetting: SynthesizerSetting = {
   mutationCount: [1, 4],
   argOption: "existing",
   argReuse: "distinct",
@@ -56,10 +58,16 @@ const defaultSetting: SynthesizerSetting = {
     predicate: ["IsSubset"],
     // predicate: [],
   },
+  edit: {
+    type: [],
+    function: [],
+    constructor: [],
+    predicate: [],
+  },
 };
 
 const writePrograms = (
-  progs: SubProg[],
+  progs: SynthesizedSubstance[],
   domainSrc: string,
   prefix: string,
   styleSrc?: string,
@@ -93,7 +101,7 @@ const writePrograms = (
     const metaPath = join(prefix, metaName);
     const { prog, ops } = progs[i];
     writeFileSync(subPath, prettySubstance(prog));
-    writeFileSync(metaPath, JSON.stringify({ ops }));
+    writeFileSync(metaPath, JSON.stringify({ ops: showMutations(ops) }));
     substances[subID] = { name: subID, URI: fileName };
     trios.push({
       substance: subID,
@@ -168,7 +176,7 @@ const writePrograms = (
     const template: SubProg | undefined = synth.getTemplate();
 
     if (template) {
-      progs = [{ prog: template }, ...progs];
+      progs = [{ prog: template, ops: [] }, ...progs];
     }
 
     // write progs
