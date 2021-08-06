@@ -17,7 +17,8 @@ const Section = styled.section`
   height: auto;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid black;
+  height: calc(100vh - 6.75rem);
+  overflow: auto;
 `;
 
 const SubstanceInput = styled.textarea`

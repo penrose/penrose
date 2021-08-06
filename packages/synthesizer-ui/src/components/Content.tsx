@@ -28,14 +28,16 @@ export interface ContentState {
 const ContentSection = styled.section`
   display: flex;
   flex-direction: row;
-  width: 100vw;
+  width: 100%;
   height: auto;
+  overflow: hidden;
 `;
 
 const Header = styled.section`
   display: flex;
   flex-direction: row;
-  width: calc(100%-2rem);
+  width: calc(100vw-2rem);
+  height: 4rem;
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -98,6 +100,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
   };
 
   generateProgs = () => (prompt: string) => {
+    console.log("prompt", prompt);
     const envOrError = compileDomain(this.domain);
 
     // initialize synthesizer
