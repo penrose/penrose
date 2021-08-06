@@ -463,13 +463,27 @@ export const constrDict = {
         const EPS0 = varOf(10e-3);
         // TODO: does not handle line-like objects, which are assumed to have no intersection area
 
-        // Overall energy: Take the sum of (1) the sum of the SDFs of each of the vertices of A to B , (2) the area of overlap, and (3) the closest distance between them. Each term deals with the corresponding case. https://pen-rose.slack.com/archives/D023ZD3PJAY/p1628028563005600
+        // Overall energy: Take the sum of (1) the sum of the "inward depths" of each of the vertices of A to B , (2) the area of overlap, and (3) the closest distance between them. Each term deals with the corresponding case. https://pen-rose.slack.com/archives/D023ZD3PJAY/p1628028563005600
 
         if (IntersectionArea.hasExactImpl(t1, t2)) {
             // Case 1: 1 box is contained in the other. 
             // 1a: A contains B. 1b: B contains A.
+
+            // unfortunately, the current AD implementation is going to evaluate both branches of this `if` (and any `if`) :/ #642
+
+            // If B is contained in A, return the swapped version of this?
+
             // TODO: Write checks, factor out
             // use `areDisjointBoxes` and `isContainedInBoxes`
+            // add the area of overlap
+
+            // TODO: Factor this stuff out nicely
+            const box1 = overboxFromShape(t1, s1);
+            const box2 = overboxFromShape(t2, s2);
+
+            // TODO: Is there a more efficient way to do this?
+            // const res = ifCond(isContainedInBoxes(box1, box2)
+
             throw Error("TODO");
 
             // Case 2: Boxes are intersecting. Penalize their intersection area.
@@ -860,18 +874,41 @@ const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
 /**
  * Return the closest point on segment `[start, end]` to point `pt`, and its distance *squared*.
  */
-const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
-    return [];
-
-
+const closestPt_PtSegDistSq = (pt: VarAD[], seg: VarAD[][]): { p: VarAD[], dsq: VarAD } => {
+    let closestPt = closestPt_PtSeg(pt, seg);
+    return {
+        p: closestPt,
+        dsq: ops.vdistsq(pt, closestPt)
+    };
 };
 
 /**
  * Return the closest point on box `[start, end]` to point `pt`.
  */
 const closestPt_Box = (p: Pt2, b: BBox.BBox): Pt2 => {
-    throw Error("TODO");
-    return [] as Pt2;
+    const segsO = BBox.edges(b);
+    const segs = [segsO.top, segsO.bot, segsO.left, segsO.right];
+    const pds = segs.map(seg => closestPt_PtSegDistSq(p, seg));
+    const ds = pds.map(pd => pd.dsq);
+    const minDsq = min(min(min(ds[0], ds[1]), ds[2]), ds[3]);
+
+    // Do an ifCond on each coordinate of the point (because `ifCond` can only return a single `VarAD`)
+    // For each element of the points-and-dists lists, pick the relevant coordinate as part of the closest pt, if its minDist is equal to the minDist given. It is important that each coordiante is checked in the same order, so the same point is returned in both cases.
+
+    const ERR = constOf(-999);
+    const closestPtX = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[0],
+        ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
+            ifCond(eq(pds[2].dsq, minDsq), pds[2].p[0],
+                ifCond(eq(pds[3].dsq, minDsq), pds[3].p[0],
+                    ERR))));
+
+    const closestPtY = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[1],
+        ifCond(eq(pds[1].dsq, minDsq), pds[1].p[1],
+            ifCond(eq(pds[2].dsq, minDsq), pds[2].p[1],
+                ifCond(eq(pds[3].dsq, minDsq), pds[3].p[1],
+                    ERR))));
+
+    return [closestPtX, closestPtY];
 };
 
 /**
@@ -1018,28 +1055,42 @@ export const isContainedInBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
  * Returns SDF from point `p` to axis-aligned box `b`, following this formula:
  * "Box - exact" https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
  */
-
 export const boxSDF = (p: Pt2, b: BBox.BBox): VarAD => {
     // Transform box and point to be at the origin
-    const o = [constOf(0.), constOf(0.)];
-    const po = ops.vsub(p, b.center);
-    const bo = BBox.BBox(b.w, b.h, o);
+    const o: Pt2 = [constOf(0.), constOf(0.)];
+    const po = ops.vsub(p, b.center) as Pt2;
+    const bo = BBox.bbox(b.w, b.h, o);
 
     // Find the closest point on the box to the query point
-    const pb = closestPt_box(po, bo);
+    const pb: Pt2 = closestPt_Box(po, bo);
 
     // Return origin-centered SDF(p, b)
-    /* // Formula for box at origin
+    /* // Formula for 2D box at origin
     float sdBox( in vec2 p, in vec2 b ) {
         vec2 d = abs(p)-b;
         return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
     } */
 
+    const d: Pt2 = ops.vsub(ops.eabs(p), pb) as Pt2;
+    const sd: VarAD = add(ops.vnorm(ops.emax(d, constOf(0.))),
+        min(max(d[0], d[1]), constOf(0.)));
 
-    // const d = 
+    return sd;
+};
 
-    throw Error("TODO");
-    return constOf(0.);
+// return "inwardDepth" rather than SD  (returns `0` for any member outside) https://pen-rose.slack.com/archives/C2EUR2TV4/p1628163638008900
+export const ptBoxInwardDepth = (p: Pt2, b: BBox.BBox): VarAD => {
+    return min(boxSDF(p, b), constOf(0.));
+};
+
+// assuming `b1` is contained in `b2`?? TODO check this, clean up this comment
+// inward depth of `b1` in `b2` (returns `0` for any member outside)
+// return "inwardDepth" rather than SD: https://pen-rose.slack.com/archives/C2EUR2TV4/p1628163638008900
+export const boxBoxInwardDepth = (b1: BBox.BBox, b2: BBox.BBox): VarAD => {
+    // TODO: Is this `corners` calculation redundant?
+    const c1o = BBox.corners(b1);
+    const c1 = [c1o.topRight, c1o.topLeft, c1o.bottomLeft, c1o.bottomRight];
+    return addN(c1.map(p => ptBoxInwardDepth(p, b2)));
 };
 
 /**

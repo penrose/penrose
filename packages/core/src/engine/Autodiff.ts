@@ -1094,6 +1094,27 @@ export const ops = {
     const t = atan2(ops.cross2(v, w), ops.vdot(v, w));
     return t;
   },
+
+  /**
+   * Return the element-wise absolute value of a vector.
+   */
+    eabs: (v: VarAD[]): VarAD[] => {
+      return v.map(e => absVal(e));
+  },
+
+  /**
+   * Return the element-wise max of a vector.
+   */
+    emax: (v: VarAD[], x: VarAD): VarAD[] => {
+        return v.map(e => max(e, x));
+  },
+
+  /**
+   * Return the element-wise addition of a vector with a number.
+   */
+    eadd: (v: VarAD[], x: VarAD): VarAD[] => {
+        return v.map(e => add(e, x));
+  },
 };
 
 export const fns = {
