@@ -475,9 +475,14 @@ export const constrDict = {
 
             // TODO: See if summing the inward depths works better
             // This will behave differently if each box is in the other (e.g. corners)
+            // It also takes forever if I do it both ways...
             const b1To2InwardDepth = boxBoxInwardDepth(b1, b2);
-            const b2To1InwardDepth = boxBoxInwardDepth(b2, b1);
-            const maxInwardDepth = max(b1To2InwardDepth, b2To1InwardDepth);
+            // const b2To1InwardDepth = boxBoxInwardDepth(b2, b1);
+
+            // TODO: Revert
+            // const maxInwardDepth = max(b1To2InwardDepth, b2To1InwardDepth);
+            const maxInwardDepth = b1To2InwardDepth;
+            // const maxInwardDepth = constOf(0.);
 
             // Case 2: Boxes are intersecting. Penalize their intersection area.
             return add(
@@ -890,17 +895,42 @@ const closestPt_Box = (p: Pt2, b: BBox.BBox): Pt2 => {
     // For each element of the points-and-dists lists, pick the relevant coordinate as part of the closest pt, if its minDist is equal to the minDist given. It is important that each coordiante is checked in the same order, so the same point is returned in both cases.
 
     const ERR = constOf(-999);
-    const closestPtX = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[0],
-        ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
-            ifCond(eq(pds[2].dsq, minDsq), pds[2].p[0],
-                ifCond(eq(pds[3].dsq, minDsq), pds[3].p[0],
-                    ERR))));
 
-    const closestPtY = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[1],
-        ifCond(eq(pds[1].dsq, minDsq), pds[1].p[1],
-            ifCond(eq(pds[2].dsq, minDsq), pds[2].p[1],
-                ifCond(eq(pds[3].dsq, minDsq), pds[3].p[1],
-                    ERR))));
+    // TODO: Revert
+    // const closestPtX = constOf(0.);
+    // const closestPtX = ifCond(eq(pds[0].dsq, minDsq), debug(pds[0].p[0], "pds x val"), ERR);
+
+    // const closestPtX = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[0],
+    //     ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
+    //         ERR));
+
+    // const closestPtX = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[0],
+    //     ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
+    //         ifCond(eq(pds[2].dsq, minDsq), pds[2].p[0],
+    //             ERR)));
+
+    // TODO: Why does `cond1` show up 4 times? because there are 4 segments in a rectangle, which seems fine. Both res1 and res2 show up 4 times in the energy. And 4 times in the gradient. So what is the problem? 2 layers deep = 8715 lines in gradient
+    // 3 layers deep = 8783 lines in gradient. doesn't seem really significant
+    // I mean, it could be better compiled out as a function, but adding another `res` calculation doesn't seem to be that much more math. it's the same amount of compute in the end
+    // Is the problem the energy or the gradient?
+    // Is the problem deeper in the function, or here?
+    const closestPtX = ifCond(debug(eq(pds[0].dsq, minDsq), "cond1"), debug(pds[0].p[0], "res1"),
+        ifCond(debug(eq(pds[1].dsq, minDsq), "cond2"), debug(pds[1].p[0], "res2"),
+            ifCond(debug(eq(pds[2].dsq, minDsq), "cond3"), debug(pds[2].p[0], "res3"),
+                debug(ERR, "err"))));
+
+    // const closestPtX = ifCond(debug(eq(pds[0].dsq, minDsq), "cond1"), debug(pds[0].p[0], "res1"),
+    //     ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
+    //         ifCond(eq(pds[2].dsq, minDsq), pds[2].p[0],
+    //             ifCond(eq(pds[3].dsq, minDsq), pds[3].p[0],
+    //                 ERR))));
+
+    const closestPtY = constOf(0.);
+    // const closestPtY = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[1],
+    //     ifCond(eq(pds[1].dsq, minDsq), pds[1].p[1],
+    //         ifCond(eq(pds[2].dsq, minDsq), pds[2].p[1],
+    //             ifCond(eq(pds[3].dsq, minDsq), pds[3].p[1],
+    //                 ERR))));
 
     return [closestPtX, closestPtY];
 };

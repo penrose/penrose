@@ -7,18 +7,20 @@ import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
-// const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
-const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
+const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
+// const log = consola.create({ level: LogLevel.Warn }).withScope("Optimizer");
 
 // Logging flags
-const PRINT_TEST_RESULTS = true;
+const PRINT_TEST_RESULTS = false;
 const DEBUG_ENERGY = false;
-const DEBUG_GRADIENT = true;
+// const DEBUG_ENERGY = true;
+const DEBUG_GRADIENT = false;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
 
 // Consts
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
+export const EPS_EQ = 10e-3; // For floating-point equality checking
 
 // Reverse-mode AD
 // Implementation adapted from https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation and https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
@@ -1440,7 +1442,7 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     } else if (z.op === "or") {
       stmt = `const ${parName} = ${childName0} || ${childName1};`;
     } else if (z.op === "eq") {
-      stmt = `const ${parName} = ${childName0} === ${childName1};`;
+      stmt = `const ${parName} = Math.abs(${childName0} - ${childName1}) < ${EPS_EQ};`;
     } else if (z.op === "+ list") {
       stmt = `const ${parName} = ${childName0} + ${childName1};`;
     } else if (z.op === "div") {
@@ -1679,6 +1681,7 @@ export const energyAndGradCompiled = (
     weight: epWeightNode,
   };
 
+    log.trace("Generating real energy and gradient");
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen = genCode(
