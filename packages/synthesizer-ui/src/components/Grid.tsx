@@ -2,26 +2,12 @@ import React from "react";
 import { SynthesizedSubstance } from "./Content";
 import { Gridbox } from "./Gridbox";
 import styled from "styled-components";
-import {
-  compileTrio,
-  prepareState,
-  prettySubstance,
-  RenderStatic,
-  stepUntilConvergence,
-} from "@penrose/core";
-import {
-  Async,
-  PromiseFn,
-  useAsync,
-  IfPending,
-  IfFulfilled,
-  IfRejected,
-} from "react-async";
 
 export interface GridProps {
   style: any;
   domain: any;
   progs: SynthesizedSubstance[];
+  onStaged: (n: number, s: string) => void;
 }
 
 const Section = styled.section`
@@ -60,7 +46,6 @@ export class Grid extends React.Component<GridProps, GridState> {
   }
 
   innerContent() {
-    console.log(this.props.progs);
     return this.props.progs.map((s, i) => (
       <Gridbox
         key={`grid-${i}`}
@@ -69,6 +54,7 @@ export class Grid extends React.Component<GridProps, GridState> {
         progNumber={i}
         substance={s}
         srcProg={this.props.progs[0].prog}
+        onStaged={this.props.onStaged}
       />
     ));
   }

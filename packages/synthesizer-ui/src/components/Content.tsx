@@ -10,6 +10,7 @@ import {
 import { Grid } from "./Grid";
 import { defaultSetting, Settings } from "./Settings";
 import styled from "styled-components";
+import { DownloadSVG } from "../utils/utils";
 
 export type ContentProps = any;
 
@@ -21,8 +22,7 @@ export interface SynthesizedSubstance {
 export interface ContentState {
   setting: SynthesizerSetting;
   progs: SynthesizedSubstance[];
-  // style: string;
-  // domain: string;
+  staged: [number, string][];
 }
 
 const ContentSection = styled.section`
@@ -75,6 +75,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     this.state = {
       setting: defaultSetting,
       progs: [],
+      staged: [],
     };
     this.domain = "";
     this.style = "";
@@ -97,6 +98,20 @@ export class Content extends React.Component<ContentProps, ContentState> {
     this.setState({
       setting: newSetting,
     });
+  };
+
+  addStaged = (idx: number, svgStr: string) => {
+    if (svgStr !== "") {
+      const newStaged = this.state.staged;
+      const index = newStaged.map((item) => item[0]).indexOf(idx);
+      if (index > -1) {
+        // delete object from array if it was already staged (i.e. checkbox was unchecked)
+        newStaged.splice(index, 1);
+      } else {
+        newStaged.push([idx, svgStr]);
+        this.setState({ staged: newStaged });
+      }
+    }
   };
 
   generateProgs = () => (prompt: string) => {
@@ -123,9 +138,15 @@ export class Content extends React.Component<ContentProps, ContentState> {
       let progs = synth.generateSubstances(this.state.setting.numPrograms);
       const template: SubProg | undefined = synth.getTemplate();
       if (template) {
-        this.setState({ progs: [{ prog: template }, ...progs] });
+        this.setState({ progs: [{ prog: template }, ...progs], staged: [] });
       }
     }
+  };
+
+  exportDiagrams = () => {
+    this.state.staged.map(([idx, svg]) => {
+      DownloadSVG(svg, `diagram_${idx}`);
+    });
   };
 
   render() {
@@ -134,7 +155,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       <div>
         <Header>
           <H1>Edgeworth</H1>
-          <ExportBtn>Export</ExportBtn>
+          <ExportBtn onClick={this.exportDiagrams}>Export</ExportBtn>
         </Header>
         <ContentSection>
           <Settings
@@ -145,6 +166,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
             style={this.style}
             domain={this.domain}
             progs={this.state.progs}
+            onStaged={this.addStaged}
           />
         </ContentSection>
       </div>

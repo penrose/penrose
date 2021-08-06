@@ -5,13 +5,11 @@ import {
   RenderStatic,
   prettySubstance,
   stepUntilConvergence,
+  resample,
 } from "@penrose/core";
 import { SynthesizedSubstance } from "./Content";
 import styled from "styled-components";
 import React from "react";
-import { trackPromise, usePromiseTracker } from "react-promise-tracker";
-import { Loader } from "./Loader";
-import Async from "react-async";
 
 export interface GridboxProps {
   domain: string;
@@ -19,6 +17,7 @@ export interface GridboxProps {
   substance: SynthesizedSubstance;
   progNumber: number;
   srcProg: any;
+  onStaged: (n: number, s: string) => void;
 }
 
 const Section = styled.section`
@@ -78,7 +77,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     super(props);
     this.state = {
       showDiagram: true,
-      isSelected: this.props.progNumber === 0,
+      isSelected: false,
       diagramSVG: "",
     };
     this.energy = 0; // TODO
@@ -130,7 +129,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         // component is rendered in an array, we want to delay ALL componentDidMount calls until
         // after ALL gridboxes have been initially rendered.
         await new Promise((r) => setTimeout(r, 1));
-        const state = await prepareState(res.value);
+        let state = await prepareState(res.value);
+        state = resample(state, 1);
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {
           throw Error("optimization failed");
@@ -159,14 +159,27 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.setState({ showDiagram: !this.state.showDiagram });
   };
 
+  checkboxClick = () => {
+    this.setState({ isSelected: !this.state.isSelected });
+    this.props.onStaged(this.props.progNumber, this.state.diagramSVG);
+  };
+
   render() {
     const stmts = prettySubstance(this.props.substance.prog);
     return (
       <Section>
         <Header>
-          {this.props.progNumber === 0
-            ? "Original Diagram"
-            : `Mutated Program #${this.props.progNumber}`}
+          <div>
+            {this.props.progNumber === 0
+              ? "Original Diagram"
+              : `Mutated Program #${this.props.progNumber}`}
+          </div>
+          <input
+            name="isStaged"
+            type="checkbox"
+            checked={this.state.isSelected}
+            onChange={this.checkboxClick}
+          />
         </Header>
         <div onClick={this.toggleView}>
           {this.state.showDiagram ? (
