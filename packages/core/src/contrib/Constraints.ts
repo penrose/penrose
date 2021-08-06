@@ -854,6 +854,10 @@ const sampleSeg = (line: VarAD[][]) => {
  * Return the closest point on segment `[start, end]` to point `pt`.
  */
 const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
+    // TODO: Revert - becomes fast if this code is taken away - maybe some bad interaction between the if-conditions and this code?
+    return pt;
+
+
     const EPS0 = varOf(10e-3);
     const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
 
@@ -887,7 +891,12 @@ const closestPt_PtSegDistSq = (pt: VarAD[], seg: VarAD[][]): { p: VarAD[], dsq: 
 const closestPt_Box = (p: Pt2, b: BBox.BBox): Pt2 => {
     const segsO = BBox.edges(b);
     const segs = [segsO.top, segsO.bot, segsO.left, segsO.right];
+
+    // TODO: Revert
     const pds = segs.map(seg => closestPt_PtSegDistSq(p, seg));
+    // It also compiles instantly if this is taken away...
+    // const pds = segs.map(seg => ({ p, dsq: constOf(-999) }));
+
     const ds = pds.map(pd => pd.dsq);
     const minDsq = min(min(min(ds[0], ds[1]), ds[2]), ds[3]);
 
@@ -914,23 +923,23 @@ const closestPt_Box = (p: Pt2, b: BBox.BBox): Pt2 => {
     // I mean, it could be better compiled out as a function, but adding another `res` calculation doesn't seem to be that much more math. it's the same amount of compute in the end
     // Is the problem the energy or the gradient?
     // Is the problem deeper in the function, or here?
-    const closestPtX = ifCond(debug(eq(pds[0].dsq, minDsq), "cond1"), debug(pds[0].p[0], "res1"),
-        ifCond(debug(eq(pds[1].dsq, minDsq), "cond2"), debug(pds[1].p[0], "res2"),
-            ifCond(debug(eq(pds[2].dsq, minDsq), "cond3"), debug(pds[2].p[0], "res3"),
-                debug(ERR, "err"))));
-
     // const closestPtX = ifCond(debug(eq(pds[0].dsq, minDsq), "cond1"), debug(pds[0].p[0], "res1"),
-    //     ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
-    //         ifCond(eq(pds[2].dsq, minDsq), pds[2].p[0],
-    //             ifCond(eq(pds[3].dsq, minDsq), pds[3].p[0],
-    //                 ERR))));
+    //     ifCond(debug(eq(pds[1].dsq, minDsq), "cond2"), debug(pds[1].p[0], "res2"),
+    //         ifCond(debug(eq(pds[2].dsq, minDsq), "cond3"), debug(pds[2].p[0], "res3"),
+    //             debug(ERR, "err"))));
 
-    const closestPtY = constOf(0.);
-    // const closestPtY = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[1],
-    //     ifCond(eq(pds[1].dsq, minDsq), pds[1].p[1],
-    //         ifCond(eq(pds[2].dsq, minDsq), pds[2].p[1],
-    //             ifCond(eq(pds[3].dsq, minDsq), pds[3].p[1],
-    //                 ERR))));
+    const closestPtX = ifCond(debug(eq(pds[0].dsq, minDsq), "cond1"), debug(pds[0].p[0], "res1"),
+        ifCond(eq(pds[1].dsq, minDsq), pds[1].p[0],
+            ifCond(eq(pds[2].dsq, minDsq), pds[2].p[0],
+                ifCond(eq(pds[3].dsq, minDsq), pds[3].p[0],
+                    ERR))));
+
+    // const closestPtY = constOf(0.);
+    const closestPtY = ifCond(eq(pds[0].dsq, minDsq), pds[0].p[1],
+        ifCond(eq(pds[1].dsq, minDsq), pds[1].p[1],
+            ifCond(eq(pds[2].dsq, minDsq), pds[2].p[1],
+                ifCond(eq(pds[3].dsq, minDsq), pds[3].p[1],
+                    ERR))));
 
     return [closestPtX, closestPtY];
 };

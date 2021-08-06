@@ -132,11 +132,13 @@ export const yRange = (b: BBox): [VarAD, VarAD] => {
  * The four edges of the BBox.
  */
 export const edges = (b: BBox): Edges => {
+    let cornerPts = corners(b);
+
     return {
-        top: <[Pt2, Pt2]>[corners(b).topLeft, corners(b).topRight],
-        bot: <[Pt2, Pt2]>[corners(b).bottomLeft, corners(b).bottomRight],
-        left: <[Pt2, Pt2]>[corners(b).bottomLeft, corners(b).topLeft],
-        right: <[Pt2, Pt2]>[corners(b).bottomRight, corners(b).topRight],
+        top: <[Pt2, Pt2]>[cornerPts.topLeft, cornerPts.topRight],
+        bot: <[Pt2, Pt2]>[cornerPts.bottomLeft, cornerPts.bottomRight],
+        left: <[Pt2, Pt2]>[cornerPts.bottomLeft, cornerPts.topLeft],
+        right: <[Pt2, Pt2]>[cornerPts.bottomRight, cornerPts.topRight],
     };
 };
 
