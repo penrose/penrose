@@ -6,7 +6,8 @@ import {
   replaceStmt,
   stmtExists,
 } from "analysis/SubstanceAnalysis";
-import { prettyStmt, prettySubNode } from "compiler/Substance";
+import { prettyStmt, prettySubNode, prettySubstance } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Env } from "index";
 import { range, without } from "lodash";
@@ -18,6 +19,10 @@ import {
   SubStmt,
 } from "types/substance";
 import { addID, removeID, SynthesisContext, WithContext } from "./Synthesizer";
+
+const log = consola
+  .create({ level: LogLevel.Info })
+  .withScope("Substance mutation");
 
 //#region Mutation types
 
@@ -83,6 +88,7 @@ export interface ChangeStmtType extends IMutation {
   tag: "ChangeStmtType";
   stmt: ApplyPredicate;
   newStmt: SubStmt;
+  // NOTE: this array actually includes the delete for the deletion of the original statement
   additionalMutations: Mutation[];
 }
 
@@ -91,6 +97,7 @@ export interface ChangeExprType extends IMutation {
   stmt: Bind;
   expr: ArgExpr;
   newStmt: SubStmt;
+  // NOTE: this array actually includes the delete for the deletion of the original statement
   additionalMutations: Mutation[];
 }
 
@@ -141,7 +148,7 @@ export const executeMutations = (
     { res: prog, ctx }
   );
 
-const swap = (arr: any[], a: number, b: number) =>
+const swap = <T>(arr: T[], a: number, b: number): T[] =>
   arr.map((current, idx) => {
     if (idx === a) return arr[b];
     if (idx === b) return arr[a];
@@ -152,16 +159,25 @@ const swap = (arr: any[], a: number, b: number) =>
 
 //#region Mutation constructors
 
-export const deleteMutation = (stmt: SubStmt): Delete => ({
+export const deleteMutation = (
+  stmt: SubStmt,
+  newCtx?: SynthesisContext
+): Delete => ({
   tag: "Delete",
   stmt,
-  mutate: removeStmtCtx,
+  // if a new context is provided, use the new context. Otherwise automatically update the context
+  mutate: newCtx
+    ? ({ stmt }, p) => withCtx(removeStmt(p, stmt), newCtx)
+    : removeStmtCtx,
 });
 
-export const addMutation = (stmt: SubStmt): Add => ({
+export const addMutation = (stmt: SubStmt, newCtx?: SynthesisContext): Add => ({
   tag: "Add",
   stmt,
-  mutate: appendStmtCtx,
+  // if a new context is provided, use the new context. Otherwise automatically update the context
+  mutate: newCtx
+    ? ({ stmt }, p) => withCtx(appendStmt(p, stmt), newCtx)
+    : appendStmtCtx,
 });
 
 //#endregion
@@ -206,19 +222,19 @@ export const removeStmtCtx = (
 export const checkAddStmts = (
   prog: SubProg,
   cxt: SynthesisContext,
-  newStmts: (cxt: SynthesisContext) => SubStmt[]
+  newStmts: (cxt: SynthesisContext) => WithContext<SubStmt[]>
 ): Add[] | undefined => {
-  const stmts: SubStmt[] = newStmts(cxt);
-  return stmts.map((stmt: SubStmt) => addMutation(stmt));
+  const { res: stmts, ctx: newCtx } = newStmts(cxt);
+  return stmts.map((stmt: SubStmt) => addMutation(stmt, newCtx));
 };
 
 export const checkAddStmt = (
   prog: SubProg,
   cxt: SynthesisContext,
-  newStmt: (cxt: SynthesisContext) => SubStmt
+  newStmt: (cxt: SynthesisContext) => WithContext<SubStmt>
 ): Add | undefined => {
-  const stmt: SubStmt = newStmt(cxt);
-  return addMutation(stmt);
+  const { res: stmt, ctx: newCtx } = newStmt(cxt);
+  return addMutation(stmt, newCtx);
 };
 
 export const checkSwapStmtArgs = (
@@ -349,11 +365,12 @@ export const checkReplaceExprName = (
 
 export const checkDeleteStmt = (
   prog: SubProg,
-  stmt: SubStmt
+  stmt: SubStmt,
+  newCtx?: SynthesisContext
 ): Delete | undefined => {
   const s = stmt;
   if (stmtExists(s, prog)) {
-    return deleteMutation(s);
+    return deleteMutation(s, newCtx);
   } else return undefined;
 };
 
@@ -367,7 +384,7 @@ const changeType = (
     prog,
     ctx
   );
-  return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
+  return withCtx(appendStmt(newProg, newStmt), newCtx);
 };
 
 export const checkChangeStmtType = (

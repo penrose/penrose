@@ -64,7 +64,6 @@ export const stepUntilConvergence = (
   numSteps = 10000
 ): Result<State, RuntimeError> => {
   let currentState = state;
-  log.warn(currentState.params.optStatus);
   while (
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)

@@ -320,7 +320,7 @@ describe("Mutation recognition tests", () => {
     const swappedPred = fromSet[0];
     const mutations = enumerateMutations(swappedPred, env);
     // apply each mutation and see how many of them match with the result
-    const ctx = initContext(env);
+    const ctx = initContext(env, "existing", "distinct");
     const matchedMutations = mutations.filter((m) => {
       const { res: mutatedAST } = executeMutation(m, ast1, ctx);
       return (
@@ -357,7 +357,7 @@ describe("Mutation recognition tests", () => {
     const { res: ast2from1 } = executeMutations(
       mutationGroups[0],
       ast1,
-      initContext(env)
+      initContext(env, "existing", "distinct")
     );
     expect(prettySubstance(sortStmts(ast2from1))).toEqual(
       prettySubstance(sortStmts(ast2))

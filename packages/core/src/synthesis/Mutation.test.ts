@@ -2,7 +2,11 @@ import { compileDomain } from "compiler/Domain";
 import { compileSubstance, prettyStmt } from "compiler/Substance";
 import { SubRes } from "types/substance";
 import { showError } from "utils/Error";
-import { enumerateMutations, showMutations } from "./Mutation";
+import {
+  checkChangeExprType,
+  enumerateMutations,
+  showMutations,
+} from "./Mutation";
 
 const domainSrc = `
 type Set

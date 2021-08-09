@@ -73,7 +73,11 @@ Set D`;
         type: ["Set"],
       },
     });
-    const ctx = initContext(synth.env);
+    const ctx = initContext(
+      synth.env,
+      defaultSetting.argOption,
+      defaultSetting.argReuse
+    );
     const toDelete = synth.currentProg.statements[0] as Decl;
     expect("Set A").toEqual(prettyStmt(toDelete));
     const cascadedStmts: SubStmt[] = cascadingDelete(
