@@ -472,7 +472,6 @@ export const constrDict = {
     return sub(sub(s1.r.contents, s2.r.contents), offset);
   },
 
-  // TODO: does not handle line overlapping
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
