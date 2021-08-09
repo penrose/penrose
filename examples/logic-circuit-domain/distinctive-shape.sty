@@ -218,7 +218,7 @@ with Node A; Node B {
         color : rgba(0.0, 0.0, 0.0, 1.0)
         thickness: 1.0
     }
-    encourage equal(A.center[1], B.center[1])
+    encourage equalSoft(A.center[1], B.center[1])
     ensure lessThan(A.center[0], B.center[0])
     ensure lessThan(A.center[0], C.pivot)
     ensure lessThan(C.pivot, B.center[0])

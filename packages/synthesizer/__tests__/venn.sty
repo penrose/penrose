@@ -46,7 +46,7 @@ Set x
 with Set y
 where Equal(x, y) {
     encourage sameCenter(x.shape, y.shape)
-    encourage equal(x.shape.r, y.shape.r)
+    encourage equalSoft(x.shape.r, y.shape.r)
 
     -- override y.text.string = concat(y.label, "=", x.label)
     -- override x.text.string = 

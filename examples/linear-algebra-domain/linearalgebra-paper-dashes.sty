@@ -152,7 +152,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
       -- Make sure vectors are orthogonal (use ensure?)
       -- eq = functions.equal
-      encourage equal(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
+      encourage equalSoft(dot(u.vector, v.vector), 0.0) -- NOTE: Have to import Penrose fns
 
 -- COMBAK: Test parsing the expressions that involve local vars 
       layer v.arrow above perpMark
