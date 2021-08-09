@@ -72,7 +72,7 @@ import { checkReplaceStmtName } from "./Mutation";
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Error })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -120,8 +120,8 @@ interface IDList {
 
 export const initContext = (env: Env): SynthesisContext => {
   const ctx: SynthesisContext = {
-    names: Map(),
-    declaredIDs: Map(),
+    names: Map<string, number>(),
+    declaredIDs: Map<string, Identifier[]>(),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -170,7 +170,7 @@ const getDecls = (
     case "PredicateDecl":
       return env.predicates;
     case undefined:
-      return Map();
+      return Map<string, DomainStmt>();
   }
   throw new Error(`${type} is not found in the environment`);
 };
@@ -301,7 +301,7 @@ export class Synthesizer {
     this.choice = createChoice(rng);
     this.random = createRandom(rng);
     // keep track of all generated names
-    this.names = Map();
+    this.names = Map<string, number>();
   }
 
   generateID = (
@@ -333,7 +333,7 @@ export class Synthesizer {
 
   reset = (): void => {
     this.currentProg = cloneDeep(this.template);
-    this.names = Map();
+    this.names = Map<string, number>();
     this.currentMutations = [];
   };
 
