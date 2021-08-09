@@ -459,10 +459,11 @@ export class Synthesizer {
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts, ctx: newCtx } = generateArgStmt(pick, ctx);
+            const deleteOp: Delete = deleteMutation(oldStmt, newCtx);
             const addOps: Add[] = stmts.map((s) => addMutation(s, newCtx));
             return {
               newStmt: res,
-              additionalMutations: [...addOps],
+              additionalMutations: [deleteOp, ...addOps],
             };
           } else return undefined;
         }
