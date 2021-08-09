@@ -422,7 +422,6 @@ export const constrDict = {
     padding = 0,
   ) => {
     const EPS0 = varOf(10e-3);
-    // TODO: does not handle line-like objects, which are assumed to have no intersection area
     return add(
       IntersectionArea.exactOrUpperBound([t1, s1], [t2, s2]),
       ifCond(
