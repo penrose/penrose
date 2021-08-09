@@ -1,7 +1,7 @@
 import React from "react";
-import { SynthesizedSubstance } from "./Content";
+import { SynthesizedSubstance } from "@penrose/core";
 import { Gridbox } from "./Gridbox";
-import styled from "styled-components";
+import { Box, styled, Toolbar, Typography } from "@material-ui/core";
 
 export interface GridProps {
   style: any;
@@ -10,28 +10,32 @@ export interface GridProps {
   onStaged: (n: number, s: string) => void;
 }
 
-const Section = styled.section`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  height: calc(100vh - 6.75rem);
-  border-left: 1px solid black;
-  width: 100%;
-  padding: 1rem;
-  overflow: auto;
-`;
+const GridContainer = styled("main")({
+  flexGrow: 1,
+  marginLeft: "4rem",
+});
 
-const Placeholder = styled.section`
-  border: 2px dashed gray;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: gray;
-  width: 98%;
-  font-size: 2rem;
-  border-radius: 1rem;
-`;
+const GridContent = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
+  height: "calc(100vh - 5rem)",
+  width: "100%",
+  overflow: "auto",
+  margin: "0",
+  padding: "0",
+  paddingTop: "1rem",
+});
+
+const Placeholder = styled(Box)({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
+  margin: "0",
+  padding: "0",
+});
 
 interface GridState {
   svgs: string[];
@@ -61,14 +65,20 @@ export class Grid extends React.Component<GridProps, GridState> {
 
   render() {
     console.log("making grid", this.props.progs);
-    if (this.props.progs.length === 0) {
-      return (
-        <Section>
-          <Placeholder>{"Generate diagrams to view them here"}</Placeholder>
-        </Section>
+    const content =
+      this.props.progs.length === 0 ? (
+        <Placeholder>
+          <Typography variant="h6">
+            {"Generate diagrams to view them here"}
+          </Typography>
+        </Placeholder>
+      ) : (
+        this.innerContent()
       );
-    } else {
-      return <Section>{this.innerContent()}</Section>;
-    }
+    return (
+      <GridContainer>
+        <GridContent>{content}</GridContent>
+      </GridContainer>
+    );
   }
 }

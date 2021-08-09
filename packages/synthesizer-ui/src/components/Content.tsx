@@ -6,66 +6,30 @@ import {
   SubProg,
   Synthesizer,
   SynthesizerSetting,
+  SynthesizedSubstance,
 } from "@penrose/core";
 import { Grid } from "./Grid";
-import { defaultSetting, Settings } from "./Settings";
-import styled from "styled-components";
+import { Settings } from "./Settings";
 import { DownloadSVG } from "../utils/utils";
+import { Button, Box, styled, Typography, Toolbar } from "@material-ui/core";
+import { AppBar } from "@material-ui/core";
 
 export type ContentProps = any;
 
-export interface SynthesizedSubstance {
-  prog: SubProg;
-  ops: string;
-}
-
 export interface ContentState {
-  setting: SynthesizerSetting;
   progs: SynthesizedSubstance[];
   staged: [number, string][];
 }
 
-const ContentSection = styled.section`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-`;
-
-const Header = styled.section`
-  display: flex;
-  flex-direction: row;
-  width: calc(100vw-2rem);
-  height: 4rem;
-  justify-content: space-between;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  border-bottom: 1px solid gray;
-`;
-
-const H1 = styled.h1``;
-
-const Btn = styled.button`
-  display: inline-block;
-  color: gray;
-  font-size: 1rem;
-  margin: 1rem;
-  width: 4.5rem;
-  height: 2rem;
-  padding: 0.25rem 1rem;
-  border: 2px solid gray;
-  border-radius: 0.25rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ExportBtn = styled(Btn)`
-  background-color: purple;
-  border: none;
-  color: white;
-`;
+const ContentSection = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  width: "100%",
+  height: "auto",
+  overflow: "hidden",
+  margin: "0",
+  padding: "0",
+});
 
 export class Content extends React.Component<ContentProps, ContentState> {
   private domain: string;
@@ -73,7 +37,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
   constructor(props: ContentProps) {
     super(props);
     this.state = {
-      setting: defaultSetting,
       progs: [],
       staged: [],
     };
@@ -94,12 +57,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
       });
   }
 
-  updateSettings = () => (newSetting: SynthesizerSetting) => {
-    this.setState({
-      setting: newSetting,
-    });
-  };
-
   addStaged = (idx: number, svgStr: string) => {
     if (svgStr !== "") {
       const newStaged = this.state.staged;
@@ -114,7 +71,11 @@ export class Content extends React.Component<ContentProps, ContentState> {
     }
   };
 
-  generateProgs = () => (prompt: string) => {
+  generateProgs = () => (
+    setting: SynthesizerSetting,
+    numPrograms: number,
+    prompt: string
+  ) => {
     console.log("prompt", prompt);
     const envOrError = compileDomain(this.domain);
 
@@ -134,11 +95,14 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, this.state.setting, subResult);
-      let progs = synth.generateSubstances(this.state.setting.numPrograms);
+      const synth = new Synthesizer(env, setting, subResult);
+      let progs = synth.generateSubstances(numPrograms);
       const template: SubProg | undefined = synth.getTemplate();
       if (template) {
-        this.setState({ progs: [{ prog: template }, ...progs], staged: [] });
+        this.setState({
+          progs: [{ prog: template, ops: [] }, ...progs],
+          staged: [],
+        });
       }
     }
   };
@@ -153,15 +117,20 @@ export class Content extends React.Component<ContentProps, ContentState> {
     console.log("re-rendering content", this.state.progs.length);
     return (
       <div>
-        <Header>
-          <H1>Edgeworth</H1>
-          <ExportBtn onClick={this.exportDiagrams}>Export</ExportBtn>
-        </Header>
+        <AppBar position="fixed">
+          <Toolbar>
+            <Typography variant="h6" noWrap>
+              Edgeworth
+            </Typography>
+            <Button color="inherit" onClick={this.exportDiagrams}>
+              Export
+            </Button>
+          </Toolbar>
+        </AppBar>
+        {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}
+        <Toolbar />
         <ContentSection>
-          <Settings
-            updateSettings={this.updateSettings}
-            generateCallback={this.generateProgs()}
-          />
+          <Settings generateCallback={this.generateProgs()} />
           <Grid
             style={this.style}
             domain={this.domain}

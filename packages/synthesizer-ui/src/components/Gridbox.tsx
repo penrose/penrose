@@ -6,10 +6,17 @@ import {
   prettySubstance,
   stepUntilConvergence,
   resample,
+  SynthesizedSubstance,
 } from "@penrose/core";
-import { SynthesizedSubstance } from "./Content";
-import styled from "styled-components";
 import React from "react";
+import {
+  styled,
+  Box,
+  AppBar,
+  Checkbox,
+  Card,
+  Typography,
+} from "@material-ui/core";
 
 export interface GridboxProps {
   domain: string;
@@ -20,42 +27,48 @@ export interface GridboxProps {
   onStaged: (n: number, s: string) => void;
 }
 
-const Section = styled.section`
-  margin: 0.5rem;
-  width: 25rem;
-  height: 25rem;
-  border: 1px solid gray;
-`;
+// const Section = styled.section`
+//   margin: 0.5rem;
+//   width: 25rem;
+//   height: 25rem;
+//   border: 1px solid gray;
+// `;
 
-const LowEnergy = styled(Section)`
-  border: 3px solid green;
-`;
+const Section = styled(Card)({
+  margin: "0,5rem",
+  width: "25rem",
+  height: "25rem",
+  border: "1px solid gray",
+});
 
-const HighEnergy = styled(Section)`
-  border: 3px solid red;
-`;
+// const LowEnergy = styled(Section)`
+//   border: 3px solid green;
+// `;
 
-const Header = styled.section`
-  width: calc(100% - 0.5rem);
-  height: 1.75rem;
-  border-bottom: 1px solid black;
-  font-size: 1rem;
-  color: gray;
-  padding: 0.25rem;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
+// const HighEnergy = styled(Section)`
+//   border: 3px solid red;
+// `;
 
-const Body = styled.section`
-  font-family: "Courier New", sans-serif;
-  height: calc(25rem - 4.25rem);
-  font-size: 0.8rem;
-  color: black;
-  overflow: auto;
-  padding: 1rem;
-  white-space: pre-wrap;
-`;
+const Header = styled(Box)({
+  width: "calc(100% - .75rem)",
+  height: "1.75rem",
+  borderBottom: "1px solid black",
+  fontSize: "1rem",
+  color: "gray",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  padding: "0.5rem 0 0.5rem 0.75rem",
+});
+
+const Body = styled(Box)({
+  fontFamily: "Courier New, sans-serif",
+  height: "calc(25rem - 4.25rem)",
+  fontSize: "0.8rem",
+  color: "black",
+  overflow: "auto",
+  whiteSpace: "pre-wrap",
+});
 
 const programString = (stmts: string, ops: string) => {
   return `${stmts}
@@ -169,14 +182,13 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     return (
       <Section>
         <Header>
-          <div>
+          <Typography>
             {this.props.progNumber === 0
               ? "Original Diagram"
               : `Mutated Program #${this.props.progNumber}`}
-          </div>
-          <input
+          </Typography>
+          <Checkbox
             name="isStaged"
-            type="checkbox"
             checked={this.state.isSelected}
             onChange={this.checkboxClick}
           />
@@ -193,7 +205,9 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             <Body>
               {programString(
                 stmts,
-                this.props.progNumber === 0 ? "" : this.props.substance.ops
+                this.props.progNumber === 0
+                  ? ""
+                  : this.props.substance.ops.join("\n")
               )}
             </Body>
           )}

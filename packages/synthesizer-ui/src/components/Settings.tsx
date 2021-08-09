@@ -1,88 +1,66 @@
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+} from "@material-ui/core";
+import {
+  styled,
+  Button,
+  TextField,
+  Box,
+  Drawer,
+  Toolbar,
+} from "@material-ui/core";
 import { SynthesizerSetting } from "@penrose/core";
 import React from "react";
-import styled from "styled-components";
+import { MultiselectDropdown } from "./MultiselectDropdown";
 
 export interface SettingsProps {
-  updateSettings: (setting: SynthesizerSetting) => {};
-  generateCallback: (sub: string) => void;
+  generateCallback: (
+    setting: SynthesizerSetting,
+    numPrograms: number,
+    sub: string
+  ) => void;
 }
 
 interface SettingState {
   substance: string;
-  setting: SynthesizerSetting;
+  setting: SynthesizerSetting | undefined;
+  numPrograms: number;
 }
 
-const Section = styled.section`
-  width: 30vw;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 6.75rem);
-  overflow: auto;
-`;
+const InputContainer = styled(Box)({
+  padding: "0.5rem",
+  paddingTop: "1rem",
+  width: "25vw",
+});
 
-const SubstanceInput = styled.textarea`
-  width: 95%;
-  height: 200px;
-`;
+const SettingsDrawer = styled(Drawer)(({ theme }) => ({
+  width: "25vw",
+  flexShrink: 0,
+  overflow: "auto",
+  zIndex: theme.zIndex.appBar - 10,
+  display: "flex",
+}));
 
-const InputContainer = styled.section`
-  display: flex;
-  border-bottom: 1px solid black;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 0.45rem;
-  padding-bottom: 1rem;
-`;
-
-const Btn = styled.button`
-  display: inline-block;
-  color: gray;
-  font-size: 1rem;
-  margin: 1rem;
-  height: 2rem;
-  padding: 0.25rem 1rem;
-  border: 2px solid gray;
-  border-radius: 0.25rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const defaultSetting: SynthesizerSetting = {
-  mutationCount: [1, 4],
-  numPrograms: 10,
-  argOption: "existing",
-  argReuse: "distinct",
-  weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.2,
-  },
-  add: {
-    type: [],
-    function: [],
-    constructor: ["InteriorAngle"],
-    predicate: ["EqualLength", "RightUnmarked"],
-  },
-  delete: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: ["RightMarked", "EqualLengthMarker", "EqualLength"],
-  },
-  edit: {
-    type: [],
-    function: [],
-    constructor: ["MkSegment"],
-    predicate: ["RightMarked", "EqualLength", "EqualLengthMarker"],
-  },
-};
+// const Btn = styled.button`
+//   display: inline-block;
+//   color: gray;
+//   font-size: 1rem;
+//   margin: 1rem;
+//   height: 2rem;
+//   padding: 0.25rem 1rem;
+//   border: 2px solid gray;
+//   border-radius: 0.25rem;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// `;
 
 export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
-    this.state = { substance: "", setting: defaultSetting };
+    this.state = { substance: "", setting: undefined, numPrograms: 10 };
   }
 
   componentDidMount() {
@@ -91,10 +69,11 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       .then((text) => {
         this.updateSubstance(text);
       });
-  }
-
-  componentDidUpdate() {
-    this.props.updateSettings(this.state.setting);
+    fetch("public/files/defaultSetting.json")
+      .then((r) => r.json())
+      .then((text) => {
+        this.updateSetting(text);
+      });
   }
 
   updateSubstance = (newSub: string) => {
@@ -106,6 +85,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   updateSetting = (newSetting: SynthesizerSetting) => {
     this.setState({ setting: newSetting });
+    // console.log(Object.entries(this.state.setting).map([k, v]) => {})
   };
 
   onChange = (event: any) => {
@@ -113,35 +93,85 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     if (event.target.name === "sub") {
       console.log("changing substance!", event.target.value);
       this.updateSubstance(event.target.value);
-    } else {
-      console.log("changing ", event.target.name, event.target.value);
-      const typeSelect = (s: string, op: any, arr: any[]) => {
-        if (s === "Type") return { ...op, type: arr };
-        if (s === "Constructor") return { ...op, constructor: arr };
-        if (s === "Function") return { ...op, function: arr };
-        if (s === "Predicate") return { ...op, predicate: arr };
-      };
-      const [op, stmtType] = event.target.name.split("-");
-      const val = event.target.value.replace(/\s/g, "").split(",");
-      let newSetting = this.state.setting;
-      console.log(op);
+      // } else {
+      //   console.log("changing ", event.target.name, event.target.value);
+      //   const typeSelect = (s: string, op: any, arr: any[]) => {
+      //     if (s === "Type") return { ...op, type: arr };
+      //     if (s === "Constructor") return { ...op, constructor: arr };
+      //     if (s === "Function") return { ...op, function: arr };
+      //     if (s === "Predicate") return { ...op, predicate: arr };
+      //   };
+      //   const [op, stmtType] = event.target.name.split("-");
+      //   const val = event.target.value.replace(/\s/g, "").split(",");
+      //   let newSetting = this.state.setting;
+      //   console.log(op);
+      //   if (newSetting) {
+      //     switch (op) {
+      //       case "Add":
+      //         newSetting = {
+      //           ...newSetting,
+      //           add: typeSelect(stmtType, newSetting.add, val),
+      //         };
+      //         break;
+      //       case "Delete":
+      //         newSetting = {
+      //           ...newSetting,
+      //           delete: typeSelect(stmtType, newSetting.delete, val),
+      //         };
+      //         break;
+      //       case "Edit":
+      //         newSetting = {
+      //           ...newSetting,
+      //           edit: typeSelect(stmtType, newSetting.edit, val),
+      //         };
+      //         break;
+      //       default:
+      //         break;
+      //     }
+      //     console.log(newSetting);
+      //     this.setState({ setting: newSetting });
+      //   }
+    }
+  };
+
+  onGenerateClick = () => {
+    console.log("clicky", this.state.numPrograms);
+    if (this.state.setting)
+      this.props.generateCallback(
+        this.state.setting,
+        this.state.numPrograms,
+        this.state.substance
+      );
+  };
+
+  onChangeMultiselect = (op: string, stmtType: string) => (
+    selected: string[]
+  ) => {
+    const typeSelect = (s: string, op: any, arr: any[]) => {
+      if (s === "Type") return { ...op, type: arr };
+      if (s === "Constructor") return { ...op, constructor: arr };
+      if (s === "Function") return { ...op, function: arr };
+      if (s === "Predicate") return { ...op, predicate: arr };
+    };
+    let newSetting = this.state.setting;
+    if (newSetting) {
       switch (op) {
         case "Add":
           newSetting = {
             ...newSetting,
-            add: typeSelect(stmtType, newSetting.add, val),
+            add: typeSelect(stmtType, newSetting.add, selected),
           };
           break;
         case "Delete":
           newSetting = {
             ...newSetting,
-            delete: typeSelect(stmtType, newSetting.delete, val),
+            delete: typeSelect(stmtType, newSetting.delete, selected),
           };
           break;
         case "Edit":
           newSetting = {
             ...newSetting,
-            edit: typeSelect(stmtType, newSetting.edit, val),
+            edit: typeSelect(stmtType, newSetting.edit, selected),
           };
           break;
         default:
@@ -152,56 +182,83 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     }
   };
 
-  onGenerateClick = () => {
-    this.props.updateSettings(this.state.setting);
-    this.props.generateCallback(this.state.substance);
+  getDefaults = (mutationType: string, stmtType: string): string[] => {
+    let defaults: string[] = [];
+    if (this.state.setting) {
+      Object.entries(this.state.setting).map(([key, values]: [string, any]) => {
+        if (mutationType.toLowerCase() === key) {
+          Object.entries(values).map(([k, v]: [string, any]) => {
+            if (stmtType.toLowerCase() === k) {
+              defaults = v;
+            }
+          });
+        }
+      });
+    }
+    console.log(defaults, this.state.setting);
+    return defaults;
   };
 
   inputElements = () => {
-    const setting = this.state.setting;
-    const ops = ["Add", "Edit", "Delete"];
-    const types = ["Type", "Constructor", "Function", "Predicate"];
-    return [setting.add, setting.delete, setting.edit].map((op, idx) => (
-      <InputContainer key={ops[idx]}>
-        {`${ops[idx]}:`}
-        {[op.type, op.constructor, op.function, op.predicate].map(
-          (type: string[], i: number) => (
-            <input
-              type="text"
-              key={`${ops[idx]}-${types[i]}`}
-              name={`${ops[idx]}-${types[i]}`}
-              placeholder={`${types[i]} Statements`}
-              value={type.join(", ")}
-              onChange={this.onChange}
-            />
-          )
-        )}
-      </InputContainer>
+    return ["Add", "Edit", "Delete"].map((op) => (
+      <Accordion key={op}>
+        <AccordionSummary>{`Configure Statements to ${op}:`}</AccordionSummary>
+        <AccordionDetails>
+          <InputContainer>
+            {["Type", "Constructor", "Function", "Predicate"].map(
+              (stmtType) => (
+                <MultiselectDropdown
+                  stmtType={stmtType}
+                  mutationType={op}
+                  key={`${op}-${stmtType}`}
+                  // name={`${op}-${stmtType}`}
+                  onChange={this.onChangeMultiselect(op, stmtType)}
+                  defaults={this.getDefaults(op, stmtType)}
+                />
+              )
+            )}
+          </InputContainer>
+        </AccordionDetails>
+      </Accordion>
     ));
   };
 
   render() {
     return (
-      <Section>
+      <SettingsDrawer variant="permanent">
+        {/* NOTE: Toolbar is used exclusively to space the content underneath the header of the page.
+        The Settings element is floating so it must be included */}
+        <Toolbar />
         <form
           onSubmit={(e) => {
             e.preventDefault();
             console.log("blocked submit");
           }}
+          autoComplete="off"
         >
           <InputContainer>
-            Substance:
-            <SubstanceInput
+            <TextField
+              rows={10}
               name="sub"
+              multiline
+              label="Substance Program:"
+              variant="outlined"
+              fullWidth
               onChange={this.onChange}
               value={this.state.substance}
             />
           </InputContainer>
           <br />
           {this.inputElements()}
-          <Btn onClick={this.onGenerateClick}>Generate Diagrams</Btn>
+          <Button
+            onClick={this.onGenerateClick}
+            color="secondary"
+            variant="outlined"
+          >
+            Generate Diagrams
+          </Button>
         </form>
-      </Section>
+      </SettingsDrawer>
     );
   }
 }
