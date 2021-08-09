@@ -1,4 +1,5 @@
-import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { overboxFromShape } from "engine/BBox";
 import {
   absVal,
   add,
@@ -525,7 +526,7 @@ export const compDict = {
     }
 
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bboxFromShape(t1, s1);
+    const rect = overboxFromShape(t1, s1);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
