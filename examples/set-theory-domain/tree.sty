@@ -25,10 +25,10 @@ where IsSubset(x, y) {
     encourage centerArrow(arrow, x.icon, y.icon)
 
     -- Position y above x
-    ensure above(y.icon, x.icon)
+    encourage above(y.icon, x.icon)
 
     -- Have sets 'fight' to be aligned with the superset's x-position
-    encourage equalSoft(x.icon.center[0], y.icon.center[0])
+    encourage equal(x.icon.center[0], y.icon.center[0])
 }
 
 /*

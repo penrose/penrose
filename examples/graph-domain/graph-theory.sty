@@ -106,7 +106,7 @@ with Vertex v1; Vertex v2 {
      ensure contains(global.box, E.text)
 
      -- TODO: encourage edge to be horizontal
-   encourage equalSoft(v1.shape.center[1], v2.shape.center[1]) -- encourage horizontal (same y-coord)
+   encourage equal(v1.shape.center[1], v2.shape.center[1]) -- encourage horizontal (same y-coord)
    ensure lessThan(v1.shape.center[0], v2.shape.center[0]) -- ensure arrows are left-to-right
    ensure minSize(E.shape)
 

@@ -234,7 +234,7 @@ Segment e; Plane p {
 
 Linelike s, t
 where EqualLength(s, t) {
-  encourage equalSoft(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
+  encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
 --TODO eventually this should also provide an equal length marker since it is bisecting the segment
