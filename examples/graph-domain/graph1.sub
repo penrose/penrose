@@ -1,5 +1,6 @@
 Graph G1
 Vertex v1, v2, v3, v4
+-- Vertex v1, v2
 
 Edge e1 := MkEdge(v1, v2)
 Edge e2 := MkEdge(v1, v3)

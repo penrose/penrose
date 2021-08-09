@@ -15,8 +15,8 @@ const isRectLike = (t: string) => ["Rectangle", "Square", "Image", "Text"].inclu
 
 export const hasExactImpl = (t1: string, t2: string) => {
   return (
-    hasMeasureZero(t1) ||
-    hasMeasureZero(t2) ||
+    // hasMeasureZero(t1) ||
+    // hasMeasureZero(t2) ||
     (isRectLike(t1) && isRectLike(t2)) ||
     (t1 === "Circle" && t2 === "Circle")
   )
@@ -100,9 +100,10 @@ export const exact = (
       throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
     }
 
-    if (hasMeasureZero(t1) || hasMeasureZero(t2)) {
-      return constOf(0);
-    } else if (isRectLike(t1) && isRectLike(t2)) {
+    // if (hasMeasureZero(t1) || hasMeasureZero(t2)) {
+    //   return constOf(0);
+    // } else
+    if (isRectLike(t1) && isRectLike(t2)) {
       // const box1 = overboxFromShape(t1, s1);
       // const box2 = overboxFromShape(t2, s2);
 

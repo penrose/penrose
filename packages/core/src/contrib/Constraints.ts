@@ -31,9 +31,8 @@ import { linePts } from "utils/OtherUtils";
 import { Pt2, VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
-import { Area, ClosestDistance, DifferenceArea, IntersectionArea } from '../engine/queries/Queries';
+import { Area, ClosestDistance, DifferenceArea, FurthestPoint, IntersectionArea, Intersects } from '../engine/queries/Queries';
 import { overboxFromShape, underboxFromShape } from 'engine/BBox';
-import { upperBound } from '../engine/queries/Area';
 
 // Kinds of shapes
 /**
@@ -55,6 +54,25 @@ export const isLinelike = (shapeType: string): boolean => {
   return shapeType == "Line" || shapeType == "Arrow";
 };
 
+
+/**
+ * Place shape1 offset from shape2 by vector v. v is the gap between the two lines perpendicular
+ * to v that just barely each shape's boundary.
+ */
+  const displace = (
+  shape1: [string, any],
+  shape2: [string, any],
+  v: VarAD[],
+) => {
+  // calculate furthest points in the directions of the gap between them
+  const p1 = FurthestPoint.exact(shape1, ops.vneg(v));
+  const p2 = FurthestPoint.exact(shape2, v);
+
+  // optimize the distance between the lines by projecting onto v.
+  // an additional division by |v| makes this computation scale invariant.
+  return squared(sub(constOf(1), div(ops.vdot(ops.vsub(p1, p2), v), ops.vnormsq(v))));
+}
+
 export const objDict = {
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
@@ -62,17 +80,33 @@ export const objDict = {
   equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
 
   /**
-   * Encourage shape `top` to be above shape `bottom`. Only works for shapes with property `center`.
+   * Encourages the bottom of `shape1` to be offset distance above the top of `shape2`.
+   * @param shape1 top shape
+   * @param shape2 bottom shape
+   * @param offset offset between shapes
    */
   above: (
-    [t1, top]: [string, any],
-    [t2, bottom]: [string, any],
+    shape1: [string, any],
+    shape2: [string, any],
     offset = 100
   ) =>
-    // (getY top - getY bottom - offset) ^ 2
-    squared(
-      sub(sub(top.center.contents[1], bottom.center.contents[1]), varOf(offset))
-    ),
+    // the weight of this objective suggests that it should really be a constraint
+    mul(constOf(100_000), displace(shape1, shape2, [constOf(0), constOfIf(offset)]))
+  ,
+
+  /**
+   * Encourages the top of `shape1` to be offset distance below the bottom of `shape2`.
+   * @param shape1 bottom shape
+   * @param shape2 top shape
+   * @param offset offset between shapes
+   */
+  below: (
+    shape1: [string, any],
+    shape2: [string, any],
+    offset = 100
+  ) =>
+    // the weight of this objective suggests that it should really be a constraint
+    mul(constOf(100_000), displace(shape1, shape2, [constOf(0), neg(constOfIf(offset))])),
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`. Only works for shapes with property `center`.
@@ -86,7 +120,7 @@ export const objDict = {
    */
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
-    // TODO: find this out programmatically
+    // // TODO: find this out programmatically
     const repelWeight = 10e6;
 
     let res;
@@ -105,8 +139,13 @@ export const objDict = {
       // 1 / (d^2(cx, cy) + eps)
       res = inverse(ops.vdistsq(fns.center(s1), fns.center(s2)));
     }
-
+    
     return mul(res, constOf(repelWeight));
+    
+    // TODO: should this repel centers or...
+    // TODO: square distance?
+    // const dist = ClosestDistance.exact([t1, s1], [t2, s2]);
+    // return mul(inverse(add(dist, constOf(EPS_DENOM))), constOfIf(weight));
   },
 
   /**
@@ -129,8 +168,8 @@ export const objDict = {
     const spacing = varOf(1.1); // arbitrary
 
     if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
-      const s2BB = bboxFromShape(t2, s2);
-      const s3BB = bboxFromShape(t3, s3);
+      const s2BB = overboxFromShape(t2, s2);
+      const s3BB = overboxFromShape(t3, s3);
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, s2BB.center, s3BB.center, [
@@ -139,22 +178,6 @@ export const objDict = {
       ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
-
-  /**
-   * Encourage shape `bottom` to be below shape `top`. Only works for shapes with property `center`.
-   */
-  below: (
-    [t1, bottom]: [string, any],
-    [t2, top]: [string, any],
-    offset = 100
-  ) =>
-    // TODO: can this be made more efficient (code-wise) by calling "above" and swapping arguments?
-    squared(
-      sub(
-        sub(top.center.contents[1], bottom.center.contents[1]),
-        constOfIf(offset)
-      )
-    ),
 
   centerLabelAbove: (
     [t1, s1]: [string, any],
@@ -173,7 +196,7 @@ export const objDict = {
       );
 
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-      const textBB = bboxFromShape(t2, text);
+      const textBB = overboxFromShape(t2, text);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
         sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
@@ -198,7 +221,7 @@ export const objDict = {
         constOf(2.0)
       );
       const padding = constOf(10);
-      const textBB = bboxFromShape(t2, text);
+      const textBB = overboxFromShape(t2, text);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
         sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
@@ -272,6 +295,8 @@ export const objDict = {
     if (!isLinelike(t1)) {
       throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
     }
+    // TODO: point isn't a shape so can't easily re-use query!!
+    // instead of infinitesimal versions could use points and stuff
     return squared(
       equalHard(
         ops.vdist(
@@ -338,25 +363,9 @@ export const constrDict = {
     [t2, s2]: [string, any],
     offset = 0,
   ) => {
-    // const box1 = underboxFromShape(t1, s1);
-    // const box2 = overboxFromShape(t2, s2);
-    // // const inflatedBox2 = BBox.inflate(box2, constOfIf(offset));
-    // const inflatedBox2 = box2;
-    // return add(
-    //   constrDict.contains1D(BBox.xRange(box1), BBox.xRange(inflatedBox2)),
-    //   constrDict.contains1D(BBox.yRange(box1), BBox.yRange(inflatedBox2))
-    // )
-
-    // TODO: how to incorporate offset? as an area thing or as a padding thing?
-
-    // how far away are the shapes? (0 if intersecting)
     const distancePenalty = ClosestDistance.exact([t1, s1], [t2, s2]);
-    // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not
-    // intersecting)
-    // TODO: should this be lower or upper bound?
-    // area(B - A) / area(B)
     const overlapPenalty = div(DifferenceArea.exact([t2, s2], [t1, s1]), Area.exact([t2, s2]));
-    return add(distancePenalty, overlapPenalty);
+    return add(distancePenalty, mul(constOf(10), overlapPenalty));
   },
 
   subset: (
@@ -448,7 +457,7 @@ export const constrDict = {
           constOf(0),
           max(constOf(0), sub(constOfIf(padding), ClosestDistance.exact([t1, s1], [t2, s2])))));
     } else {
-      return IntersectionArea.lowerBound([t1, s1], [t2, s2]);
+      return IntersectionArea.upperBound([t1, s1], [t2, s2]);
     }
   },
 
@@ -478,6 +487,7 @@ export const constrDict = {
         ),
         constOf(0)
       );
+      // return Intersects.exact([t1, s1], [t2, s2]);
     } else {
       throw new Error(`${[t1, t2]} not supported for notCrossing`);
     }
@@ -540,7 +550,7 @@ export const constrDict = {
       // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
       // I wrote a version simplified to work for rectangles
       const text = s2;
-      const rect = bboxFromShape(t2, text);
+      const rect = overboxFromShape(t2, text);
 
       // TODO: Rewrite this with `ifCond`
       // If the point is inside the box, push it outside w/ `noIntersect`
@@ -930,70 +940,4 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
   const fals = constOf(0);
   const tru = constOf(1);
   return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
-};
-
-/**
- * Return numerically-encoded boolean indicating whether the two bboxes are disjoint.
- */
-export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
-  const fals = constOf(0);
-  const tru = constOf(1);
-
-  const c1 = lt(BBox.maxX(a), BBox.minX(b));
-  const c2 = gt(BBox.minX(a), BBox.maxX(b));
-  const c3 = lt(BBox.maxY(a), BBox.minY(b));
-  const c4 = gt(BBox.minY(a), BBox.maxY(b));
-
-  return ifCond(or(or(or(c1, c2), c3), c4), tru, fals);
-};
-
-/**
- * Preconditions:
- *   If the input is line-like, it must be axis-aligned.
- *   Assumes line-like shapes are longer than they are thick.
- * Input: A rect- or line-like shape.
- * Output: A new BBox
- * Errors: Throws an error if the input shape is not rect- or line-like.
- */
-export const bboxFromShape = (t: string, s: any): BBox.BBox => {
-  if (!(isRectlike(t) || isLinelike(t))) {
-    throw new Error(
-      `BBox expected a rect-like or line-like shape, but got ${t}`
-    );
-  }
-
-  // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
-  let w;
-  if (t == "Square") {
-    w = s.side.contents;
-  } else if (isLinelike(t)) {
-    w = max(
-      absVal(sub(s.start.contents[0], s.end.contents[0])),
-      s.thickness.contents
-    );
-  } else {
-    w = s.w.contents;
-  }
-
-  let h;
-  if (t == "Square") {
-    h = s.side.contents;
-  } else if (isLinelike(t)) {
-    h = max(
-      absVal(sub(s.start.contents[1], s.end.contents[1])),
-      s.thickness.contents
-    );
-  } else {
-    h = s.h.contents;
-  }
-
-  let center;
-  if (isLinelike(t)) {
-    // TODO: Compute the bbox of the line in a nicer way
-    center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
-  } else {
-    center = s.center.contents;
-  }
-
-  return BBox.bbox(w, h, center);
 };

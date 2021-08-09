@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Pt2, VarAD } from "types/ad";
-import { absVal, add, constOf, div, max, min, mul, neg, ops, sub } from "./Autodiff";
+import { absVal, add, constOf, div, max, min, mul, neg, ops, sub, debug } from "./Autodiff";
 
 interface IBBox {
   w: VarAD;
@@ -171,7 +171,7 @@ export const edges = (b: BBox): Edges => {
       const thicknessHeight = absVal(ops.vmul(s.thickness.contents, ops.rot90(dir))[1]);
       w = add(segmentWidth, thicknessWidth);
       h = add(segmentHeight, thicknessHeight);
-      center = ops.vdiv(ops.vsub(s.start.contents, s.end.contents), constOf(2)) as Pt2;
+      center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2)) as Pt2;
       break;
     case "Rectangle":
     case "Text":
@@ -238,10 +238,10 @@ export const edges = (b: BBox): Edges => {
     // TODO: maybe add a version when things are axis aligned
     case "Line":
     case "Arrow":
-      const minDim = min(ops.vnorm(ops.vsub(s.start.contents, s.end.contents)), s.thickness.contents);
+      const minDim = debug(min(ops.vnorm(ops.vsub(s.start.contents, s.end.contents)), s.thickness.contents), "minDim");
       w = minDim;
       h = minDim;
-      center = ops.vdiv(ops.vsub(s.start.contents, s.end.contents), constOf(2)) as Pt2;
+      center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2)) as Pt2;
       break;
     case "Rectangle":
     case "Text":

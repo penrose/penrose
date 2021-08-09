@@ -174,6 +174,10 @@ export const exact = (
       return sub(pointSegmentDist(s2.center.contents, [s1.start.contents, s1.end.contents]), s2.r.contents);
     } else if (t1 === "Circle" && t2 === "Line") {
       return sub(pointSegmentDist(s1.center.contents, [s2.start.contents, s2.end.contents]), s1.r.contents);
+    } else if (t1 === "Line" && t2 === "Point") {
+      return pointSegmentDist(s2.center.contents, [s1.start.contents, s1.end.contents]);
+    } else if (t1 === "Point" && t2 === "Line") {
+      return pointSegmentDist(s1.center.contents, [s2.start.contents, s2.end.contents]);
     } else if (t1 === "Line" && t2 === "Ellipse") {
       // TODO: there may be a nice way to compute this
       throw Error(`exact closest-distance query not supported for ${t1} and ${t2}`)

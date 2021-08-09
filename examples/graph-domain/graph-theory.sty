@@ -130,7 +130,7 @@ Edge e1; Edge e2 {
 }
 
 Vertex v; Edge e {
-       ensure disjointRectLine(v.shape, e.shape)
+       ensure disjoint(v.shape, e.shape)
        ensure disjoint(v.shape, e.text)
 }
 
