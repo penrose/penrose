@@ -416,32 +416,6 @@ export const constrDict = {
     );
   },
 
-  /**
-   * Make an AABB rectangle disjoint from a vertical or horizontal line.
-   * (Special case of rect-rect disjoint)
-   */
-  disjointRectLine: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 0) => {
-    if (isRectlike(t1) && isLinelike(t2)) {
-      const seg = s2;
-      const textBB = overboxFromShape(t1, s1);
-      const centerT = textBB.center;
-      const endpts = linePts(seg);
-      const cp = closestPt_PtSeg(centerT, endpts);
-      const lenApprox = div(textBB.w, constOf(2.0));
-      return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
-    } else if (isLinelike(t1) && isRectlike(t2)) {
-      const seg = s1;
-      const textBB = overboxFromShape(t2, s2);
-      const centerT = textBB.center;
-      const endpts = linePts(seg);
-      const cp = closestPt_PtSeg(centerT, endpts);
-      const lenApprox = div(textBB.w, constOf(2.0));
-      return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
-    } else {
-      throw Error(`expected a rect-like and a line-like shape, but got ${t1} and ${t2}`);
-    }
-  },
-
   disjoint: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
