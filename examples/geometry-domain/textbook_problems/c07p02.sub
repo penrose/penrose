@@ -1,0 +1,15 @@
+Point A, B, C, X, Y, Z, P
+Triangle ABC := MkTriangle(A, B, C)
+Segment AB := MkSegment(A, B)
+Segment BC := MkSegment(B, C)
+Segment AC := MkSegment(A, C)
+
+Segment AP := MkSegment(A, P)
+Segment BP := MkSegment(B, P)
+Segment CP := MkSegment(C, P)
+
+Segment YP := PerpendicularBisectorLabelPts(AB, P, X)
+Segment ZP := PerpendicularBisectorLabelPts(BC, P, Y)
+Segment XP := PerpendicularBisectorLabelPts(AC, P, Z)
+
+AutoLabel All 

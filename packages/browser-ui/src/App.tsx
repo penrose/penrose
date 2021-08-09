@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import {
-  RenderStatic,
-  RenderInteractive,
-  PenroseState,
-  stateConverged,
-  stepState,
-  resample,
   compileTrio,
-  prepareState,
-  stateInitial,
-  stepUntilConvergence,
-  showError,
   PenroseError,
+  PenroseState,
+  prepareState,
+  RenderInteractive,
+  RenderStatic,
+  resample,
+  stateConverged,
+  stateInitial,
+  stepState,
+  stepUntilConvergence,
 } from "@penrose/core";
-
+import Inspector from "inspector/Inspector";
 import { isEqual } from "lodash";
+import * as React from "react";
+import SplitPane from "react-split-pane";
+import ButtonBar from "ui/ButtonBar";
+import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
@@ -36,12 +39,6 @@ export const DownloadSVG = (
   downloadLink.click();
   document.body.removeChild(downloadLink);
 };
-
-import Inspector from "inspector/Inspector";
-import * as React from "react";
-import SplitPane from "react-split-pane";
-import ButtonBar from "ui/ButtonBar";
-import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
 const LOCALSTORAGE_SETTINGS = "browser-ui-settings-penrose";
 
@@ -161,16 +158,44 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public step = (): void => {
-    const stepped = stepState(this.state.data, 1);
-    void this.onCanvasState(stepped);
+    if (this.state.data) {
+      try {
+        const stepped = stepState(this.state.data, 1);
+        void this.onCanvasState(stepped);
+      } catch (e) {
+        const error: PenroseError = {
+          errorType: "RuntimeError",
+          tag: "RuntimeError",
+          message: `Runtime error encountered: '${e}' Check console for more information.`,
+        };
+
+        const errorWrapper = { error, data: undefined };
+        this.setState(errorWrapper);
+        throw e;
+      }
+    } else {
+      console.warn("No state loaded in the frontend.");
+    }
   };
 
   public stepUntilConvergence = (): void => {
-    const stepped = stepUntilConvergence(
-      this.state.data,
-      this.state.settings.autoStepSize
-    );
-    void this.onCanvasState(stepped);
+    if (this.state.data) {
+      const stepped = stepUntilConvergence(
+        this.state.data,
+        this.state.settings.autoStepSize
+      );
+      if (stepped.isErr()) {
+        const runtimeError: PenroseError = {
+          ...stepped.error,
+          errorType: "RuntimeError",
+        };
+        this.setState({ error: runtimeError, data: undefined });
+      } else {
+        void this.onCanvasState(stepped.value);
+      }
+    } else {
+      console.warn("No state loaded in the frontend.");
+    }
   };
 
   public resample = async () => {
@@ -198,8 +223,22 @@ class App extends React.Component<any, ICanvasState> {
           style.contents
         );
         if (compileRes.isOk()) {
-          const initState: PenroseState = await prepareState(compileRes.value);
-          void this.onCanvasState(initState);
+          try {
+            const initState: PenroseState = await prepareState(
+              compileRes.value
+            );
+            void this.onCanvasState(initState);
+          } catch (e) {
+            const error: PenroseError = {
+              errorType: "RuntimeError",
+              tag: "RuntimeError",
+              message: `Runtime error encountered: '${e}' Check console for more information.`,
+            };
+
+            const errorWrapper = { error, data: undefined };
+            this.setState(errorWrapper);
+            throw e;
+          }
         } else {
           this.setState({ error: compileRes.error, data: undefined });
         }

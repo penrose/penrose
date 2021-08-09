@@ -14,7 +14,7 @@ forall Set x {
 
     ensure subset(x.text, x.icon)
     ensure minSize(x.icon)
-    ensure maxSize(x.icon, canvas.height / 3)
+    ensure maxSize(x.icon, canvas.height / 2)
     encourage sameCenter(x.text, x.icon)
     x.textLayering = x.text above x.icon
 }

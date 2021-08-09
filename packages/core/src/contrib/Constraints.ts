@@ -131,7 +131,7 @@ export const objDict = {
       const c2 = fns.center(s2);
       const lineSamplePts = sampleSeg(linePts(line));
       const allForces = addN(
-        lineSamplePts.map((p) => repelPt(constOfIf(weight), c2, p))
+        lineSamplePts.map((p) => repelPoint(constOfIf(weight), c2, p))
       );
       res = mul(constOfIf(weight), allForces);
     } else {
@@ -147,6 +147,9 @@ export const objDict = {
     // const dist = ClosestDistance.exact([t1, s1], [t2, s2]);
     // return mul(inverse(add(dist, constOf(EPS_DENOM))), constOfIf(weight));
   },
+
+  repelPt: (c: VarAD, a: VarAD[], b: VarAD[]) =>
+    div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
@@ -493,6 +496,14 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 
+  ptCircleIntersect: (p: VarAD[], [t, s]: [string, any]) => {
+    if (t === "Circle") {
+      const r = s.r.contents;
+      const c = fns.center(s);
+      return squared(sub(ops.vdist(p, c), r));
+    } else throw new Error(`${t} not supported for ptCircleIntersect`);
+  },
+
   /**
    * Require that label `s2` is at a distance of `offset` from a point-like shape `s1`.
    */
@@ -550,7 +561,7 @@ export const constrDict = {
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
   inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
-    return mul(sub(x, x0), sub(x, x1));
+    return max(constOf(0), mul(sub(x, x0), sub(x, x1)));
   },
 
   /**
@@ -576,30 +587,18 @@ export const constrDict = {
   },
 
   /**
-   * Require that the `center`s of three shapes to be collinear.
+   * Require that three points be collinear.
    */
-  collinear: (
-    [, p0]: [string, any],
-    [, p1]: [string, any],
-    [, p2]: [string, any]
-  ) => {
-    if (every([p0, p1, p2].map((props) => props["center"]))) {
-      const c1 = fns.center(p0);
-      const c2 = fns.center(p1);
-      const c3 = fns.center(p2);
+  collinear: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+    const v1 = ops.vsub(c1, c2);
+    const v2 = ops.vsub(c2, c3);
+    const v3 = ops.vsub(c1, c3);
 
-      const v1 = ops.vsub(c1, c2);
-      const v2 = ops.vsub(c2, c3);
-      const v3 = ops.vsub(c1, c3);
-
-      // Use triangle inequality (v1 + v2 <= v3) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-      return max(
-        constOf(0),
-        sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3))
-      );
-    } else {
-      throw new Error("collinear: all input shapes need to have centers");
-    }
+    // Use triangle inequality (v1 + v2 <= v3) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+    return max(
+      constOf(0),
+      sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3))
+    );
   },
 
   /**
@@ -717,7 +716,7 @@ const centerArrow2 = (
 /**
  * Repel a vector `a` from a vector `b` with weight `c`.
  */
-const repelPt = (c: VarAD, a: VarAD[], b: VarAD[]) =>
+const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
   div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM)));
 
 // ------- Polygon-related helpers

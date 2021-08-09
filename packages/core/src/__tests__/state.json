@@ -68,18 +68,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 23.468639373779297 },
           "name": { "tag": "StrV", "contents": "A.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "A" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -155,18 +143,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 6.5115227699279785 },
           "name": { "tag": "StrV", "contents": "B.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "B" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -242,18 +218,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 61.02473449707031 },
           "name": { "tag": "StrV", "contents": "C.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "C" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -329,18 +293,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 9.442167282104492 },
           "name": { "tag": "StrV", "contents": "D.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "D" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -416,18 +368,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 50.4853401184082 },
           "name": { "tag": "StrV", "contents": "E.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "E" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -503,18 +443,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 36.61797332763672 },
           "name": { "tag": "StrV", "contents": "F.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "F" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -590,18 +518,6 @@
           "fontSize": { "tag": "StrV", "contents": "12pt" },
           "h": { "tag": "FloatV", "contents": 11.606439590454102 },
           "name": { "tag": "StrV", "contents": "G.text" },
-          "polygon": {
-            "tag": "PolygonV",
-            "contents": [
-              [],
-              [],
-              [
-                [null, null],
-                [null, null]
-              ],
-              []
-            ]
-          },
           "rotation": { "tag": "FloatV", "contents": 0 },
           "string": { "tag": "StrV", "contents": "G" },
           "stroke": { "tag": "StrV", "contents": "none" },
@@ -1577,21 +1493,6 @@
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "A.text" }
                 },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
-                },
                 "rotation": {
                   "tag": "Done",
                   "contents": { "tag": "FloatV", "contents": 0 }
@@ -2192,21 +2093,6 @@
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "B.text" }
                 },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
-                },
                 "rotation": {
                   "tag": "Done",
                   "contents": { "tag": "FloatV", "contents": 0 }
@@ -2803,21 +2689,6 @@
                 "name": {
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "C.text" }
-                },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
                 },
                 "rotation": {
                   "tag": "Done",
@@ -4259,21 +4130,6 @@
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "D.text" }
                 },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
-                },
                 "rotation": {
                   "tag": "Done",
                   "contents": { "tag": "FloatV", "contents": 0 }
@@ -4868,21 +4724,6 @@
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "E.text" }
                 },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
-                },
                 "rotation": {
                   "tag": "Done",
                   "contents": { "tag": "FloatV", "contents": 0 }
@@ -5473,21 +5314,6 @@
                 "name": {
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "F.text" }
-                },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
                 },
                 "rotation": {
                   "tag": "Done",
@@ -6085,21 +5911,6 @@
                 "name": {
                   "tag": "Done",
                   "contents": { "tag": "StrV", "contents": "G.text" }
-                },
-                "polygon": {
-                  "tag": "Done",
-                  "contents": {
-                    "tag": "PolygonV",
-                    "contents": [
-                      [],
-                      [],
-                      [
-                        [null, null],
-                        [null, null]
-                      ],
-                      []
-                    ]
-                  }
                 },
                 "rotation": {
                   "tag": "Done",

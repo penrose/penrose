@@ -1,12 +1,12 @@
 import * as React from "react";
 import { round, cloneDeep } from "lodash";
-import { Canvas, ShapeTypes, toHex } from "@penrose/core";
+import { Canvas, Value, toHex } from "@penrose/core";
 
 interface IProps {
   inputProps: IInputProps;
   eAttr: string;
-  eValue: ShapeTypes.Value<any>; // is this the best typing?
-  modAttr(attrname: string, attrval: ShapeTypes.Value<any>): void;
+  eValue: Value.Value<any>; // is this the best typing?
+  modAttr(attrname: string, attrval: Value.Value<any>): void;
   canvas: Canvas;
 }
 
@@ -72,9 +72,9 @@ class LabeledInput extends React.Component<IProps> {
     evalue:
       | string
       | number
-      | ShapeTypes.Color<number>
+      | Value.Color<number>
       | boolean
-      | ShapeTypes.SubPath<number>[]
+      | Value.ISubPath<number>[]
   ) => {
     const newstate = {
       eValue: {
@@ -83,7 +83,7 @@ class LabeledInput extends React.Component<IProps> {
       },
     };
     this.setState(newstate); // will update span values - could be phased out if spans are set manually
-    this.props.modAttr(id, newstate.eValue as ShapeTypes.Value<any>);
+    this.props.modAttr(id, newstate.eValue as Value.Value<any>);
   };
   public handleChange = (
     eattr: string,
@@ -209,22 +209,20 @@ class LabeledInput extends React.Component<IProps> {
   public makeMulPointRange = () => {
     const { inputProps, eAttr, canvas } = this.props;
     const subpaths = this.props.eValue.contents;
-    if (subpaths.contents == undefined) {
+    if (subpaths.length === 0) {
       console.log("polygon pointrange mod unimplemented");
       return;
     }
     // todo - refactor the whole file so you can call makerange() and makelabel() with params
     return (
       <React.Fragment>
-        {subpaths.map((subpath: ShapeTypes.SubPath<number>, index: number) => {
+        {subpaths.map((subpath: Value.IPathCmd<number>, index: number) => {
           const ptarray = subpath.contents;
           // note - prob will crash on bezier stuff
           return (
             <React.Fragment key={"S" + index}>
-              {ptarray.map((pt: ShapeTypes.Elem<number>, subindex: number) => {
+              {ptarray.map((pt: Value.ISubPath<number>, subindex: number) => {
                 // todo clean up following lines
-                if (pt.tag !== "Pt")
-                  throw new Error("No current support for Bezier curves!");
                 const xid = [
                   "S",
                   index.toString(),

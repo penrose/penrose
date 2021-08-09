@@ -42,7 +42,7 @@ const styPaths = [
   "set-theory-domain/tree.sty",
   "set-theory-domain/continuousmap.sty",
   "hyperbolic-domain/PoincareDisk.sty",
-  "geometry-domain/euclidean-simple.sty",
+  "geometry-domain/euclidean.sty",
   "mesh-set-domain/DomainInterop.sty",
 ];
 
