@@ -49,3 +49,13 @@ export const upperBound = (
 
     return mul(box.w, box.h);
 };
+
+export const exactOrLowerBound = ([t, s]: [string, any]): VarAD =>
+  hasExactImpl(t) ?
+  exact([t, s]) :
+  lowerBound([t, s]);
+
+export const exactOrUpperBound = ([t, s]: [string, any]): VarAD =>
+  hasExactImpl(t) ?
+  exact([t, s]) :
+  upperBound([t, s]);

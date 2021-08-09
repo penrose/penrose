@@ -449,16 +449,12 @@ export const constrDict = {
   ) => {
     const EPS0 = varOf(10e-3);
     // TODO: does not handle line-like objects, which are assumed to have no intersection area
-    if (IntersectionArea.hasExactImpl(t1, t2)) {
-      return add(
-        IntersectionArea.exact([t1, s1], [t2, s2]),
-        ifCond(
-          lt(constOfIf(padding), EPS0),
-          constOf(0),
-          max(constOf(0), sub(constOfIf(padding), ClosestDistance.exact([t1, s1], [t2, s2])))));
-    } else {
-      return IntersectionArea.upperBound([t1, s1], [t2, s2]);
-    }
+    return add(
+      IntersectionArea.exactOrUpperBound([t1, s1], [t2, s2]),
+      ifCond(
+        lt(constOfIf(padding), EPS0),
+        constOf(0),
+        max(constOf(0), sub(constOfIf(padding), ClosestDistance.exact([t1, s1], [t2, s2])))));
   },
 
   /**
@@ -509,11 +505,7 @@ export const constrDict = {
     [t2, s2]: [string, any],
     overlapArea = 0,
   ) => {
-    if (IntersectionArea.hasExactImpl(t1, t2)) {
-      return sub(constOfIf(overlapArea), IntersectionArea.exact([t1, s1], [t2, s2]));
-    } else {
-      return sub(constOfIf(overlapArea), IntersectionArea.lowerBound([t1, s1], [t2, s2]));
-    }
+    return sub(constOfIf(overlapArea), IntersectionArea.exactOrLowerBound([t1, s1], [t2, s2]));
   },
 
   /**

@@ -48,3 +48,13 @@ export const upperBound = (
     const areaAB = IntersectionArea.lowerBound([t1, s1], [t2, s2]);
     return sub(areaA, areaAB);
 };
+
+export const exactOrLowerBound = ([t1, s1]: [string, any], [t2, s2]: [string, any],): VarAD =>
+  hasExactImpl(t1, t2) ?
+  exact([t1, s1], [t2, s2]) :
+  lowerBound([t1, s1], [t2, s2]);
+
+export const exactOrUpperBound = ([t1, s1]: [string, any], [t2, s2]: [string, any],): VarAD =>
+  hasExactImpl(t1, t2) ?
+  exact([t1, s1], [t2, s2]) :
+  upperBound([t1, s1], [t2, s2]);

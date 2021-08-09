@@ -80,3 +80,13 @@ export const upperBound = (
 
     return furthestPointAABB(box, ops.vnormalize(dir));
 };
+
+export const exactOrLowerBound = ([t, s]: [string, any], dir: VarAD[]): VarAD[] =>
+  hasExactImpl(t) ?
+  exact([t, s], dir) :
+  lowerBound([t, s], dir);
+
+export const exactOrUpperBound = ([t, s]: [string, any], dir: VarAD[]): VarAD[] =>
+  hasExactImpl(t) ?
+  exact([t, s], dir) :
+  upperBound([t, s], dir);
