@@ -1,4 +1,4 @@
-import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape, inRange, isRectlike, closestPt_PtSeg, closestPt_Box } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -35,6 +35,7 @@ import {
   IPathDataV,
   IPt,
   IPtListV,
+  IPtV,
   IStrV,
   ITupV,
   IVectorV,
@@ -660,6 +661,35 @@ export const compDict = {
     return {
       tag: "VectorV",
       contents: m.map((row) => ops.vdot(row, v)),
+    };
+  },
+
+  /**
+   * Return the closest point on segment `[start, end]` to point `pt`.
+   */
+  closestPtSeg: (
+    pt: Pt2,
+    start: Pt2,
+    end: Pt2
+  ): IPtV<VarAD> => {
+    return {
+      tag: "PtV",
+      contents: closestPt_PtSeg(pt, [start, end] as VarAD[][])
+    };
+  },
+
+  /**
+   * Return the closest point on box `[t, s]` to point `pt`.
+   */
+  closestPtBox: (
+    pt: Pt2,
+    [t, s]: [string, any]
+  ): IPtV<VarAD> => {
+    if (t !== "Rectangle") { throw Error("expected rect"); }
+
+    return {
+      tag: "PtV",
+      contents: closestPt_Box(pt, BBox.overboxFromShape(t, s))
     };
   },
 

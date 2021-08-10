@@ -1,0 +1,5 @@
+Set A
+Point p
+PointIn(A, p)
+
+AutoLabel All
