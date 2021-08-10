@@ -461,6 +461,34 @@ export const constrDict = {
         padding = 0,
     ) => {
         const EPS0 = varOf(10e-3);
+
+        // if (area of overlap) > 0, objective = - dist between centers 
+        // skip (* percentage of overlap) but can try that if this doesn’t work
+
+        if (IntersectionArea.hasExactImpl(t1, t2)) {
+            // TODO: Factor this stuff out using the query interface
+            const b1 = overboxFromShape(t1, s1);
+            const b2 = overboxFromShape(t2, s2);
+
+            const overlap = IntersectionArea.exact([t1, s1], [t2, s2]);
+
+            return ifCond(gt(debug(overlap, "overlap area"), constOf(0.)),
+                // Not strong enough? Or is there something wrong with `overlap` or gt?
+                // neg(ops.vdist(b1.center, b2.center)),
+                neg(ops.vdistsq(b1.center, b2.center)),
+                constOf(0.));
+
+        } else {
+            return IntersectionArea.lowerBound([t1, s1], [t2, s2]);
+        }
+    },
+
+    disjointSdf: (
+        [t1, s1]: [string, any],
+        [t2, s2]: [string, any],
+        padding = 0,
+    ) => {
+        const EPS0 = varOf(10e-3);
         // TODO: does not handle line-like objects, which are assumed to have no intersection area
 
         // Overall energy: Take the sum of (1) the sum of the "inward depths" of each of the vertices of A to B, (2) the area of overlap, and (3) the closest distance between them. Each term deals with the corresponding case. https://pen-rose.slack.com/archives/D023ZD3PJAY/p1628028563005600
