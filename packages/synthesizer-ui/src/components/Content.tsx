@@ -31,6 +31,10 @@ const ContentSection = styled(Box)({
   padding: "0",
 });
 
+const HeaderContent = styled(Toolbar)({
+  justifyContent: "space-between",
+});
+
 export class Content extends React.Component<ContentProps, ContentState> {
   private domain: string;
   private style: string;
@@ -76,7 +80,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
     numPrograms: number,
     prompt: string
   ) => {
-    console.log("prompt", prompt);
     const envOrError = compileDomain(this.domain);
 
     // initialize synthesizer
@@ -118,14 +121,14 @@ export class Content extends React.Component<ContentProps, ContentState> {
     return (
       <div>
         <AppBar position="fixed">
-          <Toolbar>
+          <HeaderContent>
             <Typography variant="h6" noWrap>
               Edgeworth
             </Typography>
             <Button color="inherit" onClick={this.exportDiagrams}>
               Export
             </Button>
-          </Toolbar>
+          </HeaderContent>
         </AppBar>
         {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}
         <Toolbar />

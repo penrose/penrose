@@ -7,16 +7,18 @@ import {
   stepUntilConvergence,
   resample,
   SynthesizedSubstance,
+  showMutations,
 } from "@penrose/core";
 import React from "react";
 import {
   styled,
   Box,
-  AppBar,
   Checkbox,
   Card,
   Typography,
+  Chip,
 } from "@material-ui/core";
+import { IState } from "@penrose/core/build/dist/types/state";
 
 export interface GridboxProps {
   domain: string;
@@ -34,31 +36,38 @@ export interface GridboxProps {
 //   border: 1px solid gray;
 // `;
 
-const Section = styled(Card)({
-  margin: "0,5rem",
+const Section = styled(Card)(({ theme }) => ({
+  margin: "0.5rem",
   width: "25rem",
   height: "25rem",
-  border: "1px solid gray",
-});
+  borderColor: theme.palette.primary.main,
+  borderWidth: "1px",
+  borderStyle: "outset",
+  color: theme.palette.primary.main,
+  borderRadius: "3px",
+}));
 
-// const LowEnergy = styled(Section)`
-//   border: 3px solid green;
-// `;
+const LowEnergy = styled(Chip)(({ theme }) => ({
+  background: theme.palette.success.light,
+  color: "white",
+}));
 
-// const HighEnergy = styled(Section)`
-//   border: 3px solid red;
-// `;
+const HighEnergy = styled(Chip)(({ theme }) => ({
+  background: theme.palette.error.light,
+  color: "white",
+}));
 
 const Header = styled(Box)({
   width: "calc(100% - .75rem)",
   height: "1.75rem",
   borderBottom: "1px solid black",
-  fontSize: "1rem",
+  fontSize: "1.25rem",
   color: "gray",
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
   padding: "0.5rem 0 0.5rem 0.75rem",
+  verticalAlign: "baseline",
 });
 
 const Body = styled(Box)({
@@ -68,6 +77,11 @@ const Body = styled(Box)({
   color: "black",
   overflow: "auto",
   whiteSpace: "pre-wrap",
+  padding: "0.5rem 0.25rem 0.25rem 0.5rem",
+});
+
+const ExportCheckbox = styled(Checkbox)({
+  padding: "0 0.5rem",
 });
 
 const programString = (stmts: string, ops: string) => {
@@ -82,48 +96,49 @@ interface GridboxState {
   showDiagram: boolean;
   isSelected: boolean;
   diagramSVG: string;
+  energy: number;
 }
 
 export class Gridbox extends React.Component<GridboxProps, GridboxState> {
-  private energy: number | undefined;
   constructor(props: GridboxProps) {
     super(props);
     this.state = {
       showDiagram: true,
       isSelected: false,
       diagramSVG: "",
+      energy: 0,
     };
-    this.energy = 0; // TODO
   }
 
-  computeEnergy = async () => {
-    let srcState: { val: any } = { val: {} };
-    let optimizedState: { val: any } = { val: {} };
-    const getState = async (prog: any, state: { val: any }) => {
-      const res = compileTrio(
-        this.props.domain,
-        prettySubstance(prog),
-        this.props.style
-      );
-      if (res.isOk()) {
-        const st = await prepareState(res.value);
-        state.val = st;
-        return state;
+  // TODO this creates the source program state for every mutant program, should cache this information
+  computeEnergy = async (optimizedState: IState) => {
+    let srcState: IState;
+    const resSrc = compileTrio(
+      this.props.domain,
+      prettySubstance(this.props.srcProg),
+      this.props.style
+    );
+    if (resSrc.isOk()) {
+      srcState = await prepareState(resSrc.value);
+      const opt = stepUntilConvergence(srcState);
+      if (opt.isErr()) {
+        throw Error("optimization failed");
       }
-    };
-    this.energy = undefined;
-    getState(this.props.srcProg, srcState);
-    getState(this.props.substance.prog, optimizedState);
-    if (srcState.val) {
-      const crossState = {
-        ...optimizedState.val,
-        constrFns: srcState.val.constrFns,
-        objFns: srcState.val.objFns,
-      };
-      try {
-        this.energy = evalEnergy(await prepareState(crossState));
-      } catch (e) {
-        console.log(e);
+      if (opt.value) {
+        const crossState = {
+          ...optimizedState,
+          constrFns: srcState.constrFns,
+          objFns: srcState.objFns,
+        };
+
+        try {
+          const energy = evalEnergy(await prepareState(crossState));
+          this.setState({
+            energy: Math.round(energy),
+          });
+        } catch (e) {
+          console.log(e);
+        }
       }
     }
   };
@@ -150,6 +165,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         }
         const optimized = opt.value;
         this.setState({ diagramSVG: RenderStatic(optimized).outerHTML });
+        this.computeEnergy(optimized);
       } catch (e) {
         console.log(e);
       }
@@ -187,12 +203,20 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               ? "Original Diagram"
               : `Mutated Program #${this.props.progNumber}`}
           </Typography>
-          <Checkbox
-            name="isStaged"
-            checked={this.state.isSelected}
-            onChange={this.checkboxClick}
-          />
+          <Box>
+            {this.state.energy > 10000 ? (
+              <HighEnergy label={`energy: ${this.state.energy}`} size="small" />
+            ) : (
+              <LowEnergy label={`energy: ${this.state.energy}`} size="small" />
+            )}
+            <ExportCheckbox
+              name="isStaged"
+              checked={this.state.isSelected}
+              onChange={this.checkboxClick}
+            />
+          </Box>
         </Header>
+
         <div onClick={this.toggleView}>
           {this.state.showDiagram ? (
             <div
@@ -207,7 +231,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
                 stmts,
                 this.props.progNumber === 0
                   ? ""
-                  : this.props.substance.ops.join("\n")
+                  : showMutations(this.props.substance.ops)
               )}
             </Body>
           )}

@@ -29,13 +29,16 @@ const StyledChip = styled(Chip)({
   margin: 2,
 });
 
+const ContainerDiv = styled("div")({
+  paddingTop: "0.5rem",
+});
+
 export class MultiselectDropdown extends React.Component<
   MultiselectDropdownProps,
   State
 > {
   constructor(props: MultiselectDropdownProps) {
     super(props);
-    console.log("constructorrrr", this.props.defaults);
     this.state = {
       selected: this.props.defaults,
       options: [],
@@ -100,10 +103,10 @@ export class MultiselectDropdown extends React.Component<
 
   render() {
     return (
-      <>
+      <ContainerDiv>
         <InputLabel
           htmlFor={`${this.props.mutationType}-${this.props.stmtType}-input`}
-        >{`Select ${this.props.stmtType}s to mutate on: `}</InputLabel>
+        >{`${this.props.stmtType}s`}</InputLabel>
         <Select
           multiple
           value={this.state.selected}
@@ -118,6 +121,8 @@ export class MultiselectDropdown extends React.Component<
             <ChipDisplay>
               {(selected as string[]).map((value) => (
                 <StyledChip
+                  variant="outlined"
+                  color="primary"
                   key={value}
                   label={value}
                   size="small"
@@ -137,7 +142,7 @@ export class MultiselectDropdown extends React.Component<
             </MenuItem>
           ))}
         </Select>
-      </>
+      </ContainerDiv>
     );
   }
 }

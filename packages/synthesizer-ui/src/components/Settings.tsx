@@ -2,6 +2,9 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Divider,
+  Slider,
+  Typography,
 } from "@material-ui/core";
 import {
   styled,
@@ -14,6 +17,8 @@ import {
 import { SynthesizerSetting } from "@penrose/core";
 import React from "react";
 import { MultiselectDropdown } from "./MultiselectDropdown";
+
+const DEFAULT_MUTATION_COUNT = [1, 4];
 
 export interface SettingsProps {
   generateCallback: (
@@ -43,19 +48,32 @@ const SettingsDrawer = styled(Drawer)(({ theme }) => ({
   display: "flex",
 }));
 
-// const Btn = styled.button`
-//   display: inline-block;
-//   color: gray;
-//   font-size: 1rem;
-//   margin: 1rem;
-//   height: 2rem;
-//   padding: 0.25rem 1rem;
-//   border: 2px solid gray;
-//   border-radius: 0.25rem;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// `;
+const ButtonContainer = styled("div")({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "1rem 0 2rem 0",
+});
+
+const SliderDiv = styled("div")({
+  padding: "1rem",
+});
+
+const AccordionHeaderStyled = styled(AccordionSummary)(({ theme }) => ({
+  borderColor: theme.palette.primary.light,
+  borderWidth: "1px",
+  borderStyle: "outset",
+  color: theme.palette.primary.main,
+  borderRadius: "5px",
+}));
+
+const AccordionBodyStyled = styled(AccordionDetails)(({ theme }) => ({
+  borderColor: theme.palette.primary.light,
+  borderWidth: "1px",
+  borderStyle: "outset",
+  borderRadius: "3px",
+  borderTop: "0px solid black",
+}));
 
 export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
@@ -72,7 +90,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     fetch("public/files/defaultSetting.json")
       .then((r) => r.json())
       .then((text) => {
-        this.updateSetting(text);
+        this.setState({ setting: text });
       });
   }
 
@@ -83,65 +101,35 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     });
   };
 
-  updateSetting = (newSetting: SynthesizerSetting) => {
-    this.setState({ setting: newSetting });
-    // console.log(Object.entries(this.state.setting).map([k, v]) => {})
-  };
-
-  onChange = (event: any) => {
+  onTextAreaChange = (event: any) => {
     event.preventDefault();
     if (event.target.name === "sub") {
-      console.log("changing substance!", event.target.value);
       this.updateSubstance(event.target.value);
-      // } else {
-      //   console.log("changing ", event.target.name, event.target.value);
-      //   const typeSelect = (s: string, op: any, arr: any[]) => {
-      //     if (s === "Type") return { ...op, type: arr };
-      //     if (s === "Constructor") return { ...op, constructor: arr };
-      //     if (s === "Function") return { ...op, function: arr };
-      //     if (s === "Predicate") return { ...op, predicate: arr };
-      //   };
-      //   const [op, stmtType] = event.target.name.split("-");
-      //   const val = event.target.value.replace(/\s/g, "").split(",");
-      //   let newSetting = this.state.setting;
-      //   console.log(op);
-      //   if (newSetting) {
-      //     switch (op) {
-      //       case "Add":
-      //         newSetting = {
-      //           ...newSetting,
-      //           add: typeSelect(stmtType, newSetting.add, val),
-      //         };
-      //         break;
-      //       case "Delete":
-      //         newSetting = {
-      //           ...newSetting,
-      //           delete: typeSelect(stmtType, newSetting.delete, val),
-      //         };
-      //         break;
-      //       case "Edit":
-      //         newSetting = {
-      //           ...newSetting,
-      //           edit: typeSelect(stmtType, newSetting.edit, val),
-      //         };
-      //         break;
-      //       default:
-      //         break;
-      //     }
-      //     console.log(newSetting);
-      //     this.setState({ setting: newSetting });
-      //   }
     }
   };
 
   onGenerateClick = () => {
-    console.log("clicky", this.state.numPrograms);
     if (this.state.setting)
       this.props.generateCallback(
         this.state.setting,
         this.state.numPrograms,
         this.state.substance
       );
+  };
+
+  onMutationCountChange = (event: any, newValue: number | number[]) => {
+    if (this.state.setting)
+      this.setState({
+        setting: {
+          ...this.state.setting,
+          mutationCount: newValue as [number, number],
+        },
+      });
+    console.log(this.state.setting?.mutationCount);
+  };
+
+  onProgCountChange = (event: any, newValue: number | number[]) => {
+    this.setState({ numPrograms: newValue as number });
   };
 
   onChangeMultiselect = (op: string, stmtType: string) => (
@@ -177,7 +165,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         default:
           break;
       }
-      console.log(newSetting);
       this.setState({ setting: newSetting });
     }
   };
@@ -195,15 +182,14 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         }
       });
     }
-    console.log(defaults, this.state.setting);
     return defaults;
   };
 
   inputElements = () => {
     return ["Add", "Edit", "Delete"].map((op) => (
-      <Accordion key={op}>
-        <AccordionSummary>{`Configure Statements to ${op}:`}</AccordionSummary>
-        <AccordionDetails>
+      <Accordion key={op} elevation={0}>
+        <AccordionHeaderStyled>{`${op} Statements:`}</AccordionHeaderStyled>
+        <AccordionBodyStyled>
           <InputContainer>
             {["Type", "Constructor", "Function", "Predicate"].map(
               (stmtType) => (
@@ -218,7 +204,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               )
             )}
           </InputContainer>
-        </AccordionDetails>
+        </AccordionBodyStyled>
       </Accordion>
     ));
   };
@@ -229,35 +215,64 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         {/* NOTE: Toolbar is used exclusively to space the content underneath the header of the page.
         The Settings element is floating so it must be included */}
         <Toolbar />
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log("blocked submit");
-          }}
-          autoComplete="off"
-        >
-          <InputContainer>
-            <TextField
-              rows={10}
-              name="sub"
-              multiline
-              label="Substance Program:"
-              variant="outlined"
-              fullWidth
-              onChange={this.onChange}
-              value={this.state.substance}
+        <InputContainer>
+          <TextField
+            rows={10}
+            name="sub"
+            multiline
+            label="Substance Program:"
+            variant="outlined"
+            fullWidth
+            onChange={this.onTextAreaChange}
+            value={this.state.substance}
+          />
+          <SliderDiv>
+            <Typography># mutated programs to generate:</Typography>
+            <Slider
+              valueLabelDisplay="auto"
+              step={1}
+              marks={[
+                { value: 1, label: "1" },
+                { value: 10, label: "10" },
+                { value: 20, label: "20" },
+              ]}
+              value={this.state.numPrograms}
+              min={1}
+              max={20}
+              onChange={this.onProgCountChange}
             />
-          </InputContainer>
-          <br />
-          {this.inputElements()}
+          </SliderDiv>
+          <SliderDiv>
+            <Typography># mutations per iteration:</Typography>
+            <Slider
+              valueLabelDisplay="auto"
+              step={1}
+              marks={[
+                { value: 1, label: "1" },
+                { value: 5, label: "5" },
+              ]}
+              value={
+                this.state.setting
+                  ? this.state.setting.mutationCount
+                  : DEFAULT_MUTATION_COUNT
+              }
+              min={1}
+              max={5}
+              onChange={this.onMutationCountChange}
+            />
+          </SliderDiv>
+        </InputContainer>
+        <br />
+        <InputContainer>{this.inputElements()}</InputContainer>
+        <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}
-            color="secondary"
+            color="primary"
             variant="outlined"
           >
             Generate Diagrams
           </Button>
-        </form>
+        </ButtonContainer>
       </SettingsDrawer>
     );
   }
