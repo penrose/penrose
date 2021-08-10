@@ -1226,7 +1226,7 @@ const genCode = (
   } else if (setting === "grad") {
     // Return list of scalars
     const outputNamesStr = progOutputs.join(", ");
-    returnStmt = `return [${outputNamesStr}];`;
+      returnStmt = `return [${outputNamesStr}];`;
   }
 
   const progStr = progStmts.concat([returnStmt]).join("\n");
@@ -1546,6 +1546,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
 // Top-down
 const clearVisitedNodesOutput = (z: VarAD) => {
+    // TODO revert - this appears to be causing a performance problem as well - not sure why it happens for this specific example? Could it be solved by storing the visited node info in a separate cache? 
+
   z.nodeVisited = false;
     // z.id = -2; // the ids are actually needed
   // z.name = "";
@@ -1560,7 +1562,9 @@ const clearVisitedNodesInput = (x: VarAD) => {
     // x.id = -2; // the ids are actually needed
   // x.name = "";
   x.parents.forEach((e) => clearVisitedNodesInput(e.node));
-  x.parentsGrad.forEach((e) => clearVisitedNodesInput(e.node));
+
+    // NOTE: clearing `parentsGrad` appears to cause performance problems in `disjoint`. `parentsGrad` is not used anyway, the parents of the energy are used for autodiff and then the children of the energy and gradient are used to synthesize the code
+  // x.parentsGrad.forEach((e) => clearVisitedNodesInput(e.node));
 };
 
 // Mutates z (top node) to clear all vals and gradients of its children
