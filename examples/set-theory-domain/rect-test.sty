@@ -12,9 +12,6 @@ canvas {
 forall Set x {
     x.icon = Rectangle {
         strokeWidth : 0.0
-        center: (0,0)
-        w: 400.
-        h: 500.
     }
 
     x.text = Text {
@@ -26,6 +23,12 @@ forall Set x {
     ensure maxSize(x.icon, canvas.height / 3)
     encourage sameCenter(x.text, x.icon)
     x.textLayering = x.text above x.icon
+}
+
+Set `A` {
+        override `A`.icon.center = (0,0)
+        override `A`.icon.w = 400.
+        override `A`.icon.h = 500.
 }
 
 forall Set x; Set y
