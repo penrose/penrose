@@ -28,8 +28,10 @@ where IsSubset(x, y) {
 
       -- TODO: Revert
     -- ensure disjoint(y.text, x.icon, 30.0)
-    encourage disjoint(y.text, x.icon, 0.0)
     -- ensure disjoint(y.text, x.icon, 0.0)
+
+    -- encourage disjoint(y.text, x.icon, 0.0)
+    encourage disjoint(y.text, x.icon, 30.0)
 
     ensure subset(x.icon, y.icon)
     -- ensure disjoint(y.text, x.icon)

@@ -295,14 +295,20 @@ export const objDict = {
 
     if (IntersectionArea.hasExactImpl(t1, t2)) {
       // TODO: Factor this stuff out using the query interface
-      const b1 = overboxFromShape(t1, s1);
+      const b1 = BBox.inflate(overboxFromShape(t1, s1), constOfIf(padding));
       const b2 = overboxFromShape(t2, s2);
 
-      const overlap = IntersectionArea.exact([t1, s1], [t2, s2]);
+      const overlap = IntersectionArea.BoxOverlap(b1, b2);
+
+      // Case 3: Boxes are disjoint. Penalize their closest distance until it is equal to padding
+      const paddingPenalty = ifCond(
+        lt(constOfIf(padding), EPS0),
+        constOf(0),
+        max(constOf(0), sub(constOfIf(padding), ClosestDistance.exact([t1, s1], [t2, s2], padding))));
 
       return ifCond(gt(overlap, constOf(0.)),
         neg(ops.vdist(b1.center, b2.center)),
-        constOf(0.));
+        paddingPenalty);
 
     } else {
       return IntersectionArea.lowerBound([t1, s1], [t2, s2]);

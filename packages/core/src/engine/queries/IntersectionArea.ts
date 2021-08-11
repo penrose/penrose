@@ -27,7 +27,7 @@ export const hasExactImpl = (t1: string, t2: string) => {
 /**
  * Return the amount of overlap between two intervals in R. (0 if none)
  */
- export const overlap1D = (
+export const overlap1D = (
   [l1, r1]: [VarAD, VarAD],
   [l2, r2]: [VarAD, VarAD]
 ): VarAD => {
@@ -45,28 +45,35 @@ export const hasExactImpl = (t1: string, t2: string) => {
 const AABBOverlap = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  ) => {
-    if (!isRectLike(t1) || !isRectLike(t2)) {
-      throw Error(`AABBOverlap expected rect-like shapes, but got ${t1} and ${t2}.`);
-    }
+) => {
+  if (!isRectLike(t1) || !isRectLike(t2)) {
+    throw Error(`AABBOverlap expected rect-like shapes, but got ${t1} and ${t2}.`);
+  }
 
-    // adapted from distance code found here: https://gamedev.stackexchange.com/a/154040
-    const box1 = overboxFromShape(t1, s1);
-    const box2 = overboxFromShape(t2, s2);
+  const box1 = overboxFromShape(t1, s1);
+  const box2 = overboxFromShape(t2, s2);
 
-    const outerWidth = sub(
-      max(BBox.maxX(box1), BBox.maxX(box2)),
-      min(BBox.minX(box1), BBox.minX(box2))
-    );
-    const outerHeight = sub(
-      max(BBox.maxY(box1), BBox.maxY(box2)),
-      min(BBox.minY(box1), BBox.minY(box2))
-    );
+  return BoxOverlap(box1, box2);
+}
 
-    const innerWidth = max(constOf(0), sub(add(box1.w, box2.w), outerWidth));
-    const innerHeight = max(constOf(0), sub(add(box1.h, box2.h), outerHeight));
+export const BoxOverlap = (
+  box1: BBox.BBox,
+  box2: BBox.BBox
+) => {
+  // adapted from distance code found here: https://gamedev.stackexchange.com/a/154040
+  const outerWidth = sub(
+    max(BBox.maxX(box1), BBox.maxX(box2)),
+    min(BBox.minX(box1), BBox.minX(box2))
+  );
+  const outerHeight = sub(
+    max(BBox.maxY(box1), BBox.maxY(box2)),
+    min(BBox.minY(box1), BBox.minY(box2))
+  );
 
-    return mul(innerWidth, innerHeight);
+  const innerWidth = max(constOf(0), sub(add(box1.w, box2.w), outerWidth));
+  const innerHeight = max(constOf(0), sub(add(box1.h, box2.h), outerHeight));
+
+  return mul(innerWidth, innerHeight);
 }
 
 // TODO: add acos to autodiff directly
@@ -78,77 +85,77 @@ const acos = (x: VarAD): VarAD => add(mul(sub(mul(constOf(-0.69813170079773212),
 export const lowerBound = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  ): VarAD => {
-    if (t1 === "Circle" && t2 === "Circle") {
-      // TODO: the quadrilateral inside the intersection may serve as a nice upper bound
-    }
+): VarAD => {
+  if (t1 === "Circle" && t2 === "Circle") {
+    // TODO: the quadrilateral inside the intersection may serve as a nice upper bound
+  }
 
-    const box1 = underboxFromShape(t1, s1);
-    const box2 = underboxFromShape(t2, s2);
+  const box1 = underboxFromShape(t1, s1);
+  const box2 = underboxFromShape(t2, s2);
 
-    const overlapX = overlap1D(BBox.xRange(box1), BBox.xRange(box2));
-    const overlapY = overlap1D(BBox.yRange(box1), BBox.yRange(box2));
+  const overlapX = overlap1D(BBox.xRange(box1), BBox.xRange(box2));
+  const overlapY = overlap1D(BBox.yRange(box1), BBox.yRange(box2));
 
-    return mul(overlapX, overlapY);
+  return mul(overlapX, overlapY);
 };
 
 export const exact = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  ): VarAD => {
-    if (!hasExactImpl(t1, t2)) {
-      throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
-    }
+): VarAD => {
+  if (!hasExactImpl(t1, t2)) {
+    throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
+  }
 
-    if (hasMeasureZero(t1) || hasMeasureZero(t2)) {
-      return constOf(0);
-    } else if (isRectLike(t1) && isRectLike(t2)) {
-      // const box1 = overboxFromShape(t1, s1);
-      // const box2 = overboxFromShape(t2, s2);
+  if (hasMeasureZero(t1) || hasMeasureZero(t2)) {
+    return constOf(0);
+  } else if (isRectLike(t1) && isRectLike(t2)) {
+    // const box1 = overboxFromShape(t1, s1);
+    // const box2 = overboxFromShape(t2, s2);
 
-      // const overlapX = overlap1D(BBox.xRange(box1), BBox.xRange(box2));
-      // const overlapY = overlap1D(BBox.yRange(box1), BBox.yRange(box2));
+    // const overlapX = overlap1D(BBox.xRange(box1), BBox.xRange(box2));
+    // const overlapY = overlap1D(BBox.yRange(box1), BBox.yRange(box2));
 
-      // // return add(mul(debug(overlapX, "overlapX"), debug(overlapY, "overlapY")), mul(constOf(0),
-      // // add(debug(box2.w, "2w"), debug(box2.h, "2h"))));
-      // return mul(debug(overlapX, "overlapX"), debug(overlapY, "overlapY"));
-      return AABBOverlap([t1, s1], [t2, s2]);
-    } else if (t1 === "Circle" && t2 === "Circle") {
-      // https://diego.assencio.com/?index=8d6ca3d82151bad815f78addf9b5c1c6
-      const r1 = s1.r.contents;
-      const r2 = s2.r.contents;
-      const d = add(r1, r2);
-      const d1 = div(addN([squared(r1), neg(squared(r2)), squared(d)]), mul(constOf(2), d));
-      const d2 = sub(d, d1);
-      // TODO: can I remove the epsilons here?
-      return add(
-        sub(mul(squared(r1), acos(div(d1, r1))), mul(d1, sqrt(add(sub(squared(r1), squared(d1)), constOf(EPS_DENOM))))),
-        sub(mul(squared(r2), acos(div(d2, r2))), mul(d2, sqrt(add(sub(squared(r2), squared(d2)), constOf(EPS_DENOM))))),
-      )
-    } else if ((t1 === "Circle" && t2 === "Ellipse") || (t1 === "Ellipse" && t2 === "Circle")) {
-      // There may be an exact way to compute this.
-      throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
-    } else if (t1 === "Ellipse" && t2 === "Ellipse") {
-      // Reducible to ellipse-circle case.
-      throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
-    } else {
-      throw Error(`expected an exact intersection area query implementation for ${t1} and ${t2}, but did not find one`)
-    }
+    // // return add(mul(debug(overlapX, "overlapX"), debug(overlapY, "overlapY")), mul(constOf(0),
+    // // add(debug(box2.w, "2w"), debug(box2.h, "2h"))));
+    // return mul(debug(overlapX, "overlapX"), debug(overlapY, "overlapY"));
+    return AABBOverlap([t1, s1], [t2, s2]);
+  } else if (t1 === "Circle" && t2 === "Circle") {
+    // https://diego.assencio.com/?index=8d6ca3d82151bad815f78addf9b5c1c6
+    const r1 = s1.r.contents;
+    const r2 = s2.r.contents;
+    const d = add(r1, r2);
+    const d1 = div(addN([squared(r1), neg(squared(r2)), squared(d)]), mul(constOf(2), d));
+    const d2 = sub(d, d1);
+    // TODO: can I remove the epsilons here?
+    return add(
+      sub(mul(squared(r1), acos(div(d1, r1))), mul(d1, sqrt(add(sub(squared(r1), squared(d1)), constOf(EPS_DENOM))))),
+      sub(mul(squared(r2), acos(div(d2, r2))), mul(d2, sqrt(add(sub(squared(r2), squared(d2)), constOf(EPS_DENOM))))),
+    )
+  } else if ((t1 === "Circle" && t2 === "Ellipse") || (t1 === "Ellipse" && t2 === "Circle")) {
+    // There may be an exact way to compute this.
+    throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
+  } else if (t1 === "Ellipse" && t2 === "Ellipse") {
+    // Reducible to ellipse-circle case.
+    throw Error(`exact intersection area query not supported for ${t1} and ${t2}`)
+  } else {
+    throw Error(`expected an exact intersection area query implementation for ${t1} and ${t2}, but did not find one`)
+  }
 };
 
 export const upperBound = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  ): VarAD => {
-    if (t1 === "Circle" && t2 === "Circle") {
-      // TODO: the quadrilateral outside the intersection may serve as a nice upper bound
-    }
+): VarAD => {
+  if (t1 === "Circle" && t2 === "Circle") {
+    // TODO: the quadrilateral outside the intersection may serve as a nice upper bound
+  }
 
-    const box1 = overboxFromShape(t1, s1);
-    const box2 = overboxFromShape(t2, s2);
+  const box1 = overboxFromShape(t1, s1);
+  const box2 = overboxFromShape(t2, s2);
 
-    const overlapX = overlap1D(BBox.xRange(box1), BBox.xRange(box2));
-    const overlapY = overlap1D(BBox.yRange(box1), BBox.yRange(box2));
+  const overlapX = overlap1D(BBox.xRange(box1), BBox.xRange(box2));
+  const overlapY = overlap1D(BBox.yRange(box1), BBox.yRange(box2));
 
-    return mul(overlapX, overlapY);
+  return mul(overlapX, overlapY);
 };
