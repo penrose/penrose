@@ -22,6 +22,7 @@ export interface ContentState {
 }
 
 const ContentSection = styled(Box)({
+  fontFamily: "Helvetica",
   display: "flex",
   flexDirection: "row",
   width: "100%",
@@ -32,9 +33,17 @@ const ContentSection = styled(Box)({
 });
 
 const HeaderContent = styled(Toolbar)({
+  fontWeight: "bold",
   justifyContent: "space-between",
+  background:
+    "linear-gradient(162deg, rgba(63,81,181,1) 33%, rgba(10,21,83,1) 100%)",
 });
 
+const Title = styled(Typography)({
+  fontFamily: "Roboto Mono",
+  fontWeight: "lighter",
+  color: "white",
+});
 export class Content extends React.Component<ContentProps, ContentState> {
   private domain: string;
   private style: string;
@@ -122,9 +131,9 @@ export class Content extends React.Component<ContentProps, ContentState> {
       <div>
         <AppBar position="fixed">
           <HeaderContent>
-            <Typography variant="h6" noWrap>
-              Edgeworth
-            </Typography>
+            <Title variant="h6" noWrap>
+              EDGEWORTH
+            </Title>
             <Button color="inherit" onClick={this.exportDiagrams}>
               Export
             </Button>

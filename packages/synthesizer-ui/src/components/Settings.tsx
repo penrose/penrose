@@ -56,7 +56,13 @@ const ButtonContainer = styled("div")({
 });
 
 const SliderDiv = styled("div")({
-  padding: "1rem",
+  padding: "0.5rem",
+  paddingBottom: "0",
+});
+
+const SliderLabel = styled(Typography)({
+  color: "gray",
+  fontSize: "1rem",
 });
 
 const AccordionHeaderStyled = styled(AccordionSummary)(({ theme }) => ({
@@ -188,7 +194,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   inputElements = () => {
     return ["Add", "Edit", "Delete"].map((op) => (
       <Accordion key={op} elevation={0}>
-        <AccordionHeaderStyled>{`${op} Statements:`}</AccordionHeaderStyled>
+        <AccordionHeaderStyled>{`${op} Statements`}</AccordionHeaderStyled>
         <AccordionBodyStyled>
           <InputContainer>
             {["Type", "Constructor", "Function", "Predicate"].map(
@@ -227,7 +233,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             value={this.state.substance}
           />
           <SliderDiv>
-            <Typography># mutated programs to generate:</Typography>
+            <SliderLabel>Diagrams to generate:</SliderLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
@@ -243,7 +249,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             />
           </SliderDiv>
           <SliderDiv>
-            <Typography># mutations per iteration:</Typography>
+            <SliderLabel>Mutations/program:</SliderLabel>
             <Slider
               valueLabelDisplay="auto"
               step={1}
@@ -268,7 +274,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           <Button
             onClick={this.onGenerateClick}
             color="primary"
-            variant="outlined"
+            variant="contained"
           >
             Generate Diagrams
           </Button>

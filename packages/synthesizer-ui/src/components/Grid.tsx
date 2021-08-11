@@ -37,6 +37,11 @@ const Placeholder = styled(Box)({
   padding: "0",
 });
 
+const PlaceholderText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  fontFamily: "Roboto Mono",
+}));
+
 interface GridState {
   svgs: string[];
 }
@@ -68,9 +73,9 @@ export class Grid extends React.Component<GridProps, GridState> {
     const content =
       this.props.progs.length === 0 ? (
         <Placeholder>
-          <Typography variant="h6">
-            {"Generate diagrams to view them here"}
-          </Typography>
+          <PlaceholderText variant="h6">
+            {"(Generated diagrams will appear here)"}
+          </PlaceholderText>
         </Placeholder>
       ) : (
         this.innerContent()

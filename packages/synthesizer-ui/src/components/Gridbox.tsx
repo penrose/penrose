@@ -29,26 +29,19 @@ export interface GridboxProps {
   onStaged: (n: number, s: string) => void;
 }
 
-// const Section = styled.section`
-//   margin: 0.5rem;
-//   width: 25rem;
-//   height: 25rem;
-//   border: 1px solid gray;
-// `;
-
 const Section = styled(Card)(({ theme }) => ({
   margin: "0.5rem",
   width: "25rem",
   height: "25rem",
   borderColor: theme.palette.primary.main,
-  borderWidth: "1px",
+  borderWidth: "2px",
   borderStyle: "outset",
   color: theme.palette.primary.main,
-  borderRadius: "3px",
+  borderRadius: "5px",
 }));
 
 const LowEnergy = styled(Chip)(({ theme }) => ({
-  background: theme.palette.success.light,
+  background: theme.palette.success.main,
   color: "white",
 }));
 
@@ -57,21 +50,21 @@ const HighEnergy = styled(Chip)(({ theme }) => ({
   color: "white",
 }));
 
-const Header = styled(Box)({
+const Header = styled(Box)(({ theme }) => ({
+  color: theme.palette.primary.main,
   width: "calc(100% - .75rem)",
   height: "1.75rem",
   borderBottom: "1px solid black",
   fontSize: "1.25rem",
-  color: "gray",
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
   padding: "0.5rem 0 0.5rem 0.75rem",
-  verticalAlign: "baseline",
-});
+  verticalAlign: "text-bottom",
+}));
 
 const Body = styled(Box)({
-  fontFamily: "Courier New, sans-serif",
+  fontFamily: "Roboto Mono, Courier New, sans-serif",
   height: "calc(25rem - 4.25rem)",
   fontSize: "0.8rem",
   color: "black",
@@ -80,17 +73,23 @@ const Body = styled(Box)({
   padding: "0.5rem 0.25rem 0.25rem 0.5rem",
 });
 
+const H2 = styled(Box)({
+  borderBottom: "1px solid black",
+  padding: "0.5rem 0 0.35rem 0",
+  marginBottom: ".5rem",
+  fontFamily: "sans-serif",
+  color: "gray",
+});
+
+const HeaderText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  fontFamily: "Roboto Mono, Helvetica, sans-serif",
+  verticalAlign: "text-bottom",
+}));
+
 const ExportCheckbox = styled(Checkbox)({
   padding: "0 0.5rem",
 });
-
-const programString = (stmts: string, ops: string) => {
-  return `${stmts}
------
-Operations:
-${ops}
-`;
-};
 
 interface GridboxState {
   showDiagram: boolean;
@@ -112,6 +111,10 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   // TODO this creates the source program state for every mutant program, should cache this information
   computeEnergy = async (optimizedState: IState) => {
+    if (this.props.progNumber === 0) {
+      this.setState({ energy: 0 });
+      return;
+    }
     let srcState: IState;
     const resSrc = compileTrio(
       this.props.domain,
@@ -137,7 +140,10 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             energy: Math.round(energy),
           });
         } catch (e) {
-          console.log(e);
+          console.log("error with CIEE: ", e);
+          this.setState({
+            energy: -1,
+          });
         }
       }
     }
@@ -198,14 +204,19 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     return (
       <Section>
         <Header>
-          <Typography>
+          <HeaderText>
             {this.props.progNumber === 0
               ? "Original Diagram"
               : `Mutated Program #${this.props.progNumber}`}
-          </Typography>
+          </HeaderText>
           <Box>
-            {this.state.energy > 10000 ? (
-              <HighEnergy label={`energy: ${this.state.energy}`} size="small" />
+            {this.state.energy > 10000 || this.state.energy < 0 ? (
+              <HighEnergy
+                label={`energy: ${
+                  this.state.energy < 0 ? "Inf" : this.state.energy
+                }`}
+                size="small"
+              />
             ) : (
               <LowEnergy label={`energy: ${this.state.energy}`} size="small" />
             )}
@@ -213,6 +224,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               name="isStaged"
               checked={this.state.isSelected}
               onChange={this.checkboxClick}
+              color="primary"
             />
           </Box>
         </Header>
@@ -227,12 +239,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             />
           ) : (
             <Body>
-              {programString(
-                stmts,
-                this.props.progNumber === 0
-                  ? ""
-                  : showMutations(this.props.substance.ops)
-              )}
+              <H2>Mutations</H2>
+              {this.props.progNumber === 0
+                ? "N/A"
+                : showMutations(this.props.substance.ops)}
+              <H2>Substance Program</H2>
+              {`${stmts}`}
             </Body>
           )}
         </div>
