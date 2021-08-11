@@ -12,6 +12,8 @@ import * as BBox from 'engine/BBox';
  * 
  * TODO: currently if the shapes intersect, the distance will be 0. is that what we want? or maybe
  * have them go negative somehow?
+ * 
+ * TODO: squared distance is more well-behaved at 0.
  */
 
 const isRectLike = (t: string) => ["Rectangle", "Square", "Image", "Text"].includes(t);
@@ -119,14 +121,33 @@ const AABBDistanceSquared = (
     return add(squared(innerWidth), squared(innerHeight));
 }
 
-// TODO
+const AABBDistanceSquared2 = (
+  box1: BBox.BBox,
+  box2: BBox.BBox,
+) => {
+  const outerWidth = sub(
+    max(BBox.maxX(box1), BBox.maxX(box2)),
+    min(BBox.minX(box1), BBox.minX(box2))
+  );
+  const outerHeight = sub(
+    max(BBox.maxY(box1), BBox.maxY(box2)),
+    min(BBox.minY(box1), BBox.minY(box2))
+  );
+
+  const innerWidth = max(constOf(0), sub(sub(outerWidth, box1.w), box2.w));
+  const innerHeight = max(constOf(0), sub(sub(outerHeight, box1.h), box2.h));
+
+  return add(squared(innerWidth), squared(innerHeight));
+}
+
 export const lowerBound = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   ): VarAD => {
-    const box = underboxFromShape(t1, s1);
+    const box1 = overboxFromShape(t1, s1);
+    const box2 = overboxFromShape(t1, s1);
 
-    return mul(box.w, box.h);
+    return AABBDistanceSquared2(box1, box2);
 };
 
 export const exact = (
@@ -197,7 +218,7 @@ export const exact = (
       // TODO: there may be a nice way to compute this
       throw Error(`exact closest-distance query not supported for ${t1} and ${t2}`)
     } else if (isRectLike(t1) && isRectLike(t2)) {
-      return AABBDistanceSquared([t1, s1], [t2, s2]);
+      return sqrt(AABBDistanceSquared([t1, s1], [t2, s2]));
     } else if (isRectLike(t1) && t2 === "Circle") {
       // https://gamedev.stackexchange.com/a/44496
       // (basically a special case of AABB where one of the rectangles has no extent)
@@ -315,14 +336,14 @@ export const exact = (
     }
 };
 
-// TODO
 export const upperBound = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   ): VarAD => {
-    const box = underboxFromShape(t1, s1);
+    const box1 = underboxFromShape(t1, s1);
+    const box2 = underboxFromShape(t1, s1);
 
-    return mul(box.w, box.h);
+    return AABBDistanceSquared2(box1, box2);
 };
 
 export const exactOrLowerBound = ([t1, s1]: [string, any], [t2, s2]: [string, any],): VarAD =>

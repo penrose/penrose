@@ -16,8 +16,7 @@ export const lowerBound = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   ): VarAD => {
-    // TODO: this code assumes Area can/should always be computed exactly
-    const areaA = Area.exact([t1, s1]);
+    const areaA = Area.exactOrLowerBound([t1, s1]);
     const areaAB = IntersectionArea.upperBound([t1, s1], [t2, s2]);
     return sub(areaA, areaAB);
 };
@@ -41,10 +40,7 @@ export const upperBound = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   ): VarAD => {
-    // TODO: this code assumes Area can/should always be computed exactly
-    // const areaA = debug(Area.exact([t1, s1]), "area");
-    // const areaAB = debug(IntersectionArea.lowerBound([t1, s1], [t2, s2]), "intersection");
-    const areaA = Area.exact([t1, s1]);
+    const areaA = Area.exactOrUpperBound([t1, s1]);
     const areaAB = IntersectionArea.lowerBound([t1, s1], [t2, s2]);
     return sub(areaA, areaAB);
 };

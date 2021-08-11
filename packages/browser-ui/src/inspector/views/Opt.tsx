@@ -34,6 +34,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       const gradientNorm = ops.vnorm(fnEvaled.gradf);
       return {
         name,
+        energy: fnEvaled.f,
         gradientNorm,
       };
     }
@@ -70,6 +71,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
         striped={true}
         columns={[
           { name: "Expression", selector: "name", sortable: true },
+          { name: "Energy", selector: "energy", sortable: true },
           { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
         ]}
       />
