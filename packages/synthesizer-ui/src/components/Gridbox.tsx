@@ -199,6 +199,19 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.props.onStaged(this.props.progNumber, this.state.diagramSVG);
   };
 
+  energyChip = () => {
+    return this.state.energy > 10000 || this.state.energy < 0 ? (
+      <HighEnergy
+        label={`energy: ${
+          this.state.energy < 0 ? "Inf" : this.state.energy.toExponential(2)
+        }`}
+        size="small"
+      />
+    ) : (
+      <LowEnergy label={`energy: ${this.state.energy}`} size="small" />
+    );
+  };
+
   render() {
     const stmts = prettySubstance(this.props.substance.prog);
     return (
@@ -210,16 +223,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               : `Mutated Program #${this.props.progNumber}`}
           </HeaderText>
           <Box>
-            {this.state.energy > 10000 || this.state.energy < 0 ? (
-              <HighEnergy
-                label={`energy: ${
-                  this.state.energy < 0 ? "Inf" : this.state.energy
-                }`}
-                size="small"
-              />
-            ) : (
-              <LowEnergy label={`energy: ${this.state.energy}`} size="small" />
-            )}
+            {this.energyChip()}
             <ExportCheckbox
               name="isStaged"
               checked={this.state.isSelected}
