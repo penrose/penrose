@@ -1,11 +1,6 @@
-Plane R
-Point A, B, C, D, E
-Segment s1 := MkSegment(A, B)
-Segment s2 := MkSegment(B, E)
-Angle a := InteriorAngle(A, B, E)
-In(A, R)
-In(B, R)
-In(C, R)
-In(D, R)
-In(E, R)
-Collinear(B, D, E)
+Point J, K, L, M, Y
+Circle c
+Segment LM := Chord(c, L, M)
+Segment JK := Chord(c, J, K)
+Collinear(J, Y, K)
+Collinear(L, Y, M)

@@ -8,21 +8,21 @@
     "constructor": 0.2
   },
   "add": {
-    "type": ["Linelike", "Angle"],
-    "function": [],
-    "constructor": ["InteriorAngle"],
-    "predicate": ["EqualLength", "RightUnmarked"]
+    "type": ["Linelike"],
+    "function": ["Chord", "Diameter", "Radius"],
+    "constructor": ["MkSegment", "MkMidpoint"],
+    "predicate": ["OnCircle", "CircleCenter"]
   },
   "delete": {
     "type": [],
-    "function": [],
+    "function": ["Chord"],
     "constructor": [],
-    "predicate": ["RightMarked", "EqualLengthMarker", "EqualLength"]
+    "predicate": []
   },
   "edit": {
     "type": [],
-    "function": [],
-    "constructor": ["MkSegment"],
-    "predicate": ["RightMarked", "EqualLength", "EqualLengthMarker"]
+    "function": ["Chord", "Diameter", "Radius"],
+    "constructor": [],
+    "predicate": ["OnCircle", "CircleCenter"]
   }
 }
