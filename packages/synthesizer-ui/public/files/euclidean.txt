@@ -129,8 +129,8 @@ Linelike l {
   l.color = Colors.black
 
   l.icon = Line {
-    start : ?
-    end : ?
+    start : (?, ?)
+    end : (?, ?)
     color : l.color
     thickness : const.strokeWidth
     stroke : "none"
