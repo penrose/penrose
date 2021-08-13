@@ -2,7 +2,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Divider,
   Slider,
   Typography,
 } from "@material-ui/core";
@@ -14,24 +13,62 @@ import {
   Drawer,
   Toolbar,
 } from "@material-ui/core";
-import { SynthesizerSetting } from "@penrose/core";
+import { compileDomain, SynthesizerSetting } from "@penrose/core";
 import React from "react";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
 const DEFAULT_MUTATION_COUNT = [1, 4];
 
+interface StmtType {
+  tag: string;
+  values: string[];
+}
+
+interface PartialEnv {
+  types: StmtType;
+  constructors: StmtType;
+  functions: StmtType;
+  predicates: StmtType;
+}
+
+const defaultEnv: PartialEnv = {
+  types: {
+    tag: "Type",
+    values: [],
+  },
+  constructors: {
+    tag: "Constructor",
+    values: [],
+  },
+  functions: {
+    tag: "Function",
+    values: [],
+  },
+  predicates: {
+    tag: "Predicate",
+    values: [],
+  },
+};
+
 export interface SettingsProps {
   generateCallback: (
     setting: SynthesizerSetting,
     numPrograms: number,
-    sub: string
+    dsl: string,
+    sub: string,
+    sty: string
   ) => void;
+  defaultDomain: string;
+  defaultStyle: string;
 }
 
 interface SettingState {
   substance: string;
   setting: SynthesizerSetting | undefined;
   numPrograms: number;
+  domainEnv: PartialEnv;
+  domain: string;
+  style: string;
 }
 
 const InputContainer = styled(Box)({
@@ -84,14 +121,23 @@ const AccordionBodyStyled = styled(AccordionDetails)(({ theme }) => ({
 export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
-    this.state = { substance: "", setting: undefined, numPrograms: 10 };
+    this.state = {
+      substance: "",
+      setting: undefined,
+      numPrograms: 10,
+      domainEnv: defaultEnv,
+      domain: this.props.defaultDomain,
+      style: this.props.defaultStyle,
+    };
   }
 
   componentDidMount() {
     fetch("public/files/sub_example.txt")
       .then((r) => r.text())
       .then((text) => {
-        this.updateSubstance(text);
+        this.setState({
+          substance: text,
+        });
       });
     fetch("public/files/defaultSetting.json")
       .then((r) => r.json())
@@ -100,17 +146,69 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       });
   }
 
-  updateSubstance = (newSub: string) => {
-    this.setState({
-      ...this.state,
-      substance: newSub,
-    });
+  // TODO: current implementation will not update the UI if there is a domain compiler error
+  // at any point in time, instead, we should display a helpful error message.
+  updateDomainEnv = (newDomain: string) => {
+    const result = compileDomain(newDomain);
+    if (result.isOk()) {
+      this.setState({
+        domainEnv: {
+          types: {
+            tag: "Type",
+            values: [...result.value.types.keys()],
+          },
+          constructors: {
+            tag: "Constructor",
+            values: [...result.value.constructors.keys()],
+          },
+          functions: {
+            tag: "Function",
+            values: [...result.value.functions.keys()],
+          },
+          predicates: {
+            tag: "Predicate",
+            values: [...result.value.predicates.keys()],
+          },
+        },
+      });
+    } else {
+      console.error(result.error);
+    }
   };
+
+  componentDidUpdate(prev: SettingsProps) {
+    if (
+      this.props.defaultDomain !== prev.defaultDomain &&
+      this.props.defaultDomain.length > 0
+    ) {
+      this.updateDomainEnv(this.props.defaultDomain);
+      this.setState({ domain: this.props.defaultDomain });
+    }
+    if (
+      this.props.defaultStyle !== prev.defaultStyle &&
+      this.props.defaultStyle.length > 0
+    ) {
+      this.setState({
+        style: this.props.defaultStyle,
+      });
+    }
+  }
 
   onTextAreaChange = (event: any) => {
     event.preventDefault();
     if (event.target.name === "sub") {
-      this.updateSubstance(event.target.value);
+      this.setState({
+        substance: event.target.value,
+      });
+    } else if (event.target.name === "dsl") {
+      this.setState({
+        domain: event.target.value,
+      });
+      this.updateDomainEnv(event.target.value);
+    } else if (event.target.name === "sty") {
+      this.setState({
+        style: event.target.value,
+      });
     }
   };
 
@@ -119,7 +217,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       this.props.generateCallback(
         this.state.setting,
         this.state.numPrograms,
-        this.state.substance
+        this.state.domain,
+        this.state.substance,
+        this.state.style
       );
   };
 
@@ -197,18 +297,17 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <AccordionHeaderStyled>{`${op} Statements`}</AccordionHeaderStyled>
         <AccordionBodyStyled>
           <InputContainer>
-            {["Type", "Constructor", "Function", "Predicate"].map(
-              (stmtType) => (
-                <MultiselectDropdown
-                  stmtType={stmtType}
-                  mutationType={op}
-                  key={`${op}-${stmtType}`}
-                  // name={`${op}-${stmtType}`}
-                  onChange={this.onChangeMultiselect(op, stmtType)}
-                  defaults={this.getDefaults(op, stmtType)}
-                />
-              )
-            )}
+            {Object.values(this.state.domainEnv).map((stmtType: StmtType) => (
+              <MultiselectDropdown
+                stmtType={stmtType.tag}
+                mutationType={op}
+                key={`${op}-${stmtType.tag}`}
+                // name={`${op}-${stmtType}`}
+                onChange={this.onChangeMultiselect(op, stmtType.tag)}
+                defaults={this.getDefaults(op, stmtType.tag)}
+                options={stmtType.values}
+              />
+            ))}
           </InputContainer>
         </AccordionBodyStyled>
       </Accordion>
@@ -232,6 +331,40 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             onChange={this.onTextAreaChange}
             value={this.state.substance}
           />
+          <Accordion key="domain" elevation={0}>
+            <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
+            <AccordionBodyStyled style={{ padding: 0 }}>
+              <TextField
+                rows={20}
+                name="dsl"
+                multiline
+                variant="outlined"
+                fullWidth
+                inputProps={{ style: { fontSize: ".8rem" } }}
+                style={{ padding: 0 }}
+                onChange={this.onTextAreaChange}
+                value={this.state.domain}
+              />
+            </AccordionBodyStyled>
+          </Accordion>
+          <Accordion key="style" elevation={0}>
+            <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
+            <AccordionBodyStyled style={{ padding: 0 }}>
+              <TextField
+                rows={20}
+                name="sty"
+                multiline
+                fullWidth
+                variant="outlined"
+                style={{ padding: 0 }}
+                inputProps={{
+                  style: { fontSize: ".8rem", overflow: "scroll" },
+                }}
+                onChange={this.onTextAreaChange}
+                value={this.state.style}
+              />
+            </AccordionBodyStyled>
+          </Accordion>
           <SliderDiv>
             <SliderLabel>Diagrams to generate:</SliderLabel>
             <Slider

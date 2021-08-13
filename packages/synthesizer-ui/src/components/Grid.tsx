@@ -69,7 +69,6 @@ export class Grid extends React.Component<GridProps, GridState> {
   }
 
   render() {
-    console.log("making grid", this.props.progs);
     const content =
       this.props.progs.length === 0 ? (
         <Placeholder>

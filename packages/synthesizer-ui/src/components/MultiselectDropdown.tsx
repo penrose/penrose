@@ -6,6 +6,7 @@ import {
   Select,
   styled,
 } from "@material-ui/core";
+import { Result, Env, PenroseError, compileDomain } from "@penrose/core";
 import React from "react";
 
 export interface MultiselectDropdownProps {
@@ -13,6 +14,7 @@ export interface MultiselectDropdownProps {
   mutationType: string;
   stmtType: string;
   defaults: string[];
+  options: string[];
 }
 
 interface State {
@@ -41,41 +43,45 @@ export class MultiselectDropdown extends React.Component<
     super(props);
     this.state = {
       selected: this.props.defaults,
-      options: [],
+      options: this.props.options,
     };
   }
 
+  updateDropdown = (selected: string[], options: string[]) => {
+    const selectedStmts = new Set(selected);
+    this.setState({
+      selected,
+      options: options.filter((opt) => {
+        return !selectedStmts.has(opt);
+      }),
+    });
+  };
+
   componentDidUpdate(prev: MultiselectDropdownProps) {
     if (
-      prev.defaults !== this.props.defaults &&
-      this.props.defaults.length > 0
+      (prev.defaults !== this.props.defaults &&
+        this.props.defaults.length > 0) ||
+      this.props.options !== prev.options
     ) {
-      const defaultStmts = new Set(this.props.defaults);
-      this.setState({
-        selected: [...this.props.defaults],
-        options: this.state.options.filter((opt) => {
-          return !defaultStmts.has(opt);
-        }),
-      });
+      this.updateDropdown(this.props.defaults, this.props.options);
     }
   }
 
-  componentDidMount() {
-    fetch("public/files/geometry.txt")
-      .then((r) => r.text())
-      .then((text) => {
-        const lines = text.split("\n");
-        const options = lines
-          .filter((line) => line.startsWith(this.props.stmtType.toLowerCase()))
-          .map((match) => {
-            return match.split(" ")[1];
-          });
-        this.setState({ options }); // TODO subtract out default values
-      });
-  }
+  // componentDidMount() {
+  //   fetch("public/files/geometry.txt")
+  //     .then((r) => r.text())
+  //     .then((text) => {
+  //       const lines = text.split("\n");
+  //       const options = lines
+  //         .filter((line) => line.startsWith(this.props.stmtType.toLowerCase()))
+  //         .map((match) => {
+  //           return match.split(" ")[1];
+  //         });
+  //       this.setState({ options }); // TODO subtract out default values
+  //     });
+  // }
 
   onAdd = (event: any) => {
-    console.log("changing", event.target.value);
     const newSelected = event.target.value as string[];
     const newOptions = this.state.options.filter((opt) => {
       const selected: Set<string> = new Set(event.target.value);
@@ -89,7 +95,6 @@ export class MultiselectDropdown extends React.Component<
   };
 
   onDelete = (chipToDelete: string) => {
-    console.log("deleting a chip", chipToDelete);
     const newSelected = this.state.selected.filter(
       (chip) => chip !== chipToDelete
     );

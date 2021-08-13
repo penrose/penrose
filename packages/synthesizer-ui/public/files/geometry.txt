@@ -1,4 +1,4 @@
--- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
+-- ~~~ TYPES ~~~
 type Point
 type Linelike
 type Ray
@@ -14,13 +14,13 @@ type Circle
 
 type Plane
 
--- ~~~~~~~~~~~~~~~~ SUBTYPES ~~~~~~~~~~~~~~~~
+-- ~~~ SUBTYPES ~~~
 Ray <: Linelike
 Line <: Linelike
 Segment <: Linelike
 Rectangle <: Quadrilateral
 
--- ~~~~~~~~~~~~~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~
+-- ~~~ CONSTRUCTORS ~~~
 -- Lines and Points
 constructor MkSegment : Point p * Point q -> Segment
 constructor MkRay : Point base * Point direction -> Ray
@@ -35,12 +35,11 @@ constructor MkTriangle : Point p * Point q * Point r -> Triangle
 constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 constructor MkQuadrilateral : Point p * Point q * Point r * Point s -> Quadrilateral
 constructor MkCircleR : Point center * Point radius -> Circle
--- constructor MkCircleD : Point diam1 * Point diam2 -> Circle  -- TODO can be reimplemented when #621 is resolved
 
--- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
+-- ~~~ FUNCTIONS ~~~
 -- Lines and Points
 function PerpendicularBisector : Segment * Point -> Segment
-function PerpendicularBisectorLabelPts : Segment * Point * Point -> Segment -- same as PerpendicularBisector but it takes a segment + 2 points as args for labeling
+function PerpendicularBisectorLabelPts : Segment * Point * Point -> Segment
 
 -- Polygons/Shapes
 function MidSegment : Triangle * Point * Point -> Segment
@@ -48,13 +47,7 @@ function Radius : Circle c * Point p -> Segment
 function Chord : Circle c * Point p * Point q -> Segment
 function Diameter : Circle c * Point p * Point q -> Segment
 
--- Unimplemented
--- function Sum : Angle * Angle -> Angle
--- function Intersection : Linelike * Linelike -> Point
--- function Altitude : Triangle * Angle -> Segment
--- function Endpoint : Segment -> Point
-
--- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
+-- ~~~ PREDICATES ~~~
 -- Lines and Points
 predicate On : Point * Linelike
 predicate In : Point * Plane
@@ -62,8 +55,8 @@ predicate Midpoint : Linelike * Point
 predicate Collinear : Point * Point * Point
 predicate ParallelMarker1 : Linelike * Linelike
 predicate EqualLengthMarker1 : Linelike * Linelike
-predicate EqualLengthMarker2 : Linelike * Linelike -- TODO implement, blocked
-predicate EqualLengthMarker3 : Linelike * Linelike -- TODO implement, blocked
+predicate EqualLengthMarker2 : Linelike * Linelike
+predicate EqualLengthMarker3 : Linelike * Linelike
 predicate EqualLength : Linelike * Linelike 
 predicate Parallel : Linelike * Linelike
 
@@ -87,11 +80,3 @@ predicate Circumcenter : Point * Triangle
 
 -- Unimplemented
 predicate Supplementary : Angle -- TODO broken
--- predicate Perpendicular : Linelike * Linelike
-
-
-
--- notation "{p, q}" ~ "MkSegment(p, q)"
--- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"
--- notation "{p, q, r, s}" ~ "MkRectangle(p, q, r, s)"
--- notation "∠(p, q, r)" ~ "InteriorAngle(p, q, r)"

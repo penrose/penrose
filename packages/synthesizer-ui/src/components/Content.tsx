@@ -19,6 +19,8 @@ export type ContentProps = any;
 export interface ContentState {
   progs: SynthesizedSubstance[];
   staged: [number, string][];
+  domain: string;
+  style: string;
 }
 
 const ContentSection = styled(Box)({
@@ -45,28 +47,26 @@ const Title = styled(Typography)({
   color: "white",
 });
 export class Content extends React.Component<ContentProps, ContentState> {
-  private domain: string;
-  private style: string;
   constructor(props: ContentProps) {
     super(props);
     this.state = {
       progs: [],
       staged: [],
+      domain: "",
+      style: "",
     };
-    this.domain = "";
-    this.style = "";
   }
 
   componentDidMount() {
     fetch("public/files/geometry.txt")
       .then((r) => r.text())
       .then((text) => {
-        this.domain = text;
+        this.setState({ domain: text });
       });
     fetch("public/files/euclidean.txt")
       .then((r) => r.text())
       .then((text) => {
-        this.style = text;
+        this.setState({ style: text });
       });
   }
 
@@ -87,9 +87,11 @@ export class Content extends React.Component<ContentProps, ContentState> {
   generateProgs = () => (
     setting: SynthesizerSetting,
     numPrograms: number,
-    prompt: string
+    dsl: string,
+    prompt: string,
+    sty: string
   ) => {
-    const envOrError = compileDomain(this.domain);
+    const envOrError = compileDomain(dsl);
 
     // initialize synthesizer
     if (envOrError.isOk()) {
@@ -114,6 +116,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
         this.setState({
           progs: [{ prog: template, ops: [] }, ...progs],
           staged: [],
+          domain: dsl,
+          style: sty,
         });
       }
     }
@@ -126,7 +130,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
   };
 
   render() {
-    console.log("re-rendering content", this.state.progs.length);
     return (
       <div>
         <AppBar position="fixed">
@@ -142,10 +145,14 @@ export class Content extends React.Component<ContentProps, ContentState> {
         {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}
         <Toolbar />
         <ContentSection>
-          <Settings generateCallback={this.generateProgs()} />
+          <Settings
+            generateCallback={this.generateProgs()}
+            defaultDomain={this.state.domain}
+            defaultStyle={this.state.style}
+          />
           <Grid
-            style={this.style}
-            domain={this.domain}
+            style={this.state.style}
+            domain={this.state.domain}
             progs={this.state.progs}
             onStaged={this.addStaged}
           />
