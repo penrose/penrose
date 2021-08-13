@@ -366,7 +366,7 @@ export const findMutationPaths = (
   const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
     const mutations = enumerateMutations(d.source, srcEnv);
     d.source;
-    const ctx = initContext(srcEnv);
+    const ctx = initContext(srcEnv, "existing", "distinct");
     const matchedMutations = mutations.filter((m) => {
       // HACK: assumes each update pair is connected by only one mutation. Therefore packing the source and result stmts into individual programs
       const prog1 = subProg([d.source]);
