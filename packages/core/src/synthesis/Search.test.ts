@@ -28,9 +28,11 @@ import {
 } from "./Mutation";
 import {
   applyStmtDiffs,
+  cartesianProduct,
   DiffSet,
   diffSubProgs,
   diffSubStmts,
+  enumerateAllPaths,
   findMutationPaths,
   showDiffset,
   showStmtDiff,
@@ -318,9 +320,9 @@ describe("Mutation recognition tests", () => {
     expect(fromSet).toHaveLength(1);
     // enumerate all mutations for the statement
     const swappedPred = fromSet[0];
-    const mutations = enumerateMutations(swappedPred, env);
-    // apply each mutation and see how many of them match with the result
     const ctx = initContext(env, "existing", "distinct");
+    const mutations = enumerateMutations(swappedPred, ast1, ctx);
+    // apply each mutation and see how many of them match with the result
     const matchedMutations = mutations.filter((m) => {
       const { res: mutatedAST } = executeMutation(m, ast1, ctx);
       return (
@@ -330,6 +332,23 @@ describe("Mutation recognition tests", () => {
     });
     expect(matchedMutations).toHaveLength(1);
     expect(matchedMutations[0].tag).toEqual("SwapStmtArgs");
+  });
+  test("enumerating all possible mutation paths", () => {
+    const prog1 = `
+    Set A, B, C
+    IsSubset(A,B)
+    IsSubset(C, A)
+    `;
+    const prog2 = `
+    Set A, B, C, D, E
+    IsSubset(B, A)
+    Equal(D, E)
+    `;
+    const [subEnv, env] = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = subEnv.ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const mutationGroups = enumerateAllPaths(ast1, ast2, env);
+    // console.log(mutationGroups.map(showMutations));
   });
   test("recognizing swap mutation with noise - auto", () => {
     const prog1 = `

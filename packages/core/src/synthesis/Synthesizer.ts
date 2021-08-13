@@ -671,7 +671,7 @@ export class Synthesizer {
 //#region Statement generator
 // TODO: add configuration options for `choice`
 
-const generateArgStmt = (
+export const generateArgStmt = (
   decl: ArgStmtDecl,
   ctx: SynthesisContext
 ): WithStmts<Bind | ApplyPredicate> => {

@@ -164,7 +164,7 @@ export const subProgDiffs = (left: SubProg, right: SubProg): DiffSet => {
   return { update, add, delete: deleted };
 };
 
-export const showSubDiff = (d: SubDiff) => {
+export const showSubDiff = (d: SubDiff): string => {
   switch (d.diffType) {
     case "Add":
     case "Delete":
@@ -337,7 +337,7 @@ export const findDiffs = (stmt: SubStmt, diffs: StmtDiff[]): rdiffResult[] =>
 
 //#region Single-mutation search
 
-const cartesianProduct = <T>(...sets: T[][]) =>
+export const cartesianProduct = <T>(...sets: T[][]) =>
   sets.reduce<T[][]>(
     (accSets, set) =>
       accSets.flatMap((accSet) => set.map((value) => [...accSet, value])),
@@ -364,14 +364,14 @@ export const findMutationPaths = (
   );
   // find all possible updates for each statement in the update set
   const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
-    const mutations = enumerateMutations(d.source, srcEnv);
+    const cxt = initContext(srcEnv, "existing", "distinct");
+    const mutations = enumerateMutations(d.source, src, cxt);
     d.source;
-    const ctx = initContext(srcEnv, "existing", "distinct");
     const matchedMutations = mutations.filter((m) => {
       // HACK: assumes each update pair is connected by only one mutation. Therefore packing the source and result stmts into individual programs
       const prog1 = subProg([d.source]);
       const prog2 = subProg([d.result]);
-      const { res: mutatedAST } = executeMutation(m, prog1, ctx);
+      const { res: mutatedAST } = executeMutation(m, prog1, cxt);
       return (
         prettySubstance(sortStmts(prog2)) ===
         prettySubstance(sortStmts(mutatedAST))
@@ -382,6 +382,35 @@ export const findMutationPaths = (
 
   // any combination of candidate mutations for each stmt will be a valid mutation group
   const updateGroups: MutationGroup[] = cartesianProduct(...matchingUpdates);
+  // for each update group, combine it with add and delete to get each of the candidate mutation group
+  if (updateGroups.length > 0) {
+    return updateGroups.map((updateGroup: MutationGroup) => [
+      ...updateGroup,
+      ...addMutations,
+      ...deleteMutations,
+    ]);
+  } else return [[...addMutations, ...deleteMutations]];
+};
+
+export const enumerateAllPaths = (
+  src: SubProg,
+  dest: SubProg,
+  srcEnv: Env
+): MutationGroup[] => {
+  const diffs: DiffSet = subProgDiffs(src, dest);
+  // pack add and delete mutations
+  const addMutations: Add[] = diffs.add.map((a) => addMutation(a.source));
+  const deleteMutations: Delete[] = diffs.delete.map((a) =>
+    deleteMutation(a.source)
+  );
+  // find all possible updates for each statement in the update set
+  const cxt = initContext(srcEnv, "existing", "distinct");
+  const possibleUpdates: MutationGroup[] = diffs.update.map((d) =>
+    enumerateMutations(d.source, src, cxt)
+  );
+
+  // any combination of candidate mutations for each stmt will be a valid mutation group
+  const updateGroups: MutationGroup[] = cartesianProduct(...possibleUpdates);
   // for each update group, combine it with add and delete to get each of the candidate mutation group
   if (updateGroups.length > 0) {
     return updateGroups.map((updateGroup: MutationGroup) => [

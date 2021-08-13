@@ -1,6 +1,9 @@
 import {
   appendStmt,
   ArgExpr,
+  argMatches,
+  ArgStmtDecl,
+  cascadingDelete,
   matchSignatures,
   removeStmt,
   replaceStmt,
@@ -18,7 +21,13 @@ import {
   SubProg,
   SubStmt,
 } from "types/substance";
-import { addID, removeID, SynthesisContext, WithContext } from "./Synthesizer";
+import {
+  addID,
+  generateArgStmt,
+  removeID,
+  SynthesisContext,
+  WithContext,
+} from "./Synthesizer";
 
 const log = consola
   .create({ level: LogLevel.Info })
@@ -457,7 +466,7 @@ const pairs = <T>(list: T[]): [T, T][] => {
   return res;
 };
 
-export const enumSwapStmtArgs = (stmt: SubStmt, env: Env): SwapStmtArgs[] => {
+export const enumSwapStmtArgs = (stmt: SubStmt): SwapStmtArgs[] => {
   if (stmt.tag === "ApplyPredicate" && stmt.args.length > 1) {
     const indexPairs: [number, number][] = pairs(range(0, stmt.args.length));
     return indexPairs.map(([elem1, elem2]: [number, number]) => ({
@@ -480,7 +489,7 @@ export const enumSwapStmtArgs = (stmt: SubStmt, env: Env): SwapStmtArgs[] => {
   } else return [];
 };
 
-export const enumSwapExprArgs = (stmt: SubStmt, env: Env): SwapExprArgs[] => {
+export const enumSwapExprArgs = (stmt: SubStmt): SwapExprArgs[] => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
     if (
@@ -517,10 +526,11 @@ export const enumSwapExprArgs = (stmt: SubStmt, env: Env): SwapExprArgs[] => {
 
 export const enumReplaceStmtName = (
   stmt: SubStmt,
-  env: Env
+  prog: SubProg,
+  cxt: SynthesisContext
 ): ReplaceStmtName[] => {
   if (stmt.tag === "ApplyPredicate") {
-    const matchingNames: string[] = matchSignatures(stmt, env).map(
+    const matchingNames: string[] = matchSignatures(stmt, cxt.env).map(
       (decl) => decl.name.value
     );
     const options = without(matchingNames, stmt.name.value);
@@ -543,7 +553,8 @@ export const enumReplaceStmtName = (
 
 export const enumReplaceExprName = (
   stmt: SubStmt,
-  env: Env
+  prog: SubProg,
+  cxt: SynthesisContext
 ): ReplaceExprName[] => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -552,7 +563,7 @@ export const enumReplaceExprName = (
       expr.tag === "ApplyFunction" ||
       expr.tag === "Func"
     ) {
-      const matchingNames: string[] = matchSignatures(expr, env).map(
+      const matchingNames: string[] = matchSignatures(expr, cxt.env).map(
         (decl) => decl.name.value
       );
       const options = without(matchingNames, expr.name.value);
@@ -578,15 +589,85 @@ export const enumReplaceExprName = (
   } else return [];
 };
 
-type MutationEnumerator = (stmt: SubStmt, env: Env) => Mutation[];
+export const enumChangeStmtType = (
+  stmt: SubStmt,
+  prog: SubProg,
+  cxt: SynthesisContext
+): ChangeStmtType[] => {
+  if (stmt.tag === "ApplyPredicate") {
+    const options = argMatches(stmt, cxt.env);
+    return options.map((decl: ArgStmtDecl) => {
+      const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt);
+      const deleteOp: Delete = deleteMutation(stmt, newCtx);
+      const addOps: Add[] = stmts.map((s: SubStmt) => addMutation(s, newCtx));
+      return {
+        tag: "ChangeStmtType",
+        stmt,
+        newStmt: res,
+        additionalMutations: [deleteOp, ...addOps],
+        mutate: changeType,
+      };
+    });
+  } else return [];
+};
+
+export const enumChangeExprType = (
+  stmt: SubStmt,
+  prog: SubProg,
+  cxt: SynthesisContext
+): ChangeExprType[] => {
+  if (stmt.tag === "Bind") {
+    const { expr } = stmt;
+    if (
+      expr.tag === "ApplyConstructor" ||
+      expr.tag === "ApplyFunction" ||
+      expr.tag === "Func"
+    ) {
+      const options = argMatches(stmt, cxt.env);
+      return options.map((decl: ArgStmtDecl) => {
+        const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt);
+        let toDelete: SubStmt[];
+        // remove old statement
+        if (res.tag === "Bind" && res.variable.type !== stmt.variable.type) {
+          // old bind was replaced by a bind with diff type
+          toDelete = cascadingDelete(stmt, prog); // remove refs to the old bind
+        } else {
+          toDelete = [stmt];
+        }
+        const deleteOps: Delete[] = toDelete.map((s) => deleteMutation(s));
+        const addOps: Add[] = stmts.map((s: SubStmt) => addMutation(s, newCtx));
+        return {
+          tag: "ChangeExprType",
+          stmt,
+          expr,
+          newStmt: res,
+          additionalMutations: [...deleteOps, ...addOps],
+          mutate: changeType,
+        };
+      });
+    } else return [];
+  } else return [];
+};
+
+type MutationEnumerator = (
+  stmt: SubStmt,
+  prog: SubProg,
+  cxt: SynthesisContext
+) => Mutation[];
 
 export const mutationEnumerators: MutationEnumerator[] = [
   enumReplaceExprName,
   enumReplaceStmtName,
   enumSwapExprArgs,
   enumSwapStmtArgs,
+  enumChangeExprType,
+  enumChangeStmtType,
 ];
 
-export const enumerateMutations = (stmt: SubStmt, env: Env): Mutation[] =>
-  mutationEnumerators.map((fn) => fn(stmt, env)).flat();
+export const enumerateMutations = (
+  stmt: SubStmt,
+  prog: SubProg,
+  cxt: SynthesisContext
+): Mutation[] => mutationEnumerators.map((fn) => fn(stmt, prog, cxt)).flat();
+
 //#endregion
