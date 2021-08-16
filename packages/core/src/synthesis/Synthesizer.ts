@@ -67,6 +67,7 @@ import {
   TypeConsApp,
 } from "types/substance";
 import { checkReplaceStmtName } from "./Mutation";
+import { Subst } from "types/styleSemantics";
 
 type RandomFunction = (min: number, max: number) => number;
 
@@ -458,7 +459,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, this.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const { res, stmts, ctx: newCtx } = generateArgStmt(pick, ctx);
+            const { res, stmts, ctx: newCtx } = generateArgStmt(
+              pick,
+              ctx,
+              oldStmt.args
+            );
             const deleteOp: Delete = deleteMutation(oldStmt, newCtx);
             const addOps: Add[] = stmts.map((s) => addMutation(s, newCtx));
             return {
@@ -475,7 +480,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, this.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const { res, stmts, ctx: newCtx } = generateArgStmt(pick, ctx);
+            const { res, stmts, ctx: newCtx } = generateArgStmt(
+              pick,
+              ctx,
+              oldExpr.args
+            );
             let toDelete: SubStmt[];
             // remove old statement
             if (
@@ -673,15 +682,17 @@ export class Synthesizer {
 
 export const generateArgStmt = (
   decl: ArgStmtDecl,
-  ctx: SynthesisContext
+  ctx: SynthesisContext,
+  args?: SubExpr[] | SubPredArg[]
 ): WithStmts<Bind | ApplyPredicate> => {
+  // NOTE: if arguments are supplied explicitly, the caller must have the right types for the arguments.
   switch (decl.tag) {
     case "PredicateDecl":
-      return generatePredicate(decl, ctx);
+      return generatePredicate(decl, ctx, args as SubPredArg[]);
     case "FunctionDecl":
-      return generateFunction(decl, ctx);
+      return generateFunction(decl, ctx, args as SubExpr[]);
     case "ConstructorDecl":
-      return generateConstructor(decl, ctx);
+      return generateConstructor(decl, ctx, args as SubExpr[]);
   }
 };
 
@@ -724,24 +735,41 @@ const generateDeclFromType = (
 
 const generatePredicate = (
   pred: PredicateDecl,
-  ctx: SynthesisContext
+  ctx: SynthesisContext,
+  args?: SubPredArg[]
 ): WithStmts<ApplyPredicate> => {
-  const { res, stmts, ctx: newCtx }: WithStmts<SubPredArg[]> = generatePredArgs(
-    pred.args,
-    ctx
-  );
-  const p: ApplyPredicate = applyPredicate(pred, res);
-  return { res: p, stmts, ctx: newCtx };
+  if (!args) {
+    const {
+      res,
+      stmts,
+      ctx: newCtx,
+    }: WithStmts<SubPredArg[]> = generatePredArgs(pred.args, ctx);
+    const p: ApplyPredicate = applyPredicate(pred, res);
+    return { res: p, stmts, ctx: newCtx };
+  } else {
+    return {
+      res: applyPredicate(pred, args),
+      stmts: [],
+      ctx,
+    };
+  }
 };
 
 const generateFunction = (
   func: FunctionDecl,
-  ctx: SynthesisContext
+  ctx: SynthesisContext,
+  predefinedArgs?: SubExpr[]
 ): WithStmts<Bind> => {
-  const { res: args, stmts: decls }: WithStmts<SubExpr[]> = generateArgs(
-    func.args,
-    ctx
-  );
+  let args: SubExpr[];
+  let decls: SubStmt[];
+  if (!predefinedArgs) {
+    const res: WithStmts<SubExpr[]> = generateArgs(func.args, ctx);
+    args = res.res;
+    decls = res.stmts;
+  } else {
+    args = predefinedArgs;
+    decls = [];
+  }
   const rhs: ApplyFunction = applyFunction(func, args);
   // find the `TypeDecl` for the output type
   const outputType = func.output.type as TypeConstructor;
@@ -758,12 +786,19 @@ const generateFunction = (
 
 const generateConstructor = (
   cons: ConstructorDecl,
-  ctx: SynthesisContext
+  ctx: SynthesisContext,
+  predefinedArgs?: SubExpr[]
 ): WithStmts<Bind> => {
-  const { res: args, stmts: decls }: WithStmts<SubExpr[]> = generateArgs(
-    cons.args,
-    ctx
-  );
+  let args: SubExpr[];
+  let decls: SubStmt[];
+  if (!predefinedArgs) {
+    const res: WithStmts<SubExpr[]> = generateArgs(cons.args, ctx);
+    args = res.res;
+    decls = res.stmts;
+  } else {
+    args = predefinedArgs;
+    decls = [];
+  }
   const rhs: ApplyConstructor = applyConstructor(cons, args);
   const outputType = cons.output.type as TypeConstructor;
   // NOTE: the below will bypass the config and generate a new decl using the output type, search first in `ctx` to follow the config more strictly.

@@ -597,7 +597,7 @@ export const enumChangeStmtType = (
   if (stmt.tag === "ApplyPredicate") {
     const options = argMatches(stmt, cxt.env);
     return options.map((decl: ArgStmtDecl) => {
-      const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt);
+      const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt, stmt.args);
       const deleteOp: Delete = deleteMutation(stmt, newCtx);
       const addOps: Add[] = stmts.map((s: SubStmt) => addMutation(s, newCtx));
       return {
@@ -625,7 +625,11 @@ export const enumChangeExprType = (
     ) {
       const options = argMatches(stmt, cxt.env);
       return options.map((decl: ArgStmtDecl) => {
-        const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt);
+        const { res, stmts, ctx: newCtx } = generateArgStmt(
+          decl,
+          cxt,
+          expr.args
+        );
         let toDelete: SubStmt[];
         // remove old statement
         if (res.tag === "Bind" && res.variable.type !== stmt.variable.type) {
