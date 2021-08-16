@@ -31,7 +31,7 @@ import { linePts } from "utils/OtherUtils";
 import { Pt2, VarAD } from "types/ad";
 import { every, sum } from "lodash";
 import * as BBox from "engine/BBox";
-import { Area, ClosestDistance, DifferenceArea, FurthestPoint, IntersectionArea, Intersects } from '../engine/queries/Queries';
+import { Area, ClosestDistance, DifferenceArea, FurthestPoint, IntersectionArea, Intersects, MinSignedSquaredDistance, MaxSignedSquaredDistance } from '../engine/queries/Queries';
 import { maxX, overboxFromShape, underboxFromShape, minX, minY, maxY } from 'engine/BBox';
 
 // Kinds of shapes
@@ -366,13 +366,7 @@ export const constrDict = {
     [t2, s2]: [string, any],
     offset = 0,
   ) => {
-    // const distancePenalty = ClosestDistance.upperBound([t1, s1], [t2, s2]);
-    const distancePenalty = AABBDistanceSquared([t1, s1], [t2, s2]);
-    const overlapPenalty = div(DifferenceArea.exactOrUpperBound([t2, s2], [t1, s1]), Area.exactOrUpperBound([t2, s2]));
-    return add(distancePenalty, mul(constOf(10), overlapPenalty));
-
-    // return max(AABBSignedSquaredDistance([t1, s1], [t2, s2]), constOf(0));
-    // return AABBDistanceSquared([t1, s1], [t2, s2]);
+    return add(squared(constOfIf(offset)), MaxSignedSquaredDistance.exactOrUpperBound([t2, s2], [t1, s1]));
   },
 
   subset: (
@@ -380,27 +374,7 @@ export const constrDict = {
     [t2, s2]: [string, any],
     offset = 0,
   ) => {
-    // // TODO: how to incorporate offset? as an area thing or as a padding thing?
-
-    // // how far away are the shapes? (0 if intersecting)
-    // const distancePenalty = ClosestDistance.exact([t1, s1], [t2, s2]);
-    // // what fraction of the inner shape is outside the outer shape? (maximal when shapes are not
-    // // intersecting)
-    // // TODO: should this be lower or upper bound?
-
-    // // area(s1 - s2) / area(s1)
-    // // area(x in s1 but x not in s2) / area(x in s1)
-    // const EPS0 = constOf(1e-3);
-    // const overlapPenalty = div(DifferenceArea.exact([t1, s1], [t2, s2]), add(Area.exact([t1, s1]), EPS0));
-    // // const overlapPenalty = DifferenceArea.exact([t1, s1], [t2, s2]);
-    // return add(distancePenalty, mul(constOf(10), overlapPenalty));
-
-    // const distancePenalty = AABBDistanceSquared([t1, s1], [t2, s2]);
-    // const EPS0 = constOf(1e-3);
-    // const overlapPenalty = div(DifferenceArea.exact([t1, s1], [t2, s2]), add(Area.exact([t1, s1]), EPS0));
-    // return add(distancePenalty, mul(constOf(10), overlapPenalty));
-    
-    return AABBHausdorffSquaredDistance([t2, s2], [t1, s1]);
+    return add(squared(constOfIf(offset)), MaxSignedSquaredDistance.exactOrUpperBound([t1, s1], [t2, s2]));
   },
 
   /**
@@ -435,17 +409,13 @@ export const constrDict = {
     [t2, s2]: [string, any],
     padding = 0,
   ) => {
-    const paddingPenalty = sub(squared(constOfIf(padding)), AABBDistanceSquared([t1, s1], [t2, s2]));
-    const containmentPenalty = squared(min(AABBNegativeDistance([t1, s1], [t2, s2]), AABBNegativeDistance([t2, s2], [t1, s1])));
-
-    return add(paddingPenalty, containmentPenalty);
-    // const EPS0 = varOf(10e-3);
-    // return add(
-    //   IntersectionArea.exactOrUpperBound([t1, s1], [t2, s2]),
-    //   ifCond(
-    //     lt(constOfIf(padding), EPS0),
-    //     constOf(0),
-    //     max(constOf(0), sub(constOfIf(padding), ClosestDistance.exact([t1, s1], [t2, s2])))));
+    return sub(
+      squared(constOfIf(padding)),
+      min(
+        MinSignedSquaredDistance.exactOrLowerBound([t1, s1], [t2, s2]),
+        MinSignedSquaredDistance.exactOrLowerBound([t2, s2], [t1, s1])
+      )
+    );
   },
 
   /**
@@ -970,48 +940,4 @@ const AABBNegativeDistance = (
       sub(min(absVal(y0), absVal(y1)), ry),
     ),
   ));
-}
-
-// from A to B
-const AABBSignedSquaredDistance = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-) => {
-  return sub(
-    AABBDistanceSquared([t1, s1], [t2, s2]),
-    squared(
-      AABBNegativeDistance([t1, s1], [t2, s2]),
-    )
-    )
-};
-
-const AABBHausdorffSquaredDistance = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-) => {
-  const box1 = overboxFromShape(t1, s1);
-  const box2 = overboxFromShape(t2, s2);
-
-  const rx = div(box1.w, constOf(2));
-  const ry = div(box1.h, constOf(2));
-
-  const x0 = sub(minX(box2), box1.center[0]);
-  const x1 = sub(maxX(box2), box1.center[0]);
-  const y0 = sub(minY(box2), box1.center[1]);
-  const y1 = sub(maxY(box2), box1.center[1]);
-
-  return add(
-    squared(max(constOf(0),
-    max(
-      sub(absVal(x0), rx),
-      sub(absVal(x1), rx),
-    )
-    )),
-    squared(max(constOf(0),
-    max(
-      sub(absVal(y0), ry),
-      sub(absVal(y1), ry),
-    )
-    )),
-  )
 }

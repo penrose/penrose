@@ -206,8 +206,8 @@ export const edges = (b: BBox): Edges => {
       throw new Error(`Shape with type ${t} doesn't support an overbox.`)
   }
 
-  w = max(constOf(0), w);
-  h = max(constOf(0), h);
+  w = absVal(w);
+  h = absVal(h);
 
   return bbox(w, h, center);
 }
@@ -267,8 +267,8 @@ export const edges = (b: BBox): Edges => {
       throw new Error(`Shape with type ${t} doesn't support an underbox.`)
   }
 
-  w = max(constOf(0), w);
-  h = max(constOf(0), h);
+  w = absVal(w);
+  h = absVal(h);
 
   return bbox(w, h, center);
 }

@@ -12,7 +12,7 @@ forall Set x {
         string : x.label
     }
 
-    ensure subset(x.text, x.icon)
+    ensure contains(x.icon, x.text)
     ensure minSize(x.icon)
     ensure maxSize(x.icon, canvas.height / 2)
     encourage sameCenter(x.text, x.icon)
@@ -24,7 +24,7 @@ forall Set x; Set y
 where IsSubset(x, y) {
 
     ensure disjoint(y.text, x.icon, 30.0)
-    ensure subset(x.icon, y.icon)
+    ensure contains(y.icon, x.icon)
     -- ensure disjoint(y.text, x.icon)
     -- ensure contains(y.icon, x.icon)
     x.icon above y.icon
@@ -70,7 +70,7 @@ where Intersecting(x, y) {
 -- Point p
 -- with Set A
 -- where PointIn(A, p) {
---     ensure subset(p.icon, A.icon)
+--     ensure contains(A.icon, p.icon)
 --     p.layering = p.icon above A.icon
 -- }
 
