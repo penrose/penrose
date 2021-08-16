@@ -31,8 +31,24 @@ import { linePts } from "utils/OtherUtils";
 import { Pt2, VarAD } from "types/ad";
 import { every, sum } from "lodash";
 import * as BBox from "engine/BBox";
-import { Area, ClosestDistance, DifferenceArea, FurthestPoint, IntersectionArea, Intersects, MinSignedSquaredDistance, MaxSignedSquaredDistance } from '../engine/queries/Queries';
-import { maxX, overboxFromShape, underboxFromShape, minX, minY, maxY } from 'engine/BBox';
+import {
+  Area,
+  ClosestDistance,
+  DifferenceArea,
+  FurthestPoint,
+  IntersectionArea,
+  Intersects,
+  MinSignedSquaredDistance,
+  MaxSignedSquaredDistance,
+} from "../engine/queries/Queries";
+import {
+  maxX,
+  overboxFromShape,
+  underboxFromShape,
+  minX,
+  minY,
+  maxY,
+} from "engine/BBox";
 
 // Kinds of shapes
 /**
@@ -54,24 +70,21 @@ export const isLinelike = (shapeType: string): boolean => {
   return shapeType == "Line" || shapeType == "Arrow";
 };
 
-
 /**
  * Place shape1 offset from shape2 by vector v. v is the gap between the two lines perpendicular
  * to v that just barely each shape's boundary.
  */
-  const displace = (
-  shape1: [string, any],
-  shape2: [string, any],
-  v: VarAD[],
-) => {
+const displace = (shape1: [string, any], shape2: [string, any], v: VarAD[]) => {
   // calculate furthest points in the directions of the gap between them
   const p1 = FurthestPoint.exact(shape1, ops.vneg(v));
   const p2 = FurthestPoint.exact(shape2, v);
 
   // optimize the distance between the lines by projecting onto v.
   // an additional division by |v| makes this computation scale invariant.
-  return squared(sub(constOf(1), div(ops.vdot(ops.vsub(p1, p2), v), ops.vnormsq(v))));
-}
+  return squared(
+    sub(constOf(1), div(ops.vdot(ops.vsub(p1, p2), v), ops.vnormsq(v)))
+  );
+};
 
 export const objDict = {
   /**
@@ -85,28 +98,24 @@ export const objDict = {
    * @param shape2 bottom shape
    * @param offset offset between shapes
    */
-  above: (
-    shape1: [string, any],
-    shape2: [string, any],
-    offset = 100
-  ) =>
+  above: (shape1: [string, any], shape2: [string, any], offset = 100) =>
     // the weight of this objective suggests that it should really be a constraint
-    mul(constOf(100_000), displace(shape1, shape2, [constOf(0), constOfIf(offset)]))
-  ,
-
+    mul(
+      constOf(100_000),
+      displace(shape1, shape2, [constOf(0), constOfIf(offset)])
+    ),
   /**
    * Encourages the top of `shape1` to be offset distance below the bottom of `shape2`.
    * @param shape1 bottom shape
    * @param shape2 top shape
    * @param offset offset between shapes
    */
-  below: (
-    shape1: [string, any],
-    shape2: [string, any],
-    offset = 100
-  ) =>
+  below: (shape1: [string, any], shape2: [string, any], offset = 100) =>
     // the weight of this objective suggests that it should really be a constraint
-    mul(constOf(100_000), displace(shape1, shape2, [constOf(0), neg(constOfIf(offset))])),
+    mul(
+      constOf(100_000),
+      displace(shape1, shape2, [constOf(0), neg(constOfIf(offset))])
+    ),
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`. Only works for shapes with property `center`.
@@ -139,9 +148,9 @@ export const objDict = {
       // 1 / (d^2(cx, cy) + eps)
       res = inverse(ops.vdistsq(fns.center(s1), fns.center(s2)));
     }
-    
+
     return mul(res, constOf(repelWeight));
-    
+
     // TODO: should this repel centers or...
     // TODO: square distance?
     // const dist = ClosestDistance.exact([t1, s1], [t2, s2]);
@@ -361,20 +370,18 @@ export const constrDict = {
   /**
    * Require that a shape `s1` contains another shape `s2`, based on the type of the shape, and with an optional `offset` between the sizes of the shapes (e.g. if `s1` should contain `s2` with margin `offset`).
    */
-  contains: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    offset = 0,
-  ) => {
-    return add(squared(constOfIf(offset)), MaxSignedSquaredDistance.exactOrUpperBound([t2, s2], [t1, s1]));
+  contains: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 0) => {
+    return add(
+      squared(constOfIf(offset)),
+      MaxSignedSquaredDistance.exactOrUpperBound([t2, s2], [t1, s1])
+    );
   },
 
-  subset: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    offset = 0,
-  ) => {
-    return add(squared(constOfIf(offset)), MaxSignedSquaredDistance.exactOrUpperBound([t1, s1], [t2, s2]));
+  subset: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 0) => {
+    return add(
+      squared(constOfIf(offset)),
+      MaxSignedSquaredDistance.exactOrUpperBound([t1, s1], [t2, s2])
+    );
   },
 
   /**
@@ -404,17 +411,20 @@ export const constrDict = {
     );
   },
 
-  disjoint: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding = 0,
-  ) => {
-    return sub(
-      squared(constOfIf(padding)),
-      min(
-        MinSignedSquaredDistance.exactOrLowerBound([t1, s1], [t2, s2]),
-        MinSignedSquaredDistance.exactOrLowerBound([t2, s2], [t1, s1])
-      )
+  disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any], padding = 0) => {
+    const EPS0 = varOf(10e-3);
+
+    const box1 = overboxFromShape(t1, s1);
+    const box2 = overboxFromShape(t2, s2);
+    return div(
+      sub(
+        squared(constOfIf(padding)),
+        min(
+          MinSignedSquaredDistance.exactOrLowerBound([t1, s1], [t2, s2]),
+          MinSignedSquaredDistance.exactOrLowerBound([t2, s2], [t1, s1])
+        )
+      ),
+      add(ops.vdistsq(box1.center, box2.center), EPS0)
     );
   },
 
@@ -463,9 +473,12 @@ export const constrDict = {
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    overlapArea = 0,
+    overlapArea = 0
   ) => {
-    return sub(constOfIf(overlapArea), IntersectionArea.exactOrLowerBound([t1, s1], [t2, s2]));
+    return sub(
+      constOfIf(overlapArea),
+      IntersectionArea.exactOrLowerBound([t1, s1], [t2, s2])
+    );
   },
 
   /**
@@ -884,30 +897,30 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
 
 const AABBDistanceSquared = (
   [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-  ) => {
-    // https://gamedev.stackexchange.com/a/154040
-    const box1 = overboxFromShape(t1, s1);
-    const box2 = overboxFromShape(t2, s2);
+  [t2, s2]: [string, any]
+) => {
+  // https://gamedev.stackexchange.com/a/154040
+  const box1 = overboxFromShape(t1, s1);
+  const box2 = overboxFromShape(t2, s2);
 
-    const outerWidth = sub(
-      max(BBox.maxX(box1), BBox.maxX(box2)),
-      min(BBox.minX(box1), BBox.minX(box2))
-    );
-    const outerHeight = sub(
-      max(BBox.maxY(box1), BBox.maxY(box2)),
-      min(BBox.minY(box1), BBox.minY(box2))
-    );
+  const outerWidth = sub(
+    max(BBox.maxX(box1), BBox.maxX(box2)),
+    min(BBox.minX(box1), BBox.minX(box2))
+  );
+  const outerHeight = sub(
+    max(BBox.maxY(box1), BBox.maxY(box2)),
+    min(BBox.minY(box1), BBox.minY(box2))
+  );
 
-    const innerWidth = max(constOf(0), sub(sub(outerWidth, box1.w), box2.w));
-    const innerHeight = max(constOf(0), sub(sub(outerHeight, box1.h), box2.h));
+  const innerWidth = max(constOf(0), sub(sub(outerWidth, box1.w), box2.w));
+  const innerHeight = max(constOf(0), sub(sub(outerHeight, box1.h), box2.h));
 
-    return add(squared(innerWidth), squared(innerHeight));
-}
+  return add(squared(innerWidth), squared(innerHeight));
+};
 
 const AABBNegativeDistance = (
   [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t2, s2]: [string, any]
 ) => {
   // TODO: this only computes negative distance for one direction!!!
 
@@ -922,22 +935,25 @@ const AABBNegativeDistance = (
   const y0 = sub(minY(box2), box1.center[1]);
   const y1 = sub(maxY(box2), box1.center[1]);
 
-  return min(constOf(0), min(
-    max(
-      ifCond(
-        and(lt(y0, constOf(0)), lt(constOf(0), y1)),
-        neg(ry),
-        add(neg(ry), min(absVal(y0), absVal(y1))),
+  return min(
+    constOf(0),
+    min(
+      max(
+        ifCond(
+          and(lt(y0, constOf(0)), lt(constOf(0), y1)),
+          neg(ry),
+          add(neg(ry), min(absVal(y0), absVal(y1)))
+        ),
+        sub(min(absVal(x0), absVal(x1)), rx)
       ),
-      sub(min(absVal(x0), absVal(x1)), rx),
-    ),
-    max(
-      ifCond(
-        and(lt(x0, constOf(0)), lt(constOf(0), x1)),
-        neg(rx),
-        add(neg(rx), min(absVal(x0), absVal(x1))),
-      ),
-      sub(min(absVal(y0), absVal(y1)), ry),
-    ),
-  ));
-}
+      max(
+        ifCond(
+          and(lt(x0, constOf(0)), lt(constOf(0), x1)),
+          neg(rx),
+          add(neg(rx), min(absVal(x0), absVal(x1)))
+        ),
+        sub(min(absVal(y0), absVal(y1)), ry)
+      )
+    )
+  );
+};

@@ -1,6 +1,18 @@
 import _ from "lodash";
 import { Pt2, VarAD } from "types/ad";
-import { absVal, add, constOf, div, max, min, mul, neg, ops, sub, debug } from "./Autodiff";
+import {
+  absVal,
+  add,
+  constOf,
+  div,
+  max,
+  min,
+  mul,
+  neg,
+  ops,
+  sub,
+  debug,
+} from "./Autodiff";
 
 interface IBBox {
   w: VarAD;
@@ -148,7 +160,7 @@ export const edges = (b: BBox): Edges => {
  * Output: A new BBox
  * Errors: Throws an error if the input shape is not rect- or line-like.
  */
- export const overboxFromShape = (t: string, s: any): BBox => {
+export const overboxFromShape = (t: string, s: any): BBox => {
   let w, h: VarAD;
   let center: Pt2;
   switch (t) {
@@ -166,12 +178,19 @@ export const edges = (b: BBox): Edges => {
     case "Arrow":
       const dir = ops.vnormalize(ops.vsub(s.end.contents, s.start.contents));
       const segmentWidth = absVal(sub(s.start.contents[0], s.end.contents[0]));
-      const thicknessWidth = absVal(ops.vmul(s.thickness.contents, ops.rot90(dir))[0]);
+      const thicknessWidth = absVal(
+        ops.vmul(s.thickness.contents, ops.rot90(dir))[0]
+      );
       const segmentHeight = absVal(sub(s.start.contents[1], s.end.contents[1]));
-      const thicknessHeight = absVal(ops.vmul(s.thickness.contents, ops.rot90(dir))[1]);
+      const thicknessHeight = absVal(
+        ops.vmul(s.thickness.contents, ops.rot90(dir))[1]
+      );
       w = add(segmentWidth, thicknessWidth);
       h = add(segmentHeight, thicknessHeight);
-      center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2)) as Pt2;
+      center = ops.vdiv(
+        ops.vadd(s.start.contents, s.end.contents),
+        constOf(2)
+      ) as Pt2;
       break;
     case "Rectangle":
     case "Text":
@@ -198,19 +217,22 @@ export const edges = (b: BBox): Edges => {
       const yMax = _.reduce(yVals, (v: VarAD, w: VarAD) => max(v, w))!;
       w = sub(xMax, xMin);
       h = sub(yMax, yMin);
-      center = [div(add(xMin, xMax), constOf(2)), div(add(yMin, yMax), constOf(2))];
+      center = [
+        div(add(xMin, xMax), constOf(2)),
+        div(add(yMin, yMax), constOf(2)),
+      ];
       break;
     case "Path":
     case "PathString":
     default:
-      throw new Error(`Shape with type ${t} doesn't support an overbox.`)
+      throw new Error(`Shape with type ${t} doesn't support an overbox.`);
   }
 
   w = absVal(w);
   h = absVal(h);
 
   return bbox(w, h, center);
-}
+};
 
 /**
  * Preconditions:
@@ -220,7 +242,7 @@ export const edges = (b: BBox): Edges => {
  * Output: A new BBox
  * Errors: Throws an error if the input shape is not rect- or line-like.
  */
- export const underboxFromShape = (t: string, s: any): BBox => {
+export const underboxFromShape = (t: string, s: any): BBox => {
   let w, h: VarAD;
   let center: Pt2;
   switch (t) {
@@ -238,10 +260,16 @@ export const edges = (b: BBox): Edges => {
     // TODO: maybe add a version when things are axis aligned
     case "Line":
     case "Arrow":
-      const minDim = debug(min(ops.vnorm(ops.vsub(s.start.contents, s.end.contents)), s.thickness.contents), "minDim");
+      const minDim = min(
+        ops.vnorm(ops.vsub(s.start.contents, s.end.contents)),
+        s.thickness.contents
+      );
       w = minDim;
       h = minDim;
-      center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2)) as Pt2;
+      center = ops.vdiv(
+        ops.vadd(s.start.contents, s.end.contents),
+        constOf(2)
+      ) as Pt2;
       break;
     case "Rectangle":
     case "Text":
@@ -260,15 +288,15 @@ export const edges = (b: BBox): Edges => {
     case "Polygon":
     case "FreeformPolygon":
     case "Polyline":
-      // break;
+    // break;
     case "Path":
     case "PathString":
     default:
-      throw new Error(`Shape with type ${t} doesn't support an underbox.`)
+      throw new Error(`Shape with type ${t} doesn't support an underbox.`);
   }
 
   w = absVal(w);
   h = absVal(h);
 
   return bbox(w, h, center);
-}
+};
