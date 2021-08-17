@@ -481,6 +481,41 @@ export const compDict = {
     };
   },
   /**
+   * Create equally spaced tick marks centered at the midpoint of a line
+   * @param pt1: starting point of a line
+   * @param pt2: endping point of a line
+   * @param spacing: space in px between each tick
+   * @param numTicks: number of tick marks to create
+   * @param tickLength: 1/2 length of each tick
+   */
+  ticksOnLine: (
+    pt1: VarAD[],
+    pt2: VarAD[],
+    spacing: VarAD,
+    numTicks: VarAD,
+    tickLength: VarAD
+  ) => {
+    const path = new PathBuilder();
+    // calculate scalar multipliers to determine the placement of each tick mark
+    const multipliers = tickPlacement(spacing, numTicks);
+    const unit = ops.vnormalize(ops.vsub(pt2, pt1));
+    const normalDir = ops.vneg(rot90v(unit)); // rot90 rotates CW, neg to point in CCW direction
+
+    const mid = ops.vmul(constOf(0.5), ops.vadd(pt1, pt2));
+
+    // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
+    // from the original pt1->pt2 line
+    const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
+    const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
+
+    multipliers.map((multiplier) => {
+      const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
+      const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
+      path.moveTo([sx, sy]).lineTo([ex, ey]);
+    });
+    return path.getPath();
+  },
+  /**
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
    */
