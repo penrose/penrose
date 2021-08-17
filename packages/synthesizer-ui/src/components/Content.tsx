@@ -57,7 +57,7 @@ const Title = styled(Typography)({
 });
 
 const StagedText = styled(Typography)(({ theme }) => ({
-  color: theme.palette.info.light,
+  color: "white",
   fontSize: "0.8rem",
   padding: "0 1rem",
 }));

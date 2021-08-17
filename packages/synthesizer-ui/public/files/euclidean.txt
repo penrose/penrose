@@ -301,21 +301,17 @@ Linelike s, t
 where EqualLengthMarker1(s, t) {
   override s.color = Colors.black
   override t.color = Colors.black
-  override s.tick = Line {
-    start : midpointOffset(s.icon, 10.)
-    end : midpointOffset(s.icon, -10.)
+  override s.tick = Path {
+    pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
+    strokeWidth : 2.0
     color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
+    fill: Colors.none
   }
-  override t.tick = Line {
-    start : midpointOffset(t.icon, 10.)
-    end : midpointOffset(t.icon, -10.)
+  override t.tick = Path {
+    pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
+    strokeWidth : 2.0
     color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
+    fill: Colors.none
   }
   s.tick above s.icon
   t.tick above t.icon
@@ -328,42 +324,20 @@ where EqualLengthMarker2(s, t) {
   override s.color = Colors.black
   override t.color = Colors.black
   --need slope of line, then need to equally distribute the tick marks
-  override s.tick = Line {
-    start : midpointOffset(s.icon, 10.)
-    end : midpointOffset(s.icon, -10.)
+  override s.tick = Path {
+    pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
+    strokeWidth : 2.0
     color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
+    fill: Colors.none
   }
-  override t.tick = Line {
-    start : midpointOffset(t.icon, 10.)
-    end : midpointOffset(t.icon, -10.)
+  override t.tick = Path {
+    pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
+    strokeWidth : 2.0
     color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-  override s.tick2 = Line {
-    start : midpointOffset(s.icon, 10.)
-    end : midpointOffset(s.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-  override t.tick2 = Line {
-    start : midpointOffset(t.icon, 10.)
-    end : midpointOffset(t.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
+    fill: Colors.none
   }
   s.tick above s.icon
-  s.tick2 above s.icon
   t.tick above t.icon
-  t.tick2 above t.icon
 }
 
 -- NOTE: Get rid of repetition
@@ -372,60 +346,20 @@ where EqualLengthMarker3(s, t) {
   override s.color = Colors.black
   override t.color = Colors.black
   --need slope of line, then need to equally distribute the tick marks
-  override s.tick = Line {
-    start : midpointOffset(s.icon, 10.)
-    end : midpointOffset(s.icon, -10.)
+  override s.tick = Path {
+    pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
+    strokeWidth : 2.0
     color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
+    fill: Colors.none
   }
-  override t.tick = Line {
-    start : midpointOffset(t.icon, 10.)
-    end : midpointOffset(t.icon, -10.)
+  override t.tick = Path {
+    pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
+    strokeWidth : 2.0
     color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-  override s.tick2 = Line {
-    start : midpointOffset(s.icon, 10.)
-    end : midpointOffset(s.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-  override t.tick2 = Line {
-    start : midpointOffset(t.icon, 10.)
-    end : midpointOffset(t.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-    override s.tick3 = Line {
-    start : midpointOffset(s.icon, 10.)
-    end : midpointOffset(s.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
-  }
-  override t.tick3 = Line {
-    start : midpointOffset(t.icon, 10.)
-    end : midpointOffset(t.icon, -10.)
-    color : Colors.black
-    thickness : 2.0
-    stroke : "none"
-    style : "solid"
+    fill: Colors.none
   }
   s.tick above s.icon
-  s.tick2 above s.icon
-  s.tick3 above s.icon
   t.tick above t.icon
-  t.tick2 above t.icon
-  t.tick3 above t.icon
 }
 
 --Angle
