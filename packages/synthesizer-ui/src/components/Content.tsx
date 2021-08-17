@@ -7,6 +7,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
   SynthesizedSubstance,
+  PenroseState,
 } from "@penrose/core";
 import { Grid } from "./Grid";
 import { Settings } from "./Settings";
@@ -21,6 +22,7 @@ export interface ContentState {
   staged: [number, string][];
   domain: string;
   style: string;
+  srcState: PenroseState | undefined;
 }
 
 const ContentSection = styled(Box)({
@@ -60,10 +62,6 @@ const StagedText = styled(Typography)(({ theme }) => ({
   padding: "0 1rem",
 }));
 
-const ExportButton = styled(Button)({
-  // border: "2px solid white",
-});
-
 export class Content extends React.Component<ContentProps, ContentState> {
   constructor(props: ContentProps) {
     super(props);
@@ -72,6 +70,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       staged: [],
       domain: "",
       style: "",
+      srcState: undefined,
     };
   }
 
@@ -158,13 +157,13 @@ export class Content extends React.Component<ContentProps, ContentState> {
             </Title>
             <ButtonBox>
               <StagedText>{`${this.state.staged.length} diagrams selected`}</StagedText>
-              <ExportButton
+              <Button
                 variant="outlined"
                 color="inherit"
                 onClick={this.exportDiagrams}
               >
                 Export
-              </ExportButton>
+              </Button>
             </ButtonBox>
           </HeaderContent>
         </AppBar>

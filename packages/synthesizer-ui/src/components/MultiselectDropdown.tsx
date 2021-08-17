@@ -6,7 +6,6 @@ import {
   Select,
   styled,
 } from "@material-ui/core";
-import { Result, Env, PenroseError, compileDomain } from "@penrose/core";
 import React from "react";
 
 export interface MultiselectDropdownProps {

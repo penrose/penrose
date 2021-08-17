@@ -18,6 +18,7 @@ import {
   Card,
   Typography,
   Chip,
+  Button,
 } from "@material-ui/core";
 
 export interface GridboxProps {
@@ -25,7 +26,8 @@ export interface GridboxProps {
   style: string;
   substance: SynthesizedSubstance;
   progNumber: number;
-  srcProg: any;
+  srcState: PenroseState | undefined;
+  updateSrcProg: (newState: PenroseState) => void;
   onStaged: (n: number, s: string) => void;
 }
 
@@ -91,6 +93,11 @@ const ExportCheckbox = styled(Checkbox)({
   padding: "0 0.5rem",
 });
 
+const ResampleBtn = styled(Button)({
+  fontSize: "0.8rem",
+  padding: "0 0.5rem",
+});
+
 interface GridboxState {
   showDiagram: boolean;
   isSelected: boolean;
@@ -109,42 +116,24 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     };
   }
 
-  // TODO this creates the source program state for every mutant program, should cache this information
   computeEnergy = async (optimizedState: PenroseState) => {
-    if (this.props.progNumber === 0) {
-      this.setState({ energy: 0 });
-      return;
-    }
-    let srcState: PenroseState;
-    const resSrc = compileTrio(
-      this.props.domain,
-      prettySubstance(this.props.srcProg),
-      this.props.style
-    );
-    if (resSrc.isOk()) {
-      srcState = await prepareState(resSrc.value);
-      const opt = stepUntilConvergence(srcState);
-      if (opt.isErr()) {
-        throw Error("optimization failed");
-      }
-      if (opt.value) {
-        const crossState = {
-          ...optimizedState,
-          constrFns: srcState.constrFns,
-          objFns: srcState.objFns,
-        };
+    if (this.props.srcState) {
+      const crossState = {
+        ...optimizedState,
+        constrFns: this.props.srcState.constrFns,
+        objFns: this.props.srcState.objFns,
+      };
 
-        try {
-          const energy = evalEnergy(await prepareState(crossState));
-          this.setState({
-            energy: Math.round(energy),
-          });
-        } catch (e) {
-          console.log("error with CIEE: ", e);
-          this.setState({
-            energy: -1,
-          });
-        }
+      try {
+        const energy = evalEnergy(await prepareState(crossState));
+        this.setState({
+          energy: Math.round(energy),
+        });
+      } catch (e) {
+        console.log("error with CIEE: ", e);
+        this.setState({
+          energy: -1,
+        });
       }
     }
   };
@@ -171,7 +160,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         }
         const optimized = opt.value;
         this.setState({ diagramSVG: RenderStatic(optimized).outerHTML });
-        this.computeEnergy(optimized);
+        if (this.props.progNumber === 0) {
+          // original program is cached by parent component to be used for CIEE with mutated progs
+          this.props.updateSrcProg(optimized);
+        } else {
+          this.computeEnergy(optimized);
+        }
       } catch (e) {
         console.log(e);
       }
@@ -199,6 +193,11 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.props.onStaged(this.props.progNumber, this.state.diagramSVG);
   };
 
+  resample = () => {
+    this.update();
+  };
+
+  // NOTE: not rendered by default, uncomment in render function to see
   energyChip = () => {
     return this.state.energy > 10000 || this.state.energy < 0 ? (
       <HighEnergy
@@ -223,7 +222,14 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               : `Mutated Program #${this.props.progNumber}`}
           </HeaderText>
           <Box>
-            {this.energyChip()}
+            <ResampleBtn
+              onClick={this.resample}
+              variant="contained"
+              color="primary"
+            >
+              Resample
+            </ResampleBtn>
+            {/* {this.energyChip()} */}
             <ExportCheckbox
               name="isStaged"
               checked={this.state.isSelected}
