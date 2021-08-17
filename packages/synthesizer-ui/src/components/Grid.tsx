@@ -1,11 +1,11 @@
 import React from "react";
 import { SynthesizedSubstance } from "@penrose/core";
 import { Gridbox } from "./Gridbox";
-import { Box, styled, Toolbar, Typography } from "@material-ui/core";
+import { Box, styled, Typography } from "@material-ui/core";
 
 export interface GridProps {
-  style: any;
-  domain: any;
+  style: string;
+  domain: string;
   progs: SynthesizedSubstance[];
   onStaged: (n: number, s: string) => void;
 }
@@ -42,16 +42,9 @@ const PlaceholderText = styled(Typography)(({ theme }) => ({
   fontFamily: "Roboto Mono",
 }));
 
-interface GridState {
-  svgs: string[];
-}
-
-export class Grid extends React.Component<GridProps, GridState> {
-  private svgs: string[];
+export class Grid extends React.Component<GridProps> {
   constructor(props: GridProps) {
     super(props);
-    this.state = { svgs: [] };
-    this.svgs = [];
   }
 
   innerContent() {

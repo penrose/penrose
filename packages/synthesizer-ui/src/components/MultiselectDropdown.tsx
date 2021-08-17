@@ -67,20 +67,6 @@ export class MultiselectDropdown extends React.Component<
     }
   }
 
-  // componentDidMount() {
-  //   fetch("public/files/geometry.txt")
-  //     .then((r) => r.text())
-  //     .then((text) => {
-  //       const lines = text.split("\n");
-  //       const options = lines
-  //         .filter((line) => line.startsWith(this.props.stmtType.toLowerCase()))
-  //         .map((match) => {
-  //           return match.split(" ")[1];
-  //         });
-  //       this.setState({ options }); // TODO subtract out default values
-  //     });
-  // }
-
   onAdd = (event: any) => {
     const newSelected = event.target.value as string[];
     const newOptions = this.state.options.filter((opt) => {

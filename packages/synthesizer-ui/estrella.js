@@ -19,7 +19,7 @@ build({
 });
 cliopts.watch &&
   require("serve-http").createServer({
-    port: 3000,
+    port: 4000,
     pubdir: ".",
     indexFilename: "index-estrella.html",
   });

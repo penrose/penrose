@@ -35,17 +35,35 @@ const ContentSection = styled(Box)({
 });
 
 const HeaderContent = styled(Toolbar)({
-  fontWeight: "bold",
   justifyContent: "space-between",
   background:
     "linear-gradient(162deg, rgba(63,81,181,1) 33%, rgba(10,21,83,1) 100%)",
 });
 
+const ButtonBox = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "nowrap",
+  padding: "0",
+  alignItems: "center",
+  justifyContent: "space-between",
+});
+
 const Title = styled(Typography)({
   fontFamily: "Roboto Mono",
-  fontWeight: "lighter",
   color: "white",
 });
+
+const StagedText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.info.light,
+  fontSize: "0.8rem",
+  padding: "0 1rem",
+}));
+
+const ExportButton = styled(Button)({
+  // border: "2px solid white",
+});
+
 export class Content extends React.Component<ContentProps, ContentState> {
   constructor(props: ContentProps) {
     super(props);
@@ -70,6 +88,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       });
   }
 
+  // callback function to indicate that a svg will be exported
   addStaged = (idx: number, svgStr: string) => {
     if (svgStr !== "") {
       const newStaged = this.state.staged;
@@ -79,8 +98,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
         newStaged.splice(index, 1);
       } else {
         newStaged.push([idx, svgStr]);
-        this.setState({ staged: newStaged });
       }
+      this.setState({ staged: newStaged });
     }
   };
 
@@ -137,9 +156,16 @@ export class Content extends React.Component<ContentProps, ContentState> {
             <Title variant="h6" noWrap>
               EDGEWORTH
             </Title>
-            <Button color="inherit" onClick={this.exportDiagrams}>
-              Export
-            </Button>
+            <ButtonBox>
+              <StagedText>{`${this.state.staged.length} diagrams selected`}</StagedText>
+              <ExportButton
+                variant="outlined"
+                color="inherit"
+                onClick={this.exportDiagrams}
+              >
+                Export
+              </ExportButton>
+            </ButtonBox>
           </HeaderContent>
         </AppBar>
         {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}

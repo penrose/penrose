@@ -13,7 +13,7 @@ import {
   Drawer,
   Toolbar,
 } from "@material-ui/core";
-import { compileDomain, SynthesizerSetting } from "@penrose/core";
+import { compileDomain, showError, SynthesizerSetting } from "@penrose/core";
 import React from "react";
 import { MultiselectDropdown } from "./MultiselectDropdown";
 
@@ -172,7 +172,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         },
       });
     } else {
-      console.error(result.error);
+      console.error(showError(result.error));
     }
   };
 

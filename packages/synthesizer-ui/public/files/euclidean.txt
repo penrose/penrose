@@ -126,7 +126,7 @@ where Collinear(p, q, r) {
 
 --Linelike
 Linelike l {
-  l.color = Colors.black
+  l.color = Colors.none
 
   l.icon = Line {
     start : (?, ?)
@@ -182,6 +182,8 @@ with Point p; Point q {
 
 Linelike l1, l2 -- should this work with rays and lines?
 where ParallelMarker1(l1, l2) {
+  override l1.color = Colors.black
+  override l2.color = Colors.black
   l1.tick1 = Path {
     pathData : pathFromPoints("open", chevron(l1.icon, 20., 6))
     strokeWidth : 2.0
@@ -198,6 +200,8 @@ where ParallelMarker1(l1, l2) {
 
 Linelike l1, l2
 where Parallel(l1, l2) {
+  override l1.color = Colors.black
+  override l2.color = Colors.black
   -- make slopes 
   l1s = (l1.icon.end[1]-l1.icon.start[1])/(l1.icon.end[0]-l1.icon.start[0]) * 10000
   l2s = (l2.icon.end[1]-l2.icon.start[1])/(l2.icon.end[0]-l2.icon.start[0]) * 10000
@@ -208,6 +212,7 @@ where Parallel(l1, l2) {
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
+  override e.color = Colors.black
   override e.vec = [q.x - p.x, q.y - p.y]
   e.start = p.vec
   e.end = q.vec
@@ -234,6 +239,8 @@ Segment e; Plane p {
 
 Linelike s, t
 where EqualLength(s, t) {
+  override s.color = Colors.black
+  override t.color = Colors.black
   encourage equal(vdist(s.icon.start, s.icon.end), vdist(t.icon.start, t.icon.end))
 }
 
@@ -292,6 +299,8 @@ with Segment s2; Point p1, p2 {
 -- NOTE: Get rid of repetition
 Linelike s, t 
 where EqualLengthMarker1(s, t) {
+  override s.color = Colors.black
+  override t.color = Colors.black
   override s.tick = Line {
     start : midpointOffset(s.icon, 10.)
     end : midpointOffset(s.icon, -10.)
@@ -316,6 +325,8 @@ where EqualLengthMarker1(s, t) {
 -- TODO: equally space the tick marks along the segment instead of putting them on top of each other
 Linelike s, t 
 where EqualLengthMarker2(s, t) {
+  override s.color = Colors.black
+  override t.color = Colors.black
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Line {
     start : midpointOffset(s.icon, 10.)
@@ -358,6 +369,8 @@ where EqualLengthMarker2(s, t) {
 -- NOTE: Get rid of repetition
 Linelike s, t 
 where EqualLengthMarker3(s, t) {
+  override s.color = Colors.black
+  override t.color = Colors.black
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Line {
     start : midpointOffset(s.icon, 10.)
@@ -892,12 +905,14 @@ with Triangle T; Point p; Point q {
 Point p
 where p := MkMidpoint(l)
 with Linelike l {
+  override l.color = Colors.black
   override p.vec = midpoint(l.icon.start, l.icon.end)
 }
 
 Point p
 where Midpoint(l, p)
 with Linelike l {
+  override l.color = Colors.black
   override p.vec = midpoint(l.icon.start, l.icon.end)
 }
 
@@ -905,6 +920,7 @@ with Linelike l {
 Linelike s
 where AngleBisector(a, s)
 with Angle a; Point p {
+  override s.color = Colors.black
   -- first angle = p, q, end
   -- second angle = end, q, r
   dotA = dot(normalize(a.p - a.q), normalize(s.end - a.q)) * 100

@@ -8,6 +8,7 @@ import {
   resample,
   SynthesizedSubstance,
   showMutations,
+  PenroseState,
 } from "@penrose/core";
 import React from "react";
 import {
@@ -18,7 +19,6 @@ import {
   Typography,
   Chip,
 } from "@material-ui/core";
-import { IState } from "@penrose/core/build/dist/types/state";
 
 export interface GridboxProps {
   domain: string;
@@ -110,12 +110,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   }
 
   // TODO this creates the source program state for every mutant program, should cache this information
-  computeEnergy = async (optimizedState: IState) => {
+  computeEnergy = async (optimizedState: PenroseState) => {
     if (this.props.progNumber === 0) {
       this.setState({ energy: 0 });
       return;
     }
-    let srcState: IState;
+    let srcState: PenroseState;
     const resSrc = compileTrio(
       this.props.domain,
       prettySubstance(this.props.srcProg),
