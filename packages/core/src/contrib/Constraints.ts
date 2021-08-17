@@ -71,19 +71,46 @@ export const isLinelike = (shapeType: string): boolean => {
 };
 
 /**
- * Place shape1 offset from shape2 by vector v. v is the gap between the two lines perpendicular
- * to v that just barely each shape's boundary.
+ * Place shape2 offset from shape1 by vector `direction` with distance `distance`. `distance` is the gap between the two lines perpendicular
+ * to direction that just barely each shape's boundary.
+ *
+ * Precondition: direction is normalized.
  */
-const displace = (shape1: [string, any], shape2: [string, any], v: VarAD[]) => {
+const displace = (
+  shape1: [string, any],
+  shape2: [string, any],
+  direction: VarAD[],
+  distance: VarAD
+) => {
   // calculate furthest points in the directions of the gap between them
-  const p1 = FurthestPoint.exact(shape1, ops.vneg(v));
-  const p2 = FurthestPoint.exact(shape2, v);
+  const p1 = FurthestPoint.exactOrUpperBound(shape1, direction);
+  const p2 = FurthestPoint.exactOrUpperBound(shape2, ops.vneg(direction));
 
   // optimize the distance between the lines by projecting onto v.
   // an additional division by |v| makes this computation scale invariant.
-  return squared(
-    sub(constOf(1), div(ops.vdot(ops.vsub(p1, p2), v), ops.vnormsq(v)))
-  );
+  /* return squared(
+    sub(squared(distance), ops.vdot(ops.vsub(p1, p2), direction))
+  ); */
+  return squared(sub(distance, ops.vdot(ops.vsub(p1, p2), direction)));
+};
+
+/**
+ * Place pt2 offset from pt1 by vector `v`.
+ */
+const displacePt = (pt1: VarAD[], pt2: VarAD[], v: VarAD[]): VarAD =>
+  ops.vnormsq(ops.vsub(pt2, ops.vadd(pt1, v)));
+
+/**
+ * Assigns a penalty when pt2 is not collinear with pt1 and pt3 and between pt1 and pt3.
+ */
+const between = (pt1: VarAD[], pt2: VarAD[], pt3: VarAD[]): VarAD => {
+  const v1 = ops.vsub(pt1, pt2);
+  const v2 = ops.vsub(pt2, pt3);
+  const v3 = ops.vsub(pt1, pt3);
+
+  // Use triangle inequality (v1 + v2 <= v3) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+
+  return squared(sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3)));
 };
 
 export const objDict = {
@@ -99,11 +126,7 @@ export const objDict = {
    * @param offset offset between shapes
    */
   above: (shape1: [string, any], shape2: [string, any], offset = 100) =>
-    // the weight of this objective suggests that it should really be a constraint
-    mul(
-      constOf(100_000),
-      displace(shape1, shape2, [constOf(0), constOfIf(offset)])
-    ),
+    displace(shape1, shape2, [constOf(0), constOf(1)], constOfIf(offset)),
   /**
    * Encourages the top of `shape1` to be offset distance below the bottom of `shape2`.
    * @param shape1 bottom shape
@@ -112,10 +135,7 @@ export const objDict = {
    */
   below: (shape1: [string, any], shape2: [string, any], offset = 100) =>
     // the weight of this objective suggests that it should really be a constraint
-    mul(
-      constOf(100_000),
-      displace(shape1, shape2, [constOf(0), neg(constOfIf(offset))])
-    ),
+    displace(shape1, shape2, [constOf(0), constOf(-1)], constOfIf(offset)),
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`. Only works for shapes with property `center`.
@@ -169,26 +189,34 @@ export const objDict = {
     return inverse(squared(sub(constOfIf(c), constOfIf(d))));
   },
 
-  /**
-   * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
-   */
-  centerArrow: (
-    [t1, arr]: [string, any],
+  between: (
+    [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    [t3, s3]: [string, any]
+    [t3, s3]: [string, any],
+    leftPadding = 0,
+    rightPadding = 0
   ): VarAD => {
-    const spacing = varOf(1.1); // arbitrary
+    const c1 = overboxFromShape(t1, s1).center;
+    const c3 = overboxFromShape(t3, s3).center;
+    const dir = ops.vnormalize(ops.vsub(c3, c1));
 
-    if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
-      const s2BB = overboxFromShape(t2, s2);
-      const s3BB = overboxFromShape(t3, s3);
-      // HACK: Arbitrarily pick the height of the text
-      // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.h),
-        neg(mul(s3BB.h, spacing)),
-      ]);
-    } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
+    if (isLinelike(t2)) {
+      return add(
+        displacePt(
+          c1,
+          s2.start.contents,
+          ops.vmul(constOfIf(leftPadding), dir)
+        ),
+        displacePt(s2.end.contents, c3, ops.vmul(constOfIf(rightPadding), dir))
+      );
+    } else {
+      const c2 = overboxFromShape(t2, s2).center;
+
+      return add(
+        displacePt(c1, c2, ops.vmul(constOfIf(leftPadding), dir)),
+        displacePt(c2, c3, ops.vmul(constOfIf(rightPadding), dir))
+      );
+    }
   },
 
   centerLabelAbove: (

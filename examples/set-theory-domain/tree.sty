@@ -22,7 +22,7 @@ where IsSubset(x, y) {
     }
 
     -- Draw the arrow from y to x
-    encourage centerArrow(arrow, x.icon, y.icon)
+    encourage between(x.icon, arrow, y.icon, 1.1 * x.icon.h, 1.1 * y.icon.h)
 
     -- Position y above x
     encourage above(y.icon, x.icon)
