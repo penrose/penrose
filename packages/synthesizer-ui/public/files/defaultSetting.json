@@ -10,8 +10,8 @@
   "add": {
     "type": ["Linelike", "Angle"],
     "function": [],
-    "constructor": ["InteriorAngle"],
-    "predicate": ["EqualLength", "RightUnmarked", "RightMarked"]
+    "constructor": [],
+    "predicate": ["RightUnmarked", "RightMarked", "EqualLengthMarker2"]
   },
   "delete": {
     "type": [],

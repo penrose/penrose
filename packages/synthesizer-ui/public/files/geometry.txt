@@ -77,6 +77,3 @@ predicate Incenter : Point * Triangle
 predicate Orthocenter : Point * Triangle
 predicate Centroid : Point * Triangle
 predicate Circumcenter : Point * Triangle
-
--- Unimplemented
-predicate Supplementary : Angle -- TODO broken

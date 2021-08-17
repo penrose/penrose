@@ -617,12 +617,6 @@ where RightMarked(a) {
   ensure perpendicular(a.p, a.q, a.r)
 }
 
--- TODO inRange NaN's
-Angle a
-where Supplementary(a) {
-  ensure inRange(dot(a.p - a.q, a.r - a.q), 0, 1)
-}
-
 Triangle t; Plane P 
 where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {

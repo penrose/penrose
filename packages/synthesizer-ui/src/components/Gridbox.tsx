@@ -9,6 +9,7 @@ import {
   SynthesizedSubstance,
   showMutations,
   PenroseState,
+  showError,
 } from "@penrose/core";
 import React from "react";
 import {
@@ -156,6 +157,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         state = resample(state, 1);
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {
+          console.log(showError(opt.error));
           throw Error("optimization failed");
         }
         const optimized = opt.value;
