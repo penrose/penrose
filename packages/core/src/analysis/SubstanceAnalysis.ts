@@ -237,6 +237,24 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
 };
 
 /**
+ * Find all declarations with the same type as a given Identifier in the current program
+ * NOTE: When the statement doesn't exist in the program, `removeStmt` returns the original program without errors.
+ *
+ * @param id a Substance program
+ * @param prog the current program
+ * @returns a new Substance program with the statement removed
+ */
+export const identicalTypeDecls = (id: Identifier, prog: SubProg): Decl[] => {
+  const decls = prog.statements.filter((stmt) => stmt.tag === "Decl") as Decl[];
+  const [orig] = decls.filter((d) => d.name.value === id.value);
+  const typeStr = orig.type.name.value;
+  const swapInOpts = decls.filter(
+    (d) => typeStr === d.type.name.value && d.name.value !== id.value
+  );
+  return swapInOpts;
+};
+
+/**
  * Given a statement which returns a value
  * that is staged to be deleted, iteratively find any other
  * statements that would use the statement's returned variable

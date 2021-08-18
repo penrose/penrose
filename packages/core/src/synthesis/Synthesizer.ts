@@ -33,6 +33,8 @@ import {
   checkDeleteStmt,
   checkReplaceExprName,
   checkSwapExprArgs,
+  checkSwapInExprArgs,
+  checkSwapInStmtArgs,
   checkSwapStmtArgs,
   Delete,
   deleteMutation,
@@ -60,6 +62,7 @@ import {
   ApplyPredicate,
   Bind,
   Decl,
+  Func,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -120,8 +123,8 @@ interface IDList {
 
 export const initContext = (env: Env): SynthesisContext => {
   const ctx: SynthesisContext = {
-    names: Map(),
-    declaredIDs: Map(),
+    names: Map<string, number>(),
+    declaredIDs: Map<string, Identifier[]>(),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -170,7 +173,7 @@ const getDecls = (
     case "PredicateDecl":
       return env.predicates;
     case undefined:
-      return Map();
+      return Map<string, DomainStmt>();
   }
   throw new Error(`${type} is not found in the environment`);
 };
@@ -301,7 +304,7 @@ export class Synthesizer {
     this.choice = createChoice(rng);
     this.random = createRandom(rng);
     // keep track of all generated names
-    this.names = Map();
+    this.names = Map<string, number>();
   }
 
   generateID = (
@@ -333,7 +336,7 @@ export class Synthesizer {
 
   reset = (): void => {
     this.currentProg = cloneDeep(this.template);
-    this.names = Map();
+    this.names = Map<string, number>();
     this.currentMutations = [];
   };
 
@@ -352,14 +355,14 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    times(numProgs, () => {
-      const sub = this.generateSubstance();
+    times(numProgs, (n) => {
+      const sub = this.generateSubstance(n);
       // reset synthesizer after generating each Substance diagram
       this.reset();
       return sub;
     });
 
-  generateSubstance = (): SynthesizedSubstance => {
+  generateSubstance = (n: number): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);
     range(numStmts).reduce(
       (ctx: SynthesisContext, n: number): SynthesisContext => {
@@ -376,6 +379,7 @@ export class Synthesizer {
     // add autolabel statement
     this.updateProg(autoLabel(this.currentProg));
     // DEBUG: report results
+    log.info(`Mutated Prog #${n}`);
     log.info(prettySubstance(this.currentProg));
     log.info("Operations:\n", this.showMutations());
     log.info("----------");
@@ -457,6 +461,28 @@ export class Synthesizer {
           return this.choice(options);
         } else return undefined;
       }),
+      checkSwapInStmtArgs(
+        stmt,
+        (options: Decl[]): Identifier => {
+          const pick = this.choice(options);
+          return pick.name;
+        },
+        (p: ApplyPredicate) => {
+          const indices = range(0, p.args.length);
+          return [this.choice(indices), this.currentProg];
+        }
+      ),
+      checkSwapInExprArgs(
+        stmt,
+        (options: Decl[]): Identifier => {
+          const pick = this.choice(options);
+          return pick.name;
+        },
+        (p: ApplyFunction | ApplyConstructor | Func) => {
+          const indices = range(0, p.args.length);
+          return [this.choice(indices), this.currentProg];
+        }
+      ),
       checkChangeStmtType(
         stmt,
         ctx,

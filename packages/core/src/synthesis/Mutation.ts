@@ -1,16 +1,24 @@
 import {
   appendStmt,
   ArgExpr,
+  ArgStmtDecl,
+  identicalTypeDecls,
   removeStmt,
   replaceStmt,
   stmtExists,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
+import { Identifier } from "types/ast";
 import {
+  ApplyConstructor,
+  ApplyFunction,
   ApplyPredicate,
   Bind,
+  Decl,
+  Func,
   SubExpr,
+  SubPredArg,
   SubProg,
   SubStmt,
 } from "types/substance";
@@ -35,6 +43,8 @@ export interface IMutation {
 export type Update =
   | SwapExprArgs
   | SwapStmtArgs
+  | SwapInStmtArgs
+  | SwapInExprArgs
   | ReplaceStmtName
   | ReplaceExprName
   | ChangeStmtType
@@ -62,6 +72,21 @@ export interface SwapExprArgs extends IMutation {
   expr: ArgExpr;
   elem1: number;
   elem2: number;
+}
+
+export interface SwapInStmtArgs extends IMutation {
+  tag: "SwapInStmtArgs";
+  stmt: ApplyPredicate;
+  elem: number;
+  swap: Identifier;
+}
+
+export interface SwapInExprArgs extends IMutation {
+  tag: "SwapInExprArgs";
+  stmt: Bind;
+  expr: ArgExpr;
+  elem: number;
+  swap: Identifier;
 }
 
 export interface ReplaceStmtName extends IMutation {
@@ -101,6 +126,12 @@ export const showMutation = (op: Mutation): string => {
       return `Swap arguments of ${prettyStmt(op.stmt)}`;
     case "SwapExprArgs":
       return `Swap arguments of ${prettySubNode(op.expr)} in ${prettyStmt(
+        op.stmt
+      )}`;
+    case "SwapInStmtArgs":
+      return `Swap in arguments of ${prettyStmt(op.stmt)}`;
+    case "SwapInExprArgs":
+      return `Swap in arguments of ${prettySubNode(op.expr)} in ${prettyStmt(
         op.stmt
       )}`;
     case "ChangeStmtType":
@@ -277,6 +308,87 @@ export const checkSwapExprArgs = (
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },
       };
+    } else return undefined;
+  } else return undefined;
+};
+
+export const checkSwapInStmtArgs = (
+  stmt: SubStmt,
+  pickSwap: (options: Decl[]) => Identifier,
+  element: (p: ApplyPredicate) => [number, SubProg]
+): SwapInStmtArgs | undefined => {
+  if (stmt.tag === "ApplyPredicate") {
+    if (stmt.args.length < 1) return undefined;
+    const [elem, prog] = element(stmt);
+    const arg = stmt.args[elem];
+    if (arg.tag === "Identifier") {
+      const swapOpts = identicalTypeDecls(arg, prog);
+      const swap = pickSwap(swapOpts);
+      return {
+        tag: "SwapInStmtArgs",
+        stmt,
+        elem,
+        swap,
+        mutate: (
+          { stmt, elem, swap }: SwapInStmtArgs,
+          prog: SubProg,
+          ctx: SynthesisContext
+        ): WithContext<SubProg> => {
+          const newStmt: SubStmt = {
+            ...stmt,
+            args: stmt.args.map((arg, idx) => {
+              return (idx === elem ? swap : arg) as SubPredArg;
+            }), // TODO
+          };
+          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+        },
+      };
+    }
+  } else return undefined;
+};
+
+export const checkSwapInExprArgs = (
+  stmt: SubStmt,
+  pickSwap: (options: Decl[]) => Identifier,
+  element: (p: ApplyFunction | ApplyConstructor | Func) => [number, SubProg]
+): SwapInExprArgs | undefined => {
+  if (stmt.tag === "Bind") {
+    const { expr } = stmt;
+    if (
+      expr.tag === "ApplyConstructor" ||
+      expr.tag === "ApplyFunction" ||
+      expr.tag === "Func"
+    ) {
+      if (expr.args.length < 1) return undefined;
+      const [elem, prog] = element(expr);
+      const arg = expr.args[elem];
+      if (arg.tag === "Identifier") {
+        const swapOpts = identicalTypeDecls(arg, prog);
+        const swap = pickSwap(swapOpts);
+        return {
+          tag: "SwapInExprArgs",
+          stmt,
+          expr,
+          elem,
+          swap,
+          mutate: (
+            { stmt, elem, swap }: SwapInExprArgs,
+            prog: SubProg,
+            ctx: SynthesisContext
+          ): WithContext<SubProg> => {
+            const newStmt: SubStmt = {
+              ...stmt,
+              expr: {
+                ...expr,
+                args: expr.args.map((arg, idx) => {
+                  return (idx === elem ? swap : arg) as SubExpr;
+                }), // TODO
+              },
+            };
+            return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+          },
+        };
+      }
     } else return undefined;
   } else return undefined;
 };
