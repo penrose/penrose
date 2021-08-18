@@ -244,12 +244,18 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
  * @param prog the current program
  * @returns a new Substance program with the statement removed
  */
-export const identicalTypeDecls = (id: Identifier, prog: SubProg): Decl[] => {
-  const decls = prog.statements.filter((stmt) => stmt.tag === "Decl") as Decl[];
-  const [orig] = decls.filter((d) => d.name.value === id.value);
+export const identicalTypeDecls = (
+  ids: Identifier[],
+  prog: SubProg
+): Decl[] => {
+  const idSet = ids.map((i) => i.value);
+  const decls = prog.statements.filter(
+    (stmt): stmt is Decl => stmt.tag === "Decl"
+  );
+  const [orig] = decls.filter((d) => idSet.includes(d.name.value));
   const typeStr = orig.type.name.value;
   const swapInOpts = decls.filter(
-    (d) => typeStr === d.type.name.value && d.name.value !== id.value
+    (d) => typeStr === d.type.name.value && !idSet.includes(d.name.value)
   );
   return swapInOpts;
 };

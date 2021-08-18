@@ -322,7 +322,11 @@ export const checkSwapInStmtArgs = (
     const [elem, prog] = element(stmt);
     const arg = stmt.args[elem];
     if (arg.tag === "Identifier") {
-      const swapOpts = identicalTypeDecls(arg, prog);
+      const swapOpts = identicalTypeDecls(
+        stmt.args.filter((id): id is Identifier => id.tag === "Identifier"),
+        prog
+      );
+      if (swapOpts.length === 0) return undefined;
       const swap = pickSwap(swapOpts);
       return {
         tag: "SwapInStmtArgs",
@@ -338,7 +342,7 @@ export const checkSwapInStmtArgs = (
             ...stmt,
             args: stmt.args.map((arg, idx) => {
               return (idx === elem ? swap : arg) as SubPredArg;
-            }), // TODO
+            }),
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },
@@ -363,7 +367,11 @@ export const checkSwapInExprArgs = (
       const [elem, prog] = element(expr);
       const arg = expr.args[elem];
       if (arg.tag === "Identifier") {
-        const swapOpts = identicalTypeDecls(arg, prog);
+        const swapOpts = identicalTypeDecls(
+          expr.args.filter((id): id is Identifier => id.tag === "Identifier"),
+          prog
+        );
+        if (swapOpts.length === 0) return undefined;
         const swap = pickSwap(swapOpts);
         return {
           tag: "SwapInExprArgs",
@@ -382,7 +390,7 @@ export const checkSwapInExprArgs = (
                 ...expr,
                 args: expr.args.map((arg, idx) => {
                   return (idx === elem ? swap : arg) as SubExpr;
-                }), // TODO
+                }),
               },
             };
             return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
