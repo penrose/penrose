@@ -1,0 +1,33 @@
+{
+  "mutationCount": [1, 4],
+  "argOption": "existing",
+  "argReuse": "distinct",
+  "weights": {
+    "type": 0.1,
+    "predicate": 0.3,
+    "constructor": 0.2
+  },
+  "add": {
+    "type": ["Linelike", "Angle"],
+    "function": [],
+    "constructor": [],
+    "predicate": ["RightUnmarked", "RightMarked", "EqualLengthMarker2"]
+  },
+  "delete": {
+    "type": [],
+    "function": [],
+    "constructor": [],
+    "predicate": ["RightMarked", "EqualLengthMarker1", "EqualLength"]
+  },
+  "edit": {
+    "type": ["Linelike"],
+    "function": [],
+    "constructor": [],
+    "predicate": [
+      "RightMarked",
+      "Collinear",
+      "EqualLengthMarker1",
+      "EqualLength"
+    ]
+  }
+}

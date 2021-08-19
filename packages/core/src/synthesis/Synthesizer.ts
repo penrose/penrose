@@ -120,8 +120,8 @@ interface IDList {
 
 export const initContext = (env: Env): SynthesisContext => {
   const ctx: SynthesisContext = {
-    names: Map(),
-    declaredIDs: Map(),
+    names: Map<string, number>(),
+    declaredIDs: Map<string, Identifier[]>(),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -170,7 +170,7 @@ const getDecls = (
     case "PredicateDecl":
       return env.predicates;
     case undefined:
-      return Map();
+      return Map<string, DomainStmt>();
   }
   throw new Error(`${type} is not found in the environment`);
 };
@@ -301,7 +301,7 @@ export class Synthesizer {
     this.choice = createChoice(rng);
     this.random = createRandom(rng);
     // keep track of all generated names
-    this.names = Map();
+    this.names = Map<string, number>();
   }
 
   generateID = (
@@ -333,7 +333,7 @@ export class Synthesizer {
 
   reset = (): void => {
     this.currentProg = cloneDeep(this.template);
-    this.names = Map();
+    this.names = Map<string, number>();
     this.currentMutations = [];
   };
 
@@ -352,8 +352,14 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    times(numProgs, () => {
+    times(numProgs, (n: number) => {
       const sub = this.generateSubstance();
+      // DEBUG: report results
+      log.info(
+        `Synthesized program #${n}\n${prettySubstance(this.currentProg)}`
+      );
+      log.info("Operations:\n", this.showMutations());
+      log.info("----------");
       // reset synthesizer after generating each Substance diagram
       this.reset();
       return sub;
@@ -375,10 +381,6 @@ export class Synthesizer {
     );
     // add autolabel statement
     this.updateProg(autoLabel(this.currentProg));
-    // DEBUG: report results
-    log.info(prettySubstance(this.currentProg));
-    log.info("Operations:\n", this.showMutations());
-    log.info("----------");
     return {
       prog: this.currentProg,
       ops: this.currentMutations,
@@ -395,7 +397,9 @@ export class Synthesizer {
     const deleteOps = this.enumerateDelete(deleteCtx);
     const editCtx = filterContext(ctx, this.setting.edit);
     const editOps = this.enumerateUpdate(editCtx);
-    const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps];
+    const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
+      (ops) => ops.length > 0
+    );
     log.debug(`Possible mutations: ${mutations.map(showMutations).join("\n")}`);
     const mutationGroup: MutationGroup = this.choice(mutations);
     log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
@@ -478,7 +482,7 @@ export class Synthesizer {
         stmt,
         ctx,
         (oldStmt: Bind, oldExpr: ArgExpr, ctx: SynthesisContext) => {
-          const options = argMatches(oldStmt, this.env);
+          const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts } = this.generateArgStmt(pick, ctx);

@@ -362,7 +362,7 @@ const changeType = (
     prog,
     ctx
   );
-  return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
+  return withCtx(appendStmt(newProg, newStmt), newCtx);
 };
 
 export const checkChangeStmtType = (

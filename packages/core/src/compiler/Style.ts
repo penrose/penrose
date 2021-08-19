@@ -2494,13 +2494,14 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
     if (e.contents.tag === "VaryAD") {
       return e.contents.contents.val;
     } else {
-      console.error("input", e);
       throw Error("internal error: invalid varying path");
     }
   } else if (e.tag === "Done") {
     if (e.contents.tag === "FloatV") {
       return numOf(e.contents.contents);
-    } else throw Error("internal error: invalid varying path");
+    } else {
+      throw Error("internal error: invalid varying path");
+    }
   } else if (e.tag === "Pending") {
     throw Error("internal error: invalid varying path");
   } else if (e.tag === "FGPI") {

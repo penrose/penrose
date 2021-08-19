@@ -103,8 +103,8 @@ export const compileSubstance = (
 const initEnv = (ast: SubProg): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
-  bindings: Map(),
-  labels: Map(),
+  bindings: Map<string, SubExpr>(),
+  labels: Map<string, Maybe<string>>(),
   predicates: [],
   ast,
 });
@@ -254,7 +254,7 @@ export const checkPredicate = (
   // check if predicate exists and retrieve its decl
   if (predDecl) {
     // initialize substitution environment
-    const substContext: SubstitutionEnv = Map();
+    const substContext: SubstitutionEnv = Map<string, TypeConsApp>();
     const argPairs = zip(args, predDecl.args) as [SubPredArg, Arg][];
     const argsOk: SubstitutionResult = safeChain(
       argPairs,
@@ -485,7 +485,7 @@ const checkFunc = (
   if (funcDecl) {
     const { output } = funcDecl;
     // initialize substitution environment
-    const substContext: SubstitutionEnv = Map();
+    const substContext: SubstitutionEnv = Map<string, TypeConsApp>();
     if (funcDecl.args.length !== func.args.length) {
       return err(
         argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl)
