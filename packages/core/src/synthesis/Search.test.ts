@@ -348,7 +348,7 @@ describe("Mutation recognition tests", () => {
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const mutationGroups = enumerateAllPaths(ast1, ast2, env);
-    // console.log(mutationGroups.map(showMutations));
+    console.log(mutationGroups.map(showMutations));
   });
   test("recognizing swap mutation with noise - auto", () => {
     const prog1 = `

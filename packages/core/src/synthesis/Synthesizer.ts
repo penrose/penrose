@@ -19,8 +19,8 @@ import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
 import { cloneDeep, compact, range, times, without } from "lodash";
-import { createChoice } from "pandemonium/choice";
 import { choice } from "pandemonium";
+import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
 import {
@@ -32,10 +32,12 @@ import {
   checkChangeStmtType,
   checkDeleteStmt,
   checkReplaceExprName,
+  checkReplaceStmtName,
   checkSwapExprArgs,
   checkSwapStmtArgs,
   Delete,
   deleteMutation,
+  enumerateMutations,
   executeMutations,
   Mutation,
   MutationGroup,
@@ -66,8 +68,6 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
-import { checkReplaceStmtName } from "./Mutation";
-import { Subst } from "types/styleSemantics";
 
 type RandomFunction = (min: number, max: number) => number;
 
@@ -421,6 +421,8 @@ export class Synthesizer {
 
   findMutations = (stmt: SubStmt, ctx: SynthesisContext): MutationGroup[] => {
     log.debug(`Finding mutations for ${prettyStmt(stmt)}`);
+    // NOTE: we can also enumerate mutations for a given statement instead of greedily finding them
+    // const ops = enumerateMutations(stmt, this.currentProg, ctx);
     const ops: (Mutation | undefined)[] = [
       checkSwapStmtArgs(stmt, (p: ApplyPredicate) => {
         const indices = range(0, p.args.length);

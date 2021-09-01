@@ -24,7 +24,7 @@ import {
   showMutations,
   Update,
 } from "./Mutation";
-import { initContext } from "./Synthesizer";
+import { initContext, SynthesisContext, WithContext } from "./Synthesizer";
 
 //#region Fine-grained diffs
 
@@ -419,6 +419,28 @@ export const enumerateAllPaths = (
       ...deleteMutations,
     ]);
   } else return [[...addMutations, ...deleteMutations]];
+};
+
+const enumerateAllStmtMutations = (
+  src: SubStmt,
+  srcProg: SubProg,
+  destProg: SubProg,
+  ctx: SynthesisContext,
+  depth: number,
+  maxDepth: number
+): MutationGroup[] => {
+  // find first mutations for the given statement
+  const possibleUpdates: MutationGroup = enumerateMutations(src, srcProg, ctx);
+  // if depth limit is up, return
+  if (depth >= maxDepth) {
+    return [possibleUpdates];
+  } else {
+    // execute all of them and find the next
+    const singleLineProg = subProg([src]);
+    const resultProgs: WithContext<SubProg>[] = possibleUpdates.map((m) =>
+      executeMutation(m, singleLineProg, ctx)
+    );
+  }
 };
 
 //#endregion
