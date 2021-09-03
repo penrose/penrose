@@ -1,39 +1,39 @@
-import { checkDomain, compileDomain, parseDomain } from "compiler/Domain";
-import { compileStyle } from "compiler/Style";
+import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+import { compileStyle } from "./compiler/Style";
 import {
   checkSubstance,
   compileSubstance,
   parseSubstance,
   prettySubstance,
-} from "compiler/Substance";
+} from "./compiler/Substance";
 import consola, { LogLevel } from "consola";
-import { evalShapes } from "engine/Evaluator";
-import { genFns, genOptProblem, initializeMat, step } from "engine/Optimizer";
-import { insertPending } from "engine/PropagateUpdate";
-import RenderStatic, {
+import { evalShapes } from "./engine/Evaluator";
+import { genFns, genOptProblem, initializeMat, step } from "./engine/Optimizer";
+import { insertPending } from "./engine/PropagateUpdate";
+import {
+  RenderStatic,
   RenderInteractive,
   RenderShape,
-} from "renderer/Renderer";
-import { resampleBest } from "renderer/Resample";
-import { Synthesizer, SynthesizerSetting } from "synthesis/Synthesizer";
-import { Env } from "types/domain";
-import { PenroseError, RuntimeError } from "types/errors";
-import { Registry, Trio } from "types/io";
-import * as ShapeTypes from "types/shape";
-import { FieldDict, Translation } from "types/value";
-import { Fn, LabelCache, State } from "types/state";
-import { SubstanceEnv } from "types/substance";
-import { collectLabels } from "utils/CollectLabels";
-import { andThen, err, nanError, ok, Result, showError } from "utils/Error";
+} from "./renderer/Renderer";
+import { resampleBest } from "./renderer/Resample";
+import { Synthesizer } from "./synthesis/Synthesizer";
+import { Env } from "./types/domain";
+import { PenroseError, RuntimeError } from "./types/errors";
+import { Registry, Trio } from "./types/io";
+import { FieldDict, Translation } from "./types/value";
+import { Fn, LabelCache, State } from "./types/state";
+import { SubProg, SubstanceEnv } from "./types/substance";
+import { collectLabels } from "./utils/CollectLabels";
+import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-} from "utils/OtherUtils";
-import { bBoxDims, toHex, ops } from "utils/Util";
-import { Canvas } from "renderer/ShapeDef";
-import { showMutations } from "synthesis/Mutation";
-import { getListOfStagedStates } from "renderer/Staging";
+} from "./utils/OtherUtils";
+import { bBoxDims, toHex, ops } from "./utils/Util";
+import { Canvas } from "./renderer/ShapeDef";
+import { showMutations } from "./synthesis/Mutation";
+import { getListOfStagedStates } from "./renderer/Staging";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -317,18 +317,16 @@ export {
   checkSubstance,
   parseSubstance,
   parseDomain,
-  RenderStatic,
-  RenderShape,
   Synthesizer,
   showMutations,
+  RenderShape,
   RenderInteractive,
-  ShapeTypes,
+  RenderStatic,
   bBoxDims,
   prettySubstance,
   toHex,
   initializeMat,
   showError,
-  Result,
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
@@ -336,10 +334,16 @@ export {
   getListOfStagedStates,
 };
 export type { PenroseError } from "./types/errors";
+export * as Value from "./types/value";
+export type { Shape } from "./types/shape";
 export type { Registry, Trio };
 export type { Env };
-export type { SynthesizerSetting };
-export type { SubProg } from "types/substance";
+export type {
+  SynthesizerSetting,
+  SynthesizedSubstance,
+} from "./synthesis/Synthesizer";
+export type { SubProg };
+export type { Result } from "./utils/Error";
 export type { Canvas };
 export type { FieldDict };
 export type { Translation };

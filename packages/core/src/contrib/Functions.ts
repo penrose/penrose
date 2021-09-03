@@ -17,6 +17,7 @@ import {
   sin,
   sqrt,
   sub,
+  variableAD,
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
@@ -153,7 +154,14 @@ export const compDict = {
    */
   get: (xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];
+    return {
+      tag: "FloatV",
+      contents: res,
+    };
+  },
 
+  getVar: (xs: VarAD[], i: VarAD): IFloatV<any> => {
+    const res = xs[i.val];
     return {
       tag: "FloatV",
       contents: res,
@@ -333,6 +341,7 @@ export const compDict = {
       contents: [markStart, markEnd].map(toPt),
     };
   },
+
   /**
    * Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
    * @param pathType: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point
@@ -387,6 +396,16 @@ export const compDict = {
     };
   },
   /**
+   * Return a point located at the midpoint between pts `start` and `end`
+   */
+  midpoint: (start: VarAD[], end: VarAD[]): IVectorV<VarAD> => {
+    const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+    return {
+      tag: "VectorV",
+      contents: toPt(midpointLoc),
+    };
+  },
+  /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
   midpointOffset: ([t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
@@ -401,7 +420,33 @@ export const compDict = {
         contents: toPt(midpointOffsetLoc),
       };
     } else {
-      throw Error("unsupported shape ${t1} in midpointOffset");
+      throw Error(`unsupported shape ${t1} in midpointOffset`);
+    }
+  },
+  chevron: (
+    // TODO reimplement with variable tick marks when #629 is merged
+    [t1, s1]: [string, any],
+    padding: VarAD,
+    ticks: VarAD
+  ): IPtListV<VarAD> => {
+    if (t1 === "Arrow" || t1 === "Line") {
+      // tickPlacement(padding, ticks);
+      const [start, end] = linePts(s1);
+      const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
+      const startDir = ops.vrot(dir, varOf(135));
+      const endDir = ops.vrot(dir, varOf(225));
+      const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      // if even, evenly divide tick marks about center. if odd, start in center and move outwards
+      return {
+        tag: "PtListV",
+        contents: [
+          ops.vmove(center, padding, startDir),
+          center,
+          ops.vmove(center, padding, endDir),
+        ].map(toPt),
+      };
+    } else {
+      throw Error(`unsupported shape ${t1} in chevron`);
     }
   },
   /**
@@ -434,6 +479,41 @@ export const compDict = {
       tag: "VectorV",
       contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
     };
+  },
+  /**
+   * Create equally spaced tick marks centered at the midpoint of a line
+   * @param pt1: starting point of a line
+   * @param pt2: endping point of a line
+   * @param spacing: space in px between each tick
+   * @param numTicks: number of tick marks to create
+   * @param tickLength: 1/2 length of each tick
+   */
+  ticksOnLine: (
+    pt1: VarAD[],
+    pt2: VarAD[],
+    spacing: VarAD,
+    numTicks: VarAD,
+    tickLength: VarAD
+  ) => {
+    const path = new PathBuilder();
+    // calculate scalar multipliers to determine the placement of each tick mark
+    const multipliers = tickPlacement(spacing, numTicks);
+    const unit = ops.vnormalize(ops.vsub(pt2, pt1));
+    const normalDir = ops.vneg(rot90v(unit)); // rot90 rotates CW, neg to point in CCW direction
+
+    const mid = ops.vmul(constOf(0.5), ops.vadd(pt1, pt2));
+
+    // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
+    // from the original pt1->pt2 line
+    const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
+    const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
+
+    multipliers.map((multiplier) => {
+      const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
+      const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
+      path.moveTo([sx, sy]).lineTo([ex, ey]);
+    });
+    return path.getPath();
   },
   /**
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
@@ -666,6 +746,10 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdist(v, w) };
   },
 
+  vmul: (s: VarAD, v: VarAD[]): IVectorV<VarAD> => {
+    return { tag: "VectorV", contents: ops.vmul(s, v) };
+  },
+
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
@@ -695,7 +779,6 @@ export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
 // Make sure all arguments are not numbers (they should be VarADs if floats)
 const checkFloat = (x: any) => {
   if (typeof x === "number") {
-    console.log("x", x);
     throw Error("expected float converted to VarAD; got number (int?)");
   }
 };
@@ -766,4 +849,23 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
   }
 
   return res[0] as VarAD[];
+};
+
+const tickPlacement = (
+  padding: VarAD,
+  numPts: VarAD,
+  multiplier = varOf(1)
+): VarAD[] => {
+  if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
+  const even = numOf(numPts) % 2 === 0;
+  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  for (let i = 1; i < numOf(numPts); i++) {
+    if (even && i === 1) multiplier = neg(multiplier);
+    const shift =
+      i % 2 == 0
+        ? mul(padding, mul(neg(varOf(i)), multiplier))
+        : mul(padding, mul(varOf(i), multiplier));
+    pts.push(add(pts[i - 1], shift));
+  }
+  return pts;
 };

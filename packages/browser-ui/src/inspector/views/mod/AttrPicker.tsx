@@ -1,11 +1,11 @@
 import * as React from "react";
 import LabeledInput from "./LabeledInput";
-import { Canvas, ShapeTypes } from "@penrose/core";
+import { Canvas, Value, Shape } from "@penrose/core";
 
 interface IProps {
-  shape: ShapeTypes.Shape;
+  shape: Shape;
   sAttrs: IShapeDef;
-  modAttr(attrname: string, attrval: ShapeTypes.Value<any>): void;
+  modAttr(attrname: string, attrval: Value.Value<any>): void;
   canvas: Canvas;
 }
 

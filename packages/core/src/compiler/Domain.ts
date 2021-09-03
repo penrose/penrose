@@ -6,12 +6,16 @@ import domainGrammar from "parser/DomainParser";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import {
   Arg,
+  ConstructorDecl,
   DomainProg,
   DomainStmt,
   Env,
+  FunctionDecl,
+  PredicateDecl,
   Type,
   TypeConstructor,
   TypeDecl,
+  TypeVar,
 } from "types/domain";
 import {
   DomainError,
@@ -20,7 +24,7 @@ import {
   TypeNotFound,
   TypeVarNotFound,
 } from "types/errors";
-import { TypeConsApp } from "types/substance";
+import { ApplyConstructor, TypeConsApp } from "types/substance";
 import {
   and,
   andThen,
@@ -91,14 +95,14 @@ const builtinTypes: [string, TypeDecl][] = [
 ];
 const initEnv = (): Env => ({
   types: Map(builtinTypes),
-  typeVars: Map(),
+  typeVars: Map<string, TypeVar>(),
   varIDs: [],
-  vars: Map(),
-  constructors: Map(),
-  constructorsBindings: Map(),
-  predicates: Map(),
-  functions: Map(),
-  preludeValues: Map(),
+  vars: Map<string, TypeConsApp>(),
+  constructors: Map<string, ConstructorDecl>(),
+  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>(),
+  predicates: Map<string, PredicateDecl>(),
+  functions: Map<string, FunctionDecl>(),
+  preludeValues: Map<string, TypeConstructor>(),
   subTypes: [],
   typeGraph: new Graph(),
 });

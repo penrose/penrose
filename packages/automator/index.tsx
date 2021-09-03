@@ -3,11 +3,11 @@ import {
   compileTrio,
   evalEnergy,
   prepareState,
-  RenderStatic,
   showError,
   stepUntilConvergence,
   PenroseState,
   getListOfStagedStates,
+  RenderStatic,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 
@@ -255,23 +255,23 @@ const batchProcess = async (
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { domain, style, substance, meta } of trioLibrary) {
-    const name = `${substance}-${style}`;
-    const { name: subName, URI: subURI } = substanceLibrary[substance];
-    const { name: styName, URI: styURI, plugin } = styleLibrary[style];
-    const { name: dslName, URI: dslURI } = domainLibrary[domain];
-
-    if (plugin) {
-      console.log(
-        chalk.red(
-          `Skipping "${name}" (${subURI}) for now; this domain requires a plugin or has known issues.`
-        )
-      );
-      continue;
-    }
-
-    const id = uniqid("instance-");
     // try to render the diagram
+    const id = uniqid("instance-");
+    const name = `${substance}-${style}`;
     try {
+      const { name: subName, URI: subURI } = substanceLibrary[substance];
+      const { name: styName, URI: styURI, plugin } = styleLibrary[style];
+      const { name: dslName, URI: dslURI } = domainLibrary[domain];
+
+      if (plugin) {
+        console.log(
+          chalk.red(
+            `Skipping "${name}" (${subURI}) for now; this domain requires a plugin or has known issues.`
+          )
+        );
+        continue;
+      }
+
       // Warning: will face id conflicts if parallelism used
       const res = await singleProcess(
         subURI,
@@ -302,7 +302,7 @@ const batchProcess = async (
     } catch (e) {
       console.trace(
         chalk.red(
-          `${id} exited with an error. The Substance program ID is ${subName}. The error message is:\n${e}`
+          `${id} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
         )
       );
     }
