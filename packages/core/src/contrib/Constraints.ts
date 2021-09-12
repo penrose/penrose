@@ -22,6 +22,7 @@ import {
   eq,
   and,
   or,
+  sqrt,
   debug,
   cos,
 } from "engine/Autodiff";
@@ -498,13 +499,21 @@ export const constrDict = {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
-      const inflatedBox1 = BBox.inflate(box1, constOfIf(offset));
-
-      const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
-      const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
-
-      // Push away in both X and Y directions, and account for padding
-      return mul(overlapX, overlapY);
+      const [pc1, pc2] = rectangleDifference(box1, box2);
+      const [xp, yp] = ops.vmul(varOf(0.5), ops.vadd(pc1, pc2));
+      const [xr, yr] = ops.vmul(varOf(0.5), ops.vsub(pc2, pc1));
+      const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
+      const e1 = sqrt(
+        add(
+          varOf(10e-15),
+          add(
+            squared(max(sub(xp, xr), varOf(0.0))),
+            squared(max(sub(yp, yr), varOf(0.0)))
+          )
+        )
+      );
+      const e2 = neg(min(max(xq, yq), varOf(0.0)));
+      return sub(e2, e1);
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
@@ -1071,4 +1080,38 @@ export const bboxFromShape = (t: string, s: any): BBox.BBox => {
   }
 
   return BBox.bbox(w, h, center);
+};
+
+// ------- Minkowski SDF helpers
+
+/**
+ * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
+ * Note: This is not the Minkowski difference in the classical sense, rather just a Minkowski sum of A and -B.
+ */
+const rectangleDifference = (box1: BBox.BBox, box2: BBox.BBox): VarAD[][] => {
+  // Prepare coordinates
+  const [xa1, xa2, ya1, ya2] = [
+    BBox.minX(box1),
+    BBox.maxX(box1),
+    BBox.minY(box1),
+    BBox.maxY(box1),
+  ];
+  const [xb1, xb2, yb1, yb2] = [
+    BBox.minX(box2),
+    BBox.maxX(box2),
+    BBox.minY(box2),
+    BBox.maxY(box2),
+  ];
+  // Compute coordinates of the new rectangle
+  const xs = [sub(xa1, xb1), sub(xa2, xb2), sub(xa1, xb2), sub(xa2, xb1)];
+  const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
+  const xc1 = xs.reduce((x, y) => min(x, y, true), varOf(-1e5));
+  const xc2 = xs.reduce((x, y) => max(x, y, true), varOf(-1e5));
+  const yc1 = ys.reduce((x, y) => min(x, y, true), varOf(-1e5));
+  const yc2 = ys.reduce((x, y) => max(x, y, true), varOf(-1e5));
+  // Return corners
+  return [
+    [xc1, yc1],
+    [xc2, yc2],
+  ];
 };
