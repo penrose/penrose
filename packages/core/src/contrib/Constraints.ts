@@ -487,6 +487,19 @@ export const constrDict = {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
+    } else if (t1 === "Polygon" && t2 === "Polygon") {
+      const cp1 = convexPartitions(s1.points.contents);
+      const cp2 = convexPartitions(
+        s2.points.contents.map((p: VarAD[]) => ops.vneg(p))
+      );
+      const sdf = cp1
+        .map((p1) =>
+          cp2
+            .map((p2) => convexPolygonMinkowskiSDF(p1, p2))
+            .reduce((x, y) => min(x, y, true), varOf(1e5))
+        )
+        .reduce((x, y) => min(x, y, true), varOf(1e5));
+      return neg(sdf);
     } else if (isRectlike(t1) && isLinelike(t2)) {
       const seg = s2;
       const textBB = bboxFromShape(t1, s1);
@@ -1114,4 +1127,87 @@ const rectangleDifference = (box1: BBox.BBox, box2: BBox.BBox): VarAD[][] => {
     [xc1, yc1],
     [xc2, yc2],
   ];
+};
+
+/**
+ * Return -1.0 for negative number, +1.0 otherwise.
+ */
+const signOf = (x: VarAD): VarAD => {
+  const negative = lt(x, varOf(0.0));
+  return ifCond(negative, varOf(-1.0), varOf(1.0));
+};
+
+/**
+ * Return outward unit normal vector to `lineSegment` with respect to `insidePoint`.
+ * @param lineSegment Two points defining the line segment.
+ * @param insidePoint Any point inside of the half-plane.
+ */
+const outwardUnitNormal = (
+  lineSegment: VarAD[][],
+  insidePoint: VarAD[]
+): VarAD[] => {
+  const normal = ops.vnormalize(
+    ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
+  );
+  const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
+  return ops.vmul(signOf(insideValue), normal);
+};
+
+/**
+ * Return value of the Signed Distance Function (SFD) of a half-plane evaluated at the origin.
+ * @param lineSegment Two points defining a side of the first polygon.
+ * @param otherPoints All vertices of the second polygon.
+ * @param insidePoint Point inside of the half-plane.
+ */
+const halfPlaneSDF = (
+  lineSegment: VarAD[][],
+  otherPoints: VarAD[][],
+  insidePoint: VarAD[]
+): VarAD => {
+  const normal = outwardUnitNormal(lineSegment, insidePoint);
+  const alpha = ops.vdot(normal, lineSegment[0]);
+  const alphaOther = otherPoints
+    .map((p) => ops.vdot(normal, p))
+    .reduce((x, y) => max(x, y, true), varOf(-1e5));
+  return neg(add(alpha, alphaOther));
+};
+
+/**
+ * Return value of one-sided Signed Distance Function (SDF) of the Minkowski sum of two polygons `p1` and `p2` evaluated at the origin.
+ * Only half-planes related to sides of the first polygon `p1` are considered.
+ * @param p1 Sequence of points defining the first polygon.
+ * @param p2 Sequence of points defining the second polygon.
+ */
+const convexPolygonMinkowskiSDFOneSided = (
+  p1: VarAD[][],
+  p2: VarAD[][]
+): VarAD => {
+  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  const sides = Array.from({ length: p1.length }, (_, i) => i).map((i) => [
+    p1[i],
+    p1[i > 0 ? i - 1 : p1.length - 1],
+  ]);
+  const sdfs = sides.map((s: VarAD[][]) => halfPlaneSDF(s, p2, center));
+  return sdfs.reduce((x, y) => max(x, y, true), varOf(-1e10));
+};
+
+/**
+ * Return value of the Signed Distance Function (SDF) of the Minkowski sum of two polygons `p1` and `p2` evaluated at the origin.
+ * @param p1 Sequence of points defining the first polygon.
+ * @param p2 Sequence of points defining the second polygon.
+ */
+const convexPolygonMinkowskiSDF = (p1: VarAD[][], p2: VarAD[][]): VarAD => {
+  return max(
+    convexPolygonMinkowskiSDFOneSided(p1, p2),
+    convexPolygonMinkowskiSDFOneSided(p2, p1)
+  );
+};
+
+/**
+ * Returns list of convex polygons comprising the original polygon.
+ * @param p Sequence of points defining a polygon.
+ */
+const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
+  // WIP
+  return [p];
 };
