@@ -496,9 +496,9 @@ export const constrDict = {
         .map((p1) =>
           cp2
             .map((p2) => convexPolygonMinkowskiSDF(p1, p2))
-            .reduce((x, y) => min(x, y, true), varOf(1e5))
+            .reduce((x, y) => min(x, y, true))
         )
-        .reduce((x, y) => min(x, y, true), varOf(1e5));
+        .reduce((x, y) => min(x, y, true));
       return neg(sdf);
     } else if (isRectlike(t1) && isLinelike(t2)) {
       const seg = s2;
@@ -1118,10 +1118,10 @@ const rectangleDifference = (box1: BBox.BBox, box2: BBox.BBox): VarAD[][] => {
   // Compute coordinates of the new rectangle
   const xs = [sub(xa1, xb1), sub(xa2, xb2), sub(xa1, xb2), sub(xa2, xb1)];
   const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
-  const xc1 = xs.reduce((x, y) => min(x, y, true), varOf(-1e5));
-  const xc2 = xs.reduce((x, y) => max(x, y, true), varOf(-1e5));
-  const yc1 = ys.reduce((x, y) => min(x, y, true), varOf(-1e5));
-  const yc2 = ys.reduce((x, y) => max(x, y, true), varOf(-1e5));
+  const xc1 = xs.reduce((x, y) => min(x, y, true));
+  const xc2 = xs.reduce((x, y) => max(x, y, true));
+  const yc1 = ys.reduce((x, y) => min(x, y, true));
+  const yc2 = ys.reduce((x, y) => max(x, y, true));
   // Return corners
   return [
     [xc1, yc1],
@@ -1150,7 +1150,7 @@ const outwardUnitNormal = (
     ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
   );
   const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
-  return ops.vmul(signOf(insideValue), normal);
+  return ops.vmul(neg(signOf(insideValue)), normal);
 };
 
 /**
@@ -1168,7 +1168,7 @@ const halfPlaneSDF = (
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = otherPoints
     .map((p) => ops.vdot(normal, p))
-    .reduce((x, y) => max(x, y, true), varOf(-1e5));
+    .reduce((x, y) => max(x, y, true));
   return neg(add(alpha, alphaOther));
 };
 
@@ -1188,7 +1188,7 @@ const convexPolygonMinkowskiSDFOneSided = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: VarAD[][]) => halfPlaneSDF(s, p2, center));
-  return sdfs.reduce((x, y) => max(x, y, true), varOf(-1e10));
+  return sdfs.reduce((x, y) => max(x, y, true));
 };
 
 /**
@@ -1208,6 +1208,7 @@ const convexPolygonMinkowskiSDF = (p1: VarAD[][], p2: VarAD[][]): VarAD => {
  * @param p Sequence of points defining a polygon.
  */
 const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
-  // WIP
+  // TODO: Add convex partitioning algorithm for polygons.
+  // See e.g.: https://doc.cgal.org/Manual/3.2/doc_html/cgal_manual/Partition_2/Chapter_main.html#Section_9.3
   return [p];
 };
