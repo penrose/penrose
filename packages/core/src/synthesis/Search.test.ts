@@ -33,6 +33,7 @@ import {
   diffSubProgs,
   diffSubStmts,
   enumerateAllPaths,
+  enumerateAllStmtPaths,
   findMutationPaths,
   showDiffset,
   showStmtDiff,
@@ -145,7 +146,7 @@ const initSynth = (
   return new Synthesizer(env, settings, subRes, SEED);
 };
 
-describe("Synthesizer tests", () => {
+describe("AST diff tests", () => {
   // test("next config", () => {
   //   const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
   //   const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
@@ -348,7 +349,7 @@ describe("Mutation recognition tests", () => {
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const mutationGroups = enumerateAllPaths(ast1, ast2, env);
-    console.log(mutationGroups.map(showMutations));
+    // console.log(mutationGroups.map(showMutations));
   });
   test("recognizing swap mutation with noise - auto", () => {
     const prog1 = `
@@ -381,5 +382,28 @@ describe("Mutation recognition tests", () => {
     expect(prettySubstance(sortStmts(ast2from1))).toEqual(
       prettySubstance(sortStmts(ast2))
     );
+  });
+  test("recognizing swap and change name mutations - auto", () => {
+    const prog1 = `
+    Set A, B
+    IsSubset(A,B)
+    `;
+    const prog2 = `
+    Set A, B
+    Equal(B, A)
+    `;
+    const [subEnv, env] = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = subEnv.ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ctx = initContext(env, "existing", "distinct");
+
+    const paths = enumerateAllStmtPaths(
+      ast1.statements[2],
+      ast2.statements[2],
+      ast1,
+      ctx,
+      2
+    );
+    console.log(paths.map(([s, m]) => [prettyStmt(s), showMutations(m)]));
   });
 });

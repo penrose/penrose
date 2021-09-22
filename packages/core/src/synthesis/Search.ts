@@ -3,6 +3,7 @@ import {
   getStmt,
   intersection,
   nodesEqual,
+  progsEqual,
   sortStmts,
   subProg,
 } from "analysis/SubstanceAnalysis";
@@ -421,27 +422,67 @@ export const enumerateAllPaths = (
   } else return [[...addMutations, ...deleteMutations]];
 };
 
-// const enumerateAllStmtMutations = (
-//   src: SubStmt,
-//   srcProg: SubProg,
-//   destProg: SubProg,
-//   ctx: SynthesisContext,
-//   depth: number,
-//   maxDepth: number
-// ): MutationGroup[] => {
-//   // find first mutations for the given statement
-//   const possibleUpdates: MutationGroup = enumerateMutations(src, srcProg, ctx);
-//   // if depth limit is up, return
-//   if (depth >= maxDepth) {
-//     return [possibleUpdates];
-//   } else {
-//     // execute all of them and find the next
-//     const singleLineProg = subProg([src]);
-//     const resultProgs: WithContext<SubProg>[] = possibleUpdates.map((m) =>
-//       executeMutation(m, singleLineProg, ctx)
-//     );
-//   }
-// };
+export const enumerateAllStmtPaths = (
+  srcStmt: SubStmt,
+  destStmt: SubStmt,
+  srcProg: SubProg,
+  ctx: SynthesisContext,
+  maxDepth: number
+): [SubStmt, MutationGroup][] =>
+  enumerateAllStmtMutations(srcStmt, destStmt, srcProg, ctx, [], 0, maxDepth);
+
+const enumerateAllStmtMutations = (
+  srcStmt: SubStmt,
+  destStmt: SubStmt,
+  srcProg: SubProg,
+  ctx: SynthesisContext,
+  mutationPath: MutationGroup,
+  depth: number,
+  maxDepth: number
+): [SubStmt, MutationGroup][] => {
+  // if depth limit is up or we already reached the resulting program, return
+  if (depth > maxDepth) {
+    return [];
+  } else if (nodesEqual(srcStmt, destStmt)) {
+    return [[srcStmt, mutationPath]];
+  } else {
+    // find all mutations for each statement
+    const possibleMutations: Mutation[] = enumerateMutations(
+      srcStmt,
+      srcProg,
+      ctx
+    );
+    const singleLineProg = subProg([srcStmt]);
+    // execute all of them and find the next
+    const resultProgs: [
+      WithContext<SubProg>,
+      Mutation
+    ][] = possibleMutations.map((m) => [
+      executeMutation(m, singleLineProg, ctx),
+      m,
+    ]);
+    const validProgs = resultProgs.filter(
+      ([p, m]) => p.res.statements.length == 1
+    );
+    const nextPaths: [
+      SubStmt,
+      MutationGroup
+    ][] = validProgs
+      .map(([{ res: p, ctx }, m]: [WithContext<SubProg>, Mutation]) =>
+        enumerateAllStmtMutations(
+          p.statements[0],
+          destStmt,
+          p,
+          ctx,
+          [...mutationPath, m],
+          depth + 1,
+          maxDepth
+        )
+      )
+      .flat();
+    return nextPaths;
+  }
+};
 
 //#endregion
 

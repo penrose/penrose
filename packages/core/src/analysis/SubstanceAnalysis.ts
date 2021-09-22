@@ -404,6 +404,26 @@ export const nodesEqual = (node1: ASTNode, node2: ASTNode): boolean =>
     return isEqual(cleanNode(node1), cleanNode(node2));
   });
 
+/**
+ * Compare all statements of two ASTs by their contents, ignoring structural properties such as `children` and positional properties like `start` and `end`.
+ *
+ * @param left the first Substance program
+ * @param right the second Substance program
+ * @returns a boolean value
+ */
+export const progsEqual = (left: SubProg, right: SubProg): boolean =>
+  isEqualWith(
+    left.statements,
+    right.statements,
+    (node1: SubStmt, node2: SubStmt) => nodesEqual(node1, node2)
+  );
+
+/**
+ * Find all common statements between `left` and `right` Substance programs.
+ * @param left the first Substance program
+ * @param right the second Substance program
+ * @returns a list of Substacne statements
+ */
 export const intersection = (left: SubProg, right: SubProg): SubStmt[] =>
   intersectionWith(left.statements, right.statements, (s1, s2) =>
     nodesEqual(s1, s2)
