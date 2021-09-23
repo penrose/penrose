@@ -928,6 +928,11 @@ export const evalBinOp = (
         res = ops.vdiv(v1.contents, v2.contents);
         break;
       }
+
+      case "Multiply": {
+        res = ops.vmul(v2.contents, v1.contents);
+        break;
+      }
     }
 
     return { tag: "VectorV", contents: res as VarAD[] };
