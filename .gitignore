@@ -32,7 +32,8 @@ node_modules/
 build/
 .tmp/
 _region_.tex
-.vscode/
+/.vscode/*
+!/.vscode/extensions.json
 out*.txt
 penrose-ide/
 *.prof
@@ -48,4 +49,3 @@ examples/plugins/alloy/__temp.als__
 .java-version
 temp.als
 .*.sw*
-
