@@ -4,7 +4,7 @@ import { SubRes } from "types/substance";
 import { showError } from "utils/Error";
 import {
   checkChangeExprType,
-  enumerateMutations,
+  enumerateStmtMutations,
   showMutations,
 } from "./Mutation";
 import { initContext } from "./Synthesizer";
@@ -70,7 +70,7 @@ describe("Mutation enumeration", () => {
     const pred1 = subEnv.ast.statements[3];
     expect(prettyStmt(pred1)).toEqual("Equal3(A, B, C)");
     const cxt = initContext(env, "existing", "distinct");
-    const mutations1 = enumerateMutations(pred1, subEnv.ast, cxt);
+    const mutations1 = enumerateStmtMutations(pred1, subEnv.ast, cxt);
     // Equal3 should only have 3 swap mutations
     expect(
       mutations1.map((m) => m.tag).every((t) => t === "SwapStmtArgs")

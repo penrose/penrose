@@ -1,9 +1,10 @@
-import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
+import { progsEqual, sortStmts, typeOf } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
-import { Set } from "immutable";
+import { Map } from "immutable";
 import {
   compileDomain,
   compileSubstance,
+  Env,
   prettySubstance,
   showError,
 } from "index";
@@ -18,9 +19,10 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "synthesis/Synthesizer";
+import { FunctionDecl } from "types/domain";
 import { SubProg, SubRes } from "types/substance";
 import {
-  enumerateMutations,
+  enumerateStmtMutations,
   executeMutation,
   executeMutations,
   showMutation,
@@ -33,6 +35,7 @@ import {
   diffSubProgs,
   diffSubStmts,
   enumerateAllPaths,
+  enumerateAllProgPaths,
   enumerateAllStmtPaths,
   findMutationPaths,
   showDiffset,
@@ -322,7 +325,7 @@ describe("Mutation recognition tests", () => {
     // enumerate all mutations for the statement
     const swappedPred = fromSet[0];
     const ctx = initContext(env, "existing", "distinct");
-    const mutations = enumerateMutations(swappedPred, ast1, ctx);
+    const mutations = enumerateStmtMutations(swappedPred, ast1, ctx);
     // apply each mutation and see how many of them match with the result
     const matchedMutations = mutations.filter((m) => {
       const { res: mutatedAST } = executeMutation(m, ast1, ctx);
@@ -383,27 +386,54 @@ describe("Mutation recognition tests", () => {
       prettySubstance(sortStmts(ast2))
     );
   });
-  test("recognizing swap and change name mutations - auto", () => {
+  test("recognizing multiple mutations on multiple stmts", () => {
     const prog1 = `
-    Set A, B
+    Set A, B, C
+    IsSubset(A,B)
+    C := Intersection(A, B)
+    `;
+    const prog2 = `
+    Set A, B, C
+    Equal(B, A)
+    Intersecting(A, B)
+    `;
+    const [subEnv, env] = getSubRes(domainSrc, prog1);
+    const ast1: SubProg = subEnv.ast;
+    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ctx = initContext(env, "existing", "distinct");
+    const paths = enumerateAllProgPaths(ast1, ast2, ctx, 3);
+
+    console.log(
+      paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
+    );
+  });
+  test("recognizing multiple mutations on one stmt", () => {
+    const prog1 = `
+    Set A, B, C
     IsSubset(A,B)
     `;
     const prog2 = `
-    Set A, B
+    Set A, B, C
     Equal(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct");
-
-    const paths = enumerateAllStmtPaths(
-      ast1.statements[2],
-      ast2.statements[2],
-      ast1,
-      ctx,
-      2
+    const paths = enumerateAllProgPaths(ast1, ast2, ctx, 10);
+    const twoStepPaths = paths.filter((p) => p.mutations.length === 2);
+    // since we use observational equivalence, there should be only one path
+    expect(twoStepPaths).toHaveLength(1);
+    // the output should be the same as the
+    expect(prettySubstance(twoStepPaths[0].prog)).toEqual(
+      prettySubstance(ast2)
     );
-    console.log(paths.map(([s, m]) => [prettyStmt(s), showMutations(m)]));
+    // there should be at least a swap operation
+    expect(twoStepPaths[0].mutations.map((m) => m.tag)).toContain(
+      "SwapStmtArgs"
+    );
+    console.log(
+      paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
+    );
   });
 });

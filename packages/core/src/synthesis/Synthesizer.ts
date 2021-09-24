@@ -37,7 +37,7 @@ import {
   checkSwapStmtArgs,
   Delete,
   deleteMutation,
-  enumerateMutations,
+  enumerateStmtMutations,
   executeMutations,
   Mutation,
   MutationGroup,

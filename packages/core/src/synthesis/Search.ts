@@ -8,7 +8,16 @@ import {
   subProg,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
-import { cloneDeep, difference, get, intersectionWith, sortBy } from "lodash";
+import {
+  cloneDeep,
+  difference,
+  get,
+  intersectionWith,
+  sortBy,
+  uniqBy,
+  zip,
+  zipWith,
+} from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
 import { ASTNode, Identifier, metaProps } from "types/ast";
 import { Env } from "types/domain";
@@ -18,10 +27,12 @@ import {
   addMutation,
   Delete,
   deleteMutation,
-  enumerateMutations,
+  enumerateProgMutations,
+  enumerateStmtMutations,
   executeMutation,
   Mutation,
   MutationGroup,
+  showMutation,
   showMutations,
   Update,
 } from "./Mutation";
@@ -366,7 +377,7 @@ export const findMutationPaths = (
   // find all possible updates for each statement in the update set
   const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
     const cxt = initContext(srcEnv, "existing", "distinct");
-    const mutations = enumerateMutations(d.source, src, cxt);
+    const mutations = enumerateStmtMutations(d.source, src, cxt);
     d.source;
     const matchedMutations = mutations.filter((m) => {
       // HACK: assumes each update pair is connected by only one mutation. Therefore packing the source and result stmts into individual programs
@@ -407,7 +418,7 @@ export const enumerateAllPaths = (
   // find all possible updates for each statement in the update set
   const cxt = initContext(srcEnv, "existing", "distinct");
   const possibleUpdates: MutationGroup[] = diffs.update.map((d) =>
-    enumerateMutations(d.source, src, cxt)
+    enumerateStmtMutations(d.source, src, cxt)
   );
 
   // any combination of candidate mutations for each stmt will be a valid mutation group
@@ -422,20 +433,37 @@ export const enumerateAllPaths = (
   } else return [[...addMutations, ...deleteMutations]];
 };
 
+/**
+ *
+ * @param srcStmt the source Substance statement
+ * @param destStmt the result Substance statement
+ * @param srcProg the source Substance program
+ * @param cxt the current synthesis context
+ * @param maxDepth maximum number of mutations per path
+ * @returns a list of mutation paths that tranform from `srcStmt` to `destStmt`, up to `maxDepth`
+ */
 export const enumerateAllStmtPaths = (
   srcStmt: SubStmt,
   destStmt: SubStmt,
   srcProg: SubProg,
-  ctx: SynthesisContext,
+  cxt: SynthesisContext,
   maxDepth: number
 ): [SubStmt, MutationGroup][] =>
-  enumerateAllStmtMutations(srcStmt, destStmt, srcProg, ctx, [], 0, maxDepth);
+  _enumerateAllStmtPathsHelper(
+    srcStmt,
+    destStmt,
+    srcProg,
+    cxt,
+    [],
+    0,
+    maxDepth
+  );
 
-const enumerateAllStmtMutations = (
+const _enumerateAllStmtPathsHelper = (
   srcStmt: SubStmt,
   destStmt: SubStmt,
   srcProg: SubProg,
-  ctx: SynthesisContext,
+  cxt: SynthesisContext,
   mutationPath: MutationGroup,
   depth: number,
   maxDepth: number
@@ -447,10 +475,10 @@ const enumerateAllStmtMutations = (
     return [[srcStmt, mutationPath]];
   } else {
     // find all mutations for each statement
-    const possibleMutations: Mutation[] = enumerateMutations(
+    const possibleMutations: Mutation[] = enumerateStmtMutations(
       srcStmt,
       srcProg,
-      ctx
+      cxt
     );
     const singleLineProg = subProg([srcStmt]);
     // execute all of them and find the next
@@ -458,18 +486,20 @@ const enumerateAllStmtMutations = (
       WithContext<SubProg>,
       Mutation
     ][] = possibleMutations.map((m) => [
-      executeMutation(m, singleLineProg, ctx),
+      executeMutation(m, singleLineProg, cxt),
       m,
     ]);
+    // HACK: throw away any mutation that might generate more stmts for now
     const validProgs = resultProgs.filter(
       ([p, m]) => p.res.statements.length == 1
     );
+    // recurse and find the next mutations
     const nextPaths: [
       SubStmt,
       MutationGroup
     ][] = validProgs
       .map(([{ res: p, ctx }, m]: [WithContext<SubProg>, Mutation]) =>
-        enumerateAllStmtMutations(
+        _enumerateAllStmtPathsHelper(
           p.statements[0],
           destStmt,
           p,
@@ -479,7 +509,126 @@ const enumerateAllStmtMutations = (
           maxDepth
         )
       )
+      .flat(); // NOTE: the `flat` will effectively trim all failed paths
+    return nextPaths;
+  }
+};
+
+interface MutatedSubProg {
+  prog: SubProg;
+  cxt: SynthesisContext;
+  mutations: Mutation[];
+}
+
+/**
+ *
+ * @param srcProg the source Substance program
+ * @param destStmt the result Substance program
+ * @param cxt the current synthesis context
+ * @param maxDepth maximum number of mutations per path
+ * @returns a list of mutation paths that tranform from `srcStmt` to `destStmt`, up to `maxDepth`
+ */
+export const enumerateAllProgPaths = (
+  srcProg: SubProg,
+  destProg: SubProg,
+  cxt: SynthesisContext,
+  maxDepth: number
+): MutatedSubProg[] => {
+  const startProg: MutatedSubProg = { prog: srcProg, mutations: [], cxt };
+  // a list of _unique_ Substance programs so far
+  let candidates: MutatedSubProg[] = [startProg];
+  // all correct paths up to `maxDepth`
+  let matchedCandidates: MutatedSubProg[] = [];
+  let currentDepth = 0;
+  while (currentDepth < maxDepth) {
+    // grow all candidates by one
+    candidates = candidates
+      .map(
+        ({ prog: progToGrow, mutations: pathToGrow, cxt }: MutatedSubProg) => {
+          // enumerate all mutations for this candidate
+          const possibleMutations: Mutation[] = enumerateProgMutations(
+            progToGrow,
+            cxt
+          );
+          // execute all mutations and get resulting programs
+          const resultProgs: WithContext<SubProg>[] = possibleMutations.map(
+            (m) => executeMutation(m, progToGrow, cxt)
+          );
+          // pack the resulting programs with their updated mutation path
+          return zipWith(
+            resultProgs,
+            possibleMutations,
+            (p, mutation): MutatedSubProg => ({
+              prog: p.res,
+              cxt: p.ctx,
+              mutations: [...pathToGrow, mutation],
+            })
+          );
+        }
+      )
       .flat();
+    // "Observational equivalence": remove all candidates that lead to the same output
+    candidates = uniqBy(candidates, (c) => prettySubstance(c.prog));
+    // HACK: using string-based check instead of AST check
+    const matches = candidates.filter(
+      (p) => prettySubstance(p.prog) === prettySubstance(destProg)
+    );
+    // collect all the correct paths at this depth
+    if (matches.length > 0) {
+      matchedCandidates = [...matchedCandidates, ...matches];
+    }
+    currentDepth++;
+  }
+  return matchedCandidates;
+};
+// NOTE: recursive version that has performance issues
+// _enumerateAllProgPathsHelper(srcProg, destProg, cxt, [], 0, maxDepth);
+
+const _enumerateAllProgPathsHelper = (
+  srcProg: SubProg,
+  destProg: SubProg,
+  cxt: SynthesisContext,
+  mutationPath: MutationGroup,
+  depth: number,
+  maxDepth: number
+): [SubProg, MutationGroup][] => {
+  // if depth limit is up or we already reached the resulting program, return
+  if (depth > maxDepth) {
+    return [];
+  } else if (progsEqual(srcProg, destProg)) {
+    return [[destProg, mutationPath]];
+  } else {
+    // find all mutations for each statement
+    const possibleMutations: Mutation[] = enumerateProgMutations(srcProg, cxt);
+    // execute all of them and find the next
+    const resultProgs: [
+      WithContext<SubProg>,
+      Mutation
+    ][] = possibleMutations.map((m) => [executeMutation(m, srcProg, cxt), m]);
+    // "Observational equivalence": removing all mutations that lead to the same expression
+    // TODO: this doesn't work because the other candidates are out of scope
+    // const uniqueProgs: [WithContext<SubProg>, Mutation][] = uniqBy(
+    //   resultProgs,
+    //   ([p, m]) => prettySubstance(p.res)
+    // );
+
+    // recurse and find the next mutations
+    // ][] = uniqueProgs
+    const nextPaths: [
+      SubProg,
+      MutationGroup
+    ][] = resultProgs
+      .map(([{ res: p, ctx }, m]: [WithContext<SubProg>, Mutation]) =>
+        _enumerateAllProgPathsHelper(
+          p,
+          destProg,
+          ctx,
+          [...mutationPath, m],
+          depth + 1,
+          maxDepth
+        )
+      )
+      .flat(); // NOTE: the `flat` will effectively trim all failed paths
     return nextPaths;
   }
 };

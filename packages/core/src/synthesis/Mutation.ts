@@ -668,10 +668,16 @@ export const mutationEnumerators: MutationEnumerator[] = [
   enumChangeStmtType,
 ];
 
-export const enumerateMutations = (
+export const enumerateStmtMutations = (
   stmt: SubStmt,
   prog: SubProg,
   cxt: SynthesisContext
 ): Mutation[] => mutationEnumerators.map((fn) => fn(stmt, prog, cxt)).flat();
+
+export const enumerateProgMutations = (
+  prog: SubProg,
+  cxt: SynthesisContext
+): Mutation[] =>
+  prog.statements.map((stmt) => enumerateStmtMutations(stmt, prog, cxt)).flat();
 
 //#endregion
