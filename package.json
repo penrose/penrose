@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "lerna run build --stream",
+    "build": "lerna run build --stream --concurrency 1",
     "clean": "lerna clean && lerna exec -- rimraf build",
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
     "test": "lerna run test --stream",
