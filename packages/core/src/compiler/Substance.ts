@@ -4,7 +4,7 @@ import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
-import { Identifier } from "types/ast";
+import { ASTNode, Identifier } from "types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -35,6 +35,7 @@ import {
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
+  duplicateName,
   err,
   every,
   Maybe,
@@ -206,13 +207,26 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "Decl": {
       const { type, name } = stmt;
+      // check type constructor
       const typeOk = checkTypeConstructor(type, env);
-      const updatedEnv: Env = {
-        ...env,
-        vars: env.vars.set(name.value, type),
-        varIDs: [name, ...env.varIDs],
-      };
-      return every(typeOk, ok(updatedEnv));
+      // check name collisions
+      const existingName = env.vars.get(name.value);
+      if (existingName) {
+        return err(
+          duplicateName(
+            name,
+            stmt,
+            env.varIDs.filter((v) => v.value === name.value)[0]
+          )
+        );
+      } else {
+        const updatedEnv: Env = {
+          ...env,
+          vars: env.vars.set(name.value, type),
+          varIDs: [name, ...env.varIDs],
+        };
+        return every(typeOk, ok(updatedEnv));
+      }
     }
     case "Bind": {
       const { variable, expr } = stmt;
