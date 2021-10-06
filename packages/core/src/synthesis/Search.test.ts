@@ -6,7 +6,7 @@ import {
   prettySubstance,
   showError,
 } from "index";
-import { cloneDeep } from "lodash";
+import { cloneDeep, minBy } from "lodash";
 import { createChoice } from "pandemonium/choice";
 import { applyDiff, rdiffResult } from "recursive-diff";
 import seedrandom from "seedrandom";
@@ -311,12 +311,20 @@ describe("Mutation recognition tests", () => {
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct");
-    const paths = enumerateMutationPaths(ast1, ast2, ctx, 3);
+    const paths = enumerateMutationPaths(ast1, ast2, ctx, 5);
+    const shortestPath = minBy(paths, (p) => p.mutations.length);
+    expect(shortestPath?.mutations).toHaveLength(3);
+    expect(shortestPath?.mutations.map((m) => m.tag)).toContain("SwapStmtArgs");
+    expect(shortestPath?.mutations.map((m) => m.tag)).toContain(
+      "ChangeExprType"
+    );
+    expect(shortestPath?.mutations.map((m) => m.tag)).toContain(
+      "ReplaceStmtName"
+    );
 
     // console.log(
     //   paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
     // );
-    console.log(paths.map((p) => showMutations(p.mutations)).join("\n"));
   });
   test("recognizing multiple mutations on one stmt", () => {
     const prog1 = `

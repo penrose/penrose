@@ -1,4 +1,10 @@
-import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
+import {
+  checkExpr,
+  checkPredicate,
+  checkVar,
+  disambiguateFunctions,
+  disambiguateSubNode,
+} from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict, objDict } from "contrib/Constraints";
 // Dicts (runtime data)
@@ -2937,44 +2943,6 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
   } catch (e) {
     return err(parseError(e, lastLocation(parser)));
   }
-};
-
-// NOTE: Mutates stmt
-const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
-  stmt.children.forEach((child) => disambiguateSubNode(env, child));
-
-  if (stmt.tag !== "Func") {
-    return;
-  }
-
-  // Lookup name in the env and replace it if it exists, otherwise throw error
-  const func = stmt as Func;
-
-  const isCtor = env.constructors.has(func.name.value);
-  const isFn = env.functions.has(func.name.value);
-  const isPred = env.predicates.has(func.name.value);
-
-  if (isCtor && !isFn && !isPred) {
-    ((func as any) as ApplyConstructor).tag = "ApplyConstructor";
-  } else if (!isCtor && isFn && !isPred) {
-    ((func as any) as ApplyFunction).tag = "ApplyFunction";
-  } else if (!isCtor && !isFn && isPred) {
-    ((func as any) as ApplyPredicate).tag = "ApplyPredicate";
-  } else if (!isCtor && !isFn && !isPred) {
-    throw Error(
-      `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`
-    );
-  } else {
-    throw Error(
-      "Substance internal error: expected val of type Func to be uniquely disambiguable in env, but found multiple"
-    );
-  }
-};
-
-// For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
-// NOTE: mutates Substance AST
-export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
 };
 
 //#region Checking translation

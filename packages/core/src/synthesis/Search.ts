@@ -37,6 +37,7 @@ import {
 import {
   filterContext,
   initContext,
+  showEnv,
   SynthesisContext,
   WithContext,
 } from "./Synthesizer";
@@ -458,7 +459,8 @@ export const enumerateMutationPaths = (
   initCxt: SynthesisContext,
   maxDepth: number
 ): MutatedSubProg[] => {
-  // optimization: pre-filter the environment by the target program
+  // optimization: pre-filter the environment by the source and target program
+  // NOTE: we need both the source and target programs because the synthesizer config includes __both__ types to match and candidate types
   const srcAndDestTypes = mergeKindMaps(
     findTypes(srcProg),
     findTypes(destProg)
@@ -469,8 +471,8 @@ export const enumerateMutationPaths = (
   const startProg: MutatedSubProg = {
     prog: srcProg,
     mutations: [],
-    cxt: filteredCxt,
     // cxt: initCxt,
+    cxt: filteredCxt,
   };
   // a list of _unique_ Substance programs so far
   let candidates: MutatedSubProg[] = [startProg];

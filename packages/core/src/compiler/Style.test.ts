@@ -1,7 +1,11 @@
 // Must be run from penrose-web for loading files
 
 import * as S from "compiler/Style";
-import { compileSubstance, parseSubstance } from "compiler/Substance";
+import {
+  compileSubstance,
+  disambiguateFunctions,
+  parseSubstance,
+} from "compiler/Substance";
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
@@ -54,7 +58,7 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
     styProg,
   ];
 
-  S.disambiguateFunctions(varEnv, subProg);
+  disambiguateFunctions(varEnv, subProg);
   return res;
 };
 
