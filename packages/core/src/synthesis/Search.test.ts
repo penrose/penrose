@@ -343,8 +343,8 @@ describe("Mutation recognition tests", () => {
     expect(twoStepPaths[0].mutations.map((m) => m.tag)).toContain(
       "SwapStmtArgs"
     );
-    console.log(
-      paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
-    );
+    // console.log(
+    //   paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
+    // );
   });
 });

@@ -501,6 +501,16 @@ export const findTypes = (prog: SubProg): SubStmtKindMap => {
   };
 };
 
+export const mergeKindMaps = (
+  m1: SubStmtKindMap,
+  m2: SubStmtKindMap
+): SubStmtKindMap => ({
+  type: [...m1.type, ...m2.type],
+  predicate: [...m1.predicate, ...m2.predicate],
+  constructor: [...m1.constructor, ...m2.constructor],
+  function: [...m1.function, ...m2.function],
+});
+
 const findType = (stmt: SubStmt): TypeWithKind | undefined => {
   switch (stmt.tag) {
     case "Decl":

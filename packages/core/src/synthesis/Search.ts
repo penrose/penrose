@@ -3,6 +3,7 @@ import {
   findTypes,
   getStmt,
   intersection,
+  mergeKindMaps,
   nodesEqual,
   progsEqual,
   sortStmts,
@@ -16,7 +17,6 @@ import {
   intersectionWith,
   sortBy,
   uniqBy,
-  zip,
   zipWith,
 } from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
@@ -33,14 +33,10 @@ import {
   executeMutation,
   Mutation,
   MutationGroup,
-  showMutation,
-  showMutations,
-  Update,
 } from "./Mutation";
 import {
   filterContext,
   initContext,
-  showEnv,
   SynthesisContext,
   WithContext,
 } from "./Synthesizer";
@@ -463,14 +459,18 @@ export const enumerateMutationPaths = (
   maxDepth: number
 ): MutatedSubProg[] => {
   // optimization: pre-filter the environment by the target program
-  const filteredCxt = filterContext(initCxt, findTypes(srcProg));
+  const srcAndDestTypes = mergeKindMaps(
+    findTypes(srcProg),
+    findTypes(destProg)
+  );
+  const filteredCxt = filterContext(initCxt, srcAndDestTypes);
   // console.log(showEnv(initCxt.env));
   // console.log(showEnv(filteredCxt.env));
   const startProg: MutatedSubProg = {
     prog: srcProg,
     mutations: [],
-    // cxt: filteredCxt,
-    cxt: initCxt,
+    cxt: filteredCxt,
+    // cxt: initCxt,
   };
   // a list of _unique_ Substance programs so far
   let candidates: MutatedSubProg[] = [startProg];
