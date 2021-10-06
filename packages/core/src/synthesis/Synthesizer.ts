@@ -13,6 +13,7 @@ import {
   domainToSubType,
   matchSignatures,
   nullaryTypeCons,
+  SubStmtKind,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubstance } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
@@ -81,12 +82,9 @@ type All = "*";
 type ArgOption = "existing" | "generated" | "mixed";
 type ArgReuse = "distinct" | "repeated";
 type MatchSetting = string[] | All;
-export interface DeclTypes {
-  type: MatchSetting;
-  predicate: MatchSetting;
-  constructor: MatchSetting;
-  function: MatchSetting;
-}
+type DeclTypes = {
+  [t in SubStmtKind]: MatchSetting;
+};
 export interface SynthesizerSetting {
   mutationCount: [number, number];
   argOption: ArgOption;
@@ -141,7 +139,7 @@ export const initContext = (
   }, ctx);
 };
 
-const filterContext = (
+export const filterContext = (
   ctx: SynthesisContext,
   setting: DeclTypes
 ): SynthesisContext => {
@@ -157,7 +155,7 @@ const filterContext = (
   };
 };
 
-const showEnv = (env: Env): string =>
+export const showEnv = (env: Env): string =>
   [
     `types: ${[...env.types.keys()]}`,
     `predicates: ${[...env.predicates.keys()]}`,

@@ -1,10 +1,8 @@
-import { progsEqual, sortStmts, typeOf } from "analysis/SubstanceAnalysis";
+import { sortStmts, typeOf } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
-import { Map } from "immutable";
 import {
   compileDomain,
   compileSubstance,
-  Env,
   prettySubstance,
   showError,
 } from "index";
@@ -12,74 +10,27 @@ import { cloneDeep } from "lodash";
 import { createChoice } from "pandemonium/choice";
 import { applyDiff, rdiffResult } from "recursive-diff";
 import seedrandom from "seedrandom";
-import {
-  DeclTypes,
-  initContext,
-  SynthesizedSubstance,
-  Synthesizer,
-  SynthesizerSetting,
-} from "synthesis/Synthesizer";
-import { FunctionDecl } from "types/domain";
+import { initContext } from "synthesis/Synthesizer";
 import { SubProg, SubRes } from "types/substance";
 import {
   enumerateStmtMutations,
   executeMutation,
   executeMutations,
-  showMutation,
   showMutations,
 } from "./Mutation";
 import {
   applyStmtDiffs,
-  cartesianProduct,
   DiffSet,
   diffSubProgs,
   diffSubStmts,
-  enumerateAllPaths,
-  enumerateAllProgPaths,
-  enumerateAllStmtPaths,
+  enumerateMutationPaths,
   findMutationPaths,
-  showDiffset,
   showStmtDiff,
   showSubDiff,
   StmtDiff,
   subProgDiffs,
   swapDiffID,
 } from "./Search";
-
-const SEED = "testSearch";
-
-const all: DeclTypes = {
-  type: "*",
-  function: "*",
-  constructor: "*",
-  predicate: "*",
-};
-const none: DeclTypes = {
-  type: [],
-  function: [],
-  constructor: [],
-  predicate: [],
-};
-
-const settings: SynthesizerSetting = {
-  mutationCount: [1, 4],
-  argOption: "existing",
-  argReuse: "distinct",
-  weights: {
-    type: 0.1,
-    predicate: 0.3,
-    constructor: 0.0,
-  },
-  add: all,
-  delete: none,
-  // edit: all,
-  edit: {
-    type: [],
-    function: [],
-    constructor: [],
-    predicate: ["IsSubset"],
-  },
-};
 
 const RNG = seedrandom("seed5");
 const choice: <T>(array: Array<T>) => T = createChoice(RNG);
@@ -113,12 +64,6 @@ predicate Bijection : Map m
 predicate PairIn : Point * Point * Map
 `;
 
-const substanceSrc = `
-Set A, B, C
-IsSubset(B, A)
-IsSubset(C, A)
-`;
-
 const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
   const envOrError = compileDomain(domainSrc);
   if (envOrError.isOk()) {
@@ -138,25 +83,7 @@ const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
     );
   }
 };
-
-const initSynth = (
-  domainSrc: string,
-  substanceSrc: string,
-  settings: SynthesizerSetting
-): Synthesizer => {
-  const subRes = getSubRes(domainSrc, substanceSrc);
-  const env = subRes[1];
-  return new Synthesizer(env, settings, subRes, SEED);
-};
-
 describe("AST diff tests", () => {
-  // test("next config", () => {
-  //   const synth: Synthesizer = initSynth(domainSrc, substanceSrc, settings);
-  //   const progs: SynthesizedSubstance[] = synth.generateSubstances(10);
-  //   synthesizeConfig(progs);
-  //   // COMBAK: complete test once `synthesizeConfig` is working
-  // });
-
   test("Compute AST diff based on tree sets", () => {
     const original = `
     Set A, B, C, D, E
@@ -337,23 +264,6 @@ describe("Mutation recognition tests", () => {
     expect(matchedMutations).toHaveLength(1);
     expect(matchedMutations[0].tag).toEqual("SwapStmtArgs");
   });
-  test("enumerating all possible mutation paths", () => {
-    const prog1 = `
-    Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
-    `;
-    const prog2 = `
-    Set A, B, C, D, E
-    IsSubset(B, A)
-    Equal(D, E)
-    `;
-    const [subEnv, env] = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = subEnv.ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
-    const mutationGroups = enumerateAllPaths(ast1, ast2, env);
-    // console.log(mutationGroups.map(showMutations));
-  });
   test("recognizing swap mutation with noise - auto", () => {
     const prog1 = `
     Set A, B, C
@@ -401,11 +311,12 @@ describe("Mutation recognition tests", () => {
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct");
-    const paths = enumerateAllProgPaths(ast1, ast2, ctx, 3);
+    const paths = enumerateMutationPaths(ast1, ast2, ctx, 3);
 
-    console.log(
-      paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
-    );
+    // console.log(
+    //   paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])
+    // );
+    console.log(paths.map((p) => showMutations(p.mutations)).join("\n"));
   });
   test("recognizing multiple mutations on one stmt", () => {
     const prog1 = `
@@ -420,7 +331,7 @@ describe("Mutation recognition tests", () => {
     const ast1: SubProg = subEnv.ast;
     const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct");
-    const paths = enumerateAllProgPaths(ast1, ast2, ctx, 10);
+    const paths = enumerateMutationPaths(ast1, ast2, ctx, 10);
     const twoStepPaths = paths.filter((p) => p.mutations.length === 2);
     // since we use observational equivalence, there should be only one path
     expect(twoStepPaths).toHaveLength(1);

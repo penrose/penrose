@@ -9,10 +9,9 @@ import {
   replaceStmt,
   stmtExists,
 } from "analysis/SubstanceAnalysis";
-import { prettyStmt, prettySubNode, prettySubstance } from "compiler/Substance";
+import { prettyStmt, prettySubNode } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
-import { Env } from "index";
 import { range, without } from "lodash";
 import {
   ApplyPredicate,

@@ -1,5 +1,6 @@
 import {
   cleanNode,
+  findTypes,
   getStmt,
   intersection,
   nodesEqual,
@@ -36,7 +37,13 @@ import {
   showMutations,
   Update,
 } from "./Mutation";
-import { initContext, SynthesisContext, WithContext } from "./Synthesizer";
+import {
+  filterContext,
+  initContext,
+  showEnv,
+  SynthesisContext,
+  WithContext,
+} from "./Synthesizer";
 
 //#region Fine-grained diffs
 
@@ -432,87 +439,9 @@ export const enumerateAllPaths = (
     ]);
   } else return [[...addMutations, ...deleteMutations]];
 };
+//#endregion
 
-/**
- *
- * @param srcStmt the source Substance statement
- * @param destStmt the result Substance statement
- * @param srcProg the source Substance program
- * @param cxt the current synthesis context
- * @param maxDepth maximum number of mutations per path
- * @returns a list of mutation paths that tranform from `srcStmt` to `destStmt`, up to `maxDepth`
- */
-export const enumerateAllStmtPaths = (
-  srcStmt: SubStmt,
-  destStmt: SubStmt,
-  srcProg: SubProg,
-  cxt: SynthesisContext,
-  maxDepth: number
-): [SubStmt, MutationGroup][] =>
-  _enumerateAllStmtPathsHelper(
-    srcStmt,
-    destStmt,
-    srcProg,
-    cxt,
-    [],
-    0,
-    maxDepth
-  );
-
-const _enumerateAllStmtPathsHelper = (
-  srcStmt: SubStmt,
-  destStmt: SubStmt,
-  srcProg: SubProg,
-  cxt: SynthesisContext,
-  mutationPath: MutationGroup,
-  depth: number,
-  maxDepth: number
-): [SubStmt, MutationGroup][] => {
-  // if depth limit is up or we already reached the resulting program, return
-  if (depth > maxDepth) {
-    return [];
-  } else if (nodesEqual(srcStmt, destStmt)) {
-    return [[srcStmt, mutationPath]];
-  } else {
-    // find all mutations for each statement
-    const possibleMutations: Mutation[] = enumerateStmtMutations(
-      srcStmt,
-      srcProg,
-      cxt
-    );
-    const singleLineProg = subProg([srcStmt]);
-    // execute all of them and find the next
-    const resultProgs: [
-      WithContext<SubProg>,
-      Mutation
-    ][] = possibleMutations.map((m) => [
-      executeMutation(m, singleLineProg, cxt),
-      m,
-    ]);
-    // HACK: throw away any mutation that might generate more stmts for now
-    const validProgs = resultProgs.filter(
-      ([p, m]) => p.res.statements.length == 1
-    );
-    // recurse and find the next mutations
-    const nextPaths: [
-      SubStmt,
-      MutationGroup
-    ][] = validProgs
-      .map(([{ res: p, ctx }, m]: [WithContext<SubProg>, Mutation]) =>
-        _enumerateAllStmtPathsHelper(
-          p.statements[0],
-          destStmt,
-          p,
-          ctx,
-          [...mutationPath, m],
-          depth + 1,
-          maxDepth
-        )
-      )
-      .flat(); // NOTE: the `flat` will effectively trim all failed paths
-    return nextPaths;
-  }
-};
+//#region Enumerative search with observational equivalence
 
 interface MutatedSubProg {
   prog: SubProg;
@@ -521,20 +450,28 @@ interface MutatedSubProg {
 }
 
 /**
- *
  * @param srcProg the source Substance program
  * @param destStmt the result Substance program
- * @param cxt the current synthesis context
+ * @param initCxt the current synthesis context
  * @param maxDepth maximum number of mutations per path
  * @returns a list of mutation paths that tranform from `srcStmt` to `destStmt`, up to `maxDepth`
  */
-export const enumerateAllProgPaths = (
+export const enumerateMutationPaths = (
   srcProg: SubProg,
   destProg: SubProg,
-  cxt: SynthesisContext,
+  initCxt: SynthesisContext,
   maxDepth: number
 ): MutatedSubProg[] => {
-  const startProg: MutatedSubProg = { prog: srcProg, mutations: [], cxt };
+  // optimization: pre-filter the environment by the target program
+  const filteredCxt = filterContext(initCxt, findTypes(srcProg));
+  // console.log(showEnv(initCxt.env));
+  // console.log(showEnv(filteredCxt.env));
+  const startProg: MutatedSubProg = {
+    prog: srcProg,
+    mutations: [],
+    // cxt: filteredCxt,
+    cxt: initCxt,
+  };
   // a list of _unique_ Substance programs so far
   let candidates: MutatedSubProg[] = [startProg];
   // all correct paths up to `maxDepth`
@@ -581,9 +518,12 @@ export const enumerateAllProgPaths = (
   }
   return matchedCandidates;
 };
-// NOTE: recursive version that has performance issues
-// _enumerateAllProgPathsHelper(srcProg, destProg, cxt, [], 0, maxDepth);
 
+/**
+ *  recursive version that has performance issues
+ * call `_enumerateAllProgPathsHelper(srcProg, destProg, cxt, [], 0, maxDepth);` to use
+ * @deprecated
+ */
 const _enumerateAllProgPathsHelper = (
   srcProg: SubProg,
   destProg: SubProg,
@@ -632,57 +572,5 @@ const _enumerateAllProgPathsHelper = (
     return nextPaths;
   }
 };
-
-//#endregion
-
-//#region Specification synthesis
-// interface TaggedMutationSet {
-//   tag: Mutation["tag"];
-//   stmts: SubStmt[];
-// }
-
-// export const synthesizeConfig = (examples: SynthesizedSubstance[]) => {
-//   // ): SynthesizerSetting => {
-//   const ops: Mutation[] = examples
-//     .map((ex: SynthesizedSubstance) => ex.ops)
-//     .flat();
-
-//   const grouped = groupBy(ops, "tag");
-
-//   const taggedMutations: TaggedMutationSet[] = map(
-//     grouped,
-//     (value: Mutation[], key: Mutation["tag"]): TaggedMutationSet => {
-//       const set: TaggedMutationSet = {
-//         tag: key,
-//         stmts: value.map(editedStmt),
-//       };
-//       return set;
-//     }
-//   ) as any; // TODO: resolve types: why is it `boolean[]`?
-
-//   // console.log(showMutationSets(taggedMutations));
-
-//   // TODO: finish this function
-//   return {} as any;
-// };
-
-// const showMutationSets = (sets: TaggedMutationSet[]): string =>
-//   sets.map(showMutationSet).join("\n\n");
-
-// const showMutationSet = (set: TaggedMutationSet): string =>
-//   `${set.tag}:\n${set.stmts.map(prettyStmt).join("\n")}`;
-
-// const editedStmt = (mutation: Mutation): SubStmt => {
-//   switch (mutation.tag) {
-//     case "Replace":
-//       return mutation.old;
-//     case "Add":
-//     case "Delete":
-//     // case "Swap":
-//     // case "ReplaceName":
-//     case "TypeChange":
-//       return mutation.stmt;
-//   }
-// };
 
 //#endregion
