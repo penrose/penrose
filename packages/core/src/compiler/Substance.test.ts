@@ -185,7 +185,7 @@ A := D
     const env = envOrError(domainProg);
     const prog = `
 OpenSet D
-Set B, C, E
+Set B, C
 Set A := D
 Set E := Subset(B, C)
     `;
@@ -309,13 +309,23 @@ Set A, B, C ;;; shouldn't parse
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "ParseError");
   });
+  test("duplicate name error", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A
+Point A
+AutoLabel All
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "DuplicateName");
+  });
   test("type not found", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
 List(Set) l
-Alien A
-NotExistentType B
+Alien a
+NotExistentType b
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
@@ -526,9 +536,9 @@ D := C.A
 E := C.B
 List(Set) l
 List(OpenSet) nil
+OpenSet Z
 nil := Nil()
-OpenSet A
-l := Cons(A, nil)
+l := Cons(Z, nil)
 Empty(C)
 IsSubset(D, E)
 IsSubset(D, A)
