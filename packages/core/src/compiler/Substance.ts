@@ -4,7 +4,7 @@ import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
-import { ASTNode, Identifier } from "types/ast";
+import { Identifier } from "types/ast";
 import {
   Arg,
   ConstructorDecl,
