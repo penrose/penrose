@@ -1,7 +1,11 @@
 // Must be run from penrose-web for loading files
 
 import * as S from "compiler/Style";
-import { compileSubstance, parseSubstance } from "compiler/Substance";
+import {
+  compileSubstance,
+  disambiguateFunctions,
+  parseSubstance,
+} from "compiler/Substance";
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
@@ -54,7 +58,7 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
     styProg,
   ];
 
-  S.disambiguateFunctions(varEnv, subProg);
+  disambiguateFunctions(varEnv, subProg);
   return res;
 };
 
@@ -357,7 +361,6 @@ describe("Compiler", () => {
 
     const errorStyProgs = {
       // ------ Selector errors (from Substance)
-      SelectorDeclTypeError: [`forall Setfhjh x { }`],
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
@@ -371,6 +374,8 @@ describe("Compiler", () => {
       TaggedSubstanceError: [
         `forall Set x; Point y
 where IsSubset(y, x) { }`,
+        `forall Setfhjh x { }`,
+        `forall Point x, y where Midpointdfsdfds(x, y) { }`,
       ],
 
       // ---------- Block static errors

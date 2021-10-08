@@ -1,4 +1,9 @@
-import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
+import {
+  checkExpr,
+  checkPredicate,
+  checkVar,
+  disambiguateSubNode,
+} from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict, objDict } from "contrib/Constraints";
 // Dicts (runtime data)
@@ -34,7 +39,7 @@ import {
 } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { VarAD } from "types/ad";
-import { ASTNode, Identifier } from "types/ast";
+import { Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
@@ -76,9 +81,7 @@ import {
 import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
   ApplyConstructor,
-  ApplyFunction,
   ApplyPredicate,
-  Func,
   LabelMap,
   SubExpr,
   SubPredArg,
@@ -337,8 +340,8 @@ const checkDeclPatternAndMakeEnv = (
   if (isErr(typeErr)) {
     // TODO(errors)
     return addErrSel(selEnv, {
-      tag: "SelectorDeclTypeError",
-      typeName: styType,
+      tag: "TaggedSubstanceError",
+      error: typeErr.error,
     });
   }
 
@@ -2939,44 +2942,6 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
   }
 };
 
-// NOTE: Mutates stmt
-const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
-  stmt.children.forEach((child) => disambiguateSubNode(env, child));
-
-  if (stmt.tag !== "Func") {
-    return;
-  }
-
-  // Lookup name in the env and replace it if it exists, otherwise throw error
-  const func = stmt as Func;
-
-  const isCtor = env.constructors.has(func.name.value);
-  const isFn = env.functions.has(func.name.value);
-  const isPred = env.predicates.has(func.name.value);
-
-  if (isCtor && !isFn && !isPred) {
-    ((func as any) as ApplyConstructor).tag = "ApplyConstructor";
-  } else if (!isCtor && isFn && !isPred) {
-    ((func as any) as ApplyFunction).tag = "ApplyFunction";
-  } else if (!isCtor && !isFn && isPred) {
-    ((func as any) as ApplyPredicate).tag = "ApplyPredicate";
-  } else if (!isCtor && !isFn && !isPred) {
-    throw Error(
-      `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`
-    );
-  } else {
-    throw Error(
-      "Substance internal error: expected val of type Func to be uniquely disambiguable in env, but found multiple"
-    );
-  }
-};
-
-// For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
-// NOTE: mutates Substance AST
-export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
-};
-
 //#region Checking translation
 
 const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
@@ -3196,10 +3161,6 @@ export const compileStyle = (
   } else {
     return err({ ...astOk.error, errorType: "StyleError" });
   }
-
-  // disambiguate Func into the right form in Substance grammar #453 -- mutates Substance AST since children are references
-  disambiguateFunctions(varEnv, subProg);
-
   const labelMap = subEnv.labels;
 
   // Name anon statements
