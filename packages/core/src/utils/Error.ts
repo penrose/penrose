@@ -1,5 +1,32 @@
-import { prettyPrintPath } from "utils/OtherUtils";
+import { isConcrete } from "engine/EngineUtils";
+import { ShapeDef, shapedefs } from "renderer/ShapeDef";
 import { Maybe, Result } from "true-myth";
+import { ASTNode, Identifier, SourceLoc } from "types/ast";
+import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
+import {
+  ArgLengthMismatch,
+  CyclicSubtypes,
+  DeconstructNonconstructor,
+  DomainError,
+  DuplicateName,
+  FatalError,
+  NaNError,
+  NotTypeConsInPrelude,
+  NotTypeConsInSubtype,
+  ParseError,
+  PenroseError,
+  RuntimeError,
+  StyleError,
+  SubstanceError,
+  TypeArgLengthMismatch,
+  TypeMismatch,
+  TypeNotFound,
+  UnexpectedExprForNestedPred,
+  VarNotFound,
+} from "types/errors";
+import { State } from "types/state";
+import { Deconstructor, SubExpr } from "types/substance";
+import { prettyPrintPath } from "utils/OtherUtils";
 const {
   or,
   and,
@@ -13,33 +40,6 @@ const {
   unsafelyGetErr,
 } = Result;
 
-import { ShapeDef, shapedefs } from "renderer/ShapeDef";
-import {
-  DomainError,
-  SubstanceError,
-  CyclicSubtypes,
-  NotTypeConsInPrelude,
-  NotTypeConsInSubtype,
-  DuplicateName,
-  TypeNotFound,
-  VarNotFound,
-  TypeMismatch,
-  UnexpectedExprForNestedPred,
-  ArgLengthMismatch,
-  TypeArgLengthMismatch,
-  DeconstructNonconstructor,
-  FatalError,
-  ParseError,
-  PenroseError,
-  StyleError,
-  RuntimeError,
-  NaNError,
-} from "types/errors";
-import { Identifier, ASTNode, SourceLoc } from "types/ast";
-import { Type, Prop, TypeVar, TypeConstructor, Arg } from "types/domain";
-import { SubExpr, Deconstructor } from "types/substance";
-import { isConcrete } from "engine/EngineUtils";
-import { State } from "types/state";
 // #region error rendering and construction
 
 /**
@@ -192,11 +192,6 @@ export const showError = (
 
     case "GenericStyleError": {
       return `DEBUG: Style failed with errors:\n ${error.messages.join("\n")}`;
-    }
-
-    case "SelectorDeclTypeError": {
-      // COMBAK Maybe this should be a TaggedSubstanceError?
-      return "Substance type error in declaration in selector";
     }
 
     case "StyleErrorList": {
