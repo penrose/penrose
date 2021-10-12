@@ -11,6 +11,8 @@ import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { LabelCache, LabelData } from "types/state";
+import { err, ok, Result } from "./Error";
+import { PenroseError } from "types/errors";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -39,20 +41,26 @@ const convert = (input: string, fontSize: string) => {
   // Not sure if this call does anything:
   // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
   adaptor.setStyle(node, "font-size", fontSize);
-  return node.firstChild as SVGSVGElement;
+  return node.firstChild as HTMLElement;
 };
+
+interface Output {
+  body: HTMLElement | undefined;
+  width: number;
+  height: number;
+}
 
 /**
  * Call MathJax to render __non-empty__ labels.
  * NOTE: this function is memoized.
  */
 const tex2svg = memoize(
-  async (contents: string, name: string, fontSize: string): Promise<any> =>
+  async (contents: string, name: string, fontSize: string): Promise<Output> =>
     new Promise((resolve) => {
       const output = convert(contents, fontSize);
       if (!output) {
         console.error(`MathJax could not render ${contents}`);
-        resolve({ output: undefined, width: 0, height: 0 });
+        resolve({ body: undefined, width: 0, height: 0 });
         return;
       }
       // console.log(output);
@@ -87,7 +95,7 @@ export const retrieveLabel = (
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
   allShapes: Shape[]
-): Promise<LabelCache> => {
+): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = [];
   for (const s of allShapes) {
     const { shapeType, properties } = s;
@@ -100,21 +108,29 @@ export const collectLabels = async (
         properties.fontSize.contents as string
       );
 
+      if (!body) {
+        return err({
+          errorType: "SubstanceError",
+          tag: "Fatal",
+          message: "blah",
+        });
+      }
+
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
       const label: LabelData = {
         w: {
           tag: "FloatV",
-          contents: width === Infinity ? 0 : (width as number),
+          contents: width === Infinity ? 0 : width,
         },
         h: {
           tag: "FloatV",
-          contents: height === Infinity ? 0 : (height as number),
+          contents: height === Infinity ? 0 : height,
         },
-        rendered: body as HTMLElement,
+        rendered: body,
       };
       labels.push([shapeName, label]);
     }
   }
-  return Promise.all(labels);
+  return ok(labels);
 };

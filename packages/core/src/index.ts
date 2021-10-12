@@ -189,11 +189,17 @@ export const prepareState = async (state: State): Promise<State> => {
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = evalShapes(stateAD);
 
-  const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
+  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+    stateEvaled.shapes
+  );
+
+  if (labelCache.isErr()) {
+    throw Error(`blah`);
+  }
 
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
-    labelCache,
+    labelCache: labelCache.value,
   });
 
   const withOptProblem: State = genOptProblem(stateWithPendingProperties);
