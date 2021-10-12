@@ -34,6 +34,7 @@ build/
 _region_.tex
 /.vscode/*
 !/.vscode/extensions.json
+!/.vscode/settings.json
 out*.txt
 penrose-ide/
 *.prof
