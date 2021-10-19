@@ -629,21 +629,13 @@ export const constrDict = {
       const text = s2;
       const rect = bboxFromShape(t2, text);
 
-      // TODO: Rewrite this with `ifCond`
-      // If the point is inside the box, push it outside w/ `noIntersect`
-      if (pointInBox(pt, rect)) {
-        return noIntersectCircles(
-          rect.center,
-          rect.w,
-          fns.center(s1),
-          constOf(2.0)
-        );
-      } else {
+      return ifCond(
+        pointInBox(pt, rect),
+        // If the point is inside the box, push it outside w/ `noIntersect`
+        noIntersectCircles(rect.center, rect.w, [pt.x, pt.y], constOf(2.0)),
         // If the point is outside the box, try to get the distance from the point to equal the desired distance
-        const dsqRes = dsqBP(pt, rect);
-        const WEIGHT = 1;
-        return mul(constOf(WEIGHT), equalHard(dsqRes, squared(offset)));
-      }
+        atDistOutside(pt, rect, offset)
+      );
     } else {
       throw Error(`unsupported shapes for 'atDist': ${t1}, ${t2}`);
     }
@@ -824,12 +816,23 @@ const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
 // ------- Polygon-related helpers
 
 /**
- * Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
+ * Return true iff `p` is in rect `b`.
  */
-const pointInBox = (p: any, rect: any): boolean => {
-  return (
-    p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
+const pointInBox = (p: any, rect: BBox.BBox): VarAD => {
+  return and(
+    and(lt(BBox.minX(rect), p.x), lt(p.x, BBox.maxX(rect))),
+    and(lt(BBox.minY(rect), p.y), lt(p.y, BBox.maxY(rect)))
   );
+};
+
+/**
+ * Helper function for atDist constraint.
+ * If the point is outside the box, try to get the distance from the point to equal the desired distance.
+ */
+const atDistOutside = (pt: any, rect: BBox.BBox, offset: VarAD): VarAD => {
+  const dsqRes = dsqBP(pt, rect);
+  const WEIGHT = 1;
+  return mul(constOf(WEIGHT), equalHard(dsqRes, squared(offset)));
 };
 
 /**
