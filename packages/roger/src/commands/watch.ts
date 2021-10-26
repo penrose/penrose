@@ -2,12 +2,18 @@ import { Command, flags } from "@oclif/command";
 import WebSocket from "ws";
 import chokidar from "chokidar";
 import fs from "fs";
+import path from "path";
 import chalk from "chalk";
 // eslint-disable-next-line node/no-unsupported-features/node-builtins
 const fsp = fs.promises;
 
+interface Args {
+  [type: string]: string;
+}
+
 export default class Watch extends Command {
-  static description = "watches files for changes";
+  static description =
+    "watches files for changes; files can be passed in any order";
 
   static examples = [];
 
@@ -26,13 +32,13 @@ export default class Watch extends Command {
     { name: "domain", required: true },
   ];
 
-  current: { [type: string]: string } = {
+  current: Args = {
     substance: "",
     style: "",
     domain: "",
   };
 
-  currentFilenames: { [type: string]: string } = {
+  currentFilenames: Args = {
     substance: "",
     style: "",
     domain: "",
@@ -64,6 +70,28 @@ export default class Watch extends Command {
     this.wss?.clients.forEach((client) => {
       client.send(JSON.stringify(result));
     });
+  };
+
+  reorder = (unordered: Args): Args => {
+    const ordered: Args = {};
+    for (const fakeType in unordered) {
+      const filename = unordered[fakeType];
+      const type = { ".sub": "substance", ".sty": "style", ".dsl": "domain" }[
+        path.extname(filename)
+      ];
+      if (!type) {
+        console.error(`❌ Unrecognized file extension: ${filename}`);
+        this.exit(1);
+      }
+      if (type in ordered) {
+        console.error(
+          `❌ Duplicate ${type} files: ${ordered[type]} and ${filename}`
+        );
+        this.exit(1);
+      }
+      ordered[type] = filename;
+    }
+    return ordered;
   };
 
   readFile = async (fileName: string) => {
@@ -104,7 +132,8 @@ export default class Watch extends Command {
   };
 
   async run() {
-    const { args, flags } = this.parse(Watch);
+    const { args: unorderedArgs, flags } = this.parse(Watch);
+    const args = this.reorder(unorderedArgs);
 
     console.info(chalk.blue(`💂 starting on port ${flags.port}...`));
 

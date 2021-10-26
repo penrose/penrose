@@ -1,4 +1,9 @@
-import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
+import {
+  checkExpr,
+  checkPredicate,
+  checkVar,
+  disambiguateSubNode,
+} from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict, objDict } from "contrib/Constraints";
 // Dicts (runtime data)
@@ -34,7 +39,7 @@ import {
 } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { VarAD } from "types/ad";
-import { ASTNode, Identifier } from "types/ast";
+import { Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
@@ -76,9 +81,7 @@ import {
 import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
   ApplyConstructor,
-  ApplyFunction,
   ApplyPredicate,
-  Func,
   LabelMap,
   SubExpr,
   SubPredArg,
@@ -88,6 +91,7 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  FExpr,
   Field,
   FieldDict,
   FieldExpr,
@@ -337,8 +341,8 @@ const checkDeclPatternAndMakeEnv = (
   if (isErr(typeErr)) {
     // TODO(errors)
     return addErrSel(selEnv, {
-      tag: "SelectorDeclTypeError",
-      typeName: styType,
+      tag: "TaggedSubstanceError",
+      error: typeErr.error,
     });
   }
 
@@ -1994,41 +1998,39 @@ const insertNames = (trans: Translation): Translation => {
   return mapTrans(trans, insertName);
 };
 
-// Note, this mutates the translation
-const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
-  const insertLabel = (
-    name: string,
-    fieldDict: FieldDict
-  ): [string, FieldDict] => {
-    let labelRes = labels.get(name);
-
-    if (!labelRes) {
-      // We skip here, to avoid putting spurious labels in for namespaces in the translation.
-      return [name, fieldDict];
-    }
-
-    let label;
-    if (labelRes.isJust()) {
-      label = labelRes.value;
-    } else {
-      // TODO: Distinguish between no label and empty label?
-      label = "";
-    }
-
-    fieldDict[LABEL_FIELD] = {
-      tag: "FExpr",
-      contents: {
+/**
+ * Add label strings to the translation, regardless if the Substance object is selected in the Style program
+ * NOTE: this function mutates `trans`.
+ *
+ * @param trans `Translation` without labels
+ * @param labels the label map from the Substance compiler
+ */
+const insertLabels = (trans: Translation, labels: LabelMap): void => {
+  for (const labelData of labels) {
+    const [name, label] = labelData;
+    if (label.isJust()) {
+      const labelString = label.value;
+      const labelValue: TagExpr<VarAD> = {
         tag: "Done",
         contents: {
           tag: "StrV",
-          contents: label,
+          contents: labelString,
         },
-      },
-    };
-    return [name, fieldDict];
-  };
-
-  return mapTrans(trans, insertLabel);
+      };
+      const labelExpr: FieldExpr<VarAD> = {
+        tag: "FExpr",
+        contents: labelValue,
+      };
+      const fieldDict = trans.trMap[name];
+      if (fieldDict !== undefined) {
+        fieldDict[LABEL_FIELD] = labelExpr;
+      } else {
+        trans[name] = {
+          [LABEL_FIELD]: labelExpr,
+        };
+      }
+    }
+  }
 };
 
 const translateStyProg = (
@@ -2053,13 +2055,13 @@ const translateStyProg = (
 
   const trans = res.contents;
   const transWithNames = insertNames(trans);
-  const transWithNamesAndLabels = insertLabels(transWithNames, labelMap);
+  insertLabels(transWithNames, labelMap); // NOTE: mutates `transWithNames`
 
   // COMBAK: Do this with plugins
   // const styValMap = styJsonToMap(styVals);
   // const transWithPlugins = evalPluginAccess(styValMap, transWithNamesAndLabels);
   // return Right(transWithPlugins);
-  return toRight(transWithNamesAndLabels);
+  return toRight(transWithNames);
 };
 
 //#endregion
@@ -2939,44 +2941,6 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
   }
 };
 
-// NOTE: Mutates stmt
-const disambiguateSubNode = (env: Env, stmt: ASTNode) => {
-  stmt.children.forEach((child) => disambiguateSubNode(env, child));
-
-  if (stmt.tag !== "Func") {
-    return;
-  }
-
-  // Lookup name in the env and replace it if it exists, otherwise throw error
-  const func = stmt as Func;
-
-  const isCtor = env.constructors.has(func.name.value);
-  const isFn = env.functions.has(func.name.value);
-  const isPred = env.predicates.has(func.name.value);
-
-  if (isCtor && !isFn && !isPred) {
-    ((func as any) as ApplyConstructor).tag = "ApplyConstructor";
-  } else if (!isCtor && isFn && !isPred) {
-    ((func as any) as ApplyFunction).tag = "ApplyFunction";
-  } else if (!isCtor && !isFn && isPred) {
-    ((func as any) as ApplyPredicate).tag = "ApplyPredicate";
-  } else if (!isCtor && !isFn && !isPred) {
-    throw Error(
-      `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`
-    );
-  } else {
-    throw Error(
-      "Substance internal error: expected val of type Func to be uniquely disambiguable in env, but found multiple"
-    );
-  }
-};
-
-// For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
-// NOTE: mutates Substance AST
-export const disambiguateFunctions = (env: Env, subProg: SubProg) => {
-  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
-};
-
 //#region Checking translation
 
 const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
@@ -3196,10 +3160,6 @@ export const compileStyle = (
   } else {
     return err({ ...astOk.error, errorType: "StyleError" });
   }
-
-  // disambiguate Func into the right form in Substance grammar #453 -- mutates Substance AST since children are references
-  disambiguateFunctions(varEnv, subProg);
-
   const labelMap = subEnv.labels;
 
   // Name anon statements
