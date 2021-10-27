@@ -4,11 +4,15 @@ import {
   stateConverged,
   PenroseState,
   RenderStatic,
+  prepareState,
+  compileTrio,
+  stepUntilConvergence,
+  showError,
 } from "@penrose/core";
 import * as React from "react";
 import styled from "styled-components";
-import Logo from "ui/icons/Logo";
-import Resample from "ui/icons/Resample";
+import Logo from "./icons/Logo";
+import Resample from "./icons/Resample";
 
 const EmbedContainer = styled.div`
   position: relative;
@@ -37,17 +41,58 @@ const Text = styled.p`
 `;
 
 interface IEmbedState {
-  data: PenroseState;
+  data: PenroseState | undefined;
 }
 
-class Embed extends React.Component<any, IEmbedState> {
+interface IEmbedProps {
+  domain: string;
+  substance: string;
+  style: string;
+  initState?: PenroseState;
+}
+
+class Embed extends React.Component<IEmbedProps, IEmbedState> {
   // NOTE: assume an initial state passed in upon mounting
-  constructor(props: IEmbedState) {
+  constructor(props: IEmbedProps) {
     super(props);
-    this.state = { data: props.data };
-    // step until convergence
-    this.step();
+    const { initState } = props;
+    if (initState) {
+      this.state = { data: initState };
+      // step until convergence
+      this.step();
+    } else {
+      this.state = { data: undefined };
+    }
   }
+
+  async componentDidMount() {
+    if (!this.state.data) {
+      const state = await this.getInitState(
+        this.props.domain,
+        this.props.substance,
+        this.props.style
+      );
+      this.setState({ data: state });
+    }
+  }
+
+  getInitState = async (dsl: string, sub: string, sty: string) => {
+    console.log(compileTrio(dsl, sub, sty));
+
+    const compilerResult = compileTrio(dsl, sub, sty);
+    if (compilerResult.isOk()) {
+      // return compilerResult.value;
+      const initState: PenroseState = await prepareState(compilerResult.value);
+      const stepped = stepUntilConvergence(initState);
+      if (stepped.isOk()) {
+        return stepped.value;
+      } else {
+        console.log(showError(stepped.error));
+      }
+    } else {
+      console.log(showError(compilerResult.error));
+    }
+  };
 
   public onCanvasState = async (canvasState: PenroseState) => {
     // HACK: this will enable the "animation" that we normally expect
@@ -82,6 +127,9 @@ class Embed extends React.Component<any, IEmbedState> {
 
   public render() {
     const { data } = this.state;
+    if (!data) {
+      return <div>rendering...</div>;
+    }
     return (
       <EmbedContainer>
         <EmbedFooter>

@@ -13,6 +13,7 @@ build({
   ...common,
   outfile: "./build/dist/index.esm.js",
   format: "esm",
+  minify: false,
   run: "yarn run build-decls",
 });
 

@@ -664,7 +664,10 @@ export const resolvePath = (
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal = varyingMap?.get(prettyPrintPath(path));
+  let varyingVal;
+  if (varyingMap) {
+    varyingVal = varyingMap.get(prettyPrintPath(path));
+  }
 
   if (varyingVal) {
     return floatVal(varyingVal);
@@ -743,7 +746,10 @@ export const resolvePath = (
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
-            varyingVal = varyingMap?.get(prettyPrintPath(propertyPath));
+            let varyingVal;
+            if (varyingMap) {
+              varyingVal = varyingMap.get(prettyPrintPath(propertyPath));
+            }
             if (varyingVal) {
               return { tag: "FloatV", contents: varyingVal };
             } else {
