@@ -1,12 +1,4 @@
-import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import {
-  RenderStatic,
-  stepUntilConvergence,
-  prepareState,
-  compileTrio,
-  PenroseState,
-} from "@penrose/core";
 
 import Embed from "../Embed";
 
@@ -206,9 +198,9 @@ const Template: ComponentStory<typeof Embed> = (args) => <Embed {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = {
-  domain: dsl,
-  substance: sub,
-  style: sty,
+  domainString: dsl,
+  substanceString: sub,
+  styleString: sty,
 };
 
 // export const Primary = Template.bind({});

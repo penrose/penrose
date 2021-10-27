@@ -40,7 +40,8 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/@types/jest"
+      "**/@types/jest",
+      "**/babel-loader"
     ]
   },
   "version": "0.0.0"

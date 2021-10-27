@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import Embed from "./Embed";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ margin: "0 auto", width: "50%", height: "50%" }}>
+      <Embed
+        styleString={`
+        AutoLabel All
+        Set A`}
+        substanceString={`
+        canvas {
+          width = 800
+          height = 700
+        }
+        Set X { X.shape = Circle {} }`}
+        domainString={"type Set"}
+      />
     </div>
   );
-}
+};
 
 export default App;
