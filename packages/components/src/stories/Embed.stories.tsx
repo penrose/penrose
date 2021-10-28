@@ -194,35 +194,15 @@ export default {
 } as ComponentMeta<typeof Embed>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Embed> = (args) => <Embed {...args} />;
+const Template: ComponentStory<typeof Embed> = (args) => (
+  <div style={{ width: "50%", height: "50%" }}>
+    <Embed {...args} />
+  </div>
+);
 
-export const Primary = Template.bind({});
-Primary.args = {
+export const ContinuousMap = Template.bind({});
+ContinuousMap.args = {
   domainString: dsl,
   substanceString: sub,
   styleString: sty,
 };
-
-// export const Primary = Template.bind({});
-// // More on args: https://storybook.js.org/docs/react/writing-stories/args
-// Primary.args = {
-//   primary: true,
-//   label: "Button",
-// };
-
-// export const Secondary = Template.bind({});
-// Secondary.args = {
-//   label: "Button",
-// };
-
-// export const Large = Template.bind({});
-// Large.args = {
-//   size: "large",
-//   label: "Button",
-// };
-
-// export const Small = Template.bind({});
-// Small.args = {
-//   size: "small",
-//   label: "Button",
-// };

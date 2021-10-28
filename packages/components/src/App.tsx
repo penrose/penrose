@@ -7,10 +7,10 @@ const App = () => {
   return (
     <div style={{ margin: "0 auto", width: "50%", height: "50%" }}>
       <Embed
-        styleString={`
+        substanceString={`
         AutoLabel All
         Set A`}
-        substanceString={`
+        styleString={`
         canvas {
           width = 800
           height = 700
