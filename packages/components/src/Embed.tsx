@@ -8,7 +8,6 @@ import {
   stateConverged,
   stepUntilConvergence,
 } from "@penrose/core";
-import * as React from "react";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Logo from "./icons/Logo";
@@ -53,7 +52,6 @@ interface IEmbedProps {
 }
 
 const Embed = (props: IEmbedProps) => {
-  // const canvasRef = React.createRef<HTMLDivElement>();
   const [state, setState] = useState(undefined as PenroseState | undefined);
   useEffect(() => {
     const { domainString, substanceString, styleString } = props;
@@ -89,7 +87,6 @@ const Embed = (props: IEmbedProps) => {
 
   const canvasRef = (node: HTMLDivElement) => {
     if (node !== null && state) {
-      console.log("Attached node: ", node);
       if (!stateConverged(state)) {
         setState(stepUntilConvergence(state).unsafelyUnwrap());
       }
@@ -105,23 +102,14 @@ const Embed = (props: IEmbedProps) => {
     }
   };
 
-  const updateState = (state: PenroseState): void => {
-    console.log(state);
-    setState(state);
-  };
+  const updateState = (state: PenroseState): void => setState(state);
 
   if (!state) {
     return <div>rendering...</div>;
   }
   return (
     <EmbedContainer>
-      <div
-        style={{ width: "100%", height: "100%" }}
-        ref={canvasRef}
-        // dangerouslySetInnerHTML={{
-        //   __html: RenderInteractive(state, updateState).outerHTML,
-        // }}
-      />
+      <div style={{ width: "100%", height: "100%" }} ref={canvasRef} />
       <EmbedFooter>
         <Logo width={24} color={"white"} />
 
