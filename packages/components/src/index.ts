@@ -1,2 +1,4 @@
+import Simple from "./Simple";
+
+export { Simple };
 export { Embed } from "./Embed";
-export { Simple } from "./Simple";

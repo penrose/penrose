@@ -1,14 +1,26 @@
 #!/usr/bin/env node
 const { build } = require("estrella");
+const common = {
+  entry: "./src/index.ts",
+  bundle: true,
+  sourcemap: "inline",
+  keepNames: true,
+  tsconfig: "./tsconfig.json",
+  // platform: "browser",
+};
+build({
+  ...common,
+  outfile: "./dist/index.esm.js",
+  format: "esm",
+  minify: false,
+});
 
 build({
-  sourcemap: "inline",
-  format: "esm",
-  keepNames: true,
-  minify: false,
-  tsconfig: "./tsconfig.json",
-  entry: "./src/index.ts",
+  ...common,
   outfile: "./dist/index.js",
-  platform: "browser",
-  bundle: true,
+  format: "cjs",
+  minify: false,
+  define: {
+    global: "globalThis",
+  },
 });

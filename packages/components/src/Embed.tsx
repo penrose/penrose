@@ -1,3 +1,4 @@
+import React from "react";
 import {
   compileTrio,
   PenroseState,
@@ -8,41 +9,40 @@ import {
   stateConverged,
   stepUntilConvergence,
 } from "@penrose/core";
-import { useEffect, useState } from "react";
-import styled from "styled-components";
 import Logo from "./icons/Logo";
 import Resample from "./icons/Resample";
+// import styled from "styled-components";
 
-const EmbedContainer = styled.div`
-  position: relative;
-  border-radius: 10px;
-  border: 0.5px solid rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-`;
+// const EmbedContainer = styled.div`
+//   position: relative;
+//   border-radius: 10px;
+//   border: 0.5px solid rgba(0, 0, 0, 0.2);
+//   box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
+//   overflow: hidden;
+// `;
 
-const EmbedFooter = styled.div`
-  display: flex;
-  overflow: hidden;
-  justify-content: space-between;
-  padding: 0 1em;
-  align-items: center;
-  background-color: #40b4f7;
-  border-radius: 0 0 9px 9px;
-`;
+// const EmbedFooter = styled.div`
+//   display: flex;
+//   overflow: hidden;
+//   justify-content: space-between;
+//   padding: 0 1em;
+//   align-items: center;
+//   background-color: #40b4f7;
+//   border-radius: 0 0 9px 9px;
+// `;
 
-const Text = styled.p`
-  font-family: "Open Sans", sans-serif;
-  color: white;
-  margin: 0.7em;
-  font-weight: lighter;
-  font-size: smaller;
-`;
+// const Text = styled.p`
+//   font-family: "Open Sans", sans-serif;
+//   color: white;
+//   margin: 0.7em;
+//   font-weight: lighter;
+//   font-size: smaller;
+// `;
 
-const A = styled.a`
-  font-family: "Open Sans", sans-serif;
-  color: white;
-`;
+// const A = styled.a`
+//   font-family: "Open Sans", sans-serif;
+//   color: white;
+// `;
 
 interface IEmbedProps {
   domainString: string;
@@ -51,81 +51,113 @@ interface IEmbedProps {
   initState?: PenroseState;
 }
 
-const Embed = (props: IEmbedProps) => {
-  const [state, setState] = useState<PenroseState | undefined>(undefined);
-  useEffect(() => {
-    const { domainString, substanceString, styleString } = props;
-    const getInitState = async (dsl: string, sub: string, sty: string) => {
-      const compilerResult = compileTrio(dsl, sub, sty);
-      if (compilerResult.isOk()) {
-        const initState: PenroseState = await prepareState(
-          compilerResult.value
+interface IEmbedState {
+  state?: PenroseState;
+}
+
+class Embed extends React.Component<IEmbedProps, IEmbedState> {
+  public readonly canvasRef = React.createRef<HTMLDivElement>();
+  constructor(props: IEmbedProps) {
+    super(props);
+    this.state = { state: undefined };
+  }
+  getInitState = async (
+    dsl: string,
+    sub: string,
+    sty: string
+  ): Promise<PenroseState | undefined> => {
+    const compilerResult = compileTrio(dsl, sub, sty);
+    if (compilerResult.isOk()) {
+      const initState: PenroseState = await prepareState(compilerResult.value);
+      const stepped = stepUntilConvergence(initState);
+      if (stepped.isOk()) {
+        return stepped.value;
+      } else {
+        console.log(showError(stepped.error));
+      }
+    } else {
+      console.log(showError(compilerResult.error));
+    }
+  };
+  componentDidMount = async () => {
+    const { substanceString, styleString, domainString } = this.props;
+    const state: PenroseState | undefined = await this.getInitState(
+      domainString,
+      substanceString,
+      styleString
+    );
+    console.log(state);
+    this.setState({ state });
+    this.renderCanvas(state);
+  };
+
+  renderCanvas = (state: PenroseState | undefined) => {
+    if (this.canvasRef.current === null) {
+      return <div>rendering...</div>;
+    } else {
+      const node = this.canvasRef.current;
+      if (state) {
+        // if (!stateConverged(state)) {
+        const newState = stepUntilConvergence(state).unsafelyUnwrap();
+        this.setState({
+          state: newState,
+        });
+        // }
+        const renderedState: SVGSVGElement = RenderInteractive(
+          newState,
+          this.updateState
         );
-        const stepped = stepUntilConvergence(initState);
-        if (stepped.isOk()) {
-          setState(stepped.value);
+        if (node.firstChild !== null) {
+          node.replaceChild(renderedState, node.firstChild);
         } else {
-          console.log(showError(stepped.error));
+          node.appendChild(renderedState);
         }
       } else {
-        console.log(showError(compilerResult.error));
+        console.log("state is undefined");
       }
-    };
-    if (!state) {
-      getInitState(domainString, substanceString, styleString);
     }
-  });
+  };
 
-  const resampleState = (): void => {
+  updateState = (state: PenroseState): void => {
+    this.setState({ state });
+    this.renderCanvas(state);
+  };
+
+  resampleState = (): void => {
     const NUM_SAMPLES = 1;
-    const oldState = state;
+    const { state: oldState } = this.state;
     if (oldState) {
       const resampled = resample(oldState, NUM_SAMPLES);
       const converged = stepUntilConvergence(resampled);
-      setState(converged.unsafelyUnwrap());
+      this.setState({ state: converged.unsafelyUnwrap() });
     }
   };
 
-  const canvasRef = (node: HTMLDivElement) => {
-    if (node !== null && state) {
-      if (!stateConverged(state)) {
-        setState(stepUntilConvergence(state).unsafelyUnwrap());
-      }
-      const renderedState: SVGSVGElement = RenderInteractive(
-        state,
-        updateState
-      );
-      if (node.firstChild !== null) {
-        node.replaceChild(renderedState, node.firstChild);
-      } else {
-        node.appendChild(renderedState);
-      }
-    }
+  render = () => {
+    return (
+      <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
+    );
+    // return (
+    //   <EmbedContainer>
+    //     {/* <div style={{ width: "100%", height: "100%" }} ref={canvasRef} /> */}
+    //     <div style={{ width: "100%", height: "100%" }} />
+    //     <EmbedFooter>
+    //       <Logo width={24} color={"white"} />
+
+    //       <Text>
+    //         Generated by <A href="http://www.penrose.ink/">Penrose</A> with{" "}
+    //         <span role="img" aria-label="heart">
+    //           💜
+    //         </span>
+    //       </Text>
+    //       <div onClick={this.resampleState}>
+    //         {/* <div> */}
+    //         <Resample size={24} color={"white"} />
+    //       </div>
+    //     </EmbedFooter>
+    //   </EmbedContainer>
+    // );
   };
-
-  const updateState = (state: PenroseState): void => setState(state);
-
-  if (!state) {
-    return <div>rendering...</div>;
-  }
-  return (
-    <EmbedContainer>
-      <div style={{ width: "100%", height: "100%" }} ref={canvasRef} />
-      <EmbedFooter>
-        <Logo width={24} color={"white"} />
-
-        <Text>
-          Generated by <A href="http://www.penrose.ink/">Penrose</A> with{" "}
-          <span role="img" aria-label="heart">
-            💜
-          </span>
-        </Text>
-        <div onClick={resampleState}>
-          <Resample size={24} color={"white"} />
-        </div>
-      </EmbedFooter>
-    </EmbedContainer>
-  );
-};
+}
 
 export { Embed };
