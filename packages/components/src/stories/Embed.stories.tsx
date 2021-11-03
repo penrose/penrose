@@ -1,6 +1,6 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 
-import Embed from "../Embed";
+import { Embed } from "../Embed";
 
 const sub = `
 AutoLabel All

@@ -1,1 +1,2 @@
-export * from "./Embed";
+export { Embed } from "./Embed";
+export { Simple } from "./Simple";

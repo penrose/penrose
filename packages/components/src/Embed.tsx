@@ -52,28 +52,29 @@ interface IEmbedProps {
 }
 
 const Embed = (props: IEmbedProps) => {
-  const [state, setState] = useState(undefined as PenroseState | undefined);
+  const [state, setState] = useState<PenroseState | undefined>(undefined);
   useEffect(() => {
     const { domainString, substanceString, styleString } = props;
+    const getInitState = async (dsl: string, sub: string, sty: string) => {
+      const compilerResult = compileTrio(dsl, sub, sty);
+      if (compilerResult.isOk()) {
+        const initState: PenroseState = await prepareState(
+          compilerResult.value
+        );
+        const stepped = stepUntilConvergence(initState);
+        if (stepped.isOk()) {
+          setState(stepped.value);
+        } else {
+          console.log(showError(stepped.error));
+        }
+      } else {
+        console.log(showError(compilerResult.error));
+      }
+    };
     if (!state) {
       getInitState(domainString, substanceString, styleString);
     }
   });
-
-  const getInitState = async (dsl: string, sub: string, sty: string) => {
-    const compilerResult = compileTrio(dsl, sub, sty);
-    if (compilerResult.isOk()) {
-      const initState: PenroseState = await prepareState(compilerResult.value);
-      const stepped = stepUntilConvergence(initState);
-      if (stepped.isOk()) {
-        setState(stepped.value);
-      } else {
-        console.log(showError(stepped.error));
-      }
-    } else {
-      console.log(showError(compilerResult.error));
-    }
-  };
 
   const resampleState = (): void => {
     const NUM_SAMPLES = 1;
@@ -127,4 +128,4 @@ const Embed = (props: IEmbedProps) => {
   );
 };
 
-export default Embed;
+export { Embed };
