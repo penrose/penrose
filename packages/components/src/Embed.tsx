@@ -86,7 +86,6 @@ class Embed extends React.Component<IEmbedProps, IEmbedState> {
       substanceString,
       styleString
     );
-    console.log(state);
     this.setState({ state });
     this.renderCanvas(state);
   };

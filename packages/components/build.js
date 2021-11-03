@@ -21,6 +21,6 @@ build({
   format: "cjs",
   minify: false,
   define: {
-    global: "globalThis",
+    global: "globalThis", // HACK: `eigen` somehow uses `global`, overwriting it with anything will make it work (?). Need to figure out how to do polyfill
   },
 });
