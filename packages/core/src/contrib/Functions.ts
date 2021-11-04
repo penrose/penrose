@@ -211,24 +211,24 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `d` (in degrees).
+   * Return the cosine of input `rad` (in radians).
    */
-  cos: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  cos: (rad: VarAD): IFloatV<VarAD> => {
+    // Accepts radians
     return {
       tag: "FloatV",
-      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      contents: cos(rad),
     };
   },
 
   /**
-   * Return the sine of input `d` (in degrees).
+   * Return the sine of input `rad` (in radians).
    */
-  sin: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  sin: (rad: VarAD): IFloatV<VarAD> => {
+    // Accepts radians
     return {
       tag: "FloatV",
-      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      contents: sin(rad),
     };
   },
 
