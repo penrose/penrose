@@ -1,9 +1,9 @@
 name: Publish Storybook
 on:
   push:
-    paths: ["packages/components/stories/**", "packages/components/src/**"]
-    # branches:
-    #   - main
+    paths: ["packages/components/src/stories/**", "packages/components/src/**"]
+    branches:
+      - main
 defaults:
   run:
     working-directory: ./packages/components

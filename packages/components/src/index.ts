@@ -1,4 +1,4 @@
-import Simple from "./Simple";
+import { Simple } from "./Simple";
+import { Embed } from "./Embed";
 
-export { Simple };
-export { Embed } from "./Embed";
+export { Simple, Embed };
