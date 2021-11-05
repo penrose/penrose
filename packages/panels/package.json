@@ -23,7 +23,7 @@
     "start": "react-scripts start",
     "watch-fast": "node estrella.js -w",
     "build": "react-scripts build",
-    "test": "react-scripts test --passWithNoTests",
+    "test": "echo NO TESTS",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
