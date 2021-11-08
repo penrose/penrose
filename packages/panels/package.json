@@ -2,9 +2,7 @@
   "name": "@penrose/panels",
   "version": "0.1.0",
   "private": true,
-  "main": "build/dist/module.js",
-  "module": "build/dist/module.js",
-  "types": "build/dist/types.js",
+  "main": "public/app.js",
   "license": "MIT",
   "dependencies": {
     "@monaco-editor/react": "^4.0.11",
@@ -20,8 +18,8 @@
     "styled-components": "4.4.1"
   },
   "scripts": {
-    "start": "node estrella.js -w",
-    "build": "node estrella.js",
+    "start": "node build.js -w",
+    "build": "node build.js",
     "test": "echo NO TESTS"
   },
   "eslintConfig": {
