@@ -1,6 +1,7 @@
 version: 2.1
 jobs:
   build:
+    resource_class: large
     docker:
       - image: circleci/node:12.19.0
     steps:

@@ -12,7 +12,7 @@ canvas {
   height = 500
 }
 Set X {
-  X.shape = Circle { }
+  X.shape = Circle { strokeWidth : 0 }
   X.text  = Text { string: X.label }
   ensure contains(X.shape, X.text)
   ensure maxSize(X.shape, canvas.width / 2)
