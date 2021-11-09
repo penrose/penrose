@@ -62,7 +62,7 @@ export const stepState = (state: State, numSteps = 10000): State => {
 export const stepUntilConvergence = (
   state: State,
   numSteps = 10000
-): Result<State, RuntimeError> => {
+): Result<State, PenroseError> => {
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
