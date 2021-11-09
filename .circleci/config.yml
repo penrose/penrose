@@ -56,6 +56,7 @@ jobs:
   canary_release:
     docker:
       - image: circleci/node:12.19.0
+    resource_class: large
     steps:
       - checkout:
           path: ~/penrose
