@@ -22,11 +22,11 @@ const containerStyle: CSSProperties = {
   overflow: "hidden",
 };
 
-const textStyle = {
+const textStyle: CSSProperties = {
   fontFamily: '"Open Sans", sans-serif',
   color: "white",
   margin: "0.7em",
-  // fontWeight: "lighter",
+  fontWeight: "lighter",
   fontSize: "smaller",
 };
 
