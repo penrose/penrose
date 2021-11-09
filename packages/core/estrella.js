@@ -4,7 +4,6 @@ const common = {
   entry: "./src/index.ts",
   bundle: true,
   sourcemap: "inline",
-  keepNames: true,
   tsconfig: "./tsconfig.json",
   platform: "browser",
   external: ["path", "fs", "crypto"],
@@ -23,6 +22,5 @@ build({
   platform: "node",
   minify: false,
   format: "cjs",
-  // silent: true,
   sourcemap: "both",
 });
