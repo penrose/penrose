@@ -6,6 +6,9 @@ const common = {
   sourcemap: "inline",
   keepNames: true,
   tsconfig: "./tsconfig.json",
+  define: {
+    global: "globalThis", // HACK: `eigen` somehow uses `global`, overwriting it with anything will make it work (?). Need to figure out how to do polyfill
+  },
   // platform: "browser",
 };
 build({
@@ -20,7 +23,4 @@ build({
   outfile: "./dist/index.js",
   format: "cjs",
   minify: false,
-  define: {
-    global: "globalThis", // HACK: `eigen` somehow uses `global`, overwriting it with anything will make it work (?). Need to figure out how to do polyfill
-  },
 });
