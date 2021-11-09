@@ -9,6 +9,7 @@
     "build": "lerna run build --stream --concurrency 1",
     "clean": "lerna clean && lerna exec -- rimraf build",
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
+    "build:ide": "lerna run build --stream --scope=@penrose/panels",
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",
     "lerna": "lerna",
