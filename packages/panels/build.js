@@ -6,14 +6,12 @@ build({
   entry: "./src/index.tsx",
   outfile: "public/app.js",
   bundle: true,
-  sourcemap: "inline",
-  keepNames: true,
-  debug: true,
-  format: "iife",
+  minify: true,
+  sourcemap: true,
   platform: "browser",
   external: ["path", "crypto", "fs"],
   define: {
-    "process.env.NODE_ENV": '"development"',
+    "process.env.NODE_ENV": cliopts.watch ? '"development"' : '"production"',
     global: "window",
   },
   loader: {
