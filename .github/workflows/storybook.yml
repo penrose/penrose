@@ -22,6 +22,9 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install packages
         run: yarn
+      - name: Build core
+        run: yarn build
+        working-directory: ./packages/core
       - name: Build storybook
         run: yarn build-storybook
       - name: Deploy docs
