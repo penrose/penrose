@@ -39,6 +39,7 @@ constructor MkCircleR : Point center * Point radius -> Circle
 
 -- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
 -- Lines and Points
+function Bisector : InteriorAngle -> Ray
 function PerpendicularBisector : Segment * Point -> Segment
 function PerpendicularBisectorLabelPts : Segment * Point * Point -> Segment -- same as PerpendicularBisector but it takes a segment + 2 points as args for labeling
 

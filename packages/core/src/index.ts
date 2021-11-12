@@ -336,6 +336,8 @@ export {
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";
+export { objDict, constrDict } from "./contrib/Constraints";
+export { compDict } from "./contrib/Functions";
 export type { Registry, Trio };
 export type { Env };
 export type {
