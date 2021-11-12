@@ -17,7 +17,8 @@
     "styled-components": "4.4.1"
   },
   "scripts": {
-    "start": "node build.js -w",
+    "start": "yarn watch",
+    "watch": "node build.js -w",
     "build": "node build.js",
     "test": "echo NO TESTS",
     "prepack": "yarn build"
