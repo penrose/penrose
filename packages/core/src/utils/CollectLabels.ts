@@ -27,7 +27,7 @@ const tex = new TeX({
   ],
   processEscapes: true,
 });
-const svg = new SVG({ fontCache: "none" });
+const svg = new SVG({ fontCache: "local" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
 // to re-scale baseline
@@ -49,29 +49,31 @@ const convert = (input: string, fontSize: string) => {
  * Call MathJax to render __non-empty__ labels.
  * NOTE: this function is memoized.
  */
-const tex2svg = memoize(
-  async (contents: string, name: string, fontSize: string): Promise<any> =>
-    new Promise((resolve) => {
-      const output = convert(contents, fontSize);
-      if (!output) {
-        console.error(`MathJax could not render ${contents}`);
-        resolve({ output: undefined, width: 0, height: 0 });
-        return;
-      }
-      // console.log(output);
-      // console.log(output.viewBox.baseVal);
-      const viewBox = output.getAttribute("viewBox")!.split(" ");
-      const width = parseFloat(viewBox[2]);
-      const height = parseFloat(viewBox[3]);
+const tex2svg = async (
+  contents: string,
+  name: string,
+  fontSize: string
+): Promise<any> =>
+  new Promise((resolve) => {
+    const output = convert(contents, fontSize);
+    if (!output) {
+      console.error(`MathJax could not render ${contents}`);
+      resolve({ output: undefined, width: 0, height: 0 });
+      return;
+    }
+    // console.log(output);
+    // console.log(output.viewBox.baseVal);
+    const viewBox = output.getAttribute("viewBox")!.split(" ");
+    const width = parseFloat(viewBox[2]);
+    const height = parseFloat(viewBox[3]);
 
-      // rescaling according to
-      // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-      const vAlignFloat = parseFloat(output.style.verticalAlign) * EX_CONSTANT;
-      const constHeight = parseFloat(fontSize) - vAlignFloat;
-      const scaledWidth = (constHeight / height) * width;
-      resolve({ body: output, width: scaledWidth, height: constHeight });
-    })
-);
+    // rescaling according to
+    // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
+    const vAlignFloat = parseFloat(output.style.verticalAlign) * EX_CONSTANT;
+    const constHeight = parseFloat(fontSize) - vAlignFloat;
+    const scaledWidth = (constHeight / height) * width;
+    resolve({ body: output, width: scaledWidth, height: constHeight });
+  });
 
 export const retrieveLabel = (
   shapeName: string,

@@ -1,4 +1,4 @@
-import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -37,6 +37,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
+import { isRectlike } from "renderer/ShapeDef";
 
 /**
  * Static dictionary of computation functions
