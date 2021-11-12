@@ -70,7 +70,6 @@ export const DraggableShape = (
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const { shapeType } = shapeProps.shape;
   if (isLinelike(shapeType)) {
-    console.log(shapeProps.shape);
     g.setAttribute("pointer-events", "visibleStroke");
   } else if (isRectlike(shapeType)) {
     g.setAttribute("pointer-events", "bounding-box");
