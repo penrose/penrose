@@ -27,29 +27,10 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
+import { isLinelike, isRectlike } from "renderer/ShapeDef";
 import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
-
-// Kinds of shapes
-/**
- * Takes a `shapeType`, returns whether it's rectlike. (excluding squares)
- */
-export const isRectlike = (shapeType: string): boolean => {
-  return (
-    shapeType == "Rectangle" ||
-    shapeType == "Square" ||
-    shapeType == "Image" ||
-    shapeType == "Text"
-  );
-};
-
-/**
- * Takes a `shapeType`, returns whether it's linelike.
- */
-export const isLinelike = (shapeType: string): boolean => {
-  return shapeType == "Line" || shapeType == "Arrow";
-};
 
 export const objDict = {
   /**
