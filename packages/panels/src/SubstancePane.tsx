@@ -4,16 +4,13 @@ import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { monacoOptions } from "./Util";
 import { useCallback, useEffect } from "react";
 import {
-  StyleCompletions,
-  StyleConfig,
-  StyleLanguageTokens,
   SubstanceCompletions,
   SubstanceConfig,
   SubstanceLanguageTokens,
-} from "./languageConfigs";
+} from "./languages/SubstanceConfig";
 import { IRange } from "monaco-editor";
 
-const SubPane = ({
+const SubstancePane = ({
   value,
   domainCache,
   dispatch,
@@ -77,4 +74,4 @@ const SubPane = ({
   );
 };
 
-export default SubPane;
+export default SubstancePane;
