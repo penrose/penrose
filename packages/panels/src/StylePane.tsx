@@ -7,7 +7,7 @@ import {
   StyleCompletions,
   StyleConfig,
   StyleLanguageTokens,
-} from "./languageConfigs";
+} from "./languages/StyleConfig";
 import { IRange } from "monaco-editor";
 
 const StylePane = ({

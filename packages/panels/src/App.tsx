@@ -27,7 +27,8 @@ import AuthorshipTitle from "./components/AuthorshipTitle";
 import BlueButton from "./components/BlueButton";
 import { useParams } from "react-router-dom";
 import StylePane from "./StylePane";
-import SubPane from "./SubPane";
+import SubstancePane from "./SubstancePane";
+import DomainPane from "./DomainPane";
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -271,7 +272,7 @@ function App({ location }: any) {
       >
         <ColumnContainer show={state.openPanes.sub} numOpen={numOpen}>
           {
-            <SubPane
+            <SubstancePane
               value={state.currentInstance.sub}
               domainCache={state.currentInstance.domainCache}
               numOpen={numOpen}
@@ -289,18 +290,13 @@ function App({ location }: any) {
           }
         </ColumnContainer>
         <ColumnContainer show={state.openPanes.dsl} numOpen={numOpen}>
-          <MonacoEditor
-            value={state.currentInstance.dsl}
-            onChange={(content) =>
-              dispatch({
-                kind: "CHANGE_CODE",
-                lang: "dsl",
-                content: content as string,
-              })
-            }
-            width={`${window.innerWidth / numOpen}px`}
-            options={monacoOptions}
-          />
+          {
+            <DomainPane
+              value={state.currentInstance.dsl}
+              numOpen={numOpen}
+              dispatch={dispatch}
+            />
+          }
         </ColumnContainer>
         <ColumnContainer show={state.openPanes.preview} numOpen={numOpen}>
           <div
