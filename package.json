@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "husky": "^4.3.8",
+    "husky": "^7.0.4",
     "lerna": "^3.22.1",
     "prettier": "2.2.1",
     "pretty-quick": "^3.1.0",
@@ -34,7 +34,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test && pretty-quick --staged"
+      "pre-push": "yarn test && pretty-quick --staged"
     }
   },
   "workspaces": {
