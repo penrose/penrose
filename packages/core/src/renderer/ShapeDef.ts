@@ -221,7 +221,7 @@ export const polygonDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => black],
     color: ["ColorV", colorSampler],
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", constValue("FloatV", 1)],
@@ -369,9 +369,8 @@ export const lineDef: ShapeDef = {
     rightArrowhead: ["BoolV", constValue("BoolV", false)],
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
     arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
-    color: ["ColorV", colorSampler],
     style: ["StrV", constValue("StrV", "solid")],
-    stroke: ["StrV", constValue("StrV", "none")],
+    stroke: ["ColorV", () => black],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultLine")],
   },
@@ -394,7 +393,7 @@ export const arrowDef: ShapeDef = {
   positionalProps: ["start", "end"],
 };
 
-export const curveDef: ShapeDef = {
+export const pathDef: ShapeDef = {
   shapeType: "Path",
   properties: {
     path: ["PtListV", constValue("PtListV", [])],
@@ -404,7 +403,7 @@ export const curveDef: ShapeDef = {
     style: ["StrV", constValue("StrV", "solid")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     effect: ["StrV", constValue("StrV", "none")],
-    color: ["ColorV", colorSampler],
+    color: ["ColorV", () => black],
     fill: ["ColorV", colorSampler],
     leftArrowhead: ["BoolV", constValue("BoolV", false)],
     rightArrowhead: ["BoolV", constValue("BoolV", false)],
@@ -428,7 +427,7 @@ export const shapedefs: ShapeDef[] = [
   polylineDef,
   pathStringDef,
   squareDef,
-  curveDef,
+  pathDef,
   imageDef,
   lineDef,
   arrowDef,

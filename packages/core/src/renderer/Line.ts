@@ -10,10 +10,10 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
-  const color = toHex(shape.properties.color.contents);
+  const stroke = toHex(shape.properties.stroke.contents);
   const thickness = (shape.properties.thickness as IFloatV<number>).contents;
   const strokeDasharray = style === "dashed" ? "7, 5" : "";
-  const opacity = (shape.properties.color as IColorV<number>).contents
+  const opacity = (shape.properties.stroke as IColorV<number>).contents
     .contents[3];
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
@@ -23,10 +23,10 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
 
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   elem.appendChild(
-    arrowHead(leftArrowId, color, opacity, arrowheadStyle, arrowheadSize)
+    arrowHead(leftArrowId, stroke, opacity, arrowheadStyle, arrowheadSize)
   );
   elem.appendChild(
-    arrowHead(rightArrowId, color, opacity, arrowheadStyle, arrowheadSize)
+    arrowHead(rightArrowId, stroke, opacity, arrowheadStyle, arrowheadSize)
   );
   const pathElem = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -35,7 +35,7 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   pathElem.setAttribute("d", path);
   pathElem.setAttribute("fill-opacity", opacity.toString());
   pathElem.setAttribute("stroke-opacity", opacity.toString());
-  pathElem.setAttribute("stroke", color);
+  pathElem.setAttribute("stroke", stroke);
   pathElem.setAttribute("stroke-width", thickness.toString());
   // factor out an AttrHelper
   if (
