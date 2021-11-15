@@ -332,7 +332,9 @@ function App({ location }: any) {
                 boxSizing: "border-box",
               }}
             >
-              <pre>{showError(state.currentInstance.err).toString()}</pre>
+              <pre style={{ whiteSpace: "pre-wrap" }}>
+                {showError(state.currentInstance.err).toString()}
+              </pre>
             </div>
           )}
         </ColumnContainer>
