@@ -62,7 +62,7 @@ export const stepState = (state: State, numSteps = 10000): State => {
 export const stepUntilConvergence = (
   state: State,
   numSteps = 10000
-): Result<State, RuntimeError> => {
+): Result<State, PenroseError> => {
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
@@ -336,6 +336,8 @@ export {
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";
+export { objDict, constrDict } from "./contrib/Constraints";
+export { compDict } from "./contrib/Functions";
 export type { Registry, Trio };
 export type { Env };
 export type {

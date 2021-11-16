@@ -254,7 +254,7 @@ export const cascadingDelete = (dec: Bind | Decl, prog: SubProg): SubStmt[] => {
   const ids = [dec.tag === "Bind" ? dec.variable : dec.name]; // stack of variables to delete
   const removedStmts: Set<SubStmt> = new Set();
   while (ids.length > 0) {
-    const id = ids.pop();
+    const id = ids.pop()!;
     // look for statements that take id as arg
     const toDelete = prog.statements.filter((s) => {
       if (s.tag === "Bind") {
@@ -263,7 +263,7 @@ export const cascadingDelete = (dec: Bind | Decl, prog: SubProg): SubStmt[] => {
         // push its return value IF bind will be deleted
         if (willDelete) ids.push(s.variable);
         // delete if arg is found in either return type or args
-        return willDelete || s.variable.value === id?.value;
+        return willDelete || s.variable.value === id.value;
       } else if (s.tag === "ApplyPredicate") {
         return findArg(s, id);
       } else if (s.tag === "Decl") {
@@ -441,7 +441,7 @@ export const cleanNode = (prog: ASTNode): ASTNode => omitDeep(prog, metaProps);
  * @returns
  */
 export const typeOf = (id: string, env: Env): string | undefined =>
-  env.vars.get(id)?.name.value;
+  env.vars.get(id)!.name.value;
 
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {

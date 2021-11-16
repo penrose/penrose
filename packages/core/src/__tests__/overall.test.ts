@@ -54,7 +54,7 @@ describe("End-to-end testing of existing diagrams", () => {
           "utf8"
         );
       } else {
-        fail(res.error);
+        fail(showError(res.error));
       }
     });
   }

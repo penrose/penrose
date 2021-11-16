@@ -447,3 +447,25 @@ export const findDef = (type: string): ShapeDef => {
 };
 
 //#endregion
+
+//#region Shape kind queries
+// Kinds of shapes
+/**
+ * Takes a `shapeType`, returns whether it's rectlike. (excluding squares)
+ */
+export const isRectlike = (shapeType: string): boolean => {
+  return (
+    shapeType == "Rectangle" ||
+    shapeType == "Square" ||
+    shapeType == "Image" ||
+    shapeType == "Text"
+  );
+};
+
+/**
+ * Takes a `shapeType`, returns whether it's linelike.
+ */
+export const isLinelike = (shapeType: string): boolean => {
+  return shapeType == "Line" || shapeType == "Arrow";
+};
+//#endregion

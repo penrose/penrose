@@ -1,5 +1,5 @@
 import * as React from "react";
-import { COLORS } from "ui/styles";
+import { COLORS } from "../styles";
 export default ({
   width,
   color = COLORS.primary,
