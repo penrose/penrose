@@ -31,6 +31,7 @@ import { isLinelike, isRectlike } from "renderer/ShapeDef";
 import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
+import { Shape } from "types/shape";
 
 export const objDict = {
   /**
@@ -705,6 +706,26 @@ export const constrDict = {
       throw new Error("collinear: all input shapes need to have centers");
     }
   },
+  /** Require that `shape` is on the canvas */
+  onCanvas: (
+    [shapeType, props]: any,
+    canvasWidth: VarAD,
+    canvasHeight: VarAD
+  ) => {
+    const box = bboxFromShape(shapeType, props);
+    const canvasXRange: [VarAD, VarAD] = [
+      neg(div(canvasWidth, constOf(2))),
+      div(canvasWidth, constOf(2)),
+    ];
+    const canvasYRange: [VarAD, VarAD] = [
+      neg(div(canvasHeight, constOf(2))),
+      div(canvasHeight, constOf(2)),
+    ];
+    return add(
+      constrDict.contains1D(canvasXRange, BBox.xRange(box)),
+      constrDict.contains1D(canvasYRange, BBox.yRange(box))
+    );
+  },
 };
 
 // -------- Helpers for writing objectives
@@ -1012,19 +1033,20 @@ export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
  *   Assumes line-like shapes are longer than they are thick.
  * Input: A rect- or line-like shape.
  * Output: A new BBox
- * Errors: Throws an error if the input shape is not rect- or line-like.
  */
 export const bboxFromShape = (t: string, s: any): BBox.BBox => {
-  if (!(isRectlike(t) || isLinelike(t))) {
-    throw new Error(
-      `BBox expected a rect-like or line-like shape, but got ${t}`
-    );
-  }
+  // if (!(isRectlike(t) || isLinelike(t))) {
+  //   throw new Error(
+  //     `BBox expected a rect-like or line-like shape, but got ${t}`
+  //   );
+  // }
 
   // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
   let w;
   if (t == "Square") {
     w = s.side.contents;
+  } else if (t == "Circle") {
+    w = mul(s.r.contents, constOf(2));
   } else if (isLinelike(t)) {
     w = max(
       absVal(sub(s.start.contents[0], s.end.contents[0])),
@@ -1037,6 +1059,8 @@ export const bboxFromShape = (t: string, s: any): BBox.BBox => {
   let h;
   if (t == "Square") {
     h = s.side.contents;
+  } else if (t == "Circle") {
+    h = mul(s.r.contents, constOf(2));
   } else if (isLinelike(t)) {
     h = max(
       absVal(sub(s.start.contents[1], s.end.contents[1])),

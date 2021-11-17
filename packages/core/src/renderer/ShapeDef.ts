@@ -451,7 +451,7 @@ export const findDef = (type: string): ShapeDef => {
 //#region Shape kind queries
 // Kinds of shapes
 /**
- * Takes a `shapeType`, returns whether it's rectlike. (excluding squares)
+ * Takes a `shapeType`, returns whether it's rectlike.
  */
 export const isRectlike = (shapeType: string): boolean => {
   return (
