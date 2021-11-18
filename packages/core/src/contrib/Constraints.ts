@@ -1014,6 +1014,9 @@ export const bboxFromShape = (t: string, s: any): BBox.BBox => {
       absVal(sub(s.start.contents[0], s.end.contents[0])),
       s.thickness.contents
     );
+  } else if (t === "Path" || t === "Polygon") {
+    // HACK: handle `Path` and `Polygon`
+    w = constOf(10);
   } else {
     w = s.w.contents;
   }
@@ -1028,6 +1031,9 @@ export const bboxFromShape = (t: string, s: any): BBox.BBox => {
       absVal(sub(s.start.contents[1], s.end.contents[1])),
       s.thickness.contents
     );
+  } else if (t === "Path" || t === "Polygon") {
+    // HACK: handle `Path` and `Polygon`
+    h = constOf(10);
   } else {
     h = s.h.contents;
   }
@@ -1036,6 +1042,9 @@ export const bboxFromShape = (t: string, s: any): BBox.BBox => {
   if (isLinelike(t)) {
     // TODO: Compute the bbox of the line in a nicer way
     center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
+  } else if (t === "Path" || t === "Polygon") {
+    // HACK: handle `Path` and `Polygon`
+    center = [constOf(10), constOf(10)];
   } else {
     center = s.center.contents;
   }

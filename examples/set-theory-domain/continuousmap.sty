@@ -87,7 +87,7 @@ Set `Rn` {
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
 
-    ensure minSize(`Rn`.icon)
+    ensure lessThan(20, `Rn`.icon.side)
 }
 
 Set `Rm`
@@ -110,5 +110,5 @@ with Set `Rn` {
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.icon)
 
-    ensure minSize(`Rm`.icon)
+    ensure lessThan(20, `Rm`.icon.side)
 }
