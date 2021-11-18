@@ -280,44 +280,6 @@ export const constrDict = {
   },
 
   /**
-   * Require that a shape have a size less than some constant maximum, based on the type of the shape.
-   */
-  maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
-    switch (shapeType) {
-      case "Circle":
-        return sub(props.r.contents, div(limit, constOf(2)));
-      case "Square":
-        return sub(props.side.contents, limit);
-      default:
-        // HACK: report errors systematically
-        throw new Error(`${shapeType} doesn't have a maxSize`);
-    }
-  },
-
-  /**
-   * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
-   */
-  minSize: ([shapeType, props]: [string, any]) => {
-    const limit = 20;
-
-    if (isLinelike(shapeType)) {
-      const minLen = 50;
-      const vec = ops.vsub(props.end.contents, props.start.contents);
-      return sub(constOf(minLen), ops.vnorm(vec));
-    }
-
-    switch (shapeType) {
-      case "Circle":
-        return sub(constOf(limit), props.r.contents);
-      case "Square":
-        return sub(constOf(limit), props.side.contents);
-      default:
-        // HACK: report errors systematically
-        throw new Error(`${shapeType} doesn't have a minSize`);
-    }
-  },
-
-  /**
    * Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
    */
   contains1D: ([l1, r1]: [VarAD, VarAD], [l2, r2]: [VarAD, VarAD]): VarAD => {
