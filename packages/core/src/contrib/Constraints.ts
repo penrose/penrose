@@ -27,7 +27,7 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { isLinelike, isRectlike } from "renderer/ShapeDef";
+import { findDef, isLinelike, isRectlike } from "renderer/ShapeDef";
 import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
@@ -1008,51 +1008,11 @@ export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
 
 /**
  * Preconditions:
- *   If the input is line-like, it must be axis-aligned.
- *   Assumes line-like shapes are longer than they are thick.
- * Input: A rect- or line-like shape.
+ *   (shape-specific)
+ * Input: A shape.
  * Output: A new BBox
- * Errors: Throws an error if the input shape is not rect- or line-like.
+ * Errors: Throws an error if called on an unsupported shape type.
  */
 export const bboxFromShape = (t: string, s: any): BBox.BBox => {
-  if (!(isRectlike(t) || isLinelike(t))) {
-    throw new Error(
-      `BBox expected a rect-like or line-like shape, but got ${t}`
-    );
-  }
-
-  // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
-  let w;
-  if (t == "Square") {
-    w = s.side.contents;
-  } else if (isLinelike(t)) {
-    w = max(
-      absVal(sub(s.start.contents[0], s.end.contents[0])),
-      s.thickness.contents
-    );
-  } else {
-    w = s.w.contents;
-  }
-
-  let h;
-  if (t == "Square") {
-    h = s.side.contents;
-  } else if (isLinelike(t)) {
-    h = max(
-      absVal(sub(s.start.contents[1], s.end.contents[1])),
-      s.thickness.contents
-    );
-  } else {
-    h = s.h.contents;
-  }
-
-  let center;
-  if (isLinelike(t)) {
-    // TODO: Compute the bbox of the line in a nicer way
-    center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
-  } else {
-    center = s.center.contents;
-  }
-
-  return BBox.bbox(w, h, center);
+  return findDef(t).bbox(s);
 };

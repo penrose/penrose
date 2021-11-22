@@ -1,8 +1,11 @@
+import { absVal, constOf, max, ops, sub } from "engine/Autodiff";
+import * as BBox from "engine/BBox";
 import { randFloat } from "utils/Util";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
 import { IFloatV, IVectorV, IColorV } from "types/value";
 import { Path } from "types/style";
+import { Pt2 } from "types/ad";
 
 //#region shapedef helpers and samplers
 
@@ -140,9 +143,16 @@ export interface IShapeDef {
   shapeType: string;
   properties: IPropModel;
   positionalProps?: string[];
+  bbox: (s: any) => BBox.BBox;
 }
 
 export type Sampler = (canvas: Canvas) => Value<number>;
+
+function bboxFromCircle(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got Circle`
+  );
+}
 
 export const circleDef: ShapeDef = {
   shapeType: "Circle",
@@ -158,7 +168,14 @@ export const circleDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultCircle")],
   },
   positionalProps: ["center"],
+  bbox: bboxFromCircle,
 };
+
+function bboxFromEllipse(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got Ellipse`
+  );
+}
 
 export const ellipseDef: ShapeDef = {
   shapeType: "Ellipse",
@@ -176,7 +193,12 @@ export const ellipseDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultCircle")],
   },
   positionalProps: ["center"],
+  bbox: bboxFromEllipse,
 };
+
+function bboxFromRect(s: any): BBox.BBox {
+  return BBox.bbox(s.w.contents, s.h.contents, s.center.contents);
+}
 
 export const rectDef: ShapeDef = {
   shapeType: "Rectangle",
@@ -194,7 +216,14 @@ export const rectDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultRect")],
   },
   positionalProps: ["center"],
+  bbox: bboxFromRect,
 };
+
+function bboxFromCallout(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got Callout`
+  );
+}
 
 export const calloutDef: ShapeDef = {
   shapeType: "Callout",
@@ -213,7 +242,14 @@ export const calloutDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCallout")],
   },
+  bbox: bboxFromCallout,
 };
+
+function bboxFromPolygon(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got Polygon`
+  );
+}
 
 export const polygonDef: ShapeDef = {
   shapeType: "Polygon",
@@ -236,7 +272,14 @@ export const polygonDef: ShapeDef = {
     ],
   },
   positionalProps: ["center"],
+  bbox: bboxFromPolygon,
 };
+
+function bboxFromFreeformPolygon(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got FreeformPolygon`
+  );
+}
 
 export const freeformPolygonDef: ShapeDef = {
   shapeType: "FreeformPolygon",
@@ -257,6 +300,7 @@ export const freeformPolygonDef: ShapeDef = {
     ],
   },
   positionalProps: [],
+  bbox: bboxFromFreeformPolygon,
 };
 
 const DEFAULT_PATHSTR = `M 10,30
@@ -264,6 +308,12 @@ A 20,20 0,0,1 50,30
 A 20,20 0,0,1 90,30
 Q 90,60 50,90
 Q 10,60 10,30 z`;
+
+function bboxFromPathString(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got PathString`
+  );
+}
 
 export const pathStringDef: ShapeDef = {
   shapeType: "PathString",
@@ -282,7 +332,14 @@ export const pathStringDef: ShapeDef = {
     viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
   },
   positionalProps: ["center"],
+  bbox: bboxFromPathString,
 };
+
+function bboxFromPolyline(s: any): BBox.BBox {
+  throw new Error(
+    `BBox expected a rect-like or line-like shape, but got Polyline`
+  );
+}
 
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
@@ -305,6 +362,7 @@ export const polylineDef: ShapeDef = {
     ],
   },
   positionalProps: ["center"],
+  bbox: bboxFromPolyline,
 };
 
 export const imageDef: ShapeDef = {
@@ -321,7 +379,12 @@ export const imageDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultImage")],
   },
   positionalProps: ["center"],
+  bbox: bboxFromRect,
 };
+
+function bboxFromSquare(s: any): BBox.BBox {
+  return BBox.bbox(s.side.contents, s.side.contents, s.center.contents);
+}
 
 export const squareDef: ShapeDef = {
   shapeType: "Square",
@@ -339,6 +402,7 @@ export const squareDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultSquare")],
   },
   positionalProps: ["center"],
+  bbox: bboxFromSquare,
 };
 
 export const textDef: ShapeDef = {
@@ -357,7 +421,32 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
   },
   positionalProps: ["center"],
+  bbox: bboxFromRect,
 };
+
+/**
+ * Preconditions:
+ *   s must be axis-aligned.
+ *   Assumes s is longer than it is thick.
+ * Input: A line-like shape.
+ * Output: A new BBox
+ */
+function bboxFromLinelike(s: any): BBox.BBox {
+  const w = max(
+    absVal(sub(s.start.contents[0], s.end.contents[0])),
+    s.thickness.contents
+  );
+  const h = max(
+    absVal(sub(s.start.contents[1], s.end.contents[1])),
+    s.thickness.contents
+  );
+  // TODO: Compute the bbox of the line in a nicer way
+  const center = ops.vdiv(
+    ops.vadd(s.start.contents, s.end.contents),
+    constOf(2)
+  );
+  return BBox.bbox(w, h, center as Pt2);
+}
 
 export const lineDef: ShapeDef = {
   shapeType: "Line",
@@ -376,6 +465,7 @@ export const lineDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultLine")],
   },
   positionalProps: ["start", "end"],
+  bbox: bboxFromLinelike,
 };
 
 export const arrowDef: ShapeDef = {
@@ -392,7 +482,12 @@ export const arrowDef: ShapeDef = {
     strokeDashArray: ["StrV", constValue("StrV", "")],
   },
   positionalProps: ["start", "end"],
+  bbox: bboxFromLinelike,
 };
+
+function bboxFromPath(s: any): BBox.BBox {
+  throw new Error(`BBox expected a rect-like or line-like shape, but got Path`);
+}
 
 export const curveDef: ShapeDef = {
   shapeType: "Path",
@@ -412,6 +507,7 @@ export const curveDef: ShapeDef = {
     arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
     name: ["StrV", constValue("StrV", "defaultCurve")],
   },
+  bbox: bboxFromPath,
 };
 
 /**
