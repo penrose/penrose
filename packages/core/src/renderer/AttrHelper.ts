@@ -14,7 +14,10 @@ export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const color = properties.color as IColorV<number>;
   const alpha = color.contents.contents[3];
   elem.setAttribute("fill", toHex(color.contents));
-  elem.setAttribute("fill-opacity", alpha.toString());
+  // Fill opacity only relevent if fill is present
+  if(color.contents.tag !== "NONE") {
+    elem.setAttribute("fill-opacity", alpha.toString());
+  }
 };
 
 export const attrNoFill = ({ properties }: Shape, elem: SVGElement) => {
@@ -210,18 +213,21 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   const strokeAlpha = strokeColor.contents.contents[3];
   const thickness = properties.strokeWidth.contents;
   elem.setAttribute("stroke", toHex(strokeColor.contents));
-  elem.setAttribute("stroke-opacity", strokeAlpha.toString());
-  elem.setAttribute("stroke-width", thickness.toString());
-  if (
-    "strokeDashArray" in properties &&
-    properties.strokeDashArray.contents !== ""
-  ) {
-    elem.setAttribute(
-      "stroke-dasharray",
-      (properties.strokeDashArray as IStrV).contents
-    );
-  } else if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+  // Stroke opacity, width, and dashiness only relevent if stroke is present
+  if(strokeColor.contents.tag !== "NONE") {
+    elem.setAttribute("stroke-opacity", strokeAlpha.toString());
+    elem.setAttribute("stroke-width", thickness.toString());
+    if (
+      "strokeDashArray" in properties &&
+      properties.strokeDashArray.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-dasharray",
+        (properties.strokeDashArray as IStrV).contents
+      );
+    } else if (properties.strokeStyle.contents === "dashed") {
+      elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+    }
   }
 };
 

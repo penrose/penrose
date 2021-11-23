@@ -170,7 +170,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
   rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -199,7 +199,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
   hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -207,6 +207,20 @@ export const compDict = {
       contents: {
         tag: "HSVA",
         contents: [h, s, v, a],
+      },
+    };
+  },
+
+  /**
+   * Return a paint of none (no paint)
+   */
+  none: (): IColorV<VarAD> => {
+    return {
+      tag: "ColorV",
+      contents: {
+        tag: "NONE",
+        // Irrelevent dummy color -- paint=none is a special case in the renderer
+        contents: [variableAD(0.0),variableAD(0.0),variableAD(0.0),variableAD(0.0)]
       },
     };
   },
@@ -672,8 +686,8 @@ export const compDict = {
     const rgb = color.contents;
     return {
       tag: "ColorV",
-      contents: {
-        tag: "RGBA",
+      contents: { // Keep color tag and color; only modify opacity
+        tag: color.tag, 
         contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
       },
     };

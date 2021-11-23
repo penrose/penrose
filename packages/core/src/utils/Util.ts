@@ -237,6 +237,8 @@ export const toHex = (color: any): string => {
     const hsv = color.contents.slice(0, 3);
     const rgb = hsvToRGB(hsv);
     return toHexRGB(rgb);
+  } else if (color.tag === "NONE") {
+    return "none";
   } else {
     console.error("color type", color.tag, "unimplemented");
     return "";

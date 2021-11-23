@@ -223,7 +223,7 @@ export interface IHMatrix<T> {
   dy: T;
 }
 
-export type Color<T> = IRGBA<T> | IHSVA<T>;
+export type Color<T> = IRGBA<T> | IHSVA<T> | INONE<T>;
 
 export interface IRGBA<T> {
   tag: "RGBA";
@@ -232,6 +232,11 @@ export interface IRGBA<T> {
 
 export interface IHSVA<T> {
   tag: "HSVA";
+  contents: T[];
+}
+
+export interface INONE<T> {
+  tag: "NONE"
   contents: T[];
 }
 

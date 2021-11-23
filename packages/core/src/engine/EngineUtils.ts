@@ -183,17 +183,10 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 }
 
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
-  if (v.tag === "RGBA") {
-    const rgb = v.contents;
+  if (v.tag === "RGBA" || "HSVA" || "NONE") {
     return {
-      tag: "RGBA",
-      contents: mapTuple(f, rgb),
-    };
-  } else if (v.tag === "HSVA") {
-    const hsv = v.contents;
-    return {
-      tag: "HSVA",
-      contents: mapTuple(f, hsv),
+      tag: v.tag,
+      contents: mapTuple(f, v.contents),
     };
   } else {
     throw Error("unexpected color tag");
