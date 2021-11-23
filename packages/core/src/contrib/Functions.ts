@@ -219,7 +219,7 @@ export const compDict = {
       tag: "ColorV",
       contents: {
         tag: "NONE",
-        // Irrelevent dummy color -- paint=none is a special case in the renderer
+        // Irrelevant dummy color -- paint=none is a special case in the renderer
         contents: [variableAD(0.0),variableAD(0.0),variableAD(0.0),variableAD(0.0)]
       },
     };
@@ -683,12 +683,12 @@ export const compDict = {
    * Set the opacity of a color `color` to `frac`.
    */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
-    const rgb = color.contents;
+    const props = color.contents;
     return {
       tag: "ColorV",
       contents: { // Keep color tag and color; only modify opacity
         tag: color.tag, 
-        contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
+        contents: [props[0], props[1], props[2], mul(frac, props[3])],
       },
     };
   },
