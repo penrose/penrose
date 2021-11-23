@@ -148,11 +148,11 @@ export interface IShapeDef {
 
 export type Sampler = (canvas: Canvas) => Value<number>;
 
-function bboxFromCircle(s: any): BBox.BBox {
+const bboxFromCircle = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got Circle`
   );
-}
+};
 
 export const circleDef: ShapeDef = {
   shapeType: "Circle",
@@ -171,11 +171,11 @@ export const circleDef: ShapeDef = {
   bbox: bboxFromCircle,
 };
 
-function bboxFromEllipse(s: any): BBox.BBox {
+const bboxFromEllipse = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got Ellipse`
   );
-}
+};
 
 export const ellipseDef: ShapeDef = {
   shapeType: "Ellipse",
@@ -196,9 +196,9 @@ export const ellipseDef: ShapeDef = {
   bbox: bboxFromEllipse,
 };
 
-function bboxFromRect(s: any): BBox.BBox {
+const bboxFromRect = (s: any): BBox.BBox => {
   return BBox.bbox(s.w.contents, s.h.contents, s.center.contents);
-}
+};
 
 export const rectDef: ShapeDef = {
   shapeType: "Rectangle",
@@ -219,11 +219,11 @@ export const rectDef: ShapeDef = {
   bbox: bboxFromRect,
 };
 
-function bboxFromCallout(s: any): BBox.BBox {
+const bboxFromCallout = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got Callout`
   );
-}
+};
 
 export const calloutDef: ShapeDef = {
   shapeType: "Callout",
@@ -245,11 +245,11 @@ export const calloutDef: ShapeDef = {
   bbox: bboxFromCallout,
 };
 
-function bboxFromPolygon(s: any): BBox.BBox {
+const bboxFromPolygon = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got Polygon`
   );
-}
+};
 
 export const polygonDef: ShapeDef = {
   shapeType: "Polygon",
@@ -275,11 +275,11 @@ export const polygonDef: ShapeDef = {
   bbox: bboxFromPolygon,
 };
 
-function bboxFromFreeformPolygon(s: any): BBox.BBox {
+const bboxFromFreeformPolygon = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got FreeformPolygon`
   );
-}
+};
 
 export const freeformPolygonDef: ShapeDef = {
   shapeType: "FreeformPolygon",
@@ -309,11 +309,11 @@ A 20,20 0,0,1 90,30
 Q 90,60 50,90
 Q 10,60 10,30 z`;
 
-function bboxFromPathString(s: any): BBox.BBox {
+const bboxFromPathString = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got PathString`
   );
-}
+};
 
 export const pathStringDef: ShapeDef = {
   shapeType: "PathString",
@@ -335,11 +335,11 @@ export const pathStringDef: ShapeDef = {
   bbox: bboxFromPathString,
 };
 
-function bboxFromPolyline(s: any): BBox.BBox {
+const bboxFromPolyline = (s: any): BBox.BBox => {
   throw new Error(
     `BBox expected a rect-like or line-like shape, but got Polyline`
   );
-}
+};
 
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
@@ -382,9 +382,9 @@ export const imageDef: ShapeDef = {
   bbox: bboxFromRect,
 };
 
-function bboxFromSquare(s: any): BBox.BBox {
+const bboxFromSquare = (s: any): BBox.BBox => {
   return BBox.bbox(s.side.contents, s.side.contents, s.center.contents);
-}
+};
 
 export const squareDef: ShapeDef = {
   shapeType: "Square",
@@ -431,7 +431,7 @@ export const textDef: ShapeDef = {
  * Input: A line-like shape.
  * Output: A new BBox
  */
-function bboxFromLinelike(s: any): BBox.BBox {
+const bboxFromLinelike = (s: any): BBox.BBox => {
   const w = max(
     absVal(sub(s.start.contents[0], s.end.contents[0])),
     s.thickness.contents
@@ -446,7 +446,7 @@ function bboxFromLinelike(s: any): BBox.BBox {
     constOf(2)
   );
   return BBox.bbox(w, h, center as Pt2);
-}
+};
 
 export const lineDef: ShapeDef = {
   shapeType: "Line",
@@ -485,9 +485,9 @@ export const arrowDef: ShapeDef = {
   bbox: bboxFromLinelike,
 };
 
-function bboxFromPath(s: any): BBox.BBox {
+const bboxFromPath = (s: any): BBox.BBox => {
   throw new Error(`BBox expected a rect-like or line-like shape, but got Path`);
-}
+};
 
 export const curveDef: ShapeDef = {
   shapeType: "Path",
