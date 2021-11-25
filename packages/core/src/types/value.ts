@@ -223,7 +223,7 @@ export interface IHMatrix<T> {
   dy: T;
 }
 
-export type Color<T> = IRGBA<T> | IHSVA<T> | INONE<T>;
+export type Color<T> = IRGBA<T> | IHSVA<T> | INoPaint;
 
 export interface IRGBA<T> {
   tag: "RGBA";
@@ -235,9 +235,8 @@ export interface IHSVA<T> {
   contents: T[];
 }
 
-export interface INONE<T> {
+export interface INoPaint {
   tag: "NONE"
-  contents: T[];
 }
 
 // SVG spec types

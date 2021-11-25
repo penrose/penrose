@@ -30,7 +30,7 @@ import {
   prettyPrintPath,
   prettyPrintExpr,
 } from "./utils/OtherUtils";
-import { bBoxDims, toHex, ops } from "./utils/Util";
+import { bBoxDims, ops } from "./utils/Util";
 import { Canvas } from "./renderer/ShapeDef";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
@@ -324,7 +324,6 @@ export {
   RenderStatic,
   bBoxDims,
   prettySubstance,
-  toHex,
   initializeMat,
   showError,
   prettyPrintFn,

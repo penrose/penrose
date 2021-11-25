@@ -214,13 +214,11 @@ export const compDict = {
   /**
    * Return a paint of none (no paint)
    */
-  none: (): IColorV<VarAD> => {
+  none: (): IColorV<any> => {
     return {
       tag: "ColorV",
       contents: {
-        tag: "NONE",
-        // Irrelevant dummy color -- paint=none is a special case in the renderer
-        contents: [variableAD(0.0),variableAD(0.0),variableAD(0.0),variableAD(0.0)]
+        tag: "NONE"
       },
     };
   },
@@ -683,14 +681,23 @@ export const compDict = {
    * Set the opacity of a color `color` to `frac`.
    */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
-    const props = color.contents;
-    return {
-      tag: "ColorV",
-      contents: { // Keep color tag and color; only modify opacity
-        tag: color.tag, 
-        contents: [props[0], props[1], props[2], mul(frac, props[3])],
-      },
-    };
+    // If paint=none, opacity is irreelevant
+    if(color.tag === "NONE") {
+      return {
+        tag: "ColorV",
+        contents: color
+      }
+    // Otherwise, retain tag and color; only modify opacity
+    } else {
+      const props = color.contents;
+      return {
+        tag: "ColorV",
+        contents: { 
+          tag: color.tag, 
+          contents: [props[0], props[1], props[2], mul(frac, props[3])],
+        },
+      };
+    }
   },
 
   /**

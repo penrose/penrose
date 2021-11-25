@@ -2,6 +2,7 @@ import memoize from "fast-memoize";
 import { zipWith, reduce, times } from "lodash";
 import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
+import { Color } from "types/value";
 
 seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 
@@ -229,19 +230,30 @@ export const hsvToRGB = (
     : hsv2rgb(c, 0, x, m);
 };
 
-export const toHex = (color: any): string => {
+export const toSvgPaintProperty = (color: Color<number>): string => {
   if (color.tag === "RGBA") {
-    const rgba = color.contents;
-    return toHexRGB(rgba.slice(0, 3));
+    const rgb = color.contents;
+    return toHexRGB([rgb[0],rgb[1],rgb[2]]);
   } else if (color.tag === "HSVA") {
-    const hsv = color.contents.slice(0, 3);
-    const rgb = hsvToRGB(hsv);
+    const hsv = color.contents;
+    const rgb = hsvToRGB([hsv[0],hsv[1],hsv[2]]);
     return toHexRGB(rgb);
   } else if (color.tag === "NONE") {
     return "none";
   } else {
-    console.error("color type", color.tag, "unimplemented");
+    console.error("color type", color['tag'], "unimplemented");
     return "";
+  }
+};
+
+export const toSvgOpacityProperty = (color: Color<number>): number => {
+  if (color.tag === "RGBA" || color.tag === "HSVA") {
+    return color.contents[3];
+  } else if (color.tag === "NONE") {
+    return 1;
+  } else {
+    console.error("color type", color['tag'], "unimplemented");
+    return 1
   }
 };
 
