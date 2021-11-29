@@ -1,9 +1,9 @@
-import { toHex, toScreen } from "utils/Util";
+import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IPathCmd, IStrV } from "types/value";
+import { IFloatV, IPathCmd, IStrV, IColorV } from "types/value";
 
 const toPathString = (
   pathData: IPathCmd<number>[],
@@ -60,10 +60,10 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeWidth = (shape.properties.strokeWidth as IFloatV<number>)
     .contents;
-  const strokeColor = toHex(shape.properties.color.contents);
-  const strokeOpacity = (shape.properties.color.contents as any).contents[3];
-  const fillColor = toHex(shape.properties.fill.contents);
-  const fillOpacity = (shape.properties.fill.contents as any).contents[3];
+  const strokeColor = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
+  const strokeOpacity = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
+  const fillColor = toSvgPaintProperty((shape.properties.fill as IColorV<number>).contents);
+  const fillOpacity = toSvgOpacityProperty((shape.properties.fill as IColorV<number>).contents);
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
@@ -93,9 +93,12 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("stroke", strokeColor);
   path.setAttribute("fill", fillColor);
-  path.setAttribute("stroke-width", strokeWidth.toString());
-  path.setAttribute("stroke-opacity", strokeOpacity);
-  path.setAttribute("fill-opacity", fillOpacity);
+  // Opacity and width only relevant if paint is present
+  if((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+    path.setAttribute("stroke-width", strokeWidth.toString());
+    path.setAttribute("stroke-opacity", strokeOpacity.toString());
+    path.setAttribute("fill-opacity", fillOpacity.toString());
+  }
   // factor out an AttrHelper
   if (
     "strokeDashArray" in shape.properties &&
