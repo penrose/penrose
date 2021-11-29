@@ -184,8 +184,12 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   switch (v.tag) {
-    case "NONE": return {tag: v.tag};
-    default:     return {tag: v.tag, contents: mapTuple(f, (v as any).contents)};
+    case "RGBA":
+      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+    case "HSVA":
+      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+    case "NONE":
+      return { tag: v.tag };
   }
 }
 

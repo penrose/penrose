@@ -232,16 +232,29 @@ export const hsvToRGB = (
 
 export const toSvgPaintProperty = (color: Color<number>): string => {
   switch (color.tag) {
-    case "RGBA": return toHexRGB(         [color.contents[0],color.contents[1],color.contents[2]] );
-    case "HSVA": return toHexRGB(hsvToRGB([color.contents[0],color.contents[1],color.contents[2]]));
-    default:     return "none"; // NONE
+    case "RGBA":
+      return toHexRGB([
+        color.contents[0],
+        color.contents[1],
+        color.contents[2],
+      ]);
+    case "HSVA":
+      return toHexRGB(
+        hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
+      );
+    case "NONE":
+      return "none";
   }
 };
 
 export const toSvgOpacityProperty = (color: Color<number>): number => {
   switch (color.tag) {
-    case "NONE": return 1;
-    default:     return color.contents[3];
+    case "RGBA":
+      return color.contents[3];
+    case "HSVA":
+      return color.contents[3];
+    case "NONE":
+      return 1;
   }
 };
 
