@@ -231,29 +231,17 @@ export const hsvToRGB = (
 };
 
 export const toSvgPaintProperty = (color: Color<number>): string => {
-  if (color.tag === "RGBA") {
-    const rgb = color.contents;
-    return toHexRGB([rgb[0],rgb[1],rgb[2]]);
-  } else if (color.tag === "HSVA") {
-    const hsv = color.contents;
-    const rgb = hsvToRGB([hsv[0],hsv[1],hsv[2]]);
-    return toHexRGB(rgb);
-  } else if (color.tag === "NONE") {
-    return "none";
-  } else {
-    console.error("color type", color['tag'], "unimplemented");
-    return "";
+  switch (color.tag) {
+    case "RGBA": return toHexRGB(         [color.contents[0],color.contents[1],color.contents[2]] );
+    case "HSVA": return toHexRGB(hsvToRGB([color.contents[0],color.contents[1],color.contents[2]]));
+    default:     return "none"; // NONE
   }
 };
 
 export const toSvgOpacityProperty = (color: Color<number>): number => {
-  if (color.tag === "RGBA" || color.tag === "HSVA") {
-    return color.contents[3];
-  } else if (color.tag === "NONE") {
-    return 1;
-  } else {
-    console.error("color type", color['tag'], "unimplemented");
-    return 1
+  switch (color.tag) {
+    case "NONE": return 1;
+    default:     return color.contents[3];
   }
 };
 
