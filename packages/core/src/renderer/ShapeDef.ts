@@ -254,6 +254,7 @@ export const freeformPolygonDef: ShapeDef = {
     strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
+    scale: ["FloatV", constValue("FloatV", 1)],
     points: [
       "PtListV",
       constValue("PtListV", [
