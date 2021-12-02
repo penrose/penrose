@@ -1,4 +1,33 @@
+import { Shape } from "types/shape";
 import * as ShapeDef from "renderer/ShapeDef";
+import { unsafelyUnwrap } from "utils/Error";
+import { compileDomain, compileSubstance } from "index";
+import { compileStyle } from "compiler/Style";
+
+const makeSty = (shapeSty: string): string =>
+  `canvas {
+  width = 800
+  height = 700
+}
+
+global {
+  global.shape = ${shapeSty}
+}
+`;
+
+const getShapes = (shapeSty: string): Shape[] => {
+  const env0 = unsafelyUnwrap(compileDomain(""));
+  const [subEnv, varEnv] = unsafelyUnwrap(compileSubstance("", env0));
+  const state = unsafelyUnwrap(compileStyle(makeSty(shapeSty), subEnv, varEnv));
+  return state.shapes;
+};
+
+const rectSty = `Rectangle {
+  center: (0., 0.)
+  w: 150.
+  h: 200.
+}
+`;
 
 describe("ShapeDef", () => {
   test("circleDef.bbox", () => {
@@ -11,6 +40,8 @@ describe("ShapeDef", () => {
 
   test("rectDef.bbox", () => {
     const { bbox } = ShapeDef.rectDef;
+    const shapes = getShapes(rectSty);
+    expect(shapes).toEqual(["something"]);
   });
 
   test("calloutDef.bbox", () => {
