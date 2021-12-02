@@ -31,6 +31,12 @@ const rectSty = `Rectangle {
 }
 `;
 
+const lineSty = `Line {
+  start: (1., 2.)
+  end: (3., 7.)
+}
+`;
+
 describe("ShapeDef", () => {
   test("circleDef.bbox", () => {
     const { bbox } = ShapeDef.circleDef;
@@ -85,8 +91,17 @@ describe("ShapeDef", () => {
     const { bbox } = ShapeDef.textDef;
   });
 
-  test("lineDef.bbox", () => {
-    const { bbox } = ShapeDef.lineDef;
+  test("lineDef.bbox", async () => {
+    const shape = await getShape(lineSty);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.lineDef.bbox(shape.properties);
+    expect(w).toBeCloseTo(2);
+    expect(h).toBeCloseTo(5);
+    expect(x).toBeCloseTo(2);
+    expect(y).toBeCloseTo(4.5);
   });
 
   test("arrowDef.bbox", () => {
