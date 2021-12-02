@@ -98,7 +98,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
 
   path.setAttribute("d", `M ${sx} ${sy} L ${ex} ${ey}`);
   path.setAttribute("marker-end", `url(#${id})`);
-  attrFill(shape, path);
+  path.setAttribute("stroke-opacity",alpha.toString())
   path.setAttribute("stroke", color);
   // factor out an AttrHelper
   if (
