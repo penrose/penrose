@@ -1,7 +1,7 @@
 import { Shape } from "types/shape";
 import * as ShapeDef from "renderer/ShapeDef";
 import { unsafelyUnwrap } from "utils/Error";
-import { compileDomain, compileSubstance } from "index";
+import { compileDomain, compileSubstance, prepareState } from "index";
 import { compileStyle } from "compiler/Style";
 
 const makeSty = (shapeSty: string): string =>
@@ -15,11 +15,13 @@ global {
 }
 `;
 
-const getShapes = (shapeSty: string): Shape[] => {
+const getShape = async (shapeSty: string): Promise<Shape> => {
   const env0 = unsafelyUnwrap(compileDomain(""));
   const [subEnv, varEnv] = unsafelyUnwrap(compileSubstance("", env0));
   const state = unsafelyUnwrap(compileStyle(makeSty(shapeSty), subEnv, varEnv));
-  return state.shapes;
+  const { shapes } = await prepareState(state);
+  expect(shapes.length).toBe(1);
+  return shapes[0];
 };
 
 const rectSty = `Rectangle {
@@ -38,10 +40,17 @@ describe("ShapeDef", () => {
     const { bbox } = ShapeDef.ellipseDef;
   });
 
-  test("rectDef.bbox", () => {
-    const { bbox } = ShapeDef.rectDef;
-    const shapes = getShapes(rectSty);
-    expect(shapes).toEqual(["something"]);
+  test("rectDef.bbox", async () => {
+    const shape = await getShape(rectSty);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.rectDef.bbox(shape.properties);
+    expect(w).toBeCloseTo(150);
+    expect(h).toBeCloseTo(200);
+    expect(x).toBeCloseTo(0);
+    expect(y).toBeCloseTo(0);
   });
 
   test("calloutDef.bbox", () => {
