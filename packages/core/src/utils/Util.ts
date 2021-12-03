@@ -68,7 +68,7 @@ export const arrowheads = {
 };
 
 // calculates bounding box dimensions of a shape - used in inspector views
-export const bBoxDims = (properties: Properties, shapeType: string) => {
+export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
     [w, h] = [

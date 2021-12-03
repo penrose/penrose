@@ -67,7 +67,7 @@ const dummySourceLoc = (): SourceLoc => {
  *
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
-export const evalShapes = (s: State): State => {
+export const evalShapes = (s: State): ShapeAD[] => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
 
@@ -114,27 +114,17 @@ export const evalShapes = (s: State): State => {
     console.error("Invalid shape layering of length", s.shapeOrdering.length);
   }
 
-  const shapesNumeric: Shape[] = shapesEvaled.map((s: ShapeAD) => ({
-    ...s,
-    properties: mapValues(s.properties, (p: Value<VarAD>) =>
-      valueAutodiffToNumber(p)
-    ),
-  }));
-
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled: Shape[] = s.shapeOrdering.map(
+  const sortedShapesEvaled: ShapeAD[] = s.shapeOrdering.map(
     (name) =>
-      shapesNumeric.find(({ properties }) => sameName(properties.name, name))!
+      shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
-  // const nonEmpties = sortedShapesEvaled.filter(notEmptyLabel);
-
   // Update the state with the new list of shapes
-  // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: sortedShapesEvaled };
+  return sortedShapesEvaled;
 };
 
-const sameName = (given: Value<number>, expected: string): boolean => {
+const sameName = <T>(given: Value<T>, expected: string): boolean => {
   if (given.tag !== "StrV") {
     return false;
   }
@@ -207,7 +197,7 @@ export const evalFn = (
  *
  */
 export const evalShape = (
-  shapeExpr: IFGPI<VarAD>, // <number>?
+  shapeExpr: IFGPI<VarAD>,
   trans: Translation,
   varyingVars: VaryMap,
   shapes: ShapeAD[],

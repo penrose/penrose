@@ -45,6 +45,8 @@ import {
   Translation,
 } from "types/value";
 import { showError } from "utils/Error";
+import { Shape, ShapeAD } from "types/shape";
+import { mapValues } from "lodash";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -261,6 +263,14 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     );
   }
 }
+
+export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
+  shapes.map((s: ShapeAD) => ({
+    ...s,
+    properties: mapValues(s.properties, (p: Value<VarAD>) =>
+      valueAutodiffToNumber(p)
+    ),
+  }));
 
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);
