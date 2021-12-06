@@ -170,7 +170,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
   rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -199,7 +199,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
   hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -207,6 +207,18 @@ export const compDict = {
       contents: {
         tag: "HSVA",
         contents: [h, s, v, a],
+      },
+    };
+  },
+
+  /**
+   * Return a paint of none (no paint)
+   */
+  none: (): IColorV<any> => {
+    return {
+      tag: "ColorV",
+      contents: {
+        tag: "NONE"
       },
     };
   },
@@ -669,14 +681,23 @@ export const compDict = {
    * Set the opacity of a color `color` to `frac`.
    */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
-    const rgb = color.contents;
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "RGBA",
-        contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
-      },
-    };
+    // If paint=none, opacity is irreelevant
+    if(color.tag === "NONE") {
+      return {
+        tag: "ColorV",
+        contents: color
+      }
+    // Otherwise, retain tag and color; only modify opacity
+    } else {
+      const props = color.contents;
+      return {
+        tag: "ColorV",
+        contents: { 
+          tag: color.tag, 
+          contents: [props[0], props[1], props[2], mul(frac, props[3])],
+        },
+      };
+    }
   },
 
   /**

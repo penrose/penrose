@@ -2,6 +2,7 @@ import memoize from "fast-memoize";
 import { zipWith, reduce, times } from "lodash";
 import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
+import { Color } from "types/value";
 
 seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 
@@ -68,7 +69,7 @@ export const arrowheads = {
 };
 
 // calculates bounding box dimensions of a shape - used in inspector views
-export const bBoxDims = (properties: Properties, shapeType: string) => {
+export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
     [w, h] = [
@@ -229,17 +230,31 @@ export const hsvToRGB = (
     : hsv2rgb(c, 0, x, m);
 };
 
-export const toHex = (color: any): string => {
-  if (color.tag === "RGBA") {
-    const rgba = color.contents;
-    return toHexRGB(rgba.slice(0, 3));
-  } else if (color.tag === "HSVA") {
-    const hsv = color.contents.slice(0, 3);
-    const rgb = hsvToRGB(hsv);
-    return toHexRGB(rgb);
-  } else {
-    console.error("color type", color.tag, "unimplemented");
-    return "";
+export const toSvgPaintProperty = (color: Color<number>): string => {
+  switch (color.tag) {
+    case "RGBA":
+      return toHexRGB([
+        color.contents[0],
+        color.contents[1],
+        color.contents[2],
+      ]);
+    case "HSVA":
+      return toHexRGB(
+        hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
+      );
+    case "NONE":
+      return "none";
+  }
+};
+
+export const toSvgOpacityProperty = (color: Color<number>): number => {
+  switch (color.tag) {
+    case "RGBA":
+      return color.contents[3];
+    case "HSVA":
+      return color.contents[3];
+    case "NONE":
+      return 1;
   }
 };
 
