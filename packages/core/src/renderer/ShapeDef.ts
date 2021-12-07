@@ -136,7 +136,7 @@ export type ShapeDef = IShapeDef;
 export type PropType = Value<number>["tag"];
 export type IPropModel = {
   [k: string]: [PropType, Sampler];
-  forceOnCanvas: ["BoolV", Sampler];
+  ensureOnCanvas: ["BoolV", Sampler];
   name: ["StrV", Sampler];
 };
 
@@ -160,7 +160,7 @@ export const circleDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -179,7 +179,7 @@ export const ellipseDef: ShapeDef = {
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -198,7 +198,7 @@ export const rectDef: ShapeDef = {
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultRect")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -219,7 +219,7 @@ export const calloutDef: ShapeDef = {
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCallout")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
 };
 
@@ -234,7 +234,7 @@ export const polygonDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", constValue("FloatV", 1)],
     name: ["StrV", constValue("StrV", "defaultPolygon")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
     points: [
       "PtListV",
       constValue("PtListV", [
@@ -256,7 +256,7 @@ export const freeformPolygonDef: ShapeDef = {
     strokeColor: ["ColorV", colorSampler],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
     points: [
       "PtListV",
       constValue("PtListV", [
@@ -290,7 +290,7 @@ export const pathStringDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultPolygon")],
     data: ["StrV", constValue("StrV", DEFAULT_PATHSTR)],
     viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -314,7 +314,7 @@ export const polylineDef: ShapeDef = {
         [10, 0],
       ]),
     ],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -331,7 +331,7 @@ export const imageDef: ShapeDef = {
     stroke: ["StrV", constValue("StrV", "none")],
     path: ["StrV", constValue("StrV", "missing image path")],
     name: ["StrV", constValue("StrV", "defaultImage")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -350,7 +350,7 @@ export const squareDef: ShapeDef = {
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultSquare")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -369,7 +369,7 @@ export const textDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultText")],
     string: ["StrV", constValue("StrV", "defaultLabelText")],
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
 };
@@ -389,7 +389,7 @@ export const lineDef: ShapeDef = {
     stroke: ["StrV", constValue("StrV", "none")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultLine")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["start", "end"],
 };
@@ -406,7 +406,7 @@ export const arrowDef: ShapeDef = {
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultArrow")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["start", "end"],
 };
@@ -428,7 +428,7 @@ export const curveDef: ShapeDef = {
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
     arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
     name: ["StrV", constValue("StrV", "defaultCurve")],
-    forceOnCanvas: ["BoolV", constValue("BoolV", true)],
+    ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
 };
 

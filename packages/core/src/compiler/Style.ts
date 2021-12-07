@@ -2450,8 +2450,8 @@ const findFieldDefaultFns = (
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FGPI") {
     const [, props] = fexpr.contents;
-    // default constraint `onCanvas` based on the value of `forceOnCanvas`
-    const onCanvasProp = props["forceOnCanvas"];
+    // default constraint `onCanvas` based on the value of `ensureOnCanvas`
+    const onCanvasProp = props["ensureOnCanvas"];
     if (
       onCanvasProp &&
       onCanvasProp.contents.tag === "BoolV" &&
