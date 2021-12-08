@@ -172,7 +172,7 @@ const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
   }
 
   const diameter = mul(constOf(2), r.contents);
-  // TODO: figure out whether this is OK or if I should clone diameter
+  // assuming it's OK not to clone diameter
   return BBox.bbox(diameter, diameter, center.contents);
 };
 
@@ -259,7 +259,7 @@ const bboxFromRect = ({ w, h, center }: Properties<VarAD>): BBox.BBox => {
     );
   }
 
-  // TODO: figure out whether I need to handle rx
+  // rx just rounds the corners, doesn't change the bbox
   return BBox.bbox(w.contents, h.contents, center.contents);
 };
 
@@ -336,31 +336,38 @@ export const polygonDef: ShapeDef = {
   bbox: bboxFromPolygon,
 };
 
-const bboxFromFreeformPolygon = ({ points }: Properties<VarAD>): BBox.BBox => {
+const bboxFromFreeformPolygon = ({
+  points,
+  scale,
+}: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
-  // TODO: figure out why this isn't PtListV
+  // seems like this should be PtListV but apparently it isn't
   if (points.tag !== "LListV") {
     throw new Error(
       `bboxFromFreeformPolygon expected points to be LListV, but got ${points.tag}`
     );
   }
+  if (scale.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromFreeformPolygon expected scale to be FloatV, but got ${scale.tag}`
+    );
+  }
 
-  // TODO: figure out whether I need to handle scale
-
-  const pts: Pt2[] = points.contents.map((point) => {
-    if (isPt2(point)) {
-      return point;
+  const scaled: Pt2[] = points.contents.map((point) => {
+    const pt = ops.vmul(scale.contents, point);
+    if (isPt2(pt)) {
+      return pt;
     } else {
       throw new Error(
         `bboxFromFreeformPolygon expected each point to be Pt2, but got length ${point.length}`
       );
     }
   });
-  const minCorner = pts.reduce((corner: Pt2, point: Pt2) => [
+  const minCorner = scaled.reduce((corner: Pt2, point: Pt2) => [
     min(corner[0], point[0]),
     min(corner[1], point[1]),
   ]);
-  const maxCorner = pts.reduce((corner: Pt2, point: Pt2) => [
+  const maxCorner = scaled.reduce((corner: Pt2, point: Pt2) => [
     max(corner[0], point[0]),
     max(corner[1], point[1]),
   ]);
@@ -489,7 +496,8 @@ const bboxFromSquare = ({ side, center }: Properties<VarAD>): BBox.BBox => {
     );
   }
 
-  // TODO: handle rotation, and figure out whether I need to handle rx
+  // TODO: handle rotation
+  // rx just rounds the corners, doesn't change the bbox
   return BBox.bbox(side.contents, side.contents, center.contents);
 };
 

@@ -64,6 +64,7 @@ const lineSty = `Line {
 // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
 const freeformPolygonSty = `FreeformPolygon {
   points: [(564., 24.), (733., 54.), (755., 154.), (693., 257.), (548., 216.), (571., 145.), (630., 146.), (617., 180.), (664., 196.), (701., 120.), (591., 90.), (528., 129.)]
+  scale: .5
 }
 `;
 
@@ -128,10 +129,10 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.freeformPolygonDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(227);
-    expect(numOf(h)).toBeCloseTo(233);
-    expect(numOf(x)).toBeCloseTo(641.5);
-    expect(numOf(y)).toBeCloseTo(140.5);
+    expect(numOf(w)).toBeCloseTo(113.5);
+    expect(numOf(h)).toBeCloseTo(116.5);
+    expect(numOf(x)).toBeCloseTo(320.75);
+    expect(numOf(y)).toBeCloseTo(70.25);
   });
 
   test("pathStringDef.bbox", () => {
