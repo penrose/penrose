@@ -62,7 +62,7 @@ const lineSty = `Line {
 `;
 
 // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
-const freeformPolygonSty = `FreeformPolygon {
+const polygonSty = (t: string) => `${t} {
   points: [(564., 24.), (733., 54.), (755., 154.), (693., 257.), (548., 216.), (571., 145.), (630., 146.), (617., 180.), (664., 196.), (701., 120.), (591., 90.), (528., 129.)]
   scale: .5
 }
@@ -118,12 +118,21 @@ describe("ShapeDef", () => {
     const { bbox } = ShapeDef.calloutDef; // TODO
   });
 
-  test("polygonDef.bbox", () => {
-    const { bbox } = ShapeDef.polygonDef; // TODO
+  test("polygonDef.bbox", async () => {
+    const shape = await getShape(polygonSty("Polygon"));
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.polygonDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(113.5);
+    expect(numOf(h)).toBeCloseTo(116.5);
+    expect(numOf(x)).toBeCloseTo(320.75);
+    expect(numOf(y)).toBeCloseTo(70.25);
   });
 
   test("freeformPolygonDef.bbox", async () => {
-    const shape = await getShape(freeformPolygonSty);
+    const shape = await getShape(polygonSty("FreeformPolygon"));
     const {
       w,
       h,
@@ -139,8 +148,17 @@ describe("ShapeDef", () => {
     const { bbox } = ShapeDef.pathStringDef; // TODO
   });
 
-  test("polylineDef.bbox", () => {
-    const { bbox } = ShapeDef.polylineDef; // TODO
+  test("polylineDef.bbox", async () => {
+    const shape = await getShape(polygonSty("Polyline"));
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.polylineDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(113.5);
+    expect(numOf(h)).toBeCloseTo(116.5);
+    expect(numOf(x)).toBeCloseTo(320.75);
+    expect(numOf(y)).toBeCloseTo(70.25);
   });
 
   test("imageDef.bbox", () => {

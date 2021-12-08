@@ -306,40 +306,7 @@ export const calloutDef: ShapeDef = {
   bbox: bboxFromCallout,
 };
 
-const bboxFromPolygon = (s: Properties<VarAD>): BBox.BBox => {
-  // TODO: handle scale
-  // https://github.com/penrose/penrose/issues/709
-  throw new Error("bboxFromPolygon not implemented"); // TODO
-};
-
-export const polygonDef: ShapeDef = {
-  shapeType: "Polygon",
-  properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    color: ["ColorV", colorSampler],
-    center: ["VectorV", vectorSampler],
-    scale: ["FloatV", constValue("FloatV", 1)],
-    name: ["StrV", constValue("StrV", "defaultPolygon")],
-    points: [
-      "PtListV",
-      constValue("PtListV", [
-        [0, 0],
-        [0, 10],
-        [10, 0],
-      ]),
-    ],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromPolygon,
-};
-
-const bboxFromFreeformPolygon = ({
-  points,
-  scale,
-}: Properties<VarAD>): BBox.BBox => {
+const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   // seems like this should be PtListV but apparently it isn't
   if (points.tag !== "LListV") {
@@ -380,6 +347,30 @@ const bboxFromFreeformPolygon = ({
   return BBox.bbox(w, h, center);
 };
 
+export const polygonDef: ShapeDef = {
+  shapeType: "Polygon",
+  properties: {
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    color: ["ColorV", colorSampler],
+    center: ["VectorV", vectorSampler],
+    scale: ["FloatV", constValue("FloatV", 1)],
+    name: ["StrV", constValue("StrV", "defaultPolygon")],
+    points: [
+      "PtListV",
+      constValue("PtListV", [
+        [0, 0],
+        [0, 10],
+        [10, 0],
+      ]),
+    ],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+};
+
 export const freeformPolygonDef: ShapeDef = {
   shapeType: "FreeformPolygon",
   properties: {
@@ -400,7 +391,7 @@ export const freeformPolygonDef: ShapeDef = {
     ],
   },
   positionalProps: [],
-  bbox: bboxFromFreeformPolygon,
+  bbox: bboxFromPolygon,
 };
 
 const DEFAULT_PATHSTR = `M 10,30
@@ -433,10 +424,6 @@ export const pathStringDef: ShapeDef = {
   bbox: bboxFromPathString,
 };
 
-const bboxFromPolyline = (_: Properties<VarAD>): BBox.BBox => {
-  throw new Error("bboxFromPolyline not implemented"); // TODO
-};
-
 export const polylineDef: ShapeDef = {
   shapeType: "Polyline",
   properties: {
@@ -458,7 +445,7 @@ export const polylineDef: ShapeDef = {
     ],
   },
   positionalProps: ["center"],
-  bbox: bboxFromPolyline,
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
 };
 
 export const imageDef: ShapeDef = {
