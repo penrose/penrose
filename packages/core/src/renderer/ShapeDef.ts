@@ -1,11 +1,11 @@
-import { absVal, constOf, max, ops, sub } from "engine/Autodiff";
+import { absVal, constOf, max, ops, sub, mul, min } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
 import { randFloat } from "utils/Util";
-import { Shape } from "types/shape";
+import { Properties, Shape } from "types/shape";
 import { Value } from "types/value";
 import { IFloatV, IVectorV, IColorV } from "types/value";
 import { Path } from "types/style";
-import { Pt2 } from "types/ad";
+import { isPt2, Pt2, VarAD } from "types/ad";
 
 //#region shapedef helpers and samplers
 
@@ -150,15 +150,30 @@ export interface IShapeDef {
   shapeType: string;
   properties: IPropModel;
   positionalProps?: string[];
-  bbox: (s: any) => BBox.BBox;
+  bbox: (s: Properties<VarAD>) => BBox.BBox;
 }
 
 export type Sampler = (canvas: Canvas) => Value<number>;
 
-const bboxFromCircle = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got Circle`
-  );
+const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (r.tag !== "FloatV") {
+    throw new Error(`bboxFromCircle expected r to be FloatV, but got ${r.tag}`);
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromCircle expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromCircle expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+
+  const diameter = mul(constOf(2), r.contents);
+  // TODO: figure out whether this is OK or if I should clone diameter
+  return BBox.bbox(diameter, diameter, center.contents);
 };
 
 export const circleDef: ShapeDef = {
@@ -178,10 +193,32 @@ export const circleDef: ShapeDef = {
   bbox: bboxFromCircle,
 };
 
-const bboxFromEllipse = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got Ellipse`
-  );
+const bboxFromEllipse = ({ rx, ry, center }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (rx.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromEllipse expected rx to be FloatV, but got ${rx.tag}`
+    );
+  }
+  if (ry.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromEllipse expected ry to be FloatV, but got ${ry.tag}`
+    );
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromEllipse expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromEllipse expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+
+  const dx = mul(constOf(2), rx.contents);
+  const dy = mul(constOf(2), ry.contents);
+  return BBox.bbox(dx, dy, center.contents);
 };
 
 export const ellipseDef: ShapeDef = {
@@ -203,8 +240,27 @@ export const ellipseDef: ShapeDef = {
   bbox: bboxFromEllipse,
 };
 
-const bboxFromRect = (s: any): BBox.BBox => {
-  return BBox.bbox(s.w.contents, s.h.contents, s.center.contents);
+const bboxFromRect = ({ w, h, center }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (w.tag !== "FloatV") {
+    throw new Error(`bboxFromRect expected w to be FloatV, but got ${w.tag}`);
+  }
+  if (h.tag !== "FloatV") {
+    throw new Error(`bboxFromRect expected h to be FloatV, but got ${h.tag}`);
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromRect expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+
+  // TODO: figure out whether I need to handle rx
+  return BBox.bbox(w.contents, h.contents, center.contents);
 };
 
 export const rectDef: ShapeDef = {
@@ -226,10 +282,8 @@ export const rectDef: ShapeDef = {
   bbox: bboxFromRect,
 };
 
-const bboxFromCallout = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got Callout`
-  );
+const bboxFromCallout = (_: Properties<VarAD>): BBox.BBox => {
+  throw new Error("bboxFromCallout not implemented"); // TODO
 };
 
 export const calloutDef: ShapeDef = {
@@ -252,10 +306,10 @@ export const calloutDef: ShapeDef = {
   bbox: bboxFromCallout,
 };
 
-const bboxFromPolygon = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got Polygon`
-  );
+const bboxFromPolygon = (s: Properties<VarAD>): BBox.BBox => {
+  // TODO: handle scale
+  // https://github.com/penrose/penrose/issues/709
+  throw new Error("bboxFromPolygon not implemented"); // TODO
 };
 
 export const polygonDef: ShapeDef = {
@@ -282,10 +336,41 @@ export const polygonDef: ShapeDef = {
   bbox: bboxFromPolygon,
 };
 
-const bboxFromFreeformPolygon = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got FreeformPolygon`
-  );
+const bboxFromFreeformPolygon = ({ points }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  // TODO: figure out why this isn't PtListV
+  if (points.tag !== "LListV") {
+    throw new Error(
+      `bboxFromFreeformPolygon expected points to be LListV, but got ${points.tag}`
+    );
+  }
+
+  // TODO: figure out whether I need to handle scale
+
+  const pts: Pt2[] = points.contents.map((point) => {
+    if (isPt2(point)) {
+      return point;
+    } else {
+      throw new Error(
+        `bboxFromFreeformPolygon expected each point to be Pt2, but got length ${point.length}`
+      );
+    }
+  });
+  const minCorner = pts.reduce((corner: Pt2, point: Pt2) => [
+    min(corner[0], point[0]),
+    min(corner[1], point[1]),
+  ]);
+  const maxCorner = pts.reduce((corner: Pt2, point: Pt2) => [
+    max(corner[0], point[0]),
+    max(corner[1], point[1]),
+  ]);
+  const w = sub(maxCorner[0], minCorner[0]);
+  const h = sub(maxCorner[1], minCorner[1]);
+  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), constOf(2));
+  if (!isPt2(center)) {
+    throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
+  }
+  return BBox.bbox(w, h, center);
 };
 
 export const freeformPolygonDef: ShapeDef = {
@@ -317,10 +402,8 @@ A 20,20 0,0,1 90,30
 Q 90,60 50,90
 Q 10,60 10,30 z`;
 
-const bboxFromPathString = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got PathString`
-  );
+const bboxFromPathString = (_: Properties<VarAD>): BBox.BBox => {
+  throw new Error("bboxFromPathString not implemented"); // TODO
 };
 
 export const pathStringDef: ShapeDef = {
@@ -343,10 +426,8 @@ export const pathStringDef: ShapeDef = {
   bbox: bboxFromPathString,
 };
 
-const bboxFromPolyline = (s: any): BBox.BBox => {
-  throw new Error(
-    `BBox expected a rect-like or line-like shape, but got Polyline`
-  );
+const bboxFromPolyline = (_: Properties<VarAD>): BBox.BBox => {
+  throw new Error("bboxFromPolyline not implemented"); // TODO
 };
 
 export const polylineDef: ShapeDef = {
@@ -387,11 +468,29 @@ export const imageDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultImage")],
   },
   positionalProps: ["center"],
-  bbox: bboxFromRect,
+  bbox: bboxFromRect, // TODO: handle rotation
 };
 
-const bboxFromSquare = (s: any): BBox.BBox => {
-  return BBox.bbox(s.side.contents, s.side.contents, s.center.contents);
+const bboxFromSquare = ({ side, center }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (side.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected side to be FloatV, but got ${side.tag}`
+    );
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromSquare expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromSquare expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+
+  // TODO: handle rotation, and figure out whether I need to handle rx
+  return BBox.bbox(side.contents, side.contents, center.contents);
 };
 
 export const squareDef: ShapeDef = {
@@ -429,7 +528,7 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
   },
   positionalProps: ["center"],
-  bbox: bboxFromRect,
+  bbox: bboxFromRect, // TODO: handle rotation
 };
 
 /**
@@ -439,21 +538,54 @@ export const textDef: ShapeDef = {
  * Input: A line-like shape.
  * Output: A new BBox
  */
-const bboxFromLinelike = (s: any): BBox.BBox => {
+const bboxFromLinelike = ({
+  start,
+  end,
+  thickness,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (start.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromLinelike expected start to be VectorV, but got ${start.tag}`
+    );
+  }
+  if (!isPt2(start.contents)) {
+    throw new Error(
+      `bboxFromLinelike expected start to be Pt2, but got length ${start.contents.length}`
+    );
+  }
+  if (end.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromLinelike expected end to be VectorV, but got ${end.tag}`
+    );
+  }
+  if (!isPt2(end.contents)) {
+    throw new Error(
+      `bboxFromLinelike expected end to be Pt2, but got length ${end.contents.length}`
+    );
+  }
+  if (thickness.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromLinelike expected thickness to be FloatV, but got ${thickness.tag}`
+    );
+  }
+
+  // TODO: handle non-axis-aligned
+
   const w = max(
-    absVal(sub(s.start.contents[0], s.end.contents[0])),
-    s.thickness.contents
+    absVal(sub(start.contents[0], end.contents[0])),
+    thickness.contents
   );
   const h = max(
-    absVal(sub(s.start.contents[1], s.end.contents[1])),
-    s.thickness.contents
+    absVal(sub(start.contents[1], end.contents[1])),
+    thickness.contents
   );
   // TODO: Compute the bbox of the line in a nicer way
-  const center = ops.vdiv(
-    ops.vadd(s.start.contents, s.end.contents),
-    constOf(2)
-  );
-  return BBox.bbox(w, h, center as Pt2);
+  const center = ops.vdiv(ops.vadd(start.contents, end.contents), constOf(2));
+  if (!isPt2(center)) {
+    throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
+  }
+  return BBox.bbox(w, h, center);
 };
 
 export const lineDef: ShapeDef = {
@@ -493,8 +625,8 @@ export const arrowDef: ShapeDef = {
   bbox: bboxFromLinelike,
 };
 
-const bboxFromPath = (s: any): BBox.BBox => {
-  throw new Error(`BBox expected a rect-like or line-like shape, but got Path`);
+const bboxFromPath = (_: Properties<VarAD>): BBox.BBox => {
+  throw new Error("bboxFromPath not implemented"); // TODO
 };
 
 export const curveDef: ShapeDef = {
