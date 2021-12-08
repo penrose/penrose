@@ -1,4 +1,16 @@
-import { absVal, constOf, max, ops, sub, mul, min } from "engine/Autodiff";
+import {
+  absVal,
+  constOf,
+  max,
+  ops,
+  sub,
+  mul,
+  min,
+  ifCond,
+  eq,
+  add,
+  div,
+} from "engine/Autodiff";
 import * as BBox from "engine/BBox";
 import { randFloat } from "utils/Util";
 import { Properties, Shape } from "types/shape";
@@ -282,8 +294,72 @@ export const rectDef: ShapeDef = {
   bbox: bboxFromRect,
 };
 
-const bboxFromCallout = (_: Properties<VarAD>): BBox.BBox => {
-  throw new Error("bboxFromCallout not implemented"); // TODO
+const bboxFromCallout = ({
+  anchor,
+  center,
+  w,
+  h,
+  padding,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (anchor.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromCallout expected anchor to be VectorV, but got ${anchor.tag}`
+    );
+  }
+  if (!isPt2(anchor.contents)) {
+    throw new Error(
+      `bboxFromCallout expected anchor to be Pt2, but got length ${anchor.contents.length}`
+    );
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromCallout expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromCallout expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (w.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCallout expected w to be FloatV, but got ${w.tag}`
+    );
+  }
+  if (h.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCallout expected h to be FloatV, but got ${h.tag}`
+    );
+  }
+  if (padding.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCallout expected padding to be FloatV, but got ${padding.tag}`
+    );
+  }
+
+  // below adapted from makeCallout function in renderer/Callout.ts
+
+  const pad = ifCond(
+    eq(padding.contents, constOf(0)),
+    constOf(30),
+    padding.contents
+  );
+  const dx = div(add(w.contents, pad), constOf(2));
+  const dy = div(add(h.contents, pad), constOf(2));
+
+  const [x, y] = center.contents;
+  const [anchorX, anchorY] = anchor.contents;
+  const minX = min(sub(x, dx), anchorX);
+  const maxX = max(add(x, dx), anchorX);
+  const minY = min(sub(y, dy), anchorY);
+  const maxY = max(add(y, dy), anchorY);
+
+  const width = sub(maxX, minX);
+  const height = sub(maxY, minY);
+  const cx = div(add(minX, maxX), constOf(2));
+  const cy = div(add(minY, maxY), constOf(2));
+  return BBox.bbox(width, height, [cx, cy]);
 };
 
 export const calloutDef: ShapeDef = {

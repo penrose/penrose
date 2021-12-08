@@ -54,6 +54,23 @@ const rectSty = `Rectangle {
 }
 `;
 
+const calloutStyNoPadding = `Callout {
+  center: (-50., -100.)
+  w: 100.
+  h: 100.
+  anchor: (100., -200.)
+}
+`;
+
+const calloutStyPadding = `Callout {
+  center: (-50., -100.)
+  w: 100.
+  h: 100.
+  anchor: (100., -200.)
+  padding: 20
+}
+`;
+
 const lineSty = `Line {
   start: (-300., 200.)
   end: (100., -150.)
@@ -114,8 +131,30 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(0);
   });
 
-  test("calloutDef.bbox", () => {
-    const { bbox } = ShapeDef.calloutDef; // TODO
+  test("calloutDef.bbox no padding", async () => {
+    const shape = await getShape(calloutStyNoPadding);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.calloutDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(215);
+    expect(numOf(h)).toBeCloseTo(165);
+    expect(numOf(x)).toBeCloseTo(-7.5);
+    expect(numOf(y)).toBeCloseTo(-117.5);
+  });
+
+  test("calloutDef.bbox padding", async () => {
+    const shape = await getShape(calloutStyPadding);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.calloutDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(210);
+    expect(numOf(h)).toBeCloseTo(160);
+    expect(numOf(x)).toBeCloseTo(-5);
+    expect(numOf(y)).toBeCloseTo(-120);
   });
 
   test("polygonDef.bbox", async () => {
