@@ -10,6 +10,7 @@ import {
   eq,
   add,
   div,
+  neg,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
 import { randFloat } from "utils/Util";
@@ -166,6 +167,24 @@ export interface IShapeDef {
 }
 
 export type Sampler = (canvas: Canvas) => Value<number>;
+
+const bboxFromPoints = (points: Pt2[]): BBox.BBox => {
+  const minCorner = points.reduce((corner: Pt2, point: Pt2) => [
+    min(corner[0], point[0]),
+    min(corner[1], point[1]),
+  ]);
+  const maxCorner = points.reduce((corner: Pt2, point: Pt2) => [
+    max(corner[0], point[0]),
+    max(corner[1], point[1]),
+  ]);
+  const w = sub(maxCorner[0], minCorner[0]);
+  const h = sub(maxCorner[1], minCorner[1]);
+  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), constOf(2));
+  if (!isPt2(center)) {
+    throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
+  }
+  return BBox.bbox(w, h, center);
+};
 
 const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
@@ -396,31 +415,18 @@ const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
     );
   }
 
-  const scaled: Pt2[] = points.contents.map((point) => {
-    const pt = ops.vmul(scale.contents, point);
-    if (isPt2(pt)) {
-      return pt;
-    } else {
-      throw new Error(
-        `bboxFromFreeformPolygon expected each point to be Pt2, but got length ${point.length}`
-      );
-    }
-  });
-  const minCorner = scaled.reduce((corner: Pt2, point: Pt2) => [
-    min(corner[0], point[0]),
-    min(corner[1], point[1]),
-  ]);
-  const maxCorner = scaled.reduce((corner: Pt2, point: Pt2) => [
-    max(corner[0], point[0]),
-    max(corner[1], point[1]),
-  ]);
-  const w = sub(maxCorner[0], minCorner[0]);
-  const h = sub(maxCorner[1], minCorner[1]);
-  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), constOf(2));
-  if (!isPt2(center)) {
-    throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
-  }
-  return BBox.bbox(w, h, center);
+  return bboxFromPoints(
+    points.contents.map((point) => {
+      const pt = ops.vmul(scale.contents, point);
+      if (isPt2(pt)) {
+        return pt;
+      } else {
+        throw new Error(
+          `bboxFromFreeformPolygon expected each point to be Pt2, but got length ${point.length}`
+        );
+      }
+    })
+  );
 };
 
 export const polygonDef: ShapeDef = {
@@ -541,13 +547,12 @@ export const imageDef: ShapeDef = {
   bbox: bboxFromRect, // TODO: handle rotation
 };
 
-const bboxFromSquare = ({ side, center }: Properties<VarAD>): BBox.BBox => {
+const bboxFromSquare = ({
+  center,
+  side,
+  rotation,
+}: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
-  if (side.tag !== "FloatV") {
-    throw new Error(
-      `bboxFromSquare expected side to be FloatV, but got ${side.tag}`
-    );
-  }
   if (center.tag !== "VectorV") {
     throw new Error(
       `bboxFromSquare expected center to be VectorV, but got ${center.tag}`
@@ -558,10 +563,35 @@ const bboxFromSquare = ({ side, center }: Properties<VarAD>): BBox.BBox => {
       `bboxFromSquare expected center to be Pt2, but got length ${center.contents.length}`
     );
   }
+  if (side.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected side to be FloatV, but got ${side.tag}`
+    );
+  }
+  if (rotation.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected rotation to be FloatV, but got ${rotation.tag}`
+    );
+  }
 
-  // TODO: handle rotation
-  // rx just rounds the corners, doesn't change the bbox
-  return BBox.bbox(side.contents, side.contents, center.contents);
+  // rx rounds the corners, so we could use it to give a smaller bbox if both
+  // that and rotation are nonzero, but we don't account for that here
+
+  const [centerX, centerY] = center.contents;
+  const r = div(side.contents, constOf(2));
+
+  const top = ops.vrot([side.contents, constOf(0)], neg(rotation.contents));
+  const left = ops.rot90(top);
+
+  const topLeft: Pt2 = [sub(centerX, r), sub(centerY, r)];
+  const topRight = ops.vadd(topLeft, top);
+  const botLeft = ops.vadd(topLeft, left);
+  const botRight = ops.vadd(topRight, left);
+  if (!(isPt2(topRight) && isPt2(botLeft) && isPt2(botRight))) {
+    throw new Error("ops.vadd did not preserve dimension");
+  }
+
+  return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
 };
 
 export const squareDef: ShapeDef = {

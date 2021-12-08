@@ -88,6 +88,7 @@ const polygonSty = (t: string) => `${t} {
 const squareSty = `Square {
   side: 50.
   center: (30., 70.)
+  rotation: 30.
 }
 `;
 
@@ -211,10 +212,10 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.squareDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(50);
-    expect(numOf(h)).toBeCloseTo(50);
-    expect(numOf(x)).toBeCloseTo(30);
-    expect(numOf(y)).toBeCloseTo(70);
+    expect(numOf(w)).toBeCloseTo(68.301);
+    expect(numOf(h)).toBeCloseTo(68.301);
+    expect(numOf(x)).toBeCloseTo(39.151);
+    expect(numOf(y)).toBeCloseTo(54.151);
   });
 
   test("textDef.bbox", () => {
