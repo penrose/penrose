@@ -100,7 +100,7 @@ const squareSty = `Square {
 }
 `;
 
-const lineSty = `Line {
+const lineSty = (t: string) => `${t} {
   start: (-300., 200.)
   end: (100., -150.)
   thickness: 50
@@ -254,17 +254,29 @@ describe("ShapeDef", () => {
   // no Text test because w and h seem to just be set to 0 when using getShape
 
   test("lineDef.bbox", async () => {
-    const shape = await getShape(lineSty);
+    const shape = await getShape(lineSty("Line"));
     const {
       w,
       h,
       center: [x, y],
     } = ShapeDef.lineDef.bbox(shape.properties);
-    // TODO
+    expect(numOf(w)).toBeCloseTo(432.925);
+    expect(numOf(h)).toBeCloseTo(387.629);
+    expect(numOf(x)).toBeCloseTo(-100);
+    expect(numOf(y)).toBeCloseTo(25);
   });
 
-  test("arrowDef.bbox", () => {
-    const { bbox } = ShapeDef.arrowDef; // TODO
+  test("arrowDef.bbox", async () => {
+    const shape = await getShape(lineSty("Arrow"));
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.arrowDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(432.925);
+    expect(numOf(h)).toBeCloseTo(387.629);
+    expect(numOf(x)).toBeCloseTo(-100);
+    expect(numOf(y)).toBeCloseTo(25);
   });
 
   test("curveDef.bbox", () => {

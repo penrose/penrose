@@ -723,22 +723,24 @@ const bboxFromLinelike = ({
     );
   }
 
-  // TODO: handle non-axis-aligned
-
-  const w = max(
-    absVal(sub(start.contents[0], end.contents[0])),
-    thickness.contents
+  const d = ops.vmul(
+    div(thickness.contents, constOf(2)),
+    ops.rot90(ops.vnormalize(ops.vsub(end.contents, start.contents)))
   );
-  const h = max(
-    absVal(sub(start.contents[1], end.contents[1])),
-    thickness.contents
+  return bboxFromPoints(
+    [
+      ops.vadd(start.contents, d),
+      ops.vsub(start.contents, d),
+      ops.vadd(end.contents, d),
+      ops.vsub(end.contents, d),
+    ].map((point) => {
+      if (isPt2(point)) {
+        return point;
+      } else {
+        throw new Error("ops did not preserve dimension");
+      }
+    })
   );
-  // TODO: Compute the bbox of the line in a nicer way
-  const center = ops.vdiv(ops.vadd(start.contents, end.contents), constOf(2));
-  if (!isPt2(center)) {
-    throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
-  }
-  return BBox.bbox(w, h, center);
 };
 
 export const lineDef: ShapeDef = {
