@@ -85,6 +85,13 @@ const polygonSty = (t: string) => `${t} {
 }
 `;
 
+const imageSty = `Image {
+  center: (0., 0.)
+  w: 150.
+  h: 200.
+}
+`;
+
 const squareSty = `Square {
   side: 50.
   center: (30., 70.)
@@ -201,8 +208,17 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(70.25);
   });
 
-  test("imageDef.bbox", () => {
-    const { bbox } = ShapeDef.imageDef; // TODO
+  test("imageDef.bbox", async () => {
+    const shape = await getShape(imageSty);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.imageDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(150);
+    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(x)).toBeCloseTo(0);
+    expect(numOf(y)).toBeCloseTo(0);
   });
 
   test("squareDef.bbox", async () => {
@@ -218,9 +234,7 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(54.151);
   });
 
-  test("textDef.bbox", () => {
-    const { bbox } = ShapeDef.textDef; // TODO
-  });
+  // no Text test because w and h seem to just be set to 0 when using getShape
 
   test("lineDef.bbox", async () => {
     const shape = await getShape(lineSty);

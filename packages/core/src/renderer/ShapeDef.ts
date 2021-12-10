@@ -544,7 +544,7 @@ export const imageDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultImage")],
   },
   positionalProps: ["center"],
-  bbox: bboxFromRect, // TODO: handle rotation
+  bbox: bboxFromRect, // doesn't handle rotation
 };
 
 const bboxFromSquare = ({
@@ -629,7 +629,7 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
   },
   positionalProps: ["center"],
-  bbox: bboxFromRect, // TODO: handle rotation
+  bbox: bboxFromRect, // doesn't handle rotation
 };
 
 /**
