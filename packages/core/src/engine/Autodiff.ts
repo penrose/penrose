@@ -1065,7 +1065,7 @@ export const ops = {
   },
 
   /**
-   * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+   * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
    */
   rot90: ([x, y]: VarAD[]): VarAD[] => {
     return [neg(y), x];
