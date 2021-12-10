@@ -186,6 +186,30 @@ const bboxFromPoints = (points: Pt2[]): BBox.BBox => {
   return BBox.bbox(w, h, center);
 };
 
+const bboxFromRotatedRect = (
+  center: Pt2,
+  w: VarAD,
+  h: VarAD,
+  clockwise: VarAD
+): BBox.BBox => {
+  const counterclockwise = neg(clockwise);
+  const top = ops.vrot([w, constOf(0)], counterclockwise);
+  const left = ops.vrot([constOf(0), neg(h)], counterclockwise);
+
+  const topLeft: Pt2 = [
+    sub(center[0], div(w, constOf(2))),
+    add(center[1], div(h, constOf(2))),
+  ];
+  const topRight = ops.vadd(topLeft, top);
+  const botLeft = ops.vadd(topLeft, left);
+  const botRight = ops.vadd(topRight, left);
+  if (!(isPt2(topRight) && isPt2(botLeft) && isPt2(botRight))) {
+    throw new Error("ops.vadd did not preserve dimension");
+  }
+
+  return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
+};
+
 const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   if (r.tag !== "FloatV") {
@@ -482,8 +506,45 @@ A 20,20 0,0,1 90,30
 Q 90,60 50,90
 Q 10,60 10,30 z`;
 
-const bboxFromPathString = (_: Properties<VarAD>): BBox.BBox => {
-  throw new Error("bboxFromPathString not implemented"); // TODO
+const bboxFromRectlike = ({
+  center,
+  w,
+  h,
+  rotation,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromPathString expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromPathString expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (w.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromPathString expected w to be FloatV, but got ${w.tag}`
+    );
+  }
+  if (h.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromPathString expected h to be FloatV, but got ${h.tag}`
+    );
+  }
+  if (rotation.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromPathString expected rotation to be FloatV, but got ${rotation.tag}`
+    );
+  }
+
+  return bboxFromRotatedRect(
+    center.contents,
+    w.contents,
+    h.contents,
+    rotation.contents
+  );
 };
 
 export const pathStringDef: ShapeDef = {
@@ -503,7 +564,7 @@ export const pathStringDef: ShapeDef = {
     viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
   },
   positionalProps: ["center"],
-  bbox: bboxFromPathString,
+  bbox: bboxFromRectlike,
 };
 
 export const polylineDef: ShapeDef = {
@@ -544,7 +605,7 @@ export const imageDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultImage")],
   },
   positionalProps: ["center"],
-  bbox: bboxFromRect, // doesn't handle rotation
+  bbox: bboxFromRectlike, // this may not handle rotation correctly for Image
 };
 
 const bboxFromSquare = ({
@@ -577,21 +638,12 @@ const bboxFromSquare = ({
   // rx rounds the corners, so we could use it to give a smaller bbox if both
   // that and rotation are nonzero, but we don't account for that here
 
-  const [centerX, centerY] = center.contents;
-  const r = div(side.contents, constOf(2));
-
-  const top = ops.vrot([side.contents, constOf(0)], neg(rotation.contents));
-  const left = ops.rot90(top);
-
-  const topLeft: Pt2 = [sub(centerX, r), sub(centerY, r)];
-  const topRight = ops.vadd(topLeft, top);
-  const botLeft = ops.vadd(topLeft, left);
-  const botRight = ops.vadd(topRight, left);
-  if (!(isPt2(topRight) && isPt2(botLeft) && isPt2(botRight))) {
-    throw new Error("ops.vadd did not preserve dimension");
-  }
-
-  return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
+  return bboxFromRotatedRect(
+    center.contents,
+    side.contents,
+    side.contents,
+    rotation.contents
+  );
 };
 
 export const squareDef: ShapeDef = {
@@ -629,7 +681,7 @@ export const textDef: ShapeDef = {
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
   },
   positionalProps: ["center"],
-  bbox: bboxFromRect, // doesn't handle rotation
+  bbox: bboxFromRectlike, // assumes w and h correspond to string
 };
 
 /**

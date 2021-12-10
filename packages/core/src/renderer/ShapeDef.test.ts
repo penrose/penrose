@@ -71,17 +71,18 @@ const calloutStyPadding = `Callout {
 }
 `;
 
-const lineSty = `Line {
-  start: (-300., 200.)
-  end: (100., -150.)
-  thickness: 50
-}
-`;
-
 // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
 const polygonSty = (t: string) => `${t} {
   points: [(564., 24.), (733., 54.), (755., 154.), (693., 257.), (548., 216.), (571., 145.), (630., 146.), (617., 180.), (664., 196.), (701., 120.), (591., 90.), (528., 129.)]
   scale: .5
+}
+`;
+
+const pathStringSty = `PathString {
+  center: (-50., 100.)
+  w: 100
+  h: 200
+  rotation: 30
 }
 `;
 
@@ -96,6 +97,13 @@ const squareSty = `Square {
   side: 50.
   center: (30., 70.)
   rotation: 30.
+}
+`;
+
+const lineSty = `Line {
+  start: (-300., 200.)
+  end: (100., -150.)
+  thickness: 50
 }
 `;
 
@@ -191,8 +199,17 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(70.25);
   });
 
-  test("pathStringDef.bbox", () => {
-    const { bbox } = ShapeDef.pathStringDef; // TODO
+  test("pathStringDef.bbox", async () => {
+    const shape = await getShape(pathStringSty);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.pathStringDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(186.603);
+    expect(numOf(h)).toBeCloseTo(223.205);
+    expect(numOf(x)).toBeCloseTo(-106.699);
+    expect(numOf(y)).toBeCloseTo(88.397);
   });
 
   test("polylineDef.bbox", async () => {
@@ -230,8 +247,8 @@ describe("ShapeDef", () => {
     } = ShapeDef.squareDef.bbox(shape.properties);
     expect(numOf(w)).toBeCloseTo(68.301);
     expect(numOf(h)).toBeCloseTo(68.301);
-    expect(numOf(x)).toBeCloseTo(39.151);
-    expect(numOf(y)).toBeCloseTo(54.151);
+    expect(numOf(x)).toBeCloseTo(14.151);
+    expect(numOf(y)).toBeCloseTo(60.849);
   });
 
   // no Text test because w and h seem to just be set to 0 when using getShape
