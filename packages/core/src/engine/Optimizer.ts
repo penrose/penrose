@@ -17,6 +17,7 @@ import {
   initConstraintWeight,
   makeTranslationDifferentiable,
   makeTranslationNumeric,
+  shapeAutodiffToNumber,
 } from "engine/EngineUtils";
 import {
   argValue,
@@ -374,7 +375,10 @@ export const step = (state: State, steps: number, evaluate = true): State => {
     );
 
     newState.varyingValues = varyingValues;
-    newState = evalShapes(newState);
+    newState = {
+      ...newState,
+      shapes: shapeAutodiffToNumber(evalShapes(newState)),
+    };
   }
 
   return newState;
