@@ -782,7 +782,7 @@ export const compDict = {
   // ------ Geometry/graphics utils
 
   /**
-   * Rotate a 2D vector `v` by 90 degrees clockwise.
+   * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
   rot90: (v: VarAD[]) => {
     if (v.length !== 2) {
@@ -837,7 +837,7 @@ const perpPathFlat = (
 };
 
 /**
- * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
   return [neg(y), x];
