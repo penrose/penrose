@@ -430,12 +430,12 @@ const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
   // seems like this should be PtListV but apparently it isn't
   if (points.tag !== "LListV") {
     throw new Error(
-      `bboxFromFreeformPolygon expected points to be LListV, but got ${points.tag}`
+      `bboxFromPolygon expected points to be LListV, but got ${points.tag}`
     );
   }
   if (scale.tag !== "FloatV") {
     throw new Error(
-      `bboxFromFreeformPolygon expected scale to be FloatV, but got ${scale.tag}`
+      `bboxFromPolygon expected scale to be FloatV, but got ${scale.tag}`
     );
   }
 
@@ -446,7 +446,7 @@ const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
         return pt;
       } else {
         throw new Error(
-          `bboxFromFreeformPolygon expected each point to be Pt2, but got length ${point.length}`
+          `bboxFromPolygon expected each point to be Pt2, but got length ${point.length}`
         );
       }
     })
