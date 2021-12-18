@@ -61,18 +61,10 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeWidth = (shape.properties.strokeWidth as IFloatV<number>)
     .contents;
-  const strokeColor = toSvgPaintProperty(
-    (shape.properties.color as IColorV<number>).contents
-  );
-  const strokeOpacity = toSvgOpacityProperty(
-    (shape.properties.color as IColorV<number>).contents
-  );
-  const fillColor = toSvgPaintProperty(
-    (shape.properties.fill as IColorV<number>).contents
-  );
-  const fillOpacity = toSvgOpacityProperty(
-    (shape.properties.fill as IColorV<number>).contents
-  );
+  const strokeColor = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
+  const strokeOpacity = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
+  const fillColor = toSvgPaintProperty((shape.properties.fill as IColorV<number>).contents);
+  const fillOpacity = toSvgOpacityProperty((shape.properties.fill as IColorV<number>).contents);
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
@@ -103,12 +95,12 @@ export const Path = ({ shape, canvasSize }: ShapeProps) => {
   path.setAttribute("stroke", strokeColor);
   path.setAttribute("fill", fillColor);
   // Stroke opacity and width only relevant if paint is present
-  if ((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+  if((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
     path.setAttribute("stroke-width", strokeWidth.toString());
     path.setAttribute("stroke-opacity", strokeOpacity.toString());
   }
   // Fill opacity only relevant if paint is present
-  if ((shape.properties.fill as IColorV<number>).contents.tag !== "NONE") {
+  if((shape.properties.fill as IColorV<number>).contents.tag !== "NONE") {
     path.setAttribute("fill-opacity", fillOpacity.toString());
   }
   // factor out an AttrHelper
