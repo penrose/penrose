@@ -107,6 +107,21 @@ const lineSty = (t: string) => `${t} {
 }
 `;
 
+const pathStyQ = `Path {
+  pathData: makePath((-100., 0.), (100., 0.), 50., 10.)
+}
+`;
+
+const pathStyL = `Path {
+  pathData: pathFromPoints("open", [(-100, -100), (100, -50), (-50, 100)])
+}
+`;
+
+const pathStyA = `Path {
+  pathData: arc("open", (-50, 50), (100, -25), (200, 100), 30, 0, 0)
+}
+`;
+
 describe("ShapeDef", () => {
   test("circleDef.bbox", async () => {
     const shape = await getShape(circleSty);
@@ -279,7 +294,43 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(25);
   });
 
-  test("curveDef.bbox", () => {
-    const { bbox } = ShapeDef.curveDef; // TODO
+  test("curveDef.bbox quadratic", async () => {
+    const shape = await getShape(pathStyQ);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.curveDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(180);
+    expect(numOf(h)).toBeCloseTo(50);
+    expect(numOf(x)).toBeCloseTo(0);
+    expect(numOf(y)).toBeCloseTo(-25);
   });
+
+  test("curveDef.bbox lines", async () => {
+    const shape = await getShape(pathStyL);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.curveDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(200);
+    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(x)).toBeCloseTo(0);
+    expect(numOf(y)).toBeCloseTo(0);
+  });
+
+  test("curveDef.bbox arc", async () => {
+    const shape = await getShape(pathStyA);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.curveDef.bbox(shape.properties);
+    // TODO
+  });
+
+  // no Path tests using C or T or S because nothing in contrib/Functions.ts
+  // uses bezierCurveTo or quadraticCurveJoin or cubicCurveJoin from
+  // renderer/PathBuilder.ts
 });

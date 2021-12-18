@@ -780,8 +780,101 @@ export const arrowDef: ShapeDef = {
   bbox: bboxFromLinelike,
 };
 
-const bboxFromPath = (_: Properties<VarAD>): BBox.BBox => {
-  throw new Error("bboxFromPath not implemented"); // TODO
+const bboxFromPath = ({ pathData }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (pathData.tag !== "PathDataV") {
+    throw new Error(
+      `bboxFromPath expected pathData to be PathDataV, but got ${pathData.tag}`
+    );
+  }
+  // assuming path and polyline properties are not used
+
+  const p = pathData.contents;
+  if (p.length < 1) {
+    throw new Error("bboxFromPath expected pathData to be nonempty");
+  }
+  if (p[0].cmd !== "M") {
+    throw new Error(
+      `bboxFromPath expected first command to be M, but got ${p[0].cmd}`
+    );
+  }
+  const first = p[0].contents[0];
+  if (first.tag !== "CoordV") {
+    throw new Error(
+      `bboxFromPath expected first command subpath to be CoordV, but got ${first.tag}`
+    );
+  }
+  if (!isPt2(first.contents)) {
+    throw new Error(
+      `bboxFromPath expected cursor to be Pt2, but got length ${first.contents.length}`
+    );
+  }
+  let cursor: Pt2 = first.contents;
+  let control: Pt2 = cursor; // used by T and S
+
+  const points: Pt2[] = [];
+  for (const { cmd, contents } of p) {
+    const next = cmd === "Z" ? first : contents[contents.length - 1];
+    if (next.tag !== "CoordV") {
+      throw new Error("bboxFromPath expected next cursor to be CoordV");
+    }
+    if (!isPt2(next.contents)) {
+      throw new Error("bboxFromPath expected next cursor to be Pt2");
+    }
+    let nextControl = next.contents;
+
+    if (cmd === "M") {
+      // cursor is set after this if/else sequence; nothing to do here
+    } else if (cmd === "Z" || cmd === "L") {
+      points.push(cursor, next.contents);
+    } else if (cmd === "Q") {
+      const cp = contents[0].contents;
+      if (!isPt2(cp)) {
+        throw new Error("bboxFromPath expected Q cp to be Pt2");
+      }
+      points.push(cursor, cp, next.contents);
+      nextControl = cp;
+    } else if (cmd === "C") {
+      const cp1 = contents[0].contents;
+      const cp2 = contents[1].contents;
+      if (!isPt2(cp1)) {
+        throw new Error("bboxFromPath expected C cp1 to be Pt2");
+      }
+      if (!isPt2(cp2)) {
+        throw new Error("bboxFromPath expected C cp2 to be Pt2");
+      }
+      points.push(cursor, cp1, cp2, next.contents);
+      nextControl = cp2;
+    } else if (cmd === "T") {
+      const cp = ops.vadd(cursor, ops.vsub(cursor, control));
+      if (!isPt2(cp)) {
+        throw new Error("ops did not preserve dimension");
+      }
+      points.push(cursor, cp, next.contents);
+      nextControl = cp;
+    } else if (cmd === "S") {
+      const cp1 = ops.vadd(cursor, ops.vsub(cursor, control));
+      const cp2 = contents[0].contents;
+      if (!isPt2(cp1)) {
+        throw new Error("ops did not preserve dimension");
+      }
+      if (!isPt2(cp2)) {
+        throw new Error("bboxFromPath expected S cp2 to be Pt2");
+      }
+      points.push(cursor, cp1, cp2, next.contents);
+      nextControl = cp2;
+    } else {
+      // TODO: handle arcs
+
+      // only commands used in render/PathBuilder.ts are supported; in
+      // particular, H and V are not supported, nor are any lowercase commands
+      throw new Error(`bboxFromPath got unsupported cmd ${cmd}`);
+    }
+
+    cursor = next.contents;
+    control = nextControl;
+  }
+  return bboxFromPoints(points);
 };
 
 export const curveDef: ShapeDef = {
