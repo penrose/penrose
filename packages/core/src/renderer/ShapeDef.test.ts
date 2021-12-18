@@ -35,51 +35,51 @@ const getShape = async (shapeSty: string): Promise<ShapeAD> => {
 };
 
 const circleSty = `Circle {
-  r: 100.
-  center: (42., 121.)
+  r: 100
+  center: (42, 121)
 }
 `;
 
 const ellipseSty = `Ellipse {
-  rx: 200.
-  ry: 100.
-  center: (42., 121.)
+  rx: 200
+  ry: 100
+  center: (42, 121)
 }
 `;
 
 const rectSty = `Rectangle {
-  center: (0., 0.)
-  w: 150.
-  h: 200.
+  center: (0, 0)
+  w: 150
+  h: 200
 }
 `;
 
 const calloutStyNoPadding = `Callout {
-  center: (-50., -100.)
-  w: 100.
-  h: 100.
-  anchor: (100., -200.)
+  center: (-50, -100)
+  w: 100
+  h: 100
+  anchor: (100, -200)
 }
 `;
 
 const calloutStyPadding = `Callout {
-  center: (-50., -100.)
-  w: 100.
-  h: 100.
-  anchor: (100., -200.)
+  center: (-50, -100)
+  w: 100
+  h: 100
+  anchor: (100, -200)
   padding: 20
 }
 `;
 
 // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
 const polygonSty = (t: string) => `${t} {
-  points: [(564., 24.), (733., 54.), (755., 154.), (693., 257.), (548., 216.), (571., 145.), (630., 146.), (617., 180.), (664., 196.), (701., 120.), (591., 90.), (528., 129.)]
+  points: [(564, 24), (733, 54), (755, 154), (693, 257), (548, 216), (571, 145), (630, 146), (617, 180), (664, 196), (701, 120), (591, 90), (528, 129)]
   scale: .5
 }
 `;
 
 const pathStringSty = `PathString {
-  center: (-50., 100.)
+  center: (-50, 100)
   w: 100
   h: 200
   rotation: 30
@@ -87,28 +87,28 @@ const pathStringSty = `PathString {
 `;
 
 const imageSty = `Image {
-  center: (0., 0.)
-  w: 150.
-  h: 200.
+  center: (0, 0)
+  w: 150
+  h: 200
 }
 `;
 
 const squareSty = `Square {
-  side: 50.
-  center: (30., 70.)
-  rotation: 30.
+  side: 50
+  center: (30, 70)
+  rotation: 30
 }
 `;
 
 const lineSty = (t: string) => `${t} {
-  start: (-300., 200.)
-  end: (100., -150.)
+  start: (-300, 200)
+  end: (100, -150)
   thickness: 50
 }
 `;
 
 const pathStyQ = `Path {
-  pathData: makePath((-100., 0.), (100., 0.), 50., 10.)
+  pathData: makePath((-100, 0), (100, 0), 50, 10)
 }
 `;
 
@@ -321,12 +321,12 @@ describe("ShapeDef", () => {
   });
 
   test("curveDef.bbox arc", async () => {
-    const shape = await getShape(pathStyA);
-    const {
-      w,
-      h,
-      center: [x, y],
-    } = ShapeDef.curveDef.bbox(shape.properties);
+    // const shape = await getShape(pathStyA);
+    // const {
+    //   w,
+    //   h,
+    //   center: [x, y],
+    // } = ShapeDef.curveDef.bbox(shape.properties);
     // TODO
   });
 
