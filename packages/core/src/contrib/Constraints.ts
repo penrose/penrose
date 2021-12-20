@@ -1011,7 +1011,6 @@ export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
  *   (shape-specific)
  * Input: A shape.
  * Output: A new BBox
- * Errors: Throws an error if called on an unsupported shape type.
  */
 export const bboxFromShape = (t: string, s: any): BBox.BBox => {
   return findDef(t).bbox(s);
