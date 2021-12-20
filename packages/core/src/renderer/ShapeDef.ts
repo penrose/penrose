@@ -607,7 +607,7 @@ export const imageDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultImage")],
   },
   positionalProps: ["center"],
-  bbox: bboxFromRectlike, // this may not handle rotation correctly for Image
+  bbox: bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
 };
 
 const bboxFromSquare = ({
