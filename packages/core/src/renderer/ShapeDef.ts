@@ -227,7 +227,6 @@ const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
   }
 
   const diameter = mul(constOf(2), r.contents);
-  // assuming it's OK not to clone diameter
   return BBox.bbox(diameter, diameter, center.contents);
 };
 
@@ -684,13 +683,6 @@ export const textDef: ShapeDef = {
   bbox: bboxFromRectlike, // assumes w and h correspond to string
 };
 
-/**
- * Preconditions:
- *   s must be axis-aligned.
- *   Assumes s is longer than it is thick.
- * Input: A line-like shape.
- * Output: A new BBox
- */
 const bboxFromLinelike = ({
   start,
   end,
