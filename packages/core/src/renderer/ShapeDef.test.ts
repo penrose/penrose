@@ -117,8 +117,18 @@ const pathStyL = `Path {
 }
 `;
 
-const pathStyA = `Path {
+const pathStyAUnscaled = `Path {
+  pathData: arc("open", (-50, 50), (100, -25), (200, 100), 30, 1, 0)
+}
+`;
+
+const pathStyASmall = `Path {
   pathData: arc("open", (-50, 50), (100, -25), (200, 100), 30, 0, 0)
+}
+`;
+
+const pathStyAScaled = `Path {
+  pathData: arc("open", (-75, -50), (200, 25), (25, 50), 60, 0, 0)
 }
 `;
 
@@ -320,14 +330,43 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(0);
   });
 
-  test("curveDef.bbox arc", async () => {
-    // const shape = await getShape(pathStyA);
-    // const {
-    //   w,
-    //   h,
-    //   center: [x, y],
-    // } = ShapeDef.curveDef.bbox(shape.properties);
-    // TODO
+  test("curveDef.bbox arc unscaled", async () => {
+    const shape = await getShape(pathStyAUnscaled);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.curveDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(400);
+    expect(numOf(h)).toBeCloseTo(400);
+    expect(numOf(x)).toBeCloseTo(-1.297);
+    expect(numOf(y)).toBeCloseTo(-76.281);
+  });
+
+  test("curveDef.bbox arc small", async () => {
+    const shape = await getShape(pathStyASmall);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.curveDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(400);
+    expect(numOf(h)).toBeCloseTo(400);
+    expect(numOf(x)).toBeCloseTo(51.297);
+    expect(numOf(y)).toBeCloseTo(101.282);
+  });
+
+  test("curveDef.bbox arc scaled", async () => {
+    const shape = await getShape(pathStyAScaled);
+    const {
+      w,
+      h,
+      center: [x, y],
+    } = ShapeDef.curveDef.bbox(shape.properties);
+    expect(numOf(w)).toBeCloseTo(311.512);
+    expect(numOf(h)).toBeCloseTo(311.512);
+    expect(numOf(x)).toBeCloseTo(62.5);
+    expect(numOf(y)).toBeCloseTo(-12.5);
   });
 
   // no Path tests using C or T or S because nothing in contrib/Functions.ts

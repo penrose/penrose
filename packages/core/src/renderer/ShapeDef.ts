@@ -11,6 +11,9 @@ import {
   add,
   div,
   neg,
+  squared,
+  gt,
+  sqrt,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
 import { randFloat } from "utils/Util";
@@ -855,9 +858,80 @@ const bboxFromPath = ({ pathData }: Properties<VarAD>): BBox.BBox => {
       }
       points.push(cursor, cp1, cp2, next.contents);
       nextControl = cp2;
-    } else {
-      // TODO: handle arcs
+    } else if (cmd === "A") {
+      const [rxRaw, ryRaw, rotation, largeArc, sweep] = contents[0].contents;
+      const phi = neg(rotation); // phi is counterclockwise
 
+      // https://www.w3.org/TR/SVG/implnote.html#ArcCorrectionOutOfRangeRadii
+      // note: we assume neither rxRaw nor ryRaw are zero; technically in that
+      // case we should just points.push(cursor, next.contents) and then not do
+      // any of these other calculations
+
+      // eq. 6.1
+      const rxPos = absVal(rxRaw);
+      const ryPos = absVal(ryRaw);
+
+      // https://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
+      // eq. 5.1
+      const [x1Prime, y1Prime] = ops.vrot(
+        ops.vdiv(ops.vsub(cursor, next.contents), constOf(2)),
+        neg(phi)
+      );
+
+      // eq. 6.2
+      const lambda = add(
+        squared(div(x1Prime, rxPos)),
+        squared(div(y1Prime, ryPos))
+      );
+
+      // eq. 6.3
+      const replace = gt(lambda, constOf(1));
+      const rx = ifCond(replace, mul(sqrt(lambda), rxPos), rxPos);
+      const ry = ifCond(replace, mul(sqrt(lambda), ryPos), ryPos);
+
+      // eq. 5.2
+      const cPrime = ops.vmul(
+        mul(
+          // according to the linked doc it seems like this should be the other
+          // way around, but Penrose seems to do it this way instead
+          ifCond(eq(largeArc, sweep), constOf(1), constOf(-1)),
+          sqrt(
+            // mathematically this radicand can never be negative, but when
+            // Lambda is greater than 1, the radicand becomes very close to 0
+            // and sometimes negative, so we manually clamp it to a very small
+            // positive value in that case, because sqrt internally calls div on
+            // the radicand, and some testing shows that passing values smaller
+            // than this magic number to sqrt causes that internal call to div
+            // to throw an error
+            max(
+              constOf(1e-18),
+              div(
+                sub(
+                  sub(squared(mul(rx, ry)), squared(mul(rx, y1Prime))),
+                  squared(mul(ry, x1Prime))
+                ),
+                add(squared(mul(rx, y1Prime)), squared(mul(ry, x1Prime)))
+              )
+            )
+          )
+        ),
+        [div(mul(rx, y1Prime), ry), neg(div(mul(ry, x1Prime), rx))]
+      );
+
+      // eq. 5.3
+      const [cx, cy] = ops.vadd(
+        ops.vrot(cPrime, phi),
+        ops.vdiv(ops.vadd(cursor, next.contents), constOf(2))
+      );
+
+      // very crude approach: we know that the ellipse is contained within a
+      // concentric circle whose diameter is the major axis, so just use the
+      // bounding box of that circle
+      const r = max(rx, ry);
+      points.push([sub(cx, r), sub(cy, r)], [add(cx, r), add(cy, r)]);
+      // ideally we would instead do something more sophisticated, like this:
+      // https://stackoverflow.com/a/65441277
+    } else {
       // only commands used in render/PathBuilder.ts are supported; in
       // particular, H and V are not supported, nor are any lowercase commands
       throw new Error(`bboxFromPath got unsupported cmd ${cmd}`);
