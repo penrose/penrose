@@ -515,27 +515,27 @@ const bboxFromRectlike = ({
   // https://github.com/penrose/penrose/issues/701
   if (center.tag !== "VectorV") {
     throw new Error(
-      `bboxFromPathString expected center to be VectorV, but got ${center.tag}`
+      `bboxFromRectlike expected center to be VectorV, but got ${center.tag}`
     );
   }
   if (!isPt2(center.contents)) {
     throw new Error(
-      `bboxFromPathString expected center to be Pt2, but got length ${center.contents.length}`
+      `bboxFromRectlike expected center to be Pt2, but got length ${center.contents.length}`
     );
   }
   if (w.tag !== "FloatV") {
     throw new Error(
-      `bboxFromPathString expected w to be FloatV, but got ${w.tag}`
+      `bboxFromRectlike expected w to be FloatV, but got ${w.tag}`
     );
   }
   if (h.tag !== "FloatV") {
     throw new Error(
-      `bboxFromPathString expected h to be FloatV, but got ${h.tag}`
+      `bboxFromRectlike expected h to be FloatV, but got ${h.tag}`
     );
   }
   if (rotation.tag !== "FloatV") {
     throw new Error(
-      `bboxFromPathString expected rotation to be FloatV, but got ${rotation.tag}`
+      `bboxFromRectlike expected rotation to be FloatV, but got ${rotation.tag}`
     );
   }
 
