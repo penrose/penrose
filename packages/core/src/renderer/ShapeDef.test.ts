@@ -107,13 +107,13 @@ const lineSty = (t: string) => `${t} {
 }
 `;
 
-const pathStyQ = `Path {
-  pathData: makePath((-100, 0), (100, 0), 50, 10)
+const pathStyL = `Path {
+  pathData: pathFromPoints("open", [(-100, -100), (100, -50), (-50, 100)])
 }
 `;
 
-const pathStyL = `Path {
-  pathData: pathFromPoints("open", [(-100, -100), (100, -50), (-50, 100)])
+const pathStyQ = `Path {
+  pathData: makePath((-100, 0), (100, 0), 50, 10)
 }
 `;
 
