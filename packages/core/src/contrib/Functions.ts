@@ -75,6 +75,17 @@ export const compDict = {
       .getPath();
   },
 
+  curveFromPoints: (start: Pt2, cp: Pt2, pts: Pt2[]): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    path.moveTo(start);
+    const [second, ...tailpts] = pts;
+    path.quadraticCurveTo(cp, second);
+    for (const pt of tailpts) {
+      path.quadraticCurveJoin(pt);
+    }
+    return path.getPath();
+  },
+
   /**
    * Return the derivative of `varName`.
    * NOTE: This is a special system function. Don't change it!
