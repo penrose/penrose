@@ -218,7 +218,7 @@ export const compDict = {
     return {
       tag: "ColorV",
       contents: {
-        tag: "NONE"
+        tag: "NONE",
       },
     };
   },
@@ -559,7 +559,7 @@ export const compDict = {
 
   /**
            * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-        
+
        @deprecated Don't use this function, it does not fully work
            */
   intersectingSideSize: (
@@ -682,18 +682,18 @@ export const compDict = {
    */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
     // If paint=none, opacity is irreelevant
-    if(color.tag === "NONE") {
+    if (color.tag === "NONE") {
       return {
         tag: "ColorV",
-        contents: color
-      }
-    // Otherwise, retain tag and color; only modify opacity
+        contents: color,
+      };
+      // Otherwise, retain tag and color; only modify opacity
     } else {
       const props = color.contents;
       return {
         tag: "ColorV",
-        contents: { 
-          tag: color.tag, 
+        contents: {
+          tag: color.tag,
           contents: [props[0], props[1], props[2], mul(frac, props[3])],
         },
       };
