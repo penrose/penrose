@@ -20,6 +20,9 @@ const adaptor = browserAdaptor();
 RegisterHTMLHandler(adaptor as any);
 const tex = new TeX({
   packages: AllPackages,
+  macros: {
+    textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+  },
   inlineMath: [
     ["$", "$"],
     ["\\(", "\\)"],

@@ -91,6 +91,7 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  FExpr,
   Field,
   FieldDict,
   FieldExpr,
@@ -1997,41 +1998,39 @@ const insertNames = (trans: Translation): Translation => {
   return mapTrans(trans, insertName);
 };
 
-// Note, this mutates the translation
-const insertLabels = (trans: Translation, labels: LabelMap): Translation => {
-  const insertLabel = (
-    name: string,
-    fieldDict: FieldDict
-  ): [string, FieldDict] => {
-    let labelRes = labels.get(name);
-
-    if (!labelRes) {
-      // We skip here, to avoid putting spurious labels in for namespaces in the translation.
-      return [name, fieldDict];
-    }
-
-    let label;
-    if (labelRes.isJust()) {
-      label = labelRes.value;
-    } else {
-      // TODO: Distinguish between no label and empty label?
-      label = "";
-    }
-
-    fieldDict[LABEL_FIELD] = {
-      tag: "FExpr",
-      contents: {
+/**
+ * Add label strings to the translation, regardless if the Substance object is selected in the Style program
+ * NOTE: this function mutates `trans`.
+ *
+ * @param trans `Translation` without labels
+ * @param labels the label map from the Substance compiler
+ */
+const insertLabels = (trans: Translation, labels: LabelMap): void => {
+  for (const labelData of labels) {
+    const [name, label] = labelData;
+    if (label.isJust()) {
+      const labelString = label.value;
+      const labelValue: TagExpr<VarAD> = {
         tag: "Done",
         contents: {
           tag: "StrV",
-          contents: label,
+          contents: labelString,
         },
-      },
-    };
-    return [name, fieldDict];
-  };
-
-  return mapTrans(trans, insertLabel);
+      };
+      const labelExpr: FieldExpr<VarAD> = {
+        tag: "FExpr",
+        contents: labelValue,
+      };
+      const fieldDict = trans.trMap[name];
+      if (fieldDict !== undefined) {
+        fieldDict[LABEL_FIELD] = labelExpr;
+      } else {
+        trans[name] = {
+          [LABEL_FIELD]: labelExpr,
+        };
+      }
+    }
+  }
 };
 
 const translateStyProg = (
@@ -2056,13 +2055,13 @@ const translateStyProg = (
 
   const trans = res.contents;
   const transWithNames = insertNames(trans);
-  const transWithNamesAndLabels = insertLabels(transWithNames, labelMap);
+  insertLabels(transWithNames, labelMap); // NOTE: mutates `transWithNames`
 
   // COMBAK: Do this with plugins
   // const styValMap = styJsonToMap(styVals);
   // const transWithPlugins = evalPluginAccess(styValMap, transWithNamesAndLabels);
   // return Right(transWithPlugins);
-  return toRight(transWithNamesAndLabels);
+  return toRight(transWithNames);
 };
 
 //#endregion

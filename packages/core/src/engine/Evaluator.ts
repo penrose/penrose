@@ -26,7 +26,7 @@ import {
   GPI,
   IVectorV,
 } from "types/value";
-import { Shape } from "types/shape";
+import { Shape, ShapeAD } from "types/shape";
 import { Value } from "types/value";
 import { State, Fn, VaryMap, FnDone } from "types/state";
 import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
@@ -67,7 +67,7 @@ const dummySourceLoc = (): SourceLoc => {
  *
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
-export const evalShapes = (s: State): State => {
+export const evalShapes = (s: State): ShapeAD[] => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
 
@@ -102,10 +102,10 @@ export const evalShapes = (s: State): State => {
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled]: [
-    Shape[],
+    ShapeAD[],
     Translation
   ] = shapeExprs.reduce(
-    ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
+    ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
       evalShape(e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
@@ -115,19 +115,16 @@ export const evalShapes = (s: State): State => {
   }
 
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled: Shape[] = s.shapeOrdering.map(
+  const sortedShapesEvaled: ShapeAD[] = s.shapeOrdering.map(
     (name) =>
       shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
-  // const nonEmpties = sortedShapesEvaled.filter(notEmptyLabel);
-
   // Update the state with the new list of shapes
-  // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: sortedShapesEvaled };
+  return sortedShapesEvaled;
 };
 
-const sameName = (given: Value<number>, expected: string): boolean => {
+const sameName = <T>(given: Value<T>, expected: string): boolean => {
   if (given.tag !== "StrV") {
     return false;
   }
@@ -200,18 +197,18 @@ export const evalFn = (
  *
  */
 export const evalShape = (
-  shapeExpr: IFGPI<VarAD>, // <number>?
+  shapeExpr: IFGPI<VarAD>,
   trans: Translation,
   varyingVars: VaryMap,
-  shapes: Shape[],
+  shapes: ShapeAD[],
   optDebugInfo: OptDebugInfo
-): [Shape[], Translation] => {
+): [ShapeAD[], Translation] => {
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(
     propExprs,
-    (prop: TagExpr<VarAD>): Value<number> => {
+    (prop: TagExpr<VarAD>): Value<VarAD> => {
       // TODO: Refactor these cases to be more concise
       if (prop.tag === "OptEval") {
         // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
@@ -222,21 +219,19 @@ export const evalShape = (
           varyingVars,
           optDebugInfo
         ) as IVal<VarAD>).contents;
-        const resDisplay: Value<number> = valueAutodiffToNumber(res);
-        return resDisplay;
+        return res;
       } else if (prop.tag === "Done") {
-        return valueAutodiffToNumber(prop.contents);
+        return prop.contents;
       } else if (prop.tag === "Pending") {
         // Pending expressions are just converted because they get converted back to numbers later
-        const res = valueAutodiffToNumber(prop.contents);
-        return res;
+        return prop.contents;
       } else {
         throw Error("unknown tag");
       }
     }
   );
 
-  const shape: Shape = { shapeType, properties: props };
+  const shape: ShapeAD = { shapeType, properties: props };
 
   return [[...shapes, shape], trans];
 };
@@ -664,7 +659,10 @@ export const resolvePath = (
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal = varyingMap?.get(prettyPrintPath(path));
+  let varyingVal;
+  if (varyingMap) {
+    varyingVal = varyingMap.get(prettyPrintPath(path));
+  }
 
   if (varyingVal) {
     return floatVal(varyingVal);
@@ -743,7 +741,10 @@ export const resolvePath = (
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
-            varyingVal = varyingMap?.get(prettyPrintPath(propertyPath));
+            let varyingVal;
+            if (varyingMap) {
+              varyingVal = varyingMap.get(prettyPrintPath(propertyPath));
+            }
             if (varyingVal) {
               return { tag: "FloatV", contents: varyingVal };
             } else {

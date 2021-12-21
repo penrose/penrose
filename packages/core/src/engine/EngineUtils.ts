@@ -45,6 +45,8 @@ import {
   Translation,
 } from "types/value";
 import { showError } from "utils/Error";
+import { Shape, ShapeAD } from "types/shape";
+import { mapValues } from "lodash";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -183,20 +185,13 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 }
 
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
-  if (v.tag === "RGBA") {
-    const rgb = v.contents;
-    return {
-      tag: "RGBA",
-      contents: mapTuple(f, rgb),
-    };
-  } else if (v.tag === "HSVA") {
-    const hsv = v.contents;
-    return {
-      tag: "HSVA",
-      contents: mapTuple(f, hsv),
-    };
-  } else {
-    throw Error("unexpected color tag");
+  switch (v.tag) {
+    case "RGBA":
+      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+    case "HSVA":
+      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+    case "NONE":
+      return { tag: v.tag };
   }
 }
 
@@ -261,6 +256,14 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     );
   }
 }
+
+export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
+  shapes.map((s: ShapeAD) => ({
+    ...s,
+    properties: mapValues(s.properties, (p: Value<VarAD>) =>
+      valueAutodiffToNumber(p)
+    ),
+  }));
 
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);

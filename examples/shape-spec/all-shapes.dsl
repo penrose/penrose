@@ -1,0 +1,13 @@
+type TCircle 
+type TEllipse
+type TRectangle
+type TPolygon
+type TFreeformPolygon
+type TPathString
+type TPolyline
+type TImage
+type TSquare
+type TText
+type TLine
+type TArrow
+type TPath

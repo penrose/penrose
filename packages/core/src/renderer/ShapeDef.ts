@@ -126,6 +126,13 @@ const black: IColorV<number> = {
   },
 };
 
+const noPaint: IColorV<number> = {
+  tag: "ColorV",
+  contents: {
+    tag: "NONE",
+  },
+};
+
 //#endregion
 
 //#region shapedefs
@@ -153,7 +160,7 @@ export const circleDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
   },
@@ -170,7 +177,7 @@ export const ellipseDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
@@ -188,7 +195,7 @@ export const rectDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultRect")],
@@ -208,7 +215,7 @@ export const calloutDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCallout")],
@@ -221,7 +228,7 @@ export const polygonDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", constValue("FloatV", 1)],
@@ -244,9 +251,10 @@ export const freeformPolygonDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
+    scale: ["FloatV", constValue("FloatV", 1)],
     points: [
       "PtListV",
       constValue("PtListV", [
@@ -276,7 +284,7 @@ export const pathStringDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
+    color: ["ColorV", () => noPaint],
     name: ["StrV", constValue("StrV", "defaultPolygon")],
     data: ["StrV", constValue("StrV", DEFAULT_PATHSTR)],
     viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
@@ -333,7 +341,7 @@ export const squareDef: ShapeDef = {
     rx: ["FloatV", zeroFloat],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultSquare")],
@@ -404,8 +412,8 @@ export const curveDef: ShapeDef = {
     style: ["StrV", constValue("StrV", "solid")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     effect: ["StrV", constValue("StrV", "none")],
-    color: ["ColorV", colorSampler],
-    fill: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler], // should be "strokeColor"
+    fill: ["ColorV", () => noPaint], // should be "color"
     leftArrowhead: ["BoolV", constValue("BoolV", false)],
     rightArrowhead: ["BoolV", constValue("BoolV", false)],
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
@@ -446,4 +454,26 @@ export const findDef = (type: string): ShapeDef => {
   else throw new Error(`${type} is not a valid shape definition.`);
 };
 
+//#endregion
+
+//#region Shape kind queries
+// Kinds of shapes
+/**
+ * Takes a `shapeType`, returns whether it's rectlike. (excluding squares)
+ */
+export const isRectlike = (shapeType: string): boolean => {
+  return (
+    shapeType == "Rectangle" ||
+    shapeType == "Square" ||
+    shapeType == "Image" ||
+    shapeType == "Text"
+  );
+};
+
+/**
+ * Takes a `shapeType`, returns whether it's linelike.
+ */
+export const isLinelike = (shapeType: string): boolean => {
+  return shapeType == "Line" || shapeType == "Arrow";
+};
 //#endregion

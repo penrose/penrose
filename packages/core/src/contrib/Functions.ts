@@ -1,4 +1,4 @@
-import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
@@ -37,6 +37,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
+import { isRectlike } from "renderer/ShapeDef";
 
 /**
  * Static dictionary of computation functions
@@ -169,7 +170,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
   rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -198,7 +199,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
   hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -211,24 +212,36 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `d` (in degrees).
+   * Return a paint of none (no paint)
    */
-  cos: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  none: (): IColorV<any> => {
     return {
-      tag: "FloatV",
-      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      tag: "ColorV",
+      contents: {
+        tag: "NONE"
+      },
     };
   },
 
   /**
-   * Return the sine of input `d` (in degrees).
+   * Return the cosine of input `rad` (in radians).
    */
-  sin: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  cos: (rad: VarAD): IFloatV<VarAD> => {
+    // Accepts radians
     return {
       tag: "FloatV",
-      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      contents: cos(rad),
+    };
+  },
+
+  /**
+   * Return the sine of input `rad` (in radians).
+   */
+  sin: (rad: VarAD): IFloatV<VarAD> => {
+    // Accepts radians
+    return {
+      tag: "FloatV",
+      contents: sin(rad),
     };
   },
 
@@ -668,14 +681,23 @@ export const compDict = {
    * Set the opacity of a color `color` to `frac`.
    */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
-    const rgb = color.contents;
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "RGBA",
-        contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
-      },
-    };
+    // If paint=none, opacity is irreelevant
+    if(color.tag === "NONE") {
+      return {
+        tag: "ColorV",
+        contents: color
+      }
+    // Otherwise, retain tag and color; only modify opacity
+    } else {
+      const props = color.contents;
+      return {
+        tag: "ColorV",
+        contents: { 
+          tag: color.tag, 
+          contents: [props[0], props[1], props[2], mul(frac, props[3])],
+        },
+      };
+    }
   },
 
   /**
@@ -760,7 +782,7 @@ export const compDict = {
   // ------ Geometry/graphics utils
 
   /**
-   * Rotate a 2D vector `v` by 90 degrees clockwise.
+   * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
   rot90: (v: VarAD[]) => {
     if (v.length !== 2) {
@@ -815,7 +837,7 @@ const perpPathFlat = (
 };
 
 /**
- * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
   return [neg(y), x];
