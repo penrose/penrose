@@ -198,7 +198,7 @@ export const prepareState = async (state: State): Promise<State> => {
   );
 
   if (labelCache.isErr()) {
-    throw Error(`blah`);
+    throw Error(showError(labelCache.error));
   }
 
   const stateWithPendingProperties = insertPending({

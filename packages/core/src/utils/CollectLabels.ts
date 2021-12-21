@@ -28,6 +28,10 @@ const tex = new TeX({
     ["\\(", "\\)"],
   ],
   processEscapes: true,
+  // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+  formatError: (jax: unknown, err: Error) => {
+    throw Error(err.message);
+  },
 });
 const svg = new SVG({ fontCache: "none" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
@@ -35,49 +39,63 @@ const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
-const convert = (input: string, fontSize: string) => {
+const convert = (
+  input: string,
+  fontSize: string
+): Result<HTMLElement, string> => {
   // HACK: workaround for newlines
   // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
   const newline_escaped = `\\displaylines{${input}}`;
   // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
-  const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
-  // Not sure if this call does anything:
-  // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
-  adaptor.setStyle(node, "font-size", fontSize);
-  return node.firstChild as HTMLElement;
+  // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
+  try {
+    const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
+    // Not sure if this call does anything:
+    // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
+    adaptor.setStyle(node, "font-size", fontSize);
+    return ok(node.firstChild as HTMLElement);
+  } catch (error: any) {
+    return err(error.message);
+  }
 };
 
-interface Output {
-  body: HTMLElement | undefined;
+type Output = {
+  body: HTMLElement;
   width: number;
   height: number;
-}
+};
 
 /**
  * Call MathJax to render __non-empty__ labels.
  * NOTE: this function is memoized.
  */
 const tex2svg = memoize(
-  async (contents: string, name: string, fontSize: string): Promise<Output> =>
+  async (
+    contents: string,
+    name: string,
+    fontSize: string
+  ): Promise<Result<Output, string>> =>
     new Promise((resolve) => {
       const output = convert(contents, fontSize);
-      if (!output) {
-        console.error(`MathJax could not render ${contents}`);
-        resolve({ body: undefined, width: 0, height: 0 });
+      if (output.isErr()) {
+        resolve(
+          err(`MathJax could not render \$${contents}\$: ${output.error}`)
+        );
         return;
       }
+      const body = output.value;
       // console.log(output);
       // console.log(output.viewBox.baseVal);
-      const viewBox = output.getAttribute("viewBox")!.split(" ");
+      const viewBox = body.getAttribute("viewBox")!.split(" ");
       const width = parseFloat(viewBox[2]);
       const height = parseFloat(viewBox[3]);
 
       // rescaling according to
       // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-      const vAlignFloat = parseFloat(output.style.verticalAlign) * EX_CONSTANT;
+      const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
       const constHeight = parseFloat(fontSize) - vAlignFloat;
       const scaledWidth = (constHeight / height) * width;
-      resolve({ body: output, width: scaledWidth, height: constHeight });
+      resolve(ok({ body, width: scaledWidth, height: constHeight }));
     })
 );
 
@@ -105,19 +123,21 @@ export const collectLabels = async (
     if (shapeType === "Text" || shapeType === "TextTransform") {
       const shapeName: string = properties.name.contents as string;
       // HACK: getting type errors for not being able to resolve the Value type
-      const { body, width, height } = await tex2svg(
+      const svg = await tex2svg(
         properties.string.contents as string,
         shapeName,
         properties.fontSize.contents as string
       );
 
-      if (!body) {
+      if (svg.isErr()) {
         return err({
           errorType: "SubstanceError",
           tag: "Fatal",
-          message: "blah",
+          message: svg.error,
         });
       }
+
+      const { body, width, height } = svg.value;
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
