@@ -3,7 +3,7 @@ import { arrowHead } from "./Arrow";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IPathCmd, IStrV, IColorV } from "types/value";
+import { IFloatV, IPathCmd, IStrV, IColorV, ISubPath } from "types/value";
 
 const toPathString = (
   pathData: IPathCmd<number>[],
@@ -17,8 +17,9 @@ const toPathString = (
         return "";
       }
       const pathStr = flatten(
-        contents.map((c: any) => {
-          if (c.tag === "CoordV") return toScreen(c.contents, canvasSize);
+        contents.map((c: ISubPath<number>) => {
+          if (c.tag === "CoordV")
+            return toScreen(c.contents as [number, number], canvasSize);
           else if (c.tag === "ValueV") return c.contents;
           else {
             console.error("WARNING: improperly formed pathData");
