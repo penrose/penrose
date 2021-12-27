@@ -1,0 +1,10 @@
+-- water molecule, expressed via structural-formula DSL
+Hydrogen h1, h2
+Oxygen o1
+
+SingleBonded( o1, h1 )
+SingleBonded( o1, h2 )
+
+Label h1 $\text{H}$
+Label h2 $\text{H}$
+Label o1 $\text{O}$

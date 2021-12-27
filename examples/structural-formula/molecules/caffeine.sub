@@ -1,0 +1,57 @@
+-- caffeine molecule, expressed via structural-formula DSL
+Carbon C1, C2, C3, C4, C5, C6, C7, C8
+Nitrogen N1, N2, N3, N4
+Oxygen O1, O2
+Hydrogen H1, H2, H3, H4, H5, H6, H7, H8, H9, H10
+
+SingleBonded(N2, C4)
+SingleBonded(C4, C5)
+SingleBonded(C5, C6)
+SingleBonded(C6, N1)
+SingleBonded(N1, C2)
+SingleBonded(C2, N2)
+SingleBonded(C2, O2)
+SingleBonded(N2, C1)
+SingleBonded(C1, H7)
+SingleBonded(C1, H6)
+SingleBonded(C1, H5)
+SingleBonded(C4, O1)
+SingleBonded(H4, C7)
+SingleBonded(C7, H3)
+SingleBonded(H2, C7)
+SingleBonded(N3, C7)
+SingleBonded(N3, C5)
+SingleBonded(N3, C8)
+SingleBonded(C8, N4)
+SingleBonded(N4, C6)
+SingleBonded(C8, H1)
+SingleBonded(H10, C3)
+SingleBonded(H8, C3)
+SingleBonded(H9, C3)
+SingleBonded(N1, C3)
+
+Label C1 $\text{C}$
+Label C2 $\text{C}$
+Label C3 $\text{C}$
+Label C4 $\text{C}$
+Label C5 $\text{C}$
+Label C6 $\text{C}$
+Label C7 $\text{C}$
+Label C8 $\text{C}$
+Label N1 $\text{N}$
+Label N2 $\text{N}$
+Label N3 $\text{N}$
+Label N4 $\text{N}$
+Label O1 $\text{O}$
+Label O2 $\text{O}$
+Label H1 $\text{H}$
+Label H2 $\text{H}$
+Label H3 $\text{H}$
+Label H4 $\text{H}$
+Label H5 $\text{H}$
+Label H6 $\text{H}$
+Label H7 $\text{H}$
+Label H8 $\text{H}$
+Label H9 $\text{H}$
+Label H10 $\text{H}$
+

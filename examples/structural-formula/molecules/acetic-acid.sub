@@ -1,0 +1,21 @@
+-- acetic acid, expressed via structural-formula DSL
+Hydrogen H1, H2, H3, H4
+Carbon C1, C2
+Oxygen O1, O2
+
+SingleBonded(C1, H1)
+SingleBonded(C1, H2)
+SingleBonded(C1, H3)
+SingleBonded(C1, C2)
+DoubleBonded(C2, O1)
+SingleBonded(C2, O2)
+SingleBonded(O2, H4)
+
+Label C1 $\text{C}$
+Label C2 $\text{C}$
+Label O1 $\text{O}$
+Label O2 $\text{O}$
+Label H1 $\text{H}$
+Label H2 $\text{H}$
+Label H3 $\text{H}$
+Label H4 $\text{H}$

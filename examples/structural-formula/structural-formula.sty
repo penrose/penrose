@@ -1,0 +1,109 @@
+canvas {
+   width = 400.
+   height = 400.
+}
+
+Global {
+   scalar atomRadius = 15.
+   scalar bondLength = 50.
+}
+
+Colors {
+   black = rgba( 0., 0., 0., 1. )
+   gray = rgba( .5, .5, .5, 1. )
+   white = rgba( 1., 1., 1., 1. )
+   red   = rgba( 1., 0., 0., 1. )
+   blue  = rgba( 0., 0., 1., 1. )
+}
+
+forall Molecule m {
+   m.icon = Circle {
+      r : Global.atomRadius
+      center : (?,?)
+      strokeColor : rgba( 0., 0., 0., 1. )
+      strokeWidth : 2.
+   }
+
+   m.text = Text {
+      string : m.label
+      center : m.icon.center
+      color : Colors.white
+   }
+
+   layer m.icon below m.text
+}
+
+forall Hydrogen a {
+   override a.icon.color = Colors.red
+}
+
+forall Carbon a {
+   override a.icon.color = Colors.black
+   override a.icon.strokeColor = Colors.gray
+}
+
+forall Nitrogen a {
+   override a.icon.color = Colors.blue
+}
+
+forall Oxygen a {
+   override a.icon.color = Colors.white
+   override a.text.color = Colors.black
+}
+
+forall Molecule m1; Molecule m2
+where SingleBonded( m1, m2 ) {
+
+   x1 = m1.icon.center
+   x2 = m2.icon.center
+   u = unit(x1-x2)
+
+   shape line = Line {
+      start : x1
+        end : x2
+      thickness : 4.
+      color : Colors.black
+   }
+
+   encourage equal( norm(x1-x2), Global.bondLength )
+
+   layer line below m1.icon
+   layer line below m2.icon
+}
+
+forall Molecule m1; Molecule m2
+where DoubleBonded( m1, m2 ) {
+
+   x1 = m1.icon.center
+   x2 = m2.icon.center
+   u = unit(x1-x2)
+   v = ( -u[1], u[0] )
+
+   shape line1 = Line {
+      start : x1 - .25*Global.atomRadius*v
+        end : x2 - .25*Global.atomRadius*v
+      thickness : 4.
+      color : Colors.black
+   }
+
+   shape line2 = Line {
+      start : x1 + .25*Global.atomRadius*v
+        end : x2 + .25*Global.atomRadius*v
+      thickness : 4.
+      color : Colors.black
+   }
+
+   ensure equal( norm(x1-x2), Global.bondLength )
+
+   layer line1 below m1.icon
+   layer line2 below m1.icon
+   layer line1 below m2.icon
+   layer line2 below m2.icon
+}
+
+forall Molecule m1; Molecule m2 {
+   x1 = m1.icon.center
+   x2 = m2.icon.center
+   encourage equal( 100000./normsq(x1-x2), 0. )
+}
+
