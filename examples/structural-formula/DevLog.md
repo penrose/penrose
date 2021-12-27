@@ -38,6 +38,8 @@ However, I didn't realize until now that labels _have_ to be given in TeX; we ca
 
 Things worked out ok for a small example like a water molecule (just two hydrogens and an oxygen).  But when I tried running a bigger molecule (caffeine) everything slowed down considerably.  I think this has to do with having an all-pairs `encourage` statement, where every atom tries to reach a certain distance from every other.  Here, it seems like _compiling_ is what is taking forever; once an initial compilation step has completed (it seems), it's fast to resample and optimize the diagram.
 
-The actual layout also leaves something to be desired.  Basically this is a graph layout problem, which I'm trying to hack into the Penrose optimizer.
+The actual layout also leaves something to be desired.  Basically this is a graph layout problem, which I'm trying to hack into the Penrose optimizer.  The way I do this currently is I ensure that I ask for atoms that are connected by a bond to be a target distance from each-other, then for all pairs of atoms (whether or not connected by a bond) I encourage a repulsive energy to be close to zero.
+
+For small molecules (with fewer than 10 atoms, i.e., fewer than 10 nodes in the graph) this tends to work ok; for larger molecules, if I keep hitting "resample" and get very, very lucky, I eventually get a decent layout without confusing edge overlaps.
 
 

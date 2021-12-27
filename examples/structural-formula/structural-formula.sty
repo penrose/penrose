@@ -35,20 +35,24 @@ forall Molecule m {
 
 forall Hydrogen a {
    override a.icon.color = Colors.red
+   override a.text.string = "\text{H}"
 }
 
 forall Carbon a {
    override a.icon.color = Colors.black
    override a.icon.strokeColor = Colors.gray
+   override a.text.string = "\text{C}"
 }
 
 forall Nitrogen a {
    override a.icon.color = Colors.blue
+   override a.text.string = "\text{N}"
 }
 
 forall Oxygen a {
    override a.icon.color = Colors.white
    override a.text.color = Colors.black
+   override a.text.string = "\text{O}"
 }
 
 forall Molecule m1; Molecule m2

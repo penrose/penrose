@@ -11,11 +11,4 @@ DoubleBonded(C2, O1)
 SingleBonded(C2, O2)
 SingleBonded(O2, H4)
 
-Label C1 $\text{C}$
-Label C2 $\text{C}$
-Label O1 $\text{O}$
-Label O2 $\text{O}$
-Label H1 $\text{H}$
-Label H2 $\text{H}$
-Label H3 $\text{H}$
-Label H4 $\text{H}$
+AutoLabel All
