@@ -34,6 +34,8 @@ I found it hard to track down code for how to label things (i.e., just to locate
 
 However, I didn't realize until now that labels _have_ to be given in TeX; we can't just use plain-text labels.  I created an issue here: <https://github.com/penrose/penrose/issues/721>
 
+I tried adding an SVG `Image` to my Style, by placing the SVG file in the same directory as the `.sty` file, but nothing showed up.  Seems it has to go in `penrose/packages/core/assets/`.  And it's not even clear how to re-build the system so that it recognizes new SVGs in that directory.  Added an issue here: <https://github.com/penrose/penrose/issues/723>
+
 ## Running the programs
 
 Things worked out ok for a small example like a water molecule (just two hydrogens and an oxygen).  But when I tried running a bigger molecule (caffeine) everything slowed down considerably.  I think this has to do with having an all-pairs `encourage` statement, where every atom tries to reach a certain distance from every other.  Here, it seems like _compiling_ is what is taking forever; once an initial compilation step has completed (it seems), it's fast to resample and optimize the diagram.
