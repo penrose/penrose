@@ -42,4 +42,5 @@ The actual layout also leaves something to be desired.  Basically this is a grap
 
 For small molecules (with fewer than 10 atoms, i.e., fewer than 10 nodes in the graph) this tends to work ok; for larger molecules, if I keep hitting "resample" and get very, very lucky, I eventually get a decent layout without confusing edge overlaps.
 
+So, the next attempted improvement is to try to "encourage" edges not to overlap.  To do this, I want to minimize a function of some signed areas defined by the four endpoints.  But currently there's no way to simply encourage some quantity to take the smallest value it possibly can.  So, let's try to define one.
 
