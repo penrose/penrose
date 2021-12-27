@@ -1,6 +1,6 @@
 canvas {
-   width = 400.
-   height = 400.
+   width = 600.
+   height = 600.
 }
 
 Global {
@@ -9,25 +9,29 @@ Global {
 }
 
 Colors {
+   clear = rgba( 0., 0., 0., 0. )
    black = rgba( 0., 0., 0., 1. )
    gray = rgba( .5, .5, .5, 1. )
    white = rgba( 1., 1., 1., 1. )
    red   = rgba( 1., 0., 0., 1. )
    blue  = rgba( 0., 0., 1., 1. )
+   darkRed   = rgba( .7, 0., 0., 1. )
+   darkBlue  = rgba( 0., 0., .7, 1. )
 }
 
 forall Molecule m {
    m.icon = Circle {
       r : Global.atomRadius
       center : (?,?)
-      strokeColor : rgba( 0., 0., 0., 1. )
+      color : Colors.clear
+      strokeColor : Colors.clear
       strokeWidth : 2.
    }
 
    m.text = Text {
       string : m.label
       center : m.icon.center
-      color : Colors.white
+      color : Colors.black
    }
 
    layer m.icon below m.text
@@ -35,22 +39,28 @@ forall Molecule m {
 
 forall Hydrogen a {
    override a.icon.color = Colors.red
+   override a.icon.strokeColor = Colors.darkRed
+   override a.text.color = Colors.white
    override a.text.string = "\text{H}"
 }
 
 forall Carbon a {
    override a.icon.color = Colors.black
    override a.icon.strokeColor = Colors.gray
+   override a.text.color = Colors.white
    override a.text.string = "\text{C}"
 }
 
 forall Nitrogen a {
    override a.icon.color = Colors.blue
+   override a.icon.strokeColor = Colors.darkBlue
+   override a.text.color = Colors.white
    override a.text.string = "\text{N}"
 }
 
 forall Oxygen a {
    override a.icon.color = Colors.white
+   override a.icon.strokeColor = Colors.gray
    override a.text.color = Colors.black
    override a.text.string = "\text{O}"
 }
@@ -61,10 +71,11 @@ where SingleBonded( m1, m2 ) {
    x1 = m1.icon.center
    x2 = m2.icon.center
    u = unit(x1-x2)
+   r = Global.atomRadius
 
    shape line = Line {
-      start : x1
-        end : x2
+      start : x1 - r*u
+        end : x2 + r*u
       thickness : 4.
       color : Colors.black
    }
