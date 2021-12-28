@@ -1,0 +1,2 @@
+npx roger watch molecules/glucose.sub structural-formula.sty structural-formula.dsl
+

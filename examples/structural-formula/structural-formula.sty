@@ -1,29 +1,37 @@
 canvas {
-   width = 400.
-   height = 400.
+   scalar width  = 1066.5
+   scalar height = 600.0
+}
+
+Colors {
+   vec4 clear     = rgba( 0., 0., 0., 0. )
+   vec4 black     = rgba( 0., 0., 0., 1. )
+   vec4 gray      = rgba( .5, .5, .5, 1. )
+   vec4 white     = rgba( 1., 1., 1., 1. )
+   vec4 red       = rgba( 1., 0., 0., 1. )
+   vec4 blue      = rgba( 0., 0., 1., 1. )
+   vec4 darkRed   = rgba( .7, 0., 0., 1. )
+   vec4 darkBlue  = rgba( 0., 0., .7, 1. )
 }
 
 Global {
    scalar atomRadius = 20.
    scalar bondLength = 60.
-}
 
-Colors {
-   clear = rgba( 0., 0., 0., 0. )
-   black = rgba( 0., 0., 0., 1. )
-   gray = rgba( .5, .5, .5, 1. )
-   white = rgba( 1., 1., 1., 1. )
-   red   = rgba( 1., 0., 0., 1. )
-   blue  = rgba( 0., 0., 1., 1. )
-   darkRed   = rgba( .7, 0., 0., 1. )
-   darkBlue  = rgba( 0., 0., .7, 1. )
+   shape bbox = Rectangle {
+      w : canvas.width
+      h : canvas.height
+      center : (0.,0.)
+      color : Colors.white
+      strokeColor : Colors.black
+   }
 }
 
 forall Molecule m {
 
-   m.center = (?,?)
+   vec2 m.center = (?,?)
 
-   m.icon = Circle {
+   shape m.icon = Circle {
       r : Global.atomRadius
       center : m.center
       color : Colors.white
@@ -31,7 +39,7 @@ forall Molecule m {
       strokeWidth : 2.
    }
 
-   m.background = Circle {
+   shape m.background = Circle {
       r : Global.atomRadius * 4.
       center : m.center
       color : rgba( .95, .95, .95, 1. )
@@ -45,15 +53,20 @@ forall Molecule m {
    --    h : 4.*Global.atomRadius
    -- }
 
-   m.text = Text {
+   shape m.text = Text {
       string : m.label
       center : m.center
       color : Colors.black
       fontSize : "14pt"
    }
 
+   ensure contains( Global.bbox, m.icon, 0. )
+
    layer m.icon below m.text
    layer m.background below m.icon
+   layer m.icon above Global.bbox
+   layer m.background above Global.bbox
+   layer m.text above Global.bbox
 }
 
 forall FunctionalGroup g {
@@ -93,10 +106,10 @@ forall Oxygen a {
 forall Molecule m1; Molecule m2
 where SingleBonded( m1, m2 ) {
 
-   x1 = m1.center
-   x2 = m2.center
-   u = unit(x1-x2)
-   r = Global.atomRadius
+   vec2 x1 = m1.center
+   vec2 x2 = m2.center
+   vec2 u = unit(x1-x2)
+   scalar r = Global.atomRadius
 
    shape line = Line {
       start : x1 - 1.3*r*u
@@ -116,11 +129,11 @@ where SingleBonded( m1, m2 ) {
 forall Molecule m1; Molecule m2
 where DoubleBonded( m1, m2 ) {
 
-   x1 = m1.center
-   x2 = m2.center
-   u = unit(x1-x2)
-   v = ( -u[1], u[0] )
-   r = Global.atomRadius
+   vec2 x1 = m1.center
+   vec2 x2 = m2.center
+   vec2 u = unit(x1-x2)
+   vec2 v = ( -u[1], u[0] )
+   scalar r = Global.atomRadius
 
    shape line1 = Line {
       start : x1 - 1.3*r*u - .25*r*v
@@ -149,8 +162,8 @@ where DoubleBonded( m1, m2 ) {
 }
 
 forall Molecule m1; Molecule m2 {
-   x1 = m1.center
-   x2 = m2.center
+   vec2 x1 = m1.center
+   vec2 x2 = m2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
    layer m1.background below m2.icon
    layer m2.background below m1.icon
