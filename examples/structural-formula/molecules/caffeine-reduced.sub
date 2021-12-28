@@ -3,7 +3,7 @@ Carbon C2, C4, C5, C6, C8
 Nitrogen N1, N2, N3, N4
 Oxygen O1, O2
 Hydrogen H1
-Molecule methyl1, methyl2, methyl3
+FunctionalGroup methyl1, methyl2, methyl3
 
 SingleBonded(methyl1, N2)
 SingleBonded(N2, C4)

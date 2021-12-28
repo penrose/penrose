@@ -2,9 +2,9 @@
 Oxygen O1
 Hydrogen H1, H2, H3, H4
 Carbon C1, C2, C3, C4, C5
-Molecule hydroxy_anion1, hydroxy_anion2, hydroxy_anion3
-Molecule hydroxy_cation
-Molecule hydroxy_methyl
+FunctionalGroup hydroxy_anion1, hydroxy_anion2, hydroxy_anion3
+FunctionalGroup hydroxy_cation
+FunctionalGroup hydroxy_methyl
 
 SingleBonded(hydroxy_methyl, C1)
 SingleBonded(C1, O1)

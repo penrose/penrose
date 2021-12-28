@@ -20,17 +20,20 @@ Colors {
 }
 
 forall Molecule m {
+
+   m.center = (?,?)
+
    m.icon = Circle {
       r : Global.atomRadius
-      center : (?,?)
-      color : Colors.clear
-      strokeColor : Colors.clear
+      center : m.center
+      color : Colors.white
+      strokeColor : Colors.black
       strokeWidth : 2.
    }
 
    m.background = Circle {
       r : Global.atomRadius * 4.
-      center : m.icon.center
+      center : m.center
       color : rgba( .95, .95, .95, 1. )
       strokeColor : Colors.clear
    }
@@ -44,13 +47,19 @@ forall Molecule m {
 
    m.text = Text {
       string : m.label
-      center : m.icon.center
+      center : m.center
       color : Colors.black
       fontSize : "14pt"
    }
 
    layer m.icon below m.text
    layer m.background below m.icon
+}
+
+forall FunctionalGroup g {
+   override g.icon.color = Colors.clear
+   override g.icon.strokeColor = Colors.clear
+   override g.text.color = Colors.black
 }
 
 forall Hydrogen a {
@@ -84,8 +93,8 @@ forall Oxygen a {
 forall Molecule m1; Molecule m2
 where SingleBonded( m1, m2 ) {
 
-   x1 = m1.icon.center
-   x2 = m2.icon.center
+   x1 = m1.center
+   x2 = m2.center
    u = unit(x1-x2)
    r = Global.atomRadius
 
@@ -107,8 +116,8 @@ where SingleBonded( m1, m2 ) {
 forall Molecule m1; Molecule m2
 where DoubleBonded( m1, m2 ) {
 
-   x1 = m1.icon.center
-   x2 = m2.icon.center
+   x1 = m1.center
+   x2 = m2.center
    u = unit(x1-x2)
    v = ( -u[1], u[0] )
    r = Global.atomRadius
@@ -140,8 +149,8 @@ where DoubleBonded( m1, m2 ) {
 }
 
 forall Molecule m1; Molecule m2 {
-   x1 = m1.icon.center
-   x2 = m2.icon.center
+   x1 = m1.center
+   x2 = m2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
    layer m1.background below m2.icon
    layer m2.background below m1.icon

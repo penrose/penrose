@@ -1,5 +1,8 @@
 type Molecule
 
+type FunctionalGroup
+FunctionalGroup <: Molecule
+
 type Atom
 Atom <: Molecule
 
