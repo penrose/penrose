@@ -1,0 +1,15 @@
+-- ethanol molecule, expressed via structural-formula DSL
+Carbon C1, C2
+Hydrogen H1, H2, H3, H4, H5, H6
+Oxygen O1
+
+SingleBonded(C1, H1)
+SingleBonded(H2, C1)
+SingleBonded(C1, H3)
+SingleBonded(C1, C2)
+SingleBonded(C2, H4)
+SingleBonded(C2, H5)
+SingleBonded(O1, C2)
+SingleBonded(H6, O1)
+
+AutoLabel All

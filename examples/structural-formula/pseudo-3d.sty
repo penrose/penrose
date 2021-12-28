@@ -7,6 +7,7 @@ Colors {
    vec4 clear     = rgba( 0., 0., 0., 0. )
    vec4 black     = rgba( 0., 0., 0., 1. )
    vec4 gray      = rgba( .5, .5, .5, 1. )
+   vec4 lightGray = rgba( .9, .9, .9, 1. )
    vec4 white     = rgba( 1., 1., 1., 1. )
    vec4 red       = rgba( 1., 0., 0., 1. )
    vec4 blue      = rgba( 0., 0., 1., 1. )
@@ -56,6 +57,16 @@ forall FunctionalGroup g {
    override g.icon.color = Colors.clear
    override g.icon.strokeColor = Colors.clear
    override g.text.color = Colors.black
+
+   g.box = Rectangle {
+      center : g.center
+      w : 3.*Global.atomRadius
+      h : 1.5*Global.atomRadius
+      color : Colors.lightGray
+      strokeColor : Colors.gray
+      strokeWidth : 3.
+      rx : 10.
+   }
 }
 
 forall Oxygen a {
@@ -113,9 +124,9 @@ where SingleBonded( m1, m2 ) {
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line above m1.icon
+   layer line above m2.icon
    layer innerLine above line
-   layer innerLine below m2.icon
+   layer innerLine below m1.icon
 }
 
 forall Molecule m1; Molecule m2
@@ -161,13 +172,13 @@ where DoubleBonded( m1, m2 ) {
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line1 above m1.icon
+   layer line1 above m2.icon
    layer innerLine1 above line1
-   layer innerLine1 below m2.icon
+   layer innerLine1 below m1.icon
 
-   layer line2 above m1.icon
+   layer line2 above m2.icon
    layer innerLine2 above line2
-   layer innerLine2 below m2.icon
+   layer innerLine2 below m1.icon
 
    layer line2 above innerLine1
 }
