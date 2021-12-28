@@ -1,6 +1,6 @@
--- DEBUG
-type Point
-predicate Triangle: Point a * Point b * Point c
+-- -- DEBUG
+-- type Point
+-- predicate Triangle: Point a * Point b * Point c
 
 type Molecule
 

@@ -7,7 +7,8 @@ SingleBonded(C1, H2)
 SingleBonded(C1, H3)
 SingleBonded(C1, H4)
 
-Point p1, p2, p3
-Triangle( p1, p2, p3 )
+-- DEBUG
+-- Point p1, p2, p3
+-- Triangle( p1, p2, p3 )
 
 AutoLabel All
