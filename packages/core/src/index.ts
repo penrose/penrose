@@ -50,7 +50,7 @@ export const resample = (state: State, numSamples: number): State => {
 /**
  * Take n steps in the optimizer given the current state.
  * @param state current state
- * @param numSteps number of steps to take (default: 1)
+ * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
   return step(state, numSteps, true);
