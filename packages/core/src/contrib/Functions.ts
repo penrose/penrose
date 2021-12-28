@@ -439,6 +439,16 @@ export const compDict = {
     };
   },
   /**
+   * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
+   */
+  cross2D: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const det = sub( mul(u[0],v[1]), mul(u[1],v[0]) );
+    return {
+      tag: "FloatV",
+      contents: det,
+    };
+  },
+  /**
    * Return a point located at the midpoint between pts `start` and `end`
    */
   midpoint: (start: VarAD[], end: VarAD[]): IVectorV<VarAD> => {
@@ -775,6 +785,13 @@ export const compDict = {
    */
   abs: (x: VarAD): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: absVal(x) };
+  },
+
+  /**
+   * Return the sign of the number `x`.
+   */
+  sgn: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: div(x,absVal(x)) };
   },
 
   /**

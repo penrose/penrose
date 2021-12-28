@@ -22,8 +22,8 @@ Global {
       w : canvas.width
       h : canvas.height
       center : (0.,0.)
-      color : Colors.white
-      strokeColor : Colors.black
+      color : Colors.clear
+      strokeColor : Colors.gray
    }
 }
 
@@ -168,4 +168,51 @@ forall Molecule m1; Molecule m2 {
    layer m1.background below m2.icon
    layer m2.background below m1.icon
 }
+
+-- DEBUG -----------------------------------------------
+
+-- forall Point p {
+--    shape p.icon = Circle {
+--       center : (?,?)
+--       r : .25 * Global.atomRadius
+--       color : Colors.black
+--    }
+-- 
+--    ensure contains( Global.bbox, p.icon, 0. )
+-- }
+
+-- forall Point a; Point b; Point c
+-- where Triangle(a,b,c)
+-- {
+--    vec2 x = a.icon.center
+--    vec2 y = b.icon.center
+--    vec2 z = c.icon.center
+-- 
+--    scalar A = cross2D( y-x, z-x )
+--    scalar s = sgn(A)
+--    scalar t = .5*s + .5
+-- 
+--    pts = [x, y, z]
+--    shape P = Path {
+--       pathData : pathFromPoints( "closed", pts )
+--       fill : rgba( .3, .8, .3, .2 )
+--       color : Colors.clear
+--    }
+--    shape C = Circle {
+--       center : (canvas.width/3.,canvas.height/3.)
+--       r : 100.
+--       color : rgba( t, 1.-t, 0., 1. )
+--    }
+-- 
+--    ensure lessThan( s, 0. )
+-- }
+
+-- TODO: prevent edge crossings
+-- forall Molecule p1; Molecule p2; Molecule q1; Molecule q2
+-- where SingleBonded( p1, p2 ); SingleBonded( q1; q2 ) {
+--    vec2 a = p1.center
+--    vec2 b = p2.center
+--    vec2 c = q1.center
+--    vec2 d = q2.center
+-- }
 
