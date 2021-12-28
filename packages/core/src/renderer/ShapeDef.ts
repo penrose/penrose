@@ -752,6 +752,7 @@ export const lineDef: ShapeDef = {
     style: ["StrV", constValue("StrV", "solid")],
     stroke: ["StrV", constValue("StrV", "none")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
+    strokeLineCap: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultLine")],
   },
   positionalProps: ["start", "end"],

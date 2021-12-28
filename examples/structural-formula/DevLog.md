@@ -28,6 +28,8 @@ Opened this issue: <https://github.com/penrose/penrose/issues/722>
 It was hard to understand how local variables currently work, whether they need types, whether they can be anonymous, etc.
 I find it weird that local variables (seemingly?) can't be anonymous.  E.g., if I want to associate a shape with a predicate, why do I have to name that shape?  I created an issue here: <https://github.com/penrose/penrose/issues/720>
 
+There still aren't clear error messages---for instance, I was stumped for a while about why my `Path` wasn't getting drawn.  The reason is that I had set the field `path:` rather than `pathData:` (but no warning or error was issued).
+
 ## Writing the Substance
 
 I found it hard to track down code for how to label things (i.e., just to locate the page in the docs).  In general docs are a bit scattered around.  Eventually I found this page: <https://github.com/penrose/penrose/wiki/Labels-in-Penrose>

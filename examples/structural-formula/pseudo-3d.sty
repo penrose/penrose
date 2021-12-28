@@ -1,6 +1,6 @@
 canvas {
-   scalar width  = 1066.5
-   scalar height = 600.0
+   scalar width  = 960.
+   scalar height = 540.
 }
 
 Colors {
@@ -12,10 +12,11 @@ Colors {
    vec4 blue      = rgba( 0., 0., 1., 1. )
    vec4 darkRed   = rgba( .7, 0., 0., 1. )
    vec4 darkBlue  = rgba( 0., 0., .7, 1. )
+   vec4 turquoise  = rgba( .1, .7, .6, 1. )
 }
 
 Global {
-   scalar atomRadius = 20.
+   scalar atomRadius = 25.
    scalar bondLength = 60.
 
    shape bbox = Rectangle {
@@ -36,22 +37,8 @@ forall Molecule m {
       center : m.center
       color : Colors.white
       strokeColor : Colors.black
-      strokeWidth : 2.
+      strokeWidth : 3.
    }
-
-   shape m.background = Circle {
-      r : Global.atomRadius * 4.
-      center : m.center
-      color : rgba( .95, .95, .95, 1. )
-      strokeColor : Colors.clear
-   }
-
-   -- m.background = Image {
-   --    path : "atom.svg"
-   --    center : (?,?)
-   --    w : 4.*Global.atomRadius
-   --    h : 4.*Global.atomRadius
-   -- }
 
    shape m.text = Text {
       string : m.label
@@ -63,10 +50,6 @@ forall Molecule m {
    ensure contains( Global.bbox, m.icon, 0. )
 
    layer m.icon below m.text
-   layer m.background below m.icon
-   layer m.icon above Global.bbox
-   layer m.background above Global.bbox
-   layer m.text above Global.bbox
 }
 
 forall FunctionalGroup g {
@@ -75,32 +58,33 @@ forall FunctionalGroup g {
    override g.text.color = Colors.black
 }
 
-forall Hydrogen a {
-   override a.icon.color = Colors.red
-   override a.icon.strokeColor = Colors.darkRed
+forall Oxygen a {
+   override a.icon.color = Colors.white
+   override a.icon.strokeColor = Colors.red
    override a.text.color = Colors.white
-   override a.text.string = "\text{H}"
+   override a.text.string = ""
 }
 
 forall Carbon a {
-   override a.icon.color = Colors.black
-   override a.icon.strokeColor = Colors.gray
+   override a.icon.color = Colors.white
+   override a.icon.strokeColor = Colors.black
    override a.text.color = Colors.white
-   override a.text.string = "\text{C}"
+   override a.text.string = ""
 }
 
 forall Nitrogen a {
-   override a.icon.color = Colors.blue
-   override a.icon.strokeColor = Colors.darkBlue
+   override a.icon.color = Colors.white
+   override a.icon.strokeColor = Colors.blue
    override a.text.color = Colors.white
-   override a.text.string = "\text{N}"
+   override a.text.string = ""
 }
 
-forall Oxygen a {
+forall Hydrogen a {
    override a.icon.color = Colors.white
    override a.icon.strokeColor = Colors.gray
    override a.text.color = Colors.black
-   override a.text.string = "\text{O}"
+   override a.text.string = ""
+   override a.icon.r = .75*Global.atomRadius
 }
 
 forall Molecule m1; Molecule m2
@@ -112,18 +96,26 @@ where SingleBonded( m1, m2 ) {
    scalar r = Global.atomRadius
 
    shape line = Line {
-      start : x1 - 1.3*r*u
-        end : x2 + 1.3*r*u
+      start : x1 - .5*r*u
+        end : x2 + .5*r*u
+      thickness : 10.
+      color : Colors.turquoise
+      strokeLineCap: "round"
+   }
+
+   shape innerLine = Line {
+      start : x1 - .5*r*u
+        end : x2 + .5*r*u
       thickness : 4.
-      color : Colors.black
+      color : Colors.white
+      strokeLineCap: "round"
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line below m1.icon
-   layer line below m2.icon
-   layer m1.background below line
-   layer m2.background below line
+   layer line above m1.icon
+   layer innerLine above line
+   layer innerLine below m2.icon
 }
 
 forall Molecule m1; Molecule m2
@@ -136,36 +128,61 @@ where DoubleBonded( m1, m2 ) {
    scalar r = Global.atomRadius
 
    shape line1 = Line {
-      start : x1 - 1.3*r*u - .25*r*v
-        end : x2 + 1.3*r*u - .25*r*v
+      start : x1 - .5*r*u - .25*r*v
+        end : x2 + .5*r*u - .25*r*v
+      thickness : 10.
+      color : Colors.turquoise
+      strokeLineCap: "round"
+   }
+
+   shape innerLine1 = Line {
+      start : x1 - .5*r*u - .25*r*v
+        end : x2 + .5*r*u - .25*r*v
       thickness : 4.
-      color : Colors.black
+      color : Colors.white
+      strokeLineCap: "round"
    }
 
    shape line2 = Line {
-      start : x1 - 1.3*r*u + .25*r*v
-        end : x2 + 1.3*r*u + .25*r*v
+      start : x1 - .5*r*u + .25*r*v
+        end : x2 + .5*r*u + .25*r*v
+      thickness : 10.
+      color : Colors.turquoise
+      strokeLineCap: "round"
+   }
+
+   shape innerLine2 = Line {
+      start : x1 - .5*r*u + .25*r*v
+        end : x2 + .5*r*u + .25*r*v
       thickness : 4.
-      color : Colors.black
+      color : Colors.white
+      strokeLineCap: "round"
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line1 below m1.icon
-   layer line2 below m1.icon
-   layer line1 below m2.icon
-   layer line2 below m2.icon
-   layer m1.background below line1
-   layer m2.background below line1
-   layer m1.background below line2
-   layer m2.background below line2
+   layer line1 above m1.icon
+   layer innerLine1 above line1
+   layer innerLine1 below m2.icon
+
+   layer line2 above m1.icon
+   layer innerLine2 above line2
+   layer innerLine2 below m2.icon
+
+   layer line2 above innerLine1
+}
+
+-- make bonds with hydrogen shorter
+forall Molecule m; Hydrogen h
+where SingleBonded(m,h) {
+   vec2 x1 = m.center
+   vec2 x2 = h.center
+   encourage equal( 2.*norm(x1-x2), .5*Global.bondLength )
 }
 
 forall Molecule m1; Molecule m2 {
    vec2 x1 = m1.center
    vec2 x2 = m2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
-   layer m1.background below m2.icon
-   layer m2.background below m1.icon
 }
 
