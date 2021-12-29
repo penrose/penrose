@@ -1,3 +1,7 @@
+-- TODO would be really helpful to be able to join multiple
+-- .sty files---currently we are maintaining parallel edits
+-- across both pseudo-3d.sty and pseudo-3d-reaction.sty
+
 canvas {
    scalar width  = 1248.
    scalar height = 702.
@@ -285,7 +289,7 @@ where IonicBond( n1, n2 ) {
         end : x2 + .5*r*u
       thickness : 2.5
       color : Colors.turquoise
-      strokeLineCap: "round"
+      strokeLineCap: "butt"
       style: "dashed"
    }
 
@@ -306,7 +310,7 @@ where SingleBond(n,h) {
 
 -- give common molecules a physical bond angle
 forall Oxygen o; Hydrogen h1; Hydrogen h2 -- water (H2O)
-where SingleBond(o,h1); SingleBond(o,h2) {
+where SingleBond(o,h1); SingleBond(o,h2) { -- TODO make an issue about symmetry of predicate matches
    vec2 a = o.center
    vec2 b = h1.center
    vec2 c = h2.center
@@ -374,19 +378,22 @@ forall Molecule m {
       center : m.labelCenter
       r : R
       color : Colors.clear
-      strokeColor : Colors.clear
+      strokeColor : Colors.black
+      strokeWidth : 3.
    }
    m.textPhantom2 = Circle {
       center : m.labelCenter + (2.*R,0.)
       r : R
       color : Colors.clear
-      strokeColor : Colors.clear
+      strokeColor : Colors.black
+      strokeWidth : 3.
    }
    m.textPhantom3 = Circle {
       center : m.labelCenter - (2.*R,0.)
       r : R
       color : Colors.clear
-      strokeColor : Colors.clear
+      strokeColor : Colors.black
+      strokeWidth : 3.
    }
 }
 forall Molecule m; Node n
@@ -410,8 +417,6 @@ forall Reaction r {
       color : Colors.black
    }
 }
-
--- TODO add reaction label
 
 -- put all reactants on the left
 forall Molecule m; Node n
@@ -448,6 +453,4 @@ where IsNetForward(r) {
       arrowheadSize : .5
    }
 }
-
--- TODO make layout "more dynamic"
 

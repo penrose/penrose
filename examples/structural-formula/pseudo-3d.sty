@@ -33,47 +33,6 @@ Global {
       strokeColor : Colors.gray
       strokeWidth : 8
    }
-
-   scalar reactionBoxSize = .75 * canvas.width/2.
-   scalar reactionBoxTop = reactionBoxSize/2.
-   scalar reactionBoxBottom = -reactionBoxSize/2.
-
-   -- box around reactants
-   scalar reactantCenter = -canvas.width/4.
-   shape reactantBox = Rectangle {
-      w : reactionBoxSize
-      h : reactionBoxSize
-      center : (reactantCenter,0.)
-      color : rgba( 0., 0., 0., .1 )
-      strokeColor : Colors.clear
-      strokeWidth : 12
-      rx : 20
-   }
-   shape reactantText = Text {
-      string : "\text{\textbf{reactants}}"
-      center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
-      color : Colors.black
-      fontSize : "24pt"
-   }
-
-   -- box around products
-   scalar productCenter = canvas.width/4.
-   scalar productTop = .75*canvas.width/4.
-   shape productBox = Rectangle {
-      w : reactionBoxSize
-      h : reactionBoxSize
-      center : (productCenter,0.)
-      color : rgba( 0., 0., 0., .1 )
-      strokeColor : Colors.clear
-      strokeWidth : 12
-      rx : 20
-   }
-   shape productText = Text {
-      string : "\text{\textbf{products}}"
-      center : (productCenter,-24.+reactionBoxBottom)
-      color : Colors.black
-      fontSize : "24pt"
-   }
 }
 
 forall Node n {
@@ -278,24 +237,14 @@ where IonicBond( n1, n2 ) {
         end : x2 + .5*r*u
       thickness : 2.5
       color : Colors.turquoise
-      strokeLineCap: "round"
+      strokeLineCap: "butt"
       style: "dashed"
    }
-
-   -- shape innerLine = Line {
-   --    start : x1 - .5*r*u
-   --      end : x2 + .5*r*u
-   --    thickness : 4.
-   --    color : Colors.white
-   --    strokeLineCap: "round"
-   -- }
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
    layer line below n1.icon
    layer line below n2.icon
-   -- layer innerLine above line
-   -- layer innerLine below n1.icon
 }
 
 
@@ -348,56 +297,4 @@ where Contains(m,n) {
    encourage near( m.box, n.icon )
    layer m.text above n.icon
 }
-
-forall Reaction r {
-
-   scalar h = (Global.reactionBoxTop + canvas.height/2.)/2.
-
-   r.text = Text {
-      string : r.label
-      center : (0.,h)
-      fontSize : "40pt"
-      color : Colors.black
-   }
-}
-
--- TODO add reaction label
-
--- put all reactants on the left
-forall Molecule m; Node n
-where IsReactant(m); Contains(m,n) {
-   ensure contains( Global.reactantBox, n.icon, Global.padding )
-   ensure contains( Global.reactantBox, m.text, Global.padding )
-   layer n.icon above Global.reactantBox
-   layer n.shadow below Global.reactantBox
-}
-
--- put all products on the right
-forall Molecule m; Node n
-where IsProduct(m); Contains(m,n) {
-   ensure contains( Global.productBox, n.icon, Global.padding )
-   ensure contains( Global.productBox, m.text, Global.padding )
-   layer n.icon above Global.productBox
-   layer n.shadow below Global.productBox
-}
-
-forall Reaction r
-where IsNetForward(r) {
-
-   vec2 Rc = Global.reactantCenter
-   vec2 Pc = Global.productCenter
-   scalar s = Global.reactionBoxSize
-   scalar p = 10.
-
-   shape reactionArrow = Arrow {
-      start : (Rc+(0.5*s)+p,0.)
-      end : (Pc-(0.5*s)-p,0.)
-      color : Colors.black
-      thickness : 5.
-      arrowheadStyle : "arrowhead-2"
-      arrowheadSize : .5
-   }
-}
-
--- TODO make layout "more dynamic"
 
