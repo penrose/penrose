@@ -27,46 +27,46 @@ Global {
    }
 }
 
-forall Molecule m {
+forall Node n {
 
-   vec2 m.center = (?,?)
+   vec2 n.center = (?,?)
 
-   shape m.icon = Circle {
+   shape n.icon = Circle {
       r : Global.atomRadius
-      center : m.center
+      center : n.center
       color : Colors.white
       strokeColor : Colors.black
       strokeWidth : 2.
    }
 
-   shape m.background = Circle {
+   shape n.background = Circle {
       r : Global.atomRadius * 4.
-      center : m.center
+      center : n.center
       color : rgba( .95, .95, .95, 1. )
       strokeColor : Colors.clear
    }
 
-   -- m.background = Image {
+   -- n.background = Image {
    --    path : "atom.svg"
    --    center : (?,?)
    --    w : 4.*Global.atomRadius
    --    h : 4.*Global.atomRadius
    -- }
 
-   shape m.text = Text {
-      string : m.label
-      center : m.center
+   shape n.text = Text {
+      string : n.label
+      center : n.center
       color : Colors.black
       fontSize : "14pt"
    }
 
-   ensure contains( Global.bbox, m.icon, 0. )
+   ensure contains( Global.bbox, n.icon, 0. )
 
-   layer m.icon below m.text
-   layer m.background below m.icon
-   layer m.icon above Global.bbox
-   layer m.background above Global.bbox
-   layer m.text above Global.bbox
+   layer n.icon below n.text
+   layer n.background below n.icon
+   layer n.icon above Global.bbox
+   layer n.background above Global.bbox
+   layer n.text above Global.bbox
 }
 
 forall FunctionalGroup g {
@@ -103,11 +103,11 @@ forall Oxygen a {
    override a.text.string = "\text{O}"
 }
 
-forall Molecule m1; Molecule m2
-where SingleBond( m1, m2 ) {
+forall Node n1; Node n2
+where SingleBond( n1, n2 ) {
 
-   vec2 x1 = m1.center
-   vec2 x2 = m2.center
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
    vec2 u = unit(x1-x2)
    scalar r = Global.atomRadius
 
@@ -120,17 +120,17 @@ where SingleBond( m1, m2 ) {
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line below m1.icon
-   layer line below m2.icon
-   layer m1.background below line
-   layer m2.background below line
+   layer line below n1.icon
+   layer line below n2.icon
+   layer n1.background below line
+   layer n2.background below line
 }
 
-forall Molecule m1; Molecule m2
-where DoubleBond( m1, m2 ) {
+forall Node n1; Node n2
+where DoubleBond( n1, n2 ) {
 
-   vec2 x1 = m1.center
-   vec2 x2 = m2.center
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
    vec2 u = unit(x1-x2)
    vec2 v = ( -u[1], u[0] )
    scalar r = Global.atomRadius
@@ -151,21 +151,21 @@ where DoubleBond( m1, m2 ) {
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line1 below m1.icon
-   layer line2 below m1.icon
-   layer line1 below m2.icon
-   layer line2 below m2.icon
-   layer m1.background below line1
-   layer m2.background below line1
-   layer m1.background below line2
-   layer m2.background below line2
+   layer line1 below n1.icon
+   layer line2 below n1.icon
+   layer line1 below n2.icon
+   layer line2 below n2.icon
+   layer n1.background below line1
+   layer n2.background below line1
+   layer n1.background below line2
+   layer n2.background below line2
 }
 
-forall Molecule m1; Molecule m2 {
-   vec2 x1 = m1.center
-   vec2 x2 = m2.center
+forall Node n1; Node n2 {
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
-   layer m1.background below m2.icon
-   layer m2.background below m1.icon
+   layer n1.background below n2.icon
+   layer n2.background below n1.icon
 }
 

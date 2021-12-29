@@ -1,20 +1,58 @@
-type Molecule
+-- structural-formula.dsl
+--
+-- This Penrose Domain schema is used to encode molecular
+-- structures in a format suitable for drawing a variety
+-- of different kinds of molecular structure diagrams.
 
+-- a Node is any collection of atoms that is treated
+-- as a single logical unit, such as a functional
+-- group (or just a single atom)
+type Node
+
+-- a FunctionalGroup represents a collection of atoms
+-- in the same molecule (such as an alcohol or ester)
 type FunctionalGroup
-FunctionalGroup <: Molecule
+FunctionalGroup <: Node
 
+-- an Atom represents a single atom within a larger
+-- molecule (or as an isolated ion)
 type Atom
-Atom <: Molecule
+Atom <: Node
 
+-- specific types of atoms (more could be added here)
 type Hydrogen
 type Carbon
 type Nitrogen
 type Oxygen
+type Sodium
+type Chlorine
 Hydrogen <: Atom
   Carbon <: Atom
 Nitrogen <: Atom
   Oxygen <: Atom
+  Sodium <: Atom
+Chlorine <: Atom
 
-predicate SingleBond: Molecule m1 * Molecule m2
-predicate DoubleBond: Molecule m1 * Molecule m2
+-- predicates used to specify bonds between Nodes
+predicate SingleBond: Node n1 * Node n2
+predicate DoubleBond: Node n1 * Node n2
+predicate  IonicBond: Node n1 * Node n2
+
+-- a Molecule is a collection of Atoms, or more generally,
+-- Nodes, held together by bonds.  It is not essential to
+-- annotate which collections of Nodes are connected, but
+-- grouping Nodes is helpful for, e.g., labeling molecules
+-- and/or grouping reactants/products.
+type Molecule
+
+predicate Contains: Molecule m * Node n
+
+-- these predicates are used to delineate reactants and
+-- produces in a chemical equation
+predicate IsReactant: Molecule m
+predicate IsProduct: Molecule m
+
+-- a ChemicalReaction involving all reactants and products
+-- (currently this type is used simply to label the reaction)
+type ChemicalReaction
 

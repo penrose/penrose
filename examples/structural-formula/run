@@ -1,2 +1,2 @@
-npx roger watch molecules/photosynthesis-half.sub pseudo-3d.sty structural-formula.dsl
+npx roger watch reactions/sodium-chlorine.sub pseudo-3d.sty structural-formula.dsl
 

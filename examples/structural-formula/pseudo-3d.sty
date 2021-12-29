@@ -10,9 +10,11 @@ Colors {
    vec4 lightGray = rgba( .9, .9, .9, 1. )
    vec4 white     = rgba( 1., 1., 1., 1. )
    vec4 red       = rgba( 1., 0., 0., 1. )
+   vec4 green     = rgba( 0., .7, 0., 1. )
    vec4 blue      = rgba( 0., 0., 1., 1. )
    vec4 darkRed   = rgba( .7, 0., 0., 1. )
    vec4 darkBlue  = rgba( 0., 0., .7, 1. )
+   vec4 purple    = rgba( .66, .36, .95, 1. )
    vec4 turquoise  = rgba( .1, .7, .6, 1. )
 }
 
@@ -20,32 +22,70 @@ Global {
    scalar atomRadius = 25.
    scalar bondLength = 60.
 
+   -- box around the whole canvas
    shape bbox = Rectangle {
       w : canvas.width
       h : canvas.height
       center : (0.,0.)
       color : Colors.clear
       strokeColor : Colors.gray
+      strokeWidth : 8
+   }
+
+   -- box around reactants
+   scalar reactantCenter = -canvas.width/4.
+   scalar reactantTop = .75*canvas.width/4.
+   shape reactantBox = Rectangle {
+      w : .75 * canvas.width/2.
+      h : .75 * canvas.width/2.
+      center : (reactantCenter,0.)
+      color : Colors.clear
+      strokeColor : Colors.blue
+      strokeWidth : 12
+   }
+   shape reactantText = Text {
+      string : "Reactants"
+      center : (reactantCenter,reactantTop)
+      color : Colors.black
+      fontSize : "14pt"
+   }
+
+   -- box around products
+   scalar productCenter = canvas.width/4.
+   scalar productTop = .75*canvas.width/4.
+   shape productBox = Rectangle {
+      w : .75 * canvas.width/2.
+      h : .75 * canvas.width/2.
+      center : (productCenter,0.)
+      color : Colors.clear
+      strokeColor : Colors.green
+      strokeWidth : 12
+   }
+   shape productText = Text {
+      string : "Products"
+      center : (productCenter,productTop)
+      color : Colors.black
+      fontSize : "14pt"
    }
 }
 
-forall Molecule m {
+forall Node n {
 
    scalar cx = ?
    scalar cy = ?
-   vec2 m.center = (cx,cy)
+   vec2 n.center = (cx,cy)
 
    scalar R = Global.atomRadius
 
-   shape m.icon = Circle {
+   shape n.icon = Circle {
       r : R
-      center : m.center
+      center : n.center
       color : Colors.white
       strokeColor : Colors.black
       strokeWidth : 3.
    }
 
-   shape m.shadow = Ellipse {
+   shape n.shadow = Ellipse {
       rx : 2.*Global.atomRadius
       ry : Global.atomRadius
       center : (cx,cy) + (0.,-4.*R)
@@ -54,16 +94,16 @@ forall Molecule m {
       strokeWidth : 3.
    }
 
-   shape m.text = Text {
-      string : m.label
-      center : m.center
+   shape n.text = Text {
+      string : n.label
+      center : n.center
       color : Colors.black
       fontSize : "14pt"
    }
 
-   ensure contains( Global.bbox, m.icon, 0. )
+   ensure contains( Global.bbox, n.icon, 0. )
 
-   layer m.icon below m.text
+   layer n.icon below n.text
 }
 
 forall FunctionalGroup g {
@@ -118,11 +158,26 @@ forall Hydrogen a {
    override a.shadow.ry = .75*Global.atomRadius
 }
 
-forall Molecule m1; Molecule m2
-where SingleBond( m1, m2 ) {
+forall Chlorine a {
+   override a.icon.color = Colors.white
+   override a.icon.strokeColor = Colors.green
+   override a.text.color = Colors.white
+   override a.text.string = ""
+}
 
-   vec2 x1 = m1.center
-   vec2 x2 = m2.center
+forall Sodium a {
+   override a.icon.color = Colors.white
+   override a.icon.strokeColor = Colors.purple
+   override a.text.color = Colors.white
+   override a.text.string = ""
+}
+
+
+forall Node n1; Node n2
+where SingleBond( n1, n2 ) {
+
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
    vec2 u = unit(x1-x2)
    scalar r = Global.atomRadius
 
@@ -144,16 +199,16 @@ where SingleBond( m1, m2 ) {
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line above m2.icon
+   layer line above n2.icon
    layer innerLine above line
-   layer innerLine below m1.icon
+   layer innerLine below n1.icon
 }
 
-forall Molecule m1; Molecule m2
-where DoubleBond( m1, m2 ) {
+forall Node n1; Node n2
+where DoubleBond( n1, n2 ) {
 
-   vec2 x1 = m1.center
-   vec2 x2 = m2.center
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
    vec2 u = unit(x1-x2)
    vec2 v = ( -u[1], u[0] )
    scalar r = Global.atomRadius
@@ -192,21 +247,55 @@ where DoubleBond( m1, m2 ) {
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line1 above m2.icon
+   layer line1 above n2.icon
    layer innerLine1 above line1
-   layer innerLine1 below m1.icon
+   layer innerLine1 below n1.icon
 
-   layer line2 above m2.icon
+   layer line2 above n2.icon
    layer innerLine2 above line2
-   layer innerLine2 below m1.icon
+   layer innerLine2 below n1.icon
 
    layer line2 above innerLine1
 }
 
+forall Node n1; Node n2
+where IonicBond( n1, n2 ) {
+
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
+   vec2 u = unit(x1-x2)
+   scalar r = Global.atomRadius
+
+   shape line = Line {
+      start : x1 - .5*r*u
+        end : x2 + .5*r*u
+      thickness : 2.5
+      color : Colors.turquoise
+      strokeLineCap: "round"
+      style: "dashed"
+   }
+
+   -- shape innerLine = Line {
+   --    start : x1 - .5*r*u
+   --      end : x2 + .5*r*u
+   --    thickness : 4.
+   --    color : Colors.white
+   --    strokeLineCap: "round"
+   -- }
+
+   encourage equal( norm(x1-x2), Global.bondLength )
+
+   layer line below n1.icon
+   layer line below n2.icon
+   -- layer innerLine above line
+   -- layer innerLine below n1.icon
+}
+
+
 -- make bonds with hydrogen shorter
-forall Molecule m; Hydrogen h
-where SingleBond(m,h) {
-   vec2 x1 = m.center
+forall Node n; Hydrogen h
+where SingleBond(n,h) {
+   vec2 x1 = n.center
    vec2 x2 = h.center
    encourage equal( 2.*norm(x1-x2), .5*Global.bondLength )
 }
@@ -220,13 +309,25 @@ where SingleBond(o,h1); SingleBond(o,h2) {
    encourage equal( angleBetween(b-a,c-a), toRadians(104.5) )
 }
 
-forall Molecule m1; Molecule m2 {
-   vec2 x1 = m1.center
-   vec2 x2 = m2.center
+forall Node n1; Node n2 {
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
 
    -- make sure shadows are drawn below all molecules
-   layer m1.shadow below m2.icon
-   layer m2.shadow below m1.icon
+   layer n1.shadow below n2.icon
+   layer n2.shadow below n1.icon
+}
+
+-- put all reactants on the left
+forall Molecule m; Node n
+where IsReactant(m); Contains(m,n) {
+   ensure contains( Global.reactantBox, n.icon )
+}
+
+-- put all products on the right
+forall Molecule m; Node n
+where IsProduct(m); Contains(m,n) {
+   ensure contains( Global.productBox, n.icon )
 }
 
