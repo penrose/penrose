@@ -2,9 +2,9 @@
 Carbon C1
 Hydrogen H1, H2, H3, H4
 
-SingleBonded(C1, H1)
-SingleBonded(C1, H2)
-SingleBonded(C1, H3)
-SingleBonded(C1, H4)
+SingleBond(C1, H1)
+SingleBond(C1, H2)
+SingleBond(C1, H3)
+SingleBond(C1, H4)
 
 AutoLabel All

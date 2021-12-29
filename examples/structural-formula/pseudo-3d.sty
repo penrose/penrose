@@ -119,7 +119,7 @@ forall Hydrogen a {
 }
 
 forall Molecule m1; Molecule m2
-where SingleBonded( m1, m2 ) {
+where SingleBond( m1, m2 ) {
 
    vec2 x1 = m1.center
    vec2 x2 = m2.center
@@ -150,7 +150,7 @@ where SingleBonded( m1, m2 ) {
 }
 
 forall Molecule m1; Molecule m2
-where DoubleBonded( m1, m2 ) {
+where DoubleBond( m1, m2 ) {
 
    vec2 x1 = m1.center
    vec2 x2 = m2.center
@@ -205,7 +205,7 @@ where DoubleBonded( m1, m2 ) {
 
 -- make bonds with hydrogen shorter
 forall Molecule m; Hydrogen h
-where SingleBonded(m,h) {
+where SingleBond(m,h) {
    vec2 x1 = m.center
    vec2 x2 = h.center
    encourage equal( 2.*norm(x1-x2), .5*Global.bondLength )

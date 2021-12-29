@@ -15,6 +15,6 @@ Hydrogen <: Atom
 Nitrogen <: Atom
   Oxygen <: Atom
 
-predicate SingleBonded: Molecule m1 * Molecule m2
-predicate DoubleBonded: Molecule m1 * Molecule m2
+predicate SingleBond: Molecule m1 * Molecule m2
+predicate DoubleBond: Molecule m1 * Molecule m2
 

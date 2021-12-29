@@ -2,7 +2,7 @@
 Hydrogen H1, H2
 Oxygen O1
 
-SingleBonded( O1, H1 )
-SingleBonded( O1, H2 )
+SingleBond( O1, H1 )
+SingleBond( O1, H2 )
 
 AutoLabel All

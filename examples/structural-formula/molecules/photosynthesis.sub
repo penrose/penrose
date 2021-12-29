@@ -1,0 +1,32 @@
+-- photosynthesis, expressed via structural-formula DSL
+Carbon C1, C2, C3, C4, C5, C6
+Oxygen O1, O2, O3, O4, O5, O6
+Oxygen O7, O8, O9, O10, O11, O12
+
+-- carbon dioxide
+DoubleBond(C1, O1)
+DoubleBond(C1, O2)
+
+-- carbon dioxide
+DoubleBond(C2, O3)
+DoubleBond(C2, O4)
+
+-- carbon dioxide
+DoubleBond(C3, O5)
+DoubleBond(C3, O6)
+
+-- carbon dioxide
+DoubleBond(C4, O7)
+DoubleBond(C4, O8)
+
+-- carbon dioxide
+DoubleBond(C5, O9)
+DoubleBond(C5, O10)
+
+-- carbon dioxide
+DoubleBond(C6, O11)
+DoubleBond(C6, O12)
+
+
+
+AutoLabel All

@@ -3,12 +3,12 @@ Hydrogen H1, H2, H3, H4
 Carbon C1, C2
 Oxygen O1, O2
 
-SingleBonded(C1, H1)
-SingleBonded(C1, H2)
-SingleBonded(C1, H3)
-SingleBonded(C1, C2)
-DoubleBonded(C2, O1)
-SingleBonded(C2, O2)
-SingleBonded(O2, H4)
+SingleBond(C1, H1)
+SingleBond(C1, H2)
+SingleBond(C1, H3)
+SingleBond(C1, C2)
+DoubleBond(C2, O1)
+SingleBond(C2, O2)
+SingleBond(O2, H4)
 
 AutoLabel All

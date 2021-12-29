@@ -104,7 +104,7 @@ forall Oxygen a {
 }
 
 forall Molecule m1; Molecule m2
-where SingleBonded( m1, m2 ) {
+where SingleBond( m1, m2 ) {
 
    vec2 x1 = m1.center
    vec2 x2 = m2.center
@@ -127,7 +127,7 @@ where SingleBonded( m1, m2 ) {
 }
 
 forall Molecule m1; Molecule m2
-where DoubleBonded( m1, m2 ) {
+where DoubleBond( m1, m2 ) {
 
    vec2 x1 = m1.center
    vec2 x2 = m2.center
