@@ -460,19 +460,21 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 /**
- * Return `atan2(y, x)`.
- * NOTE: This function has not been thoroughly tested
+ * Returns the two-argument arctangent `atan2(y, x)`, which
+ * describes the angle made by a vector (x,y) with the x-axis.
+ * Returns a value in radians, in the range [-pi,pi].
  */
 export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
-  const z = variableAD(y.val * x.val, "atan2");
+  const z = variableAD(Math.atan2(y.val,x.val), "atan2");
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    // https://stackoverflow.com/questions/52176354/sympy-can-i-safely-differentiate-atan2
-    // grad atan2(y, x) = [-y/(x**2 + y**2),  x/(x**2 + y**2)]
+    // construct the derivatives
+     // d/dx atan2(y,x) = -y/(x^2 + y^2)
+     // d/dy atan2(y,x) =  x/(x^2 + y^2)
     const denom = add(squared(x, false), squared(y, false), false);
-    const ynode = just(div(neg(y, false), denom, false));
-    const xnode = just(div(x, denom, false));
+    const xnode = just(div(neg(y, false), denom, false));
+    const ynode = just(div(x, denom, false));
 
     y.parents.push({ node: z, sensitivityNode: ynode });
     x.parents.push({ node: z, sensitivityNode: xnode });
@@ -521,6 +523,8 @@ export const cos = (v: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
+    // construct the derivative
+    // d/dx cos(x) = -sin(x)
     const node = just(neg(sin(v, false), false));
     v.parents.push({ node: z, sensitivityNode: node });
 
@@ -532,6 +536,50 @@ export const cos = (v: VarAD, isCompNode = true): VarAD => {
   }
 
   return z;
+};
+
+/**
+ * Return `acos(x)`, i.e., the arc cosine of x (in radians).
+ * Assumes that x is in the range [-1,1], and produces the
+ * unique value y in the range [0,pi] such that cos(y) = x.
+ */
+export const acos = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.acos(x.val), "acos");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+
+    // construct the derivative
+    // d/dx acos(x) = -1/sqrt(1-x^2)
+    const node = just(
+       neg(
+          div(
+             gvarOf(1.0),
+             sub(
+                gvarOf(1.0),
+                mul(
+                   x,
+                   x,
+                   false
+                ),
+                false
+             ),
+             false
+          ),
+          false
+       )
+    );
+
+    x.parents.push({ node: y, sensitivityNode: node });
+
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
 };
 
 /**
@@ -873,6 +921,9 @@ const opMap = {
   cos: {
     fn: (x: number): number => Math.cos(x),
   },
+  acos: {
+    fn: (x: number): number => Math.acos(x),
+  },
   "- (unary)": {
     fn: (x: number): number => -x,
   },
@@ -988,7 +1039,7 @@ export const ops = {
   },
 
   /**
-   * Return the vector `v` scaled by scalar `c`.
+   * Return the vector `v` multiplied by scalar `c`.
    */
   vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
     return v.map((e) => mul(c, e));
@@ -1048,6 +1099,50 @@ export const ops = {
 
     const res = _.zipWith(v1, v2, mul);
     return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
+  },
+
+  /**
+   * Return the unsigned angle between vectors `u, v`, in radians.
+   * Assumes that both u and v have nonzero magnitude.
+   * The returned value will be in the range [0,pi].
+   */
+  angleBetween: (u: VarAD[], v: VarAD[]): VarAD => {
+    if (u.length !== v.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    // Due to floating point error, the dot product of
+    // two normalized vectors may fall slightly outside
+    // the range [-1,1].  To prevent acos from producing
+    // a NaN value, we therefore scale down the result
+    // of the dot product by a factor s slightly below 1.
+    const s = 1. - 1e-10;
+
+    return acos(
+       mul(
+          varOf(s), 
+          ops.vdot(
+             ops.vnormalize(u),
+             ops.vnormalize(v)
+          )
+       )
+    );
+  },
+
+  /**
+   * Return the signed angle from vector `u` to vector `v`, in radians.
+   * Assumes that both u and v are 2D vectors and have nonzero magnitude.
+   * The returned value will be in the range [-pi,pi].
+   */
+  angleFrom: (u: VarAD[], v: VarAD[]): VarAD => {
+    if (u.length !== v.length) {
+      throw Error("expected vectors of same length");
+    }
+
+    return atan2(
+       ops.cross2(u, v), // y = |u||v|sin(theta)
+       ops.vdot(u, v)    // x = |u||v|cos(theta)
+    );
   },
 
   /**
@@ -1349,6 +1444,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = Math.sin(${childName});`;
     } else if (z.op === "cos") {
       stmt = `const ${parName} = Math.cos(${childName});`;
+    } else if (z.op === "acos") {
+      stmt = `const ${parName} = Math.acos(${childName});`;
     } else if (z.op === "+ list") {
       // TODO: Get rid of unary +
       stmt = `const ${parName} = ${childName};`;

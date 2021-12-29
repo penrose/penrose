@@ -6,6 +6,7 @@ import {
   addN,
   constOf,
   cos,
+  acos,
   div,
   gt,
   ifCond,
@@ -436,6 +437,30 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
+    };
+  },
+  /**
+   * Return the unsigned angle between vectors `u, v`, in radians.
+   * Assumes that both u and v have nonzero magnitude.
+   * The returned value will be in the range [0,pi].
+   */
+  angleBetween: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const theta = ops.angleBetween(u,v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+  /**
+   * Return the signed angle from vector `u` to vector `v`, in radians.
+   * Assumes that both u and v are 2D vectors and have nonzero magnitude.
+   * The returned value will be in the range [-pi,pi].
+   */
+  angleFrom: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const theta = ops.angleFrom(u,v);
+    return {
+      tag: "FloatV",
+      contents: theta,
     };
   },
   /**
