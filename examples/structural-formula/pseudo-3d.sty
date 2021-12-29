@@ -31,13 +31,26 @@ Global {
 
 forall Molecule m {
 
-   vec2 m.center = (?,?)
+   scalar cx = ?
+   scalar cy = ?
+   vec2 m.center = (cx,cy)
+
+   scalar R = Global.atomRadius
 
    shape m.icon = Circle {
-      r : Global.atomRadius
+      r : R
       center : m.center
       color : Colors.white
       strokeColor : Colors.black
+      strokeWidth : 3.
+   }
+
+   shape m.shadow = Ellipse {
+      rx : 2.*Global.atomRadius
+      ry : Global.atomRadius
+      center : (cx,.5*cy) + (0.,-4.*R)
+      color : rgba( .95, .95, .95, 1. )
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
 
@@ -57,6 +70,7 @@ forall FunctionalGroup g {
    override g.icon.color = Colors.clear
    override g.icon.strokeColor = Colors.clear
    override g.text.color = Colors.black
+   override g.shadow.color = Colors.clear
 
    g.box = Rectangle {
       center : g.center
@@ -95,7 +109,11 @@ forall Hydrogen a {
    override a.icon.strokeColor = Colors.gray
    override a.text.color = Colors.black
    override a.text.string = ""
+
+   -- make hydrogen atoms (and their shadows) smaller
    override a.icon.r = .75*Global.atomRadius
+   override a.shadow.rx = .75*2.*Global.atomRadius
+   override a.shadow.ry = .75*Global.atomRadius
 }
 
 forall Molecule m1; Molecule m2
@@ -195,5 +213,9 @@ forall Molecule m1; Molecule m2 {
    vec2 x1 = m1.center
    vec2 x2 = m2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
+
+   -- make sure shadows are drawn below all molecules
+   layer m1.shadow below m2.icon
+   layer m2.shadow below m1.icon
 }
 
