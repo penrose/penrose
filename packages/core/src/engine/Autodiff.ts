@@ -539,7 +539,7 @@ export const cos = (v: VarAD, isCompNode = true): VarAD => {
 };
 
 /**
- * Return `acos(x)`, i.e., the arc cosine of x (in radians).
+ * Returns the arc cosine of x (in radians).
  * Assumes that x is in the range [-1,1], and produces the
  * unique value y in the range [0,pi] such that cos(y) = x.
  */
@@ -568,6 +568,47 @@ export const acos = (x: VarAD, isCompNode = true): VarAD => {
           ),
           false
        )
+    );
+
+    x.parents.push({ node: y, sensitivityNode: node });
+
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Returns the arc sine of x (in radians).
+ * Assumes that x is in the range [-1,1], and produces the
+ * unique value y in the range [-pi/2,pi/2] such that sin(y) = x.
+ */
+export const asin = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.asin(x.val), "asin");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+
+    // construct the derivative
+    // d/dx asin(x) = 1/sqrt(1-x^2)
+    const node = just(
+       div(
+          gvarOf(1.0),
+          sub(
+             gvarOf(1.0),
+             mul(
+                x,
+                x,
+                false
+             ),
+             false
+          ),
+          false
+       ),
     );
 
     x.parents.push({ node: y, sensitivityNode: node });
@@ -920,6 +961,9 @@ const opMap = {
   },
   cos: {
     fn: (x: number): number => Math.cos(x),
+  },
+  asin: {
+    fn: (x: number): number => Math.asin(x),
   },
   acos: {
     fn: (x: number): number => Math.acos(x),
@@ -1444,6 +1488,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = Math.sin(${childName});`;
     } else if (z.op === "cos") {
       stmt = `const ${parName} = Math.cos(${childName});`;
+    } else if (z.op === "asin") {
+      stmt = `const ${parName} = Math.asin(${childName});`;
     } else if (z.op === "acos") {
       stmt = `const ${parName} = Math.acos(${childName});`;
     } else if (z.op === "+ list") {
