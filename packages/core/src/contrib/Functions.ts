@@ -820,6 +820,26 @@ export const compDict = {
   },
 
   /**
+   * Convert the angle `theta` from degrees to radians.
+   */
+  toRadians: (theta: VarAD): IFloatV<VarAD> => {
+    return {
+       tag: "FloatV",
+       contents: mul(constOf(3.141592653589793/180.),theta)
+    };
+  },
+
+  /**
+   * Convert the angle `theta` from radians to degrees.
+   */
+  toDegrees: (theta: VarAD): IFloatV<VarAD> => {
+    return {
+       tag: "FloatV",
+       contents: mul(constOf(180./3.141592653589793),theta)
+    };
+  },
+
+  /**
    * Return the Euclidean norm of the vector `v`.
    */
   norm: (v: VarAD[]): IFloatV<VarAD> => {
