@@ -7,6 +7,7 @@ import {
   constOf,
   cos,
   acos,
+  asin,
   div,
   gt,
   ifCond,

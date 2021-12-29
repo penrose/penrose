@@ -52,7 +52,12 @@ predicate Contains: Molecule m * Node n
 predicate IsReactant: Molecule m
 predicate IsProduct: Molecule m
 
--- a ChemicalReaction involving all reactants and products
--- (currently this type is used simply to label the reaction)
-type ChemicalReaction
+-- a reaction involving all reactants and products
+type Reaction
+
+-- predicates to mark the type of reaction
+predicate     IsNetForward: Reaction r
+predicate IsStoichiometric: Reaction r
+predicate    IsEquilibrium: Reaction r
+predicate  IsBidirectional: Reaction r
 

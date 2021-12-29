@@ -1,6 +1,6 @@
 canvas {
-   scalar width  = 1440.
-   scalar height = 810.
+   scalar width  = 960.
+   scalar height = 540.
 }
 
 Colors {
@@ -22,7 +22,7 @@ Global {
    scalar atomRadius = 25.
    scalar bondLength = 60.
 
-   scalar padding = 100.
+   scalar padding = 50.
 
    -- box around the whole canvas
    shape bbox = Rectangle {
@@ -113,6 +113,13 @@ forall Node n {
    layer n.icon below n.text
 }
 
+-- make sure shadows are drawn below all molecules
+forall Node n1; Node n2 {
+   layer n1.shadow below n2.icon
+   layer n2.shadow below n1.icon
+}
+
+-- draw functional groups as boxes
 forall FunctionalGroup g {
    override g.icon.color = Colors.clear
    override g.icon.strokeColor = Colors.clear
@@ -282,20 +289,10 @@ where IonicBond( n1, n2 ) {
       style: "dashed"
    }
 
-   -- shape innerLine = Line {
-   --    start : x1 - .5*r*u
-   --      end : x2 + .5*r*u
-   --    thickness : 4.
-   --    color : Colors.white
-   --    strokeLineCap: "round"
-   -- }
-
    encourage equal( norm(x1-x2), Global.bondLength )
 
    layer line below n1.icon
    layer line below n2.icon
-   -- layer innerLine above line
-   -- layer innerLine below n1.icon
 }
 
 
@@ -307,25 +304,49 @@ where SingleBond(n,h) {
    encourage equal( 2.*norm(x1-x2), .5*Global.bondLength )
 }
 
--- give water molecules a physical bond angle
-forall Oxygen o; Hydrogen h1; Hydrogen h2
+-- give common molecules a physical bond angle
+forall Oxygen o; Hydrogen h1; Hydrogen h2 -- water (H2O)
 where SingleBond(o,h1); SingleBond(o,h2) {
    vec2 a = o.center
    vec2 b = h1.center
    vec2 c = h2.center
    encourage equal( angleBetween(b-a,c-a), toRadians(104.5) )
 }
+forall Carbon c; Oxygen o1; Oxygen o2 -- carbon dioxide (CO2)
+where DoubleBond(c,o1); DoubleBond(c,o2) {
+   vec2 a = c.center
+   vec2 b = o1.center
+   vec2 c = o2.center
+   encourage equal( angleBetween(b-a,c-a), toRadians(180.) )
+}
 
 -- use a Coulomb-like force to prevent nodes from overlapping
-forall Node n1; Node n2 {
+-- (but only worry about nodes in the same reactant/product box)
+forall Molecule m; Node n1; Node n2
+where IsReactant(m); Contains(m,n1); Contains(m,n2) {
    vec2 x1 = n1.center
    vec2 x2 = n2.center
    encourage equal( 200000./normsq(x1-x2), 0. )
-
-   -- make sure shadows are drawn below all molecules
-   layer n1.shadow below n2.icon
-   layer n2.shadow below n1.icon
 }
+forall Molecule m1; Molecule m2; Node n1; Node n2
+where IsReactant(m1); IsReactant(m2); Contains(m1,n1); Contains(m2,n2) {
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
+   encourage equal( 200000./normsq(x1-x2), 0. )
+}
+forall Molecule m; Node n1; Node n2
+where IsProduct(m); Contains(m,n1); Contains(m,n2) {
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
+   encourage equal( 200000./normsq(x1-x2), 0. )
+}
+forall Molecule m1; Molecule m2; Node n1; Node n2
+where IsProduct(m1); IsProduct(m2); Contains(m1,n1); Contains(m2,n2) {
+   vec2 x1 = n1.center
+   vec2 x2 = n2.center
+   encourage equal( 200000./normsq(x1-x2), 0. )
+}
+
 
 -- place a label near the Nodes in each Molecule
 forall Molecule m {
@@ -339,13 +360,14 @@ forall Molecule m {
       string : m.label
       color : Colors.black
       fontSize : "18pt"
-      center : m.box.center - (0.,2.*Global.atomRadius)
+      center : m.box.center - (0.,3.*Global.atomRadius)
       -- TODO add stroke (have to expose SVG text stroke in Penrose renderer)
    }
 }
 forall Molecule m; Node n
 where Contains(m,n) {
-   encourage near( m.box, n.icon )
+   override m.box.center = n.icon.center
+   --encourage near( m.box, n.icon )
    layer m.text above n.icon
 }
 

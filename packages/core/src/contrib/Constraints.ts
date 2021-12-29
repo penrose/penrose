@@ -355,13 +355,13 @@ export const constrDict = {
       // Return maximum violation in either the x- or y-direction.
       // In each direction, the distance from the circle center (cx,cy) to
       // the rectangle center (rx,ry) must be no greater than the size of
-      // the rectangle (w/h), minus the radius of the circle (r).  We can
-      // compute this violation via the function
-      //    max( |cx-rx| - (w/2-r),
-      //         |cy-ry| - (h/2-r) )
-      // (Note: ignores the parameter `offset`.)
-      return max( sub( absVal(sub(cx,rx)), sub(halfW,r) ),
-                  sub( absVal(sub(cy,ry)), sub(halfH,r) ));
+      // the rectangle (w/h), minus the radius of the circle (r) and the
+      // offset (o).  We can compute this violation via the function
+      //    max( |cx-rx| - (w/2-r-o),
+      //         |cy-ry| - (h/2-r-o) )
+      const o = typeof(offset)!=='undefined'? offset : constOf(0.);
+      return max( sub( absVal(sub(cx,rx)), sub(sub(halfW,r),o) ),
+                  sub( absVal(sub(cy,ry)), sub(sub(halfH,r),o) ));
     } else if (t1 === "Square" && t2 === "Circle") {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
       const sq = s1.center.contents;

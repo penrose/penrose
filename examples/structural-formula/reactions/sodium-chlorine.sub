@@ -2,8 +2,9 @@ AutoLabel All
 
 -- sodium chlorine gas reaction, expressed via structural-formula DSL
 
-ChemicalReaction sodium_chlorine
+Reaction sodium_chlorine
 Label sodium_chlorine $\text{Sodium and Chlorine Gas Reaction}$
+IsNetForward( sodium_chlorine )
 
 -- reactants: 2Na + Cl2 ====================================
 Sodium Na1, Na2

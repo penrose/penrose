@@ -2,8 +2,9 @@ AutoLabel All
 
 -- combustion reaction, expressed via structural-formula DSL
 
-ChemicalReaction combustion
+Reaction combustion
 Label combustion $\text{Combustion Reaction}$
+IsNetForward( combustion )
 
 -- reactants: CH4 + 2O2 ====================================
 Carbon C1
