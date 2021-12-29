@@ -211,6 +211,15 @@ where SingleBond(m,h) {
    encourage equal( 2.*norm(x1-x2), .5*Global.bondLength )
 }
 
+-- give water molecules a physical bond angle
+forall Oxygen o; Hydrogen h1; Hydrogen h2
+where SingleBond(o,h1); SingleBond(o,h2) {
+   vec2 a = o.center
+   vec2 b = h1.center
+   vec2 c = h2.center
+   encourage equal( angleBetween(b-a,c-a), toRadians(104.5) )
+}
+
 forall Molecule m1; Molecule m2 {
    vec2 x1 = m1.center
    vec2 x2 = m2.center
