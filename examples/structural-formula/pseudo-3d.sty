@@ -48,7 +48,7 @@ forall Molecule m {
    shape m.shadow = Ellipse {
       rx : 2.*Global.atomRadius
       ry : Global.atomRadius
-      center : (cx,.5*cy) + (0.,-4.*R)
+      center : (cx,cy) + (0.,-4.*R)
       color : rgba( .95, .95, .95, 1. )
       strokeColor : Colors.clear
       strokeWidth : 3.
@@ -81,6 +81,8 @@ forall FunctionalGroup g {
       strokeWidth : 3.
       rx : 10.
    }
+
+   layer g.shadow below g.box
 }
 
 forall Oxygen a {
