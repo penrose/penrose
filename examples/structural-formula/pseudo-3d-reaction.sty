@@ -1,6 +1,6 @@
 canvas {
-   scalar width  = 960.
-   scalar height = 540.
+   scalar width  = 1248.
+   scalar height = 702.
 }
 
 Colors {
@@ -351,23 +351,51 @@ where IsProduct(m1); IsProduct(m2); Contains(m1,n1); Contains(m2,n2) {
 -- place a label near the Nodes in each Molecule
 forall Molecule m {
 
-   m.box = Rectangle {
-      center : (?,?)
-      color : Colors.clear
-   }
+   -- m.box = Rectangle {
+   --    center : (?,?)
+   --    color : Colors.clear
+   -- }
+
+   m.labelCenter = (?,?)
 
    m.text = Text {
       string : m.label
       color : Colors.black
       fontSize : "18pt"
-      center : m.box.center - (0.,3.*Global.atomRadius)
+      center : m.labelCenter
+      --center : m.box.center - (0.,3.*Global.atomRadius)
       -- TODO add stroke (have to expose SVG text stroke in Penrose renderer)
+   }
+
+   -- used to prevent overlap with molecules
+   -- (since "ensure disjoint" isn't currently supported for Text-Circle pairs)
+   scalar R = 20.
+   m.textPhantom1 = Circle {
+      center : m.labelCenter
+      r : R
+      color : Colors.clear
+      strokeColor : Colors.clear
+   }
+   m.textPhantom2 = Circle {
+      center : m.labelCenter + (2.*R,0.)
+      r : R
+      color : Colors.clear
+      strokeColor : Colors.clear
+   }
+   m.textPhantom3 = Circle {
+      center : m.labelCenter - (2.*R,0.)
+      r : R
+      color : Colors.clear
+      strokeColor : Colors.clear
    }
 }
 forall Molecule m; Node n
 where Contains(m,n) {
-   override m.box.center = n.icon.center
-   --encourage near( m.box, n.icon )
+   --override m.box.center = n.icon.center
+   encourage near( m.text, n.icon )
+   ensure disjoint( m.textPhantom1, n.icon )
+   ensure disjoint( m.textPhantom2, n.icon )
+   ensure disjoint( m.textPhantom3, n.icon )
    layer m.text above n.icon
 }
 
