@@ -345,17 +345,23 @@ export const constrDict = {
       const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
     } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
-      // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
-      // -- HACK: reusing test impl, revert later
-      //    let r_l = min (getNum r "w") (getNum r "h") / 2
-      //        diff = r_l - getNum c "r"
-      //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
-
-      // TODO: `rL` is probably a hack for dimensions
-      const rL = div(min(s1.w.contents, s1.h.contents), varOf(2.0));
-      const diff = sub(rL, s2.r.contents);
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      return add(sub(d, diff), offset);
+      // collect constants
+      const halfW = mul( constOf(0.5), s1.w.contents ); // half rectangle width
+      const halfH = mul( constOf(0.5), s1.h.contents ); // half rectangle height
+      const [rx, ry] = s1.center.contents; // rectangle center
+      const r = s2.r.contents; // circle radius
+      const [cx, cy] = s2.center.contents; // circle center
+      
+      // Return maximum violation in either the x- or y-direction.
+      // In each direction, the distance from the circle center (cx,cy) to
+      // the rectangle center (rx,ry) must be no greater than the size of
+      // the rectangle (w/h), minus the radius of the circle (r).  We can
+      // compute this violation via the function
+      //    max( |cx-rx| - (w/2-r),
+      //         |cy-ry| - (h/2-r) )
+      // (Note: ignores the parameter `offset`.)
+      return max( sub( absVal(sub(cx,rx)), sub(halfW,r) ),
+                  sub( absVal(sub(cy,ry)), sub(halfH,r) ));
     } else if (t1 === "Square" && t2 === "Circle") {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
       const sq = s1.center.contents;
