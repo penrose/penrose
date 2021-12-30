@@ -1,0 +1,54 @@
+{
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "folke.vscode-monorepo-workspace",
+      "karyfoundation.nearley",
+      "penrose.penrose-vs"
+    ]
+  },
+  "folders": [
+    {
+      "name": "✨ penrose",
+      "path": "."
+    },
+    {
+      "name": "📦 @penrose/automator",
+      "path": "packages/automator"
+    },
+    {
+      "name": "📦 @penrose/browser-ui",
+      "path": "packages/browser-ui"
+    },
+    {
+      "name": "📦 @penrose/components",
+      "path": "packages/components"
+    },
+    {
+      "name": "📦 @penrose/core",
+      "path": "packages/core"
+    },
+    {
+      "name": "📦 @penrose/panels",
+      "path": "packages/panels"
+    },
+    {
+      "name": "📦 @penrose/roger",
+      "path": "packages/roger"
+    },
+    {
+      "name": "📦 @penrose/synthesizer",
+      "path": "packages/synthesizer"
+    },
+    {
+      "name": "📦 @penrose/synthesizer-ui",
+      "path": "packages/synthesizer-ui"
+    }
+  ],
+  "settings": {
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false,
+    "files.trimTrailingWhitespace": false
+  }
+}
