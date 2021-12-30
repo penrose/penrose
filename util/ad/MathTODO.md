@@ -11,13 +11,13 @@ These functions are provided by the JavaScript Math Object.  Here's their status
 | `atan2(y,x)`| `atan2(y,x)`| TODO         |
 | `atanh(x)`  | TODO        | TODO         |
 | `cbrt(x)`   | TODO        | TODO         |
-| `ceil(x)`   | TODO        | TODO         |
+| `ceil(x)`   | TODO        | TODO         | Not provided as a differentiable function, since the derivative is zero almost everywhere.
 | `cos(x)`    | `cos(x)`    | `cos(x)`     |
 | `cosh(x)`   | TODO        | TODO         |
 | `exp(x)`    | TODO        | TODO         |
 | `expm1(x)`  | TODO        | TODO         |
-| `floor(x)`  | TODO        | TODO         |
-| `fround(x)` | TODO        | TODO         |
+| `floor(x)`  | TODO        | TODO         | Not provided as a differentiable function, since the derivative is zero almost everywhere.
+| `fround(x)` | TODO        | TODO         | Not provided as a differentiable function, since the derivative is zero almost everywhere.
 | `hypot(x)`  | TODO        | TODO         |
 | `log(x)`    | TODO        | TODO         |
 | `log2(x)`   | TODO        | TODO         |
@@ -27,7 +27,7 @@ These functions are provided by the JavaScript Math Object.  Here's their status
 | `min(x,...)`| `min(x,y)`  | `min(x,y)`   |
 | `pow(x, y)` | TODO        | TODO         |
 | `random()`  | TODO        | TODO         |
-| `round(x)`  | TODO        | TODO         |
+| `round(x)`  | TODO        | TODO         | Not provided as a differentiable function, since the derivative is zero almost everywhere.
 | `sign(x)`   | TODO        | `sgn(x)`     | Not provided as a differentiable function, since the derivative is zero almost everywhere.
 | `sin(x)`    | `sin(x)`    | `sin(x)`     |
 | `sinh(x)`   | TODO        | TODO         |

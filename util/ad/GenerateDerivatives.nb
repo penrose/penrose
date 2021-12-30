@@ -1,0 +1,246 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      8514,        238]
+NotebookOptionsPosition[      7690,        217]
+NotebookOutlinePosition[      8055,        233]
+CellTagsIndexPosition[      8012,        230]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"Cbrt", "[", "x_", "]"}], ":=", 
+   SuperscriptBox["x", 
+    RowBox[{"1", "/", "3"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Expm1", "[", "x_", "]"}], ":=", 
+   RowBox[{
+    SuperscriptBox["\[ExponentialE]", "x"], "-", "1"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Log1p", "[", "x_", "]"}], ":=", 
+   RowBox[{"Log", "[", 
+    RowBox[{"1", "+", "x"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Powxy", "[", "x_", "]"}], ":=", 
+   SuperscriptBox["x", "y"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Powyx", "[", "x_", "]"}], ":=", 
+   SuperscriptBox["y", "x"]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"functions", "=", 
+    RowBox[{"{", 
+     RowBox[{
+     "ArcCosh", ",", "ArcSinh", ",", "ArcTan", ",", "ArcTanh", ",", "Cbrt", 
+      ",", "Cosh", ",", "Exp", ",", "Expm1", ",", "Log", ",", "Log2", ",", 
+      "Log10", ",", "Log1p", ",", "Powxy", ",", "Powyx", ",", "Sinh", ",", 
+      "Tan", ",", "Tanh"}], "}"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Print", "[", "\"\<functions:\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"functions", "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Print", "[", "\"\<derivatives:\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     SubscriptBox["\[PartialD]", "x"], 
+     RowBox[{"(", 
+      RowBox[{"#", "[", "x", "]"}], ")"}]}], ")"}], "&"}], "/@", 
+  "functions"}]}], "Input",
+ CellChangeTimes->{{3.8498776733966007`*^9, 3.849877707123211*^9}, {
+  3.849877761145133*^9, 3.84987795055476*^9}, {3.8498780555965776`*^9, 
+  3.8498780608356323`*^9}, {3.849878101854938*^9, 3.849878114853664*^9}, {
+  3.849878209688684*^9, 3.849878245414351*^9}, {3.849878298787912*^9, 
+  3.849878350615507*^9}, {3.849878409088463*^9, 3.849878420874947*^9}, {
+  3.8498784914012337`*^9, 3.849878640649445*^9}, {3.849878681758749*^9, 
+  3.8498787259745693`*^9}},
+ CellLabel->
+  "In[286]:=",ExpressionUUID->"c7a4d10f-a759-47ef-93fd-2c4a358c0e03"],
+
+Cell[BoxData["\<\"functions:\"\>"], "Print",
+ CellChangeTimes->{{3.8498786986301537`*^9, 3.849878726938965*^9}},
+ CellLabel->
+  "During evaluation of \
+In[286]:=",ExpressionUUID->"81964357-8b23-494b-a416-9b8860f99442"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "ArcCosh", ",", "ArcSinh", ",", "ArcTan", ",", "ArcTanh", ",", "Cbrt", ",", 
+   "Cosh", ",", "Exp", ",", "Expm1", ",", "Log", ",", "Log2", ",", "Log10", 
+   ",", "Log1p", ",", "Powxy", ",", "Powyx", ",", "Sinh", ",", "Tan", ",", 
+   "Tanh"}], "}"}]], "Output",
+ CellChangeTimes->{{3.849877823254277*^9, 3.849877867527458*^9}, {
+   3.849877932865683*^9, 3.849877951202083*^9}, 3.8498781152756157`*^9, 
+   3.849878246371073*^9, {3.849878321907565*^9, 3.849878351027482*^9}, {
+   3.849878410218278*^9, 3.849878421593227*^9}, {3.849878493731399*^9, 
+   3.849878498187255*^9}, {3.8498785759967012`*^9, 3.849878641271357*^9}, {
+   3.849878698632161*^9, 3.8498787269404182`*^9}},
+ CellLabel->
+  "Out[293]=",ExpressionUUID->"06fdcc75-d02c-4500-a914-5271b9aa03e0"],
+
+Cell[BoxData["\<\"derivatives:\"\>"], "Print",
+ CellChangeTimes->{{3.8498786986301537`*^9, 3.8498787269415283`*^9}},
+ CellLabel->
+  "During evaluation of \
+In[286]:=",ExpressionUUID->"a71b8978-b8d7-4def-a161-616dd3720778"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   FractionBox["1", 
+    RowBox[{
+     SqrtBox[
+      RowBox[{
+       RowBox[{"-", "1"}], "+", "x"}]], " ", 
+     SqrtBox[
+      RowBox[{"1", "+", "x"}]]}]], ",", 
+   FractionBox["1", 
+    SqrtBox[
+     RowBox[{"1", "+", 
+      SuperscriptBox["x", "2"]}]]], ",", 
+   FractionBox["1", 
+    RowBox[{"1", "+", 
+     SuperscriptBox["x", "2"]}]], ",", 
+   FractionBox["1", 
+    RowBox[{"1", "-", 
+     SuperscriptBox["x", "2"]}]], ",", 
+   FractionBox["1", 
+    RowBox[{"3", " ", 
+     SuperscriptBox["x", 
+      RowBox[{"2", "/", "3"}]]}]], ",", 
+   RowBox[{"Sinh", "[", "x", "]"}], ",", 
+   SuperscriptBox["\[ExponentialE]", "x"], ",", 
+   SuperscriptBox["\[ExponentialE]", "x"], ",", 
+   FractionBox["1", "x"], ",", 
+   FractionBox["1", 
+    RowBox[{"x", " ", 
+     RowBox[{"Log", "[", "2", "]"}]}]], ",", 
+   FractionBox["1", 
+    RowBox[{"x", " ", 
+     RowBox[{"Log", "[", "10", "]"}]}]], ",", 
+   FractionBox["1", 
+    RowBox[{"1", "+", "x"}]], ",", 
+   RowBox[{
+    SuperscriptBox["x", 
+     RowBox[{
+      RowBox[{"-", "1"}], "+", "y"}]], " ", "y"}], ",", 
+   RowBox[{
+    SuperscriptBox["y", "x"], " ", 
+    RowBox[{"Log", "[", "y", "]"}]}], ",", 
+   RowBox[{"Cosh", "[", "x", "]"}], ",", 
+   SuperscriptBox[
+    RowBox[{"Sec", "[", "x", "]"}], "2"], ",", 
+   SuperscriptBox[
+    RowBox[{"Sech", "[", "x", "]"}], "2"]}], "}"}]], "Output",
+ CellChangeTimes->{{3.849877823254277*^9, 3.849877867527458*^9}, {
+   3.849877932865683*^9, 3.849877951202083*^9}, 3.8498781152756157`*^9, 
+   3.849878246371073*^9, {3.849878321907565*^9, 3.849878351027482*^9}, {
+   3.849878410218278*^9, 3.849878421593227*^9}, {3.849878493731399*^9, 
+   3.849878498187255*^9}, {3.8498785759967012`*^9, 3.849878641271357*^9}, {
+   3.849878698632161*^9, 3.849878726943058*^9}},
+ CellLabel->
+  "Out[295]=",ExpressionUUID->"73f3ad27-478c-4da2-9d8f-edfffb001d75"]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Evaluate", " ", "this", " ", "cell", " ", "to", " ", "write", " ", 
+    "derivatives", " ", "as", " ", "plain", " ", 
+    RowBox[{"text", "."}]}], " ", "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"file", "=", 
+     RowBox[{"OpenWrite", "[", "\"\<derivatives.txt\>\"", "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"For", "[", 
+     RowBox[{
+      RowBox[{"i", "=", "1"}], ",", 
+      RowBox[{"i", "\[LessEqual]", 
+       RowBox[{"Length", "[", "functions", "]"}]}], ",", 
+      RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"WriteString", "[", 
+        RowBox[{"file", ",", 
+         RowBox[{
+          RowBox[{"ToString", "[", 
+           RowBox[{"FullForm", "[", 
+            RowBox[{
+            "functions", "\[LeftDoubleBracket]", "i", 
+             "\[RightDoubleBracket]"}], "]"}], "]"}], "<>", "\"\<\\n\>\""}]}],
+         "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"WriteString", "[", 
+        RowBox[{"file", ",", 
+         RowBox[{
+          RowBox[{"ToString", "[", 
+           RowBox[{"FullForm", "[", 
+            RowBox[{
+             SubscriptBox["\[PartialD]", "x"], 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+               "functions", "\[LeftDoubleBracket]", "i", 
+                "\[RightDoubleBracket]"}], ")"}], "[", "x", "]"}]}], "]"}], 
+           "]"}], "<>", "\"\<\\n\>\""}]}], "]"}], ";"}]}], 
+     "\[IndentingNewLine]", "]"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Close", "[", "file", "]"}], ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.8498787075835257`*^9, 3.849878717207244*^9}},
+ CellLabel->
+  "In[283]:=",ExpressionUUID->"30321297-cca0-49c8-a68b-140c9ee60d56"]
+},
+WindowSize->{1315, 870},
+WindowMargins->{{4, Automatic}, {Automatic, 4}},
+Magnification:>2. Inherited,
+FrontEndVersion->"12.0 for Mac OS X x86 (64-bit) (April 8, 2019)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 2174, 58, 574, "Input",ExpressionUUID->"c7a4d10f-a759-47ef-93fd-2c4a358c0e03"],
+Cell[2757, 82, 218, 4, 47, "Print",ExpressionUUID->"81964357-8b23-494b-a416-9b8860f99442"],
+Cell[2978, 88, 797, 14, 131, "Output",ExpressionUUID->"06fdcc75-d02c-4500-a914-5271b9aa03e0"],
+Cell[3778, 104, 222, 4, 47, "Print",ExpressionUUID->"a71b8978-b8d7-4def-a161-616dd3720778"],
+Cell[4003, 110, 1876, 55, 206, "Output",ExpressionUUID->"73f3ad27-478c-4da2-9d8f-edfffb001d75"]
+}, Open  ]],
+Cell[5894, 168, 1792, 47, 328, "Input",ExpressionUUID->"30321297-cca0-49c8-a68b-140c9ee60d56"]
+}
+]
+*)
+
