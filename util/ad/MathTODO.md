@@ -8,7 +8,7 @@ These functions are provided by the JavaScript Math Object.  Here's their status
 | `asin(x)`   | `asin(x)`   | `asin(x)`    |
 | `asinh(x)`  | `asinh(x)`  | `asinh(x)`   |
 | `atan(x)`   | `atan(x)`   | `atan(x)`    |
-| `atan2(y,x)`| `atan2(y,x)`| TODO         |
+| `atan2(y,x)`| `atan2(y,x)`| `atan2(y,x)` |
 | `atanh(x)`  | `atanh(x)`  | `atanh(x)`   |
 | `cbrt(x)`   | `cbrt(x)`   | `cbrt(x)`    |
 | `ceil(x)`   | NA          | TODO         | Not provided as a differentiable function, since the derivative is zero almost everywhere.
@@ -40,11 +40,12 @@ The JavaScript Math object also provides some standard mathematical constants, a
 
 | JavaScript  | Autodiff.ts | Functions.ts | Notes
 |-------------|-------------|--------------|-------
-| `E`         | NA          | TODO         |
-| `LN2`       | NA          | TODO         |
-| `LN10`      | NA          | TODO         |
-| `LOG2E`     | NA          | TODO         |
-| `LOG10E`    | NA          | TODO         |
-| `PI`        | NA          | TODO         |
-| `SQRT1_2`   | NA          | TODO         |
-| `SQRT2`     | NA          | TODO         |
+| `E`         | NA          | `MathE()`    |
+| `LN2`       | NA          | NA           | Can be computed in Style via `log(2.)`.
+| `LN10`      | NA          | NA           | Can be computed in Style via `log(10.)`.
+| `LOG2E`     | NA          | NA           | Can be computed in Style via `log2(MathE())`.
+| `LOG10E`    | NA          | NA           | Can be computed in Style via `log10(MathE())`.
+| `PI`        | NA          | `MathPI()`   |
+| `SQRT1_2`   | NA          | NA           | Can be computed in Style via `sqrt(.5)`.
+| `SQRT2`     | NA          | NA           | Can be computed in Style via `sqrt(2.)`.
+

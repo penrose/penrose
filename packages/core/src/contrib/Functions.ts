@@ -19,6 +19,7 @@ import {
   asin,
   asinh,
   atan,
+  atan2,
   atanh,
   cbrt,
   cos,
@@ -288,6 +289,16 @@ export const compDict = {
      return {
         tag: "FloatV",
         contents: atan(x),
+     };
+  },
+  
+  /**
+  * Return `atan2(y,x)`.
+  */
+  atan2: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atan2(y,x),
      };
   },
   
@@ -1053,6 +1064,28 @@ export const compDict = {
    */
   vdistsq: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+  },
+
+  // ------ Mathematical constants
+
+  /**
+   * Base e of the natural logarithm.
+   */
+  MathE: (): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(2.718281828459045),
+    };
+  },
+
+  /**
+   * Ratio of the circumference of a circle to its diameter.
+   */
+  MathPI: (): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(3.141592653589793),
+    };
   },
 
   // ------ Geometry/graphics utils
