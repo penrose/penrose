@@ -92,13 +92,14 @@ statement
   |  subtype     {% id %}
 
 # not to be confused with `type`, defined below
-type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
-  ([typ, , name, ps]): TypeDecl => {
+type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type, ","]):? {%
+  ([typ, , name, ps, sub]): TypeDecl => {
     const params = ps ? ps[3] : [];
+    const superTypes = sub ? sub[3] : [];
     return { 
-      ...nodeData([name, ...params]),
+      ...nodeData([name, ...params, ...superTypes]),
       ...rangeBetween(typ, name),
-      tag: "TypeDecl", name, params
+      tag: "TypeDecl", name, params, superTypes
     };
   }
 %}
