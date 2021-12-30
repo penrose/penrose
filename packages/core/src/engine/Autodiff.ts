@@ -495,135 +495,6 @@ export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
 // --- Unary ops
 
 /**
- * Return `sin(v)`.
- */
-export const sin = (v: VarAD, isCompNode = true): VarAD => {
-  const z = variableAD(Math.sin(v.val), "sin");
-  z.isCompNode = isCompNode;
-
-  if (isCompNode) {
-    const node = just(cos(v, false));
-    v.parents.push({ node: z, sensitivityNode: node });
-
-    z.children.push({ node: v, sensitivityNode: node });
-  } else {
-    v.parentsGrad.push({ node: z, sensitivityNode: none });
-
-    z.childrenGrad.push({ node: v, sensitivityNode: none });
-  }
-
-  return z;
-};
-
-/**
- * Return `cos(v)`.
- */
-export const cos = (v: VarAD, isCompNode = true): VarAD => {
-  const z = variableAD(Math.cos(v.val), "cos");
-  z.isCompNode = isCompNode;
-
-  if (isCompNode) {
-    // construct the derivative
-    // d/dx cos(x) = -sin(x)
-    const node = just(neg(sin(v, false), false));
-    v.parents.push({ node: z, sensitivityNode: node });
-
-    z.children.push({ node: v, sensitivityNode: node });
-  } else {
-    v.parentsGrad.push({ node: z, sensitivityNode: none });
-
-    z.childrenGrad.push({ node: v, sensitivityNode: none });
-  }
-
-  return z;
-};
-
-/**
- * Returns the arc cosine of x (in radians).
- * Assumes that x is in the range [-1,1], and produces the
- * unique value y in the range [0,pi] such that cos(y) = x.
- */
-export const acos = (x: VarAD, isCompNode = true): VarAD => {
-  const y = variableAD(Math.acos(x.val), "acos");
-  y.isCompNode = isCompNode;
-
-  if (isCompNode) {
-
-    // construct the derivative
-    // d/dx acos(x) = -1/sqrt(1-x^2)
-    const node = just(
-       neg(
-          div(
-             gvarOf(1.0),
-             sub(
-                gvarOf(1.0),
-                mul(
-                   x,
-                   x,
-                   false
-                ),
-                false
-             ),
-             false
-          ),
-          false
-       )
-    );
-
-    x.parents.push({ node: y, sensitivityNode: node });
-
-    y.children.push({ node: x, sensitivityNode: node });
-  } else {
-    x.parentsGrad.push({ node: y, sensitivityNode: none });
-
-    y.childrenGrad.push({ node: x, sensitivityNode: none });
-  }
-
-  return y;
-};
-
-/**
- * Returns the arc sine of x (in radians).
- * Assumes that x is in the range [-1,1], and produces the
- * unique value y in the range [-pi/2,pi/2] such that sin(y) = x.
- */
-export const asin = (x: VarAD, isCompNode = true): VarAD => {
-  const y = variableAD(Math.asin(x.val), "asin");
-  y.isCompNode = isCompNode;
-
-  if (isCompNode) {
-
-    // construct the derivative
-    // d/dx asin(x) = 1/sqrt(1-x^2)
-    const node = just(
-       div(
-          gvarOf(1.0),
-          sub(
-             gvarOf(1.0),
-             mul(
-                x,
-                x,
-                false
-             ),
-             false
-          ),
-          false
-       ),
-    );
-
-    x.parents.push({ node: y, sensitivityNode: node });
-
-    y.children.push({ node: x, sensitivityNode: node });
-  } else {
-    x.parentsGrad.push({ node: y, sensitivityNode: none });
-
-    y.childrenGrad.push({ node: x, sensitivityNode: none });
-  }
-
-  return y;
-};
-
-/**
  * Return `-v`.
  */
 export const neg = (v: VarAD, isCompNode = true): VarAD => {
@@ -673,6 +544,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.sqrt(v.val), "sqrt");
   z.isCompNode = isCompNode;
 
+  // XXX Looks like this is for debugging?
   const dzDv = (arg: "unit"): number => {
     if (v.val < 0) {
       log.trace(`negative arg ${v.val} in sqrt`);
@@ -750,6 +622,369 @@ export const absVal = (v: VarAD, isCompNode = true): VarAD => {
 
   return z;
 };
+
+/**
+ * Return `acosh(v)`.
+ */
+export const acosh = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.acosh(x.val), "acosh");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),mul(sqrt(sub(x,gvarOf(1.0),false),false),sqrt(add(x,gvarOf(1.0),false),false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `acos(v)`.
+ */
+export const acos = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.acos(x.val), "acos");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(neg(div(gvarOf(1.0),sqrt(sub(gvarOf(1.0),mul(x,x,false),false),false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `asin(v)`.
+ */
+export const asin = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.asin(x.val), "asin");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),sqrt(sub(gvarOf(1.0),mul(x,x,false),false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `asinh(v)`.
+ */
+export const asinh = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.asinh(x.val), "asinh");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),sqrt(add(gvarOf(1.0),mul(x,x,false),false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `atan(v)`.
+ */
+export const atan = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.atan(x.val), "atan");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),add(gvarOf(1.0),mul(x,x,false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `atanh(v)`.
+ */
+export const atanh = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.atanh(x.val), "atanh");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),sub(gvarOf(1.0),mul(x,x,false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `cbrt(v)`.
+ */
+export const cbrt = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.cbrt(x.val), "cbrt");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),mul(gvarOf(3.0),squared(cbrt(x,false),false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `cos(v)`.
+ */
+export const cos = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.cos(x.val), "cos");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(neg(sin(x,false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `cosh(v)`.
+ */
+export const cosh = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.cosh(x.val), "cosh");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(sinh(x,false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `exp(v)`.
+ */
+export const exp = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.exp(x.val), "exp");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(exp(x,false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `expm1(v)`.
+ */
+export const expm1 = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.expm1(x.val), "expm1");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(exp(x,false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return the natural logarithm `ln(v)` (i.e., log base e).
+ */
+export const ln = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.log(x.val), "log");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),x,false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `log2(v)`.
+ */
+export const log2 = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.log2(x.val), "log2");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),mul(x,gvarOf(0.6931471805599453),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `log10(v)`.
+ */
+export const log10 = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.log10(x.val), "log10");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),mul(x,gvarOf(2.302585092994046),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `log1p(v)`.
+ */
+export const log1p = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.log1p(x.val), "log1p");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(div(gvarOf(1.0),add(gvarOf(1.0),x,false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `sin(v)`.
+ */
+export const sin = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.sin(x.val), "sin");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(cos(x,false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `sinh(v)`.
+ */
+export const sinh = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.sinh(x.val), "sinh");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(cosh(x,false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `tan(v)`.
+ */
+export const tan = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.tan(x.val), "tan");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(squared(div(gvarOf(1.0),cos(x,false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+/**
+ * Return `tanh(v)`.
+ */
+export const tanh = (x: VarAD, isCompNode = true): VarAD => {
+  const y = variableAD(Math.tanh(x.val), "tanh");
+  y.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const node = just(squared(div(gvarOf(1.0),cosh(x,false),false),false));
+    x.parents.push({ node: y, sensitivityNode: node });
+    y.children.push({ node: x, sensitivityNode: node });
+  } else {
+    x.parentsGrad.push({ node: y, sensitivityNode: none });
+    y.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return y;
+};
+
+
 // ------- Discontinuous / noGrad ops
 
 /**
@@ -956,17 +1191,62 @@ const opMap = {
   min: {
     fn: (x: number, y: number): number => Math.min(x, y),
   },
-  sin: {
-    fn: (x: number): number => Math.sin(x),
-  },
-  cos: {
-    fn: (x: number): number => Math.cos(x),
-  },
-  asin: {
-    fn: (x: number): number => Math.asin(x),
+  acosh: {
+     fn: (x: number): number => Math.acosh(x),
   },
   acos: {
-    fn: (x: number): number => Math.acos(x),
+     fn: (x: number): number => Math.acos(x),
+  },
+  asin: {
+     fn: (x: number): number => Math.asin(x),
+  },
+  asinh: {
+     fn: (x: number): number => Math.asinh(x),
+  },
+  atan: {
+     fn: (x: number): number => Math.atan(x),
+  },
+  atanh: {
+     fn: (x: number): number => Math.atanh(x),
+  },
+  cbrt: {
+     fn: (x: number): number => Math.cbrt(x),
+  },
+  cos: {
+     fn: (x: number): number => Math.cos(x),
+  },
+  cosh: {
+     fn: (x: number): number => Math.cosh(x),
+  },
+  exp: {
+     fn: (x: number): number => Math.exp(x),
+  },
+  expm1: {
+     fn: (x: number): number => Math.expm1(x),
+  },
+  ln: {
+     fn: (x: number): number => Math.log(x),
+  },
+  log2: {
+     fn: (x: number): number => Math.log2(x),
+  },
+  log10: {
+     fn: (x: number): number => Math.log10(x),
+  },
+  log1p: {
+     fn: (x: number): number => Math.log1p(x),
+  },
+  sin: {
+     fn: (x: number): number => Math.sin(x),
+  },
+  sinh: {
+     fn: (x: number): number => Math.sinh(x),
+  },
+  tan: {
+     fn: (x: number): number => Math.tan(x),
+  },
+  tanh: {
+     fn: (x: number): number => Math.tanh(x),
   },
   "- (unary)": {
     fn: (x: number): number => -x,
@@ -1484,14 +1764,44 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = ${childName} * ${childName};`;
     } else if (z.op === "sqrt") {
       stmt = `const ${parName} = Math.sqrt(${childName});`;
-    } else if (z.op === "sin") {
-      stmt = `const ${parName} = Math.sin(${childName});`;
-    } else if (z.op === "cos") {
-      stmt = `const ${parName} = Math.cos(${childName});`;
-    } else if (z.op === "asin") {
-      stmt = `const ${parName} = Math.asin(${childName});`;
+    } else if (z.op === "acosh") {
+      stmt = `const ${parName} = Math.acosh(${childName});`;
     } else if (z.op === "acos") {
       stmt = `const ${parName} = Math.acos(${childName});`;
+    } else if (z.op === "asin") {
+      stmt = `const ${parName} = Math.asin(${childName});`;
+    } else if (z.op === "asinh") {
+      stmt = `const ${parName} = Math.asinh(${childName});`;
+    } else if (z.op === "atan") {
+      stmt = `const ${parName} = Math.atan(${childName});`;
+    } else if (z.op === "atanh") {
+      stmt = `const ${parName} = Math.atanh(${childName});`;
+    } else if (z.op === "cbrt") {
+      stmt = `const ${parName} = Math.cbrt(${childName});`;
+    } else if (z.op === "cos") {
+      stmt = `const ${parName} = Math.cos(${childName});`;
+    } else if (z.op === "cosh") {
+      stmt = `const ${parName} = Math.cosh(${childName});`;
+    } else if (z.op === "exp") {
+      stmt = `const ${parName} = Math.exp(${childName});`;
+    } else if (z.op === "expm1") {
+      stmt = `const ${parName} = Math.expm1(${childName});`;
+    } else if (z.op === "log") {
+      stmt = `const ${parName} = Math.log(${childName});`;
+    } else if (z.op === "log2") {
+      stmt = `const ${parName} = Math.log2(${childName});`;
+    } else if (z.op === "log10") {
+      stmt = `const ${parName} = Math.log10(${childName});`;
+    } else if (z.op === "log1p") {
+      stmt = `const ${parName} = Math.log1p(${childName});`;
+    } else if (z.op === "sin") {
+      stmt = `const ${parName} = Math.sin(${childName});`;
+    } else if (z.op === "sinh") {
+      stmt = `const ${parName} = Math.sinh(${childName});`;
+    } else if (z.op === "tan") {
+      stmt = `const ${parName} = Math.tan(${childName});`;
+    } else if (z.op === "tanh") {
+      stmt = `const ${parName} = Math.tanh(${childName});`;
     } else if (z.op === "+ list") {
       // TODO: Get rid of unary +
       stmt = `const ${parName} = ${childName};`;
