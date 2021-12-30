@@ -2,27 +2,18 @@
 
 type Atom
 
-type Carbon
-type Hydrogen
-type Oxygen
-type Nitrogen
-
-Carbon <: Atom
-Hydrogen <: Atom
-Oxygen <: Atom
-Nitrogen <: Atom
+type Carbon <: Atom
+type Hydrogen <: Atom
+type Oxygen <: Atom
+type Nitrogen <: Atom
 
 -- Bonds
 
 type Bond
 
-type SingleBond
-type DoubleBond
-type TripleBond
-
-SingleBond <: Bond
-DoubleBond <: Bond
-TripleBond <: Bond
+type SingleBond <: Bond
+type DoubleBond <: Bond
+type TripleBond <: Bond
 
 constructor MakeSingleBond : Atom a * Atom b -> SingleBond
 constructor MakeDoubleBond : Atom a * Atom b -> DoubleBond

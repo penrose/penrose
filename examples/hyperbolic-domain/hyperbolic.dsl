@@ -1,10 +1,8 @@
 type HyperbolicPlane
 type Point
-type IdealPoint
+type IdealPoint <: Point
 type Segment
 type Horocycle
-
-IdealPoint <: Point
 
 predicate In: Point * HyperbolicPlane
 predicate IsCenter: IdealPoint * Horocycle

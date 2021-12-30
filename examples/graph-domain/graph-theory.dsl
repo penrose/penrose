@@ -3,11 +3,8 @@ type Edge
 type Graph
 
 -- Subtypes
-type Face
-type Path
-
-Face <: Graph
-Path <: Graph
+type Face <: Graph
+type Path <: Graph
 
 constructor MkEdge : Vertex from * Vertex to -> Edge
 
