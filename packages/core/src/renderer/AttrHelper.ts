@@ -228,6 +228,17 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
     } else if (properties.strokeStyle.contents === "dashed") {
       elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
     }
+    if (
+      "strokeLineCap" in properties &&
+      properties.strokeLineCap.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-linecap",
+        (properties.strokeLineCap as IStrV).contents
+      );
+    } else {
+      elem.setAttribute("stroke-linecap", "butt");
+    }
   }
 };
 
