@@ -16,6 +16,7 @@ import {
   neg,
   numOf,
   ops,
+  pow,
   acosh,
   acos,
   asin,
@@ -424,6 +425,16 @@ export const compDict = {
      return {
         tag: "FloatV",
         contents: log1p(x),
+     };
+  },
+
+  /**
+  * Return `pow(x,y)`.
+  */
+  pow: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: pow(x,y),
      };
   },
 

@@ -492,6 +492,33 @@ export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+/**
+ * Returns `pow(x,y)`.
+ */
+export const pow = (x: VarAD, y: VarAD, isCompNode = true): VarAD => {
+  const z = variableAD(Math.pow(x.val,y.val), "pow");
+  z.isCompNode = isCompNode;
+
+  if (isCompNode) {
+    const xnode = just(mul(pow(x,sub(y,gvarOf(1.0),false),false),y,false));
+    const ynode = just(mul(pow(x,y,false),ln(x,false),false));
+
+    y.parents.push({ node: z, sensitivityNode: ynode });
+    x.parents.push({ node: z, sensitivityNode: xnode });
+
+    z.children.push({ node: y, sensitivityNode: ynode });
+    z.children.push({ node: x, sensitivityNode: xnode });
+  } else {
+    y.parentsGrad.push({ node: z, sensitivityNode: none });
+    x.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: y, sensitivityNode: none });
+    z.childrenGrad.push({ node: x, sensitivityNode: none });
+  }
+
+  return z;
+};
+
 // --- Unary ops
 
 /**
@@ -1336,6 +1363,9 @@ const opMap = {
   log1p: {
      fn: (x: number): number => Math.log1p(x),
   },
+  pow: {
+    fn: (x: number, y: number): number => Math.pow(x,y),
+  },
   round: {
      fn: (x: number): number => Math.round(x),
   },
@@ -1995,6 +2025,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = ${childName0} > ${childName1};`;
     } else if (z.op === "lt") {
       stmt = `const ${parName} = ${childName0} < ${childName1};`;
+    } else if (z.op === "pow") {
+      stmt = `const ${parName} = Math.pow(${childName0},${childName1});`;
     } else if (z.op === "and") {
       stmt = `const ${parName} = ${childName0} && ${childName1};`;
     } else if (z.op === "or") {
@@ -2007,6 +2039,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = ${childName0} / (${childName1} + ${EPS_DENOM});`;
     } else if (z.op === "atan2") {
       stmt = `const ${parName} = Math.atan2(${childName0}, ${childName1});`;
+    } else if (z.op === "pow") {
+      stmt = `const ${parName} = Math.pow(${childName0}, ${childName1});`;
     } else {
       stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
     }
