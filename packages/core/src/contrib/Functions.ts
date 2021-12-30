@@ -4,8 +4,10 @@ import {
   absVal,
   add,
   addN,
+  ceil,
   constOf,
   div,
+  floor,
   gt,
   ifCond,
   max,
@@ -30,10 +32,13 @@ import {
   log2,
   log10,
   log1p,
+  round,
+  sign,
   sin,
   sinh,
   tan,
   tanh,
+  trunc,
   sqrt,
   sub,
   variableAD,
@@ -321,6 +326,16 @@ export const compDict = {
         contents: cbrt(x),
      };
   },
+
+  /**
+   * Return `ceil(x)`.
+   */
+  ceil: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: ceil(x),
+     };
+  },
   
   /**
   * Return `cos(x)`.
@@ -363,6 +378,16 @@ export const compDict = {
   },
   
   /**
+  * Return `floor(x)`.
+  */
+  floor: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: floor(x),
+     };
+  },
+  
+  /**
   * Return `log(x)`.
   */
   log: (x: VarAD): IFloatV<VarAD> => {
@@ -399,6 +424,26 @@ export const compDict = {
      return {
         tag: "FloatV",
         contents: log1p(x),
+     };
+  },
+
+  /**
+  * Return `round(x)`.
+  */
+  round: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: round(x),
+     };
+  },
+  
+  /**
+  * Return `sign(x)`.
+  */
+  sign: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sign(x),
      };
   },
   
@@ -439,6 +484,16 @@ export const compDict = {
      return {
         tag: "FloatV",
         contents: tanh(x),
+     };
+  },
+
+  /**
+  * Return `trunc(x)`.
+  */
+  trunc: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: trunc(x),
      };
   },
 
@@ -1005,13 +1060,6 @@ export const compDict = {
    */
   abs: (x: VarAD): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: absVal(x) };
-  },
-
-  /**
-   * Return the sign of the number `x`.
-   */
-  sgn: (x: VarAD): IFloatV<VarAD> => {
-    return { tag: "FloatV", contents: div(x,absVal(x)) };
   },
 
   /**
