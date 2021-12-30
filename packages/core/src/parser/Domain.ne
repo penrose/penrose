@@ -83,7 +83,7 @@ statements
     |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
-  -> type        {% id %}
+  -> type_decl   {% id %}
   |  predicate   {% id %}
   |  function    {% id %}
   |  constructor_decl {% id %}
@@ -91,7 +91,8 @@ statement
   |  notation    {% id %}
   |  subtype     {% id %}
 
-type -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
+# not to be confused with `type`, defined below
+type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
   ([typ, , name, ps]): TypeDecl => {
     const params = ps ? ps[3] : [];
     return { 
