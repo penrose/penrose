@@ -125,7 +125,7 @@ export const RenderInteractive = (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  state.shapes.forEach((shape) =>
+  state.shapes.forEach((shape) => {
     svg.appendChild(
       DraggableShape(
         { shape, labels: state.labelCache, canvasSize: state.canvas.size },
@@ -133,6 +133,7 @@ export const RenderInteractive = (
         svg
       )
     )
+  }
   );
   return svg;
 };
