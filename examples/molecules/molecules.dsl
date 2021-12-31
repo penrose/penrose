@@ -24,6 +24,6 @@ SingleBond <: Bond
 DoubleBond <: Bond
 TripleBond <: Bond
 
-constructor MakeSingleBond : Atom a * Atom b -> SingleBond
-constructor MakeDoubleBond : Atom a * Atom b -> DoubleBond
-constructor MakeTripleBond : Atom a * Atom b -> TripleBond
+constructor MakeSingleBond(Atom a, Atom b) -> SingleBond
+constructor MakeDoubleBond(Atom a, Atom b) -> DoubleBond
+constructor MakeTripleBond(Atom a, Atom b) -> TripleBond

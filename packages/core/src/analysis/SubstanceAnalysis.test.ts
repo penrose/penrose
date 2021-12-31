@@ -22,9 +22,9 @@ import {
 const domain = `
 type Set
 type Point
-predicate IsSubset: Set * Set
-predicate Equal: Set * Set
-function Subset : Set a * Set b -> Set
+predicate IsSubset(Set, Set)
+predicate Equal(Set, Set)
+function Subset(Set a, Set b) -> Set
 `;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
 
