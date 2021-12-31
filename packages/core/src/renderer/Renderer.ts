@@ -1,3 +1,9 @@
+/* Renderer.ts
+ *
+ * A simple translation layer for turning Shapes into SVG tags.
+ *
+ */
+
 import shapeMap from "./shapeMap";
 import { Shape } from "types/shape";
 import { dragUpdate } from "./dragUtils";

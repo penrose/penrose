@@ -206,6 +206,21 @@ export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("d", d.contents.toString());
 };
 
+export const attrString = ({ properties }: Shape, elem: SVGElement) => {
+  const str = properties.string as IStrV;
+  const text = document.createTextNode(str.contents.toString());
+  elem.appendChild(text);
+};
+
+//export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
+//  const name = properties.name as IStrV;
+//  const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+//  title.textContent = name.contents;
+//  elem.appendChild(title);
+//};
+
+
+
 export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
@@ -248,3 +263,15 @@ export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
   title.textContent = name.contents;
   elem.appendChild(title);
 };
+
+export const attrFontFamily = ({ properties }: Shape, elem: SVGElement) => {
+  const fontFamily = properties.fontFamily as IStrV;
+  elem.setAttribute("font-family", fontFamily.contents.toString());
+};
+
+export const attrFontSize = ({ properties }: Shape, elem: SVGElement) => {
+  const fontSize = properties.fontSize as IStrV;
+  elem.setAttribute("font-size", fontSize.contents.toString());
+};
+
+

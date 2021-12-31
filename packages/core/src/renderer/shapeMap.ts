@@ -13,6 +13,7 @@ import Path from "./Path";
 import Line from "./Line";
 import Image from "./Image";
 import PathString from "./PathString";
+import PlainText from "./PlainText";
 
 const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Circle,
@@ -29,6 +30,7 @@ const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Line,
   Image,
   PathString,
+  PlainText,
 };
 
 export default shapeMap;
