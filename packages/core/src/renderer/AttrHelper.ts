@@ -240,7 +240,10 @@ export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
         "stroke-dasharray",
         (properties.strokeDashArray as IStrV).contents
       );
-    } else if (properties.strokeStyle.contents === "dashed") {
+    } else if (
+       "strokeStyle" in properties &&
+       properties.strokeStyle.contents === "dashed"
+    ) {
       elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
     }
     if (
@@ -264,14 +267,81 @@ export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
   elem.appendChild(title);
 };
 
+
+/* In SVG, the attribute "style" is a catch-all that allows
+ * a tag to be styled using an arbitrary CSS string.  This
+ * attribute is often a better way to get certain attributes
+ * to appear correctly in the browser than one-off attributes
+ * associated with particular tags.  For instance, the SVG
+ * attribute stroke-width="4" appears not to work on text in
+ * many browsers, whereas style="stroke-width:4;" appears to
+ * work just fine.
+ */
+export const attrStyle = ({ properties }: Shape, elem: SVGElement) => {
+  const style = properties.style as IStrV;
+  if( style.contents !== "" ) {
+     elem.setAttribute("style", style.contents.toString());
+  }
+};
+
+// Text attributes =============================================================
+/*
+ * The attributes below cover all of the attributes allowed
+ * in an SVG <text> element.  Note, however, that many of
+ * these attributes may not be properly rendered by a given
+ * program (e.g., browser or vector graphics editor).  For
+ * instance, Chrome currently does not support attributes
+ * like font-stretch, even though Adobe Illustrator does.
+ *
+ */
+
 export const attrFontFamily = ({ properties }: Shape, elem: SVGElement) => {
   const fontFamily = properties.fontFamily as IStrV;
-  elem.setAttribute("font-family", fontFamily.contents.toString());
+  if( fontFamily.contents !== "" ) {
+     elem.setAttribute("font-family", fontFamily.contents.toString());
+  }
 };
 
 export const attrFontSize = ({ properties }: Shape, elem: SVGElement) => {
   const fontSize = properties.fontSize as IStrV;
-  elem.setAttribute("font-size", fontSize.contents.toString());
+  if( fontSize.contents !== "" ) {
+     elem.setAttribute("font-size", fontSize.contents.toString());
+  }
+};
+
+export const attrFontSizeAdjust = ({ properties }: Shape, elem: SVGElement) => {
+  const fontSizeAdjust = properties.fontSizeAdjust as IStrV;
+  if( fontSizeAdjust.contents !== "" ) {
+     elem.setAttribute("font-size-adjust", fontSizeAdjust.contents.toString());
+  }
+};
+
+export const attrFontStretch = ({ properties }: Shape, elem: SVGElement) => {
+  const fontStretch = properties.fontStretch as IStrV;
+  if( fontStretch.contents !== "" ) {
+     elem.setAttribute("font-stretch", fontStretch.contents.toString());
+  }
+};
+
+export const attrFontStyle = ({ properties }: Shape, elem: SVGElement) => {
+  const fontStyle = properties.fontStyle as IStrV;
+  if( fontStyle.contents !== "" ) {
+     elem.setAttribute("font-style", fontStyle.contents.toString());
+  }
+};
+
+export const attrFontVariant = ({ properties }: Shape, elem: SVGElement) => {
+  const fontVariant = properties.fontVariant as IStrV;
+  if( fontVariant.contents !== "" ) {
+     elem.setAttribute("font-variant", fontVariant.contents.toString());
+  }
+};
+
+export const attrFontWeight = ({ properties }: Shape, elem: SVGElement) => {
+  const fontWeight = properties.fontWeight as IStrV;
+  if( fontWeight.contents !== "" ) {
+     elem.setAttribute("font-weight", fontWeight.contents.toString());
+  }
 };
 
 
