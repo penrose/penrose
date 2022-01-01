@@ -53,7 +53,7 @@ Global {
       strokeWidth : 12
       rx : 20
    }
-   shape reactantText = Text {
+   shape reactantText = Equation {
       string : "\text{\textbf{reactants}}"
       center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
       color : Colors.black
@@ -72,7 +72,7 @@ Global {
       strokeWidth : 12
       rx : 20
    }
-   shape productText = Text {
+   shape productText = Equation {
       string : "\text{\textbf{products}}"
       center : (productCenter,-24.+reactionBoxBottom)
       color : Colors.black
@@ -105,7 +105,7 @@ forall Node n {
       strokeWidth : 3.
    }
 
-   shape n.text = Text {
+   shape n.text = Equation {
       string : n.label
       center : n.center
       color : Colors.black
@@ -362,7 +362,7 @@ forall Molecule m {
 
    m.labelCenter = (?,?)
 
-   m.text = Text {
+   m.text = Equation {
       string : m.label
       color : Colors.black
       fontSize : "18pt"
@@ -372,7 +372,7 @@ forall Molecule m {
    }
 
    -- used to prevent overlap with molecules
-   -- (since "ensure disjoint" isn't currently supported for Text-Circle pairs)
+   -- (since "ensure disjoint" isn't currently supported for Equation-Circle pairs)
    scalar R = 20.
    m.textPhantom1 = Circle {
       center : m.labelCenter
@@ -410,7 +410,7 @@ forall Reaction r {
 
    scalar h = (Global.reactionBoxTop + canvas.height/2.)/2.
 
-   r.text = Text {
+   r.text = Equation {
       string : r.label
       center : (0.,h)
       fontSize : "40pt"
