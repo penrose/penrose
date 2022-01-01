@@ -24,7 +24,7 @@ const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Polygon,
   FreeformPolygon,
   Polyline,
-  Text: Label,
+  Equation: Label,
   Arrow,
   Path,
   Line,

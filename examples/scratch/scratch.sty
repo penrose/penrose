@@ -1,0 +1,78 @@
+canvas {
+   scalar width  = 533.
+   scalar height = 300.
+}
+
+Global {
+
+   shape bbox = Rectangle {
+      center: (0.,0.)
+      w: canvas.width
+      h: canvas.height
+      color: rgba( .8,.95,.9,1. )
+      strokeColor: rgba(0.,0.,0.,1.)
+      strokeWidth: 2.
+   }
+
+   shape titleText = PlainText {
+      string: "!שלום עברית"
+      center: (0.,0.)
+      w: 365.
+      h: 0.
+      color: rgba(1.,1.,1.,1.)
+      fontFamily: "Shobhika"
+      fontSize: "48pt"
+   }
+   shape innerStroke = PlainText {
+      string: "!שלום עברית"
+      center: (0.,0.)
+      w: 365.
+      h: 0.
+      color: rgba(0.,0.,0.,1.)
+      fontFamily: "Shobhika"
+      fontSize: "48pt"
+      style: "stroke:#FF0303;stroke-width:5;stroke-miterlimit:2;"
+   }
+   shape outerStroke = PlainText {
+      string: "!שלום עברית"
+      center: (0.,0.)
+      w: 365.
+      h: 0.
+      color: rgba(0.,0.,0.,1.)
+      fontFamily: "Shobhika"
+      fontSize: "48pt"
+      style: "stroke:#FF6603;stroke-width:10;stroke-miterlimit:2;"
+   }
+   layer titleText above innerStroke
+   layer innerStroke above outerStroke
+   layer outerStroke above Global.bbox
+}
+
+forall Point p {
+   shape p.icon = Circle {
+      center: (?,?)
+      r: ?
+      color: rgba(0.,0.,1.,.15)
+   }
+   layer p.icon above Global.bbox
+
+   ensure inRange( p.icon.r, 30., 60. )
+
+   ensure contains( Global.bbox, p.icon )
+}
+
+forall Point p; Point q {
+   vec2 x = p.icon.center
+   vec2 y = q.icon.center
+   encourage equal( 200000./normsq(x-y), 0. )
+}
+
+forall Point x; Point y
+where Segment(x,y) {
+   shape segment = Line {
+      start: x.icon.center
+      end: y.icon.center
+      color: rgba(0.,0.,0.,1.)
+      thickness: 4.
+   }
+}

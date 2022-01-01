@@ -2159,8 +2159,8 @@ const mkPath = (strs: string[]): Path => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Text") return ["w", "h"];
-  if (s === "TextTransform") return ["w", "h"];
+  if (s === "Equation") return ["w", "h"];
+  if (s === "EquationTransform") return ["w", "h"];
   if (s === "ImageTransform") return ["initWidth", "initHeight"];
   return [];
 };

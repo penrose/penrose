@@ -74,13 +74,13 @@ export const sortShapes = (shapes: Shape[], ordering: string[]): Shape[] => {
 };
 
 /**
- * Checks if a `Text` shape has non-empty content
+ * Checks if an `Equation` shape has non-empty content
  *
- * @param shape a `Text` shape
+ * @param shape a `Equation` shape
  */
 export const notEmptyLabel = (shape: Shape): boolean => {
   const { shapeType, properties } = shape;
-  return shapeType === "Text" ? !(properties.string.contents === "") : true;
+  return shapeType === "Equation" ? !(properties.string.contents === "") : true;
 };
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
@@ -996,8 +996,8 @@ export const squareDef: ShapeDef = {
   bbox: bboxFromSquare,
 };
 
-export const textDef: ShapeDef = {
-  shapeType: "Text",
+export const equationDef: ShapeDef = {
+  shapeType: "Equation",
   properties: {
     center: ["VectorV", vectorSampler],
     w: ["FloatV", constValue("FloatV", 0)],
@@ -1080,7 +1080,7 @@ export const curveDef: ShapeDef = {
 export const shapedefs: ShapeDef[] = [
   circleDef,
   ellipseDef,
-  textDef,
+  equationDef,
   rectDef,
   calloutDef,
   polygonDef,
@@ -1119,7 +1119,7 @@ export const isRectlike = (shapeType: string): boolean => {
     shapeType == "Rectangle" ||
     shapeType == "Square" ||
     shapeType == "Image" ||
-    shapeType == "Text" ||
+    shapeType == "Equation" ||
     shapeType == "PlainText"
   );
 };

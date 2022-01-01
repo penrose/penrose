@@ -69,13 +69,13 @@ forall Point p {
    }
    layer p.icon above Global.bbox
 
-   shape p.text = PlainText {
+   shape p.text = Equation {
       center: p.icon.center
       string: p.label
       color: rgba(.25,.5,1.,.25)
-      fontFamily: "Palatino"
-      fontWeight: "bold"
-      fontSize: "12pt"
+      -- fontFamily: "Palatino"
+      -- fontWeight: "bold"
+      -- fontSize: "12pt"
    }
    layer p.text above Global.bbox
 
