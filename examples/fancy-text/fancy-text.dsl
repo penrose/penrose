@@ -1,1 +1,2 @@
+type Text
 type Point

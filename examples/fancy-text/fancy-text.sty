@@ -14,39 +14,36 @@ Global {
       strokeWidth: 2.
    }
 
-   -- Make some fun-looking text by
-   -- layering it on top of a couple
-   -- stroked copies
+}
 
-   string titleString = "Hello, Penrose!"
-   vec2 titleCenter = (0.,0.)
+-- Make some fun-looking text by
+-- layering it on top of a couple
+-- stroked copies
+forall Text t {
 
-   shape titleText = PlainText {
-      string: titleString
-      center: titleCenter
-      w: 300.
-      h: 0.
+   string t.titleString = t.label
+   vec2 t.titleCenter = (0.,0.)
+
+   shape t.text = PlainText {
+      string: t.titleString
+      center: t.titleCenter
       color: rgba(1.,1.,1.,1.)
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38pt"
    }
-   shape innerStroke = PlainText {
-      string: titleString
-      center: titleCenter
-      w: 300.
-      h: 0.
+   shape t.innerStroke = PlainText {
+      string: t.titleString
+      center: t.titleCenter
       color: rgba(0.,0.,0.,1.)
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38pt"
       style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
    }
-   shape outerStroke = PlainText {
-      string: titleString
-      center: titleCenter
-      w: 300.
-      h: 0.
+   shape t.outerStroke = PlainText {
+      string: t.titleString
+      center: t.titleCenter
       color: rgba(0.,0.,0.,1.)
       fontFamily: "Palatino"
       fontStyle: "italic"
@@ -56,10 +53,11 @@ Global {
 
    -- make sure the text and strokes
    -- appear in the right order
-   layer titleText above innerStroke
-   layer innerStroke above outerStroke
-   layer outerStroke above Global.bbox
+   layer t.text above t.innerStroke
+   layer t.innerStroke above t.outerStroke
+   layer t.outerStroke above Global.bbox
 }
+
 
 -- draw each point as a circular disk,
 -- whose size is allowed to vary
@@ -70,6 +68,16 @@ forall Point p {
       color: rgba(0.,0.,1.,.15)
    }
    layer p.icon above Global.bbox
+
+   shape p.text = PlainText {
+      center: p.icon.center
+      string: p.label
+      color: rgba(.25,.5,1.,.25)
+      fontFamily: "Palatino"
+      fontWeight: "bold"
+      fontSize: "12pt"
+   }
+   layer p.text above Global.bbox
 
    ensure inRange( p.icon.r, 30., 60. )
 

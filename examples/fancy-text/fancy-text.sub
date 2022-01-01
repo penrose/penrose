@@ -1,4 +1,16 @@
--- Just draw some points to make
--- a more interesting background
+Text t
+Label t "Hello, Penrose!"
+
 Point p1, p2, p3, p4, p5
 Point p6, p7, p8, p9, p10
+Label p1 "A"
+Label p2 "B"
+Label p3 "C"
+Label p4 "D"
+Label p5 "E"
+Label p6 "F"
+Label p7 "G"
+Label p8 "H"
+Label p9 "I"
+Label p10 "J"
+
