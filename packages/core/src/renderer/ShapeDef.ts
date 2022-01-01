@@ -822,6 +822,7 @@ export const plainTextDef: ShapeDef = {
     w: ["FloatV", constValue("FloatV", 0)],
     h: ["FloatV", constValue("FloatV", 0)],
     style: ["StrV", constValue("StrV", "")],
+    visibility: ["StrV", constValue("StrV", "")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeColor: ["ColorV", () => noPaint],

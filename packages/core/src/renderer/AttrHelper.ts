@@ -212,15 +212,6 @@ export const attrString = ({ properties }: Shape, elem: SVGElement) => {
   elem.appendChild(text);
 };
 
-//export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
-//  const name = properties.name as IStrV;
-//  const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-//  title.textContent = name.contents;
-//  elem.appendChild(title);
-//};
-
-
-
 export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
@@ -267,6 +258,15 @@ export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
   elem.appendChild(title);
 };
 
+/* The SVG attribute "visibility" can be set to
+ * "visible" or "hidden" to show/hide elements.
+ */
+export const attrVisibility = ({ properties }: Shape, elem: SVGElement) => {
+  const visibility = properties.visibility as IStrV;
+  if( visibility.contents !== "" ) {
+     elem.setAttribute("visibility", visibility.contents.toString());
+  }
+};
 
 /* In SVG, the attribute "style" is a catch-all that allows
  * a tag to be styled using an arbitrary CSS string.  This

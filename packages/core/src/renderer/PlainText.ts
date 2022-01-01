@@ -1,4 +1,7 @@
 import {
+  attrWH,
+  attrXY,
+  attrVisibility,
   attrStyle,
   attrFill,
   attrStroke,
@@ -12,14 +15,13 @@ import {
   attrFontVariant,
   attrFontWeight,
   attrTextAnchor,
-  attrWH,
-  attrXY,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const PlainText = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
   attrXY(shape, canvasSize, elem);
+  attrVisibility(shape, elem);
   attrStyle(shape, elem);
   attrFill(shape, elem);
   attrStroke(shape, elem);
