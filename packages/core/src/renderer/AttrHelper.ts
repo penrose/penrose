@@ -344,4 +344,11 @@ export const attrFontWeight = ({ properties }: Shape, elem: SVGElement) => {
   }
 };
 
+export const attrTextAnchor = ({ properties }: Shape, elem: SVGElement) => {
+  const textAnchor = properties.textAnchor as IStrV;
+  if( textAnchor.contents !== "" ) {
+     elem.setAttribute("text-anchor", textAnchor.contents.toString());
+  }
+};
+
 

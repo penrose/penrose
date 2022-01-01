@@ -11,6 +11,7 @@ import {
   attrFontStyle,
   attrFontVariant,
   attrFontWeight,
+  attrTextAnchor,
   attrWH,
   attrXY,
 } from "./AttrHelper";
@@ -31,6 +32,7 @@ const PlainText = ({ shape, canvasSize }: ShapeProps) => {
   attrFontVariant(shape, elem);
   attrFontWeight(shape, elem);
   attrString(shape, elem);
+  attrTextAnchor(shape, elem);
 
    /**
     * TODO This snippet correctly gets the bounding box, but
