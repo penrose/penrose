@@ -24,7 +24,7 @@ forall Text t {
    string t.titleString = t.label
    vec2 t.titleCenter = (0.,0.)
 
-   shape t.text = PlainText {
+   shape t.text = Text {
       string: t.titleString
       center: t.titleCenter
       color: rgba(1.,1.,1.,1.)
@@ -32,7 +32,7 @@ forall Text t {
       fontStyle: "italic"
       fontSize: "38pt"
    }
-   shape t.innerStroke = PlainText {
+   shape t.innerStroke = Text {
       string: t.titleString
       center: t.titleCenter
       color: rgba(0.,0.,0.,1.)
@@ -41,7 +41,7 @@ forall Text t {
       fontSize: "38pt"
       style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
    }
-   shape t.outerStroke = PlainText {
+   shape t.outerStroke = Text {
       string: t.titleString
       center: t.titleCenter
       color: rgba(0.,0.,0.,1.)
@@ -72,10 +72,8 @@ forall Point p {
    shape p.text = Equation {
       center: p.icon.center
       string: p.label
-      color: rgba(.25,.5,1.,.25)
-      -- fontFamily: "Palatino"
-      -- fontWeight: "bold"
-      -- fontSize: "12pt"
+      color: rgba(.25,.5,1.,.5)
+      fontSize: "28pt"
    }
    layer p.text above Global.bbox
 

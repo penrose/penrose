@@ -53,11 +53,13 @@ forall Node n {
    --    h : 4.*Global.atomRadius
    -- }
 
-   shape n.text = Equation {
-      string : n.label
-      center : n.center
-      color : Colors.black
-      fontSize : "14pt"
+   shape n.text = Text {
+      string: n.label
+      center: n.center
+      color: Colors.black
+      fontSize: "16pt"
+      fontFamily: "HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica, Arial, sans-serif"
+      fontWeight: "Bold"
    }
 
    ensure contains( Global.bbox, n.icon, 0. )
@@ -79,28 +81,28 @@ forall Hydrogen a {
    override a.icon.color = Colors.red
    override a.icon.strokeColor = Colors.darkRed
    override a.text.color = Colors.white
-   override a.text.string = "\text{H}"
+   override a.text.string = "H"
 }
 
 forall Carbon a {
    override a.icon.color = Colors.black
    override a.icon.strokeColor = Colors.gray
    override a.text.color = Colors.white
-   override a.text.string = "\text{C}"
+   override a.text.string = "C"
 }
 
 forall Nitrogen a {
    override a.icon.color = Colors.blue
    override a.icon.strokeColor = Colors.darkBlue
    override a.text.color = Colors.white
-   override a.text.string = "\text{N}"
+   override a.text.string = "N"
 }
 
 forall Oxygen a {
    override a.icon.color = Colors.white
    override a.icon.strokeColor = Colors.gray
    override a.text.color = Colors.black
-   override a.text.string = "\text{O}"
+   override a.text.string = "O"
 }
 
 forall Node n1; Node n2

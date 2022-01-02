@@ -815,8 +815,8 @@ export const rectDef: ShapeDef = {
   bbox: bboxFromRect,
 };
 
-export const plainTextDef: ShapeDef = {
-  shapeType: "PlainText",
+export const textDef: ShapeDef = {
+  shapeType: "Text",
   properties: {
     center: ["VectorV", vectorSampler],
     w: ["FloatV", constValue("FloatV", 0)],
@@ -828,8 +828,8 @@ export const plainTextDef: ShapeDef = {
     strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultPlainText")],
-    string: ["StrV", constValue("StrV", "PlainText")],
+    name: ["StrV", constValue("StrV", "defaultText")],
+    string: ["StrV", constValue("StrV", "Text")],
     fontFamily: ["StrV", constValue("StrV", "")],
     fontSize: ["StrV", constValue("StrV", "12pt")],
     fontSizeAdjust: ["StrV", constValue("StrV", "")],
@@ -1094,7 +1094,7 @@ export const shapedefs: ShapeDef[] = [
   imageDef,
   lineDef,
   arrowDef,
-  plainTextDef,
+  textDef,
 ];
 
 export const positionalProps = (type: string): string[] | undefined => {
@@ -1121,8 +1121,8 @@ export const isRectlike = (shapeType: string): boolean => {
     shapeType == "Rectangle" ||
     shapeType == "Square" ||
     shapeType == "Image" ||
-    shapeType == "Equation" ||
-    shapeType == "PlainText"
+    shapeType == "Text" ||
+    shapeType == "Equation"
   );
 };
 

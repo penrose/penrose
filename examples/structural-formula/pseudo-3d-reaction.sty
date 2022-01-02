@@ -57,7 +57,7 @@ Global {
       strokeWidth : 12
       rx : 20
    }
-   shape reactantText = PlainText {
+   shape reactantText = Text {
       string : "reactants"
       center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
       color : Colors.black
@@ -78,7 +78,7 @@ Global {
       strokeWidth : 12
       rx : 20
    }
-   shape productText = PlainText {
+   shape productText = Text {
       string : "products"
       center : (productCenter,-24.+reactionBoxBottom)
       color : Colors.black
@@ -113,7 +113,7 @@ forall Node n {
       strokeWidth : 3.
    }
 
-   shape n.text = PlainText {
+   shape n.text = Text {
       string : n.label
       center : n.center
       color : Colors.black
@@ -418,7 +418,7 @@ forall Reaction r {
 
    scalar h = (Global.reactionBoxTop + canvas.height/2.)/2.
 
-   r.text = PlainText {
+   r.text = Text {
       string : r.label
       center : (0.,h)
       fontSize : "40pt"

@@ -20,7 +20,7 @@ import {
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const PlainText = ({ shape, canvasSize }: ShapeProps) => {
+const Text = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
   attrXY(shape, canvasSize, elem);
   attrVisibility(shape, elem);
@@ -72,7 +72,7 @@ const PlainText = ({ shape, canvasSize }: ShapeProps) => {
 
   return elem;
 };
-export default PlainText;
+export default Text;
 
 
 

@@ -60,7 +60,7 @@ forall Node n {
       strokeWidth : 3.
    }
 
-   shape n.text = PlainText {
+   shape n.text = Text {
       string : n.label
       center : n.center
       color : Colors.black
@@ -284,7 +284,7 @@ forall Molecule m {
       color : Colors.clear
    }
 
-   m.text = PlainText {
+   m.text = Text {
       string : m.label
       color : Colors.black
       fontSize : "18pt"
