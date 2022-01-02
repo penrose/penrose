@@ -3,7 +3,7 @@ canvas {
   height = 700
 }
 
-const { -- 0
+const {
   scalar perpLen = 20.0
   -- For unit mark
   scalar markerPadding = 15.0
@@ -19,8 +19,7 @@ const { -- 0
   string fontSize = "30pt"
 }
 
-C { -- 1
-    -- black = #000000
+C {
     color black = rgba(0.,0.,0.,1.)
     color white = rgba(1., 1., 1., 1.)
     color lightBlue = rgba(1e-1, 0.1, 0.9, 1.0)
@@ -29,12 +28,11 @@ C { -- 1
     color darkGray = rgba(0.4, 0.4, 0.4, 1.)
     color gray = rgba(0.6, 0.6, 0.6, 1.)
     color green = rgba(0., 0.8, 0., 1.)
-    -- blue = #0000ff
     color none = none()
 }
 
 -- Just some weird definitions to test parser. Not used in rest of program
-testing { -- 2
+testing {
   -- COMBAK: Test that plugins still run
   -- pluginVar = "ddg"["a"]["length"]
         x = { 1, {2, 3} }
@@ -58,7 +56,7 @@ testing { -- 2
         -- test2 = (makeVector(-1, 3.0) + (3.4, 2.1))[0]
 }
 
-forall VectorSpace U { -- 3
+forall VectorSpace U {
     scalar axisSize = const.vectorSpaceSize / 2.0 -- This should get promoted to float
     vec2 U.origin = (0., 0.)
     vec2 o = U.origin
@@ -105,9 +103,11 @@ forall VectorSpace U { -- 3
 
     layer U.xAxis above U.yAxis
     layer U.background below U.yAxis
+    layer U.text above U.background
+    layer U.text below U.yAxis
 }
 
-forall Vector u; VectorSpace U -- 4
+forall Vector u; VectorSpace U
 where In(u,U) {
 
    shape u.arrow = Arrow {
@@ -158,7 +158,7 @@ forall Vector u; Vector v {
    layer v.stroke above u.arrow
 }
 
-forall Vector u; Vector v -- 5
+forall Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
       startR = u.arrow.start -- TODO: Do we want destructuring syntax like vec2[] [startR, endR] = [u.arrow.start, u.arrow.end]
@@ -194,14 +194,14 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
    shape labelText = Text {
       string: "orthogonal"
       center: (0.,-.6*V.background.side)
-      fontFamily: "Palatino"
+      fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
       color: C.black
    }
 }
 
-forall Vector v -- 6
+forall Vector v
 with VectorSpace U; Vector w
 where In(v, U); Unit(v); Orthogonal(v, w) {
       -- Usually, the unit vector shouldn't need to know about orthogonal vectors
@@ -273,7 +273,7 @@ where Dependent(u,v) {
    shape labelText = Text {
       string: "linearly dependent"
       center: (0.,-.6*V.background.side)
-      fontFamily: "Palatino"
+      fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
       color: C.black
@@ -291,18 +291,18 @@ where Independent(u, v); In(v,V) {
    shape labelText = Text {
       string: "linearly independent"
       center: (0.,-.6*V.background.side)
-      fontFamily: "Palatino"
+      fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
       color: C.black
    }
 }
 
-forall Vector `u` { -- 7
+forall Vector `u` {
        override `u`.arrow.color = C.green
 }
 
-forall Vector `x2` { -- 7
+forall Vector `x2` {
        override `x2`.arrow.color = C.green
 }
 

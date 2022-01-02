@@ -1,2 +1,2 @@
-npx roger watch dependent.sub linear-algebra-paper-simple.sty linear-algebra.dsl
+npx roger watch independent.sub linear-algebra-paper-simple.sty linear-algebra.dsl
 
