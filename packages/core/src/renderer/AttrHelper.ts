@@ -351,4 +351,11 @@ export const attrTextAnchor = ({ properties }: Shape, elem: SVGElement) => {
   }
 };
 
+export const attrAlignmentBaseline = ({ properties }: Shape, elem: SVGElement) => {
+  const alignmentBaseline = properties.alignmentBaseline as IStrV;
+  if( alignmentBaseline.contents !== "" ) {
+     elem.setAttribute("alignment-baseline", alignmentBaseline.contents.toString());
+  }
+};
+
 
