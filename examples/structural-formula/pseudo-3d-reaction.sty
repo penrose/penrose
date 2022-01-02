@@ -28,6 +28,10 @@ Global {
 
    scalar padding = 50.
 
+   -- specify the typeface(s) that should
+   -- be used, in order of availability
+   string fontFamily = "Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif"
+
    -- box around the whole canvas
    shape bbox = Rectangle {
       w : canvas.width
@@ -53,11 +57,13 @@ Global {
       strokeWidth : 12
       rx : 20
    }
-   shape reactantText = Equation {
-      string : "\text{\textbf{reactants}}"
+   shape reactantText = PlainText {
+      string : "reactants"
       center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
       color : Colors.black
       fontSize : "24pt"
+      fontFamily: Global.fontFamily
+      fontWeight: "bold"
    }
 
    -- box around products
@@ -72,11 +78,13 @@ Global {
       strokeWidth : 12
       rx : 20
    }
-   shape productText = Equation {
-      string : "\text{\textbf{products}}"
+   shape productText = PlainText {
+      string : "products"
       center : (productCenter,-24.+reactionBoxBottom)
       color : Colors.black
       fontSize : "24pt"
+      fontFamily: Global.fontFamily
+      fontWeight: "bold"
    }
 }
 
@@ -105,7 +113,7 @@ forall Node n {
       strokeWidth : 3.
    }
 
-   shape n.text = Equation {
+   shape n.text = PlainText {
       string : n.label
       center : n.center
       color : Colors.black
@@ -378,21 +386,21 @@ forall Molecule m {
       center : m.labelCenter
       r : R
       color : Colors.clear
-      strokeColor : Colors.black
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
    m.textPhantom2 = Circle {
       center : m.labelCenter + (2.*R,0.)
       r : R
       color : Colors.clear
-      strokeColor : Colors.black
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
    m.textPhantom3 = Circle {
       center : m.labelCenter - (2.*R,0.)
       r : R
       color : Colors.clear
-      strokeColor : Colors.black
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
 }
@@ -410,10 +418,12 @@ forall Reaction r {
 
    scalar h = (Global.reactionBoxTop + canvas.height/2.)/2.
 
-   r.text = Equation {
+   r.text = PlainText {
       string : r.label
       center : (0.,h)
       fontSize : "40pt"
+      fontFamily: Global.fontFamily
+      fontVariant: "small-caps"
       color : Colors.black
    }
 }
