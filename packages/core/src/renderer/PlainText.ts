@@ -16,6 +16,7 @@ import {
   attrFontWeight,
   attrTextAnchor,
   attrAlignmentBaseline,
+  attrRotation,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -37,6 +38,14 @@ const PlainText = ({ shape, canvasSize }: ShapeProps) => {
   attrString(shape, elem);
   attrTextAnchor(shape, elem);
   attrAlignmentBaseline(shape, elem);
+  attrRotation(
+    shape,
+    shape.properties.center,
+    shape.properties.w,
+    shape.properties.h,
+    canvasSize,
+    elem
+  );
 
    /**
     * TODO This snippet correctly gets the bounding box, but

@@ -839,6 +839,7 @@ export const plainTextDef: ShapeDef = {
     fontWeight: ["StrV", constValue("StrV", "")],
     textAnchor: ["StrV", constValue("StrV", "middle")],
     alignmentBaseline: ["StrV", constValue("StrV", "middle")],
+    rotation: ["FloatV", constValue("FloatV", 0)],
   },
   positionalProps: ["center"],
   bbox: bboxFromRectlike, // assumes w and h correspond to string
