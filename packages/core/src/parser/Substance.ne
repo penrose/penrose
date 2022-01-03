@@ -15,7 +15,6 @@ import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, Equa
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
-  quoted_literal: /"[^"]*?"/, // plain text string enclosed by double quotes
   double_arrow: "<->",
   ...basicSymbols,
   // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
@@ -187,7 +186,7 @@ label_decl -> "Label" __ identifier __ tex_literal {%
   })
 %}
 
-label_decl -> "Label" __ identifier __ quoted_literal {%
+label_decl -> "Label" __ identifier __ string_literal {%
   ([kw, , variable, , label]): LabelDecl => ({
     ...nodeData([variable, label]),
     ...rangeBetween(rangeOf(kw), label),
@@ -252,15 +251,6 @@ tex_literal -> %tex_literal {%
     ...rangeOf(d),
     tag: 'StringLit',
     contents: d.text.substring(1, d.text.length - 1), // NOTE: remove dollars
-  })
-%}
-
-quoted_literal -> %quoted_literal {% 
-  ([d]): IStringLit => ({
-    ...nodeData([]),
-    ...rangeOf(d),
-    tag: 'StringLit',
-    contents: d.text.substring(1, d.text.length - 1), // NOTE: remove quotes
   })
 %}
 
