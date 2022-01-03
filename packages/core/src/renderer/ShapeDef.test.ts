@@ -303,7 +303,7 @@ describe("ShapeDef", () => {
     expect(numOf(y)).toBeCloseTo(60.849);
   });
 
-  // no Text test because w and h seem to just be set to 0 when using getShape
+  // no Equation test because w and h seem to just be set to 0 when using getShape
 
   test("lineDef.bbox", async () => {
     const shape = await getShape(lineSty("Line"));

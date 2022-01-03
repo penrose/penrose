@@ -46,10 +46,9 @@ describe("Common", () => {
     const prog = `
   type A
   type B
-  type C
+  type C <: B
   type D
   type E
-  C <: B
   B <: A
   value varA: A
   value varB: B

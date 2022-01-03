@@ -3,7 +3,7 @@ AutoLabel All
 -- combustion reaction, expressed via structural-formula DSL
 
 Reaction combustion
-Label combustion $\text{Combustion Reaction}$
+Label combustion "Methane Combustion Reaction"
 IsNetForward( combustion )
 
 -- reactants: CH4 + 2O2 ====================================

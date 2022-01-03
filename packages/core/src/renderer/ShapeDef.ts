@@ -74,13 +74,13 @@ export const sortShapes = (shapes: Shape[], ordering: string[]): Shape[] => {
 };
 
 /**
- * Checks if a `Text` shape has non-empty content
+ * Checks if an `Equation` shape has non-empty content
  *
- * @param shape a `Text` shape
+ * @param shape a `Equation` shape
  */
 export const notEmptyLabel = (shape: Shape): boolean => {
   const { shapeType, properties } = shape;
-  return shapeType === "Text" ? !(properties.string.contents === "") : true;
+  return shapeType === "Equation" ? !(properties.string.contents === "") : true;
 };
 
 const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
@@ -170,6 +170,21 @@ export interface IShapeDef {
 }
 
 export type Sampler = (canvas: Canvas) => Value<number>;
+
+
+// Bounding box definitions ====================================================
+/**
+ * These methods are used by subsequent shape definitions to
+ * determine an enclosing axis-aligned bounding box.  Ideally
+ * these boxes should be the tightest (i.e., smallest) box
+ * enclosing the visible shape---including any features like
+ * stroke width.  The minimum requirement is that they at least
+ * provide a conservative bounding box that contains the entire
+ * shape.  For instance, determining exact bounds for a Bezier
+ * curve may be difficult, but using the bounding box of the
+ * control points is conservative since a Bezier curve will always
+ * be contained in the convex hull of its control points.
+ */
 
 const bboxFromPoints = (points: Pt2[]): BBox.BBox => {
   const minCorner = points.reduce((corner: Pt2, point: Pt2) => [
@@ -309,25 +324,6 @@ const bboxFromEllipse = ({
   );
 };
 
-export const ellipseDef: ShapeDef = {
-  shapeType: "Ellipse",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    rx: ["FloatV", widthSampler],
-    ry: ["FloatV", heightSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    strokeDashArray: ["StrV", constValue("StrV", "")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultCircle")],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromEllipse,
-};
-
 const bboxFromRect = ({
   w,
   h,
@@ -363,25 +359,6 @@ const bboxFromRect = ({
     add(h.contents, strokeWidth.contents),
     center.contents
   );
-};
-
-export const rectDef: ShapeDef = {
-  shapeType: "Rectangle",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", widthSampler],
-    h: ["FloatV", heightSampler],
-    rx: ["FloatV", zeroFloat],
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    strokeDashArray: ["StrV", constValue("StrV", "")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultRect")],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromRect,
 };
 
 const bboxFromCallout = ({
@@ -462,26 +439,6 @@ const bboxFromCallout = ({
   );
 };
 
-export const calloutDef: ShapeDef = {
-  shapeType: "Callout",
-  properties: {
-    anchor: ["VectorV", vectorSampler],
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", widthSampler],
-    h: ["FloatV", heightSampler],
-    padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
-    rx: ["FloatV", zeroFloat], // currently unused
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    strokeDashArray: ["StrV", constValue("StrV", "")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultCallout")],
-  },
-  bbox: bboxFromCallout,
-};
-
 const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   // seems like this should be PtListV but apparently it isn't
@@ -509,59 +466,6 @@ const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
     })
   );
 };
-
-export const polygonDef: ShapeDef = {
-  shapeType: "Polygon",
-  properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    color: ["ColorV", colorSampler],
-    center: ["VectorV", vectorSampler],
-    scale: ["FloatV", constValue("FloatV", 1)],
-    name: ["StrV", constValue("StrV", "defaultPolygon")],
-    points: [
-      "PtListV",
-      constValue("PtListV", [
-        [0, 0],
-        [0, 10],
-        [10, 0],
-      ]),
-    ],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
-};
-
-export const freeformPolygonDef: ShapeDef = {
-  shapeType: "FreeformPolygon",
-  properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
-    scale: ["FloatV", constValue("FloatV", 1)],
-    points: [
-      "PtListV",
-      constValue("PtListV", [
-        [0, 0],
-        [0, 10],
-        [10, 0],
-      ]),
-    ],
-  },
-  positionalProps: [],
-  bbox: bboxFromPolygon,
-};
-
-const DEFAULT_PATHSTR = `M 10,30
-A 20,20 0,0,1 50,30
-A 20,20 0,0,1 90,30
-Q 90,60 50,90
-Q 10,60 10,30 z`;
 
 const bboxFromRectlike = ({
   center,
@@ -603,67 +507,6 @@ const bboxFromRectlike = ({
     rotation.contents,
     constOf(0)
   );
-};
-
-export const pathStringDef: ShapeDef = {
-  shapeType: "PathString",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", widthSampler],
-    h: ["FloatV", heightSampler],
-    rotation: ["FloatV", constValue("FloatV", 0)],
-    opacity: ["FloatV", constValue("FloatV", 1.0)],
-    strokeWidth: ["FloatV", strokeSampler],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", () => noPaint],
-    name: ["StrV", constValue("StrV", "defaultPolygon")],
-    data: ["StrV", constValue("StrV", DEFAULT_PATHSTR)],
-    viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromRectlike,
-};
-
-export const polylineDef: ShapeDef = {
-  shapeType: "Polyline",
-  properties: {
-    strokeWidth: ["FloatV", strokeSampler],
-    center: ["VectorV", vectorSampler],
-    scale: ["FloatV", constValue("FloatV", 1)],
-    style: ["StrV", constValue("StrV", "filled")],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultPolygon")],
-    points: [
-      "PtListV",
-      constValue("PtListV", [
-        [0, 0],
-        [0, 10],
-        [10, 0],
-      ]),
-    ],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
-};
-
-export const imageDef: ShapeDef = {
-  shapeType: "Image",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", widthSampler],
-    h: ["FloatV", heightSampler],
-    rotation: ["FloatV", constValue("FloatV", 0)],
-    opacity: ["FloatV", constValue("FloatV", 1.0)],
-    style: ["StrV", constValue("StrV", "filled")],
-    stroke: ["StrV", constValue("StrV", "none")],
-    path: ["StrV", constValue("StrV", "missing image path")],
-    name: ["StrV", constValue("StrV", "defaultImage")],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
 };
 
 const bboxFromSquare = ({
@@ -709,44 +552,6 @@ const bboxFromSquare = ({
     rotation.contents,
     strokeWidth.contents
   );
-};
-
-export const squareDef: ShapeDef = {
-  shapeType: "Square",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    side: ["FloatV", widthSampler],
-    rotation: ["FloatV", constValue("FloatV", 0)],
-    style: ["StrV", constValue("StrV", "none")],
-    rx: ["FloatV", zeroFloat],
-    strokeWidth: ["FloatV", strokeSampler],
-    strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
-    strokeDashArray: ["StrV", constValue("StrV", "")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultSquare")],
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromSquare,
-};
-
-export const textDef: ShapeDef = {
-  shapeType: "Text",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    w: ["FloatV", constValue("FloatV", 0)],
-    h: ["FloatV", constValue("FloatV", 0)],
-    fontSize: ["StrV", constValue("StrV", "12pt")],
-    rotation: ["FloatV", constValue("FloatV", 0)],
-    style: ["StrV", constValue("StrV", "none")],
-    stroke: ["StrV", constValue("StrV", "none")],
-    color: ["ColorV", () => black],
-    name: ["StrV", constValue("StrV", "defaultText")],
-    string: ["StrV", constValue("StrV", "defaultLabelText")],
-    // HACK: typechecking is not passing due to Value mismatch. Not sure why
-  },
-  positionalProps: ["center"],
-  bbox: bboxFromRectlike, // assumes w and h correspond to string
 };
 
 const bboxFromLinelike = ({
@@ -799,44 +604,6 @@ const bboxFromLinelike = ({
       }
     })
   );
-};
-
-export const lineDef: ShapeDef = {
-  shapeType: "Line",
-  properties: {
-    start: ["VectorV", vectorSampler],
-    end: ["VectorV", vectorSampler],
-    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
-    leftArrowhead: ["BoolV", constValue("BoolV", false)],
-    rightArrowhead: ["BoolV", constValue("BoolV", false)],
-    arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
-    arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
-    color: ["ColorV", colorSampler],
-    style: ["StrV", constValue("StrV", "solid")],
-    stroke: ["StrV", constValue("StrV", "none")],
-    strokeDashArray: ["StrV", constValue("StrV", "")],
-    strokeLineCap: ["StrV", constValue("StrV", "")],
-    name: ["StrV", constValue("StrV", "defaultLine")],
-  },
-  positionalProps: ["start", "end"],
-  bbox: bboxFromLinelike,
-};
-
-export const arrowDef: ShapeDef = {
-  shapeType: "Arrow",
-  properties: {
-    start: ["VectorV", vectorSampler],
-    end: ["VectorV", vectorSampler],
-    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
-    arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
-    arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
-    style: ["StrV", constValue("StrV", "solid")],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", constValue("StrV", "defaultArrow")],
-    strokeDashArray: ["StrV", constValue("StrV", "")],
-  },
-  positionalProps: ["start", "end"],
-  bbox: bboxFromLinelike,
 };
 
 const bboxFromPath = ({ pathData }: Properties<VarAD>): BBox.BBox => {
@@ -1007,6 +774,287 @@ const bboxFromPath = ({ pathData }: Properties<VarAD>): BBox.BBox => {
   return bboxFromPoints(points);
 };
 
+
+// Shape definitions ===========================================================
+
+export const ellipseDef: ShapeDef = {
+  shapeType: "Ellipse",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    rx: ["FloatV", widthSampler],
+    ry: ["FloatV", heightSampler],
+    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultCircle")],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromEllipse,
+};
+
+export const rectDef: ShapeDef = {
+  shapeType: "Rectangle",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", widthSampler],
+    h: ["FloatV", heightSampler],
+    rx: ["FloatV", zeroFloat],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultRect")],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromRect,
+};
+
+export const textDef: ShapeDef = {
+  shapeType: "Text",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", constValue("FloatV", 0)],
+    h: ["FloatV", constValue("FloatV", 0)],
+    style: ["StrV", constValue("StrV", "")],
+    visibility: ["StrV", constValue("StrV", "")],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultText")],
+    string: ["StrV", constValue("StrV", "Text")],
+    fontFamily: ["StrV", constValue("StrV", "")],
+    fontSize: ["StrV", constValue("StrV", "12pt")],
+    fontSizeAdjust: ["StrV", constValue("StrV", "")],
+    fontStretch: ["StrV", constValue("StrV", "")],
+    fontStyle: ["StrV", constValue("StrV", "")],
+    fontVariant: ["StrV", constValue("StrV", "")],
+    fontWeight: ["StrV", constValue("StrV", "")],
+    textAnchor: ["StrV", constValue("StrV", "middle")],
+    alignmentBaseline: ["StrV", constValue("StrV", "middle")],
+    rotation: ["FloatV", constValue("FloatV", 0)],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromRectlike, // assumes w and h correspond to string
+};
+
+export const calloutDef: ShapeDef = {
+  shapeType: "Callout",
+  properties: {
+    anchor: ["VectorV", vectorSampler],
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", widthSampler],
+    h: ["FloatV", heightSampler],
+    padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
+    rx: ["FloatV", zeroFloat], // currently unused
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultCallout")],
+  },
+  bbox: bboxFromCallout,
+};
+
+export const polygonDef: ShapeDef = {
+  shapeType: "Polygon",
+  properties: {
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    color: ["ColorV", colorSampler],
+    center: ["VectorV", vectorSampler],
+    scale: ["FloatV", constValue("FloatV", 1)],
+    name: ["StrV", constValue("StrV", "defaultPolygon")],
+    points: [
+      "PtListV",
+      constValue("PtListV", [
+        [0, 0],
+        [0, 10],
+        [10, 0],
+      ]),
+    ],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+};
+
+export const freeformPolygonDef: ShapeDef = {
+  shapeType: "FreeformPolygon",
+  properties: {
+    strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
+    scale: ["FloatV", constValue("FloatV", 1)],
+    points: [
+      "PtListV",
+      constValue("PtListV", [
+        [0, 0],
+        [0, 10],
+        [10, 0],
+      ]),
+    ],
+  },
+  positionalProps: [],
+  bbox: bboxFromPolygon,
+};
+
+const DEFAULT_PATHSTR = `M 10,30
+A 20,20 0,0,1 50,30
+A 20,20 0,0,1 90,30
+Q 90,60 50,90
+Q 10,60 10,30 z`;
+
+export const pathStringDef: ShapeDef = {
+  shapeType: "PathString",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", widthSampler],
+    h: ["FloatV", heightSampler],
+    rotation: ["FloatV", constValue("FloatV", 0)],
+    opacity: ["FloatV", constValue("FloatV", 1.0)],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", () => noPaint],
+    name: ["StrV", constValue("StrV", "defaultPolygon")],
+    data: ["StrV", constValue("StrV", DEFAULT_PATHSTR)],
+    viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromRectlike,
+};
+
+export const polylineDef: ShapeDef = {
+  shapeType: "Polyline",
+  properties: {
+    strokeWidth: ["FloatV", strokeSampler],
+    center: ["VectorV", vectorSampler],
+    scale: ["FloatV", constValue("FloatV", 1)],
+    style: ["StrV", constValue("StrV", "filled")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultPolygon")],
+    points: [
+      "PtListV",
+      constValue("PtListV", [
+        [0, 0],
+        [0, 10],
+        [10, 0],
+      ]),
+    ],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+};
+
+export const imageDef: ShapeDef = {
+  shapeType: "Image",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", widthSampler],
+    h: ["FloatV", heightSampler],
+    rotation: ["FloatV", constValue("FloatV", 0)],
+    opacity: ["FloatV", constValue("FloatV", 1.0)],
+    style: ["StrV", constValue("StrV", "filled")],
+    stroke: ["StrV", constValue("StrV", "none")],
+    path: ["StrV", constValue("StrV", "missing image path")],
+    name: ["StrV", constValue("StrV", "defaultImage")],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
+};
+
+export const squareDef: ShapeDef = {
+  shapeType: "Square",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    side: ["FloatV", widthSampler],
+    rotation: ["FloatV", constValue("FloatV", 0)],
+    style: ["StrV", constValue("StrV", "none")],
+    rx: ["FloatV", zeroFloat],
+    strokeWidth: ["FloatV", strokeSampler],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    strokeColor: ["ColorV", () => noPaint],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultSquare")],
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromSquare,
+};
+
+export const equationDef: ShapeDef = {
+  shapeType: "Equation",
+  properties: {
+    center: ["VectorV", vectorSampler],
+    w: ["FloatV", constValue("FloatV", 0)],
+    h: ["FloatV", constValue("FloatV", 0)],
+    fontSize: ["StrV", constValue("StrV", "12pt")],
+    rotation: ["FloatV", constValue("FloatV", 0)],
+    style: ["StrV", constValue("StrV", "none")],
+    stroke: ["StrV", constValue("StrV", "none")],
+    color: ["ColorV", () => black],
+    name: ["StrV", constValue("StrV", "defaultText")],
+    string: ["StrV", constValue("StrV", "defaultLabelText")],
+    // HACK: typechecking is not passing due to Value mismatch. Not sure why
+  },
+  positionalProps: ["center"],
+  bbox: bboxFromRectlike, // assumes w and h correspond to string
+};
+
+export const lineDef: ShapeDef = {
+  shapeType: "Line",
+  properties: {
+    start: ["VectorV", vectorSampler],
+    end: ["VectorV", vectorSampler],
+    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+    leftArrowhead: ["BoolV", constValue("BoolV", false)],
+    rightArrowhead: ["BoolV", constValue("BoolV", false)],
+    arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
+    arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
+    color: ["ColorV", colorSampler],
+    style: ["StrV", constValue("StrV", "solid")],
+    stroke: ["StrV", constValue("StrV", "none")],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+    strokeLineCap: ["StrV", constValue("StrV", "")],
+    name: ["StrV", constValue("StrV", "defaultLine")],
+  },
+  positionalProps: ["start", "end"],
+  bbox: bboxFromLinelike,
+};
+
+export const arrowDef: ShapeDef = {
+  shapeType: "Arrow",
+  properties: {
+    start: ["VectorV", vectorSampler],
+    end: ["VectorV", vectorSampler],
+    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+    arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
+    arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
+    style: ["StrV", constValue("StrV", "solid")],
+    color: ["ColorV", colorSampler],
+    name: ["StrV", constValue("StrV", "defaultArrow")],
+    strokeDashArray: ["StrV", constValue("StrV", "")],
+  },
+  positionalProps: ["start", "end"],
+  bbox: bboxFromLinelike,
+};
+
 export const curveDef: ShapeDef = {
   shapeType: "Path",
   properties: {
@@ -1034,7 +1082,7 @@ export const curveDef: ShapeDef = {
 export const shapedefs: ShapeDef[] = [
   circleDef,
   ellipseDef,
-  textDef,
+  equationDef,
   rectDef,
   calloutDef,
   polygonDef,
@@ -1046,6 +1094,7 @@ export const shapedefs: ShapeDef[] = [
   imageDef,
   lineDef,
   arrowDef,
+  textDef,
 ];
 
 export const positionalProps = (type: string): string[] | undefined => {
@@ -1072,7 +1121,8 @@ export const isRectlike = (shapeType: string): boolean => {
     shapeType == "Rectangle" ||
     shapeType == "Square" ||
     shapeType == "Image" ||
-    shapeType == "Text"
+    shapeType == "Text" ||
+    shapeType == "Equation"
   );
 };
 

@@ -193,11 +193,17 @@ export const prepareState = async (state: State): Promise<State> => {
     shapes: shapeAutodiffToNumber(evalShapes(stateAD)),
   };
 
-  const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
+  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+    stateEvaled.shapes
+  );
+
+  if (labelCache.isErr()) {
+    throw Error(showError(labelCache.error));
+  }
 
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
-    labelCache,
+    labelCache: labelCache.value,
   });
 
   const withOptProblem: State = genOptProblem(stateWithPendingProperties);

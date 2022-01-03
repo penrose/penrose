@@ -60,7 +60,7 @@ const {
 --Plane
 Plane p {
   dim = 700.0
-  p.text = Text {
+  p.text = Equation {
     center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
     string : p.label
     fontSize : const.fontSize
@@ -96,7 +96,7 @@ Point p {
       strokeColor : Colors.black
     }
 
-    p.text = Text {
+    p.text = Equation {
       string : p.label
       rotation : 0.0
       color : Colors.black

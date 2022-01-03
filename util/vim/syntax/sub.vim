@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: Penrose Substance
 " Maintainer: Keenan Crane
-" Latest Revision: 23 October 2020
+" Latest Revision: 3 January 2022
 
 if exists("b:current_syntax")
   finish
@@ -16,6 +16,7 @@ syn match subComment "--.*$" contains=subTodo,@Spell
 
 " Types and values
 syn match subString "\$[^$]*\$"
+syn match subString "\"[^$]*\""
 
 let b:current_syntax = "sub"
 

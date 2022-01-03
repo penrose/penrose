@@ -2,12 +2,9 @@ type Type
 
 -- | Set domain program
 
-type Set
-type Point
+type Set <: Type
+type Point <: Type
 type Map
-
-Set <: Type
-Point <: Type
 
 constructor Singleton : Point p -> Set
 
@@ -43,19 +40,13 @@ notation "p ∉ A" ~ "PointNotIn(A, p)"
 ------------------------------
 -- | Mesh domain program
 
-type Vertex
-type Edge
-type Face
+type Vertex <: Type
+type Edge <: Type
+type Face <: Type
 type SimplicialSubset -- Subset of a mesh; might not be a simplicial complex
-type SimplicialComplex -- Mesh := SimplicialComplex(2); simplicial complex
-type Subcomplex -- (V, E, F) linked to a mesh; is a simplicial complex
+type SimplicialComplex <: SimplicialSubset -- Mesh := SimplicialComplex(2); simplicial complex
+type Subcomplex <: SimplicialSubset -- (V, E, F) linked to a mesh; is a simplicial complex
 
-Vertex <: Type
-Edge <: Type
-Face <: Type
-
-SimplicialComplex <: SimplicialSubset
-Subcomplex <: SimplicialSubset
 Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
 Edge <: SimplicialSubset
 Face <: SimplicialSubset

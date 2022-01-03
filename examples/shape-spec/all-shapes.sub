@@ -3,7 +3,7 @@ TPolyline Polyline
 TPathString PathString
 TPath Path
 TSquare Square
-TText Text
+TEquation Equation
 TImage Image
 TFreeformPolygon FreeformPolygon
 TPolygon Polygon

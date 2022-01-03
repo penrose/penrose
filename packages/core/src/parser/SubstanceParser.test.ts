@@ -165,7 +165,7 @@ Set A, B, C
 Point p1, p2
 C := Intersection(A, B)
 p1 := ValueOf(A.value)
-p2 := ValueOf(Translate(p), "10, 20")
+p2 := ValueOf(B.value)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
