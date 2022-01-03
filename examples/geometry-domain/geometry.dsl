@@ -1,24 +1,18 @@
 -- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
 type Point
 type Linelike
-type Ray
-type Line
-type Segment
+type Ray <: Linelike
+type Line <: Linelike
+type Segment <: Linelike
 
 type Angle
 
 type Triangle
-type Rectangle
 type Quadrilateral
+type Rectangle <: Quadrilateral
 type Circle
 
 type Plane
-
--- ~~~~~~~~~~~~~~~~ SUBTYPES ~~~~~~~~~~~~~~~~
-Ray <: Linelike
-Line <: Linelike
-Segment <: Linelike
-Rectangle <: Quadrilateral
 
 -- ~~~~~~~~~~~~~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~
 -- Lines and Points
