@@ -460,6 +460,70 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 /**
+ * Return `maxN(xs)`.
+ */
+export const maxN = (xs: VarAD[], isCompNode = true): VarAD => {
+
+  if (xs.length === 0) {
+    log.trace("node", xs);
+    throw Error("argument list to maxN is empty; expected 1+ elements");
+  } else if (xs.length === 1) {
+    return xs[0];
+  } else if (xs.length === 2) {
+    return max(xs[0], xs[1], isCompNode);
+  } else {
+    const z = variableAD(Math.min(...xs.map((x) => x.val)), "max list");
+    z.isCompNode = isCompNode;
+
+    if (isCompNode) {
+      for (const x of xs) {
+        const xNode = ifCond(lt(x, z, false), gvarOf(0.0), gvarOf(1.0), false);
+        x.parents.push({ node: z, sensitivityNode: just(xNode) });
+        z.children.push({ node: x, sensitivityNode: just(xNode) });
+      }
+    } else {
+      for (const x of xs) {
+        x.parentsGrad.push({ node: z, sensitivityNode: none });
+        z.childrenGrad.push({ node: x, sensitivityNode: none });
+      }
+    }
+    return z;
+  }
+};
+
+/**
+ * Return `minN(xs)`.
+ */
+export const minN = (xs: VarAD[], isCompNode = true): VarAD => {
+
+  if (xs.length === 0) {
+    log.trace("node", xs);
+    throw Error("argument list to minN is empty; expected 1+ elements");
+  } else if (xs.length === 1) {
+    return xs[0];
+  } else if (xs.length === 2) {
+    return min(xs[0], xs[1], isCompNode);
+  } else {
+    const z = variableAD(Math.min(...xs.map((x) => x.val)), "min list");
+    z.isCompNode = isCompNode;
+
+    if (isCompNode) {
+      for (const x of xs) {
+        const xNode = ifCond(gt(x, z, false), gvarOf(0.0), gvarOf(1.0), false)
+        x.parents.push({ node: z, sensitivityNode: just(xNode) });
+        z.children.push({ node: x, sensitivityNode: just(xNode) });
+      }
+    } else {
+      for (const x of xs) {
+        x.parentsGrad.push({ node: z, sensitivityNode: none });
+        z.childrenGrad.push({ node: x, sensitivityNode: none });
+      }
+    }
+    return z;
+  }
+};
+
+/**
  * Returns the two-argument arctangent `atan2(y, x)`, which
  * describes the angle made by a vector (x,y) with the x-axis.
  * Returns a value in radians, in the range [-pi,pi].
@@ -1309,8 +1373,16 @@ const opMap = {
   max: {
     fn: (x: number, y: number): number => Math.max(x, y),
   },
+  "max list": {
+    fn: (xs: number[]): number => Math.max(...xs),
+    gradGraph: variableAD(1.0),
+  },
   min: {
     fn: (x: number, y: number): number => Math.min(x, y),
+  },
+  "min list": {
+    fn: (xs: number[]): number => Math.min(...xs),
+    gradGraph: variableAD(1.0),
   },
   acosh: {
      fn: (x: number): number => Math.acosh(x),

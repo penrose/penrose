@@ -23,6 +23,8 @@ import {
   and,
   or,
   sqrt,
+  minN,
+  maxN,
   debug,
   cos,
 } from "engine/Autodiff";
@@ -479,13 +481,11 @@ export const constrDict = {
       const cp2 = convexPartitions(
         s2.points.contents.map((p: VarAD[]) => ops.vneg(p))
       );
-      const sdf = cp1
-        .map((p1) =>
-          cp2
-            .map((p2) => convexPolygonMinkowskiSDF(p1, p2))
-            .reduce((x, y) => min(x, y, true))
+      const sdf = maxN(
+        cp1.map((p1) => minN(
+          cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2)))
         )
-        .reduce((x, y) => min(x, y, true));
+      );
       return neg(sdf);
     } else if (isRectlike(t1) && isLinelike(t2)) {
       const seg = s2;
@@ -1067,14 +1067,10 @@ const rectangleDifference = (box1: BBox.BBox, box2: BBox.BBox): VarAD[][] => {
   // Compute coordinates of the new rectangle
   const xs = [sub(xa1, xb1), sub(xa2, xb2), sub(xa1, xb2), sub(xa2, xb1)];
   const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
-  const xc1 = xs.reduce((x, y) => min(x, y, true));
-  const xc2 = xs.reduce((x, y) => max(x, y, true));
-  const yc1 = ys.reduce((x, y) => min(x, y, true));
-  const yc2 = ys.reduce((x, y) => max(x, y, true));
   // Return corners
   return [
-    [xc1, yc1],
-    [xc2, yc2],
+    [minN(xs), minN(ys)],
+    [maxN(xs), maxN(ys)],
   ];
 };
 
@@ -1115,9 +1111,7 @@ const halfPlaneSDF = (
 ): VarAD => {
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
-  const alphaOther = otherPoints
-    .map((p) => ops.vdot(normal, p))
-    .reduce((x, y) => max(x, y, true));
+  const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
   return neg(add(alpha, alphaOther));
 };
 
@@ -1137,7 +1131,7 @@ const convexPolygonMinkowskiSDFOneSided = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: VarAD[][]) => halfPlaneSDF(s, p2, center));
-  return sdfs.reduce((x, y) => max(x, y, true));
+  return maxN(sdfs);
 };
 
 /**
