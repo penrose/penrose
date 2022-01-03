@@ -115,6 +115,9 @@ type Point
 -- type ParametrizedSet1 () -- this is not okay
 type ParametrizedSet2 ('T)
 type ParametrizedSet3 ( 'T,    'V)
+-- inline subtype
+type Nonempty <: Set
+type SmallerSet <: Point, Set
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);

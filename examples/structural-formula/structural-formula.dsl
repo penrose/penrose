@@ -11,27 +11,19 @@ type Node
 
 -- a FunctionalGroup represents a collection of atoms
 -- in the same molecule (such as an alcohol or ester)
-type FunctionalGroup
-FunctionalGroup <: Node
+type FunctionalGroup <: Node
 
 -- an Atom represents a single atom within a larger
 -- molecule (or as an isolated ion)
-type Atom
-Atom <: Node
+type Atom <: Node
 
 -- specific types of atoms (more could be added here)
-type Hydrogen
-type Carbon
-type Nitrogen
-type Oxygen
-type Sodium
-type Chlorine
-Hydrogen <: Atom
-  Carbon <: Atom
-Nitrogen <: Atom
-  Oxygen <: Atom
-  Sodium <: Atom
-Chlorine <: Atom
+type Hydrogen <: Atom
+type   Carbon <: Atom
+type Nitrogen <: Atom
+type   Oxygen <: Atom
+type   Sodium <: Atom
+type Chlorine <: Atom
 
 -- predicates used to specify bonds between Nodes
 predicate SingleBond(Node n1, Node n2)

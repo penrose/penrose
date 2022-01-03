@@ -8,25 +8,15 @@ type Edge
 type Graph
 
 -- Subtypes
-type UndirectedEdge
-type DirectedEdge
-type UndirectedGraph
-type DirectedGraph
-type Tree
-type BinaryTree
-type Face
-type Path
-type Cycle
-
-UndirectedEdge <: Edge
-DirectedEdge <: Edge
-UndirectedGraph <: Graph
-DirectedGraph <: Graph
-Tree <: Graph
-BinaryTree <: Tree
-Face <: Graph
-Path <: Graph
-Cycle <: Graph
+type UndirectedEdge <: Edge
+type DirectedEdge <: Edge
+type UndirectedGraph <: Graph
+type DirectedGraph <: Graph
+type Tree <: Graph
+type BinaryTree <: Tree
+type Face <: Graph
+type Path <: Graph
+type Cycle <: Graph
 
 constructor MkGraph(List(Vertex) vertices, List(Edge) edges) -> Graph
 constructor MkEdge(Vertex from, Vertex to) -> Edge

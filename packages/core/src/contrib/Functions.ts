@@ -4,11 +4,10 @@ import {
   absVal,
   add,
   addN,
+  ceil,
   constOf,
-  cos,
-  acos,
-  asin,
   div,
+  floor,
   gt,
   ifCond,
   max,
@@ -17,7 +16,30 @@ import {
   neg,
   numOf,
   ops,
+  pow,
+  acosh,
+  acos,
+  asin,
+  asinh,
+  atan,
+  atan2,
+  atanh,
+  cbrt,
+  cos,
+  cosh,
+  exp,
+  expm1,
+  ln,
+  log2,
+  log10,
+  log1p,
+  round,
+  sign,
   sin,
+  sinh,
+  tan,
+  tanh,
+  trunc,
   sqrt,
   sub,
   variableAD,
@@ -227,25 +249,263 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `rad` (in radians).
+   * Return `acosh(x)`.
    */
-  cos: (rad: VarAD): IFloatV<VarAD> => {
-    // Accepts radians
-    return {
-      tag: "FloatV",
-      contents: cos(rad),
-    };
+  acosh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: acosh(x),
+     };
+  },
+  
+  /**
+  * Return `acos(x)`.
+  */
+  acos: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: acos(x),
+     };
+  },
+  
+  /**
+  * Return `asin(x)`.
+  */
+  asin: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: asin(x),
+     };
+  },
+  
+  /**
+  * Return `asinh(x)`.
+  */
+  asinh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+             contents: asinh(x),
+     };
+  },
+  
+  /**
+  * Return `atan(x)`.
+  */
+  atan: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atan(x),
+     };
+  },
+  
+  /**
+  * Return `atan2(y,x)`.
+  */
+  atan2: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atan2(y,x),
+     };
+  },
+  
+  /**
+  * Return `atanh(x)`.
+  */
+  atanh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atanh(x),
+     };
+  },
+  
+  /**
+  * Return `cbrt(x)`.
+  */
+  cbrt: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: cbrt(x),
+     };
   },
 
   /**
-   * Return the sine of input `rad` (in radians).
+   * Return `ceil(x)`.
    */
-  sin: (rad: VarAD): IFloatV<VarAD> => {
-    // Accepts radians
-    return {
-      tag: "FloatV",
-      contents: sin(rad),
-    };
+  ceil: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: ceil(x),
+     };
+  },
+  
+  /**
+  * Return `cos(x)`.
+  */
+  cos: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: cos(x),
+     };
+  },
+  
+  /**
+  * Return `cosh(x)`.
+  */
+  cosh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: cosh(x),
+     };
+  },
+  
+  /**
+  * Return `exp(x)`.
+  */
+  exp: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: exp(x),
+     };
+  },
+  
+  /**
+  * Return `expm1(x)`.
+  */
+  expm1: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: expm1(x),
+     };
+  },
+  
+  /**
+  * Return `floor(x)`.
+  */
+  floor: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: floor(x),
+     };
+  },
+  
+  /**
+  * Return `log(x)`.
+  */
+  log: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: ln(x),
+     };
+  },
+  
+  /**
+  * Return `log2(x)`.
+  */
+  log2: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: log2(x),
+     };
+  },
+  
+  /**
+  * Return `log10(x)`.
+  */
+  log10: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+             contents: log10(x),
+     };
+  },
+  
+  /**
+  * Return `log1p(x)`.
+  */
+  log1p: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: log1p(x),
+     };
+  },
+
+  /**
+  * Return `pow(x,y)`.
+  */
+  pow: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: pow(x,y),
+     };
+  },
+
+  /**
+  * Return `round(x)`.
+  */
+  round: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: round(x),
+     };
+  },
+  
+  /**
+  * Return `sign(x)`.
+  */
+  sign: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sign(x),
+     };
+  },
+  
+  /**
+  * Return `sin(x)`.
+  */
+  sin: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sin(x),
+     };
+  },
+  
+  /**
+  * Return `sinh(x)`.
+  */
+  sinh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sinh(x),
+     };
+  },
+  
+  /**
+  * Return `tan(x)`.
+  */
+  tan: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: tan(x),
+     };
+  },
+  
+  /**
+   * Return `tanh(x)`.
+   */
+  tanh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: tanh(x),
+     };
+  },
+
+  /**
+  * Return `trunc(x)`.
+  */
+  trunc: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: trunc(x),
+     };
   },
 
   /**
@@ -814,13 +1074,6 @@ export const compDict = {
   },
 
   /**
-   * Return the sign of the number `x`.
-   */
-  sgn: (x: VarAD): IFloatV<VarAD> => {
-    return { tag: "FloatV", contents: div(x,absVal(x)) };
-  },
-
-  /**
    * Convert the angle `theta` from degrees to radians.
    */
   toRadians: (theta: VarAD): IFloatV<VarAD> => {
@@ -870,6 +1123,28 @@ export const compDict = {
    */
   vdistsq: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+  },
+
+  // ------ Mathematical constants
+
+  /**
+   * Base e of the natural logarithm.
+   */
+  MathE: (): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(2.718281828459045),
+    };
+  },
+
+  /**
+   * Ratio of the circumference of a circle to its diameter.
+   */
+  MathPI: (): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(3.141592653589793),
+    };
   },
 
   // ------ Geometry/graphics utils
