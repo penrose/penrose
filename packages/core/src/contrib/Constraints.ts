@@ -472,7 +472,7 @@ export const constrDict = {
   ) => {
     if (t1 === "Circle" && t2 === "Circle") {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
-      const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
+      const o = [s1.r.contents, s2.r.contents, constOf(10.0)];
       return sub(addN(o), d);
     } else if (t1 === "Polygon" && t2 === "Polygon") {
       const cp1 = convexPartitions(s1.points.contents);
@@ -500,19 +500,19 @@ export const constrDict = {
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
       const [pc1, pc2] = rectangleDifference(box1, box2);
-      const [xp, yp] = ops.vmul(varOf(0.5), ops.vadd(pc1, pc2));
-      const [xr, yr] = ops.vmul(varOf(0.5), ops.vsub(pc2, pc1));
+      const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
+      const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
       const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
       const e1 = sqrt(
         add(
-          varOf(10e-15),
+          constOf(10e-15),
           add(
-            squared(max(sub(xp, xr), varOf(0.0))),
-            squared(max(sub(yp, yr), varOf(0.0)))
+            squared(max(sub(xp, xr), constOf(0.0))),
+            squared(max(sub(yp, yr), constOf(0.0)))
           )
         )
       );
-      const e2 = neg(min(max(xq, yq), varOf(0.0)));
+      const e2 = neg(min(max(xq, yq), constOf(0.0)));
       return sub(e2, e1);
     } else {
       // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
@@ -1082,8 +1082,8 @@ const rectangleDifference = (box1: BBox.BBox, box2: BBox.BBox): VarAD[][] => {
  * Return -1.0 for negative number, +1.0 otherwise.
  */
 const signOf = (x: VarAD): VarAD => {
-  const negative = lt(x, varOf(0.0));
-  return ifCond(negative, varOf(-1.0), varOf(1.0));
+  const negative = lt(x, constOf(0.0));
+  return ifCond(negative, constOf(-1.0), constOf(1.0));
 };
 
 /**
