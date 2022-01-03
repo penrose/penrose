@@ -14,7 +14,7 @@ import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, Equa
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
-  tex_literal: /\$.*?\$/,
+  tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
   ...basicSymbols,
   // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
@@ -179,6 +179,14 @@ label_stmt
   |  auto_label {% id %}
 
 label_decl -> "Label" __ identifier __ tex_literal {%
+  ([kw, , variable, , label]): LabelDecl => ({
+    ...nodeData([variable, label]),
+    ...rangeBetween(rangeOf(kw), label),
+    tag: "LabelDecl", variable, label
+  })
+%}
+
+label_decl -> "Label" __ identifier __ string_literal {%
   ([kw, , variable, , label]): LabelDecl => ({
     ...nodeData([variable, label]),
     ...rangeBetween(rangeOf(kw), label),

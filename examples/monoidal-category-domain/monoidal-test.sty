@@ -59,7 +59,7 @@ Object o {
         arrowheadSize: 0.5
     }
 
-    shape o.text = Text {
+    shape o.text = Equation {
            center: (o.shape.start + o.shape.end) / 2.
            string: o.label
            fontSize: "20pt"
@@ -84,7 +84,7 @@ Morphism m {
                strokeWidth: 3.
          }
 
-         shape m.text = Text {
+         shape m.text = Equation {
                center: m.shape.center
                string: m.label
                   fontSize: "20pt"

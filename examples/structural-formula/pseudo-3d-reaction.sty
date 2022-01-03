@@ -28,6 +28,10 @@ Global {
 
    scalar padding = 50.
 
+   -- specify the typeface(s) that should
+   -- be used, in order of availability
+   string fontFamily = "Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif"
+
    -- box around the whole canvas
    shape bbox = Rectangle {
       w : canvas.width
@@ -54,10 +58,12 @@ Global {
       rx : 20
    }
    shape reactantText = Text {
-      string : "\text{\textbf{reactants}}"
+      string : "reactants"
       center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
       color : Colors.black
       fontSize : "24pt"
+      fontFamily: Global.fontFamily
+      fontWeight: "bold"
    }
 
    -- box around products
@@ -73,10 +79,12 @@ Global {
       rx : 20
    }
    shape productText = Text {
-      string : "\text{\textbf{products}}"
+      string : "products"
       center : (productCenter,-24.+reactionBoxBottom)
       color : Colors.black
       fontSize : "24pt"
+      fontFamily: Global.fontFamily
+      fontWeight: "bold"
    }
 }
 
@@ -362,7 +370,7 @@ forall Molecule m {
 
    m.labelCenter = (?,?)
 
-   m.text = Text {
+   m.text = Equation {
       string : m.label
       color : Colors.black
       fontSize : "18pt"
@@ -372,27 +380,27 @@ forall Molecule m {
    }
 
    -- used to prevent overlap with molecules
-   -- (since "ensure disjoint" isn't currently supported for Text-Circle pairs)
+   -- (since "ensure disjoint" isn't currently supported for Equation-Circle pairs)
    scalar R = 20.
    m.textPhantom1 = Circle {
       center : m.labelCenter
       r : R
       color : Colors.clear
-      strokeColor : Colors.black
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
    m.textPhantom2 = Circle {
       center : m.labelCenter + (2.*R,0.)
       r : R
       color : Colors.clear
-      strokeColor : Colors.black
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
    m.textPhantom3 = Circle {
       center : m.labelCenter - (2.*R,0.)
       r : R
       color : Colors.clear
-      strokeColor : Colors.black
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
 }
@@ -414,6 +422,8 @@ forall Reaction r {
       string : r.label
       center : (0.,h)
       fontSize : "40pt"
+      fontFamily: Global.fontFamily
+      fontVariant: "small-caps"
       color : Colors.black
    }
 }

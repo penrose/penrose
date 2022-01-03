@@ -120,7 +120,7 @@ export const collectLabels = async (
   const labels: LabelCache = [];
   for (const s of allShapes) {
     const { shapeType, properties } = s;
-    if (shapeType === "Text" || shapeType === "TextTransform") {
+    if (shapeType === "Equation" || shapeType === "EquationTransform") {
       const shapeName: string = properties.name.contents as string;
       // HACK: getting type errors for not being able to resolve the Value type
       const svg = await tex2svg(

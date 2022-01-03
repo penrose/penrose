@@ -18,7 +18,7 @@ forall InputNode x {
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
 
-    x.symbol = Text {
+    x.symbol = Equation {
        string : x.label
        rotation : 0.0
        center : (x.icon.center[0] - 30.0, x.icon.center[1])
@@ -33,7 +33,7 @@ forall OutputNode x {
         color : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
-    x.symbol = Text {
+    x.symbol = Equation {
        string : x.label
        rotation : 0.0
        center : (x.icon.center[0] + 35.0, x.icon.center[1])
