@@ -1,8 +1,15 @@
+/* Renderer.ts
+ *
+ * A simple translation layer for turning Shapes into SVG tags.
+ *
+ */
+
 import shapeMap from "./shapeMap";
 import { Shape } from "types/shape";
 import { dragUpdate } from "./dragUtils";
 import { IStrV } from "types/value";
 import { LabelCache, State } from "types/state";
+import { isLinelike, isRectlike } from "renderer/ShapeDef";
 
 export interface ShapeProps {
   shape: Shape;
@@ -64,10 +71,17 @@ export const DraggableShape = (
 ): SVGGElement => {
   const elem = RenderShape({
     ...shapeProps,
-    canvasSize: canvasSizeCustom ?? shapeProps.canvasSize,
+    canvasSize: canvasSizeCustom ? canvasSizeCustom : shapeProps.canvasSize,
   });
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  g.setAttribute("pointer-events", "bounding-box");
+  const { shapeType } = shapeProps.shape;
+  if (isLinelike(shapeType)) {
+    g.setAttribute("pointer-events", "visibleStroke");
+  } else if (isRectlike(shapeType)) {
+    g.setAttribute("pointer-events", "bounding-box");
+  } else {
+    g.setAttribute("pointer-events", "auto");
+  }
   g.appendChild(elem);
 
   const onMouseDown = (e: MouseEvent) => {
@@ -111,7 +125,7 @@ export const RenderInteractive = (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  state.shapes.forEach((shape) =>
+  state.shapes.forEach((shape) => {
     svg.appendChild(
       DraggableShape(
         { shape, labels: state.labelCache, canvasSize: state.canvas.size },
@@ -119,6 +133,7 @@ export const RenderInteractive = (
         svg
       )
     )
+  }
   );
   return svg;
 };

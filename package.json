@@ -6,9 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "lerna run build --stream",
+    "build": "lerna run build --stream --concurrency 1",
     "clean": "lerna clean && lerna exec -- rimraf build",
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
+    "start:ide": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/panels",
+    "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/panels",
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",
     "lerna": "lerna",
@@ -23,7 +25,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "husky": "^4.3.8",
+    "husky": "^7.0.4",
     "lerna": "^3.22.1",
     "prettier": "2.2.1",
     "pretty-quick": "^3.1.0",
@@ -32,7 +34,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test && pretty-quick --staged"
+      "pre-push": "yarn test && pretty-quick --staged"
     }
   },
   "workspaces": {
@@ -40,7 +42,8 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/@types/jest"
+      "**/@types/jest",
+      "**/babel-loader"
     ]
   },
   "version": "0.0.0"

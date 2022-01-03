@@ -187,10 +187,10 @@ export default function (fileInfo: FileInfo, api: API) {
     TOSTRING[n.right.type](n.right);
   const UNOP2STR = (n: UnaryExpression) =>
     n.operator + TOSTRING[n.argument.type](n.argument);
-  const NUMLIT2STR = (n: NumericLiteral) => n.value?.toString();
+  const NUMLIT2STR = (n: NumericLiteral) => n.value.toString();
   const ID2STR = (n: IdentifierKind) => n.name;
-  const BOOLLIT2STR = (n: BooleanLiteral) => n.value?.toString();
-  const STRLIT2STR = (n: StringLiteral) => n.value?.toString();
+  const BOOLLIT2STR = (n: BooleanLiteral) => n.value.toString();
+  const STRLIT2STR = (n: StringLiteral) => n.value.toString();
 
   const CE2STR = (n: CallExpression) => {
     // only works if the callee is a member expression or identifier

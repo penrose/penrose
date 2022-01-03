@@ -1,11 +1,13 @@
-import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import * as _ from "lodash";
+import { bboxFromShape, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
 import {
   absVal,
   add,
   addN,
+  ceil,
   constOf,
-  cos,
   div,
+  floor,
   gt,
   ifCond,
   max,
@@ -14,7 +16,30 @@ import {
   neg,
   numOf,
   ops,
+  pow,
+  acosh,
+  acos,
+  asin,
+  asinh,
+  atan,
+  atan2,
+  atanh,
+  cbrt,
+  cos,
+  cosh,
+  exp,
+  expm1,
+  ln,
+  log2,
+  log10,
+  log1p,
+  round,
+  sign,
   sin,
+  sinh,
+  tan,
+  tanh,
+  trunc,
   sqrt,
   sub,
   variableAD,
@@ -37,6 +62,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
+import { isRectlike } from "renderer/ShapeDef";
 
 /**
  * Static dictionary of computation functions
@@ -169,7 +195,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
   rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -198,7 +224,7 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
   hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
     return {
@@ -211,25 +237,275 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `d` (in degrees).
+   * Return a paint of none (no paint)
    */
-  cos: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  none: (): IColorV<any> => {
     return {
-      tag: "FloatV",
-      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      tag: "ColorV",
+      contents: {
+        tag: "NONE",
+      },
     };
   },
 
   /**
-   * Return the sine of input `d` (in degrees).
+   * Return `acosh(x)`.
    */
-  sin: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
-    return {
-      tag: "FloatV",
-      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0))),
-    };
+  acosh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: acosh(x),
+     };
+  },
+  
+  /**
+  * Return `acos(x)`.
+  */
+  acos: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: acos(x),
+     };
+  },
+  
+  /**
+  * Return `asin(x)`.
+  */
+  asin: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: asin(x),
+     };
+  },
+  
+  /**
+  * Return `asinh(x)`.
+  */
+  asinh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+             contents: asinh(x),
+     };
+  },
+  
+  /**
+  * Return `atan(x)`.
+  */
+  atan: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atan(x),
+     };
+  },
+  
+  /**
+  * Return `atan2(y,x)`.
+  */
+  atan2: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atan2(y,x),
+     };
+  },
+  
+  /**
+  * Return `atanh(x)`.
+  */
+  atanh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: atanh(x),
+     };
+  },
+  
+  /**
+  * Return `cbrt(x)`.
+  */
+  cbrt: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: cbrt(x),
+     };
+  },
+
+  /**
+   * Return `ceil(x)`.
+   */
+  ceil: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: ceil(x),
+     };
+  },
+  
+  /**
+  * Return `cos(x)`.
+  */
+  cos: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: cos(x),
+     };
+  },
+  
+  /**
+  * Return `cosh(x)`.
+  */
+  cosh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: cosh(x),
+     };
+  },
+  
+  /**
+  * Return `exp(x)`.
+  */
+  exp: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: exp(x),
+     };
+  },
+  
+  /**
+  * Return `expm1(x)`.
+  */
+  expm1: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: expm1(x),
+     };
+  },
+  
+  /**
+  * Return `floor(x)`.
+  */
+  floor: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: floor(x),
+     };
+  },
+  
+  /**
+  * Return `log(x)`.
+  */
+  log: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: ln(x),
+     };
+  },
+  
+  /**
+  * Return `log2(x)`.
+  */
+  log2: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: log2(x),
+     };
+  },
+  
+  /**
+  * Return `log10(x)`.
+  */
+  log10: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+             contents: log10(x),
+     };
+  },
+  
+  /**
+  * Return `log1p(x)`.
+  */
+  log1p: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: log1p(x),
+     };
+  },
+
+  /**
+  * Return `pow(x,y)`.
+  */
+  pow: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: pow(x,y),
+     };
+  },
+
+  /**
+  * Return `round(x)`.
+  */
+  round: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: round(x),
+     };
+  },
+  
+  /**
+  * Return `sign(x)`.
+  */
+  sign: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sign(x),
+     };
+  },
+  
+  /**
+  * Return `sin(x)`.
+  */
+  sin: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sin(x),
+     };
+  },
+  
+  /**
+  * Return `sinh(x)`.
+  */
+  sinh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: sinh(x),
+     };
+  },
+  
+  /**
+  * Return `tan(x)`.
+  */
+  tan: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: tan(x),
+     };
+  },
+  
+  /**
+   * Return `tanh(x)`.
+   */
+  tanh: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: tanh(x),
+     };
+  },
+
+  /**
+  * Return `trunc(x)`.
+  */
+  trunc: (x: VarAD): IFloatV<VarAD> => {
+     return {
+        tag: "FloatV",
+        contents: trunc(x),
+     };
   },
 
   /**
@@ -287,11 +563,40 @@ export const compDict = {
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<IVarAD> => {
+  pathFromPoints: (pathType: string, pts: Pt2[]): IPathDataV<IVarAD> => {
     const path = new PathBuilder();
     const [start, ...tailpts] = pts;
     path.moveTo(start);
     tailpts.map((pt: Pt2) => path.lineTo(pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+
+  /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
+   */
+  quadraticCurveFromPoints: (
+    pathType: string,
+    pts: Pt2[]
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    const [start, cp, second, ...tailpts] = pts;
+    path.moveTo(start);
+    path.quadraticCurveTo(cp, second);
+    tailpts.map((pt: Pt2) => path.quadraticCurveJoin(pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+
+  /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
+   */
+  cubicCurveFromPoints: (pathType: string, pts: Pt2[]): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    const [start, cp1, cp2, second, ...tailpts] = pts;
+    path.moveTo(start);
+    path.bezierCurveTo(cp1, cp2, second);
+    _.chunk(tailpts, 2).map(([cp, pt]) => path.cubicCurveJoin(cp, pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -393,6 +698,40 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
+    };
+  },
+  /**
+   * Return the unsigned angle between vectors `u, v`, in radians.
+   * Assumes that both u and v have nonzero magnitude.
+   * The returned value will be in the range [0,pi].
+   */
+  angleBetween: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const theta = ops.angleBetween(u,v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+  /**
+   * Return the signed angle from vector `u` to vector `v`, in radians.
+   * Assumes that both u and v are 2D vectors and have nonzero magnitude.
+   * The returned value will be in the range [-pi,pi].
+   */
+  angleFrom: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const theta = ops.angleFrom(u,v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+  /**
+   * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
+   */
+  cross2D: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const det = sub( mul(u[0],v[1]), mul(u[1],v[0]) );
+    return {
+      tag: "FloatV",
+      contents: det,
     };
   },
   /**
@@ -546,7 +885,7 @@ export const compDict = {
 
   /**
            * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-        
+
        @deprecated Don't use this function, it does not fully work
            */
   intersectingSideSize: (
@@ -668,14 +1007,23 @@ export const compDict = {
    * Set the opacity of a color `color` to `frac`.
    */
   setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
-    const rgb = color.contents;
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "RGBA",
-        contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
-      },
-    };
+    // If paint=none, opacity is irreelevant
+    if (color.tag === "NONE") {
+      return {
+        tag: "ColorV",
+        contents: color,
+      };
+      // Otherwise, retain tag and color; only modify opacity
+    } else {
+      const props = color.contents;
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: color.tag,
+          contents: [props[0], props[1], props[2], mul(frac, props[3])],
+        },
+      };
+    }
   },
 
   /**
@@ -726,6 +1074,26 @@ export const compDict = {
   },
 
   /**
+   * Convert the angle `theta` from degrees to radians.
+   */
+  toRadians: (theta: VarAD): IFloatV<VarAD> => {
+    return {
+       tag: "FloatV",
+       contents: mul(constOf(3.141592653589793/180.),theta)
+    };
+  },
+
+  /**
+   * Convert the angle `theta` from radians to degrees.
+   */
+  toDegrees: (theta: VarAD): IFloatV<VarAD> => {
+    return {
+       tag: "FloatV",
+       contents: mul(constOf(180./3.141592653589793),theta)
+    };
+  },
+
+  /**
    * Return the Euclidean norm of the vector `v`.
    */
   norm: (v: VarAD[]): IFloatV<VarAD> => {
@@ -757,10 +1125,32 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
   },
 
+  // ------ Mathematical constants
+
+  /**
+   * Base e of the natural logarithm.
+   */
+  MathE: (): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(2.718281828459045),
+    };
+  },
+
+  /**
+   * Ratio of the circumference of a circle to its diameter.
+   */
+  MathPI: (): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(3.141592653589793),
+    };
+  },
+
   // ------ Geometry/graphics utils
 
   /**
-   * Rotate a 2D vector `v` by 90 degrees clockwise.
+   * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
   rot90: (v: VarAD[]) => {
     if (v.length !== 2) {
@@ -815,7 +1205,7 @@ const perpPathFlat = (
 };
 
 /**
- * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
   return [neg(y), x];

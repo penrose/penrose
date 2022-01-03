@@ -28,29 +28,10 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
+import { findDef, isLinelike, isRectlike } from "renderer/ShapeDef";
 import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
-
-// Kinds of shapes
-/**
- * Takes a `shapeType`, returns whether it's rectlike. (excluding squares)
- */
-export const isRectlike = (shapeType: string): boolean => {
-  return (
-    shapeType == "Rectangle" ||
-    shapeType == "Square" ||
-    shapeType == "Image" ||
-    shapeType == "Text"
-  );
-};
-
-/**
- * Takes a `shapeType`, returns whether it's linelike.
- */
-export const isLinelike = (shapeType: string): boolean => {
-  return shapeType == "Line" || shapeType == "Arrow";
-};
 
 export const objDict = {
   /**
@@ -365,17 +346,23 @@ export const constrDict = {
       const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
     } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
-      // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
-      // -- HACK: reusing test impl, revert later
-      //    let r_l = min (getNum r "w") (getNum r "h") / 2
-      //        diff = r_l - getNum c "r"
-      //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
-
-      // TODO: `rL` is probably a hack for dimensions
-      const rL = div(min(s1.w.contents, s1.h.contents), varOf(2.0));
-      const diff = sub(rL, s2.r.contents);
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      return add(sub(d, diff), offset);
+      // collect constants
+      const halfW = mul( constOf(0.5), s1.w.contents ); // half rectangle width
+      const halfH = mul( constOf(0.5), s1.h.contents ); // half rectangle height
+      const [rx, ry] = s1.center.contents; // rectangle center
+      const r = s2.r.contents; // circle radius
+      const [cx, cy] = s2.center.contents; // circle center
+      
+      // Return maximum violation in either the x- or y-direction.
+      // In each direction, the distance from the circle center (cx,cy) to
+      // the rectangle center (rx,ry) must be no greater than the size of
+      // the rectangle (w/h), minus the radius of the circle (r) and the
+      // offset (o).  We can compute this violation via the function
+      //    max( |cx-rx| - (w/2-r-o),
+      //         |cy-ry| - (h/2-r-o) )
+      const o = typeof(offset)!=='undefined'? offset : constOf(0.);
+      return max( sub( absVal(sub(cx,rx)), sub(sub(halfW,r),o) ),
+                  sub( absVal(sub(cy,ry)), sub(sub(halfH,r),o) ));
     } else if (t1 === "Square" && t2 === "Circle") {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
       const sq = s1.center.contents;
@@ -651,21 +638,13 @@ export const constrDict = {
       const text = s2;
       const rect = bboxFromShape(t2, text);
 
-      // TODO: Rewrite this with `ifCond`
-      // If the point is inside the box, push it outside w/ `noIntersect`
-      if (pointInBox(pt, rect)) {
-        return noIntersectCircles(
-          rect.center,
-          rect.w,
-          fns.center(s1),
-          constOf(2.0)
-        );
-      } else {
+      return ifCond(
+        pointInBox(pt, rect),
+        // If the point is inside the box, push it outside w/ `noIntersect`
+        noIntersectCircles(rect.center, rect.w, [pt.x, pt.y], constOf(2.0)),
         // If the point is outside the box, try to get the distance from the point to equal the desired distance
-        const dsqRes = dsqBP(pt, rect);
-        const WEIGHT = 1;
-        return mul(constOf(WEIGHT), equalHard(dsqRes, squared(offset)));
-      }
+        atDistOutside(pt, rect, offset)
+      );
     } else {
       throw Error(`unsupported shapes for 'atDist': ${t1}, ${t2}`);
     }
@@ -846,12 +825,23 @@ const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
 // ------- Polygon-related helpers
 
 /**
- * Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
+ * Return true iff `p` is in rect `b`.
  */
-const pointInBox = (p: any, rect: any): boolean => {
-  return (
-    p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
+const pointInBox = (p: any, rect: BBox.BBox): VarAD => {
+  return and(
+    and(lt(BBox.minX(rect), p.x), lt(p.x, BBox.maxX(rect))),
+    and(lt(BBox.minY(rect), p.y), lt(p.y, BBox.maxY(rect)))
   );
+};
+
+/**
+ * Helper function for atDist constraint.
+ * If the point is outside the box, try to get the distance from the point to equal the desired distance.
+ */
+const atDistOutside = (pt: any, rect: BBox.BBox, offset: VarAD): VarAD => {
+  const dsqRes = dsqBP(pt, rect);
+  const WEIGHT = 1;
+  return mul(constOf(WEIGHT), equalHard(dsqRes, squared(offset)));
 };
 
 /**
@@ -1046,53 +1036,12 @@ export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
 
 /**
  * Preconditions:
- *   If the input is line-like, it must be axis-aligned.
- *   Assumes line-like shapes are longer than they are thick.
- * Input: A rect- or line-like shape.
+ *   (shape-specific)
+ * Input: A shape.
  * Output: A new BBox
- * Errors: Throws an error if the input shape is not rect- or line-like.
  */
 export const bboxFromShape = (t: string, s: any): BBox.BBox => {
-  if (!(isRectlike(t) || isLinelike(t))) {
-    throw new Error(
-      `BBox expected a rect-like or line-like shape, but got ${t}`
-    );
-  }
-
-  // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
-  let w;
-  if (t == "Square") {
-    w = s.side.contents;
-  } else if (isLinelike(t)) {
-    w = max(
-      absVal(sub(s.start.contents[0], s.end.contents[0])),
-      s.thickness.contents
-    );
-  } else {
-    w = s.w.contents;
-  }
-
-  let h;
-  if (t == "Square") {
-    h = s.side.contents;
-  } else if (isLinelike(t)) {
-    h = max(
-      absVal(sub(s.start.contents[1], s.end.contents[1])),
-      s.thickness.contents
-    );
-  } else {
-    h = s.h.contents;
-  }
-
-  let center;
-  if (isLinelike(t)) {
-    // TODO: Compute the bbox of the line in a nicer way
-    center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
-  } else {
-    center = s.center.contents;
-  }
-
-  return BBox.bbox(w, h, center);
+  return findDef(t).bbox(s);
 };
 
 // ------- Minkowski SDF helpers

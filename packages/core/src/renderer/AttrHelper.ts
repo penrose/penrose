@@ -8,13 +8,16 @@ import {
   Value,
 } from "types/value";
 import { Shape } from "types/shape";
-import { toHex, toScreen } from "utils/Util";
+import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const color = properties.color as IColorV<number>;
-  const alpha = color.contents.contents[3];
-  elem.setAttribute("fill", toHex(color.contents));
-  elem.setAttribute("fill-opacity", alpha.toString());
+  const alpha = toSvgOpacityProperty(color.contents);
+  elem.setAttribute("fill", toSvgPaintProperty(color.contents));
+  // Fill opacity only relevant if fill is present
+  if(color.contents.tag !== "NONE") {
+    elem.setAttribute("fill-opacity", alpha.toString());
+  }
 };
 
 export const attrNoFill = ({ properties }: Shape, elem: SVGElement) => {
@@ -69,7 +72,7 @@ export const attrPolyCenter = (
 };
 
 export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
-  let scale = properties?.scale?.contents;
+  let scale = properties.scale.contents;
   scale = scale || 1;
   let transform = elem.getAttribute("transform");
   transform =
@@ -203,25 +206,48 @@ export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
   elem.setAttribute("d", d.contents.toString());
 };
 
+export const attrString = ({ properties }: Shape, elem: SVGElement) => {
+  const str = properties.string as IStrV;
+  const text = document.createTextNode(str.contents.toString());
+  elem.appendChild(text);
+};
+
 export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   const strokeColor = properties.strokeColor as IColorV<number>;
-  const strokeAlpha = strokeColor.contents.contents[3];
+  const strokeAlpha = toSvgOpacityProperty(strokeColor.contents);
   const thickness = properties.strokeWidth.contents;
-  elem.setAttribute("stroke", toHex(strokeColor.contents));
-  elem.setAttribute("stroke-opacity", strokeAlpha.toString());
-  elem.setAttribute("stroke-width", thickness.toString());
-  if (
-    "strokeDashArray" in properties &&
-    properties.strokeDashArray.contents !== ""
-  ) {
-    elem.setAttribute(
-      "stroke-dasharray",
-      (properties.strokeDashArray as IStrV).contents
-    );
-  } else if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+  elem.setAttribute("stroke", toSvgPaintProperty(strokeColor.contents));
+  // Stroke opacity, width, and dashiness only relevant if stroke is present
+  if(strokeColor.contents.tag !== "NONE") {
+   elem.setAttribute("stroke-opacity", strokeAlpha.toString());
+    elem.setAttribute("stroke-width", thickness.toString());
+    if (
+      "strokeDashArray" in properties &&
+      properties.strokeDashArray.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-dasharray",
+        (properties.strokeDashArray as IStrV).contents
+      );
+    } else if (
+       "strokeStyle" in properties &&
+       properties.strokeStyle.contents === "dashed"
+    ) {
+      elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+    }
+    if (
+      "strokeLineCap" in properties &&
+      properties.strokeLineCap.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-linecap",
+        (properties.strokeLineCap as IStrV).contents
+      );
+    } else {
+      elem.setAttribute("stroke-linecap", "butt");
+    }
   }
 };
 
@@ -231,3 +257,105 @@ export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
   title.textContent = name.contents;
   elem.appendChild(title);
 };
+
+/* The SVG attribute "visibility" can be set to
+ * "visible" or "hidden" to show/hide elements.
+ */
+export const attrVisibility = ({ properties }: Shape, elem: SVGElement) => {
+  const visibility = properties.visibility as IStrV;
+  if( visibility.contents !== "" ) {
+     elem.setAttribute("visibility", visibility.contents.toString());
+  }
+};
+
+/* In SVG, the attribute "style" is a catch-all that allows
+ * a tag to be styled using an arbitrary CSS string.  This
+ * attribute is often a better way to get certain attributes
+ * to appear correctly in the browser than one-off attributes
+ * associated with particular tags.  For instance, the SVG
+ * attribute stroke-width="4" appears not to work on text in
+ * many browsers, whereas style="stroke-width:4;" appears to
+ * work just fine.
+ */
+export const attrStyle = ({ properties }: Shape, elem: SVGElement) => {
+  const style = properties.style as IStrV;
+  if( style.contents !== "" ) {
+     elem.setAttribute("style", style.contents.toString());
+  }
+};
+
+// Text attributes =============================================================
+/*
+ * The attributes below cover all of the attributes allowed
+ * in an SVG <text> element.  Note, however, that many of
+ * these attributes may not be properly rendered by a given
+ * program (e.g., browser or vector graphics editor).  For
+ * instance, Chrome currently does not support attributes
+ * like font-stretch, even though Adobe Illustrator does.
+ *
+ */
+
+export const attrFontFamily = ({ properties }: Shape, elem: SVGElement) => {
+  const fontFamily = properties.fontFamily as IStrV;
+  if( fontFamily.contents !== "" ) {
+     elem.setAttribute("font-family", fontFamily.contents.toString());
+  }
+};
+
+export const attrFontSize = ({ properties }: Shape, elem: SVGElement) => {
+  const fontSize = properties.fontSize as IStrV;
+  if( fontSize.contents !== "" ) {
+     elem.setAttribute("font-size", fontSize.contents.toString());
+  }
+};
+
+export const attrFontSizeAdjust = ({ properties }: Shape, elem: SVGElement) => {
+  const fontSizeAdjust = properties.fontSizeAdjust as IStrV;
+  if( fontSizeAdjust.contents !== "" ) {
+     elem.setAttribute("font-size-adjust", fontSizeAdjust.contents.toString());
+  }
+};
+
+export const attrFontStretch = ({ properties }: Shape, elem: SVGElement) => {
+  const fontStretch = properties.fontStretch as IStrV;
+  if( fontStretch.contents !== "" ) {
+     elem.setAttribute("font-stretch", fontStretch.contents.toString());
+  }
+};
+
+export const attrFontStyle = ({ properties }: Shape, elem: SVGElement) => {
+  const fontStyle = properties.fontStyle as IStrV;
+  if( fontStyle.contents !== "" ) {
+     elem.setAttribute("font-style", fontStyle.contents.toString());
+  }
+};
+
+export const attrFontVariant = ({ properties }: Shape, elem: SVGElement) => {
+  const fontVariant = properties.fontVariant as IStrV;
+  if( fontVariant.contents !== "" ) {
+     elem.setAttribute("font-variant", fontVariant.contents.toString());
+  }
+};
+
+export const attrFontWeight = ({ properties }: Shape, elem: SVGElement) => {
+  const fontWeight = properties.fontWeight as IStrV;
+  if( fontWeight.contents !== "" ) {
+     elem.setAttribute("font-weight", fontWeight.contents.toString());
+  }
+};
+
+export const attrTextAnchor = ({ properties }: Shape, elem: SVGElement) => {
+  const textAnchor = properties.textAnchor as IStrV;
+  if( textAnchor.contents !== "" ) {
+     elem.setAttribute("text-anchor", textAnchor.contents.toString());
+  }
+};
+
+export const attrAlignmentBaseline = ({ properties }: Shape, elem: SVGElement) => {
+  const alignmentBaseline = properties.alignmentBaseline as IStrV;
+  if( alignmentBaseline.contents !== "" ) {
+     elem.setAttribute("alignment-baseline", alignmentBaseline.contents.toString());
+  }
+};
+
+

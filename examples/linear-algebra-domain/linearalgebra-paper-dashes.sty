@@ -27,7 +27,7 @@ C { -- 1
     gray = rgba(0.6, 0.6, 0.6, 1.)
     green = rgba(0., 0.8, 0., 1.)
     -- blue = #0000ff
-    none = rgba(0., 0., 0., 0.)
+    none = none()
 }
 
 -- Just some weird definitions to test parser. Not used in rest of program
@@ -91,7 +91,7 @@ forall VectorSpace U { -- 3
         arrowheadSize : const.arrowheadSize * 2.
     }
 
-    U.text = Text {
+    U.text = Equation {
         string : U.label
         center : (U.origin[0] - axisSize, U.origin[1] + axisSize)
         color : U.axisColor
@@ -100,7 +100,7 @@ forall VectorSpace U { -- 3
 
 forall Vector u; VectorSpace U -- 4
 where In(u,U) {
-  u.text = Text {
+  u.text = Equation {
     -- center : (?, ?) -- This should be done automatically
     string : u.label
     color : u.arrow.color
@@ -207,7 +207,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
       vec2 labelPos = midpointLoc + const.markerPadding * normal
 
-      v.unitMarkerText = Text {
+      v.unitMarkerText = Equation {
           string : "1"
           center : labelPos
           color : C.black

@@ -147,7 +147,6 @@ export type StyleError =
   | GenericStyleError
   | StyleErrorList
   // Selector errors (from Substance)
-  | SelectorDeclTypeError
   | SelectorVarMultipleDecl
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
@@ -209,11 +208,6 @@ export interface ParseError {
   tag: "ParseError";
   message: string;
   location?: SourceLoc;
-}
-
-export interface SelectorDeclTypeError {
-  tag: "SelectorDeclTypeError";
-  typeName: Identifier;
 }
 
 export interface SelectorVarMultipleDecl {

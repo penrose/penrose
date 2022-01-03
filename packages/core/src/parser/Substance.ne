@@ -14,7 +14,7 @@ import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, Equa
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
-  tex_literal: /\$.*?\$/,
+  tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
   ...basicSymbols,
   // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
@@ -42,26 +42,7 @@ const nodeData = (children: ASTNode[]) => ({
 
 # Macros
 
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
-
-sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(!first) return [];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
+@include "macros.ne"
 
 # Main grammar
 
@@ -179,6 +160,14 @@ label_stmt
   |  auto_label {% id %}
 
 label_decl -> "Label" __ identifier __ tex_literal {%
+  ([kw, , variable, , label]): LabelDecl => ({
+    ...nodeData([variable, label]),
+    ...rangeBetween(rangeOf(kw), label),
+    tag: "LabelDecl", variable, label
+  })
+%}
+
+label_decl -> "Label" __ identifier __ string_literal {%
   ([kw, , variable, , label]): LabelDecl => ({
     ...nodeData([variable, label]),
     ...rangeBetween(rangeOf(kw), label),

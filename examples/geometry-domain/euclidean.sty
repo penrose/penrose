@@ -35,7 +35,7 @@ Colors {
     cyan = rgba(0.0, 1.0, 1.0, 1.0)
     purple = rgba(0.5, 0.0, 0.5, 1.0)
     white = rgba(1.0, 1.0, 1.0, 1.0)
-    none = rgba(0.0, 0.0, 0.0, 0.0)
+    none = none()
     bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
@@ -60,7 +60,7 @@ const {
 --Plane
 Plane p {
   dim = 700.0
-  p.text = Text {
+  p.text = Equation {
     center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
     string : p.label
     fontSize : const.fontSize
@@ -96,7 +96,7 @@ Point p {
       strokeColor : Colors.black
     }
 
-    p.text = Text {
+    p.text = Equation {
       string : p.label
       rotation : 0.0
       color : Colors.black

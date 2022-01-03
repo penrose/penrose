@@ -10,7 +10,7 @@ type Line
 
 -- -- Graphics Elements
 
-type Text
+type Equation
 type Path
 type Image
 

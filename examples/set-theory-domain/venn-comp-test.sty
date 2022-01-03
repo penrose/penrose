@@ -6,7 +6,7 @@ canvas {
 }
 
 Colors {
-   Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+   Colors.none = none()
    Colors.black = rgba( 0.0, 0.0, 0.0, 1.0 )
    Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
    Colors.red = rgba( 1.0, 0.0, 0.0, 0.5 )
@@ -31,7 +31,7 @@ forall Set x {
             strokeWidth : 0.0
     }
 
-    x.text = Text {
+    x.text = Equation {
         string : x.label
     }
 

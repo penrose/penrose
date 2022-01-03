@@ -53,8 +53,8 @@ const initSynth = (
 };
 
 const domain = `type Set
-function Intersection : Set a * Set b -> Set
-function Subset : Set a * Set b -> Set`;
+function Intersection(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set`;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
 
 describe("Synthesizer Operations", () => {

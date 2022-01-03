@@ -1,5 +1,5 @@
 type Circle
-type Text
+type Equation
 type Rectangle
 type Square
 type Path

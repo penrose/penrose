@@ -4,7 +4,7 @@ import { findIndex, zip } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
-import { Identifier } from "types/ast";
+import { ASTNode, Identifier } from "types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -35,6 +35,7 @@ import {
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
+  duplicateName,
   err,
   every,
   Maybe,
@@ -91,6 +92,8 @@ export const compileSubstance = (
     };
     // check the substance ast and produce an env or report errors
     const checkerOk = checkSubstance(astWithPrelude, env);
+    // disambiguate Func into the right form in Substance grammar #453
+    disambiguateFunctions(env, astWithPrelude);
     return checkerOk.match({
       Ok: (env) => ok([postprocessSubstance(astWithPrelude, env), env]),
       Err: (e) => err({ ...e, errorType: "SubstanceError" }),
@@ -176,6 +179,45 @@ const postprocessStmt = (
       return subEnv;
   }
 };
+
+// NOTE: Mutates stmt
+// NOTE: exported for Style selector checks
+export const disambiguateSubNode = (env: Env, stmt: ASTNode): void => {
+  stmt.children.forEach((child) => disambiguateSubNode(env, child));
+
+  if (stmt.tag !== "Func") {
+    return;
+  }
+
+  // Lookup name in the env and replace it if it exists, otherwise throw error
+  const func = stmt as Func;
+
+  const isCtor = env.constructors.has(func.name.value);
+  const isFn = env.functions.has(func.name.value);
+  const isPred = env.predicates.has(func.name.value);
+
+  if (isCtor && !isFn && !isPred) {
+    ((func as any) as ApplyConstructor).tag = "ApplyConstructor";
+  } else if (!isCtor && isFn && !isPred) {
+    ((func as any) as ApplyFunction).tag = "ApplyFunction";
+  } else if (!isCtor && !isFn && isPred) {
+    ((func as any) as ApplyPredicate).tag = "ApplyPredicate";
+  } else if (!isCtor && !isFn && !isPred) {
+    throw Error(
+      `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`
+    );
+  } else {
+    throw Error(
+      "Substance internal error: expected val of type Func to be uniquely disambiguable in env, but found multiple"
+    );
+  }
+};
+
+// For Substance, any `Func` appearance should be disambiguated into an `ApplyPredicate`, or an `ApplyFunction`, or an `ApplyConstructor`, and there are no other possible values, and every `Func` should be disambiguable
+// NOTE: mutates Substance AST
+export const disambiguateFunctions = (env: Env, subProg: SubProg): void => {
+  subProg.statements.forEach((stmt: SubStmt) => disambiguateSubNode(env, stmt));
+};
 //#endregion
 
 //#region Semantic checker
@@ -206,13 +248,26 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "Decl": {
       const { type, name } = stmt;
+      // check type constructor
       const typeOk = checkTypeConstructor(type, env);
-      const updatedEnv: Env = {
-        ...env,
-        vars: env.vars.set(name.value, type),
-        varIDs: [name, ...env.varIDs],
-      };
-      return every(typeOk, ok(updatedEnv));
+      // check name collisions
+      const existingName = env.vars.get(name.value);
+      if (existingName) {
+        return err(
+          duplicateName(
+            name,
+            stmt,
+            env.varIDs.filter((v) => v.value === name.value)[0]
+          )
+        );
+      } else {
+        const updatedEnv: Env = {
+          ...env,
+          vars: env.vars.set(name.value, type),
+          varIDs: [name, ...env.varIDs],
+        };
+        return every(typeOk, ok(updatedEnv));
+      }
     }
     case "Bind": {
       const { variable, expr } = stmt;

@@ -1,5 +1,5 @@
 import { IFloatV, IColorV, IStrV } from "types/value";
-import { toHex, toScreen } from "utils/Util";
+import { toSvgPaintProperty, toSvgOpacityProperty, toScreen } from "utils/Util";
 import { arrowHead, makeRoomForArrows } from "./Arrow";
 import { attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
@@ -10,11 +10,11 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
-  const color = toHex(shape.properties.color.contents);
+  const color = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
   const thickness = (shape.properties.thickness as IFloatV<number>).contents;
   const strokeDasharray = style === "dashed" ? "7, 5" : "";
-  const opacity = (shape.properties.color as IColorV<number>).contents
-    .contents[3];
+  const strokeLineCap = (shape.properties.strokeLineCap as IStrV).contents;
+  const opacity = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
@@ -33,10 +33,14 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
     "path"
   );
   pathElem.setAttribute("d", path);
-  pathElem.setAttribute("fill-opacity", opacity.toString());
-  pathElem.setAttribute("stroke-opacity", opacity.toString());
+  
+  // Opacity and width only relevant if stroke is present
+  if((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+    pathElem.setAttribute("stroke-opacity", opacity.toString());
+    pathElem.setAttribute("stroke-width", thickness.toString());
+  }
   pathElem.setAttribute("stroke", color);
-  pathElem.setAttribute("stroke-width", thickness.toString());
+
   // factor out an AttrHelper
   if (
     "strokeDashArray" in shape.properties &&
@@ -49,6 +53,19 @@ const Line = ({ shape, canvasSize }: ShapeProps) => {
   } else if (shape.properties.style.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
+
+  if (
+    "strokeLineCap" in shape.properties &&
+    shape.properties.strokeLineCap.contents !== ""
+  ) {
+    pathElem.setAttribute(
+      "stroke-linecap",
+      (shape.properties.strokeLineCap as IStrV).contents
+    );
+  } else {
+    pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG
+  }
+
   // TODO: dedup in AttrHelper (problem: thickness vs strokeWidth)
   if (shape.properties.leftArrowhead.contents === true) {
     pathElem.setAttribute("marker-start", `url(#${leftArrowId})`);

@@ -15,7 +15,7 @@ Colors {
     cyan = rgba(0.0, 1.0, 1.0, 1.0)
     purple = rgba(0.5, 0.0, 0.5, 1.0)
     white = rgba(1.0, 1.0, 1.0, 1.0)
-    none = rgba(0.0, 0.0, 0.0, 0.0)
+    none = none()
     bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
@@ -59,7 +59,7 @@ Object o {
         arrowheadSize: 0.5
     }
 
-    shape o.text = Text {
+    shape o.text = Equation {
            center: (o.shape.start + o.shape.end) / 2.
            string: o.label
            fontSize: "20pt"
@@ -84,7 +84,7 @@ Morphism m {
                strokeWidth: 3.
          }
 
-         shape m.text = Text {
+         shape m.text = Equation {
                center: m.shape.center
                string: m.label
                   fontSize: "20pt"

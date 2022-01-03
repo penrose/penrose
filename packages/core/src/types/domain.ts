@@ -47,6 +47,7 @@ export interface TypeDecl extends ASTNode {
   tag: "TypeDecl";
   name: Identifier;
   params: TypeVar[];
+  superTypes: Type[];
 }
 
 export interface PredicateDecl extends ASTNode {

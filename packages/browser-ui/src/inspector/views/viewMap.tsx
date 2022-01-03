@@ -10,7 +10,7 @@ const viewMap = {
   frames: Frames,
   errors: Errors,
   shapes: ShapeView,
-  mod: Mod,
+  // mod: Mod, // NOTE: mod tab temporarily deprecated
   "optimization status": Opt,
   compGraph: CompGraph,
   settings: Settings,

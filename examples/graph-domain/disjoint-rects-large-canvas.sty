@@ -18,7 +18,7 @@ Colors {
     Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
-    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.none = none()
 }
 
 global {
@@ -50,7 +50,7 @@ Vertex V {
          strokeColor: Colors.black
        }
 
-       V.text = Text {
+       V.text = Equation {
 	 center: V.shape.center
 	 string : V.label
 	 color : Colors.black

@@ -30,10 +30,11 @@ import {
   prettyPrintPath,
   prettyPrintExpr,
 } from "./utils/OtherUtils";
-import { bBoxDims, toHex, ops } from "./utils/Util";
+import { bBoxDims, ops } from "./utils/Util";
 import { Canvas } from "./renderer/ShapeDef";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
+import { shapeAutodiffToNumber } from "engine/EngineUtils";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -49,7 +50,7 @@ export const resample = (state: State, numSamples: number): State => {
 /**
  * Take n steps in the optimizer given the current state.
  * @param state current state
- * @param numSteps number of steps to take (default: 1)
+ * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
   return step(state, numSteps, true);
@@ -62,9 +63,8 @@ export const stepState = (state: State, numSteps = 10000): State => {
 export const stepUntilConvergence = (
   state: State,
   numSteps = 10000
-): Result<State, RuntimeError> => {
+): Result<State, PenroseError> => {
   let currentState = state;
-  log.warn(currentState.params.optStatus);
   while (
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)
@@ -188,13 +188,22 @@ export const prepareState = async (state: State): Promise<State> => {
 
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
   // The results of the pending values are then stored back in the translation as autodiff types
-  const stateEvaled: State = evalShapes(stateAD);
+  const stateEvaled: State = {
+    ...stateAD,
+    shapes: shapeAutodiffToNumber(evalShapes(stateAD)),
+  };
 
-  const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
+  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+    stateEvaled.shapes
+  );
+
+  if (labelCache.isErr()) {
+    throw Error(showError(labelCache.error));
+  }
 
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
-    labelCache,
+    labelCache: labelCache.value,
   });
 
   const withOptProblem: State = genOptProblem(stateWithPendingProperties);
@@ -325,7 +334,6 @@ export {
   RenderStatic,
   bBoxDims,
   prettySubstance,
-  toHex,
   initializeMat,
   showError,
   prettyPrintFn,
@@ -337,6 +345,8 @@ export {
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";
+export { objDict, constrDict } from "./contrib/Constraints";
+export { compDict } from "./contrib/Functions";
 export type { Registry, Trio };
 export type { Env };
 export type {
