@@ -2026,6 +2026,10 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     } else if (z.op === "+ list") {
       // TODO: Get rid of unary +
       stmt = `const ${parName} = ${childName};`;
+    } else if (z.op === "min list") {
+      stmt = `const ${parName} = ${childName};`;
+    } else if (z.op === "max list") {
+      stmt = `const ${parName} = ${childName};`;
     } else if (z.op === "inverse") {
       stmt = `const ${parName} = 1.0 / (${childName} + ${EPS_DENOM});`;
     } else if (z.op === "- (unary)") {
@@ -2184,6 +2188,12 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
     } else if (op === "+ list") {
       const childList = "[".concat(childNames.join(", ")).concat("]");
       stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
+    } else if (op === "min list") {
+      const childList = "[".concat(childNames.join(", ")).concat("]");
+      stmt = `const ${parName} = ${childList}.reduce((x, y) => Math.min(x, y));`;
+    } else if (op === "max list") {
+      const childList = "[".concat(childNames.join(", ")).concat("]");
+      stmt = `const ${parName} = ${childList}.reduce((x, y) => Math.max(x, y));`;
     } else {
       log.trace("node", z, z.op);
       throw Error("unknown n-ary operation");
