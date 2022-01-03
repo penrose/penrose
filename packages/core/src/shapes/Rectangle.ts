@@ -28,7 +28,7 @@ const bboxFromRect = ({
   center,
   strokeWidth,
 }: IRectangle): BBox.BBox => {
-  // https://github.com/penrose/penrose/issues/701
+  // https://github.com/penrose/penrose/issues/715
   if (!isPt2(center.contents)) {
     throw new Error(
       `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`
@@ -45,7 +45,7 @@ const bboxFromRect = ({
 
 export type Rectangle = IShape & IRectangle;
 
-export const makeRect = (properties: IRectangle): Rectangle => ({
+export const Rectangle = (properties: IRectangle): Rectangle => ({
   ...properties,
   shapeType: "Rectangle",
   bbox: function () {
