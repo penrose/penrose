@@ -19,7 +19,11 @@ export const basicSymbols: moo.Rules = {
   apos: "'",
   comma: ",",
   string_literal: {
-    match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+    // match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+    // Not sure why we were disallowing backslashes in string literals;
+    // these are needed to write TeX inline in Style (e.g., as the string
+    // field for an Equation shape)
+    match: /"(?:[^\n"]|\\["\\ntbfr])*"/,
     value: (s: string): string => s.slice(1, -1),
   },
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
