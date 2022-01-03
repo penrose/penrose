@@ -193,27 +193,39 @@ const bboxFromRotatedRect = (
   center: Pt2,
   w: VarAD,
   h: VarAD,
-  clockwise: VarAD
+  clockwise: VarAD,
+  strokeWidth: VarAD
 ): BBox.BBox => {
   const counterclockwise = neg(clockwise);
-  const top = ops.vrot([w, constOf(0)], counterclockwise);
-  const left = ops.vrot([constOf(0), neg(h)], counterclockwise);
+  const down = ops.vrot([constOf(0), constOf(-1)], counterclockwise);
+  const right = ops.rot90(down);
 
-  const topLeft: Pt2 = [
-    sub(center[0], div(w, constOf(2))),
-    add(center[1], div(h, constOf(2))),
-  ];
+  const width = add(w, strokeWidth);
+  const height = add(h, strokeWidth);
+  const top = ops.vmul(width, right);
+  const left = ops.vmul(height, down);
+
+  const topLeft = ops.vsub(
+    [sub(center[0], div(w, constOf(2))), add(center[1], div(h, constOf(2)))],
+    ops.vmul(div(strokeWidth, constOf(2)), ops.vadd(down, right))
+  );
   const topRight = ops.vadd(topLeft, top);
   const botLeft = ops.vadd(topLeft, left);
   const botRight = ops.vadd(topRight, left);
-  if (!(isPt2(topRight) && isPt2(botLeft) && isPt2(botRight))) {
+  if (
+    !(isPt2(topLeft) && isPt2(topRight) && isPt2(botLeft) && isPt2(botRight))
+  ) {
     throw new Error("ops.vadd did not preserve dimension");
   }
 
   return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
 };
 
-const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
+const bboxFromCircle = ({
+  r,
+  center,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   if (r.tag !== "FloatV") {
     throw new Error(`bboxFromCircle expected r to be FloatV, but got ${r.tag}`);
@@ -228,8 +240,13 @@ const bboxFromCircle = ({ r, center }: Properties<VarAD>): BBox.BBox => {
       `bboxFromCircle expected center to be Pt2, but got length ${center.contents.length}`
     );
   }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCircle expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
 
-  const diameter = mul(constOf(2), r.contents);
+  const diameter = add(mul(constOf(2), r.contents), strokeWidth.contents);
   return BBox.bbox(diameter, diameter, center.contents);
 };
 
@@ -250,7 +267,12 @@ export const circleDef: ShapeDef = {
   bbox: bboxFromCircle,
 };
 
-const bboxFromEllipse = ({ rx, ry, center }: Properties<VarAD>): BBox.BBox => {
+const bboxFromEllipse = ({
+  rx,
+  ry,
+  center,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   if (rx.tag !== "FloatV") {
     throw new Error(
@@ -272,10 +294,19 @@ const bboxFromEllipse = ({ rx, ry, center }: Properties<VarAD>): BBox.BBox => {
       `bboxFromEllipse expected center to be Pt2, but got length ${center.contents.length}`
     );
   }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromEllipse expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
 
   const dx = mul(constOf(2), rx.contents);
   const dy = mul(constOf(2), ry.contents);
-  return BBox.bbox(dx, dy, center.contents);
+  return BBox.bbox(
+    add(dx, strokeWidth.contents),
+    add(dy, strokeWidth.contents),
+    center.contents
+  );
 };
 
 export const ellipseDef: ShapeDef = {
@@ -297,7 +328,12 @@ export const ellipseDef: ShapeDef = {
   bbox: bboxFromEllipse,
 };
 
-const bboxFromRect = ({ w, h, center }: Properties<VarAD>): BBox.BBox => {
+const bboxFromRect = ({
+  w,
+  h,
+  center,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   if (w.tag !== "FloatV") {
     throw new Error(`bboxFromRect expected w to be FloatV, but got ${w.tag}`);
@@ -315,9 +351,18 @@ const bboxFromRect = ({ w, h, center }: Properties<VarAD>): BBox.BBox => {
       `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`
     );
   }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRect expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
 
   // rx just rounds the corners, doesn't change the bbox
-  return BBox.bbox(w.contents, h.contents, center.contents);
+  return BBox.bbox(
+    add(w.contents, strokeWidth.contents),
+    add(h.contents, strokeWidth.contents),
+    center.contents
+  );
 };
 
 export const rectDef: ShapeDef = {
@@ -345,6 +390,7 @@ const bboxFromCallout = ({
   w,
   h,
   padding,
+  strokeWidth,
 }: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   if (anchor.tag !== "VectorV") {
@@ -382,6 +428,11 @@ const bboxFromCallout = ({
       `bboxFromCallout expected padding to be FloatV, but got ${padding.tag}`
     );
   }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRect expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
 
   // below adapted from makeCallout function in renderer/Callout.ts
 
@@ -404,7 +455,11 @@ const bboxFromCallout = ({
   const height = sub(maxY, minY);
   const cx = div(add(minX, maxX), constOf(2));
   const cy = div(add(minY, maxY), constOf(2));
-  return BBox.bbox(width, height, [cx, cy]);
+  return BBox.bbox(
+    add(width, strokeWidth.contents),
+    add(height, strokeWidth.contents),
+    [cx, cy]
+  );
 };
 
 export const calloutDef: ShapeDef = {
@@ -545,7 +600,8 @@ const bboxFromRectlike = ({
     center.contents,
     w.contents,
     h.contents,
-    rotation.contents
+    rotation.contents,
+    constOf(0)
   );
 };
 
@@ -614,6 +670,7 @@ const bboxFromSquare = ({
   center,
   side,
   rotation,
+  strokeWidth,
 }: Properties<VarAD>): BBox.BBox => {
   // https://github.com/penrose/penrose/issues/701
   if (center.tag !== "VectorV") {
@@ -636,6 +693,11 @@ const bboxFromSquare = ({
       `bboxFromSquare expected rotation to be FloatV, but got ${rotation.tag}`
     );
   }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
 
   // rx rounds the corners, so we could use it to give a smaller bbox if both
   // that and rotation are nonzero, but we don't account for that here
@@ -644,7 +706,8 @@ const bboxFromSquare = ({
     center.contents,
     side.contents,
     side.contents,
-    rotation.contents
+    rotation.contents,
+    strokeWidth.contents
   );
 };
 
@@ -752,6 +815,7 @@ export const lineDef: ShapeDef = {
     style: ["StrV", constValue("StrV", "solid")],
     stroke: ["StrV", constValue("StrV", "none")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
+    strokeLineCap: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultLine")],
   },
   positionalProps: ["start", "end"],

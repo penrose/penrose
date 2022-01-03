@@ -112,6 +112,19 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   } else if (shape.properties.style.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
+
+  if (
+    "strokeLineCap" in shape.properties &&
+    shape.properties.strokeLineCap.contents !== ""
+  ) {
+    elem.setAttribute(
+      "stroke-linecap",
+      (shape.properties.strokeLineCap as IStrV).contents
+    );
+  } else {
+    elem.setAttribute("stroke-linecap", "butt");
+  }
+
   path.setAttribute(
     "stroke-width",
     shape.properties.thickness.contents.toString()

@@ -37,6 +37,8 @@ const getShape = async (shapeSty: string): Promise<ShapeAD> => {
 const circleSty = `Circle {
   r: 100
   center: (42, 121)
+  strokeWidth: 50
+  strokeColor: rgba(0, 0, 0, 1) -- Circle strokeColor is noPaint by default
 }
 `;
 
@@ -44,6 +46,8 @@ const ellipseSty = `Ellipse {
   rx: 200
   ry: 100
   center: (42, 121)
+  strokeWidth: 50
+  strokeColor: rgba(0, 0, 0, 1) -- Ellipse strokeColor is noPaint by default
 }
 `;
 
@@ -51,6 +55,8 @@ const rectSty = `Rectangle {
   center: (0, 0)
   w: 150
   h: 200
+  strokeWidth: 50
+  strokeColor: rgba(0, 0, 0, 1) -- Rectangle strokeColor is noPaint by default
 }
 `;
 
@@ -59,6 +65,8 @@ const calloutStyNoPadding = `Callout {
   w: 100
   h: 100
   anchor: (100, -200)
+  strokeWidth: 10
+  strokeColor: rgba(0, 0, 0, 1) -- Callout strokeColor is noPaint by default
 }
 `;
 
@@ -68,6 +76,8 @@ const calloutStyPadding = `Callout {
   h: 100
   anchor: (100, -200)
   padding: 20
+  strokeWidth: 10
+  strokeColor: rgba(0, 0, 0, 1) -- Callout strokeColor is noPaint by default
 }
 `;
 
@@ -97,6 +107,8 @@ const squareSty = `Square {
   side: 50
   center: (30, 70)
   rotation: 30
+  strokeWidth: 10
+  strokeColor: rgba(0, 0, 0, 1) -- Square strokeColor is noPaint by default
 }
 `;
 
@@ -155,8 +167,8 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.circleDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(200);
-    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(w)).toBeCloseTo(250);
+    expect(numOf(h)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(42);
     expect(numOf(y)).toBeCloseTo(121);
   });
@@ -168,8 +180,8 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.ellipseDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(400);
-    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(w)).toBeCloseTo(450);
+    expect(numOf(h)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(42);
     expect(numOf(y)).toBeCloseTo(121);
   });
@@ -181,8 +193,8 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.rectDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(150);
-    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(w)).toBeCloseTo(200);
+    expect(numOf(h)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(0);
     expect(numOf(y)).toBeCloseTo(0);
   });
@@ -194,8 +206,8 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.calloutDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(215);
-    expect(numOf(h)).toBeCloseTo(165);
+    expect(numOf(w)).toBeCloseTo(225);
+    expect(numOf(h)).toBeCloseTo(175);
     expect(numOf(x)).toBeCloseTo(-7.5);
     expect(numOf(y)).toBeCloseTo(-117.5);
   });
@@ -207,8 +219,8 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.calloutDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(210);
-    expect(numOf(h)).toBeCloseTo(160);
+    expect(numOf(w)).toBeCloseTo(220);
+    expect(numOf(h)).toBeCloseTo(170);
     expect(numOf(x)).toBeCloseTo(-5);
     expect(numOf(y)).toBeCloseTo(-120);
   });
@@ -285,8 +297,8 @@ describe("ShapeDef", () => {
       h,
       center: [x, y],
     } = ShapeDef.squareDef.bbox(shape.properties);
-    expect(numOf(w)).toBeCloseTo(68.301);
-    expect(numOf(h)).toBeCloseTo(68.301);
+    expect(numOf(w)).toBeCloseTo(81.962);
+    expect(numOf(h)).toBeCloseTo(81.962);
     expect(numOf(x)).toBeCloseTo(14.151);
     expect(numOf(y)).toBeCloseTo(60.849);
   });
