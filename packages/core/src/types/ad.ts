@@ -62,6 +62,8 @@ export type VecAD = VarAD[];
 
 export type Pt2 = [VarAD, VarAD];
 
+export const isPt2 = (vec: VarAD[]): vec is Pt2 => vec.length === 2;
+
 export type GradGraphs = IGradGraphs;
 
 export interface IGradGraphs {

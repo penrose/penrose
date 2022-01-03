@@ -3,6 +3,7 @@ import {
   tagExprNumberToAutodiff,
   insertExpr,
   initConstraintWeight,
+  shapeAutodiffToNumber,
 } from "engine/EngineUtils";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { evalShapes } from "engine/Evaluator";
@@ -182,5 +183,8 @@ export const resampleBest = (state: State, numSamples: number): State => {
     },
     // pendingPaths: findPending(translation),
   };
-  return evalShapes(sampledState);
+  return {
+    ...sampledState,
+    shapes: shapeAutodiffToNumber(evalShapes(sampledState)),
+  };
 };

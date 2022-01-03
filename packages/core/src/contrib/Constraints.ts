@@ -27,7 +27,7 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { isLinelike, isRectlike } from "renderer/ShapeDef";
+import { findDef, isLinelike, isRectlike } from "renderer/ShapeDef";
 import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
@@ -308,17 +308,25 @@ export const constrDict = {
       const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
     } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
-      // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
-      // -- HACK: reusing test impl, revert later
-      //    let r_l = min (getNum r "w") (getNum r "h") / 2
-      //        diff = r_l - getNum c "r"
-      //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
+      // collect constants
+      const halfW = mul(constOf(0.5), s1.w.contents); // half rectangle width
+      const halfH = mul(constOf(0.5), s1.h.contents); // half rectangle height
+      const [rx, ry] = s1.center.contents; // rectangle center
+      const r = s2.r.contents; // circle radius
+      const [cx, cy] = s2.center.contents; // circle center
 
-      // TODO: `rL` is probably a hack for dimensions
-      const rL = div(min(s1.w.contents, s1.h.contents), varOf(2.0));
-      const diff = sub(rL, s2.r.contents);
-      const d = ops.vdist(fns.center(s1), fns.center(s2));
-      return add(sub(d, diff), offset);
+      // Return maximum violation in either the x- or y-direction.
+      // In each direction, the distance from the circle center (cx,cy) to
+      // the rectangle center (rx,ry) must be no greater than the size of
+      // the rectangle (w/h), minus the radius of the circle (r) and the
+      // offset (o).  We can compute this violation via the function
+      //    max( |cx-rx| - (w/2-r-o),
+      //         |cy-ry| - (h/2-r-o) )
+      const o = typeof offset !== "undefined" ? offset : constOf(0);
+      return max(
+        sub(absVal(sub(cx, rx)), sub(sub(halfW, r), o)),
+        sub(absVal(sub(cy, ry)), sub(sub(halfH, r), o))
+      );
     } else if (t1 === "Square" && t2 === "Circle") {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
       const sq = s1.center.contents;
@@ -991,63 +999,10 @@ export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
 
 /**
  * Preconditions:
- *   If the input is line-like, it must be axis-aligned.
- *   Assumes line-like shapes are longer than they are thick.
- * Input: A rect- or line-like shape.
+ *   (shape-specific)
+ * Input: A shape.
  * Output: A new BBox
  */
 export const bboxFromShape = (t: string, s: any): BBox.BBox => {
-  // if (!(isRectlike(t) || isLinelike(t))) {
-  //   throw new Error(
-  //     `BBox expected a rect-like or line-like shape, but got ${t}`
-  //   );
-  // }
-
-  // initialize w, h, and center depending on whether the input shape is line-like or rect/square-like
-  let w;
-  if (t == "Square") {
-    w = s.side.contents;
-  } else if (t == "Circle") {
-    w = mul(s.r.contents, constOf(2));
-  } else if (isLinelike(t)) {
-    w = max(
-      absVal(sub(s.start.contents[0], s.end.contents[0])),
-      s.thickness.contents
-    );
-  } else if (t === "Path" || t === "Polygon") {
-    // HACK: handle `Path` and `Polygon`
-    w = constOf(10);
-  } else {
-    w = s.w.contents;
-  }
-
-  let h;
-  if (t == "Square") {
-    h = s.side.contents;
-  } else if (t == "Circle") {
-    h = mul(s.r.contents, constOf(2));
-  } else if (isLinelike(t)) {
-    h = max(
-      absVal(sub(s.start.contents[1], s.end.contents[1])),
-      s.thickness.contents
-    );
-  } else if (t === "Path" || t === "Polygon") {
-    // HACK: handle `Path` and `Polygon`
-    h = constOf(10);
-  } else {
-    h = s.h.contents;
-  }
-
-  let center;
-  if (isLinelike(t)) {
-    // TODO: Compute the bbox of the line in a nicer way
-    center = ops.vdiv(ops.vadd(s.start.contents, s.end.contents), constOf(2));
-  } else if (t === "Path" || t === "Polygon") {
-    // HACK: handle `Path` and `Polygon`
-    center = [constOf(10), constOf(10)];
-  } else {
-    center = s.center.contents;
-  }
-
-  return BBox.bbox(w, h, center);
+  return findDef(t).bbox(s);
 };

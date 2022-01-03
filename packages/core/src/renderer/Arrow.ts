@@ -1,6 +1,6 @@
 import { Shape } from "types/shape";
 import { IFloatV, IStrV, IColorV, IVectorV } from "types/value";
-import { arrowheads, round2, toHex, toScreen } from "utils/Util";
+import { arrowheads, round2, toSvgPaintProperty, toSvgOpacityProperty, toScreen } from "utils/Util";
 import { attrFill, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -85,12 +85,11 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   elem.setAttribute("pointer-events", "bounding-box");
   const id = `arrowhead_${shape.properties.name.contents}`;
-  const color = toHex(shape.properties.color.contents);
+  const color = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
-  const alpha = (shape.properties.color as IColorV<number>).contents
-    .contents[3];
+  const alpha = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
   elem.appendChild(arrowHead(id, color, alpha, arrowheadStyle, arrowheadSize));
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   const [[arrowSX, arrowSY], [arrowEX, arrowEY]] = makeRoomForArrows(shape);
@@ -99,7 +98,7 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
 
   path.setAttribute("d", `M ${sx} ${sy} L ${ex} ${ey}`);
   path.setAttribute("marker-end", `url(#${id})`);
-  attrFill(shape, path);
+  path.setAttribute("stroke-opacity",alpha.toString())
   path.setAttribute("stroke", color);
   // factor out an AttrHelper
   if (
@@ -113,6 +112,19 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   } else if (shape.properties.style.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
+
+  if (
+    "strokeLineCap" in shape.properties &&
+    shape.properties.strokeLineCap.contents !== ""
+  ) {
+    elem.setAttribute(
+      "stroke-linecap",
+      (shape.properties.strokeLineCap as IStrV).contents
+    );
+  } else {
+    elem.setAttribute("stroke-linecap", "butt");
+  }
+
   path.setAttribute(
     "stroke-width",
     shape.properties.thickness.contents.toString()

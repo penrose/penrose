@@ -8,13 +8,16 @@ import {
   Value,
 } from "types/value";
 import { Shape } from "types/shape";
-import { toHex, toScreen } from "utils/Util";
+import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 
 export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
   const color = properties.color as IColorV<number>;
-  const alpha = color.contents.contents[3];
-  elem.setAttribute("fill", toHex(color.contents));
-  elem.setAttribute("fill-opacity", alpha.toString());
+  const alpha = toSvgOpacityProperty(color.contents);
+  elem.setAttribute("fill", toSvgPaintProperty(color.contents));
+  // Fill opacity only relevant if fill is present
+  if(color.contents.tag !== "NONE") {
+    elem.setAttribute("fill-opacity", alpha.toString());
+  }
 };
 
 export const attrNoFill = ({ properties }: Shape, elem: SVGElement) => {
@@ -207,21 +210,35 @@ export const DASH_ARRAY = "7,5";
 
 export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
   const strokeColor = properties.strokeColor as IColorV<number>;
-  const strokeAlpha = strokeColor.contents.contents[3];
+  const strokeAlpha = toSvgOpacityProperty(strokeColor.contents);
   const thickness = properties.strokeWidth.contents;
-  elem.setAttribute("stroke", toHex(strokeColor.contents));
-  elem.setAttribute("stroke-opacity", strokeAlpha.toString());
-  elem.setAttribute("stroke-width", thickness.toString());
-  if (
-    "strokeDashArray" in properties &&
-    properties.strokeDashArray.contents !== ""
-  ) {
-    elem.setAttribute(
-      "stroke-dasharray",
-      (properties.strokeDashArray as IStrV).contents
-    );
-  } else if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+  elem.setAttribute("stroke", toSvgPaintProperty(strokeColor.contents));
+  // Stroke opacity, width, and dashiness only relevant if stroke is present
+  if(strokeColor.contents.tag !== "NONE") {
+   elem.setAttribute("stroke-opacity", strokeAlpha.toString());
+    elem.setAttribute("stroke-width", thickness.toString());
+    if (
+      "strokeDashArray" in properties &&
+      properties.strokeDashArray.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-dasharray",
+        (properties.strokeDashArray as IStrV).contents
+      );
+    } else if (properties.strokeStyle.contents === "dashed") {
+      elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+    }
+    if (
+      "strokeLineCap" in properties &&
+      properties.strokeLineCap.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-linecap",
+        (properties.strokeLineCap as IStrV).contents
+      );
+    } else {
+      elem.setAttribute("stroke-linecap", "butt");
+    }
   }
 };
 

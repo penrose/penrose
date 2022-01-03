@@ -1,8 +1,27 @@
+import {
+  absVal,
+  constOf,
+  max,
+  ops,
+  sub,
+  mul,
+  min,
+  ifCond,
+  eq,
+  add,
+  div,
+  neg,
+  squared,
+  gt,
+  sqrt,
+} from "engine/Autodiff";
+import * as BBox from "engine/BBox";
 import { randFloat } from "utils/Util";
-import { Shape } from "types/shape";
+import { Properties, Shape } from "types/shape";
 import { Value } from "types/value";
 import { IFloatV, IVectorV, IColorV } from "types/value";
 import { Path } from "types/style";
+import { isPt2, Pt2, VarAD } from "types/ad";
 
 //#region shapedef helpers and samplers
 
@@ -126,6 +145,13 @@ const black: IColorV<number> = {
   },
 };
 
+const noPaint: IColorV<number> = {
+  tag: "ColorV",
+  contents: {
+    tag: "NONE",
+  },
+};
+
 //#endregion
 
 //#region shapedefs
@@ -144,9 +170,89 @@ export interface IShapeDef {
   shapeType: string;
   properties: IPropModel;
   positionalProps?: string[];
+  bbox: (s: Properties<VarAD>) => BBox.BBox;
 }
 
 export type Sampler = (canvas: Canvas) => Value<number>;
+
+const bboxFromPoints = (points: Pt2[]): BBox.BBox => {
+  const minCorner = points.reduce((corner: Pt2, point: Pt2) => [
+    min(corner[0], point[0]),
+    min(corner[1], point[1]),
+  ]);
+  const maxCorner = points.reduce((corner: Pt2, point: Pt2) => [
+    max(corner[0], point[0]),
+    max(corner[1], point[1]),
+  ]);
+  const w = sub(maxCorner[0], minCorner[0]);
+  const h = sub(maxCorner[1], minCorner[1]);
+  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), constOf(2));
+  if (!isPt2(center)) {
+    throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
+  }
+  return BBox.bbox(w, h, center);
+};
+
+const bboxFromRotatedRect = (
+  center: Pt2,
+  w: VarAD,
+  h: VarAD,
+  clockwise: VarAD,
+  strokeWidth: VarAD
+): BBox.BBox => {
+  const counterclockwise = neg(clockwise);
+  const down = ops.vrot([constOf(0), constOf(-1)], counterclockwise);
+  const right = ops.rot90(down);
+
+  const width = add(w, strokeWidth);
+  const height = add(h, strokeWidth);
+  const top = ops.vmul(width, right);
+  const left = ops.vmul(height, down);
+
+  const topLeft = ops.vsub(
+    [sub(center[0], div(w, constOf(2))), add(center[1], div(h, constOf(2)))],
+    ops.vmul(div(strokeWidth, constOf(2)), ops.vadd(down, right))
+  );
+  const topRight = ops.vadd(topLeft, top);
+  const botLeft = ops.vadd(topLeft, left);
+  const botRight = ops.vadd(topRight, left);
+  if (
+    !(isPt2(topLeft) && isPt2(topRight) && isPt2(botLeft) && isPt2(botRight))
+  ) {
+    throw new Error("ops.vadd did not preserve dimension");
+  }
+
+  return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
+};
+
+const bboxFromCircle = ({
+  r,
+  center,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (r.tag !== "FloatV") {
+    throw new Error(`bboxFromCircle expected r to be FloatV, but got ${r.tag}`);
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromCircle expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromCircle expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCircle expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
+
+  const diameter = add(mul(constOf(2), r.contents), strokeWidth.contents);
+  return BBox.bbox(diameter, diameter, center.contents);
+};
 
 export const circleDef: ShapeDef = {
   shapeType: "Circle",
@@ -157,12 +263,55 @@ export const circleDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromCircle,
+};
+
+const bboxFromEllipse = ({
+  rx,
+  ry,
+  center,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (rx.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromEllipse expected rx to be FloatV, but got ${rx.tag}`
+    );
+  }
+  if (ry.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromEllipse expected ry to be FloatV, but got ${ry.tag}`
+    );
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromEllipse expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromEllipse expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromEllipse expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
+
+  const dx = mul(constOf(2), rx.contents);
+  const dy = mul(constOf(2), ry.contents);
+  return BBox.bbox(
+    add(dx, strokeWidth.contents),
+    add(dy, strokeWidth.contents),
+    center.contents
+  );
 };
 
 export const ellipseDef: ShapeDef = {
@@ -175,13 +324,51 @@ export const ellipseDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromEllipse,
+};
+
+const bboxFromRect = ({
+  w,
+  h,
+  center,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (w.tag !== "FloatV") {
+    throw new Error(`bboxFromRect expected w to be FloatV, but got ${w.tag}`);
+  }
+  if (h.tag !== "FloatV") {
+    throw new Error(`bboxFromRect expected h to be FloatV, but got ${h.tag}`);
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromRect expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRect expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
+
+  // rx just rounds the corners, doesn't change the bbox
+  return BBox.bbox(
+    add(w.contents, strokeWidth.contents),
+    add(h.contents, strokeWidth.contents),
+    center.contents
+  );
 };
 
 export const rectDef: ShapeDef = {
@@ -194,13 +381,92 @@ export const rectDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultRect")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromRect,
+};
+
+const bboxFromCallout = ({
+  anchor,
+  center,
+  w,
+  h,
+  padding,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (anchor.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromCallout expected anchor to be VectorV, but got ${anchor.tag}`
+    );
+  }
+  if (!isPt2(anchor.contents)) {
+    throw new Error(
+      `bboxFromCallout expected anchor to be Pt2, but got length ${anchor.contents.length}`
+    );
+  }
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromCallout expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromCallout expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (w.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCallout expected w to be FloatV, but got ${w.tag}`
+    );
+  }
+  if (h.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCallout expected h to be FloatV, but got ${h.tag}`
+    );
+  }
+  if (padding.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromCallout expected padding to be FloatV, but got ${padding.tag}`
+    );
+  }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRect expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
+
+  // below adapted from makeCallout function in renderer/Callout.ts
+
+  const pad = ifCond(
+    eq(padding.contents, constOf(0)),
+    constOf(30),
+    padding.contents
+  );
+  const dx = div(add(w.contents, pad), constOf(2));
+  const dy = div(add(h.contents, pad), constOf(2));
+
+  const [x, y] = center.contents;
+  const [anchorX, anchorY] = anchor.contents;
+  const minX = min(sub(x, dx), anchorX);
+  const maxX = max(add(x, dx), anchorX);
+  const minY = min(sub(y, dy), anchorY);
+  const maxY = max(add(y, dy), anchorY);
+
+  const width = sub(maxX, minX);
+  const height = sub(maxY, minY);
+  const cx = div(add(minX, maxX), constOf(2));
+  const cy = div(add(minY, maxY), constOf(2));
+  return BBox.bbox(
+    add(width, strokeWidth.contents),
+    add(height, strokeWidth.contents),
+    [cx, cy]
+  );
 };
 
 export const calloutDef: ShapeDef = {
@@ -215,12 +481,41 @@ export const calloutDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCallout")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
+  bbox: bboxFromCallout,
+};
+
+const bboxFromPolygon = ({ points, scale }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  // seems like this should be PtListV but apparently it isn't
+  if (points.tag !== "LListV") {
+    throw new Error(
+      `bboxFromPolygon expected points to be LListV, but got ${points.tag}`
+    );
+  }
+  if (scale.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromPolygon expected scale to be FloatV, but got ${scale.tag}`
+    );
+  }
+
+  return bboxFromPoints(
+    points.contents.map((point) => {
+      const pt = ops.vmul(scale.contents, point);
+      if (isPt2(pt)) {
+        return pt;
+      } else {
+        throw new Error(
+          `bboxFromPolygon expected each point to be Pt2, but got length ${point.length}`
+        );
+      }
+    })
+  );
 };
 
 export const polygonDef: ShapeDef = {
@@ -229,7 +524,7 @@ export const polygonDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", constValue("FloatV", 1)],
@@ -245,6 +540,7 @@ export const polygonDef: ShapeDef = {
     ],
   },
   positionalProps: ["center"],
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
 };
 
 export const freeformPolygonDef: ShapeDef = {
@@ -253,10 +549,11 @@ export const freeformPolygonDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     style: ["StrV", constValue("StrV", "filled")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
+    scale: ["FloatV", constValue("FloatV", 1)],
     points: [
       "PtListV",
       constValue("PtListV", [
@@ -267,6 +564,7 @@ export const freeformPolygonDef: ShapeDef = {
     ],
   },
   positionalProps: [],
+  bbox: bboxFromPolygon,
 };
 
 const DEFAULT_PATHSTR = `M 10,30
@@ -274,6 +572,48 @@ A 20,20 0,0,1 50,30
 A 20,20 0,0,1 90,30
 Q 90,60 50,90
 Q 10,60 10,30 z`;
+
+const bboxFromRectlike = ({
+  center,
+  w,
+  h,
+  rotation,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromRectlike expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromRectlike expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (w.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRectlike expected w to be FloatV, but got ${w.tag}`
+    );
+  }
+  if (h.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRectlike expected h to be FloatV, but got ${h.tag}`
+    );
+  }
+  if (rotation.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromRectlike expected rotation to be FloatV, but got ${rotation.tag}`
+    );
+  }
+
+  return bboxFromRotatedRect(
+    center.contents,
+    w.contents,
+    h.contents,
+    rotation.contents,
+    constOf(0)
+  );
+};
 
 export const pathStringDef: ShapeDef = {
   shapeType: "PathString",
@@ -286,13 +626,14 @@ export const pathStringDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
+    color: ["ColorV", () => noPaint],
     name: ["StrV", constValue("StrV", "defaultPolygon")],
     data: ["StrV", constValue("StrV", DEFAULT_PATHSTR)],
     viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromRectlike,
 };
 
 export const polylineDef: ShapeDef = {
@@ -317,6 +658,7 @@ export const polylineDef: ShapeDef = {
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
 };
 
 export const imageDef: ShapeDef = {
@@ -334,6 +676,52 @@ export const imageDef: ShapeDef = {
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
+};
+
+const bboxFromSquare = ({
+  center,
+  side,
+  rotation,
+  strokeWidth,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (center.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromSquare expected center to be VectorV, but got ${center.tag}`
+    );
+  }
+  if (!isPt2(center.contents)) {
+    throw new Error(
+      `bboxFromSquare expected center to be Pt2, but got length ${center.contents.length}`
+    );
+  }
+  if (side.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected side to be FloatV, but got ${side.tag}`
+    );
+  }
+  if (rotation.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected rotation to be FloatV, but got ${rotation.tag}`
+    );
+  }
+  if (strokeWidth.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromSquare expected strokeWidth to be FloatV, but got ${strokeWidth.tag}`
+    );
+  }
+
+  // rx rounds the corners, so we could use it to give a smaller bbox if both
+  // that and rotation are nonzero, but we don't account for that here
+
+  return bboxFromRotatedRect(
+    center.contents,
+    side.contents,
+    side.contents,
+    rotation.contents,
+    strokeWidth.contents
+  );
 };
 
 export const squareDef: ShapeDef = {
@@ -346,13 +734,14 @@ export const squareDef: ShapeDef = {
     rx: ["FloatV", zeroFloat],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
+    strokeColor: ["ColorV", () => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultSquare")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromSquare,
 };
 
 export const textDef: ShapeDef = {
@@ -372,6 +761,59 @@ export const textDef: ShapeDef = {
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["center"],
+  bbox: bboxFromRectlike, // assumes w and h correspond to string
+};
+
+const bboxFromLinelike = ({
+  start,
+  end,
+  thickness,
+}: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (start.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromLinelike expected start to be VectorV, but got ${start.tag}`
+    );
+  }
+  if (!isPt2(start.contents)) {
+    throw new Error(
+      `bboxFromLinelike expected start to be Pt2, but got length ${start.contents.length}`
+    );
+  }
+  if (end.tag !== "VectorV") {
+    throw new Error(
+      `bboxFromLinelike expected end to be VectorV, but got ${end.tag}`
+    );
+  }
+  if (!isPt2(end.contents)) {
+    throw new Error(
+      `bboxFromLinelike expected end to be Pt2, but got length ${end.contents.length}`
+    );
+  }
+  if (thickness.tag !== "FloatV") {
+    throw new Error(
+      `bboxFromLinelike expected thickness to be FloatV, but got ${thickness.tag}`
+    );
+  }
+
+  const d = ops.vmul(
+    div(thickness.contents, constOf(2)),
+    ops.rot90(ops.vnormalize(ops.vsub(end.contents, start.contents)))
+  );
+  return bboxFromPoints(
+    [
+      ops.vadd(start.contents, d),
+      ops.vsub(start.contents, d),
+      ops.vadd(end.contents, d),
+      ops.vsub(end.contents, d),
+    ].map((point) => {
+      if (isPt2(point)) {
+        return point;
+      } else {
+        throw new Error("ops did not preserve dimension");
+      }
+    })
+  );
 };
 
 export const lineDef: ShapeDef = {
@@ -388,10 +830,12 @@ export const lineDef: ShapeDef = {
     style: ["StrV", constValue("StrV", "solid")],
     stroke: ["StrV", constValue("StrV", "none")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
+    strokeLineCap: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultLine")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["start", "end"],
+  bbox: bboxFromLinelike,
 };
 
 export const arrowDef: ShapeDef = {
@@ -409,6 +853,175 @@ export const arrowDef: ShapeDef = {
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
   positionalProps: ["start", "end"],
+  bbox: bboxFromLinelike,
+};
+
+const bboxFromPath = ({ pathData }: Properties<VarAD>): BBox.BBox => {
+  // https://github.com/penrose/penrose/issues/701
+  if (pathData.tag !== "PathDataV") {
+    throw new Error(
+      `bboxFromPath expected pathData to be PathDataV, but got ${pathData.tag}`
+    );
+  }
+  // assuming path and polyline properties are not used
+
+  const p = pathData.contents;
+  if (p.length < 1) {
+    throw new Error("bboxFromPath expected pathData to be nonempty");
+  }
+  if (p[0].cmd !== "M") {
+    throw new Error(
+      `bboxFromPath expected first command to be M, but got ${p[0].cmd}`
+    );
+  }
+  const first = p[0].contents[0];
+  if (first.tag !== "CoordV") {
+    throw new Error(
+      `bboxFromPath expected first command subpath to be CoordV, but got ${first.tag}`
+    );
+  }
+  if (!isPt2(first.contents)) {
+    throw new Error(
+      `bboxFromPath expected cursor to be Pt2, but got length ${first.contents.length}`
+    );
+  }
+  let cursor: Pt2 = first.contents;
+  let control: Pt2 = cursor; // used by T and S
+
+  const points: Pt2[] = [];
+  for (const { cmd, contents } of p) {
+    const next = cmd === "Z" ? first : contents[contents.length - 1];
+    if (next.tag !== "CoordV") {
+      throw new Error("bboxFromPath expected next cursor to be CoordV");
+    }
+    if (!isPt2(next.contents)) {
+      throw new Error("bboxFromPath expected next cursor to be Pt2");
+    }
+    let nextControl = next.contents;
+
+    if (cmd === "M") {
+      // cursor is set after this if/else sequence; nothing to do here
+    } else if (cmd === "Z" || cmd === "L") {
+      points.push(cursor, next.contents);
+    } else if (cmd === "Q") {
+      const cp = contents[0].contents;
+      if (!isPt2(cp)) {
+        throw new Error("bboxFromPath expected Q cp to be Pt2");
+      }
+      points.push(cursor, cp, next.contents);
+      nextControl = cp;
+    } else if (cmd === "C") {
+      const cp1 = contents[0].contents;
+      const cp2 = contents[1].contents;
+      if (!isPt2(cp1)) {
+        throw new Error("bboxFromPath expected C cp1 to be Pt2");
+      }
+      if (!isPt2(cp2)) {
+        throw new Error("bboxFromPath expected C cp2 to be Pt2");
+      }
+      points.push(cursor, cp1, cp2, next.contents);
+      nextControl = cp2;
+    } else if (cmd === "T") {
+      const cp = ops.vadd(cursor, ops.vsub(cursor, control));
+      if (!isPt2(cp)) {
+        throw new Error("ops did not preserve dimension");
+      }
+      points.push(cursor, cp, next.contents);
+      nextControl = cp;
+    } else if (cmd === "S") {
+      const cp1 = ops.vadd(cursor, ops.vsub(cursor, control));
+      const cp2 = contents[0].contents;
+      if (!isPt2(cp1)) {
+        throw new Error("ops did not preserve dimension");
+      }
+      if (!isPt2(cp2)) {
+        throw new Error("bboxFromPath expected S cp2 to be Pt2");
+      }
+      points.push(cursor, cp1, cp2, next.contents);
+      nextControl = cp2;
+    } else if (cmd === "A") {
+      const [rxRaw, ryRaw, rotation, largeArc, sweep] = contents[0].contents;
+      const phi = neg(rotation); // phi is counterclockwise
+
+      // https://www.w3.org/TR/SVG/implnote.html#ArcCorrectionOutOfRangeRadii
+      // note: we assume neither rxRaw nor ryRaw are zero; technically in that
+      // case we should just points.push(cursor, next.contents) and then not do
+      // any of these other calculations
+
+      // eq. 6.1
+      const rxPos = absVal(rxRaw);
+      const ryPos = absVal(ryRaw);
+
+      // https://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
+      // eq. 5.1
+      const [x1Prime, y1Prime] = ops.vrot(
+        ops.vdiv(ops.vsub(cursor, next.contents), constOf(2)),
+        neg(phi)
+      );
+
+      // eq. 6.2
+      const lambda = add(
+        squared(div(x1Prime, rxPos)),
+        squared(div(y1Prime, ryPos))
+      );
+
+      // eq. 6.3
+      const replace = gt(lambda, constOf(1));
+      const rx = ifCond(replace, mul(sqrt(lambda), rxPos), rxPos);
+      const ry = ifCond(replace, mul(sqrt(lambda), ryPos), ryPos);
+
+      // eq. 5.2
+      const cPrime = ops.vmul(
+        mul(
+          // according to the linked doc it seems like this should be the other
+          // way around, but Penrose seems to do it this way instead
+          ifCond(eq(largeArc, sweep), constOf(1), constOf(-1)),
+          sqrt(
+            // mathematically this radicand can never be negative, but when
+            // Lambda is greater than 1, the radicand becomes very close to 0
+            // and sometimes negative, so we manually clamp it to a very small
+            // positive value in that case, because sqrt internally calls div on
+            // the radicand, and some testing shows that passing values smaller
+            // than this magic number to sqrt causes that internal call to div
+            // to throw an error
+            max(
+              constOf(1e-18),
+              div(
+                sub(
+                  sub(squared(mul(rx, ry)), squared(mul(rx, y1Prime))),
+                  squared(mul(ry, x1Prime))
+                ),
+                add(squared(mul(rx, y1Prime)), squared(mul(ry, x1Prime)))
+              )
+            )
+          )
+        ),
+        [div(mul(rx, y1Prime), ry), neg(div(mul(ry, x1Prime), rx))]
+      );
+
+      // eq. 5.3
+      const [cx, cy] = ops.vadd(
+        ops.vrot(cPrime, phi),
+        ops.vdiv(ops.vadd(cursor, next.contents), constOf(2))
+      );
+
+      // very crude approach: we know that the ellipse is contained within a
+      // concentric circle whose diameter is the major axis, so just use the
+      // bounding box of that circle
+      const r = max(rx, ry);
+      points.push([sub(cx, r), sub(cy, r)], [add(cx, r), add(cy, r)]);
+      // ideally we would instead do something more sophisticated, like this:
+      // https://stackoverflow.com/a/65441277
+    } else {
+      // only commands used in render/PathBuilder.ts are supported; in
+      // particular, H and V are not supported, nor are any lowercase commands
+      throw new Error(`bboxFromPath got unsupported cmd ${cmd}`);
+    }
+
+    cursor = next.contents;
+    control = nextControl;
+  }
+  return bboxFromPoints(points);
 };
 
 export const curveDef: ShapeDef = {
@@ -421,8 +1034,8 @@ export const curveDef: ShapeDef = {
     style: ["StrV", constValue("StrV", "solid")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     effect: ["StrV", constValue("StrV", "none")],
-    color: ["ColorV", colorSampler],
-    fill: ["ColorV", colorSampler],
+    color: ["ColorV", colorSampler], // should be "strokeColor"
+    fill: ["ColorV", () => noPaint], // should be "color"
     leftArrowhead: ["BoolV", constValue("BoolV", false)],
     rightArrowhead: ["BoolV", constValue("BoolV", false)],
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
@@ -430,6 +1043,7 @@ export const curveDef: ShapeDef = {
     name: ["StrV", constValue("StrV", "defaultCurve")],
     ensureOnCanvas: ["BoolV", constValue("BoolV", true)],
   },
+  bbox: bboxFromPath,
 };
 
 /**
