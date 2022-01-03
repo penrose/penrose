@@ -4,8 +4,7 @@ import {
   IBoolV,
   IColorV,
   IFloatV,
-  IMatrixV,
-  IPtListV,
+  ILListV,
   IStrV,
   IVectorV,
 } from "types/value";
@@ -33,17 +32,12 @@ export interface IFill {
 }
 
 export interface ICenter {
-  center: IVectorV<VarAD>;
+  center: IVectorV<VarAD>; // corresponds to (cx, cy), or other things, in SVG
 }
 
 export interface IRect {
   width: IFloatV<VarAD>;
   height: IFloatV<VarAD>;
-}
-
-export interface ILine {
-  start: IVectorV<VarAD>;
-  end: IVectorV<VarAD>;
 }
 
 export interface IArrow {
@@ -54,13 +48,26 @@ export interface IArrow {
 }
 
 export interface ICorner {
-  cornerRadius: IFloatV<VarAD>;
+  cornerRadius: IFloatV<VarAD>; // note: corresponds to rx in SVG
 }
 
-export interface ITransform {
-  matrix: IMatrixV<VarAD>;
+// TODO: don't use these
+export interface IRotate {
+  rotation: IFloatV<VarAD>; // about the top-left corner
 }
+export interface IScale {
+  scale: IFloatV<VarAD>; // doesn't work correctly
+}
+
+// // TODO: use this
+// export interface ITransform {
+//   matrix: IMatrixV<VarAD>;
+// }
 
 export interface IPoly {
-  points: IPtListV<VarAD>;
+  points: ILListV<VarAD>;
+}
+
+export interface IString {
+  string: IStrV;
 }
