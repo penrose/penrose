@@ -23,12 +23,10 @@ export interface IStroke {
   strokeStyle: IStrV;
   strokeColor: IColorV<VarAD>;
   strokeDashArray: IStrV;
-  strokeOpacity: IFloatV<VarAD>;
 }
 
 export interface IFill {
   fillColor: IColorV<VarAD>;
-  fillOpacity: IFloatV<VarAD>;
 }
 
 export interface ICenter {
