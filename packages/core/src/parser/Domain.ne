@@ -40,26 +40,7 @@ const nodeData = (children: ASTNode[]) => ({
 
 # Macros
 
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
-
-sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(!first) return [];
-    if(rest.length > 0) {
-      const restNodes = rest.map(ts => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
+@include "macros.ne"
 
 # Main grammar
 
@@ -216,8 +197,7 @@ type_params_list
 type_params -> sepBy1[type_var, ","] {% ([d]) => d %}
 
 args_list 
-  -> null {% d => [] %}
-  |  _ ":" _ sepBy1[arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
+  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg[] => flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg => {
     const variable = v ? v[1] : undefined;
@@ -230,8 +210,7 @@ arg -> type (__ var):? {%
   }
 %}
 named_args_list 
-  -> null {% d => [] %}
-  |  _ ":" _ sepBy1[named_arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
+  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg[] => flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg => ({
      ...nodeData([type, variable]),

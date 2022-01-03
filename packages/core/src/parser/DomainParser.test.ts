@@ -53,12 +53,12 @@ describe("Common", () => {
 type Set -- inline comments\r
 -- type Point 
 type ParametrizedSet ('T, 'U)\r\n
-predicate From : Map f * Set domain * Set codomain\n
+predicate From(Map f, Set domain, Set codomain)\n
 /* Multi-line comments
 type ParametrizedSet ('T, 'U)
-predicate From : Map f * Set domain * Set codomain
+predicate From(Map f, Set domain, Set codomain)
 */
-predicate From : Map f * Set domain * Set codomain
+predicate From(Map f, Set domain, Set codomain)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -69,27 +69,27 @@ predicate From : Map f * Set domain * Set codomain
 type Set -- inline comments
 -- type Point 
 type ParametrizedSet ('T, 'U)
-predicate From : Map f * Set domain * Set codomain
+predicate From(Map f, Set domain, Set codomain)
 /* Multi-line comments
 type ParametrizedSet ('T, 'U)
-predicate From : Map f * Set domain * Set codomain
+predicate From(Map f, Set domain, Set codomain)
 */
-predicate From : Map f * Set domain * Set codomain
-function Intersection : Set a * Set b -> Set
-function Union : Set a * Set b -> Set c
-function Subtraction : Set a * Set b -> Set
-function CartesianProduct : Set a * Set b -> Set
-function Difference : Set a * Set b -> Set
-function Subset : Set a * Set b -> Set
-function AddPoint : Point p * Set s1 -> Set
+predicate From(Map f, Set domain, Set codomain)
+function Intersection(Set a, Set b) -> Set
+function Union(Set a, Set b) -> Set c
+function Subtraction(Set a, Set b) -> Set
+function CartesianProduct(Set a, Set b) -> Set
+function Difference(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s1) -> Set
 -- with type params
-function AddV['V] : Vector('V) v1 *Vector('V) v2 -> Vector('V)
-function Norm['V] : Vector('V) v1 -> Scalar
+function AddV['V](Vector('V) v1, Vector('V) v2) -> Vector('V)
+function Norm['V](Vector('V) v1) -> Scalar
 -- edge case
-function Empty -> Scalar
+function Empty() -> Scalar
 -- generics
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
 notation "A ⊂ B" ~ "IsSubset(A, B)"
 notation "p ∈ A" ~ "PointIn(A, p)"
 notation "p ∉ A" ~ "PointNotIn(A, p)"
@@ -125,17 +125,17 @@ type SmallerSet <: Point, Set
   test("predicate decls", () => {
     const prog = `
 -- comments
-predicate Not : Prop p1
-predicate From : Map f * Set domain * Set codomain
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
-predicate PointIn : Set s * Point p
-predicate In : Point p * Set s
-predicate Injection : Map m
-predicate Surjection : Map m
-predicate Bijection : Map m
-predicate PairIn : Point * Point * Map
+predicate Not(Prop p1)
+predicate From(Map f, Set domain, Set codomain)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
+predicate PointIn(Set s, Point p)
+predicate In(Point p, Set s)
+predicate Injection(Map m)
+predicate Surjection(Map m)
+predicate Bijection(Map m)
+predicate PairIn(Point, Point, Map)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -143,18 +143,18 @@ predicate PairIn : Point * Point * Map
   test("function decls", () => {
     const prog = `
 -- comments
-function Intersection : Set a * Set b -> Set
-function Union : Set a * Set b -> Set c
-function Subtraction : Set a * Set b -> Set
-function CartesianProduct : Set a * Set b -> Set
-function Difference : Set a * Set b -> Set
-function Subset : Set a * Set b -> Set
-function AddPoint : Point p * Set s1 -> Set
+function Intersection(Set a, Set b) -> Set
+function Union(Set a, Set b) -> Set c
+function Subtraction(Set a, Set b) -> Set
+function CartesianProduct(Set a, Set b) -> Set
+function Difference(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s1) -> Set
 -- with type params
-function AddV['V] : Vector('V) v1 *Vector('V) v2 -> Vector('V)
-function Norm['V] : Vector('V) v1 -> Scalar
+function AddV['V](Vector('V) v1, Vector('V) v2) -> Vector('V)
+function Norm['V](Vector('V) v1) -> Scalar
 -- edge case
-function Empty -> Scalar
+function Empty() -> Scalar
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -162,16 +162,16 @@ function Empty -> Scalar
   test("constructor decls", () => {
     const prog = `
   -- real program
-  constructor CreateInterval: Real left * Real right -> Interval
-  constructor CreateOpenInterval: Real left * Real right -> OpenInterval
-  constructor CreateClosedInterval: Real left * Real right -> ClosedInterval
-  constructor CreateLeftClopenInterval: Real left * Real right -> LeftClopenInterval
-  constructor CreateRightClopenInterval: Real left * Real right -> RightClopenInterval
-  constructor CreateFunction: Set s1 * Set s2 -> Function
-  constructor Pt: Real x * Real y -> Point
+  constructor CreateInterval(Real left, Real right) -> Interval
+  constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
+  constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
+  constructor CreateLeftClopenInterval(Real left, Real right) -> LeftClopenInterval
+  constructor CreateRightClopenInterval(Real left, Real right) -> RightClopenInterval
+  constructor CreateFunction(Set s1, Set s2) -> Function
+  constructor Pt(Real x, Real y) -> Point
   -- generics
-  constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-  constructor Nil['X] -> List('X)
+  constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+  constructor Nil['X]() -> List('X)
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);
