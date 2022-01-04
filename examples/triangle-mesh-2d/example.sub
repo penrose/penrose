@@ -10,3 +10,4 @@ Corner c := MakeCorner( i, j, k )
 Halfedge h := MakeHalfedge( i, j )
 
 AutoLabel All
+Label c "α"

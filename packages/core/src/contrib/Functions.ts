@@ -673,6 +673,31 @@ export const compDict = {
     return path.getPath();
   },
   /**
+   * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
+   * @param center: center of the circle on which the arc sits
+   * @param start: coordinate to start drawing the arc
+   * @param end: coordinate to finish drawing the arc
+   * @param radius: width and height of the ellipse to draw the arc along (i.e. [width, height])
+   * @param rotation: angle in degrees to rotate ellipse about its center
+   * @param largeArc: 0 to draw shorter of 2 arcs, 1 to draw longer
+   * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
+   * @returns: Elements that can be passed to Path shape spec to render an SVG arc
+   */
+  wedge: (
+    center: Pt2,
+    start: Pt2,
+    end: Pt2,
+    radius: Pt2,
+    rotation: IVarAD,
+    largeArc: IVarAD,
+    arcSweep: IVarAD
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]).lineTo(center);
+    path.closePath();
+    return path.getPath();
+  },
+  /**
    * Find the point that is located at dist r along a line between p1 and p2.
    * @param p1: start point of line segment
    * @param p2: endpoint of line segment

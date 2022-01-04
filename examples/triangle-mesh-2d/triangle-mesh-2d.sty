@@ -9,6 +9,7 @@ Colors {
    color black = rgba(0.,0.,0.,1.)
    color lightGray = rgba(.8,.8,.8,1.)
    color clear = rgba(0.,0.,0.,0.)
+   color semiBlue = rgba( 27./255., 31./255., 138./255., .2 )
 }
 
 Global {
@@ -25,6 +26,7 @@ Global {
    }
 
    string fontFamily = "Palatino"
+   string fontSize = "9pt"
 }
 
 forall Vertex v {
@@ -43,7 +45,7 @@ forall Vertex v {
       center: (?,?)
       string: v.label
       fontFamily: Global.fontFamily
-      fontSize: "9pt"
+      fontSize: Global.fontSize
       fontStyle: "italic"
       color: Colors.black
    }
@@ -107,7 +109,7 @@ where t := MakeTriangle(i,j,k)
 
    shape t.icon = Path {
       pathData: pathFromPoints("closed", [a,b,c])
-      fill: rgba( 27./255., 31./255., 138./255., .2 )
+      fill: Colors.semiBlue
       color: none()
    }
 
@@ -124,5 +126,43 @@ where t := MakeTriangle(i,j,k)
    encourage equal( aTheta, toRadians(30.), 10000. )
    encourage equal( bTheta, toRadians(30.), 10000. )
    encourage equal( cTheta, toRadians(30.), 10000. )
+}
+
+forall Corner c; Vertex i; Vertex j; Vertex k
+where c := MakeCorner(i,j,k) {
+
+   vec2 p = i.center
+   vec2 q = j.center
+   vec2 r = k.center
+   
+   scalar s = .35 -- arc radius as fraction of edge length
+   scalar R = s*norm(q-p)
+   vec2 u = (q-p)/norm(q-p)
+   vec2 v = (r-p)/norm(r-p)
+   vec2 x = p + R*u
+   vec2 y = p + R*v
+
+   shape c.arc = Path {
+      fill: none()
+      color: Colors.black
+      pathData: arc( "open", x, y, (R,R), 0., 0, 0 )
+      strokeWidth: .75
+   }
+
+   shape c.arcFill = Path {
+      fill: none()
+      color: none()
+      pathData: wedge( i.center, x, y, (R,R), 0., 0, 0 )
+      fill: Colors.semiBlue
+   }
+
+   shape c.text = Text {
+      string: c.label
+      center: p + 1.5*R*(u+v)/2.
+      fontSize: Global.fontSize
+      fontFamily: Global.fontFamily
+      fontStyle: "italic"
+      color: Colors.black
+   }
 }
 
