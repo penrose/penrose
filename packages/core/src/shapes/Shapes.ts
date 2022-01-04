@@ -17,7 +17,6 @@ import { Path } from "./Path";
 import { Polygon } from "./Polygon";
 import { Polyline } from "./Polyline";
 import { Rectangle } from "./Rectangle";
-import { Canvas } from "./Samplers";
 import { Text } from "./Text";
 
 export interface IShape {

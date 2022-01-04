@@ -38,6 +38,14 @@ export interface ICanvas {
 
 export type Canvas = ICanvas;
 
+export const makeCanvas = (width: number, height: number): Canvas => ({
+  width,
+  height,
+  size: [width, height],
+  xRange: [-width / 2, width / 2],
+  yRange: [-height / 2, height / 2],
+});
+
 export const FloatV = (contents: VarAD): IFloatV<VarAD> => ({
   tag: "FloatV",
   contents,
