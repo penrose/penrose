@@ -37,9 +37,11 @@ import {
   sign,
   sin,
   sinh,
+  squared,
   tan,
   tanh,
   trunc,
+  sqr,
   sqrt,
   sub,
   variableAD,
@@ -1069,6 +1071,13 @@ export const compDict = {
   },
 
   // ------ Utility functions
+
+  /**
+   * Return the square of the number `x`.
+   */
+  sqr: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: squared(x) };
+  },
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
