@@ -1,7 +1,7 @@
 import { makeCanvas } from "./Samplers";
 import { shapedefs } from "./Shapes";
 
-describe("constructors", () => {
+describe("shapedefs", () => {
   test("print", () => {
     const canvas = makeCanvas(800, 700);
     console.log(
