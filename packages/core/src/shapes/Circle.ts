@@ -27,7 +27,7 @@ export const sampleCircle = (canvas: Canvas): ICircle => ({
   r: sampleWidth(canvas),
 });
 
-export type Circle = IShape & ICircle;
+export type Circle = IShape & { shapeType: "Circle" } & ICircle;
 
 export const Circle = {
   sampler: weaken(sampleCircle),

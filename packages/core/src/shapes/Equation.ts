@@ -21,7 +21,7 @@ export const sampleEquation = (canvas: Canvas): IEquation => ({
   string: StrV("defaultLabelText"),
 });
 
-export type Equation = IShape & IEquation;
+export type Equation = IShape & { shapeType: "Equation" } & IEquation;
 
 export const Equation = {
   sampler: weaken(sampleEquation),

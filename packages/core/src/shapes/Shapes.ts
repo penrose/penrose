@@ -96,9 +96,21 @@ export const weaken = (
 ): ((canvas: Canvas) => Properties) => (canvas: Canvas): Properties =>
   <Properties>sampler(canvas);
 
+export type Shape =
+  | Circle
+  | Ellipse
+  | Equation
+  | Image
+  | Line
+  | Path
+  | Polygon
+  | Polyline
+  | Rectangle
+  | Text;
+
 export interface ShapeDef {
   sampler: (canvas: Canvas) => Properties;
-  constr: (canvas: Canvas, properties: Properties) => IShape;
+  constr: (canvas: Canvas, properties: Properties) => Shape;
 }
 
 export const shapes: { [k: string]: ShapeDef } = {

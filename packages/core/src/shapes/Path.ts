@@ -32,7 +32,7 @@ export const samplePath = (_canvas: Canvas): IPath => ({
   d: PathDataV([]),
 });
 
-export type Path = IShape & IPath;
+export type Path = IShape & { shapeType: "Path" } & IPath;
 
 export const Path = {
   sampler: weaken(samplePath),

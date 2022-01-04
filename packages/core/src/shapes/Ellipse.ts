@@ -30,7 +30,7 @@ export const sampleEllipse = (canvas: Canvas): IEllipse => ({
   ry: sampleHeight(canvas),
 });
 
-export type Ellipse = IShape & IEllipse;
+export type Ellipse = IShape & { shapeType: "Ellipse" } & IEllipse;
 
 export const Ellipse = {
   sampler: weaken(sampleEllipse),

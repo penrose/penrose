@@ -38,7 +38,7 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
   ),
 });
 
-export type Polygon = IShape & IPolygon;
+export type Polygon = IShape & { shapeType: "Polygon" } & IPolygon;
 
 export const Polygon = {
   sampler: weaken(samplePolygon),

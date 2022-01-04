@@ -38,7 +38,7 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
   ),
 });
 
-export type Polyline = IShape & IPolyline;
+export type Polyline = IShape & { shapeType: "Polyline" } & IPolyline;
 
 export const Polyline = {
   sampler: weaken(samplePolyline),

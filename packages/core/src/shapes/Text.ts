@@ -66,7 +66,7 @@ export const sampleText = (canvas: Canvas): IText => ({
   alignmentBaseline: StrV("middle"),
 });
 
-export type Text = IShape & IText;
+export type Text = IShape & { shapeType: "Text" } & IText;
 
 export const Text = {
   sampler: weaken(sampleText),

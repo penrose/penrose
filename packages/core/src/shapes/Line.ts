@@ -32,7 +32,7 @@ export const sampleLine = (canvas: Canvas): ILine => ({
   end: sampleVector(canvas),
 });
 
-export type Line = IShape & ILine;
+export type Line = IShape & { shapeType: "Line" } & ILine;
 
 export const Line = {
   sampler: weaken(sampleLine),

@@ -26,7 +26,7 @@ export const sampleImage = (canvas: Canvas): IImage => ({
   href: StrV("defaultImage"),
 });
 
-export type Image = IShape & IImage;
+export type Image = IShape & { shapeType: "Image" } & IImage;
 
 export const Image = {
   sampler: weaken(sampleImage),

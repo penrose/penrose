@@ -43,7 +43,7 @@ export const sampleRectangle = (canvas: Canvas): IRectangle => ({
   cornerRadius: sampleZero(),
 });
 
-export type Rectangle = IShape & IRectangle;
+export type Rectangle = IShape & { shapeType: "Rectangle" } & IRectangle;
 
 export const Rectangle = {
   sampler: weaken(sampleRectangle),
