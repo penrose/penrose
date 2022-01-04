@@ -873,8 +873,6 @@ export const polygonDef: ShapeDef = {
     strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeColor: ["ColorV", () => noPaint],
     color: ["ColorV", colorSampler],
-    center: ["VectorV", vectorSampler],
-    scale: ["FloatV", constValue("FloatV", 1)],
     name: ["StrV", constValue("StrV", "defaultPolygon")],
     points: [
       "PtListV",

@@ -18,8 +18,6 @@ const Polygon = ({ shape, canvasSize }: ShapeProps) => {
   attrStroke(shape, elem);
   attrTitle(shape, elem);
   attrPoints(shape, elem);
-  attrPolyCenter(shape, canvasSize, elem);
-  attrScale(shape, elem);
 
   return elem;
 };
