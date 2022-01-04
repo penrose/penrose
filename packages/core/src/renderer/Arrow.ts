@@ -1,7 +1,7 @@
 import { Shape } from "types/shape";
 import { IFloatV, IStrV, IColorV, IVectorV } from "types/value";
 import { arrowheads, round2, toSvgPaintProperty, toSvgOpacityProperty, toScreen } from "utils/Util";
-import { attrFill, attrTitle, DASH_ARRAY } from "./AttrHelper";
+import { attrAutoFillSvg, attrFill, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 export const arrowHead = (
@@ -10,8 +10,9 @@ export const arrowHead = (
   opacity: number,
   style: string,
   size: number
-) => {
+): SVGMarkerElement => {
   const arrow = arrowheads[style];
+
   const marker = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "marker"
@@ -24,11 +25,13 @@ export const arrowHead = (
   marker.setAttribute("refX", arrow.refX.toString());
   marker.setAttribute("refY", arrow.refY.toString());
   marker.setAttribute("orient", "auto-start-reverse");
+
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", arrow.path);
   path.setAttribute("fill", color);
   path.setAttribute("fill-opacity", opacity.toString());
   marker.appendChild(path);
+
   return marker;
 };
 

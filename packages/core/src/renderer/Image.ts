@@ -1,4 +1,5 @@
 import {
+  attrAutoFillSvg,
   attrOpacity,
   attrRotation,
   attrTransformCoords,
@@ -10,11 +11,17 @@ import { IStrV } from "types/value";
 
 const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  console.debug('Rendering Image');
+
+  // Keep track of which SVG attributes we map below
+  const attrToNotAutoMap: string[] = [];
+
   const path = (shape.properties.path as IStrV).contents;
   if (!(path in images)) {
     console.error(`Could not find image path ${path}`);
     return elem;
   }
+  attrToNotAutoMap.push('path');
   elem.innerHTML = images[path];
   const svg = elem.firstChild as SVGSVGElement;
   const defs = svg.getElementsByTagName("defs");
@@ -40,21 +47,26 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
             "#" + unique
           );
           node.setAttribute("id", unique);
+          attrToNotAutoMap.push('id');
         });
       }
     });
   }
-  attrOpacity(shape, svg);
-  attrWH(shape, svg);
-  attrTransformCoords(shape, canvasSize, elem);
-  attrRotation(
+  attrToNotAutoMap.push(...attrOpacity(shape, svg));
+  attrToNotAutoMap.push(...attrWH(shape, svg));
+  attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
+  attrToNotAutoMap.push(...attrRotation(
     shape,
     shape.properties.center,
     shape.properties.w,
     shape.properties.h,
     canvasSize,
     elem
-  );
+  ));
+
+  // Directrly Map across any "unknown" SVG properties
+  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+  console.debug('Rendering Image - Done');
 
   return elem;
 };
