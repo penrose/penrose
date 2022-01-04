@@ -49,6 +49,7 @@
   "settings": {
     "files.insertFinalNewline": false,
     "files.trimFinalNewlines": false,
-    "files.trimTrailingWhitespace": false
+    "files.trimTrailingWhitespace": false,
+    "search.useParentIgnoreFiles": true
   }
 }
