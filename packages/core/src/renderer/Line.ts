@@ -5,13 +5,20 @@ import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
-  const [[arrowSX, arrowSY], [arrowEX, arrowEY]] = makeRoomForArrows(shape);
+  const [
+    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
+    attrToNotAutoMap,
+  ] = makeRoomForArrows(shape);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
-  const color = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
+  const color = toSvgPaintProperty(
+    (shape.properties.color as IColorV<number>).contents
+  );
   const thickness = (shape.properties.thickness as IFloatV<number>).contents;
-  const opacity = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
+  const opacity = toSvgOpacityProperty(
+    (shape.properties.color as IColorV<number>).contents
+  );
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
@@ -19,32 +26,32 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     .contents;
 
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  console.debug('Rendering Line');
 
-  // Keep track of which SVG attributes we map below
-  const attrToNotAutoMap: string[] = [];
-
+  // Map/Fill the shape attributes while keeping track of input properties mapped
   elem.appendChild(
     arrowHead(leftArrowId, color, opacity, arrowheadStyle, arrowheadSize)
   );
   elem.appendChild(
     arrowHead(rightArrowId, color, opacity, arrowheadStyle, arrowheadSize)
   );
+  attrToNotAutoMap.push(
+    "color",
+    "thickness",
+    "arrowheadStyle",
+    "arrowheadSize"
+  );
   const pathElem = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "path"
   );
   pathElem.setAttribute("d", path);
-  attrToNotAutoMap.push('d');
-  
+
   // Opacity and width only relevant if stroke is present
-  if((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+  if ((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
     pathElem.setAttribute("stroke-opacity", opacity.toString());
     pathElem.setAttribute("stroke-width", thickness.toString());
-    attrToNotAutoMap.push('stroke-opacity','stroke-width','color','thickness');
   }
   pathElem.setAttribute("stroke", color);
-  attrToNotAutoMap.push('stroke');
 
   // factor out an AttrHelper
   if (
@@ -55,10 +62,10 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
       "stroke-dasharray",
       (shape.properties.strokeDashArray as IStrV).contents
     );
-  } else if (shape.properties.style.contents === "dashed") {
+  } else if (shape.properties.strokeStyle.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
-  attrToNotAutoMap.push('strokeDashArray','stroke-dasharray');
+  attrToNotAutoMap.push("strokeDashArray", "strokeStyle");
 
   if (
     "strokeLineCap" in shape.properties &&
@@ -71,23 +78,22 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   } else {
     pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG
   }
-  attrToNotAutoMap.push('strokeLineCap','stroke-linecap');
+  attrToNotAutoMap.push("strokeLineCap");
 
   // TODO: dedup in AttrHelper (problem: thickness vs strokeWidth)
   if (shape.properties.leftArrowhead.contents === true) {
     pathElem.setAttribute("marker-start", `url(#${leftArrowId})`);
-    attrToNotAutoMap.push('leftArrow','marker-start');
+    attrToNotAutoMap.push("leftArrowhead");
   }
   if (shape.properties.rightArrowhead.contents === true) {
     pathElem.setAttribute("marker-end", `url(#${rightArrowId})`);
-    attrToNotAutoMap.push('rightArrow','marker-end');
+    attrToNotAutoMap.push("rightArrowhead");
   }
   elem.appendChild(pathElem);
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-  console.debug('Rendering Line - Done');
 
   return elem;
 };

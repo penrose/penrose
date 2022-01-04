@@ -14,11 +14,11 @@ const Polygon = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
     "http://www.w3.org/2000/svg",
     "polygon"
   );
-  console.debug('Rendering Polygon');
 
-  // Keep track of which SVG attributes we map below
+  // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
+  // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
@@ -28,7 +28,6 @@ const Polygon = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-  console.debug('Rendering Polygon - Done');
 
   return elem;
 };

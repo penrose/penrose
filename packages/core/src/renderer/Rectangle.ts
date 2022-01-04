@@ -2,7 +2,6 @@ import {
   attrAutoFillSvg,
   attrFill,
   attrRadiusX,
-  attrRadiusY,
   attrStroke,
   attrTitle,
   attrWH,
@@ -12,22 +11,20 @@ import { ShapeProps } from "./Renderer";
 
 const Rectangle = ({ shape, canvasSize }: ShapeProps): SVGRectElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  console.debug('Rendering Rectangle');
 
-  // Keep track of which SVG attributes we map below
+  // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
+  // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(...attrXY(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrWH(shape, elem));
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
-
   attrToNotAutoMap.push(...attrRadiusX(shape, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-  console.debug('Rendering Rectangle - Done');
 
   return elem;
 };

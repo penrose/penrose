@@ -100,10 +100,6 @@ const zeroFloat: Sampler = (_canvas): IFloatV<number> => ({
   tag: "FloatV",
   contents: 0.0,
 });
-const pathLengthSampler: Sampler = (_canvas): IFloatV<number> => ({
-  tag: "FloatV",
-  contents: 1.0,
-});
 const heightSampler: Sampler = (canvas): IFloatV<number> => ({
   tag: "FloatV",
   contents: randFloat(3, canvas.height / 6),
@@ -170,7 +166,6 @@ export interface IShapeDef {
 }
 
 export type Sampler = (canvas: Canvas) => Value<number>;
-
 
 // Bounding box definitions ====================================================
 /**
@@ -270,11 +265,11 @@ export const circleDef: ShapeDef = {
   properties: {
     center: ["VectorV", vectorSampler],
     r: ["FloatV", widthSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    //pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
   },
@@ -774,7 +769,6 @@ const bboxFromPath = ({ pathData }: Properties<VarAD>): BBox.BBox => {
   return bboxFromPoints(points);
 };
 
-
 // Shape definitions ===========================================================
 
 export const ellipseDef: ShapeDef = {
@@ -783,11 +777,11 @@ export const ellipseDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     rx: ["FloatV", widthSampler],
     ry: ["FloatV", heightSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
+    //pathLength: ["FloatV", pathLengthSampler], // part of svg spec
     strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCircle")],
@@ -803,10 +797,10 @@ export const rectDef: ShapeDef = {
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     rx: ["FloatV", zeroFloat],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultRect")],
@@ -825,7 +819,7 @@ export const textDef: ShapeDef = {
     visibility: ["StrV", constValue("StrV", "")],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultText")],
@@ -853,11 +847,11 @@ export const calloutDef: ShapeDef = {
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     padding: ["FloatV", zeroFloat], // padding around the contents of the callout box
-    rx: ["FloatV", zeroFloat], // currently unused
+    //rx: ["FloatV", zeroFloat], // currently unused
     strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultCallout")],
@@ -869,9 +863,9 @@ export const polygonDef: ShapeDef = {
   shapeType: "Polygon",
   properties: {
     strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     color: ["ColorV", colorSampler],
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", constValue("FloatV", 1)],
@@ -893,9 +887,9 @@ export const freeformPolygonDef: ShapeDef = {
   shapeType: "FreeformPolygon",
   properties: {
     strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultFreeformPolygon")],
     scale: ["FloatV", constValue("FloatV", 1)],
@@ -925,11 +919,12 @@ export const pathStringDef: ShapeDef = {
     w: ["FloatV", widthSampler],
     h: ["FloatV", heightSampler],
     rotation: ["FloatV", constValue("FloatV", 0)],
-    opacity: ["FloatV", constValue("FloatV", 1.0)],
+    //opacity: ["FloatV", constValue("FloatV", 1.0)],
     strokeWidth: ["FloatV", strokeSampler],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", () => noPaint],
+    color: ["ColorV", (): IColorV<number> => noPaint],
     name: ["StrV", constValue("StrV", "defaultPolygon")],
     data: ["StrV", constValue("StrV", DEFAULT_PATHSTR)],
     viewBox: ["StrV", constValue("StrV", "0 0 100 100")],
@@ -944,10 +939,10 @@ export const polylineDef: ShapeDef = {
     strokeWidth: ["FloatV", strokeSampler],
     center: ["VectorV", vectorSampler],
     scale: ["FloatV", constValue("FloatV", 1)],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
+    color: ["ColorV", (): IColorV<number> => noPaint],
     name: ["StrV", constValue("StrV", "defaultPolygon")],
     points: [
       "PtListV",
@@ -970,7 +965,7 @@ export const imageDef: ShapeDef = {
     h: ["FloatV", heightSampler],
     rotation: ["FloatV", constValue("FloatV", 0)],
     opacity: ["FloatV", constValue("FloatV", 1.0)],
-    style: ["StrV", constValue("StrV", "filled")],
+    style: ["StrV", constValue("StrV", "")],
     stroke: ["StrV", constValue("StrV", "none")],
     path: ["StrV", constValue("StrV", "missing image path")],
     name: ["StrV", constValue("StrV", "defaultImage")],
@@ -985,11 +980,11 @@ export const squareDef: ShapeDef = {
     center: ["VectorV", vectorSampler],
     side: ["FloatV", widthSampler],
     rotation: ["FloatV", constValue("FloatV", 0)],
-    style: ["StrV", constValue("StrV", "none")],
+    style: ["StrV", constValue("StrV", "")],
     rx: ["FloatV", zeroFloat],
     strokeWidth: ["FloatV", strokeSampler],
     strokeStyle: ["StrV", constValue("StrV", "solid")],
-    strokeColor: ["ColorV", () => noPaint],
+    strokeColor: ["ColorV", (): IColorV<number> => noPaint],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     color: ["ColorV", colorSampler],
     name: ["StrV", constValue("StrV", "defaultSquare")],
@@ -1006,9 +1001,9 @@ export const equationDef: ShapeDef = {
     h: ["FloatV", constValue("FloatV", 0)],
     fontSize: ["StrV", constValue("StrV", "12pt")],
     rotation: ["FloatV", constValue("FloatV", 0)],
-    style: ["StrV", constValue("StrV", "none")],
+    style: ["StrV", constValue("StrV", "")],
     stroke: ["StrV", constValue("StrV", "none")],
-    color: ["ColorV", () => black],
+    color: ["ColorV", (): IColorV<number> => black],
     name: ["StrV", constValue("StrV", "defaultText")],
     string: ["StrV", constValue("StrV", "defaultLabelText")],
     // HACK: typechecking is not passing due to Value mismatch. Not sure why
@@ -1022,14 +1017,15 @@ export const lineDef: ShapeDef = {
   properties: {
     start: ["VectorV", vectorSampler],
     end: ["VectorV", vectorSampler],
-    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+    thickness: ["FloatV", (): IFloatV<number> => sampleFloatIn(5, 15)],
     leftArrowhead: ["BoolV", constValue("BoolV", false)],
     rightArrowhead: ["BoolV", constValue("BoolV", false)],
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
     arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
     color: ["ColorV", colorSampler],
-    style: ["StrV", constValue("StrV", "solid")],
-    stroke: ["StrV", constValue("StrV", "none")],
+    style: ["StrV", constValue("StrV", "")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
+    //stroke: ["StrV", constValue("StrV", "none")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     strokeLineCap: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultLine")],
@@ -1043,11 +1039,12 @@ export const arrowDef: ShapeDef = {
   properties: {
     start: ["VectorV", vectorSampler],
     end: ["VectorV", vectorSampler],
-    thickness: ["FloatV", () => sampleFloatIn(5, 15)],
+    thickness: ["FloatV", (): IFloatV<number> => sampleFloatIn(5, 15)],
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],
     arrowheadSize: ["FloatV", constValue("FloatV", 1.0)],
-    style: ["StrV", constValue("StrV", "solid")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
     color: ["ColorV", colorSampler],
+    style: ["StrV", constValue("StrV", "")],
     name: ["StrV", constValue("StrV", "defaultArrow")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
   },
@@ -1062,11 +1059,12 @@ export const curveDef: ShapeDef = {
     polyline: ["PtListV", constValue("PtListV", [])],
     pathData: ["PathDataV", constValue("PathDataV", [])],
     strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", constValue("StrV", "solid")],
+    style: ["StrV", constValue("StrV", "")],
+    strokeStyle: ["StrV", constValue("StrV", "solid")],
     strokeDashArray: ["StrV", constValue("StrV", "")],
     effect: ["StrV", constValue("StrV", "none")],
     color: ["ColorV", colorSampler], // should be "strokeColor"
-    fill: ["ColorV", () => noPaint], // should be "color"
+    fill: ["ColorV", (): IColorV<number> => noPaint], // should be "color"
     leftArrowhead: ["BoolV", constValue("BoolV", false)],
     rightArrowhead: ["BoolV", constValue("BoolV", false)],
     arrowheadStyle: ["StrV", constValue("StrV", "arrowhead-2")],

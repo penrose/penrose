@@ -1,5 +1,4 @@
 import {
-  attrWH,
   attrXY,
   attrVisibility,
   attrStyle,
@@ -23,11 +22,11 @@ import { ShapeProps } from "./Renderer";
 
 const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  console.debug('Rendering Text');
 
-  // Keep track of which SVG attributes we map below
+  // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
+  // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(...attrXY(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrVisibility(shape, elem));
   attrToNotAutoMap.push(...attrStyle(shape, elem));
@@ -44,20 +43,12 @@ const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
   attrToNotAutoMap.push(...attrString(shape, elem));
   attrToNotAutoMap.push(...attrTextAnchor(shape, elem));
   attrToNotAutoMap.push(...attrAlignmentBaseline(shape, elem));
-  attrToNotAutoMap.push(...attrRotation(
-    shape,
-    shape.properties.center,
-    shape.properties.w,
-    shape.properties.h,
-    canvasSize,
-    elem
-  ));
+  attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-  console.debug('Rendering Image - Done');
-  
-   /**
+
+  /**
     * TODO This snippet correctly gets the bounding box, but
     * TODO doesn't work here since `shape` isn't passed by reference.
     * TODO Hence, we can't set the width/height of the GPI (for
@@ -83,7 +74,3 @@ const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
   return elem;
 };
 export default Text;
-
-
-
-

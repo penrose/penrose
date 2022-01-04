@@ -54,8 +54,6 @@ const Shadow = (id: string) => {
 };
 
 export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
-  console.debug('Rendering Path');
-
   // TODO: distinguish between fill opacity and stroke opacity
   const leftArrowId = shape.properties.name.contents + "-leftArrowhead";
   const rightArrowId = shape.properties.name.contents + "-rightArrowhead";
@@ -63,17 +61,26 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeWidth = (shape.properties.strokeWidth as IFloatV<number>)
     .contents;
-  const strokeColor = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
-  const strokeOpacity = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
-  const fillColor = toSvgPaintProperty((shape.properties.fill as IColorV<number>).contents);
-  const fillOpacity = toSvgOpacityProperty((shape.properties.fill as IColorV<number>).contents);
+  const strokeColor = toSvgPaintProperty(
+    (shape.properties.color as IColorV<number>).contents
+  );
+  const strokeOpacity = toSvgOpacityProperty(
+    (shape.properties.color as IColorV<number>).contents
+  );
+  const fillColor = toSvgPaintProperty(
+    (shape.properties.fill as IColorV<number>).contents
+  );
+  const fillOpacity = toSvgOpacityProperty(
+    (shape.properties.fill as IColorV<number>).contents
+  );
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
 
-  // Keep track of which SVG attributes we map below
+  // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
+  // Map/Fill the shape attributes while keeping track of input properties mapped
   if (shape.properties.leftArrowhead.contents === true) {
     elem.appendChild(
       arrowHead(
@@ -96,22 +103,31 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
       )
     );
   }
+  attrToNotAutoMap.push(
+    "name",
+    "color",
+    "arrowheadStyle",
+    "arrowheadSize",
+    "rightArrowhead",
+    "leftArrowhead"
+  );
   elem.appendChild(Shadow(shadowId));
+
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("stroke", strokeColor);
   path.setAttribute("fill", fillColor);
-  attrToNotAutoMap.push('stroke','fill','color');
+  attrToNotAutoMap.push("fill", "color");
 
   // Stroke opacity and width only relevant if paint is present
-  if((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+  if ((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
     path.setAttribute("stroke-width", strokeWidth.toString());
     path.setAttribute("stroke-opacity", strokeOpacity.toString());
-    attrToNotAutoMap.push('stroke-width','stroke-opacity','strokeWidth');
+    attrToNotAutoMap.push("color", "strokeWidth");
   }
   // Fill opacity only relevant if paint is present
-  if((shape.properties.fill as IColorV<number>).contents.tag !== "NONE") {
+  if ((shape.properties.fill as IColorV<number>).contents.tag !== "NONE") {
     path.setAttribute("fill-opacity", fillOpacity.toString());
-    attrToNotAutoMap.push('fill-opacity');
+    attrToNotAutoMap.push("fill");
   }
   // factor out an AttrHelper
   if (
@@ -122,35 +138,35 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
       "stroke-dasharray",
       (shape.properties.strokeDashArray as IStrV).contents
     );
-  } else if (shape.properties.style.contents === "dashed") {
+  } else if (shape.properties.strokeStyle.contents === "dashed") {
     path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
-  attrToNotAutoMap.push('stroke-dasharray','strokeDashArray');
+  attrToNotAutoMap.push("strokeDashArray", "strokeStyle");
 
   // TODO: ded
   path.setAttribute(
     "d",
     toPathString(shape.properties.pathData.contents as any[], canvasSize)
   );
+  attrToNotAutoMap.push("pathData");
   if (shape.properties.leftArrowhead.contents === true) {
     path.setAttribute("marker-start", `url(#${leftArrowId})`);
-    attrToNotAutoMap.push('leftArrowhead','market-start');
+    attrToNotAutoMap.push("leftArrowhead");
   }
   if (shape.properties.rightArrowhead.contents === true) {
     path.setAttribute("marker-end", `url(#${rightArrowId})`);
-    attrToNotAutoMap.push('rightArrowhead','market-end');
+    attrToNotAutoMap.push("rightArrowhead");
   }
   if (shape.properties.effect.contents === "dropShadow") {
     path.setAttribute("filter", `url(#${shadowId})`);
-    attrToNotAutoMap.push('effect','filter');
   }
+  attrToNotAutoMap.push("effect");
   elem.appendChild(path);
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-  console.debug('Rendering Path - Done');
-  
+
   return elem;
 };
 export default Path;
