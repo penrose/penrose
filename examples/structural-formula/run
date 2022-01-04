@@ -1,2 +1,2 @@
-npx roger watch molecules/acetic-acid.sub structural-formula.sty structural-formula.dsl
+npx roger watch reactions/photosynthesis.sub pseudo-3d-reaction.sty structural-formula.dsl
 
