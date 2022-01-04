@@ -6,7 +6,7 @@ import {
   IRotate,
   IShape,
   IString,
-  weaken,
+  ShapeDef,
 } from "./Shapes";
 import { Canvas, sampleVector, sampleZero, StrV } from "./Samplers";
 
@@ -23,14 +23,19 @@ export const sampleEquation = (canvas: Canvas): IEquation => ({
 
 export type Equation = IShape & { shapeType: "Equation" } & IEquation;
 
-export const Equation = {
-  sampler: weaken(sampleEquation),
-  constr: (canvas: Canvas, properties: Partial<IEquation>): Equation => ({
-    ...sampleEquation(canvas),
-    ...properties,
-    shapeType: "Equation",
-    bbox: function () {
-      return bboxFromRectlike(this); // assumes w and h correspond to string
-    },
-  }),
-};
+export const makeEquation = (
+  canvas: Canvas,
+  properties: Partial<IEquation>
+): Equation => ({
+  ...sampleEquation(canvas),
+  ...properties,
+  shapeType: "Equation",
+});
+
+export const Equation = ShapeDef({
+  sampler: sampleEquation,
+  constr: makeEquation,
+
+  bbox: bboxFromRectlike,
+  isRectlike: true,
+});

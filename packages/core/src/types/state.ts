@@ -1,5 +1,5 @@
-import { Canvas } from "renderer/ShapeDef";
 import { prng } from "seedrandom";
+import { Canvas } from "shapes/Samplers";
 import { VarAD, GradGraphs } from "./ad";
 import { MaybeVal } from "./common";
 import { Shape } from "./shape";

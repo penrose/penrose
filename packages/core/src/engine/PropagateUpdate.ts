@@ -3,12 +3,11 @@ import {
   insertExpr,
   exprToNumber,
 } from "engine/EngineUtils";
-import { getShapeName } from "renderer/ShapeDef";
 import { Translation } from "types/value";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
 import { State, LabelCache } from "types/state";
-import { Path, IPropertyPath, IAccessPath } from "types/style";
+import { Path, IPropertyPath, IAccessPath, getShapeName } from "types/style";
 import { retrieveLabel } from "utils/CollectLabels";
 
 /**

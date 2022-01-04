@@ -6,16 +6,25 @@ import {
   sampleBlack,
   VectorV,
 } from "shapes/Samplers";
-import { Circle } from "shapes/Circle";
-import { Ellipse } from "shapes/Ellipse";
-import { Rectangle } from "shapes/Rectangle";
+import { makeCircle } from "shapes/Circle";
+import { Ellipse, makeEllipse } from "shapes/Ellipse";
+import { makeRectangle, Rectangle } from "shapes/Rectangle";
 import { IPoly, IScale } from "shapes/Shapes";
-import { Polygon } from "shapes/Polygon";
-import { Polyline } from "shapes/Polyline";
-import { Image } from "shapes/Image";
-import { Line } from "shapes/Line";
-import { Path } from "shapes/Path";
+import { makePolygon, Polygon } from "shapes/Polygon";
+import { makePolyline, Polyline } from "shapes/Polyline";
+import { Image, makeImage } from "shapes/Image";
+import { Line, makeLine } from "shapes/Line";
+import { makePath, Path } from "shapes/Path";
 import { compDict } from "contrib/Functions";
+import {
+  bboxFromCircle,
+  bboxFromEllipse,
+  bboxFromLinelike,
+  bboxFromPath,
+  bboxFromPolygon,
+  bboxFromRect,
+  bboxFromRectlike,
+} from "./BBox";
 
 const canvas = makeCanvas(800, 700);
 
@@ -42,7 +51,7 @@ const polyProps = (): IPoly & IScale => ({
 
 describe("bbox", () => {
   test("Circle", () => {
-    const shape = Circle(canvas, {
+    const shape = makeCircle(canvas, {
       r: FloatV(constOf(100)),
       center: VectorV([42, 121].map(constOf)),
       strokeWidth: FloatV(constOf(50)),
@@ -52,7 +61,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromCircle(shape);
     expect(numOf(w)).toBeCloseTo(250);
     expect(numOf(h)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(42);
@@ -60,7 +69,7 @@ describe("bbox", () => {
   });
 
   test("Ellipse", () => {
-    const shape = Ellipse(canvas, {
+    const shape = makeEllipse(canvas, {
       rx: FloatV(constOf(200)),
       ry: FloatV(constOf(100)),
       center: VectorV([42, 121].map(constOf)),
@@ -71,7 +80,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromEllipse(shape);
     expect(numOf(w)).toBeCloseTo(450);
     expect(numOf(h)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(42);
@@ -79,7 +88,7 @@ describe("bbox", () => {
   });
 
   test("Rectangle", () => {
-    const shape = Rectangle(canvas, {
+    const shape = makeRectangle(canvas, {
       center: VectorV([0, 0].map(constOf)),
       width: FloatV(constOf(150)),
       height: FloatV(constOf(200)),
@@ -90,7 +99,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromRect(shape);
     expect(numOf(w)).toBeCloseTo(200);
     expect(numOf(h)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(0);
@@ -98,12 +107,12 @@ describe("bbox", () => {
   });
 
   test("Polygon", () => {
-    const shape = Polygon(canvas, polyProps());
+    const shape = makePolygon(canvas, polyProps());
     const {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPolygon(shape);
     expect(numOf(w)).toBeCloseTo(113.5);
     expect(numOf(h)).toBeCloseTo(116.5);
     expect(numOf(x)).toBeCloseTo(320.75);
@@ -111,12 +120,12 @@ describe("bbox", () => {
   });
 
   test("Polyline", () => {
-    const shape = Polyline(canvas, polyProps());
+    const shape = makePolyline(canvas, polyProps());
     const {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPolygon(shape);
     expect(numOf(w)).toBeCloseTo(113.5);
     expect(numOf(h)).toBeCloseTo(116.5);
     expect(numOf(x)).toBeCloseTo(320.75);
@@ -124,7 +133,7 @@ describe("bbox", () => {
   });
 
   test("Image", () => {
-    const shape = Image(canvas, {
+    const shape = makeImage(canvas, {
       center: VectorV([0, 0].map(constOf)),
       width: FloatV(constOf(150)),
       height: FloatV(constOf(200)),
@@ -133,7 +142,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromRectlike(shape);
     expect(numOf(w)).toBeCloseTo(150);
     expect(numOf(h)).toBeCloseTo(200);
     expect(numOf(x)).toBeCloseTo(0);
@@ -141,7 +150,7 @@ describe("bbox", () => {
   });
 
   test("Line", () => {
-    const shape = Line(canvas, {
+    const shape = makeLine(canvas, {
       start: VectorV([-300, 200].map(constOf)),
       end: VectorV([100, -150].map(constOf)),
       strokeWidth: FloatV(constOf(50)),
@@ -150,7 +159,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromLinelike(shape);
     expect(numOf(w)).toBeCloseTo(432.925);
     expect(numOf(h)).toBeCloseTo(387.629);
     expect(numOf(x)).toBeCloseTo(-100);
@@ -158,7 +167,7 @@ describe("bbox", () => {
   });
 
   test("Path (lines)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.pathFromPoints("open", [
         [constOf(-100), constOf(-100)],
         [constOf(100), constOf(-50)],
@@ -169,7 +178,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(200);
     expect(numOf(h)).toBeCloseTo(200);
     expect(numOf(x)).toBeCloseTo(0);
@@ -177,7 +186,7 @@ describe("bbox", () => {
   });
 
   test("Path (quadratic)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.makePath(
         [constOf(-100), constOf(0)],
         [constOf(100), constOf(0)],
@@ -189,7 +198,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(180);
     expect(numOf(h)).toBeCloseTo(50);
     expect(numOf(x)).toBeCloseTo(0);
@@ -197,7 +206,7 @@ describe("bbox", () => {
   });
 
   test("Path (cubic)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.cubicCurveFromPoints("open", [
         [constOf(0), constOf(0)],
         [constOf(50), constOf(50)],
@@ -209,7 +218,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(200);
     expect(numOf(h)).toBeCloseTo(75);
     expect(numOf(x)).toBeCloseTo(100);
@@ -217,7 +226,7 @@ describe("bbox", () => {
   });
 
   test("Path (quadratic join)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.quadraticCurveFromPoints("open", [
         [constOf(0), constOf(0)],
         [constOf(50), constOf(50)],
@@ -229,7 +238,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(200);
     expect(numOf(h)).toBeCloseTo(150);
     expect(numOf(x)).toBeCloseTo(100);
@@ -237,7 +246,7 @@ describe("bbox", () => {
   });
 
   test("Path (cubic join)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.cubicCurveFromPoints("open", [
         [constOf(0), constOf(0)],
         [constOf(50), constOf(50)],
@@ -251,7 +260,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(250);
     expect(numOf(h)).toBeCloseTo(150);
     expect(numOf(x)).toBeCloseTo(75);
@@ -259,7 +268,7 @@ describe("bbox", () => {
   });
 
   test("Path (arc unscaled)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.arc(
         "open",
         [constOf(-50), constOf(50)],
@@ -274,7 +283,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(400);
     expect(numOf(h)).toBeCloseTo(400);
     expect(numOf(x)).toBeCloseTo(-1.297);
@@ -282,7 +291,7 @@ describe("bbox", () => {
   });
 
   test("Path (arc small)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.arc(
         "open",
         [constOf(-50), constOf(50)],
@@ -297,7 +306,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(400);
     expect(numOf(h)).toBeCloseTo(400);
     expect(numOf(x)).toBeCloseTo(51.297);
@@ -305,7 +314,7 @@ describe("bbox", () => {
   });
 
   test("Path (arc scaled)", () => {
-    const shape = Path(canvas, {
+    const shape = makePath(canvas, {
       d: compDict.arc(
         "open",
         [constOf(-75), constOf(-50)],
@@ -320,7 +329,7 @@ describe("bbox", () => {
       w,
       h,
       center: [x, y],
-    } = shape.bbox();
+    } = bboxFromPath(shape);
     expect(numOf(w)).toBeCloseTo(311.512);
     expect(numOf(h)).toBeCloseTo(311.512);
     expect(numOf(x)).toBeCloseTo(62.5);

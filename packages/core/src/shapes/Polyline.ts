@@ -7,7 +7,7 @@ import {
   IScale,
   IShape,
   IStroke,
-  weaken,
+  ShapeDef,
 } from "./Shapes";
 import {
   Canvas,
@@ -40,15 +40,18 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
 
 export type Polyline = IShape & { shapeType: "Polyline" } & IPolyline;
 
-export const Polyline = {
-  sampler: weaken(samplePolyline),
-  constr: (canvas: Canvas, properties: Partial<IPolyline>): Polyline => ({
-    ...samplePolyline(canvas),
-    ...properties,
-    shapeType: "Polyline",
-    bbox: function () {
-      // https://github.com/penrose/penrose/issues/709
-      return bboxFromPolygon(this);
-    },
-  }),
-};
+export const makePolyline = (
+  canvas: Canvas,
+  properties: Partial<IPolyline>
+): Polyline => ({
+  ...samplePolyline(canvas),
+  ...properties,
+  shapeType: "Polyline",
+});
+
+export const Polyline = ShapeDef({
+  sampler: samplePolyline,
+  constr: makePolyline,
+
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+});

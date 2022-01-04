@@ -1,5 +1,5 @@
 import { isConcrete } from "engine/EngineUtils";
-import { ShapeDef, shapedefs } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 import { Maybe, Result } from "true-myth";
 import { ASTNode, Identifier, SourceLoc } from "types/ast";
 import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
@@ -219,7 +219,7 @@ export const showError = (
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
-      const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
+      const shapeNames: string[] = Object.keys(shapedefs);
       return `Got invalid GPI type ${error.givenType.value}. Available shape types: ${shapeNames}`;
     }
 

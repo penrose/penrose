@@ -7,7 +7,7 @@ import {
   IRect,
   IShape,
   IStroke,
-  weaken,
+  ShapeDef,
 } from "./Shapes";
 import {
   Canvas,
@@ -45,14 +45,19 @@ export const sampleRectangle = (canvas: Canvas): IRectangle => ({
 
 export type Rectangle = IShape & { shapeType: "Rectangle" } & IRectangle;
 
-export const Rectangle = {
-  sampler: weaken(sampleRectangle),
-  constr: (canvas: Canvas, properties: Partial<IRectangle>): Rectangle => ({
-    ...sampleRectangle(canvas),
-    ...properties,
-    shapeType: "Rectangle",
-    bbox: function () {
-      return bboxFromRect(this);
-    },
-  }),
-};
+export const makeRectangle = (
+  canvas: Canvas,
+  properties: Partial<IRectangle>
+): Rectangle => ({
+  ...sampleRectangle(canvas),
+  ...properties,
+  shapeType: "Rectangle",
+});
+
+export const Rectangle = ShapeDef({
+  sampler: sampleRectangle,
+  constr: makeRectangle,
+
+  bbox: bboxFromRect,
+  isRectlike: true,
+});

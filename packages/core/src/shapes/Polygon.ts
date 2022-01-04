@@ -7,7 +7,7 @@ import {
   IScale,
   IShape,
   IStroke,
-  weaken,
+  ShapeDef,
 } from "./Shapes";
 import {
   Canvas,
@@ -40,15 +40,18 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
 
 export type Polygon = IShape & { shapeType: "Polygon" } & IPolygon;
 
-export const Polygon = {
-  sampler: weaken(samplePolygon),
-  constr: (canvas: Canvas, properties: Partial<IPolygon>): Polygon => ({
-    ...samplePolygon(canvas),
-    ...properties,
-    shapeType: "Polygon",
-    bbox: function () {
-      // https://github.com/penrose/penrose/issues/709
-      return bboxFromPolygon(this);
-    },
-  }),
-};
+export const makePolygon = (
+  canvas: Canvas,
+  properties: Partial<IPolygon>
+): Polygon => ({
+  ...samplePolygon(canvas),
+  ...properties,
+  shapeType: "Polygon",
+});
+
+export const Polygon = ShapeDef({
+  sampler: samplePolygon,
+  constr: makePolygon,
+
+  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+});

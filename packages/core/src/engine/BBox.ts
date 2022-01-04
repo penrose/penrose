@@ -23,7 +23,7 @@ import {
   sub,
 } from "./Autodiff";
 
-interface IBBox {
+export interface IBBox {
   w: VarAD;
   h: VarAD;
   center: Pt2;

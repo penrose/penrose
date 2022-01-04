@@ -22,6 +22,8 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
+  propertiesNotOf,
+  propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
 import _ from "lodash";
@@ -2246,32 +2248,6 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
   }
 
   return [];
-};
-
-// Given 'propType' and 'shapeType', return all props of that ValueType
-// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
-const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo: [string, Value<VarAD>][] = Object.entries(
-    // kinda inelegant: we first sample an entire shape
-    shapedefs[shapeType].sampler(makeCanvas(0, 0))
-  );
-  return shapeInfo
-    .filter(([_pName, { tag }]) => tag === propType)
-    .map((e) => e[0]);
-};
-
-// Given 'propType' and 'shapeType', return all props NOT of that ValueType
-const propertiesNotOf = (
-  propType: string,
-  shapeType: ShapeTypeStr
-): PropID[] => {
-  const shapeInfo: [string, Value<VarAD>][] = Object.entries(
-    // kinda inelegant: we first sample an entire shape
-    shapedefs[shapeType].sampler(makeCanvas(0, 0))
-  );
-  return shapeInfo
-    .filter(([_pName, { tag }]) => tag !== propType)
-    .map((e) => e[0]);
 };
 
 // Find varying fields

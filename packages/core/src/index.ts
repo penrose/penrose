@@ -31,7 +31,7 @@ import {
   prettyPrintExpr,
 } from "./utils/OtherUtils";
 import { bBoxDims, ops, toSvgPaintProperty } from "./utils/Util";
-import { Canvas } from "./renderer/ShapeDef";
+import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
 import { shapeAutodiffToNumber } from "engine/EngineUtils";

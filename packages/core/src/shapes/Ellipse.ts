@@ -1,7 +1,7 @@
 import { bboxFromEllipse } from "engine/BBox";
 import { VarAD } from "types/ad";
 import { IFloatV } from "types/value";
-import { ICenter, IFill, INamed, IShape, IStroke, weaken } from "./Shapes";
+import { ICenter, IFill, INamed, IShape, IStroke, ShapeDef } from "./Shapes";
 import {
   Canvas,
   sampleColor,
@@ -32,14 +32,18 @@ export const sampleEllipse = (canvas: Canvas): IEllipse => ({
 
 export type Ellipse = IShape & { shapeType: "Ellipse" } & IEllipse;
 
-export const Ellipse = {
-  sampler: weaken(sampleEllipse),
-  constr: (canvas: Canvas, properties: Partial<IEllipse>): Ellipse => ({
-    ...sampleEllipse(canvas),
-    ...properties,
-    shapeType: "Ellipse",
-    bbox: function () {
-      return bboxFromEllipse(this);
-    },
-  }),
-};
+export const makeEllipse = (
+  canvas: Canvas,
+  properties: Partial<IEllipse>
+): Ellipse => ({
+  ...sampleEllipse(canvas),
+  ...properties,
+  shapeType: "Ellipse",
+});
+
+export const Ellipse = ShapeDef({
+  sampler: sampleEllipse,
+  constr: makeEllipse,
+
+  bbox: bboxFromEllipse,
+});

@@ -1,6 +1,6 @@
 import { bboxFromRectlike } from "engine/BBox";
 import { IStrV } from "types/value";
-import { ICenter, INamed, IRect, IRotate, IShape, weaken } from "./Shapes";
+import { ICenter, INamed, IRect, IRotate, IShape, ShapeDef } from "./Shapes";
 import {
   Canvas,
   sampleHeight,
@@ -28,15 +28,19 @@ export const sampleImage = (canvas: Canvas): IImage => ({
 
 export type Image = IShape & { shapeType: "Image" } & IImage;
 
-export const Image = {
-  sampler: weaken(sampleImage),
-  constr: (canvas: Canvas, properties: Partial<IImage>): Image => ({
-    ...sampleImage(canvas),
-    ...properties,
-    shapeType: "Image",
-    bbox: function () {
-      // https://github.com/penrose/penrose/issues/712
-      return bboxFromRectlike(this);
-    },
-  }),
-};
+export const makeImage = (
+  canvas: Canvas,
+  properties: Partial<IImage>
+): Image => ({
+  ...sampleImage(canvas),
+  ...properties,
+  shapeType: "Image",
+});
+
+export const Image = ShapeDef({
+  sampler: sampleImage,
+  constr: makeImage,
+
+  bbox: bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
+  isRectlike: true,
+});

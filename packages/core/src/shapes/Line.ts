@@ -2,7 +2,7 @@ import { constOf } from "engine/Autodiff";
 import { bboxFromLinelike } from "engine/BBox";
 import { VarAD } from "types/ad";
 import { IVectorV } from "types/value";
-import { IArrow, INamed, IShape, IStroke, weaken } from "./Shapes";
+import { IArrow, INamed, IShape, IStroke, ShapeDef } from "./Shapes";
 import {
   BoolV,
   Canvas,
@@ -34,14 +34,16 @@ export const sampleLine = (canvas: Canvas): ILine => ({
 
 export type Line = IShape & { shapeType: "Line" } & ILine;
 
-export const Line = {
-  sampler: weaken(sampleLine),
-  constr: (canvas: Canvas, properties: Partial<ILine>): Line => ({
-    ...sampleLine(canvas),
-    ...properties,
-    shapeType: "Line",
-    bbox: function () {
-      return bboxFromLinelike(this);
-    },
-  }),
-};
+export const makeLine = (canvas: Canvas, properties: Partial<ILine>): Line => ({
+  ...sampleLine(canvas),
+  ...properties,
+  shapeType: "Line",
+});
+
+export const Line = ShapeDef({
+  sampler: sampleLine,
+  constr: makeLine,
+
+  bbox: bboxFromLinelike,
+  isLinelike: true,
+});

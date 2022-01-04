@@ -21,7 +21,7 @@ import { Rectangle } from "./Rectangle";
 import { Canvas } from "./Samplers";
 import { Text } from "./Text";
 
-// shape hierarchy interfaces
+//#region shape hierarchy interfaces
 
 export interface INamed {
   name: IStrV;
@@ -79,22 +79,18 @@ export interface IString {
   string: IStrV;
 }
 
-// other things
+//#endregion
+
+//#region other shape types/globals
 
 export interface IShape {
   shapeType: string;
-  bbox(): BBox.BBox;
 }
 
+// TODO: fix this type, it's too restrictive
 export interface Properties {
   [k: string]: Value<VarAD>;
 }
-
-// hack to satisfy the typechecker
-export const weaken = (
-  sampler: (canvas: Canvas) => unknown
-): ((canvas: Canvas) => Properties) => (canvas: Canvas): Properties =>
-  <Properties>sampler(canvas);
 
 export type Shape =
   | Circle
@@ -111,7 +107,28 @@ export type Shape =
 export interface ShapeDef {
   sampler: (canvas: Canvas) => Properties;
   constr: (canvas: Canvas, properties: Properties) => Shape;
+
+  // TODO: make these methods
+  bbox: (properties: Properties) => BBox.BBox;
+  isLinelike: boolean; // TODO: use type predicate instead
+  isRectlike: boolean; // TODO: remove this
 }
+
+// hack to satisfy the typechecker
+export const ShapeDef = (shapedef: {
+  sampler: (canvas: Canvas) => unknown;
+  constr: (canvas: Canvas, properties: Properties) => Shape;
+  bbox: (properties: any) => BBox.BBox;
+  isLinelike?: boolean;
+  isRectlike?: boolean;
+}): ShapeDef => ({
+  sampler: (canvas) => <Properties>shapedef.sampler(canvas),
+  constr: shapedef.constr,
+
+  bbox: shapedef.bbox,
+  isLinelike: shapedef.isLinelike || false,
+  isRectlike: shapedef.isRectlike || false,
+});
 
 export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Circle,
