@@ -1,12 +1,11 @@
--- By default, use a canvas size suitable for a full-
--- column figure in a two-column ACM article.
 canvas {
-   width = 243
-   height = 182
+   width = 360
+   height = 270
 }
 
 Colors {
    color black = rgba(0.,0.,0.,1.)
+   color white = rgba(1.,1.,1.,1.)
    color lightGray = rgba(.8,.8,.8,1.)
    color clear = rgba(0.,0.,0.,0.)
    color semiBlue = rgba( 27./255., 31./255., 138./255., .2 )
@@ -14,6 +13,7 @@ Colors {
 
 Global {
    scalar vertexRadius = 1.75
+   scalar pointRadius = 2.0
    scalar lineThickness = 1.
 
    shape box = Rectangle {
@@ -67,7 +67,7 @@ forall Vertex v {
    ensure contains( Global.box, v.bounds )
 
    -- keep the label near the dot
-   encourage near( v.text, v.icon )
+   encourage equal( norm(v.text.center - v.icon.center), 0. )
 }
 
 -- make sure vertex labels don't overlap
@@ -107,6 +107,8 @@ where t := MakeTriangle(i,j,k)
    vec2 b = j.icon.center
    vec2 c = k.icon.center
 
+   vec2 t.circumcenter = circumcenter(a,b,c)
+
    shape t.icon = Path {
       pathData: pathFromPoints("closed", [a,b,c])
       fill: Colors.semiBlue
@@ -123,9 +125,9 @@ where t := MakeTriangle(i,j,k)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
    scalar cTheta = angleFrom( a-c, b-c )
-   encourage equal( aTheta, toRadians(30.), 10000. )
-   encourage equal( bTheta, toRadians(30.), 10000. )
-   encourage equal( cTheta, toRadians(30.), 10000. )
+   ensure inRange( aTheta, toRadians(10.), toRadians(50.) )
+   ensure inRange( bTheta, toRadians(10.), toRadians(50.) )
+   ensure inRange( cTheta, toRadians(10.), toRadians(50.) )
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
@@ -156,13 +158,108 @@ where c := MakeCorner(i,j,k) {
       fill: Colors.semiBlue
    }
 
+   scalar R0 = i.bounds.r
+
    shape c.text = Text {
       string: c.label
-      center: p + 1.5*R*(u+v)/2.
+      center: p + (R+R0)*unit(u+v)
       fontSize: Global.fontSize
       fontFamily: Global.fontFamily
       fontStyle: "italic"
       color: Colors.black
+   }
+}
+
+forall Point p {
+
+   vec2 p.center = (?,?)
+
+   -- white dot
+   shape p.icon = Circle {
+      color: Colors.white
+      strokeColor: Colors.black
+      r: Global.pointRadius
+      center: p.center
+      strokeWidth: 1.
+   }
+
+   -- label
+   shape p.text = Text {
+      center: (?,?)
+      string: ""
+      fontFamily: Global.fontFamily
+      fontSize: Global.fontSize
+      fontStyle: "italic"
+      color: Colors.black
+   }
+
+   -- make sure the dot and label are both
+   -- on the canvas
+   ensure contains( Global.box, p.icon )
+
+   -- keep the label near the dot
+   encourage equal( norm(p.text.center - p.icon.center), 0. )
+}
+
+forall Point p; Triangle t {
+   layer p.icon above t.icon
+}
+
+-- Barycenter
+forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
+where p := Barycenter(t); t := MakeTriangle(i,j,k) {
+   override p.center = barycenter( i.center, j.center, k.center )
+}
+
+-- Circumcenter
+forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
+where p := Circumcenter(t); t := MakeTriangle(i,j,k) {
+
+   -- put point at circumcenter 
+   vec2 x = circumcenter( i.center, j.center, k.center )
+   override p.center = x
+
+   -- draw circumcircle
+   scalar R = norm( x - i.center )
+   shape circumcircle = Circle {
+      center: x
+      r: R
+      color: none()
+      strokeColor: Colors.black
+      strokeWidth: .5
+      strokeStyle: "dashed"
+   }
+}
+
+-- -- Incenter
+-- forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
+-- where p := Incenter(t); t := MakeTriangle(i,j,k) {
+-- 
+--    -- put point at incenter 
+--    vec2 p.inCenter = incenter( i.center, j.center, k.center )
+--    override p.center = p.inCenter
+-- 
+--    -- draw incircle
+--    scalar p.inRadius = inradius( i.center, j.center, k.center )
+--    shape p.decoration = Circle {
+--       center: p.inCenter
+--       r: p.inRadius
+--       color: none()
+--       strokeColor: Colors.black
+--       strokeWidth: .5
+--       strokeStyle: "dashed"
+--    }
+-- }
+
+forall DualEdge d; Triangle t1; Triangle t2
+where d := MakeDualEdge(t1,t2) {
+
+   shape d.icon = Line {
+      start: t1.circumcenter
+      end: t2.circumcenter
+      color: Colors.black
+      thickness: Global.lineThickness
+      style: "dashed"
    }
 }
 
