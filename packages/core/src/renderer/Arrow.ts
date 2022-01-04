@@ -1,7 +1,13 @@
 import { Shape } from "types/shape";
 import { IFloatV, IStrV, IColorV, IVectorV } from "types/value";
-import { arrowheads, round2, toSvgPaintProperty, toSvgOpacityProperty, toScreen } from "utils/Util";
-import { attrFill, attrTitle, DASH_ARRAY } from "./AttrHelper";
+import {
+  arrowheads,
+  round2,
+  toSvgPaintProperty,
+  toSvgOpacityProperty,
+  toScreen,
+} from "utils/Util";
+import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
 export const arrowHead = (
@@ -10,8 +16,9 @@ export const arrowHead = (
   opacity: number,
   style: string,
   size: number
-) => {
+): SVGMarkerElement => {
   const arrow = arrowheads[style];
+
   const marker = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "marker"
@@ -24,15 +31,20 @@ export const arrowHead = (
   marker.setAttribute("refX", arrow.refX.toString());
   marker.setAttribute("refY", arrow.refY.toString());
   marker.setAttribute("orient", "auto-start-reverse");
+
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", arrow.path);
   path.setAttribute("fill", color);
   path.setAttribute("fill-opacity", opacity.toString());
   marker.appendChild(path);
+
   return marker;
 };
 
-export const makeRoomForArrows = (shape: Shape) => {
+export const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
+  // Keep a list of which input properties we programatically mapped
+  const attrMapped: string[] = [];
+
   const [lineSX, lineSY] = (shape.properties.start as IVectorV<number>)
     .contents as [number, number];
   const [lineEX, lineEY] = (shape.properties.end as IVectorV<number>)
@@ -42,6 +54,13 @@ export const makeRoomForArrows = (shape: Shape) => {
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
   const thickness = (shape.properties.thickness as IFloatV<number>).contents;
+  attrMapped.push(
+    "start",
+    "end",
+    "arrowheadStyle",
+    "arrowheadSize",
+    "thickness"
+  );
 
   // height * size = Penrose computed arrow size
   // multiplied by thickness since the arrow size uses markerUnits, which is strokeWidth by default:
@@ -61,6 +80,7 @@ export const makeRoomForArrows = (shape: Shape) => {
   } else {
     [arrowSX, arrowSY] = [lineSX, lineSY];
   }
+  attrMapped.push("leftArrowhead");
 
   let arrowEX, arrowEY;
   if (
@@ -74,32 +94,45 @@ export const makeRoomForArrows = (shape: Shape) => {
   } else {
     [arrowEX, arrowEY] = [lineEX, lineEY];
   }
+  attrMapped.push("rightArrowhead");
 
   return [
-    [arrowSX, arrowSY],
-    [arrowEX, arrowEY],
+    [
+      [arrowSX, arrowSY],
+      [arrowEX, arrowEY],
+    ],
+    attrMapped,
   ];
 };
 
-const Arrow = ({ shape, canvasSize }: ShapeProps) => {
+const Arrow = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   elem.setAttribute("pointer-events", "bounding-box");
   const id = `arrowhead_${shape.properties.name.contents}`;
-  const color = toSvgPaintProperty((shape.properties.color as IColorV<number>).contents);
+  const color = toSvgPaintProperty(
+    (shape.properties.color as IColorV<number>).contents
+  );
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
     .contents;
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
-  const alpha = toSvgOpacityProperty((shape.properties.color as IColorV<number>).contents);
+  const alpha = toSvgOpacityProperty(
+    (shape.properties.color as IColorV<number>).contents
+  );
   elem.appendChild(arrowHead(id, color, alpha, arrowheadStyle, arrowheadSize));
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  const [[arrowSX, arrowSY], [arrowEX, arrowEY]] = makeRoomForArrows(shape);
+  const [
+    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
+    attrToNotAutoMap,
+  ] = makeRoomForArrows(shape);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
 
   path.setAttribute("d", `M ${sx} ${sy} L ${ex} ${ey}`);
   path.setAttribute("marker-end", `url(#${id})`);
-  path.setAttribute("stroke-opacity",alpha.toString())
+  path.setAttribute("stroke-opacity", alpha.toString());
   path.setAttribute("stroke", color);
+  attrToNotAutoMap.push("color", "name", "arrowheadSize", "arrowheadStyle");
+
   // factor out an AttrHelper
   if (
     "strokeDashArray" in shape.properties &&
@@ -109,9 +142,10 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
       "stroke-dasharray",
       (shape.properties.strokeDashArray as IStrV).contents
     );
-  } else if (shape.properties.style.contents === "dashed") {
+  } else if (shape.properties.strokeStyle.contents === "dashed") {
     elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
+  attrToNotAutoMap.push("strokeDashArray", "strokeStyle");
 
   if (
     "strokeLineCap" in shape.properties &&
@@ -124,13 +158,19 @@ const Arrow = ({ shape, canvasSize }: ShapeProps) => {
   } else {
     elem.setAttribute("stroke-linecap", "butt");
   }
+  attrToNotAutoMap.push("strokeLineCap");
 
   path.setAttribute(
     "stroke-width",
     shape.properties.thickness.contents.toString()
   );
   elem.appendChild(path);
-  attrTitle(shape, elem);
+  attrToNotAutoMap.push("thickness");
+  attrToNotAutoMap.push(...attrTitle(shape, elem));
+
+  // Directrly Map across any "unknown" SVG properties
+  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+
   return elem;
 };
 export default Arrow;
