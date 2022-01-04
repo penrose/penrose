@@ -1,6 +1,6 @@
 import * as React from "react";
 import { round, cloneDeep } from "lodash";
-import { Canvas, Value, toHex } from "@penrose/core";
+import { Canvas, Value, toSvgPaintProperty } from "@penrose/core";
 
 interface IProps {
   inputProps: IInputProps;
@@ -58,12 +58,12 @@ const toCanvas = (jsonVal: string, canvas: Canvas): string => {
 
 class LabeledInput extends React.Component<IProps> {
   public readonly state = {
-    eValue: this.props.eValue,
+    eValue: this.props.eValue
   };
   public componentDidUpdate(prevProps: IProps) {
     if (this.props !== prevProps) {
       this.setState({
-        eValue: this.props.eValue,
+        eValue: this.props.eValue
       });
     }
   } // todo - will subpath<x> always have typeof x = number?
@@ -79,8 +79,8 @@ class LabeledInput extends React.Component<IProps> {
     const newstate = {
       eValue: {
         ...this.state.eValue,
-        contents: evalue,
-      },
+        contents: evalue
+      }
     };
     this.setState(newstate); // will update span values - could be phased out if spans are set manually
     this.props.modAttr(id, newstate.eValue as Value.Value<any>);
@@ -146,7 +146,7 @@ class LabeledInput extends React.Component<IProps> {
     const hex = event.target.value;
     this.updateAttr(eattr, {
       tag: "RGBA",
-      contents: this.toRGBA(hex),
+      contents: this.toRGBA(hex)
     });
   };
   public handleOpacity = (
@@ -162,7 +162,7 @@ class LabeledInput extends React.Component<IProps> {
     colorobj[3] = +event.target.value / 100.0;
     this.updateAttr(eattr, {
       tag: "RGBA",
-      contents: colorobj,
+      contents: colorobj
     });
   };
   // https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
@@ -184,7 +184,7 @@ class LabeledInput extends React.Component<IProps> {
       <input
         id={eAttr}
         type="range"
-        onChange={(e) => this.handleChange(eAttr, e)}
+        onChange={e => this.handleChange(eAttr, e)}
         min={toCanvas(inputProps.min!, canvas)}
         max={toCanvas(inputProps.max!, canvas)}
         value={round(this.props.eValue.contents)}
@@ -228,7 +228,7 @@ class LabeledInput extends React.Component<IProps> {
                   index.toString(),
                   "x",
                   subindex.toString(),
-                  eAttr,
+                  eAttr
                 ].join("_");
                 const xltxt =
                   "S" + index.toString() + "x" + subindex.toString();
@@ -245,7 +245,7 @@ class LabeledInput extends React.Component<IProps> {
                   index.toString(),
                   "y",
                   subindex.toString(),
-                  eAttr,
+                  eAttr
                 ].join("_");
                 const yltxt =
                   "S" + index.toString() + "y" + subindex.toString();
@@ -258,7 +258,7 @@ class LabeledInput extends React.Component<IProps> {
                       <input
                         id={xid}
                         type="range"
-                        onChange={(e) =>
+                        onChange={e =>
                           this.handleMulPtRange(eAttr, index, subindex, 0, e)
                         }
                         min={toCanvas(inputProps.minX!, canvas)}
@@ -279,7 +279,7 @@ class LabeledInput extends React.Component<IProps> {
                       <input
                         id={yid}
                         type="range"
-                        onChange={(e) =>
+                        onChange={e =>
                           this.handleMulPtRange(eAttr, index, subindex, 1, e)
                         }
                         min={toCanvas(inputProps.minY!, canvas)}
@@ -318,7 +318,7 @@ class LabeledInput extends React.Component<IProps> {
             min={toCanvas(inputProps.minX!, canvas)}
             max={toCanvas(inputProps.maxX!, canvas)}
             value={round(pt[0] as number)}
-            onChange={(e) => this.handlePtRange(eAttr, 0, e)}
+            onChange={e => this.handlePtRange(eAttr, 0, e)}
           />
           {this.makeSubLabel(
             xid,
@@ -334,7 +334,7 @@ class LabeledInput extends React.Component<IProps> {
             min={toCanvas(inputProps.minY!, canvas)}
             max={toCanvas(inputProps.maxY!, canvas)}
             value={round(pt[1] as number)}
-            onChange={(e) => this.handlePtRange(eAttr, 1, e)}
+            onChange={e => this.handlePtRange(eAttr, 1, e)}
           />
           {this.makeSubLabel(
             yid,
@@ -357,7 +357,7 @@ class LabeledInput extends React.Component<IProps> {
         type="text"
         id={eAttr}
         defaultValue={this.props.eValue.contents}
-        onKeyDown={(e) => this.keyDown(eAttr, e)}
+        onKeyDown={e => this.keyDown(eAttr, e)}
       />
     );
   };
@@ -370,7 +370,7 @@ class LabeledInput extends React.Component<IProps> {
         type="url"
         id={eAttr}
         defaultValue={this.props.eValue.contents}
-        onKeyDown={(e) => this.keyDown(eAttr, e)}
+        onKeyDown={e => this.keyDown(eAttr, e)}
       />
     );
   };
@@ -380,7 +380,7 @@ class LabeledInput extends React.Component<IProps> {
       <input
         type="number"
         id={eAttr}
-        onChange={(e) => this.handleChange(eAttr, e)}
+        onChange={e => this.handleChange(eAttr, e)}
         min={inputProps.min ? toCanvas(inputProps.min, canvas) : ""}
         max={inputProps.max ? toCanvas(inputProps.max, canvas) : ""}
         value={this.props.eValue.contents}
@@ -394,7 +394,7 @@ class LabeledInput extends React.Component<IProps> {
         type="checkbox"
         id={eAttr}
         checked={this.props.eValue.contents}
-        onChange={(e) => this.handleCheck(eAttr, e)}
+        onChange={e => this.handleCheck(eAttr, e)}
       />
     );
   };
@@ -409,8 +409,8 @@ class LabeledInput extends React.Component<IProps> {
           <input
             type="color"
             id={cid}
-            value={toHex(this.props.eValue.contents)}
-            onChange={(e) => this.handleColor(eAttr, e)}
+            value={toSvgPaintProperty(this.props.eValue)}
+            onChange={e => this.handleColor(eAttr, e)}
           />
           {this.makeSubLabel(
             cid,
@@ -427,7 +427,7 @@ class LabeledInput extends React.Component<IProps> {
             min="0"
             max="100"
             value={round(100 * this.props.eValue.contents.contents[3])}
-            onChange={(e) => this.handleOpacity(eAttr, e)}
+            onChange={e => this.handleOpacity(eAttr, e)}
           />
           {this.makeSubLabel(oid, this.getSpan(), "opacity", false)}
         </div>
@@ -439,7 +439,7 @@ class LabeledInput extends React.Component<IProps> {
     if (!inputProps.hasOwnProperty("options"))
       throw new Error("Select input type must have enumerated options.");
     return (
-      <select id={eAttr} onChange={(e) => this.handleChange(eAttr, e)}>
+      <select id={eAttr} onChange={e => this.handleChange(eAttr, e)}>
         {inputProps.options!.map((option: string) => (
           <option key={option} value={option}>
             {option}
@@ -453,7 +453,7 @@ class LabeledInput extends React.Component<IProps> {
   // todo refactor to take params
   public getSpan = () => {
     const { inputType } = this.props.inputProps;
-    if (inputType === "color") return toHex(this.state.eValue.contents);
+    if (inputType === "color") return toSvgPaintProperty(this.state.eValue);
     else if (inputType === "range") return round(this.state.eValue.contents);
     else return this.state.eValue.contents.toString();
   };
