@@ -1,12 +1,12 @@
 import { makeCanvas } from "./Samplers";
-import { constructors } from "./Shapes";
+import { shapedefs } from "./Shapes";
 
 describe("constructors", () => {
   test("print", () => {
     const canvas = makeCanvas(800, 700);
     console.log(
       Object.fromEntries(
-        Object.entries(constructors).map(([name, constr]) => {
+        Object.entries(shapedefs).map(([name, { constr }]) => {
           const shape: { [prop: string]: any } = constr(canvas, {});
           delete shape.shapeType;
           delete shape.bbox;
