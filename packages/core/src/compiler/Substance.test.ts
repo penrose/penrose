@@ -40,17 +40,17 @@ type List('T)
 type Tuple('T, 'U)
 type Point
 OpenSet <: Set
-constructor Subset: Set A * Set B -> Set
-constructor Intersection: Set A * Set B -> Set
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function AddPoint : Point p * Set s1 -> Set
-predicate Not : Prop p1
-predicate Both : Prop p1 * Prop p2
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
+constructor Subset(Set A, Set B) -> Set
+constructor Intersection(Set A, Set B) -> Set
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddPoint(Point p, Set s1) -> Set
+predicate Not(Prop p1)
+predicate Both(Prop p1, Prop p2)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
 `;
 
 const domainProgWithPrelude = `
@@ -61,17 +61,17 @@ type List('T)
 type Tuple('T, 'U)
 type Point
 OpenSet <: Set
-constructor Subset: Set A * Set B -> Set
-constructor Intersection: Set A * Set B -> Set
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function AddPoint : Point p * Set s1 -> Set
-predicate Not : Prop p1
-predicate Both : Prop p1 * Prop p2
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
+constructor Subset(Set A, Set B) -> Set
+constructor Intersection(Set A, Set B) -> Set
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddPoint(Point p, Set s1) -> Set
+predicate Not(Prop p1)
+predicate Both(Prop p1, Prop p2)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
 value X: Set
 `;
 
@@ -386,7 +386,7 @@ v := Subset(A, B) -- error
     const env = envOrError(domainProg);
     const prog = `
 -- type Tuple('T, 'U)
--- constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
+-- constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
 List(Set) nil
 Tuple(Set, Set) t -- Maybe an error?
 t := CreateTuple(nil, nil) -- Definitely an error

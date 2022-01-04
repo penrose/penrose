@@ -42,26 +42,7 @@ const nodeData = (children: ASTNode[]) => ({
 
 # Macros
 
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
-
-sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(!first) return [];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
+@include "macros.ne"
 
 # Main grammar
 
@@ -186,7 +167,7 @@ label_decl -> "Label" __ identifier __ tex_literal {%
   })
 %}
 
-label_decl -> "Label" __ identifier __ string_literal {%
+label_decl -> "Label" __ identifier __ string_lit {%
   ([kw, , variable, , label]): LabelDecl => ({
     ...nodeData([variable, label]),
     ...rangeBetween(rangeOf(kw), label),

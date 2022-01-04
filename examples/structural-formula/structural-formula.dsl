@@ -26,9 +26,9 @@ type   Sodium <: Atom
 type Chlorine <: Atom
 
 -- predicates used to specify bonds between Nodes
-predicate SingleBond: Node n1 * Node n2
-predicate DoubleBond: Node n1 * Node n2
-predicate  IonicBond: Node n1 * Node n2
+predicate SingleBond(Node n1, Node n2)
+predicate DoubleBond(Node n1, Node n2)
+predicate  IonicBond(Node n1, Node n2)
 
 -- a Molecule is a collection of Atoms, or more generally,
 -- Nodes, held together by bonds.  It is not essential to
@@ -37,19 +37,19 @@ predicate  IonicBond: Node n1 * Node n2
 -- and/or grouping reactants/products.
 type Molecule
 
-predicate Contains: Molecule m * Node n
+predicate Contains(Molecule m, Node n)
 
 -- these predicates are used to delineate reactants and
 -- produces in a chemical equation
-predicate IsReactant: Molecule m
-predicate IsProduct: Molecule m
+predicate IsReactant(Molecule m)
+predicate IsProduct(Molecule m)
 
 -- a reaction involving all reactants and products
 type Reaction
 
 -- predicates to mark the type of reaction
-predicate     IsNetForward: Reaction r
-predicate IsStoichiometric: Reaction r
-predicate    IsEquilibrium: Reaction r
-predicate  IsBidirectional: Reaction r
+predicate     IsNetForward(Reaction r)
+predicate IsStoichiometric(Reaction r)
+predicate    IsEquilibrium(Reaction r)
+predicate  IsBidirectional(Reaction r)
 
