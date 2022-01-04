@@ -90,6 +90,7 @@ export interface Properties {
   [k: string]: Value<VarAD>;
 }
 
+// hack to satisfy the typechecker
 export const weaken = (
   sampler: (canvas: Canvas) => unknown
 ): ((canvas: Canvas) => Properties) => (canvas: Canvas): Properties =>
