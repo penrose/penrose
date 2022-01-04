@@ -1,5 +1,6 @@
 import * as _ from "lodash";
-import { bboxFromShape, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { inRange } from "contrib/Utils";
+import { bboxFromShape } from "contrib/Queries";
 import {
   absVal,
   add,
@@ -42,7 +43,6 @@ import {
   trunc,
   sqrt,
   sub,
-  variableAD,
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
@@ -697,7 +697,7 @@ export const compDict = {
     const cross = ops.cross2(st, en);
     return {
       tag: "FloatV",
-      contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
+      contents: ifCond(gt(cross, constOf(0)), constOf(0), constOf(1)),
     };
   },
   /**
@@ -772,8 +772,8 @@ export const compDict = {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
-      const startDir = ops.vrot(dir, varOf(135));
-      const endDir = ops.vrot(dir, varOf(225));
+      const startDir = ops.vrot(dir, constOf(135));
+      const endDir = ops.vrot(dir, constOf(225));
       const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
       // if even, evenly divide tick marks about center. if odd, start in center and move outwards
       return {
@@ -813,7 +813,7 @@ export const compDict = {
     // unit vector from midpoint to end point
     const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
     // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
-    const cond = gt(ops.vdot(vec1unit, intoEndUnit), varOf(0.95));
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), constOf(0.95));
     return {
       tag: "VectorV",
       contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
@@ -1244,11 +1244,11 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
 const tickPlacement = (
   padding: VarAD,
   numPts: VarAD,
-  multiplier = varOf(1)
+  multiplier = constOf(1)
 ): VarAD[] => {
   if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numOf(numPts) % 2 === 0;
-  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  let pts = even ? [div(padding, constOf(2))] : [constOf(0)];
   for (let i = 1; i < numOf(numPts); i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
