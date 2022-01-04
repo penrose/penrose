@@ -47,7 +47,7 @@
     }
   ],
   "settings": {
-    "[html]": {
+    "[css]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[javascript]": {
@@ -56,10 +56,10 @@
     "[json]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "[jsonc]": {
+    "[markdown]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "[markdown]": {
+    "[scss]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[typescript]": {
