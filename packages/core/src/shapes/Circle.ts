@@ -1,7 +1,7 @@
 import * as BBox from "engine/BBox";
 import { VarAD } from "types/ad";
 import { IFloatV } from "types/value";
-import { ICenter, IFill, INamed, IShape, IStroke } from "./Shapes";
+import { ICenter, IFill, INamed, IShape, IStroke, weaken } from "./Shapes";
 import {
   Canvas,
   sampleNoPaint,
@@ -29,14 +29,14 @@ export const sampleCircle = (canvas: Canvas): ICircle => ({
 
 export type Circle = IShape & ICircle;
 
-export const Circle = (
-  canvas: Canvas,
-  properties: Partial<ICircle>
-): Circle => ({
-  ...sampleCircle(canvas),
-  ...properties,
-  shapeType: "Circle",
-  bbox: function () {
-    return BBox.bboxFromCircle(this);
-  },
-});
+export const Circle = {
+  sampler: weaken(sampleCircle),
+  constr: (canvas: Canvas, properties: Partial<ICircle>): Circle => ({
+    ...sampleCircle(canvas),
+    ...properties,
+    shapeType: "Circle",
+    bbox: function () {
+      return BBox.bboxFromCircle(this);
+    },
+  }),
+};

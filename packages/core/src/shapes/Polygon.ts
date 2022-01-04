@@ -1,6 +1,14 @@
 import { constOf } from "engine/Autodiff";
 import { bboxFromPolygon } from "engine/BBox";
-import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "./Shapes";
+import {
+  IFill,
+  INamed,
+  IPoly,
+  IScale,
+  IShape,
+  IStroke,
+  weaken,
+} from "./Shapes";
 import {
   Canvas,
   FloatV,
@@ -32,15 +40,15 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
 
 export type Polygon = IShape & IPolygon;
 
-export const Polygon = (
-  canvas: Canvas,
-  properties: Partial<IPolygon>
-): Polygon => ({
-  ...samplePolygon(canvas),
-  ...properties,
-  shapeType: "Polygon",
-  bbox: function () {
-    // https://github.com/penrose/penrose/issues/709
-    return bboxFromPolygon(this);
-  },
-});
+export const Polygon = {
+  sampler: weaken(samplePolygon),
+  constr: (canvas: Canvas, properties: Partial<IPolygon>): Polygon => ({
+    ...samplePolygon(canvas),
+    ...properties,
+    shapeType: "Polygon",
+    bbox: function () {
+      // https://github.com/penrose/penrose/issues/709
+      return bboxFromPolygon(this);
+    },
+  }),
+};

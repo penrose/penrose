@@ -9,6 +9,7 @@ import {
   IShape,
   IString,
   IStroke,
+  weaken,
 } from "./Shapes";
 import {
   Canvas,
@@ -67,11 +68,14 @@ export const sampleText = (canvas: Canvas): IText => ({
 
 export type Text = IShape & IText;
 
-export const Text = (canvas: Canvas, properties: Partial<IText>): Text => ({
-  ...sampleText(canvas),
-  ...properties,
-  shapeType: "Text",
-  bbox: function () {
-    return bboxFromRectlike(this); // // assumes w and h correspond to string
-  },
-});
+export const Text = {
+  sampler: weaken(sampleText),
+  constr: (canvas: Canvas, properties: Partial<IText>): Text => ({
+    ...sampleText(canvas),
+    ...properties,
+    shapeType: "Text",
+    bbox: function () {
+      return bboxFromRectlike(this); // // assumes w and h correspond to string
+    },
+  }),
+};

@@ -2,7 +2,7 @@ import { constOf } from "engine/Autodiff";
 import { bboxFromPath } from "engine/BBox";
 import { VarAD } from "types/ad";
 import { IPathDataV } from "types/value";
-import { IArrow, IFill, INamed, IShape, IStroke } from "./Shapes";
+import { IArrow, IFill, INamed, IShape, IStroke, weaken } from "./Shapes";
 import {
   BoolV,
   Canvas,
@@ -34,11 +34,14 @@ export const samplePath = (_canvas: Canvas): IPath => ({
 
 export type Path = IShape & IPath;
 
-export const Path = (canvas: Canvas, properties: Partial<IPath>): Path => ({
-  ...samplePath(canvas),
-  ...properties,
-  shapeType: "Path",
-  bbox: function () {
-    return bboxFromPath(this);
-  },
-});
+export const Path = {
+  sampler: weaken(samplePath),
+  constr: (canvas: Canvas, properties: Partial<IPath>): Path => ({
+    ...samplePath(canvas),
+    ...properties,
+    shapeType: "Path",
+    bbox: function () {
+      return bboxFromPath(this);
+    },
+  }),
+};

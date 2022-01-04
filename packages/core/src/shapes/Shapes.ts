@@ -7,6 +7,7 @@ import {
   IPtListV,
   IStrV,
   IVectorV,
+  Value,
 } from "types/value";
 import { Circle } from "./Circle";
 import { Ellipse } from "./Ellipse";
@@ -17,12 +18,10 @@ import { Path } from "./Path";
 import { Polygon } from "./Polygon";
 import { Polyline } from "./Polyline";
 import { Rectangle } from "./Rectangle";
+import { Canvas } from "./Samplers";
 import { Text } from "./Text";
 
-export interface IShape {
-  shapeType: string;
-  bbox(): BBox.BBox;
-}
+// shape hierarchy interfaces
 
 export interface INamed {
   name: IStrV;
@@ -80,7 +79,28 @@ export interface IString {
   string: IStrV;
 }
 
-export const constructors = {
+// other things
+
+export interface IShape {
+  shapeType: string;
+  bbox(): BBox.BBox;
+}
+
+export interface Properties {
+  [k: string]: Value<VarAD>;
+}
+
+export const weaken = (
+  sampler: (canvas: Canvas) => unknown
+): ((canvas: Canvas) => Properties) => (canvas: Canvas): Properties =>
+  <Properties>sampler(canvas);
+
+export interface ShapeDef {
+  sampler: (canvas: Canvas) => Properties;
+  constr: (canvas: Canvas, properties: Properties) => IShape;
+}
+
+export const shapes: { [k: string]: ShapeDef } = {
   Circle,
   Ellipse,
   Equation,
