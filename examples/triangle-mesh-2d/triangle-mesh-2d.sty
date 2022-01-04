@@ -12,7 +12,8 @@ Colors {
 }
 
 Global {
-   scalar vertexRadius = 2.
+   scalar vertexRadius = 1.75
+   scalar lineThickness = 1.
 
    shape box = Rectangle {
       center: (0.,0.)
@@ -54,7 +55,7 @@ forall Vertex v {
    -- TODO boxes working for Text...
    shape v.bounds = Circle {
       center: v.text.center
-      r: 8
+      r: 7
       color: none()
    }
 
@@ -80,7 +81,7 @@ where e := MakeEdge(i,j) {
       start: i.icon.center
       end: j.icon.center
       color: Colors.black
-      thickness: 1.25
+      thickness: Global.lineThickness
    }
 
    -- make sure edge doesn't cover the
@@ -104,8 +105,24 @@ where t := MakeTriangle(i,j,k)
    vec2 b = j.icon.center
    vec2 c = k.icon.center
 
-   shape t.icon = Polygon {
-      points: (a,b,c)
+   shape t.icon = Path {
+      pathData: pathFromPoints("closed", [a,b,c])
+      fill: rgba( 27./255., 31./255., 138./255., .2 )
+      color: none()
    }
+
+   -- XXX This sadly causes a lot of NaNs...
+   -- Make sure triangles are positively
+   -- oriented and not tiny, by making their
+   -- signed area greater than some fixed constant.
+   scalar A = cross2D( b-a, c-a )
+   encourage lessThan( 2000., A )
+
+   scalar aTheta = angleFrom( b-a, c-a )
+   scalar bTheta = angleFrom( c-b, a-b )
+   scalar cTheta = angleFrom( a-c, b-c )
+   encourage equal( aTheta, toRadians(30.), 10000. )
+   encourage equal( bTheta, toRadians(30.), 10000. )
+   encourage equal( cTheta, toRadians(30.), 10000. )
 }
 

@@ -36,7 +36,14 @@ export const objDict = {
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
-  equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+  equal: (x: VarAD, y: VarAD, strength = 1.) => mul(constOfIf(strength),squared(sub(x, y))),
+
+  /**
+   * Encourage the value of `x` to be less than the value `y`, with optional offset `padding`
+   */
+  lessThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return squared( max( constOf(0.), add(sub(x, y), constOfIf(padding)) ) );
+  },
 
   /**
    * Encourage shape `top` to be above shape `bottom`. Only works for shapes with property `center`.
