@@ -41,7 +41,6 @@ import {
   tan,
   tanh,
   trunc,
-  sqr,
   sqrt,
   sub,
   variableAD,
@@ -1068,6 +1067,105 @@ export const compDict = {
       tag: "VectorV",
       contents: m.map((row) => ops.vdot(row, v)),
     };
+  },
+
+  // ------ Triangle centers
+
+  /**
+   * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
+   */
+  barycenter: (a: VarAD[], b: VarAD[], c: VarAD[]): IVectorV<VarAD> => {
+    const x = ops.vmul(constOf(1./3.),ops.vadd(a, ops.vadd(b, c)));
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+
+  /**
+   * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
+   */
+  circumcenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
+
+     // edge vectors
+     const u = ops.vsub( r, q );
+     const v = ops.vsub( p, r );
+     const w = ops.vsub( q, p );
+
+     // side lengths
+     const a = ops.vnorm( u );
+     const b = ops.vnorm( v );
+     const c = ops.vnorm( w );
+
+     // homogeneous barycentric coordinates for circumcenter
+     const hp = neg( mul( div(a,mul(b,c)), ops.vdot(w,v) ));
+     const hq = neg( mul( div(b,mul(c,a)), ops.vdot(u,w) ));
+     const hr = neg( mul( div(c,mul(a,b)), ops.vdot(v,u) ));
+
+     // normalize to get barycentric coordinates for circumcenter
+     const H = add( add( hp, hq ), hr );
+     const bp = div( hp, H );
+     const bq = div( hq, H );
+     const br = div( hr, H );
+
+     // circumcenter
+     const x = ops.vadd( ops.vadd( ops.vmul(bp,p),
+                                   ops.vmul(bq,q) ),
+                                   ops.vmul(br,r) );
+
+     return {
+        tag: "VectorV",
+        contents: toPt(x),
+     };
+  },
+
+  /**
+   * Return the incenter of the triangle with vertices `p`, `q`, `r`.
+   */
+  incenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
+
+     // side lengths
+     const a = ops.vnorm( ops.vsub( r, q ) );
+     const b = ops.vnorm( ops.vsub( p, r ) );
+     const c = ops.vnorm( ops.vsub( q, p ) );
+
+     // barycentric coordinates for incenter
+     const s = add(add( a, b ), c );
+     const bp = div(a,s);
+     const bq = div(b,s);
+     const br = div(c,s);
+
+     // incenter
+     const x = ops.vadd( ops.vadd( ops.vmul(bp,p),
+                                   ops.vmul(bq,q) ),
+                                   ops.vmul(br,r) );
+
+     return {
+        tag: "VectorV",
+        contents: toPt(x),
+     };
+  },
+
+  /**
+   * Return the inradius of the triangle with vertices `p`, `q`, `r`.
+   */
+  inradius: (p: VarAD[], q: VarAD[], r: VarAD[]): IFloatV<VarAD> => {
+
+     // side lengths
+     const a = ops.vnorm( ops.vsub( r, q ) );
+     const b = ops.vnorm( ops.vsub( p, r ) );
+     const c = ops.vnorm( ops.vsub( q, p ) );
+
+     // semiperimeter
+     const s = mul( constOf(.5), add(add( a, b ), c ) );
+
+     // inradius
+     const R = sqrt( div( mul(mul( sub(s,a), sub(s,b) ), sub(s,c) ), s ));
+
+     return {
+        tag: "FloatV",
+        contents: R,
+     };
   },
 
   // ------ Utility functions
