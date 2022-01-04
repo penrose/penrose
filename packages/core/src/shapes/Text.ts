@@ -10,6 +10,15 @@ import {
   IString,
   IStroke,
 } from "./Interfaces";
+import {
+  Canvas,
+  sampleColor,
+  sampleNoPaint,
+  sampleStroke,
+  sampleVector,
+  sampleZero,
+  StrV,
+} from "./Samplers";
 
 export interface IText
   extends INamed,
@@ -32,9 +41,34 @@ export interface IText
   alignmentBaseline: IStrV;
 }
 
+export const sampleText = (canvas: Canvas): IText => ({
+  name: StrV("defaultText"),
+  strokeWidth: sampleStroke(),
+  strokeStyle: StrV("solid"),
+  strokeColor: sampleNoPaint(),
+  strokeDashArray: StrV(""),
+  fillColor: sampleColor(),
+  center: sampleVector(canvas),
+  width: sampleZero(),
+  height: sampleZero(),
+  rotation: sampleZero(),
+  string: StrV("defaultText"),
+  visibility: StrV(""),
+  fontFamily: StrV(""),
+  fontSize: StrV("12pt"),
+  fontSizeAdjust: StrV(""),
+  fontStretch: StrV(""),
+  fontStyle: StrV(""),
+  fontVariant: StrV(""),
+  fontWeight: StrV(""),
+  textAnchor: StrV("middle"),
+  alignmentBaseline: StrV("middle"),
+});
+
 export type Text = IShape & IText;
 
-export const Text = (properties: IText): Text => ({
+export const Text = (canvas: Canvas, properties: Partial<IText>): Text => ({
+  ...sampleText(canvas),
   ...properties,
   shapeType: "Text",
   bbox: function () {

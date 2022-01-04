@@ -8,6 +8,17 @@ import {
   IShape,
   IStroke,
 } from "./Interfaces";
+import {
+  Canvas,
+  sampleColor,
+  sampleHeight,
+  sampleNoPaint,
+  sampleStroke,
+  sampleVector,
+  sampleWidth,
+  sampleZero,
+  StrV,
+} from "./Samplers";
 
 // not to be confused with IRect... need to rename maybe?
 export interface IRectangle
@@ -18,9 +29,26 @@ export interface IRectangle
     IRect,
     ICorner {}
 
+export const sampleRectangle = (canvas: Canvas): IRectangle => ({
+  name: StrV("defaultRectangle"),
+  strokeWidth: sampleStroke(),
+  strokeStyle: StrV("solid"),
+  strokeColor: sampleNoPaint(),
+  strokeDashArray: StrV(""),
+  fillColor: sampleColor(),
+  center: sampleVector(canvas),
+  width: sampleWidth(canvas),
+  height: sampleHeight(canvas),
+  cornerRadius: sampleZero(),
+});
+
 export type Rectangle = IShape & IRectangle;
 
-export const Rectangle = (properties: IRectangle): Rectangle => ({
+export const Rectangle = (
+  canvas: Canvas,
+  properties: Partial<IRectangle>
+): Rectangle => ({
+  ...sampleRectangle(canvas),
   ...properties,
   shapeType: "Rectangle",
   bbox: function () {

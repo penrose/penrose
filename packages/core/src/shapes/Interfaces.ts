@@ -4,7 +4,7 @@ import {
   IBoolV,
   IColorV,
   IFloatV,
-  ILListV,
+  IPtListV,
   IStrV,
   IVectorV,
 } from "types/value";
@@ -63,7 +63,7 @@ export interface IScale {
 // }
 
 export interface IPoly {
-  points: ILListV<VarAD>;
+  points: IPtListV<VarAD>;
 }
 
 export interface IString {

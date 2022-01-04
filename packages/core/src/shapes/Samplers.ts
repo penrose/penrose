@@ -1,12 +1,25 @@
-import { Shape } from "types/shape";
-import { Path } from "types/style";
-import { IColorV, IFloatV, IVectorV, Value } from "types/value";
+import { constOf } from "engine/Autodiff";
+import { VarAD } from "types/ad";
+import {
+  Color,
+  IBoolV,
+  IColorV,
+  IFileV,
+  IFloatV,
+  IIntV,
+  IListV,
+  IMatrixV,
+  IPaletteV,
+  IPathCmd,
+  IPathDataV,
+  IPtListV,
+  IPtV,
+  IStrV,
+  IStyleV,
+  ITupV,
+  IVectorV,
+} from "types/value";
 import { randFloat } from "utils/Util";
-
-/** @ignore */
-type PropContents = Value<number>["contents"];
-/** @ignore */
-type ConstSampler = (type: PropType, value: PropContents) => Sampler;
 
 type Range = [number, number];
 
@@ -25,181 +38,92 @@ interface ICanvas {
 
 export type Canvas = ICanvas;
 
-/** Generate a single string based on a path to a shape */
-export const getShapeName = (p: Path): string => {
-  if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
-    const { name, field } = p;
-    return `${name.contents.value}.${field.value}`;
-  } else {
-    throw new Error("Can only derive shape name from field or property path.");
-  }
-};
-
-/**
- * Sort shapes given a list of ordered shape names.
- *
- * @param shapes unsorted shapes
- * @param ordering global ordering of shapes
- */
-export const sortShapes = (shapes: Shape[], ordering: string[]): Shape[] => {
-  return ordering.map(
-    (name) =>
-      // COMBAK: Deal with nonexistent shapes
-      shapes.find(
-        ({ properties }) => properties.name.contents === name
-      ) as Shape
-  ); // assumes that all names are unique
-};
-
-/**
- * Checks if an `Equation` shape has non-empty content
- *
- * @param shape a `Equation` shape
- */
-export const notEmptyLabel = (shape: Shape): boolean => {
-  const { shapeType, properties } = shape;
-  return shapeType === "Equation" ? !(properties.string.contents === "") : true;
-};
-
-const sampleFloatIn = (min: number, max: number): IFloatV<number> => ({
+export const FloatV = (contents: VarAD): IFloatV<VarAD> => ({
   tag: "FloatV",
-  contents: randFloat(min, max),
+  contents,
 });
-
-const vectorSampler: Sampler = (canvas): IVectorV<number> => ({
+export const IntV = (contents: number): IIntV => ({
+  tag: "IntV",
+  contents,
+});
+export const BoolV = (contents: boolean): IBoolV<VarAD> => ({
+  tag: "BoolV",
+  contents,
+});
+export const StrV = (contents: string): IStrV => ({
+  tag: "StrV",
+  contents,
+});
+export const PtV = (contents: VarAD[]): IPtV<VarAD> => ({
+  tag: "PtV",
+  contents,
+});
+export const PathDataV = (contents: IPathCmd<VarAD>[]): IPathDataV<VarAD> => ({
+  tag: "PathDataV",
+  contents,
+});
+export const PtListV = (contents: VarAD[][]): IPtListV<VarAD> => ({
+  tag: "PtListV",
+  contents,
+});
+export const ColorV = (contents: Color<VarAD>): IColorV<VarAD> => ({
+  tag: "ColorV",
+  contents,
+});
+export const PaletteV = (contents: Color<VarAD>[]): IPaletteV<VarAD> => ({
+  tag: "PaletteV",
+  contents,
+});
+export const FileV = (contents: string): IFileV<VarAD> => ({
+  tag: "FileV",
+  contents,
+});
+export const StyleV = (contents: string): IStyleV<VarAD> => ({
+  tag: "StyleV",
+  contents,
+});
+export const ListV = (contents: VarAD[]): IListV<VarAD> => ({
+  tag: "ListV",
+  contents,
+});
+export const VectorV = (contents: VarAD[]): IVectorV<VarAD> => ({
   tag: "VectorV",
-  contents: [randFloat(...canvas.xRange), randFloat(...canvas.yRange)],
+  contents,
 });
-const widthSampler: Sampler = (canvas): IFloatV<number> => ({
-  tag: "FloatV",
-  contents: randFloat(3, canvas.width / 6),
+export const MatrixV = (contents: VarAD[][]): IMatrixV<VarAD> => ({
+  tag: "MatrixV",
+  contents,
 });
-const zeroFloat: Sampler = (_canvas): IFloatV<number> => ({
-  tag: "FloatV",
-  contents: 0.0,
+export const TupV = (contents: VarAD[]): ITupV<VarAD> => ({
+  tag: "TupV",
+  contents,
 });
-const pathLengthSampler: Sampler = (_canvas): IFloatV<number> => ({
-  tag: "FloatV",
-  contents: 1.0,
-});
-const heightSampler: Sampler = (canvas): IFloatV<number> => ({
-  tag: "FloatV",
-  contents: randFloat(3, canvas.height / 6),
-});
-const strokeSampler: Sampler = (_canvas): IFloatV<number> => ({
-  tag: "FloatV",
-  contents: randFloat(0.5, 3),
-});
-const colorSampler: Sampler = (_canvas): IColorV<number> => {
+
+export const sampleFloatIn = (min: number, max: number): IFloatV<VarAD> =>
+  FloatV(constOf(randFloat(min, max)));
+export const sampleVector = (canvas: Canvas): IVectorV<VarAD> =>
+  VectorV(
+    [randFloat(...canvas.xRange), randFloat(...canvas.yRange)].map(constOf)
+  );
+export const sampleWidth = (canvas: Canvas): IFloatV<VarAD> =>
+  FloatV(constOf(randFloat(3, canvas.width / 6)));
+export const sampleZero = (): IFloatV<VarAD> => FloatV(constOf(0));
+export const sampleHeight = (canvas: Canvas): IFloatV<VarAD> =>
+  FloatV(constOf(randFloat(3, canvas.height / 6)));
+export const sampleStroke = (): IFloatV<VarAD> =>
+  FloatV(constOf(randFloat(0.5, 3)));
+export const sampleColor = (): IColorV<VarAD> => {
   const [min, max] = [0.1, 0.9];
-  return {
-    tag: "ColorV",
-    contents: {
-      tag: "RGBA",
-      contents: [
-        randFloat(min, max),
-        randFloat(min, max),
-        randFloat(min, max),
-        0.5,
-      ],
-    },
-  };
-};
-
-export const constValue: ConstSampler = (
-  tag: PropType,
-  contents: PropContents
-) => (_canvas) =>
-  ({
-    tag,
-    contents,
-  } as Value<number>);
-
-const black: IColorV<number> = {
-  tag: "ColorV",
-  contents: {
+  return ColorV({
     tag: "RGBA",
-    contents: [0, 0, 0, 1.0],
-  },
+    contents: [
+      randFloat(min, max),
+      randFloat(min, max),
+      randFloat(min, max),
+      0.5,
+    ].map(constOf),
+  });
 };
-
-const noPaint: IColorV<number> = {
-  tag: "ColorV",
-  contents: {
-    tag: "NONE",
-  },
-};
-
-type PropType = Value<number>["tag"];
-
-type Sampler = (canvas: Canvas) => Value<number>;
-
-// note: given e.g. the difference in fillOpacity between Polygon and Polyline,
-// it may be a bad idea for a property to always have the same sampler based on
-// its name
-export const samplers = {
-  // INamed
-  name: constValue("StrV", "defaultCircle"),
-
-  // IStroke
-  strokeWidth: strokeSampler,
-  strokeStyle: constValue("StrV", "solid"),
-  strokeColor: (): Value<number> => noPaint, // or maybe colorSampler
-  strokeDashArray: constValue("StrV", ""),
-
-  // IFill
-  fillColor: (): Value<number> => noPaint, // or maybe colorSampler
-
-  // ICenter
-  center: vectorSampler,
-
-  // IRect
-  width: widthSampler,
-  height: heightSampler,
-
-  // IArrow
-  arrowheadSize: constValue("FloatV", 1.0),
-  arrowheadStyle: constValue("StrV", "arrowhead-2"),
-  startArrowhead: constValue("BoolV", false),
-  endArrowhead: constValue("BoolV", false),
-
-  // ICorner
-  cornerRadius: zeroFloat,
-
-  // IRotate
-  rotation: constValue("FloatV", 0),
-  // IScale
-  scale: constValue("FloatV", 1),
-
-  // IPoly
-  points: constValue("PtListV", [
-    [0, 0],
-    [0, 10],
-    [10, 0],
-  ]),
-
-  // IString
-  string: constValue("StrV", "Text"),
-
-  // ICircle
-  r: widthSampler,
-
-  // IEllipse
-  rx: widthSampler,
-  ry: heightSampler,
-
-  // IImage
-  href: constValue("StrV", "missing image path"),
-
-  // IText
-  visibility: constValue("StrV", ""),
-  fontFamily: constValue("StrV", ""),
-  fontSize: constValue("StrV", "12pt"),
-  fontSizeAdjust: constValue("StrV", ""),
-  fontStretch: constValue("StrV", ""),
-  fontStyle: constValue("StrV", ""),
-  fontVariant: constValue("StrV", ""),
-  fontWeight: constValue("StrV", ""),
-  textAnchor: constValue("StrV", "middle"),
-  alignmentBaseline: constValue("StrV", "middle"),
-};
+export const sampleBlack = (): IColorV<VarAD> =>
+  ColorV({ tag: "RGBA", contents: [0, 0, 0, 1].map(constOf) });
+export const sampleNoPaint = (): IColorV<VarAD> => ColorV({ tag: "NONE" });
