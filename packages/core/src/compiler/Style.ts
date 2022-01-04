@@ -22,22 +22,15 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Graph } from "graphlib";
 import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
-import {
-  Canvas,
-  findDef,
-  PropType,
-  Sampler,
-  ShapeDef,
-  shapedefs,
-} from "renderer/ShapeDef";
 import rfdc from "rfdc";
+import { Canvas, makeCanvas } from "shapes/Samplers";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -1753,26 +1746,26 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   const errors: StyleErrors = [];
   const warnings: StyleWarnings = [];
 
-  const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
-  if (!shapeNames.includes(styName)) {
+  if (styName in shapedefs) {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
 
   // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
-  const shapeDef: ShapeDef = findDef(styName);
+  const shapeDef: ShapeDef = shapedefs[styName];
   const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
-  const expectedProperties: string[] = Object.entries(shapeDef.properties).map(
-    (e) => e[0]
+  const expectedProperties: Set<string> = new Set(
+    // kinda inelegant: we first sample an entire shape
+    Object.keys(shapeDef.sampler(makeCanvas(0, 0)))
   );
 
-  for (let gp of givenProperties) {
+  for (const gp of givenProperties) {
     // Check multiple properties, as each one is not fatal if wrong
-    if (!expectedProperties.includes(gp.value)) {
+    if (!(gp.value in expectedProperties)) {
       errors.push({
         tag: "InvalidGPIPropertyError",
         givenProperty: gp,
-        expectedProperties,
+        expectedProperties: [...expectedProperties],
       });
     }
   }
@@ -2258,11 +2251,12 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
 // Given 'propType' and 'shapeType', return all props of that ValueType
 // COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
 const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(
-    findDef(shapeType).properties
+  const shapeInfo: [string, Value<VarAD>][] = Object.entries(
+    // kinda inelegant: we first sample an entire shape
+    shapedefs[shapeType].sampler(makeCanvas(0, 0))
   );
   return shapeInfo
-    .filter(([pName, [pType, s]]) => pType === propType)
+    .filter(([_pName, { tag }]) => tag === propType)
     .map((e) => e[0]);
 };
 
@@ -2271,11 +2265,12 @@ const propertiesNotOf = (
   propType: string,
   shapeType: ShapeTypeStr
 ): PropID[] => {
-  const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(
-    findDef(shapeType).properties
+  const shapeInfo: [string, Value<VarAD>][] = Object.entries(
+    // kinda inelegant: we first sample an entire shape
+    shapedefs[shapeType].sampler(makeCanvas(0, 0))
   );
   return shapeInfo
-    .filter(([pName, [pType, s]]) => pType !== propType)
+    .filter(([_pName, { tag }]) => tag !== propType)
     .map((e) => e[0]);
 };
 
@@ -2614,48 +2609,24 @@ const initFieldsAndAccessPaths = (
 // NOTE: since we store all varying paths separately, it is okay to mark the default values as Done // they will still be optimized, if needed.
 // TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
 
-// TODO: Doesn't sample partial shape properties, like start: (?, 1.) <- this is actually sampled by initFieldsAndAccessPaths
-// NOTE: Shape properties are mutated; they are returned as a courtesy
 const initProperty = (
   shapeType: ShapeTypeStr,
-  properties: GPIProps<VarAD>,
-  [propName, [propType, propSampler]]: [string, [PropType, Sampler]],
-  canvas: Canvas
-): GPIProps<VarAD> => {
-  const propVal: Value<number> = propSampler(canvas);
-  const propValAD: Value<VarAD> = valueNumberToAutodiffConst(propVal);
-  const propValDone: TagExpr<VarAD> = { tag: "Done", contents: propValAD };
-  const styleSetting: TagExpr<VarAD> = properties[propName];
-
-  // Property not set in Style
-  if (!styleSetting) {
-    if (isPending(shapeType, propName)) {
-      properties[propName] = {
-        tag: "Pending",
-        contents: propValAD,
-      } as TagExpr<VarAD>;
-      return properties;
-    } else {
-      properties[propName] = propValDone; // Use the sampled one
-      return properties;
-    }
-  }
-
+  propName: string,
+  styleSetting: TagExpr<VarAD>
+): TagExpr<VarAD> | null => {
   // Property set in Style
   if (styleSetting.tag === "OptEval") {
     if (styleSetting.contents.tag === "Vary") {
-      properties[propName] = propValDone; // X.prop = ?
-      return properties;
+      return null;
     } else if (styleSetting.contents.tag === "VaryInit") {
       // Initialize the varying variable to the property specified in Style
-      properties[propName] = {
+      return {
         tag: "Done",
         contents: {
           tag: "FloatV",
           contents: varOf(styleSetting.contents.contents),
         },
       };
-      return properties;
     } else if (styleSetting.contents.tag === "Vector") {
       const v: Expr[] = styleSetting.contents.contents;
       if (v.length === 2) {
@@ -2663,18 +2634,17 @@ const initProperty = (
         // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
         // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
         if (v[0].tag === "Vary" && v[1].tag === "Vary") {
-          properties[propName] = propValDone;
-          return properties;
+          return null;
         }
       }
-      return properties;
+      return styleSetting;
     } else {
-      return properties;
+      return styleSetting;
     }
   } else if (styleSetting.tag === "Done") {
     // TODO: pending properties are only marked if the Style source does not set them explicitly
     // Check if this is the right decision. We still give pending values a default such that the initial list of shapes can be generated without errors.
-    return properties;
+    return styleSetting;
   }
 
   throw Error("internal error: unknown tag or invalid value for property");
@@ -2693,20 +2663,25 @@ const initShape = (
   const res = findExprSafe(tr, path); // This is safe (as used in GenOptProblem) since we only initialize shapes with paths from the translation
 
   if (res.tag === "FGPI") {
-    const [stype, props] = res.contents as [string, GPIProps<VarAD>];
-    const def: ShapeDef = findDef(stype);
-    const gpiTemplate: [string, [PropType, Sampler]][] = Object.entries(
-      def.properties
-    );
-
-    const instantiatedGPIProps: GPIProps<VarAD> = gpiTemplate.reduce(
-      (
-        newGPI: GPIProps<VarAD>,
-        propTemplate: [string, [PropType, Sampler]]
-      ): GPIProps<VarAD> =>
-        initProperty(stype, newGPI, propTemplate, getCanvas(tr)),
-      clone(props)
-    ); // NOTE: `initProperty` mutates its input, so the `props` from the translation is cloned here, so the one in the translation itself isn't mutated
+    const [stype, props] = res.contents;
+    const instantiatedGPIProps: GPIProps<VarAD> = {
+      ...Object.fromEntries(
+        Object.entries(
+          shapedefs[stype].sampler(getCanvas(tr))
+        ).map(([propName, contents]) => [
+          propName,
+          { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
+        ])
+      ),
+      ...Object.fromEntries(
+        Object.entries(props)
+          .map(([propName, propExpr]) => [
+            propName,
+            initProperty(stype, propName, propExpr),
+          ])
+          .filter((x) => x !== null)
+      ),
+    };
 
     // Insert the name of the shape into its prop dict
     // NOTE: getShapes resolves the names + we don't use the names of the shapes in the translation
@@ -2936,7 +2911,7 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
-  } catch (e) {
+  } catch (e: any) {
     return err(parseError(e, lastLocation(parser)));
   }
 };
@@ -3032,7 +3007,7 @@ const findPathsField = (
 
 // Check that canvas dimensions exist and have the proper type.
 const checkCanvas = (tr: Translation): StyleErrors => {
-  let errs: StyleErrors = [];
+  const errs: StyleErrors = [];
 
   if (!("canvas" in tr.trMap)) {
     errs.push({
@@ -3133,9 +3108,9 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 
 /* Precondition: checkCanvas returns without error */
 export const getCanvas = (tr: Translation): Canvas => {
-  let width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
+  const width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
     .contents as Value<VarAD>).contents as number;
-  let height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
+  const height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
     .contents as Value<VarAD>).contents as number;
   return {
     width,

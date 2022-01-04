@@ -113,7 +113,7 @@ export interface ShapeDef {
   constr: (canvas: Canvas, properties: Properties) => Shape;
 }
 
-export const shapes: { [k: string]: ShapeDef } = {
+export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Circle,
   Ellipse,
   Equation,
