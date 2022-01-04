@@ -1,0 +1,82 @@
+-- By default, use a canvas size suitable for a full-
+-- column figure in a two-column ACM article.
+canvas {
+   width = 243
+   height = 182
+}
+
+Colors {
+   color black = rgba(0.,0.,0.,1.)
+   color lightGray = rgba(.8,.8,.8,1.)
+   color clear = rgba(0.,0.,0.,0.)
+}
+
+Global {
+   scalar vertexRadius = 2.
+
+   shape box = Rectangle {
+      center: (0.,0.)
+      color: Colors.clear
+      strokeColor: Colors.lightGray
+      strokeWidth: 2.
+      w: canvas.width
+      h: canvas.height
+   }
+
+   string fontFamily = "Palatino"
+}
+
+forall Vertex i {
+
+   vec2 i.center = (?,?)
+
+   shape i.icon = Circle {
+      color: Colors.black
+      r: Global.vertexRadius
+      center: i.center
+   }
+
+   shape i.text = Text {
+      center: (?,?)
+      string: i.label
+      fontFamily: Global.fontFamily
+      fontSize: "9pt"
+      fontStyle: "italic"
+      color: Colors.black
+   }
+
+   shape i.bounds = Circle {
+      center: i.text.center
+      r: 8
+      color: none()
+   }
+
+   ensure contains( Global.box, i.icon )
+   ensure contains( Global.box, i.bounds )
+   encourage near( i.text, i.icon )
+}
+
+forall Vertex i; Vertex j {
+   ensure disjoint( i.bounds, j.bounds )
+}
+
+forall Edge e; Vertex i; Vertex j
+where e := MakeEdge(i,j) {
+   
+   e.icon = Line {
+      start: i.icon.center
+      end: j.icon.center
+      color: Colors.black
+      thickness: 1.25
+   }
+
+   ensure disjoint( i.bounds, e.icon, 1. )
+   ensure disjoint( j.bounds, e.icon, 1. )
+}
+
+forall Edge e; Vertex i; Vertex j; Vertex k
+where e := MakeEdge(i,j) {
+   
+   ensure disjoint( k.bounds, e.icon, 1. )
+}
+

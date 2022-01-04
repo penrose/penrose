@@ -167,7 +167,7 @@ label_decl -> "Label" __ identifier __ tex_literal {%
   })
 %}
 
-label_decl -> "Label" __ identifier __ string_literal {%
+label_decl -> "Label" __ identifier __ string_lit {%
   ([kw, , variable, , label]): LabelDecl => ({
     ...nodeData([variable, label]),
     ...rangeBetween(rangeOf(kw), label),

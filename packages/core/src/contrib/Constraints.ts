@@ -492,8 +492,38 @@ export const constrDict = {
 
       // Push away in both X and Y directions, and account for padding
       return mul(overlapX, overlapY);
+    } else if ((t1 === "Circle" && t2 === "Line"   ) ||
+               (t2 === "Line"   && t1 === "Circle" )) {
+
+       // make sure that circle is always the first shape
+       if( t2 === "Circle" ) {
+          [ s1, s2 ] = [ s2, s1 ];
+          [ t1, t2 ] = [ t2, t1 ];
+       }
+
+      // collect constants
+      const c = s1.center.contents;
+      const r = s1.r.contents;
+      const a = s2.start.contents
+      const b = s2.end.contents
+      const o = typeof(offset)!=='undefined'? offset : constOf(0.);
+      
+      // Return the distance between the circle center c and the
+      // segment ab, minus the circle radius r and offset o.  This
+      // quantity will be negative of the circular disk intersects
+      // a thickened "capsule" associated with the line (of radius o).
+      // The expression for the point-segment distance d comes from
+      // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+      // (see "Segment - exact").
+      const u = ops.vsub(c,a); // u = c-a
+      const v = ops.vsub(b,a); // v - b-a
+      // h = clamp( <u,v>/<v,v>, 0, 1 )
+      const h = max( constOf(0.), min( constOf(1.), div( ops.vdot(u,v), ops.vdot(v,v) ) ));
+      // d = | u - h*v |
+      const d = ops.vnorm( ops.vsub( u, ops.vmul(h,v) ) );
+      // return d - (r+o)
+      return neg(sub( d, add( r, o ) ));
     } else {
-      // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
     }
   },
