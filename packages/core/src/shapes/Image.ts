@@ -1,6 +1,6 @@
 import { bboxFromRectlike } from "engine/BBox";
 import { IStrV } from "types/value";
-import { ICenter, INamed, IRect, IRotate, IShape } from "./Interfaces";
+import { ICenter, INamed, IRect, IRotate, IShape } from "./Shapes";
 import {
   Canvas,
   sampleHeight,

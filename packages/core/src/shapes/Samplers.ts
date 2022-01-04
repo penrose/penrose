@@ -28,7 +28,7 @@ type Range = [number, number];
 // export const canvasSize: [number, number] = [800, 700];
 // export const canvasXRange: Range = [-canvasSize[0] / 2, canvasSize[0] / 2];
 // export const canvasYRange: Range = [-canvasSize[1] / 2, canvasSize[1] / 2];
-interface ICanvas {
+export interface ICanvas {
   width: number;
   height: number;
   size: [number, number];

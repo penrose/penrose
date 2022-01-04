@@ -2,7 +2,7 @@ import { constOf } from "engine/Autodiff";
 import { bboxFromPath } from "engine/BBox";
 import { VarAD } from "types/ad";
 import { IPathDataV } from "types/value";
-import { IArrow, IFill, INamed, IShape, IStroke } from "./Interfaces";
+import { IArrow, IFill, INamed, IShape, IStroke } from "./Shapes";
 import {
   BoolV,
   Canvas,

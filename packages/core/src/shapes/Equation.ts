@@ -1,5 +1,5 @@
 import { bboxFromRectlike } from "engine/BBox";
-import { ICenter, INamed, IRect, IRotate, IShape, IString } from "./Interfaces";
+import { ICenter, INamed, IRect, IRotate, IShape, IString } from "./Shapes";
 import { Canvas, sampleVector, sampleZero, StrV } from "./Samplers";
 
 export interface IEquation extends INamed, ICenter, IRect, IRotate, IString {}

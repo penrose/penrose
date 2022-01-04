@@ -1,6 +1,6 @@
 import { constOf } from "engine/Autodiff";
 import { bboxFromPolygon } from "engine/BBox";
-import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "./Interfaces";
+import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "./Shapes";
 import {
   Canvas,
   FloatV,

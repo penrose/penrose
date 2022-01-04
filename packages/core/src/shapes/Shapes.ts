@@ -8,6 +8,17 @@ import {
   IStrV,
   IVectorV,
 } from "types/value";
+import { Circle } from "./Circle";
+import { Ellipse } from "./Ellipse";
+import { Equation } from "./Equation";
+import { Image } from "./Image";
+import { Line } from "./Line";
+import { Path } from "./Path";
+import { Polygon } from "./Polygon";
+import { Polyline } from "./Polyline";
+import { Rectangle } from "./Rectangle";
+import { Canvas } from "./Samplers";
+import { Text } from "./Text";
 
 export interface IShape {
   shapeType: string;
@@ -69,3 +80,16 @@ export interface IPoly {
 export interface IString {
   string: IStrV;
 }
+
+export const constructors = {
+  Circle,
+  Ellipse,
+  Equation,
+  Image,
+  Line,
+  Path,
+  Polygon,
+  Polyline,
+  Rectangle,
+  Text,
+};

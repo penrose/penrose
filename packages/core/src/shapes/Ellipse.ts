@@ -1,7 +1,7 @@
 import { bboxFromEllipse } from "engine/BBox";
 import { VarAD } from "types/ad";
 import { IFloatV } from "types/value";
-import { ICenter, IFill, INamed, IShape, IStroke } from "./Interfaces";
+import { ICenter, IFill, INamed, IShape, IStroke } from "./Shapes";
 import {
   Canvas,
   sampleColor,

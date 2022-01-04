@@ -9,7 +9,7 @@ import {
   IShape,
   IString,
   IStroke,
-} from "./Interfaces";
+} from "./Shapes";
 import {
   Canvas,
   sampleColor,

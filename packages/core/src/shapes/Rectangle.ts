@@ -7,7 +7,7 @@ import {
   IRect,
   IShape,
   IStroke,
-} from "./Interfaces";
+} from "./Shapes";
 import {
   Canvas,
   sampleColor,
