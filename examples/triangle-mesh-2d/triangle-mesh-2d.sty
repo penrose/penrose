@@ -26,57 +26,86 @@ Global {
    string fontFamily = "Palatino"
 }
 
-forall Vertex i {
+forall Vertex v {
 
-   vec2 i.center = (?,?)
+   vec2 v.center = (?,?)
 
-   shape i.icon = Circle {
+   -- black dot
+   shape v.icon = Circle {
       color: Colors.black
       r: Global.vertexRadius
-      center: i.center
+      center: v.center
    }
 
-   shape i.text = Text {
+   -- label
+   shape v.text = Text {
       center: (?,?)
-      string: i.label
+      string: v.label
       fontFamily: Global.fontFamily
       fontSize: "9pt"
       fontStyle: "italic"
       color: Colors.black
    }
 
-   shape i.bounds = Circle {
-      center: i.text.center
+   -- invisible circle around label
+   -- (used to prevent overlap)
+   -- TODO we should really stop hacking
+   -- TODO this, and just get bounding
+   -- TODO boxes working for Text...
+   shape v.bounds = Circle {
+      center: v.text.center
       r: 8
       color: none()
    }
 
-   ensure contains( Global.box, i.icon )
-   ensure contains( Global.box, i.bounds )
-   encourage near( i.text, i.icon )
+   -- make sure the dot and label are both
+   -- on the canvas
+   ensure contains( Global.box, v.icon )
+   ensure contains( Global.box, v.bounds )
+
+   -- keep the label near the dot
+   encourage near( v.text, v.icon )
 }
 
-forall Vertex i; Vertex j {
-   ensure disjoint( i.bounds, j.bounds )
+-- make sure vertex labels don't overlap
+forall Vertex u; Vertex v {
+   ensure disjoint( u.bounds, v.bounds )
 }
 
 forall Edge e; Vertex i; Vertex j
 where e := MakeEdge(i,j) {
    
-   e.icon = Line {
+   -- black line between endpoints
+   shape e.icon = Line {
       start: i.icon.center
       end: j.icon.center
       color: Colors.black
       thickness: 1.25
    }
 
+   -- make sure edge doesn't cover the
+   -- labels of its two endpoints
    ensure disjoint( i.bounds, e.icon, 1. )
    ensure disjoint( j.bounds, e.icon, 1. )
 }
 
+-- make sure no edge ij covers the label of
+-- any other vertex k
 forall Edge e; Vertex i; Vertex j; Vertex k
 where e := MakeEdge(i,j) {
    
    ensure disjoint( k.bounds, e.icon, 1. )
+}
+
+forall Triangle t; Vertex i; Vertex j; Vertex k
+where t := MakeTriangle(i,j,k)
+{
+   vec2 a = i.icon.center
+   vec2 b = j.icon.center
+   vec2 c = k.icon.center
+
+   shape t.icon = Polygon {
+      points: (a,b,c)
+   }
 }
 
