@@ -113,7 +113,7 @@ import { randFloat } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Warn })
   .withScope("Style Compiler");
 const clone = rfdc({ proto: false, circles: false });
 
