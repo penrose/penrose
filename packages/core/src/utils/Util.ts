@@ -655,7 +655,7 @@ export default class Queue<T> {
   enqueue(value: T) {
     const node = new Node(value);
 
-    if (this.head && this.tail) {
+    if (this.head !== null && this.tail !== null) {
       this.tail.next = node;
       this.tail = node;
     } else {
@@ -668,9 +668,15 @@ export default class Queue<T> {
 
   dequeue(): T {
     const current = this.head;
-    if (!this.head || !current) {
-      throw "Dequeue on empty queue";
+    // need to check for nullness of this.head and this.current
+    // to satisfy the type-checker
+    if (this.head === null || current === null) {
+      throw new Error("Dequeue on empty queue");
     } else {
+      if (this.head === this.tail) {
+        this.clear();
+        return current.value;
+      }
       this.head = this.head.next;
       this.queue_size--;
       return current.value;

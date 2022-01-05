@@ -2178,52 +2178,59 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
 // Top-down
-const clearVisitedNodesOutput = (z: VarAD) => {
+export const clearVisitedNodesOutput = (z: VarAD) => {
   const q = new Queue<IVarAD>();
+  console.log("Starting to clear visited nodes, top-down version");
   z.nodeVisited = false;
+  let i = 0;
   q.enqueue(z);
   while (q.size > 0) {
+    i++;
     const v = q.dequeue();
     v.children.forEach((e) => {
-      if (e.node.nodeVisited) {
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
+      //if (e.node.nodeVisited) {
+      e.node.nodeVisited = false;
+      q.enqueue(e.node);
+      //}
     });
     v.childrenGrad.forEach((e) => {
-      if (e.node.nodeVisited) {
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
+      //if (e.node.nodeVisited) {
+      e.node.nodeVisited = false;
+      q.enqueue(e.node);
+      //}
     });
   }
+  console.log(
+    "Finished clearing visited nodes, top-down, after " + i + " iterations"
+  );
 };
 
 // Bottom-up
-const clearVisitedNodesInput = (x: VarAD) => {
+export const clearVisitedNodesInput = (x: VarAD) => {
+  console.log("Starting to clear visited nodes, bottom-up version");
   const q = new Queue<IVarAD>();
   x.nodeVisited = false;
   q.enqueue(x);
   while (q.size > 0) {
     const v = q.dequeue();
     v.parents.forEach((e) => {
-      if (e.node.nodeVisited) {
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
+      //if (e.node.nodeVisited) {
+      e.node.nodeVisited = false;
+      q.enqueue(e.node);
+      //}
     });
     v.parentsGrad.forEach((e) => {
-      if (e.node.nodeVisited) {
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
+      //if (e.node.nodeVisited) {
+      e.node.nodeVisited = false;
+      q.enqueue(e.node);
+      //}
     });
   }
 };
 
 // Mutates z (top node) to clear all vals and gradients of its children
 // NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
-const clearGraphTopDown = (z: VarAD) => {
+export const clearGraphTopDown = (z: VarAD) => {
   z.val = 0;
   z.valDone = false; // This is necessary so we can cache energy values in comp graph
   z.gradVal = { tag: "Nothing" };
@@ -2410,7 +2417,7 @@ const testGradFiniteDiff = () => {
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   log.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
 
-  log.trace("head node (energy output)", graphs.energyOutput);
+  log.trace("head node (energy  output)", graphs.energyOutput);
   log.trace("inputs", graphs.inputs);
   log.trace("grad node(s)", graphs.gradOutputs);
 
