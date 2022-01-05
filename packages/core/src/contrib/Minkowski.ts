@@ -1,5 +1,6 @@
 import {
   add,
+  addN,
   constOf,
   neg,
   ops,
@@ -79,16 +80,18 @@ const outwardUnitNormal = (
  * @param lineSegment Two points defining a side of the first polygon.
  * @param otherPoints All vertices of the second polygon.
  * @param insidePoint Point inside of the half-plane.
+ * @param padding Padding added to the half-plane.
  */
 const halfPlaneSDF = (
   lineSegment: VarAD[][],
   otherPoints: VarAD[][],
-  insidePoint: VarAD[]
+  insidePoint: VarAD[],
+  padding: VarAD
 ): VarAD => {
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
-  return neg(add(alpha, alphaOther));
+  return neg(addN([alpha, alphaOther, padding]));
 };
 
 /**
@@ -96,17 +99,19 @@ const halfPlaneSDF = (
  * Only half-planes related to sides of the first polygon `p1` are considered.
  * @param p1 Sequence of points defining the first polygon.
  * @param p2 Sequence of points defining the second polygon.
+ * @param padding Padding around the Minkowski sum.
  */
 const convexPolygonMinkowskiSDFOneSided = (
   p1: VarAD[][],
-  p2: VarAD[][]
+  p2: VarAD[][],
+  padding: VarAD
 ): VarAD => {
   const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
   const sides = Array.from({ length: p1.length }, (_, i) => i).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
-  const sdfs = sides.map((s: VarAD[][]) => halfPlaneSDF(s, p2, center));
+  const sdfs = sides.map((s: VarAD[][]) => halfPlaneSDF(s, p2, center, padding));
   return maxN(sdfs);
 };
 
@@ -114,14 +119,16 @@ const convexPolygonMinkowskiSDFOneSided = (
  * Return value of the Signed Distance Function (SDF) of the Minkowski sum of two polygons `p1` and `p2` evaluated at the origin.
  * @param p1 Sequence of points defining the first polygon.
  * @param p2 Sequence of points defining the second polygon.
+ * @param padding Padding around the Minkowski sum.
  */
 export const convexPolygonMinkowskiSDF = (
   p1: VarAD[][], 
-  p2: VarAD[][]
+  p2: VarAD[][],
+  padding: VarAD
 ): VarAD => {
   return max(
-    convexPolygonMinkowskiSDFOneSided(p1, p2),
-    convexPolygonMinkowskiSDFOneSided(p2, p1)
+    convexPolygonMinkowskiSDFOneSided(p1, p2, padding),
+    convexPolygonMinkowskiSDFOneSided(p2, p1, padding)
   );
 };
 

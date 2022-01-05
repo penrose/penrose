@@ -54,12 +54,11 @@ export const overlappingPolygons = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  // TODO: Implement `padding`
   const cp1 = convexPartitions(s1.points.contents);
   const cp2 = convexPartitions(s2.points.contents.map((p: VarAD[]) => ops.vneg(p)));
   return maxN(
     cp1.map((p1) => minN(
-      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2))
+      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, constOfIf(padding)))
     ))
   );
 };
@@ -85,7 +84,3 @@ export const overlappingAABBs = (
     const e2 = neg(min(max(xq, yq), constOf(0.0)));
     return sub(e1, e2);
 };
-
-// -------- Tangent helpers
-
-// TODO
