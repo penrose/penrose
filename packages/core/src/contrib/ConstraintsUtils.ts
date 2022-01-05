@@ -1,7 +1,5 @@
 import { convexPolygonMinkowskiSDF, convexPartitions, rectangleDifference } from "contrib/Minkowski";
 import {
-  addN,
-  constOf,
   neg,
   ops,
   sub,
@@ -11,8 +9,10 @@ import {
   maxN,
   absVal,
   add,
+  addN,
   sqrt,
   squared,
+  constOf,
   constOfIf,
 } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
@@ -41,9 +41,8 @@ export const disjointCircles = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  // TODO: Implement `padding`
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-  const o = [s1.r.contents, s2.r.contents, constOf(10.0)];
+  const o = [s1.r.contents, s2.r.contents, constOfIf(padding)];
   return sub(addN(o), d);
 };
 
@@ -99,8 +98,7 @@ export const overlappingLines = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  // TODO: remake using Minkowski sums
-  throw new Error(`Not implemented.`);
+  return neg(disjointLines([t1, s1], [t2, s2], padding))
 };
 
 /**
@@ -111,12 +109,7 @@ export const overlappingCircles = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  const center1 = shapeCenter([t1, s1]);
-  const center2 = shapeCenter([t2, s2]);
-  const r1 = s1.r.contents;
-  const r2 = s2.r.contents;
-  const res = sub(add(r1, r2), constOfIf(padding));
-  return sub(ops.vdist(center1, center2), res);
+  return neg(disjointCircles([t1, s1], [t2, s2], padding))
 };
 
 /**
@@ -127,8 +120,7 @@ export const overlappingPolygons = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  // TODO: remake using Minkowski sums
-  throw new Error(`Not implemented.`);
+  return neg(disjointPolygons([t1, s1], [t2, s2], padding))
 };
 
 /**
@@ -139,8 +131,7 @@ export const overlappingAABBs = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  // TODO: remake using Minkowski sums
-  throw new Error(`Not implemented.`);
+  return neg(disjointAABBs([t1, s1], [t2, s2], padding))
 };
 
 // -------- Tangent helpers
