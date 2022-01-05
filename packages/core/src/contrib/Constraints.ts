@@ -307,40 +307,6 @@ const constrDictSpecific = {
     }
   },
 
-  /**
-   * Require that shape `s1` outside of `s2` with some padding `padding`.
-   */
-  outsideOf: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding = 10
-  ) => {
-    if (isRectlike(t1) && t2 === "Circle") {
-      const s1BBox = bboxFromShape([t1, s1]);
-      const textR = max(s1BBox.w, s1BBox.h);
-      const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-      return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
-    } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
-  },
-
-  /**
-   * Make an AABB rectangle contain an AABB (vertical or horizontal) line. (Special case of rect-rect disjoint). AA = axis-aligned
-   */
-  containsRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isRectlike(t1) || !isLinelike(t2)) {
-      throw Error("expected two line-like shapes");
-    }
-
-    const box = bboxFromShape([t1, s1]);
-    const line = bboxFromShape([t2, s2]);
-
-    // Contains line both vertically and horizontally
-    return add(
-      constrDictSimple.contains1D(BBox.xRange(box), BBox.xRange(line)),
-      constrDictSimple.contains1D(BBox.yRange(box), BBox.yRange(line))
-    );
-  },
-
 }
 
 export const constrDict = Object.assign({}, 

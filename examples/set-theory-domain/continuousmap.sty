@@ -37,7 +37,7 @@ Set x; Set y
 where IsSubset(x, y) {
   ensure contains(y.icon, x.icon, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.icon, y.icon)
-  y.outsideFn = ensure outsideOf(y.text, x.icon, 1.0)
+  y.outsideFn = ensure disjoint(y.text, x.icon, 1.0)
   x.icon above y.icon
 }
 

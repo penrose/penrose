@@ -35,7 +35,7 @@ Set x; Set y
 where IsSubset(x, y) {
     ensure contains(y.icon, x.icon, 5.0)
     ensure smallerThan(x.icon, y.icon)
-    ensure outsideOf(y.text, x.icon) -- Is this not working?
+    ensure disjoint(y.text, x.icon) -- Is this not working?
     x.icon above y.icon
     -- layering1  = y.text below x.icon
 }
@@ -48,8 +48,8 @@ where NotIntersecting(x, y) {
 Set x; Set y
 where Intersect(x, y) {
     ensure overlapping(x.icon, y.icon)
-    ensure outsideOf(y.text, x.icon)
-    ensure outsideOf(x.text, y.icon)
+    ensure disjoint(y.text, x.icon)
+    ensure disjoint(x.text, y.icon)
 }
 
 Point p {

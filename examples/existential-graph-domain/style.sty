@@ -120,7 +120,7 @@ where Result := if(A, B)
 
     override Result.icon2.r = Result.icon.r / 1.6
 
-    ensure outsideOf(A.text, Result.icon2)
+    ensure disjoint(A.text, Result.icon2)
     ensure contains(Result.icon, A.text)
     ensure contains(Result.icon2, B.text)
 
