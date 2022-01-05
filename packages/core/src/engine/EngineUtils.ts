@@ -46,8 +46,7 @@ import {
 import { showError } from "utils/Error";
 import { Shape, ShapeAD } from "types/shape";
 import { mapValues } from "lodash";
-import { shapedefs } from "shapes/Shapes";
-import { makeCanvas } from "shapes/Samplers";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -455,13 +454,13 @@ export const propertiesOf = (
   propType: string,
   shapeType: ShapeTypeStr
 ): PropID[] => {
-  const shapeInfo: [string, Value<VarAD>][] = Object.entries(
-    // kinda inelegant: we first sample an entire shape
-    shapedefs[shapeType].sampler(makeCanvas(1, 1))
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+    shapedef.propTags()
   );
   return shapeInfo
-    .filter(([_pName, { tag }]) => tag === propType)
-    .map((e) => e[0]);
+    .filter(([, tag]) => tag === propType)
+    .map(([pName]) => pName);
 };
 
 // Given 'propType' and 'shapeType', return all props NOT of that ValueType
@@ -469,13 +468,13 @@ export const propertiesNotOf = (
   propType: string,
   shapeType: ShapeTypeStr
 ): PropID[] => {
-  const shapeInfo: [string, Value<VarAD>][] = Object.entries(
-    // kinda inelegant: we first sample an entire shape
-    shapedefs[shapeType].sampler(makeCanvas(1, 1))
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+    shapedef.propTags()
   );
   return shapeInfo
-    .filter(([_pName, { tag }]) => tag !== propType)
-    .map((e) => e[0]);
+    .filter(([, tag]) => tag !== propType)
+    .map(([pName]) => pName);
 };
 
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
@@ -728,7 +727,7 @@ export const insertExpr = (
           // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
           // If the expected property is a non-vector type, throw an error, as we can't insert an expression into an uninitialized non-vector (list or other composite type).
           const shapeProps = propertiesOf("VectorV", gpiType);
-          if (!(prop.value in shapeProps)) {
+          if (!shapeProps.includes(prop.value)) {
             return addWarn(trans, {
               tag: "InvalidGPIPropertyError",
               givenProperty: prop,

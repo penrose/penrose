@@ -10,7 +10,7 @@ import { makePath, Path, samplePath } from "./Path";
 import { makePolygon, Polygon, samplePolygon } from "./Polygon";
 import { makePolyline, Polyline, samplePolyline } from "./Polyline";
 import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
-import { Canvas } from "./Samplers";
+import { Canvas, makeCanvas } from "./Samplers";
 import { Text, makeText, sampleText } from "./Text";
 
 //#region other shape types/globals
@@ -36,6 +36,9 @@ export interface ShapeDef {
   sampler: (canvas: Canvas) => Properties;
   constr: (canvas: Canvas, properties: Properties) => Shape;
 
+  // TODO: maybe get rid of this?
+  propTags: () => { [prop: string]: Value<VarAD>["tag"] };
+
   // TODO: make these methods
   bbox: (properties: Properties) => BBox.BBox;
   isLinelike: boolean; // TODO: use type predicate instead
@@ -49,14 +52,30 @@ export const ShapeDef = (shapedef: {
   bbox: (properties: any) => BBox.BBox;
   isLinelike?: boolean;
   isRectlike?: boolean;
-}): ShapeDef => ({
-  sampler: (canvas) => <Properties>shapedef.sampler(canvas),
-  constr: shapedef.constr,
+}): ShapeDef => {
+  const sampler = (canvas: Canvas) => <Properties>shapedef.sampler(canvas);
+  return {
+    sampler,
+    constr: shapedef.constr,
 
-  bbox: shapedef.bbox,
-  isLinelike: shapedef.isLinelike || false,
-  isRectlike: shapedef.isRectlike || false,
-});
+    propTags: () => {
+      const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
+      return Object.fromEntries(
+        // TODO: make this much less jank than first sampling an entire shape
+        Object.entries(sampler(makeCanvas(size, size))).map(([x, y]) => [
+          x,
+          y.tag,
+        ])
+      );
+    },
+
+    bbox: shapedef.bbox,
+    isLinelike: shapedef.isLinelike || false,
+    isRectlike: shapedef.isRectlike || false,
+  };
+};
+
+//#endregion
 
 //#region shape defs
 const Circle = ShapeDef({

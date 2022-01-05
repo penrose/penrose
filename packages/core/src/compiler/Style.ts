@@ -31,7 +31,7 @@ import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
-import { Canvas, makeCanvas } from "shapes/Samplers";
+import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { Identifier } from "types/ast";
@@ -1756,10 +1756,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
   const shapeDef: ShapeDef = shapedefs[styName];
   const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
-  const expectedProperties: Set<string> = new Set(
-    // kinda inelegant: we first sample an entire shape
-    Object.keys(shapeDef.sampler(makeCanvas(1, 1)))
-  );
+  const expectedProperties = shapeDef.propTags();
 
   for (const gp of givenProperties) {
     // Check multiple properties, as each one is not fatal if wrong
@@ -1767,7 +1764,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
       errors.push({
         tag: "InvalidGPIPropertyError",
         givenProperty: gp,
-        expectedProperties: [...expectedProperties],
+        expectedProperties: Object.keys(expectedProperties),
       });
     }
   }
