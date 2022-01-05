@@ -359,3 +359,4 @@ export type { Result } from "./utils/Error";
 export type { Canvas };
 export type { FieldDict };
 export type { Translation };
+export { shapedefs } from "./shapes/Shapes";
