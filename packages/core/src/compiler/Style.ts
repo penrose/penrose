@@ -2003,27 +2003,24 @@ const insertNames = (trans: Translation): Translation => {
 const insertLabels = (trans: Translation, labels: LabelMap): void => {
   for (const labelData of labels) {
     const [name, label] = labelData;
-    if (label.isJust()) {
-      const labelString = label.value;
-      const labelValue: TagExpr<VarAD> = {
-        tag: "Done",
-        contents: {
-          tag: "StrV",
-          contents: labelString,
-        },
+    const labelValue: TagExpr<VarAD> = {
+      tag: "Done",
+      contents: {
+        tag: "StrV",
+        contents: label,
+      },
+    };
+    const labelExpr: FieldExpr<VarAD> = {
+      tag: "FExpr",
+      contents: labelValue,
+    };
+    const fieldDict = trans.trMap[name];
+    if (fieldDict !== undefined) {
+      fieldDict[LABEL_FIELD] = labelExpr;
+    } else {
+      trans[name] = {
+        [LABEL_FIELD]: labelExpr,
       };
-      const labelExpr: FieldExpr<VarAD> = {
-        tag: "FExpr",
-        contents: labelValue,
-      };
-      const fieldDict = trans.trMap[name];
-      if (fieldDict !== undefined) {
-        fieldDict[LABEL_FIELD] = labelExpr;
-      } else {
-        trans[name] = {
-          [LABEL_FIELD]: labelExpr,
-        };
-      }
     }
   }
 };

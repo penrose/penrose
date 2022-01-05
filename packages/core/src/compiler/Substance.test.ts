@@ -154,9 +154,7 @@ NoLabel D, E
         ["E", ""],
       ];
       const labelMap = res.value[0].labels;
-      expected.map(([id, value]) =>
-        expect(labelMap.get(id)!.unwrapOr("")).toEqual(value)
-      );
+      expected.map(([id, value]) => expect(labelMap.get(id)!).toEqual(value));
     } else {
       fail("Unexpected error when processing labels: " + showError(res.error));
     }
