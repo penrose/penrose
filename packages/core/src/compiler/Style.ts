@@ -1748,7 +1748,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   const errors: StyleErrors = [];
   const warnings: StyleWarnings = [];
 
-  if (styName in shapedefs) {
+  if (!(styName in shapedefs)) {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
