@@ -105,7 +105,7 @@ Object p
 with Object a, b
 where p := tensor(a, b) {
       override p.shape.color = rgba(1.0, 0.0, 0.0, 0.1)
-      override p.shape.style = "dashed"
+      override p.shape.strokeStyle = "dashed"
 
       -- bottom-up
       override p.y = (a.y + b.y)/2.

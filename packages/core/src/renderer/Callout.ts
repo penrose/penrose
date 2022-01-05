@@ -7,7 +7,7 @@ import {
   intersects,
   intersection,
 } from "utils/Util";
-import { attrFill, attrStroke, attrTitle } from "./AttrHelper";
+import { attrAutoFillSvg, attrFill, attrStroke, attrTitle } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 import { sortBy } from "lodash";
 
@@ -23,7 +23,6 @@ const makeCallout = (
   const calloutPadding = padding ? padding : 30; // Padding around the text for rect
   const calloutThickness = 30; // Thickness of base of stem. TODO: Parametrize this
   const calloutEndPadding = 40; // Space between the external anchor point and the stem
-  const maxCalloutDist = 200;
 
   // Rectangle segments
   const { ptsR, cornersR, segsR, linesR } = bboxSegs(
@@ -126,14 +125,19 @@ const makeCallout = (
   return pts as [number, number][];
 };
 
-const Callout = ({ shape, canvasSize }: ShapeProps) => {
+const Callout = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "polygon"
   );
+
+  // Keep track of which input properties we programatically mapped
+  const attrToNotAutoMap: string[] = [];
   attrFill(shape, elem);
-  attrStroke(shape, elem);
-  attrTitle(shape, elem);
+
+  attrToNotAutoMap.push(...attrFill(shape, elem));
+  attrToNotAutoMap.push(...attrStroke(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem));
 
   const [anchor, center, w, h, padding] = [
     shape.properties.anchor.contents as [number, number],
@@ -142,10 +146,13 @@ const Callout = ({ shape, canvasSize }: ShapeProps) => {
     shape.properties.h.contents as number,
     shape.properties.padding.contents as number,
   ];
-
   const pts = makeCallout(anchor, center, w, h, padding);
   const ptsScreen = pts.map((p) => toScreen(p, canvasSize));
   elem.setAttribute("points", ptsScreen.toString());
+  attrToNotAutoMap.push("anchor", "center", "w", "h", "padding");
+
+  // Directrly Map across any "unknown" SVG properties
+  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   // TODO: Use an SVG path instead, so we can have rounded corners
   return elem;
