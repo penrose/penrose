@@ -8,8 +8,6 @@ describe("shapedefs", () => {
       Object.fromEntries(
         Object.entries(shapedefs).map(([name, { sampler }]) => {
           const shape: { [prop: string]: any } = sampler(canvas);
-          delete shape.shapeType;
-          delete shape.bbox;
           const types = Object.fromEntries(
             Object.entries(shape).map(([prop, { tag }]) => [prop, tag])
           );
