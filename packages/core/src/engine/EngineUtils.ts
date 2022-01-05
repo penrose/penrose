@@ -457,7 +457,7 @@ export const propertiesOf = (
 ): PropID[] => {
   const shapeInfo: [string, Value<VarAD>][] = Object.entries(
     // kinda inelegant: we first sample an entire shape
-    shapedefs[shapeType].sampler(makeCanvas(0, 0))
+    shapedefs[shapeType].sampler(makeCanvas(1, 1))
   );
   return shapeInfo
     .filter(([_pName, { tag }]) => tag === propType)
@@ -471,7 +471,7 @@ export const propertiesNotOf = (
 ): PropID[] => {
   const shapeInfo: [string, Value<VarAD>][] = Object.entries(
     // kinda inelegant: we first sample an entire shape
-    shapedefs[shapeType].sampler(makeCanvas(0, 0))
+    shapedefs[shapeType].sampler(makeCanvas(1, 1))
   );
   return shapeInfo
     .filter(([_pName, { tag }]) => tag !== propType)

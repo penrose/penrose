@@ -1758,7 +1758,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
   const expectedProperties: Set<string> = new Set(
     // kinda inelegant: we first sample an entire shape
-    Object.keys(shapeDef.sampler(makeCanvas(0, 0)))
+    Object.keys(shapeDef.sampler(makeCanvas(1, 1)))
   );
 
   for (const gp of givenProperties) {
