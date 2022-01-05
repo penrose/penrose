@@ -31,18 +31,10 @@ import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
 import { isLinelike, isRectlike } from "renderer/ShapeDef";
 import { 
-  disjointLines, 
-  disjointCircles, 
-  disjointPolygons, 
-  disjointAABBs,
   overlappingLines,
   overlappingCircles,
   overlappingPolygons,
   overlappingAABBs,
-  tangentLines,
-  tangentCircles,
-  tangentPolygons,
-  tangentAABBs,
 } from "contrib/ConstraintsUtils";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
@@ -148,24 +140,6 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `padding` between them (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
-   */
-  disjoint: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding = 0.0
-  ) => {
-    if (isLinelike(t1) && isLinelike(t2))
-      return disjointLines([t1, s1], [t2, s2], padding);
-    else if (t1 === "Circle" && t2 === "Circle")
-      return disjointCircles([t1, s1], [t2, s2], padding);
-    else if (t1 === "Polygon" && t2 === "Polygon")
-      return disjointPolygons([t1, s1], [t2, s2], padding);
-    else
-      return disjointAABBs([t1, s1], [t2, s2], padding);
-  },
-  
-  /**
    * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
    */
   overlapping: (
@@ -184,20 +158,24 @@ const constrDictGeneral = {
   },
 
   /**
+   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `padding` between them (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
+   */
+  disjoint: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    padding = 0.0
+  ) => {
+    return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
+  },
+  
+  /**
    * Require that shape `s1` is tangent to shape `s2`.
    */
   tangentTo: (
     [t1, s1]: [string, any], 
     [t2, s2]: [string, any]
   ) => {
-    if (isLinelike(t1) && isLinelike(t2))
-      return tangentLines([t1, s1], [t2, s2]);
-    else if (t1 === "Circle" && t2 === "Circle")
-      return tangentCircles([t1, s1], [t2, s2]);
-    else if (t1 === "Polygon" && t2 === "Polygon")
-      return tangentPolygons([t1, s1], [t2, s2]);
-    else
-      return tangentAABBs([t1, s1], [t2, s2]);
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2]));
   },
 
   /**
