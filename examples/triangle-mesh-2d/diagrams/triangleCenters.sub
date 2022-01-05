@@ -2,10 +2,16 @@
 Vertex i, j, k
 Triangle ijk := MakeTriangle( i, j, k )
 
--- draw three centers of the triangle
-Point a, b, c
-a := Barycenter(ijk)
-b := Circumcenter(ijk)
-c := Incenter(ijk)
+-- draw two different triangle centers
+Point a, b
+a := Circumcenter(ijk)
+b := Incenter(ijk)
+
+-- BUG: Both a and b match on *both*
+-- predicates Circumcenter and Incenter.
+-- The correct behavior would be for
+-- the point a to match only on Circumcenter,
+-- and the point b to match only on
+-- Incenter.
 
 AutoLabel All
