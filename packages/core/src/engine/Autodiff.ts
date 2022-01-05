@@ -5,6 +5,8 @@ import consola, { LogLevel } from "consola";
 import { VarAD, IVarAD, GradGraphs } from "types/ad";
 import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
+import Queue from "utils/Util";
+import { xor } from "lodash";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
@@ -465,13 +467,13 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
  * Returns a value in radians, in the range [-pi,pi].
  */
 export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
-  const z = variableAD(Math.atan2(y.val,x.val), "atan2");
+  const z = variableAD(Math.atan2(y.val, x.val), "atan2");
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
     // construct the derivatives
-     // d/dx atan2(y,x) = -y/(x^2 + y^2)
-     // d/dy atan2(y,x) =  x/(x^2 + y^2)
+    // d/dx atan2(y,x) = -y/(x^2 + y^2)
+    // d/dy atan2(y,x) =  x/(x^2 + y^2)
     const denom = add(squared(x, false), squared(y, false), false);
     const xnode = just(div(neg(y, false), denom, false));
     const ynode = just(div(x, denom, false));
@@ -496,12 +498,14 @@ export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
  * Returns `pow(x,y)`.
  */
 export const pow = (x: VarAD, y: VarAD, isCompNode = true): VarAD => {
-  const z = variableAD(Math.pow(x.val,y.val), "pow");
+  const z = variableAD(Math.pow(x.val, y.val), "pow");
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const xnode = just(mul(pow(x,sub(y,gvarOf(1.0),false),false),y,false));
-    const ynode = just(mul(pow(x,y,false),ln(x,false),false));
+    const xnode = just(
+      mul(pow(x, sub(y, gvarOf(1.0), false), false), y, false)
+    );
+    const ynode = just(mul(pow(x, y, false), ln(x, false), false));
 
     y.parents.push({ node: z, sensitivityNode: ynode });
     x.parents.push({ node: z, sensitivityNode: xnode });
@@ -658,7 +662,17 @@ export const acosh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),mul(sqrt(sub(x,gvarOf(1.0),false),false),sqrt(add(x,gvarOf(1.0),false),false),false),false));
+    const node = just(
+      div(
+        gvarOf(1.0),
+        mul(
+          sqrt(sub(x, gvarOf(1.0), false), false),
+          sqrt(add(x, gvarOf(1.0), false), false),
+          false
+        ),
+        false
+      )
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -677,7 +691,16 @@ export const acos = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(neg(div(gvarOf(1.0),sqrt(sub(gvarOf(1.0),mul(x,x,false),false),false),false),false));
+    const node = just(
+      neg(
+        div(
+          gvarOf(1.0),
+          sqrt(sub(gvarOf(1.0), mul(x, x, false), false), false),
+          false
+        ),
+        false
+      )
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -696,7 +719,13 @@ export const asin = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),sqrt(sub(gvarOf(1.0),mul(x,x,false),false),false),false));
+    const node = just(
+      div(
+        gvarOf(1.0),
+        sqrt(sub(gvarOf(1.0), mul(x, x, false), false), false),
+        false
+      )
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -715,7 +744,13 @@ export const asinh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),sqrt(add(gvarOf(1.0),mul(x,x,false),false),false),false));
+    const node = just(
+      div(
+        gvarOf(1.0),
+        sqrt(add(gvarOf(1.0), mul(x, x, false), false), false),
+        false
+      )
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -734,7 +769,9 @@ export const atan = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),add(gvarOf(1.0),mul(x,x,false),false),false));
+    const node = just(
+      div(gvarOf(1.0), add(gvarOf(1.0), mul(x, x, false), false), false)
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -753,7 +790,9 @@ export const atanh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),sub(gvarOf(1.0),mul(x,x,false),false),false));
+    const node = just(
+      div(gvarOf(1.0), sub(gvarOf(1.0), mul(x, x, false), false), false)
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -772,7 +811,13 @@ export const cbrt = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),mul(gvarOf(3.0),squared(cbrt(x,false),false),false),false));
+    const node = just(
+      div(
+        gvarOf(1.0),
+        mul(gvarOf(3.0), squared(cbrt(x, false), false), false),
+        false
+      )
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -810,7 +855,7 @@ export const cos = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(neg(sin(x,false),false));
+    const node = just(neg(sin(x, false), false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -829,7 +874,7 @@ export const cosh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(sinh(x,false));
+    const node = just(sinh(x, false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -848,7 +893,7 @@ export const exp = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(exp(x,false));
+    const node = just(exp(x, false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -867,7 +912,7 @@ export const expm1 = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(exp(x,false));
+    const node = just(exp(x, false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -905,7 +950,7 @@ export const ln = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),x,false));
+    const node = just(div(gvarOf(1.0), x, false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -924,7 +969,9 @@ export const log2 = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),mul(x,gvarOf(0.6931471805599453),false),false));
+    const node = just(
+      div(gvarOf(1.0), mul(x, gvarOf(0.6931471805599453), false), false)
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -943,7 +990,9 @@ export const log10 = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),mul(x,gvarOf(2.302585092994046),false),false));
+    const node = just(
+      div(gvarOf(1.0), mul(x, gvarOf(2.302585092994046), false), false)
+    );
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -962,7 +1011,7 @@ export const log1p = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0),add(gvarOf(1.0),x,false),false));
+    const node = just(div(gvarOf(1.0), add(gvarOf(1.0), x, false), false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -1019,7 +1068,7 @@ export const sin = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(cos(x,false));
+    const node = just(cos(x, false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -1038,7 +1087,7 @@ export const sinh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(cosh(x,false));
+    const node = just(cosh(x, false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -1057,7 +1106,7 @@ export const tan = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(squared(div(gvarOf(1.0),cos(x,false),false),false));
+    const node = just(squared(div(gvarOf(1.0), cos(x, false), false), false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -1076,7 +1125,7 @@ export const tanh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(squared(div(gvarOf(1.0),cosh(x,false),false),false));
+    const node = just(squared(div(gvarOf(1.0), cosh(x, false), false), false));
     x.parents.push({ node: y, sensitivityNode: node });
     y.children.push({ node: x, sensitivityNode: node });
   } else {
@@ -1313,79 +1362,79 @@ const opMap = {
     fn: (x: number, y: number): number => Math.min(x, y),
   },
   acosh: {
-     fn: (x: number): number => Math.acosh(x),
+    fn: (x: number): number => Math.acosh(x),
   },
   acos: {
-     fn: (x: number): number => Math.acos(x),
+    fn: (x: number): number => Math.acos(x),
   },
   asin: {
-     fn: (x: number): number => Math.asin(x),
+    fn: (x: number): number => Math.asin(x),
   },
   asinh: {
-     fn: (x: number): number => Math.asinh(x),
+    fn: (x: number): number => Math.asinh(x),
   },
   atan: {
-     fn: (x: number): number => Math.atan(x),
+    fn: (x: number): number => Math.atan(x),
   },
   atanh: {
-     fn: (x: number): number => Math.atanh(x),
+    fn: (x: number): number => Math.atanh(x),
   },
   cbrt: {
-     fn: (x: number): number => Math.cbrt(x),
+    fn: (x: number): number => Math.cbrt(x),
   },
   ceil: {
-     fn: (x: number): number => Math.ceil(x),
+    fn: (x: number): number => Math.ceil(x),
   },
   cos: {
-     fn: (x: number): number => Math.cos(x),
+    fn: (x: number): number => Math.cos(x),
   },
   cosh: {
-     fn: (x: number): number => Math.cosh(x),
+    fn: (x: number): number => Math.cosh(x),
   },
   exp: {
-     fn: (x: number): number => Math.exp(x),
+    fn: (x: number): number => Math.exp(x),
   },
   expm1: {
-     fn: (x: number): number => Math.expm1(x),
+    fn: (x: number): number => Math.expm1(x),
   },
   floor: {
-     fn: (x: number): number => Math.floor(x),
+    fn: (x: number): number => Math.floor(x),
   },
   ln: {
-     fn: (x: number): number => Math.log(x),
+    fn: (x: number): number => Math.log(x),
   },
   log2: {
-     fn: (x: number): number => Math.log2(x),
+    fn: (x: number): number => Math.log2(x),
   },
   log10: {
-     fn: (x: number): number => Math.log10(x),
+    fn: (x: number): number => Math.log10(x),
   },
   log1p: {
-     fn: (x: number): number => Math.log1p(x),
+    fn: (x: number): number => Math.log1p(x),
   },
   pow: {
-    fn: (x: number, y: number): number => Math.pow(x,y),
+    fn: (x: number, y: number): number => Math.pow(x, y),
   },
   round: {
-     fn: (x: number): number => Math.round(x),
+    fn: (x: number): number => Math.round(x),
   },
   sign: {
-     fn: (x: number): number => Math.sign(x),
+    fn: (x: number): number => Math.sign(x),
   },
   sin: {
-     fn: (x: number): number => Math.sin(x),
+    fn: (x: number): number => Math.sin(x),
   },
   sinh: {
-     fn: (x: number): number => Math.sinh(x),
+    fn: (x: number): number => Math.sinh(x),
   },
   tan: {
-     fn: (x: number): number => Math.tan(x),
+    fn: (x: number): number => Math.tan(x),
   },
   tanh: {
-     fn: (x: number): number => Math.tanh(x),
+    fn: (x: number): number => Math.tanh(x),
   },
   trunc: {
-     fn: (x: number): number => Math.trunc(x),
+    fn: (x: number): number => Math.trunc(x),
   },
   "- (unary)": {
     fn: (x: number): number => -x,
@@ -1579,17 +1628,9 @@ export const ops = {
     // the range [-1,1].  To prevent acos from producing
     // a NaN value, we therefore scale down the result
     // of the dot product by a factor s slightly below 1.
-    const s = 1. - 1e-10;
+    const s = 1 - 1e-10;
 
-    return acos(
-       mul(
-          varOf(s), 
-          ops.vdot(
-             ops.vnormalize(u),
-             ops.vnormalize(v)
-          )
-       )
-    );
+    return acos(mul(varOf(s), ops.vdot(ops.vnormalize(u), ops.vnormalize(v))));
   },
 
   /**
@@ -1603,8 +1644,8 @@ export const ops = {
     }
 
     return atan2(
-       ops.cross2(u, v), // y = |u||v|sin(theta)
-       ops.vdot(u, v)    // x = |u||v|cos(theta)
+      ops.cross2(u, v), // y = |u||v|sin(theta)
+      ops.vdot(u, v) // x = |u||v|cos(theta)
     );
   },
 
@@ -1808,7 +1849,7 @@ const genCode = (
 
 // NOTE: Mutates z to store that the node was visited, and what its name is
 // `i` is the counter, the initial parameter for generating var names
-// `i` starts with 0 for the frst call, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
+// `i` starts with 0 for the first call, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
 const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
   const c = "x"; // Base character for var names
   const childType = z.isCompNode ? "children" : "childrenGrad";
@@ -2138,21 +2179,46 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
 // Top-down
 const clearVisitedNodesOutput = (z: VarAD) => {
+  const q = new Queue<IVarAD>();
   z.nodeVisited = false;
-  // z.id = -2; // the ids are actually needed
-  // z.name = "";
-  z.children.forEach((e) => clearVisitedNodesOutput(e.node));
-  z.childrenGrad.forEach((e) => clearVisitedNodesOutput(e.node));
-  // NOTE: This does NOT clear it for z.childrenGrad
+  q.enqueue(z);
+  while (q.size > 0) {
+    const v = q.dequeue();
+    v.children.forEach((e) => {
+      if (e.node.nodeVisited) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
+    });
+    v.childrenGrad.forEach((e) => {
+      if (e.node.nodeVisited) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
+    });
+  }
 };
 
 // Bottom-up
 const clearVisitedNodesInput = (x: VarAD) => {
+  const q = new Queue<IVarAD>();
   x.nodeVisited = false;
-  // x.id = -2; // the ids are actually needed
-  // x.name = "";
-  x.parents.forEach((e) => clearVisitedNodesInput(e.node));
-  x.parentsGrad.forEach((e) => clearVisitedNodesInput(e.node));
+  q.enqueue(x);
+  while (q.size > 0) {
+    const v = q.dequeue();
+    v.parents.forEach((e) => {
+      if (e.node.nodeVisited) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
+    });
+    v.parentsGrad.forEach((e) => {
+      if (e.node.nodeVisited) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
+    });
+  }
 };
 
 // Mutates z (top node) to clear all vals and gradients of its children
