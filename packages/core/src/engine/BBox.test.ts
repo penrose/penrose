@@ -7,14 +7,14 @@ import {
   VectorV,
 } from "shapes/Samplers";
 import { makeCircle } from "shapes/Circle";
-import { Ellipse, makeEllipse } from "shapes/Ellipse";
-import { makeRectangle, Rectangle } from "shapes/Rectangle";
-import { IPoly, IScale } from "shapes/Shapes";
-import { makePolygon, Polygon } from "shapes/Polygon";
-import { makePolyline, Polyline } from "shapes/Polyline";
-import { Image, makeImage } from "shapes/Image";
-import { Line, makeLine } from "shapes/Line";
-import { makePath, Path } from "shapes/Path";
+import { makeEllipse } from "shapes/Ellipse";
+import { makeRectangle } from "shapes/Rectangle";
+import { IPoly, IScale } from "types/shapes";
+import { makePolygon } from "shapes/Polygon";
+import { makePolyline } from "shapes/Polyline";
+import { makeImage } from "shapes/Image";
+import { makeLine } from "shapes/Line";
+import { makePath } from "shapes/Path";
 import { compDict } from "contrib/Functions";
 import {
   bboxFromCircle,
