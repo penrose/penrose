@@ -1,10 +1,8 @@
 import {
   absVal,
   add,
-  addN,
   constOf,
   constOfIf,
-  div,
   max,
   min,
   mul,
@@ -17,13 +15,9 @@ import {
 } from "engine/Autodiff";
 import {
   inRange,
-  overlap1D,
-  pointInBox,
-  noIntersectCircles,
-  atDistOutside,
+  overlap1D
 } from "contrib/Utils";
-import { 
-  bboxFromShape,
+import {
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
@@ -42,7 +36,6 @@ import {
   containsAABBs,
 } from "contrib/ConstraintsUtils";
 import { VarAD } from "types/ad";
-import * as BBox from "engine/BBox";
 
 // -------- Simple constraints
 // Do not require shape quaries, operate directly with `VarAD` parameters.
@@ -140,7 +133,7 @@ const constrDictGeneral = {
   /**
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
-  maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
+  maxSize: ([shapeType, props]: [string, any], limit: number | VarAD) => {
     return sub(shapeSize([shapeType, props]), constOfIf(limit));
   },
 
@@ -153,17 +146,18 @@ const constrDictGeneral = {
     padding = 0.0
   ) => {
     if (isLinelike(t1) && isLinelike(t2))
-      return overlappingLines([t1, s1], [t2, s2], padding);
+      return overlappingLines([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && t2 === "Circle")
-      return overlappingCircles([t1, s1], [t2, s2], padding);
+      return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
-      return overlappingPolygons([t1, s1], [t2, s2], padding);
+      return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
     else
-      return overlappingAABBs([t1, s1], [t2, s2], padding);
+      return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
   /**
-   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `padding` between them (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
+   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `padding` between them 
+   * (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
    */
   disjoint: (
     [t1, s1]: [string, any],
@@ -194,27 +188,42 @@ const constrDictGeneral = {
     padding = 0.0
   ) => {
     if (t1 === "Circle" && t2 === "Circle")
-      return containsCircles([t1, s1], [t2, s2], padding);
+      return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && isRectlike(t2))
-      return containsCircleRectlike([t1, s1], [t2, s2], padding);
+      return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
     else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle")
-      return containsRectlikeCircle([t1, s1], [t2, s2], padding);
+      return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Square" && t2 === "Circle")
-      return containsSquareCircle([t1, s1], [t2, s2], padding);
+      return containsSquareCircle([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Square" && isLinelike(t2))
-      return containsSquareLinelike([t1, s1], [t2, s2], padding);
+      return containsSquareLinelike([t1, s1], [t2, s2], constOfIf(padding));
     else
-      return containsAABBs([t1, s1], [t2, s2], padding);
+      return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
+  },
+
+  /**
+   * Require that label `s2` is at a distance of `distance` from a point-like shape `s1`.
+   */
+  atDist: (
+    [t1, s1]: [string, any], 
+    [t2, s2]: [string, any], 
+    distance: number
+  ) => {
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
   },
 
   /**
    * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
    */
-  smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any], relativePadding = 0.4) => {
+  smallerThan: (
+    [t1, s1]: [string, any], 
+    [t2, s2]: [string, any], 
+    relativePadding = 0.4
+  ) => {
     // s1 is smaller than s2
     const size1 = shapeSize([t1, s1]);
     const size2 = shapeSize([t2, s2]);
-    const padding = mul(constOf(relativePadding), size2);
+    const padding = mul(constOfIf(relativePadding), size2);
     return sub(sub(size1, size2), padding);
   },
 
@@ -270,41 +279,6 @@ const constrDictSpecific = {
       [s1.start.contents[0], s1.end.contents[0]],
       [s2.start.contents[0], s2.end.contents[0]]
     );
-  },
-
-  /**
-   * Require that label `s2` is at a distance of `padding` from a point-like shape `s1`.
-   */
-  atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], padding: VarAD) => {
-    // TODO: Account for the size/radius of the initial point, rather than just the center
-
-    if (isRectlike(t2)) {
-      let pt;
-      if (isLinelike(t1)) {
-        // Position label close to the arrow's end
-        pt = { x: s1.end.contents[0], y: s1.end.contents[1] };
-      } else {
-        // Only assume shape1 has a center
-        pt = { x: s1.center.contents[0], y: s1.center.contents[1] };
-      }
-
-      // Get polygon of text (box)
-      // TODO: Make this a GPI property
-      // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
-      // I wrote a version simplified to work for rectangles
-      const text = s2;
-      const rect = bboxFromShape([t2, text]);
-      
-      return ifCond(
-        pointInBox(pt, rect),
-        // If the point is inside the box, push it outside w/ `noIntersect`
-        noIntersectCircles(rect.center, rect.w, [pt.x, pt.y], constOf(2.0)),
-        // If the point is outside the box, try to get the distance from the point to equal the desired distance
-        atDistOutside(pt, rect, padding)
-      );
-    } else {
-      throw Error(`unsupported shapes for 'atDist': ${t1}, ${t2}`);
-    }
   },
 
 }

@@ -16,9 +16,7 @@ import {
   addN,
   sqrt,
   squared,
-  varOf,
   constOf,
-  constOfIf,
 } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
@@ -33,7 +31,7 @@ import { linePts } from "utils/OtherUtils";
 export const overlappingLines = (
   [, s1]: [string, any],
   [, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   const oneSimplex1 = { points: { contents: [s1.start.contents, s1.end.contents] } };
   const oneSimplex2 = { points: { contents: [s2.start.contents, s2.end.contents] } };
@@ -46,10 +44,10 @@ export const overlappingLines = (
 export const overlappingCircles = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-  const o = [s1.r.contents, s2.r.contents, constOfIf(padding)];
+  const o = [s1.r.contents, s2.r.contents, padding];
   return sub(d, addN(o));
 };
 
@@ -59,13 +57,13 @@ export const overlappingCircles = (
 export const overlappingPolygons = (
   [, s1]: [string, any],
   [, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   const cp1 = convexPartitions(s1.points.contents);
   const cp2 = convexPartitions(s2.points.contents.map((p: VarAD[]) => ops.vneg(p)));
   return maxN(
     cp1.map((p1) => minN(
-      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, constOfIf(padding)))
+      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding))
     ))
   );
 };
@@ -76,11 +74,11 @@ export const overlappingPolygons = (
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
-  const [pc1, pc2] = rectangleDifference(box1, box2, constOfIf(padding));
+  const [pc1, pc2] = rectangleDifference(box1, box2, padding);
   const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
   const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
   const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
@@ -100,12 +98,11 @@ export const overlappingAABBs = (
 export const containsCircles = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-  const p = constOfIf(padding);
-  const o = p
-    ? sub(sub(s1.r.contents, s2.r.contents), p) 
+  const o = padding
+    ? sub(sub(s1.r.contents, s2.r.contents), padding) 
     : sub(s1.r.contents, s2.r.contents);
   const res = sub(d, o);
   return res;
@@ -117,7 +114,7 @@ export const containsCircles = (
 export const containsCircleRectlike = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
   const s2BBox = bboxFromShape([t2, s2]);
@@ -132,7 +129,7 @@ export const containsCircleRectlike = (
 export const containsRectlikeCircle = (
   [, s1]: [string, any],
   [, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
 
@@ -150,10 +147,9 @@ export const containsRectlikeCircle = (
   // padding (o).  We can compute this violation via the function
   //    max( |cx-rx| - (w/2-r-o),
   //         |cy-ry| - (h/2-r-o) )
-  const o = varOf(typeof(padding) !== 'undefined'? padding : 0.0);
   return max( 
-    sub(absVal(sub(cx, rx)), sub(sub(halfW, r), o)),
-    sub(absVal(sub(cy, ry)), sub(sub(halfH, r), o))
+    sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
+    sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
   );
 };
 
@@ -163,7 +159,7 @@ export const containsRectlikeCircle = (
 export const containsSquareCircle = (
   [, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
 
@@ -179,15 +175,14 @@ export const containsSquareCircle = (
 export const containsSquareLinelike = (
   [t1, s1]: [string, any],
   [, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
   const [[startX, startY], [endX, endY]] = linePts(s2);
   const [x, y] = shapeCenter([t1, s1]);
   const r = div(s1.side.contents, constOf(2.0));
-  const p = constOfIf(padding);
-  const [lx, ly] = [mul(sub(x, r), p), mul(sub(y, r), p)];
-  const [rx, ry] = [mul(add(x, r), p), mul(add(y, r), p)];
+  const [lx, ly] = [mul(sub(x, r), padding), mul(sub(y, r), padding)];
+  const [rx, ry] = [mul(add(x, r), padding), mul(add(y, r), padding)];
   return addN([
     mul(sub(startX, lx), sub(startX, rx)),
     mul(sub(startY, ly), sub(startY, ry)),
@@ -202,7 +197,7 @@ export const containsSquareLinelike = (
 export const containsAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding = 0.0
+  padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
   const box1 = bboxFromShape([t1, s1]);

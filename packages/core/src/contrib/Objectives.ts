@@ -106,7 +106,11 @@ export const objDictGeneral = {
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
    */
-  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
+  repel: (
+    [t1, s1]: [string, any], 
+    [t2, s2]: [string, any], 
+    weight = 10.0
+  ) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
     const repelWeight = 10e6;
@@ -134,7 +138,11 @@ export const objDictGeneral = {
   /**
    * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
    */
-  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
+  near: (
+    [t1, s1]: [string, any], 
+    [t2, s2]: [string, any], 
+    offset = 10.0
+  ) => {
     const res = absVal(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
     return sub(res, squared(constOfIf(offset)));
   },
@@ -232,7 +240,8 @@ export const objDictSpecific = {
   centerLabel: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    w: number
+    w: number,
+    padding = 10
   ): VarAD => {
     if (isLinelike(t1) && isRectlike(t2)) {
       // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
@@ -241,12 +250,11 @@ export const objDictSpecific = {
         ops.vadd(arr.start.contents, arr.end.contents),
         constOf(2.0)
       );
-      const padding = constOf(10);
       const textBB = bboxFromShape([t2, text]);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
         sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
-        squared(padding)
+        squared(constOfIf(padding))
       );
     } else if (isRectlike(t1) && isRectlike(t2)) {
       // Try to center label in the rectangle
