@@ -6,8 +6,8 @@ describe("shapedefs", () => {
     const canvas = makeCanvas(800, 700);
     console.log(
       Object.fromEntries(
-        Object.entries(shapedefs).map(([name, { constr }]) => {
-          const shape: { [prop: string]: any } = constr(canvas, {});
+        Object.entries(shapedefs).map(([name, { sampler }]) => {
+          const shape: { [prop: string]: any } = sampler(canvas);
           delete shape.shapeType;
           delete shape.bbox;
           const types = Object.fromEntries(
