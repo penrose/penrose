@@ -1,6 +1,6 @@
 import { ICircle } from "shapes/Circle";
 import { IEllipse } from "shapes/Ellipse";
-import { ICenter, IPoly, IRect, IRotate, IScale } from "shapes/Shapes";
+import { ICenter, IPoly, IRect, IRotate, IScale } from "types/shapes";
 import { ILine } from "shapes/Line";
 import { IPath } from "shapes/Path";
 import { IRectangle } from "shapes/Rectangle";

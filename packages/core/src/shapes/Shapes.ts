@@ -11,7 +11,7 @@ import { makePolygon, Polygon, samplePolygon } from "./Polygon";
 import { makePolyline, Polyline, samplePolyline } from "./Polyline";
 import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
 import { Canvas } from "./Samplers";
-import { makeText, sampleText } from "./Text";
+import { Text, makeText, sampleText } from "./Text";
 
 //#region other shape types/globals
 
