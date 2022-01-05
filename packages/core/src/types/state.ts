@@ -14,7 +14,7 @@ export interface IState {
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   shapePaths: Path[];
   shapeProperties: any; // TODO: types
-  uninitializedPaths: any; // TODO: types
+  uninitializedPaths: Path[];
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
