@@ -1,14 +1,5 @@
 import { constOf } from "engine/Autodiff";
-import { bboxFromPolygon } from "engine/BBox";
-import {
-  IFill,
-  INamed,
-  IPoly,
-  IScale,
-  IShape,
-  IStroke,
-  ShapeDef,
-} from "./Shapes";
+import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
 import {
   Canvas,
   FloatV,
@@ -47,11 +38,4 @@ export const makePolyline = (
   ...samplePolyline(canvas),
   ...properties,
   shapeType: "Polyline",
-});
-
-export const Polyline = ShapeDef({
-  sampler: samplePolyline,
-  constr: makePolyline,
-
-  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
 });

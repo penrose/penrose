@@ -1,7 +1,6 @@
-import { bboxFromCircle } from "engine/BBox";
 import { VarAD } from "types/ad";
+import { INamed, IStroke, IFill, ICenter, IShape } from "types/shapes";
 import { IFloatV } from "types/value";
-import { ICenter, IFill, INamed, IShape, IStroke, ShapeDef } from "./Shapes";
 import {
   Canvas,
   sampleNoPaint,
@@ -36,11 +35,4 @@ export const makeCircle = (
   ...sampleCircle(canvas),
   ...properties,
   shapeType: "Circle",
-});
-
-export const Circle = ShapeDef({
-  sampler: sampleCircle,
-  constr: makeCircle,
-
-  bbox: bboxFromCircle,
 });

@@ -1,13 +1,4 @@
-import { bboxFromRectlike } from "engine/BBox";
-import {
-  ICenter,
-  INamed,
-  IRect,
-  IRotate,
-  IShape,
-  IString,
-  ShapeDef,
-} from "./Shapes";
+import { INamed, ICenter, IRect, IRotate, IString, IShape } from "types/shapes";
 import { Canvas, sampleVector, sampleZero, StrV } from "./Samplers";
 
 export interface IEquation extends INamed, ICenter, IRect, IRotate, IString {}
@@ -30,12 +21,4 @@ export const makeEquation = (
   ...sampleEquation(canvas),
   ...properties,
   shapeType: "Equation",
-});
-
-export const Equation = ShapeDef({
-  sampler: sampleEquation,
-  constr: makeEquation,
-
-  bbox: bboxFromRectlike,
-  isRectlike: true,
 });

@@ -1,16 +1,14 @@
-import { bboxFromRectlike } from "engine/BBox";
-import { IStrV } from "types/value";
 import {
-  ICenter,
-  IFill,
   INamed,
+  IStroke,
+  IFill,
+  ICenter,
   IRect,
   IRotate,
-  IShape,
   IString,
-  IStroke,
-  ShapeDef,
-} from "./Shapes";
+  IShape,
+} from "types/shapes";
+import { IStrV } from "types/value";
 import {
   Canvas,
   sampleColor,
@@ -72,12 +70,4 @@ export const makeText = (canvas: Canvas, properties: Partial<IText>): Text => ({
   ...sampleText(canvas),
   ...properties,
   shapeType: "Text",
-});
-
-export const Text = ShapeDef({
-  sampler: sampleText,
-  constr: makeText,
-
-  bbox: bboxFromRectlike, // assumes w and h correspond to string
-  isRectlike: true,
 });

@@ -1,14 +1,5 @@
 import { constOf } from "engine/Autodiff";
-import { bboxFromPolygon } from "engine/BBox";
-import {
-  IFill,
-  INamed,
-  IPoly,
-  IScale,
-  IShape,
-  IStroke,
-  ShapeDef,
-} from "./Shapes";
+import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
 import {
   Canvas,
   FloatV,
@@ -47,11 +38,4 @@ export const makePolygon = (
   ...samplePolygon(canvas),
   ...properties,
   shapeType: "Polygon",
-});
-
-export const Polygon = ShapeDef({
-  sampler: samplePolygon,
-  constr: makePolygon,
-
-  bbox: bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
 });

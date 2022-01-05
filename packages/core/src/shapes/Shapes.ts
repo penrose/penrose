@@ -1,91 +1,19 @@
 import * as BBox from "engine/BBox";
 import { VarAD } from "types/ad";
-import {
-  IBoolV,
-  IColorV,
-  IFloatV,
-  IPtListV,
-  IStrV,
-  IVectorV,
-  Value,
-} from "types/value";
-import { Circle } from "./Circle";
-import { Ellipse } from "./Ellipse";
-import { Equation } from "./Equation";
-import { Image } from "./Image";
-import { Line } from "./Line";
-import { Path } from "./Path";
-import { Polygon } from "./Polygon";
-import { Polyline } from "./Polyline";
-import { Rectangle } from "./Rectangle";
+import { Value } from "types/value";
+import { Circle, makeCircle, sampleCircle } from "./Circle";
+import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
+import { Equation, makeEquation, sampleEquation } from "./Equation";
+import { Image, makeImage, sampleImage } from "./Image";
+import { Line, makeLine, sampleLine } from "./Line";
+import { makePath, Path, samplePath } from "./Path";
+import { makePolygon, Polygon, samplePolygon } from "./Polygon";
+import { makePolyline, Polyline, samplePolyline } from "./Polyline";
+import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
 import { Canvas } from "./Samplers";
-import { Text } from "./Text";
-
-//#region shape hierarchy interfaces
-
-export interface INamed {
-  name: IStrV;
-}
-
-export interface IStroke {
-  strokeWidth: IFloatV<VarAD>;
-  strokeStyle: IStrV;
-  strokeColor: IColorV<VarAD>;
-  strokeDashArray: IStrV;
-}
-
-export interface IFill {
-  fillColor: IColorV<VarAD>;
-}
-
-export interface ICenter {
-  center: IVectorV<VarAD>; // corresponds to (cx, cy), or other things, in SVG
-}
-
-export interface IRect {
-  width: IFloatV<VarAD>;
-  height: IFloatV<VarAD>;
-}
-
-export interface IArrow {
-  arrowheadSize: IFloatV<VarAD>;
-  arrowheadStyle: IStrV;
-  startArrowhead: IBoolV<VarAD>;
-  endArrowhead: IBoolV<VarAD>;
-}
-
-export interface ICorner {
-  cornerRadius: IFloatV<VarAD>; // note: corresponds to rx in SVG
-}
-
-// TODO: don't use these
-export interface IRotate {
-  rotation: IFloatV<VarAD>; // about the top-left corner
-}
-export interface IScale {
-  scale: IFloatV<VarAD>; // doesn't work correctly
-}
-
-// // TODO: use this
-// export interface ITransform {
-//   matrix: IMatrixV<VarAD>;
-// }
-
-export interface IPoly {
-  points: IPtListV<VarAD>;
-}
-
-export interface IString {
-  string: IStrV;
-}
-
-//#endregion
+import { makeText, sampleText } from "./Text";
 
 //#region other shape types/globals
-
-export interface IShape {
-  shapeType: string;
-}
 
 // TODO: fix this type, it's too restrictive
 export interface Properties {
@@ -130,6 +58,82 @@ export const ShapeDef = (shapedef: {
   isRectlike: shapedef.isRectlike || false,
 });
 
+//#region shape defs
+const Circle = ShapeDef({
+  sampler: sampleCircle,
+  constr: makeCircle,
+
+  bbox: BBox.bboxFromCircle,
+});
+
+const Ellipse = ShapeDef({
+  sampler: sampleEllipse,
+  constr: makeEllipse,
+
+  bbox: BBox.bboxFromEllipse,
+});
+
+const Equation = ShapeDef({
+  sampler: sampleEquation,
+  constr: makeEquation,
+
+  bbox: BBox.bboxFromRectlike,
+  isRectlike: true,
+});
+
+const Image = ShapeDef({
+  sampler: sampleImage,
+  constr: makeImage,
+
+  bbox: BBox.bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
+  isRectlike: true,
+});
+
+const Line = ShapeDef({
+  sampler: sampleLine,
+  constr: makeLine,
+
+  bbox: BBox.bboxFromLinelike,
+  isLinelike: true,
+});
+
+const Path = ShapeDef({
+  sampler: samplePath,
+  constr: makePath,
+
+  bbox: BBox.bboxFromPath,
+});
+
+const Polygon = ShapeDef({
+  sampler: samplePolygon,
+  constr: makePolygon,
+
+  bbox: BBox.bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+});
+
+const Polyline = ShapeDef({
+  sampler: samplePolyline,
+  constr: makePolyline,
+
+  bbox: BBox.bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+});
+
+const Rectangle = ShapeDef({
+  sampler: sampleRectangle,
+  constr: makeRectangle,
+
+  bbox: BBox.bboxFromRect,
+  isRectlike: true,
+});
+
+const Text = ShapeDef({
+  sampler: sampleText,
+  constr: makeText,
+
+  bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
+  isRectlike: true,
+});
+
 export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Circle,
   Ellipse,
@@ -142,3 +146,5 @@ export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Rectangle,
   Text,
 };
+
+//#endregion

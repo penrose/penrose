@@ -1,14 +1,12 @@
-import { bboxFromRect } from "engine/BBox";
 import {
-  ICenter,
-  ICorner,
-  IFill,
   INamed,
-  IRect,
-  IShape,
   IStroke,
-  ShapeDef,
-} from "./Shapes";
+  IFill,
+  ICenter,
+  IRect,
+  ICorner,
+  IShape,
+} from "types/shapes";
 import {
   Canvas,
   sampleColor,
@@ -52,12 +50,4 @@ export const makeRectangle = (
   ...sampleRectangle(canvas),
   ...properties,
   shapeType: "Rectangle",
-});
-
-export const Rectangle = ShapeDef({
-  sampler: sampleRectangle,
-  constr: makeRectangle,
-
-  bbox: bboxFromRect,
-  isRectlike: true,
 });

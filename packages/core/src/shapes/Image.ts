@@ -1,6 +1,5 @@
-import { bboxFromRectlike } from "engine/BBox";
+import { INamed, ICenter, IRect, IRotate, IShape } from "types/shapes";
 import { IStrV } from "types/value";
-import { ICenter, INamed, IRect, IRotate, IShape, ShapeDef } from "./Shapes";
 import {
   Canvas,
   sampleHeight,
@@ -35,12 +34,4 @@ export const makeImage = (
   ...sampleImage(canvas),
   ...properties,
   shapeType: "Image",
-});
-
-export const Image = ShapeDef({
-  sampler: sampleImage,
-  constr: makeImage,
-
-  bbox: bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
-  isRectlike: true,
 });
