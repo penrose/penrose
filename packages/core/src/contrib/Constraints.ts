@@ -28,13 +28,18 @@ import {
   shapeSize,
 } from "contrib/Queries";
 import * as _ from "lodash";
-import { linePts } from "utils/OtherUtils";
 import { isLinelike, isRectlike } from "renderer/ShapeDef";
 import { 
   overlappingLines,
   overlappingCircles,
   overlappingPolygons,
   overlappingAABBs,
+  containsCircles, 
+  containsCircleRectlike,
+  containsRectlikeCircle,
+  containsSquareCircle,
+  containsSquareLinelike,
+  containsAABBs,
 } from "contrib/ConstraintsUtils";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
@@ -69,7 +74,7 @@ const constrDictSimple = {
    * Require that the value `x` is in the range defined by `[x0, x1]`.
    */
   inRange: (x: VarAD, x0: VarAD, x1: VarAD) => {
-    return max(constOf(0), mul(sub(x, x0), sub(x, x1)));
+    return mul(sub(x, x0), sub(x, x1));
   },
 
   /**
@@ -79,7 +84,7 @@ const constrDictSimple = {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
     return add(constrDictSimple.lessThanSq(l1, l2), constrDictSimple.lessThanSq(r2, r1));
   },
-
+  
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
@@ -186,72 +191,20 @@ const constrDictGeneral = {
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding: VarAD
+    padding = 0.0
   ) => {
-    // TODO: Refactor
-    if (t1 === "Circle" && t2 === "Circle") {
-      const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-      const o = padding
-        ? sub(sub(s1.r.contents, s2.r.contents), padding)
-        : sub(s1.r.contents, s2.r.contents);
-      const res = sub(d, o);
-      return res;
-    } else if (t1 === "Circle" && isRectlike(t2)) {
-      const s2BBox = bboxFromShape([t2, s2]);
-      const d = ops.vdist(shapeCenter([t1, s1]), s2BBox.center);
-      const textR = max(s2BBox.w, s2BBox.h);
-      return add(sub(d, s1.r.contents), textR);
-    } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
-      // collect constants
-      const halfW = mul( constOf(0.5), s1.w.contents ); // half rectangle width
-      const halfH = mul( constOf(0.5), s1.h.contents ); // half rectangle height
-      const [rx, ry] = s1.center.contents; // rectangle center
-      const r = s2.r.contents; // circle radius
-      const [cx, cy] = s2.center.contents; // circle center
-      
-      // Return maximum violation in either the x- or y-direction.
-      // In each direction, the distance from the circle center (cx,cy) to
-      // the rectangle center (rx,ry) must be no greater than the size of
-      // the rectangle (w/h), minus the radius of the circle (r) and the
-      // padding (o).  We can compute this violation via the function
-      //    max( |cx-rx| - (w/2-r-o),
-      //         |cy-ry| - (h/2-r-o) )
-      const o = typeof(padding)!=='undefined'? padding : constOf(0.);
-      return max( sub( absVal(sub(cx,rx)), sub(sub(halfW,r),o) ),
-                  sub( absVal(sub(cy,ry)), sub(sub(halfH,r),o) ));
-    } else if (t1 === "Square" && t2 === "Circle") {
-      // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-      const sq = s1.center.contents;
-      const d = ops.vdist(sq, shapeCenter([t2, s2]));
-      return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
-    } else if (isRectlike(t1) && isRectlike(t2)) {
-      const box1 = bboxFromShape([t1, s1]);
-      const box2 = bboxFromShape([t2, s2]);
-
-      // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
-      return add(
-        constrDictSimple.contains1D(BBox.xRange(box1), BBox.xRange(box2)),
-        constrDictSimple.contains1D(BBox.yRange(box1), BBox.yRange(box2))
-      );
-    } else if (t1 === "Square" && isLinelike(t2)) {
-      const [[startX, startY], [endX, endY]] = linePts(s2);
-      const [x, y] = shapeCenter([t1, s1]);
-
-      const r = div(s1.side.contents, constOf(2.0));
-      const f = constOf(0.75); // 0.25 padding
-      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
-      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
-      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
-      //    inRange endY ly ry
-      const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
-      const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
-      return addN([
-        constrDictSimple.inRange(startX, lx, rx),
-        constrDictSimple.inRange(startY, ly, ry),
-        constrDictSimple.inRange(endX, lx, rx),
-        constrDictSimple.inRange(endY, ly, ry),
-      ]);
-    } else throw new Error(`${[t1, t2]} not supported for contains`);
+    if (t1 === "Circle" && t2 === "Circle")
+      return containsCircles([t1, s1], [t2, s2], padding);
+    else if (t1 === "Circle" && isRectlike(t2))
+      return containsCircleRectlike([t1, s1], [t2, s2], padding);
+    else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle")
+      return containsRectlikeCircle([t1, s1], [t2, s2], padding);
+    else if (t1 === "Square" && t2 === "Circle")
+      return containsSquareCircle([t1, s1], [t2, s2], padding);
+    else if (t1 === "Square" && isLinelike(t2))
+      return containsSquareLinelike([t1, s1], [t2, s2], padding);
+    else
+      return containsAABBs([t1, s1], [t2, s2], padding);
   },
 
   /**

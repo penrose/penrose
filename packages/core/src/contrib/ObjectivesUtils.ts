@@ -2,8 +2,6 @@ import { constOf, squared, sub, varOf, max, ops} from "engine/Autodiff";
 import { shapeCenter } from "contrib/Queries";
 import { Pt2, VarAD } from "types/ad";
 
-// -------- New helpers
-
 /**
  * Encourage the center of the shape `shape` to be in the direction `direction` with respect to shape `shapeRef`.
  * For shapes without the property `center`, the center of their bounding box is used.
