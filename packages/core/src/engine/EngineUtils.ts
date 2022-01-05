@@ -727,7 +727,7 @@ export const insertExpr = (
 
           // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
           // If the expected property is a non-vector type, throw an error, as we can't insert an expression into an uninitialized non-vector (list or other composite type).
-          const shapeProps = propertiesOf(gpiType, "VectorV");
+          const shapeProps = propertiesOf("VectorV", gpiType);
           if (!(prop.value in shapeProps)) {
             return addWarn(trans, {
               tag: "InvalidGPIPropertyError",
