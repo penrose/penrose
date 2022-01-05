@@ -29,7 +29,7 @@ canvas {
         center: (0., 0.)
         strokeColor: rgba(0., 0., 0., 1.)
         strokeWidth: 3.
-        color: rgba(1., 1., 1., 0.)
+        fillColor: rgba(1., 1., 1., 0.)
     }
 
     -- TODO(bug): file issue as the local var `box` doesn't seem to work here
@@ -53,7 +53,7 @@ Object o {
     shape o.shape = Line {
         start: o.v1
         end: o.v2
-        -- color: rgba(0., 0., 0., 1.)
+        -- strokeColor: rgba(0., 0., 0., 1.)
         thickness: 5.
         rightArrowhead: true
         arrowheadSize: 0.5
@@ -79,7 +79,7 @@ Morphism m {
                   center: (?, ?)
                   w: 100. 
                   h: 300.
-               color: rgba(1.,1.,1.,0.)
+               fillColor: rgba(1.,1.,1.,0.)
                strokeColor: rgba(0., 0., 0., 1.)
                strokeWidth: 3.
          }
@@ -104,7 +104,7 @@ Morphism m {
 Object p
 with Object a, b
 where p := tensor(a, b) {
-      override p.shape.color = rgba(1.0, 0.0, 0.0, 0.1)
+      override p.shape.strokeColor = rgba(1.0, 0.0, 0.0, 0.1)
       override p.shape.strokeStyle = "dashed"
 
       -- bottom-up
@@ -130,7 +130,7 @@ where p := tensor(a, b) {
 Morphism m
 with Object a, b
 where m := join(a, b) {
-      -- override m.shape.color = Colors.green
+      -- override m.shape.fillColor = Colors.green
 
       -- TODO: overriding nonexistent fields should throw an error. like `override a.sdjfsadfjhks = 0`
       override a.maxX = m.left

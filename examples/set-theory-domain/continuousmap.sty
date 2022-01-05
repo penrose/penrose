@@ -16,7 +16,7 @@ Colors {
 
 Set x {
     x.icon = Circle {
-        color : Colors.lightBlue
+        fillColor : Colors.lightBlue
         strokeColor : Colors.black
         strokeStyle : "solid"
         strokeWidth : 1.0
@@ -46,11 +46,12 @@ where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
 with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
-    f.icon = Arrow {
+    f.icon = Line {
       start : (R1.icon.center[0] + R1.icon.side / 2.0 + f.padding, R1.icon.center[1])
       end : (R2.icon.center[0] - R2.icon.side / 2.0 - f.padding, R2.icon.center[1])
       thickness : 2.0
-      color : Colors.black
+      strokeColor : Colors.black
+      endArrowhead: true
         -- style : "curved"
     }
 
@@ -80,11 +81,15 @@ Set `V` {
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
-    override `Rn`.icon = Square {
+    `Rn`.iconSize = ?
+
+    override `Rn`.icon = Rectangle {
       -- Works but is slow
       -- x : -100.0
       -- y = 0.0
-      color : Colors.lightYellow
+      width : `Rn`.iconSize
+      height : `Rn`.iconSize
+      fillColor : Colors.lightYellow
       -- rotation : 0.0
       strokeWidth : Const.strokeWidth
       strokeColor : Colors.black
@@ -102,10 +107,11 @@ Set `Rn` {
 Set `Rm`
 with Set `Rn` {
     -- TODO: factor this block out
-    override `Rm`.icon = Square {
-        color : Colors.lightYellow
+    override `Rm`.icon = Rectangle {
+        fillColor : Colors.lightYellow
         center : (`Rn`.icon.center[0] + 400.0, `Rn`.icon.center[1])
-        side  : `Rn`.icon.side
+        width : `Rn`.iconSize
+        height : `Rn`.iconSize
         -- rotation : 0.0
         strokeWidth : 1.0
         strokeColor : Colors.black

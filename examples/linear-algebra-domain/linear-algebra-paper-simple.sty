@@ -62,10 +62,11 @@ forall VectorSpace U {
     vec2 o = U.origin
     color U.axisColor = C.gray
 
-    shape U.background = Square {
+    shape U.background = Rectangle {
         center : U.origin
-        side : const.vectorSpaceSize
-        color : rgba(.95,.95,.95,1.)
+        width : const.vectorSpaceSize
+        height : const.vectorSpaceSize
+        fillColor : rgba(.95,.95,.95,1.)
         strokeColor : C.none
         -- strokeWidth : 2.0
     }
@@ -75,7 +76,7 @@ forall VectorSpace U {
           end : (o[0] + 1.1*axisSize, o[1])
         thickness : const.lineThickness
         style : "solid"
-        color : U.axisColor
+        strokeColor : U.axisColor
         -- leftArrowhead: true
         -- rightArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
@@ -86,7 +87,7 @@ forall VectorSpace U {
              end : (o[0], o[1] + 1.1*axisSize)
        thickness : const.lineThickness
            style : "solid"
-           color : U.axisColor
+           strokeColor : U.axisColor
            -- leftArrowhead: true
            -- rightArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
@@ -98,7 +99,7 @@ forall VectorSpace U {
         fontStyle : "italic"
         string : U.label
         center : (U.origin[0] + .8*axisSize, U.origin[1] + .8*axisSize)
-        color : U.axisColor
+        fillColor : U.axisColor
     }
 
     layer U.xAxis above U.yAxis
@@ -110,11 +111,12 @@ forall VectorSpace U {
 forall Vector u; VectorSpace U
 where In(u,U) {
 
-   shape u.arrow = Arrow {
+   shape u.arrow = Line {
       start : U.origin
       end : (?, ?)
       thickness : 3.0
-      color : C.lightBlue
+      strokeColor : C.lightBlue
+      endArrowhead : true
       arrowheadSize : const.arrowheadSize
    }
 
@@ -124,7 +126,7 @@ where In(u,U) {
       fontFamily: const.fontFamily
       fontWeight: "bold"
       string: u.label
-      color: u.arrow.color
+      fillColor: u.arrow.strokeColor
    }
 
    shape u.stroke = Text {
@@ -133,7 +135,7 @@ where In(u,U) {
       fontFamily: u.text.fontFamily
       fontWeight: "bold"
       string: u.label
-      color: C.white
+      fillColor: C.white
       strokeColor: C.white
       strokeWidth: 8.
    }
@@ -178,7 +180,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       perpMark = Path {
            pathData : pathFromPoints("closed", pts)
            strokeWidth : 2.0
-           color : C.black
+           strokeColor : C.black
            fill : C.white
       }
 
@@ -197,7 +199,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
-      color: C.black
+      fillColor: C.black
    }
 }
 
@@ -222,7 +224,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       v.unitMarkerLine = Path {
           pathData : pathFromPoints("open", v.markerLine)
           -- strokeWidth : strokeWidth
-          color : C.black
+          strokeColor : C.black
           fill : C.none
       }
 
@@ -235,14 +237,14 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       v.unitMarkerEnd1 = Path {
           pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           -- strokeWidth : strokeWidth
-          color : C.black
+          strokeColor : C.black
           fill : C.none
       }
 
       v.unitMarkerEnd2 = Path {
           pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           -- strokeWidth : strokeWidth
-          color : C.black
+          strokeColor : C.black
           fill : C.none
       }
 
@@ -253,7 +255,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
           fontSize : const.fontSize
           string : "1"
           center : labelPos
-          color : C.black
+          fillColor : C.black
       }
 
       layer v.unitMarkerLine above U.xAxis
@@ -276,7 +278,7 @@ where Dependent(u,v) {
       fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
-      color: C.black
+      fillColor: C.black
    }
 }
 
@@ -294,16 +296,16 @@ where Independent(u, v); In(v,V) {
       fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
-      color: C.black
+      fillColor: C.black
    }
 }
 
 forall Vector `u` {
-       override `u`.arrow.color = C.green
+       override `u`.arrow.strokeColor = C.green
 }
 
 forall Vector `x2` {
-       override `x2`.arrow.color = C.green
+       override `x2`.arrow.strokeColor = C.green
 }
 
 

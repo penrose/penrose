@@ -31,7 +31,7 @@ global {
                center: (0., 0.)
                w: 700.
                h: 500.
-               color: Colors.none
+               fillColor: Colors.none
                strokeColor: Colors.black
     }
 
@@ -44,7 +44,7 @@ Vertex V {
          w: V.text.w + global.padding
          h: V.text.h + global.padding
          -- r : 10.0
-	 color : Colors.none
+	 fillColor : Colors.none
 	 strokeWidth : 2.
          strokeColor: Colors.black
        }
@@ -53,7 +53,7 @@ Vertex V {
        -- ERROR: You get the divide by 0 from `contains` if the text center is set. How to detect these conflicts? the divide by 0 was due to a hardcoded distance of 0?
 	 center: V.shape.center
 	 string : V.label
-	 color : Colors.black
+	 fillColor : Colors.black
        }
 
        -- TODO: Make this work WRT rectangle dimensions (right now it's overapproximated w/ squares)
@@ -86,7 +86,7 @@ with Vertex v1; Vertex v2 {
      -- If you accidentally do a scalar when a vector was expected, also bad
      	     start : v1.shape.center + (startSideDim / 2. + padding) * dir
      	     end : v2.shape.center - (endSideDim / 2. + arrowheadSize + padding) * dir
-	     color : Colors.black
+	     strokeColor : Colors.black
 	     thickness : 2.0
              rightArrowhead: true
              arrowheadSize: 0.7

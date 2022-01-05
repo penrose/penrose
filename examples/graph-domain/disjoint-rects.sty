@@ -29,7 +29,7 @@ global {
                center: (0., 0.)
                w: global.width + 300.
                h: global.width
-               color: Colors.none
+               fillColor: Colors.none
                strokeColor: Colors.black
     }
     global.vertexWidth = 100.
@@ -46,7 +46,7 @@ Vertex V {
          center: (V.x, V.y)
          w: global.vertexWidth + V.xpad
          h: global.vertexWidth + V.ypad
-         color : Colors.none
+         fillColor : Colors.none
          strokeWidth : 2.
          strokeColor: Colors.black
        }
@@ -54,7 +54,7 @@ Vertex V {
        V.text = Equation {
 	 center: V.shape.center
 	 string : V.label
-	 color : Colors.black
+	 fillColor : Colors.black
        }
 
        ensure contains(global.box, V.shape)

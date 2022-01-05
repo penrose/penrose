@@ -28,7 +28,7 @@ Node n {
      n.shape = Circle { 
              r: global.nodeR
              strokeWidth: 0.
-             color: colors.black
+             fillColor: colors.black
      }
 
      n.text = Equation {
@@ -38,7 +38,7 @@ Node n {
      n.callout = Rectangle {
                strokeWidth: global.lineThickness
                strokeColor: colors.black
-               color: colors.none
+               fillColor: colors.none
                center: n.text.center
                w: n.text.w + global.calloutPadding
                h: n.text.h + global.calloutPadding
@@ -54,7 +54,7 @@ Node n {
             start: n.anchorStart
             end: n.callout.center
             thickness: global.calloutThickness
-            color: rgba(0.5, 0.5, 0.5, 0.5)
+            strokeColor: rgba(0.5, 0.5, 0.5, 0.5)
      }
 
      -- Thin line
@@ -62,7 +62,7 @@ Node n {
              start: n.anchorStart
              end: n.callout.center
              thickness: global.lineThickness
-             color: colors.black
+             strokeColor: colors.black
      }
 
      n.line1 above n.line
@@ -70,7 +70,7 @@ Node n {
      -- Perpendicular location - start of segment
      segStart = n.anchorStart + global.calloutThickness / 2. * rot90(vec)
      n.circle1 = Circle {
-               color: colors.red
+               fillColor: colors.red
                r: 5.
                strokeWidth: 0.
                center: segStart
@@ -81,7 +81,7 @@ Node n {
      segEnd = segStart + t * vec
 
      n.circle2 = Circle {
-               color: colors.red
+               fillColor: colors.red
                r: 5.
                strokeWidth: 0.
                center: segEnd
@@ -89,7 +89,7 @@ Node n {
 
      -- hit point 1
      n.circle3 = Circle {
-               color: colors.blue
+               fillColor: colors.blue
                r: 5.
                strokeWidth: 0.
                -- center: 

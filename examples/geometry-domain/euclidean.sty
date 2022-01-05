@@ -69,8 +69,8 @@ Plane p {
   -- inner: #f3f4f9, outer: #8e93c4
   p.icon = Rectangle {
     -- angle : 0.0
-    -- color : Colors.purple2
-    color : Colors.none -- TODO: arrange angle markers so plane can be opaque
+    -- fillColor : Colors.purple2
+    fillColor : Colors.none -- TODO: arrange angle markers so plane can be opaque
     strokeColor : Colors.purple3
     strokeWidth : 2.0
     center : (0.0, 0.0)
@@ -91,7 +91,7 @@ Point p {
     p.icon = Circle {
       center: p.vec
       r : const.pointSize
-      color : Colors.black
+      fillColor : Colors.black
       strokeWidth : 0.0
       strokeColor : Colors.black
     }
@@ -99,7 +99,7 @@ Point p {
     p.text = Equation {
       string : p.label
       rotation : 0.0
-      color : Colors.black
+      fillClor : Colors.black
       fontSize : const.fontSize
     }
     ensure atDist(p.icon, p.text, const.textPadding)
@@ -131,7 +131,7 @@ Linelike l {
   l.icon = Line {
     start : (?, ?)
     end : (?, ?)
-    color : l.color
+    strokeColor : l.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -147,7 +147,7 @@ with Point base; Point direction {
   override r.icon = Line {
     start : base.icon.center
     end : ptOnLine(base.vec, direction.vec, norm(r.vec) + 40.)
-    color : r.color
+    strokeColor : r.color
     thickness : const.strokeWidth
     style : "solid"
     arrowheadStyle: "arrowhead-2"
@@ -167,7 +167,7 @@ with Point p; Point q {
   override l.icon = Line {
     start : ptOnLine(p.vec,q.vec, -40.)
     end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
-    color : l.color
+    strokeColor : l.color
     thickness : const.strokeWidth
     style : "solid"
     arrowheadStyle: "arrowhead-2"
@@ -182,13 +182,13 @@ where ParallelMarker1(l1, l2) {
   l1.tick1 = Path {
     pathData : pathFromPoints("open", chevron(l1.icon, 20., 6))
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill : Colors.none
   }
   l2.tick1 = Path {
     pathData : pathFromPoints("open", chevron(l2.icon, 20., 5))
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill : Colors.none
   }
 }
@@ -212,7 +212,7 @@ with Point p; Point q {
   override e.icon = Line {
     start : p.icon.center
     end : q.icon.center
-    color : e.color
+    strokeColor : e.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -240,7 +240,7 @@ with Segment s2; Point p {
   override s.icon = Line {
     start : p.icon.center
     end : midpoint(s2.icon.start, s2.icon.end)
-    color : s.color
+    strokeColor : s.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -251,7 +251,7 @@ with Segment s2; Point p {
   s.mark = Path {
     pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill : Colors.none
   }
 
@@ -265,7 +265,7 @@ with Segment s2; Point p1, p2 {
   override s.icon = Line {
     start : p1.icon.center
     end : p2.vec
-    color : s.color
+    strokeColor : s.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -276,7 +276,7 @@ with Segment s2; Point p1, p2 {
   s.mark = Path {
     pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill : Colors.none
   }
 
@@ -289,13 +289,13 @@ where EqualLengthMarker1(s, t) {
   override s.tick = Path {
     pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
   }
   override t.tick = Path {
     pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
   }
   s.tick above s.icon
@@ -309,13 +309,13 @@ where EqualLengthMarker2(s, t) {
   override s.tick = Path {
     pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
   }
   override t.tick = Path {
     pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
   }
   s.tick above s.icon
@@ -329,13 +329,13 @@ where EqualLengthMarker3(s, t) {
   override s.tick = Path {
     pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
   }
   override t.tick = Path {
     pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
   }
   s.tick above s.icon
@@ -353,14 +353,14 @@ with Point p; Point q; Point r {
   theta.side1 = Line {
     start : p.icon.center
     end : q.icon.center
-    color : theta.color
+    strokeColor : theta.color
     thickness : const.strokeWidth
     style : "solid"
   }
   theta.side2 = Line {
     start : q.icon.center
     end : r.icon.center
-    color : theta.color
+    strokeColor : theta.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -383,13 +383,13 @@ where EqualAngleMarker1(a, b) {
   override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
 }
@@ -408,13 +408,13 @@ where EqualAngleMarker2(a, b) {
   override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
 
@@ -428,13 +428,13 @@ where EqualAngleMarker2(a, b) {
   override a.mark2 = Path {
     pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark2 = Path {
     pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
 }
@@ -453,13 +453,13 @@ where EqualAngleMarker3(a, b) {
   override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark = Path {
     pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
 
@@ -473,13 +473,13 @@ where EqualAngleMarker3(a, b) {
   override a.mark2 = Path {
     pathData : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark2 = Path {
     pathData : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
 
@@ -493,13 +493,13 @@ where EqualAngleMarker3(a, b) {
   override a.mark3 = Path {
     pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark3 = Path {
     pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill: Colors.none
  }
 }
@@ -523,7 +523,7 @@ where RightMarked(a) {
   override a.mark = Path {
     pathData : pathFromPoints("open", [ptOnLine(a.q, a.p, 20.), innerPointOffset(a.q, a.p, a.r, 20.), ptOnLine(a.q, a.r, 20.)])
     strokeWidth : 2.0
-    color : Colors.black
+    strokeColor : Colors.black
     fill : Colors.none
   }
   ensure perpendicular(a.p, a.q, a.r)
@@ -550,21 +550,21 @@ with Point p; Point q; Point r {
   t.PQ = Line {
     start : p.icon.center
     end : q.icon.center
-    color : t.color
+    strokeColor : t.color
     thickness : const.strokeWidth
     style : "solid"
   }
   t.QR = Line {
     start : q.icon.center
     end : r.icon.center
-    color : t.color
+    strokeColor : t.color
     thickness : const.strokeWidth
     style : "solid"
   }
   t.RP = Line {
     start : r.icon.center
     end : p.icon.center
-    color : t.color
+    strokeColor : t.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -592,7 +592,7 @@ with Triangle T {
     r : sqrt(((semip - a) * (semip - b) * (semip - c))/ semip)
     strokeWidth : const.strokeWidth
     strokeColor : clr
-    color : Colors.none
+    fillColor : Colors.none
   }
 }
 
@@ -605,14 +605,14 @@ with Triangle T {
     r : const.pointSize
     strokeWidth : const.strokeWidth
     strokeColor : clr
-    color : clr
+    fillColor : clr
   }
   T.icon = Circle {
     center : p.vec
     r : ?
     strokeWidth : const.strokeWidth
     strokeColor : clr
-    color : Colors.none
+    fillColor : Colors.none
   }
   ensure ptCircleIntersect(T.PQ.start, T.icon)
   ensure ptCircleIntersect(T.QR.start, T.icon)
@@ -631,26 +631,26 @@ with Triangle T {
     r : const.pointSize
     strokeWidth : const.strokeWidth
     strokeColor : clr
-    color : clr
+    fillColor : clr
   }
   override T.icon = Line {
     start : T.PQ.start
     end : midpoint(T.QR.start, T.QR.end)
-    color : clr
+    strokeColor : clr
     thickness : const.strokeWidth
     style : "solid"
   }
   override T.line2 = Line {
     start : T.QR.start
     end : midpoint(T.RP.start, T.RP.end)
-    color : clr
+    strokeColor : clr
     thickness : const.strokeWidth
     style : "solid"
   }
   override T.icon3 = Line {
     start : T.RP.start
     end : midpoint(T.PQ.start, T.PQ.end)
-    color : clr
+    strokeColor : clr
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -663,21 +663,21 @@ with Triangle T {
   T.icon = Line {
     start : (?, ?)
     end : p.vec
-    color : clr
+    strokeColor : clr
     thickness : const.strokeWidth
     style : "solid"
   }
   T.icon2 = Line {
     start : (?, ?)
     end : p.vec
-    color : clr
+    strokeColor : clr
     thickness : const.strokeWidth
     style : "solid"
   }
   T.icon3 = Line {
     start : (?, ?)
     end : p.vec
-    color : clr
+    strokeColor : clr
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -712,7 +712,7 @@ with Point p; Point q; Point r; Point s {
       pathData : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
       strokeWidth : const.strokeWidth
       fill : R.color
-      color : Colors.black
+      strokeColor : Colors.black
     }
   ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))
   ensure equal(vdist(p.icon.center, s.icon.center), vdist(q.icon.center, r.icon.center))
@@ -735,28 +735,28 @@ with Point p; Point q; Point r; Point s {
   Q.side1 = Line {
     start : Q.p
     end : Q.q
-    color : Q.color
+    strokeColor : Q.color
     thickness : const.strokeWidth
     style : "solid"
   }
   Q.side2 = Line {
     start : Q.r
     end : Q.q
-    color : Q.color
+    strokeColor : Q.color
     thickness : const.strokeWidth
     style : "solid"
   }
   Q.side3 = Line {
     start : Q.s
     end : Q.r
-    color : Q.color
+    strokeColor : Q.color
     thickness : const.strokeWidth
     style : "solid"
   }
   Q.side4 = Line {
     start : Q.p
     end : Q.s
-    color : Q.color
+    strokeColor : Q.color
     thickness : const.strokeWidth
     style : "solid"
   }  
@@ -794,7 +794,7 @@ with Triangle T; Point p; Point q {
   override s.icon = Line {
     start : p.icon.center
     end : q.icon.center
-    color : s.color
+    strokeColor : s.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -832,7 +832,7 @@ Circle c {
     r : c.radius
     strokeWidth : const.strokeWidth
     strokeColor : Colors.black
-    color : Colors.none
+    fillColor : Colors.none
   }
 }
 
@@ -846,7 +846,7 @@ with Point p, q {
     r : c.radius
     strokeWidth : const.strokeWidth
     strokeColor : Colors.black
-    color : Colors.none
+    fillColor : Colors.none
   }
 }
 
@@ -864,7 +864,7 @@ with Circle c; Point p, q {
   override s.icon = Line {
     start : p.icon.center
     end : q.icon.center
-    color : s.color
+    strokeColor : s.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -882,7 +882,7 @@ with Circle c; Point p {
   override s.icon = Line {
     start : c.vec
     end : p.icon.center
-    color : Colors.black
+    strokeColor : Colors.black
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -899,7 +899,7 @@ with Circle c; Point p, q {
     end : q.icon.center
     thickness : const.strokeWidth
     style : "solid"
-    color : Colors.black
+    strokeColor : Colors.black
   }
 
   p.icon above c.icon

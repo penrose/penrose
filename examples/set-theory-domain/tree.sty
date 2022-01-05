@@ -16,9 +16,10 @@ Set x; Set y {
 
 Set x; Set y
 where IsSubset(x, y) {
-    arrow = Arrow {
+    arrow = Line {
       thickness : 2.0
-      color : rgba(0.0, 0.0, 0.0, 1.0)
+      strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+      endArrowhead = true
     }
 
     -- Draw the arrow from y to x

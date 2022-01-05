@@ -20,7 +20,7 @@ Set x {
 
     x.text = Equation {
         string : x.label
-	color : setOpacity(x.icon.color, 1.0)
+	fillCcolor : setOpacity(x.icon.fillColor, 1.0)
     }
 
     ensure contains(x.icon, x.text)
@@ -56,7 +56,7 @@ Point p {
     p.offset = 10.0
     p.icon = Circle {
         strokeWidth : 0.0
-        color : rgba(0.0, 0.0, 0.0, 1.0)
+        fillColor : rgba(0.0, 0.0, 0.0, 1.0)
         r : 3.0
     }
 
@@ -197,7 +197,7 @@ SimplicialComplex K {
 	       w : K.size_x
 	       h : K.size_y
 	       -- rotation : 0.0
-	       color : setOpacity(Colors.gainsboro, 0.2)
+	       fillColor : setOpacity(Colors.gainsboro, 0.2)
 	       strokeColor : Colors.black
 	       strokeWidth : global.sc_rect_stroke
        }
@@ -208,7 +208,7 @@ SimplicialComplex K {
          center : (K.icon.center[0] - K.icon.w / 2.0 + K.padding, K.icon.center[1] - K.icon.h / 2.0 + K.padding)
          string : K.label
          -- rotation : 0.0
-         color : Colors.black
+         fillColor : Colors.black
        }
 
      encourage centerLabel(K.icon, K.text)
@@ -222,7 +222,7 @@ SimplicialComplex K {
        	 center : (K.icon.center[0], K.icon.center[1] - (K.size_y / 2.0) - K.expr_padding)
        	 string : "\text{ }"
        	 -- rotation : 0.0
-       	 color : global.starColor
+       	 fillColor : global.starColor
        }
 
        K.const_text above K.icon
@@ -251,7 +251,7 @@ with SimplicialComplex K {
        v.icon = Circle { 
          center : (v.xpos, v.ypos) -- avoid "x <- f(x)" in override
          r : global.selectedRadius
-	 color : Colors.black
+	 fillColor : Colors.black
 	 strokeWidth : 0.0
        }
 
@@ -262,7 +262,7 @@ with SimplicialComplex K {
 	 string : v.label
 	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
 	 -- rotation : 0.0
-	 color : v.icon.color
+	 fillColor : v.icon.fillColor
        }
 
        v.icon above K.icon
@@ -282,7 +282,7 @@ with SimplicialComplex K {
       -- override v.text.string = v.label
 
       override v.icon.r = global.selectedRadius
-      override v.icon.color = global.closureColor
+      override v.icon.fillColor = global.closureColor
 
       v.offset = 10.0
      encourage near(v.text, v.icon, v.offset)
@@ -328,7 +328,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      e.icon = Line { 
      	     start : v1.icon.center
      	     end : v2.icon.center
-	     color : Colors.black
+	     strokeColor : Colors.black
 	     thickness : global.edgeStroke
      }
 
@@ -336,7 +336,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        center : (?, ?)
        string : e.label
        -- rotation : 0.0
-       color : Colors.black
+       strokeColor : Colors.black
      }
 
      encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
@@ -352,7 +352,7 @@ Edge e
 where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
 with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.icon.thickness = global.selectedEdgeStroke
-     override e.icon.color = global.closureColor
+     override e.icon.strokeColor = global.closureColor
 
      e.text = Equation {
      -- TODO: Vectorize this
@@ -360,7 +360,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        -- string : e.label
        string : "\\text{ }" 
        -- rotation : 0.0
-       color : e.icon.color
+       fillColor : e.icon.strokeColor
      }
 
      e.text above K.icon
@@ -376,7 +376,7 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
      	     pathData : triangle(e1.icon, e2.icon, e3.icon)
 	     strokeWidth : 0.0
 	     fill : setOpacity(f.color, 0.8)
-	     color : setOpacity(f.color, 0.8)
+	     strokeColor : setOpacity(f.color, 0.8)
 	     -- rotation : 0.0
      }
 
@@ -385,7 +385,7 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
        center : (average([e1.icon.start[0], e2.icon.start[0], e3.icon.start[0]]), average([e1.icon.start[1], e2.icon.start[1], e3.icon.start[1]]))
        string : f.label
        -- rotation : 0.0
-       color : Colors.black
+       fillColor : Colors.black
      }
 
      f.text above K.icon
@@ -399,7 +399,7 @@ where DeclaredF(f); InFS(f, K)
 with SimplicialComplex K {
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
      override f.icon.fill = global.selectedFaceColor
-     override f.icon.color = global.selectedFaceColor
+     override f.icon.strokeColor = global.selectedFaceColor
 }
 
 -- Relative layerings within a simplicial complex
@@ -435,7 +435,7 @@ where Identified(p, v) {
    icon = Line {
       start : p.icon.center
       end : v.icon.center
-      color: setOpacity(Colors.black, 0.25)
+      strokeColor: setOpacity(Colors.black, 0.25)
       thickness : 2.0
       style : "dashed"
    }
@@ -456,7 +456,7 @@ where Identified(p, v) {
 Set s; Edge e
 where Identified(e, s) {
       -- Make all edge subsets the same random color
-      s.icon.color = setOpacity(Colors.purple, 0.2) -- const.subsetColor
+      s.icon.fillColor = setOpacity(Colors.purple, 0.2) -- const.subsetColor
 }
 
 -- TODO: hack for position; assuming there's only one face

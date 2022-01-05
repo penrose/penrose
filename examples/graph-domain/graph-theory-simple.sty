@@ -33,7 +33,7 @@ global {
                center: (0., 0.)
                w: 700.
                h: 500.
-               color: Colors.none
+               fillColor: Colors.none
                strokeColor: Colors.black
     }
 }
@@ -43,7 +43,7 @@ Vertex V {
          w: V.text.w + global.padding
          h: V.text.h + global.padding
          -- r : 10.0
-	 color : Colors.none
+	 fillColor : Colors.none
 	 strokeWidth : 2.
          strokeColor: Colors.black
        }
@@ -51,7 +51,7 @@ Vertex V {
        V.text = Equation {
 	 center: V.shape.center
 	 string : V.label
-	 color : Colors.black
+	 fillColor : Colors.black
        }
 
        ensure contains(global.box, V.shape)
@@ -80,7 +80,7 @@ with Vertex v1; Vertex v2 {
      E.shape = Line { 
      	     start : v1.shape.center + (startSideDim / 2. + padding) * dir
      	     end : v2.shape.center - (endSideDim / 2. + padding) * dir
-	     color : Colors.black
+	     strokeColor : Colors.black
 	     thickness : 2.0
              -- rightArrowhead: true
              -- arrowheadSize: 0.7

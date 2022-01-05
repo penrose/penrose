@@ -9,7 +9,7 @@ Global {
       center: (0.,0.)
       w: canvas.width
       h: canvas.height
-      color: rgba( .8,.95,.9,1. )
+      fillColor: rgba( .8,.95,.9,1. )
       strokeColor: rgba(0.,0.,0.,1.)
       strokeWidth: 2.
    }
@@ -27,7 +27,7 @@ forall Text t {
    shape t.text = Text {
       string: t.titleString
       center: t.titleCenter
-      color: rgba(1.,1.,1.,1.)
+      fillColor: rgba(1.,1.,1.,1.)
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38pt"
@@ -35,7 +35,7 @@ forall Text t {
    shape t.innerStroke = Text {
       string: t.titleString
       center: t.titleCenter
-      color: rgba(0.,0.,0.,1.)
+      fillColor: rgba(0.,0.,0.,1.)
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38pt"
@@ -44,7 +44,7 @@ forall Text t {
    shape t.outerStroke = Text {
       string: t.titleString
       center: t.titleCenter
-      color: rgba(0.,0.,0.,1.)
+      fillColor: rgba(0.,0.,0.,1.)
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38pt"
@@ -65,14 +65,14 @@ forall Point p {
    shape p.icon = Circle {
       center: (?,?)
       r: ?
-      color: rgba(0.,0.,1.,.15)
+      fillColor: rgba(0.,0.,1.,.15)
    }
    layer p.icon above Global.bbox
 
    shape p.text = Equation {
       center: p.icon.center
       string: p.label
-      color: rgba(.25,.5,1.,.5)
+      fillColor: rgba(.25,.5,1.,.5)
       fontSize: "28pt"
    }
    layer p.text above Global.bbox
