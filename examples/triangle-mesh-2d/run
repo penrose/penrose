@@ -1,2 +1,2 @@
-npx roger watch example.sub triangle-mesh-2d.sty triangle-mesh-2d.dsl
+npx roger watch diagrams/triangleCenters.sub triangle-mesh-2d.sty triangle-mesh-2d.dsl
 

@@ -5,6 +5,9 @@ canvas {
 
 Colors {
    color black = rgba(0.,0.,0.,1.)
+   color red = rgba(1.,0.,0.,1.)
+   color green = rgba(0.,.7,0.,1.)
+   color blue = rgba(0.,0,1.,1.)
    color white = rgba(1.,1.,1.,1.)
    color lightGray = rgba(.8,.8,.8,1.)
    color clear = rgba(0.,0.,0.,0.)
@@ -15,6 +18,7 @@ Global {
    scalar vertexRadius = 1.75
    scalar pointRadius = 2.0
    scalar lineThickness = 1.
+   scalar labelBoundRadius = 8.
 
    shape box = Rectangle {
       center: (0.,0.)
@@ -57,7 +61,7 @@ forall Vertex v {
    -- TODO boxes working for Text...
    shape v.bounds = Circle {
       center: v.text.center
-      r: 7
+      r: Global.labelBoundRadius
       color: none()
    }
 
@@ -67,7 +71,7 @@ forall Vertex v {
    ensure contains( Global.box, v.bounds )
 
    -- keep the label near the dot
-   encourage equal( norm(v.text.center - v.icon.center), 0. )
+   encourage equal( norm(v.text.center - v.icon.center), Global.labelBoundRadius )
 }
 
 -- make sure vertex labels don't overlap
@@ -124,10 +128,10 @@ where t := MakeTriangle(i,j,k)
 
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   scalar cTheta = angleFrom( a-c, b-c )
-   ensure inRange( aTheta, toRadians(10.), toRadians(50.) )
-   ensure inRange( bTheta, toRadians(10.), toRadians(50.) )
-   ensure inRange( cTheta, toRadians(10.), toRadians(50.) )
+   -- scalar cTheta = angleFrom( a-c, b-c )
+   ensure inRange( aTheta, toRadians(30.), toRadians(80.) )
+   ensure inRange( bTheta, toRadians(20.), toRadians(90.) )
+   -- ensure inRange( cTheta, toRadians(10.), toRadians(50.) )
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
@@ -207,17 +211,18 @@ forall Point p; Triangle t {
 
 -- Barycenter
 forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
-where p := Barycenter(t); t := MakeTriangle(i,j,k) {
+where t := MakeTriangle(i,j,k); p := Barycenter(t) {
    override p.center = barycenter( i.center, j.center, k.center )
+   override p.icon.color = Colors.red
 }
 
 -- Circumcenter
 forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
-where p := Circumcenter(t); t := MakeTriangle(i,j,k) {
-
+where t := MakeTriangle(i,j,k); p := Circumcenter(t) {
    -- put point at circumcenter 
    vec2 x = circumcenter( i.center, j.center, k.center )
    override p.center = x
+   override p.icon.color = Colors.green
 
    -- draw circumcircle
    scalar R = norm( x - i.center )
@@ -225,31 +230,32 @@ where p := Circumcenter(t); t := MakeTriangle(i,j,k) {
       center: x
       r: R
       color: none()
-      strokeColor: Colors.black
-      strokeWidth: .5
-      strokeStyle: "dashed"
+      strokeColor: rgba( 0., 0., 0., .2 )
+      strokeWidth: 1.5
+      -- strokeStyle: "dashed"
    }
 }
 
--- -- Incenter
--- forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
--- where p := Incenter(t); t := MakeTriangle(i,j,k) {
--- 
---    -- put point at incenter 
---    vec2 p.inCenter = incenter( i.center, j.center, k.center )
---    override p.center = p.inCenter
--- 
---    -- draw incircle
---    scalar p.inRadius = inradius( i.center, j.center, k.center )
---    shape p.decoration = Circle {
---       center: p.inCenter
---       r: p.inRadius
---       color: none()
---       strokeColor: Colors.black
---       strokeWidth: .5
---       strokeStyle: "dashed"
---    }
--- }
+-- Incenter
+forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
+where t := MakeTriangle(i,j,k); p := Incenter(t) {
+
+   -- put point at incenter 
+   vec2 p.inCenter = incenter( i.center, j.center, k.center )
+   override p.center = p.inCenter
+   override p.icon.color = Colors.blue
+
+   -- draw incircle
+   scalar p.inRadius = inradius( i.center, j.center, k.center )
+   shape p.decoration = Circle {
+      center: p.inCenter
+      r: p.inRadius
+      color: none()
+      strokeColor: rgba( 0., 0., 0., .2 )
+      strokeWidth: 1.5
+      --strokeStyle: "dashed"
+   }
+}
 
 forall DualEdge d; Triangle t1; Triangle t2
 where d := MakeDualEdge(t1,t2) {
