@@ -219,7 +219,7 @@ const constrDictGeneral = {
       const res = sub(d, o);
       return res;
     } else if (t1 === "Circle" && isRectlike(t2)) {
-      const s2BBox = bboxFromShape(t2, s2);
+      const s2BBox = bboxFromShape([t2, s2]);
       const d = ops.vdist(shapeCenter([t1, s1]), s2BBox.center);
       const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
@@ -247,8 +247,8 @@ const constrDictGeneral = {
       const d = ops.vdist(sq, shapeCenter([t2, s2]));
       return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
     } else if (isRectlike(t1) && isRectlike(t2)) {
-      const box1 = bboxFromShape(t1, s1);
-      const box2 = bboxFromShape(t2, s2);
+      const box1 = bboxFromShape([t1, s1]);
+      const box2 = bboxFromShape([t2, s2]);
 
       // TODO: There are a lot of individual functions added -- should we optimize them individually with a 'fnAnd` construct?
       return add(
@@ -362,7 +362,7 @@ const constrDictSpecific = {
       // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
       // I wrote a version simplified to work for rectangles
       const text = s2;
-      const rect = bboxFromShape(t2, text);
+      const rect = bboxFromShape([t2, text]);
       
       return ifCond(
         pointInBox(pt, rect),
@@ -385,7 +385,7 @@ const constrDictSpecific = {
     padding = 10
   ) => {
     if (isRectlike(t1) && t2 === "Circle") {
-      const s1BBox = bboxFromShape(t1, s1);
+      const s1BBox = bboxFromShape([t1, s1]);
       const textR = max(s1BBox.w, s1BBox.h);
       const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
       return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
@@ -400,8 +400,8 @@ const constrDictSpecific = {
       throw Error("expected two line-like shapes");
     }
 
-    const box = bboxFromShape(t1, s1);
-    const line = bboxFromShape(t2, s2);
+    const box = bboxFromShape([t1, s1]);
+    const line = bboxFromShape([t2, s2]);
 
     // Contains line both vertically and horizontally
     return add(

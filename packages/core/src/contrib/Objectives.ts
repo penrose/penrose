@@ -189,8 +189,8 @@ export const objDictSpecific = {
     const spacing = constOf(1.1); // arbitrary
 
     if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
-      const s2BB = bboxFromShape(t2, s2);
-      const s3BB = bboxFromShape(t3, s3);
+      const s2BB = bboxFromShape([t2, s2]);
+      const s3BB = bboxFromShape([t3, s3]);
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, s2BB.center, s3BB.center, [
@@ -217,7 +217,7 @@ export const objDictSpecific = {
       );
 
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-      const textBB = bboxFromShape(t2, text);
+      const textBB = bboxFromShape([t2, text]);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
         sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
@@ -242,7 +242,7 @@ export const objDictSpecific = {
         constOf(2.0)
       );
       const padding = constOf(10);
-      const textBB = bboxFromShape(t2, text);
+      const textBB = bboxFromShape([t2, text]);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
         sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),

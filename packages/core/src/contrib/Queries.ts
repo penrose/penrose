@@ -4,12 +4,9 @@ import * as BBox from "engine/BBox";
 import { findDef } from "renderer/ShapeDef";
 
 /**
- * Preconditions:
- *   (shape-specific)
- * Input: A shape.
- * Output: A new BBox
-*/
-export const bboxFromShape = (t: string, s: any): BBox.BBox => {
+ * Return bounding box from any provided shape.
+ */
+export const bboxFromShape = ([t, s]: [string, any]): BBox.BBox => {
   return findDef(t).bbox(s);
 };
 
@@ -23,7 +20,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
   }
   else {
     // Return center of bounding box
-    const bbox = bboxFromShape(t, s);
+    const bbox = bboxFromShape([t, s]);
     return bbox.center;
   }
 };
@@ -41,7 +38,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
     case "Square":
       return s.side.contents;
     default: {
-      const bbox = bboxFromShape(t, s);
+      const bbox = bboxFromShape([t, s]);
       return sqrt(mul(bbox.w, bbox.h));
     }
   }

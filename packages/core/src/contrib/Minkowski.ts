@@ -18,14 +18,21 @@ import * as BBox from "engine/BBox";
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
  * Note: This is not the Minkowski difference in the classical sense, rather just a Minkowski sum of A and -B.
+ * @param box1 First bounding box.
+ * @param box2 Second bounding box.
+ * @param padding Additional padding added to one of the boxes.
  */
-export const rectangleDifference = (box1: BBox.BBox, box2: BBox.BBox): VarAD[][] => {
+export const rectangleDifference = (
+  box1: BBox.BBox, 
+  box2: BBox.BBox,
+  padding: VarAD
+): VarAD[][] => {
   // Prepare coordinates
   const [xa1, xa2, ya1, ya2] = [
-    BBox.minX(box1),
-    BBox.maxX(box1),
-    BBox.minY(box1),
-    BBox.maxY(box1),
+    sub(BBox.minX(box1), padding),
+    add(BBox.maxX(box1), padding),
+    sub(BBox.minY(box1), padding),
+    add(BBox.maxY(box1), padding),
   ];
   const [xb1, xb2, yb1, yb2] = [
     BBox.minX(box2),
@@ -108,7 +115,10 @@ const convexPolygonMinkowskiSDFOneSided = (
  * @param p1 Sequence of points defining the first polygon.
  * @param p2 Sequence of points defining the second polygon.
  */
-export const convexPolygonMinkowskiSDF = (p1: VarAD[][], p2: VarAD[][]): VarAD => {
+export const convexPolygonMinkowskiSDF = (
+  p1: VarAD[][], 
+  p2: VarAD[][]
+): VarAD => {
   return max(
     convexPolygonMinkowskiSDFOneSided(p1, p2),
     convexPolygonMinkowskiSDFOneSided(p2, p1)

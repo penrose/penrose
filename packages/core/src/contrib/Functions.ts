@@ -899,7 +899,7 @@ export const compDict = {
     }
 
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bboxFromShape(t1, s1);
+    const rect = bboxFromShape([t1, s1]);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true

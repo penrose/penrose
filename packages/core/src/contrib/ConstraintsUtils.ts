@@ -73,10 +73,9 @@ export const disjointAABBs = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  // TODO: Implement `padding`
-  const box1 = bboxFromShape(t1, s1);
-  const box2 = bboxFromShape(t2, s2);
-  const [pc1, pc2] = rectangleDifference(box1, box2);
+  const box1 = bboxFromShape([t1, s1]);
+  const box2 = bboxFromShape([t2, s2]);
+  const [pc1, pc2] = rectangleDifference(box1, box2, constOfIf(padding));
   const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
   const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
   const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
