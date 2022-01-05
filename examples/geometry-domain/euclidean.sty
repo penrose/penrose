@@ -196,8 +196,8 @@ where ParallelMarker1(l1, l2) {
 Linelike l1, l2
 where Parallel(l1, l2) {
   -- make slopes 
-  l1s = (l1.icon.end[1]-l1.icon.start[1])/(l1.icon.end[0]-l1.icon.start[0]) * 10000
-  l2s = (l2.icon.end[1]-l2.icon.start[1])/(l2.icon.end[0]-l2.icon.start[0]) * 10000
+  l1s = (l1.icon.end[1] - l1.icon.start[1])/(l1.icon.end[0] - l1.icon.start[0]) * 10000
+  l2s = (l2.icon.end[1] - l2.icon.start[1])/(l2.icon.end[0] - l2.icon.start[0]) * 10000
   -- ensure equal(normalize(l1.vec) * 10000, normalize(l2.vec) * 10000)
   ensure equal(l1s, l2s)
 }
@@ -765,11 +765,11 @@ with Point p; Point q; Point r; Point s {
 --TODO corner case shoves points far off canvas
 Quadrilateral Q
 where Parallelogram(Q) {
-  pq = (Q.q[1]-Q.p[1])/(Q.q[0]-Q.p[0]) * 10000
-  rs = (Q.r[1]-Q.s[1])/(Q.r[0]-Q.s[0]) * 10000
+  pq = (Q.q[1] - Q.p[1])/(Q.q[0] - Q.p[0]) * 10000
+  rs = (Q.r[1] - Q.s[1])/(Q.r[0] - Q.s[0]) * 10000
 
-  qr = (Q.q[1]-Q.r[1])/(Q.q[0]-Q.r[0]) * 10000
-  ps = (Q.s[1]-Q.p[1])/(Q.s[0]-Q.p[0]) * 10000
+  qr = (Q.q[1] - Q.r[1])/(Q.q[0] - Q.r[0]) * 10000
+  ps = (Q.s[1] - Q.p[1])/(Q.s[0] - Q.p[0]) * 10000
 
   -- make opposite sides same length
   ensure equal(vdist(Q.p, Q.q), vdist(Q.r, Q.s))
@@ -782,7 +782,7 @@ where Parallelogram(Q) {
   -- area must be at least a certain size
   v1 = Q.p - Q.q
   v2 = Q.r - Q.q
-  ensure lessThan(10000, (v1[0]*v2[1])-(v1[1]*v2[0])) -- 2D cross product
+  ensure lessThan(10000, (v1[0]*v2[1]) - (v1[1]*v2[0])) -- 2D cross product
 }
 
 --FUNCTIONS

@@ -1,6 +1,5 @@
 import {
   attrAutoFillSvg,
-  attrOpacity,
   attrRotation,
   attrTransformCoords,
   attrWH,
@@ -50,7 +49,6 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
       }
     });
   }
-  attrToNotAutoMap.push(...attrOpacity(shape, svg));
   attrToNotAutoMap.push(...attrWH(shape, svg));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));

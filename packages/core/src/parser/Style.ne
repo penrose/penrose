@@ -36,7 +36,7 @@ const styleTypes: string[] =
 const lexer = moo.compile({
   ...basicSymbols,
   identifier: {
-    match: /[A-z_][A-Za-z_0-9]*/,
+    match: /[A-z_][A-Za-z_0-9\-]*/,
     type: moo.keywords({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 

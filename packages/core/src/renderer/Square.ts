@@ -4,7 +4,6 @@ import {
   attrSideCoords,
   attrStroke,
   attrTitle,
-  attrRadiusX,
   attrRotation,
   attrAutoFillSvg,
 } from "./AttrHelper";
@@ -25,7 +24,6 @@ const Square = ({ shape, canvasSize }: ShapeProps): SVGRectElement => {
   attrToNotAutoMap.push(...attrTitle(shape, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrSideCoords(shape, canvasSize, elem));
-  attrToNotAutoMap.push(...attrRadiusX(shape, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

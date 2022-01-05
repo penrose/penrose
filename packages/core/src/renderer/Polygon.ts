@@ -1,7 +1,6 @@
 import {
   attrAutoFillSvg,
   attrFill,
-  attrPoints,
   attrPolyCenter,
   attrScale,
   attrStroke,
@@ -22,7 +21,6 @@ const Polygon = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
-  attrToNotAutoMap.push(...attrPoints(shape, elem));
   attrToNotAutoMap.push(...attrPolyCenter(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrScale(shape, elem));
 

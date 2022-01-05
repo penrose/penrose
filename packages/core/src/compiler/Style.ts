@@ -1758,25 +1758,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
-
-  // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
-  const shapeDef: ShapeDef = findDef(styName);
-  const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
-  const expectedProperties: string[] = Object.entries(shapeDef.properties).map(
-    (e) => e[0]
-  );
-
-  for (let gp of givenProperties) {
-    // Check multiple properties, as each one is not fatal if wrong
-    if (!expectedProperties.includes(gp.value)) {
-      errors.push({
-        tag: "InvalidGPIPropertyError",
-        givenProperty: gp,
-        expectedProperties,
-      });
-    }
-  }
-
+   
   return { errors, warnings };
 };
 

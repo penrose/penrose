@@ -144,7 +144,7 @@ where SingleBond( n1, n2 ) {
 
    vec2 x1 = n1.center
    vec2 x2 = n2.center
-   vec2 u = unit(x1-x2)
+   vec2 u = unit(x1 - x2)
    scalar r = Global.atomRadius
 
    shape line = Line {
@@ -163,7 +163,7 @@ where SingleBond( n1, n2 ) {
       strokeLineCap: "round"
    }
 
-   encourage equal( norm(x1-x2), Global.bondLength )
+   encourage equal( norm(x1 - x2), Global.bondLength )
 
    layer line above n2.icon
    layer innerLine above line
@@ -175,7 +175,7 @@ where DoubleBond( n1, n2 ) {
 
    vec2 x1 = n1.center
    vec2 x2 = n2.center
-   vec2 u = unit(x1-x2)
+   vec2 u = unit(x1 - x2)
    vec2 v = ( -u[1], u[0] )
    scalar r = Global.atomRadius
 
@@ -211,7 +211,7 @@ where DoubleBond( n1, n2 ) {
       strokeLineCap: "round"
    }
 
-   encourage equal( norm(x1-x2), Global.bondLength )
+   encourage equal( norm(x1 - x2), Global.bondLength )
 
    layer line1 above n2.icon
    layer innerLine1 above line1
@@ -241,7 +241,7 @@ where IonicBond( n1, n2 ) {
       style: "dashed"
    }
 
-   encourage equal( norm(x1-x2), Global.bondLength )
+   encourage equal( norm(x1 - x2), Global.bondLength )
 
    layer line below n1.icon
    layer line below n2.icon
@@ -253,7 +253,7 @@ forall Node n; Hydrogen h
 where SingleBond(n,h) {
    vec2 x1 = n.center
    vec2 x2 = h.center
-   encourage equal( 2.*norm(x1-x2), .5*Global.bondLength )
+   encourage equal( 2.*norm(x1 - x2), .5*Global.bondLength )
 }
 
 -- give water molecules a physical bond angle
@@ -262,14 +262,14 @@ where SingleBond(o,h1); SingleBond(o,h2) {
    vec2 a = o.center
    vec2 b = h1.center
    vec2 c = h2.center
-   encourage equal( angleBetween(b-a,c-a), toRadians(104.5) )
+   encourage equal( angleBetween(b - a,c - a), toRadians(104.5) )
 }
 
 -- use a Coulomb-like force to prevent nodes from overlapping
 forall Node n1; Node n2 {
    vec2 x1 = n1.center
    vec2 x2 = n2.center
-   encourage equal( 200000./normsq(x1-x2), 0. )
+   encourage equal( 200000./normsq(x1 - x2), 0. )
 
    -- make sure shadows are drawn below all molecules
    layer n1.shadow below n2.icon

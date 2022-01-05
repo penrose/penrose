@@ -382,17 +382,6 @@ where IsSubset(y, x) { }`,
 
       InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
 
-      // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
-      InvalidGPIPropertyError: [
-        `forall Set x {  
-          x.icon = Circle { 
-           centre: (0.0, 0.0) 
-           r: 9.
-           diameter: 100.
-         } 
-       }`,
-      ],
-
       // Have to do a nested search in expressions for this
       InvalidFunctionNameError: [
         `forall Set x { x.icon = Circle { r: ksajfksdafksfh(0.0, "hi") } }`,
