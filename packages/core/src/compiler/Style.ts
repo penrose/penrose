@@ -24,8 +24,8 @@ import {
   isTagExpr,
   valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
-import { alg, Graph } from "graphlib";
-import _ from "lodash";
+import { alg, Edge, Graph } from "graphlib";
+import _, { uniq } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -2779,11 +2779,28 @@ const topSortLayering = (
     layerGraph.setEdge(below, above)
   );
 
-  try {
+  // if there is no cycles, return a global ordering from the top sort result
+  if (alg.isAcyclic(layerGraph)) {
     const globalOrdering: string[] = alg.topsort(layerGraph);
     return { tag: "Just", contents: globalOrdering };
-  } catch (e) {
-    return { tag: "Nothing" };
+  } else {
+    const outOfOrderNodes: string[] = uniq(cycles.flat());
+    const cycleFreeGraph: Graph = layerGraph.filterNodes(
+      (n) => !outOfOrderNodes.includes(n)
+    );
+    const acyclicOrdering: string[] = alg.topsort(cycleFreeGraph);
+    // out of order nodes are sent to the very back of the canvas
+    const globalOrdering: string[] = [...outOfOrderNodes, ...acyclicOrdering];
+    log.warn(
+      `Cycles detected in layering order: ${cycles
+        .map((c) => c.join(", "))
+        .join(
+          "; "
+        )}. All nodes in cycles are sent to back of the canvas. The global layering order is: ${globalOrdering.join(
+        ", "
+      )}`
+    );
+    return { tag: "Just", contents: globalOrdering };
   }
 };
 
