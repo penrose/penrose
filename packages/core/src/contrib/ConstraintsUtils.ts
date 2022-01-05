@@ -13,6 +13,7 @@ import {
   add,
   sqrt,
   squared,
+  constOfIf,
 } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
@@ -20,15 +21,16 @@ import { VarAD } from "types/ad";
 // -------- Disjoint helpers
 
 /**
- * Require that two linelike shapes `l1` and `l2` are not crossing.
+ * Require that two linelike shapes `s1` and `s2` are not crossing.
  */
 export const disjointLines = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [, s1]: [string, any],
+  [, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-    // TODO: remake using Minkowski sums
-    throw new Error(`Not implemented.`);
+  const oneSimplex1 = { points: { contents: [s1.start.contents, s1.end.contents] } };
+  const oneSimplex2 = { points: { contents: [s2.start.contents, s2.end.contents] } };
+  return disjointPolygons(['1-simplex', oneSimplex1], ['1-simplex', oneSimplex2]);
 };
 
 /**
@@ -49,18 +51,17 @@ export const disjointCircles = (
  * Require that a shape `s1` is disjoint from shape `s2`.
  */
 export const disjointPolygons = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [, s1]: [string, any],
+  [, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
+  // TODO: Implement `padding`
   const cp1 = convexPartitions(s1.points.contents);
-  const cp2 = convexPartitions(
-    s2.points.contents.map((p: VarAD[]) => ops.vneg(p))
-  );
+  const cp2 = convexPartitions(s2.points.contents.map((p: VarAD[]) => ops.vneg(p)));
   const sdf = maxN(
     cp1.map((p1) => minN(
-      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2)))
-    )
+      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2))
+    ))
   );
   return neg(sdf);
 };
@@ -80,15 +81,10 @@ export const disjointAABBs = (
   const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
   const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
   const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
-  const e1 = sqrt(
-    add(
-      constOf(10e-15),
-      add(
-        squared(max(sub(xp, xr), constOf(0.0))),
-        squared(max(sub(yp, yr), constOf(0.0)))
-      )
-    )
-  );
+  const e1 = sqrt(add(constOf(10e-15), add(
+    squared(max(sub(xp, xr), constOf(0.0))),
+    squared(max(sub(yp, yr), constOf(0.0)))
+  )));
   const e2 = neg(min(max(xq, yq), constOf(0.0)));
   return sub(e2, e1);
 };
@@ -115,13 +111,12 @@ export const overlappingCircles = (
   [t2, s2]: [string, any],
   padding = 0.0
 ): VarAD => {
-  return looseIntersect(
-    shapeCenter([t1, s1]),
-    s1.r.contents,
-    shapeCenter([t2, s2]),
-    s2.r.contents,
-    constOfIf(padding)
-  );
+  const center1 = shapeCenter([t1, s1]);
+  const center2 = shapeCenter([t2, s2]);
+  const r1 = s1.r.contents;
+  const r2 = s2.r.contents;
+  const res = sub(add(r1, r2), constOfIf(padding));
+  return sub(ops.vdist(center1, center2), res);
 };
 
 /**

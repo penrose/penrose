@@ -35,56 +35,6 @@ export const noIntersectCircles = (
   const res = add(add(r1, r2), constOfIf(padding));
   return sub(res, ops.vdist(center1, center2));
 };
- 
-/**
- * Require that a shape at `center1` with radius `r1` intersect a shape at `center2` with radius `r2`, with overlap amount `padding`.
- */
-export const looseIntersect = (
-  center1: VarAD[],
-  r1: VarAD,
-  center2: VarAD[],
-  r2: VarAD,
-  padding: VarAD
-): VarAD => {
-  // looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
-  const res = sub(add(r1, r2), padding);
-  return sub(ops.vdist(center1, center2), res);
-};
- 
-/**
- * Encourage that an arrow `arr` be centered between two shapes with centers `center1` and `center2`, and text size (?) `[o1, o2]`.
- */
-export const centerArrow2 = (
-  arr: any,
-  center1: VarAD[],
-  center2: VarAD[],
-  [o1, o2]: VarAD[]
-): VarAD => {
-  const vec = ops.vsub(center2, center1); // direction the arrow should point to
-  const dir = ops.vnormalize(vec);
-
-  let start = center1;
-  let end = center2;
-
-  // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
-
-  // TODO: add abs
-  if (gt(ops.vnorm(vec), add(o1, absVal(o2)))) {
-    start = ops.vadd(center1, ops.vmul(o1, dir));
-    end = ops.vadd(center2, ops.vmul(o2, dir));
-  }
-
-  const fromPt = arr.start.contents;
-  const toPt = arr.end.contents;
-
-  return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
-};
- 
-/**
- * Repel a vector `a` from a vector `b` with weight `c`.
- */
-export const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
-  div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM)));
 
 // ------- Polygon-related helpers
  
@@ -125,64 +75,7 @@ const dsqBP = (p: any, rect: BBox.BBox): VarAD => {
   return add(squared(dx), squared(dy));
 };
  
-/**
- * Linearly interpolate between left `l` and right `r` endpoints, at fraction `k` of interpolation.
- */
-const lerp = (l: VarAD, r: VarAD, k: VarAD): VarAD => {
-  // TODO: Rewrite the lerp code to be more concise
-  return add(mul(l, sub(constOf(1.0), k)), mul(r, k));
-};
-
-/**
- * Linearly interpolate between vector `l` and vector `r` endpoints, at fraction `k` of interpolation.
- */
-const lerp2 = (l: VarAD[], r: VarAD[], k: VarAD): [VarAD, VarAD] => {
-  return [lerp(l[0], r[0], k), lerp(l[1], r[1], k)];
-};
- 
-/**
- * Sample a line `line` at `NUM_SAMPLES` points uniformly.
- */
-export const sampleSeg = (line: VarAD[][]) => {
-  const NUM_SAMPLES = 15;
-  const NUM_SAMPLES2 = constOf(1 + NUM_SAMPLES);
-  // TODO: Check that this covers the whole line, i.e. no off-by-one error
-  const samples = _.range(1 + NUM_SAMPLES).map((i) => {
-    const k = div(constOf(i), NUM_SAMPLES2);
-    return lerp2(line[0], line[1], k);
-  });
-
-  return samples;
-};
- 
-/**
- * Return the closest point on segment `[start, end]` to point `pt`.
- */
-export const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
-  const EPS0 = constOf(10e-3);
-  const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
-
-  // If line seg looks like a point, the calculation just returns (something close to) `v`
-  const dir = ops.vsub(end, start);
-  // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
-  const t = div(
-    ops.vdot(ops.vsub(pt, start), dir),
-    add(lensq, constOf(EPS_DENOM))
-  );
-  const t1 = clamp([0.0, 1.0], t);
-
-  // v +: (t' *: dir) -- walk along vector of line seg
-  return ops.vadd(start, ops.vmul(t1, dir));
-};
-
 // ------- 1D
-
-/**
- * Clamp `x` in range `[l, r]`.
- */
-const clamp = ([l, r]: number[], x: VarAD): VarAD => {
-  return max(constOf(l), min(constOf(r), x));
-};
 
 /**
  * Return the amount of overlap between two intervals in R. (0 if none)
@@ -208,4 +101,96 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
   const fals = constOf(0);
   const tru = constOf(1);
   return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
+};
+
+/**
+ * Linearly interpolate between left `l` and right `r` endpoints, at fraction `k` of interpolation.
+ */
+const lerp = (l: VarAD, r: VarAD, k: VarAD): VarAD => {
+  // TODO: Rewrite the lerp code to be more concise
+  return add(mul(l, sub(constOf(1.0), k)), mul(r, k));
+};
+
+/**
+ * Linearly interpolate between vector `l` and vector `r` endpoints, at fraction `k` of interpolation.
+ */
+const lerp2 = (l: VarAD[], r: VarAD[], k: VarAD): [VarAD, VarAD] => {
+  return [lerp(l[0], r[0], k), lerp(l[1], r[1], k)];
+};
+
+/**
+ * Sample a line `line` at `NUM_SAMPLES` points uniformly.
+ */
+export const sampleSeg = (line: VarAD[][]) => {
+  const NUM_SAMPLES = 15;
+  const NUM_SAMPLES2 = constOf(1 + NUM_SAMPLES);
+  // TODO: Check that this covers the whole line, i.e. no off-by-one error
+  const samples = _.range(1 + NUM_SAMPLES).map((i) => {
+    const k = div(constOf(i), NUM_SAMPLES2);
+    return lerp2(line[0], line[1], k);
+  });
+
+  return samples;
+};
+
+/**
+ * Repel a vector `a` from a vector `b` with weight `c`.
+ */
+export const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
+  div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM)));
+
+/**
+ * Encourage that an arrow `arr` be centered between two shapes with centers `center1` and `center2`, and text size (?) `[o1, o2]`.
+ */
+export const centerArrow2 = (
+  arr: any,
+  center1: VarAD[],
+  center2: VarAD[],
+  [o1, o2]: VarAD[]
+): VarAD => {
+  const vec = ops.vsub(center2, center1); // direction the arrow should point to
+  const dir = ops.vnormalize(vec);
+
+  let start = center1;
+  let end = center2;
+
+  // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
+
+  // TODO: add abs
+  if (gt(ops.vnorm(vec), add(o1, absVal(o2)))) {
+    start = ops.vadd(center1, ops.vmul(o1, dir));
+    end = ops.vadd(center2, ops.vmul(o2, dir));
+  }
+
+  const fromPt = arr.start.contents;
+  const toPt = arr.end.contents;
+
+  return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
+};
+
+/**
+ * Clamp `x` in range `[l, r]`.
+ */
+const clamp = ([l, r]: number[], x: VarAD): VarAD => {
+  return max(constOf(l), min(constOf(r), x));
+};
+
+/**
+ * Return the closest point on segment `[start, end]` to point `pt`.
+ */
+export const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
+  const EPS0 = constOf(10e-3);
+  const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
+
+  // If line seg looks like a point, the calculation just returns (something close to) `v`
+  const dir = ops.vsub(end, start);
+  // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
+  const t = div(
+    ops.vdot(ops.vsub(pt, start), dir),
+    add(lensq, constOf(EPS_DENOM))
+  );
+  const t1 = clamp([0.0, 1.0], t);
+
+  // v +: (t' *: dir) -- walk along vector of line seg
+  return ops.vadd(start, ops.vmul(t1, dir));
 };
