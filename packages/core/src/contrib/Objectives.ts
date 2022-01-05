@@ -6,7 +6,6 @@ import {
   constOfIf,
   div,
   EPS_DENOM,
-  fns,
   inverse,
   mul,
   neg,
@@ -17,13 +16,14 @@ import {
   ifCond,
   lt,
 } from "engine/Autodiff";
+import { bboxFromShape, shapeCenter } from "contrib/Queries";
 import {
   sampleSeg,
   repelPoint,
   centerArrow2,
-  closestPt_PtSeg,
-} from "contrib/Utils";
-import { bboxFromShape, inDirection, shapeCenter } from "contrib/Queries";
+  closestPt_PtSeg
+} from "contrib/Utils";;
+import { inDirection } from "contrib/ObjectivesUtils";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
 import { isLinelike, isRectlike } from "renderer/ShapeDef";
@@ -49,6 +49,127 @@ export const objDictSimple = {
   repelScalar: (c: number | VarAD, d: number | VarAD) => {
     // 1/(c-d)^2
     return inverse(squared(sub(constOfIf(c), constOfIf(d))));
+  },
+
+}
+
+// -------- General objective functions
+// Defined for all shapes, generally require shape queries or call multiple specific objective functions.
+export const objDictGeneral = {
+
+  /**
+   * Encourage the center of `sTop` to be above the center of `sBottom`. 
+   * Only works for shapes with property `center`.
+   */
+  below: (
+    [tBottom, sBottom]: [string, any],
+    [tTop, sTop]: [string, any],
+    offset = 100
+  ) => inDirection([tBottom, sBottom], [tTop, sTop], [constOf(0.0), constOf(1.0)], offset, false),
+
+  /**
+   * Encourage the center of `sBottom` to be below the center of `sTop`.
+   */
+  above: (
+    [tTop, sTop]: [string, any],
+    [tBottom, sBottom]: [string, any],
+    offset = 100
+  ) => inDirection([tTop, sTop], [tBottom, sBottom], [constOf(0.0), constOf(1.0)], offset, false),
+
+  /**
+   * Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
+   */
+  leftwards: (
+    [tLeft, sLeft]: [string, any],
+    [tRight, sRight]: [string, any],
+    offset = 100
+  ) => inDirection([tLeft, sLeft], [tRight, sRight], [constOf(1.0), constOf(0.0)], offset, false),
+  
+  /**
+   * Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
+   */
+  rightwards: (
+    [tRight, sRight]: [string, any],
+    [tLeft, sLeft]: [string, any],
+    offset = 100
+  ) => inDirection([tRight, sRight], [tLeft, sLeft], [constOf(1.0), constOf(0.0)], offset, false),
+
+  /**
+   * Encourage shape `s1` to have the same center position as shape `s2`.
+   */
+  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    const center1 = shapeCenter([t1, s1]);
+    const center2 = shapeCenter([t2, s2]);
+    return ops.vdistsq(center1, center2);
+  },
+
+  /**
+   * Try to repel shapes `s1` and `s2` with some weight.
+   */
+  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
+    // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
+    // TODO: find this out programmatically
+    const repelWeight = 10e6;
+
+    let res;
+
+    // Repel a line `s1` from another shape `s2` with a center.
+    if (isLinelike(t1)) {
+      const line = s1;
+      const c2 = shapeCenter([t2, s2]);
+      const lineSamplePts = sampleSeg(linePts(line));
+      const allForces = addN(
+        lineSamplePts.map((p) => repelPoint(constOfIf(weight), c2, p))
+      );
+      res = mul(constOfIf(weight), allForces);
+    } else {
+      // Repel any two shapes with a center.
+      // 1 / (d^2(cx, cy) + eps)
+      res = inverse(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
+    }
+
+    return mul(res, constOf(repelWeight));
+  },
+
+  /**
+   * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
+   */
+  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
+    const res = absVal(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
+    return sub(res, squared(constOfIf(offset)));
+  },
+
+  /**
+   * Try to place shape `s1` near a location `(x, y)`.
+   */
+  nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
+    return ops.vdistsq(shapeCenter([t1, s1]), [constOfIf(x), constOfIf(y)]);
+  },
+
+  /**
+   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
+   * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
+   */
+   nonDegenerateAngle: (
+    [t0, p0]: [string, any],
+    [t1, p1]: [string, any],
+    [t2, p2]: [string, any],
+    strength = 20,
+    range = 10
+  ) => {
+    const c0 = shapeCenter([t0, p0]);
+    const c1 = shapeCenter([t1, p1]);
+    const c2 = shapeCenter([t2, p2]);
+
+    const l1 = ops.vsub(c0, c1);
+    const l2 = ops.vsub(c2, c1);
+    const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
+    // angles that are more than `range` deg from 0 or 180 do not need to be pushed
+    return ifCond(
+      lt(cosine, varOf(range * (Math.PI / 180))),
+      constOf(0.0),
+      mul(constOfIf(strength), cosine)
+    );
   },
 
 }
@@ -154,125 +275,8 @@ export const objDictSpecific = {
 
 }
 
-// -------- General objective functions
-// Defined for all shapes, generally require shape queries or call multiple specific objective functions.
-export const objDictGeneral = {
-
-  /**
-   * Encourage the center of `top` to be above the center of `bottom`. 
-   * Only works for shapes with property `center`.
-   */
-  below: (
-    [, bottom]: [string, any],
-    [, top]: [string, any],
-    offset = 100
-  ) => inDirection(bottom, top, [constOf(0.0), constOf(1.0)], offset, false),
-
-  /**
-   * Encourage the center of `bottom` to be below the center of `top`.
-   */
-  above: (
-    [, top]: [string, any],
-    [, bottom]: [string, any],
-    offset = 100
-  ) => inDirection(top, bottom, [constOf(0.0), constOf(1.0)], offset, false),
-
-  /**
-   * Encourage the center of `left` to be leftwards to the center of `right`.
-   */
-  leftwards: (
-    [, left]: [string, any],
-    [, right]: [string, any],
-    offset = 100
-  ) => inDirection(left, right, [constOf(1.0), constOf(0.0)], offset, false),
-  
-  /**
-   * Encourage the center of `right` to be rightwards to the center of `left`.
-   */
-  rightwards: (
-    [, right]: [string, any],
-    [, left]: [string, any],
-    offset = 100
-  ) => inDirection(right, left, [constOf(1.0), constOf(0.0)], offset, false),
-
-  /**
-   * Encourage shape `s1` to have the same center position as shape `s2`.
-   */
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    const center1 = shapeCenter([t1, s1]);
-    const center2 = shapeCenter([t2, s2]);
-    return ops.vdistsq(center1, center2);
-  },
-
-  /**
-   * Try to repel shapes `s1` and `s2` with some weight.
-   */
-  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
-    // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
-    // TODO: find this out programmatically
-    const repelWeight = 10e6;
-
-    let res;
-
-    // Repel a line `s1` from another shape `s2` with a center.
-    if (isLinelike(t1)) {
-      const line = s1;
-      const c2 = shapeCenter([t2, s2]);
-      const lineSamplePts = sampleSeg(linePts(line));
-      const allForces = addN(
-        lineSamplePts.map((p) => repelPoint(constOfIf(weight), c2, p))
-      );
-      res = mul(constOfIf(weight), allForces);
-    } else {
-      // Repel any two shapes with a center.
-      // 1 / (d^2(cx, cy) + eps)
-      res = inverse(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
-    }
-
-    return mul(res, constOf(repelWeight));
-  },
-
-  /**
-   * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
-   */
-  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
-    const res = absVal(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
-    return sub(res, squared(constOfIf(offset)));
-  },
-
-  /**
-   * Try to place shape `s1` near a location `(x, y)`.
-   */
-  nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
-    return ops.vdistsq(shapeCenter([t1, s1]), [constOfIf(x), constOfIf(y)]);
-  },
-
-  /**
-   * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
-   * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
-   */
-   nonDegenerateAngle: (
-    [t0, p0]: [string, any],
-    [t1, p1]: [string, any],
-    [t2, p2]: [string, any],
-    strength = 20,
-    range = 10
-  ) => {
-    const c0 = shapeCenter([t0, p0]);
-    const c1 = shapeCenter([t1, p1]);
-    const c2 = shapeCenter([t2, p2]);
-
-    const l1 = ops.vsub(c0, c1);
-    const l2 = ops.vsub(c2, c1);
-    const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
-    // angles that are more than `range` deg from 0 or 180 do not need to be pushed
-    return ifCond(
-      lt(cosine, varOf(range * (Math.PI / 180))),
-      constOf(0.0),
-      mul(constOfIf(strength), cosine)
-    );
-  },
-
-}
-
-export const objDict = Object.assign({}, objDictSimple, objDictSpecific, objDictGeneral);
+export const objDict = Object.assign({}, 
+  objDictSimple,
+  objDictGeneral,
+  objDictSpecific 
+);
