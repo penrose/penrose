@@ -2178,52 +2178,49 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
 // Top-down
-export const clearVisitedNodesOutput = (z: VarAD) => {
+export const clearVisitedNodesOutput = (z: VarAD): void => {
   const q = new Queue<IVarAD>();
-  console.log("Starting to clear visited nodes, top-down version");
+  const discoveredNodes = new Set<IVarAD>();
+  discoveredNodes.add(z);
   z.nodeVisited = false;
-  let i = 0;
   q.enqueue(z);
   while (q.size > 0) {
-    i++;
     const v = q.dequeue();
     v.children.forEach((e) => {
-      //if (e.node.nodeVisited) {
-      e.node.nodeVisited = false;
-      q.enqueue(e.node);
-      //}
+      if (!discoveredNodes.has(e.node)) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
     });
     v.childrenGrad.forEach((e) => {
-      //if (e.node.nodeVisited) {
-      e.node.nodeVisited = false;
-      q.enqueue(e.node);
-      //}
+      if (!discoveredNodes.has(e.node)) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
     });
   }
-  console.log(
-    "Finished clearing visited nodes, top-down, after " + i + " iterations"
-  );
 };
 
 // Bottom-up
-export const clearVisitedNodesInput = (x: VarAD) => {
-  console.log("Starting to clear visited nodes, bottom-up version");
+export const clearVisitedNodesInput = (x: VarAD): void => {
   const q = new Queue<IVarAD>();
+  const discoveredNodes = new Set<IVarAD>();
+  discoveredNodes.add(x);
   x.nodeVisited = false;
   q.enqueue(x);
   while (q.size > 0) {
     const v = q.dequeue();
     v.parents.forEach((e) => {
-      //if (e.node.nodeVisited) {
-      e.node.nodeVisited = false;
-      q.enqueue(e.node);
-      //}
+      if (!discoveredNodes.has(e.node)) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
     });
     v.parentsGrad.forEach((e) => {
-      //if (e.node.nodeVisited) {
-      e.node.nodeVisited = false;
-      q.enqueue(e.node);
-      //}
+      if (!discoveredNodes.has(e.node)) {
+        e.node.nodeVisited = false;
+        q.enqueue(e.node);
+      }
     });
   }
 };
