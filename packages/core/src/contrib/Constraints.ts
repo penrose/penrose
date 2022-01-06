@@ -356,8 +356,8 @@ export const constrDict = {
       return add(sub(d, s1.r.contents), textR);
     } else if (shapedefs[t1].isRectlike && t2 === "Circle") {
       // collect constants
-      const halfW = mul(constOf(0.5), s1.w.contents); // half rectangle width
-      const halfH = mul(constOf(0.5), s1.h.contents); // half rectangle height
+      const halfW = mul(constOf(0.5), s1.width.contents); // half rectangle width
+      const halfH = mul(constOf(0.5), s1.height.contents); // half rectangle height
       const [rx, ry] = s1.center.contents; // rectangle center
       const r = s2.r.contents; // circle radius
       const [cx, cy] = s2.center.contents; // circle center
