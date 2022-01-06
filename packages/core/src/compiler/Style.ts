@@ -2768,10 +2768,10 @@ const findNames = (e: Expr, tr: Translation): [string, string] => {
   }
 };
 
-const topSortLayering = (
+export const topSortLayering = (
   allGPINames: string[],
   partialOrderings: [string, string][]
-): MaybeVal<string[]> => {
+): string[] => {
   const layerGraph: Graph = new Graph();
   allGPINames.map((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
@@ -2782,7 +2782,7 @@ const topSortLayering = (
   // if there is no cycles, return a global ordering from the top sort result
   if (alg.isAcyclic(layerGraph)) {
     const globalOrdering: string[] = alg.topsort(layerGraph);
-    return { tag: "Just", contents: globalOrdering };
+    return globalOrdering;
   } else {
     const cycles = alg.findCycles(layerGraph);
     const globalOrdering = pseudoTopsort(layerGraph);
@@ -2795,7 +2795,7 @@ const topSortLayering = (
         ", "
       )}`
     );
-    return { tag: "Just", contents: globalOrdering };
+    return globalOrdering;
   }
 };
 
@@ -2808,8 +2808,6 @@ const pseudoTopsort = (graph: Graph): string[] => {
     res.push(node);
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
-    console.log(toRemove);
-
     if (toRemove !== undefined)
       toRemove.forEach((e: Edge) => graph.removeEdge(e));
     // sort the list again by the number of incoming edges
@@ -2837,12 +2835,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   ).map((e: [string, Field]): string => getShapeName(e[0], e[1]));
   const shapeOrdering = topSortLayering(allGPINames, partialOrderings);
 
-  // TODO: Errors for labeling
-  if (shapeOrdering.tag === "Nothing") {
-    throw Error("no shape ordering possible from layering");
-  }
-
-  return shapeOrdering.contents;
+  return shapeOrdering;
 };
 
 //#endregion

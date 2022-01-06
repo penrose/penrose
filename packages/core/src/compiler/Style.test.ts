@@ -7,6 +7,7 @@ import {
   parseSubstance,
 } from "compiler/Substance";
 import * as fs from "fs";
+import { Graph } from "graphlib";
 import _ from "lodash";
 import * as path from "path";
 import { Either } from "types/common";
@@ -67,6 +68,51 @@ const canvasPreamble = `canvas {
   height = 700
 }
 `;
+
+describe("Layering computation", () => {
+  // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
+  test("simple layering: A -> B -> C", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["B", "C"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C"], partials);
+    expect(res).toEqual(["A", "B", "C"]);
+  });
+  test("one cycle: A -> B -> C -> B", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["B", "C"],
+      ["C", "B"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C"], partials);
+    expect(res).toEqual(["A", "B", "C"]);
+  });
+  test("one cycle in tree", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["A", "C"],
+      ["B", "D"],
+      ["D", "E"],
+      ["E", "B"],
+      ["C", "F"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
+    expect(res).toEqual(["A", "C", "F", "B", "D", "E"]);
+  });
+  test("one big cycle in tree", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["A", "C"],
+      ["B", "D"],
+      ["D", "E"],
+      ["E", "C"],
+      ["C", "F"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
+    expect(res).toEqual(["A", "B", "D", "E", "C", "F"]);
+  });
+});
 
 describe("Compiler", () => {
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
