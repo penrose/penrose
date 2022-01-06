@@ -2635,6 +2635,7 @@ const initShape = (
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents;
     const instantiatedGPIProps: GPIProps<VarAD> = {
+      // start by sampling all properties for the shape according to its shapedef
       ...Object.fromEntries(
         Object.entries(
           shapedefs[stype].sampler(getCanvas(tr))
@@ -2643,6 +2644,9 @@ const initShape = (
           { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
         ])
       ),
+
+      // then for all properties actually set in the Style program, overwrite
+      // the sampled property unless the Style program literally says "?"
       ...Object.fromEntries(
         Object.entries(props)
           .map(([propName, propExpr]) => [
