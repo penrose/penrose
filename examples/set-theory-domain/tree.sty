@@ -16,11 +16,11 @@ Colors {
 Global {
    shape box = Rectangle {
       center: (0.,0.)
-      color: none()
+      fillColor: none()
       strokeColor: Colors.lightGray
       strokeWidth: 2.
-      w: canvas.width
-      h: canvas.height
+      width: canvas.width
+      height: canvas.height
    }
 
    scalar setRadius = 18.
@@ -36,13 +36,13 @@ Set x {
        fontFamily: "Courier"
        fontSize: "18pt"
        fontWeight: "bold"
-       color: Colors.black
+       fillColor: Colors.black
     }
 
     x.bounds = Circle {
        center: x.center
        r: Global.setRadius
-       color: none()
+       fillColor: none()
     }
 }
 
