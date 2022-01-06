@@ -25,7 +25,7 @@ import {
   valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
-import _, { uniq } from "lodash";
+import _, { sortBy, uniq } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -2784,24 +2784,44 @@ const topSortLayering = (
     const globalOrdering: string[] = alg.topsort(layerGraph);
     return { tag: "Just", contents: globalOrdering };
   } else {
-    const outOfOrderNodes: string[] = uniq(cycles.flat());
-    const cycleFreeGraph: Graph = layerGraph.filterNodes(
-      (n) => !outOfOrderNodes.includes(n)
-    );
-    const acyclicOrdering: string[] = alg.topsort(cycleFreeGraph);
-    // out of order nodes are sent to the very back of the canvas
-    const globalOrdering: string[] = [...outOfOrderNodes, ...acyclicOrdering];
+    const cycles = alg.findCycles(layerGraph);
+    const globalOrdering = pseudoTopsort(layerGraph);
     log.warn(
       `Cycles detected in layering order: ${cycles
         .map((c) => c.join(", "))
         .join(
           "; "
-        )}. All nodes in cycles are sent to back of the canvas. The global layering order is: ${globalOrdering.join(
+        )}. The system approximated a global layering order instead: ${globalOrdering.join(
         ", "
       )}`
     );
     return { tag: "Just", contents: globalOrdering };
   }
+};
+
+const pseudoTopsort = (graph: Graph): string[] => {
+  const res: string[] = [];
+  const toVisit: string[] = graph.nodes();
+  while (toVisit.length > 0) {
+    // remove element with fewest incoming edges and append to result
+    const node: string = toVisit.shift()!;
+    res.push(node);
+    // remove all edges with `node`
+    const toRemove = graph.nodeEdges(node);
+    console.log(toRemove);
+
+    if (toRemove !== undefined)
+      toRemove.forEach((e: Edge) => graph.removeEdge(e));
+    // sort the list again by the number of incoming edges
+    toVisit.sort((a: string, b: string) => {
+      const aIn = graph.inEdges(a);
+      const bIn = graph.inEdges(b);
+      if (!aIn) return 1;
+      else if (!bIn) return -1;
+      else return aIn.length - bIn.length;
+    });
+  }
+  return res;
 };
 
 const computeShapeOrdering = (tr: Translation): string[] => {
