@@ -44,15 +44,21 @@ forall Vertex v {
       center: v.center
    }
 
+   v.labelAngle = ?
+   v.labelRadius = ?
+
    -- label
    shape v.text = Text {
-      center: (?,?)
+      center: v.icon.center + v.labelRadius*( cos(v.labelAngle), sin(v.labelAngle ) )
       string: v.label
       fontFamily: Global.fontFamily
       fontSize: Global.fontSize
       fontStyle: "italic"
       color: Colors.black
    }
+
+   -- make sure label doesn't get too far from the dot
+   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.1*Global.labelBoundRadius )
 
    -- invisible circle around label
    -- (used to prevent overlap)
@@ -81,14 +87,28 @@ forall Vertex u; Vertex v {
 
 forall Edge e; Vertex i; Vertex j
 where e := MakeEdge(i,j) {
+
+   -- grab edge endpoints
+   vec2 pi = i.icon.center
+   vec2 pj = j.icon.center
    
    -- black line between endpoints
    shape e.icon = Line {
-      start: i.icon.center
-      end: j.icon.center
+      start: pi
+      end: pj
       color: Colors.black
       thickness: Global.lineThickness
    }
+
+   -- -- (DEBUG) draw full line through segment
+   -- vec2 m = (pi+pj)/2.
+   -- shape e.line = Line {
+   --    start: m + 100.*(pi-m)
+   --    end: m + 100.*(pj-m)
+   --    color: rgba( 0., 0., 0., .35 )
+   --    thickness: Global.lineThickness
+   --    style: "dashed"
+   -- }
 
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
@@ -119,19 +139,39 @@ where t := MakeTriangle(i,j,k)
       color: none()
    }
 
-   -- XXX This sadly causes a lot of NaNs...
    -- Make sure triangles are positively
    -- oriented and not tiny, by making their
    -- signed area greater than some fixed constant.
    scalar A = cross2D( b-a, c-a )
-   encourage lessThan( 2000., A )
+   encourage lessThan( 4000., A )
 
+   -- Also ensure triangles are not slivers by making
+   -- sure two of their angles are in a reasonable range
+   -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   -- scalar cTheta = angleFrom( a-c, b-c )
-   ensure inRange( aTheta, toRadians(30.), toRadians(80.) )
-   ensure inRange( bTheta, toRadians(20.), toRadians(90.) )
-   -- ensure inRange( cTheta, toRadians(10.), toRadians(50.) )
+   ensure inRange( aTheta, toRadians(40.), toRadians(70.) )
+   ensure inRange( bTheta, toRadians(30.), toRadians(80.) )
+
+   -- -- Encourage the vertex labels to be outside the triangle
+   -- -- by encouraging the total area made with the three
+   -- -- vertices to be bigger than the triangle area
+   -- vec2 p = i.text.center
+   -- vec2 q = j.text.center
+   -- vec2 r = k.text.center
+   -- scalar Aijk = abs(A)
+   -- scalar Apbc = abs( cross2D( b-p, c-p ))
+   -- scalar Aapc = abs( cross2D( p-a, c-a ))
+   -- scalar Aabp = abs( cross2D( b-a, p-a ))
+   -- encourage lessThan( 1.01*Aijk, Apbc+Aapc+Aabp )
+   -- scalar Aqbc = abs( cross2D( b-q, c-q ))
+   -- scalar Aaqc = abs( cross2D( q-a, c-a ))
+   -- scalar Aabq = abs( cross2D( b-a, q-a ))
+   -- encourage lessThan( 1.01*Aijk, Aqbc+Aaqc+Aabq )
+   -- scalar Arbc = abs( cross2D( b-r, c-r ))
+   -- scalar Aarc = abs( cross2D( r-a, c-a ))
+   -- scalar Aabr = abs( cross2D( b-a, r-a ))
+   -- encourage lessThan( 1.01*Aijk, Arbc+Aarc+Aabr )
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
@@ -202,7 +242,7 @@ forall Point p {
    ensure contains( Global.box, p.icon )
 
    -- keep the label near the dot
-   encourage equal( norm(p.text.center - p.icon.center), 0. )
+   -- encourage equal( norm(p.text.center - p.icon.center), 0. )
 }
 
 forall Point p; Triangle t {
