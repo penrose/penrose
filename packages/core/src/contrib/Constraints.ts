@@ -27,6 +27,7 @@ import {
   overlappingLines,
   overlappingCircles,
   overlappingPolygons,
+  overlappingRectlikeCircle,
   overlappingAABBs,
   containsCircles,
   containsCircleRectlike,
@@ -151,6 +152,8 @@ const constrDictGeneral = {
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
+    if (isRectlike(t1) && t2 === "Circle")
+      return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else
       return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },

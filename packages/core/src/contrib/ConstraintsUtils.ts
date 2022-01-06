@@ -71,6 +71,20 @@ export const overlappingPolygons = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
+ export const overlappingRectlikeCircle = (
+  [t1, s1]: [string, any],
+  [t2, s2]: [string, any],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  const s1BBox = bboxFromShape([t1, s1]);
+  const textR = max(s1BBox.w, s1BBox.h);
+  const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
+  return sub(d, add(add(s2.r.contents, textR), padding));
+};
+
+/**
+ * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ */
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
