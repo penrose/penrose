@@ -72,7 +72,7 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   // Subtract off the arrowHeight from each side.
   // See https://math.stackexchange.com/a/2045181 for a derivation.
   let arrowSX, arrowSY;
-  if (shape.properties.leftArrowhead.contents) {
+  if (shape.properties.startArrowhead.contents) {
     [arrowSX, arrowSY] = [
       lineSX - (arrowHeight / length) * (lineSX - lineEX),
       lineSY - (arrowHeight / length) * (lineSY - lineEY),
@@ -83,7 +83,7 @@ const makeRoomForArrows = (shape: Shape): [number[][], string[]] => {
   attrMapped.push("startArrowhead");
 
   let arrowEX, arrowEY;
-  if (shape.properties.rightArrowhead.contents) {
+  if (shape.properties.endArrowhead.contents) {
     [arrowEX, arrowEY] = [
       lineEX - (arrowHeight / length) * (lineEX - lineSX),
       lineEY - (arrowHeight / length) * (lineEY - lineSY),
