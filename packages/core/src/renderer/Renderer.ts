@@ -9,7 +9,7 @@ import { Shape } from "types/shape";
 import { dragUpdate } from "./dragUtils";
 import { IStrV } from "types/value";
 import { LabelCache, State } from "types/state";
-import { isLinelike, isRectlike } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 
 export interface ShapeProps {
   shape: Shape;
@@ -75,9 +75,9 @@ export const DraggableShape = (
   });
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const { shapeType } = shapeProps.shape;
-  if (isLinelike(shapeType)) {
+  if (shapedefs[shapeType].isLinelike) {
     g.setAttribute("pointer-events", "visibleStroke");
-  } else if (isRectlike(shapeType)) {
+  } else if (shapedefs[shapeType].isRectlike) {
     g.setAttribute("pointer-events", "bounding-box");
   } else {
     g.setAttribute("pointer-events", "auto");

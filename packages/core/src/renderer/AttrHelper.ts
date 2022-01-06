@@ -38,10 +38,10 @@ export const attrAutoFillSvg = (
 };
 
 /**
- * Maps color --> fill, fill-opacity
+ * Maps fillColor --> fill, fill-opacity
  */
 export const attrFill = ({ properties }: Shape, elem: SVGElement): string[] => {
-  const color = properties.color as IColorV<number>;
+  const color = properties.fillColor as IColorV<number>;
   const alpha = toSvgOpacityProperty(color.contents);
 
   elem.setAttribute("fill", toSvgPaintProperty(color.contents));
@@ -51,19 +51,7 @@ export const attrFill = ({ properties }: Shape, elem: SVGElement): string[] => {
     elem.setAttribute("fill-opacity", alpha.toString());
   }
 
-  return ["color"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps opacity --> opacity
- */
-export const attrOpacity = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const opacity = (properties.opacity as IFloatV<number>).contents;
-  elem.setAttribute("opacity", opacity.toString());
-  return ["opacity"]; // Return array of input properties programatically mapped
+  return ["fillColor"]; // Return array of input properties programatically mapped
 };
 
 /**
@@ -79,49 +67,6 @@ export const attrCenter = (
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
   return ["center"]; // Return array of input properties programatically mapped
-};
-
-/**
- * If center is present:
- *  - Maps center --> cx, cy
- * Else
- *  - Maps points --> cx, cy
- */
-export const attrPolyCenter = (
-  { properties }: Shape,
-  canvasSize: [number, number],
-  elem: SVGElement
-): string[] => {
-  // Keep a list of which input properties we programatically mapped
-  const attrMapped: string[] = [];
-
-  if (properties.center) {
-    const [x, y] = toScreen(
-      properties.center.contents as [number, number],
-      canvasSize
-    );
-    elem.setAttribute("cx", x.toString());
-    elem.setAttribute("cy", y.toString());
-    attrMapped.push("center");
-  } else {
-    const points = properties.points as IPtListV<number>;
-    const xs = points.contents.map((xy) => xy[0]);
-    const ys = points.contents.map((xy) => xy[1]);
-
-    const minX = Math.min(...xs),
-      minY = Math.min(...ys),
-      maxX = Math.max(...xs),
-      maxY = Math.max(...ys);
-
-    const cx = (minX + maxX) / 2,
-      cy = (minY + maxY) / 2;
-
-    const [x, y] = toScreen([cx, cy] as [number, number], canvasSize);
-    elem.setAttribute("cx", x.toString());
-    elem.setAttribute("cy", y.toString());
-    attrMapped.push("points");
-  }
-  return attrMapped; // Return array of input properties programatically mapped
 };
 
 /**
@@ -142,7 +87,7 @@ export const attrScale = (
 };
 
 /**
- * Maps center, w, h --> transform
+ * Maps center, width, height --> transform
  */
 export const attrTransformCoords = (
   { properties }: Shape,
@@ -151,8 +96,8 @@ export const attrTransformCoords = (
 ): string[] => {
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null
@@ -160,11 +105,11 @@ export const attrTransformCoords = (
       : transform + `translate(${x - w.contents / 2}, ${y - h.contents / 2})`;
   elem.setAttribute("transform", transform);
 
-  return ["center", "w", "h"]; // Return array of input properties programatically mapped
+  return ["center", "width", "height"]; // Return array of input properties programatically mapped
 };
 
 /**
- * Maps center, w, h --> x, y
+ * Maps center, width, height --> x, y
  */
 export const attrXY = (
   { properties }: Shape,
@@ -173,16 +118,16 @@ export const attrXY = (
 ): string[] => {
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   elem.setAttribute("x", (x - w.contents / 2).toString());
   elem.setAttribute("y", (y - h.contents / 2).toString());
 
-  return ["center", "w", "h"]; // Return array of input properties programatically mapped
+  return ["center", "width", "height"]; // Return array of input properties programatically mapped
 };
 
 /**
- * Maps center, w (or side), h (or side), rotation --> transform !!!
+ * Maps center, width, height, rotation --> transform !!!
  *
  * Rotates a GPI by n degrees about a center
  * Note: elem must be `transform`able
@@ -194,12 +139,8 @@ export const attrRotation = (
   canvasSize: [number, number],
   elem: SVGElement
 ): string[] => {
-  const w = ("side" in properties
-    ? properties.side
-    : properties.w) as IFloatV<number>; // Handle squares
-  const h = ("side" in properties
-    ? properties.side
-    : properties.h) as IFloatV<number>; // Handle squares
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   const center = properties.center;
   const rotation = (properties.rotation as IFloatV<number>).contents;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
@@ -211,34 +152,7 @@ export const attrRotation = (
         `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`;
   elem.setAttribute("transform", transform);
 
-  if ("side" in properties) {
-    // Handle squares
-    return ["rotation", "center", "side"]; // Return array of input properties programatically mapped
-  } else {
-    return ["rotation", "center", "w", "h"]; // Return array of input properties programatically mapped
-  }
-};
-
-/**
- * Maps center, side --> transform
- */
-export const attrSideCoords = (
-  { properties }: Shape,
-  canvasSize: [number, number],
-  elem: SVGElement
-): string[] => {
-  const center = properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const side = properties.side as IFloatV<number>;
-  let transform = elem.getAttribute("transform");
-  transform =
-    transform == null
-      ? `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
-      : transform +
-        `translate(${x - side.contents / 2}, ${y - side.contents / 2})`;
-  elem.setAttribute("transform", transform);
-
-  return ["center", "side"]; // Return array of input properties programatically mapped
+  return ["rotation", "center", "width", "height"]; // Return array of input properties programatically mapped
 };
 
 /**
@@ -281,6 +195,19 @@ export const attrRadiusY = (
 };
 
 /**
+ * Maps cornerRadius --> rx
+ */
+export const attrCornerRadius = (
+  { properties }: Shape,
+  elem: SVGElement
+): string[] => {
+  const rx = properties.cornerRadius as IFloatV<number>;
+  elem.setAttribute("rx", rx.contents.toString());
+
+  return ["cornerRadius"]; // Return array of input properties programatically mapped
+};
+
+/**
  * Maps rx, ry --> rx, ry
  */
 export const attrRadii = (
@@ -296,15 +223,15 @@ export const attrRadii = (
 };
 
 /**
- * Maps w, h --> width, height
+ * Maps width, height --> width, height
  */
 export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   elem.setAttribute("width", w.contents.toString());
   elem.setAttribute("height", h.contents.toString());
 
-  return ["w", "h"]; // Return array of input properties programatically mapped
+  return ["width", "height"]; // Return array of input properties programatically mapped
 };
 
 /**

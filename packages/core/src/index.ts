@@ -31,7 +31,7 @@ import {
   prettyPrintExpr,
 } from "./utils/OtherUtils";
 import { bBoxDims, ops, toSvgPaintProperty } from "./utils/Util";
-import { Canvas } from "./renderer/ShapeDef";
+import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
 import { shapeAutodiffToNumber } from "engine/EngineUtils";
@@ -343,6 +343,7 @@ export {
   getListOfStagedStates,
   toSvgPaintProperty,
 };
+export { shapedefs } from "./shapes/Shapes";
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";

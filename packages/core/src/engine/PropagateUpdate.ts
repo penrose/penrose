@@ -3,7 +3,6 @@ import {
   insertExpr,
   exprToNumber,
 } from "engine/EngineUtils";
-import { getShapeName } from "renderer/ShapeDef";
 import { Translation } from "types/value";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
@@ -72,6 +71,16 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
   }
 };
 
+/** Generate a single string based on a path to a shape */
+export const getShapeName = (p: Path): string => {
+  if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
+    const { name, field } = p;
+    return `${name.contents.value}.${field.value}`;
+  } else {
+    throw new Error("Can only derive shape name from field or property path.");
+  }
+};
+
 /**
  * Take all pending paths in the state, find values for them from shapes in the state, insert these values in the translation, and finally clear pending paths.
  *
@@ -86,8 +95,8 @@ export const insertPending = (state: State): State => {
       const labelData = retrieveLabel(getShapeName(p), labels);
 
       if (labelData) {
-        if (prop === "w") return labelData.w;
-        else if (prop === "h") return labelData.h;
+        if (prop === "width") return labelData.width;
+        else if (prop === "height") return labelData.height;
         else {
           throw new Error(`Cached label data do not contain property ${prop}`);
         }

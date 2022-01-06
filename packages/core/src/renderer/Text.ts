@@ -29,7 +29,6 @@ const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
   // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(...attrXY(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrVisibility(shape, elem));
-  attrToNotAutoMap.push(...attrStyle(shape, elem));
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));

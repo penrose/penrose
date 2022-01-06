@@ -16,11 +16,11 @@ Colors {
 Global {
    shape box = Rectangle {
       center: (0.,0.)
-      color: none()
+      fillColor: none()
       strokeColor: Colors.lightGray
       strokeWidth: 2.
-      w: canvas.width
-      h: canvas.height
+      width: canvas.width
+      height: canvas.height
    }
 
    scalar setRadius = 18.
@@ -36,13 +36,13 @@ Set x {
        fontFamily: "Courier"
        fontSize: "18pt"
        fontWeight: "bold"
-       color: Colors.black
+       fillColor: Colors.black
     }
 
     x.bounds = Circle {
        center: x.center
        r: Global.setRadius
-       color: none()
+       fillColor: none()
     }
 }
 
@@ -61,11 +61,12 @@ where IsSubset(x, y) {
    vec2 u = unit(q-p)
    scalar r = Global.setRadius
 
-   arrow = Arrow {
+   arrow = Line {
       start: p + r*u
       end: q - r*u
-      thickness : 4.0
-      color : rgba(0.0, 0.0, 0.0, 1.0)
+      strokeWidth : 4.0
+      strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+      endArrowhead : true
       arrowheadSize: .5
    }
 

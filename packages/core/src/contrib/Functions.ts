@@ -63,7 +63,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
-import { isRectlike } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 
 /**
  * Static dictionary of computation functions
@@ -920,7 +920,7 @@ export const compDict = {
     [t1, s1]: [string, any]
   ): IFloatV<VarAD> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (!isRectlike(t1)) {
+    if (!shapedefs[t1].isRectlike) {
       throw Error("expected rect-like shape");
     }
 
@@ -942,8 +942,8 @@ export const compDict = {
 
     const dim = ifCond(
       inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
-      rect.h,
-      rect.w
+      rect.height,
+      rect.width
     );
     return { tag: "FloatV", contents: dim };
   },
@@ -1411,7 +1411,7 @@ const tickPlacement = (
 ): VarAD[] => {
   if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numOf(numPts) % 2 === 0;
-  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  const pts = even ? [div(padding, varOf(2))] : [varOf(0)];
   for (let i = 1; i < numOf(numPts); i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =

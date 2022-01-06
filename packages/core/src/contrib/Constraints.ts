@@ -30,10 +30,10 @@ import {
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { findDef, isLinelike, isRectlike } from "renderer/ShapeDef";
 import { VarAD } from "types/ad";
 import { every } from "lodash";
 import * as BBox from "engine/BBox";
+import { shapedefs } from "shapes/Shapes";
 
 export const objDict = {
   /**
@@ -79,7 +79,7 @@ export const objDict = {
     let res;
 
     // Repel a line `s1` from another shape `s2` with a center.
-    if (isLinelike(t1)) {
+    if (shapedefs[t1].isLinelike) {
       const line = s1;
       const c2 = fns.center(s2);
       const lineSamplePts = sampleSeg(linePts(line));
@@ -118,14 +118,18 @@ export const objDict = {
   ): VarAD => {
     const spacing = varOf(1.1); // arbitrary
 
-    if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
+    if (
+      shapedefs[t1].isLinelike &&
+      shapedefs[t2].isRectlike &&
+      shapedefs[t3].isRectlike
+    ) {
       const s2BB = bboxFromShape(t2, s2);
       const s3BB = bboxFromShape(t3, s3);
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.h),
-        neg(mul(s3BB.h, spacing)),
+        mul(spacing, s2BB.height),
+        neg(mul(s3BB.height, spacing)),
       ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
@@ -151,7 +155,7 @@ export const objDict = {
     [t2, s2]: [string, any],
     w: number
   ): VarAD => {
-    if (isLinelike(t1) && isRectlike(t2)) {
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike) {
       const [arr, text] = [s1, s2];
       const mx = div(
         add(arr.start.contents[0], arr.end.contents[0]),
@@ -166,7 +170,7 @@ export const objDict = {
       const textBB = bboxFromShape(t2, text);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
-        sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
+        sub(add(my, mul(textBB.height, constOf(1.1))), textBB.center[1])
       );
       return mul(add(lh, rh), constOfIf(w));
     } else throw Error("unsupported shapes");
@@ -180,7 +184,7 @@ export const objDict = {
     [t2, s2]: [string, any],
     w: number
   ): VarAD => {
-    if (isLinelike(t1) && isRectlike(t2)) {
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike) {
       // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
       const [arr, text] = [s1, s2];
       const midpt = ops.vdiv(
@@ -191,10 +195,10 @@ export const objDict = {
       const textBB = bboxFromShape(t2, text);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
-        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
+        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.width)),
         squared(padding)
       );
-    } else if (isRectlike(t1) && isRectlike(t2)) {
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       // Try to center label in the rectangle
       // TODO: This should be applied generically on any two GPIs with a center
       return objDict.sameCenter([t1, s1], [t2, s2]);
@@ -259,7 +263,7 @@ export const objDict = {
    * try to make distance between a point and a segment `s1` = padding.
    */
   pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
-    if (!isLinelike(t1)) {
+    if (!shapedefs[t1].isLinelike) {
       throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
     }
     return squared(
@@ -295,8 +299,8 @@ export const constrDict = {
     switch (shapeType) {
       case "Circle":
         return sub(props.r.contents, div(limit, constOf(2)));
-      case "Square":
-        return sub(props.side.contents, limit);
+      case "Rectangle":
+        return sub(max(props.width.contents, props.height.contents), limit);
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -309,7 +313,7 @@ export const constrDict = {
   minSize: ([shapeType, props]: [string, any]) => {
     const limit = 20;
 
-    if (isLinelike(shapeType)) {
+    if (shapedefs[shapeType].isLinelike) {
       const minLen = 50;
       const vec = ops.vsub(props.end.contents, props.start.contents);
       return sub(constOf(minLen), ops.vnorm(vec));
@@ -318,8 +322,11 @@ export const constrDict = {
     switch (shapeType) {
       case "Circle":
         return sub(constOf(limit), props.r.contents);
-      case "Square":
-        return sub(constOf(limit), props.side.contents);
+      case "Rectangle":
+        return sub(
+          constOf(limit),
+          min(props.width.contents, props.height.contents)
+        );
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -349,19 +356,19 @@ export const constrDict = {
         : sub(s1.r.contents, s2.r.contents);
       const res = sub(d, o);
       return res;
-    } else if (t1 === "Circle" && isRectlike(t2)) {
+    } else if (t1 === "Circle" && shapedefs[t2].isRectlike) {
       const s2BBox = bboxFromShape(t2, s2);
       const d = ops.vdist(fns.center(s1), s2BBox.center);
-      const textR = max(s2BBox.w, s2BBox.h);
+      const textR = max(s2BBox.width, s2BBox.height);
       return add(sub(d, s1.r.contents), textR);
-    } else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle") {
+    } else if (shapedefs[t1].isRectlike && t2 === "Circle") {
       // collect constants
-      const halfW = mul( constOf(0.5), s1.w.contents ); // half rectangle width
-      const halfH = mul( constOf(0.5), s1.h.contents ); // half rectangle height
+      const halfW = mul(constOf(0.5), s1.width.contents); // half rectangle width
+      const halfH = mul(constOf(0.5), s1.height.contents); // half rectangle height
       const [rx, ry] = s1.center.contents; // rectangle center
       const r = s2.r.contents; // circle radius
       const [cx, cy] = s2.center.contents; // circle center
-      
+
       // Return maximum violation in either the x- or y-direction.
       // In each direction, the distance from the circle center (cx,cy) to
       // the rectangle center (rx,ry) must be no greater than the size of
@@ -369,15 +376,31 @@ export const constrDict = {
       // offset (o).  We can compute this violation via the function
       //    max( |cx-rx| - (w/2-r-o),
       //         |cy-ry| - (h/2-r-o) )
-      const o = typeof(offset)!=='undefined'? offset : constOf(0.);
-      return max( sub( absVal(sub(cx,rx)), sub(sub(halfW,r),o) ),
-                  sub( absVal(sub(cy,ry)), sub(sub(halfH,r),o) ));
-    } else if (t1 === "Square" && t2 === "Circle") {
-      // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-      const sq = s1.center.contents;
-      const d = ops.vdist(sq, fns.center(s2));
-      return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
-    } else if (isRectlike(t1) && isRectlike(t2)) {
+      const o = typeof offset !== "undefined" ? offset : constOf(0);
+      return max(
+        sub(absVal(sub(cx, rx)), sub(sub(halfW, r), o)),
+        sub(absVal(sub(cy, ry)), sub(sub(halfH, r), o))
+      );
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isLinelike) {
+      const [[startX, startY], [endX, endY]] = linePts(s2);
+      const [x, y] = fns.center(s1);
+
+      const radiusX = div(s1.width.contents, constOf(2.0)); // TODO
+      const radiusY = div(s1.height.contents, constOf(2.0)); // TODO
+      const f = constOf(0.75); // 0.25 padding
+      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+      //    inRange endY ly ry
+      const [lx, ly] = [mul(sub(x, radiusX), f), mul(sub(y, radiusY), f)];
+      const [rx, ry] = [mul(add(x, radiusX), f), mul(add(y, radiusY), f)];
+      return addN([
+        constrDict.inRange(startX, lx, rx),
+        constrDict.inRange(startY, ly, ry),
+        constrDict.inRange(endX, lx, rx),
+        constrDict.inRange(endY, ly, ry),
+      ]);
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
 
@@ -386,24 +409,6 @@ export const constrDict = {
         constrDict.contains1D(BBox.xRange(box1), BBox.xRange(box2)),
         constrDict.contains1D(BBox.yRange(box1), BBox.yRange(box2))
       );
-    } else if (t1 === "Square" && isLinelike(t2)) {
-      const [[startX, startY], [endX, endY]] = linePts(s2);
-      const [x, y] = fns.center(s1);
-
-      const r = div(s1.side.contents, constOf(2.0));
-      const f = constOf(0.75); // 0.25 padding
-      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
-      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
-      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
-      //    inRange endY ly ry
-      const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
-      const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
-      return addN([
-        constrDict.inRange(startX, lx, rx),
-        constrDict.inRange(startY, ly, ry),
-        constrDict.inRange(endX, lx, rx),
-        constrDict.inRange(endY, ly, ry),
-      ]);
     } else throw new Error(`${[t1, t2]} not supported for contains`);
   },
 
@@ -425,7 +430,7 @@ export const constrDict = {
    * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
    */
   disjointIntervals: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isLinelike(t1) || !isLinelike(t2)) {
+    if (!shapedefs[t1].isLinelike || !shapedefs[t2].isLinelike) {
       throw Error("expected two line-like shapes");
     }
     return overlap1D(
@@ -438,7 +443,7 @@ export const constrDict = {
    * Make an AABB rectangle contain an AABB (vertical or horizontal) line. (Special case of rect-rect disjoint). AA = axis-aligned
    */
   containsRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isRectlike(t1) || !isLinelike(t2)) {
+    if (!shapedefs[t1].isRectlike || !shapedefs[t2].isLinelike) {
       throw Error("expected two line-like shapes");
     }
 
@@ -457,7 +462,7 @@ export const constrDict = {
    * (Special case of rect-rect disjoint)
    */
   disjointRectLineAA: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isRectlike(t1) || !isLinelike(t2)) {
+    if (!shapedefs[t1].isRectlike || !shapedefs[t2].isLinelike) {
       throw Error("expected two line-like shapes");
     }
 
@@ -489,20 +494,20 @@ export const constrDict = {
         s2.points.contents.map((p: VarAD[]) => ops.vneg(p))
       );
       const sdf = maxN(
-        cp1.map((p1) => minN(
-          cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2)))
+        cp1.map((p1) =>
+          minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2)))
         )
       );
       return neg(sdf);
-    } else if (isRectlike(t1) && isLinelike(t2)) {
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isLinelike) {
       const seg = s2;
       const textBB = bboxFromShape(t1, s1);
       const centerT = textBB.center;
       const endpts = linePts(seg);
       const cp = closestPt_PtSeg(centerT, endpts);
-      const lenApprox = div(textBB.w, constOf(2.0));
+      const lenApprox = div(textBB.width, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
-    } else if (isRectlike(t1) && isRectlike(t2)) {
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
@@ -566,7 +571,7 @@ export const constrDict = {
     [t2, s2]: [string, any],
     offset = 5.0
   ) => {
-    if (isLinelike(t1) && isLinelike(t2)) {
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isLinelike) {
       // If the lines intersect, return the smallest distance squared between their endpoints (assuming the starts and ends "correspond" -- but not geometrically necessary.) TODO -- Try every pair of distances? (end -> start)
       // Else, return 0.
       // The idea is to minimize the distance between the 'crossing' endpoints, so the lines uncross. Though I guess taking the min may make this discontinuous?
@@ -605,9 +610,9 @@ export const constrDict = {
     [t2, s2]: [string, any],
     padding = 10
   ) => {
-    if (isRectlike(t1) && t2 === "Circle") {
+    if (shapedefs[t1].isRectlike && t2 === "Circle") {
       const s1BBox = bboxFromShape(t1, s1);
-      const textR = max(s1BBox.w, s1BBox.h);
+      const textR = max(s1BBox.width, s1BBox.height);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
@@ -659,9 +664,9 @@ export const constrDict = {
   atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: VarAD) => {
     // TODO: Account for the size/radius of the initial point, rather than just the center
 
-    if (isRectlike(t2)) {
+    if (shapedefs[t2].isRectlike) {
       let pt;
-      if (isLinelike(t1)) {
+      if (shapedefs[t1].isLinelike) {
         // Position label close to the arrow's end
         pt = { x: s1.end.contents[0], y: s1.end.contents[1] };
       } else {
@@ -679,7 +684,7 @@ export const constrDict = {
       return ifCond(
         pointInBox(pt, rect),
         // If the point is inside the box, push it outside w/ `noIntersect`
-        noIntersectCircles(rect.center, rect.w, [pt.x, pt.y], constOf(2.0)),
+        noIntersectCircles(rect.center, rect.width, [pt.x, pt.y], constOf(2.0)),
         // If the point is outside the box, try to get the distance from the point to equal the desired distance
         atDistOutside(pt, rect, offset)
       );
@@ -1079,7 +1084,7 @@ export const areDisjointBoxes = (a: BBox.BBox, b: BBox.BBox): VarAD => {
  * Output: A new BBox
  */
 export const bboxFromShape = (t: string, s: any): BBox.BBox => {
-  return findDef(t).bbox(s);
+  return shapedefs[t].bbox(s);
 };
 
 // ------- Minkowski SDF helpers
