@@ -292,8 +292,8 @@ export const constrDict = {
     switch (shapeType) {
       case "Circle":
         return sub(props.r.contents, div(limit, constOf(2)));
-      case "Square":
-        return sub(props.side.contents, limit);
+      case "Rectangle":
+        return sub(max(props.width.contents, props.height.contents), limit);
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -315,8 +315,11 @@ export const constrDict = {
     switch (shapeType) {
       case "Circle":
         return sub(constOf(limit), props.r.contents);
-      case "Square":
-        return sub(constOf(limit), props.side.contents);
+      case "Rectangle":
+        return sub(
+          constOf(limit),
+          min(props.width.contents, props.height.contents)
+        );
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -351,7 +354,7 @@ export const constrDict = {
       const d = ops.vdist(fns.center(s1), s2BBox.center);
       const textR = max(s2BBox.w, s2BBox.h);
       return add(sub(d, s1.r.contents), textR);
-    } else if (shapedefs[t1].isRectlike && t1 !== "Square" && t2 === "Circle") {
+    } else if (shapedefs[t1].isRectlike && t2 === "Circle") {
       // collect constants
       const halfW = mul(constOf(0.5), s1.w.contents); // half rectangle width
       const halfH = mul(constOf(0.5), s1.h.contents); // half rectangle height
@@ -371,11 +374,6 @@ export const constrDict = {
         sub(absVal(sub(cx, rx)), sub(sub(halfW, r), o)),
         sub(absVal(sub(cy, ry)), sub(sub(halfH, r), o))
       );
-    } else if (t1 === "Square" && t2 === "Circle") {
-      // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-      const sq = s1.center.contents;
-      const d = ops.vdist(sq, fns.center(s2));
-      return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
     } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
@@ -385,24 +383,6 @@ export const constrDict = {
         constrDict.contains1D(BBox.xRange(box1), BBox.xRange(box2)),
         constrDict.contains1D(BBox.yRange(box1), BBox.yRange(box2))
       );
-    } else if (t1 === "Square" && shapedefs[t2].isLinelike) {
-      const [[startX, startY], [endX, endY]] = linePts(s2);
-      const [x, y] = fns.center(s1);
-
-      const r = div(s1.side.contents, constOf(2.0));
-      const f = constOf(0.75); // 0.25 padding
-      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
-      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
-      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
-      //    inRange endY ly ry
-      const [lx, ly] = [mul(sub(x, r), f), mul(sub(y, r), f)];
-      const [rx, ry] = [mul(add(x, r), f), mul(add(y, r), f)];
-      return addN([
-        constrDict.inRange(startX, lx, rx),
-        constrDict.inRange(startY, ly, ry),
-        constrDict.inRange(endX, lx, rx),
-        constrDict.inRange(endY, ly, ry),
-      ]);
     } else throw new Error(`${[t1, t2]} not supported for contains`);
   },
 

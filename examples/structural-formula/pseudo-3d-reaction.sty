@@ -454,7 +454,7 @@ where IsNetForward(r) {
    scalar s = Global.reactionBoxSize
    scalar p = 10.
 
-   shape reactionArrow = Arrow {
+   shape reactionArrow = Line {
       start : (Rc+(0.5*s)+p,0.)
       end : (Pc-(0.5*s)-p,0.)
       strokeColor : Colors.black

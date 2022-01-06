@@ -7,12 +7,11 @@ forall Path a {
     a.icon = Path { }
 }
 
-forall Arrow c {
-    c.icon = Arrow { }
-}
-
 forall Square d {
-    d.icon = Square { 
+    d.side = ?
+    d.icon = Rectangle { 
+        width: d.side
+        height: d.side
         rx: 0
         rotation: 45
     }
@@ -72,21 +71,4 @@ forall Ellipse l {
         rx: 20
         ry: 20
      }
-}
-
-forall FreeformPolygon u {
-	u.icon = FreeformPolygon { 
-        points: ((-80.0, 0.0), (100.0, 0.0), (10.0, 50.0))
-        -- strokeWidth: 20
-        -- scale: 2
-	}
-}
-
-forall PathString p {
-    p.icon = PathString {
-        width: 300
-        height: 300
-        data: "M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80"
-        viewBox: "0 0 200 200"
-    }
 }
