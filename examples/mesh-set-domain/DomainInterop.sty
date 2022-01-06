@@ -329,7 +329,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      	     start : v1.icon.center
      	     end : v2.icon.center
 	     strokeColor : Colors.black
-	     thickness : global.edgeStroke
+	     strokeWidth : global.edgeStroke
      }
 
      e.text = Equation {
@@ -351,7 +351,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
 Edge e
 where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
 with Vertex v1; Vertex v2; SimplicialComplex K {
-     override e.icon.thickness = global.selectedEdgeStroke
+     override e.icon.strokeWidth = global.selectedEdgeStroke
      override e.icon.strokeColor = global.closureColor
 
      e.text = Equation {
@@ -436,7 +436,7 @@ where Identified(p, v) {
       start : p.icon.center
       end : v.icon.center
       strokeColor: setOpacity(Colors.black, 0.25)
-      thickness : 2.0
+      strokeWidth : 2.0
       style : "dashed"
    }
 

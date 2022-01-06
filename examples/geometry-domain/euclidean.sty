@@ -132,7 +132,7 @@ Linelike l {
     start : (?, ?)
     end : (?, ?)
     strokeColor : l.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 }
@@ -148,7 +148,7 @@ with Point base; Point direction {
     start : base.icon.center
     end : ptOnLine(base.vec, direction.vec, norm(r.vec) + 40.)
     strokeColor : r.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
     arrowheadStyle: "arrowhead-2"
     rightArrowhead : true
@@ -168,7 +168,7 @@ with Point p; Point q {
     start : ptOnLine(p.vec,q.vec, -40.)
     end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
     strokeColor : l.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
     arrowheadStyle: "arrowhead-2"
     rightArrowhead : true
@@ -213,7 +213,7 @@ with Point p; Point q {
     start : p.icon.center
     end : q.icon.center
     strokeColor : e.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 
@@ -241,7 +241,7 @@ with Segment s2; Point p {
     start : p.icon.center
     end : midpoint(s2.icon.start, s2.icon.end)
     strokeColor : s.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
@@ -266,7 +266,7 @@ with Segment s2; Point p1, p2 {
     start : p1.icon.center
     end : p2.vec
     strokeColor : s.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
@@ -354,14 +354,14 @@ with Point p; Point q; Point r {
     start : p.icon.center
     end : q.icon.center
     strokeColor : theta.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   theta.side2 = Line {
     start : q.icon.center
     end : r.icon.center
     strokeColor : theta.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   theta.radius = const.thetaRadius
@@ -551,21 +551,21 @@ with Point p; Point q; Point r {
     start : p.icon.center
     end : q.icon.center
     strokeColor : t.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   t.QR = Line {
     start : q.icon.center
     end : r.icon.center
     strokeColor : t.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   t.RP = Line {
     start : r.icon.center
     end : p.icon.center
     strokeColor : t.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 }
@@ -637,21 +637,21 @@ with Triangle T {
     start : T.PQ.start
     end : midpoint(T.QR.start, T.QR.end)
     strokeColor : clr
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   override T.line2 = Line {
     start : T.QR.start
     end : midpoint(T.RP.start, T.RP.end)
     strokeColor : clr
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   override T.icon3 = Line {
     start : T.RP.start
     end : midpoint(T.PQ.start, T.PQ.end)
     strokeColor : clr
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 }
@@ -664,21 +664,21 @@ with Triangle T {
     start : (?, ?)
     end : p.vec
     strokeColor : clr
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   T.icon2 = Line {
     start : (?, ?)
     end : p.vec
     strokeColor : clr
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   T.icon3 = Line {
     start : (?, ?)
     end : p.vec
     strokeColor : clr
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 
@@ -736,28 +736,28 @@ with Point p; Point q; Point r; Point s {
     start : Q.p
     end : Q.q
     strokeColor : Q.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   Q.side2 = Line {
     start : Q.r
     end : Q.q
     strokeColor : Q.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   Q.side3 = Line {
     start : Q.s
     end : Q.r
     strokeColor : Q.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   Q.side4 = Line {
     start : Q.p
     end : Q.s
     strokeColor : Q.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }  
 }
@@ -795,7 +795,7 @@ with Triangle T; Point p; Point q {
     start : p.icon.center
     end : q.icon.center
     strokeColor : s.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 }
@@ -865,7 +865,7 @@ with Circle c; Point p, q {
     start : p.icon.center
     end : q.icon.center
     strokeColor : s.color
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
 
@@ -883,7 +883,7 @@ with Circle c; Point p {
     start : c.vec
     end : p.icon.center
     strokeColor : Colors.black
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   p.icon above c.icon
@@ -897,7 +897,7 @@ with Circle c; Point p, q {
   override s.icon = Line {
     start : p.icon.center
     end : q.icon.center
-    thickness : const.strokeWidth
+    strokeWidth : const.strokeWidth
     style : "solid"
     strokeColor : Colors.black
   }

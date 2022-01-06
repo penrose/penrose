@@ -150,7 +150,7 @@ where SingleBond( n1, n2 ) {
    shape line = Line {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
-      thickness : 10.
+      strokeWidth : 10.
       strokeColor : Colors.turquoise
       strokeLineCap: "round"
    }
@@ -158,7 +158,7 @@ where SingleBond( n1, n2 ) {
    shape innerLine = Line {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
-      thickness : 4.
+      strokeWidth : 4.
       strokeColor : Colors.white
       strokeLineCap: "round"
    }
@@ -182,7 +182,7 @@ where DoubleBond( n1, n2 ) {
    shape line1 = Line {
       start : x1 - .5*r*u - .25*r*v
         end : x2 + .5*r*u - .25*r*v
-      thickness : 10.
+      strokeWidth : 10.
       strokeColor : Colors.turquoise
       strokeLineCap: "round"
    }
@@ -190,7 +190,7 @@ where DoubleBond( n1, n2 ) {
    shape innerLine1 = Line {
       start : x1 - .5*r*u - .25*r*v
         end : x2 + .5*r*u - .25*r*v
-      thickness : 4.
+      strokeWidth : 4.
       strokeColor : Colors.white
       strokeLineCap: "round"
    }
@@ -198,7 +198,7 @@ where DoubleBond( n1, n2 ) {
    shape line2 = Line {
       start : x1 - .5*r*u + .25*r*v
         end : x2 + .5*r*u + .25*r*v
-      thickness : 10.
+      strokeWidth : 10.
       strokeColor : Colors.turquoise
       strokeLineCap: "round"
    }
@@ -206,7 +206,7 @@ where DoubleBond( n1, n2 ) {
    shape innerLine2 = Line {
       start : x1 - .5*r*u + .25*r*v
         end : x2 + .5*r*u + .25*r*v
-      thickness : 4.
+      strokeWidth : 4.
       strokeColor : Colors.white
       strokeLineCap: "round"
    }
@@ -235,7 +235,7 @@ where IonicBond( n1, n2 ) {
    shape line = Line {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
-      thickness : 2.5
+      strokeWidth : 2.5
       strokeColor : Colors.turquoise
       strokeLineCap: "butt"
       style: "dashed"

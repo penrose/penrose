@@ -45,7 +45,7 @@ with Atom x; Atom y {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 2.0
+        strokeWidth: 2.0
     }
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
@@ -57,13 +57,13 @@ with Atom x; Atom y {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 6.0
+        strokeWidth: 6.0
     }
     b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 2.0
+        strokeWidth: 2.0
     }
     b.layering = b.line2 above b.line1
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
@@ -76,19 +76,19 @@ with Atom x; Atom y {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 10.0
+        strokeWidth: 10.0
     }
     b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 6.0
+        strokeWidth: 6.0
     }
     b.line3 = Line {
         start : x.icon.center
         end : y.icon.center
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 2.0
+        strokeWidth: 2.0
     }
     b.layering1 = b.line2 above b.line1
     b.layering2 = b.line3 above b.line2

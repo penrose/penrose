@@ -74,7 +74,7 @@ forall VectorSpace U {
     shape U.xAxis = Line {
         start : (o[0] - 1.1*axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
           end : (o[0] + 1.1*axisSize, o[1])
-        thickness : const.lineThickness
+        strokeWidth : const.lineThickness
         style : "solid"
         strokeColor : U.axisColor
         -- leftArrowhead: true
@@ -85,7 +85,7 @@ forall VectorSpace U {
     shape U.yAxis = Line {
            start : (o[0], o[1] - 1.1*axisSize)
              end : (o[0], o[1] + 1.1*axisSize)
-       thickness : const.lineThickness
+       strokeWidth : const.lineThickness
            style : "solid"
            strokeColor : U.axisColor
            -- leftArrowhead: true
@@ -114,7 +114,7 @@ where In(u,U) {
    shape u.arrow = Line {
       start : U.origin
       end : (?, ?)
-      thickness : 3.0
+      strokeWidth : 3.0
       strokeColor : C.lightBlue
       endArrowhead : true
       arrowheadSize : const.arrowheadSize
