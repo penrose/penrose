@@ -64,7 +64,7 @@ const signOf = (x: VarAD): VarAD => {
  * @param lineSegment Two points defining the line segment.
  * @param insidePoint Any point inside of the half-plane.
  */
-const outwardUnitNormal = (
+export const outwardUnitNormal = (
   lineSegment: VarAD[][],
   insidePoint: VarAD[]
 ): VarAD[] => {
