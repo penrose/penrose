@@ -25,7 +25,7 @@ import {
   valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
-import _, { sortBy, uniq } from "lodash";
+import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -91,7 +91,6 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
-  FExpr,
   Field,
   FieldDict,
   FieldExpr,
