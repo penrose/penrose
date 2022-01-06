@@ -1,7 +1,7 @@
 import { constOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 import { INamed, IStroke, IArrow, IShape } from "types/shapes";
-import { IVectorV } from "types/value";
+import { IStrV, IVectorV } from "types/value";
 import {
   BoolV,
   Canvas,
@@ -15,6 +15,7 @@ import {
 export interface ILine extends INamed, IStroke, IArrow {
   start: IVectorV<VarAD>;
   end: IVectorV<VarAD>;
+  strokeLineCap: IStrV;
 }
 
 export const sampleLine = (canvas: Canvas): ILine => ({
@@ -29,6 +30,7 @@ export const sampleLine = (canvas: Canvas): ILine => ({
   endArrowhead: BoolV(false),
   start: sampleVector(canvas),
   end: sampleVector(canvas),
+  strokeLineCap: StrV(""),
 });
 
 export type Line = IShape & { shapeType: "Line" } & ILine;
