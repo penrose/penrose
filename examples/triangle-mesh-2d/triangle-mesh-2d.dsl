@@ -24,4 +24,6 @@ constructor Incenter(Triangle t) -> Point
 constructor Circumcircle(Triangle t) -> Circle
 constructor Incircle(Triangle t) -> Circle
 
-constructor LengthOf(Edge e) -> Length
+constructor EdgeLength(Edge e) -> Length
+constructor DualEdgeLength(DualEdge d) -> Length
+

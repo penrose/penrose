@@ -19,6 +19,7 @@ Global {
    scalar pointRadius = 2.0
    scalar lineThickness = 1.
    scalar labelBoundRadius = 8.
+   scalar lineOffset = 8.0
 
    shape box = Rectangle {
       center: (0.,0.)
@@ -93,7 +94,7 @@ where e := MakeEdge(i,j) {
    vec2 pj = j.icon.center
    
    -- black line between endpoints
-   shape e.icon = Line {
+   shape e.segment = Line {
       start: pi
       end: pj
       color: Colors.black
@@ -112,8 +113,8 @@ where e := MakeEdge(i,j) {
 
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
-   ensure disjoint( i.bounds, e.icon, 1. )
-   ensure disjoint( j.bounds, e.icon, 1. )
+   ensure disjoint( i.bounds, e.segment, 1. )
+   ensure disjoint( j.bounds, e.segment, 1. )
 }
 
 -- make sure no edge ij covers the label of
@@ -121,7 +122,7 @@ where e := MakeEdge(i,j) {
 forall Edge e; Vertex i; Vertex j; Vertex k
 where e := MakeEdge(i,j) {
    
-   ensure disjoint( k.bounds, e.icon, 1. )
+   ensure disjoint( k.bounds, e.segment, 1. )
 }
 
 forall Triangle t; Vertex i; Vertex j; Vertex k
@@ -312,13 +313,61 @@ where t := MakeTriangle(i,j,k); C := Incircle(t) {
 forall DualEdge d; Triangle t1; Triangle t2
 where d := MakeDualEdge(t1,t2) {
 
-   shape d.icon = Line {
+   shape d.segment = Line {
       start: t1.circumcenter
       end: t2.circumcenter
       color: Colors.black
       thickness: Global.lineThickness
       style: "dashed"
       strokeDashArray: "4,4"
+   }
+}
+
+forall Length l; Edge e; Vertex i; Vertex j
+where l := EdgeLength(e); e := MakeEdge(i,j) {
+   vec2 l.x0 = e.segment.start
+   vec2 l.x1 = e.segment.end
+}
+   
+forall Length l; DualEdge d; Triangle s; Triangle t
+where l := DualEdgeLength(d); d := MakeDualEdge(s,t) {
+   vec2 l.x0 = d.segment.start
+   vec2 l.x1 = d.segment.end
+}
+   
+forall Length l {
+
+   vec2 u = unit(l.x1-l.x0)
+   vec2 n = -rot90(u)
+   scalar w = Global.lineOffset
+
+   scalar l.thickness = .8*Global.lineThickness
+
+   shape l.marker = Line {
+      start: l.x0 + w*n
+      end: l.x1 + w*n
+      color: Colors.black
+      thickness: l.thickness
+   }
+   shape l.end0 = Line {
+      start: l.marker.start + .35*w*n
+      end: l.marker.start - .35*w*n
+      color: Colors.black
+      thickness: l.thickness
+   }
+   shape l.end1 = Line {
+      start: l.marker.end + .35*w*n
+      end: l.marker.end - .35*w*n
+      color: Colors.black
+      thickness: l.thickness
+   }
+
+   vec2 m = (l.x0+l.x1)/2.
+   shape l.text = Equation {
+      center: m + 2.*w*n
+      string: l.label
+      color: Colors.black
+      fontSize: Global.fontSize
    }
 }
 

@@ -20,6 +20,10 @@ Point y := Circumcenter(jil)
 Circle Cijk := Circumcircle(ijk)
 Circle Cjil := Circumcircle(jil)
 
+-- Length L := DualEdgeLength(starij)
+Length L := EdgeLength(ki)
+
 AutoLabel All
 Label ckij "α"
 Label clji "β"
+Label L $\ell_{ij}$
