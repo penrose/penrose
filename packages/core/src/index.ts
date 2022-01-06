@@ -30,7 +30,7 @@ import {
   prettyPrintPath,
   prettyPrintExpr,
 } from "./utils/OtherUtils";
-import { bBoxDims, ops } from "./utils/Util";
+import { bBoxDims, ops, toSvgPaintProperty } from "./utils/Util";
 import { Canvas } from "./renderer/ShapeDef";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
@@ -341,6 +341,7 @@ export {
   prettyPrintExpr,
   ops,
   getListOfStagedStates,
+  toSvgPaintProperty,
 };
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";

@@ -1129,6 +1129,17 @@ const isSubtypeArrow = (
   ); // Covariant in return type
 };
 
+/**
+ * Match Substance and Style selector constructor expressions on 3 ccnditions:
+ * - If the names of the constructors are the same
+ * - If the substituted args match with the original in number and value
+ * - If the argument types are matching w.r.t. contravariance
+ *
+ * @param varEnv the environment
+ * @param subE the Substance constructor expr
+ * @param styE the substituted Style constructor expr
+ * @returns if the two exprs match
+ */
 const exprsMatchArr = (
   varEnv: Env,
   subE: ApplyConstructor,
@@ -1156,6 +1167,7 @@ const exprsMatchArr = (
   const styVarArgs = styE.args.map(exprToVar);
 
   return (
+    subE.name.value === styE.name.value &&
     isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
     _.zip(subVarArgs, styVarArgs).every(([a1, a2]) =>
       varsEq(a1 as Identifier, a2 as Identifier)
@@ -2008,27 +2020,24 @@ const insertNames = (trans: Translation): Translation => {
 const insertLabels = (trans: Translation, labels: LabelMap): void => {
   for (const labelData of labels) {
     const [name, label] = labelData;
-    if (label.isJust()) {
-      const labelString = label.value;
-      const labelValue: TagExpr<VarAD> = {
-        tag: "Done",
-        contents: {
-          tag: "StrV",
-          contents: labelString,
-        },
+    const labelValue: TagExpr<VarAD> = {
+      tag: "Done",
+      contents: {
+        tag: "StrV",
+        contents: label,
+      },
+    };
+    const labelExpr: FieldExpr<VarAD> = {
+      tag: "FExpr",
+      contents: labelValue,
+    };
+    const fieldDict = trans.trMap[name];
+    if (fieldDict !== undefined) {
+      fieldDict[LABEL_FIELD] = labelExpr;
+    } else {
+      trans[name] = {
+        [LABEL_FIELD]: labelExpr,
       };
-      const labelExpr: FieldExpr<VarAD> = {
-        tag: "FExpr",
-        contents: labelValue,
-      };
-      const fieldDict = trans.trMap[name];
-      if (fieldDict !== undefined) {
-        fieldDict[LABEL_FIELD] = labelExpr;
-      } else {
-        trans[name] = {
-          [LABEL_FIELD]: labelExpr,
-        };
-      }
     }
   }
 };
@@ -2915,7 +2924,6 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,
-    selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
 
     canvas: getCanvas(trans),
@@ -3181,7 +3189,6 @@ export const compileStyle = (
     return err(toStyleErrors(selErrs));
   }
 
-  // Leaving these logs in because they are still useful for debugging, but TODO: remove them
   log.info("selEnvs", selEnvs);
 
   // Find substitutions (`find_substs_prog`)

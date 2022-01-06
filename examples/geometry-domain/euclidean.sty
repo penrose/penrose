@@ -133,7 +133,6 @@ Linelike l {
     end : (?, ?)
     color : l.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 }
@@ -150,7 +149,6 @@ with Point base; Point direction {
     end : ptOnLine(base.vec, direction.vec, norm(r.vec) + 40.)
     color : r.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
     arrowheadStyle: "arrowhead-2"
     rightArrowhead : true
@@ -171,7 +169,6 @@ with Point p; Point q {
     end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
     color : l.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
     arrowheadStyle: "arrowhead-2"
     rightArrowhead : true
@@ -217,7 +214,6 @@ with Point p; Point q {
     end : q.icon.center
     color : e.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 
@@ -246,7 +242,6 @@ with Segment s2; Point p {
     end : midpoint(s2.icon.start, s2.icon.end)
     color : s.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
@@ -272,7 +267,6 @@ with Segment s2; Point p1, p2 {
     end : p2.vec
     color : s.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
@@ -361,7 +355,6 @@ with Point p; Point q; Point r {
     end : q.icon.center
     color : theta.color
     thickness : const.strokeWidth
-    stroke : 2.
     style : "solid"
   }
   theta.side2 = Line {
@@ -369,7 +362,6 @@ with Point p; Point q; Point r {
     end : r.icon.center
     color : theta.color
     thickness : const.strokeWidth
-    stroke : 2.
     style : "solid"
   }
   theta.radius = const.thetaRadius
@@ -390,7 +382,7 @@ where EqualAngleMarker1(a, b) {
 
   override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-   strokeWidth : 2.0
+    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
@@ -415,7 +407,7 @@ where EqualAngleMarker2(a, b) {
 
   override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-   strokeWidth : 2.0
+    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
@@ -460,7 +452,7 @@ where EqualAngleMarker3(a, b) {
 
   override a.mark = Path {
     pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
-   strokeWidth : 2.0
+    strokeWidth : 2.0
     color : Colors.black
     fill: Colors.none
  }
@@ -560,7 +552,6 @@ with Point p; Point q; Point r {
     end : q.icon.center
     color : t.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   t.QR = Line {
@@ -568,7 +559,6 @@ with Point p; Point q; Point r {
     end : r.icon.center
     color : t.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   t.RP = Line {
@@ -576,7 +566,6 @@ with Point p; Point q; Point r {
     end : p.icon.center
     color : t.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 }
@@ -649,7 +638,6 @@ with Triangle T {
     end : midpoint(T.QR.start, T.QR.end)
     color : clr
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   override T.line2 = Line {
@@ -657,7 +645,6 @@ with Triangle T {
     end : midpoint(T.RP.start, T.RP.end)
     color : clr
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   override T.icon3 = Line {
@@ -665,7 +652,6 @@ with Triangle T {
     end : midpoint(T.PQ.start, T.PQ.end)
     color : clr
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 }
@@ -679,7 +665,6 @@ with Triangle T {
     end : p.vec
     color : clr
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   T.icon2 = Line {
@@ -687,7 +672,6 @@ with Triangle T {
     end : p.vec
     color : clr
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   T.icon3 = Line {
@@ -695,7 +679,6 @@ with Triangle T {
     end : p.vec
     color : clr
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 
@@ -754,7 +737,6 @@ with Point p; Point q; Point r; Point s {
     end : Q.q
     color : Q.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   Q.side2 = Line {
@@ -762,7 +744,6 @@ with Point p; Point q; Point r; Point s {
     end : Q.q
     color : Q.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   Q.side3 = Line {
@@ -770,7 +751,6 @@ with Point p; Point q; Point r; Point s {
     end : Q.r
     color : Q.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   Q.side4 = Line {
@@ -778,7 +758,6 @@ with Point p; Point q; Point r; Point s {
     end : Q.s
     color : Q.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }  
 }
@@ -817,7 +796,6 @@ with Triangle T; Point p; Point q {
     end : q.icon.center
     color : s.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 }
@@ -888,7 +866,6 @@ with Circle c; Point p, q {
     end : q.icon.center
     color : s.color
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
 
@@ -907,7 +884,6 @@ with Circle c; Point p {
     end : p.icon.center
     color : Colors.black
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
   }
   p.icon above c.icon
@@ -922,7 +898,6 @@ with Circle c; Point p, q {
     start : p.icon.center
     end : q.icon.center
     thickness : const.strokeWidth
-    stroke : "none"
     style : "solid"
     color : Colors.black
   }
