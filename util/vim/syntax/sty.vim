@@ -9,7 +9,8 @@ endif
 
 " Keywords
 syn keyword styKeywords forall where
-syn keyword styKeywords ensure encourage layer
+syn keyword styKeywords ensure encourage
+syn keyword styKeywords layer above below
 syn keyword styKeywords override delete
 syn keyword styKeywords LOCAL
 syn keyword styKeywords import
