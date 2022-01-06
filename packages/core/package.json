@@ -33,10 +33,12 @@
     "prepack": "yarn build"
   },
   "dependencies": {
+    "@datastructures-js/heap": "^3.2.0",
     "consola": "^2.15.2",
     "eigen": "^0.2.0",
     "fast-memoize": "^2.5.2",
     "graphlib": "^2.1.8",
+    "heap-js": "^2.1.6",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",
