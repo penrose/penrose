@@ -26,7 +26,6 @@ import {
   valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
-import Heap from "heap-js";
 import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
