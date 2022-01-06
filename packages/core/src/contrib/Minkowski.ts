@@ -82,7 +82,7 @@ export const outwardUnitNormal = (
  * @param insidePoint Point inside of the half-plane.
  * @param padding Padding added to the half-plane.
  */
-const halfPlaneSDF = (
+export const halfPlaneSDF = (
   lineSegment: VarAD[][],
   otherPoints: VarAD[][],
   insidePoint: VarAD[],

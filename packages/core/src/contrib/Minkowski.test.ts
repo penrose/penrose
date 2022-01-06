@@ -1,6 +1,8 @@
-import { rectangleDifference, outwardUnitNormal } from "contrib/Minkowski";
+import { rectangleDifference, outwardUnitNormal, halfPlaneSDF } from "contrib/Minkowski";
 import * as BBox from "engine/BBox";
 import { constOf, numOf, ops, sub } from "engine/Autodiff";
+
+const digitPrecision = 5;
 
 describe("rectangleDifference", () => {
 
@@ -41,40 +43,77 @@ describe("rectangleDifference", () => {
 
 });
 
+let point1 = [constOf(2), constOf(3)];
+let point2 = [constOf(1), constOf(2)];
+let point3 = [constOf(1), constOf(4)];
+let point4 = [constOf(2), constOf(2)];
+let point5 = [constOf(0), constOf(0)];
+let lineSegment = [point3, point4];
+
 describe("outwardUnitNormal", () => {
 
-  let lineSegment = [[constOf(1), constOf(4)], [constOf(2), constOf(2)]];
-  let insidePoint1 = [constOf(2), constOf(3)];
-  let insidePoint2 = [constOf(1), constOf(2)];
-
   test("inside point above", async () => {
-    let result = outwardUnitNormal(lineSegment, insidePoint1);
+    let result = outwardUnitNormal([point3, point4], point1);
     // It is unit
-    expect(numOf(ops.vnorm(result))).toBeCloseTo(1);
+    expect(numOf(ops.vnorm(result))).toBeCloseTo(1, digitPrecision);
     // It is orthogonal to the line segment
     expect(numOf(ops.vdot(
       result, ops.vsub(lineSegment[1], lineSegment[0])
-    ))).toBeCloseTo(0);
+    ))).toBeCloseTo(0, digitPrecision);
     // `insidePoint1` is inside
     expect(numOf(sub(
-      ops.vdot(result, insidePoint1),
+      ops.vdot(result, point1),
       ops.vdot(result, lineSegment[0])
     ))).toBeLessThan(0);
   });
 
   test("inside point below", async () => {
-    let result = outwardUnitNormal(lineSegment, insidePoint2);
+    let result = outwardUnitNormal(lineSegment, point2);
     // It is unit
-    expect(numOf(ops.vnorm(result))).toBeCloseTo(1);
+    expect(numOf(ops.vnorm(result))).toBeCloseTo(1, digitPrecision);
     // It is orthogonal to the line segment
     expect(numOf(ops.vdot(
       result, ops.vsub(lineSegment[1], lineSegment[0])
-    ))).toBeCloseTo(0);
+    ))).toBeCloseTo(0, digitPrecision);
     // `insidePoint2` is inside
     expect(numOf(sub(
-      ops.vdot(result, insidePoint2),
+      ops.vdot(result, point2),
       ops.vdot(result, lineSegment[0])
     ))).toBeLessThan(0);
+  });
+
+});
+
+describe("halfPlaneSDF", () => {
+
+  test("without padding", async () => {
+    let result = halfPlaneSDF(
+      [point2, point3], 
+      [point2, point4], 
+      point5,
+      constOf(0.0)
+    );
+    expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
+  });
+
+  test("with padding", async () => {
+    let result = halfPlaneSDF(
+      [point2, point3], 
+      [point2, point4], 
+      point5,
+      constOf(10.0)
+    );
+    expect(numOf(result)).toBeCloseTo(-13, digitPrecision);
+  });
+
+  test("zero outside", async () => {
+    let result = halfPlaneSDF(
+      [point2, point3], 
+      [point5], 
+      point1,
+      constOf(0.0)
+    );
+    expect(numOf(result)).toBeCloseTo(1, digitPrecision);
   });
 
 });

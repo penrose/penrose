@@ -23,12 +23,12 @@ import {
 } from "contrib/Queries";
 import * as _ from "lodash";
 import { isLinelike, isRectlike } from "renderer/ShapeDef";
-import { 
+import {
   overlappingLines,
   overlappingCircles,
   overlappingPolygons,
   overlappingAABBs,
-  containsCircles, 
+  containsCircles,
   containsCircleRectlike,
   containsRectlikeCircle,
   containsSquareCircle,
@@ -284,7 +284,7 @@ const constrDictSpecific = {
 }
 
 export const constrDict = Object.assign({}, 
-  constrDictSimple,
-  constrDictGeneral,
-  constrDictSpecific
+  constrDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
+  constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
+  constrDictSpecific // Defined only for specific use-case or specific shapes.
 );
