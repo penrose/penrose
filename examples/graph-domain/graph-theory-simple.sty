@@ -31,8 +31,8 @@ global {
     global.stroke = 2.0
     global.box = Rectangle {
                center: (0., 0.)
-               w: 700.
-               h: 500.
+               width: 700.
+               height: 500.
                fillColor: Colors.none
                strokeColor: Colors.black
     }
@@ -40,8 +40,8 @@ global {
 
 Vertex V {
        V.shape = Rectangle { 
-         w: V.text.w + global.padding
-         h: V.text.h + global.padding
+         width: V.text.width + global.padding
+         height: V.text.height + global.padding
          -- r : 10.0
 	 fillColor : Colors.none
 	 strokeWidth : 2.
@@ -74,8 +74,8 @@ with Vertex v1; Vertex v2 {
    -- scalar startSideDim = intersectingSideSize(v1.shape.center, v2.shape.center, v1.shape)
    -- scalar endSideDim = intersectingSideSize(v2.shape.center, v1.shape.center, v2.shape)
 
-   scalar startSideDim = v1.shape.w
-   scalar endSideDim = v2.shape.w
+   scalar startSideDim = v1.shape.width
+   scalar endSideDim = v2.shape.width
 
      E.shape = Line { 
      	     start : v1.shape.center + (startSideDim / 2. + padding) * dir

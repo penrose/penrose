@@ -24,8 +24,8 @@ canvas {
     height = 600.
 
     shape box = Rectangle {
-        w: width
-        h: height
+        width: width
+        height: height
         center: (0., 0.)
         strokeColor: rgba(0., 0., 0., 1.)
         strokeWidth: 3.
@@ -33,10 +33,10 @@ canvas {
     }
 
     -- TODO(bug): file issue as the local var `box` doesn't seem to work here
-         left = canvas.box.center[0] - canvas.box.w/2.
-         right = canvas.box.center[0] + canvas.box.w/2.
-         top = canvas.box.center[1] + canvas.box.h/2.
-         bot = canvas.box.center[1] - canvas.box.h/2.
+         left = canvas.box.center[0] - canvas.box.width/2.
+         right = canvas.box.center[0] + canvas.box.width/2.
+         top = canvas.box.center[1] + canvas.box.height/2.
+         bot = canvas.box.center[1] - canvas.box.height/2.
 }
 
 Object o {
@@ -77,8 +77,8 @@ Morphism m {
          -- The floating vars are the rect centers
          shape m.shape = Rectangle { 
                   center: (?, ?)
-                  w: 100. 
-                  h: 300.
+                  width: 100. 
+                  height: 300.
                fillColor: rgba(1.,1.,1.,0.)
                strokeColor: rgba(0., 0., 0., 1.)
                strokeWidth: 3.
@@ -90,10 +90,10 @@ Morphism m {
                   fontSize: "20pt"
          }
 
-         m.left = m.shape.center[0] - m.shape.w/2.
-         m.right = m.shape.center[0] + m.shape.w/2.
-         m.top = m.shape.center[1] + m.shape.h/2.
-         m.bot = m.shape.center[1] - m.shape.h/2.
+         m.left = m.shape.center[0] - m.shape.width/2.
+         m.right = m.shape.center[0] + m.shape.width/2.
+         m.top = m.shape.center[1] + m.shape.height/2.
+         m.bot = m.shape.center[1] - m.shape.height/2.
 
          ensure contains(canvas.box, m.shape)
 

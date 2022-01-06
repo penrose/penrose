@@ -19,8 +19,8 @@ Global {
    scalar bondLength = 60.
 
    shape bbox = Rectangle {
-      w : canvas.width
-      h : canvas.height
+      width : canvas.width
+      height : canvas.height
       center : (0.,0.)
       fillColor : Colors.clear
       strokeColor : Colors.gray
@@ -49,8 +49,8 @@ forall Node n {
    -- n.background = Image {
    --    path : "atom.svg"
    --    center : (?,?)
-   --    w : 4.*Global.atomRadius
-   --    h : 4.*Global.atomRadius
+   --    width : 4.*Global.atomRadius
+   --    height : 4.*Global.atomRadius
    -- }
 
    shape n.text = Text {

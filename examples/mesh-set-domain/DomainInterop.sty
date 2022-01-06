@@ -194,8 +194,8 @@ SimplicialComplex K {
 
        K.icon = Rectangle {
            center : (K.center_x, K.center_y)
-	       w : K.size_x
-	       h : K.size_y
+	       width : K.size_x
+	       height : K.size_y
 	       -- rotation : 0.0
 	       fillColor : setOpacity(Colors.gainsboro, 0.2)
 	       strokeColor : Colors.black
@@ -205,7 +205,7 @@ SimplicialComplex K {
        K.padding = 25.0
 
        K.text = Equation {
-         center : (K.icon.center[0] - K.icon.w / 2.0 + K.padding, K.icon.center[1] - K.icon.h / 2.0 + K.padding)
+         center : (K.icon.center[0] - K.icon.width / 2.0 + K.padding, K.icon.center[1] - K.icon.height / 2.0 + K.padding)
          string : K.label
          -- rotation : 0.0
          fillColor : Colors.black

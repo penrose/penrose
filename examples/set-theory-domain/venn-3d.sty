@@ -10,23 +10,23 @@ Set x {
 
     x.shading = Image {
         center : x.shape.center 
-        w : x.shape.r * 2.0
-        h : x.shape.r * 2.0
+        width : x.shape.r * 2.0
+        height : x.shape.r * 2.0
         path : "shading.svg"
     }
 
     x.shadow = Image {
         path : "shadow.svg"
-        w : x.shape.r * 2.15
-        h : x.shape.r * 2.22
-        center : (x.shape.center[0] + 0.03 * x.shading.w, x.shape.center[1] - 0.051 * x.shading.h)
+        width : x.shape.r * 2.15
+        height : x.shape.r * 2.22
+        center : (x.shape.center[0] + 0.03 * x.shading.width, x.shape.center[1] - 0.051 * x.shading.height)
     }
 
     x.text = Equation {
         string : x.label
         fillColor: rgba(1.0, 1.0, 1.0, 1.0)
-        w: 0.5 * x.shape.r
-        h: 0.5 * x.shape.r
+        width: 0.5 * x.shape.r
+        height: 0.5 * x.shape.r
     }
 
     ensure contains(x.shape, x.text)
