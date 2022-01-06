@@ -374,6 +374,25 @@ export const constrDict = {
         sub(absVal(sub(cx, rx)), sub(sub(halfW, r), o)),
         sub(absVal(sub(cy, ry)), sub(sub(halfH, r), o))
       );
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isLinelike) {
+      const [[startX, startY], [endX, endY]] = linePts(s2);
+      const [x, y] = fns.center(s1);
+
+      const radiusX = div(s1.width.contents, constOf(2.0)); // TODO
+      const radiusY = div(s1.height.contents, constOf(2.0)); // TODO
+      const f = constOf(0.75); // 0.25 padding
+      //     (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+      //     (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+      // in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+      //    inRange endY ly ry
+      const [lx, ly] = [mul(sub(x, radiusX), f), mul(sub(y, radiusY), f)];
+      const [rx, ry] = [mul(add(x, radiusX), f), mul(add(y, radiusY), f)];
+      return addN([
+        constrDict.inRange(startX, lx, rx),
+        constrDict.inRange(startY, ly, ry),
+        constrDict.inRange(endX, lx, rx),
+        constrDict.inRange(endY, ly, ry),
+      ]);
     } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
