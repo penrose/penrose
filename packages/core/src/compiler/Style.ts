@@ -1,3 +1,4 @@
+import { CustomHeap } from "@datastructures-js/heap";
 import {
   checkExpr,
   checkPredicate,
@@ -25,7 +26,7 @@ import {
   propertiesNotOf,
   propertiesOf,
 } from "engine/EngineUtils";
-import { alg, Graph } from "graphlib";
+import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
@@ -86,7 +87,6 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
-  FExpr,
   Field,
   FieldDict,
   FieldExpr,
@@ -1124,6 +1124,17 @@ const isSubtypeArrow = (
   ); // Covariant in return type
 };
 
+/**
+ * Match Substance and Style selector constructor expressions on 3 ccnditions:
+ * - If the names of the constructors are the same
+ * - If the substituted args match with the original in number and value
+ * - If the argument types are matching w.r.t. contravariance
+ *
+ * @param varEnv the environment
+ * @param subE the Substance constructor expr
+ * @param styE the substituted Style constructor expr
+ * @returns if the two exprs match
+ */
 const exprsMatchArr = (
   varEnv: Env,
   subE: ApplyConstructor,
@@ -1151,6 +1162,7 @@ const exprsMatchArr = (
   const styVarArgs = styE.args.map(exprToVar);
 
   return (
+    subE.name.value === styE.name.value &&
     isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
     _.zip(subVarArgs, styVarArgs).every(([a1, a2]) =>
       varsEq(a1 as Identifier, a2 as Identifier)
@@ -2720,10 +2732,10 @@ const findNames = (e: Expr, tr: Translation): [string, string] => {
   }
 };
 
-const topSortLayering = (
+export const topSortLayering = (
   allGPINames: string[],
   partialOrderings: [string, string][]
-): MaybeVal<string[]> => {
+): string[] => {
   const layerGraph: Graph = new Graph();
   allGPINames.map((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
@@ -2731,12 +2743,48 @@ const topSortLayering = (
     layerGraph.setEdge(below, above)
   );
 
-  try {
+  // if there is no cycles, return a global ordering from the top sort result
+  if (alg.isAcyclic(layerGraph)) {
     const globalOrdering: string[] = alg.topsort(layerGraph);
-    return { tag: "Just", contents: globalOrdering };
-  } catch (e) {
-    return { tag: "Nothing" };
+    return globalOrdering;
+  } else {
+    const cycles = alg.findCycles(layerGraph);
+    const globalOrdering = pseudoTopsort(layerGraph);
+    log.warn(
+      `Cycles detected in layering order: ${cycles
+        .map((c) => c.join(", "))
+        .join(
+          "; "
+        )}. The system approximated a global layering order instead: ${globalOrdering.join(
+        ", "
+      )}`
+    );
+    return globalOrdering;
   }
+};
+
+const pseudoTopsort = (graph: Graph): string[] => {
+  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
+    const aIn = graph.inEdges(a);
+    const bIn = graph.inEdges(b);
+    if (!aIn) return 1;
+    else if (!bIn) return -1;
+    else return aIn.length - bIn.length;
+  });
+  const res: string[] = [];
+  graph.nodes().map((n: string) => toVisit.insert(n));
+  while (toVisit.size() > 0) {
+    // remove element with fewest incoming edges and append to result
+    const node: string = toVisit.extractRoot() as string;
+    res.push(node);
+    // remove all edges with `node`
+    const toRemove = graph.nodeEdges(node);
+    if (toRemove !== undefined) {
+      toRemove.forEach((e: Edge) => graph.removeEdge(e));
+      toVisit.fix();
+    }
+  }
+  return res;
 };
 
 const computeShapeOrdering = (tr: Translation): string[] => {
@@ -2752,12 +2800,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   ).map((e: [string, Field]): string => getShapeName(e[0], e[1]));
   const shapeOrdering = topSortLayering(allGPINames, partialOrderings);
 
-  // TODO: Errors for labeling
-  if (shapeOrdering.tag === "Nothing") {
-    throw Error("no shape ordering possible from layering");
-  }
-
-  return shapeOrdering.contents;
+  return shapeOrdering;
 };
 
 //#endregion
@@ -2864,7 +2907,6 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,
-    selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
 
     canvas: getCanvas(trans),
@@ -3130,7 +3172,6 @@ export const compileStyle = (
     return err(toStyleErrors(selErrs));
   }
 
-  // Leaving these logs in because they are still useful for debugging, but TODO: remove them
   log.info("selEnvs", selEnvs);
 
   // Find substitutions (`find_substs_prog`)
