@@ -372,17 +372,6 @@ export type Path =
 // Unused
 // | ITypePropertyPath;
 
-// TODO: move this somewhere outside of types/
-/** Generate a single string based on a path to a shape */
-export const getShapeName = (p: Path): string => {
-  if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
-    const { name, field } = p;
-    return `${name.contents.value}.${field.value}`;
-  } else {
-    throw new Error("Can only derive shape name from field or property path.");
-  }
-};
-
 export interface IFieldPath extends ASTNode {
   tag: "FieldPath";
   name: BindingForm;

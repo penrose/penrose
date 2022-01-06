@@ -7,7 +7,7 @@ import { Translation } from "types/value";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
 import { State, LabelCache } from "types/state";
-import { Path, IPropertyPath, IAccessPath, getShapeName } from "types/style";
+import { Path, IPropertyPath, IAccessPath } from "types/style";
 import { retrieveLabel } from "utils/CollectLabels";
 
 /**
@@ -68,6 +68,16 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
         );
       }
     }
+  }
+};
+
+/** Generate a single string based on a path to a shape */
+export const getShapeName = (p: Path): string => {
+  if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
+    const { name, field } = p;
+    return `${name.contents.value}.${field.value}`;
+  } else {
+    throw new Error("Can only derive shape name from field or property path.");
   }
 };
 
