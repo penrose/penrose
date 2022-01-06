@@ -2649,7 +2649,7 @@ const initShape = (
             propName,
             initProperty(stype, propName, propExpr),
           ])
-          .filter((x) => x !== null)
+          .filter(([, x]) => x !== null)
       ),
     };
 
