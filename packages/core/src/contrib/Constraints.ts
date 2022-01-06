@@ -523,7 +523,7 @@ export const constrDict = {
       const e2 = neg(min(max(xq, yq), constOf(0.0)));
       return sub(e2, e1);
     } else if ((t1 === "Circle" && t2 === "Line"   ) ||
-               (t2 === "Line"   && t1 === "Circle" )) {
+               (t1 === "Line"   && t2 === "Circle" )) {
 
        // make sure that circle is always the first shape
        if( t2 === "Circle" ) {
@@ -534,9 +534,9 @@ export const constrDict = {
       // collect constants
       const c = s1.center.contents;
       const r = s1.r.contents;
-      const a = s2.start.contents
-      const b = s2.end.contents
-      const o = typeof(offset)!=='undefined'? offset : constOf(0.);
+      const a = s2.start.contents;
+      const b = s2.end.contents;
+      const o = constOfIf(offset);
       
       // Return the distance between the circle center c and the
       // segment ab, minus the circle radius r and offset o.  This
