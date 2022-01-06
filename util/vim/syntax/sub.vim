@@ -1,14 +1,14 @@
 " Vim syntax file
 " Language: Penrose Substance
 " Maintainer: Keenan Crane
-" Latest Revision: 3 January 2022
+" Latest Revision: 23 October 2020
 
 if exists("b:current_syntax")
   finish
 endif
 
 " Keywords
-syn keyword subKeywords label
+syn keyword subKeywords Label AutoLabel All None
 
 " Comments
 syn keyword subTodo TODO FIXME XXX NOTE

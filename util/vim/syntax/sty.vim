@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: Penrose Style
 " Maintainer: Keenan Crane
-" Latest Revision: 3 January 2022
+" Latest Revision: 3 January 2021
 
 if exists("b:current_syntax")
   finish
