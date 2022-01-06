@@ -37,7 +37,7 @@ export interface ShapeDef {
   constr: (canvas: Canvas, properties: Properties) => Shape;
 
   // TODO: maybe get rid of this?
-  propTags: () => { [prop: string]: Value<VarAD>["tag"] };
+  propTags: { [prop: string]: Value<VarAD>["tag"] };
 
   // TODO: make these methods
   bbox: (properties: Properties) => BBox.BBox;
@@ -54,20 +54,18 @@ export const ShapeDef = (shapedef: {
   isRectlike?: boolean;
 }): ShapeDef => {
   const sampler = (canvas: Canvas) => <Properties>shapedef.sampler(canvas);
+
+  const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
+  const propTags = Object.fromEntries(
+    // TODO: make this much less jank than first sampling an entire shape
+    Object.entries(sampler(makeCanvas(size, size))).map(([x, y]) => [x, y.tag])
+  );
+
   return {
     sampler,
     constr: shapedef.constr,
 
-    propTags: () => {
-      const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
-      return Object.fromEntries(
-        // TODO: make this much less jank than first sampling an entire shape
-        Object.entries(sampler(makeCanvas(size, size))).map(([x, y]) => [
-          x,
-          y.tag,
-        ])
-      );
-    },
+    propTags,
 
     bbox: shapedef.bbox,
     isLinelike: shapedef.isLinelike || false,

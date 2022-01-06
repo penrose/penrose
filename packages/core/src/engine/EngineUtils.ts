@@ -456,7 +456,7 @@ export const propertiesOf = (
 ): PropID[] => {
   const shapedef: ShapeDef = shapedefs[shapeType];
   const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
-    shapedef.propTags()
+    shapedef.propTags
   );
   return shapeInfo
     .filter(([, tag]) => tag === propType)
@@ -470,7 +470,7 @@ export const propertiesNotOf = (
 ): PropID[] => {
   const shapedef: ShapeDef = shapedefs[shapeType];
   const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
-    shapedef.propTags()
+    shapedef.propTags
   );
   return shapeInfo
     .filter(([, tag]) => tag !== propType)

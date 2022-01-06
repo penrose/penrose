@@ -1756,7 +1756,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
   const shapeDef: ShapeDef = shapedefs[styName];
   const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
-  const expectedProperties = shapeDef.propTags();
+  const expectedProperties = shapeDef.propTags;
 
   for (const gp of givenProperties) {
     // Check multiple properties, as each one is not fatal if wrong
