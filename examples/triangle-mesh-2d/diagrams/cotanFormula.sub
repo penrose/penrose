@@ -17,6 +17,9 @@ DualEdge starij := MakeDualEdge( ijk, jil )
 Point x := Circumcenter(ijk)
 Point y := Circumcenter(jil)
 
+Circle Cijk := Circumcircle(ijk)
+Circle Cjil := Circumcircle(jil)
+
 AutoLabel All
 Label ckij "α"
 Label clji "β"

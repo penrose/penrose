@@ -1120,6 +1120,37 @@ export const compDict = {
   },
 
   /**
+   * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
+   */
+  circumradius: (p: VarAD[], q: VarAD[], r: VarAD[]): IFloatV<VarAD> => {
+
+     // side lengths
+     const a = ops.vnorm( ops.vsub( r, q ) );
+     const b = ops.vnorm( ops.vsub( p, r ) );
+     const c = ops.vnorm( ops.vsub( q, p ) );
+
+     // semiperimeter
+     const s = mul( constOf(.5), add(add( a, b ), c ) );
+
+     // circumradius, computed as
+     // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
+     const R = div(
+        mul(mul(a,b),c),
+        mul(
+           constOf(4.),
+           sqrt(
+              mul(mul(mul( s, sub(add(a,b),s) ), sub(add(a,c),s) ), sub(add(b,c),s) )
+           )
+        )
+     )
+
+     return {
+        tag: "FloatV",
+        contents: R,
+     };
+  },
+
+  /**
    * Return the incenter of the triangle with vertices `p`, `q`, `r`.
    */
   incenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
