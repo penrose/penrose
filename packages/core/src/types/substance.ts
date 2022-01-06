@@ -1,10 +1,9 @@
-import { Maybe } from "utils/Error";
 import { IStringLit, ASTNode, Identifier } from "./ast";
 import { Env, TypeConstructor } from "./domain";
 import { Map } from "immutable";
 
 export type SubRes = [SubstanceEnv, Env];
-export type LabelMap = Map<string, Maybe<string>>;
+export type LabelMap = Map<string, string>;
 export interface SubstanceEnv {
   exprEqualities: [SubExpr, SubExpr][];
   predEqualities: [ApplyPredicate, ApplyPredicate][];
