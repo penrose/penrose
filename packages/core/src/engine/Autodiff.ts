@@ -472,7 +472,7 @@ export const maxN = (xs: VarAD[], isCompNode = true): VarAD => {
   } else if (xs.length === 2) {
     return max(xs[0], xs[1], isCompNode);
   } else {
-    const z = variableAD(Math.min(...xs.map((x) => x.val)), "max list");
+    const z = variableAD(Math.max(...xs.map((x) => x.val)), "max list");
     z.isCompNode = isCompNode;
 
     if (isCompNode) {
