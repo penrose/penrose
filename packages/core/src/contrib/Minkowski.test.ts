@@ -2,7 +2,7 @@ import { rectangleDifference, outwardUnitNormal, halfPlaneSDF } from "contrib/Mi
 import * as BBox from "engine/BBox";
 import { constOf, numOf, ops, sub } from "engine/Autodiff";
 
-const digitPrecision = 5;
+const digitPrecision = 4;
 
 describe("rectangleDifference", () => {
 
