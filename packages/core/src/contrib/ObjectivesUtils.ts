@@ -9,18 +9,11 @@ import { Pt2, VarAD } from "types/ad";
 export const inDirection = (
   [t, shape]: [string, any],
   [tRef, shapeRef]: [string, any],
-  direction: Pt2,
-  offset: number,
-  normalizeDirection: boolean,
+  unitDirectionVector: Pt2,
+  offset: number
 ): VarAD => {
   const center = shapeCenter([t, shape]);
   const centerRef = shapeCenter([tRef, shapeRef]);
-  var dotProduct;
-  if (normalizeDirection) {
-    dotProduct = ops.vdot(ops.vsub(center, centerRef), ops.vnormalize(direction));
-  }
-  else {
-    dotProduct = ops.vdot(ops.vsub(center, centerRef), direction);
-  }
+  const dotProduct = ops.vdot(ops.vsub(center, centerRef), unitDirectionVector);
   return squared(max(constOf(0.0), sub(dotProduct, varOf(offset))));
 };
