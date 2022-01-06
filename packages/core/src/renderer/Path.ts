@@ -159,10 +159,6 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     path.setAttribute("marker-end", `url(#${rightArrowId})`);
     attrToNotAutoMap.push("endArrowhead");
   }
-  if (shape.properties.effect.contents === "dropShadow") {
-    path.setAttribute("filter", `url(#${shadowId})`);
-  }
-  attrToNotAutoMap.push("effect");
   elem.appendChild(path);
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
