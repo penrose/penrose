@@ -343,6 +343,7 @@ export {
   getListOfStagedStates,
   toSvgPaintProperty,
 };
+export { shapedefs } from "./shapes/Shapes";
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";
