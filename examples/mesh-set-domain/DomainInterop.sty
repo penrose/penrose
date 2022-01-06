@@ -375,7 +375,7 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
         -- As temp hack around furthestFrom, web-runtime assumes triangle is drawn in a consistent order (first point of each line)
      	     d : triangle(e1.icon, e2.icon, e3.icon)
 	     strokeWidth : 0.0
-	     fill : setOpacity(f.color, 0.8)
+	     fillColor : setOpacity(f.color, 0.8)
 	     strokeColor : setOpacity(f.color, 0.8)
 	     -- rotation : 0.0
      }
@@ -398,7 +398,7 @@ Face f
 where DeclaredF(f); InFS(f, K)
 with SimplicialComplex K {
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
-     override f.icon.fill = global.selectedFaceColor
+     override f.icon.fillColor = global.selectedFaceColor
      override f.icon.strokeColor = global.selectedFaceColor
 }
 

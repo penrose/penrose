@@ -183,13 +183,13 @@ where ParallelMarker1(l1, l2) {
     d : pathFromPoints("open", chevron(l1.icon, 20., 6))
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill : Colors.none
+    fillColor : Colors.none
   }
   l2.tick1 = Path {
     d : pathFromPoints("open", chevron(l2.icon, 20., 5))
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill : Colors.none
+    fillColor : Colors.none
   }
 }
 
@@ -252,7 +252,7 @@ with Segment s2; Point p {
     d : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill : Colors.none
+    fillColor : Colors.none
   }
 
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
@@ -277,7 +277,7 @@ with Segment s2; Point p1, p2 {
     d : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill : Colors.none
+    fillColor : Colors.none
   }
 
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
@@ -290,13 +290,13 @@ where EqualLengthMarker1(s, t) {
     d : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
   }
   override t.tick = Path {
     d : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
   }
   s.tick above s.icon
   t.tick above t.icon
@@ -310,13 +310,13 @@ where EqualLengthMarker2(s, t) {
     d : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
   }
   override t.tick = Path {
     d : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
   }
   s.tick above s.icon
   t.tick above t.icon
@@ -330,13 +330,13 @@ where EqualLengthMarker3(s, t) {
     d : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
   }
   override t.tick = Path {
     d : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
   }
   s.tick above s.icon
   t.tick above t.icon
@@ -384,13 +384,13 @@ where EqualAngleMarker1(a, b) {
     d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
   override b.mark = Path {
     d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
 }
 
@@ -409,13 +409,13 @@ where EqualAngleMarker2(a, b) {
     d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
   override b.mark = Path {
     d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
 
   bigR = const.bigThetaRadius
@@ -429,13 +429,13 @@ where EqualAngleMarker2(a, b) {
     d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
   override b.mark2 = Path {
     d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
 }
 
@@ -454,13 +454,13 @@ where EqualAngleMarker3(a, b) {
     d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
   override b.mark = Path {
     d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
 
   midR = const.bigThetaRadius
@@ -474,13 +474,13 @@ where EqualAngleMarker3(a, b) {
     d : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
   override b.mark2 = Path {
     d : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
 
   bigR = const.bigThetaRadius + 10.
@@ -494,13 +494,13 @@ where EqualAngleMarker3(a, b) {
     d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
   override b.mark3 = Path {
     d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill: Colors.none
+    fillColor: Colors.none
  }
 }
 
@@ -524,7 +524,7 @@ where RightMarked(a) {
     d : pathFromPoints("open", [ptOnLine(a.q, a.p, 20.), innerPointOffset(a.q, a.p, a.r, 20.), ptOnLine(a.q, a.r, 20.)])
     strokeWidth : 2.0
     strokeColor : Colors.black
-    fill : Colors.none
+    fillColor : Colors.none
   }
   ensure perpendicular(a.p, a.q, a.r)
 }
@@ -711,7 +711,7 @@ with Point p; Point q; Point r; Point s {
   override R.icon = Path {
       d : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
       strokeWidth : const.strokeWidth
-      fill : R.color
+      fillColor : R.color
       strokeColor : Colors.black
     }
   ensure equal(vdist(p.icon.center, q.icon.center), vdist(r.icon.center, s.icon.center))

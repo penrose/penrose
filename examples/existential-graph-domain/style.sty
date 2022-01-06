@@ -27,7 +27,7 @@ forall Graph A
 forall Variable V
 {
     V.icon = Path {
-        fill: rgba(0.0, 0.0, 0.0, 0.0)
+        fillColor: rgba(0.0, 0.0, 0.0, 0.0)
         strokeColor: rgba(0.0, 0.0, 0.0, 0.0)
         strokeWidth: 2.0
     }
@@ -39,7 +39,7 @@ forall Variable v1; Variable v2 where equal(v1,v2) {
     --Overriding (v2.icon.d or v2.icon) has no effect, creating new object
     v2.icon2 = Path {
         d: makePath(v1.start, v2.start, 50, 10)
-        fill: rgba(0.0, 0.0, 0.0, 0.0)
+        fillColor: rgba(0.0, 0.0, 0.0, 0.0)
         strokeColor: rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 2.0
     }

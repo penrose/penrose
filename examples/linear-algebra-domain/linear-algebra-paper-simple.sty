@@ -181,7 +181,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
            d : pathFromPoints("closed", pts)
            strokeWidth : 2.0
            strokeColor : C.black
-           fill : C.white
+           fillColor : C.white
       }
 
       -- Make sure vectors are orthogonal (use ensure?)
@@ -225,7 +225,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
           d : pathFromPoints("open", v.markerLine)
           -- strokeWidth : strokeWidth
           strokeColor : C.black
-          fill : C.none
+          fillColor : C.none
       }
 
       -- Could use normal instead, just doing this to demonstrate how to use matrices
@@ -238,14 +238,14 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
           d : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           -- strokeWidth : strokeWidth
           strokeColor : C.black
-          fill : C.none
+          fillColor : C.none
       }
 
       v.unitMarkerEnd2 = Path {
           d : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           -- strokeWidth : strokeWidth
           strokeColor : C.black
-          fill : C.none
+          fillColor : C.none
       }
 
       vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
