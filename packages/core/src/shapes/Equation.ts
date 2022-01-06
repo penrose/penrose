@@ -31,6 +31,7 @@ export const sampleEquation = (canvas: Canvas): IEquation => ({
   height: sampleZero(),
   rotation: sampleZero(),
   string: StrV("defaultLabelText"),
+  fontSize: StrV("12pt"),
 });
 
 export type Equation = IShape & { shapeType: "Equation" } & IEquation;

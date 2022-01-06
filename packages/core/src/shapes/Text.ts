@@ -30,7 +30,6 @@ export interface IText
   // TODO; pare down this set of attributes
   visibility: IStrV;
   fontFamily: IStrV;
-  fontSize: IStrV;
   fontSizeAdjust: IStrV;
   fontStretch: IStrV;
   fontStyle: IStrV;

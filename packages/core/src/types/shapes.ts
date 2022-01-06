@@ -56,6 +56,7 @@ export interface IPoly {
 
 export interface IString {
   string: IStrV;
+  fontSize: IStrV;
 }
 
 export interface IShape {
