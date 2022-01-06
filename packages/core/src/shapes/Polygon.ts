@@ -14,6 +14,7 @@ export interface IPolygon extends INamed, IStroke, IFill, IScale, IPoly {}
 
 export const samplePolygon = (_canvas: Canvas): IPolygon => ({
   name: StrV("defaultPolygon"),
+  style: StrV(""),
   strokeWidth: sampleStroke(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),

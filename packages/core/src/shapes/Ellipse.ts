@@ -19,6 +19,7 @@ export interface IEllipse extends INamed, IStroke, IFill, ICenter {
 
 export const sampleEllipse = (canvas: Canvas): IEllipse => ({
   name: StrV("defaultEllipse"),
+  style: StrV(""),
   strokeWidth: sampleStroke(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),

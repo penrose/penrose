@@ -25,6 +25,7 @@ export interface IEquation
 
 export const sampleEquation = (canvas: Canvas): IEquation => ({
   name: StrV("defaultEquation"),
+  style: StrV(""),
   fillColor: sampleBlack(),
   center: sampleVector(canvas),
   width: sampleZero(),

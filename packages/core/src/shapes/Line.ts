@@ -20,6 +20,7 @@ export interface ILine extends INamed, IStroke, IArrow {
 
 export const sampleLine = (canvas: Canvas): ILine => ({
   name: StrV("defaultLine"),
+  style: StrV(""),
   strokeWidth: sampleFloatIn(5, 15),
   strokeStyle: StrV("solid"),
   strokeColor: sampleColor(),

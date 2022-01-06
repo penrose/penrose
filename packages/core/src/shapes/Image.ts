@@ -18,6 +18,7 @@ export interface IImage extends INamed, ICenter, IRect, IRotate {
 
 export const sampleImage = (canvas: Canvas): IImage => ({
   name: StrV("defaultImage"),
+  style: StrV(""),
   center: sampleVector(canvas),
   width: sampleWidth(canvas),
   height: sampleHeight(canvas),

@@ -14,6 +14,7 @@ export interface IPolyline extends INamed, IStroke, IFill, IScale, IPoly {}
 
 export const samplePolyline = (_canvas: Canvas): IPolyline => ({
   name: StrV("defaultPolyline"),
+  style: StrV(""),
   strokeWidth: sampleStroke(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),

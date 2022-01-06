@@ -19,6 +19,7 @@ export interface IPath extends INamed, IStroke, IFill, IArrow {
 
 export const samplePath = (_canvas: Canvas): IPath => ({
   name: StrV("defaultPath"),
+  style: StrV(""),
   strokeWidth: sampleStroke(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleColor(),

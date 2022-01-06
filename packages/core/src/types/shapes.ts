@@ -4,6 +4,7 @@ import { VarAD } from "types/ad";
 //#region shape hierarchy interfaces
 export interface INamed {
   name: IStrV;
+  style: IStrV; // TODO: very temporary; remove this and just use passthrough
 }
 
 export interface IStroke {
