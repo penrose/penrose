@@ -1835,14 +1835,10 @@ const genCode = (
     };
   }
   log.trace("overall function generated (g):", g);
-
-  for (const x of inputsNew) {
-    clearVisitedNodesInput(x);
-  }
-
-  for (const z of outputs) {
-    clearVisitedNodesOutput(z);
-  }
+  clearVisitedNodes(inputsNew.concat(outputs));
+  //for (const z of outputs) {
+  //  clearVisitedNodes(z);
+  //}
 
   return g;
 };
@@ -2176,48 +2172,43 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
   }
 };
 
-// Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
-// Top-down
-export const clearVisitedNodesOutput = (z: VarAD): void => {
+// Use this function after synthesizing an energy function, if you want to
+// synthesize the gradient as well, since they both rely on mutating the
+// computational graph to mark the visited nodes and their generated names
+export const clearVisitedNodes = (nodeList: VarAD[]): void => {
   const q = new Queue<IVarAD>();
   const discoveredNodes = new Set<IVarAD>();
-  discoveredNodes.add(z);
-  z.nodeVisited = false;
-  q.enqueue(z);
+  nodeList.forEach((z) => {
+    discoveredNodes.add(z);
+    z.nodeVisited = false;
+    q.enqueue(z);
+  });
   while (q.size > 0) {
     const v = q.dequeue();
     v.children.forEach((e) => {
       if (!discoveredNodes.has(e.node)) {
+        discoveredNodes.add(e.node);
         e.node.nodeVisited = false;
         q.enqueue(e.node);
       }
     });
     v.childrenGrad.forEach((e) => {
       if (!discoveredNodes.has(e.node)) {
+        discoveredNodes.add(e.node);
         e.node.nodeVisited = false;
         q.enqueue(e.node);
       }
     });
-  }
-};
-
-// Bottom-up
-export const clearVisitedNodesInput = (x: VarAD): void => {
-  const q = new Queue<IVarAD>();
-  const discoveredNodes = new Set<IVarAD>();
-  discoveredNodes.add(x);
-  x.nodeVisited = false;
-  q.enqueue(x);
-  while (q.size > 0) {
-    const v = q.dequeue();
     v.parents.forEach((e) => {
       if (!discoveredNodes.has(e.node)) {
+        discoveredNodes.add(e.node);
         e.node.nodeVisited = false;
         q.enqueue(e.node);
       }
     });
     v.parentsGrad.forEach((e) => {
       if (!discoveredNodes.has(e.node)) {
+        discoveredNodes.add(e.node);
         e.node.nodeVisited = false;
         q.enqueue(e.node);
       }
@@ -2317,7 +2308,7 @@ export const energyAndGradCompiled = (
 ) => {
   // Zero xsvars vals, gradients, and caching setting
   clearGraphBottomUp(xsVars);
-  clearVisitedNodesOutput(energyGraph);
+  clearVisitedNodes([energyGraph]);
 
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
   if (weightInfo.tag === "Just") {
