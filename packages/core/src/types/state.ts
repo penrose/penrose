@@ -38,8 +38,8 @@ export type State = IState;
  * Output of label generation.
  */
 export interface LabelData {
-  w: Value<number>;
-  h: Value<number>;
+  width: Value<number>;
+  height: Value<number>;
   rendered: HTMLElement;
 }
 

@@ -95,8 +95,8 @@ export const insertPending = (state: State): State => {
       const labelData = retrieveLabel(getShapeName(p), labels);
 
       if (labelData) {
-        if (prop === "w") return labelData.w;
-        else if (prop === "h") return labelData.h;
+        if (prop === "width") return labelData.width;
+        else if (prop === "height") return labelData.height;
         else {
           throw new Error(`Cached label data do not contain property ${prop}`);
         }

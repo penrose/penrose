@@ -916,8 +916,8 @@ export const compDict = {
 
     const dim = ifCond(
       inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
-      rect.h,
-      rect.w
+      rect.height,
+      rect.width
     );
     return { tag: "FloatV", contents: dim };
   },

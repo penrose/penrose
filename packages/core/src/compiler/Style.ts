@@ -2148,8 +2148,8 @@ const mkPath = (strs: string[]): Path => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Equation") return ["w", "h"];
-  if (s === "EquationTransform") return ["w", "h"];
+  if (s === "Equation") return ["width", "height"];
+  if (s === "EquationTransform") return ["width", "height"];
   if (s === "ImageTransform") return ["initWidth", "initHeight"];
   return [];
 };

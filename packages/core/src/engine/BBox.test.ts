@@ -58,12 +58,12 @@ describe("bbox", () => {
       strokeColor: sampleBlack(),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromCircle(shape);
-    expect(numOf(w)).toBeCloseTo(250);
-    expect(numOf(h)).toBeCloseTo(250);
+    expect(numOf(width)).toBeCloseTo(250);
+    expect(numOf(height)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(42);
     expect(numOf(y)).toBeCloseTo(121);
   });
@@ -77,12 +77,12 @@ describe("bbox", () => {
       strokeColor: sampleBlack(),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromEllipse(shape);
-    expect(numOf(w)).toBeCloseTo(450);
-    expect(numOf(h)).toBeCloseTo(250);
+    expect(numOf(width)).toBeCloseTo(450);
+    expect(numOf(height)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(42);
     expect(numOf(y)).toBeCloseTo(121);
   });
@@ -96,12 +96,12 @@ describe("bbox", () => {
       strokeColor: sampleBlack(),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromRect(shape);
-    expect(numOf(w)).toBeCloseTo(200);
-    expect(numOf(h)).toBeCloseTo(250);
+    expect(numOf(width)).toBeCloseTo(200);
+    expect(numOf(height)).toBeCloseTo(250);
     expect(numOf(x)).toBeCloseTo(0);
     expect(numOf(y)).toBeCloseTo(0);
   });
@@ -109,12 +109,12 @@ describe("bbox", () => {
   test("Polygon", () => {
     const shape = makePolygon(canvas, polyProps());
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPolygon(shape);
-    expect(numOf(w)).toBeCloseTo(113.5);
-    expect(numOf(h)).toBeCloseTo(116.5);
+    expect(numOf(width)).toBeCloseTo(113.5);
+    expect(numOf(height)).toBeCloseTo(116.5);
     expect(numOf(x)).toBeCloseTo(320.75);
     expect(numOf(y)).toBeCloseTo(70.25);
   });
@@ -122,12 +122,12 @@ describe("bbox", () => {
   test("Polyline", () => {
     const shape = makePolyline(canvas, polyProps());
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPolygon(shape);
-    expect(numOf(w)).toBeCloseTo(113.5);
-    expect(numOf(h)).toBeCloseTo(116.5);
+    expect(numOf(width)).toBeCloseTo(113.5);
+    expect(numOf(height)).toBeCloseTo(116.5);
     expect(numOf(x)).toBeCloseTo(320.75);
     expect(numOf(y)).toBeCloseTo(70.25);
   });
@@ -139,12 +139,12 @@ describe("bbox", () => {
       height: FloatV(constOf(200)),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromRectlike(shape);
-    expect(numOf(w)).toBeCloseTo(150);
-    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(width)).toBeCloseTo(150);
+    expect(numOf(height)).toBeCloseTo(200);
     expect(numOf(x)).toBeCloseTo(0);
     expect(numOf(y)).toBeCloseTo(0);
   });
@@ -156,12 +156,12 @@ describe("bbox", () => {
       strokeWidth: FloatV(constOf(50)),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromLinelike(shape);
-    expect(numOf(w)).toBeCloseTo(432.925);
-    expect(numOf(h)).toBeCloseTo(387.629);
+    expect(numOf(width)).toBeCloseTo(432.925);
+    expect(numOf(height)).toBeCloseTo(387.629);
     expect(numOf(x)).toBeCloseTo(-100);
     expect(numOf(y)).toBeCloseTo(25);
   });
@@ -175,12 +175,12 @@ describe("bbox", () => {
       ]),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(200);
-    expect(numOf(h)).toBeCloseTo(200);
+    expect(numOf(width)).toBeCloseTo(200);
+    expect(numOf(height)).toBeCloseTo(200);
     expect(numOf(x)).toBeCloseTo(0);
     expect(numOf(y)).toBeCloseTo(0);
   });
@@ -195,12 +195,12 @@ describe("bbox", () => {
       ),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(180);
-    expect(numOf(h)).toBeCloseTo(50);
+    expect(numOf(width)).toBeCloseTo(180);
+    expect(numOf(height)).toBeCloseTo(50);
     expect(numOf(x)).toBeCloseTo(0);
     expect(numOf(y)).toBeCloseTo(-25);
   });
@@ -215,12 +215,12 @@ describe("bbox", () => {
       ]),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(200);
-    expect(numOf(h)).toBeCloseTo(75);
+    expect(numOf(width)).toBeCloseTo(200);
+    expect(numOf(height)).toBeCloseTo(75);
     expect(numOf(x)).toBeCloseTo(100);
     expect(numOf(y)).toBeCloseTo(12.5);
   });
@@ -235,12 +235,12 @@ describe("bbox", () => {
       ]),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(200);
-    expect(numOf(h)).toBeCloseTo(150);
+    expect(numOf(width)).toBeCloseTo(200);
+    expect(numOf(height)).toBeCloseTo(150);
     expect(numOf(x)).toBeCloseTo(100);
     expect(numOf(y)).toBeCloseTo(-25);
   });
@@ -257,12 +257,12 @@ describe("bbox", () => {
       ]),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(250);
-    expect(numOf(h)).toBeCloseTo(150);
+    expect(numOf(width)).toBeCloseTo(250);
+    expect(numOf(height)).toBeCloseTo(150);
     expect(numOf(x)).toBeCloseTo(75);
     expect(numOf(y)).toBeCloseTo(-25);
   });
@@ -280,12 +280,12 @@ describe("bbox", () => {
       ),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(400);
-    expect(numOf(h)).toBeCloseTo(400);
+    expect(numOf(width)).toBeCloseTo(400);
+    expect(numOf(height)).toBeCloseTo(400);
     expect(numOf(x)).toBeCloseTo(-1.297);
     expect(numOf(y)).toBeCloseTo(-76.281);
   });
@@ -303,12 +303,12 @@ describe("bbox", () => {
       ),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(400);
-    expect(numOf(h)).toBeCloseTo(400);
+    expect(numOf(width)).toBeCloseTo(400);
+    expect(numOf(height)).toBeCloseTo(400);
     expect(numOf(x)).toBeCloseTo(51.297);
     expect(numOf(y)).toBeCloseTo(101.282);
   });
@@ -326,12 +326,12 @@ describe("bbox", () => {
       ),
     });
     const {
-      w,
-      h,
+      width,
+      height,
       center: [x, y],
     } = bboxFromPath(shape);
-    expect(numOf(w)).toBeCloseTo(311.512);
-    expect(numOf(h)).toBeCloseTo(311.512);
+    expect(numOf(width)).toBeCloseTo(311.512);
+    expect(numOf(height)).toBeCloseTo(311.512);
     expect(numOf(x)).toBeCloseTo(62.5);
     expect(numOf(y)).toBeCloseTo(-12.5);
   });
