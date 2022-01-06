@@ -145,7 +145,9 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   pathElem.setAttribute("d", path);
 
   // Opacity and width only relevant if stroke is present
-  if ((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+  if (
+    (shape.properties.strokeColor as IColorV<number>).contents.tag !== "NONE"
+  ) {
     pathElem.setAttribute("stroke-opacity", opacity.toString());
     pathElem.setAttribute("stroke-width", thickness.toString());
   }
