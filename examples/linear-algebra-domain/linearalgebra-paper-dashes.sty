@@ -146,7 +146,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
       -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
       perpMark = Path {
-           pathData : pathFromPoints("closed", pts)
+           d : pathFromPoints("closed", pts)
            -- strokeWidth : 2.0
            strokeColor : C.black
            fill : C.white
@@ -180,7 +180,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       v.markerLine = [markStart, markEnd]
 
       v.unitMarkerLine = Path {
-          pathData : pathFromPoints("open", v.markerLine)
+          d : pathFromPoints("open", v.markerLine)
           -- strokeWidth : strokeWidth
           strokeColor : C.black
           fill : C.none
@@ -193,14 +193,14 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       vec2 halfvec = c * markNormal
 
       v.unitMarkerEnd1 = Path {
-          pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+          d : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           -- strokeWidth : strokeWidth
           strokeColor : C.black
           fill : C.none
       }
 
       v.unitMarkerEnd2 = Path {
-          pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
+          d : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           -- strokeWidth : strokeWidth
           strokeColor : C.black
           fill : C.none

@@ -180,13 +180,13 @@ with Point p; Point q {
 Linelike l1, l2 -- should this work with rays and lines?
 where ParallelMarker1(l1, l2) {
   l1.tick1 = Path {
-    pathData : pathFromPoints("open", chevron(l1.icon, 20., 6))
+    d : pathFromPoints("open", chevron(l1.icon, 20., 6))
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill : Colors.none
   }
   l2.tick1 = Path {
-    pathData : pathFromPoints("open", chevron(l2.icon, 20., 5))
+    d : pathFromPoints("open", chevron(l2.icon, 20., 5))
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill : Colors.none
@@ -249,7 +249,7 @@ with Segment s2; Point p {
   sweepA = arcSweepFlag(s.icon.end, startA, endA)
 
   s.mark = Path {
-    pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
+    d : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill : Colors.none
@@ -274,7 +274,7 @@ with Segment s2; Point p1, p2 {
   sweepA = arcSweepFlag(s.icon.end, startA, endA)
 
   s.mark = Path {
-    pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
+    d : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill : Colors.none
@@ -287,13 +287,13 @@ with Segment s2; Point p1, p2 {
 Linelike s, t 
 where EqualLengthMarker1(s, t) {
   override s.tick = Path {
-    pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., 1, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
   }
   override t.tick = Path {
-    pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., 1, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -307,13 +307,13 @@ Linelike s, t
 where EqualLengthMarker2(s, t) {
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Path {
-    pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., 2., 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
   }
   override t.tick = Path {
-    pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., 2., 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -327,13 +327,13 @@ Linelike s, t
 where EqualLengthMarker3(s, t) {
   --need slope of line, then need to equally distribute the tick marks
   override s.tick = Path {
-    pathData : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., 3, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
   }
   override t.tick = Path {
-    pathData : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., 3, 10.)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -381,13 +381,13 @@ where EqualAngleMarker1(a, b) {
   sweepB = arcSweepFlag(b.q, startB, endB)
 
   override a.mark = Path {
-    pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
+    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark = Path {
-    pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
+    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -406,13 +406,13 @@ where EqualAngleMarker2(a, b) {
   sweepB = arcSweepFlag(b.q, startB, endB)
 
   override a.mark = Path {
-    pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
+    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark = Path {
-    pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
+    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -426,13 +426,13 @@ where EqualAngleMarker2(a, b) {
   endBbig = ptOnLine(b.q, b.r, bigR)
 
   override a.mark2 = Path {
-    pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
+    d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark2 = Path {
-    pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
+    d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -451,13 +451,13 @@ where EqualAngleMarker3(a, b) {
   sweepB = arcSweepFlag(b.q, startB, endB)
 
   override a.mark = Path {
-    pathData : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
+    d : arc("open", startA, endA, (a.radius, a.radius), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark = Path {
-    pathData : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
+    d : arc("open", startB, endB, (b.radius, b.radius), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -471,13 +471,13 @@ where EqualAngleMarker3(a, b) {
   endBmid = ptOnLine(b.q, b.r, midR)
 
   override a.mark2 = Path {
-    pathData : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
+    d : arc("open", startAmid, endAmid, (midR, midR), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark2 = Path {
-    pathData : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
+    d : arc("open", startBmid, endBmid, (midR, midR), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -491,13 +491,13 @@ where EqualAngleMarker3(a, b) {
   endBbig = ptOnLine(b.q, b.r, bigR)
 
   override a.mark3 = Path {
-    pathData : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
+    d : arc("open", startAbig, endAbig, (bigR, bigR), 0, 0, sweepA)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
  }
   override b.mark3 = Path {
-    pathData : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
+    d : arc("open", startBbig, endBbig, (bigR, bigR), 0, 0, sweepB)
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill: Colors.none
@@ -521,7 +521,7 @@ Angle a
 where RightMarked(a) {
   --render half square path of size a.radius
   override a.mark = Path {
-    pathData : pathFromPoints("open", [ptOnLine(a.q, a.p, 20.), innerPointOffset(a.q, a.p, a.r, 20.), ptOnLine(a.q, a.r, 20.)])
+    d : pathFromPoints("open", [ptOnLine(a.q, a.p, 20.), innerPointOffset(a.q, a.p, a.r, 20.), ptOnLine(a.q, a.r, 20.)])
     strokeWidth : 2.0
     strokeColor : Colors.black
     fill : Colors.none
@@ -709,7 +709,7 @@ where R := MkRectangle(p, q, r, s)
 with Point p; Point q; Point r; Point s {
   override R.color = Colors.none
   override R.icon = Path {
-      pathData : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
+      d : pathFromPoints("closed", [p.icon.center, q.icon.center, r.icon.center, s.icon.center])
       strokeWidth : const.strokeWidth
       fill : R.color
       strokeColor : Colors.black
