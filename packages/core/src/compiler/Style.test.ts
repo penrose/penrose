@@ -79,11 +79,11 @@ describe("Layering computation", () => {
     const res = S.topSortLayering(["A", "B", "C"], partials);
     expect(res).toEqual(["A", "B", "C"]);
   });
-  test("one cycle: A -> B -> C -> B", () => {
+  test("one cycle: A -> B -> C -> A", () => {
     const partials: [string, string][] = [
       ["A", "B"],
       ["B", "C"],
-      ["C", "B"],
+      ["C", "A"],
     ];
     const res = S.topSortLayering(["A", "B", "C"], partials);
     expect(res).toEqual(["A", "B", "C"]);

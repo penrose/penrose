@@ -1,3 +1,4 @@
+import { CustomHeap } from "@datastructures-js/heap";
 import {
   checkExpr,
   checkPredicate,
@@ -25,6 +26,7 @@ import {
   valueNumberToAutodiffConst,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
+import Heap from "heap-js";
 import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
@@ -2799,24 +2801,25 @@ export const topSortLayering = (
 };
 
 const pseudoTopsort = (graph: Graph): string[] => {
+  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
+    const aIn = graph.inEdges(a);
+    const bIn = graph.inEdges(b);
+    if (!aIn) return 1;
+    else if (!bIn) return -1;
+    else return aIn.length - bIn.length;
+  });
   const res: string[] = [];
-  const toVisit: string[] = graph.nodes();
-  while (toVisit.length > 0) {
+  graph.nodes().map((n: string) => toVisit.insert(n));
+  while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
-    const node: string = toVisit.shift()!;
+    const node: string = toVisit.extractRoot() as string;
     res.push(node);
     // remove all edges with `node`
     const toRemove = graph.nodeEdges(node);
-    if (toRemove !== undefined)
+    if (toRemove !== undefined) {
       toRemove.forEach((e: Edge) => graph.removeEdge(e));
-    // sort the list again by the number of incoming edges
-    toVisit.sort((a: string, b: string) => {
-      const aIn = graph.inEdges(a);
-      const bIn = graph.inEdges(b);
-      if (!aIn) return 1;
-      else if (!bIn) return -1;
-      else return aIn.length - bIn.length;
-    });
+      toVisit.fix();
+    }
   }
   return res;
 };
