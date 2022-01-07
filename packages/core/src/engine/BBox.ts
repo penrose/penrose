@@ -24,8 +24,8 @@ import {
 } from "./Autodiff";
 
 export interface IBBox {
-  w: VarAD;
-  h: VarAD;
+  width: VarAD;
+  height: VarAD;
   center: Pt2;
 }
 
@@ -60,17 +60,17 @@ export type Edges = IEdges;
  * Input: A width, height, and center.
  * Output: A new BBox.
  */
-export const bbox = (w: VarAD, h: VarAD, center: Pt2): BBox => {
+export const bbox = (width: VarAD, height: VarAD, center: Pt2): BBox => {
   return {
-    w,
-    h,
+    width,
+    height,
     center,
   };
 };
 
 export const corners = (b: BBox): Corners => {
-  const halfWidth = div(b.w, constOf(2.0));
-  const halfHeight = div(b.h, constOf(2.0));
+  const halfWidth = div(b.width, constOf(2.0));
+  const halfHeight = div(b.height, constOf(2.0));
   const nhalfWidth = neg(halfWidth);
   const nhalfHeight = neg(halfHeight);
   const pts = <Pt2[]>[
@@ -94,8 +94,8 @@ export const corners = (b: BBox): Corners => {
  */
 export const inflate = (b: BBox, delta: VarAD): BBox => {
   return bbox(
-    add(b.w, add(delta, delta)),
-    add(b.h, add(delta, delta)),
+    add(b.width, add(delta, delta)),
+    add(b.height, add(delta, delta)),
     b.center
   );
 };

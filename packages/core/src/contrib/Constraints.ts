@@ -39,7 +39,14 @@ export const objDict = {
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
-  equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+  equal: (x: VarAD, y: VarAD, strength = 1.) => mul(constOfIf(strength),squared(sub(x, y))),
+
+  /**
+   * Encourage the value of `x` to be less than the value `y`, with optional offset `padding`
+   */
+  lessThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return squared( max( constOf(0.), add(sub(x, y), constOfIf(padding)) ) );
+  },
 
   /**
    * Encourage shape `top` to be above shape `bottom`. Only works for shapes with property `center`.
@@ -121,8 +128,8 @@ export const objDict = {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.h),
-        neg(mul(s3BB.h, spacing)),
+        mul(spacing, s2BB.height),
+        neg(mul(s3BB.height, spacing)),
       ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
@@ -163,7 +170,7 @@ export const objDict = {
       const textBB = bboxFromShape(t2, text);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
-        sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
+        sub(add(my, mul(textBB.height, constOf(1.1))), textBB.center[1])
       );
       return mul(add(lh, rh), constOfIf(w));
     } else throw Error("unsupported shapes");
@@ -188,7 +195,7 @@ export const objDict = {
       const textBB = bboxFromShape(t2, text);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
-        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
+        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.width)),
         squared(padding)
       );
     } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
@@ -352,7 +359,7 @@ export const constrDict = {
     } else if (t1 === "Circle" && shapedefs[t2].isRectlike) {
       const s2BBox = bboxFromShape(t2, s2);
       const d = ops.vdist(fns.center(s1), s2BBox.center);
-      const textR = max(s2BBox.w, s2BBox.h);
+      const textR = max(s2BBox.width, s2BBox.height);
       return add(sub(d, s1.r.contents), textR);
     } else if (shapedefs[t1].isRectlike && t2 === "Circle") {
       // collect constants
@@ -498,12 +505,13 @@ export const constrDict = {
       const centerT = textBB.center;
       const endpts = linePts(seg);
       const cp = closestPt_PtSeg(centerT, endpts);
-      const lenApprox = div(textBB.w, constOf(2.0));
+      const lenApprox = div(textBB.width, constOf(2.0));
       return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
     } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       // Assuming AABB (they are axis-aligned [bounding] boxes)
       const box1 = bboxFromShape(t1, s1);
       const box2 = bboxFromShape(t2, s2);
+
       const [pc1, pc2] = rectangleDifference(box1, box2);
       const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
       const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
@@ -519,8 +527,38 @@ export const constrDict = {
       );
       const e2 = neg(min(max(xq, yq), constOf(0.0)));
       return sub(e2, e1);
+    } else if ((t1 === "Circle" && t2 === "Line"   ) ||
+               (t1 === "Line"   && t2 === "Circle" )) {
+
+       // make sure that circle is always the first shape
+       if( t2 === "Circle" ) {
+          [ s1, s2 ] = [ s2, s1 ];
+          [ t1, t2 ] = [ t2, t1 ];
+       }
+
+      // collect constants
+      const c = s1.center.contents;
+      const r = s1.r.contents;
+      const a = s2.start.contents;
+      const b = s2.end.contents;
+      const o = constOfIf(offset);
+      
+      // Return the distance between the circle center c and the
+      // segment ab, minus the circle radius r and offset o.  This
+      // quantity will be negative of the circular disk intersects
+      // a thickened "capsule" associated with the line (of radius o).
+      // The expression for the point-segment distance d comes from
+      // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+      // (see "Segment - exact").
+      const u = ops.vsub(c,a); // u = c-a
+      const v = ops.vsub(b,a); // v - b-a
+      // h = clamp( <u,v>/<v,v>, 0, 1 )
+      const h = max( constOf(0.), min( constOf(1.), div( ops.vdot(u,v), ops.vdot(v,v) ) ));
+      // d = | u - h*v |
+      const d = ops.vnorm( ops.vsub( u, ops.vmul(h,v) ) );
+      // return d - (r+o)
+      return neg(sub( d, add( r, o ) ));
     } else {
-      // TODO (new case): I guess we might need Rectangle disjoint from polyline? Unless they repel each other?
       throw new Error(`${[t1, t2]} not supported for disjoint`);
     }
   },
@@ -574,7 +612,7 @@ export const constrDict = {
   ) => {
     if (shapedefs[t1].isRectlike && t2 === "Circle") {
       const s1BBox = bboxFromShape(t1, s1);
-      const textR = max(s1BBox.w, s1BBox.h);
+      const textR = max(s1BBox.width, s1BBox.height);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return sub(add(add(s2.r.contents, textR), constOfIf(padding)), d);
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
@@ -646,7 +684,7 @@ export const constrDict = {
       return ifCond(
         pointInBox(pt, rect),
         // If the point is inside the box, push it outside w/ `noIntersect`
-        noIntersectCircles(rect.center, rect.w, [pt.x, pt.y], constOf(2.0)),
+        noIntersectCircles(rect.center, rect.width, [pt.x, pt.y], constOf(2.0)),
         // If the point is outside the box, try to get the distance from the point to equal the desired distance
         atDistOutside(pt, rect, offset)
       );

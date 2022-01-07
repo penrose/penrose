@@ -19,7 +19,6 @@ export interface IState {
   objFns: Fn[];
   constrFns: Fn[];
   rng: prng;
-  selectorMatches: any; // TODO: types
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
@@ -38,8 +37,8 @@ export type State = IState;
  * Output of label generation.
  */
 export interface LabelData {
-  w: Value<number>;
-  h: Value<number>;
+  width: Value<number>;
+  height: Value<number>;
   rendered: HTMLElement;
 }
 

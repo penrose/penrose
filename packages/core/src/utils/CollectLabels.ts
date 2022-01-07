@@ -142,11 +142,11 @@ export const collectLabels = async (
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
       const label: LabelData = {
-        w: {
+        width: {
           tag: "FloatV",
           contents: width === Infinity ? 0 : width,
         },
-        h: {
+        height: {
           tag: "FloatV",
           contents: height === Infinity ? 0 : height,
         },

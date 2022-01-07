@@ -1,3 +1,4 @@
+import { CustomHeap } from "@datastructures-js/heap";
 import {
   checkExpr,
   checkPredicate,
@@ -22,10 +23,10 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  propertiesNotOf,
   propertiesOf,
+  propertiesNotOf,
 } from "engine/EngineUtils";
-import { alg, Graph } from "graphlib";
+import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
@@ -65,6 +66,7 @@ import {
   PropertyDecl,
   RelationPattern,
   RelBind,
+  RelField,
   RelPred,
   Selector,
   SelExpr,
@@ -86,7 +88,6 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
-  FExpr,
   Field,
   FieldDict,
   FieldExpr,
@@ -102,7 +103,15 @@ import {
   Translation,
   Value,
 } from "types/value";
-import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
+import {
+  err,
+  isErr,
+  ok,
+  parseError,
+  Result,
+  selectorFieldNotSupported,
+  toStyleErrors,
+} from "utils/Error";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
@@ -275,12 +284,30 @@ const ppRelPred = (r: RelPred): string => {
   const name = r.name.value;
   return `${name}(${args})`;
 };
+const ppRelField = (r: RelField): string => {
+  const name = r.name.contents.value;
+  const field = r.field.value;
+  const fieldDesc = r.fieldDescriptor;
+  if (!fieldDesc) return `${name} has ${field}`;
+  else {
+    switch (fieldDesc) {
+      case "MathLabel":
+        return `${name} has math ${field}`;
+      case "TextLabel":
+        return `${name} has text ${field}`;
+      case "NoLabel":
+        return `${name} has empty ${field}`;
+    }
+  }
+};
 
 export const ppRel = (r: RelationPattern): string => {
   if (r.tag === "RelBind") {
     return ppRelBind(r);
   } else if (r.tag === "RelPred") {
     return ppRelPred(r);
+  } else if (r.tag === "RelField") {
+    return ppRelField(r);
   } else throw Error("unknown tag");
 };
 
@@ -400,58 +427,73 @@ const checkDeclPatternsAndMakeEnv = (
 // Judgment 4. G |- |S_r ok
 const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
   // rule Bind-Context
-  if (rel.tag === "RelBind") {
-    // TODO: use checkSubStmt here (and in paper)?
-    // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
-    // G |- B : T1
-    const res1 = checkVar(rel.id.contents, varEnv);
+  switch (rel.tag) {
+    case "RelBind": {
+      // TODO: use checkSubStmt here (and in paper)?
+      // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
+      // G |- B : T1
+      const res1 = checkVar(rel.id.contents, varEnv);
 
-    // TODO(error)
-    if (isErr(res1)) {
-      const subErr1: SubstanceError = res1.error;
-      // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
-      // return ["substance typecheck error in B"];
-      return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      // TODO(error)
+      if (isErr(res1)) {
+        const subErr1: SubstanceError = res1.error;
+        // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
+        // return ["substance typecheck error in B"];
+        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      }
+
+      const [vtype, env1] = res1.value;
+
+      // G |- E : T2
+      const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
+
+      // TODO(error)
+      if (isErr(res2)) {
+        const subErr2: SubstanceError = res2.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr2 }];
+        // return ["substance typecheck error in E"];
+      }
+
+      const [etype, env2] = res2.value;
+
+      // T1 = T2
+      const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
+
+      // TODO(error) -- improve message
+      if (!typesEq) {
+        return [
+          { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
+        ];
+        // return ["types not equal"];
+      }
+
+      return [];
     }
-
-    const [vtype, env1] = res1.value;
-
-    // G |- E : T2
-    const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
-
-    // TODO(error)
-    if (isErr(res2)) {
-      const subErr2: SubstanceError = res2.error;
-      return [{ tag: "TaggedSubstanceError", error: subErr2 }];
-      // return ["substance typecheck error in E"];
+    case "RelPred": {
+      // rule Pred-Context
+      // G |- Q : Prop
+      const res = checkPredicate(toSubPred(rel), varEnv);
+      if (isErr(res)) {
+        const subErr3: SubstanceError = res.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr3 }];
+        // return ["substance typecheck error in Pred"];
+      }
+      return [];
     }
-
-    const [etype, env2] = res2.value;
-
-    // T1 = T2
-    const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
-
-    // TODO(error) -- improve message
-    if (!typesEq) {
-      return [
-        { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
-      ];
-      // return ["types not equal"];
+    case "RelField": {
+      // check if the Substance name exists
+      const nameOk = checkVar(rel.name.contents, varEnv);
+      if (isErr(nameOk)) {
+        const subErr1: SubstanceError = nameOk.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      }
+      // check if the field is supported. Currently, we only support matching on `label`
+      if (rel.field.value !== "label")
+        return [selectorFieldNotSupported(rel.name, rel.field)];
+      else {
+        return [];
+      }
     }
-
-    return [];
-  } else if (rel.tag === "RelPred") {
-    // rule Pred-Context
-    // G |- Q : Prop
-    const res = checkPredicate(toSubPred(rel), varEnv);
-    if (isErr(res)) {
-      const subErr3: SubstanceError = res.error;
-      return [{ tag: "TaggedSubstanceError", error: subErr3 }];
-      // return ["substance typecheck error in Pred"];
-    }
-    return [];
-  } else {
-    throw Error("unknown tag");
   }
 };
 
@@ -687,20 +729,29 @@ export const substituteRel = (
   subst: Subst,
   rel: RelationPattern
 ): RelationPattern => {
-  if (rel.tag === "RelBind") {
-    // theta(B := E) |-> theta(B) := theta(E)
-    return {
-      ...rel,
-      id: substituteBform({ tag: "Nothing" }, subst, rel.id),
-      expr: substituteExpr(subst, rel.expr),
-    };
-  } else if (rel.tag === "RelPred") {
-    // theta(Q([a]) = Q([theta(a)])
-    return {
-      ...rel,
-      args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-    };
-  } else throw Error("unknown tag");
+  switch (rel.tag) {
+    case "RelBind": {
+      // theta(B := E) |-> theta(B) := theta(E)
+      return {
+        ...rel,
+        id: substituteBform({ tag: "Nothing" }, subst, rel.id),
+        expr: substituteExpr(subst, rel.expr),
+      };
+    }
+    case "RelPred": {
+      // theta(Q([a]) = Q([theta(a)])
+      return {
+        ...rel,
+        args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+      };
+    }
+    case "RelField": {
+      return {
+        ...rel,
+        name: substituteBform({ tag: "Nothing" }, subst, rel.name),
+      };
+    }
+  }
 };
 
 // Applies a substitution to a list of relational statement theta([|S_r])
@@ -1124,6 +1175,17 @@ const isSubtypeArrow = (
   ); // Covariant in return type
 };
 
+/**
+ * Match Substance and Style selector constructor expressions on 3 ccnditions:
+ * - If the names of the constructors are the same
+ * - If the substituted args match with the original in number and value
+ * - If the argument types are matching w.r.t. contravariance
+ *
+ * @param varEnv the environment
+ * @param subE the Substance constructor expr
+ * @param styE the substituted Style constructor expr
+ * @returns if the two exprs match
+ */
 const exprsMatchArr = (
   varEnv: Env,
   subE: ApplyConstructor,
@@ -1151,6 +1213,7 @@ const exprsMatchArr = (
   const styVarArgs = styE.args.map(exprToVar);
 
   return (
+    subE.name.value === styE.name.value &&
     isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
     _.zip(subVarArgs, styVarArgs).every(([a1, a2]) =>
       varsEq(a1 as Identifier, a2 as Identifier)
@@ -1235,9 +1298,26 @@ const relMatchesProg = (
   subProg: SubProg,
   rel: RelationPattern
 ): boolean => {
-  return subProg.statements.some((line) =>
-    relMatchesLine(typeEnv, subEnv, line, rel)
-  );
+  if (rel.tag === "RelField") {
+    // the current pattern matches on a Style field
+    const subName = rel.name.contents.value;
+    const fieldDesc = rel.fieldDescriptor;
+    const label = subEnv.labels.get(subName);
+
+    if (label) {
+      // check if the label type matches with the descriptor
+      if (fieldDesc) {
+        // NOTE: empty labels have a specific `NoLabel` type, so even if the entry exists, no existing field descriptors will match on it.
+        return label.type === fieldDesc;
+      } else return true;
+    } else {
+      return false;
+    }
+  } else {
+    return subProg.statements.some((line) =>
+      relMatchesLine(typeEnv, subEnv, line, rel)
+    );
+  }
 };
 
 // Judgment 15. b |- [S] <| [|S_r]
@@ -2004,7 +2084,7 @@ const insertLabels = (trans: Translation, labels: LabelMap): void => {
       tag: "Done",
       contents: {
         tag: "StrV",
-        contents: label,
+        contents: label.value,
       },
     };
     const labelExpr: FieldExpr<VarAD> = {
@@ -2148,8 +2228,8 @@ const mkPath = (strs: string[]): Path => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Equation") return ["w", "h"];
-  if (s === "EquationTransform") return ["w", "h"];
+  if (s === "Equation") return ["width", "height"];
+  if (s === "EquationTransform") return ["width", "height"];
   if (s === "ImageTransform") return ["initWidth", "initHeight"];
   return [];
 };
@@ -2720,10 +2800,10 @@ const findNames = (e: Expr, tr: Translation): [string, string] => {
   }
 };
 
-const topSortLayering = (
+export const topSortLayering = (
   allGPINames: string[],
   partialOrderings: [string, string][]
-): MaybeVal<string[]> => {
+): string[] => {
   const layerGraph: Graph = new Graph();
   allGPINames.map((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
@@ -2731,12 +2811,48 @@ const topSortLayering = (
     layerGraph.setEdge(below, above)
   );
 
-  try {
+  // if there is no cycles, return a global ordering from the top sort result
+  if (alg.isAcyclic(layerGraph)) {
     const globalOrdering: string[] = alg.topsort(layerGraph);
-    return { tag: "Just", contents: globalOrdering };
-  } catch (e) {
-    return { tag: "Nothing" };
+    return globalOrdering;
+  } else {
+    const cycles = alg.findCycles(layerGraph);
+    const globalOrdering = pseudoTopsort(layerGraph);
+    log.warn(
+      `Cycles detected in layering order: ${cycles
+        .map((c) => c.join(", "))
+        .join(
+          "; "
+        )}. The system approximated a global layering order instead: ${globalOrdering.join(
+        ", "
+      )}`
+    );
+    return globalOrdering;
   }
+};
+
+const pseudoTopsort = (graph: Graph): string[] => {
+  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
+    const aIn = graph.inEdges(a);
+    const bIn = graph.inEdges(b);
+    if (!aIn) return 1;
+    else if (!bIn) return -1;
+    else return aIn.length - bIn.length;
+  });
+  const res: string[] = [];
+  graph.nodes().map((n: string) => toVisit.insert(n));
+  while (toVisit.size() > 0) {
+    // remove element with fewest incoming edges and append to result
+    const node: string = toVisit.extractRoot() as string;
+    res.push(node);
+    // remove all edges with `node`
+    const toRemove = graph.nodeEdges(node);
+    if (toRemove !== undefined) {
+      toRemove.forEach((e: Edge) => graph.removeEdge(e));
+      toVisit.fix();
+    }
+  }
+  return res;
 };
 
 const computeShapeOrdering = (tr: Translation): string[] => {
@@ -2752,12 +2868,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   ).map((e: [string, Field]): string => getShapeName(e[0], e[1]));
   const shapeOrdering = topSortLayering(allGPINames, partialOrderings);
 
-  // TODO: Errors for labeling
-  if (shapeOrdering.tag === "Nothing") {
-    throw Error("no shape ordering possible from layering");
-  }
-
-  return shapeOrdering.contents;
+  return shapeOrdering;
 };
 
 //#endregion
@@ -2864,7 +2975,6 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,
-    selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
 
     canvas: getCanvas(trans),
@@ -3130,7 +3240,6 @@ export const compileStyle = (
     return err(toStyleErrors(selErrs));
   }
 
-  // Leaving these logs in because they are still useful for debugging, but TODO: remove them
   log.info("selEnvs", selEnvs);
 
   // Find substitutions (`find_substs_prog`)
