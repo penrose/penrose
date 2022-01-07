@@ -10,6 +10,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          # https://github.com/lerna/lerna/issues/1893#issuecomment-770614785
+          fetch-depth: 0
       - name: Restore lerna cache
         uses: actions/cache@v2
         with:
