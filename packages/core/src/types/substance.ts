@@ -33,7 +33,10 @@ export interface LabelDecl extends ASTNode {
   tag: "LabelDecl";
   variable: Identifier;
   label: IStringLit;
+  labelType: LabelType;
 }
+
+export type LabelType = "MathLabel" | "TextLabel";
 export interface AutoLabel extends ASTNode {
   tag: "AutoLabel";
   option: LabelOption;
