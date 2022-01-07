@@ -1836,9 +1836,6 @@ const genCode = (
   }
   log.trace("overall function generated (g):", g);
   clearVisitedNodes(inputsNew.concat(outputs));
-  //for (const z of outputs) {
-  //  clearVisitedNodes(z);
-  //}
 
   return g;
 };
