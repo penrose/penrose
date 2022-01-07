@@ -7,7 +7,6 @@ import {
   parseSubstance,
 } from "compiler/Substance";
 import * as fs from "fs";
-import { Graph } from "graphlib";
 import _ from "lodash";
 import * as path from "path";
 import { Either } from "types/common";
@@ -408,7 +407,7 @@ describe("Compiler", () => {
     const errorStyProgs = {
       // ------ Selector errors (from Substance)
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
-      SelectorFieldNotSupported: [`forall Set x where x has randomfield`],
+      SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
       SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
