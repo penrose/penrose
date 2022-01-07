@@ -1,13 +1,13 @@
 import { constOf, sqrt, mul } from "engine/Autodiff";
 import { Pt2, VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
-import { findDef } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 
 /**
  * Return bounding box from any provided shape.
  */
 export const bboxFromShape = ([t, s]: [string, any]): BBox.BBox => {
-  return findDef(t).bbox(s);
+  return shapedefs[t].bbox(s);
 };
 
 /**

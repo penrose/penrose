@@ -1,3 +1,4 @@
+import { CustomHeap } from "@datastructures-js/heap";
 import {
   checkExpr,
   checkPredicate,
@@ -23,22 +24,17 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  valueNumberToAutodiffConst,
+  propertiesNotOf,
+  propertiesOf,
 } from "engine/EngineUtils";
-import { alg, Graph } from "graphlib";
+import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
-import {
-  Canvas,
-  findDef,
-  PropType,
-  Sampler,
-  ShapeDef,
-  shapedefs,
-} from "renderer/ShapeDef";
 import rfdc from "rfdc";
+import { Canvas } from "shapes/Samplers";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -92,7 +88,6 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
-  FExpr,
   Field,
   FieldDict,
   FieldExpr,
@@ -1130,6 +1125,17 @@ const isSubtypeArrow = (
   ); // Covariant in return type
 };
 
+/**
+ * Match Substance and Style selector constructor expressions on 3 ccnditions:
+ * - If the names of the constructors are the same
+ * - If the substituted args match with the original in number and value
+ * - If the argument types are matching w.r.t. contravariance
+ *
+ * @param varEnv the environment
+ * @param subE the Substance constructor expr
+ * @param styE the substituted Style constructor expr
+ * @returns if the two exprs match
+ */
 const exprsMatchArr = (
   varEnv: Env,
   subE: ApplyConstructor,
@@ -1157,6 +1163,7 @@ const exprsMatchArr = (
   const styVarArgs = styE.args.map(exprToVar);
 
   return (
+    subE.name.value === styE.name.value &&
     isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
     _.zip(subVarArgs, styVarArgs).every(([a1, a2]) =>
       varsEq(a1 as Identifier, a2 as Identifier)
@@ -1754,26 +1761,23 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
   const errors: StyleErrors = [];
   const warnings: StyleWarnings = [];
 
-  const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
-  if (!shapeNames.includes(styName)) {
+  if (!(styName in shapedefs)) {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
 
   // `findDef` throws an error, so we find the shape name first (done above) to make sure the error can be caught
-  const shapeDef: ShapeDef = findDef(styName);
+  const shapeDef: ShapeDef = shapedefs[styName];
   const givenProperties: Identifier[] = expr.properties.map((e) => e.name);
-  const expectedProperties: string[] = Object.entries(shapeDef.properties).map(
-    (e) => e[0]
-  );
+  const expectedProperties = shapeDef.propTags;
 
-  for (let gp of givenProperties) {
+  for (const gp of givenProperties) {
     // Check multiple properties, as each one is not fatal if wrong
-    if (!expectedProperties.includes(gp.value)) {
+    if (!(gp.value in expectedProperties)) {
       errors.push({
         tag: "InvalidGPIPropertyError",
         givenProperty: gp,
-        expectedProperties,
+        expectedProperties: Object.keys(expectedProperties),
       });
     }
   }
@@ -2009,27 +2013,24 @@ const insertNames = (trans: Translation): Translation => {
 const insertLabels = (trans: Translation, labels: LabelMap): void => {
   for (const labelData of labels) {
     const [name, label] = labelData;
-    if (label.isJust()) {
-      const labelString = label.value;
-      const labelValue: TagExpr<VarAD> = {
-        tag: "Done",
-        contents: {
-          tag: "StrV",
-          contents: labelString,
-        },
+    const labelValue: TagExpr<VarAD> = {
+      tag: "Done",
+      contents: {
+        tag: "StrV",
+        contents: label,
+      },
+    };
+    const labelExpr: FieldExpr<VarAD> = {
+      tag: "FExpr",
+      contents: labelValue,
+    };
+    const fieldDict = trans.trMap[name];
+    if (fieldDict !== undefined) {
+      fieldDict[LABEL_FIELD] = labelExpr;
+    } else {
+      trans[name] = {
+        [LABEL_FIELD]: labelExpr,
       };
-      const labelExpr: FieldExpr<VarAD> = {
-        tag: "FExpr",
-        contents: labelValue,
-      };
-      const fieldDict = trans.trMap[name];
-      if (fieldDict !== undefined) {
-        fieldDict[LABEL_FIELD] = labelExpr;
-      } else {
-        trans[name] = {
-          [LABEL_FIELD]: labelExpr,
-        };
-      }
     }
   }
 };
@@ -2160,8 +2161,8 @@ const mkPath = (strs: string[]): Path => {
 };
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
-  if (s === "Equation") return ["w", "h"];
-  if (s === "EquationTransform") return ["w", "h"];
+  if (s === "Equation") return ["width", "height"];
+  if (s === "EquationTransform") return ["width", "height"];
   if (s === "ImageTransform") return ["initWidth", "initHeight"];
   return [];
 };
@@ -2254,30 +2255,6 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
   }
 
   return [];
-};
-
-// Given 'propType' and 'shapeType', return all props of that ValueType
-// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
-const propertiesOf = (propType: string, shapeType: ShapeTypeStr): PropID[] => {
-  const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(
-    findDef(shapeType).properties
-  );
-  return shapeInfo
-    .filter(([pName, [pType, s]]) => pType === propType)
-    .map((e) => e[0]);
-};
-
-// Given 'propType' and 'shapeType', return all props NOT of that ValueType
-const propertiesNotOf = (
-  propType: string,
-  shapeType: ShapeTypeStr
-): PropID[] => {
-  const shapeInfo: [string, [PropType, Sampler]][] = Object.entries(
-    findDef(shapeType).properties
-  );
-  return shapeInfo
-    .filter(([pName, [pType, s]]) => pType !== propType)
-    .map((e) => e[0]);
 };
 
 // Find varying fields
@@ -2615,48 +2592,24 @@ const initFieldsAndAccessPaths = (
 // NOTE: since we store all varying paths separately, it is okay to mark the default values as Done // they will still be optimized, if needed.
 // TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
 
-// TODO: Doesn't sample partial shape properties, like start: (?, 1.) <- this is actually sampled by initFieldsAndAccessPaths
-// NOTE: Shape properties are mutated; they are returned as a courtesy
 const initProperty = (
   shapeType: ShapeTypeStr,
-  properties: GPIProps<VarAD>,
-  [propName, [propType, propSampler]]: [string, [PropType, Sampler]],
-  canvas: Canvas
-): GPIProps<VarAD> => {
-  const propVal: Value<number> = propSampler(canvas);
-  const propValAD: Value<VarAD> = valueNumberToAutodiffConst(propVal);
-  const propValDone: TagExpr<VarAD> = { tag: "Done", contents: propValAD };
-  const styleSetting: TagExpr<VarAD> = properties[propName];
-
-  // Property not set in Style
-  if (!styleSetting) {
-    if (isPending(shapeType, propName)) {
-      properties[propName] = {
-        tag: "Pending",
-        contents: propValAD,
-      } as TagExpr<VarAD>;
-      return properties;
-    } else {
-      properties[propName] = propValDone; // Use the sampled one
-      return properties;
-    }
-  }
-
+  propName: string,
+  styleSetting: TagExpr<VarAD>
+): TagExpr<VarAD> | null => {
   // Property set in Style
   if (styleSetting.tag === "OptEval") {
     if (styleSetting.contents.tag === "Vary") {
-      properties[propName] = propValDone; // X.prop = ?
-      return properties;
+      return null;
     } else if (styleSetting.contents.tag === "VaryInit") {
       // Initialize the varying variable to the property specified in Style
-      properties[propName] = {
+      return {
         tag: "Done",
         contents: {
           tag: "FloatV",
           contents: varOf(styleSetting.contents.contents),
         },
       };
-      return properties;
     } else if (styleSetting.contents.tag === "Vector") {
       const v: Expr[] = styleSetting.contents.contents;
       if (v.length === 2) {
@@ -2664,18 +2617,17 @@ const initProperty = (
         // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
         // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
         if (v[0].tag === "Vary" && v[1].tag === "Vary") {
-          properties[propName] = propValDone;
-          return properties;
+          return null;
         }
       }
-      return properties;
+      return styleSetting;
     } else {
-      return properties;
+      return styleSetting;
     }
   } else if (styleSetting.tag === "Done") {
     // TODO: pending properties are only marked if the Style source does not set them explicitly
     // Check if this is the right decision. We still give pending values a default such that the initial list of shapes can be generated without errors.
-    return properties;
+    return styleSetting;
   }
 
   throw Error("internal error: unknown tag or invalid value for property");
@@ -2694,20 +2646,29 @@ const initShape = (
   const res = findExprSafe(tr, path); // This is safe (as used in GenOptProblem) since we only initialize shapes with paths from the translation
 
   if (res.tag === "FGPI") {
-    const [stype, props] = res.contents as [string, GPIProps<VarAD>];
-    const def: ShapeDef = findDef(stype);
-    const gpiTemplate: [string, [PropType, Sampler]][] = Object.entries(
-      def.properties
-    );
+    const [stype, props] = res.contents;
+    const instantiatedGPIProps: GPIProps<VarAD> = {
+      // start by sampling all properties for the shape according to its shapedef
+      ...Object.fromEntries(
+        Object.entries(
+          shapedefs[stype].sampler(getCanvas(tr))
+        ).map(([propName, contents]) => [
+          propName,
+          { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
+        ])
+      ),
 
-    const instantiatedGPIProps: GPIProps<VarAD> = gpiTemplate.reduce(
-      (
-        newGPI: GPIProps<VarAD>,
-        propTemplate: [string, [PropType, Sampler]]
-      ): GPIProps<VarAD> =>
-        initProperty(stype, newGPI, propTemplate, getCanvas(tr)),
-      clone(props)
-    ); // NOTE: `initProperty` mutates its input, so the `props` from the translation is cloned here, so the one in the translation itself isn't mutated
+      // then for all properties actually set in the Style program, overwrite
+      // the sampled property unless the Style program literally says "?"
+      ...Object.fromEntries(
+        Object.entries(props)
+          .map(([propName, propExpr]) => [
+            propName,
+            initProperty(stype, propName, propExpr),
+          ])
+          .filter(([, x]) => x !== null)
+      ),
+    };
 
     // Insert the name of the shape into its prop dict
     // NOTE: getShapes resolves the names + we don't use the names of the shapes in the translation
@@ -2772,10 +2733,10 @@ const findNames = (e: Expr, tr: Translation): [string, string] => {
   }
 };
 
-const topSortLayering = (
+export const topSortLayering = (
   allGPINames: string[],
   partialOrderings: [string, string][]
-): MaybeVal<string[]> => {
+): string[] => {
   const layerGraph: Graph = new Graph();
   allGPINames.map((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
@@ -2783,12 +2744,48 @@ const topSortLayering = (
     layerGraph.setEdge(below, above)
   );
 
-  try {
+  // if there is no cycles, return a global ordering from the top sort result
+  if (alg.isAcyclic(layerGraph)) {
     const globalOrdering: string[] = alg.topsort(layerGraph);
-    return { tag: "Just", contents: globalOrdering };
-  } catch (e) {
-    return { tag: "Nothing" };
+    return globalOrdering;
+  } else {
+    const cycles = alg.findCycles(layerGraph);
+    const globalOrdering = pseudoTopsort(layerGraph);
+    log.warn(
+      `Cycles detected in layering order: ${cycles
+        .map((c) => c.join(", "))
+        .join(
+          "; "
+        )}. The system approximated a global layering order instead: ${globalOrdering.join(
+        ", "
+      )}`
+    );
+    return globalOrdering;
   }
+};
+
+const pseudoTopsort = (graph: Graph): string[] => {
+  const toVisit: CustomHeap<string> = new CustomHeap((a: string, b: string) => {
+    const aIn = graph.inEdges(a);
+    const bIn = graph.inEdges(b);
+    if (!aIn) return 1;
+    else if (!bIn) return -1;
+    else return aIn.length - bIn.length;
+  });
+  const res: string[] = [];
+  graph.nodes().map((n: string) => toVisit.insert(n));
+  while (toVisit.size() > 0) {
+    // remove element with fewest incoming edges and append to result
+    const node: string = toVisit.extractRoot() as string;
+    res.push(node);
+    // remove all edges with `node`
+    const toRemove = graph.nodeEdges(node);
+    if (toRemove !== undefined) {
+      toRemove.forEach((e: Edge) => graph.removeEdge(e));
+      toVisit.fix();
+    }
+  }
+  return res;
 };
 
 const computeShapeOrdering = (tr: Translation): string[] => {
@@ -2804,12 +2801,7 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   ).map((e: [string, Field]): string => getShapeName(e[0], e[1]));
   const shapeOrdering = topSortLayering(allGPINames, partialOrderings);
 
-  // TODO: Errors for labeling
-  if (shapeOrdering.tag === "Nothing") {
-    throw Error("no shape ordering possible from layering");
-  }
-
-  return shapeOrdering.contents;
+  return shapeOrdering;
 };
 
 //#endregion
@@ -2916,7 +2908,6 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     rng: undefined as any,
     policyParams: undefined as any,
     oConfig: undefined as any,
-    selectorMatches: undefined as any,
     varyingMap: {} as any, // TODO: Should this be empty?
 
     canvas: getCanvas(trans),
@@ -2937,7 +2928,7 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
-  } catch (e) {
+  } catch (e: any) {
     return err(parseError(e, lastLocation(parser)));
   }
 };
@@ -3033,7 +3024,7 @@ const findPathsField = (
 
 // Check that canvas dimensions exist and have the proper type.
 const checkCanvas = (tr: Translation): StyleErrors => {
-  let errs: StyleErrors = [];
+  const errs: StyleErrors = [];
 
   if (!("canvas" in tr.trMap)) {
     errs.push({
@@ -3134,9 +3125,9 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 
 /* Precondition: checkCanvas returns without error */
 export const getCanvas = (tr: Translation): Canvas => {
-  let width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
+  const width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
     .contents as Value<VarAD>).contents as number;
-  let height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
+  const height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
     .contents as Value<VarAD>).contents as number;
   return {
     width,
@@ -3182,7 +3173,6 @@ export const compileStyle = (
     return err(toStyleErrors(selErrs));
   }
 
-  // Leaving these logs in because they are still useful for debugging, but TODO: remove them
   log.info("selEnvs", selEnvs);
 
   // Find substitutions (`find_substs_prog`)

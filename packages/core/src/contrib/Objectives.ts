@@ -26,7 +26,7 @@ import {
 import { inDirection } from "contrib/ObjectivesUtils";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
-import { isLinelike, isRectlike } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 
 // -------- Simple objective functions
@@ -118,7 +118,7 @@ export const objDictGeneral = {
     let res;
 
     // Repel a line `s1` from another shape `s2` with a center.
-    if (isLinelike(t1)) {
+    if (shapedefs[t1].isLinelike) {
       const line = s1;
       const c2 = shapeCenter([t2, s2]);
       const lineSamplePts = sampleSeg(linePts(line));
@@ -196,7 +196,7 @@ export const objDictSpecific = {
   ): VarAD => {
     const spacing = constOf(1.1); // arbitrary
 
-    if (isLinelike(t1) && isRectlike(t2) && isRectlike(t3)) {
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike && shapedefs[t3].isRectlike) {
       const s2BB = bboxFromShape([t2, s2]);
       const s3BB = bboxFromShape([t3, s3]);
       // HACK: Arbitrarily pick the height of the text
@@ -213,7 +213,7 @@ export const objDictSpecific = {
     [t2, s2]: [string, any],
     w: number
   ): VarAD => {
-    if (isLinelike(t1) && isRectlike(t2)) {
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike) {
       const [arr, text] = [s1, s2];
       const mx = div(
         add(arr.start.contents[0], arr.end.contents[0]),
@@ -243,7 +243,7 @@ export const objDictSpecific = {
     w: number,
     padding = 10
   ): VarAD => {
-    if (isLinelike(t1) && isRectlike(t2)) {
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike) {
       // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
       const [arr, text] = [s1, s2];
       const midpt = ops.vdiv(
@@ -256,7 +256,7 @@ export const objDictSpecific = {
         sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
         squared(constOfIf(padding))
       );
-    } else if (isRectlike(t1) && isRectlike(t2)) {
+    } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {
       // Try to center label in the rectangle
       // TODO: This should be applied generically on any two GPIs with a center
       return objDict.sameCenter([t1, s1], [t2, s2]);
@@ -267,7 +267,7 @@ export const objDictSpecific = {
    * try to make distance between a point and a segment `s1` = padding.
    */
   pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
-    if (!isLinelike(t1)) {
+    if (!shapedefs[t1].isLinelike) {
       throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
     }
     return squared(

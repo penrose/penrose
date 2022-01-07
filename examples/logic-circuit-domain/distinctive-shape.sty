@@ -14,7 +14,7 @@ forall InputNode x {
         center: x.center
         strokeWidth : 1.0
         r : 6.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
 
@@ -30,7 +30,7 @@ forall OutputNode x {
         center: x.center
         strokeWidth : 1.0
         r : 6.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     x.symbol = Equation {
@@ -59,23 +59,23 @@ with Node IN1; Node IN2; Node OUT {
 
     G.part1 = Rectangle {
         center : G.center
-        w : 40.0
-        h : 50.0
+        width : 40.0
+        height : 50.0
         strokeWidth: 1.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     G.part2 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 25.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     G.part3 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 24.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
@@ -84,32 +84,32 @@ with Node IN1; Node IN2; Node OUT {
     G.part4 = Circle {
         center : (G.part1.center[0] - G.GG + 3.0, G.part1.center[1])
         r : sqrt(25.0 * 25.0 + (G.GG - 20.0) * (G.GG  - 20.0))
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     G.part5 = Rectangle {
         center : (G.part1.center[0] - G.GG - 30.0+ 3.0, G.part1.center[1])
-        w : 2 * (G.GG - 20.0) + 60.0
-        h : 3 * (G.GG - 20.0)
+        width : 2 * (G.GG - 20.0) + 60.0
+        height : 3 * (G.GG - 20.0)
         strokeWidth: 0.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
     G.part5 above G.part4
 
     G.part6 = Circle {
         center : (G.part1.center[0] - G.GG  - 6.0, G.part1.center[1])
         r : sqrt(25.0 * 25.0 + (G.GG - 20.0) * (G.GG  - 20.0))
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     G.part7 = Rectangle {
         center : (G.part1.center[0] - G.GG - 30.0 - 6.0, G.part1.center[1])
-        w : 2 * (G.GG - 20.0) + 60.0
-        h : 3 * (G.GG - 20.0)
+        width : 2 * (G.GG - 20.0) + 60.0
+        height : 3 * (G.GG - 20.0)
         strokeWidth: 0.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
     G.part4 above G.part3
     G.part6 above G.part5
@@ -132,23 +132,23 @@ with Node IN1; Node IN2; Node OUT {
 
     G.part1 = Rectangle {
         center : G.center
-        w : 40.0
-        h : 50.0
+        width : 40.0
+        height : 50.0
         strokeWidth: 1.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     G.part2 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 25.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     G.part3 = Circle {
         center : (G.part1.center[0] + 20.0, G.part1.center[1])
         r : 24.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
         strokeWidth : 1.0
         strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
@@ -168,13 +168,13 @@ with Node IN; Node OUT1; Node OUT2 {
         center: x.center
         strokeWidth : 0.0
         r : 6.0
-        color : rgba(0.0, 0.0, 0.0, 1.0)
+        fillColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
     x.line = Line {
         start : OUT1.center
         end : OUT2.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 1.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 1.0
     }
     x.icon above x.line
 
@@ -203,20 +203,20 @@ with Node A; Node B {
     C.line1 = Line {
         start : A.center
         end : (C.pivot, A.center[1])
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 1.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 1.0
     }
     C.line2 = Line {
         start : (C.pivot, A.center[1])
         end : (C.pivot, B.center[1])
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 1.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 1.0
     }
     C.line3 = Line {
         start : (C.pivot, B.center[1])
         end : B.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 1.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 1.0
     }
     encourage equal(A.center[1], B.center[1])
     ensure lessThan(A.center[0], B.center[0])

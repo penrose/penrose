@@ -26,9 +26,9 @@ global {
     global.stroke = 2.0
     global.box = Rectangle {
                center: (0., 0.)
-               w: canvas.width
-               h: canvas.height
-               color: Colors.none
+               width: canvas.width
+               height: canvas.height
+               fillColor: Colors.none
                strokeColor: Colors.black
     }
     global.vertexWidth = 100.
@@ -43,9 +43,9 @@ Vertex V {
 
        V.shape = Rectangle { 
          center: (V.x, V.y)
-         w: global.vertexWidth + V.xpad
-         h: global.vertexWidth + V.ypad
-         color : Colors.none
+         width: global.vertexWidth + V.xpad
+         height: global.vertexWidth + V.ypad
+         fillColor : Colors.none
          strokeWidth : 2.
          strokeColor: Colors.black
        }
@@ -53,7 +53,7 @@ Vertex V {
        V.text = Equation {
 	 center: V.shape.center
 	 string : V.label
-	 color : Colors.black
+	 fillColor : Colors.black
        }
 
        ensure contains(global.box, V.shape)
@@ -63,7 +63,7 @@ Vertex V {
 }
 
 Vertex `v1` {
-       override `v1`.shape.w = 300.
+       override `v1`.shape.width = 300.
 }
 
 -- This is applied to each pair twice (as (a,b) then (b,a))

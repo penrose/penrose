@@ -1980,6 +1980,11 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
+"@datastructures-js/heap@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@datastructures-js/heap/-/heap-3.2.0.tgz#d8fcdbf58c462c8a3f0fdfd9c6a57ca11505321e"
+  integrity sha512-FcU5ZAyb+VIOZz1HABsJUsbJi2ZyUDO7aoe97hq4d3tK3z8nMgwdxf5bO0gafR0ExFi18YTspntqHLzt4XOgnA==
+
 "@discoveryjs/json-ext@^0.5.0":
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.3.tgz#90420f9f9c6d3987f176a19a7d8e764271a2f55d"
@@ -11413,6 +11418,11 @@ he@^1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+heap-js@^2.1.6:
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/heap-js/-/heap-js-2.1.6.tgz#817021e6d252ad6ba9a11ea65988cc4e6207782d"
+  integrity sha512-xQxyJg7VcgveAZtY0eAu7iCn+2VCqLBkQoz7G4RnOIEsmP82J/LnRdr0I2Mi/pThkP5tviL8yFq5utE3yOPYpQ==
+
 heap@^0.2.6:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/heap/-/heap-0.2.6.tgz#087e1f10b046932fc8594dd9e6d378afc9d1e5ac"
@@ -11746,11 +11756,6 @@ humanize-ms@^1.2.1:
   integrity sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0=
   dependencies:
     ms "^2.0.0"
-
-husky@^7.0.4:
-  version "7.0.4"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-7.0.4.tgz#242048245dc49c8fb1bf0cc7cfb98dd722531535"
-  integrity sha512-vbaCKN2QLtP/vD4yvs6iz6hBEo6wkSzs8HpRah1Z6aGmF2KW5PdYuAd7uX5a+OyBZHBhd+TFLqgjUgytQr4RvQ==
 
 hyperlinker@^1.0.0:
   version "1.0.0"

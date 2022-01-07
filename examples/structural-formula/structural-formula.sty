@@ -19,10 +19,10 @@ Global {
    scalar bondLength = 60.
 
    shape bbox = Rectangle {
-      w : canvas.width
-      h : canvas.height
+      width : canvas.width
+      height : canvas.height
       center : (0.,0.)
-      color : Colors.clear
+      fillColor : Colors.clear
       strokeColor : Colors.gray
    }
 }
@@ -34,7 +34,7 @@ forall Node n {
    shape n.icon = Circle {
       r : Global.atomRadius
       center : n.center
-      color : Colors.white
+      fillColor : Colors.white
       strokeColor : Colors.black
       strokeWidth : 2.
    }
@@ -42,21 +42,21 @@ forall Node n {
    shape n.background = Circle {
       r : Global.atomRadius * 4.
       center : n.center
-      color : rgba( .95, .95, .95, 1. )
+      fillColor : rgba( .95, .95, .95, 1. )
       strokeColor : Colors.clear
    }
 
    -- n.background = Image {
-   --    path : "atom.svg"
+   --    href : "atom.svg"
    --    center : (?,?)
-   --    w : 4.*Global.atomRadius
-   --    h : 4.*Global.atomRadius
+   --    width : 4.*Global.atomRadius
+   --    height : 4.*Global.atomRadius
    -- }
 
    shape n.text = Text {
       string: n.label
       center: n.center
-      color: Colors.black
+      fillColor: Colors.black
       fontSize: "16pt"
       fontFamily: "HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica, Arial, sans-serif"
       fontWeight: "Bold"
@@ -72,36 +72,36 @@ forall Node n {
 }
 
 forall FunctionalGroup g {
-   override g.icon.color = Colors.clear
+   override g.icon.fillColor = Colors.clear
    override g.icon.strokeColor = Colors.clear
-   override g.text.color = Colors.black
+   override g.text.fillColor = Colors.black
 }
 
 forall Hydrogen a {
-   override a.icon.color = Colors.red
+   override a.icon.fillColor = Colors.red
    override a.icon.strokeColor = Colors.darkRed
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = "H"
 }
 
 forall Carbon a {
-   override a.icon.color = Colors.black
+   override a.icon.fillColor = Colors.black
    override a.icon.strokeColor = Colors.gray
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = "C"
 }
 
 forall Nitrogen a {
-   override a.icon.color = Colors.blue
+   override a.icon.fillColor = Colors.blue
    override a.icon.strokeColor = Colors.darkBlue
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = "N"
 }
 
 forall Oxygen a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.gray
-   override a.text.color = Colors.black
+   override a.text.fillColor = Colors.black
    override a.text.string = "O"
 }
 
@@ -116,8 +116,8 @@ where SingleBond( n1, n2 ) {
    shape line = Line {
       start : x1 - 1.3*r*u
         end : x2 + 1.3*r*u
-      thickness : 4.
-      color : Colors.black
+      strokeWidth : 4.
+      strokeColor : Colors.black
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
@@ -140,15 +140,15 @@ where DoubleBond( n1, n2 ) {
    shape line1 = Line {
       start : x1 - 1.3*r*u - .25*r*v
         end : x2 + 1.3*r*u - .25*r*v
-      thickness : 4.
-      color : Colors.black
+      strokeWidth : 4.
+      strokeColor : Colors.black
    }
 
    shape line2 = Line {
       start : x1 - 1.3*r*u + .25*r*v
         end : x2 + 1.3*r*u + .25*r*v
-      thickness : 4.
-      color : Colors.black
+      strokeWidth : 4.
+      strokeColor : Colors.black
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )

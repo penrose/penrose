@@ -76,17 +76,12 @@ export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
       (properties.r.contents as number) * 2,
       (properties.r.contents as number) * 2,
     ];
-  } else if (shapeType === "Square") {
-    [w, h] = [
-      properties.side.contents as number,
-      properties.side.contents as number,
-    ];
   } else if (shapeType === "Ellipse") {
     [w, h] = [
       (properties.rx.contents as number) * 2,
       (properties.ry.contents as number) * 2,
     ];
-  } else if (shapeType === "Arrow" || shapeType === "Line") {
+  } else if (shapeType === "Line") {
     const [[sx, sy], [ex, ey]] = [
       properties.start.contents as [number, number],
       properties.end.contents as [number, number],
@@ -100,14 +95,13 @@ export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
   } else if (shapeType === "Polygon") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "FreeformPolygon") {
-    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
   } else if (shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "PathString") {
-    [w, h] = [properties.w.contents as number, properties.h.contents as number];
-  } else if (properties.w && properties.h) {
-    [w, h] = [properties.w.contents as number, properties.h.contents as number];
+  } else if (properties.width && properties.height) {
+    [w, h] = [
+      properties.width.contents as number,
+      properties.height.contents as number,
+    ];
   } else {
     [w, h] = [20, 20];
   }
@@ -287,7 +281,7 @@ export const loadImages = async (allShapes: any[]) => {
   return Promise.all(
     allShapes.map(async ({ shapeType, properties }: any) => {
       if (shapeType === "ImageTransform") {
-        const path = properties.path.contents;
+        const path = properties.href.contents;
         const fullPath = process.env.PUBLIC_URL + path;
         const loadedImage = await loadImageElement(fullPath);
         const obj2 = { ...properties };

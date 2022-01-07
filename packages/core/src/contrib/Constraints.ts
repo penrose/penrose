@@ -22,7 +22,7 @@ import {
   shapeSize,
 } from "contrib/Queries";
 import * as _ from "lodash";
-import { isLinelike, isRectlike } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 import {
   overlappingLines,
   overlappingCircles,
@@ -146,13 +146,13 @@ const constrDictGeneral = {
     [t2, s2]: [string, any],
     padding = 0.0
   ) => {
-    if (isLinelike(t1) && isLinelike(t2))
+    if (shapedefs[t1].isLinelike && shapedefs[t2].isLinelike)
       return overlappingLines([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
-    if (isRectlike(t1) && t2 === "Circle")
+    if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else
       return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
@@ -192,13 +192,13 @@ const constrDictGeneral = {
   ) => {
     if (t1 === "Circle" && t2 === "Circle")
       return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Circle" && isRectlike(t2))
+    else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
-    else if (isRectlike(t1) && t1 !== "Square" && t2 === "Circle")
+    else if (shapedefs[t1].isRectlike && t1 !== "Square" && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Square" && t2 === "Circle")
       return containsSquareCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Square" && isLinelike(t2))
+    else if (t1 === "Square" && shapedefs[t2].isLinelike)
       return containsSquareLinelike([t1, s1], [t2, s2], constOfIf(padding));
     else
       return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
@@ -275,7 +275,7 @@ const constrDictSpecific = {
    * Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
    */
   disjointIntervals: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (!isLinelike(t1) || !isLinelike(t2)) {
+    if (!shapedefs[t1].isLinelike || !shapedefs[t2].isLinelike) {
       throw Error("expected two line-like shapes");
     }
     return overlap1D(
