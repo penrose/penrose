@@ -8,7 +8,6 @@ import {
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
 import { mapValues, zip } from "lodash";
-import { notEmptyLabel } from "renderer/ShapeDef";
 // For deep-cloning the translation
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";

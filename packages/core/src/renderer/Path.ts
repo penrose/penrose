@@ -1,5 +1,5 @@
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
-import { arrowHead } from "./Arrow";
+import { arrowHead } from "./Line";
 import { ShapeProps } from "./Renderer";
 import { flatten } from "lodash";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
@@ -62,16 +62,16 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const strokeWidth = (shape.properties.strokeWidth as IFloatV<number>)
     .contents;
   const strokeColor = toSvgPaintProperty(
-    (shape.properties.color as IColorV<number>).contents
+    (shape.properties.strokeColor as IColorV<number>).contents
   );
   const strokeOpacity = toSvgOpacityProperty(
-    (shape.properties.color as IColorV<number>).contents
+    (shape.properties.strokeColor as IColorV<number>).contents
   );
   const fillColor = toSvgPaintProperty(
-    (shape.properties.fill as IColorV<number>).contents
+    (shape.properties.fillColor as IColorV<number>).contents
   );
   const fillOpacity = toSvgOpacityProperty(
-    (shape.properties.fill as IColorV<number>).contents
+    (shape.properties.fillColor as IColorV<number>).contents
   );
   const arrowheadStyle = (shape.properties.arrowheadStyle as IStrV).contents;
   const arrowheadSize = (shape.properties.arrowheadSize as IFloatV<number>)
@@ -81,7 +81,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  if (shape.properties.leftArrowhead.contents === true) {
+  if (shape.properties.startArrowhead.contents === true) {
     elem.appendChild(
       arrowHead(
         leftArrowId,
@@ -92,7 +92,7 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
       )
     );
   }
-  if (shape.properties.rightArrowhead.contents === true) {
+  if (shape.properties.endArrowhead.contents === true) {
     elem.appendChild(
       arrowHead(
         rightArrowId,
@@ -105,29 +105,31 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   }
   attrToNotAutoMap.push(
     "name",
-    "color",
+    "strokeColor",
     "arrowheadStyle",
     "arrowheadSize",
-    "rightArrowhead",
-    "leftArrowhead"
+    "startArrowhead",
+    "endArrowhead"
   );
   elem.appendChild(Shadow(shadowId));
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("stroke", strokeColor);
   path.setAttribute("fill", fillColor);
-  attrToNotAutoMap.push("fill", "color");
+  attrToNotAutoMap.push("fillColor", "strokeColor");
 
   // Stroke opacity and width only relevant if paint is present
-  if ((shape.properties.color as IColorV<number>).contents.tag !== "NONE") {
+  if (
+    (shape.properties.strokeColor as IColorV<number>).contents.tag !== "NONE"
+  ) {
     path.setAttribute("stroke-width", strokeWidth.toString());
     path.setAttribute("stroke-opacity", strokeOpacity.toString());
-    attrToNotAutoMap.push("color", "strokeWidth");
+    attrToNotAutoMap.push("strokeColor", "strokeWidth");
   }
   // Fill opacity only relevant if paint is present
-  if ((shape.properties.fill as IColorV<number>).contents.tag !== "NONE") {
+  if ((shape.properties.fillColor as IColorV<number>).contents.tag !== "NONE") {
     path.setAttribute("fill-opacity", fillOpacity.toString());
-    attrToNotAutoMap.push("fill");
+    attrToNotAutoMap.push("fillColor");
   }
   // factor out an AttrHelper
   if (
@@ -146,21 +148,17 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   // TODO: ded
   path.setAttribute(
     "d",
-    toPathString(shape.properties.pathData.contents as any[], canvasSize)
+    toPathString(shape.properties.d.contents as any[], canvasSize)
   );
-  attrToNotAutoMap.push("pathData");
-  if (shape.properties.leftArrowhead.contents === true) {
+  attrToNotAutoMap.push("d");
+  if (shape.properties.startArrowhead.contents === true) {
     path.setAttribute("marker-start", `url(#${leftArrowId})`);
-    attrToNotAutoMap.push("leftArrowhead");
+    attrToNotAutoMap.push("startArrowhead");
   }
-  if (shape.properties.rightArrowhead.contents === true) {
+  if (shape.properties.endArrowhead.contents === true) {
     path.setAttribute("marker-end", `url(#${rightArrowId})`);
-    attrToNotAutoMap.push("rightArrowhead");
+    attrToNotAutoMap.push("endArrowhead");
   }
-  if (shape.properties.effect.contents === "dropShadow") {
-    path.setAttribute("filter", `url(#${shadowId})`);
-  }
-  attrToNotAutoMap.push("effect");
   elem.appendChild(path);
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 

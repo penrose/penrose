@@ -1,7 +1,6 @@
 import {
   attrAutoFillSvg,
   attrFill,
-  attrPolyCenter,
   attrScale,
   attrStroke,
   attrTitle,
@@ -21,7 +20,6 @@ const Polygon = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
-  attrToNotAutoMap.push(...attrPolyCenter(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrScale(shape, elem));
 
   // Directrly Map across any "unknown" SVG properties

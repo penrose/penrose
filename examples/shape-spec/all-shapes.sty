@@ -5,9 +5,9 @@ canvas {
 forall TCircle X
 {
     X.icon = Circle { }
-    X.callout = Callout {
-        anchor: X.icon.center
-    }
+    -- X.callout = Callout {
+    --     anchor: X.icon.center
+    -- }
 }
 forall TEllipse X
 {
@@ -17,10 +17,6 @@ forall TRectangle X
 {
     X.icon = Rectangle { }
 }
-forall TSquare X
-{
-    X.icon = Square { }
-}
 forall TEquation X
 {
     X.icon = Equation { }
@@ -28,18 +24,14 @@ forall TEquation X
 forall TLine X
 {
     X.icon = Line { 
-        rightArrowhead : true
-        leftArrowhead : true
+        endArrowhead : true
+        startArrowhead : true
     }
-}
-forall TArrow X
-{
-    X.icon = Arrow { }
 }
 forall TPath X
 {
     X.icon = Path { 
-        pathData : pathFromPoints("open", [(0,0), (0,100), (100,100)])
+        d : pathFromPoints("open", [(0,0), (0,100), (100,100)])
     }
 }
 forall TImage X
@@ -50,19 +42,9 @@ forall TPolyline X
 {
     X.icon = Polyline { }
 }
-forall TPathString X
-{
-    X.icon = PathString { }
-}
 forall TPolygon X
 {
     X.icon = Polygon { 
         points: ((20.0, 10.0), (120.0, 20.0), (30.0, 70.0))
     }
-}
-forall TFreeformPolygon X
-{
- 	X.icon = FreeformPolygon { 
-        points: ((10.0, 0.0), (110.0, 10.0), (20.0, 60.0))
-	}
 }

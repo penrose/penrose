@@ -10,7 +10,7 @@ forall Atom x {
     x.icon = Circle {
         strokeWidth : 0.0
         r : 15.0
-        color : rgba(1.0, 1.0, 1.0, 1.0)
+        fillColor : rgba(1.0, 1.0, 1.0, 1.0)
     }
     x.symbol = Equation {
        string : x.symbol_string
@@ -44,8 +44,8 @@ with Atom x; Atom y {
     b.line = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 2.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 2.0
     }
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
@@ -56,14 +56,14 @@ with Atom x; Atom y {
     b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 6.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 6.0
     }
     b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 2.0
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 2.0
     }
     b.layering = b.line2 above b.line1
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
@@ -75,20 +75,20 @@ with Atom x; Atom y {
     b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 10.0
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 10.0
     }
     b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 6.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 6.0
     }
     b.line3 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 2.0
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 2.0
     }
     b.layering1 = b.line2 above b.line1
     b.layering2 = b.line3 above b.line2

@@ -14,12 +14,12 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  const path = (shape.properties.path as IStrV).contents;
+  const path = (shape.properties.href as IStrV).contents;
   if (!(path in images)) {
     console.error(`Could not find image path ${path}`);
     return elem;
   }
-  attrToNotAutoMap.push("path");
+  attrToNotAutoMap.push("href");
   elem.innerHTML = images[path];
   const svg = elem.firstChild as SVGSVGElement;
   const defs = svg.getElementsByTagName("defs");
@@ -50,8 +50,8 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     });
   }
   attrToNotAutoMap.push(...attrWH(shape, svg));
-  attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
+  attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
