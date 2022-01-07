@@ -202,8 +202,8 @@ export const objDictSpecific = {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
       return centerArrow2(arr, s2BB.center, s3BB.center, [
-        mul(spacing, s2BB.h),
-        neg(mul(s3BB.h, spacing)),
+        mul(spacing, s2BB.height),
+        neg(mul(s3BB.height, spacing)),
       ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
@@ -228,7 +228,7 @@ export const objDictSpecific = {
       const textBB = bboxFromShape([t2, text]);
       const lh = squared(sub(mx, textBB.center[0]));
       const rh = squared(
-        sub(add(my, mul(textBB.h, constOf(1.1))), textBB.center[1])
+        sub(add(my, mul(textBB.height, constOf(1.1))), textBB.center[1])
       );
       return mul(add(lh, rh), constOfIf(w));
     } else throw Error("unsupported shapes");
@@ -253,7 +253,7 @@ export const objDictSpecific = {
       const textBB = bboxFromShape([t2, text]);
       // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
       return add(
-        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.w)),
+        sub(ops.vdistsq(midpt, textBB.center), squared(textBB.width)),
         squared(constOfIf(padding))
       );
     } else if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike) {

@@ -1,6 +1,6 @@
 import * as _ from "lodash";
-import { inRange } from "contrib/Utils";
 import { bboxFromShape } from "contrib/Queries";
+import { inRange } from "contrib/Utils";
 import {
   absVal,
   add,

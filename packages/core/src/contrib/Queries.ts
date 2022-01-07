@@ -39,7 +39,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
       return s.side.contents;
     default: {
       const bbox = bboxFromShape([t, s]);
-      return sqrt(mul(bbox.w, bbox.h));
+      return sqrt(mul(bbox.width, bbox.height));
     }
   }
 };

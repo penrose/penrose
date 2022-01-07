@@ -77,7 +77,7 @@ export const overlappingPolygons = (
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const s1BBox = bboxFromShape([t1, s1]);
-  const textR = max(s1BBox.w, s1BBox.h);
+  const textR = max(s1BBox.width, s1BBox.height);
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   return sub(d, add(add(s2.r.contents, textR), padding));
 };
@@ -133,7 +133,7 @@ export const containsCircleRectlike = (
   // TODO: Remake using Minkowski penalties
   const s2BBox = bboxFromShape([t2, s2]);
   const d = ops.vdist(shapeCenter([t1, s1]), s2BBox.center);
-  const textR = max(s2BBox.w, s2BBox.h);
+  const textR = max(s2BBox.width, s2BBox.height);
   return add(sub(d, s1.r.contents), textR);
 };
 
