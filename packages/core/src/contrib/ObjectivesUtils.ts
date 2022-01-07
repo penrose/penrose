@@ -1,4 +1,4 @@
-import { constOf, squared, sub, varOf, max, ops} from "engine/Autodiff";
+import { constOf, squared, sub, max, ops} from "engine/Autodiff";
 import { shapeCenter } from "contrib/Queries";
 import { Pt2, VarAD } from "types/ad";
 
@@ -10,10 +10,10 @@ export const inDirection = (
   [t, shape]: [string, any],
   [tRef, shapeRef]: [string, any],
   unitDirectionVector: Pt2,
-  offset: number
+  offset: VarAD
 ): VarAD => {
   const center = shapeCenter([t, shape]);
   const centerRef = shapeCenter([tRef, shapeRef]);
   const dotProduct = ops.vdot(ops.vsub(center, centerRef), unitDirectionVector);
-  return squared(max(constOf(0.0), sub(dotProduct, varOf(offset))));
+  return squared(sub(dotProduct, offset));
 };

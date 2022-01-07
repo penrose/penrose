@@ -65,7 +65,7 @@ export const objDictGeneral = {
     [tBottom, sBottom]: [string, any],
     [tTop, sTop]: [string, any],
     offset = 100
-  ) => inDirection([tBottom, sBottom], [tTop, sTop], [constOf(0.0), constOf(1.0)], offset),
+  ) => inDirection([tBottom, sBottom], [tTop, sTop], [constOf(0.0), constOf(1.0)], constOfIf(offset)),
 
   /**
    * Encourage the center of `sBottom` to be below the center of `sTop`.
@@ -74,7 +74,7 @@ export const objDictGeneral = {
     [tTop, sTop]: [string, any],
     [tBottom, sBottom]: [string, any],
     offset = 100
-  ) => inDirection([tTop, sTop], [tBottom, sBottom], [constOf(0.0), constOf(1.0)], offset),
+  ) => inDirection([tTop, sTop], [tBottom, sBottom], [constOf(0.0), constOf(1.0)], constOfIf(offset)),
 
   /**
    * Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
@@ -83,7 +83,7 @@ export const objDictGeneral = {
     [tLeft, sLeft]: [string, any],
     [tRight, sRight]: [string, any],
     offset = 100
-  ) => inDirection([tLeft, sLeft], [tRight, sRight], [constOf(1.0), constOf(0.0)], offset),
+  ) => inDirection([tLeft, sLeft], [tRight, sRight], [constOf(1.0), constOf(0.0)], constOfIf(offset)),
   
   /**
    * Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
@@ -92,7 +92,7 @@ export const objDictGeneral = {
     [tRight, sRight]: [string, any],
     [tLeft, sLeft]: [string, any],
     offset = 100
-  ) => inDirection([tRight, sRight], [tLeft, sLeft], [constOf(1.0), constOf(0.0)], offset),
+  ) => inDirection([tRight, sRight], [tLeft, sLeft], [constOf(1.0), constOf(0.0)], constOfIf(offset)),
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.

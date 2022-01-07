@@ -11,7 +11,7 @@ describe("inDirection", () => {
       ["testShape", testShape],
       ["testRefShape", testRefShape],
       [constOf(-1.0), constOf(0.0)],
-      0
+      constOf(0)
     );
     expect(numOf(result)).toEqual(1);
   });
@@ -21,7 +21,7 @@ describe("inDirection", () => {
       ["testShape", testShape],
       ["testRefShape", testRefShape],
       [constOf(-1.0), constOf(0.0)],
-      5
+      constOf(1)
     );
     expect(numOf(result)).toEqual(0);
   });
@@ -31,7 +31,7 @@ describe("inDirection", () => {
       ["testShape", testShape],
       ["testRefShape", testRefShape],
       [constOf(-1.0), constOf(0.0)],
-      -2
+      constOf(-2)
     );
     expect(numOf(result)).toEqual(9);
   });

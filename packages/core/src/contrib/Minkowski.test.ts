@@ -53,7 +53,7 @@ let lineSegment = [point3, point4];
 describe("outwardUnitNormal", () => {
 
   test("inside point above", async () => {
-    let result = outwardUnitNormal([point3, point4], point1);
+    let result = outwardUnitNormal(lineSegment, point1);
     // It is unit
     expect(numOf(ops.vnorm(result))).toBeCloseTo(1, digitPrecision);
     // It is orthogonal to the line segment
