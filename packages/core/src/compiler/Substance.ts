@@ -23,6 +23,7 @@ import {
   Func,
   LabelMap,
   LabelOption,
+  LabelValue,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -108,7 +109,7 @@ const initEnv = (ast: SubProg, env: Env): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
   bindings: Map<string, SubExpr>(),
-  labels: Map<string, string>(
+  labels: Map<string, LabelValue>(
     [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL])
   ),
   predicates: [],
@@ -117,7 +118,7 @@ const initEnv = (ast: SubProg, env: Env): SubstanceEnv => ({
 
 //#region Postprocessing
 
-const EMPTY_LABEL = "";
+const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
 export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
   // post process all statements
@@ -148,7 +149,9 @@ const processLabelStmt = (
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
         const [...ids] = env.vars.keys();
-        const newLabels: LabelMap = Map(ids.map((id) => [id, id]));
+        const newLabels: LabelMap = Map(
+          ids.map((id) => [id, { value: id, type: "MathLabel" }])
+        );
         return {
           ...subEnv,
           labels: newLabels,
@@ -156,7 +159,7 @@ const processLabelStmt = (
       } else {
         const ids = stmt.option.variables;
         const newLabels: LabelMap = subEnv.labels.merge(
-          ids.map((id) => [id.value, id.value])
+          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }])
         );
         return {
           ...subEnv,
@@ -165,10 +168,13 @@ const processLabelStmt = (
       }
     }
     case "LabelDecl": {
-      const { variable, label } = stmt;
+      const { variable, label, labelType } = stmt;
       return {
         ...subEnv,
-        labels: subEnv.labels.set(variable.value, label.contents),
+        labels: subEnv.labels.set(variable.value, {
+          value: label.contents,
+          type: labelType,
+        }),
       };
     }
     case "NoLabel": {
