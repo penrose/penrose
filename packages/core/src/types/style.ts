@@ -3,6 +3,7 @@
 
 import { VarAD } from "./ad";
 import { ASTNode, Identifier, IStringLit } from "./ast";
+import { LabelType } from "./substance";
 
 /** Top level type for Style AST */
 export interface StyProg extends ASTNode {
@@ -50,7 +51,14 @@ export interface DeclPattern extends ASTNode {
   id: BindingForm;
 }
 
-export type RelationPattern = RelBind | RelPred;
+export type RelationPattern = RelBind | RelPred | RelField;
+
+export interface RelField {
+  tag: "RelField";
+  name: BindingForm;
+  field: Identifier;
+  fieldDescriptor?: LabelType;
+}
 
 export interface RelationPatterns extends ASTNode {
   tag: "RelationPatterns";

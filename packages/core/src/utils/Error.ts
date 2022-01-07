@@ -16,6 +16,7 @@ import {
   ParseError,
   PenroseError,
   RuntimeError,
+  SelectorFieldNotSupported,
   StyleError,
   SubstanceError,
   TypeArgLengthMismatch,
@@ -25,6 +26,7 @@ import {
   VarNotFound,
 } from "types/errors";
 import { State } from "types/state";
+import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
 import { prettyPrintPath } from "utils/OtherUtils";
 const {
@@ -200,6 +202,14 @@ export const showError = (
 
     case "SelectorVarMultipleDecl": {
       return `Style pattern statement has already declared the variable ${error.varName.contents.value}`;
+    }
+
+    case "SelectorFieldNotSupported": {
+      return `Cannot match on field ${error.name.contents.value}.${
+        error.field.value
+      } (${loc(
+        error.field
+      )}) because matching on fields is not fully supported. Currently, only "label" can be matched in selectors.`;
     }
 
     case "SelectorDeclTypeMismatch": {
@@ -496,6 +506,15 @@ export const typeArgLengthMismatch = (
   sourceType,
   expectedExpr,
   expectedType,
+});
+
+export const selectorFieldNotSupported = (
+  name: BindingForm,
+  field: Identifier
+): SelectorFieldNotSupported => ({
+  tag: "SelectorFieldNotSupported",
+  name,
+  field,
 });
 
 export const deconstructNonconstructor = (

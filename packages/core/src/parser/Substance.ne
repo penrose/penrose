@@ -159,21 +159,25 @@ label_stmt
   |  no_label   {% id %}
   |  auto_label {% id %}
 
-label_decl -> "Label" __ identifier __ tex_literal {%
-  ([kw, , variable, , label]): LabelDecl => ({
-    ...nodeData([variable, label]),
-    ...rangeBetween(rangeOf(kw), label),
-    tag: "LabelDecl", variable, label
-  })
-%}
-
-label_decl -> "Label" __ identifier __ string_lit {%
-  ([kw, , variable, , label]): LabelDecl => ({
-    ...nodeData([variable, label]),
-    ...rangeBetween(rangeOf(kw), label),
-    tag: "LabelDecl", variable, label
-  })
-%}
+label_decl 
+  -> "Label" __ identifier __ tex_literal {%
+    ([kw, , variable, , label]): LabelDecl => ({
+      ...nodeData([variable, label]),
+      ...rangeBetween(rangeOf(kw), label),
+      tag: "LabelDecl", 
+      labelType: "MathLabel",
+      variable, label
+    })
+  %}
+ |  "Label" __ identifier __ string_lit {%
+    ([kw, , variable, , label]): LabelDecl => ({
+      ...nodeData([variable, label]),
+      ...rangeBetween(rangeOf(kw), label),
+      tag: "LabelDecl", 
+      labelType: "TextLabel",
+      variable, label
+    })
+  %}
 
 no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
   ([kw, , args]): NoLabel => ({

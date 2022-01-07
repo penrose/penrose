@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { ASTNode, Identifier, IStringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelPred, SEFuncOrValCons, SEBind, Block, IAnonAssign, Delete, IOverride, PathAssign, StyType, BindingForm, Path, ILayering, BinaryOp, Expr, IBinOp, SubVar, StyVar, IPropertyPath, IFieldPath, LocalVar, IAccessPath, IUOp, IList, ITuple, IVector, IBoolLit, IVary, IFix, ICompApp, IObjFn, IConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, IAnonAssign, Delete, IOverride, PathAssign, StyType, BindingForm, Path, ILayering, BinaryOp, Expr, IBinOp, SubVar, StyVar, IPropertyPath, IFieldPath, LocalVar, IAccessPath, IUOp, IList, ITuple, IVector, IBoolLit, IVary, IFix, ICompApp, IObjFn, IConstrFn, GPIDecl, PropertyDecl, 
 } from "types/style";
 
 const styleTypes: string[] =
@@ -192,6 +192,7 @@ relation_list -> sepBy1[relation, ";"]  {%
 relation
   -> rel_bind {% id %} 
   |  rel_pred {% id %}
+  |  rel_field {% id %}
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
   ([id, , , , expr]): RelBind => ({
@@ -208,6 +209,20 @@ rel_pred -> identifier _ "(" pred_arg_list ")" {%
     tag: "RelPred", name, args
   }) 
 %}
+
+rel_field -> binding_form __ "has" __ (field_desc __):? identifier {%
+  ([name, , , , field_desc, field]): RelField => ({
+    ...nodeData(field_desc ? [name, field_desc[0], field] : [name, field]), 
+    ...rangeBetween(name, field),
+    tag: "RelField",
+    fieldDescriptor: field_desc ? field_desc[0] : undefined,
+    name, field, 
+  })
+%}
+
+field_desc 
+  -> "math" {% () => "MathLabel" %} 
+  |  "text" {% () => "TextLabel" %}
 
 sel_expr_list 
   -> _ {% d => [] %}
