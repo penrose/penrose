@@ -289,8 +289,8 @@ const constrDictSpecific = {
 
 }
 
-export const constrDict = Object.assign({}, 
-  constrDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
-  constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
-  constrDictSpecific // Defined only for specific use-case or specific shapes.
-);
+export const constrDict = {
+  ...constrDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
+  ...constrDictSpecific // Defined only for specific use-case or specific shapes.
+};

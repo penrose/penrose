@@ -283,8 +283,8 @@ export const objDictSpecific = {
 
 }
 
-export const objDict = Object.assign({}, 
-  objDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
-  objDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
-  objDictSpecific // Defined only for specific use-case or specific shapes.
-);
+export const objDict = {
+  ...objDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...objDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
+  ...objDictSpecific // Defined only for specific use-case or specific shapes.
+};
