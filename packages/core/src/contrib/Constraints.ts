@@ -154,8 +154,11 @@ const constrDictGeneral = {
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
     if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else
+    else {
+      // TODO: After compilation time fix (issue #652), replace by:
+      // return overlappingAABBsMinkowski([t1, s1], [t2, s2], constOfIf(padding));
       return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
+    }
   },
 
   /**
