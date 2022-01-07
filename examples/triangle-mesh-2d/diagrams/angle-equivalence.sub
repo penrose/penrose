@@ -3,6 +3,8 @@
 -- This example tries to reproduce Figure 1 from
 -- Crane, "Conformal Geometry of Simplicial Surfaces"
 
+-- Initial mesh
+
 Vertex i, j, k, l -- for the two "inner" triangles
 Vertex a, b, c -- for the three "ears"
 
@@ -36,10 +38,54 @@ Corner cjil := MakeCorner( j, i, l )
 Corner cilj := MakeCorner( i, l, j )
 Corner clji := MakeCorner( l, j, i )
 
+-- Same mesh, under an angle-preserving map f
+
+Vertex I := f(i)
+Vertex J := f(j)
+Vertex K := f(k)
+Vertex L := f(l)
+Vertex A := f(a)
+Vertex B := f(b)
+Vertex C := f(c)
+
+Edge IJ := MakeEdge( I, J )
+Edge JK := MakeEdge( J, K )
+Edge KI := MakeEdge( K, I )
+Edge IL := MakeEdge( I, L )
+Edge LJ := MakeEdge( L, J )
+Edge KA := MakeEdge( K, A )
+Edge JA := MakeEdge( J, A )
+Edge IB := MakeEdge( I, B )
+Edge KB := MakeEdge( K, B )
+Edge LC := MakeEdge( L, C )
+Edge IC := MakeEdge( I, C )
+
+IsBoundaryEdge( LJ )
+IsBoundaryEdge( KA )
+IsBoundaryEdge( JA )
+IsBoundaryEdge( IB )
+IsBoundaryEdge( KB )
+IsBoundaryEdge( LC )
+IsBoundaryEdge( IC )
+
+Triangle IJK := MakeTriangle( I, J, K )
+Triangle JIL := MakeTriangle( J, I, L )
+Triangle KJA := MakeTriangle( K, J, A )
+Triangle IKB := MakeTriangle( I, K, B )
+Triangle LIC := MakeTriangle( L, I, C )
+
+Corner cJIL := MakeCorner( J, I, L )
+Corner cILJ := MakeCorner( I, L, J )
+Corner cLJI := MakeCorner( L, J, I )
+
+
 AutoLabel All
 Label cjil $α$
 Label cilj $β$
 Label clji $γ$
+Label cJIL $α$
+Label cILJ $β$
+Label cLJI $γ$
 -- HasLabel( i )
 -- HasLabel( j )
 -- HasLabel( k )

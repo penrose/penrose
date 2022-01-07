@@ -33,3 +33,6 @@ constructor Incircle(Triangle t) -> Circle
 constructor EdgeLength(Edge e) -> Length
 constructor DualEdgeLength(DualEdge d) -> Length
 
+-- Specific to angle-equivalence.sub
+function f(Vertex i) -> Vertex
+

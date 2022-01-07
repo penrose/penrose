@@ -20,7 +20,7 @@ Global {
    scalar lineThickness = 1.
    scalar labelBoundRadius = 8.
    scalar lineOffset = 8.0
-   scalar wedgeSize = 25.0
+   scalar wedgeSize = 30.0
 
    shape box = Rectangle {
       center: (0.,0.)
@@ -32,7 +32,7 @@ Global {
    }
 
    string fontFamily = "Palatino"
-   string fontSize = "9pt"
+   string fontSize = "11pt"
 }
 
 forall Vertex v {
@@ -47,7 +47,7 @@ forall Vertex v {
    }
 
    -- make sure the dot is on the canvas
-   ensure contains( Global.box, v.icon )
+   constraint v.onCanvas = ensure contains( Global.box, v.icon )
 }
 
 forall Vertex v
@@ -167,15 +167,15 @@ where t := MakeTriangle(i,j,k)
    -- oriented and not tiny, by making their
    -- signed area greater than some fixed constant.
    scalar A = cross2D( b-a, c-a )
-   encourage lessThan( 4000., A )
+   objective t.positiveArea = encourage lessThan( 4000., A )
 
    -- Also ensure triangles are not slivers by making
    -- sure two of their angles are in a reasonable range
    -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   ensure inRange( aTheta, toRadians(50.), toRadians(70.) )
-   ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
+   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(50.), toRadians(70.) )
+   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
 
    -- -- Encourage the vertex labels to be outside the triangle
    -- -- by encouraging the total area made with the three
@@ -383,4 +383,44 @@ forall Length l {
       fontSize: Global.fontSize
    }
 }
+
+-- Specific to the example diagrams/angle-equivalence.sub
+-- TODO requires #776 to import these rules from an example-specific Style module
+
+similarityMap {
+   scalar scale = .5
+   scalar angle = ?
+   vec2 shift = (0.,0.)
+
+   shape mapArrow = Line {
+      start: (2.*canvas.width/5.,0.)
+      end: (3.25*canvas.width/5.,0.)
+      color: Colors.black
+      thickness: 3.*Global.lineThickness
+      rightArrowhead: true
+      arrowheadSize: .5
+   }
+
+   layer mapArrow above Global.box
+}
+
+forall Vertex v; Vertex v0
+where v := f(v0) {
+
+   scalar s = similarityMap.scale
+   scalar theta = similarityMap.angle
+   vec2 u = similarityMap.shift
+
+   override v.center = s*rotateBy(v0.center,theta) + u
+   delete v.onCanvas
+}
+
+forall Triangle t; Vertex i; Vertex j; Vertex k; Vertex i0
+where t := MakeTriangle(i,j,k); i := f(i0) {
+   delete t.positiveArea
+   delete t.goodAngleA
+   delete t.goodAngleB
+}
+
+
 
