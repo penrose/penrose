@@ -54,18 +54,18 @@ jobs:
         with:
           name: coverage
           path: packages/core/coverage
-      - if: env.MAIN
+      - if: ${{ env.MAIN }}
         name: Authenticate with registry
         run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - if: env.MAIN
+      - if: ${{ env.MAIN }}
         name: Publish canary release
         run: sudo yarn publish:canary --yes
 
   typedocs:
     runs-on: ubuntu-latest
-    if: env.MAIN
+    if: ${{ env.MAIN }}
     defaults:
       run:
         working-directory: ./packages/core
