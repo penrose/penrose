@@ -408,6 +408,7 @@ describe("Compiler", () => {
     const errorStyProgs = {
       // ------ Selector errors (from Substance)
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
+      SelectorFieldNotSupported: [`forall Set x where x has randomfield`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
       SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
