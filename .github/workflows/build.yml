@@ -22,7 +22,7 @@ jobs:
       - name: Run all builds
         run: yarn build
         env:
-          CI: false # TODO: don't do this
+          CI: false # TODO: eliminate warnings so we don't have to do this
       - name: Run all tests
         run: yarn test
       - name: Make test report dir
@@ -54,7 +54,9 @@ jobs:
           path: packages/core/coverage
       - if: github.event_name != 'pull_request'
         name: Authenticate with registry
-        run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/penrose/.npmrc
+        run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - if: github.event_name != 'pull_request'
         name: Publish canary release
         run: sudo yarn publish:canary --yes
