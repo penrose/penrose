@@ -42,7 +42,7 @@ Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
     ensure smallerThan(x.shape, y.shape)
-    ensure outsideOf(y.text, x.shape)
+    ensure disjoint(y.text, x.shape)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape
     y.text below x.shape
@@ -57,6 +57,6 @@ where Not(Intersecting(x, y)) {
 Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.shape, y.shape)
-    ensure outsideOf(y.text, x.shape)
-    ensure outsideOf(x.text, y.shape)
+    ensure disjoint(y.text, x.shape)
+    ensure disjoint(x.text, y.shape)
 }

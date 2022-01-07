@@ -6,7 +6,8 @@ import {
   disambiguateSubNode,
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
-import { constrDict, objDict } from "contrib/Constraints";
+import { constrDict } from "contrib/Constraints";
+import { objDict } from "contrib/Objectives";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { constOf, numOf, varOf } from "engine/Autodiff";
