@@ -22,7 +22,7 @@ jobs:
       - name: Run all builds
         run: yarn build
         env:
-          CI: false # TODO: don't do this
+          CI: false # TODO: eliminate warnings so we don't have to do this
       - name: Run all tests
         run: yarn test
       - name: Make test report dir
