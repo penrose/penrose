@@ -110,7 +110,7 @@ where SingleBond( n1, n2 ) {
 
    vec2 x1 = n1.center
    vec2 x2 = n2.center
-   vec2 u = unit(x1 - x2)
+   vec2 u = unit(x1-x2)
    scalar r = Global.atomRadius
 
    shape line = Line {
@@ -151,7 +151,7 @@ where DoubleBond( n1, n2 ) {
       strokeColor : Colors.black
    }
 
-   encourage equal( norm(x1 - x2), Global.bondLength )
+   encourage equal( norm(x1-x2), Global.bondLength )
 
    layer line1 below n1.icon
    layer line2 below n1.icon
@@ -166,7 +166,7 @@ where DoubleBond( n1, n2 ) {
 forall Node n1; Node n2 {
    vec2 x1 = n1.center
    vec2 x2 = n2.center
-   encourage equal( 200000./normsq(x1 - x2), 0. )
+   encourage equal( 200000./normsq(x1-x2), 0. )
    layer n1.background below n2.icon
    layer n2.background below n1.icon
 }
