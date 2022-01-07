@@ -20,6 +20,7 @@ Global {
    scalar lineThickness = 1.
    scalar labelBoundRadius = 8.
    scalar lineOffset = 8.0
+   scalar wedgeSize = 25.0
 
    shape box = Rectangle {
       center: (0.,0.)
@@ -45,6 +46,13 @@ forall Vertex v {
       center: v.center
    }
 
+   -- make sure the dot is on the canvas
+   ensure contains( Global.box, v.icon )
+}
+
+forall Vertex v
+where HasLabel(v) {
+
    v.labelAngle = ?
    v.labelRadius = ?
 
@@ -63,18 +71,14 @@ forall Vertex v {
 
    -- invisible circle around label
    -- (used to prevent overlap)
-   -- TODO we should really stop hacking
-   -- TODO this, and just get bounding
-   -- TODO boxes working for Text...
+   -- TODO requires #741 to use actual text bounding box instead
    shape v.bounds = Circle {
       center: v.text.center
       r: Global.labelBoundRadius
-      color: none()
+      color: rgba(1.,0.,0.,.1)
    }
 
-   -- make sure the dot and label are both
-   -- on the canvas
-   ensure contains( Global.box, v.icon )
+   -- make sure the label is on the canvas
    ensure contains( Global.box, v.bounds )
 
    -- keep the label near the dot
@@ -82,7 +86,8 @@ forall Vertex v {
 }
 
 -- make sure vertex labels don't overlap
-forall Vertex u; Vertex v {
+forall Vertex u; Vertex v
+where HasLabel(u); HasLabel(v) { -- requires #774 to replace with "where u has label; v has label"; currently hacked-in using predicate in Domain program
    ensure disjoint( u.bounds, v.bounds )
 }
 
@@ -110,17 +115,25 @@ where e := MakeEdge(i,j) {
    --    thickness: Global.lineThickness
    --    style: "dashed"
    -- }
+}
 
+forall Edge e; Vertex i; Vertex j
+where e := MakeEdge(i,j); HasLabel(i); HasLabel(j) {
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
    ensure disjoint( i.bounds, e.segment, 1. )
    ensure disjoint( j.bounds, e.segment, 1. )
 }
 
+forall Edge e
+where IsBoundaryEdge( e ) {
+   override e.segment.thickness = 1.5*Global.lineThickness
+}
+
 -- make sure no edge ij covers the label of
 -- any other vertex k
 forall Edge e; Vertex i; Vertex j; Vertex k
-where e := MakeEdge(i,j) {
+where e := MakeEdge(i,j); HasLabel(k) {
    
    ensure disjoint( k.bounds, e.segment, 1. )
 }
@@ -161,8 +174,8 @@ where t := MakeTriangle(i,j,k)
    -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   ensure inRange( aTheta, toRadians(40.), toRadians(70.) )
-   ensure inRange( bTheta, toRadians(30.), toRadians(80.) )
+   ensure inRange( aTheta, toRadians(50.), toRadians(70.) )
+   ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
 
    -- -- Encourage the vertex labels to be outside the triangle
    -- -- by encouraging the total area made with the three
@@ -193,7 +206,7 @@ where c := MakeCorner(i,j,k) {
    vec2 r = k.center
    
    scalar s = .35 -- arc radius as fraction of edge length
-   scalar R = s*norm(q-p)
+   scalar R = Global.wedgeSize -- s*norm(q-p)
    vec2 u = (q-p)/norm(q-p)
    vec2 v = (r-p)/norm(r-p)
    vec2 x = p + R*u
@@ -213,7 +226,7 @@ where c := MakeCorner(i,j,k) {
       fill: Colors.semiBlue
    }
 
-   scalar R0 = i.bounds.r
+   scalar R0 = Global.labelBoundRadius
 
    shape c.text = Text {
       string: c.label

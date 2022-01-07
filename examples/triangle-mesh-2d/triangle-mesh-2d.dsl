@@ -12,6 +12,12 @@ constructor MakeTriangle(Vertex i, Vertex j, Vertex k) -> Triangle
 constructor MakeCorner( Vertex inner, Vertex outer1, Vertex outer2 ) -> Corner
 constructor MakeDualEdge(Triangle a, Triangle b) -> DualEdge
 
+predicate IsBoundaryVertex(Vertex v)
+predicate IsBoundaryEdge(Edge e)
+predicate IsBoundaryTriangle(Triangle t)
+
+predicate HasLabel(Vertex v)
+
 -- Geometry
 type Point
 type Circle
