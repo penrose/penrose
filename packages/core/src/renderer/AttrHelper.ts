@@ -275,7 +275,7 @@ export const attrStroke = (
 /**
  * Maps name --> new Title
  */
- export const attrTitle = (
+export const attrTitle = (
   { properties }: Shape,
   elem: SVGElement
 ): string[] => {
@@ -300,7 +300,7 @@ export const attrStroke = (
  * like font-stretch, even though Adobe Illustrator does.
  *
  */
- export const attrFontFamily = (
+export const attrFontFamily = (
   { properties }: Shape,
   elem: SVGElement
 ): string[] => {
