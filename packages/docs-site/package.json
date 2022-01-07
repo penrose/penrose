@@ -34,8 +34,5 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "@edno/docusaurus2-graphql-doc-generator": "^1.7.0",
-    "graphql": "^16.2.0"
-  }
+  "devDependencies": {}
 }

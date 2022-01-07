@@ -16,7 +16,7 @@ const config = {
   favicon: "img/favicon.ico",
   organizationName: "penrose", // Usually your GitHub org/user name.
   projectName: "penrose", // Usually your repo name.
-  plugins: ["@edno/docusaurus2-graphql-doc-generator"],
+  plugins: ["./plugin-penrose-data"],
   presets: [
     [
       "classic",
@@ -57,7 +57,13 @@ const config = {
             position: "left",
             label: "Tutorial",
           },
-          { to: "/blog", label: "Blog", position: "left" },
+          {
+            type: "doc",
+            docId: "api/api",
+            position: "left",
+            label: "API",
+          },
+          { to: "/blog", label: "Blog", position: "right" },
           {
             href: "https://github.com/penrose/penrose",
             label: "GitHub",
