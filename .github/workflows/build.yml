@@ -55,6 +55,8 @@ jobs:
       - if: github.event_name != 'pull_request'
         name: Authenticate with registry
         run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/penrose/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - if: github.event_name != 'pull_request'
         name: Publish canary release
         run: sudo yarn publish:canary --yes
