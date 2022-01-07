@@ -23,8 +23,8 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  propertiesNotOf,
   propertiesOf,
+  propertiesNotOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
@@ -66,6 +66,7 @@ import {
   PropertyDecl,
   RelationPattern,
   RelBind,
+  RelField,
   RelPred,
   Selector,
   SelExpr,
@@ -102,7 +103,15 @@ import {
   Translation,
   Value,
 } from "types/value";
-import { err, isErr, ok, parseError, Result, toStyleErrors } from "utils/Error";
+import {
+  err,
+  isErr,
+  ok,
+  parseError,
+  Result,
+  selectorFieldNotSupported,
+  toStyleErrors,
+} from "utils/Error";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
@@ -275,12 +284,30 @@ const ppRelPred = (r: RelPred): string => {
   const name = r.name.value;
   return `${name}(${args})`;
 };
+const ppRelField = (r: RelField): string => {
+  const name = r.name.contents.value;
+  const field = r.field.value;
+  const fieldDesc = r.fieldDescriptor;
+  if (!fieldDesc) return `${name} has ${field}`;
+  else {
+    switch (fieldDesc) {
+      case "MathLabel":
+        return `${name} has math ${field}`;
+      case "TextLabel":
+        return `${name} has text ${field}`;
+      case "NoLabel":
+        return `${name} has empty ${field}`;
+    }
+  }
+};
 
 export const ppRel = (r: RelationPattern): string => {
   if (r.tag === "RelBind") {
     return ppRelBind(r);
   } else if (r.tag === "RelPred") {
     return ppRelPred(r);
+  } else if (r.tag === "RelField") {
+    return ppRelField(r);
   } else throw Error("unknown tag");
 };
 
@@ -400,58 +427,73 @@ const checkDeclPatternsAndMakeEnv = (
 // Judgment 4. G |- |S_r ok
 const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
   // rule Bind-Context
-  if (rel.tag === "RelBind") {
-    // TODO: use checkSubStmt here (and in paper)?
-    // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
-    // G |- B : T1
-    const res1 = checkVar(rel.id.contents, varEnv);
+  switch (rel.tag) {
+    case "RelBind": {
+      // TODO: use checkSubStmt here (and in paper)?
+      // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
+      // G |- B : T1
+      const res1 = checkVar(rel.id.contents, varEnv);
 
-    // TODO(error)
-    if (isErr(res1)) {
-      const subErr1: SubstanceError = res1.error;
-      // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
-      // return ["substance typecheck error in B"];
-      return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      // TODO(error)
+      if (isErr(res1)) {
+        const subErr1: SubstanceError = res1.error;
+        // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
+        // return ["substance typecheck error in B"];
+        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      }
+
+      const [vtype, env1] = res1.value;
+
+      // G |- E : T2
+      const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
+
+      // TODO(error)
+      if (isErr(res2)) {
+        const subErr2: SubstanceError = res2.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr2 }];
+        // return ["substance typecheck error in E"];
+      }
+
+      const [etype, env2] = res2.value;
+
+      // T1 = T2
+      const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
+
+      // TODO(error) -- improve message
+      if (!typesEq) {
+        return [
+          { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
+        ];
+        // return ["types not equal"];
+      }
+
+      return [];
     }
-
-    const [vtype, env1] = res1.value;
-
-    // G |- E : T2
-    const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
-
-    // TODO(error)
-    if (isErr(res2)) {
-      const subErr2: SubstanceError = res2.error;
-      return [{ tag: "TaggedSubstanceError", error: subErr2 }];
-      // return ["substance typecheck error in E"];
+    case "RelPred": {
+      // rule Pred-Context
+      // G |- Q : Prop
+      const res = checkPredicate(toSubPred(rel), varEnv);
+      if (isErr(res)) {
+        const subErr3: SubstanceError = res.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr3 }];
+        // return ["substance typecheck error in Pred"];
+      }
+      return [];
     }
-
-    const [etype, env2] = res2.value;
-
-    // T1 = T2
-    const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
-
-    // TODO(error) -- improve message
-    if (!typesEq) {
-      return [
-        { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
-      ];
-      // return ["types not equal"];
+    case "RelField": {
+      // check if the Substance name exists
+      const nameOk = checkVar(rel.name.contents, varEnv);
+      if (isErr(nameOk)) {
+        const subErr1: SubstanceError = nameOk.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      }
+      // check if the field is supported. Currently, we only support matching on `label`
+      if (rel.field.value !== "label")
+        return [selectorFieldNotSupported(rel.name, rel.field)];
+      else {
+        return [];
+      }
     }
-
-    return [];
-  } else if (rel.tag === "RelPred") {
-    // rule Pred-Context
-    // G |- Q : Prop
-    const res = checkPredicate(toSubPred(rel), varEnv);
-    if (isErr(res)) {
-      const subErr3: SubstanceError = res.error;
-      return [{ tag: "TaggedSubstanceError", error: subErr3 }];
-      // return ["substance typecheck error in Pred"];
-    }
-    return [];
-  } else {
-    throw Error("unknown tag");
   }
 };
 
@@ -687,20 +729,29 @@ export const substituteRel = (
   subst: Subst,
   rel: RelationPattern
 ): RelationPattern => {
-  if (rel.tag === "RelBind") {
-    // theta(B := E) |-> theta(B) := theta(E)
-    return {
-      ...rel,
-      id: substituteBform({ tag: "Nothing" }, subst, rel.id),
-      expr: substituteExpr(subst, rel.expr),
-    };
-  } else if (rel.tag === "RelPred") {
-    // theta(Q([a]) = Q([theta(a)])
-    return {
-      ...rel,
-      args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-    };
-  } else throw Error("unknown tag");
+  switch (rel.tag) {
+    case "RelBind": {
+      // theta(B := E) |-> theta(B) := theta(E)
+      return {
+        ...rel,
+        id: substituteBform({ tag: "Nothing" }, subst, rel.id),
+        expr: substituteExpr(subst, rel.expr),
+      };
+    }
+    case "RelPred": {
+      // theta(Q([a]) = Q([theta(a)])
+      return {
+        ...rel,
+        args: rel.args.map((arg) => substitutePredArg(subst, arg)),
+      };
+    }
+    case "RelField": {
+      return {
+        ...rel,
+        name: substituteBform({ tag: "Nothing" }, subst, rel.name),
+      };
+    }
+  }
 };
 
 // Applies a substitution to a list of relational statement theta([|S_r])
@@ -1247,9 +1298,25 @@ const relMatchesProg = (
   subProg: SubProg,
   rel: RelationPattern
 ): boolean => {
-  return subProg.statements.some((line) =>
-    relMatchesLine(typeEnv, subEnv, line, rel)
-  );
+  if (rel.tag === "RelField") {
+    // the current pattern matches on a Style field
+    const subName = rel.name.contents.value;
+    const fieldDesc = rel.fieldDescriptor;
+    const label = subEnv.labels.get(subName);
+
+    if (label) {
+      // check if the label type matches with the descriptor
+      if (fieldDesc) {
+        return label.type === fieldDesc;
+      } else return true;
+    } else {
+      return false;
+    }
+  } else {
+    return subProg.statements.some((line) =>
+      relMatchesLine(typeEnv, subEnv, line, rel)
+    );
+  }
 };
 
 // Judgment 15. b |- [S] <| [|S_r]
@@ -2016,7 +2083,7 @@ const insertLabels = (trans: Translation, labels: LabelMap): void => {
       tag: "Done",
       contents: {
         tag: "StrV",
-        contents: label,
+        contents: label.value,
       },
     };
     const labelExpr: FieldExpr<VarAD> = {

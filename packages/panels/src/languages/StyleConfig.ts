@@ -48,6 +48,9 @@ const styleCustoms = {
     "override",
     "above",
     "below",
+    "has",
+    "math",
+    "text",
   ],
   types: [
     "scalar",
