@@ -344,6 +344,7 @@ export {
   toSvgPaintProperty,
 };
 export { shapedefs } from "./shapes/Shapes";
+export { makeCanvas } from "./shapes/Samplers";
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";
