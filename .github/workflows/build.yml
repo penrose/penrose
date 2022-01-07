@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI: false # TODO: eliminate warnings so we don't have to do this
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -24,8 +26,6 @@ jobs:
         run: yarn
       - name: Run all builds
         run: yarn build
-        env:
-          CI: false # TODO: eliminate warnings so we don't have to do this
       - name: Run all tests
         run: yarn test
       - name: Make test report dir
