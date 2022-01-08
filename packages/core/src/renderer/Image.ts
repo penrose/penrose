@@ -1,6 +1,5 @@
 import {
   attrAutoFillSvg,
-  attrOpacity,
   attrRotation,
   attrTransformCoords,
   attrWH,
@@ -15,7 +14,7 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  const path = (shape.properties.path as IStrV).contents;
+  const path = (shape.properties.href as IStrV).contents;
   if (!(path in images)) {
     console.error(`Could not find image path ${path}`);
     return elem;
@@ -50,10 +49,9 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
       }
     });
   }
-  attrToNotAutoMap.push(...attrOpacity(shape, svg));
   attrToNotAutoMap.push(...attrWH(shape, svg));
-  attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
+  attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

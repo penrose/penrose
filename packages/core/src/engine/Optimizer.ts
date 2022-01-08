@@ -1,5 +1,6 @@
 import consola, { LogLevel } from "consola";
-import { constrDict, objDict } from "contrib/Constraints";
+import { constrDict } from "contrib/Constraints";
+import { objDict } from "contrib/Objectives";
 import eig from "eigen";
 import {
   add,

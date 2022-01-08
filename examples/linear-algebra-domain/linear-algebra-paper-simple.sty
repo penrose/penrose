@@ -62,10 +62,11 @@ forall VectorSpace U {
     vec2 o = U.origin
     color U.axisColor = C.gray
 
-    shape U.background = Square {
+    shape U.background = Rectangle {
         center : U.origin
-        side : const.vectorSpaceSize
-        color : rgba(.95,.95,.95,1.)
+        width : const.vectorSpaceSize
+        height : const.vectorSpaceSize
+        fillColor : rgba(.95,.95,.95,1.)
         strokeColor : C.none
         -- strokeWidth : 2.0
     }
@@ -73,22 +74,22 @@ forall VectorSpace U {
     shape U.xAxis = Line {
         start : (o[0] - 1.1*axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
           end : (o[0] + 1.1*axisSize, o[1])
-        thickness : const.lineThickness
+        strokeWidth : const.lineThickness
         style : "solid"
-        color : U.axisColor
-        -- leftArrowhead: true
-        -- rightArrowhead: true
+        strokeColor : U.axisColor
+        -- startArrowhead: true
+        -- endArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
     shape U.yAxis = Line {
            start : (o[0], o[1] - 1.1*axisSize)
              end : (o[0], o[1] + 1.1*axisSize)
-       thickness : const.lineThickness
+       strokeWidth : const.lineThickness
            style : "solid"
-           color : U.axisColor
-           -- leftArrowhead: true
-           -- rightArrowhead: true
+           strokeColor : U.axisColor
+           -- startArrowhead: true
+           -- endArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
@@ -98,7 +99,7 @@ forall VectorSpace U {
         fontStyle : "italic"
         string : U.label
         center : (U.origin[0] + .8*axisSize, U.origin[1] + .8*axisSize)
-        color : U.axisColor
+        fillColor : U.axisColor
     }
 
     layer U.xAxis above U.yAxis
@@ -110,11 +111,12 @@ forall VectorSpace U {
 forall Vector u; VectorSpace U
 where In(u,U) {
 
-   shape u.arrow = Arrow {
+   shape u.arrow = Line {
       start : U.origin
       end : (?, ?)
-      thickness : 3.0
-      color : C.lightBlue
+      strokeWidth : 3.0
+      strokeColor : C.lightBlue
+      endArrowhead : true
       arrowheadSize : const.arrowheadSize
    }
 
@@ -124,7 +126,7 @@ where In(u,U) {
       fontFamily: const.fontFamily
       fontWeight: "bold"
       string: u.label
-      color: u.arrow.color
+      fillColor: u.arrow.strokeColor
    }
 
    shape u.stroke = Text {
@@ -133,7 +135,7 @@ where In(u,U) {
       fontFamily: u.text.fontFamily
       fontWeight: "bold"
       string: u.label
-      color: C.white
+      fillColor: C.white
       strokeColor: C.white
       strokeWidth: 8.
    }
@@ -176,10 +178,10 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
       -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
       perpMark = Path {
-           pathData : pathFromPoints("closed", pts)
+           d : pathFromPoints("closed", pts)
            strokeWidth : 2.0
-           color : C.black
-           fill : C.white
+           strokeColor : C.black
+           fillColor : C.white
       }
 
       -- Make sure vectors are orthogonal (use ensure?)
@@ -193,11 +195,11 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
    shape labelText = Text {
       string: "orthogonal"
-      center: (0.,-.6*V.background.side)
+      center: (0.,-.6*V.background.width)
       fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
-      color: C.black
+      fillColor: C.black
    }
 }
 
@@ -220,10 +222,10 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       v.markerLine = [markStart, markEnd]
 
       v.unitMarkerLine = Path {
-          pathData : pathFromPoints("open", v.markerLine)
+          d : pathFromPoints("open", v.markerLine)
           -- strokeWidth : strokeWidth
-          color : C.black
-          fill : C.none
+          strokeColor : C.black
+          fillColor : C.none
       }
 
       -- Could use normal instead, just doing this to demonstrate how to use matrices
@@ -233,17 +235,17 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       vec2 halfvec = c * markNormal
 
       v.unitMarkerEnd1 = Path {
-          pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+          d : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           -- strokeWidth : strokeWidth
-          color : C.black
-          fill : C.none
+          strokeColor : C.black
+          fillColor : C.none
       }
 
       v.unitMarkerEnd2 = Path {
-          pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
+          d : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           -- strokeWidth : strokeWidth
-          color : C.black
-          fill : C.none
+          strokeColor : C.black
+          fillColor : C.none
       }
 
       vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
@@ -253,7 +255,7 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
           fontSize : const.fontSize
           string : "1"
           center : labelPos
-          color : C.black
+          fillColor : C.black
       }
 
       layer v.unitMarkerLine above U.xAxis
@@ -272,11 +274,11 @@ where Dependent(u,v) {
 
    shape labelText = Text {
       string: "linearly dependent"
-      center: (0.,-.6*V.background.side)
+      center: (0.,-.6*V.background.width)
       fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
-      color: C.black
+      fillColor: C.black
    }
 }
 
@@ -290,20 +292,20 @@ where Independent(u, v); In(v,V) {
 
    shape labelText = Text {
       string: "linearly independent"
-      center: (0.,-.6*V.background.side)
+      center: (0.,-.6*V.background.width)
       fontFamily: const.fontFamily
       fontSize: "24pt"
       fontWeight: "bold"
-      color: C.black
+      fillColor: C.black
    }
 }
 
 forall Vector `u` {
-       override `u`.arrow.color = C.green
+       override `u`.arrow.strokeColor = C.green
 }
 
 forall Vector `x2` {
-       override `x2`.arrow.color = C.green
+       override `x2`.arrow.strokeColor = C.green
 }
 
 

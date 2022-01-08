@@ -7,7 +7,7 @@ forall Graph A
 {
     A.icon = Circle {
         strokeWidth: 0.0
-        color: rgba(0.0, 0.0, 0.0, 0.0)
+        fillColor: rgba(0.0, 0.0, 0.0, 0.0)
     }
 
     A.text = Equation{
@@ -27,8 +27,8 @@ forall Graph A
 forall Variable V
 {
     V.icon = Path {
-        fill: rgba(0.0, 0.0, 0.0, 0.0)
-        color: rgba(0.0, 0.0, 0.0, 0.0)
+        fillColor: rgba(0.0, 0.0, 0.0, 0.0)
+        strokeColor: rgba(0.0, 0.0, 0.0, 0.0)
         strokeWidth: 2.0
     }
 }
@@ -36,11 +36,11 @@ forall Variable V
 
 
 forall Variable v1; Variable v2 where equal(v1,v2) {
-    --Overriding (v2.icon.pathData or v2.icon) has no effect, creating new object
+    --Overriding (v2.icon.d or v2.icon) has no effect, creating new object
     v2.icon2 = Path {
-        pathData: makePath(v1.start, v2.start, 50, 10)
-        fill: rgba(0.0, 0.0, 0.0, 0.0)
-        color: rgba(0.0, 0.0, 0.0, 1.0)
+        d: makePath(v1.start, v2.start, 50, 10)
+        fillColor: rgba(0.0, 0.0, 0.0, 0.0)
+        strokeColor: rgba(0.0, 0.0, 0.0, 1.0)
         strokeWidth: 2.0
     }
 
@@ -52,8 +52,8 @@ forall Variable v1; Variable v2 where equal(v1,v2) {
 
 forall Variable V; Graph A; Graph B where some(V, A, B)
 {
-    override V.icon.pathData = makePath(A.text.center, B.text.center, 50, 10)
-    override V.icon.color = rgba(0.0, 0.0, 0.0, 1.0)
+    override V.icon.d = makePath(A.text.center, B.text.center, 50, 10)
+    override V.icon.strokeColor = rgba(0.0, 0.0, 0.0, 1.0)
 
     V.start = A.text.center
     V.end = B.text.center
@@ -65,8 +65,8 @@ forall Variable V; Graph A; Graph B where some(V, A, B)
 forall Graph A; Graph B; Graph Result 
 where Result := or(A, B) 
 {
-    override A.icon.color = variable.primary
-    override B.icon.color = variable.primary
+    override A.icon.fillColor = variable.primary
+    override B.icon.fillColor = variable.primary
 
     override Result.level = A.level + 1
 
@@ -74,7 +74,7 @@ where Result := or(A, B)
         strokeWidth: 0.0
         center: Result.icon.center
         r: Result.icon.r - 1.0
-        color: selectColor(variable.primary, variable.secondary, Result.level)
+        fillColor: selectColor(variable.primary, variable.secondary, Result.level)
     }
 
     override Result.text = Circle{
@@ -96,7 +96,7 @@ where Result := or(A, B)
 
 
 forall Graph a where invisibleGraph(a){
-    override a.text.color = rgba(1.0, 0.0, 0.0, 0.0)
+    override a.text.fillColor = rgba(1.0, 0.0, 0.0, 0.0)
 }
 
 
@@ -108,19 +108,19 @@ where Result := if(A, B)
 
     override Result.icon = Circle{
         strokeWidth: 0.0
-        color: selectColor(variable.primary, variable.secondary, Result.level)
+        fillColor: selectColor(variable.primary, variable.secondary, Result.level)
     }
 
     override Result.icon2 = Circle{
         strokeWidth: 0.0
-        color: selectColor(variable.primary, variable.secondary, Result.level + 1)
+        fillColor: selectColor(variable.primary, variable.secondary, Result.level + 1)
     }
 
     override Result.text.string = ""
 
     override Result.icon2.r = Result.icon.r / 1.6
 
-    ensure outsideOf(A.text, Result.icon2)
+    ensure disjoint(A.text, Result.icon2)
     ensure contains(Result.icon, A.text)
     ensure contains(Result.icon2, B.text)
 

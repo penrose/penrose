@@ -155,6 +155,24 @@ as Const
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+
+  test("label field check", () => {
+    const prog = `
+forall Set A, B
+where IsSubset(A, B); A has math label; B has text label {
+
+}
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    const whereClauses = results[0].blocks[0].header.where.contents;
+    expect(whereClauses[1].name.contents.value).toEqual("A");
+    expect(whereClauses[1].field.value).toEqual("label");
+    expect(whereClauses[1].fieldDescriptor).toEqual("MathLabel");
+    expect(whereClauses[2].name.contents.value).toEqual("B");
+    expect(whereClauses[2].field.value).toEqual("label");
+    expect(whereClauses[2].fieldDescriptor).toEqual("TextLabel");
+  });
 });
 
 describe("Block Grammar", () => {
