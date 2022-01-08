@@ -50,8 +50,7 @@ forall Vertex v {
    constraint v.onCanvas = ensure contains( Global.box, v.icon )
 }
 
-forall Vertex v
-where HasLabel(v) {
+forall Vertex v {
 
    v.labelAngle = ?
    v.labelRadius = ?
