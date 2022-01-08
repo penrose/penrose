@@ -43,10 +43,17 @@ import { VarAD } from "types/ad";
 const constrDictSimple = {
 
   /**
-   * Require that the value `x` is less than the value `y`
+   * Require that the value `x` is equal to the value `y`
    */
   equal: (x: VarAD, y: VarAD) => {
     return absVal(sub(x, y))
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y` with optional padding `padding`
+   */
+  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(y, x), constOfIf(padding));
   },
 
   /**
