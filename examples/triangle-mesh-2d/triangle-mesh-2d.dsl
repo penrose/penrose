@@ -36,3 +36,7 @@ constructor DualEdgeLength(DualEdge d) -> Length
 -- Specific to angle-equivalence.sub
 function similarity(Vertex i) -> Vertex
 
+-- Specific to concyclic-pair.sub
+predicate IsFlipped(Edge e)
+predicate Concyclic(Triangle s, Triangle t)
+

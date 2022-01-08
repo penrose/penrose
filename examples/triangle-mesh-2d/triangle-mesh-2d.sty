@@ -1,6 +1,6 @@
 canvas {
-   width = 240
-   height = 180
+   width = 360
+   height = 240
 }
 
 Colors {
@@ -23,7 +23,7 @@ Global {
    scalar wedgeSize = 30.0
 
    shape box = Rectangle {
-      center: (-canvas.width/3.,0.)
+      center: (0.,0.)
       fillColor: none()
       strokeColor: Colors.lightGray
       strokeWidth: 2.
@@ -31,7 +31,7 @@ Global {
       height: canvas.height
    }
 
-   string fontFamily = "Palatino"
+   string fontFamily = "Linux Libertine O"
    string fontSize = "14pt"
 }
 
@@ -57,12 +57,12 @@ where HasLabel(v) {
    v.labelRadius = ?
 
    -- label
-   shape v.text = Equation {
+   shape v.text = Text {
       center: v.icon.center + v.labelRadius*( cos(v.labelAngle), sin(v.labelAngle ) )
       string: v.label
-      -- fontFamily: Global.fontFamily
+      fontFamily: Global.fontFamily
       fontSize: Global.fontSize
-      -- fontStyle: "italic"
+      fontStyle: "italic"
       fillColor: Colors.black
    }
 
@@ -207,34 +207,45 @@ where c := MakeCorner(i,j,k) {
    vec2 r = k.center
    
    scalar s = .25 -- arc radius as fraction of edge length
-   scalar R = s*norm(q-p) -- Global.wedgeSize
-   vec2 u = (q-p)/norm(q-p)
-   vec2 v = (r-p)/norm(r-p)
-   vec2 x = p + R*u
-   vec2 y = p + R*v
+   scalar c.R = Global.wedgeSize -- s*norm(q-p)
+   vec2 c.u = (q-p)/norm(q-p)
+   vec2 c.v = (r-p)/norm(r-p)
+   vec2 x = p + c.R*c.u
+   vec2 y = p + c.R*c.v
 
    shape c.arc = Path {
       fillColor: none()
       strokeColor: Colors.black
-      d: arc( "open", x, y, (R,R), 0., 0, 0 )
+      d: arc( "open", x, y, (c.R,c.R), 0., 0, 0 )
       strokeWidth: .75
    }
 
    shape c.arcFill = Path {
-      d: wedge( i.center, x, y, (R,R), 0., 0, 0 )
+      d: wedge( i.center, x, y, (c.R,c.R), 0., 0, 0 )
       fillColor: Colors.semiBlue
       strokeColor: none()
    }
+}
 
+forall Corner c; Vertex i; Vertex j; Vertex k
+where c := MakeCorner(i,j,k); c has text label {
+
+   vec2 p = i.center
    scalar R0 = Global.labelBoundRadius
 
    shape c.text = Text {
       string: c.label
-      center: p + (R+R0)*unit(u+v)
+      center: p + (c.R+R0)*unit(c.u+c.v)
       fontSize: Global.fontSize
       fontFamily: Global.fontFamily
       fontStyle: "italic"
       fillColor: Colors.black
+   }
+
+   shape c.textBounds = Circle {
+      center: c.text.center
+      r: 1.5*Global.labelBoundRadius
+      fillColor: none()
    }
 }
 
@@ -384,7 +395,7 @@ forall Length l {
    }
 }
 
--- Specific to the example diagrams/angle-equivalence.sub
+-- Specific to diagrams/angle-equivalence.sub
 -- TODO requires #776 to import these rules from an example-specific Style module
 
 -- -- Don't draw vertices as dots in this
@@ -444,11 +455,66 @@ where ij := MakeEdge(i,j); ij has math label {
    scalar s = h*h
    ensure equal( 1., s )
 
-   ij.labelText = Equation {
+   shape ij.labelText = Equation {
       center: m + 12.*h*n
       string: ij.label
       fontSize: Global.fontSize
       fillColor: Colors.black
    }
 }
+
+-- Specific to diagrams/concyclic-pair.sub
+-- TODO requires #776 to import these rules from an example-specific Style module
+
+forall Edge e
+where IsFlipped( e ) {
+   e.segment.strokeDashArray = "3,3"
+}
+
+forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
+where c := MakeCorner(i,j,k); e := MakeEdge(l,i) {
+   ensure disjoint( c.textBounds, e.segment )
+}
+forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
+where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
+   ensure disjoint( c.textBounds, e.segment )
+}
+
+forall Triangle s; Triangle t; Vertex i; Vertex j; Vertex k; Vertex l
+where s := MakeTriangle(i,j,k); t := MakeTriangle(j,i,l); Concyclic(s,t) {
+
+
+   -- XXX Get a weird error if I try doing it this way...
+   -- vec2 c0 = (?,?)
+   -- scalar r0 = (?,?)
+   -- ensure equal( norm(i.icon.center - c0), r0 )
+   -- ensure equal( norm(j.icon.center - c0), r0 )
+   -- ensure equal( norm(k.icon.center - c0), r0 )
+   -- ensure equal( norm(l.icon.center - c0), r0 )
+   -- shape Cijk = Circle {
+   --    center: s.circumcenter
+   --    r: s.circumradius
+   --    fillColor: Colors.semiBlue
+   -- }
+   -- shape Cjil = Circle {
+   --    center: t.circumcenter
+   --    r: t.circumradius
+   --    fillColor: Colors.semiBlue
+   -- }
+
+   scalar ti = ?
+   scalar tj = ?
+   scalar tk = ?
+   scalar tl = ?
+   override i.center = 100.*(cos(ti),sin(ti))
+   override j.center = 100.*(cos(tj),sin(tj))
+   override k.center = 100.*(cos(tk),sin(tk))
+   override l.center = 100.*(cos(tl),sin(tl))
+   shape disk = Circle {
+      center: (0.,0.)
+      r: 100.
+      fillColor: Colors.semiBlue
+   }
+}
+
 

@@ -1,3 +1,8 @@
+-- length-cross-ratio.sub
+-- 
+-- This example re-diagrams Figure 14 (left) from
+-- Crane, "Conformal Geometry of Simplicial Surfaces"
+
 Vertex i, j, k, l
 
 Edge ij := MakeEdge(i,j)
