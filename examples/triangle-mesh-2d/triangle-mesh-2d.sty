@@ -24,11 +24,11 @@ Global {
 
    shape box = Rectangle {
       center: (-canvas.width/3.,0.)
-      color: Colors.clear
+      fillColor: none()
       strokeColor: Colors.lightGray
       strokeWidth: 2.
-      w: canvas.width
-      h: canvas.height
+      width: canvas.width
+      height: canvas.height
    }
 
    string fontFamily = "Palatino"
@@ -41,7 +41,7 @@ forall Vertex v {
 
    -- black dot
    shape v.icon = Circle {
-      color: Colors.black
+      fillColor: Colors.black
       r: Global.vertexRadius
       center: v.center
    }
@@ -62,7 +62,7 @@ forall Vertex v {
       fontFamily: Global.fontFamily
       fontSize: Global.fontSize
       fontStyle: "italic"
-      color: Colors.black
+      fillColor: Colors.black
    }
 
    -- make sure label doesn't get too far from the dot
@@ -74,7 +74,7 @@ forall Vertex v {
    shape v.bounds = Circle {
       center: v.text.center
       r: Global.labelBoundRadius
-      color: rgba(1.,0.,0.,.1)
+      fillColor: rgba(1.,0.,0.,.1)
    }
 
    -- make sure the label is on the canvas
@@ -101,8 +101,8 @@ where e := MakeEdge(i,j) {
    shape e.segment = Line {
       start: pi
       end: pj
-      color: Colors.black
-      thickness: Global.lineThickness
+      strokeColor: Colors.black
+      strokeWidth: Global.lineThickness
       strokeLineCap: "round"
    }
 
@@ -111,8 +111,8 @@ where e := MakeEdge(i,j) {
    -- shape e.line = Line {
    --    start: m + 100.*(pi-m)
    --    end: m + 100.*(pj-m)
-   --    color: rgba( 0., 0., 0., .35 )
-   --    thickness: Global.lineThickness
+   --    strokeColor: rgba( 0., 0., 0., .35 )
+   --    strokeWidth: Global.lineThickness
    --    style: "dashed"
    -- }
 }
@@ -127,7 +127,7 @@ where e := MakeEdge(i,j); HasLabel(i); HasLabel(j) {
 
 forall Edge e
 where IsBoundaryEdge( e ) {
-   override e.segment.thickness = 1.5*Global.lineThickness
+   override e.segment.strokeWidth = 1.5*Global.lineThickness
 }
 
 -- make sure no edge ij covers the label of
@@ -158,9 +158,9 @@ where t := MakeTriangle(i,j,k)
    scalar t.inradius = inradius(a,b,c)
 
    shape t.icon = Path {
-      pathData: pathFromPoints("closed", [a,b,c])
-      fill: Colors.semiBlue
-      color: none()
+      d: pathFromPoints("closed", [a,b,c])
+      fillColor: Colors.semiBlue
+      strokeColor: none()
    }
 
    -- Make sure triangles are positively
@@ -213,17 +213,16 @@ where c := MakeCorner(i,j,k) {
    vec2 y = p + R*v
 
    shape c.arc = Path {
-      fill: none()
-      color: Colors.black
-      pathData: arc( "open", x, y, (R,R), 0., 0, 0 )
+      fillColor: none()
+      strokeColor: Colors.black
+      d: arc( "open", x, y, (R,R), 0., 0, 0 )
       strokeWidth: .75
    }
 
    shape c.arcFill = Path {
-      fill: none()
-      color: none()
-      pathData: wedge( i.center, x, y, (R,R), 0., 0, 0 )
-      fill: Colors.semiBlue
+      d: wedge( i.center, x, y, (R,R), 0., 0, 0 )
+      fillColor: Colors.semiBlue
+      strokeColor: none()
    }
 
    scalar R0 = Global.labelBoundRadius
@@ -234,7 +233,7 @@ where c := MakeCorner(i,j,k) {
       fontSize: Global.fontSize
       fontFamily: Global.fontFamily
       fontStyle: "italic"
-      color: Colors.black
+      fillColor: Colors.black
    }
 }
 
@@ -244,7 +243,7 @@ forall Point p {
 
    -- white dot
    shape p.icon = Circle {
-      color: Colors.white
+      fillColor: Colors.white
       strokeColor: Colors.black
       r: Global.pointRadius
       center: p.center
@@ -258,7 +257,7 @@ forall Point p {
       fontFamily: Global.fontFamily
       fontSize: Global.fontSize
       fontStyle: "italic"
-      color: Colors.black
+      fillColor: Colors.black
    }
 
    -- make sure the dot and label are both
@@ -277,7 +276,7 @@ forall Point p; Triangle t {
 forall Point p; Triangle t; Vertex i; Vertex j; Vertex k
 where t := MakeTriangle(i,j,k); p := Barycenter(t) {
    override p.center = barycenter( i.center, j.center, k.center )
-   override p.icon.color = Colors.red
+   override p.icon.fillColor = Colors.red
 }
 
 -- Circumcenter
@@ -294,7 +293,7 @@ where t := MakeTriangle(i,j,k); C := Circumcircle(t) {
    shape C.icon = Circle {
       center: t.circumcenter
       r: t.circumradius
-      color: none()
+      fillColor: none()
       strokeColor: rgba( 0., 0., 0., .2 )
       strokeWidth: 1.5
       -- strokeStyle: "dashed"
@@ -316,7 +315,7 @@ where t := MakeTriangle(i,j,k); C := Incircle(t) {
    shape C.icon = Circle {
       center: t.incenter
       r: t.inradius
-      color: none()
+      fillColor: none()
       strokeColor: rgba( 0., 0., 0., .2 )
       strokeWidth: 1.5
       --strokeStyle: "dashed"
@@ -329,8 +328,8 @@ where d := MakeDualEdge(t1,t2) {
    shape d.segment = Line {
       start: t1.circumcenter
       end: t2.circumcenter
-      color: Colors.black
-      thickness: Global.lineThickness
+      strokeColor: Colors.black
+      strokeWidth: Global.lineThickness
       style: "dashed"
       strokeDashArray: "4,4"
    }
@@ -354,32 +353,32 @@ forall Length l {
    vec2 n = -rot90(u)
    scalar w = Global.lineOffset
 
-   scalar l.thickness = .8*Global.lineThickness
+   scalar l.strokeWidth = .8*Global.lineThickness
 
    shape l.marker = Line {
       start: l.x0 + w*n
       end: l.x1 + w*n
-      color: Colors.black
-      thickness: l.thickness
+      strokeColor: Colors.black
+      strokeWidth: l.strokeWidth
    }
    shape l.end0 = Line {
       start: l.marker.start + .35*w*n
       end: l.marker.start - .35*w*n
-      color: Colors.black
-      thickness: l.thickness
+      strokeColor: Colors.black
+      strokeWidth: l.strokeWidth
    }
    shape l.end1 = Line {
       start: l.marker.end + .35*w*n
       end: l.marker.end - .35*w*n
-      color: Colors.black
-      thickness: l.thickness
+      strokeColor: Colors.black
+      strokeWidth: l.strokeWidth
    }
 
    vec2 m = (l.x0+l.x1)/2.
    shape l.text = Equation {
       center: m + 2.*w*n
       string: l.label
-      color: Colors.black
+      fillColor: Colors.black
       fontSize: Global.fontSize
    }
 }
@@ -402,8 +401,8 @@ similarityMap {
    -- shape mapArrow = Line {
    --    start: (2.*canvas.width/5.,0.)
    --    end: (3.25*canvas.width/5.,0.)
-   --    color: Colors.black
-   --    thickness: 3.*Global.lineThickness
+   --    strokeColor: Colors.black
+   --    strokeWidth: 3.*Global.lineThickness
    --    rightArrowhead: true
    --    arrowheadSize: .5
    -- }
