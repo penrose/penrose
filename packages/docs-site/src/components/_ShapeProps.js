@@ -8,6 +8,9 @@ const showValue = (prop, def1, def2) => {
   const def2Str = JSON.stringify(def2[prop].contents);
   const contents = def1[prop].contents;
   if (def1Str === def2Str && contents.tag !== "NONE") {
+    if (def1[prop].tag === "PtListV") {
+      return JSON.stringify(contents.map((pt) => pt.map(({ val }) => val)));
+    }
     if (typeof contents === "object") {
       if (contents.tag === "RGBA") {
         const arr = contents.contents.map(({ val }) => val);
@@ -26,6 +29,7 @@ const showValue = (prop, def1, def2) => {
       if ("val" in contents) {
         return JSON.stringify(contents.val);
       }
+      console.log(def1[prop]);
     }
     return def1Str;
   }
