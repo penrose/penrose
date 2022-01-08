@@ -6,7 +6,21 @@ Edge ki := MakeEdge(k,i)
 Edge jl := MakeEdge(j,l)
 Edge li := MakeEdge(l,i)
 
+IsBoundaryEdge(jk)
+IsBoundaryEdge(ki)
+IsBoundaryEdge(jl)
+IsBoundaryEdge(li)
+
 Triangle ijk := MakeTriangle(i,j,k)
 Triangle jil := MakeTriangle(j,i,l)
 
 AutoLabel All
+NoLabel ij
+Label jk $\ell_{jk}$
+Label ki $\ell_{ki}$
+Label jl $\ell_{jl}$
+Label li $\ell_{li}$
+HasLabel( i )
+HasLabel( j )
+HasLabel( k )
+HasLabel( l )

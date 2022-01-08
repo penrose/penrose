@@ -1,6 +1,6 @@
 canvas {
-   width = 360
-   height = 270
+   width = 240
+   height = 180
 }
 
 Colors {
@@ -15,9 +15,9 @@ Colors {
 }
 
 Global {
-   scalar vertexRadius = 1.75
+   scalar vertexRadius = 2.75
    scalar pointRadius = 2.0
-   scalar lineThickness = 1.
+   scalar lineThickness = .75
    scalar labelBoundRadius = 8.
    scalar lineOffset = 8.0
    scalar wedgeSize = 30.0
@@ -32,7 +32,7 @@ Global {
    }
 
    string fontFamily = "Palatino"
-   string fontSize = "11pt"
+   string fontSize = "14pt"
 }
 
 forall Vertex v {
@@ -50,18 +50,19 @@ forall Vertex v {
    constraint v.onCanvas = ensure contains( Global.box, v.icon )
 }
 
-forall Vertex v {
+forall Vertex v
+where HasLabel(v) {
 
    v.labelAngle = ?
    v.labelRadius = ?
 
    -- label
-   shape v.text = Text {
+   shape v.text = Equation {
       center: v.icon.center + v.labelRadius*( cos(v.labelAngle), sin(v.labelAngle ) )
       string: v.label
-      fontFamily: Global.fontFamily
+      -- fontFamily: Global.fontFamily
       fontSize: Global.fontSize
-      fontStyle: "italic"
+      -- fontStyle: "italic"
       fillColor: Colors.black
    }
 
@@ -74,7 +75,7 @@ forall Vertex v {
    shape v.bounds = Circle {
       center: v.text.center
       r: Global.labelBoundRadius
-      fillColor: rgba(1.,0.,0.,.1)
+      fillColor: none()
    }
 
    -- make sure the label is on the canvas
@@ -427,3 +428,27 @@ where t := MakeTriangle(i,j,k); i := similarity(i0) {
    delete t.goodAngleA
    delete t.goodAngleB
 }
+
+forall Edge ij; Vertex i; Vertex j
+where ij := MakeEdge(i,j); ij has math label {
+
+   vec2 pi = i.center
+   vec2 pj = j.center
+   vec2 m = (pi+pj)/2.
+   vec2 u = unit(pj-pi)
+   vec2 n = rot90(u)
+
+   vec2 ij.c = (?,?)
+   scalar h = ?
+
+   scalar s = h*h
+   ensure equal( 1., s )
+
+   ij.labelText = Equation {
+      center: m + 12.*h*n
+      string: ij.label
+      fontSize: Global.fontSize
+      fillColor: Colors.black
+   }
+}
+
