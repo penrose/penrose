@@ -23,7 +23,7 @@ Global {
    scalar wedgeSize = 30.0
 
    shape box = Rectangle {
-      center: (0.,0.)
+      center: (-canvas.width/3.,0.)
       color: Colors.clear
       strokeColor: Colors.lightGray
       strokeWidth: 2.
@@ -42,7 +42,7 @@ forall Vertex v {
    -- black dot
    shape v.icon = Circle {
       color: Colors.black
-      r: Global.vertexRadius
+      r: 0 --Global.vertexRadius
       center: v.center
    }
 
@@ -104,6 +104,7 @@ where e := MakeEdge(i,j) {
       end: pj
       color: Colors.black
       thickness: Global.lineThickness
+      strokeLineCap: "round"
    }
 
    -- -- (DEBUG) draw full line through segment
@@ -205,8 +206,8 @@ where c := MakeCorner(i,j,k) {
    vec2 q = j.center
    vec2 r = k.center
    
-   scalar s = .35 -- arc radius as fraction of edge length
-   scalar R = Global.wedgeSize -- s*norm(q-p)
+   scalar s = .25 -- arc radius as fraction of edge length
+   scalar R = s*norm(q-p) -- Global.wedgeSize
    vec2 u = (q-p)/norm(q-p)
    vec2 v = (r-p)/norm(r-p)
    vec2 x = p + R*u
@@ -390,7 +391,7 @@ forall Length l {
 similarityMap {
    scalar scale = .5
    scalar angle = ?
-   vec2 shift = (0.,0.)
+   vec2 shift = (canvas.width/3.,0.)
 
    shape mapArrow = Line {
       start: (2.*canvas.width/5.,0.)
@@ -405,7 +406,7 @@ similarityMap {
 }
 
 forall Vertex v; Vertex v0
-where v := f(v0) {
+where v := similarity(v0) {
 
    scalar s = similarityMap.scale
    scalar theta = similarityMap.angle
@@ -416,11 +417,8 @@ where v := f(v0) {
 }
 
 forall Triangle t; Vertex i; Vertex j; Vertex k; Vertex i0
-where t := MakeTriangle(i,j,k); i := f(i0) {
+where t := MakeTriangle(i,j,k); i := similarity(i0) {
    delete t.positiveArea
    delete t.goodAngleA
    delete t.goodAngleB
 }
-
-
-

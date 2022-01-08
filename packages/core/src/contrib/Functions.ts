@@ -1322,7 +1322,21 @@ export const compDict = {
     const [x, y] = v;
     return { tag: "VectorV", contents: [neg(y), x] };
   },
+
+  /**
+   * Rotate a 2D vector `v` by theta degrees counterclockwise.
+   */
+  rotateBy: (v: VarAD[], theta: VarAD) => {
+    if (v.length !== 2) {
+      throw Error("expected 2D vector in `rotateBy`");
+    }
+    const [x, y] = v;
+    const X = add(     mul(cos(theta),x),  mul(sin(theta),y) );
+    const Y = add( neg(mul(sin(theta),x)), mul(cos(theta),y) );
+    return { tag: "VectorV", contents: [X, Y] };
+  },
 };
+
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {

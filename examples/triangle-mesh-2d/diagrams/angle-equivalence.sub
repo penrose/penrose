@@ -38,15 +38,15 @@ Corner cjil := MakeCorner( j, i, l )
 Corner cilj := MakeCorner( i, l, j )
 Corner clji := MakeCorner( l, j, i )
 
--- Same mesh, under an angle-preserving map f
+-- Same mesh, under a similarity transformation
 
-Vertex I := f(i)
-Vertex J := f(j)
-Vertex K := f(k)
-Vertex L := f(l)
-Vertex A := f(a)
-Vertex B := f(b)
-Vertex C := f(c)
+Vertex I := similarity(i)
+Vertex J := similarity(j)
+Vertex K := similarity(k)
+Vertex L := similarity(l)
+Vertex A := similarity(a)
+Vertex B := similarity(b)
+Vertex C := similarity(c)
 
 Edge IJ := MakeEdge( I, J )
 Edge JK := MakeEdge( J, K )

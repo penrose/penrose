@@ -34,5 +34,5 @@ constructor EdgeLength(Edge e) -> Length
 constructor DualEdgeLength(DualEdge d) -> Length
 
 -- Specific to angle-equivalence.sub
-function f(Vertex i) -> Vertex
+function similarity(Vertex i) -> Vertex
 
