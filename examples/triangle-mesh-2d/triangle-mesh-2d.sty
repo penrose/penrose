@@ -42,7 +42,7 @@ forall Vertex v {
    -- black dot
    shape v.icon = Circle {
       color: Colors.black
-      r: 0 --Global.vertexRadius
+      r: Global.vertexRadius
       center: v.center
    }
 
@@ -387,6 +387,13 @@ forall Length l {
 
 -- Specific to the example diagrams/angle-equivalence.sub
 -- TODO requires #776 to import these rules from an example-specific Style module
+
+-- -- Don't draw vertices as dots in this
+-- -- example (but still keep the icons, for
+-- -- other purposes).
+-- forall Vertex v {
+--    override v.icon.r = 0.
+-- }
 
 similarityMap {
    scalar scale = .5
