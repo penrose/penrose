@@ -395,6 +395,22 @@ forall Length l {
    }
 }
 
+forall Circle C {
+
+   shape C.icon = Circle {
+      center: (?,?)
+      r: (?)
+      fillColor: Colors.semiBlue
+   }
+
+   ensure contains(Global.box, C.icon)
+}
+
+-- forall Vertex v; Circle C
+-- where OnCircle(v,C) {
+--    ensure equal( (v.center-C.icon.center), C.icon.r )
+-- }
+
 -- Specific to diagrams/angle-equivalence.sub
 -- TODO requires #776 to import these rules from an example-specific Style module
 
@@ -482,25 +498,6 @@ where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
 
 forall Triangle s; Triangle t; Vertex i; Vertex j; Vertex k; Vertex l
 where s := MakeTriangle(i,j,k); t := MakeTriangle(j,i,l); Concyclic(s,t) {
-
-
-   -- XXX Get a weird error if I try doing it this way...
-   -- vec2 c0 = (?,?)
-   -- scalar r0 = (?,?)
-   -- ensure equal( norm(i.icon.center - c0), r0 )
-   -- ensure equal( norm(j.icon.center - c0), r0 )
-   -- ensure equal( norm(k.icon.center - c0), r0 )
-   -- ensure equal( norm(l.icon.center - c0), r0 )
-   -- shape Cijk = Circle {
-   --    center: s.circumcenter
-   --    r: s.circumradius
-   --    fillColor: Colors.semiBlue
-   -- }
-   -- shape Cjil = Circle {
-   --    center: t.circumcenter
-   --    r: t.circumradius
-   --    fillColor: Colors.semiBlue
-   -- }
 
    scalar ti = ?
    scalar tj = ?

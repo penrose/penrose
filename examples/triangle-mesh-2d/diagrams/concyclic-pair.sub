@@ -20,7 +20,12 @@ IsBoundaryEdge(lj)
 
 Triangle ijk := MakeTriangle(i,j,k)
 Triangle jil := MakeTriangle(j,i,l)
-Concyclic(ijk,jil)
+
+Circle C
+OnCircle( i, C )
+OnCircle( j, C )
+OnCircle( k, C )
+OnCircle( l, C )
 
 Corner cK := MakeCorner(k,i,j)
 Label cK "α"

@@ -23,6 +23,8 @@ type Point
 type Circle
 type Length
 
+predicate OnCircle(Vertex v, Circle C)
+
 constructor Barycenter(Triangle t) -> Point
 constructor Circumcenter(Triangle t) -> Point
 constructor Incenter(Triangle t) -> Point
