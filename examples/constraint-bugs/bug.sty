@@ -1,0 +1,25 @@
+canvas {
+   width = 640
+   height = 480
+}
+
+Global {
+   shape box = Rectangle {
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: none()
+      strokeColor: rgba(0,0,0,.2)
+      strokeWidth: 3
+   }
+}
+
+forall Point p {
+   shape p.icon = Circle {
+      center: (?,?)
+      r: ?
+      fillColor: rgba(0,0,0,1)
+   }
+
+   ensure contains(Global.box, p.icon)
+}
