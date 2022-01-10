@@ -41,7 +41,7 @@ export const objDictSimple = {
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) => div(weight, add(ops.vdistsq(a, b), constOf(EPS_DENOM))),
+  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) => mul(weight, inverse(ops.vdistsq(a, b))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
