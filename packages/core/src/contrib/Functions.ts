@@ -1304,6 +1304,13 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
   },
 
+  /**
+   * Return the angle made by the vector `v` with the positive x-axis.
+   */
+  angleOf: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: atan2(v[1],v[0]) };
+  },
+
   // ------ Mathematical constants
 
   /**
