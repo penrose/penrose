@@ -1,9 +1,7 @@
 import { Action, Dispatcher, State } from "./reducer";
 import dummyRegistry from "./dummy-registry.json";
 import { useCallback } from "react";
-import { Octokit } from "@octokit/rest";
 import { toast } from "react-toastify";
-import { editor } from "monaco-editor";
 import { compileDomain } from "@penrose/core";
 
 /**
@@ -52,7 +50,7 @@ export const usePublishGist = (
   return useCallback(() => {
     const { githubUser } = state.settings;
     if (githubUser) {
-      const octokit = new Octokit({
+      /*   const octokit = new Octokit({
         auth: githubUser.access_token,
       });
       const gistData = {
@@ -76,23 +74,25 @@ export const usePublishGist = (
       (async () => {
         try {
           toast.info("Publishing gist...");
-          const res = await octokit.gists.create(gistData);
+          const res = await octokit.rest.gists.create(gistData);
           if (res.status === 201) {
             toast.success("Gist published, redirecting...");
             window.location.replace(`/gist/${res.data.id}`);
           }
-        } catch (err) {
+        } catch (err: any) {
           toast.error(err.toString());
         }
       })();
+      */
     }
   }, [state]);
 };
 
 export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {
+  /*
   const octokit = new Octokit();
   try {
-    const { data } = await octokit.gists.get({ gist_id: gistId });
+    const { data } = await octokit.rest.gists.get({ gist_id: gistId });
     const { files } = data;
     if (files !== undefined) {
       const sub = files[".sub"]!.content as string;
@@ -108,9 +108,10 @@ export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {
     } else {
       toast.error("No files in gist");
     }
-  } catch (err) {
+  } catch (err: any) {
     toast.error(`Could not retrieve gist ID: ${err.toString()}`);
   }
+  */
 };
 
 export const tryDomainHighlight = (
@@ -123,11 +124,4 @@ export const tryDomainHighlight = (
       dispatch({ kind: "SET_DOMAIN_CACHE", domainCache: domainComp.value });
     return domainComp.value || null;
   }
-};
-
-export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
-  automaticLayout: true,
-  minimap: { enabled: false },
-  wordWrap: "on",
-  fontSize: 16,
 };

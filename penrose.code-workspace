@@ -71,6 +71,7 @@
     "files.insertFinalNewline": false,
     "files.trimFinalNewlines": false,
     "files.trimTrailingWhitespace": false,
-    "search.useParentIgnoreFiles": true
+    "search.useParentIgnoreFiles": true,
+    "typescript.tsdk": "✨ penrose/node_modules/typescript/lib"
   }
 }

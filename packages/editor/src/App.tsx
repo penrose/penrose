@@ -1,8 +1,6 @@
-import * as React from "react";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import styled from "styled-components";
 import { toast, ToastContainer } from "react-toastify";
-import MonacoEditor from "@monaco-editor/react";
 import "react-toastify/dist/ReactToastify.css";
 import reducer, { debouncedSave, initialState } from "./reducer";
 import {
@@ -18,7 +16,6 @@ import {
 } from "@penrose/core";
 import {
   DownloadSVG,
-  monacoOptions,
   retrieveGist,
   tryDomainHighlight,
   usePublishGist,
@@ -26,9 +23,10 @@ import {
 import AuthorshipTitle from "./components/AuthorshipTitle";
 import BlueButton from "./components/BlueButton";
 import { useParams } from "react-router-dom";
-import StylePane from "./StylePane";
-import SubstancePane from "./SubstancePane";
-import DomainPane from "./DomainPane";
+import EditorPane from "./components/EditorPane";
+import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
+import { SetupStyleMonaco } from "./languages/StyleConfig";
+import { SetupDomainMonaco } from "./languages/DomainConfig";
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -272,28 +270,32 @@ function App({ location }: any) {
       >
         <ColumnContainer show={state.openPanes.sub} numOpen={numOpen}>
           {
-            <SubstancePane
+            <EditorPane
               value={state.currentInstance.sub}
-              domainCache={state.currentInstance.domainCache}
-              numOpen={numOpen}
+              languageType="substance"
+              setupMonaco={SetupSubstanceMonaco(
+                state.currentInstance.domainCache
+              )}
               dispatch={dispatch}
             />
           }
         </ColumnContainer>
         <ColumnContainer show={state.openPanes.sty} numOpen={numOpen}>
           {
-            <StylePane
+            <EditorPane
               value={state.currentInstance.sty}
-              numOpen={numOpen}
+              languageType="style"
+              setupMonaco={SetupStyleMonaco}
               dispatch={dispatch}
             />
           }
         </ColumnContainer>
         <ColumnContainer show={state.openPanes.dsl} numOpen={numOpen}>
           {
-            <DomainPane
+            <EditorPane
               value={state.currentInstance.dsl}
-              numOpen={numOpen}
+              languageType="domain"
+              setupMonaco={SetupDomainMonaco}
               dispatch={dispatch}
             />
           }
