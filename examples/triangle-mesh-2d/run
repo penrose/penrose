@@ -1,2 +1,2 @@
-npx roger watch diagrams/segment-intersection-test.sub triangle-mesh-2d.sty triangle-mesh-2d.dsl
+npx roger watch diagrams/halfedge-mesh.sub triangle-mesh-2d.sty triangle-mesh-2d.dsl
 

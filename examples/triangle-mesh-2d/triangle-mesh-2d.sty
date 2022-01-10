@@ -1,6 +1,6 @@
 canvas {
-   width = 240
-   height = 180
+   width = 480
+   height = 360
 }
 
 Colors {
@@ -149,7 +149,7 @@ where t := MakeTriangle(i,j,k)
    vec2 b = j.icon.center
    vec2 c = k.icon.center
 
-   -- Define these quantities for each triangle, even
+   -- Define circles associated with each triangle, even
    -- if they're never used, so that they can be easily
    -- referenced by other rules.  (The overhead here is
    -- minimal, especially because we don't need to
@@ -305,34 +305,65 @@ where h := MakeHalfedge(i,j); t := MakeTriangle(i,j,k)
 {
    h.start = i.center
    h.end = j.center
+   h.opposite = k.center
 }
 forall Halfedge h; Triangle t; Vertex i; Vertex j; Vertex k
 where h := MakeHalfedge(j,k); t := MakeTriangle(i,j,k)
 {
    h.start = j.center
    h.end = k.center
+   h.opposite = i.center
 }
 forall Halfedge h; Triangle t; Vertex i; Vertex j; Vertex k
 where h := MakeHalfedge(k,i); t := MakeTriangle(i,j,k)
 {
    h.start = k.center
    h.end = i.center
+   h.opposite = j.center
 }
 forall Halfedge h {
 
    vec2 p0 = h.start
    vec2 p1 = h.end
-   vec2 u = unit(p1-p0)
-   vec2 n = rot90(u)
-   vec2 q0 = p0 + Global.lineOffset*( n + 5.*u )
-   vec2 q1 = p1 + Global.lineOffset*( n - 5.*u )
-   vec2 q2 = q1 + Global.lineOffset*( n - u )
+   vec2 p2 = h.opposite
+
+   -- unit vectors along the three edges
+   vec2 t01 = unit(p1-p0)
+   vec2 t12 = unit(p2-p1)
+   vec2 t20 = unit(p0-p2)
+
+   -- angle bisectors at the two endpoints
+   vec2 z0 = unit(t01-t20)
+   vec2 z1 = unit(t12-t01)
+
+   -- angles at the two endpoints
+   scalar alpha0 = angleBetween( p1-p0, p2-p0 )
+   scalar alpha1 = angleBetween( p2-p1, p0-p1 )
+
+   -- compute corners of constant-width inset
+   scalar h = Global.lineOffset
+   scalar r0 = h / sin(alpha0/2.)
+   scalar r1 = h / sin(alpha1/2.)
+   vec2 q0 = p0 + r0*z0
+   vec2 q1 = p1 + r1*z1
+
+   -- compute truncated segment endpoints
+   scalar L = norm(p1-p0)
+   vec2 m = (q0+q1)/2.
+   vec2 Q0 = m + (L/4.)*t01
+   vec2 Q1 = m - (L/4.)*t01
+
+   vec2 n = rot90(t01)
+   vec2 Q2 = Q1 + h*(n+t01)
 
    h.icon = Path {
       strokeWidth: 2.*Global.lineThickness
       strokeColor: Colors.black
       fillColor: none()
-      d: pathFromPoints("open", [q0, q1, q2])
+      d: pathFromPoints("open", [Q0,Q1,Q2])
+      startArrowhead: false
+      endArrowhead: false
+      arrowheadSize: .5
    }
 }
 
