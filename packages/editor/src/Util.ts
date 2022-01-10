@@ -50,9 +50,6 @@ export const usePublishGist = (
   return useCallback(() => {
     const { githubUser } = state.settings;
     if (githubUser) {
-      /*   const octokit = new Octokit({
-        auth: githubUser.access_token,
-      });
       const gistData = {
         public: true,
         description: `${state.currentInstance.authorship.name}: a trio from https://penrose.ink`,
@@ -74,7 +71,16 @@ export const usePublishGist = (
       (async () => {
         try {
           toast.info("Publishing gist...");
-          const res = await octokit.rest.gists.create(gistData);
+          const res = await fetch("https://api.github.com/gists", {
+            method: "POST",
+            headers: {
+              accept: "application/vnd.github.v3+json",
+              "X-OAuth-Scopes": "gist",
+              "X-Accepted-OAuth-Scopes": "gist",
+              Authorization: `token ${githubUser.access_token}`,
+            },
+            body: JSON.stringify(gistData),
+          });
           if (res.status === 201) {
             toast.success("Gist published, redirecting...");
             window.location.replace(`/gist/${res.data.id}`);
@@ -83,17 +89,19 @@ export const usePublishGist = (
           toast.error(err.toString());
         }
       })();
-      */
     }
   }, [state]);
 };
 
 export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {
-  /*
-  const octokit = new Octokit();
   try {
-    const { data } = await octokit.rest.gists.get({ gist_id: gistId });
-    const { files } = data;
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: {
+        accept: "application/vnd.github.v3+json",
+      },
+    });
+    const json = await res.json();
+    const { files } = json;
     if (files !== undefined) {
       const sub = files[".sub"]!.content as string;
       const sty = files[".sty"]!.content as string;
@@ -111,7 +119,6 @@ export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {
   } catch (err: any) {
     toast.error(`Could not retrieve gist ID: ${err.toString()}`);
   }
-  */
 };
 
 export const tryDomainHighlight = (
