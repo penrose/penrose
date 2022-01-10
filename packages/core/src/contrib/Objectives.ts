@@ -5,7 +5,6 @@ import {
   constOf,
   constOfIf,
   div,
-  EPS_DENOM,
   inverse,
   mul,
   neg,
