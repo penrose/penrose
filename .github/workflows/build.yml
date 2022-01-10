@@ -11,7 +11,7 @@ jobs:
       CI: false # TODO: eliminate warnings so we don't have to do this
     steps:
       - name: Setup
-        uses: ./.github/actions/setup.yml
+        uses: ./.github/actions/setup
         with:
           # https://github.com/lerna/lerna/issues/1893#issuecomment-770614785
           fetch-depth: 0
@@ -63,7 +63,7 @@ jobs:
         working-directory: ./packages/components
     steps:
       - name: Setup
-        uses: ./.github/actions/setup.yml
+        uses: ./.github/actions/setup
       - name: Build core
         run: yarn build
         working-directory: ./packages/core
@@ -94,7 +94,7 @@ jobs:
         working-directory: ./packages/core
     steps:
       - name: Setup
-        uses: ./.github/actions/setup.yml
+        uses: ./.github/actions/setup
       - name: Build docs
         run: yarn docs
       - name: Deploy docs
