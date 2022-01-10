@@ -6,6 +6,7 @@
 import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
+import { attrMapSvg } from "./AttrMap";
 
 /**
  * Auto-maps any input properties for which we lack specific logic over to the SVG output.
@@ -36,7 +37,13 @@ export const attrAutoFillSvg = (
     if (!attrToNotAutoMap.has(propNameLC)) {
       if (!elem.hasAttribute(propNameLC)) {
         if (propValue !== "") {
-          elem.setAttribute(propNameLC, propValue);
+          // Use the attribute map if our internal name has a translation
+          // This provides the ability to output SVG "kebab case" attribute names
+          if( propNameLC in attrMapSvg ) {
+            elem.setAttribute(attrMapSvg[propNameLC], propValue);
+          } else {
+            elem.setAttribute(propNameLC, propValue);
+          }
         }
       }
     }
