@@ -649,7 +649,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   if (isCompNode) {
     const gradNode = div(
       gvarOf(1.0),
-      mul(gvarOf(2.0), max(gvarOf(0.0), sqrt(v, false), false), false),
+      mul(gvarOf(2.0), max(gvarOf(EPS_DENOM), sqrt(v, false), false), false),
       false
     );
     v.parents.push({ node: z, sensitivityNode: just(gradNode) });
