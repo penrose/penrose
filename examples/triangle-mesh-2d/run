@@ -1,2 +1,2 @@
-npx roger watch diagrams/concyclic-pair.sub triangle-mesh-2d.sty triangle-mesh-2d.dsl
+npx roger watch diagrams/length-cross-ratio.sub triangle-mesh-2d.sty triangle-mesh-2d.dsl
 

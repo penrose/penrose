@@ -176,8 +176,8 @@ where t := MakeTriangle(i,j,k)
    -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(20.), toRadians(120.) )
-   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(20.), toRadians(120.) )
+   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(40.), toRadians(80.) )
+   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
 
    -- -- Encourage the vertex labels to be outside the triangle
    -- -- by encouraging the total area made with the three
@@ -441,56 +441,14 @@ forall Circle C {
    ensure contains(Global.box, C.icon)
 }
 
-forall Vertex v; Circle C
-where OnCircle(v,C) {
-   ensure equal( norm(v.center-C.icon.center), C.icon.r )
+-- draw flipped edge as dashed line
+forall Edge e
+where IsFlipped( e ) {
+   e.segment.strokeDashArray = "5,5"
+   override e.segment.strokeLineCap = "butt"
 }
 
--- Specific to diagrams/angle-equivalence.sub
--- TODO requires #776 to import these rules from an example-specific Style module
-
--- -- Don't draw vertices as dots in this
--- -- example (but still keep the icons, for
--- -- other purposes).
--- forall Vertex v {
---    override v.icon.r = 0.
--- }
-
-similarityMap {
-   scalar scale = .5
-   scalar angle = ?
-   vec2 shift = (canvas.width/3.,0.)
-
-   -- shape mapArrow = Line {
-   --    start: (2.*canvas.width/5.,0.)
-   --    end: (3.25*canvas.width/5.,0.)
-   --    strokeColor: Colors.black
-   --    strokeWidth: 3.*Global.lineThickness
-   --    rightArrowhead: true
-   --    arrowheadSize: .5
-   -- }
-
-   -- layer mapArrow above Global.box
-}
-
-forall Vertex v; Vertex v0
-where v := similarity(v0) {
-
-   scalar s = similarityMap.scale
-   scalar theta = similarityMap.angle
-   vec2 u = similarityMap.shift
-
-   override v.center = s*rotateBy(v0.center,theta) + u
-   delete v.onCanvas
-}
-
-forall Triangle t; Vertex i; Vertex j; Vertex k; Vertex i0
-where t := MakeTriangle(i,j,k); i := similarity(i0) {
-   delete t.positiveArea
-   delete t.goodAngleA
-   delete t.goodAngleB
-}
-
+-- put edge labels on one side of the edge or another
 forall Edge ij; Vertex i; Vertex j
 where ij := MakeEdge(i,j); ij has math label {
 
@@ -503,68 +461,18 @@ where ij := MakeEdge(i,j); ij has math label {
    vec2 ij.c = (?,?)
    scalar h = ?
 
+   -- ensure that offset h is either plus or minus 1
    scalar s = h*h
    ensure equal( 1., s )
 
+   -- put label at edge midpoint, offset in the plus
+   -- or minus normal direction by some fixed amount
    shape ij.labelText = Equation {
       center: m + 12.*h*n
       string: ij.label
       fontSize: Global.fontSize
       fillColor: Colors.black
    }
-}
-
--- Specific to diagrams/concyclic-pair.sub
--- TODO requires #776 to import these rules from an example-specific Style module
-
--- draw flipped edge as dashed line
-forall Edge e
-where IsFlipped( e ) {
-   e.segment.strokeDashArray = "5,5"
-   override e.segment.strokeLineCap = "butt"
-}
-
--- make vertex dots bigger
-forall Vertex v {
-   override v.icon.r = 1.5*Global.vertexRadius
-}
-
--- make corner labels larger and dark blue
-forall Corner c; Vertex i; Vertex j; Vertex k
-where c := MakeCorner(i,j,k); c has text label {
-   override c.text.fontSize = "18pt"
-   override c.textBounds.r = Global.labelBoundRadius
-   override c.text.fillColor = Colors.darkBlue
-}
-
--- don't draw black outline on arcs
-forall Corner c; Vertex i; Vertex j; Vertex k
-where c := MakeCorner(i,j,k) {
-   delete c.arc
-}
-
--- make edges thicker
-forall Edge e {
-   override e.segment.strokeWidth = 2.25*Global.lineThickness
-}
-
--- make boundary edges thicker
-forall Edge e
-where IsBoundaryEdge( e ) {
-   override e.segment.strokeWidth = 3*Global.lineThickness
-}
-
--- corner labels shouldn't overlap diagonals
--- forall Edge e; Corner c {
---    ensure disjoint( c.textBounds, e.segment )
--- }
-forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
-where c := MakeCorner(i,j,k); e := MakeEdge(l,i) {
-   ensure disjoint( c.textBounds, e.segment )
-}
-forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
-where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
-   ensure disjoint( c.textBounds, e.segment )
 }
 
 -- if triangles are concyclic, put vertices on a common circle
@@ -587,4 +495,82 @@ where s := MakeTriangle(i,j,k); t := MakeTriangle(j,i,l); Concyclic(s,t) {
    ensure equal( norm( l.center-c0 ), r0 )
 }
 
+
+-- Specific to diagrams/angle-equivalence.sub
+-- TODO requires #776 to import these rules from an example-specific Style module
+
+--- angle-equivalence --- -- Don't draw vertices as dots in this
+--- angle-equivalence --- -- example (but still keep the icons, for
+--- angle-equivalence --- -- other purposes).
+--- angle-equivalence --- forall Vertex v {
+--- angle-equivalence ---    override v.icon.r = 0.
+--- angle-equivalence --- }
+--- angle-equivalence --- 
+--- angle-equivalence --- similarityMap {
+--- angle-equivalence ---    scalar scale = .5
+--- angle-equivalence ---    scalar angle = ?
+--- angle-equivalence ---    vec2 shift = (canvas.width/3.,0.)
+--- angle-equivalence --- }
+--- angle-equivalence --- 
+--- angle-equivalence --- forall Vertex v; Vertex v0
+--- angle-equivalence --- where v := similarity(v0) {
+--- angle-equivalence --- 
+--- angle-equivalence ---    scalar s = similarityMap.scale
+--- angle-equivalence ---    scalar theta = similarityMap.angle
+--- angle-equivalence ---    vec2 u = similarityMap.shift
+--- angle-equivalence --- 
+--- angle-equivalence ---    override v.center = s*rotateBy(v0.center,theta) + u
+--- angle-equivalence ---    delete v.onCanvas
+--- angle-equivalence --- }
+--- angle-equivalence --- 
+--- angle-equivalence --- -- don't constrain triangle geometry so much
+--- angle-equivalence --- forall Triangle t; Vertex i; Vertex j; Vertex k; Vertex i0
+--- angle-equivalence --- where t := MakeTriangle(i,j,k); i := similarity(i0) {
+--- angle-equivalence ---    delete t.positiveArea
+--- angle-equivalence ---    delete t.goodAngleA
+--- angle-equivalence ---    delete t.goodAngleB
+--- angle-equivalence --- }
+
+-- Specific to diagrams/concyclic-pair.sub
+-- TODO requires #776 to import these rules from an example-specific Style module
+
+--- concyclic-pair --- -- make vertex dots bigger
+--- concyclic-pair --- forall Vertex v {
+--- concyclic-pair ---    override v.icon.r = 1.5*Global.vertexRadius
+--- concyclic-pair --- }
+--- concyclic-pair --- 
+--- concyclic-pair --- -- make corner labels larger and dark blue
+--- concyclic-pair --- forall Corner c; Vertex i; Vertex j; Vertex k
+--- concyclic-pair --- where c := MakeCorner(i,j,k); c has text label {
+--- concyclic-pair ---    override c.text.fontSize = "18pt"
+--- concyclic-pair ---    override c.textBounds.r = Global.labelBoundRadius
+--- concyclic-pair ---    override c.text.fillColor = Colors.darkBlue
+--- concyclic-pair --- }
+--- concyclic-pair --- 
+--- concyclic-pair --- -- don't draw black outline on arcs
+--- concyclic-pair --- forall Corner c; Vertex i; Vertex j; Vertex k
+--- concyclic-pair --- where c := MakeCorner(i,j,k) {
+--- concyclic-pair ---    delete c.arc
+--- concyclic-pair --- }
+--- concyclic-pair --- 
+--- concyclic-pair --- -- make edges thicker
+--- concyclic-pair --- forall Edge e {
+--- concyclic-pair ---    override e.segment.strokeWidth = 2.25*Global.lineThickness
+--- concyclic-pair --- }
+--- concyclic-pair --- 
+--- concyclic-pair --- -- make boundary edges thicker
+--- concyclic-pair --- forall Edge e
+--- concyclic-pair --- where IsBoundaryEdge( e ) {
+--- concyclic-pair ---    override e.segment.strokeWidth = 3*Global.lineThickness
+--- concyclic-pair --- }
+--- concyclic-pair --- 
+--- concyclic-pair --- -- corner labels shouldn't overlap diagonals
+--- concyclic-pair --- forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
+--- concyclic-pair --- where c := MakeCorner(i,j,k); e := MakeEdge(l,i) {
+--- concyclic-pair ---    ensure disjoint( c.textBounds, e.segment )
+--- concyclic-pair --- }
+--- concyclic-pair --- forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
+--- concyclic-pair --- where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
+--- concyclic-pair ---    ensure disjoint( c.textBounds, e.segment )
+--- concyclic-pair --- }
 
