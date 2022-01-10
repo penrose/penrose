@@ -1,0 +1,14 @@
+name: Install packages
+runs:
+  using: composite
+  steps:
+    - name: Restore lerna cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          node_modules
+          */*/node_modules
+        key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+    - name: Install packages
+      run: yarn
+      shell: bash
