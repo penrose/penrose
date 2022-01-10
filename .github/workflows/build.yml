@@ -17,6 +17,8 @@ jobs:
           fetch-depth: 0
       - name: Install packages
         uses: ./.github/actions/packages
+      - run: yarn prepack
+        working-directory: packages/roger
       - name: Run all builds
         run: yarn build
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
