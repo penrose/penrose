@@ -5,6 +5,7 @@ import {
   constOfIf,
   max,
   min,
+  minN,
   mul,
   neg,
   ops,
@@ -78,7 +79,7 @@ const constrDictSimple = {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
     return add(constrDictSimple.lessThanSq(l1, l2), constrDictSimple.lessThanSq(r2, r1));
   },
-  
+
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
@@ -105,6 +106,7 @@ const constrDictSimple = {
 
   /**
    * Require that three points be collinear.
+   * Depends on the specific ordering of points.
    */
   collinear: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
     const v1 = ops.vsub(c1, c2);
@@ -116,6 +118,23 @@ const constrDictSimple = {
       constOf(0),
       sub(add(ops.vnorm(v1), ops.vnorm(v2)), ops.vnorm(v3))
     );
+  },
+
+  /**
+   * Require that three points be collinear.
+   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
+   */
+  collinearUnordered: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+    const v1 = ops.vnorm(ops.vsub(c1, c2));
+    const v2 = ops.vnorm(ops.vsub(c2, c3));
+    const v3 = ops.vnorm(ops.vsub(c1, c3));
+
+    // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+    return max(constOf(0), minN([
+      sub(add(v1, v2), v3),
+      sub(add(v1, v3), v2),
+      sub(add(v2, v3), v1),
+    ]));
   },
 
 }
@@ -231,33 +250,6 @@ const constrDictGeneral = {
     const size2 = shapeSize([t2, s2]);
     const padding = mul(constOfIf(relativePadding), size2);
     return sub(sub(size1, size2), padding);
-  },
-
-  /**
-   * Require that the `center`s of three shapes to be collinear. 
-   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
-   */
-  collinearUnordered: (
-    [t0, p0]: [string, any],
-    [t1, p1]: [string, any],
-    [t2, p2]: [string, any]
-  ) => {
-    const c1 = shapeCenter([t0, p0]);
-    const c2 = shapeCenter([t1, p1]);
-    const c3 = shapeCenter([t2, p2]);
-
-    const v1 = ops.vnorm(ops.vsub(c1, c2));
-    const v2 = ops.vnorm(ops.vsub(c2, c3));
-    const v3 = ops.vnorm(ops.vsub(c1, c3));
-
-    // Use triangle inequality (v1 + v2 <= v3) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      constOf(0),
-      min(
-        min(sub(add(v1, v2), v3), sub(add(v1, v3), v2)),
-        sub(add(v2, v3), v1)
-      )
-    );
   },
 
 }
