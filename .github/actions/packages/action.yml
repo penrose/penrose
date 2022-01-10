@@ -10,6 +10,7 @@ runs:
           node_modules
           */*/node_modules
         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-    - name: Install packages
+    - if: steps.cache.outputs.cache-hit != 'true'
+      name: Install packages
       run: yarn
       shell: bash
