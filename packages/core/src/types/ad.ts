@@ -36,10 +36,10 @@ export interface IVarAD {
   op: string;
   isCompNode: boolean; // comp node (normal computational graph) or grad node (node in computational graph for gradient)
   isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
-  parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
-  children: EdgeAD[];
-  parentsGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
-  childrenGrad: EdgeAD[];
+  parentsAD: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  childrenAD: EdgeAD[];
+  parentsADGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  childrenADGrad: EdgeAD[];
   gradVal: MaybeVal<number>;
   gradNode: MaybeVal<VarAD>;
   index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
