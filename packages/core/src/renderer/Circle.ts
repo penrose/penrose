@@ -1,7 +1,6 @@
 import {
   attrCenter,
   attrFill,
-  attrRadius,
   attrStroke,
   attrTitle,
   attrAutoFillSvg,
@@ -17,7 +16,6 @@ const Circle = ({ shape, canvasSize }: ShapeProps): SVGCircleElement => {
   // Fill the output SVG attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrCenter(shape, canvasSize, elem));
-  attrToNotAutoMap.push(...attrRadius(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
