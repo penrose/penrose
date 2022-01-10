@@ -36,7 +36,11 @@ const styleTypes: string[] =
 const lexer = moo.compile({
   ...basicSymbols,
   identifier: {
-    match: /[A-z_][A-Za-z_0-9]*/,
+    // Allow alpha, numbers, underscores.  But an identified name:
+    //  - May not begin with a number (ending with a number is ok)
+    //  - May be a single alpha character or underscore
+    //  - May begin or end with an underscore
+    match: /[A-Za-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 
