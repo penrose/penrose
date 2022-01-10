@@ -27,7 +27,6 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
 /**
  * Return size of the shape `shape`.
  * - `radius` for circles.
- * - `side` for squares.
  * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
  */
  export const shapeSize = ([t, s]: [string, any]): VarAD => {

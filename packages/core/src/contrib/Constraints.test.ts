@@ -301,48 +301,48 @@ describe("general constraints", () => {
     expect(numOf(constrDict.atDist(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
   });
 
-  // Disjoint shapes
-  it.each([
-    // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[2], rectangles[3]],
-    // ["Rectangle", "Circle", 0, rectangles[2], circles[3]],
-    // ["Circle", "Rectangle", 0, circles[2], rectangles[3]],
-    // ["Circle", "Circle", 0, circles[2], circles[3]],
-    // // Possitive padding
-    // ["Rectangle", "Rectangle", 100, rectangles[2], rectangles[3]],
-    // ["Rectangle", "Circle", 100, rectangles[2], circles[3]],
-    // ["Circle", "Rectangle", 100, circles[2], rectangles[3]],
-    // ["Circle", "Circle", 100, circles[2], circles[3]],
-    // // Negative padding
-    // ["Rectangle", "Rectangle", -100, rectangles[2], rectangles[3]],
-    // ["Rectangle", "Circle", -100, rectangles[2], circles[3]],
-    // ["Circle", "Rectangle", -100, circles[2], rectangles[3]],
-    // ["Circle", "Circle", -100, circles[2], circles[3]],
-  ])('disjoint %p and %p without padding', (
-    shapeType0: string,
-    shapeType1: string,
-    padding: number,
-    shapeData0: any,
-    shapeData1: any,
-  ) => {
-    const shape0: [string, any] = [shapeType0, shapeData0];
-    const shape1: [string, any] = [shapeType1, shapeData1];
-    // The condition should NOT be satisfied
-    expect(numOf(constrDict.overlapping(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-    expect(numOf(constrDict.overlapping(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-    // The condition should be satisfied
-    expect(numOf(constrDict.disjoint(shape0, shape1, padding))).toBeLessThanOrEqual(0);
-    expect(numOf(constrDict.disjoint(shape1, shape0, padding))).toBeLessThanOrEqual(0);
-    // The condition should NOT be satisfied
-    expect(numOf(constrDict.tangentTo(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-    expect(numOf(constrDict.tangentTo(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-    // The condition should NOT be satisfied
-    expect(numOf(constrDict.contains(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-    expect(numOf(constrDict.contains(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-    // The condition should NOT be satisfied
-    expect(numOf(constrDict.atDist(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-    expect(numOf(constrDict.atDist(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-  });
+  // // Disjoint shapes
+  // it.each([
+  //   // Zero padding
+  //   ["Rectangle", "Rectangle", 0, rectangles[2], rectangles[3]],
+  //   // ["Rectangle", "Circle", 0, rectangles[2], circles[3]],
+  //   // ["Circle", "Rectangle", 0, circles[2], rectangles[3]],
+  //   // ["Circle", "Circle", 0, circles[2], circles[3]],
+  //   // // Possitive padding
+  //   // ["Rectangle", "Rectangle", 100, rectangles[2], rectangles[3]],
+  //   // ["Rectangle", "Circle", 100, rectangles[2], circles[3]],
+  //   // ["Circle", "Rectangle", 100, circles[2], rectangles[3]],
+  //   // ["Circle", "Circle", 100, circles[2], circles[3]],
+  //   // // Negative padding
+  //   // ["Rectangle", "Rectangle", -100, rectangles[2], rectangles[3]],
+  //   // ["Rectangle", "Circle", -100, rectangles[2], circles[3]],
+  //   // ["Circle", "Rectangle", -100, circles[2], rectangles[3]],
+  //   // ["Circle", "Circle", -100, circles[2], circles[3]],
+  // ])('disjoint %p and %p without padding', (
+  //   shapeType0: string,
+  //   shapeType1: string,
+  //   padding: number,
+  //   shapeData0: any,
+  //   shapeData1: any,
+  // ) => {
+  //   const shape0: [string, any] = [shapeType0, shapeData0];
+  //   const shape1: [string, any] = [shapeType1, shapeData1];
+  //   // The condition should NOT be satisfied
+  //   expect(numOf(constrDict.overlapping(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+  //   expect(numOf(constrDict.overlapping(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+  //   // The condition should be satisfied
+  //   expect(numOf(constrDict.disjoint(shape0, shape1, padding))).toBeLessThanOrEqual(0);
+  //   expect(numOf(constrDict.disjoint(shape1, shape0, padding))).toBeLessThanOrEqual(0);
+  //   // The condition should NOT be satisfied
+  //   expect(numOf(constrDict.tangentTo(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+  //   expect(numOf(constrDict.tangentTo(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+  //   // The condition should NOT be satisfied
+  //   expect(numOf(constrDict.contains(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+  //   expect(numOf(constrDict.contains(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+  //   // The condition should NOT be satisfied
+  //   expect(numOf(constrDict.atDist(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+  //   expect(numOf(constrDict.atDist(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+  // });
 
   // Tangent shapes
   it.each([
