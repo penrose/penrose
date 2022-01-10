@@ -1,0 +1,25 @@
+Vertex i, j, k, l, m
+
+Edge ij := MakeEdge( i, j )
+Edge jk := MakeEdge( j, k )
+Edge ki := MakeEdge( k, i )
+Edge il := MakeEdge( i, l )
+Edge jl := MakeEdge( j, l )
+Edge jm := MakeEdge( j, m )
+Edge km := MakeEdge( k, m )
+
+Triangle ijk := MakeTriangle( i, j, k )
+Triangle jil := MakeTriangle( j, i, l )
+Triangle jmk := MakeTriangle( j, m, k )
+
+Corner ckij := MakeCorner( k, i, j )
+Corner clji := MakeCorner( l, j, i )
+
+--DualEdge starij := MakeDualEdge( ijk, jil )
+
+--Point x := Circumcenter(ijk)
+--Point y := Circumcenter(jil)
+
+AutoLabel All
+Label ckij "α"
+Label clji "β"

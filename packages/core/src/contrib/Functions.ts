@@ -1,5 +1,6 @@
 import * as _ from "lodash";
-import { bboxFromShape, inRange } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape } from "contrib/Queries";
+import { inRange } from "contrib/Utils";
 import {
   absVal,
   add,
@@ -37,12 +38,12 @@ import {
   sign,
   sin,
   sinh,
+  squared,
   tan,
   tanh,
   trunc,
   sqrt,
   sub,
-  variableAD,
   varOf,
 } from "engine/Autodiff";
 import * as BBox from "engine/BBox";
@@ -62,7 +63,7 @@ import {
 } from "types/value";
 import { getStart, linePts } from "utils/OtherUtils";
 import { randFloat } from "utils/Util";
-import { isRectlike } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 
 /**
  * Static dictionary of computation functions
@@ -673,6 +674,31 @@ export const compDict = {
     return path.getPath();
   },
   /**
+   * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
+   * @param center: center of the circle on which the arc sits
+   * @param start: coordinate to start drawing the arc
+   * @param end: coordinate to finish drawing the arc
+   * @param radius: width and height of the ellipse to draw the arc along (i.e. [width, height])
+   * @param rotation: angle in degrees to rotate ellipse about its center
+   * @param largeArc: 0 to draw shorter of 2 arcs, 1 to draw longer
+   * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
+   * @returns: Elements that can be passed to Path shape spec to render an SVG arc
+   */
+  wedge: (
+    center: Pt2,
+    start: Pt2,
+    end: Pt2,
+    radius: Pt2,
+    rotation: IVarAD,
+    largeArc: IVarAD,
+    arcSweep: IVarAD
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]).lineTo(center);
+    path.closePath();
+    return path.getPath();
+  },
+  /**
    * Find the point that is located at dist r along a line between p1 and p2.
    * @param p1: start point of line segment
    * @param p2: endpoint of line segment
@@ -697,7 +723,7 @@ export const compDict = {
     const cross = ops.cross2(st, en);
     return {
       tag: "FloatV",
-      contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
+      contents: ifCond(gt(cross, constOf(0)), constOf(0), constOf(1)),
     };
   },
   /**
@@ -772,8 +798,8 @@ export const compDict = {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
-      const startDir = ops.vrot(dir, varOf(135));
-      const endDir = ops.vrot(dir, varOf(225));
+      const startDir = ops.vrot(dir, constOf(135));
+      const endDir = ops.vrot(dir, constOf(225));
       const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
       // if even, evenly divide tick marks about center. if odd, start in center and move outwards
       return {
@@ -813,7 +839,7 @@ export const compDict = {
     // unit vector from midpoint to end point
     const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
     // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
-    const cond = gt(ops.vdot(vec1unit, intoEndUnit), varOf(0.95));
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), constOf(0.95));
     return {
       tag: "VectorV",
       contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
@@ -894,12 +920,12 @@ export const compDict = {
     [t1, s1]: [string, any]
   ): IFloatV<VarAD> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (!isRectlike(t1)) {
+    if (!shapedefs[t1].isRectlike) {
       throw Error("expected rect-like shape");
     }
 
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bboxFromShape(t1, s1);
+    const rect = bboxFromShape([t1, s1]);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
@@ -916,8 +942,8 @@ export const compDict = {
 
     const dim = ifCond(
       inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
-      rect.h,
-      rect.w
+      rect.height,
+      rect.width
     );
     return { tag: "FloatV", contents: dim };
   },
@@ -1043,7 +1069,144 @@ export const compDict = {
     };
   },
 
+  // ------ Triangle centers
+
+  /**
+   * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
+   */
+  barycenter: (a: VarAD[], b: VarAD[], c: VarAD[]): IVectorV<VarAD> => {
+    const x = ops.vmul(constOf(1./3.),ops.vadd(a, ops.vadd(b, c)));
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+
+  /**
+   * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
+   */
+  circumcenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
+
+     // edge vectors
+     const u = ops.vsub( r, q );
+     const v = ops.vsub( p, r );
+     const w = ops.vsub( q, p );
+
+     // side lengths
+     const a = ops.vnorm( u );
+     const b = ops.vnorm( v );
+     const c = ops.vnorm( w );
+
+     // homogeneous barycentric coordinates for circumcenter
+     const hp = neg( mul( div(a,mul(b,c)), ops.vdot(w,v) ));
+     const hq = neg( mul( div(b,mul(c,a)), ops.vdot(u,w) ));
+     const hr = neg( mul( div(c,mul(a,b)), ops.vdot(v,u) ));
+
+     // normalize to get barycentric coordinates for circumcenter
+     const H = add( add( hp, hq ), hr );
+     const bp = div( hp, H );
+     const bq = div( hq, H );
+     const br = div( hr, H );
+
+     // circumcenter
+     const x = ops.vadd( ops.vadd( ops.vmul(bp,p),
+                                   ops.vmul(bq,q) ),
+                                   ops.vmul(br,r) );
+
+     return {
+        tag: "VectorV",
+        contents: toPt(x),
+     };
+  },
+
+  /**
+   * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
+   */
+  circumradius: (p: VarAD[], q: VarAD[], r: VarAD[]): IFloatV<VarAD> => {
+
+     // side lengths
+     const a = ops.vnorm( ops.vsub( r, q ) );
+     const b = ops.vnorm( ops.vsub( p, r ) );
+     const c = ops.vnorm( ops.vsub( q, p ) );
+
+     // semiperimeter
+     const s = mul( constOf(.5), add(add( a, b ), c ) );
+
+     // circumradius, computed as
+     // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
+     const R = div(
+        mul(mul(a,b),c),
+        mul(
+           constOf(4.),
+           sqrt(
+              mul(mul(mul( s, sub(add(a,b),s) ), sub(add(a,c),s) ), sub(add(b,c),s) )
+           )
+        )
+     )
+
+     return {
+        tag: "FloatV",
+        contents: R,
+     };
+  },
+
+  /**
+   * Return the incenter of the triangle with vertices `p`, `q`, `r`.
+   */
+  incenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
+
+     // side lengths
+     const a = ops.vnorm( ops.vsub( r, q ) );
+     const b = ops.vnorm( ops.vsub( p, r ) );
+     const c = ops.vnorm( ops.vsub( q, p ) );
+
+     // barycentric coordinates for incenter
+     const s = add(add( a, b ), c );
+     const bp = div(a,s);
+     const bq = div(b,s);
+     const br = div(c,s);
+
+     // incenter
+     const x = ops.vadd( ops.vadd( ops.vmul(bp,p),
+                                   ops.vmul(bq,q) ),
+                                   ops.vmul(br,r) );
+
+     return {
+        tag: "VectorV",
+        contents: toPt(x),
+     };
+  },
+
+  /**
+   * Return the inradius of the triangle with vertices `p`, `q`, `r`.
+   */
+  inradius: (p: VarAD[], q: VarAD[], r: VarAD[]): IFloatV<VarAD> => {
+
+     // side lengths
+     const a = ops.vnorm( ops.vsub( r, q ) );
+     const b = ops.vnorm( ops.vsub( p, r ) );
+     const c = ops.vnorm( ops.vsub( q, p ) );
+
+     // semiperimeter
+     const s = mul( constOf(.5), add(add( a, b ), c ) );
+
+     // inradius
+     const R = sqrt( div( mul(mul( sub(s,a), sub(s,b) ), sub(s,c) ), s ));
+
+     return {
+        tag: "FloatV",
+        contents: R,
+     };
+  },
+
   // ------ Utility functions
+
+  /**
+   * Return the square of the number `x`.
+   */
+  sqr: (x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: squared(x) };
+  },
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
@@ -1244,11 +1407,11 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
 const tickPlacement = (
   padding: VarAD,
   numPts: VarAD,
-  multiplier = varOf(1)
+  multiplier = constOf(1)
 ): VarAD[] => {
   if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numOf(numPts) % 2 === 0;
-  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  const pts = even ? [div(padding, varOf(2))] : [varOf(0)];
   for (let i = 1; i < numOf(numPts); i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =

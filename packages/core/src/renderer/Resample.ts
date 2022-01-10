@@ -4,16 +4,10 @@ import {
   insertExpr,
   initConstraintWeight,
   shapeAutodiffToNumber,
+  valueAutodiffToNumber,
 } from "engine/EngineUtils";
 import { prettyPrintPath } from "utils/OtherUtils";
 import { evalShapes } from "engine/Evaluator";
-import {
-  constValue,
-  findDef,
-  ShapeDef,
-  IPropModel,
-  Canvas,
-} from "renderer/ShapeDef";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
 import { randFloat, randFloats, safe } from "utils/Util";
@@ -22,6 +16,8 @@ import { TagExpr, Translation } from "types/value";
 import { VarAD } from "types/ad";
 import { State } from "types/state";
 import { Path } from "types/style";
+import { Canvas } from "shapes/Samplers";
+import { shapedefs } from "shapes/Shapes";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {
@@ -48,7 +44,7 @@ const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
  */
 export const sampleShapes = (shapes: Shape[], canvas: Canvas): Shape[] =>
   shapes.map((shape: Shape) =>
-    sampleShape(shape, findDef(shape.shapeType), canvas)
+    sampleShape(shape, shapedefs[shape.shapeType], canvas)
   );
 
 /**
@@ -60,12 +56,12 @@ export const sampleShapes = (shapes: Shape[], canvas: Canvas): Shape[] =>
  */
 const sampleShape = (
   shape: Shape,
-  shapeDef: ShapeDef,
+  shapeType: string,
   canvas: Canvas
 ): Shape => ({
   ...shape,
   properties: mapValues(shape.properties, (_: Value<number>, prop: string) =>
-    sampleProperty(prop, shapeDef, canvas)
+    sampleProperty(prop, shapeType, canvas)
   ),
 });
 
@@ -77,15 +73,17 @@ const sampleShape = (
  */
 const sampleProperty = (
   property: string,
-  shapeDef: ShapeDef,
+  shapeType: string,
   canvas: Canvas
 ): Value<number> => {
-  const propModels: IPropModel = shapeDef.properties;
-  const sampler = propModels[property];
-  if (sampler) return sampler[1](canvas);
-  else {
+  // TODO: don't resample all the properties every time for each property
+  const props = shapedefs[shapeType].sampler(canvas);
+  if (property in props) {
+    // TODO: don't make VarAD only to immediately convert back to number
+    return valueAutodiffToNumber(props[property]);
+  } else {
     throw new Error(
-      `${property} is not a valid property to be sampled for shape ${shapeDef.shapeType}.`
+      `${property} is not a valid property to be sampled for shape ${shapeType}.`
     );
   }
 };
@@ -126,7 +124,7 @@ const samplePath = (
 
   // HACK: for access and field paths, sample within the canvas width
   if (path.tag === "AccessPath" || path.tag === "FieldPath") {
-    return constValue("FloatV", randFloat(...canvas.xRange))(canvas);
+    return { tag: "FloatV", contents: randFloat(...canvas.xRange) };
   }
   // for property path, use the sampler in shapedef
   else {
@@ -141,8 +139,7 @@ const samplePath = (
       ),
       `Cannot find shape ${subName}.${field}`
     );
-    const shapeDef = findDef(shapeType);
-    const sampledProp: Value<number> = sampleProperty(prop, shapeDef, canvas);
+    const sampledProp: Value<number> = sampleProperty(prop, shapeType, canvas);
     return sampledProp;
   }
 };
@@ -153,22 +150,22 @@ export const resampleBest = (state: State, numSamples: number): State => {
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path) =>
     samplePath(p, shapes, state.varyingInitInfo, state.canvas)
   );
-  const uninitValues: Value<VarAD>[] = uninitializedPaths.map((p: Path) =>
-    valueNumberToAutodiff(
-      samplePath(p, shapes, state.varyingInitInfo, state.canvas)
-    )
-  );
 
   // update the translation with all uninitialized values (converted to `Done` values)
-  const uninitExprs: TagExpr<VarAD>[] = uninitValues.map((v) => val2Expr(v));
-  const uninitMap = zip(uninitializedPaths, uninitExprs) as [
+  const uninitMap: [
     Path,
-    TagExpr<number>
-  ][];
+    TagExpr<VarAD>
+  ][] = uninitializedPaths.map((p: Path) => [
+    p,
+    val2Expr(
+      valueNumberToAutodiff(
+        samplePath(p, shapes, state.varyingInitInfo, state.canvas)
+      )
+    ),
+  ]);
 
   const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path, TagExpr<number>]) =>
-      insertExpr(p, tagExprNumberToAutodiff(e), tr),
+    (tr: Translation, [p, e]: [Path, TagExpr<VarAD>]) => insertExpr(p, e, tr),
     state.translation
   );
 

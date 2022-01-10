@@ -23,6 +23,7 @@ import {
   Func,
   LabelMap,
   LabelOption,
+  LabelValue,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -32,6 +33,7 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  all,
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
@@ -103,21 +105,26 @@ export const compileSubstance = (
   }
 };
 
-const initEnv = (ast: SubProg): SubstanceEnv => ({
+const initEnv = (ast: SubProg, env: Env): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
   bindings: Map<string, SubExpr>(),
-  labels: Map<string, Maybe<string>>(),
+  labels: Map<string, LabelValue>(
+    [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL])
+  ),
   predicates: [],
   ast,
 });
 
 //#region Postprocessing
+
+const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
+
 export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
   // post process all statements
-  const subEnv = initEnv(prog);
+  const subEnv = initEnv(prog, env);
   return prog.statements.reduce(
-    (e, stmt) => postprocessStmt(stmt, env, e),
+    (e, stmt) => processLabelStmt(stmt, env, e),
     subEnv
   );
 };
@@ -133,7 +140,7 @@ const toSubDecl = (idString: string, decl: TypeConstructor): Decl => ({
   name: dummyIdentifier(idString, "SyntheticSubstance"),
 });
 
-const postprocessStmt = (
+const processLabelStmt = (
   stmt: SubStmt,
   env: Env,
   subEnv: SubstanceEnv
@@ -142,7 +149,9 @@ const postprocessStmt = (
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
         const [...ids] = env.vars.keys();
-        const newLabels: LabelMap = Map(ids.map((id) => [id, Maybe.just(id)]));
+        const newLabels: LabelMap = Map(
+          ids.map((id) => [id, { value: id, type: "MathLabel" }])
+        );
         return {
           ...subEnv,
           labels: newLabels,
@@ -150,7 +159,7 @@ const postprocessStmt = (
       } else {
         const ids = stmt.option.variables;
         const newLabels: LabelMap = subEnv.labels.merge(
-          ids.map((id) => [id.value, Maybe.just(id.value)])
+          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }])
         );
         return {
           ...subEnv,
@@ -159,16 +168,19 @@ const postprocessStmt = (
       }
     }
     case "LabelDecl": {
-      const { variable, label } = stmt;
+      const { variable, label, labelType } = stmt;
       return {
         ...subEnv,
-        labels: subEnv.labels.set(variable.value, Maybe.just(label.contents)),
+        labels: subEnv.labels.set(variable.value, {
+          value: label.contents,
+          type: labelType,
+        }),
       };
     }
     case "NoLabel": {
       const ids = stmt.args;
       const newLabels: LabelMap = subEnv.labels.merge(
-        ids.map((id) => [id.value, Maybe.nothing()])
+        ids.map((id) => [id.value, EMPTY_LABEL])
       );
       return {
         ...subEnv,
@@ -290,8 +302,16 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
       const rightOk = checkPredicate(right, env);
       return every(leftOk, rightOk);
     }
-    case "AutoLabel":
-      return ok(env); // NOTE: no checking required
+    case "AutoLabel": {
+      if (stmt.option.tag === "DefaultLabels") return ok(env);
+      // NOTE: no checking required
+      else {
+        const varsOk = every(
+          ...stmt.option.variables.map((v) => checkVar(v, env))
+        );
+        return andThen(([_, e]) => ok(e), varsOk);
+      }
+    }
     case "LabelDecl":
       return andThen(([_, e]) => ok(e), checkVar(stmt.variable, env));
     case "NoLabel":

@@ -2,7 +2,7 @@
 
 
 -- Polygon K
-FreeformPolygon I
+-- FreeformPolygon I
 -- Polyline J
 Rectangle F
 -- Circle E
@@ -15,7 +15,7 @@ Rectangle F
 Equation H
 -- Path A
 -- Arrow C
-Square D
+-- Square D
 -- Image I
 
-PathString PS
+-- PathString PS

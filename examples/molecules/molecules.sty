@@ -9,7 +9,7 @@ forall Carbon x {
     x.icon = Circle {
         strokeWidth : 0.0
         r : 27.0
-        color : rgba(0.0, 0.0, 0.0, 1.0)
+        fillColor : rgba(0.0, 0.0, 0.0, 1.0)
     }
 }
 
@@ -17,7 +17,7 @@ forall Hydrogen x {
     x.icon = Circle {
         strokeWidth : 0.0
         r : 18.0
-        color : rgba(0.6, 0.6, 0.6, 1.0)
+        fillColor : rgba(0.6, 0.6, 0.6, 1.0)
     }
 }
 
@@ -25,7 +25,7 @@ forall Oxygen x {
     x.icon = Circle {
         strokeWidth : 0.0
         r : 23.0
-        color : rgba(0.8, 0.0, 0.0, 1.0)
+        fillColor : rgba(0.8, 0.0, 0.0, 1.0)
     }
 }
 
@@ -33,7 +33,7 @@ forall Nitrogen x {
     x.icon = Circle {
         strokeWidth : 0.0
         r : 23.0
-        color : rgba(0.0, 0.0, 0.8, 1.0)
+        fillColor : rgba(0.0, 0.0, 0.8, 1.0)
     }
 }
 
@@ -45,8 +45,8 @@ with Atom x; Atom y {
     b.line = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 3.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 3.0
     }
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
@@ -57,14 +57,14 @@ with Atom x; Atom y {
     b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 9.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 9.0
     }
     b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 3.0
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 3.0
     }
     b.layering = b.line2 above b.line1
     ensure equal(vdist(x.icon.center, y.icon.center), 60.0)
@@ -76,20 +76,20 @@ with Atom x; Atom y {
     b.line1 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 15.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 15.0
     }
     b.line2 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(1.0, 1.0, 1.0, 1.0)
-        thickness: 9.0
+        strokeColor : rgba(1.0, 1.0, 1.0, 1.0)
+        strokeWidth: 9.0
     }
     b.line3 = Line {
         start : x.icon.center
         end : y.icon.center
-        color : rgba(0.0, 0.0, 0.0, 1.0)
-        thickness: 3.0
+        strokeColor : rgba(0.0, 0.0, 0.0, 1.0)
+        strokeWidth: 3.0
     }
     b.layering1 = b.line2 above b.line1
     b.layering2 = b.line3 above b.line2

@@ -140,23 +140,25 @@ describe("Postprocess", () => {
 Set A, B, C, D, E
 AutoLabel All
 Label A $\\vec{A}$
-Label B $B_1$
+Label B "B_1"
 NoLabel D, E
     `;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
       const expected = [
-        ["A", "\\vec{A}"],
-        ["B", "B_1"],
-        ["C", "C"],
-        ["D", ""],
-        ["E", ""],
+        ["A", "\\vec{A}", "MathLabel"],
+        ["B", "B_1", "TextLabel"],
+        ["C", "C", "MathLabel"],
+        ["D", "", "NoLabel"],
+        ["E", "", "NoLabel"],
       ];
       const labelMap = res.value[0].labels;
-      expected.map(([id, value]) =>
-        expect(labelMap.get(id)!.unwrapOr("")).toEqual(value)
-      );
+      expected.map(([id, value, type]) => {
+        const label = labelMap.get(id)!;
+        expect(label.value).toEqual(value);
+        expect(label.type).toEqual(type);
+      });
     } else {
       fail("Unexpected error when processing labels: " + showError(res.error));
     }

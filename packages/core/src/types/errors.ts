@@ -150,6 +150,7 @@ export type StyleError =
   | SelectorVarMultipleDecl
   | SelectorDeclTypeMismatch
   | SelectorRelTypeMismatch
+  | SelectorFieldNotSupported
   | TaggedSubstanceError
   // Block static errors
   | InvalidGPITypeError
@@ -225,6 +226,12 @@ export interface SelectorRelTypeMismatch {
   tag: "SelectorRelTypeMismatch";
   varType: TypeConsApp;
   exprType: TypeConsApp;
+}
+
+export interface SelectorFieldNotSupported {
+  tag: "SelectorFieldNotSupported";
+  name: BindingForm;
+  field: Identifier;
 }
 
 export interface TaggedSubstanceError {
