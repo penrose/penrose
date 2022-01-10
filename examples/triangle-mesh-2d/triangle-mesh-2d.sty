@@ -19,7 +19,7 @@ Global {
    scalar vertexRadius = 2.5
    scalar pointRadius = 2.0
    scalar lineThickness = 1.
-   scalar labelBoundRadius = 8.
+   scalar labelBoundRadius = 10.
    scalar lineOffset = 8.0
    scalar wedgeSize = 30.0
 
@@ -32,7 +32,8 @@ Global {
       height: canvas.height
    }
 
-   string fontFamily = "Linux Libertine O"
+   -- string fontFamily = "Linux Libertine O"
+   string fontFamily = "Palatino"
    string fontSize = "14pt"
 }
 
@@ -52,7 +53,7 @@ forall Vertex v {
 }
 
 forall Vertex v
-where HasLabel(v) {
+where v has label {
 
    v.labelAngle = ?
    v.labelRadius = ?
@@ -120,7 +121,7 @@ where e := MakeEdge(i,j) {
 }
 
 forall Edge e; Vertex i; Vertex j
-where e := MakeEdge(i,j); HasLabel(i); HasLabel(j) {
+where e := MakeEdge(i,j); i has text label; j has text label {
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
    ensure disjoint( i.bounds, e.segment, 1. )
@@ -135,7 +136,7 @@ where IsBoundaryEdge( e ) {
 -- make sure no edge ij covers the label of
 -- any other vertex k
 forall Edge e; Vertex i; Vertex j; Vertex k
-where e := MakeEdge(i,j); HasLabel(k) {
+where e := MakeEdge(i,j); k has text label {
    
    ensure disjoint( k.bounds, e.segment, 1. )
 }

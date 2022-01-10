@@ -1,3 +1,9 @@
+-- relative-orientation.sub
+-- 
+-- This example re-diagrams a figure from
+-- Crane, "Discrete Differential Geometry: An
+-- Applied Introduction", Section 2.2
+
 Vertex i, j, k, l
 
 Edge ij := MakeEdge(i,j)
@@ -11,4 +17,8 @@ Triangle jil := MakeTriangle(j,i,l)
 
 IsPositivelyOriented(ijk)
 IsNegativelyOriented(jil)
+Label i "i"
+Label j "j"
+Label k "k"
+Label l "l"
 
