@@ -6,6 +6,7 @@
 import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
+import { attrMapSvg } from "./AttrMap";
 
 /**
  * Auto-maps any input properties for which we lack specific logic over to the SVG output.
@@ -34,9 +35,18 @@ export const attrAutoFillSvg = (
     const propValue: string = properties[propName].contents.toString();
     const propNameLC: string = propName.toLowerCase();
     if (!attrToNotAutoMap.has(propNameLC)) {
-      if (!elem.hasAttribute(propNameLC)) {
-        if (propValue !== "") {
-          elem.setAttribute(propNameLC, propValue);
+      // Only map non-empty values
+      if (propValue !== "") {
+        // If a mapping rule exists, apply it; otherwise, map straight across
+        if( propNameLC in attrMapSvg ) {
+          const mappedPropertyName: string = attrMapSvg[propNameLC];
+          if (!elem.hasAttribute(mappedPropertyName) && !elem.hasAttribute(mappedPropertyName.toLowerCase())) {
+            elem.setAttribute(attrMapSvg[propNameLC], propValue);
+          }
+        } else {
+          if (!elem.hasAttribute(propNameLC) && !elem.hasAttribute(propName)) {
+            elem.setAttribute(propName, propValue);
+          }
         }
       }
     }
@@ -285,144 +295,4 @@ export const attrTitle = (
   elem.appendChild(title);
 
   return ["name"]; // Return array of input properties programatically mapped
-};
-
-// Text attributes =============================================================
-
-/**
- * Map fontFamily --> font-family
- *
- * The attributes below cover all of the attributes allowed
- * in an SVG <text> element.  Note, however, that many of
- * these attributes may not be properly rendered by a given
- * program (e.g., browser or vector graphics editor).  For
- * instance, Chrome currently does not support attributes
- * like font-stretch, even though Adobe Illustrator does.
- *
- */
-export const attrFontFamily = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontFamily = properties.fontFamily as IStrV;
-  if (fontFamily.contents !== "") {
-    elem.setAttribute("font-family", fontFamily.contents.toString());
-  }
-
-  return ["fontFamily"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps fontSize --> font-size
- */
-export const attrFontSize = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontSize = properties.fontSize as IStrV;
-  if (fontSize.contents !== "") {
-    elem.setAttribute("font-size", fontSize.contents.toString());
-  }
-  return ["fontSize"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps fontSizeAdjust --> font-size-adjust
- */
-export const attrFontSizeAdjust = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontSizeAdjust = properties.fontSizeAdjust as IStrV;
-  if (fontSizeAdjust.contents !== "") {
-    elem.setAttribute("font-size-adjust", fontSizeAdjust.contents.toString());
-  }
-  return ["fontSizeAdjust"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps fontStretch --> font-stretch
- */
-export const attrFontStretch = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontStretch = properties.fontStretch as IStrV;
-  if (fontStretch.contents !== "") {
-    elem.setAttribute("font-stretch", fontStretch.contents.toString());
-  }
-  return ["fontStretch"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps fontStyle --> font-style
- */
-export const attrFontStyle = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontStyle = properties.fontStyle as IStrV;
-  if (fontStyle.contents !== "") {
-    elem.setAttribute("font-style", fontStyle.contents.toString());
-  }
-  return ["fontStyle"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps fontVariant --> font-variant
- */
-export const attrFontVariant = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontVariant = properties.fontVariant as IStrV;
-  if (fontVariant.contents !== "") {
-    elem.setAttribute("font-variant", fontVariant.contents.toString());
-  }
-  return ["fontVariant"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps fontWeight --> font-weight
- */
-export const attrFontWeight = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const fontWeight = properties.fontWeight as IStrV;
-  if (fontWeight.contents !== "") {
-    elem.setAttribute("font-weight", fontWeight.contents.toString());
-  }
-  return ["fontWeight"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps textAnchor --> text-anchor
- */
-export const attrTextAnchor = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const textAnchor = properties.textAnchor as IStrV;
-  if (textAnchor.contents !== "") {
-    elem.setAttribute("text-anchor", textAnchor.contents.toString());
-  }
-  return ["textAnchor"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps alignmentBaseline --> alignment-baseline
- */
-export const attrAlignmentBaseline = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const alignmentBaseline = properties.alignmentBaseline as IStrV;
-  if (alignmentBaseline.contents !== "") {
-    elem.setAttribute(
-      "alignment-baseline",
-      alignmentBaseline.contents.toString()
-    );
-  }
-  return ["alignmentBaseline"]; // Return array of input properties programatically mapped
 };
