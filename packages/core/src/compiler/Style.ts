@@ -1310,7 +1310,7 @@ const relMatchesProg = (
       if (fieldDesc) {
         // NOTE: empty labels have a specific `NoLabel` type, so even if the entry exists, no existing field descriptors will match on it.
         return label.type === fieldDesc;
-      } else return true;
+      } else return label.value.length > 0;
     } else {
       return false;
     }
