@@ -11,6 +11,7 @@ Colors {
    color white = rgba(1.,1.,1.,1.)
    color lightGray = rgba(.8,.8,.8,1.)
    color clear = rgba(0.,0.,0.,0.)
+   color darkBlue = rgba( 27./255., 31./255., 138./255., 1. )
    color semiBlue = rgba( 27./255., 31./255., 138./255., .2 )
 }
 
@@ -175,8 +176,8 @@ where t := MakeTriangle(i,j,k)
    -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(50.), toRadians(70.) )
-   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
+   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(20.), toRadians(120.) )
+   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(20.), toRadians(120.) )
 
    -- -- Encourage the vertex labels to be outside the triangle
    -- -- by encouraging the total area made with the three
@@ -213,6 +214,9 @@ where c := MakeCorner(i,j,k) {
    vec2 x = p + c.R*c.u
    vec2 y = p + c.R*c.v
 
+   -- for use in later constraints
+   c.wedgeAngle = angleBetween( q-p, r-p )
+
    shape c.arc = Path {
       fillColor: none()
       strokeColor: Colors.black
@@ -225,28 +229,57 @@ where c := MakeCorner(i,j,k) {
       fillColor: Colors.semiBlue
       strokeColor: none()
    }
+
+   shape c.arcBall = Circle {
+      center: i.center
+      r: c.R
+      fillColor: none()
+      strokeColor: none()
+   }
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
 where c := MakeCorner(i,j,k); c has text label {
 
+   vec2 c.center = (?,?)
    vec2 p = i.center
    scalar R0 = Global.labelBoundRadius
 
+
    shape c.text = Text {
       string: c.label
-      center: p + (c.R+R0)*unit(c.u+c.v)
+      center: c.center
       fontSize: Global.fontSize
       fontFamily: Global.fontFamily
       fontStyle: "italic"
       fillColor: Colors.black
    }
 
+   -- shape c.text = Text {
+   --    string: c.label
+   --    center: p + (c.R+R0)*unit(c.u+c.v)
+   --    fontSize: Global.fontSize
+   --    fontFamily: Global.fontFamily
+   --    fontStyle: "italic"
+   --    fillColor: Colors.black
+   -- }
+
    shape c.textBounds = Circle {
       center: c.text.center
       r: 1.5*Global.labelBoundRadius
       fillColor: none()
    }
+
+   vec2 w = (c.u+c.v)/2.
+   vec2 z = c.center - i.center
+   ensure lessThan( angleBetween(w,z), c.wedgeAngle/2. )
+   encourage near( c.textBounds, i.icon )
+   ensure disjoint( c.textBounds, c.arcBall )
+}
+
+forall Corner c1; Corner c2
+where c1 has text label; c2 has text label {
+   ensure disjoint( c1.textBounds, c2.textBounds )
 }
 
 forall Point p {
@@ -399,17 +432,19 @@ forall Circle C {
 
    shape C.icon = Circle {
       center: (?,?)
-      r: (?)
+      r: ?
       fillColor: Colors.semiBlue
    }
+
+   ensure inRange( C.icon.r, 100, 200 )
 
    ensure contains(Global.box, C.icon)
 }
 
--- forall Vertex v; Circle C
--- where OnCircle(v,C) {
---    ensure equal( (v.center-C.icon.center), C.icon.r )
--- }
+forall Vertex v; Circle C
+where OnCircle(v,C) {
+   ensure equal( norm(v.center-C.icon.center), C.icon.r )
+}
 
 -- Specific to diagrams/angle-equivalence.sub
 -- TODO requires #776 to import these rules from an example-specific Style module
@@ -482,11 +517,47 @@ where ij := MakeEdge(i,j); ij has math label {
 -- Specific to diagrams/concyclic-pair.sub
 -- TODO requires #776 to import these rules from an example-specific Style module
 
+-- draw flipped edge as dashed line
 forall Edge e
 where IsFlipped( e ) {
-   e.segment.strokeDashArray = "3,3"
+   e.segment.strokeDashArray = "5,5"
+   override e.segment.strokeLineCap = "butt"
 }
 
+-- make vertex dots bigger
+forall Vertex v {
+   override v.icon.r = 1.5*Global.vertexRadius
+}
+
+-- make corner labels larger and dark blue
+forall Corner c; Vertex i; Vertex j; Vertex k
+where c := MakeCorner(i,j,k); c has text label {
+   override c.text.fontSize = "18pt"
+   override c.textBounds.r = Global.labelBoundRadius
+   override c.text.fillColor = Colors.darkBlue
+}
+
+-- don't draw black outline on arcs
+forall Corner c; Vertex i; Vertex j; Vertex k
+where c := MakeCorner(i,j,k) {
+   delete c.arc
+}
+
+-- make edges thicker
+forall Edge e {
+   override e.segment.strokeWidth = 2.25*Global.lineThickness
+}
+
+-- make boundary edges thicker
+forall Edge e
+where IsBoundaryEdge( e ) {
+   override e.segment.strokeWidth = 3*Global.lineThickness
+}
+
+-- corner labels shouldn't overlap diagonals
+-- forall Edge e; Corner c {
+--    ensure disjoint( c.textBounds, e.segment )
+-- }
 forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
 where c := MakeCorner(i,j,k); e := MakeEdge(l,i) {
    ensure disjoint( c.textBounds, e.segment )
@@ -496,22 +567,24 @@ where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
    ensure disjoint( c.textBounds, e.segment )
 }
 
+-- if triangles are concyclic, put vertices on a common circle
 forall Triangle s; Triangle t; Vertex i; Vertex j; Vertex k; Vertex l
 where s := MakeTriangle(i,j,k); t := MakeTriangle(j,i,l); Concyclic(s,t) {
 
-   scalar ti = ?
-   scalar tj = ?
-   scalar tk = ?
-   scalar tl = ?
-   override i.center = 100.*(cos(ti),sin(ti))
-   override j.center = 100.*(cos(tj),sin(tj))
-   override k.center = 100.*(cos(tk),sin(tk))
-   override l.center = 100.*(cos(tl),sin(tl))
+   scalar r0 = 100.
+   vec2 c0 = (?,?)
+
    shape disk = Circle {
-      center: (0.,0.)
-      r: 100.
+      center: c0
+      r: r0
       fillColor: Colors.semiBlue
    }
+
+   ensure contains( Global.box, disk )
+   ensure equal( norm( i.center-c0 ), r0 )
+   ensure equal( norm( j.center-c0 ), r0 )
+   ensure equal( norm( k.center-c0 ), r0 )
+   ensure equal( norm( l.center-c0 ), r0 )
 }
 
 
