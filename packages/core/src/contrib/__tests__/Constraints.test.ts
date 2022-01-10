@@ -15,13 +15,13 @@ describe("simple constraint", () => {
     [3, 5, 2],
     [4, 5, 1],
   ])('equal(%p, %p) should return %p', (
-    x: number, 
-    y: number, 
-    expected: number,
+    x: number,
+    y: number,
+    expected: number
   ) => {
     const result = constrDict.equal(
       constOf(x),
-      constOf(y),
+      constOf(y)
     );
     expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
   });
