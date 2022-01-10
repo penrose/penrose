@@ -1,12 +1,10 @@
 import * as _ from "lodash";
 import { all, fromJust, randList, eqList } from "utils/OtherUtils";
-import { settings } from "cluster";
 import consola, { LogLevel } from "consola";
 import { VarAD, IVarAD, GradGraphs } from "types/ad";
 import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
 import Queue from "utils/Util";
-import { xor } from "lodash";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
@@ -127,10 +125,6 @@ export const markInput = (v: VarAD, i: number) => {
   v.isInput = true;
   v.index = i;
   return v;
-};
-
-const inputVarAD = (x: number, i: number, vname = ""): VarAD => {
-  return markInput(variableAD(x), i);
 };
 
 // Copies the input numbers and returns a new list of vars marked as inputs
@@ -1572,12 +1566,12 @@ export const ops = {
   /**
    * Return the norm of the 2-vector `[c1, c2]`.
    */
-  norm: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
+  norm: (c1: VarAD, c2: VarAD): VarAD => ops.vnorm([c1, c2]),
 
   /**
    * Return the Euclidean distance between scalars `c1, c2`.
    */
-  dist: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
+  dist: (c1: VarAD, c2: VarAD): VarAD => ops.vnorm([c1, c2]),
 
   /**
    * Return the sum of vectors `v1, v2.
@@ -1729,7 +1723,7 @@ export const ops = {
   /**
    * Return `v + c * u`.
    */
-  vmove: (v: VarAD[], c: VarAD, u: VarAD[]) => {
+  vmove: (v: VarAD[], c: VarAD, u: VarAD[]): VarAD[] => {
     return ops.vadd(v, ops.vmul(c, u));
   },
 
@@ -1804,8 +1798,6 @@ export const fns = {
 // (Returns `3`)
 
 // Wrapper since energy only has one output
-
-const noWeight: MaybeVal<VarAD> = { tag: "Nothing" };
 
 const genEnergyFn = (xs: VarAD[], z: IVarAD, weight: MaybeVal<VarAD>): any =>
   genCode(xs, [z], "energy", weight);
@@ -2295,7 +2287,7 @@ export const clearVisitedNodes = (nodeList: VarAD[]): void => {
 
 // Mutates z (top node) to clear all vals and gradients of its children
 // NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
-export const clearGraphTopDown = (z: VarAD) => {
+export const clearGraphTopDown = (z: VarAD): void => {
   z.val = 0;
   z.valDone = false; // This is necessary so we can cache energy values in comp graph
   z.gradVal = { tag: "Nothing" };
@@ -2723,7 +2715,7 @@ const gradGraph7 = (): GradGraphs => {
   };
 };
 
-export const testGradSymbolicAll = () => {
+export const testGradSymbolicAll = (): void => {
   log.trace("testing symbolic gradients");
 
   testGradFiniteDiff();

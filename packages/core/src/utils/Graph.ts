@@ -37,6 +37,32 @@ export interface Graph<T> {
   childrenOf: (nodeIndex: number) => number[];
 }
 
+export class CompressedAdjacencyGraph<T> implements Graph<T> {
+  nodeList: Vertex<T>[];
+  cm: CompressedMatrix;
+
+  constructor(nodeList: Vertex<T>[], cm: CompressedMatrix) {
+    this.nodeList = nodeList;
+    this.cm = cm;
+  }
+  parentsOf = (nodeIndex: number): number[] => {
+    let startIndex = 0;
+    if (nodeIndex > 0) {
+      startIndex = this.cm.cumulativeEntriesByRow[nodeIndex - 1];
+    }
+    const endIndex = this.cm.cumulativeEntriesByRow[nodeIndex];
+    return this.cm.columnIndices.slice(startIndex, endIndex);
+  };
+  childrenOf = (nodeIndex: number): number[] => {
+    let startIndex = 0;
+    if (nodeIndex > 0) {
+      startIndex = this.cm.cumulativeEntriesByColumn[nodeIndex - 1];
+    }
+    const endIndex = this.cm.cumulativeEntriesByColumn[nodeIndex];
+    return this.cm.rowIndices.slice(startIndex, endIndex);
+  };
+}
+
 export const createCompressedMatrix = (
   adjacencyMatrix: boolean[][]
 ): CompressedMatrix => {

@@ -1,8 +1,8 @@
 import {
-  CompressedMatrix,
   createAdjacencyMatrix,
   createCompressedMatrix,
   Graph,
+  CompressedAdjacencyGraph,
   Vertex,
   NodeWithEdges,
 } from "./Graph";
@@ -12,27 +12,6 @@ class IntNode implements NodeWithEdges<number> {
   constructor(value: number) {
     this.value = value;
   }
-}
-
-class IntCompressedAdjacencyGraph implements Graph<number> {
-  nodeList: Vertex<number>[];
-  cm: CompressedMatrix;
-
-  constructor(nodeList: Vertex<number>[], cm: CompressedMatrix) {
-    this.nodeList = nodeList;
-    this.cm = cm;
-  }
-  parentsOf = (nodeIndex: number): number[] => {
-    return [];
-  };
-  childrenOf = (nodeIndex: number): number[] => {
-    let startIndex = 0;
-    if (nodeIndex > 0) {
-      startIndex = this.cm.cumulativeEntriesByColumn[nodeIndex - 1];
-    }
-    const endIndex = this.cm.cumulativeEntriesByColumn[nodeIndex];
-    return this.cm.rowIndices.slice(startIndex, endIndex);
-  };
 }
 
 describe("Adjacency matrix creation tests", () => {
@@ -116,9 +95,25 @@ describe("Graph adjacency matrix tests", () => {
       { index: 1, value: 2 },
       { index: 2, value: 3 },
     ];
-    const g = new IntCompressedAdjacencyGraph(nodeList, cm);
+    const g = new CompressedAdjacencyGraph(nodeList, cm);
     expect(g.childrenOf(0)).toEqual([0]);
     expect(g.childrenOf(1)).toEqual([0, 2]);
     expect(g.childrenOf(2)).toEqual([1]);
+    expect(g.parentsOf(0)).toEqual([0, 1]);
+  });
+  test("one node, no edges test", () => {
+    const adjacencyMatrix = [[false]];
+    const cm = createCompressedMatrix(adjacencyMatrix);
+    const nodeList: Vertex<number>[] = [{ index: 0, value: 1 }];
+    const g = new CompressedAdjacencyGraph(nodeList, cm);
+    expect(g.childrenOf(0)).toEqual([]);
+  });
+  test("one node, self-edge test", () => {
+    const adjacencyMatrix = [[true]];
+    const cm = createCompressedMatrix(adjacencyMatrix);
+    const nodeList: Vertex<number>[] = [{ index: 0, value: 1 }];
+    const g = new CompressedAdjacencyGraph(nodeList, cm);
+    expect(g.childrenOf(0)).toEqual([0]);
+    expect(g.childrenOf(0)).toEqual([0]);
   });
 });
