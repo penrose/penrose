@@ -95,7 +95,7 @@ class App extends React.Component<any, ICanvasState> {
 
     this.setState({
       data: canvasState,
-      history: [...this.state.history, canvasState],
+      // history: [...this.state.history, canvasState],
       processedInitial: true,
       error: null
     });

@@ -7,6 +7,7 @@ import {
   div,
   EPS_DENOM,
   inverse,
+  max,
   mul,
   neg,
   ops,
@@ -37,6 +38,16 @@ export const objDictSimple = {
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
   equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+
+  /**
+   * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
+   */
+  greaterThan: (x: VarAD, y: VarAD) => squared(max(constOf(0.),sub(y, x))),
+
+  /**
+   * Encourage x to be less than or equal to y: `max(0,x - y)^2`
+   */
+  lessThan: (x: VarAD, y: VarAD) => squared(max(constOf(0.),sub(x, y))),
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
