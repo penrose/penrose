@@ -19,8 +19,8 @@ jobs:
       #       node_modules
       #       */*/node_modules
       #     key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - run: ls node_modules
-      - run: ls packages/core/node_modules
+      # - run: ls node_modules
+      # - run: ls packages/core/node_modules
       - run: yarn
 
   storybook:
