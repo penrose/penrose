@@ -72,7 +72,7 @@ class App extends React.Component<any, ICanvasState> {
     settings: {
       autostep: false,
       showInspector: true,
-      autoStepSize: 10000
+      autoStepSize: 50
     }
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -102,7 +102,7 @@ class App extends React.Component<any, ICanvasState> {
     this.renderCanvas(canvasState);
     const { settings } = this.state;
     if (settings.autostep && !stateConverged(canvasState)) {
-      await this.stepUntilConvergence();
+      await this.step(this.state.settings.autoStepSize);
     }
   };
   public downloadSVG = (): void => {
@@ -157,10 +157,10 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
 
-  public step = (): void => {
+  public step = (numSteps: number): void => {
     if (this.state.data) {
       try {
-        const stepped = stepState(this.state.data, 1);
+        const stepped = stepState(this.state.data, numSteps);
         void this.onCanvasState(stepped);
       } catch (e) {
         const error: PenroseError = {
