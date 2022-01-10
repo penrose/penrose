@@ -181,7 +181,8 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `padding` between them 
+   * Require that a shape `s1` is disjoint from shape `s2`, 
+   * based on the type of the shape, and with an optional `padding` between them 
    * (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
    */
   disjoint: (
@@ -193,13 +194,16 @@ const constrDictGeneral = {
   },
   
   /**
-   * Require that shape `s1` is tangent to shape `s2`.
+   * Require that shape `s1` is tangent to shape `s2`, 
+   * based on the type of the shape, and with an optional `padding` between them 
+   * (e.g. if `s1` should contain `s2` with margin `padding`).
    */
   tangentTo: (
     [t1, s1]: [string, any], 
-    [t2, s2]: [string, any]
+    [t2, s2]: [string, any],
+    padding = 0.0
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2]));
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
   },
 
   /**
@@ -227,14 +231,14 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that label `s2` is at a distance of `distance` from a point-like shape `s1`.
+   * Require that label `s2` is at a distance of `distance` from shape `s1`.
    */
   atDist: (
     [t1, s1]: [string, any], 
     [t2, s2]: [string, any], 
     distance: number
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
+    return constrDictGeneral.tangentTo([t1, s1], [t2, s2], distance);
   },
 
   /**

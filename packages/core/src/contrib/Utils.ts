@@ -92,7 +92,7 @@ export const overlap1D = (
     min(d(l2, r1), d(l1, r2))
   );
 };
- 
+
 /**
  * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
