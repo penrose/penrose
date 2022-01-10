@@ -1714,11 +1714,25 @@ export const ops = {
   /**
    * Return 2D determinant/cross product of 2D vectors
    */
-  cross2: (v: VarAD[], w: VarAD[]): VarAD => {
-    if (v.length !== 2 || w.length !== 2) {
+  cross2: (u: VarAD[], v: VarAD[]): VarAD => {
+    if (u.length !== 2 || v.length !== 2) {
       throw Error("expected two 2-vectors");
     }
-    return sub(mul(v[0], w[1]), mul(v[1], w[0]));
+    return sub(mul(u[0], v[1]), mul(u[1], v[0]));
+  },
+
+  /**
+   * Return 3D cross product of 3D vectors
+   */
+  cross3: (u: VarAD[], v: VarAD[]): VarAD[] => {
+    if (u.length !== 3 || v.length !== 3) {
+      throw Error("expected two 3-vectors");
+    }
+    return [
+       sub( mul(u[1],v[2]), mul(u[2],v[1]) ),
+       sub( mul(u[2],v[0]), mul(u[0],v[2]) ),
+       sub( mul(u[0],v[1]), mul(u[1],v[0]) )
+    ];
   },
 
   /**

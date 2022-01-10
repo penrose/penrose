@@ -25,10 +25,10 @@ Circle Cjil := Circumcircle(jil)
 
 AutoLabel All
 NoLabel ij
-Label jk $\ell_{jk}$
-Label ki $\ell_{ki}$
-Label il $\ell_{il}$
-Label jl $\ell_{jl}$
+NoLabel jk
+NoLabel ki
+NoLabel il
+NoLabel jl
 Label ckij "α"
 Label clji "β"
 Label i "i"

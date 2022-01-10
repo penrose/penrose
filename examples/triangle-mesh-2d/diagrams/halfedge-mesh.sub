@@ -1,0 +1,13 @@
+Vertex i, j, k
+Edge eij := MakeEdge(i,j)
+Edge ejk := MakeEdge(j,k)
+Edge eki := MakeEdge(k,i)
+Triangle ijk := MakeTriangle(i,j,k)
+Halfedge hij := MakeHalfedge(i,j)
+Halfedge hjk := MakeHalfedge(j,k)
+Halfedge hki := MakeHalfedge(k,i)
+
+AutoLabel All
+NoLabel eij
+NoLabel ejk
+NoLabel eki

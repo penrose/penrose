@@ -36,6 +36,8 @@ constructor Incircle(Triangle t) -> Circle
 constructor EdgeLength(Edge e) -> Length
 constructor DualEdgeLength(DualEdge d) -> Length
 
+constructor Intersection(Edge e, Edge f) -> Point
+
 -- Specific to angle-equivalence.sub
 function similarity(Vertex i) -> Vertex
 

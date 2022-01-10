@@ -1,6 +1,6 @@
 canvas {
-   width = 360
-   height = 240
+   width = 240
+   height = 180
 }
 
 Colors {
@@ -89,7 +89,7 @@ where v has label {
 
 -- make sure vertex labels don't overlap
 forall Vertex u; Vertex v
-where HasLabel(u); HasLabel(v) { -- requires #774 to replace with "where u has label; v has label"; currently hacked-in using predicate in Domain program
+where u has label; v has label { -- requires #774 to replace with "where u has label; v has label"; currently hacked-in using predicate in Domain program
    ensure disjoint( u.bounds, v.bounds )
 }
 
@@ -109,7 +109,7 @@ where e := MakeEdge(i,j) {
       strokeLineCap: "round"
    }
 
-   -- -- (DEBUG) draw full line through segment
+   -- (DEBUG) draw full line through segment
    -- vec2 m = (pi+pj)/2.
    -- shape e.line = Line {
    --    start: m + 100.*(pi-m)
@@ -117,11 +117,12 @@ where e := MakeEdge(i,j) {
    --    strokeColor: rgba( 0., 0., 0., .35 )
    --    strokeWidth: Global.lineThickness
    --    style: "dashed"
+   --    strokeDashArray: "4,4"
    -- }
 }
 
 forall Edge e; Vertex i; Vertex j
-where e := MakeEdge(i,j); i has text label; j has text label {
+where e := MakeEdge(i,j); i has label; j has label {
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
    ensure disjoint( i.bounds, e.segment, 1. )
@@ -136,7 +137,7 @@ where IsBoundaryEdge( e ) {
 -- make sure no edge ij covers the label of
 -- any other vertex k
 forall Edge e; Vertex i; Vertex j; Vertex k
-where e := MakeEdge(i,j); k has text label {
+where e := MakeEdge(i,j); k has label {
    
    ensure disjoint( k.bounds, e.segment, 1. )
 }
@@ -179,26 +180,6 @@ where t := MakeTriangle(i,j,k)
    scalar bTheta = angleFrom( c-b, a-b )
    constraint t.goodAngleA = ensure inRange( aTheta, toRadians(40.), toRadians(80.) )
    constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
-
-   -- -- Encourage the vertex labels to be outside the triangle
-   -- -- by encouraging the total area made with the three
-   -- -- vertices to be bigger than the triangle area
-   -- vec2 p = i.text.center
-   -- vec2 q = j.text.center
-   -- vec2 r = k.text.center
-   -- scalar Aijk = abs(A)
-   -- scalar Apbc = abs( cross2D( b-p, c-p ))
-   -- scalar Aapc = abs( cross2D( p-a, c-a ))
-   -- scalar Aabp = abs( cross2D( b-a, p-a ))
-   -- encourage lessThan( 1.01*Aijk, Apbc+Aapc+Aabp )
-   -- scalar Aqbc = abs( cross2D( b-q, c-q ))
-   -- scalar Aaqc = abs( cross2D( q-a, c-a ))
-   -- scalar Aabq = abs( cross2D( b-a, q-a ))
-   -- encourage lessThan( 1.01*Aijk, Aqbc+Aaqc+Aabq )
-   -- scalar Arbc = abs( cross2D( b-r, c-r ))
-   -- scalar Aarc = abs( cross2D( r-a, c-a ))
-   -- scalar Aabr = abs( cross2D( b-a, r-a ))
-   -- encourage lessThan( 1.01*Aijk, Arbc+Aarc+Aabr )
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
@@ -316,6 +297,43 @@ forall Point p {
 -- draw all points above all triangles
 forall Point p; Triangle t {
    layer p.icon above t.icon
+}
+
+-- draw halfedges as "hook" arrows
+forall Halfedge h; Triangle t; Vertex i; Vertex j; Vertex k
+where h := MakeHalfedge(i,j); t := MakeTriangle(i,j,k)
+{
+   h.start = i.center
+   h.end = j.center
+}
+forall Halfedge h; Triangle t; Vertex i; Vertex j; Vertex k
+where h := MakeHalfedge(j,k); t := MakeTriangle(i,j,k)
+{
+   h.start = j.center
+   h.end = k.center
+}
+forall Halfedge h; Triangle t; Vertex i; Vertex j; Vertex k
+where h := MakeHalfedge(k,i); t := MakeTriangle(i,j,k)
+{
+   h.start = k.center
+   h.end = i.center
+}
+forall Halfedge h {
+
+   vec2 p0 = h.start
+   vec2 p1 = h.end
+   vec2 u = unit(p1-p0)
+   vec2 n = rot90(u)
+   vec2 q0 = p0 + Global.lineOffset*( n + 5.*u )
+   vec2 q1 = p1 + Global.lineOffset*( n - 5.*u )
+   vec2 q2 = q1 + Global.lineOffset*( n - u )
+
+   h.icon = Path {
+      strokeWidth: 2.*Global.lineThickness
+      strokeColor: Colors.black
+      fillColor: none()
+      d: pathFromPoints("open", [q0, q1, q2])
+   }
 }
 
 -- default shape for a circle
@@ -550,6 +568,19 @@ where s := MakeTriangle(i,j,k); t := MakeTriangle(j,i,l); Concyclic(s,t) {
    ensure equal( norm( l.center-c0 ), r0 )
 }
 
+forall Point p; Edge ab; Edge cd; Vertex a; Vertex b; Vertex c; Vertex d
+where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
+
+   vec2 x = a.center
+   vec2 y = b.center
+   vec2 z = c.center
+   vec2 w = d.center
+
+   override p.center = lineLineIntersection( x, y, z, w )
+
+   layer p.icon above ab.segment
+   layer p.icon above cd.segment
+}
 
 -- Specific to diagrams/angle-equivalence.sub
 -- TODO requires #776 to import these rules from an example-specific Style module
