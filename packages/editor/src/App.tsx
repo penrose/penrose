@@ -1,32 +1,29 @@
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import styled from "styled-components";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import * as FlexLayout from "flexlayout-react";
 import reducer, { debouncedSave, initialState } from "./reducer";
 import {
-  compileDomain,
   compileTrio,
   PenroseState,
   prepareState,
-  RenderInteractive,
-  RenderStatic,
   resample,
-  showError,
   stepUntilConvergence,
 } from "@penrose/core";
 import {
-  DownloadSVG,
   retrieveGist,
   tryDomainHighlight,
   usePublishGist,
+  useRoutingHandlers,
 } from "./Util";
-import AuthorshipTitle from "./components/AuthorshipTitle";
-import BlueButton from "./components/BlueButton";
 import { useParams } from "react-router-dom";
 import EditorPane from "./components/EditorPane";
 import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
 import { SetupStyleMonaco } from "./languages/StyleConfig";
 import { SetupDomainMonaco } from "./languages/DomainConfig";
+import PreviewPane from "./components/PreviewPane";
+import RunBar from "./components/RunBar";
+import SettingsPanel from "./components/SettingsPanel";
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -61,69 +58,8 @@ function App({ location }: any) {
       retrieveGist(urlParams.gistId, dispatch);
     }
   }, [urlParams, dispatch]);
-  useEffect(() => {
-    if (location.state && location.state.authed) {
-      const params = new URLSearchParams(location.state.params);
-      const username = params.get("profile[login]");
-      const access_token = params.get("access_token");
-      const avatar = params.get("profile[avatar_url]");
-      if (username !== null && access_token !== null && avatar !== null) {
-        dispatch({
-          kind: "CHANGE_GH_USER",
-          user: {
-            username,
-            access_token,
-            avatar,
-          },
-        });
-      } else {
-        toast.error(
-          `Authentication failed: username=${username}, access_token=${access_token}, avatar=${avatar}`
-        );
-      }
-    } else if (location.pathname === "/repo" && location.search) {
-      const params = new URLSearchParams(location.search);
-      const prefix = params.get("prefix");
-      const sub = params.get("sub");
-      const sty = params.get("sty");
-      const dsl = params.get("dsl");
-      if (prefix && sub && sty && dsl) {
-        (async () => {
-          try {
-            const baseURL = `https://raw.githubusercontent.com/${prefix}/`;
-            const subContent = await (await fetch(baseURL + sub)).text();
-            const styContent = await (await fetch(baseURL + sty)).text();
-            const dslContent = await (await fetch(baseURL + dsl)).text();
-            dispatch({
-              kind: "SET_TRIO",
-              sub: subContent,
-              sty: styContent,
-              dsl: dslContent,
-            });
-            dispatch({
-              kind: "SET_AUTHORSHIP",
-              authorship: {
-                name: sub,
-                madeBy: "github repo",
-                gistID: null,
-                avatar: null,
-              },
-            });
-            tryDomainHighlight(dslContent, dispatch);
-          } catch (err) {
-            toast.error(`Couldn't retrieve files: ${err}`);
-          }
-        })();
-      } else {
-        toast.error(
-          `Invalid params: prefix=${prefix},
-          sub=${sub}, sty=${sty}, dsl=${dsl}`
-        );
-      }
-    }
-  }, [location, dispatch]);
 
-  const canvasRef = useRef<HTMLDivElement>(null);
+  useRoutingHandlers(location, dispatch);
 
   const convergeRenderState = useCallback(
     (state: PenroseState) => {
@@ -132,20 +68,11 @@ function App({ location }: any) {
       if (stepResult.isOk()) {
         const convergedState = stepResult.value;
         dispatch({ kind: "CHANGE_CANVAS_STATE", content: convergedState });
-        const cur = canvasRef.current;
-        const rendered = RenderInteractive(convergedState, convergeRenderState);
-        if (cur) {
-          if (cur.firstChild) {
-            cur.replaceChild(rendered, cur.firstChild);
-          } else {
-            cur.appendChild(rendered);
-          }
-        }
       } else {
         dispatch({ kind: "CHANGE_ERROR", content: stepResult.error });
       }
     },
-    [dispatch, canvasRef]
+    [dispatch]
   );
 
   const compile = useCallback(() => {
@@ -178,13 +105,6 @@ function App({ location }: any) {
     }
   }, [state, convergeRenderState]);
 
-  const svg = useCallback(() => {
-    if (state.currentInstance.state) {
-      const rendered = RenderStatic(state.currentInstance.state);
-      DownloadSVG(rendered);
-    }
-  }, [state]);
-
   const onChangeTitle = useCallback(
     (name: string) => {
       dispatch({ kind: "CHANGE_TITLE", name });
@@ -192,152 +112,130 @@ function App({ location }: any) {
     [dispatch]
   );
 
-  const onPublish = usePublishGist(state, dispatch);
-
-  const numOpen = Object.values(state.openPanes).filter((open) => open).length;
-
-  return (
-    <div
-      className="App"
-      style={{
-        height: "100%",
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <ToastContainer position="bottom-left" />
-      <nav
-        style={{
-          display: "flex",
-          width: "100%",
-          backgroundColor: "#F4F4F4",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px",
-          boxSizing: "border-box",
-        }}
-      >
-        <AuthorshipTitle
-          authorship={state.currentInstance.authorship}
-          myUser={state.settings.githubUser}
-          onPublish={onPublish}
-          onChangeTitle={onChangeTitle}
-        />
-        <div style={{}}>
-          <TabButton
-            role="button"
-            open={state.openPanes.sub}
-            style={{ borderRadius: "5px 0px 0px 5px" }}
-            onClick={() => dispatch({ kind: "TOGGLE_SUB_PANE" })}
-          >
-            sub
-          </TabButton>
-          <TabButton
-            role="button"
-            open={state.openPanes.sty}
-            onClick={() => dispatch({ kind: "TOGGLE_STY_PANE" })}
-          >
-            sty
-          </TabButton>
-          <TabButton
-            role="button"
-            open={state.openPanes.dsl}
-            onClick={() => dispatch({ kind: "TOGGLE_DSL_PANE" })}
-          >
-            dsl
-          </TabButton>
-          <TabButton
-            role="button"
-            open={state.openPanes.preview}
-            style={{ borderRadius: "0px 5px 5px 0px" }}
-            onClick={() => dispatch({ kind: "TOGGLE_PREVIEW_PANE" })}
-          >
-            👁️
-          </TabButton>
-        </div>
-        <div style={{}}>
-          <BlueButton onClick={compile}>{"compile"}</BlueButton>
-        </div>
-      </nav>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "100%",
-          flex: 1,
-        }}
-      >
-        <ColumnContainer show={state.openPanes.sub} numOpen={numOpen}>
+  const [model, setModel] = useState<FlexLayout.Model>(
+    FlexLayout.Model.fromJson({
+      global: {},
+      borders: [
+        {
+          type: "border",
+          location: "left",
+          show: true,
+          children: [
+            {
+              type: "tab",
+              name: "files",
+              enableClose: false,
+            },
+            {
+              type: "tab",
+              name: "settings",
+              component: "settings",
+              enableClose: false,
+            },
+          ],
+        },
+      ],
+      layout: {
+        type: "row",
+        weight: 100,
+        children: [
           {
+            type: "tabset",
+            weight: 50,
+            children: [
+              {
+                type: "tab",
+                name: "Substance",
+                component: "substance_edit",
+              },
+              {
+                type: "tab",
+                name: "Style",
+                component: "style_edit",
+              },
+              {
+                type: "tab",
+                name: "Domain",
+                component: "domain_edit",
+              },
+            ],
+          },
+          {
+            type: "tabset",
+            weight: 50,
+            children: [
+              { type: "tab", name: "👁 Preview", component: "preview" },
+            ],
+          },
+        ],
+      },
+    })
+  );
+
+  const renderPanel = useCallback(
+    (node: FlexLayout.TabNode) => {
+      switch (node.getComponent()) {
+        case "substance_edit":
+          return (
             <EditorPane
               value={state.currentInstance.sub}
+              vimMode={state.settings.vimMode}
               languageType="substance"
               setupMonaco={SetupSubstanceMonaco(
                 state.currentInstance.domainCache
               )}
               dispatch={dispatch}
             />
-          }
-        </ColumnContainer>
-        <ColumnContainer show={state.openPanes.sty} numOpen={numOpen}>
-          {
+          );
+        case "style_edit":
+          return (
             <EditorPane
               value={state.currentInstance.sty}
+              vimMode={state.settings.vimMode}
               languageType="style"
               setupMonaco={SetupStyleMonaco}
               dispatch={dispatch}
             />
-          }
-        </ColumnContainer>
-        <ColumnContainer show={state.openPanes.dsl} numOpen={numOpen}>
-          {
+          );
+        case "domain_edit":
+          return (
             <EditorPane
               value={state.currentInstance.dsl}
+              vimMode={state.settings.vimMode}
               languageType="domain"
               setupMonaco={SetupDomainMonaco}
               dispatch={dispatch}
             />
-          }
-        </ColumnContainer>
-        <ColumnContainer show={state.openPanes.preview} numOpen={numOpen}>
-          <div
-            style={{
-              position: "absolute",
-              padding: "1em",
-              right: 0,
-              display: "flex",
-            }}
-          >
-            <BlueButton onClick={onResample}>resample</BlueButton>
-            <BlueButton onClick={svg}>SVG</BlueButton>
-          </div>
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              overflow: "auto",
-              backgroundColor: "#ffffff",
-            }}
-            ref={canvasRef}
-          />
-          {state.currentInstance.err && (
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                backgroundColor: "#ffdada",
-                maxHeight: "400px",
-                maxWidth: "100%",
-                overflow: "auto",
-                padding: "10px",
-                boxSizing: "border-box",
-              }}
-            >
-              <pre>{showError(state.currentInstance.err).toString()}</pre>
-            </div>
-          )}
-        </ColumnContainer>
+          );
+        case "preview":
+          return (
+            <PreviewPane
+              state={state}
+              onResample={onResample}
+              convergeRenderState={convergeRenderState}
+            />
+          );
+        case "runbar":
+          return <RunBar compile={compile} />;
+        case "settings":
+          return <SettingsPanel dispatch={dispatch} state={state} />;
+      }
+    },
+    [dispatch, state, compile]
+  );
+
+  const onPublish = usePublishGist(state, dispatch);
+
+  return (
+    <div className="App" style={{ display: "flex", flexDirection: "column" }}>
+      <ToastContainer position="bottom-left" />
+      <RunBar compile={compile} />
+      <div style={{ position: "relative", flex: 1 }}>
+        <FlexLayout.Layout
+          model={model}
+          factory={renderPanel}
+          onModelChange={setModel}
+        />
       </div>
     </div>
   );

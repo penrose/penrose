@@ -10805,6 +10805,13 @@ flatten@^1.0.2:
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.3.tgz#c1283ac9f27b368abc1e36d1ff7b04501a30356b"
   integrity sha512-dVsPA/UwQ8+2uoFe5GHtiBMu48dWLTdsuEd7CKGlZlD78r1TTWBvDuFaFGKCo/ZfEr95Uk56vZoX86OsHkUeIg==
 
+flexlayout-react@^0.6.5:
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/flexlayout-react/-/flexlayout-react-0.6.5.tgz#6e8be41798d23f25dd4ac37bfca01905858dd7b2"
+  integrity sha512-1xV9eAg/GrUWFLaHitwC2EN+XsJQLDjEY5B/PaE7ZmF5DAcJKuwWw81iv4okaGo//9InoWULdZqiOcu79rxi6A==
+  dependencies:
+    uuid "^8.3.2"
+
 flow-parser@0.*:
   version "0.157.0"
   resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.157.0.tgz#8ef0a748a838a505820a3099690472757d39581c"

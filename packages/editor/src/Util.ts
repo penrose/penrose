@@ -3,6 +3,7 @@ import dummyRegistry from "./dummy-registry.json";
 import { useCallback } from "react";
 import { toast } from "react-toastify";
 import { compileDomain } from "@penrose/core";
+import { useEffect } from "react";
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
@@ -81,9 +82,10 @@ export const usePublishGist = (
             },
             body: JSON.stringify(gistData),
           });
+          const json = await res.json();
           if (res.status === 201) {
             toast.success("Gist published, redirecting...");
-            window.location.replace(`/gist/${res.data.id}`);
+            window.location.replace(`/gist/${json.data.id}`);
           }
         } catch (err: any) {
           toast.error(err.toString());
@@ -91,6 +93,70 @@ export const usePublishGist = (
       })();
     }
   }, [state]);
+};
+
+export const useRoutingHandlers = (location: any, dispatch: Dispatcher) => {
+  return useEffect(() => {
+    if (location.state && location.state.authed) {
+      const params = new URLSearchParams(location.state.params);
+      const username = params.get("profile[login]");
+      const access_token = params.get("access_token");
+      const avatar = params.get("profile[avatar_url]");
+      if (username !== null && access_token !== null && avatar !== null) {
+        dispatch({
+          kind: "CHANGE_GH_USER",
+          user: {
+            username,
+            access_token,
+            avatar,
+          },
+        });
+      } else {
+        toast.error(
+          `Authentication failed: username=${username}, access_token=${access_token}, avatar=${avatar}`
+        );
+      }
+    } else if (location.pathname === "/repo" && location.search) {
+      const params = new URLSearchParams(location.search);
+      const prefix = params.get("prefix");
+      const sub = params.get("sub");
+      const sty = params.get("sty");
+      const dsl = params.get("dsl");
+      if (prefix && sub && sty && dsl) {
+        (async () => {
+          try {
+            const baseURL = `https://raw.githubusercontent.com/${prefix}/`;
+            const subContent = await (await fetch(baseURL + sub)).text();
+            const styContent = await (await fetch(baseURL + sty)).text();
+            const dslContent = await (await fetch(baseURL + dsl)).text();
+            dispatch({
+              kind: "SET_TRIO",
+              sub: subContent,
+              sty: styContent,
+              dsl: dslContent,
+            });
+            dispatch({
+              kind: "SET_AUTHORSHIP",
+              authorship: {
+                name: sub,
+                madeBy: "github repo",
+                gistID: null,
+                avatar: null,
+              },
+            });
+            tryDomainHighlight(dslContent, dispatch);
+          } catch (err) {
+            toast.error(`Couldn't retrieve files: ${err}`);
+          }
+        })();
+      } else {
+        toast.error(
+          `Invalid params: prefix=${prefix},
+          sub=${sub}, sty=${sty}, dsl=${dsl}`
+        );
+      }
+    }
+  }, [location, dispatch]);
 };
 
 export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {

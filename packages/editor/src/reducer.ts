@@ -3,13 +3,6 @@ import { cloneDeep, debounce } from "lodash";
 import React from "react";
 import { tryDomainHighlight } from "./Util";
 
-export interface PaneState {
-  sub: boolean;
-  sty: boolean;
-  dsl: boolean;
-  preview: boolean;
-}
-
 export interface AuthorshipInfo {
   name: string;
   madeBy: string | null;
@@ -38,7 +31,6 @@ export interface ISettings {
 }
 
 export interface State {
-  openPanes: PaneState;
   settings: ISettings;
   currentInstance: CurrentInstance;
 }
@@ -54,7 +46,6 @@ export const initialState = (): State => {
     };
   }
   return {
-    openPanes: { sub: true, sty: false, dsl: false, preview: true },
     currentInstance: {
       sub: "",
       sty: "",
@@ -87,10 +78,6 @@ export const debouncedSave = debounce((state: State) => {
 }, 250);
 
 export type Action =
-  | { kind: "TOGGLE_SUB_PANE" }
-  | { kind: "TOGGLE_STY_PANE" }
-  | { kind: "TOGGLE_DSL_PANE" }
-  | { kind: "TOGGLE_PREVIEW_PANE" }
   | { kind: "CHANGE_CODE"; lang: "sub" | "sty" | "dsl"; content: string }
   | { kind: "SET_TRIO"; sub: string; sty: string; dsl: string }
   | { kind: "SET_DOMAIN_CACHE"; domainCache: any | null }
@@ -98,32 +85,12 @@ export type Action =
   | { kind: "CHANGE_CANVAS_STATE"; content: PenroseState | null }
   | { kind: "CHANGE_ERROR"; content: PenroseError | null }
   | { kind: "CHANGE_TITLE"; name: string }
-  | { kind: "CHANGE_GH_USER"; user: GithubUser };
+  | { kind: "CHANGE_SETTINGS"; settings: ISettings };
 
 export type Dispatcher = React.Dispatch<Action>;
 
 const reducer = (state: State, action: Action): State => {
   switch (action.kind) {
-    case "TOGGLE_DSL_PANE":
-      return {
-        ...state,
-        openPanes: { ...state.openPanes, dsl: !state.openPanes.dsl },
-      };
-    case "TOGGLE_PREVIEW_PANE":
-      return {
-        ...state,
-        openPanes: { ...state.openPanes, preview: !state.openPanes.preview },
-      };
-    case "TOGGLE_STY_PANE":
-      return {
-        ...state,
-        openPanes: { ...state.openPanes, sty: !state.openPanes.sty },
-      };
-    case "TOGGLE_SUB_PANE":
-      return {
-        ...state,
-        openPanes: { ...state.openPanes, sub: !state.openPanes.sub },
-      };
     case "CHANGE_CODE":
       return {
         ...state,
@@ -187,10 +154,10 @@ const reducer = (state: State, action: Action): State => {
           },
         },
       };
-    case "CHANGE_GH_USER":
+    case "CHANGE_SETTINGS":
       return {
         ...state,
-        settings: { ...state.settings, githubUser: action.user },
+        settings: action.settings,
       };
   }
 };
