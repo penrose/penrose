@@ -5,21 +5,6 @@ on:
     branches:
       - main
 jobs:
-  roger:
-    runs-on: ubuntu-latest
-    env:
-      CI: false
-    defaults:
-      run:
-        working-directory: packages/roger
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install packages
-        uses: ./.github/actions/packages
-      - run: npx tsc --version
-      - run: yarn prepack
-
   build:
     runs-on: ubuntu-latest
     env:
