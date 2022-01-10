@@ -19,7 +19,7 @@ const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     console.error(`Could not find image path ${path}`);
     return elem;
   }
-  attrToNotAutoMap.push("path");
+  attrToNotAutoMap.push("href");
   elem.innerHTML = images[path];
   const svg = elem.firstChild as SVGSVGElement;
   const defs = svg.getElementsByTagName("defs");

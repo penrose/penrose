@@ -628,4 +628,73 @@ export const pointInBox = (p: any, rect: any): boolean => {
   );
 };
 
+class Node<T> {
+  value: T;
+  next: Node<T> | null = null;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
+
+export default class Queue<T> {
+  head: Node<T> | null = null;
+  tail: Node<T> | null = null;
+  queue_size = 0;
+
+  constructor() {
+    this.clear();
+  }
+
+  enqueue(value: T) {
+    const node = new Node(value);
+
+    if (this.head !== null && this.tail !== null) {
+      this.tail.next = node;
+      this.tail = node;
+    } else {
+      this.head = node;
+      this.tail = node;
+    }
+
+    this.queue_size++;
+  }
+
+  dequeue(): T {
+    const current = this.head;
+    // need to check for nullness of this.head and this.current
+    // to satisfy the type-checker
+    if (this.head === null || current === null) {
+      throw new Error("Dequeue on empty queue");
+    } else {
+      if (this.head === this.tail) {
+        this.clear();
+        return current.value;
+      }
+      this.head = this.head.next;
+      this.queue_size--;
+      return current.value;
+    }
+  }
+
+  clear() {
+    this.head = null;
+    this.tail = null;
+    this.queue_size = 0;
+  }
+
+  get size() {
+    return this.queue_size;
+  }
+
+  *[Symbol.iterator]() {
+    let current = this.head;
+
+    while (current) {
+      yield current.value;
+      current = current.next;
+    }
+  }
+}
+
 //#endregion

@@ -1,4 +1,9 @@
-import { IColorV, IFloatV, IVectorV, IStrV, IPtListV } from "types/value";
+/**
+ * Provides an assortment of utility functions shared across shapes that computes
+ * output SVG properties using the optimized shape properties as input. 
+ */
+
+import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 
@@ -27,10 +32,11 @@ export const attrAutoFillSvg = (
   // Map unknown/unseen attributes with values to SVG output.
   for (const propName in properties) {
     const propValue: string = properties[propName].contents.toString();
-    if (!attrToNotAutoMap.has(propName.toLowerCase())) {
-      if (!elem.hasAttribute(propName)) {
+    const propNameLC: string = propName.toLowerCase();
+    if (!attrToNotAutoMap.has(propNameLC)) {
+      if (!elem.hasAttribute(propNameLC)) {
         if (propValue !== "") {
-          elem.setAttribute(propName, propValue);
+          elem.setAttribute(propNameLC, propValue);
         }
       }
     }
@@ -127,7 +133,7 @@ export const attrXY = (
 };
 
 /**
- * Maps center, width, height, rotation --> transform !!!
+ * Maps center, width, height, rotation --> transform
  *
  * Rotates a GPI by n degrees about a center
  * Note: elem must be `transform`able
@@ -156,44 +162,17 @@ export const attrRotation = (
 };
 
 /**
- * Maps r --> r
- */
-export const attrRadius = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const r = properties.r as IFloatV<number>;
-  elem.setAttribute("r", r.contents.toString());
+* Maps width, height --> width, height
+*/
+export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
+  elem.setAttribute("width", w.contents.toString());
+  elem.setAttribute("height", h.contents.toString());
 
-  return ["r"]; // Return array of input properties programatically mapped
+  return ["width", "height"]; // Return array of input properties programatically mapped
 };
-
-/**
- * Maps rx --> rx
- */
-export const attrRadiusX = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const rx = properties.rx as IFloatV<number>;
-  elem.setAttribute("rx", rx.contents.toString());
-
-  return ["rx"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps ry --> ry
- */
-export const attrRadiusY = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const ry = properties.ry as IFloatV<number>;
-  elem.setAttribute("ry", ry.contents.toString());
-
-  return ["ry"]; // Return array of input properties programatically mapped
-};
-
+  
 /**
  * Maps cornerRadius --> rx
  */
@@ -205,57 +184,6 @@ export const attrCornerRadius = (
   elem.setAttribute("rx", rx.contents.toString());
 
   return ["cornerRadius"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps rx, ry --> rx, ry
- */
-export const attrRadii = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const rx = properties.rx as IFloatV<number>;
-  const ry = properties.ry as IFloatV<number>;
-  elem.setAttribute("rx", rx.contents.toString());
-  elem.setAttribute("ry", ry.contents.toString());
-
-  return ["rx", "ry"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps width, height --> width, height
- */
-export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
-  const w = properties.width as IFloatV<number>;
-  const h = properties.height as IFloatV<number>;
-  elem.setAttribute("width", w.contents.toString());
-  elem.setAttribute("height", h.contents.toString());
-
-  return ["width", "height"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps points --> points
- */
-export const attrPoints = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const points = properties.points as IPtListV<number>;
-  elem.setAttribute("points", points.contents.toString());
-
-  return ["points"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Maps side --> width, height
- */
-export const attrSide = ({ properties }: Shape, elem: SVGElement): string[] => {
-  const side = properties.side as IFloatV<number>;
-  elem.setAttribute("width", side.contents.toString());
-  elem.setAttribute("height", side.contents.toString());
-
-  return ["side"]; // Return array of input properties programatically mapped
 };
 
 /**
@@ -357,48 +285,6 @@ export const attrTitle = (
   elem.appendChild(title);
 
   return ["name"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Map visibility --> visibility
- 
-* The SVG attribute "visibility" can be set to
- * "visible" or "hidden" to show/hide elements.
- */
-export const attrVisibility = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const visibility = properties.visibility as IStrV;
-  if (visibility.contents !== "") {
-    elem.setAttribute("visibility", visibility.contents.toString());
-  }
-
-  return ["visibility"]; // Return array of input properties programatically mapped
-};
-
-/**
- * Map style --> style
- *
- * In SVG, the attribute "style" is a catch-all that allows
- * a tag to be styled using an arbitrary CSS string.  This
- * attribute is often a better way to get certain attributes
- * to appear correctly in the browser than one-off attributes
- * associated with particular tags.  For instance, the SVG
- * attribute stroke-width="4" appears not to work on text in
- * many browsers, whereas style="stroke-width:4;" appears to
- * work just fine.
- */
-export const attrStyle = (
-  { properties }: Shape,
-  elem: SVGElement
-): string[] => {
-  const style = properties.style as IStrV;
-  if (style.contents !== "") {
-    elem.setAttribute("style", style.contents.toString());
-  }
-
-  return ["style"]; // Return array of input properties programatically mapped
 };
 
 // Text attributes =============================================================

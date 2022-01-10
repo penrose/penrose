@@ -49,3 +49,4 @@ examples/plugins/alloy/__temp.als__
 temp.als
 .*.sw*
 packages/panels/public/app.js.map
+.npmrc

@@ -15,7 +15,7 @@ interface IProps {
   downloadSVG?(): void;
   downloadState?(): void;
   autoStepToggle?(): void;
-  step(): void;
+  step(numSteps: number): void;
   stepUntilConvergence(): void;
   resample(): void;
   reconnect(): void;
@@ -37,7 +37,7 @@ class ButtonBar extends React.Component<IProps> {
       showInspector,
       files,
       connected,
-      reconnect,
+      reconnect
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -46,7 +46,7 @@ class ButtonBar extends React.Component<IProps> {
             autostep {autostep ? "(on)" : "(off)"}
           </button>
         )}
-        <button onClick={step}>x1 optimization step</button>
+        <button onClick={() => step(1)}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
           onClick={resample}
@@ -76,7 +76,7 @@ class ButtonBar extends React.Component<IProps> {
                 ? "#55de55"
                 : initial
                 ? "#4286f4"
-                : "#ff9d23",
+                : "#ff9d23"
           }}
         />
         <div
@@ -84,7 +84,7 @@ class ButtonBar extends React.Component<IProps> {
             display: "inline-block",
             marginLeft: "1em",
             color: "#303030",
-            fontSize: "14px",
+            fontSize: "14px"
           }}
         >
           {files === null
