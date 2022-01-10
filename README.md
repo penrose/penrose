@@ -1,4 +1,4 @@
-# Penrose [![CircleCI](https://circleci.com/gh/penrose/penrose/tree/main.svg?style=svg)](https://circleci.com/gh/penrose/penrose/tree/main)
+# Penrose [![Build](https://github.com/penrose/penrose/actions/workflows/build.yml/badge.svg)](https://github.com/penrose/penrose/actions/workflows/build.yml)
 
 **Penrose is an early-stage system that is still in development.** Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
 
