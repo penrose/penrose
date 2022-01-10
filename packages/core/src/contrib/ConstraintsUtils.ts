@@ -72,7 +72,7 @@ export const overlappingPolygons = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
- export const overlappingRectlikeCircle = (
+export const overlappingRectlikeCircle = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   padding: VarAD = constOf(0.0)

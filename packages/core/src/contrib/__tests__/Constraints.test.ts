@@ -201,15 +201,15 @@ const rectangles = [
   }),
   // Rectangle 1
   makeRectangle(canvas, {
-    center: VectorV([200, 100].map(constOf)),
-    width: FloatV(constOf(400)),
+    center: VectorV([0, 0].map(constOf)),
+    width: FloatV(constOf(200)),
     height: FloatV(constOf(200)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
   // Rectangle 2
   makeRectangle(canvas, {
-    center: VectorV([100, 3000].map(constOf)),
+    center: VectorV([200, 0].map(constOf)),
     width: FloatV(constOf(200)),
     height: FloatV(constOf(200)),
     strokeWidth: FloatV(constOf(0)),
@@ -217,7 +217,7 @@ const rectangles = [
   }),
   // Rectangle 3
   makeRectangle(canvas, {
-    center: VectorV([0, 0].map(constOf)),
+    center: VectorV([0, 300].map(constOf)),
     width: FloatV(constOf(200)),
     height: FloatV(constOf(200)),
     strokeWidth: FloatV(constOf(0)),
@@ -228,29 +228,29 @@ const rectangles = [
 const circles = [
   // Circle 0
   makeCircle(canvas, {
-    r: FloatV(constOf(400)),
+    r: FloatV(constOf(200)),
     center: VectorV([0, 0].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
   // Circle 1
   makeCircle(canvas, {
-    r: FloatV(constOf(400)),
-    center: VectorV([200, 100].map(constOf)),
+    r: FloatV(constOf(100)),
+    center: VectorV([0, 0].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
   // Circle 2
   makeCircle(canvas, {
-    r: FloatV(constOf(200)),
-    center: VectorV([100, 300].map(constOf)),
+    r: FloatV(constOf(100)),
+    center: VectorV([200, 0].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
   // Circle 3
   makeCircle(canvas, {
-    r: FloatV(constOf(200)),
-    center: VectorV([0, 0].map(constOf)),
+    r: FloatV(constOf(100)),
+    center: VectorV([0, 300].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
@@ -261,21 +261,21 @@ describe("general constraints", () => {
   // Overlapping shapes
   it.each([
     // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[0], rectangles[1]],
-    // ["Rectangle", "Circle", 0, rectangles[0], circles[1]],
-    // ["Circle", "Rectangle", 0, circles[0], rectangles[1]],
-    // ["Circle", "Circle", 0, circles[0], circles[1]],
-    // // Possitive padding
-    // ["Rectangle", "Rectangle", 100, rectangles[0], rectangles[1]],
-    // ["Rectangle", "Circle", 100, rectangles[0], circles[1]],
-    // ["Circle", "Rectangle", 100, circles[0], rectangles[1]],
-    // ["Circle", "Circle", 100, circles[0], circles[1]],
+    ["Rectangle", "Rectangle", 0, rectangles[0], rectangles[2]],
+    ["Rectangle", "Circle", 0, rectangles[0], circles[2]],
+    ["Circle", "Rectangle", 0, circles[0], rectangles[2]],
+    ["Circle", "Circle", 0, circles[0], circles[2]],
+    // Possitive padding
+    ["Rectangle", "Rectangle", 150, rectangles[3], rectangles[1]],
+    ["Rectangle", "Circle", 150, rectangles[3], circles[1]],
+    ["Circle", "Rectangle", 150, circles[3], rectangles[1]],
+    ["Circle", "Circle", 150, circles[3], circles[1]],
     // // Negative padding
-    // ["Rectangle", "Rectangle", -100, rectangles[0], rectangles[1]],
-    // ["Rectangle", "Circle", -100, rectangles[0], circles[1]],
-    // ["Circle", "Rectangle", -100, circles[0], rectangles[1]],
-    // ["Circle", "Circle", -100, circles[0], circles[1]],
-  ])('overlapping %p and %p without padding', (
+    ["Rectangle", "Rectangle", -50, rectangles[0], rectangles[2]],
+    ["Rectangle", "Circle", -50, rectangles[0], circles[2]],
+    ["Circle", "Rectangle", -50, circles[0], rectangles[2]],
+    ["Circle", "Circle", -50, circles[0], circles[2]],
+  ])('overlapping %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
     padding: number,
@@ -301,48 +301,48 @@ describe("general constraints", () => {
     expect(numOf(constrDict.atDist(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
   });
 
-  // // Disjoint shapes
-  // it.each([
-  //   // Zero padding
-  //   ["Rectangle", "Rectangle", 0, rectangles[2], rectangles[3]],
-  //   // ["Rectangle", "Circle", 0, rectangles[2], circles[3]],
-  //   // ["Circle", "Rectangle", 0, circles[2], rectangles[3]],
-  //   // ["Circle", "Circle", 0, circles[2], circles[3]],
-  //   // // Possitive padding
-  //   // ["Rectangle", "Rectangle", 100, rectangles[2], rectangles[3]],
-  //   // ["Rectangle", "Circle", 100, rectangles[2], circles[3]],
-  //   // ["Circle", "Rectangle", 100, circles[2], rectangles[3]],
-  //   // ["Circle", "Circle", 100, circles[2], circles[3]],
-  //   // // Negative padding
-  //   // ["Rectangle", "Rectangle", -100, rectangles[2], rectangles[3]],
-  //   // ["Rectangle", "Circle", -100, rectangles[2], circles[3]],
-  //   // ["Circle", "Rectangle", -100, circles[2], rectangles[3]],
-  //   // ["Circle", "Circle", -100, circles[2], circles[3]],
-  // ])('disjoint %p and %p without padding', (
-  //   shapeType0: string,
-  //   shapeType1: string,
-  //   padding: number,
-  //   shapeData0: any,
-  //   shapeData1: any,
-  // ) => {
-  //   const shape0: [string, any] = [shapeType0, shapeData0];
-  //   const shape1: [string, any] = [shapeType1, shapeData1];
-  //   // The condition should NOT be satisfied
-  //   expect(numOf(constrDict.overlapping(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-  //   expect(numOf(constrDict.overlapping(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-  //   // The condition should be satisfied
-  //   expect(numOf(constrDict.disjoint(shape0, shape1, padding))).toBeLessThanOrEqual(0);
-  //   expect(numOf(constrDict.disjoint(shape1, shape0, padding))).toBeLessThanOrEqual(0);
-  //   // The condition should NOT be satisfied
-  //   expect(numOf(constrDict.tangentTo(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-  //   expect(numOf(constrDict.tangentTo(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-  //   // The condition should NOT be satisfied
-  //   expect(numOf(constrDict.contains(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-  //   expect(numOf(constrDict.contains(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-  //   // The condition should NOT be satisfied
-  //   expect(numOf(constrDict.atDist(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
-  //   expect(numOf(constrDict.atDist(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
-  // });
+  // Disjoint shapes
+  it.each([
+    // Zero padding
+    ["Rectangle", "Rectangle", 0, rectangles[2], rectangles[3]],
+    ["Rectangle", "Circle", 0, rectangles[2], circles[3]],
+    ["Circle", "Rectangle", 0, circles[2], rectangles[3]],
+    ["Circle", "Circle", 0, circles[2], circles[3]],
+    // // Possitive padding
+    ["Rectangle", "Rectangle", 10, rectangles[1], rectangles[3]],
+    // ["Rectangle", "Circle", 10, rectangles[1], circles[3]],
+    // ["Circle", "Rectangle", 10, circles[1], rectangles[3]],
+    ["Circle", "Circle", 10, circles[1], circles[3]],
+    // // Negative padding
+    ["Rectangle", "Rectangle", -10, rectangles[2], rectangles[1]],
+    // ["Rectangle", "Circle", -10, rectangles[2], circles[1]],
+    // ["Circle", "Rectangle", -10, circles[2], rectangles[1]],
+    ["Circle", "Circle", -10, circles[2], circles[1]],
+  ])('disjoint %p and %p with padding %p', (
+    shapeType0: string,
+    shapeType1: string,
+    padding: number,
+    shapeData0: any,
+    shapeData1: any,
+  ) => {
+    const shape0: [string, any] = [shapeType0, shapeData0];
+    const shape1: [string, any] = [shapeType1, shapeData1];
+    // The condition should NOT be satisfied
+    // expect(numOf(constrDict.overlapping(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+    // expect(numOf(constrDict.overlapping(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+    // The condition should be satisfied
+    expect(numOf(constrDict.disjoint(shape0, shape1, padding))).toBeLessThanOrEqual(0);
+    expect(numOf(constrDict.disjoint(shape1, shape0, padding))).toBeLessThanOrEqual(0);
+    // The condition should NOT be satisfied
+    // expect(numOf(constrDict.tangentTo(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+    // expect(numOf(constrDict.tangentTo(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+    // The condition should NOT be satisfied
+    expect(numOf(constrDict.contains(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+    expect(numOf(constrDict.contains(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+    // The condition should NOT be satisfied
+    // expect(numOf(constrDict.atDist(shape0, shape1, padding))).toBeGreaterThan(toleranceValue);
+    // expect(numOf(constrDict.atDist(shape1, shape0, padding))).toBeGreaterThan(toleranceValue);
+  });
 
   // Tangent shapes
   it.each([
@@ -352,15 +352,15 @@ describe("general constraints", () => {
     // ["Circle", "Rectangle", 0, circles[1], rectangles[2]],
     // ["Circle", "Circle", 0, circles[1], circles[2]],
     // // Possitive padding
-    // ["Rectangle", "Rectangle", 100, rectangles[1], rectangles[2]],
-    // ["Rectangle", "Circle", 100, rectangles[1], circles[2]],
-    // ["Circle", "Rectangle", 100, circles[1], rectangles[2]],
-    // ["Circle", "Circle", 100, circles[1], circles[2]],
+    ["Rectangle", "Rectangle", 100, rectangles[1], rectangles[3]],
+    // ["Rectangle", "Circle", 100, rectangles[1], circles[3]],
+    // ["Circle", "Rectangle", 100, circles[1], rectangles[3]],
+    // ["Circle", "Circle", 100, circles[1], circles[3]],
     // // Negative padding
-    // ["Rectangle", "Rectangle", -100, rectangles[1], rectangles[2]],
-    // ["Rectangle", "Circle", -100, rectangles[1], circles[2]],
-    // ["Circle", "Rectangle", -100, circles[1], rectangles[2]],
-    // ["Circle", "Circle", -100, circles[1], circles[2]],
+    ["Rectangle", "Rectangle", -100, rectangles[0], rectangles[2]],
+    // ["Rectangle", "Circle", -100, rectangles[0], circles[2]],
+    // ["Circle", "Rectangle", -100, circles[0], rectangles[2]],
+    // ["Circle", "Circle", -100, circles[0], circles[2]],
   ])('tangent %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -390,20 +390,20 @@ describe("general constraints", () => {
   // The first shapes is contained in the second one
   it.each([
     // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[0], rectangles[3]],
-    // ["Rectangle", "Circle", 0, rectangles[0], circles[3]],
-    // ["Circle", "Rectangle", 0, circles[0], rectangles[3]],
-    // ["Circle", "Circle", 0, circles[0], circles[3]],
+    ["Rectangle", "Rectangle", 0, rectangles[0], rectangles[1]],
+    ["Rectangle", "Circle", 0, rectangles[0], circles[1]],
+    ["Circle", "Rectangle", 0, circles[0], rectangles[1]],
+    ["Circle", "Circle", 0, circles[0], circles[1]],
     // // Possitive padding
-    // ["Rectangle", "Rectangle", 100, rectangles[0], rectangles[3]],
-    // ["Rectangle", "Circle", 100, rectangles[0], circles[3]],
-    // ["Circle", "Rectangle", 100, circles[0], rectangles[3]],
-    // ["Circle", "Circle", 100, circles[0], circles[3]],
+    // ["Rectangle", "Rectangle", 300, rectangles[0], rectangles[2]],
+    // ["Rectangle", "Circle", 300, rectangles[0], circles[2]],
+    // ["Circle", "Rectangle", 300, circles[0], rectangles[2]],
+    // ["Circle", "Circle", 300, circles[0], circles[2]],
     // // Negative padding
-    // ["Rectangle", "Rectangle", -100, rectangles[0], rectangles[3]],
-    // ["Rectangle", "Circle", -100, rectangles[0], circles[3]],
-    // ["Circle", "Rectangle", -100, circles[0], rectangles[3]],
-    // ["Circle", "Circle", -100, circles[0], circles[3]],
+    ["Rectangle", "Rectangle", -10, rectangles[0], rectangles[1]],
+    ["Rectangle", "Circle", -10, rectangles[0], circles[1]],
+    ["Circle", "Rectangle", -10, circles[0], rectangles[1]],
+    ["Circle", "Circle", -10, circles[0], circles[1]],
   ])('the first shape (%p) contains the second shape (%p) with padding %p', (
     shapeType0: string,
     shapeType1: string,
