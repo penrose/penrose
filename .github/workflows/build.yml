@@ -75,6 +75,10 @@ jobs:
       run:
         working-directory: ./packages/core
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        uses: ./.github/actions/packages
       - name: Make test report dir
         run: mkdir -p reports/junit
       - name: Run core tests and generate test data
