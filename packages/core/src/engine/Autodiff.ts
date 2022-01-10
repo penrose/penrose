@@ -465,7 +465,6 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
  * Return `maxN(xs)`.
  */
 export const maxN = (xs: VarAD[], isCompNode = true): VarAD => {
-
   if (xs.length === 0) {
     log.trace("node", xs);
     throw Error("argument list to maxN is empty; expected 1+ elements");
@@ -480,13 +479,13 @@ export const maxN = (xs: VarAD[], isCompNode = true): VarAD => {
     if (isCompNode) {
       for (const x of xs) {
         const xNode = ifCond(lt(x, z, false), gvarOf(0.0), gvarOf(1.0), false);
-        x.parents.push({ node: z, sensitivityNode: just(xNode) });
-        z.children.push({ node: x, sensitivityNode: just(xNode) });
+        x.parentsAD.push({ node: z, sensitivityNode: just(xNode) });
+        z.childrenAD.push({ node: x, sensitivityNode: just(xNode) });
       }
     } else {
       for (const x of xs) {
-        x.parentsGrad.push({ node: z, sensitivityNode: none });
-        z.childrenGrad.push({ node: x, sensitivityNode: none });
+        x.parentsADGrad.push({ node: z, sensitivityNode: none });
+        z.childrenADGrad.push({ node: x, sensitivityNode: none });
       }
     }
     return z;
@@ -497,7 +496,6 @@ export const maxN = (xs: VarAD[], isCompNode = true): VarAD => {
  * Return `minN(xs)`.
  */
 export const minN = (xs: VarAD[], isCompNode = true): VarAD => {
-
   if (xs.length === 0) {
     log.trace("node", xs);
     throw Error("argument list to minN is empty; expected 1+ elements");
@@ -511,14 +509,14 @@ export const minN = (xs: VarAD[], isCompNode = true): VarAD => {
 
     if (isCompNode) {
       for (const x of xs) {
-        const xNode = ifCond(gt(x, z, false), gvarOf(0.0), gvarOf(1.0), false)
-        x.parents.push({ node: z, sensitivityNode: just(xNode) });
-        z.children.push({ node: x, sensitivityNode: just(xNode) });
+        const xNode = ifCond(gt(x, z, false), gvarOf(0.0), gvarOf(1.0), false);
+        x.parentsAD.push({ node: z, sensitivityNode: just(xNode) });
+        z.childrenAD.push({ node: x, sensitivityNode: just(xNode) });
       }
     } else {
       for (const x of xs) {
-        x.parentsGrad.push({ node: z, sensitivityNode: none });
-        z.childrenGrad.push({ node: x, sensitivityNode: none });
+        x.parentsADGrad.push({ node: z, sensitivityNode: none });
+        z.childrenADGrad.push({ node: x, sensitivityNode: none });
       }
     }
     return z;
