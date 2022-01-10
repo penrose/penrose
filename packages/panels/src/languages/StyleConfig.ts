@@ -1,6 +1,6 @@
 import { languages, IRange } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
-import { objDict, constrDict, compDict } from "@penrose/core";
+import { objDict, constrDict, compDict, shapedefs } from "@penrose/core";
 
 export const StyleConfig: languages.LanguageConfiguration = {
   comments: {
@@ -72,21 +72,9 @@ const styleCustoms = {
     "objective",
     "constraint",
   ],
-  shapes: [
-    "Arrow",
-    "Path",
-    "Line",
-    "Text",
-    "Square",
-    "Image",
-    "Rectangle",
-    "Circle",
-  ],
+  shapes: Object.keys(shapedefs),
   constraints: Object.keys(constrDict),
   objectives: Object.keys(objDict),
-  // constraints: [],
-  // objectives: [],
-  // computations: ["dfds"],
   computations: Object.keys(compDict),
 };
 
