@@ -354,16 +354,25 @@ forall Halfedge h {
    vec2 Q1 = m - (L/4.)*t01
 
    vec2 n = rot90(t01)
-   vec2 Q2 = Q1 + h*(n+t01)
+   vec2 Q2 = Q0 + h*(n-t01)
 
    h.icon = Path {
       strokeWidth: 2.*Global.lineThickness
       strokeColor: Colors.black
       fillColor: none()
-      d: pathFromPoints("open", [Q0,Q1,Q2])
+      d: pathFromPoints("open", [Q2,Q0,Q1])
       startArrowhead: false
       endArrowhead: false
       arrowheadSize: .5
+   }
+
+   h.labelText = Text {
+      center: m + h*n
+      string: h.label
+      fontFamily: "Courier"
+      fontSize: "9pt"
+      fillColor: Colors.black
+      rotation: -toDegrees(angleOf(t01))
    }
 }
 
