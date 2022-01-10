@@ -6,7 +6,8 @@ import {
   disambiguateSubNode,
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
-import { constrDict, objDict } from "contrib/Constraints";
+import { constrDict } from "contrib/Constraints";
+import { objDict } from "contrib/Objectives";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { constOf, numOf, varOf } from "engine/Autodiff";
@@ -1309,7 +1310,7 @@ const relMatchesProg = (
       if (fieldDesc) {
         // NOTE: empty labels have a specific `NoLabel` type, so even if the entry exists, no existing field descriptors will match on it.
         return label.type === fieldDesc;
-      } else return true;
+      } else return label.value.length > 0;
     } else {
       return false;
     }

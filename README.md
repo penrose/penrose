@@ -42,8 +42,8 @@ It's specified by the following Substance and Style programs.
 
     Intersect x y {
         constraint overlapping(x, y)
-        constraint outsideOf(y.label, x)
-        constraint outsideOf(x.label, y)
+        constraint disjoint(y.label, x)
+        constraint disjoint(x.label, y)
     }
 
     NoIntersect x y {
@@ -53,14 +53,14 @@ It's specified by the following Substance and Style programs.
     Subset x y {
         constraint contains(y, x)
         constraint smallerThan(x, y)
-        constraint outsideOf(y.label, x)
+        constraint disjoint(y.label, x)
     }
 
     NoSubset x y {
         objective repel(x, y)
-        constraint outsideOf(x, y)
-        constraint outsideOf(y.label, x)
-        constraint outsideOf(x.label, y)
+        constraint disjoint(x, y)
+        constraint disjoint(y.label, x)
+        constraint disjoint(x.label, y)
         constraint nonOverlapping(x, y)
     }
     ```

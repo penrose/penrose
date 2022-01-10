@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI: false # TODO: eliminate warnings so we don't have to do this
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -24,8 +26,6 @@ jobs:
         run: yarn
       - name: Run all builds
         run: yarn build
-        env:
-          CI: false # TODO: eliminate warnings so we don't have to do this
       - name: Run all tests
         run: yarn test
       - name: Make test report dir
@@ -63,6 +63,46 @@ jobs:
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         name: Publish canary release
         run: yarn publish:canary --yes
+
+  storybook:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./packages/components
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Restore lerna cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install packages
+        run: yarn
+      - name: Build core
+        run: yarn build
+        working-directory: ./packages/core
+      - name: Build storybook
+        run: yarn build-storybook
+      - name: Deploy docs
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: packages/components/storybook-static
+          target-folder: storybook
+      - name: Add .nojekyll
+        run: |
+          mkdir extra
+          touch extra/.nojekyll
+      - name: Deploy .nojekyll
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: packages/components/extra
+          clean: false
 
   typedocs:
     runs-on: ubuntu-latest
