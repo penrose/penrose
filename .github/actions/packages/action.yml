@@ -11,3 +11,4 @@ runs:
         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
     - name: Install packages
       run: yarn
+      shell: bash
