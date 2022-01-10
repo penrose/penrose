@@ -2,7 +2,7 @@ import {
   PenroseFn,
   prettyPrintExpr,
   prettyPrintFn,
-  prettyPrintPath,
+  prettyPrintPath
 } from "@penrose/core";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
@@ -26,9 +26,9 @@ const graph1 = [
       id: "ab",
       source: "a",
       target: "b",
-      selectorName: true,
-    },
-  },
+      selectorName: true
+    }
+  }
 ];
 
 // Flatten a list of lists into a single list of elements
@@ -36,8 +36,8 @@ const merge = (arr: any) => [].concat(...arr);
 
 const flatGraph = (es: PGraph[]): PGraph => {
   return {
-    nodes: flatMap(es, (e) => e.nodes),
-    edges: flatMap(es, (e) => e.edges),
+    nodes: flatMap(es, e => e.nodes),
+    edges: flatMap(es, e => e.edges)
   };
 };
 
@@ -48,18 +48,19 @@ const flatGraph = (es: PGraph[]): PGraph => {
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: VarAD): PGraph => {
   const parNode = { id: par.id, label: par.op };
-  const edges = par.children.map((edge) => ({
+  //TODO: do not navigate graph outside core
+  const edges = par.childrenAD.map(edge => ({
     from: parNode.id,
-    to: edge.node.id,
+    to: edge.node.id
   }));
 
-  const subgraphs = par.children.map((edge) => traverseGraphTopDown(edge.node));
-  const subnodes = merge(subgraphs.map((g) => g.nodes));
-  const subedges = merge(subgraphs.map((g) => g.edges));
+  const subgraphs = par.childrenAD.map(edge => traverseGraphTopDown(edge.node));
+  const subnodes = merge(subgraphs.map(g => g.nodes));
+  const subedges = merge(subgraphs.map(g => g.edges));
 
   return {
     nodes: [parNode].concat(subnodes),
-    edges: edges.concat(subedges),
+    edges: edges.concat(subedges)
   };
 };
 
@@ -68,7 +69,7 @@ export const traverseUnique = (par: VarAD): PGraph => {
   const g = traverseGraphTopDown(par);
   return {
     ...g,
-    nodes: uniqBy(g.nodes, (e: any) => e.id),
+    nodes: uniqBy(g.nodes, (e: any) => e.id)
   };
 };
 
@@ -76,20 +77,20 @@ export const traverseUnique = (par: VarAD): PGraph => {
 export const convertSchema = (graph: PGraph): PGraph => {
   const { nodes, edges } = graph;
 
-  const nodes2 = nodes.map((e) => ({
+  const nodes2 = nodes.map(e => ({
     data: {
       id: String(e.id), // this needs to be unique
-      label: e.label,
-    },
+      label: e.label
+    }
   }));
 
-  const edges2 = edges.map((e) => ({
+  const edges2 = edges.map(e => ({
     data: {
       id: String(e.from) + " -> " + String(e.to), // NOTE: No duplicate edges
       source: String(e.from),
-      target: String(e.to),
+      target: String(e.to)
       // No label
-    },
+    }
   }));
 
   return { nodes: nodes2, edges: edges2 };
@@ -108,7 +109,7 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
       ...p,
       tag: "FieldPath",
       name: p.name,
-      field: p.field,
+      field: p.field
     };
 
     if (!allArgs.includes(prettyPrintPath(fp))) {
@@ -121,8 +122,8 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
       data: {
         id: prettyPrintPath(fp) + " -> " + prettyPrintPath(p),
         source: prettyPrintPath(fp),
-        target: prettyPrintPath(p),
-      },
+        target: prettyPrintPath(p)
+      }
     };
 
     return { nodes: [], edges: [edge] };
@@ -134,8 +135,8 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
     const propNode = {
       data: {
         id: prettyPrintPath(p.path),
-        label: prettyPrintPath(p.path),
-      },
+        label: prettyPrintPath(p.path)
+      }
     };
 
     // Make edge for X.shape.property to X.shape.property[i]
@@ -143,14 +144,14 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
       data: {
         id: prettyPrintPath(p.path) + " -> " + prettyPrintPath(p),
         source: prettyPrintPath(p.path),
-        target: prettyPrintPath(p),
-      },
+        target: prettyPrintPath(p)
+      }
     };
 
     return {
       // TODO: Use graph combination function
       nodes: graph0.nodes.concat([propNode]),
-      edges: graph0.edges.concat([propEdge]),
+      edges: graph0.edges.concat([propEdge])
     };
   } else if (p.tag === "LocalVar" || "InternalLocalVar") {
     throw Error("unexpected node type: local var in varying var");
@@ -166,14 +167,14 @@ export const toGraphDOFs = (
   allFns: Fn[],
   allArgs: string[]
 ): PGraph => {
-  const varyingPathNodes = varyingPaths.map((p) => {
+  const varyingPathNodes = varyingPaths.map(p => {
     const res = prettyPrintPath(p);
     return {
       data: {
         id: res,
         label: res,
-        DOF: true,
-      },
+        DOF: true
+      }
     };
   });
 
@@ -193,7 +194,7 @@ export const toGraphDOFs = (
 
   return {
     nodes: merge([varyingPathNodes, intermediateNodes]),
-    edges: merge([intermediateEdges]),
+    edges: merge([intermediateEdges])
   };
 };
 
@@ -211,22 +212,22 @@ export const toGraphOpt = (
 
   const allFns = objfns.concat(constrfns);
   const allArgs: string[] = merge(
-    allFns.map((f) => f.fargs.map(prettyPrintExpr))
+    allFns.map(f => f.fargs.map(prettyPrintExpr))
   ); // This also includes constants, etc.
 
-  const argNodes = allArgs.map((p) => ({
+  const argNodes = allArgs.map(p => ({
     data: {
       id: p,
-      label: p,
-    },
+      label: p
+    }
   }));
 
-  const fnNodes = allFns.map((f) => ({
+  const fnNodes = allFns.map(f => ({
     data: {
       id: prettyPrintFn(f),
       label: f.fname,
-      [f.optType]: true,
-    },
+      [f.optType]: true
+    }
   }));
 
   const varyingGraph = toGraphDOFs(varyingPaths, allFns, allArgs);
@@ -234,13 +235,13 @@ export const toGraphOpt = (
   const nodes = merge([argNodes, fnNodes, varyingGraph.nodes]);
 
   const fnEdges = merge(
-    allFns.map((f) =>
-      f.fargs.map((arg) => ({
+    allFns.map(f =>
+      f.fargs.map(arg => ({
         data: {
           id: prettyPrintFn(f) + " -> " + prettyPrintExpr(arg),
           source: prettyPrintFn(f), // Matches existing fn ids
-          target: prettyPrintExpr(arg), // Matches existing path ids
-        },
+          target: prettyPrintExpr(arg) // Matches existing path ids
+        }
       }))
     )
   );
@@ -249,6 +250,6 @@ export const toGraphOpt = (
 
   return {
     nodes,
-    edges,
+    edges
   };
 };
