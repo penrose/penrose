@@ -15,8 +15,15 @@ jobs:
         with:
           # https://github.com/lerna/lerna/issues/1893#issuecomment-770614785
           fetch-depth: 0
-      - name: Install packages
-        uses: ./.github/actions/packages
+      - name: Restore lerna cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install deps
+        run: yarn
       - name: Run all builds
         run: yarn build
       - name: Run all tests
@@ -66,8 +73,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Restore lerna cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install packages
-        uses: ./.github/actions/packages
+        run: yarn
       - name: Build core
         run: yarn build
         working-directory: ./packages/core
@@ -99,8 +113,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Restore lerna cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install packages
-        uses: ./.github/actions/packages
+        run: yarn
       - name: Build docs
         run: yarn docs
       - name: Deploy docs
