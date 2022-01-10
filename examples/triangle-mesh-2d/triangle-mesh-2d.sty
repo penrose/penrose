@@ -246,7 +246,6 @@ where c := MakeCorner(i,j,k); c has text label {
    vec2 p = i.center
    scalar R0 = Global.labelBoundRadius
 
-
    shape c.text = Text {
       string: c.label
       center: c.center
@@ -267,13 +266,13 @@ where c := MakeCorner(i,j,k); c has text label {
 
    shape c.textBounds = Circle {
       center: c.text.center
-      r: 1.5*Global.labelBoundRadius
+      r: 1.1*Global.labelBoundRadius
       fillColor: none()
    }
 
    vec2 w = (c.u+c.v)/2.
    vec2 z = c.center - i.center
-   ensure lessThan( angleBetween(w,z), c.wedgeAngle/2. )
+   ensure lessThan( angleBetween(w,z), c.wedgeAngle/4. )
    encourage near( c.textBounds, i.icon )
    ensure disjoint( c.textBounds, c.arcBall )
 }
@@ -314,8 +313,22 @@ forall Point p {
    -- encourage equal( norm(p.text.center - p.icon.center), 0. )
 }
 
+-- draw all points above all triangles
 forall Point p; Triangle t {
    layer p.icon above t.icon
+}
+
+-- default shape for a circle
+forall Circle C {
+
+   shape C.icon = Circle {
+      center: (?,?)
+      r: ?
+      fillColor: Colors.semiBlue
+   }
+
+   constraint C.validRadius = ensure inRange( C.icon.r, 100, 200 )
+   constraint C.onCanvas = ensure contains(Global.box, C.icon)
 }
 
 -- Barycenter
@@ -333,17 +346,21 @@ where t := MakeTriangle(i,j,k); p := Circumcenter(t) {
 }
 
 -- Circumcircle
-forall Circle C; Triangle t; Vertex i; Vertex j; Vertex k
-where t := MakeTriangle(i,j,k); C := Circumcircle(t) {
+forall Circle C; Triangle t
+where C := Circumcircle(t) {
 
-   shape C.icon = Circle {
-      center: t.circumcenter
-      r: t.circumradius
-      fillColor: none()
-      strokeColor: rgba( 0., 0., 0., .2 )
-      strokeWidth: 1.5
-      -- strokeStyle: "dashed"
-   }
+   -- since the circumcircle can be huge, it's
+   -- too restrictive to force it on the canvas
+   delete C.onCanvas
+
+   -- the circumradius will be valid by construction
+   delete C.validRadius
+
+   override C.icon.center = t.circumcenter
+   override C.icon.r = t.circumradius
+   override C.icon.fillColor = none()
+   override C.icon.strokeColor = rgba( 0., 0., 0., .2 )
+   override C.icon.strokeWidth = 1.5
 }
 
 -- Incenter
@@ -358,14 +375,14 @@ where t := MakeTriangle(i,j,k); p := Incenter(t) {
 forall Circle C; Triangle t; Vertex i; Vertex j; Vertex k
 where t := MakeTriangle(i,j,k); C := Incircle(t) {
    
-   shape C.icon = Circle {
-      center: t.incenter
-      r: t.inradius
-      fillColor: none()
-      strokeColor: rgba( 0., 0., 0., .2 )
-      strokeWidth: 1.5
-      --strokeStyle: "dashed"
-   }
+   delete C.onCanvas
+   delete C.validRadius
+
+   override C.icon.center = t.incenter
+   override C.icon.r = t.inradius
+   override C.icon.fillColor = none()
+   override C.icon.strokeColor = rgba( 0., 0., 0., .2 )
+   override C.icon.strokeWidth = 1.5
 }
 
 forall DualEdge d; Triangle t1; Triangle t2
@@ -477,19 +494,6 @@ where IsNegativelyOriented(t) {
       endArrowhead: false
       arrowheadSize: .5
    }
-}
-
-forall Circle C {
-
-   shape C.icon = Circle {
-      center: (?,?)
-      r: ?
-      fillColor: Colors.semiBlue
-   }
-
-   ensure inRange( C.icon.r, 100, 200 )
-
-   ensure contains(Global.box, C.icon)
 }
 
 -- draw flipped edge as dashed line
