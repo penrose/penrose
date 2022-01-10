@@ -16,9 +16,9 @@ Colors {
 }
 
 Global {
-   scalar vertexRadius = 2.75
+   scalar vertexRadius = 2.5
    scalar pointRadius = 2.0
-   scalar lineThickness = .75
+   scalar lineThickness = 1.
    scalar labelBoundRadius = 8.
    scalar lineOffset = 8.0
    scalar wedgeSize = 30.0
@@ -380,18 +380,26 @@ where d := MakeDualEdge(t1,t2) {
    }
 }
 
+-- if a length is constructed from an edge, set its
+-- endpoints to the edge endpoints (setting things
+-- up this way allows us to keep Length fairly generic,
+-- e.g., it can also be used to draw the length of a
+-- dual edge without duplicating code)
 forall Length l; Edge e; Vertex i; Vertex j
 where l := EdgeLength(e); e := MakeEdge(i,j) {
    vec2 l.x0 = e.segment.start
    vec2 l.x1 = e.segment.end
 }
    
+-- if a length is constructed from a dual edge, set its
+-- endpoints to the dual edge endpoints
 forall Length l; DualEdge d; Triangle s; Triangle t
 where l := DualEdgeLength(d); d := MakeDualEdge(s,t) {
    vec2 l.x0 = d.segment.start
    vec2 l.x1 = d.segment.end
 }
    
+-- draw lengths as segments with straight ends
 forall Length l {
 
    vec2 u = unit(l.x1-l.x0)
@@ -425,6 +433,48 @@ forall Length l {
       string: l.label
       fillColor: Colors.black
       fontSize: Global.fontSize
+   }
+}
+
+-- mark a positively-oriented triangle with a
+-- circular arrow pointing in the counter-clockwise
+-- direction
+forall Triangle t
+where IsPositivelyOriented(t) {
+   
+   scalar R = .5*t.inradius
+   scalar t0 = toRadians( -60. )
+   scalar t1 = toRadians( 240. )
+   vec2 p0 = t.incenter + R*( cos(t0), sin(t0) )
+   vec2 p1 = t.incenter + R*( cos(t1), sin(t1) )
+
+   shape t.orientationArc = Path {
+      fillColor: none()
+      strokeColor: Colors.black
+      d: arc( "open", p0, p1, (R,R), 0., 1, 0 )
+      strokeWidth: 2.*Global.lineThickness
+      startArrowhead: false
+      endArrowhead: true
+      arrowheadSize: .5
+   }
+}
+forall Triangle t
+where IsNegativelyOriented(t) {
+   
+   scalar R = .5*t.inradius
+   scalar t0 = toRadians( -60. )
+   scalar t1 = toRadians( 240. )
+   vec2 p0 = t.incenter + R*( cos(t0), sin(t0) )
+   vec2 p1 = t.incenter + R*( cos(t1), sin(t1) )
+
+   shape t.orientationArc = Path {
+      fillColor: none()
+      strokeColor: Colors.black
+      d: arc( "open", p0, p1, (R,R), 0., 1, 0 )
+      strokeWidth: 2.*Global.lineThickness
+      startArrowhead: true
+      endArrowhead: false
+      arrowheadSize: .5
    }
 }
 

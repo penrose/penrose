@@ -18,6 +18,9 @@ predicate IsBoundaryTriangle(Triangle t)
 
 predicate HasLabel(Vertex v)
 
+predicate IsPositivelyOriented(Triangle t)
+predicate IsNegativelyOriented(Triangle t)
+
 -- Geometry
 type Point
 type Circle
