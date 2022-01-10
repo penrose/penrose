@@ -100,7 +100,6 @@ jobs:
 
   typedocs:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     defaults:
       run:
         working-directory: ./packages/core
@@ -111,7 +110,8 @@ jobs:
         uses: ./.github/actions/packages
       - name: Build docs
         run: yarn docs
-      - name: Deploy docs
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Deploy docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
@@ -121,7 +121,8 @@ jobs:
         run: |
           mkdir extra
           touch extra/.nojekyll
-      - name: Deploy .nojekyll
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Deploy .nojekyll
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
