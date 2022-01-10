@@ -250,7 +250,6 @@ export const bboxFromRect = ({
   height,
   center,
   strokeWidth,
-  rotation,
 }: IRectangle): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!isPt2(center.contents)) {
@@ -260,12 +259,10 @@ export const bboxFromRect = ({
   }
 
   // rx just rounds the corners, doesn't change the bbox
-  return bboxFromRotatedRect(
-    center.contents,
-    width.contents,
-    height.contents,
-    rotation.contents,
-    strokeWidth.contents
+  return bbox(
+    add(width.contents, strokeWidth.contents),
+    add(height.contents, strokeWidth.contents),
+    center.contents
   );
 };
 
