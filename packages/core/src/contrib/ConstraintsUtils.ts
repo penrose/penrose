@@ -105,7 +105,6 @@ export const overlappingAABBsMinkowski = (
   return sub(e1, e2);
 };
 
-
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  * To be DEPRACATED - replace by `overlappingAABBsMinkowski` after issue #652.
