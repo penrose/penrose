@@ -130,8 +130,8 @@ export const overlappingRectlikeLinelike = (
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
 export const overlappingCircleLine = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Line],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   // collect constants

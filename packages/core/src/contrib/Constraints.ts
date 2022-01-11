@@ -177,7 +177,7 @@ const constrDictGeneral = {
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
-    // Rectlike x Circle
+    // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
       return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Line" && t2 === "Circle")
