@@ -113,7 +113,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { randFloat, prettyPrintPath } from "utils/Util";
+import { randFloat, prettyPrintPath, zipStrict } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -1515,16 +1515,13 @@ export const findSubstsProg = (
   styProg: HeaderBlock[],
   selEnvs: SelEnv[]
 ): Subst[][] => {
-  if (selEnvs.length !== styProg.length) {
-    throw Error("expected same # selEnvs as selectors");
-  }
-  const selsWithEnvs = _.zip(
+  const selsWithEnvs = zipStrict(
     styProg.map((e: HeaderBlock) => e.header),
     selEnvs
-  ); // TODO: Why can't I type it [Header, SelEnv][]? It shouldn't be undefined after the length check
+  );
 
   return selsWithEnvs.map((selAndEnv) =>
-    findSubstsSel(varEnv, subEnv, subProg, selAndEnv as [Header, SelEnv])
+    findSubstsSel(varEnv, subEnv, subProg, selAndEnv)
   );
 };
 

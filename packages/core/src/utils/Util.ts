@@ -50,6 +50,21 @@ export const fromJust = <T>(n: MaybeVal<T>): T => {
   throw Error("expected value in fromJust but got Nothing");
 };
 
+/**
+ * Like _.zip but throws on different length instead of padding with undefined.
+ */
+export const zipStrict = <A, B>(a: A[], b: B[]): [A, B][] => {
+  const l = a.length;
+  if (l !== b.length) {
+    throw Error("expected same # elements in both arrays");
+  }
+  const c: [A, B][] = [];
+  for (let i = 0; i < l; ++i) {
+    c.push([a[i], b[i]]);
+  }
+  return c;
+};
+
 //#endregion
 
 //#region random
