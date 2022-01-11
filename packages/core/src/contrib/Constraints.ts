@@ -52,14 +52,14 @@ const constrDictSimple = {
   /**
    * Require that the value `x` is greater than the value `y` with optional padding `padding`
    */
-   greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
     return add(sub(y, x), constOfIf(padding));
   },
 
   /**
    * Require that the value `x` is less than the value `y`, with steeper penalty
    */
-   lessThanSq: (x: VarAD, y: VarAD) => {
+  lessThanSq: (x: VarAD, y: VarAD) => {
     // if x < y then 0 else (x - y)^2
     return ifCond(lt(x, y), constOf(0), squared(sub(x, y)));
   },
@@ -176,18 +176,8 @@ const constrDictGeneral = {
       return overlappingLines([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Polygon" && t2 === "Polygon")
+    else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
-    // Polygon x Linelike
-    else if (t1 === "Polygon" && shapedefs[t2].isLinelike)
-      return overlappingPolygonLinelike([t1, s1], [t2, s2], constOfIf(padding));
-    else if (shapedefs[t1].isLinelike && t2 === "Polygon")
-      return overlappingPolygonLinelike([t2, s2], [t1, s1], constOfIf(padding));
-    // Rectlike x Linelike 
-    else if (shapedefs[t1].isRectlike && shapedefs[t2].isLinelike)
-      return overlappingRectlikeLinelike([t1, s1], [t2, s2], constOfIf(padding));
-    else if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike)
-      return overlappingRectlikeLinelike([t2, s2], [t1, s1], constOfIf(padding));
     // Rectlike x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));

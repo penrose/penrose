@@ -1,6 +1,6 @@
 import { overlappingPolygonPoints, rectangleDifference } from "contrib/Minkowski";
 import { ops, constOf } from "engine/Autodiff";
-import { shapeCenter, bboxFromShape } from "contrib/Queries";
+import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
 import {
@@ -61,13 +61,13 @@ export const overlappingCircles = (
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
 export const overlappingPolygons = (
-  [, s1]: [string, Polygon],
-  [, s2]: [string, Polygon],
+  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
+  [t2, s2]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   return overlappingPolygonPoints(
-    s1.points.contents, 
-    s2.points.contents, 
+    polygonLikePoints([t1, s1]),
+    polygonLikePoints([t2, s2]),
     padding
   );
 };
@@ -84,44 +84,6 @@ export const overlappingRectlikeCircle = (
   const textR = max(s1BBox.width, s1BBox.height);
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   return sub(d, add(add(s2.r.contents, textR), padding));
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
-export const overlappingPolygonLinelike = (
-  [, s1]: [string, Polygon],
-  [, s2]: [string, Line],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // Treat line segment as a degenerate polygon (1-simplex)
-  return overlappingPolygonPoints(
-    s1.points.contents, 
-    [s2.start.contents, s2.end.contents],
-    padding
-  );
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
-export const overlappingRectlikeLinelike = (
-  [t1, s1]: [string, Rectangle | Text | Equation | Image],
-  [t2, s2]: [string, Line],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // Treat Rectlike object as a polygon
-  const bbox = bboxFromShape([t1, s1]);
-  const corners = BBox.corners(bbox);
-  const rectPoints = [
-    corners.topRight, 
-    corners.topLeft, 
-    corners.bottomLeft, 
-    corners.bottomRight
-  ];
-  // Treat line segment as a degenerate polygon (1-simplex)
-  const oneSimplexPoints = [s2.start.contents, s2.end.contents];
-  return overlappingPolygonPoints(rectPoints, oneSimplexPoints, padding);
 };
 
 /**
