@@ -103,7 +103,6 @@ export const variableAD = (
     isInput: false,
     val: x,
     isCompNode,
-    valDone: true,
     parentsAD: [],
     childrenAD: [],
     parentsADGrad: [],
@@ -1194,7 +1193,6 @@ export const clearVisitedNodes = (nodeList: VarAD[]): void => {
 // NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
 export const clearGraphTopDown = (z: VarAD): void => {
   z.val = 0;
-  z.valDone = false; // This is necessary so we can cache energy values in comp graph
   z.gradVal = { tag: "Nothing" };
   z.childrenAD.forEach((e) => clearGraphTopDown(e.node));
 };
@@ -1202,7 +1200,6 @@ export const clearGraphTopDown = (z: VarAD): void => {
 const clearGraphBottomUp = (xs: VarAD[]) => {
   xs.forEach((x) => {
     x.val = 0;
-    x.valDone = false; // This is necessary so we can cache energy values in comp graph
     x.gradVal = { tag: "Nothing" };
     clearGraphBottomUp(x.parentsAD.map((p) => p.node));
   });
@@ -1217,48 +1214,6 @@ const setInputs = (xsVars: VarAD[], xs: number[]) => {
     v.val = val;
     v.op = String(val);
   });
-};
-
-// Mutates graph (defined by z, the head) to evaluate the comp graph from top down, setting all values in children (intermediate node). Returns energy.
-// We have to do this in the graph, not the compiled energy, because we need the values of the intermediate nodes to compute the gradient.
-// NOTE: This function is basically unused in our system; it's just for demonstration, to show how the computational graph can be dynamically evaluated. In practice, though, we compile the graph into code and run that.
-
-const evalEnergyOnGraph = (z: VarAD) => {
-  // Catch leaf nodes first, or nodes whose values have already been computed and set
-  // TODO: Make this code more generic/neater over the # children
-  if (z.valDone || !z.childrenAD || !z.childrenAD.length) {
-    logAD.trace("z.result", z.val);
-    return z.val;
-  }
-
-  const zFn = opMap[z.op].fn;
-
-  // TODO: Fix how leaf nodes are stored as numbers, not strings (for the second check)
-  // TODO: Check that leaf nodes (numbers) don't have children (this also fails if the leaf val is 0...)
-  if (!zFn && !Number(z.op)) throw Error(`invalid op ${z.op}`);
-
-  if (z.childrenAD.length === 1) {
-    const childVal = evalEnergyOnGraph(z.childrenAD[0].node);
-    const res = zFn(childVal);
-    z.val = res;
-    z.valDone = true;
-
-    if (DEBUG_ENERGY) {
-      logAD.trace("z result:", z.op, childVal, "=", z.val);
-    }
-    return z.val;
-  } else if (z.childrenAD.length === 2) {
-    const childVal0 = evalEnergyOnGraph(z.childrenAD[0].node);
-    const childVal1 = evalEnergyOnGraph(z.childrenAD[1].node);
-    const res = zFn(childVal0, childVal1);
-    z.val = res;
-    z.valDone = true;
-
-    if (DEBUG_ENERGY) {
-      logAD.trace("z result:", z.op, childVal0, childVal1, "=", z.val);
-    }
-    return z.val;
-  } else throw Error(`invalid # children: ${z.childrenAD.length}`);
 };
 
 const setWeights = (info: WeightInfo) => {
