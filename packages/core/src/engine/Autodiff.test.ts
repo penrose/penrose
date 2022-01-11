@@ -6,7 +6,6 @@ import {
   gvarOf,
   logAD,
   markInput,
-  NUM_SAMPLES,
   variableAD,
   varOf,
   constOf,
@@ -35,6 +34,8 @@ import {
   sub,
 } from "./AutodiffFunctions";
 
+const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
+
 describe("clearVisitedNodeInput tests", () => {
   test("clears one node graph", () => {
     const var1 = varOf(1);
@@ -52,6 +53,41 @@ describe("clearVisitedNodeInput tests", () => {
     expect(var1.nodeVisited).toEqual(false);
     expect(var2.nodeVisited).toEqual(false);
     expect(addVar.nodeVisited).toEqual(false);
+  });
+});
+
+describe("symbolic differentiation tests", () => {
+  test("grad finite diff", () => {
+    testGradFiniteDiff();
+  });
+  test("graph 0", () => {
+    testGradSymbolic(0, gradGraph0());
+  });
+  test("graph 1", () => {
+    testGradSymbolic(1, gradGraph1());
+  });
+
+  test("graph 2", () => {
+    testGradSymbolic(2, gradGraph2());
+  });
+
+  test("graph 3", () => {
+    testGradSymbolic(3, gradGraph3());
+  });
+  test("graph 4", () => {
+    testGradSymbolic(4, gradGraph4());
+  });
+
+  test("graph 5", () => {
+    testGradSymbolic(5, gradGraph5());
+  });
+
+  test("graph 6", () => {
+    testGradSymbolic(6, gradGraph6());
+  });
+
+  test("graph 7", () => {
+    testGradSymbolic(7, gradGraph7());
   });
 });
 
@@ -75,18 +111,13 @@ const testGradFiniteDiff = () => {
     const xs = randList(4);
     const gradEstRes = _gradFiniteDiff(f)(xs);
     const expectedRes = df(xs);
-    const testRes = assert(eqList(gradEstRes, expectedRes), [
-      "test grad finite diff (grad res, expected res)",
-      gradEstRes,
-      expectedRes,
-    ]);
+    const testRes = eqList(gradEstRes, expectedRes);
     testResults.push(testRes);
   }
 
-  const testOverall = assert(all(testResults), [
-    "all tests passed? test results:",
-    testResults,
-  ]);
+  testResults.forEach((result) => {
+    expect(result).toBeTruthy();
+  });
 };
 
 // See codegen-results.md for description
@@ -240,37 +271,10 @@ const gradGraph7 = (): GradGraphs => {
   };
 };
 
-export const testGradSymbolicAll = (): void => {
-  logAD.trace("testing symbolic gradients");
-
-  testGradFiniteDiff();
-
-  const graphs: GradGraphs[] = [
-    gradGraph0(),
-    gradGraph1(),
-    gradGraph2(),
-    gradGraph3(),
-    gradGraph4(),
-    gradGraph5(),
-    gradGraph6(),
-    gradGraph7(),
-  ];
-
-  const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
-
-  logAD.trace(`All grad symbolic tests passed?: ${all(testResults)}`);
-};
-
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
-const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
-  logAD.trace(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
-
-  logAD.trace("head node (energy  output)", graphs.energyOutput);
-  logAD.trace("inputs", graphs.inputs);
-  logAD.trace("grad node(s)", graphs.gradOutputs);
-
+const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
   // Synthesize energy and gradient code
   const f0 = _genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = _genCode(
@@ -283,7 +287,6 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   const weight = 1; // TODO: Test with several weights
   let f;
   let gradGen;
-  logAD.trace("testGradSymbolic has weight?", graphs.weight);
 
   if (graphs.weight.tag === "Just") {
     // Partially apply with weight
@@ -304,29 +307,13 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
-    logAD.trace("----");
-    logAD.trace("test", i);
-    logAD.trace("energy at x", xsTest, "=", energyRes);
-    logAD.trace("estimated gradient at", xsTest, "=", gradEstRes);
-    logAD.trace("analytic gradient at", xsTest, "=", gradGenRes);
-
-    const testRes = assert(eqList(gradEstRes, gradGenRes), [
-      "estimated, analytic gradients:",
-      gradEstRes,
-      gradGenRes,
-    ]);
+    const testRes = eqList(gradEstRes, gradGenRes);
     testResults.push(testRes);
   }
 
-  const testOverall = assert(all(testResults), [
-    "all tests passed? test results:",
-    testResults,
-  ]);
-
-  // TODO: Visualize both of them
-  logAD.trace(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
-
-  return testOverall;
+  testResults.forEach((result) => {
+    expect(result).toBeTruthy();
+  });
 };
 
 const gradGraph0 = (): GradGraphs => {
