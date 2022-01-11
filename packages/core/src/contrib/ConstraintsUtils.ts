@@ -3,7 +3,6 @@ import {
   convexPartitions,
   rectangleDifference,
 } from "contrib/Minkowski";
-import { overlap1D } from "contrib/Utils";
 import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
@@ -131,7 +130,7 @@ export const overlappingRectlikeCircle = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
-export const overlappingAABBsMinkowski = (
+export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   padding: VarAD = constOf(0.0)
@@ -153,23 +152,6 @@ export const overlappingAABBsMinkowski = (
   );
   const e2 = neg(min(max(xq, yq), constOf(0.0)));
   return sub(e1, e2);
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- * To be DEPRACATED - replace by `overlappingAABBsMinkowski` after issue #652.
- */
-export const overlappingAABBs = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-) => {
-  const box1 = bboxFromShape([t1, s1]);
-  const box2 = bboxFromShape([t2, s2]);
-  const inflatedBox1 = BBox.inflate(box1, padding);
-  const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
-  const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
-  return neg(mul(overlapX, overlapY));
 };
 
 // -------- Contains helpers
