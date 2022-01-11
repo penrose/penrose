@@ -8,7 +8,7 @@ import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
-import { linePts } from "utils/OtherUtils";
+import { linePts } from "utils/Util";
 import {
   absVal,
   add,

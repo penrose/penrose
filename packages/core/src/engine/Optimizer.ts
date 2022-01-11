@@ -53,7 +53,7 @@ import {
   repeat,
   scalev,
   subv,
-} from "utils/OtherUtils";
+} from "utils/Util";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");

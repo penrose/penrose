@@ -1,6 +1,6 @@
 import { varOf } from "engine/Autodiff";
 import { IVarAD } from "types/ad";
-import Queue from "./Util";
+import { Queue } from "./Util";
 
 describe("Queue tests", () => {
   test("add some ints and then remove it", () => {

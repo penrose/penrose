@@ -22,7 +22,7 @@ import {
 } from "contrib/Utils";
 import { inDirection } from "contrib/ObjectivesUtils";
 import * as _ from "lodash";
-import { linePts } from "utils/OtherUtils";
+import { linePts } from "utils/Util";
 import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 

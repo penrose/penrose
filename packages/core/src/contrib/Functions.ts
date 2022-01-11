@@ -58,8 +58,7 @@ import {
   ITupV,
   IVectorV,
 } from "types/value";
-import { getStart, linePts } from "utils/OtherUtils";
-import { randFloat } from "utils/Util";
+import { randFloat, getStart, linePts } from "utils/Util";
 import { shapedefs } from "shapes/Shapes";
 
 /**
