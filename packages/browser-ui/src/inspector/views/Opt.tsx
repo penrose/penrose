@@ -1,6 +1,6 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
-import { prettyPrintFn, evalFns, ops } from "@penrose/core";
+import { prettyPrintFn, evalFns, normList } from "@penrose/core";
 import { zipWith } from "lodash";
 import DataTable from "react-data-table-component";
 
@@ -31,7 +31,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     frame.objFns.map(prettyPrintFn),
     evalFns(frame.objFns, frame),
     (name, fnEvaled) => {
-      const gradientNorm = ops.vnorm(fnEvaled.gradf);
+      const gradientNorm = normList(fnEvaled.gradf);
       return {
         name,
         gradientNorm,
