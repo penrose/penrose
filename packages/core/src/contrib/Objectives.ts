@@ -1,5 +1,4 @@
-import { constOf, constOfIf, EPS_DENOM, ops, varOf } from "engine/Autodiff";
-
+import { constOf, constOfIf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -14,7 +13,6 @@ import {
   ifCond,
   lt,
 } from "engine/AutodiffFunctions";
-
 import { bboxFromShape, shapeCenter } from "contrib/Queries";
 import {
   sampleSeg,
@@ -49,8 +47,7 @@ export const objDictSimple = {
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) =>
-    div(weight, add(ops.vdistsq(a, b), constOf(EPS_DENOM))),
+  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) => mul(weight, inverse(ops.vdistsq(a, b))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
