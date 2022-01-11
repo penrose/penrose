@@ -68,7 +68,7 @@ export const attrMapSvg = {
   vHanging: "v-hanging",
   vIdeographic: "v-ideographic",
   vMathematical: "v-mathematical",
-  vEctoreffect: "vector-effect",
+  vectorEffect: "vector-effect",
   vertAdvY: "vert-adv-y",
   vertOriginX: "vert-origin-x",
   vertOriginY: "vert-origin-y",
