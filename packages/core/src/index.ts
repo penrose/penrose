@@ -27,6 +27,7 @@ import { collectLabels } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
   bBoxDims,
+  normList,
   toSvgPaintProperty,
   prettyPrintFn,
   prettyPrintPath,
@@ -340,6 +341,7 @@ export {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
+  normList,
   getListOfStagedStates,
   toSvgPaintProperty,
 };
