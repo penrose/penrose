@@ -43,13 +43,6 @@ const constrDictSimple = {
   },
 
   /**
-   * Require that the value `x` is greater than the value `y` with optional padding `padding`
-   */
-  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
-    return add(sub(y, x), constOfIf(padding));
-  },
-
-  /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
   lessThan: (x: VarAD, y: VarAD, padding = 0) => {
@@ -57,11 +50,25 @@ const constrDictSimple = {
   },
 
   /**
+   * Require that the value `x` is greater than the value `y` with optional padding `padding`
+   */
+   greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(y, x), constOfIf(padding));
+  },
+
+  /**
    * Require that the value `x` is less than the value `y`, with steeper penalty
    */
-  lessThanSq: (x: VarAD, y: VarAD) => {
+   lessThanSq: (x: VarAD, y: VarAD) => {
     // if x < y then 0 else (x - y)^2
     return ifCond(lt(x, y), constOf(0), squared(sub(x, y)));
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y`, with steeper penalty
+   */
+  greaterThanSq: (x: VarAD, y: VarAD) => {
+    return ifCond(lt(y, x), constOf(0), squared(sub(y, x)));
   },
 
   /**

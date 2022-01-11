@@ -46,6 +46,27 @@ describe("simple constraint", () => {
   });
 
   it.each([
+    [1, 1, 0, 0],
+    [1, 2, 0, 1],
+    [5, 3, 0, -2],
+    [5, 4, 0, -1],
+    [1, 2, -1, 0],
+    [5, 4, 1, 0],
+  ])('greaterThan(%p, %p, padding=%p) should return %p', (
+    x: number, 
+    y: number, 
+    padding: number,
+    expected: number,
+  ) => {
+    const result = constrDict.greaterThan(
+      constOf(x),
+      constOf(y),
+      padding,
+    );
+    expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
+  });
+
+  it.each([
     [1, 1, 0],
     [2, 1, 1],
     [5, 3, 4],
@@ -56,6 +77,23 @@ describe("simple constraint", () => {
     expected: number,
   ) => {
     const result = constrDict.lessThanSq(
+      constOf(x), 
+      constOf(y),
+    );
+    expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
+  });
+
+  it.each([
+    [1, 1, 0],
+    [1, 2, 1],
+    [3, 5, 4],
+    [5, 4, 0],
+  ])('greaterThanSq(%p, %p) should return %p', (
+    x: number, 
+    y: number, 
+    expected: number,
+  ) => {
+    const result = constrDict.greaterThanSq(
       constOf(x), 
       constOf(y),
     );
