@@ -30,18 +30,9 @@ import { Value } from "types/value";
 import { State, Fn, VaryMap, FnDone } from "types/state";
 import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
 import { floatVal, prettyPrintPath } from "utils/OtherUtils";
-import {
-  add,
-  constOf,
-  constOfIf,
-  differentiable,
-  div,
-  mul,
-  neg,
-  numOf,
-  ops,
-  sub,
-} from "./Autodiff";
+import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
+
+import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
 const clone = rfdc({ proto: false, circles: false });
 
