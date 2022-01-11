@@ -37,8 +37,8 @@ forall Text t {
    shape t.bbox = Rectangle {
       center: t.titleCenter
       fillColor: rgba(1.,1.,1.,1.)
-      width: t.text.width
-      height: t.text.height
+      width: t.outerStroke.width
+      height: t.outerStroke.height
    }
    shape t.innerStroke = Text {
       string: t.titleString
