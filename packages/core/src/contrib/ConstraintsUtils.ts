@@ -1,14 +1,8 @@
 import { overlappingPolygonPoints, rectangleDifference } from "contrib/Minkowski";
 import { overlap1D } from "contrib/Utils";
 import { ops, constOf } from "engine/Autodiff";
-import { shapeCenter, bboxFromShape } from "contrib/Queries";
-import { VarAD } from "types/ad";
-import * as BBox from "engine/BBox";
 import {
-  ifCond, 
-  lt,
   neg,
-  ops,
   sub,
   mul,
   div,
@@ -17,18 +11,10 @@ import {
   absVal,
   add,
   addN,
-  div,
   ifCond,
   lt,
-  max,
-  maxN,
-  min,
-  minN,
-  mul,
-  neg,
   sqrt,
   squared,
-  sub,
 } from "engine/AutodiffFunctions";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
