@@ -31,6 +31,7 @@ import {
   overlappingRectlikeCircle,
   overlappingPolygonLinelike,
   overlappingRectlikeLinelike,
+  overlappingCircleLine,
   overlappingAABBs,
   containsCircles,
   containsCircleRectlike,
@@ -44,10 +45,17 @@ import { VarAD } from "types/ad";
 const constrDictSimple = {
 
   /**
-   * Require that the value `x` is less than the value `y`
+   * Require that the value `x` is equal to the value `y`
    */
   equal: (x: VarAD, y: VarAD) => {
     return absVal(sub(x, y))
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y` with optional padding `padding`
+   */
+  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(y, x), constOfIf(padding));
   },
 
   /**
@@ -169,6 +177,11 @@ const constrDictGeneral = {
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
+    // Rectlike x Circle
+    else if (t1 === "Circle" && t2 === "Line")
+      return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Line" && t2 === "Circle")
+      return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
     // Default to bounding boxes
     else {
       // TODO: After compilation time fix (issue #652), replace by:
