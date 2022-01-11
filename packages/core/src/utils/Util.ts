@@ -46,14 +46,6 @@ export function repeat<T>(i: number, x: T) {
 export const all = (xs: boolean[]) =>
   xs.reduce((prev, curr) => prev && curr, true);
 
-export const repeatList = (e: any, n: number): any[] => {
-  const xs = [];
-  for (let i = 0; i < n; i++) {
-    xs.push(e);
-  }
-  return xs;
-};
-
 export function fromJust<T>(n: MaybeVal<T>): T {
   if (n.tag === "Just") {
     return n.contents;
@@ -106,7 +98,7 @@ export const randInt = (min: number, max: number) => {
 };
 
 export const randList = (n: number): number[] => {
-  return repeatList(0, n).map((e) => RAND_RANGE * (Math.random() - 0.5));
+  return repeat(n, 0).map((e) => RAND_RANGE * (Math.random() - 0.5));
 };
 
 export const arrowheads = {
