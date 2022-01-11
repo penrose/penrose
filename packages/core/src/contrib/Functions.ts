@@ -761,6 +761,22 @@ export const compDict = {
     };
   },
   /**
+   * Return the intersection of a line passing through
+   * `a0` and `a1` with a line passing through `b0` and `b1`
+   */
+  lineLineIntersection: (a0: VarAD[], a1: VarAD[], b0: VarAD[], b1: VarAD[]): IVectorV<VarAD> => {
+    const A0 = [ a0[0], a0[1], constOf(1.) ];
+    const A1 = [ a1[0], a1[1], constOf(1.) ];
+    const B0 = [ b0[0], b0[1], constOf(1.) ];
+    const B1 = [ b1[0], b1[1], constOf(1.) ];
+    const X = ops.cross3( ops.cross3( A0, A1 ), ops.cross3( B0, B1 ) );
+    const x = [ div(X[0],X[2]), div(X[1],X[2]) ];
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+  /**
    * Return a point located at the midpoint between pts `start` and `end`
    */
   midpoint: (start: VarAD[], end: VarAD[]): IVectorV<VarAD> => {
@@ -1289,6 +1305,13 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
   },
 
+  /**
+   * Return the angle made by the vector `v` with the positive x-axis.
+   */
+  angleOf: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: atan2(v[1],v[0]) };
+  },
+
   // ------ Mathematical constants
 
   /**
@@ -1323,7 +1346,21 @@ export const compDict = {
     const [x, y] = v;
     return { tag: "VectorV", contents: [neg(y), x] };
   },
+
+  /**
+   * Rotate a 2D vector `v` by theta degrees counterclockwise.
+   */
+  rotateBy: (v: VarAD[], theta: VarAD) => {
+    if (v.length !== 2) {
+      throw Error("expected 2D vector in `rotateBy`");
+    }
+    const [x, y] = v;
+    const X = add(     mul(cos(theta),x),  mul(sin(theta),y) );
+    const Y = add( neg(mul(sin(theta),x)), mul(cos(theta),y) );
+    return { tag: "VectorV", contents: [X, Y] };
+  },
 };
+
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {

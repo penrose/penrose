@@ -48,7 +48,7 @@ const flatGraph = (es: PGraph[]): PGraph => {
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: VarAD): PGraph => {
   const parNode = { id: par.id, label: par.op };
-  //TODO: don't traverse graph representation outside of core
+  //TODO: do not navigate graph outside core
   const edges = par.childrenAD.map(edge => ({
     from: parNode.id,
     to: edge.node.id

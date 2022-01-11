@@ -14,6 +14,7 @@ syn keyword styKeywords layer above below
 syn keyword styKeywords override delete
 syn keyword styKeywords LOCAL
 syn keyword styKeywords import
+syn keyword styKeywords has
 
 " Comments
 syn keyword styTodo TODO FIXME XXX NOTE
@@ -51,6 +52,7 @@ let b:current_syntax = "sty"
 
 hi def link styTodo Todo
 hi def link styKeywords Statement
+hi def link styLabelKeyword Statement
 hi def link styTypes Type
 hi def link styStringKeyword Type
 hi def link styColorKeyword Type
