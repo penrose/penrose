@@ -1,6 +1,22 @@
 import { varOf } from "engine/Autodiff";
 import { IVarAD } from "types/ad";
-import { Queue } from "./Util";
+import { mapMap, Queue } from "./Util";
+
+describe("mapMap tests", () => {
+  test("increment value", () => {
+    // https://stackoverflow.com/q/31084619
+    const myMap = new Map([
+      ["thing1", 1],
+      ["thing2", 2],
+      ["thing3", 3],
+    ]);
+    const newMap = mapMap(myMap, (value) => value + 1);
+    expect([...newMap.keys()]).toEqual([...myMap.keys()]);
+    expect(newMap.get("thing1")).toBe(2);
+    expect(newMap.get("thing2")).toBe(3);
+    expect(newMap.get("thing3")).toBe(4);
+  });
+});
 
 describe("Queue tests", () => {
   test("add some ints and then remove it", () => {

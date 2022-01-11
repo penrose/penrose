@@ -12,7 +12,10 @@ import { VarAD } from "types/ad";
 
 // https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
 // Basically Haskell's mapByValue (?)
-export const mapMap = (map: Map<any, any>, fn: any) => {
+export const mapMap = <K, V>(
+  map: Map<K, V>,
+  fn: (v: V, k: K, m: Map<K, V>) => V
+): Map<K, V> => {
   return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
 };
 
