@@ -12,15 +12,6 @@ import { ILine } from "shapes/Line";
 
 //#region general
 
-// https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
-// Basically Haskell's mapByValue (?)
-export const mapMap = <K, V>(
-  map: Map<K, V>,
-  fn: (v: V, k: K, m: Map<K, V>) => V
-): Map<K, V> => {
-  return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
-};
-
 /**
  * Safe wrapper for any function that might return `undefined`.
  * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
@@ -91,17 +82,6 @@ export const randFloat = (min: number, max: number): number => {
   return Math.random() * (max - min) + min;
 };
 
-/**
- * Generate a random integer. The maximum is exclusive and the minimum is inclusive
- * @param min minimum (inclusive)
- * @param max maximum (exclusive)
- */
-export const randInt = (min: number, max: number): number => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min;
-};
-
 export const randList = (n: number): number[] => {
   return repeat(n, 0).map(() => RAND_RANGE * (Math.random() - 0.5));
 };
@@ -127,24 +107,7 @@ export const arrowheads = {
 
 //#endregion
 
-//#region SVG
-
-// export const Shadow = (props: { id: string }) => {
-//   return (
-//     <filter id={props.id} x="0" y="0" width="200%" height="200%">
-//       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-//       <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-//       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-//       <feComponentTransfer>
-//         <feFuncA type="linear" slope="0.5" />
-//       </feComponentTransfer>
-//       <feMerge>
-//         <feMergeNode />
-//         <feMergeNode in="SourceGraphic" />
-//       </feMerge>
-//     </filter>
-//   );
-// };
+//#region renderer
 
 export const toScreen = (
   [x, y]: [number, number],
@@ -154,55 +117,9 @@ export const toScreen = (
   return [width / 2 + x, height / 2 - y];
 };
 
-export const penroseToSVG = (canvasSize: [number, number]): string => {
-  const [width, height] = canvasSize;
-  const flipYStr = "matrix(1 0 0 -1 0 0)";
-  const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
-  // Flip Y direction, then translate shape to origin mid-canvas
-  return [translateStr, flipYStr].join(" ");
-};
-
-// export const penroseTransformStr = (tf: any): string => {
-//   const transformList = [
-//     tf.xScale,
-//     tf.ySkew,
-//     tf.xSkew,
-//     tf.yScale,
-//     tf.dx,
-//     tf.dy,
-//   ];
-//   const penroseTransform = "matrix(" + transformList.join(" ") + ")";
-//   return penroseTransform;
-// };
-
-// export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
-//   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
-//   // `tf` is `shape.transformation.contents`, an HMatrix from the backend
-//   // It is the *full* transform, incl. default transform
-//   // Do Penrose transform, then SVG
-//   const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(
-//     " "
-//   );
-//   return transformStr;
-// };
-
-// BUG: ptList needs to be properly typed
-export const toPointListString = memoize(
-  // Why memoize?
-  (ptList: [number, number][]) =>
-    ptList
-      .map((coords: [number, number]) => {
-        const pt = coords;
-        return pt[0].toString() + " " + pt[1].toString();
-      })
-      .join(" ")
-);
-
 //#endregion
 
 //#region color
-
-// export const getAlpha = (color: any) => color.contents[3];
 
 export const toHexRGB = (color: [number, number, number]): string => {
   return color.reduce((prev: string, cur: number) => {
@@ -279,42 +196,6 @@ export const toSvgOpacityProperty = (color: Color<number>): number => {
 
 //#endregion
 
-//#region images
-
-// export const loadImageElement = memoize(
-//   async (url: string): Promise<any> =>
-//     new Promise((resolve, reject) => {
-//       const img = new Image();
-//       img.onload = () => resolve(img);
-//       img.onerror = reject;
-//       img.src = url;
-//     })
-// );
-
-// // Load images asynchronously so we can send the dimensions to the backend and use it in the frontend
-
-// export const loadImages = async (allShapes: any[]) => {
-//   return Promise.all(
-//     allShapes.map(async ({ shapeType, properties }: any) => {
-//       if (shapeType === "ImageTransform") {
-//         const path = properties.href.contents;
-//         const fullPath = process.env.PUBLIC_URL + path;
-//         const loadedImage = await loadImageElement(fullPath);
-//         const obj2 = { ...properties };
-
-//         obj2.initWidth.contents = loadedImage.naturalWidth;
-//         obj2.initHeight.contents = loadedImage.naturalHeight;
-
-//         return { shapeType, properties: obj2 };
-//       } else {
-//         return { shapeType, properties };
-//       }
-//     })
-//   );
-// };
-
-//#endregion
-
 //#region numerical
 
 const TOL = 1e-3;
@@ -350,11 +231,6 @@ export const roundTo = (n: number, digits: number): number => {
 export const normList = (xs: number[]): number =>
   Math.sqrt(_.sum(xs.map((e) => e * e)));
 
-export const close = (x: number, y: number): boolean => {
-  const EPS = 1e-15;
-  return Math.abs(x - y) < EPS;
-};
-
 export const eqNum = (x: number, y: number): boolean => {
   return Math.abs(x - y) < TOL;
 };
@@ -379,16 +255,6 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
 //#endregion
 
 //#region geometry
-
-/**
- * Find the Euclidean distance between two points
- * @param param0 point 1 [x1, y1]
- * @param param1 point 2 [x2, y2]
- */
-export const dist = (
-  [x1, y1]: [number, number],
-  [x2, y2]: [number, number]
-): number => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 
 // calculates bounding box dimensions of a shape - used in inspector views
 export const bBoxDims = (
@@ -431,29 +297,6 @@ export const bBoxDims = (
     [w, h] = [20, 20];
   }
   return [w, h];
-};
-
-export const getAngle = (
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-): number => {
-  const x = x1 - x2;
-  const y = y1 - y2;
-  if (!x && !y) {
-    return 0;
-  }
-  return (180 + (Math.atan2(-y, -x) * 180) / Math.PI + 360) % 360;
-};
-
-export const getLen = (
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-): number => {
-  return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
 /**
@@ -619,119 +462,6 @@ export const ops = {
   },
 };
 
-/**
- * Return the bounding box (as 4 segments) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `top, bot, left, right`.
- */
-// export const bboxSegs = (center: number[], w: number, h: number): any => {
-//   const halfWidth = w / 2;
-//   const halfHeight = h / 2;
-//   const nhalfWidth = -halfWidth;
-//   const nhalfHeight = -halfHeight;
-//   // CCW: TR, TL, BL, BR
-//   const ptsR = [
-//     [halfWidth, halfHeight],
-//     [nhalfWidth, halfHeight],
-//     [nhalfWidth, nhalfHeight],
-//     [halfWidth, nhalfHeight],
-//   ].map((p) => ops.vadd(center, p));
-
-//   const cornersR = {
-//     topRight: ptsR[0],
-//     topLeft: ptsR[1],
-//     bottomLeft: ptsR[2],
-//     bottomRight: ptsR[3],
-//   };
-
-//   const segsR = {
-//     top: [cornersR.topLeft, cornersR.topRight],
-//     bot: [cornersR.bottomLeft, cornersR.bottomRight],
-//     left: [cornersR.bottomLeft, cornersR.topLeft],
-//     right: [cornersR.bottomRight, cornersR.topRight],
-//   };
-
-//   const linesR = {
-//     minX: cornersR.topLeft[0],
-//     maxX: cornersR.topRight[0],
-//     minY: cornersR.bottomLeft[1],
-//     maxY: cornersR.topLeft[1],
-//   };
-
-//   return { ptsR, cornersR, segsR, linesR };
-// };
-
-// returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
-export const intersects = (s1: number[][], s2: number[][]): boolean => {
-  const [l1_p1, l1_p2, l2_p1, l2_p2] = [s1[0], s1[1], s2[0], s2[1]];
-  const [[a, b], [c, d]] = [l1_p1, l1_p2];
-  const [[p, q], [r, s]] = [l2_p1, l2_p2];
-
-  const det = (c - a) * (s - q) - (r - p) * (d - b);
-  if (det === 0) {
-    return false;
-  } else {
-    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
-    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
-    return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
-  }
-};
-
-export interface Point2D {
-  x: number;
-  y: number;
-}
-
-export const toPt = (v: number[]): Point2D => ({ x: v[0], y: v[1] });
-
-export const intersection = (s1: number[][], s2: number[][]): number[] => {
-  const [from1, to1, from2, to2] = [s1[0], s1[1], s2[0], s2[1]];
-  const res = intersection2(toPt(from1), toPt(to1), toPt(from2), toPt(to2));
-  return [res.x, res.y];
-};
-
-// https://stackoverflow.com/posts/58657254/revisions
-// Assumes lines don'intersect! Use intersect to check it first
-const intersection2 = (
-  from1: Point2D,
-  to1: Point2D,
-  from2: Point2D,
-  to2: Point2D
-): Point2D => {
-  const dX: number = to1.x - from1.x;
-  const dY: number = to1.y - from1.y;
-
-  const determinant: number = dX * (to2.y - from2.y) - (to2.x - from2.x) * dY;
-  if (determinant === 0) {
-    throw Error("parallel lines");
-  } // parallel lines
-
-  const lambda: number =
-    ((to2.y - from2.y) * (to2.x - from1.x) +
-      (from2.x - to2.x) * (to2.y - from1.y)) /
-    determinant;
-  const gamma: number =
-    ((from1.y - to1.y) * (to2.x - from1.x) + dX * (to2.y - from1.y)) /
-    determinant;
-
-  // check if there is an intersection
-  if (!(0 <= lambda && lambda <= 1) || !(0 <= gamma && gamma <= 1)) {
-    throw Error("lines don't intersect");
-  }
-
-  return {
-    x: from1.x + lambda * dX,
-    y: from1.y + lambda * dY,
-  };
-};
-
-/**
- * Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
- */
-// export const pointInBox = (p: Point2D, rect: any): boolean => {
-//   return (
-//     p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
-//   );
-// };
-
 export const scalev = (c: number, xs: number[]): number[] =>
   _.map(xs, (x) => c * x);
 
@@ -845,15 +575,6 @@ export class Queue<T> {
 
 //#region Style
 
-// HACK: Copied from EngineUtils
-export const exprToNumber = (e: Expr): number => {
-  if (e.tag === "Fix") {
-    return e.contents;
-  }
-  console.log("got e", e);
-  throw Error("expecting expr to be number");
-};
-
 // COMBAK: Copied from `EngineUtils`; consolidate
 export const isPath = (expr: Expr): expr is Path => {
   return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
@@ -957,13 +678,6 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
     contents: v,
   },
 });
-
-// TODO: use it
-// const getConstraint = (name: string) => {
-//   if (!constrDict[name]) throw new Error(`Constraint "${name}" not found`);
-//   // TODO: types for args
-//   return (...args: any[]) => toPenalty(constrDict[name]);
-// };
 
 export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
   start.contents,
