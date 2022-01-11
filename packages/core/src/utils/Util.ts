@@ -200,7 +200,7 @@ export const toPointListString = memoize(
 
 //#region color
 
-export const getAlpha = (color: any) => color.contents[3];
+// export const getAlpha = (color: any) => color.contents[3];
 
 export const toHexRGB = (color: [number, number, number]): string => {
   return color.reduce((prev: string, cur: number) => {
