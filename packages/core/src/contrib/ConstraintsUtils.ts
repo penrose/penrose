@@ -21,6 +21,13 @@ import {
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
+import { Circle } from "shapes/Circle";
+import { Polygon } from "shapes/Polygon";
+import { Rectangle } from "shapes/Rectangle";
+import { Text } from "shapes/Text";
+import { Equation } from "shapes/Equation";
+import { Image } from "shapes/Image";
+import { Line } from "shapes/Line";
 
 // -------- Ovelapping helpers
 
@@ -28,8 +35,8 @@ import * as BBox from "engine/BBox";
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
 export const overlappingLines = (
-  [, s1]: [string, any],
-  [, s2]: [string, any],
+  [, s1]: [string, Line],
+  [, s2]: [string, Line],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const oneSimplex1 = { points: { contents: [s1.start.contents, s1.end.contents] } };
@@ -41,8 +48,8 @@ export const overlappingLines = (
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
 export const overlappingCircles = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
@@ -54,8 +61,8 @@ export const overlappingCircles = (
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
 export const overlappingPolygons = (
-  [, s1]: [string, any],
-  [, s2]: [string, any],
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Polygon],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const cp1 = convexPartitions(s1.points.contents);
@@ -70,9 +77,9 @@ export const overlappingPolygons = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
- export const overlappingRectlikeCircle = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+export const overlappingRectlikeCircle = (
+  [t1, s1]: [string, Rectangle | Text | Equation | Image],
+  [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const s1BBox = bboxFromShape([t1, s1]);
@@ -126,8 +133,8 @@ export const overlappingAABBs = (
  * Require that a shape `s1` contains another shape `s2`.
  */
 export const containsCircles = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
@@ -142,8 +149,8 @@ export const containsCircles = (
  * Require that a shape `s1` contains another shape `s2`.
  */
 export const containsCircleRectlike = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Rectangle | Text | Equation | Image],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
@@ -157,8 +164,8 @@ export const containsCircleRectlike = (
  * Require that a shape `s1` contains another shape `s2`.
  */
 export const containsRectlikeCircle = (
-  [, s1]: [string, any],
-  [, s2]: [string, any],
+  [, s1]: [string, Rectangle | Text | Equation | Image],
+  [, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
