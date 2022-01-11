@@ -214,7 +214,7 @@ class App extends React.Component<unknown, ICanvasState> {
     }
   };
 
-  onFilesReceived = async files => {
+  onFilesReceived = async (files: FileSocketResult): Promise<void> => {
     const { domain, substance, style } = files;
     this.setState({ files, connected: true });
 

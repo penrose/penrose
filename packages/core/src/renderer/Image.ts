@@ -25,7 +25,7 @@ const Image = async ({
   }
   attrToNotAutoMap.push("href");
   elem.innerHTML = rawSVG;
-  const svg = elem.firstChild as SVGSVGElement;
+  const svg = elem.querySelector("svg") as SVGSVGElement;
   const defs = svg.getElementsByTagName("defs");
   /**
    * HACK:

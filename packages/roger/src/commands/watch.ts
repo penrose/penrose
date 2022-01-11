@@ -95,13 +95,13 @@ export default class Watch extends Command {
     return ordered;
   };
 
-  readFile = async (fileName: string) => {
+  readFile = async (fileName: string): Promise<string | null> => {
     try {
       const read = await fsp.readFile(fileName, "utf8");
       return read;
     } catch (error) {
       console.error(`❌ Could not open ${fileName}: ${error}`);
-      this.exit(1);
+      return null;
     }
   };
 
@@ -119,6 +119,9 @@ export default class Watch extends Command {
     });
     watcher.on("change", async () => {
       const str = await this.readFile(fileName);
+      if (str === null) {
+        this.exit(1);
+      }
       this.current[type] = str;
       console.info(
         "✅",
@@ -129,6 +132,9 @@ export default class Watch extends Command {
       this.sendFiles();
     });
     const str = await this.readFile(fileName);
+    if (str === null) {
+      this.exit(1);
+    }
     this.current[type] = str;
   };
 
