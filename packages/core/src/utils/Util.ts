@@ -12,9 +12,9 @@ import { VarAD } from "types/ad";
 
 // https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
 // Basically Haskell's mapByValue (?)
-export function mapMap(map: Map<any, any>, fn: any) {
+export const mapMap = (map: Map<any, any>, fn: any) => {
   return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
-}
+};
 
 /**
  * Safe wrapper for any function that might return `undefined`.
@@ -33,7 +33,7 @@ export const safe = <T extends unknown>(
 };
 
 // Repeat `x`, `i` times
-export function repeat<T>(i: number, x: T) {
+export const repeat = <T>(i: number, x: T) => {
   const xs = [];
 
   for (let j = 0; j < i; j++) {
@@ -41,18 +41,18 @@ export function repeat<T>(i: number, x: T) {
   }
 
   return xs;
-}
+};
 
 export const all = (xs: boolean[]) =>
   xs.reduce((prev, curr) => prev && curr, true);
 
-export function fromJust<T>(n: MaybeVal<T>): T {
+export const fromJust = <T>(n: MaybeVal<T>): T => {
   if (n.tag === "Just") {
     return n.contents;
   }
 
   throw Error("expected value in fromJust but got Nothing");
-}
+};
 
 //#endregion
 
@@ -208,14 +208,14 @@ export const toHexRGB = (color: [number, number, number]): string => {
 };
 
 // TODO nest this
-function hsv2rgb(
+const hsv2rgb = (
   r1: number,
   g1: number,
   b1: number,
   m: number
-): [number, number, number] {
+): [number, number, number] => {
   return [r1 + m, g1 + m, b1 + m];
-}
+};
 
 // Expects H as angle in degrees, S in [0,100], L in [0,100] and converts the latter two to fractions.
 // Returns rgb in range [0, 1]
@@ -663,20 +663,20 @@ export interface Point2D {
 
 export const toPt = (v: number[]): Point2D => ({ x: v[0], y: v[1] });
 
-export function intersection(s1: number[][], s2: number[][]): number[] {
+export const intersection = (s1: number[][], s2: number[][]): number[] => {
   const [from1, to1, from2, to2] = [s1[0], s1[1], s2[0], s2[1]];
   const res = intersection2(toPt(from1), toPt(to1), toPt(from2), toPt(to2));
   return [res.x, res.y];
-}
+};
 
 // https://stackoverflow.com/posts/58657254/revisions
 // Assumes lines don'intersect! Use intersect to check it first
-function intersection2(
+const intersection2 = (
   from1: Point2D,
   to1: Point2D,
   from2: Point2D,
   to2: Point2D
-): Point2D {
+): Point2D => {
   const dX: number = to1.x - from1.x;
   const dY: number = to1.y - from1.y;
 
@@ -702,7 +702,7 @@ function intersection2(
     x: from1.x + lambda * dX,
     y: from1.y + lambda * dY,
   };
-}
+};
 
 /**
  * Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
