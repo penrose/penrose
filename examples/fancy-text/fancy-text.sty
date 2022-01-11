@@ -99,6 +99,7 @@ forall Point p {
 forall Point p; Point q {
    vec2 x = p.icon.center
    vec2 y = q.icon.center
-   encourage equal( 200000./normsq(x-y), 0. )
+   Δ = x-y
+   encourage equal( 200000./normsq(Δ), 0. )
 }
 

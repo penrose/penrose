@@ -1,26 +1,19 @@
+import { constOf, constOfIf, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
-  constOf,
-  constOfIf,
   max,
   min,
+  minN,
   mul,
   neg,
-  ops,
   squared,
   sub,
   ifCond,
   lt,
-} from "engine/Autodiff";
-import {
-  inRange,
-  overlap1D
-} from "contrib/Utils";
-import {
-  shapeCenter,
-  shapeSize,
-} from "contrib/Queries";
+} from "engine/AutodiffFunctions";
+import { inRange, overlap1D } from "contrib/Utils";
+import { shapeCenter, shapeSize } from "contrib/Queries";
 import * as _ from "lodash";
 import { shapedefs } from "shapes/Shapes";
 import {
@@ -28,6 +21,7 @@ import {
   overlappingCircles,
   overlappingPolygons,
   overlappingRectlikeCircle,
+  overlappingCircleLine,
   overlappingAABBs,
   containsCircles,
   containsCircleRectlike,
@@ -41,12 +35,18 @@ import { VarAD } from "types/ad";
 // -------- Simple constraints
 // Do not require shape quaries, operate directly with `VarAD` parameters.
 const constrDictSimple = {
-
   /**
-   * Require that the value `x` is less than the value `y`
+   * Require that the value `x` is equal to the value `y`
    */
   equal: (x: VarAD, y: VarAD) => {
-    return absVal(sub(x, y))
+    return absVal(sub(x, y));
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y` with optional padding `padding`
+   */
+  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(y, x), constOfIf(padding));
   },
 
   /**
@@ -76,9 +76,12 @@ const constrDictSimple = {
    */
   contains1D: ([l1, r1]: [VarAD, VarAD], [l2, r2]: [VarAD, VarAD]): VarAD => {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
-    return add(constrDictSimple.lessThanSq(l1, l2), constrDictSimple.lessThanSq(r2, r1));
+    return add(
+      constrDictSimple.lessThanSq(l1, l2),
+      constrDictSimple.lessThanSq(r2, r1)
+    );
   },
-  
+
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
@@ -105,6 +108,7 @@ const constrDictSimple = {
 
   /**
    * Require that three points be collinear.
+   * Depends on the specific ordering of points.
    */
   collinear: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
     const v1 = ops.vsub(c1, c2);
@@ -118,12 +122,28 @@ const constrDictSimple = {
     );
   },
 
+  /**
+   * Require that three points be collinear.
+   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
+   */
+  collinearUnordered: (c1: VarAD[], c2: VarAD[], c3: VarAD[]) => {
+    const v1 = ops.vnorm(ops.vsub(c1, c2));
+    const v2 = ops.vnorm(ops.vsub(c2, c3));
+    const v3 = ops.vnorm(ops.vsub(c1, c3));
+
+    // Use triangle inequality (|v1| + |v2| <= |v3|) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
+    return max(constOf(0), minN([
+      sub(add(v1, v2), v3),
+      sub(add(v1, v3), v2),
+      sub(add(v2, v3), v1),
+    ]));
+  },
+
 }
 
 // -------- General constraints
 // Defined for all shapes, generally require shape queries or call multiple specific constraints.
 const constrDictGeneral = {
-
   /**
    * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
    */
@@ -152,8 +172,12 @@ const constrDictGeneral = {
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
-    if (shapedefs[t1].isRectlike && t2 === "Circle")
+    else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && t2 === "Line")
+      return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Line" && t2 === "Circle")
+      return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
     else {
       // TODO: After compilation time fix (issue #652), replace by:
       // return overlappingAABBsMinkowski([t1, s1], [t2, s2], constOfIf(padding));
@@ -162,7 +186,8 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that a shape `s1` is disjoint from shape `s2`, based on the type of the shape, and with an optional `padding` between them 
+   * Require that a shape `s1` is disjoint from shape `s2`, 
+   * based on the type of the shape, and with an optional `padding` between them 
    * (e.g. if `s1` should be disjoint from `s2` with margin `padding`).
    */
   disjoint: (
@@ -172,20 +197,23 @@ const constrDictGeneral = {
   ) => {
     return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
   },
-  
+
   /**
-   * Require that shape `s1` is tangent to shape `s2`.
+   * Require that shape `s1` is tangent to shape `s2`, 
+   * based on the type of the shape, and with an optional `padding` between them 
+   * (e.g. if `s1` should contain `s2` with margin `padding`).
    */
   tangentTo: (
     [t1, s1]: [string, any], 
-    [t2, s2]: [string, any]
+    [t2, s2]: [string, any],
+    padding = 0.0
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2]));
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
   },
 
   /**
-   * Require that a shape `s1` contains another shape `s2`, 
-   * based on the type of the shape, and with an optional `padding` between the sizes of the shapes 
+   * Require that a shape `s1` contains another shape `s2`,
+   * based on the type of the shape, and with an optional `padding` between the sizes of the shapes
    * (e.g. if `s1` should contain `s2` with margin `padding`).
    */
   contains: (
@@ -203,27 +231,26 @@ const constrDictGeneral = {
       return containsSquareCircle([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Square" && shapedefs[t2].isLinelike)
       return containsSquareLinelike([t1, s1], [t2, s2], constOfIf(padding));
-    else
-      return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
+    else return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
   /**
-   * Require that label `s2` is at a distance of `distance` from a point-like shape `s1`.
+   * Require that label `s2` is at a distance of `distance` from shape `s1`.
    */
   atDist: (
-    [t1, s1]: [string, any], 
-    [t2, s2]: [string, any], 
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
     distance: number
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
+    return constrDictGeneral.tangentTo([t1, s1], [t2, s2], distance);
   },
 
   /**
    * Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
    */
   smallerThan: (
-    [t1, s1]: [string, any], 
-    [t2, s2]: [string, any], 
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
     relativePadding = 0.4
   ) => {
     // s1 is smaller than s2
@@ -233,39 +260,11 @@ const constrDictGeneral = {
     return sub(sub(size1, size2), padding);
   },
 
-  /**
-   * Require that the `center`s of three shapes to be collinear. 
-   * Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
-   */
-  collinearUnordered: (
-    [t0, p0]: [string, any],
-    [t1, p1]: [string, any],
-    [t2, p2]: [string, any]
-  ) => {
-    const c1 = shapeCenter([t0, p0]);
-    const c2 = shapeCenter([t1, p1]);
-    const c3 = shapeCenter([t2, p2]);
-
-    const v1 = ops.vnorm(ops.vsub(c1, c2));
-    const v2 = ops.vnorm(ops.vsub(c2, c3));
-    const v3 = ops.vnorm(ops.vsub(c1, c3));
-
-    // Use triangle inequality (v1 + v2 <= v3) to make sure v1, v2, and v3 don't form a triangle (and therefore must be collinear.)
-    return max(
-      constOf(0),
-      min(
-        min(sub(add(v1, v2), v3), sub(add(v1, v3), v2)),
-        sub(add(v2, v3), v1)
-      )
-    );
-  },
-
 }
 
 // -------- Specific constraints
 // Defined only for specific use-case or specific shapes.
 const constrDictSpecific = {
-
   ptCircleIntersect: (p: VarAD[], [t, s]: [string, any]) => {
     if (t === "Circle") {
       const r = s.r.contents;
@@ -286,11 +285,10 @@ const constrDictSpecific = {
       [s2.start.contents[0], s2.end.contents[0]]
     );
   },
-
-}
+};
 
 export const constrDict = {
-  ...constrDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...constrDictSimple, // Do not require shape quaries, operate directly with `VarAD` parameters.
   ...constrDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific constrains.
-  ...constrDictSpecific // Defined only for specific use-case or specific shapes.
+  ...constrDictSpecific, // Defined only for specific use-case or specific shapes.
 };
