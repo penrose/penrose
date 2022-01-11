@@ -1,19 +1,27 @@
 /**
  * Provides an assortment of utility functions shared across shapes that computes
- * output SVG properties using the optimized shape properties as input. 
+ * output SVG properties using the optimized shape properties as input.
  */
 
 import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
-import { attrMapSvg } from "./AttrMap";
+import { attrMapSvg } from "./AttrMapSvg";
 
 /**
- * Auto-maps any input properties for which we lack specific logic over to the SVG output.
+ * Auto-map to SVG any input properties for which we lack specific logic.
  *
- * Note: Right now we are neither validating the SVG attributes or their contents.  The initial
- * thinking is to add a validator to the end of the pipeline rather than implement validation
- * for all passthrough SVG properties inside Penrose.
+ * Apply a map, AttrMapSvg, to perform any target-specific property name translation,
+ * i.e., map from Penrose camel case formal to SVG mixed-case/kebab format.  Property names
+ * not found in the map are mapped straight across.
+ *
+ * Note: Right now we are neither validating the SVG property names nor its contents.  The
+ * thinking is to add an optional validator to the end of the pipeline at some point rather
+ * than implement validation for all passthrough SVG properties inside Penrose.
+ *
+ * Note: This is an "escape hatch" for "passthrough" SVG properties we don't currently support.
+ *
+ * Note: SVG property names are case sensitive.
  */
 export const attrAutoFillSvg = (
   { properties }: Shape,
@@ -23,30 +31,27 @@ export const attrAutoFillSvg = (
   // Internal properties to never auto-map to SVG
   const attrToNeverAutoMap: string[] = ["strokeStyle"];
 
-  // Merge the mapped and never-map properties, lowercase them, convert to Set
+  // Merge the mapped and never-map properties.  Convert to Set
   const attrToNotAutoMap = new Set<string>(
-    attrAlreadyMapped
-      .concat(attrToNeverAutoMap)
-      .map((name) => name.toLowerCase())
+    attrAlreadyMapped.concat(attrToNeverAutoMap)
   );
 
   // Map unknown/unseen attributes with values to SVG output.
+  // This is the "escape hatch" for properties we don't support.
   for (const propName in properties) {
     const propValue: string = properties[propName].contents.toString();
-    const propNameLC: string = propName.toLowerCase();
-    if (!attrToNotAutoMap.has(propNameLC)) {
-      // Only map non-empty values
-      if (propValue !== "") {
-        // If a mapping rule exists, apply it; otherwise, map straight across
-        if( propNameLC in attrMapSvg ) {
-          const mappedPropertyName: string = attrMapSvg[propNameLC];
-          if (!elem.hasAttribute(mappedPropertyName) && !elem.hasAttribute(mappedPropertyName.toLowerCase())) {
-            elem.setAttribute(attrMapSvg[propNameLC], propValue);
-          }
-        } else {
-          if (!elem.hasAttribute(propNameLC) && !elem.hasAttribute(propName)) {
-            elem.setAttribute(propName, propValue);
-          }
+
+    // Only map properties with values and that we have not previously mapped
+    if (propValue !== "" && !attrToNotAutoMap.has(propName)) {
+      // If a mapping rule exists, apply it; otherwise, map straight across
+      if (propName in attrMapSvg) {
+        const mappedPropName: string = attrMapSvg[propName];
+        if (!elem.hasAttribute(mappedPropName)) {
+          elem.setAttribute(mappedPropName, propValue);
+        }
+      } else {
+        if (!elem.hasAttribute(propName)) {
+          elem.setAttribute(propName, propValue);
         }
       }
     }
@@ -172,8 +177,8 @@ export const attrRotation = (
 };
 
 /**
-* Maps width, height --> width, height
-*/
+ * Maps width, height --> width, height
+ */
 export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
   const w = properties.width as IFloatV<number>;
   const h = properties.height as IFloatV<number>;
@@ -182,7 +187,7 @@ export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
 
   return ["width", "height"]; // Return array of input properties programatically mapped
 };
-  
+
 /**
  * Maps cornerRadius --> rx
  */
