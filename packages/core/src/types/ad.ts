@@ -29,8 +29,6 @@ export type EdgeAD = IEdgeAD;
 export interface IVarAD {
   val: number; // The value of this node at the time the computational graph was created. This is mostly unused, since most values are compiled out except for leaf nodes
 
-  valDone: boolean; // formerly used to cache energy values in the computational graph in evalEnergyOnGraph; TODO: can be removed if evalEnergyOnGraph is removed
-
   tag: "custom";
   metadata: string; // Used for storing the kind of weight
   op: string;

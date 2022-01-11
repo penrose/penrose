@@ -191,12 +191,8 @@ const constrDictGeneral = {
       return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Line" && t2 === "Circle")
       return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
-    // Default to bounding boxes
-    else {
-      // TODO: After compilation time fix (issue #652), replace by:
-      // return overlappingAABBsMinkowski([t1, s1], [t2, s2], constOfIf(padding));
+    else
       return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
-    }
   },
 
   /**
