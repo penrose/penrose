@@ -228,7 +228,8 @@ function justs<T>(xs: MaybeVal<T>[]): T[] {
     });
 }
 
-const safeContentsList = (x: any) => (x ? x.contents : []);
+const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
+  x ? x.contents : [];
 
 const toString = (x: BindingForm): string => x.contents.value;
 
