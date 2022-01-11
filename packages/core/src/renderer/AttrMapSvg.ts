@@ -21,7 +21,7 @@ export const attrMapSvg = {
   floodOpacity: "flood-opacity",
   fontFamily: "font-family",
   fontSize: "font-size",
-  fontSizeaAjust: "font-size-adjust",
+  fontSizeAdjust: "font-size-adjust",
   fontStretch: "font-stretch",
   fontStyle: "font-style",
   fontVariant: "font-variant",
