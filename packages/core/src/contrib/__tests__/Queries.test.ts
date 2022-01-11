@@ -1,4 +1,4 @@
-import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
+import { bboxFromShape, shapeCenter, shapeSize, polygonLikePoints } from "contrib/Queries";
 import { FloatV, makeCanvas, sampleBlack, VectorV } from "shapes/Samplers";
 import { compDict } from "contrib/Functions";
 import { constOf, numOf } from "engine/Autodiff";
@@ -6,11 +6,13 @@ import { makeRectangle } from "shapes/Rectangle";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
 import { makePath } from "shapes/Path";
+import { makeLine } from "shapes/Line";
 
 const canvas = makeCanvas(800, 700);
 const precisionDigits = 10;
 
 const shapes: [string, any][] = [
+  // shapes[0]
   [
     "Rectangle", 
     makeRectangle(canvas, {
@@ -21,6 +23,7 @@ const shapes: [string, any][] = [
       strokeColor: sampleBlack(),
     })
   ],
+  // shapes[1]
   [
     "Circle",
     makeCircle(canvas, {
@@ -30,6 +33,7 @@ const shapes: [string, any][] = [
       strokeColor: sampleBlack(),
     })
   ],
+  // shapes[2]
   [
     "Ellipse",
     makeEllipse(canvas, {
@@ -40,6 +44,7 @@ const shapes: [string, any][] = [
       strokeColor: sampleBlack(),
     })
   ],
+  // shapes[3]
   [
     "Path",
     makePath(canvas, {
@@ -48,6 +53,15 @@ const shapes: [string, any][] = [
         [constOf(33), constOf(0)],
         [constOf(33), constOf(44)],
       ]),
+    })
+  ],
+  // shapes[4]
+  [
+    "Line",
+    makeLine(canvas, {
+      start: VectorV([-11, 0].map(constOf)),
+      end: VectorV([33, 44].map(constOf)),
+      strokeWidth: FloatV(constOf(50)),
     })
   ],
 ];
@@ -80,6 +94,41 @@ describe("simple queries", () => {
   ) => {
     const size = shapeSize([shapeType, shape]);
     expect(numOf(size)).toBeCloseTo(44, precisionDigits);
+  });
+
+});
+
+describe("polygonLikePoints", () => {
+
+  test('Rectangle shape', async () => {
+    const result = polygonLikePoints(shapes[0]);
+    expect(result.length).toEqual(4);
+    expect(result[0].map(numOf)).toEqual([33, 44]);
+    expect(result[1].map(numOf)).toEqual([33, 0]);
+    expect(result[2].map(numOf)).toEqual([-11, 0]);
+    expect(result[3].map(numOf)).toEqual([-11, 44]);
+  });
+
+  test('Polygon shape', async () => {
+    const result = polygonLikePoints(shapes[0]);
+    expect(result.length).toEqual(3);
+    expect(result[0].map(numOf)).toEqual([-11, 0]);
+    expect(result[1].map(numOf)).toEqual([33, 0]);
+    expect(result[2].map(numOf)).toEqual([33, 44]);
+  });
+
+  test('Line shape', async () => {
+    const result = polygonLikePoints(shapes[0]);
+    expect(result.length).toEqual(2);
+    expect(result[0].map(numOf)).toEqual([-11, 0]);
+    expect(result[1].map(numOf)).toEqual([33, 44]);
+  });
+
+  it.each([shapes[1], shapes[2], shapes[3]])('unsupported shape %p', (
+    shapeType: string,
+    shape: any,
+  ) => {
+    expect(polygonLikePoints([shapeType, shape])).toThrowError();
   });
 
 });
