@@ -13,6 +13,7 @@ export default function RunBar({ compile }: { compile(): void }) {
         boxSizing: "border-box",
       }}
     >
+      {/* TODO: sign in button/avatar */}
       <div>Penrose</div>
       <div>
         <BlueButton onClick={compile}>{"compile"}</BlueButton>

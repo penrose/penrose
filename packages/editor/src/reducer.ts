@@ -25,6 +25,7 @@ export interface GithubUser {
   access_token: string;
   avatar: string;
 }
+
 export interface ISettings {
   githubUser: GithubUser | null;
   vimMode: boolean;

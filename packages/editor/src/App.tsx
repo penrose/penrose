@@ -146,16 +146,20 @@ function App({ location }: any) {
               {
                 type: "tab",
                 name: "Substance",
+                id: "hi",
+                enableRename: false,
                 component: "substance_edit",
               },
               {
                 type: "tab",
                 name: "Style",
+                enableRename: false,
                 component: "style_edit",
               },
               {
                 type: "tab",
                 name: "Domain",
+                enableRename: false,
                 component: "domain_edit",
               },
             ],
