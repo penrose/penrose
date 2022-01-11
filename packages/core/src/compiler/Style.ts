@@ -1498,24 +1498,6 @@ const findSubstsSel = (
   } else throw Error("unknown tag");
 };
 
-// Find a list of substitutions for each selector in the Sty program. (ported from `find_substs_prog`)
-export const findSubstsProg = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg,
-  styProg: HeaderBlock[],
-  selEnvs: SelEnv[]
-): Subst[][] => {
-  const selsWithEnvs = zip2(
-    styProg.map((e: HeaderBlock) => e.header),
-    selEnvs
-  );
-
-  return selsWithEnvs.map((selAndEnv) =>
-    findSubstsSel(varEnv, subEnv, subProg, selAndEnv)
-  );
-};
-
 //#endregion
 
 //#region Naming anon statements
@@ -3213,18 +3195,6 @@ export const compileStyle = (
   }
 
   log.info("selEnvs", selEnvs);
-
-  // Find substitutions (`find_substs_prog`)
-  const subss = findSubstsProg(
-    varEnv,
-    subEnv,
-    subProg,
-    styProg.blocks,
-    selEnvs
-  ); // TODO: Use `eqEnv`
-  // TODO: I guess `subss` is not actually used? remove?
-
-  log.info("substitutions", subss);
 
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
