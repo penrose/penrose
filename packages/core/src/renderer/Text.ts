@@ -4,15 +4,6 @@ import {
   attrStroke,
   attrString,
   attrTitle,
-  attrFontFamily,
-  attrFontSize,
-  attrFontSizeAdjust,
-  attrFontStretch,
-  attrFontStyle,
-  attrFontVariant,
-  attrFontWeight,
-  attrTextAnchor,
-  attrAlignmentBaseline,
   attrRotation,
   attrAutoFillSvg,
 } from "./AttrHelper";
@@ -29,16 +20,7 @@ const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
-  attrToNotAutoMap.push(...attrFontFamily(shape, elem));
-  attrToNotAutoMap.push(...attrFontSize(shape, elem));
-  attrToNotAutoMap.push(...attrFontSizeAdjust(shape, elem));
-  attrToNotAutoMap.push(...attrFontStretch(shape, elem));
-  attrToNotAutoMap.push(...attrFontStyle(shape, elem));
-  attrToNotAutoMap.push(...attrFontVariant(shape, elem));
-  attrToNotAutoMap.push(...attrFontWeight(shape, elem));
   attrToNotAutoMap.push(...attrString(shape, elem));
-  attrToNotAutoMap.push(...attrTextAnchor(shape, elem));
-  attrToNotAutoMap.push(...attrAlignmentBaseline(shape, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
 
   // Directrly Map across any "unknown" SVG properties
