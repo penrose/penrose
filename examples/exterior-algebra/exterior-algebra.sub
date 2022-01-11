@@ -1,6 +1,6 @@
 Vector a, b, c
-biVector u := Wedge(a,b)
-biVector v := Wedge(b,c)
+Bivector u := Wedge(a,b)
+Bivector v := Wedge(b,c)
 
 AutoLabel All
 Label u $a \wedge b$

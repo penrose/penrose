@@ -56,15 +56,22 @@ where v has label {
       fontSize: Global.fontSize
       fontFamily: Global.fontFamily
    }
+   -- keep the label on the canvas
+   ensure contains( Global.box, v.labelText )
 }
 
-forall biVector w; Vector u; Vector v
+forall Bivector w; Vector u; Vector v
 where w := Wedge(u,v) {
+
+   -- pick a random brightly-saturated color for this bivector
+   scalar w.hue = ?
+   color w.solidColor = hsva( w.hue, 100, 80, 1 )
+   color w.clearColor = hsva( w.hue, 100, 80, .2 )
 
    -- draw a parallelogram with sides u,v
    shape w.icon = Path {
       d: pathFromPoints("closed", [ (0,0), u.p, u.p+v.p, v.p ])
-      fillColor: Colors.clearGreen
+      fillColor: w.clearColor
       strokeColor: none()
    }
    -- keep the parallelogram on the canvas
@@ -89,10 +96,11 @@ where w := Wedge(u,v) {
    scalar R = .75 * minWidth/2. -- radius
    vec2 x0 = w.c + R*unit(u.p-v.p) -- arc start
    vec2 x1 = w.c + R*unit(v.p-u.p) -- arc end
+   scalar cw = .5*sign( cross2D(u.p,v.p) ) + .5 -- clockwise (1) or not (0)
    shape w.marker = Path {
-      d: arc( "open", x0, x1, (R,R), 0., 0, 0 )
+      d: arc( "open", x0, x1, (R,R), 0., 0, cw )
       fillColor: none()
-      strokeColor: Colors.darkGreen
+      strokeColor: w.solidColor
       strokeWidth: .75*Global.lineThickness
       startArrowhead: true
       arrowheadSize: .5
@@ -100,12 +108,12 @@ where w := Wedge(u,v) {
 }
 
 -- draw a label for the bivector if it has one
-forall biVector v
+forall Bivector w
 where v has label {
-   v.labelText = Equation {
-      string: v.label
-      center: v.c -- marker center
-      fillColor: Colors.darkGreen
+   w.labelText = Equation {
+      string: w.label
+      center: w.c -- marker center
+      fillColor: w.solidColor
       fontSize: Global.fontSize
       fontFamily: Global.fontFamily
    }
