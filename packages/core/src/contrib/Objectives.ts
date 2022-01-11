@@ -1,5 +1,4 @@
-import { constOf, constOfIf, EPS_DENOM, ops, varOf } from "engine/Autodiff";
-
+import { constOf, constOfIf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -14,7 +13,6 @@ import {
   ifCond,
   lt,
 } from "engine/AutodiffFunctions";
-
 import { bboxFromShape, shapeCenter } from "contrib/Queries";
 import {
   sampleSeg,
@@ -39,18 +37,18 @@ export const objDictSimple = {
   /**
    * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
    */
-  greaterThan: (x: VarAD, y: VarAD) => squared(max(constOf(0.),sub(y, x))),
+  greaterThan: (x: VarAD, y: VarAD) => squared(max(constOf(0), sub(y, x))),
 
   /**
    * Encourage x to be less than or equal to y: `max(0,x - y)^2`
    */
-  lessThan: (x: VarAD, y: VarAD) => squared(max(constOf(0.),sub(x, y))),
+  lessThan: (x: VarAD, y: VarAD) => squared(max(constOf(0), sub(x, y))),
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
   repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) =>
-    div(weight, add(ops.vdistsq(a, b), constOf(EPS_DENOM))),
+    mul(weight, inverse(ops.vdistsq(a, b))),
 
   /**
    * Repel scalar `c` from another scalar `d`.

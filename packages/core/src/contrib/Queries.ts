@@ -28,18 +28,13 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
 /**
  * Return size of the shape `shape`.
  * - `radius` for circles.
- * - `side` for squares.
  * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
  */
 export const shapeSize = ([t, s]: [string, any]): VarAD => {
-  switch (t) {
-    case "Circle":
-      return mul(constOf(2.0), s.r.contents);
-    case "Square":
-      return s.side.contents;
-    default: {
-      const bbox = bboxFromShape([t, s]);
-      return sqrt(mul(bbox.width, bbox.height));
-    }
+  if (t == "Circle") {
+    return mul(constOf(2.0), s.r.contents);
+  } else {
+    const bbox = bboxFromShape([t, s]);
+    return sqrt(mul(bbox.width, bbox.height));
   }
 };
