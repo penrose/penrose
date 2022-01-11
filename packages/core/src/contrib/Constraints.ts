@@ -30,6 +30,7 @@ import {
   overlappingPolygons,
   overlappingRectlikeCircle,
   overlappingPolygonLinelike,
+  overlappingRectlikeLinelike,
   overlappingAABBs,
   containsCircles,
   containsCircleRectlike,
@@ -78,7 +79,7 @@ const constrDictSimple = {
     // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
     return add(constrDictSimple.lessThanSq(l1, l2), constrDictSimple.lessThanSq(r2, r1));
   },
-  
+
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
@@ -158,6 +159,11 @@ const constrDictGeneral = {
       return overlappingPolygonLinelike([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isLinelike && t2 === "Polygon")
       return overlappingPolygonLinelike([t2, s2], [t1, s1], constOfIf(padding));
+    // Rectlike x Linelike 
+    else if (shapedefs[t1].isRectlike && shapedefs[t2].isLinelike)
+      return overlappingRectlikeLinelike([t1, s1], [t2, s2], constOfIf(padding));
+    else if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike)
+      return overlappingRectlikeLinelike([t2, s2], [t1, s1], constOfIf(padding));
     // Rectlike x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));

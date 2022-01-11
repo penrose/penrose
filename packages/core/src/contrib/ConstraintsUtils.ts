@@ -106,6 +106,28 @@ export const overlappingPolygonLinelike = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
+export const overlappingRectlikeLinelike = (
+  [t1, s1]: [string, Rectangle | Text | Equation | Image],
+  [t2, s2]: [string, Line],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  // Treat Rectlike object as a polygon
+  const bbox = bboxFromShape([t1, s1]);
+  const corners = BBox.corners(bbox);
+  const rectPoints = [
+    corners.topRight, 
+    corners.topLeft, 
+    corners.bottomLeft, 
+    corners.bottomRight
+  ];
+  // Treat line segment as a degenerate polygon (1-simplex)
+  const oneSimplexPoints = [s2.start.contents, s2.end.contents];
+  return overlappingPolygonPoints(rectPoints, oneSimplexPoints, padding);
+};
+
+/**
+ * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ */
 export const overlappingAABBsMinkowski = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
