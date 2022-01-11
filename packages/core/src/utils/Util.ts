@@ -7,6 +7,8 @@ import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
 import { MaybeVal } from "types/common";
 import { VarAD } from "types/ad";
+import { Fn, State } from "types/state";
+import { ILine } from "shapes/Line";
 
 //#region general
 
@@ -36,7 +38,7 @@ export const safe = <T extends unknown>(
 };
 
 // Repeat `x`, `i` times
-export const repeat = <T>(i: number, x: T) => {
+export const repeat = <T>(i: number, x: T): T[] => {
   const xs = [];
 
   for (let j = 0; j < i; j++) {
@@ -46,7 +48,7 @@ export const repeat = <T>(i: number, x: T) => {
   return xs;
 };
 
-export const all = (xs: boolean[]) =>
+export const all = (xs: boolean[]): boolean =>
   xs.reduce((prev, curr) => prev && curr, true);
 
 export const fromJust = <T>(n: MaybeVal<T>): T => {
@@ -94,14 +96,14 @@ export const randFloat = (min: number, max: number): number => {
  * @param min minimum (inclusive)
  * @param max maximum (exclusive)
  */
-export const randInt = (min: number, max: number) => {
+export const randInt = (min: number, max: number): number => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
 export const randList = (n: number): number[] => {
-  return repeat(n, 0).map((e) => RAND_RANGE * (Math.random() - 0.5));
+  return repeat(n, 0).map(() => RAND_RANGE * (Math.random() - 0.5));
 };
 
 export const arrowheads = {
@@ -147,12 +149,12 @@ export const arrowheads = {
 export const toScreen = (
   [x, y]: [number, number],
   canvasSize: [number, number]
-) => {
+): [number, number] => {
   const [width, height] = canvasSize;
   return [width / 2 + x, height / 2 - y];
 };
 
-export const penroseToSVG = (canvasSize: [number, number]) => {
+export const penroseToSVG = (canvasSize: [number, number]): string => {
   const [width, height] = canvasSize;
   const flipYStr = "matrix(1 0 0 -1 0 0)";
   const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
@@ -187,7 +189,7 @@ export const penroseToSVG = (canvasSize: [number, number]) => {
 // BUG: ptList needs to be properly typed
 export const toPointListString = memoize(
   // Why memoize?
-  (ptList: any[], canvasSize: [number, number]) =>
+  (ptList: [number, number][]) =>
     ptList
       .map((coords: [number, number]) => {
         const pt = coords;
@@ -317,11 +319,11 @@ export const toSvgOpacityProperty = (color: Color<number>): number => {
 
 const TOL = 1e-3;
 
-export const round2 = (n: number) => roundTo(n, 2);
+export const round2 = (n: number): number => roundTo(n, 2);
 
 // https://stackoverflow.com/questions/15762768/javascript-math-round-to-two-decimal-places
 // Ported so string conversion works in typescript...
-export const roundTo = (n: number, digits: number) => {
+export const roundTo = (n: number, digits: number): number => {
   let negative = false;
 
   if (digits === undefined) {
@@ -345,10 +347,10 @@ export const roundTo = (n: number, digits: number) => {
   return n3;
 };
 
-export const normList = (xs: number[]) =>
+export const normList = (xs: number[]): number =>
   Math.sqrt(_.sum(xs.map((e) => e * e)));
 
-export const close = (x: number, y: number) => {
+export const close = (x: number, y: number): boolean => {
   const EPS = 1e-15;
   return Math.abs(x - y) < EPS;
 };
@@ -383,11 +385,16 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
  * @param param0 point 1 [x1, y1]
  * @param param1 point 2 [x2, y2]
  */
-export const dist = ([x1, y1]: [number, number], [x2, y2]: [number, number]) =>
-  Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+export const dist = (
+  [x1, y1]: [number, number],
+  [x2, y2]: [number, number]
+): number => Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 
 // calculates bounding box dimensions of a shape - used in inspector views
-export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
+export const bBoxDims = (
+  properties: Properties<number>,
+  shapeType: string
+): [number, number] => {
   let [w, h] = [0, 0];
   if (shapeType === "Circle") {
     [w, h] = [
@@ -426,7 +433,12 @@ export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
   return [w, h];
 };
 
-export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
+export const getAngle = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number => {
   const x = x1 - x2;
   const y = y1 - y2;
   if (!x && !y) {
@@ -435,7 +447,12 @@ export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
   return (180 + (Math.atan2(-y, -x) * 180) / Math.PI + 360) % 360;
 };
 
-export const getLen = (x1: number, y1: number, x2: number, y2: number) => {
+export const getLen = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number => {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
@@ -446,12 +463,12 @@ export const ops = {
   /**
    * Return the norm of the 2-vector `[c1, c2]`.
    */
-  norm: (c1: number, c2: number) => ops.vnorm([c1, c2]),
+  norm: (c1: number, c2: number): number => ops.vnorm([c1, c2]),
 
   /**
    * Return the Euclidean distance between scalars `c1, c2`.
    */
-  dist: (c1: number, c2: number) => ops.vnorm([c1, c2]),
+  dist: (c1: number, c2: number): number => ops.vnorm([c1, c2]),
 
   /**
    * Return the sum of vectors `v1, v2.
@@ -568,7 +585,7 @@ export const ops = {
   /**
    * Return `v + c * u`.
    */
-  vmove: (v: number[], c: number, u: number[]) => {
+  vmove: (v: number[], c: number, u: number[]): number[] => {
     return ops.vadd(v, ops.vmul(c, u));
   },
 
@@ -648,13 +665,12 @@ export const intersects = (s1: number[][], s2: number[][]): boolean => {
   const [[a, b], [c, d]] = [l1_p1, l1_p2];
   const [[p, q], [r, s]] = [l2_p1, l2_p2];
 
-  var det, gamma, lambda;
-  det = (c - a) * (s - q) - (r - p) * (d - b);
+  const det = (c - a) * (s - q) - (r - p) * (d - b);
   if (det === 0) {
     return false;
   } else {
-    lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
-    gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
     return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
   }
 };
@@ -774,7 +790,7 @@ export class Queue<T> {
     this.clear();
   }
 
-  enqueue(value: T) {
+  enqueue(value: T): void {
     const node = new Node(value);
 
     if (this.head !== null && this.tail !== null) {
@@ -805,17 +821,17 @@ export class Queue<T> {
     }
   }
 
-  clear() {
+  clear(): void {
     this.head = null;
     this.tail = null;
     this.queue_size = 0;
   }
 
-  get size() {
+  get size(): number {
     return this.queue_size;
   }
 
-  *[Symbol.iterator]() {
+  *[Symbol.iterator](): Generator<T, void, unknown> {
     let current = this.head;
 
     while (current) {
@@ -920,13 +936,13 @@ export const prettyPrintExpr = (arg: Expr): string => {
   }
 };
 
-export const prettyPrintFn = (fn: any) => {
+export const prettyPrintFn = (fn: Fn): string => {
   const name = fn.fname;
   const args = fn.fargs.map(prettyPrintExpr).join(", ");
   return [name, "(", args, ")"].join("");
 };
 
-export const prettyPrintFns = (state: any) =>
+export const prettyPrintFns = (state: State): string[] =>
   state.objFns.concat(state.constrFns).map(prettyPrintFn);
 
 //#endregion
@@ -949,13 +965,13 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
 //   return (...args: any[]) => toPenalty(constrDict[name]);
 // };
 
-export const linePts = ({ start, end }: any): [VarAD[], VarAD[]] => [
+export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
   start.contents,
   end.contents,
 ];
 
-export const getStart = ({ start }: any): VarAD[] => start.contents;
+export const getStart = ({ start }: ILine): VarAD[] => start.contents;
 
-export const getEnd = ({ end }: any): VarAD[] => end.contents;
+export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
 
 //#endregion
