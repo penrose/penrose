@@ -1,0 +1,113 @@
+canvas {
+   width = 240
+   height = 180
+}
+
+Colors {
+   color black = rgba(0,0,0,1)
+   color white = rgba(1,1,1,1)
+   color clearGray = rgba(0,0,0,.2)
+   color clearGreen = rgba(0,.6,0,.2)
+   color darkGreen = rgba(0,.6,0,1.)
+}
+
+Global {
+   shape box = Rectangle {
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: none()
+      strokeColor: Colors.clearGray
+      strokeWidth: 1
+   }
+
+   scalar lineThickness = 1.5
+   scalar fontSize = "6pt"
+   string fontFamily = "Linux Libertine"
+}
+
+forall Vector v {
+
+   -- declare a point whose location will be
+   -- determined via optimization
+   v.p = (?,?)
+
+   -- draw an arrow to p
+   v.icon = Line {
+      start: (0,0)
+      end: v.p
+      strokeColor: Colors.black
+      strokeWidth: Global.lineThickness
+      strokeLineCap: "round"
+      endArrowhead: true
+      arrowheadSize: .5
+   }
+   -- keep the arrow on the canvas
+   ensure contains( Global.box, v.icon)
+}
+
+-- draw a label for the vector if it has one
+forall Vector v
+where v has label {
+   v.labelText = Equation {
+      string: v.label
+      center: v.p + 4.*unit(v.p)
+      fillColor: Colors.black
+      fontSize: Global.fontSize
+      fontFamily: Global.fontFamily
+   }
+}
+
+forall biVector w; Vector u; Vector v
+where w := Wedge(u,v) {
+
+   -- draw a parallelogram with sides u,v
+   shape w.icon = Path {
+      d: pathFromPoints("closed", [ (0,0), u.p, u.p+v.p, v.p ])
+      fillColor: Colors.clearGreen
+      strokeColor: none()
+   }
+   -- keep the parallelogram on the canvas
+   ensure contains( Global.box, w.icon )
+
+   -- try to make sure the parallelogram is a reasonable size
+   scalar area = abs( cross2D( u.p, v.p ))
+   scalar canvasArea = canvas.width * canvas.height
+   encourage greaterThan( area, canvasArea/10. )
+
+   -- compute the minimum width of the parallelogram
+   -- by projecting each vector onto the unit normal
+   -- of the other
+   vec2 nu = unit( rot90(u.p) )
+   vec2 nv = unit( rot90(v.p) )
+   scalar wu = abs( dot( nu, v.p ))
+   scalar wv = abs( dot( nv, u.p ))
+   scalar minWidth = min( wu, wv )
+
+   -- draw an orientation marker
+   scalar w.c = (u.p+v.p)/2. -- center
+   scalar R = .75 * minWidth/2. -- radius
+   vec2 x0 = w.c + R*unit(u.p-v.p) -- arc start
+   vec2 x1 = w.c + R*unit(v.p-u.p) -- arc end
+   shape w.marker = Path {
+      d: arc( "open", x0, x1, (R,R), 0., 0, 0 )
+      fillColor: none()
+      strokeColor: Colors.darkGreen
+      strokeWidth: .75*Global.lineThickness
+      startArrowhead: true
+      arrowheadSize: .5
+   }
+}
+
+-- draw a label for the bivector if it has one
+forall biVector v
+where v has label {
+   v.labelText = Equation {
+      string: v.label
+      center: v.c -- marker center
+      fillColor: Colors.darkGreen
+      fontSize: Global.fontSize
+      fontFamily: Global.fontFamily
+   }
+}
+

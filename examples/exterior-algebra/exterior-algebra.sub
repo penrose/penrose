@@ -1,0 +1,7 @@
+Vector a, b, c
+biVector u := Wedge(a,b)
+biVector v := Wedge(b,c)
+
+AutoLabel All
+Label u $a \wedge b$
+Label v $b \wedge c$
