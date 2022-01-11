@@ -1,29 +1,27 @@
+import { constOf, constOfIf, EPS_DENOM, ops, varOf } from "engine/Autodiff";
+
 import {
   absVal,
   add,
   addN,
-  constOf,
-  constOfIf,
   div,
-  EPS_DENOM,
   inverse,
   max,
   mul,
   neg,
-  ops,
   squared,
   sub,
-  varOf,
   ifCond,
   lt,
-} from "engine/Autodiff";
+} from "engine/AutodiffFunctions";
+
 import { bboxFromShape, shapeCenter } from "contrib/Queries";
 import {
   sampleSeg,
   repelPoint,
   centerArrow2,
-  closestPt_PtSeg
-} from "contrib/Utils";;
+  closestPt_PtSeg,
+} from "contrib/Utils";
 import { inDirection } from "contrib/ObjectivesUtils";
 import * as _ from "lodash";
 import { linePts } from "utils/OtherUtils";
@@ -33,7 +31,6 @@ import { VarAD } from "types/ad";
 // -------- Simple objective functions
 // Do not require shape quaries, operate directly with `VarAD` parameters.
 export const objDictSimple = {
-
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
@@ -52,7 +49,8 @@ export const objDictSimple = {
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) => div(weight, add(ops.vdistsq(a, b), constOf(EPS_DENOM))),
+  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) =>
+    div(weight, add(ops.vdistsq(a, b), constOf(EPS_DENOM))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
@@ -61,22 +59,26 @@ export const objDictSimple = {
     // 1/(c-d)^2
     return inverse(squared(sub(constOfIf(c), constOfIf(d))));
   },
-
-}
+};
 
 // -------- General objective functions
 // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
 export const objDictGeneral = {
-
   /**
-   * Encourage the center of `sTop` to be above the center of `sBottom`. 
+   * Encourage the center of `sTop` to be above the center of `sBottom`.
    * Only works for shapes with property `center`.
    */
   below: (
     [tBottom, sBottom]: [string, any],
     [tTop, sTop]: [string, any],
     offset = 100
-  ) => inDirection([tBottom, sBottom], [tTop, sTop], [constOf(0.0), constOf(1.0)], constOfIf(offset)),
+  ) =>
+    inDirection(
+      [tBottom, sBottom],
+      [tTop, sTop],
+      [constOf(0.0), constOf(1.0)],
+      constOfIf(offset)
+    ),
 
   /**
    * Encourage the center of `sBottom` to be below the center of `sTop`.
@@ -85,7 +87,13 @@ export const objDictGeneral = {
     [tTop, sTop]: [string, any],
     [tBottom, sBottom]: [string, any],
     offset = 100
-  ) => inDirection([tTop, sTop], [tBottom, sBottom], [constOf(0.0), constOf(1.0)], constOfIf(offset)),
+  ) =>
+    inDirection(
+      [tTop, sTop],
+      [tBottom, sBottom],
+      [constOf(0.0), constOf(1.0)],
+      constOfIf(offset)
+    ),
 
   /**
    * Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
@@ -94,8 +102,14 @@ export const objDictGeneral = {
     [tLeft, sLeft]: [string, any],
     [tRight, sRight]: [string, any],
     offset = 100
-  ) => inDirection([tLeft, sLeft], [tRight, sRight], [constOf(1.0), constOf(0.0)], constOfIf(offset)),
-  
+  ) =>
+    inDirection(
+      [tLeft, sLeft],
+      [tRight, sRight],
+      [constOf(1.0), constOf(0.0)],
+      constOfIf(offset)
+    ),
+
   /**
    * Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
    */
@@ -103,7 +117,13 @@ export const objDictGeneral = {
     [tRight, sRight]: [string, any],
     [tLeft, sLeft]: [string, any],
     offset = 100
-  ) => inDirection([tRight, sRight], [tLeft, sLeft], [constOf(1.0), constOf(0.0)], constOfIf(offset)),
+  ) =>
+    inDirection(
+      [tRight, sRight],
+      [tLeft, sLeft],
+      [constOf(1.0), constOf(0.0)],
+      constOfIf(offset)
+    ),
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.
@@ -117,11 +137,7 @@ export const objDictGeneral = {
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
    */
-  repel: (
-    [t1, s1]: [string, any], 
-    [t2, s2]: [string, any], 
-    weight = 10.0
-  ) => {
+  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
     const repelWeight = 10e6;
@@ -149,12 +165,10 @@ export const objDictGeneral = {
   /**
    * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
    */
-  near: (
-    [t1, s1]: [string, any], 
-    [t2, s2]: [string, any], 
-    offset = 10.0
-  ) => {
-    const res = absVal(ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2])));
+  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
+    const res = absVal(
+      ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2]))
+    );
     return sub(res, squared(constOfIf(offset)));
   },
 
@@ -169,7 +183,7 @@ export const objDictGeneral = {
    * Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
    * NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
    */
-   nonDegenerateAngle: (
+  nonDegenerateAngle: (
     [t0, p0]: [string, any],
     [t1, p1]: [string, any],
     [t2, p2]: [string, any],
@@ -190,13 +204,11 @@ export const objDictGeneral = {
       mul(constOfIf(strength), cosine)
     );
   },
-
-}
+};
 
 // -------- Specific objective functions
 // Defined only for specific use-case or specific shapes.
 export const objDictSpecific = {
-
   /**
    * Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
    */
@@ -207,7 +219,11 @@ export const objDictSpecific = {
   ): VarAD => {
     const spacing = constOf(1.1); // arbitrary
 
-    if (shapedefs[t1].isLinelike && shapedefs[t2].isRectlike && shapedefs[t3].isRectlike) {
+    if (
+      shapedefs[t1].isLinelike &&
+      shapedefs[t2].isRectlike &&
+      shapedefs[t3].isRectlike
+    ) {
       const s2BB = bboxFromShape([t2, s2]);
       const s3BB = bboxFromShape([t3, s3]);
       // HACK: Arbitrarily pick the height of the text
@@ -291,11 +307,10 @@ export const objDictSpecific = {
       )
     );
   },
-
-}
+};
 
 export const objDict = {
-  ...objDictSimple,  // Do not require shape quaries, operate directly with `VarAD` parameters.
+  ...objDictSimple, // Do not require shape quaries, operate directly with `VarAD` parameters.
   ...objDictGeneral, // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
-  ...objDictSpecific // Defined only for specific use-case or specific shapes.
+  ...objDictSpecific, // Defined only for specific use-case or specific shapes.
 };

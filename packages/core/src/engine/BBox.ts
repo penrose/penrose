@@ -5,10 +5,11 @@ import { ILine } from "shapes/Line";
 import { IPath } from "shapes/Path";
 import { IRectangle } from "shapes/Rectangle";
 import { isPt2, Pt2, VarAD } from "types/ad";
+import { constOf, ops } from "./Autodiff";
+
 import {
   absVal,
   add,
-  constOf,
   div,
   eq,
   gt,
@@ -17,11 +18,10 @@ import {
   min,
   mul,
   neg,
-  ops,
   sqrt,
   squared,
   sub,
-} from "./Autodiff";
+} from "./AutodiffFunctions";
 
 export interface IBBox {
   width: VarAD;
