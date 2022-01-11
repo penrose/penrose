@@ -1554,6 +1554,7 @@ const nameAnonStatement = (i: number, b: Stmt[], s: Stmt): number => {
     b.push(stmt);
     return i + 1;
   } else {
+    b.push(s);
     return i;
   }
 };
