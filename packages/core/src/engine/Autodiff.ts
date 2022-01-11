@@ -3,7 +3,7 @@ import consola, { LogLevel } from "consola";
 import { VarAD, IVarAD, GradGraphs } from "types/ad";
 import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
-import Queue from "utils/Util";
+import { Queue, fromJust } from "utils/Util";
 import {
   acos,
   add,
@@ -18,7 +18,6 @@ import {
   sqrt,
   squared,
   sub,
-  fromJust,
 } from "./AutodiffFunctions";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn

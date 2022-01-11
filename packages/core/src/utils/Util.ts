@@ -770,7 +770,7 @@ class Node<T> {
   }
 }
 
-export default class Queue<T> {
+export class Queue<T> {
   head: Node<T> | null = null;
   tail: Node<T> | null = null;
   queue_size = 0;
