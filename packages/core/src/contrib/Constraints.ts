@@ -32,8 +32,6 @@ import {
   containsCircles,
   containsCircleRectlike,
   containsRectlikeCircle,
-  containsSquareCircle,
-  containsSquareLinelike,
   containsAABBs,
 } from "contrib/ConstraintsUtils";
 import { VarAD } from "types/ad";
@@ -202,12 +200,8 @@ const constrDictGeneral = {
       return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
-    else if (shapedefs[t1].isRectlike && t1 !== "Square" && t2 === "Circle")
+    else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Square" && t2 === "Circle")
-      return containsSquareCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Square" && shapedefs[t2].isLinelike)
-      return containsSquareLinelike([t1, s1], [t2, s2], constOfIf(padding));
     else
       return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },

@@ -7,7 +7,6 @@ import {
   ops,
   sub,
   mul,
-  div,
   min,
   max,
   minN,
@@ -22,7 +21,6 @@ import {
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
-import { linePts } from "utils/OtherUtils";
 
 // -------- Ovelapping helpers
 
@@ -105,7 +103,6 @@ export const overlappingAABBsMinkowski = (
   return sub(e1, e2);
 };
 
-
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  * To be DEPRACATED - replace by `overlappingAABBsMinkowski` after issue #652.
@@ -184,44 +181,6 @@ export const containsRectlikeCircle = (
     sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
     sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
   );
-};
-
-/**
- * Require that a shape `s1` contains another shape `s2`.
- */
-export const containsSquareCircle = (
-  [, s1]: [string, any],
-  [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // TODO: Remake using Minkowski penalties
-
-  // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-  const sq = s1.center.contents;
-  const d = ops.vdist(sq, shapeCenter([t2, s2]));
-  return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
-};
-
-/**
- * Require that a shape `s1` contains another shape `s2`.
- */
-export const containsSquareLinelike = (
-  [t1, s1]: [string, any],
-  [, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // TODO: Remake using Minkowski penalties
-  const [[startX, startY], [endX, endY]] = linePts(s2);
-  const [x, y] = shapeCenter([t1, s1]);
-  const r = div(s1.side.contents, constOf(2.0));
-  const [lx, ly] = [mul(sub(x, r), padding), mul(sub(y, r), padding)];
-  const [rx, ry] = [mul(add(x, r), padding), mul(add(y, r), padding)];
-  return addN([
-    mul(sub(startX, lx), sub(startX, rx)),
-    mul(sub(startY, ly), sub(startY, ry)),
-    mul(sub(endX, lx), sub(endX, rx)),
-    mul(sub(endY, ly), sub(endY, ry))
-  ]);
 };
 
 /**
