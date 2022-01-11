@@ -710,11 +710,11 @@ const intersection2 = (
 /**
  * Return true iff `p` is in rect `b`, assuming `rect` is an axis-aligned bounding box (AABB) with properties `minX, maxX, minY, maxY`.
  */
-export const pointInBox = (p: any, rect: any): boolean => {
-  return (
-    p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
-  );
-};
+// export const pointInBox = (p: Point2D, rect: any): boolean => {
+//   return (
+//     p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
+//   );
+// };
 
 export const scalev = (c: number, xs: number[]): number[] =>
   _.map(xs, (x) => c * x);
