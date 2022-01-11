@@ -1,8 +1,6 @@
 import { constOf, numOf } from "engine/Autodiff";
-import { FloatV, makeCanvas, sampleBlack, VectorV } from "shapes/Samplers";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCircle } from "shapes/Circle";
 import { constrDict } from "contrib/Constraints";
+import { _rectangles, _circles } from "contrib/__testfixtures__/Constraints.input";
 
 const digitPrecision = 10;
 const toleranceValue = 10;
@@ -188,93 +186,25 @@ describe("simple constraint", () => {
 
 });
 
-const canvas = makeCanvas(800, 700);
-
-const rectangles = [ 
-  // Rectangle 0
-  makeRectangle(canvas, {
-    center: VectorV([0, 0].map(constOf)),
-    width: FloatV(constOf(400)),
-    height: FloatV(constOf(400)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-  // Rectangle 1
-  makeRectangle(canvas, {
-    center: VectorV([0, 0].map(constOf)),
-    width: FloatV(constOf(200)),
-    height: FloatV(constOf(200)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-  // Rectangle 2
-  makeRectangle(canvas, {
-    center: VectorV([200, 0].map(constOf)),
-    width: FloatV(constOf(200)),
-    height: FloatV(constOf(200)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-  // Rectangle 3
-  makeRectangle(canvas, {
-    center: VectorV([0, 300].map(constOf)),
-    width: FloatV(constOf(200)),
-    height: FloatV(constOf(200)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  })
-];
-
-const circles = [
-  // Circle 0
-  makeCircle(canvas, {
-    r: FloatV(constOf(200)),
-    center: VectorV([0, 0].map(constOf)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-  // Circle 1
-  makeCircle(canvas, {
-    r: FloatV(constOf(100)),
-    center: VectorV([0, 0].map(constOf)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-  // Circle 2
-  makeCircle(canvas, {
-    r: FloatV(constOf(100)),
-    center: VectorV([200, 0].map(constOf)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-  // Circle 3
-  makeCircle(canvas, {
-    r: FloatV(constOf(100)),
-    center: VectorV([0, 300].map(constOf)),
-    strokeWidth: FloatV(constOf(0)),
-    strokeColor: sampleBlack(),
-  }),
-];
-
 describe("general constraints", () => {
 
   // Overlapping shapes
   it.each([
     // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[0], rectangles[2]],
-    ["Rectangle", "Circle", 0, rectangles[0], circles[2]],
-    ["Circle", "Rectangle", 0, circles[0], rectangles[2]],
-    ["Circle", "Circle", 0, circles[0], circles[2]],
+    ["Rectangle", "Rectangle", 0, _rectangles[0], _rectangles[2]],
+    ["Rectangle", "Circle", 0, _rectangles[0], _circles[2]],
+    ["Circle", "Rectangle", 0, _circles[0], _rectangles[2]],
+    ["Circle", "Circle", 0, _circles[0], _circles[2]],
     // Possitive padding
-    ["Rectangle", "Rectangle", 150, rectangles[3], rectangles[1]],
-    ["Rectangle", "Circle", 150, rectangles[3], circles[1]],
-    ["Circle", "Rectangle", 150, circles[3], rectangles[1]],
-    ["Circle", "Circle", 150, circles[3], circles[1]],
+    ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
+    ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
+    ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
+    ["Circle", "Circle", 150, _circles[3], _circles[1]],
     // // Negative padding
-    ["Rectangle", "Rectangle", -50, rectangles[0], rectangles[2]],
-    ["Rectangle", "Circle", -50, rectangles[0], circles[2]],
-    ["Circle", "Rectangle", -50, circles[0], rectangles[2]],
-    ["Circle", "Circle", -50, circles[0], circles[2]],
+    ["Rectangle", "Rectangle", -50, _rectangles[0], _rectangles[2]],
+    ["Rectangle", "Circle", -50, _rectangles[0], _circles[2]],
+    ["Circle", "Rectangle", -50, _circles[0], _rectangles[2]],
+    ["Circle", "Circle", -50, _circles[0], _circles[2]],
   ])('overlapping %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -304,20 +234,20 @@ describe("general constraints", () => {
   // Disjoint shapes
   it.each([
     // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[2], rectangles[3]],
-    ["Rectangle", "Circle", 0, rectangles[2], circles[3]],
-    ["Circle", "Rectangle", 0, circles[2], rectangles[3]],
-    ["Circle", "Circle", 0, circles[2], circles[3]],
+    ["Rectangle", "Rectangle", 0, _rectangles[2], _rectangles[3]],
+    ["Rectangle", "Circle", 0, _rectangles[2], _circles[3]],
+    ["Circle", "Rectangle", 0, _circles[2], _rectangles[3]],
+    ["Circle", "Circle", 0, _circles[2], _circles[3]],
     // // Possitive padding
-    ["Rectangle", "Rectangle", 10, rectangles[1], rectangles[3]],
-    // ["Rectangle", "Circle", 10, rectangles[1], circles[3]],
-    // ["Circle", "Rectangle", 10, circles[1], rectangles[3]],
-    ["Circle", "Circle", 10, circles[1], circles[3]],
+    ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
+    // ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
+    // ["Circle", "Rectangle", 10, _circles[1], _rectangles[3]],
+    ["Circle", "Circle", 10, _circles[1], _circles[3]],
     // // Negative padding
-    ["Rectangle", "Rectangle", -10, rectangles[2], rectangles[1]],
-    // ["Rectangle", "Circle", -10, rectangles[2], circles[1]],
-    // ["Circle", "Rectangle", -10, circles[2], rectangles[1]],
-    ["Circle", "Circle", -10, circles[2], circles[1]],
+    ["Rectangle", "Rectangle", -10, _rectangles[2], _rectangles[1]],
+    // ["Rectangle", "Circle", -10, _rectangles[2], _circles[1]],
+    // ["Circle", "Rectangle", -10, _circles[2], _rectangles[1]],
+    ["Circle", "Circle", -10, _circles[2], _circles[1]],
   ])('disjoint %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -347,20 +277,20 @@ describe("general constraints", () => {
   // Tangent shapes
   it.each([
     // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[1], rectangles[2]],
-    // ["Rectangle", "Circle", 0, rectangles[1], circles[2]],
-    // ["Circle", "Rectangle", 0, circles[1], rectangles[2]],
-    // ["Circle", "Circle", 0, circles[1], circles[2]],
+    ["Rectangle", "Rectangle", 0, _rectangles[1], _rectangles[2]],
+    // ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
+    // ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
+    // ["Circle", "Circle", 0, _circles[1], _circles[2]],
     // // Possitive padding
-    ["Rectangle", "Rectangle", 100, rectangles[1], rectangles[3]],
-    // ["Rectangle", "Circle", 100, rectangles[1], circles[3]],
-    // ["Circle", "Rectangle", 100, circles[1], rectangles[3]],
-    // ["Circle", "Circle", 100, circles[1], circles[3]],
+    ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
+    // ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
+    // ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
+    // ["Circle", "Circle", 100, _circles[1], _circles[3]],
     // // Negative padding
-    ["Rectangle", "Rectangle", -100, rectangles[0], rectangles[2]],
-    // ["Rectangle", "Circle", -100, rectangles[0], circles[2]],
-    // ["Circle", "Rectangle", -100, circles[0], rectangles[2]],
-    // ["Circle", "Circle", -100, circles[0], circles[2]],
+    ["Rectangle", "Rectangle", -100, _rectangles[0], _rectangles[2]],
+    // ["Rectangle", "Circle", -100, _rectangles[0], _circles[2]],
+    // ["Circle", "Rectangle", -100, _circles[0], _rectangles[2]],
+    // ["Circle", "Circle", -100, _circles[0], _circles[2]],
   ])('tangent %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -390,20 +320,20 @@ describe("general constraints", () => {
   // The first shapes is contained in the second one
   it.each([
     // Zero padding
-    ["Rectangle", "Rectangle", 0, rectangles[0], rectangles[1]],
-    ["Rectangle", "Circle", 0, rectangles[0], circles[1]],
-    ["Circle", "Rectangle", 0, circles[0], rectangles[1]],
-    ["Circle", "Circle", 0, circles[0], circles[1]],
+    ["Rectangle", "Rectangle", 0, _rectangles[0], _rectangles[1]],
+    ["Rectangle", "Circle", 0, _rectangles[0], _circles[1]],
+    ["Circle", "Rectangle", 0, _circles[0], _rectangles[1]],
+    ["Circle", "Circle", 0, _circles[0], _circles[1]],
     // // Possitive padding
-    // ["Rectangle", "Rectangle", 300, rectangles[0], rectangles[2]],
-    // ["Rectangle", "Circle", 300, rectangles[0], circles[2]],
-    // ["Circle", "Rectangle", 300, circles[0], rectangles[2]],
-    // ["Circle", "Circle", 300, circles[0], circles[2]],
+    // ["Rectangle", "Rectangle", 300, _rectangles[0], _rectangles[2]],
+    // ["Rectangle", "Circle", 300, _rectangles[0], _circles[2]],
+    // ["Circle", "Rectangle", 300, _circles[0], _rectangles[2]],
+    // ["Circle", "Circle", 300, _circles[0], _circles[2]],
     // // Negative padding
-    ["Rectangle", "Rectangle", -10, rectangles[0], rectangles[1]],
-    ["Rectangle", "Circle", -10, rectangles[0], circles[1]],
-    ["Circle", "Rectangle", -10, circles[0], rectangles[1]],
-    ["Circle", "Circle", -10, circles[0], circles[1]],
+    ["Rectangle", "Rectangle", -10, _rectangles[0], _rectangles[1]],
+    ["Rectangle", "Circle", -10, _rectangles[0], _circles[1]],
+    ["Circle", "Rectangle", -10, _circles[0], _rectangles[1]],
+    ["Circle", "Circle", -10, _circles[0], _circles[1]],
   ])('the first shape (%p) contains the second shape (%p) with padding %p', (
     shapeType0: string,
     shapeType1: string,
