@@ -146,14 +146,19 @@ const constrDictGeneral = {
     [t2, s2]: [string, any],
     padding = 0.0
   ) => {
+    // Same shapes
     if (shapedefs[t1].isLinelike && shapedefs[t2].isLinelike)
       return overlappingLines([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
-    if (shapedefs[t1].isRectlike && t2 === "Circle")
+    // Rectlike x Circle
+    else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && shapedefs[t2].isRectlike)
+      return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
+    // Default to bounding boxes
     else {
       // TODO: After compilation time fix (issue #652), replace by:
       // return overlappingAABBsMinkowski([t1, s1], [t2, s2], constOfIf(padding));
