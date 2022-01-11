@@ -141,3 +141,23 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   // See e.g.: https://doc.cgal.org/Manual/3.2/doc_html/cgal_manual/Partition_2/Chapter_main.html#Section_9.3
   return [p];
 };
+
+/**
+ * Overlapping constraint function for polygon points with padding `padding`.
+ * @param polygonPoints1 Sequence of points defining a polygon.
+ * @param polygonPoints2 Sequence of points defining a polygon.
+ * @param padding Padding applied to one of the polygons.
+ */
+export const overlappingPolygonPoints = (
+  polygonPoints1: VarAD[][],
+  polygonPoints2: VarAD[][],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  const cp1 = convexPartitions(polygonPoints1);
+  const cp2 = convexPartitions(polygonPoints2.map((p: VarAD[]) => ops.vneg(p)));
+  return maxN(
+    cp1.map((p1) => minN(
+      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding))
+    ))
+  );
+};

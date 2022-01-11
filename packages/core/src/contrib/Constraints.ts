@@ -5,6 +5,7 @@ import {
   constOfIf,
   max,
   min,
+  minN,
   mul,
   neg,
   ops,
@@ -28,6 +29,7 @@ import {
   overlappingCircles,
   overlappingPolygons,
   overlappingRectlikeCircle,
+  overlappingPolygonLinelike,
   overlappingAABBs,
   containsCircles,
   containsCircleRectlike,
@@ -151,6 +153,11 @@ const constrDictGeneral = {
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
+    // Polygon x Linelike
+    else if (t1 === "Polygon" && shapedefs[t2].isLinelike)
+      return overlappingPolygonLinelike([t1, s1], [t2, s2], constOfIf(padding));
+    else if (shapedefs[t1].isLinelike && t2 === "Polygon")
+      return overlappingPolygonLinelike([t2, s2], [t1, s1], constOfIf(padding));
     // Rectlike x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));

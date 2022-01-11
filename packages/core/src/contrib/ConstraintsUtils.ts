@@ -1,4 +1,4 @@
-import { convexPolygonMinkowskiSDF, convexPartitions, rectangleDifference } from "contrib/Minkowski";
+import { overlappingPolygonPoints, convexPartitions, rectangleDifference } from "contrib/Minkowski";
 import { overlap1D } from "contrib/Utils";
 import {
   ifCond, 
@@ -9,8 +9,6 @@ import {
   mul,
   min,
   max,
-  minN,
-  maxN,
   absVal,
   add,
   addN,
@@ -39,9 +37,12 @@ export const overlappingLines = (
   [, s2]: [string, Line],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  const oneSimplex1 = { points: { contents: [s1.start.contents, s1.end.contents] } };
-  const oneSimplex2 = { points: { contents: [s2.start.contents, s2.end.contents] } };
-  return overlappingPolygons(['1-simplex', oneSimplex1], ['1-simplex', oneSimplex2], padding);
+  // Treat line segments as degenerate polygons (1-simplexes)
+  return overlappingPolygonPoints(
+    [s1.start.contents, s1.end.contents], 
+    [s2.start.contents, s2.end.contents], 
+    padding
+  );
 };
 
 /**
@@ -65,12 +66,10 @@ export const overlappingPolygons = (
   [, s2]: [string, Polygon],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  const cp1 = convexPartitions(s1.points.contents);
-  const cp2 = convexPartitions(s2.points.contents.map((p: VarAD[]) => ops.vneg(p)));
-  return maxN(
-    cp1.map((p1) => minN(
-      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding))
-    ))
+  return overlappingPolygonPoints(
+    s1.points.contents, 
+    s2.points.contents, 
+    padding
   );
 };
 
@@ -86,6 +85,22 @@ export const overlappingRectlikeCircle = (
   const textR = max(s1BBox.width, s1BBox.height);
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   return sub(d, add(add(s2.r.contents, textR), padding));
+};
+
+/**
+ * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ */
+export const overlappingPolygonLinelike = (
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Line],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  // Treat line segment as a degenerate polygon (1-simplex)
+  return overlappingPolygonPoints(
+    s1.points.contents, 
+    [s2.start.contents, s2.end.contents],
+    padding
+  );
 };
 
 /**
