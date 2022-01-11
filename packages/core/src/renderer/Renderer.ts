@@ -11,11 +11,18 @@ import { IStrV } from "types/value";
 import { LabelCache, State } from "types/state";
 import { shapedefs } from "shapes/Shapes";
 
+/**
+ * Resolves path references into static strings. Implemented by client
+ * since filesystem contexts vary (eg browser vs headless).
+ * If path fails to resolve, return null
+ */
+export type PathResolver = (path: string) => Promise<string | null>;
+
 export interface ShapeProps {
   shape: Shape;
   labels: LabelCache;
   canvasSize: [number, number];
-  //   TODO: `document` object
+  pathResolver: PathResolver;
 }
 
 /**
@@ -23,20 +30,22 @@ export interface ShapeProps {
  * @param shape
  * @param labels
  */
-export const RenderShape = ({
+export const RenderShape = async ({
   shape,
   labels,
   canvasSize,
-}: ShapeProps): SVGElement => {
+  pathResolver,
+}: ShapeProps): Promise<SVGElement> => {
   if (!(shape.shapeType in shapeMap)) {
     console.error(`${shape.shapeType} shape doesn't exist in shapeMap`);
     return document.createElementNS("http://www.w3.org/2000/svg", "g");
   }
 
-  return shapeMap[shape.shapeType]({
+  return await shapeMap[shape.shapeType]({
     shape,
     labels,
     canvasSize,
+    pathResolver,
   });
 };
 
@@ -63,13 +72,13 @@ const getPosition = (e: MouseEvent, svg: SVGSVGElement) => {
  * @param parentSVG
  * @param canvasSizeCustom
  */
-export const DraggableShape = (
+export const DraggableShape = async (
   shapeProps: ShapeProps,
   onDrag: (id: string, dx: number, dy: number) => void,
   parentSVG: SVGSVGElement,
   canvasSizeCustom?: [number, number]
-): SVGGElement => {
-  const elem = RenderShape({
+): Promise<SVGGElement> => {
+  const elem = await RenderShape({
     ...shapeProps,
     canvasSize: canvasSizeCustom ? canvasSizeCustom : shapeProps.canvasSize,
   });
@@ -109,10 +118,18 @@ export const DraggableShape = (
   return g;
 };
 
-export const RenderInteractive = (
+/**
+ *
+ * @param state
+ * @param updateState Callback for drag-updated state
+ * @param pathResolver Resolves paths to static strings
+ * @returns
+ */
+export const RenderInteractive = async (
   state: State,
-  updateState: (newState: State) => void
-): SVGSVGElement => {
+  updateState: (newState: State) => void,
+  pathResolver: PathResolver
+): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
@@ -125,15 +142,21 @@ export const RenderInteractive = (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  state.shapes.forEach((shape) => {
-    svg.appendChild(
-      DraggableShape(
-        { shape, labels: state.labelCache, canvasSize: state.canvas.size },
-        onDrag,
-        svg
+  await Promise.all(
+    state.shapes.map(async (shape) =>
+      svg.appendChild(
+        await DraggableShape(
+          {
+            shape,
+            labels: state.labelCache,
+            canvasSize: state.canvas.size,
+            pathResolver,
+          },
+          onDrag,
+          svg
+        )
       )
     )
-  }
   );
   return svg;
 };
@@ -142,8 +165,12 @@ export const RenderInteractive = (
  * Renders a static SVG of the shapes and labels.
  * @param shapes
  * @param labels
+ * @param pathResolver Resolves paths to static strings
  */
-export const RenderStatic = (state: State): SVGSVGElement => {
+export const RenderStatic = async (
+  state: State,
+  pathResolver: PathResolver
+): Promise<SVGSVGElement> => {
   const { shapes, labelCache: labels, canvas } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("width", "100%");
@@ -151,8 +178,17 @@ export const RenderStatic = (state: State): SVGSVGElement => {
   svg.setAttribute("version", "1.2");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  shapes.forEach((shape) =>
-    svg.appendChild(RenderShape({ shape, labels, canvasSize: canvas.size }))
+  await Promise.all(
+    shapes.map(async (shape) =>
+      svg.appendChild(
+        await RenderShape({
+          shape,
+          labels,
+          canvasSize: canvas.size,
+          pathResolver,
+        })
+      )
+    )
   );
   return svg;
 };

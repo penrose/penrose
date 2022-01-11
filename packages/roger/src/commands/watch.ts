@@ -54,6 +54,7 @@ export default class Watch extends Command {
     } = this.currentFilenames;
     const { substance, style, domain } = this.current;
     const result = {
+      type: "trio",
       substance: {
         fileName: substanceFilename,
         contents: substance,
@@ -147,9 +148,12 @@ export default class Watch extends Command {
 
     this.wss.on("connection", (ws) => {
       this.sendFiles();
-      ws.on("message", (m) => {
+      ws.on("message", async (m) => {
         const parsed = JSON.parse(m as string);
-        console.log("got message", parsed);
+        if (parsed.type === "getFile") {
+          const contents = await this.readFile(parsed.path);
+          ws.send(JSON.stringify({ type: "gotFile", contents }));
+        }
       });
     });
 

@@ -7,21 +7,47 @@ export interface FileSocketResult {
   style: FileInfo;
   domain: FileInfo;
 }
-export const FileSocket = (
-  addr: string,
-  onFiles: (files: FileSocketResult) => void,
-  onClose: () => void
-) => {
-  const ws = new WebSocket(addr);
-  ws.onopen = () => console.log("socket opened");
-  ws.onmessage = (e) => {
+
+export class FileSocket {
+  ws: WebSocket;
+  onFiles: (files: FileSocketResult) => void;
+  onReceive: (file: string) => void;
+  constructor(
+    addr: string,
+    onFiles: (files: FileSocketResult) => void,
+    onClose: () => void
+  ) {
+    this.onReceive = () => {
+      console.log("unused onReceive");
+    };
+    this.ws = new WebSocket(addr);
+    this.ws.onopen = () => console.log("socket opened");
+    this.ws.onmessage = this.onMessage;
+    this.ws.onclose = () => {
+      onClose();
+    };
+    this.ws.onerror = e => {
+      console.error("socket error", e);
+    };
+    this.onFiles = onFiles;
+  }
+
+  onMessage(e: MessageEvent): void {
     const parsed = JSON.parse(e.data);
-    onFiles(parsed);
-  };
-  ws.onclose = () => {
-    onClose();
-  };
-  ws.onerror = (e) => {
-    console.error("socket error", e);
-  };
-};
+    if (parsed.type === "trio") {
+      this.onFiles(parsed);
+    } else if (parsed.type === "gotFile") {
+      this.onReceive(parsed.contents);
+    } else {
+      console.error("unrecognized packet type", parsed);
+    }
+  }
+  async getFile(path: string): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+      this.onReceive = contents => {
+        resolve(contents);
+      };
+      this.ws.send(JSON.stringify({ type: "getFile", path }));
+    });
+  }
+}

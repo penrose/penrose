@@ -5,22 +5,26 @@ import {
   attrWH,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
-import images from "contrib/images.json";
 import { IStrV } from "types/value";
 
-const Image = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
+const Image = async ({
+  shape,
+  canvasSize,
+  pathResolver,
+}: ShapeProps): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
   const path = (shape.properties.href as IStrV).contents;
-  if (!(path in images)) {
-    console.error(`Could not find image path ${path}`);
+  const rawSVG = await pathResolver(path);
+  if (rawSVG === null) {
+    console.error(`Could not resolve image path ${path}`);
     return elem;
   }
   attrToNotAutoMap.push("href");
-  elem.innerHTML = images[path];
+  elem.innerHTML = rawSVG;
   const svg = elem.firstChild as SVGSVGElement;
   const defs = svg.getElementsByTagName("defs");
   /**

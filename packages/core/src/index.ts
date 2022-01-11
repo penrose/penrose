@@ -350,6 +350,7 @@ export type { Shape } from "./types/shape";
 export { constrDict } from "./contrib/Constraints";
 export { objDict } from "./contrib/Objectives";
 export { compDict } from "./contrib/Functions";
+export type { PathResolver } from "./renderer/Renderer";
 export type { Registry, Trio };
 export type { Env };
 export type {
