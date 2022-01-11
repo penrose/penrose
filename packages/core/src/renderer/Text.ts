@@ -10,6 +10,7 @@ import {
   attrRotation,
   attrAutoFillSvg,
   attrWH,
+  attrFont,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -26,6 +27,7 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   attrToNotAutoMap.push(...attrTitle(shape, elem));
   attrToNotAutoMap.push(...attrString(shape, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
+  attrToNotAutoMap.push(...attrFont(shape, elem));
 
   // Get width/height of the text if available
   const name = shape.properties.name as IStrV;

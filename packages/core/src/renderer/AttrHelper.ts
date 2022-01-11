@@ -38,6 +38,7 @@ export const attrAutoFillSvg = (
 
   // Map unknown/unseen attributes with values to SVG output.
   // This is the "escape hatch" for properties we don't support.
+  // NOTE: `style` is handled specially
   for (const propName in properties) {
     const propValue: string = properties[propName].contents.toString();
 
@@ -48,6 +49,13 @@ export const attrAutoFillSvg = (
         const mappedPropName: string = attrMapSvg[propName];
         if (!elem.hasAttribute(mappedPropName)) {
           elem.setAttribute(mappedPropName, propValue);
+        }
+      } else if (propName === "style" && propValue !== "") {
+        const style = elem.getAttribute(propName);
+        if (style === null) {
+          elem.setAttribute(propName, propValue);
+        } else {
+          elem.setAttribute(propName, `${style}${propValue}`);
         }
       } else {
         if (!elem.hasAttribute(propName)) {
@@ -300,4 +308,48 @@ export const attrTitle = (
   elem.appendChild(title);
 
   return ["name"]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps fontFamily, fontSize, fontStretch, fontStyle, fontVariant, fontWeight, lineHeight -> font
+ */
+export const attrFont = ({ properties }: Shape, elem: SVGElement): string[] => {
+  const fontFamily = properties.fontFamily.contents as string;
+  const fontSize = properties.fontSize.contents as string;
+  const fontStretch = properties.fontStretch.contents as string;
+  const fontStyle = properties.fontStyle.contents as string;
+  const fontVariant = properties.fontVariant.contents as string;
+  const fontWeight = properties.fontWeight.contents as string;
+  const lineHeight = properties.lineHeight.contents as string;
+  /**
+   * assemble according to the rules in https://developer.mozilla.org/en-US/docs/Web/CSS/font
+   * it must include values for: <font-size> <font-family>
+   * it may optionally include values for: <font-style> <font-variant> <font-weight> <font-stretch> <line-height>
+   * font-style, font-variant and font-weight must precede font-size
+   * font-variant may only specify the values defined in CSS 2.1, that is normal and small-caps
+   * font-stretch may only be a single keyword value.
+   * line-height must immediately follow font-size, preceded by "/", like this: "16px/3"
+   * font-family must be the last value specified.
+   */
+
+  const fontSpec = `font: ${fontStretch} ${fontStyle} ${fontVariant} ${fontWeight} ${fontSize} ${fontFamily};`;
+  const fontString =
+    lineHeight !== "" ? fontSpec.concat(`/${lineHeight}`) : fontSpec;
+
+  const existingStyle: string | null = elem.getAttribute("style");
+
+  // TODO: check if `lineHeight` is valid
+  elem.setAttribute(
+    "style",
+    existingStyle ? `${existingStyle};${fontString}` : fontString
+  );
+  return [
+    "fontFamily",
+    "fontSize",
+    "fontStretch",
+    "fontStyle",
+    "fontVariant",
+    "fontWeight",
+    "lineHeigh",
+  ]; // Return array of input properties programatically mapped
 };

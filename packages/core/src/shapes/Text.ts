@@ -8,7 +8,7 @@ import {
   IString,
   IShape,
 } from "types/shapes";
-import { IStrV } from "types/value";
+import { IFloatV, IStrV } from "types/value";
 import {
   Canvas,
   sampleColor,
@@ -36,6 +36,7 @@ export interface IText
   fontVariant: IStrV;
   fontWeight: IStrV;
   textAnchor: IStrV;
+  lineHeight: IStrV;
   alignmentBaseline: IStrV;
 }
 
@@ -53,13 +54,14 @@ export const sampleText = (canvas: Canvas): IText => ({
   rotation: sampleZero(),
   string: StrV("defaultText"),
   visibility: StrV(""),
-  fontFamily: StrV(""),
+  fontFamily: StrV("sans-serif"),
   fontSize: StrV("12pt"),
   fontSizeAdjust: StrV(""),
   fontStretch: StrV(""),
   fontStyle: StrV(""),
   fontVariant: StrV(""),
   fontWeight: StrV(""),
+  lineHeight: StrV(""),
   textAnchor: StrV("middle"),
   alignmentBaseline: StrV("middle"),
 });
