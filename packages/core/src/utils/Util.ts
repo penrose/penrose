@@ -605,42 +605,42 @@ export const ops = {
 /**
  * Return the bounding box (as 4 segments) of an axis-aligned box-like shape given by `center`, width `w`, height `h` as an object with `top, bot, left, right`.
  */
-export const bboxSegs = (center: number[], w: number, h: number): any => {
-  const halfWidth = w / 2;
-  const halfHeight = h / 2;
-  const nhalfWidth = -halfWidth;
-  const nhalfHeight = -halfHeight;
-  // CCW: TR, TL, BL, BR
-  const ptsR = [
-    [halfWidth, halfHeight],
-    [nhalfWidth, halfHeight],
-    [nhalfWidth, nhalfHeight],
-    [halfWidth, nhalfHeight],
-  ].map((p) => ops.vadd(center, p));
+// export const bboxSegs = (center: number[], w: number, h: number): any => {
+//   const halfWidth = w / 2;
+//   const halfHeight = h / 2;
+//   const nhalfWidth = -halfWidth;
+//   const nhalfHeight = -halfHeight;
+//   // CCW: TR, TL, BL, BR
+//   const ptsR = [
+//     [halfWidth, halfHeight],
+//     [nhalfWidth, halfHeight],
+//     [nhalfWidth, nhalfHeight],
+//     [halfWidth, nhalfHeight],
+//   ].map((p) => ops.vadd(center, p));
 
-  const cornersR = {
-    topRight: ptsR[0],
-    topLeft: ptsR[1],
-    bottomLeft: ptsR[2],
-    bottomRight: ptsR[3],
-  };
+//   const cornersR = {
+//     topRight: ptsR[0],
+//     topLeft: ptsR[1],
+//     bottomLeft: ptsR[2],
+//     bottomRight: ptsR[3],
+//   };
 
-  const segsR = {
-    top: [cornersR.topLeft, cornersR.topRight],
-    bot: [cornersR.bottomLeft, cornersR.bottomRight],
-    left: [cornersR.bottomLeft, cornersR.topLeft],
-    right: [cornersR.bottomRight, cornersR.topRight],
-  };
+//   const segsR = {
+//     top: [cornersR.topLeft, cornersR.topRight],
+//     bot: [cornersR.bottomLeft, cornersR.bottomRight],
+//     left: [cornersR.bottomLeft, cornersR.topLeft],
+//     right: [cornersR.bottomRight, cornersR.topRight],
+//   };
 
-  const linesR = {
-    minX: cornersR.topLeft[0],
-    maxX: cornersR.topRight[0],
-    minY: cornersR.bottomLeft[1],
-    maxY: cornersR.topLeft[1],
-  };
+//   const linesR = {
+//     minX: cornersR.topLeft[0],
+//     maxX: cornersR.topRight[0],
+//     minY: cornersR.bottomLeft[1],
+//     maxY: cornersR.topLeft[1],
+//   };
 
-  return { ptsR, cornersR, segsR, linesR };
-};
+//   return { ptsR, cornersR, segsR, linesR };
+// };
 
 // returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
 export const intersects = (s1: number[][], s2: number[][]): boolean => {
