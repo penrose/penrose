@@ -1535,10 +1535,8 @@ export const findSubstsProg = (
 // Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
 // Leave all other statements unchanged
 
-const nameAnonStatement = (
-  [i, b]: [number, Stmt[]],
-  s: Stmt
-): [number, Stmt[]] => {
+// note: b can be appended to by this function
+const nameAnonStatement = (i: number, b: Stmt[], s: Stmt): number => {
   // Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
   if (s.tag === "AnonAssign") {
     const stmt: Stmt = {
@@ -1553,20 +1551,17 @@ const nameAnonStatement = (
       },
       value: s.contents,
     };
-    return [i + 1, b.concat([stmt])];
+    b.push(stmt);
+    return i + 1;
   } else {
-    return [i, b.concat([s])];
+    return i;
   }
 };
 
 const nameAnonBlock = (b: Block): Block => {
-  return {
-    ...b,
-    statements: b.statements.reduce(
-      (acc, curr) => nameAnonStatement(acc, curr), // Not sure why this can't be point-free
-      [0, []] as [number, Stmt[]]
-    )[1],
-  };
+  const statements: Stmt[] = [];
+  b.statements.reduce((i, s) => nameAnonStatement(i, statements, s), 0);
+  return { ...b, statements };
 };
 
 export const nameAnonStatements = (prog: StyProg): StyProg => {
@@ -1833,7 +1828,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
-   
+
   return { errors, warnings };
 };
 
