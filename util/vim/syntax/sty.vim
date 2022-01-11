@@ -21,7 +21,7 @@ syn keyword styTodo TODO FIXME XXX NOTE
 syn match styComment "--.*$" contains=styTodo,@Spell
 
 " Types and values
-syn keyword styTypes scalar rgba vec2 vec3
+syn keyword styTypes scalar color rgba vec2 vec3 constraint objective
 syn match styString "\"[^"]*\""
 
 " Highlight as a keyword only if preceded by

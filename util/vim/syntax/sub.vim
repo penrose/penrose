@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword subKeywords Label AutoLabel All None
+syn keyword subKeywords Label AutoLabel NoLabel All None
 
 " Comments
 syn keyword subTodo TODO FIXME XXX NOTE
