@@ -1,2 +1,2 @@
-npx roger watch exterior-algebra.sub exterior-algebra.sty exterior-algebra.dsl
+npx roger watch vector-wedge.sub exterior-algebra.sty exterior-algebra.dsl
 
