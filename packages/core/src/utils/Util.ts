@@ -160,29 +160,29 @@ export const penroseToSVG = (canvasSize: [number, number]) => {
   return [translateStr, flipYStr].join(" ");
 };
 
-export const penroseTransformStr = (tf: any) => {
-  const transformList = [
-    tf.xScale,
-    tf.ySkew,
-    tf.xSkew,
-    tf.yScale,
-    tf.dx,
-    tf.dy,
-  ];
-  const penroseTransform = "matrix(" + transformList.join(" ") + ")";
-  return penroseTransform;
-};
+// export const penroseTransformStr = (tf: any): string => {
+//   const transformList = [
+//     tf.xScale,
+//     tf.ySkew,
+//     tf.xSkew,
+//     tf.yScale,
+//     tf.dx,
+//     tf.dy,
+//   ];
+//   const penroseTransform = "matrix(" + transformList.join(" ") + ")";
+//   return penroseTransform;
+// };
 
-export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
-  // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
-  // `tf` is `shape.transformation.contents`, an HMatrix from the backend
-  // It is the *full* transform, incl. default transform
-  // Do Penrose transform, then SVG
-  const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(
-    " "
-  );
-  return transformStr;
-};
+// export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
+//   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+//   // `tf` is `shape.transformation.contents`, an HMatrix from the backend
+//   // It is the *full* transform, incl. default transform
+//   // Do Penrose transform, then SVG
+//   const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(
+//     " "
+//   );
+//   return transformStr;
+// };
 
 // BUG: ptList needs to be properly typed
 export const toPointListString = memoize(
