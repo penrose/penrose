@@ -28,6 +28,7 @@ import {
   overlappingCircles,
   overlappingPolygons,
   overlappingRectlikeCircle,
+  overlappingCircleLine,
   overlappingAABBs,
   containsCircles,
   containsCircleRectlike,
@@ -43,10 +44,17 @@ import { VarAD } from "types/ad";
 const constrDictSimple = {
 
   /**
-   * Require that the value `x` is less than the value `y`
+   * Require that the value `x` is equal to the value `y`
    */
   equal: (x: VarAD, y: VarAD) => {
     return absVal(sub(x, y))
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y` with optional padding `padding`
+   */
+  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(y, x), constOfIf(padding));
   },
 
   /**
@@ -152,8 +160,12 @@ const constrDictGeneral = {
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Polygon" && t2 === "Polygon")
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
-    if (shapedefs[t1].isRectlike && t2 === "Circle")
+    else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && t2 === "Line")
+      return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Line" && t2 === "Circle")
+      return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
     else {
       // TODO: After compilation time fix (issue #652), replace by:
       // return overlappingAABBsMinkowski([t1, s1], [t2, s2], constOfIf(padding));
