@@ -1,6 +1,9 @@
 import { overlappingPolygonPoints, rectangleDifference } from "contrib/Minkowski";
 import { overlap1D } from "contrib/Utils";
 import { ops, constOf } from "engine/Autodiff";
+import { shapeCenter, bboxFromShape } from "contrib/Queries";
+import { VarAD } from "types/ad";
+import * as BBox from "engine/BBox";
 import {
   neg,
   sub,
@@ -16,9 +19,6 @@ import {
   sqrt,
   squared,
 } from "engine/AutodiffFunctions";
-import { shapeCenter, bboxFromShape } from "contrib/Queries";
-import { VarAD } from "types/ad";
-import * as BBox from "engine/BBox";
 import { Circle } from "shapes/Circle";
 import { Polygon } from "shapes/Polygon";
 import { Rectangle } from "shapes/Rectangle";

@@ -6,6 +6,9 @@ export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = Map<string, LabelValue>;
 export interface SubstanceEnv {
   exprEqualities: [SubExpr, SubExpr][];
+  // predEqualities is not used; the original proposal was to allow equivalent
+  // predicates; it was left in here in case we decide to revive it in the
+  // future
   predEqualities: [ApplyPredicate, ApplyPredicate][];
   bindings: Map<string, SubExpr>;
   labels: LabelMap;

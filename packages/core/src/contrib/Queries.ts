@@ -30,7 +30,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
  * - `radius` for circles.
  * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
  */
- export const shapeSize = ([t, s]: [string, any]): VarAD => {
+export const shapeSize = ([t, s]: [string, any]): VarAD => {
   if (t == "Circle") {
     return mul(constOf(2.0), s.r.contents);
   } else {
