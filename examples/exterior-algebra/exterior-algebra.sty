@@ -1,17 +1,20 @@
+-- define the size of the drawing
 canvas {
    width = 240
    height = 180
 }
 
+-- define some colors re-used throughout
 Colors {
    color black = rgba(0,0,0,1)
    color white = rgba(1,1,1,1)
    color clearGray = rgba(0,0,0,.2)
-   color clearGreen = rgba(0,.6,0,.2)
-   color darkGreen = rgba(0,.6,0,1.)
 }
 
 Global {
+
+   -- draw a box around the canvas (this box will 
+   -- also be used to constrain shapes to the canvas)
    shape box = Rectangle {
       center: (0,0)
       width: canvas.width
@@ -21,11 +24,15 @@ Global {
       strokeWidth: 1
    }
 
+   -- some additional parameters to get consistent styling throughout
    scalar lineThickness = 1.5
    scalar fontSize = "6pt"
    string fontFamily = "Linux Libertine"
 }
 
+-- for each Vector declared in the .sub program, this match will
+-- get executed once to draw a little widget for that vector, and
+-- set up any associated constraints
 forall Vector v {
 
    -- declare a point whose location will be
@@ -60,10 +67,14 @@ where v has label {
    ensure contains( Global.box, v.labelText )
 }
 
+-- draw a bivector that has been defined as the wedge of two
+-- vectors as a little parallelogram
 forall Bivector w; Vector u; Vector v
 where w := Wedge(u,v) {
 
    -- pick a random brightly-saturated color for this bivector
+   -- (these colors will be re-used in subsequent rules, which
+   -- why we define them up-front and associate them with w)
    scalar w.hue = ?
    color w.solidColor = hsva( w.hue, 100, 80, 1 )
    color w.clearColor = hsva( w.hue, 100, 80, .2 )
