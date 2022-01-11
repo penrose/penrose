@@ -31,6 +31,14 @@ forall Text t {
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38pt"
+      alignmentBaseline: "hanging"
+      textAnchor: "start"
+   }
+   shape t.bbox = Rectangle {
+      center: t.titleCenter
+      fillColor: rgba(1.,1.,1.,1.)
+      width: t.text.width
+      height: t.text.height
    }
    shape t.innerStroke = Text {
       string: t.titleString
@@ -40,6 +48,8 @@ forall Text t {
       fontStyle: "italic"
       fontSize: "38pt"
       style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
+      alignmentBaseline: "hanging"
+      textAnchor: "start"
    }
    shape t.outerStroke = Text {
       string: t.titleString
@@ -49,6 +59,8 @@ forall Text t {
       fontStyle: "italic"
       fontSize: "38pt"
       style: "stroke:#FF6603;stroke-width:8;stroke-miterlimit:2;"
+      alignmentBaseline: "hanging"
+      textAnchor: "start"
    }
 
    -- make sure the text and strokes

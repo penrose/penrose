@@ -1,6 +1,6 @@
 /**
  * Provides an assortment of utility functions shared across shapes that computes
- * output SVG properties using the optimized shape properties as input. 
+ * output SVG properties using the optimized shape properties as input.
  */
 
 import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
@@ -162,8 +162,8 @@ export const attrRotation = (
 };
 
 /**
-* Maps width, height --> width, height
-*/
+ * Maps width, height --> width, height
+ */
 export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
   const w = properties.width as IFloatV<number>;
   const h = properties.height as IFloatV<number>;
@@ -172,7 +172,7 @@ export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
 
   return ["width", "height"]; // Return array of input properties programatically mapped
 };
-  
+
 /**
  * Maps cornerRadius --> rx
  */
@@ -421,6 +421,10 @@ export const attrAlignmentBaseline = (
   if (alignmentBaseline.contents !== "") {
     elem.setAttribute(
       "alignment-baseline",
+      alignmentBaseline.contents.toString()
+    );
+    elem.setAttribute(
+      "dominant-baseline",
       alignmentBaseline.contents.toString()
     );
   }

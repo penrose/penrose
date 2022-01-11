@@ -1,3 +1,6 @@
+import { IStrV, IVectorV } from "types/value";
+import { retrieveLabel } from "utils/CollectLabels";
+import { toScreen } from "utils/Util";
 import {
   attrXY,
   attrFill,
@@ -15,10 +18,11 @@ import {
   attrAlignmentBaseline,
   attrRotation,
   attrAutoFillSvg,
+  attrWH,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
+const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
   // Keep track of which input properties we programatically mapped
@@ -40,6 +44,13 @@ const Text = ({ shape, canvasSize }: ShapeProps): SVGTextElement => {
   attrToNotAutoMap.push(...attrTextAnchor(shape, elem));
   attrToNotAutoMap.push(...attrAlignmentBaseline(shape, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
+
+  // Get width/height of the text if available
+  const name = shape.properties.name as IStrV;
+  const retrievedLabel = retrieveLabel(name.contents, labels);
+  if (retrievedLabel && retrievedLabel.tag === "TextData") {
+    attrToNotAutoMap.push(...attrWH(shape, elem));
+  }
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

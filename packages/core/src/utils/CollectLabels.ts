@@ -10,9 +10,12 @@ import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
 import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
-import { LabelCache, LabelData } from "types/state";
+import { EquationData, LabelCache, LabelData, TextData } from "types/state";
 import { err, ok, Result } from "./Error";
 import { PenroseError } from "types/errors";
+import { Canvas, RenderShape } from "index";
+import { NumericDictionaryIteratee } from "lodash";
+import { IFloatV, Value } from "types/value";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -113,9 +116,32 @@ export const retrieveLabel = (
   } else return undefined;
 };
 
+const floatV = (contents: number): IFloatV<number> => ({
+  tag: "FloatV",
+  contents,
+});
+
+const textData = (width: number, height: number): TextData => ({
+  tag: "TextData",
+  width: floatV(width),
+  height: floatV(height),
+});
+
+const equationData = (
+  width: number,
+  height: number,
+  rendered: HTMLElement
+): EquationData => ({
+  tag: "EquationData",
+  width: floatV(width),
+  height: floatV(height),
+  rendered,
+});
+
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: Shape[]
+  allShapes: Shape[],
+  canvasSize: [number, number]
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = [];
   for (const s of allShapes) {
@@ -141,18 +167,43 @@ export const collectLabels = async (
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
-      const label: LabelData = {
-        width: {
-          tag: "FloatV",
-          contents: width === Infinity ? 0 : width,
-        },
-        height: {
-          tag: "FloatV",
-          contents: height === Infinity ? 0 : height,
-        },
-        rendered: body,
-      };
+      const label: EquationData = equationData(
+        width === Infinity ? 0 : width,
+        height === Infinity ? 0 : height,
+        body
+      );
       labels.push([shapeName, label]);
+    } else if (shapeType === "Text") {
+      const shapeName: string = properties.name.contents as string;
+      // HACK: pre-render the text to get the bbox
+      const elem = RenderShape({ shape: s, labels, canvasSize });
+      // HACK: temporary div for `getBBox` function
+      const tempDiv = document.createElement("div");
+      tempDiv.setAttribute(
+        "style",
+        "position:absolute; visibility:hidden; width:0; height:0"
+      );
+      const tempSvg = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+      );
+      tempSvg.appendChild(elem.cloneNode(true));
+      tempDiv.appendChild(tempSvg);
+      document.body.appendChild(tempDiv);
+      let label: TextData;
+      // NOTE: `getBBox` is only defined in browser. So we set width and height to zeros if it's not defined
+      if (tempSvg.getBBox) {
+        const bbox = tempSvg.getBBox({ stroke: true });
+        const { width, height } = bbox;
+        console.log("text bbox width  : " + String(bbox.width));
+        console.log("text bbox height : " + String(bbox.height));
+        label = textData(width, height);
+      } else {
+        label = textData(0, 0);
+      }
+      labels.push([shapeName, label]);
+      // clean up
+      document.body.removeChild(tempDiv);
     }
   }
   return ok(labels);

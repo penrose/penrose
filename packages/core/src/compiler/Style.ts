@@ -1833,7 +1833,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
-   
+
   return { errors, warnings };
 };
 
@@ -2215,6 +2215,7 @@ const mkPath = (strs: string[]): Path => {
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
   if (s === "Equation") return ["width", "height"];
   if (s === "EquationTransform") return ["width", "height"];
+  if (s === "Text") return ["width", "height"];
   if (s === "ImageTransform") return ["initWidth", "initHeight"];
   return [];
 };

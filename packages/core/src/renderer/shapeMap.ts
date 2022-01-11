@@ -1,5 +1,5 @@
 import Circle from "./Circle";
-import Label from "./Label";
+import Equation from "./Label";
 import Ellipse from "./Ellipse";
 import Rectangle from "./Rectangle";
 import Polygon from "./Polygon";
@@ -16,7 +16,7 @@ const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
   Rectangle,
   Polygon,
   Polyline,
-  Equation: Label,
+  Equation,
   Path,
   Line,
   Image,
