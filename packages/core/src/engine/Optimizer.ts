@@ -3,16 +3,15 @@ import { constrDict } from "contrib/Constraints";
 import { objDict } from "contrib/Objectives";
 import eig from "eigen";
 import {
-  add,
   differentiable,
   energyAndGradCompiled,
   fns,
   makeADInputVars,
   markInput,
-  mul,
   ops,
   varOf,
 } from "engine/Autodiff";
+import { add, mul } from "./AutodiffFunctions";
 import {
   defaultLbfgsParams,
   initConstraintWeight,
@@ -1082,7 +1081,7 @@ export const genFns = (s: State): State => {
 };
 
 const containsNaN = (numberList: number[]): boolean => {
-  for (var n in numberList) {
+  for (const n in numberList) {
     if (Number.isNaN(n)) {
       return true;
     }

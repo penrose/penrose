@@ -1,4 +1,5 @@
-import { constOf, sqrt, mul } from "engine/Autodiff";
+import { constOf } from "engine/Autodiff";
+import { sqrt, mul } from "engine/AutodiffFunctions";
 import { Pt2, VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
@@ -15,7 +16,7 @@ export const bboxFromShape = ([t, s]: [string, any]): BBox.BBox => {
  * For shapes without the property `center`, the center of their bounding box is returned.
  */
 export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
-  if ('center' in s) {
+  if ("center" in s) {
     return s.center.contents;
   } else {
     // Return center of bounding box
