@@ -33,6 +33,7 @@ export default function EditorPane({
   setupMonaco(monaco: Monaco): () => void;
 }) {
   const monaco = useMonaco();
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (monaco) {
@@ -41,14 +42,22 @@ export default function EditorPane({
         dispose();
       };
     }
-  }, [monaco, setupMonaco]);
-  // if (vimMode && statusBarRef.current) {
-  // const vimModeInstance = initVimMode(editor, statusBarRef.current);
-  // return () => {
-  // vimModeInstance.dispose();
-  // };
+  }, [monaco, setupMonaco, vimMode]);
+  useEffect(() => {
+    if (vimMode && statusBarRef.current && editorRef.current) {
+      const vimModeInstance = initVimMode(
+        editorRef.current,
+        statusBarRef.current
+      );
+      return () => vimModeInstance.dispose();
+    }
+  }, [vimMode, editorRef.current, statusBarRef.current]);
+  const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
+    editorRef.current = editorArg;
+  };
+
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <MonacoEditor
         width="100%"
         value={value}
@@ -61,8 +70,12 @@ export default function EditorPane({
         }
         defaultLanguage={languageType}
         options={monacoOptions}
+        onMount={onEditorMount}
       />
-      <div ref={statusBarRef} />
+      <div
+        ref={statusBarRef}
+        style={{ position: "absolute", bottom: 0, backgroundColor: "white" }}
+      />
     </div>
   );
 }
