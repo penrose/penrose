@@ -56,7 +56,7 @@ const canvas = makeCanvas(800, 700);
 // Created with Monodraw                                                                                
 
 export const _rectangles = [ 
-  // Rectangle 0
+  // _rectangles[0]
   makeRectangle(canvas, {
     center: VectorV([0, 0].map(constOf)),
     width: FloatV(constOf(400)),
@@ -64,7 +64,7 @@ export const _rectangles = [
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
-  // Rectangle 1
+  // _rectangles[1]
   makeRectangle(canvas, {
     center: VectorV([0, 0].map(constOf)),
     width: FloatV(constOf(200)),
@@ -72,7 +72,7 @@ export const _rectangles = [
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
-  // Rectangle 2
+  // _rectangles[2]
   makeRectangle(canvas, {
     center: VectorV([200, 0].map(constOf)),
     width: FloatV(constOf(200)),
@@ -80,7 +80,7 @@ export const _rectangles = [
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
-  // Rectangle 3
+  // _rectangles[3]
   makeRectangle(canvas, {
     center: VectorV([0, 300].map(constOf)),
     width: FloatV(constOf(200)),
@@ -91,28 +91,28 @@ export const _rectangles = [
 ];
 
 export const _circles = [
-  // Circle 0
+  // _circles[0]
   makeCircle(canvas, {
     r: FloatV(constOf(200)),
     center: VectorV([0, 0].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
-  // Circle 1
+  // _circles[1]
   makeCircle(canvas, {
     r: FloatV(constOf(100)),
     center: VectorV([0, 0].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
-  // Circle 2
+  // _circles[2]
   makeCircle(canvas, {
     r: FloatV(constOf(100)),
     center: VectorV([200, 0].map(constOf)),
     strokeWidth: FloatV(constOf(0)),
     strokeColor: sampleBlack(),
   }),
-  // Circle 3
+  // _circles[3]
   makeCircle(canvas, {
     r: FloatV(constOf(100)),
     center: VectorV([0, 300].map(constOf)),
