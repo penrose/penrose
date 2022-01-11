@@ -114,6 +114,7 @@ export const RenderInteractive = (
   updateState: (newState: State) => void
 ): SVGSVGElement => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
   svg.setAttribute("version", "1.2");
@@ -121,7 +122,6 @@ export const RenderInteractive = (
     "viewBox",
     `0 0 ${state.canvas.width} ${state.canvas.height}`
   );
-  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
