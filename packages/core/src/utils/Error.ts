@@ -28,7 +28,7 @@ import {
 import { State } from "types/state";
 import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath } from "utils/OtherUtils";
+import { prettyPrintPath } from "utils/Util";
 const {
   or,
   and,

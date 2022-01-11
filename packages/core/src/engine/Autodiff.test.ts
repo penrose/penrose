@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { all, randList, eqList } from "utils/OtherUtils";
+import { all, randList, eqList } from "utils/Util";
 import { GradGraphs } from "types/ad";
 import {
   clearVisitedNodes,

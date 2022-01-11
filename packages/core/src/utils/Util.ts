@@ -1,12 +1,74 @@
+import * as _ from "lodash";
 import memoize from "fast-memoize";
 import { zipWith, reduce, times } from "lodash";
 import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
-import { Color } from "types/value";
+import { Expr, Path } from "types/style";
+import { ArgVal, Color } from "types/value";
+import { MaybeVal } from "types/common";
+import { VarAD } from "types/ad";
+
+//#region general
+
+// https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
+// Basically Haskell's mapByValue (?)
+export function mapMap(map: Map<any, any>, fn: any) {
+  return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
+}
+
+/**
+ * Safe wrapper for any function that might return `undefined`.
+ * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
+ * @param argument Possible unsafe function call
+ * @param message Error message
+ */
+export const safe = <T extends unknown>(
+  argument: T | undefined | null,
+  message: string
+): T => {
+  if (argument === undefined || argument === null) {
+    throw new TypeError(message);
+  }
+  return argument;
+};
+
+// Repeat `x`, `i` times
+export function repeat<T>(i: number, x: T) {
+  const xs = [];
+
+  for (let j = 0; j < i; j++) {
+    xs.push(x);
+  }
+
+  return xs;
+}
+
+export const all = (xs: boolean[]) =>
+  xs.reduce((prev, curr) => prev && curr, true);
+
+export const repeatList = (e: any, n: number): any[] => {
+  const xs = [];
+  for (let i = 0; i < n; i++) {
+    xs.push(e);
+  }
+  return xs;
+};
+
+export function fromJust<T>(n: MaybeVal<T>): T {
+  if (n.tag === "Just") {
+    return n.contents;
+  }
+
+  throw Error("expected value in fromJust but got Nothing");
+}
+
+//#endregion
 
 //#region random
 
 seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
+
+const RAND_RANGE = 100;
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
@@ -43,13 +105,9 @@ export const randInt = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
-/**
- * Find the Euclidean distance between two points
- * @param param0 point 1 [x1, y1]
- * @param param1 point 2 [x2, y2]
- */
-export const dist = ([x1, y1]: [number, number], [x2, y2]: [number, number]) =>
-  Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+export const randList = (n: number): number[] => {
+  return repeatList(0, n).map((e) => RAND_RANGE * (Math.random() - 0.5));
+};
 
 export const arrowheads = {
   "arrowhead-1": {
@@ -72,7 +130,7 @@ export const arrowheads = {
 
 //#endregion
 
-//#region svg
+//#region SVG
 
 // export const Shadow = (props: { id: string }) => {
 //   return (
@@ -262,6 +320,8 @@ export const loadImages = async (allShapes: any[]) => {
 
 //#region numerical
 
+const TOL = 1e-3;
+
 export const round2 = (n: number) => roundTo(n, 2);
 
 // https://stackoverflow.com/questions/15762768/javascript-math-round-to-two-decimal-places
@@ -290,35 +350,46 @@ export const roundTo = (n: number, digits: number) => {
   return n3;
 };
 
-//#endregion
+export const normList = (xs: number[]) =>
+  Math.sqrt(_.sum(xs.map((e) => e * e)));
 
-//#region general
+export const close = (x: number, y: number) => {
+  const EPS = 1e-15;
+  return Math.abs(x - y) < EPS;
+};
 
-// https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
-// Basically Haskell's mapByValue (?)
-export function mapMap(map: Map<any, any>, fn: any) {
-  return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
-}
+export const eqNum = (x: number, y: number): boolean => {
+  return Math.abs(x - y) < TOL;
+};
 
-/**
- * Safe wrapper for any function that might return `undefined`.
- * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
- * @param argument Possible unsafe function call
- * @param message Error message
- */
-export const safe = <T extends unknown>(
-  argument: T | undefined | null,
-  message: string
-): T => {
-  if (argument === undefined || argument === null) {
-    throw new TypeError(message);
+export const eqList = (xs: number[], ys: number[]): boolean => {
+  if (xs == null || ys == null) return false;
+  if (xs.length !== ys.length) return false;
+
+  //   _.every(_.zip(xs, ys), e => eqNum(e[0], e[1]));
+
+  // let xys = _.zip(xs, ys);
+  // return xys?.every(e => e ? Math.abs(e[1] - e[0]) < TOL : false) ?? false;
+  // Typescript won't pass this code no matter how many undefined-esque checks I put in??
+
+  for (let i = 0; i < xs.length; i++) {
+    if (!eqNum(xs[i], ys[i])) return false;
   }
-  return argument;
+
+  return true;
 };
 
 //#endregion
 
 //#region geometry
+
+/**
+ * Find the Euclidean distance between two points
+ * @param param0 point 1 [x1, y1]
+ * @param param1 point 2 [x2, y2]
+ */
+export const dist = ([x1, y1]: [number, number], [x2, y2]: [number, number]) =>
+  Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 
 // calculates bounding box dimensions of a shape - used in inspector views
 export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
@@ -650,6 +721,42 @@ export const pointInBox = (p: any, rect: any): boolean => {
   );
 };
 
+export const scalev = (c: number, xs: number[]): number[] =>
+  _.map(xs, (x) => c * x);
+
+export const addv = (xs: number[], ys: number[]): number[] => {
+  if (xs.length !== ys.length) {
+    console.error("xs", xs, "ys", ys);
+    throw Error("can't add vectors of different length");
+  }
+
+  return _.zipWith(xs, ys, (x, y) => x + y);
+};
+
+export const subv = (xs: number[], ys: number[]): number[] => {
+  if (xs.length !== ys.length) {
+    console.error("xs", xs, "ys", ys);
+    throw Error("can't sub vectors of different length");
+  }
+
+  return _.zipWith(xs, ys, (x, y) => x - y);
+};
+
+export const negv = (xs: number[]): number[] => _.map(xs, (e) => -e);
+
+export const dot = (xs: number[], ys: number[]): number => {
+  if (xs.length !== ys.length) {
+    console.error("xs", xs, "ys", ys);
+    throw Error("can't dot vectors of different length");
+  }
+
+  let acc = 0;
+  for (let i = 0; i < xs.length; i++) {
+    acc += xs[i] * ys[i];
+  }
+  return acc;
+};
+
 //#endregion
 
 //#region queue
@@ -722,5 +829,138 @@ export default class Queue<T> {
     }
   }
 }
+
+//#endregion
+
+//#region Style
+
+// HACK: Copied from EngineUtils
+export const exprToNumber = (e: Expr): number => {
+  if (e.tag === "Fix") {
+    return e.contents;
+  }
+  console.log("got e", e);
+  throw Error("expecting expr to be number");
+};
+
+// COMBAK: Copied from `EngineUtils`; consolidate
+export const isPath = (expr: Expr): expr is Path => {
+  return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
+    expr.tag
+  );
+};
+
+export const prettyPrintPath = (p: Expr): string => {
+  if (p.tag === "FieldPath") {
+    const varName = p.name.contents.value;
+    const varField = p.field.value;
+    return [varName, varField].join(".");
+  } else if (p.tag === "PropertyPath") {
+    const varName = p.name.contents.value;
+    const varField = p.field.value;
+    const property = p.property.value;
+    return [varName, varField, property].join(".");
+  } else if (p.tag === "AccessPath") {
+    const pstr: string = prettyPrintPath(p.path);
+    const indices: string[] = p.indices.map(prettyPrintExpr);
+    return `${pstr}[${indices.toString()}]`;
+  } else {
+    console.error("unexpected path type in", p);
+    return JSON.stringify(p);
+  }
+};
+
+export const prettyPrintExpr = (arg: Expr): string => {
+  // TODO: only handles paths and floats for now; generalize to other exprs
+  if (isPath(arg)) {
+    return prettyPrintPath(arg);
+  } else if (arg.tag === "Fix") {
+    const val = arg.contents;
+    return String(val);
+  } else if (arg.tag === "CompApp") {
+    const [fnName, fnArgs] = [arg.name.value, arg.args];
+    return [fnName, "(", ...fnArgs.map(prettyPrintExpr).join(", "), ")"].join(
+      ""
+    );
+  } else if (arg.tag === "UOp") {
+    let uOpName;
+    switch (arg.op) {
+      case "UMinus":
+        uOpName = "-";
+        break;
+    }
+    return "(" + uOpName + prettyPrintExpr(arg.arg) + ")";
+  } else if (arg.tag === "BinOp") {
+    let binOpName;
+    switch (arg.op) {
+      case "BPlus":
+        binOpName = "+";
+        break;
+      case "BMinus":
+        binOpName = "-";
+        break;
+      case "Multiply":
+        binOpName = "*";
+        break;
+      case "Divide":
+        binOpName = "/";
+        break;
+      case "Exp":
+        binOpName = "**";
+        break;
+    }
+    return (
+      "(" +
+      prettyPrintExpr(arg.left) +
+      " " +
+      binOpName +
+      " " +
+      prettyPrintExpr(arg.right) +
+      ")"
+    );
+  } else {
+    // TODO: Finish writing pretty-printer for rest of expressions
+    const res = JSON.stringify(arg);
+    return res;
+  }
+};
+
+export const prettyPrintFn = (fn: any) => {
+  const name = fn.fname;
+  const args = fn.fargs.map(prettyPrintExpr).join(", ");
+  return [name, "(", args, ")"].join("");
+};
+
+export const prettyPrintFns = (state: any) =>
+  state.objFns.concat(state.constrFns).map(prettyPrintFn);
+
+//#endregion
+
+//#region autodiff
+
+// From Evaluator
+export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
+  tag: "Val",
+  contents: {
+    tag: "FloatV",
+    contents: v,
+  },
+});
+
+// TODO: use it
+// const getConstraint = (name: string) => {
+//   if (!constrDict[name]) throw new Error(`Constraint "${name}" not found`);
+//   // TODO: types for args
+//   return (...args: any[]) => toPenalty(constrDict[name]);
+// };
+
+export const linePts = ({ start, end }: any): [VarAD[], VarAD[]] => [
+  start.contents,
+  end.contents,
+];
+
+export const getStart = ({ start }: any): VarAD[] => start.contents;
+
+export const getEnd = ({ end }: any): VarAD[] => end.contents;
 
 //#endregion
