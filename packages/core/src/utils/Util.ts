@@ -279,37 +279,37 @@ export const toSvgOpacityProperty = (color: Color<number>): number => {
 
 //#region images
 
-export const loadImageElement = memoize(
-  async (url: string): Promise<any> =>
-    new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = url;
-    })
-);
+// export const loadImageElement = memoize(
+//   async (url: string): Promise<any> =>
+//     new Promise((resolve, reject) => {
+//       const img = new Image();
+//       img.onload = () => resolve(img);
+//       img.onerror = reject;
+//       img.src = url;
+//     })
+// );
 
-// Load images asynchronously so we can send the dimensions to the backend and use it in the frontend
+// // Load images asynchronously so we can send the dimensions to the backend and use it in the frontend
 
-export const loadImages = async (allShapes: any[]) => {
-  return Promise.all(
-    allShapes.map(async ({ shapeType, properties }: any) => {
-      if (shapeType === "ImageTransform") {
-        const path = properties.href.contents;
-        const fullPath = process.env.PUBLIC_URL + path;
-        const loadedImage = await loadImageElement(fullPath);
-        const obj2 = { ...properties };
+// export const loadImages = async (allShapes: any[]) => {
+//   return Promise.all(
+//     allShapes.map(async ({ shapeType, properties }: any) => {
+//       if (shapeType === "ImageTransform") {
+//         const path = properties.href.contents;
+//         const fullPath = process.env.PUBLIC_URL + path;
+//         const loadedImage = await loadImageElement(fullPath);
+//         const obj2 = { ...properties };
 
-        obj2.initWidth.contents = loadedImage.naturalWidth;
-        obj2.initHeight.contents = loadedImage.naturalHeight;
+//         obj2.initWidth.contents = loadedImage.naturalWidth;
+//         obj2.initHeight.contents = loadedImage.naturalHeight;
 
-        return { shapeType, properties: obj2 };
-      } else {
-        return { shapeType, properties };
-      }
-    })
-  );
-};
+//         return { shapeType, properties: obj2 };
+//       } else {
+//         return { shapeType, properties };
+//       }
+//     })
+//   );
+// };
 
 //#endregion
 
