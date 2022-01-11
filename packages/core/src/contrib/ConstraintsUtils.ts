@@ -1,5 +1,9 @@
-import { overlappingPolygonPoints, convexPartitions, rectangleDifference } from "contrib/Minkowski";
+import { overlappingPolygonPoints, rectangleDifference } from "contrib/Minkowski";
 import { overlap1D } from "contrib/Utils";
+import { ops, constOf } from "engine/Autodiff";
+import { shapeCenter, bboxFromShape } from "contrib/Queries";
+import { VarAD } from "types/ad";
+import * as BBox from "engine/BBox";
 import {
   ifCond, 
   lt,
@@ -13,10 +17,19 @@ import {
   absVal,
   add,
   addN,
+  div,
+  ifCond,
+  lt,
+  max,
+  maxN,
+  min,
+  minN,
+  mul,
+  neg,
   sqrt,
   squared,
-  constOf,
-} from "engine/Autodiff";
+  sub,
+} from "engine/AutodiffFunctions";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
@@ -172,10 +185,15 @@ export const overlappingAABBsMinkowski = (
   const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
   const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
   const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
-  const e1 = sqrt(add(constOf(10e-15), add(
-    squared(max(sub(xp, xr), constOf(0.0))),
-    squared(max(sub(yp, yr), constOf(0.0)))
-  )));
+  const e1 = sqrt(
+    add(
+      constOf(10e-15),
+      add(
+        squared(max(sub(xp, xr), constOf(0.0))),
+        squared(max(sub(yp, yr), constOf(0.0)))
+      )
+    )
+  );
   const e2 = neg(min(max(xq, yq), constOf(0.0)));
   return sub(e1, e2);
 };
@@ -185,7 +203,7 @@ export const overlappingAABBsMinkowski = (
  * To be DEPRACATED - replace by `overlappingAABBsMinkowski` after issue #652.
  */
 export const overlappingAABBs = (
-  [t1, s1]: [string, any], 
+  [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   padding: VarAD = constOf(0.0)
 ) => {
@@ -209,7 +227,7 @@ export const containsCircles = (
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   const o = padding
-    ? sub(sub(s1.r.contents, s2.r.contents), padding) 
+    ? sub(sub(s1.r.contents, s2.r.contents), padding)
     : sub(s1.r.contents, s2.r.contents);
   const res = sub(d, o);
   return res;
@@ -254,7 +272,7 @@ export const containsRectlikeCircle = (
   // padding (o).  We can compute this violation via the function
   //    max( |cx-rx| - (w/2-r-o),
   //         |cy-ry| - (h/2-r-o) )
-  return max( 
+  return max(
     sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
     sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
   );
@@ -277,6 +295,6 @@ export const containsAABBs = (
     ifCond(lt(xl1, xl2), constOf(0), squared(sub(xl1, xl2))),
     ifCond(lt(xr2, xr1), constOf(0), squared(sub(xr2, xr1))),
     ifCond(lt(yl1, yl2), constOf(0), squared(sub(yl1, yl2))),
-    ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1)))
+    ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1))),
   ]);
 };

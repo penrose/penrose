@@ -1,17 +1,15 @@
+import { constOf, ops, varOf } from "engine/Autodiff";
 import {
   add,
   addN,
-  constOf,
   neg,
-  ops,
   sub,
-  varOf,
   ifCond,
   lt,
   max,
   minN,
   maxN,
-} from "engine/Autodiff";
+} from "engine/AutodiffFunctions";
 import * as _ from "lodash";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
@@ -24,7 +22,7 @@ import * as BBox from "engine/BBox";
  * @param padding Additional padding added to one of the boxes.
  */
 export const rectangleDifference = (
-  box1: BBox.BBox, 
+  box1: BBox.BBox,
   box2: BBox.BBox,
   padding: VarAD
 ): VarAD[][] => {
@@ -111,7 +109,9 @@ const convexPolygonMinkowskiSDFOneSided = (
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
-  const sdfs = sides.map((s: VarAD[][]) => halfPlaneSDF(s, p2, center, padding));
+  const sdfs = sides.map((s: VarAD[][]) =>
+    halfPlaneSDF(s, p2, center, padding)
+  );
   return maxN(sdfs);
 };
 
@@ -122,7 +122,7 @@ const convexPolygonMinkowskiSDFOneSided = (
  * @param padding Padding around the Minkowski sum.
  */
 export const convexPolygonMinkowskiSDF = (
-  p1: VarAD[][], 
+  p1: VarAD[][],
   p2: VarAD[][],
   padding: VarAD
 ): VarAD => {
