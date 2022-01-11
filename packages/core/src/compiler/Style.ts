@@ -377,39 +377,42 @@ const checkDeclPatternAndMakeEnv = (
     return addErrSel(selEnv, { tag: "SelectorVarMultipleDecl", varName: bVar });
   }
 
-  if (bVar.tag === "StyVar") {
-    // rule Decl-Sty-Context
-    // NOTE: this does not aggregate *all* possible errors. May just return first error.
-    // y \not\in dom(g)
-    return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
-  } else if (bVar.tag === "SubVar") {
-    // rule Decl-Sub-Context
-    // x \not\in dom(g)
-
-    const substanceType = varEnv.vars.get(varName);
-
-    // If any Substance variable doesn't exist in env, ignore it,
-    // but flag it so we know to not translate the lines in the block later.
-    if (!substanceType) {
-      return { ...selEnv, skipBlock: true };
+  switch (bVar.tag) {
+    case "StyVar": {
+      // rule Decl-Sty-Context
+      // NOTE: this does not aggregate *all* possible errors. May just return first error.
+      // y \not\in dom(g)
+      return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
     }
+    case "SubVar": {
+      // rule Decl-Sub-Context
+      // x \not\in dom(g)
 
-    // check "T <: |T", assuming type constructors are nullary
-    // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
-    // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
-    const declType = toSubstanceType(styType);
-    if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
-      // COMBAK: Order?
-      // TODO(errors)
-      return addErrSel(selEnv, {
-        tag: "SelectorDeclTypeMismatch",
-        subType: declType,
-        styType: substanceType,
-      });
+      const substanceType = varEnv.vars.get(varName);
+
+      // If any Substance variable doesn't exist in env, ignore it,
+      // but flag it so we know to not translate the lines in the block later.
+      if (!substanceType) {
+        return { ...selEnv, skipBlock: true };
+      }
+
+      // check "T <: |T", assuming type constructors are nullary
+      // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
+      // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
+      const declType = toSubstanceType(styType);
+      if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
+        // COMBAK: Order?
+        // TODO(errors)
+        return addErrSel(selEnv, {
+          tag: "SelectorDeclTypeMismatch",
+          subType: declType,
+          styType: substanceType,
+        });
+      }
+
+      return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
     }
-
-    return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
-  } else throw Error("unknown tag");
+  }
 };
 
 // Judgment 6. G; g |- [|S_o] ~> g'
