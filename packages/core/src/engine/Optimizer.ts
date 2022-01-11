@@ -53,6 +53,8 @@ import {
   repeat,
   scalev,
   subv,
+  zip2,
+  zip3,
 } from "utils/Util";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
@@ -368,10 +370,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
 
     newState.translation = insertVaryings(
       state.translation,
-      _.zip(state.varyingPaths, varyingValues.map(differentiable)) as [
-        Path,
-        VarAD
-      ][]
+      zip2(state.varyingPaths, varyingValues.map(differentiable))
     );
 
     newState.varyingValues = varyingValues;
@@ -604,14 +603,14 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
 
   // BACKWARD: for i = k-1 ... k-m
   // The length of any list should be the number of stored vectors
-  const rhos = _.zip(ss, ys).map(([s, y]) => calculate_rho(s, y));
+  const rhos = zip2(ss, ys).map(([s, y]) => calculate_rho(s, y));
   const q_k = grad_fx_k;
   // Note the order of alphas will be from k-1 through k-m for the push_r_forward loop
   // (Note that `reduce` is a left fold)
-  const [q_k_minus_m, alphas] = (_.zip(rhos, ss, ys) as any).reduce(
-    pull_q_back,
-    [q_k, []]
-  );
+  const [q_k_minus_m, alphas] = zip3(rhos, ss, ys).reduce(pull_q_back, [
+    q_k,
+    [],
+  ]);
 
   const h_0_k = estimate_hess(ys[0], ss[0]); // nxn matrix, according to Nocedal p226, eqn 9.6
 
@@ -620,7 +619,7 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
   const r_k_minus_m = h_0_k.matMul(q_k_minus_m);
   // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
   // NOTE: `reverse` mutates the array in-place, which is fine because we don't need it later
-  const inputs = _.zip(_.zip(rhos, alphas), _.zip(ss, ys)).reverse() as any;
+  const inputs = zip2(zip2(rhos, alphas), zip2(ss, ys)).reverse();
   const r_k = inputs.reduce(push_r_forward, r_k_minus_m);
 
   // result r_k is H_k * grad f(x_k)
@@ -828,11 +827,7 @@ const minimize = (
     if (Number.isNaN(fxs) || Number.isNaN(normGrad)) {
       log.info("-----");
 
-      const pathMap = _.zip(varyingPaths, xs, gradfxs) as [
-        string,
-        number,
-        number
-      ][];
+      const pathMap = zip3(varyingPaths, xs, gradfxs);
 
       log.info("[varying paths, current val, gradient of val]", pathMap);
 
@@ -889,7 +884,7 @@ export const evalEnergyOnCustom = (state: State) => {
       clone(makeTranslationNumeric(state.translation))
     );
 
-    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    const varyingMapList = zip2(varyingPaths, xsVars);
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
     const translation = insertVaryings(translationInit, varyingMapList);
 
@@ -1027,7 +1022,7 @@ const evalFnOn = (fn: Fn, s: State) => {
       clone(makeTranslationNumeric(s.translation))
     );
 
-    const varyingMapList = _.zip(varyingPaths, xsVars) as [Path, VarAD][];
+    const varyingMapList = zip2(varyingPaths, xsVars);
     const translation = insertVaryings(translationInit, varyingMapList);
     const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
 

@@ -53,7 +53,7 @@ export const fromJust = <T>(n: MaybeVal<T>): T => {
 /**
  * Like _.zip but throws on different length instead of padding with undefined.
  */
-export const zipStrict = <A, B>(a: A[], b: B[]): [A, B][] => {
+export const zip2 = <A, B>(a: A[], b: B[]): [A, B][] => {
   const l = a.length;
   if (l !== b.length) {
     throw Error("expected same # elements in both arrays");
@@ -63,6 +63,21 @@ export const zipStrict = <A, B>(a: A[], b: B[]): [A, B][] => {
     c.push([a[i], b[i]]);
   }
   return c;
+};
+
+/**
+ * Like _.zip but throws on different length instead of padding with undefined.
+ */
+export const zip3 = <A, B, C>(a: A[], b: B[], c: C[]): [A, B, C][] => {
+  const l = a.length;
+  if (!(l === b.length || l === c.length)) {
+    throw Error("expected same # elements in all three arrays");
+  }
+  const d: [A, B, C][] = [];
+  for (let i = 0; i < l; ++i) {
+    d.push([a[i], b[i], c[i]]);
+  }
+  return d;
 };
 
 //#endregion

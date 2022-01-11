@@ -113,7 +113,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { randFloat, prettyPrintPath, zipStrict } from "utils/Util";
+import { randFloat, prettyPrintPath, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -166,7 +166,7 @@ const numbers = (r: number): number[] => {
 
 export function numbered<A>(xs: A[]): [A, number][] {
   if (!xs) throw Error("fail");
-  return _.zip(xs, numbers(xs.length)) as [A, number][]; // COMBAK: Don't know why typescript has problem with this
+  return zip2(xs, numbers(xs.length));
 }
 
 // TODO move to util
@@ -1091,23 +1091,16 @@ const argsEq = (a1: SubPredArg, a2: SubPredArg): boolean => {
   } else return false; // they are different types
 };
 
-const subFnsEq = (p1: any, p2: any): boolean => {
-  if (
-    !p1.hasOwnProperty("name") ||
-    !p1.hasOwnProperty("args") ||
-    !p2.hasOwnProperty("name") ||
-    !p2.hasOwnProperty("args")
-  ) {
+const subFnsEq = (p1: SubPredArg, p2: SubPredArg): boolean => {
+  if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
     throw Error("expected substance type with name and args properties");
   }
 
   if (p1.args.length !== p2.args.length) {
     return false;
   }
-  // Can use `as` because now we know their lengths are equal
-  const allArgsEq = _.zip(p1.args, p2.args).every(([a1, a2]) =>
-    argsEq(a1 as SubPredArg, a2 as SubPredArg)
-  );
+  // Can use `zipStrict` because now we know their lengths are equal
+  const allArgsEq = zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2));
   return p1.name.value === p2.name.value && allArgsEq;
 };
 
@@ -1219,9 +1212,7 @@ const exprsMatchArr = (
   return (
     subE.name.value === styE.name.value &&
     isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
-    _.zip(subVarArgs, styVarArgs).every(([a1, a2]) =>
-      varsEq(a1 as Identifier, a2 as Identifier)
-    )
+    zip2(subVarArgs, styVarArgs).every(([a1, a2]) => varsEq(a1, a2))
   );
   // `as` is fine bc of preceding length check
 };
@@ -1515,7 +1506,7 @@ export const findSubstsProg = (
   styProg: HeaderBlock[],
   selEnvs: SelEnv[]
 ): Subst[][] => {
-  const selsWithEnvs = zipStrict(
+  const selsWithEnvs = zip2(
     styProg.map((e: HeaderBlock) => e.header),
     selEnvs
   );
