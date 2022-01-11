@@ -1,6 +1,5 @@
 import { PenroseState } from "@penrose/core";
 import { IJsonRowNode } from "flexlayout-react";
-import { StringIterator } from "lodash";
 
 export interface ProgramFile {
   contents: string | PenroseState;
