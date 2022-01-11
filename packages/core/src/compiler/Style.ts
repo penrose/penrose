@@ -113,8 +113,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { prettyPrintPath } from "utils/OtherUtils";
-import { randFloat } from "utils/Util";
+import { randFloat, prettyPrintPath } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola

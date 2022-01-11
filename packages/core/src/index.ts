@@ -26,11 +26,13 @@ import { SubProg, SubstanceEnv } from "./types/substance";
 import { collectLabels } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
+  bBoxDims,
+  normList,
+  toSvgPaintProperty,
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-} from "./utils/OtherUtils";
-import { bBoxDims, ops, toSvgPaintProperty } from "./utils/Util";
+} from "./utils/Util";
 import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
@@ -339,7 +341,7 @@ export {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-  ops,
+  normList,
   getListOfStagedStates,
   toSvgPaintProperty,
 };

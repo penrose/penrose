@@ -29,7 +29,7 @@ import { Shape, ShapeAD } from "types/shape";
 import { Value } from "types/value";
 import { State, Fn, VaryMap, FnDone } from "types/state";
 import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
-import { floatVal, prettyPrintPath } from "utils/OtherUtils";
+import { floatVal, prettyPrintPath } from "utils/Util";
 import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
 
 import { add, div, mul, neg, sub } from "./AutodiffFunctions";

@@ -1,10 +1,9 @@
 import * as _ from "lodash";
-import { fromJust } from "utils/OtherUtils";
 import consola, { LogLevel } from "consola";
 import { VarAD, IVarAD, GradGraphs } from "types/ad";
 import { MaybeVal } from "types/common";
 import { WeightInfo } from "types/state";
-import Queue from "utils/Util";
+import { Queue, fromJust } from "utils/Util";
 import {
   acos,
   add,
