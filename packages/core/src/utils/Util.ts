@@ -4,6 +4,8 @@ import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
 import { Color } from "types/value";
 
+//#region random
+
 seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 
 /**
@@ -68,45 +70,9 @@ export const arrowheads = {
   },
 };
 
-// calculates bounding box dimensions of a shape - used in inspector views
-export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
-  let [w, h] = [0, 0];
-  if (shapeType === "Circle") {
-    [w, h] = [
-      (properties.r.contents as number) * 2,
-      (properties.r.contents as number) * 2,
-    ];
-  } else if (shapeType === "Ellipse") {
-    [w, h] = [
-      (properties.rx.contents as number) * 2,
-      (properties.ry.contents as number) * 2,
-    ];
-  } else if (shapeType === "Line") {
-    const [[sx, sy], [ex, ey]] = [
-      properties.start.contents as [number, number],
-      properties.end.contents as [number, number],
-    ];
-    const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
-    [w, h] = [
-      Math.max(Math.abs(ex - sx), padding),
-      Math.max(Math.abs(ey - sy), padding),
-    ];
-  } else if (shapeType === "Path") {
-    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "Polygon") {
-    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (shapeType === "Polyline") {
-    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (properties.width && properties.height) {
-    [w, h] = [
-      properties.width.contents as number,
-      properties.height.contents as number,
-    ];
-  } else {
-    [w, h] = [20, 20];
-  }
-  return [w, h];
-};
+//#endregion
+
+//#region svg
 
 // export const Shadow = (props: { id: string }) => {
 //   return (
@@ -176,6 +142,10 @@ export const toPointListString = memoize(
       })
       .join(" ")
 );
+
+//#endregion
+
+//#region color
 
 export const getAlpha = (color: any) => color.contents[3];
 
@@ -252,18 +222,9 @@ export const toSvgOpacityProperty = (color: Color<number>): number => {
   }
 };
 
-export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
-  const x = x1 - x2;
-  const y = y1 - y2;
-  if (!x && !y) {
-    return 0;
-  }
-  return (180 + (Math.atan2(-y, -x) * 180) / Math.PI + 360) % 360;
-};
+//#endregion
 
-export const getLen = (x1: number, y1: number, x2: number, y2: number) => {
-  return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-};
+//#region images
 
 export const loadImageElement = memoize(
   async (url: string): Promise<any> =>
@@ -297,6 +258,10 @@ export const loadImages = async (allShapes: any[]) => {
   );
 };
 
+//#endregion
+
+//#region numerical
+
 export const round2 = (n: number) => roundTo(n, 2);
 
 // https://stackoverflow.com/questions/15762768/javascript-math-round-to-two-decimal-places
@@ -325,6 +290,10 @@ export const roundTo = (n: number, digits: number) => {
   return n3;
 };
 
+//#endregion
+
+//#region general
+
 // https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
 // Basically Haskell's mapByValue (?)
 export function mapMap(map: Map<any, any>, fn: any) {
@@ -347,9 +316,62 @@ export const safe = <T extends unknown>(
   return argument;
 };
 
-// ----------------
+//#endregion
 
-//#region Some geometry-related utils.
+//#region geometry
+
+// calculates bounding box dimensions of a shape - used in inspector views
+export const bBoxDims = (properties: Properties<number>, shapeType: string) => {
+  let [w, h] = [0, 0];
+  if (shapeType === "Circle") {
+    [w, h] = [
+      (properties.r.contents as number) * 2,
+      (properties.r.contents as number) * 2,
+    ];
+  } else if (shapeType === "Ellipse") {
+    [w, h] = [
+      (properties.rx.contents as number) * 2,
+      (properties.ry.contents as number) * 2,
+    ];
+  } else if (shapeType === "Line") {
+    const [[sx, sy], [ex, ey]] = [
+      properties.start.contents as [number, number],
+      properties.end.contents as [number, number],
+    ];
+    const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
+    [w, h] = [
+      Math.max(Math.abs(ex - sx), padding),
+      Math.max(Math.abs(ey - sy), padding),
+    ];
+  } else if (shapeType === "Path") {
+    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
+  } else if (shapeType === "Polygon") {
+    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
+  } else if (shapeType === "Polyline") {
+    [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
+  } else if (properties.width && properties.height) {
+    [w, h] = [
+      properties.width.contents as number,
+      properties.height.contents as number,
+    ];
+  } else {
+    [w, h] = [20, 20];
+  }
+  return [w, h];
+};
+
+export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
+  const x = x1 - x2;
+  const y = y1 - y2;
+  if (!x && !y) {
+    return 0;
+  }
+  return (180 + (Math.atan2(-y, -x) * 180) / Math.PI + 360) % 360;
+};
+
+export const getLen = (x1: number, y1: number, x2: number, y2: number) => {
+  return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+};
 
 /**
  * Some vector operations that can be used on lists.
@@ -627,6 +649,10 @@ export const pointInBox = (p: any, rect: any): boolean => {
     p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY
   );
 };
+
+//#endregion
+
+//#region queue
 
 class Node<T> {
   value: T;
