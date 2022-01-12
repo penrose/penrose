@@ -3,7 +3,7 @@ import { VarAD } from "types/ad";
 import { constrDict } from "contrib/Constraints";
 import { _rectangles, _circles } from "contrib/__testfixtures__/Constraints.input";
 
-const digitPrecision = 6;
+const digitPrecision = 10;
 
 describe("simple constraint", () => {
 
@@ -227,10 +227,10 @@ describe("simple constraint", () => {
 describe("general constraints", () => {
 
   const expectSatified = (x: VarAD) => {
-    expect(numOf(x)).toBeLessThanOrEqual(Math.exp(-digitPrecision));
+    expect(numOf(x)).toBeLessThanOrEqual(1e-5);
   };
   const expectJustSatified = (x: VarAD) => {
-    expect(numOf(x)).toBeCloseTo(0, digitPrecision);
+    expect(numOf(x)).toBeCloseTo(0, 5);
   };
   const expectNotSatisfied = (x: VarAD) => {
     expect(numOf(x)).toBeGreaterThan(10);
