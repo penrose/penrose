@@ -54,6 +54,7 @@ export default class Watch extends Command {
     } = this.currentFilenames;
     const { substance, style, domain } = this.current;
     const result = {
+      type: "trio",
       substance: {
         fileName: substanceFilename,
         contents: substance,
@@ -94,13 +95,13 @@ export default class Watch extends Command {
     return ordered;
   };
 
-  readFile = async (fileName: string) => {
+  readFile = async (fileName: string): Promise<string | null> => {
     try {
       const read = await fsp.readFile(fileName, "utf8");
       return read;
     } catch (error) {
       console.error(`❌ Could not open ${fileName}: ${error}`);
-      this.exit(1);
+      return null;
     }
   };
 
@@ -118,6 +119,9 @@ export default class Watch extends Command {
     });
     watcher.on("change", async () => {
       const str = await this.readFile(fileName);
+      if (str === null) {
+        this.exit(1);
+      }
       this.current[type] = str;
       console.info(
         "✅",
@@ -128,6 +132,9 @@ export default class Watch extends Command {
       this.sendFiles();
     });
     const str = await this.readFile(fileName);
+    if (str === null) {
+      this.exit(1);
+    }
     this.current[type] = str;
   };
 
@@ -147,9 +154,14 @@ export default class Watch extends Command {
 
     this.wss.on("connection", (ws) => {
       this.sendFiles();
-      ws.on("message", (m) => {
+      ws.on("message", async (m) => {
         const parsed = JSON.parse(m as string);
-        console.log("got message", parsed);
+        if (parsed.type === "getFile") {
+          const parentDir = path.parse(args.style).dir;
+          const joined = path.resolve(parentDir, parsed.path);
+          const contents = await this.readFile(joined);
+          ws.send(JSON.stringify({ type: "gotFile", contents }));
+        }
       });
     });
 
