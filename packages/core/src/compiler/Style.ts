@@ -231,8 +231,12 @@ const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
 const toString = (x: BindingForm): string => x.contents.value;
 
 // https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = (...a: any[]) =>
-  a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())));
+const cartesianProduct = <T>(...a: T[][]): T[][] =>
+  a.reduce(
+    (tuples: T[][], set) =>
+      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
+    [[]]
+  );
 
 const getShapeName = (s: string, f: Field): string => {
   return `${s}.${f}`;
