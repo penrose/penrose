@@ -157,7 +157,9 @@ export default class Watch extends Command {
       ws.on("message", async (m) => {
         const parsed = JSON.parse(m as string);
         if (parsed.type === "getFile") {
-          const contents = await this.readFile(parsed.path);
+          const parentDir = path.parse(args.style).dir;
+          const joined = path.join(parentDir, parsed.path);
+          const contents = await this.readFile(joined);
           ws.send(JSON.stringify({ type: "gotFile", contents }));
         }
       });

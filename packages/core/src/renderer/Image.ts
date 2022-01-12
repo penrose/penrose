@@ -6,6 +6,7 @@ import {
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 import { IStrV } from "types/value";
+import notFound from "./not_found.json";
 
 const Image = async ({
   shape,
@@ -18,10 +19,10 @@ const Image = async ({
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
   const path = (shape.properties.href as IStrV).contents;
-  const rawSVG = await pathResolver(path);
+  let rawSVG = await pathResolver(path);
   if (rawSVG === null) {
     console.error(`Could not resolve image path ${path}`);
-    return elem;
+    rawSVG = notFound["image"] as string;
   }
   attrToNotAutoMap.push("href");
   elem.innerHTML = rawSVG;
