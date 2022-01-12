@@ -193,13 +193,9 @@ export const prepareState = async (state: State): Promise<State> => {
     shapes: shapeAutodiffToNumber(evalShapes(stateAD)),
   };
 
-  const labelCache: Result<
-    LabelCache,
-    PenroseError
-  > = await collectLabels(stateEvaled.shapes, [
-    stateEvaled.canvas.width,
-    stateEvaled.canvas.height,
-  ]);
+  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+    stateEvaled.shapes
+  );
 
   if (labelCache.isErr()) {
     throw Error(showError(labelCache.error));

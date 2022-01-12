@@ -28,54 +28,34 @@ forall Text t {
       string: t.titleString
       center: t.titleCenter
       fillColor: rgba(1.,1.,1.,1.)
-      -- fontFamily: "Palatino"
-      -- fontFamily: "Times New Roman"
-      -- fontFamily: "Helvetica"
-      fontFamily: "Courier"
-      -- fontStyle: "italic"
-      fontSize: "38px"
-      -- alignmentBaseline: "hanging"
-      -- textAnchor: "start"
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "38pt"
    }
-   -- shape t.innerStroke = Text {
-   --    string: t.titleString
-   --    center: t.titleCenter
-   --    fillColor: rgba(0.,0.,0.,1.)
-   --    fontFamily: "Palatino"
-   --    fontStyle: "italic"
-   --    fontSize: "38px"
-   --    style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
-   -- }
-   -- shape t.outerStroke = Text {
-   --    string: t.titleString
-   --    center: t.titleCenter
-   --    fillColor: rgba(0.,0.,0.,1.)
-   --    fontFamily: "Palatino"
-   --    fontStyle: "italic"
-   --    fontSize: "38px"
-   --    style: "stroke:#FF6603;stroke-width:8;stroke-miterlimit:2;"
-   -- }
-   shape t.bbox = Rectangle {
-      center: t.text.center
+   shape t.innerStroke = Text {
+      string: t.titleString
+      center: t.titleCenter
       fillColor: rgba(0.,0.,0.,1.)
-      width: t.text.width
-      height: t.text.height
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "38pt"
+      style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
    }
-
-   shape t.baselineStart = Circle {
-      center: t.text.center
-      fillColor: rgba(1, 0, 0, 1)
-      r: 5.0
+   shape t.outerStroke = Text {
+      string: t.titleString
+      center: t.titleCenter
+      fillColor: rgba(0.,0.,0.,1.)
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "38pt"
+      style: "stroke:#FF6603;stroke-width:8;stroke-miterlimit:2;"
    }
 
    -- make sure the text and strokes
    -- appear in the right order
-   -- layer t.text above t.innerStroke
-   -- layer t.innerStroke above t.outerStroke
-   -- layer t.outerStroke above Global.bbox
-   layer t.baselineStart above t.text
-   layer t.bbox below t.text
-   layer t.text above Global.bbox
+   layer t.text above t.innerStroke
+   layer t.innerStroke above t.outerStroke
+   layer t.outerStroke above Global.bbox
 }
 
 

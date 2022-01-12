@@ -1,14 +1,14 @@
 import {
-  INamed,
-  IStroke,
-  IFill,
   ICenter,
+  IFill,
+  INamed,
   IRect,
   IRotate,
-  IString,
   IShape,
+  IString,
+  IStroke,
 } from "types/shapes";
-import { IFloatV, IStrV } from "types/value";
+import { IStrV } from "types/value";
 import {
   Canvas,
   sampleColor,
@@ -23,7 +23,7 @@ export interface IText
   extends INamed,
     IStroke,
     IFill,
-    ICenter,
+    ICenter, // the center of the bounding box of the text
     IRect,
     IRotate,
     IString {
@@ -64,6 +64,7 @@ export const sampleText = (canvas: Canvas): IText => ({
   fontWeight: StrV(""),
   lineHeight: StrV(""),
   textAnchor: StrV("middle"),
+  // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
   alignmentBaseline: StrV("middle"),
   dominantBaseline: StrV("middle"),
 });

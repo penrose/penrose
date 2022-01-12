@@ -1,21 +1,15 @@
 import memoize from "fast-memoize";
-import { Shape } from "types/shape";
-import { mathjax } from "mathjax-full/js/mathjax.js";
-import { TeX } from "mathjax-full/js/input/tex.js";
-import { SVG } from "mathjax-full/js/output/svg.js";
-
-// Auto-switch between browser and native (Lite) --
-// not sure about the latter's fallback behavior
-import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
 import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
+import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
-import { EquationData, LabelCache, LabelData, TextData } from "types/state";
-import { err, ok, Result } from "./Error";
+import { mathjax } from "mathjax-full/js/mathjax.js";
+import { SVG } from "mathjax-full/js/output/svg.js";
 import { PenroseError } from "types/errors";
-import { Canvas, RenderShape } from "index";
-import { NumericDictionaryIteratee } from "lodash";
-import { IFloatV, Value } from "types/value";
+import { Shape } from "types/shape";
+import { EquationData, LabelCache, LabelData, TextData } from "types/state";
+import { IFloatV } from "types/value";
+import { err, ok, Result } from "./Error";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -146,6 +140,9 @@ const equationData = (
 /**
  * Get the CSS string for the font setting of a `Text` GPI.
  * @param shape A text GPI
+ *
+ * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ *
  * @returns a CSS rule string of its font settings
  */
 export const toFontRule = ({ properties }: Shape): string => {
@@ -174,8 +171,7 @@ export const toFontRule = ({ properties }: Shape): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: Shape[],
-  canvasSize: [number, number]
+  allShapes: Shape[]
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = [];
   for (const s of allShapes) {
@@ -209,16 +205,13 @@ export const collectLabels = async (
       labels.push([shapeName, label]);
     } else if (shapeType === "Text") {
       const shapeName: string = properties.name.contents as string;
-      // HACK: pre-render the text to get the bbox
       let label: TextData;
-      // canvas
+      // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
         properties.string.contents as string,
         toFontRule(s)
       );
-      console.log("font rule", toFontRule(s));
-      console.log("jmp's measurement", measure);
-
+      // If the width and height are defined, the renderer will render the text. `actualDescent` is currently not used in rendering.
       if (measure.width && measure.height) {
         label = textData(measure.width, measure.height, measure.actualDescent);
       } else {
@@ -230,23 +223,28 @@ export const collectLabels = async (
   return ok(labels);
 };
 
-// text measurement code by @jmp
+//#region Text measurement
 export type TextMeasurement = {
   width: number;
   height: number;
-  fontHeight: number;
-  // position of text's alphabetic baseline assuming top is the origin
+  actualDescent: number;
+  fontHeight: number; // position of text's alphabetic baseline assuming top is the origin
   baseline: number;
   fontDescent: number;
-  actualDescent: number;
 };
 
+/**
+ *
+ * @param text the content of the text
+ * @param font the CSS font rule for the text
+ *
+ * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
+ */
 export function measureText(text: string, font: string): TextMeasurement {
   measureText.context.textBaseline = "alphabetic";
   measureText.context.font = font;
   const measurements = measureText.context.measureText(text);
-  console.log("canvas measurement", measurements);
-
   return {
     width:
       Math.abs(measurements.actualBoundingBoxLeft) +
@@ -266,9 +264,7 @@ export function measureText(text: string, font: string): TextMeasurement {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace measureText {
   export const element = document.createElement("canvas");
-  // puts canvas on screen. useful for debugging measurements
-  // element.width = 1000;
-  // element.height = 1000;
-  // document.body.appendChild(element);
   export const context = element.getContext("2d")!;
 }
+
+//#endregion

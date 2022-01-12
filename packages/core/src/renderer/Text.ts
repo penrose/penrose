@@ -2,15 +2,14 @@ import { IStrV, IVectorV } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 import { toScreen } from "utils/Util";
 import {
-  attrXY,
-  attrFill,
-  attrStroke,
-  attrString,
-  attrTitle,
-  attrRotation,
   attrAutoFillSvg,
-  attrWH,
+  attrFill,
   attrFont,
+  attrRotation,
+  attrString,
+  attrStroke,
+  attrTitle,
+  attrWH,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -24,6 +23,9 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
+  // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
+  elem.setAttribute("x", x.toString());
+  elem.setAttribute("y", y.toString());
   attrToNotAutoMap.push("x", "y");
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
@@ -36,37 +38,11 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   const name = shape.properties.name as IStrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
   if (retrievedLabel && retrievedLabel.tag === "TextData") {
-    const [centerX, centerY] = [x, y];
-    elem.setAttribute("x", centerX.toString());
-    elem.setAttribute("y", centerY.toString());
     attrToNotAutoMap.push(...attrWH(shape, elem));
   }
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-
-  /**
-    * TODO This snippet correctly gets the bounding box, but
-    * TODO doesn't work here since `shape` isn't passed by reference.
-    * TODO Hence, we can't set the width/height of the GPI (for
-    * TODO optimization).  Will have to put this somewhere else...
-    *
-    * Since the SVG hasn't been rendered yet, we temporarily
-    * create an invisible SVG containing just this text
-    * in order to determine its bounding box.
-  var tempDiv = document.createElement("div");
-  tempDiv.setAttribute("style", "position:absolute; visibility:hidden; width:0; height:0");
-  var tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  tempSvg.appendChild(elem.cloneNode(true));
-  tempDiv.appendChild(tempSvg);
-  document.body.appendChild(tempDiv);
-  var bbox = tempSvg.getBBox();
-  document.body.removeChild(tempDiv);
-  shape.w = bbox.width;
-  shape.h = bbox.height;
-  console.log( "text bbox width  : " + String(bbox.width) );
-  console.log( "text bbox height : " + String(bbox.height) );
-  */
 
   return elem;
 };
