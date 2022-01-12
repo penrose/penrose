@@ -1,5 +1,7 @@
 import { bBoxDims, RenderShape, Shape } from "@penrose/core";
 import * as React from "react";
+import { useState } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 
 // styling for shape inside viewbox - see ShapeView or Mod
@@ -32,13 +34,27 @@ const makeViewBoxes = (
           margin: 0,
           top: 0,
           left: 0,
-          right: 0,
+          right: 0
         }}
       >
         {shapes.map(({ properties, shapeType }: Shape, key: number) => {
           // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
           // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
           const [w, h] = bBoxDims(properties, shapeType);
+
+          // HACK: stateful due to asynchronicity (could probably do it another way)
+          const [shapeHTML, setShapeHTML] = useState("");
+          useEffect(() => {
+            (async () => {
+              const shape = await RenderShape({
+                shape: { properties, shapeType },
+                labels: [],
+                canvasSize: [w, h],
+                pathResolver: async () => null
+              });
+              setShapeHTML(shape.outerHTML);
+            })();
+          }, []);
           return (
             <ShapeItem
               key={`shapePreview-${key}`}
@@ -51,11 +67,7 @@ const makeViewBoxes = (
                   width="50"
                   height="50"
                   dangerouslySetInnerHTML={{
-                    __html: RenderShape({
-                      shape: { properties, shapeType },
-                      labels: [],
-                      canvasSize: [w, h],
-                    }).outerHTML,
+                    __html: shapeHTML
                   }}
                 />
               </div>

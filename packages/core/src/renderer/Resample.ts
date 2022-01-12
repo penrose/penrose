@@ -6,12 +6,11 @@ import {
   shapeAutodiffToNumber,
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
-import { prettyPrintPath } from "utils/OtherUtils";
 import { evalShapes } from "engine/Evaluator";
 import { Shape } from "types/shape";
 import { Value } from "types/value";
-import { randFloat, randFloats, safe } from "utils/Util";
-import { mapValues, zip } from "lodash";
+import { randFloat, randFloats, safe, prettyPrintPath } from "utils/Util";
+import { mapValues } from "lodash";
 import { TagExpr, Translation } from "types/value";
 import { VarAD } from "types/ad";
 import { State } from "types/state";

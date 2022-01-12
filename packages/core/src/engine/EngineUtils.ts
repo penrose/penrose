@@ -897,6 +897,7 @@ export const findExpr = (
         case "FExpr":
           return fieldExpr.contents;
       }
+      break; // dead code to please ESLint
     }
 
     case "PropertyPath": {
@@ -935,6 +936,7 @@ export const findExpr = (
           return propRes;
         }
       }
+      break; // dead code to please ESLint
     }
 
     case "AccessPath": {

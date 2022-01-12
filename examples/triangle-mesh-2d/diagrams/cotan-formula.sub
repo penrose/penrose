@@ -21,9 +21,17 @@ Circle Cijk := Circumcircle(ijk)
 Circle Cjil := Circumcircle(jil)
 
 -- Length L := DualEdgeLength(starij)
-Length L := EdgeLength(ki)
+-- Length L := EdgeLength(ki)
 
 AutoLabel All
+NoLabel ij
+NoLabel jk
+NoLabel ki
+NoLabel il
+NoLabel jl
 Label ckij "α"
 Label clji "β"
-Label L $\ell_{ij}$
+Label i "i"
+Label j "j"
+Label k "k"
+Label l "l"

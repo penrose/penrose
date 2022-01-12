@@ -1,28 +1,31 @@
-import { convexPolygonMinkowskiSDF, convexPartitions, rectangleDifference } from "contrib/Minkowski";
-import { overlap1D } from "contrib/Utils";
 import {
-  ifCond, 
-  lt,
-  neg,
-  ops,
-  sub,
-  mul,
-  div,
-  min,
-  max,
-  minN,
-  maxN,
-  absVal,
-  add,
-  addN,
-  sqrt,
-  squared,
-  constOf,
-} from "engine/Autodiff";
+  convexPolygonMinkowskiSDF,
+  convexPartitions,
+  rectangleDifference,
+} from "contrib/Minkowski";
+import { overlap1D } from "contrib/Utils";
+import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
-import { linePts } from "utils/OtherUtils";
+import { linePts } from "utils/Util";
+import {
+  absVal,
+  add,
+  addN,
+  div,
+  ifCond,
+  lt,
+  max,
+  maxN,
+  min,
+  minN,
+  mul,
+  neg,
+  sqrt,
+  squared,
+  sub,
+} from "engine/AutodiffFunctions";
 
 // -------- Ovelapping helpers
 
@@ -34,9 +37,17 @@ export const overlappingLines = (
   [, s2]: [string, any],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  const oneSimplex1 = { points: { contents: [s1.start.contents, s1.end.contents] } };
-  const oneSimplex2 = { points: { contents: [s2.start.contents, s2.end.contents] } };
-  return overlappingPolygons(['1-simplex', oneSimplex1], ['1-simplex', oneSimplex2], padding);
+  const oneSimplex1 = {
+    points: { contents: [s1.start.contents, s1.end.contents] },
+  };
+  const oneSimplex2 = {
+    points: { contents: [s2.start.contents, s2.end.contents] },
+  };
+  return overlappingPolygons(
+    ["1-simplex", oneSimplex1],
+    ["1-simplex", oneSimplex2],
+    padding
+  );
 };
 
 /**
@@ -61,18 +72,20 @@ export const overlappingPolygons = (
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const cp1 = convexPartitions(s1.points.contents);
-  const cp2 = convexPartitions(s2.points.contents.map((p: VarAD[]) => ops.vneg(p)));
+  const cp2 = convexPartitions(
+    s2.points.contents.map((p: VarAD[]) => ops.vneg(p))
+  );
   return maxN(
-    cp1.map((p1) => minN(
-      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding))
-    ))
+    cp1.map((p1) =>
+      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
+    )
   );
 };
 
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
- export const overlappingRectlikeCircle = (
+export const overlappingRectlikeCircle = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   padding: VarAD = constOf(0.0)
@@ -81,6 +94,38 @@ export const overlappingPolygons = (
   const textR = max(s1BBox.width, s1BBox.height);
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   return sub(d, add(add(s2.r.contents, textR), padding));
+};
+
+/**
+ * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ */
+ export const overlappingCircleLine = (
+  [t1, s1]: [string, any],
+  [t2, s2]: [string, any],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+   // collect constants
+   const c = s1.center.contents;
+   const r = s1.r.contents;
+   const a = s2.start.contents;
+   const b = s2.end.contents;
+   const o = padding;
+   
+   // Return the distance between the circle center c and the
+   // segment ab, minus the circle radius r and offset o.  This
+   // quantity will be negative of the circular disk intersects
+   // a thickened "capsule" associated with the line (of radius o).
+   // The expression for the point-segment distance d comes from
+   // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+   // (see "Segment - exact").
+   const u = ops.vsub(c,a); // u = c-a
+   const v = ops.vsub(b,a); // v - b-a
+   // h = clamp( <u,v>/<v,v>, 0, 1 )
+   const h = max( constOf(0.), min( constOf(1.), div( ops.vdot(u,v), ops.vdot(v,v) ) ));
+   // d = | u - h*v |
+   const d = ops.vnorm( ops.vsub( u, ops.vmul(h,v) ) );
+   // return d - (r+o)
+   return sub( d, add( r, o ) );
 };
 
 /**
@@ -97,21 +142,25 @@ export const overlappingAABBsMinkowski = (
   const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
   const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
   const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
-  const e1 = sqrt(add(constOf(10e-15), add(
-    squared(max(sub(xp, xr), constOf(0.0))),
-    squared(max(sub(yp, yr), constOf(0.0)))
-  )));
+  const e1 = sqrt(
+    add(
+      constOf(10e-15),
+      add(
+        squared(max(sub(xp, xr), constOf(0.0))),
+        squared(max(sub(yp, yr), constOf(0.0)))
+      )
+    )
+  );
   const e2 = neg(min(max(xq, yq), constOf(0.0)));
   return sub(e1, e2);
 };
-
 
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  * To be DEPRACATED - replace by `overlappingAABBsMinkowski` after issue #652.
  */
 export const overlappingAABBs = (
-  [t1, s1]: [string, any], 
+  [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   padding: VarAD = constOf(0.0)
 ) => {
@@ -135,7 +184,7 @@ export const containsCircles = (
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   const o = padding
-    ? sub(sub(s1.r.contents, s2.r.contents), padding) 
+    ? sub(sub(s1.r.contents, s2.r.contents), padding)
     : sub(s1.r.contents, s2.r.contents);
   const res = sub(d, o);
   return res;
@@ -180,7 +229,7 @@ export const containsRectlikeCircle = (
   // padding (o).  We can compute this violation via the function
   //    max( |cx-rx| - (w/2-r-o),
   //         |cy-ry| - (h/2-r-o) )
-  return max( 
+  return max(
     sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
     sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
   );
@@ -220,7 +269,7 @@ export const containsSquareLinelike = (
     mul(sub(startX, lx), sub(startX, rx)),
     mul(sub(startY, ly), sub(startY, ry)),
     mul(sub(endX, lx), sub(endX, rx)),
-    mul(sub(endY, ly), sub(endY, ry))
+    mul(sub(endY, ly), sub(endY, ry)),
   ]);
 };
 
@@ -241,6 +290,6 @@ export const containsAABBs = (
     ifCond(lt(xl1, xl2), constOf(0), squared(sub(xl1, xl2))),
     ifCond(lt(xr2, xr1), constOf(0), squared(sub(xr2, xr1))),
     ifCond(lt(yl1, yl2), constOf(0), squared(sub(yl1, yl2))),
-    ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1)))
+    ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1))),
   ]);
 };

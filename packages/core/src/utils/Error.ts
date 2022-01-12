@@ -28,7 +28,7 @@ import {
 import { State } from "types/state";
 import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath } from "utils/OtherUtils";
+import { prettyPrintPath } from "utils/Util";
 const {
   or,
   and,
@@ -375,6 +375,7 @@ canvas {
         case "wrong type":
           return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
       }
+      break; // dead code to please ESLint
     }
 
     // ----- END TRANSLATION VALIDATION ERRORS

@@ -57,11 +57,13 @@ interface ICanvasState {
   files: FileSocketResult | null;
   connected: boolean;
   settings: ISettings;
+  fileSocket: FileSocket | null;
 }
 
 const socketAddress = "ws://localhost:9160";
-class App extends React.Component<any, ICanvasState> {
+class App extends React.Component<unknown, ICanvasState> {
   public readonly state: ICanvasState = {
+    fileSocket: null,
     data: undefined,
     error: null,
     history: [],
@@ -72,7 +74,7 @@ class App extends React.Component<any, ICanvasState> {
     settings: {
       autostep: false,
       showInspector: true,
-      autoStepSize: 10000
+      autoStepSize: 50
     }
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -95,18 +97,26 @@ class App extends React.Component<any, ICanvasState> {
 
     this.setState({
       data: canvasState,
-      history: [...this.state.history, canvasState],
+      // history: [...this.state.history, canvasState],
       processedInitial: true,
       error: null
     });
     this.renderCanvas(canvasState);
     const { settings } = this.state;
     if (settings.autostep && !stateConverged(canvasState)) {
-      await this.stepUntilConvergence();
+      await this.step(this.state.settings.autoStepSize);
     }
   };
-  public downloadSVG = (): void => {
-    DownloadSVG(RenderStatic(this.state.data));
+  public downloadSVG = async (): Promise<void> => {
+    if (this.state.fileSocket) {
+      const rendering = await RenderStatic(
+        this.state.data,
+        this.state.fileSocket.getFile
+      );
+      DownloadSVG(rendering);
+    } else {
+      console.error("File socket uninitialized");
+    }
   };
   public downloadPDF = (): void => {
     console.error("PDF download not implemented");
@@ -157,10 +167,10 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
 
-  public step = (): void => {
+  public step = (numSteps: number): void => {
     if (this.state.data) {
       try {
-        const stepped = stepState(this.state.data, 1);
+        const stepped = stepState(this.state.data, numSteps);
         void this.onCanvasState(stepped);
       } catch (e) {
         const error: PenroseError = {
@@ -204,45 +214,49 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
 
-  connectToSocket = () => {
-    FileSocket(
-      socketAddress,
-      async files => {
-        const { domain, substance, style } = files;
-        this.setState({ files, connected: true });
+  onFilesReceived = async (files: FileSocketResult): Promise<void> => {
+    const { domain, substance, style } = files;
+    this.setState({ files, connected: true });
 
-        // TODO: does `processedInitial` need to be set?
-        this.setState({ processedInitial: false });
-        const compileRes = compileTrio(
-          domain.contents,
-          substance.contents,
-          style.contents
-        );
-        if (compileRes.isOk()) {
-          try {
-            const initState: PenroseState = await prepareState(
-              compileRes.value
-            );
-            void this.onCanvasState(initState);
-          } catch (e) {
-            const error: PenroseError = {
-              errorType: "RuntimeError",
-              tag: "RuntimeError",
-              message: `Runtime error encountered: '${e}' Check console for more information.`
-            };
-
-            const errorWrapper = { error, data: undefined };
-            this.setState(errorWrapper);
-            throw e;
-          }
-        } else {
-          this.setState({ error: compileRes.error, data: undefined });
-        }
-      },
-      () => {
-        this.setState({ connected: false });
-      }
+    // TODO: does `processedInitial` need to be set?
+    this.setState({ processedInitial: false });
+    const compileRes = compileTrio(
+      domain.contents,
+      substance.contents,
+      style.contents
     );
+    if (compileRes.isOk()) {
+      try {
+        const initState: PenroseState = await prepareState(compileRes.value);
+        void this.onCanvasState(initState);
+      } catch (e) {
+        const error: PenroseError = {
+          errorType: "RuntimeError",
+          tag: "RuntimeError",
+          message: `Runtime error encountered: '${e}' Check console for more information.`
+        };
+
+        const errorWrapper = { error, data: undefined };
+        this.setState(errorWrapper);
+        throw e;
+      }
+    } else {
+      this.setState({ error: compileRes.error, data: undefined });
+    }
+  };
+
+  onSocketDisconnect = (): void => {
+    this.setState({ connected: false });
+  };
+
+  connectToSocket = (): void => {
+    this.setState({
+      fileSocket: new FileSocket(
+        socketAddress,
+        this.onFilesReceived,
+        this.onSocketDisconnect
+      )
+    });
   };
 
   public componentDidMount(): void {
@@ -266,7 +280,7 @@ class App extends React.Component<any, ICanvasState> {
     this.connectToSocket();
   }
 
-  public updateData = async (data: PenroseState) => {
+  public updateData = async (data: PenroseState): Promise<void> => {
     this.setState({ data: { ...data } });
     if (this.state.settings.autostep) {
       const stepped = stepState(data);
@@ -275,24 +289,28 @@ class App extends React.Component<any, ICanvasState> {
       this.renderCanvas(data);
     }
   };
-  public setInspector = async (showInspector: boolean) => {
+  public setInspector = async (showInspector: boolean): Promise<void> => {
     const newSettings = { ...this.state.settings, showInspector };
     this.setSettings(newSettings);
   };
-  public toggleInspector = async () => {
+  public toggleInspector = async (): Promise<void> => {
     await this.setInspector(!this.state.settings.showInspector);
   };
-  public hideInspector = async () => {
+  public hideInspector = async (): Promise<void> => {
     await this.setInspector(false);
   };
 
-  public renderCanvas = (state: PenroseState) => {
-    if (this.canvasRef.current !== null) {
+  public renderCanvas = async (state: PenroseState): Promise<void> => {
+    if (this.canvasRef.current !== null && this.state.fileSocket !== null) {
       const current = this.canvasRef.current;
       const rendered =
         stateConverged(state) || stateInitial(state)
-          ? RenderInteractive(state, this.updateData)
-          : RenderStatic(state);
+          ? await RenderInteractive(
+              state,
+              this.updateData,
+              this.state.fileSocket.getFile
+            )
+          : await RenderStatic(state, this.state.fileSocket.getFile);
       if (current.firstChild !== null) {
         current.replaceChild(rendered, current.firstChild);
       } else {

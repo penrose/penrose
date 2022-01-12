@@ -13,6 +13,7 @@
     "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/editor",
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",
+    "lint": "lerna run lint --stream",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",

@@ -6,6 +6,7 @@ import {
   IRect,
   ICorner,
   IShape,
+  IRotate,
 } from "types/shapes";
 import {
   Canvas,
@@ -25,6 +26,7 @@ export interface IRectangle
     IStroke,
     IFill,
     ICenter,
+    IRotate,
     IRect,
     ICorner {}
 
@@ -40,6 +42,7 @@ export const sampleRectangle = (canvas: Canvas): IRectangle => ({
   width: sampleWidth(canvas),
   height: sampleHeight(canvas),
   cornerRadius: sampleZero(),
+  rotation: sampleZero(),
 });
 
 export type Rectangle = IShape & { shapeType: "Rectangle" } & IRectangle;
