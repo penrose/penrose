@@ -34,7 +34,7 @@ const makeViewBoxes = (
           margin: 0,
           top: 0,
           left: 0,
-          right: 0
+          right: 0,
         }}
       >
         {shapes.map(({ properties, shapeType }: Shape, key: number) => {
@@ -50,7 +50,7 @@ const makeViewBoxes = (
                 shape: { properties, shapeType },
                 labels: [],
                 canvasSize: [w, h],
-                pathResolver: async () => null
+                pathResolver: async () => null,
               });
               setShapeHTML(shape.outerHTML);
             })();
@@ -67,7 +67,7 @@ const makeViewBoxes = (
                   width="50"
                   height="50"
                   dangerouslySetInnerHTML={{
-                    __html: shapeHTML
+                    __html: shapeHTML,
                   }}
                 />
               </div>

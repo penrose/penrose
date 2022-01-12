@@ -23,7 +23,7 @@ export class FileSocket {
     this.ws.onclose = () => {
       onClose();
     };
-    this.ws.onerror = e => {
+    this.ws.onerror = (e) => {
       console.error("socket error", e);
     };
   }
@@ -36,7 +36,7 @@ export class FileSocket {
   };
   getFile = async (path: string): Promise<string | null> => {
     return new Promise((resolve, reject) => {
-      this.ws.addEventListener("message", e => {
+      this.ws.addEventListener("message", (e) => {
         const parsed = JSON.parse(e.data);
         if (parsed.type === "gotFile") {
           resolve(parsed.contents);
