@@ -10,7 +10,9 @@ import Line from "./Line";
 import Image from "./Image";
 import Text from "./Text";
 
-const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
+const shapeMap: {
+  [key: string]: (props: ShapeProps) => Promise<SVGElement> | SVGElement;
+} = {
   Circle,
   Ellipse,
   Rectangle,
