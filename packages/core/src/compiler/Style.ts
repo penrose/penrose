@@ -653,6 +653,7 @@ const couldMatchRels = (
   stmt: SubStmt
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
+  // see also https://github.com/penrose/penrose/issues/566
   return true;
 };
 
