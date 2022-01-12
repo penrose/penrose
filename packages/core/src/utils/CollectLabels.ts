@@ -228,9 +228,6 @@ export type TextMeasurement = {
   width: number;
   height: number;
   actualDescent: number;
-  fontHeight: number; // position of text's alphabetic baseline assuming top is the origin
-  baseline: number;
-  fontDescent: number;
 };
 
 /**
@@ -252,11 +249,6 @@ export function measureText(text: string, font: string): TextMeasurement {
     height:
       Math.abs(measurements.actualBoundingBoxAscent) +
       Math.abs(measurements.actualBoundingBoxDescent),
-    fontHeight:
-      Math.abs(measurements.fontBoundingBoxAscent) +
-      Math.abs(measurements.fontBoundingBoxDescent),
-    baseline: Math.abs(measurements.fontBoundingBoxAscent),
-    fontDescent: Math.abs(measurements.fontBoundingBoxDescent),
     actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
   };
 }
