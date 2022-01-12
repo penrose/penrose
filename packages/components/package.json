@@ -13,7 +13,7 @@
     "react-dom": "^16.13.1"
   },
   "scripts": {
-    "build": "tsc --declaration --emitDeclarationOnly --outDir dist/ && node build.js",
+    "build": "cross-env tsc --declaration --emitDeclarationOnly --outDir dist/ && node build.js",
     "watch": "node build.js -watch",
     "test": "jest --watchAll=false --passWithNoTests",
     "prepack": "yarn build",
