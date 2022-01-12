@@ -3,6 +3,7 @@ import { IJsonRowNode } from "flexlayout-react";
 
 export interface ProgramFile {
   contents: string | PenroseState;
+  id: string;
 }
 
 interface IExampleLocation {
@@ -110,7 +111,9 @@ export interface IFileSystem {
   examples: IExamples;
 }
 
-/* The workspace's files state, in memory */
+/* The workspace's files state, in memory
+  When gist/example is open, fileContents is pre-hydrated
+*/
 export interface IWorkspaceState {
   fileContents: { [id: string]: IOpenFile };
   workspace: string;
@@ -160,6 +163,7 @@ function writeFile(
   } else {
     //  generate new local pointer with new Id
     //   change return type
+    // override workspace author, if there is one
   }
   return { fileContents: {}, workspace: "" };
 }
