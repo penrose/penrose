@@ -416,12 +416,13 @@ export const evalExpr = (
               contents: argVals.map(toVecVal),
             } as ILListV<VarAD>,
           };
+        } else {
+          throw Error("unknown tag");
         }
       } else {
         console.error("list elems", argVals);
         throw Error("unsupported element in list");
       }
-      break; // dead code to please ESLint
     }
 
     case "ListAccess": {
