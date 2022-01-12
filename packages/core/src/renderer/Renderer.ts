@@ -142,22 +142,20 @@ export const RenderInteractive = async (
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
   };
-  await Promise.all(
-    state.shapes.map(async (shape) =>
-      svg.appendChild(
-        await DraggableShape(
-          {
-            shape,
-            labels: state.labelCache,
-            canvasSize: state.canvas.size,
-            pathResolver,
-          },
-          onDrag,
-          svg
-        )
+  for (const shape of state.shapes) {
+    svg.appendChild(
+      await DraggableShape(
+        {
+          shape,
+          labels: state.labelCache,
+          canvasSize: state.canvas.size,
+          pathResolver,
+        },
+        onDrag,
+        svg
       )
-    )
-  );
+    );
+  }
   return svg;
 };
 
@@ -178,17 +176,15 @@ export const RenderStatic = async (
   svg.setAttribute("version", "1.2");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  await Promise.all(
-    shapes.map(async (shape) =>
-      svg.appendChild(
-        await RenderShape({
-          shape,
-          labels,
-          canvasSize: canvas.size,
-          pathResolver,
-        })
-      )
-    )
-  );
+  for (const shape of shapes) {
+    svg.appendChild(
+      await RenderShape({
+        shape,
+        labels,
+        canvasSize: canvas.size,
+        pathResolver,
+      })
+    );
+  }
   return svg;
 };
