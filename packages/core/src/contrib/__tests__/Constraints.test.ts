@@ -233,7 +233,7 @@ describe("general constraints", () => {
     expect(numOf(x)).toBeCloseTo(0, 5);
   };
   const expectNotSatisfied = (x: VarAD) => {
-    expect(numOf(x)).toBeGreaterThan(10);
+    expect(numOf(x)).toBeGreaterThan(5);
   };
 
   // Overlapping shapes
@@ -306,20 +306,20 @@ describe("general constraints", () => {
     const shape0: [string, any] = [shapeType0, shapeData0];
     const shape1: [string, any] = [shapeType1, shapeData1];
     // The condition should NOT be satisfied
-    // expectNotSatisfied(constrDict.overlapping(shape0, shape1, padding));
-    // expectNotSatisfied(constrDict.overlapping(shape1, shape0, padding));
+    expectNotSatisfied(constrDict.overlapping(shape0, shape1, padding));
+    expectNotSatisfied(constrDict.overlapping(shape1, shape0, padding));
     // The condition should be satisfied
     expectSatified(constrDict.disjoint(shape0, shape1, padding));
     expectSatified(constrDict.disjoint(shape1, shape0, padding));
     // The condition should NOT be satisfied
-    // expectNotSatisfied(constrDict.tangentTo(shape0, shape1, padding));
-    // expectNotSatisfied(constrDict.tangentTo(shape1, shape0, padding));
+    expectNotSatisfied(constrDict.tangentTo(shape0, shape1, padding));
+    expectNotSatisfied(constrDict.tangentTo(shape1, shape0, padding));
     // The condition should NOT be satisfied
     expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
     expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
     // The condition should NOT be satisfied
-    // expectNotSatisfied(constrDict.atDist(shape0, shape1, padding));
-    // expectNotSatisfied(constrDict.atDist(shape1, shape0, padding));
+    expectNotSatisfied(constrDict.atDist(shape0, shape1, padding));
+    expectNotSatisfied(constrDict.atDist(shape1, shape0, padding));
   });
 
   // Tangent shapes
@@ -328,12 +328,12 @@ describe("general constraints", () => {
     ["Rectangle", "Rectangle", 0, _rectangles[1], _rectangles[2]],
     // ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
     // ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
-    // ["Circle", "Circle", 0, _circles[1], _circles[2]],
+    ["Circle", "Circle", 0, _circles[1], _circles[2]],
     // // Possitive padding
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
     // ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
     // ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
-    // ["Circle", "Circle", 100, _circles[1], _circles[3]],
+    ["Circle", "Circle", 100, _circles[1], _circles[3]],
     // // Negative padding
     ["Rectangle", "Rectangle", -100, _rectangles[0], _rectangles[2]],
     // ["Rectangle", "Circle", -100, _rectangles[0], _circles[2]],
@@ -373,15 +373,15 @@ describe("general constraints", () => {
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[1]],
     ["Circle", "Circle", 0, _circles[0], _circles[1]],
     // // Possitive padding
-    // ["Rectangle", "Rectangle", 300, _rectangles[0], _rectangles[2]],
-    // ["Rectangle", "Circle", 300, _rectangles[0], _circles[2]],
-    // ["Circle", "Rectangle", 300, _circles[0], _rectangles[2]],
-    // ["Circle", "Circle", 300, _circles[0], _circles[2]],
+    ["Rectangle", "Rectangle", 50, _rectangles[0], _rectangles[1]],
+    ["Rectangle", "Circle", 50, _rectangles[0], _circles[1]],
+    ["Circle", "Rectangle", 50, _circles[0], _rectangles[1]],
+    ["Circle", "Circle", 50, _circles[0], _circles[1]],
     // // Negative padding
-    ["Rectangle", "Rectangle", -10, _rectangles[0], _rectangles[1]],
-    ["Rectangle", "Circle", -10, _rectangles[0], _circles[1]],
-    ["Circle", "Rectangle", -10, _circles[0], _rectangles[1]],
-    ["Circle", "Circle", -10, _circles[0], _circles[1]],
+    ["Rectangle", "Rectangle", -50, _rectangles[0], _rectangles[1]],
+    ["Rectangle", "Circle", -50, _rectangles[0], _circles[1]],
+    ["Circle", "Rectangle", -50, _circles[0], _rectangles[1]],
+    ["Circle", "Circle", -50, _circles[0], _circles[1]],
   ])('the first shape (%p) contains the second shape (%p) with padding %p', (
     shapeType0: string,
     shapeType1: string,
