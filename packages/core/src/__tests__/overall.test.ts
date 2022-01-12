@@ -49,7 +49,7 @@ describe("End-to-end testing of existing diagrams", () => {
 
         const rendered = await RenderStatic(optimized, async (p: string) => {
           const parentDir = path.parse(path.join(EXAMPLES, styleURI)).dir;
-          const actualPath = path.join(parentDir, p);
+          const actualPath = path.resolve(parentDir, p);
           const res = fs.readFileSync(actualPath, "utf-8").toString();
           return res;
         });
