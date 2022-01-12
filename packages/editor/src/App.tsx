@@ -17,10 +17,12 @@ import {
   useRoutingHandlers,
 } from "./Util";
 import { useParams } from "react-router-dom";
-import EditorPane from "./components/EditorPane";
-import { SetupSubstanceMonaco } from "./languages/SubstanceConfig";
-import { SetupStyleMonaco } from "./languages/StyleConfig";
-import { SetupDomainMonaco } from "./languages/DomainConfig";
+import {
+  EditorPane,
+  SetupDomainMonaco,
+  SetupStyleMonaco,
+  SetupSubstanceMonaco,
+} from "@penrose/components";
 import PreviewPane from "./components/PreviewPane";
 import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";

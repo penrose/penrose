@@ -1,8 +1,7 @@
-import { Dispatcher } from "../reducer";
 import MonacoEditor, { useMonaco, Monaco } from "@monaco-editor/react";
 import { initVimMode } from "monaco-vim";
 import { editor } from "monaco-editor";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const monacoOptions: editor.IEditorConstructionOptions = {
   automaticLayout: true,
@@ -21,14 +20,14 @@ const abbrevMap = {
 };
 export default function EditorPane({
   value,
-  dispatch,
+  onChange,
   vimMode,
   languageType,
   setupMonaco,
 }: {
   value: string;
   vimMode: boolean;
-  dispatch: Dispatcher;
+  onChange(value: string): void;
   languageType: keyof typeof abbrevMap;
   setupMonaco(monaco: Monaco): () => void;
 }) {
@@ -51,7 +50,7 @@ export default function EditorPane({
       );
       return () => vimModeInstance.dispose();
     }
-  }, [vimMode, editorRef.current, statusBarRef.current]);
+  }, [vimMode]);
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };
@@ -61,13 +60,7 @@ export default function EditorPane({
       <MonacoEditor
         width="100%"
         value={value}
-        onChange={(content) =>
-          dispatch({
-            kind: "CHANGE_CODE",
-            lang: abbrevMap[languageType] as any,
-            content: content as string,
-          })
-        }
+        onChange={(v) => onChange(v ?? "")}
         defaultLanguage={languageType}
         options={monacoOptions}
         onMount={onEditorMount}
