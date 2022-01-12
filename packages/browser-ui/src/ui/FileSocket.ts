@@ -18,8 +18,8 @@ export class FileSocket {
   ) {
     this.onFiles = onFiles;
     this.ws = new WebSocket(addr);
-    this.ws.onopen = () => console.log("socket opened");
-    this.ws.onmessage = this.onMessage;
+    this.ws.onopen = () => console.info("socket opened");
+    this.ws.addEventListener("message", this.onMessage);
     this.ws.onclose = () => {
       onClose();
     };

@@ -109,12 +109,22 @@ const singleProcess = async (
   let listOfCanvasData, canvas;
   if (staged) {
     const listOfStagedStates = getListOfStagedStates(optimizedState);
-    listOfCanvasData = listOfStagedStates.map((state: PenroseState) => {
-      return RenderStatic(state).outerHTML;
-    });
+    listOfCanvasData = await Promise.all(
+      listOfStagedStates.map(async (state: PenroseState) => {
+        return (
+          await RenderStatic(state, (path) =>
+            fs.readFileSync(`${prefix}/${path}`, "utf8").toString()
+          )
+        ).outerHTML;
+      })
+    );
   } else {
     // if not staged, we just need one canvas data (for the final diagram)
-    canvas = RenderStatic(optimizedState).outerHTML;
+    canvas = (
+      await RenderStatic(optimizedState, (path) =>
+        fs.readFileSync(`${prefix}/${path}`, "utf8").toString()
+      )
+    ).outerHTML;
   }
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
