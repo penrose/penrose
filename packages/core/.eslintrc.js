@@ -38,9 +38,12 @@ module.exports = {
     "no-fallthrough": 2,
   },
   ignorePatterns: [
-    "**/*.input.ts",
-    "**/*.output.ts",
     "**/*.test.ts",
     "**/*.test.tsx",
+    "src/__testfixtures__/transformtest.input.ts",
+    "src/__testfixtures__/transformtest.output.ts",
+    "src/parser/DomainParser.ts",
+    "src/parser/StyleParser.ts",
+    "src/parser/SubstanceParser.ts",
   ],
 };

@@ -421,6 +421,7 @@ export const evalExpr = (
         console.error("list elems", argVals);
         throw Error("unsupported element in list");
       }
+      break; // dead code to please ESLint
     }
 
     case "ListAccess": {
