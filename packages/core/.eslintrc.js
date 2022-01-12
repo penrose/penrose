@@ -37,5 +37,10 @@ module.exports = {
     "import/no-cycle": 2,
     "no-fallthrough": 2,
   },
-  ignorePatterns: ["**/*.test.ts", "**/*.test.tsx"],
+  ignorePatterns: [
+    "**/*.input.ts",
+    "**/*.output.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+  ],
 };
