@@ -141,8 +141,8 @@ export const overlappingAABBs = (
       )
     )
   );
-  const e2 = neg(min(max(xq, yq), constOf(0.0)));
-  return sub(e1, e2);
+  const ne2 = min(max(xq, yq), constOf(0.0));
+  return add(e1, ne2);
 };
 
 // -------- Contains helpers
