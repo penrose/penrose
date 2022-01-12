@@ -1557,8 +1557,7 @@ const findSubstsSel = (
 // Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
 // Leave all other statements unchanged
 
-// note: b can be appended to by this function
-const nameAnonStatement = (i: number, b: Stmt[], s: Stmt): number => {
+const nameAnonStatement = (i: number, s: Stmt): [number, Stmt] => {
   // Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
   if (s.tag === "AnonAssign") {
     const stmt: Stmt = {
@@ -1573,17 +1572,19 @@ const nameAnonStatement = (i: number, b: Stmt[], s: Stmt): number => {
       },
       value: s.contents,
     };
-    b.push(stmt);
-    return i + 1;
+    return [i + 1, stmt];
   } else {
-    b.push(s);
-    return i;
+    return [i, s];
   }
 };
 
 const nameAnonBlock = (b: Block): Block => {
   const statements: Stmt[] = [];
-  b.statements.reduce((i, s) => nameAnonStatement(i, statements, s), 0);
+  b.statements.reduce((i1, s1) => {
+    const [i2, s2] = nameAnonStatement(i1, s1);
+    statements.push(s2);
+    return i2;
+  }, 0);
   return { ...b, statements };
 };
 
