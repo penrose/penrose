@@ -31,22 +31,6 @@ import { Line } from "shapes/Line";
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
-export const overlappingLines = (
-  [, s1]: [string, Line],
-  [, s2]: [string, Line],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // Treat line segments as degenerate polygons (1-simplexes)
-  return overlappingPolygonPoints(
-    [s1.start.contents, s1.end.contents], 
-    [s2.start.contents, s2.end.contents], 
-    padding
-  );
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
 export const overlappingCircles = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Circle],

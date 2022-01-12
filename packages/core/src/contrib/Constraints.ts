@@ -17,7 +17,6 @@ import { shapeCenter, shapeSize } from "contrib/Queries";
 import * as _ from "lodash";
 import { shapedefs } from "shapes/Shapes";
 import {
-  overlappingLines,
   overlappingCircles,
   overlappingPolygons,
   overlappingRectlikeCircle,
@@ -170,9 +169,7 @@ const constrDictGeneral = {
     padding = 0.0
   ) => {
     // Same shapes
-    if (shapedefs[t1].isLinelike && shapedefs[t2].isLinelike)
-      return overlappingLines([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Circle" && t2 === "Circle")
+    if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
