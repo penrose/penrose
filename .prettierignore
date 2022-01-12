@@ -1,8 +1,10 @@
 node_modules/*
 
+**/build/*
 **/dist/*
 **/coverage/*
 **/docs/*
 **/node_modules/*
 **/tsconfig.tsbuildinfo
 **/packages/core/src/__testfixtures__
+**/packages/panels/public/app.js
