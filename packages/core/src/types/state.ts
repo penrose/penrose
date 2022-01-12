@@ -18,7 +18,6 @@ export interface IState {
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
-  rng: prng;
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];

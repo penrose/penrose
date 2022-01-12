@@ -34,7 +34,7 @@ import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
 import { Canvas } from "shapes/Samplers";
-import { ShapeDef, shapedefs } from "shapes/Shapes";
+import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -74,7 +74,6 @@ import {
   Stmt,
   StyProg,
   StyT,
-  StyVar,
 } from "types/style";
 import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
@@ -169,12 +168,12 @@ export function numbered<A>(xs: A[]): [A, number][] {
 
 // TODO move to util
 
-export function isLeft<A>(val: any): val is Left<A> {
+export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
   if ((val as Left<A>).tag === "Left") return true;
   return false;
 }
 
-export function isRight<B>(val: any): val is Right<B> {
+export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
   if ((val as Right<B>).tag === "Right") return true;
   return false;
 }
@@ -443,7 +442,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
         return [{ tag: "TaggedSubstanceError", error: subErr1 }];
       }
 
-      const [vtype, env1] = res1.value;
+      const [vtype] = res1.value; // ignore env
 
       // G |- E : T2
       const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
@@ -455,7 +454,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
         // return ["substance typecheck error in E"];
       }
 
-      const [etype, env2] = res2.value;
+      const [etype] = res2.value; // ignore env
 
       // T1 = T2
       const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
@@ -529,7 +528,7 @@ const mergeMapping = (
   if (!res) {
     throw Error("var has no binding form?");
   }
-  const [progType, bindingForm] = res;
+  const [, bindingForm] = res;
 
   switch (bindingForm.tag) {
     case "SubVar": {
@@ -646,8 +645,11 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rels: RelationPattern[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stmt: SubStmt
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
@@ -662,7 +664,7 @@ const couldMatchRels = (
 // COMBAK: return "maybe" if a substitution fails?
 // COMBAK: Add a type for `lv`? It's not used here
 const substituteBform = (
-  lv: any,
+  lv: MaybeVal<LocalVarSubst>,
   subst: Subst,
   bform: BindingForm
 ): BindingForm => {
@@ -1292,7 +1294,6 @@ const relMatchesLine = (
 ): boolean => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") {
     // rule Bind-Match
-    const bvar = s2.id;
     switch (s2.id.tag) {
       case "StyVar": {
         // internal error
@@ -1627,7 +1628,6 @@ const deleteProperty = (
 
   const nm = name.contents.value;
   const fld = field.value;
-  const prp = property.value;
 
   const fieldDict = trn[nm];
 
@@ -1830,7 +1830,7 @@ const translateSubstsBlock = (
 ): Either<StyleErrors, Translation> => {
   return foldM(
     substsNum,
-    (trans, substNum, i) =>
+    (trans, substNum) =>
       translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum),
     trans
   );
@@ -1959,6 +1959,7 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
@@ -2046,7 +2047,7 @@ const translatePair = (
       return translateBlock(
         {
           tag: "Just",
-          contents: (hb.header.contents.contents.value as any) as string,
+          contents: hb.header.contents.contents.value,
         },
         [hb.block, blockNum],
         trans,
@@ -2154,6 +2155,7 @@ const translateStyProg = (
   subProg: SubProg,
   styProg: StyProg,
   labelMap: LabelMap,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
@@ -2344,7 +2346,7 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
         .map((e: Expr, i): [Expr, number] => [e, i])
         .filter((e: [Expr, number]): boolean => isVarying(e[0]))
         .map(
-          ([e, i]: [Expr, number]): IAccessPath =>
+          ([, i]: [Expr, number]): IAccessPath =>
             ({
               nodeType: "SyntheticStyle",
               children: [],
@@ -2544,9 +2546,13 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: Field,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fexpr: FieldExpr<VarAD>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   // TODO < Currently we have no default objectives/constraints, so it's not implemented
@@ -2636,7 +2642,7 @@ const findFieldPending = (
     case "FGPI": {
       const properties = fexpr.contents[1];
       const pendingProps = Object.entries(properties)
-        .filter(([k, v]) => v.tag === "Pending")
+        .filter(([, v]) => v.tag === "Pending")
         .map((e: [string, TagExpr<VarAD>]) => e[0]);
 
       // TODO: Pending properties currently don't support AccessPaths
@@ -2849,6 +2855,7 @@ const findLayeringExprs = (tr: Translation): ILayering[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lookupGPIName = (p: Path, tr: Translation): string => {
   if (p.tag === "FieldPath") {
     // COMBAK: Deal with path synonyms / aliases by looking them up?
@@ -3035,10 +3042,9 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     } as unknown) as Params,
 
     labelCache: [],
-    rng: undefined as any,
-    policyParams: undefined as any,
-    oConfig: undefined as any,
-    varyingMap: {} as any, // TODO: Should this be empty?
+    policyParams: undefined,
+    oConfig: undefined,
+    varyingMap: new Map(), // TODO: Should this be empty?
 
     canvas: getCanvas(trans),
   };
@@ -3058,8 +3064,8 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
-  } catch (e: any) {
-    return err(parseError(e, lastLocation(parser)));
+  } catch (e: unknown) {
+    return err(parseError(<string>e, lastLocation(parser)));
   }
 };
 
