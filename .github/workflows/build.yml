@@ -28,6 +28,16 @@ jobs:
         name: Publish canary release
         run: yarn publish:canary --yes
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        uses: ./.github/actions/packages
+      - name: Lint
+        run: yarn lint
+
   storybook:
     runs-on: ubuntu-latest
     defaults:
