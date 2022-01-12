@@ -132,9 +132,8 @@ export const RenderInteractive = (
         onDrag,
         svg
       )
-    )
-  }
-  );
+    );
+  });
   return svg;
 };
 

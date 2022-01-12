@@ -3,6 +3,7 @@
 **/dist/
 **/docs/
 **/tsconfig.tsbuildinfo
+packages/browser-ui/tsconfig.json
 packages/core/src/__testfixtures__/
 packages/core/src/parser/DomainParser.ts
 packages/core/src/parser/StyleParser.ts
