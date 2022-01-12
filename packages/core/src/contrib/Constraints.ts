@@ -21,8 +21,6 @@ import {
   overlappingCircles,
   overlappingPolygons,
   overlappingRectlikeCircle,
-  overlappingPolygonLinelike,
-  overlappingRectlikeLinelike,
   overlappingCircleLine,
   overlappingAABBs,
   containsCircles,
