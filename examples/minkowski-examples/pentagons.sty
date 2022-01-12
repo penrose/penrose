@@ -1,0 +1,26 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Shape x {
+  x.x = ?
+  x.y = ?
+  
+  x.x1 = (375.0 + x.x, 450.0 + x.y)
+  x.x2 = (350.0 + x.x, 400.0 + x.y)
+  x.x3 = (400.0 + x.x, 350.0 + x.y)
+  x.x4 = (475.0 + x.x, 400.0 + x.y)
+  x.x5 = (450.0 + x.x, 450.0 + x.y)
+
+  x.icon = Polygon {
+    points: [ x.x1, x.x2, x.x3, x.x4, x.x5 ]
+  }
+
+  encourage equal(x.x, 0.0)
+  encourage equal(x.y, 0.0)
+}
+
+Shape x; Shape y {
+  ensure disjoint(x.icon, y.icon)
+}
