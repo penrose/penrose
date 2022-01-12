@@ -49,6 +49,7 @@ export interface TextData {
   tag: "TextData";
   width: Value<number>;
   height: Value<number>;
+  descent: Value<number>;
 }
 
 export type LabelCache = [string, LabelData][];

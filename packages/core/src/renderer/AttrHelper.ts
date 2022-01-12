@@ -7,6 +7,7 @@ import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 import { attrMapSvg } from "./AttrMapSvg";
+import { toFontRule } from "utils/CollectLabels";
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
@@ -313,35 +314,16 @@ export const attrTitle = (
 /**
  * Maps fontFamily, fontSize, fontStretch, fontStyle, fontVariant, fontWeight, lineHeight -> font
  */
-export const attrFont = ({ properties }: Shape, elem: SVGElement): string[] => {
-  const fontFamily = properties.fontFamily.contents as string;
-  const fontSize = properties.fontSize.contents as string;
-  const fontStretch = properties.fontStretch.contents as string;
-  const fontStyle = properties.fontStyle.contents as string;
-  const fontVariant = properties.fontVariant.contents as string;
-  const fontWeight = properties.fontWeight.contents as string;
-  const lineHeight = properties.lineHeight.contents as string;
-  /**
-   * assemble according to the rules in https://developer.mozilla.org/en-US/docs/Web/CSS/font
-   * it must include values for: <font-size> <font-family>
-   * it may optionally include values for: <font-style> <font-variant> <font-weight> <font-stretch> <line-height>
-   * font-style, font-variant and font-weight must precede font-size
-   * font-variant may only specify the values defined in CSS 2.1, that is normal and small-caps
-   * font-stretch may only be a single keyword value.
-   * line-height must immediately follow font-size, preceded by "/", like this: "16px/3"
-   * font-family must be the last value specified.
-   */
-
-  const fontSpec = `font: ${fontStretch} ${fontStyle} ${fontVariant} ${fontWeight} ${fontSize} ${fontFamily};`;
-  const fontString =
-    lineHeight !== "" ? fontSpec.concat(`/${lineHeight}`) : fontSpec;
-
+export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
+  const fontString: string = toFontRule(shape);
   const existingStyle: string | null = elem.getAttribute("style");
 
   // TODO: check if `lineHeight` is valid
   elem.setAttribute(
     "style",
-    existingStyle ? `${existingStyle};${fontString}` : fontString
+    existingStyle
+      ? `${existingStyle}; font: ${fontString};`
+      : `font: ${fontString};`
   );
   return [
     "fontFamily",

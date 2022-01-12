@@ -22,8 +22,6 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
 
   const center = shape.properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  elem.setAttribute("x", x.toString());
-  elem.setAttribute("y", y.toString());
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push("x", "y");
@@ -38,6 +36,9 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   const name = shape.properties.name as IStrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
   if (retrievedLabel && retrievedLabel.tag === "TextData") {
+    const [centerX, centerY] = [x, y];
+    elem.setAttribute("x", centerX.toString());
+    elem.setAttribute("y", centerY.toString());
     attrToNotAutoMap.push(...attrWH(shape, elem));
   }
 

@@ -38,6 +38,7 @@ export interface IText
   textAnchor: IStrV;
   lineHeight: IStrV;
   alignmentBaseline: IStrV;
+  dominantBaseline: IStrV;
 }
 
 export const sampleText = (canvas: Canvas): IText => ({
@@ -64,6 +65,7 @@ export const sampleText = (canvas: Canvas): IText => ({
   lineHeight: StrV(""),
   textAnchor: StrV("middle"),
   alignmentBaseline: StrV("middle"),
+  dominantBaseline: StrV("middle"),
 });
 
 export type Text = IShape & { shapeType: "Text" } & IText;

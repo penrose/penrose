@@ -121,10 +121,15 @@ const floatV = (contents: number): IFloatV<number> => ({
   contents,
 });
 
-const textData = (width: number, height: number): TextData => ({
+const textData = (
+  width: number,
+  height: number,
+  descent: number
+): TextData => ({
   tag: "TextData",
   width: floatV(width),
   height: floatV(height),
+  descent: floatV(descent),
 });
 
 const equationData = (
@@ -137,6 +142,35 @@ const equationData = (
   height: floatV(height),
   rendered,
 });
+
+/**
+ * Get the CSS string for the font setting of a `Text` GPI.
+ * @param shape A text GPI
+ * @returns a CSS rule string of its font settings
+ */
+export const toFontRule = ({ properties }: Shape): string => {
+  const fontFamily = properties.fontFamily.contents as string;
+  const fontSize = properties.fontSize.contents as string;
+  const fontStretch = properties.fontStretch.contents as string;
+  const fontStyle = properties.fontStyle.contents as string;
+  const fontVariant = properties.fontVariant.contents as string;
+  const fontWeight = properties.fontWeight.contents as string;
+  const lineHeight = properties.lineHeight.contents as string;
+  /**
+   * assemble according to the rules in https://developer.mozilla.org/en-US/docs/Web/CSS/font
+   * it must include values for: <font-size> <font-family>
+   * it may optionally include values for: <font-style> <font-variant> <font-weight> <font-stretch> <line-height>
+   * font-style, font-variant and font-weight must precede font-size
+   * font-variant may only specify the values defined in CSS 2.1, that is normal and small-caps
+   * font-stretch may only be a single keyword value.
+   * line-height must immediately follow font-size, preceded by "/", like this: "16px/3"
+   * font-family must be the last value specified.
+   */
+  const fontSpec = `${fontStretch} ${fontStyle} ${fontVariant} ${fontWeight} ${fontSize} ${fontFamily}`;
+  const fontString =
+    lineHeight !== "" ? fontSpec.concat(`/${lineHeight}`) : fontSpec;
+  return fontString;
+};
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
@@ -176,35 +210,65 @@ export const collectLabels = async (
     } else if (shapeType === "Text") {
       const shapeName: string = properties.name.contents as string;
       // HACK: pre-render the text to get the bbox
-      const elem = RenderShape({ shape: s, labels, canvasSize });
-      // HACK: temporary div for `getBBox` function
-      const tempDiv = document.createElement("div");
-      tempDiv.setAttribute(
-        "style",
-        "position:absolute; visibility:hidden; width:0; height:0"
-      );
-      const tempSvg = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "svg"
-      );
-      tempSvg.appendChild(elem.cloneNode(true));
-      tempDiv.appendChild(tempSvg);
-      document.body.appendChild(tempDiv);
       let label: TextData;
-      // NOTE: `getBBox` is only defined in browser. So we set width and height to zeros if it's not defined
-      if (tempSvg.getBBox) {
-        const bbox = tempSvg.getBBox({ stroke: true });
-        const { width, height } = bbox;
-        console.log("text bbox width  : " + String(bbox.width));
-        console.log("text bbox height : " + String(bbox.height));
-        label = textData(width, height);
+      // canvas
+      const measure: TextMeasurement = measureText(
+        properties.string.contents as string,
+        toFontRule(s)
+      );
+      console.log("font rule", toFontRule(s));
+      console.log("jmp's measurement", measure);
+
+      if (measure.width && measure.height) {
+        label = textData(measure.width, measure.height, measure.actualDescent);
       } else {
-        label = textData(0, 0);
+        label = textData(0, 0, 0);
       }
       labels.push([shapeName, label]);
-      // clean up
-      document.body.removeChild(tempDiv);
     }
   }
   return ok(labels);
 };
+
+// text measurement code by @jmp
+export type TextMeasurement = {
+  width: number;
+  height: number;
+  fontHeight: number;
+  // position of text's alphabetic baseline assuming top is the origin
+  baseline: number;
+  fontDescent: number;
+  actualDescent: number;
+};
+
+export function measureText(text: string, font: string): TextMeasurement {
+  measureText.context.textBaseline = "alphabetic";
+  measureText.context.font = font;
+  const measurements = measureText.context.measureText(text);
+  console.log("canvas measurement", measurements);
+
+  return {
+    width:
+      Math.abs(measurements.actualBoundingBoxLeft) +
+      Math.abs(measurements.actualBoundingBoxRight),
+    height:
+      Math.abs(measurements.actualBoundingBoxAscent) +
+      Math.abs(measurements.actualBoundingBoxDescent),
+    fontHeight:
+      Math.abs(measurements.fontBoundingBoxAscent) +
+      Math.abs(measurements.fontBoundingBoxDescent),
+    baseline: Math.abs(measurements.fontBoundingBoxAscent),
+    fontDescent: Math.abs(measurements.fontBoundingBoxDescent),
+    actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
+  };
+}
+// static variable
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace measureText {
+  export const element = document.createElement("canvas");
+  // puts canvas on screen. useful for debugging measurements
+  // element.width = 1000;
+  // element.height = 1000;
+  // document.body.appendChild(element);
+  export const context = element.getContext("2d")!;
+}
