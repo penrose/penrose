@@ -1,10 +1,11 @@
 import {
   overlappingPolygonPoints,
   rectangleDifference,
+  rectangleSignedDistance,
 } from "contrib/Minkowski";
 import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
-import { Pt2, VarAD } from "types/ad";
+import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
 import {
   sub,
@@ -17,7 +18,6 @@ import {
   addN,
   ifCond,
   lt,
-  sqrt,
   squared,
 } from "engine/AutodiffFunctions";
 import { Circle } from "shapes/Circle";
@@ -56,35 +56,6 @@ export const overlappingPolygons = (
     polygonLikePoints([t2, s2]),
     padding
   );
-};
-
-/**
- * Returns the signed distance from a rectangle at the origin.
- */
-export const rectangleSignedDistance = (
-  bottomLeft: Pt2,
-  topRight: Pt2
-): VarAD => {
-  // Calculate relative coordinates for rectangle signed distance
-  const [xp, yp] = ops
-    .vmul(constOf(0.5), ops.vadd(bottomLeft, topRight))
-    .map((x) => absVal(x));
-  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(topRight, bottomLeft));
-  const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
-  // Positive distance (nonzero when the rectangle does not contain the origin)
-  const e1 = sqrt(
-    add(
-      constOf(10e-15),
-      add(
-        squared(max(sub(xp, xr), constOf(0.0))),
-        squared(max(sub(yp, yr), constOf(0.0)))
-      )
-    )
-  );
-  // Negative distance (nonzero when the rectangle does contain the origin)
-  const ne2 = min(max(xq, yq), constOf(0.0));
-  // Return the signed distance
-  return add(e1, ne2);
 };
 
 /**
