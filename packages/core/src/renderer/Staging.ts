@@ -60,7 +60,7 @@ const getStateFromObjArrAndLocalState = (
   arr: StringObjPair[],
   state: State
 ): State => {
-  let shapeNamesToInclude = arr.map((elem) => {
+  const shapeNamesToInclude = arr.map((elem) => {
     return elem[0];
   });
 

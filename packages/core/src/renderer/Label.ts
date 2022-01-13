@@ -10,7 +10,7 @@ import {
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const Label = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
+const Equation = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
   // Keep track of which input properties we programatically mapped
@@ -25,7 +25,11 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
   const retrievedLabel = retrieveLabel(name.contents, labels);
   attrToNotAutoMap.push("name");
 
-  if (retrievedLabel && retrievedLabel.rendered) {
+  if (
+    retrievedLabel &&
+    retrievedLabel.tag === "EquationData" &&
+    retrievedLabel.rendered
+  ) {
     const renderedLabel = retrievedLabel.rendered;
 
     attrToNotAutoMap.push(
@@ -56,4 +60,4 @@ const Label = ({ shape, canvasSize, labels }: ShapeProps): SVGGElement => {
 
   return elem;
 };
-export default Label;
+export default Equation;

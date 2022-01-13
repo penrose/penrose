@@ -14,6 +14,7 @@ import {
   RenderStatic,
   RenderInteractive,
   RenderShape,
+  PathResolver,
 } from "./renderer/Renderer";
 import { resampleBest } from "./renderer/Resample";
 import { Synthesizer } from "./synthesis/Synthesizer";
@@ -128,20 +129,28 @@ export const interactiveDiagram = async (
   domainProg: string,
   subProg: string,
   styProg: string,
-  node: HTMLElement
+  node: HTMLElement,
+  pathResolver: PathResolver
 ): Promise<void> => {
-  const updateData = (state: State) => {
+  const updateData = async (state: State) => {
     const stepped = stepUntilConvergenceOrThrow(state);
-    node.replaceChild(
-      RenderInteractive(stepped, updateData),
-      node.firstChild as Node
+    const rendering = await RenderInteractive(
+      stepped,
+      updateData,
+      pathResolver
     );
+    node.replaceChild(rendering, node.firstChild as Node);
   };
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
-    node.appendChild(RenderInteractive(optimized, updateData));
+    const rendering = await RenderInteractive(
+      optimized,
+      updateData,
+      pathResolver
+    );
+    node.appendChild(rendering);
   } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
@@ -352,6 +361,7 @@ export type { Shape } from "./types/shape";
 export { constrDict } from "./contrib/Constraints";
 export { objDict } from "./contrib/Objectives";
 export { compDict } from "./contrib/Functions";
+export type { PathResolver } from "./renderer/Renderer";
 export type { Registry, Trio };
 export type { Env };
 export type {

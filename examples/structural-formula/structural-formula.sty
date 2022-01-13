@@ -39,19 +39,12 @@ forall Node n {
       strokeWidth : 2.
    }
 
-   shape n.background = Circle {
-      r : Global.atomRadius * 4.
+   shape n.background = Image {
+      href : "atom.svg"
       center : n.center
-      fillColor : rgba( .95, .95, .95, 1. )
-      strokeColor : Colors.clear
+      width : 4.*Global.atomRadius
+      height : 4.*Global.atomRadius
    }
-
-   -- n.background = Image {
-   --    href : "atom.svg"
-   --    center : (?,?)
-   --    width : 4.*Global.atomRadius
-   --    height : 4.*Global.atomRadius
-   -- }
 
    shape n.text = Text {
       string: n.label

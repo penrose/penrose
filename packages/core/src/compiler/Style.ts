@@ -34,7 +34,7 @@ import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
 import { Canvas } from "shapes/Samplers";
-import { ShapeDef, shapedefs } from "shapes/Shapes";
+import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -74,7 +74,6 @@ import {
   Stmt,
   StyProg,
   StyT,
-  StyVar,
 } from "types/style";
 import { LocalVarSubst, ProgType, SelEnv, Subst } from "types/styleSemantics";
 import {
@@ -113,7 +112,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { randFloat, prettyPrintPath } from "utils/Util";
+import { randFloat, prettyPrintPath, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -126,8 +125,6 @@ const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
 
 const LABEL_FIELD = "label";
-
-const UnknownTagError = new Error("unknown tag");
 
 const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
@@ -166,17 +163,17 @@ const numbers = (r: number): number[] => {
 
 export function numbered<A>(xs: A[]): [A, number][] {
   if (!xs) throw Error("fail");
-  return _.zip(xs, numbers(xs.length)) as [A, number][]; // COMBAK: Don't know why typescript has problem with this
+  return zip2(xs, numbers(xs.length));
 }
 
 // TODO move to util
 
-export function isLeft<A>(val: any): val is Left<A> {
+export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
   if ((val as Left<A>).tag === "Left") return true;
   return false;
 }
 
-export function isRight<B>(val: any): val is Right<B> {
+export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
   if ((val as Right<B>).tag === "Right") return true;
   return false;
 }
@@ -227,22 +224,18 @@ function justs<T>(xs: MaybeVal<T>[]): T[] {
     });
 }
 
-const safeContentsList = (x: any) => (x ? x.contents : []);
+const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
+  x ? x.contents : [];
 
 const toString = (x: BindingForm): string => x.contents.value;
 
 // https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = (...a: any[]) =>
-  a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())));
-
-const pathString = (p: Path): string => {
-  // COMBAK: This should be replaced by prettyPrintPath
-  if (p.tag === "FieldPath") {
-    return `${p.name.contents.value}.${p.field.value}`;
-  } else if (p.tag === "PropertyPath") {
-    return `${p.name.contents.value}.${p.field.value}.${p.property.value}`;
-  } else throw Error("pathStr not implemented");
-};
+const cartesianProduct = <T>(...a: T[][]): T[][] =>
+  a.reduce(
+    (tuples: T[][], set) =>
+      tuples.flatMap((prefix: T[]) => set.map((x: T) => [...prefix, x])),
+    [[]]
+  );
 
 const getShapeName = (s: string, f: Field): string => {
   return `${s}.${f}`;
@@ -253,16 +246,16 @@ const getShapeName = (s: string, f: Field): string => {
 //#region Some code for prettyprinting
 
 const ppExpr = (e: SelExpr): string => {
-  if (e.tag === "SEBind") {
-    return e.contents.contents.value;
-  } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(e.tag)) {
-    const args = e.args.map(ppExpr);
-    return `${e.name.value}(${args})`;
-  } else if (((e as any) as StyVar).tag === "StyVar") {
-    return ((e as any) as StyVar).contents.value;
-  } else {
-    console.log("res", e);
-    throw Error("unknown tag");
+  switch (e.tag) {
+    case "SEBind": {
+      return e.contents.contents.value;
+    }
+    case "SEFunc":
+    case "SEValCons":
+    case "SEFuncOrValCons": {
+      const args = e.args.map(ppExpr);
+      return `${e.name.value}(${args})`;
+    }
   }
 };
 
@@ -302,13 +295,17 @@ const ppRelField = (r: RelField): string => {
 };
 
 export const ppRel = (r: RelationPattern): string => {
-  if (r.tag === "RelBind") {
-    return ppRelBind(r);
-  } else if (r.tag === "RelPred") {
-    return ppRelPred(r);
-  } else if (r.tag === "RelField") {
-    return ppRelField(r);
-  } else throw Error("unknown tag");
+  switch (r.tag) {
+    case "RelBind": {
+      return ppRelBind(r);
+    }
+    case "RelPred": {
+      return ppRelPred(r);
+    }
+    case "RelField": {
+      return ppRelField(r);
+    }
+  }
 };
 
 //#endregion
@@ -375,39 +372,42 @@ const checkDeclPatternAndMakeEnv = (
     return addErrSel(selEnv, { tag: "SelectorVarMultipleDecl", varName: bVar });
   }
 
-  if (bVar.tag === "StyVar") {
-    // rule Decl-Sty-Context
-    // NOTE: this does not aggregate *all* possible errors. May just return first error.
-    // y \not\in dom(g)
-    return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
-  } else if (bVar.tag === "SubVar") {
-    // rule Decl-Sub-Context
-    // x \not\in dom(g)
-
-    const substanceType = varEnv.vars.get(varName);
-
-    // If any Substance variable doesn't exist in env, ignore it,
-    // but flag it so we know to not translate the lines in the block later.
-    if (!substanceType) {
-      return { ...selEnv, skipBlock: true };
+  switch (bVar.tag) {
+    case "StyVar": {
+      // rule Decl-Sty-Context
+      // NOTE: this does not aggregate *all* possible errors. May just return first error.
+      // y \not\in dom(g)
+      return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
     }
+    case "SubVar": {
+      // rule Decl-Sub-Context
+      // x \not\in dom(g)
 
-    // check "T <: |T", assuming type constructors are nullary
-    // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
-    // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
-    const declType = toSubstanceType(styType);
-    if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
-      // COMBAK: Order?
-      // TODO(errors)
-      return addErrSel(selEnv, {
-        tag: "SelectorDeclTypeMismatch",
-        subType: declType,
-        styType: substanceType,
-      });
+      const substanceType = varEnv.vars.get(varName);
+
+      // If any Substance variable doesn't exist in env, ignore it,
+      // but flag it so we know to not translate the lines in the block later.
+      if (!substanceType) {
+        return { ...selEnv, skipBlock: true };
+      }
+
+      // check "T <: |T", assuming type constructors are nullary
+      // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
+      // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
+      const declType = toSubstanceType(styType);
+      if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
+        // COMBAK: Order?
+        // TODO(errors)
+        return addErrSel(selEnv, {
+          tag: "SelectorDeclTypeMismatch",
+          subType: declType,
+          styType: substanceType,
+        });
+      }
+
+      return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
     }
-
-    return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
-  } else throw Error("unknown tag");
+  }
 };
 
 // Judgment 6. G; g |- [|S_o] ~> g'
@@ -442,7 +442,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
         return [{ tag: "TaggedSubstanceError", error: subErr1 }];
       }
 
-      const [vtype, env1] = res1.value;
+      const [vtype] = res1.value; // ignore env
 
       // G |- E : T2
       const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
@@ -454,7 +454,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
         // return ["substance typecheck error in E"];
       }
 
-      const [etype, env2] = res2.value;
+      const [etype] = res2.value; // ignore env
 
       // T1 = T2
       const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
@@ -528,22 +528,23 @@ const mergeMapping = (
   if (!res) {
     throw Error("var has no binding form?");
   }
-  const [progType, bindingForm] = res;
+  const [, bindingForm] = res;
 
-  if (bindingForm.tag === "SubVar") {
-    // G || (x : |T) |-> G
-    return varEnv;
-  } else if (bindingForm.tag === "StyVar") {
-    // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
-    return {
-      ...varEnv,
-      vars: varEnv.vars.set(
-        bindingForm.contents.value,
-        toSubstanceType(styType)
-      ),
-    };
-  } else {
-    throw Error("unknown tag");
+  switch (bindingForm.tag) {
+    case "SubVar": {
+      // G || (x : |T) |-> G
+      return varEnv;
+    }
+    case "StyVar": {
+      // G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
+      return {
+        ...varEnv,
+        vars: varEnv.vars.set(
+          bindingForm.contents.value,
+          toSubstanceType(styType)
+        ),
+      };
+    }
   }
 };
 
@@ -558,36 +559,39 @@ const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
 
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
 const checkHeader = (varEnv: Env, header: Header): SelEnv => {
-  if (header.tag === "Selector") {
-    // Judgment 7. G |- Sel ok ~> g
-    const sel: Selector = header;
-    const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
-      varEnv,
-      initSelEnv(),
-      sel.head.contents
-    );
-    // Check `with` statements
-    // TODO: Did we get rid of `with` statements?
-    const selEnv_decls = checkDeclPatternsAndMakeEnv(
-      varEnv,
-      selEnv_afterHead,
-      safeContentsList(sel.with)
-    );
+  switch (header.tag) {
+    case "Selector": {
+      // Judgment 7. G |- Sel ok ~> g
+      const sel: Selector = header;
+      const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
+        varEnv,
+        initSelEnv(),
+        sel.head.contents
+      );
+      // Check `with` statements
+      // TODO: Did we get rid of `with` statements?
+      const selEnv_decls = checkDeclPatternsAndMakeEnv(
+        varEnv,
+        selEnv_afterHead,
+        safeContentsList(sel.with)
+      );
 
-    const relErrs = checkRelPatterns(
-      mergeEnv(varEnv, selEnv_decls),
-      safeContentsList(sel.where)
-    );
+      const relErrs = checkRelPatterns(
+        mergeEnv(varEnv, selEnv_decls),
+        safeContentsList(sel.where)
+      );
 
-    // TODO(error): The errors returned in the top 3 statements
-    return {
-      ...selEnv_decls,
-      errors: selEnv_decls.errors.concat(relErrs), // COMBAK: Reverse the error order?
-    };
-  } else if (header.tag === "Namespace") {
-    // TODO(error)
-    return initSelEnv();
-  } else throw Error("unknown Style header tag");
+      // TODO(error): The errors returned in the top 3 statements
+      return {
+        ...selEnv_decls,
+        errors: selEnv_decls.errors.concat(relErrs), // COMBAK: Reverse the error order?
+      };
+    }
+    case "Namespace": {
+      // TODO(error)
+      return initSelEnv();
+    }
+  }
 };
 
 // Returns a sel env for each selector in the Style program, in the same order
@@ -641,11 +645,15 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rels: RelationPattern[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stmt: SubStmt
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
+  // see also https://github.com/penrose/penrose/issues/566
   return true;
 };
 
@@ -657,70 +665,76 @@ const couldMatchRels = (
 // COMBAK: return "maybe" if a substitution fails?
 // COMBAK: Add a type for `lv`? It's not used here
 const substituteBform = (
-  lv: any,
+  lv: MaybeVal<LocalVarSubst>,
   subst: Subst,
   bform: BindingForm
 ): BindingForm => {
   // theta(B) = ...
-  if (bform.tag === "SubVar") {
-    // Variable in backticks in block or selector (e.g. `X`), so nothing to substitute
-    return bform;
-  } else if (bform.tag === "StyVar") {
-    // Look up the substitution for the Style variable and return a Substance variable
-    // Returns result of mapping if it exists (y -> x)
-    const res = subst[bform.contents.value];
-
-    if (res) {
-      return {
-        ...bform, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info (COMBAK)
-        tag: "SubVar",
-        contents: {
-          ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
-          type: "value",
-          value: res, // COMBAK: double check please
-        },
-      };
-    } else {
-      // Nothing to substitute
+  switch (bform.tag) {
+    case "SubVar": {
+      // Variable in backticks in block or selector (e.g. `X`), so nothing to substitute
       return bform;
     }
-  } else throw Error("unknown tag");
+    case "StyVar": {
+      // Look up the substitution for the Style variable and return a Substance variable
+      // Returns result of mapping if it exists (y -> x)
+      const res = subst[bform.contents.value];
+
+      if (res) {
+        return {
+          ...bform, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info (COMBAK)
+          tag: "SubVar",
+          contents: {
+            ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
+            type: "value",
+            value: res, // COMBAK: double check please
+          },
+        };
+      } else {
+        // Nothing to substitute
+        return bform;
+      }
+    }
+  }
 };
 
 const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
   // theta(B) = ...
-  if (expr.tag === "SEBind") {
-    return {
-      ...expr,
-      contents: substituteBform({ tag: "Nothing" }, subst, expr.contents),
-    };
-  } else if (["SEFunc", "SEValCons", "SEFuncOrValCons"].includes(expr.tag)) {
-    // COMBAK: Remove SEFuncOrValCons?
-    // theta(f[E]) = f([theta(E)]
+  switch (expr.tag) {
+    case "SEBind": {
+      return {
+        ...expr,
+        contents: substituteBform({ tag: "Nothing" }, subst, expr.contents),
+      };
+    }
+    case "SEFunc":
+    case "SEValCons":
+    case "SEFuncOrValCons": {
+      // COMBAK: Remove SEFuncOrValCons?
+      // theta(f[E]) = f([theta(E)]
 
-    return {
-      ...expr,
-      args: expr.args.map((arg) => substituteExpr(subst, arg)),
-    };
-  } else {
-    throw Error("unsupported tag");
+      return {
+        ...expr,
+        args: expr.args.map((arg) => substituteExpr(subst, arg)),
+      };
+    }
   }
 };
 
 const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
-  if (predArg.tag === "RelPred") {
-    return {
-      ...predArg,
-      args: predArg.args.map((arg) => substitutePredArg(subst, arg)),
-    };
-  } else if (predArg.tag === "SEBind") {
-    return {
-      ...predArg,
-      contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents), // COMBAK: Why is bform here...
-    };
-  } else {
-    console.log("unknown tag", subst, predArg);
-    throw Error("unknown tag");
+  switch (predArg.tag) {
+    case "RelPred": {
+      return {
+        ...predArg,
+        args: predArg.args.map((arg) => substitutePredArg(subst, arg)),
+      };
+    }
+    case "SEBind": {
+      return {
+        ...predArg,
+        contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents), // COMBAK: Why is bform here...
+      };
+    }
   }
 };
 
@@ -771,68 +785,75 @@ const substituteRels = (
 // // Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
 
 const mkLocalVarName = (lv: LocalVarSubst): string => {
-  if (lv.tag === "LocalVarId") {
-    const [blockNum, substNum] = lv.contents;
-    return `${LOCAL_KEYWORD}_block${blockNum}_subst${substNum}`;
-  } else if (lv.tag === "NamespaceId") {
-    return lv.contents;
-  } else throw Error("unknown error");
+  switch (lv.tag) {
+    case "LocalVarId": {
+      const [blockNum, substNum] = lv.contents;
+      return `${LOCAL_KEYWORD}_block${blockNum}_subst${substNum}`;
+    }
+    case "NamespaceId": {
+      return lv.contents;
+    }
+  }
 };
 
 const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
-  if (path.tag === "FieldPath") {
-    return {
-      ...path,
-      name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
-    };
-  } else if (path.tag === "PropertyPath") {
-    return {
-      ...path,
-      name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
-    };
-  } else if (path.tag === "LocalVar") {
-    return {
-      nodeType: "SyntheticStyle",
-      children: [],
-      tag: "FieldPath",
-      name: {
-        children: [],
+  switch (path.tag) {
+    case "FieldPath": {
+      return {
+        ...path,
+        name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
+      };
+    }
+    case "PropertyPath": {
+      return {
+        ...path,
+        name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
+      };
+    }
+    case "LocalVar": {
+      return {
         nodeType: "SyntheticStyle",
-        tag: "SubVar",
-        contents: {
-          ...dummyId(mkLocalVarName(lv)),
+        children: [],
+        tag: "FieldPath",
+        name: {
+          children: [],
+          nodeType: "SyntheticStyle",
+          tag: "SubVar",
+          contents: {
+            ...dummyId(mkLocalVarName(lv)),
+          },
         },
-      },
-      field: path.contents,
-    };
-  } else if (path.tag === "InternalLocalVar") {
-    // Note that the local var becomes a path
-    // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference '$LOCAL_<ids>.v'
-    // where <ids> is a string generated to be unique to this selector match for this block
+        field: path.contents,
+      };
+    }
+    case "InternalLocalVar": {
+      // Note that the local var becomes a path
+      // Use of local var 'v' (on right-hand side of '=' sign in Style) gets transformed into field path reference '$LOCAL_<ids>.v'
+      // where <ids> is a string generated to be unique to this selector match for this block
 
-    // COMBAK / HACK: Is there some way to get rid of all these dummy values?
-    return {
-      nodeType: "SyntheticStyle",
-      children: [],
-      tag: "FieldPath",
-      name: {
+      // COMBAK / HACK: Is there some way to get rid of all these dummy values?
+      return {
         nodeType: "SyntheticStyle",
         children: [],
-        tag: "SubVar",
-        contents: {
-          ...dummyId(mkLocalVarName(lv)),
+        tag: "FieldPath",
+        name: {
+          nodeType: "SyntheticStyle",
+          children: [],
+          tag: "SubVar",
+          contents: {
+            ...dummyId(mkLocalVarName(lv)),
+          },
         },
-      },
-      field: dummyId(path.contents),
-    };
-  } else if (path.tag === "AccessPath") {
-    // COMBAK: Check if this works / is needed (wasn't present in original code)
-    return {
-      ...path,
-      path: substitutePath(lv, subst, path.path),
-    };
-  } else {
-    throw Error("unknown tag");
+        field: dummyId(path.contents),
+      };
+    }
+    case "AccessPath": {
+      // COMBAK: Check if this works / is needed (wasn't present in original code)
+      return {
+        ...path,
+        path: substitutePath(lv, subst, path.path),
+      };
+    }
   }
 };
 
@@ -854,148 +875,164 @@ const substituteBlockExpr = (
 ): Expr => {
   if (isPath(expr)) {
     return substitutePath(lv, subst, expr);
-  } else if (
-    expr.tag === "CompApp" ||
-    expr.tag === "ObjFn" ||
-    expr.tag === "ConstrFn"
-  ) {
-    // substitute out occurrences of `VARYING_INIT(i)` (the computation) for `VaryingInit(i)` (the `AnnoFloat`) as there is currently no special syntax for this
+  } else {
+    switch (expr.tag) {
+      case "CompApp":
+      case "ObjFn":
+      case "ConstrFn": {
+        // substitute out occurrences of `VARYING_INIT(i)` (the computation) for `VaryingInit(i)` (the `AnnoFloat`) as there is currently no special syntax for this
 
-    // note that this is a hack; instead of shoehorning it into `substituteBlockExpr`, it should be done more cleanly as a compiler pass on the Style block AST at some point. doesn't really matter when this is done as long as it's before the varying float initialization in `genState
-    if (expr.tag === "CompApp") {
-      if (expr.name.value === VARYING_INIT_FN_NAME) {
-        // TODO(err): Typecheck VARYING_INIT properly and return an error. This will be unnecessary if parsed with special syntax.
-        if (expr.args.length !== 1) {
-          throw Error("expected one argument to VARYING_INIT");
-        }
+        // note that this is a hack; instead of shoehorning it into `substituteBlockExpr`, it should be done more cleanly as a compiler pass on the Style block AST at some point. doesn't really matter when this is done as long as it's before the varying float initialization in `genState
+        if (expr.tag === "CompApp") {
+          if (expr.name.value === VARYING_INIT_FN_NAME) {
+            // TODO(err): Typecheck VARYING_INIT properly and return an error. This will be unnecessary if parsed with special syntax.
+            if (expr.args.length !== 1) {
+              throw Error("expected one argument to VARYING_INIT");
+            }
 
-        if (expr.args[0].tag !== "Fix") {
-          throw Error("expected float argument to VARYING_INIT");
+            if (expr.args[0].tag !== "Fix") {
+              throw Error("expected float argument to VARYING_INIT");
+            }
+
+            return {
+              ...dummyASTNode({}, "SyntheticStyle"),
+              tag: "VaryInit",
+              contents: expr.args[0].contents,
+            };
+          }
         }
 
         return {
-          ...dummyASTNode({}, "SyntheticStyle"),
-          tag: "VaryInit",
-          contents: expr.args[0].contents,
+          ...expr,
+          args: expr.args.map((arg: Expr) =>
+            substituteBlockExpr(lv, subst, arg)
+          ),
         };
       }
+      case "BinOp": {
+        return {
+          ...expr,
+          left: substituteBlockExpr(lv, subst, expr.left),
+          right: substituteBlockExpr(lv, subst, expr.right),
+        };
+      }
+      case "UOp": {
+        return {
+          ...expr,
+          arg: substituteBlockExpr(lv, subst, expr.arg),
+        };
+      }
+      case "List":
+      case "Vector":
+      case "Matrix": {
+        return {
+          ...expr,
+          contents: expr.contents.map((e: Expr) =>
+            substituteBlockExpr(lv, subst, e)
+          ),
+        };
+      }
+      case "ListAccess": {
+        return {
+          ...expr,
+          contents: [
+            substitutePath(lv, subst, expr.contents[0]),
+            expr.contents[1],
+          ],
+        };
+      }
+      case "GPIDecl": {
+        return {
+          ...expr,
+          properties: expr.properties.map((p: PropertyDecl) =>
+            substituteField(lv, subst, p)
+          ),
+        };
+      }
+      case "Layering": {
+        return {
+          ...expr,
+          below: substitutePath(lv, subst, expr.below),
+          above: substitutePath(lv, subst, expr.above),
+        };
+      }
+      case "PluginAccess": {
+        return {
+          ...expr,
+          contents: [
+            expr.contents[0],
+            substituteBlockExpr(lv, subst, expr.contents[1]),
+            substituteBlockExpr(lv, subst, expr.contents[2]),
+          ],
+        };
+      }
+      case "Tuple": {
+        return {
+          ...expr,
+          contents: [
+            substituteBlockExpr(lv, subst, expr.contents[0]),
+            substituteBlockExpr(lv, subst, expr.contents[1]),
+          ],
+        };
+      }
+      case "VectorAccess": {
+        return {
+          ...expr,
+          contents: [
+            substitutePath(lv, subst, expr.contents[0]),
+            substituteBlockExpr(lv, subst, expr.contents[1]),
+          ],
+        };
+      }
+      case "MatrixAccess": {
+        return {
+          ...expr,
+          contents: [
+            substitutePath(lv, subst, expr.contents[0]),
+            expr.contents[1].map((e) => substituteBlockExpr(lv, subst, e)),
+          ],
+        };
+      }
+      case "Fix":
+      case "Vary":
+      case "VaryAD":
+      case "VaryInit":
+      case "StringLit":
+      case "BoolLit": {
+        // No substitution for literals
+        return expr;
+      }
     }
-
-    return {
-      ...expr,
-      args: expr.args.map((arg: Expr) => substituteBlockExpr(lv, subst, arg)),
-    };
-  } else if (expr.tag === "BinOp") {
-    return {
-      ...expr,
-      left: substituteBlockExpr(lv, subst, expr.left),
-      right: substituteBlockExpr(lv, subst, expr.right),
-    };
-  } else if (expr.tag === "UOp") {
-    return {
-      ...expr,
-      arg: substituteBlockExpr(lv, subst, expr.arg),
-    };
-  } else if (
-    expr.tag === "List" ||
-    expr.tag === "Vector" ||
-    expr.tag === "Matrix"
-  ) {
-    return {
-      ...expr,
-      contents: expr.contents.map((e: Expr) =>
-        substituteBlockExpr(lv, subst, e)
-      ),
-    };
-  } else if (expr.tag === "ListAccess") {
-    return {
-      ...expr,
-      contents: [substitutePath(lv, subst, expr.contents[0]), expr.contents[1]],
-    };
-  } else if (expr.tag === "GPIDecl") {
-    return {
-      ...expr,
-      properties: expr.properties.map((p: PropertyDecl) =>
-        substituteField(lv, subst, p)
-      ),
-    };
-  } else if (expr.tag === "Layering") {
-    return {
-      ...expr,
-      below: substitutePath(lv, subst, expr.below),
-      above: substitutePath(lv, subst, expr.above),
-    };
-  } else if (expr.tag === "PluginAccess") {
-    return {
-      ...expr,
-      contents: [
-        expr.contents[0],
-        substituteBlockExpr(lv, subst, expr.contents[1]),
-        substituteBlockExpr(lv, subst, expr.contents[2]),
-      ],
-    };
-  } else if (expr.tag === "Tuple") {
-    return {
-      ...expr,
-      contents: [
-        substituteBlockExpr(lv, subst, expr.contents[0]),
-        substituteBlockExpr(lv, subst, expr.contents[1]),
-      ],
-    };
-  } else if (expr.tag === "VectorAccess") {
-    return {
-      ...expr,
-      contents: [
-        substitutePath(lv, subst, expr.contents[0]),
-        substituteBlockExpr(lv, subst, expr.contents[1]),
-      ],
-    };
-  } else if (expr.tag === "MatrixAccess") {
-    return {
-      ...expr,
-      contents: [
-        substitutePath(lv, subst, expr.contents[0]),
-        expr.contents[1].map((e) => substituteBlockExpr(lv, subst, e)),
-      ],
-    };
-  } else if (
-    expr.tag === "Fix" ||
-    expr.tag === "Vary" ||
-    expr.tag === "VaryAD" || // technically is not present at this stage
-    expr.tag === "VaryInit" ||
-    expr.tag === "StringLit" ||
-    expr.tag === "BoolLit"
-  ) {
-    // No substitution for literals
-    return expr;
-  } else {
-    console.error("expr", expr);
-    throw Error("unknown tag");
   }
 };
 
 const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
-  if (line.tag === "PathAssign") {
-    return {
-      ...line,
-      path: substitutePath(lv, subst, line.path),
-      value: substituteBlockExpr(lv, subst, line.value),
-    };
-  } else if (line.tag === "Override") {
-    return {
-      ...line,
-      path: substitutePath(lv, subst, line.path),
-      value: substituteBlockExpr(lv, subst, line.value),
-    };
-  } else if (line.tag === "Delete") {
-    return {
-      ...line,
-      contents: substitutePath(lv, subst, line.contents),
-    };
-  } else {
-    throw Error(
-      "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-    );
+  switch (line.tag) {
+    case "PathAssign": {
+      return {
+        ...line,
+        path: substitutePath(lv, subst, line.path),
+        value: substituteBlockExpr(lv, subst, line.value),
+      };
+    }
+    case "Override": {
+      return {
+        ...line,
+        path: substitutePath(lv, subst, line.path),
+        value: substituteBlockExpr(lv, subst, line.value),
+      };
+    }
+    case "Delete": {
+      return {
+        ...line,
+        contents: substitutePath(lv, subst, line.contents),
+      };
+    }
+    case "AnonAssign": {
+      throw Error(
+        "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
+      );
+    }
   }
 };
 
@@ -1023,41 +1060,49 @@ const substituteBlock = (
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 // Note: the env is needed to disambiguate SEFuncOrValCons
 const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
-  if (e.tag === "SEBind") {
-    return e.contents.contents;
-  } else if (e.tag === "SEFunc") {
-    return {
-      ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
-      tag: "ApplyFunction",
-      name: e.name,
-      args: e.args.map((e) => toSubExpr(env, e)),
-    };
-  } else if (e.tag === "SEValCons") {
-    return {
-      ...e,
-      tag: "ApplyConstructor",
-      name: e.name,
-      args: e.args.map((e) => toSubExpr(env, e)),
-    };
-  } else if (e.tag === "SEFuncOrValCons") {
-    const res = {
-      ...e,
-      tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
-      name: e.name,
-      args: e.args.map((e) => toSubExpr(env, e)),
-    };
+  switch (e.tag) {
+    case "SEBind": {
+      return e.contents.contents;
+    }
+    case "SEFunc": {
+      return {
+        ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
+        tag: "ApplyFunction",
+        name: e.name,
+        args: e.args.map((e) => toSubExpr(env, e)),
+      };
+    }
+    case "SEValCons": {
+      return {
+        ...e,
+        tag: "ApplyConstructor",
+        name: e.name,
+        args: e.args.map((e) => toSubExpr(env, e)),
+      };
+    }
+    case "SEFuncOrValCons": {
+      const res = {
+        ...e,
+        tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
+        name: e.name,
+        args: e.args.map((e) => toSubExpr(env, e)),
+      };
 
-    disambiguateSubNode(env, res); // mutates res
-    return res as SubExpr;
-  } else throw Error("unknown tag");
+      disambiguateSubNode(env, res); // mutates res
+      return res as SubExpr;
+    }
+  }
 };
 
 const toSubPredArg = (a: PredArg): SubPredArg => {
-  if (a.tag === "SEBind") {
-    return a.contents.contents;
-  } else if (a.tag === "RelPred") {
-    return toSubPred(a);
-  } else throw Error("unknown tag");
+  switch (a.tag) {
+    case "SEBind": {
+      return a.contents.contents;
+    }
+    case "RelPred": {
+      return toSubPred(a);
+    }
+  }
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
@@ -1087,23 +1132,16 @@ const argsEq = (a1: SubPredArg, a2: SubPredArg): boolean => {
   } else return false; // they are different types
 };
 
-const subFnsEq = (p1: any, p2: any): boolean => {
-  if (
-    !p1.hasOwnProperty("name") ||
-    !p1.hasOwnProperty("args") ||
-    !p2.hasOwnProperty("name") ||
-    !p2.hasOwnProperty("args")
-  ) {
+const subFnsEq = (p1: SubPredArg, p2: SubPredArg): boolean => {
+  if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
     throw Error("expected substance type with name and args properties");
   }
 
   if (p1.args.length !== p2.args.length) {
     return false;
   }
-  // Can use `as` because now we know their lengths are equal
-  const allArgsEq = _.zip(p1.args, p2.args).every(([a1, a2]) =>
-    argsEq(a1 as SubPredArg, a2 as SubPredArg)
-  );
+  // Can use `zipStrict` because now we know their lengths are equal
+  const allArgsEq = zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2));
   return p1.name.value === p2.name.value && allArgsEq;
 };
 
@@ -1215,9 +1253,7 @@ const exprsMatchArr = (
   return (
     subE.name.value === styE.name.value &&
     isSubtypeArrow(subArrTypes, styArrTypes, varEnv) &&
-    _.zip(subVarArgs, styVarArgs).every(([a1, a2]) =>
-      varsEq(a1 as Identifier, a2 as Identifier)
-    )
+    zip2(subVarArgs, styVarArgs).every(([a1, a2]) => varsEq(a1, a2))
   );
   // `as` is fine bc of preceding length check
 };
@@ -1259,26 +1295,28 @@ const relMatchesLine = (
 ): boolean => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") {
     // rule Bind-Match
-    const bvar = s2.id;
-    if (s2.id.tag === "StyVar") {
-      // internal error
-      throw Error(
-        `Style variable ${
-          s2.id.contents.value
-        } found in relational statement ${ppRel(s2)}. Should not be present!`
-      );
-    } else if (s2.id.tag === "SubVar") {
-      // B |- E = |E
-      const [subVar, sVar] = [s1.variable, s2.id.contents.value];
-      const selExpr = toSubExpr(typeEnv, s2.expr);
-      const subExpr = s1.expr;
-      return (
-        subVarsEq(subVar, dummyId(sVar)) &&
-        exprsMatch(typeEnv, subExpr, selExpr)
-      );
-      // COMBAK: Add this condition when this is implemented in the Substance typechecker
-      // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
-    } else throw Error("unknown tag");
+    switch (s2.id.tag) {
+      case "StyVar": {
+        // internal error
+        throw Error(
+          `Style variable ${
+            s2.id.contents.value
+          } found in relational statement ${ppRel(s2)}. Should not be present!`
+        );
+      }
+      case "SubVar": {
+        // B |- E = |E
+        const [subVar, sVar] = [s1.variable, s2.id.contents.value];
+        const selExpr = toSubExpr(typeEnv, s2.expr);
+        const subExpr = s1.expr;
+        return (
+          subVarsEq(subVar, dummyId(sVar)) &&
+          exprsMatch(typeEnv, subExpr, selExpr)
+        );
+        // COMBAK: Add this condition when this is implemented in the Substance typechecker
+        // || exprsDeclaredEqual(subEnv, expr, selExpr); // B |- E = |E
+      }
+    }
   } else if (s1.tag === "ApplyPredicate" && s2.tag === "RelPred") {
     // rule Pred-Match
     const [pred, sPred] = [s1, s2];
@@ -1397,24 +1435,27 @@ const typesMatched = (
 
 // Judgment 10. theta |- x <| B
 const matchBvar = (subVar: Identifier, bf: BindingForm): MaybeVal<Subst> => {
-  if (bf.tag === "StyVar") {
-    const newSubst = {};
-    newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
-    return {
-      tag: "Just",
-      contents: newSubst,
-    };
-  } else if (bf.tag === "SubVar") {
-    if (subVar.value === bf.contents.value) {
-      // Substance variables matched; comparing string equality
+  switch (bf.tag) {
+    case "StyVar": {
+      const newSubst = {};
+      newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
       return {
         tag: "Just",
-        contents: {},
+        contents: newSubst,
       };
-    } else {
-      return { tag: "Nothing" }; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
     }
-  } else throw Error("unknown tag");
+    case "SubVar": {
+      if (subVar.value === bf.contents.value) {
+        // Substance variables matched; comparing string equality
+        return {
+          tag: "Just",
+          contents: {},
+        };
+      } else {
+        return { tag: "Nothing" }; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
+      }
+    }
+  }
 };
 
 // Judgment 12. G; theta |- S <| |S_o
@@ -1479,49 +1520,31 @@ const findSubstsSel = (
   subProg: SubProg,
   [header, selEnv]: [Header, SelEnv]
 ): Subst[] => {
-  if (header.tag === "Selector") {
-    const sel = header;
-    const decls = sel.head.contents.concat(safeContentsList(sel.with));
-    const rels = safeContentsList(sel.where);
-    const initSubsts: Subst[] = [];
-    const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
-    const substCandidates = rawSubsts.filter((subst) =>
-      fullSubst(selEnv, subst)
-    );
-    const filteredSubsts = filterRels(
-      varEnv,
-      subEnv,
-      subProg,
-      rels,
-      substCandidates
-    );
-    const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-    return correctSubsts;
-  } else if (header.tag === "Namespace") {
-    // No substitutions for a namespace (not in paper)
-    return [];
-  } else throw Error("unknown tag");
-};
-
-// Find a list of substitutions for each selector in the Sty program. (ported from `find_substs_prog`)
-export const findSubstsProg = (
-  varEnv: Env,
-  subEnv: SubstanceEnv,
-  subProg: SubProg,
-  styProg: HeaderBlock[],
-  selEnvs: SelEnv[]
-): Subst[][] => {
-  if (selEnvs.length !== styProg.length) {
-    throw Error("expected same # selEnvs as selectors");
+  switch (header.tag) {
+    case "Selector": {
+      const sel = header;
+      const decls = sel.head.contents.concat(safeContentsList(sel.with));
+      const rels = safeContentsList(sel.where);
+      const initSubsts: Subst[] = [];
+      const rawSubsts = matchDecls(varEnv, subProg, decls, initSubsts);
+      const substCandidates = rawSubsts.filter((subst) =>
+        fullSubst(selEnv, subst)
+      );
+      const filteredSubsts = filterRels(
+        varEnv,
+        subEnv,
+        subProg,
+        rels,
+        substCandidates
+      );
+      const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+      return correctSubsts;
+    }
+    case "Namespace": {
+      // No substitutions for a namespace (not in paper)
+      return [];
+    }
   }
-  const selsWithEnvs = _.zip(
-    styProg.map((e: HeaderBlock) => e.header),
-    selEnvs
-  ); // TODO: Why can't I type it [Header, SelEnv][]? It shouldn't be undefined after the length check
-
-  return selsWithEnvs.map((selAndEnv) =>
-    findSubstsSel(varEnv, subEnv, subProg, selAndEnv as [Header, SelEnv])
-  );
 };
 
 //#endregion
@@ -1534,10 +1557,7 @@ export const findSubstsProg = (
 // Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
 // Leave all other statements unchanged
 
-const nameAnonStatement = (
-  [i, b]: [number, Stmt[]],
-  s: Stmt
-): [number, Stmt[]] => {
+const nameAnonStatement = (i: number, s: Stmt): [number, Stmt] => {
   // Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
   if (s.tag === "AnonAssign") {
     const stmt: Stmt = {
@@ -1552,20 +1572,20 @@ const nameAnonStatement = (
       },
       value: s.contents,
     };
-    return [i + 1, b.concat([stmt])];
+    return [i + 1, stmt];
   } else {
-    return [i, b.concat([s])];
+    return [i, s];
   }
 };
 
 const nameAnonBlock = (b: Block): Block => {
-  return {
-    ...b,
-    statements: b.statements.reduce(
-      (acc, curr) => nameAnonStatement(acc, curr), // Not sure why this can't be point-free
-      [0, []] as [number, Stmt[]]
-    )[1],
-  };
+  const statements: Stmt[] = [];
+  b.statements.reduce((i1, s1) => {
+    const [i2, s2] = nameAnonStatement(i1, s1);
+    statements.push(s2);
+    return i2;
+  }, 0);
+  return { ...b, statements };
 };
 
 export const nameAnonStatements = (prog: StyProg): StyProg => {
@@ -1610,7 +1630,6 @@ const deleteProperty = (
 
   const nm = name.contents.value;
   const fld = field.value;
-  const prp = property.value;
 
   const fieldDict = trn[nm];
 
@@ -1635,39 +1654,45 @@ const deleteProperty = (
     });
   }
 
-  if (prop.tag === "FExpr") {
-    // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
-    // COMBAK: should path aliasing have destructive effects on the translation (e.g. add or delete)? maybe it should only happen in lookup? Deleting an aliased path should just delete the alias, not its referent?
-    // TODO: Test this
+  switch (prop.tag) {
+    case "FExpr": {
+      // Deal with GPI aliasing (i.e. only happens if a GPI is aliased to another, and some operation is performed on the aliased GPI's property, it happens to the original)
+      // COMBAK: should path aliasing have destructive effects on the translation (e.g. add or delete)? maybe it should only happen in lookup? Deleting an aliased path should just delete the alias, not its referent?
+      // TODO: Test this
 
-    if (prop.contents.tag === "OptEval") {
-      if (prop.contents.contents.tag === "FieldPath") {
-        const p = prop.contents.contents;
-        if (varsEq(p.name.contents, name.contents) && varsEq(p.field, field)) {
-          // TODO(error)
-          return addWarn(trans, {
-            tag: "CircularPathAlias",
-            path: { tag: "FieldPath", name, field } as Path,
-          });
+      if (prop.contents.tag === "OptEval") {
+        if (prop.contents.contents.tag === "FieldPath") {
+          const p = prop.contents.contents;
+          if (
+            varsEq(p.name.contents, name.contents) &&
+            varsEq(p.field, field)
+          ) {
+            // TODO(error)
+            return addWarn(trans, {
+              tag: "CircularPathAlias",
+              path: { tag: "FieldPath", name, field } as Path,
+            });
+          }
+          return deleteProperty(trans, p, p.name, p.field, property);
         }
-        return deleteProperty(trans, p, p.name, p.field, property);
       }
-    }
 
-    // TODO(error)
-    return addWarn(trans, {
-      tag: "DeletedPropWithNoGPIError",
-      subObj: name,
-      field,
-      property,
-      path,
-    });
-  } else if (prop.tag === "FGPI") {
-    // TODO(error, warning): check if the property is member of properties of GPI
-    const gpiDict = prop.contents[1];
-    delete gpiDict.prp;
-    return trans;
-  } else throw Error("unknown tag");
+      // TODO(error)
+      return addWarn(trans, {
+        tag: "DeletedPropWithNoGPIError",
+        subObj: name,
+        field,
+        property,
+        path,
+      });
+    }
+    case "FGPI": {
+      // TODO(error, warning): check if the property is member of properties of GPI
+      const gpiDict = prop.contents[1];
+      delete gpiDict.prp;
+      return trans;
+    }
+  }
 };
 
 // Note this mutates the translation, and we return the translation reference just as a courtesy
@@ -1711,27 +1736,35 @@ const deletePath = (
   trans: Translation,
   path: Path
 ): Either<StyleErrors, Translation> => {
-  if (path.tag === "FieldPath") {
-    const transWithWarnings = deleteField(trans, path, path.name, path.field);
-    return toRight(transWithWarnings);
-  } else if (path.tag === "PropertyPath") {
-    const transWithWarnings = deleteProperty(
-      trans,
-      path,
-      path.name,
-      path.field,
-      path.property
-    );
-    return toRight(transWithWarnings);
-  } else if (path.tag === "AccessPath") {
-    // TODO(error)
-    const err: StyleError = { tag: "DeletedVectorElemError", path };
-    return toLeft([err]);
-  } else if (path.tag === "InternalLocalVar") {
-    throw Error(
-      "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"
-    );
-  } else throw Error("unknown tag");
+  switch (path.tag) {
+    case "FieldPath": {
+      const transWithWarnings = deleteField(trans, path, path.name, path.field);
+      return toRight(transWithWarnings);
+    }
+    case "PropertyPath": {
+      const transWithWarnings = deleteProperty(
+        trans,
+        path,
+        path.name,
+        path.field,
+        path.property
+      );
+      return toRight(transWithWarnings);
+    }
+    case "AccessPath": {
+      // TODO(error)
+      const err: StyleError = { tag: "DeletedVectorElemError", path };
+      return toLeft([err]);
+    }
+    case "InternalLocalVar": {
+      throw Error(
+        "Compiler should not be deleting a local variable; this should have been removed in a earlier compiler pass"
+      );
+    }
+    case "LocalVar": {
+      throw Error("unknown tag");
+    }
+  }
 };
 
 // NOTE: This function mutates the translation
@@ -1757,19 +1790,26 @@ const translateLine = (
   trans: Translation,
   stmt: Stmt
 ): Either<StyleErrors, Translation> => {
-  if (stmt.tag === "PathAssign") {
-    return addPath(false, trans, stmt.path, {
-      tag: "OptEval",
-      contents: stmt.value,
-    });
-  } else if (stmt.tag === "Override") {
-    return addPath(true, trans, stmt.path, {
-      tag: "OptEval",
-      contents: stmt.value,
-    });
-  } else if (stmt.tag === "Delete") {
-    return deletePath(trans, stmt.contents);
-  } else throw Error("unknown tag");
+  switch (stmt.tag) {
+    case "PathAssign": {
+      return addPath(false, trans, stmt.path, {
+        tag: "OptEval",
+        contents: stmt.value,
+      });
+    }
+    case "Override": {
+      return addPath(true, trans, stmt.path, {
+        tag: "OptEval",
+        contents: stmt.value,
+      });
+    }
+    case "Delete": {
+      return deletePath(trans, stmt.contents);
+    }
+    case "AnonAssign": {
+      throw Error("unknown tag");
+    }
+  }
 };
 
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
@@ -1792,7 +1832,7 @@ const translateSubstsBlock = (
 ): Either<StyleErrors, Translation> => {
   return foldM(
     substsNum,
-    (trans, substNum, i) =>
+    (trans, substNum) =>
       translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum),
     trans
   );
@@ -1832,7 +1872,7 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
     // Fatal error -- we cannot check the shape properties (unless you want to guess the shape)
     return oneErr({ tag: "InvalidGPITypeError", givenType: expr.shapeName });
   }
-   
+
   return { errors, warnings };
 };
 
@@ -1863,54 +1903,65 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
 
   if (isPath(expr)) {
     return checkBlockPath(selEnv, expr);
-  } else if (
-    expr.tag === "CompApp" ||
-    expr.tag === "ObjFn" ||
-    expr.tag === "ConstrFn"
-  ) {
-    const e1 = checkFunctionName(selEnv, expr);
-    const e2 = expr.args.map(check);
-    return flatErrs([e1].concat(e2));
-  } else if (expr.tag === "BinOp") {
-    return flatErrs([check(expr.left), check(expr.right)]);
-  } else if (expr.tag === "UOp") {
-    return check(expr.arg);
-  } else if (
-    expr.tag === "List" ||
-    expr.tag === "Vector" ||
-    expr.tag === "Matrix"
-  ) {
-    return flatErrs(expr.contents.map(check));
-  } else if (expr.tag === "ListAccess") {
-    return emptyErrs();
-  } else if (expr.tag === "GPIDecl") {
-    const e1: StyleResults = checkGPIInfo(selEnv, expr);
-    const e2: StyleResults[] = expr.properties.map((p) => check(p.value));
-    return flatErrs([e1].concat(e2));
-  } else if (expr.tag === "Layering") {
-    return flatErrs([check(expr.below), check(expr.above)]);
-  } else if (expr.tag === "PluginAccess") {
-    return flatErrs([check(expr.contents[1]), check(expr.contents[2])]);
-  } else if (expr.tag === "Tuple") {
-    return flatErrs([check(expr.contents[0]), check(expr.contents[1])]);
-  } else if (expr.tag === "VectorAccess") {
-    return check(expr.contents[1]);
-  } else if (expr.tag === "MatrixAccess") {
-    return flatErrs(expr.contents[1].map(check));
-  } else if (
-    expr.tag === "Fix" ||
-    expr.tag === "Vary" ||
-    expr.tag === "VaryInit" ||
-    expr.tag === "StringLit" ||
-    expr.tag === "BoolLit"
-  ) {
-    return emptyErrs();
   } else {
-    console.error("expr", expr);
-    throw Error("unknown tag");
+    switch (expr.tag) {
+      case "CompApp":
+      case "ObjFn":
+      case "ConstrFn": {
+        const e1 = checkFunctionName(selEnv, expr);
+        const e2 = expr.args.map(check);
+        return flatErrs([e1].concat(e2));
+      }
+      case "BinOp": {
+        return flatErrs([check(expr.left), check(expr.right)]);
+      }
+      case "UOp": {
+        return check(expr.arg);
+      }
+      case "List":
+      case "Vector":
+      case "Matrix": {
+        return flatErrs(expr.contents.map(check));
+      }
+      case "ListAccess": {
+        return emptyErrs();
+      }
+      case "GPIDecl": {
+        const e1: StyleResults = checkGPIInfo(selEnv, expr);
+        const e2: StyleResults[] = expr.properties.map((p) => check(p.value));
+        return flatErrs([e1].concat(e2));
+      }
+      case "Layering": {
+        return flatErrs([check(expr.below), check(expr.above)]);
+      }
+      case "PluginAccess": {
+        return flatErrs([check(expr.contents[1]), check(expr.contents[2])]);
+      }
+      case "Tuple": {
+        return flatErrs([check(expr.contents[0]), check(expr.contents[1])]);
+      }
+      case "VectorAccess": {
+        return check(expr.contents[1]);
+      }
+      case "MatrixAccess": {
+        return flatErrs(expr.contents[1].map(check));
+      }
+      case "Fix":
+      case "Vary":
+      case "VaryInit":
+      case "StringLit":
+      case "BoolLit": {
+        return emptyErrs();
+      }
+      case "VaryAD": {
+        console.error("expr", expr);
+        throw Error("unknown tag");
+      }
+    }
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
@@ -1922,21 +1973,26 @@ const checkLine = (
   line: Stmt,
   acc: StyleResults
 ): StyleResults => {
-  if (line.tag === "PathAssign") {
-    const pErrs = checkBlockPath(selEnv, line.path);
-    const eErrs = checkBlockExpr(selEnv, line.value);
-    return combineErrs(combineErrs(acc, pErrs), eErrs);
-  } else if (line.tag === "Override") {
-    const pErrs = checkBlockPath(selEnv, line.path);
-    const eErrs = checkBlockExpr(selEnv, line.value);
-    return combineErrs(combineErrs(acc, pErrs), eErrs);
-  } else if (line.tag === "Delete") {
-    const pErrs = checkBlockPath(selEnv, line.contents);
-    return combineErrs(acc, pErrs);
-  } else {
-    throw Error(
-      "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
-    );
+  switch (line.tag) {
+    case "PathAssign": {
+      const pErrs = checkBlockPath(selEnv, line.path);
+      const eErrs = checkBlockExpr(selEnv, line.value);
+      return combineErrs(combineErrs(acc, pErrs), eErrs);
+    }
+    case "Override": {
+      const pErrs = checkBlockPath(selEnv, line.path);
+      const eErrs = checkBlockExpr(selEnv, line.value);
+      return combineErrs(combineErrs(acc, pErrs), eErrs);
+    }
+    case "Delete": {
+      const pErrs = checkBlockPath(selEnv, line.contents);
+      return combineErrs(acc, pErrs);
+    }
+    case "AnonAssign": {
+      throw Error(
+        "Case should not be reached (anonymous statement should be substituted for a local one in `nameAnonStatements`)"
+      );
+    }
   }
 };
 
@@ -1974,52 +2030,61 @@ const translatePair = (
   hb: HeaderBlock,
   blockNum: number
 ): Either<StyleErrors, Translation> => {
-  if (hb.header.tag === "Namespace") {
-    const selEnv = initSelEnv();
-    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
+  switch (hb.header.tag) {
+    case "Namespace": {
+      const selEnv = initSelEnv();
+      const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
 
-    if (selEnv.errors.length > 0 || bErrs.length > 0) {
-      // This is a namespace, not selector, so we substitute local vars with the namespace's name
-      // skip transSubstsBlock; only one subst
-      return {
-        tag: "Left",
-        contents: selEnv.errors.concat(bErrs),
-      };
+      if (selEnv.errors.length > 0 || bErrs.length > 0) {
+        // This is a namespace, not selector, so we substitute local vars with the namespace's name
+        // skip transSubstsBlock; only one subst
+        return {
+          tag: "Left",
+          contents: selEnv.errors.concat(bErrs),
+        };
+      }
+
+      const subst = {};
+      // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
+      return translateBlock(
+        {
+          tag: "Just",
+          contents: hb.header.contents.contents.value,
+        },
+        [hb.block, blockNum],
+        trans,
+        [subst, 0]
+      );
     }
+    case "Selector": {
+      const selEnv = checkHeader(varEnv, hb.header);
+      const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
 
-    const subst = {};
-    // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
-    return translateBlock(
-      {
-        tag: "Just",
-        contents: (hb.header.contents.contents.value as any) as string,
-      },
-      [hb.block, blockNum],
-      trans,
-      [subst, 0]
-    );
-  } else if (hb.header.tag === "Selector") {
-    const selEnv = checkHeader(varEnv, hb.header);
-    const bErrs = checkBlock(selEnv, hb.block); // TODO: block statics
+      // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
+      // skip this block (because the Substance variable won't exist in the translation)
 
-    // If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`),
-    // skip this block (because the Substance variable won't exist in the translation)
+      if (selEnv.skipBlock) {
+        return toRight(trans);
+      }
 
-    if (selEnv.skipBlock) {
-      return toRight(trans);
+      if (selEnv.errors.length > 0 || bErrs.length > 0) {
+        return {
+          tag: "Left",
+          contents: selEnv.errors.concat(bErrs),
+        };
+      }
+
+      // For creating unique local var names
+      const substs = findSubstsSel(varEnv, subEnv, subProg, [
+        hb.header,
+        selEnv,
+      ]);
+      return translateSubstsBlock(trans, numbered(substs), [
+        hb.block,
+        blockNum,
+      ]);
     }
-
-    if (selEnv.errors.length > 0 || bErrs.length > 0) {
-      return {
-        tag: "Left",
-        contents: selEnv.errors.concat(bErrs),
-      };
-    }
-
-    // For creating unique local var names
-    const substs = findSubstsSel(varEnv, subEnv, subProg, [hb.header, selEnv]);
-    return translateSubstsBlock(trans, numbered(substs), [hb.block, blockNum]);
-  } else throw Error("unknown tag");
+  }
 };
 
 // Map a function over the translation
@@ -2092,6 +2157,7 @@ const translateStyProg = (
   subProg: SubProg,
   styProg: StyProg,
   labelMap: LabelMap,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
@@ -2214,6 +2280,7 @@ const mkPath = (strs: string[]): Path => {
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
   if (s === "Equation") return ["width", "height"];
   if (s === "EquationTransform") return ["width", "height"];
+  if (s === "Text") return ["width", "height"];
   if (s === "ImageTransform") return ["initWidth", "initHeight"];
   return [];
 };
@@ -2282,7 +2349,7 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
         .map((e: Expr, i): [Expr, number] => [e, i])
         .filter((e: [Expr, number]): boolean => isVarying(e[0]))
         .map(
-          ([e, i]: [Expr, number]): IAccessPath =>
+          ([, i]: [Expr, number]): IAccessPath =>
             ({
               nodeType: "SyntheticStyle",
               children: [],
@@ -2315,27 +2382,30 @@ const findFieldVarying = (
   fexpr: FieldExpr<VarAD>,
   acc: Path[]
 ): Path[] => {
-  if (fexpr.tag === "FExpr") {
-    if (declaredVarying(fexpr.contents)) {
-      return [mkPath([name, field])].concat(acc);
-    }
+  switch (fexpr.tag) {
+    case "FExpr": {
+      if (declaredVarying(fexpr.contents)) {
+        return [mkPath([name, field])].concat(acc);
+      }
 
-    const paths = findNestedVarying(fexpr.contents, mkPath([name, field]));
-    return paths.concat(acc);
-  } else if (fexpr.tag === "FGPI") {
-    const [typ, properties] = fexpr.contents;
-    const ctorFloats = propertiesOf("FloatV", typ).concat(
-      propertiesOf("VectorV", typ)
-    );
-    const varyingFloats = ctorFloats.filter((e) => !isPending(typ, e));
-    // This splits up vector-typed properties into one path for each element
-    const vs: Path[] = varyingFloats.reduce(
-      (acc: Path[], curr) =>
-        findPropertyVarying(name, field, properties, curr, acc),
-      []
-    );
-    return vs.concat(acc);
-  } else throw Error("unknown tag");
+      const paths = findNestedVarying(fexpr.contents, mkPath([name, field]));
+      return paths.concat(acc);
+    }
+    case "FGPI": {
+      const [typ, properties] = fexpr.contents;
+      const ctorFloats = propertiesOf("FloatV", typ).concat(
+        propertiesOf("VectorV", typ)
+      );
+      const varyingFloats = ctorFloats.filter((e) => !isPending(typ, e));
+      // This splits up vector-typed properties into one path for each element
+      const vs: Path[] = varyingFloats.reduce(
+        (acc: Path[], curr) =>
+          findPropertyVarying(name, field, properties, curr, acc),
+        []
+      );
+      return vs.concat(acc);
+    }
+  }
 };
 
 // Find all varying paths
@@ -2367,23 +2437,24 @@ const findFieldUninitialized = (
   acc: Path[]
 ): Path[] => {
   // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
-  if (fexpr.tag === "FExpr") {
-    return acc;
+  switch (fexpr.tag) {
+    case "FExpr": {
+      return acc;
+    }
+    case "FGPI": {
+      const [typ, properties] = fexpr.contents;
+      const ctorNonfloats = propertiesNotOf("FloatV", typ).filter(
+        (e) => e !== "name"
+      );
+      const uninitializedProps = ctorNonfloats;
+      const vs = uninitializedProps.reduce(
+        (acc: Path[], curr) =>
+          findPropertyUninitialized(name, field, properties, curr, acc),
+        []
+      );
+      return vs.concat(acc);
+    }
   }
-  if (fexpr.tag === "FGPI") {
-    const [typ, properties] = fexpr.contents;
-    const ctorNonfloats = propertiesNotOf("FloatV", typ).filter(
-      (e) => e !== "name"
-    );
-    const uninitializedProps = ctorNonfloats;
-    const vs = uninitializedProps.reduce(
-      (acc: Path[], curr) =>
-        findPropertyUninitialized(name, field, properties, curr, acc),
-      []
-    );
-    return vs.concat(acc);
-  }
-  throw Error("unknown tag");
 };
 
 // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
@@ -2398,11 +2469,14 @@ const findGPIName = (
   fexpr: FieldExpr<VarAD>,
   acc: [string, Field][]
 ): [string, Field][] => {
-  if (fexpr.tag === "FGPI") {
-    return ([[name, field]] as [string, Field][]).concat(acc);
-  } else if (fexpr.tag === "FExpr") {
-    return acc;
-  } else throw Error("unknown tag");
+  switch (fexpr.tag) {
+    case "FGPI": {
+      return ([[name, field]] as [string, Field][]).concat(acc);
+    }
+    case "FExpr": {
+      return acc;
+    }
+  }
 };
 
 // Find shapes and their properties
@@ -2417,15 +2491,18 @@ const findShapeProperties = (
   fexpr: FieldExpr<VarAD>,
   acc: [string, Field, Property][]
 ): [string, Field, Property][] => {
-  if (fexpr.tag === "FGPI") {
-    const properties = fexpr.contents[1];
-    const paths = Object.keys(properties).map(
-      (property) => [name, field, property] as [string, Field, Property]
-    );
-    return paths.concat(acc);
-  } else if (fexpr.tag === "FExpr") {
-    return acc;
-  } else throw Error("unknown tag");
+  switch (fexpr.tag) {
+    case "FGPI": {
+      const properties = fexpr.contents[1];
+      const paths = Object.keys(properties).map(
+        (property) => [name, field, property] as [string, Field, Property]
+      );
+      return paths.concat(acc);
+    }
+    case "FExpr": {
+      return acc;
+    }
+  }
 };
 
 // Find paths that are the properties of shapes
@@ -2472,9 +2549,13 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: Field,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fexpr: FieldExpr<VarAD>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   // TODO < Currently we have no default objectives/constraints, so it's not implemented
@@ -2518,27 +2599,30 @@ const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
 // Extract number from a more complicated type
 // also ported from `lookupPaths`
 const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
-  if (e.tag === "OptEval") {
-    if (e.contents.tag === "Fix") {
-      return e.contents.contents;
+  switch (e.tag) {
+    case "OptEval": {
+      if (e.contents.tag === "Fix") {
+        return e.contents.contents;
+      }
+      if (e.contents.tag === "VaryAD") {
+        return e.contents.contents.val;
+      } else {
+        throw Error("internal error: invalid varying path");
+      }
     }
-    if (e.contents.tag === "VaryAD") {
-      return e.contents.contents.val;
-    } else {
+    case "Done": {
+      if (e.contents.tag === "FloatV") {
+        return numOf(e.contents.contents);
+      } else {
+        throw Error("internal error: invalid varying path");
+      }
+    }
+    case "Pending": {
       throw Error("internal error: invalid varying path");
     }
-  } else if (e.tag === "Done") {
-    if (e.contents.tag === "FloatV") {
-      return numOf(e.contents.contents);
-    } else {
+    case "FGPI": {
       throw Error("internal error: invalid varying path");
     }
-  } else if (e.tag === "Pending") {
-    throw Error("internal error: invalid varying path");
-  } else if (e.tag === "FGPI") {
-    throw Error("internal error: invalid varying path");
-  } else {
-    throw Error("internal error: unknown tag");
   }
 };
 
@@ -2554,19 +2638,22 @@ const findFieldPending = (
   fexpr: FieldExpr<VarAD>,
   acc: Path[]
 ): Path[] => {
-  if (fexpr.tag === "FExpr") {
-    return acc;
-  } else if (fexpr.tag === "FGPI") {
-    const properties = fexpr.contents[1];
-    const pendingProps = Object.entries(properties)
-      .filter(([k, v]) => v.tag === "Pending")
-      .map((e: [string, TagExpr<VarAD>]) => e[0]);
+  switch (fexpr.tag) {
+    case "FExpr": {
+      return acc;
+    }
+    case "FGPI": {
+      const properties = fexpr.contents[1];
+      const pendingProps = Object.entries(properties)
+        .filter(([, v]) => v.tag === "Pending")
+        .map((e: [string, TagExpr<VarAD>]) => e[0]);
 
-    // TODO: Pending properties currently don't support AccessPaths
-    return pendingProps
-      .map((property) => mkPath([name, field, property]))
-      .concat(acc);
-  } else throw Error("unknown tag");
+      // TODO: Pending properties currently don't support AccessPaths
+      return pendingProps
+        .map((property) => mkPath([name, field, property]))
+        .concat(acc);
+    }
+  }
 };
 
 // Find pending paths
@@ -2649,39 +2736,43 @@ const initProperty = (
   styleSetting: TagExpr<VarAD>
 ): TagExpr<VarAD> | null => {
   // Property set in Style
-  if (styleSetting.tag === "OptEval") {
-    if (styleSetting.contents.tag === "Vary") {
-      return null;
-    } else if (styleSetting.contents.tag === "VaryInit") {
-      // Initialize the varying variable to the property specified in Style
-      return {
-        tag: "Done",
-        contents: {
-          tag: "FloatV",
-          contents: varOf(styleSetting.contents.contents),
-        },
-      };
-    } else if (styleSetting.contents.tag === "Vector") {
-      const v: Expr[] = styleSetting.contents.contents;
-      if (v.length === 2) {
-        // Sample a whole 2D vector, e.g. `Circle { center : [?, ?] }`
-        // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
-        // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
-        if (v[0].tag === "Vary" && v[1].tag === "Vary") {
-          return null;
+  switch (styleSetting.tag) {
+    case "OptEval": {
+      if (styleSetting.contents.tag === "Vary") {
+        return null;
+      } else if (styleSetting.contents.tag === "VaryInit") {
+        // Initialize the varying variable to the property specified in Style
+        return {
+          tag: "Done",
+          contents: {
+            tag: "FloatV",
+            contents: varOf(styleSetting.contents.contents),
+          },
+        };
+      } else if (styleSetting.contents.tag === "Vector") {
+        const v: Expr[] = styleSetting.contents.contents;
+        if (v.length === 2) {
+          // Sample a whole 2D vector, e.g. `Circle { center : [?, ?] }`
+          // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
+          // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
+          if (v[0].tag === "Vary" && v[1].tag === "Vary") {
+            return null;
+          }
         }
+        return styleSetting;
+      } else {
+        return styleSetting;
       }
-      return styleSetting;
-    } else {
+    }
+    case "Done": {
+      // TODO: pending properties are only marked if the Style source does not set them explicitly
+      // Check if this is the right decision. We still give pending values a default such that the initial list of shapes can be generated without errors.
       return styleSetting;
     }
-  } else if (styleSetting.tag === "Done") {
-    // TODO: pending properties are only marked if the Style source does not set them explicitly
-    // Check if this is the right decision. We still give pending values a default such that the initial list of shapes can be generated without errors.
-    return styleSetting;
+    case "Pending": {
+      throw Error("internal error: unknown tag or invalid value for property");
+    }
   }
-
-  throw Error("internal error: unknown tag or invalid value for property");
 };
 
 const mkShapeName = (s: string, f: Field): string => {
@@ -2750,23 +2841,24 @@ const findLayeringExpr = (
   name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
-  acc: Expr[]
-): Expr[] => {
+  acc: ILayering[]
+): ILayering[] => {
   if (fexpr.tag === "FExpr") {
     if (fexpr.contents.tag === "OptEval") {
       if (fexpr.contents.contents.tag === "Layering") {
         const layering: ILayering = fexpr.contents.contents;
-        return [layering as Expr].concat(acc);
+        return [layering].concat(acc);
       }
     }
   }
   return acc;
 };
 
-const findLayeringExprs = (tr: Translation): Expr[] => {
+const findLayeringExprs = (tr: Translation): ILayering[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lookupGPIName = (p: Path, tr: Translation): string => {
   if (p.tag === "FieldPath") {
     // COMBAK: Deal with path synonyms / aliases by looking them up?
@@ -2776,13 +2868,10 @@ const lookupGPIName = (p: Path, tr: Translation): string => {
   }
 };
 
-const findNames = (e: Expr, tr: Translation): [string, string] => {
-  if (e.tag === "Layering") {
-    return [lookupGPIName(e.below, tr), lookupGPIName(e.above, tr)];
-  } else {
-    throw Error("unknown tag");
-  }
-};
+const findNames = (e: ILayering, tr: Translation): [string, string] => [
+  lookupGPIName(e.below, tr),
+  lookupGPIName(e.above, tr),
+];
 
 export const topSortLayering = (
   allGPINames: string[],
@@ -2842,10 +2931,10 @@ const pseudoTopsort = (graph: Graph): string[] => {
 const computeShapeOrdering = (tr: Translation): string[] => {
   const layeringExprs = findLayeringExprs(tr);
   // Returns list of layering specifications [below, above]
-  const partialOrderings: [string, string][] = layeringExprs.map((e: Expr): [
+  const partialOrderings: [
     string,
     string
-  ] => findNames(e, tr));
+  ][] = layeringExprs.map((e: ILayering): [string, string] => findNames(e, tr));
 
   const allGPINames: string[] = findShapeNames(
     tr
@@ -2956,10 +3045,9 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     } as unknown) as Params,
 
     labelCache: [],
-    rng: undefined as any,
-    policyParams: undefined as any,
-    oConfig: undefined as any,
-    varyingMap: {} as any, // TODO: Should this be empty?
+    policyParams: undefined,
+    oConfig: undefined,
+    varyingMap: new Map(), // TODO: Should this be empty?
 
     canvas: getCanvas(trans),
   };
@@ -2979,8 +3067,8 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
-  } catch (e: any) {
-    return err(parseError(e, lastLocation(parser)));
+  } catch (e: unknown) {
+    return err(parseError(<string>e, lastLocation(parser)));
   }
 };
 
@@ -2993,53 +3081,59 @@ const findPathsExpr = (expr: Expr): Path[] => {
   // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
   if (isPath(expr)) {
     return [expr];
-  } else if (
-    expr.tag === "CompApp" ||
-    expr.tag === "ObjFn" ||
-    expr.tag === "ConstrFn"
-  ) {
-    return _.flatMap(expr.args, findPathsExpr);
-  } else if (expr.tag === "BinOp") {
-    return _.flatMap([expr.left, expr.right], findPathsExpr);
-  } else if (expr.tag === "UOp") {
-    return findPathsExpr(expr.arg);
-  } else if (
-    expr.tag === "List" ||
-    expr.tag === "Vector" ||
-    expr.tag === "Matrix"
-  ) {
-    return _.flatMap(expr.contents, findPathsExpr);
-  } else if (expr.tag === "ListAccess") {
-    return [expr.contents[0]];
-  } else if (expr.tag === "GPIDecl") {
-    return _.flatMap(
-      expr.properties.map((p) => p.value),
-      findPathsExpr
-    );
-  } else if (expr.tag === "Layering") {
-    return [expr.below, expr.above];
-  } else if (expr.tag === "PluginAccess") {
-    return _.flatMap([expr.contents[1], expr.contents[2]], findPathsExpr);
-  } else if (expr.tag === "Tuple") {
-    return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
-  } else if (expr.tag === "VectorAccess") {
-    return [expr.contents[0]].concat(findPathsExpr(expr.contents[1]));
-  } else if (expr.tag === "MatrixAccess") {
-    return [expr.contents[0]].concat(
-      _.flatMap(expr.contents[1], findPathsExpr)
-    );
-  } else if (
-    expr.tag === "Fix" ||
-    expr.tag === "Vary" ||
-    expr.tag === "VaryInit" ||
-    expr.tag === "VaryAD" ||
-    expr.tag === "StringLit" ||
-    expr.tag === "BoolLit"
-  ) {
-    return [];
   } else {
-    console.error("expr", expr);
-    throw Error("unknown tag");
+    switch (expr.tag) {
+      case "CompApp":
+      case "ObjFn":
+      case "ConstrFn": {
+        return _.flatMap(expr.args, findPathsExpr);
+      }
+      case "BinOp": {
+        return _.flatMap([expr.left, expr.right], findPathsExpr);
+      }
+      case "UOp": {
+        return findPathsExpr(expr.arg);
+      }
+      case "List":
+      case "Vector":
+      case "Matrix": {
+        return _.flatMap(expr.contents, findPathsExpr);
+      }
+      case "ListAccess": {
+        return [expr.contents[0]];
+      }
+      case "GPIDecl": {
+        return _.flatMap(
+          expr.properties.map((p) => p.value),
+          findPathsExpr
+        );
+      }
+      case "Layering": {
+        return [expr.below, expr.above];
+      }
+      case "PluginAccess": {
+        return _.flatMap([expr.contents[1], expr.contents[2]], findPathsExpr);
+      }
+      case "Tuple": {
+        return _.flatMap([expr.contents[0], expr.contents[1]], findPathsExpr);
+      }
+      case "VectorAccess": {
+        return [expr.contents[0]].concat(findPathsExpr(expr.contents[1]));
+      }
+      case "MatrixAccess": {
+        return [expr.contents[0]].concat(
+          _.flatMap(expr.contents[1], findPathsExpr)
+        );
+      }
+      case "Fix":
+      case "Vary":
+      case "VaryInit":
+      case "VaryAD":
+      case "StringLit":
+      case "BoolLit": {
+        return [];
+      }
+    }
   }
 };
 
@@ -3051,26 +3145,27 @@ const findPathsField = (
   fexpr: FieldExpr<VarAD>,
   acc: Path[]
 ): Path[] => {
-  if (fexpr.tag === "FExpr") {
-    // Only look deeper in expressions, because that's where paths might be
-    if (fexpr.contents.tag === "OptEval") {
-      const res: Path[] = findPathsExpr(fexpr.contents.contents);
-      return acc.concat(res);
-    } else {
-      return acc;
+  switch (fexpr.tag) {
+    case "FExpr": {
+      // Only look deeper in expressions, because that's where paths might be
+      if (fexpr.contents.tag === "OptEval") {
+        const res: Path[] = findPathsExpr(fexpr.contents.contents);
+        return acc.concat(res);
+      } else {
+        return acc;
+      }
     }
-  } else if (fexpr.tag === "FGPI") {
-    // Get any exprs that the properties are set to
-    const propExprs: Expr[] = Object.entries(fexpr.contents[1])
-      .map((e) => e[1])
-      .filter((e: TagExpr<VarAD>): boolean => e.tag === "OptEval")
-      .map((e) => e as IOptEval<VarAD>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-      .map((e: IOptEval<VarAD>): Expr => e.contents);
-    const res: Path[] = _.flatMap(propExprs, findPathsExpr);
-    return acc.concat(res);
+    case "FGPI": {
+      // Get any exprs that the properties are set to
+      const propExprs: Expr[] = Object.entries(fexpr.contents[1])
+        .map((e) => e[1])
+        .filter((e: TagExpr<VarAD>): boolean => e.tag === "OptEval")
+        .map((e) => e as IOptEval<VarAD>) // Have to cast because TypeScript doesn't know the type changed from the filter above
+        .map((e: IOptEval<VarAD>): Expr => e.contents);
+      const res: Path[] = _.flatMap(propExprs, findPathsExpr);
+      return acc.concat(res);
+    }
   }
-
-  throw Error("unknown tag");
 };
 
 // Check that canvas dimensions exist and have the proper type.
@@ -3225,18 +3320,6 @@ export const compileStyle = (
   }
 
   log.info("selEnvs", selEnvs);
-
-  // Find substitutions (`find_substs_prog`)
-  const subss = findSubstsProg(
-    varEnv,
-    subEnv,
-    subProg,
-    styProg.blocks,
-    selEnvs
-  ); // TODO: Use `eqEnv`
-  // TODO: I guess `subss` is not actually used? remove?
-
-  log.info("substitutions", subss);
 
   // Translate style program
   const styVals: number[] = []; // COMBAK: Deal with style values when we have plugins
