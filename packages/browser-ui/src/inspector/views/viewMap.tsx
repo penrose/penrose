@@ -13,7 +13,7 @@ const viewMap = {
   // mod: Mod, // NOTE: mod tab temporarily deprecated
   "optimization status": Opt,
   compGraph: CompGraph,
-  settings: Settings
+  settings: Settings,
 };
 
 export default viewMap;

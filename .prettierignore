@@ -9,6 +9,7 @@ packages/core/src/parser/DomainParser.ts
 packages/core/src/parser/StyleParser.ts
 packages/core/src/parser/SubstanceParser.ts
 packages/core/src/renderer/not_found.json
+packages/components/storybook-static/*
 packages/panels/public/app.css
 packages/panels/public/app.js
 packages/roger/oclif.manifest.json

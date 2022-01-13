@@ -10,7 +10,7 @@ import {
   stateConverged,
   stateInitial,
   stepState,
-  stepUntilConvergence
+  stepUntilConvergence,
 } from "@penrose/core";
 import Inspector from "inspector/Inspector";
 import { isEqual } from "lodash";
@@ -29,7 +29,7 @@ export const DownloadSVG = (
   title = "illustration"
 ): void => {
   const blob = new Blob([svg.outerHTML], {
-    type: "image/svg+xml;charset=utf-8"
+    type: "image/svg+xml;charset=utf-8",
   });
   const url = URL.createObjectURL(blob);
   const downloadLink = document.createElement("a");
@@ -74,32 +74,32 @@ class App extends React.Component<unknown, ICanvasState> {
     settings: {
       autostep: false,
       showInspector: true,
-      autoStepSize: 50
-    }
+      autoStepSize: 50,
+    },
   };
   public readonly buttons = React.createRef<ButtonBar>();
   public readonly canvasRef = React.createRef<HTMLDivElement>();
 
   // same as onCanvasState but doesn't alter timeline or involve optimization
   public modCanvas = async (canvasState: PenroseState): Promise<void> => {
-    await new Promise(r => setTimeout(r, 1));
+    await new Promise((r) => setTimeout(r, 1));
 
     this.setState({
       currentState: canvasState,
-      processedInitial: true
+      processedInitial: true,
     });
     this.renderCanvas(canvasState);
   };
   // TODO: reset history on resample/got stuff
   public onCanvasState = async (canvasState: PenroseState): Promise<void> => {
     // HACK: this will enable the "animation" that we normally expect
-    await new Promise(r => setTimeout(r, 1));
+    await new Promise((r) => setTimeout(r, 1));
 
     this.setState({
       currentState: canvasState,
       // history: [...this.state.history, canvasState],
       processedInitial: true,
-      error: null
+      error: null,
     });
     this.renderCanvas(canvasState);
     const { settings } = this.state;
@@ -130,11 +130,11 @@ class App extends React.Component<unknown, ICanvasState> {
         xsVars: [],
         constrWeightNode: undefined,
         epWeightNode: undefined,
-        graphs: undefined
+        graphs: undefined,
       };
       const content = JSON.stringify({ ...state, params });
       const blob = new Blob([content], {
-        type: "text/json"
+        type: "text/json",
       });
       const url = URL.createObjectURL(blob);
       const downloadLink = document.createElement("a");
@@ -156,10 +156,10 @@ class App extends React.Component<unknown, ICanvasState> {
   public autoStepToggle = async (): Promise<void> => {
     const newSettings = {
       ...this.state.settings,
-      autostep: !this.state.settings.autostep
+      autostep: !this.state.settings.autostep,
     };
     this.setState({
-      settings: newSettings
+      settings: newSettings,
     });
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(newSettings));
     if (newSettings.autostep) {
@@ -176,7 +176,7 @@ class App extends React.Component<unknown, ICanvasState> {
         const error: PenroseError = {
           errorType: "RuntimeError",
           tag: "RuntimeError",
-          message: `Runtime error encountered: '${e}' Check console for more information.`
+          message: `Runtime error encountered: '${e}' Check console for more information.`,
         };
 
         const errorWrapper = { error, currentState: undefined };
@@ -233,7 +233,7 @@ class App extends React.Component<unknown, ICanvasState> {
         const error: PenroseError = {
           errorType: "RuntimeError",
           tag: "RuntimeError",
-          message: `Runtime error encountered: '${e}' Check console for more information.`
+          message: `Runtime error encountered: '${e}' Check console for more information.`,
         };
 
         const errorWrapper = { error, currentState: undefined };
@@ -255,7 +255,7 @@ class App extends React.Component<unknown, ICanvasState> {
         socketAddress,
         this.onFilesReceived,
         this.onSocketDisconnect
-      )
+      ),
     });
   };
 
@@ -326,7 +326,7 @@ class App extends React.Component<unknown, ICanvasState> {
       history,
       files,
       error,
-      connected
+      connected,
     } = this.state;
     return (
       <div
@@ -335,7 +335,7 @@ class App extends React.Component<unknown, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         <div style={{ flexShrink: 0 }}>
