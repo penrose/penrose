@@ -13,29 +13,24 @@
     "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/panels",
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",
+    "lint": "lerna run lint --stream",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --create-release github -m \"chore(release): publish %s [ci skip]\"",
     "new-version:prerelease": "lerna version --conventional-prerelease",
     "graduate": "lerna version --conventional-commits --conventional-graduate",
     "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
     "release": "lerna publish from-package",
-    "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
-    "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "diff": "lerna diff"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "husky": "^7.0.4",
     "lerna": "^3.22.1",
     "prettier": "2.2.1",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
     "typescript": "^4.1.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn test && pretty-quick --staged"
-    }
   },
   "workspaces": {
     "packages": [

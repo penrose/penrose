@@ -1,5 +1,5 @@
 import { isConcrete } from "engine/EngineUtils";
-import { ShapeDef, shapedefs } from "renderer/ShapeDef";
+import { shapedefs } from "shapes/Shapes";
 import { Maybe, Result } from "true-myth";
 import { ASTNode, Identifier, SourceLoc } from "types/ast";
 import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
@@ -16,6 +16,7 @@ import {
   ParseError,
   PenroseError,
   RuntimeError,
+  SelectorFieldNotSupported,
   StyleError,
   SubstanceError,
   TypeArgLengthMismatch,
@@ -25,8 +26,9 @@ import {
   VarNotFound,
 } from "types/errors";
 import { State } from "types/state";
+import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath } from "utils/OtherUtils";
+import { prettyPrintPath } from "utils/Util";
 const {
   or,
   and,
@@ -202,6 +204,14 @@ export const showError = (
       return `Style pattern statement has already declared the variable ${error.varName.contents.value}`;
     }
 
+    case "SelectorFieldNotSupported": {
+      return `Cannot match on field ${error.name.contents.value}.${
+        error.field.value
+      } (${loc(
+        error.field
+      )}) because matching on fields is not fully supported. Currently, only "label" can be matched in selectors.`;
+    }
+
     case "SelectorDeclTypeMismatch": {
       // COMBAK: Add code for prettyprinting types
       return "Mismatched types or wrong subtypes between Substance and Style variables in selector";
@@ -219,7 +229,7 @@ export const showError = (
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
-      const shapeNames: string[] = shapedefs.map((e: ShapeDef) => e.shapeType);
+      const shapeNames: string[] = Object.keys(shapedefs);
       return `Got invalid GPI type ${error.givenType.value}. Available shape types: ${shapeNames}`;
     }
 
@@ -365,6 +375,7 @@ canvas {
         case "wrong type":
           return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
       }
+      break; // dead code to please ESLint
     }
 
     // ----- END TRANSLATION VALIDATION ERRORS
@@ -496,6 +507,15 @@ export const typeArgLengthMismatch = (
   sourceType,
   expectedExpr,
   expectedType,
+});
+
+export const selectorFieldNotSupported = (
+  name: BindingForm,
+  field: Identifier
+): SelectorFieldNotSupported => ({
+  tag: "SelectorFieldNotSupported",
+  name,
+  field,
 });
 
 export const deconstructNonconstructor = (

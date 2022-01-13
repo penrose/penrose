@@ -1,6 +1,6 @@
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
-import { findIndex, zip } from "lodash";
+import { findIndex } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
@@ -23,6 +23,7 @@ import {
   Func,
   LabelMap,
   LabelOption,
+  LabelValue,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -32,6 +33,7 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
+  all,
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
@@ -49,6 +51,7 @@ import {
   unexpectedExprForNestedPred,
   varNotFound,
 } from "utils/Error";
+import { zip2 } from "utils/Util";
 import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
 
 export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
@@ -103,21 +106,26 @@ export const compileSubstance = (
   }
 };
 
-const initEnv = (ast: SubProg): SubstanceEnv => ({
+const initEnv = (ast: SubProg, env: Env): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
   bindings: Map<string, SubExpr>(),
-  labels: Map<string, Maybe<string>>(),
+  labels: Map<string, LabelValue>(
+    [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL])
+  ),
   predicates: [],
   ast,
 });
 
 //#region Postprocessing
+
+const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
+
 export const postprocessSubstance = (prog: SubProg, env: Env): SubstanceEnv => {
   // post process all statements
-  const subEnv = initEnv(prog);
+  const subEnv = initEnv(prog, env);
   return prog.statements.reduce(
-    (e, stmt) => postprocessStmt(stmt, env, e),
+    (e, stmt) => processLabelStmt(stmt, env, e),
     subEnv
   );
 };
@@ -133,7 +141,7 @@ const toSubDecl = (idString: string, decl: TypeConstructor): Decl => ({
   name: dummyIdentifier(idString, "SyntheticSubstance"),
 });
 
-const postprocessStmt = (
+const processLabelStmt = (
   stmt: SubStmt,
   env: Env,
   subEnv: SubstanceEnv
@@ -142,7 +150,9 @@ const postprocessStmt = (
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
         const [...ids] = env.vars.keys();
-        const newLabels: LabelMap = Map(ids.map((id) => [id, Maybe.just(id)]));
+        const newLabels: LabelMap = Map(
+          ids.map((id) => [id, { value: id, type: "MathLabel" }])
+        );
         return {
           ...subEnv,
           labels: newLabels,
@@ -150,7 +160,7 @@ const postprocessStmt = (
       } else {
         const ids = stmt.option.variables;
         const newLabels: LabelMap = subEnv.labels.merge(
-          ids.map((id) => [id.value, Maybe.just(id.value)])
+          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }])
         );
         return {
           ...subEnv,
@@ -159,16 +169,19 @@ const postprocessStmt = (
       }
     }
     case "LabelDecl": {
-      const { variable, label } = stmt;
+      const { variable, label, labelType } = stmt;
       return {
         ...subEnv,
-        labels: subEnv.labels.set(variable.value, Maybe.just(label.contents)),
+        labels: subEnv.labels.set(variable.value, {
+          value: label.contents,
+          type: labelType,
+        }),
       };
     }
     case "NoLabel": {
       const ids = stmt.args;
       const newLabels: LabelMap = subEnv.labels.merge(
-        ids.map((id) => [id.value, Maybe.nothing()])
+        ids.map((id) => [id.value, EMPTY_LABEL])
       );
       return {
         ...subEnv,
@@ -290,8 +303,16 @@ const checkStmt = (stmt: SubStmt, env: Env): CheckerResult => {
       const rightOk = checkPredicate(right, env);
       return every(leftOk, rightOk);
     }
-    case "AutoLabel":
-      return ok(env); // NOTE: no checking required
+    case "AutoLabel": {
+      if (stmt.option.tag === "DefaultLabels") return ok(env);
+      // NOTE: no checking required
+      else {
+        const varsOk = every(
+          ...stmt.option.variables.map((v) => checkVar(v, env))
+        );
+        return andThen(([_, e]) => ok(e), varsOk);
+      }
+    }
     case "LabelDecl":
       return andThen(([_, e]) => ok(e), checkVar(stmt.variable, env));
     case "NoLabel":
@@ -310,7 +331,7 @@ export const checkPredicate = (
   if (predDecl) {
     // initialize substitution environment
     const substContext: SubstitutionEnv = Map<string, TypeConsApp>();
-    const argPairs = zip(args, predDecl.args) as [SubPredArg, Arg][];
+    const argPairs = zip2(args, predDecl.args);
     const argsOk: SubstitutionResult = safeChain(
       argPairs,
       ([expr, arg], [cxt, e]) => checkPredArg(expr, arg, cxt, e),
@@ -445,8 +466,8 @@ const substituteArg = (
         return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
       }
       // if there are more arguments, substitute them one by one
-      // NOTE: we already know the lengths are the same, so there shouldn't be any `undefined` in the zipped list. TODO: check how to model this constraint in the type system
-      const typePairs = zip(type.args, expectedArgs) as [TypeConsApp, Type][];
+      // NOTE: we already know the lengths are the same, so `zipStrict` shouldn't throw
+      const typePairs = zip2(type.args, expectedArgs);
       return safeChain(
         typePairs,
         ([type, expected], [subst, env]) =>
@@ -546,7 +567,7 @@ const checkFunc = (
         argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl)
       );
     } else {
-      const argPairs = zip(func.args, funcDecl.args) as [SubExpr, Arg][];
+      const argPairs = zip2(func.args, funcDecl.args);
       const argsOk: SubstitutionResult = safeChain(
         argPairs,
         ([expr, arg], [cxt, e]) => matchArg(expr, arg, cxt, e),

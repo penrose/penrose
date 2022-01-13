@@ -26,9 +26,9 @@ global {
     global.width = 600.
     global.box = Rectangle {
                center: (0., 0.)
-               w: global.width + 300.
-               h: global.width
-               color: Colors.none
+               width: global.width + 300.
+               height: global.width
+               fillColor: Colors.none
                strokeColor: Colors.black
     }
     global.vertexWidth = 100.
@@ -43,17 +43,17 @@ Vertex V {
 
        V.shape = Rectangle { 
          center: (V.x, V.y)
-         w: global.vertexWidth + V.xpad
-         h: global.vertexWidth + V.ypad
-         color : Colors.none
+         width: global.vertexWidth + V.xpad
+         height: global.vertexWidth + V.ypad
+         fillColor : Colors.none
          strokeWidth : 2.
          strokeColor: Colors.black
        }
 
-       V.text = Text {
+       V.text = Equation {
 	 center: V.shape.center
 	 string : V.label
-	 color : Colors.black
+	 fillColor : Colors.black
        }
 
        ensure contains(global.box, V.shape)
@@ -73,16 +73,16 @@ Edge e {
        e.shape = Line {
                   start: (e.left, e.y)
                   end: (e.right, e.y)
-                  thickness: 10.
+                  strokeWidth: 10.
        }
 
-       e.text = Text {
+       e.text = Equation {
 	 center: (e.shape.start + e.shape.end) / 2.
 	 string : e.label
-	 color : Colors.black
+	 fillColor : Colors.black
        }
 
-       ensure containsRectLineAA(global.box, e.shape)
+       ensure contains(global.box, e.shape)
 }
 
 Edge `e2` {
@@ -90,7 +90,7 @@ Edge `e2` {
 }
 
 Vertex `v1` {
-       override `v1`.shape.w = 500.
+       override `v1`.shape.width = 500.
 }
 
 -- This is applied to each pair twice (as (a,b) then (b,a))
@@ -99,5 +99,5 @@ Vertex v1; Vertex v2 {
 }
 
 Vertex v; Edge e {
-       ensure disjointRectLineAA(v.shape, e.shape)
+       ensure disjoint(v.shape, e.shape)
 }

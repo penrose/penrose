@@ -20,23 +20,23 @@ Node n {
      n.shape = Circle { 
              r: global.nodeR
              strokeWidth: 0.
-             color: colors.black
+             fillColor: colors.black
      }
 
-     n.text = Text {
+     n.text = Equation {
             string: n.label
      }
 
-     n.callout = Callout {
-             anchor: n.shape.center
-             center: n.text.center
-             w: n.text.w
-             h: n.text.h
-             color: colors.gray
-             padding: 30.
-             strokeWidth: 2.
-             strokeColor: colors.black
-     }
+--      n.callout = Callout {
+--              anchor: n.shape.center
+--              center: n.text.center
+--              w: n.text.width
+--              h: n.text.height
+--              color: colors.gray
+--              padding: 30.
+--              strokeWidth: 2.
+--              strokeColor: colors.black
+--      }
 
      dist = norm(n.callout.center - n.shape.center)
      ensure lessThan(dist, 300.)

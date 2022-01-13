@@ -5,21 +5,9 @@ canvas {
 
 Path A {
     A.icon = Path {
-        pathData : pathFromPoints("open", [(0,0), (0,100), (100,100)])
+        d : pathFromPoints("open", [(0,0), (0,100), (100,100)])
         strokeWidth : 5
         strokeDashArray : "5 5 20 2"
-    }
-}
-
-Arrow C {
-    C.icon = Arrow { }
-}
-
-Square D {
-    D.icon = Square { 
-        strokeDashArray : "5 5 20 2"
-        strokeColor : rgba(0.,0.,0.,1.)
-        strokeWidth : 5
     }
 }
 
@@ -27,7 +15,7 @@ Circle E {
     E.icon = Circle { 
         strokeColor : rgba(0.,0.,0.,1.)
         strokeWidth : 5
-        pathLength : 2
+        --pathLength : 2
     }
 }
 
@@ -45,8 +33,8 @@ Line G {
     }
 }
 
-Text H {
-    H.icon = Text { }
+Equation H {
+    H.icon = Equation { }
 }
 
 Image I {
@@ -54,13 +42,15 @@ Image I {
 }
 
 DashedArrow J {
-    J.icon = Arrow {
+    J.icon = Line {
         style : "dashed"
+        endArrowhead : true
     }
 }
 
 DashArrayArrow K {
-    K.icon = Arrow {
+    K.icon = Line {
         strokeDashArray : "30 10 1 10"
+        endArrowhead : true
     }
 }

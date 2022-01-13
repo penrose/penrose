@@ -16,14 +16,14 @@ Colors {
 
 Set x {
     x.icon = Circle {
-        color : Colors.lightBlue
+        fillColor : Colors.lightBlue
         strokeColor : Colors.black
         strokeStyle : "solid"
         strokeWidth : 1.0
         -- rotation : 0.0
     }
 
-    x.text    = Text {
+    x.text    = Equation {
       string : x.label
       -- rotation : 0.0
     }
@@ -37,7 +37,7 @@ Set x; Set y
 where IsSubset(x, y) {
   ensure contains(y.icon, x.icon, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.icon, y.icon)
-  y.outsideFn = ensure outsideOf(y.text, x.icon, 1.0)
+  y.outsideFn = ensure disjoint(y.text, x.icon, 1.0)
   x.icon above y.icon
 }
 
@@ -46,18 +46,19 @@ where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
 with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
-    f.icon = Arrow {
-      start : (R1.icon.center[0] + R1.icon.side / 2.0 + f.padding, R1.icon.center[1])
-      end : (R2.icon.center[0] - R2.icon.side / 2.0 - f.padding, R2.icon.center[1])
-      thickness : 2.0
-      color : Colors.black
+    f.icon = Line {
+      start : (R1.icon.center[0] + R1.icon.width / 2.0 + f.padding, R1.icon.center[1])
+      end : (R2.icon.center[0] - R2.icon.width / 2.0 - f.padding, R2.icon.center[1])
+      strokeWidth : 2.0
+      strokeColor : Colors.black
+      endArrowhead: true
         -- style : "curved"
     }
 
-    f.text     = Text {
-      -- Doesn't seem to work after the first resample. Is the server updating f.text.h on resample?
+    f.text     = Equation {
+      -- Doesn't seem to work after the first resample. Is the server updating f.text.height on resample?
       -- x : (f.icon.startX + f.icon.endX) / 2.0
-      -- y : (f.icon.startY + f.icon.endY) / 2.0 + 1.1 * f.text.h
+      -- y : (f.icon.startY + f.icon.endY) / 2.0 + 1.1 * f.text.height
       string : f.label
       -- rotation : 0.0
     }
@@ -80,17 +81,21 @@ Set `V` {
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
-    override `Rn`.icon = Square {
+    `Rn`.iconSize = ?
+
+    override `Rn`.icon = Rectangle {
       -- Works but is slow
       -- x : -100.0
       -- y = 0.0
-      color : Colors.lightYellow
+      width : `Rn`.iconSize
+      height : `Rn`.iconSize
+      fillColor : Colors.lightYellow
       -- rotation : 0.0
       strokeWidth : Const.strokeWidth
       strokeColor : Colors.black
     }
 
-    override `Rn`.text.center = (`Rn`.icon.center[0] + `Rn`.icon.side / 2.0 - Const.padding, `Rn`.icon.center[1] + `Rn`.icon.side / 2.0 - Const.padding)
+    override `Rn`.text.center = (`Rn`.icon.center[0] + `Rn`.icon.width / 2.0 - Const.padding, `Rn`.icon.center[1] + `Rn`.icon.width / 2.0 - Const.padding)
 
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
@@ -102,16 +107,17 @@ Set `Rn` {
 Set `Rm`
 with Set `Rn` {
     -- TODO: factor this block out
-    override `Rm`.icon = Square {
-        color : Colors.lightYellow
+    override `Rm`.icon = Rectangle {
+        fillColor : Colors.lightYellow
         center : (`Rn`.icon.center[0] + 400.0, `Rn`.icon.center[1])
-        side  : `Rn`.icon.side
+        width : `Rn`.iconSize
+        height : `Rn`.iconSize
         -- rotation : 0.0
         strokeWidth : 1.0
         strokeColor : Colors.black
     }
 
-     override `Rm`.text.center = (`Rm`.icon.center[0] + `Rm`.icon.side / 2.0 - Const.padding, `Rm`.icon.center[1] + `Rm`.icon.side / 2.0 - Const.padding)
+     override `Rm`.text.center = (`Rm`.icon.center[0] + `Rm`.icon.width / 2.0 - Const.padding, `Rm`.icon.center[1] + `Rm`.icon.width / 2.0 - Const.padding)
 
     delete `Rm`.labelFn
     delete `Rm`.outsideFn

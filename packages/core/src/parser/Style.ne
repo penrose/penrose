@@ -8,7 +8,7 @@ import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
 import { ASTNode, Identifier, IStringLit  } from "types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelPred, SEFuncOrValCons, SEBind, Block, IAnonAssign, Delete, IOverride, PathAssign, StyType, BindingForm, Path, ILayering, BinaryOp, Expr, IBinOp, SubVar, StyVar, IPropertyPath, IFieldPath, LocalVar, IAccessPath, IUOp, IList, ITuple, IVector, IBoolLit, IVary, IFix, ICompApp, IObjFn, IConstrFn, GPIDecl, PropertyDecl, 
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, IAnonAssign, Delete, IOverride, PathAssign, StyType, BindingForm, Path, ILayering, BinaryOp, Expr, IBinOp, SubVar, StyVar, IPropertyPath, IFieldPath, LocalVar, IAccessPath, IUOp, IList, ITuple, IVector, IBoolLit, IVary, IFix, ICompApp, IObjFn, IConstrFn, GPIDecl, PropertyDecl, 
 } from "types/style";
 
 const styleTypes: string[] =
@@ -36,7 +36,11 @@ const styleTypes: string[] =
 const lexer = moo.compile({
   ...basicSymbols,
   identifier: {
-    match: /[A-z_][A-Za-z_0-9]*/,
+    // Allow latin/greek upper/lower characters, numbers, underscores.  An identified name:
+    //  - May not begin with a number (ending with a number is ok)
+    //  - May be a single latin/greek upper/lower character or underscore
+    //  - May begin or end with an underscore
+    match: /[A-Za-z_\u0374-\u03FF][A-Za-z_0-9\u0374-\u03FF]*/,
     type: moo.keywords({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 
@@ -109,27 +113,7 @@ const binop = (op: BinaryOp, left: Expr, right: Expr): IBinOp => ({
 
 # Macros
 
-# TODO: factor out sepEndBy
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
-
-sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(!first) return [];
-    if(rest.length > 0) {
-      const restNodes = rest.map(ts => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
+@include "macros.ne"
 
 ################################################################################
 # Style Grammar
@@ -208,6 +192,7 @@ relation_list -> sepBy1[relation, ";"]  {%
 relation
   -> rel_bind {% id %} 
   |  rel_pred {% id %}
+  |  rel_field {% id %}
 
 rel_bind -> binding_form _ ":=" _ sel_expr {%
   ([id, , , , expr]): RelBind => ({
@@ -224,6 +209,20 @@ rel_pred -> identifier _ "(" pred_arg_list ")" {%
     tag: "RelPred", name, args
   }) 
 %}
+
+rel_field -> binding_form __ "has" __ (field_desc __):? identifier {%
+  ([name, , , , field_desc, field]): RelField => ({
+    ...nodeData(field_desc ? [name, field_desc[0], field] : [name, field]), 
+    ...rangeBetween(name, field),
+    tag: "RelField",
+    fieldDescriptor: field_desc ? field_desc[0] : undefined,
+    name, field, 
+  })
+%}
+
+field_desc 
+  -> "math" {% () => "MathLabel" %} 
+  |  "text" {% () => "TextLabel" %}
 
 sel_expr_list 
   -> _ {% d => [] %}

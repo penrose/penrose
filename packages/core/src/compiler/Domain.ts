@@ -90,6 +90,7 @@ const builtinTypes: [string, TypeDecl][] = [
       tag: "TypeDecl",
       name: idOf("String", "Domain"),
       params: [],
+      superTypes: [],
     },
   ],
 ];
@@ -125,12 +126,26 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
       // NOTE: params are not reused, so no need to check
-      const { name } = stmt;
+      const { name, superTypes } = stmt;
       // check name duplicate
       if (env.types.has(name.value))
         return err(duplicateName(name, stmt, env.types.get(name.value)!));
       // insert type into env
-      return ok({ ...env, types: env.types.set(name.value, stmt) });
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        types: env.types.set(name.value, stmt),
+      });
+      // register any subtyping relations
+      const subType: TypeConstructor = {
+        tag: "TypeConstructor",
+        name,
+        args: [],
+      };
+      return safeChain(
+        superTypes,
+        (superType, env) => addSubtype(subType, superType, env),
+        updatedEnv
+      );
     }
     case "ConstructorDecl": {
       const { name, params, args, output } = stmt;
@@ -216,15 +231,9 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
       // make sure only type cons are involved in the subtyping relation
       if (subType.tag !== "TypeConstructor")
         return err(notTypeConsInSubtype(subType));
-      if (superType.tag !== "TypeConstructor")
-        return err(notTypeConsInSubtype(superType));
       const subOk = checkType(subType, env);
-      const superOk = checkType(superType, env);
-      const updatedEnv: CheckerResult = ok({
-        ...env,
-        subTypes: [...env.subTypes, [subType, superType]],
-      });
-      return everyResult(subOk, superOk, updatedEnv);
+      const updatedEnv = addSubtype(subType, superType, env);
+      return everyResult(subOk, updatedEnv);
     }
   }
 };
@@ -278,6 +287,22 @@ export const checkTypeConstructor = (
 
 const checkArg = (arg: Arg, env: Env): CheckerResult =>
   checkType(arg.type, env);
+
+const addSubtype = (
+  subType: TypeConstructor, // assume already checked
+  superType: Type,
+  env: Env
+): CheckerResult => {
+  // make sure only type cons are involved in the subtyping relation
+  if (superType.tag !== "TypeConstructor")
+    return err(notTypeConsInSubtype(superType));
+  const superOk = checkType(superType, env);
+  const updatedEnv: CheckerResult = ok({
+    ...env,
+    subTypes: [...env.subTypes, [subType, superType]],
+  });
+  return everyResult(superOk, updatedEnv);
+};
 
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;

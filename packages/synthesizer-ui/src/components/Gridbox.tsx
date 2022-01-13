@@ -11,6 +11,7 @@ import {
   PenroseState,
   showError,
 } from "@penrose/core";
+import { fetchResolver } from "@penrose/components";
 import React from "react";
 import {
   styled,
@@ -161,7 +162,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           throw Error("optimization failed");
         }
         const optimized = opt.value;
-        this.setState({ diagramSVG: RenderStatic(optimized).outerHTML });
+        const rendered = await RenderStatic(optimized, fetchResolver);
+        this.setState({ diagramSVG: rendered.outerHTML });
         if (this.props.progNumber === 0) {
           // original program is cached by parent component to be used for CIEE with mutated progs
           this.props.updateSrcProg(optimized);

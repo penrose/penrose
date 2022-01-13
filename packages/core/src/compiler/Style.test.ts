@@ -68,6 +68,51 @@ const canvasPreamble = `canvas {
 }
 `;
 
+describe("Layering computation", () => {
+  // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
+  test("simple layering: A -> B -> C", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["B", "C"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C"], partials);
+    expect(res).toEqual(["A", "B", "C"]);
+  });
+  test("one cycle: A -> B -> C -> A", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["B", "C"],
+      ["C", "A"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C"], partials);
+    expect(res).toEqual(["A", "B", "C"]);
+  });
+  test("one cycle in tree", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["A", "C"],
+      ["B", "D"],
+      ["D", "E"],
+      ["E", "B"],
+      ["C", "F"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
+    expect(res).toEqual(["A", "C", "F", "B", "D", "E"]);
+  });
+  test("one big cycle in tree", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["A", "C"],
+      ["B", "D"],
+      ["D", "E"],
+      ["E", "C"],
+      ["C", "F"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
+    expect(res).toEqual(["A", "B", "D", "E", "C", "F"]);
+  });
+});
+
 describe("Compiler", () => {
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // Each possible substitution should be full WRT its selector
@@ -163,14 +208,6 @@ describe("Compiler", () => {
   //     console.log([err].concat(selErrs.map((e) => showError(e))));
   //     fail();
   //   }
-
-  //   const subss = S.findSubstsProg(
-  //     varEnv,
-  //     subEnv,
-  //     subProg,
-  //     styProgInit.blocks,
-  //     selEnvs
-  //   ); // TODO: Use `eqEnv`
 
   //   if (subss.length !== correctSubsts.length) {
   //     fail();
@@ -362,6 +399,7 @@ describe("Compiler", () => {
     const errorStyProgs = {
       // ------ Selector errors (from Substance)
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
+      SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
       SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
@@ -381,17 +419,6 @@ where IsSubset(y, x) { }`,
       // ---------- Block static errors
 
       InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
-
-      // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
-      InvalidGPIPropertyError: [
-        `forall Set x {  
-          x.icon = Circle { 
-           centre: (0.0, 0.0) 
-           r: 9.
-           diameter: 100.
-         } 
-       }`,
-      ],
 
       // Have to do a nested search in expressions for this
       InvalidFunctionNameError: [

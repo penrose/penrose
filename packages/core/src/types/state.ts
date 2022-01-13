@@ -1,5 +1,5 @@
-import { Canvas } from "renderer/ShapeDef";
 import { prng } from "seedrandom";
+import { Canvas } from "shapes/Samplers";
 import { VarAD, GradGraphs } from "./ad";
 import { MaybeVal } from "./common";
 import { Shape } from "./shape";
@@ -14,12 +14,10 @@ export interface IState {
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   shapePaths: Path[];
   shapeProperties: any; // TODO: types
-  uninitializedPaths: any; // TODO: types
+  uninitializedPaths: Path[];
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
-  rng: prng;
-  selectorMatches: any; // TODO: types
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
@@ -37,10 +35,20 @@ export type State = IState;
 /**
  * Output of label generation.
  */
-export interface LabelData {
-  w: Value<number>;
-  h: Value<number>;
+
+export type LabelData = EquationData | TextData;
+export interface EquationData {
+  tag: "EquationData";
+  width: Value<number>;
+  height: Value<number>;
   rendered: HTMLElement;
+}
+
+export interface TextData {
+  tag: "TextData";
+  width: Value<number>;
+  height: Value<number>;
+  descent: Value<number>;
 }
 
 export type LabelCache = [string, LabelData][];

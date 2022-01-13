@@ -48,12 +48,15 @@ const flatGraph = (es: PGraph[]): PGraph => {
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: VarAD): PGraph => {
   const parNode = { id: par.id, label: par.op };
-  const edges = par.children.map((edge) => ({
+  //TODO: do not navigate graph outside core
+  const edges = par.childrenAD.map((edge) => ({
     from: parNode.id,
     to: edge.node.id,
   }));
 
-  const subgraphs = par.children.map((edge) => traverseGraphTopDown(edge.node));
+  const subgraphs = par.childrenAD.map((edge) =>
+    traverseGraphTopDown(edge.node)
+  );
   const subnodes = merge(subgraphs.map((g) => g.nodes));
   const subedges = merge(subgraphs.map((g) => g.edges));
 

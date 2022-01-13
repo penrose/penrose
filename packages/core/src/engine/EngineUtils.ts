@@ -1,7 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { constOfIf, numOf, varOf } from "engine/Autodiff";
-import { findDef } from "renderer/ShapeDef";
 import rfdc from "rfdc";
 import { IVarAD, VarAD } from "types/ad";
 import {
@@ -13,7 +12,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { IPathCmd, ISubPath, Value } from "types/value";
+import { IPathCmd, ISubPath, PropID, ShapeTypeStr, Value } from "types/value";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -47,6 +46,7 @@ import {
 import { showError } from "utils/Error";
 import { Shape, ShapeAD } from "types/shape";
 import { mapValues } from "lodash";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -448,6 +448,35 @@ const defaultVec2 = (): Expr => {
   return v2;
 };
 
+// Given 'propType' and 'shapeType', return all props of that ValueType
+// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
+export const propertiesOf = (
+  propType: string,
+  shapeType: ShapeTypeStr
+): PropID[] => {
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+    shapedef.propTags
+  );
+  return shapeInfo
+    .filter(([, tag]) => tag === propType)
+    .map(([pName]) => pName);
+};
+
+// Given 'propType' and 'shapeType', return all props NOT of that ValueType
+export const propertiesNotOf = (
+  propType: string,
+  shapeType: ShapeTypeStr
+): PropID[] => {
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+    shapedef.propTags
+  );
+  return shapeInfo
+    .filter(([, tag]) => tag !== propType)
+    .map(([pName]) => pName);
+};
+
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
 // `inCompilePhase` = true = put errors and warnings in the translation, otherwise throw them at runtime
 // TODO(error/warn): Improve these warning/error messages (especially for overrides) and distinguish the fatal ones
@@ -697,21 +726,13 @@ export const insertExpr = (
 
           // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
           // If the expected property is a non-vector type, throw an error, as we can't insert an expression into an uninitialized non-vector (list or other composite type).
-          const shapeDef = findDef(gpiType);
-          if (!(prop.value in shapeDef.properties)) {
+          const shapeProps = propertiesOf("VectorV", gpiType);
+          if (!shapeProps.includes(prop.value)) {
             return addWarn(trans, {
               tag: "InvalidGPIPropertyError",
               givenProperty: prop,
-              expectedProperties: Object.entries(shapeDef.properties).map(
-                (e) => e[0]
-              ),
+              expectedProperties: shapeProps,
             });
-          }
-
-          if (shapeDef.properties[prop.value][0] !== "VectorV") {
-            throw Error(
-              "internal error: Cannot insert expression into an uninitialized non-vector. this feature is currently not supported."
-            );
           }
 
           // Otherwise, it's a vector type, so if the value hasn't been set, initialize it with a default vector (?, ?)
@@ -876,6 +897,7 @@ export const findExpr = (
         case "FExpr":
           return fieldExpr.contents;
       }
+      break; // dead code to please ESLint
     }
 
     case "PropertyPath": {
@@ -914,6 +936,7 @@ export const findExpr = (
           return propRes;
         }
       }
+      break; // dead code to please ESLint
     }
 
     case "AccessPath": {

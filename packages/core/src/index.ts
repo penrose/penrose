@@ -14,6 +14,7 @@ import {
   RenderStatic,
   RenderInteractive,
   RenderShape,
+  PathResolver,
 } from "./renderer/Renderer";
 import { resampleBest } from "./renderer/Resample";
 import { Synthesizer } from "./synthesis/Synthesizer";
@@ -26,12 +27,14 @@ import { SubProg, SubstanceEnv } from "./types/substance";
 import { collectLabels } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
+  bBoxDims,
+  normList,
+  toSvgPaintProperty,
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-} from "./utils/OtherUtils";
-import { bBoxDims, ops } from "./utils/Util";
-import { Canvas } from "./renderer/ShapeDef";
+} from "./utils/Util";
+import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
 import { getListOfStagedStates } from "./renderer/Staging";
 import { shapeAutodiffToNumber } from "engine/EngineUtils";
@@ -126,20 +129,28 @@ export const interactiveDiagram = async (
   domainProg: string,
   subProg: string,
   styProg: string,
-  node: HTMLElement
+  node: HTMLElement,
+  pathResolver: PathResolver
 ): Promise<void> => {
-  const updateData = (state: State) => {
+  const updateData = async (state: State) => {
     const stepped = stepUntilConvergenceOrThrow(state);
-    node.replaceChild(
-      RenderInteractive(stepped, updateData),
-      node.firstChild as Node
+    const rendering = await RenderInteractive(
+      stepped,
+      updateData,
+      pathResolver
     );
+    node.replaceChild(rendering, node.firstChild as Node);
   };
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
-    node.appendChild(RenderInteractive(optimized, updateData));
+    const rendering = await RenderInteractive(
+      optimized,
+      updateData,
+      pathResolver
+    );
+    node.appendChild(rendering);
   } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
@@ -193,11 +204,17 @@ export const prepareState = async (state: State): Promise<State> => {
     shapes: shapeAutodiffToNumber(evalShapes(stateAD)),
   };
 
-  const labelCache: LabelCache = await collectLabels(stateEvaled.shapes);
+  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+    stateEvaled.shapes
+  );
+
+  if (labelCache.isErr()) {
+    throw Error(showError(labelCache.error));
+  }
 
   const stateWithPendingProperties = insertPending({
     ...stateEvaled,
-    labelCache,
+    labelCache: labelCache.value,
   });
 
   const withOptProblem: State = genOptProblem(stateWithPendingProperties);
@@ -333,14 +350,18 @@ export {
   prettyPrintFn,
   prettyPrintPath,
   prettyPrintExpr,
-  ops,
+  normList,
   getListOfStagedStates,
+  toSvgPaintProperty,
 };
+export { shapedefs } from "./shapes/Shapes";
 export type { PenroseError } from "./types/errors";
 export * as Value from "./types/value";
 export type { Shape } from "./types/shape";
-export { objDict, constrDict } from "./contrib/Constraints";
+export { constrDict } from "./contrib/Constraints";
+export { objDict } from "./contrib/Objectives";
 export { compDict } from "./contrib/Functions";
+export type { PathResolver } from "./renderer/Renderer";
 export type { Registry, Trio };
 export type { Env };
 export type {

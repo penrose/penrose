@@ -236,7 +236,7 @@ export interface IHSVA<T> {
 }
 
 export interface INoPaint {
-  tag: "NONE"
+  tag: "NONE";
 }
 
 // SVG spec types

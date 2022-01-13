@@ -28,12 +28,16 @@ Global {
 
    scalar padding = 50.
 
+   -- specify the typeface(s) that should
+   -- be used, in order of availability
+   string fontFamily = "Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif"
+
    -- box around the whole canvas
    shape bbox = Rectangle {
-      w : canvas.width
-      h : canvas.height
+      width : canvas.width
+      height : canvas.height
       center : (0.,0.)
-      color : Colors.clear
+      fillColor : Colors.clear
       strokeColor : Colors.gray
       strokeWidth : 8
    }
@@ -45,38 +49,42 @@ Global {
    -- box around reactants
    scalar reactantCenter = -canvas.width/4.
    shape reactantBox = Rectangle {
-      w : reactionBoxSize
-      h : reactionBoxSize
+      width : reactionBoxSize
+      height : reactionBoxSize
       center : (reactantCenter,0.)
-      color : rgba( 0., 0., 0., .1 )
+      fillColor : rgba( 0., 0., 0., .1 )
       strokeColor : Colors.clear
       strokeWidth : 12
-      rx : 20
+      cornerRadius : 20
    }
    shape reactantText = Text {
-      string : "\text{\textbf{reactants}}"
+      string : "reactants"
       center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
-      color : Colors.black
+      fillColor : Colors.black
       fontSize : "24pt"
+      fontFamily: Global.fontFamily
+      fontWeight: "bold"
    }
 
    -- box around products
    scalar productCenter = canvas.width/4.
    scalar productTop = .75*canvas.width/4.
    shape productBox = Rectangle {
-      w : reactionBoxSize
-      h : reactionBoxSize
+      width : reactionBoxSize
+      height : reactionBoxSize
       center : (productCenter,0.)
-      color : rgba( 0., 0., 0., .1 )
+      fillColor : rgba( 0., 0., 0., .1 )
       strokeColor : Colors.clear
       strokeWidth : 12
-      rx : 20
+      cornerRadius : 20
    }
    shape productText = Text {
-      string : "\text{\textbf{products}}"
+      string : "products"
       center : (productCenter,-24.+reactionBoxBottom)
-      color : Colors.black
+      fillColor : Colors.black
       fontSize : "24pt"
+      fontFamily: Global.fontFamily
+      fontWeight: "bold"
    }
 }
 
@@ -91,7 +99,7 @@ forall Node n {
    shape n.icon = Circle {
       r : R
       center : n.center
-      color : Colors.white
+      fillColor : Colors.white
       strokeColor : Colors.black
       strokeWidth : 3.
    }
@@ -100,7 +108,7 @@ forall Node n {
       rx : 2.*Global.atomRadius
       ry : Global.atomRadius
       center : (cx,cy) + (0.,-2.*R)
-      color : rgba( .95, .95, .95, 1. )
+      fillColor : rgba( .95, .95, .95, 1. )
       strokeColor : Colors.clear
       strokeWidth : 3.
    }
@@ -108,7 +116,7 @@ forall Node n {
    shape n.text = Text {
       string : n.label
       center : n.center
-      color : Colors.black
+      fillColor : Colors.black
       fontSize : "14pt"
    }
 
@@ -125,49 +133,49 @@ forall Node n1; Node n2 {
 
 -- draw functional groups as boxes
 forall FunctionalGroup g {
-   override g.icon.color = Colors.clear
+   override g.icon.fillColor = Colors.clear
    override g.icon.strokeColor = Colors.clear
-   override g.text.color = Colors.black
-   override g.shadow.color = Colors.clear
+   override g.text.fillColor = Colors.black
+   override g.shadow.fillColor = Colors.clear
 
    g.box = Rectangle {
       center : g.center
-      w : 3.*Global.atomRadius
-      h : 1.5*Global.atomRadius
-      color : Colors.lightGray
+      width : 3.*Global.atomRadius
+      height : 1.5*Global.atomRadius
+      fillColor : Colors.lightGray
       strokeColor : Colors.gray
       strokeWidth : 3.
-      rx : 10.
+      cornerRadius : 10.
    }
 
    layer g.shadow below g.box
 }
 
 forall Oxygen a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.red
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = ""
 }
 
 forall Carbon a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.black
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = ""
 }
 
 forall Nitrogen a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.blue
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = ""
 }
 
 forall Hydrogen a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.gray
-   override a.text.color = Colors.black
+   override a.text.fillColor = Colors.black
    override a.text.string = ""
 
    -- make hydrogen atoms (and their shadows) smaller
@@ -177,16 +185,16 @@ forall Hydrogen a {
 }
 
 forall Chlorine a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.green
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = ""
 }
 
 forall Sodium a {
-   override a.icon.color = Colors.white
+   override a.icon.fillColor = Colors.white
    override a.icon.strokeColor = Colors.purple
-   override a.text.color = Colors.white
+   override a.text.fillColor = Colors.white
    override a.text.string = ""
 }
 
@@ -202,16 +210,16 @@ where SingleBond( n1, n2 ) {
    shape line = Line {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
-      thickness : 10.
-      color : Colors.turquoise
+      strokeWidth : 10.
+      strokeColor : Colors.turquoise
       strokeLineCap: "round"
    }
 
    shape innerLine = Line {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
-      thickness : 4.
-      color : Colors.white
+      strokeWidth : 4.
+      strokeColor : Colors.white
       strokeLineCap: "round"
    }
 
@@ -234,32 +242,32 @@ where DoubleBond( n1, n2 ) {
    shape line1 = Line {
       start : x1 - .5*r*u - .25*r*v
         end : x2 + .5*r*u - .25*r*v
-      thickness : 10.
-      color : Colors.turquoise
+      strokeWidth : 10.
+      strokeColor : Colors.turquoise
       strokeLineCap: "round"
    }
 
    shape innerLine1 = Line {
       start : x1 - .5*r*u - .25*r*v
         end : x2 + .5*r*u - .25*r*v
-      thickness : 4.
-      color : Colors.white
+      strokeWidth : 4.
+      strokeColor : Colors.white
       strokeLineCap: "round"
    }
 
    shape line2 = Line {
       start : x1 - .5*r*u + .25*r*v
         end : x2 + .5*r*u + .25*r*v
-      thickness : 10.
-      color : Colors.turquoise
+      strokeWidth : 10.
+      strokeColor : Colors.turquoise
       strokeLineCap: "round"
    }
 
    shape innerLine2 = Line {
       start : x1 - .5*r*u + .25*r*v
         end : x2 + .5*r*u + .25*r*v
-      thickness : 4.
-      color : Colors.white
+      strokeWidth : 4.
+      strokeColor : Colors.white
       strokeLineCap: "round"
    }
 
@@ -287,8 +295,8 @@ where IonicBond( n1, n2 ) {
    shape line = Line {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
-      thickness : 2.5
-      color : Colors.turquoise
+      strokeWidth : 2.5
+      strokeColor : Colors.turquoise
       strokeLineCap: "butt"
       style: "dashed"
    }
@@ -357,14 +365,14 @@ forall Molecule m {
 
    -- m.box = Rectangle {
    --    center : (?,?)
-   --    color : Colors.clear
+   --    fillColor : Colors.clear
    -- }
 
    m.labelCenter = (?,?)
 
-   m.text = Text {
+   m.text = Equation {
       string : m.label
-      color : Colors.black
+      fillColor : Colors.black
       fontSize : "18pt"
       center : m.labelCenter
       --center : m.box.center - (0.,3.*Global.atomRadius)
@@ -372,27 +380,27 @@ forall Molecule m {
    }
 
    -- used to prevent overlap with molecules
-   -- (since "ensure disjoint" isn't currently supported for Text-Circle pairs)
+   -- (since "ensure disjoint" isn't currently supported for Equation-Circle pairs)
    scalar R = 20.
    m.textPhantom1 = Circle {
       center : m.labelCenter
       r : R
-      color : Colors.clear
-      strokeColor : Colors.black
+      fillColor : Colors.clear
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
    m.textPhantom2 = Circle {
       center : m.labelCenter + (2.*R,0.)
       r : R
-      color : Colors.clear
-      strokeColor : Colors.black
+      fillColor : Colors.clear
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
    m.textPhantom3 = Circle {
       center : m.labelCenter - (2.*R,0.)
       r : R
-      color : Colors.clear
-      strokeColor : Colors.black
+      fillColor : Colors.clear
+      strokeColor : Colors.clear
       strokeWidth : 3.
    }
 }
@@ -414,7 +422,9 @@ forall Reaction r {
       string : r.label
       center : (0.,h)
       fontSize : "40pt"
-      color : Colors.black
+      fontFamily: Global.fontFamily
+      fontVariant: "small-caps"
+      fillColor : Colors.black
    }
 }
 
@@ -444,11 +454,12 @@ where IsNetForward(r) {
    scalar s = Global.reactionBoxSize
    scalar p = 10.
 
-   shape reactionArrow = Arrow {
+   shape reactionArrow = Line {
       start : (Rc+(0.5*s)+p,0.)
       end : (Pc-(0.5*s)-p,0.)
-      color : Colors.black
-      thickness : 5.
+      strokeColor : Colors.black
+      strokeWidth : 5.
+      endArrowhead : true
       arrowheadStyle : "arrowhead-2"
       arrowheadSize : .5
    }

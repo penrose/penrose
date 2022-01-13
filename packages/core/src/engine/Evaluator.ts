@@ -7,8 +7,7 @@ import {
   isPath,
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
-import { mapValues, zip } from "lodash";
-import { notEmptyLabel } from "renderer/ShapeDef";
+import { mapValues } from "lodash";
 // For deep-cloning the translation
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";
@@ -30,19 +29,10 @@ import { Shape, ShapeAD } from "types/shape";
 import { Value } from "types/value";
 import { State, Fn, VaryMap, FnDone } from "types/state";
 import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
-import { floatVal, prettyPrintPath } from "utils/OtherUtils";
-import {
-  add,
-  constOf,
-  constOfIf,
-  differentiable,
-  div,
-  mul,
-  neg,
-  numOf,
-  ops,
-  sub,
-} from "./Autodiff";
+import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
+import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
+
+import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
 const clone = rfdc({ proto: false, circles: false });
 
@@ -74,10 +64,7 @@ export const evalShapes = (s: State): ShapeAD[] => {
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
-  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [
-    Path,
-    VarAD
-  ][];
+  const varyingMapList = zip2(s.varyingPaths, varyingValuesDiff);
 
   const optDebugInfo = {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
@@ -429,6 +416,8 @@ export const evalExpr = (
               contents: argVals.map(toVecVal),
             } as ILListV<VarAD>,
           };
+        } else {
+          throw Error("unknown tag");
         }
       } else {
         console.error("list elems", argVals);

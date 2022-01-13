@@ -40,26 +40,7 @@ const nodeData = (children: ASTNode[]) => ({
 
 # Macros
 
-sepBy1[ITEM, SEP] -> $ITEM (_ $SEP _ $ITEM):* $SEP:? {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(rest.length > 0) {
-      const restNodes = rest.map((ts: any[]) => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
-
-sepBy[ITEM, SEP] -> $ITEM:? (_ $SEP _ $ITEM):* {% 
-  d => { 
-    const [first, rest] = [d[0], d[1]];
-    if(!first) return [];
-    if(rest.length > 0) {
-      const restNodes = rest.map(ts => ts[3]);
-      return concat(first, ...restNodes);
-    } else return first;
-  }
-%}
+@include "macros.ne"
 
 # Main grammar
 
@@ -83,7 +64,7 @@ statements
     |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
-  -> type        {% id %}
+  -> type_decl   {% id %}
   |  predicate   {% id %}
   |  function    {% id %}
   |  constructor_decl {% id %}
@@ -91,13 +72,15 @@ statement
   |  notation    {% id %}
   |  subtype     {% id %}
 
-type -> "type" __ identifier (_ "(" _ type_params _ ")"):? {%
-  ([typ, , name, ps]): TypeDecl => {
+# not to be confused with `type`, defined below
+type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type, ","]):? {%
+  ([typ, , name, ps, sub]): TypeDecl => {
     const params = ps ? ps[3] : [];
+    const superTypes = sub ? sub[3] : [];
     return { 
-      ...nodeData([name, ...params]),
+      ...nodeData([name, ...params, ...superTypes]),
       ...rangeBetween(typ, name),
-      tag: "TypeDecl", name, params
+      tag: "TypeDecl", name, params, superTypes
     };
   }
 %}
@@ -214,8 +197,7 @@ type_params_list
 type_params -> sepBy1[type_var, ","] {% ([d]) => d %}
 
 args_list 
-  -> null {% d => [] %}
-  |  _ ":" _ sepBy1[arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
+  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg[] => flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg => {
     const variable = v ? v[1] : undefined;
@@ -228,8 +210,7 @@ arg -> type (__ var):? {%
   }
 %}
 named_args_list 
-  -> null {% d => [] %}
-  |  _ ":" _ sepBy1[named_arg, "*"] {% ([, , , d]): Arg[] => flatten(d) %}
+  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg[] => flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg => ({
      ...nodeData([type, variable]),

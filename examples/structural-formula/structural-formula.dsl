@@ -11,32 +11,24 @@ type Node
 
 -- a FunctionalGroup represents a collection of atoms
 -- in the same molecule (such as an alcohol or ester)
-type FunctionalGroup
-FunctionalGroup <: Node
+type FunctionalGroup <: Node
 
 -- an Atom represents a single atom within a larger
 -- molecule (or as an isolated ion)
-type Atom
-Atom <: Node
+type Atom <: Node
 
 -- specific types of atoms (more could be added here)
-type Hydrogen
-type Carbon
-type Nitrogen
-type Oxygen
-type Sodium
-type Chlorine
-Hydrogen <: Atom
-  Carbon <: Atom
-Nitrogen <: Atom
-  Oxygen <: Atom
-  Sodium <: Atom
-Chlorine <: Atom
+type Hydrogen <: Atom
+type   Carbon <: Atom
+type Nitrogen <: Atom
+type   Oxygen <: Atom
+type   Sodium <: Atom
+type Chlorine <: Atom
 
 -- predicates used to specify bonds between Nodes
-predicate SingleBond: Node n1 * Node n2
-predicate DoubleBond: Node n1 * Node n2
-predicate  IonicBond: Node n1 * Node n2
+predicate SingleBond(Node n1, Node n2)
+predicate DoubleBond(Node n1, Node n2)
+predicate  IonicBond(Node n1, Node n2)
 
 -- a Molecule is a collection of Atoms, or more generally,
 -- Nodes, held together by bonds.  It is not essential to
@@ -45,19 +37,19 @@ predicate  IonicBond: Node n1 * Node n2
 -- and/or grouping reactants/products.
 type Molecule
 
-predicate Contains: Molecule m * Node n
+predicate Contains(Molecule m, Node n)
 
 -- these predicates are used to delineate reactants and
 -- produces in a chemical equation
-predicate IsReactant: Molecule m
-predicate IsProduct: Molecule m
+predicate IsReactant(Molecule m)
+predicate IsProduct(Molecule m)
 
 -- a reaction involving all reactants and products
 type Reaction
 
 -- predicates to mark the type of reaction
-predicate     IsNetForward: Reaction r
-predicate IsStoichiometric: Reaction r
-predicate    IsEquilibrium: Reaction r
-predicate  IsBidirectional: Reaction r
+predicate     IsNetForward(Reaction r)
+predicate IsStoichiometric(Reaction r)
+predicate    IsEquilibrium(Reaction r)
+predicate  IsBidirectional(Reaction r)
 
