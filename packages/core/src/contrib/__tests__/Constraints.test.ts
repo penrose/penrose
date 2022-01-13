@@ -238,21 +238,16 @@ describe("general constraints", () => {
 
   // Overlapping shapes
   it.each([
-    // Zero padding
+    // Without padding
     ["Rectangle", "Rectangle", 0, _rectangles[0], _rectangles[2]],
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[0], _circles[2]],
-    // Possitive padding
+    // With padding
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
     ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
     ["Circle", "Circle", 150, _circles[3], _circles[1]],
-    // // Negative padding
-    ["Rectangle", "Rectangle", -50, _rectangles[0], _rectangles[2]],
-    ["Rectangle", "Circle", -50, _rectangles[0], _circles[2]],
-    ["Circle", "Rectangle", -50, _circles[0], _rectangles[2]],
-    ["Circle", "Circle", -50, _circles[0], _circles[2]],
   ])('overlapping %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -281,21 +276,16 @@ describe("general constraints", () => {
 
   // Disjoint shapes
   it.each([
-    // Zero padding
+    // Without padding
     ["Rectangle", "Rectangle", 0, _rectangles[2], _rectangles[3]],
     ["Rectangle", "Circle", 0, _rectangles[2], _circles[3]],
     ["Circle", "Rectangle", 0, _circles[2], _rectangles[3]],
     ["Circle", "Circle", 0, _circles[2], _circles[3]],
-    // // Possitive padding
+    // With padding
     ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
-    // ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
-    // ["Circle", "Rectangle", 10, _circles[1], _rectangles[3]],
+    ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
+    ["Circle", "Rectangle", 10, _circles[1], _rectangles[3]],
     ["Circle", "Circle", 10, _circles[1], _circles[3]],
-    // // Negative padding
-    ["Rectangle", "Rectangle", -10, _rectangles[2], _rectangles[1]],
-    // ["Rectangle", "Circle", -10, _rectangles[2], _circles[1]],
-    // ["Circle", "Rectangle", -10, _circles[2], _rectangles[1]],
-    ["Circle", "Circle", -10, _circles[2], _circles[1]],
   ])('disjoint %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -324,21 +314,16 @@ describe("general constraints", () => {
 
   // Tangent shapes
   it.each([
-    // Zero padding
+    // Without padding
     ["Rectangle", "Rectangle", 0, _rectangles[1], _rectangles[2]],
-    // ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
-    // ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
+    ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
+    ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[1], _circles[2]],
-    // // Possitive padding
+    // With padding
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
-    // ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
-    // ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
+    ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
+    ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
     ["Circle", "Circle", 100, _circles[1], _circles[3]],
-    // // Negative padding
-    ["Rectangle", "Rectangle", -100, _rectangles[0], _rectangles[2]],
-    // ["Rectangle", "Circle", -100, _rectangles[0], _circles[2]],
-    // ["Circle", "Rectangle", -100, _circles[0], _rectangles[2]],
-    // ["Circle", "Circle", -100, _circles[0], _circles[2]],
   ])('tangent %p and %p with padding %p', (
     shapeType0: string,
     shapeType1: string,
@@ -367,21 +352,16 @@ describe("general constraints", () => {
 
   // The first shapes is contained in the second one
   it.each([
-    // Zero padding
+    // Without padding
     ["Rectangle", "Rectangle", 0, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[1]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[1]],
     ["Circle", "Circle", 0, _circles[0], _circles[1]],
-    // // Possitive padding
+    // With padding
     ["Rectangle", "Rectangle", 50, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 50, _rectangles[0], _circles[1]],
     ["Circle", "Rectangle", 50, _circles[0], _rectangles[1]],
     ["Circle", "Circle", 50, _circles[0], _circles[1]],
-    // // Negative padding
-    ["Rectangle", "Rectangle", -50, _rectangles[0], _rectangles[1]],
-    ["Rectangle", "Circle", -50, _rectangles[0], _circles[1]],
-    ["Circle", "Rectangle", -50, _circles[0], _rectangles[1]],
-    ["Circle", "Circle", -50, _circles[0], _circles[1]],
   ])('the first shape (%p) contains the second shape (%p) with padding %p', (
     shapeType0: string,
     shapeType1: string,
