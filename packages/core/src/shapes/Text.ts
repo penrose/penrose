@@ -44,7 +44,7 @@ export interface IText
 export const sampleText = (canvas: Canvas): IText => ({
   name: StrV("defaultText"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDashArray: StrV(""),
