@@ -8,6 +8,7 @@ import { PenroseError, PenroseState } from "@penrose/core";
 import { ISettings } from "App";
 
 interface IProps {
+  currentState: PenroseState | undefined;
   history: PenroseState[];
   error: PenroseError | null;
   onClose(): void;
@@ -26,14 +27,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
     // connectionLog: [],
     selectedFrame: -1,
-    selectedView: 0,
+    selectedView: 0
   };
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
-      selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
+      selectedFrame: frame === this.state.selectedFrame ? -1 : frame
     });
     this.props.modCanvas(
       this.props.history[
@@ -45,7 +46,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
   };
   public render() {
     const { selectedFrame, selectedView } = this.state;
-    const { history, modCanvas, error, settings, setSettings } = this.props;
+    const {
+      currentState,
+      history,
+      modCanvas,
+      error,
+      settings,
+      setSettings
+    } = this.props;
     const currentFrame =
       history.length === 0
         ? null
@@ -54,13 +62,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
         : history[selectedFrame];
     const commonProps = {
       selectFrame: this.selectFrame,
-      frame: currentFrame,
+      // frame: currentFrame,
+      frame: currentState, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
       frameIndex: selectedFrame,
       history,
       modShapes: modCanvas,
       error,
       settings,
-      setSettings,
+      setSettings
     };
     return (
       <div
@@ -70,7 +79,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          marginBottom: "1em",
+          marginBottom: "1em"
         }}
       >
         <Timeline {...commonProps} />
@@ -100,7 +109,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
                       height: "100%",
                       overflow: "auto",
                       boxSizing: "border-box",
-                      paddingBottom: "100px",
+                      paddingBottom: "100px"
                     }}
                   >
                     {idx === selectedView && (

@@ -360,6 +360,7 @@ class App extends React.Component<any, ICanvasState> {
             </div>
             {settings.showInspector ? (
               <Inspector
+                currentState={data}
                 history={history}
                 error={error}
                 onClose={this.toggleInspector}

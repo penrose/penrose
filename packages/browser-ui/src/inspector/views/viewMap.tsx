@@ -7,13 +7,13 @@ import CompGraph from "./CompGraph";
 import Settings from "./Settings";
 
 const viewMap = {
-  frames: Frames,
+  state: Frames,
   errors: Errors,
   shapes: ShapeView,
   // mod: Mod, // NOTE: mod tab temporarily deprecated
   "optimization status": Opt,
   compGraph: CompGraph,
-  settings: Settings,
+  settings: Settings
 };
 
 export default viewMap;
