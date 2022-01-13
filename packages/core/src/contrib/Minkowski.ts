@@ -29,10 +29,10 @@ export const rectangleDifference = (
 ): [Pt2, Pt2] => {
   // Prepare coordinates
   const [xa1, xa2, ya1, ya2] = [
-    sub(BBox.minX(box1), padding),
-    add(BBox.maxX(box1), padding),
-    sub(BBox.minY(box1), padding),
-    add(BBox.maxY(box1), padding),
+    BBox.minX(box1),
+    BBox.maxX(box1),
+    BBox.minY(box1),
+    BBox.maxY(box1),
   ];
   const [xb1, xb2, yb1, yb2] = [
     BBox.minX(box2),
@@ -45,8 +45,8 @@ export const rectangleDifference = (
   const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
   // Return corners
   return [
-    [minN(xs), minN(ys)], // Bottom left corner
-    [maxN(xs), maxN(ys)], // Top right corner
+    [sub(minN(xs), padding), sub(minN(ys), padding)], // Bottom left corner
+    [add(maxN(xs), padding), add(maxN(ys), padding)], // Top right corner
   ];
 };
 
