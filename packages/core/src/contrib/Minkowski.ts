@@ -157,8 +157,8 @@ export const overlappingPolygonPoints = (
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = convexPartitions(polygonPoints2.map((p: VarAD[]) => ops.vneg(p)));
   return maxN(
-    cp1.map((p1) => minN(
-      cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding))
-    ))
+    cp1.map((p1) =>
+      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
+    )
   );
 };

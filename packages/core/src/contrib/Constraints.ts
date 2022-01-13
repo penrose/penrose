@@ -185,8 +185,7 @@ const constrDictGeneral = {
       return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Line" && t2 === "Circle")
       return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
-    else
-      return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
+    else return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
   /**
@@ -231,8 +230,7 @@ const constrDictGeneral = {
       return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else
-      return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
+    else return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
   /**

@@ -42,20 +42,16 @@ export const shapeSize = ([t, s]: [string, any]): VarAD => {
 /**
  * Return vertices of polygon-like shapes.
  */
-export const polygonLikePoints = (
-   [t, s]: [string, any]
-  ): Pt2[] => {
-  if (t == "Polygon")
-    return s.points.contents;
-  else if (shapedefs[t].isLinelike)
-    return [s.start.contents, s.end.contents];
+export const polygonLikePoints = ([t, s]: [string, any]): Pt2[] => {
+  if (t == "Polygon") return s.points.contents;
+  else if (shapedefs[t].isLinelike) return [s.start.contents, s.end.contents];
   else if (shapedefs[t].isRectlike) {
     const bbox = bboxFromShape([t, s]);
     const corners = BBox.corners(bbox);
     return [
-      corners.topRight, 
-      corners.topLeft, 
-      corners.bottomLeft, 
+      corners.topRight,
+      corners.topLeft,
+      corners.bottomLeft,
       corners.bottomRight,
     ];
   } else {

@@ -1,4 +1,7 @@
-import { overlappingPolygonPoints, rectangleDifference } from "contrib/Minkowski";
+import {
+  overlappingPolygonPoints,
+  rectangleDifference,
+} from "contrib/Minkowski";
 import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
 import { Pt2, VarAD } from "types/ad";
@@ -58,19 +61,26 @@ export const overlappingPolygons = (
 /**
  * Returns the signed distance from a rectangle at the origin.
  */
- export const rectangleSignedDistance = (
+export const rectangleSignedDistance = (
   bottomLeft: Pt2,
   topRight: Pt2
 ): VarAD => {
   // Calculate relative coordinates for rectangle signed distance
-  const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(bottomLeft, topRight)).map((x) => absVal(x));
-  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(topRight, bottomLeft))
+  const [xp, yp] = ops
+    .vmul(constOf(0.5), ops.vadd(bottomLeft, topRight))
+    .map((x) => absVal(x));
+  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(topRight, bottomLeft));
   const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
   // Positive distance (nonzero when the rectangle does not contain the origin)
-  const e1 = sqrt(add(constOf(10e-15),add(
-    squared(max(sub(xp, xr), constOf(0.0))),
-    squared(max(sub(yp, yr), constOf(0.0)))
-  )));
+  const e1 = sqrt(
+    add(
+      constOf(10e-15),
+      add(
+        squared(max(sub(xp, xr), constOf(0.0))),
+        squared(max(sub(yp, yr), constOf(0.0)))
+      )
+    )
+  );
   // Negative distance (nonzero when the rectangle does contain the origin)
   const ne2 = min(max(xq, yq), constOf(0.0));
   // Return the signed distance
@@ -116,7 +126,7 @@ export const overlappingRectangleCircle = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
- export const overlappingCircleLine = (
+export const overlappingCircleLine = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Line],
   padding: VarAD = constOf(0.0)
@@ -127,7 +137,7 @@ export const overlappingRectangleCircle = (
   const a = s2.start.contents;
   const b = s2.end.contents;
   const o = padding;
-   
+
   // Return the distance between the circle center c and the
   // segment ab, minus the circle radius r and offset o.  This
   // quantity will be negative of the circular disk intersects
@@ -135,14 +145,17 @@ export const overlappingRectangleCircle = (
   // The expression for the point-segment distance d comes from
   // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
   // (see "Segment - exact").
-  const u = ops.vsub(c,a); // u = c-a
-  const v = ops.vsub(b,a); // v - b-a
+  const u = ops.vsub(c, a); // u = c-a
+  const v = ops.vsub(b, a); // v - b-a
   // h = clamp( <u,v>/<v,v>, 0, 1 )
-  const h = max( constOf(0.), min( constOf(1.), div( ops.vdot(u,v), ops.vdot(v,v) ) ));
+  const h = max(
+    constOf(0),
+    min(constOf(1), div(ops.vdot(u, v), ops.vdot(v, v)))
+  );
   // d = | u - h*v |
-  const d = ops.vnorm( ops.vsub( u, ops.vmul(h,v) ) );
+  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
-  return sub( d, add( r, o ));
+  return sub(d, add(r, o));
 };
 
 // -------- Contains helpers

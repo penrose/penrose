@@ -1,5 +1,16 @@
-import { bboxFromShape, shapeCenter, shapeSize, polygonLikePoints } from "contrib/Queries";
-import { FloatV, makeCanvas, sampleBlack, VectorV, PtListV } from "shapes/Samplers";
+import {
+  bboxFromShape,
+  shapeCenter,
+  shapeSize,
+  polygonLikePoints,
+} from "contrib/Queries";
+import {
+  FloatV,
+  makeCanvas,
+  sampleBlack,
+  VectorV,
+  PtListV,
+} from "shapes/Samplers";
 import { compDict } from "contrib/Functions";
 import { constOf, numOf } from "engine/Autodiff";
 import { makeRectangle } from "shapes/Rectangle";
@@ -63,15 +74,21 @@ const shapes: [string, any][] = [
       start: VectorV([-11, 0].map(constOf)),
       end: VectorV([33, 44].map(constOf)),
       strokeWidth: FloatV(constOf(0)),
-    })
+    }),
   ],
   // shapes[5]
   [
     "Polygon",
     makePolygon(canvas, {
-      points: PtListV([[-11, 0], [33, 0], [33, 44]].map((p) => p.map(constOf))),
+      points: PtListV(
+        [
+          [-11, 0],
+          [33, 0],
+          [33, 44],
+        ].map((p) => p.map(constOf))
+      ),
       scale: FloatV(constOf(1)),
-    })
+    }),
   ],
 ];
 
@@ -97,8 +114,7 @@ describe("simple queries", () => {
 });
 
 describe("polygonLikePoints", () => {
-
-  test('Rectangle shape', async () => {
+  test("Rectangle shape", async () => {
     const result = polygonLikePoints(shapes[0]);
     expect(result.length).toEqual(4);
     expect(result[0].map(numOf)).toEqual([33, 44]);
@@ -107,14 +123,14 @@ describe("polygonLikePoints", () => {
     expect(result[3].map(numOf)).toEqual([33, 0]);
   });
 
-  test('Line shape', async () => {
+  test("Line shape", async () => {
     const result = polygonLikePoints(shapes[4]);
     expect(result.length).toEqual(2);
     expect(result[0].map(numOf)).toEqual([-11, 0]);
     expect(result[1].map(numOf)).toEqual([33, 44]);
   });
 
-  test('Polygon shape', async () => {
+  test("Polygon shape", async () => {
     const result = polygonLikePoints(shapes[5]);
     expect(result.length).toEqual(3);
     expect(result[0].map(numOf)).toEqual([-11, 0]);
@@ -122,13 +138,10 @@ describe("polygonLikePoints", () => {
     expect(result[2].map(numOf)).toEqual([33, 44]);
   });
 
-  it.each([
-    shapes[1], shapes[2], shapes[3]
-  ])('unsupported shape %p', (
-    shapeType: string,
-    shape: any,
-  ) => {
-    expect(() => polygonLikePoints([shapeType, shape])).toThrowError();
-  });
-
+  it.each([shapes[1], shapes[2], shapes[3]])(
+    "unsupported shape %p",
+    (shapeType: string, shape: any) => {
+      expect(() => polygonLikePoints([shapeType, shape])).toThrowError();
+    }
+  );
 });
