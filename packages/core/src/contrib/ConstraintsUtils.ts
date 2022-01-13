@@ -31,7 +31,7 @@ import { Line } from "shapes/Line";
 // -------- Ovelapping helpers
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that circle `s1` overlaps circle `s2` with some padding `padding`.
  */
 export const overlappingCircles = (
   [t1, s1]: [string, Circle],
@@ -44,7 +44,7 @@ export const overlappingCircles = (
 };
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that polygon `s1` overlaps polygon `s2` with some padding `padding`.
  */
 export const overlappingPolygons = (
   [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
@@ -59,7 +59,7 @@ export const overlappingPolygons = (
 };
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that bounding box of `s1` overlaps bounding box of `s2` with some padding `padding`.
  */
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
@@ -76,10 +76,10 @@ export const overlappingAABBs = (
 };
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
  */
-export const overlappingRectangleCircle = (
-  [t1, s1]: [string, Rectangle],
+export const overlappingRectlikeCircle = (
+  [t1, s1]: [string, Rectangle | Text | Equation | Image],
   [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
@@ -95,7 +95,7 @@ export const overlappingRectangleCircle = (
 };
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that circle `s1` overlaps line `s2` with some padding `padding`.
  */
 export const overlappingCircleLine = (
   [t1, s1]: [string, Circle],

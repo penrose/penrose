@@ -46,6 +46,7 @@ export const polygonLikePoints = ([t, s]: [string, any]): Pt2[] => {
   if (t == "Polygon") return s.points.contents;
   else if (shapedefs[t].isLinelike) return [s.start.contents, s.end.contents];
   else if (shapedefs[t].isRectlike) {
+    // TODO: add support for rotated rectangles
     const bbox = bboxFromShape([t, s]);
     const corners = BBox.corners(bbox);
     return [

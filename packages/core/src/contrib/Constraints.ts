@@ -19,7 +19,7 @@ import { shapedefs } from "shapes/Shapes";
 import {
   overlappingCircles,
   overlappingPolygons,
-  overlappingRectangleCircle,
+  overlappingRectlikeCircle,
   overlappingCircleLine,
   overlappingAABBs,
   containsCircles,
@@ -162,6 +162,8 @@ const constrDictGeneral = {
 
   /**
    * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+   * based on the type of the shape, and with an optional `padding` between them
+   * (e.g. if `s1` should be overlapping from `s2` with margin `padding`).
    */
   overlapping: (
     [t1, s1]: [string, any],
@@ -171,20 +173,21 @@ const constrDictGeneral = {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
-    if (t1 === "Rectangle" && t2 === "Rectangle")
+    if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
       return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
     // Rectangle x Circle
-    else if (t1 === "Rectangle" && t2 === "Circle")
-      return overlappingRectangleCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Circle" && t2 === "Rectangle")
-      return overlappingRectangleCircle([t2, s2], [t1, s1], constOfIf(padding));
+    else if (shapedefs[t1].isRectlike && t2 === "Circle")
+      return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && shapedefs[t2].isRectlike)
+      return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
       return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Line" && t2 === "Circle")
       return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
+    // Default to axis-aligned bounding boxes
     else return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
@@ -199,6 +202,24 @@ const constrDictGeneral = {
     padding = 0.0
   ) => {
     return neg(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
+  },
+
+  /**
+   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+   */
+  atDist: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    distance: number
+  ) => {
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
+  },
+
+  /**
+   * Require that shape `s1` is touching shape `s2`.
+   */
+  touching: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    return constrDictGeneral.atDist([t1, s1], [t2, s2], 0);
   },
 
   /**
@@ -218,27 +239,6 @@ const constrDictGeneral = {
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
-  },
-
-  /**
-   * Require that label `s2` is at a distance of `distance` from shape `s1`.
-   */
-  atDist: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    distance: number
-  ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
-  },
-
-  /**
-   * Require that shape `s1` is touching shape `s2`.
-   */
-  touching: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-  ) => {
-    return constrDictGeneral.atDist([t1, s1], [t2, s2], 0);
   },
 
   /**
