@@ -5,7 +5,7 @@ import {
 import { _rectangles } from "contrib/__testfixtures__/TestShapes.input";
 import { constOf, numOf } from "engine/Autodiff";
 
-describe("overlappingAABBs should return the same value as overlappingPolygons", async () => {
+describe("overlappingAABBs should return the same value as overlappingPolygons", () => {
   it.each([0, 10, 100])("padding %p", (padding: number) => {
     const paddingAD = constOf(padding);
     const t = "Rectangle";
