@@ -113,18 +113,13 @@ export const overlappingAABBs = (
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
   const [pc1, pc2] = rectangleDifference(box1, box2, padding);
-  const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
-  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
-  const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
-  const e1 = sqrt(
-    add(
-      constOf(10e-15),
-      add(
-        squared(max(sub(xp, xr), constOf(0.0))),
-        squared(max(sub(yp, yr), constOf(0.0)))
-      )
-    )
-  );
+  const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2)).map((x) => absVal(x));
+  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1)).map((x) => absVal(x));
+  const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
+  const e1 = sqrt(add(constOf(10e-15),add(
+    squared(max(sub(xp, xr), constOf(0.0))),
+    squared(max(sub(yp, yr), constOf(0.0)))
+  )));
   const ne2 = min(max(xq, yq), constOf(0.0));
   return add(e1, ne2);
 };
