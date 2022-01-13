@@ -17,17 +17,15 @@ import { shapeCenter, shapeSize } from "contrib/Queries";
 import * as _ from "lodash";
 import { shapedefs } from "shapes/Shapes";
 import {
-  overlappingLines,
   overlappingCircles,
   overlappingPolygons,
   overlappingRectlikeCircle,
   overlappingCircleLine,
   overlappingAABBs,
+  atDistLabel,
   containsCircles,
   containsCircleRectlike,
   containsRectlikeCircle,
-  containsSquareCircle,
-  containsSquareLinelike,
   containsAABBs,
 } from "contrib/ConstraintsUtils";
 import { VarAD } from "types/ad";
@@ -43,17 +41,17 @@ const constrDictSimple = {
   },
 
   /**
-   * Require that the value `x` is greater than the value `y` with optional padding `padding`
-   */
-  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
-    return add(sub(y, x), constOfIf(padding));
-  },
-
-  /**
    * Require that the value `x` is less than the value `y` with optional padding `padding`
    */
   lessThan: (x: VarAD, y: VarAD, padding = 0) => {
     return add(sub(x, y), constOfIf(padding));
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y` with optional padding `padding`
+   */
+  greaterThan: (x: VarAD, y: VarAD, padding = 0) => {
+    return add(sub(y, x), constOfIf(padding));
   },
 
   /**
@@ -62,6 +60,13 @@ const constrDictSimple = {
   lessThanSq: (x: VarAD, y: VarAD) => {
     // if x < y then 0 else (x - y)^2
     return ifCond(lt(x, y), constOf(0), squared(sub(x, y)));
+  },
+
+  /**
+   * Require that the value `x` is greater than the value `y`, with steeper penalty
+   */
+  greaterThanSq: (x: VarAD, y: VarAD) => {
+    return ifCond(lt(y, x), constOf(0), squared(sub(y, x)));
   },
 
   /**
@@ -158,29 +163,33 @@ const constrDictGeneral = {
 
   /**
    * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+   * based on the type of the shape, and with an optional `padding` between them
+   * (e.g. if `s1` should be overlapping `s2` with margin `padding`).
    */
   overlapping: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding = 0.0
   ) => {
-    if (shapedefs[t1].isLinelike && shapedefs[t2].isLinelike)
-      return overlappingLines([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Circle" && t2 === "Circle")
+    // Same shapes
+    if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Polygon" && t2 === "Polygon")
+    if (shapedefs[t1].isRectlike && shapedefs[t2].isRectlike)
+      return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
+    else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
+    // Rectangle x Circle
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && shapedefs[t2].isRectlike)
+      return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
+    // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
       return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Line" && t2 === "Circle")
       return overlappingCircleLine([t2, s2], [t1, s1], constOfIf(padding));
-    else {
-      // TODO: After compilation time fix (issue #652), replace by:
-      // return overlappingAABBsMinkowski([t1, s1], [t2, s2], constOfIf(padding));
-      return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
-    }
+    // Default to axis-aligned bounding boxes
+    else return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
   /**
@@ -197,11 +206,11 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that shape `s1` is tangent to shape `s2`,
+   * Require that shape `s1` is touching shape `s2`.
    * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should contain `s2` with margin `padding`).
+   * (e.g. if `s1` should be touching `s2` with margin `padding`).
    */
-  tangentTo: (
+  touching: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding = 0.0
@@ -223,24 +232,22 @@ const constrDictGeneral = {
       return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
-    else if (shapedefs[t1].isRectlike && t1 !== "Square" && t2 === "Circle")
+    else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Square" && t2 === "Circle")
-      return containsSquareCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Square" && shapedefs[t2].isLinelike)
-      return containsSquareLinelike([t1, s1], [t2, s2], constOfIf(padding));
     else return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
   },
 
   /**
-   * Require that label `s2` is at a distance of `distance` from shape `s1`.
+   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
    */
   atDist: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     distance: number
   ) => {
-    return constrDictGeneral.tangentTo([t1, s1], [t2, s2], distance);
+    if (shapedefs[t2].isRectlike)
+      return atDistLabel([t1, s1], [t2, s2], constOfIf(distance));
+    else return constrDictGeneral.touching([t1, s1], [t2, s2], distance);
   },
 
   /**
