@@ -63,7 +63,7 @@ forall Horocycle h; HyperbolicPlane H {
 
   ensure inRange(h.circleShape.r, R/8., R/2.)
   constraint h.inDisk      = ensure contains(H.diskShape, h.circleShape)
-  constraint h.tangentDisk = ensure tangentTo(H.diskShape, h.circleShape)
+  constraint h.tangentDisk = ensure touching(H.diskShape, h.circleShape)
 }
 
 forall IdealPoint p; Horocycle h; HyperbolicPlane H

@@ -225,9 +225,6 @@ describe("general constraints", () => {
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.tangentTo(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.tangentTo(shape1, shape0, padding));
-      // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
       // The condition should NOT be satisfied
@@ -266,9 +263,6 @@ describe("general constraints", () => {
       expectSatified(constrDict.disjoint(shape0, shape1, padding));
       expectSatified(constrDict.disjoint(shape1, shape0, padding));
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.tangentTo(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.tangentTo(shape1, shape0, padding));
-      // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
       // The condition should NOT be satisfied
@@ -306,9 +300,6 @@ describe("general constraints", () => {
       // The condition should JUST be satisfied
       expectJustSatified(constrDict.disjoint(shape0, shape1, padding));
       expectJustSatified(constrDict.disjoint(shape1, shape0, padding));
-      // The condition should be satisfied
-      expectSatified(constrDict.tangentTo(shape0, shape1, padding));
-      expectSatified(constrDict.tangentTo(shape1, shape0, padding));
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
@@ -347,9 +338,6 @@ describe("general constraints", () => {
       // The condition should NOT be satisfied
       expectNotSatisfied(constrDict.disjoint(shape0, shape1, padding));
       expectNotSatisfied(constrDict.disjoint(shape1, shape0, padding));
-      // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.tangentTo(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.tangentTo(shape1, shape0, padding));
       // The condition should be satisfied ONLY ONE WAY
       expectSatified(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));

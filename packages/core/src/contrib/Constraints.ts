@@ -202,19 +202,6 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that shape `s1` is tangent to shape `s2`,
-   * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should contain `s2` with margin `padding`).
-   */
-  tangentTo: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    padding = 0.0
-  ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
-  },
-
-  /**
    * Require that a shape `s1` contains another shape `s2`,
    * based on the type of the shape, and with an optional `padding` between the sizes of the shapes
    * (e.g. if `s1` should contain `s2` with margin `padding`).
@@ -241,7 +228,17 @@ const constrDictGeneral = {
     [t2, s2]: [string, any],
     distance: number
   ) => {
-    return constrDictGeneral.tangentTo([t1, s1], [t2, s2], distance);
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
+  },
+
+  /**
+   * Require that shape `s1` is touching shape `s2`.
+   */
+  touching: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+  ) => {
+    return constrDictGeneral.atDist([t1, s1], [t2, s2], 0);
   },
 
   /**
