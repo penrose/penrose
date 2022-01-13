@@ -209,11 +209,22 @@ describe("general constraints", () => {
     ["Polygon", "Polygon", 0, _polygons[0], _polygons[3]],
     ["Line", "Polygon", 0, _lines[3], _polygons[0]],
     ["Line", "Polygon", 0, _lines[2], _polygons[3]],
+    ["Rectangle", "Line", 0, _rectangles[0], _lines[0]],
+    ["Rectangle", "Polygon", 0, _rectangles[2], _polygons[2]],
+    ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[0]],
     // With padding
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
     ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
     ["Circle", "Circle", 150, _circles[3], _circles[1]],
+    ["Line", "Line", 200, _lines[1], _lines[3]],
+    ["Polygon", "Polygon", 150, _polygons[1], _polygons[2]],
+    ["Polygon", "Polygon", 150, _polygons[1], _polygons[3]],
+    ["Line", "Polygon", 150, _lines[1], _polygons[3]],
+    ["Line", "Polygon", 150, _lines[1], _polygons[2]],
+    ["Rectangle", "Line", 150, _rectangles[0], _lines[2]],
+    ["Rectangle", "Polygon", 150, _rectangles[3], _polygons[1]],
+    ["Rectangle", "Polygon", 150, _rectangles[1], _polygons[2]],
   ])(
     "overlapping %p and %p with padding %p",
     (
@@ -251,11 +262,20 @@ describe("general constraints", () => {
     ["Line", "Line", 0, _lines[1], _lines[2]],
     ["Line", "Polygon", 0, _lines[0], _polygons[2]],
     ["Line", "Polygon", 0, _lines[0], _polygons[3]],
+    ["Rectangle", "Polygon", 0, _rectangles[1], _polygons[3]],
+    ["Rectangle", "Line", 0, _rectangles[2], _lines[2]],
     // With padding
     ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
     ["Circle", "Rectangle", 10, _circles[1], _rectangles[3]],
     ["Circle", "Circle", 10, _circles[1], _circles[3]],
+    ["Circle", "Circle", 110, _circles[2], _circles[3]],
+    ["Line", "Line", 50, _lines[0], _lines[3]],
+    ["Line", "Line", 50, _lines[1], _lines[2]],
+    ["Line", "Polygon", 50, _lines[0], _polygons[2]],
+    ["Line", "Polygon", 50, _lines[0], _polygons[3]],
+    ["Rectangle", "Polygon", 50, _rectangles[1], _polygons[3]],
+    ["Rectangle", "Line", 50, _rectangles[2], _lines[2]],
   ])(
     "disjoint %p and %p with padding %p",
     (
@@ -282,9 +302,9 @@ describe("general constraints", () => {
     }
   );
 
-  // Tangent shapes
+  // Shapes at distance
   it.each([
-    // Without padding
+    // Touching
     ["Rectangle", "Rectangle", 0, _rectangles[1], _rectangles[2]],
     ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
@@ -292,13 +312,16 @@ describe("general constraints", () => {
     ["Line", "Line", 0, _lines[0], _lines[1]],
     ["Line", "Line", 0, _lines[0], _lines[2]],
     ["Line", "Polygon", 0, _lines[2], _polygons[2]],
-    // With padding
+    ["Rectangle", "Polygon", 0, _rectangles[1], _polygons[1]],
+    ["Rectangle", "Line", 0, _rectangles[1], _lines[1]],
+    // At specific distance
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
     ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
     ["Circle", "Circle", 100, _circles[1], _circles[3]],
+    ["Line", "Line", 100, _lines[1], _lines[2]],
   ])(
-    "tangent %p and %p with padding %p",
+    "%p and %p at distance %p",
     (
       shapeType0: string,
       shapeType1: string,
@@ -332,6 +355,8 @@ describe("general constraints", () => {
     ["Circle", "Circle", 0, _circles[0], _circles[1]],
     ["Polygon", "Polygon", 0, _polygons[0], _polygons[1]],
     ["Polygon", "Line", 0, _polygons[0], _lines[1]],
+    ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[1]],
+    ["Rectangle", "Line", 0, _rectangles[0], _lines[1]],
     // With padding
     ["Rectangle", "Rectangle", 50, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 50, _rectangles[0], _circles[1]],
