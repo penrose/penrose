@@ -1,7 +1,7 @@
 import { constOf, numOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 import { constrDict } from "contrib/Constraints";
-import { _rectangles, _circles } from "contrib/__testfixtures__/Constraints.input";
+import { _rectangles, _circles } from "contrib/__testfixtures__/TestShapes.input";
 
 const digitPrecision = 10;
 

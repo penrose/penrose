@@ -120,3 +120,17 @@ export const _circles = [
     strokeColor: sampleBlack(),
   }),
 ];
+
+export const _lines = [
+  // TODO: _lines[0]
+  // TODO: _lines[1]
+  // TODO: _lines[2]
+  // TODO: _lines[3]
+];
+
+export const _polygons = [
+  // TODO: _polygons[0]
+  // TODO: _polygons[1]
+  // TODO: _polygons[2]
+  // TODO: _polygons[3]
+];
