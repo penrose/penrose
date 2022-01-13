@@ -82,7 +82,6 @@ class Inspector extends React.Component<IProps, IInspectState> {
           marginBottom: "1em"
         }}
       >
-        <Timeline {...commonProps} />
         <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
           <Tabs
             index={selectedView}

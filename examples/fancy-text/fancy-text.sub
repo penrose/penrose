@@ -1,6 +1,5 @@
 Text t
 Label t "Hello, Penrose!"
-
 Point p1, p2, p3, p4, p5
 Point p6, p7, p8, p9, p10
 Label p1 $\alpha$

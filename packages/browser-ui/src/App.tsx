@@ -49,7 +49,7 @@ export interface ISettings {
 }
 
 interface ICanvasState {
-  data: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
+  currentState: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined
   error: PenroseError | null;
   processedInitial: boolean;
   penroseVersion: string;
@@ -62,7 +62,7 @@ interface ICanvasState {
 const socketAddress = "ws://localhost:9160";
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
-    data: undefined,
+    currentState: undefined,
     error: null,
     history: [],
     processedInitial: false, // TODO: clarify the semantics of this flag
@@ -83,7 +83,7 @@ class App extends React.Component<any, ICanvasState> {
     await new Promise(r => setTimeout(r, 1));
 
     this.setState({
-      data: canvasState,
+      currentState: canvasState,
       processedInitial: true
     });
     this.renderCanvas(canvasState);
@@ -94,7 +94,7 @@ class App extends React.Component<any, ICanvasState> {
     await new Promise(r => setTimeout(r, 1));
 
     this.setState({
-      data: canvasState,
+      currentState: canvasState,
       // history: [...this.state.history, canvasState],
       processedInitial: true,
       error: null
@@ -106,13 +106,13 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public downloadSVG = (): void => {
-    DownloadSVG(RenderStatic(this.state.data));
+    DownloadSVG(RenderStatic(this.state.currentState));
   };
   public downloadPDF = (): void => {
     console.error("PDF download not implemented");
   };
   public downloadState = (): void => {
-    const state = this.state.data;
+    const state = this.state.currentState;
     if (state) {
       const params = {
         ...state.params,
@@ -158,9 +158,9 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public step = (numSteps: number): void => {
-    if (this.state.data) {
+    if (this.state.currentState) {
       try {
-        const stepped = stepState(this.state.data, numSteps);
+        const stepped = stepState(this.state.currentState, numSteps);
         void this.onCanvasState(stepped);
       } catch (e) {
         const error: PenroseError = {
@@ -169,7 +169,7 @@ class App extends React.Component<any, ICanvasState> {
           message: `Runtime error encountered: '${e}' Check console for more information.`
         };
 
-        const errorWrapper = { error, data: undefined };
+        const errorWrapper = { error, currentState: undefined };
         this.setState(errorWrapper);
         throw e;
       }
@@ -179,13 +179,13 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public stepUntilConvergence = (): void => {
-    if (this.state.data) {
+    if (this.state.currentState) {
       const stepped = stepUntilConvergence(
-        this.state.data,
+        this.state.currentState,
         this.state.settings.autoStepSize
       );
       if (stepped.isErr()) {
-        this.setState({ error: stepped.error, data: undefined });
+        this.setState({ error: stepped.error, currentState: undefined });
       } else {
         void this.onCanvasState(stepped.value);
       }
@@ -196,7 +196,7 @@ class App extends React.Component<any, ICanvasState> {
 
   public resample = async () => {
     const NUM_SAMPLES = 1;
-    const oldState = this.state.data;
+    const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });
       const resampled = resample(oldState, NUM_SAMPLES);
@@ -231,12 +231,12 @@ class App extends React.Component<any, ICanvasState> {
               message: `Runtime error encountered: '${e}' Check console for more information.`
             };
 
-            const errorWrapper = { error, data: undefined };
+            const errorWrapper = { error, currentState: undefined };
             this.setState(errorWrapper);
             throw e;
           }
         } else {
-          this.setState({ error: compileRes.error, data: undefined });
+          this.setState({ error: compileRes.error, currentState: undefined });
         }
       },
       () => {
@@ -267,7 +267,7 @@ class App extends React.Component<any, ICanvasState> {
   }
 
   public updateData = async (data: PenroseState) => {
-    this.setState({ data: { ...data } });
+    this.setState({ currentState: { ...data } });
     if (this.state.settings.autostep) {
       const stepped = stepState(data);
       this.onCanvasState(stepped);
@@ -303,7 +303,7 @@ class App extends React.Component<any, ICanvasState> {
 
   private renderApp() {
     const {
-      data,
+      currentState: data,
       settings,
       penroseVersion,
       history,
