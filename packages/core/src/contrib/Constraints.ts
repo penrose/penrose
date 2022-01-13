@@ -171,6 +171,8 @@ const constrDictGeneral = {
     // Same shapes
     if (t1 === "Circle" && t2 === "Circle")
       return overlappingCircles([t1, s1], [t2, s2], constOfIf(padding));
+    if (t1 === "Rectangle" && t2 === "Rectangle")
+      return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
     // Rectlike x Circle

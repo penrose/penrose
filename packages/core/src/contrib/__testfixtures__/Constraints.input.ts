@@ -1,4 +1,4 @@
-import { constOf, EPS_DENOM, numOf } from "engine/Autodiff";
+import { constOf } from "engine/Autodiff";
 import { FloatV, makeCanvas, sampleBlack, VectorV } from "shapes/Samplers";
 import { makeRectangle } from "shapes/Rectangle";
 import { makeCircle } from "shapes/Circle";
