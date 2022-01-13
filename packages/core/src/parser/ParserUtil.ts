@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { compact, flatten } from "lodash";
 import * as moo from "moo";
-import { SourceLoc, Identifier, NodeType, SourceRange } from "types/ast";
+import { SourceLoc, Identifier, NodeType, SourceRange, C } from "types/ast";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,
@@ -148,7 +148,9 @@ export const rangeBetween = (
 // TODO: implement
 // }
 
-export const convertTokenId = ([token]: moo.Token[]): Partial<Identifier> => {
+export const convertTokenId = ([token]: moo.Token[]): Partial<
+  Identifier<C>
+> => {
   return {
     ...rangeOf(token),
     value: token.text,
@@ -170,7 +172,7 @@ export const tokensIn = (
 ): moo.Token[] => flatten(compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-export const idOf = (value: string, nodeType: NodeType): Identifier => ({
+export const idOf = (value: string, nodeType: NodeType): Identifier<C> => ({
   nodeType,
   children: [],
   start: { line: 1, col: 1 },

@@ -8,7 +8,7 @@
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { ASTNode, Identifier, IStringLit } from "types/ast";
+import { C, ConcreteNode, Identifier, IStringLit } from "types/ast";
 import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "types/substance";
 
 
@@ -31,7 +31,7 @@ const lexer = moo.compile({
   }
 });
 
-const nodeData = (children: ASTNode[]) => ({
+const nodeData = (children: ConcreteNode[]) => ({
   nodeType: "Substance" as const,
   children
 });
@@ -47,8 +47,8 @@ const nodeData = (children: ASTNode[]) => ({
 # Main grammar
 
 input -> statements {% 
-  ([d]): SubProg => {
-    const statements = flatten(d) as SubStmt[];
+  ([d]): SubProg<C> => {
+    const statements = flatten(d) as SubStmt<C>[];
     return { ...nodeData(statements), ...rangeFrom(statements), tag: "SubProg", statements };
   }
 %}
@@ -74,7 +74,7 @@ statement
   |  equal_predicates {% id %}
 
 decl -> type_constructor __ sepBy1[identifier, ","] {%
-  ([type, , ids]): Decl[] => ids.map((name: Identifier): Decl => ({
+  ([type, , ids]): Decl<C>[] => ids.map((name: Identifier<C>): Decl<C> => ({
     ...nodeData([type, name]),
     ...rangeBetween(type, name),
     tag: "Decl", type, name
@@ -82,7 +82,7 @@ decl -> type_constructor __ sepBy1[identifier, ","] {%
 %}
 
 bind -> identifier _ ":=" _ sub_expr {%
-  ([variable, , , , expr]): Bind => ({
+  ([variable, , , , expr]): Bind<C> => ({
     ...nodeData([variable, expr]),
     ...rangeBetween(variable, expr),
     tag: "Bind", variable, expr
@@ -90,13 +90,13 @@ bind -> identifier _ ":=" _ sub_expr {%
 %}
 
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
-  ([type, , variable, , , , expr]): [Decl, Bind] => {
-    const decl: Decl = {
+  ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
+    const decl: Decl<C> = {
       ...nodeData([type, variable]),
       ...rangeBetween(type, variable),
       tag: "Decl", type, name: variable
     };
-    const bind: Bind = {
+    const bind: Bind<C> = {
       ...nodeData([variable, expr]),
       ...rangeBetween(variable, expr),
       tag: "Bind", variable, expr
@@ -106,7 +106,7 @@ decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
 %}
 
 apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
-  ([name, , , , args]): ApplyPredicate => ({
+  ([name, , , , args]): ApplyPredicate<C> => ({
     ...nodeData([name, ...args]),
     ...rangeFrom([name, ...args]),
     tag: "ApplyPredicate", name, args
@@ -122,7 +122,7 @@ sub_expr
   |  string_lit {% id %}
 
 deconstructor -> identifier _ "." _ identifier {%
-  ([variable, , , , field]): Deconstructor => ({
+  ([variable, , , , field]): Deconstructor<C> => ({
     ...nodeData([variable, field]),
     ...rangeBetween(variable, field),
     tag: "Deconstructor", variable, field
@@ -131,7 +131,7 @@ deconstructor -> identifier _ "." _ identifier {%
 
 # NOTE: generic func type for consturction, predicate, or function
 func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
-  ([name, , , , args]): Func => ({
+  ([name, , , , args]): Func<C> => ({
     ...nodeData([name, ...args]),
     ...rangeFrom([name, ...args]),
     tag: "Func", name, args
@@ -139,7 +139,7 @@ func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
 %}
 
 equal_exprs -> sub_expr _ "=" _ sub_expr {%
-  ([left, , , , right]): EqualExprs => ({
+  ([left, , , , right]): EqualExprs<C> => ({
     ...nodeData([left, right]),
     ...rangeBetween(left, right),
     tag: "EqualExprs", left, right
@@ -147,7 +147,7 @@ equal_exprs -> sub_expr _ "=" _ sub_expr {%
 %}
 
 equal_predicates -> apply_predicate _ "<->" _ apply_predicate {%
-  ([left, , , , right]): EqualPredicates => ({
+  ([left, , , , right]): EqualPredicates<C> => ({
     ...nodeData([left, right]),
     ...rangeBetween(left, right),
     tag: "EqualPredicates", left, right
@@ -161,7 +161,7 @@ label_stmt
 
 label_decl 
   -> "Label" __ identifier __ tex_literal {%
-    ([kw, , variable, , label]): LabelDecl => ({
+    ([kw, , variable, , label]): LabelDecl<C> => ({
       ...nodeData([variable, label]),
       ...rangeBetween(rangeOf(kw), label),
       tag: "LabelDecl", 
@@ -170,7 +170,7 @@ label_decl
     })
   %}
  |  "Label" __ identifier __ string_lit {%
-    ([kw, , variable, , label]): LabelDecl => ({
+    ([kw, , variable, , label]): LabelDecl<C> => ({
       ...nodeData([variable, label]),
       ...rangeBetween(rangeOf(kw), label),
       tag: "LabelDecl", 
@@ -180,7 +180,7 @@ label_decl
   %}
 
 no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
-  ([kw, , args]): NoLabel => ({
+  ([kw, , args]): NoLabel<C> => ({
     ...nodeData([...args]),
     ...rangeFrom([rangeOf(kw), ...args]),
     tag: "NoLabel", args
@@ -188,7 +188,7 @@ no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
 %}
 
 auto_label -> "AutoLabel" __ label_option {%
-  ([kw, , option]): AutoLabel => ({
+  ([kw, , option]): AutoLabel<C> => ({
     ...nodeData([option]),
     ...rangeBetween(kw, option),
     tag: "AutoLabel", option 
@@ -196,15 +196,15 @@ auto_label -> "AutoLabel" __ label_option {%
 %}
 
 label_option 
-  -> "All" {% ([kw]): LabelOption => ({ ...nodeData([]), ...rangeOf(kw), tag: "DefaultLabels" }) %}
+  -> "All" {% ([kw]): LabelOption<C> => ({ ...nodeData([]), ...rangeOf(kw), tag: "DefaultLabels" }) %}
   |  sepBy1[identifier, ","] {% 
-       ([variables]): LabelOption => ({ ...nodeData([]), ...rangeFrom(variables), tag: "LabelIDs", variables }) 
+       ([variables]): LabelOption<C> => ({ ...nodeData([]), ...rangeFrom(variables), tag: "LabelIDs", variables }) 
      %}
 
 # Grammar from Domain
 
 type_constructor -> identifier type_arg_list:? {% 
-  ([name, a]): TypeConsApp => {
+  ([name, a]): TypeConsApp<C> => {
     const args = optional(a, []);
     return {
       ...nodeData([name, ...args]),
@@ -216,13 +216,13 @@ type_constructor -> identifier type_arg_list:? {%
 
 # NOTE: only type constructors are alloed in Substance
 type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {% 
-  ([, , , d]): TypeConsApp[] => flatten(d) 
+  ([, , , d]): TypeConsApp<C>[] => flatten(d) 
 %}
 
 # Common 
 
 string_lit -> %string_literal {%
-  ([d]): IStringLit => ({
+  ([d]): IStringLit<C> => ({
     ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',
@@ -231,7 +231,7 @@ string_lit -> %string_literal {%
 %}
 
 tex_literal -> %tex_literal {% 
-  ([d]): IStringLit => ({
+  ([d]): IStringLit<C> => ({
     ...nodeData([]),
     ...rangeOf(d),
     tag: 'StringLit',

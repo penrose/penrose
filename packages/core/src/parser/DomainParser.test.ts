@@ -3,7 +3,7 @@ import grammar from "./DomainParser";
 import * as path from "path";
 import * as fs from "fs";
 import { result } from "lodash";
-import { ASTNode } from "types/ast";
+import { ConcreteNode } from "types/ast";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;
@@ -20,7 +20,7 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-export const traverseTree = (root: ASTNode) => {
+export const traverseTree = (root: ConcreteNode) => {
   const { nodeType, children } = root;
   if (!nodeType) console.log(root);
   expect(nodeType).toEqual("Domain");

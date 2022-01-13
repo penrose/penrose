@@ -5,6 +5,7 @@ import {
   prettyStmt,
   prettySubstance,
 } from "compiler/Substance";
+import { A } from "types/ast";
 import { Env } from "types/domain";
 import { Decl, SubStmt } from "types/substance";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
@@ -74,9 +75,9 @@ Set D`;
       },
     });
     const ctx = initContext(synth.env);
-    const toDelete = synth.currentProg.statements[0] as Decl;
+    const toDelete = synth.currentProg.statements[0] as Decl<A>;
     expect("Set A").toEqual(prettyStmt(toDelete));
-    const cascadedStmts: SubStmt[] = cascadingDelete(
+    const cascadedStmts: SubStmt<A>[] = cascadingDelete(
       toDelete,
       synth.currentProg
     );
