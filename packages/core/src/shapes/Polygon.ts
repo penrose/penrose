@@ -7,6 +7,7 @@ import {
   sampleColor,
   sampleNoPaint,
   sampleStroke,
+  sampleZero,
   StrV,
 } from "./Samplers";
 

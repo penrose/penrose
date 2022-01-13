@@ -9,6 +9,7 @@ import {
   sampleStroke,
   sampleVector,
   sampleWidth,
+  sampleZero,
   StrV,
 } from "./Samplers";
 
