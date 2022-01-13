@@ -4,6 +4,8 @@ import { constrDict } from "contrib/Constraints";
 import {
   _rectangles,
   _circles,
+  _lines,
+  _polygons,
 } from "contrib/__testfixtures__/TestShapes.input";
 
 const digitPrecision = 10;
@@ -202,6 +204,11 @@ describe("general constraints", () => {
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[0], _circles[2]],
+    ["Line", "Line", 0, _lines[2], _lines[3]],
+    ["Polygon", "Polygon", 0, _polygons[2], _polygons[3]],
+    ["Polygon", "Polygon", 0, _polygons[0], _polygons[3]],
+    ["Line", "Polygon", 0, _lines[3], _polygons[0]],
+    ["Line", "Polygon", 0, _lines[2], _polygons[3]],
     // With padding
     ["Rectangle", "Rectangle", 150, _rectangles[3], _rectangles[1]],
     ["Rectangle", "Circle", 150, _rectangles[3], _circles[1]],
@@ -240,6 +247,10 @@ describe("general constraints", () => {
     ["Rectangle", "Circle", 0, _rectangles[2], _circles[3]],
     ["Circle", "Rectangle", 0, _circles[2], _rectangles[3]],
     ["Circle", "Circle", 0, _circles[2], _circles[3]],
+    ["Line", "Line", 0, _lines[0], _lines[3]],
+    ["Line", "Line", 0, _lines[1], _lines[2]],
+    ["Line", "Polygon", 0, _lines[0], _polygons[2]],
+    ["Line", "Polygon", 0, _lines[0], _polygons[3]],
     // With padding
     ["Rectangle", "Rectangle", 10, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 10, _rectangles[1], _circles[3]],
@@ -278,6 +289,9 @@ describe("general constraints", () => {
     ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
     ["Circle", "Circle", 0, _circles[1], _circles[2]],
+    ["Line", "Line", 0, _lines[0], _lines[1]],
+    ["Line", "Line", 0, _lines[0], _lines[2]],
+    ["Line", "Polygon", 0, _lines[2], _polygons[2]],
     // With padding
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
@@ -316,11 +330,15 @@ describe("general constraints", () => {
     ["Rectangle", "Circle", 0, _rectangles[0], _circles[1]],
     ["Circle", "Rectangle", 0, _circles[0], _rectangles[1]],
     ["Circle", "Circle", 0, _circles[0], _circles[1]],
+    ["Polygon", "Polygon", 0, _polygons[0], _polygons[1]],
+    ["Polygon", "Line", 0, _polygons[0], _lines[1]],
     // With padding
     ["Rectangle", "Rectangle", 50, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 50, _rectangles[0], _circles[1]],
     ["Circle", "Rectangle", 50, _circles[0], _rectangles[1]],
     ["Circle", "Circle", 50, _circles[0], _circles[1]],
+    ["Polygon", "Polygon", 20, _polygons[0], _polygons[1]],
+    ["Polygon", "Line", 20, _polygons[0], _lines[1]],
   ])(
     "the first shape (%p) contains the second shape (%p) with padding %p",
     (
