@@ -132,17 +132,23 @@ function App({ location }: any) {
       dispatch({ kind: "CHANGE_CANVAS_STATE", content: state });
       const stepResult = stepUntilConvergence(state);
       if (stepResult.isOk()) {
-        const convergedState = stepResult.value;
-        dispatch({ kind: "CHANGE_CANVAS_STATE", content: convergedState });
-        const cur = canvasRef.current;
-        const rendered = RenderInteractive(convergedState, convergeRenderState);
-        if (cur) {
-          if (cur.firstChild) {
-            cur.replaceChild(rendered, cur.firstChild);
-          } else {
-            cur.appendChild(rendered);
+        (async () => {
+          const convergedState = stepResult.value;
+          dispatch({ kind: "CHANGE_CANVAS_STATE", content: convergedState });
+          const cur = canvasRef.current;
+          const rendered = await RenderInteractive(
+            convergedState,
+            convergeRenderState,
+            async () => ""
+          );
+          if (cur) {
+            if (cur.firstChild) {
+              cur.replaceChild(rendered, cur.firstChild);
+            } else {
+              cur.appendChild(rendered);
+            }
           }
-        }
+        })();
       } else {
         dispatch({ kind: "CHANGE_ERROR", content: stepResult.error });
       }
@@ -180,9 +186,12 @@ function App({ location }: any) {
     }
   }, [state, convergeRenderState]);
 
-  const svg = useCallback(() => {
+  const svg = useCallback(async () => {
     if (state.currentInstance.state) {
-      const rendered = RenderStatic(state.currentInstance.state);
+      const rendered = await RenderStatic(
+        state.currentInstance.state,
+        async () => ""
+      );
       DownloadSVG(rendered);
     }
   }, [state]);

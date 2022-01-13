@@ -7,6 +7,7 @@ import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 import { attrMapSvg } from "./AttrMapSvg";
+import { toFontRule } from "utils/CollectLabels";
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
@@ -38,6 +39,7 @@ export const attrAutoFillSvg = (
 
   // Map unknown/unseen attributes with values to SVG output.
   // This is the "escape hatch" for properties we don't support.
+  // NOTE: `style` is handled as a special case, because some of the built-in properties will write to it __and__ the user should be able to append to it. Therefore, we check if there's an existing value in `style` and append to it if true.
   for (const propName in properties) {
     const propValue: string = properties[propName].contents.toString();
 
@@ -48,6 +50,13 @@ export const attrAutoFillSvg = (
         const mappedPropName: string = attrMapSvg[propName];
         if (!elem.hasAttribute(mappedPropName)) {
           elem.setAttribute(mappedPropName, propValue);
+        }
+      } else if (propName === "style" && propValue !== "") {
+        const style = elem.getAttribute(propName);
+        if (style === null) {
+          elem.setAttribute(propName, propValue);
+        } else {
+          elem.setAttribute(propName, `${style}${propValue}`);
         }
       } else {
         if (!elem.hasAttribute(propName)) {
@@ -300,4 +309,29 @@ export const attrTitle = (
   elem.appendChild(title);
 
   return ["name"]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps fontFamily, fontSize, fontStretch, fontStyle, fontVariant, fontWeight, lineHeight -> font
+ */
+export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
+  const fontString: string = toFontRule(shape);
+  const existingStyle: string | null = elem.getAttribute("style");
+
+  // TODO: check if `lineHeight` is valid
+  elem.setAttribute(
+    "style",
+    existingStyle
+      ? `${existingStyle}; font: ${fontString};`
+      : `font: ${fontString};`
+  );
+  return [
+    "fontFamily",
+    "fontSize",
+    "fontStretch",
+    "fontStyle",
+    "fontVariant",
+    "fontWeight",
+    "lineHeigh",
+  ]; // Return array of input properties programatically mapped
 };

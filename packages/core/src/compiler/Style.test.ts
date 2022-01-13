@@ -209,14 +209,6 @@ describe("Compiler", () => {
   //     fail();
   //   }
 
-  //   const subss = S.findSubstsProg(
-  //     varEnv,
-  //     subEnv,
-  //     subProg,
-  //     styProgInit.blocks,
-  //     selEnvs
-  //   ); // TODO: Use `eqEnv`
-
   //   if (subss.length !== correctSubsts.length) {
   //     fail();
   //   }

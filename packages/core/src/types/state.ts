@@ -18,7 +18,6 @@ export interface IState {
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
-  rng: prng;
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
@@ -36,10 +35,20 @@ export type State = IState;
 /**
  * Output of label generation.
  */
-export interface LabelData {
+
+export type LabelData = EquationData | TextData;
+export interface EquationData {
+  tag: "EquationData";
   width: Value<number>;
   height: Value<number>;
   rendered: HTMLElement;
+}
+
+export interface TextData {
+  tag: "TextData";
+  width: Value<number>;
+  height: Value<number>;
+  descent: Value<number>;
 }
 
 export type LabelCache = [string, LabelData][];

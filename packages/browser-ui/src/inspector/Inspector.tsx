@@ -8,6 +8,7 @@ import { PenroseError, PenroseState } from "@penrose/core";
 import { ISettings } from "App";
 
 interface IProps {
+  currentState: PenroseState | undefined;
   history: PenroseState[];
   error: PenroseError | null;
   onClose(): void;
@@ -45,7 +46,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
   };
   public render() {
     const { selectedFrame, selectedView } = this.state;
-    const { history, modCanvas, error, settings, setSettings } = this.props;
+    const {
+      currentState,
+      history,
+      modCanvas,
+      error,
+      settings,
+      setSettings,
+    } = this.props;
     const currentFrame =
       history.length === 0
         ? null
@@ -54,7 +62,8 @@ class Inspector extends React.Component<IProps, IInspectState> {
         : history[selectedFrame];
     const commonProps = {
       selectFrame: this.selectFrame,
-      frame: currentFrame,
+      // frame: currentFrame,
+      frame: currentState, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
       frameIndex: selectedFrame,
       history,
       modShapes: modCanvas,
@@ -73,7 +82,6 @@ class Inspector extends React.Component<IProps, IInspectState> {
           marginBottom: "1em",
         }}
       >
-        <Timeline {...commonProps} />
         <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
           <Tabs
             index={selectedView}

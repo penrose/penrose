@@ -1,18 +1,15 @@
 import memoize from "fast-memoize";
-import { Shape } from "types/shape";
-import { mathjax } from "mathjax-full/js/mathjax.js";
-import { TeX } from "mathjax-full/js/input/tex.js";
-import { SVG } from "mathjax-full/js/output/svg.js";
-
-// Auto-switch between browser and native (Lite) --
-// not sure about the latter's fallback behavior
-import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
 import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
+import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
-import { LabelCache, LabelData } from "types/state";
-import { err, ok, Result } from "./Error";
+import { mathjax } from "mathjax-full/js/mathjax.js";
+import { SVG } from "mathjax-full/js/output/svg.js";
 import { PenroseError } from "types/errors";
+import { Shape } from "types/shape";
+import { EquationData, LabelCache, LabelData, TextData } from "types/state";
+import { IFloatV } from "types/value";
+import { err, ok, Result } from "./Error";
 
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
@@ -113,6 +110,65 @@ export const retrieveLabel = (
   } else return undefined;
 };
 
+const floatV = (contents: number): IFloatV<number> => ({
+  tag: "FloatV",
+  contents,
+});
+
+const textData = (
+  width: number,
+  height: number,
+  descent: number
+): TextData => ({
+  tag: "TextData",
+  width: floatV(width),
+  height: floatV(height),
+  descent: floatV(descent),
+});
+
+const equationData = (
+  width: number,
+  height: number,
+  rendered: HTMLElement
+): EquationData => ({
+  tag: "EquationData",
+  width: floatV(width),
+  height: floatV(height),
+  rendered,
+});
+
+/**
+ * Get the CSS string for the font setting of a `Text` GPI.
+ * @param shape A text GPI
+ *
+ * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ *
+ * @returns a CSS rule string of its font settings
+ */
+export const toFontRule = ({ properties }: Shape): string => {
+  const fontFamily = properties.fontFamily.contents as string;
+  const fontSize = properties.fontSize.contents as string;
+  const fontStretch = properties.fontStretch.contents as string;
+  const fontStyle = properties.fontStyle.contents as string;
+  const fontVariant = properties.fontVariant.contents as string;
+  const fontWeight = properties.fontWeight.contents as string;
+  const lineHeight = properties.lineHeight.contents as string;
+  /**
+   * assemble according to the rules in https://developer.mozilla.org/en-US/docs/Web/CSS/font
+   * it must include values for: <font-size> <font-family>
+   * it may optionally include values for: <font-style> <font-variant> <font-weight> <font-stretch> <line-height>
+   * font-style, font-variant and font-weight must precede font-size
+   * font-variant may only specify the values defined in CSS 2.1, that is normal and small-caps
+   * font-stretch may only be a single keyword value.
+   * line-height must immediately follow font-size, preceded by "/", like this: "16px/3"
+   * font-family must be the last value specified.
+   */
+  const fontSpec = `${fontStretch} ${fontStyle} ${fontVariant} ${fontWeight} ${fontSize} ${fontFamily}`;
+  const fontString =
+    lineHeight !== "" ? fontSpec.concat(`/${lineHeight}`) : fontSpec;
+  return fontString;
+};
+
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
   allShapes: Shape[]
@@ -141,19 +197,66 @@ export const collectLabels = async (
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
-      const label: LabelData = {
-        width: {
-          tag: "FloatV",
-          contents: width === Infinity ? 0 : width,
-        },
-        height: {
-          tag: "FloatV",
-          contents: height === Infinity ? 0 : height,
-        },
-        rendered: body,
-      };
+      const label: EquationData = equationData(
+        width === Infinity ? 0 : width,
+        height === Infinity ? 0 : height,
+        body
+      );
+      labels.push([shapeName, label]);
+    } else if (shapeType === "Text") {
+      const shapeName: string = properties.name.contents as string;
+      let label: TextData;
+      // Use canvas to measure text data
+      const measure: TextMeasurement = measureText(
+        properties.string.contents as string,
+        toFontRule(s)
+      );
+      // If the width and height are defined, the renderer will render the text. `actualDescent` is currently not used in rendering.
+      if (measure.width && measure.height) {
+        label = textData(measure.width, measure.height, measure.actualDescent);
+      } else {
+        label = textData(0, 0, 0);
+      }
       labels.push([shapeName, label]);
     }
   }
   return ok(labels);
 };
+
+//#region Text measurement
+export type TextMeasurement = {
+  width: number;
+  height: number;
+  actualDescent: number;
+};
+
+/**
+ *
+ * @param text the content of the text
+ * @param font the CSS font rule for the text
+ *
+ * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
+ */
+export function measureText(text: string, font: string): TextMeasurement {
+  measureText.context.textBaseline = "alphabetic";
+  measureText.context.font = font;
+  const measurements = measureText.context.measureText(text);
+  return {
+    width:
+      Math.abs(measurements.actualBoundingBoxLeft) +
+      Math.abs(measurements.actualBoundingBoxRight),
+    height:
+      Math.abs(measurements.actualBoundingBoxAscent) +
+      Math.abs(measurements.actualBoundingBoxDescent),
+    actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
+  };
+}
+// static variable
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace measureText {
+  export const element = document.createElement("canvas");
+  export const context = element.getContext("2d")!;
+}
+
+//#endregion
