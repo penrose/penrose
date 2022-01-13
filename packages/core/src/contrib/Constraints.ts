@@ -210,7 +210,7 @@ const constrDictGeneral = {
    * based on the type of the shape, and with an optional `padding` between them
    * (e.g. if `s1` should be touching `s2` with margin `padding`).
    */
-   touching: (
+  touching: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding = 0.0
@@ -240,7 +240,7 @@ const constrDictGeneral = {
   /**
    * Require that shape `s1` is at a distance of `distance` from shape `s2`.
    */
-   atDist: (
+  atDist: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     distance: number
