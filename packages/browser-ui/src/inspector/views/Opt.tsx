@@ -23,7 +23,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       return {
         name,
         energy,
-        sat: energy <= EPS ? "yes" : "no"
+        sat: energy <= EPS ? "yes" : "no",
       };
     }
   );
@@ -34,7 +34,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
       const gradientNorm = normList(fnEvaled.gradf);
       return {
         name,
-        gradientNorm
+        gradientNorm,
       };
     }
   );
@@ -51,15 +51,15 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
         columns={[
           { name: "Expression", selector: "name", sortable: true },
           { name: "Energy", selector: "energy", sortable: true },
-          { name: "Satisfied?", selector: "sat", sortable: true }
+          { name: "Satisfied?", selector: "sat", sortable: true },
         ]}
         conditionalRowStyles={[
           {
-            when: row => row.sat === "no",
+            when: (row) => row.sat === "no",
             style: {
-              backgroundColor: `#ffcabe !important`
-            }
-          }
+              backgroundColor: `#ffcabe !important`,
+            },
+          },
         ]}
       />
       <DataTable
@@ -70,7 +70,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
         striped={true}
         columns={[
           { name: "Expression", selector: "name", sortable: true },
-          { name: "Gradient Norm", selector: "gradientNorm", sortable: true }
+          { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
         ]}
       />
     </div>
