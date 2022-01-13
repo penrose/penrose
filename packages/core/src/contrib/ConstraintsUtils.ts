@@ -148,10 +148,7 @@ export const atDistLabel = (
     pt = shapeCenter([t1, s1]);
   }
 
-  // Get polygon of text (box)
-  // TODO: Make this a GPI property
-  // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
-  // I wrote a version simplified to work for rectangles
+  // Get bounding box
   const rect = bboxFromShape([t2, s2]);
 
   return ifCond(

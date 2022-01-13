@@ -72,7 +72,7 @@ export const ShapeDef = (shapedef: {
     bbox: shapedef.bbox,
     isLinelike: shapedef.isLinelike || false,
     isRectlike: shapedef.isRectlike || false,
-    isPolygonlike: shapedef.isRectlike || false,
+    isPolygonlike: shapedef.isPolygonlike || false,
   };
 };
 
