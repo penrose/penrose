@@ -375,6 +375,7 @@ canvas {
         case "wrong type":
           return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
       }
+      break; // dead code to please ESLint
     }
 
     // ----- END TRANSLATION VALIDATION ERRORS

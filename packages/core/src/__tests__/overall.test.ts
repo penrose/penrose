@@ -47,7 +47,12 @@ describe("End-to-end testing of existing diagrams", () => {
         }
         const optimized = opt.value;
 
-        const rendered = RenderStatic(optimized);
+        const rendered = await RenderStatic(optimized, async (p: string) => {
+          const parentDir = path.parse(path.join(EXAMPLES, styleURI)).dir;
+          const actualPath = path.resolve(parentDir, p);
+          const res = fs.readFileSync(actualPath, "utf-8").toString();
+          return res;
+        });
         fs.writeFileSync(
           path.join(OUTPUT, `${name}.svg`),
           rendered.outerHTML,
