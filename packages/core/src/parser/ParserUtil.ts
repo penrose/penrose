@@ -148,7 +148,7 @@ export const rangeBetween = (
 // TODO: implement
 // }
 
-export const convertTokenId = ([token]: [moo.Token]): Partial<Identifier> => {
+export const convertTokenId = ([token]: moo.Token[]): Partial<Identifier> => {
   return {
     ...rangeOf(token),
     value: token.text,
