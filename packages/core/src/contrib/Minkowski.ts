@@ -11,11 +11,12 @@ import {
   maxN,
 } from "engine/AutodiffFunctions";
 import * as _ from "lodash";
-import { VarAD } from "types/ad";
+import { VarAD, Pt2 } from "types/ad";
 import * as BBox from "engine/BBox";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
+ * Returns coordinates of the bottom left and top right corners.
  * Note: This is not the Minkowski difference in the classical sense, rather just a Minkowski sum of A and -B.
  * @param box1 First bounding box.
  * @param box2 Second bounding box.
@@ -25,7 +26,7 @@ export const rectangleDifference = (
   box1: BBox.BBox,
   box2: BBox.BBox,
   padding: VarAD
-): VarAD[][] => {
+): [Pt2, Pt2] => {
   // Prepare coordinates
   const [xa1, xa2, ya1, ya2] = [
     sub(BBox.minX(box1), padding),
@@ -44,8 +45,8 @@ export const rectangleDifference = (
   const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
   // Return corners
   return [
-    [minN(xs), minN(ys)],
-    [maxN(xs), maxN(ys)],
+    [minN(xs), minN(ys)], // Bottom left corner
+    [maxN(xs), maxN(ys)], // Top right corner
   ];
 };
 
