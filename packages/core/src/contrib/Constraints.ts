@@ -22,6 +22,7 @@ import {
   overlappingRectlikeCircle,
   overlappingCircleLine,
   overlappingAABBs,
+  atDistLabel,
   containsCircles,
   containsCircleRectlike,
   containsRectlikeCircle,
@@ -212,7 +213,9 @@ const constrDictGeneral = {
     [t2, s2]: [string, any],
     distance: number
   ) => {
-    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
+    if (shapedefs[t2].isRectlike)
+      return atDistLabel([t1, s1], [t2, s2], constOfIf(distance))
+    else return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
   },
 
   /**

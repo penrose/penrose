@@ -20,6 +20,7 @@ import {
   lt,
   squared,
 } from "engine/AutodiffFunctions";
+import { pointInBox, noIntersectCircles, atDistOutside } from "contrib/Utils";
 import { Circle } from "shapes/Circle";
 import { Polygon } from "shapes/Polygon";
 import { Rectangle } from "shapes/Rectangle";
@@ -27,6 +28,7 @@ import { Text } from "shapes/Text";
 import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
+import { shapedefs } from "shapes/Shapes";
 
 // -------- Ovelapping helpers
 
@@ -127,6 +129,38 @@ export const overlappingCircleLine = (
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
   return sub(d, add(r, o));
+};
+
+/**
+ * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+ */
+export const atDistLabel = (
+  [t1, s1]: [string, any],
+  [t2, s2]: [string, any],
+  distance: VarAD
+): VarAD => {
+  let pt;
+  if (shapedefs[t1].isLinelike) {
+    // Position label close to the arrow's end
+    pt = s1.end.contents;
+  } else {
+    // Only assume shape1 has a center
+    pt = shapeCenter([t1, s1]);
+  }
+
+  // Get polygon of text (box)
+  // TODO: Make this a GPI property
+  // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
+  // I wrote a version simplified to work for rectangles
+  const rect = bboxFromShape([t2, s2]);
+
+  return ifCond(
+    pointInBox(pt, rect),
+    // If the point is inside the box, push it outside w/ `noIntersect`
+    noIntersectCircles(rect.center, rect.width, pt, constOf(2.0)),
+    // If the point is outside the box, try to get the distance from the point to equal the desired distance
+    atDistOutside(pt, rect, distance)
+  );
 };
 
 // -------- Contains helpers
