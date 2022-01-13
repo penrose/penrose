@@ -246,8 +246,8 @@ describe("general constraints", () => {
       expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.atDist(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.atDist(shape1, shape0, padding));
+      expectNotSatisfied(constrDict.touching(shape0, shape1, padding));
+      expectNotSatisfied(constrDict.touching(shape1, shape0, padding));
     }
   );
 
@@ -297,14 +297,14 @@ describe("general constraints", () => {
       expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.atDist(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.atDist(shape1, shape0, padding));
+      expectNotSatisfied(constrDict.touching(shape0, shape1, padding));
+      expectNotSatisfied(constrDict.touching(shape1, shape0, padding));
     }
   );
 
-  // Shapes at distance
+  // Touching shapes
   it.each([
-    // Touching
+    // Without padding
     ["Rectangle", "Rectangle", 0, _rectangles[1], _rectangles[2]],
     ["Rectangle", "Circle", 0, _rectangles[1], _circles[2]],
     ["Circle", "Rectangle", 0, _circles[1], _rectangles[2]],
@@ -314,7 +314,7 @@ describe("general constraints", () => {
     ["Line", "Polygon", 0, _lines[2], _polygons[2]],
     ["Rectangle", "Polygon", 0, _rectangles[1], _polygons[1]],
     ["Rectangle", "Line", 0, _rectangles[1], _lines[1]],
-    // At specific distance
+    // With padding
     ["Rectangle", "Rectangle", 100, _rectangles[1], _rectangles[3]],
     ["Rectangle", "Circle", 100, _rectangles[1], _circles[3]],
     ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
@@ -341,8 +341,8 @@ describe("general constraints", () => {
       expectNotSatisfied(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
       // The condition should be satisfied
-      expectSatified(constrDict.atDist(shape0, shape1, padding));
-      expectSatified(constrDict.atDist(shape1, shape0, padding));
+      expectSatified(constrDict.touching(shape0, shape1, padding));
+      expectSatified(constrDict.touching(shape1, shape0, padding));
     }
   );
 
@@ -385,8 +385,8 @@ describe("general constraints", () => {
       expectSatified(constrDict.contains(shape0, shape1, padding));
       expectNotSatisfied(constrDict.contains(shape1, shape0, padding));
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.atDist(shape1, shape0, padding));
-      expectNotSatisfied(constrDict.atDist(shape1, shape0, padding));
+      expectNotSatisfied(constrDict.touching(shape1, shape0, padding));
+      expectNotSatisfied(constrDict.touching(shape1, shape0, padding));
     }
   );
 });

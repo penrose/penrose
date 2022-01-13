@@ -164,7 +164,7 @@ const constrDictGeneral = {
   /**
    * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
    * based on the type of the shape, and with an optional `padding` between them
-   * (e.g. if `s1` should be overlapping from `s2` with margin `padding`).
+   * (e.g. if `s1` should be overlapping `s2` with margin `padding`).
    */
   overlapping: (
     [t1, s1]: [string, any],
@@ -206,23 +206,16 @@ const constrDictGeneral = {
   },
 
   /**
-   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+   * Require that shape `s1` is touching shape `s2`.
+   * based on the type of the shape, and with an optional `padding` between them
+   * (e.g. if `s1` should be touching `s2` with margin `padding`).
    */
-  atDist: (
+   touching: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    distance: number
+    padding = 0.0
   ) => {
-    if (shapedefs[t2].isRectlike)
-      return atDistLabel([t1, s1], [t2, s2], constOfIf(distance))
-    else return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], distance));
-  },
-
-  /**
-   * Require that shape `s1` is touching shape `s2`.
-   */
-  touching: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    return constrDictGeneral.atDist([t1, s1], [t2, s2], 0);
+    return absVal(constrDictGeneral.overlapping([t1, s1], [t2, s2], padding));
   },
 
   /**
@@ -242,6 +235,19 @@ const constrDictGeneral = {
     else if (shapedefs[t1].isRectlike && t2 === "Circle")
       return containsRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
     else return containsAABBs([t1, s1], [t2, s2], constOfIf(padding));
+  },
+
+  /**
+   * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+   */
+   atDist: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    distance: number
+  ) => {
+    if (shapedefs[t2].isRectlike)
+      return atDistLabel([t1, s1], [t2, s2], constOfIf(distance));
+    else return constrDictGeneral.touching([t1, s1], [t2, s2], distance);
   },
 
   /**
