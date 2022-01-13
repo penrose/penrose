@@ -59,20 +59,6 @@ export const overlappingPolygons = (
 /**
  * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
  */
-export const overlappingRectlikeCircle = (
-  [t1, s1]: [string, Rectangle | Text | Equation | Image],
-  [t2, s2]: [string, Circle],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  const s1BBox = bboxFromShape([t1, s1]);
-  const textR = max(s1BBox.width, s1BBox.height);
-  const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-  return sub(d, add(add(s2.r.contents, textR), padding));
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
 export const overlappingCircleLine = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Line],
@@ -139,6 +125,25 @@ export const overlappingAABBs = (
   const [bottomLeft, topRight] = rectangleDifference(box1, box2, padding);
   // Return the signed distance
   return rectangleSignedDistance(bottomLeft, topRight);
+};
+
+/**
+ * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ */
+export const overlappingRectangleCircle = (
+  [t1, s1]: [string, Rectangle],
+  [t2, s2]: [string, Circle],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  // Prepare axis-aligned bounding boxes
+  const box1 = bboxFromShape([t1, s1]);
+  const box2 = bboxFromShape([t2, s2]);
+  // Get the Minkowski difference of inner rectangle
+  const innerPadding = sub(padding, box2.width);
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerPadding);
+  // Return the signed distance
+  const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
+  return sub(innerSDF, box2.width);
 };
 
 // -------- Contains helpers

@@ -19,7 +19,7 @@ import { shapedefs } from "shapes/Shapes";
 import {
   overlappingCircles,
   overlappingPolygons,
-  overlappingRectlikeCircle,
+  overlappingRectangleCircle,
   overlappingCircleLine,
   overlappingAABBs,
   containsCircles,
@@ -175,11 +175,11 @@ const constrDictGeneral = {
       return overlappingAABBs([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isPolygonlike && shapedefs[t2].isPolygonlike)
       return overlappingPolygons([t1, s1], [t2, s2], constOfIf(padding));
-    // Rectlike x Circle
-    else if (shapedefs[t1].isRectlike && t2 === "Circle")
-      return overlappingRectlikeCircle([t1, s1], [t2, s2], constOfIf(padding));
-    else if (t1 === "Circle" && shapedefs[t2].isRectlike)
-      return overlappingRectlikeCircle([t2, s2], [t1, s1], constOfIf(padding));
+    // Rectangle x Circle
+    else if (t1 === "Rectangle" && t2 === "Circle")
+      return overlappingRectangleCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && t2 === "Rectangle")
+      return overlappingRectangleCircle([t2, s2], [t1, s1], constOfIf(padding));
     // Circle x Line
     else if (t1 === "Circle" && t2 === "Line")
       return overlappingCircleLine([t1, s1], [t2, s2], constOfIf(padding));
