@@ -10,7 +10,7 @@ class Frames extends React.Component<IViewProps> {
     }
     return (
       <div style={{ padding: "1em" }}>
-        {history.length > 0 ? <ObjectInspector data={frame} /> : <p>empty</p>}
+        {frame ? <ObjectInspector data={frame} /> : <p>empty</p>}
       </div>
     );
   }
