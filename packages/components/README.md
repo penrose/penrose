@@ -31,13 +31,19 @@ Set X {
 }
 `;
 
-const App = () => <Embed domainString={domain} substanceString={substance} styleString={style} />
+const App = () => (
+  <Embed
+    domainString={domain}
+    substanceString={substance}
+    styleString={style}
+  />
+);
 
 export default App;
 ```
 
 ## Building and Running
 
-* Run `yarn build` to build the library
-* In your client library, make sure you have `react` and `react-dom` as dependencies. `@penrose/components` has both packages as peer dependencies and does not bundle them.
-* Run `yarn storybook` to preview the components with some examples.
+- Run `yarn build` to build the library
+- In your client library, make sure you have `react` and `react-dom` as dependencies. `@penrose/components` has both packages as peer dependencies and does not bundle them.
+- Run `yarn storybook` to preview the components with some examples.

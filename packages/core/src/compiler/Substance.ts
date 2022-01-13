@@ -1,6 +1,6 @@
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
-import { findIndex, zip } from "lodash";
+import { findIndex } from "lodash";
 import nearley from "nearley";
 import { idOf, lastLocation } from "parser/ParserUtil";
 import substanceGrammar from "parser/SubstanceParser";
@@ -51,6 +51,7 @@ import {
   unexpectedExprForNestedPred,
   varNotFound,
 } from "utils/Error";
+import { zip2 } from "utils/Util";
 import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
 
 export const parseSubstance = (prog: string): Result<SubProg, ParseError> => {
@@ -330,7 +331,7 @@ export const checkPredicate = (
   if (predDecl) {
     // initialize substitution environment
     const substContext: SubstitutionEnv = Map<string, TypeConsApp>();
-    const argPairs = zip(args, predDecl.args) as [SubPredArg, Arg][];
+    const argPairs = zip2(args, predDecl.args);
     const argsOk: SubstitutionResult = safeChain(
       argPairs,
       ([expr, arg], [cxt, e]) => checkPredArg(expr, arg, cxt, e),
@@ -465,8 +466,8 @@ const substituteArg = (
         return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
       }
       // if there are more arguments, substitute them one by one
-      // NOTE: we already know the lengths are the same, so there shouldn't be any `undefined` in the zipped list. TODO: check how to model this constraint in the type system
-      const typePairs = zip(type.args, expectedArgs) as [TypeConsApp, Type][];
+      // NOTE: we already know the lengths are the same, so `zipStrict` shouldn't throw
+      const typePairs = zip2(type.args, expectedArgs);
       return safeChain(
         typePairs,
         ([type, expected], [subst, env]) =>
@@ -566,7 +567,7 @@ const checkFunc = (
         argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl)
       );
     } else {
-      const argPairs = zip(func.args, funcDecl.args) as [SubExpr, Arg][];
+      const argPairs = zip2(func.args, funcDecl.args);
       const argsOk: SubstitutionResult = safeChain(
         argPairs,
         ([expr, arg], [cxt, e]) => matchArg(expr, arg, cxt, e),

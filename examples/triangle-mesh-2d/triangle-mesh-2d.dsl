@@ -12,6 +12,15 @@ constructor MakeTriangle(Vertex i, Vertex j, Vertex k) -> Triangle
 constructor MakeCorner( Vertex inner, Vertex outer1, Vertex outer2 ) -> Corner
 constructor MakeDualEdge(Triangle a, Triangle b) -> DualEdge
 
+predicate IsBoundaryVertex(Vertex v)
+predicate IsBoundaryEdge(Edge e)
+predicate IsBoundaryTriangle(Triangle t)
+
+predicate HasLabel(Vertex v)
+
+predicate IsPositivelyOriented(Triangle t)
+predicate IsNegativelyOriented(Triangle t)
+
 -- Geometry
 type Point
 type Circle
@@ -26,4 +35,13 @@ constructor Incircle(Triangle t) -> Circle
 
 constructor EdgeLength(Edge e) -> Length
 constructor DualEdgeLength(DualEdge d) -> Length
+
+constructor Intersection(Edge e, Edge f) -> Point
+
+-- Specific to angle-equivalence.sub
+function similarity(Vertex i) -> Vertex
+
+-- Specific to concyclic-pair.sub
+predicate IsFlipped(Edge e)
+predicate Concyclic(Triangle s, Triangle t)
 

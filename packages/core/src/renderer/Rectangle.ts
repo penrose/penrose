@@ -2,6 +2,7 @@ import {
   attrAutoFillSvg,
   attrCornerRadius,
   attrFill,
+  attrRotation,
   attrStroke,
   attrTitle,
   attrWH,
@@ -22,6 +23,7 @@ const Rectangle = ({ shape, canvasSize }: ShapeProps): SVGRectElement => {
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
   attrToNotAutoMap.push(...attrCornerRadius(shape, elem));
+  attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

@@ -209,14 +209,6 @@ describe("Compiler", () => {
   //     fail();
   //   }
 
-  //   const subss = S.findSubstsProg(
-  //     varEnv,
-  //     subEnv,
-  //     subProg,
-  //     styProgInit.blocks,
-  //     selEnvs
-  //   ); // TODO: Use `eqEnv`
-
   //   if (subss.length !== correctSubsts.length) {
   //     fail();
   //   }
@@ -427,17 +419,6 @@ where IsSubset(y, x) { }`,
       // ---------- Block static errors
 
       InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
-
-      // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
-      InvalidGPIPropertyError: [
-        `forall Set x {  
-          x.icon = Circle { 
-           centre: (0.0, 0.0) 
-           r: 9.
-           diameter: 100.
-         } 
-       }`,
-      ],
 
       // Have to do a nested search in expressions for this
       InvalidFunctionNameError: [

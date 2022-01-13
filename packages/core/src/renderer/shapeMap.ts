@@ -1,5 +1,5 @@
 import Circle from "./Circle";
-import Label from "./Label";
+import Equation from "./Label";
 import Ellipse from "./Ellipse";
 import Rectangle from "./Rectangle";
 import Polygon from "./Polygon";
@@ -10,13 +10,15 @@ import Line from "./Line";
 import Image from "./Image";
 import Text from "./Text";
 
-const shapeMap: { [key: string]: (props: ShapeProps) => SVGElement } = {
+const shapeMap: {
+  [key: string]: (props: ShapeProps) => Promise<SVGElement> | SVGElement;
+} = {
   Circle,
   Ellipse,
   Rectangle,
   Polygon,
   Polyline,
-  Equation: Label,
+  Equation,
   Path,
   Line,
   Image,

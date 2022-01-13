@@ -1,12 +1,12 @@
 import * as _ from "lodash";
 import { bboxFromShape } from "contrib/Queries";
 import { inRange } from "contrib/Utils";
+import { constOf, numOf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
   addN,
   ceil,
-  constOf,
   div,
   floor,
   gt,
@@ -15,8 +15,6 @@ import {
   min,
   mul,
   neg,
-  numOf,
-  ops,
   pow,
   acosh,
   acos,
@@ -44,8 +42,7 @@ import {
   trunc,
   sqrt,
   sub,
-  varOf,
-} from "engine/Autodiff";
+} from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { maxBy, range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
@@ -61,8 +58,7 @@ import {
   ITupV,
   IVectorV,
 } from "types/value";
-import { getStart, linePts } from "utils/OtherUtils";
-import { randFloat } from "utils/Util";
+import { randFloat, getStart, linePts } from "utils/Util";
 import { shapedefs } from "shapes/Shapes";
 
 /**
@@ -253,260 +249,260 @@ export const compDict = {
    * Return `acosh(x)`.
    */
   acosh: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: acosh(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: acosh(x),
+    };
   },
-  
+
   /**
-  * Return `acos(x)`.
-  */
+   * Return `acos(x)`.
+   */
   acos: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: acos(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: acos(x),
+    };
   },
-  
+
   /**
-  * Return `asin(x)`.
-  */
+   * Return `asin(x)`.
+   */
   asin: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: asin(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: asin(x),
+    };
   },
-  
+
   /**
-  * Return `asinh(x)`.
-  */
+   * Return `asinh(x)`.
+   */
   asinh: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-             contents: asinh(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: asinh(x),
+    };
   },
-  
+
   /**
-  * Return `atan(x)`.
-  */
+   * Return `atan(x)`.
+   */
   atan: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: atan(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: atan(x),
+    };
   },
-  
+
   /**
-  * Return `atan2(y,x)`.
-  */
-  atan2: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: atan2(y,x),
-     };
+   * Return `atan2(y,x)`.
+   */
+  atan2: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: atan2(y, x),
+    };
   },
-  
+
   /**
-  * Return `atanh(x)`.
-  */
+   * Return `atanh(x)`.
+   */
   atanh: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: atanh(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: atanh(x),
+    };
   },
-  
+
   /**
-  * Return `cbrt(x)`.
-  */
+   * Return `cbrt(x)`.
+   */
   cbrt: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: cbrt(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: cbrt(x),
+    };
   },
 
   /**
    * Return `ceil(x)`.
    */
   ceil: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: ceil(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: ceil(x),
+    };
   },
-  
+
   /**
-  * Return `cos(x)`.
-  */
+   * Return `cos(x)`.
+   */
   cos: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: cos(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: cos(x),
+    };
   },
-  
+
   /**
-  * Return `cosh(x)`.
-  */
+   * Return `cosh(x)`.
+   */
   cosh: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: cosh(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: cosh(x),
+    };
   },
-  
+
   /**
-  * Return `exp(x)`.
-  */
+   * Return `exp(x)`.
+   */
   exp: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: exp(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: exp(x),
+    };
   },
-  
+
   /**
-  * Return `expm1(x)`.
-  */
+   * Return `expm1(x)`.
+   */
   expm1: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: expm1(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: expm1(x),
+    };
   },
-  
+
   /**
-  * Return `floor(x)`.
-  */
+   * Return `floor(x)`.
+   */
   floor: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: floor(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: floor(x),
+    };
   },
-  
+
   /**
-  * Return `log(x)`.
-  */
+   * Return `log(x)`.
+   */
   log: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: ln(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: ln(x),
+    };
   },
-  
+
   /**
-  * Return `log2(x)`.
-  */
+   * Return `log2(x)`.
+   */
   log2: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: log2(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: log2(x),
+    };
   },
-  
+
   /**
-  * Return `log10(x)`.
-  */
+   * Return `log10(x)`.
+   */
   log10: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-             contents: log10(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: log10(x),
+    };
   },
-  
+
   /**
-  * Return `log1p(x)`.
-  */
+   * Return `log1p(x)`.
+   */
   log1p: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: log1p(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: log1p(x),
+    };
   },
 
   /**
-  * Return `pow(x,y)`.
-  */
-  pow: (x: VarAD,y: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: pow(x,y),
-     };
+   * Return `pow(x,y)`.
+   */
+  pow: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: pow(x, y),
+    };
   },
 
   /**
-  * Return `round(x)`.
-  */
+   * Return `round(x)`.
+   */
   round: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: round(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: round(x),
+    };
   },
-  
+
   /**
-  * Return `sign(x)`.
-  */
+   * Return `sign(x)`.
+   */
   sign: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: sign(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: sign(x),
+    };
   },
-  
+
   /**
-  * Return `sin(x)`.
-  */
+   * Return `sin(x)`.
+   */
   sin: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: sin(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: sin(x),
+    };
   },
-  
+
   /**
-  * Return `sinh(x)`.
-  */
+   * Return `sinh(x)`.
+   */
   sinh: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: sinh(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: sinh(x),
+    };
   },
-  
+
   /**
-  * Return `tan(x)`.
-  */
+   * Return `tan(x)`.
+   */
   tan: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: tan(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: tan(x),
+    };
   },
-  
+
   /**
    * Return `tanh(x)`.
    */
   tanh: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: tanh(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: tanh(x),
+    };
   },
 
   /**
-  * Return `trunc(x)`.
-  */
+   * Return `trunc(x)`.
+   */
   trunc: (x: VarAD): IFloatV<VarAD> => {
-     return {
-        tag: "FloatV",
-        contents: trunc(x),
-     };
+    return {
+      tag: "FloatV",
+      contents: trunc(x),
+    };
   },
 
   /**
@@ -694,7 +690,10 @@ export const compDict = {
     arcSweep: IVarAD
   ): IPathDataV<IVarAD> => {
     const path = new PathBuilder();
-    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]).lineTo(center);
+    path
+      .moveTo(start)
+      .arcTo(radius, end, [rotation, largeArc, arcSweep])
+      .lineTo(center);
     path.closePath();
     return path.getPath();
   },
@@ -732,7 +731,7 @@ export const compDict = {
    * The returned value will be in the range [0,pi].
    */
   angleBetween: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
-    const theta = ops.angleBetween(u,v);
+    const theta = ops.angleBetween(u, v);
     return {
       tag: "FloatV",
       contents: theta,
@@ -744,7 +743,7 @@ export const compDict = {
    * The returned value will be in the range [-pi,pi].
    */
   angleFrom: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
-    const theta = ops.angleFrom(u,v);
+    const theta = ops.angleFrom(u, v);
     return {
       tag: "FloatV",
       contents: theta,
@@ -754,10 +753,31 @@ export const compDict = {
    * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
    */
   cross2D: (u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
-    const det = sub( mul(u[0],v[1]), mul(u[1],v[0]) );
+    const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
     return {
       tag: "FloatV",
       contents: det,
+    };
+  },
+  /**
+   * Return the intersection of a line passing through
+   * `a0` and `a1` with a line passing through `b0` and `b1`
+   */
+  lineLineIntersection: (
+    a0: VarAD[],
+    a1: VarAD[],
+    b0: VarAD[],
+    b1: VarAD[]
+  ): IVectorV<VarAD> => {
+    const A0 = [a0[0], a0[1], constOf(1)];
+    const A1 = [a1[0], a1[1], constOf(1)];
+    const B0 = [b0[0], b0[1], constOf(1)];
+    const B1 = [b1[0], b1[1], constOf(1)];
+    const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
+    const x = [div(X[0], X[2]), div(X[1], X[2])];
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
     };
   },
   /**
@@ -1075,7 +1095,7 @@ export const compDict = {
    * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
    */
   barycenter: (a: VarAD[], b: VarAD[], c: VarAD[]): IVectorV<VarAD> => {
-    const x = ops.vmul(constOf(1./3.),ops.vadd(a, ops.vadd(b, c)));
+    const x = ops.vmul(constOf(1 / 3), ops.vadd(a, ops.vadd(b, c)));
     return {
       tag: "VectorV",
       contents: toPt(x),
@@ -1086,117 +1106,118 @@ export const compDict = {
    * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
    */
   circumcenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
+    // edge vectors
+    const u = ops.vsub(r, q);
+    const v = ops.vsub(p, r);
+    const w = ops.vsub(q, p);
 
-     // edge vectors
-     const u = ops.vsub( r, q );
-     const v = ops.vsub( p, r );
-     const w = ops.vsub( q, p );
+    // side lengths
+    const a = ops.vnorm(u);
+    const b = ops.vnorm(v);
+    const c = ops.vnorm(w);
 
-     // side lengths
-     const a = ops.vnorm( u );
-     const b = ops.vnorm( v );
-     const c = ops.vnorm( w );
+    // homogeneous barycentric coordinates for circumcenter
+    const hp = neg(mul(div(a, mul(b, c)), ops.vdot(w, v)));
+    const hq = neg(mul(div(b, mul(c, a)), ops.vdot(u, w)));
+    const hr = neg(mul(div(c, mul(a, b)), ops.vdot(v, u)));
 
-     // homogeneous barycentric coordinates for circumcenter
-     const hp = neg( mul( div(a,mul(b,c)), ops.vdot(w,v) ));
-     const hq = neg( mul( div(b,mul(c,a)), ops.vdot(u,w) ));
-     const hr = neg( mul( div(c,mul(a,b)), ops.vdot(v,u) ));
+    // normalize to get barycentric coordinates for circumcenter
+    const H = add(add(hp, hq), hr);
+    const bp = div(hp, H);
+    const bq = div(hq, H);
+    const br = div(hr, H);
 
-     // normalize to get barycentric coordinates for circumcenter
-     const H = add( add( hp, hq ), hr );
-     const bp = div( hp, H );
-     const bq = div( hq, H );
-     const br = div( hr, H );
+    // circumcenter
+    const x = ops.vadd(
+      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+      ops.vmul(br, r)
+    );
 
-     // circumcenter
-     const x = ops.vadd( ops.vadd( ops.vmul(bp,p),
-                                   ops.vmul(bq,q) ),
-                                   ops.vmul(br,r) );
-
-     return {
-        tag: "VectorV",
-        contents: toPt(x),
-     };
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
   },
 
   /**
    * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
    */
   circumradius: (p: VarAD[], q: VarAD[], r: VarAD[]): IFloatV<VarAD> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
 
-     // side lengths
-     const a = ops.vnorm( ops.vsub( r, q ) );
-     const b = ops.vnorm( ops.vsub( p, r ) );
-     const c = ops.vnorm( ops.vsub( q, p ) );
+    // semiperimeter
+    const s = mul(constOf(0.5), add(add(a, b), c));
 
-     // semiperimeter
-     const s = mul( constOf(.5), add(add( a, b ), c ) );
-
-     // circumradius, computed as
-     // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
-     const R = div(
-        mul(mul(a,b),c),
-        mul(
-           constOf(4.),
-           sqrt(
-              mul(mul(mul( s, sub(add(a,b),s) ), sub(add(a,c),s) ), sub(add(b,c),s) )
-           )
+    // circumradius, computed as
+    // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
+    const R = div(
+      mul(mul(a, b), c),
+      mul(
+        constOf(4),
+        sqrt(
+          mul(
+            mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
+            sub(add(b, c), s)
+          )
         )
-     )
+      )
+    );
 
-     return {
-        tag: "FloatV",
-        contents: R,
-     };
+    return {
+      tag: "FloatV",
+      contents: R,
+    };
   },
 
   /**
    * Return the incenter of the triangle with vertices `p`, `q`, `r`.
    */
   incenter: (p: VarAD[], q: VarAD[], r: VarAD[]): IVectorV<VarAD> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
 
-     // side lengths
-     const a = ops.vnorm( ops.vsub( r, q ) );
-     const b = ops.vnorm( ops.vsub( p, r ) );
-     const c = ops.vnorm( ops.vsub( q, p ) );
+    // barycentric coordinates for incenter
+    const s = add(add(a, b), c);
+    const bp = div(a, s);
+    const bq = div(b, s);
+    const br = div(c, s);
 
-     // barycentric coordinates for incenter
-     const s = add(add( a, b ), c );
-     const bp = div(a,s);
-     const bq = div(b,s);
-     const br = div(c,s);
+    // incenter
+    const x = ops.vadd(
+      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+      ops.vmul(br, r)
+    );
 
-     // incenter
-     const x = ops.vadd( ops.vadd( ops.vmul(bp,p),
-                                   ops.vmul(bq,q) ),
-                                   ops.vmul(br,r) );
-
-     return {
-        tag: "VectorV",
-        contents: toPt(x),
-     };
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
   },
 
   /**
    * Return the inradius of the triangle with vertices `p`, `q`, `r`.
    */
   inradius: (p: VarAD[], q: VarAD[], r: VarAD[]): IFloatV<VarAD> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
 
-     // side lengths
-     const a = ops.vnorm( ops.vsub( r, q ) );
-     const b = ops.vnorm( ops.vsub( p, r ) );
-     const c = ops.vnorm( ops.vsub( q, p ) );
+    // semiperimeter
+    const s = mul(constOf(0.5), add(add(a, b), c));
 
-     // semiperimeter
-     const s = mul( constOf(.5), add(add( a, b ), c ) );
+    // inradius
+    const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
 
-     // inradius
-     const R = sqrt( div( mul(mul( sub(s,a), sub(s,b) ), sub(s,c) ), s ));
-
-     return {
-        tag: "FloatV",
-        contents: R,
-     };
+    return {
+      tag: "FloatV",
+      contents: R,
+    };
   },
 
   // ------ Utility functions
@@ -1241,8 +1262,8 @@ export const compDict = {
    */
   toRadians: (theta: VarAD): IFloatV<VarAD> => {
     return {
-       tag: "FloatV",
-       contents: mul(constOf(3.141592653589793/180.),theta)
+      tag: "FloatV",
+      contents: mul(constOf(3.141592653589793 / 180), theta),
     };
   },
 
@@ -1251,8 +1272,8 @@ export const compDict = {
    */
   toDegrees: (theta: VarAD): IFloatV<VarAD> => {
     return {
-       tag: "FloatV",
-       contents: mul(constOf(180./3.141592653589793),theta)
+      tag: "FloatV",
+      contents: mul(constOf(180 / 3.141592653589793), theta),
     };
   },
 
@@ -1288,6 +1309,13 @@ export const compDict = {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
   },
 
+  /**
+   * Return the angle made by the vector `v` with the positive x-axis.
+   */
+  angleOf: (v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: atan2(v[1], v[0]) };
+  },
+
   // ------ Mathematical constants
 
   /**
@@ -1321,6 +1349,19 @@ export const compDict = {
     }
     const [x, y] = v;
     return { tag: "VectorV", contents: [neg(y), x] };
+  },
+
+  /**
+   * Rotate a 2D vector `v` by theta degrees counterclockwise.
+   */
+  rotateBy: (v: VarAD[], theta: VarAD) => {
+    if (v.length !== 2) {
+      throw Error("expected 2D vector in `rotateBy`");
+    }
+    const [x, y] = v;
+    const X = add(mul(cos(theta), x), mul(sin(theta), y));
+    const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
+    return { tag: "VectorV", contents: [X, Y] };
   },
 };
 
