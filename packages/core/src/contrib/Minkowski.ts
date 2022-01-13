@@ -183,11 +183,8 @@ export const rectangleSignedDistance = (
   // Positive distance (nonzero when the rectangle does not contain the origin)
   const e1 = sqrt(
     add(
-      constOf(10e-15),
-      add(
-        squared(max(sub(xp, xr), constOf(0.0))),
-        squared(max(sub(yp, yr), constOf(0.0)))
-      )
+      squared(max(sub(xp, xr), constOf(0.0))),
+      squared(max(sub(yp, yr), constOf(0.0)))
     )
   );
   // Negative distance (nonzero when the rectangle does contain the origin)
