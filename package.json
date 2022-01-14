@@ -38,7 +38,8 @@
     ],
     "nohoist": [
       "**/@types/jest",
-      "**/babel-loader"
+      "**/babel-loader",
+      "**/webpack"
     ]
   },
   "version": "0.0.0"
