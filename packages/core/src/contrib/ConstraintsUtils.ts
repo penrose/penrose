@@ -89,11 +89,11 @@ export const overlappingRectlikeCircle = (
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
   // Get the Minkowski difference of inner rectangle
-  const innerPadding = sub(padding, box2.width);
+  const innerPadding = sub(padding, s2.r.contents);
   const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerPadding);
   // Return the signed distance
   const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
-  return sub(innerSDF, box2.width);
+  return sub(innerSDF, s2.r.contents);
 };
 
 /**
