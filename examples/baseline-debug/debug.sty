@@ -1,0 +1,89 @@
+-- define the size of the drawing
+canvas {
+   width = 180
+   height = 120
+}
+
+-- define some colors re-used throughout
+Colors {
+   color black = rgba(0,0,0,1)
+   color white = rgba(1,1,1,1)
+   color clearGray = rgba(0,0,0,.2)
+}
+
+Global {
+
+   -- draw a box around the canvas (this box will 
+   -- also be used to constrain shapes to the canvas)
+   shape box = Rectangle {
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: none()
+      strokeColor: Colors.clearGray
+      strokeWidth: 1
+   }
+
+   -- some additional parameters to get consistent styling throughout
+   scalar lineThickness = 1.5
+   scalar fontSize = "18pt"
+   string fontFamily = "Palatino"
+}
+
+forall Point p {
+   -- p.icon = Circle {
+   --    center: (?,?)
+   --    r: 5.
+   --    fillColor: Colors.black
+   --    strokeWidth: 0
+   -- }
+   p.labelText = Text {
+      string: p.label
+      fontFamily: Global.fontFamily
+      fontStyle: "italic"
+      fontSize: Global.fontSize
+      fillColor: Colors.black
+      strokeWidth: 0
+   }
+   p.rect = Rectangle {
+      center: p.labelText.center + (0,p.labelText.height/2.)
+      width: p.labelText.width
+      height: p.labelText.height
+      fillColor: rgba(0,0,1,.2)
+      strokeWidth: 0
+   }
+
+   -- keep both shapes on canvas
+   --ensure contains( Global.box, p.icon )
+   ensure contains( Global.box, p.rect )
+
+   -- make shapes close, but not overlapping
+   --encourage near( p.rect, p.icon )
+   --ensure disjoint( p.rect, p.icon, 1. )
+}
+
+Point `i` {
+   override `i`.labelText.center = (-45,0)
+}
+Point `j` {
+   override `j`.labelText.center = (-15,0)
+}
+Point `k` {
+   override `k`.labelText.center = (15,0)
+}
+Point `l` {
+   override `l`.labelText.center = (45,0)
+}
+
+Point `title` {
+   override `title`.labelText.center = (0,-40)
+}
+
+-- forall Point p; Point q {
+--    ensure disjoint( p.rect, q.icon, 1. )
+--    ensure disjoint( q.rect, p.icon, 1. )
+--    ensure disjoint( p.rect, q.rect, 1. )
+--    ensure disjoint( p.icon, q.icon, 1. )
+-- }
+
+

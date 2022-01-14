@@ -1,0 +1,4 @@
+Point i, j, k, l, title
+
+AutoLabel All
+Label title "alphabetic"
