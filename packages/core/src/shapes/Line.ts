@@ -32,6 +32,7 @@ export const sampleLine = (canvas: Canvas): ILine => ({
   start: sampleVector(canvas),
   end: sampleVector(canvas),
   strokeLineCap: StrV(""),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Line = IShape & { shapeType: "Line" } & ILine;

@@ -1,6 +1,7 @@
 import { constOf } from "engine/Autodiff";
 import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   FloatV,
   PtListV,
@@ -28,6 +29,7 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
       [10, 0],
     ].map((p) => p.map(constOf))
   ),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Polyline = IShape & { shapeType: "Polyline" } & IPolyline;

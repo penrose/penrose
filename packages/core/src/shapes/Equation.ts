@@ -8,6 +8,7 @@ import {
   IFill,
 } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   sampleBlack,
   sampleVector,
@@ -33,6 +34,7 @@ export const sampleEquation = (canvas: Canvas): IEquation => ({
   rotation: sampleZero(),
   string: StrV("defaultLabelText"),
   fontSize: StrV("12pt"),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Equation = IShape & { shapeType: "Equation" } & IEquation;

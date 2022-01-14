@@ -2,6 +2,7 @@ import { VarAD } from "types/ad";
 import { INamed, IStroke, IFill, ICenter, IShape } from "types/shapes";
 import { IFloatV } from "types/value";
 import {
+  BoolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -28,6 +29,7 @@ export const sampleEllipse = (canvas: Canvas): IEllipse => ({
   center: sampleVector(canvas),
   rx: sampleWidth(canvas),
   ry: sampleHeight(canvas),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Ellipse = IShape & { shapeType: "Ellipse" } & IEllipse;

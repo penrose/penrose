@@ -30,6 +30,7 @@ export const samplePath = (_canvas: Canvas): IPath => ({
   startArrowhead: BoolV(false),
   endArrowhead: BoolV(false),
   d: PathDataV([]),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Path = IShape & { shapeType: "Path" } & IPath;

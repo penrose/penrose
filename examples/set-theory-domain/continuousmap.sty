@@ -25,11 +25,11 @@ Set x {
 
     x.text    = Equation {
       string : x.label
+      -- rotation : 0.0
     }
 
     x.labelFn = ensure contains(x.icon, x.text)
     x.icon below x.text
-    ensure onCanvas(x.icon, canvas.width, canvas.height)
 }
 
 -- Selector ordering matters!
@@ -63,12 +63,10 @@ with Set X; Set Y; Set R1; Set R2 {
       -- rotation : 0.0
     }
 
-  f.text = Text {
-    string : f.label
-  }
+    encourage centerLabelAbove(f.icon, f.text, 5.0)
 
-  encourage centerLabelAbove(f.icon, f.text, 5.0)
-  ensure lessThan(100, vdist(f.icon.start, f.icon.end))
+    -- Unused?
+    -- f.centerFn = encourage centerArrow(f.icon, R1.icon, R2.icon)
 }
 
 Set `U` {
@@ -83,7 +81,7 @@ Set `V` {
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
-    `Rn`.iconSize = ?
+    `Rn`.iconSize = canvas.height / 3
 
     override `Rn`.icon = Rectangle {
       -- Works but is slow
@@ -102,7 +100,6 @@ Set `Rn` {
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
 
-    ensure lessThan(20, `Rn`.icon.side)
 }
 
 Set `Rm`
@@ -125,6 +122,4 @@ with Set `Rn` {
 
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.icon)
-
-    ensure lessThan(20, `Rm`.icon.side)
 }

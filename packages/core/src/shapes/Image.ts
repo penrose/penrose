@@ -1,6 +1,7 @@
 import { INamed, ICenter, IRect, IRotate, IShape } from "types/shapes";
 import { IStrV } from "types/value";
 import {
+  BoolV,
   Canvas,
   sampleHeight,
   sampleVector,
@@ -24,6 +25,7 @@ export const sampleImage = (canvas: Canvas): IImage => ({
   height: sampleHeight(canvas),
   rotation: sampleZero(),
   href: StrV("defaultImage"),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Image = IShape & { shapeType: "Image" } & IImage;
