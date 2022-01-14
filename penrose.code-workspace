@@ -30,6 +30,10 @@
       "path": "packages/core"
     },
     {
+      "name": "📦 @penrose/docs-site",
+      "path": "packages/docs-site"
+    },
+    {
       "name": "📦 @penrose/panels",
       "path": "packages/panels"
     },

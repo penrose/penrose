@@ -25,8 +25,7 @@ Set x {
 
     ensure contains(x.icon, x.text)
     ensure contains(x.icon, x.text)
-    ensure minSize(x.icon)
-    ensure maxSize(x.icon, canvas.height / 3.)
+    ensure lessThan(20, x.icon.r)
     -- encourage sameCenter(x.text, x.icon)
     x.icon below x.text
 }

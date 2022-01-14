@@ -23,7 +23,6 @@
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",
     "react-inspector": "^4.0.1",
-    "react-scripts": "^4.0.3",
     "react-split-pane": "^0.1.92",
     "react-styled-flexboxgrid": "^3.2.1",
     "rfdc": "^1.1.4",
@@ -52,6 +51,7 @@
     "prepack": "yarn build"
   },
   "devDependencies": {
+    "react-scripts": "^4.0.3",
     "@types/cytoscape": "^3.14.12",
     "@types/debug": "0.0.31",
     "@types/enzyme": "^3.10.5",

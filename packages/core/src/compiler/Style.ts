@@ -2582,8 +2582,23 @@ const findFieldDefaultFns = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
-  // TODO < Currently we have no default objectives/constraints, so it's not implemented
-  return [];
+  if (fexpr.tag === "FGPI") {
+    const [, props] = fexpr.contents;
+    // default constraint `onCanvas` based on the value of `ensureOnCanvas`
+    const onCanvasProp = props["ensureOnCanvas"];
+    if (
+      onCanvasProp &&
+      onCanvasProp.contents.tag === "BoolV" &&
+      onCanvasProp.contents.contents === true
+    ) {
+      const onCanvasFn: StyleOptFn = [
+        "onCanvas",
+        [mkPath([name, field]), canvasWidthPath, canvasHeightPath],
+      ];
+      return [...acc, { tag: "Right", contents: onCanvasFn }];
+    }
+  }
+  return acc;
 };
 
 const findDefaultFns = (tr: Translation): [Fn[], Fn[]] => {
@@ -3014,6 +3029,8 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     return err(canvasErrs);
   }
 
+  const canvas: Canvas = getCanvas(trans);
+
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
   const transInitShapes = initShapes(trans, shapePathList);
@@ -3031,6 +3048,7 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
   const shapeProperties = findShapesProperties(transInitAll);
   const [objfnsDecl, constrfnsDecl] = findUserAppliedFns(transInitAll);
   const [objfnsDefault, constrfnsDefault] = findDefaultFns(transInitAll);
+
   const [objFns, constrFns] = [
     objfnsDecl.concat(objfnsDefault),
     constrfnsDecl.concat(constrfnsDefault),
@@ -3078,7 +3096,7 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
     oConfig: undefined,
     varyingMap: new Map(), // TODO: Should this be empty?
 
-    canvas: getCanvas(trans),
+    canvas,
   };
 
   return ok(initState);
@@ -3297,6 +3315,9 @@ const checkTranslation = (trans: Translation): StyleErrors => {
 };
 
 //#endregion Checking translation
+
+const canvasWidthPath: Path<A> = mkPath(["canvas", "width"]);
+const canvasHeightPath: Path<A> = mkPath(["canvas", "height"]);
 
 /* Precondition: checkCanvas returns without error */
 export const getCanvas = (tr: Translation): Canvas => {
