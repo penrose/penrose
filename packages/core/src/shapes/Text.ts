@@ -11,10 +11,10 @@ import {
 } from "types/shapes";
 import { IFloatV, IStrV } from "types/value";
 import {
+  BoolV,
   Canvas,
   sampleColor,
   sampleNoPaint,
-  sampleStroke,
   sampleVector,
   sampleZero,
   StrV,
@@ -70,8 +70,9 @@ export const sampleText = (canvas: Canvas): IText => ({
   lineHeight: StrV(""),
   textAnchor: StrV("middle"),
   // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
-  alignmentBaseline: StrV("alphabetic"),
-  dominantBaseline: StrV("alphabetic"),
+  alignmentBaseline: StrV("middle"),
+  dominantBaseline: StrV("middle"),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Text = IShape & { shapeType: "Text" } & IText;

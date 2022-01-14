@@ -11,11 +11,13 @@ import {
   sub,
   ifCond,
   lt,
+  div,
 } from "engine/AutodiffFunctions";
 import { inRange, overlap1D } from "contrib/Utils";
-import { shapeCenter, shapeSize } from "contrib/Queries";
+import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
 import * as _ from "lodash";
 import { shapedefs } from "shapes/Shapes";
+import * as BBox from "engine/BBox";
 import {
   overlappingCircles,
   overlappingPolygons,
@@ -147,6 +149,26 @@ const constrDictSimple = {
 // -------- General constraints
 // Defined for all shapes, generally require shape queries or call multiple specific constraints.
 const constrDictGeneral = {
+  /** Require that `shape` is on the canvas */
+  onCanvas: (
+    [shapeType, props]: any,
+    canvasWidth: VarAD,
+    canvasHeight: VarAD
+  ) => {
+    const box = bboxFromShape([shapeType, props]);
+    const canvasXRange: [VarAD, VarAD] = [
+      mul(canvasWidth, constOf(-0.5)),
+      div(canvasWidth, constOf(2)),
+    ];
+    const canvasYRange: [VarAD, VarAD] = [
+      mul(canvasHeight, constOf(-0.5)),
+      div(canvasHeight, constOf(2)),
+    ];
+    return add(
+      constrDict.contains1D(canvasXRange, BBox.xRange(box)),
+      constrDict.contains1D(canvasYRange, BBox.yRange(box))
+    );
+  },
   /**
    * Require that a shape have a size greater than some constant minimum, based on the type of the shape.
    */

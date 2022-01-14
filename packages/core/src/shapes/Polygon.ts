@@ -1,6 +1,7 @@
 import { constOf } from "engine/Autodiff";
 import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   FloatV,
   PtListV,
@@ -28,6 +29,7 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
       [10, 0],
     ].map((p) => p.map(constOf))
   ),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Polygon = IShape & { shapeType: "Polygon" } & IPolygon;

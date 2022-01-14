@@ -10,6 +10,7 @@ import {
   sampleWidth,
   sampleZero,
   StrV,
+  BoolV,
 } from "./Samplers";
 
 export interface ICircle extends INamed, IStroke, IFill, ICenter {
@@ -26,6 +27,7 @@ export const sampleCircle = (canvas: Canvas): ICircle => ({
   fillColor: sampleColor(),
   center: sampleVector(canvas),
   r: sampleWidth(canvas),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Circle = IShape & { shapeType: "Circle" } & ICircle;

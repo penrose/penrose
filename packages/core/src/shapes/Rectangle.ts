@@ -9,6 +9,7 @@ import {
   IRotate,
 } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -43,6 +44,7 @@ export const sampleRectangle = (canvas: Canvas): IRectangle => ({
   height: sampleHeight(canvas),
   cornerRadius: sampleZero(),
   rotation: sampleZero(),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Rectangle = IShape & { shapeType: "Rectangle" } & IRectangle;

@@ -1,3 +1,5 @@
+import consola, { LogLevel } from "consola";
+import { shapeAutodiffToNumber } from "engine/EngineUtils";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
 import {
@@ -6,38 +8,36 @@ import {
   parseSubstance,
   prettySubstance,
 } from "./compiler/Substance";
-import consola, { LogLevel } from "consola";
 import { evalShapes } from "./engine/Evaluator";
 import { genFns, genOptProblem, initializeMat, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {
-  RenderStatic,
+  PathResolver,
   RenderInteractive,
   RenderShape,
-  PathResolver,
+  RenderStatic,
 } from "./renderer/Renderer";
 import { resampleBest } from "./renderer/Resample";
+import { getListOfStagedStates } from "./renderer/Staging";
+import { Canvas } from "./shapes/Samplers";
+import { showMutations } from "./synthesis/Mutation";
 import { Synthesizer } from "./synthesis/Synthesizer";
 import { Env } from "./types/domain";
-import { PenroseError, RuntimeError } from "./types/errors";
+import { PenroseError } from "./types/errors";
 import { Registry, Trio } from "./types/io";
-import { FieldDict, Translation } from "./types/value";
 import { Fn, LabelCache, State } from "./types/state";
 import { SubProg, SubstanceEnv } from "./types/substance";
+import { FieldDict, Translation } from "./types/value";
 import { collectLabels } from "./utils/CollectLabels";
 import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
 import {
   bBoxDims,
   normList,
-  toSvgPaintProperty,
+  prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
-  prettyPrintExpr,
+  toSvgPaintProperty,
 } from "./utils/Util";
-import { Canvas } from "./shapes/Samplers";
-import { showMutations } from "./synthesis/Mutation";
-import { getListOfStagedStates } from "./renderer/Staging";
-import { shapeAutodiffToNumber } from "engine/EngineUtils";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
@@ -329,6 +329,19 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
+export { constrDict } from "./contrib/Constraints";
+export { compDict } from "./contrib/Functions";
+export { objDict } from "./contrib/Objectives";
+export type { PathResolver } from "./renderer/Renderer";
+export { shapedefs } from "./shapes/Shapes";
+export type {
+  SynthesizedSubstance,
+  SynthesizerSetting,
+} from "./synthesis/Synthesizer";
+export type { PenroseError } from "./types/errors";
+export type { Shape } from "./types/shape";
+export * as Value from "./types/value";
+export type { Result } from "./utils/Error";
 export {
   compileDomain,
   compileSubstance,
@@ -352,23 +365,10 @@ export {
   getListOfStagedStates,
   toSvgPaintProperty,
 };
-export { shapedefs } from "./shapes/Shapes";
 export { makeCanvas } from "./shapes/Samplers";
-export type { PenroseError } from "./types/errors";
-export * as Value from "./types/value";
-export type { Shape } from "./types/shape";
-export { constrDict } from "./contrib/Constraints";
-export { objDict } from "./contrib/Objectives";
-export { compDict } from "./contrib/Functions";
-export type { PathResolver } from "./renderer/Renderer";
 export type { Registry, Trio };
 export type { Env };
-export type {
-  SynthesizerSetting,
-  SynthesizedSubstance,
-} from "./synthesis/Synthesizer";
 export type { SubProg };
-export type { Result } from "./utils/Error";
 export type { Canvas };
 export type { FieldDict };
 export type { Translation };
