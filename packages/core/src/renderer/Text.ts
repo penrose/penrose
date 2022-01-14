@@ -35,6 +35,8 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   const center = shape.properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   if (retrievedLabel && retrievedLabel.tag === "TextData") {
+    // adjust the y-coordinate of the text center s.t. it's the center of the bbox
+    // see https://user-images.githubusercontent.com/11740102/149545843-84406be2-b3dc-4294-b01f-26ef8a2098ee.png for an illustration
     const descent = retrievedLabel.descent.contents;
     const height = retrievedLabel.height.contents;
     const centerY = y + (height / 2 - descent);
