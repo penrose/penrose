@@ -15,7 +15,7 @@ import {
   or,
 } from "engine/AutodiffFunctions";
 import * as _ from "lodash";
-import { VarAD } from "types/ad";
+import { VarAD, Pt2 } from "types/ad";
 import * as BBox from "engine/BBox";
 
 /**
@@ -38,10 +38,10 @@ export const noIntersectCircles = (
 /**
  * Return true iff `p` is in rect `b`.
  */
-export const pointInBox = (p: any, rect: BBox.BBox): VarAD => {
+export const pointInBox = (p: Pt2, rect: BBox.BBox): VarAD => {
   return and(
-    and(lt(BBox.minX(rect), p.x), lt(p.x, BBox.maxX(rect))),
-    and(lt(BBox.minY(rect), p.y), lt(p.y, BBox.maxY(rect)))
+    and(lt(BBox.minX(rect), p[0]), lt(p[0], BBox.maxX(rect))),
+    and(lt(BBox.minY(rect), p[1]), lt(p[1], BBox.maxY(rect)))
   );
 };
 
@@ -50,7 +50,7 @@ export const pointInBox = (p: any, rect: BBox.BBox): VarAD => {
  * If the point is outside the box, try to get the distance from the point to equal the desired distance.
  */
 export const atDistOutside = (
-  pt: any,
+  pt: Pt2,
   rect: BBox.BBox,
   offset: VarAD
 ): VarAD => {
@@ -64,14 +64,14 @@ export const atDistOutside = (
  * compute the positive distance squared from point `p` to box `rect` (not the signed distance).
  * https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
  */
-const dsqBP = (p: any, rect: BBox.BBox): VarAD => {
+const dsqBP = (p: Pt2, rect: BBox.BBox): VarAD => {
   const dx = max(
-    max(sub(BBox.minX(rect), p.x), constOf(0.0)),
-    sub(p.x, BBox.maxX(rect))
+    max(sub(BBox.minX(rect), p[0]), constOf(0.0)),
+    sub(p[0], BBox.maxX(rect))
   );
   const dy = max(
-    max(sub(BBox.minY(rect), p.y), constOf(0.0)),
-    sub(p.y, BBox.maxY(rect))
+    max(sub(BBox.minY(rect), p[1]), constOf(0.0)),
+    sub(p[1], BBox.maxY(rect))
   );
   return add(squared(dx), squared(dy));
 };
