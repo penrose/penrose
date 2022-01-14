@@ -19,13 +19,7 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
-  const center = shape.properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
-  elem.setAttribute("x", x.toString());
-  elem.setAttribute("y", y.toString());
   attrToNotAutoMap.push("x", "y");
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
@@ -37,8 +31,21 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   // Get width/height of the text if available
   const name = shape.properties.name as IStrV;
   const retrievedLabel = retrieveLabel(name.contents, labels);
+  // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
+  const center = shape.properties.center as IVectorV<number>;
+  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   if (retrievedLabel && retrievedLabel.tag === "TextData") {
+    // adjust the y-coordinate of the text center s.t. it's the center of the bbox
+    // see https://user-images.githubusercontent.com/11740102/149545843-84406be2-b3dc-4294-b01f-26ef8a2098ee.png for an illustration
+    const descent = retrievedLabel.descent.contents;
+    const height = retrievedLabel.height.contents;
+    const centerY = y + (height / 2 - descent);
+    elem.setAttribute("x", x.toString());
+    elem.setAttribute("y", centerY.toString());
     attrToNotAutoMap.push(...attrWH(shape, elem));
+  } else {
+    elem.setAttribute("x", x.toString());
+    elem.setAttribute("y", y.toString());
   }
 
   // Directrly Map across any "unknown" SVG properties

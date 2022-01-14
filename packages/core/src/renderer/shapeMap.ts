@@ -1,5 +1,5 @@
 import Circle from "./Circle";
-import Equation from "./Label";
+import Equation from "./Equation";
 import Ellipse from "./Ellipse";
 import Rectangle from "./Rectangle";
 import Polygon from "./Polygon";

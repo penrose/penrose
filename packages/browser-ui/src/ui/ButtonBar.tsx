@@ -21,7 +21,7 @@ interface IProps {
   reconnect(): void;
 }
 class ButtonBar extends React.Component<IProps> {
-  public render() {
+  public render(): JSX.Element {
     const {
       converged,
       initial,

@@ -1,3 +1,4 @@
+import { VarAD } from "types/ad";
 import {
   ICenter,
   IFill,
@@ -8,7 +9,7 @@ import {
   IString,
   IStroke,
 } from "types/shapes";
-import { IStrV } from "types/value";
+import { IFloatV, IStrV } from "types/value";
 import {
   Canvas,
   sampleColor,
@@ -39,7 +40,8 @@ export interface IText
   lineHeight: IStrV;
   alignmentBaseline: IStrV;
   dominantBaseline: IStrV;
-  baselineShift: IStrV;
+  ascent: IFloatV<VarAD>;
+  descent: IFloatV<VarAD>;
 }
 
 export const sampleText = (canvas: Canvas): IText => ({
@@ -53,6 +55,8 @@ export const sampleText = (canvas: Canvas): IText => ({
   center: sampleVector(canvas),
   width: sampleZero(),
   height: sampleZero(),
+  ascent: sampleZero(),
+  descent: sampleZero(),
   rotation: sampleZero(),
   string: StrV("defaultText"),
   visibility: StrV(""),
@@ -67,8 +71,7 @@ export const sampleText = (canvas: Canvas): IText => ({
   textAnchor: StrV("middle"),
   // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
   alignmentBaseline: StrV("alphabetic"),
-  //dominantBaseline: StrV("middle"),
-  baselineShift: StrV("0"),
+  dominantBaseline: StrV("alphabetic"),
 });
 
 export type Text = IShape & { shapeType: "Text" } & IText;

@@ -7,9 +7,9 @@ import {
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
-import { objDict } from "contrib/Objectives";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
+import { objDict } from "contrib/Objectives";
 import { constOf, numOf, varOf } from "engine/Autodiff";
 import {
   addWarn,
@@ -24,8 +24,8 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  propertiesOf,
   propertiesNotOf,
+  propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
@@ -36,7 +36,7 @@ import rfdc from "rfdc";
 import { Canvas } from "shapes/Samplers";
 import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
-import { Identifier } from "types/ast";
+import { A, C, Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
@@ -112,7 +112,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { randFloat, prettyPrintPath, zip2 } from "utils/Util";
+import { prettyPrintPath, randFloat, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -145,7 +145,7 @@ const FN_ERR_TYPE = {
 
 //#region utils
 
-const dummyId = (name: string): Identifier =>
+const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
 // numbers from 0 to r-1 w/ increment of 1
@@ -227,7 +227,7 @@ function justs<T>(xs: MaybeVal<T>[]): T[] {
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
-const toString = (x: BindingForm): string => x.contents.value;
+const toString = (x: BindingForm<A>): string => x.contents.value;
 
 // https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
 const cartesianProduct = <T>(...a: T[][]): T[][] =>
@@ -245,7 +245,7 @@ const getShapeName = (s: string, f: Field): string => {
 
 //#region Some code for prettyprinting
 
-const ppExpr = (e: SelExpr): string => {
+const ppExpr = (e: SelExpr<A>): string => {
   switch (e.tag) {
     case "SEBind": {
       return e.contents.contents.value;
@@ -259,7 +259,7 @@ const ppExpr = (e: SelExpr): string => {
   }
 };
 
-const ppRelArg = (r: PredArg): string => {
+const ppRelArg = (r: PredArg<A>): string => {
   if (r.tag === "RelPred") {
     return ppRelPred(r);
   } else {
@@ -267,17 +267,17 @@ const ppRelArg = (r: PredArg): string => {
   }
 };
 
-const ppRelBind = (r: RelBind): string => {
+const ppRelBind = (r: RelBind<A>): string => {
   const expr = ppExpr(r.expr);
   return `${r.id.contents.value} := ${expr}`;
 };
 
-const ppRelPred = (r: RelPred): string => {
+const ppRelPred = (r: RelPred<A>): string => {
   const args = r.args.map(ppRelArg).join(", ");
   const name = r.name.value;
   return `${name}(${args})`;
 };
-const ppRelField = (r: RelField): string => {
+const ppRelField = (r: RelField<A>): string => {
   const name = r.name.contents.value;
   const field = r.field.value;
   const fieldDesc = r.fieldDescriptor;
@@ -294,7 +294,7 @@ const ppRelField = (r: RelField): string => {
   }
 };
 
-export const ppRel = (r: RelationPattern): string => {
+export const ppRel = (r: RelationPattern<A>): string => {
   switch (r.tag) {
     case "RelBind": {
       return ppRelBind(r);
@@ -328,8 +328,8 @@ const initSelEnv = (): SelEnv => {
 // g, (x : |T)
 // NOTE: Mutates the map in `m`
 const addMapping = (
-  k: BindingForm,
-  v: StyT,
+  k: BindingForm<A>,
+  v: StyT<A>,
   m: SelEnv,
   p: ProgType
 ): SelEnv => {
@@ -352,7 +352,7 @@ const addErrSel = (selEnv: SelEnv, err: StyleError): SelEnv => {
 const checkDeclPatternAndMakeEnv = (
   varEnv: Env,
   selEnv: SelEnv,
-  stmt: DeclPattern
+  stmt: DeclPattern<A>
 ): SelEnv => {
   const [styType, bVar] = [stmt.type, stmt.id];
 
@@ -415,7 +415,7 @@ const checkDeclPatternAndMakeEnv = (
 const checkDeclPatternsAndMakeEnv = (
   varEnv: Env,
   selEnv: SelEnv,
-  decls: DeclPattern[]
+  decls: DeclPattern<A>[]
 ): SelEnv => {
   return decls.reduce(
     (s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p),
@@ -425,7 +425,7 @@ const checkDeclPatternsAndMakeEnv = (
 
 // TODO: Test this function
 // Judgment 4. G |- |S_r ok
-const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
+const checkRelPattern = (varEnv: Env, rel: RelationPattern<A>): StyleErrors => {
   // rule Bind-Context
   switch (rel.tag) {
     case "RelBind": {
@@ -500,18 +500,20 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern): StyleErrors => {
 // Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
   varEnv: Env,
-  rels: RelationPattern[]
+  rels: RelationPattern<A>[]
 ): StyleErrors => {
   return _.flatMap(
     rels,
-    (rel: RelationPattern): StyleErrors => checkRelPattern(varEnv, rel)
+    (rel: RelationPattern<A>): StyleErrors => checkRelPattern(varEnv, rel)
   );
 };
 
-const toSubstanceType = (styT: StyT): TypeConsApp => {
+const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
   // TODO: Extend for non-nullary types (when they are implemented in Style)
   return {
     tag: "TypeConstructor",
+    nodeType: "Substance",
+    children: [styT],
     name: styT,
     args: [],
   };
@@ -520,9 +522,9 @@ const toSubstanceType = (styT: StyT): TypeConsApp => {
 // TODO: Test this
 // NOTE: `Map` is immutable; we return the same `Env` reference with a new `vars` set (rather than mutating the existing `vars` Map)
 const mergeMapping = (
-  varProgTypeMap: { [k: string]: [ProgType, BindingForm] },
+  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] },
   varEnv: Env,
-  [varName, styType]: [string, StyT]
+  [varName, styType]: [string, StyT<A>]
 ): Env => {
   const res = varProgTypeMap[varName];
   if (!res) {
@@ -558,11 +560,11 @@ const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
 };
 
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
-const checkHeader = (varEnv: Env, header: Header): SelEnv => {
+const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
   switch (header.tag) {
     case "Selector": {
       // Judgment 7. G |- Sel ok ~> g
-      const sel: Selector = header;
+      const sel: Selector<A> = header;
       const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
         varEnv,
         initSelEnv(),
@@ -598,7 +600,7 @@ const checkHeader = (varEnv: Env, header: Header): SelEnv => {
 // previously named `checkSels`
 export const checkSelsAndMakeEnv = (
   varEnv: Env,
-  prog: HeaderBlock[]
+  prog: HeaderBlock<A>[]
 ): SelEnv[] => {
   // Note that even if there is an error in one selector, it does not stop checking of the other selectors
   const selEnvs: SelEnv[] = prog.map((e) => {
@@ -648,9 +650,9 @@ const couldMatchRels = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  rels: RelationPattern[],
+  rels: RelationPattern<A>[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  stmt: SubStmt
+  stmt: SubStmt<A>
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
   // see also https://github.com/penrose/penrose/issues/566
@@ -667,8 +669,8 @@ const couldMatchRels = (
 const substituteBform = (
   lv: MaybeVal<LocalVarSubst>,
   subst: Subst,
-  bform: BindingForm
-): BindingForm => {
+  bform: BindingForm<A>
+): BindingForm<A> => {
   // theta(B) = ...
   switch (bform.tag) {
     case "SubVar": {
@@ -698,7 +700,7 @@ const substituteBform = (
   }
 };
 
-const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
+const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
   // theta(B) = ...
   switch (expr.tag) {
     case "SEBind": {
@@ -721,7 +723,7 @@ const substituteExpr = (subst: Subst, expr: SelExpr): SelExpr => {
   }
 };
 
-const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
+const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
   switch (predArg.tag) {
     case "RelPred": {
       return {
@@ -741,8 +743,8 @@ const substitutePredArg = (subst: Subst, predArg: PredArg): PredArg => {
 // theta(|S_r) = ...
 export const substituteRel = (
   subst: Subst,
-  rel: RelationPattern
-): RelationPattern => {
+  rel: RelationPattern<A>
+): RelationPattern<A> => {
   switch (rel.tag) {
     case "RelBind": {
       // theta(B := E) |-> theta(B) := theta(E)
@@ -772,8 +774,8 @@ export const substituteRel = (
 // TODO: assumes a full substitution
 const substituteRels = (
   subst: Subst,
-  rels: RelationPattern[]
-): RelationPattern[] => {
+  rels: RelationPattern<A>[]
+): RelationPattern<A>[] => {
   const res = rels.map((rel) => substituteRel(subst, rel));
   return res;
 };
@@ -796,7 +798,11 @@ const mkLocalVarName = (lv: LocalVarSubst): string => {
   }
 };
 
-const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
+const substitutePath = (
+  lv: LocalVarSubst,
+  subst: Subst,
+  path: Path<A>
+): Path<A> => {
   switch (path.tag) {
     case "FieldPath": {
       return {
@@ -860,8 +866,8 @@ const substitutePath = (lv: LocalVarSubst, subst: Subst, path: Path): Path => {
 const substituteField = (
   lv: LocalVarSubst,
   subst: Subst,
-  field: PropertyDecl
-): PropertyDecl => {
+  field: PropertyDecl<A>
+): PropertyDecl<A> => {
   return {
     ...field,
     value: substituteBlockExpr(lv, subst, field.value),
@@ -871,8 +877,8 @@ const substituteField = (
 const substituteBlockExpr = (
   lv: LocalVarSubst,
   subst: Subst,
-  expr: Expr
-): Expr => {
+  expr: Expr<A>
+): Expr<A> => {
   if (isPath(expr)) {
     return substitutePath(lv, subst, expr);
   } else {
@@ -904,7 +910,7 @@ const substituteBlockExpr = (
 
         return {
           ...expr,
-          args: expr.args.map((arg: Expr) =>
+          args: expr.args.map((arg: Expr<A>) =>
             substituteBlockExpr(lv, subst, arg)
           ),
         };
@@ -927,7 +933,7 @@ const substituteBlockExpr = (
       case "Matrix": {
         return {
           ...expr,
-          contents: expr.contents.map((e: Expr) =>
+          contents: expr.contents.map((e: Expr<A>) =>
             substituteBlockExpr(lv, subst, e)
           ),
         };
@@ -944,7 +950,7 @@ const substituteBlockExpr = (
       case "GPIDecl": {
         return {
           ...expr,
-          properties: expr.properties.map((p: PropertyDecl) =>
+          properties: expr.properties.map((p: PropertyDecl<A>) =>
             substituteField(lv, subst, p)
           ),
         };
@@ -1006,7 +1012,11 @@ const substituteBlockExpr = (
   }
 };
 
-const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
+const substituteLine = (
+  lv: LocalVarSubst,
+  subst: Subst,
+  line: Stmt<A>
+): Stmt<A> => {
   switch (line.tag) {
     case "PathAssign": {
       return {
@@ -1039,9 +1049,9 @@ const substituteLine = (lv: LocalVarSubst, subst: Subst, line: Stmt): Stmt => {
 // Assumes a full substitution
 const substituteBlock = (
   [subst, si]: [Subst, number],
-  [block, bi]: [Block, number],
+  [block, bi]: [Block<A>, number],
   name: MaybeVal<string>
-): Block => {
+): Block<A> => {
   const lvSubst: LocalVarSubst =
     name.tag === "Nothing"
       ? { tag: "LocalVarId", contents: [bi, si] }
@@ -1059,7 +1069,7 @@ const substituteBlock = (
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 // Note: the env is needed to disambiguate SEFuncOrValCons
-const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
+const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
     case "SEBind": {
       return e.contents.contents;
@@ -1081,7 +1091,7 @@ const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
       };
     }
     case "SEFuncOrValCons": {
-      const res = {
+      const res: SubExpr<T> = {
         ...e,
         tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
         name: e.name,
@@ -1089,12 +1099,12 @@ const toSubExpr = (env: Env, e: SelExpr): SubExpr => {
       };
 
       disambiguateSubNode(env, res); // mutates res
-      return res as SubExpr;
+      return res;
     }
   }
 };
 
-const toSubPredArg = (a: PredArg): SubPredArg => {
+const toSubPredArg = <T>(a: PredArg<T>): SubPredArg<T> => {
   switch (a.tag) {
     case "SEBind": {
       return a.contents.contents;
@@ -1106,7 +1116,7 @@ const toSubPredArg = (a: PredArg): SubPredArg => {
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
-const toSubPred = (p: RelPred): ApplyPredicate => {
+const toSubPred = <T>(p: RelPred<T>): ApplyPredicate<T> => {
   return {
     ...p,
     tag: "ApplyPredicate",
@@ -1115,24 +1125,24 @@ const toSubPred = (p: RelPred): ApplyPredicate => {
   };
 };
 
-const varsEq = (v1: Identifier, v2: Identifier): boolean => {
+const varsEq = (v1: Identifier<A>, v2: Identifier<A>): boolean => {
   return v1.value === v2.value;
 };
 
-const subVarsEq = (v1: Identifier, v2: Identifier): boolean => {
+const subVarsEq = (v1: Identifier<A>, v2: Identifier<A>): boolean => {
   return v1.value === v2.value;
 };
 
-const argsEq = (a1: SubPredArg, a2: SubPredArg): boolean => {
+const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>): boolean => {
   if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
     return subFnsEq(a1, a2);
   } else if (a1.tag === a2.tag) {
     // both are SubExpr, which are not explicitly tagged
-    return subExprsEq(a1 as SubExpr, a2 as SubExpr);
+    return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>);
   } else return false; // they are different types
 };
 
-const subFnsEq = (p1: SubPredArg, p2: SubPredArg): boolean => {
+const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>): boolean => {
   if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
     throw Error("expected substance type with name and args properties");
   }
@@ -1145,7 +1155,7 @@ const subFnsEq = (p1: SubPredArg, p2: SubPredArg): boolean => {
   return p1.name.value === p2.name.value && allArgsEq;
 };
 
-const subExprsEq = (e1: SubExpr, e2: SubExpr): boolean => {
+const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>): boolean => {
   // ts doesn't seem to work well with the more generic way of checking this
   if (e1.tag === "Identifier" && e2.tag === "Identifier") {
     return e1.value === e2.value;
@@ -1167,7 +1177,7 @@ const subExprsEq = (e1: SubExpr, e2: SubExpr): boolean => {
   return false;
 };
 
-const exprToVar = (e: SubExpr): Identifier => {
+const exprToVar = <T>(e: SubExpr<T>): Identifier<T> => {
   if (e.tag === "Identifier") {
     return e;
   } else {
@@ -1178,7 +1188,7 @@ const exprToVar = (e: SubExpr): Identifier => {
   }
 };
 
-const toTypeList = (c: ConstructorDecl): TypeConstructor[] => {
+const toTypeList = <T>(c: ConstructorDecl<T>): TypeConstructor<T>[] => {
   return c.args.map((p) => {
     if (p.type.tag === "TypeConstructor") {
       return p.type;
@@ -1195,8 +1205,8 @@ const toTypeList = (c: ConstructorDecl): TypeConstructor[] => {
 // The arrow types are contravariant in their arguments and covariant in their return type
 // e.g. if Cat <: Animal, then Cat -> Cat <: Cat -> Animal, and Animal -> Cat <: Cat -> Cat
 const isSubtypeArrow = (
-  types1: TypeConstructor[],
-  types2: TypeConstructor[],
+  types1: TypeConstructor<A>[],
+  types2: TypeConstructor<A>[],
   e: Env
 ): boolean => {
   if (types1.length !== types2.length) {
@@ -1226,8 +1236,8 @@ const isSubtypeArrow = (
  */
 const exprsMatchArr = (
   varEnv: Env,
-  subE: ApplyConstructor,
-  styE: ApplyConstructor
+  subE: ApplyConstructor<A>,
+  styE: ApplyConstructor<A>
 ): boolean => {
   const subArrType = varEnv.constructors.get(subE.name.value);
   if (!subArrType) {
@@ -1260,7 +1270,11 @@ const exprsMatchArr = (
 
 // New judgment (number?): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
 // We assume the latter expression has already had a substitution applied
-const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
+const exprsMatch = (
+  typeEnv: Env,
+  subE: SubExpr<A>,
+  selE: SubExpr<A>
+): boolean => {
   // We match value constructor applications if one val ctor is a subtype of another
   // whereas for function applications, we match only if the exprs are equal (for now)
   // This is because a val ctor doesn't "do" anything besides wrap its values
@@ -1290,8 +1304,8 @@ const exprsMatch = (typeEnv: Env, subE: SubExpr, selE: SubExpr): boolean => {
 const relMatchesLine = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
-  s1: SubStmt,
-  s2: RelationPattern
+  s1: SubStmt<A>,
+  s2: RelationPattern<A>
 ): boolean => {
   if (s1.tag === "Bind" && s2.tag === "RelBind") {
     // rule Bind-Match
@@ -1333,8 +1347,8 @@ const relMatchesLine = (
 const relMatchesProg = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg,
-  rel: RelationPattern
+  subProg: SubProg<A>,
+  rel: RelationPattern<A>
 ): boolean => {
   if (rel.tag === "RelField") {
     // the current pattern matches on a Style field
@@ -1362,8 +1376,8 @@ const relMatchesProg = (
 const allRelsMatch = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg,
-  rels: RelationPattern[]
+  subProg: SubProg<A>,
+  rels: RelationPattern<A>[]
 ): boolean => {
   return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
 };
@@ -1373,11 +1387,11 @@ const allRelsMatch = (
 const filterRels = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg,
-  rels: RelationPattern[],
+  subProg: SubProg<A>,
+  rels: RelationPattern<A>[],
   substs: Subst[]
 ): Subst[] => {
-  const subProgFiltered: SubProg = {
+  const subProgFiltered: SubProg<A> = {
     ...subProg,
     statements: subProg.statements.filter((line) =>
       couldMatchRels(typeEnv, rels, line)
@@ -1415,8 +1429,8 @@ const merge = (s1: Subst[], s2: Subst[]): Subst[] => {
 // Ported from `matchType`
 const typesMatched = (
   varEnv: Env,
-  substanceType: TypeConsApp,
-  styleType: StyT
+  substanceType: TypeConsApp<A>,
+  styleType: StyT<A>
 ): boolean => {
   if (
     substanceType.tag === "TypeConstructor" &&
@@ -1434,7 +1448,10 @@ const typesMatched = (
 };
 
 // Judgment 10. theta |- x <| B
-const matchBvar = (subVar: Identifier, bf: BindingForm): MaybeVal<Subst> => {
+const matchBvar = (
+  subVar: Identifier<A>,
+  bf: BindingForm<A>
+): MaybeVal<Subst> => {
   switch (bf.tag) {
     case "StyVar": {
       const newSubst = {};
@@ -1462,8 +1479,8 @@ const matchBvar = (subVar: Identifier, bf: BindingForm): MaybeVal<Subst> => {
 // TODO: Not sure why Maybe<Subst> doesn't work in the type signature?
 const matchDeclLine = (
   varEnv: Env,
-  line: SubStmt,
-  decl: DeclPattern
+  line: SubStmt<A>,
+  decl: DeclPattern<A>
 ): MaybeVal<Subst> => {
   if (line.tag === "Decl") {
     const [subT, subVar] = [line.type, line.name];
@@ -1482,9 +1499,9 @@ const matchDeclLine = (
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 const matchDecl = (
   varEnv: Env,
-  subProg: SubProg,
+  subProg: SubProg<A>,
   initSubsts: Subst[],
-  decl: DeclPattern
+  decl: DeclPattern<A>
 ): Subst[] => {
   // Judgment 14. G; [theta] |- [S] <| |S_o
   const newSubsts = subProg.statements.map((line) =>
@@ -1501,8 +1518,8 @@ const matchDecl = (
 // Folds over [|S_o]
 const matchDecls = (
   varEnv: Env,
-  subProg: SubProg,
-  decls: DeclPattern[],
+  subProg: SubProg<A>,
+  decls: DeclPattern<A>[],
   initSubsts: Subst[]
 ): Subst[] => {
   return decls.reduce(
@@ -1517,8 +1534,8 @@ const matchDecls = (
 const findSubstsSel = (
   varEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg,
-  [header, selEnv]: [Header, SelEnv]
+  subProg: SubProg<A>,
+  [header, selEnv]: [Header<A>, SelEnv]
 ): Subst[] => {
   switch (header.tag) {
     case "Selector": {
@@ -1557,13 +1574,18 @@ const findSubstsSel = (
 // Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
 // Leave all other statements unchanged
 
-const nameAnonStatement = (i: number, s: Stmt): [number, Stmt] => {
+const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
   // Transform stmt into local variable assignment "ANON_$counter = e" and increment counter
   if (s.tag === "AnonAssign") {
-    const stmt: Stmt = {
+    const stmt: Stmt<A> = {
       ...s,
       tag: "PathAssign",
-      type: { tag: "TypeOf", contents: "Nothing" }, // TODO: Why is it parsed like this?
+      type: {
+        tag: "TypeOf",
+        nodeType: "SyntheticStyle",
+        children: [],
+        contents: "Nothing",
+      }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar",
         contents: `\$${ANON_KEYWORD}_${i}`,
@@ -1578,8 +1600,8 @@ const nameAnonStatement = (i: number, s: Stmt): [number, Stmt] => {
   }
 };
 
-const nameAnonBlock = (b: Block): Block => {
-  const statements: Stmt[] = [];
+const nameAnonBlock = (b: Block<A>): Block<A> => {
+  const statements: Stmt<A>[] = [];
   b.statements.reduce((i1, s1) => {
     const [i2, s2] = nameAnonStatement(i1, s1);
     statements.push(s2);
@@ -1588,7 +1610,7 @@ const nameAnonBlock = (b: Block): Block => {
   return { ...b, statements };
 };
 
-export const nameAnonStatements = (prog: StyProg): StyProg => {
+export const nameAnonStatements = (prog: StyProg<A>): StyProg<A> => {
   const p = prog.blocks;
   return {
     ...prog,
@@ -1621,10 +1643,10 @@ const initTrans = (): Translation => {
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteProperty = (
   trans: Translation,
-  path: Path, // used for ASTNode info
-  name: BindingForm,
-  field: Identifier,
-  property: Identifier
+  path: Path<A>, // used for ASTNode info
+  name: BindingForm<A>,
+  field: Identifier<A>,
+  property: Identifier<A>
 ): Translation => {
   const trn = trans.trMap;
 
@@ -1670,7 +1692,7 @@ const deleteProperty = (
             // TODO(error)
             return addWarn(trans, {
               tag: "CircularPathAlias",
-              path: { tag: "FieldPath", name, field } as Path,
+              path: { tag: "FieldPath", name, field } as Path<A>,
             });
           }
           return deleteProperty(trans, p, p.name, p.field, property);
@@ -1698,9 +1720,9 @@ const deleteProperty = (
 // Note this mutates the translation, and we return the translation reference just as a courtesy
 const deleteField = (
   trans: Translation,
-  path: Path,
-  name: BindingForm,
-  field: Identifier
+  path: Path<A>,
+  name: BindingForm<A>,
+  field: Identifier<A>
 ): Translation => {
   // TODO(errors): Pass in the original path for error reporting
   const trn = trans.trMap;
@@ -1734,7 +1756,7 @@ const deleteField = (
 // rule Line-delete
 const deletePath = (
   trans: Translation,
-  path: Path
+  path: Path<A>
 ): Either<StyleErrors, Translation> => {
   switch (path.tag) {
     case "FieldPath": {
@@ -1771,7 +1793,7 @@ const deletePath = (
 const addPath = (
   override: boolean,
   trans: Translation,
-  path: Path,
+  path: Path<A>,
   expr: TagExpr<VarAD>
 ): Either<StyleErrors, Translation> => {
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
@@ -1788,7 +1810,7 @@ const addPath = (
 
 const translateLine = (
   trans: Translation,
-  stmt: Stmt
+  stmt: Stmt<A>
 ): Either<StyleErrors, Translation> => {
   switch (stmt.tag) {
     case "PathAssign": {
@@ -1815,11 +1837,15 @@ const translateLine = (
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
 const translateBlock = (
   name: MaybeVal<string>,
-  blockWithNum: [Block, number],
+  blockWithNum: [Block<A>, number],
   trans: Translation,
   substWithNum: [Subst, number]
 ): Either<StyleErrors, Translation> => {
-  const blockSubsted: Block = substituteBlock(substWithNum, blockWithNum, name);
+  const blockSubsted: Block<A> = substituteBlock(
+    substWithNum,
+    blockWithNum,
+    name
+  );
   return foldM(blockSubsted.statements, translateLine, trans);
 };
 
@@ -1828,7 +1854,7 @@ const translateBlock = (
 const translateSubstsBlock = (
   trans: Translation,
   substsNum: [Subst, number][],
-  blockWithNum: [Block, number]
+  blockWithNum: [Block<A>, number]
 ): Either<StyleErrors, Translation> => {
   return foldM(
     substsNum,
@@ -1862,7 +1888,7 @@ const flatErrs = (es: StyleResults[]): StyleResults => {
 };
 
 // Check that every shape name and shape property name in a shape constructor exists
-const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
+const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl<A>): StyleResults => {
   const styName: string = expr.shapeName.value;
 
   const errors: StyleErrors = [];
@@ -1879,11 +1905,11 @@ const checkGPIInfo = (selEnv: SelEnv, expr: GPIDecl): StyleResults => {
 // Check that every function, objective, and constraint exists (below) -- parametrically over the kind of function
 const checkFunctionName = (
   selEnv: SelEnv,
-  expr: ICompApp | IObjFn | IConstrFn
+  expr: ICompApp<A> | IObjFn<A> | IConstrFn<A>
 ): StyleResults => {
   const fnDict = FN_DICT[expr.tag];
   const fnNames: string[] = _.keys(fnDict); // Names of built-in functions of that kind
-  const givenFnName: Identifier = expr.name;
+  const givenFnName: Identifier<A> = expr.name;
 
   if (
     !fnNames.includes(givenFnName.value) &&
@@ -1897,9 +1923,9 @@ const checkFunctionName = (
 };
 
 // Written recursively on exprs, just accumulating possible expr errors
-const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
+const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleResults => {
   // Closure for brevity
-  const check = (e: Expr): StyleResults => checkBlockExpr(selEnv, e);
+  const check = (e: Expr<A>): StyleResults => checkBlockExpr(selEnv, e);
 
   if (isPath(expr)) {
     return checkBlockPath(selEnv, expr);
@@ -1962,7 +1988,7 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr): StyleResults => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
+const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
   return emptyErrs();
@@ -1970,7 +1996,7 @@ const checkBlockPath = (selEnv: SelEnv, path: Path): StyleResults => {
 
 const checkLine = (
   selEnv: SelEnv,
-  line: Stmt,
+  line: Stmt<A>,
   acc: StyleResults
 ): StyleResults => {
   switch (line.tag) {
@@ -1996,7 +2022,7 @@ const checkLine = (
   }
 };
 
-const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
+const checkBlock = (selEnv: SelEnv, block: Block<A>): StyleErrors => {
   // Block checking; static semantics
   // The below properties are checked in one pass (a fold) over the Style AST:
 
@@ -2005,7 +2031,7 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
   // NOT CHECKED as this requires more advanced env-building work: At path construction time, check that every Substance object exists in the environment of the block + selector, or that it's defined as a local variable
 
   const res: StyleResults = block.statements.reduce(
-    (acc: StyleResults, stmt: Stmt): StyleResults =>
+    (acc: StyleResults, stmt: Stmt<A>): StyleResults =>
       checkLine(selEnv, stmt, acc),
     emptyErrs()
   );
@@ -2025,9 +2051,9 @@ const checkBlock = (selEnv: SelEnv, block: Block): StyleErrors => {
 const translatePair = (
   varEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg,
+  subProg: SubProg<A>,
   trans: Translation,
-  hb: HeaderBlock,
+  hb: HeaderBlock<A>,
   blockNum: number
 ): Either<StyleErrors, Translation> => {
   switch (hb.header.tag) {
@@ -2154,8 +2180,8 @@ const insertLabels = (trans: Translation, labels: LabelMap): void => {
 const translateStyProg = (
   varEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg,
-  styProg: StyProg,
+  subProg: SubProg<A>,
+  styProg: StyProg<A>,
   labelMap: LabelMap,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
@@ -2240,7 +2266,7 @@ const declaredVarying = (t: TagExpr<VarAD>): boolean => {
   return false;
 };
 
-const mkPath = (strs: string[]): Path => {
+const mkPath = (strs: string[]): Path<A> => {
   if (strs.length === 2) {
     const [name, field] = strs;
     return {
@@ -2279,13 +2305,11 @@ const mkPath = (strs: string[]): Path => {
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
   if (s === "Equation") return ["width", "height"];
-  if (s === "EquationTransform") return ["width", "height"];
-  if (s === "Text") return ["width", "height"];
-  if (s === "ImageTransform") return ["initWidth", "initHeight"];
+  if (s === "Text") return ["width", "height", "ascent", "descent"];
   return [];
 };
 
-const isVarying = (e: Expr): boolean => {
+const isVarying = (e: Expr<A>): boolean => {
   return e.tag === "Vary" || e.tag === "VaryInit";
 };
 
@@ -2300,8 +2324,8 @@ const findPropertyVarying = (
   field: Field,
   properties: { [k: string]: TagExpr<VarAD> },
   floatProperty: string,
-  acc: Path[]
-): Path[] => {
+  acc: Path<A>[]
+): Path<A>[] => {
   const expr = properties[floatProperty];
   const path = mkPath([name, field, floatProperty]);
 
@@ -2318,8 +2342,8 @@ const findPropertyVarying = (
           children: [],
           tag: "Vector",
           contents: [
-            dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr,
-            dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr,
+            dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr<A>,
+            dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr<A>,
           ],
         },
       };
@@ -2340,16 +2364,16 @@ const findPropertyVarying = (
 };
 
 // Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
-const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
+const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
   if (e.tag === "OptEval") {
     const res = e.contents;
     if (res.tag === "Vector") {
-      const elems: Expr[] = res.contents;
-      const indices: Path[] = elems
-        .map((e: Expr, i): [Expr, number] => [e, i])
-        .filter((e: [Expr, number]): boolean => isVarying(e[0]))
+      const elems: Expr<A>[] = res.contents;
+      const indices: Path<A>[] = elems
+        .map((e: Expr<A>, i): [Expr<A>, number] => [e, i])
+        .filter((e: [Expr<A>, number]): boolean => isVarying(e[0]))
         .map(
-          ([, i]: [Expr, number]): IAccessPath =>
+          ([, i]: [Expr<A>, number]): IAccessPath<A> =>
             ({
               nodeType: "SyntheticStyle",
               children: [],
@@ -2358,7 +2382,7 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path): Path[] => {
               indices: [
                 dummyASTNode({ tag: "Fix", contents: i }, "SyntheticStyle"),
               ],
-            } as IAccessPath)
+            } as IAccessPath<A>)
         );
 
       return indices;
@@ -2380,8 +2404,8 @@ const findFieldVarying = (
   name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
-  acc: Path[]
-): Path[] => {
+  acc: Path<A>[]
+): Path<A>[] => {
   switch (fexpr.tag) {
     case "FExpr": {
       if (declaredVarying(fexpr.contents)) {
@@ -2398,8 +2422,8 @@ const findFieldVarying = (
       );
       const varyingFloats = ctorFloats.filter((e) => !isPending(typ, e));
       // This splits up vector-typed properties into one path for each element
-      const vs: Path[] = varyingFloats.reduce(
-        (acc: Path[], curr) =>
+      const vs: Path<A>[] = varyingFloats.reduce(
+        (acc: Path<A>[], curr) =>
           findPropertyVarying(name, field, properties, curr, acc),
         []
       );
@@ -2409,7 +2433,7 @@ const findFieldVarying = (
 };
 
 // Find all varying paths
-const findVarying = (tr: Translation): Path[] => {
+const findVarying = (tr: Translation): Path<A>[] => {
   return foldSubObjs(findFieldVarying, tr);
 };
 
@@ -2419,8 +2443,8 @@ const findPropertyUninitialized = (
   field: Field,
   properties: GPIMap,
   nonfloatProperty: string,
-  acc: Path[]
-): Path[] => {
+  acc: Path<A>[]
+): Path<A>[] => {
   // nonfloatProperty is a non-float property that is NOT set by the user and thus we can sample it
   const res = properties[nonfloatProperty];
   if (!res) {
@@ -2434,8 +2458,8 @@ const findFieldUninitialized = (
   name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
-  acc: Path[]
-): Path[] => {
+  acc: Path<A>[]
+): Path<A>[] => {
   // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
   switch (fexpr.tag) {
     case "FExpr": {
@@ -2448,7 +2472,7 @@ const findFieldUninitialized = (
       );
       const uninitializedProps = ctorNonfloats;
       const vs = uninitializedProps.reduce(
-        (acc: Path[], curr) =>
+        (acc: Path<A>[], curr) =>
           findPropertyUninitialized(name, field, properties, curr, acc),
         []
       );
@@ -2458,7 +2482,7 @@ const findFieldUninitialized = (
 };
 
 // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
-const findUninitialized = (tr: Translation): Path[] => {
+const findUninitialized = (tr: Translation): Path<A>[] => {
   return foldSubObjs(findFieldUninitialized, tr);
 };
 
@@ -2628,7 +2652,10 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
 
 // ported from `lookupPaths`
 // lookup paths with the expectation that each one is a float
-export const lookupNumericPaths = (ps: Path[], tr: Translation): number[] => {
+export const lookupNumericPaths = (
+  ps: Path<A>[],
+  tr: Translation
+): number[] => {
   return ps.map((path) => findExprSafe(tr, path)).map(getNum);
 };
 
@@ -2636,8 +2663,8 @@ const findFieldPending = (
   name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
-  acc: Path[]
-): Path[] => {
+  acc: Path<A>[]
+): Path<A>[] => {
   switch (fexpr.tag) {
     case "FExpr": {
       return acc;
@@ -2658,13 +2685,13 @@ const findFieldPending = (
 
 // Find pending paths
 // Find the paths to all pending, non-float, non-name properties
-const findPending = (tr: Translation): Path[] => {
+const findPending = (tr: Translation): Path<A>[] => {
   return foldSubObjs(findFieldPending, tr);
 };
 
 // ---- INITIALIZATION
 
-const isFieldOrAccessPath = (p: Path): boolean => {
+const isFieldOrAccessPath = (p: Path<A>): boolean => {
   if (p.tag === "FieldPath") {
     return true;
   } else if (p.tag === "AccessPath") {
@@ -2683,14 +2710,14 @@ const isFieldOrAccessPath = (p: Path): boolean => {
 // varying init paths are separated out and initialized with the value specified by the style writer
 // NOTE: Mutates translation
 const initFieldsAndAccessPaths = (
-  varyingPaths: Path[],
+  varyingPaths: Path<A>[],
   tr: Translation
 ): Translation => {
   const varyingFieldsAndAccessPaths = varyingPaths.filter(isFieldOrAccessPath);
   const canvas = getCanvas(tr);
 
   const initVals = varyingFieldsAndAccessPaths.map(
-    (p: Path): TagExpr<VarAD> => {
+    (p: Path<A>): TagExpr<VarAD> => {
       // by default, sample randomly in canvas X range
       let initVal = randFloat(...canvas.xRange);
 
@@ -2750,7 +2777,7 @@ const initProperty = (
           },
         };
       } else if (styleSetting.contents.tag === "Vector") {
-        const v: Expr[] = styleSetting.contents.contents;
+        const v: Expr<A>[] = styleSetting.contents.contents;
         if (v.length === 2) {
           // Sample a whole 2D vector, e.g. `Circle { center : [?, ?] }`
           // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
@@ -2841,12 +2868,12 @@ const findLayeringExpr = (
   name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
-  acc: ILayering[]
-): ILayering[] => {
+  acc: ILayering<A>[]
+): ILayering<A>[] => {
   if (fexpr.tag === "FExpr") {
     if (fexpr.contents.tag === "OptEval") {
       if (fexpr.contents.contents.tag === "Layering") {
-        const layering: ILayering = fexpr.contents.contents;
+        const layering: ILayering<A> = fexpr.contents.contents;
         return [layering].concat(acc);
       }
     }
@@ -2854,12 +2881,12 @@ const findLayeringExpr = (
   return acc;
 };
 
-const findLayeringExprs = (tr: Translation): ILayering[] => {
+const findLayeringExprs = (tr: Translation): ILayering<A>[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const lookupGPIName = (p: Path, tr: Translation): string => {
+const lookupGPIName = (p: Path<A>, tr: Translation): string => {
   if (p.tag === "FieldPath") {
     // COMBAK: Deal with path synonyms / aliases by looking them up?
     return getShapeName(p.name.contents.value, p.field.value);
@@ -2868,7 +2895,7 @@ const lookupGPIName = (p: Path, tr: Translation): string => {
   }
 };
 
-const findNames = (e: ILayering, tr: Translation): [string, string] => [
+const findNames = (e: ILayering<A>, tr: Translation): [string, string] => [
   lookupGPIName(e.below, tr),
   lookupGPIName(e.above, tr),
 ];
@@ -2934,7 +2961,9 @@ const computeShapeOrdering = (tr: Translation): string[] => {
   const partialOrderings: [
     string,
     string
-  ][] = layeringExprs.map((e: ILayering): [string, string] => findNames(e, tr));
+  ][] = layeringExprs.map((e: ILayering<A>): [string, string] =>
+    findNames(e, tr)
+  );
 
   const allGPINames: string[] = findShapeNames(
     tr
@@ -2946,10 +2975,10 @@ const computeShapeOrdering = (tr: Translation): string[] => {
 
 //#endregion
 
-const isVaryingInitPath = (
-  p: Path,
+const isVaryingInitPath = <T>(
+  p: Path<T>,
   tr: Translation
-): [Path, MaybeVal<number>] => {
+): [Path<T>, MaybeVal<number>] => {
   const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
   if (res.tag === "OptEval") {
     if (res.contents.tag === "VaryInit") {
@@ -2966,12 +2995,12 @@ const isVaryingInitPath = (
 const genState = (trans: Translation): Result<State, StyleErrors> => {
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
-  const varyingInitPathsAndVals: [Path, number][] = (varyingPaths
+  const varyingInitPathsAndVals: [Path<A>, number][] = (varyingPaths
     .map((p) => isVaryingInitPath(p, trans))
     .filter(
-      (tup: [Path, MaybeVal<number>]): boolean => tup[1].tag === "Just"
-    ) as [Path, Just<number>][]) // TODO: Not sure how to get typescript to understand `filter`...
-    .map((tup: [Path, Just<number>]) => [tup[0], tup[1].contents]);
+      (tup: [Path<A>, MaybeVal<number>]): boolean => tup[1].tag === "Just"
+    ) as [Path<A>, Just<number>][]) // TODO: Not sure how to get typescript to understand `filter`...
+    .map((tup: [Path<A>, Just<number>]) => [tup[0], tup[1].contents]);
   const varyingInitInfo: { [pathStr: string]: number } = Object.fromEntries(
     varyingInitPathsAndVals.map((e) => [prettyPrintPath(e[0]), e[1]])
   );
@@ -3057,12 +3086,12 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
 
 //#endregion
 
-export const parseStyle = (p: string): Result<StyProg, ParseError> => {
+export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(styleGrammar));
   try {
     const { results } = parser.feed(p).feed("\n");
     if (results.length > 0) {
-      const ast: StyProg = results[0] as StyProg;
+      const ast: StyProg<C> = results[0] as StyProg<C>;
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
@@ -3077,7 +3106,7 @@ export const parseStyle = (p: string): Result<StyProg, ParseError> => {
 const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
   res.tag !== "FGPI" && !isTagExpr(res);
 
-const findPathsExpr = (expr: Expr): Path[] => {
+const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
   // TODO: Factor the expression-folding pattern out from here and `checkBlockExpr`
   if (isPath(expr)) {
     return [expr];
@@ -3143,13 +3172,13 @@ const findPathsField = (
   name: string,
   field: Field,
   fexpr: FieldExpr<VarAD>,
-  acc: Path[]
-): Path[] => {
+  acc: Path<A>[]
+): Path<A>[] => {
   switch (fexpr.tag) {
     case "FExpr": {
       // Only look deeper in expressions, because that's where paths might be
       if (fexpr.contents.tag === "OptEval") {
-        const res: Path[] = findPathsExpr(fexpr.contents.contents);
+        const res: Path<A>[] = findPathsExpr(fexpr.contents.contents);
         return acc.concat(res);
       } else {
         return acc;
@@ -3157,12 +3186,12 @@ const findPathsField = (
     }
     case "FGPI": {
       // Get any exprs that the properties are set to
-      const propExprs: Expr[] = Object.entries(fexpr.contents[1])
+      const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
         .map((e) => e[1])
         .filter((e: TagExpr<VarAD>): boolean => e.tag === "OptEval")
         .map((e) => e as IOptEval<VarAD>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-        .map((e: IOptEval<VarAD>): Expr => e.contents);
-      const res: Path[] = _.flatMap(propExprs, findPathsExpr);
+        .map((e: IOptEval<VarAD>): Expr<A> => e.contents);
+      const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
       return acc.concat(res);
     }
   }
@@ -3260,8 +3289,8 @@ const checkCanvas = (tr: Translation): StyleErrors => {
 // Check translation integrity
 const checkTranslation = (trans: Translation): StyleErrors => {
   // Look up all paths used anywhere in the translation's expressions and verify they exist in the translation
-  const allPaths: Path[] = foldSubObjs(findPathsField, trans);
-  const allPathsUniq: Path[] = _.uniqBy(allPaths, prettyPrintPath);
+  const allPaths: Path<A>[] = foldSubObjs(findPathsField, trans);
+  const allPathsUniq: Path<A>[] = _.uniqBy(allPaths, prettyPrintPath);
   const exprs = allPathsUniq.map((p) => findExpr(trans, p));
   const errs = exprs.filter(isStyErr);
   return errs as StyleErrors; // Should be true due to the filter above, though you can't use booleans and the `res is StyleError` assertion together.
@@ -3301,7 +3330,7 @@ export const compileStyle = (
   const labelMap = subEnv.labels;
 
   // Name anon statements
-  const styProg: StyProg = nameAnonStatements(styProgInit);
+  const styProg: StyProg<A> = nameAnonStatements(styProgInit);
 
   log.info("old prog", styProgInit);
   log.info("new prog, with named anon statements", styProg);
