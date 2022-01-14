@@ -1,6 +1,5 @@
 import Frames from "./Frames";
 import ShapeView from "./ShapeView";
-import Mod from "./Mod";
 import Errors from "inspector/views/Errors";
 import Opt from "./Opt";
 import CompGraph from "./CompGraph";
@@ -11,7 +10,7 @@ const viewMap = {
   errors: Errors,
   shapes: ShapeView,
   // mod: Mod, // NOTE: mod tab temporarily deprecated
-  "optimization status": Opt,
+  //"optimization status": Opt,
   compGraph: CompGraph,
   settings: Settings,
 };

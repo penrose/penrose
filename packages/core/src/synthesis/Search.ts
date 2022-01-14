@@ -17,18 +17,18 @@ import {
 } from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
 import { SynthesizedSubstance } from "synthesis/Synthesizer";
-import { ASTNode, Identifier, metaProps } from "types/ast";
+import { A, AbstractNode, ASTNode, Identifier, metaProps } from "types/ast";
 import { SubProg, SubStmt } from "types/substance";
 import { Mutation } from "synthesis/Mutation";
 
 //#region Generalized edits
 
 type Edit = Mutation;
-type DiffType = ASTNode["tag"];
+type DiffType = AbstractNode["tag"];
 
 export interface StmtDiff {
   diff: rdiffResult;
-  stmt: SubStmt;
+  stmt: SubStmt<A>;
   diffType?: DiffType;
   originalValue: any;
 }
@@ -41,24 +41,24 @@ export interface DiffSet {
 }
 export interface UpdateDiff {
   diffType: "Update";
-  source: SubStmt;
-  result: SubStmt;
+  source: SubStmt<A>;
+  result: SubStmt<A>;
   rawDiff: rdiffResult[];
   stmtDiff: StmtDiff[];
 }
 
 export interface AddDiff {
   diffType: "Add";
-  source: SubStmt;
+  source: SubStmt<A>;
 }
 export interface DeleteDiff {
   diffType: "Delete";
-  source: SubStmt;
+  source: SubStmt<A>;
 }
 
 const generalizedEdits = (
-  original: SubProg,
-  editedProgs: SubProg[],
+  original: SubProg<A>,
+  editedProgs: SubProg<A>[],
   mode: "exact"
 ): Edit => {
   switch (mode) {
@@ -74,7 +74,10 @@ const generalizedEdits = (
  * @param right the changed Substance program
  * @returns a list of diffs
  */
-export const diffSubProgs = (left: SubProg, right: SubProg): rdiffResult[] => {
+export const diffSubProgs = (
+  left: SubProg<A>,
+  right: SubProg<A>
+): rdiffResult[] => {
   const diffs: rdiffResult[] = getDiff(left, right);
   // remove all diffs related to meta-properties
   const concreteDiffs: rdiffResult[] = diffs.filter(
@@ -93,7 +96,10 @@ export const diffSubProgs = (left: SubProg, right: SubProg): rdiffResult[] => {
  * @param right the changed Substance program
  * @returns a list of diffs tagged with the original statement
  */
-export const diffSubStmts = (left: SubProg, right: SubProg): StmtDiff[] => {
+export const diffSubStmts = (
+  left: SubProg<A>,
+  right: SubProg<A>
+): StmtDiff[] => {
   // normalize the statement orderings of both ASTs first
   const [leftSorted, rightSorted] = [sortStmts(left), sortStmts(right)];
   // compute the exact diffs between two normalized ASTs
@@ -108,7 +114,10 @@ export const diffSubStmts = (left: SubProg, right: SubProg): StmtDiff[] => {
  * @param right a node in the Substance AST
  * @returns if the nodes have common descendents
  */
-export const similarNodes = (left: ASTNode, right: ASTNode): boolean => {
+export const similarNodes = (
+  left: AbstractNode,
+  right: AbstractNode
+): boolean => {
   const equalNodes = nodesEqual(left, right);
   const similarChildren = intersectionWith(
     left.children,
@@ -138,11 +147,11 @@ export const similarNodes = (left: ASTNode, right: ASTNode): boolean => {
 };
 
 interface SimilarMapping {
-  source: SubStmt;
-  similarStmts: SubStmt[];
+  source: SubStmt<A>;
+  similarStmts: SubStmt<A>[];
 }
 
-export const subProgDiffs = (left: SubProg, right: SubProg): DiffSet => {
+export const subProgDiffs = (left: SubProg<A>, right: SubProg<A>): DiffSet => {
   const commonStmts = intersection(left, right);
   const leftFiltered = left.statements.filter((a) => {
     return intersectionWith(commonStmts, [a], nodesEqual).length === 0;
@@ -153,8 +162,8 @@ export const subProgDiffs = (left: SubProg, right: SubProg): DiffSet => {
   const similarMap = similarMappings(leftFiltered, rightFiltered);
 
   const update: UpdateDiff[] = updateDiffs(similarMap);
-  const updatedSource: SubStmt[] = update.map((d) => d.source);
-  const updatedResult: SubStmt[] = update.map((d) => d.result);
+  const updatedSource: SubStmt<A>[] = update.map((d) => d.source);
+  const updatedResult: SubStmt<A>[] = update.map((d) => d.result);
   // console.log(rightFiltered.map(prettyStmt).join("\n"));
   // console.log(updatedResult.map(prettyStmt).join("\n"));
 
@@ -200,7 +209,7 @@ export const updateDiffs = (mappings: SimilarMapping[]): UpdateDiff[] => {
 };
 
 const toUpdateDiff = (
-  picked: SubStmt[],
+  picked: SubStmt<A>[],
   { similarStmts, source }: SimilarMapping
 ): UpdateDiff | undefined => {
   const result = difference(similarStmts, picked)[0]; // TODO: insert ranking algorithm here
@@ -223,12 +232,14 @@ const toUpdateDiff = (
  * @returns
  */
 export const similarMappings = (
-  leftSet: SubStmt[],
-  rightSet: SubStmt[]
+  leftSet: SubStmt<A>[],
+  rightSet: SubStmt<A>[]
 ): SimilarMapping[] => {
   const mappings: SimilarMapping[] = [];
   for (const stmt of leftSet) {
-    const similarSet: SubStmt[] = rightSet.filter((s) => similarNodes(stmt, s));
+    const similarSet: SubStmt<A>[] = rightSet.filter((s) =>
+      similarNodes(stmt, s)
+    );
     if (similarSet.length > 0)
       mappings.push({
         source: stmt,
@@ -239,7 +250,10 @@ export const similarMappings = (
   return mappings;
 };
 
-export const rawToStmtDiff = (diff: rdiffResult, source: SubStmt): StmtDiff => {
+export const rawToStmtDiff = (
+  diff: rdiffResult,
+  source: SubStmt<A>
+): StmtDiff => {
   const { path } = diff;
   const originalValue = get(source, path);
   const stmtDiff = {
@@ -253,7 +267,7 @@ export const rawToStmtDiff = (diff: rdiffResult, source: SubStmt): StmtDiff => {
     originalValue,
   };
 };
-export const toStmtDiff = (diff: rdiffResult, ast: SubProg): StmtDiff => {
+export const toStmtDiff = (diff: rdiffResult, ast: SubProg<A>): StmtDiff => {
   const [, stmtIndex, ...path] = diff.path;
   // TODO: encode the paths to AST in a more principled way
   const stmt = getStmt(ast, stmtIndex as number);
@@ -277,9 +291,9 @@ export const toStmtDiff = (diff: rdiffResult, ast: SubProg): StmtDiff => {
  * @param diff the diff defined for the node
  * @returns
  */
-const diffType = (node: ASTNode, diff: rdiffResult): DiffType => {
+const diffType = (node: AbstractNode, diff: rdiffResult): DiffType => {
   let tag = undefined;
-  let currNode: ASTNode = node;
+  let currNode: AbstractNode = node;
   for (const prop of diff.path) {
     currNode = currNode[prop];
     if (currNode.tag) {
@@ -295,20 +309,23 @@ export const showStmtDiff = (d: StmtDiff): string =>
     d.originalValue
   } (${d.diff.path}) -> ${d.diff.val}`;
 
-export const applyStmtDiff = (prog: SubProg, stmtDiff: StmtDiff): SubProg => {
+export const applyStmtDiff = (
+  prog: SubProg<A>,
+  stmtDiff: StmtDiff
+): SubProg<A> => {
   const { diff, stmt } = stmtDiff;
   return {
     ...prog,
-    statements: prog.statements.map((s: SubStmt) => {
+    statements: prog.statements.map((s: SubStmt<A>) => {
       if (s === stmt) {
-        const res: SubStmt = applyDiff(cloneDeep(s), [diff]);
+        const res: SubStmt<A> = applyDiff(cloneDeep(s), [diff]);
         return res;
       } else return s;
     }),
   };
 };
 
-export const swapDiffID = (d: StmtDiff, id: Identifier): StmtDiff => {
+export const swapDiffID = (d: StmtDiff, id: Identifier<A>): StmtDiff => {
   return {
     ...d,
     diff: {
@@ -327,17 +344,17 @@ export const swapDiffID = (d: StmtDiff, id: Identifier): StmtDiff => {
  * @returns
  */
 export const applyStmtDiffs = (
-  prog: SubProg,
+  prog: SubProg<A>,
   diffs: StmtDiff[],
   generalize?: (originalDiff: StmtDiff) => StmtDiff
-): SubProg => ({
+): SubProg<A> => ({
   ...prog,
-  statements: prog.statements.map((stmt: SubStmt) =>
+  statements: prog.statements.map((stmt: SubStmt<A>) =>
     applyDiff(stmt, findDiffs(stmt, diffs))
   ),
 });
 
-export const findDiffs = (stmt: SubStmt, diffs: StmtDiff[]): rdiffResult[] =>
+export const findDiffs = (stmt: SubStmt<A>, diffs: StmtDiff[]): rdiffResult[] =>
   diffs.filter((d) => d.stmt === stmt).map((d) => d.diff);
 
 //#endregion
