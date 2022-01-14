@@ -7,9 +7,9 @@ import {
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
-import { objDict } from "contrib/Objectives";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
+import { objDict } from "contrib/Objectives";
 import { constOf, numOf, varOf } from "engine/Autodiff";
 import {
   addWarn,
@@ -24,8 +24,8 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  propertiesOf,
   propertiesNotOf,
+  propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
@@ -34,7 +34,7 @@ import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
 import { Canvas } from "shapes/Samplers";
-import { shapedefs, ShapeType } from "shapes/Shapes";
+import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { A, C, Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -112,7 +112,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { randFloat, prettyPrintPath, zip2 } from "utils/Util";
+import { prettyPrintPath, randFloat, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -2303,7 +2303,7 @@ const mkPath = (strs: string[]): Path<A> => {
   } else throw Error("bad # inputs");
 };
 
-const pendingProperties = (s: ShapeType): PropID[] => {
+const pendingProperties = (s: ShapeTypeStr): PropID[] => {
   if (s === "Equation") return ["width", "height"];
   if (s === "Text") return ["width", "height", "ascent", "descent"];
   return [];

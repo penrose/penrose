@@ -1,3 +1,4 @@
+import { VarAD } from "types/ad";
 import {
   ICenter,
   IFill,
@@ -39,8 +40,8 @@ export interface IText
   lineHeight: IStrV;
   alignmentBaseline: IStrV;
   dominantBaseline: IStrV;
-  ascent: IFloatV<number>;
-  descent: IFloatV<number>;
+  ascent: IFloatV<VarAD>;
+  descent: IFloatV<VarAD>;
 }
 
 export const sampleText = (canvas: Canvas): IText => ({
