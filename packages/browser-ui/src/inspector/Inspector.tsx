@@ -2,7 +2,6 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 import "@reach/tabs/styles.css";
 import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
-import Timeline from "./views/Timeline";
 import viewMap from "./views/viewMap";
 import { PenroseError, PenroseState } from "@penrose/core";
 import { ISettings } from "App";
@@ -32,7 +31,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
-  public selectFrame = (frame: number) => {
+  public selectFrame = (frame: number):void => {
     this.setState({
       selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
     });
@@ -44,7 +43,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       ]
     );
   };
-  public render() {
+  public render(): JSX.Element {
     const { selectedFrame, selectedView } = this.state;
     const {
       currentState,
@@ -54,12 +53,14 @@ class Inspector extends React.Component<IProps, IInspectState> {
       settings,
       setSettings,
     } = this.props;
+    /*
     const currentFrame =
       history.length === 0
         ? null
         : selectedFrame === -1
         ? history[history.length - 1]
         : history[selectedFrame];
+    */
     const commonProps = {
       selectFrame: this.selectFrame,
       // frame: currentFrame,

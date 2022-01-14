@@ -3,9 +3,8 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
 import cytoscape from "cytoscape";
-import { uniqBy } from "lodash";
 import dagre from "cytoscape-dagre";
-import { FieldDict, Translation } from "@penrose/core";
+import { IState } from "@penrose/core/build/dist/types/state";
 import {
   traverseUnique,
   convertSchema,
@@ -66,7 +65,7 @@ const style = [
   },
 ];
 
-const makeGraph = (frame: any, value: string): PGraph => {
+const makeGraph = (frame: IState, value: string): PGraph => {
   let graph;
 
   if (value === "opt") {
@@ -93,7 +92,7 @@ const makeGraph = (frame: any, value: string): PGraph => {
   return graph;
 };
 
-const CompGraph: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
+const CompGraph: React.FC<IViewProps> = ({ frame, /*history*/ }: IViewProps) => {
   if (!frame) {
     return (
       <div style={{ padding: "1em", fontSize: "1em", color: "#4f4f4f" }}>
