@@ -118,12 +118,14 @@ const floatV = (contents: number): IFloatV<number> => ({
 const textData = (
   width: number,
   height: number,
-  descent: number
+  descent: number,
+  ascent: number
 ): TextData => ({
   tag: "TextData",
   width: floatV(width),
   height: floatV(height),
   descent: floatV(descent),
+  ascent: floatV(ascent),
 });
 
 const equationData = (
@@ -211,11 +213,17 @@ export const collectLabels = async (
         properties.string.contents as string,
         toFontRule(s)
       );
+
       // If the width and height are defined, the renderer will render the text. `actualDescent` is currently not used in rendering.
       if (measure.width && measure.height) {
-        label = textData(measure.width, measure.height, measure.actualDescent);
+        label = textData(
+          measure.width,
+          measure.height,
+          measure.actualDescent,
+          measure.actualAscent
+        );
       } else {
-        label = textData(0, 0, 0);
+        label = textData(0, 0, 0, 0);
       }
       labels.push([shapeName, label]);
     }
@@ -228,6 +236,7 @@ export type TextMeasurement = {
   width: number;
   height: number;
   actualDescent: number;
+  actualAscent: number;
 };
 
 /**
@@ -250,12 +259,14 @@ export function measureText(text: string, font: string): TextMeasurement {
       Math.abs(measurements.actualBoundingBoxAscent) +
       Math.abs(measurements.actualBoundingBoxDescent),
     actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
+    actualAscent: Math.abs(measurements.actualBoundingBoxAscent),
   };
 }
 // static variable
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace measureText {
   export const element = document.createElement("canvas");
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   export const context = element.getContext("2d")!;
 }
 

@@ -7,9 +7,9 @@ import {
 } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
-import { objDict } from "contrib/Objectives";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
+import { objDict } from "contrib/Objectives";
 import { constOf, numOf, varOf } from "engine/Autodiff";
 import {
   addWarn,
@@ -24,8 +24,8 @@ import {
   insertGPI,
   isPath,
   isTagExpr,
-  propertiesOf,
   propertiesNotOf,
+  propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
 import _ from "lodash";
@@ -112,7 +112,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { randFloat, prettyPrintPath, zip2 } from "utils/Util";
+import { prettyPrintPath, randFloat, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -2305,9 +2305,7 @@ const mkPath = (strs: string[]): Path<A> => {
 
 const pendingProperties = (s: ShapeTypeStr): PropID[] => {
   if (s === "Equation") return ["width", "height"];
-  if (s === "EquationTransform") return ["width", "height"];
-  if (s === "Text") return ["width", "height"];
-  if (s === "ImageTransform") return ["initWidth", "initHeight"];
+  if (s === "Text") return ["width", "height", "ascent", "descent"];
   return [];
 };
 
