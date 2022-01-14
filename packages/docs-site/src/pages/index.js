@@ -41,7 +41,9 @@ export default function Home() {
     >
       <HomepageHeader />
       <main>
-        <HomepageFeatures />
+        {/* <HomepageFeatures />
+        TODO: live penrose example 
+      */}
       </main>
     </Layout>
   );
