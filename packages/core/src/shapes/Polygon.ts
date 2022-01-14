@@ -19,7 +19,7 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   scale: FloatV(constOf(1)),
   points: PtListV(

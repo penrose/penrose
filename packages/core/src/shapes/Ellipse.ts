@@ -25,7 +25,7 @@ export const sampleEllipse = (canvas: Canvas): IEllipse => ({
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   center: sampleVector(canvas),
   rx: sampleWidth(canvas),

@@ -106,7 +106,7 @@ where e := MakeEdge(i,j) {
       end: pj
       strokeColor: Colors.black
       strokeWidth: Global.lineThickness
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    -- (DEBUG) draw full line through segment
@@ -117,7 +117,7 @@ where e := MakeEdge(i,j) {
    --    strokeColor: rgba( 0., 0., 0., .35 )
    --    strokeWidth: Global.lineThickness
    --    style: "dashed"
-   --    strokeDashArray: "4,4"
+   --    strokeDasharray: "4,4"
    -- }
 }
 
@@ -452,7 +452,7 @@ where d := MakeDualEdge(t1,t2) {
       strokeColor: Colors.black
       strokeWidth: Global.lineThickness
       style: "dashed"
-      strokeDashArray: "4,4"
+      strokeDasharray: "4,4"
    }
 }
 
@@ -557,8 +557,8 @@ where IsNegativelyOriented(t) {
 -- draw flipped edge as dashed line
 forall Edge e
 where IsFlipped( e ) {
-   e.segment.strokeDashArray = "5,5"
-   override e.segment.strokeLineCap = "butt"
+   e.segment.strokeDasharray = "5,5"
+   override e.segment.strokeLinecap = "butt"
 }
 
 -- put edge labels on one side of the edge or another
