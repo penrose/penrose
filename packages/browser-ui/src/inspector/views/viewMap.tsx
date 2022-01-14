@@ -1,7 +1,7 @@
 import Frames from "./Frames";
 import ShapeView from "./ShapeView";
 import Errors from "inspector/views/Errors";
-import Opt from "./Opt";
+//import Opt from "./Opt";
 import CompGraph from "./CompGraph";
 import Settings from "./Settings";
 
