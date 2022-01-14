@@ -8,7 +8,7 @@ import {
   IString,
   IStroke,
 } from "types/shapes";
-import { IStrV } from "types/value";
+import { IFloatV, IStrV } from "types/value";
 import {
   Canvas,
   sampleColor,
@@ -39,6 +39,8 @@ export interface IText
   lineHeight: IStrV;
   alignmentBaseline: IStrV;
   dominantBaseline: IStrV;
+  ascent: IFloatV<number>;
+  descent: IFloatV<number>;
 }
 
 export const sampleText = (canvas: Canvas): IText => ({
@@ -52,6 +54,8 @@ export const sampleText = (canvas: Canvas): IText => ({
   center: sampleVector(canvas),
   width: sampleZero(),
   height: sampleZero(),
+  ascent: sampleZero(),
+  descent: sampleZero(),
   rotation: sampleZero(),
   string: StrV("defaultText"),
   visibility: StrV(""),

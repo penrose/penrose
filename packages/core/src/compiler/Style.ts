@@ -34,7 +34,7 @@ import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
 import { Canvas } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
+import { shapedefs, ShapeType } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { A, C, Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -2303,11 +2303,9 @@ const mkPath = (strs: string[]): Path<A> => {
   } else throw Error("bad # inputs");
 };
 
-const pendingProperties = (s: ShapeTypeStr): PropID[] => {
+const pendingProperties = (s: ShapeType): PropID[] => {
   if (s === "Equation") return ["width", "height"];
-  if (s === "EquationTransform") return ["width", "height"];
-  if (s === "Text") return ["width", "height"];
-  if (s === "ImageTransform") return ["initWidth", "initHeight"];
+  if (s === "Text") return ["width", "height", "ascent", "descent"];
   return [];
 };
 
