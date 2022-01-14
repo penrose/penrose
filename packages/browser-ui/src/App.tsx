@@ -304,13 +304,11 @@ class App extends React.Component<unknown, ICanvasState> {
     if (this.canvasRef.current !== null && this.state.fileSocket !== null) {
       const current = this.canvasRef.current;
       const rendered =
-        stateConverged(state) || stateInitial(state)
-          ? await RenderInteractive(
+            await RenderInteractive(
               state,
               this.updateData,
               this.state.fileSocket.getFile
-            )
-          : await RenderInteractive(state, this.state.fileSocket.getFile);
+            );
       if (current.firstChild !== null) {
         current.replaceChild(rendered, current.firstChild);
       } else {
