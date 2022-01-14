@@ -143,9 +143,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
   };
 
   exportDiagrams = () => {
-    this.state.staged.map(([idx, svg]) => {
+    for (const stageIdx in this.state.staged) {
+      const [idx, svg] = this.state.staged[stageIdx];
       DownloadSVG(svg, `diagram_${idx}`);
-    });
+    }
   };
 
   render() {
