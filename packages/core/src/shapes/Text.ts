@@ -1,14 +1,15 @@
+import { VarAD } from "types/ad";
 import {
-  INamed,
-  IStroke,
-  IFill,
   ICenter,
+  IFill,
+  INamed,
   IRect,
   IRotate,
-  IString,
   IShape,
+  IString,
+  IStroke,
 } from "types/shapes";
-import { IStrV } from "types/value";
+import { IFloatV, IStrV } from "types/value";
 import {
   Canvas,
   sampleColor,
@@ -23,7 +24,7 @@ export interface IText
   extends INamed,
     IStroke,
     IFill,
-    ICenter,
+    ICenter, // the center of the bounding box of the text
     IRect,
     IRotate,
     IString {
@@ -36,7 +37,11 @@ export interface IText
   fontVariant: IStrV;
   fontWeight: IStrV;
   textAnchor: IStrV;
+  lineHeight: IStrV;
   alignmentBaseline: IStrV;
+  dominantBaseline: IStrV;
+  ascent: IFloatV<VarAD>;
+  descent: IFloatV<VarAD>;
 }
 
 export const sampleText = (canvas: Canvas): IText => ({
@@ -50,18 +55,23 @@ export const sampleText = (canvas: Canvas): IText => ({
   center: sampleVector(canvas),
   width: sampleZero(),
   height: sampleZero(),
+  ascent: sampleZero(),
+  descent: sampleZero(),
   rotation: sampleZero(),
   string: StrV("defaultText"),
   visibility: StrV(""),
-  fontFamily: StrV(""),
+  fontFamily: StrV("sans-serif"),
   fontSize: StrV("12pt"),
   fontSizeAdjust: StrV(""),
   fontStretch: StrV(""),
   fontStyle: StrV(""),
   fontVariant: StrV(""),
   fontWeight: StrV(""),
+  lineHeight: StrV(""),
   textAnchor: StrV("middle"),
-  alignmentBaseline: StrV("middle"),
+  // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
+  alignmentBaseline: StrV("alphabetic"),
+  dominantBaseline: StrV("alphabetic"),
 });
 
 export type Text = IShape & { shapeType: "Text" } & IText;

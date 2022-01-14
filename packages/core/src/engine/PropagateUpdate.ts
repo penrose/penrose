@@ -9,6 +9,7 @@ import { Value } from "types/value";
 import { State, LabelCache } from "types/state";
 import { Path, IPropertyPath, IAccessPath } from "types/style";
 import { retrieveLabel } from "utils/CollectLabels";
+import { A } from "types/ast";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
@@ -17,10 +18,10 @@ import { retrieveLabel } from "utils/CollectLabels";
  * @param path a path to a property value in one of the shapes
  */
 // the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
-const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
-  const getProperty = (path: IPropertyPath) => {
+const findShapeProperty = (shapes: any, path: Path<A>): Value<number> | any => {
+  const getProperty = (path: IPropertyPath<A>) => {
     const [subName, field, prop]: [string, string, string] = [
-      (path as IPropertyPath).name.contents.value,
+      (path as IPropertyPath<A>).name.contents.value,
       path.field.value,
       path.property.value,
     ];
@@ -51,7 +52,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
     }
     case "AccessPath": {
       const [propertyPath, indices] = [
-        (path as IAccessPath).path,
+        (path as IAccessPath<A>).path,
         path.indices,
       ];
       if (propertyPath.tag === "PropertyPath") {
@@ -72,7 +73,7 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
 };
 
 /** Generate a single string based on a path to a shape */
-export const getShapeName = (p: Path): string => {
+export const getShapeName = (p: Path<A>): string => {
   if (p.tag === "FieldPath" || p.tag === "PropertyPath") {
     const { name, field } = p;
     return `${name.contents.value}.${field.value}`;
@@ -88,7 +89,7 @@ export const getShapeName = (p: Path): string => {
  *
  */
 export const insertPending = (state: State): State => {
-  const findLabelValue = (p: Path, labels: LabelCache): Value<number> => {
+  const findLabelValue = (p: Path<A>, labels: LabelCache): Value<number> => {
     if (p.tag === "PropertyPath") {
       const { property } = p;
       const prop: string = property.value;
@@ -97,6 +98,10 @@ export const insertPending = (state: State): State => {
       if (labelData) {
         if (prop === "width") return labelData.width;
         else if (prop === "height") return labelData.height;
+        else if (labelData.tag === "TextData" && prop === "ascent")
+          return labelData.ascent;
+        else if (labelData.tag === "TextData" && prop === "descent")
+          return labelData.descent;
         else {
           throw new Error(`Cached label data do not contain property ${prop}`);
         }
@@ -116,7 +121,7 @@ export const insertPending = (state: State): State => {
     pendingPaths: [],
     // for each of the pending paths, update the translation using the updated shapes with new label dimensions etc.
     translation: state.pendingPaths
-      .map((p: Path) => [p, findLabelValue(p, state.labelCache)])
+      .map((p: Path<A>) => [p, findLabelValue(p, state.labelCache)])
       .reduce(
         (trans: Translation, [path, v]: any) =>
           insertExpr(
@@ -135,7 +140,7 @@ export const insertPending = (state: State): State => {
  */
 export const updateVaryingValues = (state: State): State => {
   const newVaryingValues = [...state.varyingValues];
-  state.varyingPaths.forEach((path: Path, index: number) => {
+  state.varyingPaths.forEach((path: Path<A>, index: number) => {
     // NOTE: We only update property paths since no frontend interactions can change fields
     // TODO: add a branch for `FieldPath` when this is no longer the case
     if (path.tag === "PropertyPath") {

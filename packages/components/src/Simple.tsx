@@ -8,6 +8,7 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
+import fetchResolver from "./fetchPathResolver";
 
 export interface ISimpleProps {
   domainString: string;
@@ -55,7 +56,7 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
     this.renderCanvas(state);
   };
 
-  renderCanvas = (state: PenroseState | undefined) => {
+  renderCanvas = async (state: PenroseState | undefined) => {
     if (this.canvasRef.current === null) {
       return <div>rendering...</div>;
     } else {
@@ -67,9 +68,10 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
           state: newState,
         });
         // }
-        const renderedState: SVGSVGElement = RenderInteractive(
+        const renderedState: SVGSVGElement = await RenderInteractive(
           newState,
-          this.updateState
+          this.updateState,
+          fetchResolver
         );
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);

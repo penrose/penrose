@@ -1,7 +1,7 @@
 import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
 import { Maybe, Result } from "true-myth";
-import { ASTNode, Identifier, SourceLoc } from "types/ast";
+import { A, Identifier, SourceLoc, AbstractNode } from "types/ast";
 import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
 import {
   ArgLengthMismatch,
@@ -28,7 +28,7 @@ import {
 import { State } from "types/state";
 import { BindingForm } from "types/style";
 import { Deconstructor, SubExpr } from "types/substance";
-import { prettyPrintPath } from "utils/OtherUtils";
+import { prettyPrintPath } from "utils/Util";
 const {
   or,
   and,
@@ -48,7 +48,7 @@ const {
  * Type pretty printing function.
  * @param t Type to be printed
  */
-export const showType = (t: Type): string => {
+export const showType = (t: Type<A>): string => {
   if (t.tag === "Prop") {
     return "Prop";
   } else if (t.tag === "TypeVar") {
@@ -103,7 +103,7 @@ export const showError = (
       )}) does not exist.`;
       if (possibleTypes) {
         const suggestions = possibleTypes
-          .map(({ value }: Identifier) => value)
+          .map(({ value }: Identifier<A>) => value)
           .join(", ");
         return msg + ` Possible types are: ${suggestions}`;
       } else return msg;
@@ -375,6 +375,7 @@ canvas {
         case "wrong type":
           return `Canvas ${error.attr} must be a numeric literal, but it has type ${error.type}.`;
       }
+      break; // dead code to please ESLint
     }
 
     // ----- END TRANSLATION VALIDATION ERRORS
@@ -413,14 +414,14 @@ export const cyclicSubtypes = (cycles: string[][]): CyclicSubtypes => ({
 });
 
 export const notTypeConsInPrelude = (
-  type: Prop | TypeVar
+  type: Prop<A> | TypeVar<A>
 ): NotTypeConsInPrelude => ({
   tag: "NotTypeConsInPrelude",
   type,
 });
 
 export const notTypeConsInSubtype = (
-  type: Prop | TypeVar
+  type: Prop<A> | TypeVar<A>
 ): NotTypeConsInSubtype => ({
   tag: "NotTypeConsInSubtype",
   type,
@@ -428,9 +429,9 @@ export const notTypeConsInSubtype = (
 
 // action constructors for error
 export const duplicateName = (
-  name: Identifier,
-  location: ASTNode,
-  firstDefined: ASTNode
+  name: Identifier<A>,
+  location: AbstractNode,
+  firstDefined: AbstractNode
 ): DuplicateName => ({
   tag: "DuplicateName",
   name,
@@ -439,8 +440,8 @@ export const duplicateName = (
 });
 
 export const typeNotFound = (
-  typeName: Identifier,
-  possibleTypes?: Identifier[]
+  typeName: Identifier<A>,
+  possibleTypes?: Identifier<A>[]
 ): TypeNotFound => ({
   tag: "TypeNotFound",
   typeName,
@@ -448,8 +449,8 @@ export const typeNotFound = (
 });
 
 export const varNotFound = (
-  variable: Identifier,
-  possibleVars?: Identifier[]
+  variable: Identifier<A>,
+  possibleVars?: Identifier<A>[]
 ): VarNotFound => ({
   tag: "VarNotFound",
   variable,
@@ -457,10 +458,10 @@ export const varNotFound = (
 });
 
 export const typeMismatch = (
-  sourceType: TypeConstructor,
-  expectedType: TypeConstructor,
-  sourceExpr: ASTNode,
-  expectedExpr: ASTNode
+  sourceType: TypeConstructor<A>,
+  expectedType: TypeConstructor<A>,
+  sourceExpr: AbstractNode,
+  expectedExpr: AbstractNode
 ): TypeMismatch => ({
   tag: "TypeMismatch",
   sourceExpr,
@@ -470,9 +471,9 @@ export const typeMismatch = (
 });
 
 export const unexpectedExprForNestedPred = (
-  sourceType: TypeConstructor,
-  sourceExpr: ASTNode,
-  expectedExpr: ASTNode
+  sourceType: TypeConstructor<A>,
+  sourceExpr: AbstractNode,
+  expectedExpr: AbstractNode
 ): UnexpectedExprForNestedPred => ({
   tag: "UnexpectedExprForNestedPred",
   sourceType,
@@ -481,11 +482,11 @@ export const unexpectedExprForNestedPred = (
 });
 
 export const argLengthMismatch = (
-  name: Identifier,
-  argsGiven: SubExpr[],
-  argsExpected: Arg[],
-  sourceExpr: ASTNode,
-  expectedExpr: ASTNode
+  name: Identifier<A>,
+  argsGiven: SubExpr<A>[],
+  argsExpected: Arg<A>[],
+  sourceExpr: AbstractNode,
+  expectedExpr: AbstractNode
 ): ArgLengthMismatch => ({
   tag: "ArgLengthMismatch",
   name,
@@ -496,10 +497,10 @@ export const argLengthMismatch = (
 });
 
 export const typeArgLengthMismatch = (
-  sourceType: TypeConstructor,
-  expectedType: TypeConstructor,
-  sourceExpr: ASTNode,
-  expectedExpr: ASTNode
+  sourceType: TypeConstructor<A>,
+  expectedType: TypeConstructor<A>,
+  sourceExpr: AbstractNode,
+  expectedExpr: AbstractNode
 ): TypeArgLengthMismatch => ({
   tag: "TypeArgLengthMismatch",
   sourceExpr,
@@ -509,8 +510,8 @@ export const typeArgLengthMismatch = (
 });
 
 export const selectorFieldNotSupported = (
-  name: BindingForm,
-  field: Identifier
+  name: BindingForm<A>,
+  field: Identifier<A>
 ): SelectorFieldNotSupported => ({
   tag: "SelectorFieldNotSupported",
   name,
@@ -518,7 +519,7 @@ export const selectorFieldNotSupported = (
 });
 
 export const deconstructNonconstructor = (
-  deconstructor: Deconstructor
+  deconstructor: Deconstructor<A>
 ): DeconstructNonconstructor => ({
   tag: "DeconstructNonconstructor",
   deconstructor,
@@ -565,7 +566,7 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
 
 // const loc = (node: ASTNode) => `${node.start.line}:${node.start.col}`;
 // TODO: Show file name
-const loc = (node: ASTNode): string => {
+const loc = (node: AbstractNode): string => {
   if (isConcrete(node)) {
     return `line ${node.start.line}, column ${node.start.col + 1} of ${
       node.nodeType

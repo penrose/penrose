@@ -20,7 +20,7 @@ mixin row(artifact)
                             | Compilation 
                             span(class="badge badge-dark badge-pill") #{artifact.metadata.timeTaken.compilation}ms
                         li(class="list-group-item d-flex justify-content-between align-items-center")
-                            | Labelling 
+                            | State Preparation: autodiff and labeling 
                             span(class="badge badge-dark badge-pill") #{artifact.metadata.timeTaken.labelling}ms
                         li(class="list-group-item d-flex justify-content-between align-items-center")
                             | Optimization 
