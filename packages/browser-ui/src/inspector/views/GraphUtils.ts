@@ -207,7 +207,7 @@ export const toGraphDOFs = (
 export const toGraphOpt = (
   objfns: PenroseFn[],
   constrfns: PenroseFn[],
-  varyingPaths: Path[]
+  varyingPaths: Path<A>[]
 ): PGraph => {
   // One node for each unique path, id = path name, name = path name
   // One node for each unique obj/constr application, id = the function w/ its args, name = function name
