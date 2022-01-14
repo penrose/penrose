@@ -155,30 +155,30 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   // factor out an AttrHelper
   if (
-    "strokeDashArray" in shape.properties &&
-    shape.properties.strokeDashArray.contents !== ""
+    "strokeDasharray" in shape.properties &&
+    shape.properties.strokeDasharray.contents !== ""
   ) {
     pathElem.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDashArray as IStrV).contents
+      (shape.properties.strokeDasharray as IStrV).contents
     );
   } else if (shape.properties.strokeStyle.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
-  attrToNotAutoMap.push("strokeDashArray", "strokeStyle");
+  attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
 
   if (
-    "strokeLineCap" in shape.properties &&
-    shape.properties.strokeLineCap.contents !== ""
+    "strokeLinecap" in shape.properties &&
+    shape.properties.strokeLinecap.contents !== ""
   ) {
     pathElem.setAttribute(
       "stroke-linecap",
-      (shape.properties.strokeLineCap as IStrV).contents
+      (shape.properties.strokeLinecap as IStrV).contents
     );
   } else {
     pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG
   }
-  attrToNotAutoMap.push("strokeLineCap");
+  attrToNotAutoMap.push("strokeLinecap");
 
   // TODO: dedup in AttrHelper
   if (shape.properties.startArrowhead.contents === true) {

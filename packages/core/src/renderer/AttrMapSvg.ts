@@ -48,7 +48,7 @@ export const attrMapSvg = {
   stopOpacity: "stop-opacity",
   strikethroughPosition: "strikethrough-position",
   strikethroughThickness: "strikethrough-thickness",
-  strokeDashArray: "stroke-dasharray",
+  strokeDasharray: "stroke-dasharray",
   strokeDashoffset: "stroke-dashoffset",
   strokeLinecap: "stroke-linecap",
   strokeLinejoin: "stroke-linejoin",

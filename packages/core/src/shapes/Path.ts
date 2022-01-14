@@ -23,7 +23,7 @@ export const samplePath = (_canvas: Canvas): IPath => ({
   strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
   strokeColor: sampleColor(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleNoPaint(),
   arrowheadSize: FloatV(constOf(1)),
   arrowheadStyle: StrV("arrowhead-2"),

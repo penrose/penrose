@@ -22,7 +22,7 @@ export const sampleCircle = (canvas: Canvas): ICircle => ({
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   center: sampleVector(canvas),
   r: sampleWidth(canvas),
