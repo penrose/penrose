@@ -3,7 +3,7 @@ import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import * as path from "path";
-import { ASTNode } from "types/ast";
+import { C, ConcreteNode } from "types/ast";
 import { StyProg } from "types/style";
 import grammar from "./StyleParser";
 
@@ -22,7 +22,7 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-export const traverseTree = (root: ASTNode) => {
+export const traverseTree = (root: ConcreteNode) => {
   const { nodeType, children } = root;
   if (!nodeType) console.log(root);
   expect(nodeType).toEqual("Style");
@@ -91,7 +91,7 @@ describe("Selector Grammar", () => {
   test("empty selector block", () => {
     const { results } = parser.feed("forall Set A{}");
     sameASTs(results);
-    const ast: StyProg = results[0] as StyProg;
+    const ast: StyProg<C> = results[0] as StyProg<C>;
   });
 
   test("comment and empty blocks", () => {
@@ -278,7 +278,7 @@ const {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    const ast = results[0] as StyProg;
+    const ast = results[0] as StyProg<C>;
     const stringAssign = ast.blocks[0].block.statements[0];
     if (
       stringAssign.tag === "PathAssign" &&

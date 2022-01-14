@@ -9,6 +9,7 @@ import {
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
+import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError, StyleErrors } from "types/errors";
@@ -37,21 +38,21 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
   string,
   string,
   string
-]): [Env, SubstanceEnv, SubProg, StyProg] => {
+]): [Env, SubstanceEnv, SubProg<C>, StyProg<C>] => {
   const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
   const env0: Env = unsafelyUnwrap(domainProgRes);
 
   // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
-  const subProg: SubProg = unsafelyUnwrap(parseSubstance(subStr));
+  const subProg: SubProg<C> = unsafelyUnwrap(parseSubstance(subStr));
   const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(
     subStr,
     env0
   );
 
   const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
-  const styProg: StyProg = unsafelyUnwrap(S.parseStyle(styStr));
+  const styProg: StyProg<C> = unsafelyUnwrap(S.parseStyle(styStr));
 
-  const res: [Env, SubstanceEnv, SubProg, StyProg] = [
+  const res: [Env, SubstanceEnv, SubProg<C>, StyProg<C>] = [
     varEnv,
     subEnv,
     subProg,
@@ -229,8 +230,8 @@ describe("Compiler", () => {
     const [varEnv, subEnv, subProg, styProgInit]: [
       Env,
       SubstanceEnv,
-      SubProg,
-      StyProg
+      SubProg<C>,
+      StyProg<C>
     ] = loadProgs(loadFiles(triple) as [string, string, string]);
 
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
@@ -244,7 +245,7 @@ describe("Compiler", () => {
       expect(false).toEqual(true);
     }
 
-    const styProg: StyProg = S.nameAnonStatements(styProgInit);
+    const styProg: StyProg<A> = S.nameAnonStatements(styProgInit);
 
     for (const hb of styProg.blocks) {
       for (const stmt of hb.block.statements) {

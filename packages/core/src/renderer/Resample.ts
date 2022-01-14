@@ -17,6 +17,7 @@ import { State } from "types/state";
 import { Path } from "types/style";
 import { Canvas } from "shapes/Samplers";
 import { shapedefs } from "shapes/Shapes";
+import { A } from "types/ast";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {
@@ -98,13 +99,13 @@ export const sampleFields = (
   canvas: Canvas
 ): number[] => {
   const fieldPaths = varyingPaths.filter(
-    ({ tag }: Path) => tag === "AccessPath" || tag === "FieldPath"
+    ({ tag }: Path<A>) => tag === "AccessPath" || tag === "FieldPath"
   );
   return randFloats(fieldPaths.length, canvas.xRange);
 };
 
 const samplePath = (
-  path: Path,
+  path: Path<A>,
   shapes: Shape[],
   varyingInitInfo: { [pathStr: string]: number },
   canvas: Canvas
@@ -146,15 +147,15 @@ const samplePath = (
 export const resampleBest = (state: State, numSamples: number): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
-  const varyingValues: Value<number>[] = varyingPaths.map((p: Path) =>
+  const varyingValues: Value<number>[] = varyingPaths.map((p: Path<A>) =>
     samplePath(p, shapes, state.varyingInitInfo, state.canvas)
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)
   const uninitMap: [
-    Path,
+    Path<A>,
     TagExpr<VarAD>
-  ][] = uninitializedPaths.map((p: Path) => [
+  ][] = uninitializedPaths.map((p: Path<A>) => [
     p,
     val2Expr(
       valueNumberToAutodiff(
@@ -164,7 +165,8 @@ export const resampleBest = (state: State, numSamples: number): State => {
   ]);
 
   const translation: Translation = uninitMap.reduce(
-    (tr: Translation, [p, e]: [Path, TagExpr<VarAD>]) => insertExpr(p, e, tr),
+    (tr: Translation, [p, e]: [Path<A>, TagExpr<VarAD>]) =>
+      insertExpr(p, e, tr),
     state.translation
   );
 
