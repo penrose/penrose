@@ -9,7 +9,7 @@ interface IState {
 
 class ShapeView extends React.Component<IViewProps, IState> {
   public readonly state = { selectedShape: -1 };
-  public setSelectedShape = (key: number):void => {
+  public setSelectedShape = (key: number): void => {
     this.setState({ selectedShape: key });
   };
   public render(): JSX.Element {

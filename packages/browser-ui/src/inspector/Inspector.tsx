@@ -31,7 +31,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
-  public selectFrame = (frame: number):void => {
+  public selectFrame = (frame: number): void => {
     this.setState({
       selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
     });

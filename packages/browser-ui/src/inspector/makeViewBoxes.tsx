@@ -10,8 +10,7 @@ export const ShapeItem = styled.li<React.OptionHTMLAttributes<never>>`
   padding: 1em;
   margin-top: -1px;
   border: 1px solid #d1d1d1;
-  background-color: ${( selected ):string =>
-    selected ? "#F9F9F9" : "#f0f0f0"};
+  background-color: ${(selected): string => (selected ? "#F9F9F9" : "#f0f0f0")};
   color: rgba(0, 0, 0, 0.5);
   font-family: monospace;
   display: flex;

@@ -92,7 +92,7 @@ const makeGraph = (frame: IState, value: string): PGraph => {
   return graph;
 };
 
-const CompGraph: React.FC<IViewProps> = ({ frame, /*history*/ }: IViewProps) => {
+const CompGraph: React.FC<IViewProps> = ({ frame /*,history*/ }: IViewProps) => {
   if (!frame) {
     return (
       <div style={{ padding: "1em", fontSize: "1em", color: "#4f4f4f" }}>
@@ -109,9 +109,9 @@ const CompGraph: React.FC<IViewProps> = ({ frame, /*history*/ }: IViewProps) => 
 
   const [value, setValue] = React.useState("none"); // init value of state to use
 
-  const graphRef: React.RefObject<HTMLDivElement> = React.useRef<HTMLDivElement>(
-    null
-  );
+  const graphRef: React.RefObject<HTMLDivElement> = React.useRef<
+    HTMLDivElement
+  >(null);
 
   React.useEffect(() => {
     if (graphRef.current !== null) {

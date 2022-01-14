@@ -21,26 +21,30 @@ export type PGraph = ElementsDefinition;
 */
 
 /**
- * Flatten an array of arrays into a single array of elements 
+ * Flatten an array of arrays into a single array of elements
  * I.e., merge<string>( string[][] ): string[]
- */ 
-const merge = <T>(arr: T[][]):T[] => ([] as T[]).concat(...arr);
+ */
+const merge = <T>(arr: T[][]): T[] => ([] as T[]).concat(...arr);
 
-/**  
+/**
  * Given a parent node, returns the graph corresponding to nodes and edges of children
  * May contain duplicate nodes
  * TODO: Add type for graph and VarAD
  */
 const traverseGraphTopDown = (par: VarAD): PGraph => {
-  const parNode:NodeDefinition = {data: { id: par.id.toString(), label: par.op }};
+  const parNode: NodeDefinition = {
+    data: { id: par.id.toString(), label: par.op },
+  };
 
   //TODO: do not navigate graph outside core
-  const edges:EdgeDefinition[] = par.childrenAD.map((edge):EdgeDefinition => ({
-    data: {
-      source: parNode.data.id as string, // traversing child nodes
-      target: edge.node.id.toString(),
-    }
-  }));
+  const edges: EdgeDefinition[] = par.childrenAD.map(
+    (edge): EdgeDefinition => ({
+      data: {
+        source: parNode.data.id as string, // traversing child nodes
+        target: edge.node.id.toString(),
+      },
+    })
+  );
 
   const subgraphs = par.childrenAD.map((edge) =>
     traverseGraphTopDown(edge.node)
@@ -65,7 +69,7 @@ export const traverseUnique = (par: VarAD): PGraph => {
   };
 };
 
-/** 
+/**
  * Convert from `traverseUnique` schema to cytoscape schema
  */
 export const convertSchema = (graph: PGraph): PGraph => {
@@ -92,7 +96,7 @@ export const convertSchema = (graph: PGraph): PGraph => {
 
 // -----
 
-/** 
+/**
  * Make nodes and edges related to showing one DOF node (p is a varying path)
  */
 export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
@@ -156,7 +160,7 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
   return empty;
 };
 
-/** 
+/**
  * Make nodes and edges related to showing DOF (degrees of
  * freedom) nodes
  */
