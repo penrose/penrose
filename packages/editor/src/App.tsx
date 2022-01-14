@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
-import styled from "styled-components";
 import { toast, ToastContainer } from "react-toastify";
 import * as FlexLayout from "flexlayout-react";
-import reducer, { debouncedSave, initialState } from "./reducer";
+import reducer, { initialState } from "./reducer";
 import {
   compileTrio,
   PenroseState,
@@ -27,33 +26,8 @@ import PreviewPane from "./components/PreviewPane";
 import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
 
-const TabButton = styled.a<{ open: boolean }>`
-  outline: none;
-  cursor: pointer;
-  background-color: ${({ open }: any) => (open ? "#EDF8FF" : "#FBFBFB")};
-  font-weight: ${({ open }: any) => (open ? "bold" : "500")};
-  border: 1px solid #a9a9a9;
-  font-size: 1em;
-  padding: 10px 10px 5px 10px;
-  margin-left: -1px;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-`;
-
-const ColumnContainer = styled.div<{ show: boolean; numOpen: number }>`
-  display: ${({ show }: any) => (show ? "inline-block" : "none")};
-  border-left: 1px solid gray;
-  flex: 1;
-  overflow: hidden;
-`;
-
 function App({ location }: any) {
   const [state, dispatch] = useReducer(reducer, null, initialState);
-
-  useEffect(() => {
-    debouncedSave(state);
-  }, [state]);
   const urlParams = useParams() as any;
   useEffect(() => {
     if (urlParams.gistId) {
@@ -106,13 +80,6 @@ function App({ location }: any) {
       convergeRenderState(resampled);
     }
   }, [state, convergeRenderState]);
-
-  const onChangeTitle = useCallback(
-    (name: string) => {
-      dispatch({ kind: "CHANGE_TITLE", name });
-    },
-    [dispatch]
-  );
 
   const [model, setModel] = useState<FlexLayout.Model>(
     FlexLayout.Model.fromJson({
@@ -190,7 +157,9 @@ function App({ location }: any) {
               setupMonaco={SetupSubstanceMonaco(
                 state.currentInstance.domainCache
               )}
-              dispatch={dispatch}
+              onChange={(v) =>
+                dispatch({ kind: "CHANGE_CODE", lang: "sub", content: v })
+              }
             />
           );
         case "style_edit":
@@ -200,7 +169,9 @@ function App({ location }: any) {
               vimMode={state.settings.vimMode}
               languageType="style"
               setupMonaco={SetupStyleMonaco}
-              dispatch={dispatch}
+              onChange={(v) =>
+                dispatch({ kind: "CHANGE_CODE", lang: "sty", content: v })
+              }
             />
           );
         case "domain_edit":
@@ -210,7 +181,9 @@ function App({ location }: any) {
               vimMode={state.settings.vimMode}
               languageType="domain"
               setupMonaco={SetupDomainMonaco}
-              dispatch={dispatch}
+              onChange={(v) =>
+                dispatch({ kind: "CHANGE_CODE", lang: "dsl", content: v })
+              }
             />
           );
         case "preview":

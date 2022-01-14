@@ -104,11 +104,13 @@ export const useRoutingHandlers = (location: any, dispatch: Dispatcher) => {
       const avatar = params.get("profile[avatar_url]");
       if (username !== null && access_token !== null && avatar !== null) {
         dispatch({
-          kind: "CHANGE_GH_USER",
-          user: {
-            username,
-            access_token,
-            avatar,
+          kind: "CHANGE_SETTINGS",
+          settings: {
+            user: {
+              username,
+              access_token,
+              avatar,
+            },
           },
         });
       } else {

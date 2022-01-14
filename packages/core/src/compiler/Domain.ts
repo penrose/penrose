@@ -53,8 +53,8 @@ export const parseDomain = (prog: string): Result<DomainProg, ParseError> => {
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
-  } catch (e) {
-    return err(parseError(e, lastLocation(parser)));
+  } catch (e: unknown) {
+    return err(parseError(e as string, lastLocation(parser)));
   }
 };
 

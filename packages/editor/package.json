@@ -10,9 +10,8 @@
     "clean:custom": "rm -rf node_modules/.vite"
   },
   "dependencies": {
-    "@monaco-editor/react": "^4.3.1",
-    "@penrose/core": "^1.3.0",
     "@penrose/components": "^1.3.0",
+    "@penrose/core": "^1.3.0",
     "flexlayout-react": "^0.6.5",
     "lodash": "^4.17.21",
     "react": "^17.0.2",
@@ -27,7 +26,8 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.19",
     "@vitejs/plugin-react": "^1.0.8",
+    "rollup-plugin-polyfill-node": "^0.8.0",
     "typescript": "^4.4.4",
-    "vite": "^2.7.2"
+    "vite": "^2.7.11"
   }
 }

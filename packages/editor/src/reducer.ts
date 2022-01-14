@@ -1,5 +1,4 @@
 import { PenroseError, PenroseState } from "@penrose/core";
-import { cloneDeep, debounce } from "lodash";
 import React from "react";
 import { tryDomainHighlight } from "./Util";
 
@@ -65,19 +64,6 @@ export const initialState = (): State => {
   };
 };
 
-export const debouncedSave = debounce((state: State) => {
-  if (state.currentInstance.authorship.gistID !== null) {
-    // don't save if already gist
-    return;
-  }
-  const modifiedState = cloneDeep(state);
-  modifiedState.currentInstance.state = null;
-  modifiedState.currentInstance.domainCache = null;
-  modifiedState.currentInstance.err = null;
-
-  window.localStorage.setItem("state", JSON.stringify(modifiedState));
-}, 250);
-
 export type Action =
   | { kind: "CHANGE_CODE"; lang: "sub" | "sty" | "dsl"; content: string }
   | { kind: "SET_TRIO"; sub: string; sty: string; dsl: string }
@@ -86,7 +72,7 @@ export type Action =
   | { kind: "CHANGE_CANVAS_STATE"; content: PenroseState | null }
   | { kind: "CHANGE_ERROR"; content: PenroseError | null }
   | { kind: "CHANGE_TITLE"; name: string }
-  | { kind: "CHANGE_SETTINGS"; settings: ISettings };
+  | { kind: "CHANGE_SETTINGS"; settings: any };
 
 export type Dispatcher = React.Dispatch<Action>;
 
@@ -158,7 +144,7 @@ const reducer = (state: State, action: Action): State => {
     case "CHANGE_SETTINGS":
       return {
         ...state,
-        settings: action.settings,
+        settings: { ...state.settings, ...action.settings },
       };
   }
 };

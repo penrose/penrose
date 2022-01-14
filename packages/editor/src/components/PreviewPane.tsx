@@ -21,24 +21,32 @@ export default function PreviewPane({
   const canvasRef = useRef<HTMLDivElement>(null);
   const svg = useCallback(() => {
     if (state.currentInstance.state) {
-      const rendered = RenderStatic(state.currentInstance.state);
-      DownloadSVG(rendered);
+      (async () => {
+        const rendered = await RenderStatic(
+          state.currentInstance.state,
+          async () => null
+        );
+        DownloadSVG(rendered);
+      })();
     }
   }, [state]);
   useEffect(() => {
     if (state.currentInstance.state) {
       const cur = canvasRef.current;
-      const rendered = RenderInteractive(
-        state.currentInstance.state,
-        convergeRenderState
-      );
-      if (cur) {
-        if (cur.firstChild) {
-          cur.replaceChild(rendered, cur.firstChild);
-        } else {
-          cur.appendChild(rendered);
+      (async () => {
+        const rendered = await RenderInteractive(
+          state.currentInstance.state,
+          convergeRenderState,
+          async () => null
+        );
+        if (cur) {
+          if (cur.firstChild) {
+            cur.replaceChild(rendered, cur.firstChild);
+          } else {
+            cur.appendChild(rendered);
+          }
         }
-      }
+      })();
     }
   }, [state]);
   return (

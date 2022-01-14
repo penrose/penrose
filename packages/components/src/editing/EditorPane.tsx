@@ -31,6 +31,7 @@ export default function EditorPane({
   languageType: keyof typeof abbrevMap;
   setupMonaco(monaco: Monaco): () => void;
 }) {
+  /*
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
@@ -51,8 +52,9 @@ export default function EditorPane({
       return () => vimModeInstance.dispose();
     }
   }, [vimMode]);
+  */
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
-    editorRef.current = editorArg;
+    // editorRef.current = editorArg;
   };
 
   return (
@@ -66,7 +68,7 @@ export default function EditorPane({
         onMount={onEditorMount}
       />
       <div
-        ref={statusBarRef}
+        // ref={statusBarRef}
         style={{ position: "absolute", bottom: 0, backgroundColor: "white" }}
       />
     </div>

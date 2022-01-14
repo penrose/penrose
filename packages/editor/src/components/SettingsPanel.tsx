@@ -20,7 +20,7 @@ export default function SettingsPanel({
                 onClick={() =>
                   dispatch({
                     kind: "CHANGE_SETTINGS",
-                    settings: { ...state.settings, githubUser: null },
+                    settings: { githubUser: null },
                   })
                 }
               >
@@ -40,7 +40,6 @@ export default function SettingsPanel({
                 dispatch({
                   kind: "CHANGE_SETTINGS",
                   settings: {
-                    ...state.settings,
                     vimMode: !state.settings.vimMode,
                   },
                 })
