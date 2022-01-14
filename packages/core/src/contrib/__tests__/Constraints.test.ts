@@ -225,7 +225,13 @@ describe("general constraints", () => {
     ["Rectangle", "Line", 150, _rectangles[0], _lines[2]],
     ["Rectangle", "Polygon", 150, _rectangles[3], _polygons[1]],
     ["Rectangle", "Polygon", 150, _rectangles[1], _polygons[2]],
-    ["Circle", "Rectangle", 100 * (Math.SQRT2 - 1) / Math.SQRT2 + 10, _circles[4], _rectangles[2]],
+    [
+      "Circle",
+      "Rectangle",
+      (100 * (Math.SQRT2 - 1)) / Math.SQRT2 + 10,
+      _circles[4],
+      _rectangles[2],
+    ],
   ])(
     "overlapping %p and %p with padding %p",
     (
@@ -322,7 +328,13 @@ describe("general constraints", () => {
     ["Circle", "Rectangle", 100, _circles[1], _rectangles[3]],
     ["Circle", "Circle", 100, _circles[1], _circles[3]],
     ["Line", "Line", 100, _lines[1], _lines[2]],
-    ["Circle", "Rectangle", 100 * (Math.SQRT2 - 1) / Math.SQRT2, _circles[4], _rectangles[2]],
+    [
+      "Circle",
+      "Rectangle",
+      (100 * (Math.SQRT2 - 1)) / Math.SQRT2,
+      _circles[4],
+      _rectangles[2],
+    ],
   ])(
     "touching %p and %p with padding %p",
     (
