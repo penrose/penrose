@@ -72,7 +72,6 @@
     "eslint-plugin-prefer-arrow": "^1.2.2",
     "estrella": "^1.3.0",
     "jest-junit": "^12.0.0",
-    "prettier": "^1.19.1",
     "serve-http": "^1.0.6",
     "terser": "^5.5.1",
     "true-myth": "^4.1.0",
