@@ -7,6 +7,7 @@ import {
   sampleColor,
   sampleNoPaint,
   sampleStroke,
+  sampleZero,
   StrV,
 } from "./Samplers";
 
@@ -15,7 +16,7 @@ export interface IPolygon extends INamed, IStroke, IFill, IScale, IPoly {}
 export const samplePolygon = (_canvas: Canvas): IPolygon => ({
   name: StrV("defaultPolygon"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDashArray: StrV(""),

@@ -9,6 +9,7 @@ import {
   sampleStroke,
   sampleVector,
   sampleWidth,
+  sampleZero,
   StrV,
 } from "./Samplers";
 
@@ -20,7 +21,7 @@ export interface IEllipse extends INamed, IStroke, IFill, ICenter {
 export const sampleEllipse = (canvas: Canvas): IEllipse => ({
   name: StrV("defaultEllipse"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDashArray: StrV(""),

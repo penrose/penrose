@@ -8,6 +8,7 @@ import {
   sampleStroke,
   sampleVector,
   sampleWidth,
+  sampleZero,
   StrV,
 } from "./Samplers";
 
@@ -18,7 +19,7 @@ export interface ICircle extends INamed, IStroke, IFill, ICenter {
 export const sampleCircle = (canvas: Canvas): ICircle => ({
   name: StrV("defaultCircle"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDashArray: StrV(""),

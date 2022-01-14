@@ -34,7 +34,7 @@ Global {
 
    -- string fontFamily = "Linux Libertine O"
    string fontFamily = "Palatino"
-   string fontSize = "14pt"
+   string fontSize = "14px"
 }
 
 forall Vertex v {
@@ -370,7 +370,7 @@ forall Halfedge h {
       center: m + h*n
       string: h.label
       fontFamily: "Courier"
-      fontSize: "9pt"
+      fontSize: "6.75px"
       fillColor: Colors.black
       rotation: -toDegrees(angleOf(t01))
    }
@@ -668,7 +668,7 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- concyclic-pair --- -- make corner labels larger and dark blue
 --- concyclic-pair --- forall Corner c; Vertex i; Vertex j; Vertex k
 --- concyclic-pair --- where c := MakeCorner(i,j,k); c has text label {
---- concyclic-pair ---    override c.text.fontSize = "18pt"
+--- concyclic-pair ---    override c.text.fontSize = "13.5px"
 --- concyclic-pair ---    override c.textBounds.r = Global.labelBoundRadius
 --- concyclic-pair ---    override c.text.fillColor = Colors.darkBlue
 --- concyclic-pair --- }

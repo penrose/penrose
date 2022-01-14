@@ -33,7 +33,7 @@ export interface IRectangle
 export const sampleRectangle = (canvas: Canvas): IRectangle => ({
   name: StrV("defaultRectangle"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDashArray: StrV(""),
