@@ -13,7 +13,6 @@ forall Set x {
     }
 
     ensure contains(x.icon, x.text)
-    -- ensure onCanvas(x.icon, canvas.width, canvas.height)
     encourage sameCenter(x.text, x.icon)
     x.textLayering = x.text above x.icon
 }

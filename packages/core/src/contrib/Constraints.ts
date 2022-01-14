@@ -157,11 +157,11 @@ const constrDictGeneral = {
   ) => {
     const box = bboxFromShape([shapeType, props]);
     const canvasXRange: [VarAD, VarAD] = [
-      neg(div(canvasWidth, constOf(2))),
+      mul(canvasWidth, constOf(-0.5)),
       div(canvasWidth, constOf(2)),
     ];
     const canvasYRange: [VarAD, VarAD] = [
-      neg(div(canvasHeight, constOf(2))),
+      mul(canvasHeight, constOf(-0.5)),
       div(canvasHeight, constOf(2)),
     ];
     return add(
