@@ -1,4 +1,4 @@
-import { constOf, constOfIf, ops } from "engine/Autodiff";
+import { constOf, constOfIf, numOf, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -29,6 +29,8 @@ import {
   containsCircleRectlike,
   containsRectlikeCircle,
   containsAABBs,
+  containsPolygonCircles,
+  containsPolygonPolygon,
 } from "contrib/ConstraintsUtils";
 import { VarAD } from "types/ad";
 
@@ -252,6 +254,10 @@ const constrDictGeneral = {
   ) => {
     if (t1 === "Circle" && t2 === "Circle")
       return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Polygon" && t2 === "Polygon")
+      return containsPolygonPolygon([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Polygon" && t2 === "Circle")
+      return containsPolygonCircles([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isRectlike && t2 === "Circle")

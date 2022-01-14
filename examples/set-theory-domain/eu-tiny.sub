@@ -1,0 +1,53 @@
+-- Countries
+Point LI
+-- CY, AT, CZ, VA, CH, IS, BG
+
+-- EU
+Set EU
+
+-- PointIn(EU, BG)
+-- PointIn(EU, CY)
+-- PointIn(EU, AT)
+-- PointIn(EU, CZ)
+
+PointIn(EU, LI)
+
+-- EEA
+-- Set EEA
+
+-- IsSubset(EEA, EU)
+
+-- PointIn(EEA, LI)
+-- PointIn(EEA, IS)
+
+-- -- EFTA
+-- Set EFTA
+
+-- PointIn(EFTA, CH)
+-- PointIn(EFTA, LI)
+-- PointIn(EFTA, IS)
+
+-- -- Schengen
+-- Set Schengen
+
+-- PointIn(Schengen, IS)
+-- PointIn(Schengen, CZ)
+-- PointIn(Schengen, AT)
+-- PointIn(Schengen, VA)
+
+-- -- Euro
+-- Set Euro
+
+-- PointIn(Euro, CY)
+-- PointIn(Euro, AT)
+-- PointIn(Euro, VA)
+
+AutoLabel All
+-- Label BG "BG.svg"
+-- Label CY "CY.svg"
+-- Label AT "AT.svg"
+-- Label CZ "CZ.svg"
+-- Label VA "VA.svg"
+-- Label CH "CH.svg"
+-- Label IS "IS.svg"
+-- Label LI "LI.svg"

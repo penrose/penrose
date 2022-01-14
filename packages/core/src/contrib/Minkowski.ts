@@ -131,10 +131,10 @@ export const convexPolygonMinkowskiSDF = (
   p2: VarAD[][],
   padding: VarAD
 ): VarAD => {
-  return max(
-    convexPolygonMinkowskiSDFOneSided(p1, p2, padding),
-    convexPolygonMinkowskiSDFOneSided(p2, p1, padding)
-  );
+  // return max(
+  return convexPolygonMinkowskiSDFOneSided(p1, p2, padding);
+    // convexPolygonMinkowskiSDFOneSided(p2, p1, padding),
+  // );
 };
 
 /**
@@ -191,4 +191,65 @@ export const rectangleSignedDistance = (
   const ne2 = min(max(xq, yq), constOf(0.0));
   // Return the signed distance
   return add(e1, ne2);
+};
+
+/**
+ * Return value of the Signed Distance Function (SFD) of a half-plane evaluated at the origin.
+ * @param lineSegment Two points defining a side of the first polygon.
+ * @param otherPoints All vertices of the second polygon.
+ * @param insidePoint Point inside of the half-plane.
+ * @param padding Padding added to the half-plane.
+ * @param point ...
+ */
+ export const halfPlaneSDFPoint = (
+  lineSegmentT: VarAD[][],
+  point: VarAD[],
+  insidePointT: VarAD[],
+  padding: VarAD,
+): VarAD => {
+  const insidePoint = ops.vsub(insidePointT, point);
+  const lineSegment = lineSegmentT.map((x) => ops.vsub(point, x));
+
+  const normal = outwardUnitNormal(lineSegment, insidePoint);
+  const alpha = ops.vdot(normal, lineSegment[0]);
+  return neg(add(alpha, padding));
+};
+
+/**
+ * Return value of one-sided Signed Distance Function (SDF) of the Minkowski sum of two polygons `p1` and `p2` evaluated at the origin.
+ * Only half-planes related to sides of the first polygon `p1` are considered.
+ * @param p1 Sequence of points defining the first polygon.
+ * @param p2 Point
+ * @param padding Padding around the Minkowski sum.
+ */
+ const convexPolygonMinkowskiSDFOneSidedNew = (
+  p1: VarAD[][],
+  p2: VarAD[],
+  padding: VarAD
+): VarAD => {
+  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  const sides = Array.from({ length: p1.length }, (_, i) => i).map((i) => [
+    p1[i],
+    p1[i > 0 ? i - 1 : p1.length - 1],
+  ]);
+  const sdfs = sides.map((s: VarAD[][]) =>
+  halfPlaneSDFPoint(s, p2, center, padding)
+  );
+  return maxN(sdfs);
+};
+
+/**
+ * Overlapping constraint function for polygon points with padding `padding`.
+ * @param polygonPoints1 Sequence of points defining a polygon.
+ * @param polygonPoints2 Sequence of points defining a polygon.
+ * @param padding Padding applied to one of the polygons.
+ */
+export const containsPolygonPoints = (
+  polygonPoints1: VarAD[][],
+  polygonPoints2: VarAD[],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  const cp1 = convexPartitions(polygonPoints1);
+  const cp2 = polygonPoints2;
+  return maxN(cp1.map((p1) => convexPolygonMinkowskiSDFOneSidedNew(p1, cp2, padding)));
 };

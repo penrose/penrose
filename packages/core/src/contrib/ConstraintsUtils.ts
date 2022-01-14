@@ -2,10 +2,11 @@ import {
   overlappingPolygonPoints,
   rectangleDifference,
   rectangleSignedDistance,
+  containsPolygonPoints,
 } from "contrib/Minkowski";
 import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
-import { VarAD } from "types/ad";
+import { VarAD, isPt2, Pt2 } from "types/ad";
 import * as BBox from "engine/BBox";
 import {
   sub,
@@ -19,6 +20,12 @@ import {
   ifCond,
   lt,
   squared,
+  sqrt,
+  gt,
+  eq,
+  neg,
+  maxN,
+  minN,
 } from "engine/AutodiffFunctions";
 import { pointInBox, noIntersectCircles, atDistOutside } from "contrib/Utils";
 import { Circle } from "shapes/Circle";
@@ -75,6 +82,21 @@ export const overlappingAABBs = (
   const [bottomLeft, topRight] = rectangleDifference(box1, box2, padding);
   // Return the signed distance
   return rectangleSignedDistance(bottomLeft, topRight);
+};
+
+/**
+ * Require that polygon `s1` overlaps polygon `s2` with some padding `padding`.
+ */
+export const overlappingPaths = (
+  [t1, s1]: [string, Polygon],
+  [t2, s2]: [string, Polygon],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  return overlappingPolygonPoints(
+    s1.points.contents,
+    s2.points.contents,
+    padding
+  );
 };
 
 /**
@@ -242,4 +264,38 @@ export const containsAABBs = (
     ifCond(lt(yl1, yl2), constOf(0), squared(sub(yl1, yl2))),
     ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1))),
   ]);
+};
+
+/**
+ * Require that a shape `s1` contains another shape `s2`.
+ */
+export const containsPolygonCircles = (
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Circle],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  console.warn("containsPolygonCircles");
+  return overlappingPolygonPoints(
+    s1.points.contents,
+    // s1.d.contents.map((x) => x[),
+    [s2.center.contents],
+    // padding
+    sub(padding, s2.r.contents)
+  );
+};
+
+/**
+ * Require that a shape `s1` contains another shape `s2`.
+ */
+export const containsPolygonPolygon = (
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Polygon],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  console.warn("containsPolygonPolygon");
+  return maxN(
+    s2.points.contents.map((x) =>
+      containsPolygonPoints(s1.points.contents, x, padding)
+    )
+  );
 };
