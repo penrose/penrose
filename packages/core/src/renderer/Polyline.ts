@@ -4,6 +4,7 @@ import {
   attrTitle,
   attrAutoFillSvg,
   attrFill,
+  attrPolyPoints,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
@@ -21,6 +22,7 @@ const Polyline = ({ shape, canvasSize }: ShapeProps): SVGPolylineElement => {
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
   attrToNotAutoMap.push(...attrScale(shape, elem));
+  attrToNotAutoMap.push(...attrPolyPoints(shape, canvasSize, elem));
 
   // Directrly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

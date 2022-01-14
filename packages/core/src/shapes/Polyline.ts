@@ -4,6 +4,7 @@ import {
   Canvas,
   FloatV,
   PtListV,
+  sampleBlack,
   sampleColor,
   sampleNoPaint,
   sampleStroke,
@@ -17,9 +18,9 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
   style: StrV(""),
   strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
-  strokeColor: sampleNoPaint(),
+  strokeColor: sampleBlack(),
   strokeDashArray: StrV(""),
-  fillColor: sampleColor(),
+  fillColor: sampleNoPaint(),
   scale: FloatV(constOf(1)),
   points: PtListV(
     [
