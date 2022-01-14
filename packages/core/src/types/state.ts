@@ -1,6 +1,7 @@
 import { prng } from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { VarAD, GradGraphs } from "./ad";
+import { A } from "./ast";
 import { MaybeVal } from "./common";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
@@ -10,17 +11,17 @@ import { ArgVal, Translation, Value } from "./value";
  * The diagram state modeling the original Haskell types
  */
 export interface IState {
-  varyingPaths: Path[];
+  varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
-  shapePaths: Path[];
+  shapePaths: Path<A>[];
   shapeProperties: any; // TODO: types
-  uninitializedPaths: Path[];
+  uninitializedPaths: Path<A>[];
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
-  pendingPaths: Path[];
+  pendingPaths: Path<A>[];
   varyingValues: number[];
   translation: Translation;
   originalTranslation: Translation;
@@ -69,7 +70,7 @@ export type Fn = IFn;
  */
 export interface IFn {
   fname: string;
-  fargs: Expr[];
+  fargs: Expr<A>[];
   optType: OptType;
 }
 export type OptType = "ObjFn" | "ConstrFn";

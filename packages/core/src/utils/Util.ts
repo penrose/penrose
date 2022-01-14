@@ -5,10 +5,11 @@ import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
 import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
-import { MaybeVal } from "types/common";
+import { Just, MaybeVal } from "types/common";
 import { VarAD } from "types/ad";
 import { Fn, State } from "types/state";
 import { ILine } from "shapes/Line";
+import { A } from "types/ast";
 
 //#region general
 
@@ -53,31 +54,35 @@ export const fromJust = <T>(n: MaybeVal<T>): T => {
 /**
  * Like _.zip but throws on different length instead of padding with undefined.
  */
-export const zip2 = <A, B>(a: A[], b: B[]): [A, B][] => {
-  const l = a.length;
-  if (l !== b.length) {
+export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
+  const l = a1.length;
+  if (l !== a2.length) {
     throw Error("expected same # elements in both arrays");
   }
-  const c: [A, B][] = [];
+  const a: [T1, T2][] = [];
   for (let i = 0; i < l; ++i) {
-    c.push([a[i], b[i]]);
+    a.push([a1[i], a2[i]]);
   }
-  return c;
+  return a;
 };
 
 /**
  * Like _.zip but throws on different length instead of padding with undefined.
  */
-export const zip3 = <A, B, C>(a: A[], b: B[], c: C[]): [A, B, C][] => {
-  const l = a.length;
-  if (!(l === b.length || l === c.length)) {
+export const zip3 = <T1, T2, T3>(
+  a1: T1[],
+  a2: T2[],
+  a3: T3[]
+): [T1, T2, T3][] => {
+  const l = a1.length;
+  if (!(l === a2.length || l === a3.length)) {
     throw Error("expected same # elements in all three arrays");
   }
-  const d: [A, B, C][] = [];
+  const a: [T1, T2, T3][] = [];
   for (let i = 0; i < l; ++i) {
-    d.push([a[i], b[i], c[i]]);
+    a.push([a1[i], a2[i], a3[i]]);
   }
-  return d;
+  return a;
 };
 
 //#endregion
@@ -443,13 +448,13 @@ export class Queue<T> {
 //#region Style
 
 // COMBAK: Copied from `EngineUtils`; consolidate
-export const isPath = (expr: Expr): expr is Path => {
+export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
   return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
     expr.tag
   );
 };
 
-export const prettyPrintPath = (p: Expr): string => {
+export const prettyPrintPath = (p: Expr<A>): string => {
   if (p.tag === "FieldPath") {
     const varName = p.name.contents.value;
     const varField = p.field.value;
@@ -469,7 +474,7 @@ export const prettyPrintPath = (p: Expr): string => {
   }
 };
 
-export const prettyPrintExpr = (arg: Expr): string => {
+export const prettyPrintExpr = (arg: Expr<A>): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
   if (isPath(arg)) {
     return prettyPrintPath(arg);

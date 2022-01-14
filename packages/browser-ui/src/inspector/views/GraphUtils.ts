@@ -4,6 +4,7 @@ import {
   prettyPrintFn,
   prettyPrintPath,
 } from "@penrose/core";
+import { A } from "@penrose/core/build/dist/types/ast";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
 import { uniqBy } from "lodash";
@@ -99,7 +100,7 @@ export const convertSchema = (graph: PGraph): PGraph => {
 /**
  * Make nodes and edges related to showing one DOF node (p is a varying path)
  */
-export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
+export const toGraphDOF = (p: Path<A>, allArgs: string[]): PGraph => {
   const empty = { nodes: [], edges: [] };
 
   if (p.tag === "FieldPath") {
@@ -165,7 +166,7 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
  * freedom) nodes
  */
 export const toGraphDOFs = (
-  varyingPaths: Path[],
+  varyingPaths: Path<A>[],
   allFns: Fn[],
   allArgs: string[]
 ): PGraph => {
