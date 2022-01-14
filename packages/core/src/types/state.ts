@@ -5,7 +5,7 @@ import { A } from "./ast";
 import { MaybeVal } from "./common";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
-import { ArgVal, Translation, Value } from "./value";
+import { ArgVal, IFloatV, Translation, Value } from "./value";
 
 /**
  * The diagram state modeling the original Haskell types
@@ -40,16 +40,17 @@ export type State = IState;
 export type LabelData = EquationData | TextData;
 export interface EquationData {
   tag: "EquationData";
-  width: Value<number>;
-  height: Value<number>;
+  width: IFloatV<number>;
+  height: IFloatV<number>;
   rendered: HTMLElement;
 }
 
 export interface TextData {
   tag: "TextData";
-  width: Value<number>;
-  height: Value<number>;
-  descent: Value<number>;
+  width: IFloatV<number>;
+  height: IFloatV<number>;
+  descent: IFloatV<number>;
+  ascent: IFloatV<number>;
 }
 
 export type LabelCache = [string, LabelData][];
