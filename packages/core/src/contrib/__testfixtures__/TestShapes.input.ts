@@ -33,6 +33,7 @@ export const _circles = [
   { center: [0, 0], r: 100 },
   { center: [200, 0], r: 100 },
   { center: [0, 300], r: 100 },
+  { center: [0, 200], r: 100 },
 ].map((x) =>
   makeCircle(canvas, {
     r: FloatV(constOf(x.r)),
