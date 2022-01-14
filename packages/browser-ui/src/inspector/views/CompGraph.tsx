@@ -92,7 +92,9 @@ const makeGraph = (frame: IState, value: string): PGraph => {
   return graph;
 };
 
-const CompGraph: React.FC<IViewProps> = ({ frame /*,history*/ }: IViewProps) => {
+const CompGraph: React.FC<IViewProps> = ({
+  frame /*,history*/,
+}: IViewProps) => {
   if (!frame) {
     return (
       <div style={{ padding: "1em", fontSize: "1em", color: "#4f4f4f" }}>
