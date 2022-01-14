@@ -40,17 +40,17 @@ type List('T)
 type Tuple('T, 'U)
 type Point
 OpenSet <: Set
-constructor Subset: Set A * Set B -> Set
-constructor Intersection: Set A * Set B -> Set
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function AddPoint : Point p * Set s1 -> Set
-predicate Not : Prop p1
-predicate Both : Prop p1 * Prop p2
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
+constructor Subset(Set A, Set B) -> Set
+constructor Intersection(Set A, Set B) -> Set
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddPoint(Point p, Set s1) -> Set
+predicate Not(Prop p1)
+predicate Both(Prop p1, Prop p2)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
 `;
 
 const domainProgWithPrelude = `
@@ -61,17 +61,17 @@ type List('T)
 type Tuple('T, 'U)
 type Point
 OpenSet <: Set
-constructor Subset: Set A * Set B -> Set
-constructor Intersection: Set A * Set B -> Set
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function AddPoint : Point p * Set s1 -> Set
-predicate Not : Prop p1
-predicate Both : Prop p1 * Prop p2
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
+constructor Subset(Set A, Set B) -> Set
+constructor Intersection(Set A, Set B) -> Set
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddPoint(Point p, Set s1) -> Set
+predicate Not(Prop p1)
+predicate Both(Prop p1, Prop p2)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
 value X: Set
 `;
 
@@ -140,23 +140,25 @@ describe("Postprocess", () => {
 Set A, B, C, D, E
 AutoLabel All
 Label A $\\vec{A}$
-Label B $B_1$
+Label B "B_1"
 NoLabel D, E
     `;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
       const expected = [
-        ["A", "\\vec{A}"],
-        ["B", "B_1"],
-        ["C", "C"],
-        ["D", ""],
-        ["E", ""],
+        ["A", "\\vec{A}", "MathLabel"],
+        ["B", "B_1", "TextLabel"],
+        ["C", "C", "MathLabel"],
+        ["D", "", "NoLabel"],
+        ["E", "", "NoLabel"],
       ];
       const labelMap = res.value[0].labels;
-      expected.map(([id, value]) =>
-        expect(labelMap.get(id)!.unwrapOr("")).toEqual(value)
-      );
+      expected.map(([id, value, type]) => {
+        const label = labelMap.get(id)!;
+        expect(label.value).toEqual(value);
+        expect(label.type).toEqual(type);
+      });
     } else {
       fail("Unexpected error when processing labels: " + showError(res.error));
     }
@@ -386,7 +388,7 @@ v := Subset(A, B) -- error
     const env = envOrError(domainProg);
     const prog = `
 -- type Tuple('T, 'U)
--- constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
+-- constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
 List(Set) nil
 Tuple(Set, Set) t -- Maybe an error?
 t := CreateTuple(nil, nil) -- Definitely an error

@@ -4,6 +4,7 @@ import {
   prettyPrintFn,
   prettyPrintPath,
 } from "@penrose/core";
+import { A } from "@penrose/core/build/dist/types/ast";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
 import { flatMap, uniqBy } from "lodash";
@@ -48,12 +49,15 @@ const flatGraph = (es: PGraph[]): PGraph => {
 // TODO: Add type for graph and VarAD
 const traverseGraphTopDown = (par: VarAD): PGraph => {
   const parNode = { id: par.id, label: par.op };
-  const edges = par.children.map((edge) => ({
+  //TODO: do not navigate graph outside core
+  const edges = par.childrenAD.map((edge) => ({
     from: parNode.id,
     to: edge.node.id,
   }));
 
-  const subgraphs = par.children.map((edge) => traverseGraphTopDown(edge.node));
+  const subgraphs = par.childrenAD.map((edge) =>
+    traverseGraphTopDown(edge.node)
+  );
   const subnodes = merge(subgraphs.map((g) => g.nodes));
   const subedges = merge(subgraphs.map((g) => g.edges));
 
@@ -98,7 +102,7 @@ export const convertSchema = (graph: PGraph): PGraph => {
 // -----
 
 // Make nodes and edges related to showing one DOF node (p is a varying path)
-export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
+export const toGraphDOF = (p: Path<A>, allArgs: string[]): PGraph => {
   const empty = { nodes: [], edges: [] };
 
   if (p.tag === "FieldPath") {
@@ -162,7 +166,7 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
 // Make nodes and edges related to showing DOF nodes
 
 export const toGraphDOFs = (
-  varyingPaths: Path[],
+  varyingPaths: Path<A>[],
   allFns: Fn[],
   allArgs: string[]
 ): PGraph => {

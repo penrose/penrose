@@ -1,13 +1,9 @@
 TLine Line 
 TPolyline Polyline
-TPathString PathString
 TPath Path
-TSquare Square
-TText Text
+TEquation Equation
 TImage Image
-TFreeformPolygon FreeformPolygon
 TPolygon Polygon
 TEllipse Ellipse
 TRectangle Rectangle
 TCircle Circle
-TArrow Arrow

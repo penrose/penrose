@@ -24,19 +24,19 @@ canvas {
     height = 600.
 
     shape box = Rectangle {
-        w: width
-        h: height
+        width: width
+        height: height
         center: (0., 0.)
         strokeColor: rgba(0., 0., 0., 1.)
         strokeWidth: 3.
-        color: rgba(1., 1., 1., 0.)
+        fillColor: rgba(1., 1., 1., 0.)
     }
 
     -- TODO(bug): file issue as the local var `box` doesn't seem to work here
-         left = canvas.box.center[0] - canvas.box.w/2.
-         right = canvas.box.center[0] + canvas.box.w/2.
-         top = canvas.box.center[1] + canvas.box.h/2.
-         bot = canvas.box.center[1] - canvas.box.h/2.
+         left = canvas.box.center[0] - canvas.box.width/2.
+         right = canvas.box.center[0] + canvas.box.width/2.
+         top = canvas.box.center[1] + canvas.box.height/2.
+         bot = canvas.box.center[1] - canvas.box.height/2.
 }
 
 Object o {
@@ -53,13 +53,13 @@ Object o {
     shape o.shape = Line {
         start: o.v1
         end: o.v2
-        -- color: rgba(0., 0., 0., 1.)
-        thickness: 5.
-        rightArrowhead: true
+        -- strokeColor: rgba(0., 0., 0., 1.)
+        strokeWidth: 5.
+        endArrowhead: true
         arrowheadSize: 0.5
     }
 
-    shape o.text = Text {
+    shape o.text = Equation {
            center: (o.shape.start + o.shape.end) / 2.
            string: o.label
            fontSize: "20pt"
@@ -77,23 +77,23 @@ Morphism m {
          -- The floating vars are the rect centers
          shape m.shape = Rectangle { 
                   center: (?, ?)
-                  w: 100. 
-                  h: 300.
-               color: rgba(1.,1.,1.,0.)
+                  width: 100. 
+                  height: 300.
+               fillColor: rgba(1.,1.,1.,0.)
                strokeColor: rgba(0., 0., 0., 1.)
                strokeWidth: 3.
          }
 
-         shape m.text = Text {
+         shape m.text = Equation {
                center: m.shape.center
                string: m.label
                   fontSize: "20pt"
          }
 
-         m.left = m.shape.center[0] - m.shape.w/2.
-         m.right = m.shape.center[0] + m.shape.w/2.
-         m.top = m.shape.center[1] + m.shape.h/2.
-         m.bot = m.shape.center[1] - m.shape.h/2.
+         m.left = m.shape.center[0] - m.shape.width/2.
+         m.right = m.shape.center[0] + m.shape.width/2.
+         m.top = m.shape.center[1] + m.shape.height/2.
+         m.bot = m.shape.center[1] - m.shape.height/2.
 
          ensure contains(canvas.box, m.shape)
 
@@ -104,8 +104,8 @@ Morphism m {
 Object p
 with Object a, b
 where p := tensor(a, b) {
-      override p.shape.color = rgba(1.0, 0.0, 0.0, 0.1)
-      override p.shape.style = "dashed"
+      override p.shape.strokeColor = rgba(1.0, 0.0, 0.0, 0.1)
+      override p.shape.strokeStyle = "dashed"
 
       -- bottom-up
       override p.y = (a.y + b.y)/2.
@@ -130,7 +130,7 @@ where p := tensor(a, b) {
 Morphism m
 with Object a, b
 where m := join(a, b) {
-      -- override m.shape.color = Colors.green
+      -- override m.shape.fillColor = Colors.green
 
       -- TODO: overriding nonexistent fields should throw an error. like `override a.sdjfsadfjhks = 0`
       override a.maxX = m.left
