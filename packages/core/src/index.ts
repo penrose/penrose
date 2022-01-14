@@ -218,9 +218,7 @@ export const prepareState = async (state: State): Promise<State> => {
   });
 
   const withOptProblem: State = genOptProblem(stateWithPendingProperties);
-  const withOptProblemAndCachedFns: State = genFns(withOptProblem);
-
-  return withOptProblemAndCachedFns;
+  return withOptProblem;
 };
 
 /**

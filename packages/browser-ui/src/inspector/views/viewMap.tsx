@@ -11,7 +11,7 @@ const viewMap = {
   errors: Errors,
   shapes: ShapeView,
   // mod: Mod, // NOTE: mod tab temporarily deprecated
-  "optimization status": Opt,
+  //"optimization status": Opt,
   compGraph: CompGraph,
   settings: Settings,
 };
