@@ -98,6 +98,10 @@ export const insertPending = (state: State): State => {
       if (labelData) {
         if (prop === "width") return labelData.width;
         else if (prop === "height") return labelData.height;
+        else if (labelData.tag === "TextData" && prop === "ascent")
+          return labelData.ascent;
+        else if (labelData.tag === "TextData" && prop === "descent")
+          return labelData.descent;
         else {
           throw new Error(`Cached label data do not contain property ${prop}`);
         }
