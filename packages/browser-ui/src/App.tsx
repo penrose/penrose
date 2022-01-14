@@ -310,7 +310,7 @@ class App extends React.Component<unknown, ICanvasState> {
               this.updateData,
               this.state.fileSocket.getFile
             )
-          : await RenderStatic(state, this.state.fileSocket.getFile);
+          : await RenderInteractive(state, this.state.fileSocket.getFile);
       if (current.firstChild !== null) {
         current.replaceChild(rendered, current.firstChild);
       } else {
