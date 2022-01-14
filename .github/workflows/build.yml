@@ -36,7 +36,17 @@ jobs:
       - name: Install packages
         uses: ./.github/actions/packages
       - name: Format
-        run: yarn format:check
+        run: |
+          if ! yarn format:check; then
+            echo
+            echo 'Run this command from the repository root:'
+            echo
+            echo '    yarn format'
+            echo
+            echo 'Then commit and push to re-run CI.'
+            echo
+            false
+          fi
 
   lint:
     runs-on: ubuntu-latest
