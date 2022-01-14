@@ -365,6 +365,7 @@ export {
   getListOfStagedStates,
   toSvgPaintProperty,
 };
+export { makeCanvas } from "./shapes/Samplers";
 export type { Registry, Trio };
 export type { Env };
 export type { SubProg };
