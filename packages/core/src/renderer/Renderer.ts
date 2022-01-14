@@ -171,8 +171,6 @@ export const RenderStatic = async (
 ): Promise<SVGSVGElement> => {
   const { shapes, labelCache: labels, canvas } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "100%");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
