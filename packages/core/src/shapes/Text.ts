@@ -57,7 +57,7 @@ export const sampleText = (canvas: Canvas): IText => ({
   string: StrV("defaultText"),
   visibility: StrV(""),
   fontFamily: StrV("sans-serif"),
-  fontSize: StrV("12pt"),
+  fontSize: StrV("12px"),
   fontSizeAdjust: StrV(""),
   fontStretch: StrV(""),
   fontStyle: StrV(""),
