@@ -3,8 +3,8 @@ import { ObjectInspector } from "react-inspector";
 import IViewProps from "./IViewProps";
 // https://goessner.net/articles/JsonPath/
 class Frames extends React.Component<IViewProps> {
-  public render() {
-    const { history, frame } = this.props;
+  public render(): JSX.Element {
+    const { /*history,*/ frame } = this.props;
     if (frame === null) {
       return <p style={{ padding: "1em" }}>empty</p>;
     }

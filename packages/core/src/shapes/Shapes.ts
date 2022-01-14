@@ -32,6 +32,8 @@ export type Shape =
   | Rectangle
   | Text;
 
+export type ShapeType = Shape["shapeType"];
+
 export interface ShapeDef {
   sampler: (canvas: Canvas) => Properties;
   constr: (canvas: Canvas, properties: Properties) => Shape;

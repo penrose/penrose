@@ -1,3 +1,4 @@
+import { VarAD } from "types/ad";
 import {
   ICenter,
   IFill,
@@ -8,13 +9,12 @@ import {
   IString,
   IStroke,
 } from "types/shapes";
-import { IStrV } from "types/value";
+import { IFloatV, IStrV } from "types/value";
 import {
   BoolV,
   Canvas,
   sampleColor,
   sampleNoPaint,
-  sampleStroke,
   sampleVector,
   sampleZero,
   StrV,
@@ -40,12 +40,14 @@ export interface IText
   lineHeight: IStrV;
   alignmentBaseline: IStrV;
   dominantBaseline: IStrV;
+  ascent: IFloatV<VarAD>;
+  descent: IFloatV<VarAD>;
 }
 
 export const sampleText = (canvas: Canvas): IText => ({
   name: StrV("defaultText"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDashArray: StrV(""),
@@ -53,11 +55,13 @@ export const sampleText = (canvas: Canvas): IText => ({
   center: sampleVector(canvas),
   width: sampleZero(),
   height: sampleZero(),
+  ascent: sampleZero(),
+  descent: sampleZero(),
   rotation: sampleZero(),
   string: StrV("defaultText"),
   visibility: StrV(""),
   fontFamily: StrV("sans-serif"),
-  fontSize: StrV("12pt"),
+  fontSize: StrV("12px"),
   fontSizeAdjust: StrV(""),
   fontStretch: StrV(""),
   fontStyle: StrV(""),

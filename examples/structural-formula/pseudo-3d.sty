@@ -64,7 +64,7 @@ forall Node n {
       string : n.label
       center : n.center
       fillColor : Colors.black
-      fontSize : "14pt"
+      fontSize : "10.5px"
    }
 
    ensure contains( Global.bbox, n.icon )
@@ -287,7 +287,7 @@ forall Molecule m {
    m.text = Text {
       string : m.label
       fillColor : Colors.black
-      fontSize : "18pt"
+      fontSize : "13.5px"
       center : m.box.center - (0.,2.*Global.atomRadius)
       -- TODO add stroke (have to expose SVG text stroke in Penrose renderer)
    }
