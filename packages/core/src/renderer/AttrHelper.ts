@@ -3,7 +3,7 @@
  * output SVG properties using the optimized shape properties as input.
  */
 
-import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
+import { IColorV, IFloatV, IVectorV, IStrV, IPtListV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 import { attrMapSvg } from "./AttrMapSvg";
@@ -334,4 +334,20 @@ export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
     "fontWeight",
     "lineHeigh",
   ]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps points -> points
+ */
+export const attrPolyPoints = (
+  shape: Shape,
+  canvasSize: [number, number],
+  elem: SVGElement
+): string[] => {
+  const points = shape.properties.points as IPtListV<number>;
+  const pointsTransformed = points.contents.map((p: number[]) =>
+    toScreen(p as [number, number], canvasSize)
+  );
+  elem.setAttribute("points", pointsTransformed.toString());
+  return ["points"];
 };
