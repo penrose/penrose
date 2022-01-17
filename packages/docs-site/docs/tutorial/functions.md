@@ -181,7 +181,7 @@ This is easier than you expected, right? You're all done with this tutorial! Tak
 
 _FYI: All the sample goal diagrams are only a single sampling of many possible variations._
 
-We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. As a reminder, documentation for the pre-defined shapes that are available in Penrose can be found [here](https://github.com/penrose/penrose/wiki/Shape-library).
+We follow the convention of `u` being the resultant vector, and use `v, w` for input vectors. As a reminder, documentation for the pre-defined shapes that are available in Penrose can be found [here](/docs/api/).
 
 - **Exercise 1:** Create a new function that computes vector subtraction, and draws the difference vector, i.e. `u = v - w`.
 
@@ -217,7 +217,7 @@ We follow the convention of `u` being the resultant vector, and use `v, w` for i
 
 #### 💭 Substance is abstract! No numbers!
 
-- The visual meaning is defined in the style program. This includes all numbers. We have built-in types such as `scalar, color, ...` in our style program, which you can read more about [here](https://github.com/penrose/penrose/wiki/Style-language-spec#optional-type-annotations).
+- The visual meaning is defined in the style program. This includes all numbers. We have built-in types such as `scalar, color, ...` in our style program.
 - The substance program has no built-in functionality, meaning it is infinitely flexible.
 - Define your world in the domain file. The domain program also has no built-ins.
 
