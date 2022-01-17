@@ -87,7 +87,7 @@ forall Set x {
 
 So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/api/). It is a page that you will visit frequently as you work in Penrose.
 
-[This](http://localhost:3000/docs/api/shapes/circle) is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a table that lists out the different properties you can manipulate, along with the default values for any properties that aren't randomly generated.
+[This](/docs/api/) is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a table that lists out the different properties you can manipulate, along with the default values for any properties that aren't randomly generated.
 
 When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles do not have strokes, therefore we will set `strokeWidth : 0.0`. (Actually, we could leave that out as well, because it is the default for `strokeWidth` in `Circle`.) For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, so you do not have to worry.
 
