@@ -10,11 +10,10 @@
     "react-dom": "^17.0.2"
   },
   "scripts": {
-    "watch": "node estrella.js -w",
+    "watch": "node build.js -w",
     "start": "yarn watch",
-    "build": "react-scripts build",
-    "test": "echo 'NO TESTS'",
-    "eject": "react-scripts eject"
+    "build": "node build.js",
+    "test": "echo 'NO TESTS'"
   },
   "eslintConfig": {
     "extends": [
@@ -43,7 +42,6 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "typescript": "^4.1.2",
-    "react-scripts": "^4.0.3"
+    "typescript": "^4.1.2"
   }
 }

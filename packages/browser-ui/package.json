@@ -35,23 +35,14 @@
     "/build"
   ],
   "scripts": {
-    "start-cra": "react-scripts --max_old_space_size=8192 start",
-    "watch-cra": "cross-env CI=true react-scripts --max_old_space_size=8192 start",
-    "watch": "node estrella.js -w",
+    "watch": "node build.js -w",
     "start": "yarn watch",
-    "build": "cross-env CI=false && react-scripts --max_old_space_size=8192 build",
-    "build-lib": "ttsc --project tsconfig.lib.json",
-    "build:bundle": "webpack --config webpack.config.js",
+    "build": "node build.js",
     "test": "echo NO TESTS",
-    "docs": "typedoc --out docs src",
-    "test:watch": "react-scripts test",
     "lint": "eslint --ext js,ts,tsx src",
-    "eject": "react-scripts eject",
-    "batch": "ts-node ./automator/index.tsx --project ./automator/tsconfig.json",
     "prepack": "yarn build"
   },
   "devDependencies": {
-    "react-scripts": "^4.0.3",
     "@types/cytoscape": "^3.14.12",
     "@types/debug": "0.0.31",
     "@types/enzyme": "^3.10.5",

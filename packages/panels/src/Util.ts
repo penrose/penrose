@@ -82,7 +82,7 @@ export const usePublishGist = (
             window.location.replace(`/gist/${res.data.id}`);
           }
         } catch (err) {
-          toast.error(err.toString());
+          toast.error((err as string).toString());
         }
       })();
     }
@@ -109,7 +109,7 @@ export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {
       toast.error("No files in gist");
     }
   } catch (err) {
-    toast.error(`Could not retrieve gist ID: ${err.toString()}`);
+    toast.error(`Could not retrieve gist ID: ${(err as string).toString()}`);
   }
 };
 
