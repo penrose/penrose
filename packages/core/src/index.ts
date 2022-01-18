@@ -104,12 +104,15 @@ export const diagram = async (
   domainProg: string,
   subProg: string,
   styProg: string,
-  node: HTMLElement
+  node: HTMLElement,
+  pathResolver: PathResolver
 ): Promise<void> => {
   const res = compileTrio(domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
+    const rendered = await RenderStatic(optimized, pathResolver);
+    node.appendChild(rendered);
   } else {
     throw Error(
       `Error when generating Penrose diagram: ${showError(res.error)}`
