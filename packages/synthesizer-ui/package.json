@@ -14,7 +14,7 @@
     "start": "yarn watch",
     "build": "node build.js",
     "test": "echo 'NO TESTS'",
-    "clean": "rimraf public/app.js public/css.js"
+    "clean": "rimraf public/app.js public/app.css"
   },
   "eslintConfig": {
     "extends": [
