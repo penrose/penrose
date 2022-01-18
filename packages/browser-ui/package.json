@@ -41,7 +41,7 @@
     "test": "echo NO TESTS",
     "lint": "eslint --ext js,ts,tsx src",
     "prepack": "yarn build",
-    "clean": "rimraf public/app.js public/css.js"
+    "clean": "rimraf public/app.js public/app.css"
   },
   "devDependencies": {
     "@types/cytoscape": "^3.14.12",
