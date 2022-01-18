@@ -5,13 +5,12 @@ import { useEffect } from "react";
 import styled from "styled-components";
 
 // styling for shape inside viewbox - see ShapeView or Mod
-export const ShapeItem = styled.li<any>`
+export const ShapeItem = styled.li<React.OptionHTMLAttributes<never>>`
   display: block;
   padding: 1em;
   margin-top: -1px;
   border: 1px solid #d1d1d1;
-  background-color: ${({ selected }: any) =>
-    selected ? "#F9F9F9" : "#f0f0f0"};
+  background-color: ${(selected): string => (selected ? "#F9F9F9" : "#f0f0f0")};
   color: rgba(0, 0, 0, 0.5);
   font-family: monospace;
   display: flex;
@@ -24,7 +23,7 @@ const makeViewBoxes = (
   shapes: Shape[],
   selectedShape: number,
   setSelectedShape: (key: number) => void
-) => {
+): JSX.Element => {
   return (
     <div style={{ overflowY: "auto", height: "100%" }}>
       <ul
@@ -34,7 +33,7 @@ const makeViewBoxes = (
           margin: 0,
           top: 0,
           left: 0,
-          right: 0
+          right: 0,
         }}
       >
         {shapes.map(({ properties, shapeType }: Shape, key: number) => {
@@ -50,7 +49,7 @@ const makeViewBoxes = (
                 shape: { properties, shapeType },
                 labels: [],
                 canvasSize: [w, h],
-                pathResolver: async () => null
+                pathResolver: async () => null,
               });
               setShapeHTML(shape.outerHTML);
             })();
@@ -67,7 +66,7 @@ const makeViewBoxes = (
                   width="50"
                   height="50"
                   dangerouslySetInnerHTML={{
-                    __html: shapeHTML
+                    __html: shapeHTML,
                   }}
                 />
               </div>

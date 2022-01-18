@@ -1,9 +1,11 @@
 import { constOf } from "engine/Autodiff";
 import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   FloatV,
   PtListV,
+  sampleBlack,
   sampleColor,
   sampleNoPaint,
   sampleStroke,
@@ -15,11 +17,11 @@ export interface IPolyline extends INamed, IStroke, IFill, IScale, IPoly {}
 export const samplePolyline = (_canvas: Canvas): IPolyline => ({
   name: StrV("defaultPolyline"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
-  strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
-  fillColor: sampleColor(),
+  strokeColor: sampleBlack(),
+  strokeDasharray: StrV(""),
+  fillColor: sampleNoPaint(),
   scale: FloatV(constOf(1)),
   points: PtListV(
     [
@@ -28,6 +30,7 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
       [10, 0],
     ].map((p) => p.map(constOf))
   ),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Polyline = IShape & { shapeType: "Polyline" } & IPolyline;

@@ -26,11 +26,6 @@ export const logAD = consola
   .create({ level: LogLevel.Warn })
   .withScope("Optimizer");
 
-// Logging flags
-const DEBUG_ENERGY = false;
-
-// Consts
-export const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 // Reverse-mode AD

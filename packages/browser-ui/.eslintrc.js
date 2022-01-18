@@ -14,23 +14,23 @@ Happy linting! 💖
 module.exports = {
   env: {
     browser: true,
-    node: true
+    node: true,
   },
   extends: [
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "prettier",
-    "prettier/@typescript-eslint"
+    "prettier/@typescript-eslint",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "tsconfig.json",
-    sourceType: "module"
+    sourceType: "module",
   },
   plugins: [
     "eslint-plugin-import",
     "eslint-plugin-jsdoc",
-    "eslint-plugin-react"
+    "eslint-plugin-react",
   ],
-  ignorePatterns: ["**/*.test.ts", "**/*.test.tsx"]
+  ignorePatterns: ["**/*.test.ts", "**/*.test.tsx"],
 };

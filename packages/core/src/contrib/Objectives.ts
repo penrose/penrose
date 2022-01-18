@@ -30,6 +30,16 @@ import { VarAD } from "types/ad";
 // Do not require shape quaries, operate directly with `VarAD` parameters.
 export const objDictSimple = {
   /**
+   * Encourage the input value to be close to negative infinity
+   */
+  minimal: (x: VarAD) => x,
+
+  /**
+   * Encourage the input value to be close to infinity
+   */
+  maximal: (x: VarAD) => neg(x),
+
+  /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
   equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),

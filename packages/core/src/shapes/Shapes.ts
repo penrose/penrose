@@ -32,6 +32,8 @@ export type Shape =
   | Rectangle
   | Text;
 
+export type ShapeType = Shape["shapeType"];
+
 export interface ShapeDef {
   sampler: (canvas: Canvas) => Properties;
   constr: (canvas: Canvas, properties: Properties) => Shape;
@@ -43,6 +45,7 @@ export interface ShapeDef {
   bbox: (properties: Properties) => BBox.BBox;
   isLinelike: boolean; // TODO: use type predicate instead
   isRectlike: boolean; // TODO: remove this
+  isPolygonlike: boolean; // TODO: remove this
 }
 
 // hack to satisfy the typechecker
@@ -52,6 +55,7 @@ export const ShapeDef = (shapedef: {
   bbox: (properties: any) => BBox.BBox;
   isLinelike?: boolean;
   isRectlike?: boolean;
+  isPolygonlike?: boolean;
 }): ShapeDef => {
   const sampler = (canvas: Canvas) => <Properties>shapedef.sampler(canvas);
 
@@ -70,6 +74,7 @@ export const ShapeDef = (shapedef: {
     bbox: shapedef.bbox,
     isLinelike: shapedef.isLinelike || false,
     isRectlike: shapedef.isRectlike || false,
+    isPolygonlike: shapedef.isPolygonlike || false,
   };
 };
 
@@ -96,6 +101,7 @@ const Equation = ShapeDef({
 
   bbox: BBox.bboxFromRectlike,
   isRectlike: true,
+  isPolygonlike: true,
 });
 
 const Image = ShapeDef({
@@ -104,6 +110,7 @@ const Image = ShapeDef({
 
   bbox: BBox.bboxFromRectlike, // https://github.com/penrose/penrose/issues/712
   isRectlike: true,
+  isPolygonlike: true,
 });
 
 const Line = ShapeDef({
@@ -112,6 +119,7 @@ const Line = ShapeDef({
 
   bbox: BBox.bboxFromLinelike,
   isLinelike: true,
+  isPolygonlike: true,
 });
 
 const Path = ShapeDef({
@@ -126,6 +134,7 @@ const Polygon = ShapeDef({
   constr: makePolygon,
 
   bbox: BBox.bboxFromPolygon, // https://github.com/penrose/penrose/issues/709
+  isPolygonlike: true,
 });
 
 const Polyline = ShapeDef({
@@ -141,6 +150,7 @@ const Rectangle = ShapeDef({
 
   bbox: BBox.bboxFromRect,
   isRectlike: true,
+  isPolygonlike: true,
 });
 
 const Text = ShapeDef({
@@ -149,6 +159,7 @@ const Text = ShapeDef({
 
   bbox: BBox.bboxFromRectlike, // assumes w and h correspond to string
   isRectlike: true,
+  isPolygonlike: true,
 });
 
 export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {

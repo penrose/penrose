@@ -133,17 +133,17 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   }
   // factor out an AttrHelper
   if (
-    "strokeDashArray" in shape.properties &&
-    shape.properties.strokeDashArray.contents !== ""
+    "strokeDasharray" in shape.properties &&
+    shape.properties.strokeDasharray.contents !== ""
   ) {
     path.setAttribute(
       "stroke-dasharray",
-      (shape.properties.strokeDashArray as IStrV).contents
+      (shape.properties.strokeDasharray as IStrV).contents
     );
   } else if (shape.properties.strokeStyle.contents === "dashed") {
     path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
-  attrToNotAutoMap.push("strokeDashArray", "strokeStyle");
+  attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
 
   // TODO: ded
   path.setAttribute(

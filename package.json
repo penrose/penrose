@@ -11,6 +11,7 @@
     "start": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/browser-ui",
     "start:ide": "lerna run watch --stream --parallel --scope=@penrose/core --scope=@penrose/components --scope=@penrose/editor",
     "build:ide": "lerna run build --stream --scope=@penrose/core --scope=@penrose/components --scope=@penrose/editor",
+    "build:docs-site": "lerna run build --stream --scope=@penrose/core --scope=@penrose/docs-site",
     "test": "lerna run test --stream",
     "docs": "lerna run docs --stream",
     "lint": "lerna run lint --stream",
@@ -20,8 +21,8 @@
     "graduate": "lerna version --conventional-commits --conventional-graduate",
     "publish:canary": "lerna publish --canary --dist-tag develop --force-publish",
     "release": "lerna publish from-package",
-    "format": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --write",
-    "format:check": "prettier 'packages/**/*.{ts,tsx,js,scss,css,json,md}' --check",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "diff": "lerna diff"
   },
   "devDependencies": {
@@ -38,7 +39,8 @@
     ],
     "nohoist": [
       "**/@types/jest",
-      "**/babel-loader"
+      "**/babel-loader",
+      "**/webpack"
     ]
   },
   "version": "0.0.0"

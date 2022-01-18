@@ -1,12 +1,13 @@
 import { constOf } from "engine/Autodiff";
-import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
+import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   FloatV,
   PtListV,
   sampleColor,
   sampleNoPaint,
-  sampleStroke,
+  sampleZero,
   StrV,
 } from "./Samplers";
 
@@ -15,10 +16,10 @@ export interface IPolygon extends INamed, IStroke, IFill, IScale, IPoly {}
 export const samplePolygon = (_canvas: Canvas): IPolygon => ({
   name: StrV("defaultPolygon"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   scale: FloatV(constOf(1)),
   points: PtListV(
@@ -28,6 +29,7 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
       [10, 0],
     ].map((p) => p.map(constOf))
   ),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Polygon = IShape & { shapeType: "Polygon" } & IPolygon;

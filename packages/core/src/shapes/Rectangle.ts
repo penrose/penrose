@@ -9,6 +9,7 @@ import {
   IRotate,
 } from "types/shapes";
 import {
+  BoolV,
   Canvas,
   sampleColor,
   sampleHeight,
@@ -33,16 +34,17 @@ export interface IRectangle
 export const sampleRectangle = (canvas: Canvas): IRectangle => ({
   name: StrV("defaultRectangle"),
   style: StrV(""),
-  strokeWidth: sampleStroke(),
+  strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   center: sampleVector(canvas),
   width: sampleWidth(canvas),
   height: sampleHeight(canvas),
   cornerRadius: sampleZero(),
   rotation: sampleZero(),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Rectangle = IShape & { shapeType: "Rectangle" } & IRectangle;

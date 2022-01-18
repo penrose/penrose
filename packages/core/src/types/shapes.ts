@@ -5,13 +5,14 @@ import { VarAD } from "types/ad";
 export interface INamed {
   name: IStrV;
   style: IStrV; // TODO: very temporary; remove this and just use passthrough
+  ensureOnCanvas: IBoolV<VarAD>;
 }
 
 export interface IStroke {
   strokeWidth: IFloatV<VarAD>;
   strokeStyle: IStrV;
   strokeColor: IColorV<VarAD>;
-  strokeDashArray: IStrV;
+  strokeDasharray: IStrV;
 }
 
 export interface IFill {

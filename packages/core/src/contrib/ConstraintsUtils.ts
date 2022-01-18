@@ -1,61 +1,43 @@
 import {
-  convexPolygonMinkowskiSDF,
-  convexPartitions,
+  overlappingPolygonPoints,
   rectangleDifference,
+  rectangleSignedDistance,
 } from "contrib/Minkowski";
-import { overlap1D } from "contrib/Utils";
 import { ops, constOf } from "engine/Autodiff";
-import { shapeCenter, bboxFromShape } from "contrib/Queries";
+import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
 import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
-import { linePts } from "utils/Util";
 import {
+  sub,
+  mul,
+  div,
+  min,
+  max,
   absVal,
   add,
   addN,
-  div,
   ifCond,
   lt,
-  max,
-  maxN,
-  min,
-  minN,
-  mul,
-  neg,
-  sqrt,
   squared,
-  sub,
 } from "engine/AutodiffFunctions";
+import { pointInBox, noIntersectCircles, atDistOutside } from "contrib/Utils";
+import { Circle } from "shapes/Circle";
+import { Polygon } from "shapes/Polygon";
+import { Rectangle } from "shapes/Rectangle";
+import { Text } from "shapes/Text";
+import { Equation } from "shapes/Equation";
+import { Image } from "shapes/Image";
+import { Line } from "shapes/Line";
+import { shapedefs } from "shapes/Shapes";
 
 // -------- Ovelapping helpers
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
-export const overlappingLines = (
-  [, s1]: [string, any],
-  [, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  const oneSimplex1 = {
-    points: { contents: [s1.start.contents, s1.end.contents] },
-  };
-  const oneSimplex2 = {
-    points: { contents: [s2.start.contents, s2.end.contents] },
-  };
-  return overlappingPolygons(
-    ["1-simplex", oneSimplex1],
-    ["1-simplex", oneSimplex2],
-    padding
-  );
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that circle `s1` overlaps circle `s2` with some padding `padding`.
  */
 export const overlappingCircles = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
@@ -64,112 +46,118 @@ export const overlappingCircles = (
 };
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
+ * Require that polygon `s1` overlaps polygon `s2` with some padding `padding`.
  */
 export const overlappingPolygons = (
-  [, s1]: [string, any],
-  [, s2]: [string, any],
+  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
+  [t2, s2]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  const cp1 = convexPartitions(s1.points.contents);
-  const cp2 = convexPartitions(
-    s2.points.contents.map((p: VarAD[]) => ops.vneg(p))
-  );
-  return maxN(
-    cp1.map((p1) =>
-      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, padding)))
-    )
+  return overlappingPolygonPoints(
+    polygonLikePoints([t1, s1]),
+    polygonLikePoints([t2, s2]),
+    padding
   );
 };
 
 /**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
-export const overlappingRectlikeCircle = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  const s1BBox = bboxFromShape([t1, s1]);
-  const textR = max(s1BBox.width, s1BBox.height);
-  const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
-  return sub(d, add(add(s2.r.contents, textR), padding));
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
- export const overlappingCircleLine = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-   // collect constants
-   const c = s1.center.contents;
-   const r = s1.r.contents;
-   const a = s2.start.contents;
-   const b = s2.end.contents;
-   const o = padding;
-   
-   // Return the distance between the circle center c and the
-   // segment ab, minus the circle radius r and offset o.  This
-   // quantity will be negative of the circular disk intersects
-   // a thickened "capsule" associated with the line (of radius o).
-   // The expression for the point-segment distance d comes from
-   // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-   // (see "Segment - exact").
-   const u = ops.vsub(c,a); // u = c-a
-   const v = ops.vsub(b,a); // v - b-a
-   // h = clamp( <u,v>/<v,v>, 0, 1 )
-   const h = max( constOf(0.), min( constOf(1.), div( ops.vdot(u,v), ops.vdot(v,v) ) ));
-   // d = | u - h*v |
-   const d = ops.vnorm( ops.vsub( u, ops.vmul(h,v) ) );
-   // return d - (r+o)
-   return sub( d, add( r, o ) );
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- */
-export const overlappingAABBsMinkowski = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  const box1 = bboxFromShape([t1, s1]);
-  const box2 = bboxFromShape([t2, s2]);
-  const [pc1, pc2] = rectangleDifference(box1, box2, padding);
-  const [xp, yp] = ops.vmul(constOf(0.5), ops.vadd(pc1, pc2));
-  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(pc2, pc1));
-  const [xq, yq] = ops.vsub([absVal(xp), absVal(yp)], [xr, yr]);
-  const e1 = sqrt(
-    add(
-      constOf(10e-15),
-      add(
-        squared(max(sub(xp, xr), constOf(0.0))),
-        squared(max(sub(yp, yr), constOf(0.0)))
-      )
-    )
-  );
-  const e2 = neg(min(max(xq, yq), constOf(0.0)));
-  return sub(e1, e2);
-};
-
-/**
- * Require that shape `s1` overlaps shape `s2` with some padding `padding`.
- * To be DEPRACATED - replace by `overlappingAABBsMinkowski` after issue #652.
+ * Require that bounding box of `s1` overlaps bounding box of `s2` with some padding `padding`.
  */
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
   padding: VarAD = constOf(0.0)
-) => {
+): VarAD => {
+  // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
   const box2 = bboxFromShape([t2, s2]);
-  const inflatedBox1 = BBox.inflate(box1, padding);
-  const overlapX = overlap1D(BBox.xRange(inflatedBox1), BBox.xRange(box2));
-  const overlapY = overlap1D(BBox.yRange(inflatedBox1), BBox.yRange(box2));
-  return neg(mul(overlapX, overlapY));
+  // Get the Minkowski difference rectangle
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, padding);
+  // Return the signed distance
+  return rectangleSignedDistance(bottomLeft, topRight);
+};
+
+/**
+ * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
+ */
+export const overlappingRectlikeCircle = (
+  [t1, s1]: [string, Rectangle | Text | Equation | Image],
+  [t2, s2]: [string, Circle],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  // Prepare axis-aligned bounding boxes
+  const box1 = bboxFromShape([t1, s1]);
+  const box2 = bboxFromShape([t2, s2]);
+  // Get the Minkowski difference of inner rectangle
+  const innerPadding = sub(padding, s2.r.contents);
+  const [bottomLeft, topRight] = rectangleDifference(box1, box2, innerPadding);
+  // Return the signed distance
+  const innerSDF = rectangleSignedDistance(bottomLeft, topRight);
+  return sub(innerSDF, s2.r.contents);
+};
+
+/**
+ * Require that circle `s1` overlaps line `s2` with some padding `padding`.
+ */
+export const overlappingCircleLine = (
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Line],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  // collect constants
+  const c = s1.center.contents;
+  const r = s1.r.contents;
+  const a = s2.start.contents;
+  const b = s2.end.contents;
+  const o = padding;
+
+  // Return the distance between the circle center c and the
+  // segment ab, minus the circle radius r and offset o.  This
+  // quantity will be negative of the circular disk intersects
+  // a thickened "capsule" associated with the line (of radius o).
+  // The expression for the point-segment distance d comes from
+  // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+  // (see "Segment - exact").
+  const u = ops.vsub(c, a); // u = c-a
+  const v = ops.vsub(b, a); // v - b-a
+  // h = clamp( <u,v>/<v,v>, 0, 1 )
+  const h = max(
+    constOf(0),
+    min(constOf(1), div(ops.vdot(u, v), ops.vdot(v, v)))
+  );
+  // d = | u - h*v |
+  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
+  // return d - (r+o)
+  return sub(d, add(r, o));
+};
+
+/**
+ * Require that shape `s1` is at a distance of `distance` from shape `s2`.
+ */
+export const atDistLabel = (
+  [t1, s1]: [string, any],
+  [t2, s2]: [string, any],
+  distance: VarAD
+): VarAD => {
+  let pt;
+  if (shapedefs[t1].isLinelike) {
+    // Position label close to the arrow's end
+    pt = s1.end.contents;
+  } else {
+    // Only assume shape1 has a center
+    pt = shapeCenter([t1, s1]);
+  }
+
+  // Get bounding box
+  const rect = bboxFromShape([t2, s2]);
+
+  return ifCond(
+    pointInBox(pt, rect),
+    // If the point is inside the box, push it outside w/ `noIntersect`
+    noIntersectCircles(rect.center, rect.width, pt, constOf(2.0)),
+    // If the point is outside the box, try to get the distance from the point to equal the desired distance
+    atDistOutside(pt, rect, distance)
+  );
 };
 
 // -------- Contains helpers
@@ -178,8 +166,8 @@ export const overlappingAABBs = (
  * Require that a shape `s1` contains another shape `s2`.
  */
 export const containsCircles = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
@@ -194,8 +182,8 @@ export const containsCircles = (
  * Require that a shape `s1` contains another shape `s2`.
  */
 export const containsCircleRectlike = (
-  [t1, s1]: [string, any],
-  [t2, s2]: [string, any],
+  [t1, s1]: [string, Circle],
+  [t2, s2]: [string, Rectangle | Text | Equation | Image],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
@@ -209,8 +197,8 @@ export const containsCircleRectlike = (
  * Require that a shape `s1` contains another shape `s2`.
  */
 export const containsRectlikeCircle = (
-  [, s1]: [string, any],
-  [, s2]: [string, any],
+  [, s1]: [string, Rectangle | Text | Equation | Image],
+  [, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
@@ -233,44 +221,6 @@ export const containsRectlikeCircle = (
     sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
     sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
   );
-};
-
-/**
- * Require that a shape `s1` contains another shape `s2`.
- */
-export const containsSquareCircle = (
-  [, s1]: [string, any],
-  [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // TODO: Remake using Minkowski penalties
-
-  // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
-  const sq = s1.center.contents;
-  const d = ops.vdist(sq, shapeCenter([t2, s2]));
-  return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
-};
-
-/**
- * Require that a shape `s1` contains another shape `s2`.
- */
-export const containsSquareLinelike = (
-  [t1, s1]: [string, any],
-  [, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  // TODO: Remake using Minkowski penalties
-  const [[startX, startY], [endX, endY]] = linePts(s2);
-  const [x, y] = shapeCenter([t1, s1]);
-  const r = div(s1.side.contents, constOf(2.0));
-  const [lx, ly] = [mul(sub(x, r), padding), mul(sub(y, r), padding)];
-  const [rx, ry] = [mul(add(x, r), padding), mul(add(y, r), padding)];
-  return addN([
-    mul(sub(startX, lx), sub(startX, rx)),
-    mul(sub(startY, ly), sub(startY, ry)),
-    mul(sub(endX, lx), sub(endX, rx)),
-    mul(sub(endY, ly), sub(endY, ry)),
-  ]);
 };
 
 /**

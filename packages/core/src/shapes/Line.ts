@@ -15,23 +15,24 @@ import {
 export interface ILine extends INamed, IStroke, IArrow {
   start: IVectorV<VarAD>;
   end: IVectorV<VarAD>;
-  strokeLineCap: IStrV;
+  strokeLinecap: IStrV;
 }
 
 export const sampleLine = (canvas: Canvas): ILine => ({
   name: StrV("defaultLine"),
   style: StrV(""),
-  strokeWidth: sampleFloatIn(5, 15),
+  strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
   strokeColor: sampleColor(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   arrowheadSize: FloatV(constOf(1)),
   arrowheadStyle: StrV("arrowhead-2"),
   startArrowhead: BoolV(false),
   endArrowhead: BoolV(false),
   start: sampleVector(canvas),
   end: sampleVector(canvas),
-  strokeLineCap: StrV(""),
+  strokeLinecap: StrV(""),
+  ensureOnCanvas: BoolV(true),
 });
 
 export type Line = IShape & { shapeType: "Line" } & ILine;

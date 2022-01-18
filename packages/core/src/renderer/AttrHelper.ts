@@ -3,7 +3,7 @@
  * output SVG properties using the optimized shape properties as input.
  */
 
-import { IColorV, IFloatV, IVectorV, IStrV } from "types/value";
+import { IColorV, IFloatV, IVectorV, IStrV, IPtListV } from "types/value";
 import { Shape } from "types/shape";
 import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
 import { attrMapSvg } from "./AttrMapSvg";
@@ -242,8 +242,8 @@ export const DASH_ARRAY = "7,5";
 /**
  * Maps strokeColor --> stroke, stroke-opacity
  *      strokeWidth --> stroke-width
- *      strokeDashArray, strokeStyle --> stroke-dasharray
- *      strokeLineCap --> stroke-linecap
+ *      strokeDasharray, strokeStyle --> stroke-dasharray
+ *      strokeLinecap --> stroke-linecap
  */
 export const attrStroke = (
   { properties }: Shape,
@@ -264,33 +264,33 @@ export const attrStroke = (
     elem.setAttribute("stroke-width", thickness.toString());
 
     if (
-      "strokeDashArray" in properties &&
-      properties.strokeDashArray.contents !== ""
+      "strokeDasharray" in properties &&
+      properties.strokeDasharray.contents !== ""
     ) {
       elem.setAttribute(
         "stroke-dasharray",
-        (properties.strokeDashArray as IStrV).contents
+        (properties.strokeDasharray as IStrV).contents
       );
     } else if (
       "strokeStyle" in properties &&
       properties.strokeStyle.contents === "dashed"
     ) {
       elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
-      attrMapped.push("strokeDashArray", "strokeStyle");
+      attrMapped.push("strokeDasharray", "strokeStyle");
     }
 
     if (
-      "strokeLineCap" in properties &&
-      properties.strokeLineCap.contents !== ""
+      "strokeLinecap" in properties &&
+      properties.strokeLinecap.contents !== ""
     ) {
       elem.setAttribute(
         "stroke-linecap",
-        (properties.strokeLineCap as IStrV).contents
+        (properties.strokeLinecap as IStrV).contents
       );
     } else {
       elem.setAttribute("stroke-linecap", "butt");
     }
-    attrMapped.push("strokeLineCap");
+    attrMapped.push("strokeLinecap");
   }
 
   return attrMapped; // Return array of input properties programatically mapped
@@ -334,4 +334,20 @@ export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
     "fontWeight",
     "lineHeigh",
   ]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps points -> points
+ */
+export const attrPolyPoints = (
+  shape: Shape,
+  canvasSize: [number, number],
+  elem: SVGElement
+): string[] => {
+  const points = shape.properties.points as IPtListV<number>;
+  const pointsTransformed = points.contents.map((p: number[]) =>
+    toScreen(p as [number, number], canvasSize)
+  );
+  elem.setAttribute("points", pointsTransformed.toString());
+  return ["points"];
 };

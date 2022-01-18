@@ -56,6 +56,7 @@ import {
   zip2,
   zip3,
 } from "utils/Util";
+import { A } from "types/ast";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
@@ -185,7 +186,7 @@ export const step = (state: State, steps: number, evaluate = true): State => {
   log.info("fns: ", prettyPrintFns(state));
   log.info(
     "variables: ",
-    state.varyingPaths.map((p: Path): string => prettyPrintPath(p))
+    state.varyingPaths.map((p: Path<A>): string => prettyPrintPath(p))
   );
 
   switch (optStatus) {

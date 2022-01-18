@@ -63,7 +63,7 @@ function Timeline({ frameIndex, history, selectFrame }: IViewProps) {
             key={k}
             onClick={() => selectFrame(k)}
             dangerouslySetInnerHTML={{
-              __html: shapeHTML
+              __html: shapeHTML,
             }}
           />
         );

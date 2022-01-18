@@ -28,6 +28,26 @@ jobs:
         name: Publish canary release
         run: yarn publish:canary --yes
 
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        uses: ./.github/actions/packages
+      - name: Format
+        run: |
+          if ! yarn format:check; then
+            echo
+            echo 'Run this command from the repository root:'
+            echo
+            echo '    yarn format'
+            echo
+            echo 'Then commit and push to re-run CI.'
+            echo
+            false
+          fi
+
   lint:
     runs-on: ubuntu-latest
     steps:

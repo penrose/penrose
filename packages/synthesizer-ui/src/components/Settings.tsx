@@ -278,16 +278,21 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   getDefaults = (mutationType: string, stmtType: string): string[] => {
     let defaults: string[] = [];
     if (this.state.setting) {
-      Object.entries(this.state.setting).map(([key, values]: [string, any]) => {
+      for (const entryIdx in Object.entries(this.state.setting)) {
+        const [key, values]: [string, any] = Object.entries(this.state.setting)[
+          entryIdx
+        ];
         if (mutationType.toLowerCase() === key) {
-          Object.entries(values).map(([k, v]: [string, any]) => {
+          for (const valueIdx in Object.entries(values)) {
+            const [k, v]: [string, any] = Object.entries(values)[valueIdx];
             if (stmtType.toLowerCase() === k) {
               defaults = v;
             }
-          });
+          }
         }
-      });
+      }
     }
+
     return defaults;
   };
 

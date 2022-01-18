@@ -12,7 +12,7 @@ import { mapValues } from "lodash";
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";
 import { VarAD, OptDebugInfo, IVarAD } from "types/ad";
-import { Identifier, SourceLoc } from "types/ast";
+import { A, Identifier, SourceLoc } from "types/ast";
 import {
   IFGPI,
   Translation,
@@ -82,7 +82,7 @@ export const evalShapes = (s: State): ShapeAD[] => {
 
   // Find out all the GPI expressions in the translation
   const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map(
-    (p: Path) => findExprSafe(trans, p) as IFGPI<VarAD>
+    (p: Path<A>) => findExprSafe(trans, p) as IFGPI<VarAD>
   );
 
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
@@ -135,10 +135,10 @@ const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
  */
 export const insertVaryings = (
   trans: Translation,
-  varyingMap: [Path, VarAD][]
+  varyingMap: [Path<A>, VarAD][]
 ): Translation => {
   return varyingMap.reduce(
-    (tr: Translation, [path, val]: [Path, VarAD]) =>
+    (tr: Translation, [path, val]: [Path<A>, VarAD]) =>
       insertExpr(path, doneFloat(val), tr),
     trans
   );
@@ -232,7 +232,7 @@ export const evalShape = (
  *
  */
 export const evalExprs = (
-  es: Expr[],
+  es: Expr<A>[],
   trans: Translation,
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
@@ -283,7 +283,7 @@ function toVecVal<T>(a: ArgVal<T>): T[] {
  * TODO: break cycles; optimize lookup
  */
 export const evalExpr = (
-  e: Expr,
+  e: Expr<A>,
   trans: Translation,
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
@@ -642,7 +642,7 @@ export const evalExpr = (
  * Looks up varying vars first
  */
 export const resolvePath = (
-  path: Path,
+  path: Path<A>,
   trans: Translation,
   varyingMap?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
@@ -674,7 +674,7 @@ export const resolvePath = (
         //   }
         // }
 
-        const e: Expr = {
+        const e: Expr<A> = {
           ...path,
           tag: "VectorAccess",
           contents: [path.path, path.indices[0]],
@@ -682,7 +682,7 @@ export const resolvePath = (
         return evalExpr(e, trans, varyingMap, optDebugInfo);
       } else if (path.indices.length === 2) {
         // Matrix
-        const e: Expr = {
+        const e: Expr<A> = {
           ...path,
           tag: "MatrixAccess",
           contents: [path.path, path.indices],
@@ -703,7 +703,7 @@ export const resolvePath = (
 
         // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
         const evaledProps = mapValues(props, (p, propName) => {
-          const propertyPath: IPropertyPath = {
+          const propertyPath: IPropertyPath<A> = {
             ...path,
             tag: "PropertyPath",
             name: path.name,
@@ -715,7 +715,7 @@ export const resolvePath = (
             // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const propertyPathExpr = propertyPath as Path;
+            const propertyPathExpr = propertyPath as Path<A>;
             const val: Value<VarAD> = (evalExpr(
               propertyPathExpr,
               trans,
@@ -967,7 +967,7 @@ export const evalUOp = (
 
 // Generate a map from paths to values, where the key is the JSON stringified version of the path
 export function genPathMap<T>(
-  paths: Path[],
+  paths: Path<A>[],
   vals: T[] // TODO: Distinguish between VarAD variables and constants?
 ): Map<string, T> {
   if (!paths || !vals) {

@@ -14,6 +14,7 @@ import { Settings } from "./Settings";
 import { DownloadSVG } from "../utils/utils";
 import { Button, Box, styled, Typography, Toolbar } from "@material-ui/core";
 import { AppBar } from "@material-ui/core";
+import { A } from "@penrose/core/build/dist/types/ast";
 
 export type ContentProps = any;
 
@@ -129,7 +130,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       }
       const synth = new Synthesizer(env, setting, subResult);
       let progs = synth.generateSubstances(numPrograms);
-      const template: SubProg | undefined = synth.getTemplate();
+      const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
         this.setState({
           progs: [{ prog: template, ops: [] }, ...progs],
@@ -142,9 +143,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
   };
 
   exportDiagrams = () => {
-    this.state.staged.map(([idx, svg]) => {
+    for (const stageIdx in this.state.staged) {
+      const [idx, svg] = this.state.staged[stageIdx];
       DownloadSVG(svg, `diagram_${idx}`);
-    });
+    }
   };
 
   render() {

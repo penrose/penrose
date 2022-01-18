@@ -81,7 +81,7 @@ Set `V` {
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
-    `Rn`.iconSize = ?
+    `Rn`.iconSize = canvas.height / 3
 
     override `Rn`.icon = Rectangle {
       -- Works but is slow
@@ -100,8 +100,6 @@ Set `Rn` {
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
 
-    ensure minSize(`Rn`.icon)
-    ensure maxSize(`Rn`.icon, canvas.height / 3.)
 }
 
 Set `Rm`
@@ -124,7 +122,4 @@ with Set `Rn` {
 
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.icon)
-
-    ensure minSize(`Rm`.icon)
-    ensure maxSize(`Rm`.icon, canvas.height / 3.)
 }

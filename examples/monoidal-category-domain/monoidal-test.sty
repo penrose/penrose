@@ -62,7 +62,7 @@ Object o {
     shape o.text = Equation {
            center: (o.shape.start + o.shape.end) / 2.
            string: o.label
-           fontSize: "20pt"
+           fontSize: "15px"
     }
 
     ensure inRange(o.y, o.minY, o.maxY)
@@ -87,7 +87,7 @@ Morphism m {
          shape m.text = Equation {
                center: m.shape.center
                string: m.label
-                  fontSize: "20pt"
+                  fontSize: "15px"
          }
 
          m.left = m.shape.center[0] - m.shape.width/2.

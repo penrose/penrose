@@ -64,7 +64,7 @@ forall Node n {
       string : n.label
       center : n.center
       fillColor : Colors.black
-      fontSize : "14pt"
+      fontSize : "10.5px"
    }
 
    ensure contains( Global.bbox, n.icon )
@@ -152,7 +152,7 @@ where SingleBond( n1, n2 ) {
         end : x2 + .5*r*u
       strokeWidth : 10.
       strokeColor : Colors.turquoise
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    shape innerLine = Line {
@@ -160,7 +160,7 @@ where SingleBond( n1, n2 ) {
         end : x2 + .5*r*u
       strokeWidth : 4.
       strokeColor : Colors.white
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
@@ -184,7 +184,7 @@ where DoubleBond( n1, n2 ) {
         end : x2 + .5*r*u - .25*r*v
       strokeWidth : 10.
       strokeColor : Colors.turquoise
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    shape innerLine1 = Line {
@@ -192,7 +192,7 @@ where DoubleBond( n1, n2 ) {
         end : x2 + .5*r*u - .25*r*v
       strokeWidth : 4.
       strokeColor : Colors.white
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    shape line2 = Line {
@@ -200,7 +200,7 @@ where DoubleBond( n1, n2 ) {
         end : x2 + .5*r*u + .25*r*v
       strokeWidth : 10.
       strokeColor : Colors.turquoise
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    shape innerLine2 = Line {
@@ -208,7 +208,7 @@ where DoubleBond( n1, n2 ) {
         end : x2 + .5*r*u + .25*r*v
       strokeWidth : 4.
       strokeColor : Colors.white
-      strokeLineCap: "round"
+      strokeLinecap: "round"
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
@@ -237,7 +237,7 @@ where IonicBond( n1, n2 ) {
         end : x2 + .5*r*u
       strokeWidth : 2.5
       strokeColor : Colors.turquoise
-      strokeLineCap: "butt"
+      strokeLinecap: "butt"
       style: "dashed"
    }
 
@@ -287,7 +287,7 @@ forall Molecule m {
    m.text = Text {
       string : m.label
       fillColor : Colors.black
-      fontSize : "18pt"
+      fontSize : "13.5px"
       center : m.box.center - (0.,2.*Global.atomRadius)
       -- TODO add stroke (have to expose SVG text stroke in Penrose renderer)
    }

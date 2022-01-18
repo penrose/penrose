@@ -30,20 +30,20 @@ Set x {
 
    vec2 x.center = (?,?)
 
-    x.icon = Text {
-       center: x.center
-       string: x.label
-       fontFamily: "Courier"
-       fontSize: "18pt"
-       fontWeight: "bold"
-       fillColor: Colors.black
-    }
+   x.icon = Text {
+      center: x.center
+      string: x.label
+      fontFamily: "Courier"
+      fontSize: "20px"
+      fontWeight: "bold"
+      fillColor: Colors.black
+   }
 
-    x.bounds = Circle {
-       center: x.center
-       r: Global.setRadius
-       fillColor: none()
-    }
+   x.bounds = Circle {
+      center: x.center
+      r: Global.setRadius
+      fillColor: none()
+   }
 }
 
 Set x; Set y {
@@ -51,7 +51,6 @@ Set x; Set y {
    encourage repel(x.bounds, y.bounds, 5.0)
 }
 
--- TODO: Phase this back in
 
 Set x; Set y
 where IsSubset(x, y) {
@@ -69,9 +68,6 @@ where IsSubset(x, y) {
       endArrowhead : true
       arrowheadSize: .5
    }
-
-   -- Draw the arrow from y to x
-   --encourage centerArrow(arrow, x.bounds, y.bounds)
 
    -- Position y above x
    encourage above(y.bounds, x.bounds)
