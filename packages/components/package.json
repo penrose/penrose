@@ -18,7 +18,8 @@
     "test": "jest --watchAll=false --passWithNoTests",
     "prepack": "yarn build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "clean": "rimraf public/app.js public/css.js storybook-static"
   },
   "eslintConfig": {
     "extends": [

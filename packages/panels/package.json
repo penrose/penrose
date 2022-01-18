@@ -21,7 +21,8 @@
     "watch": "node build.js -w",
     "build": "node build.js",
     "test": "echo NO TESTS",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "clean": "rimraf public/app.js public/css.js"
   },
   "eslintConfig": {
     "extends": [
