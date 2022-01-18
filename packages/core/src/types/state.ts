@@ -1,4 +1,3 @@
-import { prng } from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { VarAD, GradGraphs } from "./ad";
 import { A } from "./ast";

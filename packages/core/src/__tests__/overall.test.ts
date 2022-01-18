@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-import seedrandom from "seedrandom";
 import {
   compileTrio,
   evalEnergy,
@@ -34,7 +33,6 @@ describe("End-to-end testing of existing diagrams", () => {
     );
 
     test(name, async () => {
-      seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
       if (saveDiagrams && !fs.existsSync(OUTPUT)) {
         fs.mkdirSync(OUTPUT);
       }
