@@ -1,21 +1,21 @@
 import {
   BrowserRouter as Router,
-  Switch,
   Route,
-  Redirect,
   useLocation,
+  Navigate,
+  Routes,
 } from "react-router-dom";
 import App from "./App";
 
 const Redirector = () => {
   const params = useLocation().search;
   return (
-    <Redirect
-      from="/authed"
+    <Navigate
+      replace
       to={{
         pathname: "/",
-        state: { authed: true, params },
       }}
+      state={{ authed: true, params }}
     />
   );
 };
@@ -23,12 +23,12 @@ const Redirector = () => {
 const Routing = () => {
   return (
     <Router>
-      <Switch>
-        <Route path="/authed" component={Redirector} />
-        <Route path="/repo" component={App} />
-        <Route path="/gist/:gistId" component={App} />
-        <Route path="/" component={App} />
-      </Switch>
+      <Routes>
+        <Route path="/authed" element={<Redirector />} />
+        <Route path="/repo" element={<App />} />
+        <Route path="/gist/:gistId" element={<App />} />
+        <Route path="/" element={<App />} />
+      </Routes>
     </Router>
   );
 };

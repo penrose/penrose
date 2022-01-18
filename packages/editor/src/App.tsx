@@ -15,7 +15,7 @@ import {
   usePublishGist,
   useRoutingHandlers,
 } from "./Util";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   EditorPane,
   SetupDomainMonaco,
@@ -26,7 +26,7 @@ import PreviewPane from "./components/PreviewPane";
 import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
 
-function App({ location }: any) {
+function App() {
   const [state, dispatch] = useReducer(reducer, null, initialState);
   const urlParams = useParams() as any;
   useEffect(() => {
@@ -34,7 +34,7 @@ function App({ location }: any) {
       retrieveGist(urlParams.gistId, dispatch);
     }
   }, [urlParams, dispatch]);
-
+  const location = useLocation();
   useRoutingHandlers(location, dispatch);
 
   const convergeRenderState = useCallback(
