@@ -1,7 +1,6 @@
 import * as _ from "lodash";
 import memoize from "fast-memoize";
 import { zipWith, reduce, times } from "lodash";
-import seedrandom from "seedrandom";
 import { Properties } from "types/shape";
 import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
@@ -88,8 +87,6 @@ export const zip3 = <T1, T2, T3>(
 //#endregion
 
 //#region random
-
-seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
 
 const RAND_RANGE = 100;
 
