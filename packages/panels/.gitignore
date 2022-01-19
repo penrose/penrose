@@ -10,6 +10,7 @@
 
 # production
 /public/app.js
+/public/app.js.map
 /public/app.css
 
 # misc
