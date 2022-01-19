@@ -22,11 +22,13 @@ import {
   Chip,
   Button,
 } from "@material-ui/core";
+import seedrandom from "seedrandom";
 
 export interface GridboxProps {
   domain: string;
   style: string;
   substance: SynthesizedSubstance;
+  variation: string;
   progNumber: number;
   srcState: PenroseState | undefined;
   updateSrcProg: (newState: PenroseState) => void;
@@ -143,6 +145,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   // TODO: this should really be put in a web worker, it blocks browser interaction
   async update() {
     const res = compileTrio(
+      seedrandom(this.props.variation),
       this.props.domain,
       prettySubstance(this.props.substance.prog),
       this.props.style
