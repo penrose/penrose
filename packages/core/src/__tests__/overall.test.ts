@@ -28,7 +28,7 @@ describe("End-to-end testing of existing diagrams", () => {
   const registry = JSON.parse(fs.readFileSync(registryPath).toString());
   const trios = readRegistry(registry);
   for (const trio of trios) {
-    const { name, substanceURI, domainURI, styleURI } = trio;
+    const { name, substanceURI, domainURI, styleURI, variation } = trio;
     const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map((uri) =>
       fs.readFileSync(path.join(EXAMPLES, uri)).toString()
     );
@@ -37,7 +37,7 @@ describe("End-to-end testing of existing diagrams", () => {
       if (saveDiagrams && !fs.existsSync(OUTPUT)) {
         fs.mkdirSync(OUTPUT);
       }
-      const res = compileTrio(seedrandom(JSON.stringify(trio)), dsl, sub, sty);
+      const res = compileTrio(seedrandom(variation), dsl, sub, sty);
       if (res.isOk()) {
         const state = await prepareState(res.value);
         const opt = stepUntilConvergence(state);

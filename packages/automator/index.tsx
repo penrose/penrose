@@ -11,6 +11,7 @@ import {
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 import { join, parse, resolve } from "path";
+import seedrandom from "seedrandom";
 
 const fs = require("fs");
 const chalk = require("chalk");
@@ -55,6 +56,7 @@ const toMs = (hr: any) => hr[1] / 1000000;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
+  rng: seedrandom.prng,
   sub: any,
   sty: any,
   dsl: string,
@@ -82,7 +84,7 @@ const singleProcess = async (
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = compileTrio(dslIn, subIn, styIn);
+  const compilerOutput = compileTrio(rng, dslIn, subIn, styIn);
   const compileEnd = process.hrtime(compileStart);
   let compiledState;
   if (compilerOutput.isOk()) {
@@ -263,7 +265,7 @@ const batchProcess = async (
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
-  for (const { domain, style, substance, meta } of trioLibrary) {
+  for (const { domain, style, substance, variation, meta } of trioLibrary) {
     // try to render the diagram
     const id = uniqid("instance-");
     const name = `${substance}-${style}`;
@@ -283,6 +285,7 @@ const batchProcess = async (
 
       // Warning: will face id conflicts if parallelism used
       const res = await singleProcess(
+        seedrandom(variation),
         subURI,
         styURI,
         dslURI,

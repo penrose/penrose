@@ -4,122 +4,146 @@
     {
       "substance": "c01p01",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c01p10",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c02p01",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c03p01",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c04p01",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c04p12",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c05p01",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c05p13",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c06p06",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c07p02",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c07p06",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c07p10",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c07p22",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c08p08",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c08p18",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c09p02",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c10p08",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c11p07",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c11p12",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c11p21",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c11p25",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c12p12",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "c12p20",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "ex",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     }
   ],
   "domains": {

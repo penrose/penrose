@@ -250,7 +250,12 @@ export const stateInitial = (state: State): boolean =>
 export const readRegistry = (registry: Registry): Trio[] => {
   const { substances, styles, domains, trios } = registry;
   const res = [];
-  for (const { domain: dslID, style: styID, substance: subID } of trios) {
+  for (const {
+    domain: dslID,
+    style: styID,
+    substance: subID,
+    variation,
+  } of trios) {
     const domain = domains[dslID];
     const substance = substances[subID];
     const style = styles[styID];
@@ -261,6 +266,7 @@ export const readRegistry = (registry: Registry): Trio[] => {
       substanceName: substance.name,
       styleName: style.name,
       domainName: domain.name,
+      variation,
       name: `${subID}-${styID}`,
     };
     res.push(trio);

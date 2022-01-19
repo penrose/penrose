@@ -4,87 +4,104 @@
     {
       "substance": "tree",
       "style": "venn",
-      "domain": "set-theory"
+      "domain": "set-theory",
+      "variation": ""
     },
     {
       "substance": "tree",
       "style": "tree",
-      "domain": "set-theory"
+      "domain": "set-theory",
+      "variation": ""
     },
     {
       "substance": "tree",
       "style": "venn-3d",
-      "domain": "set-theory"
+      "domain": "set-theory",
+      "variation": ""
     },
     {
       "substance": "continuousmap",
       "style": "continuousmap",
-      "domain": "set-theory"
+      "domain": "set-theory",
+      "variation": ""
     },
     {
       "substance": "two-vectors-perp",
       "style": "linear-algebra-simple",
-      "domain": "linear-algebra"
+      "domain": "linear-algebra",
+      "variation": ""
     },
     {
       "substance": "two-vectors-perp",
       "style": "vectors-dashed",
-      "domain": "linear-algebra"
+      "domain": "linear-algebra",
+      "variation": ""
     },
     {
       "substance": "allShapes",
       "style": "dashedShapes",
-      "domain": "shape-spec"
+      "domain": "shape-spec",
+      "variation": ""
     },
     {
       "substance": "small-graph",
       "style": "disjoint-rects",
-      "domain": "graph-theory"
+      "domain": "graph-theory",
+      "variation": ""
     },
     {
       "substance": "small-graph",
       "style": "disjoint-rect-line-horiz",
-      "domain": "graph-theory"
+      "domain": "graph-theory",
+      "variation": ""
     },
     {
       "substance": "small-graph",
       "style": "disjoint-rects-small-canvas",
-      "domain": "graph-theory"
+      "domain": "graph-theory",
+      "variation": ""
     },
     {
       "substance": "small-graph",
       "style": "disjoint-rects-large-canvas",
-      "domain": "graph-theory"
+      "domain": "graph-theory",
+      "variation": ""
     },
     {
       "substance": "incenter-triangle",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "collinear",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "parallel-lines",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "midsegment-triangles",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "congruent-triangles",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     },
     {
       "substance": "circle-example",
       "style": "euclidean",
-      "domain": "geometry"
+      "domain": "geometry",
+      "variation": ""
     }
   ],
   "domains": {
