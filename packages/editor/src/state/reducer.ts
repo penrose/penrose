@@ -1,6 +1,6 @@
 import { PenroseError, PenroseState } from "@penrose/core";
 import React from "react";
-import { tryDomainHighlight } from "./Util";
+import { tryDomainHighlight } from "../Util";
 
 export interface AuthorshipInfo {
   name: string;

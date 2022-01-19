@@ -5,7 +5,7 @@ import {
   showError,
 } from "@penrose/core";
 import { useCallback, useEffect, useRef } from "react";
-import { State } from "../reducer";
+import { State } from "../state/reducer";
 import { DownloadSVG } from "../Util";
 import BlueButton from "./BlueButton";
 

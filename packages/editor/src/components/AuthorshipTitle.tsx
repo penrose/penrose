@@ -1,6 +1,5 @@
-import * as React from "react";
 import { useCallback, useState } from "react";
-import { AuthorshipInfo, GithubUser } from "../reducer";
+import { AuthorshipInfo, GithubUser } from "../state/reducer";
 import BlueButton from "./BlueButton";
 
 const AuthorshipTitle = ({

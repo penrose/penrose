@@ -7,17 +7,17 @@ export interface ProgramFile {
 }
 
 interface IExampleLocation {
-  location: "example";
+  type: "example";
   path: string;
 }
 
 interface IGistLocation {
-  location: "gist";
+  type: "gist";
   gistURL: string;
 }
 
 interface ILocalLocation {
-  location: "local";
+  type: "local";
   localStorageKey: string;
 }
 
@@ -83,7 +83,14 @@ export interface IWorkspace {
   /* defaults to today's date */
   name: string;
   id: string;
-  creator: null;
+  /**
+   * GitHub Username
+   */
+  creator: string | null;
+  /**
+   * Gist ID. If I'm the creator, provide option to update.
+   */
+  forkedFrom: string | null;
   /* id key in tabs points to openFiles */
   layout: IJsonRowNode;
   /* TODO: change tab appearance based on if it's in compileTrioSetting
@@ -119,51 +126,7 @@ export interface IWorkspaceState {
   workspace: string;
 }
 
-async function hydrateFileSystem(): Promise<IFileSystem> {
-  //
-  return {
-    local: {
-      workspaces: {},
-      substances: {},
-      styles: {},
-      domains: {},
-      diagrams: {},
-    },
-    examples: {
-      substances: {},
-      styles: {},
-      domains: {},
-      trios: [],
-    },
-  };
-}
-
-async function retrieveFileFromPointer(
-  pointer: FilePointer
-): Promise<ProgramFile | null> {
-  switch (pointer.location.location) {
-    case "local":
-      break;
-    case "example":
-      break;
-    case "gist":
-      break;
-    default:
-      break;
-  }
-  return null;
-}
-
-function writeFile(
-  pointer: FilePointer,
-  contents: string,
-  workspaceId: string
-): IWorkspaceState {
-  if (pointer.location.location === "local") {
-  } else {
-    //  generate new local pointer with new Id
-    //   change return type
-    // override workspace author, if there is one
-  }
-  return { fileContents: {}, workspace: "" };
+export interface IFileSystemState {
+  fileSystem: IFileSystem;
+  workspace: IWorkspaceState;
 }

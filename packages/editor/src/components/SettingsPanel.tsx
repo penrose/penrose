@@ -1,4 +1,4 @@
-import { Dispatcher, State } from "../reducer";
+import { Dispatcher, State } from "../state/reducer";
 import BlueButton from "./BlueButton";
 
 export default function SettingsPanel({

@@ -1,4 +1,4 @@
-import { Action, Dispatcher, State } from "./reducer";
+import { Action, Dispatcher, State } from "./state/reducer";
 import dummyRegistry from "./dummy-registry.json";
 import { useCallback } from "react";
 import { toast } from "react-toastify";

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import * as FlexLayout from "flexlayout-react";
-import reducer, { initialState } from "./reducer";
+import reducer, { initialState } from "./state/reducer";
 import {
   compileTrio,
   PenroseState,
@@ -157,7 +157,7 @@ function App() {
               setupMonaco={SetupSubstanceMonaco(
                 state.currentInstance.domainCache
               )}
-              onChange={(v) =>
+              onChange={(v: string) =>
                 dispatch({ kind: "CHANGE_CODE", lang: "sub", content: v })
               }
             />
@@ -169,7 +169,7 @@ function App() {
               vimMode={state.settings.vimMode}
               languageType="style"
               setupMonaco={SetupStyleMonaco}
-              onChange={(v) =>
+              onChange={(v: string) =>
                 dispatch({ kind: "CHANGE_CODE", lang: "sty", content: v })
               }
             />
@@ -181,7 +181,7 @@ function App() {
               vimMode={state.settings.vimMode}
               languageType="domain"
               setupMonaco={SetupDomainMonaco}
-              onChange={(v) =>
+              onChange={(v: string) =>
                 dispatch({ kind: "CHANGE_CODE", lang: "dsl", content: v })
               }
             />
