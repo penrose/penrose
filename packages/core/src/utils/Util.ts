@@ -9,6 +9,7 @@ import { VarAD } from "types/ad";
 import { Fn, State } from "types/state";
 import { ILine } from "shapes/Line";
 import { A } from "types/ast";
+import seedrandom from "seedrandom";
 
 //#region general
 
@@ -96,26 +97,31 @@ const RAND_RANGE = 100;
  * @param max maximum (exclusive)
  */
 export const randFloats = (
+  rng: seedrandom.prng,
   count: number,
   [min, max]: [number, number]
-): number[] => times(count, () => randFloat(min, max));
+): number[] => times(count, () => randFloat(rng, min, max));
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
  * @param min minimum (inclusive)
  * @param max maximum (exclusive)
  */
-export const randFloat = (min: number, max: number): number => {
+export const randFloat = (
+  rng: seedrandom.prng,
+  min: number,
+  max: number
+): number => {
   // TODO: better error reporting
   console.assert(
     max > min,
     "min should be smaller than max for random number generation!"
   );
-  return Math.random() * (max - min) + min;
+  return rng() * (max - min) + min;
 };
 
-export const randList = (n: number): number[] => {
-  return repeat(n, 0).map(() => RAND_RANGE * (Math.random() - 0.5));
+export const randList = (rng: seedrandom.prng, n: number): number[] => {
+  return repeat(n, 0).map(() => RAND_RANGE * (rng() - 0.5));
 };
 
 export const arrowheads = {

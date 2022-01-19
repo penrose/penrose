@@ -44,15 +44,15 @@ export interface IText
   descent: IFloatV<VarAD>;
 }
 
-export const sampleText = (canvas: Canvas): IText => ({
+export const sampleText = (rng: seedrandom.prng, canvas: Canvas): IText => ({
   name: StrV("defaultText"),
   style: StrV(""),
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDasharray: StrV(""),
-  fillColor: sampleColor(),
-  center: sampleVector(canvas),
+  fillColor: sampleColor(rng),
+  center: sampleVector(rng, canvas),
   width: sampleZero(),
   height: sampleZero(),
   ascent: sampleZero(),
@@ -77,8 +77,12 @@ export const sampleText = (canvas: Canvas): IText => ({
 
 export type Text = IShape & { shapeType: "Text" } & IText;
 
-export const makeText = (canvas: Canvas, properties: Partial<IText>): Text => ({
-  ...sampleText(canvas),
+export const makeText = (
+  rng: seedrandom.prng,
+  canvas: Canvas,
+  properties: Partial<IText>
+): Text => ({
+  ...sampleText(rng, canvas),
   ...properties,
   shapeType: "Text",
 });

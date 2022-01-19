@@ -7,7 +7,6 @@ import {
   Canvas,
   FloatV,
   sampleColor,
-  sampleFloatIn,
   sampleVector,
   StrV,
 } from "./Samplers";
@@ -18,27 +17,31 @@ export interface ILine extends INamed, IStroke, IArrow {
   strokeLinecap: IStrV;
 }
 
-export const sampleLine = (canvas: Canvas): ILine => ({
+export const sampleLine = (rng: seedrandom.prng, canvas: Canvas): ILine => ({
   name: StrV("defaultLine"),
   style: StrV(""),
   strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
-  strokeColor: sampleColor(),
+  strokeColor: sampleColor(rng),
   strokeDasharray: StrV(""),
   arrowheadSize: FloatV(constOf(1)),
   arrowheadStyle: StrV("arrowhead-2"),
   startArrowhead: BoolV(false),
   endArrowhead: BoolV(false),
-  start: sampleVector(canvas),
-  end: sampleVector(canvas),
+  start: sampleVector(rng, canvas),
+  end: sampleVector(rng, canvas),
   strokeLinecap: StrV(""),
   ensureOnCanvas: BoolV(true),
 });
 
 export type Line = IShape & { shapeType: "Line" } & ILine;
 
-export const makeLine = (canvas: Canvas, properties: Partial<ILine>): Line => ({
-  ...sampleLine(canvas),
+export const makeLine = (
+  rng: seedrandom.prng,
+  canvas: Canvas,
+  properties: Partial<ILine>
+): Line => ({
+  ...sampleLine(rng, canvas),
   ...properties,
   shapeType: "Line",
 });

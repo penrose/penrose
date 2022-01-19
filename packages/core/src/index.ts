@@ -1,5 +1,6 @@
 import consola, { LogLevel } from "consola";
 import { shapeAutodiffToNumber } from "engine/EngineUtils";
+import seedrandom from "seedrandom";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
 import {
@@ -101,13 +102,14 @@ const stepUntilConvergenceOrThrow = (state: State): State => {
  * @param node a node in the DOM tree
  */
 export const diagram = async (
+  rng: seedrandom.prng,
   domainProg: string,
   subProg: string,
   styProg: string,
   node: HTMLElement,
   pathResolver: PathResolver
 ): Promise<void> => {
-  const res = compileTrio(domainProg, subProg, styProg);
+  const res = compileTrio(rng, domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -129,6 +131,7 @@ export const diagram = async (
  * @param node a node in the DOM tree
  */
 export const interactiveDiagram = async (
+  rng: seedrandom.prng,
   domainProg: string,
   subProg: string,
   styProg: string,
@@ -144,7 +147,7 @@ export const interactiveDiagram = async (
     );
     node.replaceChild(rendering, node.firstChild as Node);
   };
-  const res = compileTrio(domainProg, subProg, styProg);
+  const res = compileTrio(rng, domainProg, subProg, styProg);
   if (res.isOk()) {
     const state: State = await prepareState(res.value);
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -168,6 +171,7 @@ export const interactiveDiagram = async (
  * @param styProg a Style program string
  */
 export const compileTrio = (
+  rng: seedrandom.prng,
   domainProg: string,
   subProg: string,
   styProg: string
@@ -180,7 +184,7 @@ export const compileTrio = (
   );
 
   const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(styProg, ...res),
+    (res) => compileStyle(rng, styProg, ...res),
     subRes
   );
 

@@ -1,3 +1,4 @@
+import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { VarAD, GradGraphs } from "./ad";
 import { A } from "./ast";
@@ -18,6 +19,7 @@ export interface IState {
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
+  rng: seedrandom.prng;
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path<A>[];

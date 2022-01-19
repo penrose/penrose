@@ -1,4 +1,5 @@
 import { constOf } from "engine/Autodiff";
+import seedrandom from "seedrandom";
 import { VarAD } from "types/ad";
 import {
   Color,
@@ -107,27 +108,39 @@ export const TupV = (contents: VarAD[]): ITupV<VarAD> => ({
   contents,
 });
 
-export const sampleFloatIn = (min: number, max: number): IFloatV<VarAD> =>
-  FloatV(constOf(randFloat(min, max)));
-export const sampleVector = (canvas: Canvas): IVectorV<VarAD> =>
+export const sampleFloatIn = (
+  rng: seedrandom.prng,
+  min: number,
+  max: number
+): IFloatV<VarAD> => FloatV(constOf(randFloat(rng, min, max)));
+export const sampleVector = (
+  rng: seedrandom.prng,
+  canvas: Canvas
+): IVectorV<VarAD> =>
   VectorV(
-    [randFloat(...canvas.xRange), randFloat(...canvas.yRange)].map(constOf)
+    [randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)].map(
+      constOf
+    )
   );
-export const sampleWidth = (canvas: Canvas): IFloatV<VarAD> =>
-  FloatV(constOf(randFloat(3, canvas.width / 6)));
+export const sampleWidth = (
+  rng: seedrandom.prng,
+  canvas: Canvas
+): IFloatV<VarAD> => FloatV(constOf(randFloat(rng, 3, canvas.width / 6)));
 export const sampleZero = (): IFloatV<VarAD> => FloatV(constOf(0));
-export const sampleHeight = (canvas: Canvas): IFloatV<VarAD> =>
-  FloatV(constOf(randFloat(3, canvas.height / 6)));
-export const sampleStroke = (): IFloatV<VarAD> =>
-  FloatV(constOf(randFloat(0.5, 3)));
-export const sampleColor = (): IColorV<VarAD> => {
+export const sampleHeight = (
+  rng: seedrandom.prng,
+  canvas: Canvas
+): IFloatV<VarAD> => FloatV(constOf(randFloat(rng, 3, canvas.height / 6)));
+export const sampleStroke = (rng: seedrandom.prng): IFloatV<VarAD> =>
+  FloatV(constOf(randFloat(rng, 0.5, 3)));
+export const sampleColor = (rng: seedrandom.prng): IColorV<VarAD> => {
   const [min, max] = [0.1, 0.9];
   return ColorV({
     tag: "RGBA",
     contents: [
-      randFloat(min, max),
-      randFloat(min, max),
-      randFloat(min, max),
+      randFloat(rng, min, max),
+      randFloat(rng, min, max),
+      randFloat(rng, min, max),
       0.5,
     ].map(constOf),
   });

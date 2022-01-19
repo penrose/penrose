@@ -13,14 +13,17 @@ import {
 
 export interface IPolygon extends INamed, IStroke, IFill, IScale, IPoly {}
 
-export const samplePolygon = (_canvas: Canvas): IPolygon => ({
+export const samplePolygon = (
+  rng: seedrandom.prng,
+  _canvas: Canvas
+): IPolygon => ({
   name: StrV("defaultPolygon"),
   style: StrV(""),
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDasharray: StrV(""),
-  fillColor: sampleColor(),
+  fillColor: sampleColor(rng),
   scale: FloatV(constOf(1)),
   points: PtListV(
     [
@@ -35,10 +38,11 @@ export const samplePolygon = (_canvas: Canvas): IPolygon => ({
 export type Polygon = IShape & { shapeType: "Polygon" } & IPolygon;
 
 export const makePolygon = (
+  rng: seedrandom.prng,
   canvas: Canvas,
   properties: Partial<IPolygon>
 ): Polygon => ({
-  ...samplePolygon(canvas),
+  ...samplePolygon(rng, canvas),
   ...properties,
   shapeType: "Polygon",
 });

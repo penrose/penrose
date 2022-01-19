@@ -5,7 +5,6 @@ import {
   Canvas,
   sampleNoPaint,
   sampleColor,
-  sampleStroke,
   sampleVector,
   sampleWidth,
   sampleZero,
@@ -17,26 +16,30 @@ export interface ICircle extends INamed, IStroke, IFill, ICenter {
   r: IFloatV<VarAD>;
 }
 
-export const sampleCircle = (canvas: Canvas): ICircle => ({
+export const sampleCircle = (
+  rng: seedrandom.prng,
+  canvas: Canvas
+): ICircle => ({
   name: StrV("defaultCircle"),
   style: StrV(""),
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
   strokeDasharray: StrV(""),
-  fillColor: sampleColor(),
-  center: sampleVector(canvas),
-  r: sampleWidth(canvas),
+  fillColor: sampleColor(rng),
+  center: sampleVector(rng, canvas),
+  r: sampleWidth(rng, canvas),
   ensureOnCanvas: BoolV(true),
 });
 
 export type Circle = IShape & { shapeType: "Circle" } & ICircle;
 
 export const makeCircle = (
+  rng: seedrandom.prng,
   canvas: Canvas,
   properties: Partial<ICircle>
 ): Circle => ({
-  ...sampleCircle(canvas),
+  ...sampleCircle(rng, canvas),
   ...properties,
   shapeType: "Circle",
 });

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import seedrandom from "seedrandom";
 import {
   compileTrio,
   evalEnergy,
@@ -36,7 +37,7 @@ describe("End-to-end testing of existing diagrams", () => {
       if (saveDiagrams && !fs.existsSync(OUTPUT)) {
         fs.mkdirSync(OUTPUT);
       }
-      const res = compileTrio(dsl, sub, sty);
+      const res = compileTrio(seedrandom(JSON.stringify(trio)), dsl, sub, sty);
       if (res.isOk()) {
         const state = await prepareState(res.value);
         const opt = stepUntilConvergence(state);
@@ -66,7 +67,12 @@ describe("End-to-end testing of existing diagrams", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio(setDomain, twoSubsets, vennStyle);
+    const res = compileTrio(
+      seedrandom("energy overall"),
+      setDomain,
+      twoSubsets,
+      vennStyle
+    );
     if (res.isOk()) {
       const stateEvaled = await prepareState(res.value);
       const stateOpt = stepUntilConvergence(stateEvaled);
@@ -83,7 +89,12 @@ describe("Energy API", () => {
   });
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio(setDomain, twoSubsets, vennStyle);
+    const res = compileTrio(
+      seedrandom("energy filtered"),
+      setDomain,
+      twoSubsets,
+      vennStyle
+    );
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
@@ -103,8 +114,18 @@ describe("Cross-instance energy eval", () => {
     const twosets = `Set A, B\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
-    const state1 = compileTrio(setDomain, twosets, vennStyle);
-    const state2 = compileTrio(setDomain, twoSubsets, vennStyle);
+    const state1 = compileTrio(
+      seedrandom("cross-instance state1"),
+      setDomain,
+      twosets,
+      vennStyle
+    );
+    const state2 = compileTrio(
+      seedrandom("cross-instance state2"),
+      setDomain,
+      twoSubsets,
+      vennStyle
+    );
     if (state1.isOk() && state2.isOk()) {
       const state1Done = stepUntilConvergence(await prepareState(state1.value));
       const state2Done = stepUntilConvergence(await prepareState(state2.value));
@@ -136,7 +157,12 @@ describe("Run individual functions", () => {
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio(setDomain, twoSubsets, vennStyle);
+    const res = compileTrio(
+      seedrandom("individual functions"),
+      setDomain,
+      twoSubsets,
+      vennStyle
+    );
 
     if (res.isOk()) {
       const stateEvaled = await prepareState(res.value);

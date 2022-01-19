@@ -893,8 +893,8 @@ export const evalEnergyOnCustom = (state: State) => {
     const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
 
     // NOTE: This will mutate the var inputs
-    const objEvaled = evalFns(objFns, translation, varyingMap);
-    const constrEvaled = evalFns(constrFns, translation, varyingMap);
+    const objEvaled = evalFns(state.rng, objFns, translation, varyingMap);
+    const constrEvaled = evalFns(state.rng, constrFns, translation, varyingMap);
 
     const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
     const constrEngs: VarAD[] = constrEvaled.map((c) =>
@@ -1028,7 +1028,12 @@ const evalFnOn = (fn: Fn, s: State) => {
     const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
 
     // NOTE: This will mutate the var inputs
-    const fnArgsEvaled: FnDone<VarAD> = evalFn(fn, translation, varyingMap);
+    const fnArgsEvaled: FnDone<VarAD> = evalFn(
+      s.rng,
+      fn,
+      translation,
+      varyingMap
+    );
     const fnEnergy: VarAD = applyFn(fnArgsEvaled, dict);
 
     return fnEnergy;
