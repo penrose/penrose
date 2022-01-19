@@ -9,11 +9,13 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import fetchResolver from "./fetchPathResolver";
+import seedrandom from "seedrandom";
 
 export interface ISimpleProps {
   domainString: string;
   substanceString: string;
   styleString: string;
+  variation: string;
   initState?: PenroseState;
 }
 
@@ -30,9 +32,10 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   getInitState = async (
     dsl: string,
     sub: string,
-    sty: string
+    sty: string,
+    variation: string
   ): Promise<PenroseState | undefined> => {
-    const compilerResult = compileTrio(dsl, sub, sty);
+    const compilerResult = compileTrio(seedrandom(variation), dsl, sub, sty);
     if (compilerResult.isOk()) {
       const initState: PenroseState = await prepareState(compilerResult.value);
       const stepped = stepUntilConvergence(initState);
@@ -46,11 +49,17 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
     }
   };
   componentDidMount = async () => {
-    const { substanceString, styleString, domainString } = this.props;
+    const {
+      substanceString,
+      styleString,
+      domainString,
+      variation,
+    } = this.props;
     const state: PenroseState | undefined = await this.getInitState(
       domainString,
       substanceString,
-      styleString
+      styleString,
+      variation
     );
     this.setState({ state });
     this.renderCanvas(state);
