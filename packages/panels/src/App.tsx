@@ -29,6 +29,7 @@ import { useParams } from "react-router-dom";
 import StylePane from "./StylePane";
 import SubstancePane from "./SubstancePane";
 import DomainPane from "./DomainPane";
+import seedrandom from "seedrandom";
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -159,7 +160,12 @@ function App({ location }: any) {
   const compile = useCallback(() => {
     try {
       const { sub, sty, dsl } = state.currentInstance;
-      const compileRes = compileTrio(dsl, sub, sty);
+      const compileRes = compileTrio(
+        seedrandom(Math.random().toString()), // TODO: make this seed configurable in the UI
+        dsl,
+        sub,
+        sty
+      );
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
         dispatch({ kind: "CHANGE_ERROR", content: null });
