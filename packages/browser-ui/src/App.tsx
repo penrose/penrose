@@ -16,6 +16,7 @@ import Inspector from "inspector/Inspector";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";
+import seedrandom from "seedrandom";
 import ButtonBar from "ui/ButtonBar";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
@@ -46,6 +47,7 @@ export interface ISettings {
   showInspector: boolean;
   autostep: boolean;
   autoStepSize: number;
+  variation: string;
 }
 
 interface ICanvasState {
@@ -75,6 +77,7 @@ class App extends React.Component<unknown, ICanvasState> {
       autostep: false,
       showInspector: true,
       autoStepSize: 50,
+      variation: "foo",
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -221,6 +224,7 @@ class App extends React.Component<unknown, ICanvasState> {
     // TODO: does `processedInitial` need to be set?
     this.setState({ processedInitial: false });
     const compileRes = compileTrio(
+      seedrandom(this.state.settings.variation),
       domain.contents,
       substance.contents,
       style.contents
