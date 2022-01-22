@@ -50,7 +50,7 @@ export const sampleText = (canvas: Canvas): IText => ({
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   center: sampleVector(canvas),
   width: sampleZero(),

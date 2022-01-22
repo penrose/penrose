@@ -37,7 +37,7 @@ export const sampleRectangle = (canvas: Canvas): IRectangle => ({
   strokeWidth: sampleZero(),
   strokeStyle: StrV("solid"),
   strokeColor: sampleNoPaint(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleColor(),
   center: sampleVector(canvas),
   width: sampleWidth(canvas),

@@ -9,7 +9,7 @@ sidebar_position: 5
 
 We've already used constraints and objectives in our previous tutorials, and now we will begin writing some of our own! Being able to write your own constraints and objectives is an important step in becoming an **advanced Penrose developer**.
 
-You are already equipped to create beautiful diagrams with what you have already learned from the previous tutorials. This tutorial will cover how you can \_\_**extend the existing Penrose system**, contributing to the platform for many other users.
+You are already equipped to create beautiful diagrams with what you have already learned from the previous tutorials. This tutorial will cover how you can **extend the existing Penrose system**, contributing to the platform for many other users.
 
 We will start by discussing how are constraints and objectives are done in Penrose, and then we will go through several examples to apply our conceptual understanding.
 
@@ -21,7 +21,7 @@ Numerical optimization uses functions that are called **energy functions** to qu
 
 The energy of a diagram can take on a range of values, and there are 3 specific values we care about:
 
-- **Global minimum:** A diagram with a global minimum energy means it is a really good diagram, and it cannot be improved by making local changes.&#x20;
+- **Global minimum:** A diagram with a global minimum energy means it is a really good diagram, and it cannot be improved by making local changes.
 - **Local minima:** A diagram with a local minima energy is "pretty good".
 - **Maxima:** A diagram with a maxima energy is a bad diagram. Remember, we want to minimize energy, so hitting a maxima through the optimizing process is not good.
 
@@ -63,9 +63,9 @@ Let's see a scenario when a circle is perfectly contained in another one.
 
 Circle 1 contains circle 2 if and only if circle 1's radius is greater than the distance between their centers, plus circle 2's radius, i.e. $$r_1 > d+r_2$$. This diagram shows the most illustrative case when Circle 2 is _just_ contained, which we can understand by intuitively reasoning about the directions of change for each degree of freedom:
 
-- If $$r_2$$ is any smaller, Circle 2 remains contained. If $$r_2$$ is any larger, clearly Circle 2 is no longer contained.&#x20;
-- If $$d$$ is any smaller, then Circle 2 remains contained; if $$d$$ is any larger, then Circle 2 is no longer contained.&#x20;
-- If $$r_1$$ is any larger, then Circle 2 remains contained; if $$r_1$$ is any smaller, then Circle 2 is no longer contained.&#x20;
+- If $$r_2$$ is any smaller, Circle 2 remains contained. If $$r_2$$ is any larger, clearly Circle 2 is no longer contained.
+- If $$d$$ is any smaller, then Circle 2 remains contained; if $$d$$ is any larger, then Circle 2 is no longer contained.
+- If $$r_1$$ is any larger, then Circle 2 remains contained; if $$r_1$$ is any smaller, then Circle 2 is no longer contained.
 
 So, by rearranging the containment expression, we arrive at the energy expression $$d - (r1 - r2) < 0$$.
 
@@ -78,7 +78,7 @@ Here's a short proof. Read on if you are still a bit hesitant. Let $$r_{differen
 
 ## Concrete: How We Write Constraints
 
-The syntax for writing a constraint works in a way that allows Penrose to use a particular technique called **automatic differentiation,** _**autodiff**_ \_\*\*\_for short. The Penrose system uses autodiff to find the optimized diagram. For more on autodiff, read [here](https://github.com/penrose/penrose/wiki/Autodiff-guide#introduction).
+The syntax for writing a constraint works in a way that allows Penrose to use a particular technique called **automatic differentiation,** _**autodiff**_ for short. The Penrose system uses autodiff to find the optimized diagram. For more on autodiff, read [here](https://github.com/penrose/penrose/wiki/Autodiff-guide#introduction).
 
 ### 1. The Autodiff Code is Built in Typescript
 
@@ -156,34 +156,11 @@ You can read more about function declarations in Typescript [here](https://www.t
 
 Going back to our `minSize` function, we see several things in play:
 
-- **Input:** The function takes in the shape, which is represented by a string of its name, `"Circle"` in this case, and a `prop` which is an Object containing the properties of the circle. All Shape objects that are passed into objective functions or constraints must have the type `[string, any]`. For example, this is Penrose's definition of a Circle object (defined [here](https://github.com/penrose/penrose/blob/main/packages/core/src/renderer/ShapeDef.ts#L151)). You can see that the required parameter types correspond to `shapeType` and `properties`.
-
-{% code title="ShapeDef.ts" %}
-
-```typescript
-export const circleDef: ShapeDef = {
-  shapeType: "Circle",
-  properties: {
-    center: ["VectorV", vectorSampler],
-    r: ["FloatV", widthSampler],
-    pathLength: ["FloatV", pathLengthSampler], // part of svg spec
-    strokeWidth: ["FloatV", strokeSampler],
-    style: ["StrV", () => constValue("StrV", "filled")],
-    strokeStyle: ["StrV", () => constValue("StrV", "solid")],
-    strokeColor: ["ColorV", colorSampler],
-    color: ["ColorV", colorSampler],
-    name: ["StrV", () => constValue("StrV", "defaultCircle")],
-  },
-  positionalProps: ["center"],
-};
-```
-
-{% endcode %}
-
+- **Input:** The function takes in the shape, which is represented by a string of its name, `"Circle"` in this case, and a `prop` which is an Object containing the properties of the circle. All Shape objects that are passed into objective functions or constraints must have the type `[string, any]`. For example, [this](https://github.com/penrose/penrose/blob/526a635d2f741f82a067365774e04e201f930f7e/packages/core/src/shapes/Circle.ts) is Penrose's definition of a Circle object.
 - **Numbers:** Instead of directly using constant numbers like `20`, we have to return `constOf(limit)` in order to pass it as a valid input for the autodiff function.
 - **Operations:** Instead of using the subtraction operator `-` like we normally do, we have to use the autodiff function `sub` .
-- **Accessing the Shape Property:** We access the shape's property value by `shapeName.propertyName.contents` , where `propertyName = r` for radius in this case.&#x20;
-- **Logic:** We want the input circle to have a minimum size (at least `r = 20`) as the function name suggests, so we want to express our returned answer in terms of energy, where `energy > 0` is bad (the constraint is unsatisfied), and `energy <= 0` is good (the constraint is satisfied). For example, with a small circle of `r = 1`, we will return 19 (not good), whereas with a big circle of `r = 30`, we will return -10, a negative number that satisfies the constraint.&#x20;
+- **Accessing the Shape Property:** We access the shape's property value by `shapeName.propertyName.contents` , where `propertyName = r` for radius in this case.
+- **Logic:** We want the input circle to have a minimum size (at least `r = 20`) as the function name suggests, so we want to express our returned answer in terms of energy, where `energy > 0` is bad (the constraint is unsatisfied), and `energy <= 0` is good (the constraint is satisfied). For example, with a small circle of `r = 1`, we will return 19 (not good), whereas with a big circle of `r = 30`, we will return -10, a negative number that satisfies the constraint.
 
 ```typescript
 maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
@@ -209,11 +186,11 @@ repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
 
 Let's look at this code together step by step:
 
-- **Input:** The function takes inputs similar to the constraint functions we just looked at, where for convenience, we substituted in `t` for `shapeType`. We add a parameter, `weight`, which is present because `repel()` typically needs to have a weight multiplier since its magnitude is small.&#x20;
+- **Input:** The function takes inputs similar to the constraint functions we just looked at, where for convenience, we substituted in `t` for `shapeType`. We add a parameter, `weight`, which is present because `repel()` typically needs to have a weight multiplier since its magnitude is small.
 - **Operations:** Here we use 3 autodiff functions:
-  - `inverse`, which returns `1 / v`&#x20;
-  - `mul` performs multiplication&#x20;
-  - `ops.vdistsq` returns the squared Euclidean distance between vectors `v` and `w`. Remember we use`ops` to access composite functions that work on vectors.&#x20;
+  - `inverse`, which returns `1 / v`
+  - `mul` performs multiplication
+  - `ops.vdistsq` returns the squared Euclidean distance between vectors `v` and `w`. Remember we use`ops` to access composite functions that work on vectors.
 - **Logic:** We will convert the math done in the second line of the function to its corresponding mathematical equation.
 
 $$
@@ -235,7 +212,7 @@ If you compare the two graphs above, you can see how we expanded the range of ex
 ## Exercises
 
 - Write a constraint that makes 2 circles disjoint from each other. Remember _disjoint_ means that the two circles do not overlap at all.
-- Write a new disjoint function that allows padding, i.e. the minimum distance between two circles will be the padding value.&#x20;
+- Write a new disjoint function that allows padding, i.e. the minimum distance between two circles will be the padding value.
 
 ### Exercise Solutions
 
@@ -266,6 +243,6 @@ More Reading: [link](https://github.com/penrose/penrose/wiki/Getting-started#wri
 In this tutorial, we took a leap from being users of the Penrose system to being developers contributing to the Penrose system. In particular, we learned the following things:
 
 - Diagramming can be encoded as an optimization problem, and Penrose uses numerical operations.
-- Constraints and objectives are implemented as energy functions, and the outputs of an energy function is called energy.&#x20;
-- The lower the energy, the better! A diagram with low energy for all of its constraints and objectives is a good diagram.&#x20;
-- To write an energy function, we use autodiff functions with special number types, and we write everything in functional style.&#x20;
+- Constraints and objectives are implemented as energy functions, and the outputs of an energy function is called energy.
+- The lower the energy, the better! A diagram with low energy for all of its constraints and objectives is a good diagram.
+- To write an energy function, we use autodiff functions with special number types, and we write everything in functional style.

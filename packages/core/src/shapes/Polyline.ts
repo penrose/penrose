@@ -20,7 +20,7 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
   strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
   strokeColor: sampleBlack(),
-  strokeDashArray: StrV(""),
+  strokeDasharray: StrV(""),
   fillColor: sampleNoPaint(),
   scale: FloatV(constOf(1)),
   points: PtListV(

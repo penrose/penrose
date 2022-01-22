@@ -12,7 +12,7 @@ export interface IStroke {
   strokeWidth: IFloatV<VarAD>;
   strokeStyle: IStrV;
   strokeColor: IColorV<VarAD>;
-  strokeDashArray: IStrV;
+  strokeDasharray: IStrV;
 }
 
 export interface IFill {
