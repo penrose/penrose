@@ -252,14 +252,28 @@ export const containsAABBs = (
 };
 
 /**
- * Require that a shape `s1` contains another shape `s2`.
+ * Require that a polygon `s1` contains another polygon `s2`.
  */
-export const containsPolygonCircles = (
+export const containsPolygonPolygon = (
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Polygon],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  return maxN(
+    s2.points.contents.map((x) =>
+      containsPolygonPoints(s1.points.contents, x, padding)
+    )
+  );
+};
+
+/**
+ * Require that a polygon `s1` contains circle `s2`.
+ */
+export const containsPolygonCircle = (
   [, s1]: [string, Polygon],
   [, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  console.warn("containsPolygonCircles");
   return containsPolygonPoints(
     s1.points.contents,
     s2.center.contents,
@@ -268,17 +282,16 @@ export const containsPolygonCircles = (
 };
 
 /**
- * Require that a shape `s1` contains another shape `s2`.
+ * Require that a circle `s1` contains polygon `s2`.
  */
-export const containsPolygonPolygon = (
-  [, s1]: [string, Polygon],
+export const containsCirclePolygon = (
+  [, s1]: [string, Circle],
   [, s2]: [string, Polygon],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  console.warn("containsPolygonPolygon");
   return maxN(
     s2.points.contents.map((x) =>
-      containsPolygonPoints(s1.points.contents, x, padding)
+      sub(add(ops.vdist(x, s1.center.contents), padding), s1.r.contents)
     )
   );
 };
