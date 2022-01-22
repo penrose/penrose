@@ -85,21 +85,6 @@ export const overlappingAABBs = (
 };
 
 /**
- * Require that polygon `s1` overlaps polygon `s2` with some padding `padding`.
- */
-export const overlappingPaths = (
-  [t1, s1]: [string, Polygon],
-  [t2, s2]: [string, Polygon],
-  padding: VarAD = constOf(0.0)
-): VarAD => {
-  return overlappingPolygonPoints(
-    s1.points.contents,
-    s2.points.contents,
-    padding
-  );
-};
-
-/**
  * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
  */
 export const overlappingRectlikeCircle = (
@@ -275,12 +260,10 @@ export const containsPolygonCircles = (
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   console.warn("containsPolygonCircles");
-  return overlappingPolygonPoints(
+  return containsPolygonPoints(
     s1.points.contents,
-    // s1.d.contents.map((x) => x[),
-    [s2.center.contents],
-    // padding
-    sub(padding, s2.r.contents)
+    s2.center.contents,
+    add(padding, s2.r.contents)
   );
 };
 
