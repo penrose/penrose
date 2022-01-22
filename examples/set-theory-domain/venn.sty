@@ -4,55 +4,18 @@ canvas {
 }
 
 forall Set x {
-
-    x.x1x = ?
-    x.x1y = ?
-    x.x2x = ?
-    x.x2y = ?
-    x.x3x = ?
-    x.x3y = ?
-    
-    x.x1 = (x.x1x, x.x1y)
-    x.x2 = (x.x2x, x.x2y)
-    x.x3 = (x.x3x, x.x3y)
-
-    x.icon = Polygon {
+    x.icon = Circle {
         strokeWidth : 0.0
-        -- fillColor: rgba(0,0,0,.5)
-        points : [ x.x1, x.x2, x.x3 ]
-        -- points: [(?, ?), (?, ?), (?, ?)]
     }
 
-    x.icon1 = Circle {
-        strokeWidth : 0.0
-        fillColor: rgba(1, 0, 0, 1)
-        r : 10
-        center : x.x1
+    x.text = Equation {
+        string : x.label
+        fontSize: "25px"
     }
 
-    x.icon2 = Circle {
-        strokeWidth : 0.0
-        fillColor: rgba(0, 1, 0, 1)
-        r : 10
-        center : x.x2
-    }
-
-    x.icon3 = Circle {
-        strokeWidth : 0.0
-        fillColor: rgba(0, 0, 1, 1)
-        r : 10
-        center : x.x3
-    }
-
-    -- x.text = Equation {
-    --     string : x.label
-    -- }
-
-    -- ensure contains(x.icon, x.text)
-    -- ensure minSize(x.icon, 20)
-    ensure maxSize(x.icon, 500)
-    -- encourage sameCenter(x.text, x.icon)
-    -- override x.textLayering = x.text above x.icon
+    ensure contains(x.icon, x.text)
+    encourage sameCenter(x.text, x.icon)
+    x.textLayering = x.text above x.icon
 }
 
 forall Set x; Set y
@@ -67,31 +30,44 @@ where IsSubset(x, y) {
 -- TODO: Fix that the resample hack breaks on switching examples since it saves the cached functions...
 -- TOOD: Also breaks if you resample without generating the function on first sample. Clearly this should be part of the state
 
+---
+
 forall Set x; Set y
 where Not(Intersecting(x, y)) {
     ensure disjoint(x.icon, y.icon)
 }
 
------------ NEW
+-- --------- NEW
+
 
 forall Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon)
+    ensure disjoint(x.text, y.icon)
 }
 
 forall Point p {
+    p.offset = 20.0
     p.icon = Circle {
         strokeWidth : 0.0
         fillColor : rgba(0.0, 0.0, 0.0, 1.0)
-        r : 20.0
+        r : 3.0
     }
+
+    p.text = Equation {
+        string : p.label
+        center : p.icon.center + (p.offset, p.offset)
+    }
+
+    p.textLayering = p.text above p.icon
 }
 
 Point p
 with Set A
 where PointIn(A, p) {
-    ensure contains(A.icon, p.icon)
-    override p.layering = p.icon above A.icon
+    ensure contains(A.icon, p.icon, 0.3 * A.icon.r)
+    p.layering = p.icon above A.icon
 }
 
 Point p
