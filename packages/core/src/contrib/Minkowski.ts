@@ -133,7 +133,7 @@ export const convexPolygonMinkowskiSDF = (
 ): VarAD => {
   return max(
     convexPolygonMinkowskiSDFOneSided(p1, p2, padding),
-    convexPolygonMinkowskiSDFOneSided(p2, p1, padding),
+    convexPolygonMinkowskiSDFOneSided(p2, p1, padding)
   );
 };
 
@@ -200,7 +200,7 @@ export const rectangleSignedDistance = (
  * @param p2 Point
  * @param padding Padding around the Minkowski sum.
  */
- const convexPolygonMinkowskiSDFOnePoint = (
+const convexPolygonMinkowskiSDFOnePoint = (
   p1: VarAD[][],
   p2: VarAD[],
   padding: VarAD
@@ -229,5 +229,7 @@ export const containsPolygonPoints = (
 ): VarAD => {
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = polygonPoints2;
-  return maxN(cp1.map((p1) => convexPolygonMinkowskiSDFOnePoint(p1, cp2, padding)));
+  return maxN(
+    cp1.map((p1) => convexPolygonMinkowskiSDFOnePoint(p1, cp2, padding))
+  );
 };
