@@ -110,7 +110,8 @@ const convexPolygonMinkowskiSDFOneSided = (
   padding: VarAD
 ): VarAD => {
   const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
-  const sides = Array.from({ length: p1.length }, (_, i) => i).map((i) => [
+  // Create a list of all sides given by two subsequent vertices
+  const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
@@ -191,4 +192,42 @@ export const rectangleSignedDistance = (
   const ne2 = min(max(xq, yq), constOf(0.0));
   // Return the signed distance
   return add(e1, ne2);
+};
+
+/**
+ * Constraint checking whether `point` is inside a convex polygon with vertices `polygonPoints`.
+ * @param polygonPoints Sequence of points defining a convex polygon.
+ * @param point Testing point.
+ * @param padding Padding applied to the polygon.
+ */
+const containsConvexPolygonPoints = (
+  p1: VarAD[][],
+  p2: VarAD[],
+  padding: VarAD
+): VarAD => {
+  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  // Create a list of all sides given by two subsequent vertices
+  const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
+    p1[i],
+    p1[i > 0 ? i - 1 : p1.length - 1],
+  ]);
+  const sdfs = sides.map((s: VarAD[][]) =>
+    halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
+  );
+  return maxN(sdfs);
+};
+
+/**
+ * Constraint checking whether `point` is inside a polygon with vertices `polygonPoints`.
+ * @param polygonPoints Sequence of points defining a polygon.
+ * @param point Testing point.
+ * @param padding Padding applied to the polygon.
+ */
+export const containsPolygonPoints = (
+  polygonPoints: VarAD[][],
+  point: VarAD[],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  const cp1 = convexPartitions(polygonPoints);
+  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };
