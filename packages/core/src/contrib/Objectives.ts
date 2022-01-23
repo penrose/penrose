@@ -81,7 +81,7 @@ export const objDictGeneral = {
     [tTop, sTop]: [string, any],
     offset = 100
   ) => {
-    inDirection(
+    return inDirection(
       [tBottom, sBottom],
       [tTop, sTop],
       [constOf(0.0), constOf(1.0)],
@@ -97,7 +97,7 @@ export const objDictGeneral = {
     [tBottom, sBottom]: [string, any],
     offset = 100
   ) => {
-    inDirection(
+    return inDirection(
       [tTop, sTop],
       [tBottom, sBottom],
       [constOf(0.0), constOf(1.0)],
@@ -113,7 +113,7 @@ export const objDictGeneral = {
     [tRight, sRight]: [string, any],
     offset = 100
   ) => {
-    inDirection(
+    return inDirection(
       [tLeft, sLeft],
       [tRight, sRight],
       [constOf(1.0), constOf(0.0)],
@@ -129,7 +129,7 @@ export const objDictGeneral = {
     [tLeft, sLeft]: [string, any],
     offset = 100
   ) => {
-    inDirection(
+    return inDirection(
       [tRight, sRight],
       [tLeft, sLeft],
       [constOf(1.0), constOf(0.0)],
