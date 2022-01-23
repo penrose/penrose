@@ -110,7 +110,8 @@ const convexPolygonMinkowskiSDFOneSided = (
   padding: VarAD
 ): VarAD => {
   const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
-  const sides = Array.from({ length: p1.length }, (_, i) => i).map((i) => [
+  // Create a list of all sides given by two subsequent vertices
+  const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
@@ -205,7 +206,8 @@ const containsConvexPolygonPoints = (
   padding: VarAD
 ): VarAD => {
   const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
-  const sides = Array.from({ length: p1.length }, (_, i) => i).map((i) => [
+  // Create a list of all sides given by two subsequent vertices
+  const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
