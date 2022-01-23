@@ -194,13 +194,12 @@ export const rectangleSignedDistance = (
 };
 
 /**
- * Return value of one-sided Signed Distance Function (SDF) of the Minkowski sum of two polygons `p1` and `p2` evaluated at the origin.
- * Only half-planes related to sides of the first polygon `p1` are considered.
- * @param p1 Sequence of points defining the first polygon.
- * @param p2 Point
- * @param padding Padding around the Minkowski sum.
+ * Constraint checking whether `point` is inside a convex polygon with vertices `polygonPoints`.
+ * @param polygonPoints Sequence of points defining a convex polygon.
+ * @param point Testing point.
+ * @param padding Padding applied to the polygon.
  */
-const convexPolygonMinkowskiSDFOnePoint = (
+const containsConvexPolygonPoints = (
   p1: VarAD[][],
   p2: VarAD[],
   padding: VarAD
@@ -211,25 +210,24 @@ const convexPolygonMinkowskiSDFOnePoint = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: VarAD[][]) =>
-    halfPlaneSDF(s, [ops.vneg(p2)], center, neg(padding))
+    halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
   );
   return maxN(sdfs);
 };
 
 /**
- * Overlapping constraint function for polygon points with padding `padding`.
- * @param polygonPoints1 Sequence of points defining a polygon.
- * @param polygonPoints2 Sequence of points defining a polygon.
- * @param padding Padding applied to one of the polygons.
+ * Constraint checking whether `point` is inside a polygon with vertices `polygonPoints`.
+ * @param polygonPoints Sequence of points defining a polygon.
+ * @param point Testing point.
+ * @param padding Padding applied to the polygon.
  */
 export const containsPolygonPoints = (
-  polygonPoints1: VarAD[][],
-  polygonPoints2: VarAD[],
+  polygonPoints: VarAD[][],
+  point: VarAD[],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  const cp1 = convexPartitions(polygonPoints1);
-  const cp2 = polygonPoints2;
+  const cp1 = convexPartitions(polygonPoints);
   return maxN(
-    cp1.map((p1) => convexPolygonMinkowskiSDFOnePoint(p1, cp2, padding))
+    cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding))
   );
 };

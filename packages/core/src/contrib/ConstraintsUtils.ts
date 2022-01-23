@@ -6,7 +6,7 @@ import {
 } from "contrib/Minkowski";
 import { ops, constOf } from "engine/Autodiff";
 import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
-import { VarAD, isPt2, Pt2 } from "types/ad";
+import { VarAD } from "types/ad";
 import * as BBox from "engine/BBox";
 import {
   sub,
@@ -20,12 +20,7 @@ import {
   ifCond,
   lt,
   squared,
-  sqrt,
-  gt,
-  eq,
-  neg,
   maxN,
-  minN,
 } from "engine/AutodiffFunctions";
 import { pointInBox, noIntersectCircles, atDistOutside } from "contrib/Utils";
 import { Circle } from "shapes/Circle";
@@ -277,7 +272,7 @@ export const containsPolygonCircle = (
   return containsPolygonPoints(
     s1.points.contents,
     s2.center.contents,
-    add(padding, s2.r.contents)
+    sub(padding, s2.r.contents)
   );
 };
 
