@@ -227,7 +227,5 @@ export const containsPolygonPoints = (
   padding: VarAD = constOf(0.0)
 ): VarAD => {
   const cp1 = convexPartitions(polygonPoints);
-  return maxN(
-    cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding))
-  );
+  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };
