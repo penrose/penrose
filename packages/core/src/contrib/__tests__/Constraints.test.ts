@@ -219,7 +219,7 @@ describe("general constraints", () => {
     ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
     ["Circle", "Circle", 150, _circles[3], _circles[1]],
     ["Line", "Line", 200, _lines[1], _lines[3]],
-    ["Polygon", "Polygon", 150, _polygons[1], _polygons[2]],
+    ["Polygon", "Polygon", 100, _polygons[1], _polygons[2]],
     ["Polygon", "Polygon", 150, _polygons[1], _polygons[3]],
     ["Line", "Polygon", 150, _lines[1], _polygons[3]],
     ["Line", "Polygon", 150, _lines[1], _polygons[2]],
