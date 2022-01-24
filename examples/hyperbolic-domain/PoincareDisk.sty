@@ -1,3 +1,8 @@
+canvas {
+   scalar width  = 533.
+   scalar height = 300.
+}
+
 Global {
    scalar width = 800.0
    scalar height = 700.0
@@ -7,7 +12,7 @@ Global {
 }
 
 Colors {
-   color none = rgba(0.0, 0.0, 0.0, 0.0)
+   color none = none()
    color black = rgba( 0.0, 0.0, 0.0, 1.0 )
    color blue = rgba( 0.8, 0.7, 1.0, 0.2 )
    color red = rgba( 1.0, 0.0, 0.0, 0.5 )
@@ -17,11 +22,11 @@ forall HyperbolicPlane H {
    shape H.diskShape = Circle {
       center : (0.0, 0.)
       r : Global.planeSize/2.0
-      color : Colors.blue
+      fillColor : Colors.blue
       strokeWidth : Global.thinStroke
       strokeColor : Colors.black
       strokeStyle : "dashed"
-      -- strokeDashArray : "20,10,5,5,5,10"
+      -- strokeDasharray : "20,10,5,5,5,10"
    }
 }
 
@@ -30,7 +35,7 @@ where In( p, H ) {
    shape p.dotShape = Circle {
       r : Global.pointSize/2.0
       strokeWidth : 0.0
-      color : Colors.black
+      fillColor : Colors.black
    }
 
    --ensure contains( H.diskShape, p.dotShape )
@@ -48,13 +53,13 @@ where In( p, H ) {
       center : R*(cos(p.angle), sin(p.angle))
       r : Global.pointSize
       strokeWidth : 0.0
-      color : Colors.black
+      fillColor : Colors.black
    }
 }
 
 forall Horocycle h; HyperbolicPlane H {
   shape h.circleShape = Circle {
-    color : Colors.none
+    fillColor : Colors.none
     strokeWidth : 2.0
     strokeColor : Colors.black
   }
@@ -63,7 +68,7 @@ forall Horocycle h; HyperbolicPlane H {
 
   ensure inRange(h.circleShape.r, R/8., R/2.)
   constraint h.inDisk      = ensure contains(H.diskShape, h.circleShape)
-  constraint h.tangentDisk = ensure tangentTo(H.diskShape, h.circleShape)
+  constraint h.tangentDisk = ensure touching(H.diskShape, h.circleShape)
 }
 
 forall IdealPoint p; Horocycle h; HyperbolicPlane H

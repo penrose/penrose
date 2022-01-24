@@ -21,27 +21,27 @@ colors {
        red = rgba(1., 0., 0., 1.)
        green = rgba(0., 1., 0., 1.)
        blue = rgba(0., 0., 1., 1.)
-       none = rgba(0., 0., 0., 0.)
+       none = none()
 }
 
 Node n {
      n.shape = Circle { 
              r: global.nodeR
              strokeWidth: 0.
-             color: colors.black
+             fillColor: colors.black
      }
 
-     n.text = Text {
+     n.text = Equation {
             string: n.label
      }
 
      n.callout = Rectangle {
                strokeWidth: global.lineThickness
                strokeColor: colors.black
-               color: colors.none
+               fillColor: colors.none
                center: n.text.center
-               w: n.text.w + global.calloutPadding
-               h: n.text.h + global.calloutPadding
+               width: n.text.width + global.calloutPadding
+               height: n.text.height + global.calloutPadding
      }
 
      -- Parallel to callout direction
@@ -53,16 +53,16 @@ Node n {
      n.line = Line {
             start: n.anchorStart
             end: n.callout.center
-            thickness: global.calloutThickness
-            color: rgba(0.5, 0.5, 0.5, 0.5)
+            strokeWidth: global.calloutThickness
+            strokeColor: rgba(0.5, 0.5, 0.5, 0.5)
      }
 
      -- Thin line
      n.line1 = Line {
              start: n.anchorStart
              end: n.callout.center
-             thickness: global.lineThickness
-             color: colors.black
+             strokeWidth: global.lineThickness
+             strokeColor: colors.black
      }
 
      n.line1 above n.line
@@ -70,7 +70,7 @@ Node n {
      -- Perpendicular location - start of segment
      segStart = n.anchorStart + global.calloutThickness / 2. * rot90(vec)
      n.circle1 = Circle {
-               color: colors.red
+               fillColor: colors.red
                r: 5.
                strokeWidth: 0.
                center: segStart
@@ -81,7 +81,7 @@ Node n {
      segEnd = segStart + t * vec
 
      n.circle2 = Circle {
-               color: colors.red
+               fillColor: colors.red
                r: 5.
                strokeWidth: 0.
                center: segEnd
@@ -89,7 +89,7 @@ Node n {
 
      -- hit point 1
      n.circle3 = Circle {
-               color: colors.blue
+               fillColor: colors.blue
                r: 5.
                strokeWidth: 0.
                -- center: 

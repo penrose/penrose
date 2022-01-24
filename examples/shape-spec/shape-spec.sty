@@ -7,12 +7,11 @@ forall Path a {
     a.icon = Path { }
 }
 
-forall Arrow c {
-    c.icon = Arrow { }
-}
-
 forall Square d {
-    d.icon = Square { 
+    d.side = ?
+    d.icon = Rectangle { 
+        width: d.side
+        height: d.side
         rx: 0
         rotation: 45
     }
@@ -22,7 +21,7 @@ forall Circle e {
     e.icon = Circle {
         center: [20,20]
         r: 40.0
-        -- fill: rgba(255.0,43.0,0.0,0.0)
+        -- fillColor: rgba(255.0,43.0,0.0,0.0)
         -- pathLength: 6.0
      }
 }
@@ -38,8 +37,8 @@ forall Line g {
     g.icon = Line { }
 }
 
-forall Text h {
-    h.icon = Text { 
+forall Equation h {
+    h.icon = Equation { 
         string: "i am a label"
         rotation: 45
     }
@@ -72,21 +71,4 @@ forall Ellipse l {
         rx: 20
         ry: 20
      }
-}
-
-forall FreeformPolygon u {
-	u.icon = FreeformPolygon { 
-        points: ((-80.0, 0.0), (100.0, 0.0), (10.0, 50.0))
-        -- strokeWidth: 20
-        -- scale: 2
-	}
-}
-
-forall PathString p {
-    p.icon = PathString {
-        w: 300
-        h: 300
-        data: "M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80"
-        viewBox: "0 0 200 200"
-    }
 }

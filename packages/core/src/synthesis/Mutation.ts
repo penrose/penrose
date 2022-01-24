@@ -9,7 +9,7 @@ import {
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
-import { Identifier } from "types/ast";
+import { A, Identifier } from "types/ast";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -35,9 +35,9 @@ export interface IMutation {
   additionalMutations?: Mutation[];
   mutate: (
     op: this,
-    prog: SubProg,
+    prog: SubProg<A>,
     ctx: SynthesisContext
-  ) => WithContext<SubProg>;
+  ) => WithContext<SubProg<A>>;
 }
 
 export type Update =
@@ -52,24 +52,24 @@ export type Update =
 
 export interface Add extends IMutation {
   tag: "Add";
-  stmt: SubStmt;
+  stmt: SubStmt<A>;
 }
 export interface Delete extends IMutation {
   tag: "Delete";
-  stmt: SubStmt;
+  stmt: SubStmt<A>;
 }
 
 export interface SwapStmtArgs extends IMutation {
   tag: "SwapStmtArgs";
-  stmt: ApplyPredicate;
+  stmt: ApplyPredicate<A>;
   elem1: number;
   elem2: number;
 }
 
 export interface SwapExprArgs extends IMutation {
   tag: "SwapExprArgs";
-  stmt: Bind;
-  expr: ArgExpr;
+  stmt: Bind<A>;
+  expr: ArgExpr<A>;
   elem1: number;
   elem2: number;
 }
@@ -91,28 +91,28 @@ export interface SwapInExprArgs extends IMutation {
 
 export interface ReplaceStmtName extends IMutation {
   tag: "ReplaceStmtName";
-  stmt: ApplyPredicate;
+  stmt: ApplyPredicate<A>;
   newName: string;
 }
 
 export interface ReplaceExprName extends IMutation {
   tag: "ReplaceExprName";
-  stmt: Bind;
-  expr: ArgExpr;
+  stmt: Bind<A>;
+  expr: ArgExpr<A>;
   newName: string;
 }
 export interface ChangeStmtType extends IMutation {
   tag: "ChangeStmtType";
-  stmt: ApplyPredicate;
-  newStmt: SubStmt;
+  stmt: ApplyPredicate<A>;
+  newStmt: SubStmt<A>;
   additionalMutations: Mutation[];
 }
 
 export interface ChangeExprType extends IMutation {
   tag: "ChangeExprType";
-  stmt: Bind;
-  expr: ArgExpr;
-  newStmt: SubStmt;
+  stmt: Bind<A>;
+  expr: ArgExpr<A>;
+  newStmt: SubStmt<A>;
   additionalMutations: Mutation[];
 }
 
@@ -152,17 +152,17 @@ export const showMutation = (op: Mutation): string => {
 
 export const executeMutation = (
   mutation: Mutation,
-  prog: SubProg,
+  prog: SubProg<A>,
   ctx: SynthesisContext
-): WithContext<SubProg> => mutation.mutate(mutation as any, prog, ctx); // TODO: typecheck this?
+): WithContext<SubProg<A>> => mutation.mutate(mutation as any, prog, ctx); // TODO: typecheck this?
 
 export const executeMutations = (
   mutations: Mutation[],
-  prog: SubProg,
+  prog: SubProg<A>,
   ctx: SynthesisContext
-): WithContext<SubProg> =>
+): WithContext<SubProg<A>> =>
   mutations.reduce(
-    ({ res, ctx }: WithContext<SubProg>, m: Mutation) =>
+    ({ res, ctx }: WithContext<SubProg<A>>, m: Mutation) =>
       m.mutate(m as any, res, ctx),
     { res: prog, ctx }
   );
@@ -178,13 +178,13 @@ const swap = (arr: any[], a: number, b: number) =>
 
 //#region Mutation constructors
 
-export const deleteMutation = (stmt: SubStmt): Delete => ({
+export const deleteMutation = (stmt: SubStmt<A>): Delete => ({
   tag: "Delete",
   stmt,
   mutate: removeStmtCtx,
 });
 
-export const addMutation = (stmt: SubStmt): Add => ({
+export const addMutation = (stmt: SubStmt<A>): Add => ({
   tag: "Add",
   stmt,
   mutate: appendStmtCtx,
@@ -201,9 +201,9 @@ const withCtx = <T>(res: T, ctx: SynthesisContext): WithContext<T> => ({
 
 export const appendStmtCtx = (
   { stmt }: Add,
-  p: SubProg,
+  p: SubProg<A>,
   ctx: SynthesisContext
-): WithContext<SubProg> => {
+): WithContext<SubProg<A>> => {
   if (stmt.tag === "Decl") {
     const newCtx = addID(ctx, stmt.type.name.value, stmt.name);
     return withCtx(appendStmt(p, stmt), newCtx);
@@ -214,9 +214,9 @@ export const appendStmtCtx = (
 
 export const removeStmtCtx = (
   { stmt }: Delete,
-  prog: SubProg,
+  prog: SubProg<A>,
   ctx: SynthesisContext
-): WithContext<SubProg> => {
+): WithContext<SubProg<A>> => {
   if (stmt.tag === "Decl") {
     const newCtx = removeID(ctx, stmt.type.name.value, stmt.name);
     return withCtx(removeStmt(prog, stmt), newCtx);
@@ -230,26 +230,26 @@ export const removeStmtCtx = (
 //#region Mutation guard functions
 
 export const checkAddStmts = (
-  prog: SubProg,
+  prog: SubProg<A>,
   cxt: SynthesisContext,
-  newStmts: (cxt: SynthesisContext) => SubStmt[]
+  newStmts: (cxt: SynthesisContext) => SubStmt<A>[]
 ): Add[] | undefined => {
-  const stmts: SubStmt[] = newStmts(cxt);
-  return stmts.map((stmt: SubStmt) => addMutation(stmt));
+  const stmts: SubStmt<A>[] = newStmts(cxt);
+  return stmts.map((stmt: SubStmt<A>) => addMutation(stmt));
 };
 
 export const checkAddStmt = (
-  prog: SubProg,
+  prog: SubProg<A>,
   cxt: SynthesisContext,
-  newStmt: (cxt: SynthesisContext) => SubStmt
+  newStmt: (cxt: SynthesisContext) => SubStmt<A>
 ): Add | undefined => {
-  const stmt: SubStmt = newStmt(cxt);
+  const stmt: SubStmt<A> = newStmt(cxt);
   return addMutation(stmt);
 };
 
 export const checkSwapStmtArgs = (
-  stmt: SubStmt,
-  elems: (p: ApplyPredicate) => [number, number]
+  stmt: SubStmt<A>,
+  elems: (p: ApplyPredicate<A>) => [number, number]
 ): SwapStmtArgs | undefined => {
   if (stmt.tag === "ApplyPredicate") {
     if (stmt.args.length < 2) return undefined;
@@ -261,10 +261,10 @@ export const checkSwapStmtArgs = (
       elem2,
       mutate: (
         { stmt, elem1, elem2 }: SwapStmtArgs,
-        prog: SubProg,
+        prog: SubProg<A>,
         ctx: SynthesisContext
-      ): WithContext<SubProg> => {
-        const newStmt: SubStmt = {
+      ): WithContext<SubProg<A>> => {
+        const newStmt: SubStmt<A> = {
           ...stmt,
           args: swap(stmt.args, elem1, elem2),
         };
@@ -275,8 +275,8 @@ export const checkSwapStmtArgs = (
 };
 
 export const checkSwapExprArgs = (
-  stmt: SubStmt,
-  elems: (p: ArgExpr) => [number, number]
+  stmt: SubStmt<A>,
+  elems: (p: ArgExpr<A>) => [number, number]
 ): SwapExprArgs | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -295,15 +295,15 @@ export const checkSwapExprArgs = (
         elem2,
         mutate: (
           { stmt, expr, elem1, elem2 }: SwapExprArgs,
-          prog: SubProg,
+          prog: SubProg<A>,
           ctx: SynthesisContext
-        ): WithContext<SubProg> => {
-          const newStmt: SubStmt = {
+        ): WithContext<SubProg<A>> => {
+          const newStmt: SubStmt<A> = {
             ...stmt,
             expr: {
               ...expr,
               args: swap(expr.args, elem1, elem2),
-            } as SubExpr, // TODO: fix types to avoid casting
+            } as SubExpr<A>, // TODO: fix types to avoid casting
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },
@@ -402,8 +402,8 @@ export const checkSwapInExprArgs = (
 };
 
 export const checkReplaceStmtName = (
-  stmt: SubStmt,
-  newName: (p: ApplyPredicate) => string | undefined
+  stmt: SubStmt<A>,
+  newName: (p: ApplyPredicate<A>) => string | undefined
 ): ReplaceStmtName | undefined => {
   if (stmt.tag === "ApplyPredicate") {
     const name = newName(stmt);
@@ -427,8 +427,8 @@ export const checkReplaceStmtName = (
 };
 
 export const checkReplaceExprName = (
-  stmt: SubStmt,
-  newName: (p: ArgExpr) => string | undefined
+  stmt: SubStmt<A>,
+  newName: (p: ArgExpr<A>) => string | undefined
 ): ReplaceExprName | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -463,8 +463,8 @@ export const checkReplaceExprName = (
 };
 
 export const checkDeleteStmt = (
-  prog: SubProg,
-  stmt: SubStmt
+  prog: SubProg<A>,
+  stmt: SubStmt<A>
 ): Delete | undefined => {
   const s = stmt;
   if (stmtExists(s, prog)) {
@@ -474,7 +474,7 @@ export const checkDeleteStmt = (
 
 const changeType = (
   { stmt, newStmt, additionalMutations }: ChangeStmtType | ChangeExprType,
-  prog: SubProg,
+  prog: SubProg<A>,
   ctx: SynthesisContext
 ) => {
   const { res: newProg, ctx: newCtx } = executeMutations(
@@ -482,16 +482,16 @@ const changeType = (
     prog,
     ctx
   );
-  return withCtx(replaceStmt(newProg, stmt, newStmt), newCtx);
+  return withCtx(appendStmt(newProg, newStmt), newCtx);
 };
 
 export const checkChangeStmtType = (
-  stmt: SubStmt,
+  stmt: SubStmt<A>,
   cxt: SynthesisContext,
   getMutations: (
-    s: ApplyPredicate,
+    s: ApplyPredicate<A>,
     cxt: SynthesisContext
-  ) => { newStmt: SubStmt; additionalMutations: Mutation[] } | undefined
+  ) => { newStmt: SubStmt<A>; additionalMutations: Mutation[] } | undefined
 ): ChangeStmtType | undefined => {
   if (stmt.tag === "ApplyPredicate") {
     const res = getMutations(stmt, cxt);
@@ -509,13 +509,13 @@ export const checkChangeStmtType = (
 };
 
 export const checkChangeExprType = (
-  stmt: SubStmt,
+  stmt: SubStmt<A>,
   cxt: SynthesisContext,
   getMutations: (
-    oldStmt: Bind,
-    oldExpr: ArgExpr,
+    oldStmt: Bind<A>,
+    oldExpr: ArgExpr<A>,
     cxt: SynthesisContext
-  ) => { newStmt: SubStmt; additionalMutations: Mutation[] } | undefined
+  ) => { newStmt: SubStmt<A>; additionalMutations: Mutation[] } | undefined
 ): ChangeExprType | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;

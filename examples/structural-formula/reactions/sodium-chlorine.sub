@@ -1,0 +1,45 @@
+AutoLabel All
+
+-- sodium chlorine gas reaction, expressed via structural-formula DSL
+
+Reaction sodium_chlorine
+Label sodium_chlorine "Sodium and Chlorine Gas Reaction"
+IsNetForward( sodium_chlorine )
+
+-- reactants: 2Na + Cl2 ====================================
+Sodium Na1, Na2
+Chlorine Cl1, Cl2
+
+Molecule chlorine
+Label chlorine $\text{chlorine gas}\ (\mathrm{Cl}_2)$
+Contains( chlorine, Cl1 )
+Contains( chlorine, Cl2 )
+SingleBond( Cl1, Cl2 )
+
+Molecule sodium1, sodium2
+Label sodium1 $\text{sodium}\ (\mathrm{Na})$
+Label sodium2 $\text{sodium}\ (\mathrm{Na})$
+Contains( sodium1, Na1 )
+Contains( sodium2, Na2 )
+
+IsReactant( chlorine )
+IsReactant( sodium1 )
+IsReactant( sodium2 )
+
+-- products: 2NaCl =========================================
+Sodium Na3, Na4
+Chlorine Cl3, Cl4
+
+Molecule sodiumChloride1, sodiumChloride2
+Label sodiumChloride1 $\text{salt}\ (\mathrm{NaCl})$
+Label sodiumChloride2 $\text{salt}\ (\mathrm{NaCl})$
+Contains( sodiumChloride1, Na3 )
+Contains( sodiumChloride1, Cl3 )
+Contains( sodiumChloride2, Na4 )
+Contains( sodiumChloride2, Cl4 )
+IonicBond( Na3, Cl3 )
+IonicBond( Na4, Cl4 )
+
+IsProduct( sodiumChloride1 )
+IsProduct( sodiumChloride2 )
+

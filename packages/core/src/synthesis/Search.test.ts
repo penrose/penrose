@@ -15,6 +15,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "synthesis/Synthesizer";
+import { A } from "types/ast";
 import { SubProg, SubRes } from "types/substance";
 import {
   applyStmtDiffs,
@@ -72,28 +73,28 @@ type Set
 type Point
 type Map
 
-constructor Singleton : Point p -> Set
+constructor Singleton(Point p) -> Set
 
-function Intersection : Set a * Set b -> Set
-function Union : Set a * Set b -> Set
-function Subtraction : Set a * Set b -> Set
-function CartesianProduct : Set a * Set b -> Set
-function Difference : Set a * Set b -> Set
-function Subset : Set a * Set b -> Set
-function AddPoint : Point p * Set s1 -> Set
+function Intersection(Set a, Set b) -> Set
+function Union(Set a, Set b) -> Set
+function Subtraction(Set a, Set b) -> Set
+function CartesianProduct(Set a, Set b) -> Set
+function Difference(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s1) -> Set
 
-predicate Not : Prop p1
-predicate From : Map f * Set domain * Set codomain
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
-predicate Equal : Set s1 * Set s2
-predicate PointIn : Set s * Point p
-predicate In : Point p * Set s
-predicate Injection : Map m
-predicate Surjection : Map m
-predicate Bijection : Map m
-predicate PairIn : Point * Point * Map
+predicate Not(Prop p1)
+predicate From(Map f, Set domain, Set codomain)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
+predicate Equal(Set s1, Set s2)
+predicate PointIn(Set s, Point p)
+predicate In(Point p, Set s)
+predicate Injection(Map m)
+predicate Surjection(Map m)
+predicate Bijection(Map m)
+predicate PairIn(Point, Point, Map)
 `;
 
 const substanceSrc = `
@@ -155,8 +156,8 @@ describe("Synthesizer tests", () => {
     E := Union(A, B)
     `;
     const res1: SubRes = getSubRes(domainSrc, original);
-    const ast1: SubProg = res1[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, edited)[0].ast;
+    const ast1: SubProg<A> = res1[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, edited)[0].ast;
     const d: DiffSet = subProgDiffs(ast1, ast2);
     expect([...d.add, ...d.delete, ...d.update].map(showSubDiff)).toEqual([
       "Delete: Equal(E, E)",
@@ -180,8 +181,8 @@ describe("Synthesizer tests", () => {
     F := Union(A, B)
     `;
     const res1: SubRes = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = res1[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = res1[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     expect(diffs).toHaveLength(2);
     expect(diffs.map(showStmtDiff)).toEqual([
@@ -219,8 +220,8 @@ describe("Synthesizer tests", () => {
     IsSubset(C,A)
     IsSubset(B, A)
     `;
-    const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     // the ASTs have normalized ordering, so there should be only two diffs
     expect(diffs).toHaveLength(2);
@@ -246,8 +247,8 @@ describe("Synthesizer tests", () => {
     IsSubset(C,A)
     IsSubset(B, A)
     `;
-    const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: rdiffResult[] = diffSubProgs(ast1, ast2);
     // because we filtered out all the noisy diffs, the exact formatting should not matter much
     expect(diffs).toHaveLength(2);

@@ -7,7 +7,7 @@ import {
 import { dummyIdentifier } from "engine/EngineUtils";
 import { intersectionWith } from "lodash";
 import { similarMappings, similarNodes } from "synthesis/Search";
-import { ASTNode } from "types/ast";
+import { A, ASTNode } from "types/ast";
 import { Env } from "types/domain";
 import { SubProg, SubStmt } from "types/substance";
 import {
@@ -22,19 +22,19 @@ import {
 const domain = `
 type Set
 type Point
-predicate IsSubset: Set * Set
-predicate Equal: Set * Set
-function Subset : Set a * Set b -> Set
+predicate IsSubset(Set, Set)
+predicate Equal(Set, Set)
+function Subset(Set a, Set b) -> Set
 `;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
 
-const compile = (src: string): SubProg =>
+const compile = (src: string): SubProg<A> =>
   compileSubstance(src, env).unsafelyUnwrap()[0].ast;
 
 describe("Substance AST queries", () => {
   test("Similar AST nodes", () => {
-    let node1: ASTNode;
-    let node2: ASTNode;
+    let node1: ASTNode<A>;
+    let node2: ASTNode<A>;
     node1 = compile("Set A");
     node2 = compile("Set B");
     expect(similarNodes(node1, node2)).toBe(true);
@@ -154,13 +154,15 @@ Set B`;
 Set B
 Set C`;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
-    const newStmt: SubStmt = {
+    const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
       children: [],
       tag: "Decl",
       name: dummyIdentifier("C", "SyntheticSubstance"),
       type: {
         tag: "TypeConstructor",
+        nodeType: "SyntheticSubstance",
+        children: [],
         args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
@@ -186,13 +188,15 @@ Set B`;
 Set ZZZ`;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
     const toReplace = originalAST.statements[1];
-    const newStmt: SubStmt = {
+    const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
       children: [],
       tag: "Decl",
       name: dummyIdentifier("ZZZ", "SyntheticSubstance"),
       type: {
         tag: "TypeConstructor",
+        nodeType: "SyntheticSubstance",
+        children: [],
         args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },

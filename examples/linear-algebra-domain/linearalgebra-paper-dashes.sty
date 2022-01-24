@@ -27,7 +27,7 @@ C { -- 1
     gray = rgba(0.6, 0.6, 0.6, 1.)
     green = rgba(0., 0.8, 0., 1.)
     -- blue = #0000ff
-    none = rgba(0., 0., 0., 0.)
+    none = none()
 }
 
 -- Just some weird definitions to test parser. Not used in rest of program
@@ -61,10 +61,11 @@ forall VectorSpace U { -- 3
     vec2 o = U.origin
     U.axisColor = C.gray
 
-    shape U.background = Square {
+    shape U.background = Rectangle {
         center : U.origin
-        side : const.vectorSpaceSize
-        color : C.none
+        width : const.vectorSpaceSize
+        height : const.vectorSpaceSize
+        fillColor : C.none
         strokeColor : C.none
         -- strokeWidth : 2.0
     }
@@ -72,47 +73,48 @@ forall VectorSpace U { -- 3
     shape U.xAxis = Line {
         start : (o[0] - axisSize, o[1]) -- TODO This gets mis-parsed as a matrix access
         end : (o[0] + axisSize, o[1])
-        thickness : const.lineThickness
+        strokeWidth : const.lineThickness
         style : "solid"
-        color : U.axisColor
-        leftArrowhead: true
-        rightArrowhead: true
+        strokeColor : U.axisColor
+        startArrowhead: true
+        endArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
     U.yAxis = Line {
            start : (o[0], o[1] - axisSize)
              end : (o[0], o[1] + axisSize)
-       thickness : const.lineThickness
+       strokeWidth : const.lineThickness
            style : "solid"
-           color : U.axisColor
-           leftArrowhead: true
-           rightArrowhead: true
+           strokeColor : U.axisColor
+           startArrowhead: true
+           endArrowhead: true
         arrowheadSize : const.arrowheadSize * 2.
     }
 
-    U.text = Text {
+    U.text = Equation {
         string : U.label
         center : (U.origin[0] - axisSize, U.origin[1] + axisSize)
-        color : U.axisColor
+        fillColor : U.axisColor
     }
 }
 
 forall Vector u; VectorSpace U -- 4
 where In(u,U) {
-  u.text = Text {
+  u.text = Equation {
     -- center : (?, ?) -- This should be done automatically
     string : u.label
-    color : u.arrow.color
+    fillColor : u.arrow.strokeColor
   }
 
-  u.arrow = Arrow {
+  u.arrow = Line {
     start : U.origin
     end : (?, ?)
-    thickness : 3.0
-    color : C.lightBlue
+    strokeWidth : 3.0
+    strokeColor : C.lightBlue
+    endArrowhead : true
     arrowheadSize : const.arrowheadSize
-    strokeDashArray : "4 1 2"
+    strokeDasharray : "4 1 2"
   }
 
    u.vector = u.arrow.end - u.arrow.start -- Vector sugar for subtraction
@@ -120,7 +122,7 @@ where In(u,U) {
    ensure contains(U.background, u.arrow)
    ensure contains(U.background, u.text)
    ensure atDist(u.arrow, u.text, 15.0)
-   ensure minSize(u.arrow)
+   ensure lessThan(20, len(u.arrow))
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -144,10 +146,10 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
       -- Draw perpendicular mark -- NOTE: local shapes should still be drawn
       perpMark = Path {
-           pathData : pathFromPoints("closed", pts)
+           d : pathFromPoints("closed", pts)
            -- strokeWidth : 2.0
-           color : C.black
-           fill : C.white
+           strokeColor : C.black
+           fillColor : C.white
       }
 
       -- Make sure vectors are orthogonal (use ensure?)
@@ -178,10 +180,10 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       v.markerLine = [markStart, markEnd]
 
       v.unitMarkerLine = Path {
-          pathData : pathFromPoints("open", v.markerLine)
+          d : pathFromPoints("open", v.markerLine)
           -- strokeWidth : strokeWidth
-          color : C.black
-          fill : C.none
+          strokeColor : C.black
+          fillColor : C.none
       }
 
       -- Could use normal instead, just doing this to demonstrate how to use matrices
@@ -191,26 +193,26 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
       vec2 halfvec = c * markNormal
 
       v.unitMarkerEnd1 = Path {
-          pathData : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
+          d : pathFromPoints("open", [markStart - halfvec, markStart + halfvec]) -- TODO: Can we infer this type if it's written anonymously?
           -- strokeWidth : strokeWidth
-          color : C.black
-          fill : C.none
+          strokeColor : C.black
+          fillColor : C.none
       }
 
       v.unitMarkerEnd2 = Path {
-          pathData : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
+          d : pathFromPoints("open", [markEnd - halfvec, markEnd + halfvec])
           -- strokeWidth : strokeWidth
-          color : C.black
-          fill : C.none
+          strokeColor : C.black
+          fillColor : C.none
       }
 
       vec2 midpointLoc = (v.markerLine[0] + v.markerLine[1]) / 2.
       vec2 labelPos = midpointLoc + const.markerPadding * normal
 
-      v.unitMarkerText = Text {
+      v.unitMarkerText = Equation {
           string : "1"
           center : labelPos
-          color : C.black
+          fillColor : C.black
       }
 
       layer v.unitMarkerLine above U.xAxis
@@ -218,5 +220,5 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 }
 
 forall Vector `x2` { -- 7
-       override `x2`.arrow.color = C.green
+       override `x2`.arrow.strokeColor = C.green
 }

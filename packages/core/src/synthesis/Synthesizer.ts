@@ -44,7 +44,7 @@ import {
   removeStmtCtx,
   showMutations,
 } from "synthesis/Mutation";
-import { Identifier } from "types/ast";
+import { A, Identifier } from "types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -109,22 +109,26 @@ export interface SynthesizerSetting {
 //#region Synthesis context
 export interface SynthesisContext {
   names: Map<string, number>;
-  declaredIDs: Map<string, Identifier[]>;
+  declaredIDs: Map<string, Identifier<A>[]>;
   env: Env;
 }
 export interface SynthesizedSubstance {
-  prog: SubProg;
+  prog: SubProg<A>;
   ops: Mutation[];
 }
 
 interface IDList {
-  ids: Identifier[];
+  ids: Identifier<A>[];
 }
 
 export const initContext = (env: Env): SynthesisContext => {
   const ctx: SynthesisContext = {
     names: Map<string, number>(),
+<<<<<<< HEAD
     declaredIDs: Map<string, Identifier[]>(),
+=======
+    declaredIDs: Map<string, Identifier<A>[]>(),
+>>>>>>> main
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -160,8 +164,8 @@ const showEnv = (env: Env): string =>
 
 const getDecls = (
   ctx: SynthesisContext,
-  type: DomainStmt["tag"]
-): Map<string, DomainStmt> => {
+  type: DomainStmt<A>["tag"]
+): Map<string, DomainStmt<A>> => {
   const { env } = ctx;
   switch (type) {
     case "TypeDecl":
@@ -173,12 +177,16 @@ const getDecls = (
     case "PredicateDecl":
       return env.predicates;
     case undefined:
+<<<<<<< HEAD
       return Map<string, DomainStmt>();
+=======
+      return Map<string, DomainStmt<A>>();
+>>>>>>> main
   }
   throw new Error(`${type} is not found in the environment`);
 };
 
-const nonEmptyDecls = (ctx: SynthesisContext): DomainStmt["tag"][] =>
+const nonEmptyDecls = (ctx: SynthesisContext): DomainStmt<A>["tag"][] =>
   declTypes.filter((type) => !getDecls(ctx, type).isEmpty());
 
 /**
@@ -192,7 +200,7 @@ const nonEmptyDecls = (ctx: SynthesisContext): DomainStmt["tag"][] =>
 export const addID = (
   ctx: SynthesisContext,
   typeStr: string,
-  id: Identifier
+  id: Identifier<A>
 ): SynthesisContext => {
   const ids = ctx.declaredIDs.get(typeStr);
   if (ids) {
@@ -219,7 +227,7 @@ export const addID = (
 export const removeID = (
   ctx: SynthesisContext,
   typeStr: string,
-  id: Identifier
+  id: Identifier<A>
 ): SynthesisContext => {
   const ids = ctx.declaredIDs.get(typeStr);
   if (ids) {
@@ -238,8 +246,8 @@ export const removeID = (
 const findIDs = (
   ctx: SynthesisContext,
   typeStr: string,
-  excludeList?: Identifier[]
-): Identifier[] => {
+  excludeList?: Identifier<A>[]
+): Identifier<A>[] => {
   const possibleIDs = ctx.declaredIDs.get(typeStr);
   if (possibleIDs) {
     const candidates = possibleIDs.filter((id) =>
@@ -249,14 +257,15 @@ const findIDs = (
   } else return [];
 };
 
-const autoLabel = (prog: SubProg): SubProg => appendStmt(prog, autoLabelStmt);
+const autoLabel = (prog: SubProg<A>): SubProg<A> =>
+  appendStmt(prog, autoLabelStmt);
 
 //#endregion
 
 //#region Main synthesizer
 interface WithStmts<T> {
   res: T;
-  stmts: SubStmt[];
+  stmts: SubStmt<A>[];
 }
 
 export interface WithContext<T> {
@@ -266,10 +275,10 @@ export interface WithContext<T> {
 
 export class Synthesizer {
   env: Env;
-  template: SubProg;
+  template: SubProg<A>;
   setting: SynthesizerSetting;
   names: Map<string, number>;
-  currentProg: SubProg;
+  currentProg: SubProg<A>;
   currentMutations: Mutation[];
   private choice: <T>(array: Array<T>) => T;
   private random: RandomFunction;
@@ -309,8 +318,8 @@ export class Synthesizer {
 
   generateID = (
     ctx: SynthesisContext,
-    typeName: Identifier
-  ): WithContext<Identifier> => {
+    typeName: Identifier<A>
+  ): WithContext<Identifier<A>> => {
     const typeStr = typeName.value;
     const prefix = typeStr[0].toLowerCase();
     // find the appropriate index for the generated ID
@@ -323,7 +332,7 @@ export class Synthesizer {
       this.names = this.names.set(prefix, 0);
       index = 0;
     }
-    const id: Identifier = dummyIdentifier(
+    const id: Identifier<A> = dummyIdentifier(
       `${prefix}${index}`,
       "SyntheticSubstance"
     );
@@ -342,11 +351,11 @@ export class Synthesizer {
 
   showMutations = (): string => showMutations(this.currentMutations);
 
-  updateProg = (prog: SubProg): void => {
+  updateProg = (prog: SubProg<A>): void => {
     this.currentProg = prog;
   };
 
-  getTemplate = (): SubProg | undefined =>
+  getTemplate = (): SubProg<A> | undefined =>
     this.template ? appendStmt(this.template, autoLabelStmt) : undefined;
 
   /**
@@ -355,8 +364,19 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
+<<<<<<< HEAD
     times(numProgs, (n) => {
       const sub = this.generateSubstance(n);
+=======
+    times(numProgs, (n: number) => {
+      const sub = this.generateSubstance();
+      // DEBUG: report results
+      log.info(
+        `Synthesized program #${n}\n${prettySubstance(this.currentProg)}`
+      );
+      log.info("Operations:\n", this.showMutations());
+      log.info("----------");
+>>>>>>> main
       // reset synthesizer after generating each Substance diagram
       this.reset();
       return sub;
@@ -378,11 +398,14 @@ export class Synthesizer {
     );
     // add autolabel statement
     this.updateProg(autoLabel(this.currentProg));
+<<<<<<< HEAD
     // DEBUG: report results
     log.info(`Mutated Prog #${n}`);
     log.info(prettySubstance(this.currentProg));
     log.info("Operations:\n", this.showMutations());
     log.info("----------");
+=======
+>>>>>>> main
     return {
       prog: this.currentProg,
       ops: this.currentMutations,
@@ -399,7 +422,9 @@ export class Synthesizer {
     const deleteOps = this.enumerateDelete(deleteCtx);
     const editCtx = filterContext(ctx, this.setting.edit);
     const editOps = this.enumerateUpdate(editCtx);
-    const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps];
+    const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
+      (ops) => ops.length > 0
+    );
     log.debug(`Possible mutations: ${mutations.map(showMutations).join("\n")}`);
     const mutationGroup: MutationGroup = this.choice(mutations);
     log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
@@ -415,9 +440,9 @@ export class Synthesizer {
   };
 
   generateArgStmt = (
-    decl: ArgStmtDecl,
+    decl: ArgStmtDecl<A>,
     ctx: SynthesisContext
-  ): WithStmts<Bind | ApplyPredicate> => {
+  ): WithStmts<Bind<A> | ApplyPredicate<A>> => {
     switch (decl.tag) {
       case "PredicateDecl":
         return this.generatePredicate(decl, ctx);
@@ -428,22 +453,25 @@ export class Synthesizer {
     }
   };
 
-  findMutations = (stmt: SubStmt, ctx: SynthesisContext): MutationGroup[] => {
+  findMutations = (
+    stmt: SubStmt<A>,
+    ctx: SynthesisContext
+  ): MutationGroup[] => {
     log.debug(`Finding mutations for ${prettyStmt(stmt)}`);
     const ops: (Mutation | undefined)[] = [
-      checkSwapStmtArgs(stmt, (p: ApplyPredicate) => {
+      checkSwapStmtArgs(stmt, (p: ApplyPredicate<A>) => {
         const indices = range(0, p.args.length);
         const elem1 = this.choice(indices);
         const elem2 = this.choice(without(indices, elem1));
         return [elem1, elem2];
       }),
-      checkSwapExprArgs(stmt, (f: ArgExpr) => {
+      checkSwapExprArgs(stmt, (f: ArgExpr<A>) => {
         const indices = range(0, f.args.length);
         const elem1 = this.choice(indices);
         const elem2 = this.choice(without(indices, elem1));
         return [elem1, elem2];
       }),
-      checkReplaceStmtName(stmt, (p: ApplyPredicate) => {
+      checkReplaceStmtName(stmt, (p: ApplyPredicate<A>) => {
         const matchingNames: string[] = matchSignatures(p, this.env).map(
           (decl) => decl.name.value
         );
@@ -452,7 +480,7 @@ export class Synthesizer {
           return this.choice(options);
         } else return undefined;
       }),
-      checkReplaceExprName(stmt, (e: ArgExpr) => {
+      checkReplaceExprName(stmt, (e: ArgExpr<A>) => {
         const matchingNames: string[] = matchSignatures(e, this.env).map(
           (decl) => decl.name.value
         );
@@ -486,7 +514,7 @@ export class Synthesizer {
       checkChangeStmtType(
         stmt,
         ctx,
-        (oldStmt: ApplyPredicate, ctx: SynthesisContext) => {
+        (oldStmt: ApplyPredicate<A>, ctx: SynthesisContext) => {
           const options = argMatches(oldStmt, this.env);
           if (options.length > 0) {
             const pick = this.choice(options);
@@ -503,12 +531,12 @@ export class Synthesizer {
       checkChangeExprType(
         stmt,
         ctx,
-        (oldStmt: Bind, oldExpr: ArgExpr, ctx: SynthesisContext) => {
-          const options = argMatches(oldStmt, this.env);
+        (oldStmt: Bind<A>, oldExpr: ArgExpr<A>, ctx: SynthesisContext) => {
+          const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
             const { res, stmts } = this.generateArgStmt(pick, ctx);
-            let toDelete: SubStmt[];
+            let toDelete: SubStmt<A>[];
             // remove old statement
             if (
               res.tag === "Bind" &&
@@ -579,7 +607,7 @@ export class Synthesizer {
         this.currentProg,
         ctx,
         (ctx: SynthesisContext) => {
-          const type: TypeDecl = this.choice(
+          const type: TypeDecl<A> = this.choice(
             ctx.env.types.toArray().map(([, b]) => b)
           );
           return this.generateDecl(type, ctx);
@@ -662,9 +690,9 @@ export class Synthesizer {
 
   // TODO: add an option to distinguish between edited vs original statements?
   findStmt = (
-    stmtType: DomainStmt["tag"],
+    stmtType: DomainStmt<A>["tag"],
     name: string
-  ): SubStmt | undefined => {
+  ): SubStmt<A> | undefined => {
     const stmts = this.currentProg.statements.filter((s) => {
       const subType = domainToSubType(stmtType);
       if (s.tag === "Bind") {
@@ -688,10 +716,10 @@ export class Synthesizer {
     }
   };
 
-  generateDecl = (type: TypeDecl, ctx: SynthesisContext): Decl => {
+  generateDecl = (type: TypeDecl<A>, ctx: SynthesisContext): Decl<A> => {
     const typeCons = applyTypeDecl(type);
     const { res: name } = this.generateID(ctx, typeCons.name);
-    const stmt: Decl = {
+    const stmt: Decl<A> = {
       tag: "Decl",
       nodeType: "SyntheticSubstance",
       children: [],
@@ -702,11 +730,11 @@ export class Synthesizer {
   };
 
   generateDeclFromType = (
-    typeCons: TypeConsApp,
+    typeCons: TypeConsApp<A>,
     ctx: SynthesisContext
-  ): Decl => {
+  ): Decl<A> => {
     const { res: name } = this.generateID(ctx, typeCons.name);
-    const stmt: Decl = {
+    const stmt: Decl<A> = {
       tag: "Decl",
       nodeType: "SyntheticSubstance",
       children: [],
@@ -717,62 +745,65 @@ export class Synthesizer {
   };
 
   generatePredicate = (
-    pred: PredicateDecl,
+    pred: PredicateDecl<A>,
     ctx: SynthesisContext
-  ): WithStmts<ApplyPredicate> => {
-    const { res, stmts }: WithStmts<SubPredArg[]> = this.generatePredArgs(
+  ): WithStmts<ApplyPredicate<A>> => {
+    const { res, stmts }: WithStmts<SubPredArg<A>[]> = this.generatePredArgs(
       pred.args,
       ctx
     );
-    const p: ApplyPredicate = applyPredicate(pred, res);
+    const p: ApplyPredicate<A> = applyPredicate(pred, res);
     return { res: p, stmts };
   };
 
   generateFunction = (
-    func: FunctionDecl,
+    func: FunctionDecl<A>,
     ctx: SynthesisContext
-  ): WithStmts<Bind> => {
-    const { res: args, stmts: decls }: WithStmts<SubExpr[]> = this.generateArgs(
-      func.args,
-      ctx
-    );
-    const rhs: ApplyFunction = applyFunction(func, args);
+  ): WithStmts<Bind<A>> => {
+    const {
+      res: args,
+      stmts: decls,
+    }: WithStmts<SubExpr<A>[]> = this.generateArgs(func.args, ctx);
+    const rhs: ApplyFunction<A> = applyFunction(func, args);
     // find the `TypeDecl` for the output type
-    const outputType = func.output.type as TypeConstructor;
+    const outputType = func.output.type as TypeConstructor<A>;
     // NOTE: the below will bypass the config and generate a new decl using the output type, search first in `ctx` to follow the config more strictly.
     // TODO: choose between generating vs. reusing
-    const lhsDecl: Decl = this.generateDeclFromType(
+    const lhsDecl: Decl<A> = this.generateDeclFromType(
       nullaryTypeCons(outputType.name),
       ctx
     );
-    const lhs: Identifier = lhsDecl.name;
-    const stmt: Bind = applyBind(lhs, rhs);
+    const lhs: Identifier<A> = lhsDecl.name;
+    const stmt: Bind<A> = applyBind(lhs, rhs);
     return { res: stmt, stmts: [...decls, lhsDecl] };
   };
 
   generateConstructor = (
-    cons: ConstructorDecl,
+    cons: ConstructorDecl<A>,
     ctx: SynthesisContext
-  ): WithStmts<Bind> => {
-    const { res: args, stmts: decls }: WithStmts<SubExpr[]> = this.generateArgs(
-      cons.args,
-      ctx
-    );
-    const rhs: ApplyConstructor = applyConstructor(cons, args);
-    const outputType = cons.output.type as TypeConstructor;
+  ): WithStmts<Bind<A>> => {
+    const {
+      res: args,
+      stmts: decls,
+    }: WithStmts<SubExpr<A>[]> = this.generateArgs(cons.args, ctx);
+    const rhs: ApplyConstructor<A> = applyConstructor(cons, args);
+    const outputType = cons.output.type as TypeConstructor<A>;
     // NOTE: the below will bypass the config and generate a new decl using the output type, search first in `ctx` to follow the config more strictly.
-    const lhsDecl: Decl = this.generateDeclFromType(
+    const lhsDecl: Decl<A> = this.generateDeclFromType(
       nullaryTypeCons(outputType.name),
       ctx
     );
-    const lhs: Identifier = lhsDecl.name;
-    const stmt: Bind = applyBind(lhs, rhs);
+    const lhs: Identifier<A> = lhsDecl.name;
+    const stmt: Bind<A> = applyBind(lhs, rhs);
     return { res: stmt, stmts: [...decls, lhsDecl] };
   };
 
-  generateArgs = (args: Arg[], ctx: SynthesisContext): WithStmts<SubExpr[]> => {
-    const resWithCtx: WithStmts<SubExpr[]> & IDList = args.reduce(
-      ({ res, stmts, ids }: WithStmts<SubExpr[]> & IDList, arg) => {
+  generateArgs = (
+    args: Arg<A>[],
+    ctx: SynthesisContext
+  ): WithStmts<SubExpr<A>[]> => {
+    const resWithCtx: WithStmts<SubExpr<A>[]> & IDList = args.reduce(
+      ({ res, stmts, ids }: WithStmts<SubExpr<A>[]> & IDList, arg) => {
         const { res: newArg, stmts: newStmts, ids: usedIDs } = this.generateArg(
           arg,
           ctx,
@@ -795,13 +826,13 @@ export class Synthesizer {
   };
 
   generateArg = (
-    arg: Arg,
+    arg: Arg<A>,
     ctx: SynthesisContext,
     option: ArgOption,
     reuseOption: ArgReuse,
-    usedIDs: Identifier[]
-  ): WithStmts<SubExpr> & IDList => {
-    const argType: Type = arg.type;
+    usedIDs: Identifier<A>[]
+  ): WithStmts<SubExpr<A>> & IDList => {
+    const argType: Type<A> = arg.type;
     if (argType.tag === "TypeConstructor") {
       switch (option) {
         case "existing": {
@@ -864,11 +895,11 @@ export class Synthesizer {
   };
 
   generatePredArgs = (
-    args: Arg[],
+    args: Arg<A>[],
     ctx: SynthesisContext
-  ): WithStmts<SubPredArg[]> => {
+  ): WithStmts<SubPredArg<A>[]> => {
     const resWithCtx = args.reduce(
-      ({ res, stmts, ids }: WithStmts<SubPredArg[]> & IDList, arg) => {
+      ({ res, stmts, ids }: WithStmts<SubPredArg<A>[]> & IDList, arg) => {
         const {
           res: newArg,
           stmts: newStmts,
@@ -899,13 +930,13 @@ export class Synthesizer {
   };
 
   generatePredArg = (
-    arg: Arg,
+    arg: Arg<A>,
     ctx: SynthesisContext,
     option: ArgOption,
     reuseOption: ArgReuse,
-    usedIDs: Identifier[]
-  ): WithStmts<SubPredArg> & IDList => {
-    const argType: Type = arg.type;
+    usedIDs: Identifier<A>[]
+  ): WithStmts<SubPredArg<A>> & IDList => {
+    const argType: Type<A> = arg.type;
     if (argType.tag === "Prop") {
       const pred = this.choice(ctx.env.predicates.toArray().map(([, b]) => b));
       const { res, stmts } = this.generatePredicate(pred, ctx);
@@ -920,7 +951,7 @@ export class Synthesizer {
 
 //#region Helpers
 
-const declTypes: DomainStmt["tag"][] = [
+const declTypes: DomainStmt<A>["tag"][] = [
   "ConstructorDecl",
   "FunctionDecl",
   "TypeDecl",

@@ -7,13 +7,12 @@ import {
   isPath,
   valueAutodiffToNumber,
 } from "engine/EngineUtils";
-import { mapValues, zip } from "lodash";
-import { notEmptyLabel } from "renderer/ShapeDef";
+import { mapValues } from "lodash";
 // For deep-cloning the translation
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";
 import { VarAD, OptDebugInfo, IVarAD } from "types/ad";
-import { Identifier, SourceLoc } from "types/ast";
+import { A, Identifier, SourceLoc } from "types/ast";
 import {
   IFGPI,
   Translation,
@@ -26,23 +25,14 @@ import {
   GPI,
   IVectorV,
 } from "types/value";
-import { Shape } from "types/shape";
+import { Shape, ShapeAD } from "types/shape";
 import { Value } from "types/value";
 import { State, Fn, VaryMap, FnDone } from "types/state";
 import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
-import { floatVal, prettyPrintPath } from "utils/OtherUtils";
-import {
-  add,
-  constOf,
-  constOfIf,
-  differentiable,
-  div,
-  mul,
-  neg,
-  numOf,
-  ops,
-  sub,
-} from "./Autodiff";
+import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
+import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
+
+import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
 const clone = rfdc({ proto: false, circles: false });
 
@@ -67,17 +57,14 @@ const dummySourceLoc = (): SourceLoc => {
  *
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
-export const evalShapes = (s: State): State => {
+export const evalShapes = (s: State): ShapeAD[] => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
 
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
-  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [
-    Path,
-    VarAD
-  ][];
+  const varyingMapList = zip2(s.varyingPaths, varyingValuesDiff);
 
   const optDebugInfo = {
     gradient: genPathMap(s.varyingPaths, s.params.lastGradient),
@@ -95,17 +82,17 @@ export const evalShapes = (s: State): State => {
 
   // Find out all the GPI expressions in the translation
   const shapeExprs: IFGPI<VarAD>[] = s.shapePaths.map(
-    (p: Path) => findExprSafe(trans, p) as IFGPI<VarAD>
+    (p: Path<A>) => findExprSafe(trans, p) as IFGPI<VarAD>
   );
 
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled]: [
-    Shape[],
+    ShapeAD[],
     Translation
   ] = shapeExprs.reduce(
-    ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
+    ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
       evalShape(e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
@@ -115,19 +102,16 @@ export const evalShapes = (s: State): State => {
   }
 
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled: Shape[] = s.shapeOrdering.map(
+  const sortedShapesEvaled: ShapeAD[] = s.shapeOrdering.map(
     (name) =>
       shapesEvaled.find(({ properties }) => sameName(properties.name, name))!
   );
 
-  // const nonEmpties = sortedShapesEvaled.filter(notEmptyLabel);
-
   // Update the state with the new list of shapes
-  // (This is a shallow copy of the state btw, not a deep copy)
-  return { ...s, shapes: sortedShapesEvaled };
+  return sortedShapesEvaled;
 };
 
-const sameName = (given: Value<number>, expected: string): boolean => {
+const sameName = <T>(given: Value<T>, expected: string): boolean => {
   if (given.tag !== "StrV") {
     return false;
   }
@@ -151,10 +135,10 @@ const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
  */
 export const insertVaryings = (
   trans: Translation,
-  varyingMap: [Path, VarAD][]
+  varyingMap: [Path<A>, VarAD][]
 ): Translation => {
   return varyingMap.reduce(
-    (tr: Translation, [path, val]: [Path, VarAD]) =>
+    (tr: Translation, [path, val]: [Path<A>, VarAD]) =>
       insertExpr(path, doneFloat(val), tr),
     trans
   );
@@ -200,18 +184,18 @@ export const evalFn = (
  *
  */
 export const evalShape = (
-  shapeExpr: IFGPI<VarAD>, // <number>?
+  shapeExpr: IFGPI<VarAD>,
   trans: Translation,
   varyingVars: VaryMap,
-  shapes: Shape[],
+  shapes: ShapeAD[],
   optDebugInfo: OptDebugInfo
-): [Shape[], Translation] => {
+): [ShapeAD[], Translation] => {
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(
     propExprs,
-    (prop: TagExpr<VarAD>): Value<number> => {
+    (prop: TagExpr<VarAD>): Value<VarAD> => {
       // TODO: Refactor these cases to be more concise
       if (prop.tag === "OptEval") {
         // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
@@ -222,21 +206,19 @@ export const evalShape = (
           varyingVars,
           optDebugInfo
         ) as IVal<VarAD>).contents;
-        const resDisplay: Value<number> = valueAutodiffToNumber(res);
-        return resDisplay;
+        return res;
       } else if (prop.tag === "Done") {
-        return valueAutodiffToNumber(prop.contents);
+        return prop.contents;
       } else if (prop.tag === "Pending") {
         // Pending expressions are just converted because they get converted back to numbers later
-        const res = valueAutodiffToNumber(prop.contents);
-        return res;
+        return prop.contents;
       } else {
         throw Error("unknown tag");
       }
     }
   );
 
-  const shape: Shape = { shapeType, properties: props };
+  const shape: ShapeAD = { shapeType, properties: props };
 
   return [[...shapes, shape], trans];
 };
@@ -250,7 +232,7 @@ export const evalShape = (
  *
  */
 export const evalExprs = (
-  es: Expr[],
+  es: Expr<A>[],
   trans: Translation,
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
@@ -301,7 +283,7 @@ function toVecVal<T>(a: ArgVal<T>): T[] {
  * TODO: break cycles; optimize lookup
  */
 export const evalExpr = (
-  e: Expr,
+  e: Expr<A>,
   trans: Translation,
   varyingVars?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
@@ -434,6 +416,8 @@ export const evalExpr = (
               contents: argVals.map(toVecVal),
             } as ILListV<VarAD>,
           };
+        } else {
+          throw Error("unknown tag");
         }
       } else {
         console.error("list elems", argVals);
@@ -658,13 +642,16 @@ export const evalExpr = (
  * Looks up varying vars first
  */
 export const resolvePath = (
-  path: Path,
+  path: Path<A>,
   trans: Translation,
   varyingMap?: VaryMap<VarAD>,
   optDebugInfo?: OptDebugInfo
 ): ArgVal<VarAD> => {
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal = varyingMap?.get(prettyPrintPath(path));
+  let varyingVal;
+  if (varyingMap) {
+    varyingVal = varyingMap.get(prettyPrintPath(path));
+  }
 
   if (varyingVal) {
     return floatVal(varyingVal);
@@ -687,7 +674,7 @@ export const resolvePath = (
         //   }
         // }
 
-        const e: Expr = {
+        const e: Expr<A> = {
           ...path,
           tag: "VectorAccess",
           contents: [path.path, path.indices[0]],
@@ -695,7 +682,7 @@ export const resolvePath = (
         return evalExpr(e, trans, varyingMap, optDebugInfo);
       } else if (path.indices.length === 2) {
         // Matrix
-        const e: Expr = {
+        const e: Expr<A> = {
           ...path,
           tag: "MatrixAccess",
           contents: [path.path, path.indices],
@@ -716,7 +703,7 @@ export const resolvePath = (
 
         // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
         const evaledProps = mapValues(props, (p, propName) => {
-          const propertyPath: IPropertyPath = {
+          const propertyPath: IPropertyPath<A> = {
             ...path,
             tag: "PropertyPath",
             name: path.name,
@@ -728,7 +715,7 @@ export const resolvePath = (
             // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const propertyPathExpr = propertyPath as Path;
+            const propertyPathExpr = propertyPath as Path<A>;
             const val: Value<VarAD> = (evalExpr(
               propertyPathExpr,
               trans,
@@ -743,7 +730,10 @@ export const resolvePath = (
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
-            varyingVal = varyingMap?.get(prettyPrintPath(propertyPath));
+            let varyingVal;
+            if (varyingMap) {
+              varyingVal = varyingMap.get(prettyPrintPath(propertyPath));
+            }
             if (varyingVal) {
               return { tag: "FloatV", contents: varyingVal };
             } else {
@@ -928,6 +918,11 @@ export const evalBinOp = (
         res = ops.vdiv(v1.contents, v2.contents);
         break;
       }
+
+      case "Multiply": {
+        res = ops.vmul(v2.contents, v1.contents);
+        break;
+      }
     }
 
     return { tag: "VectorV", contents: res as VarAD[] };
@@ -972,7 +967,7 @@ export const evalUOp = (
 
 // Generate a map from paths to values, where the key is the JSON stringified version of the path
 export function genPathMap<T>(
-  paths: Path[],
+  paths: Path<A>[],
   vals: T[] // TODO: Distinguish between VarAD variables and constants?
 ): Map<string, T> {
   if (!paths || !vals) {

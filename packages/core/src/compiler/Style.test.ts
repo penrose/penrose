@@ -1,10 +1,15 @@
 // Must be run from penrose-web for loading files
 
 import * as S from "compiler/Style";
-import { compileSubstance, parseSubstance } from "compiler/Substance";
+import {
+  compileSubstance,
+  disambiguateFunctions,
+  parseSubstance,
+} from "compiler/Substance";
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
+import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
 import { PenroseError, StyleErrors } from "types/errors";
@@ -33,28 +38,28 @@ export const loadProgs = ([domainStr, subStr, styStr]: [
   string,
   string,
   string
-]): [Env, SubstanceEnv, SubProg, StyProg] => {
+]): [Env, SubstanceEnv, SubProg<C>, StyProg<C>] => {
   const domainProgRes: Result<Env, PenroseError> = compileDomain(domainStr);
   const env0: Env = unsafelyUnwrap(domainProgRes);
 
   // TODO: Could be more efficient if compileSubstance also outputs parsed Sub program
-  const subProg: SubProg = unsafelyUnwrap(parseSubstance(subStr));
+  const subProg: SubProg<C> = unsafelyUnwrap(parseSubstance(subStr));
   const envs: Result<[SubstanceEnv, Env], PenroseError> = compileSubstance(
     subStr,
     env0
   );
 
   const [subEnv, varEnv]: [SubstanceEnv, Env] = unsafelyUnwrap(envs);
-  const styProg: StyProg = unsafelyUnwrap(S.parseStyle(styStr));
+  const styProg: StyProg<C> = unsafelyUnwrap(S.parseStyle(styStr));
 
-  const res: [Env, SubstanceEnv, SubProg, StyProg] = [
+  const res: [Env, SubstanceEnv, SubProg<C>, StyProg<C>] = [
     varEnv,
     subEnv,
     subProg,
     styProg,
   ];
 
-  S.disambiguateFunctions(varEnv, subProg);
+  disambiguateFunctions(varEnv, subProg);
   return res;
 };
 
@@ -63,6 +68,51 @@ const canvasPreamble = `canvas {
   height = 700
 }
 `;
+
+describe("Layering computation", () => {
+  // NOTE: again, for each edge (v, w), `v` is __below__ `w`.
+  test("simple layering: A -> B -> C", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["B", "C"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C"], partials);
+    expect(res).toEqual(["A", "B", "C"]);
+  });
+  test("one cycle: A -> B -> C -> A", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["B", "C"],
+      ["C", "A"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C"], partials);
+    expect(res).toEqual(["A", "B", "C"]);
+  });
+  test("one cycle in tree", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["A", "C"],
+      ["B", "D"],
+      ["D", "E"],
+      ["E", "B"],
+      ["C", "F"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
+    expect(res).toEqual(["A", "C", "F", "B", "D", "E"]);
+  });
+  test("one big cycle in tree", () => {
+    const partials: [string, string][] = [
+      ["A", "B"],
+      ["A", "C"],
+      ["B", "D"],
+      ["D", "E"],
+      ["E", "C"],
+      ["C", "F"],
+    ];
+    const res = S.topSortLayering(["A", "B", "C", "D", "E", "F"], partials);
+    expect(res).toEqual(["A", "B", "D", "E", "C", "F"]);
+  });
+});
 
 describe("Compiler", () => {
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
@@ -160,14 +210,6 @@ describe("Compiler", () => {
   //     fail();
   //   }
 
-  //   const subss = S.findSubstsProg(
-  //     varEnv,
-  //     subEnv,
-  //     subProg,
-  //     styProgInit.blocks,
-  //     selEnvs
-  //   ); // TODO: Use `eqEnv`
-
   //   if (subss.length !== correctSubsts.length) {
   //     fail();
   //   }
@@ -188,8 +230,8 @@ describe("Compiler", () => {
     const [varEnv, subEnv, subProg, styProgInit]: [
       Env,
       SubstanceEnv,
-      SubProg,
-      StyProg
+      SubProg<C>,
+      StyProg<C>
     ] = loadProgs(loadFiles(triple) as [string, string, string]);
 
     const selEnvs = S.checkSelsAndMakeEnv(varEnv, styProgInit.blocks);
@@ -203,7 +245,7 @@ describe("Compiler", () => {
       expect(false).toEqual(true);
     }
 
-    const styProg: StyProg = S.nameAnonStatements(styProgInit);
+    const styProg: StyProg<A> = S.nameAnonStatements(styProgInit);
 
     for (const hb of styProg.blocks) {
       for (const stmt of hb.block.statements) {
@@ -357,8 +399,8 @@ describe("Compiler", () => {
 
     const errorStyProgs = {
       // ------ Selector errors (from Substance)
-      SelectorDeclTypeError: [`forall Setfhjh x { }`],
       SelectorVarMultipleDecl: [`forall Set x; Set x { }`],
+      SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
       SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
@@ -371,22 +413,13 @@ describe("Compiler", () => {
       TaggedSubstanceError: [
         `forall Set x; Point y
 where IsSubset(y, x) { }`,
+        `forall Setfhjh x { }`,
+        `forall Point x, y where Midpointdfsdfds(x, y) { }`,
       ],
 
       // ---------- Block static errors
 
       InvalidGPITypeError: [`forall Set x { x.icon = Circl { } }`],
-
-      // COMBAK: Check that multiple wrong properties are checked -- i.e. this dict ontology has to be extended so that one program can have multiple errors
-      InvalidGPIPropertyError: [
-        `forall Set x {  
-          x.icon = Circle { 
-           centre: (0.0, 0.0) 
-           r: 9.
-           diameter: 100.
-         } 
-       }`,
-      ],
 
       // Have to do a nested search in expressions for this
       InvalidFunctionNameError: [

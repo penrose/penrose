@@ -5,6 +5,7 @@ import {
   prettyStmt,
   prettySubstance,
 } from "compiler/Substance";
+import { A } from "types/ast";
 import { Env } from "types/domain";
 import { Decl, SubStmt } from "types/substance";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation";
@@ -53,8 +54,8 @@ const initSynth = (
 };
 
 const domain = `type Set
-function Intersection : Set a * Set b -> Set
-function Subset : Set a * Set b -> Set`;
+function Intersection(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set`;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
 
 describe("Synthesizer Operations", () => {
@@ -74,9 +75,9 @@ Set D`;
       },
     });
     const ctx = initContext(synth.env);
-    const toDelete = synth.currentProg.statements[0] as Decl;
+    const toDelete = synth.currentProg.statements[0] as Decl<A>;
     expect("Set A").toEqual(prettyStmt(toDelete));
-    const cascadedStmts: SubStmt[] = cascadingDelete(
+    const cascadedStmts: SubStmt<A>[] = cascadingDelete(
       toDelete,
       synth.currentProg
     );

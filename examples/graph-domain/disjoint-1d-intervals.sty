@@ -18,7 +18,7 @@ Colors {
     Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
-    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.none = none()
 }
 
 global {
@@ -34,7 +34,7 @@ Vertex V {
        V.shape = Line {
                   start: (V.left, 0.)
                   end: (V.right, 0.)
-                  thickness: 10.
+                  strokeWidth: 10.
        }
 }
 
@@ -49,8 +49,8 @@ Vertex V {
 --        `v1`.shape = Line {
 --                   start: (`v1`.left, 0.)
 --                   end: (`v1`.right, 0.)
---                   thickness: 10.
---                   color: rgba(0.0, 0.0, 0.5, 0.3)
+--                   strokeWidth: 10.
+--                   strokeColor: rgba(0.0, 0.0, 0.5, 0.3)
 --        }
 -- }
 
@@ -64,8 +64,8 @@ Vertex V {
 --        `v2`.shape = Line {
 --                   start: (`v2`.left, 0.)
 --                   end: (`v2`.right, 0.)
---                   thickness: 10.
---                   color: rgba(0.5, 0.0, 0.0, 0.3)
+--                   strokeWidth: 10.
+--                   strokeColor: rgba(0.5, 0.0, 0.0, 0.3)
 --        }
 -- }
 

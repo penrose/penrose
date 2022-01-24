@@ -1,6 +1,6 @@
 import * as React from "react";
 import { round, cloneDeep } from "lodash";
-import { Canvas, Value, toHex } from "@penrose/core";
+import { Canvas, Value, toSvgPaintProperty } from "@penrose/core";
 
 interface IProps {
   inputProps: IInputProps;
@@ -409,7 +409,7 @@ class LabeledInput extends React.Component<IProps> {
           <input
             type="color"
             id={cid}
-            value={toHex(this.props.eValue.contents)}
+            value={toSvgPaintProperty(this.props.eValue)}
             onChange={(e) => this.handleColor(eAttr, e)}
           />
           {this.makeSubLabel(
@@ -453,7 +453,7 @@ class LabeledInput extends React.Component<IProps> {
   // todo refactor to take params
   public getSpan = () => {
     const { inputType } = this.props.inputProps;
-    if (inputType === "color") return toHex(this.state.eValue.contents);
+    if (inputType === "color") return toSvgPaintProperty(this.state.eValue);
     else if (inputType === "range") return round(this.state.eValue.contents);
     else return this.state.eValue.contents.toString();
   };

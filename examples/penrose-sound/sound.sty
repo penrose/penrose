@@ -1,0 +1,66 @@
+-- define the size of the drawing
+canvas {
+   width = 240
+   height = 180
+}
+
+-- define some colors re-used throughout
+Colors {
+   color black = rgba(0,0,0,1)
+   color white = rgba(1,1,1,1)
+   color lightPink = rgba(1,.9,.9,1)
+}
+
+Global {
+
+   -- draw a box around the canvas (this box will 
+   -- also be used to constrain shapes to the canvas)
+   shape box = Rectangle {
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: Colors.lightPink
+      strokeWidth: 1
+   }
+
+   -- some additional parameters to get consistent styling throughout
+   scalar lineThickness = 1.5
+   scalar fontSize = "6px"
+   string fontFamily = "Linux Libertine"
+}
+
+forall Point p {
+
+   vec2 p.c = (?,?)
+
+   shape p.icon = Circle {
+      center: p.c
+      r: 4.
+      fillColor: Colors.black
+      onmouseover: "try { $('audio').currentTime=0; } catch(e) {} $('audio').play()"
+   }
+   -- keep the arrow on the canvas
+   ensure contains( Global.box, p.icon)
+
+   layer p.icon above Global.box
+}
+
+forall Segment s; Point a; Point b
+where s := MakeSegment(a, b) {
+   s.stroke = Line {
+      start: a.c
+      end: b.c
+      strokeWidth: 2.
+      strokeColor: rgba(0,0,1,1)
+   }
+   s.outline = Line {
+      start: a.c
+      end: b.c
+      strokeWidth: 6.
+      strokeColor: Colors.lightPink
+   }
+
+   layer s.stroke above s.outline
+   layer s.outline above Global.box
+}
+

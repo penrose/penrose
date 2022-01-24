@@ -3,7 +3,7 @@ import grammar from "./SubstanceParser";
 import * as path from "path";
 import * as fs from "fs";
 import { result } from "lodash";
-import { ASTNode } from "types/ast";
+import { ConcreteNode } from "types/ast";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;
@@ -20,7 +20,7 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-export const traverseTree = (root: ASTNode) => {
+export const traverseTree = (root: ConcreteNode) => {
   const { nodeType, children } = root;
   if (!nodeType) console.log(root);
   expect(nodeType).toEqual("Substance");
@@ -165,7 +165,7 @@ Set A, B, C
 Point p1, p2
 C := Intersection(A, B)
 p1 := ValueOf(A.value)
-p2 := ValueOf(Translate(p), "10, 20")
+p2 := ValueOf(B.value)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);

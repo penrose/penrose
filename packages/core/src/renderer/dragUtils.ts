@@ -61,11 +61,11 @@ const dragShape = (shape: Shape, offset: [number, number]): Shape => {
  * For each of the specified properties listed in `propPairs`, subtract a number from the original value.
  */
 const moveProperties = (
-  properties: Properties,
+  properties: Properties<number>,
   propsToMove: string[],
   [dx, dy]: [number, number]
-): Properties => {
-  const moveProperty = (props: Properties, propertyID: string) => {
+): Properties<number> => {
+  const moveProperty = (props: Properties<number>, propertyID: string) => {
     const [x, y] = props[propertyID].contents as [number, number];
     props[propertyID].contents = [x + dx, y + dy];
     return props;

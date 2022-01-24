@@ -15,13 +15,13 @@ interface IProps {
   downloadSVG?(): void;
   downloadState?(): void;
   autoStepToggle?(): void;
-  step(): void;
+  step(numSteps: number): void;
   stepUntilConvergence(): void;
   resample(): void;
   reconnect(): void;
 }
 class ButtonBar extends React.Component<IProps> {
-  public render() {
+  public render(): JSX.Element {
     const {
       converged,
       initial,
@@ -46,7 +46,7 @@ class ButtonBar extends React.Component<IProps> {
             autostep {autostep ? "(on)" : "(off)"}
           </button>
         )}
-        <button onClick={step}>x1 optimization step</button>
+        <button onClick={() => step(1)}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
           onClick={resample}
