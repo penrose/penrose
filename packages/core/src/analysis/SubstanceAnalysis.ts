@@ -259,12 +259,12 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
  * @returns a new Substance program with the statement removed
  */
 export const identicalTypeDecls = (
-  ids: Identifier[],
-  prog: SubProg
-): Decl[] => {
+  ids: Identifier<A>[],
+  prog: SubProg<A>
+): Decl<A>[] => {
   const idSet = ids.map((i) => i.value);
   const decls = prog.statements.filter(
-    (stmt): stmt is Decl => stmt.tag === "Decl"
+    (stmt): stmt is Decl<A> => stmt.tag === "Decl"
   );
   const [orig] = decls.filter((d) => idSet.includes(d.name.value));
   const typeStr = orig.type.name.value;

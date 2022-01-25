@@ -25,7 +25,6 @@ import seedrandom from "seedrandom";
 import {
   Add,
   addMutation,
-  appendStmtCtx,
   checkAddStmt,
   checkAddStmts,
   checkChangeExprType,
@@ -41,7 +40,6 @@ import {
   executeMutations,
   Mutation,
   MutationGroup,
-  removeStmtCtx,
   showMutations,
 } from "synthesis/Mutation";
 import { A, Identifier } from "types/ast";
@@ -124,11 +122,7 @@ interface IDList {
 export const initContext = (env: Env): SynthesisContext => {
   const ctx: SynthesisContext = {
     names: Map<string, number>(),
-<<<<<<< HEAD
-    declaredIDs: Map<string, Identifier[]>(),
-=======
     declaredIDs: Map<string, Identifier<A>[]>(),
->>>>>>> main
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -177,11 +171,7 @@ const getDecls = (
     case "PredicateDecl":
       return env.predicates;
     case undefined:
-<<<<<<< HEAD
-      return Map<string, DomainStmt>();
-=======
       return Map<string, DomainStmt<A>>();
->>>>>>> main
   }
   throw new Error(`${type} is not found in the environment`);
 };
@@ -364,10 +354,6 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-<<<<<<< HEAD
-    times(numProgs, (n) => {
-      const sub = this.generateSubstance(n);
-=======
     times(numProgs, (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
@@ -376,13 +362,12 @@ export class Synthesizer {
       );
       log.info("Operations:\n", this.showMutations());
       log.info("----------");
->>>>>>> main
       // reset synthesizer after generating each Substance diagram
       this.reset();
       return sub;
     });
 
-  generateSubstance = (n: number): SynthesizedSubstance => {
+  generateSubstance = (): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);
     range(numStmts).reduce(
       (ctx: SynthesisContext, n: number): SynthesisContext => {
@@ -398,14 +383,6 @@ export class Synthesizer {
     );
     // add autolabel statement
     this.updateProg(autoLabel(this.currentProg));
-<<<<<<< HEAD
-    // DEBUG: report results
-    log.info(`Mutated Prog #${n}`);
-    log.info(prettySubstance(this.currentProg));
-    log.info("Operations:\n", this.showMutations());
-    log.info("----------");
-=======
->>>>>>> main
     return {
       prog: this.currentProg,
       ops: this.currentMutations,
@@ -491,22 +468,22 @@ export class Synthesizer {
       }),
       checkSwapInStmtArgs(
         stmt,
-        (options: Decl[]): Identifier => {
+        (options: Decl<A>[]): Identifier<A> => {
           const pick = this.choice(options);
           return pick.name;
         },
-        (p: ApplyPredicate) => {
+        (p: ApplyPredicate<A>) => {
           const indices = range(0, p.args.length);
           return [this.choice(indices), this.currentProg];
         }
       ),
       checkSwapInExprArgs(
         stmt,
-        (options: Decl[]): Identifier => {
+        (options: Decl<A>[]): Identifier<A> => {
           const pick = this.choice(options);
           return pick.name;
         },
-        (p: ApplyFunction | ApplyConstructor | Func) => {
+        (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => {
           const indices = range(0, p.args.length);
           return [this.choice(indices), this.currentProg];
         }

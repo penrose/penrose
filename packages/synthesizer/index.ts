@@ -14,6 +14,8 @@ import {
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";
+import { A } from "@penrose/core/build/dist/types/ast";
+
 
 const USAGE = `
 Penrose Synthesizer.
@@ -173,7 +175,7 @@ const writePrograms = (
 
     const synth = new Synthesizer(env, settings, subResult);
     let progs = synth.generateSubstances(numPrograms);
-    const template: SubProg | undefined = synth.getTemplate();
+    const template: SubProg<A> | undefined = synth.getTemplate();
 
     if (template) {
       progs = [{ prog: template, ops: [] }, ...progs];
