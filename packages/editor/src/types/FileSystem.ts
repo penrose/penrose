@@ -129,11 +129,14 @@ export interface ITrioSetting {
   domain: string | null;
 }
 
+export type TrioType = "substance" | "style" | "domain";
+
+export type FilePointerMap = { [id: string]: FilePointer };
 export interface IWorkspace {
   /**
    * Cached file contents in @IWorkspaceState
    */
-  openFiles: { [id: string]: FilePointer };
+  openFiles: FilePointerMap;
   /* Which files to compile into diagram by default */
   compileTrioSetting: ITrioSetting;
   domainCache: Env | null;

@@ -12,7 +12,7 @@ import {
   WorkspaceFile,
 } from "../types/FileSystem";
 import { toast } from "react-toastify";
-import { Model } from "flexlayout-react";
+import { Actions, DockLocation, Model } from "flexlayout-react";
 import { FileDispatcher } from "./fileReducer";
 import { compileDomain } from "@penrose/core";
 
@@ -52,7 +52,7 @@ export async function fetchExamples(): Promise<IExamples | null> {
       examples.styles[fileName] = {
         type: "style",
         name: style.name,
-        domain: style.domain,
+        domain: examples.domains[`${style.domain}.dsl`],
         id: fileName,
         location: {
           type: "example",
@@ -66,7 +66,7 @@ export async function fetchExamples(): Promise<IExamples | null> {
         examples.substances[fileName] = {
           type: "substance",
           name: substance.name,
-          domain: substance.domain,
+          domain: examples.domains[`${substance.domain}.dsl`],
           id: fileName,
           location: {
             type: "example",
@@ -174,6 +174,7 @@ function buildExampleWorkspace(
         {
           type: "tabset",
           weight: 100,
+          id: "main",
           children: [
             {
               type: "tab",
@@ -267,6 +268,34 @@ export async function loadWorkspace(
     dispatch({ type: "SET_WORKSPACE", workspaceState: workspace });
   } else {
     toast.error(`Failed to load workspace ${workspace.id}`);
+  }
+}
+
+export async function openFileInWorkspace(
+  dispatch: FileDispatcher,
+  workspace: IWorkspace,
+  pointer: FilePointer
+) {
+  const loadedFile = await retrieveFileFromPointer(pointer);
+  if (loadedFile !== null) {
+    dispatch({ type: "OPEN_FILE", file: loadedFile, pointer });
+    workspace.layout.doAction(
+      Actions.addNode(
+        {
+          type: "tab",
+          component: "file",
+          name: pointer.name,
+          id: pointer.id,
+        },
+        // HACK: the fallback is fallible
+        workspace.layout.getActiveTabset()?.getId() || "main",
+        DockLocation.CENTER,
+        -1,
+        true
+      )
+    );
+  } else {
+    toast.error(`Failed to load file ${pointer.name}`);
   }
 }
 

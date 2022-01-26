@@ -137,7 +137,12 @@ function App() {
           }
           break;
         case "examples":
-          return <ExamplesPanel dispatch={dispatch} />;
+          return (
+            <ExamplesPanel
+              dispatch={dispatch}
+              workspace={fileSystem.workspace.openWorkspace}
+            />
+          );
         case "settings":
           return (
             <SettingsPanel
@@ -150,15 +155,32 @@ function App() {
     [dispatch, fileSystem]
   );
 
+  const handleLayoutAction = useCallback(
+    (action: FlexLayout.Action) => {
+      if (action.type === "FlexLayout_DeleteTab") {
+        const id = action.data.node;
+        // TODO: save
+        dispatch({ type: "CLOSE_FILE", id });
+      }
+      return action;
+    },
+    [dispatch]
+  );
+
   return (
     <div className="App" style={{ display: "flex", flexDirection: "column" }}>
       <ToastContainer position="bottom-left" />
-      <RunBar compile={() => {}} />
+      <RunBar
+        compile={() => {}}
+        dispatch={dispatch}
+        workspace={fileSystem.workspace.openWorkspace}
+      />
       <div style={{ position: "relative", flex: 1 }}>
         <FlexLayout.Layout
           model={fileSystem.workspace.openWorkspace.layout}
           factory={renderPanel}
           onModelChange={(m) => dispatch({ type: "UPDATE_LAYOUT", layout: m })}
+          onAction={handleLayoutAction}
         />
       </div>
     </div>
