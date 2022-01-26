@@ -1,21 +1,21 @@
-import { Dispatcher, State } from "../state/reducer";
+import { Dispatcher, ISettings } from "../state/reducer";
 import BlueButton from "./BlueButton";
 
 export default function SettingsPanel({
   dispatch,
-  state,
+  settings,
 }: {
   dispatch: Dispatcher;
-  state: State;
+  settings: ISettings;
 }) {
   return (
     <div style={{ padding: "1em" }}>
       <h1>settings</h1>
       <div>
         <div>
-          {state.settings.githubUser !== null ? (
+          {settings.githubUser !== null ? (
             <span>
-              signed in as {state.settings.githubUser.username}{" "}
+              signed in as {settings.githubUser.username}{" "}
               <BlueButton
                 onClick={() =>
                   dispatch({
@@ -35,12 +35,12 @@ export default function SettingsPanel({
           <label>
             <input
               type={"checkbox"}
-              checked={state.settings.vimMode}
+              checked={settings.vimMode}
               onChange={(e) =>
                 dispatch({
                   kind: "CHANGE_SETTINGS",
                   settings: {
-                    vimMode: !state.settings.vimMode,
+                    vimMode: !settings.vimMode,
                   },
                 })
               }

@@ -1,10 +1,58 @@
-import { PenroseState } from "@penrose/core";
-import { IJsonRowNode } from "flexlayout-react";
+import { Env, PenroseState } from "@penrose/core";
+import { IJsonTabSetNode, Model } from "flexlayout-react";
+
+export const constructLayout = (children: IJsonTabSetNode[]): Model =>
+  Model.fromJson({
+    global: {},
+    borders: [
+      {
+        type: "border",
+        location: "left",
+        show: true,
+        children: [
+          {
+            type: "tab",
+            name: "files",
+            enableClose: false,
+          },
+          {
+            type: "tab",
+            name: "examples",
+            enableClose: false,
+            component: "examples",
+          },
+          {
+            type: "tab",
+            name: "settings",
+            component: "settings",
+            enableClose: false,
+          },
+        ],
+      },
+    ],
+    layout: {
+      type: "row",
+      weight: 100,
+      children,
+    },
+  });
 
 export interface ProgramFile {
-  contents: string | PenroseState;
+  type: "program_file";
+  contents: string;
   id: string;
 }
+export interface StateFile {
+  type: "state_file";
+  contents: PenroseState;
+  id: string;
+}
+export interface WorkspaceFile {
+  type: "workspace_file";
+  contents: IWorkspace;
+  id: string;
+}
+export type SavedFile = ProgramFile | StateFile | WorkspaceFile;
 
 interface IExampleLocation {
   type: "example";
@@ -13,11 +61,14 @@ interface IExampleLocation {
 
 interface IGistLocation {
   type: "gist";
-  gistURL: string;
+  gistURI: string;
 }
 
 interface ILocalLocation {
   type: "local";
+  /**
+   * Defaults to pointer's id
+   */
   localStorageKey: string;
 }
 
@@ -52,34 +103,40 @@ interface DiagramFilePointer extends _FilePointer {
   domain: DomainFilePointer;
 }
 
+export interface IWorkspacePointer extends _FilePointer {
+  type: "workspace";
+}
+
+/**
+ * Workaround for example workspaces
+ */
+export interface ICachedWorkspacePointer extends _FilePointer {
+  type: "cached_workspace";
+  files: { [id: string]: FilePointer };
+}
+
 export type FilePointer =
   | DomainFilePointer
   | StyleFilePointer
   | SubstanceFilePointer
-  | DiagramFilePointer;
+  | DiagramFilePointer
+  | IWorkspacePointer
+  | ICachedWorkspacePointer;
 
-export interface IExampleTrio {
-  substance: SubstanceFilePointer;
-  style: StyleFilePointer;
-  domain: DomainFilePointer;
-}
-
-export interface IOpenFile {
-  file: ProgramFile;
-  pointer: FilePointer;
-}
-
-/* points to IDs in openFiles */
 export interface ITrioSetting {
-  substance: string;
-  style: string;
-  domain: string;
+  substance: string | null;
+  style: string | null;
+  domain: string | null;
 }
 
 export interface IWorkspace {
+  /**
+   * Cached file contents in @IWorkspaceState
+   */
   openFiles: { [id: string]: FilePointer };
   /* Which files to compile into diagram by default */
   compileTrioSetting: ITrioSetting;
+  domainCache: Env | null;
   /* defaults to today's date */
   name: string;
   id: string;
@@ -92,14 +149,17 @@ export interface IWorkspace {
    */
   forkedFrom: string | null;
   /* id key in tabs points to openFiles */
-  layout: IJsonRowNode;
+  layout: Model;
   /* TODO: change tab appearance based on if it's in compileTrioSetting
     https://rawgit.com/caplin/FlexLayout/demos/demos/v0.6/typedoc/interfaces/IJsonTabNode.html#icon 
   */
 }
 
-export interface ILocal {
-  workspaces: { [id: string]: IWorkspace };
+/**
+ * We separate the filePointers so they're easier to enumerate in the UI
+ */
+export interface ILocalFileSystem {
+  workspaces: { [id: string]: IWorkspacePointer };
   substances: { [id: string]: SubstanceFilePointer };
   styles: { [id: string]: StyleFilePointer };
   domains: { [id: string]: DomainFilePointer };
@@ -110,23 +170,21 @@ export interface IExamples {
   substances: { [id: string]: SubstanceFilePointer };
   styles: { [id: string]: StyleFilePointer };
   domains: { [id: string]: DomainFilePointer };
-  trios: IExampleTrio[];
+  trios: { [id: string]: IWorkspacePointer };
 }
 
-export interface IFileSystem {
-  local: ILocal;
-  examples: IExamples;
-}
-
-/* The workspace's files state, in memory
+/* 
   When gist/example is open, fileContents is pre-hydrated
 */
 export interface IWorkspaceState {
-  fileContents: { [id: string]: IOpenFile };
-  workspace: string;
+  /**
+   * The in-memory loaded files for the workspace
+   */
+  fileContents: { [id: string]: SavedFile };
+  openWorkspace: IWorkspace;
 }
 
 export interface IFileSystemState {
-  fileSystem: IFileSystem;
+  fileSystem: ILocalFileSystem;
   workspace: IWorkspaceState;
 }

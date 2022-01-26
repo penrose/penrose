@@ -25,8 +25,11 @@ import {
 import PreviewPane from "./components/PreviewPane";
 import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
+import FileReducer, { initialFilesState } from "./state/fileReducer";
+import ExamplesPanel from "./components/ExamplesPanel";
 
 function App() {
+  /*
   const [state, dispatch] = useReducer(reducer, null, initialState);
   const urlParams = useParams() as any;
   useEffect(() => {
@@ -81,139 +84,81 @@ function App() {
     }
   }, [state, convergeRenderState]);
 
-  const [model, setModel] = useState<FlexLayout.Model>(
-    FlexLayout.Model.fromJson({
-      global: {},
-      borders: [
-        {
-          type: "border",
-          location: "left",
-          show: true,
-          children: [
-            {
-              type: "tab",
-              name: "files",
-              enableClose: false,
-            },
-            {
-              type: "tab",
-              name: "settings",
-              component: "settings",
-              enableClose: false,
-            },
-          ],
-        },
-      ],
-      layout: {
-        type: "row",
-        weight: 100,
-        children: [
-          {
-            type: "tabset",
-            weight: 50,
-            children: [
-              {
-                type: "tab",
-                name: "Substance",
-                id: "hi",
-                enableRename: false,
-                component: "substance_edit",
-              },
-              {
-                type: "tab",
-                name: "Style",
-                enableRename: false,
-                component: "style_edit",
-              },
-              {
-                type: "tab",
-                name: "Domain",
-                enableRename: false,
-                component: "domain_edit",
-              },
-            ],
-          },
-          {
-            type: "tabset",
-            weight: 50,
-            children: [
-              { type: "tab", name: "👁 Preview", component: "preview" },
-            ],
-          },
-        ],
-      },
-    })
+  
+  */
+
+  const [fileSystem, dispatch] = useReducer(
+    FileReducer,
+    null,
+    initialFilesState
   );
 
   const renderPanel = useCallback(
     (node: FlexLayout.TabNode) => {
       switch (node.getComponent()) {
-        case "substance_edit":
-          return (
-            <EditorPane
-              value={state.currentInstance.sub}
-              vimMode={state.settings.vimMode}
-              languageType="substance"
-              setupMonaco={SetupSubstanceMonaco(
-                state.currentInstance.domainCache
-              )}
-              onChange={(v: string) =>
-                dispatch({ kind: "CHANGE_CODE", lang: "sub", content: v })
-              }
-            />
-          );
-        case "style_edit":
-          return (
-            <EditorPane
-              value={state.currentInstance.sty}
-              vimMode={state.settings.vimMode}
-              languageType="style"
-              setupMonaco={SetupStyleMonaco}
-              onChange={(v: string) =>
-                dispatch({ kind: "CHANGE_CODE", lang: "sty", content: v })
-              }
-            />
-          );
-        case "domain_edit":
-          return (
-            <EditorPane
-              value={state.currentInstance.dsl}
-              vimMode={state.settings.vimMode}
-              languageType="domain"
-              setupMonaco={SetupDomainMonaco}
-              onChange={(v: string) =>
-                dispatch({ kind: "CHANGE_CODE", lang: "dsl", content: v })
-              }
-            />
-          );
-        case "preview":
-          return (
-            <PreviewPane
-              state={state}
-              onResample={onResample}
-              convergeRenderState={convergeRenderState}
-            />
-          );
-        case "runbar":
-          return <RunBar compile={compile} />;
+        case "file":
+          // TODO: abstract into component
+          const fileContents = fileSystem.workspace.fileContents[node.getId()];
+          const filePointer =
+            fileSystem.workspace.openWorkspace.openFiles[node.getId()];
+          switch (filePointer.type) {
+            case "domain":
+            case "substance":
+            case "style":
+              return (
+                <EditorPane
+                  value={fileContents.contents as string}
+                  // TODO
+                  vimMode={false}
+                  languageType={filePointer.type}
+                  setupMonaco={
+                    filePointer.type === "domain"
+                      ? SetupDomainMonaco
+                      : filePointer.type === "substance"
+                      ? SetupSubstanceMonaco(
+                          fileSystem.workspace.openWorkspace.domainCache
+                        )
+                      : SetupStyleMonaco
+                  }
+                  onChange={(v: string) =>
+                    dispatch({
+                      type: "UPDATE_OPEN_FILE",
+                      file: {
+                        type: "program_file",
+                        contents: v,
+                        id: fileContents.id,
+                      },
+                    })
+                  }
+                />
+              );
+            default:
+              break;
+          }
+          break;
+        case "examples":
+          return <ExamplesPanel dispatch={dispatch} />;
         case "settings":
-          return <SettingsPanel dispatch={dispatch} state={state} />;
+          return (
+            <SettingsPanel
+              dispatch={() => {}}
+              settings={{ vimMode: false, githubUser: null }}
+            />
+          );
       }
     },
-    [dispatch, state, compile]
+    [dispatch, fileSystem]
   );
-
-  const onPublish = usePublishGist(state, dispatch);
 
   return (
     <div className="App" style={{ display: "flex", flexDirection: "column" }}>
       <ToastContainer position="bottom-left" />
-      <RunBar compile={compile} />
+      <RunBar compile={() => {}} />
       <div style={{ position: "relative", flex: 1 }}>
         <FlexLayout.Layout
-          model={model}
+          model={fileSystem.workspace.openWorkspace.layout}
           factory={renderPanel}
-          onModelChange={setModel}
+          onModelChange={(m) => dispatch({ type: "UPDATE_LAYOUT", layout: m })}
         />
       </div>
     </div>

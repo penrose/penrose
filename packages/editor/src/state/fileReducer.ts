@@ -1,46 +1,92 @@
+import { Model } from "flexlayout-react";
 import { Dispatch } from "react";
-import { IExamples, IFileSystemState } from "../types/FileSystem";
+import { v4 } from "uuid";
+import {
+  constructLayout,
+  IExamples,
+  IFileSystemState,
+  IWorkspace,
+  IWorkspaceState,
+  SavedFile,
+} from "../types/FileSystem";
 
 export type FileAction =
-  | { type: "UPDATE_FILE" }
-  | { type: "SET_EXAMPLES"; examples: IExamples };
+  | { type: "UPDATE_OPEN_FILE"; file: SavedFile }
+  | { type: "UPDATE_LAYOUT"; layout: Model }
+  | { type: "SET_WORKSPACE"; workspaceState: IWorkspaceState };
 
 export type FileDispatcher = Dispatch<FileAction>;
-export function initialState(): IFileSystemState {
+export function initialFilesState(): IFileSystemState {
+  const date = new Date();
+  const workspaceId = v4();
   return {
     fileSystem: {
-      local: {
-        workspaces: {},
-        substances: {},
-        styles: {},
-        domains: {},
-        diagrams: {},
-      },
-      examples: {
-        substances: {},
-        styles: {},
-        domains: {},
-        trios: [],
-      },
+      workspaces: {},
+      substances: {},
+      styles: {},
+      domains: {},
+      diagrams: {},
     },
     workspace: {
       fileContents: {},
-      workspace: "",
+      openWorkspace: {
+        domainCache: null,
+        openFiles: {},
+        compileTrioSetting: {
+          substance: null,
+          style: null,
+          domain: null,
+        },
+        name: `${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`,
+        id: workspaceId,
+        creator: null,
+        forkedFrom: null,
+        layout: constructLayout([
+          {
+            type: "tabset",
+            weight: 100,
+            children: [
+              { type: "tab", name: "examples", component: "examples" },
+            ],
+          },
+        ]),
+      },
     },
   };
 }
 
-export default function reducer(
+export default function FileReducer(
   state: IFileSystemState,
   action: FileAction
 ): IFileSystemState {
   switch (action.type) {
-    case "UPDATE_FILE":
-      return initialState();
-    case "SET_EXAMPLES":
+    case "UPDATE_OPEN_FILE":
+      // TODO: if example/gist, create new!
       return {
         ...state,
-        fileSystem: { ...state.fileSystem, examples: action.examples },
+        workspace: {
+          ...state.workspace,
+          fileContents: {
+            ...state.workspace.fileContents,
+            [action.file.id]: action.file,
+          },
+        },
+      };
+    case "UPDATE_LAYOUT":
+      return {
+        ...state,
+        workspace: {
+          ...state.workspace,
+          openWorkspace: {
+            ...state.workspace.openWorkspace,
+            layout: action.layout,
+          },
+        },
+      };
+    case "SET_WORKSPACE":
+      return {
+        ...state,
+        workspace: action.workspaceState,
       };
   }
 }

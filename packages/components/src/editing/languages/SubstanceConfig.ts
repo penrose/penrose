@@ -119,7 +119,9 @@ export const SubstanceCompletions = (
   return [...types, ...fns, ...predicates, ...constructors, ...labeling];
 };
 
-export const SetupSubstanceMonaco = (domainCache: any) => (monaco: Monaco) => {
+export const SetupSubstanceMonaco = (domainCache: Env | null) => (
+  monaco: Monaco
+) => {
   monaco.languages.register({ id: "substance" });
   monaco.languages.setLanguageConfiguration("substance", SubstanceConfig);
   if (domainCache) {

@@ -18,13 +18,15 @@
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
     "react-toastify": "^8.1.0",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "@types/react-router-dom": "^5.3.2",
     "@types/styled-components": "^5.1.19",
+    "@types/uuid": "^8.3.4",
     "@vitejs/plugin-react": "^1.1.4",
     "typescript": "^4.4.4",
     "vite": "^2.7.11",
