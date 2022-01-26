@@ -36,6 +36,8 @@ export const _circles = [
   { center: [200, 0], r: 100 },
   { center: [0, 300], r: 100 },
   { center: [0, 200], r: 100 },
+  { center: [150, 150], r: 50 },
+  { center: [150, 150], r: 100 },
 ].map((x) =>
   makeCircle(rng, canvas, {
     r: FloatV(constOf(x.r)),
@@ -81,6 +83,12 @@ export const _polygons = [
     [400, 200],
     [300, 400],
     [200, 400],
+  ],
+  [
+    [100, 100],
+    [300, 0],
+    [200, 200],
+    [100, 200],
   ],
 ].map((pts) =>
   makePolygon(rng, canvas, {

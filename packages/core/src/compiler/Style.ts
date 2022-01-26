@@ -2246,6 +2246,7 @@ function foldSubObjs<T>(
 // For now, don't optimize these float-valued properties of a GPI
 // (use whatever they are initialized to in Shapes or set to in Style)
 const unoptimizedFloatProperties: string[] = [
+  "scale",
   "rotation",
   "strokeWidth",
   "thickness",
