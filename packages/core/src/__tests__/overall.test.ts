@@ -8,6 +8,7 @@ import {
   prepareState,
   readRegistry,
   RenderStatic,
+  resample,
   showError,
   stepUntilConvergence,
 } from "../index";
@@ -39,7 +40,8 @@ describe("End-to-end testing of existing diagrams", () => {
       }
       const res = compileTrio(seedrandom(variation), dsl, sub, sty);
       if (res.isOk()) {
-        const state = await prepareState(res.value);
+        // resample because initial sampling did not use the special sampling seed
+        const state = resample(await prepareState(res.value));
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {
           fail("optimization failed");
@@ -74,7 +76,8 @@ describe("Energy API", () => {
       vennStyle
     );
     if (res.isOk()) {
-      const stateEvaled = await prepareState(res.value);
+      // resample because initial sampling did not use the special sampling seed
+      const stateEvaled = resample(await prepareState(res.value));
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
         fail("optimization failed");
@@ -127,8 +130,13 @@ describe("Cross-instance energy eval", () => {
       vennStyle
     );
     if (state1.isOk() && state2.isOk()) {
-      const state1Done = stepUntilConvergence(await prepareState(state1.value));
-      const state2Done = stepUntilConvergence(await prepareState(state2.value));
+      // resample because initial sampling did not use the special sampling seed
+      const state1Done = stepUntilConvergence(
+        resample(await prepareState(state1.value))
+      );
+      const state2Done = stepUntilConvergence(
+        resample(await prepareState(state2.value))
+      );
       if (state1Done.isOk() && state2Done.isOk()) {
         const crossState21 = {
           ...state2Done.value,
@@ -165,7 +173,8 @@ describe("Run individual functions", () => {
     );
 
     if (res.isOk()) {
-      const stateEvaled = await prepareState(res.value);
+      // resample because initial sampling did not use the special sampling seed
+      const stateEvaled = resample(await prepareState(res.value));
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
         fail("optimization failed");
