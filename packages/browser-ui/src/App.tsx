@@ -208,11 +208,10 @@ class App extends React.Component<unknown, ICanvasState> {
   };
 
   public resample = async (): Promise<void> => {
-    const NUM_SAMPLES = 1;
     const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });
-      const resampled = resample(oldState, NUM_SAMPLES);
+      const resampled = resample(oldState);
       void this.onCanvasState(resampled);
     }
   };

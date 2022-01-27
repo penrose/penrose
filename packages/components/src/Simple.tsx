@@ -99,10 +99,9 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   };
 
   resampleState = (): void => {
-    const NUM_SAMPLES = 1;
     const { state: oldState } = this.state;
     if (oldState) {
-      const resampled = resample(oldState, NUM_SAMPLES);
+      const resampled = resample(oldState);
       const converged = stepUntilConvergence(resampled);
       const newState = converged.unsafelyUnwrap();
       this.setState({ state: newState });

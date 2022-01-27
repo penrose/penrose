@@ -159,11 +159,11 @@ const samplePath = (
   }
 };
 
-export const resampleBest = (state: State, numSamples: number): State => {
+export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path<A>) =>
-    samplePath(state.rng, p, shapes, state.varyingInitInfo, state.canvas)
+    samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)
@@ -174,7 +174,7 @@ export const resampleBest = (state: State, numSamples: number): State => {
     p,
     val2Expr(
       valueNumberToAutodiff(
-        samplePath(state.rng, p, shapes, state.varyingInitInfo, state.canvas)
+        samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
       )
     ),
   ]);
@@ -198,6 +198,6 @@ export const resampleBest = (state: State, numSamples: number): State => {
   };
   return {
     ...sampledState,
-    shapes: shapeAutodiffToNumber(evalShapes(sampledState)),
+    shapes: shapeAutodiffToNumber(evalShapes(rng, sampledState)),
   };
 };

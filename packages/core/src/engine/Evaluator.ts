@@ -58,7 +58,7 @@ const dummySourceLoc = (): SourceLoc => {
  *
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
-export const evalShapes = (s: State): ShapeAD[] => {
+export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
 
@@ -94,7 +94,7 @@ export const evalShapes = (s: State): ShapeAD[] => {
     Translation
   ] = shapeExprs.reduce(
     ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
-      evalShape(s.rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
+      evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
   );
 

@@ -158,7 +158,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         // after ALL gridboxes have been initially rendered.
         await new Promise((r) => setTimeout(r, 1));
         let state = await prepareState(res.value);
-        state = resample(state, 1);
+        state = resample(state);
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {
           console.log(showError(opt.error));

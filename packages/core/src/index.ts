@@ -18,7 +18,7 @@ import {
   RenderShape,
   RenderStatic,
 } from "./renderer/Renderer";
-import { resampleBest } from "./renderer/Resample";
+import { resampleOnce } from "./renderer/Resample";
 import { getListOfStagedStates } from "./renderer/Staging";
 import { Canvas } from "./shapes/Samplers";
 import { showMutations } from "./synthesis/Mutation";
@@ -43,12 +43,11 @@ import {
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
- * Resample all shapes in the state by generating a number of samples (`numSamples`) and picking the sample with the lowest initial energy value.
+ * Resample all shapes in the state.
  * @param state current state
- * @param numSamples number of samples to choose from
  */
-export const resample = (state: State, numSamples: number): State => {
-  return resampleBest(state, numSamples);
+export const resample = (state: State): State => {
+  return resampleOnce(seedrandom(state.seedResample), state);
 };
 
 /**
@@ -57,7 +56,7 @@ export const resample = (state: State, numSamples: number): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(state, numSteps, true);
+  return step(seedrandom(state.seedStep), state, numSteps, true);
 };
 
 /**
@@ -73,7 +72,7 @@ export const stepUntilConvergence = (
     !(currentState.params.optStatus === "Error") &&
     !stateConverged(currentState)
   ) {
-    currentState = step(currentState, numSteps, true);
+    currentState = stepState(currentState, numSteps);
   }
   if (currentState.params.optStatus === "Error") {
     return err({
@@ -196,6 +195,8 @@ export const compileTrio = (
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
+  const rng = seedrandom(state.seedPrepare);
+
   await initializeMat();
 
   // TODO: errors
@@ -208,7 +209,7 @@ export const prepareState = async (state: State): Promise<State> => {
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = {
     ...stateAD,
-    shapes: shapeAutodiffToNumber(evalShapes(stateAD)),
+    shapes: shapeAutodiffToNumber(evalShapes(rng, stateAD)),
   };
 
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
@@ -224,8 +225,8 @@ export const prepareState = async (state: State): Promise<State> => {
     labelCache: labelCache.value,
   });
 
-  const withOptProblem: State = genOptProblem(stateWithPendingProperties);
-  return withOptProblem;
+  const withOptProblem: State = genOptProblem(rng, stateWithPendingProperties);
+  return resample(withOptProblem);
 };
 
 /**
@@ -286,7 +287,7 @@ export const evalEnergy = (s: State): number => {
     log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
-    const newState = genOptProblem(s);
+    const newState = genOptProblem(seedrandom(s.seedEvalEnergy), s);
     // TODO: caching
     return evalEnergy(newState);
   }
@@ -314,7 +315,7 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
     log.warn(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the cached objective/constraint functions first."
     );
-    const newState = genFns(s);
+    const newState = genFns(seedrandom(s.seedEvalFns), s);
     // TODO: caching
     return evalFns(fns, newState);
   }

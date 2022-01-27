@@ -3080,7 +3080,12 @@ const genState = (
   const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
   const initState: State = {
-    rng,
+    // hacky way to get string seeds that we can reuse
+    seedEvalEnergy: rng().toString(),
+    seedEvalFns: rng().toString(),
+    seedPrepare: rng().toString(),
+    seedResample: rng().toString(),
+    seedStep: rng().toString(),
 
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapePaths,

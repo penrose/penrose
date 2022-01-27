@@ -185,9 +185,8 @@ function App({ location }: any) {
   }, [state, convergeRenderState]);
 
   const onResample = useCallback(() => {
-    const NUM_SAMPLES = 1;
     if (state.currentInstance.state) {
-      const resampled = resample(state.currentInstance.state, NUM_SAMPLES);
+      const resampled = resample(state.currentInstance.state);
       convergeRenderState(resampled);
     }
   }, [state, convergeRenderState]);
