@@ -170,7 +170,8 @@ function App({ location }: any) {
       if (compileRes.isOk()) {
         dispatch({ kind: "CHANGE_ERROR", content: null });
         (async () => {
-          const initState = await prepareState(compileRes.value);
+          // resample because initial sampling did not use the special sampling seed
+          const initState = resample(await prepareState(compileRes.value));
           convergeRenderState(initState);
         })();
       } else {

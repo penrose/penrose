@@ -230,7 +230,10 @@ class App extends React.Component<unknown, ICanvasState> {
     );
     if (compileRes.isOk()) {
       try {
-        const initState: PenroseState = await prepareState(compileRes.value);
+        // resample because initial sampling did not use the special sampling seed
+        const initState: PenroseState = resample(
+          await prepareState(compileRes.value)
+        );
         void this.onCanvasState(initState);
       } catch (e) {
         const error: PenroseError = {

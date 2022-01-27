@@ -37,7 +37,10 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   ): Promise<PenroseState | undefined> => {
     const compilerResult = compileTrio(seedrandom(variation), dsl, sub, sty);
     if (compilerResult.isOk()) {
-      const initState: PenroseState = await prepareState(compilerResult.value);
+      // resample because initial sampling did not use the special sampling seed
+      const initState: PenroseState = resample(
+        await prepareState(compilerResult.value)
+      );
       const stepped = stepUntilConvergence(initState);
       if (stepped.isOk()) {
         return stepped.value;

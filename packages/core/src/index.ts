@@ -110,7 +110,8 @@ export const diagram = async (
 ): Promise<void> => {
   const res = compileTrio(rng, domainProg, subProg, styProg);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
+    // resample because initial sampling did not use the special sampling seed
+    const state: State = resample(await prepareState(res.value));
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendered = await RenderStatic(optimized, pathResolver);
     node.appendChild(rendered);
@@ -148,7 +149,8 @@ export const interactiveDiagram = async (
   };
   const res = compileTrio(rng, domainProg, subProg, styProg);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
+    // resample because initial sampling did not use the special sampling seed
+    const state: State = resample(await prepareState(res.value));
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       optimized,
@@ -226,10 +228,7 @@ export const prepareState = async (state: State): Promise<State> => {
   });
 
   const withOptProblem: State = genOptProblem(rng, stateWithPendingProperties);
-
-  // initial sampling used a different seed to sample things, so resample once
-  // to ensure that every future resample with this seed is the same
-  return resample(withOptProblem);
+  return withOptProblem;
 };
 
 /**

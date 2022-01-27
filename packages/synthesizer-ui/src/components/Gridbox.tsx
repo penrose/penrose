@@ -157,7 +157,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         // component is rendered in an array, we want to delay ALL componentDidMount calls until
         // after ALL gridboxes have been initially rendered.
         await new Promise((r) => setTimeout(r, 1));
-        let state = await prepareState(res.value);
+        // resample because initial sampling did not use the special sampling seed
+        let state = resample(await prepareState(res.value));
         state = resample(state);
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {

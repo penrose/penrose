@@ -8,6 +8,7 @@ import {
   PenroseState,
   getListOfStagedStates,
   RenderStatic,
+  resample,
 } from "@penrose/core";
 import { renderArtifacts } from "./artifacts";
 import { join, parse, resolve } from "path";
@@ -95,7 +96,8 @@ const singleProcess = async (
   }
 
   const labelStart = process.hrtime();
-  const initialState = await prepareState(compiledState);
+  // resample because initial sampling did not use the special sampling seed
+  const initialState = resample(await prepareState(compiledState));
   const labelEnd = process.hrtime(labelStart);
 
   console.log(`Stepping for ${out} ...`);
