@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as prettier from "prettier";
 import seedrandom from "seedrandom";
 import {
   compileTrio,
@@ -56,7 +57,7 @@ describe("End-to-end testing of existing diagrams", () => {
         });
         fs.writeFileSync(
           path.join(OUTPUT, `${name}.svg`),
-          rendered.outerHTML,
+          prettier.format(rendered.outerHTML, { parser: "html" }),
           "utf8"
         );
       } else {

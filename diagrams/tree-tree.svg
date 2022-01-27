@@ -1,1 +1,486 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700"><g ensureOnCanvas="true"><marker id="$LOCAL_block5_subst5.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><marker id="$LOCAL_block5_subst5.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><path d="M 516.767260322962 318.4726906342325 L 492.2885613354785 275.2362209063946" stroke-opacity="1" stroke-width="4" stroke="#000000" stroke-linecap="butt" marker-end="url(#$LOCAL_block5_subst5.arrow-rightArrowhead)"></path><title>$LOCAL_block5_subst5.arrow</title></g><g ensureOnCanvas="true"><marker id="$LOCAL_block5_subst4.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><marker id="$LOCAL_block5_subst4.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><path d="M 469.8068753194475 369.0712718425913 L 473.86650125172827 279.64494345153526" stroke-opacity="1" stroke-width="4" stroke="#000000" stroke-linecap="butt" marker-end="url(#$LOCAL_block5_subst4.arrow-rightArrowhead)"></path><title>$LOCAL_block5_subst4.arrow</title></g><g ensureOnCanvas="true"><marker id="$LOCAL_block5_subst3.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><marker id="$LOCAL_block5_subst3.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><path d="M 319.20290354103713 318.50290866230097 L 343.67840020108156 275.26357365655906" stroke-opacity="1" stroke-width="4" stroke="#000000" stroke-linecap="butt" marker-end="url(#$LOCAL_block5_subst3.arrow-rightArrowhead)"></path><title>$LOCAL_block5_subst3.arrow</title></g><g ensureOnCanvas="true"><marker id="$LOCAL_block5_subst2.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><marker id="$LOCAL_block5_subst2.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><path d="M 366.1616723761375 369.109129056467 L 362.09892598401535 279.6708262264284" stroke-opacity="1" stroke-width="4" stroke="#000000" stroke-linecap="butt" marker-end="url(#$LOCAL_block5_subst2.arrow-rightArrowhead)"></path><title>$LOCAL_block5_subst2.arrow</title></g><g ensureOnCanvas="true"><marker id="$LOCAL_block5_subst1.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><marker id="$LOCAL_block5_subst1.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><path d="M 467.18274016309147 229.43518823037172 L 433.6472465051527 164.2700149087639" stroke-opacity="1" stroke-width="4" stroke="#000000" stroke-linecap="butt" marker-end="url(#$LOCAL_block5_subst1.arrow-rightArrowhead)"></path><title>$LOCAL_block5_subst1.arrow</title></g><g ensureOnCanvas="true"><marker id="$LOCAL_block5_subst0.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><marker id="$LOCAL_block5_subst0.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="4.98" markerHeight="4.06" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#000000" fill-opacity="1"></path></marker><path d="M 368.7795813447785 229.46002367863795 L 402.31585488938407 164.27209210957312" stroke-opacity="1" stroke-width="4" stroke="#000000" stroke-linecap="butt" marker-end="url(#$LOCAL_block5_subst0.arrow-rightArrowhead)"></path><title>$LOCAL_block5_subst0.arrow</title></g><circle fill="none" cx="525.6354611272512" cy="334.13650086414304" stroke="none" r="18" ensureOnCanvas="true"><title>G.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 519.3756955022512, 328.03298523914304)" style="font:    bold 20px Courier;" x="525.6354611272512" y="339.93728211414304" width="12.51953125" height="12.20703125" ascent="11.904296875" descent="0.302734375" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>G.icon</title>G</text><circle fill="none" cx="468.99058236081646" cy="387.05275176205635" stroke="none" r="18" ensureOnCanvas="true"><title>F.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 463.10191048581646, 381.26173613705635)" style="font:    bold 20px Courier;" x="468.99058236081646" y="392.84376738705635" width="11.77734375" height="11.58203125" ascent="11.58203125" descent="0" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>F.icon</title>F</text><circle fill="none" cx="310.3360263295675" cy="334.1674681818387" stroke="none" r="18" ensureOnCanvas="true"><title>E.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 304.5450107045675, 328.3764525568387)" style="font:    bold 20px Courier;" x="310.3360263295675" y="339.9584838068387" width="11.58203125" height="11.58203125" ascent="11.58203125" descent="0" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>E.icon</title>E</text><circle fill="none" cx="366.97848234426544" cy="387.09058549826574" stroke="none" r="18" ensureOnCanvas="true"><title>D.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 360.98727140676544, 381.29956987326574)" style="font:    bold 20px Courier;" x="366.97848234426544" y="392.88160112326574" width="11.982421875" height="11.58203125" ascent="11.58203125" descent="0" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>D.icon</title>D</text><circle fill="none" cx="475.4192719094327" cy="245.44017161585396" stroke="none" r="18" ensureOnCanvas="true"><title>C.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 469.5013031594327, 239.33665599085396)" style="font:    bold 20px Courier;" x="475.4192719094327" y="251.24095286585396" width="11.8359375" height="12.20703125" ascent="11.904296875" descent="0.302734375" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>C.icon</title>C</text><circle fill="none" cx="360.54517185932826" cy="245.4660990505849" stroke="none" r="18" ensureOnCanvas="true"><title>B.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 354.53442967182826, 239.6750834255849)" style="font:    bold 20px Courier;" x="360.54517185932826" y="251.2571146755849" width="12.021484375" height="11.58203125" ascent="11.58203125" descent="0" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>B.icon</title>B</text><circle fill="none" cx="417.9795321912294" cy="133.82497869625686" stroke="none" r="18" ensureOnCanvas="true"><title>A.bounds</title></circle><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 411.8320712537294, 128.03396307125686)" style="font:    bold 20px Courier;" x="417.9795321912294" y="139.61599432125686" width="12.294921875" height="11.58203125" ascent="11.58203125" descent="0" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>A.icon</title>A</text><rect x="0" y="0" width="800" height="700" fill="none" stroke="#cccccc" stroke-opacity="1" stroke-width="2" stroke-linecap="butt" rx="0" transform="rotate(0, 0, 0)" ensureOnCanvas="true"><title>Global.box</title></rect></svg>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <g ensureOnCanvas="true">
+    <marker
+      id="$LOCAL_block5_subst5.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="$LOCAL_block5_subst5.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 516.767260322962 318.4726906342325 L 492.2885613354785 275.2362209063946"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#$LOCAL_block5_subst5.arrow-rightArrowhead)"
+    ></path>
+    <title>$LOCAL_block5_subst5.arrow</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="$LOCAL_block5_subst4.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="$LOCAL_block5_subst4.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 469.8068753194475 369.0712718425913 L 473.86650125172827 279.64494345153526"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#$LOCAL_block5_subst4.arrow-rightArrowhead)"
+    ></path>
+    <title>$LOCAL_block5_subst4.arrow</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="$LOCAL_block5_subst3.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="$LOCAL_block5_subst3.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 319.20290354103713 318.50290866230097 L 343.67840020108156 275.26357365655906"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#$LOCAL_block5_subst3.arrow-rightArrowhead)"
+    ></path>
+    <title>$LOCAL_block5_subst3.arrow</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="$LOCAL_block5_subst2.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="$LOCAL_block5_subst2.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 366.1616723761375 369.109129056467 L 362.09892598401535 279.6708262264284"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#$LOCAL_block5_subst2.arrow-rightArrowhead)"
+    ></path>
+    <title>$LOCAL_block5_subst2.arrow</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="$LOCAL_block5_subst1.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="$LOCAL_block5_subst1.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 467.18274016309147 229.43518823037172 L 433.6472465051527 164.2700149087639"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#$LOCAL_block5_subst1.arrow-rightArrowhead)"
+    ></path>
+    <title>$LOCAL_block5_subst1.arrow</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="$LOCAL_block5_subst0.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="$LOCAL_block5_subst0.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="4.98"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 368.7795813447785 229.46002367863795 L 402.31585488938407 164.27209210957312"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#$LOCAL_block5_subst0.arrow-rightArrowhead)"
+    ></path>
+    <title>$LOCAL_block5_subst0.arrow</title>
+  </g>
+  <circle
+    fill="none"
+    cx="525.6354611272512"
+    cy="334.13650086414304"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>G.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 519.3756955022512, 328.03298523914304)"
+    style="font: bold 20px Courier"
+    x="525.6354611272512"
+    y="339.93728211414304"
+    width="12.51953125"
+    height="12.20703125"
+    ascent="11.904296875"
+    descent="0.302734375"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>G.icon</title>
+    G
+  </text>
+  <circle
+    fill="none"
+    cx="468.99058236081646"
+    cy="387.05275176205635"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>F.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 463.10191048581646, 381.26173613705635)"
+    style="font: bold 20px Courier"
+    x="468.99058236081646"
+    y="392.84376738705635"
+    width="11.77734375"
+    height="11.58203125"
+    ascent="11.58203125"
+    descent="0"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>F.icon</title>
+    F
+  </text>
+  <circle
+    fill="none"
+    cx="310.3360263295675"
+    cy="334.1674681818387"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>E.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 304.5450107045675, 328.3764525568387)"
+    style="font: bold 20px Courier"
+    x="310.3360263295675"
+    y="339.9584838068387"
+    width="11.58203125"
+    height="11.58203125"
+    ascent="11.58203125"
+    descent="0"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>E.icon</title>
+    E
+  </text>
+  <circle
+    fill="none"
+    cx="366.97848234426544"
+    cy="387.09058549826574"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>D.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 360.98727140676544, 381.29956987326574)"
+    style="font: bold 20px Courier"
+    x="366.97848234426544"
+    y="392.88160112326574"
+    width="11.982421875"
+    height="11.58203125"
+    ascent="11.58203125"
+    descent="0"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>D.icon</title>
+    D
+  </text>
+  <circle
+    fill="none"
+    cx="475.4192719094327"
+    cy="245.44017161585396"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>C.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 469.5013031594327, 239.33665599085396)"
+    style="font: bold 20px Courier"
+    x="475.4192719094327"
+    y="251.24095286585396"
+    width="11.8359375"
+    height="12.20703125"
+    ascent="11.904296875"
+    descent="0.302734375"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>C.icon</title>
+    C
+  </text>
+  <circle
+    fill="none"
+    cx="360.54517185932826"
+    cy="245.4660990505849"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>B.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 354.53442967182826, 239.6750834255849)"
+    style="font: bold 20px Courier"
+    x="360.54517185932826"
+    y="251.2571146755849"
+    width="12.021484375"
+    height="11.58203125"
+    ascent="11.58203125"
+    descent="0"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>B.icon</title>
+    B
+  </text>
+  <circle
+    fill="none"
+    cx="417.9795321912294"
+    cy="133.82497869625686"
+    stroke="none"
+    r="18"
+    ensureOnCanvas="true"
+  >
+    <title>A.bounds</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 411.8320712537294, 128.03396307125686)"
+    style="font: bold 20px Courier"
+    x="417.9795321912294"
+    y="139.61599432125686"
+    width="12.294921875"
+    height="11.58203125"
+    ascent="11.58203125"
+    descent="0"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>A.icon</title>
+    A
+  </text>
+  <rect
+    x="0"
+    y="0"
+    width="800"
+    height="700"
+    fill="none"
+    stroke="#cccccc"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    rx="0"
+    transform="rotate(0, 0, 0)"
+    ensureOnCanvas="true"
+  >
+    <title>Global.box</title>
+  </rect>
+</svg>

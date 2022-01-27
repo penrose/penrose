@@ -1,12 +1,345 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><text fill="#000000" fill-opacity="1" stroke="none" transform="rotate(0, 154.888671875, 451.16259765625)" style="font:    bold 18px Palatino;" x="200" y="464.15283203125" width="90.22265625" height="17.6748046875" ascent="12.990234375" descent="4.6845703125" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>$LOCAL_block6_subst0.labelText</title>orthogonal</text><rect x="25" y="75" width="350" height="350" fill="#f2f2f2" fill-opacity="1" stroke="none" rx="0" transform="rotate(0, 25, 75)" ensureOnCanvas="true"><title>V.background</title></rect><text fill="#999999" fill-opacity="1" stroke="none" transform="rotate(0, 330.53515625, 102.150390625)" style="font:  italic   22.5px Palatino;" x="340" y="117.740234375" width="18.9296875" height="15.69921875" ascent="15.58984375" descent="0.109375" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>V.text</title>V</text><g style="solid" ensureOnCanvas="true"><marker id="V.yAxis-leftArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#999999" fill-opacity="1"></path></marker><marker id="V.yAxis-rightArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#999999" fill-opacity="1"></path></marker><path d="M 200 442.5 L 200 57.49999999999997" stroke-opacity="1" stroke-width="2" stroke="#999999" stroke-linecap="butt"></path><title>V.yAxis</title></g><g style="solid" ensureOnCanvas="true"><marker id="V.xAxis-leftArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#999999" fill-opacity="1"></path></marker><marker id="V.xAxis-rightArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#999999" fill-opacity="1"></path></marker><path d="M 7.499999999999972 250 L 392.5 250" stroke-opacity="1" stroke-width="2" stroke="#999999" stroke-linecap="butt"></path><title>V.xAxis</title></g><g ensureOnCanvas="true"><filter id="$LOCAL_block6_subst0.perpMark-shadow" x="0" y="0" width="200%" height="200%">
-    <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-       <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4"></feGaussianBlur>
-       <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-       <feComponentTransfer>
-         <feFuncA type="linear" slope="0.5"></feFuncA>
-       </feComponentTransfer>
-       <feMerge>
-         <feMergeNode></feMergeNode>
-         <feMergeNode in="SourceGraphic"></feMergeNode>
-       </feMerge>
-    </filter><path stroke="#000000" fill="#ffffff" stroke-width="2" stroke-opacity="1" fill-opacity="1" d="M 200 250 L 191.12042753366538 267.92074619565574 L 173.1996818571554 259.04117399238316 L 182.07925432349003 241.12042779672745 Z "></path><title>$LOCAL_block6_subst0.perpMark</title></g><g ensureOnCanvas="true"><marker id="u.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#00cc00" fill-opacity="1"></path></marker><marker id="u.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#00cc00" fill-opacity="1"></path></marker><path d="M 200 250 L 134.49685090449822 382.1984041920026" stroke-opacity="1" stroke-width="3" stroke="#00cc00" stroke-linecap="butt" marker-end="url(#u.arrow-rightArrowhead)"></path><title>u.arrow</title></g><g ensureOnCanvas="true"><marker id="v.arrow-leftArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#1a1ae6" fill-opacity="1"></path></marker><marker id="v.arrow-rightArrowhead" markerUnits="strokeWidth" markerWidth="6.97" markerHeight="5.68" viewBox="0 0 9.95 8.12" refX="2.36" refY="4.06" orient="auto-start-reverse"><path d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z" fill="#1a1ae6" fill-opacity="1"></path></marker><path d="M 200 250 L 115.55987257913107 208.16065794237858" stroke-opacity="1" stroke-width="3" stroke="#1a1ae6" stroke-linecap="butt" marker-end="url(#v.arrow-rightArrowhead)"></path><title>v.arrow</title></g><text fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-opacity="1" stroke-width="8" stroke-linecap="butt" transform="rotate(0, 79.03856027127121, 187.97090457058331)" style="font:    bold 22.5px Palatino;" x="85.32273995877121" y="198.29805300808331" width="12.568359375" height="10.4150390625" ascent="10.3271484375" descent="0.087890625" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>v.stroke</title>v</text><text fill="#1a1ae6" fill-opacity="1" stroke="none" transform="rotate(0, 79.03856027127121, 187.97090457058331)" style="font:    bold 22.5px Palatino;" x="85.32273995877121" y="198.29805300808331" width="12.568359375" height="10.4150390625" ascent="10.3271484375" descent="0.087890625" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>v.text</title>v</text><text fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-opacity="1" stroke-width="8" stroke-linecap="butt" transform="rotate(0, 109.07686240993145, 414.1500595757585)" style="font:    bold 22.5px Palatino;" x="115.96504600368145" y="424.7516220757585" width="13.7763671875" height="10.8984375" ascent="10.6015625" descent="0.296875" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>u.stroke</title>u</text><text fill="#00cc00" fill-opacity="1" stroke="none" transform="rotate(0, 109.07686240993145, 414.1500595757585)" style="font:    bold 22.5px Palatino;" x="115.96504600368145" y="424.7516220757585" width="13.7763671875" height="10.8984375" ascent="10.6015625" descent="0.296875" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle" ensureOnCanvas="true"><title>u.text</title>u</text></svg>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 154.888671875, 451.16259765625)"
+    style="font: bold 18px Palatino"
+    x="200"
+    y="464.15283203125"
+    width="90.22265625"
+    height="17.6748046875"
+    ascent="12.990234375"
+    descent="4.6845703125"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>$LOCAL_block6_subst0.labelText</title>
+    orthogonal
+  </text>
+  <rect
+    x="25"
+    y="75"
+    width="350"
+    height="350"
+    fill="#f2f2f2"
+    fill-opacity="1"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 25, 75)"
+    ensureOnCanvas="true"
+  >
+    <title>V.background</title>
+  </rect>
+  <text
+    fill="#999999"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 330.53515625, 102.150390625)"
+    style="font: italic 22.5px Palatino"
+    x="340"
+    y="117.740234375"
+    width="18.9296875"
+    height="15.69921875"
+    ascent="15.58984375"
+    descent="0.109375"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>V.text</title>
+    V
+  </text>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="V.yAxis-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="V.yAxis-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 200 442.5 L 200 57.49999999999997"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#999999"
+      stroke-linecap="butt"
+    ></path>
+    <title>V.yAxis</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="V.xAxis-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="V.xAxis-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 7.499999999999972 250 L 392.5 250"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#999999"
+      stroke-linecap="butt"
+    ></path>
+    <title>V.xAxis</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter
+      id="$LOCAL_block6_subst0.perpMark-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="#ffffff"
+      stroke-width="2"
+      stroke-opacity="1"
+      fill-opacity="1"
+      d="M 200 250 L 191.12042753366538 267.92074619565574 L 173.1996818571554 259.04117399238316 L 182.07925432349003 241.12042779672745 Z "
+    ></path>
+    <title>$LOCAL_block6_subst0.perpMark</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="u.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#00cc00"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="u.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#00cc00"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 200 250 L 134.49685090449822 382.1984041920026"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#00cc00"
+      stroke-linecap="butt"
+      marker-end="url(#u.arrow-rightArrowhead)"
+    ></path>
+    <title>u.arrow</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="v.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="v.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 200 250 L 115.55987257913107 208.16065794237858"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#1a1ae6"
+      stroke-linecap="butt"
+      marker-end="url(#v.arrow-rightArrowhead)"
+    ></path>
+    <title>v.arrow</title>
+  </g>
+  <text
+    fill="#ffffff"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="8"
+    stroke-linecap="butt"
+    transform="rotate(0, 79.03856027127121, 187.97090457058331)"
+    style="font: bold 22.5px Palatino"
+    x="85.32273995877121"
+    y="198.29805300808331"
+    width="12.568359375"
+    height="10.4150390625"
+    ascent="10.3271484375"
+    descent="0.087890625"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>v.stroke</title>
+    v
+  </text>
+  <text
+    fill="#1a1ae6"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 79.03856027127121, 187.97090457058331)"
+    style="font: bold 22.5px Palatino"
+    x="85.32273995877121"
+    y="198.29805300808331"
+    width="12.568359375"
+    height="10.4150390625"
+    ascent="10.3271484375"
+    descent="0.087890625"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>v.text</title>
+    v
+  </text>
+  <text
+    fill="#ffffff"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="8"
+    stroke-linecap="butt"
+    transform="rotate(0, 109.07686240993145, 414.1500595757585)"
+    style="font: bold 22.5px Palatino"
+    x="115.96504600368145"
+    y="424.7516220757585"
+    width="13.7763671875"
+    height="10.8984375"
+    ascent="10.6015625"
+    descent="0.296875"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>u.stroke</title>
+    u
+  </text>
+  <text
+    fill="#00cc00"
+    fill-opacity="1"
+    stroke="none"
+    transform="rotate(0, 109.07686240993145, 414.1500595757585)"
+    style="font: bold 22.5px Palatino"
+    x="115.96504600368145"
+    y="424.7516220757585"
+    width="13.7763671875"
+    height="10.8984375"
+    ascent="10.6015625"
+    descent="0.296875"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    ensureOnCanvas="true"
+  >
+    <title>u.text</title>
+    u
+  </text>
+</svg>
