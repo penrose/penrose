@@ -12,7 +12,7 @@ import {
   stepUntilConvergence,
 } from "../index";
 
-const OUTPUT = "/tmp/diagrams";
+const OUTPUT = "../../diagrams";
 const EXAMPLES = "../../examples";
 const registryPath = path.join(EXAMPLES, "registry.json");
 const saveDiagrams = true;

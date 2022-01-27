@@ -126,7 +126,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: diagrams
-          path: /tmp/diagrams/
+          path: diagrams/
       - uses: actions/upload-artifact@v2
         with:
           name: junit
@@ -135,6 +135,9 @@ jobs:
         with:
           name: coverage
           path: packages/core/coverage
+      - name: Ensure no generated diagrams have changed
+        run: |
+          "$GITHUB_WORKSPACE/.github/report_git_status.sh"
 
   typedocs:
     runs-on: ubuntu-latest
