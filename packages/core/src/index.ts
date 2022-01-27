@@ -226,6 +226,9 @@ export const prepareState = async (state: State): Promise<State> => {
   });
 
   const withOptProblem: State = genOptProblem(rng, stateWithPendingProperties);
+
+  // initial sampling used a different seed to sample things, so resample once
+  // to ensure that every future resample with this seed is the same
   return resample(withOptProblem);
 };
 
