@@ -23,6 +23,16 @@ const BlueButton = styled.button<{}>`
 `;
 export default BlueButton;
 
+export const BigBlueButton = styled(BlueButton)`
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 23px;
+  :disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+`;
+
 export const SquareBlueButton = styled(BlueButton)`
   width: 20px;
   height: 20px;

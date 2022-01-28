@@ -1,5 +1,4 @@
 import { TabNode } from "flexlayout-react";
-import { FileDispatcher } from "../state/fileReducer";
 import {
   FilePointer,
   FilePointerMap,
@@ -8,6 +7,7 @@ import {
 } from "../types/FileSystem";
 import Select from "react-select";
 import { useEffect, useState } from "react";
+import { BigBlueButton } from "./BlueButton";
 
 const mapFilterFiles = (openFiles: FilePointerMap, fileType: TrioType) =>
   Object.values(openFiles).filter(({ type }) => type === fileType);
@@ -37,14 +37,13 @@ const FileSelector = ({
       !(trio[fileType]!.id in workspace.openFiles)
     ) {
       setTrio((_trio) => ({ ..._trio, [fileType]: null }));
+    } else if (trio[fileType] === null && openFiles.length > 0) {
+      setTrio((_trio: TrioSelection) => ({
+        ..._trio,
+        [fileType]: openFiles[0],
+      }));
     }
   }, [openFiles, trio]);
-  useEffect(() => {
-    setTrio((_trio: TrioSelection) => ({
-      ..._trio,
-      [fileType]: openFiles.length > 0 ? openFiles[0] : null,
-    }));
-  }, []);
   if (openFiles.length === 0) {
     return (
       <div style={{ color: "#666666" }}>no {fileType} open to choose from</div>
@@ -85,27 +84,32 @@ export default function DiagramInitializer({
   return (
     <div>
       <h1>new diagram</h1>
-      <span>domain</span>
-      <FileSelector
-        workspace={workspace}
-        trio={trio}
-        setTrio={setTrio}
-        fileType="domain"
-      />
-      <span>style</span>
-      <FileSelector
-        workspace={workspace}
-        trio={trio}
-        setTrio={setTrio}
-        fileType="style"
-      />
-      <span>substance</span>
-      <FileSelector
-        workspace={workspace}
-        trio={trio}
-        setTrio={setTrio}
-        fileType="substance"
-      />
+      <div>
+        <span>domain</span>
+        <FileSelector
+          workspace={workspace}
+          trio={trio}
+          setTrio={setTrio}
+          fileType="domain"
+        />
+        <span>style</span>
+        <FileSelector
+          workspace={workspace}
+          trio={trio}
+          setTrio={setTrio}
+          fileType="style"
+        />
+        <span>substance</span>
+        <FileSelector
+          workspace={workspace}
+          trio={trio}
+          setTrio={setTrio}
+          fileType="substance"
+        />
+      </div>
+      <BigBlueButton disabled={Object.values(trio).includes(null)}>
+        create
+      </BigBlueButton>
     </div>
   );
 }
