@@ -14,5 +14,6 @@ export interface IViewProps {
   error: PenroseError | null;
   settings: ISettings;
   setSettings(settings: ISettings): void;
+  reset(): void;
 }
 export default IViewProps;

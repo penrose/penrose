@@ -410,6 +410,7 @@ class App extends React.Component<unknown, ICanvasState> {
                 modCanvas={this.modCanvas}
                 settings={settings}
                 setSettings={this.setSettings}
+                reset={this.reset}
               />
             ) : (
               <div />

@@ -3,6 +3,7 @@ import IViewProps from "./IViewProps";
 const Settings: React.FC<IViewProps> = ({
   settings,
   setSettings,
+  reset,
 }: IViewProps) => {
   const onAutostepChange = React.useCallback(
     (e) => {
@@ -36,6 +37,11 @@ const Settings: React.FC<IViewProps> = ({
             type="string"
             value={settings.variation}
             onChange={onVariationChange}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                reset();
+              }
+            }}
           />
         </label>
       </div>
