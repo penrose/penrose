@@ -62,6 +62,7 @@ describe("End-to-end testing of existing diagrams", () => {
         });
         fs.writeFileSync(
           path.join(OUTPUT, `${name}.svg`),
+          // format so each line isn't too long, nicer diffs
           prettier.format(rendered.outerHTML, { parser: "html" }),
           "utf8"
         );
