@@ -11,6 +11,7 @@ import {
   stateInitial,
   stepState,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
 import Inspector from "inspector/Inspector";
 import { isEqual } from "lodash";
@@ -77,7 +78,7 @@ class App extends React.Component<unknown, ICanvasState> {
       autostep: false,
       showInspector: true,
       autoStepSize: 50,
-      variation: "foo",
+      variation: "tfJ7rRKHjH",
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -207,10 +208,31 @@ class App extends React.Component<unknown, ICanvasState> {
     }
   };
 
-  public resample = async (): Promise<void> => {
+  public reset = async (): Promise<void> => {
     const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });
+      oldState.seeds = variationSeeds(this.state.settings.variation).seeds;
+      const resampled = resample(oldState);
+      void this.onCanvasState(resampled);
+    }
+  };
+
+  public resample = async (): Promise<void> => {
+    // https://stackoverflow.com/a/36294356
+    const chars = "bcdfghjkmpqrtvwxyBCDFGHJKMPQRTVWXY346789";
+
+    const arr: string[] = [];
+    for (let i = 0; i < 10; ++i) {
+      arr.push(chars[Math.floor(Math.random() * chars.length)]);
+    }
+
+    this.state.settings.variation = arr.join("");
+
+    const oldState = this.state.currentState;
+    if (oldState) {
+      this.setState({ processedInitial: false });
+      oldState.seeds = variationSeeds(this.state.settings.variation).seeds;
       const resampled = resample(oldState);
       void this.onCanvasState(resampled);
     }
@@ -350,6 +372,7 @@ class App extends React.Component<unknown, ICanvasState> {
             autostep={settings.autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}
+            reset={this.reset}
             resample={this.resample}
             converged={data ? stateConverged(data) : false}
             initial={data ? stateInitial(data) : false}
