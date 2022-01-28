@@ -27,7 +27,6 @@ const setDomain = fs
   .toString();
 
 describe("End-to-end testing of existing diagrams", () => {
-  const registry = JSON.parse(fs.readFileSync(registryPath).toString());
   const trios = readRegistry(registry);
   for (const trio of trios) {
     const { name, substanceURI, domainURI, styleURI, variation } = trio;
