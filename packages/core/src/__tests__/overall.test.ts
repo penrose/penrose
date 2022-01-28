@@ -13,6 +13,7 @@ import {
   showError,
   stepUntilConvergence,
 } from "../index";
+import { State } from "../types/state";
 
 const OUTPUT = "../../diagrams";
 const EXAMPLES = "../../examples";
@@ -64,6 +65,65 @@ describe("End-to-end testing of existing diagrams", () => {
       }
     });
   }
+});
+
+describe("Determinism", () => {
+  const render = async (state: State): Promise<string> =>
+    (await RenderStatic(state, async () => null)).outerHTML;
+
+  test("correct - subsets", async () => {
+    const resCompile = compileTrio(
+      seedrandom("determinism"),
+      setDomain,
+      "Set A, B\nIsSubset(B, A)\nAutoLabel All",
+      vennStyle
+    );
+    if (resCompile.isOk()) {
+      const stateSample1NotOpt = await prepareState(resCompile.value);
+      const svgSample1NotOpt = await render(stateSample1NotOpt);
+
+      const resSample1Opt = stepUntilConvergence(stateSample1NotOpt);
+      if (resSample1Opt.isErr()) {
+        fail(showError(resSample1Opt.error));
+      }
+      const stateSample1Opt = resSample1Opt.value;
+      const svgSample1Opt = await render(stateSample1Opt);
+
+      const stateSample2NotOpt = resample(stateSample1Opt);
+      const svgSample2NotOpt = await render(stateSample2NotOpt);
+
+      const resSample2Opt = stepUntilConvergence(stateSample2NotOpt);
+      if (resSample2Opt.isErr()) {
+        fail(showError(resSample2Opt.error));
+      }
+      const stateSample2Opt = resSample2Opt.value;
+      const svgSample2Opt = await render(stateSample2Opt);
+
+      const stateSample3NotOpt = resample(stateSample2Opt);
+      const svgSample3NotOpt = await render(stateSample3NotOpt);
+
+      const resSample3Opt = stepUntilConvergence(stateSample3NotOpt);
+      if (resSample3Opt.isErr()) {
+        fail(showError(resSample3Opt.error));
+      }
+      const stateSample3Opt = resSample3Opt.value;
+      const svgSample3Opt = await render(stateSample3Opt);
+
+      expect(svgSample1NotOpt).not.toBe(svgSample1Opt); // optimization does something
+      expect(svgSample1NotOpt).not.toBe(svgSample2NotOpt); // resampling is different from initial sampling
+      expect(svgSample1NotOpt).not.toBe(svgSample2Opt); // optimizing resample doesn't get us back
+
+      expect(svgSample1Opt).not.toBe(svgSample2NotOpt); // resampling is different from optimization
+      expect(svgSample1Opt).not.toBe(svgSample2Opt); // different starts, different ends
+
+      expect(svgSample2NotOpt).not.toBe(svgSample2Opt); // optimization does something
+      expect(svgSample2NotOpt).toBe(svgSample3NotOpt); // resampling is idempotent
+
+      expect(svgSample2Opt).toBe(svgSample3Opt); // optimization is deterministic
+    } else {
+      fail(showError(resCompile.error));
+    }
+  });
 });
 
 describe("Energy API", () => {
