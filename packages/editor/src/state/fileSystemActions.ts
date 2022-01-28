@@ -12,9 +12,17 @@ import {
   WorkspaceFile,
 } from "../types/FileSystem";
 import { toast } from "react-toastify";
-import { Actions, DockLocation, Model } from "flexlayout-react";
+import {
+  Actions,
+  DockLocation,
+  Model,
+  TabNode,
+  TabSetNode,
+} from "flexlayout-react";
 import { FileDispatcher } from "./fileReducer";
 import { compileDomain } from "@penrose/core";
+import { v4 } from "uuid";
+import { useCallback } from "react";
 
 async function fetchRegistry(): Promise<any> {
   const res = await fetch(
@@ -160,11 +168,6 @@ function buildExampleWorkspace(
         [sty.id]: sty,
         [dsl.id]: dsl,
       },
-      compileTrioSetting: {
-        substance: sub.id,
-        style: sty.id,
-        domain: dsl.id,
-      },
       creator: "penrose",
       forkedFrom: null,
       name: pointer.name,
@@ -234,69 +237,125 @@ async function retrieveFileFromPointer(
   return null;
 }
 
-export async function loadWorkspace(
-  dispatch: FileDispatcher,
-  workspace: IWorkspacePointer
-): Promise<void> {
-  const loadedWorkspace = await retrieveFileFromPointer(workspace);
-  if (loadedWorkspace !== null && loadedWorkspace.type === "workspace_file") {
-    const workspace: IWorkspaceState = {
-      fileContents: {},
-      openWorkspace: loadedWorkspace.contents,
-    };
-    for (let [id, ptr] of Object.entries(loadedWorkspace.contents.openFiles)) {
-      const retrieved = await retrieveFileFromPointer(ptr);
-      if (retrieved !== null) {
-        workspace.fileContents[id] = retrieved;
-      } else {
-        toast.error(`Failed to load file ${id}`);
-      }
-    }
-    if (
-      loadedWorkspace.contents.domainCache === null &&
-      loadedWorkspace.contents.compileTrioSetting.domain !== null
-    ) {
-      const res = compileDomain(
-        workspace.fileContents[
-          loadedWorkspace.contents.compileTrioSetting.domain
-        ].contents as string
-      );
-      if (res.isOk()) {
-        workspace.openWorkspace.domainCache = res.value || null;
-      }
-    }
-    dispatch({ type: "SET_WORKSPACE", workspaceState: workspace });
-  } else {
-    toast.error(`Failed to load workspace ${workspace.id}`);
-  }
-}
+export const useLoadWorkspace = (dispatch: FileDispatcher) =>
+  useCallback(
+    (workspacePointer: IWorkspacePointer) => {
+      (async () => {
+        const loadedWorkspace = await retrieveFileFromPointer(workspacePointer);
+        if (
+          loadedWorkspace !== null &&
+          loadedWorkspace.type === "workspace_file"
+        ) {
+          const workspace: IWorkspaceState = {
+            fileContents: {},
+            openWorkspace: loadedWorkspace.contents,
+          };
+          for (let [id, ptr] of Object.entries(
+            loadedWorkspace.contents.openFiles
+          )) {
+            const retrieved = await retrieveFileFromPointer(ptr);
+            if (retrieved !== null) {
+              workspace.fileContents[id] = retrieved;
+            } else {
+              toast.error(`Failed to load file ${id}`);
+            }
+          }
+          const openDomains = Object.values(
+            loadedWorkspace.contents.openFiles
+          ).filter(({ type }) => type === "domain");
+          if (
+            loadedWorkspace.contents.domainCache === null &&
+            openDomains.length > 0
+          ) {
+            const res = compileDomain(
+              workspace.fileContents[openDomains[0].id].contents as string
+            );
+            if (res.isOk()) {
+              workspace.openWorkspace.domainCache = res.value || null;
+            }
+          }
+          dispatch({ type: "SET_WORKSPACE", workspaceState: workspace });
+        } else {
+          toast.error(`Failed to load workspace ${workspacePointer.id}`);
+        }
+      })();
+    },
+    [dispatch]
+  );
 
-export async function openFileInWorkspace(
+export const useOpenFileInWorkspace = (
   dispatch: FileDispatcher,
-  workspace: IWorkspace,
-  pointer: FilePointer
-) {
-  const loadedFile = await retrieveFileFromPointer(pointer);
-  if (loadedFile !== null) {
-    dispatch({ type: "OPEN_FILE", file: loadedFile, pointer });
-    workspace.layout.doAction(
-      Actions.addNode(
-        {
-          type: "tab",
-          component: "file",
-          name: pointer.name,
-          id: pointer.id,
-        },
-        // HACK: the fallback is fallible
-        workspace.layout.getActiveTabset()?.getId() || "main",
-        DockLocation.CENTER,
-        -1,
-        true
-      )
-    );
-  } else {
-    toast.error(`Failed to load file ${pointer.name}`);
-  }
+  workspace: IWorkspace
+) =>
+  useCallback(
+    (pointer: FilePointer) => {
+      (async () => {
+        if (pointer.id in workspace.openFiles) {
+          // If already open, jump there
+          workspace.layout.doAction(Actions.selectTab(pointer.id));
+          return;
+        }
+        const loadedFile = await retrieveFileFromPointer(pointer);
+        if (loadedFile !== null) {
+          dispatch({ type: "OPEN_FILE", file: loadedFile, pointer });
+          if (!workspace.layout.getActiveTabset()) {
+            workspace.layout.doAction(
+              Actions.setActiveTabset(
+                workspace.layout.getMaximizedTabset()?.getId() ?? "main"
+              )
+            );
+          }
+          workspace.layout.doAction(
+            Actions.addNode(
+              {
+                type: "tab",
+                component: "file",
+                name: pointer.name,
+                id: pointer.id,
+              },
+              // HACK: the fallback is fallible
+              workspace.layout.getActiveTabset()?.getId() || "main",
+              DockLocation.CENTER,
+              -1,
+              true
+            )
+          );
+        } else {
+          toast.error(`Failed to load file ${pointer.name}`);
+        }
+      })();
+    },
+    [dispatch, workspace]
+  );
+
+export const useUpdateNodeToDiagramCreator = (workspace: IWorkspace) =>
+  useCallback(
+    (node: TabNode) => {
+      workspace.layout.doAction(
+        Actions.updateNodeAttributes(node.getId(), {
+          component: "diagram_initializer",
+          name: "Diagram",
+        })
+      );
+    },
+    [workspace]
+  );
+
+export function newFileCreatorTab(workspace: IWorkspace, node: TabSetNode) {
+  workspace.layout.doAction(
+    Actions.addNode(
+      {
+        type: "tab",
+        component: "new_tab",
+        name: "New Tab",
+        id: v4(),
+      },
+      node.getId(),
+      DockLocation.CENTER,
+      -1,
+      true
+    )
+  );
 }
 
 /*

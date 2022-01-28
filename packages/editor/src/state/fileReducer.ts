@@ -17,12 +17,7 @@ export type FileAction =
   | { type: "UPDATE_LAYOUT"; layout: Model }
   | { type: "SET_WORKSPACE"; workspaceState: IWorkspaceState }
   | { type: "OPEN_FILE"; file: SavedFile; pointer: FilePointer }
-  | { type: "CLOSE_FILE"; id: string }
-  | {
-      type: "SET_TRIO_MEMBER";
-      id: string;
-      kind: "substance" | "style" | "domain";
-    };
+  | { type: "CLOSE_FILE"; id: string };
 
 export type FileDispatcher = Dispatch<FileAction>;
 export function initialFilesState(): IFileSystemState {
@@ -41,11 +36,6 @@ export function initialFilesState(): IFileSystemState {
       openWorkspace: {
         domainCache: null,
         openFiles: {},
-        compileTrioSetting: {
-          substance: null,
-          style: null,
-          domain: null,
-        },
         name: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
         id: workspaceId,
         creator: null,
@@ -89,17 +79,6 @@ export default function FileReducer(
       };
     case "OPEN_FILE":
       // TODO: save
-      if (
-        action.pointer.type in
-          state.workspace.openWorkspace.compileTrioSetting &&
-        state.workspace.openWorkspace.compileTrioSetting[
-          action.pointer.type as TrioType
-        ] === null
-      ) {
-        state.workspace.openWorkspace.compileTrioSetting[
-          action.pointer.type as TrioType
-        ] = action.pointer.id;
-      }
       return {
         ...state,
         workspace: {
@@ -119,18 +98,6 @@ export default function FileReducer(
       };
     case "CLOSE_FILE":
       // TODO: save
-      // This is hideous. Removes from trio dropdowns if it's in there
-      const trioSetting = Object.entries(
-        state.workspace.openWorkspace.compileTrioSetting
-      ).filter(([t, id]) => id === action.id);
-      if (trioSetting.length > 0) {
-        state.workspace.openWorkspace.compileTrioSetting[
-          trioSetting[0][0] as TrioType
-        ] =
-          Object.values(state.workspace.openWorkspace.openFiles).find(
-            ({ type, id }) => type === trioSetting[0][0] && id !== action.id
-          )?.id ?? null;
-      }
       return {
         ...state,
         workspace: {
@@ -142,21 +109,6 @@ export default function FileReducer(
               state.workspace.openWorkspace.openFiles,
               action.id
             ),
-          },
-        },
-      };
-    case "SET_TRIO_MEMBER":
-      // TODO: save
-      return {
-        ...state,
-        workspace: {
-          ...state.workspace,
-          openWorkspace: {
-            ...state.workspace.openWorkspace,
-            compileTrioSetting: {
-              ...state.workspace.openWorkspace.compileTrioSetting,
-              [action.kind]: action.id,
-            },
           },
         },
       };

@@ -96,6 +96,9 @@ interface SubstanceFilePointer extends _FilePointer {
   domain: DomainFilePointer;
 }
 
+/**
+ * A rendered (or to-be-rendered) diagram
+ */
 interface DiagramFilePointer extends _FilePointer {
   type: "diagram_state";
   substance: SubstanceFilePointer;
@@ -123,12 +126,6 @@ export type FilePointer =
   | IWorkspacePointer
   | ICachedWorkspacePointer;
 
-export interface ITrioSetting {
-  substance: string | null;
-  style: string | null;
-  domain: string | null;
-}
-
 export type TrioType = "substance" | "style" | "domain";
 
 export type FilePointerMap = { [id: string]: FilePointer };
@@ -137,8 +134,6 @@ export interface IWorkspace {
    * Cached file contents in @IWorkspaceState
    */
   openFiles: FilePointerMap;
-  /* Which files to compile into diagram by default */
-  compileTrioSetting: ITrioSetting;
   domainCache: Env | null;
   /* defaults to today's date */
   name: string;

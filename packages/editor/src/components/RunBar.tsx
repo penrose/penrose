@@ -6,7 +6,6 @@ import {
   TrioType,
 } from "../types/FileSystem";
 import BlueButton from "./BlueButton";
-import Select from "react-select";
 import styled from "styled-components";
 
 const CompileButton = styled.button`
@@ -26,41 +25,6 @@ const CompileButton = styled.button`
     opacity: 0.5;
   }
 `;
-
-const mapFilterFiles = (openFiles: FilePointerMap, fileType: TrioType) =>
-  Object.values(openFiles).filter(({ type }) => type === fileType);
-
-const FileSelector = ({
-  workspace,
-  fileType,
-  dispatch,
-}: {
-  workspace: IWorkspace;
-  dispatch: FileDispatcher;
-  fileType: TrioType;
-}) => {
-  const openFiles = mapFilterFiles(workspace.openFiles, fileType);
-  if (!workspace.compileTrioSetting[fileType]) {
-    return <div style={{ color: "#666666" }}>no {fileType}</div>;
-  }
-  return (
-    <Select
-      aria-label={`Select ${fileType} file`}
-      options={openFiles}
-      getOptionLabel={({ name }: FilePointer) => name}
-      getOptionValue={({ id }: FilePointer) => id}
-      name={fileType}
-      value={
-        workspace.openFiles[workspace.compileTrioSetting[fileType] as string]
-      }
-      onChange={(v) =>
-        dispatch({ type: "SET_TRIO_MEMBER", id: v!.id, kind: fileType })
-      }
-      noOptionsMessage={() => `No ${fileType}s`}
-      isSearchable
-    />
-  );
-};
 
 export default function RunBar({
   compile,
@@ -93,7 +57,7 @@ export default function RunBar({
           alignItems: "center",
         }}
       >
-        <FileSelector
+        {/* <FileSelector
           fileType={"substance"}
           workspace={workspace}
           dispatch={dispatch}
@@ -116,7 +80,7 @@ export default function RunBar({
           }
         >
           {"▶"}
-        </CompileButton>
+        </CompileButton> */}
       </div>
     </nav>
   );

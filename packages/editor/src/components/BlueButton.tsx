@@ -22,3 +22,16 @@ const BlueButton = styled.button<{}>`
   }
 `;
 export default BlueButton;
+
+export const SquareBlueButton = styled(BlueButton)`
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #40b4f7;
+  background-color: rgba(0, 0, 0, 0);
+  color: #40b4f7;
+  :hover {
+    color: #ffffff;
+    background-color: #40b4f7;
+  }
+`;

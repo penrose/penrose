@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { FileDispatcher } from "../state/fileReducer";
+import { fetchExamples } from "../state/fileSystemActions";
 import {
-  fetchExamples,
-  loadWorkspace,
-  openFileInWorkspace,
-} from "../state/fileSystemActions";
-import { IExamples, IWorkspace } from "../types/FileSystem";
+  FilePointer,
+  IExamples,
+  IWorkspace,
+  IWorkspacePointer,
+} from "../types/FileSystem";
 import FileButton from "./FileButton";
 
 export default function ExamplesPanel({
-  dispatch,
-  workspace,
+  openFileInWorkspace,
+  loadWorkspace,
 }: {
-  dispatch: FileDispatcher;
-  workspace: IWorkspace;
+  openFileInWorkspace(pointer: FilePointer): void;
+  loadWorkspace(workspace: IWorkspacePointer): void;
 }) {
   const [examples, setExamples] = useState<IExamples | null>();
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function ExamplesPanel({
           <FileButton
             key={id}
             name={trio.name}
-            onClick={() => loadWorkspace(dispatch, trio)}
+            onClick={() => loadWorkspace(trio)}
           />
         ))}
       </div>
@@ -50,7 +50,7 @@ export default function ExamplesPanel({
             <FileButton
               key={domain.id}
               name={domain.name}
-              onClick={() => openFileInWorkspace(dispatch, workspace, domain)}
+              onClick={() => openFileInWorkspace(domain)}
             />
             <div>
               <h4>Styles</h4>
@@ -60,9 +60,7 @@ export default function ExamplesPanel({
                   <FileButton
                     key={style.id}
                     name={style.name}
-                    onClick={() =>
-                      openFileInWorkspace(dispatch, workspace, style)
-                    }
+                    onClick={() => openFileInWorkspace(style)}
                   />
                 ))}
             </div>
@@ -74,9 +72,7 @@ export default function ExamplesPanel({
                   <FileButton
                     key={substance.id}
                     name={substance.name}
-                    onClick={() =>
-                      openFileInWorkspace(dispatch, workspace, substance)
-                    }
+                    onClick={() => openFileInWorkspace(substance)}
                   />
                 ))}
             </div>

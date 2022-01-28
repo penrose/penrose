@@ -27,6 +27,17 @@ import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
 import FileReducer, { initialFilesState } from "./state/fileReducer";
 import ExamplesPanel from "./components/ExamplesPanel";
+import { BorderNode, ITabSetRenderValues, TabSetNode } from "flexlayout-react";
+import BlueButton, { SquareBlueButton } from "./components/BlueButton";
+import DiagramPanel from "./components/DiagramPanel";
+import {
+  newFileCreatorTab,
+  useLoadWorkspace,
+  useOpenFileInWorkspace,
+  useUpdateNodeToDiagramCreator,
+} from "./state/fileSystemActions";
+import NewTab from "./components/NewTab";
+import DiagramInitializer from "./components/DiagramInitializer";
 
 function App() {
   /*
@@ -92,6 +103,10 @@ function App() {
     null,
     initialFilesState
   );
+  const workspace = fileSystem.workspace.openWorkspace;
+  const openFileInWorkspace = useOpenFileInWorkspace(dispatch, workspace);
+  const loadWorkspace = useLoadWorkspace(dispatch);
+  const updateNodeToDiagramCreator = useUpdateNodeToDiagramCreator(workspace);
 
   const renderPanel = useCallback(
     (node: FlexLayout.TabNode) => {
@@ -99,8 +114,7 @@ function App() {
         case "file":
           // TODO: abstract into component
           const fileContents = fileSystem.workspace.fileContents[node.getId()];
-          const filePointer =
-            fileSystem.workspace.openWorkspace.openFiles[node.getId()];
+          const filePointer = workspace.openFiles[node.getId()];
           switch (filePointer.type) {
             case "domain":
             case "substance":
@@ -115,9 +129,7 @@ function App() {
                     filePointer.type === "domain"
                       ? SetupDomainMonaco
                       : filePointer.type === "substance"
-                      ? SetupSubstanceMonaco(
-                          fileSystem.workspace.openWorkspace.domainCache
-                        )
+                      ? SetupSubstanceMonaco(workspace.domainCache)
                       : SetupStyleMonaco
                   }
                   onChange={(v: string) =>
@@ -132,15 +144,27 @@ function App() {
                   }
                 />
               );
+            case "diagram_state":
+              return <DiagramPanel />;
             default:
+              console.error("unhandled filePointer type", filePointer.type);
               break;
           }
           break;
+        case "new_tab":
+          return (
+            <NewTab
+              node={node}
+              updateNodeToDiagramCreator={updateNodeToDiagramCreator}
+            />
+          );
+        case "diagram_initializer":
+          return <DiagramInitializer workspace={workspace} node={node} />;
         case "examples":
           return (
             <ExamplesPanel
-              dispatch={dispatch}
-              workspace={fileSystem.workspace.openWorkspace}
+              openFileInWorkspace={openFileInWorkspace}
+              loadWorkspace={loadWorkspace}
             />
           );
         case "settings":
@@ -166,20 +190,31 @@ function App() {
     },
     [dispatch]
   );
+  // from https://github.com/caplin/FlexLayout/blob/af4e696eb6fd7261d852d1ce0a50ce33c4ef526b/examples/demo/App.tsx#L383
+  const onRenderTabSet = useCallback(
+    (node: TabSetNode | BorderNode, renderValues: ITabSetRenderValues) => {
+      renderValues.stickyButtons.push(
+        <SquareBlueButton
+          key={`${node.getId()}-addTab`}
+          onClick={() => newFileCreatorTab(workspace, node as TabSetNode)}
+        >
+          +
+        </SquareBlueButton>
+      );
+    },
+    [workspace]
+  );
 
   return (
     <div className="App" style={{ display: "flex", flexDirection: "column" }}>
       <ToastContainer position="bottom-left" />
-      <RunBar
-        compile={() => {}}
-        dispatch={dispatch}
-        workspace={fileSystem.workspace.openWorkspace}
-      />
+      <RunBar compile={() => {}} dispatch={dispatch} workspace={workspace} />
       <div style={{ position: "relative", flex: 1 }}>
         <FlexLayout.Layout
-          model={fileSystem.workspace.openWorkspace.layout}
+          model={workspace.layout}
           factory={renderPanel}
           onModelChange={(m) => dispatch({ type: "UPDATE_LAYOUT", layout: m })}
+          onRenderTabSet={onRenderTabSet}
           onAction={handleLayoutAction}
         />
       </div>
