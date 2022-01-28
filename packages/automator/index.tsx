@@ -57,7 +57,7 @@ const toMs = (hr: any) => hr[1] / 1000000;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
-  rng: seedrandom.prng,
+  variation: string,
   sub: any,
   sty: any,
   dsl: string,
@@ -85,7 +85,12 @@ const singleProcess = async (
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = compileTrio(rng, dslIn, subIn, styIn);
+  const compilerOutput = compileTrio({
+    substance: subIn,
+    style: styIn,
+    domain: dslIn,
+    variation,
+  });
   const compileEnd = process.hrtime(compileStart);
   let compiledState;
   if (compilerOutput.isOk()) {
@@ -287,7 +292,7 @@ const batchProcess = async (
 
       // Warning: will face id conflicts if parallelism used
       const res = await singleProcess(
-        seedrandom(variation),
+        variation,
         subURI,
         styURI,
         dslURI,

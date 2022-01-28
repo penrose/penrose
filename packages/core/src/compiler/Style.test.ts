@@ -329,7 +329,7 @@ describe("Compiler", () => {
       const styRes: Result<State, PenroseError> = andThen(
         (res) =>
           S.compileStyle(
-            seedrandom("Style compiler correctness test seed"),
+            "Style compiler correctness test seed",
             canvasPreamble + styProg,
             ...res
           ),
@@ -397,7 +397,7 @@ describe("Compiler", () => {
       const styRes: Result<State, PenroseError> = andThen(
         (res) =>
           S.compileStyle(
-            seedrandom("Style compiler errors test seed"),
+            "Style compiler errors test seed",
             preamble + styProg,
             ...res
           ),

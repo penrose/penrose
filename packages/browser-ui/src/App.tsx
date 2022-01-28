@@ -222,12 +222,12 @@ class App extends React.Component<unknown, ICanvasState> {
 
     // TODO: does `processedInitial` need to be set?
     this.setState({ processedInitial: false });
-    const compileRes = compileTrio(
-      seedrandom(this.state.settings.variation),
-      domain.contents,
-      substance.contents,
-      style.contents
-    );
+    const compileRes = compileTrio({
+      substance: substance.contents,
+      style: style.contents,
+      domain: domain.contents,
+      variation: this.state.settings.variation,
+    });
     if (compileRes.isOk()) {
       try {
         // resample because initial sampling did not use the special sampling seed

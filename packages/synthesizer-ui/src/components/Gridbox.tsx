@@ -145,12 +145,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   // TODO: this should really be put in a web worker, it blocks browser interaction
   async update() {
-    const res = compileTrio(
-      seedrandom(this.props.variation),
-      this.props.domain,
-      prettySubstance(this.props.substance.prog),
-      this.props.style
-    );
+    const res = compileTrio({
+      substance: prettySubstance(this.props.substance.prog),
+      style: this.props.style,
+      domain: this.props.domain,
+      variation: this.props.variation,
+    });
     if (res.isOk()) {
       try {
         // https://stackoverflow.com/a/19626821

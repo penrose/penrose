@@ -35,7 +35,12 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
     sty: string,
     variation: string
   ): Promise<PenroseState | undefined> => {
-    const compilerResult = compileTrio(seedrandom(variation), dsl, sub, sty);
+    const compilerResult = compileTrio({
+      substance: sub,
+      style: sty,
+      domain: dsl,
+      variation,
+    });
     if (compilerResult.isOk()) {
       // resample because initial sampling did not use the special sampling seed
       const initState: PenroseState = resample(

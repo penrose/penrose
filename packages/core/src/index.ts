@@ -38,6 +38,7 @@ import {
   prettyPrintFn,
   prettyPrintPath,
   toSvgPaintProperty,
+  variationSeeds,
 } from "./utils/Util";
 
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
@@ -47,7 +48,7 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
  * @param state current state
  */
 export const resample = (state: State): State => {
-  return resampleOnce(seedrandom(state.seedResample), state);
+  return resampleOnce(seedrandom(state.seeds.resample), state);
 };
 
 /**
@@ -56,7 +57,7 @@ export const resample = (state: State): State => {
  * @param numSteps number of steps to take (default: 10000)
  */
 export const stepState = (state: State, numSteps = 10000): State => {
-  return step(seedrandom(state.seedStep), state, numSteps, true);
+  return step(seedrandom(state.seeds.step), state, numSteps, true);
 };
 
 /**
@@ -101,14 +102,16 @@ const stepUntilConvergenceOrThrow = (state: State): State => {
  * @param node a node in the DOM tree
  */
 export const diagram = async (
-  rng: seedrandom.prng,
-  domainProg: string,
-  subProg: string,
-  styProg: string,
+  prog: {
+    substance: string;
+    style: string;
+    domain: string;
+    variation: string;
+  },
   node: HTMLElement,
   pathResolver: PathResolver
 ): Promise<void> => {
-  const res = compileTrio(rng, domainProg, subProg, styProg);
+  const res = compileTrio(prog);
   if (res.isOk()) {
     // resample because initial sampling did not use the special sampling seed
     const state: State = resample(await prepareState(res.value));
@@ -131,10 +134,12 @@ export const diagram = async (
  * @param node a node in the DOM tree
  */
 export const interactiveDiagram = async (
-  rng: seedrandom.prng,
-  domainProg: string,
-  subProg: string,
-  styProg: string,
+  prog: {
+    substance: string;
+    style: string;
+    domain: string;
+    variation: string;
+  },
   node: HTMLElement,
   pathResolver: PathResolver
 ): Promise<void> => {
@@ -147,7 +152,7 @@ export const interactiveDiagram = async (
     );
     node.replaceChild(rendering, node.firstChild as Node);
   };
-  const res = compileTrio(rng, domainProg, subProg, styProg);
+  const res = compileTrio(prog);
   if (res.isOk()) {
     // resample because initial sampling did not use the special sampling seed
     const state: State = resample(await prepareState(res.value));
@@ -171,21 +176,21 @@ export const interactiveDiagram = async (
  * @param subProg a Substance program string
  * @param styProg a Style program string
  */
-export const compileTrio = (
-  rng: seedrandom.prng,
-  domainProg: string,
-  subProg: string,
-  styProg: string
-): Result<State, PenroseError> => {
-  const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+export const compileTrio = (prog: {
+  substance: string;
+  style: string;
+  domain: string;
+  variation: string;
+}): Result<State, PenroseError> => {
+  const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(subProg, env),
+    (env) => compileSubstance(prog.substance, env),
     domainRes
   );
 
   const styRes: Result<State, PenroseError> = andThen(
-    (res) => compileStyle(rng, styProg, ...res),
+    (res) => compileStyle(prog.variation, prog.style, ...res),
     subRes
   );
 
@@ -197,7 +202,7 @@ export const compileTrio = (
  * @param state an initial diagram state
  */
 export const prepareState = async (state: State): Promise<State> => {
-  const rng = seedrandom(state.seedPrepare);
+  const rng = seedrandom(state.seeds.prepare);
 
   await initializeMat();
 
@@ -289,7 +294,7 @@ export const evalEnergy = (s: State): number => {
     log.debug(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the optimization problem first."
     );
-    const newState = genOptProblem(seedrandom(s.seedEvalEnergy), s);
+    const newState = genOptProblem(seedrandom(s.seeds.evalEnergy), s);
     // TODO: caching
     return evalEnergy(newState);
   }
@@ -317,7 +322,7 @@ export const evalFns = (fns: Fn[], s: State): FnEvaled[] => {
     log.warn(
       "State is not prepared for energy evaluation. Call `prepareState` to initialize the cached objective/constraint functions first."
     );
-    const newState = genFns(seedrandom(s.seedEvalFns), s);
+    const newState = genFns(seedrandom(s.seeds.evalFns), s);
     // TODO: caching
     return evalFns(fns, newState);
   }
@@ -380,6 +385,7 @@ export {
   normList,
   getListOfStagedStates,
   toSvgPaintProperty,
+  variationSeeds,
 };
 export { makeCanvas } from "./shapes/Samplers";
 export type { Registry, Trio };

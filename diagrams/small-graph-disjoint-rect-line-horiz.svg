@@ -1,6 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
-    transform="rotate(0, 634.5766854463423, 48.6853245336586)translate(634.5766854463423, 48.6853245336586)"
+    transform="rotate(0, 663.3803743716985, 227.5518967373974)translate(663.3803743716985, 227.5518967373974)"
     string="e5"
     ensureOnCanvas="true"
   >
@@ -57,7 +57,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#b53b2e"
+        fill="#ad3f9e"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -73,21 +73,21 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#b53b2e"
+        fill="#ad3f9e"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 543.1064654463422 57.5153245336586 L 743.1064654463422 57.5153245336586"
+      d="M 571.9101543716985 236.38189673739743 L 771.9101543716985 236.38189673739743"
       stroke-opacity="0.5"
       stroke-width="10"
-      stroke="#b53b2e"
+      stroke="#ad3f9e"
       stroke-linecap="butt"
     ></path>
     <title>e5.shape</title>
   </g>
   <g
-    transform="rotate(0, 487.17317767479466, 166.0883116054678)translate(487.17317767479466, 166.0883116054678)"
+    transform="rotate(0, 629.0977857622881, 632.3249776919038)translate(629.0977857622881, 632.3249776919038)"
     string="e4"
     ensureOnCanvas="true"
   >
@@ -144,7 +144,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#3a4a51"
+        fill="#5eb65c"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -160,21 +160,21 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#3a4a51"
+        fill="#5eb65c"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 395.7029576747947 174.9183116054678 L 595.7029576747947 174.9183116054678"
+      d="M 537.6275657622881 641.1549776919038 L 737.6275657622881 641.1549776919038"
       stroke-opacity="0.5"
       stroke-width="10"
-      stroke="#3a4a51"
+      stroke="#5eb65c"
       stroke-linecap="butt"
     ></path>
     <title>e4.shape</title>
   </g>
   <g
-    transform="rotate(0, 687.2519696472046, 455.56621430429794)translate(687.2519696472046, 455.56621430429794)"
+    transform="rotate(0, 265.514866621983, 49.56720327411192)translate(265.514866621983, 49.56720327411192)"
     string="e3"
     ensureOnCanvas="true"
   >
@@ -231,7 +231,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#863932"
+        fill="#5c6b9e"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -247,21 +247,21 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#863932"
+        fill="#5c6b9e"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 595.7817496472046 464.3962143042979 L 795.7817496472046 464.3962143042979"
+      d="M 174.04464662198302 58.39720327411192 L 374.044646621983 58.39720327411192"
       stroke-opacity="0.5"
       stroke-width="10"
-      stroke="#863932"
+      stroke="#5c6b9e"
       stroke-linecap="butt"
     ></path>
     <title>e3.shape</title>
   </g>
   <g
-    transform="rotate(0, 434.69917662265857, 259.1389631397534)translate(434.69917662265857, 259.1389631397534)"
+    transform="rotate(0, 614.4651426608625, 180.93316706760098)translate(614.4651426608625, 180.93316706760098)"
     string="e2"
     ensureOnCanvas="true"
   >
@@ -318,7 +318,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#798da7"
+        fill="#385e3f"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -334,21 +334,21 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#798da7"
+        fill="#385e3f"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 393.2289566226586 267.9689631397534 L 493.2289566226586 267.9689631397534"
+      d="M 572.9949226608625 189.763167067601 L 672.9949226608625 189.763167067601"
       stroke-opacity="0.5"
       stroke-width="10"
-      stroke="#798da7"
+      stroke="#385e3f"
       stroke-linecap="butt"
     ></path>
     <title>e2.shape</title>
   </g>
   <g
-    transform="rotate(0, 595.0302976862771, 633.4187258292837)translate(595.0302976862771, 633.4187258292837)"
+    transform="rotate(0, 604.5073684663705, 474.19115274873775)translate(604.5073684663705, 474.19115274873775)"
     string="e1"
     ensureOnCanvas="true"
   >
@@ -405,7 +405,7 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1ad11d"
+        fill="#522e70"
         fill-opacity="0.5"
       ></path>
     </marker>
@@ -421,15 +421,15 @@
     >
       <path
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#1ad11d"
+        fill="#522e70"
         fill-opacity="0.5"
       ></path>
     </marker>
     <path
-      d="M 503.56007768627705 642.2487258292838 L 703.560077686277 642.2487258292838"
+      d="M 513.0371484663705 483.02115274873773 L 713.0371484663705 483.02115274873773"
       stroke-opacity="0.5"
       stroke-width="10"
-      stroke="#1ad11d"
+      stroke="#522e70"
       stroke-linecap="butt"
     ></path>
     <title>e1.shape</title>
@@ -451,8 +451,8 @@
     <title>global.box</title>
   </rect>
   <rect
-    x="494.24892308032975"
-    y="214.56603488576621"
+    x="694.4659141614104"
+    y="74.08108721249769"
     width="100"
     height="160"
     fill="none"
@@ -461,13 +461,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 494.24892308032975, 214.56603488576621)"
+    transform="rotate(0, 694.4659141614104, 74.08108721249769)"
     ensureOnCanvas="true"
   >
     <title>v5.shape</title>
   </rect>
   <g
-    transform="rotate(0, 535.5513730803298, 285.73603488576623)translate(535.5513730803298, 285.73603488576623)"
+    transform="rotate(0, 735.7683641614104, 145.25108721249768)translate(735.7683641614104, 145.25108721249768)"
     string="v5"
     ensureOnCanvas="true"
   >
@@ -512,8 +512,8 @@
     </svg>
   </g>
   <rect
-    x="596.7362229144155"
-    y="121.6647083430637"
+    x="399.41143689644167"
+    y="56.41462482128995"
     width="100"
     height="160"
     fill="none"
@@ -522,13 +522,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 596.7362229144155, 121.6647083430637)"
+    transform="rotate(0, 399.41143689644167, 56.41462482128995)"
     ensureOnCanvas="true"
   >
     <title>v4.shape</title>
   </rect>
   <g
-    transform="rotate(0, 638.0386729144155, 192.83470834306368)translate(638.0386729144155, 192.83470834306368)"
+    transform="rotate(0, 440.7138868964417, 127.58462482128995)translate(440.7138868964417, 127.58462482128995)"
     string="v4"
     ensureOnCanvas="true"
   >
@@ -573,8 +573,8 @@
     </svg>
   </g>
   <rect
-    x="265.8808732394536"
-    y="58.54212378832807"
+    x="250.14735463538608"
+    y="485.0645592573984"
     width="100"
     height="160"
     fill="none"
@@ -583,13 +583,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 265.8808732394536, 58.54212378832807)"
+    transform="rotate(0, 250.14735463538608, 485.0645592573984)"
     ensureOnCanvas="true"
   >
     <title>v3.shape</title>
   </rect>
   <g
-    transform="rotate(0, 307.1833232394536, 129.71212378832806)translate(307.1833232394536, 129.71212378832806)"
+    transform="rotate(0, 291.4498046353861, 556.2345592573984)translate(291.4498046353861, 556.2345592573984)"
     string="v3"
     ensureOnCanvas="true"
   >
@@ -634,8 +634,8 @@
     </svg>
   </g>
   <rect
-    x="698.7385186484346"
-    y="61.02409659291743"
+    x="354.2864982949604"
+    y="485.0767050896103"
     width="100"
     height="160"
     fill="none"
@@ -644,13 +644,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 698.7385186484346, 61.02409659291743)"
+    transform="rotate(0, 354.2864982949604, 485.0767050896103)"
     ensureOnCanvas="true"
   >
     <title>v2.shape</title>
   </rect>
   <g
-    transform="rotate(0, 740.0409686484346, 132.19409659291742)translate(740.0409686484346, 132.19409659291742)"
+    transform="rotate(0, 395.5889482949604, 556.2467050896103)translate(395.5889482949604, 556.2467050896103)"
     string="v2"
     ensureOnCanvas="true"
   >
@@ -695,8 +695,8 @@
     </svg>
   </g>
   <rect
-    x="173.49788311656636"
-    y="479.9746373192454"
+    x="197.49623849161344"
+    y="313.28306133930454"
     width="500"
     height="160"
     fill="none"
@@ -705,13 +705,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 173.49788311656636, 479.9746373192454)"
+    transform="rotate(0, 197.49623849161344, 313.28306133930454)"
     ensureOnCanvas="true"
   >
     <title>v1.shape</title>
   </rect>
   <g
-    transform="rotate(0, 414.8003331165664, 551.1446373192454)translate(414.8003331165664, 551.1446373192454)"
+    transform="rotate(0, 438.79868849161346, 384.45306133930455)translate(438.79868849161346, 384.45306133930455)"
     string="v1"
     ensureOnCanvas="true"
   >

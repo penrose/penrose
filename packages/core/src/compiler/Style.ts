@@ -113,7 +113,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { prettyPrintPath, randFloat, zip2 } from "utils/Util";
+import { prettyPrintPath, randFloat, variationSeeds, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -3017,9 +3017,11 @@ const isVaryingInitPath = <T>(
 
 // COMBAK: Add optConfig as param?
 const genState = (
-  rng: seedrandom.prng,
+  variation: string,
   trans: Translation
 ): Result<State, StyleErrors> => {
+  const { rng, seeds } = variationSeeds(variation);
+
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const varyingInitPathsAndVals: [Path<A>, number][] = (varyingPaths
@@ -3080,12 +3082,7 @@ const genState = (
   const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
   const initState: State = {
-    // hacky way to get string seeds that we can reuse
-    seedEvalEnergy: rng().toString(),
-    seedEvalFns: rng().toString(),
-    seedPrepare: rng().toString(),
-    seedResample: rng().toString(),
-    seedStep: rng().toString(),
+    seeds,
 
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapePaths,
@@ -3358,7 +3355,7 @@ export const getCanvas = (tr: Translation): Canvas => {
 };
 
 export const compileStyle = (
-  rng: seedrandom.prng,
+  variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
@@ -3422,7 +3419,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleErrors> = genState(rng, trans);
+  const initState: Result<State, StyleErrors> = genState(variation, trans);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {

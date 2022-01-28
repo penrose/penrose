@@ -160,12 +160,12 @@ function App({ location }: any) {
   const compile = useCallback(() => {
     try {
       const { sub, sty, dsl } = state.currentInstance;
-      const compileRes = compileTrio(
-        seedrandom(Math.random().toString()), // TODO: make this seed configurable in the UI
-        dsl,
-        sub,
-        sty
-      );
+      const compileRes = compileTrio({
+        substance: sub,
+        style: sty,
+        domain: dsl,
+        variation: Math.random().toString(), // TODO: make this seed configurable in the UI
+      });
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
         dispatch({ kind: "CHANGE_ERROR", content: null });

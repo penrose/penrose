@@ -39,7 +39,12 @@ describe("End-to-end testing of existing diagrams", () => {
       if (saveDiagrams && !fs.existsSync(OUTPUT)) {
         fs.mkdirSync(OUTPUT);
       }
-      const res = compileTrio(seedrandom(variation), dsl, sub, sty);
+      const res = compileTrio({
+        substance: sub,
+        style: sty,
+        domain: dsl,
+        variation,
+      });
       if (res.isOk()) {
         // resample because initial sampling did not use the special sampling seed
         const state = resample(await prepareState(res.value));
@@ -72,12 +77,12 @@ describe("Determinism", () => {
     (await RenderStatic(state, async () => null)).outerHTML;
 
   test("correct - subsets", async () => {
-    const resCompile = compileTrio(
-      seedrandom("determinism"),
-      setDomain,
-      "Set A, B\nIsSubset(B, A)\nAutoLabel All",
-      vennStyle
-    );
+    const resCompile = compileTrio({
+      substance: "Set A, B\nIsSubset(B, A)\nAutoLabel All",
+      style: vennStyle,
+      domain: setDomain,
+      variation: "determinism",
+    });
     if (resCompile.isOk()) {
       const stateSample1NotOpt = await prepareState(resCompile.value);
       const svgSample1NotOpt = await render(stateSample1NotOpt);
@@ -129,12 +134,12 @@ describe("Determinism", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio(
-      seedrandom("energy overall"),
-      setDomain,
-      twoSubsets,
-      vennStyle
-    );
+    const res = compileTrio({
+      substance: twoSubsets,
+      style: vennStyle,
+      domain: setDomain,
+      variation: "energy overall",
+    });
     if (res.isOk()) {
       // resample because initial sampling did not use the special sampling seed
       const stateEvaled = resample(await prepareState(res.value));
@@ -152,12 +157,12 @@ describe("Energy API", () => {
   });
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio(
-      seedrandom("energy filtered"),
-      setDomain,
-      twoSubsets,
-      vennStyle
-    );
+    const res = compileTrio({
+      substance: twoSubsets,
+      style: vennStyle,
+      domain: setDomain,
+      variation: "energy filtered",
+    });
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
@@ -177,18 +182,18 @@ describe("Cross-instance energy eval", () => {
     const twosets = `Set A, B\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
-    const state1 = compileTrio(
-      seedrandom("cross-instance state1"),
-      setDomain,
-      twosets,
-      vennStyle
-    );
-    const state2 = compileTrio(
-      seedrandom("cross-instance state2"),
-      setDomain,
-      twoSubsets,
-      vennStyle
-    );
+    const state1 = compileTrio({
+      substance: twosets,
+      style: vennStyle,
+      domain: setDomain,
+      variation: "cross-instance state1",
+    });
+    const state2 = compileTrio({
+      substance: twoSubsets,
+      style: vennStyle,
+      domain: setDomain,
+      variation: "cross-instance state2",
+    });
     if (state1.isOk() && state2.isOk()) {
       // resample because initial sampling did not use the special sampling seed
       const state1Done = stepUntilConvergence(
@@ -225,12 +230,12 @@ describe("Run individual functions", () => {
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = compileTrio(
-      seedrandom("individual functions"),
-      setDomain,
-      twoSubsets,
-      vennStyle
-    );
+    const res = compileTrio({
+      substance: twoSubsets,
+      style: vennStyle,
+      domain: setDomain,
+      variation: "individual functions",
+    });
 
     if (res.isOk()) {
       // resample because initial sampling did not use the special sampling seed
