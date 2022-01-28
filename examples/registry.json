@@ -9,12 +9,6 @@
     },
     {
       "substance": "tree",
-      "style": "tree",
-      "domain": "set-theory",
-      "variation": ""
-    },
-    {
-      "substance": "tree",
       "style": "venn-3d",
       "domain": "set-theory",
       "variation": ""
@@ -23,12 +17,6 @@
       "substance": "continuousmap",
       "style": "continuousmap",
       "domain": "set-theory",
-      "variation": ""
-    },
-    {
-      "substance": "two-vectors-perp",
-      "style": "linear-algebra-simple",
-      "domain": "linear-algebra",
       "variation": ""
     },
     {

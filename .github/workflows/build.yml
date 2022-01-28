@@ -114,6 +114,8 @@ jobs:
         uses: ./.github/actions/packages
       - name: Make test report dir
         run: mkdir -p reports/junit
+      - name: Delete the diagrams we're about to generate
+        run: rm -r diagrams/
       - name: Run core tests and generate test data
         run: yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
       - name: Move test report
