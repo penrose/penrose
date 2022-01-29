@@ -23,9 +23,9 @@ import ButtonBar from "ui/ButtonBar";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
 // all one-word colors
-const colors: string[] = (
-  colorNameList as unknown as { colorNameList: { name: string }[] }
-).colorNameList // TypeScript is weird about this import so we must assert :(
+const colors: string[] = ((colorNameList as unknown) as {
+  colorNameList: { name: string }[];
+}).colorNameList // TypeScript is weird about this import so we must assert :(
   .map(({ name }) => name)
   .filter((color) => /^[A-Z][a-z]+$/.test(color));
 
@@ -248,11 +248,13 @@ class App extends React.Component<unknown, ICanvasState> {
   };
 
   public resample = async (): Promise<void> => {
-    this.state.settings.variation = generateVariation();
+    const variation = generateVariation();
+    const newSettings = { ...this.state.settings, variation };
+    this.setSettings(newSettings);
     const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });
-      oldState.seeds = variationSeeds(this.state.settings.variation).seeds;
+      oldState.seeds = variationSeeds(variation).seeds;
       const resampled = resample(oldState);
       void this.onCanvasState(resampled);
     }
