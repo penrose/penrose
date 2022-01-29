@@ -1,4 +1,4 @@
-import { Env, PenroseState } from "@penrose/core";
+import { Env, PenroseError, PenroseState } from "@penrose/core";
 import { IJsonTabSetNode, Model } from "flexlayout-react";
 
 export const constructLayout = (children: IJsonTabSetNode[]): Model =>
@@ -42,9 +42,16 @@ export interface ProgramFile {
   contents: string;
   id: string;
 }
+
+export interface DiagramMetadata {
+  error: PenroseError | null;
+  // seed etc
+  // maybe state enum: unoptimized, broken, etc
+}
 export interface StateFile {
   type: "state_file";
-  contents: PenroseState;
+  contents: PenroseState | null;
+  metadata: DiagramMetadata;
   id: string;
 }
 export interface WorkspaceFile {
@@ -64,7 +71,7 @@ interface IGistLocation {
   gistURI: string;
 }
 
-interface ILocalLocation {
+export interface ILocalLocation {
   type: "local";
   /**
    * Defaults to pointer's id
@@ -80,18 +87,18 @@ interface _FilePointer {
   location: FileLocation;
 }
 
-interface DomainFilePointer extends _FilePointer {
+export interface DomainFilePointer extends _FilePointer {
   type: "domain";
 }
 
-interface StyleFilePointer extends _FilePointer {
+export interface StyleFilePointer extends _FilePointer {
   type: "style";
   domain: DomainFilePointer;
   //   ...eventually, we could have
   //   dependencies: FilePointer[]
 }
 
-interface SubstanceFilePointer extends _FilePointer {
+export interface SubstanceFilePointer extends _FilePointer {
   type: "substance";
   domain: DomainFilePointer;
 }
@@ -99,7 +106,7 @@ interface SubstanceFilePointer extends _FilePointer {
 /**
  * A rendered (or to-be-rendered) diagram
  */
-interface DiagramFilePointer extends _FilePointer {
+export interface DiagramFilePointer extends _FilePointer {
   type: "diagram_state";
   substance: SubstanceFilePointer;
   style: StyleFilePointer;
@@ -134,6 +141,8 @@ export interface IWorkspace {
    * Cached file contents in @IWorkspaceState
    */
   openFiles: FilePointerMap;
+  // TODO: put this in the domain file!!! (make a new file type)
+  // Substances are pre mapped to domains anyway
   domainCache: Env | null;
   /* defaults to today's date */
   name: string;

@@ -1,5 +1,7 @@
 import {
   constructLayout,
+  DiagramFilePointer,
+  DomainFilePointer,
   FilePointer,
   ICachedWorkspacePointer,
   IExamples,
@@ -9,6 +11,9 @@ import {
   IWorkspaceState,
   ProgramFile,
   SavedFile,
+  StateFile,
+  StyleFilePointer,
+  SubstanceFilePointer,
   WorkspaceFile,
 } from "../types/FileSystem";
 import { toast } from "react-toastify";
@@ -20,9 +25,11 @@ import {
   TabSetNode,
 } from "flexlayout-react";
 import { FileDispatcher } from "./fileReducer";
-import { compileDomain } from "@penrose/core";
+import { compileDomain, compileTrio, prepareState } from "@penrose/core";
 import { v4 } from "uuid";
 import { useCallback } from "react";
+import { initial } from "lodash";
+import { TrioSelection } from "../components/DiagramInitializer";
 
 async function fetchRegistry(): Promise<any> {
   const res = await fetch(
@@ -114,37 +121,60 @@ export async function fetchExamples(): Promise<IExamples | null> {
 }
 
 /**
- * For pointers and their loaded contents from memory
+ * Turns fetched file contents into valid SavedFile
  * @param pointer
- * @param contents
- * @returns The typesafe parsed in-memory version of the pointer
+ * @param value
  */
-function processPointerContents(
+function processExamplePointerContents(
   pointer: FilePointer,
-  contents: string
+  value: string
 ): SavedFile {
   switch (pointer.type) {
     case "substance":
     case "style":
     case "domain":
-      return { contents, id: pointer.id, type: "program_file" };
-    case "diagram_state":
-      return {
-        type: "state_file",
-        contents: JSON.parse(contents),
-        id: pointer.id,
-      };
+      return { id: pointer.id, type: "program_file", contents: value };
     case "workspace":
     case "cached_workspace":
-      const parsedWorkspace = JSON.parse(contents);
-      const loadedLayout = {
-        ...parsedWorkspace,
-        layout: Model.fromJson(parsedWorkspace.layout),
-      };
+      const parsed = JSON.parse(value);
       return {
-        type: "workspace_file",
-        contents: loadedLayout,
-        id: pointer.id,
+        ...parsed,
+        contents: {
+          ...parsed.contents,
+          layout: Model.fromJson(parsed.contents.layout),
+        },
+      };
+    default:
+      console.error("Can't handle example type", pointer.type);
+      return { id: pointer.id, contents: "", type: "program_file" };
+  }
+}
+
+/**
+ * For pointers and their loaded contents from memory
+ * @param pointer
+ * @param contents
+ * @returns The typesafe parsed in-memory version of the pointer
+ */
+function processLocalPointerContents(
+  pointer: FilePointer,
+  value: string
+): SavedFile {
+  const parsed = JSON.parse(value);
+  switch (pointer.type) {
+    case "substance":
+    case "style":
+    case "domain":
+    case "diagram_state":
+      return parsed;
+    case "workspace":
+    case "cached_workspace":
+      return {
+        ...parsed,
+        contents: {
+          ...parsed.contents,
+          layout: Model.fromJson(parsed.contents.layout),
+        },
       };
   }
 }
@@ -176,7 +206,7 @@ function buildExampleWorkspace(
       layout: constructLayout([
         {
           type: "tabset",
-          weight: 100,
+          weight: 50,
           id: "main",
           children: [
             {
@@ -199,6 +229,19 @@ function buildExampleWorkspace(
             },
           ],
         },
+        {
+          type: "tabset",
+          weight: 50,
+          id: "preview",
+          children: [
+            {
+              type: "tab",
+              name: "New Diagram",
+              component: "diagram_initializer",
+              id: v4(),
+            },
+          ],
+        },
       ]),
     },
   };
@@ -212,7 +255,7 @@ async function retrieveFileFromPointer(
     case "local":
       const stored = localStorage.getItem(pointer.location.localStorageKey);
       if (stored) {
-        return processPointerContents(pointer, stored);
+        return processLocalPointerContents(pointer, stored);
       }
       break;
     case "example":
@@ -222,7 +265,7 @@ async function retrieveFileFromPointer(
         const res = await fetch(pointer.location.path);
         if (res.ok) {
           const text = await res.text();
-          return processPointerContents(pointer, text);
+          return processExamplePointerContents(pointer, text);
         }
       }
       break;
@@ -272,6 +315,8 @@ export const useLoadWorkspace = (dispatch: FileDispatcher) =>
             );
             if (res.isOk()) {
               workspace.openWorkspace.domainCache = res.value || null;
+            } else {
+              toast.warn("Couldn't compile domain for autocompletion");
             }
           }
           dispatch({ type: "SET_WORKSPACE", workspaceState: workspace });
@@ -334,7 +379,7 @@ export const useUpdateNodeToDiagramCreator = (workspace: IWorkspace) =>
       workspace.layout.doAction(
         Actions.updateNodeAttributes(node.getId(), {
           component: "diagram_initializer",
-          name: "Diagram",
+          name: "New Diagram",
         })
       );
     },
@@ -357,6 +402,102 @@ export function newFileCreatorTab(workspace: IWorkspace, node: TabSetNode) {
     )
   );
 }
+
+async function _compileDiagram(
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState,
+  diagramPointer: DiagramFilePointer
+) {
+  const diagramFile: StateFile = {
+    type: "state_file",
+    id: diagramPointer.id,
+    contents: null,
+    metadata: {
+      error: null,
+    },
+  };
+  const substance = (
+    workspaceState.fileContents[diagramPointer.substance.id] as ProgramFile
+  ).contents;
+  const style = (
+    workspaceState.fileContents[diagramPointer.style.id] as ProgramFile
+  ).contents;
+  const domain = (
+    workspaceState.fileContents[diagramPointer.domain.id] as ProgramFile
+  ).contents;
+  const compiledDomain = compileDomain(domain);
+  if (compiledDomain.isOk()) {
+    dispatch({
+      type: "SET_DOMAIN_CACHE",
+      domainCache: compiledDomain.value,
+    });
+  } else {
+    toast.error("Couldn't compile domain");
+  }
+  const compileResult = compileTrio(domain, substance, style);
+  if (compileResult.isOk()) {
+    const initialState = await prepareState(compileResult.value);
+    diagramFile.contents = initialState;
+    dispatch({ type: "UPDATE_OPEN_FILE", file: diagramFile });
+  } else {
+    diagramFile.metadata.error = compileResult.error;
+  }
+}
+
+export const useUpdateNodeToNewDiagram = (
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState
+) =>
+  useCallback(
+    (node: TabNode, trioSelection: TrioSelection) => {
+      const id = v4();
+      const diagramPointer: DiagramFilePointer = {
+        type: "diagram_state",
+        id: id,
+        substance: trioSelection.substance as SubstanceFilePointer,
+        style: trioSelection.style as StyleFilePointer,
+        domain: trioSelection.domain as DomainFilePointer,
+        name: "Diagram",
+        location: {
+          type: "local",
+          localStorageKey: id,
+        },
+      };
+      const diagramFile: StateFile = {
+        type: "state_file",
+        id: diagramPointer.id,
+        contents: null,
+        metadata: {
+          error: null,
+        },
+      };
+      dispatch({
+        type: "OPEN_FILE",
+        file: diagramFile,
+        pointer: diagramPointer,
+      });
+      workspaceState.openWorkspace.layout.doAction(
+        Actions.updateNodeAttributes(node.getId(), {
+          component: "file",
+          name: "Diagram",
+          id,
+        })
+      );
+      _compileDiagram(dispatch, workspaceState, diagramPointer);
+    },
+    [dispatch, workspaceState]
+  );
+
+export const useCompileDiagram = (
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState
+) =>
+  useCallback(
+    (diagramPointer: DiagramFilePointer) => {
+      _compileDiagram(dispatch, workspaceState, diagramPointer);
+    },
+    [dispatch, workspaceState]
+  );
 
 /*
 function writeFileToDisk(

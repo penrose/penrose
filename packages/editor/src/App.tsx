@@ -1,20 +1,6 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { useCallback, useReducer } from "react";
+import { ToastContainer } from "react-toastify";
 import * as FlexLayout from "flexlayout-react";
-import reducer, { initialState } from "./state/reducer";
-import {
-  compileTrio,
-  PenroseState,
-  prepareState,
-  resample,
-  stepUntilConvergence,
-} from "@penrose/core";
-import {
-  retrieveGist,
-  tryDomainHighlight,
-  usePublishGist,
-  useRoutingHandlers,
-} from "./Util";
 import { useLocation, useParams } from "react-router-dom";
 import {
   EditorPane,
@@ -22,22 +8,23 @@ import {
   SetupStyleMonaco,
   SetupSubstanceMonaco,
 } from "@penrose/components";
-import PreviewPane from "./components/PreviewPane";
 import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
 import FileReducer, { initialFilesState } from "./state/fileReducer";
 import ExamplesPanel from "./components/ExamplesPanel";
 import { BorderNode, ITabSetRenderValues, TabSetNode } from "flexlayout-react";
-import BlueButton, { SquareBlueButton } from "./components/BlueButton";
+import { SquareBlueButton } from "./components/BlueButton";
 import DiagramPanel from "./components/DiagramPanel";
 import {
   newFileCreatorTab,
   useLoadWorkspace,
   useOpenFileInWorkspace,
   useUpdateNodeToDiagramCreator,
+  useUpdateNodeToNewDiagram,
 } from "./state/fileSystemActions";
 import NewTab from "./components/NewTab";
 import DiagramInitializer from "./components/DiagramInitializer";
+import { StateFile } from "./types/FileSystem";
 
 function App() {
   /*
@@ -107,7 +94,12 @@ function App() {
   const openFileInWorkspace = useOpenFileInWorkspace(dispatch, workspace);
   const loadWorkspace = useLoadWorkspace(dispatch);
   const updateNodeToDiagramCreator = useUpdateNodeToDiagramCreator(workspace);
+  const updateNodeToNewDiagram = useUpdateNodeToNewDiagram(
+    dispatch,
+    fileSystem.workspace
+  );
 
+  // aria attr/color
   const renderPanel = useCallback(
     (node: FlexLayout.TabNode) => {
       switch (node.getComponent()) {
@@ -145,7 +137,12 @@ function App() {
                 />
               );
             case "diagram_state":
-              return <DiagramPanel />;
+              return (
+                <DiagramPanel
+                  filePointer={filePointer}
+                  fileContents={fileContents as StateFile}
+                />
+              );
             default:
               console.error("unhandled filePointer type", filePointer.type);
               break;
@@ -159,7 +156,13 @@ function App() {
             />
           );
         case "diagram_initializer":
-          return <DiagramInitializer workspace={workspace} node={node} />;
+          return (
+            <DiagramInitializer
+              workspace={workspace}
+              node={node}
+              updateNodeToNewDiagram={updateNodeToNewDiagram}
+            />
+          );
         case "examples":
           return (
             <ExamplesPanel
@@ -174,6 +177,9 @@ function App() {
               settings={{ vimMode: false, githubUser: null }}
             />
           );
+        default:
+          console.error("unhandled node type", node.getComponent());
+          return <div />;
       }
     },
     [dispatch, fileSystem]

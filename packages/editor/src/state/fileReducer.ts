@@ -1,3 +1,4 @@
+import { Env, stepState } from "@penrose/core";
 import { Actions, DockLocation, Model } from "flexlayout-react";
 import { Dispatch } from "react";
 import { v4 } from "uuid";
@@ -17,7 +18,8 @@ export type FileAction =
   | { type: "UPDATE_LAYOUT"; layout: Model }
   | { type: "SET_WORKSPACE"; workspaceState: IWorkspaceState }
   | { type: "OPEN_FILE"; file: SavedFile; pointer: FilePointer }
-  | { type: "CLOSE_FILE"; id: string };
+  | { type: "CLOSE_FILE"; id: string }
+  | { type: "SET_DOMAIN_CACHE"; domainCache: Env | null };
 
 export type FileDispatcher = Dispatch<FileAction>;
 export function initialFilesState(): IFileSystemState {
@@ -65,6 +67,17 @@ export default function FileReducer(
   action: FileAction
 ): IFileSystemState {
   switch (action.type) {
+    case "SET_DOMAIN_CACHE":
+      return {
+        ...state,
+        workspace: {
+          ...state.workspace,
+          openWorkspace: {
+            ...state.workspace.openWorkspace,
+            domainCache: action.domainCache,
+          },
+        },
+      };
     case "UPDATE_OPEN_FILE":
       // TODO: if example/gist, create new!
       return {

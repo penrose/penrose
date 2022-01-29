@@ -12,7 +12,7 @@ import { BigBlueButton } from "./BlueButton";
 const mapFilterFiles = (openFiles: FilePointerMap, fileType: TrioType) =>
   Object.values(openFiles).filter(({ type }) => type === fileType);
 
-type TrioSelection = {
+export type TrioSelection = {
   substance: FilePointer | null;
   style: FilePointer | null;
   domain: FilePointer | null;
@@ -72,9 +72,11 @@ const FileSelector = ({
 export default function DiagramInitializer({
   workspace,
   node,
+  updateNodeToNewDiagram,
 }: {
   workspace: IWorkspace;
   node: TabNode;
+  updateNodeToNewDiagram(node: TabNode, trioSelection: TrioSelection): void;
 }) {
   const [trio, setTrio] = useState<TrioSelection>({
     substance: null,
@@ -107,7 +109,10 @@ export default function DiagramInitializer({
           fileType="substance"
         />
       </div>
-      <BigBlueButton disabled={Object.values(trio).includes(null)}>
+      <BigBlueButton
+        onClick={() => updateNodeToNewDiagram(node, trio)}
+        disabled={Object.values(trio).includes(null)}
+      >
         create
       </BigBlueButton>
     </div>
