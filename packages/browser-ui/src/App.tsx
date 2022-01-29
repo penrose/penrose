@@ -14,12 +14,41 @@ import {
   variationSeeds,
 } from "@penrose/core";
 import Inspector from "inspector/Inspector";
+import animalNameList from "animals";
+import colorNameList from "color-name-list";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import seedrandom from "seedrandom";
 import ButtonBar from "ui/ButtonBar";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
+
+// all one-word colors
+const colors: string[] = (
+  colorNameList as unknown as { colorNameList: { name: string }[] }
+).colorNameList // TypeScript is weird about this import so we must assert :(
+  .map(({ name }) => name)
+  .filter((color) => /^[A-Z][a-z]+$/.test(color));
+
+// all one-word animals, with first letter capitalized
+const animals: string[] = animalNameList.words
+  .filter((animal: string) => /^[a-z]+$/.test(animal))
+  .map((animal: string) => animal.charAt(0).toUpperCase() + animal.slice(1));
+
+// min and max are both inclusive
+const randInt = (min: number, max: number) =>
+  Math.floor(Math.random() * (max + 1 - min)) + min;
+
+const choose = (list: string[]) =>
+  list[Math.floor(Math.random() * list.length)];
+
+const generateVariation = () => {
+  const numDigits = randInt(3, 5);
+  const digits: number[] = [];
+  for (let i = 0; i < numDigits; i++) {
+    digits.push(randInt(0, 9));
+  }
+  return `${choose(colors)}${choose(animals)}${digits.join("")}`;
+};
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
@@ -78,7 +107,7 @@ class App extends React.Component<unknown, ICanvasState> {
       autostep: false,
       showInspector: true,
       autoStepSize: 50,
-      variation: "tfJ7rRKHjH",
+      variation: "ChartreuseEchidna7291",
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -219,16 +248,7 @@ class App extends React.Component<unknown, ICanvasState> {
   };
 
   public resample = async (): Promise<void> => {
-    // https://stackoverflow.com/a/36294356
-    const chars = "bcdfghjkmpqrtvwxyBCDFGHJKMPQRTVWXY346789";
-
-    const arr: string[] = [];
-    for (let i = 0; i < 10; ++i) {
-      arr.push(chars[Math.floor(Math.random() * chars.length)]);
-    }
-
-    this.state.settings.variation = arr.join("");
-
+    this.state.settings.variation = generateVariation();
     const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });

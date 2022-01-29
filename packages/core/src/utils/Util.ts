@@ -60,7 +60,7 @@ export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
     throw Error("expected same # elements in both arrays");
   }
   const a: [T1, T2][] = [];
-  for (let i = 0; i < l; ++i) {
+  for (let i = 0; i < l; i++) {
     a.push([a1[i], a2[i]]);
   }
   return a;
@@ -79,7 +79,7 @@ export const zip3 = <T1, T2, T3>(
     throw Error("expected same # elements in all three arrays");
   }
   const a: [T1, T2, T3][] = [];
-  for (let i = 0; i < l; ++i) {
+  for (let i = 0; i < l; i++) {
     a.push([a1[i], a2[i], a3[i]]);
   }
   return a;
