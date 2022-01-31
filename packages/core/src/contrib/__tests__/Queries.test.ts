@@ -19,7 +19,9 @@ import { makeEllipse } from "shapes/Ellipse";
 import { makePath } from "shapes/Path";
 import { makeLine } from "shapes/Line";
 import { makePolygon } from "shapes/Polygon";
+import seedrandom from "seedrandom";
 
+const rng = seedrandom("Queries");
 const canvas = makeCanvas(800, 700);
 const precisionDigits = 10;
 
@@ -27,7 +29,7 @@ const shapes: [string, any][] = [
   // shapes[0]
   [
     "Rectangle",
-    makeRectangle(canvas, {
+    makeRectangle(rng, canvas, {
       center: VectorV([11, 22].map(constOf)),
       width: FloatV(constOf(44)),
       height: FloatV(constOf(44)),
@@ -38,7 +40,7 @@ const shapes: [string, any][] = [
   // shapes[1]
   [
     "Circle",
-    makeCircle(canvas, {
+    makeCircle(rng, canvas, {
       r: FloatV(constOf(22)),
       center: VectorV([11, 22].map(constOf)),
       strokeWidth: FloatV(constOf(0)),
@@ -48,7 +50,7 @@ const shapes: [string, any][] = [
   // shapes[2]
   [
     "Ellipse",
-    makeEllipse(canvas, {
+    makeEllipse(rng, canvas, {
       rx: FloatV(constOf(22)),
       ry: FloatV(constOf(22)),
       center: VectorV([11, 22].map(constOf)),
@@ -59,8 +61,8 @@ const shapes: [string, any][] = [
   // shapes[3]
   [
     "Path",
-    makePath(canvas, {
-      d: compDict.pathFromPoints("open", [
+    makePath(rng, canvas, {
+      d: compDict.pathFromPoints({ rng }, "open", [
         [constOf(-11), constOf(0)],
         [constOf(33), constOf(0)],
         [constOf(33), constOf(44)],
@@ -70,7 +72,7 @@ const shapes: [string, any][] = [
   // shapes[4]
   [
     "Line",
-    makeLine(canvas, {
+    makeLine(rng, canvas, {
       start: VectorV([-11, 0].map(constOf)),
       end: VectorV([33, 44].map(constOf)),
       strokeWidth: FloatV(constOf(0)),
@@ -79,7 +81,7 @@ const shapes: [string, any][] = [
   // shapes[5]
   [
     "Polygon",
-    makePolygon(canvas, {
+    makePolygon(rng, canvas, {
       points: PtListV(
         [
           [-11, 0],

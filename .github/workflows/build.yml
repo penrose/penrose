@@ -114,6 +114,8 @@ jobs:
         uses: ./.github/actions/packages
       - name: Make test report dir
         run: mkdir -p reports/junit
+      - name: Delete the diagrams we're about to generate
+        run: rm -r "$GITHUB_WORKSPACE"/diagrams/
       - name: Run core tests and generate test data
         run: yarn coverage --ci --runInBand --reporters=default --reporters=jest-junit
       - name: Move test report
@@ -126,7 +128,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: diagrams
-          path: /tmp/diagrams/
+          path: diagrams/
       - uses: actions/upload-artifact@v2
         with:
           name: junit
@@ -135,6 +137,9 @@ jobs:
         with:
           name: coverage
           path: packages/core/coverage
+      - name: Ensure no generated diagrams have changed
+        run: |
+          "$GITHUB_WORKSPACE/.github/report_git_status.sh"
 
   typedocs:
     runs-on: ubuntu-latest

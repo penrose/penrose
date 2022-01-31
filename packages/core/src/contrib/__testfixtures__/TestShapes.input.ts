@@ -10,7 +10,9 @@ import { makeRectangle } from "shapes/Rectangle";
 import { makeCircle } from "shapes/Circle";
 import { makePolygon } from "shapes/Polygon";
 import { makeLine } from "shapes/Line";
+import seedrandom from "seedrandom";
 
+const rng = seedrandom("TestShapes.input");
 const canvas = makeCanvas(800, 700);
 
 export const _rectangles = [
@@ -19,7 +21,7 @@ export const _rectangles = [
   { center: [200, 0], width: 200, height: 200 },
   { center: [0, 300], width: 200, height: 200 },
 ].map((x) =>
-  makeRectangle(canvas, {
+  makeRectangle(rng, canvas, {
     center: VectorV(x.center.map(constOf)),
     width: FloatV(constOf(x.width)),
     height: FloatV(constOf(x.height)),
@@ -37,7 +39,7 @@ export const _circles = [
   { center: [150, 150], r: 50 },
   { center: [150, 150], r: 100 },
 ].map((x) =>
-  makeCircle(canvas, {
+  makeCircle(rng, canvas, {
     r: FloatV(constOf(x.r)),
     center: VectorV(x.center.map(constOf)),
     strokeWidth: FloatV(constOf(0)),
@@ -51,7 +53,7 @@ export const _lines = [
   { start: [100, 300], end: [400, 300] },
   { start: [200, 400], end: [300, 100] },
 ].map((x) =>
-  makeLine(canvas, {
+  makeLine(rng, canvas, {
     start: VectorV(x.start.map(constOf)),
     end: VectorV(x.end.map(constOf)),
     strokeWidth: FloatV(constOf(0)),
@@ -89,7 +91,7 @@ export const _polygons = [
     [100, 200],
   ],
 ].map((pts) =>
-  makePolygon(canvas, {
+  makePolygon(rng, canvas, {
     points: PtListV(pts.map((p) => p.map(constOf))),
     scale: FloatV(constOf(1)),
   })

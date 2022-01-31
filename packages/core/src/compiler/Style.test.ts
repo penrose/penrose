@@ -9,6 +9,7 @@ import {
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
+import seedrandom from "seedrandom";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
@@ -326,7 +327,12 @@ describe("Compiler", () => {
 
     for (const styProg of styProgs) {
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(canvasPreamble + styProg, ...res),
+        (res) =>
+          S.compileStyle(
+            "Style compiler correctness test seed",
+            canvasPreamble + styProg,
+            ...res
+          ),
         subRes
       );
 
@@ -389,7 +395,12 @@ describe("Compiler", () => {
     const testStyProgForError = (styProg: string, errorType: string) => {
       let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
       const styRes: Result<State, PenroseError> = andThen(
-        (res) => S.compileStyle(preamble + styProg, ...res),
+        (res) =>
+          S.compileStyle(
+            "Style compiler errors test seed",
+            preamble + styProg,
+            ...res
+          ),
         subRes
       );
       describe(errorType, () => {

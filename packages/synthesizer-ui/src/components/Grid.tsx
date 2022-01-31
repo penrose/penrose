@@ -68,6 +68,7 @@ export class Grid extends React.Component<GridProps, GridState> {
         style={this.props.style}
         progNumber={i}
         substance={s}
+        variation={i.toString()}
         updateSrcProg={this.setSrcState}
         srcState={this.state.srcState}
         onStaged={this.props.onStaged}

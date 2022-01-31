@@ -9,11 +9,13 @@ import {
   stepUntilConvergence,
 } from "@penrose/core";
 import fetchResolver from "./fetchPathResolver";
+import seedrandom from "seedrandom";
 
 export interface ISimpleProps {
   domainString: string;
   substanceString: string;
   styleString: string;
+  variation: string;
   initState?: PenroseState;
 }
 
@@ -30,11 +32,20 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   getInitState = async (
     dsl: string,
     sub: string,
-    sty: string
+    sty: string,
+    variation: string
   ): Promise<PenroseState | undefined> => {
-    const compilerResult = compileTrio(dsl, sub, sty);
+    const compilerResult = compileTrio({
+      substance: sub,
+      style: sty,
+      domain: dsl,
+      variation,
+    });
     if (compilerResult.isOk()) {
-      const initState: PenroseState = await prepareState(compilerResult.value);
+      // resample because initial sampling did not use the special sampling seed
+      const initState: PenroseState = resample(
+        await prepareState(compilerResult.value)
+      );
       const stepped = stepUntilConvergence(initState);
       if (stepped.isOk()) {
         return stepped.value;
@@ -46,11 +57,17 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
     }
   };
   componentDidMount = async () => {
-    const { substanceString, styleString, domainString } = this.props;
+    const {
+      substanceString,
+      styleString,
+      domainString,
+      variation,
+    } = this.props;
     const state: PenroseState | undefined = await this.getInitState(
       domainString,
       substanceString,
-      styleString
+      styleString,
+      variation
     );
     this.setState({ state });
     this.renderCanvas(state);
@@ -90,10 +107,9 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   };
 
   resampleState = (): void => {
-    const NUM_SAMPLES = 1;
     const { state: oldState } = this.state;
     if (oldState) {
-      const resampled = resample(oldState, NUM_SAMPLES);
+      const resampled = resample(oldState);
       const converged = stepUntilConvergence(resampled);
       const newState = converged.unsafelyUnwrap();
       this.setState({ state: newState });

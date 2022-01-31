@@ -11,13 +11,50 @@ import {
   stateInitial,
   stepState,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
 import Inspector from "inspector/Inspector";
+import animalNameList from "animals";
+import colorNameList from "color-name-list";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
+
+//#region variation generation
+
+// TODO: maybe factor this code out into its own module
+
+// all one-word colors
+const colors: string[] = ((colorNameList as unknown) as {
+  colorNameList: { name: string }[];
+}).colorNameList // TypeScript is weird about this import so we must assert :(
+  .map(({ name }) => name)
+  .filter((color) => /^[A-Z][a-z]+$/.test(color));
+
+// all one-word animals, with first letter capitalized
+const animals: string[] = animalNameList.words
+  .filter((animal: string) => /^[a-z]+$/.test(animal))
+  .map((animal: string) => animal.charAt(0).toUpperCase() + animal.slice(1));
+
+// min and max are both inclusive
+const randInt = (min: number, max: number) =>
+  Math.floor(Math.random() * (max + 1 - min)) + min;
+
+const choose = (list: string[]) =>
+  list[Math.floor(Math.random() * list.length)];
+
+const generateVariation = () => {
+  const numDigits = randInt(3, 5);
+  const digits: number[] = [];
+  for (let i = 0; i < numDigits; i++) {
+    digits.push(randInt(0, 9));
+  }
+  return `${choose(colors)}${choose(animals)}${digits.join("")}`;
+};
+
+//#endregion
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
@@ -46,6 +83,7 @@ export interface ISettings {
   showInspector: boolean;
   autostep: boolean;
   autoStepSize: number;
+  variation: string;
 }
 
 interface ICanvasState {
@@ -75,6 +113,7 @@ class App extends React.Component<unknown, ICanvasState> {
       autostep: false,
       showInspector: true,
       autoStepSize: 50,
+      variation: "ChartreuseEchidna7291",
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
@@ -204,12 +243,25 @@ class App extends React.Component<unknown, ICanvasState> {
     }
   };
 
-  public resample = async (): Promise<void> => {
-    const NUM_SAMPLES = 1;
+  public reset = async (): Promise<void> => {
     const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });
-      const resampled = resample(oldState, NUM_SAMPLES);
+      oldState.seeds = variationSeeds(this.state.settings.variation).seeds;
+      const resampled = resample(oldState);
+      void this.onCanvasState(resampled);
+    }
+  };
+
+  public resample = async (): Promise<void> => {
+    const variation = generateVariation();
+    const newSettings = { ...this.state.settings, variation };
+    this.setSettings(newSettings);
+    const oldState = this.state.currentState;
+    if (oldState) {
+      this.setState({ processedInitial: false });
+      oldState.seeds = variationSeeds(variation).seeds;
+      const resampled = resample(oldState);
       void this.onCanvasState(resampled);
     }
   };
@@ -220,14 +272,18 @@ class App extends React.Component<unknown, ICanvasState> {
 
     // TODO: does `processedInitial` need to be set?
     this.setState({ processedInitial: false });
-    const compileRes = compileTrio(
-      domain.contents,
-      substance.contents,
-      style.contents
-    );
+    const compileRes = compileTrio({
+      substance: substance.contents,
+      style: style.contents,
+      domain: domain.contents,
+      variation: this.state.settings.variation,
+    });
     if (compileRes.isOk()) {
       try {
-        const initState: PenroseState = await prepareState(compileRes.value);
+        // resample because initial sampling did not use the special sampling seed
+        const initState: PenroseState = resample(
+          await prepareState(compileRes.value)
+        );
         void this.onCanvasState(initState);
       } catch (e) {
         const error: PenroseError = {
@@ -344,6 +400,7 @@ class App extends React.Component<unknown, ICanvasState> {
             autostep={settings.autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}
+            reset={this.reset}
             resample={this.resample}
             converged={data ? stateConverged(data) : false}
             initial={data ? stateInitial(data) : false}
@@ -381,6 +438,7 @@ class App extends React.Component<unknown, ICanvasState> {
                 modCanvas={this.modCanvas}
                 settings={settings}
                 setSettings={this.setSettings}
+                reset={this.reset}
               />
             ) : (
               <div />

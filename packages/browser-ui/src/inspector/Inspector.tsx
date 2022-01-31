@@ -5,6 +5,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import viewMap from "./views/viewMap";
 import { PenroseError, PenroseState } from "@penrose/core";
 import { ISettings } from "App";
+import IViewProps from "./views/IViewProps";
 
 interface IProps {
   currentState: PenroseState | undefined;
@@ -14,6 +15,7 @@ interface IProps {
   modCanvas(state: PenroseState): void;
   settings: ISettings;
   setSettings(ISettings): void;
+  reset(): void;
 }
 
 export interface IInspectState {
@@ -52,6 +54,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
       error,
       settings,
       setSettings,
+      reset,
     } = this.props;
     /*
     const currentFrame =
@@ -61,16 +64,17 @@ class Inspector extends React.Component<IProps, IInspectState> {
         ? history[history.length - 1]
         : history[selectedFrame];
     */
-    const commonProps = {
+    const commonProps: IViewProps = {
       selectFrame: this.selectFrame,
       // frame: currentFrame,
-      frame: currentState, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
+      frame: currentState ?? null, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
       frameIndex: selectedFrame,
       history,
       modShapes: modCanvas,
       error,
       settings,
       setSettings,
+      reset,
     };
     return (
       <div

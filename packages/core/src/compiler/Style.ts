@@ -33,8 +33,9 @@ import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
+import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { A, C, Identifier } from "types/ast";
 import { Either, Just, Left, MaybeVal, Right } from "types/common";
@@ -112,7 +113,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { prettyPrintPath, randFloat, zip2 } from "utils/Util";
+import { prettyPrintPath, randFloat, variationSeeds, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -2726,6 +2727,7 @@ const isFieldOrAccessPath = (p: Path<A>): boolean => {
 // varying init paths are separated out and initialized with the value specified by the style writer
 // NOTE: Mutates translation
 const initFieldsAndAccessPaths = (
+  rng: seedrandom.prng,
   varyingPaths: Path<A>[],
   tr: Translation
 ): Translation => {
@@ -2735,7 +2737,7 @@ const initFieldsAndAccessPaths = (
   const initVals = varyingFieldsAndAccessPaths.map(
     (p: Path<A>): TagExpr<VarAD> => {
       // by default, sample randomly in canvas X range
-      let initVal = randFloat(...canvas.xRange);
+      let initVal = randFloat(rng, ...canvas.xRange);
 
       // unless it's a VaryInit, in which case, don't sample, set to the init value
       // TODO: This could technically use `varyingInitPathsAndVals`?
@@ -2824,6 +2826,7 @@ const mkShapeName = (s: string, f: Field): string => {
 
 // COMBAK: This will require `getNames` to work
 const initShape = (
+  rng: seedrandom.prng,
   tr: Translation,
   [n, field]: [string, Field]
 ): Translation => {
@@ -2832,11 +2835,12 @@ const initShape = (
 
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents;
+    const shapedef: ShapeDef = shapedefs[stype];
     const instantiatedGPIProps: GPIProps<VarAD> = {
       // start by sampling all properties for the shape according to its shapedef
       ...Object.fromEntries(
         Object.entries(
-          shapedefs[stype].sampler(getCanvas(tr))
+          shapedef.sampler(rng, getCanvas(tr))
         ).map(([propName, contents]) => [
           propName,
           { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
@@ -2874,8 +2878,12 @@ const initShape = (
   } else throw Error("expected GPI but got field");
 };
 
-const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
-  return pths.reduce(initShape, tr);
+const initShapes = (
+  rng: seedrandom.prng,
+  tr: Translation,
+  pths: [string, string][]
+): Translation => {
+  return pths.reduce((tr, pth) => initShape(rng, tr, pth), tr);
 };
 
 //#region layering
@@ -3008,7 +3016,12 @@ const isVaryingInitPath = <T>(
 // ---- MAIN FUNCTION
 
 // COMBAK: Add optConfig as param?
-const genState = (trans: Translation): Result<State, StyleErrors> => {
+const genState = (
+  variation: string,
+  trans: Translation
+): Result<State, StyleErrors> => {
+  const { rng, seeds } = variationSeeds(variation);
+
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
   const varyingInitPathsAndVals: [Path<A>, number][] = (varyingPaths
@@ -3034,10 +3047,14 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
 
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
-  const transInitShapes = initShapes(trans, shapePathList);
+  const transInitShapes = initShapes(rng, trans, shapePathList);
 
   // sample varying fields and access paths, and put them in the translation
-  const transInitAll = initFieldsAndAccessPaths(varyingPaths, transInitShapes);
+  const transInitAll = initFieldsAndAccessPaths(
+    rng,
+    varyingPaths,
+    transInitShapes
+  );
 
   // CHECK TRANSLATION
   // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
@@ -3064,7 +3081,9 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
   const pendingPaths = findPending(transInitAll);
   const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
-  const initState = {
+  const initState: State = {
+    seeds,
+
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapePaths,
     shapeProperties,
@@ -3336,6 +3355,7 @@ export const getCanvas = (tr: Translation): Canvas => {
 };
 
 export const compileStyle = (
+  variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
@@ -3399,7 +3419,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleErrors> = genState(trans);
+  const initState: Result<State, StyleErrors> = genState(variation, trans);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {

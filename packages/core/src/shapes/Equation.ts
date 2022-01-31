@@ -24,11 +24,14 @@ export interface IEquation
     IRotate,
     IString {}
 
-export const sampleEquation = (canvas: Canvas): IEquation => ({
+export const sampleEquation = (
+  rng: seedrandom.prng,
+  canvas: Canvas
+): IEquation => ({
   name: StrV("defaultEquation"),
   style: StrV(""),
   fillColor: sampleBlack(),
-  center: sampleVector(canvas),
+  center: sampleVector(rng, canvas),
   width: sampleZero(),
   height: sampleZero(),
   rotation: sampleZero(),
@@ -40,10 +43,11 @@ export const sampleEquation = (canvas: Canvas): IEquation => ({
 export type Equation = IShape & { shapeType: "Equation" } & IEquation;
 
 export const makeEquation = (
+  rng: seedrandom.prng,
   canvas: Canvas,
   properties: Partial<IEquation>
 ): Equation => ({
-  ...sampleEquation(canvas),
+  ...sampleEquation(rng, canvas),
   ...properties,
   shapeType: "Equation",
 });

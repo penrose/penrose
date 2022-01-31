@@ -29,6 +29,7 @@ import { useParams } from "react-router-dom";
 import StylePane from "./StylePane";
 import SubstancePane from "./SubstancePane";
 import DomainPane from "./DomainPane";
+import seedrandom from "seedrandom";
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -159,12 +160,18 @@ function App({ location }: any) {
   const compile = useCallback(() => {
     try {
       const { sub, sty, dsl } = state.currentInstance;
-      const compileRes = compileTrio(dsl, sub, sty);
+      const compileRes = compileTrio({
+        substance: sub,
+        style: sty,
+        domain: dsl,
+        variation: Math.random().toString(), // TODO: make this seed configurable in the UI
+      });
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
         dispatch({ kind: "CHANGE_ERROR", content: null });
         (async () => {
-          const initState = await prepareState(compileRes.value);
+          // resample because initial sampling did not use the special sampling seed
+          const initState = resample(await prepareState(compileRes.value));
           convergeRenderState(initState);
         })();
       } else {
@@ -179,9 +186,8 @@ function App({ location }: any) {
   }, [state, convergeRenderState]);
 
   const onResample = useCallback(() => {
-    const NUM_SAMPLES = 1;
     if (state.currentInstance.state) {
-      const resampled = resample(state.currentInstance.state, NUM_SAMPLES);
+      const resampled = resample(state.currentInstance.state);
       convergeRenderState(resampled);
     }
   }, [state, convergeRenderState]);

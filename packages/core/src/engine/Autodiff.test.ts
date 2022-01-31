@@ -33,6 +33,7 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions";
+import seedrandom from "seedrandom";
 
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 
@@ -101,6 +102,8 @@ const assert = (b: boolean, s: any[]) => {
 };
 
 const testGradFiniteDiff = () => {
+  const rng = seedrandom("testGradFiniteDiff");
+
   // Only tests with hardcoded functions
   const f = (ys: number[]) => _.sum(_.map(ys, (e: number) => e * e));
   const df = (ys: number[]) => _.map(ys, (e: number) => 2 * e);
@@ -108,7 +111,7 @@ const testGradFiniteDiff = () => {
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xs = randList(4);
+    const xs = randList(rng, 4);
     const gradEstRes = _gradFiniteDiff(f)(xs);
     const expectedRes = df(xs);
     const testRes = eqList(gradEstRes, expectedRes);
@@ -275,6 +278,8 @@ const gradGraph7 = (): GradGraphs => {
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
+  const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
+
   // Synthesize energy and gradient code
   const f0 = _genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = _genCode(
@@ -302,7 +307,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xsTest = randList(graphs.inputs.length);
+    const xsTest = randList(rng, graphs.inputs.length);
     const energyRes = f(xsTest);
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);

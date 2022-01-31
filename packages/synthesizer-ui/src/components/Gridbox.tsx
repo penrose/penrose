@@ -22,11 +22,13 @@ import {
   Chip,
   Button,
 } from "@material-ui/core";
+import seedrandom from "seedrandom";
 
 export interface GridboxProps {
   domain: string;
   style: string;
   substance: SynthesizedSubstance;
+  variation: string;
   progNumber: number;
   srcState: PenroseState | undefined;
   updateSrcProg: (newState: PenroseState) => void;
@@ -127,6 +129,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       };
 
       try {
+        // resample because initial sampling did not use the special sampling seed
         const energy = evalEnergy(await prepareState(crossState));
         this.setState({
           energy: Math.round(energy),
@@ -142,11 +145,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   // TODO: this should really be put in a web worker, it blocks browser interaction
   async update() {
-    const res = compileTrio(
-      this.props.domain,
-      prettySubstance(this.props.substance.prog),
-      this.props.style
-    );
+    const res = compileTrio({
+      substance: prettySubstance(this.props.substance.prog),
+      style: this.props.style,
+      domain: this.props.domain,
+      variation: this.props.variation,
+    });
     if (res.isOk()) {
       try {
         // https://stackoverflow.com/a/19626821
@@ -154,8 +158,9 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         // component is rendered in an array, we want to delay ALL componentDidMount calls until
         // after ALL gridboxes have been initially rendered.
         await new Promise((r) => setTimeout(r, 1));
-        let state = await prepareState(res.value);
-        state = resample(state, 1);
+        // resample because initial sampling did not use the special sampling seed
+        let state = resample(await prepareState(res.value));
+        state = resample(state);
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {
           console.log(showError(opt.error));

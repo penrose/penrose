@@ -37,10 +37,17 @@ const showValue = (prop, def1, def2) => {
 };
 
 export default function _ShapeProps({ shapeName }) {
+  const shapedef = shapedefs[shapeName];
   // HACK from main repo
   const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
-  const def = shapedefs[shapeName].sampler(makeCanvas(size, size));
-  const def_sample = shapedefs[shapeName].sampler(makeCanvas(size, size));
+  const def = shapedef.sampler(
+    seedrandom("_ShapeProps def"),
+    makeCanvas(size, size)
+  );
+  const def_sample = shapedef.sampler(
+    seedrandom("_ShapeProps def_sample"),
+    makeCanvas(size, size)
+  );
   return (
     <table>
       <thead>
