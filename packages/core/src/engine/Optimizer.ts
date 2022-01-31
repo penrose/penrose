@@ -210,6 +210,8 @@ export const step = (
             ...state,
             params: {
               ...state.params,
+              currObjective: state.params.objective(initConstraintWeight),
+              currGradient: state.params.gradient(initConstraintWeight),
               weight: initConstraintWeight,
               UOround: 0,
               EPround: 0,
