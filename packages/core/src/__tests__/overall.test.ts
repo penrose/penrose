@@ -137,24 +137,31 @@ describe("Determinism", () => {
       fail(showError(resCompile.error));
     }
 
-    const resOptimize1 = stepUntilConvergence(
-      resample(await prepareState(resCompile.value))
-    );
+    const state1NotOpt = resample(await prepareState(resCompile.value));
+    const svg1NotOpt = await render(state1NotOpt);
+
+    const resOptimize1 = stepUntilConvergence(state1NotOpt);
     if (resOptimize1.isErr()) {
       fail(showError(resOptimize1.error));
     }
-    const state1 = resOptimize1.value;
-    const svg1 = await render(state1);
+    const state1Opt = resOptimize1.value;
+    const svg1Opt = await render(state1Opt);
 
-    state1.seeds = variationSeeds(variation).seeds;
-    const resOptimize2 = stepUntilConvergence(resample(state1));
+    state1Opt.seeds = variationSeeds(variation).seeds;
+
+    const state2NotOpt = resample(state1Opt);
+    const svg2NotOpt = await render(state2NotOpt);
+
+    const resOptimize2 = stepUntilConvergence(state2NotOpt);
     if (resOptimize2.isErr()) {
       fail(showError(resOptimize2.error));
     }
-    const state2 = resOptimize2.value;
-    const svg2 = await render(state2);
+    const state2Opt = resOptimize2.value;
+    const svg2Opt = await render(state2Opt);
 
-    expect(svg1).toBe(svg2);
+    expect(svg1NotOpt).not.toBe(svg1Opt);
+    expect(svg1NotOpt).toBe(svg2NotOpt);
+    expect(svg1Opt).toBe(svg2Opt);
   });
 });
 
