@@ -12,6 +12,7 @@ import {
   resample,
   showError,
   stepUntilConvergence,
+  variationSeeds,
 } from "../index";
 import { State } from "../types/state";
 
@@ -77,58 +78,94 @@ describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
     (await RenderStatic(state, async () => null)).outerHTML;
 
-  test("correct - subsets", async () => {
+  test("prepare, optimize, resample", async () => {
     const resCompile = compileTrio({
       substance: "Set A, B\nIsSubset(B, A)\nAutoLabel All",
       style: vennStyle,
       domain: setDomain,
       variation: "determinism",
     });
-    if (resCompile.isOk()) {
-      const stateSample1NotOpt = await prepareState(resCompile.value);
-      const svgSample1NotOpt = await render(stateSample1NotOpt);
-
-      const resSample1Opt = stepUntilConvergence(stateSample1NotOpt);
-      if (resSample1Opt.isErr()) {
-        fail(showError(resSample1Opt.error));
-      }
-      const stateSample1Opt = resSample1Opt.value;
-      const svgSample1Opt = await render(stateSample1Opt);
-
-      const stateSample2NotOpt = resample(stateSample1Opt);
-      const svgSample2NotOpt = await render(stateSample2NotOpt);
-
-      const resSample2Opt = stepUntilConvergence(stateSample2NotOpt);
-      if (resSample2Opt.isErr()) {
-        fail(showError(resSample2Opt.error));
-      }
-      const stateSample2Opt = resSample2Opt.value;
-      const svgSample2Opt = await render(stateSample2Opt);
-
-      const stateSample3NotOpt = resample(stateSample2Opt);
-      const svgSample3NotOpt = await render(stateSample3NotOpt);
-
-      const resSample3Opt = stepUntilConvergence(stateSample3NotOpt);
-      if (resSample3Opt.isErr()) {
-        fail(showError(resSample3Opt.error));
-      }
-      const stateSample3Opt = resSample3Opt.value;
-      const svgSample3Opt = await render(stateSample3Opt);
-
-      expect(svgSample1NotOpt).not.toBe(svgSample1Opt); // optimization does something
-      expect(svgSample1NotOpt).not.toBe(svgSample2NotOpt); // resampling is different from initial sampling
-      expect(svgSample1NotOpt).not.toBe(svgSample2Opt); // optimizing resample doesn't get us back
-
-      expect(svgSample1Opt).not.toBe(svgSample2NotOpt); // resampling is different from optimization
-      expect(svgSample1Opt).not.toBe(svgSample2Opt); // different starts, different ends
-
-      expect(svgSample2NotOpt).not.toBe(svgSample2Opt); // optimization does something
-      expect(svgSample2NotOpt).toBe(svgSample3NotOpt); // resampling is idempotent
-
-      expect(svgSample2Opt).toBe(svgSample3Opt); // optimization is deterministic
-    } else {
+    if (resCompile.isErr()) {
       fail(showError(resCompile.error));
     }
+    const stateSample1NotOpt = await prepareState(resCompile.value);
+    const svgSample1NotOpt = await render(stateSample1NotOpt);
+
+    const resSample1Opt = stepUntilConvergence(stateSample1NotOpt);
+    if (resSample1Opt.isErr()) {
+      fail(showError(resSample1Opt.error));
+    }
+    const stateSample1Opt = resSample1Opt.value;
+    const svgSample1Opt = await render(stateSample1Opt);
+
+    const stateSample2NotOpt = resample(stateSample1Opt);
+    const svgSample2NotOpt = await render(stateSample2NotOpt);
+
+    const resSample2Opt = stepUntilConvergence(stateSample2NotOpt);
+    if (resSample2Opt.isErr()) {
+      fail(showError(resSample2Opt.error));
+    }
+    const stateSample2Opt = resSample2Opt.value;
+    const svgSample2Opt = await render(stateSample2Opt);
+
+    const stateSample3NotOpt = resample(stateSample2Opt);
+    const svgSample3NotOpt = await render(stateSample3NotOpt);
+
+    const resSample3Opt = stepUntilConvergence(stateSample3NotOpt);
+    if (resSample3Opt.isErr()) {
+      fail(showError(resSample3Opt.error));
+    }
+    const stateSample3Opt = resSample3Opt.value;
+    const svgSample3Opt = await render(stateSample3Opt);
+
+    expect(svgSample1NotOpt).not.toBe(svgSample1Opt); // optimization does something
+    expect(svgSample1NotOpt).not.toBe(svgSample2NotOpt); // resampling is different from initial sampling
+    expect(svgSample1NotOpt).not.toBe(svgSample2Opt); // optimizing resample doesn't get us back
+
+    expect(svgSample1Opt).not.toBe(svgSample2NotOpt); // resampling is different from optimization
+    expect(svgSample1Opt).not.toBe(svgSample2Opt); // different starts, different ends
+
+    expect(svgSample2NotOpt).not.toBe(svgSample2Opt); // optimization does something
+    expect(svgSample2NotOpt).toBe(svgSample3NotOpt); // resampling is idempotent
+
+    expect(svgSample2Opt).toBe(svgSample3Opt); // optimization is deterministic
+  });
+
+  test("reset", async () => {
+    const variation = "LaharHippopotamus14702";
+
+    const resCompile = compileTrio({
+      substance: fs
+        .readFileSync(
+          path.join(EXAMPLES, "set-theory-domain", "twosets-simple.sub")
+        )
+        .toString(),
+      style: vennStyle,
+      domain: setDomain,
+      variation,
+    });
+    if (resCompile.isErr()) {
+      fail(showError(resCompile.error));
+    }
+
+    const resOptimize1 = stepUntilConvergence(
+      resample(await prepareState(resCompile.value))
+    );
+    if (resOptimize1.isErr()) {
+      fail(showError(resOptimize1.error));
+    }
+    const state1 = resOptimize1.value;
+    const svg1 = await render(state1);
+
+    state1.seeds = variationSeeds(variation).seeds;
+    const resOptimize2 = stepUntilConvergence(resample(state1));
+    if (resOptimize2.isErr()) {
+      fail(showError(resOptimize2.error));
+    }
+    const state2 = resOptimize2.value;
+    const svg2 = await render(state2);
+
+    expect(svg1).toBe(svg2);
   });
 });
 
