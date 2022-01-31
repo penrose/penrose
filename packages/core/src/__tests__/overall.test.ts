@@ -78,13 +78,13 @@ describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
     (await RenderStatic(state, async () => null)).outerHTML;
 
+  const substance = "Set A, B\nIsSubset(B, A)\nAutoLabel All";
+  const style = vennStyle;
+  const domain = setDomain;
+  const variation = "determinism";
+
   test("prepare, optimize, resample", async () => {
-    const resCompile = compileTrio({
-      substance: "Set A, B\nIsSubset(B, A)\nAutoLabel All",
-      style: vennStyle,
-      domain: setDomain,
-      variation: "determinism",
-    });
+    const resCompile = compileTrio({ substance, style, domain, variation });
     if (resCompile.isErr()) {
       fail(showError(resCompile.error));
     }
@@ -132,18 +132,7 @@ describe("Determinism", () => {
   });
 
   test("reset", async () => {
-    const variation = "LaharHippopotamus14702";
-
-    const resCompile = compileTrio({
-      substance: fs
-        .readFileSync(
-          path.join(EXAMPLES, "set-theory-domain", "twosets-simple.sub")
-        )
-        .toString(),
-      style: vennStyle,
-      domain: setDomain,
-      variation,
-    });
+    const resCompile = compileTrio({ substance, style, domain, variation });
     if (resCompile.isErr()) {
       fail(showError(resCompile.error));
     }
