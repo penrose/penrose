@@ -83,7 +83,7 @@ describe("Determinism", () => {
   const domain = setDomain;
   const variation = "determinism";
 
-  test("prepare, optimize, resample", async () => {
+  test("with initial optimization", async () => {
     const resCompile = compileTrio({ substance, style, domain, variation });
     if (resCompile.isErr()) {
       fail(showError(resCompile.error));
@@ -131,7 +131,7 @@ describe("Determinism", () => {
     expect(svgSample2Opt).toBe(svgSample3Opt); // optimization is deterministic
   });
 
-  test("reset", async () => {
+  test("without initial optimization", async () => {
     const resCompile = compileTrio({ substance, style, domain, variation });
     if (resCompile.isErr()) {
       fail(showError(resCompile.error));
