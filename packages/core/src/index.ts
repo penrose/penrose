@@ -44,7 +44,7 @@ import {
 const log = consola.create({ level: LogLevel.Warn }).withScope("Top Level");
 
 /**
- * Resample all shapes in the state.
+ * Use the current resample seed to sample all shapes in the State.
  * @param state current state
  */
 export const resample = (state: State): State => {
