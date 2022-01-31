@@ -16,7 +16,6 @@ import * as neodoc from "neodoc";
 import { join } from "path";
 import { A } from "@penrose/core/build/dist/types/ast";
 
-
 const USAGE = `
 Penrose Synthesizer.
 

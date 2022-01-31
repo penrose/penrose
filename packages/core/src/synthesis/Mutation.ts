@@ -354,7 +354,9 @@ export const checkSwapInStmtArgs = (
 export const checkSwapInExprArgs = (
   stmt: SubStmt<A>,
   pickSwap: (options: Decl<A>[]) => Identifier<A>,
-  element: (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => [number, SubProg<A>]
+  element: (
+    p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>
+  ) => [number, SubProg<A>]
 ): SwapInExprArgs | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -368,7 +370,9 @@ export const checkSwapInExprArgs = (
       const arg = expr.args[elem];
       if (arg.tag === "Identifier") {
         const swapOpts = identicalTypeDecls(
-          expr.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
+          expr.args.filter(
+            (id): id is Identifier<A> => id.tag === "Identifier"
+          ),
           prog
         );
         if (swapOpts.length === 0) return undefined;
