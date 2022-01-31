@@ -22,6 +22,10 @@ import SplitPane from "react-split-pane";
 import ButtonBar from "ui/ButtonBar";
 import { FileSocket, FileSocketResult } from "ui/FileSocket";
 
+//#region variation generation
+
+// TODO: maybe factor this code out into its own module
+
 // all one-word colors
 const colors: string[] = ((colorNameList as unknown) as {
   colorNameList: { name: string }[];
@@ -49,6 +53,8 @@ const generateVariation = () => {
   }
   return `${choose(colors)}${choose(animals)}${digits.join("")}`;
 };
+
+//#endregion
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
