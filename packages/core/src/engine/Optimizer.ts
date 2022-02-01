@@ -685,8 +685,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const grad_fx_k = colVec(gradfxs);
 
     const km1 = lbfgsInfo.numUnconstrSteps;
-    const x_km1 = lbfgsInfo.lastState.contents;
-    const grad_fx_km1 = lbfgsInfo.lastGrad.contents;
+    const x_km1 = lbfgsInfo.lastState;
+    const grad_fx_km1 = lbfgsInfo.lastGrad;
     const ss_km2 = lbfgsInfo.s_list;
     const ys_km2 = lbfgsInfo.y_list;
 
