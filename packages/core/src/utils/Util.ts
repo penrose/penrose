@@ -4,7 +4,6 @@ import { zipWith, reduce, times } from "lodash";
 import { Properties } from "types/shape";
 import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
-import { Just, MaybeVal } from "types/common";
 import { VarAD } from "types/ad";
 import { Fn, Seeds, State } from "types/state";
 import { ILine } from "shapes/Line";
@@ -42,14 +41,6 @@ export const repeat = <T>(i: number, x: T): T[] => {
 
 export const all = (xs: boolean[]): boolean =>
   xs.reduce((prev, curr) => prev && curr, true);
-
-export const fromJust = <T>(n: MaybeVal<T>): T => {
-  if (n.tag === "Just") {
-    return n.contents;
-  }
-
-  throw Error("expected value in fromJust but got Nothing");
-};
 
 /**
  * Like _.zip but throws on different length instead of padding with undefined.

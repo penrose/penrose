@@ -1014,8 +1014,8 @@ export const initConstraintWeight = 10e-3;
 const defaultLbfgsMemSize = 17;
 
 export const defaultLbfgsParams: LbfgsParams = {
-  lastState: { tag: "Nothing" },
-  lastGrad: { tag: "Nothing" },
+  lastState: undefined,
+  lastGrad: undefined,
   s_list: [],
   y_list: [],
   numUnconstrSteps: 0,

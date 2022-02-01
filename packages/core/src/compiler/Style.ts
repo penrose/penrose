@@ -38,7 +38,7 @@ import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { A, C, Identifier } from "types/ast";
-import { Either, Just, Left, MaybeVal, Right } from "types/common";
+import { Either, Left, Right } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
   ParseError,
@@ -214,17 +214,6 @@ export function foldM<A, B, C>(
   return resW;
 }
 
-function justs<T>(xs: MaybeVal<T>[]): T[] {
-  return xs
-    .filter((x) => x.tag === "Just")
-    .map((x) => {
-      if (x.tag === "Just") {
-        return x.contents;
-      }
-      throw Error("unexpected"); // Shouldn't happen
-    });
-}
-
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
@@ -319,7 +308,7 @@ const initSelEnv = (): SelEnv => {
     sTypeVarMap: {},
     varProgTypeMap: {},
     skipBlock: false,
-    header: { tag: "Nothing" },
+    header: undefined,
     warnings: [],
     errors: [],
   };
@@ -607,7 +596,7 @@ export const checkSelsAndMakeEnv = (
   const selEnvs: SelEnv[] = prog.map((e) => {
     const res = checkHeader(varEnv, e.header);
     // Put selector AST in just for debugging
-    res.header = { tag: "Just", contents: e.header };
+    res.header = e.header;
     return res;
   });
 
@@ -668,7 +657,7 @@ const couldMatchRels = (
 // COMBAK: return "maybe" if a substitution fails?
 // COMBAK: Add a type for `lv`? It's not used here
 const substituteBform = (
-  lv: MaybeVal<LocalVarSubst>,
+  lv: LocalVarSubst | undefined,
   subst: Subst,
   bform: BindingForm<A>
 ): BindingForm<A> => {
@@ -707,7 +696,7 @@ const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
     case "SEBind": {
       return {
         ...expr,
-        contents: substituteBform({ tag: "Nothing" }, subst, expr.contents),
+        contents: substituteBform(undefined, subst, expr.contents),
       };
     }
     case "SEFunc":
@@ -735,7 +724,7 @@ const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
     case "SEBind": {
       return {
         ...predArg,
-        contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents), // COMBAK: Why is bform here...
+        contents: substituteBform(undefined, subst, predArg.contents), // COMBAK: Why is bform here...
       };
     }
   }
@@ -751,7 +740,7 @@ export const substituteRel = (
       // theta(B := E) |-> theta(B) := theta(E)
       return {
         ...rel,
-        id: substituteBform({ tag: "Nothing" }, subst, rel.id),
+        id: substituteBform(undefined, subst, rel.id),
         expr: substituteExpr(subst, rel.expr),
       };
     }
@@ -765,7 +754,7 @@ export const substituteRel = (
     case "RelField": {
       return {
         ...rel,
-        name: substituteBform({ tag: "Nothing" }, subst, rel.name),
+        name: substituteBform(undefined, subst, rel.name),
       };
     }
   }
@@ -808,13 +797,13 @@ const substitutePath = (
     case "FieldPath": {
       return {
         ...path,
-        name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
+        name: substituteBform(lv, subst, path.name),
       };
     }
     case "PropertyPath": {
       return {
         ...path,
-        name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
+        name: substituteBform(lv, subst, path.name),
       };
     }
     case "LocalVar": {
@@ -1051,12 +1040,12 @@ const substituteLine = (
 const substituteBlock = (
   [subst, si]: [Subst, number],
   [block, bi]: [Block<A>, number],
-  name: MaybeVal<string>
+  name: string | undefined
 ): Block<A> => {
   const lvSubst: LocalVarSubst =
-    name.tag === "Nothing"
+    name === undefined
       ? { tag: "LocalVarId", contents: [bi, si] }
-      : { tag: "NamespaceId", contents: name.contents };
+      : { tag: "NamespaceId", contents: name };
 
   return {
     ...block,
@@ -1452,25 +1441,19 @@ const typesMatched = (
 const matchBvar = (
   subVar: Identifier<A>,
   bf: BindingForm<A>
-): MaybeVal<Subst> => {
+): Subst | undefined => {
   switch (bf.tag) {
     case "StyVar": {
       const newSubst = {};
       newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
-      return {
-        tag: "Just",
-        contents: newSubst,
-      };
+      return newSubst;
     }
     case "SubVar": {
       if (subVar.value === bf.contents.value) {
         // Substance variables matched; comparing string equality
-        return {
-          tag: "Just",
-          contents: {},
-        };
+        return {};
       } else {
-        return { tag: "Nothing" }; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
+        return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
       }
     }
   }
@@ -1482,7 +1465,7 @@ const matchDeclLine = (
   varEnv: Env,
   line: SubStmt<A>,
   decl: DeclPattern<A>
-): MaybeVal<Subst> => {
+): Subst | undefined => {
   if (line.tag === "Decl") {
     const [subT, subVar] = [line.type, line.name];
     const [styT, bvar] = [decl.type, decl.id];
@@ -1494,7 +1477,7 @@ const matchDeclLine = (
   }
 
   // Sty decls only match Sub decls
-  return { tag: "Nothing" };
+  return undefined;
 };
 
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
@@ -1508,7 +1491,10 @@ const matchDecl = (
   const newSubsts = subProg.statements.map((line) =>
     matchDeclLine(varEnv, line, decl)
   );
-  const res = merge(initSubsts, justs(newSubsts)); // TODO inline
+  const res = merge(
+    initSubsts,
+    newSubsts.filter((x): x is Subst => x !== undefined)
+  ); // TODO inline
   // COMBAK: Inline this
   // console.log("substs to combine:", initSubsts, justs(newSubsts));
   // console.log("res", res);
@@ -1837,7 +1823,7 @@ const translateLine = (
 
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
 const translateBlock = (
-  name: MaybeVal<string>,
+  name: string | undefined,
   blockWithNum: [Block<A>, number],
   trans: Translation,
   substWithNum: [Subst, number]
@@ -1860,7 +1846,7 @@ const translateSubstsBlock = (
   return foldM(
     substsNum,
     (trans, substNum) =>
-      translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum),
+      translateBlock(undefined, blockWithNum, trans, substNum),
     trans
   );
 };
@@ -2074,10 +2060,7 @@ const translatePair = (
       const subst = {};
       // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
       return translateBlock(
-        {
-          tag: "Just",
-          contents: hb.header.contents.contents.value,
-        },
+        hb.header.contents.contents.value,
         [hb.block, blockNum],
         trans,
         [subst, 0]
@@ -3002,15 +2985,15 @@ const computeShapeOrdering = (tr: Translation): string[] => {
 const isVaryingInitPath = <T>(
   p: Path<T>,
   tr: Translation
-): [Path<T>, MaybeVal<number>] => {
+): [Path<T>, number | undefined] => {
   const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
   if (res.tag === "OptEval") {
     if (res.contents.tag === "VaryInit") {
-      return [p, { tag: "Just", contents: res.contents.contents }];
+      return [p, res.contents.contents];
     }
   }
 
-  return [p, { tag: "Nothing" }];
+  return [p, undefined];
 };
 
 // ---- MAIN FUNCTION
@@ -3024,12 +3007,12 @@ const genState = (
 
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
-  const varyingInitPathsAndVals: [Path<A>, number][] = (varyingPaths
+  const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
     .map((p) => isVaryingInitPath(p, trans))
     .filter(
-      (tup: [Path<A>, MaybeVal<number>]): boolean => tup[1].tag === "Just"
-    ) as [Path<A>, Just<number>][]) // TODO: Not sure how to get typescript to understand `filter`...
-    .map((tup: [Path<A>, Just<number>]) => [tup[0], tup[1].contents]);
+      (tup: [Path<A>, number | undefined]): tup is [Path<A>, number] =>
+        tup[1] !== undefined
+    ); // TODO: Not sure how to get typescript to understand `filter`...
   const varyingInitInfo: { [pathStr: string]: number } = Object.fromEntries(
     varyingInitPathsAndVals.map((e) => [prettyPrintPath(e[0]), e[1]])
   );

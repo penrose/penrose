@@ -1,13 +1,5 @@
 import { VarAD } from "types/ad";
-import {
-  just,
-  none,
-  variableAD,
-  gvarOf,
-  logAD,
-  EPS_DENOM,
-  noGrad,
-} from "./Autodiff";
+import { variableAD, gvarOf, logAD, EPS_DENOM, noGrad } from "./Autodiff";
 import * as _ from "lodash";
 
 /**
@@ -18,17 +10,17 @@ export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    v.parentsAD.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
+    v.parentsAD.push({ node: z, sensitivityNode: gvarOf(1.0) });
+    w.parentsAD.push({ node: z, sensitivityNode: gvarOf(1.0) });
 
-    z.childrenAD.push({ node: v, sensitivityNode: just(gvarOf(1.0)) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(gvarOf(1.0)) });
+    z.childrenAD.push({ node: v, sensitivityNode: gvarOf(1.0) });
+    z.childrenAD.push({ node: w, sensitivityNode: gvarOf(1.0) });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
   }
 
   return z;
@@ -53,13 +45,13 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
 
     if (isCompNode) {
       for (const x of xs) {
-        x.parentsAD.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
-        z.childrenAD.push({ node: x, sensitivityNode: just(gvarOf(1.0)) });
+        x.parentsAD.push({ node: z, sensitivityNode: gvarOf(1.0) });
+        z.childrenAD.push({ node: x, sensitivityNode: gvarOf(1.0) });
       }
     } else {
       for (const x of xs) {
-        x.parentsADGrad.push({ node: z, sensitivityNode: none });
-        z.childrenADGrad.push({ node: x, sensitivityNode: none });
+        x.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+        z.childrenADGrad.push({ node: x, sensitivityNode: undefined });
       }
     }
 
@@ -75,17 +67,17 @@ export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    v.parentsAD.push({ node: z, sensitivityNode: just(w) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(v) });
+    v.parentsAD.push({ node: z, sensitivityNode: w });
+    w.parentsAD.push({ node: z, sensitivityNode: v });
 
-    z.childrenAD.push({ node: v, sensitivityNode: just(w) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(v) });
+    z.childrenAD.push({ node: v, sensitivityNode: w });
+    z.childrenAD.push({ node: w, sensitivityNode: v });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
   }
 
   return z;
@@ -99,17 +91,17 @@ export const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    v.parentsAD.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(gvarOf(-1.0)) });
+    v.parentsAD.push({ node: z, sensitivityNode: gvarOf(1.0) });
+    w.parentsAD.push({ node: z, sensitivityNode: gvarOf(-1.0) });
 
-    z.childrenAD.push({ node: v, sensitivityNode: just(gvarOf(1.0)) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(gvarOf(-1.0)) });
+    z.childrenAD.push({ node: v, sensitivityNode: gvarOf(1.0) });
+    z.childrenAD.push({ node: w, sensitivityNode: gvarOf(-1.0) });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
   }
 
   return z;
@@ -128,10 +120,10 @@ export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
   // grad(v/w) = [1/w, -v/w^2]
   if (isCompNode) {
-    const vnode = just(div(gvarOf(1.0), w, false));
+    const vnode = div(gvarOf(1.0), w, false);
     const w0node = squared(w, false);
     // const w1node = max(epsdg, w0node, false); // TODO: Why does this make it get stuck? w1node is not even used
-    const wnode = just(neg(div(v, w0node, false), false));
+    const wnode = neg(div(v, w0node, false), false);
 
     v.parentsAD.push({ node: z, sensitivityNode: vnode });
     w.parentsAD.push({ node: z, sensitivityNode: wnode });
@@ -139,11 +131,11 @@ export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     z.childrenAD.push({ node: v, sensitivityNode: vnode });
     z.childrenAD.push({ node: w, sensitivityNode: wnode });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
   }
 
   return z;
@@ -167,17 +159,17 @@ export const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
   if (isCompNode) {
-    v.parentsAD.push({ node: z, sensitivityNode: just(vNode) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(wNode) });
+    v.parentsAD.push({ node: z, sensitivityNode: vNode });
+    w.parentsAD.push({ node: z, sensitivityNode: wNode });
 
-    z.childrenAD.push({ node: v, sensitivityNode: just(vNode) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(wNode) });
+    z.childrenAD.push({ node: v, sensitivityNode: vNode });
+    z.childrenAD.push({ node: w, sensitivityNode: wNode });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
   }
 
   return z;
@@ -201,17 +193,17 @@ export const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
   if (isCompNode) {
-    v.parentsAD.push({ node: z, sensitivityNode: just(vNode) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(wNode) });
+    v.parentsAD.push({ node: z, sensitivityNode: vNode });
+    w.parentsAD.push({ node: z, sensitivityNode: wNode });
 
-    z.childrenAD.push({ node: v, sensitivityNode: just(vNode) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(wNode) });
+    z.childrenAD.push({ node: v, sensitivityNode: vNode });
+    z.childrenAD.push({ node: w, sensitivityNode: wNode });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
   }
 
   return z;
@@ -235,13 +227,13 @@ export const maxN = (xs: VarAD[], isCompNode = true): VarAD => {
     if (isCompNode) {
       for (const x of xs) {
         const xNode = ifCond(lt(x, z, false), gvarOf(0.0), gvarOf(1.0), false);
-        x.parentsAD.push({ node: z, sensitivityNode: just(xNode) });
-        z.childrenAD.push({ node: x, sensitivityNode: just(xNode) });
+        x.parentsAD.push({ node: z, sensitivityNode: xNode });
+        z.childrenAD.push({ node: x, sensitivityNode: xNode });
       }
     } else {
       for (const x of xs) {
-        x.parentsADGrad.push({ node: z, sensitivityNode: none });
-        z.childrenADGrad.push({ node: x, sensitivityNode: none });
+        x.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+        z.childrenADGrad.push({ node: x, sensitivityNode: undefined });
       }
     }
     return z;
@@ -266,13 +258,13 @@ export const minN = (xs: VarAD[], isCompNode = true): VarAD => {
     if (isCompNode) {
       for (const x of xs) {
         const xNode = ifCond(gt(x, z, false), gvarOf(0.0), gvarOf(1.0), false);
-        x.parentsAD.push({ node: z, sensitivityNode: just(xNode) });
-        z.childrenAD.push({ node: x, sensitivityNode: just(xNode) });
+        x.parentsAD.push({ node: z, sensitivityNode: xNode });
+        z.childrenAD.push({ node: x, sensitivityNode: xNode });
       }
     } else {
       for (const x of xs) {
-        x.parentsADGrad.push({ node: z, sensitivityNode: none });
-        z.childrenADGrad.push({ node: x, sensitivityNode: none });
+        x.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+        z.childrenADGrad.push({ node: x, sensitivityNode: undefined });
       }
     }
     return z;
@@ -293,8 +285,8 @@ export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
     // d/dx atan2(y,x) = -y/(x^2 + y^2)
     // d/dy atan2(y,x) =  x/(x^2 + y^2)
     const denom = add(squared(x, false), squared(y, false), false);
-    const xnode = just(div(neg(y, false), denom, false));
-    const ynode = just(div(x, denom, false));
+    const xnode = div(neg(y, false), denom, false);
+    const ynode = div(x, denom, false);
 
     y.parentsAD.push({ node: z, sensitivityNode: ynode });
     x.parentsAD.push({ node: z, sensitivityNode: xnode });
@@ -302,11 +294,11 @@ export const atan2 = (y: VarAD, x: VarAD, isCompNode = true): VarAD => {
     z.childrenAD.push({ node: y, sensitivityNode: ynode });
     z.childrenAD.push({ node: x, sensitivityNode: xnode });
   } else {
-    y.parentsADGrad.push({ node: z, sensitivityNode: none });
-    x.parentsADGrad.push({ node: z, sensitivityNode: none });
+    y.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    x.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: y, sensitivityNode: none });
-    z.childrenADGrad.push({ node: x, sensitivityNode: none });
+    z.childrenADGrad.push({ node: y, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return z;
@@ -320,10 +312,8 @@ export const pow = (x: VarAD, y: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const xnode = just(
-      mul(pow(x, sub(y, gvarOf(1.0), false), false), y, false)
-    );
-    const ynode = just(mul(pow(x, y, false), ln(x, false), false));
+    const xnode = mul(pow(x, sub(y, gvarOf(1.0), false), false), y, false);
+    const ynode = mul(pow(x, y, false), ln(x, false), false);
 
     y.parentsAD.push({ node: z, sensitivityNode: ynode });
     x.parentsAD.push({ node: z, sensitivityNode: xnode });
@@ -331,11 +321,11 @@ export const pow = (x: VarAD, y: VarAD, isCompNode = true): VarAD => {
     z.childrenAD.push({ node: y, sensitivityNode: ynode });
     z.childrenAD.push({ node: x, sensitivityNode: xnode });
   } else {
-    y.parentsADGrad.push({ node: z, sensitivityNode: none });
-    x.parentsADGrad.push({ node: z, sensitivityNode: none });
+    y.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    x.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: y, sensitivityNode: none });
-    z.childrenADGrad.push({ node: x, sensitivityNode: none });
+    z.childrenADGrad.push({ node: y, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return z;
@@ -351,13 +341,13 @@ export const neg = (v: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    v.parentsAD.push({ node: z, sensitivityNode: just(gvarOf(-1.0)) });
+    v.parentsAD.push({ node: z, sensitivityNode: gvarOf(-1.0) });
 
-    z.childrenAD.push({ node: v, sensitivityNode: just(gvarOf(-1.0)) });
+    z.childrenAD.push({ node: v, sensitivityNode: gvarOf(-1.0) });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
   }
 
   return z;
@@ -371,14 +361,14 @@ export const squared = (v: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(mul(gvarOf(2.0), v, false));
+    const node = mul(gvarOf(2.0), v, false);
     v.parentsAD.push({ node: z, sensitivityNode: node });
 
     z.childrenAD.push({ node: v, sensitivityNode: node });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
   }
 
   return z;
@@ -410,11 +400,11 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
       mul(gvarOf(2.0), max(gvarOf(EPS_DENOM), sqrt(v, false), false), false),
       false
     );
-    v.parentsAD.push({ node: z, sensitivityNode: just(gradNode) });
-    z.childrenAD.push({ node: v, sensitivityNode: just(gradNode) });
+    v.parentsAD.push({ node: z, sensitivityNode: gradNode });
+    z.childrenAD.push({ node: v, sensitivityNode: gradNode });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
   }
 
   return z;
@@ -430,19 +420,17 @@ export const inverse = (v: VarAD, isCompNode = true): VarAD => {
 
   // -1/(x^2 + epsilon) -- This takes care of the divide-by-zero gradient problem
   if (isCompNode) {
-    const node = just(
-      neg(
-        inverse(add(squared(v, false), gvarOf(EPS_DENOM), false), false),
-        false
-      )
+    const node = neg(
+      inverse(add(squared(v, false), gvarOf(EPS_DENOM), false), false),
+      false
     );
     v.parentsAD.push({ node: z, sensitivityNode: node });
 
     z.childrenAD.push({ node: v, sensitivityNode: node });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
   }
 
   return z;
@@ -457,16 +445,14 @@ export const absVal = (v: VarAD, isCompNode = true): VarAD => {
 
   if (isCompNode) {
     // x / (|x| + epsilon)
-    const node = just(
-      div(v, add(absVal(v, false), gvarOf(EPS_DENOM), false), false)
-    );
+    const node = div(v, add(absVal(v, false), gvarOf(EPS_DENOM), false), false);
     v.parentsAD.push({ node: z, sensitivityNode: node });
 
     z.childrenAD.push({ node: v, sensitivityNode: node });
   } else {
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
 
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
   }
 
   return z;
@@ -480,22 +466,20 @@ export const acosh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(
-        gvarOf(1.0),
-        mul(
-          sqrt(sub(x, gvarOf(1.0), false), false),
-          sqrt(add(x, gvarOf(1.0), false), false),
-          false
-        ),
+    const node = div(
+      gvarOf(1.0),
+      mul(
+        sqrt(sub(x, gvarOf(1.0), false), false),
+        sqrt(add(x, gvarOf(1.0), false), false),
         false
-      )
+      ),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -509,21 +493,19 @@ export const acos = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      neg(
-        div(
-          gvarOf(1.0),
-          sqrt(sub(gvarOf(1.0), mul(x, x, false), false), false),
-          false
-        ),
+    const node = neg(
+      div(
+        gvarOf(1.0),
+        sqrt(sub(gvarOf(1.0), mul(x, x, false), false), false),
         false
-      )
+      ),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -537,18 +519,16 @@ export const asin = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(
-        gvarOf(1.0),
-        sqrt(sub(gvarOf(1.0), mul(x, x, false), false), false),
-        false
-      )
+    const node = div(
+      gvarOf(1.0),
+      sqrt(sub(gvarOf(1.0), mul(x, x, false), false), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -562,18 +542,16 @@ export const asinh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(
-        gvarOf(1.0),
-        sqrt(add(gvarOf(1.0), mul(x, x, false), false), false),
-        false
-      )
+    const node = div(
+      gvarOf(1.0),
+      sqrt(add(gvarOf(1.0), mul(x, x, false), false), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -587,14 +565,16 @@ export const atan = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(gvarOf(1.0), add(gvarOf(1.0), mul(x, x, false), false), false)
+    const node = div(
+      gvarOf(1.0),
+      add(gvarOf(1.0), mul(x, x, false), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -608,14 +588,16 @@ export const atanh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(gvarOf(1.0), sub(gvarOf(1.0), mul(x, x, false), false), false)
+    const node = div(
+      gvarOf(1.0),
+      sub(gvarOf(1.0), mul(x, x, false), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -629,18 +611,16 @@ export const cbrt = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(
-        gvarOf(1.0),
-        mul(gvarOf(3.0), squared(cbrt(x, false), false), false),
-        false
-      )
+    const node = div(
+      gvarOf(1.0),
+      mul(gvarOf(3.0), squared(cbrt(x, false), false), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -654,12 +634,12 @@ export const ceil = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(gvarOf(0.0));
+    const node = gvarOf(0.0);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -673,12 +653,12 @@ export const cos = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(neg(sin(x, false), false));
+    const node = neg(sin(x, false), false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -692,12 +672,12 @@ export const cosh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(sinh(x, false));
+    const node = sinh(x, false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -711,12 +691,12 @@ export const exp = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(exp(x, false));
+    const node = exp(x, false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -730,12 +710,12 @@ export const expm1 = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(exp(x, false));
+    const node = exp(x, false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -749,12 +729,12 @@ export const floor = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(gvarOf(0.0));
+    const node = gvarOf(0.0);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -768,12 +748,12 @@ export const ln = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0), x, false));
+    const node = div(gvarOf(1.0), x, false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -787,14 +767,16 @@ export const log2 = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(gvarOf(1.0), mul(x, gvarOf(0.6931471805599453), false), false)
+    const node = div(
+      gvarOf(1.0),
+      mul(x, gvarOf(0.6931471805599453), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -808,14 +790,16 @@ export const log10 = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(
-      div(gvarOf(1.0), mul(x, gvarOf(2.302585092994046), false), false)
+    const node = div(
+      gvarOf(1.0),
+      mul(x, gvarOf(2.302585092994046), false),
+      false
     );
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -829,12 +813,12 @@ export const log1p = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(div(gvarOf(1.0), add(gvarOf(1.0), x, false), false));
+    const node = div(gvarOf(1.0), add(gvarOf(1.0), x, false), false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -848,12 +832,12 @@ export const round = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(gvarOf(0.0));
+    const node = gvarOf(0.0);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -867,12 +851,12 @@ export const sign = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(gvarOf(0.0));
+    const node = gvarOf(0.0);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -886,12 +870,12 @@ export const sin = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(cos(x, false));
+    const node = cos(x, false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -905,12 +889,12 @@ export const sinh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(cosh(x, false));
+    const node = cosh(x, false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -924,12 +908,12 @@ export const tan = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(squared(div(gvarOf(1.0), cos(x, false), false), false));
+    const node = squared(div(gvarOf(1.0), cos(x, false), false), false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -943,12 +927,12 @@ export const tanh = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(squared(div(gvarOf(1.0), cosh(x, false), false), false));
+    const node = squared(div(gvarOf(1.0), cosh(x, false), false), false);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -962,12 +946,12 @@ export const trunc = (x: VarAD, isCompNode = true): VarAD => {
   y.isCompNode = isCompNode;
 
   if (isCompNode) {
-    const node = just(gvarOf(0.0));
+    const node = gvarOf(0.0);
     x.parentsAD.push({ node: y, sensitivityNode: node });
     y.childrenAD.push({ node: x, sensitivityNode: node });
   } else {
-    x.parentsADGrad.push({ node: y, sensitivityNode: none });
-    y.childrenADGrad.push({ node: x, sensitivityNode: none });
+    x.parentsADGrad.push({ node: y, sensitivityNode: undefined });
+    y.childrenADGrad.push({ node: x, sensitivityNode: undefined });
   }
 
   return y;
@@ -985,17 +969,17 @@ export const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    z.childrenAD.push({ node: v, sensitivityNode: just(noGrad) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(noGrad) });
+    z.childrenAD.push({ node: v, sensitivityNode: noGrad });
+    z.childrenAD.push({ node: w, sensitivityNode: noGrad });
 
-    v.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
+    v.parentsAD.push({ node: z, sensitivityNode: noGrad });
+    w.parentsAD.push({ node: z, sensitivityNode: noGrad });
   } else {
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
 
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
   }
 
   return z;
@@ -1010,17 +994,17 @@ export const lt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    z.childrenAD.push({ node: v, sensitivityNode: just(noGrad) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(noGrad) });
+    z.childrenAD.push({ node: v, sensitivityNode: noGrad });
+    z.childrenAD.push({ node: w, sensitivityNode: noGrad });
 
-    v.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
+    v.parentsAD.push({ node: z, sensitivityNode: noGrad });
+    w.parentsAD.push({ node: z, sensitivityNode: noGrad });
   } else {
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
 
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
   }
 
   return z;
@@ -1036,17 +1020,17 @@ export const eq = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    z.childrenAD.push({ node: v, sensitivityNode: just(noGrad) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(noGrad) });
+    z.childrenAD.push({ node: v, sensitivityNode: noGrad });
+    z.childrenAD.push({ node: w, sensitivityNode: noGrad });
 
-    v.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
+    v.parentsAD.push({ node: z, sensitivityNode: noGrad });
+    w.parentsAD.push({ node: z, sensitivityNode: noGrad });
   } else {
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
 
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
   }
 
   return z;
@@ -1060,17 +1044,17 @@ export const and = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    z.childrenAD.push({ node: v, sensitivityNode: just(noGrad) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(noGrad) });
+    z.childrenAD.push({ node: v, sensitivityNode: noGrad });
+    z.childrenAD.push({ node: w, sensitivityNode: noGrad });
 
-    v.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
+    v.parentsAD.push({ node: z, sensitivityNode: noGrad });
+    w.parentsAD.push({ node: z, sensitivityNode: noGrad });
   } else {
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
 
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
   }
 
   return z;
@@ -1084,17 +1068,17 @@ export const or = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   z.isCompNode = isCompNode;
 
   if (isCompNode) {
-    z.childrenAD.push({ node: v, sensitivityNode: just(noGrad) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(noGrad) });
+    z.childrenAD.push({ node: v, sensitivityNode: noGrad });
+    z.childrenAD.push({ node: w, sensitivityNode: noGrad });
 
-    v.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
+    v.parentsAD.push({ node: z, sensitivityNode: noGrad });
+    w.parentsAD.push({ node: z, sensitivityNode: noGrad });
   } else {
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
 
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
   }
 
   return z;
@@ -1118,21 +1102,21 @@ export const ifCond = (
     const vNode = ifCond(cond, gvarOf(1.0), gvarOf(0.0), false);
     const wNode = ifCond(cond, gvarOf(0.0), gvarOf(1.0), false);
 
-    z.childrenAD.push({ node: cond, sensitivityNode: just(noGrad) });
-    z.childrenAD.push({ node: v, sensitivityNode: just(vNode) });
-    z.childrenAD.push({ node: w, sensitivityNode: just(wNode) });
+    z.childrenAD.push({ node: cond, sensitivityNode: noGrad });
+    z.childrenAD.push({ node: v, sensitivityNode: vNode });
+    z.childrenAD.push({ node: w, sensitivityNode: wNode });
 
-    cond.parentsAD.push({ node: z, sensitivityNode: just(noGrad) });
-    v.parentsAD.push({ node: z, sensitivityNode: just(vNode) });
-    w.parentsAD.push({ node: z, sensitivityNode: just(wNode) });
+    cond.parentsAD.push({ node: z, sensitivityNode: noGrad });
+    v.parentsAD.push({ node: z, sensitivityNode: vNode });
+    w.parentsAD.push({ node: z, sensitivityNode: wNode });
   } else {
-    z.childrenADGrad.push({ node: cond, sensitivityNode: none });
-    z.childrenADGrad.push({ node: v, sensitivityNode: none });
-    z.childrenADGrad.push({ node: w, sensitivityNode: none });
+    z.childrenADGrad.push({ node: cond, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: v, sensitivityNode: undefined });
+    z.childrenADGrad.push({ node: w, sensitivityNode: undefined });
 
-    cond.parentsADGrad.push({ node: z, sensitivityNode: none });
-    v.parentsADGrad.push({ node: z, sensitivityNode: none });
-    w.parentsADGrad.push({ node: z, sensitivityNode: none });
+    cond.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    v.parentsADGrad.push({ node: z, sensitivityNode: undefined });
+    w.parentsADGrad.push({ node: z, sensitivityNode: undefined });
   }
 
   return z;
