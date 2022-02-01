@@ -1239,8 +1239,7 @@ export const energyAndGradCompiled = (
   // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom)
   const gradGraph = _gradAllSymbolic(energyGraph, xsVars);
 
-  const epWeightNode: VarAD | undefined =
-    weightInfo !== undefined ? weightInfo.epWeightNode : undefined; // Generate energy and gradient without weight
+  const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 
   const graphs: GradGraphs = {
     inputs: xsVars,
