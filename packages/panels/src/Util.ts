@@ -116,12 +116,12 @@ export const retrieveGist = async (gistId: string, dispatch: Dispatcher) => {
 export const tryDomainHighlight = (
   dsl: string,
   dispatch?: Dispatcher
-): any | null => {
+): any | undefined => {
   const domainComp = compileDomain(dsl);
   if (domainComp.isOk()) {
     dispatch &&
       dispatch({ kind: "SET_DOMAIN_CACHE", domainCache: domainComp.value });
-    return domainComp.value || null;
+    return domainComp.value || undefined;
   }
 };
 

@@ -44,7 +44,7 @@ export default class Watch extends Command {
     domain: "",
   };
 
-  wss: WebSocket.Server | null = null;
+  wss: WebSocket.Server | undefined = undefined;
 
   sendFiles = async () => {
     const {
@@ -95,13 +95,13 @@ export default class Watch extends Command {
     return ordered;
   };
 
-  readFile = async (fileName: string): Promise<string | null> => {
+  readFile = async (fileName: string): Promise<string | undefined> => {
     try {
       const read = await fsp.readFile(fileName, "utf8");
       return read;
     } catch (error) {
       console.error(`❌ Could not open ${fileName}: ${error}`);
-      return null;
+      return undefined;
     }
   };
 
@@ -119,7 +119,7 @@ export default class Watch extends Command {
     });
     watcher.on("change", async () => {
       const str = await this.readFile(fileName);
-      if (str === null) {
+      if (str === undefined) {
         this.exit(1);
       }
       this.current[type] = str;
@@ -132,7 +132,7 @@ export default class Watch extends Command {
       this.sendFiles();
     });
     const str = await this.readFile(fileName);
-    if (str === null) {
+    if (str === undefined) {
       this.exit(1);
     }
     this.current[type] = str;

@@ -246,7 +246,7 @@ const singleProcess = async (
     }
 
     // HACK: return empty metadata??
-    return null;
+    return undefined;
   }
 };
 

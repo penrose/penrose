@@ -49,7 +49,7 @@ const makeViewBoxes = (
                 shape: { properties, shapeType },
                 labels: [],
                 canvasSize: [w, h],
-                pathResolver: async () => null,
+                pathResolver: async () => undefined,
               });
               setShapeHTML(shape.outerHTML);
             })();

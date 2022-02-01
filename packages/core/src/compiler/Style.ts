@@ -2779,12 +2779,12 @@ const initProperty = (
   shapeType: ShapeTypeStr,
   propName: string,
   styleSetting: TagExpr<VarAD>
-): TagExpr<VarAD> | null => {
+): TagExpr<VarAD> | undefined => {
   // Property set in Style
   switch (styleSetting.tag) {
     case "OptEval": {
       if (styleSetting.contents.tag === "Vary") {
-        return null;
+        return undefined;
       } else if (styleSetting.contents.tag === "VaryInit") {
         // Initialize the varying variable to the property specified in Style
         return {
@@ -2801,7 +2801,7 @@ const initProperty = (
           // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
           // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
           if (v[0].tag === "Vary" && v[1].tag === "Vary") {
-            return null;
+            return undefined;
           }
         }
         return styleSetting;
@@ -2855,7 +2855,7 @@ const initShape = (
             propName,
             initProperty(stype, propName, propExpr),
           ])
-          .filter(([, x]) => x !== null)
+          .filter(([, x]) => x !== undefined)
       ),
     };
 

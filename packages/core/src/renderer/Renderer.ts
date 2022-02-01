@@ -14,9 +14,9 @@ import { shapedefs } from "shapes/Shapes";
 /**
  * Resolves path references into static strings. Implemented by client
  * since filesystem contexts vary (eg browser vs headless).
- * If path fails to resolve, return null
+ * If path fails to resolve, return undefined
  */
-export type PathResolver = (path: string) => Promise<string | null>;
+export type PathResolver = (path: string) => Promise<string | undefined>;
 
 export interface ShapeProps {
   shape: Shape;

@@ -10,7 +10,7 @@ import IViewProps from "./views/IViewProps";
 interface IProps {
   currentState: PenroseState | undefined;
   history: PenroseState[];
-  error: PenroseError | null;
+  error: PenroseError | undefined;
   onClose(): void;
   modCanvas(state: PenroseState): void;
   settings: ISettings;
@@ -56,18 +56,10 @@ class Inspector extends React.Component<IProps, IInspectState> {
       setSettings,
       reset,
     } = this.props;
-    /*
-    const currentFrame =
-      history.length === 0
-        ? null
-        : selectedFrame === -1
-        ? history[history.length - 1]
-        : history[selectedFrame];
-    */
     const commonProps: IViewProps = {
       selectFrame: this.selectFrame,
       // frame: currentFrame,
-      frame: currentState ?? null, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
+      frame: currentState, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
       frameIndex: selectedFrame,
       history,
       modShapes: modCanvas,

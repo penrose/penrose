@@ -130,11 +130,11 @@ export const rangeFrom = (children: SourceRange[]): SourceRange => {
 };
 
 export const rangeBetween = (
-  // alternatively, beginToken could be null if endToken isn't
+  // alternatively, beginToken could be undefined if endToken isn't
   beginToken: moo.Token | SourceRange,
-  endToken: moo.Token | SourceRange | null
+  endToken: moo.Token | SourceRange | undefined
 ): SourceRange => {
-  // handle null cases for easier use in postprocessors
+  // handle undefined cases for easier use in postprocessors
   if (!endToken) return rangeOf(beginToken);
   if (!beginToken) return rangeOf(endToken);
   const [beginRange, endRange] = [beginToken, endToken].map(rangeOf);

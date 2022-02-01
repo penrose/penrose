@@ -14,7 +14,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
   };
   public render(): JSX.Element {
     const { frame } = this.props;
-    if (frame === null) {
+    if (frame === undefined) {
       return <div />;
     }
 

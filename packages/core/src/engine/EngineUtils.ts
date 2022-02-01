@@ -76,13 +76,7 @@ export const runtimeValueTypeError = (
 };
 // Generic utils for mapping over values
 export function mapTuple<T, S>(f: (arg: T) => S, t: T[]): S[] {
-  // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
-  // TODO: Should do null checks more systematically across the translation
   return t.map((tup) => {
-    if (tup === null) {
-      return (varOf(0.0) as unknown) as S;
-    }
-
     return f(tup);
   });
 }

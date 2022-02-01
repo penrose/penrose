@@ -20,10 +20,10 @@ import seedrandom from "seedrandom";
  * @param message Error message
  */
 export const safe = <T extends unknown>(
-  argument: T | undefined | null,
+  argument: T | undefined,
   message: string
 ): T => {
-  if (argument === undefined || argument === null) {
+  if (argument === undefined) {
     throw new TypeError(message);
   }
   return argument;
@@ -295,7 +295,6 @@ export const eqNum = (x: number, y: number): boolean => {
 };
 
 export const eqList = (xs: number[], ys: number[]): boolean => {
-  if (xs == null || ys == null) return false;
   if (xs.length !== ys.length) return false;
 
   //   _.every(_.zip(xs, ys), e => eqNum(e[0], e[1]));
@@ -400,7 +399,7 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 class Node<T> {
   value: T;
-  next: Node<T> | null = null;
+  next: Node<T> | undefined = undefined;
 
   constructor(value: T) {
     this.value = value;
@@ -408,8 +407,8 @@ class Node<T> {
 }
 
 export class Queue<T> {
-  head: Node<T> | null = null;
-  tail: Node<T> | null = null;
+  head: Node<T> | undefined = undefined;
+  tail: Node<T> | undefined = undefined;
   queue_size = 0;
 
   constructor() {
@@ -419,7 +418,7 @@ export class Queue<T> {
   enqueue(value: T): void {
     const node = new Node(value);
 
-    if (this.head !== null && this.tail !== null) {
+    if (this.head !== undefined && this.tail !== undefined) {
       this.tail.next = node;
       this.tail = node;
     } else {
@@ -434,7 +433,7 @@ export class Queue<T> {
     const current = this.head;
     // need to check for nullness of this.head and this.current
     // to satisfy the type-checker
-    if (this.head === null || current === null) {
+    if (this.head === undefined || current === undefined) {
       throw new Error("Dequeue on empty queue");
     } else {
       if (this.head === this.tail) {
@@ -448,8 +447,8 @@ export class Queue<T> {
   }
 
   clear(): void {
-    this.head = null;
-    this.tail = null;
+    this.head = undefined;
+    this.tail = undefined;
     this.queue_size = 0;
   }
 

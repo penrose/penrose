@@ -88,26 +88,26 @@ export interface ISettings {
 
 interface ICanvasState {
   currentState: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined
-  error: PenroseError | null;
+  error: PenroseError | undefined;
   processedInitial: boolean;
   penroseVersion: string;
   history: PenroseState[];
-  files: FileSocketResult | null;
+  files: FileSocketResult | undefined;
   connected: boolean;
   settings: ISettings;
-  fileSocket: FileSocket | null;
+  fileSocket: FileSocket | undefined;
 }
 
 const socketAddress = "ws://localhost:9160";
 class App extends React.Component<unknown, ICanvasState> {
   public readonly state: ICanvasState = {
     currentState: undefined,
-    fileSocket: null,
-    error: null,
+    fileSocket: undefined,
+    error: undefined,
     history: [],
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
-    files: null,
+    files: undefined,
     connected: false,
     settings: {
       autostep: false,
@@ -138,7 +138,7 @@ class App extends React.Component<unknown, ICanvasState> {
       currentState: canvasState,
       // history: [...this.state.history, canvasState],
       processedInitial: true,
-      error: null,
+      error: undefined,
     });
     this.renderCanvas(canvasState);
     const { settings } = this.state;
@@ -357,7 +357,10 @@ class App extends React.Component<unknown, ICanvasState> {
   };
 
   public renderCanvas = async (state: PenroseState): Promise<void> => {
-    if (this.canvasRef.current !== null && this.state.fileSocket !== null) {
+    if (
+      this.canvasRef.current !== null &&
+      this.state.fileSocket !== undefined
+    ) {
       const current = this.canvasRef.current;
       const rendered = await RenderInteractive(
         state,

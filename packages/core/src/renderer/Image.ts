@@ -20,7 +20,7 @@ const Image = async ({
   // Map/Fill the shape attributes while keeping track of input properties mapped
   const path = (shape.properties.href as IStrV).contents;
   let rawSVG = await pathResolver(path);
-  if (rawSVG === null) {
+  if (rawSVG === undefined) {
     console.error(`Could not resolve image path ${path}`);
     rawSVG = notFound["image"] as string;
   }

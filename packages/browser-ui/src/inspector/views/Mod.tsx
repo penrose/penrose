@@ -37,7 +37,7 @@ class Mod extends React.Component<IViewProps, IState> {
   };
   public render() {
     const { frame } = this.props;
-    if (frame === null) {
+    if (frame === undefined) {
       return <div />;
     }
 
