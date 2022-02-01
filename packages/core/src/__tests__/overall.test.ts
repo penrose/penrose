@@ -76,7 +76,7 @@ describe("End-to-end testing of existing diagrams", () => {
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
-    (await RenderStatic(state, async () => null)).outerHTML;
+    (await RenderStatic(state, async () => undefined)).outerHTML;
 
   const substance = "Set A, B\nIsSubset(B, A)\nAutoLabel All";
   const style = vennStyle;

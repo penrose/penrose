@@ -30,7 +30,6 @@ import {
 import * as _ from "lodash";
 import rfdc from "rfdc";
 import { OptInfo, VarAD } from "types/ad";
-import { MaybeVal } from "types/common";
 import {
   Fn,
   FnCached,
@@ -670,24 +669,24 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just" as const, contents: colVec(xs) },
-        lastGrad: { tag: "Just" as const, contents: colVec(gradfxs) },
+        lastState: colVec(xs),
+        lastGrad: colVec(gradfxs),
         s_list: [],
         y_list: [],
         numUnconstrSteps: 1,
       },
     };
   } else if (
-    lbfgsInfo.lastState.tag === "Just" &&
-    lbfgsInfo.lastGrad.tag === "Just"
+    lbfgsInfo.lastState !== undefined &&
+    lbfgsInfo.lastGrad !== undefined
   ) {
     // Our current step is k; the last step is km1 (k_minus_1)
     const x_k = colVec(xs);
     const grad_fx_k = colVec(gradfxs);
 
     const km1 = lbfgsInfo.numUnconstrSteps;
-    const x_km1 = lbfgsInfo.lastState.contents;
-    const grad_fx_km1 = lbfgsInfo.lastGrad.contents;
+    const x_km1 = lbfgsInfo.lastState;
+    const grad_fx_km1 = lbfgsInfo.lastGrad;
     const ss_km2 = lbfgsInfo.s_list;
     const ys_km2 = lbfgsInfo.y_list;
 
@@ -721,8 +720,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         gradfxsPreconditioned: gradfxs,
         updatedLbfgsInfo: {
           ...lbfgsInfo,
-          lastState: { tag: "Just" as const, contents: x_k },
-          lastGrad: { tag: "Just" as const, contents: grad_fx_k },
+          lastState: x_k,
+          lastGrad: grad_fx_k,
           s_list: [],
           y_list: [],
           numUnconstrSteps: 1,
@@ -741,8 +740,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: vecList(gradPreconditioned),
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just" as const, contents: x_k },
-        lastGrad: { tag: "Just" as const, contents: grad_fx_k },
+        lastState: x_k,
+        lastGrad: grad_fx_k,
         s_list: ss_km1,
         y_list: ys_km1,
         numUnconstrSteps: km1 + 1,
@@ -942,7 +941,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    overallEng.gradVal = { tag: "Just" as const, contents: 1.0 };
+    overallEng.gradVal = 1.0;
     log.info("overall eng from custom AD", overallEng, overallEng.val);
 
     return {
@@ -985,7 +984,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     xs,
     xsVars,
     res.energyGraph,
-    { tag: "Just", contents: weightInfo }
+    weightInfo
   );
 
   eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
@@ -1056,7 +1055,7 @@ const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
   const xsVars: VarAD[] = makeADInputVars(xs);
   const energyGraph: VarAD = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
 
-  const weightInfo: MaybeVal<WeightInfo> = { tag: "Nothing" };
+  const weightInfo: WeightInfo | undefined = undefined;
 
   const { graphs, f, gradf } = energyAndGradCompiled(
     xs,

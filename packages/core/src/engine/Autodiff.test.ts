@@ -135,7 +135,7 @@ const gradGraph1 = (): GradGraphs => {
   const z = mul(b, c);
 
   // Build gradient graph
-  z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  z.gradNode = gvarOf(1.0);
   const dx0 = _gradADSymbolic(x0);
   const dx1 = _gradADSymbolic(x1);
 
@@ -143,7 +143,7 @@ const gradGraph1 = (): GradGraphs => {
     inputs: [x0, x1],
     energyOutput: z,
     gradOutputs: [dx0, dx1],
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -158,7 +158,7 @@ const gradGraph2 = (): GradGraphs => {
   const z = mul(b, c);
 
   // Build gradient graph
-  z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  z.gradNode = gvarOf(1.0);
   const dx0 = _gradADSymbolic(x0);
   const dx1 = _gradADSymbolic(x1);
 
@@ -166,7 +166,7 @@ const gradGraph2 = (): GradGraphs => {
     inputs: [x0, x1],
     energyOutput: z,
     gradOutputs: [dx0, dx1],
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -186,7 +186,7 @@ const gradGraph3 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -205,7 +205,7 @@ const gradGraph4 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -228,7 +228,7 @@ const gradGraph5 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -248,7 +248,7 @@ const gradGraph6 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -270,7 +270,7 @@ const gradGraph7 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -293,7 +293,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
   let f;
   let gradGen;
 
-  if (graphs.weight.tag === "Just") {
+  if (graphs.weight !== undefined) {
     // Partially apply with weight
     f = f0(weight);
     gradGen = gradGen0(weight);
@@ -330,7 +330,7 @@ const gradGraph0 = (): GradGraphs => {
   const head = squared(ref);
 
   // Build gradient graph
-  head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  head.gradNode = gvarOf(1.0);
   const dRef = _gradADSymbolic(ref);
 
   // Print results
@@ -345,6 +345,6 @@ const gradGraph0 = (): GradGraphs => {
     inputs: [ref],
     energyOutput: head,
     gradOutputs: [dRef],
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };

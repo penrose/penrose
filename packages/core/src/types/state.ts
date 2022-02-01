@@ -1,7 +1,6 @@
 import { Canvas } from "shapes/Samplers";
 import { VarAD, GradGraphs } from "./ad";
 import { A } from "./ast";
-import { MaybeVal } from "./common";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
 import { ArgVal, IFloatV, Translation, Value } from "./value";
@@ -113,9 +112,8 @@ export type LbfgsParams = ILbfgsParams;
 // `n` is the size of the varying state
 export interface ILbfgsParams {
   // TODO: Store as matrix types
-  lastState: MaybeVal<any>; // nx1 (col vec)
-  lastGrad: MaybeVal<any>; // nx1 (col vec)
-  // invH: Maybe<any>; // nxn matrix
+  lastState: any | undefined; // nx1 (col vec)
+  lastGrad: any | undefined; // nx1 (col vec)
   s_list: any[]; // list of nx1 col vecs
   y_list: any[]; // list of nx1 col vecs
   numUnconstrSteps: number;

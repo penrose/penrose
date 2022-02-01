@@ -6,7 +6,7 @@ interface IProps {
   autostep: boolean;
   initial: boolean;
   showInspector: boolean;
-  files: FileSocketResult | null;
+  files: FileSocketResult | undefined;
   connected: boolean;
 
   toggleInspector?(): void;
@@ -92,7 +92,7 @@ class ButtonBar extends React.Component<IProps> {
             fontSize: "14px",
           }}
         >
-          {files === null
+          {files === undefined
             ? "no files received from server"
             : `sub: ${files.substance.fileName} sty: ${files.style.fileName} dsl: ${files.domain.fileName}`}
         </div>

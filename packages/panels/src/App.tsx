@@ -108,8 +108,8 @@ function App({ location }: any) {
               authorship: {
                 name: sub,
                 madeBy: "github repo",
-                gistID: null,
-                avatar: null,
+                gistID: undefined,
+                avatar: undefined,
               },
             });
             tryDomainHighlight(dslContent, dispatch);
@@ -168,7 +168,7 @@ function App({ location }: any) {
       });
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
-        dispatch({ kind: "CHANGE_ERROR", content: null });
+        dispatch({ kind: "CHANGE_ERROR", content: undefined });
         (async () => {
           // resample because initial sampling did not use the special sampling seed
           const initState = resample(await prepareState(compileRes.value));

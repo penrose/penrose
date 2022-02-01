@@ -34,7 +34,7 @@ export class FileSocket {
       this.onFiles(parsed);
     }
   };
-  getFile = async (path: string): Promise<string | null> => {
+  getFile = async (path: string): Promise<string | undefined> => {
     return new Promise((resolve /*, reject*/) => {
       this.ws.addEventListener("message", (e) => {
         const parsed = JSON.parse(e.data);
