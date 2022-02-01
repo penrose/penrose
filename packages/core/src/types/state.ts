@@ -114,7 +114,6 @@ export interface ILbfgsParams {
   // TODO: Store as matrix types
   lastState: any | undefined; // nx1 (col vec)
   lastGrad: any | undefined; // nx1 (col vec)
-  // invH: Maybe<any>; // nxn matrix
   s_list: any[]; // list of nx1 col vecs
   y_list: any[]; // list of nx1 col vecs
   numUnconstrSteps: number;

@@ -1460,7 +1460,6 @@ const matchBvar = (
 };
 
 // Judgment 12. G; theta |- S <| |S_o
-// TODO: Not sure why Maybe<Subst> doesn't work in the type signature?
 const matchDeclLine = (
   varEnv: Env,
   line: SubStmt<A>,
