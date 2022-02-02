@@ -3,9 +3,10 @@
 // recompile (play button unicode) - or auto recompile
 // switch trio
 
-import { RenderStatic } from "@penrose/core";
+import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef } from "react";
 import { DiagramFilePointer, StateFile } from "../types/FileSystem";
+import BlueButton from "./BlueButton";
 
 // error box
 export default function DiagramPanel({
@@ -32,6 +33,12 @@ export default function DiagramPanel({
   }, [fileContents]);
   return (
     <div>
+      <div style={{ display: "flex", flexDirection: "row", padding: "10px" }}>
+        <BlueButton>
+          autostep ({fileContents.metadata.autostep ? "on" : "off"})
+        </BlueButton>
+        <BlueButton>recompile</BlueButton>
+      </div>
       <div
         style={{
           width: "100%",
@@ -42,6 +49,21 @@ export default function DiagramPanel({
         }}
         ref={canvasRef}
       />
+      {fileContents.metadata.error && (
+        <div
+          style={{
+            bottom: 0,
+            backgroundColor: "#ffdada",
+            maxHeight: "100%",
+            maxWidth: "100%",
+            overflow: "auto",
+            padding: "10px",
+            boxSizing: "border-box",
+          }}
+        >
+          <pre>{showError(fileContents.metadata.error).toString()}</pre>
+        </div>
+      )}
     </div>
   );
 }

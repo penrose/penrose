@@ -76,13 +76,18 @@ export default function DiagramInitializer({
 }: {
   workspace: IWorkspace;
   node: TabNode;
-  updateNodeToNewDiagram(node: TabNode, trioSelection: TrioSelection): void;
+  updateNodeToNewDiagram(
+    node: TabNode,
+    trioSelection: TrioSelection,
+    autostep: boolean
+  ): void;
 }) {
   const [trio, setTrio] = useState<TrioSelection>({
     substance: null,
     style: null,
     domain: null,
   });
+  const [autostep, setAutostep] = useState(true);
   return (
     <div>
       <h1>new diagram</h1>
@@ -109,8 +114,18 @@ export default function DiagramInitializer({
           fileType="substance"
         />
       </div>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={autostep}
+            onChange={(e) => setAutostep(e.target.checked)}
+          />
+          autostep
+        </label>
+      </div>
       <BigBlueButton
-        onClick={() => updateNodeToNewDiagram(node, trio)}
+        onClick={() => updateNodeToNewDiagram(node, trio, autostep)}
         disabled={Object.values(trio).includes(null)}
       >
         create

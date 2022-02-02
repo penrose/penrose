@@ -25,7 +25,12 @@ import {
   TabSetNode,
 } from "flexlayout-react";
 import { FileDispatcher } from "./fileReducer";
-import { compileDomain, compileTrio, prepareState } from "@penrose/core";
+import {
+  compileDomain,
+  compileTrio,
+  prepareState,
+  stepUntilConvergence,
+} from "@penrose/core";
 import { v4 } from "uuid";
 import { useCallback } from "react";
 import { initial } from "lodash";
@@ -406,7 +411,8 @@ export function newFileCreatorTab(workspace: IWorkspace, node: TabSetNode) {
 async function _compileDiagram(
   dispatch: FileDispatcher,
   workspaceState: IWorkspaceState,
-  diagramPointer: DiagramFilePointer
+  diagramPointer: DiagramFilePointer,
+  autostep: boolean
 ) {
   const diagramFile: StateFile = {
     type: "state_file",
@@ -414,6 +420,7 @@ async function _compileDiagram(
     contents: null,
     metadata: {
       error: null,
+      autostep,
     },
   };
   const substance = (
@@ -439,8 +446,22 @@ async function _compileDiagram(
     const initialState = await prepareState(compileResult.value);
     diagramFile.contents = initialState;
     dispatch({ type: "UPDATE_OPEN_FILE", file: diagramFile });
+    if (autostep) {
+      const stepResult = stepUntilConvergence(initialState);
+      if (stepResult.isOk()) {
+        const convergedState = stepResult.value;
+        dispatch({
+          type: "UPDATE_OPEN_FILE",
+          file: { ...diagramFile, contents: convergedState },
+        });
+      } else {
+        diagramFile.metadata.error = stepResult.error;
+        dispatch({ type: "UPDATE_OPEN_FILE", file: diagramFile });
+      }
+    }
   } else {
     diagramFile.metadata.error = compileResult.error;
+    dispatch({ type: "UPDATE_OPEN_FILE", file: diagramFile });
   }
 }
 
@@ -449,7 +470,7 @@ export const useUpdateNodeToNewDiagram = (
   workspaceState: IWorkspaceState
 ) =>
   useCallback(
-    (node: TabNode, trioSelection: TrioSelection) => {
+    (node: TabNode, trioSelection: TrioSelection, autostep: boolean) => {
       const id = v4();
       const diagramPointer: DiagramFilePointer = {
         type: "diagram_state",
@@ -469,6 +490,7 @@ export const useUpdateNodeToNewDiagram = (
         contents: null,
         metadata: {
           error: null,
+          autostep: true,
         },
       };
       dispatch({
@@ -483,7 +505,7 @@ export const useUpdateNodeToNewDiagram = (
           id,
         })
       );
-      _compileDiagram(dispatch, workspaceState, diagramPointer);
+      _compileDiagram(dispatch, workspaceState, diagramPointer, autostep);
     },
     [dispatch, workspaceState]
   );
@@ -494,7 +516,7 @@ export const useCompileDiagram = (
 ) =>
   useCallback(
     (diagramPointer: DiagramFilePointer) => {
-      _compileDiagram(dispatch, workspaceState, diagramPointer);
+      _compileDiagram(dispatch, workspaceState, diagramPointer, true);
     },
     [dispatch, workspaceState]
   );

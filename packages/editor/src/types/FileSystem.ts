@@ -45,6 +45,7 @@ export interface ProgramFile {
 
 export interface DiagramMetadata {
   error: PenroseError | null;
+  autostep: boolean;
   // seed etc
   // maybe state enum: unoptimized, broken, etc
 }
