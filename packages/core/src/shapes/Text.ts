@@ -70,8 +70,8 @@ export const sampleText = (rng: seedrandom.prng, canvas: Canvas): IText => ({
   lineHeight: StrV(""),
   textAnchor: StrV("middle"),
   // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
-  alignmentBaseline: StrV("middle"),
-  dominantBaseline: StrV("middle"),
+  alignmentBaseline: StrV("alphabetic"),
+  dominantBaseline: StrV("alphabetic"),
   ensureOnCanvas: BoolV(true),
 });
 
