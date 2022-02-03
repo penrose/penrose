@@ -139,7 +139,9 @@ export const convexPolygonMinkowskiSDF = (
 };
 
 /**
- * Returns list of convex polygons comprising the original polygon.
+ * Returns list of convex polygons comprising the original polygon. Assumes that
+ * the polygon shape remains fixed after this function is called; that is, some
+ * transformations can be applied, but vertices cannot change independently.
  * @param p Sequence of points defining a polygon.
  */
 export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
