@@ -16,8 +16,8 @@
     <title>Global.box</title>
   </rect>
   <rect
-    x="159.4388426812312"
-    y="115.46463498126815"
+    x="117.16727345349193"
+    y="81.46699930331147"
     width="55.7490234375"
     height="14.658203125"
     fill="#1b8a1f"
@@ -27,7 +27,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 159.4388426812312, 115.46463498126815)"
+    transform="rotate(0, 117.16727345349193, 81.46699930331147)"
     ensureOnCanvas="true"
   >
     <title>Videos.box</title>
@@ -36,10 +36,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 163.4388426812312, 119.46463498126815)"
+    transform="rotate(0, 121.16727345349193, 85.46699930331147)"
     style="font: 9px Palatino"
-    x="187.3133543999812"
-    y="125.98611935626815"
+    x="145.04178517224193"
+    y="91.98848367831147"
     width="47.7490234375"
     height="6.658203125"
     ascent="6.521484375"
@@ -53,8 +53,8 @@
     K-12 videos
   </text>
   <rect
-    x="141.0983306305739"
-    y="74.39432172999744"
+    x="130.94831556872126"
+    y="118.25802235777782"
     width="92.3115234375"
     height="17.0263671875"
     fill="#1b8a1f"
@@ -64,7 +64,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 141.0983306305739, 74.39432172999744)"
+    transform="rotate(0, 130.94831556872126, 118.25802235777782)"
     ensureOnCanvas="true"
   >
     <title>Software.box</title>
@@ -73,10 +73,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 145.0983306305739, 78.39432172999744)"
+    transform="rotate(0, 134.94831556872126, 122.25802235777782)"
     style="font: 9px Palatino"
-    x="187.2540923493239"
-    y="84.94217329249744"
+    x="177.10407728747126"
+    y="128.8058739202778"
     width="84.3115234375"
     height="9.0263671875"
     ascent="6.5478515625"
@@ -90,8 +90,8 @@
     open-source software
   </text>
   <rect
-    x="134.88917630952164"
-    y="151.80740666523695"
+    x="124.74931187324398"
+    y="99.62520408453864"
     width="104.72265625"
     height="15.1328125"
     fill="#1b8a1f"
@@ -101,7 +101,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 134.88917630952164, 151.80740666523695)"
+    transform="rotate(0, 124.74931187324398, 99.62520408453864)"
     ensureOnCanvas="true"
   >
     <title>Courses.box</title>
@@ -110,10 +110,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 138.88917630952164, 155.80740666523695)"
+    transform="rotate(0, 128.74931187324398, 103.62520408453864)"
     style="font: 9px Palatino"
-    x="187.25050443452164"
-    y="162.80350041523695"
+    x="177.11063999824398"
+    y="110.62129783453864"
     width="96.72265625"
     height="7.1328125"
     ascent="6.99609375"
@@ -127,8 +127,8 @@
     local &amp; outreach courses
   </text>
   <rect
-    x="155.6058620647493"
-    y="94.92069218636121"
+    x="176.41630341403356"
+    y="79.08118309586253"
     width="63.337890625"
     height="17.0439453125"
     fill="#1b8a1f"
@@ -138,7 +138,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 155.6058620647493, 94.92069218636121)"
+    transform="rotate(0, 176.41630341403356, 79.08118309586253)"
     ensureOnCanvas="true"
   >
     <title>Survey.box</title>
@@ -147,10 +147,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 159.6058620647493, 98.92069218636121)"
+    transform="rotate(0, 180.41630341403356, 83.08118309586253)"
     style="font: 9px Palatino"
-    x="187.2748073772493"
-    y="105.46854374886121"
+    x="208.08524872653356"
+    y="89.62903465836253"
     width="55.337890625"
     height="9.0439453125"
     ascent="6.5478515625"
@@ -164,8 +164,8 @@
     survey article
   </text>
   <rect
-    x="155.31743113974684"
-    y="133.62283729735913"
+    x="145.22791967644875"
+    y="138.78439203083704"
     width="63.7490234375"
     height="14.6845703125"
     fill="#1b8a1f"
@@ -175,7 +175,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 155.31743113974684, 133.62283729735913)"
+    transform="rotate(0, 145.22791967644875, 138.78439203083704)"
     ensureOnCanvas="true"
   >
     <title>Tools.box</title>
@@ -184,10 +184,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 159.31743113974684, 137.62283729735913)"
+    transform="rotate(0, 149.22791967644875, 142.78439203083704)"
     style="font: 9px Palatino"
-    x="187.19194285849684"
-    y="144.17068885985913"
+    x="177.10243139519875"
+    y="149.33224359333704"
     width="55.7490234375"
     height="6.6845703125"
     ascent="6.5478515625"
@@ -201,8 +201,8 @@
     end-user tools
   </text>
   <rect
-    x="28.671590001637696"
-    y="105.97542759454282"
+    x="25.06646595421489"
+    y="60.5637428098584"
     width="113.7314453125"
     height="17.0263671875"
     fill="#1b1f8a"
@@ -212,7 +212,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 28.671590001637696, 105.97542759454282)"
+    transform="rotate(0, 25.06646595421489, 60.5637428098584)"
     ensureOnCanvas="true"
   >
     <title>CurveSurface.box</title>
@@ -221,10 +221,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 32.671590001637696, 109.97542759454282)"
+    transform="rotate(0, 29.06646595421489, 64.5637428098584)"
     style="font: 9px Palatino"
-    x="85.5373126578877"
-    y="116.52327915704282"
+    x="81.93218861046489"
+    y="71.1115943723584"
     width="105.7314453125"
     height="9.0263671875"
     ascent="6.5478515625"
@@ -238,8 +238,8 @@
     repulsive curves + surfaces
   </text>
   <rect
-    x="40.25289520332481"
-    y="46.74692760670676"
+    x="90.1506117093409"
+    y="19.044377883109767"
     width="90.62109375"
     height="17.0439453125"
     fill="#1b1f8a"
@@ -249,7 +249,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 40.25289520332481, 46.74692760670676)"
+    transform="rotate(0, 90.1506117093409, 19.044377883109767)"
     ensureOnCanvas="true"
   >
     <title>BCs.box</title>
@@ -258,10 +258,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 44.25289520332481, 50.74692760670676)"
+    transform="rotate(0, 94.1506117093409, 23.044377883109767)"
     style="font: 9px Palatino"
-    x="85.56344207832481"
-    y="57.29477916920676"
+    x="135.4611585843409"
+    y="29.592229445609767"
     width="82.62109375"
     height="9.0439453125"
     ascent="6.5478515625"
@@ -275,8 +275,8 @@
     boundary conditions
   </text>
   <rect
-    x="32.28099776337052"
-    y="126.50179010817337"
+    x="28.67245872397072"
+    y="39.58913375717761"
     width="106.5068359375"
     height="17.474609375"
     fill="#1b1f8a"
@@ -286,7 +286,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 32.28099776337052, 126.50179010817337)"
+    transform="rotate(0, 28.67245872397072, 39.58913375717761)"
     ensureOnCanvas="true"
   >
     <title>Riemannian.box</title>
@@ -295,10 +295,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 36.28099776337052, 130.50179010817337)"
+    transform="rotate(0, 32.67245872397072, 43.58913375717761)"
     style="font: 9px Palatino"
-    x="85.53441573212052"
-    y="137.49788385817337"
+    x="81.92587669272072"
+    y="50.58522750717761"
     width="98.5068359375"
     height="9.474609375"
     ascent="6.99609375"
@@ -312,8 +312,8 @@
     shape space formulation
   </text>
   <rect
-    x="42.31255874135755"
-    y="67.2908674334146"
+    x="0.24436190885563747"
+    y="21.430926130078326"
     width="86.40625"
     height="14.658203125"
     fill="#1b1f8a"
@@ -323,7 +323,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 42.31255874135755, 67.2908674334146)"
+    transform="rotate(0, 0.24436190885563747, 21.430926130078326)"
     ensureOnCanvas="true"
   >
     <title>Exact.box</title>
@@ -332,10 +332,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 46.31255874135755, 71.2908674334146)"
+    transform="rotate(0, 4.2443619088556375, 25.430926130078326)"
     style="font: 9px Palatino"
-    x="85.51568374135755"
-    y="77.8123518084146"
+    x="43.44748690885564"
+    y="31.952410505078326"
     width="78.40625"
     height="6.658203125"
     ascent="6.521484375"
@@ -349,8 +349,8 @@
     exact discretization
   </text>
   <rect
-    x="39.188351382656435"
-    y="85.44906513942276"
+    x="20.975862851520134"
+    y="81.09011148945514"
     width="92.69140625"
     height="17.0263671875"
     fill="#1b1f8a"
@@ -360,7 +360,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 39.188351382656435, 85.44906513942276)"
+    transform="rotate(0, 20.975862851520134, 81.09011148945514)"
     ensureOnCanvas="true"
   >
     <title>Minkowski.box</title>
@@ -369,10 +369,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 43.188351382656435, 89.44906513942276)"
+    transform="rotate(0, 24.975862851520134, 85.09011148945514)"
     style="font: 9px Palatino"
-    x="85.53405450765644"
-    y="95.99691670192276"
+    x="67.32156597652013"
+    y="91.63796305195514"
     width="84.69140625"
     height="9.0263671875"
     ascent="6.5478515625"
@@ -386,8 +386,8 @@
     Minkowski penalties
   </text>
   <rect
-    x="51.172916362787646"
-    y="25.772319404336066"
+    x="47.57774220495787"
+    y="101.61648078878133"
     width="68.7314453125"
     height="17.474609375"
     fill="#1b1f8a"
@@ -397,7 +397,7 @@
     stroke-width="0.5"
     stroke-linecap="butt"
     rx="5"
-    transform="rotate(0, 51.172916362787646, 25.772319404336066)"
+    transform="rotate(0, 47.57774220495787, 101.61648078878133)"
     ensureOnCanvas="true"
   >
     <title>Shells.box</title>
@@ -406,10 +406,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 55.172916362787646, 29.772319404336066)"
+    transform="rotate(0, 51.57774220495787, 105.61648078878133)"
     style="font: 9px Palatino"
-    x="85.53863901903765"
-    y="36.768413154336066"
+    x="81.94346486120787"
+    y="112.61257453878133"
     width="60.7314453125"
     height="9.474609375"
     ascent="6.99609375"
