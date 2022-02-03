@@ -11,4 +11,4 @@ The Domain/Style are in `word-cloud.[dsl|sty]`, and an example Substance program
 
 #### Example
 
-<img src="../../diagrams/word-cloud-example-word-cloud.svg" width="500px" style="background-color:white;" />
+<img src="../../diagrams/word-cloud-example-word-cloud.svg" width="500px" />
