@@ -14,7 +14,6 @@ export type FileAction =
   | { type: "UPDATE_OPEN_FILE"; file: SavedFile }
   | { type: "UPDATE_LAYOUT"; layout: Model }
   | { type: "SET_WORKSPACE"; workspaceState: IWorkspaceState }
-  | { type: "OPEN_FILE"; file: SavedFile; pointer: FilePointer }
   | { type: "SET_DOMAIN_CACHE"; domainCache: Env | null };
 
 export type FileDispatcher = Dispatch<FileAction>;
@@ -92,25 +91,6 @@ export default function FileReducer(
           fileContents: {
             ...state.workspace.fileContents,
             [action.file.id]: action.file,
-          },
-        },
-      };
-    case "OPEN_FILE":
-      // TODO: save
-      return {
-        ...state,
-        workspace: {
-          ...state.workspace,
-          fileContents: {
-            ...state.workspace.fileContents,
-            [action.file.id]: action.file,
-          },
-          openWorkspace: {
-            ...state.workspace.openWorkspace,
-            openFiles: {
-              ...state.workspace.openWorkspace.openFiles,
-              [action.pointer.id]: action.pointer,
-            },
           },
         },
       };

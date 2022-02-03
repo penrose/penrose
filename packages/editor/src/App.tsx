@@ -40,7 +40,10 @@ function App() {
     initialFilesState
   );
   const workspace = fileSystem.workspace.openWorkspace;
-  const openFileInWorkspace = useOpenFileInWorkspace(dispatch, workspace);
+  const openFileInWorkspace = useOpenFileInWorkspace(
+    dispatch,
+    fileSystem.workspace
+  );
   const loadWorkspace = useLoadWorkspace(dispatch);
   const updateNodeToDiagramCreator = useUpdateNodeToDiagramCreator(workspace);
   const updateNodeToNewDiagram = useUpdateNodeToNewDiagram(

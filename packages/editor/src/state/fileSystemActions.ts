@@ -354,10 +354,11 @@ export const useLoadWorkspace = (dispatch: FileDispatcher) =>
 
 export const useOpenFileInWorkspace = (
   dispatch: FileDispatcher,
-  workspace: IWorkspace
+  workspaceState: IWorkspaceState
 ) =>
   useCallback(
     (pointer: FilePointer) => {
+      let workspace = workspaceState.openWorkspace;
       (async () => {
         if (pointer.id in workspace.openFiles) {
           // If already open, jump there
@@ -374,7 +375,21 @@ export const useOpenFileInWorkspace = (
         }
         const loadedFile = await retrieveFileFromPointer(pointer);
         if (loadedFile !== null) {
-          dispatch({ type: "OPEN_FILE", file: loadedFile, pointer });
+          const newWorkspace = _updateWorkspace(dispatch, {
+            ...workspaceState,
+            fileContents: {
+              ...workspaceState.fileContents,
+              [pointer.id]: loadedFile,
+            },
+            openWorkspace: {
+              ...workspaceState.openWorkspace,
+              openFiles: {
+                ...workspaceState.openWorkspace.openFiles,
+                [pointer.id]: pointer,
+              },
+            },
+          });
+          workspace = newWorkspace.openWorkspace;
           if (!workspace.layout.getActiveTabset()) {
             workspace.layout.doAction(
               Actions.setActiveTabset(
@@ -405,7 +420,7 @@ export const useOpenFileInWorkspace = (
         }
       })();
     },
-    [dispatch, workspace]
+    [dispatch, workspaceState]
   );
 
 export const useUpdateNodeToDiagramCreator = (workspace: IWorkspace) =>
@@ -528,13 +543,22 @@ export const useUpdateNodeToNewDiagram = (
           autostep: true,
         },
       };
-      dispatch({
-        type: "OPEN_FILE",
-        file: diagramFile,
-        pointer: diagramPointer,
+      const newWorkspace = _updateWorkspace(dispatch, {
+        ...workspaceState,
+        fileContents: {
+          ...workspaceState.fileContents,
+          [diagramFile.id]: diagramFile,
+        },
+        openWorkspace: {
+          ...workspaceState.openWorkspace,
+          openFiles: {
+            ...workspaceState.openWorkspace.openFiles,
+            [diagramPointer.id]: diagramPointer,
+          },
+        },
       });
 
-      workspaceState.openWorkspace.layout.doAction(
+      newWorkspace.openWorkspace.layout.doAction(
         Actions.updateNodeAttributes(node.getId(), {
           component: "file",
           name: "Diagram",
@@ -543,7 +567,7 @@ export const useUpdateNodeToNewDiagram = (
           },
         })
       );
-      _compileDiagram(dispatch, workspaceState, diagramPointer, autostep);
+      _compileDiagram(dispatch, newWorkspace, diagramPointer, autostep);
     },
     [dispatch, workspaceState]
   );
