@@ -37,7 +37,8 @@ export default function DiagramPanel({
         <BlueButton>
           autostep ({fileContents.metadata.autostep ? "on" : "off"})
         </BlueButton>
-        <BlueButton>recompile</BlueButton>
+        <BlueButton>compile</BlueButton>
+        <BlueButton>resample</BlueButton>
       </div>
       <div
         style={{

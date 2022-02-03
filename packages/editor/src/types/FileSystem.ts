@@ -1,5 +1,5 @@
 import { Env, PenroseError, PenroseState } from "@penrose/core";
-import { IJsonTabSetNode, Model } from "flexlayout-react";
+import { IJsonModel, IJsonTabSetNode, Model } from "flexlayout-react";
 
 export const constructLayout = (children: IJsonTabSetNode[]): Model =>
   Model.fromJson({
@@ -57,17 +57,17 @@ export interface StateFile {
 }
 export interface WorkspaceFile {
   type: "workspace_file";
-  contents: IWorkspace;
+  contents: IWorkspaceJSON;
   id: string;
 }
 export type SavedFile = ProgramFile | StateFile | WorkspaceFile;
 
-interface IExampleLocation {
+export interface IExampleLocation {
   type: "example";
   path: string;
 }
 
-interface IGistLocation {
+export interface IGistLocation {
   type: "gist";
   gistURI: string;
 }
@@ -164,6 +164,13 @@ export interface IWorkspace {
 }
 
 /**
+ * JSON-encodable version of @IWorkspace
+ */
+export interface IWorkspaceJSON extends Omit<IWorkspace, "layout"> {
+  layout: IJsonModel;
+}
+
+/**
  * We separate the filePointers so they're easier to enumerate in the UI
  */
 export interface ILocalFileSystem {
@@ -178,7 +185,7 @@ export interface IExamples {
   substances: { [id: string]: SubstanceFilePointer };
   styles: { [id: string]: StyleFilePointer };
   domains: { [id: string]: DomainFilePointer };
-  trios: { [id: string]: IWorkspacePointer };
+  trios: { [id: string]: ICachedWorkspacePointer };
 }
 
 /* 
@@ -190,6 +197,7 @@ export interface IWorkspaceState {
    */
   fileContents: { [id: string]: SavedFile };
   openWorkspace: IWorkspace;
+  workspacePointer: IWorkspacePointer | ICachedWorkspacePointer;
 }
 
 export interface IFileSystemState {

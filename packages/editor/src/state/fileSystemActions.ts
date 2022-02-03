@@ -6,6 +6,7 @@ import {
   ICachedWorkspacePointer,
   IExamples,
   IFileSystemState,
+  ILocalLocation,
   IWorkspace,
   IWorkspacePointer,
   IWorkspaceState,
@@ -18,13 +19,14 @@ import {
 } from "../types/FileSystem";
 import { toast } from "react-toastify";
 import {
+  Action,
   Actions,
   DockLocation,
   Model,
   TabNode,
   TabSetNode,
 } from "flexlayout-react";
-import { FileDispatcher } from "./fileReducer";
+import { deleteProperty, FileDispatcher } from "./fileReducer";
 import {
   compileDomain,
   compileTrio,
@@ -33,7 +35,7 @@ import {
 } from "@penrose/core";
 import { v4 } from "uuid";
 import { useCallback } from "react";
-import { initial } from "lodash";
+import { memoize, debounce } from "lodash";
 import { TrioSelection } from "../components/DiagramInitializer";
 
 async function fetchRegistry(): Promise<any> {
@@ -194,6 +196,7 @@ function buildExampleWorkspace(
     toast.error("Could not retrieve sub or sty or dsl for trio");
     return null;
   }
+  const diagramId = v4();
   const workspace: WorkspaceFile = {
     type: "workspace_file",
     id: pointer.id,
@@ -218,19 +221,28 @@ function buildExampleWorkspace(
               type: "tab",
               name: sub.name,
               component: "file",
-              id: sub.id,
+              id: v4(),
+              config: {
+                id: sub.id,
+              },
             },
             {
               type: "tab",
               name: sty.name,
               component: "file",
-              id: sty.id,
+              id: v4(),
+              config: {
+                id: sty.id,
+              },
             },
             {
               type: "tab",
               name: dsl.name,
               component: "file",
-              id: dsl.id,
+              id: v4(),
+              config: {
+                id: dsl.id,
+              },
             },
           ],
         },
@@ -243,11 +255,14 @@ function buildExampleWorkspace(
               type: "tab",
               name: "New Diagram",
               component: "diagram_initializer",
-              id: v4(),
+              id: diagramId,
+              config: {
+                id: diagramId,
+              },
             },
           ],
         },
-      ]),
+      ]).toJson(),
     },
   };
   return workspace;
@@ -296,7 +311,11 @@ export const useLoadWorkspace = (dispatch: FileDispatcher) =>
         ) {
           const workspace: IWorkspaceState = {
             fileContents: {},
-            openWorkspace: loadedWorkspace.contents,
+            openWorkspace: {
+              ...loadedWorkspace.contents,
+              layout: Model.fromJson(loadedWorkspace.contents.layout),
+            },
+            workspacePointer,
           };
           for (let [id, ptr] of Object.entries(
             loadedWorkspace.contents.openFiles
@@ -342,7 +361,15 @@ export const useOpenFileInWorkspace = (
       (async () => {
         if (pointer.id in workspace.openFiles) {
           // If already open, jump there
-          workspace.layout.doAction(Actions.selectTab(pointer.id));
+          workspace.layout.visitNodes((node) => {
+            if (
+              node.getType() === "tab" &&
+              (node as TabNode).getConfig() &&
+              (node as TabNode).getConfig().id === pointer.id
+            ) {
+              workspace.layout.doAction(Actions.selectTab(node.getId()));
+            }
+          });
           return;
         }
         const loadedFile = await retrieveFileFromPointer(pointer);
@@ -362,6 +389,9 @@ export const useOpenFileInWorkspace = (
                 component: "file",
                 name: pointer.name,
                 id: pointer.id,
+                config: {
+                  id: pointer.id,
+                },
               },
               // HACK: the fallback is fallible
               workspace.layout.getActiveTabset()?.getId() || "main",
@@ -399,6 +429,9 @@ export function newFileCreatorTab(workspace: IWorkspace, node: TabSetNode) {
         component: "new_tab",
         name: "New Tab",
         id: v4(),
+        config: {
+          id: v4(),
+        },
       },
       node.getId(),
       DockLocation.CENTER,
@@ -474,16 +507,18 @@ export const useUpdateNodeToNewDiagram = (
       const id = v4();
       const diagramPointer: DiagramFilePointer = {
         type: "diagram_state",
-        id: id,
+        id,
         substance: trioSelection.substance as SubstanceFilePointer,
         style: trioSelection.style as StyleFilePointer,
         domain: trioSelection.domain as DomainFilePointer,
         name: "Diagram",
         location: {
           type: "local",
-          localStorageKey: id,
+          localStorageKey: "",
         },
       };
+      (diagramPointer.location as ILocalLocation).localStorageKey =
+        pointerToLocalStorageKey(diagramPointer);
       const diagramFile: StateFile = {
         type: "state_file",
         id: diagramPointer.id,
@@ -498,17 +533,31 @@ export const useUpdateNodeToNewDiagram = (
         file: diagramFile,
         pointer: diagramPointer,
       });
+
       workspaceState.openWorkspace.layout.doAction(
         Actions.updateNodeAttributes(node.getId(), {
           component: "file",
           name: "Diagram",
-          id,
+          config: {
+            id,
+          },
         })
       );
       _compileDiagram(dispatch, workspaceState, diagramPointer, autostep);
     },
     [dispatch, workspaceState]
   );
+
+const pointerToLocalStorageKey = (pointer: FilePointer) =>
+  `${pointer.type}-${pointer.id}`;
+
+// Memoized so that we dont over-debounce unrelated saves
+const debouncedSave = memoize((fileId: string) =>
+  debounce((filePointer: FilePointer, file: SavedFile) => {
+    const loc = filePointer.location as ILocalLocation;
+    window.localStorage.setItem(loc.localStorageKey, JSON.stringify(file));
+  }, 500)
+);
 
 export const useCompileDiagram = (
   dispatch: FileDispatcher,
@@ -521,18 +570,130 @@ export const useCompileDiagram = (
     [dispatch, workspaceState]
   );
 
-/*
-function writeFileToDisk(
-  pointer: FilePointer,
-  contents: string,
-  workspaceId: string
+function _updateWorkspace(
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState
 ): IWorkspaceState {
-  if (pointer.location.type === "local") {
-  } else {
-    //  generate new local pointer with new Id
-    //   change return type
-    // override workspace author, if there is one
+  let state = workspaceState;
+  let pointer = state.workspacePointer;
+  if (pointer.location.type !== "local") {
+    const newId = v4();
+    pointer = {
+      type: "workspace",
+      id: newId,
+      name: `fork of ${pointer.name}`,
+      location: {
+        type: "local",
+        localStorageKey: "",
+      },
+    };
+    (pointer.location as ILocalLocation).localStorageKey =
+      pointerToLocalStorageKey(pointer);
+    state = {
+      ...state,
+      workspacePointer: pointer,
+      openWorkspace: { ...state.openWorkspace, id: newId },
+    };
   }
-  return { fileContents: {}, workspace: "" };
+  dispatch({
+    type: "SET_WORKSPACE",
+    workspaceState: state,
+  });
+  debouncedSave(state.openWorkspace.id)(pointer, {
+    type: "workspace_file",
+    id: state.openWorkspace.id,
+    contents: {
+      ...state.openWorkspace,
+      layout: state.openWorkspace.layout.toJson(),
+    },
+  });
+  return state;
 }
-*/
+
+function _closeWorkspaceFile(
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState,
+  id: string
+) {
+  _updateWorkspace(dispatch, {
+    ...workspaceState,
+    fileContents: deleteProperty(workspaceState.fileContents, id),
+    openWorkspace: {
+      ...workspaceState.openWorkspace,
+      openFiles: deleteProperty(workspaceState.openWorkspace.openFiles, id),
+    },
+  });
+}
+
+export const useCloseWorkspaceFile = (
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState
+) =>
+  useCallback(
+    (id: string) => _closeWorkspaceFile(dispatch, workspaceState, id),
+    [dispatch, workspaceState]
+  );
+
+function _updateFile(
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState,
+  savedFile: SavedFile
+) {
+  let file = savedFile;
+  let pointer = workspaceState.openWorkspace.openFiles[file.id];
+  if (pointer.location.type !== "local") {
+    const newId = v4();
+    pointer = {
+      ...pointer,
+      id: newId,
+      location: {
+        type: "local",
+        localStorageKey: "",
+      },
+    };
+    (pointer.location as ILocalLocation).localStorageKey =
+      pointerToLocalStorageKey(pointer);
+    file = {
+      ...file,
+      id: pointer.id,
+    };
+    const newWorkspace = _updateWorkspace(dispatch, {
+      ...workspaceState,
+      fileContents: { ...workspaceState.fileContents, [pointer.id]: file },
+      openWorkspace: {
+        ...workspaceState.openWorkspace,
+        openFiles: {
+          ...workspaceState.openWorkspace.openFiles,
+          [pointer.id]: pointer,
+        },
+      },
+    });
+    // Find existing open editor and update its config's id
+    newWorkspace.openWorkspace.layout.visitNodes((node) => {
+      if (
+        node.getType() === "tab" &&
+        (node as TabNode).getConfig() &&
+        (node as TabNode).getConfig().id === savedFile.id
+      ) {
+        newWorkspace.openWorkspace.layout.doAction(
+          Actions.updateNodeAttributes(node.getId(), { config: { id: newId } })
+        );
+      }
+    });
+
+    // This is to prevent NPE's while munging the config's pointer
+    _closeWorkspaceFile(dispatch, newWorkspace, savedFile.id);
+    // TODO: update local files directory
+  }
+  dispatch({ type: "UPDATE_OPEN_FILE", file });
+  debouncedSave(pointer.id)(pointer, file);
+}
+
+export const useUpdateFile = (
+  dispatch: FileDispatcher,
+  workspaceState: IWorkspaceState
+) =>
+  useCallback(
+    (file: SavedFile) => _updateFile(dispatch, workspaceState, file),
+    [dispatch, workspaceState]
+  );

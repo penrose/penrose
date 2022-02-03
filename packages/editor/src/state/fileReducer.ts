@@ -1,16 +1,13 @@
-import { Env, stepState } from "@penrose/core";
-import { Actions, DockLocation, Model } from "flexlayout-react";
+import { Env } from "@penrose/core";
+import { Model } from "flexlayout-react";
 import { Dispatch } from "react";
 import { v4 } from "uuid";
 import {
   constructLayout,
   FilePointer,
-  IExamples,
   IFileSystemState,
-  IWorkspace,
   IWorkspaceState,
   SavedFile,
-  TrioType,
 } from "../types/FileSystem";
 
 export type FileAction =
@@ -18,12 +15,12 @@ export type FileAction =
   | { type: "UPDATE_LAYOUT"; layout: Model }
   | { type: "SET_WORKSPACE"; workspaceState: IWorkspaceState }
   | { type: "OPEN_FILE"; file: SavedFile; pointer: FilePointer }
-  | { type: "CLOSE_FILE"; id: string }
   | { type: "SET_DOMAIN_CACHE"; domainCache: Env | null };
 
 export type FileDispatcher = Dispatch<FileAction>;
 export function initialFilesState(): IFileSystemState {
   const date = new Date();
+  const name = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
   const workspaceId = v4();
   return {
     fileSystem: {
@@ -34,11 +31,20 @@ export function initialFilesState(): IFileSystemState {
       diagrams: {},
     },
     workspace: {
+      workspacePointer: {
+        type: "workspace",
+        name,
+        id: workspaceId,
+        location: {
+          localStorageKey: `workspace-${workspaceId}`,
+          type: "local",
+        },
+      },
       fileContents: {},
       openWorkspace: {
         domainCache: null,
         openFiles: {},
-        name: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
+        name,
         id: workspaceId,
         creator: null,
         forkedFrom: null,
@@ -57,7 +63,7 @@ export function initialFilesState(): IFileSystemState {
 }
 
 // Adapted from https://stackoverflow.com/questions/34401098/remove-a-property-in-an-object-immutably#comment83640640_47227198
-const deleteProperty = (obj: any, key: string) => {
+export const deleteProperty = (obj: any, key: string) => {
   const { [key]: _, ...newObj } = obj;
   return newObj;
 };
@@ -79,7 +85,6 @@ export default function FileReducer(
         },
       };
     case "UPDATE_OPEN_FILE":
-      // TODO: if example/gist, create new!
       return {
         ...state,
         workspace: {
@@ -106,22 +111,6 @@ export default function FileReducer(
               ...state.workspace.openWorkspace.openFiles,
               [action.pointer.id]: action.pointer,
             },
-          },
-        },
-      };
-    case "CLOSE_FILE":
-      // TODO: save
-      return {
-        ...state,
-        workspace: {
-          ...state.workspace,
-          fileContents: deleteProperty(state.workspace.fileContents, action.id),
-          openWorkspace: {
-            ...state.workspace.openWorkspace,
-            openFiles: deleteProperty(
-              state.workspace.openWorkspace.openFiles,
-              action.id
-            ),
           },
         },
       };

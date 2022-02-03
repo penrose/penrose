@@ -12,13 +12,20 @@ import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
 import FileReducer, { initialFilesState } from "./state/fileReducer";
 import ExamplesPanel from "./components/ExamplesPanel";
-import { BorderNode, ITabSetRenderValues, TabSetNode } from "flexlayout-react";
+import {
+  BorderNode,
+  ITabSetRenderValues,
+  TabNode,
+  TabSetNode,
+} from "flexlayout-react";
 import { SquareBlueButton } from "./components/BlueButton";
 import DiagramPanel from "./components/DiagramPanel";
 import {
   newFileCreatorTab,
+  useCloseWorkspaceFile,
   useLoadWorkspace,
   useOpenFileInWorkspace,
+  useUpdateFile,
   useUpdateNodeToDiagramCreator,
   useUpdateNodeToNewDiagram,
 } from "./state/fileSystemActions";
@@ -27,64 +34,6 @@ import DiagramInitializer from "./components/DiagramInitializer";
 import { StateFile } from "./types/FileSystem";
 
 function App() {
-  /*
-  const [state, dispatch] = useReducer(reducer, null, initialState);
-  const urlParams = useParams() as any;
-  useEffect(() => {
-    if (urlParams.gistId) {
-      retrieveGist(urlParams.gistId, dispatch);
-    }
-  }, [urlParams, dispatch]);
-  const location = useLocation();
-  useRoutingHandlers(location, dispatch);
-
-  const convergeRenderState = useCallback(
-    (state: PenroseState) => {
-      dispatch({ kind: "CHANGE_CANVAS_STATE", content: state });
-      const stepResult = stepUntilConvergence(state);
-      if (stepResult.isOk()) {
-        const convergedState = stepResult.value;
-        dispatch({ kind: "CHANGE_CANVAS_STATE", content: convergedState });
-      } else {
-        dispatch({ kind: "CHANGE_ERROR", content: stepResult.error });
-      }
-    },
-    [dispatch]
-  );
-
-  const compile = useCallback(() => {
-    try {
-      const { sub, sty, dsl } = state.currentInstance;
-      const compileRes = compileTrio(dsl, sub, sty);
-      tryDomainHighlight(dsl, dispatch);
-      if (compileRes.isOk()) {
-        dispatch({ kind: "CHANGE_ERROR", content: null });
-        (async () => {
-          const initState = await prepareState(compileRes.value);
-          convergeRenderState(initState);
-        })();
-      } else {
-        dispatch({ kind: "CHANGE_ERROR", content: compileRes.error });
-      }
-    } catch (err) {
-      toast.error(`Penrose internal error: ${err}. See console for details.`, {
-        autoClose: 10000,
-      });
-      console.error(err);
-    }
-  }, [state, convergeRenderState]);
-
-  const onResample = useCallback(() => {
-    const NUM_SAMPLES = 1;
-    if (state.currentInstance.state) {
-      const resampled = resample(state.currentInstance.state, NUM_SAMPLES);
-      convergeRenderState(resampled);
-    }
-  }, [state, convergeRenderState]);
-
-  
-  */
-
   const [fileSystem, dispatch] = useReducer(
     FileReducer,
     null,
@@ -98,6 +47,11 @@ function App() {
     dispatch,
     fileSystem.workspace
   );
+  const updateFile = useUpdateFile(dispatch, fileSystem.workspace);
+  const closeWorkspaceFile = useCloseWorkspaceFile(
+    dispatch,
+    fileSystem.workspace
+  );
 
   // aria attr/color
   const renderPanel = useCallback(
@@ -105,8 +59,9 @@ function App() {
       switch (node.getComponent()) {
         case "file":
           // TODO: abstract into component
-          const fileContents = fileSystem.workspace.fileContents[node.getId()];
-          const filePointer = workspace.openFiles[node.getId()];
+          const id = node.getConfig().id;
+          const fileContents = fileSystem.workspace.fileContents[id];
+          const filePointer = workspace.openFiles[id];
           switch (filePointer.type) {
             case "domain":
             case "substance":
@@ -125,13 +80,10 @@ function App() {
                       : SetupStyleMonaco
                   }
                   onChange={(v: string) =>
-                    dispatch({
-                      type: "UPDATE_OPEN_FILE",
-                      file: {
-                        type: "program_file",
-                        contents: v,
-                        id: fileContents.id,
-                      },
+                    updateFile({
+                      type: "program_file",
+                      contents: v,
+                      id: fileContents.id,
                     })
                   }
                 />
@@ -188,13 +140,15 @@ function App() {
   const handleLayoutAction = useCallback(
     (action: FlexLayout.Action) => {
       if (action.type === "FlexLayout_DeleteTab") {
-        const id = action.data.node;
+        const nodeId = action.data.node;
+        const id = (workspace.layout.getNodeById(nodeId) as TabNode).getConfig()
+          .id;
         // TODO: save
-        dispatch({ type: "CLOSE_FILE", id });
+        closeWorkspaceFile(id);
       }
       return action;
     },
-    [dispatch]
+    [dispatch, workspace]
   );
   // from https://github.com/caplin/FlexLayout/blob/af4e696eb6fd7261d852d1ce0a50ce33c4ef526b/examples/demo/App.tsx#L383
   const onRenderTabSet = useCallback(

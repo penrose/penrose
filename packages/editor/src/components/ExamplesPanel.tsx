@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchExamples } from "../state/fileSystemActions";
 import {
   FilePointer,
+  ICachedWorkspacePointer,
   IExamples,
   IWorkspace,
   IWorkspacePointer,
@@ -13,7 +14,7 @@ export default function ExamplesPanel({
   loadWorkspace,
 }: {
   openFileInWorkspace(pointer: FilePointer): void;
-  loadWorkspace(workspace: IWorkspacePointer): void;
+  loadWorkspace(workspace: IWorkspacePointer | ICachedWorkspacePointer): void;
 }) {
   const [examples, setExamples] = useState<IExamples | null>();
   useEffect(() => {
