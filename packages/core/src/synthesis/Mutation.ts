@@ -314,20 +314,23 @@ export const checkSwapExprArgs = (
 
 export const checkSwapInStmtArgs = (
   stmt: SubStmt<A>,
-  pickSwap: (options: Decl<A>[]) => Identifier<A>,
-  element: (p: ApplyPredicate<A>) => [number, SubProg<A>]
+  cxt: SynthesisContext,
+  pickSwap: (
+    options: Immutable.Map<string, Identifier<A>[]>
+  ) => Identifier<A> | undefined,
+  element: (p: ApplyPredicate<A>) => number
 ): SwapInStmtArgs | undefined => {
   if (stmt.tag === "ApplyPredicate") {
     if (stmt.args.length < 1) return undefined;
-    const [elem, prog] = element(stmt);
+    const elem = element(stmt);
     const arg = stmt.args[elem];
     if (arg.tag === "Identifier") {
       const swapOpts = identicalTypeDecls(
         stmt.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
-        prog
+        cxt.env
       );
-      if (swapOpts.length === 0) return undefined;
       const swap = pickSwap(swapOpts);
+      if (!swap) return undefined;
       return {
         tag: "SwapInStmtArgs",
         stmt,
@@ -353,10 +356,11 @@ export const checkSwapInStmtArgs = (
 
 export const checkSwapInExprArgs = (
   stmt: SubStmt<A>,
-  pickSwap: (options: Decl<A>[]) => Identifier<A>,
-  element: (
-    p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>
-  ) => [number, SubProg<A>]
+  cxt: SynthesisContext,
+  pickSwap: (
+    options: Immutable.Map<string, Identifier<A>[]>
+  ) => Identifier<A> | undefined,
+  element: (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => number
 ): SwapInExprArgs | undefined => {
   if (stmt.tag === "Bind") {
     const { expr } = stmt;
@@ -366,17 +370,18 @@ export const checkSwapInExprArgs = (
       expr.tag === "Func"
     ) {
       if (expr.args.length < 1) return undefined;
-      const [elem, prog] = element(expr);
+      const elem = element(expr);
       const arg = expr.args[elem];
       if (arg.tag === "Identifier") {
         const swapOpts = identicalTypeDecls(
           expr.args.filter(
             (id): id is Identifier<A> => id.tag === "Identifier"
           ),
-          prog
+          cxt.env
         );
-        if (swapOpts.length === 0) return undefined;
+        // if (swapOpts.length === 0) return undefined;
         const swap = pickSwap(swapOpts);
+        if (!swap) return undefined;
         return {
           tag: "SwapInExprArgs",
           stmt,

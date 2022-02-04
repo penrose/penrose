@@ -468,24 +468,32 @@ export class Synthesizer {
       }),
       checkSwapInStmtArgs(
         stmt,
-        (options: Decl<A>[]): Identifier<A> => {
-          const pick = this.choice(options);
-          return pick.name;
+        ctx,
+        (
+          options: Immutable.Map<string, Identifier<A>[]>
+        ): Identifier<A> | undefined => {
+          const varId = this.choice([...options.keys()]);
+          const swapOptions = options.get(varId);
+          return swapOptions ? this.choice(swapOptions) : undefined;
         },
         (p: ApplyPredicate<A>) => {
           const indices = range(0, p.args.length);
-          return [this.choice(indices), this.currentProg];
+          return this.choice(indices);
         }
       ),
       checkSwapInExprArgs(
         stmt,
-        (options: Decl<A>[]): Identifier<A> => {
-          const pick = this.choice(options);
-          return pick.name;
+        ctx,
+        (
+          options: Immutable.Map<string, Identifier<A>[]>
+        ): Identifier<A> | undefined => {
+          const varId = this.choice([...options.keys()]);
+          const swapOptions = options.get(varId);
+          return swapOptions ? this.choice(swapOptions) : undefined;
         },
         (p: ApplyFunction<A> | ApplyConstructor<A> | Func<A>) => {
           const indices = range(0, p.args.length);
-          return [this.choice(indices), this.currentProg];
+          return this.choice(indices);
         }
       ),
       checkChangeStmtType(
