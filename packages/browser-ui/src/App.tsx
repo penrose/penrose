@@ -218,7 +218,7 @@ class App extends React.Component<unknown, ICanvasState> {
           message: `Runtime error encountered: '${e}' Check console for more information.`,
         };
 
-        const errorWrapper = { error, currentState: undefined };
+        const errorWrapper = { error };
         this.setState(errorWrapper);
         throw e;
       }
@@ -234,7 +234,7 @@ class App extends React.Component<unknown, ICanvasState> {
         this.state.settings.autoStepSize
       );
       if (stepped.isErr()) {
-        this.setState({ error: stepped.error, currentState: undefined });
+        this.setState({ error: stepped.error });
       } else {
         void this.onCanvasState(stepped.value);
       }
@@ -405,6 +405,7 @@ class App extends React.Component<unknown, ICanvasState> {
             autoStepToggle={this.autoStepToggle}
             reset={this.reset}
             resample={this.resample}
+            error={error !== undefined}
             converged={data ? stateConverged(data) : false}
             initial={data ? stateInitial(data) : false}
             toggleInspector={this.toggleInspector}
@@ -424,7 +425,7 @@ class App extends React.Component<unknown, ICanvasState> {
             pane2Style={{ overflow: "hidden" }}
           >
             <div style={{ width: "100%", height: "100%" }}>
-              {data && (
+              {data && !error && (
                 <div
                   style={{ width: "100%", height: "100%" }}
                   ref={this.canvasRef}
