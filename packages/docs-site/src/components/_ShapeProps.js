@@ -1,4 +1,5 @@
 import React from "react";
+import seedrandom from "seedrandom";
 
 import { shapedefs, makeCanvas } from "@penrose/core";
 
