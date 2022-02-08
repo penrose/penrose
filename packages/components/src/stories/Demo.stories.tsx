@@ -1,6 +1,4 @@
-import { compileDomain } from "@penrose/core";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-
+import { ComponentMeta, ComponentStory } from "@storybook/react";
 import Demo from "../Demo";
 import { continuousMap, oneSet } from "./PenrosePrograms";
 

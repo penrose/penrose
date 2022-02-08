@@ -1,7 +1,7 @@
-import * as React from "react";
 import { compileDomain } from "@penrose/core";
-import { Simple } from "./Simple";
+import * as React from "react";
 import Listing from "./Listing";
+import { Simple } from "./Simple";
 
 const Demo = (props: {
   sub: string;
