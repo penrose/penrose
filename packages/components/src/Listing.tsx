@@ -20,14 +20,7 @@ export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
   scrollBeyondLastLine: false,
 };
 
-const Listing = ({
-  value,
-  env,
-}: {
-  value: string;
-  env: Env;
-  numOpen: number;
-}) => {
+const Listing = ({ value, env }: { value: string; env: Env }) => {
   const monaco = useMonaco();
   const provideCompletion = useCallback(
     (model, position) => {
