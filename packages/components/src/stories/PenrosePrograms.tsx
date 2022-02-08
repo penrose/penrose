@@ -18,6 +18,7 @@ Set X {
   ensure maxSize(X.shape, canvas.width / 2)
 }
 `,
+  initVariation: "",
 };
 
 export const continuousMap = {
@@ -209,4 +210,5 @@ From(f, A, B)
   notation "f: A -> B" ~ "Map f; From(f, A, B)"
   
 `,
+  initVariation: "",
 };

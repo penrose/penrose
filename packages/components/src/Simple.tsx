@@ -7,15 +7,15 @@ import {
   resample,
   showError,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
 import fetchResolver from "./fetchPathResolver";
-import seedrandom from "seedrandom";
 
 export interface ISimpleProps {
   domainString: string;
   substanceString: string;
   styleString: string;
-  variation: string;
+  initVariation: string;
   initState?: PenroseState;
 }
 
@@ -61,13 +61,13 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
       substanceString,
       styleString,
       domainString,
-      variation,
+      initVariation,
     } = this.props;
     const state: PenroseState | undefined = await this.getInitState(
       domainString,
       substanceString,
       styleString,
-      variation
+      initVariation
     );
     this.setState({ state });
     this.renderCanvas(state);
@@ -109,6 +109,7 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   resampleState = (): void => {
     const { state: oldState } = this.state;
     if (oldState) {
+      oldState.seeds = variationSeeds(Math.random().toString()).seeds;
       const resampled = resample(oldState);
       const converged = stepUntilConvergence(resampled);
       const newState = converged.unsafelyUnwrap();
