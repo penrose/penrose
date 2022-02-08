@@ -29,10 +29,14 @@ const setTheoryEnv = compileDomain(continuousMap.domainString).unsafelyUnwrap();
 ContinuousMap.args = {
   value: continuousMap.substanceString,
   env: setTheoryEnv,
+  width: "400px",
+  height: "300px",
 };
 
 export const OneSet = Template.bind({});
 OneSet.args = {
   value: oneSet.substanceString,
   env: setTheoryEnv,
+  width: "400px",
+  height: "300px",
 };

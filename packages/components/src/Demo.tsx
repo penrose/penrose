@@ -7,6 +7,8 @@ const Demo = (props: {
   sty: string;
   dsl: string;
   variation: string;
+  width: string; // the width of each half; total width is twice this
+  // height must be equal to width (including in the passed Style canvas!)
 }) => {
   const env = compileDomain(props.dsl).unsafelyUnwrap();
   return (
@@ -18,14 +20,21 @@ const Demo = (props: {
         flex: 1,
       }}
     >
-      <Listing value={props.sub} env={env} />
-      <Simple
-        substanceString={props.sub}
-        styleString={props.sty}
-        domainString={props.dsl}
-        initVariation={props.variation}
-        interactive={false}
+      <Listing
+        value={props.sub}
+        env={env}
+        width={props.width}
+        height={props.width}
       />
+      <div style={{ width: props.width, height: props.width }}>
+        <Simple
+          substanceString={props.sub}
+          styleString={props.sty}
+          domainString={props.dsl}
+          initVariation={props.variation}
+          interactive={false}
+        />
+      </div>
     </div>
   );
 };

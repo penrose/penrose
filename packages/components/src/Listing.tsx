@@ -20,7 +20,17 @@ export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
   scrollBeyondLastLine: false,
 };
 
-const Listing = ({ value, env }: { value: string; env: Env }) => {
+const Listing = ({
+  value,
+  env,
+  width,
+  height,
+}: {
+  value: string;
+  env: Env;
+  width: string;
+  height: string;
+}) => {
   const monaco = useMonaco();
   const provideCompletion = useCallback(
     (model, position) => {
@@ -60,8 +70,8 @@ const Listing = ({ value, env }: { value: string; env: Env }) => {
   return (
     <MonacoEditor
       value={value}
-      width={`400px`}
-      height={`300px`}
+      width={width}
+      height={height}
       defaultLanguage="substance"
       options={monacoOptions}
     />

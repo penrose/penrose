@@ -46,7 +46,7 @@ From(f, A, B)
   styleString: `
   canvas {
     width = 800
-    height = 700
+    height = 800
   }
   
   Const {

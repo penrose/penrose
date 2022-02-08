@@ -30,6 +30,7 @@ ContinuousMap.args = {
   sty: continuousMap.styleString,
   dsl: continuousMap.domainString,
   variation: continuousMap.initVariation,
+  width: "400px",
 };
 
 export const OneSet = Template.bind({});
@@ -38,4 +39,5 @@ OneSet.args = {
   sty: oneSet.styleString,
   dsl: oneSet.domainString,
   variation: oneSet.initVariation,
+  width: "400px",
 };
