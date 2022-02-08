@@ -4,6 +4,7 @@ import {
   PenroseState,
   prepareState,
   RenderInteractive,
+  RenderStatic,
   resample,
   showError,
   stepUntilConvergence,
@@ -16,6 +17,7 @@ export interface ISimpleProps {
   substanceString: string;
   styleString: string;
   initVariation: string;
+  interactive?: boolean; // considered true by default
   initState?: PenroseState;
 }
 
@@ -85,11 +87,10 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
           state: newState,
         });
         // }
-        const renderedState: SVGSVGElement = await RenderInteractive(
-          newState,
-          this.updateState,
-          fetchResolver
-        );
+        const renderedState: SVGSVGElement = await (this.props.interactive ===
+        false
+          ? RenderStatic(newState, fetchResolver)
+          : RenderInteractive(newState, this.updateState, fetchResolver));
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {

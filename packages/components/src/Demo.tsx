@@ -24,6 +24,7 @@ const Demo = (props: {
         styleString={props.sty}
         domainString={props.dsl}
         initVariation={props.variation}
+        interactive={false}
       />
     </div>
   );
