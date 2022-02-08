@@ -1,10 +1,10 @@
-import { Action, Dispatcher, State } from "./reducer";
-import dummyRegistry from "./dummy-registry.json";
-import { useCallback } from "react";
 import { Octokit } from "@octokit/rest";
-import { toast } from "react-toastify";
-import { editor } from "monaco-editor";
 import { compileDomain } from "@penrose/core";
+import { editor } from "monaco-editor";
+import { useCallback } from "react";
+import { toast } from "react-toastify";
+import dummyRegistry from "./dummy-registry.json";
+import { Action, Dispatcher, State } from "./reducer";
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer

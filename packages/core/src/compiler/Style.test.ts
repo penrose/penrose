@@ -9,7 +9,6 @@ import {
 import * as fs from "fs";
 import _ from "lodash";
 import * as path from "path";
-import seedrandom from "seedrandom";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";

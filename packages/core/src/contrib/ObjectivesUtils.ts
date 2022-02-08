@@ -1,6 +1,6 @@
+import { shapeCenter } from "contrib/Queries";
 import { ops } from "engine/Autodiff";
 import { squared, sub } from "engine/AutodiffFunctions";
-import { shapeCenter } from "contrib/Queries";
 import { Pt2, VarAD } from "types/ad";
 
 /**

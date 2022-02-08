@@ -4,12 +4,12 @@ import {
   prettyPrintFn,
   prettyPrintPath,
 } from "@penrose/core";
+import { VarAD } from "@penrose/core/build/dist/types/ad";
 import { A } from "@penrose/core/build/dist/types/ast";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
+import { EdgeDefinition, ElementsDefinition, NodeDefinition } from "cytoscape";
 import { uniqBy } from "lodash";
-import { VarAD } from "@penrose/core/build/dist/types/ad";
-import { ElementsDefinition, EdgeDefinition, NodeDefinition } from "cytoscape";
 
 // TODO: The nodes and edges are left untyped for now because adding new keys to them (e.g. `DOF: true`) is used to style their CSS - not sure how to accommodate this as a TS type
 

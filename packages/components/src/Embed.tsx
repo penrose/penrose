@@ -1,5 +1,5 @@
-import "./Embed.css";
 import React, { CSSProperties } from "react";
+import "./Embed.css";
 import Logo from "./icons/Logo";
 import Resample from "./icons/Resample";
 import { ISimpleProps, Simple } from "./Simple";

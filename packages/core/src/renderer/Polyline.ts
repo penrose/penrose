@@ -1,10 +1,10 @@
 import {
-  attrScale,
-  attrStroke,
-  attrTitle,
   attrAutoFillSvg,
   attrFill,
   attrPolyPoints,
+  attrScale,
+  attrStroke,
+  attrTitle,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 

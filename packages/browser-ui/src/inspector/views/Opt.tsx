@@ -1,8 +1,8 @@
-import * as React from "react";
-import IViewProps from "./IViewProps";
-import { prettyPrintFn, evalFns, normList } from "@penrose/core";
+import { evalFns, normList, prettyPrintFn } from "@penrose/core";
 import { zipWith } from "lodash";
+import * as React from "react";
 import DataTable from "react-data-table-component";
+import IViewProps from "./IViewProps";
 
 export const EPS = 10e-3;
 

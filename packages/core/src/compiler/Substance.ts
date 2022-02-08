@@ -33,7 +33,6 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
-  all,
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,

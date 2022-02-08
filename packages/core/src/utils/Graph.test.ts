@@ -1,10 +1,9 @@
 import {
+  CompressedAdjacencyGraph,
   createAdjacencyMatrix,
   createCompressedMatrix,
-  Graph,
-  CompressedAdjacencyGraph,
-  Vertex,
   NodeWithEdges,
+  Vertex,
 } from "./Graph";
 class IntNode implements NodeWithEdges<number> {
   value: number;

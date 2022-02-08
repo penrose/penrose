@@ -1,11 +1,11 @@
+import { PenroseError, PenroseState } from "@penrose/core";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 import "@reach/tabs/styles.css";
+import { ISettings } from "App";
 import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
-import viewMap from "./views/viewMap";
-import { PenroseError, PenroseState } from "@penrose/core";
-import { ISettings } from "App";
 import IViewProps from "./views/IViewProps";
+import viewMap from "./views/viewMap";
 
 interface IProps {
   currentState: PenroseState | undefined;

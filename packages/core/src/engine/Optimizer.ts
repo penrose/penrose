@@ -11,7 +11,6 @@ import {
   ops,
   varOf,
 } from "engine/Autodiff";
-import { add, mul } from "./AutodiffFunctions";
 import {
   defaultLbfgsParams,
   initConstraintWeight,
@@ -29,7 +28,9 @@ import {
 } from "engine/Evaluator";
 import * as _ from "lodash";
 import rfdc from "rfdc";
+import seedrandom from "seedrandom";
 import { OptInfo, VarAD } from "types/ad";
+import { A } from "types/ast";
 import {
   Fn,
   FnCached,
@@ -55,8 +56,7 @@ import {
   zip2,
   zip3,
 } from "utils/Util";
-import { A } from "types/ast";
-import seedrandom from "seedrandom";
+import { add, mul } from "./AutodiffFunctions";
 
 // NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
 //const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");

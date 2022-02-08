@@ -1,12 +1,11 @@
 import { ICircle } from "shapes/Circle";
 import { IEllipse } from "shapes/Ellipse";
-import { ICenter, IPoly, IRect, IRotate, IScale } from "types/shapes";
 import { ILine } from "shapes/Line";
 import { IPath } from "shapes/Path";
 import { IRectangle } from "shapes/Rectangle";
 import { isPt2, Pt2, VarAD } from "types/ad";
+import { ICenter, IPoly, IRect, IRotate, IScale } from "types/shapes";
 import { constOf, ops } from "./Autodiff";
-
 import {
   absVal,
   add,
