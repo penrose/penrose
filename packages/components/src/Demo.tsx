@@ -1,5 +1,6 @@
+import * as React from "react";
 import { compileDomain } from "@penrose/core";
-import { Simple } from ".";
+import { Simple } from "./Simple";
 import Listing from "./Listing";
 
 const Demo = (props: {

@@ -9,6 +9,9 @@ const common = {
   define: {
     global: "globalThis", // HACK: `eigen` somehow uses `global`, overwriting it with anything will make it work (?). Need to figure out how to do polyfill
   },
+  loader: {
+    ".ttf": "dataurl",
+  },
   // platform: "browser",
 };
 build({

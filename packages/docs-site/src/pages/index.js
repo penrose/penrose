@@ -1,9 +1,10 @@
-import React from "react";
+import * as React from "react";
 import clsx from "clsx";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./index.module.css";
+import { Demo, Simple, Listing } from "@penrose/components";
 import HomepageFeatures from "../components/HomepageFeatures";
 
 function HomepageHeader() {
@@ -34,6 +35,7 @@ function HomepageHeader() {
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
+
   return (
     <Layout
       title={`Home`}
@@ -41,9 +43,20 @@ export default function Home() {
     >
       <HomepageHeader />
       <main>
-        {/* <HomepageFeatures />
-        TODO: live penrose example 
-      */}
+        {/* <HomepageFeatures /> */}
+
+        <Demo
+          sub={"Set A"}
+          sty={`
+  canvas {
+    width = 400
+    height = 400
+  }
+  Set X { X.shape = Circle{} }
+  `}
+          dsl={"type Set"}
+          variation={"foo"}
+        />
       </main>
     </Layout>
   );
