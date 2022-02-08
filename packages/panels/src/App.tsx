@@ -1,12 +1,4 @@
-import * as React from "react";
-import { useCallback, useEffect, useReducer, useRef } from "react";
-import styled from "styled-components";
-import { toast, ToastContainer } from "react-toastify";
-import MonacoEditor from "@monaco-editor/react";
-import "react-toastify/dist/ReactToastify.css";
-import reducer, { debouncedSave, initialState } from "./reducer";
 import {
-  compileDomain,
   compileTrio,
   PenroseState,
   prepareState,
@@ -17,20 +9,24 @@ import {
   stepUntilConvergence,
   variationSeeds,
 } from "@penrose/core";
+import * as React from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import styled from "styled-components";
+import AuthorshipTitle from "./components/AuthorshipTitle";
+import BlueButton from "./components/BlueButton";
+import DomainPane from "./DomainPane";
+import reducer, { debouncedSave, initialState } from "./reducer";
+import StylePane from "./StylePane";
+import SubstancePane from "./SubstancePane";
 import {
   DownloadSVG,
-  monacoOptions,
   retrieveGist,
   tryDomainHighlight,
   usePublishGist,
 } from "./Util";
-import AuthorshipTitle from "./components/AuthorshipTitle";
-import BlueButton from "./components/BlueButton";
-import { useParams } from "react-router-dom";
-import StylePane from "./StylePane";
-import SubstancePane from "./SubstancePane";
-import DomainPane from "./DomainPane";
-import seedrandom from "seedrandom";
 
 // currently there's no way to view or set the variation in panes, so we just
 // generate an ugly variation instead of the pretty ones we use in browser-ui;

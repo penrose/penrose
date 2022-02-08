@@ -1,6 +1,5 @@
+import { makeCanvas, shapedefs } from "@penrose/core";
 import React from "react";
-
-import { shapedefs, makeCanvas } from "@penrose/core";
 
 /* HACK to see if it's a sampled or clamped value */
 const showValue = (prop, def1, def2) => {

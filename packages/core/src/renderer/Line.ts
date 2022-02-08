@@ -1,11 +1,11 @@
 import { Shape } from "types/shape";
-import { IFloatV, IColorV, IStrV, IVectorV } from "types/value";
+import { IColorV, IFloatV, IStrV, IVectorV } from "types/value";
 import {
-  toSvgPaintProperty,
-  toSvgOpacityProperty,
-  toScreen,
   arrowheads,
   round2,
+  toScreen,
+  toSvgOpacityProperty,
+  toSvgPaintProperty,
 } from "utils/Util";
 import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";

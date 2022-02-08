@@ -1,7 +1,6 @@
 import { bBoxDims, RenderShape, Shape } from "@penrose/core";
 import * as React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 // styling for shape inside viewbox - see ShapeView or Mod

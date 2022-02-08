@@ -1,6 +1,6 @@
-import * as _ from "lodash";
 import consola, { LogLevel } from "consola";
-import { VarAD, IVarAD, GradGraphs } from "types/ad";
+import * as _ from "lodash";
+import { GradGraphs, IVarAD, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
 import { Queue, safe } from "utils/Util";
 import {

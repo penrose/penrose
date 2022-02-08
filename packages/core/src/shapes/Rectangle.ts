@@ -1,12 +1,12 @@
 import {
-  INamed,
-  IStroke,
-  IFill,
   ICenter,
-  IRect,
   ICorner,
-  IShape,
+  IFill,
+  INamed,
+  IRect,
   IRotate,
+  IShape,
+  IStroke,
 } from "types/shapes";
 import {
   BoolV,

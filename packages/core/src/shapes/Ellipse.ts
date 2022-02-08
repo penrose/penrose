@@ -1,5 +1,5 @@
 import { VarAD } from "types/ad";
-import { INamed, IStroke, IFill, ICenter, IShape } from "types/shapes";
+import { ICenter, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IFloatV } from "types/value";
 import {
   BoolV,

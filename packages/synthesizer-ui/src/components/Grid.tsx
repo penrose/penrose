@@ -1,7 +1,7 @@
-import React from "react";
-import { PenroseState, SynthesizedSubstance } from "@penrose/core";
-import { Gridbox } from "./Gridbox";
 import { Box, styled, Typography } from "@material-ui/core";
+import { PenroseState, SynthesizedSubstance } from "@penrose/core";
+import React from "react";
+import { Gridbox } from "./Gridbox";
 
 export interface GridProps {
   style: string;

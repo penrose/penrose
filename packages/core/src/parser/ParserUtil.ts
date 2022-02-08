@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { compact, flatten } from "lodash";
 import * as moo from "moo";
-import { SourceLoc, Identifier, NodeType, SourceRange, C } from "types/ast";
+import { C, Identifier, NodeType, SourceLoc, SourceRange } from "types/ast";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,

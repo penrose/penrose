@@ -1,9 +1,9 @@
 import { Canvas } from "shapes/Samplers";
-import { VarAD, GradGraphs } from "./ad";
+import { GradGraphs, VarAD } from "./ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
-import { ArgVal, IFloatV, Translation, Value } from "./value";
+import { ArgVal, IFloatV, Translation } from "./value";
 
 /**
  * The diagram state modeling the original Haskell types

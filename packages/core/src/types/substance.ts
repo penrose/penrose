@@ -1,6 +1,6 @@
-import { IStringLit, ASTNode, Identifier, A } from "./ast";
-import { Env, TypeConstructor } from "./domain";
 import { Map } from "immutable";
+import { A, ASTNode, Identifier, IStringLit } from "./ast";
+import { Env, TypeConstructor } from "./domain";
 
 export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = Map<string, LabelValue>;

@@ -1,6 +1,6 @@
 import { constOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
-import { INamed, IStroke, IFill, IArrow, IShape } from "types/shapes";
+import { IArrow, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IPathDataV } from "types/value";
 import {
   BoolV,

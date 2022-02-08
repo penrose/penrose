@@ -6,20 +6,11 @@ import {
   sortStmts,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt } from "compiler/Substance";
-import {
-  cloneDeep,
-  difference,
-  get,
-  groupBy,
-  intersectionWith,
-  map,
-  sortBy,
-} from "lodash";
+import { cloneDeep, difference, get, intersectionWith, sortBy } from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
-import { SynthesizedSubstance } from "synthesis/Synthesizer";
-import { A, AbstractNode, ASTNode, Identifier, metaProps } from "types/ast";
-import { SubProg, SubStmt } from "types/substance";
 import { Mutation } from "synthesis/Mutation";
+import { A, AbstractNode, Identifier, metaProps } from "types/ast";
+import { SubProg, SubStmt } from "types/substance";
 
 //#region Generalized edits
 

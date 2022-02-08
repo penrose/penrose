@@ -1,16 +1,16 @@
 // TODO: This is the file with the most final version of CompGraph vis
 
-import * as React from "react";
-import IViewProps from "./IViewProps";
+import { IState } from "@penrose/core/build/dist/types/state";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import { IState } from "@penrose/core/build/dist/types/state";
+import * as React from "react";
 import {
-  traverseUnique,
   convertSchema,
-  toGraphOpt,
   PGraph,
+  toGraphOpt,
+  traverseUnique,
 } from "./GraphUtils";
+import IViewProps from "./IViewProps";
 
 cytoscape.use(dagre);
 

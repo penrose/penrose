@@ -1,4 +1,4 @@
-import { INamed, ICenter, IRect, IRotate, IShape } from "types/shapes";
+import { ICenter, INamed, IRect, IRotate, IShape } from "types/shapes";
 import { IStrV } from "types/value";
 import {
   BoolV,

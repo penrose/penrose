@@ -1,7 +1,27 @@
-import { constOf, constOfIf, numOf, ops } from "engine/Autodiff";
+import {
+  atDistLabel,
+  containsAABBs,
+  containsCirclePolygon,
+  containsCircleRectlike,
+  containsCircles,
+  containsPolygonCircle,
+  containsPolygonPolygon,
+  containsRectlikeCircle,
+  overlappingAABBs,
+  overlappingCircleLine,
+  overlappingCircles,
+  overlappingPolygons,
+  overlappingRectlikeCircle,
+} from "contrib/ConstraintsUtils";
+import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
+import { inRange, overlap1D } from "contrib/Utils";
+import { constOf, constOfIf, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
+  div,
+  ifCond,
+  lt,
   max,
   min,
   minN,
@@ -9,30 +29,9 @@ import {
   neg,
   squared,
   sub,
-  ifCond,
-  lt,
-  div,
 } from "engine/AutodiffFunctions";
-import { inRange, overlap1D } from "contrib/Utils";
-import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
-import * as _ from "lodash";
-import { shapedefs } from "shapes/Shapes";
 import * as BBox from "engine/BBox";
-import {
-  overlappingCircles,
-  overlappingPolygons,
-  overlappingRectlikeCircle,
-  overlappingCircleLine,
-  overlappingAABBs,
-  atDistLabel,
-  containsCircles,
-  containsPolygonPolygon,
-  containsPolygonCircle,
-  containsCirclePolygon,
-  containsCircleRectlike,
-  containsRectlikeCircle,
-  containsAABBs,
-} from "contrib/ConstraintsUtils";
+import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 
 // -------- Simple constraints

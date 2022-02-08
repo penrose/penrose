@@ -1,6 +1,6 @@
-import React from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
+import React from "react";
 
 // Hack bc penrose doesn't work in headless??
 let _ShapeProps;

@@ -1,6 +1,6 @@
+import { Canvas, toSvgPaintProperty, Value } from "@penrose/core";
+import { cloneDeep, round } from "lodash";
 import * as React from "react";
-import { round, cloneDeep } from "lodash";
-import { Canvas, Value, toSvgPaintProperty } from "@penrose/core";
 
 interface IProps {
   inputProps: IInputProps;
