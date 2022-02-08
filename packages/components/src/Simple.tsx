@@ -112,6 +112,7 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
       oldState.seeds = variationSeeds(Math.random().toString()).seeds;
       const resampled = resample(oldState);
       const converged = stepUntilConvergence(resampled);
+      // TODO: report errors
       const newState = converged.unsafelyUnwrap();
       this.setState({ state: newState });
       this.renderCanvas(newState);
