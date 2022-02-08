@@ -1,6 +1,6 @@
-import { VarAD } from "types/ad";
-import { variableAD, gvarOf, logAD, EPS_DENOM, noGrad } from "./Autodiff";
 import * as _ from "lodash";
+import { VarAD } from "types/ad";
+import { EPS_DENOM, gvarOf, logAD, noGrad, variableAD } from "./Autodiff";
 
 /**
  * Return `v + w`.

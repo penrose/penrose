@@ -2,7 +2,7 @@
 
 import { A } from "./ast";
 import { StyleErrors } from "./errors";
-import { StyT, Header, BindingForm } from "./style";
+import { BindingForm, Header, StyT } from "./style";
 
 // Style static semantics for selectors
 

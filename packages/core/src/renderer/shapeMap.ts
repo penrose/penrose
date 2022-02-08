@@ -1,13 +1,13 @@
 import Circle from "./Circle";
-import Equation from "./Equation";
 import Ellipse from "./Ellipse";
-import Rectangle from "./Rectangle";
+import Equation from "./Equation";
+import Image from "./Image";
+import Line from "./Line";
+import Path from "./Path";
 import Polygon from "./Polygon";
 import Polyline from "./Polyline";
+import Rectangle from "./Rectangle";
 import { ShapeProps } from "./Renderer";
-import Path from "./Path";
-import Line from "./Line";
-import Image from "./Image";
 import Text from "./Text";
 
 const shapeMap: {

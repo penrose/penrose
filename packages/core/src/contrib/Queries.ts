@@ -1,8 +1,8 @@
 import { constOf } from "engine/Autodiff";
-import { sqrt, mul } from "engine/AutodiffFunctions";
-import { Pt2, VarAD } from "types/ad";
+import { mul, sqrt } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
+import { Pt2, VarAD } from "types/ad";
 
 /**
  * Return bounding box from any provided shape.

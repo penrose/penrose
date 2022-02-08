@@ -1,51 +1,53 @@
-import * as _ from "lodash";
 import { bboxFromShape } from "contrib/Queries";
 import { inRange } from "contrib/Utils";
 import { constOf, numOf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
+  acos,
+  acosh,
   add,
   addN,
-  ceil,
-  div,
-  floor,
-  gt,
-  ifCond,
-  max,
-  min,
-  mul,
-  neg,
-  pow,
-  acosh,
-  acos,
   asin,
   asinh,
   atan,
   atan2,
   atanh,
   cbrt,
+  ceil,
   cos,
   cosh,
+  div,
   exp,
   expm1,
+  floor,
+  gt,
+  ifCond,
   ln,
-  log2,
   log10,
   log1p,
+  log2,
+  max,
+  min,
+  mul,
+  neg,
+  pow,
   round,
   sign,
   sin,
   sinh,
+  sqrt,
   squared,
+  sub,
   tan,
   tanh,
   trunc,
-  sqrt,
-  sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
+import * as _ from "lodash";
 import { maxBy, range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
+import seedrandom from "seedrandom";
+import { shapedefs } from "shapes/Shapes";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import {
   ArgVal,
@@ -58,9 +60,7 @@ import {
   ITupV,
   IVectorV,
 } from "types/value";
-import { randFloat, getStart, linePts } from "utils/Util";
-import { shapedefs } from "shapes/Shapes";
-import seedrandom from "seedrandom";
+import { getStart, linePts, randFloat } from "utils/Util";
 
 /**
  * Static dictionary of computation functions

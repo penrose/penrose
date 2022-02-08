@@ -354,6 +354,7 @@ export { constrDict } from "./contrib/Constraints";
 export { compDict } from "./contrib/Functions";
 export { objDict } from "./contrib/Objectives";
 export type { PathResolver } from "./renderer/Renderer";
+export { makeCanvas } from "./shapes/Samplers";
 export { shapedefs } from "./shapes/Shapes";
 export type {
   SynthesizedSubstance,
@@ -387,7 +388,6 @@ export {
   toSvgPaintProperty,
   variationSeeds,
 };
-export { makeCanvas } from "./shapes/Samplers";
 export type { Registry, Trio };
 export type { Env };
 export type { SubProg };

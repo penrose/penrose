@@ -1,25 +1,25 @@
+import { compDict } from "contrib/Functions";
 import {
   bboxFromShape,
+  polygonLikePoints,
   shapeCenter,
   shapeSize,
-  polygonLikePoints,
 } from "contrib/Queries";
+import { constOf, numOf } from "engine/Autodiff";
+import seedrandom from "seedrandom";
+import { makeCircle } from "shapes/Circle";
+import { makeEllipse } from "shapes/Ellipse";
+import { makeLine } from "shapes/Line";
+import { makePath } from "shapes/Path";
+import { makePolygon } from "shapes/Polygon";
+import { makeRectangle } from "shapes/Rectangle";
 import {
   FloatV,
   makeCanvas,
+  PtListV,
   sampleBlack,
   VectorV,
-  PtListV,
 } from "shapes/Samplers";
-import { compDict } from "contrib/Functions";
-import { constOf, numOf } from "engine/Autodiff";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makePath } from "shapes/Path";
-import { makeLine } from "shapes/Line";
-import { makePolygon } from "shapes/Polygon";
-import seedrandom from "seedrandom";
 
 const rng = seedrandom("Queries");
 const canvas = makeCanvas(800, 700);

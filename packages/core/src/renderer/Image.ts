@@ -1,12 +1,12 @@
+import { IStrV } from "types/value";
 import {
   attrAutoFillSvg,
   attrRotation,
   attrTransformCoords,
   attrWH,
 } from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
-import { IStrV } from "types/value";
 import notFound from "./not_found.json";
+import { ShapeProps } from "./Renderer";
 
 const Image = async ({
   shape,

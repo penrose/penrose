@@ -1,7 +1,7 @@
 import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
-import { A, Identifier, SourceLoc, AbstractNode } from "types/ast";
+import { A, AbstractNode, Identifier, SourceLoc } from "types/ast";
 import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
 import {
   ArgLengthMismatch,

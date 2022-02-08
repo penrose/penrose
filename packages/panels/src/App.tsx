@@ -7,6 +7,7 @@ import {
   resample,
   showError,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
 import * as React from "react";
 import { useCallback, useEffect, useReducer, useRef } from "react";
@@ -26,6 +27,11 @@ import {
   tryDomainHighlight,
   usePublishGist,
 } from "./Util";
+
+// currently there's no way to view or set the variation in panes, so we just
+// generate an ugly variation instead of the pretty ones we use in browser-ui;
+// TODO: use the same generateVariation everywhere
+const generateVariation = () => Math.random().toString();
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -160,7 +166,7 @@ function App({ location }: any) {
         substance: sub,
         style: sty,
         domain: dsl,
-        variation: Math.random().toString(), // TODO: make this seed configurable in the UI
+        variation: generateVariation(),
       });
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
@@ -182,8 +188,10 @@ function App({ location }: any) {
   }, [state, convergeRenderState]);
 
   const onResample = useCallback(() => {
-    if (state.currentInstance.state) {
-      const resampled = resample(state.currentInstance.state);
+    const oldState = state.currentInstance.state;
+    if (oldState) {
+      oldState.seeds = variationSeeds(generateVariation()).seeds;
+      const resampled = resample(oldState);
       convergeRenderState(resampled);
     }
   }, [state, convergeRenderState]);

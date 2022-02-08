@@ -1,4 +1,3 @@
-import React from "react";
 import {
   compileTrio,
   PenroseState,
@@ -10,6 +9,7 @@ import {
   stepUntilConvergence,
   variationSeeds,
 } from "@penrose/core";
+import React from "react";
 import fetchResolver from "./fetchPathResolver";
 
 export interface ISimpleProps {

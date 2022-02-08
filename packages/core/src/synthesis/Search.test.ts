@@ -11,7 +11,6 @@ import { applyDiff, rdiffResult } from "recursive-diff";
 import seedrandom from "seedrandom";
 import {
   DeclTypes,
-  SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
 } from "synthesis/Synthesizer";
@@ -22,7 +21,6 @@ import {
   DiffSet,
   diffSubProgs,
   diffSubStmts,
-  showDiffset,
   showStmtDiff,
   showSubDiff,
   StmtDiff,

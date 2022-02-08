@@ -13,9 +13,9 @@ import {
   stepUntilConvergence,
   variationSeeds,
 } from "@penrose/core";
-import Inspector from "inspector/Inspector";
 import animalNameList from "animals";
 import colorNameList from "color-name-list";
+import Inspector from "inspector/Inspector";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";

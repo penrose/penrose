@@ -1,4 +1,14 @@
+import { compDict } from "contrib/Functions";
 import { constOf, numOf } from "engine/Autodiff";
+import seedrandom from "seedrandom";
+import { makeCircle } from "shapes/Circle";
+import { makeEllipse } from "shapes/Ellipse";
+import { makeImage } from "shapes/Image";
+import { makeLine } from "shapes/Line";
+import { makePath } from "shapes/Path";
+import { makePolygon } from "shapes/Polygon";
+import { makePolyline } from "shapes/Polyline";
+import { makeRectangle } from "shapes/Rectangle";
 import {
   FloatV,
   makeCanvas,
@@ -6,16 +16,7 @@ import {
   sampleBlack,
   VectorV,
 } from "shapes/Samplers";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeRectangle } from "shapes/Rectangle";
 import { IPoly, IScale } from "types/shapes";
-import { makePolygon } from "shapes/Polygon";
-import { makePolyline } from "shapes/Polyline";
-import { makeImage } from "shapes/Image";
-import { makeLine } from "shapes/Line";
-import { makePath } from "shapes/Path";
-import { compDict } from "contrib/Functions";
 import {
   bboxFromCircle,
   bboxFromEllipse,
@@ -25,7 +26,6 @@ import {
   bboxFromRect,
   bboxFromRectlike,
 } from "./BBox";
-import seedrandom from "seedrandom";
 
 const canvas = makeCanvas(800, 700);
 

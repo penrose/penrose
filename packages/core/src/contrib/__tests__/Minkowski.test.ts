@@ -1,11 +1,11 @@
 import {
-  rectangleDifference,
-  outwardUnitNormal,
   halfPlaneSDF,
+  outwardUnitNormal,
+  rectangleDifference,
 } from "contrib/Minkowski";
-import * as BBox from "engine/BBox";
 import { constOf, numOf, ops } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
+import * as BBox from "engine/BBox";
 
 const digitPrecision = 4;
 

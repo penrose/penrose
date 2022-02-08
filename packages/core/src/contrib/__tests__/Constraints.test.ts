@@ -1,12 +1,12 @@
-import { constOf, numOf } from "engine/Autodiff";
-import { VarAD } from "types/ad";
 import { constrDict } from "contrib/Constraints";
 import {
-  _rectangles,
   _circles,
   _lines,
   _polygons,
+  _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
+import { constOf, numOf } from "engine/Autodiff";
+import { VarAD } from "types/ad";
 
 const digitPrecision = 10;
 
