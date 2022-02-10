@@ -1,12 +1,4 @@
-import * as React from "react";
-import { useCallback, useEffect, useReducer, useRef } from "react";
-import styled from "styled-components";
-import { toast, ToastContainer } from "react-toastify";
-import MonacoEditor from "@monaco-editor/react";
-import "react-toastify/dist/ReactToastify.css";
-import reducer, { debouncedSave, initialState } from "./reducer";
 import {
-  compileDomain,
   compileTrio,
   PenroseState,
   prepareState,
@@ -15,21 +7,31 @@ import {
   resample,
   showError,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
+import * as React from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import styled from "styled-components";
+import AuthorshipTitle from "./components/AuthorshipTitle";
+import BlueButton from "./components/BlueButton";
+import DomainPane from "./DomainPane";
+import reducer, { debouncedSave, initialState } from "./reducer";
+import StylePane from "./StylePane";
+import SubstancePane from "./SubstancePane";
 import {
   DownloadSVG,
-  monacoOptions,
   retrieveGist,
   tryDomainHighlight,
   usePublishGist,
 } from "./Util";
-import AuthorshipTitle from "./components/AuthorshipTitle";
-import BlueButton from "./components/BlueButton";
-import { useParams } from "react-router-dom";
-import StylePane from "./StylePane";
-import SubstancePane from "./SubstancePane";
-import DomainPane from "./DomainPane";
-import seedrandom from "seedrandom";
+
+// currently there's no way to view or set the variation in panes, so we just
+// generate an ugly variation instead of the pretty ones we use in browser-ui;
+// TODO: use the same generateVariation everywhere
+const generateVariation = () => Math.random().toString();
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -164,7 +166,7 @@ function App({ location }: any) {
         substance: sub,
         style: sty,
         domain: dsl,
-        variation: Math.random().toString(), // TODO: make this seed configurable in the UI
+        variation: generateVariation(),
       });
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
@@ -186,8 +188,10 @@ function App({ location }: any) {
   }, [state, convergeRenderState]);
 
   const onResample = useCallback(() => {
-    if (state.currentInstance.state) {
-      const resampled = resample(state.currentInstance.state);
+    const oldState = state.currentInstance.state;
+    if (oldState) {
+      oldState.seeds = variationSeeds(generateVariation()).seeds;
+      const resampled = resample(oldState);
       convergeRenderState(resampled);
     }
   }, [state, convergeRenderState]);

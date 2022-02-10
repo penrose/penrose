@@ -1,16 +1,16 @@
 import { constOf } from "engine/Autodiff";
+import seedrandom from "seedrandom";
+import { makeCircle } from "shapes/Circle";
+import { makeLine } from "shapes/Line";
+import { makePolygon } from "shapes/Polygon";
+import { makeRectangle } from "shapes/Rectangle";
 import {
   FloatV,
   makeCanvas,
+  PtListV,
   sampleBlack,
   VectorV,
-  PtListV,
 } from "shapes/Samplers";
-import { makeRectangle } from "shapes/Rectangle";
-import { makeCircle } from "shapes/Circle";
-import { makePolygon } from "shapes/Polygon";
-import { makeLine } from "shapes/Line";
-import seedrandom from "seedrandom";
 
 const rng = seedrandom("TestShapes.input");
 const canvas = makeCanvas(800, 700);

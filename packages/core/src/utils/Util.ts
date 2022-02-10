@@ -1,14 +1,13 @@
 import * as _ from "lodash";
-import memoize from "fast-memoize";
-import { zipWith, reduce, times } from "lodash";
+import { times } from "lodash";
+import seedrandom from "seedrandom";
+import { ILine } from "shapes/Line";
+import { VarAD } from "types/ad";
+import { A } from "types/ast";
 import { Properties } from "types/shape";
+import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
-import { VarAD } from "types/ad";
-import { Fn, Seeds, State } from "types/state";
-import { ILine } from "shapes/Line";
-import { A } from "types/ast";
-import seedrandom from "seedrandom";
 
 //#region general
 

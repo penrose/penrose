@@ -1,22 +1,21 @@
 import { constOf, ops, varOf } from "engine/Autodiff";
 import {
+  absVal,
   add,
   addN,
-  neg,
-  sub,
   ifCond,
   lt,
-  min,
   max,
-  minN,
   maxN,
-  absVal,
+  min,
+  minN,
+  neg,
   sqrt,
   squared,
+  sub,
 } from "engine/AutodiffFunctions";
-import * as _ from "lodash";
-import { VarAD, Pt2 } from "types/ad";
 import * as BBox from "engine/BBox";
+import { Pt2, VarAD } from "types/ad";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.

@@ -5,35 +5,33 @@ import {
   findExprSafe,
   insertExpr,
   isPath,
-  valueAutodiffToNumber,
 } from "engine/EngineUtils";
 import { mapValues } from "lodash";
 // For deep-cloning the translation
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";
-import { VarAD, OptDebugInfo, IVarAD } from "types/ad";
-import { A, Identifier, SourceLoc } from "types/ast";
+import seedrandom from "seedrandom";
+import { IVarAD, OptDebugInfo, VarAD } from "types/ad";
+import { A, SourceLoc } from "types/ast";
+import { ShapeAD } from "types/shape";
+import { Fn, FnDone, State, VaryMap } from "types/state";
+import { BinaryOp, Expr, IPropertyPath, Path, UnaryOp } from "types/style";
 import {
-  IFGPI,
-  Translation,
-  TagExpr,
-  IVal,
   ArgVal,
+  GPI,
+  IFGPI,
   IFloatV,
   IIntV,
   ILListV,
-  GPI,
+  IVal,
   IVectorV,
+  TagExpr,
+  Translation,
+  Value,
 } from "types/value";
-import { Shape, ShapeAD } from "types/shape";
-import { Value } from "types/value";
-import { State, Fn, VaryMap, FnDone } from "types/state";
-import { Path, Expr, IPropertyPath, BinaryOp, UnaryOp } from "types/style";
 import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
 import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
-
 import { add, div, mul, neg, sub } from "./AutodiffFunctions";
-import seedrandom from "seedrandom";
 
 const clone = rfdc({ proto: false, circles: false });
 

@@ -1,7 +1,9 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { constOfIf, numOf, varOf } from "engine/Autodiff";
+import { mapValues } from "lodash";
 import rfdc from "rfdc";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { IVarAD, VarAD } from "types/ad";
 import {
   A,
@@ -14,7 +16,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { IPathCmd, ISubPath, PropID, ShapeTypeStr, Value } from "types/value";
+import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -36,19 +38,21 @@ import {
   ILListV,
   IMatrixV,
   IPaletteV,
+  IPathCmd,
   IPathDataV,
   IPtListV,
   IPtV,
+  ISubPath,
   ITrans,
   ITupV,
   IVectorV,
+  PropID,
+  ShapeTypeStr,
   TagExpr,
   Translation,
+  Value,
 } from "types/value";
 import { showError } from "utils/Error";
-import { Shape, ShapeAD } from "types/shape";
-import { mapValues } from "lodash";
-import { ShapeDef, shapedefs } from "shapes/Shapes";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?

@@ -1,9 +1,8 @@
-import * as nearley from "nearley";
-import grammar from "./SubstanceParser";
-import * as path from "path";
 import * as fs from "fs";
-import { result } from "lodash";
+import * as nearley from "nearley";
+import * as path from "path";
 import { ConcreteNode } from "types/ast";
+import grammar from "./SubstanceParser";
 
 const outputDir = "/tmp/asts";
 const saveASTs = false;

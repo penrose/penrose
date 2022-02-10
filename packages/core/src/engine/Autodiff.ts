@@ -1,6 +1,6 @@
-import * as _ from "lodash";
 import consola, { LogLevel } from "consola";
-import { VarAD, IVarAD, GradGraphs } from "types/ad";
+import * as _ from "lodash";
+import { GradGraphs, IVarAD, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
 import { Queue, safe } from "utils/Util";
 import {
@@ -1033,8 +1033,6 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = ${childName0} / (${childName1} + ${EPS_DENOM});`;
     } else if (z.op === "atan2") {
       stmt = `const ${parName} = Math.atan2(${childName0}, ${childName1});`;
-    } else if (z.op === "pow") {
-      stmt = `const ${parName} = Math.pow(${childName0}, ${childName1});`;
     } else {
       stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
     }

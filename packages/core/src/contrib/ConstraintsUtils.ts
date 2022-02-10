@@ -1,36 +1,36 @@
 import {
+  containsPolygonPoints,
   overlappingPolygonPoints,
   rectangleDifference,
   rectangleSignedDistance,
-  containsPolygonPoints,
 } from "contrib/Minkowski";
-import { ops, constOf } from "engine/Autodiff";
-import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
-import { VarAD } from "types/ad";
-import * as BBox from "engine/BBox";
+import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
+import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
+import { constOf, ops } from "engine/Autodiff";
 import {
-  sub,
-  mul,
-  div,
-  min,
-  max,
   absVal,
   add,
   addN,
+  div,
   ifCond,
   lt,
-  squared,
+  max,
   maxN,
+  min,
+  mul,
+  squared,
+  sub,
 } from "engine/AutodiffFunctions";
-import { pointInBox, noIntersectCircles, atDistOutside } from "contrib/Utils";
+import * as BBox from "engine/BBox";
 import { Circle } from "shapes/Circle";
-import { Polygon } from "shapes/Polygon";
-import { Rectangle } from "shapes/Rectangle";
-import { Text } from "shapes/Text";
 import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
+import { Polygon } from "shapes/Polygon";
+import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
+import { Text } from "shapes/Text";
+import { VarAD } from "types/ad";
 
 // -------- Ovelapping helpers
 

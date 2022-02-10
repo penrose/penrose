@@ -1,5 +1,5 @@
-import { constOf, numOf } from "engine/Autodiff";
 import { inDirection } from "contrib/ObjectivesUtils";
+import { constOf, numOf } from "engine/Autodiff";
 
 const testShape = { center: { contents: [constOf(0), constOf(2)] } };
 const testRefShape = { center: { contents: [constOf(1), constOf(1)] } };

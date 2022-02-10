@@ -1,30 +1,29 @@
+import { inDirection } from "contrib/ObjectivesUtils";
+import { bboxFromShape, shapeCenter } from "contrib/Queries";
+import {
+  centerArrow2,
+  closestPt_PtSeg,
+  repelPoint,
+  sampleSeg,
+} from "contrib/Utils";
 import { constOf, constOfIf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
   addN,
   div,
+  ifCond,
   inverse,
+  lt,
   max,
   mul,
   neg,
   squared,
   sub,
-  ifCond,
-  lt,
 } from "engine/AutodiffFunctions";
-import { bboxFromShape, shapeCenter } from "contrib/Queries";
-import {
-  sampleSeg,
-  repelPoint,
-  centerArrow2,
-  closestPt_PtSeg,
-} from "contrib/Utils";
-import { inDirection } from "contrib/ObjectivesUtils";
-import * as _ from "lodash";
-import { linePts } from "utils/Util";
 import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
+import { linePts } from "utils/Util";
 
 // -------- Simple objective functions
 // Do not require shape quaries, operate directly with `VarAD` parameters.

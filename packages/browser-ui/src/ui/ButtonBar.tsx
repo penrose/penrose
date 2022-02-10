@@ -5,6 +5,7 @@ interface IProps {
   converged: boolean;
   autostep: boolean;
   initial: boolean;
+  error: boolean;
   showInspector: boolean;
   files: FileSocketResult | undefined;
   connected: boolean;
@@ -40,6 +41,7 @@ class ButtonBar extends React.Component<IProps> {
       files,
       connected,
       reconnect,
+      error,
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -50,12 +52,15 @@ class ButtonBar extends React.Component<IProps> {
         )}
         <button onClick={() => step(1)}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
-        <button onClick={reset} disabled={!converged && !initial && autostep}>
+        <button
+          onClick={reset}
+          disabled={!converged && !initial && !error && autostep}
+        >
           reset
         </button>
         <button
           onClick={resample}
-          disabled={!converged && !initial && autostep}
+          disabled={!converged && !initial && !error && autostep}
         >
           resample
         </button>

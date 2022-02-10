@@ -1,9 +1,9 @@
 import {
+  attrAutoFillSvg,
   attrCenter,
   attrFill,
   attrStroke,
   attrTitle,
-  attrAutoFillSvg,
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
