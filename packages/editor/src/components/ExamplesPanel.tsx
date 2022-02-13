@@ -1,22 +1,16 @@
 import { useEffect, useState } from "react";
+import { useLoadWorkspace } from "../state/atoms";
 import { fetchExamples } from "../state/fileSystemActions";
-import {
-  FilePointer,
-  ICachedWorkspacePointer,
-  IExamples,
-  IWorkspace,
-  IWorkspacePointer,
-} from "../types/FileSystem";
+import { FilePointer, IExamples } from "../types/FileSystem";
 import FileButton from "./FileButton";
 
 export default function ExamplesPanel({
   openFileInWorkspace,
-  loadWorkspace,
 }: {
   openFileInWorkspace(pointer: FilePointer): void;
-  loadWorkspace(workspace: IWorkspacePointer | ICachedWorkspacePointer): void;
 }) {
   const [examples, setExamples] = useState<IExamples | null>();
+  const loadWorkspace = useLoadWorkspace();
   useEffect(() => {
     (async () => {
       const ex = await fetchExamples();

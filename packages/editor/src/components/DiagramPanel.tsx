@@ -5,7 +5,7 @@
 
 import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef } from "react";
-import { DiagramFilePointer, StateFile } from "../types/FileSystem";
+import { DiagramFilePointer, DiagramFile } from "../types/FileSystem";
 import BlueButton from "./BlueButton";
 
 // error box
@@ -14,7 +14,7 @@ export default function DiagramPanel({
   fileContents,
 }: {
   filePointer: DiagramFilePointer;
-  fileContents: StateFile;
+  fileContents: DiagramFile;
 }) {
   const state = fileContents.contents;
   const canvasRef = useRef<HTMLDivElement>(null);

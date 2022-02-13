@@ -1,14 +1,9 @@
 import { TabNode } from "flexlayout-react";
-import { IWorkspace } from "../types/FileSystem";
+import { useUpdateNodeToDiagramCreator } from "../state/atoms";
 import FileButton from "./FileButton";
 
-export default function NewTab({
-  node,
-  updateNodeToDiagramCreator,
-}: {
-  node: TabNode;
-  updateNodeToDiagramCreator(node: TabNode): void;
-}) {
+export default function NewTab({ node }: { node: TabNode }) {
+  const updateNodeToDiagramCreator = useUpdateNodeToDiagramCreator();
   return (
     <div>
       <h1>create</h1>

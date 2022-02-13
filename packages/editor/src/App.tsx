@@ -1,7 +1,8 @@
-import { useCallback, useReducer } from "react";
+import { useCallback } from "react";
 import { ToastContainer } from "react-toastify";
 import * as FlexLayout from "flexlayout-react";
 import { useLocation, useParams } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import {
   EditorPane,
   SetupDomainMonaco,
@@ -10,7 +11,6 @@ import {
 } from "@penrose/components";
 import RunBar from "./components/RunBar";
 import SettingsPanel from "./components/SettingsPanel";
-import FileReducer, { initialFilesState } from "./state/fileReducer";
 import ExamplesPanel from "./components/ExamplesPanel";
 import {
   BorderNode,
@@ -20,41 +20,36 @@ import {
 } from "flexlayout-react";
 import { SquareBlueButton } from "./components/BlueButton";
 import DiagramPanel from "./components/DiagramPanel";
-import {
-  newFileCreatorTab,
-  useCloseWorkspaceFile,
-  useLoadWorkspace,
-  useOpenFileInWorkspace,
-  useUpdateFile,
-  useUpdateNodeToDiagramCreator,
-  useUpdateNodeToNewDiagram,
-} from "./state/fileSystemActions";
 import NewTab from "./components/NewTab";
 import DiagramInitializer from "./components/DiagramInitializer";
-import { StateFile } from "./types/FileSystem";
+import { DiagramFile, DomainFile, TrioType } from "./types/FileSystem";
+import {
+  fileContentsState,
+  layoutState,
+  useCloseWorkspaceFile,
+  useNewFileCreatorTab,
+  useOpenFileInWorkspace,
+  useSetLayout,
+  useUpdateFile,
+  useUpdateNodeToDiagramCreator,
+  workspaceState,
+} from "./state/atoms";
 
 function App() {
-  const [fileSystem, dispatch] = useReducer(
-    FileReducer,
-    null,
-    initialFilesState
-  );
-  const workspace = fileSystem.workspace.openWorkspace;
-  const openFileInWorkspace = useOpenFileInWorkspace(
-    dispatch,
-    fileSystem.workspace
-  );
-  const loadWorkspace = useLoadWorkspace(dispatch);
-  const updateNodeToDiagramCreator = useUpdateNodeToDiagramCreator(workspace);
-  const updateNodeToNewDiagram = useUpdateNodeToNewDiagram(
-    dispatch,
-    fileSystem.workspace
-  );
-  const updateFile = useUpdateFile(dispatch, fileSystem.workspace);
-  const closeWorkspaceFile = useCloseWorkspaceFile(
-    dispatch,
-    fileSystem.workspace
-  );
+  const [workspace, setWorkspace] = useRecoilState(workspaceState);
+  const [layout] = useRecoilState(layoutState);
+  const [fileContents] = useRecoilState(fileContentsState);
+
+  const openFileInWorkspace = useOpenFileInWorkspace();
+  const setLayout = useSetLayout();
+
+  const newFileCreatorTab = useNewFileCreatorTab();
+  const closeWorkspaceFile = useCloseWorkspaceFile();
+  // const updateNodeToNewDiagram = useUpdateNodeToNewDiagram(
+  //   dispatch,
+  //   fileSystem.workspace
+  // );
+  const updateFile = useUpdateFile();
 
   // aria attr/color
   const renderPanel = useCallback(
@@ -63,68 +58,48 @@ function App() {
         case "file":
           // TODO: abstract into component
           const id = node.getConfig().id;
-          const fileContents = fileSystem.workspace.fileContents[id];
-          const filePointer = workspace.openFiles[id];
-          switch (filePointer.type) {
+          const contents = fileContents[id];
+          const pointer = workspace.openFiles[id];
+          switch (pointer.type) {
             case "domain":
             case "substance":
             case "style":
               return (
                 <EditorPane
-                  value={fileContents.contents as string}
+                  value={contents.contents as string}
                   // TODO
                   vimMode={false}
-                  languageType={filePointer.type}
+                  languageType={pointer.type}
                   setupMonaco={
-                    filePointer.type === "domain"
+                    pointer.type === "domain"
                       ? SetupDomainMonaco
-                      : filePointer.type === "substance"
-                      ? SetupSubstanceMonaco(workspace.domainCache)
+                      : pointer.type === "substance"
+                      ? SetupSubstanceMonaco(
+                          (fileContents[pointer.domain.id] as DomainFile).cache
+                        )
                       : SetupStyleMonaco
                   }
-                  onChange={(v: string) =>
-                    updateFile({
-                      type: "program_file",
-                      contents: v,
-                      id: fileContents.id,
-                    })
-                  }
+                  onChange={(v: string) => updateFile(id, v)}
                 />
               );
             case "diagram_state":
               return (
                 <DiagramPanel
-                  filePointer={filePointer}
-                  fileContents={fileContents as StateFile}
+                  filePointer={pointer}
+                  fileContents={contents as DiagramFile}
                 />
               );
             default:
-              console.error("unhandled filePointer type", filePointer.type);
+              console.error("unhandled filePointer type", pointer.type);
               break;
           }
           break;
         case "new_tab":
-          return (
-            <NewTab
-              node={node}
-              updateNodeToDiagramCreator={updateNodeToDiagramCreator}
-            />
-          );
+          return <NewTab node={node} />;
         case "diagram_initializer":
-          return (
-            <DiagramInitializer
-              workspace={workspace}
-              node={node}
-              updateNodeToNewDiagram={updateNodeToNewDiagram}
-            />
-          );
+          return <DiagramInitializer node={node} />;
         case "examples":
-          return (
-            <ExamplesPanel
-              openFileInWorkspace={openFileInWorkspace}
-              loadWorkspace={loadWorkspace}
-            />
-          );
+          return <ExamplesPanel openFileInWorkspace={openFileInWorkspace} />;
         case "settings":
           return (
             <SettingsPanel
@@ -137,21 +112,20 @@ function App() {
           return <div />;
       }
     },
-    [dispatch, fileSystem]
+    [fileContents, workspace]
   );
 
   const handleLayoutAction = useCallback(
     (action: FlexLayout.Action) => {
       if (action.type === "FlexLayout_DeleteTab") {
         const nodeId = action.data.node;
-        const id = (workspace.layout.getNodeById(nodeId) as TabNode).getConfig()
-          .id;
-        // TODO: save
+        const id = (layout.getNodeById(nodeId) as TabNode).getConfig().id;
         closeWorkspaceFile(id);
       }
       return action;
     },
-    [dispatch, workspace]
+    // [workspace, layout, closeWorkspaceFile]
+    [workspace, layout]
   );
   // from https://github.com/caplin/FlexLayout/blob/af4e696eb6fd7261d852d1ce0a50ce33c4ef526b/examples/demo/App.tsx#L383
   const onRenderTabSet = useCallback(
@@ -159,7 +133,7 @@ function App() {
       renderValues.stickyButtons.push(
         <SquareBlueButton
           key={`${node.getId()}-addTab`}
-          onClick={() => newFileCreatorTab(workspace, node as TabSetNode)}
+          onClick={() => newFileCreatorTab(node as TabSetNode)}
         >
           +
         </SquareBlueButton>
@@ -171,12 +145,12 @@ function App() {
   return (
     <div className="App" style={{ display: "flex", flexDirection: "column" }}>
       <ToastContainer position="bottom-left" />
-      <RunBar compile={() => {}} dispatch={dispatch} workspace={workspace} />
+      {/* <RunBar compile={() => {}} dispatch={dispatch} workspace={workspace} /> */}
       <div style={{ position: "relative", flex: 1 }}>
         <FlexLayout.Layout
-          model={workspace.layout}
+          model={layout}
           factory={renderPanel}
-          onModelChange={(m) => dispatch({ type: "UPDATE_LAYOUT", layout: m })}
+          onModelChange={setLayout}
           onRenderTabSet={onRenderTabSet}
           onAction={handleLayoutAction}
         />

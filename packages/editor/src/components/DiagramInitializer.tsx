@@ -8,6 +8,8 @@ import {
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import { BigBlueButton } from "./BlueButton";
+import { useUpdateNodeToNewDiagram, workspaceState } from "../state/atoms";
+import { useRecoilValue } from "recoil";
 
 const mapFilterFiles = (openFiles: FilePointerMap, fileType: TrioType) =>
   Object.values(openFiles).filter(({ type }) => type === fileType);
@@ -69,19 +71,9 @@ const FileSelector = ({
   );
 };
 
-export default function DiagramInitializer({
-  workspace,
-  node,
-  updateNodeToNewDiagram,
-}: {
-  workspace: IWorkspace;
-  node: TabNode;
-  updateNodeToNewDiagram(
-    node: TabNode,
-    trioSelection: TrioSelection,
-    autostep: boolean
-  ): void;
-}) {
+export default function DiagramInitializer({ node }: { node: TabNode }) {
+  const updateNodeToNewDiagram = useUpdateNodeToNewDiagram();
+  const workspace = useRecoilValue(workspaceState);
   const [trio, setTrio] = useState<TrioSelection>({
     substance: null,
     style: null,
