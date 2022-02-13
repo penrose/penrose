@@ -3,11 +3,11 @@
  * output SVG properties using the optimized shape properties as input.
  */
 
-import { IColorV, IFloatV, IVectorV, IStrV, IPtListV } from "types/value";
 import { Shape } from "types/shape";
-import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
-import { attrMapSvg } from "./AttrMapSvg";
+import { IColorV, IFloatV, IPtListV, IStrV, IVectorV } from "types/value";
 import { toFontRule } from "utils/CollectLabels";
+import { toScreen, toSvgOpacityProperty, toSvgPaintProperty } from "utils/Util";
+import { attrMapSvg } from "./AttrMapSvg";
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.

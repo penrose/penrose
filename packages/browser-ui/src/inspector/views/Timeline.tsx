@@ -1,8 +1,6 @@
 import { PenroseState, RenderStatic } from "@penrose/core";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { useRef } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import IViewProps from "./IViewProps";
 
@@ -53,7 +51,7 @@ function Timeline({ frameIndex, history, selectFrame }: IViewProps) {
         const [shapeHTML, setShapeHTML] = useState("");
         useEffect(() => {
           (async () => {
-            const shape = await RenderStatic(frame, async () => null);
+            const shape = await RenderStatic(frame, async () => undefined);
             setShapeHTML(shape.outerHTML);
           })();
         }, []);

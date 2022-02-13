@@ -33,11 +33,12 @@ import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
 import rfdc from "rfdc";
+import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 import { A, C, Identifier } from "types/ast";
-import { Either, Just, Left, MaybeVal, Right } from "types/common";
+import { Either, Left, Right } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
 import {
   ParseError,
@@ -112,7 +113,7 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { prettyPrintPath, randFloat, zip2 } from "utils/Util";
+import { prettyPrintPath, randFloat, variationSeeds, zip2 } from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
@@ -213,17 +214,6 @@ export function foldM<A, B, C>(
   return resW;
 }
 
-function justs<T>(xs: MaybeVal<T>[]): T[] {
-  return xs
-    .filter((x) => x.tag === "Just")
-    .map((x) => {
-      if (x.tag === "Just") {
-        return x.contents;
-      }
-      throw Error("unexpected"); // Shouldn't happen
-    });
-}
-
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
@@ -318,7 +308,7 @@ const initSelEnv = (): SelEnv => {
     sTypeVarMap: {},
     varProgTypeMap: {},
     skipBlock: false,
-    header: { tag: "Nothing" },
+    header: undefined,
     warnings: [],
     errors: [],
   };
@@ -606,7 +596,7 @@ export const checkSelsAndMakeEnv = (
   const selEnvs: SelEnv[] = prog.map((e) => {
     const res = checkHeader(varEnv, e.header);
     // Put selector AST in just for debugging
-    res.header = { tag: "Just", contents: e.header };
+    res.header = e.header;
     return res;
   });
 
@@ -667,7 +657,7 @@ const couldMatchRels = (
 // COMBAK: return "maybe" if a substitution fails?
 // COMBAK: Add a type for `lv`? It's not used here
 const substituteBform = (
-  lv: MaybeVal<LocalVarSubst>,
+  lv: LocalVarSubst | undefined,
   subst: Subst,
   bform: BindingForm<A>
 ): BindingForm<A> => {
@@ -706,7 +696,7 @@ const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
     case "SEBind": {
       return {
         ...expr,
-        contents: substituteBform({ tag: "Nothing" }, subst, expr.contents),
+        contents: substituteBform(undefined, subst, expr.contents),
       };
     }
     case "SEFunc":
@@ -734,7 +724,7 @@ const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
     case "SEBind": {
       return {
         ...predArg,
-        contents: substituteBform({ tag: "Nothing" }, subst, predArg.contents), // COMBAK: Why is bform here...
+        contents: substituteBform(undefined, subst, predArg.contents), // COMBAK: Why is bform here...
       };
     }
   }
@@ -750,7 +740,7 @@ export const substituteRel = (
       // theta(B := E) |-> theta(B) := theta(E)
       return {
         ...rel,
-        id: substituteBform({ tag: "Nothing" }, subst, rel.id),
+        id: substituteBform(undefined, subst, rel.id),
         expr: substituteExpr(subst, rel.expr),
       };
     }
@@ -764,7 +754,7 @@ export const substituteRel = (
     case "RelField": {
       return {
         ...rel,
-        name: substituteBform({ tag: "Nothing" }, subst, rel.name),
+        name: substituteBform(undefined, subst, rel.name),
       };
     }
   }
@@ -807,13 +797,13 @@ const substitutePath = (
     case "FieldPath": {
       return {
         ...path,
-        name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
+        name: substituteBform(lv, subst, path.name),
       };
     }
     case "PropertyPath": {
       return {
         ...path,
-        name: substituteBform({ tag: "Just", contents: lv }, subst, path.name),
+        name: substituteBform(lv, subst, path.name),
       };
     }
     case "LocalVar": {
@@ -1050,12 +1040,12 @@ const substituteLine = (
 const substituteBlock = (
   [subst, si]: [Subst, number],
   [block, bi]: [Block<A>, number],
-  name: MaybeVal<string>
+  name: string | undefined
 ): Block<A> => {
   const lvSubst: LocalVarSubst =
-    name.tag === "Nothing"
+    name === undefined
       ? { tag: "LocalVarId", contents: [bi, si] }
-      : { tag: "NamespaceId", contents: name.contents };
+      : { tag: "NamespaceId", contents: name };
 
   return {
     ...block,
@@ -1451,37 +1441,30 @@ const typesMatched = (
 const matchBvar = (
   subVar: Identifier<A>,
   bf: BindingForm<A>
-): MaybeVal<Subst> => {
+): Subst | undefined => {
   switch (bf.tag) {
     case "StyVar": {
       const newSubst = {};
       newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
-      return {
-        tag: "Just",
-        contents: newSubst,
-      };
+      return newSubst;
     }
     case "SubVar": {
       if (subVar.value === bf.contents.value) {
         // Substance variables matched; comparing string equality
-        return {
-          tag: "Just",
-          contents: {},
-        };
+        return {};
       } else {
-        return { tag: "Nothing" }; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
+        return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
       }
     }
   }
 };
 
 // Judgment 12. G; theta |- S <| |S_o
-// TODO: Not sure why Maybe<Subst> doesn't work in the type signature?
 const matchDeclLine = (
   varEnv: Env,
   line: SubStmt<A>,
   decl: DeclPattern<A>
-): MaybeVal<Subst> => {
+): Subst | undefined => {
   if (line.tag === "Decl") {
     const [subT, subVar] = [line.type, line.name];
     const [styT, bvar] = [decl.type, decl.id];
@@ -1493,7 +1476,7 @@ const matchDeclLine = (
   }
 
   // Sty decls only match Sub decls
-  return { tag: "Nothing" };
+  return undefined;
 };
 
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
@@ -1507,7 +1490,10 @@ const matchDecl = (
   const newSubsts = subProg.statements.map((line) =>
     matchDeclLine(varEnv, line, decl)
   );
-  const res = merge(initSubsts, justs(newSubsts)); // TODO inline
+  const res = merge(
+    initSubsts,
+    newSubsts.filter((x): x is Subst => x !== undefined)
+  ); // TODO inline
   // COMBAK: Inline this
   // console.log("substs to combine:", initSubsts, justs(newSubsts));
   // console.log("res", res);
@@ -1836,7 +1822,7 @@ const translateLine = (
 
 // Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
 const translateBlock = (
-  name: MaybeVal<string>,
+  name: string | undefined,
   blockWithNum: [Block<A>, number],
   trans: Translation,
   substWithNum: [Subst, number]
@@ -1859,7 +1845,7 @@ const translateSubstsBlock = (
   return foldM(
     substsNum,
     (trans, substNum) =>
-      translateBlock({ tag: "Nothing" }, blockWithNum, trans, substNum),
+      translateBlock(undefined, blockWithNum, trans, substNum),
     trans
   );
 };
@@ -2073,10 +2059,7 @@ const translatePair = (
       const subst = {};
       // COMBAK / errors: Keep the AST node from `hb.header` for error reporting?
       return translateBlock(
-        {
-          tag: "Just",
-          contents: hb.header.contents.contents.value,
-        },
+        hb.header.contents.contents.value,
         [hb.block, blockNum],
         trans,
         [subst, 0]
@@ -2245,6 +2228,7 @@ function foldSubObjs<T>(
 // For now, don't optimize these float-valued properties of a GPI
 // (use whatever they are initialized to in Shapes or set to in Style)
 const unoptimizedFloatProperties: string[] = [
+  "scale",
   "rotation",
   "strokeWidth",
   "thickness",
@@ -2725,6 +2709,7 @@ const isFieldOrAccessPath = (p: Path<A>): boolean => {
 // varying init paths are separated out and initialized with the value specified by the style writer
 // NOTE: Mutates translation
 const initFieldsAndAccessPaths = (
+  rng: seedrandom.prng,
   varyingPaths: Path<A>[],
   tr: Translation
 ): Translation => {
@@ -2734,7 +2719,7 @@ const initFieldsAndAccessPaths = (
   const initVals = varyingFieldsAndAccessPaths.map(
     (p: Path<A>): TagExpr<VarAD> => {
       // by default, sample randomly in canvas X range
-      let initVal = randFloat(...canvas.xRange);
+      let initVal = randFloat(rng, ...canvas.xRange);
 
       // unless it's a VaryInit, in which case, don't sample, set to the init value
       // TODO: This could technically use `varyingInitPathsAndVals`?
@@ -2776,12 +2761,12 @@ const initProperty = (
   shapeType: ShapeTypeStr,
   propName: string,
   styleSetting: TagExpr<VarAD>
-): TagExpr<VarAD> | null => {
+): TagExpr<VarAD> | undefined => {
   // Property set in Style
   switch (styleSetting.tag) {
     case "OptEval": {
       if (styleSetting.contents.tag === "Vary") {
-        return null;
+        return undefined;
       } else if (styleSetting.contents.tag === "VaryInit") {
         // Initialize the varying variable to the property specified in Style
         return {
@@ -2798,7 +2783,7 @@ const initProperty = (
           // (if only one element is set to ?, then presumably it's set by initializing an access path...? TODO: Check this)
           // TODO: This hardcodes an uninitialized 2D vector to be initialized/inserted
           if (v[0].tag === "Vary" && v[1].tag === "Vary") {
-            return null;
+            return undefined;
           }
         }
         return styleSetting;
@@ -2823,6 +2808,7 @@ const mkShapeName = (s: string, f: Field): string => {
 
 // COMBAK: This will require `getNames` to work
 const initShape = (
+  rng: seedrandom.prng,
   tr: Translation,
   [n, field]: [string, Field]
 ): Translation => {
@@ -2831,11 +2817,12 @@ const initShape = (
 
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents;
+    const shapedef: ShapeDef = shapedefs[stype];
     const instantiatedGPIProps: GPIProps<VarAD> = {
       // start by sampling all properties for the shape according to its shapedef
       ...Object.fromEntries(
         Object.entries(
-          shapedefs[stype].sampler(getCanvas(tr))
+          shapedef.sampler(rng, getCanvas(tr))
         ).map(([propName, contents]) => [
           propName,
           { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
@@ -2850,7 +2837,7 @@ const initShape = (
             propName,
             initProperty(stype, propName, propExpr),
           ])
-          .filter(([, x]) => x !== null)
+          .filter(([, x]) => x !== undefined)
       ),
     };
 
@@ -2873,8 +2860,12 @@ const initShape = (
   } else throw Error("expected GPI but got field");
 };
 
-const initShapes = (tr: Translation, pths: [string, string][]): Translation => {
-  return pths.reduce(initShape, tr);
+const initShapes = (
+  rng: seedrandom.prng,
+  tr: Translation,
+  pths: [string, string][]
+): Translation => {
+  return pths.reduce((tr, pth) => initShape(rng, tr, pth), tr);
 };
 
 //#region layering
@@ -2993,29 +2984,34 @@ const computeShapeOrdering = (tr: Translation): string[] => {
 const isVaryingInitPath = <T>(
   p: Path<T>,
   tr: Translation
-): [Path<T>, MaybeVal<number>] => {
+): [Path<T>, number | undefined] => {
   const res = findExpr(tr, p); // Some varying paths may not be in the translation. That's OK.
   if (res.tag === "OptEval") {
     if (res.contents.tag === "VaryInit") {
-      return [p, { tag: "Just", contents: res.contents.contents }];
+      return [p, res.contents.contents];
     }
   }
 
-  return [p, { tag: "Nothing" }];
+  return [p, undefined];
 };
 
 // ---- MAIN FUNCTION
 
 // COMBAK: Add optConfig as param?
-const genState = (trans: Translation): Result<State, StyleErrors> => {
+const genState = (
+  variation: string,
+  trans: Translation
+): Result<State, StyleErrors> => {
+  const { rng, seeds } = variationSeeds(variation);
+
   const varyingPaths = findVarying(trans);
   // NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
-  const varyingInitPathsAndVals: [Path<A>, number][] = (varyingPaths
+  const varyingInitPathsAndVals: [Path<A>, number][] = varyingPaths
     .map((p) => isVaryingInitPath(p, trans))
     .filter(
-      (tup: [Path<A>, MaybeVal<number>]): boolean => tup[1].tag === "Just"
-    ) as [Path<A>, Just<number>][]) // TODO: Not sure how to get typescript to understand `filter`...
-    .map((tup: [Path<A>, Just<number>]) => [tup[0], tup[1].contents]);
+      (tup: [Path<A>, number | undefined]): tup is [Path<A>, number] =>
+        tup[1] !== undefined
+    ); // TODO: Not sure how to get typescript to understand `filter`...
   const varyingInitInfo: { [pathStr: string]: number } = Object.fromEntries(
     varyingInitPathsAndVals.map((e) => [prettyPrintPath(e[0]), e[1]])
   );
@@ -3033,10 +3029,14 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
 
   // sample varying vals and instantiate all the non - float base properties of every GPI in the translation
   // this has to be done before `initFieldsAndAccessPaths` as AccessPaths may depend on shapes' properties already having been initialized
-  const transInitShapes = initShapes(trans, shapePathList);
+  const transInitShapes = initShapes(rng, trans, shapePathList);
 
   // sample varying fields and access paths, and put them in the translation
-  const transInitAll = initFieldsAndAccessPaths(varyingPaths, transInitShapes);
+  const transInitAll = initFieldsAndAccessPaths(
+    rng,
+    varyingPaths,
+    transInitShapes
+  );
 
   // CHECK TRANSLATION
   // Have to check it after the shapes are initialized, otherwise it will complain about uninitialized shape paths
@@ -3063,7 +3063,9 @@ const genState = (trans: Translation): Result<State, StyleErrors> => {
   const pendingPaths = findPending(transInitAll);
   const shapeOrdering = computeShapeOrdering(transInitAll); // deal with layering
 
-  const initState = {
+  const initState: State = {
+    seeds,
+
     shapes: initialGPIs, // These start out empty because they are initialized in the frontend via `evalShapes` in the Evaluator
     shapePaths,
     shapeProperties,
@@ -3335,6 +3337,7 @@ export const getCanvas = (tr: Translation): Canvas => {
 };
 
 export const compileStyle = (
+  variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env
@@ -3398,7 +3401,7 @@ export const compileStyle = (
   }
 
   // TODO(errors): `findExprsSafe` shouldn't fail (as used in `genOptProblemAndState`, since all the paths are generated from the translation) but could always be safer...
-  const initState: Result<State, StyleErrors> = genState(trans);
+  const initState: Result<State, StyleErrors> = genState(variation, trans);
   log.info("init state from GenOptProblem", initState);
 
   if (initState.isErr()) {

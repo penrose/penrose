@@ -1,7 +1,27 @@
+import {
+  atDistLabel,
+  containsAABBs,
+  containsCirclePolygon,
+  containsCircleRectlike,
+  containsCircles,
+  containsPolygonCircle,
+  containsPolygonPolygon,
+  containsRectlikeCircle,
+  overlappingAABBs,
+  overlappingCircleLine,
+  overlappingCircles,
+  overlappingPolygons,
+  overlappingRectlikeCircle,
+} from "contrib/ConstraintsUtils";
+import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
+import { inRange, overlap1D } from "contrib/Utils";
 import { constOf, constOfIf, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
+  div,
+  ifCond,
+  lt,
   max,
   min,
   minN,
@@ -9,27 +29,9 @@ import {
   neg,
   squared,
   sub,
-  ifCond,
-  lt,
-  div,
 } from "engine/AutodiffFunctions";
-import { inRange, overlap1D } from "contrib/Utils";
-import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
-import * as _ from "lodash";
-import { shapedefs } from "shapes/Shapes";
 import * as BBox from "engine/BBox";
-import {
-  overlappingCircles,
-  overlappingPolygons,
-  overlappingRectlikeCircle,
-  overlappingCircleLine,
-  overlappingAABBs,
-  atDistLabel,
-  containsCircles,
-  containsCircleRectlike,
-  containsRectlikeCircle,
-  containsAABBs,
-} from "contrib/ConstraintsUtils";
+import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
 
 // -------- Simple constraints
@@ -252,6 +254,12 @@ const constrDictGeneral = {
   ) => {
     if (t1 === "Circle" && t2 === "Circle")
       return containsCircles([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Polygon" && t2 === "Polygon")
+      return containsPolygonPolygon([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Polygon" && t2 === "Circle")
+      return containsPolygonCircle([t1, s1], [t2, s2], constOfIf(padding));
+    else if (t1 === "Circle" && t2 === "Polygon")
+      return containsCirclePolygon([t1, s1], [t2, s2], constOfIf(padding));
     else if (t1 === "Circle" && shapedefs[t2].isRectlike)
       return containsCircleRectlike([t1, s1], [t2, s2], constOfIf(padding));
     else if (shapedefs[t1].isRectlike && t2 === "Circle")

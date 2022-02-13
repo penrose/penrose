@@ -1,16 +1,18 @@
-import CircDef from "./shapedefs/circle.json";
-import LineDef from "./shapedefs/line.json";
-import EllipseDef from "./shapedefs/ellipse.json";
-import SquareDef from "./shapedefs/square.json";
-import RectangleDef from "./shapedefs/rectangle.json";
-import PolygonDef from "./shapedefs/polygon.json";
-import FreeformPolygonDef from "./shapedefs/polygon.json";
-import PolylineDef from "./shapedefs/polyline.json";
 import ArrowDef from "./shapedefs/arrow.json";
-import ImageDef from "./shapedefs/image.json";
-import TextDef from "./shapedefs/text.json";
+import CircDef from "./shapedefs/circle.json";
 import CurveDef from "./shapedefs/curve.json";
+import EllipseDef from "./shapedefs/ellipse.json";
+import ImageDef from "./shapedefs/image.json";
+import LineDef from "./shapedefs/line.json";
 import PathStrDef from "./shapedefs/pathStr.json";
+import {
+  default as FreeformPolygonDef,
+  default as PolygonDef,
+} from "./shapedefs/polygon.json";
+import PolylineDef from "./shapedefs/polyline.json";
+import RectangleDef from "./shapedefs/rectangle.json";
+import SquareDef from "./shapedefs/square.json";
+import TextDef from "./shapedefs/text.json";
 
 const defMap = {
   Circle: CircDef,

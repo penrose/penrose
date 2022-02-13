@@ -1,4 +1,14 @@
+import { compDict } from "contrib/Functions";
 import { constOf, numOf } from "engine/Autodiff";
+import seedrandom from "seedrandom";
+import { makeCircle } from "shapes/Circle";
+import { makeEllipse } from "shapes/Ellipse";
+import { makeImage } from "shapes/Image";
+import { makeLine } from "shapes/Line";
+import { makePath } from "shapes/Path";
+import { makePolygon } from "shapes/Polygon";
+import { makePolyline } from "shapes/Polyline";
+import { makeRectangle } from "shapes/Rectangle";
 import {
   FloatV,
   makeCanvas,
@@ -6,16 +16,7 @@ import {
   sampleBlack,
   VectorV,
 } from "shapes/Samplers";
-import { makeCircle } from "shapes/Circle";
-import { makeEllipse } from "shapes/Ellipse";
-import { makeRectangle } from "shapes/Rectangle";
 import { IPoly, IScale } from "types/shapes";
-import { makePolygon } from "shapes/Polygon";
-import { makePolyline } from "shapes/Polyline";
-import { makeImage } from "shapes/Image";
-import { makeLine } from "shapes/Line";
-import { makePath } from "shapes/Path";
-import { compDict } from "contrib/Functions";
 import {
   bboxFromCircle,
   bboxFromEllipse,
@@ -51,7 +52,7 @@ const polyProps = (): IPoly & IScale => ({
 
 describe("bbox", () => {
   test("Circle", () => {
-    const shape = makeCircle(canvas, {
+    const shape = makeCircle(seedrandom("bbox Circle"), canvas, {
       r: FloatV(constOf(100)),
       center: VectorV([42, 121].map(constOf)),
       strokeWidth: FloatV(constOf(50)),
@@ -69,7 +70,7 @@ describe("bbox", () => {
   });
 
   test("Ellipse", () => {
-    const shape = makeEllipse(canvas, {
+    const shape = makeEllipse(seedrandom("bbox Ellipse"), canvas, {
       rx: FloatV(constOf(200)),
       ry: FloatV(constOf(100)),
       center: VectorV([42, 121].map(constOf)),
@@ -88,7 +89,7 @@ describe("bbox", () => {
   });
 
   test("Rectangle", () => {
-    const shape = makeRectangle(canvas, {
+    const shape = makeRectangle(seedrandom("bbox Rectangle"), canvas, {
       center: VectorV([0, 0].map(constOf)),
       width: FloatV(constOf(150)),
       height: FloatV(constOf(200)),
@@ -107,7 +108,7 @@ describe("bbox", () => {
   });
 
   test("Polygon", () => {
-    const shape = makePolygon(canvas, polyProps());
+    const shape = makePolygon(seedrandom("bbox Polygon"), canvas, polyProps());
     const {
       width,
       height,
@@ -120,7 +121,11 @@ describe("bbox", () => {
   });
 
   test("Polyline", () => {
-    const shape = makePolyline(canvas, polyProps());
+    const shape = makePolyline(
+      seedrandom("bbox Polyline"),
+      canvas,
+      polyProps()
+    );
     const {
       width,
       height,
@@ -133,7 +138,7 @@ describe("bbox", () => {
   });
 
   test("Image", () => {
-    const shape = makeImage(canvas, {
+    const shape = makeImage(seedrandom("bbox Image"), canvas, {
       center: VectorV([0, 0].map(constOf)),
       width: FloatV(constOf(150)),
       height: FloatV(constOf(200)),
@@ -150,7 +155,7 @@ describe("bbox", () => {
   });
 
   test("Line", () => {
-    const shape = makeLine(canvas, {
+    const shape = makeLine(seedrandom("bbox Line"), canvas, {
       start: VectorV([-300, 200].map(constOf)),
       end: VectorV([100, -150].map(constOf)),
       strokeWidth: FloatV(constOf(50)),
@@ -167,8 +172,9 @@ describe("bbox", () => {
   });
 
   test("Path (lines)", () => {
-    const shape = makePath(canvas, {
-      d: compDict.pathFromPoints("open", [
+    const rng = seedrandom("bbox Path (lines)");
+    const shape = makePath(rng, canvas, {
+      d: compDict.pathFromPoints({ rng }, "open", [
         [constOf(-100), constOf(-100)],
         [constOf(100), constOf(-50)],
         [constOf(-50), constOf(100)],
@@ -186,8 +192,10 @@ describe("bbox", () => {
   });
 
   test("Path (quadratic)", () => {
-    const shape = makePath(canvas, {
+    const rng = seedrandom("bbox Path (quadratic)");
+    const shape = makePath(rng, canvas, {
       d: compDict.makePath(
+        { rng },
         [constOf(-100), constOf(0)],
         [constOf(100), constOf(0)],
         constOf(50),
@@ -206,8 +214,9 @@ describe("bbox", () => {
   });
 
   test("Path (cubic)", () => {
-    const shape = makePath(canvas, {
-      d: compDict.cubicCurveFromPoints("open", [
+    const rng = seedrandom("bbox Path (cubic)");
+    const shape = makePath(rng, canvas, {
+      d: compDict.cubicCurveFromPoints({ rng }, "open", [
         [constOf(0), constOf(0)],
         [constOf(50), constOf(50)],
         [constOf(200), constOf(0)],
@@ -226,8 +235,9 @@ describe("bbox", () => {
   });
 
   test("Path (quadratic join)", () => {
-    const shape = makePath(canvas, {
-      d: compDict.quadraticCurveFromPoints("open", [
+    const rng = seedrandom("bbox Path (quadratic join)");
+    const shape = makePath(rng, canvas, {
+      d: compDict.quadraticCurveFromPoints({ rng }, "open", [
         [constOf(0), constOf(0)],
         [constOf(50), constOf(50)],
         [constOf(75), constOf(-25)],
@@ -246,8 +256,9 @@ describe("bbox", () => {
   });
 
   test("Path (cubic join)", () => {
-    const shape = makePath(canvas, {
-      d: compDict.cubicCurveFromPoints("open", [
+    const rng = seedrandom("bbox Path (cubic join)");
+    const shape = makePath(rng, canvas, {
+      d: compDict.cubicCurveFromPoints({ rng }, "open", [
         [constOf(0), constOf(0)],
         [constOf(50), constOf(50)],
         [constOf(200), constOf(0)],
@@ -268,8 +279,10 @@ describe("bbox", () => {
   });
 
   test("Path (arc unscaled)", () => {
-    const shape = makePath(canvas, {
+    const rng = seedrandom("bbox Path (arc unscaled)");
+    const shape = makePath(rng, canvas, {
       d: compDict.arc(
+        { rng },
         "open",
         [constOf(-50), constOf(50)],
         [constOf(100), constOf(-25)],
@@ -291,8 +304,10 @@ describe("bbox", () => {
   });
 
   test("Path (arc small)", () => {
-    const shape = makePath(canvas, {
+    const rng = seedrandom("bbox Path (arc small)");
+    const shape = makePath(rng, canvas, {
       d: compDict.arc(
+        { rng },
         "open",
         [constOf(-50), constOf(50)],
         [constOf(100), constOf(-25)],
@@ -314,8 +329,10 @@ describe("bbox", () => {
   });
 
   test("Path (arc scaled)", () => {
-    const shape = makePath(canvas, {
+    const rng = seedrandom("bbox Path (arc scaled)");
+    const shape = makePath(rng, canvas, {
       d: compDict.arc(
+        { rng },
         "open",
         [constOf(-75), constOf(-50)],
         [constOf(200), constOf(25)],

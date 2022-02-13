@@ -1,16 +1,15 @@
-import { prng } from "seedrandom";
 import { Canvas } from "shapes/Samplers";
-import { VarAD, GradGraphs } from "./ad";
+import { GradGraphs, VarAD } from "./ad";
 import { A } from "./ast";
-import { MaybeVal } from "./common";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
-import { ArgVal, IFloatV, Translation, Value } from "./value";
+import { ArgVal, IFloatV, Translation } from "./value";
 
 /**
  * The diagram state modeling the original Haskell types
  */
 export interface IState {
+  seeds: Seeds;
   varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   shapePaths: Path<A>[];
@@ -32,6 +31,31 @@ export interface IState {
   canvas: Canvas;
 }
 export type State = IState;
+
+// Some compDict functions (currently only sampleColor) need a prng, so we need
+// to keep a seed around in the state to allow us to recreate it at every step
+// in order for those functions to give deterministic results as the
+// optimization progresses. However, our code is currently not very
+// well-structured, so there are a lot of different places that independently
+// evaluate expressions which can include calls to these nondeterministic
+// compDict functions. Thus, as a temporary solution, we keep around a different
+// seed for each of those places (only the ones in index.ts), so that even
+// though they won't be able to agree with each other, at least each one will
+// agree with itself across different steps of the optimization. Note, to be
+// clear: the fact that the different places using different seeds disagree with
+// each other is actually a problem, but for now that problem doesn't have a
+// negative impact because we don't currently use color in the optimization
+// itself. An ideal solution would be to not keep around any prng or seed in the
+// state at all, and instead generate an explicit representation of all
+// necessary randomness during an initial sampling that happens right after
+// compilation.
+export interface Seeds {
+  evalEnergy: string;
+  evalFns: string;
+  prepare: string;
+  resample: string;
+  step: string;
+}
 
 /**
  * Output of label generation.
@@ -88,9 +112,8 @@ export type LbfgsParams = ILbfgsParams;
 // `n` is the size of the varying state
 export interface ILbfgsParams {
   // TODO: Store as matrix types
-  lastState: MaybeVal<any>; // nx1 (col vec)
-  lastGrad: MaybeVal<any>; // nx1 (col vec)
-  // invH: Maybe<any>; // nxn matrix
+  lastState: any | undefined; // nx1 (col vec)
+  lastGrad: any | undefined; // nx1 (col vec)
   s_list: any[]; // list of nx1 col vecs
   y_list: any[]; // list of nx1 col vecs
   numUnconstrSteps: number;

@@ -1,20 +1,21 @@
 import { constOf } from "engine/Autodiff";
-import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
+import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
 import {
   BoolV,
   Canvas,
   FloatV,
   PtListV,
   sampleBlack,
-  sampleColor,
   sampleNoPaint,
-  sampleStroke,
   StrV,
 } from "./Samplers";
 
 export interface IPolyline extends INamed, IStroke, IFill, IScale, IPoly {}
 
-export const samplePolyline = (_canvas: Canvas): IPolyline => ({
+export const samplePolyline = (
+  _rng: seedrandom.prng,
+  _canvas: Canvas
+): IPolyline => ({
   name: StrV("defaultPolyline"),
   style: StrV(""),
   strokeWidth: FloatV(constOf(1)),
@@ -36,10 +37,11 @@ export const samplePolyline = (_canvas: Canvas): IPolyline => ({
 export type Polyline = IShape & { shapeType: "Polyline" } & IPolyline;
 
 export const makePolyline = (
+  rng: seedrandom.prng,
   canvas: Canvas,
   properties: Partial<IPolyline>
 ): Polyline => ({
-  ...samplePolyline(canvas),
+  ...samplePolyline(rng, canvas),
   ...properties,
   shapeType: "Polyline",
 });

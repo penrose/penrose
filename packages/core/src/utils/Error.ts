@@ -1,7 +1,7 @@
 import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
-import { Maybe, Result } from "true-myth";
-import { A, Identifier, SourceLoc, AbstractNode } from "types/ast";
+import { Result } from "true-myth";
+import { A, AbstractNode, Identifier, SourceLoc } from "types/ast";
 import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
 import {
   ArgLengthMismatch,
@@ -625,7 +625,6 @@ export const all = <Ok, Error>(
 
 // NOTE: re-export all true-myth types to reduce boilerplate
 export {
-  Maybe,
   Result,
   and,
   or,

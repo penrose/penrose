@@ -54,7 +54,8 @@
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "build": "yarn link",
     "test": "echo NO TESTS",
-    "version": "oclif-dev readme && git add README.md"
+    "version": "oclif-dev readme && git add README.md",
+    "clean": "rimraf lib"
   },
   "types": "lib/index.d.ts"
 }

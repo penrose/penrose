@@ -251,6 +251,49 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
 };
 
 /**
+ * Map each of a statement's parameters to all of its possible swap-in replacements
+ * NOTE: if there are no valid swaps, returns an empty map
+ *
+ * @param ids a Substance statement's arguments
+ * @param env the current environment
+ * @returns a map of statement argument -> valid swap-in options
+ */
+export const identicalTypeDecls = (
+  ids: Identifier<A>[],
+  env: Env
+): Map<string, Identifier<A>[]> => {
+  // pulls just the variable names from the statement's parameters
+  const idSet = ids.map((i) => i.value);
+  let options: Map<string, Identifier<A>[]> = Map();
+
+  idSet.forEach((i) => {
+    const obj = env.vars.get(i);
+    const typeStr = obj && obj.name.value;
+
+    // a match is any var of the same type as the current identifier
+    // which is not already being used in the statement
+    const matchedObjs = [
+      ...env.vars
+        .filter(
+          (t, id) => !idSet.includes(id) && typeStr && t.name.value === typeStr
+        )
+        .keys(),
+    ];
+
+    const matches = matchedObjs.flatMap((id) =>
+      env.varIDs.filter((v) => v.value === id)
+    );
+
+    // add to options if possible
+    if (matches.length > 0) {
+      options = options.set(i, matches);
+    }
+  });
+
+  return options;
+};
+
+/**
  * Given a statement which returns a value
  * that is staged to be deleted, iteratively find any other
  * statements that would use the statement's returned variable

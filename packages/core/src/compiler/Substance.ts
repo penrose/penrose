@@ -33,14 +33,12 @@ import {
   TypeConsApp,
 } from "types/substance";
 import {
-  all,
   andThen,
   argLengthMismatch,
   deconstructNonconstructor,
   duplicateName,
   err,
   every,
-  Maybe,
   ok,
   parseError,
   Result,

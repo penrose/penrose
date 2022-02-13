@@ -1,6 +1,6 @@
 import { constOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
-import { INamed, IStroke, IFill, IArrow, IShape } from "types/shapes";
+import { IArrow, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IPathDataV } from "types/value";
 import {
   BoolV,
@@ -9,7 +9,6 @@ import {
   PathDataV,
   sampleColor,
   sampleNoPaint,
-  sampleStroke,
   StrV,
 } from "./Samplers";
 
@@ -17,12 +16,12 @@ export interface IPath extends INamed, IStroke, IFill, IArrow {
   d: IPathDataV<VarAD>;
 }
 
-export const samplePath = (_canvas: Canvas): IPath => ({
+export const samplePath = (rng: seedrandom.prng, _canvas: Canvas): IPath => ({
   name: StrV("defaultPath"),
   style: StrV(""),
   strokeWidth: FloatV(constOf(1)),
   strokeStyle: StrV("solid"),
-  strokeColor: sampleColor(),
+  strokeColor: sampleColor(rng),
   strokeDasharray: StrV(""),
   fillColor: sampleNoPaint(),
   arrowheadSize: FloatV(constOf(1)),
@@ -35,8 +34,12 @@ export const samplePath = (_canvas: Canvas): IPath => ({
 
 export type Path = IShape & { shapeType: "Path" } & IPath;
 
-export const makePath = (canvas: Canvas, properties: Partial<IPath>): Path => ({
-  ...samplePath(canvas),
+export const makePath = (
+  rng: seedrandom.prng,
+  canvas: Canvas,
+  properties: Partial<IPath>
+): Path => ({
+  ...samplePath(rng, canvas),
   ...properties,
   shapeType: "Path",
 });

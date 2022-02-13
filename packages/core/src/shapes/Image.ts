@@ -1,4 +1,4 @@
-import { INamed, ICenter, IRect, IRotate, IShape } from "types/shapes";
+import { ICenter, INamed, IRect, IRotate, IShape } from "types/shapes";
 import { IStrV } from "types/value";
 import {
   BoolV,
@@ -17,12 +17,12 @@ export interface IImage extends INamed, ICenter, IRect, IRotate {
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio
 }
 
-export const sampleImage = (canvas: Canvas): IImage => ({
+export const sampleImage = (rng: seedrandom.prng, canvas: Canvas): IImage => ({
   name: StrV("defaultImage"),
   style: StrV(""),
-  center: sampleVector(canvas),
-  width: sampleWidth(canvas),
-  height: sampleHeight(canvas),
+  center: sampleVector(rng, canvas),
+  width: sampleWidth(rng, canvas),
+  height: sampleHeight(rng, canvas),
   rotation: sampleZero(),
   href: StrV("defaultImage"),
   ensureOnCanvas: BoolV(true),
@@ -31,10 +31,11 @@ export const sampleImage = (canvas: Canvas): IImage => ({
 export type Image = IShape & { shapeType: "Image" } & IImage;
 
 export const makeImage = (
+  rng: seedrandom.prng,
   canvas: Canvas,
   properties: Partial<IImage>
 ): Image => ({
-  ...sampleImage(canvas),
+  ...sampleImage(rng, canvas),
   ...properties,
   shapeType: "Image",
 });

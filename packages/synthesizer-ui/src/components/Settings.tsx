@@ -2,16 +2,14 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Slider,
-  Typography,
-} from "@material-ui/core";
-import {
-  styled,
-  Button,
-  TextField,
   Box,
+  Button,
   Drawer,
+  Slider,
+  styled,
+  TextField,
   Toolbar,
+  Typography,
 } from "@material-ui/core";
 import { compileDomain, showError, SynthesizerSetting } from "@penrose/core";
 import React from "react";

@@ -1,4 +1,5 @@
 import * as BBox from "engine/BBox";
+import seedrandom from "seedrandom";
 import { VarAD } from "types/ad";
 import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
@@ -11,7 +12,7 @@ import { makePolygon, Polygon, samplePolygon } from "./Polygon";
 import { makePolyline, Polyline, samplePolyline } from "./Polyline";
 import { makeRectangle, Rectangle, sampleRectangle } from "./Rectangle";
 import { Canvas, makeCanvas } from "./Samplers";
-import { Text, makeText, sampleText } from "./Text";
+import { makeText, sampleText, Text } from "./Text";
 
 //#region other shape types/globals
 
@@ -35,8 +36,12 @@ export type Shape =
 export type ShapeType = Shape["shapeType"];
 
 export interface ShapeDef {
-  sampler: (canvas: Canvas) => Properties;
-  constr: (canvas: Canvas, properties: Properties) => Shape;
+  sampler: (rng: seedrandom.prng, canvas: Canvas) => Properties;
+  constr: (
+    rng: seedrandom.prng,
+    canvas: Canvas,
+    properties: Properties
+  ) => Shape;
 
   // TODO: maybe get rid of this?
   propTags: { [prop: string]: Value<VarAD>["tag"] };
@@ -50,19 +55,26 @@ export interface ShapeDef {
 
 // hack to satisfy the typechecker
 export const ShapeDef = (shapedef: {
-  sampler: (canvas: Canvas) => unknown;
-  constr: (canvas: Canvas, properties: Properties) => Shape;
+  sampler: (rng: seedrandom.prng, canvas: Canvas) => unknown;
+  constr: (
+    rng: seedrandom.prng,
+    canvas: Canvas,
+    properties: Properties
+  ) => Shape;
   bbox: (properties: any) => BBox.BBox;
   isLinelike?: boolean;
   isRectlike?: boolean;
   isPolygonlike?: boolean;
 }): ShapeDef => {
-  const sampler = (canvas: Canvas) => <Properties>shapedef.sampler(canvas);
+  const sampler = (rng: seedrandom.prng, canvas: Canvas) =>
+    <Properties>shapedef.sampler(rng, canvas);
 
   const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
   const propTags = Object.fromEntries(
     // TODO: make this much less jank than first sampling an entire shape
-    Object.entries(sampler(makeCanvas(size, size))).map(([x, y]) => [x, y.tag])
+    Object.entries(
+      sampler(seedrandom("propTags"), makeCanvas(size, size))
+    ).map(([x, y]) => [x, y.tag])
   );
 
   return {
@@ -162,6 +174,8 @@ const Text = ShapeDef({
   isPolygonlike: true,
 });
 
+// TODO: figure out how to not have the result be type `any` when indexing into
+// this object using a string key
 export const shapedefs: { [k in Shape["shapeType"]]: ShapeDef } = {
   Circle,
   Ellipse,

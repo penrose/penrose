@@ -1,35 +1,30 @@
-import * as _ from "lodash";
-import { all, randList, eqList } from "utils/Util";
-import { GradGraphs } from "types/ad";
 import {
   clearVisitedNodes,
+  constOf,
+  fns,
   gvarOf,
   logAD,
   markInput,
   variableAD,
   varOf,
-  constOf,
-  _gradADSymbolic,
   _genCode,
+  _genEnergyFn,
+  _gradADSymbolic,
   _gradAllSymbolic,
   _gradFiniteDiff,
-  _genEnergyFn,
-  fns,
 } from "engine/Autodiff";
+import * as _ from "lodash";
+import seedrandom from "seedrandom";
+import { GradGraphs } from "types/ad";
+import { eqList, randList } from "utils/Util";
 import {
-  acos,
   add,
-  addN,
-  atan2,
-  cos,
   div,
   ifCond,
   lt,
   max,
   mul,
-  neg,
   sin,
-  sqrt,
   squared,
   sub,
 } from "./AutodiffFunctions";
@@ -101,6 +96,8 @@ const assert = (b: boolean, s: any[]) => {
 };
 
 const testGradFiniteDiff = () => {
+  const rng = seedrandom("testGradFiniteDiff");
+
   // Only tests with hardcoded functions
   const f = (ys: number[]) => _.sum(_.map(ys, (e: number) => e * e));
   const df = (ys: number[]) => _.map(ys, (e: number) => 2 * e);
@@ -108,7 +105,7 @@ const testGradFiniteDiff = () => {
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xs = randList(4);
+    const xs = randList(rng, 4);
     const gradEstRes = _gradFiniteDiff(f)(xs);
     const expectedRes = df(xs);
     const testRes = eqList(gradEstRes, expectedRes);
@@ -132,7 +129,7 @@ const gradGraph1 = (): GradGraphs => {
   const z = mul(b, c);
 
   // Build gradient graph
-  z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  z.gradNode = gvarOf(1.0);
   const dx0 = _gradADSymbolic(x0);
   const dx1 = _gradADSymbolic(x1);
 
@@ -140,7 +137,7 @@ const gradGraph1 = (): GradGraphs => {
     inputs: [x0, x1],
     energyOutput: z,
     gradOutputs: [dx0, dx1],
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -155,7 +152,7 @@ const gradGraph2 = (): GradGraphs => {
   const z = mul(b, c);
 
   // Build gradient graph
-  z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  z.gradNode = gvarOf(1.0);
   const dx0 = _gradADSymbolic(x0);
   const dx1 = _gradADSymbolic(x1);
 
@@ -163,7 +160,7 @@ const gradGraph2 = (): GradGraphs => {
     inputs: [x0, x1],
     energyOutput: z,
     gradOutputs: [dx0, dx1],
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -183,7 +180,7 @@ const gradGraph3 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -202,7 +199,7 @@ const gradGraph4 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -225,7 +222,7 @@ const gradGraph5 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -245,7 +242,7 @@ const gradGraph6 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -267,7 +264,7 @@ const gradGraph7 = (): GradGraphs => {
     inputs,
     energyOutput: head,
     gradOutputs: dxs,
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };
 
@@ -275,6 +272,8 @@ const gradGraph7 = (): GradGraphs => {
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
+  const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
+
   // Synthesize energy and gradient code
   const f0 = _genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen0 = _genCode(
@@ -288,7 +287,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
   let f;
   let gradGen;
 
-  if (graphs.weight.tag === "Just") {
+  if (graphs.weight !== undefined) {
     // Partially apply with weight
     f = f0(weight);
     gradGen = gradGen0(weight);
@@ -302,7 +301,7 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xsTest = randList(graphs.inputs.length);
+    const xsTest = randList(rng, graphs.inputs.length);
     const energyRes = f(xsTest);
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
@@ -325,7 +324,7 @@ const gradGraph0 = (): GradGraphs => {
   const head = squared(ref);
 
   // Build gradient graph
-  head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  head.gradNode = gvarOf(1.0);
   const dRef = _gradADSymbolic(ref);
 
   // Print results
@@ -340,6 +339,6 @@ const gradGraph0 = (): GradGraphs => {
     inputs: [ref],
     energyOutput: head,
     gradOutputs: [dRef],
-    weight: { tag: "Nothing" },
+    weight: undefined,
   };
 };

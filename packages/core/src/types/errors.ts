@@ -1,9 +1,9 @@
 //#region ErrorTypes
 import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
-import { TypeConstructor, Prop, TypeVar, Arg } from "./domain";
+import { Arg, Prop, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
 import { BindingForm, Path } from "./style";
-import { SubExpr, Deconstructor, TypeConsApp } from "./substance";
+import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
 
 // type PenroseError = LanguageError | RuntimeError;
 // type LanguageError = DomainError | SubstanceError | StyleError | PluginError;

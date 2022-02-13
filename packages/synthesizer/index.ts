@@ -1,16 +1,17 @@
 require("global-jsdom/register");
 import {
-  Registry,
-  showMutations,
   compileDomain,
   compileSubstance,
   prettySubstance,
+  Registry,
   showError,
-  Synthesizer,
+  showMutations,
   SubProg,
-  SynthesizerSetting,
   SynthesizedSubstance,
+  Synthesizer,
+  SynthesizerSetting,
 } from "@penrose/core";
+import { A } from "@penrose/core/build/dist/types/ast";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as neodoc from "neodoc";
 import { join } from "path";
@@ -173,7 +174,7 @@ const writePrograms = (
 
     const synth = new Synthesizer(env, settings, subResult);
     let progs = synth.generateSubstances(numPrograms);
-    const template: SubProg | undefined = synth.getTemplate();
+    const template: SubProg<A> | undefined = synth.getTemplate();
 
     if (template) {
       progs = [{ prog: template, ops: [] }, ...progs];

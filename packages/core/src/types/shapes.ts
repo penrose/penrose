@@ -1,5 +1,5 @@
-import { IBoolV, IColorV, IFloatV, IPtListV, IStrV, IVectorV } from "./value";
 import { VarAD } from "types/ad";
+import { IBoolV, IColorV, IFloatV, IPtListV, IStrV, IVectorV } from "./value";
 
 //#region shape hierarchy interfaces
 export interface INamed {

@@ -1,34 +1,36 @@
 import {
+  containsPolygonPoints,
   overlappingPolygonPoints,
   rectangleDifference,
   rectangleSignedDistance,
 } from "contrib/Minkowski";
-import { ops, constOf } from "engine/Autodiff";
-import { shapeCenter, bboxFromShape, polygonLikePoints } from "contrib/Queries";
-import { VarAD } from "types/ad";
-import * as BBox from "engine/BBox";
+import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
+import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
+import { constOf, ops } from "engine/Autodiff";
 import {
-  sub,
-  mul,
-  div,
-  min,
-  max,
   absVal,
   add,
   addN,
+  div,
   ifCond,
   lt,
+  max,
+  maxN,
+  min,
+  mul,
   squared,
+  sub,
 } from "engine/AutodiffFunctions";
-import { pointInBox, noIntersectCircles, atDistOutside } from "contrib/Utils";
+import * as BBox from "engine/BBox";
 import { Circle } from "shapes/Circle";
-import { Polygon } from "shapes/Polygon";
-import { Rectangle } from "shapes/Rectangle";
-import { Text } from "shapes/Text";
 import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
+import { Polygon } from "shapes/Polygon";
+import { Rectangle } from "shapes/Rectangle";
 import { shapedefs } from "shapes/Shapes";
+import { Text } from "shapes/Text";
+import { VarAD } from "types/ad";
 
 // -------- Ovelapping helpers
 
@@ -242,4 +244,49 @@ export const containsAABBs = (
     ifCond(lt(yl1, yl2), constOf(0), squared(sub(yl1, yl2))),
     ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1))),
   ]);
+};
+
+/**
+ * Require that a polygon `s1` contains another polygon `s2`.
+ */
+export const containsPolygonPolygon = (
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Polygon],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  return maxN(
+    s2.points.contents.map((x) =>
+      containsPolygonPoints(s1.points.contents, x, padding)
+    )
+  );
+};
+
+/**
+ * Require that a polygon `s1` contains circle `s2`.
+ */
+export const containsPolygonCircle = (
+  [, s1]: [string, Polygon],
+  [, s2]: [string, Circle],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  return containsPolygonPoints(
+    s1.points.contents,
+    s2.center.contents,
+    sub(padding, s2.r.contents)
+  );
+};
+
+/**
+ * Require that a circle `s1` contains polygon `s2`.
+ */
+export const containsCirclePolygon = (
+  [, s1]: [string, Circle],
+  [, s2]: [string, Polygon],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  return maxN(
+    s2.points.contents.map((x) =>
+      sub(add(ops.vdist(x, s1.center.contents), padding), s1.r.contents)
+    )
+  );
 };

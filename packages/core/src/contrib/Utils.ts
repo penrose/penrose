@@ -2,21 +2,21 @@ import { constOf, constOfIf, EPS_DENOM, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
-  mul,
+  and,
   div,
-  squared,
-  sub,
+  gt,
   ifCond,
   lt,
-  gt,
   max,
   min,
-  and,
+  mul,
   or,
+  squared,
+  sub,
 } from "engine/AutodiffFunctions";
-import * as _ from "lodash";
-import { VarAD, Pt2 } from "types/ad";
 import * as BBox from "engine/BBox";
+import * as _ from "lodash";
+import { Pt2, VarAD } from "types/ad";
 
 /**
  * Require that a shape at `center1` with radius `r1` not intersect a shape at `center2` with radius `r2` with optional padding `padding`. (For a non-circle shape, its radius should be half of the shape's general "width")

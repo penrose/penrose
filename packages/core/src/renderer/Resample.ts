@@ -1,23 +1,22 @@
 import {
-  valueNumberToAutodiff,
-  tagExprNumberToAutodiff,
-  insertExpr,
   initConstraintWeight,
+  insertExpr,
   shapeAutodiffToNumber,
   valueAutodiffToNumber,
+  valueNumberToAutodiff,
 } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
-import { Shape } from "types/shape";
-import { Value } from "types/value";
-import { randFloat, randFloats, safe, prettyPrintPath } from "utils/Util";
 import { mapValues } from "lodash";
-import { TagExpr, Translation } from "types/value";
+import seedrandom from "seedrandom";
+import { Canvas } from "shapes/Samplers";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
+import { A } from "types/ast";
+import { Shape } from "types/shape";
 import { State } from "types/state";
 import { Path } from "types/style";
-import { Canvas } from "shapes/Samplers";
-import { shapedefs } from "shapes/Shapes";
-import { A } from "types/ast";
+import { TagExpr, Translation, Value } from "types/value";
+import { prettyPrintPath, randFloat, randFloats, safe } from "utils/Util";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {
@@ -42,9 +41,13 @@ const val2Expr = <T>(val: Value<T>): TagExpr<T> => ({
  * @param shapes Old shapes
  * @ignore
  */
-export const sampleShapes = (shapes: Shape[], canvas: Canvas): Shape[] =>
+export const sampleShapes = (
+  rng: seedrandom.prng,
+  shapes: Shape[],
+  canvas: Canvas
+): Shape[] =>
   shapes.map((shape: Shape) =>
-    sampleShape(shape, shapedefs[shape.shapeType], canvas)
+    sampleShape(rng, shape, shapedefs[shape.shapeType], canvas)
   );
 
 /**
@@ -55,13 +58,14 @@ export const sampleShapes = (shapes: Shape[], canvas: Canvas): Shape[] =>
  * @ignore
  */
 const sampleShape = (
+  rng: seedrandom.prng,
   shape: Shape,
   shapeType: string,
   canvas: Canvas
 ): Shape => ({
   ...shape,
   properties: mapValues(shape.properties, (_: Value<number>, prop: string) =>
-    sampleProperty(prop, shapeType, canvas)
+    sampleProperty(rng, prop, shapeType, canvas)
   ),
 });
 
@@ -72,12 +76,14 @@ const sampleShape = (
  * @param shapeDef shape definition
  */
 const sampleProperty = (
+  rng: seedrandom.prng,
   property: string,
   shapeType: string,
   canvas: Canvas
 ): Value<number> => {
+  const shapedef: ShapeDef = shapedefs[shapeType];
   // TODO: don't resample all the properties every time for each property
-  const props = shapedefs[shapeType].sampler(canvas);
+  const props = shapedef.sampler(rng, canvas);
   if (property in props) {
     // TODO: don't make VarAD only to immediately convert back to number
     return valueAutodiffToNumber(props[property]);
@@ -95,16 +101,18 @@ const sampleProperty = (
  * @ignore
  */
 export const sampleFields = (
+  rng: seedrandom.prng,
   { varyingPaths }: State,
   canvas: Canvas
 ): number[] => {
   const fieldPaths = varyingPaths.filter(
     ({ tag }: Path<A>) => tag === "AccessPath" || tag === "FieldPath"
   );
-  return randFloats(fieldPaths.length, canvas.xRange);
+  return randFloats(rng, fieldPaths.length, canvas.xRange);
 };
 
 const samplePath = (
+  rng: seedrandom.prng,
   path: Path<A>,
   shapes: Shape[],
   varyingInitInfo: { [pathStr: string]: number },
@@ -124,7 +132,7 @@ const samplePath = (
 
   // HACK: for access and field paths, sample within the canvas width
   if (path.tag === "AccessPath" || path.tag === "FieldPath") {
-    return { tag: "FloatV", contents: randFloat(...canvas.xRange) };
+    return { tag: "FloatV", contents: randFloat(rng, ...canvas.xRange) };
   }
   // for property path, use the sampler in shapedef
   else {
@@ -139,16 +147,21 @@ const samplePath = (
       ),
       `Cannot find shape ${subName}.${field}`
     );
-    const sampledProp: Value<number> = sampleProperty(prop, shapeType, canvas);
+    const sampledProp: Value<number> = sampleProperty(
+      rng,
+      prop,
+      shapeType,
+      canvas
+    );
     return sampledProp;
   }
 };
 
-export const resampleBest = (state: State, numSamples: number): State => {
+export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
   // resample all the uninitialized and varying values
   const { varyingPaths, shapes, uninitializedPaths, params } = state;
   const varyingValues: Value<number>[] = varyingPaths.map((p: Path<A>) =>
-    samplePath(p, shapes, state.varyingInitInfo, state.canvas)
+    samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)
@@ -159,7 +172,7 @@ export const resampleBest = (state: State, numSamples: number): State => {
     p,
     val2Expr(
       valueNumberToAutodiff(
-        samplePath(p, shapes, state.varyingInitInfo, state.canvas)
+        samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
       )
     ),
   ]);
@@ -183,6 +196,6 @@ export const resampleBest = (state: State, numSamples: number): State => {
   };
   return {
     ...sampledState,
-    shapes: shapeAutodiffToNumber(evalShapes(sampledState)),
+    shapes: shapeAutodiffToNumber(evalShapes(rng, sampledState)),
   };
 };

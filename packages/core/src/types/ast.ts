@@ -33,11 +33,11 @@ export type C = SourceRange;
 export type ConcreteNode = ASTNode<C>;
 
 // metaObj causes TypeScript to enforce that metaProps is correct
-const metaObj: { [k in keyof Omit<ConcreteNode, "tag">]: null } = {
-  nodeType: null,
-  children: null,
-  start: null,
-  end: null,
+const metaObj: { [k in keyof Omit<ConcreteNode, "tag">]: undefined } = {
+  nodeType: undefined,
+  children: undefined,
+  start: undefined,
+  end: undefined,
 };
 export const metaProps: string[] = Object.keys(metaObj);
 

@@ -4,19 +4,19 @@
  *
  */
 
-import shapeMap from "./shapeMap";
-import { Shape } from "types/shape";
-import { dragUpdate } from "./dragUtils";
-import { IStrV } from "types/value";
-import { LabelCache, State } from "types/state";
 import { shapedefs } from "shapes/Shapes";
+import { Shape } from "types/shape";
+import { LabelCache, State } from "types/state";
+import { IStrV } from "types/value";
+import { dragUpdate } from "./dragUtils";
+import shapeMap from "./shapeMap";
 
 /**
  * Resolves path references into static strings. Implemented by client
  * since filesystem contexts vary (eg browser vs headless).
- * If path fails to resolve, return null
+ * If path fails to resolve, return undefined
  */
-export type PathResolver = (path: string) => Promise<string | null>;
+export type PathResolver = (path: string) => Promise<string | undefined>;
 
 export interface ShapeProps {
   shape: Shape;

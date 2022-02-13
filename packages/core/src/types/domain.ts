@@ -1,9 +1,9 @@
 //#region Domain AST
 
 import { Graph } from "graphlib";
-import { IStringLit, ASTNode, Identifier, C, A } from "./ast";
-import { ApplyConstructor, TypeConsApp } from "./substance";
 import { Map } from "immutable";
+import { A, ASTNode, C, Identifier, IStringLit } from "./ast";
+import { ApplyConstructor, TypeConsApp } from "./substance";
 
 export type Var<T> = Identifier<T>;
 

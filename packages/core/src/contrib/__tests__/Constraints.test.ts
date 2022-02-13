@@ -1,12 +1,12 @@
-import { constOf, numOf } from "engine/Autodiff";
-import { VarAD } from "types/ad";
 import { constrDict } from "contrib/Constraints";
 import {
-  _rectangles,
   _circles,
   _lines,
   _polygons,
+  _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
+import { constOf, numOf } from "engine/Autodiff";
+import { VarAD } from "types/ad";
 
 const digitPrecision = 10;
 
@@ -207,6 +207,7 @@ describe("general constraints", () => {
     ["Line", "Line", 0, _lines[2], _lines[3]],
     ["Polygon", "Polygon", 0, _polygons[2], _polygons[3]],
     ["Polygon", "Polygon", 0, _polygons[0], _polygons[3]],
+    ["Polygon", "Polygon", 0, _polygons[0], _polygons[4]],
     ["Line", "Polygon", 0, _lines[3], _polygons[0]],
     ["Line", "Polygon", 0, _lines[2], _polygons[3]],
     ["Rectangle", "Line", 0, _rectangles[0], _lines[0]],
@@ -218,7 +219,7 @@ describe("general constraints", () => {
     ["Circle", "Rectangle", 150, _circles[3], _rectangles[1]],
     ["Circle", "Circle", 150, _circles[3], _circles[1]],
     ["Line", "Line", 200, _lines[1], _lines[3]],
-    ["Polygon", "Polygon", 150, _polygons[1], _polygons[2]],
+    ["Polygon", "Polygon", 100, _polygons[1], _polygons[2]],
     ["Polygon", "Polygon", 150, _polygons[1], _polygons[3]],
     ["Line", "Polygon", 150, _lines[1], _polygons[3]],
     ["Line", "Polygon", 150, _lines[1], _polygons[2]],
@@ -372,6 +373,8 @@ describe("general constraints", () => {
     ["Polygon", "Line", 0, _polygons[0], _lines[1]],
     ["Rectangle", "Polygon", 0, _rectangles[0], _polygons[1]],
     ["Rectangle", "Line", 0, _rectangles[0], _lines[1]],
+    ["Polygon", "Circle", 0, _polygons[0], _circles[5]],
+    ["Circle", "Polygon", 0, _circles[6], _polygons[1]],
     // With padding
     ["Rectangle", "Rectangle", 50, _rectangles[0], _rectangles[1]],
     ["Rectangle", "Circle", 50, _rectangles[0], _circles[1]],

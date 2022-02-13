@@ -1,20 +1,26 @@
-import React from "react";
+import {
+  AppBar,
+  Box,
+  Button,
+  styled,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
 import {
   compileDomain,
   compileSubstance,
+  PenroseState,
   showError,
   SubProg,
+  SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
-  SynthesizedSubstance,
-  PenroseState,
 } from "@penrose/core";
+import { A } from "@penrose/core/build/dist/types/ast";
+import React from "react";
+import { DownloadSVG } from "../utils/utils";
 import { Grid } from "./Grid";
 import { Settings } from "./Settings";
-import { DownloadSVG } from "../utils/utils";
-import { Button, Box, styled, Typography, Toolbar } from "@material-ui/core";
-import { AppBar } from "@material-ui/core";
-import { A } from "@penrose/core/build/dist/types/ast";
 
 export type ContentProps = any;
 

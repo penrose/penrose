@@ -1,6 +1,5 @@
 //#region Types for reverse-mode autodiff
 
-import { MaybeVal } from "./common";
 import { LbfgsParams } from "./state";
 
 // ----- Core types
@@ -21,7 +20,7 @@ export interface IEdgeAD {
 
   // Function "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
   // Aka how sensitive the output is to this input -- a function encoded as a computational graph fragment
-  sensitivityNode: MaybeVal<VarAD>;
+  sensitivityNode: VarAD | undefined;
 }
 
 export type EdgeAD = IEdgeAD;
@@ -38,8 +37,8 @@ export interface IVarAD {
   childrenAD: EdgeAD[];
   parentsADGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   childrenADGrad: EdgeAD[];
-  gradVal: MaybeVal<number>;
-  gradNode: MaybeVal<VarAD>;
+  gradVal: number | undefined;
+  gradNode: VarAD | undefined;
   index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
 
   debug: boolean; // If true, this prints node debug info on evaluation
@@ -69,7 +68,7 @@ export interface IGradGraphs {
   energyOutput: VarAD;
   // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
   gradOutputs: VarAD[];
-  weight: MaybeVal<VarAD>; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
+  weight: VarAD | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }
 
 export type OptInfo = IOptInfo;

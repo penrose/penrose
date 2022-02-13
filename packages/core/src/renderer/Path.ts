@@ -1,9 +1,9 @@
-import { toSvgPaintProperty, toScreen, toSvgOpacityProperty } from "utils/Util";
+import { flatten } from "lodash";
+import { IColorV, IFloatV, IPathCmd, IStrV, ISubPath } from "types/value";
+import { toScreen, toSvgOpacityProperty, toSvgPaintProperty } from "utils/Util";
+import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
 import { arrowHead } from "./Line";
 import { ShapeProps } from "./Renderer";
-import { flatten } from "lodash";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { IFloatV, IPathCmd, IStrV, IColorV, ISubPath } from "types/value";
 
 const toPathString = (
   pathData: IPathCmd<number>[],

@@ -1,15 +1,13 @@
 import * as _ from "lodash";
-import memoize from "fast-memoize";
-import { zipWith, reduce, times } from "lodash";
+import { times } from "lodash";
 import seedrandom from "seedrandom";
+import { ILine } from "shapes/Line";
+import { VarAD } from "types/ad";
+import { A } from "types/ast";
 import { Properties } from "types/shape";
+import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
-import { Just, MaybeVal } from "types/common";
-import { VarAD } from "types/ad";
-import { Fn, State } from "types/state";
-import { ILine } from "shapes/Line";
-import { A } from "types/ast";
 
 //#region general
 
@@ -20,10 +18,10 @@ import { A } from "types/ast";
  * @param message Error message
  */
 export const safe = <T extends unknown>(
-  argument: T | undefined | null,
+  argument: T | undefined,
   message: string
 ): T => {
-  if (argument === undefined || argument === null) {
+  if (argument === undefined) {
     throw new TypeError(message);
   }
   return argument;
@@ -43,14 +41,6 @@ export const repeat = <T>(i: number, x: T): T[] => {
 export const all = (xs: boolean[]): boolean =>
   xs.reduce((prev, curr) => prev && curr, true);
 
-export const fromJust = <T>(n: MaybeVal<T>): T => {
-  if (n.tag === "Just") {
-    return n.contents;
-  }
-
-  throw Error("expected value in fromJust but got Nothing");
-};
-
 /**
  * Like _.zip but throws on different length instead of padding with undefined.
  */
@@ -60,7 +50,7 @@ export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
     throw Error("expected same # elements in both arrays");
   }
   const a: [T1, T2][] = [];
-  for (let i = 0; i < l; ++i) {
+  for (let i = 0; i < l; i++) {
     a.push([a1[i], a2[i]]);
   }
   return a;
@@ -79,7 +69,7 @@ export const zip3 = <T1, T2, T3>(
     throw Error("expected same # elements in all three arrays");
   }
   const a: [T1, T2, T3][] = [];
-  for (let i = 0; i < l; ++i) {
+  for (let i = 0; i < l; i++) {
     a.push([a1[i], a2[i], a3[i]]);
   }
   return a;
@@ -89,8 +79,6 @@ export const zip3 = <T1, T2, T3>(
 
 //#region random
 
-seedrandom("secret-seed", { global: true }); // HACK: constant seed for pseudorandomness
-
 const RAND_RANGE = 100;
 
 /**
@@ -99,27 +87,57 @@ const RAND_RANGE = 100;
  * @param max maximum (exclusive)
  */
 export const randFloats = (
+  rng: seedrandom.prng,
   count: number,
   [min, max]: [number, number]
-): number[] => times(count, () => randFloat(min, max));
+): number[] => times(count, () => randFloat(rng, min, max));
 
 /**
  * Generate a random float. The maximum is exclusive and the minimum is inclusive
  * @param min minimum (inclusive)
  * @param max maximum (exclusive)
  */
-export const randFloat = (min: number, max: number): number => {
+export const randFloat = (
+  rng: seedrandom.prng,
+  min: number,
+  max: number
+): number => {
   // TODO: better error reporting
   console.assert(
     max > min,
     "min should be smaller than max for random number generation!"
   );
-  return Math.random() * (max - min) + min;
+  return rng() * (max - min) + min;
 };
 
-export const randList = (n: number): number[] => {
-  return repeat(n, 0).map(() => RAND_RANGE * (Math.random() - 0.5));
+export const randList = (rng: seedrandom.prng, n: number): number[] => {
+  return repeat(n, 0).map(() => RAND_RANGE * (rng() - 0.5));
 };
+
+/**
+ * From a variation string, deterministically generate all the seeds we need to
+ * keep around in the State, and also return the mutated PRNG to use for any
+ * remaining setup. This is temporary, and should go away in the upcoming
+ * rearchitecture.
+ */
+export const variationSeeds = (
+  variation: string
+): { seeds: Seeds; rng: seedrandom.prng } => {
+  const rng = seedrandom(variation);
+  const seeds = {
+    // hacky way to get string seeds that we can reuse; note, order matters
+    resample: rng().toString(),
+    prepare: rng().toString(),
+    step: rng().toString(),
+    evalEnergy: rng().toString(),
+    evalFns: rng().toString(),
+  };
+  return { rng, seeds };
+};
+
+//#endregion
+
+//#region renderer
 
 export const arrowheads = {
   "arrowhead-1": {
@@ -139,10 +157,6 @@ export const arrowheads = {
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
   },
 };
-
-//#endregion
-
-//#region renderer
 
 export const toScreen = (
   [x, y]: [number, number],
@@ -271,7 +285,6 @@ export const eqNum = (x: number, y: number): boolean => {
 };
 
 export const eqList = (xs: number[], ys: number[]): boolean => {
-  if (xs == null || ys == null) return false;
   if (xs.length !== ys.length) return false;
 
   //   _.every(_.zip(xs, ys), e => eqNum(e[0], e[1]));
@@ -376,7 +389,7 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 class Node<T> {
   value: T;
-  next: Node<T> | null = null;
+  next: Node<T> | undefined = undefined;
 
   constructor(value: T) {
     this.value = value;
@@ -384,8 +397,8 @@ class Node<T> {
 }
 
 export class Queue<T> {
-  head: Node<T> | null = null;
-  tail: Node<T> | null = null;
+  head: Node<T> | undefined = undefined;
+  tail: Node<T> | undefined = undefined;
   queue_size = 0;
 
   constructor() {
@@ -395,7 +408,7 @@ export class Queue<T> {
   enqueue(value: T): void {
     const node = new Node(value);
 
-    if (this.head !== null && this.tail !== null) {
+    if (this.head !== undefined && this.tail !== undefined) {
       this.tail.next = node;
       this.tail = node;
     } else {
@@ -410,7 +423,7 @@ export class Queue<T> {
     const current = this.head;
     // need to check for nullness of this.head and this.current
     // to satisfy the type-checker
-    if (this.head === null || current === null) {
+    if (this.head === undefined || current === undefined) {
       throw new Error("Dequeue on empty queue");
     } else {
       if (this.head === this.tail) {
@@ -424,8 +437,8 @@ export class Queue<T> {
   }
 
   clear(): void {
-    this.head = null;
-    this.tail = null;
+    this.head = undefined;
+    this.tail = undefined;
     this.queue_size = 0;
   }
 

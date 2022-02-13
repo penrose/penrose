@@ -5,7 +5,7 @@ import IViewProps from "./IViewProps";
 class Frames extends React.Component<IViewProps> {
   public render(): JSX.Element {
     const { /*history,*/ frame } = this.props;
-    if (frame === null) {
+    if (frame === undefined) {
       return <p style={{ padding: "1em" }}>empty</p>;
     }
     return (

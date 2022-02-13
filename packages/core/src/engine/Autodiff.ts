@@ -1,9 +1,8 @@
-import * as _ from "lodash";
 import consola, { LogLevel } from "consola";
-import { VarAD, IVarAD, GradGraphs } from "types/ad";
-import { MaybeVal } from "types/common";
+import * as _ from "lodash";
+import { GradGraphs, IVarAD, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
-import { Queue, fromJust } from "utils/Util";
+import { Queue, safe } from "utils/Util";
 import {
   acos,
   add,
@@ -102,8 +101,8 @@ export const variableAD = (
     childrenAD: [],
     parentsADGrad: [],
     childrenADGrad: [],
-    gradVal: { tag: "Nothing" },
-    gradNode: { tag: "Nothing" },
+    gradVal: undefined,
+    gradNode: undefined,
     index: -100,
     id: -1,
 
@@ -168,8 +167,8 @@ export const makeADInputVars = (xs: number[]): VarAD[] => {
 // do not use outside this file
 export const _gradADSymbolic = (v: VarAD): VarAD => {
   // Already computed/cached the gradient
-  if (v.gradNode.tag === "Just") {
-    return v.gradNode.contents;
+  if (v.gradNode !== undefined) {
+    return v.gradNode;
   }
 
   // Build subgraph
@@ -183,7 +182,7 @@ export const _gradADSymbolic = (v: VarAD): VarAD => {
     res = addN(
       v.parentsAD.map((parent) =>
         mul(
-          fromJust(parent.sensitivityNode),
+          safe(parent.sensitivityNode, "expected VarAD but got undefined"),
           _gradADSymbolic(parent.node),
           false
         )
@@ -193,7 +192,7 @@ export const _gradADSymbolic = (v: VarAD): VarAD => {
   }
 
   // Mark node as done
-  v.gradNode = { tag: "Just", contents: res };
+  v.gradNode = res;
 
   // Result is a gradient
   res.isCompNode = false;
@@ -226,9 +225,11 @@ export const _gradAllSymbolic = (
   energyGraph: VarAD,
   xsVars: VarAD[]
 ): VarAD[] => {
-  energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
+  energyGraph.gradNode = variableAD(1.0);
   const dxs = xsVars.map(_gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
-  const gradxs = xsVars.map((x: VarAD) => fromJust(x.gradNode));
+  const gradxs = xsVars.map((x: VarAD) =>
+    safe(x.gradNode, "expected VarAD but got undefined")
+  );
   return gradxs;
 };
 
@@ -250,17 +251,11 @@ export const _gradAllSymbolic = (
 // The point of making the sensitivity nodes here is that when the gradient is computed, each child needs to know what its partial derivative was, which depends on its position (e.g. either the first or second arg in x * y has a different sensitivity). This can't be looked up in, say, a dict
 // You have to build it inline bc it involves references to the variables
 
-export const just = (v: VarAD): MaybeVal<VarAD> => {
-  return { tag: "Just", contents: v };
-};
-
-export const none: MaybeVal<VarAD> = { tag: "Nothing" };
-
 const check = (
   isCompNode: boolean,
   sensitivityNode: VarAD
-): MaybeVal<VarAD> => {
-  return isCompNode ? just(sensitivityNode) : none;
+): VarAD | undefined => {
+  return isCompNode ? sensitivityNode : undefined;
 };
 
 // ------------ Meta / debug ops
@@ -698,7 +693,7 @@ export const fns = {
 export const _genEnergyFn = (
   xs: VarAD[],
   z: IVarAD,
-  weight: MaybeVal<VarAD>
+  weight: VarAD | undefined
 ): any => _genCode(xs, [z], "energy", weight);
 
 // Generate code for multi-output function, given its computational graph and a setting for its outputs
@@ -708,7 +703,7 @@ export const _genCode = (
   inputs: VarAD[],
   outputs: IVarAD[],
   setting: string,
-  weightNode: MaybeVal<VarAD>
+  weightNode: VarAD | undefined
 ): any => {
   let counter = 0;
   let progInputs: string[] = [];
@@ -724,11 +719,11 @@ export const _genCode = (
   );
 
   let inputsNew;
-  logAD.trace("has weight?", weightNode.tag === "Just");
-  if (weightNode.tag === "Nothing") {
+  logAD.trace("has weight?", weightNode !== undefined);
+  if (weightNode === undefined) {
     inputsNew = inputs;
   } else {
-    inputsNew = [weightNode.contents].concat(inputs);
+    inputsNew = [weightNode].concat(inputs);
   }
 
   // Just traverse + name the inputs first (they have no children, so the traversal stops there), then work backward from the outputs
@@ -782,7 +777,7 @@ export const _genCode = (
   logAD.trace("generated f with setting =", setting, "\n", f);
 
   let g;
-  if (weightNode.tag === "Nothing") {
+  if (weightNode === undefined) {
     // So you can call the function without spread
     // hasWeight is for "normal" functions that aren't wrapped in the EP cycle (such as the symbolic gradient unit tests)
     g = (xs: number[]) => f(...xs);
@@ -1038,8 +1033,6 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
       stmt = `const ${parName} = ${childName0} / (${childName1} + ${EPS_DENOM});`;
     } else if (z.op === "atan2") {
       stmt = `const ${parName} = Math.atan2(${childName0}, ${childName1});`;
-    } else if (z.op === "pow") {
-      stmt = `const ${parName} = Math.pow(${childName0}, ${childName1});`;
     } else {
       stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
     }
@@ -1188,14 +1181,14 @@ export const clearVisitedNodes = (nodeList: VarAD[]): void => {
 // NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
 export const clearGraphTopDown = (z: VarAD): void => {
   z.val = 0;
-  z.gradVal = { tag: "Nothing" };
+  z.gradVal = undefined;
   z.childrenAD.forEach((e) => clearGraphTopDown(e.node));
 };
 
 const clearGraphBottomUp = (xs: VarAD[]) => {
   xs.forEach((x) => {
     x.val = 0;
-    x.gradVal = { tag: "Nothing" };
+    x.gradVal = undefined;
     clearGraphBottomUp(x.parentsAD.map((p) => p.node));
   });
 };
@@ -1225,7 +1218,7 @@ export const energyAndGradCompiled = (
   xs: number[],
   xsVars: VarAD[],
   energyGraph: VarAD,
-  weightInfo: MaybeVal<WeightInfo>,
+  weightInfo: WeightInfo | undefined,
   debug = false
 ) => {
   // Zero xsvars vals, gradients, and caching setting
@@ -1233,8 +1226,8 @@ export const energyAndGradCompiled = (
   clearVisitedNodes([energyGraph]);
 
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
-  if (weightInfo.tag === "Just") {
-    setWeights(weightInfo.contents);
+  if (weightInfo !== undefined) {
+    setWeights(weightInfo);
   }
 
   // Set the leaves of the graph to have the new input values
@@ -1244,10 +1237,7 @@ export const energyAndGradCompiled = (
   // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom)
   const gradGraph = _gradAllSymbolic(energyGraph, xsVars);
 
-  const epWeightNode: MaybeVal<VarAD> =
-    weightInfo.tag === "Just"
-      ? just(weightInfo.contents.epWeightNode)
-      : { tag: "Nothing" }; // Generate energy and gradient without weight
+  const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 
   const graphs: GradGraphs = {
     inputs: xsVars,

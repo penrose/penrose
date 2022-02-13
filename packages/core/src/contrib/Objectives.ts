@@ -1,30 +1,29 @@
+import { inDirection } from "contrib/ObjectivesUtils";
+import { bboxFromShape, shapeCenter } from "contrib/Queries";
+import {
+  centerArrow2,
+  closestPt_PtSeg,
+  repelPoint,
+  sampleSeg,
+} from "contrib/Utils";
 import { constOf, constOfIf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
   addN,
   div,
+  ifCond,
   inverse,
+  lt,
   max,
   mul,
   neg,
   squared,
   sub,
-  ifCond,
-  lt,
 } from "engine/AutodiffFunctions";
-import { bboxFromShape, shapeCenter } from "contrib/Queries";
-import {
-  sampleSeg,
-  repelPoint,
-  centerArrow2,
-  closestPt_PtSeg,
-} from "contrib/Utils";
-import { inDirection } from "contrib/ObjectivesUtils";
-import * as _ from "lodash";
-import { linePts } from "utils/Util";
 import { shapedefs } from "shapes/Shapes";
 import { VarAD } from "types/ad";
+import { linePts } from "utils/Util";
 
 // -------- Simple objective functions
 // Do not require shape quaries, operate directly with `VarAD` parameters.
@@ -80,13 +79,14 @@ export const objDictGeneral = {
     [tBottom, sBottom]: [string, any],
     [tTop, sTop]: [string, any],
     offset = 100
-  ) =>
-    inDirection(
+  ) => {
+    return inDirection(
       [tBottom, sBottom],
       [tTop, sTop],
       [constOf(0.0), constOf(1.0)],
       constOfIf(offset)
-    ),
+    );
+  },
 
   /**
    * Encourage the center of `sBottom` to be below the center of `sTop`.
@@ -95,13 +95,14 @@ export const objDictGeneral = {
     [tTop, sTop]: [string, any],
     [tBottom, sBottom]: [string, any],
     offset = 100
-  ) =>
-    inDirection(
+  ) => {
+    return inDirection(
       [tTop, sTop],
       [tBottom, sBottom],
       [constOf(0.0), constOf(1.0)],
       constOfIf(offset)
-    ),
+    );
+  },
 
   /**
    * Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
@@ -110,13 +111,14 @@ export const objDictGeneral = {
     [tLeft, sLeft]: [string, any],
     [tRight, sRight]: [string, any],
     offset = 100
-  ) =>
-    inDirection(
+  ) => {
+    return inDirection(
       [tLeft, sLeft],
       [tRight, sRight],
       [constOf(1.0), constOf(0.0)],
       constOfIf(offset)
-    ),
+    );
+  },
 
   /**
    * Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
@@ -125,13 +127,14 @@ export const objDictGeneral = {
     [tRight, sRight]: [string, any],
     [tLeft, sLeft]: [string, any],
     offset = 100
-  ) =>
-    inDirection(
+  ) => {
+    return inDirection(
       [tRight, sRight],
       [tLeft, sLeft],
       [constOf(1.0), constOf(0.0)],
       constOfIf(offset)
-    ),
+    );
+  },
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.
