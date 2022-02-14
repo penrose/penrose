@@ -14,6 +14,7 @@ Include a high-level summary of the implementation strategy and list important d
 
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] My changes generate no new ESLint warnings
+- [ ] I have reviewed any generated changes to the `diagrams/` folder
 
 # Open questions
 
