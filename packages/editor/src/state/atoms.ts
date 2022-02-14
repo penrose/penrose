@@ -67,6 +67,7 @@ const debouncedSave = memoize((key: string) =>
   }, 500)
 );
 
+// TODO: actually dont make this an effect
 const saveWorkspaceEffect: AtomEffect<IWorkspace> = ({ setSelf, onSet }) => {
   onSet(async (newWorkspace, _oldWorkspace) => {
     // HACK
@@ -83,11 +84,8 @@ const saveWorkspaceEffect: AtomEffect<IWorkspace> = ({ setSelf, onSet }) => {
         type: "local",
         localStorageKey: `workspace-${newWorkspace.id}`,
       };
-      setSelf((workspace) => ({
-        ...(workspace as IWorkspace),
-        name,
-        location,
-      }));
+      const saved = { ...newWorkspace, name, location };
+      setSelf(saved);
       //   If updating a local workspace, save it
     } else if (
       newWorkspace.location.type === "local" &&
@@ -148,6 +146,25 @@ export const fileContentsState = atom<FileContents>({
   dangerouslyAllowMutability: true,
 });
 
+const saveLocalFileSystemEffect: AtomEffect<ILocalFileSystem> = ({
+  setSelf,
+  onSet,
+}) => {
+  /*
+  setSelf(
+    localForage
+      .getItem("localFileSystem")
+      .then(
+        (val) => (val !== null ? val : new DefaultValue()) as ILocalFileSystem
+      )
+  );
+  */
+  //  TODO: do this init in a useEffect,sorry
+  onSet((newFileSystem) => {
+    localForage.setItem("localFileSystem", newFileSystem);
+  });
+};
+
 export const localFileSystem = atom<ILocalFileSystem>({
   key: "localFileSystem",
   default: {
@@ -155,9 +172,24 @@ export const localFileSystem = atom<ILocalFileSystem>({
     substance: {},
     style: {},
     domain: {},
-    diagram: {},
+    diagram_state: {},
   },
+  effects: [saveLocalFileSystemEffect],
 });
+
+const _addLocalFileToFileSystem = (set: any, pointer: FilePointer) => {
+  if (pointer.location.type !== "local") {
+    console.error("cannot add non-local file to file system", pointer);
+    return;
+  }
+  set(localFileSystem, (state: ILocalFileSystem) => ({
+    ...state,
+    [pointer.type]: {
+      ...state[pointer.type],
+      [pointer.id]: pointer,
+    },
+  }));
+};
 
 /**
  * Hook to load a specified workspace
@@ -215,7 +247,6 @@ export const useOpenFileInWorkspace = () =>
       });
     } else {
       const loadedFile = await retrieveFileFromPointer(pointer);
-      //   TODO: if domain, fill cache
       if (loadedFile !== null) {
         set(fileContentsState, (state) => ({
           ...state,
@@ -255,20 +286,6 @@ export const useOpenFileInWorkspace = () =>
       }
     }
   });
-
-export const useUpdateNodeToDiagramCreator = () =>
-  useRecoilCallback(
-    ({ snapshot }) => (node: TabNode) => {
-      const layout: Model = snapshot.getLoadable(layoutState).contents;
-      layout.doAction(
-        Actions.updateNodeAttributes(node.getId(), {
-          component: "diagram_initializer",
-          name: "New Diagram",
-        })
-      );
-    },
-    [layoutState]
-  );
 
 export const useNewFileCreatorTab = () =>
   useRecoilCallback(
@@ -313,10 +330,13 @@ export const useUpdateFile = () =>
     ({ set, snapshot }) => async (id: string, contents: string) => {
       const pointer: FilePointer = snapshot.getLoadable(workspaceState).contents
         .openFiles[id];
-      const oldFile = snapshot.getLoadable(fileContentsState).contents[id];
+      const file = snapshot.getLoadable(fileContentsState).contents[id];
+      const updated = { ...file, contents };
       if (pointer.location.type !== "local") {
+        // Make it local!
         const newPointer: FilePointer = {
           ...pointer,
+          name: `fork of ${pointer.name}`,
           location: {
             type: "local",
             localStorageKey: `${pointer.type}-${pointer.id}`,
@@ -326,14 +346,13 @@ export const useUpdateFile = () =>
           ...state,
           openFiles: { ...state.openFiles, [newPointer.id]: newPointer },
         }));
-        // TODO: insert into fileSystem
-      } else {
-        set(fileContentsState, (state) => ({
-          ...state,
-          [oldFile.id]: { ...oldFile, contents },
-        }));
-        await debouncedSave(oldFile.id)({ ...oldFile, contents });
+        _addLocalFileToFileSystem(set, newPointer);
       }
+      set(fileContentsState, (state) => ({
+        ...state,
+        [file.id]: updated,
+      }));
+      await debouncedSave(file.id)(updated);
     }
   );
 
@@ -387,6 +406,7 @@ const _compileDiagram = async (
   if (compileResult.isOk()) {
     const initialState = await prepareState(compileResult.value);
     diagramFile.contents = initialState;
+    diagramFile.metadata.error = null;
     set(fileContentsState, (state: FileContents) => ({
       ...state,
       [diagramFile.id]: diagramFile,
@@ -445,6 +465,7 @@ export const useUpdateNodeToNewDiagram = () =>
           [diagramPointer.id]: diagramPointer,
         },
       }));
+      _addLocalFileToFileSystem(set, diagramPointer);
       const layout: Model = snapshot.getLoadable(layoutState).contents;
       layout.doAction(
         Actions.updateNodeAttributes(node.getId(), {

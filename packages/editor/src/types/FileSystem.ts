@@ -147,7 +147,7 @@ export interface IWorkspacePointer extends _FilePointer {
  * Workaround for example workspaces
  */
 export interface ICachedWorkspacePointer extends _FilePointer {
-  type: "cached_workspace";
+  type: "workspace";
   files: { [id: string]: FilePointer };
 }
 
@@ -206,7 +206,7 @@ export interface ILocalFileSystem {
   substance: { [id: string]: SubstanceFilePointer };
   style: { [id: string]: StyleFilePointer };
   domain: { [id: string]: DomainFilePointer };
-  diagram: { [id: string]: DiagramFilePointer };
+  diagram_state: { [id: string]: DiagramFilePointer };
 }
 
 export interface IExamples {

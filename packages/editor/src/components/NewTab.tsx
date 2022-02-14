@@ -1,16 +1,21 @@
 import { TabNode } from "flexlayout-react";
-import { useUpdateNodeToDiagramCreator } from "../state/atoms";
+import { useState } from "react";
+import DiagramInitializer from "./DiagramInitializer";
 import FileButton from "./FileButton";
 
 export default function NewTab({ node }: { node: TabNode }) {
-  const updateNodeToDiagramCreator = useUpdateNodeToDiagramCreator();
+  const [currentView, setCurrentView] = useState<"all" | "diagram">("all");
+  if (currentView === "diagram") {
+    return <DiagramInitializer node={node} />;
+  }
   return (
     <div>
       <h1>create</h1>
+      {/* TODO: new trio altogether - construct based */}
       <p>todo sub,sty,dsl</p>
       <FileButton
         name="diagram rendering"
-        onClick={() => updateNodeToDiagramCreator(node)}
+        onClick={() => setCurrentView("diagram")}
       />
     </div>
   );

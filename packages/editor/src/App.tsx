@@ -15,7 +15,6 @@ import { useCallback } from "react";
 import { ToastContainer } from "react-toastify";
 import { useRecoilState } from "recoil";
 import { SquareBlueButton } from "./components/BlueButton";
-import DiagramInitializer from "./components/DiagramInitializer";
 import DiagramPanel from "./components/DiagramPanel";
 import ExamplesPanel from "./components/ExamplesPanel";
 import NewTab from "./components/NewTab";
@@ -92,8 +91,6 @@ function App() {
           break;
         case "new_tab":
           return <NewTab node={node} />;
-        case "diagram_initializer":
-          return <DiagramInitializer node={node} />;
         case "examples":
           return <ExamplesPanel openFileInWorkspace={openFileInWorkspace} />;
         case "settings":

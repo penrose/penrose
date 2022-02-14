@@ -21,6 +21,7 @@ export default function DiagramPanel({
   const canvasRef = useRef<HTMLDivElement>(null);
   const recompileDiagram = useRecompileDiagram();
   const resampleDiagram = useResampleDiagram();
+  // TODO: if state non null, request new diagram
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {

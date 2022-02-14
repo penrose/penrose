@@ -4,10 +4,15 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import {
   constructLayout,
+  DiagramFile,
+  DiagramFilePointer,
+  DomainFilePointer,
   FilePointer,
   ICachedWorkspacePointer,
   IExamples,
   SavedFile,
+  StyleFilePointer,
+  SubstanceFilePointer,
   WorkspaceFile,
 } from "../types/FileSystem";
 
@@ -86,7 +91,7 @@ export async function fetchExamples(): Promise<IExamples | null> {
         const style = idMap.styles[trio.style];
         const domain = idMap.domains[trio.domain];
         return {
-          type: "cached_workspace",
+          type: "workspace",
           files: {
             [substance]: examples.substances[substance],
             [style]: examples.styles[style],
@@ -129,7 +134,6 @@ function processExamplePointerContents(
       const cache = compiledDomain.isOk() ? compiledDomain.value : null;
       return { id: pointer.id, type: "domain_file", contents: value, cache };
     case "workspace":
-    case "cached_workspace":
       const parsed = JSON.parse(value);
       return {
         ...parsed,
@@ -166,7 +170,6 @@ function processLocalPointerContents(
       const cache = compiledDomain.isOk() ? compiledDomain.value : null;
       return { ...parsed, cache };
     case "workspace":
-    case "cached_workspace":
       return {
         ...parsed,
         contents: {
@@ -180,14 +183,33 @@ function processLocalPointerContents(
 function buildExampleWorkspace(
   pointer: ICachedWorkspacePointer
 ): SavedFile | null {
-  const sub = Object.values(pointer.files).find((f) => f.type === "substance");
-  const sty = Object.values(pointer.files).find((f) => f.type === "style");
-  const dsl = Object.values(pointer.files).find((f) => f.type === "domain");
+  const sub = Object.values(pointer.files).find(
+    (f) => f.type === "substance"
+  ) as SubstanceFilePointer;
+  const sty = Object.values(pointer.files).find(
+    (f) => f.type === "style"
+  ) as StyleFilePointer;
+  const dsl = Object.values(pointer.files).find(
+    (f) => f.type === "domain"
+  ) as DomainFilePointer;
   if (!sub || !sty || !dsl) {
     toast.error("Could not retrieve sub or sty or dsl for trio");
     return null;
   }
   const diagramId = v4();
+
+  const diagramPointer: DiagramFilePointer = {
+    name: "Diagram",
+    type: "diagram_state",
+    substance: sub,
+    style: sty,
+    domain: dsl,
+    id: diagramId,
+    location: {
+      type: "example",
+      path: "",
+    },
+  };
   const workspace: WorkspaceFile = {
     type: "workspace_file",
     id: pointer.id,
@@ -196,6 +218,7 @@ function buildExampleWorkspace(
         [sub.id]: sub,
         [sty.id]: sty,
         [dsl.id]: dsl,
+        [diagramPointer.id]: diagramPointer,
       },
       location: pointer.location,
       creator: "penrose",
@@ -244,8 +267,8 @@ function buildExampleWorkspace(
           children: [
             {
               type: "tab",
-              name: "New Diagram",
-              component: "diagram_initializer",
+              name: "Diagram",
+              component: "file",
               id: diagramId,
               config: {
                 id: diagramId,
@@ -259,6 +282,7 @@ function buildExampleWorkspace(
   return workspace;
 }
 
+// TODO: separate the workspace example retrieval, it's jank to put it here. Use processExamplePointerContents
 export async function retrieveFileFromPointer(
   pointer: FilePointer
 ): Promise<SavedFile | null> {
@@ -270,8 +294,21 @@ export async function retrieveFileFromPointer(
       }
       break;
     case "example":
-      if (pointer.type === "cached_workspace") {
+      if (pointer.type === "workspace" && "files" in pointer) {
         return buildExampleWorkspace(pointer);
+      } else if (pointer.type === "diagram_state") {
+        // Make dummy diagram
+        const diagram: DiagramFile = {
+          id: pointer.id,
+          type: "diagram_file",
+          contents: null,
+          metadata: {
+            error: null,
+            autostep: true,
+            variation: "",
+          },
+        };
+        return diagram;
       } else {
         const res = await fetch(pointer.location.path);
         if (res.ok) {
