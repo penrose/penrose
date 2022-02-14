@@ -5,7 +5,8 @@
 
 import { RenderStatic, showError } from "@penrose/core";
 import { useEffect, useRef } from "react";
-import { DiagramFilePointer, DiagramFile } from "../types/FileSystem";
+import { useRecompileDiagram, useResampleDiagram } from "../state/atoms";
+import { DiagramFile, DiagramFilePointer } from "../types/FileSystem";
 import BlueButton from "./BlueButton";
 
 // error box
@@ -18,11 +19,13 @@ export default function DiagramPanel({
 }) {
   const state = fileContents.contents;
   const canvasRef = useRef<HTMLDivElement>(null);
+  const recompileDiagram = useRecompileDiagram();
+  const resampleDiagram = useResampleDiagram();
   useEffect(() => {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
       (async () => {
-        const rendered = await RenderStatic(state, async () => null);
+        const rendered = await RenderStatic(state, async () => undefined);
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -37,8 +40,12 @@ export default function DiagramPanel({
         <BlueButton>
           autostep ({fileContents.metadata.autostep ? "on" : "off"})
         </BlueButton>
-        <BlueButton>compile</BlueButton>
-        <BlueButton>resample</BlueButton>
+        <BlueButton onClick={() => recompileDiagram(filePointer)}>
+          recompile ▶
+        </BlueButton>
+        <BlueButton onClick={() => resampleDiagram(filePointer)}>
+          resample ↺
+        </BlueButton>
       </div>
       <div
         style={{

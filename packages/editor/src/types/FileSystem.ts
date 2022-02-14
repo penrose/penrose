@@ -59,7 +59,7 @@ export interface DomainFile {
 export interface DiagramMetadata {
   error: PenroseError | null;
   autostep: boolean;
-  // seed etc
+  variation: string;
   // maybe state enum: unoptimized, broken, etc
 }
 export interface DiagramFile {
@@ -73,6 +73,10 @@ export interface WorkspaceFile {
   contents: IWorkspaceJSON;
   id: string;
 }
+
+/**
+ * Ids should never change
+ */
 export type SavedFile =
   | DomainFile
   | StyleFile
@@ -101,6 +105,9 @@ export interface ILocalLocation {
 export type FileLocation = IExampleLocation | IGistLocation | ILocalLocation;
 
 interface _FilePointer {
+  /**
+   * This Id should never change
+   */
   id: string;
   name: string;
   location: FileLocation;

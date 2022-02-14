@@ -1,24 +1,15 @@
+import { compileDomain } from "@penrose/core";
+import { Model } from "flexlayout-react";
+import { toast } from "react-toastify";
+import { v4 } from "uuid";
 import {
   constructLayout,
-  DiagramFilePointer,
-  DomainFilePointer,
   FilePointer,
   ICachedWorkspacePointer,
   IExamples,
-  ILocalFileSystem,
-  ILocalLocation,
-  IWorkspace,
-  IWorkspacePointer,
   SavedFile,
-  DiagramFile,
-  StyleFilePointer,
-  SubstanceFilePointer,
   WorkspaceFile,
 } from "../types/FileSystem";
-import { toast } from "react-toastify";
-import { Model } from "flexlayout-react";
-import { compileDomain } from "@penrose/core";
-import { v4 } from "uuid";
 
 async function fetchRegistry(): Promise<any> {
   const res = await fetch(
@@ -39,25 +30,34 @@ export async function fetchExamples(): Promise<IExamples | null> {
       domains: {},
       trios: {},
     };
-    Object.entries(registry.domains).forEach(([id, domain]: [string, any]) => {
-      const fileName = `${id}.dsl`;
-      examples.domains[fileName] = {
-        type: "domain",
-        name: domain.name,
-        id: fileName,
-        location: {
-          type: "example",
-          path: registry.root + domain.URI,
-        },
-      };
-    });
-    Object.entries(registry.styles).forEach(([id, style]: [string, any]) => {
-      const fileName = `${id}.sty`;
-      examples.styles[fileName] = {
+    const idMap: any = {
+      domains: {},
+      substances: {},
+      styles: {},
+    };
+    Object.entries(registry.domains).forEach(
+      ([name, domain]: [string, any]) => {
+        const id = v4();
+        idMap.domains[name] = id;
+        examples.domains[id] = {
+          type: "domain",
+          name: domain.name,
+          id,
+          location: {
+            type: "example",
+            path: registry.root + domain.URI,
+          },
+        };
+      }
+    );
+    Object.entries(registry.styles).forEach(([name, style]: [string, any]) => {
+      const id = v4();
+      idMap.styles[name] = id;
+      examples.styles[id] = {
         type: "style",
         name: style.name,
-        domain: examples.domains[`${style.domain}.dsl`],
-        id: fileName,
+        domain: examples.domains[idMap.domains[style.domain]],
+        id,
         location: {
           type: "example",
           path: registry.root + style.URI,
@@ -65,13 +65,14 @@ export async function fetchExamples(): Promise<IExamples | null> {
       };
     });
     Object.entries(registry.substances).forEach(
-      ([id, substance]: [string, any]) => {
-        const fileName = `${id}.sub`;
-        examples.substances[fileName] = {
+      ([name, substance]: [string, any]) => {
+        const id = v4();
+        idMap.substances[name] = id;
+        examples.substances[id] = {
           type: "substance",
           name: substance.name,
-          domain: examples.domains[`${substance.domain}.dsl`],
-          id: fileName,
+          domain: examples.domains[idMap.domains[substance.domain]],
+          id,
           location: {
             type: "example",
             path: registry.root + substance.URI,
@@ -81,9 +82,9 @@ export async function fetchExamples(): Promise<IExamples | null> {
     );
     examples.trios = registry.trios.map(
       (trio: any, idx: number): ICachedWorkspacePointer => {
-        const substance = `${trio.substance}.sub`;
-        const style = `${trio.style}.sty`;
-        const domain = `${trio.domain}.dsl`;
+        const substance = idMap.substances[trio.substance];
+        const style = idMap.styles[trio.style];
+        const domain = idMap.domains[trio.domain];
         return {
           type: "cached_workspace",
           files: {
@@ -94,9 +95,10 @@ export async function fetchExamples(): Promise<IExamples | null> {
           name: `${registry.substances[trio.substance].name} - ${
             registry.styles[trio.style].name
           }`,
-          id: `${trio.substance},${trio.style},${trio.domain}`,
+          id: v4(),
           location: {
             type: "example",
+            // dummy value
             path: idx.toString(),
           },
         };

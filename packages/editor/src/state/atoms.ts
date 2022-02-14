@@ -2,34 +2,10 @@ import {
   compileDomain,
   compileTrio,
   prepareState,
+  resample,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
-import { atom, useRecoilCallback, CallbackInterface, AtomEffect } from "recoil";
-import { v4 } from "uuid";
-import {
-  constructLayout,
-  DiagramFilePointer,
-  DomainFilePointer,
-  FileContents,
-  FileLocation,
-  FilePointer,
-  ILocalFileSystem,
-  ILocalLocation,
-  IWorkspace,
-  IWorkspacePointer,
-  SavedFile,
-  DiagramFile,
-  StyleFilePointer,
-  SubstanceFilePointer,
-  WorkspaceFile,
-  WorkspacePointer,
-  SubstanceFile,
-  StyleFile,
-  DomainFile,
-} from "../types/FileSystem";
-import localForage from "localforage";
-import { toast } from "react-toastify";
-import { retrieveFileFromPointer } from "./fileSystemActions";
 import {
   Actions,
   DockLocation,
@@ -37,8 +13,32 @@ import {
   TabNode,
   TabSetNode,
 } from "flexlayout-react";
-import { cloneDeep, debounce, isEmpty, memoize } from "lodash";
+import localForage from "localforage";
+import { debounce, isEmpty, isEqual, memoize } from "lodash";
+import { toast } from "react-toastify";
+import { atom, AtomEffect, CallbackInterface, useRecoilCallback } from "recoil";
+import { v4 } from "uuid";
 import { TrioSelection } from "../components/DiagramInitializer";
+import {
+  constructLayout,
+  DiagramFile,
+  DiagramFilePointer,
+  DomainFile,
+  DomainFilePointer,
+  FileContents,
+  FileLocation,
+  FilePointer,
+  ILocalFileSystem,
+  IWorkspace,
+  SavedFile,
+  StyleFile,
+  StyleFilePointer,
+  SubstanceFile,
+  SubstanceFilePointer,
+  WorkspaceFile,
+  WorkspacePointer,
+} from "../types/FileSystem";
+import { retrieveFileFromPointer } from "./fileSystemActions";
 // derived state with file contents and pointer both
 
 // Adapted from https://stackoverflow.com/questions/34401098/remove-a-property-in-an-object-immutably#comment83640640_47227198
@@ -74,19 +74,17 @@ const saveWorkspaceEffect: AtomEffect<IWorkspace> = ({ setSelf, onSet }) => {
     // If updating a workspace that isn't saved yet to disk
     // TODO: does this prematurely save?
     if (
-      newWorkspace.id === oldWorkspace.id &&
-      newWorkspace.location.type !== "local"
+      newWorkspace.location.type !== "local" &&
+      !isEqual(oldWorkspace.openFiles, newWorkspace.openFiles)
     ) {
       console.log("forking");
-      const id = v4();
       const name = `fork of ${oldWorkspace.name}`;
       const location: FileLocation = {
         type: "local",
-        localStorageKey: `workspace-${id}`,
+        localStorageKey: `workspace-${newWorkspace.id}`,
       };
       setSelf((workspace) => ({
         ...(workspace as IWorkspace),
-        id,
         name,
         location,
       }));
@@ -167,55 +165,56 @@ export const localFileSystem = atom<ILocalFileSystem>({
 export const useLoadWorkspace = () =>
   // TODO: useRecoilTransaction when it's stable
   useRecoilCallback(
-    ({ set }: CallbackInterface) =>
-      async (workspacePointer: WorkspacePointer) => {
-        const loadedWorkspace = await retrieveFileFromPointer(workspacePointer);
-        if (
-          loadedWorkspace !== null &&
-          loadedWorkspace.type === "workspace_file"
-        ) {
-          const fileContents: FileContents = {};
-          for (let [id, ptr] of Object.entries(
-            loadedWorkspace.contents.openFiles
-          )) {
-            const retrieved = await retrieveFileFromPointer(ptr);
-            if (retrieved !== null) {
-              fileContents[id] = retrieved;
-            } else {
-              toast.error(`Failed to load file ${id}`);
-            }
+    ({ set }: CallbackInterface) => async (
+      workspacePointer: WorkspacePointer
+    ) => {
+      const loadedWorkspace = await retrieveFileFromPointer(workspacePointer);
+      if (
+        loadedWorkspace !== null &&
+        loadedWorkspace.type === "workspace_file"
+      ) {
+        const fileContents: FileContents = {};
+        for (let [id, ptr] of Object.entries(
+          loadedWorkspace.contents.openFiles
+        )) {
+          const retrieved = await retrieveFileFromPointer(ptr);
+          if (retrieved !== null) {
+            fileContents[id] = retrieved;
+          } else {
+            toast.error(`Failed to load file ${id}`);
           }
-          //   const openDomains = Object.values(
-          // loadedWorkspace.contents.openFiles
-          //   ).filter(({ type }) => type === "domain");
-          //   if (
-          //     loadedWorkspace.contents.domainCache === null &&
-          //     openDomains.length > 0
-          //   ) {
-          //     const res = compileDomain(
-          //       fileContents[openDomains[0].id].contents as string
-          //     );
-          //     if (res.isOk()) {
-          //       // set fileContents domain cache
-          //       //   set(workspaceState, (state) => ({
-          //       //     ...state,
-          //       //     domainCache: res.value,
-          //       //   }));
-          //     } else {
-          //       toast.warn("Couldn't compile domain for autocompletion");
-          //     }
-          //   }
-
-          //   Empty layout to prevent NPE's
-          set(layoutState, constructLayout([]));
-
-          set(fileContentsState, fileContents);
-          set(workspaceState, loadedWorkspace.contents);
-          set(layoutState, Model.fromJson(loadedWorkspace.contents.layout));
-        } else {
-          toast.error(`Failed to load workspace ${workspacePointer.id}`);
         }
+        //   const openDomains = Object.values(
+        // loadedWorkspace.contents.openFiles
+        //   ).filter(({ type }) => type === "domain");
+        //   if (
+        //     loadedWorkspace.contents.domainCache === null &&
+        //     openDomains.length > 0
+        //   ) {
+        //     const res = compileDomain(
+        //       fileContents[openDomains[0].id].contents as string
+        //     );
+        //     if (res.isOk()) {
+        //       // set fileContents domain cache
+        //       //   set(workspaceState, (state) => ({
+        //       //     ...state,
+        //       //     domainCache: res.value,
+        //       //   }));
+        //     } else {
+        //       toast.warn("Couldn't compile domain for autocompletion");
+        //     }
+        //   }
+
+        //   Empty layout to prevent NPE's
+        set(layoutState, constructLayout([]));
+
+        set(fileContentsState, fileContents);
+        set(workspaceState, loadedWorkspace.contents);
+        set(layoutState, Model.fromJson(loadedWorkspace.contents.layout));
+      } else {
+        toast.error(`Failed to load workspace ${workspacePointer.id}`);
       }
+    }
   );
 
 export const useOpenFileInWorkspace = () =>
@@ -280,42 +279,40 @@ export const useOpenFileInWorkspace = () =>
 
 export const useUpdateNodeToDiagramCreator = () =>
   useRecoilCallback(
-    ({ snapshot }) =>
-      (node: TabNode) => {
-        const layout: Model = snapshot.getLoadable(layoutState).contents;
-        layout.doAction(
-          Actions.updateNodeAttributes(node.getId(), {
-            component: "diagram_initializer",
-            name: "New Diagram",
-          })
-        );
-      },
+    ({ snapshot }) => (node: TabNode) => {
+      const layout: Model = snapshot.getLoadable(layoutState).contents;
+      layout.doAction(
+        Actions.updateNodeAttributes(node.getId(), {
+          component: "diagram_initializer",
+          name: "New Diagram",
+        })
+      );
+    },
     [layoutState]
   );
 
 export const useNewFileCreatorTab = () =>
   useRecoilCallback(
-    ({ snapshot }) =>
-      (node: TabSetNode) => {
-        const layout: Model = snapshot.getLoadable(layoutState).contents;
-        layout.doAction(
-          Actions.addNode(
-            {
-              type: "tab",
-              component: "new_tab",
-              name: "New Tab",
+    ({ snapshot }) => (node: TabSetNode) => {
+      const layout: Model = snapshot.getLoadable(layoutState).contents;
+      layout.doAction(
+        Actions.addNode(
+          {
+            type: "tab",
+            component: "new_tab",
+            name: "New Tab",
+            id: v4(),
+            config: {
               id: v4(),
-              config: {
-                id: v4(),
-              },
             },
-            node.getId(),
-            DockLocation.CENTER,
-            -1,
-            true
-          )
-        );
-      },
+          },
+          node.getId(),
+          DockLocation.CENTER,
+          -1,
+          true
+        )
+      );
+    },
     [layoutState]
   );
 
@@ -330,92 +327,70 @@ const _closeWorkspaceFile = (set: any, id: string) => {
 };
 
 export const useCloseWorkspaceFile = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      (id: string) =>
-        _closeWorkspaceFile(set, id)
-  );
+  useRecoilCallback(({ set }) => (id: string) => _closeWorkspaceFile(set, id));
 
 export const useUpdateFile = () =>
   useRecoilCallback(
-    ({ set, snapshot }) =>
-      async (id: string, contents: string) => {
-        const pointer: FilePointer =
-          snapshot.getLoadable(workspaceState).contents.openFiles[id];
-        const oldFile = snapshot.getLoadable(fileContentsState).contents[id];
-        if (pointer.location.type !== "local") {
-          const newId = v4();
-          const newPointer: FilePointer = {
-            ...pointer,
-            id: newId,
-            location: {
-              type: "local",
-              localStorageKey: `${pointer.type}-${newId}`,
-            },
-          };
-          set(workspaceState, (state) => ({
-            ...state,
-            openFiles: { ...state.openFiles, [newPointer.id]: newPointer },
-          }));
-          const newFile = { ...oldFile, id: newId };
-          set(fileContentsState, (state) => ({
-            ...state,
-            [newId]: newFile,
-          }));
-          const layout: Model = snapshot.getLoadable(layoutState).contents;
-
-          // Find existing open editor and update its config's id
-          layout.visitNodes((node) => {
-            if (
-              node.getType() === "tab" &&
-              (node as TabNode).getConfig() &&
-              (node as TabNode).getConfig().id === oldFile.id
-            ) {
-              layout.doAction(
-                Actions.updateNodeAttributes(node.getId(), {
-                  config: { id: newId },
-                })
-              );
-            }
-          });
-
-          // This is to prevent NPE's while munging the config's pointer
-          _closeWorkspaceFile(set, oldFile.id);
-          await debouncedSave(newId)(newFile);
-
-          // TODO: fileSystem
-          // _setLocalFilePointer(dispatch, state, {
-          //   add: pointer,
-          //   remove: savedFile.id,
-          // });
-        } else {
-          set(fileContentsState, (state) => ({
-            ...state,
-            [oldFile.id]: { ...oldFile, contents },
-          }));
-          await debouncedSave(oldFile.id)({ ...oldFile, contents });
-        }
+    ({ set, snapshot }) => async (id: string, contents: string) => {
+      const pointer: FilePointer = snapshot.getLoadable(workspaceState).contents
+        .openFiles[id];
+      const oldFile = snapshot.getLoadable(fileContentsState).contents[id];
+      if (pointer.location.type !== "local") {
+        const newPointer: FilePointer = {
+          ...pointer,
+          location: {
+            type: "local",
+            localStorageKey: `${pointer.type}-${pointer.id}`,
+          },
+        };
+        set(workspaceState, (state) => ({
+          ...state,
+          openFiles: { ...state.openFiles, [newPointer.id]: newPointer },
+        }));
+        // TODO: insert into fileSystem
+      } else {
+        set(fileContentsState, (state) => ({
+          ...state,
+          [oldFile.id]: { ...oldFile, contents },
+        }));
+        await debouncedSave(oldFile.id)({ ...oldFile, contents });
       }
+    }
   );
 
+const _autostepToConverge = async (prevDiagramFile: DiagramFile, set: any) => {
+  const diagramFile = { ...prevDiagramFile };
+  const stepResult = stepUntilConvergence(diagramFile.contents!);
+  if (stepResult.isOk()) {
+    const convergedState = stepResult.value;
+    diagramFile.contents = convergedState;
+    set(fileContentsState, (state: FileContents) => ({
+      ...state,
+      [diagramFile.id]: diagramFile,
+    }));
+  } else {
+    diagramFile.metadata.error = stepResult.error;
+    set(fileContentsState, (state: FileContents) => ({
+      ...state,
+      [diagramFile.id]: diagramFile,
+    }));
+  }
+};
+
 const _compileDiagram = async (
-  diagramPointer: DiagramFilePointer,
-  prevDiagramFile: DiagramFile,
-  fileContents: FileContents,
+  oldDiagramFile: DiagramFile,
+  substanceFile: SubstanceFile,
+  styleFile: StyleFile,
+  domainFile: DomainFile,
   set: any
 ) => {
-  const diagramFile = { ...prevDiagramFile };
-  const substance = (fileContents[diagramPointer.substance.id] as SubstanceFile)
-    .contents;
-  const style = (fileContents[diagramPointer.style.id] as StyleFile).contents;
-  const domain = (fileContents[diagramPointer.domain.id] as DomainFile)
-    .contents;
-  const compiledDomain = compileDomain(domain);
+  const diagramFile = { ...oldDiagramFile };
+  const compiledDomain = compileDomain(domainFile.contents);
   if (compiledDomain.isOk()) {
     set(fileContentsState, (state: FileContents) => ({
       ...state,
-      [diagramPointer.domain.id]: {
-        ...state[diagramPointer.domain.id],
+      [domainFile.id]: {
+        ...state[domainFile.id],
         cache: compiledDomain.value,
       },
     }));
@@ -424,31 +399,21 @@ const _compileDiagram = async (
     // set metadata error
     return;
   }
-  const compileResult = compileTrio(domain, substance, style);
+  const compileResult = compileTrio({
+    domain: domainFile.contents,
+    substance: substanceFile.contents,
+    style: styleFile.contents,
+    variation: diagramFile.metadata.variation,
+  });
   if (compileResult.isOk()) {
     const initialState = await prepareState(compileResult.value);
     diagramFile.contents = initialState;
     set(fileContentsState, (state: FileContents) => ({
       ...state,
-      [diagramPointer.id]: diagramFile,
+      [diagramFile.id]: diagramFile,
     }));
     if (diagramFile.metadata.autostep) {
-      const stepResult = stepUntilConvergence(initialState);
-      if (stepResult.isOk()) {
-        const convergedState = stepResult.value;
-        diagramFile.contents = convergedState;
-        set(fileContentsState, (state: FileContents) => ({
-          ...state,
-          [diagramPointer.id]: diagramFile,
-        }));
-        await debouncedSave(diagramFile.id)(diagramFile);
-      } else {
-        diagramFile.metadata.error = stepResult.error;
-        set(fileContentsState, (state: FileContents) => ({
-          ...state,
-          [diagramFile.id]: diagramFile,
-        }));
-      }
+      _autostepToConverge(diagramFile, set);
     }
   } else {
     diagramFile.metadata.error = compileResult.error;
@@ -461,66 +426,99 @@ const _compileDiagram = async (
 
 export const useUpdateNodeToNewDiagram = () =>
   useRecoilCallback(
-    ({ set, snapshot }) =>
-      async (
-        node: TabNode,
-        trioSelection: TrioSelection,
-        autostep: boolean
-      ) => {
-        const id = v4();
-        const diagramPointer: DiagramFilePointer = {
-          type: "diagram_state",
-          id,
-          substance: trioSelection.substance as SubstanceFilePointer,
-          style: trioSelection.style as StyleFilePointer,
-          domain: trioSelection.domain as DomainFilePointer,
+    ({ set, snapshot }) => async (
+      node: TabNode,
+      trioSelection: TrioSelection,
+      autostep: boolean
+    ) => {
+      const id = v4();
+      const diagramPointer: DiagramFilePointer = {
+        type: "diagram_state",
+        id,
+        substance: trioSelection.substance as SubstanceFilePointer,
+        style: trioSelection.style as StyleFilePointer,
+        domain: trioSelection.domain as DomainFilePointer,
+        name: "Diagram",
+        location: {
+          type: "local",
+          localStorageKey: `diagram-${id}`,
+        },
+      };
+      const diagramFile: DiagramFile = {
+        type: "diagram_file",
+        id: diagramPointer.id,
+        contents: null,
+        metadata: {
+          error: null,
+          autostep: true,
+          variation: v4(),
+        },
+      };
+      await debouncedSave(diagramFile.id)(diagramFile);
+      set(fileContentsState, (state) => ({
+        ...state,
+        [diagramFile.id]: diagramFile,
+      }));
+      set(workspaceState, (state) => ({
+        ...state,
+        openFiles: {
+          ...state.openFiles,
+          [diagramPointer.id]: diagramPointer,
+        },
+      }));
+      const layout: Model = snapshot.getLoadable(layoutState).contents;
+      layout.doAction(
+        Actions.updateNodeAttributes(node.getId(), {
+          component: "file",
           name: "Diagram",
-          location: {
-            type: "local",
-            localStorageKey: `diagram-${id}`,
+          config: {
+            id,
           },
-        };
-        const diagramFile: DiagramFile = {
-          type: "diagram_file",
-          id: diagramPointer.id,
-          contents: null,
-          metadata: {
-            error: null,
-            autostep: true,
-          },
-        };
-        set(fileContentsState, (state) => ({
-          ...state,
-          [diagramFile.id]: diagramFile,
-        }));
-        set(workspaceState, (state) => ({
-          ...state,
-          openFiles: {
-            ...state.openFiles,
-            [diagramPointer.id]: diagramPointer,
-          },
-        }));
-        const layout: Model = snapshot.getLoadable(layoutState).contents;
-        layout.doAction(
-          Actions.updateNodeAttributes(node.getId(), {
-            component: "file",
-            name: "Diagram",
-            config: {
-              id,
-            },
-          })
-        );
-        const fileContents = snapshot.getLoadable(fileContentsState).contents;
-        await _compileDiagram(diagramPointer, diagramFile, fileContents, set);
-      }
+        })
+      );
+      const fileContents = snapshot.getLoadable(fileContentsState).contents;
+      const substanceFile = fileContents[diagramPointer.substance.id];
+      const styleFile = fileContents[diagramPointer.style.id];
+      const domainFile = fileContents[diagramPointer.domain.id];
+      await _compileDiagram(
+        diagramFile,
+        substanceFile,
+        styleFile,
+        domainFile,
+        set
+      );
+    }
   );
 
 export const useRecompileDiagram = () =>
   useRecoilCallback(
-    ({ set, snapshot }) =>
-      async (diagramPointer: DiagramFilePointer) => {
-        const fileContents = snapshot.getLoadable(fileContentsState).contents;
-        const diagramFile = fileContents[diagramPointer.id];
-        await _compileDiagram(diagramPointer, diagramFile, fileContents, set);
-      }
+    ({ set, snapshot }) => async (diagramPointer: DiagramFilePointer) => {
+      const fileContents = snapshot.getLoadable(fileContentsState).contents;
+      const diagramFile = fileContents[diagramPointer.id];
+      const substanceFile = fileContents[diagramPointer.substance.id];
+      const styleFile = fileContents[diagramPointer.style.id];
+      const domainFile = fileContents[diagramPointer.domain.id];
+
+      await _compileDiagram(
+        diagramFile,
+        substanceFile,
+        styleFile,
+        domainFile,
+        set
+      );
+    }
+  );
+
+export const useResampleDiagram = () =>
+  useRecoilCallback(
+    ({ set, snapshot }) => async (diagramPointer: DiagramFilePointer) => {
+      const fileContents = snapshot.getLoadable(fileContentsState).contents;
+      const diagramFile = { ...fileContents[diagramPointer.id] } as DiagramFile;
+      diagramFile.metadata.variation = v4();
+      diagramFile.contents!.seeds = variationSeeds(
+        diagramFile.metadata.variation
+      ).seeds;
+      diagramFile.contents = resample(diagramFile.contents!);
+      _autostepToConverge(diagramFile, set);
+    }
   );

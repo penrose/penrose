@@ -1,28 +1,24 @@
-import { useCallback } from "react";
-import { ToastContainer } from "react-toastify";
-import * as FlexLayout from "flexlayout-react";
-import { useLocation, useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
 import {
   EditorPane,
   SetupDomainMonaco,
   SetupStyleMonaco,
   SetupSubstanceMonaco,
 } from "@penrose/components";
-import RunBar from "./components/RunBar";
-import SettingsPanel from "./components/SettingsPanel";
-import ExamplesPanel from "./components/ExamplesPanel";
+import * as FlexLayout from "flexlayout-react";
 import {
   BorderNode,
   ITabSetRenderValues,
   TabNode,
   TabSetNode,
 } from "flexlayout-react";
+import { useCallback } from "react";
+import { ToastContainer } from "react-toastify";
+import { useRecoilState } from "recoil";
 import { SquareBlueButton } from "./components/BlueButton";
-import DiagramPanel from "./components/DiagramPanel";
-import NewTab from "./components/NewTab";
 import DiagramInitializer from "./components/DiagramInitializer";
-import { DiagramFile, DomainFile, TrioType } from "./types/FileSystem";
+import DiagramPanel from "./components/DiagramPanel";
+import ExamplesPanel from "./components/ExamplesPanel";
+import NewTab from "./components/NewTab";
 import {
   fileContentsState,
   layoutState,
@@ -31,9 +27,9 @@ import {
   useOpenFileInWorkspace,
   useSetLayout,
   useUpdateFile,
-  useUpdateNodeToDiagramCreator,
   workspaceState,
 } from "./state/atoms";
+import { DiagramFile, DomainFile } from "./types/FileSystem";
 
 function App() {
   const [workspace, setWorkspace] = useRecoilState(workspaceState);
@@ -101,12 +97,7 @@ function App() {
         case "examples":
           return <ExamplesPanel openFileInWorkspace={openFileInWorkspace} />;
         case "settings":
-          return (
-            <SettingsPanel
-              dispatch={() => {}}
-              settings={{ vimMode: false, githubUser: null }}
-            />
-          );
+          return <div>settings</div>;
         default:
           console.error("unhandled node type", node.getComponent());
           return <div />;

@@ -1,12 +1,5 @@
-import { FileDispatcher } from "../state/fileReducer";
-import {
-  FilePointer,
-  FilePointerMap,
-  IWorkspace,
-  TrioType,
-} from "../types/FileSystem";
-import BlueButton from "./BlueButton";
 import styled from "styled-components";
+import { IWorkspace } from "../types/FileSystem";
 
 const CompileButton = styled.button`
   background-color: #40b4f7;
@@ -26,15 +19,7 @@ const CompileButton = styled.button`
   }
 `;
 
-export default function RunBar({
-  compile,
-  workspace,
-  dispatch,
-}: {
-  compile(): void;
-  workspace: IWorkspace;
-  dispatch: FileDispatcher;
-}) {
+export default function RunBar({ workspace }: { workspace: IWorkspace }) {
   return (
     <nav
       style={{
