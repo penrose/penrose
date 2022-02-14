@@ -158,9 +158,13 @@ function processLocalPointerContents(
   switch (pointer.type) {
     case "substance":
     case "style":
-    case "domain":
     case "diagram_state":
       return parsed;
+    case "domain":
+      const value = parsed.contents;
+      const compiledDomain = compileDomain(value);
+      const cache = compiledDomain.isOk() ? compiledDomain.value : null;
+      return { ...parsed, cache };
     case "workspace":
     case "cached_workspace":
       return {

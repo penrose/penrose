@@ -184,27 +184,6 @@ export const useLoadWorkspace = () =>
             toast.error(`Failed to load file ${id}`);
           }
         }
-        //   const openDomains = Object.values(
-        // loadedWorkspace.contents.openFiles
-        //   ).filter(({ type }) => type === "domain");
-        //   if (
-        //     loadedWorkspace.contents.domainCache === null &&
-        //     openDomains.length > 0
-        //   ) {
-        //     const res = compileDomain(
-        //       fileContents[openDomains[0].id].contents as string
-        //     );
-        //     if (res.isOk()) {
-        //       // set fileContents domain cache
-        //       //   set(workspaceState, (state) => ({
-        //       //     ...state,
-        //       //     domainCache: res.value,
-        //       //   }));
-        //     } else {
-        //       toast.warn("Couldn't compile domain for autocompletion");
-        //     }
-        //   }
-
         //   Empty layout to prevent NPE's
         set(layoutState, constructLayout([]));
 
