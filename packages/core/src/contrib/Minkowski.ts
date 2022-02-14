@@ -15,7 +15,8 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import { Pt2, VarAD } from "types/ad";
+import { Pt2, VarAD, VecAD } from "types/ad";
+import { mod } from "utils/Util";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -141,12 +142,57 @@ export const convexPolygonMinkowskiSDF = (
  * Returns list of convex polygons comprising the original polygon. Assumes that
  * the polygon shape remains fixed after this function is called; that is, some
  * transformations can be applied, but vertices cannot change independently.
- * @param p Sequence of points defining a polygon.
+ * @param polygonPoints Sequence of points defining a polygon.
  */
-export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
-  // TODO: Add convex partitioning algorithm for polygons.
-  // See e.g.: https://doc.cgal.org/Manual/3.2/doc_html/cgal_manual/Partition_2/Chapter_main.html#Section_9.3
-  return [p];
+export const convexPartitions = (polygonPoints: VecAD[]): VecAD[][] => {
+  // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
+  // assumes the polygon is simple
+
+  // SWEEP
+
+  // given points, sorted by increasing x-coordinate
+  // TODO: handle cases where not all x-coordinates are different
+  const xStructure: VecAD[] = [...polygonPoints].sort(
+    ([{ val: x1 }], [{ val: x2 }]) => x1 - x2
+  );
+  const yStructure = []; // TODO
+  const pStructure = [];
+  const tri = [];
+  // TODO: handle cases where polygonPoints are not in counterclockwise order
+  const edges: [VecAD, VecAD][] = polygonPoints.map((p, i) => [
+    polygonPoints[mod(i - 1, polygonPoints.length)],
+    p,
+  ]);
+
+  const find = (p: VecAD) => p; // TODO: return [[VecAD, VecAD], [VecAD, VecAD]]
+
+  for (const p of xStructure) {
+    // TRANSITION
+
+    // proper start
+    {
+      const [s, t] = find(p);
+    }
+    // improper start
+    {
+    }
+
+    // proper bend
+    {
+    }
+    // improper bend
+    {
+    }
+
+    // proper end
+    {
+    }
+    // improper end
+    {
+    }
+  }
+
+  return [polygonPoints];
 };
 
 /**
