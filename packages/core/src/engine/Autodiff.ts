@@ -1,8 +1,9 @@
+import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
 import { GradGraphs, IVarAD, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
-import { Queue, safe } from "utils/Util";
+import { safe } from "utils/Util";
 import {
   acos,
   add,
@@ -1144,7 +1145,7 @@ export const clearVisitedNodes = (nodeList: VarAD[]): void => {
     z.nodeVisited = false;
     q.enqueue(z);
   });
-  while (q.size > 0) {
+  while (q.size() > 0) {
     const v = q.dequeue();
     v.childrenAD.forEach((e) => {
       if (!discoveredNodes.has(e.node)) {
