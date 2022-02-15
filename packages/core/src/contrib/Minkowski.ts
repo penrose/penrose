@@ -151,65 +151,86 @@ export const convexPartitions = (points: VecAD[]): VecAD[][] => {
   // assumes the polygon is simple
 
   type Index = number; // index into points
-  type Interval = [[Index, Index] | "∞", "in" | "out"] | "-∞";
+  type Edge = [Index, Index];
+  type Kind = "in" | "out";
+  type Interval = [Edge | "∞", Kind] | "-∞";
+
+  interface P {
+    l: Index[];
+    rm: Index;
+  }
 
   // procedure SWEEP
 
-  const yStructure: Interval[] = [["∞", "out"], "-∞"];
-  const pStructure = [];
-  const tri = [];
-  // TODO: handle cases where polygonPoints are not in counterclockwise order
-  const edges: [Index, Index][] = _.range(points.length).map((i) => [
-    mod(i - 1, points.length),
-    i,
-  ]);
+  const n = points.length;
+
+  const yStructure: Interval[] = [["∞", "out"], "-∞"]; // TODO: use a tree
+
+  // for each edge s = [i - 1, i] above an in-interval, map i to L(s) and RM(s)
+  const pStructure: Map<Index, P> = new Map();
+
+  const tri: [Index, Index, Index][] = [];
 
   // procedure FIND
-  // TODO
+  // TODO: implement this correctly
   const find = (i: Index): [Interval, Interval] => [
     yStructure[0],
     yStructure[0],
   ];
 
   // procedure INSERT
-  const insert = undefined; // TODO
+  const insert = (e: Edge, k: Kind): void => {
+    yStructure.push([e, k]); // TODO: implement this correctly
+  };
 
   // procedure DELETE
-  const del = undefined; // TODO
+  const del = undefined; // TODO: implement this
 
   // indices of given points, sorted by increasing x-coordinate
   // TODO: handle cases where not all x-coordinates are different
-  for (const i of _.range(points.length).sort((i1, i2) => {
+  for (const p of _.range(n).sort((i1, i2) => {
     const [{ val: x1 }] = points[i1];
     const [{ val: x2 }] = points[i2];
     return x1 - x2;
   })) {
     // procedure TRANSITION
+    // TODO: decide which case to take
 
     // proper start
     {
+      // TODO: implement this case
     }
     // improper start
     {
-      const [s, t] = find(i);
+      const [s, t] = find(p);
+      const h: Edge = [mod(p - 1, n), p];
+      const l: Edge = [p, mod(p + 1, n)];
+      // const chain = pStructure.get(s);
+      // const q: Index = undefined;
+      insert(h, "out");
+      insert(l, "in");
     }
 
     // proper bend
     {
+      // TODO: implement this case
     }
     // improper bend
     {
+      // TODO: implement this case
     }
 
     // proper end
     {
+      // TODO: implement this case
     }
     // improper end
     {
+      // TODO: implement this case
     }
   }
 
-  return [points];
+  return tri.map(([i1, i2, i3]) => [points[i1], points[i2], points[i3]]);
 };
 
 /**

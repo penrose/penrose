@@ -1,4 +1,5 @@
 import {
+  convexPartitions,
   halfPlaneSDF,
   outwardUnitNormal,
   rectangleDifference,
@@ -139,7 +140,7 @@ describe("convexPartitions", () => {
     const p17 = [219.38368, -151.03297];
     const p18 = [14.882812, -128.98438];
     const p19 = [-224.34462, -165.36458];
-    const p = [
+    const points = [
       p1,
       p2,
       p3,
@@ -160,5 +161,10 @@ describe("convexPartitions", () => {
       p18,
       p19,
     ];
+
+    const triangles = convexPartitions(
+      points.map(([x, y]) => [constOf(x), constOf(y)])
+    ).map((poly) => poly.map((point) => point.map(numOf)));
+    expect(triangles).toEqual([]); // TODO: replace with actual triangulation
   });
 });
