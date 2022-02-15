@@ -1,0 +1,160 @@
+---
+pagination_prev: null
+pagination_next: null
+---
+
+# Functions #
+
+## Object Functions (objDict) ##
+
+ Name | Type |
+| :------ | :------ |
+| `above` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `offset`: `number`) => `IVarAD` |
+| `below` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `offset`: `number`) => `IVarAD` |
+| `centerArrow` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`]) => `IVarAD` |
+| `centerLabel` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `w`: `number`, `padding`: `number`) => `IVarAD` |
+| `centerLabelAbove` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `w`: `number`) => `IVarAD` |
+| `equal` | (`x`: `IVarAD`, `y`: `IVarAD`) => `IVarAD` |
+| `greaterThan` | (`x`: `IVarAD`, `y`: `IVarAD`) => `IVarAD` |
+| `leftwards` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `offset`: `number`) => `IVarAD` |
+| `lessThan` | (`x`: `IVarAD`, `y`: `IVarAD`) => `IVarAD` |
+| `maximal` | (`x`: `IVarAD`) => `IVarAD` |
+| `minimal` | (`x`: `IVarAD`) => `IVarAD` |
+| `near` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `offset`: `number`) => `IVarAD` |
+| `nearPt` | (`__namedParameters`: [`string`, `any`], `x`: `any`, `y`: `any`) => `IVarAD` |
+| `nonDegenerateAngle` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `strength`: `number`, `range`: `number`) => `IVarAD` |
+| `pointLineDist` | (`point`: `IVarAD`[], `__namedParameters`: [`string`, `any`], `padding`: `IVarAD`) => `IVarAD` |
+| `repel` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `weight`: `number`) => `IVarAD` |
+| `repelPt` | (`weight`: `IVarAD`, `a`: `IVarAD`[], `b`: `IVarAD`[]) => `IVarAD` |
+| `repelScalar` | (`c`: `number` \| `IVarAD`, `d`: `number` \| `IVarAD`) => `IVarAD` |
+| `rightwards` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `offset`: `number`) => `IVarAD` |
+| `sameCenter` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`]) => `IVarAD` |
+
+Defined in: [contrib/Objectives.ts:324](https://github.com/penrose/penrose/blob/6650e4453/packages/core/src/contrib/Objectives.ts#L324)
+
+
+## Constraint Functions (constrDict) ##
+
+| Name | Type |
+| :------ | :------ |
+| `atDist` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `distance`: `number`) => `IVarAD` |
+| `collinear` | (`c1`: `IVarAD`[], `c2`: `IVarAD`[], `c3`: `IVarAD`[]) => `IVarAD` |
+| `collinearUnordered` | (`c1`: `IVarAD`[], `c2`: `IVarAD`[], `c3`: `IVarAD`[]) => `IVarAD` |
+| `contains` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `padding`: `number`) => `IVarAD` |
+| `contains1D` | (`__namedParameters`: [`IVarAD`, `IVarAD`], `__namedParameters`: [`IVarAD`, `IVarAD`]) => `IVarAD` |
+| `disjoint` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `padding`: `number`) => `IVarAD` |
+| `disjointIntervals` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`]) => `IVarAD` |
+| `disjointScalar` | (`c`: `any`, `left`: `any`, `right`: `any`) => `IVarAD` |
+| `equal` | (`x`: `IVarAD`, `y`: `IVarAD`) => `IVarAD` |
+| `greaterThan` | (`x`: `IVarAD`, `y`: `IVarAD`, `padding`: `number`) => `IVarAD` |
+| `greaterThanSq` | (`x`: `IVarAD`, `y`: `IVarAD`) => `IVarAD` |
+| `inRange` | (`x`: `IVarAD`, `x0`: `IVarAD`, `x1`: `IVarAD`) => `IVarAD` |
+| `lessThan` | (`x`: `IVarAD`, `y`: `IVarAD`, `padding`: `number`) => `IVarAD` |
+| `lessThanSq` | (`x`: `IVarAD`, `y`: `IVarAD`) => `IVarAD` |
+| `maxSize` | (`__namedParameters`: [`string`, `any`], `limit`: `number` \| `IVarAD`) => `IVarAD` |
+| `minSize` | (`__namedParameters`: [`string`, `any`], `limit`: `number`) => `IVarAD` |
+| `onCanvas` | (`__namedParameters`: `any`, `canvasWidth`: `IVarAD`, `canvasHeight`: `IVarAD`) => `IVarAD` |
+| `overlapping` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `padding`: `number`) => `IVarAD` |
+| `perpendicular` | (`q`: `IVarAD`[], `p`: `IVarAD`[], `r`: `IVarAD`[]) => `IVarAD` |
+| `ptCircleIntersect` | (`p`: `IVarAD`[], `__namedParameters`: [`string`, `any`]) => `IVarAD` |
+| `smallerThan` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `relativePadding`: `number`) => `IVarAD` |
+| `touching` | (`__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `padding`: `number`) => `IVarAD` |
+
+Defined in: [contrib/Constraints.ts:325](https://github.com/penrose/penrose/blob/6650e4453/packages/core/src/contrib/Constraints.ts#L325)
+
+
+## Computation Functions (compDict) ##
+
+| Name | Type |
+| :------ | :------ |
+| `MathE` | (`_context`: `Context`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `MathPI` | (`_context`: `Context`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `abs` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `acos` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `acosh` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `angleBetween` | (`_context`: `Context`, `u`: `IVarAD`[], `v`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `angleFrom` | (`_context`: `Context`, `u`: `IVarAD`[], `v`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `angleOf` | (`_context`: `Context`, `v`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `arc` | (`_context`: `Context`, `pathType`: `string`, `start`: `Pt2`, `end`: `Pt2`, `radius`: `Pt2`, `rotation`: `IVarAD`, `largeArc`: `IVarAD`, `arcSweep`: `IVarAD`) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `arcSweepFlag` | (`_context`: `Context`, `__namedParameters`: `IVarAD`[], `start`: `Pt2`, `end`: `Pt2`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `asin` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `asinh` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `atan` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `atan2` | (`_context`: `Context`, `x`: `IVarAD`, `y`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `atanh` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `average` | (`_context`: `Context`, `xs`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `average2` | (`_context`: `Context`, `x`: `IVarAD`, `y`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `barycenter` | (`_context`: `Context`, `a`: `IVarAD`[], `b`: `IVarAD`[], `c`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `cbrt` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `ceil` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `chevron` | (`_context`: `Context`, `__namedParameters`: [`string`, `any`], `padding`: `IVarAD`, `ticks`: `IVarAD`) => [`IPtListV`](interfaces/Value.IPtListV.md)<`IVarAD`\> |
+| `circumcenter` | (`_context`: `Context`, `p`: `IVarAD`[], `q`: `IVarAD`[], `r`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `circumradius` | (`_context`: `Context`, `p`: `IVarAD`[], `q`: `IVarAD`[], `r`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `concat` | (`_context`: `Context`, ...`strings`: `string`[]) => [`IStrV`](interfaces/Value.IStrV.md) |
+| `cos` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `cosh` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `cross2D` | (`_context`: `Context`, `u`: `IVarAD`[], `v`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `cubicCurveFromPoints` | (`_context`: `Context`, `pathType`: `string`, `pts`: `Pt2`[]) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `derivative` | (`_context`: `Context`, `optDebugInfo`: `IOptDebugInfo`, `varName`: `string`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`any`\> |
+| `derivativePreconditioned` | (`_context`: `Context`, `optDebugInfo`: `IOptDebugInfo`, `varName`: `string`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`any`\> |
+| `dot` | (`_context`: `Context`, `v`: `IVarAD`[], `w`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `exp` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `expm1` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `floor` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `get` | (`_context`: `Context`, `xs`: `IVarAD`[], `i`: `number`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`any`\> |
+| `getVar` | (`_context`: `Context`, `xs`: `IVarAD`[], `i`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`any`\> |
+| `hsva` | (`_context`: `Context`, `h`: `IVarAD`, `s`: `IVarAD`, `v`: `IVarAD`, `a`: `IVarAD`) => [`IColorV`](interfaces/Value.IColorV.md)<`IVarAD`\> |
+| `incenter` | (`_context`: `Context`, `p`: `IVarAD`[], `q`: `IVarAD`[], `r`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `innerPointOffset` | (`_context`: `Context`, `pt1`: `IVarAD`[], `pt2`: `IVarAD`[], `pt3`: `IVarAD`[], `padding`: `IVarAD`) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `inradius` | (`_context`: `Context`, `p`: `IVarAD`[], `q`: `IVarAD`[], `r`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `intersectingSideSize` | (`_context`: `Context`, `start`: `VecAD`, `end`: `VecAD`, `__namedParameters`: [`string`, `any`]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `len` | (`_context`: `Context`, `__namedParameters`: [`string`, `any`]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `lineLength` | (`_context`: `Context`, `__namedParameters`: [`string`, `any`]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `lineLineIntersection` | (`_context`: `Context`, `a0`: `IVarAD`[], `a1`: `IVarAD`[], `b0`: `IVarAD`[], `b1`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `log` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `log10` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `log1p` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `log2` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `makePath` | (`_context`: `Context`, `start`: [`IVarAD`, `IVarAD`], `end`: [`IVarAD`, `IVarAD`], `curveHeight`: `IVarAD`, `padding`: `IVarAD`) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `max` | (`_context`: `Context`, `x`: `IVarAD`, `y`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `midpoint` | (`_context`: `Context`, `start`: `IVarAD`[], `end`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `midpointOffset` | (`_context`: `Context`, `__namedParameters`: [`string`, `any`], `padding`: `IVarAD`) => [`ITupV`](interfaces/Value.ITupV.md)<`IVarAD`\> |
+| `min` | (`_context`: `Context`, `x`: `IVarAD`, `y`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `mul` | (`_context`: `Context`, `m`: `IVarAD`[][], `v`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `none` | (`_context`: `Context`) => [`IColorV`](interfaces/Value.IColorV.md)<`any`\> |
+| `norm` | (`_context`: `Context`, `v`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `normalize` | (`_context`: `Context`, `v`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `normsq` | (`_context`: `Context`, `v`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `orientedSquare` | (`_context`: `Context`, `__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `intersection`: `Pt2`, `len`: `IVarAD`) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `pathFromPoints` | (`_context`: `Context`, `pathType`: `string`, `pts`: `Pt2`[]) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `pow` | (`_context`: `Context`, `x`: `IVarAD`, `y`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `ptOnLine` | (`_context`: `Context`, `p1`: `IVarAD`[], `p2`: `IVarAD`[], `r`: `IVarAD`) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `quadraticCurveFromPoints` | (`_context`: `Context`, `pathType`: `string`, `pts`: `Pt2`[]) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `rgba` | (`_context`: `Context`, `r`: `IVarAD`, `g`: `IVarAD`, `b`: `IVarAD`, `a`: `IVarAD`) => [`IColorV`](interfaces/Value.IColorV.md)<`IVarAD`\> |
+| `rot90` | (`_context`: `Context`, `v`: `IVarAD`[]) => { `contents`: `IVarAD`[] ; `tag`: `string` = "VectorV" } |
+| `rotateBy` | (`_context`: `Context`, `v`: `IVarAD`[], `theta`: `IVarAD`) => { `contents`: `IVarAD`[] ; `tag`: `string` = "VectorV" } |
+| `round` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `sampleColor` | (`context`: `Context`, `alpha`: `IVarAD`, `colorType`: `string`) => [`IColorV`](interfaces/Value.IColorV.md)<`IVarAD`\> |
+| `selectColor` | (`_context`: `Context`, `color1`: [`Color`](modules/Value.md#color)<`IVarAD`\>, `color2`: [`Color`](modules/Value.md#color)<`IVarAD`\>, `level`: `IVarAD`) => [`IColorV`](interfaces/Value.IColorV.md)<`IVarAD`\> |
+| `setOpacity` | (`_context`: `Context`, `color`: [`Color`](modules/Value.md#color)<`IVarAD`\>, `frac`: `IVarAD`) => [`IColorV`](interfaces/Value.IColorV.md)<`IVarAD`\> |
+| `sign` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `sin` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `sinh` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `sqr` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `sqrt` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `tan` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `tanh` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `ticksOnLine` | (`_context`: `Context`, `pt1`: `IVarAD`[], `pt2`: `IVarAD`[], `spacing`: `IVarAD`, `numTicks`: `IVarAD`, `tickLength`: `IVarAD`) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `toDegrees` | (`_context`: `Context`, `theta`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `toRadians` | (`_context`: `Context`, `theta`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `triangle` | (`_context`: `Context`, `__namedParameters`: `any`, `__namedParameters`: `any`, `__namedParameters`: `any`) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+| `trunc` | (`_context`: `Context`, `x`: `IVarAD`) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `unit` | (`_context`: `Context`, `v`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `unitMark` | (`_context`: `Context`, `__namedParameters`: [`string`, `any`], `__namedParameters`: [`string`, `any`], `t`: `string`, `padding`: `IVarAD`, `barSize`: `IVarAD`) => [`IPtListV`](interfaces/Value.IPtListV.md)<`IVarAD`\> |
+| `unitMark2` | (`_context`: `Context`, `__namedParameters`: [`Pt2`, `Pt2`], `t`: `string`, `padding`: `IVarAD`, `size`: `IVarAD`) => [`IPtListV`](interfaces/Value.IPtListV.md)<`IVarAD`\> |
+| `vdist` | (`_context`: `Context`, `v`: `IVarAD`[], `w`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `vdistsq` | (`_context`: `Context`, `v`: `IVarAD`[], `w`: `IVarAD`[]) => [`IFloatV`](interfaces/Value.IFloatV.md)<`IVarAD`\> |
+| `vmul` | (`_context`: `Context`, `s`: `IVarAD`, `v`: `IVarAD`[]) => [`IVectorV`](interfaces/Value.IVectorV.md)<`IVarAD`\> |
+| `wedge` | (`_context`: `Context`, `center`: `Pt2`, `start`: `Pt2`, `end`: `Pt2`, `radius`: `Pt2`, `rotation`: `IVarAD`, `largeArc`: `IVarAD`, `arcSweep`: `IVarAD`) => [`IPathDataV`](interfaces/Value.IPathDataV.md)<`IVarAD`\> |
+
+Defined in: [contrib/Functions.ts:77](https://github.com/penrose/penrose/blob/6650e4453/packages/core/src/contrib/Functions.ts#L77)
