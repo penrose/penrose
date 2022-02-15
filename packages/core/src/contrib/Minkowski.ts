@@ -15,6 +15,7 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
+import _ from "lodash";
 import { Pt2, VarAD, VecAD } from "types/ad";
 import { mod } from "utils/Util";
 
@@ -142,39 +143,55 @@ export const convexPolygonMinkowskiSDF = (
  * Returns list of convex polygons comprising the original polygon. Assumes that
  * the polygon shape remains fixed after this function is called; that is, some
  * transformations can be applied, but vertices cannot change independently.
- * @param polygonPoints Sequence of points defining a polygon.
+ * @param points Sequence of points defining a polygon.
  */
-export const convexPartitions = (polygonPoints: VecAD[]): VecAD[][] => {
+export const convexPartitions = (points: VecAD[]): VecAD[][] => {
+  // adapted from
   // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
   // assumes the polygon is simple
 
-  // SWEEP
+  type Index = number; // index into points
+  type Interval = [[Index, Index] | "∞", "in" | "out"] | "-∞";
 
-  // given points, sorted by increasing x-coordinate
-  // TODO: handle cases where not all x-coordinates are different
-  const xStructure: VecAD[] = [...polygonPoints].sort(
-    ([{ val: x1 }], [{ val: x2 }]) => x1 - x2
-  );
-  const yStructure = []; // TODO
+  // procedure SWEEP
+
+  const yStructure: Interval[] = [["∞", "out"], "-∞"];
   const pStructure = [];
   const tri = [];
   // TODO: handle cases where polygonPoints are not in counterclockwise order
-  const edges: [VecAD, VecAD][] = polygonPoints.map((p, i) => [
-    polygonPoints[mod(i - 1, polygonPoints.length)],
-    p,
+  const edges: [Index, Index][] = _.range(points.length).map((i) => [
+    mod(i - 1, points.length),
+    i,
   ]);
 
-  const find = (p: VecAD) => p; // TODO: return [[VecAD, VecAD], [VecAD, VecAD]]
+  // procedure FIND
+  // TODO
+  const find = (i: Index): [Interval, Interval] => [
+    yStructure[0],
+    yStructure[0],
+  ];
 
-  for (const p of xStructure) {
-    // TRANSITION
+  // procedure INSERT
+  const insert = undefined; // TODO
+
+  // procedure DELETE
+  const del = undefined; // TODO
+
+  // indices of given points, sorted by increasing x-coordinate
+  // TODO: handle cases where not all x-coordinates are different
+  for (const i of _.range(points.length).sort((i1, i2) => {
+    const [{ val: x1 }] = points[i1];
+    const [{ val: x2 }] = points[i2];
+    return x1 - x2;
+  })) {
+    // procedure TRANSITION
 
     // proper start
     {
-      const [s, t] = find(p);
     }
     // improper start
     {
+      const [s, t] = find(i);
     }
 
     // proper bend
@@ -192,7 +209,7 @@ export const convexPartitions = (polygonPoints: VecAD[]): VecAD[][] => {
     }
   }
 
-  return [polygonPoints];
+  return [points];
 };
 
 /**
