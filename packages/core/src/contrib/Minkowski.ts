@@ -152,7 +152,7 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   const pointMap = new Map(p.map((point) => [point.map(numOf), point]));
 
   const polygon = [...pointMap.keys()];
-  // https://www.npmjs.com/package/poly-decomp#basic-usage
+  // https://www.npmjs.com/package/poly-decomp/v/0.3.0#basic-usage
   decomp.makeCCW(polygon);
   const convexPolygons: number[][][] = decomp.quickDecomp(polygon);
 
