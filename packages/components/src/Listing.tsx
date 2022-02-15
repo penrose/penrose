@@ -17,6 +17,7 @@ export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
   lineNumbers: "off",
   fontSize: 16,
   scrollBeyondLastLine: false,
+  renderLineHighlight: "none",
 };
 
 const Listing = ({
