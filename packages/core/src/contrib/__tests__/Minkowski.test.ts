@@ -162,9 +162,19 @@ describe("convexPartitions", () => {
       p19,
     ];
 
-    const triangles = convexPartitions(
+    const convexPolygons = convexPartitions(
       points.map(([x, y]) => [constOf(x), constOf(y)])
     ).map((poly) => poly.map((point) => point.map(numOf)));
-    expect(triangles).toEqual([]); // TODO: replace with actual triangulation
+    expect(convexPolygons).toEqual([
+      [p19, p18, p4],
+      [p4, p3, p2, p1, p19],
+      [p5, p4, p18, p17, p16, p15],
+      [p5, p15, p14],
+      [p11, p10, p9],
+      [p11, p9, p8],
+      [p11, p8, p7],
+      [p11, p7, p6],
+      [p6, p5, p14, p13, p12, p11],
+    ]);
   });
 });

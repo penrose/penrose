@@ -1,4 +1,4 @@
-import { constOf, ops, varOf } from "engine/Autodiff";
+import { constOf, numOf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -15,9 +15,9 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import _ from "lodash";
-import { Pt2, VarAD, VecAD } from "types/ad";
-import { mod } from "utils/Util";
+import * as decomp from "poly-decomp";
+import { Pt2, VarAD } from "types/ad";
+import { safe } from "utils/Util";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -143,94 +143,27 @@ export const convexPolygonMinkowskiSDF = (
  * Returns list of convex polygons comprising the original polygon. Assumes that
  * the polygon shape remains fixed after this function is called; that is, some
  * transformations can be applied, but vertices cannot change independently.
- * @param points Sequence of points defining a polygon.
+ * @param p Sequence of points defining a simple polygon.
  */
-export const convexPartitions = (points: VecAD[]): VecAD[][] => {
-  // adapted from
-  // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
-  // assumes the polygon is simple
+export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
+  // map each point back to its original VecAD object; note, this depends on the
+  // fact that two arrays with the same contents are considered different as
+  // keys in a JavaScript Map, very scary!
+  const pointMap = new Map(p.map((point) => [point.map(numOf), point]));
 
-  type Index = number; // index into points
-  type Edge = [Index, Index];
-  type Kind = "in" | "out";
-  type Interval = [Edge | "∞", Kind] | "-∞";
+  const polygon = [...pointMap.keys()];
+  // https://www.npmjs.com/package/poly-decomp#basic-usage
+  decomp.makeCCW(polygon);
+  const convexPolygons: number[][][] = decomp.quickDecomp(polygon);
 
-  interface P {
-    l: Index[];
-    rm: Index;
-  }
-
-  // procedure SWEEP
-
-  const n = points.length;
-
-  const yStructure: Interval[] = [["∞", "out"], "-∞"]; // TODO: use a tree
-
-  // for each edge s = [i - 1, i] above an in-interval, map i to L(s) and RM(s)
-  const pStructure: Map<Index, P> = new Map();
-
-  const tri: [Index, Index, Index][] = [];
-
-  // procedure FIND
-  // TODO: implement this correctly
-  const find = (i: Index): [Interval, Interval] => [
-    yStructure[0],
-    yStructure[0],
-  ];
-
-  // procedure INSERT
-  const insert = (e: Edge, k: Kind): void => {
-    yStructure.push([e, k]); // TODO: implement this correctly
-  };
-
-  // procedure DELETE
-  const del = undefined; // TODO: implement this
-
-  // indices of given points, sorted by increasing x-coordinate
-  // TODO: handle cases where not all x-coordinates are different
-  for (const p of _.range(n).sort((i1, i2) => {
-    const [{ val: x1 }] = points[i1];
-    const [{ val: x2 }] = points[i2];
-    return x1 - x2;
-  })) {
-    // procedure TRANSITION
-    // TODO: decide which case to take
-
-    // proper start
-    {
-      // TODO: implement this case
-    }
-    // improper start
-    {
-      const [s, t] = find(p);
-      const h: Edge = [mod(p - 1, n), p];
-      const l: Edge = [p, mod(p + 1, n)];
-      // const chain = pStructure.get(s);
-      // const q: Index = undefined;
-      insert(h, "out");
-      insert(l, "in");
-    }
-
-    // proper bend
-    {
-      // TODO: implement this case
-    }
-    // improper bend
-    {
-      // TODO: implement this case
-    }
-
-    // proper end
-    {
-      // TODO: implement this case
-    }
-    // improper end
-    {
-      // TODO: implement this case
-    }
-  }
-
-  return tri.map(([i1, i2, i3]) => [points[i1], points[i2], points[i3]]);
+  return convexPolygons.map((poly) =>
+    poly.map((point) =>
+      safe(
+        pointMap.get(point),
+        "polygon decomposition unexpectedly created a new point"
+      )
+    )
+  );
 };
 
 /**

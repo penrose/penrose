@@ -300,12 +300,6 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
   return true;
 };
 
-// https://stackoverflow.com/a/17323608
-/**
- * Returns the integer in the range [0, m) that is congruent to n mod m.
- */
-export const mod = (n: number, m: number) => ((n % m) + m) % m;
-
 //#endregion
 
 //#region geometry
