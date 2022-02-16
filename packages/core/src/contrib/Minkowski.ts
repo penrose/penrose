@@ -1,4 +1,4 @@
-import { constOf, ops, varOf } from "engine/Autodiff";
+import { constOf, numOf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -15,7 +15,9 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
+import * as decomp from "poly-decomp";
 import { Pt2, VarAD } from "types/ad";
+import { safe } from "utils/Util";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -138,13 +140,44 @@ export const convexPolygonMinkowskiSDF = (
 };
 
 /**
- * Returns list of convex polygons comprising the original polygon.
- * @param p Sequence of points defining a polygon.
+ * Returns list of convex polygons comprising the original polygon. Assumes that
+ * the polygon shape remains fixed after this function is called; that is, some
+ * transformations can be applied, but vertices cannot change independently.
+ * @param p Sequence of points defining a simple polygon.
  */
 export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
-  // TODO: Add convex partitioning algorithm for polygons.
-  // See e.g.: https://doc.cgal.org/Manual/3.2/doc_html/cgal_manual/Partition_2/Chapter_main.html#Section_9.3
-  return [p];
+  if (p.length < 3) {
+    return [p];
+  }
+
+  // map each point back to its original VecAD object; note, this depends on the
+  // fact that two arrays with the same contents are considered different as
+  // keys in a JavaScript Map, very scary!
+  const pointMap = new Map(p.map((point) => [point.map(numOf), point]));
+
+  const polygon = [...pointMap.keys()];
+  // https://www.npmjs.com/package/poly-decomp/v/0.3.0#advanced-usage
+  if (!decomp.isSimple(polygon)) {
+    throw Error("convex partitioning requires polygon to be simple");
+  }
+  decomp.makeCCW(polygon);
+  const convexPolygons: number[][][] = decomp.quickDecomp(polygon);
+
+  const covered: Set<number[]> = new Set(); // again using object identity 😱
+  const result = convexPolygons.map((poly) =>
+    poly.map((point) => {
+      covered.add(point);
+      return safe(
+        pointMap.get(point),
+        "polygon decomposition unexpectedly created a new point"
+      );
+    })
+  );
+
+  if (covered.size !== p.length) {
+    throw Error(`decomposition has ${covered.size} points, not ${p.length}`);
+  }
+  return result;
 };
 
 /**
