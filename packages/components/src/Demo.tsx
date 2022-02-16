@@ -29,10 +29,10 @@ const Demo = (props: {
       />
       <div style={{ width: props.width, height: props.width }}>
         <Simple
-          substanceString={props.sub}
-          styleString={props.sty}
-          domainString={props.dsl}
-          initVariation={props.variation}
+          substance={props.sub}
+          style={props.sty}
+          domain={props.dsl}
+          variation={props.variation}
           interactive={false}
         />
       </div>

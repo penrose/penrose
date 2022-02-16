@@ -1,12 +1,12 @@
 export const oneSet = {
-  domainString: `
+  domain: `
 type Set
 `,
-  substanceString: `
+  substance: `
 Set A
 AutoLabel All
 `,
-  styleString: `
+  style: `
 canvas {
   width = 500
   height = 500
@@ -18,11 +18,11 @@ Set X {
   ensure maxSize(X.shape, canvas.width / 2)
 }
 `,
-  initVariation: "",
+  variation: "",
 };
 
 export const continuousMap = {
-  substanceString: `
+  substance: `
 AutoLabel All
 
 Set A
@@ -43,7 +43,7 @@ IsSubset(B, Rm)
 Map f
 From(f, A, B)
 `,
-  styleString: `
+  style: `
   canvas {
     width = 800
     height = 800
@@ -175,7 +175,7 @@ From(f, A, B)
       ensure maxSize(\`Rm\`.icon, canvas.height / 3.)
   }
 `,
-  domainString: `
+  domain: `
   type Set
   type Point
   type Map
@@ -210,5 +210,5 @@ From(f, A, B)
   notation "f: A -> B" ~ "Map f; From(f, A, B)"
   
 `,
-  initVariation: "",
+  variation: "",
 };

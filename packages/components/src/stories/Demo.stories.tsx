@@ -24,18 +24,18 @@ const Template: ComponentStory<typeof Demo> = (args) => (
 export const ContinuousMap = Template.bind({});
 
 ContinuousMap.args = {
-  sub: continuousMap.substanceString,
-  sty: continuousMap.styleString,
-  dsl: continuousMap.domainString,
-  variation: continuousMap.initVariation,
+  sub: continuousMap.substance,
+  sty: continuousMap.style,
+  dsl: continuousMap.domain,
+  variation: continuousMap.variation,
   width: "400px",
 };
 
 export const OneSet = Template.bind({});
 OneSet.args = {
-  sub: oneSet.substanceString,
-  sty: oneSet.styleString,
-  dsl: oneSet.domainString,
-  variation: oneSet.initVariation,
+  sub: oneSet.substance,
+  sty: oneSet.style,
+  dsl: oneSet.domain,
+  variation: oneSet.variation,
   width: "400px",
 };
