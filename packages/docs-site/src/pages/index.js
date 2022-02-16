@@ -1,9 +1,9 @@
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import { Demo } from "@penrose/components";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import * as React from "react";
+import DemoWrapper from "../components/DemoWrapper";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
@@ -42,9 +42,7 @@ export default function Home() {
     >
       <HomepageHeader />
       <main>
-        {/* <HomepageFeatures /> */}
-
-        <Demo
+        <DemoWrapper
           sub={"Set A"}
           sty={`
   canvas {
