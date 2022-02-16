@@ -228,6 +228,7 @@ export const useLoadWorkspace = () =>
     }
   );
 
+// TODO: if loading a substance or diagram that depends on other files, load those in first!!
 export const useOpenFileInWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (pointer: FilePointer) => {
     const workspace: IWorkspace = snapshot.getLoadable(workspaceState).contents;
