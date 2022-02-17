@@ -53,6 +53,7 @@ export default function Home() {
   `}
           dsl={"type Set"}
           variation={"foo"}
+          width="500px"
         />
       </main>
     </Layout>

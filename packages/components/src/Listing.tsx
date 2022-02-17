@@ -1,13 +1,12 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
 import { Env } from "@penrose/core";
 import { editor, IRange } from "monaco-editor";
-import * as React from "react";
 import { useCallback, useEffect } from "react";
 import {
   SubstanceCompletions,
   SubstanceConfig,
   SubstanceLanguageTokens,
-} from "./languages/SubstanceConfig";
+} from "./editing/languages/SubstanceConfig";
 
 export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
   automaticLayout: true,
@@ -57,7 +56,8 @@ const Listing = ({
         const dispose = monaco.languages.registerCompletionItemProvider(
           "substance",
           {
-            provideCompletionItems: provideCompletion,
+            // HACK:
+            provideCompletionItems: provideCompletion as any,
           }
         );
         return () => {
@@ -73,7 +73,8 @@ const Listing = ({
       width={width}
       height={height}
       defaultLanguage="substance"
-      options={monacoOptions}
+      // HACK
+      options={monacoOptions as any}
     />
   );
 };

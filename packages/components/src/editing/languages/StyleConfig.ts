@@ -1,4 +1,5 @@
-import { compDict, constrDict, objDict } from "@penrose/core";
+import { Monaco } from "@monaco-editor/react";
+import { compDict, constrDict, objDict, shapedefs } from "@penrose/core";
 import { IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
 
@@ -72,21 +73,9 @@ const styleCustoms = {
     "objective",
     "constraint",
   ],
-  shapes: [
-    "Arrow",
-    "Path",
-    "Line",
-    "Text",
-    "Square",
-    "Image",
-    "Rectangle",
-    "Circle",
-  ],
+  shapes: Object.keys(shapedefs),
   constraints: Object.keys(constrDict),
   objectives: Object.keys(objDict),
-  // constraints: [],
-  // objectives: [],
-  // computations: ["dfds"],
   computations: Object.keys(compDict),
 };
 
@@ -169,3 +158,25 @@ export const StyleCompletions = (range: IRange): languages.CompletionItem[] => [
     range,
   })),
 ];
+
+export const SetupStyleMonaco = (monaco: Monaco) => {
+  monaco.languages.register({ id: "style" });
+  monaco.languages.setLanguageConfiguration("style", StyleConfig);
+  monaco.languages.setMonarchTokensProvider("style", StyleLanguageTokens);
+  const dispose = monaco.languages.registerCompletionItemProvider("style", {
+    provideCompletionItems: (model, position) => {
+      const word = model.getWordUntilPosition(position);
+      const range: IRange = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
+      };
+      return { suggestions: StyleCompletions(range) } as any;
+    },
+    // HACK
+  });
+  return () => {
+    dispose.dispose();
+  };
+};

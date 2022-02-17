@@ -1,5 +1,4 @@
 import { compileDomain } from "@penrose/core";
-import * as React from "react";
 import Listing from "./Listing";
 import { Simple } from "./Simple";
 
