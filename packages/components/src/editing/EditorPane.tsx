@@ -1,6 +1,5 @@
 import MonacoEditor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-import { initVimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 
 const monacoOptions: editor.IEditorConstructionOptions = {
@@ -42,15 +41,6 @@ export default function EditorPane({
       };
     }
   }, [monaco, setupMonaco, vimMode]);
-  useEffect(() => {
-    if (vimMode && statusBarRef.current && editorRef.current) {
-      const vimModeInstance = initVimMode(
-        editorRef.current,
-        statusBarRef.current
-      );
-      return () => vimModeInstance.dispose();
-    }
-  }, [vimMode]);
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };
