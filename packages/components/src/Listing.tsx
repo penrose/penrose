@@ -15,6 +15,9 @@ export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
   wordWrap: "on",
   lineNumbers: "off",
   fontSize: 16,
+  scrollbar: {
+    handleMouseWheel: false,
+  },
   scrollBeyondLastLine: false,
   renderLineHighlight: "none",
 };

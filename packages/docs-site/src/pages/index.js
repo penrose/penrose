@@ -41,19 +41,27 @@ export default function Home() {
       description="Create beautiful diagrams just by typing math notation in plain text."
     >
       <HomepageHeader />
-      <main>
+      <main style={{ padding: "1em", width: "1000px", margin: "auto" }}>
+        <h1>Example</h1>
+        <p>Here's Penrose running in your browser:</p>
         <DemoWrapper
-          sub={"Set A"}
+          style={{ margin: "auto" }}
+          sub={"Set A\nAutoLabel All"}
           sty={`
   canvas {
-    width = 400
-    height = 400
+    width = 500
+    height = 500
   }
-  Set X { X.shape = Circle{} }
+  Set X {
+    X.shape = Circle { strokeWidth : 0 }
+    X.text  = Equation { string: X.label }
+    ensure contains(X.shape, X.text)
+    ensure maxSize(X.shape, canvas.width / 2)
+  }
   `}
           dsl={"type Set"}
-          variation={"foo"}
-          width="500px"
+          variation={"baz"}
+          width="400px"
         />
       </main>
     </Layout>
