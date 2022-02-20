@@ -146,7 +146,7 @@ export const convexPolygonMinkowskiSDF = (
  * @param p Sequence of points defining a simple polygon.
  */
 export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
-  if (p.length < 3) {
+  if (p.length <= 3) {
     return [p];
   }
 
