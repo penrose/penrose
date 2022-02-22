@@ -49,7 +49,7 @@ const config = {
             type: "doc",
             docId: "tutorial/welcome",
             position: "left",
-            label: "Tutorial",
+            label: "Learn Penrose",
           },
           {
             type: "doc",
