@@ -1,24 +1,22 @@
 import {
-  valueNumberToAutodiff,
-  tagExprNumberToAutodiff,
-  insertExpr,
   initConstraintWeight,
+  insertExpr,
   shapeAutodiffToNumber,
   valueAutodiffToNumber,
+  valueNumberToAutodiff,
 } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
-import { Shape } from "types/shape";
-import { Value } from "types/value";
-import { randFloat, randFloats, safe, prettyPrintPath } from "utils/Util";
 import { mapValues } from "lodash";
-import { TagExpr, Translation } from "types/value";
-import { VarAD } from "types/ad";
-import { State } from "types/state";
-import { Path } from "types/style";
+import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
+import { VarAD } from "types/ad";
 import { A } from "types/ast";
-import seedrandom from "seedrandom";
+import { Shape } from "types/shape";
+import { State } from "types/state";
+import { Path } from "types/style";
+import { TagExpr, Translation, Value } from "types/value";
+import { prettyPrintPath, randFloat, randFloats, safe } from "utils/Util";
 
 //#region shape conversion helpers
 const val2float = (val: Value<number>): number => {

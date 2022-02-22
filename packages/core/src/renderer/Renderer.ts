@@ -4,12 +4,12 @@
  *
  */
 
-import shapeMap from "./shapeMap";
-import { Shape } from "types/shape";
-import { dragUpdate } from "./dragUtils";
-import { IStrV } from "types/value";
-import { LabelCache, State } from "types/state";
 import { shapedefs } from "shapes/Shapes";
+import { Shape } from "types/shape";
+import { LabelCache, State } from "types/state";
+import { IStrV } from "types/value";
+import { dragUpdate } from "./dragUtils";
+import shapeMap from "./shapeMap";
 
 /**
  * Resolves path references into static strings. Implemented by client

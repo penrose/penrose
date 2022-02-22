@@ -1,5 +1,5 @@
 import { constOf } from "engine/Autodiff";
-import { INamed, IStroke, IFill, IScale, IPoly, IShape } from "types/shapes";
+import { IFill, INamed, IPoly, IScale, IShape, IStroke } from "types/shapes";
 import {
   BoolV,
   Canvas,

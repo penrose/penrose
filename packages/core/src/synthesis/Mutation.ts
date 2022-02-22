@@ -1,7 +1,6 @@
 import {
   appendStmt,
   ArgExpr,
-  ArgStmtDecl,
   identicalTypeDecls,
   removeStmt,
   replaceStmt,
@@ -15,7 +14,6 @@ import {
   ApplyFunction,
   ApplyPredicate,
   Bind,
-  Decl,
   Func,
   SubExpr,
   SubPredArg,

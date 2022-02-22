@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as prettier from "prettier";
-import seedrandom from "seedrandom";
 import {
   compileTrio,
   evalEnergy,

@@ -2,12 +2,12 @@ import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import * as path from "path";
+import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
+import { SubstanceEnv } from "types/substance";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
-import { SubstanceEnv } from "types/substance";
-import { Env } from "types/domain";
 
 const printError = false;
 const saveContexts = false;

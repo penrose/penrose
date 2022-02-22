@@ -1,14 +1,13 @@
 import * as _ from "lodash";
-import memoize from "fast-memoize";
-import { zipWith, reduce, times } from "lodash";
+import { times } from "lodash";
+import seedrandom from "seedrandom";
+import { ILine } from "shapes/Line";
+import { VarAD } from "types/ad";
+import { A } from "types/ast";
 import { Properties } from "types/shape";
+import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
 import { ArgVal, Color } from "types/value";
-import { VarAD } from "types/ad";
-import { Fn, Seeds, State } from "types/state";
-import { ILine } from "shapes/Line";
-import { A } from "types/ast";
-import seedrandom from "seedrandom";
 
 //#region general
 
@@ -383,79 +382,6 @@ export const dot = (xs: number[], ys: number[]): number => {
   }
   return acc;
 };
-
-//#endregion
-
-//#region queue
-
-class Node<T> {
-  value: T;
-  next: Node<T> | undefined = undefined;
-
-  constructor(value: T) {
-    this.value = value;
-  }
-}
-
-export class Queue<T> {
-  head: Node<T> | undefined = undefined;
-  tail: Node<T> | undefined = undefined;
-  queue_size = 0;
-
-  constructor() {
-    this.clear();
-  }
-
-  enqueue(value: T): void {
-    const node = new Node(value);
-
-    if (this.head !== undefined && this.tail !== undefined) {
-      this.tail.next = node;
-      this.tail = node;
-    } else {
-      this.head = node;
-      this.tail = node;
-    }
-
-    this.queue_size++;
-  }
-
-  dequeue(): T {
-    const current = this.head;
-    // need to check for nullness of this.head and this.current
-    // to satisfy the type-checker
-    if (this.head === undefined || current === undefined) {
-      throw new Error("Dequeue on empty queue");
-    } else {
-      if (this.head === this.tail) {
-        this.clear();
-        return current.value;
-      }
-      this.head = this.head.next;
-      this.queue_size--;
-      return current.value;
-    }
-  }
-
-  clear(): void {
-    this.head = undefined;
-    this.tail = undefined;
-    this.queue_size = 0;
-  }
-
-  get size(): number {
-    return this.queue_size;
-  }
-
-  *[Symbol.iterator](): Generator<T, void, unknown> {
-    let current = this.head;
-
-    while (current) {
-      yield current.value;
-      current = current.next;
-    }
-  }
-}
 
 //#endregion
 

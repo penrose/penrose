@@ -1,9 +1,9 @@
 import { Command, flags } from "@oclif/command";
-import WebSocket from "ws";
+import chalk from "chalk";
 import chokidar from "chokidar";
 import fs from "fs";
 import path from "path";
-import chalk from "chalk";
+import WebSocket from "ws";
 // eslint-disable-next-line node/no-unsupported-features/node-builtins
 const fsp = fs.promises;
 

@@ -1,15 +1,15 @@
 import { VarAD } from "types/ad";
-import { INamed, IStroke, IFill, ICenter, IShape } from "types/shapes";
+import { ICenter, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IFloatV } from "types/value";
 import {
+  BoolV,
   Canvas,
-  sampleNoPaint,
   sampleColor,
+  sampleNoPaint,
   sampleVector,
   sampleWidth,
   sampleZero,
   StrV,
-  BoolV,
 } from "./Samplers";
 
 export interface ICircle extends INamed, IStroke, IFill, ICenter {

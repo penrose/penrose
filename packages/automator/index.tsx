@@ -2,17 +2,15 @@ require("global-jsdom/register");
 import {
   compileTrio,
   evalEnergy,
-  prepareState,
-  showError,
-  stepUntilConvergence,
-  PenroseState,
   getListOfStagedStates,
+  prepareState,
   RenderStatic,
   resample,
+  showError,
+  stepUntilConvergence,
 } from "@penrose/core";
-import { renderArtifacts } from "./artifacts";
 import { join, parse, resolve } from "path";
-import seedrandom from "seedrandom";
+import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
 const chalk = require("chalk");

@@ -1,39 +1,33 @@
-import * as _ from "lodash";
-import { all, randList, eqList } from "utils/Util";
-import { GradGraphs } from "types/ad";
 import {
   clearVisitedNodes,
+  constOf,
+  fns,
   gvarOf,
   logAD,
   markInput,
   variableAD,
   varOf,
-  constOf,
-  _gradADSymbolic,
   _genCode,
+  _genEnergyFn,
+  _gradADSymbolic,
   _gradAllSymbolic,
   _gradFiniteDiff,
-  _genEnergyFn,
-  fns,
 } from "engine/Autodiff";
+import * as _ from "lodash";
+import seedrandom from "seedrandom";
+import { GradGraphs } from "types/ad";
+import { eqList, randList } from "utils/Util";
 import {
-  acos,
   add,
-  addN,
-  atan2,
-  cos,
   div,
   ifCond,
   lt,
   max,
   mul,
-  neg,
   sin,
-  sqrt,
   squared,
   sub,
 } from "./AutodiffFunctions";
-import seedrandom from "seedrandom";
 
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 

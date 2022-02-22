@@ -7,7 +7,6 @@ import {
   intersectionWith,
   isEqual,
   isEqualWith,
-  matches,
   sortBy,
 } from "lodash";
 import { A, AbstractNode, C, Identifier, metaProps } from "types/ast";

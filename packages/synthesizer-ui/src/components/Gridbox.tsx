@@ -1,28 +1,27 @@
 import {
+  Box,
+  Button,
+  Card,
+  Checkbox,
+  Chip,
+  styled,
+  Typography,
+} from "@material-ui/core";
+import { fetchResolver } from "@penrose/components";
+import {
   compileTrio,
   evalEnergy,
-  prepareState,
-  RenderStatic,
-  prettySubstance,
-  stepUntilConvergence,
-  resample,
-  SynthesizedSubstance,
-  showMutations,
   PenroseState,
+  prepareState,
+  prettySubstance,
+  RenderStatic,
+  resample,
   showError,
+  showMutations,
+  stepUntilConvergence,
+  SynthesizedSubstance,
 } from "@penrose/core";
-import { fetchResolver } from "@penrose/components";
 import React from "react";
-import {
-  styled,
-  Box,
-  Checkbox,
-  Card,
-  Typography,
-  Chip,
-  Button,
-} from "@material-ui/core";
-import seedrandom from "seedrandom";
 
 export interface GridboxProps {
   domain: string;

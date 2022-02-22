@@ -1,4 +1,3 @@
-import React from "react";
 import {
   compileTrio,
   PenroseState,
@@ -8,8 +7,8 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
+import React from "react";
 import fetchResolver from "./fetchPathResolver";
-import seedrandom from "seedrandom";
 
 export interface ISimpleProps {
   domainString: string;

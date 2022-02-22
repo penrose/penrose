@@ -1,9 +1,9 @@
 import * as React from "react";
 import {
   BrowserRouter as Router,
-  Switch,
-  Route,
   Redirect,
+  Route,
+  Switch,
   useLocation,
 } from "react-router-dom";
 import App from "./App";

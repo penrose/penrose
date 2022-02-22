@@ -1,4 +1,4 @@
-import { languages, IRange } from "monaco-editor";
+import { IRange, languages } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common";
 
 export const DomainConfig: languages.LanguageConfiguration = {

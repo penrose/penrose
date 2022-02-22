@@ -1,15 +1,14 @@
 import {
-  valueNumberToAutodiff,
-  insertExpr,
   exprToNumber,
+  insertExpr,
+  valueNumberToAutodiff,
 } from "engine/EngineUtils";
-import { Translation } from "types/value";
-import { Shape } from "types/shape";
-import { Value } from "types/value";
-import { State, LabelCache } from "types/state";
-import { Path, IPropertyPath, IAccessPath } from "types/style";
-import { retrieveLabel } from "utils/CollectLabels";
 import { A } from "types/ast";
+import { Shape } from "types/shape";
+import { LabelCache, State } from "types/state";
+import { IAccessPath, IPropertyPath, Path } from "types/style";
+import { Translation, Value } from "types/value";
+import { retrieveLabel } from "utils/CollectLabels";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
