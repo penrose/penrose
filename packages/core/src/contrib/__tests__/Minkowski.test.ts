@@ -118,6 +118,11 @@ describe("halfPlaneSDF", () => {
 });
 
 describe("convexPartitions", () => {
+  const convexPartitionsNum = (p: number[][]): number[][][] =>
+    convexPartitions(p.map(([x, y]) => [constOf(x), constOf(y)])).map((poly) =>
+      poly.map((point) => point.map(numOf))
+    );
+
   test("Figure 1 from [HM83]", () => {
     // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
     // point locations approximated by tracing in Inkscape
@@ -162,9 +167,7 @@ describe("convexPartitions", () => {
       p19,
     ];
 
-    const convexPolygons = convexPartitions(
-      points.map(([x, y]) => [constOf(x), constOf(y)])
-    ).map((poly) => poly.map((point) => point.map(numOf)));
+    const convexPolygons = convexPartitionsNum(points);
     expect(convexPolygons).toEqual([
       [p19, p18, p4],
       [p4, p3, p2, p1, p19],
@@ -176,5 +179,18 @@ describe("convexPartitions", () => {
       [p11, p7, p6],
       [p6, p5, p14, p13, p12, p11],
     ]);
+  });
+
+  test("yin-yang", () => {
+    const p = [
+      [-41.942347636454556, -334.57387855868393],
+      [-28.8732769036464, -514.3771026404029],
+      [69.71110339328084, -340.36239072939577],
+      [-104.30360851772633, -241.77801043246853],
+      [-91.23453778491817, -421.58123451418754],
+      [-66.58844271068637, -378.07755653643574],
+    ];
+    const convexPolygons = convexPartitionsNum(p);
+    expect(convexPolygons).toEqual([]);
   });
 });
