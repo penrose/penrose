@@ -125,11 +125,9 @@ describe("convexPartitions", () => {
 
   test("Figure 1 from [HM83]", () => {
     // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
-
     // point locations approximated by tracing in Inkscape, then y-coordinates
     // are inverted because screen coordinates are upside down compared to math,
     // and the library we use expects the polygon to be counterclockwise
-
     const p = [
       [-316.39758, 117.40885],
       [-291.04166, 57.877602],
@@ -151,8 +149,7 @@ describe("convexPartitions", () => {
       [14.882812, 128.98438],
       [-224.34462, 165.36458],
     ];
-    const convexPolygons = convexPartitionsNum(p);
-    expect(convexPolygons).toEqual([
+    expect(convexPartitionsNum(p)).toEqual([
       [p[8], p[9], p[10]],
       [p[7], p[8], p[10]],
       [p[12], p[13], p[6], p[7], p[10], p[11]],
@@ -173,8 +170,7 @@ describe("convexPartitions", () => {
       [-91.23453778491817, -421.58123451418754],
       [-66.58844271068637, -378.07755653643574],
     ];
-    const convexPolygons = convexPartitionsNum(p);
-    expect(convexPolygons).toEqual([
+    expect(convexPartitionsNum(p)).toEqual([
       [p[3], p[4], p[5], p[0]],
       [p[0], p[1], p[2]],
       [p[0], p[2], p[3]],
