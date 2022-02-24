@@ -6,6 +6,8 @@ import {
   RenderStatic,
   resample,
   showError,
+  stateConverged,
+  stepState,
   stepUntilConvergence,
   variationSeeds,
 } from "@penrose/core";
@@ -18,11 +20,13 @@ export interface ISimpleProps {
   style: string;
   variation: string;
   interactive?: boolean; // considered true by default
+  animate?: boolean; // considered false by default
 }
 
 class Simple extends React.Component<ISimpleProps> {
   readonly canvasRef = React.createRef<HTMLDivElement>();
   penroseState: PenroseState | undefined = undefined;
+  timerID: number | undefined = undefined; // for animation
 
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
@@ -46,10 +50,24 @@ class Simple extends React.Component<ISimpleProps> {
     }
   };
 
+  tick = () => {
+    if (
+      this.props.animate &&
+      this.penroseState &&
+      !stateConverged(this.penroseState)
+    ) {
+      this.penroseState = stepState(this.penroseState, 1);
+      this.renderCanvas();
+    }
+  };
+
   componentDidMount = async () => {
     await this.compile();
-    await this.converge();
+    if (!this.props.animate) {
+      await this.converge();
+    }
     this.renderCanvas();
+    this.timerID = window.setInterval(() => this.tick(), 1000 / 60);
   };
 
   componentDidUpdate = async (prevProps: ISimpleProps) => {
@@ -60,16 +78,27 @@ class Simple extends React.Component<ISimpleProps> {
       !this.penroseState
     ) {
       await this.compile();
-      await this.converge();
+      if (!this.props.animate) {
+        await this.converge();
+      }
       this.renderCanvas();
-    } else if (this.props.variation !== prevProps.variation) {
+    } else if (
+      this.props.variation !== prevProps.variation ||
+      this.props.animate !== prevProps.animate
+    ) {
       this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
       this.penroseState = resample(this.penroseState);
-      await this.converge();
+      if (!this.props.animate) {
+        await this.converge();
+      }
       this.renderCanvas();
     } else if (this.props.interactive !== prevProps.interactive) {
       this.renderCanvas();
     }
+  };
+
+  componentWillUnmount = () => {
+    clearInterval(this.timerID);
   };
 
   renderCanvas = async () => {
@@ -83,9 +112,11 @@ class Simple extends React.Component<ISimpleProps> {
           ? RenderStatic(this.penroseState, fetchResolver)
           : RenderInteractive(
               this.penroseState,
-              (newState) => {
+              async (newState) => {
                 this.penroseState = newState;
-                this.converge();
+                if (!this.props.animate) {
+                  await this.converge();
+                }
                 this.renderCanvas();
               },
               fetchResolver

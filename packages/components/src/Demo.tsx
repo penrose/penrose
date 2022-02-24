@@ -33,6 +33,7 @@ const Demo = (props: {
           domain={props.dsl}
           variation={props.variation}
           interactive={false}
+          animate={true}
         />
       </div>
     </div>
