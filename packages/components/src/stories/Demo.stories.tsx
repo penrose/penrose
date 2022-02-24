@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import Demo from "../Demo";
-import { continuousMap, oneSet } from "./PenrosePrograms";
+import { vectorWedge } from "./PenrosePrograms";
 
 // const diagram = await getDiagram();
 
@@ -21,21 +21,11 @@ const Template: ComponentStory<typeof Demo> = (args) => (
   </div>
 );
 
-export const ContinuousMap = Template.bind({});
-
-ContinuousMap.args = {
-  sub: continuousMap.substance,
-  sty: continuousMap.style,
-  dsl: continuousMap.domain,
-  variation: continuousMap.variation,
-  width: "400px",
-};
-
-export const OneSet = Template.bind({});
-OneSet.args = {
-  sub: oneSet.substance,
-  sty: oneSet.style,
-  dsl: oneSet.domain,
-  variation: oneSet.variation,
+export const VectorWedge = Template.bind({});
+VectorWedge.args = {
+  sub: vectorWedge.substance,
+  sty: vectorWedge.style,
+  dsl: vectorWedge.domain,
+  variation: vectorWedge.variation,
   width: "400px",
 };
