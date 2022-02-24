@@ -15,7 +15,7 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import * as decomp from "poly-decomp";
+import { convexPartition } from "poly-partition";
 import { Pt2, VarAD } from "types/ad";
 import { safe } from "utils/Util";
 
@@ -151,19 +151,22 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   }
 
   // map each point back to its original VecAD object; note, this depends on the
-  // fact that two arrays with the same contents are considered different as
+  // fact that two Points with the same contents are considered different as
   // keys in a JavaScript Map, very scary!
-  const pointMap = new Map(p.map((point) => [point.map(numOf), point]));
+  const pointMap = new Map(
+    p.map((point) => {
+      const [x, y] = point;
+      return [{ x: numOf(x), y: numOf(y) }, point];
+    })
+  );
 
-  const polygon = [...pointMap.keys()];
-  // https://www.npmjs.com/package/poly-decomp/v/0.3.0#advanced-usage
-  if (!decomp.isSimple(polygon)) {
-    throw Error("convex partitioning requires polygon to be simple");
-  }
-  decomp.makeCCW(polygon);
-  const convexPolygons: number[][][] = decomp.quickDecomp(polygon);
+  const contour = [...pointMap.keys()];
+  const convexPolygons = convexPartition(contour);
 
-  const covered: Set<number[]> = new Set(); // again using object identity 😱
+  // poly-partition library doesn't export this type for some reason
+  type Point = { x: number; y: number };
+
+  const covered: Set<Point> = new Set(); // again using object identity 😱
   const result = convexPolygons.map((poly) =>
     poly.map((point) => {
       covered.add(point);
