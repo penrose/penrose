@@ -35,6 +35,27 @@ function HomepageHeader() {
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
 
+  const trio = {
+    dsl: "type Set",
+    sub: "Set A\nAutoLabel All",
+    sty: `canvas {
+  width = 500
+  height = 500
+}
+  Set X {
+  X.shape = Circle { strokeWidth : 0 }
+  X.text  = Equation { string: X.label }
+  ensure contains(X.shape, X.text)
+  ensure maxSize(X.shape, canvas.width / 2)
+}
+`,
+  };
+  const examples = [
+    { variation: "foo", ...trio },
+    { variation: "bar", ...trio },
+    { variation: "baz", ...trio },
+  ];
+
   return (
     <Layout
       title={`Home`}
@@ -46,21 +67,7 @@ export default function Home() {
         <p>Here's Penrose running in your browser:</p>
         <DemoWrapper
           style={{ margin: "auto" }}
-          sub={"Set A\nAutoLabel All"}
-          sty={`
-  canvas {
-    width = 500
-    height = 500
-  }
-  Set X {
-    X.shape = Circle { strokeWidth : 0 }
-    X.text  = Equation { string: X.label }
-    ensure contains(X.shape, X.text)
-    ensure maxSize(X.shape, canvas.width / 2)
-  }
-  `}
-          dsl={"type Set"}
-          variation={"baz"}
+          examples={examples}
           width="400px"
         />
       </main>

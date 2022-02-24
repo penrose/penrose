@@ -1,16 +1,29 @@
-import { compileDomain } from "@penrose/core";
+import { useEffect, useState } from "react";
 import Listing from "./Listing";
 import { Simple } from "./Simple";
 
 const Demo = (props: {
-  sub: string;
-  sty: string;
-  dsl: string;
-  variation: string;
+  examples: {
+    sub: string;
+    sty: string;
+    dsl: string;
+    variation: string;
+  }[];
   width: string; // the width of each half; total width is twice this
   // height must be equal to width (including in the passed Style canvas!)
 }) => {
-  const env = compileDomain(props.dsl).unsafelyUnwrap();
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = window.setInterval(
+      () => setIndex((i) => (i + 1) % props.examples.length),
+      5000
+    );
+    return () => clearInterval(interval);
+  }, [index]);
+
+  const example = props.examples[index];
+
   return (
     <div
       style={{
@@ -20,18 +33,13 @@ const Demo = (props: {
         flex: 1,
       }}
     >
-      <Listing
-        value={props.sub}
-        env={env}
-        width={props.width}
-        height={props.width}
-      />
+      <Listing value={example.sub} width={props.width} height={props.width} />
       <div style={{ width: props.width, height: props.width }}>
         <Simple
-          substance={props.sub}
-          style={props.sty}
-          domain={props.dsl}
-          variation={props.variation}
+          substance={example.sub}
+          style={example.sty}
+          domain={example.dsl}
+          variation={example.variation}
           interactive={false}
           animate={true}
         />

@@ -1,4 +1,3 @@
-import { compileDomain } from "@penrose/core";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import Listing from "../Listing";
 import { continuousMap, oneSet } from "./PenrosePrograms";
@@ -23,11 +22,8 @@ const Template: ComponentStory<typeof Listing> = (args) => (
 );
 
 export const ContinuousMap = Template.bind({});
-const setTheoryEnv = compileDomain(continuousMap.domain).unsafelyUnwrap();
-
 ContinuousMap.args = {
   value: continuousMap.substance,
-  env: setTheoryEnv,
   width: "400px",
   height: "300px",
 };
@@ -35,7 +31,6 @@ ContinuousMap.args = {
 export const OneSet = Template.bind({});
 OneSet.args = {
   value: oneSet.substance,
-  env: setTheoryEnv,
   width: "400px",
   height: "300px",
 };

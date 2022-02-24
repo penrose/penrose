@@ -21,20 +21,21 @@ const Template: ComponentStory<typeof Demo> = (args) => (
   </div>
 );
 
-export const VectorsPerp = Template.bind({});
-VectorsPerp.args = {
-  sub: vectorsPerp.substance,
-  sty: vectorsPerp.style,
-  dsl: vectorsPerp.domain,
-  variation: vectorsPerp.variation,
-  width: "400px",
-};
-
-export const VectorWedge = Template.bind({});
-VectorWedge.args = {
-  sub: vectorWedge.substance,
-  sty: vectorWedge.style,
-  dsl: vectorWedge.domain,
-  variation: vectorWedge.variation,
+export const VectorExamples = Template.bind({});
+VectorExamples.args = {
+  examples: [
+    {
+      sub: vectorsPerp.substance,
+      sty: vectorsPerp.style,
+      dsl: vectorsPerp.domain,
+      variation: vectorsPerp.variation,
+    },
+    {
+      sub: vectorWedge.substance,
+      sty: vectorWedge.style,
+      dsl: vectorWedge.domain,
+      variation: vectorWedge.variation,
+    },
+  ],
   width: "400px",
 };
