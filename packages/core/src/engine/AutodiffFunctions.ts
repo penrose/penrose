@@ -32,10 +32,7 @@ export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 export const addN = (xs: VarAD[], isCompNode = true): VarAD => {
   // N-way add
   // TODO: Do argument list length checking for other ops generically
-  if (xs.length === 0) {
-    logAD.trace("node", xs);
-    throw Error("argument list to addN is empty; expected 1+ elements");
-  } else if (xs.length === 1) {
+  if (xs.length === 1) {
     return xs[0];
   } else if (xs.length === 2) {
     return add(xs[0], xs[1], isCompNode);
