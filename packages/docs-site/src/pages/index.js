@@ -1,9 +1,9 @@
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import DemoWrapper from "@epnrose/components/DemoWrapper";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import * as React from "react";
+import DemoWrapper from "../components/DemoWrapper";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
