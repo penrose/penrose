@@ -28,7 +28,7 @@
     "build:esbuild": "node estrella.js",
     "watch:esbuild": "node estrella.js -watch",
     "build-decls": "tsc --emitDeclarationOnly --outDir build/dist",
-    "docs": "typedoc --plugin none --out docs/html",
+    "docs": "typedoc --plugin none --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
     "coverage": "yarn test --coverage --watchAll=false",
     "lint": "eslint --ext js,ts,tsx src",
