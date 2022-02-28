@@ -177,7 +177,7 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
     })
   );
 
-  if (covered.size !== p.length) {
+  if (covered.size > p.length) {
     throw Error(`decomposition has ${covered.size} points, not ${p.length}`);
   }
   return result;
