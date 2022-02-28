@@ -11,7 +11,6 @@ import {
   _genEnergyFn,
   _gradADSymbolic,
   _gradAllSymbolic,
-  _gradFiniteDiff,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
@@ -28,6 +27,26 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions";
+
+// df/f[x] with finite differences about xi
+const _gradFiniteDiff = (f: (args: number[]) => number) => {
+  return (xs: number[]): number[] => {
+    const EPSG = 10e-5;
+
+    // Scalar estimate (in 1D)
+    // const dfxi = (f, x) => (f(x + EPSG / 2.) - f(x - EPSG / 2.)) / EPSG;
+
+    const xsDiff = xs.map((e, i) => {
+      const xsLeft = [...xs];
+      xsLeft[i] = xsLeft[i] - EPSG / 2;
+      const xsRight = [...xs];
+      xsRight[i] = xsRight[i] + EPSG / 2;
+      return (f(xsRight) - f(xsLeft)) / EPSG;
+    });
+
+    return xsDiff;
+  };
+};
 
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 

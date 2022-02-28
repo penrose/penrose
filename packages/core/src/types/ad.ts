@@ -28,7 +28,6 @@ export type EdgeAD = IEdgeAD;
 export interface IVarAD {
   val: number; // The value of this node at the time the computational graph was created. This is mostly unused, since most values are compiled out except for leaf nodes
 
-  tag: "custom";
   metadata: string; // Used for storing the kind of weight
   op: string;
   isCompNode: boolean; // comp node (normal computational graph) or grad node (node in computational graph for gradient)
@@ -39,7 +38,7 @@ export interface IVarAD {
   childrenADGrad: EdgeAD[];
   gradVal: number | undefined;
   gradNode: VarAD | undefined;
-  index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
+  index: number; // -100 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
 
   debug: boolean; // If true, this prints node debug info on evaluation
   debugInfo: string;
