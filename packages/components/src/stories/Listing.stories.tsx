@@ -23,14 +23,16 @@ const Template: ComponentStory<typeof Listing> = (args) => (
 
 export const ContinuousMap = Template.bind({});
 ContinuousMap.args = {
-  value: continuousMap.substance,
+  domain: continuousMap.domain,
+  substance: continuousMap.substance,
   width: "400px",
   height: "300px",
 };
 
 export const OneSet = Template.bind({});
 OneSet.args = {
-  value: oneSet.substance,
+  domain: continuousMap.domain,
+  substance: oneSet.substance,
   width: "400px",
   height: "300px",
 };

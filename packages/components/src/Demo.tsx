@@ -33,7 +33,12 @@ const Demo = (props: {
         flex: 1,
       }}
     >
-      <Listing value={example.sub} width={props.width} height={props.width} />
+      <Listing
+        domain={example.dsl}
+        substance={example.sub}
+        width={props.width}
+        height={props.width}
+      />
       <div style={{ width: props.width, height: props.width }}>
         <Simple
           substance={example.sub}
