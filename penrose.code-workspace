@@ -5,7 +5,8 @@
       "esbenp.prettier-vscode",
       "folke.vscode-monorepo-workspace",
       "karyfoundation.nearley",
-      "penrose.penrose-vs"
+      "penrose.penrose-vs",
+      "silvenon.mdx"
     ]
   },
   "folders": [
