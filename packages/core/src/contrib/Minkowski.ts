@@ -15,7 +15,7 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import * as decomp from "poly-decomp";
+import { convexPartition } from "poly-partition";
 import { Pt2, VarAD } from "types/ad";
 import { safe } from "utils/Util";
 
@@ -146,38 +146,31 @@ export const convexPolygonMinkowskiSDF = (
  * @param p Sequence of points defining a simple polygon.
  */
 export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
-  if (p.length < 3) {
+  if (p.length <= 3) {
     return [p];
   }
 
   // map each point back to its original VecAD object; note, this depends on the
-  // fact that two arrays with the same contents are considered different as
+  // fact that two points with the same contents are considered different as
   // keys in a JavaScript Map, very scary!
-  const pointMap = new Map(p.map((point) => [point.map(numOf), point]));
-
-  const polygon = [...pointMap.keys()];
-  // https://www.npmjs.com/package/poly-decomp/v/0.3.0#advanced-usage
-  if (!decomp.isSimple(polygon)) {
-    throw Error("convex partitioning requires polygon to be simple");
-  }
-  decomp.makeCCW(polygon);
-  const convexPolygons: number[][][] = decomp.quickDecomp(polygon);
-
-  const covered: Set<number[]> = new Set(); // again using object identity 😱
-  const result = convexPolygons.map((poly) =>
-    poly.map((point) => {
-      covered.add(point);
-      return safe(
-        pointMap.get(point),
-        "polygon decomposition unexpectedly created a new point"
-      );
+  const pointMap = new Map(
+    p.map((point) => {
+      const [x, y] = point;
+      return [{ x: numOf(x), y: numOf(y) }, point];
     })
   );
 
-  if (covered.size !== p.length) {
-    throw Error(`decomposition has ${covered.size} points, not ${p.length}`);
-  }
-  return result;
+  const contour = [...pointMap.keys()];
+  const convexPolygons = convexPartition(contour);
+
+  return convexPolygons.map((poly) =>
+    poly.map((point) =>
+      safe(
+        pointMap.get(point),
+        "polygon decomposition unexpectedly created a new point"
+      )
+    )
+  );
 };
 
 /**

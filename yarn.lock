@@ -15675,10 +15675,10 @@ polished@^4.0.5:
   dependencies:
     "@babel/runtime" "^7.14.0"
 
-poly-decomp@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/poly-decomp/-/poly-decomp-0.3.0.tgz#aa499289bbc1a4ca2213e966587fa5bffc1ca5f5"
-  integrity sha512-hWeBxGzPYiybmI4548Fca7Up/0k1qS5+79cVHI9+H33dKya5YNb9hxl0ZnDaDgvrZSuYFBhkCK/HOnqN7gefkQ==
+poly-partition@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/poly-partition/-/poly-partition-1.0.1.tgz#248f8793a8d2c5f36160cee58068dde2f3353ad7"
+  integrity sha512-l2VHI/tV+9tWCgW7rpkF8+uJrgSnIC+vDLp7/lDO88YHhBOjo73gc2+wxVdYq0coL5GOel030YXJRNznz1ayxA==
 
 popper.js@1.16.1-lts:
   version "1.16.1-lts"
