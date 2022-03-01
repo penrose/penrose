@@ -39,8 +39,7 @@ const Listing = ({
       width={width}
       height={height}
       defaultLanguage="substance"
-      // HACK
-      options={monacoOptions as any}
+      options={monacoOptions}
     />
   );
 };
