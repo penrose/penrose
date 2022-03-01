@@ -3,9 +3,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-
 # Style Functions
-
 
 ## Constraint Functions
 
@@ -18,8 +16,8 @@ Depends on the specific ordering of points.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name | Type       |
+| :--- | :--------- |
 | `c1` | `IVarAD`[] |
 | `c2` | `IVarAD`[] |
 | `c3` | `IVarAD`[] |
@@ -32,7 +30,7 @@ Depends on the specific ordering of points.
 
 [contrib/Constraints.ts:420](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L420)
 
-___
+---
 
 ### collinearUnordered
 
@@ -43,8 +41,8 @@ Does not enforce a specific ordering of points, instead it takes the arrangement
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name | Type       |
+| :--- | :--------- |
 | `c1` | `IVarAD`[] |
 | `c2` | `IVarAD`[] |
 | `c3` | `IVarAD`[] |
@@ -57,7 +55,7 @@ Does not enforce a specific ordering of points, instead it takes the arrangement
 
 [contrib/Constraints.ts:436](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L436)
 
-___
+---
 
 ### disjointScalar
 
@@ -67,10 +65,10 @@ Make scalar `c` disjoint from a range `left, right`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `c` | `any` |
-| `left` | `any` |
+| Name    | Type  |
+| :------ | :---- |
+| `c`     | `any` |
+| `left`  | `any` |
 | `right` | `any` |
 
 #### Returns
@@ -81,7 +79,7 @@ Make scalar `c` disjoint from a range `left, right`.
 
 [contrib/Constraints.ts:395](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L395)
 
-___
+---
 
 ### perpendicular
 
@@ -91,11 +89,11 @@ Require that the vector defined by `(q, p)` is perpendicular from the vector def
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `q` | `IVarAD`[] |
-| `p` | `IVarAD`[] |
-| `r` | `IVarAD`[] |
+| Name | Type       |
+| :--- | :--------- |
+| `q`  | `IVarAD`[] |
+| `p`  | `IVarAD`[] |
+| `r`  | `IVarAD`[] |
 
 #### Returns
 
@@ -105,7 +103,7 @@ Require that the vector defined by `(q, p)` is perpendicular from the vector def
 
 [contrib/Constraints.ts:409](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L409)
 
-___
+---
 
 ### atDist
 
@@ -115,11 +113,11 @@ Require that shape `s1` is at a distance of `distance` from shape `s2`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type              |
+| :------------------ | :---------------- |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
-| `distance` | `number` |
+| `distance`          | `number`          |
 
 #### Returns
 
@@ -129,7 +127,7 @@ Require that shape `s1` is at a distance of `distance` from shape `s2`.
 
 [contrib/Constraints.ts:571](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L571)
 
-___
+---
 
 ### contains
 
@@ -141,11 +139,11 @@ based on the type of the shape, and with an optional `padding` between the sizes
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `padding` | `number` | `0.0` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `padding`           | `number`          | `0.0`         |
 
 #### Returns
 
@@ -155,7 +153,7 @@ based on the type of the shape, and with an optional `padding` between the sizes
 
 [contrib/Constraints.ts:548](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L548)
 
-___
+---
 
 ### contains1D
 
@@ -165,8 +163,8 @@ Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type                 |
+| :------------------ | :------------------- |
 | `__namedParameters` | [`IVarAD`, `IVarAD`] |
 | `__namedParameters` | [`IVarAD`, `IVarAD`] |
 
@@ -178,7 +176,7 @@ Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not
 
 [contrib/Constraints.ts:384](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L384)
 
-___
+---
 
 ### disjoint
 
@@ -190,11 +188,11 @@ based on the type of the shape, and with an optional `padding` between them
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `padding` | `number` | `0.0` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `padding`           | `number`          | `0.0`         |
 
 #### Returns
 
@@ -204,7 +202,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 [contrib/Constraints.ts:522](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L522)
 
-___
+---
 
 ### disjointIntervals
 
@@ -214,8 +212,8 @@ Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharin
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type              |
+| :------------------ | :---------------- |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
 
@@ -227,7 +225,7 @@ Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharin
 
 [contrib/Constraints.ts:611](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L611)
 
-___
+---
 
 ### equal
 
@@ -237,10 +235,10 @@ Require that the value `x` is equal to the value `y`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
@@ -250,7 +248,7 @@ Require that the value `x` is equal to the value `y`
 
 [contrib/Constraints.ts:341](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L341)
 
-___
+---
 
 ### greaterThan
 
@@ -260,11 +258,11 @@ Require that the value `x` is greater than the value `y` with optional padding `
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `x` | `IVarAD` | `undefined` |
-| `y` | `IVarAD` | `undefined` |
-| `padding` | `number` | `0` |
+| Name      | Type     | Default value |
+| :-------- | :------- | :------------ |
+| `x`       | `IVarAD` | `undefined`   |
+| `y`       | `IVarAD` | `undefined`   |
+| `padding` | `number` | `0`           |
 
 #### Returns
 
@@ -274,7 +272,7 @@ Require that the value `x` is greater than the value `y` with optional padding `
 
 [contrib/Constraints.ts:355](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L355)
 
-___
+---
 
 ### greaterThanSq
 
@@ -284,10 +282,10 @@ Require that the value `x` is greater than the value `y`, with steeper penalty
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
@@ -297,7 +295,7 @@ Require that the value `x` is greater than the value `y`, with steeper penalty
 
 [contrib/Constraints.ts:370](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L370)
 
-___
+---
 
 ### inRange
 
@@ -307,9 +305,9 @@ Require that the value `x` is in the range defined by `[x0, x1]`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
 | `x0` | `IVarAD` |
 | `x1` | `IVarAD` |
 
@@ -321,7 +319,7 @@ Require that the value `x` is in the range defined by `[x0, x1]`.
 
 [contrib/Constraints.ts:377](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L377)
 
-___
+---
 
 ### lessThan
 
@@ -331,11 +329,11 @@ Require that the value `x` is less than the value `y` with optional padding `pad
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `x` | `IVarAD` | `undefined` |
-| `y` | `IVarAD` | `undefined` |
-| `padding` | `number` | `0` |
+| Name      | Type     | Default value |
+| :-------- | :------- | :------------ |
+| `x`       | `IVarAD` | `undefined`   |
+| `y`       | `IVarAD` | `undefined`   |
+| `padding` | `number` | `0`           |
 
 #### Returns
 
@@ -345,7 +343,7 @@ Require that the value `x` is less than the value `y` with optional padding `pad
 
 [contrib/Constraints.ts:348](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L348)
 
-___
+---
 
 ### lessThanSq
 
@@ -355,10 +353,10 @@ Require that the value `x` is less than the value `y`, with steeper penalty
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
@@ -368,7 +366,7 @@ Require that the value `x` is less than the value `y`, with steeper penalty
 
 [contrib/Constraints.ts:362](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L362)
 
-___
+---
 
 ### maxSize
 
@@ -378,10 +376,10 @@ Require that a shape have a size less than some constant maximum, based on the t
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `__namedParameters` | [`string`, `any`] |
-| `limit` | `number` \| `IVarAD` |
+| Name                | Type                 |
+| :------------------ | :------------------- |
+| `__namedParameters` | [`string`, `any`]    |
+| `limit`             | `number` \| `IVarAD` |
 
 #### Returns
 
@@ -391,7 +389,7 @@ Require that a shape have a size less than some constant maximum, based on the t
 
 [contrib/Constraints.ts:482](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L482)
 
-___
+---
 
 ### minSize
 
@@ -401,10 +399,10 @@ Require that a shape have a size greater than some constant minimum, based on th
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `limit` | `number` | `50` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `limit`             | `number`          | `50`          |
 
 #### Returns
 
@@ -414,7 +412,7 @@ Require that a shape have a size greater than some constant minimum, based on th
 
 [contrib/Constraints.ts:475](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L475)
 
-___
+---
 
 ### onCanvas
 
@@ -424,11 +422,11 @@ Require that `shape` is on the canvas
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `__namedParameters` | `any` |
-| `canvasWidth` | `IVarAD` |
-| `canvasHeight` | `IVarAD` |
+| Name                | Type     |
+| :------------------ | :------- |
+| `__namedParameters` | `any`    |
+| `canvasWidth`       | `IVarAD` |
+| `canvasHeight`      | `IVarAD` |
 
 #### Returns
 
@@ -438,7 +436,7 @@ Require that `shape` is on the canvas
 
 [contrib/Constraints.ts:453](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L453)
 
-___
+---
 
 ### overlapping
 
@@ -450,11 +448,11 @@ based on the type of the shape, and with an optional `padding` between them
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `padding` | `number` | `0.0` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `padding`           | `number`          | `0.0`         |
 
 #### Returns
 
@@ -464,7 +462,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 [contrib/Constraints.ts:491](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L491)
 
-___
+---
 
 ### ptCircleIntersect
 
@@ -472,9 +470,9 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `p` | `IVarAD`[] |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `p`                 | `IVarAD`[]        |
 | `__namedParameters` | [`string`, `any`] |
 
 #### Returns
@@ -485,7 +483,7 @@ ___
 
 [contrib/Constraints.ts:600](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L600)
 
-___
+---
 
 ### smallerThan
 
@@ -495,11 +493,11 @@ Require that shape `s1` is smaller than `s2` with some relative padding `relativ
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `relativePadding` | `number` | `0.4` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `relativePadding`   | `number`          | `0.4`         |
 
 #### Returns
 
@@ -509,7 +507,7 @@ Require that shape `s1` is smaller than `s2` with some relative padding `relativ
 
 [contrib/Constraints.ts:584](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L584)
 
-___
+---
 
 ### touching
 
@@ -521,11 +519,11 @@ based on the type of the shape, and with an optional `padding` between them
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `padding` | `number` | `0.0` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `padding`           | `number`          | `0.0`         |
 
 #### Returns
 
@@ -534,8 +532,6 @@ based on the type of the shape, and with an optional `padding` between them
 #### Defined in
 
 [contrib/Constraints.ts:535](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Constraints.ts#L535)
-
-
 
 ## Objective Functions
 
@@ -547,11 +543,11 @@ Encourage the center of `sBottom` to be below the center of `sTop`.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `offset` | `number` | `100` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `offset`            | `number`          | `100`         |
 
 #### Returns
 
@@ -561,7 +557,7 @@ Encourage the center of `sBottom` to be below the center of `sTop`.
 
 [contrib/Objectives.ts:396](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L396)
 
-___
+---
 
 ### below
 
@@ -572,11 +568,11 @@ Only works for shapes with property `center`.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `offset` | `number` | `100` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `offset`            | `number`          | `100`         |
 
 #### Returns
 
@@ -586,7 +582,7 @@ Only works for shapes with property `center`.
 
 [contrib/Objectives.ts:380](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L380)
 
-___
+---
 
 ### centerArrow
 
@@ -596,8 +592,8 @@ Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type              |
+| :------------------ | :---------------- |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
@@ -610,7 +606,7 @@ Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be
 
 [contrib/Objectives.ts:528](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L528)
 
-___
+---
 
 ### centerLabel
 
@@ -620,12 +616,12 @@ Try to center a label `s2` with respect to some shape `s1`.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `w` | `number` | `undefined` |
-| `padding` | `number` | `10` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `w`                 | `number`          | `undefined`   |
+| `padding`           | `number`          | `10`          |
 
 #### Returns
 
@@ -635,7 +631,7 @@ Try to center a label `s2` with respect to some shape `s1`.
 
 [contrib/Objectives.ts:580](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L580)
 
-___
+---
 
 ### centerLabelAbove
 
@@ -643,11 +639,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type              |
+| :------------------ | :---------------- |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
-| `w` | `number` |
+| `w`                 | `number`          |
 
 #### Returns
 
@@ -657,7 +653,7 @@ ___
 
 [contrib/Objectives.ts:551](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L551)
 
-___
+---
 
 ### equal
 
@@ -667,10 +663,10 @@ Encourage the inputs to have the same value: `(x - y)^2`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
@@ -680,7 +676,7 @@ Encourage the inputs to have the same value: `(x - y)^2`
 
 [contrib/Objectives.ts:346](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L346)
 
-___
+---
 
 ### greaterThan
 
@@ -690,10 +686,10 @@ Encourage x to be greater than or equal to y: `max(0,y - x)^2`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
@@ -703,7 +699,7 @@ Encourage x to be greater than or equal to y: `max(0,y - x)^2`
 
 [contrib/Objectives.ts:351](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L351)
 
-___
+---
 
 ### leftwards
 
@@ -713,11 +709,11 @@ Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `offset` | `number` | `100` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `offset`            | `number`          | `100`         |
 
 #### Returns
 
@@ -727,7 +723,7 @@ Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
 
 [contrib/Objectives.ts:412](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L412)
 
-___
+---
 
 ### lessThan
 
@@ -737,10 +733,10 @@ Encourage x to be less than or equal to y: `max(0,x - y)^2`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
@@ -750,7 +746,7 @@ Encourage x to be less than or equal to y: `max(0,x - y)^2`
 
 [contrib/Objectives.ts:356](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L356)
 
-___
+---
 
 ### maximal
 
@@ -760,9 +756,9 @@ Encourage the input value to be close to infinity
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
 
 #### Returns
 
@@ -772,7 +768,7 @@ Encourage the input value to be close to infinity
 
 [contrib/Objectives.ts:341](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L341)
 
-___
+---
 
 ### minimal
 
@@ -782,9 +778,9 @@ Encourage the input value to be close to negative infinity
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `IVarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
 
 #### Returns
 
@@ -794,7 +790,7 @@ Encourage the input value to be close to negative infinity
 
 [contrib/Objectives.ts:336](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L336)
 
-___
+---
 
 ### near
 
@@ -804,11 +800,11 @@ Try to place shape `s1` near shape `s2` (putting their centers at the same place
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `offset` | `number` | `10.0` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `offset`            | `number`          | `10.0`        |
 
 #### Returns
 
@@ -818,7 +814,7 @@ Try to place shape `s1` near shape `s2` (putting their centers at the same place
 
 [contrib/Objectives.ts:481](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L481)
 
-___
+---
 
 ### nearPt
 
@@ -828,11 +824,11 @@ Try to place shape `s1` near a location `(x, y)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type              |
+| :------------------ | :---------------- |
 | `__namedParameters` | [`string`, `any`] |
-| `x` | `any` |
-| `y` | `any` |
+| `x`                 | `any`             |
+| `y`                 | `any`             |
 
 #### Returns
 
@@ -842,7 +838,7 @@ Try to place shape `s1` near a location `(x, y)`.
 
 [contrib/Objectives.ts:491](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L491)
 
-___
+---
 
 ### nonDegenerateAngle
 
@@ -853,13 +849,13 @@ NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfie
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `strength` | `number` | `20` |
-| `range` | `number` | `10` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `strength`          | `number`          | `20`          |
+| `range`             | `number`          | `10`          |
 
 #### Returns
 
@@ -869,7 +865,7 @@ NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfie
 
 [contrib/Objectives.ts:499](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L499)
 
-___
+---
 
 ### pointLineDist
 
@@ -879,11 +875,11 @@ try to make distance between a point and a segment `s1` = padding.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `point` | `IVarAD`[] |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `point`             | `IVarAD`[]        |
 | `__namedParameters` | [`string`, `any`] |
-| `padding` | `IVarAD` |
+| `padding`           | `IVarAD`          |
 
 #### Returns
 
@@ -893,7 +889,7 @@ try to make distance between a point and a segment `s1` = padding.
 
 [contrib/Objectives.ts:609](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L609)
 
-___
+---
 
 ### repel
 
@@ -903,11 +899,11 @@ Try to repel shapes `s1` and `s2` with some weight.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `weight` | `number` | `10.0` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `weight`            | `number`          | `10.0`        |
 
 #### Returns
 
@@ -917,7 +913,7 @@ Try to repel shapes `s1` and `s2` with some weight.
 
 [contrib/Objectives.ts:453](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L453)
 
-___
+---
 
 ### repelPt
 
@@ -927,11 +923,11 @@ Repel point `a` from another scalar `b` with weight `weight`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `weight` | `IVarAD` |
-| `a` | `IVarAD`[] |
-| `b` | `IVarAD`[] |
+| Name     | Type       |
+| :------- | :--------- |
+| `weight` | `IVarAD`   |
+| `a`      | `IVarAD`[] |
+| `b`      | `IVarAD`[] |
 
 #### Returns
 
@@ -941,7 +937,7 @@ Repel point `a` from another scalar `b` with weight `weight`.
 
 [contrib/Objectives.ts:361](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L361)
 
-___
+---
 
 ### repelScalar
 
@@ -951,10 +947,10 @@ Repel scalar `c` from another scalar `d`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `c` | `number` \| `IVarAD` |
-| `d` | `number` \| `IVarAD` |
+| Name | Type                 |
+| :--- | :------------------- |
+| `c`  | `number` \| `IVarAD` |
+| `d`  | `number` \| `IVarAD` |
 
 #### Returns
 
@@ -964,7 +960,7 @@ Repel scalar `c` from another scalar `d`.
 
 [contrib/Objectives.ts:367](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L367)
 
-___
+---
 
 ### rightwards
 
@@ -974,11 +970,11 @@ Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `__namedParameters` | [`string`, `any`] | `undefined` |
-| `offset` | `number` | `100` |
+| Name                | Type              | Default value |
+| :------------------ | :---------------- | :------------ |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `__namedParameters` | [`string`, `any`] | `undefined`   |
+| `offset`            | `number`          | `100`         |
 
 #### Returns
 
@@ -988,7 +984,7 @@ Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
 
 [contrib/Objectives.ts:428](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L428)
 
-___
+---
 
 ### sameCenter
 
@@ -998,8 +994,8 @@ Encourage shape `s1` to have the same center position as shape `s2`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type              |
+| :------------------ | :---------------- |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
 
@@ -1011,10 +1007,6 @@ Encourage shape `s1` to have the same center position as shape `s2`.
 
 [contrib/Objectives.ts:444](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Objectives.ts#L444)
 
-
-
-
-
 ## Computation Functions
 
 ### MathE
@@ -1025,8 +1017,8 @@ Base e of the natural logarithm.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
 
 #### Returns
@@ -1037,7 +1029,7 @@ Base e of the natural logarithm.
 
 [contrib/Functions.ts:2942](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2942)
 
-___
+---
 
 ### MathPI
 
@@ -1047,8 +1039,8 @@ Ratio of the circumference of a circle to its diameter.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
 
 #### Returns
@@ -1059,7 +1051,7 @@ Ratio of the circumference of a circle to its diameter.
 
 [contrib/Functions.ts:2952](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2952)
 
-___
+---
 
 ### abs
 
@@ -1069,10 +1061,10 @@ Return the absolute value of the number `x`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1082,7 +1074,7 @@ Return the absolute value of the number `x`.
 
 [contrib/Functions.ts:2874](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2874)
 
-___
+---
 
 ### acos
 
@@ -1092,10 +1084,10 @@ Return `acos(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1105,7 +1097,7 @@ Return `acos(x)`.
 
 [contrib/Functions.ts:1787](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1787)
 
-___
+---
 
 ### acosh
 
@@ -1115,10 +1107,10 @@ Return `acosh(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1128,7 +1120,7 @@ Return `acosh(x)`.
 
 [contrib/Functions.ts:1777](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1777)
 
-___
+---
 
 ### angleBetween
 
@@ -1140,11 +1132,11 @@ The returned value will be in the range [0,pi].
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `u` | `IVarAD`[] |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `u`        | `IVarAD`[] |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1154,7 +1146,7 @@ The returned value will be in the range [0,pi].
 
 [contrib/Functions.ts:2292](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2292)
 
-___
+---
 
 ### angleFrom
 
@@ -1166,11 +1158,11 @@ The returned value will be in the range [-pi,pi].
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `u` | `IVarAD`[] |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `u`        | `IVarAD`[] |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1180,7 +1172,7 @@ The returned value will be in the range [-pi,pi].
 
 [contrib/Functions.ts:2305](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2305)
 
-___
+---
 
 ### angleOf
 
@@ -1190,10 +1182,10 @@ Return the angle made by the vector `v` with the positive x-axis.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1203,7 +1195,7 @@ Return the angle made by the vector `v` with the positive x-axis.
 
 [contrib/Functions.ts:2933](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2933)
 
-___
+---
 
 ### arc
 
@@ -1215,16 +1207,16 @@ Return series of elements that can render an arc SVG. See: https://css-tricks.co
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `pathType` | `string` |
-| `start` | `Pt2` |
-| `end` | `Pt2` |
-| `radius` | `Pt2` |
-| `rotation` | `IVarAD` |
-| `largeArc` | `IVarAD` |
-| `arcSweep` | `IVarAD` |
+| `pathType` | `string`  |
+| `start`    | `Pt2`     |
+| `end`      | `Pt2`     |
+| `radius`   | `Pt2`     |
+| `rotation` | `IVarAD`  |
+| `largeArc` | `IVarAD`  |
+| `arcSweep` | `IVarAD`  |
 
 #### Returns
 
@@ -1234,7 +1226,7 @@ Return series of elements that can render an arc SVG. See: https://css-tricks.co
 
 [contrib/Functions.ts:2201](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2201)
 
-___
+---
 
 ### arcSweepFlag
 
@@ -1246,12 +1238,12 @@ Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type       |
+| :------------------ | :--------- |
+| `_context`          | `Context`  |
 | `__namedParameters` | `IVarAD`[] |
-| `start` | `Pt2` |
-| `end` | `Pt2` |
+| `start`             | `Pt2`      |
+| `end`               | `Pt2`      |
 
 #### Returns
 
@@ -1261,7 +1253,7 @@ Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
 
 [contrib/Functions.ts:2272](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2272)
 
-___
+---
 
 ### asin
 
@@ -1271,10 +1263,10 @@ Return `asin(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1284,7 +1276,7 @@ Return `asin(x)`.
 
 [contrib/Functions.ts:1797](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1797)
 
-___
+---
 
 ### asinh
 
@@ -1294,10 +1286,10 @@ Return `asinh(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1307,7 +1299,7 @@ Return `asinh(x)`.
 
 [contrib/Functions.ts:1807](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1807)
 
-___
+---
 
 ### atan
 
@@ -1317,10 +1309,10 @@ Return `atan(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1330,7 +1322,7 @@ Return `atan(x)`.
 
 [contrib/Functions.ts:1817](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1817)
 
-___
+---
 
 ### atan2
 
@@ -1340,11 +1332,11 @@ Return `atan2(y,x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
@@ -1354,7 +1346,7 @@ Return `atan2(y,x)`.
 
 [contrib/Functions.ts:1827](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1827)
 
-___
+---
 
 ### atanh
 
@@ -1364,10 +1356,10 @@ Return `atanh(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1377,7 +1369,7 @@ Return `atanh(x)`.
 
 [contrib/Functions.ts:1837](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1837)
 
-___
+---
 
 ### average
 
@@ -1387,10 +1379,10 @@ Return the average of the floats in the list `xs`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `xs` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `xs`       | `IVarAD`[] |
 
 #### Returns
 
@@ -1400,7 +1392,7 @@ Return the average of the floats in the list `xs`.
 
 [contrib/Functions.ts:2589](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2589)
 
-___
+---
 
 ### average2
 
@@ -1410,11 +1402,11 @@ Return the average of floats `x` and `y`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
@@ -1424,7 +1416,7 @@ Return the average of floats `x` and `y`.
 
 [contrib/Functions.ts:2579](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2579)
 
-___
+---
 
 ### barycenter
 
@@ -1434,12 +1426,12 @@ Return the barycenter of the triangle with vertices `a`, `b`, `c`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `a` | `IVarAD`[] |
-| `b` | `IVarAD`[] |
-| `c` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `a`        | `IVarAD`[] |
+| `b`        | `IVarAD`[] |
+| `c`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1449,7 +1441,7 @@ Return the barycenter of the triangle with vertices `a`, `b`, `c`.
 
 [contrib/Functions.ts:2690](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2690)
 
-___
+---
 
 ### cbrt
 
@@ -1459,10 +1451,10 @@ Return `cbrt(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1472,7 +1464,7 @@ Return `cbrt(x)`.
 
 [contrib/Functions.ts:1847](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1847)
 
-___
+---
 
 ### ceil
 
@@ -1482,10 +1474,10 @@ Return `ceil(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1495,7 +1487,7 @@ Return `ceil(x)`.
 
 [contrib/Functions.ts:1857](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1857)
 
-___
+---
 
 ### checkFloat
 
@@ -1503,9 +1495,9 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `x` | `any` |
+| Name | Type  |
+| :--- | :---- |
+| `x`  | `any` |
 
 #### Returns
 
@@ -1515,7 +1507,7 @@ ___
 
 [contrib/Functions.ts:2985](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2985)
 
-___
+---
 
 ### chevron
 
@@ -1523,12 +1515,12 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
-| `padding` | `IVarAD` |
-| `ticks` | `IVarAD` |
+| `padding`           | `IVarAD`          |
+| `ticks`             | `IVarAD`          |
 
 #### Returns
 
@@ -1538,7 +1530,7 @@ ___
 
 [contrib/Functions.ts:2385](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2385)
 
-___
+---
 
 ### circumcenter
 
@@ -1548,12 +1540,12 @@ Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `p` | `IVarAD`[] |
-| `q` | `IVarAD`[] |
-| `r` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1563,7 +1555,7 @@ Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
 
 [contrib/Functions.ts:2706](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2706)
 
-___
+---
 
 ### circumradius
 
@@ -1573,12 +1565,12 @@ Return the circumradius of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `p` | `IVarAD`[] |
-| `q` | `IVarAD`[] |
-| `r` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1588,7 +1580,7 @@ Return the circumradius of the triangle with vertices `p`, `q`, `r`.
 
 [contrib/Functions.ts:2748](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2748)
 
-___
+---
 
 ### concat
 
@@ -1598,9 +1590,9 @@ Concatenate a list of strings
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name         | Type       |
+| :----------- | :--------- |
+| `_context`   | `Context`  |
 | `...strings` | `string`[] |
 
 #### Returns
@@ -1611,7 +1603,7 @@ Concatenate a list of strings
 
 [contrib/Functions.ts:2072](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2072)
 
-___
+---
 
 ### cos
 
@@ -1621,10 +1613,10 @@ Return `cos(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1634,7 +1626,7 @@ Return `cos(x)`.
 
 [contrib/Functions.ts:1867](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1867)
 
-___
+---
 
 ### cosh
 
@@ -1644,10 +1636,10 @@ Return `cosh(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1657,7 +1649,7 @@ Return `cosh(x)`.
 
 [contrib/Functions.ts:1877](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1877)
 
-___
+---
 
 ### cross2D
 
@@ -1667,11 +1659,11 @@ Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `u` | `IVarAD`[] |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `u`        | `IVarAD`[] |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1681,7 +1673,7 @@ Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 
 
 [contrib/Functions.ts:2316](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2316)
 
-___
+---
 
 ### cubicCurveFromPoints
 
@@ -1691,11 +1683,11 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `pathType` | `string` |
-| `pts` | `Pt2`[] |
+| `pathType` | `string`  |
+| `pts`      | `Pt2`[]   |
 
 #### Returns
 
@@ -1705,7 +1697,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 [contrib/Functions.ts:2125](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2125)
 
-___
+---
 
 ### derivative
 
@@ -1716,11 +1708,11 @@ NOTE: This is a special system function. Don't change it!
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name           | Type            |
+| :------------- | :-------------- |
+| `_context`     | `Context`       |
 | `optDebugInfo` | `IOptDebugInfo` |
-| `varName` | `string` |
+| `varName`      | `string`        |
 
 #### Returns
 
@@ -1730,7 +1722,7 @@ NOTE: This is a special system function. Don't change it!
 
 [contrib/Functions.ts:1612](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1612)
 
-___
+---
 
 ### derivativePreconditioned
 
@@ -1741,11 +1733,11 @@ NOTE: This is a special system function. Don't change it!
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name           | Type            |
+| :------------- | :-------------- |
+| `_context`     | `Context`       |
 | `optDebugInfo` | `IOptDebugInfo` |
-| `varName` | `string` |
+| `varName`      | `string`        |
 
 #### Returns
 
@@ -1755,7 +1747,7 @@ NOTE: This is a special system function. Don't change it!
 
 [contrib/Functions.ts:1651](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1651)
 
-___
+---
 
 ### dot
 
@@ -1765,11 +1757,11 @@ Return the dot product of `v` and `w`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
-| `w` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `w`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1779,7 +1771,7 @@ Return the dot product of `v` and `w`.
 
 [contrib/Functions.ts:2037](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2037)
 
-___
+---
 
 ### exp
 
@@ -1789,10 +1781,10 @@ Return `exp(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1802,7 +1794,7 @@ Return `exp(x)`.
 
 [contrib/Functions.ts:1887](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1887)
 
-___
+---
 
 ### expm1
 
@@ -1812,10 +1804,10 @@ Return `expm1(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1825,7 +1817,7 @@ Return `expm1(x)`.
 
 [contrib/Functions.ts:1897](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1897)
 
-___
+---
 
 ### floor
 
@@ -1835,10 +1827,10 @@ Return `floor(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -1848,7 +1840,7 @@ Return `floor(x)`.
 
 [contrib/Functions.ts:1907](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1907)
 
-___
+---
 
 ### furthestFrom
 
@@ -1860,9 +1852,9 @@ Do not use this!
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `pts` | `IVarAD`[][] |
+| Name         | Type         |
+| :----------- | :----------- |
+| `pts`        | `IVarAD`[][] |
 | `candidates` | `IVarAD`[][] |
 
 #### Returns
@@ -1873,7 +1865,7 @@ Do not use this!
 
 [contrib/Functions.ts:3042](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L3042)
 
-___
+---
 
 ### get
 
@@ -1883,11 +1875,11 @@ Return `i`th element of list `xs, assuming lists only hold floats.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `xs` | `IVarAD`[] |
-| `i` | `number` |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `xs`       | `IVarAD`[] |
+| `i`        | `number`   |
 
 #### Returns
 
@@ -1897,7 +1889,7 @@ Return `i`th element of list `xs, assuming lists only hold floats.
 
 [contrib/Functions.ts:1691](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1691)
 
-___
+---
 
 ### getVar
 
@@ -1905,11 +1897,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `xs` | `IVarAD`[] |
-| `i` | `IVarAD` |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `xs`       | `IVarAD`[] |
+| `i`        | `IVarAD`   |
 
 #### Returns
 
@@ -1919,7 +1911,7 @@ ___
 
 [contrib/Functions.ts:1699](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1699)
 
-___
+---
 
 ### hsva
 
@@ -1929,13 +1921,13 @@ Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opa
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `h` | `IVarAD` |
-| `s` | `IVarAD` |
-| `v` | `IVarAD` |
-| `a` | `IVarAD` |
+| `h`        | `IVarAD`  |
+| `s`        | `IVarAD`  |
+| `v`        | `IVarAD`  |
+| `a`        | `IVarAD`  |
 
 #### Returns
 
@@ -1945,7 +1937,7 @@ Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opa
 
 [contrib/Functions.ts:1746](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1746)
 
-___
+---
 
 ### incenter
 
@@ -1955,12 +1947,12 @@ Return the incenter of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `p` | `IVarAD`[] |
-| `q` | `IVarAD`[] |
-| `r` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
@@ -1970,7 +1962,7 @@ Return the incenter of the triangle with vertices `p`, `q`, `r`.
 
 [contrib/Functions.ts:2786](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2786)
 
-___
+---
 
 ### innerPointOffset
 
@@ -1980,13 +1972,13 @@ Return a point located at `padding` of a line `s1` offset by `padding` in its no
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `pt1` | `IVarAD`[] |
-| `pt2` | `IVarAD`[] |
-| `pt3` | `IVarAD`[] |
-| `padding` | `IVarAD` |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `pt1`      | `IVarAD`[] |
+| `pt2`      | `IVarAD`[] |
+| `pt3`      | `IVarAD`[] |
+| `padding`  | `IVarAD`   |
 
 #### Returns
 
@@ -1996,7 +1988,7 @@ Return a point located at `padding` of a line `s1` offset by `padding` in its no
 
 [contrib/Functions.ts:2416](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2416)
 
-___
+---
 
 ### inradius
 
@@ -2006,12 +1998,12 @@ Return the inradius of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `p` | `IVarAD`[] |
-| `q` | `IVarAD`[] |
-| `r` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
@@ -2021,7 +2013,7 @@ Return the inradius of the triangle with vertices `p`, `q`, `r`.
 
 [contrib/Functions.ts:2818](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2818)
 
-___
+---
 
 ### intersectingSideSize
 
@@ -2033,11 +2025,11 @@ Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitti
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `start` | `VecAD` |
-| `end` | `VecAD` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
+| `start`             | `VecAD`           |
+| `end`               | `VecAD`           |
 | `__namedParameters` | [`string`, `any`] |
 
 #### Returns
@@ -2048,7 +2040,7 @@ Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitti
 
 [contrib/Functions.ts:2518](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2518)
 
-___
+---
 
 ### len
 
@@ -2058,9 +2050,9 @@ Return the length of the line or arrow shape `[type, props]`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
 
 #### Returns
@@ -2071,7 +2063,7 @@ Return the length of the line or arrow shape `[type, props]`.
 
 [contrib/Functions.ts:2061](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2061)
 
-___
+---
 
 ### lineLength
 
@@ -2081,9 +2073,9 @@ Return the length of the line or arrow shape `[type, props]`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
 
 #### Returns
@@ -2094,7 +2086,7 @@ Return the length of the line or arrow shape `[type, props]`.
 
 [contrib/Functions.ts:2047](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2047)
 
-___
+---
 
 ### lineLineIntersection
 
@@ -2105,13 +2097,13 @@ Return the intersection of a line passing through
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `a0` | `IVarAD`[] |
-| `a1` | `IVarAD`[] |
-| `b0` | `IVarAD`[] |
-| `b1` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `a0`       | `IVarAD`[] |
+| `a1`       | `IVarAD`[] |
+| `b0`       | `IVarAD`[] |
+| `b1`       | `IVarAD`[] |
 
 #### Returns
 
@@ -2121,7 +2113,7 @@ Return the intersection of a line passing through
 
 [contrib/Functions.ts:2328](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2328)
 
-___
+---
 
 ### log
 
@@ -2131,10 +2123,10 @@ Return `log(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2144,7 +2136,7 @@ Return `log(x)`.
 
 [contrib/Functions.ts:1917](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1917)
 
-___
+---
 
 ### log10
 
@@ -2154,10 +2146,10 @@ Return `log10(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2167,7 +2159,7 @@ Return `log10(x)`.
 
 [contrib/Functions.ts:1937](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1937)
 
-___
+---
 
 ### log1p
 
@@ -2177,10 +2169,10 @@ Return `log1p(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2190,7 +2182,7 @@ Return `log1p(x)`.
 
 [contrib/Functions.ts:1947](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1947)
 
-___
+---
 
 ### log2
 
@@ -2200,10 +2192,10 @@ Return `log2(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2213,7 +2205,7 @@ Return `log2(x)`.
 
 [contrib/Functions.ts:1927](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1927)
 
-___
+---
 
 ### makePath
 
@@ -2221,13 +2213,13 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `start` | [`IVarAD`, `IVarAD`] |
-| `end` | [`IVarAD`, `IVarAD`] |
-| `curveHeight` | `IVarAD` |
-| `padding` | `IVarAD` |
+| Name          | Type                 |
+| :------------ | :------------------- |
+| `_context`    | `Context`            |
+| `start`       | [`IVarAD`, `IVarAD`] |
+| `end`         | [`IVarAD`, `IVarAD`] |
+| `curveHeight` | `IVarAD`             |
+| `padding`     | `IVarAD`             |
 
 #### Returns
 
@@ -2237,7 +2229,7 @@ ___
 
 [contrib/Functions.ts:1582](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1582)
 
-___
+---
 
 ### max
 
@@ -2247,11 +2239,11 @@ Return the max of the numbers `x`, `y`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
@@ -2261,7 +2253,7 @@ Return the max of the numbers `x`, `y`.
 
 [contrib/Functions.ts:2860](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2860)
 
-___
+---
 
 ### midpoint
 
@@ -2271,11 +2263,11 @@ Return a point located at the midpoint between pts `start` and `end`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `start` | `IVarAD`[] |
-| `end` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `start`    | `IVarAD`[] |
+| `end`      | `IVarAD`[] |
 
 #### Returns
 
@@ -2285,7 +2277,7 @@ Return a point located at the midpoint between pts `start` and `end`
 
 [contrib/Functions.ts:2350](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2350)
 
-___
+---
 
 ### midpointOffset
 
@@ -2295,11 +2287,11 @@ Return a point located at the midpoint of a line `s1` but offset by `padding` in
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
-| `padding` | `IVarAD` |
+| `padding`           | `IVarAD`          |
 
 #### Returns
 
@@ -2309,7 +2301,7 @@ Return a point located at the midpoint of a line `s1` but offset by `padding` in
 
 [contrib/Functions.ts:2365](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2365)
 
-___
+---
 
 ### min
 
@@ -2319,11 +2311,11 @@ Return the min of the numbers `x`, `y`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
@@ -2333,7 +2325,7 @@ Return the min of the numbers `x`, `y`.
 
 [contrib/Functions.ts:2867](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2867)
 
-___
+---
 
 ### mul
 
@@ -2343,11 +2335,11 @@ Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a col
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `m` | `IVarAD`[][] |
-| `v` | `IVarAD`[] |
+| Name       | Type         |
+| :--------- | :----------- |
+| `_context` | `Context`    |
+| `m`        | `IVarAD`[][] |
+| `v`        | `IVarAD`[]   |
 
 #### Returns
 
@@ -2357,7 +2349,7 @@ Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a col
 
 [contrib/Functions.ts:2671](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2671)
 
-___
+---
 
 ### none
 
@@ -2367,8 +2359,8 @@ Return a paint of none (no paint)
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
 
 #### Returns
@@ -2379,7 +2371,7 @@ Return a paint of none (no paint)
 
 [contrib/Functions.ts:1765](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1765)
 
-___
+---
 
 ### norm
 
@@ -2389,10 +2381,10 @@ Return the Euclidean norm of the vector `v`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -2402,7 +2394,7 @@ Return the Euclidean norm of the vector `v`.
 
 [contrib/Functions.ts:2901](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2901)
 
-___
+---
 
 ### normalize
 
@@ -2412,10 +2404,10 @@ Return the normalized version of vector `v`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -2425,7 +2417,7 @@ Return the normalized version of vector `v`.
 
 [contrib/Functions.ts:2082](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2082)
 
-___
+---
 
 ### normsq
 
@@ -2435,10 +2427,10 @@ Return the Euclidean norm squared of the vector `v`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -2448,7 +2440,7 @@ Return the Euclidean norm squared of the vector `v`.
 
 [contrib/Functions.ts:2908](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2908)
 
-___
+---
 
 ### orientedSquare
 
@@ -2459,13 +2451,13 @@ return a path comprised of three points that describe a perpendicular mark at th
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
-| `intersection` | `Pt2` |
-| `len` | `IVarAD` |
+| `intersection`      | `Pt2`             |
+| `len`               | `IVarAD`          |
 
 #### Returns
 
@@ -2475,7 +2467,7 @@ return a path comprised of three points that describe a perpendicular mark at th
 
 [contrib/Functions.ts:2487](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2487)
 
-___
+---
 
 ### pathFromPoints
 
@@ -2485,11 +2477,11 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `pathType` | `string` |
-| `pts` | `Pt2`[] |
+| `pathType` | `string`  |
+| `pts`      | `Pt2`[]   |
 
 #### Returns
 
@@ -2499,7 +2491,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 [contrib/Functions.ts:2092](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2092)
 
-___
+---
 
 ### perpPathFlat
 
@@ -2509,9 +2501,9 @@ Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a 
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `len` | `IVarAD` |
+| Name                | Type               |
+| :------------------ | :----------------- |
+| `len`               | `IVarAD`           |
 | `__namedParameters` | [`VecAD`, `VecAD`] |
 | `__namedParameters` | [`VecAD`, `VecAD`] |
 
@@ -2523,7 +2515,7 @@ Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a 
 
 [contrib/Functions.ts:3001](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L3001)
 
-___
+---
 
 ### pow
 
@@ -2533,11 +2525,11 @@ Return `pow(x,y)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
-| `y` | `IVarAD` |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
@@ -2547,7 +2539,7 @@ Return `pow(x,y)`.
 
 [contrib/Functions.ts:1957](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1957)
 
-___
+---
 
 ### ptOnLine
 
@@ -2559,12 +2551,12 @@ Find the point that is located at dist r along a line between p1 and p2.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `p1` | `IVarAD`[] |
-| `p2` | `IVarAD`[] |
-| `r` | `IVarAD` |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p1`       | `IVarAD`[] |
+| `p2`       | `IVarAD`[] |
+| `r`        | `IVarAD`   |
 
 #### Returns
 
@@ -2574,7 +2566,7 @@ Find the point that is located at dist r along a line between p1 and p2.
 
 [contrib/Functions.ts:2254](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2254)
 
-___
+---
 
 ### quadraticCurveFromPoints
 
@@ -2584,11 +2576,11 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `pathType` | `string` |
-| `pts` | `Pt2`[] |
+| `pathType` | `string`  |
+| `pts`      | `Pt2`[]   |
 
 #### Returns
 
@@ -2598,7 +2590,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 [contrib/Functions.ts:2108](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2108)
 
-___
+---
 
 ### rgba
 
@@ -2608,13 +2600,13 @@ Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `r` | `IVarAD` |
-| `g` | `IVarAD` |
-| `b` | `IVarAD` |
-| `a` | `IVarAD` |
+| `r`        | `IVarAD`  |
+| `g`        | `IVarAD`  |
+| `b`        | `IVarAD`  |
+| `a`        | `IVarAD`  |
 
 #### Returns
 
@@ -2624,7 +2616,7 @@ Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
 
 [contrib/Functions.ts:1710](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1710)
 
-___
+---
 
 ### rot90
 
@@ -2634,25 +2626,25 @@ Rotate a 2D vector `v` by 90 degrees counterclockwise.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type       |
+| :--------- | :--------- |
 | `contents` | `IVarAD`[] |
-| `tag` | `string` |
+| `tag`      | `string`   |
 
 #### Defined in
 
 [contrib/Functions.ts:2964](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2964)
 
-___
+---
 
 ### rot90v
 
@@ -2662,8 +2654,8 @@ Rotate a 2D point `[x, y]` by 90 degrees clockwise.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name                | Type       |
+| :------------------ | :--------- |
 | `__namedParameters` | `IVarAD`[] |
 
 #### Returns
@@ -2674,7 +2666,7 @@ Rotate a 2D point `[x, y]` by 90 degrees clockwise.
 
 [contrib/Functions.ts:3033](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L3033)
 
-___
+---
 
 ### rotateBy
 
@@ -2684,26 +2676,26 @@ Rotate a 2D vector `v` by theta degrees counterclockwise.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
-| `theta` | `IVarAD` |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `theta`    | `IVarAD`   |
 
 #### Returns
 
 `Object`
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type       |
+| :--------- | :--------- |
 | `contents` | `IVarAD`[] |
-| `tag` | `string` |
+| `tag`      | `string`   |
 
 #### Defined in
 
 [contrib/Functions.ts:2975](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2975)
 
-___
+---
 
 ### round
 
@@ -2713,10 +2705,10 @@ Return `round(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2726,7 +2718,7 @@ Return `round(x)`.
 
 [contrib/Functions.ts:1967](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1967)
 
-___
+---
 
 ### sampleColor
 
@@ -2736,11 +2728,11 @@ Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rg
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `context` | `Context` |
-| `alpha` | `IVarAD` |
-| `colorType` | `string` |
+| Name        | Type      |
+| :---------- | :-------- |
+| `context`   | `Context` |
+| `alpha`     | `IVarAD`  |
+| `colorType` | `string`  |
 
 #### Returns
 
@@ -2750,7 +2742,7 @@ Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rg
 
 [contrib/Functions.ts:2610](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2610)
 
-___
+---
 
 ### selectColor
 
@@ -2758,12 +2750,12 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `color1` | `Color`<`IVarAD`\> |
-| `color2` | `Color`<`IVarAD`\> |
-| `level` | `IVarAD` |
+| Name       | Type               |
+| :--------- | :----------------- |
+| `_context` | `Context`          |
+| `color1`   | `Color`<`IVarAD`\> |
+| `color2`   | `Color`<`IVarAD`\> |
+| `level`    | `IVarAD`           |
 
 #### Returns
 
@@ -2773,7 +2765,7 @@ ___
 
 [contrib/Functions.ts:1726](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1726)
 
-___
+---
 
 ### setOpacity
 
@@ -2783,11 +2775,11 @@ Set the opacity of a color `color` to `frac`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `color` | `Color`<`IVarAD`\> |
-| `frac` | `IVarAD` |
+| Name       | Type               |
+| :--------- | :----------------- |
+| `_context` | `Context`          |
+| `color`    | `Color`<`IVarAD`\> |
+| `frac`     | `IVarAD`           |
 
 #### Returns
 
@@ -2797,7 +2789,7 @@ Set the opacity of a color `color` to `frac`.
 
 [contrib/Functions.ts:2644](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2644)
 
-___
+---
 
 ### sign
 
@@ -2807,10 +2799,10 @@ Return `sign(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2820,7 +2812,7 @@ Return `sign(x)`.
 
 [contrib/Functions.ts:1977](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1977)
 
-___
+---
 
 ### sin
 
@@ -2830,10 +2822,10 @@ Return `sin(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2843,7 +2835,7 @@ Return `sin(x)`.
 
 [contrib/Functions.ts:1987](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1987)
 
-___
+---
 
 ### sinh
 
@@ -2853,10 +2845,10 @@ Return `sinh(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2866,7 +2858,7 @@ Return `sinh(x)`.
 
 [contrib/Functions.ts:1997](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L1997)
 
-___
+---
 
 ### sqr
 
@@ -2876,10 +2868,10 @@ Return the square of the number `x`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2889,7 +2881,7 @@ Return the square of the number `x`.
 
 [contrib/Functions.ts:2846](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2846)
 
-___
+---
 
 ### sqrt
 
@@ -2899,10 +2891,10 @@ Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2912,7 +2904,7 @@ Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
 
 [contrib/Functions.ts:2853](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2853)
 
-___
+---
 
 ### tan
 
@@ -2922,10 +2914,10 @@ Return `tan(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2935,7 +2927,7 @@ Return `tan(x)`.
 
 [contrib/Functions.ts:2007](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2007)
 
-___
+---
 
 ### tanh
 
@@ -2945,10 +2937,10 @@ Return `tanh(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -2958,7 +2950,7 @@ Return `tanh(x)`.
 
 [contrib/Functions.ts:2017](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2017)
 
-___
+---
 
 ### tickPlacement
 
@@ -2966,10 +2958,10 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `padding` | `IVarAD` |
-| `numPts` | `IVarAD` |
+| Name         | Type     |
+| :----------- | :------- |
+| `padding`    | `IVarAD` |
+| `numPts`     | `IVarAD` |
 | `multiplier` | `IVarAD` |
 
 #### Returns
@@ -2980,7 +2972,7 @@ ___
 
 [contrib/Functions.ts:3060](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L3060)
 
-___
+---
 
 ### ticksOnLine
 
@@ -2990,14 +2982,14 @@ Create equally spaced tick marks centered at the midpoint of a line
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `pt1` | `IVarAD`[] |
-| `pt2` | `IVarAD`[] |
-| `spacing` | `IVarAD` |
-| `numTicks` | `IVarAD` |
-| `tickLength` | `IVarAD` |
+| Name         | Type       |
+| :----------- | :--------- |
+| `_context`   | `Context`  |
+| `pt1`        | `IVarAD`[] |
+| `pt2`        | `IVarAD`[] |
+| `spacing`    | `IVarAD`   |
+| `numTicks`   | `IVarAD`   |
+| `tickLength` | `IVarAD`   |
 
 #### Returns
 
@@ -3007,7 +2999,7 @@ Create equally spaced tick marks centered at the midpoint of a line
 
 [contrib/Functions.ts:2454](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2454)
 
-___
+---
 
 ### toDegrees
 
@@ -3017,10 +3009,10 @@ Convert the angle `theta` from radians to degrees.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `theta` | `IVarAD` |
+| `theta`    | `IVarAD`  |
 
 #### Returns
 
@@ -3030,7 +3022,7 @@ Convert the angle `theta` from radians to degrees.
 
 [contrib/Functions.ts:2891](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2891)
 
-___
+---
 
 ### toPt
 
@@ -3038,9 +3030,9 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `v` | `VecAD` |
+| Name | Type    |
+| :--- | :------ |
+| `v`  | `VecAD` |
 
 #### Returns
 
@@ -3050,7 +3042,7 @@ ___
 
 [contrib/Functions.ts:2991](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2991)
 
-___
+---
 
 ### toRadians
 
@@ -3060,10 +3052,10 @@ Convert the angle `theta` from degrees to radians.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `theta` | `IVarAD` |
+| `theta`    | `IVarAD`  |
 
 #### Returns
 
@@ -3073,7 +3065,7 @@ Convert the angle `theta` from degrees to radians.
 
 [contrib/Functions.ts:2881](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2881)
 
-___
+---
 
 ### triangle
 
@@ -3083,12 +3075,12 @@ Given three lines `l1, l2, l3` that already form a triangle, return a path that 
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `__namedParameters` | `any` |
-| `__namedParameters` | `any` |
-| `__namedParameters` | `any` |
+| Name                | Type      |
+| :------------------ | :-------- |
+| `_context`          | `Context` |
+| `__namedParameters` | `any`     |
+| `__namedParameters` | `any`     |
+| `__namedParameters` | `any`     |
 
 #### Returns
 
@@ -3098,7 +3090,7 @@ Given three lines `l1, l2, l3` that already form a triangle, return a path that 
 
 [contrib/Functions.ts:2556](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2556)
 
-___
+---
 
 ### trunc
 
@@ -3108,10 +3100,10 @@ Return `trunc(x)`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `x` | `IVarAD` |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
@@ -3121,7 +3113,7 @@ Return `trunc(x)`.
 
 [contrib/Functions.ts:2027](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2027)
 
-___
+---
 
 ### unit
 
@@ -3131,10 +3123,10 @@ Return the normalized version of vector `v`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -3144,7 +3136,7 @@ Return the normalized version of vector `v`.
 
 [contrib/Functions.ts:2600](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2600)
 
-___
+---
 
 ### unitMark
 
@@ -3154,14 +3146,14 @@ Return two points parallel to line `s1` using its normal line `s2`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type              |
+| :------------------ | :---------------- |
+| `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
-| `t` | `string` |
-| `padding` | `IVarAD` |
-| `barSize` | `IVarAD` |
+| `t`                 | `string`          |
+| `padding`           | `IVarAD`          |
+| `barSize`           | `IVarAD`          |
 
 #### Returns
 
@@ -3171,7 +3163,7 @@ Return two points parallel to line `s1` using its normal line `s2`.
 
 [contrib/Functions.ts:2143](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2143)
 
-___
+---
 
 ### unitMark2
 
@@ -3181,13 +3173,13 @@ Return two points to "cap off" the line made in `unitMark`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
+| Name                | Type           |
+| :------------------ | :------------- |
+| `_context`          | `Context`      |
 | `__namedParameters` | [`Pt2`, `Pt2`] |
-| `t` | `string` |
-| `padding` | `IVarAD` |
-| `size` | `IVarAD` |
+| `t`                 | `string`       |
+| `padding`           | `IVarAD`       |
+| `size`              | `IVarAD`       |
 
 #### Returns
 
@@ -3197,7 +3189,7 @@ Return two points to "cap off" the line made in `unitMark`.
 
 [contrib/Functions.ts:2169](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2169)
 
-___
+---
 
 ### vdist
 
@@ -3207,11 +3199,11 @@ Return the Euclidean distance between the vectors `v` and `w`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
-| `w` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `w`        | `IVarAD`[] |
 
 #### Returns
 
@@ -3221,7 +3213,7 @@ Return the Euclidean distance between the vectors `v` and `w`.
 
 [contrib/Functions.ts:2915](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2915)
 
-___
+---
 
 ### vdistsq
 
@@ -3231,11 +3223,11 @@ Return the Euclidean distance squared between the vectors `v` and `w`.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `v` | `IVarAD`[] |
-| `w` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `w`        | `IVarAD`[] |
 
 #### Returns
 
@@ -3245,7 +3237,7 @@ Return the Euclidean distance squared between the vectors `v` and `w`.
 
 [contrib/Functions.ts:2926](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2926)
 
-___
+---
 
 ### vmul
 
@@ -3253,11 +3245,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `_context` | `Context` |
-| `s` | `IVarAD` |
-| `v` | `IVarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `s`        | `IVarAD`   |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
@@ -3267,7 +3259,7 @@ ___
 
 [contrib/Functions.ts:2919](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2919)
 
-___
+---
 
 ### wedge
 
@@ -3279,16 +3271,16 @@ Return series of elements that render a "wedge", which is the same as the arc ab
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
+| Name       | Type      |
+| :--------- | :-------- |
 | `_context` | `Context` |
-| `center` | `Pt2` |
-| `start` | `Pt2` |
-| `end` | `Pt2` |
-| `radius` | `Pt2` |
-| `rotation` | `IVarAD` |
-| `largeArc` | `IVarAD` |
-| `arcSweep` | `IVarAD` |
+| `center`   | `Pt2`     |
+| `start`    | `Pt2`     |
+| `end`      | `Pt2`     |
+| `radius`   | `Pt2`     |
+| `rotation` | `IVarAD`  |
+| `largeArc` | `IVarAD`  |
+| `arcSweep` | `IVarAD`  |
 
 #### Returns
 
@@ -3297,4 +3289,3 @@ Return series of elements that render a "wedge", which is the same as the arc ab
 #### Defined in
 
 [contrib/Functions.ts:2228](https://github.com/penrose/penrose/blob/e7fa8b64f/packages/core/src/contrib/Functions.ts#L2228)
-
