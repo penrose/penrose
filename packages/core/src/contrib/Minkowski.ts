@@ -150,11 +150,8 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
     return [p];
   }
 
-  // poly-partition library doesn't export this type for some reason
-  type Point = { x: number; y: number };
-
   // map each point back to its original VecAD object; note, this depends on the
-  // fact that two Points with the same contents are considered different as
+  // fact that two points with the same contents are considered different as
   // keys in a JavaScript Map, very scary!
   const pointMap = new Map(
     p.map((point) => {
@@ -166,21 +163,14 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   const contour = [...pointMap.keys()];
   const convexPolygons = convexPartition(contour);
 
-  const covered: Set<Point> = new Set(); // again using object identity 😱
-  const result = convexPolygons.map((poly) =>
-    poly.map((point) => {
-      covered.add(point);
-      return safe(
+  return convexPolygons.map((poly) =>
+    poly.map((point) =>
+      safe(
         pointMap.get(point),
         "polygon decomposition unexpectedly created a new point"
-      );
-    })
+      )
+    )
   );
-
-  if (covered.size > p.length) {
-    throw Error(`decomposition has ${covered.size} points, not ${p.length}`);
-  }
-  return result;
 };
 
 /**
