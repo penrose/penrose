@@ -92,7 +92,6 @@ export const variableAD = (
   const opName = vname ? vname : String(x);
 
   return {
-    tag: "custom",
     metadata,
     op: opName,
     isInput: false,
@@ -202,26 +201,6 @@ export const _gradADSymbolic = (v: VarAD): VarAD => {
   return res;
 };
 
-// df/f[x] with finite differences about xi
-export const _gradFiniteDiff = (f: (args: number[]) => number) => {
-  return (xs: number[]): number[] => {
-    const EPSG = 10e-5;
-
-    // Scalar estimate (in 1D)
-    // const dfxi = (f, x) => (f(x + EPSG / 2.) - f(x - EPSG / 2.)) / EPSG;
-
-    const xsDiff = xs.map((e, i) => {
-      const xsLeft = [...xs];
-      xsLeft[i] = xsLeft[i] - EPSG / 2;
-      const xsRight = [...xs];
-      xsRight[i] = xsRight[i] + EPSG / 2;
-      return (f(xsRight) - f(xsLeft)) / EPSG;
-    });
-
-    return xsDiff;
-  };
-};
-
 export const _gradAllSymbolic = (
   energyGraph: VarAD,
   xsVars: VarAD[]
@@ -269,149 +248,6 @@ export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
   v.debug = true;
   v.debugInfo = debugInfo;
   return v;
-};
-
-const opMap = {
-  "+": {
-    fn: (x: number, y: number): number => x + y,
-    gradGraph: variableAD(1.0),
-  },
-  "+ list": {
-    fn: (xs: number[]): number => _.sum(xs),
-    gradGraph: variableAD(1.0),
-  },
-  "*": {
-    fn: (x: number, y: number): number => x * y,
-  },
-  "-": {
-    fn: (x: number, y: number): number => x - y,
-  },
-  "/": {
-    fn: (x: number, y: number): number => x / y,
-  },
-  max: {
-    fn: (x: number, y: number): number => Math.max(x, y),
-  },
-  "max list": {
-    fn: (xs: number[]): number => Math.max(...xs),
-    gradGraph: variableAD(1.0),
-  },
-  min: {
-    fn: (x: number, y: number): number => Math.min(x, y),
-  },
-  "min list": {
-    fn: (xs: number[]): number => Math.min(...xs),
-    gradGraph: variableAD(1.0),
-  },
-  acosh: {
-    fn: (x: number): number => Math.acosh(x),
-  },
-  acos: {
-    fn: (x: number): number => Math.acos(x),
-  },
-  asin: {
-    fn: (x: number): number => Math.asin(x),
-  },
-  asinh: {
-    fn: (x: number): number => Math.asinh(x),
-  },
-  atan: {
-    fn: (x: number): number => Math.atan(x),
-  },
-  atanh: {
-    fn: (x: number): number => Math.atanh(x),
-  },
-  cbrt: {
-    fn: (x: number): number => Math.cbrt(x),
-  },
-  ceil: {
-    fn: (x: number): number => Math.ceil(x),
-  },
-  cos: {
-    fn: (x: number): number => Math.cos(x),
-  },
-  cosh: {
-    fn: (x: number): number => Math.cosh(x),
-  },
-  exp: {
-    fn: (x: number): number => Math.exp(x),
-  },
-  expm1: {
-    fn: (x: number): number => Math.expm1(x),
-  },
-  floor: {
-    fn: (x: number): number => Math.floor(x),
-  },
-  ln: {
-    fn: (x: number): number => Math.log(x),
-  },
-  log2: {
-    fn: (x: number): number => Math.log2(x),
-  },
-  log10: {
-    fn: (x: number): number => Math.log10(x),
-  },
-  log1p: {
-    fn: (x: number): number => Math.log1p(x),
-  },
-  pow: {
-    fn: (x: number, y: number): number => Math.pow(x, y),
-  },
-  round: {
-    fn: (x: number): number => Math.round(x),
-  },
-  sign: {
-    fn: (x: number): number => Math.sign(x),
-  },
-  sin: {
-    fn: (x: number): number => Math.sin(x),
-  },
-  sinh: {
-    fn: (x: number): number => Math.sinh(x),
-  },
-  tan: {
-    fn: (x: number): number => Math.tan(x),
-  },
-  tanh: {
-    fn: (x: number): number => Math.tanh(x),
-  },
-  trunc: {
-    fn: (x: number): number => Math.trunc(x),
-  },
-  "- (unary)": {
-    fn: (x: number): number => -x,
-  },
-  squared: {
-    fn: (x: number): number => x * x,
-  },
-  sqrt: {
-    fn: (x: number): number => {
-      if (x < 0) {
-        logAD.trace(`negative arg ${x} in sqrt`);
-      }
-      return Math.sqrt(Math.max(0, x));
-    },
-  },
-  inverse: {
-    fn: (x: number): number => {
-      return 1 / (x + EPS_DENOM);
-    },
-  },
-  abs: {
-    fn: (x: number): number => {
-      return x / Math.abs(x + EPS_DENOM);
-    },
-  },
-  // Note that these functions treat booleans as numbers: 1.0 = True, 0.0 = False
-  gt: {
-    fn: (x: number, y: number): number => (x > y ? 1.0 : 0.0),
-  },
-  lt: {
-    fn: (x: number, y: number): number => (x < y ? 1.0 : 0.0),
-  },
-  ifCond: {
-    fn: (cond: number, x: number, y: number): number => (cond > 0.0 ? x : y),
-  },
 };
 
 // Useful constants
