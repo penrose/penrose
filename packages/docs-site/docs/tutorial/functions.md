@@ -150,7 +150,7 @@ AutoLabel All
 
 Though we have declared our function `addV` in the Domain program and defined that we want our `Vector u` to be the result of `addV(v, w)` in our Substance program, Penrose will not know how to visually represent the relationship `u := addV(v, w)` unless we make some changes to our Style program. If you re-compile your triple in its current state, you'll see that it is plotting 3 vectors arbitrarily, like this:
 
-![](</img/tutorial/Screenshot from 2021-06-04 13-13-38.png>)
+![](/img/tutorial/3vectors_wg.png)
 
 Again, we start with writing a selector. We have a bit more work to do, since we have 3 vectors and 1 vector space involved. We also need to make sure that `u,v,w` are all in the same vector space. Therefore, our selector will be the following:
 

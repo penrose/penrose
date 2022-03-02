@@ -131,7 +131,7 @@ _Since we are not defining all the properties that control how the shape will lo
 
 - **Challenge 4:** Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square. There should be 6 objects on your canvas. (Hint: you will need to initialize another [Shape](/docs/api/) object!)
 
-![](</img/tutorial/Screenshot from 2021-06-03 14-25-55.png>)
+![](/img/tutorial/tutorial1c4.png)
 
 After you are done, you can double-check your work with the sample [solutions](https://github.com/penrose/tutorials/blob/main/solutions/tutorial1.md).
 

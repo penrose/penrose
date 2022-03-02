@@ -1,6 +1,8 @@
-# Website
+# Documentation Site
 
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+
+**Penrose Note**: observe that imported core packages can only be client-side rendered. Follow the patterns in src/components to use `<BrowserOnly>` and conditional requires.
 
 ### Installation
 
