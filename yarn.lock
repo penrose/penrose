@@ -15964,10 +15964,10 @@ polished@^4.0.5:
   dependencies:
     "@babel/runtime" "^7.14.0"
 
-poly-partition@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/poly-partition/-/poly-partition-1.0.1.tgz#248f8793a8d2c5f36160cee58068dde2f3353ad7"
-  integrity sha512-l2VHI/tV+9tWCgW7rpkF8+uJrgSnIC+vDLp7/lDO88YHhBOjo73gc2+wxVdYq0coL5GOel030YXJRNznz1ayxA==
+poly-partition@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/poly-partition/-/poly-partition-1.0.2.tgz#e188d96d5eab023e2c49df633107828425f314ba"
+  integrity sha512-uUqyuUq1n9wk3ZruUm7LdZiqcJ+RwBf3iPxdPe+kn6U3kn1H8jtH9EKg6I1NDG8pomnnxvuXoTpcusCWyemc2A==
 
 popper.js@1.16.1-lts:
   version "1.16.1-lts"
