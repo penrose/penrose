@@ -2,5 +2,6 @@
   "name": "@penrose/examples",
   "version": "1.3.0",
   "author": "Penrose Team (https://penrose.ink)",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "index.ts"
 }
