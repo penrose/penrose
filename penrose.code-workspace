@@ -35,6 +35,10 @@
       "path": "packages/docs-site"
     },
     {
+      "name": "📦 @penrose/examples",
+      "path": "packages/examples"
+    },
+    {
       "name": "📦 @penrose/panels",
       "path": "packages/panels"
     },

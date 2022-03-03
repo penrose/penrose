@@ -1,3 +1,4 @@
+import { registry } from "@penrose/examples";
 import * as fs from "fs";
 import * as path from "path";
 import * as prettier from "prettier";
@@ -17,9 +18,7 @@ import { State } from "../types/state";
 
 const OUTPUT = "../../diagrams";
 const EXAMPLES = "../../examples";
-const registryPath = path.join(EXAMPLES, "registry.json");
 const saveDiagrams = true;
-const registry = JSON.parse(fs.readFileSync(registryPath).toString());
 const vennStyle = fs
   .readFileSync(path.join(EXAMPLES, registry.styles["venn"].URI))
   .toString();
