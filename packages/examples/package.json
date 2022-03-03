@@ -3,5 +3,10 @@
   "version": "1.3.0",
   "author": "Penrose Team (https://penrose.ink)",
   "license": "MIT",
-  "main": "index.ts"
+  "main": "index.ts",
+  "module": "index.ts",
+  "files": [
+    "index.ts",
+    "registry.json"
+  ]
 }
