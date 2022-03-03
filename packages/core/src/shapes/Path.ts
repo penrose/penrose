@@ -1,4 +1,3 @@
-import { constOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 import { IArrow, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IPathDataV } from "types/value";
@@ -19,12 +18,12 @@ export interface IPath extends INamed, IStroke, IFill, IArrow {
 export const samplePath = (rng: seedrandom.prng, _canvas: Canvas): IPath => ({
   name: StrV("defaultPath"),
   style: StrV(""),
-  strokeWidth: FloatV(constOf(1)),
+  strokeWidth: FloatV(1),
   strokeStyle: StrV("solid"),
   strokeColor: sampleColor(rng),
   strokeDasharray: StrV(""),
   fillColor: sampleNoPaint(),
-  arrowheadSize: FloatV(constOf(1)),
+  arrowheadSize: FloatV(1),
   arrowheadStyle: StrV("arrowhead-2"),
   startArrowhead: BoolV(false),
   endArrowhead: BoolV(false),

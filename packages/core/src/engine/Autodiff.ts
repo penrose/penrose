@@ -1,7 +1,8 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
-import { GradGraphs, IVarAD, VarAD } from "types/ad";
+import * as ad from "types/ad";
+import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
 import { safe } from "utils/Util";
 import {
@@ -28,143 +29,12 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-// Reverse-mode AD
-// Implementation adapted from https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation and https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
-
-// NOTE: VARIABLES ARE MUTATED DURING AD CALCULATION
-
-// ----- Core AD code
-
-/**
- * Make a number into a `VarAD`.
- */
-export const varOf = (x: number, vname = "", metadata = ""): VarAD => {
-  if (typeof x !== "number") {
-    console.error("x", x);
-    throw Error("expected number");
-  }
-
-  return variableAD(x, vname, metadata);
-};
-
-/**
- * Return a new `VarAD` that's a constant.
- */
-export const constOf = (x: number): VarAD => {
-  if (typeof x !== "number") {
-    console.error("x", x);
-    throw Error("expected number");
-  }
-
-  return variableAD(x, String(x), "const");
-};
-
-export const constOfIf = (x: number | VarAD): VarAD => {
-  if (typeof x === "number") {
-    return variableAD(x, String(x), "const");
-  }
-
-  return x;
-};
-
 /**
  * Return the numerical value held in a `VarAD`.
  */
 export const numOf = (x: VarAD): number => x.val;
 
-/**
- * Make a number into a `VarAD`.
- */
-export const differentiable = (e: number): VarAD => {
-  // log.trace("making it differentiable", e);
-  return varOf(e);
-};
-
-/**
- * Make a number into a `VarAD`. Don't use this!
- */
-export const variableAD = (
-  x: number,
-  vname = "",
-  metadata = "",
-  isCompNode = true
-): VarAD => {
-  const opName = vname ? vname : String(x);
-
-  return {
-    metadata,
-    op: opName,
-    isInput: false,
-    val: x,
-    isCompNode,
-    parentsAD: [],
-    childrenAD: [],
-    parentsADGrad: [],
-    childrenADGrad: [],
-    gradVal: undefined,
-    gradNode: undefined,
-    index: -100,
-    id: -1,
-
-    debug: false,
-    debugInfo: "",
-
-    nodeVisited: false,
-    name: "",
-  };
-};
-
-/**
- * Make a number into a gradient `VarAD`. Don't use this!
- */
-export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => {
-  if (typeof x !== "number") {
-    console.error("x", x);
-    throw Error("expected number");
-  }
-
-  // Grad var, level 1
-  return variableAD(x, vname, metadata, false);
-};
-
-/**
- * Return a variable with no gradient.
- */
-export const noGrad: VarAD = gvarOf(0.0, "noGrad");
-
-export const markInput = (v: VarAD, i: number): IVarAD => {
-  v.isInput = true;
-  v.index = i;
-  return v;
-};
-
-// Copies the input numbers and returns a new list of vars marked as inputs
-export const makeADInputVars = (xs: number[]): VarAD[] => {
-  const xsCopy = [...xs];
-  const xsVars = xsCopy.map((x, i) => markInput(variableAD(x), i));
-  // Need to mark these so we know what's special when generating the function code
-  return xsVars;
-};
-
-// This should only be applied to a leaf node
-// It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), caching each gradient value for an intermediate note
-// (However, it doesn't calculate gradient for any other leaf nodes, though they do use the cached intermediate values)
-
-//            (ds/ds = 1)
-//                s
-//               ^ ^
-//              /   \
-//               ...
-//        z1 = ...  z2 = ...
-//              ^   ^
-//  dz1/dv = ... \ / dz2/dv = ...
-//               (v) = ...
-//
-//  ds/dv = ds/sz1 * dz1/dv + ds/dz2 * dz2/dv + ...
-// The recursive parts are ds/dzi (the parents further up)
-
-// grad(v) means ds/dv (s is the single output seed)
-// do not use outside this file
+// do not use outside this file and its test file
 export const _gradADSymbolic = (v: VarAD): VarAD => {
   // Already computed/cached the gradient
   if (v.gradNode !== undefined) {
@@ -244,29 +114,15 @@ const check = (
  * Mutates a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
  * For more documentation on how to use this function, see the Penrose wiki page.
  */
-export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
-  v.debug = true;
-  v.debugInfo = debugInfo;
-  return v;
-};
+export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
+  node: v,
+  info,
+});
 
 // Useful constants
 
-export const zero: VarAD = constOf(0);
-
 // to prevent 1/0 (infinity). put it in the denominator
-export const epsd: VarAD = constOf(10e-10);
-
-// Useful grad constants
-// TODO -- But it seems to be bad to use them...
-
-export const zeroG: VarAD = gvarOf(0.0);
-
-export const oneG: VarAD = gvarOf(1.0);
-
-export const negoneG: VarAD = gvarOf(1.0);
-
-export const epsdg: VarAD = gvarOf(10e-10);
+export const epsd: ad.Const = 10e-10;
 
 // ----------------- Other ops
 
@@ -316,7 +172,7 @@ export const ops = {
    */
   vnormsq: (v: VarAD[]): VarAD => {
     const res = v.map((e) => squared(e));
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?
+    return _.reduce(res, (x: VarAD, y) => add(x, y), 0);
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
@@ -339,7 +195,7 @@ export const ops = {
    * Return the vector `v`, scaled by `-1`.
    */
   vneg: (v: VarAD[]): VarAD[] => {
-    return ops.vmul(constOf(-1.0), v);
+    return ops.vmul(-1, v);
   },
 
   /**
@@ -353,7 +209,7 @@ export const ops = {
    * Return the vector `v`, normalized.
    */
   vnormalize: (v: VarAD[]): VarAD[] => {
-    const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
+    const vsize = add(ops.vnorm(v), EPS_DENOM);
     return ops.vdiv(v, vsize);
   },
 
@@ -388,7 +244,7 @@ export const ops = {
     }
 
     const res = _.zipWith(v1, v2, mul);
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
+    return _.reduce(res, (x: VarAD, y) => add(x, y), 0);
   },
 
   /**
@@ -408,7 +264,7 @@ export const ops = {
     // of the dot product by a factor s slightly below 1.
     const s = 1 - 1e-10;
 
-    return acos(mul(varOf(s), ops.vdot(ops.vnormalize(u), ops.vnormalize(v))));
+    return acos(mul(s, ops.vdot(ops.vnormalize(u), ops.vnormalize(v))));
   },
 
   /**
@@ -431,7 +287,7 @@ export const ops = {
    * Return the sum of elements in vector `v`.
    */
   vsum: (v: VarAD[]): VarAD => {
-    return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
+    return _.reduce(v, (x: VarAD, y) => add(x, y), 0);
   },
 
   /**
@@ -452,7 +308,7 @@ export const ops = {
    * Rotate a 2D point `[x, y]` by a degrees counterclockwise.
    */
   vrot: ([x, y]: VarAD[], a: VarAD): VarAD[] => {
-    const angle = div(mul(a, varOf(Math.PI)), varOf(180));
+    const angle = mul(a, Math.PI / 180);
     const x2 = sub(mul(cos(angle), x), mul(sin(angle), y));
     const y2 = add(mul(sin(angle), x), mul(cos(angle), y));
     return [x2, y2];
@@ -501,7 +357,7 @@ export const fns = {
    * Return the penalty `max(x, 0)`.
    */
   toPenalty: (x: VarAD): VarAD => {
-    return squared(max(x, variableAD(0.0)));
+    return squared(max(x, 0));
   },
 
   /**
@@ -529,7 +385,7 @@ export const fns = {
 
 export const _genEnergyFn = (
   xs: VarAD[],
-  z: IVarAD,
+  z: VarAD,
   weight: VarAD | undefined
 ): any => _genCode(xs, [z], "energy", weight);
 
@@ -538,7 +394,7 @@ export const _genEnergyFn = (
 // NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
 export const _genCode = (
   inputs: VarAD[],
-  outputs: IVarAD[],
+  outputs: VarAD[],
   setting: string,
   weightNode: VarAD | undefined
 ): any => {
@@ -636,7 +492,7 @@ export const _genCode = (
 // NOTE: Mutates z to store that the node was visited, and what its name is
 // `i` is the counter, the initial parameter for generating var names
 // `i` starts with 0 for the first call, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
-const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
+const traverseGraph = (i: number, z: VarAD, setting: string): any => {
   const c = "x"; // Base character for var names
   const childType = z.isCompNode ? "childrenAD" : "childrenADGrad";
 
@@ -974,8 +830,8 @@ const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
 // synthesize the gradient as well, since they both rely on mutating the
 // computational graph to mark the visited nodes and their generated names
 export const clearVisitedNodes = (nodeList: VarAD[]): void => {
-  const q = new Queue<IVarAD>();
-  const discoveredNodes = new Set<IVarAD>();
+  const q = new Queue<VarAD>();
+  const discoveredNodes = new Set<VarAD>();
   nodeList.forEach((z) => {
     discoveredNodes.add(z);
     z.nodeVisited = false;

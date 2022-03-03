@@ -2,19 +2,10 @@ import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
 import { objDict } from "contrib/Objectives";
 import eig from "eigen";
-import {
-  differentiable,
-  energyAndGradCompiled,
-  fns,
-  makeADInputVars,
-  markInput,
-  ops,
-  varOf,
-} from "engine/Autodiff";
+import { energyAndGradCompiled, fns, ops } from "engine/Autodiff";
 import {
   defaultLbfgsParams,
   initConstraintWeight,
-  makeTranslationDifferentiable,
   makeTranslationNumeric,
   shapeAutodiffToNumber,
 } from "engine/EngineUtils";
@@ -378,7 +369,7 @@ export const step = (
 
     newState.translation = insertVaryings(
       state.translation,
-      zip2(state.varyingPaths, varyingValues.map(differentiable))
+      zip2(state.varyingPaths, [...varyingValues])
     );
 
     newState.varyingValues = varyingValues;
@@ -888,10 +879,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
 
     // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-    const translationInit = makeTranslationDifferentiable(
-      clone(makeTranslationNumeric(state.translation))
-    );
-
+    const translationInit = clone(makeTranslationNumeric(state.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
     const translation = insertVaryings(translationInit, varyingMapList);
@@ -1026,10 +1014,7 @@ const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
   return (...xsVars: VarAD[]): VarAD => {
     const { varyingPaths } = s;
 
-    const translationInit = makeTranslationDifferentiable(
-      clone(makeTranslationNumeric(s.translation))
-    );
-
+    const translationInit = clone(makeTranslationNumeric(s.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     const translation = insertVaryings(translationInit, varyingMapList);
     const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;

@@ -1,24 +1,24 @@
-import { IVarAD } from "types/ad";
+import { VarAD } from "types/ad";
 import { IPathDataV, ISubPath } from "types/value";
 
 /**
  * Class for building SVG paths
  */
 export class PathBuilder {
-  private path: IPathDataV<IVarAD>;
+  private path: IPathDataV<VarAD>;
   constructor() {
     this.path = {
       tag: "PathDataV",
       contents: [],
     };
   }
-  private newCoord = (x: IVarAD, y: IVarAD): ISubPath<IVarAD> => {
+  private newCoord = (x: VarAD, y: VarAD): ISubPath<VarAD> => {
     return {
       tag: "CoordV",
       contents: [x, y],
     };
   };
-  private newValue = (v: IVarAD[]): ISubPath<IVarAD> => {
+  private newValue = (v: VarAD[]): ISubPath<VarAD> => {
     return {
       tag: "ValueV",
       contents: v,
@@ -30,7 +30,7 @@ export class PathBuilder {
   /**
    * Moves SVG cursor to coordinate [x,y]
    */
-  moveTo = ([x, y]: [IVarAD, IVarAD]) => {
+  moveTo = ([x, y]: [VarAD, VarAD]) => {
     this.path.contents.push({
       cmd: "M",
       contents: [this.newCoord(x, y)],
@@ -51,7 +51,7 @@ export class PathBuilder {
   /**
    * Draws a line to point [x,y]
    */
-  lineTo = ([x, y]: [IVarAD, IVarAD]) => {
+  lineTo = ([x, y]: [VarAD, VarAD]) => {
     this.path.contents.push({
       cmd: "L",
       contents: [this.newCoord(x, y)],
@@ -62,10 +62,7 @@ export class PathBuilder {
    * Draws a quadratic bezier curve ending at [x,y] with one control point
    * at [cpx, cpy]
    */
-  quadraticCurveTo = (
-    [cpx, cpy]: [IVarAD, IVarAD],
-    [x, y]: [IVarAD, IVarAD]
-  ) => {
+  quadraticCurveTo = ([cpx, cpy]: [VarAD, VarAD], [x, y]: [VarAD, VarAD]) => {
     this.path.contents.push({
       cmd: "Q",
       contents: [this.newCoord(cpx, cpy), this.newCoord(x, y)],
@@ -77,9 +74,9 @@ export class PathBuilder {
    * [cpx1, cpy1] and the second control pt at [cpx2, cpy2]
    */
   bezierCurveTo = (
-    [cpx1, cpy1]: [IVarAD, IVarAD],
-    [cpx2, cpy2]: [IVarAD, IVarAD],
-    [x, y]: [IVarAD, IVarAD]
+    [cpx1, cpy1]: [VarAD, VarAD],
+    [cpx2, cpy2]: [VarAD, VarAD],
+    [x, y]: [VarAD, VarAD]
   ) => {
     this.path.contents.push({
       cmd: "C",
@@ -94,7 +91,7 @@ export class PathBuilder {
   /**
    * Shortcut quadratic bezier curve command ending at [x,y]
    */
-  quadraticCurveJoin = ([x, y]: [IVarAD, IVarAD]) => {
+  quadraticCurveJoin = ([x, y]: [VarAD, VarAD]) => {
     this.path.contents.push({
       cmd: "T",
       contents: [this.newCoord(x, y)],
@@ -105,7 +102,7 @@ export class PathBuilder {
    * Shortcut cubic bezier curve command ending at [x, y]. The second control
    * pt is inferred to be the reflection of the first control pt, [cpx, cpy].
    */
-  cubicCurveJoin = ([cpx, cpy]: [IVarAD, IVarAD], [x, y]: [IVarAD, IVarAD]) => {
+  cubicCurveJoin = ([cpx, cpy]: [VarAD, VarAD], [x, y]: [VarAD, VarAD]) => {
     this.path.contents.push({
       cmd: "S",
       contents: [this.newCoord(cpx, cpy), this.newCoord(x, y)],
@@ -119,9 +116,9 @@ export class PathBuilder {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    */
   arcTo = (
-    [rx, ry]: [IVarAD, IVarAD],
-    [x, y]: [IVarAD, IVarAD],
-    [rotation, majorArc, sweep]: IVarAD[]
+    [rx, ry]: [VarAD, VarAD],
+    [x, y]: [VarAD, VarAD],
+    [rotation, majorArc, sweep]: VarAD[]
   ) => {
     this.path.contents.push({
       cmd: "A",

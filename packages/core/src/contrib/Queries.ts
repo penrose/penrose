@@ -1,4 +1,3 @@
-import { constOf } from "engine/Autodiff";
 import { mul, sqrt } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { shapedefs } from "shapes/Shapes";
@@ -32,7 +31,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
  */
 export const shapeSize = ([t, s]: [string, any]): VarAD => {
   if (t == "Circle") {
-    return mul(constOf(2.0), s.r.contents);
+    return mul(2, s.r.contents);
   } else {
     const bbox = bboxFromShape([t, s]);
     return sqrt(mul(bbox.width, bbox.height));

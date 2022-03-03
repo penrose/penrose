@@ -1,6 +1,6 @@
 import { bboxFromShape } from "contrib/Queries";
 import { inRange } from "contrib/Utils";
-import { constOf, numOf, ops, varOf } from "engine/Autodiff";
+import { numOf, ops } from "engine/Autodiff";
 import {
   absVal,
   acos,
@@ -48,7 +48,7 @@ import { maxBy, range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import seedrandom from "seedrandom";
 import { shapedefs } from "shapes/Shapes";
-import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
+import { OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import {
   ArgVal,
   Color,
@@ -79,22 +79,22 @@ export const compDict = {
 
   makePath: (
     _context: Context,
-    start: [IVarAD, IVarAD],
-    end: [IVarAD, IVarAD],
-    curveHeight: IVarAD,
-    padding: IVarAD
-  ): IPathDataV<IVarAD> => {
+    start: [VarAD, VarAD],
+    end: [VarAD, VarAD],
+    curveHeight: VarAD,
+    padding: VarAD
+  ): IPathDataV<VarAD> => {
     // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
-    const unit: IVarAD[] = ops.vnormalize(ops.vsub(start, end));
-    const normalVec: IVarAD[] = rot90(toPt(unit));
+    const unit: VarAD[] = ops.vnormalize(ops.vsub(start, end));
+    const normalVec: VarAD[] = rot90(toPt(unit));
     // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
-    const halfLen: IVarAD = div(ops.vdist(start, end), constOf(2));
-    const controlPt: IVarAD[] = ops.vmove(
+    const halfLen: VarAD = div(ops.vdist(start, end), 2);
+    const controlPt: VarAD[] = ops.vmove(
       ops.vmove(end, halfLen, unit),
       curveHeight,
       normalVec
     );
-    const curveEnd: IVarAD[] = ops.vmove(end, padding, unit);
+    const curveEnd: VarAD[] = ops.vmove(end, padding, unit);
     // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
     const path = new PathBuilder();
     return path
@@ -121,7 +121,7 @@ export const compDict = {
       console.error(`no derivative found for '${varName}'; returning 0`);
       return {
         tag: "FloatV",
-        contents: constOf(0.0),
+        contents: 0,
       };
     }
 
@@ -129,7 +129,7 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: constOf(optDebugInfo.gradient.get(varName) as number),
+        contents: optDebugInfo.gradient.get(varName) as number,
       };
     }
 
@@ -138,7 +138,7 @@ export const compDict = {
     );
     return {
       tag: "FloatV",
-      contents: constOf(0.0),
+      contents: 0,
     };
   },
 
@@ -160,7 +160,7 @@ export const compDict = {
       console.error(`no derivative found for '${varName}'; returning 0`);
       return {
         tag: "FloatV",
-        contents: constOf(0.0),
+        contents: 0,
       };
     }
 
@@ -168,9 +168,7 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: constOf(
-          optDebugInfo.gradientPreconditioned.get(varName) as number
-        ),
+        contents: optDebugInfo.gradientPreconditioned.get(varName) as number,
       };
     }
 
@@ -179,7 +177,7 @@ export const compDict = {
     );
     return {
       tag: "FloatV",
-      contents: constOf(0.0),
+      contents: 0,
     };
   },
 
@@ -225,7 +223,7 @@ export const compDict = {
     _context: Context,
     color1: Color<VarAD>,
     color2: Color<VarAD>,
-    level: IVarAD
+    level: VarAD
   ): IColorV<VarAD> => {
     if (level.val % 2 == 0)
       return {
@@ -591,7 +589,7 @@ export const compDict = {
     _context: Context,
     pathType: string,
     pts: Pt2[]
-  ): IPathDataV<IVarAD> => {
+  ): IPathDataV<VarAD> => {
     const path = new PathBuilder();
     const [start, ...tailpts] = pts;
     path.moveTo(start);
@@ -607,7 +605,7 @@ export const compDict = {
     _context: Context,
     pathType: string,
     pts: Pt2[]
-  ): IPathDataV<IVarAD> => {
+  ): IPathDataV<VarAD> => {
     const path = new PathBuilder();
     const [start, cp, second, ...tailpts] = pts;
     path.moveTo(start);
@@ -624,7 +622,7 @@ export const compDict = {
     _context: Context,
     pathType: string,
     pts: Pt2[]
-  ): IPathDataV<IVarAD> => {
+  ): IPathDataV<VarAD> => {
     const path = new PathBuilder();
     const [start, cp1, cp2, second, ...tailpts] = pts;
     path.moveTo(start);
@@ -699,10 +697,10 @@ export const compDict = {
     start: Pt2,
     end: Pt2,
     radius: Pt2,
-    rotation: IVarAD,
-    largeArc: IVarAD,
-    arcSweep: IVarAD
-  ): IPathDataV<IVarAD> => {
+    rotation: VarAD,
+    largeArc: VarAD,
+    arcSweep: VarAD
+  ): IPathDataV<VarAD> => {
     const path = new PathBuilder();
     path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
     if (pathType === "closed") path.closePath();
@@ -725,10 +723,10 @@ export const compDict = {
     start: Pt2,
     end: Pt2,
     radius: Pt2,
-    rotation: IVarAD,
-    largeArc: IVarAD,
-    arcSweep: IVarAD
-  ): IPathDataV<IVarAD> => {
+    rotation: VarAD,
+    largeArc: VarAD,
+    arcSweep: VarAD
+  ): IPathDataV<VarAD> => {
     const path = new PathBuilder();
     path
       .moveTo(start)
@@ -772,7 +770,7 @@ export const compDict = {
     const cross = ops.cross2(st, en);
     return {
       tag: "FloatV",
-      contents: ifCond(gt(cross, constOf(0)), constOf(0), constOf(1)),
+      contents: ifCond(gt(cross, 0), 0, 1),
     };
   },
   /**
@@ -820,10 +818,10 @@ export const compDict = {
     b0: VarAD[],
     b1: VarAD[]
   ): IVectorV<VarAD> => {
-    const A0 = [a0[0], a0[1], constOf(1)];
-    const A1 = [a1[0], a1[1], constOf(1)];
-    const B0 = [b0[0], b0[1], constOf(1)];
-    const B1 = [b1[0], b1[1], constOf(1)];
+    const A0 = [a0[0], a0[1], 1];
+    const A1 = [a1[0], a1[1], 1];
+    const B0 = [b0[0], b0[1], 1];
+    const B1 = [b1[0], b1[1], 1];
     const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
     const x = [div(X[0], X[2]), div(X[1], X[2])];
     return {
@@ -839,7 +837,7 @@ export const compDict = {
     start: VarAD[],
     end: VarAD[]
   ): IVectorV<VarAD> => {
-    const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+    const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
     return {
       tag: "VectorV",
       contents: toPt(midpointLoc),
@@ -857,7 +855,7 @@ export const compDict = {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
       const normalDir = rot90v(ops.vnormalize(ops.vsub(end, start)));
-      const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
       return {
         tag: "TupV",
@@ -878,9 +876,9 @@ export const compDict = {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
-      const startDir = ops.vrot(dir, constOf(135));
-      const endDir = ops.vrot(dir, constOf(225));
-      const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
+      const startDir = ops.vrot(dir, 135);
+      const endDir = ops.vrot(dir, 225);
+      const center = ops.vmul(0.5, ops.vadd(start, end));
       // if even, evenly divide tick marks about center. if odd, start in center and move outwards
       return {
         tag: "PtListV",
@@ -920,7 +918,7 @@ export const compDict = {
     // unit vector from midpoint to end point
     const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
     // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
-    const cond = gt(ops.vdot(vec1unit, intoEndUnit), constOf(0.95));
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), 0.95);
     return {
       tag: "VectorV",
       contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
@@ -948,7 +946,7 @@ export const compDict = {
     const unit = ops.vnormalize(ops.vsub(pt2, pt1));
     const normalDir = ops.vneg(rot90v(unit)); // rot90 rotates CW, neg to point in CCW direction
 
-    const mid = ops.vmul(constOf(0.5), ops.vadd(pt1, pt2));
+    const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
 
     // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
     // from the original pt1->pt2 line
@@ -972,7 +970,7 @@ export const compDict = {
     [t2, s2]: [string, any],
     intersection: Pt2,
     len: VarAD
-  ): IPathDataV<IVarAD> => {
+  ): IPathDataV<VarAD> => {
     if (
       (t1 === "Arrow" || t1 === "Line") &&
       (t2 === "Arrow" || t2 === "Line")
@@ -1040,7 +1038,7 @@ export const compDict = {
     [t1, l1]: any,
     [t2, l2]: any,
     [t3, l3]: any
-  ): IPathDataV<IVarAD> => {
+  ): IPathDataV<VarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
       const path = new PathBuilder();
       return path
@@ -1061,7 +1059,7 @@ export const compDict = {
   average2: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: div(add(x, y), constOf(2.0)),
+      contents: div(add(x, y), 2.0),
     };
   },
 
@@ -1071,7 +1069,7 @@ export const compDict = {
   average: (_context: Context, xs: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: div(addN(xs), max(constOf(1.0), constOf(xs.length))),
+      contents: div(addN(xs), max(1.0, xs.length)),
       // To avoid divide-by-0
     };
   },
@@ -1097,9 +1095,7 @@ export const compDict = {
     checkFloat(alpha);
 
     if (colorType === "rgb") {
-      const rgb = range(3).map((_) =>
-        constOf(randFloat(context.rng, 0.1, 0.9))
-      );
+      const rgb = range(3).map((_) => randFloat(context.rng, 0.1, 0.9));
 
       return {
         tag: "ColorV",
@@ -1114,7 +1110,7 @@ export const compDict = {
         tag: "ColorV",
         contents: {
           tag: "HSVA",
-          contents: [constOf(h), constOf(100), constOf(80), alpha], // HACK: for the color to look good
+          contents: [h, 100, 80, alpha], // HACK: for the color to look good
         },
       };
     } else throw new Error("unknown color type");
@@ -1175,7 +1171,7 @@ export const compDict = {
     b: VarAD[],
     c: VarAD[]
   ): IVectorV<VarAD> => {
-    const x = ops.vmul(constOf(1 / 3), ops.vadd(a, ops.vadd(b, c)));
+    const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
     return {
       tag: "VectorV",
       contents: toPt(x),
@@ -1239,14 +1235,14 @@ export const compDict = {
     const c = ops.vnorm(ops.vsub(q, p));
 
     // semiperimeter
-    const s = mul(constOf(0.5), add(add(a, b), c));
+    const s = mul(0.5, add(add(a, b), c));
 
     // circumradius, computed as
     // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
     const R = div(
       mul(mul(a, b), c),
       mul(
-        constOf(4),
+        4,
         sqrt(
           mul(
             mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
@@ -1309,7 +1305,7 @@ export const compDict = {
     const c = ops.vnorm(ops.vsub(q, p));
 
     // semiperimeter
-    const s = mul(constOf(0.5), add(add(a, b), c));
+    const s = mul(0.5, add(add(a, b), c));
 
     // inradius
     const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
@@ -1363,7 +1359,7 @@ export const compDict = {
   toRadians: (_context: Context, theta: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: mul(constOf(3.141592653589793 / 180), theta),
+      contents: mul(Math.PI / 180, theta),
     };
   },
 
@@ -1373,7 +1369,7 @@ export const compDict = {
   toDegrees: (_context: Context, theta: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: mul(constOf(180 / 3.141592653589793), theta),
+      contents: mul(180 / Math.PI, theta),
     };
   },
 
@@ -1424,7 +1420,7 @@ export const compDict = {
   MathE: (_context: Context): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: constOf(2.718281828459045),
+      contents: Math.E,
     };
   },
 
@@ -1434,7 +1430,7 @@ export const compDict = {
   MathPI: (_context: Context): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: constOf(3.141592653589793),
+      contents: Math.PI,
     };
   },
 
@@ -1557,17 +1553,17 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
 const tickPlacement = (
   padding: VarAD,
   numPts: VarAD,
-  multiplier = constOf(1)
+  multiplier: VarAD = 1
 ): VarAD[] => {
   if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numOf(numPts) % 2 === 0;
-  const pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  const pts: VarAD[] = even ? [div(padding, 2)] : [0];
   for (let i = 1; i < numOf(numPts); i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
       i % 2 == 0
-        ? mul(padding, mul(neg(varOf(i)), multiplier))
-        : mul(padding, mul(varOf(i), multiplier));
+        ? mul(padding, mul(neg(i), multiplier))
+        : mul(padding, mul(i, multiplier));
     pts.push(add(pts[i - 1], shift));
   }
   return pts;

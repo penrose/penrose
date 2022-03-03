@@ -1,10 +1,9 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { constOfIf, numOf, varOf } from "engine/Autodiff";
 import { mapValues } from "lodash";
 import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import { IVarAD, VarAD } from "types/ad";
+import { VarAD } from "types/ad";
 import {
   A,
   ASTNode,
@@ -53,6 +52,7 @@ import {
   Value,
 } from "types/value";
 import { showError } from "utils/Error";
+import { numOf } from "./Autodiff";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -268,15 +268,6 @@ export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);
 
-export const valueNumberToAutodiff = (v: Value<number>): Value<VarAD> =>
-  mapValueNumeric(varOf, v);
-
-export const valueNumberToAutodiffConst = (v: Value<number>): Value<VarAD> =>
-  mapValueNumeric(constOfIf, v); // COMBAK: Really this should be constOf... I don't know why some inputs are already converted to VarADs?
-
-export const tagExprNumberToAutodiff = (v: TagExpr<number>): TagExpr<VarAD> =>
-  mapTagExpr(constOfIf, v);
-
 // Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
 // (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
 
@@ -333,11 +324,6 @@ export function mapTranslation<T, S>(
     trMap: Object.fromEntries(newTrMap),
   };
 }
-
-// TODO: Check the input type?
-export const makeTranslationDifferentiable = (trans: any): Translation => {
-  return mapTranslation(varOf, trans);
-};
 
 export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
   return mapTranslation(numOf, trans);
@@ -543,7 +529,7 @@ export const insertExpr = (
         trans.trMap[name.contents.value] = {};
       }
 
-      const fieldRes: FieldExpr<IVarAD> =
+      const fieldRes: FieldExpr<VarAD> =
         trans.trMap[name.contents.value][field.value];
 
       // TODO(errors): Catch error if SubObj, etc don't exist -- but should these kinds of errors be caught by block statics rather than failing at runtime?
@@ -640,7 +626,7 @@ export const insertExpr = (
             const err = "did not expect GPI in vector access";
             throw Error(err);
           }
-          const res2: TagExpr<IVarAD> = res.contents;
+          const res2: TagExpr<VarAD> = res.contents;
 
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
@@ -675,7 +661,7 @@ export const insertExpr = (
             return trans;
           } else if (res2.tag === "Done") {
             // Deal with vector values
-            const res3: Value<IVarAD> = res2.contents;
+            const res3: Value<VarAD> = res2.contents;
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
@@ -686,7 +672,7 @@ export const insertExpr = (
               }
               throw Error(err);
             }
-            const res4: IVarAD[] = res3.contents;
+            const res4: VarAD[] = res3.contents;
 
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
               res4[exprToNumber(indices[0])] = expr.contents.contents;

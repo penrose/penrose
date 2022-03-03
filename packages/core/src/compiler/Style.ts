@@ -10,7 +10,7 @@ import { constrDict } from "contrib/Constraints";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
-import { constOf, numOf, varOf } from "engine/Autodiff";
+import { numOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,
@@ -2734,7 +2734,7 @@ const initFieldsAndAccessPaths = (
         tag: "Done",
         contents: {
           tag: "FloatV",
-          contents: constOf(initVal),
+          contents: initVal,
         },
       };
     }
@@ -2773,7 +2773,7 @@ const initProperty = (
           tag: "Done",
           contents: {
             tag: "FloatV",
-            contents: varOf(styleSetting.contents.contents),
+            contents: styleSetting.contents.contents,
           },
         };
       } else if (styleSetting.contents.tag === "Vector") {

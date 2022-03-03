@@ -3,7 +3,6 @@ import {
   insertExpr,
   shapeAutodiffToNumber,
   valueAutodiffToNumber,
-  valueNumberToAutodiff,
 } from "engine/EngineUtils";
 import { evalShapes } from "engine/Evaluator";
 import { mapValues } from "lodash";
@@ -170,11 +169,7 @@ export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
     TagExpr<VarAD>
   ][] = uninitializedPaths.map((p: Path<A>) => [
     p,
-    val2Expr(
-      valueNumberToAutodiff(
-        samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
-      )
-    ),
+    val2Expr(samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)),
   ]);
 
   const translation: Translation = uninitMap.reduce(
