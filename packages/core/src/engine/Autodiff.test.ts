@@ -18,11 +18,13 @@ import { GradGraphs } from "types/ad";
 import { eqList, randList } from "utils/Util";
 import {
   add,
+  addN,
   div,
   ifCond,
   lt,
   max,
   mul,
+  polyRoots,
   sin,
   squared,
   sub,
@@ -102,6 +104,10 @@ describe("symbolic differentiation tests", () => {
 
   test("graph 7", () => {
     testGradSymbolic(7, gradGraph7());
+  });
+
+  test("graph 8", () => {
+    testGradSymbolic(8, gradGraph8());
   });
 });
 
@@ -285,6 +291,27 @@ const gradGraph7 = (): GradGraphs => {
     gradOutputs: dxs,
     weight: undefined,
   };
+};
+
+// Test polyRoots
+const gradGraph8 = (): GradGraphs => {
+  // Build energy graph
+  logAD.info("test polyRoots");
+
+  // coefficients of (x-1)(x-2)(x-3)(x-4)(x-5)
+  const x0 = markInput(variableAD(-120), 0);
+  const x1 = markInput(variableAD(274), 1);
+  const x2 = markInput(variableAD(-225), 2);
+  const x3 = markInput(variableAD(85), 3);
+  const x4 = markInput(variableAD(-15), 4);
+  const inputs = [x0, x1, x2, x3, x4];
+  const roots = polyRoots([x0, x1, x2, x3, x4]);
+  const head = addN(roots);
+
+  // Build gradient graph
+  const dxs = _gradAllSymbolic(head, inputs);
+
+  return { inputs, energyOutput: head, gradOutputs: dxs, weight: undefined };
 };
 
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }

@@ -328,6 +328,10 @@ export const pow = (x: VarAD, y: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
+export const polyRoots = (coeffs: VarAD[], isCompNode = true): VarAD[] => {
+  return [...coeffs]; // TODO
+};
+
 // --- Unary ops
 
 /**
