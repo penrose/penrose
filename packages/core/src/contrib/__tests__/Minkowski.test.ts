@@ -123,32 +123,48 @@ describe("convexPartitions", () => {
       poly.map((point) => point.map(numOf))
     );
 
-  test("Figure 1 from [HM83]", () => {
-    // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
-    // point locations approximated by tracing in Inkscape, then y-coordinates
-    // are inverted because screen coordinates are upside down compared to math,
-    // and the library we use expects the polygon to be counterclockwise
-    const p = [
-      [-316.39758, 117.40885],
-      [-291.04166, 57.877602],
-      [-243.63715, 24.804688],
-      [-189.61806, 74.414062],
-      [-155.4427, -9.921875],
-      [-173.63281, -78.823784],
-      [-202.29601, -136.15016],
-      [-257.41754, -167.01823],
-      [-301.51477, -164.81337],
-      [-359.94357, -147.72569],
-      [-54.570312, -355.53384],
-      [288.28558, -232.61285],
-      [241.43228, -148.82812],
-      [151.5842, -66.145836],
-      [186.31076, -8.8194437],
-      [269.54428, 59.53125],
-      [219.38368, 151.03297],
-      [14.882812, 128.98438],
-      [-224.34462, 165.36458],
-    ];
+  // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
+  // point locations approximated by tracing in Inkscape; also note, this
+  // polygon is actually clockwise because screen coordinates are upside down
+  // compared to math
+  const hm83 = [
+    [-316.39758, -117.40885],
+    [-291.04166, -57.877602],
+    [-243.63715, -24.804688],
+    [-189.61806, -74.414062],
+    [-155.4427, 9.921875],
+    [-173.63281, 78.823784],
+    [-202.29601, 136.15016],
+    [-257.41754, 167.01823],
+    [-301.51477, 164.81337],
+    [-359.94357, 147.72569],
+    [-54.570312, 355.53384],
+    [288.28558, 232.61285],
+    [241.43228, 148.82812],
+    [151.5842, 66.145836],
+    [186.31076, 8.8194437],
+    [269.54428, -59.53125],
+    [219.38368, -151.03297],
+    [14.882812, -128.98438],
+    [-224.34462, -165.36458],
+  ];
+
+  test("Figure 1 from [HM83], unflipped", () => {
+    const p = hm83;
+    expect(convexPartitionsNum(p)).toEqual([
+      [p[10], p[9], p[8]],
+      [p[10], p[8], p[7]],
+      [p[10], p[7], p[6], p[13], p[12], p[11]],
+      [p[13], p[6], p[5]],
+      [p[13], p[5], p[4], p[17], p[16], p[14]],
+      [p[2], p[1], p[0], p[18], p[3]],
+      [p[3], p[18], p[17], p[4]],
+      [p[14], p[16], p[15]],
+    ]);
+  });
+
+  test("Figure 1 from [HM83], flipped", () => {
+    const p = hm83.map(([x, y]) => [x, -y]);
     expect(convexPartitionsNum(p)).toEqual([
       [p[8], p[9], p[10]],
       [p[7], p[8], p[10]],

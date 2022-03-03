@@ -15,7 +15,7 @@ import {
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import { convexPartition } from "poly-partition";
+import { convexPartition, isClockwise } from "poly-partition";
 import { Pt2, VarAD } from "types/ad";
 import { safe } from "utils/Util";
 
@@ -161,6 +161,9 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   );
 
   const contour = [...pointMap.keys()];
+  if (isClockwise(contour)) {
+    contour.reverse();
+  }
   const convexPolygons = convexPartition(contour);
 
   return convexPolygons.map((poly) =>
