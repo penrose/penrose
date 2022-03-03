@@ -1,3 +1,4 @@
+import * as math from "mathjs";
 import { Canvas } from "shapes/Samplers";
 import { GradGraphs, VarAD } from "./ad";
 import { A } from "./ast";
@@ -111,11 +112,10 @@ export type LbfgsParams = ILbfgsParams;
 
 // `n` is the size of the varying state
 export interface ILbfgsParams {
-  // TODO: Store as matrix types
-  lastState: any | undefined; // nx1 (col vec)
-  lastGrad: any | undefined; // nx1 (col vec)
-  s_list: any[]; // list of nx1 col vecs
-  y_list: any[]; // list of nx1 col vecs
+  lastState: math.Matrix | undefined; // nx1 (col vec)
+  lastGrad: math.Matrix | undefined; // nx1 (col vec)
+  s_list: math.Matrix[]; // list of nx1 col vecs
+  y_list: math.Matrix[]; // list of nx1 col vecs
   numUnconstrSteps: number;
   memSize: number;
 }
