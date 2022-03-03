@@ -85,9 +85,9 @@ forall Set x {
 }
 ```
 
-So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/api/). It is a page that you will visit frequently as you work in Penrose.
+So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/ref/). It is a page that you will visit frequently as you work in Penrose.
 
-[This](/docs/api/) is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a table that lists out the different properties you can manipulate, along with the default values for any properties that aren't randomly generated.
+[This](/docs/ref/style/shapes/circle) is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a table that lists out the different properties you can manipulate, along with the default values for any properties that aren't randomly generated.
 
 When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles do not have strokes, therefore we will set `strokeWidth : 0.0`. (Actually, we could leave that out as well, because it is the default for `strokeWidth` in `Circle`.) For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, so you do not have to worry.
 
@@ -113,7 +113,7 @@ Now it's time to see all of our hard work (drumroll please 🥁)! To compile you
 
 ## Exercise
 
-We have now covered the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have provided 3 exercises for you to help solidify the basics. You can work on each of these within the existing files - no need to make new ones. **Hint:** Make use of the shape specs [here](/docs/api/).
+We have now covered the differences between and usage of the `.dsl`, `.sub` and `sty` files. We have provided 3 exercises for you to help solidify the basics. You can work on each of these within the existing files - no need to make new ones. **Hint:** Make use of the shape specs [here](/docs/ref/).
 
 _Since we are not defining all the properties that control how the shape will look on-screen (location, color, etc), Penrose will optimize and make those decisions for you. Therefore when you click the resample button, you will get a new diagram that might have varying appearances, and here we've provided some sample results of the same Penrose program. So do not worry if your diagram does not look the exact same as ours._
 
@@ -129,9 +129,9 @@ _Since we are not defining all the properties that control how the shape will lo
 
 ![](/img/tutorial/tutorial1c3.png)
 
-- **Challenge 4:** Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square. There should be 6 objects on your canvas. (Hint: you will need to initialize another [Shape](/docs/api/) object!)
+- **Challenge 4:** Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square. There should be 6 objects on your canvas. (Hint: you will need to initialize another [Shape](/docs/ref/) object!)
 
-![](</img/tutorial/Screenshot from 2021-06-03 14-25-55.png>)
+![](/img/tutorial/tutorial1c4.png)
 
 After you are done, you can double-check your work with the sample [solutions](https://github.com/penrose/tutorials/blob/main/solutions/tutorial1.md).
 

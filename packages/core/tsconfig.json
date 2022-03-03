@@ -61,15 +61,13 @@
     "webpack"
   ],
   "typedocOptions": {
-    "inputFiles": ["./src"],
-    "mode": "modules",
-    "out": "doc",
+    "entryPoints": ["./src"],
+    "out": "docs/html",
     "exclude": [
       "**/*.test.ts",
       "**/*.test.tsx",
       "**/*__*/**",
       "**/node_modules/**"
-    ],
-    "includeDeclarations": true
+    ]
   }
 }

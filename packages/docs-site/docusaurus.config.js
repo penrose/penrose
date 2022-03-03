@@ -28,12 +28,6 @@ const config = {
           editUrl:
             "https://github.com/penrose/penrose/tree/main/packages/docs-site",
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            "https://github.com/penrose/penrose/tree/main/packages/docs-site",
-        },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
@@ -55,15 +49,20 @@ const config = {
             type: "doc",
             docId: "tutorial/welcome",
             position: "left",
-            label: "Tutorial",
+            label: "Learn Penrose",
           },
           {
             type: "doc",
-            docId: "api/api",
+            docId: "ref/index",
             position: "left",
-            label: "API",
+            label: "Documentation",
           },
-          { to: "/blog", label: "Blog", position: "right" },
+          {
+            type: "doc",
+            docId: "team",
+            position: "right",
+            label: "Team",
+          },
           {
             href: "https://github.com/penrose/penrose",
             label: "GitHub",
@@ -78,8 +77,8 @@ const config = {
             title: "Docs",
             items: [
               {
-                label: "API",
-                to: "/docs/api",
+                label: "Reference",
+                to: "/docs/ref",
               },
             ],
           },
@@ -95,10 +94,6 @@ const config = {
           {
             title: "More",
             items: [
-              {
-                label: "Blog",
-                to: "/blog",
-              },
               {
                 label: "GitHub",
                 href: "https://github.com/penrose",
