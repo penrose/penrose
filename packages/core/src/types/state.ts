@@ -112,7 +112,6 @@ export type LbfgsParams = ILbfgsParams;
 
 // `n` is the size of the varying state
 export interface ILbfgsParams {
-  // TODO: Store as matrix types
   lastState: eig.Matrix | undefined; // nx1 (col vec)
   lastGrad: eig.Matrix | undefined; // nx1 (col vec)
   s_list: eig.Matrix[]; // list of nx1 col vecs
