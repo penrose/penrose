@@ -83,31 +83,6 @@ export const _gradAllSymbolic = (
   return gradxs;
 };
 
-// ----- Ops (extensible)
-// NOTE: These all update the graph and return new variables that should be used to build the ops
-// NOTE: For the resulting var `z`, z's parents and grad are uninitialized
-// TODO: Factor out op helper to deal with graph-building boilerplate
-
-// --- Binary ops
-
-//                (+) (z := v + w)     -- parent
-//               ^   ^
-// dz/dv = 1    /     \    dz/dw = 1   -- sensitivities
-//             v       w               -- children
-
-// TODO: Put these in ops dict
-// NOTE: The names of these ops matter for opMap, don't change them
-
-// The point of making the sensitivity nodes here is that when the gradient is computed, each child needs to know what its partial derivative was, which depends on its position (e.g. either the first or second arg in x * y has a different sensitivity). This can't be looked up in, say, a dict
-// You have to build it inline bc it involves references to the variables
-
-const check = (
-  isCompNode: boolean,
-  sensitivityNode: VarAD
-): VarAD | undefined => {
-  return isCompNode ? sensitivityNode : undefined;
-};
-
 // ------------ Meta / debug ops
 
 /**
@@ -118,11 +93,6 @@ export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
   node: v,
   info,
 });
-
-// Useful constants
-
-// to prevent 1/0 (infinity). put it in the denominator
-export const epsd: ad.Const = 10e-10;
 
 // ----------------- Other ops
 
