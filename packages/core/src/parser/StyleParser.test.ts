@@ -1,4 +1,4 @@
-// const grammar = require("./Style.ne");
+import { examples } from "@penrose/examples";
 import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import * as nearley from "nearley";
@@ -461,8 +461,9 @@ describe("Real Programs", () => {
   }
 
   styPaths.map((examplePath) => {
-    const file = path.join("../../examples/", examplePath);
-    const prog = fs.readFileSync(file, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [part0, part1] = examplePath.split("/");
+    const prog = examples[part0][part1];
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);

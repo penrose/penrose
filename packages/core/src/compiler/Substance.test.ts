@@ -1,3 +1,4 @@
+import { examples } from "@penrose/examples";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
@@ -502,10 +503,11 @@ describe("Real Programs", () => {
   }
 
   subPaths.map(([domainPath, examplePath]) => {
-    const domFile = path.join("../../examples/", domainPath);
-    const subFile = path.join("../../examples/", examplePath);
-    const domProg = fs.readFileSync(domFile, "utf8");
-    const subProg = fs.readFileSync(subFile, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [domPart0, domPart1] = domainPath.split("/");
+    const [subPart0, subPart1] = examplePath.split("/");
+    const domProg = examples[domPart0][domPart1];
+    const subProg = examples[subPart0][subPart1];
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);
