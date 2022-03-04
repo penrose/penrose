@@ -2,8 +2,6 @@
 
 This package holds all the official Penrose examples.
 
-This is a test.
-
 ## Usage
 
 ```typescript
