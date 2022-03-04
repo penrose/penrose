@@ -1,4 +1,4 @@
-import { registry } from "@penrose/examples";
+import { examples, registry } from "@penrose/examples";
 import * as fs from "fs";
 import * as path from "path";
 import * as prettier from "prettier";
@@ -17,21 +17,25 @@ import {
 import { State } from "../types/state";
 
 const OUTPUT = "../../diagrams";
-const EXAMPLES = "../../examples";
 const saveDiagrams = true;
-const vennStyle = fs
-  .readFileSync(path.join(EXAMPLES, registry.styles["venn"].URI))
-  .toString();
-const setDomain = fs
-  .readFileSync(path.join(EXAMPLES, registry.domains["set-theory"].URI))
-  .toString();
+
+const exampleFromURI = (uri: string): string => {
+  let x: any = examples;
+  for (const part of uri.split("/")) {
+    x = x[part];
+  }
+  return x;
+};
+
+const vennStyle = exampleFromURI(registry.styles["venn"].URI);
+const setDomain = exampleFromURI(registry.domains["set-theory"].URI);
 
 describe("End-to-end testing of existing diagrams", () => {
   const trios = readRegistry(registry);
   for (const trio of trios) {
     const { name, substanceURI, domainURI, styleURI, variation } = trio;
-    const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map((uri) =>
-      fs.readFileSync(path.join(EXAMPLES, uri)).toString()
+    const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map(
+      exampleFromURI
     );
 
     test(name, async () => {
@@ -54,10 +58,10 @@ describe("End-to-end testing of existing diagrams", () => {
         const optimized = opt.value;
 
         const rendered = await RenderStatic(optimized, async (p: string) => {
-          const parentDir = path.parse(path.join(EXAMPLES, styleURI)).dir;
-          const actualPath = path.resolve(parentDir, p);
-          const res = fs.readFileSync(actualPath, "utf-8").toString();
-          return res;
+          const parts = styleURI.split("/");
+          parts.pop();
+          parts.push(p);
+          return exampleFromURI(parts.join("/")); // a bit hacky but meh
         });
         fs.writeFileSync(
           path.join(OUTPUT, `${name}.svg`),

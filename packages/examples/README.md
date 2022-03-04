@@ -5,8 +5,5 @@ This package holds all the official Penrose examples.
 ## Usage
 
 ```typescript
-import { registry } from "@penrose/examples";
-
-console.log(Object.keys(registry));
-// [ 'root', 'trios', 'domains', 'styles', 'substances', 'default' ]
+import { examples, registry } from "@penrose/examples";
 ```

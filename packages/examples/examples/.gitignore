@@ -1,0 +1,5 @@
+*.dsl.json
+*.sty.json
+*.sub.json
+*.svg.json
+index.ts
