@@ -1,10 +1,7 @@
-name: Packages
+name: Setup
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v2
-      with:
-        node-version: "16"
     - name: Restore lerna cache
       id: cache
       uses: actions/cache@v2
