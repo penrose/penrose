@@ -1,4 +1,4 @@
-name: Setup
+name: Packages
 runs:
   using: composite
   steps:
@@ -9,7 +9,7 @@ runs:
         path: |
           node_modules
           */*/node_modules
-        key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+        key: ${{ runner.os }}-${{ hashFiles('lerna.json', 'yarn.lock') }}
     - if: steps.cache.outputs.cache-hit != 'true'
       name: Install packages
       run: yarn
