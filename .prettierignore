@@ -13,4 +13,9 @@ packages/core/src/parser/StyleParser.ts
 packages/core/src/parser/SubstanceParser.ts
 packages/core/src/renderer/not_found.json
 packages/docs-site/.docusaurus/
+packages/examples/examples/**/*.dsl.json
+packages/examples/examples/**/*.sty.json
+packages/examples/examples/**/*.sub.json
+packages/examples/examples/**/*.svg.json
+packages/examples/examples/**/index.ts
 packages/roger/oclif.manifest.json
