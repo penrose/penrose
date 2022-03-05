@@ -40,4 +40,5 @@ const build = (dir) => {
   fs.writeFileSync(path.join(distDir, "index.ts"), lines.join("\n"));
 };
 
+fs.rmSync(dist, { force: true, recursive: true });
 build("");
