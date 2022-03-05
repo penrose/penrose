@@ -1,16 +1,59 @@
+import * as graphlib from "graphlib";
 import { LbfgsParams } from "./state";
 
-//#region Types for autodiff graph
+//#region Types for implicit autodiff graph
 
 export type VarAD = Const | Input | Unary | Binary | Ternary | Nary | Debug;
 
-export type Const = number;
+export type Const = ConstNode;
 
-export interface Input {
-  index: number;
+export type Input = InputNode;
+
+export interface Unary extends UnaryNode {
+  param: VarAD;
 }
 
-export interface Unary {
+export interface Binary extends BinaryNode {
+  left: VarAD;
+  right: VarAD;
+}
+
+export interface Ternary extends TernaryNode {
+  cond: VarAD;
+  then: VarAD;
+  els: VarAD;
+}
+
+export interface Nary extends NaryNode {
+  params: VarAD[];
+}
+
+export interface Debug extends DebugNode {
+  node: VarAD;
+}
+
+//#endregion
+
+//#region Types for explicit autodiff graph
+
+export type Node =
+  | ConstNode
+  | InputNode
+  | UnaryNode
+  | BinaryNode
+  | TernaryNode
+  | NaryNode
+  | DebugNode;
+
+export type ConstNode = number;
+
+export interface InputNode {
+  tag: "Input";
+  name: string;
+}
+
+export interface UnaryNode {
+  tag: "Unary";
   unop:
     | "neg"
     | "squared"
@@ -42,10 +85,10 @@ export interface Unary {
     | "tan"
     | "tanh"
     | "trunc";
-  param: VarAD;
 }
 
-export interface Binary {
+export interface BinaryNode {
+  tag: "Binary";
   binop:
     | "add"
     | "mul"
@@ -60,35 +103,49 @@ export interface Binary {
     | "eq"
     | "and"
     | "or";
-  left: VarAD;
-  right: VarAD;
 }
 
-export interface Ternary {
-  cond: VarAD;
-  then: VarAD;
-  els: VarAD;
+export interface TernaryNode {
+  tag: "Ternary";
 }
 
-export interface Nary {
+export interface NaryNode {
+  tag: "Nary";
   op: "addN" | "maxN" | "minN";
-  params: VarAD[];
 }
 
-export interface Debug {
-  node: VarAD;
+export interface DebugNode {
+  tag: "Debug";
   info: string;
 }
 
-// NOTE: these type guards are not checked by TypeScript! so be extra careful
-// that they don't become wrong
-export const isConst = (x: VarAD): x is Const => typeof x === "number";
-export const isInput = (x: VarAD): x is Input => !isConst(x) && "index" in x;
-export const isUnary = (x: VarAD): x is Unary => !isConst(x) && "unop" in x;
-export const isBinary = (x: VarAD): x is Binary => !isConst(x) && "binop" in x;
-export const isTernary = (x: VarAD): x is Ternary => !isConst(x) && "cond" in x;
-export const isNary = (x: VarAD): x is Nary => !isConst(x) && "op" in x;
-export const isDebug = (x: VarAD): x is Debug => !isConst(x) && "node" in x;
+export type Edge = UnaryEdge | BinaryEdge | TernaryEdge | NaryEdge | DebugEdge;
+export type UnaryEdge = undefined;
+export type BinaryEdge = "left" | "right";
+export type TernaryEdge = "cond" | "then" | "els";
+export type NaryEdge = `${number}`;
+export type DebugEdge = undefined;
+
+export interface Graph {
+  outputs: VarAD[];
+
+  // multigraph
+  // each node label is of type Node
+  // edges point from children to parents
+  // each edge label is undefined
+  // each edge name is of type Edge
+  graph: graphlib.Graph;
+
+  // values are node IDs in the graph
+  nodes: Map<VarAD, string>;
+}
+
+//#endregion
+
+//#region Types for compiled autodiff graph
+
+// inputs map from names to values; indices of outputs are preserved
+export type Compiled = (inputs: Map<string, number>) => number[];
 
 //#endregion
 

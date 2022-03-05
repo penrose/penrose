@@ -1,5 +1,6 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
+import { Graph } from "graphlib";
 import * as _ from "lodash";
 import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "types/ad";
@@ -29,10 +30,121 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
+export const input = (name: string): ad.Input => ({ tag: "Input", name });
+
 /**
  * Return the numerical value held in a `VarAD`.
  */
 export const numOf = (x: VarAD): number => x.val;
+
+// every VarAD is already an ad.Node, but this function removes all the children
+const makeNode = (x: VarAD): ad.Node => {
+  if (typeof x === "number") {
+    return x;
+  }
+  const node: ad.Node = x; // get some typechecking by not using x after this
+  const { tag } = node;
+  switch (tag) {
+    case "Input":
+      const { name } = node;
+      return { tag, name };
+    case "Unary":
+      const { unop } = node;
+      return { tag, unop };
+    case "Binary":
+      const { binop } = node;
+      return { tag, binop };
+    case "Ternary":
+      return { tag };
+    case "Nary":
+      const { op } = node;
+      return { tag, op };
+    case "Debug":
+      const { info } = node;
+      return { tag, info };
+  }
+};
+
+interface Child {
+  child: VarAD;
+  name: ad.Edge;
+}
+
+const children = (x: VarAD): Child[] => {
+  if (typeof x === "number") {
+    return [];
+  }
+  switch (x.tag) {
+    case "Input":
+      return [];
+    case "Unary":
+      return [{ child: x.param, name: undefined }];
+    case "Binary":
+      return [
+        { child: x.left, name: "left" },
+        { child: x.right, name: "right" },
+      ];
+    case "Ternary":
+      return [
+        { child: x.cond, name: "cond" },
+        { child: x.then, name: "then" },
+        { child: x.els, name: "els" },
+      ];
+    case "Nary":
+      return x.params.map((child, i) => ({ child, name: `${i}` }));
+    case "Debug":
+      return [{ child: x.node, name: undefined }];
+  }
+};
+
+export const makeGraph = (outputs: VarAD[]): ad.Graph => {
+  const graph = new Graph({ multigraph: true });
+  const nodes = new Map<VarAD, string>();
+  const edges: [Child, VarAD][] = [];
+
+  // Queue constructor doesn't clone its argument, so we must
+  const queue = new Queue([...outputs]);
+  while (!queue.isEmpty()) {
+    const x = queue.dequeue();
+    if (!nodes.has(x)) {
+      const name = `${graph.nodeCount()}`;
+      graph.setNode(name, makeNode(x));
+      nodes.set(x, name);
+      for (const edge of children(x)) {
+        edges.push([edge, x]);
+        queue.enqueue(edge.child);
+      }
+    }
+  }
+
+  for (const [{ child, name }, parent] of edges) {
+    graph.setEdge(
+      safe(nodes.get(child), "missing child"),
+      safe(nodes.get(parent), "missing parent"),
+      undefined,
+      name
+    );
+  }
+
+  return { outputs: [...outputs], graph, nodes };
+};
+
+/**
+ * Mutate graph (but not any of the `VarAD`s used to construct it) to add, for
+ * each input, an output for the partial derivative of graph.outputs[output]
+ * with respect to that input.
+ * @returns a map from each input name to the index of its partial derivative in
+ * graph.outputs
+ */
+export const addGradient = (
+  graph: ad.Graph,
+  output: number
+): Map<string, number> => {
+  return new Map(); // TODO
+};
+
+export const compile = ({ outputs }: ad.Graph): ad.Compiled => () =>
+  outputs.map(() => 0); // TODO
 
 // do not use outside this file and its test file
 export const _gradADSymbolic = (v: VarAD): VarAD => {
@@ -793,50 +905,6 @@ const traverseGraph = (i: number, z: VarAD, setting: string): any => {
       output: parName,
       references: [],
     };
-  }
-};
-
-// Use this function after synthesizing an energy function, if you want to
-// synthesize the gradient as well, since they both rely on mutating the
-// computational graph to mark the visited nodes and their generated names
-export const clearVisitedNodes = (nodeList: VarAD[]): void => {
-  const q = new Queue<VarAD>();
-  const discoveredNodes = new Set<VarAD>();
-  nodeList.forEach((z) => {
-    discoveredNodes.add(z);
-    z.nodeVisited = false;
-    q.enqueue(z);
-  });
-  while (q.size() > 0) {
-    const v = q.dequeue();
-    v.childrenAD.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-    v.childrenADGrad.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-    v.parentsAD.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-    v.parentsADGrad.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
   }
 };
 
