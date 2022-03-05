@@ -9,7 +9,7 @@ import {
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
-import { eqList, randList } from "utils/Util";
+import { eqList, randList, safe, zip2 } from "utils/Util";
 import {
   add,
   div,
@@ -139,9 +139,9 @@ const gradGraph1 = (): SymbolicTest => {
   const graph = makeGraph([z]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 // Test addition of consts to graph (`c`)
@@ -160,9 +160,9 @@ const gradGraph2 = (): SymbolicTest => {
   const graph = makeGraph([z]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 // Test vars w/ no grad
@@ -178,9 +178,9 @@ const gradGraph3 = (): SymbolicTest => {
   const graph = makeGraph([head]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 // Test toPenalty
@@ -192,9 +192,9 @@ const gradGraph4 = (): SymbolicTest => {
   const graph = makeGraph([head]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 // Test ifCond
@@ -212,9 +212,9 @@ const gradGraph5 = (): SymbolicTest => {
   const graph = makeGraph([head]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 // Test max
@@ -228,9 +228,9 @@ const gradGraph6 = (): SymbolicTest => {
   const graph = makeGraph([head]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 // Test div
@@ -249,14 +249,15 @@ const gradGraph7 = (): SymbolicTest => {
   const graph = makeGraph([head]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
 
 interface SymbolicTest {
-  graph: ad.Graph;
   inputs: Map<string, number>;
+  graph: ad.Graph;
+  dxs: Map<string, number>;
 }
 
 // Compile the gradient and check it against numeric gradients
@@ -265,9 +266,17 @@ const testGradSymbolic = (testNum: number, test: SymbolicTest): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f = compile(test.graph);
+  const f0 = compile(test.graph);
 
-  const weight = 1; // TODO: Test with several weights
+  const inputNames = [...test.inputs.keys()];
+  // slightly hacky to assume that the energy output is always node 0
+  const f = (xs: number[]) => f0(new Map(zip2(inputNames, xs)))[0];
+  const gradGen = (xs: number[]) => {
+    const result = f0(new Map(zip2(inputNames, xs)));
+    return inputNames.map(
+      (name) => result[safe(test.dxs.get(name), "missing gradient index")]
+    );
+  };
 
   // Test the gradient at several points via evaluation
   const gradEst = _gradFiniteDiff(f);
@@ -275,7 +284,6 @@ const testGradSymbolic = (testNum: number, test: SymbolicTest): void => {
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
     const xsTest = randList(rng, test.inputs.size);
-    const energyRes = f(xsTest);
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
@@ -299,7 +307,7 @@ const gradGraph0 = (): SymbolicTest => {
   const graph = makeGraph([head]);
 
   // Build gradient graph
-  addGradient(graph, 0);
+  const dxs = addGradient(graph, 0);
 
   // Print results
   logAD.trace(
@@ -308,5 +316,5 @@ const gradGraph0 = (): SymbolicTest => {
     head
   );
 
-  return { graph, inputs };
+  return { inputs, graph, dxs };
 };
