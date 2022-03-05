@@ -1,4 +1,4 @@
-import examples from "./examples/index";
-import * as registry from "./registry.json";
+import examples from "./dist/index";
+import * as registry from "./src/registry.json";
 
 export { examples, registry };
