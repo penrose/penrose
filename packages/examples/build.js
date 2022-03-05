@@ -3,19 +3,26 @@
 const fs = require("fs");
 const path = require("path");
 
+const src = "src";
+const dist = "dist";
 const extensions = new Set([".dsl", ".sty", ".sub", ".svg"]);
 
-const build = (root) => {
+const build = (dir) => {
+  const srcDir = path.join(src, dir);
+  const distDir = path.join(dist, dir);
+  fs.mkdirSync(distDir);
+
   const children = [];
-  for (const child of fs.readdirSync(root)) {
-    const p = path.join(root, child);
-    if (fs.statSync(p).isDirectory()) {
-      build(p);
+  for (const child of fs.readdirSync(srcDir)) {
+    const dirChild = path.join(dir, child);
+    const srcDirChild = path.join(src, dirChild);
+    if (fs.statSync(srcDirChild).isDirectory()) {
+      build(dirChild);
       children.push({ n: child, p: `./${child}/index` });
-    } else if (extensions.has(path.extname(p))) {
+    } else if (extensions.has(path.extname(child))) {
       fs.writeFileSync(
-        `${p}.json`,
-        JSON.stringify(fs.readFileSync(p).toString())
+        `${path.join(dist, dirChild)}.json`,
+        JSON.stringify(fs.readFileSync(srcDirChild).toString())
       );
       children.push({ n: child, p: `./${child}.json` });
     }
@@ -30,7 +37,7 @@ const build = (root) => {
     lines.push(`  ${JSON.stringify(n)}: _${i},`);
   }
   lines.push("};", "");
-  fs.writeFileSync(path.join(root, "index.ts"), lines.join("\n"));
+  fs.writeFileSync(path.join(distDir, "index.ts"), lines.join("\n"));
 };
 
-build("examples");
+build("");
