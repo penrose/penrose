@@ -3,7 +3,8 @@ import {
   overlappingPolygonPoints,
   rectangleDifference,
   rectangleSignedDistance,
-  halfPlaneEllipseSDF,
+  convexPartitions,
+  overlappingPolygonPointsEllipse,
 } from "contrib/Minkowski";
 import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
 import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
@@ -17,6 +18,7 @@ import {
   lt,
   max,
   maxN,
+  minN,
   min,
   mul,
   squared,
@@ -90,17 +92,9 @@ export const overlappingPolygonEllipse = (
   [t2, s2]: [string, Ellipse],
   padding: VarAD = constOf(0.0)
 ): VarAD => {
-  const polygon = polygonLikePoints([t1, s1]);
-  const center = ops.vdiv(polygon.reduce(ops.vadd), varOf(polygon.length));
-  // Create a list of all sides given by two subsequent vertices
-  const sides = Array.from({ length: polygon.length }, (_, key) => key).map((i) => [
-    polygon[i],
-    polygon[i > 0 ? i - 1 : polygon.length - 1],
-  ]);
-  const sdfs = sides.map((s: VarAD[][]) =>
-  halfPlaneEllipseSDF(s, s2, center, padding)
-  );
-  return maxN(sdfs);
+  const points = polygonLikePoints([t1, s1]);
+  const cp = convexPartitions(points);
+  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, padding)));
 };
 
 /**

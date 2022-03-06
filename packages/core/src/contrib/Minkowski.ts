@@ -371,3 +371,21 @@ export const halfPlaneEllipseSDF = (
   );
   return min(m1, m2);
 };
+
+
+export const overlappingPolygonPointsEllipse = (
+  polygonPoints: VarAD[][],
+  ellipse: Ellipse,
+  padding: VarAD,
+): VarAD => {
+  const center = ops.vdiv(polygonPoints.reduce(ops.vadd), varOf(polygonPoints.length));
+  // Create a list of all sides given by two subsequent vertices
+  const sides = Array.from({ length: polygonPoints.length }, (_, key) => key).map((i) => [
+    polygonPoints[i],
+    polygonPoints[i > 0 ? i - 1 : polygonPoints.length - 1],
+  ]);
+  const sdfs = sides.map((s: VarAD[][]) =>
+  halfPlaneEllipseSDF(s, ellipse, center, padding)
+  );
+  return maxN(sdfs);
+};
