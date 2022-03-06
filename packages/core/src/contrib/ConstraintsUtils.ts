@@ -3,10 +3,11 @@ import {
   overlappingPolygonPoints,
   rectangleDifference,
   rectangleSignedDistance,
+  halfPlaneEllipseSDF,
 } from "contrib/Minkowski";
 import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
 import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
-import { constOf, ops } from "engine/Autodiff";
+import { constOf, varOf, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -28,9 +29,11 @@ import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
 import { Polygon } from "shapes/Polygon";
 import { Rectangle } from "shapes/Rectangle";
+import { Ellipse } from "shapes/Ellipse";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
 import { VarAD } from "types/ad";
+
 
 // -------- Ovelapping helpers
 
@@ -80,9 +83,30 @@ export const overlappingAABBs = (
 };
 
 /**
+ * Require that polygon `s1` overlaps ellipse `s2` with some padding `padding`.
+ */
+export const overlappingPolygonEllipse = (
+  [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
+  [t2, s2]: [string, Ellipse],
+  padding: VarAD = constOf(0.0)
+): VarAD => {
+  const polygon = polygonLikePoints([t1, s1]);
+  const center = ops.vdiv(polygon.reduce(ops.vadd), varOf(polygon.length));
+  // Create a list of all sides given by two subsequent vertices
+  const sides = Array.from({ length: polygon.length }, (_, key) => key).map((i) => [
+    polygon[i],
+    polygon[i > 0 ? i - 1 : polygon.length - 1],
+  ]);
+  const sdfs = sides.map((s: VarAD[][]) =>
+  halfPlaneEllipseSDF(s, s2, center, padding)
+  );
+  return maxN(sdfs);
+};
+
+/**
  * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
  */
-export const overlappingRectlikeCircle = (
+ export const overlappingRectlikeCircle = (
   [t1, s1]: [string, Rectangle | Text | Equation | Image],
   [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)
