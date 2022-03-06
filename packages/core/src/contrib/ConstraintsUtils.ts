@@ -1,14 +1,14 @@
 import {
   containsPolygonPoints,
+  convexPartitions,
   overlappingPolygonPoints,
+  overlappingPolygonPointsEllipse,
   rectangleDifference,
   rectangleSignedDistance,
-  convexPartitions,
-  overlappingPolygonPointsEllipse,
 } from "contrib/Minkowski";
 import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
 import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
-import { constOf, varOf, ops } from "engine/Autodiff";
+import { constOf, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -18,24 +18,23 @@ import {
   lt,
   max,
   maxN,
-  minN,
   min,
+  minN,
   mul,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { Circle } from "shapes/Circle";
+import { Ellipse } from "shapes/Ellipse";
 import { Equation } from "shapes/Equation";
 import { Image } from "shapes/Image";
 import { Line } from "shapes/Line";
 import { Polygon } from "shapes/Polygon";
 import { Rectangle } from "shapes/Rectangle";
-import { Ellipse } from "shapes/Ellipse";
 import { shapedefs } from "shapes/Shapes";
 import { Text } from "shapes/Text";
 import { VarAD } from "types/ad";
-
 
 // -------- Ovelapping helpers
 
@@ -100,7 +99,7 @@ export const overlappingPolygonEllipse = (
 /**
  * Require that rectangle `s1` overlaps circle `s2` with some padding `padding`.
  */
- export const overlappingRectlikeCircle = (
+export const overlappingRectlikeCircle = (
   [t1, s1]: [string, Rectangle | Text | Equation | Image],
   [t2, s2]: [string, Circle],
   padding: VarAD = constOf(0.0)

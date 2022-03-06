@@ -3,16 +3,16 @@ import {
   absVal,
   add,
   addN,
+  div,
   ifCond,
   lt,
   max,
   maxN,
   min,
   minN,
+  mul,
   neg,
   sqrt,
-  div,
-  mul,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
@@ -280,23 +280,20 @@ interface ImplicitHalfPlane {
 const implicitEllipseFunc = (
   ei: ImplicitEllipse,
   x: VarAD,
-  y: VarAD,
+  y: VarAD
 ): VarAD => {
-  return sub(add(
-    mul(ei.a, squared(sub(x, ei.x))),
-    mul(ei.b, squared(sub(y, ei.y)))
-  ), ei.c);
+  return sub(
+    add(mul(ei.a, squared(sub(x, ei.x))), mul(ei.b, squared(sub(y, ei.y)))),
+    ei.c
+  );
 };
 
 const implicitHalfPlaneFunc = (
   hpi: ImplicitHalfPlane,
   x: VarAD,
-  y: VarAD,
+  y: VarAD
 ): VarAD => {
-  return sub(add(
-    mul(hpi.a, x),
-    mul(hpi.b, y),
-  ), hpi.c);
+  return sub(add(mul(hpi.a, x), mul(hpi.b, y)), hpi.c);
 };
 
 const halfPlaneToImplicit = (
@@ -308,13 +305,11 @@ const halfPlaneToImplicit = (
   return {
     a: normal[0],
     b: normal[1],
-    c: sub(ops.vdot(normal, lineSegment[0]), padding),  // ±padding?
+    c: sub(ops.vdot(normal, lineSegment[0]), padding), // ±padding?
   };
 };
 
-const ellipseToImplicit = (
-  ellipse: Ellipse,
-): ImplicitEllipse => {
+const ellipseToImplicit = (ellipse: Ellipse): ImplicitEllipse => {
   const rx = ellipse.rx.contents;
   const ry = ellipse.ry.contents;
   return {
@@ -334,9 +329,9 @@ const pointCandidate = (
   const c = div(lambda, mul(varOf(2.0), sub(lambda, varOf(1.0))));
   return [
     sub(ei.x, mul(c, div(hpi.a, ei.a))),
-    sub(ei.y, mul(c, div(hpi.b, ei.b)))
+    sub(ei.y, mul(c, div(hpi.b, ei.b))),
   ];
-}
+};
 
 export const halfPlaneEllipseSDF = (
   lineSegment: VarAD[][],
@@ -347,14 +342,14 @@ export const halfPlaneEllipseSDF = (
   const hpi = halfPlaneToImplicit(lineSegment, insidePoint, padding);
   const ei = ellipseToImplicit(ellipse);
   const e = sub(
-    add(
-      mul(ei.b, squared(hpi.a)),
-      mul(ei.a, squared(hpi.b))
-    ),
-    mul(mul(ei.a, ei.b), mul(varOf(4.0), add(
-      add(mul(ei.x, hpi.a), mul(ei.y, hpi.b)),
-      sub(ei.c, hpi.c)
-    )))
+    add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
+    mul(
+      mul(ei.a, ei.b),
+      mul(
+        varOf(4.0),
+        add(add(mul(ei.x, hpi.a), mul(ei.y, hpi.b)), sub(ei.c, hpi.c))
+      )
+    )
   );
   const ed = sqrt(div(e, add(varOf(1.0), e)));
   const lambda1 = add(varOf(1.0), ed);
@@ -372,20 +367,25 @@ export const halfPlaneEllipseSDF = (
   return min(m1, m2);
 };
 
-
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: VarAD[][],
   ellipse: Ellipse,
-  padding: VarAD,
+  padding: VarAD
 ): VarAD => {
-  const center = ops.vdiv(polygonPoints.reduce(ops.vadd), varOf(polygonPoints.length));
+  const center = ops.vdiv(
+    polygonPoints.reduce(ops.vadd),
+    varOf(polygonPoints.length)
+  );
   // Create a list of all sides given by two subsequent vertices
-  const sides = Array.from({ length: polygonPoints.length }, (_, key) => key).map((i) => [
+  const sides = Array.from(
+    { length: polygonPoints.length },
+    (_, key) => key
+  ).map((i) => [
     polygonPoints[i],
     polygonPoints[i > 0 ? i - 1 : polygonPoints.length - 1],
   ]);
   const sdfs = sides.map((s: VarAD[][]) =>
-  halfPlaneEllipseSDF(s, ellipse, center, padding)
+    halfPlaneEllipseSDF(s, ellipse, center, padding)
   );
   return maxN(sdfs);
 };
