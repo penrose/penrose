@@ -11,11 +11,14 @@ import {
   minN,
   neg,
   sqrt,
+  div,
+  mul,
   squared,
   sub,
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import { convexPartition, isClockwise } from "poly-partition";
+import { Ellipse } from "shapes/Ellipse";
 import { Pt2, VarAD } from "types/ad";
 import { safe } from "utils/Util";
 
@@ -258,4 +261,113 @@ export const containsPolygonPoints = (
 ): VarAD => {
   const cp1 = convexPartitions(polygonPoints);
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
+};
+
+interface ImplicitEllipse {
+  a: VarAD;
+  b: VarAD;
+  c: VarAD;
+  x: VarAD;
+  y: VarAD;
+}
+
+interface ImplicitHalfPlane {
+  a: VarAD;
+  b: VarAD;
+  c: VarAD;
+}
+
+const implicitEllipseFunc = (
+  ei: ImplicitEllipse,
+  x: VarAD,
+  y: VarAD,
+): VarAD => {
+  return sub(add(
+    mul(ei.a, squared(sub(x, ei.x))),
+    mul(ei.b, squared(sub(y, ei.y)))
+  ), ei.c);
+};
+
+const implicitHalfPlaneFunc = (
+  hpi: ImplicitHalfPlane,
+  x: VarAD,
+  y: VarAD,
+): VarAD => {
+  return sub(add(
+    mul(hpi.a, x),
+    mul(hpi.b, y),
+  ), hpi.c);
+};
+
+const halfPlaneToImplicit = (
+  lineSegment: VarAD[][],
+  insidePoint: VarAD[],
+  padding: VarAD
+): ImplicitHalfPlane => {
+  const normal = outwardUnitNormal(lineSegment, insidePoint);
+  return {
+    a: normal[0],
+    b: normal[1],
+    c: sub(ops.vdot(normal, lineSegment[0]), padding),  // ±padding?
+  };
+};
+
+const ellipseToImplicit = (
+  ellipse: Ellipse,
+): ImplicitEllipse => {
+  const rx = ellipse.rx.contents;
+  const ry = ellipse.ry.contents;
+  return {
+    a: div(ry, rx),
+    b: div(rx, ry),
+    c: mul(rx, ry),
+    x: ellipse.center.contents[0],
+    y: ellipse.center.contents[1],
+  };
+};
+
+const pointCandidate = (
+  ei: ImplicitEllipse,
+  hpi: ImplicitHalfPlane,
+  lambda: VarAD
+): [VarAD, VarAD] => {
+  const c = div(lambda, mul(varOf(2.0), sub(lambda, varOf(1.0))));
+  return [
+    sub(ei.x, mul(c, div(hpi.a, ei.a))),
+    sub(ei.y, mul(c, div(hpi.b, ei.b)))
+  ];
+}
+
+export const halfPlaneEllipseSDF = (
+  lineSegment: VarAD[][],
+  ellipse: Ellipse,
+  insidePoint: VarAD[],
+  padding: VarAD
+): VarAD => {
+  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, padding);
+  const ei = ellipseToImplicit(ellipse);
+  const e = sub(
+    add(
+      mul(ei.b, squared(hpi.a)),
+      mul(ei.a, squared(hpi.b))
+    ),
+    mul(mul(ei.a, ei.b), mul(varOf(4.0), add(
+      add(mul(ei.x, hpi.a), mul(ei.y, hpi.b)),
+      sub(ei.c, hpi.c)
+    )))
+  );
+  const ed = sqrt(div(e, add(varOf(1.0), e)));
+  const lambda1 = add(varOf(1.0), ed);
+  const lambda2 = sub(varOf(1.0), ed);
+  const point1 = pointCandidate(ei, hpi, lambda1);
+  const point2 = pointCandidate(ei, hpi, lambda2);
+  const m1 = min(
+    implicitHalfPlaneFunc(hpi, point1[0], point1[1]),
+    implicitHalfPlaneFunc(hpi, point2[0], point2[1])
+  );
+  const m2 = max(
+    implicitEllipseFunc(ei, ei.x, ei.y),
+    implicitHalfPlaneFunc(hpi, ei.x, ei.y)
+  );
+  return min(m1, m2);
 };
