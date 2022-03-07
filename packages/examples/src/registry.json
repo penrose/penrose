@@ -1,5 +1,5 @@
 {
-  "root": "https://raw.githubusercontent.com/penrose/penrose/main/examples/",
+  "root": "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/",
   "trios": [
     {
       "substance": "tree",

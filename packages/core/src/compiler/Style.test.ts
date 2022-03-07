@@ -1,14 +1,13 @@
 // Must be run from penrose-web for loading files
 
+import { examples } from "@penrose/examples";
 import * as S from "compiler/Style";
 import {
   compileSubstance,
   disambiguateFunctions,
   parseSubstance,
 } from "compiler/Substance";
-import * as fs from "fs";
 import _ from "lodash";
-import * as path from "path";
 import { A, C } from "types/ast";
 import { Either } from "types/common";
 import { Env } from "types/domain";
@@ -22,8 +21,9 @@ import { compileDomain } from "./Domain";
 
 // Load file in format "domain-dir/file.extension"
 const loadFile = (examplePath: string): string => {
-  const file = path.join("../../examples/", examplePath);
-  const prog = fs.readFileSync(file, "utf8");
+  // a bit hacky, only works with 2-part paths
+  const [part0, part1] = examplePath.split("/");
+  const prog = examples[part0][part1];
   return prog;
 };
 
