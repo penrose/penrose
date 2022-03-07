@@ -489,7 +489,7 @@ const compileBinary = (
 const compileNary = ({ op }: ad.NaryNode, params: string[]): string => {
   switch (op) {
     case "addN": {
-      return params.length > 0 ? `${params.join(" + ")}` : "0";
+      return params.length > 0 ? params.join(" + ") : "0";
     }
     case "maxN": {
       return `Math.max(${params.join(", ")})`;
