@@ -38,23 +38,29 @@ const makeNode = (x: VarAD): ad.Node => {
   const node: ad.Node = x; // get some typechecking by not using x after this
   const { tag } = node;
   switch (tag) {
-    case "Input":
+    case "Input": {
       const { name } = node;
       return { tag, name };
-    case "Unary":
+    }
+    case "Unary": {
       const { unop } = node;
       return { tag, unop };
-    case "Binary":
+    }
+    case "Binary": {
       const { binop } = node;
       return { tag, binop };
-    case "Ternary":
+    }
+    case "Ternary": {
       return { tag };
-    case "Nary":
+    }
+    case "Nary": {
       const { op } = node;
       return { tag, op };
-    case "Debug":
+    }
+    case "Debug": {
       const { info } = node;
       return { tag, info };
+    }
   }
 };
 
@@ -68,25 +74,31 @@ const children = (x: VarAD): Child[] => {
     return [];
   }
   switch (x.tag) {
-    case "Input":
+    case "Input": {
       return [];
-    case "Unary":
+    }
+    case "Unary": {
       return [{ child: x.param, name: undefined }];
-    case "Binary":
+    }
+    case "Binary": {
       return [
         { child: x.left, name: "left" },
         { child: x.right, name: "right" },
       ];
-    case "Ternary":
+    }
+    case "Ternary": {
       return [
         { child: x.cond, name: "cond" },
         { child: x.then, name: "then" },
         { child: x.els, name: "els" },
       ];
-    case "Nary":
+    }
+    case "Nary": {
       return x.params.map((child, i) => ({ child, name: `${i}` }));
-    case "Debug":
+    }
+    case "Debug": {
       return [{ child: x.node, name: undefined }];
+    }
   }
 };
 
@@ -405,5 +417,127 @@ export const fns = {
 
 // (Returns `3`)
 
-export const compile = ({ outputs }: ad.Graph): ad.Compiled => () =>
+const compileUnary = ({ unop }: ad.UnaryNode, param: string): string => {
+  switch (unop) {
+    case "neg": {
+      return `-${param}`;
+    }
+    case "squared": {
+      return `${param} * ${param}`;
+    }
+    case "inverse": {
+      return `1 / (${param} + ${EPS_DENOM})`;
+    }
+    case "sqrt":
+    case "abs":
+    case "acosh":
+    case "acos":
+    case "asin":
+    case "asinh":
+    case "atan":
+    case "atanh":
+    case "cbrt":
+    case "ceil":
+    case "cos":
+    case "cosh":
+    case "exp":
+    case "expm1":
+    case "floor":
+    case "ln":
+    case "log":
+    case "log2":
+    case "log10":
+    case "log1p":
+    case "round":
+    case "sign":
+    case "sin":
+    case "sinh":
+    case "tan":
+    case "tanh":
+    case "trunc": {
+      return `Math.${unop}(${param})`;
+    }
+  }
+};
+
+const compileBinary = (
+  { binop }: ad.BinaryNode,
+  left: string,
+  right: string
+): string => {
+  switch (binop) {
+    case "+":
+    case "*":
+    case "-":
+    case "/":
+    case ">":
+    case "<":
+    case "===":
+    case "&&":
+    case "||": {
+      return `${left} ${binop} ${right}`;
+    }
+    case "max":
+    case "min":
+    case "atan2":
+    case "pow": {
+      return `Math.${binop}(${left}, ${right})`;
+    }
+  }
+};
+
+const compileNary = ({ op }: ad.NaryNode, params: string[]): string => {
+  switch (op) {
+    case "addN": {
+      return `[${params.join(", ")}].reduce((x, y) => x + y, 0)`;
+    }
+    case "maxN": {
+      return `[${params.join(", ")}].reduce((x, y) => Math.max(x + y))`;
+    }
+    case "minN": {
+      return `[${params.join(", ")}].reduce((x, y) => Math.min(x + y))`;
+    }
+  }
+};
+
+const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
+  if (typeof node === "number") {
+    return `${node}`;
+  }
+  switch (node.tag) {
+    case "Input": {
+      return node.name;
+    }
+    case "Unary": {
+      return compileUnary(node, safe(preds.get(undefined), "missing param"));
+    }
+    case "Binary": {
+      return compileBinary(
+        node,
+        safe(preds.get("left"), "missing left"),
+        safe(preds.get("right"), "missing right")
+      );
+    }
+    case "Ternary": {
+      const cond = safe(preds.get("cond"), "missing cond");
+      const then = safe(preds.get("then"), "missing then");
+      const els = safe(preds.get("els"), "missing els");
+      return `${cond} ? ${then} : ${els}`;
+    }
+    case "Nary": {
+      const params = [];
+      for (const [i, x] of preds.entries()) {
+        params[parseInt(safe(i, "expected n-ary edge"))] = x;
+      }
+      return compileNary(node, params);
+    }
+    case "Debug": {
+      const info = JSON.stringify(node.info);
+      const child = safe(preds.get(undefined), "missing node");
+      return `console.log(${info}, " | value: ", ${child}), ${child}`;
+    }
+  }
+};
+
+export const genCode = ({ outputs }: ad.Graph): ad.Compiled => () =>
   outputs.map(() => 0); // TODO

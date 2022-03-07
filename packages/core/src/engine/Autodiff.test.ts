@@ -1,7 +1,7 @@
 import {
   addGradient,
-  compile,
   fns,
+  genCode,
   input,
   logAD,
   makeGraph,
@@ -266,7 +266,7 @@ const testGradSymbolic = (testNum: number, test: SymbolicTest): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f0 = compile(test.graph);
+  const f0 = genCode(test.graph);
 
   const inputNames = [...test.inputs.keys()];
   // slightly hacky to assume that the energy output is always node 0

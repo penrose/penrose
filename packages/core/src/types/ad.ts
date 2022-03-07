@@ -90,19 +90,19 @@ export interface UnaryNode {
 export interface BinaryNode {
   tag: "Binary";
   binop:
-    | "add"
-    | "mul"
-    | "sub"
-    | "div"
+    | "+"
+    | "*"
+    | "-"
+    | "/"
     | "max"
     | "min"
     | "atan2"
     | "pow"
-    | "gt"
-    | "lt"
-    | "eq"
-    | "and"
-    | "or";
+    | ">"
+    | "<"
+    | "==="
+    | "&&"
+    | "||";
 }
 
 export interface TernaryNode {

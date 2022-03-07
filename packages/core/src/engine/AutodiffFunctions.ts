@@ -6,7 +6,7 @@ import { VarAD } from "types/ad";
  */
 export const add = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "add",
+  binop: "+",
   left: v,
   right: w,
 });
@@ -25,7 +25,7 @@ export const addN = (xs: VarAD[]): ad.Nary => ({
  */
 export const mul = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "mul",
+  binop: "*",
   left: v,
   right: w,
 });
@@ -35,7 +35,7 @@ export const mul = (v: VarAD, w: VarAD): ad.Binary => ({
  */
 export const sub = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "sub",
+  binop: "-",
   left: v,
   right: w,
 });
@@ -45,7 +45,7 @@ export const sub = (v: VarAD, w: VarAD): ad.Binary => ({
  */
 export const div = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "div",
+  binop: "/",
   left: v,
   right: w,
 });
@@ -380,7 +380,7 @@ export const trunc = (x: VarAD): ad.Unary => ({
  */
 export const gt = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "gt",
+  binop: ">",
   left: v,
   right: w,
 });
@@ -390,7 +390,7 @@ export const gt = (v: VarAD, w: VarAD): ad.Binary => ({
  */
 export const lt = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "lt",
+  binop: "<",
   left: v,
   right: w,
 });
@@ -401,7 +401,7 @@ export const lt = (v: VarAD, w: VarAD): ad.Binary => ({
  */
 export const eq = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "eq",
+  binop: "===",
   left: v,
   right: w,
 });
@@ -411,7 +411,7 @@ export const eq = (v: VarAD, w: VarAD): ad.Binary => ({
  */
 export const and = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "and",
+  binop: "&&",
   left: v,
   right: w,
 });
@@ -421,7 +421,7 @@ export const and = (v: VarAD, w: VarAD): ad.Binary => ({
  */
 export const or = (v: VarAD, w: VarAD): ad.Binary => ({
   tag: "Binary",
-  binop: "or",
+  binop: "||",
   left: v,
   right: w,
 });
