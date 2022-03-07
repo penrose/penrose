@@ -489,13 +489,13 @@ const compileBinary = (
 const compileNary = ({ op }: ad.NaryNode, params: string[]): string => {
   switch (op) {
     case "addN": {
-      return `[${params.join(", ")}].reduce((x, y) => x + y, 0)`;
+      return params.length > 0 ? `${params.join(" + ")}` : "0";
     }
     case "maxN": {
-      return `[${params.join(", ")}].reduce((x, y) => Math.max(x + y))`;
+      return `Math.max(${params.join(", ")})`;
     }
     case "minN": {
-      return `[${params.join(", ")}].reduce((x, y) => Math.min(x + y))`;
+      return `Math.min(${params.join(", ")})`;
     }
   }
 };
