@@ -174,7 +174,7 @@ const constrDictGeneral = {
   /**
    * Require that a shape have a size less than some constant maximum, based on the type of the shape.
    */
-  maxSize: ([shapeType, props]: [string, any], limit: number | VarAD) => {
+  maxSize: ([shapeType, props]: [string, any], limit: VarAD) => {
     return sub(shapeSize([shapeType, props]), limit);
   },
 

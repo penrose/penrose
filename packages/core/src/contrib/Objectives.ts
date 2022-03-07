@@ -62,7 +62,7 @@ export const objDictSimple = {
   /**
    * Repel scalar `c` from another scalar `d`.
    */
-  repelScalar: (c: number | VarAD, d: number | VarAD) => {
+  repelScalar: (c: VarAD, d: VarAD) => {
     // 1/(c-d)^2
     return inverse(squared(sub(c, d)));
   },
