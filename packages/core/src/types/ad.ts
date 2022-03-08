@@ -127,14 +127,16 @@ export type NaryEdge = `${number}`;
 export type DebugEdge = undefined;
 
 export interface Graph {
-  outputs: VarAD[];
-
   // multigraph
+  // each node ID is a valid JavaScript identifier
   // each node label is of type Node
   // edges point from children to parents
   // each edge label is undefined
   // each edge name is of type Edge
   graph: graphlib.Graph;
+
+  // node IDs in the graph
+  outputs: string[];
 
   // values are node IDs in the graph
   nodes: Map<VarAD, string>;

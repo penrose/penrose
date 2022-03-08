@@ -23,6 +23,20 @@ import {
 } from "./AutodiffFunctions";
 
 describe("makeGraph tests", () => {
+  test("outputs", () => {
+    const x = input("x");
+    const y = input("y");
+    const sum = add(x, y);
+    const product = mul(x, y);
+    const difference = sub(x, y);
+
+    const { graph, outputs } = makeGraph([sum, product, difference]);
+    expect(outputs.length).toBe(3);
+    expect(graph.node(outputs[0])).toEqual({ tag: "Binary", binop: "+" });
+    expect(graph.node(outputs[1])).toEqual({ tag: "Binary", binop: "*" });
+    expect(graph.node(outputs[2])).toEqual({ tag: "Binary", binop: "-" });
+  });
+
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
     const x1 = input("x1");

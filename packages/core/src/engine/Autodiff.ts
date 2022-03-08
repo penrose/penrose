@@ -1,6 +1,6 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
-import { Graph } from "graphlib";
+import * as graphlib from "graphlib";
 import * as _ from "lodash";
 import * as ad from "types/ad";
 import { VarAD } from "types/ad";
@@ -102,8 +102,12 @@ const children = (x: VarAD): Child[] => {
   }
 };
 
+// make a graph node ID that could also be used as a JavaScript variable name
+const indexToID = (index: number) => `_${index}`;
+const idToIndex = (id: string): number => parseInt(id.slice(1), 10);
+
 export const makeGraph = (outputs: VarAD[]): ad.Graph => {
-  const graph = new Graph({ multigraph: true });
+  const graph = new graphlib.Graph({ multigraph: true });
   const nodes = new Map<VarAD, string>();
   const edges: [Child, VarAD][] = [];
 
@@ -112,7 +116,7 @@ export const makeGraph = (outputs: VarAD[]): ad.Graph => {
   while (!queue.isEmpty()) {
     const x = queue.dequeue();
     if (!nodes.has(x)) {
-      const name = `${graph.nodeCount()}`;
+      const name = indexToID(graph.nodeCount());
       graph.setNode(name, makeNode(x));
       nodes.set(x, name);
       for (const edge of children(x)) {
@@ -131,7 +135,24 @@ export const makeGraph = (outputs: VarAD[]): ad.Graph => {
     );
   }
 
-  return { outputs: [...outputs], graph, nodes };
+  // this relies on the fact that the outputs were the first things in the queue
+  return { graph, outputs: outputs.map((_, i) => indexToID(i)), nodes };
+};
+
+// graph is the graph field of some ad.Graph
+const getInputs = (
+  graph: graphlib.Graph
+): { id: string; label: ad.InputNode }[] => {
+  const inputs = [];
+  // every input must be a source
+  for (const id of graph.sources()) {
+    const label: ad.Node = graph.node(id);
+    // other non-const sources include n-ary nodes with an empty params array
+    if (typeof label !== "number" && label.tag === "Input") {
+      inputs.push({ id, label });
+    }
+  }
+  return inputs;
 };
 
 /**
@@ -142,16 +163,23 @@ export const makeGraph = (outputs: VarAD[]): ad.Graph => {
  * graph.outputs
  */
 export const addGradient = (
-  graph: ad.Graph,
+  { graph, outputs }: ad.Graph,
   output: number
 ): Map<string, number> => {
-  return new Map(); // TODO
+  const m = new Map<string, number>();
+  for (const { label } of getInputs(graph)) {
+    const derivativeID = indexToID(graph.nodeCount());
+    graph.setNode(derivativeID, 0); // TODO: put the actual derivative
+    m.set(label.name, outputs.length);
+    outputs.push(derivativeID);
+  }
+  return m;
 };
 
 // ------------ Meta / debug ops
 
 /**
- * Mutates a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
+ * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
  * For more documentation on how to use this function, see the Penrose wiki page.
  */
 export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
@@ -527,7 +555,7 @@ const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
     case "Nary": {
       const params = [];
       for (const [i, x] of preds.entries()) {
-        params[parseInt(safe(i, "expected n-ary edge"))] = x;
+        params[idToIndex(safe(i, "expected n-ary edge"))] = x;
       }
       return compileNary(node, params);
     }
@@ -539,5 +567,30 @@ const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
   }
 };
 
-export const genCode = ({ outputs }: ad.Graph): ad.Compiled => () =>
-  outputs.map(() => 0); // TODO
+export const genCode = ({ graph, outputs }: ad.Graph): ad.Compiled => {
+  const stmts = getInputs(graph).map(
+    ({ id, label: { name } }) =>
+      `const ${id} = inputs.get(${JSON.stringify(name)});`
+  );
+  for (const id of graphlib.alg.topsort(graph)) {
+    const node: ad.Node = graph.node(id);
+    // we already generated code for the inputs
+    if (typeof node === "number" || node.tag !== "Input") {
+      const edges = graph.inEdges(id);
+      // the type of inEdges says it can return void
+      if (!Array.isArray(edges)) {
+        throw Error("expected inEdges to be an array");
+      }
+      const preds = new Map(
+        // TODO: get rid of this typecast
+        edges.map(({ v, name }) => [name as ad.Edge, v])
+      );
+      stmts.push(`const ${id} = ${compileNode(node, preds)};`);
+    }
+  }
+  stmts.push(`return [${outputs.join(", ")}];`);
+  const foo = stmts.join("\n");
+  console.log(foo);
+  // TODO: get rid of this typecast
+  return new Function("inputs", foo) as ad.Compiled;
+};
