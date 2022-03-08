@@ -6,11 +6,9 @@ import * as ad from "types/ad";
 import { VarAD } from "types/ad";
 import { safe } from "utils/Util";
 import {
-  absVal,
   acos,
   add,
   atan2,
-  cbrt,
   cos,
   cosh,
   div,
@@ -75,12 +73,6 @@ const makeNode = (x: VarAD): ad.Node => {
   }
 };
 
-interface Child {
-  child: VarAD;
-  name: ad.Edge;
-  sensitivity: VarAD | undefined;
-}
-
 const unarySensitivity = (z: ad.Unary): VarAD => {
   const { unop, param: v } = z;
   switch (unop) {
@@ -91,13 +83,15 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
       return mul(2, v);
     }
     case "sqrt": {
-      return div(1, mul(2, max(EPS_DENOM, sqrt(v))));
+      // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
+      return div(1, mul(2, max(EPS_DENOM, z)));
     }
     case "inverse": {
+      // This takes care of the divide-by-zero gradient problem
       return neg(inverse(add(squared(v), EPS_DENOM)));
     }
     case "abs": {
-      return div(v, add(absVal(v), EPS_DENOM));
+      return div(v, add(z, EPS_DENOM));
     }
     case "acosh": {
       return div(1, mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
@@ -118,7 +112,7 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
       return div(1, sub(1, mul(v, v)));
     }
     case "cbrt": {
-      return div(1, mul(3, squared(cbrt(v))));
+      return div(1, mul(3, squared(z)));
     }
     case "ceil":
     case "floor":
@@ -141,10 +135,10 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
       return div(1, v);
     }
     case "log2": {
-      return div(1, mul(v, 0.6931471805599453));
+      return div(1, mul(v, 1 / Math.LOG2E));
     }
     case "log10": {
-      return div(1, mul(v, 2.302585092994046));
+      return div(1, mul(v, 1 / Math.LOG10E));
     }
     case "log1p": {
       return div(1, add(1, v));
@@ -210,6 +204,12 @@ const binarySensitivities = (
 
 const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
 const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
+
+interface Child {
+  child: VarAD;
+  name: ad.Edge;
+  sensitivity: VarAD | undefined;
+}
 
 const children = (x: VarAD): Child[] => {
   if (typeof x === "number") {
@@ -613,7 +613,7 @@ const compileUnary = ({ unop }: ad.UnaryNode, param: string): string => {
     case "inverse": {
       return `1 / (${param} + ${EPS_DENOM})`;
     }
-    case "sqrt":
+    case "sqrt": // NOTE: Watch out for negative numbers in sqrt
     case "abs":
     case "acosh":
     case "acos":

@@ -245,12 +245,12 @@ export const lt = binary("<");
 export const eq = binary("===");
 
 /**
- * Return a boolean (number) `v && w`
+ * Return a boolean `v && w`
  */
 export const and = binary("&&");
 
 /**
- * Return a boolean (number) `v || w`
+ * Return a boolean `v || w`
  */
 export const or = binary("||");
 
