@@ -190,7 +190,7 @@ const binarySensitivities = (
       return { left: div(x, denom), right: div(neg(y), denom) };
     }
     case "pow": {
-      return { left: mul(pow(v, sub(w, 1)), w), right: mul(pow(v, w), ln(v)) };
+      return { left: mul(pow(v, sub(w, 1)), w), right: mul(z, ln(v)) };
     }
     case ">":
     case "<":
