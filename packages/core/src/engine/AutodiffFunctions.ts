@@ -1,92 +1,61 @@
 import * as ad from "types/ad";
 import { VarAD } from "types/ad";
 
+const binary = (binop: ad.Binary["binop"]) => (
+  v: VarAD,
+  w: VarAD
+): ad.Binary => ({ tag: "Binary", binop, left: v, right: w });
+
+const nary = (op: ad.Nary["op"]) => (xs: VarAD[]): ad.Nary => ({
+  tag: "Nary",
+  op,
+  params: xs,
+});
+
 /**
  * Return `v + w`.
  */
-export const add = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "+",
-  left: v,
-  right: w,
-});
+export const add = binary("+");
 
 /**
  * Return the sum of elements in `xs`.
  */
-export const addN = (xs: VarAD[]): ad.Nary => ({
-  tag: "Nary",
-  op: "addN",
-  params: xs,
-});
+export const addN = nary("addN");
 
 /**
  * Return `v * w`.
  */
-export const mul = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "*",
-  left: v,
-  right: w,
-});
+export const mul = binary("*");
 
 /**
  * Return `v - w`.
  */
-export const sub = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "-",
-  left: v,
-  right: w,
-});
+export const sub = binary("-");
 
 /**
  * Return `v / w`.
  */
-export const div = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "/",
-  left: v,
-  right: w,
-});
+export const div = binary("/");
 
 /**
  * Return `max(v, w)`.
  */
-export const max = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "max",
-  left: v,
-  right: w,
-});
+export const max = binary("max");
 
 /**
  * Return `min(v, w)`.
  */
-export const min = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "min",
-  left: v,
-  right: w,
-});
+export const min = binary("min");
 
 /**
  * Return `maxN(xs)`.
  */
-export const maxN = (xs: VarAD[]): ad.Nary => ({
-  tag: "Nary",
-  op: "maxN",
-  params: xs,
-});
+export const maxN = nary("maxN");
 
 /**
  * Return `minN(xs)`.
  */
-export const minN = (xs: VarAD[]): ad.Nary => ({
-  tag: "Nary",
-  op: "minN",
-  params: xs,
-});
+export const minN = nary("minN");
 
 /**
  * Returns the two-argument arctangent `atan2(y, x)`, which
@@ -101,330 +70,189 @@ export const atan2 = (y: VarAD, x: VarAD): ad.Binary => ({
 });
 
 /**
- * Returns `pow(x,y)`.
+ * Returns `pow(v,w)`.
  */
-export const pow = (x: VarAD, y: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "pow",
-  left: x,
-  right: y,
-});
+export const pow = binary("pow");
 
 // --- Unary ops
+
+const unary = (unop: ad.Unary["unop"]) => (v: VarAD): ad.Unary => ({
+  tag: "Unary",
+  unop,
+  param: v,
+});
 
 /**
  * Return `-v`.
  */
-export const neg = (v: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "neg",
-  param: v,
-});
+export const neg = unary("neg");
 
 /**
  * Return `v * v`.
  */
-export const squared = (v: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "squared",
-  param: v,
-});
+export const squared = unary("squared");
 
 /**
  * Return `sqrt(v)`.
  */
-export const sqrt = (v: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "sqrt",
-  param: v,
-});
+export const sqrt = unary("sqrt");
 
 /**
  * Return `1 / v`.
  */
-export const inverse = (v: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "inverse",
-  param: v,
-});
+export const inverse = unary("inverse");
 
 /**
  * Return `|v|`.
  */
-export const absVal = (v: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "abs",
-  param: v,
-});
+export const absVal = unary("abs");
 
 /**
- * Return `acosh(x)`.
+ * Return `acosh(v)`.
  */
-export const acosh = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "acosh",
-  param: x,
-});
+export const acosh = unary("acosh");
 
 /**
- * Return `acos(x)`.
+ * Return `acos(v)`.
  */
-export const acos = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "acos",
-  param: x,
-});
+export const acos = unary("acos");
 
 /**
- * Return `asin(x)`.
+ * Return `asin(v)`.
  */
-export const asin = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "asin",
-  param: x,
-});
+export const asin = unary("asin");
 
 /**
- * Return `asinh(x)`.
+ * Return `asinh(v)`.
  */
-export const asinh = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "asinh",
-  param: x,
-});
+export const asinh = unary("asinh");
 
 /**
- * Return `atan(x)`.
+ * Return `atan(v)`.
  */
-export const atan = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "atan",
-  param: x,
-});
+export const atan = unary("atan");
 
 /**
- * Return `atanh(x)`.
+ * Return `atanh(v)`.
  */
-export const atanh = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "atanh",
-  param: x,
-});
+export const atanh = unary("atanh");
 
 /**
- * Return `cbrt(x)`.
+ * Return `cbrt(v)`.
  */
-export const cbrt = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "cbrt",
-  param: x,
-});
+export const cbrt = unary("cbrt");
 
 /**
- * Return `ceil(x)`.
+ * Return `ceil(v)`.
  */
-export const ceil = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "ceil",
-  param: x,
-});
+export const ceil = unary("ceil");
 
 /**
- * Return `cos(x)`.
+ * Return `cos(v)`.
  */
-export const cos = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "cos",
-  param: x,
-});
+export const cos = unary("cos");
 
 /**
- * Return `cosh(x)`.
+ * Return `cosh(v)`.
  */
-export const cosh = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "cosh",
-  param: x,
-});
+export const cosh = unary("cosh");
 
 /**
- * Return `exp(x)`.
+ * Return `exp(v)`.
  */
-export const exp = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "exp",
-  param: x,
-});
+export const exp = unary("exp");
 
 /**
- * Return `expm1(x)`.
+ * Return `expm1(v)`.
  */
-export const expm1 = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "expm1",
-  param: x,
-});
+export const expm1 = unary("expm1");
 
 /**
- * Return `floor(x)`.
+ * Return `floor(v)`.
  */
-export const floor = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "floor",
-  param: x,
-});
+export const floor = unary("floor");
 
 /**
  * Return the natural logarithm `ln(v)` (i.e., log base e).
  */
-export const ln = (v: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "log",
-  param: v,
-});
+export const ln = unary("log");
 
 /**
- * Return `log2(x)`.
+ * Return `log2(v)`.
  */
-export const log2 = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "log2",
-  param: x,
-});
+export const log2 = unary("log2");
 
 /**
- * Return `log10(x)`.
+ * Return `log10(v)`.
  */
-export const log10 = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "log10",
-  param: x,
-});
+export const log10 = unary("log10");
 
 /**
- * Return `log1p(x)`.
+ * Return `log1p(v)`.
  */
-export const log1p = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "log1p",
-  param: x,
-});
+export const log1p = unary("log1p");
 
 /**
- * Return `round(x)`.
+ * Return `round(v)`.
  */
-export const round = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "round",
-  param: x,
-});
+export const round = unary("round");
 
 /**
- * Return `sign(x)`.
+ * Return `sign(v)`.
  */
-export const sign = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "sign",
-  param: x,
-});
+export const sign = unary("sign");
 
 /**
- * Return `sin(x)`.
+ * Return `sin(v)`.
  */
-export const sin = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "sin",
-  param: x,
-});
+export const sin = unary("sin");
 
 /**
- * Return `sinh(x)`.
+ * Return `sinh(v)`.
  */
-export const sinh = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "sinh",
-  param: x,
-});
+export const sinh = unary("sinh");
 
 /**
- * Return `tan(x)`.
+ * Return `tan(v)`.
  */
-export const tan = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "tan",
-  param: x,
-});
+export const tan = unary("tan");
 
 /**
- * Return `tanh(x)`.
+ * Return `tanh(v)`.
  */
-export const tanh = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "tanh",
-  param: x,
-});
+export const tanh = unary("tanh");
 
 /**
- * Return `trunc(x)`.
+ * Return `trunc(v)`.
  */
-export const trunc = (x: VarAD): ad.Unary => ({
-  tag: "Unary",
-  unop: "trunc",
-  param: x,
-});
+export const trunc = unary("trunc");
 
 // ------- Discontinuous / noGrad ops
 
 /**
  * Return a conditional `v > w`.
  */
-export const gt = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: ">",
-  left: v,
-  right: w,
-});
+export const gt = binary(">");
 
 /**
  * Return a conditional `v < w`.
  */
-export const lt = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "<",
-  left: v,
-  right: w,
-});
+export const lt = binary("<");
 
 /**
  * Return a conditional `v == w`. (TODO: Maybe check if they are equal up to a tolerance?)
- * Note, the 1.0, 0.0 stuff is irrelevant, in the codegen they are boolean
  */
-export const eq = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "===",
-  left: v,
-  right: w,
-});
+export const eq = binary("===");
 
 /**
  * Return a boolean (number) `v && w`
  */
-export const and = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "&&",
-  left: v,
-  right: w,
-});
+export const and = binary("&&");
 
 /**
  * Return a boolean (number) `v || w`
  */
-export const or = (v: VarAD, w: VarAD): ad.Binary => ({
-  tag: "Binary",
-  binop: "||",
-  left: v,
-  right: w,
-});
+export const or = binary("||");
 
 /**
  * Return a conditional `if(cond) then v else w`.
