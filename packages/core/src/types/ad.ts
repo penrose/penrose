@@ -73,7 +73,6 @@ export interface UnaryNode {
     | "exp"
     | "expm1"
     | "floor"
-    | "ln"
     | "log"
     | "log2"
     | "log10"

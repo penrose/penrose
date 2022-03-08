@@ -279,7 +279,7 @@ export const floor = (x: VarAD): ad.Unary => ({
  */
 export const ln = (v: VarAD): ad.Unary => ({
   tag: "Unary",
-  unop: "ln",
+  unop: "log",
   param: v,
 });
 

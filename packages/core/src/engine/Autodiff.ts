@@ -473,7 +473,6 @@ const compileUnary = ({ unop }: ad.UnaryNode, param: string): string => {
     case "exp":
     case "expm1":
     case "floor":
-    case "ln":
     case "log":
     case "log2":
     case "log10":
