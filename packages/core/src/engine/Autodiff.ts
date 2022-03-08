@@ -589,8 +589,6 @@ export const genCode = ({ graph, outputs }: ad.Graph): ad.Compiled => {
     }
   }
   stmts.push(`return [${outputs.join(", ")}];`);
-  const foo = stmts.join("\n");
-  console.log(foo);
   // TODO: get rid of this typecast
-  return new Function("inputs", foo) as ad.Compiled;
+  return new Function("inputs", stmts.join("\n")) as ad.Compiled;
 };
