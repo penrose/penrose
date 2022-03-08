@@ -69,6 +69,9 @@ interface Child {
   name: ad.Edge;
 }
 
+const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
+const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
+
 const children = (x: VarAD): Child[] => {
   if (typeof x === "number") {
     return [];
@@ -94,7 +97,7 @@ const children = (x: VarAD): Child[] => {
       ];
     }
     case "Nary": {
-      return x.params.map((child, i) => ({ child, name: `${i}` }));
+      return x.params.map((child, i) => ({ child, name: indexToNaryEdge(i) }));
     }
     case "Debug": {
       return [{ child: x.node, name: undefined }];
@@ -104,7 +107,6 @@ const children = (x: VarAD): Child[] => {
 
 // make a graph node ID that could also be used as a JavaScript variable name
 const indexToID = (index: number) => `_${index}`;
-const idToIndex = (id: string): number => parseInt(id.slice(1), 10);
 
 export const makeGraph = (outputs: VarAD[]): ad.Graph => {
   const graph = new graphlib.Graph({ multigraph: true });
@@ -555,7 +557,8 @@ const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
     case "Nary": {
       const params = [];
       for (const [i, x] of preds.entries()) {
-        params[idToIndex(safe(i, "expected n-ary edge"))] = x;
+        // TODO: get rid of this typecast
+        params[naryEdgeToIndex(i as ad.NaryEdge)] = x;
       }
       return compileNary(node, params);
     }
