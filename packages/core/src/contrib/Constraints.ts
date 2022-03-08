@@ -10,9 +10,9 @@ import {
   overlappingAABBs,
   overlappingCircleLine,
   overlappingCircles,
+  overlappingPolygonEllipse,
   overlappingPolygons,
   overlappingRectlikeCircle,
-  overlappingPolygonEllipse,
 } from "contrib/ConstraintsUtils";
 import { bboxFromShape, shapeCenter, shapeSize } from "contrib/Queries";
 import { inRange, overlap1D } from "contrib/Utils";
