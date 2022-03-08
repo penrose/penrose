@@ -6,15 +6,26 @@ import * as ad from "types/ad";
 import { VarAD } from "types/ad";
 import { safe } from "utils/Util";
 import {
+  absVal,
   acos,
   add,
   atan2,
+  cbrt,
   cos,
+  cosh,
   div,
+  exp,
+  gt,
+  ifCond,
+  inverse,
+  ln,
+  lt,
   max,
   mul,
   neg,
+  pow,
   sin,
+  sinh,
   sqrt,
   squared,
   sub,
@@ -67,7 +78,135 @@ const makeNode = (x: VarAD): ad.Node => {
 interface Child {
   child: VarAD;
   name: ad.Edge;
+  sensitivity: VarAD | undefined;
 }
+
+const unarySensitivity = (z: ad.Unary): VarAD => {
+  const { unop, param: v } = z;
+  switch (unop) {
+    case "neg": {
+      return -1;
+    }
+    case "squared": {
+      return mul(2, v);
+    }
+    case "sqrt": {
+      return div(1, mul(2, max(EPS_DENOM, sqrt(v))));
+    }
+    case "inverse": {
+      return neg(inverse(add(squared(v), EPS_DENOM)));
+    }
+    case "abs": {
+      return div(v, add(absVal(v), EPS_DENOM));
+    }
+    case "acosh": {
+      return div(1, mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
+    }
+    case "acos": {
+      return neg(div(1, sqrt(sub(1, mul(v, v)))));
+    }
+    case "asin": {
+      return div(1, sqrt(sub(1, mul(v, v))));
+    }
+    case "asinh": {
+      return div(1, sqrt(add(1, mul(v, v))));
+    }
+    case "atan": {
+      return div(1, add(1, mul(v, v)));
+    }
+    case "atanh": {
+      return div(1, sub(1, mul(v, v)));
+    }
+    case "cbrt": {
+      return div(1, mul(3, squared(cbrt(v))));
+    }
+    case "ceil":
+    case "floor":
+    case "round":
+    case "sign":
+    case "trunc": {
+      return 0;
+    }
+    case "cos": {
+      return neg(sin(v));
+    }
+    case "cosh": {
+      return sinh(v);
+    }
+    case "exp":
+    case "expm1": {
+      return exp(v);
+    }
+    case "log": {
+      return div(1, v);
+    }
+    case "log2": {
+      return div(1, mul(v, 0.6931471805599453));
+    }
+    case "log10": {
+      return div(1, mul(v, 2.302585092994046));
+    }
+    case "log1p": {
+      return div(1, add(1, v));
+    }
+    case "sin": {
+      return cos(v);
+    }
+    case "sinh": {
+      return cosh(v);
+    }
+    case "tan": {
+      return squared(div(1, cos(v)));
+    }
+    case "tanh": {
+      return squared(div(1, cosh(v)));
+    }
+  }
+};
+
+const binarySensitivities = (
+  z: ad.Binary
+): { left: VarAD | undefined; right: VarAD | undefined } => {
+  const { binop, left: v, right: w } = z;
+  switch (binop) {
+    case "+": {
+      return { left: 1, right: 1 };
+    }
+    case "*": {
+      return { left: w, right: v };
+    }
+    case "-": {
+      return { left: 1, right: -1 };
+    }
+    case "/": {
+      return { left: div(1, w), right: neg(div(v, squared(w))) };
+    }
+    case "max": {
+      const cond = gt(v, w);
+      return { left: ifCond(cond, 1, 0), right: ifCond(cond, 0, 1) };
+    }
+    case "min": {
+      const cond = lt(v, w);
+      return { left: ifCond(cond, 1, 0), right: ifCond(cond, 0, 1) };
+    }
+    case "atan2": {
+      const y = v;
+      const x = w;
+      const denom = add(squared(x), squared(y));
+      return { left: div(x, denom), right: div(neg(y), denom) };
+    }
+    case "pow": {
+      return { left: mul(pow(v, sub(w, 1)), w), right: mul(pow(v, w), ln(v)) };
+    }
+    case ">":
+    case "<":
+    case "===":
+    case "&&":
+    case "||": {
+      return { left: undefined, right: undefined };
+    }
+  }
+};
 
 const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
 const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
@@ -81,26 +220,42 @@ const children = (x: VarAD): Child[] => {
       return [];
     }
     case "Unary": {
-      return [{ child: x.param, name: undefined }];
+      return [
+        { child: x.param, name: undefined, sensitivity: unarySensitivity(x) },
+      ];
     }
     case "Binary": {
+      const { left, right } = binarySensitivities(x);
       return [
-        { child: x.left, name: "left" },
-        { child: x.right, name: "right" },
+        { child: x.left, name: "left", sensitivity: left },
+        { child: x.right, name: "right", sensitivity: right },
       ];
     }
     case "Ternary": {
       return [
-        { child: x.cond, name: "cond" },
-        { child: x.then, name: "then" },
-        { child: x.els, name: "els" },
+        { child: x.cond, name: "cond", sensitivity: undefined },
+        { child: x.then, name: "then", sensitivity: ifCond(x.cond, 1, 0) },
+        { child: x.els, name: "els", sensitivity: ifCond(x.cond, 0, 1) },
       ];
     }
     case "Nary": {
-      return x.params.map((child, i) => ({ child, name: indexToNaryEdge(i) }));
+      return x.params.map((child, i) => {
+        const c = { child, name: indexToNaryEdge(i) };
+        switch (x.op) {
+          case "addN": {
+            return { ...c, sensitivity: 1 };
+          }
+          case "maxN": {
+            return { ...c, sensitivity: ifCond(lt(child, x), 0, 1) };
+          }
+          case "minN": {
+            return { ...c, sensitivity: ifCond(gt(child, x), 0, 1) };
+          }
+        }
+      });
     }
     case "Debug": {
-      return [{ child: x.node, name: undefined }];
+      return [{ child: x.node, name: undefined, sensitivity: 1 }];
     }
   }
 };
