@@ -127,7 +127,9 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
     case "cosh": {
       return sinh(v);
     }
-    case "exp":
+    case "exp": {
+      return z;
+    }
     case "expm1": {
       return exp(v);
     }
