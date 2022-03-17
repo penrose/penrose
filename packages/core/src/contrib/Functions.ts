@@ -1059,7 +1059,7 @@ export const compDict = {
   average2: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: div(add(x, y), 2.0),
+      contents: div(add(x, y), 2),
     };
   },
 
@@ -1069,7 +1069,7 @@ export const compDict = {
   average: (_context: Context, xs: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: div(addN(xs), max(1.0, xs.length)),
+      contents: div(addN(xs), max(1, xs.length)),
       // To avoid divide-by-0
     };
   },
