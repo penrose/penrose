@@ -1,5 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
+import { numOf } from "engine/Autodiff";
 import { mapValues } from "lodash";
 import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
@@ -52,7 +53,6 @@ import {
   Value,
 } from "types/value";
 import { showError } from "utils/Error";
-import { numOf } from "./Autodiff";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
