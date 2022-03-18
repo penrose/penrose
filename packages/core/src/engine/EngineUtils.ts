@@ -304,17 +304,27 @@ export function mapTranslation<T, S>(
   f: (arg: T) => S,
   trans: ITrans<T>
 ): ITrans<S> {
-  const newTrMap = Object.entries(trans.trMap).map(([name, fdict]) => {
-    const fdict2 = Object.entries(fdict).map(([prop, val]) => {
-      if (val.tag === "FExpr") {
-        return [prop, { tag: "FExpr", contents: mapTagExpr(f, val.contents) }];
-      } else if (val.tag === "FGPI") {
-        return [prop, { tag: "FGPI", contents: mapGPIExpr(f, val.contents) }];
-      } else {
-        console.log(prop, val);
-        throw Error("unknown tag on field expr");
+  const newTrMap: [string, { [k: string]: FieldExpr<S> }][] = Object.entries(
+    trans.trMap
+  ).map(([name, fdict]) => {
+    const fdict2: [string, FieldExpr<S>][] = Object.entries(fdict).map(
+      ([prop, val]): [string, FieldExpr<S>] => {
+        switch (val.tag) {
+          case "FExpr": {
+            return [
+              prop,
+              { tag: "FExpr", contents: mapTagExpr(f, val.contents) },
+            ];
+          }
+          case "FGPI": {
+            return [
+              prop,
+              { tag: "FGPI", contents: mapGPIExpr(f, val.contents) },
+            ];
+          }
+        }
       }
-    });
+    );
 
     return [name, Object.fromEntries(fdict2)];
   });
