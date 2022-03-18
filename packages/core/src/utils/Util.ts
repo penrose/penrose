@@ -65,7 +65,7 @@ export const zip3 = <T1, T2, T3>(
   a3: T3[]
 ): [T1, T2, T3][] => {
   const l = a1.length;
-  if (!(l === a2.length || l === a3.length)) {
+  if (l !== a2.length || l !== a3.length) {
     throw Error("expected same # elements in all three arrays");
   }
   const a: [T1, T2, T3][] = [];
