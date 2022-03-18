@@ -9,7 +9,7 @@ const config = {
   title: "Penrose",
   tagline:
     "Create beautiful diagrams just by typing math notation in plain text.",
-  url: "https://penrose.ink",
+  url: "https://penrose.cs.cmu.edu",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -56,6 +56,11 @@ const config = {
             docId: "ref/index",
             position: "left",
             label: "Documentation",
+          },
+          {
+            href: "pathname:///try/",
+            label: "Try Penrose",
+            position: "left",
           },
           {
             type: "doc",

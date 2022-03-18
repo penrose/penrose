@@ -22,7 +22,7 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button button--tertiary button--lg"
-            to="https://panes.penrose.ink"
+            to="pathname:///try/"
           >
             Try
           </Link>
@@ -63,6 +63,7 @@ export default function Home() {
     >
       <HomepageHeader />
       <main style={{ padding: "1em", width: "1000px", margin: "auto" }}>
+        {/* Temporarily commented out & will re-visit
         <h1>Example</h1>
         <p>Here's Penrose running in your browser:</p>
         <DemoWrapper
@@ -70,6 +71,7 @@ export default function Home() {
           examples={examples}
           width="400px"
         />
+        */}
       </main>
     </Layout>
   );
