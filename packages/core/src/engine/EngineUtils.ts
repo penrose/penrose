@@ -214,46 +214,40 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 // Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
 export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
-  const nonnumericValueTypes = [
-    "BoolV",
-    "StrV",
-    "ColorV",
-    "PaletteV",
-    "FileV",
-    "StyleV",
-    "IntV",
-  ];
-
-  if (v.tag === "FloatV") {
-    return mapFloat(f, v);
-  } else if (v.tag === "PtV") {
-    return mapPt(f, v);
-  } else if (v.tag === "PtListV") {
-    return mapPtList(f, v);
-  } else if (v.tag === "ListV") {
-    return mapList(f, v);
-  } else if (v.tag === "VectorV") {
-    return mapVector(f, v);
-  } else if (v.tag === "MatrixV") {
-    return mapMatrix(f, v);
-  } else if (v.tag === "TupV") {
-    return mapTup(f, v);
-  } else if (v.tag === "LListV") {
-    return mapLList(f, v);
-  } else if (v.tag === "HMatrixV") {
-    return mapHMatrix(f, v);
-  } else if (v.tag === "ColorV") {
-    return mapColor(f, v);
-  } else if (v.tag === "PaletteV") {
-    return mapPalette(f, v);
-  } else if (v.tag === "PathDataV") {
-    return mapPathData(f, v);
-  } else if (nonnumericValueTypes.includes(v.tag)) {
-    return v as Value<S>;
-  } else {
-    throw Error(
-      `unimplemented conversion from autodiff types for numeric types for value type '${v.tag}'`
-    );
+  switch (v.tag) {
+    case "FloatV":
+      return mapFloat(f, v);
+    case "PtV":
+      return mapPt(f, v);
+    case "PtListV":
+      return mapPtList(f, v);
+    case "ListV":
+      return mapList(f, v);
+    case "VectorV":
+      return mapVector(f, v);
+    case "MatrixV":
+      return mapMatrix(f, v);
+    case "TupV":
+      return mapTup(f, v);
+    case "LListV":
+      return mapLList(f, v);
+    case "HMatrixV":
+      return mapHMatrix(f, v);
+    case "ColorV":
+      return mapColor(f, v);
+    case "PaletteV":
+      return mapPalette(f, v);
+    case "PathDataV":
+      return mapPathData(f, v);
+    // non-numeric Value types
+    case "BoolV":
+    case "StrV":
+    case "ColorV":
+    case "PaletteV":
+    case "FileV":
+    case "StyleV":
+    case "IntV":
+      return v as Value<S>;
   }
 }
 
@@ -272,22 +266,21 @@ export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
 // (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
 
 export function mapTagExpr<T, S>(f: (arg: T) => S, e: TagExpr<T>): TagExpr<S> {
-  if (e.tag === "Done") {
-    return {
-      tag: "Done",
-      contents: mapValueNumeric(f, e.contents),
-    };
-  } else if (e.tag === "Pending") {
-    return {
-      tag: "Pending",
-      contents: mapValueNumeric(f, e.contents),
-    };
-  } else if (e.tag === "OptEval") {
-    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
-    // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
-    return e;
-  } else {
-    throw Error("unrecognized tag");
+  switch (e.tag) {
+    case "Done":
+      return {
+        tag: "Done",
+        contents: mapValueNumeric(f, e.contents),
+      };
+    case "Pending":
+      return {
+        tag: "Pending",
+        contents: mapValueNumeric(f, e.contents),
+      };
+    case "OptEval":
+      // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
+      // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
+      return e;
   }
 }
 
@@ -310,18 +303,16 @@ export function mapTranslation<T, S>(
     const fdict2: [string, FieldExpr<S>][] = Object.entries(fdict).map(
       ([prop, val]): [string, FieldExpr<S>] => {
         switch (val.tag) {
-          case "FExpr": {
+          case "FExpr":
             return [
               prop,
               { tag: "FExpr", contents: mapTagExpr(f, val.contents) },
             ];
-          }
-          case "FGPI": {
+          case "FGPI":
             return [
               prop,
               { tag: "FGPI", contents: mapGPIExpr(f, val.contents) },
             ];
-          }
         }
       }
     );
