@@ -28,12 +28,12 @@ export interface Input extends InputNode {
   // until we find a better solution, we need some escape hatch to allow those
   // few functions to access the initial values for their arguments at graph
   // construction time. The approach we ended up with is to store the initial
-  // values of just the `Input` nodes in the `value` field defined here, and
-  // when a function needs to compute the initial values of its arguments, it
-  // can compile them to JavaScript code and evaluate that with the initial
-  // values of those `Input`s. This is hacky, but that's understood: it should
-  // be used sparingly.
-  value: number;
+  // values of just the `Input` nodes in the `val` field defined here, and when
+  // a function needs to compute the initial values of its arguments, it can
+  // compile them to JavaScript code and evaluate that with the initial values
+  // of those `Input`s. This is hacky, but that's understood: it should be used
+  // sparingly.
+  val: number;
 }
 
 export interface Unary extends UnaryNode {
@@ -189,9 +189,9 @@ export type GradGraphs = IGradGraphs;
 
 export interface IGradGraphs {
   inputs: VarAD[];
-  energyOutput: VarAD;
-  // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
-  gradOutputs: VarAD[];
+  energyOutput: number; // index of energy in outputs
+  // map from each input name to the index of its partial derivative in outputs
+  gradOutputs: Map<string, number>;
   weight: VarAD | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }
 

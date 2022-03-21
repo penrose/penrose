@@ -2,7 +2,14 @@ import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
 import { objDict } from "contrib/Objectives";
 import eig from "eigen";
-import { energyAndGradCompiled, fns, ops } from "engine/Autodiff";
+import {
+  energyAndGradCompiled,
+  fns,
+  input,
+  makeADInputVars,
+  numOf,
+  ops,
+} from "engine/Autodiff";
 import {
   defaultLbfgsParams,
   initConstraintWeight,
@@ -20,6 +27,7 @@ import {
 import * as _ from "lodash";
 import rfdc from "rfdc";
 import seedrandom from "seedrandom";
+import * as ad from "types/ad";
 import { OptInfo, VarAD } from "types/ad";
 import { A } from "types/ast";
 import {
@@ -42,6 +50,7 @@ import {
   prettyPrintFns,
   prettyPrintPath,
   repeat,
+  safe,
   scalev,
   subv,
   zip2,
@@ -68,6 +77,8 @@ const weightGrowthFactor = 10;
 // weight for constraints
 const constraintWeight = 10e4; // HACK: constant constraint weight
 // const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
+
+const epWeightName = "epWeight";
 
 // EP method convergence criteria
 const epStop = 1e-3;
@@ -192,16 +203,17 @@ export const step = (
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
       if (true) {
-        const { objective, gradient } = state.params;
-        if (!objective || !gradient) {
+        const { objectiveAndGradient } = state.params;
+        if (!objectiveAndGradient) {
           return genOptProblem(rng, state);
         } else {
           return {
             ...state,
             params: {
               ...state.params,
-              currObjective: state.params.objective(initConstraintWeight),
-              currGradient: state.params.gradient(initConstraintWeight),
+              currObjectiveAndGradient: objectiveAndGradient(
+                initConstraintWeight
+              ),
               weight: initConstraintWeight,
               UOround: 0,
               EPround: 0,
@@ -221,8 +233,9 @@ export const step = (
           ...params,
           lastGradient: repeat(xs.length, 0),
           lastGradientPreconditioned: repeat(xs.length, 0),
-          currObjective: params.objective(initConstraintWeight),
-          currGradient: params.gradient(initConstraintWeight),
+          currObjectiveAndGradient: params.objectiveAndGradient(
+            initConstraintWeight
+          ),
           weight: initConstraintWeight,
           UOround: 0,
           EPround: 0,
@@ -240,8 +253,7 @@ export const step = (
 
       const res = minimize(
         xs,
-        state.params.currObjective,
-        state.params.currGradient,
+        state.params.currObjectiveAndGradient,
         state.params.lbfgsInfo,
         state.varyingPaths.map((p) => prettyPrintPath(p)),
         steps
@@ -333,8 +345,9 @@ export const step = (
         optParams.EPround = optParams.EPround + 1;
         optParams.UOround = 0;
 
-        optParams.currObjective = optParams.objective(optParams.weight);
-        optParams.currGradient = optParams.gradient(optParams.weight);
+        optParams.currObjectiveAndGradient = optParams.objectiveAndGradient(
+          optParams.weight
+        );
 
         log.info(
           "increased EP weight to",
@@ -386,8 +399,7 @@ export const step = (
 
 const awLineSearch2 = (
   xs0: number[],
-  f: (zs: number[]) => number,
-  gradf: (zs: number[]) => number[],
+  f: (zs: number[]) => { objective: number; gradient: number[] },
 
   gradfxs0: number[],
   fxs0: number,
@@ -397,7 +409,7 @@ const awLineSearch2 = (
 
   const duf = (u: number[]) => {
     return (zs: number[]) => {
-      return dot(u, gradf(zs));
+      return dot(u, f(zs).gradient);
     };
   };
 
@@ -414,8 +426,11 @@ const awLineSearch2 = (
 
   // Armijo condition
   // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
-  const armijo = (ti: number): boolean => {
-    const cond1 = f(addv(xs0, scalev(ti, descentDir)));
+  const armijo = (ti: number, objective: number): boolean => {
+    // take in objective instead of calling f here, because we compute objective
+    // and gradient at the same time and then pass them separately to armijo and
+    // wolfe
+    const cond1 = objective;
     const cond2 = fxs0 + c1 * ti * dufAtx0;
     return cond1 <= cond2;
   };
@@ -426,16 +441,19 @@ const awLineSearch2 = (
 
   // Strong Wolfe condition
   // |<grad(f)(x0 + t * descentDir), u>| <= c2 * |<grad f(x0), u>|
-  const strongWolfe = (ti: number) => {
-    const cond1 = Math.abs(dufDescent(addv(xs0, scalev(ti, descentDir))));
+  const strongWolfe = (ti: number, gradient: number[]) => {
+    const cond1 = Math.abs(dot(descentDir, gradient));
     const cond2 = c2 * Math.abs(dufAtx0);
     return cond1 <= cond2;
   };
 
   // Weak Wolfe condition
   // <grad(f)(x0 + t * descentDir), u> >= c2 * <grad f(x0), u>
-  const weakWolfe = (ti: number) => {
-    const cond1 = dufDescent(addv(xs0, scalev(ti, descentDir)));
+  const weakWolfe = (ti: number, gradient: number[]) => {
+    // take in gradient instead of calling dufDescent here, because we compute
+    // objective and gradient at the same time and then pass them separately to
+    // armijo and wolfe
+    const cond1 = dot(descentDir, gradient);
     const cond2 = c2 * dufAtx0;
     return cond1 >= cond2;
   };
@@ -484,8 +502,9 @@ const awLineSearch2 = (
       break;
     }
 
-    const isArmijo = armijo(t);
-    const isWolfe = wolfe(t);
+    const { objective, gradient } = f(addv(xs0, scalev(t, descentDir)));
+    const isArmijo = armijo(t, objective);
+    const isWolfe = wolfe(t, gradient);
     if (DEBUG_LINE_SEARCH) {
       log.info("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
     }
@@ -746,8 +765,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
 
 const minimize = (
   xs0: number[],
-  f: (zs: number[]) => number,
-  gradf: (zs: number[]) => number[],
+  f: (zs: number[]) => { objective: number; gradient: number[] },
   lbfgsInfo: LbfgsParams,
   varyingPaths: string[],
   numSteps: number
@@ -776,8 +794,7 @@ const minimize = (
       log.info("xs", xs);
       throw Error("NaN in xs");
     }
-    fxs = f(xs);
-    gradfxs = gradf(xs);
+    ({ objective: fxs, gradient: gradfxs } = f(xs));
     if (containsNaN(gradfxs)) {
       log.info("gradfxs", gradfxs);
       throw Error("NaN in gradfxs");
@@ -807,7 +824,7 @@ const minimize = (
     }
 
     if (USE_LINE_SEARCH) {
-      t = awLineSearch2(xs, f, gradf, gradfxsPreconditioned, fxs); // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
+      t = awLineSearch2(xs, f, gradfxsPreconditioned, fxs); // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
     }
 
     const normGrad = normList(gradfxs);
@@ -872,8 +889,12 @@ const minimize = (
  * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
  */
 export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
-  // TODO: types
-  return (...xsVars: VarAD[]): any => {
+  return (
+    ...xsVars: VarAD[]
+  ): {
+    energyGraph: VarAD;
+    epWeightNode: ad.Input;
+  } => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
@@ -907,18 +928,14 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     }
 
     // This is fixed during the whole optimization
-    const constrWeightNode = varOf(
-      constraintWeight,
-      String(constraintWeight),
-      "constraintWeight"
-    );
+    const constrWeightNode: VarAD = constraintWeight;
 
     // This changes with the EP round, gets bigger to weight the constraints
-    // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight (-1 is an index; means it appears as the first argument)
-    const epWeightNode = markInput(
-      varOf(state.params.weight, String(state.params.weight), "epWeight"),
-      -1
-    );
+    // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
+    const epWeightNode = input({
+      name: epWeightName,
+      val: state.params.weight,
+    });
 
     const objEng: VarAD = ops.vsum(objEngs);
     const constrEng: VarAD = ops.vsum(constrEngs);
@@ -929,14 +946,9 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     );
 
     // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    overallEng.gradVal = 1.0;
-    log.info("overall eng from custom AD", overallEng, overallEng.val);
+    log.info("overall eng from custom AD", overallEng, numOf(overallEng));
 
-    return {
-      energyGraph: overallEng,
-      constrWeightNode,
-      epWeightNode,
-    };
+    return { energyGraph: overallEng, epWeightNode };
   };
 };
 
@@ -953,27 +965,45 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   // When applied, it will interpret the energy via lookups on the computational graph
   // TODO: Could save the interpreted energy graph across amples
   const overallObjective = evalEnergyOnCustom(rng, state);
-  const xsVars: VarAD[] = makeADInputVars(xs);
+  const xsVars: ad.Input[] = makeADInputVars(xs);
   const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
   // `energyGraph` is a VarAD that is a handle to the top of the graph
 
   log.info("interpreted energy graph", res.energyGraph);
   log.info("input vars", xsVars);
 
-  const weightInfo = {
+  const weightInfo: WeightInfo = {
     // TODO: factor out
-    constrWeightNode: res.constrWeightNode,
     epWeightNode: res.epWeightNode,
-    constrWeight: constraintWeight,
     epWeight: initConstraintWeight,
   };
 
-  const { graphs, f, gradf } = energyAndGradCompiled(
+  const { graphs, f } = energyAndGradCompiled(
     xs,
     xsVars,
     res.energyGraph,
     weightInfo
   );
+
+  const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
+    const inputs = new Map([[epWeightName, epWeight]]);
+    for (const [{ name }, x] of zip2(xsVars, xs)) {
+      inputs.set(name, x);
+    }
+    const outputs = f(inputs);
+    return {
+      objective: outputs[graphs.energyOutput],
+      gradient: xsVars.map(
+        ({ name }) =>
+          outputs[
+            safe(
+              graphs.gradOutputs.get(name),
+              `missing partial derivative for input ${name}`
+            )
+          ]
+      ),
+    };
+  };
 
   eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
 
@@ -985,16 +1015,13 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     lastGradientPreconditioned: repeat(xs.length, 0),
 
     graphs,
-    objective: f,
-    gradient: gradf,
+    objectiveAndGradient,
 
     functionsCompiled: true,
 
-    currObjective: f(initConstraintWeight),
-    currGradient: gradf(initConstraintWeight),
+    currObjectiveAndGradient: objectiveAndGradient(initConstraintWeight),
 
     energyGraph: res.energyGraph,
-    constrWeightNode: res.constrWeightNode,
     epWeightNode: res.epWeightNode,
     weight: initConstraintWeight,
     UOround: 0,
@@ -1037,12 +1064,12 @@ const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
   const xs: number[] = clone(s.varyingValues);
 
   const overallObjective = evalFnOn(rng, fn, s);
-  const xsVars: VarAD[] = makeADInputVars(xs);
+  const xsVars: ad.Input[] = makeADInputVars(xs);
   const energyGraph: VarAD = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
 
   const weightInfo: WeightInfo | undefined = undefined;
 
-  const { graphs, f, gradf } = energyAndGradCompiled(
+  const { graphs, f } = energyAndGradCompiled(
     xs,
     xsVars,
     energyGraph,
@@ -1050,7 +1077,25 @@ const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
   );
 
   // Note this throws away the energy/gradient graphs (`VarAD`s). Presumably not needed?
-  return { f, gradf };
+  return (xs: number[]) => {
+    const inputs = new Map<string, number>();
+    for (const [{ name }, x] of zip2(xsVars, xs)) {
+      inputs.set(name, x);
+    }
+    const outputs = f(inputs);
+    return {
+      objective: outputs[graphs.energyOutput],
+      gradient: xsVars.map(
+        ({ name }) =>
+          outputs[
+            safe(
+              graphs.gradOutputs.get(name),
+              `missing partial derivative for input ${name}`
+            )
+          ]
+      ),
+    };
+  };
 };
 
 // For each objective and constraint, precompile it and its gradient and cache it in the state.

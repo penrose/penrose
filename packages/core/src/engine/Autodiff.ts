@@ -3,7 +3,8 @@ import consola, { LogLevel } from "consola";
 import * as graphlib from "graphlib";
 import * as _ from "lodash";
 import * as ad from "types/ad";
-import { VarAD } from "types/ad";
+import { GradGraphs, VarAD } from "types/ad";
+import { WeightInfo } from "types/state";
 import { safe } from "utils/Util";
 import {
   acos,
@@ -37,7 +38,42 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-export const input = (name: string): ad.Input => ({ tag: "Input", name });
+export const numOf = (x: VarAD): number => {
+  if (typeof x === "number") {
+    return x;
+  }
+  const { tag } = x;
+  switch (tag) {
+    case "Input": {
+      return x.val;
+    }
+    case "Unary":
+    case "Binary":
+    case "Ternary":
+    case "Nary": {
+      throw Error("TODO");
+    }
+    case "Debug": {
+      return numOf(x.node);
+    }
+  }
+};
+
+export const input = ({
+  name,
+  val,
+}: {
+  name: string;
+  val: number;
+}): ad.Input => ({
+  tag: "Input",
+  name,
+  val,
+});
+
+export const makeADInputVars = (xs: number[]): ad.Input[] =>
+  // TODO: is this naming scheme OK?
+  xs.map((x, i) => input({ name: `${i}`, val: x }));
 
 // every VarAD is already an ad.Node, but this function removes all the children
 const makeNode = (x: VarAD): ad.Node => {
@@ -750,4 +786,56 @@ export const genCode = ({ graph, outputs }: ad.Graph): ad.Compiled => {
   stmts.push(`return [${outputs.join(", ")}];`);
   const f = new Function("inputs", stmts.join("\n"));
   return (inputs) => f(inputs);
+};
+
+// Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)
+// NOTE: the xsVars should already have been set as inputs via makeAdInputVars
+// NOTE: implicitly, the orders of the values need to match the order of variables
+const setInputs = (xsVars: ad.Input[], xs: number[]) => {
+  xsVars.forEach((v, i) => {
+    v.val = xs[i];
+  });
+};
+
+const setWeights = (info: WeightInfo) => {
+  info.epWeightNode.val = info.epWeight;
+};
+
+// Given an energyGraph of f, returns the compiled energy and gradient of f as functions
+// xsVars are the leaves, energyGraph is the topmost parent of the computational graph
+export const energyAndGradCompiled = (
+  xs: number[],
+  xsVars: ad.Input[],
+  energyGraph: VarAD,
+  weightInfo: WeightInfo | undefined
+): { graphs: GradGraphs; f: ad.Compiled } => {
+  // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
+  if (weightInfo !== undefined) {
+    setWeights(weightInfo);
+  }
+
+  // Set the leaves of the graph to have the new input values
+  setInputs(xsVars, xs);
+
+  // Build an actual graph from the implicit VarAD structure
+  const explicitGraph = makeGraph([energyGraph]);
+
+  // Build symbolic gradient of f at xs on the energy graph
+  const energyOutput = 0; // We only have one output, index 0
+  const gradOutputs = addGradient(explicitGraph, energyOutput);
+
+  const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
+
+  const graphs: GradGraphs = {
+    inputs: xsVars,
+    energyOutput,
+    gradOutputs,
+    weight: epWeightNode,
+  };
+
+  // Synthesize energy and gradient code
+  const f = genCode(explicitGraph);
+
+  // Return the energy and grad on the input, as well as updated energy graph
+  return { graphs, f };
 };
