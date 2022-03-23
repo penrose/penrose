@@ -18,7 +18,7 @@ import {
 
 async function fetchRegistry(): Promise<any> {
   const res = await fetch(
-    "https://raw.githubusercontent.com/penrose/penrose/main/examples/registry.json"
+    "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/registry.json"
   );
   if (res.ok) {
     return await res.json();
