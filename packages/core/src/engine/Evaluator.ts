@@ -955,6 +955,11 @@ export const evalBinOp = (
     }
 
     return { tag: "VectorV", contents: res as VarAD[] };
+  } else if (v1.tag === "StrV" && v2.tag === "StrV") {
+    switch (op) {
+      case "BPlus":
+        return { tag: "StrV", contents: v1.contents + v2.contents };
+    }
   } else {
     throw new Error(
       `the types of two operands to ${op} are not supported: ${v1.tag}, ${v2.tag}`
