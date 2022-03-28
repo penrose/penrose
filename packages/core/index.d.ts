@@ -1,4 +1,9 @@
 declare module "eigen" {
+  // these types are already present in the Eigen.js repository on GitHub, but
+  // we need to have them here until a new a new version of that library is
+  // published to npm; see this comment:
+  // https://github.com/BertrandBev/eigen-js/pull/37#issuecomment-1058446844
+
   import HashMap from "hashmap";
 
   declare namespace eig {
