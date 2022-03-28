@@ -4862,6 +4862,11 @@
   resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.8.tgz#9edd607e4b863a33b8b78cb08385c0be6896008a"
   integrity sha512-8nbbyD3zABRA9ePoBgAl2ym8cIwKQXTfv1gaIRTdY99yEOCaHfmjBeRp+BIemS8NtOqoWK7mfzWxjNrxLK3T5w==
 
+"@types/hashmap@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@types/hashmap/-/hashmap-2.3.1.tgz#c11029383a1ae22ea609b48bc425044025515125"
+  integrity sha512-BEi/E4mDlkmqzljUy4y035Qc2Q+DhIN6zevuyCtTjCHpEebMG5ahXSyzqNtQ7yFmR0c4L3li88f3cvU9YjzzcQ==
+
 "@types/hast@^2.0.0":
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/@types/hast/-/hast-2.3.4.tgz#8aa5ef92c117d20d974a82bdfb6a648b08c0bafc"
