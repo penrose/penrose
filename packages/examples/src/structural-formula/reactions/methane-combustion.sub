@@ -1,0 +1,70 @@
+AutoLabel All
+
+-- combustion reaction, expressed via structural-formula DSL
+
+Reaction combustion
+Label combustion "Methane Combustion Reaction"
+IsNetForward( combustion )
+
+-- reactants: CH4 + 2O2 ====================================
+Carbon C1
+Hydrogen H1, H2, H3, H4
+Oxygen O1, O2, O3, O4
+
+Molecule methane
+Label methane $\text{methane}\ (\mathrm{CH}_4)$
+Contains( methane, C1 )
+Contains( methane, H1 )
+Contains( methane, H2 )
+Contains( methane, H3 )
+Contains( methane, H4 )
+SingleBond( C1, H1 )
+SingleBond( C1, H2 )
+SingleBond( C1, H3 )
+SingleBond( C1, H4 )
+
+Molecule oxygen1, oxygen2
+Label oxygen1 $\text{oxygen}\ (\mathrm{O}_2)$
+Label oxygen2 $\text{oxygen}\ (\mathrm{O}_2)$
+Contains( oxygen1, O1 )
+Contains( oxygen1, O2 )
+DoubleBond( O1, O2 )
+Contains( oxygen2, O3 )
+Contains( oxygen2, O4 )
+DoubleBond( O3, O4 )
+
+IsReactant( methane )
+IsReactant( oxygen1 )
+IsReactant( oxygen2 )
+
+-- products: CO2 + 2H20 ====================================
+Carbon C2
+Hydrogen H5, H6, H7, H8
+Oxygen O5, O6, O7, O8
+
+Molecule carbonDioxide
+Label carbonDioxide $\text{carbon dioxide}\ (\mathrm{CO}_2)$
+Contains( carbonDioxide, C2 )
+Contains( carbonDioxide, O5 )
+Contains( carbonDioxide, O6 )
+DoubleBond( C2, O5 )
+DoubleBond( C2, O6 )
+
+Molecule water1, water2
+Label water1 $\text{water}\ (\mathrm{H}_2\mathrm{O})$
+Label water2 $\text{water}\ (\mathrm{H}_2\mathrm{O})$
+Contains( water1, O7 )
+Contains( water1, H5 )
+Contains( water1, H6 )
+SingleBond( O7, H5 )
+SingleBond( O7, H6 )
+Contains( water2, O8 )
+Contains( water2, H7 )
+Contains( water2, H8 )
+SingleBond( O8, H7 )
+SingleBond( O8, H8 )
+
+IsProduct( carbonDioxide )
+IsProduct( water1 )
+IsProduct( water2 )
+

@@ -1,5 +1,5 @@
 {
-  "name": "synthesizer-ui",
+  "name": "@penrose/synthesizer-ui",
   "private": true,
   "version": "0.0.0",
   "scripts": {

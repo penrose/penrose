@@ -1,9 +1,0 @@
-HyperbolicPlane H
-IdealPoint p, q
-Horocycle g, h
-
-p ∈ H
-q ∈ H
-
-IsCenter( p, g )
-IsCenter( q, h )

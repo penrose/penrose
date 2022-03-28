@@ -1,7 +1,0 @@
-VectorSpace V
-Vector u 
-Vector v 
-In(u, V)
-In(v, V)
-Dependent(u, v)
-AutoLabel All

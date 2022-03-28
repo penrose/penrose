@@ -1,0 +1,60 @@
+-- GOAL: Get a single point disjoint fron an interval where both are aligned in 1D.
+
+canvas {
+  width = 800
+  height = 700
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = none()
+}
+
+global {
+}
+
+Vertex V {
+}
+
+-- Point with DOF or not
+Vertex `v1` {
+       `v1`.val = ?
+       -- `v1`.val = 0.
+       `v1`.shape = Circle {
+                  r: 10.
+                  center: (`v1`.val, 0.)
+                  fillColor: Colors.red
+       }
+}
+
+Vertex `v2` {
+       len = 300.
+       -- With an additional DOF, tends to repel both
+       `v2`.center = ?
+       -- `v2`.center = 0.
+       `v2`.left = -len/2. + `v2`.center
+       `v2`.right = len/2. + `v2`.center
+
+       `v2`.shape = Line {
+                  start: (`v2`.left, 0.)
+                  end: (`v2`.right, 0.)
+                  strokeWidth: 10.
+                  strokeColor: rgba(0.5, 0.5, 0.5, 0.5)
+       }
+}
+
+-- Point-line
+Vertex `v1`; Vertex `v2` {
+       ensure disjointScalar(`v1`.val, `v2`.left, `v2`.right)
+}

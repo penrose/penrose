@@ -1,0 +1,3 @@
+Set A, B
+IsSubset(B, A)
+AutoLabel All 

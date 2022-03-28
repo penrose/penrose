@@ -1,8 +1,0 @@
-VectorSpace V
-Vector u 
-In(u, V)
-Vector v 
-In(v, V)
-Unit(u)
-Orthogonal(v, u)
-AutoLabel All

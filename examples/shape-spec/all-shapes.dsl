@@ -1,9 +1,0 @@
-type TCircle 
-type TEllipse
-type TRectangle
-type TPolygon
-type TPolyline
-type TImage
-type TEquation
-type TLine
-type TPath

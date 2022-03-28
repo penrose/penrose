@@ -1,0 +1,5 @@
+Point A, B, C, D
+Triangle ABC := MkTriangle(A, B, C)
+Segment BD := MkSegment(B, D)
+Collinear(A, D, C)
+AutoLabel All

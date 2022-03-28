@@ -1,2 +1,0 @@
-type Text
-type Point

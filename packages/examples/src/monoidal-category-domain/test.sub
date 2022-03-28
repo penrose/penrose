@@ -1,0 +1,58 @@
+-- (1)
+
+-- Object A, B, C
+-- C := tensor(A, B)
+
+-- (2)
+
+-- Object A
+-- Object B
+-- Morphism F := join(A, B)
+
+-- (3)
+
+-- Object A, B, C, D
+-- C := tensor(A, B)
+-- Morphism F := join(C, D)
+
+-- AutoLabel All
+
+------
+
+-- (4)
+
+Object A, B, C , D
+Object E, F
+
+Object ab := tensor(A, B)
+Object abc := tensor(ab, C)
+Morphism F2 := join(abc, D)
+
+Object de := tensor(D, E)
+Morphism G := join(de, F)
+
+-- TODO: Might need a plugin. Is there any way to naturally state this in the math, anyway?
+ChildOf(A, F2)
+ChildOf(B, F2)
+ChildOf(C, F2)
+
+ChildOf(D, G)
+ChildOf(E, G)
+
+NotChildOf(E, F2)
+-- OutputOf(E, F2)
+-- Presumably you would generate these by analyzing the "chain"? What would be the right thing to state here?
+
+AutoLabel All
+Label F2 $F^2$
+Label G $G$
+
+-- Even this simple example freezes up when the Object initially intersects the Morphism
+-- Anything more complicated makes things crash for me
+
+------
+
+-- Object A
+-- Morphism F
+
+-- AutoLabel All

@@ -1,0 +1,30 @@
+-- glucose molecule, expressed via structural-formula DSL
+Oxygen O1
+Hydrogen H1, H2, H3, H4
+Carbon C1, C2, C3, C4, C5
+FunctionalGroup hydroxy_anion1, hydroxy_anion2, hydroxy_anion3
+FunctionalGroup hydroxy_cation
+FunctionalGroup hydroxy_methyl
+
+SingleBond(hydroxy_methyl, C1)
+SingleBond(C1, O1)
+SingleBond(C1, C2)
+SingleBond(C2, C3)
+SingleBond(C3, C4)
+SingleBond(C4, C5)
+SingleBond(C5, O1)
+SingleBond(C2, H1)
+SingleBond(C2, hydroxy_cation)
+SingleBond(C3, hydroxy_anion1)
+SingleBond(C3, H2)
+SingleBond(C4, H3)
+SingleBond(C4, hydroxy_anion2)
+SingleBond(C5, H4)
+SingleBond(C5, hydroxy_anion3)
+
+AutoLabel All
+Label hydroxy_cation $\mathrm{HO}$
+Label hydroxy_anion1 $\mathrm{OH}$
+Label hydroxy_anion2 $\mathrm{OH}$
+Label hydroxy_anion3 $\mathrm{OH}$
+Label hydroxy_methyl $\mathrm{CH}_2\mathrm{OH}$

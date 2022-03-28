@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" focusable="false" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" width="240px" height="72.21035px" viewBox="0 0 240 72.21035" style="enable-background:new 0 0 240 72.21035;"
+	 xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FDF4DA;}
+	.st1{fill:#0F638F;}
+	.st2{fill:#FBC22B;}
+	.st3{stroke:#FDF4DA;stroke-width:0.746277;}
+	.st4{fill:#D52A22;}
+	.st5{fill-opacity:0;}
+	.st6{fill:none;stroke:#0F638F;stroke-width:0.746277;stroke-dasharray:1.3059849,0.9328463;}
+	.st7{stroke:#FBC22B;stroke-width:0.746277;}
+	.st8{stroke:#D52A22;stroke-width:0.746277;}
+	.st9{fill:none;stroke:#000000;stroke-width:0.746277;stroke-dasharray:1.3059849,0.9328463;}
+	.st10{fill-opacity:0;stroke:#000000;stroke-width:0.746277;stroke-opacity:0;stroke-dasharray:1.3059849,0.9328463;}
+	.st11{fill:none;stroke:#D52A22;stroke-width:0.746277;stroke-dasharray:1.3059849,0.9328463;}
+	.st12{stroke:#000000;stroke-width:0.746277;}
+	.st13{fill-opacity:0;stroke:#000000;stroke-width:0.746277;stroke-opacity:0;}
+	.st14{stroke:#0F638F;stroke-width:0.746277;}
+</style>
+<desc>
+	This diagram was created with Penrose (https://penrose.ink) on 2020-01-16. If you have any suggestions on making this diagram more accessible, please contact us.
+	</desc>
+<g>
+	<g transform="translate(0,0)">
+		<rect x="121.7507782" y="0.3095647" class="st0" width="57.8230362" height="71.9007874">
+		<title>const.plane</title>
+		</rect>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st1" d="M135.7367554,38.1801376h29.8510742v29.8510818h-29.8510742V38.1801376z			">
+<title>CBDE.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st2" d="M135.7367554,38.1801376h5.5970764v29.8510818h-5.5970764V38.1801376z			">
+<title>CKLE.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st1" d="M165.5878296,38.1801376v29.8510818h-24.2539978V38.1801376H165.5878296z			"
+				>
+<title>BDLK.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st3" d="M165.5878296,68.0312195V38.1801376			">
+<title>DB.shape2</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st4" d="M165.5878296,38.1801376l-24.2539978-11.6536484L152.9874725,2.272486
+				l24.2539978,11.6536493L165.5878296,38.1801376z			">
+<title>BAGF.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st3" d="M165.5878296,38.1801376l11.6536407-24.2540016			">
+<title>BF.shape2</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st3" d="M141.3338318,26.5264893v41.5047302			">
+<title>AL.shape2</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" d="M141.3338318,26.5264893l-5.5970764,11.6536484l-11.6536484-5.5970764
+				l5.5970688-11.6536503L141.3338318,26.5264893z			">
+<title>ACIH.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st5" d="M141.3338318,26.5264893l24.2539978,11.6536484h-29.8510742
+				L141.3338318,26.5264893z			">
+<title>ABC.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st2" d="M165.5878296,38.1801376h-5.5970764l0.0156555,0.4182739l0.0468597,0.4159317
+				l0.0778198,0.4112625l0.1083374,0.4043007l0.1382294,0.3950729l0.1673889,0.3836403l0.1955719,0.3700562l0.2226868,0.3544083
+				l0.2485504,0.3367729l0.2730408,0.3172607l0.2959595,0.2959671l0.3172607,0.2730255l0.3367767,0.2485504l0.3544006,0.2226906
+				l0.3700562,0.1955757l0.3836365,0.1673813l0.3950806,0.1382446l0.4042969,0.1083298l0.4112701,0.077816l0.4159241,0.0468636
+				l0.4182739,0.0156517V38.1801376z			">
+<title>CBD.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" d="M165.5878296,38.1801376h-5.5970764l0.0012817-0.1193733l0.0038147-0.1193161
+				l0.0063629-0.1192055l0.0088959-0.1190491l0.0114441-0.1188316l0.0139771-0.1185608l0.0164948-0.1182289l0.0190125-0.1178551
+				l0.0215302-0.1174202l0.0240173-0.1169357l0.0265198-0.1164017l0.0289917-0.1158028l0.0314484-0.1151619l0.033905-0.1144638
+				l0.0363312-0.1137123l0.0387573-0.1129189l0.0411377-0.1120605l0.0435333-0.1111565l0.0458984-0.1102066l0.048233-0.1092033
+				l0.0505524-0.1081467L165.5878296,38.1801376z			">
+<title>CBA.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st2" d="M165.5878296,38.1801376l2.4240112-5.0449409l-0.3837891-0.1670418
+				l-0.3951874-0.1378937l-0.4044037-0.107975l-0.4113312-0.0774498l-0.4159698-0.0464935l-0.4182892-0.0152817
+				l-0.4182587,0.0160217l-0.4158783,0.0472336l-0.4111938,0.0781784l-0.4042053,0.1086922l-0.3949585,0.138588
+				l-0.3834991,0.1677246l-0.369873,0.1959076l-0.3542175,0.2230034l-0.3365479,0.2488518l-0.3170166,0.2733002
+				l-0.2957001,0.2962341l-0.2727509,0.3175011l-0.2482452,0.3369942l-0.2223816,0.3546066l-0.1952515,0.3702278
+				L165.5878296,38.1801376z			">
+<title>FBA.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st5" d="M143.5199738,27.5768909l-1.0500641,2.1863136l-2.186142-1.0504036
+				l1.0500641-2.1863117L143.5199738,27.5768909z			">
+<title>CAB.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st6" d="M165.5878296,38.1801376l11.6536407-24.2540016			">
+<title>BF.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st7" d="M135.7367554,38.1801376l5.5970764-11.6536484			">
+<title>CA.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st8" d="M165.5878296,38.1801376h-29.8510742			">
+<title>BC.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st9" d="M141.3338318,26.5264893v41.5047302			">
+<title>AL.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st10" d="M141.3338318,38.1801376v29.8510818			">
+<title>KL.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st11" d="M165.5878296,68.0312195V38.1801376			">
+<title>DB.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st12" d="M141.3338318,26.5264893l24.2539978,41.5047302			">
+<title>AD.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st13" d="M165.5878296,68.0312195h-29.8510742			">
+<title>DE.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="141.3338318,38.1801376 141.3338318,38.1801376 141.3338318,38.1801376 141.3338318,38.1801376 		">
+		<title>K.shape</title>
+		<desc>Circle representing K.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="124.083107,32.5830612 124.083107,32.5830612 124.083107,32.5830612 124.083107,32.5830612 		">
+		<title>I.shape</title>
+		<desc>Circle representing I.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="129.6801758,20.9294109 129.6801758,20.9294109 129.6801758,20.9294109 129.6801758,20.9294109 		">
+		<title>H.shape</title>
+		<desc>Circle representing H.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="152.9874725,2.272486 152.9874725,2.272486 152.9874725,2.272486 152.9874725,2.272486 		">
+		<title>G.shape</title>
+		<desc>Circle representing G.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="135.7367554,68.0312195 135.7367554,68.0312195 135.7367554,68.0312195 135.7367554,68.0312195 		">
+		<title>E.shape</title>
+		<desc>Circle representing E.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="165.5878296,68.0312195 165.5878296,68.0312195 165.5878296,68.0312195 165.5878296,68.0312195 		">
+		<title>D.shape</title>
+		<desc>Circle representing D.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="141.3338318,68.0312195 141.3338318,68.0312195 141.3338318,68.0312195 141.3338318,68.0312195 		">
+		<title>L.shape</title>
+		<desc>Circle representing L.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st14" d="M141.3338318,26.5264893l24.2539978,11.6536484			">
+<title>AB.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<g>
+			<path marker-start="" marker-end="" class="st12" d="M135.7367554,38.1801376l41.504715-24.2540016			">
+<title>CF.shape</title>
+			</path>
+		</g>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="177.2414703,13.9261351 177.2414703,13.9261351 177.2414703,13.9261351 177.2414703,13.9261351 		">
+		<title>F.shape</title>
+		<desc>Circle representing F.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="135.7367554,38.1801376 135.7367554,38.1801376 135.7367554,38.1801376 135.7367554,38.1801376 		">
+		<title>C.shape</title>
+		<desc>Circle representing C.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="165.5878296,38.1801376 165.5878296,38.1801376 165.5878296,38.1801376 165.5878296,38.1801376 		">
+		<title>B.shape</title>
+		<desc>Circle representing B.shape</desc>
+		</polygon>
+	</g>
+	<g transform="translate(0,0)">
+		<polygon points="141.3338318,26.5264893 141.3338318,26.5264893 141.3338318,26.5264893 141.3338318,26.5264893 		">
+		<title>A.shape</title>
+		<desc>Circle representing A.shape</desc>
+		</polygon>
+	</g>
+	<g>
+		<g transform="translate(0,0)">
+			<rect x="0.3117312" class="st0" width="57.8230362" height="71.9007874">
+			<title>const.plane</title>
+			</rect>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(575,175)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st5" d="M19.8947868,26.5924606l24.2540016,11.6512527H14.2977085
+					L19.8947868,26.5924606z				">
+<title>ABC.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st5" d="M22.0810146,27.6426926l-1.0502319,2.1862259l-2.1862221-1.0502319
+					l1.0502262-2.1862259L22.0810146,27.6426926z				">
+<title>CAB.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st7" d="M14.2977085,38.2437134l5.5970783-11.6512527				">
+<title>CA.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st8" d="M44.1487885,38.2437134H14.2977085				">
+<title>BC.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(322.132132066627,59.10993993521305)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="14.2977085,38.2437134 14.2977085,38.2437134 14.2977085,38.2437134 14.2977085,38.2437134 			">
+			<title>C.shape</title>
+			<desc>Circle representing C.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(269.6909692119074,594.2155709833523)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st14" d="M19.8947868,26.5924606l24.2540016,11.6512527				">
+<title>AB.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="44.1487885,38.2437134 44.1487885,38.2437134 44.1487885,38.2437134 44.1487885,38.2437134 			">
+			<title>B.shape</title>
+			<desc>Circle representing B.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(753.9323542247873,615.2159986293036)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="19.8947868,26.5924606 19.8947868,26.5924606 19.8947868,26.5924606 19.8947868,26.5924606 			">
+			<title>A.shape</title>
+			<desc>Circle representing A.shape</desc>
+			</polygon>
+		</g>
+	</g>
+	<g>
+		<g transform="translate(0,0)">
+			<rect x="60.9674034" y="0.0770462" class="st0" width="57.8230362" height="71.9007874">
+			<title>const.plane</title>
+			</rect>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(575,175)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st1" d="M74.9533844,38.3207588h29.8510818v29.851078H74.9533844V38.3207588z				">
+<title>CBDE.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st4" d="M104.8044662,38.3207588L80.5504608,26.6704235L92.200798,2.4164224
+					l24.2539978,11.6503334L104.8044662,38.3207588z				">
+<title>BAGF.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" d="M80.5504608,26.6704235l-5.5970764,11.6503353l-11.6503372-5.5970802
+					l5.5970764-11.6503334L80.5504608,26.6704235z				">
+<title>ACIH.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st5" d="M80.5504608,26.6704235l24.2540054,11.6503353H74.9533844
+					L80.5504608,26.6704235z				">
+<title>ABC.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st5" d="M82.7367172,27.7205868l-1.050293,2.1861935l-2.1862564-1.0501595
+					l1.050293-2.1861973L82.7367172,27.7205868z				">
+<title>CAB.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st7" d="M74.9533844,38.3207588l5.5970764-11.6503353				">
+<title>CA.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st8" d="M104.8044662,38.3207588H74.9533844				">
+<title>BC.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(255.40987774957577,239.773995438844)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="63.3030472,32.7236786 63.3030472,32.7236786 63.3030472,32.7236786 63.3030472,32.7236786 			">
+			<title>I.shape</title>
+			<desc>Circle representing I.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(679.7562172106764,272.26899245952086)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="68.9001236,21.0733452 68.9001236,21.0733452 68.9001236,21.0733452 68.9001236,21.0733452 			">
+			<title>H.shape</title>
+			<desc>Circle representing H.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="92.200798,2.4164224 92.200798,2.4164224 92.200798,2.4164224 92.200798,2.4164224 			">
+			<title>G.shape</title>
+			<desc>Circle representing G.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="116.4547958,14.0667553 116.4547958,14.0667553 116.4547958,14.0667553 116.4547958,14.0667553 			">
+			<title>F.shape</title>
+			<desc>Circle representing F.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(578.86162175346,86.15553680168182)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="74.9533844,68.1718369 74.9533844,68.1718369 74.9533844,68.1718369 74.9533844,68.1718369 			">
+			<title>E.shape</title>
+			<desc>Circle representing E.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(750.7893347231164,258.64761377684437)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="104.8044662,68.1718369 104.8044662,68.1718369 104.8044662,68.1718369 104.8044662,68.1718369 			">
+			<title>D.shape</title>
+			<desc>Circle representing D.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="74.9533844,38.3207588 74.9533844,38.3207588 74.9533844,38.3207588 74.9533844,38.3207588 			">
+			<title>C.shape</title>
+			<desc>Circle representing C.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<g pointer-events="bounding-box" transform="translate(269.69097651493723,594.2155535178019)">
+				<g>
+					<g transform="matrix(1 0 0 -1 0 0)">
+					</g>
+				</g>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<g>
+				<path marker-start="" marker-end="" class="st14" d="M80.5504608,26.6704235l24.2540054,11.6503353				">
+<title>AB.shape</title>
+				</path>
+			</g>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="104.8044662,38.3207588 104.8044662,38.3207588 104.8044662,38.3207588 104.8044662,38.3207588 			">
+			<title>B.shape</title>
+			<desc>Circle representing B.shape</desc>
+			</polygon>
+		</g>
+		<g transform="translate(0,0)">
+			<polygon points="80.5504608,26.6704235 80.5504608,26.6704235 80.5504608,26.6704235 80.5504608,26.6704235 			">
+			<title>A.shape</title>
+			<desc>Circle representing A.shape</desc>
+			</polygon>
+		</g>
+	</g>
+	<g>
+		
+			<image style="overflow:visible;" width="251" height="312" id="OMp57P_1_" xlink:href="21FA75BB055F7BD4.jpg"  transform="matrix(0.2288833 0 0 0.2288833 182.550293 0.137592)">
+		</image>
+	</g>
+</g>
+</svg>
