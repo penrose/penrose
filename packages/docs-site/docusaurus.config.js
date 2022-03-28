@@ -73,23 +73,40 @@ const config = {
             label: "GitHub",
             position: "right",
           },
+          {
+            href: "https://twitter.com/UsePenrose",
+            label: "Twitter",
+            position: "right",
+          },
         ],
       },
       footer: {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "Using Penrose",
             items: [
               {
-                label: "Reference",
+                label: "Learn Penrose",
+                to: "/docs/tutorial/welcome",
+              },
+              {
+                label: "Documentation",
                 to: "/docs/ref",
+              },
+              {
+                label: "Try Penrose",
+                to: "pathname:///try/",
               },
             ],
           },
           {
-            title: "Community",
+            title: "Project",
             items: [
+              {
+                label: "GitHub",
+                href: "https://github.com/penrose",
+              },
               {
                 label: "Twitter",
                 href: "https://twitter.com/UsePenrose",
@@ -97,11 +114,21 @@ const config = {
             ],
           },
           {
-            title: "More",
+            title: "News",
             items: [
               {
-                label: "GitHub",
-                href: "https://github.com/penrose",
+                label: "SIGGRAPH'20 Paper",
+                to: "pathname:///siggraph20.html",
+              },
+              {
+                label: "CHI'20 Paper",
+                href:
+                  "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
+              },
+              {
+                label: "Popular Mechanics",
+                href:
+                  "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
               },
             ],
           },

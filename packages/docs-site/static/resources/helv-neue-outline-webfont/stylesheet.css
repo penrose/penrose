@@ -1,0 +1,121 @@
+p {
+  font-family: "Open Sans";
+  font-size: 13px;
+}
+
+@font-face {
+  font-family: "helvnueoutlinenormal";
+  src: url("helveticaneueout-webfont.woff2") format("woff2"),
+    url("helveticaneueout-webfont.woff") format("woff");
+  font-weight: lighter;
+  font-style: normal !important;
+}
+
+#logo {
+  vertical-align: middle !important;
+  -webkit-animation-name: spin;
+  -webkit-animation-duration: 4000ms;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -moz-animation-name: spin;
+  -moz-animation-duration: 4000ms;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-timing-function: linear;
+  -ms-animation-name: spin;
+  -ms-animation-duration: 4000ms;
+  -ms-animation-iteration-count: infinite;
+  -ms-animation-timing-function: linear;
+
+  animation-name: spin;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+@-ms-keyframes spin {
+  from {
+    -ms-transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+  }
+}
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#name {
+  font-family: "helvnueoutlinenormal";
+  font-size: 70px;
+  display: inline-block;
+  vertical-align: middle;
+  color: 40b4f7;
+}
+
+#rose {
+  font-family: "helvnueoutlinenormal";
+  font-size: 90px;
+  display: inline-block;
+  padding-left: 0.5cm;
+  vertical-align: middle;
+  color: c631b5;
+}
+
+#box {
+  width: 450px;
+  border: solid black 2px;
+  text-align: justify;
+  padding-left: 60px;
+  padding-right: 60px;
+
+  /* center the box on the page */
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  position: absolute;
+}
+
+#header {
+  padding-top: 1.1cm;
+}
+
+#footer {
+  padding-bottom: 0.55cm;
+}
+
+a:link {
+  text-decoration: none;
+  color: 40b4f7;
+  /* rose: ba93b8 */
+}
+
+a:visited {
+  text-decoration: none;
+  color: 40b4f7;
+  /* rose: ba93b8 */
+}
+
+a:hover {
+  color: c631b5;
+  /* rose: ba93b8, bright blue 3fd8ff*/
+}
