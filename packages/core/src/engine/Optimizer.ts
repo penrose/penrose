@@ -545,7 +545,7 @@ const awLineSearch2 = (
   return t;
 };
 
-const vecList = (xs: any): number[] => {
+const vecList = (xs: eig.Matrix): number[] => {
   // Prints a col vector (nx1)
   const res = [];
   for (let i = 0; i < xs.rows(); i++) {
@@ -554,12 +554,12 @@ const vecList = (xs: any): number[] => {
   return res;
 };
 
-const printVec = (xs: any) => {
+const printVec = (xs: eig.Matrix) => {
   // Prints a col vector (nx1)
   log.info("xs (matrix)", vecList(xs));
 };
 
-const colVec = (xs: number[]): any => {
+const colVec = (xs: number[]): eig.Matrix => {
   // Return a col vector (nx1)
   // TODO: What is the performance of this?
   const m = eig.Matrix.constant(xs.length, 1, 0); // rows x cols
@@ -571,38 +571,42 @@ const colVec = (xs: number[]): any => {
 };
 
 // v is a col vec, w is a col vec, they need to be the same size, returns v dot w (removed from its container)
-const dotVec = (v: any, w: any): number => v.transpose().matMul(w).get(0, 0);
+const dotVec = (v: eig.Matrix, w: eig.Matrix): number =>
+  v.transpose().matMul(w).get(0, 0);
 
 // Precondition the gradient:
 // Approximate the inverse of the Hessian times the gradient
 // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
 
-// `any` here is a column vector type
-const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
+const lbfgsInner = (
+  grad_fx_k: eig.Matrix,
+  ss: eig.Matrix[],
+  ys: eig.Matrix[]
+): eig.Matrix => {
   // TODO: See if using the mutation methods in linear-algebra-js (instead of the return-a-new-matrix ones) yield any speedup
   // Also see if rewriting outside the functional style yields speedup (e.g. less copying of matrix objects -> less garbage collection)
 
   // Helper functions
-  const calculate_rho = (s: any, y: any): number => {
+  const calculate_rho = (s: eig.Matrix, y: eig.Matrix): number => {
     return 1.0 / (dotVec(y, s) + EPSD);
   };
 
   // `any` = column vec
   const pull_q_back = (
-    acc: [any, number[]],
-    curr: [number, any, any]
-  ): [any, number[]] => {
+    acc: [eig.Matrix, number[]],
+    curr: [number, eig.Matrix, eig.Matrix]
+  ): [eig.Matrix, number[]] => {
     const [q_i_plus_1, alphas2] = acc; // alphas2 is the same stuff as alphas, just renamed to avoid shadowing
     const [rho_i, s_i, y_i] = curr;
 
     const alpha_i: number = rho_i * dotVec(s_i, q_i_plus_1);
-    const q_i: any = q_i_plus_1.matSub(y_i.mul(alpha_i));
+    const q_i: eig.Matrix = q_i_plus_1.matSub(y_i.mul(alpha_i));
 
     return [q_i, alphas2.concat([alpha_i])]; // alphas, left to right
   };
 
   // takes two column vectors (nx1), returns a square matrix (nxn)
-  const estimate_hess = (y_km1: any, s_km1: any): any => {
+  const estimate_hess = (y_km1: eig.Matrix, s_km1: eig.Matrix): eig.Matrix => {
     const gamma_k = dotVec(s_km1, y_km1) / (dotVec(y_km1, y_km1) + EPSD);
     const n = y_km1.rows();
     return eig.Matrix.identity(n, n).mul(gamma_k);
@@ -610,9 +614,9 @@ const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
 
   // `any` = column vec
   const push_r_forward = (
-    r_i: any,
-    curr: [[number, number], [any, any]]
-  ): any => {
+    r_i: eig.Matrix,
+    curr: [[number, number], [eig.Matrix, eig.Matrix]]
+  ): eig.Matrix => {
     const [[rho_i, alpha_i], [s_i, y_i]] = curr;
     const beta_i: number = rho_i * dotVec(y_i, r_i);
     const r_i_plus_1 = r_i.matAdd(s_i.mul(alpha_i - beta_i));
