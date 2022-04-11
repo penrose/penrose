@@ -399,7 +399,7 @@ export const step = (
 
 const awLineSearch2 = (
   xs0: number[],
-  f: (zs: number[]) => { objective: number; gradient: number[] },
+  f: FnCached,
 
   gradfxs0: number[],
   fxs0: number,
@@ -409,7 +409,7 @@ const awLineSearch2 = (
 
   const duf = (u: number[]) => {
     return (zs: number[]) => {
-      return dot(u, f(zs).gradient);
+      return dot(u, f(zs).gradf);
     };
   };
 
@@ -502,9 +502,9 @@ const awLineSearch2 = (
       break;
     }
 
-    const { objective, gradient } = f(addv(xs0, scalev(t, descentDir)));
-    const isArmijo = armijo(t, objective);
-    const isWolfe = wolfe(t, gradient);
+    const { f: obj, gradf: grad } = f(addv(xs0, scalev(t, descentDir)));
+    const isArmijo = armijo(t, obj);
+    const isWolfe = wolfe(t, grad);
     if (DEBUG_LINE_SEARCH) {
       log.info("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
     }
@@ -769,7 +769,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
 
 const minimize = (
   xs0: number[],
-  f: (zs: number[]) => { objective: number; gradient: number[] },
+  f: FnCached,
   lbfgsInfo: LbfgsParams,
   varyingPaths: string[],
   numSteps: number
@@ -798,7 +798,7 @@ const minimize = (
       log.info("xs", xs);
       throw Error("NaN in xs");
     }
-    ({ objective: fxs, gradient: gradfxs } = f(xs));
+    ({ f: fxs, gradf: gradfxs } = f(xs));
     if (containsNaN(gradfxs)) {
       log.info("gradfxs", gradfxs);
       throw Error("NaN in gradfxs");
@@ -996,8 +996,8 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     }
     const outputs = f(inputs);
     return {
-      objective: outputs[graphs.energyOutput],
-      gradient: xsVars.map(
+      f: outputs[graphs.energyOutput],
+      gradf: xsVars.map(
         ({ name }) =>
           outputs[
             safe(
@@ -1088,8 +1088,8 @@ const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
     }
     const outputs = f(inputs);
     return {
-      objective: outputs[graphs.energyOutput],
-      gradient: xsVars.map(
+      f: outputs[graphs.energyOutput],
+      gradf: xsVars.map(
         ({ name }) =>
           outputs[
             safe(

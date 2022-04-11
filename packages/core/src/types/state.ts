@@ -121,6 +121,11 @@ export interface ILbfgsParams {
   memSize: number;
 }
 
+export interface FnEvaled {
+  f: number;
+  gradf: number[];
+}
+
 export type Params = IParams;
 
 export interface IParams {
@@ -151,14 +156,10 @@ export interface IParams {
   functionsCompiled: boolean;
 
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objectiveAndGradient: (
-    epWeight: number
-  ) => (xs: number[]) => { objective: number; gradient: number[] };
+  objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
 
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
-  currObjectiveAndGradient(
-    xs: number[]
-  ): { objective: number; gradient: number[] };
+  currObjectiveAndGradient(xs: number[]): FnEvaled;
 
   // `xsVars` are all the leaves of the energy graph
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
@@ -170,9 +171,7 @@ export interface IParams {
 }
 
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
-export type FnCached = (
-  xs: number[]
-) => { objective: number; gradient: number[] };
+export type FnCached = (xs: number[]) => FnEvaled;
 
 export type WeightInfo = IWeightInfo;
 
