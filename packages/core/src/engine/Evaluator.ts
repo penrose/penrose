@@ -30,7 +30,7 @@ import {
   Value,
 } from "types/value";
 import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
-import { numOf, ops } from "./Autodiff";
+import { ops } from "./Autodiff";
 import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
 const clone = rfdc({ proto: false, circles: false });

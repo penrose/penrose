@@ -1,5 +1,4 @@
 import { objDict } from "contrib/Objectives";
-import { numOf } from "engine/Autodiff";
 
 const digitPrecision = 4;
 

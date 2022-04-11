@@ -5,7 +5,6 @@ import {
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
-import { numOf } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";

@@ -1,6 +1,6 @@
 import { bboxFromShape } from "contrib/Queries";
 import { inRange } from "contrib/Utils";
-import { numOf, ops } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import {
   absVal,
   acos,

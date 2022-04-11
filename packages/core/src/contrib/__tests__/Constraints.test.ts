@@ -5,7 +5,6 @@ import {
   _polygons,
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
-import { numOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 
 const digitPrecision = 10;

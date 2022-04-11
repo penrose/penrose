@@ -10,7 +10,6 @@ import { constrDict } from "contrib/Constraints";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
-import { numOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,

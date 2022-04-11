@@ -1,4 +1,4 @@
-import { numOf, ops } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import {
   absVal,
   add,

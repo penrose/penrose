@@ -3,7 +3,6 @@ import {
   overlappingPolygons,
 } from "contrib/ConstraintsUtils";
 import { _rectangles } from "contrib/__testfixtures__/TestShapes.input";
-import { numOf } from "engine/Autodiff";
 
 describe("overlappingAABBs should return the same value as overlappingPolygons", () => {
   it.each([0, 10, 100])("padding %p", (padding: number) => {

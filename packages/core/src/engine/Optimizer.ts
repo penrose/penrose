@@ -7,7 +7,6 @@ import {
   fns,
   input,
   makeADInputVars,
-  numOf,
   ops,
 } from "engine/Autodiff";
 import {

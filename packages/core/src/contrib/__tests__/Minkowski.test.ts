@@ -4,7 +4,7 @@ import {
   outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
-import { numOf, ops } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 

@@ -38,27 +38,6 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-export const numOf = (x: VarAD): number => {
-  if (typeof x === "number") {
-    return x;
-  }
-  const { tag } = x;
-  switch (tag) {
-    case "Input": {
-      return x.val;
-    }
-    case "Unary":
-    case "Binary":
-    case "Ternary":
-    case "Nary": {
-      throw Error("TODO");
-    }
-    case "Debug": {
-      return numOf(x.node);
-    }
-  }
-};
-
 export const input = ({
   name,
   val,

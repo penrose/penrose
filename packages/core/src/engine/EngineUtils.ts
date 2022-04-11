@@ -1,6 +1,5 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { numOf } from "engine/Autodiff";
 import { mapValues } from "lodash";
 import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
