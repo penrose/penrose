@@ -242,8 +242,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     // non-numeric Value types
     case "BoolV":
     case "StrV":
-    case "ColorV":
-    case "PaletteV":
     case "FileV":
     case "StyleV":
     case "IntV":
