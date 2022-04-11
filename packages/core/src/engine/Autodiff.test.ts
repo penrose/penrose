@@ -24,8 +24,9 @@ import {
 
 describe("makeGraph tests", () => {
   test("outputs", () => {
-    const x = input("x");
-    const y = input("y");
+    // the values 0 don't matter for this test
+    const x = input({ name: "x", val: 0 });
+    const y = input({ name: "y", val: 0 });
     const sum = add(x, y);
     const product = mul(x, y);
     const difference = sub(x, y);
@@ -39,7 +40,7 @@ describe("makeGraph tests", () => {
 
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
-    const x1 = input("x1");
+    const x1 = input({ name: "x1", val: 0 }); // 0, doesn't matter for this test
     const t1 = mul(x1, x1);
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
@@ -139,9 +140,9 @@ const testGradFiniteDiff = () => {
 };
 
 const gradGraph1 = (): SymbolicTest => {
-  // Build energy graph
-  const x0 = input("x0");
-  const x1 = input("x1");
+  // Build energy graph; vals are ignored, inputs map used instead
+  const x0 = input({ name: "x0", val: 0 });
+  const x1 = input({ name: "x1", val: 0 });
   const inputs = new Map([
     ["x0", -5],
     ["x1", 6],
@@ -161,8 +162,8 @@ const gradGraph1 = (): SymbolicTest => {
 // Test addition of consts to graph (`c`)
 const gradGraph2 = (): SymbolicTest => {
   // Build energy graph
-  const x0 = input("x0");
-  const x1 = input("x1");
+  const x0 = input({ name: "x0", val: 0 });
+  const x1 = input({ name: "x1", val: 0 });
   const inputs = new Map([
     ["x0", -5],
     ["x1", 6],
@@ -182,8 +183,8 @@ const gradGraph2 = (): SymbolicTest => {
 // Test vars w/ no grad
 const gradGraph3 = (): SymbolicTest => {
   // Build energy graph
-  const x0 = input("x0");
-  const x1 = input("x1");
+  const x0 = input({ name: "x0", val: 0 });
+  const x1 = input({ name: "x1", val: 0 });
   const inputs = new Map([
     ["x0", 100],
     ["x1", -100],
@@ -200,7 +201,7 @@ const gradGraph3 = (): SymbolicTest => {
 // Test toPenalty
 const gradGraph4 = (): SymbolicTest => {
   // Build energy graph
-  const x0 = input("x0");
+  const x0 = input({ name: "x0", val: 0 });
   const inputs = new Map([["x0", 100]]);
   const head = fns.toPenalty(x0);
   const graph = makeGraph([head]);
@@ -216,8 +217,8 @@ const gradGraph5 = (): SymbolicTest => {
   logAD.info("test ifCond");
 
   // Build energy graph
-  const x0 = input("x0");
-  const x1 = input("x1");
+  const x0 = input({ name: "x0", val: 0 });
+  const x1 = input({ name: "x1", val: 0 });
   const inputs = new Map([
     ["x0", 100],
     ["x1", -100],
@@ -236,7 +237,7 @@ const gradGraph6 = (): SymbolicTest => {
   logAD.info("test max");
 
   // Build energy graph
-  const x0 = input("x0");
+  const x0 = input({ name: "x0", val: 0 });
   const inputs = new Map([["x0", 100]]);
   const head = max(squared(x0), 0);
   const graph = makeGraph([head]);
@@ -253,8 +254,8 @@ const gradGraph7 = (): SymbolicTest => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input("x0");
-  const x1 = input("x1");
+  const x0 = input({ name: "x0", val: 0 });
+  const x1 = input({ name: "x1", val: 0 });
   const inputs = new Map([
     ["x0", 100],
     ["x1", -100],
@@ -315,7 +316,7 @@ const gradGraph0 = (): SymbolicTest => {
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input("ref");
+  const ref = input({ name: "ref", val: 0 });
   const inputs = new Map([["ref", 100]]);
   const head = squared(ref);
   const graph = makeGraph([head]);
