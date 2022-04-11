@@ -1,16 +1,16 @@
 import { inDirection } from "contrib/ObjectivesUtils";
-import { constOf, numOf } from "engine/Autodiff";
+import { numOf } from "engine/Autodiff";
 
-const testShape = { center: { contents: [constOf(0), constOf(2)] } };
-const testRefShape = { center: { contents: [constOf(1), constOf(1)] } };
+const testShape = { center: { contents: [0, 2] } };
+const testRefShape = { center: { contents: [1, 1] } };
 
 describe("inDirection", () => {
   test("without padding", async () => {
     let result = inDirection(
       ["testShape", testShape],
       ["testRefShape", testRefShape],
-      [constOf(-1.0), constOf(0.0)],
-      constOf(0)
+      [-1, 0],
+      0
     );
     expect(numOf(result)).toEqual(1);
   });
@@ -19,8 +19,8 @@ describe("inDirection", () => {
     let result = inDirection(
       ["testShape", testShape],
       ["testRefShape", testRefShape],
-      [constOf(-1.0), constOf(0.0)],
-      constOf(1)
+      [-1, 0],
+      1
     );
     expect(numOf(result)).toEqual(0);
   });
@@ -29,8 +29,8 @@ describe("inDirection", () => {
     let result = inDirection(
       ["testShape", testShape],
       ["testRefShape", testRefShape],
-      [constOf(-1.0), constOf(0.0)],
-      constOf(-2)
+      [-1, 0],
+      -2
     );
     expect(numOf(result)).toEqual(9);
   });

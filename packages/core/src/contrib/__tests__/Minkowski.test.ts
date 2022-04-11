@@ -4,24 +4,18 @@ import {
   outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
-import { constOf, numOf, ops } from "engine/Autodiff";
+import { numOf, ops } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 
 const digitPrecision = 4;
 
 describe("rectangleDifference", () => {
-  let testBBox1 = BBox.bbox(constOf(2.0), constOf(2.0), [
-    constOf(0.0),
-    constOf(0.0),
-  ]);
-  let testBBox2 = BBox.bbox(constOf(3.0), constOf(1.0), [
-    constOf(0.5),
-    constOf(1.5),
-  ]);
+  let testBBox1 = BBox.bbox(2, 2, [0, 0]);
+  let testBBox2 = BBox.bbox(3, 1, [0.5, 1.5]);
 
   test("without padding", async () => {
-    let result = rectangleDifference(testBBox1, testBBox2, constOf(0.0));
+    let result = rectangleDifference(testBBox1, testBBox2, 0);
     expect(numOf(result[0][0])).toEqual(-3);
     expect(numOf(result[0][1])).toEqual(-3);
     expect(numOf(result[1][0])).toEqual(2);
@@ -29,7 +23,7 @@ describe("rectangleDifference", () => {
   });
 
   test("with padding", async () => {
-    let result = rectangleDifference(testBBox1, testBBox2, constOf(10.0));
+    let result = rectangleDifference(testBBox1, testBBox2, 10);
     expect(numOf(result[0][0])).toEqual(-13);
     expect(numOf(result[0][1])).toEqual(-13);
     expect(numOf(result[1][0])).toEqual(12);
@@ -37,7 +31,7 @@ describe("rectangleDifference", () => {
   });
 
   test("reversed order", async () => {
-    let result = rectangleDifference(testBBox2, testBBox1, constOf(0.0));
+    let result = rectangleDifference(testBBox2, testBBox1, 0);
     expect(numOf(result[0][0])).toEqual(-2);
     expect(numOf(result[0][1])).toEqual(0);
     expect(numOf(result[1][0])).toEqual(3);
@@ -45,7 +39,7 @@ describe("rectangleDifference", () => {
   });
 
   test("same bounding box", async () => {
-    let result = rectangleDifference(testBBox1, testBBox1, constOf(0.0));
+    let result = rectangleDifference(testBBox1, testBBox1, 0);
     expect(numOf(result[0][0])).toEqual(-2);
     expect(numOf(result[0][1])).toEqual(-2);
     expect(numOf(result[1][0])).toEqual(2);
@@ -53,11 +47,11 @@ describe("rectangleDifference", () => {
   });
 });
 
-let point1 = [constOf(2), constOf(3)];
-let point2 = [constOf(1), constOf(2)];
-let point3 = [constOf(1), constOf(4)];
-let point4 = [constOf(2), constOf(2)];
-let point5 = [constOf(0), constOf(0)];
+let point1 = [2, 3];
+let point2 = [1, 2];
+let point3 = [1, 4];
+let point4 = [2, 2];
+let point5 = [0, 0];
 let lineSegment = [point3, point4];
 
 describe("outwardUnitNormal", () => {
@@ -92,34 +86,24 @@ describe("outwardUnitNormal", () => {
 
 describe("halfPlaneSDF", () => {
   test("without padding", async () => {
-    let result = halfPlaneSDF(
-      [point2, point3],
-      [point2, point4],
-      point5,
-      constOf(0.0)
-    );
+    let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
     expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
   });
 
   test("with padding", async () => {
-    let result = halfPlaneSDF(
-      [point2, point3],
-      [point2, point4],
-      point5,
-      constOf(10.0)
-    );
+    let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
     expect(numOf(result)).toBeCloseTo(-13, digitPrecision);
   });
 
   test("zero outside", async () => {
-    let result = halfPlaneSDF([point2, point3], [point5], point1, constOf(0.0));
+    let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
     expect(numOf(result)).toBeCloseTo(1, digitPrecision);
   });
 });
 
 describe("convexPartitions", () => {
   const convexPartitionsNum = (p: number[][]): number[][][] =>
-    convexPartitions(p.map(([x, y]) => [constOf(x), constOf(y)])).map((poly) =>
+    convexPartitions(p.map(([x, y]) => [x, y])).map((poly) =>
       poly.map((point) => point.map(numOf))
     );
 

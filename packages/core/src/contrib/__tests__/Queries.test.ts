@@ -5,7 +5,7 @@ import {
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
-import { constOf, numOf } from "engine/Autodiff";
+import { numOf } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -30,10 +30,10 @@ const shapes: [string, any][] = [
   [
     "Rectangle",
     makeRectangle(rng, canvas, {
-      center: VectorV([11, 22].map(constOf)),
-      width: FloatV(constOf(44)),
-      height: FloatV(constOf(44)),
-      strokeWidth: FloatV(constOf(0)),
+      center: VectorV([11, 22]),
+      width: FloatV(44),
+      height: FloatV(44),
+      strokeWidth: FloatV(0),
       strokeColor: sampleBlack(),
     }),
   ],
@@ -41,9 +41,9 @@ const shapes: [string, any][] = [
   [
     "Circle",
     makeCircle(rng, canvas, {
-      r: FloatV(constOf(22)),
-      center: VectorV([11, 22].map(constOf)),
-      strokeWidth: FloatV(constOf(0)),
+      r: FloatV(22),
+      center: VectorV([11, 22]),
+      strokeWidth: FloatV(0),
       strokeColor: sampleBlack(),
     }),
   ],
@@ -51,10 +51,10 @@ const shapes: [string, any][] = [
   [
     "Ellipse",
     makeEllipse(rng, canvas, {
-      rx: FloatV(constOf(22)),
-      ry: FloatV(constOf(22)),
-      center: VectorV([11, 22].map(constOf)),
-      strokeWidth: FloatV(constOf(0)),
+      rx: FloatV(22),
+      ry: FloatV(22),
+      center: VectorV([11, 22]),
+      strokeWidth: FloatV(0),
       strokeColor: sampleBlack(),
     }),
   ],
@@ -63,9 +63,9 @@ const shapes: [string, any][] = [
     "Path",
     makePath(rng, canvas, {
       d: compDict.pathFromPoints({ rng }, "open", [
-        [constOf(-11), constOf(0)],
-        [constOf(33), constOf(0)],
-        [constOf(33), constOf(44)],
+        [-11, 0],
+        [33, 0],
+        [33, 44],
       ]),
     }),
   ],
@@ -73,23 +73,21 @@ const shapes: [string, any][] = [
   [
     "Line",
     makeLine(rng, canvas, {
-      start: VectorV([-11, 0].map(constOf)),
-      end: VectorV([33, 44].map(constOf)),
-      strokeWidth: FloatV(constOf(0)),
+      start: VectorV([-11, 0]),
+      end: VectorV([33, 44]),
+      strokeWidth: FloatV(0),
     }),
   ],
   // shapes[5]
   [
     "Polygon",
     makePolygon(rng, canvas, {
-      points: PtListV(
-        [
-          [-11, 0],
-          [33, 0],
-          [33, 44],
-        ].map((p) => p.map(constOf))
-      ),
-      scale: FloatV(constOf(1)),
+      points: PtListV([
+        [-11, 0],
+        [33, 0],
+        [33, 44],
+      ]),
+      scale: FloatV(1),
     }),
   ],
 ];

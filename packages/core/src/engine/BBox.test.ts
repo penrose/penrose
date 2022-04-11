@@ -1,5 +1,5 @@
 import { compDict } from "contrib/Functions";
-import { constOf, numOf } from "engine/Autodiff";
+import { numOf } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -45,17 +45,17 @@ const polyProps = (): IPoly & IScale => ({
       [701, 120],
       [591, 90],
       [528, 129],
-    ].map((p) => p.map(constOf))
+    ]
   ),
-  scale: FloatV(constOf(0.5)),
+  scale: FloatV(0.5),
 });
 
 describe("bbox", () => {
   test("Circle", () => {
     const shape = makeCircle(seedrandom("bbox Circle"), canvas, {
-      r: FloatV(constOf(100)),
-      center: VectorV([42, 121].map(constOf)),
-      strokeWidth: FloatV(constOf(50)),
+      r: FloatV(100),
+      center: VectorV([42, 121]),
+      strokeWidth: FloatV(50),
       strokeColor: sampleBlack(),
     });
     const {
@@ -71,10 +71,10 @@ describe("bbox", () => {
 
   test("Ellipse", () => {
     const shape = makeEllipse(seedrandom("bbox Ellipse"), canvas, {
-      rx: FloatV(constOf(200)),
-      ry: FloatV(constOf(100)),
-      center: VectorV([42, 121].map(constOf)),
-      strokeWidth: FloatV(constOf(50)),
+      rx: FloatV(200),
+      ry: FloatV(100),
+      center: VectorV([42, 121]),
+      strokeWidth: FloatV(50),
       strokeColor: sampleBlack(),
     });
     const {
@@ -90,10 +90,10 @@ describe("bbox", () => {
 
   test("Rectangle", () => {
     const shape = makeRectangle(seedrandom("bbox Rectangle"), canvas, {
-      center: VectorV([0, 0].map(constOf)),
-      width: FloatV(constOf(150)),
-      height: FloatV(constOf(200)),
-      strokeWidth: FloatV(constOf(50)),
+      center: VectorV([0, 0]),
+      width: FloatV(150),
+      height: FloatV(200),
+      strokeWidth: FloatV(50),
       strokeColor: sampleBlack(),
     });
     const {
@@ -139,9 +139,9 @@ describe("bbox", () => {
 
   test("Image", () => {
     const shape = makeImage(seedrandom("bbox Image"), canvas, {
-      center: VectorV([0, 0].map(constOf)),
-      width: FloatV(constOf(150)),
-      height: FloatV(constOf(200)),
+      center: VectorV([0, 0]),
+      width: FloatV(150),
+      height: FloatV(200),
     });
     const {
       width,
@@ -156,9 +156,9 @@ describe("bbox", () => {
 
   test("Line", () => {
     const shape = makeLine(seedrandom("bbox Line"), canvas, {
-      start: VectorV([-300, 200].map(constOf)),
-      end: VectorV([100, -150].map(constOf)),
-      strokeWidth: FloatV(constOf(50)),
+      start: VectorV([-300, 200]),
+      end: VectorV([100, -150]),
+      strokeWidth: FloatV(50),
     });
     const {
       width,
@@ -175,9 +175,9 @@ describe("bbox", () => {
     const rng = seedrandom("bbox Path (lines)");
     const shape = makePath(rng, canvas, {
       d: compDict.pathFromPoints({ rng }, "open", [
-        [constOf(-100), constOf(-100)],
-        [constOf(100), constOf(-50)],
-        [constOf(-50), constOf(100)],
+        [-100, -100],
+        [100, -50],
+        [-50, 100],
       ]),
     });
     const {
@@ -194,13 +194,7 @@ describe("bbox", () => {
   test("Path (quadratic)", () => {
     const rng = seedrandom("bbox Path (quadratic)");
     const shape = makePath(rng, canvas, {
-      d: compDict.makePath(
-        { rng },
-        [constOf(-100), constOf(0)],
-        [constOf(100), constOf(0)],
-        constOf(50),
-        constOf(10)
-      ),
+      d: compDict.makePath({ rng }, [-100, 0], [100, 0], 50, 10),
     });
     const {
       width,
@@ -217,10 +211,10 @@ describe("bbox", () => {
     const rng = seedrandom("bbox Path (cubic)");
     const shape = makePath(rng, canvas, {
       d: compDict.cubicCurveFromPoints({ rng }, "open", [
-        [constOf(0), constOf(0)],
-        [constOf(50), constOf(50)],
-        [constOf(200), constOf(0)],
-        [constOf(75), constOf(-25)],
+        [0, 0],
+        [50, 50],
+        [200, 0],
+        [75, -25],
       ]),
     });
     const {
@@ -238,10 +232,10 @@ describe("bbox", () => {
     const rng = seedrandom("bbox Path (quadratic join)");
     const shape = makePath(rng, canvas, {
       d: compDict.quadraticCurveFromPoints({ rng }, "open", [
-        [constOf(0), constOf(0)],
-        [constOf(50), constOf(50)],
-        [constOf(75), constOf(-25)],
-        [constOf(200), constOf(0)],
+        [0, 0],
+        [50, 50],
+        [75, -25],
+        [200, 0],
       ]),
     });
     const {
@@ -259,12 +253,12 @@ describe("bbox", () => {
     const rng = seedrandom("bbox Path (cubic join)");
     const shape = makePath(rng, canvas, {
       d: compDict.cubicCurveFromPoints({ rng }, "open", [
-        [constOf(0), constOf(0)],
-        [constOf(50), constOf(50)],
-        [constOf(200), constOf(0)],
-        [constOf(75), constOf(-25)],
-        [constOf(0), constOf(-100)],
-        [constOf(100), constOf(-75)],
+        [0, 0],
+        [50, 50],
+        [200, 0],
+        [75, -25],
+        [0, -100],
+        [100, -75],
       ]),
     });
     const {
@@ -284,12 +278,12 @@ describe("bbox", () => {
       d: compDict.arc(
         { rng },
         "open",
-        [constOf(-50), constOf(50)],
-        [constOf(100), constOf(-25)],
-        [constOf(200), constOf(100)],
-        constOf(30),
-        constOf(1),
-        constOf(0)
+        [-50, 50],
+        [100, -25],
+        [200, 100],
+        30,
+        1,
+        0
       ),
     });
     const {
@@ -309,12 +303,12 @@ describe("bbox", () => {
       d: compDict.arc(
         { rng },
         "open",
-        [constOf(-50), constOf(50)],
-        [constOf(100), constOf(-25)],
-        [constOf(200), constOf(100)],
-        constOf(30),
-        constOf(0),
-        constOf(0)
+        [-50, 50],
+        [100, -25],
+        [200, 100],
+        30,
+        0,
+        0
       ),
     });
     const {
@@ -334,12 +328,12 @@ describe("bbox", () => {
       d: compDict.arc(
         { rng },
         "open",
-        [constOf(-75), constOf(-50)],
-        [constOf(200), constOf(25)],
-        [constOf(25), constOf(50)],
-        constOf(60),
-        constOf(0),
-        constOf(0)
+        [-75, -50],
+        [200, 25],
+        [25, 50],
+        60,
+        0,
+        0
       ),
     });
     const {

@@ -1,4 +1,3 @@
-import { constOf } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeLine } from "shapes/Line";
@@ -22,10 +21,10 @@ export const _rectangles = [
   { center: [0, 300], width: 200, height: 200 },
 ].map((x) =>
   makeRectangle(rng, canvas, {
-    center: VectorV(x.center.map(constOf)),
-    width: FloatV(constOf(x.width)),
-    height: FloatV(constOf(x.height)),
-    strokeWidth: FloatV(constOf(0)),
+    center: VectorV(x.center),
+    width: FloatV(x.width),
+    height: FloatV(x.height),
+    strokeWidth: FloatV(0),
     strokeColor: sampleBlack(),
   })
 );
@@ -40,9 +39,9 @@ export const _circles = [
   { center: [150, 150], r: 100 },
 ].map((x) =>
   makeCircle(rng, canvas, {
-    r: FloatV(constOf(x.r)),
-    center: VectorV(x.center.map(constOf)),
-    strokeWidth: FloatV(constOf(0)),
+    r: FloatV(x.r),
+    center: VectorV(x.center),
+    strokeWidth: FloatV(0),
     strokeColor: sampleBlack(),
   })
 );
@@ -54,9 +53,9 @@ export const _lines = [
   { start: [200, 400], end: [300, 100] },
 ].map((x) =>
   makeLine(rng, canvas, {
-    start: VectorV(x.start.map(constOf)),
-    end: VectorV(x.end.map(constOf)),
-    strokeWidth: FloatV(constOf(0)),
+    start: VectorV(x.start),
+    end: VectorV(x.end),
+    strokeWidth: FloatV(0),
   })
 );
 
@@ -92,7 +91,7 @@ export const _polygons = [
   ],
 ].map((pts) =>
   makePolygon(rng, canvas, {
-    points: PtListV(pts.map((p) => p.map(constOf))),
-    scale: FloatV(constOf(1)),
+    points: PtListV(pts),
+    scale: FloatV(1),
   })
 );

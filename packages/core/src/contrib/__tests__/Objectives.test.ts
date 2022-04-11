@@ -1,5 +1,5 @@
 import { objDict } from "contrib/Objectives";
-import { constOf, numOf } from "engine/Autodiff";
+import { numOf } from "engine/Autodiff";
 
 const digitPrecision = 4;
 
@@ -12,7 +12,7 @@ describe("simple objective", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = objDict.equal(constOf(x), constOf(y));
+      const result = objDict.equal(x, y);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -26,11 +26,7 @@ describe("simple objective", () => {
   ])(
     "repelPt(%p, %p, %p) should return %p",
     (weight: number, a: number[], b: number[], expected: number) => {
-      const result = objDict.repelPt(
-        constOf(weight),
-        a.map(constOf),
-        b.map(constOf)
-      );
+      const result = objDict.repelPt(weight, a, b);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -44,7 +40,7 @@ describe("simple objective", () => {
   ])(
     "repelScalar(%p, %p) should return %p",
     (c: number, d: number, expected: number) => {
-      const result = objDict.repelScalar(constOf(c), constOf(d));
+      const result = objDict.repelScalar(c, d);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );

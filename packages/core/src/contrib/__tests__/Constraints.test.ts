@@ -5,7 +5,7 @@ import {
   _polygons,
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
-import { constOf, numOf } from "engine/Autodiff";
+import { numOf } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 
 const digitPrecision = 10;
@@ -19,7 +19,7 @@ describe("simple constraint", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = constrDict.equal(constOf(x), constOf(y));
+      const result = constrDict.equal(x, y);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -34,7 +34,7 @@ describe("simple constraint", () => {
   ])(
     "lessThan(%p, %p, padding=%p) should return %p",
     (x: number, y: number, padding: number, expected: number) => {
-      const result = constrDict.lessThan(constOf(x), constOf(y), padding);
+      const result = constrDict.lessThan(x, y, padding);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -49,7 +49,7 @@ describe("simple constraint", () => {
   ])(
     "greaterThan(%p, %p, padding=%p) should return %p",
     (x: number, y: number, padding: number, expected: number) => {
-      const result = constrDict.greaterThan(constOf(x), constOf(y), padding);
+      const result = constrDict.greaterThan(x, y, padding);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -62,7 +62,7 @@ describe("simple constraint", () => {
   ])(
     "lessThanSq(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = constrDict.lessThanSq(constOf(x), constOf(y));
+      const result = constrDict.lessThanSq(x, y);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -75,7 +75,7 @@ describe("simple constraint", () => {
   ])(
     "greaterThanSq(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = constrDict.greaterThanSq(constOf(x), constOf(y));
+      const result = constrDict.greaterThanSq(x, y);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -89,7 +89,7 @@ describe("simple constraint", () => {
   ])(
     "inRange(%p, %p, %p) should return %p",
     (x: number, x0: number, x1: number, expected: number) => {
-      const result = constrDict.inRange(constOf(x), constOf(x0), constOf(x1));
+      const result = constrDict.inRange(x, x0, x1);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -105,10 +105,7 @@ describe("simple constraint", () => {
   ])(
     "contains1D([%p, %p], [%p, %p]) should return %p",
     (l1: number, r1: number, l2: number, r2: number, expected: number) => {
-      const result = constrDict.contains1D(
-        [constOf(l1), constOf(r1)],
-        [constOf(l2), constOf(r2)]
-      );
+      const result = constrDict.contains1D([l1, r1], [l2, r2]);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -122,11 +119,7 @@ describe("simple constraint", () => {
   ])(
     "disjointScalar(%p, %p, %p) should return %p",
     (c: number, left: number, right: number, expected: number) => {
-      const result = constrDict.disjointScalar(
-        constOf(c),
-        constOf(left),
-        constOf(right)
-      );
+      const result = constrDict.disjointScalar(c, left, right);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -140,11 +133,7 @@ describe("simple constraint", () => {
   ])(
     "perpendicular(%p, %p, %p) should return %p",
     (q: number[], p: number[], r: number[], expected: number) => {
-      const result = constrDict.perpendicular(
-        q.map(constOf),
-        p.map(constOf),
-        r.map(constOf)
-      );
+      const result = constrDict.perpendicular(q, p, r);
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -158,11 +147,7 @@ describe("simple constraint", () => {
   ])(
     "collinear(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinear(
-        c1.map(constOf),
-        c2.map(constOf),
-        c3.map(constOf)
-      );
+      const result = constrDict.collinear(c1, c2, c3);
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );
@@ -176,11 +161,7 @@ describe("simple constraint", () => {
   ])(
     "collinearUnordered(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinearUnordered(
-        c1.map(constOf),
-        c2.map(constOf),
-        c3.map(constOf)
-      );
+      const result = constrDict.collinearUnordered(c1, c2, c3);
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );
