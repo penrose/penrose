@@ -75,7 +75,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Info })
+  .create({ level: LogLevel.Debug })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
@@ -411,18 +411,25 @@ export class Synthesizer {
     const mutations: MutationGroup[] = [addOps, deleteOps, ...editOps].filter(
       (ops) => ops.length > 0
     );
-    log.debug(`Possible mutations: ${mutations.map(showMutations).join("\n")}`);
-    const mutationGroup: MutationGroup = this.choice(mutations);
-    log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
-    // TODO: check if the ctx used is correct
-    const { res: prog, ctx: newCtx } = executeMutations(
-      mutationGroup,
-      this.currentProg,
-      ctx
-    );
-    this.currentMutations.push(...mutationGroup);
-    this.updateProg(prog);
-    return newCtx;
+    if (mutations.length > 0) {
+      log.debug(
+        `Possible mutations: ${mutations.map(showMutations).join("\n")}`
+      );
+      const mutationGroup: MutationGroup = this.choice(mutations);
+      log.debug(`Picked mutation group: ${showMutations(mutationGroup)}`);
+      // TODO: check if the ctx used is correct
+      const { res: prog, ctx: newCtx } = executeMutations(
+        mutationGroup,
+        this.currentProg,
+        ctx
+      );
+      this.currentMutations.push(...mutationGroup);
+      this.updateProg(prog);
+      return newCtx;
+    } else {
+      log.debug("No mutations found.");
+      return ctx;
+    }
   };
 
   findMutations = (

@@ -111,7 +111,9 @@ const singleProcess = async (
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {
-    throw new Error(`Optimization failed:\n${showError(optimizedOutput.err)}`);
+    throw new Error(
+      `Optimization failed:\n${showError(optimizedOutput.error)}`
+    );
   }
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
