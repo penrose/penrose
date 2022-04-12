@@ -171,14 +171,12 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
     contents: v.contents.map((pathCmd: IPathCmd<T>) => {
       return {
         cmd: pathCmd.cmd,
-        contents: pathCmd.contents.map(
-          (subCmd: ISubPath<T>): ISubPath<S> => {
-            return {
-              tag: subCmd.tag,
-              contents: mapTuple(f, subCmd.contents),
-            };
-          }
-        ),
+        contents: pathCmd.contents.map((subCmd: ISubPath<T>): ISubPath<S> => {
+          return {
+            tag: subCmd.tag,
+            contents: mapTuple(f, subCmd.contents),
+          };
+        }),
       };
     }),
   };

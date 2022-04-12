@@ -1,8 +1,5 @@
 {
-  "mutationCount": [
-    1,
-    7
-  ],
+  "mutationCount": [1, 7],
   "argOption": "existing",
   "argReuse": "distinct",
   "weights": {
@@ -11,31 +8,16 @@
     "constructor": 0.0
   },
   "add": {
-    "type": [
-      "Point"
-    ],
+    "type": ["Point"],
     "function": [],
-    "constructor": [
-      "MkTriangle",
-      "MkRectangle",
-      "MkSegment"
-    ],
-    "predicate": [
-      "In",
-      "Collinear"
-    ]
+    "constructor": ["MkTriangle", "MkRectangle", "MkSegment"],
+    "predicate": ["In", "Collinear"]
   },
   "delete": {
-    "type": [
-      "Point"
-    ],
+    "type": ["Point"],
     "function": [],
-    "constructor": [
-      "MkSegment"
-    ],
-    "predicate": [
-      "Collinear"
-    ]
+    "constructor": ["MkSegment"],
+    "predicate": ["Collinear"]
   },
   "edit": {
     "type": [],
@@ -47,8 +29,6 @@
       "InteriorAngle",
       "TriangleVertex"
     ],
-    "predicate": [
-      "Collinear"
-    ]
+    "predicate": ["Collinear"]
   }
 }

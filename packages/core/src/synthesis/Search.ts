@@ -507,10 +507,8 @@ export const enumerateMutationPaths = (
             cxt
           );
           // execute all mutations and get resulting programs
-          const resultProgs: WithContext<
-            SubProg<A>
-          >[] = possibleMutations.map((m) =>
-            executeMutation(m, progToGrow, cxt)
+          const resultProgs: WithContext<SubProg<A>>[] = possibleMutations.map(
+            (m) => executeMutation(m, progToGrow, cxt)
           );
           // pack the resulting programs with their updated mutation path
           return zipWith(
@@ -562,10 +560,8 @@ const _enumerateAllProgPathsHelper = (
     // find all mutations for each statement
     const possibleMutations: Mutation[] = enumerateProgMutations(srcProg, cxt);
     // execute all of them and find the next
-    const resultProgs: [
-      WithContext<SubProg<A>>,
-      Mutation
-    ][] = possibleMutations.map((m) => [executeMutation(m, srcProg, cxt), m]);
+    const resultProgs: [WithContext<SubProg<A>>, Mutation][] =
+      possibleMutations.map((m) => [executeMutation(m, srcProg, cxt), m]);
     // "Observational equivalence": removing all mutations that lead to the same expression
     // TODO: this doesn't work because the other candidates are out of scope
     // const uniqueProgs: [WithContext<SubProg>, Mutation][] = uniqBy(
@@ -575,10 +571,7 @@ const _enumerateAllProgPathsHelper = (
 
     // recurse and find the next mutations
     // ][] = uniqueProgs
-    const nextPaths: [
-      SubProg<A>,
-      MutationGroup
-    ][] = resultProgs
+    const nextPaths: [SubProg<A>, MutationGroup][] = resultProgs
       .map(([{ res: p, ctx }, m]: [WithContext<SubProg<A>>, Mutation]) =>
         _enumerateAllProgPathsHelper(
           p,
