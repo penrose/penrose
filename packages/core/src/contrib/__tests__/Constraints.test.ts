@@ -5,7 +5,15 @@ import {
   _polygons,
   _rectangles,
 } from "contrib/__testfixtures__/TestShapes.input";
+import { genCode, makeGraph } from "engine/Autodiff";
 import { VarAD } from "types/ad";
+
+const numOf = (x: VarAD) => {
+  const g = makeGraph([x]);
+  const f = genCode(g);
+  const [y] = f(new Map()); // no inputs, so, empty map
+  return y;
+};
 
 const digitPrecision = 10;
 
