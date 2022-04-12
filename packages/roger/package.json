@@ -1,7 +1,7 @@
 {
   "name": "@penrose/roger",
   "description": "💂 The command line for penrose.",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "author": "Penrose Team (https://penrose.ink)",
   "bin": {
     "roger": "./bin/run"
@@ -24,7 +24,7 @@
     "eslint-config-oclif-typescript": "^0.1.0",
     "globby": "^10.0.2",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.7"
+    "typescript": "^4.1.3"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -54,7 +54,8 @@
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "build": "yarn link",
     "test": "echo NO TESTS",
-    "version": "oclif-dev readme && git add README.md"
+    "version": "oclif-dev readme && git add README.md",
+    "clean": "rimraf lib"
   },
   "types": "lib/index.d.ts"
 }

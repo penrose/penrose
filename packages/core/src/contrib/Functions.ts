@@ -1,28 +1,53 @@
-import { bboxFromShape, inRange, isRectlike } from "contrib/Constraints"; // TODO move this into graphics utils?
+import { bboxFromShape } from "contrib/Queries";
+import { inRange } from "contrib/Utils";
+import { constOf, numOf, ops, varOf } from "engine/Autodiff";
 import {
   absVal,
+  acos,
+  acosh,
   add,
   addN,
-  constOf,
+  asin,
+  asinh,
+  atan,
+  atan2,
+  atanh,
+  cbrt,
+  ceil,
   cos,
+  cosh,
   div,
+  exp,
+  expm1,
+  floor,
   gt,
   ifCond,
+  ln,
+  log10,
+  log1p,
+  log2,
   max,
   min,
   mul,
   neg,
-  numOf,
-  ops,
+  pow,
+  round,
+  sign,
   sin,
+  sinh,
   sqrt,
+  squared,
   sub,
-  variableAD,
-  varOf,
-} from "engine/Autodiff";
+  tan,
+  tanh,
+  trunc,
+} from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
+import * as _ from "lodash";
 import { maxBy, range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
+import seedrandom from "seedrandom";
+import { shapedefs } from "shapes/Shapes";
 import { IVarAD, OptDebugInfo, Pt2, VarAD, VecAD } from "types/ad";
 import {
   ArgVal,
@@ -35,8 +60,7 @@ import {
   ITupV,
   IVectorV,
 } from "types/value";
-import { getStart, linePts } from "utils/OtherUtils";
-import { randFloat } from "utils/Util";
+import { getStart, linePts, randFloat } from "utils/Util";
 
 /**
  * Static dictionary of computation functions
@@ -44,12 +68,17 @@ import { randFloat } from "utils/Util";
  * TODO: think about user extension of computation dict and evaluation of functions in there
  */
 
+export interface Context {
+  rng: seedrandom.prng;
+}
+
 // NOTE: These all need to be written in terms of autodiff types
 // These all return a Value<VarAD>
 export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
 
   makePath: (
+    _context: Context,
     start: [IVarAD, IVarAD],
     end: [IVarAD, IVarAD],
     curveHeight: IVarAD,
@@ -78,7 +107,11 @@ export const compDict = {
    * Return the derivative of `varName`.
    * NOTE: This is a special system function. Don't change it!
    */
-  derivative: (optDebugInfo: OptDebugInfo, varName: string): IFloatV<any> => {
+  derivative: (
+    _context: Context,
+    optDebugInfo: OptDebugInfo,
+    varName: string
+  ): IFloatV<any> => {
     if (
       !optDebugInfo ||
       !("gradient" in optDebugInfo) ||
@@ -114,6 +147,7 @@ export const compDict = {
    * NOTE: This is a special system function. Don't change it!
    */
   derivativePreconditioned: (
+    _context: Context,
     optDebugInfo: OptDebugInfo,
     varName: string
   ): IFloatV<any> => {
@@ -152,7 +186,7 @@ export const compDict = {
   /**
    * Return `i`th element of list `xs, assuming lists only hold floats.
    */
-  get: (xs: VarAD[], i: number): IFloatV<any> => {
+  get: (_context: Context, xs: VarAD[], i: number): IFloatV<any> => {
     const res = xs[i];
     return {
       tag: "FloatV",
@@ -160,7 +194,7 @@ export const compDict = {
     };
   },
 
-  getVar: (xs: VarAD[], i: VarAD): IFloatV<any> => {
+  getVar: (_context: Context, xs: VarAD[], i: VarAD): IFloatV<any> => {
     const res = xs[i.val];
     return {
       tag: "FloatV",
@@ -169,9 +203,15 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
+   * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
-  rgba: (r: VarAD, g: VarAD, b: VarAD, a: VarAD): IColorV<VarAD> => {
+  rgba: (
+    _context: Context,
+    r: VarAD,
+    g: VarAD,
+    b: VarAD,
+    a: VarAD
+  ): IColorV<VarAD> => {
     return {
       tag: "ColorV",
       contents: {
@@ -182,6 +222,7 @@ export const compDict = {
   },
 
   selectColor: (
+    _context: Context,
     color1: Color<VarAD>,
     color2: Color<VarAD>,
     level: IVarAD
@@ -198,9 +239,15 @@ export const compDict = {
   },
 
   /**
-   * Return a color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
+   * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
-  hsva: (h: VarAD, s: VarAD, v: VarAD, a: VarAD): IColorV<VarAD> => {
+  hsva: (
+    _context: Context,
+    h: VarAD,
+    s: VarAD,
+    v: VarAD,
+    a: VarAD
+  ): IColorV<VarAD> => {
     return {
       tag: "ColorV",
       contents: {
@@ -211,31 +258,281 @@ export const compDict = {
   },
 
   /**
-   * Return the cosine of input `d` (in degrees).
+   * Return a paint of none (no paint)
    */
-  cos: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  none: (_context: Context): IColorV<any> => {
     return {
-      tag: "FloatV",
-      contents: cos(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      tag: "ColorV",
+      contents: {
+        tag: "NONE",
+      },
     };
   },
 
   /**
-   * Return the sine of input `d` (in degrees).
+   * Return `acosh(x)`.
    */
-  sin: (d: VarAD): IFloatV<VarAD> => {
-    // Accepts degrees; converts to radians
+  acosh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
-      contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0))),
+      contents: acosh(x),
+    };
+  },
+
+  /**
+   * Return `acos(x)`.
+   */
+  acos: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: acos(x),
+    };
+  },
+
+  /**
+   * Return `asin(x)`.
+   */
+  asin: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: asin(x),
+    };
+  },
+
+  /**
+   * Return `asinh(x)`.
+   */
+  asinh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: asinh(x),
+    };
+  },
+
+  /**
+   * Return `atan(x)`.
+   */
+  atan: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: atan(x),
+    };
+  },
+
+  /**
+   * Return `atan2(y,x)`.
+   */
+  atan2: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: atan2(y, x),
+    };
+  },
+
+  /**
+   * Return `atanh(x)`.
+   */
+  atanh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: atanh(x),
+    };
+  },
+
+  /**
+   * Return `cbrt(x)`.
+   */
+  cbrt: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: cbrt(x),
+    };
+  },
+
+  /**
+   * Return `ceil(x)`.
+   */
+  ceil: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: ceil(x),
+    };
+  },
+
+  /**
+   * Return `cos(x)`.
+   */
+  cos: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: cos(x),
+    };
+  },
+
+  /**
+   * Return `cosh(x)`.
+   */
+  cosh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: cosh(x),
+    };
+  },
+
+  /**
+   * Return `exp(x)`.
+   */
+  exp: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: exp(x),
+    };
+  },
+
+  /**
+   * Return `expm1(x)`.
+   */
+  expm1: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: expm1(x),
+    };
+  },
+
+  /**
+   * Return `floor(x)`.
+   */
+  floor: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: floor(x),
+    };
+  },
+
+  /**
+   * Return `log(x)`.
+   */
+  log: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: ln(x),
+    };
+  },
+
+  /**
+   * Return `log2(x)`.
+   */
+  log2: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: log2(x),
+    };
+  },
+
+  /**
+   * Return `log10(x)`.
+   */
+  log10: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: log10(x),
+    };
+  },
+
+  /**
+   * Return `log1p(x)`.
+   */
+  log1p: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: log1p(x),
+    };
+  },
+
+  /**
+   * Return `pow(x,y)`.
+   */
+  pow: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: pow(x, y),
+    };
+  },
+
+  /**
+   * Return `round(x)`.
+   */
+  round: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: round(x),
+    };
+  },
+
+  /**
+   * Return `sign(x)`.
+   */
+  sign: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: sign(x),
+    };
+  },
+
+  /**
+   * Return `sin(x)`.
+   */
+  sin: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: sin(x),
+    };
+  },
+
+  /**
+   * Return `sinh(x)`.
+   */
+  sinh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: sinh(x),
+    };
+  },
+
+  /**
+   * Return `tan(x)`.
+   */
+  tan: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: tan(x),
+    };
+  },
+
+  /**
+   * Return `tanh(x)`.
+   */
+  tanh: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: tanh(x),
+    };
+  },
+
+  /**
+   * Return `trunc(x)`.
+   */
+  trunc: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: trunc(x),
     };
   },
 
   /**
    * Return the dot product of `v` and `w`.
    */
-  dot: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+  dot: (_context: Context, v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
       contents: ops.vdot(v, w),
@@ -245,7 +542,10 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  lineLength: ([type, props]: [string, any]): IFloatV<VarAD> => {
+  lineLength: (
+    _context: Context,
+    [type, props]: [string, any]
+  ): IFloatV<VarAD> => {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
@@ -256,7 +556,7 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  len: ([type, props]: [string, any]): IFloatV<VarAD> => {
+  len: (_context: Context, [type, props]: [string, any]): IFloatV<VarAD> => {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
@@ -267,7 +567,7 @@ export const compDict = {
   /**
    * Concatenate a list of strings
    */
-  concat: (...strings: string[]): IStrV => {
+  concat: (_context: Context, ...strings: string[]): IStrV => {
     return {
       tag: "StrV",
       contents: strings.join(""),
@@ -277,7 +577,7 @@ export const compDict = {
   /**
    * Return the normalized version of vector `v`.
    */
-  normalize: (v: VarAD[]): IVectorV<VarAD> => {
+  normalize: (_context: Context, v: VarAD[]): IVectorV<VarAD> => {
     return {
       tag: "VectorV",
       contents: ops.vnormalize(v),
@@ -287,7 +587,11 @@ export const compDict = {
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  pathFromPoints: (pathType: string, pts: [Pt2]): IPathDataV<IVarAD> => {
+  pathFromPoints: (
+    _context: Context,
+    pathType: string,
+    pts: Pt2[]
+  ): IPathDataV<IVarAD> => {
     const path = new PathBuilder();
     const [start, ...tailpts] = pts;
     path.moveTo(start);
@@ -297,9 +601,44 @@ export const compDict = {
   },
 
   /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
+   */
+  quadraticCurveFromPoints: (
+    _context: Context,
+    pathType: string,
+    pts: Pt2[]
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    const [start, cp, second, ...tailpts] = pts;
+    path.moveTo(start);
+    path.quadraticCurveTo(cp, second);
+    tailpts.map((pt: Pt2) => path.quadraticCurveJoin(pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+
+  /**
+   * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
+   */
+  cubicCurveFromPoints: (
+    _context: Context,
+    pathType: string,
+    pts: Pt2[]
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    const [start, cp1, cp2, second, ...tailpts] = pts;
+    path.moveTo(start);
+    path.bezierCurveTo(cp1, cp2, second);
+    _.chunk(tailpts, 2).map(([cp, pt]) => path.cubicCurveJoin(cp, pt));
+    if (pathType === "closed") path.closePath();
+    return path.getPath();
+  },
+
+  /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
   unitMark: (
+    _context: Context,
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     t: string,
@@ -324,6 +663,7 @@ export const compDict = {
    * Return two points to "cap off" the line made in `unitMark`.
    */
   unitMark2: (
+    _context: Context,
     [start, end]: [Pt2, Pt2],
     t: string,
     padding: VarAD,
@@ -354,6 +694,7 @@ export const compDict = {
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
   arc: (
+    _context: Context,
     pathType: string,
     start: Pt2,
     end: Pt2,
@@ -368,13 +709,47 @@ export const compDict = {
     return path.getPath();
   },
   /**
+   * Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
+   * @param center: center of the circle on which the arc sits
+   * @param start: coordinate to start drawing the arc
+   * @param end: coordinate to finish drawing the arc
+   * @param radius: width and height of the ellipse to draw the arc along (i.e. [width, height])
+   * @param rotation: angle in degrees to rotate ellipse about its center
+   * @param largeArc: 0 to draw shorter of 2 arcs, 1 to draw longer
+   * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
+   * @returns: Elements that can be passed to Path shape spec to render an SVG arc
+   */
+  wedge: (
+    _context: Context,
+    center: Pt2,
+    start: Pt2,
+    end: Pt2,
+    radius: Pt2,
+    rotation: IVarAD,
+    largeArc: IVarAD,
+    arcSweep: IVarAD
+  ): IPathDataV<IVarAD> => {
+    const path = new PathBuilder();
+    path
+      .moveTo(start)
+      .arcTo(radius, end, [rotation, largeArc, arcSweep])
+      .lineTo(center);
+    path.closePath();
+    return path.getPath();
+  },
+  /**
    * Find the point that is located at dist r along a line between p1 and p2.
    * @param p1: start point of line segment
    * @param p2: endpoint of line segment
    * @param r: distance from p1 to travel along the line
    * @returns: vector representation of the point of intersection
    */
-  ptOnLine: (p1: VarAD[], p2: VarAD[], r: VarAD): IVectorV<VarAD> => {
+  ptOnLine: (
+    _context: Context,
+    p1: VarAD[],
+    p2: VarAD[],
+    r: VarAD
+  ): IVectorV<VarAD> => {
     // find unit vector pointing towards v2
     const unit = ops.vnormalize(ops.vsub(p2, p1));
     return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
@@ -386,19 +761,84 @@ export const compDict = {
    * @param end: end point of the arc
    * @returns: 0 or 1 depending on CCW or CW rotation
    */
-  arcSweepFlag: ([x1, y1]: VarAD[], start: Pt2, end: Pt2): IFloatV<VarAD> => {
+  arcSweepFlag: (
+    _context: Context,
+    [x1, y1]: VarAD[],
+    start: Pt2,
+    end: Pt2
+  ): IFloatV<VarAD> => {
     const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
     const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
     const cross = ops.cross2(st, en);
     return {
       tag: "FloatV",
-      contents: ifCond(gt(cross, varOf(0)), varOf(0), varOf(1)),
+      contents: ifCond(gt(cross, constOf(0)), constOf(0), constOf(1)),
+    };
+  },
+  /**
+   * Return the unsigned angle between vectors `u, v`, in radians.
+   * Assumes that both u and v have nonzero magnitude.
+   * The returned value will be in the range [0,pi].
+   */
+  angleBetween: (_context: Context, u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const theta = ops.angleBetween(u, v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+  /**
+   * Return the signed angle from vector `u` to vector `v`, in radians.
+   * Assumes that both u and v are 2D vectors and have nonzero magnitude.
+   * The returned value will be in the range [-pi,pi].
+   */
+  angleFrom: (_context: Context, u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const theta = ops.angleFrom(u, v);
+    return {
+      tag: "FloatV",
+      contents: theta,
+    };
+  },
+  /**
+   * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
+   */
+  cross2D: (_context: Context, u: VarAD[], v: VarAD[]): IFloatV<VarAD> => {
+    const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
+    return {
+      tag: "FloatV",
+      contents: det,
+    };
+  },
+  /**
+   * Return the intersection of a line passing through
+   * `a0` and `a1` with a line passing through `b0` and `b1`
+   */
+  lineLineIntersection: (
+    _context: Context,
+    a0: VarAD[],
+    a1: VarAD[],
+    b0: VarAD[],
+    b1: VarAD[]
+  ): IVectorV<VarAD> => {
+    const A0 = [a0[0], a0[1], constOf(1)];
+    const A1 = [a1[0], a1[1], constOf(1)];
+    const B0 = [b0[0], b0[1], constOf(1)];
+    const B1 = [b1[0], b1[1], constOf(1)];
+    const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
+    const x = [div(X[0], X[2]), div(X[1], X[2])];
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
     };
   },
   /**
    * Return a point located at the midpoint between pts `start` and `end`
    */
-  midpoint: (start: VarAD[], end: VarAD[]): IVectorV<VarAD> => {
+  midpoint: (
+    _context: Context,
+    start: VarAD[],
+    end: VarAD[]
+  ): IVectorV<VarAD> => {
     const midpointLoc = ops.vmul(constOf(0.5), ops.vadd(start, end));
     return {
       tag: "VectorV",
@@ -408,7 +848,11 @@ export const compDict = {
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: ([t1, s1]: [string, any], padding: VarAD): ITupV<VarAD> => {
+  midpointOffset: (
+    _context: Context,
+    [t1, s1]: [string, any],
+    padding: VarAD
+  ): ITupV<VarAD> => {
     if (t1 === "Arrow" || t1 === "Line") {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
@@ -424,6 +868,7 @@ export const compDict = {
     }
   },
   chevron: (
+    _context: Context,
     // TODO reimplement with variable tick marks when #629 is merged
     [t1, s1]: [string, any],
     padding: VarAD,
@@ -433,8 +878,8 @@ export const compDict = {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
-      const startDir = ops.vrot(dir, varOf(135));
-      const endDir = ops.vrot(dir, varOf(225));
+      const startDir = ops.vrot(dir, constOf(135));
+      const endDir = ops.vrot(dir, constOf(225));
       const center = ops.vmul(constOf(0.5), ops.vadd(start, end));
       // if even, evenly divide tick marks about center. if odd, start in center and move outwards
       return {
@@ -453,6 +898,7 @@ export const compDict = {
    * Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
    */
   innerPointOffset: (
+    _context: Context,
     pt1: VarAD[],
     pt2: VarAD[],
     pt3: VarAD[],
@@ -474,7 +920,7 @@ export const compDict = {
     // unit vector from midpoint to end point
     const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
     // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
-    const cond = gt(ops.vdot(vec1unit, intoEndUnit), varOf(0.95));
+    const cond = gt(ops.vdot(vec1unit, intoEndUnit), constOf(0.95));
     return {
       tag: "VectorV",
       contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
@@ -489,6 +935,7 @@ export const compDict = {
    * @param tickLength: 1/2 length of each tick
    */
   ticksOnLine: (
+    _context: Context,
     pt1: VarAD[],
     pt2: VarAD[],
     spacing: VarAD,
@@ -520,6 +967,7 @@ export const compDict = {
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
    */
   orientedSquare: (
+    _context: Context,
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     intersection: Pt2,
@@ -546,21 +994,22 @@ export const compDict = {
 
   /**
            * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-        
+
        @deprecated Don't use this function, it does not fully work
            */
   intersectingSideSize: (
+    _context: Context,
     start: VecAD,
     end: VecAD,
     [t1, s1]: [string, any]
   ): IFloatV<VarAD> => {
     // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (!isRectlike(t1)) {
+    if (!shapedefs[t1].isRectlike) {
       throw Error("expected rect-like shape");
     }
 
     // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bboxFromShape(t1, s1);
+    const rect = bboxFromShape([t1, s1]);
 
     // Intersects top or bottom => return w
     // i.e. endX \in [minX, maxX] -- if not this, the other must be true
@@ -577,8 +1026,8 @@ export const compDict = {
 
     const dim = ifCond(
       inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
-      rect.h,
-      rect.w
+      rect.height,
+      rect.width
     );
     return { tag: "FloatV", contents: dim };
   },
@@ -587,6 +1036,7 @@ export const compDict = {
    * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
    */
   triangle: (
+    _context: Context,
     [t1, l1]: any,
     [t2, l2]: any,
     [t3, l3]: any
@@ -608,7 +1058,7 @@ export const compDict = {
   /**
    * Return the average of floats `x` and `y`.
    */
-  average2: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  average2: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
       contents: div(add(x, y), constOf(2.0)),
@@ -618,7 +1068,7 @@ export const compDict = {
   /**
    * Return the average of the floats in the list `xs`.
    */
-  average: (xs: VarAD[]): IFloatV<VarAD> => {
+  average: (_context: Context, xs: VarAD[]): IFloatV<VarAD> => {
     return {
       tag: "FloatV",
       contents: div(addN(xs), max(constOf(1.0), constOf(xs.length))),
@@ -629,7 +1079,7 @@ export const compDict = {
   /**
    * Return the normalized version of vector `v`.
    */
-  unit: (v: VarAD[]): IVectorV<VarAD> => {
+  unit: (_context: Context, v: VarAD[]): IVectorV<VarAD> => {
     return {
       tag: "VectorV",
       contents: ops.vnormalize(v),
@@ -639,11 +1089,17 @@ export const compDict = {
   /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
-  sampleColor: (alpha: VarAD, colorType: string): IColorV<VarAD> => {
+  sampleColor: (
+    context: Context,
+    alpha: VarAD,
+    colorType: string
+  ): IColorV<VarAD> => {
     checkFloat(alpha);
 
     if (colorType === "rgb") {
-      const rgb = range(3).map((_) => constOf(randFloat(0.1, 0.9)));
+      const rgb = range(3).map((_) =>
+        constOf(randFloat(context.rng, 0.1, 0.9))
+      );
 
       return {
         tag: "ColorV",
@@ -653,7 +1109,7 @@ export const compDict = {
         },
       };
     } else if (colorType === "hsv") {
-      const h = randFloat(0, 360);
+      const h = randFloat(context.rng, 0, 360);
       return {
         tag: "ColorV",
         contents: {
@@ -667,21 +1123,34 @@ export const compDict = {
   /**
    * Set the opacity of a color `color` to `frac`.
    */
-  setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
-    const rgb = color.contents;
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "RGBA",
-        contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
-      },
-    };
+  setOpacity: (
+    _context: Context,
+    color: Color<VarAD>,
+    frac: VarAD
+  ): IColorV<VarAD> => {
+    // If paint=none, opacity is irreelevant
+    if (color.tag === "NONE") {
+      return {
+        tag: "ColorV",
+        contents: color,
+      };
+      // Otherwise, retain tag and color; only modify opacity
+    } else {
+      const props = color.contents;
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: color.tag,
+          contents: [props[0], props[1], props[2], mul(frac, props[3])],
+        },
+      };
+    }
   },
 
   /**
    * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
    */
-  mul: (m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
+  mul: (_context: Context, m: VarAD[][], v: VarAD[]): IVectorV<VarAD> => {
     if (!m.length) {
       throw Error("empty matrix");
     }
@@ -695,81 +1164,315 @@ export const compDict = {
     };
   },
 
+  // ------ Triangle centers
+
+  /**
+   * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
+   */
+  barycenter: (
+    _context: Context,
+    a: VarAD[],
+    b: VarAD[],
+    c: VarAD[]
+  ): IVectorV<VarAD> => {
+    const x = ops.vmul(constOf(1 / 3), ops.vadd(a, ops.vadd(b, c)));
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+
+  /**
+   * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
+   */
+  circumcenter: (
+    _context: Context,
+    p: VarAD[],
+    q: VarAD[],
+    r: VarAD[]
+  ): IVectorV<VarAD> => {
+    // edge vectors
+    const u = ops.vsub(r, q);
+    const v = ops.vsub(p, r);
+    const w = ops.vsub(q, p);
+
+    // side lengths
+    const a = ops.vnorm(u);
+    const b = ops.vnorm(v);
+    const c = ops.vnorm(w);
+
+    // homogeneous barycentric coordinates for circumcenter
+    const hp = neg(mul(div(a, mul(b, c)), ops.vdot(w, v)));
+    const hq = neg(mul(div(b, mul(c, a)), ops.vdot(u, w)));
+    const hr = neg(mul(div(c, mul(a, b)), ops.vdot(v, u)));
+
+    // normalize to get barycentric coordinates for circumcenter
+    const H = add(add(hp, hq), hr);
+    const bp = div(hp, H);
+    const bq = div(hq, H);
+    const br = div(hr, H);
+
+    // circumcenter
+    const x = ops.vadd(
+      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+      ops.vmul(br, r)
+    );
+
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+
+  /**
+   * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
+   */
+  circumradius: (
+    _context: Context,
+    p: VarAD[],
+    q: VarAD[],
+    r: VarAD[]
+  ): IFloatV<VarAD> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
+
+    // semiperimeter
+    const s = mul(constOf(0.5), add(add(a, b), c));
+
+    // circumradius, computed as
+    // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
+    const R = div(
+      mul(mul(a, b), c),
+      mul(
+        constOf(4),
+        sqrt(
+          mul(
+            mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
+            sub(add(b, c), s)
+          )
+        )
+      )
+    );
+
+    return {
+      tag: "FloatV",
+      contents: R,
+    };
+  },
+
+  /**
+   * Return the incenter of the triangle with vertices `p`, `q`, `r`.
+   */
+  incenter: (
+    _context: Context,
+    p: VarAD[],
+    q: VarAD[],
+    r: VarAD[]
+  ): IVectorV<VarAD> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
+
+    // barycentric coordinates for incenter
+    const s = add(add(a, b), c);
+    const bp = div(a, s);
+    const bq = div(b, s);
+    const br = div(c, s);
+
+    // incenter
+    const x = ops.vadd(
+      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+      ops.vmul(br, r)
+    );
+
+    return {
+      tag: "VectorV",
+      contents: toPt(x),
+    };
+  },
+
+  /**
+   * Return the inradius of the triangle with vertices `p`, `q`, `r`.
+   */
+  inradius: (
+    _context: Context,
+    p: VarAD[],
+    q: VarAD[],
+    r: VarAD[]
+  ): IFloatV<VarAD> => {
+    // side lengths
+    const a = ops.vnorm(ops.vsub(r, q));
+    const b = ops.vnorm(ops.vsub(p, r));
+    const c = ops.vnorm(ops.vsub(q, p));
+
+    // semiperimeter
+    const s = mul(constOf(0.5), add(add(a, b), c));
+
+    // inradius
+    const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
+
+    return {
+      tag: "FloatV",
+      contents: R,
+    };
+  },
+
   // ------ Utility functions
+
+  /**
+   * Return the square of the number `x`.
+   */
+  sqr: (_context: Context, x: VarAD): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: squared(x) };
+  },
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
    */
-  sqrt: (x: VarAD): IFloatV<VarAD> => {
+  sqrt: (_context: Context, x: VarAD): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: sqrt(x) };
   },
 
   /**
    * Return the max of the numbers `x`, `y`.
    */
-  max: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  max: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: max(x, y) };
   },
 
   /**
    * Return the min of the numbers `x`, `y`.
    */
-  min: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+  min: (_context: Context, x: VarAD, y: VarAD): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: min(x, y) };
   },
 
   /**
    * Return the absolute value of the number `x`.
    */
-  abs: (x: VarAD): IFloatV<VarAD> => {
+  abs: (_context: Context, x: VarAD): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: absVal(x) };
+  },
+
+  /**
+   * Convert the angle `theta` from degrees to radians.
+   */
+  toRadians: (_context: Context, theta: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: mul(constOf(3.141592653589793 / 180), theta),
+    };
+  },
+
+  /**
+   * Convert the angle `theta` from radians to degrees.
+   */
+  toDegrees: (_context: Context, theta: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: mul(constOf(180 / 3.141592653589793), theta),
+    };
   },
 
   /**
    * Return the Euclidean norm of the vector `v`.
    */
-  norm: (v: VarAD[]): IFloatV<VarAD> => {
+  norm: (_context: Context, v: VarAD[]): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: ops.vnorm(v) };
   },
 
   /**
    * Return the Euclidean norm squared of the vector `v`.
    */
-  normsq: (v: VarAD[]): IFloatV<VarAD> => {
+  normsq: (_context: Context, v: VarAD[]): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: ops.vnormsq(v) };
   },
 
   /**
    * Return the Euclidean distance between the vectors `v` and `w`.
    */
-  vdist: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+  vdist: (_context: Context, v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: ops.vdist(v, w) };
   },
 
-  vmul: (s: VarAD, v: VarAD[]): IVectorV<VarAD> => {
+  vmul: (_context: Context, s: VarAD, v: VarAD[]): IVectorV<VarAD> => {
     return { tag: "VectorV", contents: ops.vmul(s, v) };
   },
 
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
-  vdistsq: (v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
+  vdistsq: (_context: Context, v: VarAD[], w: VarAD[]): IFloatV<VarAD> => {
     return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+  },
+
+  /**
+   * Return the angle made by the vector `v` with the positive x-axis.
+   */
+  angleOf: (_context: Context, v: VarAD[]): IFloatV<VarAD> => {
+    return { tag: "FloatV", contents: atan2(v[1], v[0]) };
+  },
+
+  // ------ Mathematical constants
+
+  /**
+   * Base e of the natural logarithm.
+   */
+  MathE: (_context: Context): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(2.718281828459045),
+    };
+  },
+
+  /**
+   * Ratio of the circumference of a circle to its diameter.
+   */
+  MathPI: (_context: Context): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: constOf(3.141592653589793),
+    };
   },
 
   // ------ Geometry/graphics utils
 
   /**
-   * Rotate a 2D vector `v` by 90 degrees clockwise.
+   * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
-  rot90: (v: VarAD[]) => {
+  rot90: (_context: Context, v: VarAD[]) => {
     if (v.length !== 2) {
       throw Error("expected 2D vector in `rot90`");
     }
     const [x, y] = v;
     return { tag: "VectorV", contents: [neg(y), x] };
   },
+
+  /**
+   * Rotate a 2D vector `v` by theta degrees counterclockwise.
+   */
+  rotateBy: (_context: Context, v: VarAD[], theta: VarAD) => {
+    if (v.length !== 2) {
+      throw Error("expected 2D vector in `rotateBy`");
+    }
+    const [x, y] = v;
+    const X = add(mul(cos(theta), x), mul(sin(theta), y));
+    const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
+    return { tag: "VectorV", contents: [X, Y] };
+  },
 };
+
+// _compDictVals causes TypeScript to enforce that every function in compDict
+// takes a Context as its first parameter
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _compDictVals: ((
+  context: Context,
+  ...rest: never[]
+) => unknown)[] = Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
@@ -815,7 +1518,7 @@ const perpPathFlat = (
 };
 
 /**
- * Rotate a 2D point `[x, y]` by 90 degrees clockwise.
+ * Rotate a 2D point `[x, y]` by 90 degrees counterclockwise.
  */
 const rot90 = ([x, y]: Pt2): Pt2 => {
   return [neg(y), x];
@@ -854,11 +1557,11 @@ const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
 const tickPlacement = (
   padding: VarAD,
   numPts: VarAD,
-  multiplier = varOf(1)
+  multiplier = constOf(1)
 ): VarAD[] => {
   if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numOf(numPts) % 2 === 0;
-  let pts = even ? [div(padding, varOf(2))] : [varOf(0)];
+  const pts = even ? [div(padding, varOf(2))] : [varOf(0)];
   for (let i = 1; i < numOf(numPts); i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =

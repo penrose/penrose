@@ -5,8 +5,9 @@ interface IProps {
   converged: boolean;
   autostep: boolean;
   initial: boolean;
+  error: boolean;
   showInspector: boolean;
-  files: FileSocketResult | null;
+  files: FileSocketResult | undefined;
   connected: boolean;
 
   toggleInspector?(): void;
@@ -15,13 +16,14 @@ interface IProps {
   downloadSVG?(): void;
   downloadState?(): void;
   autoStepToggle?(): void;
-  step(): void;
+  step(numSteps: number): void;
   stepUntilConvergence(): void;
+  reset(): void;
   resample(): void;
   reconnect(): void;
 }
 class ButtonBar extends React.Component<IProps> {
-  public render() {
+  public render(): JSX.Element {
     const {
       converged,
       initial,
@@ -32,12 +34,14 @@ class ButtonBar extends React.Component<IProps> {
       downloadState,
       step,
       stepUntilConvergence,
+      reset,
       resample,
       toggleInspector,
       showInspector,
       files,
       connected,
       reconnect,
+      error,
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -46,11 +50,17 @@ class ButtonBar extends React.Component<IProps> {
             autostep {autostep ? "(on)" : "(off)"}
           </button>
         )}
-        <button onClick={step}>x1 optimization step</button>
+        <button onClick={() => step(1)}>x1 optimization step</button>
         <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
+          onClick={reset}
+          disabled={!converged && !initial && !error && autostep}
+        >
+          reset
+        </button>
+        <button
           onClick={resample}
-          disabled={!converged && !initial && autostep}
+          disabled={!converged && !initial && !error && autostep}
         >
           resample
         </button>
@@ -87,7 +97,7 @@ class ButtonBar extends React.Component<IProps> {
             fontSize: "14px",
           }}
         >
-          {files === null
+          {files === undefined
             ? "no files received from server"
             : `sub: ${files.substance.fileName} sty: ${files.style.fileName} dsl: ${files.domain.fileName}`}
         </div>

@@ -12,7 +12,7 @@ Set x {
     x.shape = Circle {
         strokeWidth : 1.0
         strokeColor : Colors.black
-        color: Colors.darkpurple
+        fillColor: Colors.darkpurple
     }
 
     x.text = Text {
@@ -21,8 +21,7 @@ Set x {
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
-    x.minSizeFn = ensure minSize(x.shape)
-    x.maxSizeFn = ensure maxSize(x.shape, canvas.height / 3.)
+    x.minSizeFn = lessThan(20, x.shape.r)
     x.layering  = x.shape below x.text
 }
 
@@ -31,14 +30,14 @@ Set x; Set y
 where IsSubset(x, y) {
     x.subsetFn0 = ensure contains(y.shape, x.shape, 20.0)
     x.subsetFn1 = ensure smallerThan(x.shape, y.shape)
-    x.subsetFn2 = ensure outsideOf(y.text, x.shape)
+    x.subsetFn2 = ensure disjoint(y.text, x.shape)
     x.shape above y.shape
 }
 
 -- Set x; Set y; Set z
 -- where IsSubset(x, y); IsSubset(y, z); {
-    -- z.outsideFn = ensure outsideOf(z.text, x.shape)
-    -- z.outsideFn = ensure outsideOf(z.text, y.shape)
+    -- z.outsideFn = ensure disjoint(z.text, x.shape)
+    -- z.outsideFn = ensure disjoint(z.text, y.shape)
 -- }
 
 
@@ -83,7 +82,7 @@ Set x, y {
 --         fontSize: "20pt"
 --     } 
 --     override y.labelFn = ensure contains(y.shape, y.text)
---     override y.outsideFn = ensure outsideOf(y.text, z.shape)
+--     override y.outsideFn = ensure disjoint(y.text, z.shape)
 -- }
 
 -- Set x; Set y; Set z

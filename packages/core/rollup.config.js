@@ -1,10 +1,8 @@
-import typescript from "rollup-plugin-typescript2";
-// import visualizer from "rollup-plugin-visualizer";
-import { terser } from "rollup-plugin-terser";
-import nodePolyfills from "rollup-plugin-node-polyfills";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import nodePolyfills from "rollup-plugin-node-polyfills";
+import typescript from "rollup-plugin-typescript2";
 import pkg from "./package.json";
 
 const input = "./src/index.ts";
@@ -42,32 +40,33 @@ export default [
     watch: false, // no need to rebuild during watch
     plugins: [
       ...plugins,
-      terser({ format: { comments: false } }),
+      // terser({ format: { comments: false } }),
       // visualizer()
     ],
   },
-  {
-    input,
-    output: {
-      file: pkg.module,
-      format: "esm",
-      sourcemap: true,
-    },
-    onwarn,
-    watch: false, // no need to rebuild during watch - targeting node only
-    plugins,
-    cache: pkg.module, // for incremental builds
-  },
-  {
-    input,
-    output: {
-      file: pkg.main,
-      format: "cjs",
-      sourcemap: true,
-    },
-    watch: true, // no need to rebuild during watch - targeting node only
-    onwarn,
-    plugins,
-    cache: pkg.main, // for incremental builds
-  },
+  // DEPRECATED: ESM and CJS builds are supported by esbuild now
+  // {
+  //   input,
+  //   output: {
+  //     file: pkg.module,
+  //     format: "esm",
+  //     sourcemap: true,
+  //   },
+  //   onwarn,
+  //   watch: false, // no need to rebuild during watch - targeting node only
+  //   plugins,
+  //   cache: pkg.module, // for incremental builds
+  // },
+  // {
+  //   input,
+  //   output: {
+  //     file: pkg.main,
+  //     format: "cjs",
+  //     sourcemap: true,
+  //   },
+  //   watch: true, // no need to rebuild during watch - targeting node only
+  //   onwarn,
+  //   plugins,
+  //   cache: pkg.main, // for incremental builds
+  // },
 ];

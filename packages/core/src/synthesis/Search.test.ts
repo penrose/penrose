@@ -10,7 +10,7 @@ import { cloneDeep, minBy } from "lodash";
 import { createChoice } from "pandemonium/choice";
 import { applyDiff, rdiffResult } from "recursive-diff";
 import seedrandom from "seedrandom";
-import { initContext } from "synthesis/Synthesizer";
+import { A } from "types/ast";
 import { SubProg, SubRes } from "types/substance";
 import {
   enumerateStmtMutations,
@@ -31,6 +31,7 @@ import {
   subProgDiffs,
   swapDiffID,
 } from "./Search";
+import { initContext } from "./Synthesizer";
 
 const RNG = seedrandom("seed5");
 const choice: <T>(array: Array<T>) => T = createChoice(RNG);
@@ -40,28 +41,28 @@ type Set
 type Point
 type Map
 
-constructor Singleton : Point p -> Set
+constructor Singleton(Point p) -> Set
 
-function Intersection : Set a * Set b -> Set
-function Union : Set a * Set b -> Set
-function Subtraction : Set a * Set b -> Set
-function CartesianProduct : Set a * Set b -> Set
-function Difference : Set a * Set b -> Set
-function Subset : Set a * Set b -> Set
-function AddPoint : Point p * Set s1 -> Set
+function Intersection(Set a, Set b) -> Set
+function Union(Set a, Set b) -> Set
+function Subtraction(Set a, Set b) -> Set
+function CartesianProduct(Set a, Set b) -> Set
+function Difference(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s1) -> Set
 
-predicate Not : Prop p1
-predicate From : Map f * Set domain * Set codomain
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
-predicate Equal : Set s1 * Set s2
-predicate PointIn : Set s * Point p
-predicate In : Point p * Set s
-predicate Injection : Map m
-predicate Surjection : Map m
-predicate Bijection : Map m
-predicate PairIn : Point * Point * Map
+predicate Not(Prop p1)
+predicate From(Map f, Set domain, Set codomain)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
+predicate Equal(Set s1, Set s2)
+predicate PointIn(Set s, Point p)
+predicate In(Point p, Set s)
+predicate Injection(Map m)
+predicate Surjection(Map m)
+predicate Bijection(Map m)
+predicate PairIn(Point, Point, Map)
 `;
 
 const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
@@ -99,8 +100,8 @@ describe("AST diff tests", () => {
     E := Union(A, B)
     `;
     const res1: SubRes = getSubRes(domainSrc, original);
-    const ast1: SubProg = res1[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, edited)[0].ast;
+    const ast1: SubProg<A> = res1[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, edited)[0].ast;
     const d: DiffSet = subProgDiffs(ast1, ast2);
     expect([...d.add, ...d.delete, ...d.update].map(showSubDiff)).toEqual([
       "Delete: Equal(E, E)",
@@ -124,8 +125,8 @@ describe("AST diff tests", () => {
     F := Union(A, B)
     `;
     const res1: SubRes = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = res1[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = res1[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     expect(diffs).toHaveLength(2);
     expect(diffs.map(showStmtDiff)).toEqual([
@@ -163,8 +164,8 @@ describe("AST diff tests", () => {
     IsSubset(C,A)
     IsSubset(B, A)
     `;
-    const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     // the ASTs have normalized ordering, so there should be only two diffs
     expect(diffs).toHaveLength(2);
@@ -190,8 +191,8 @@ describe("AST diff tests", () => {
     IsSubset(C,A)
     IsSubset(B, A)
     `;
-    const ast1: SubProg = getSubRes(domainSrc, prog1)[0].ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: rdiffResult[] = diffSubProgs(ast1, ast2);
     // because we filtered out all the noisy diffs, the exact formatting should not matter much
     expect(diffs).toHaveLength(2);
@@ -218,8 +219,8 @@ describe("Mutation recognition tests", () => {
     IsSubset(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = subEnv.ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = subEnv.ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const mutationGroups = findMutationPaths(ast1, ast2, env);
     expect(mutationGroups.map(showMutations)).toContain(
       "Swap arguments 0 and 1 of IsSubset(A, B)"
@@ -237,8 +238,8 @@ describe("Mutation recognition tests", () => {
     IsSubset(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = subEnv.ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = subEnv.ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     // find diffs between ASTs, which should only have updates
     const diffs: DiffSet = subProgDiffs(ast1, ast2);
     expect(diffs.add).toHaveLength(0);
@@ -276,8 +277,8 @@ describe("Mutation recognition tests", () => {
     Equal(D, E)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = subEnv.ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = subEnv.ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const mutationGroups = findMutationPaths(ast1, ast2, env);
     // since there's only one possible update, there should be only one path
     expect(mutationGroups).toHaveLength(1);
@@ -308,8 +309,8 @@ describe("Mutation recognition tests", () => {
     Intersecting(A, B)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = subEnv.ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = subEnv.ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 5);
     const shortestPath = minBy(paths, (p) => p.mutations.length);
@@ -336,8 +337,8 @@ describe("Mutation recognition tests", () => {
     Equal(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
-    const ast1: SubProg = subEnv.ast;
-    const ast2: SubProg = getSubRes(domainSrc, prog2)[0].ast;
+    const ast1: SubProg<A> = subEnv.ast;
+    const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const ctx = initContext(env, "existing", "distinct");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 10);
     const twoStepPaths = paths.filter((p) => p.mutations.length === 2);

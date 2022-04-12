@@ -1,7 +1,7 @@
-import React from "react";
-import { PenroseState, SynthesizedSubstance } from "@penrose/core";
-import { Gridbox } from "./Gridbox";
 import { Box, styled, Typography } from "@material-ui/core";
+import { PenroseState, SynthesizedSubstance } from "@penrose/core";
+import React from "react";
+import { Gridbox } from "./Gridbox";
 
 export interface GridProps {
   style: string;
@@ -68,6 +68,7 @@ export class Grid extends React.Component<GridProps, GridState> {
         style={this.props.style}
         progNumber={i}
         substance={s}
+        variation={i.toString()}
         updateSrcProg={this.setSrcState}
         srcState={this.state.srcState}
         onStaged={this.props.onStaged}

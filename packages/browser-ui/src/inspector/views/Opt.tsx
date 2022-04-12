@@ -1,12 +1,12 @@
-import * as React from "react";
-import IViewProps from "./IViewProps";
-import { prettyPrintFn, evalFns, ops } from "@penrose/core";
+import { evalFns, normList, prettyPrintFn } from "@penrose/core";
 import { zipWith } from "lodash";
+import * as React from "react";
 import DataTable from "react-data-table-component";
+import IViewProps from "./IViewProps";
 
 export const EPS = 10e-3;
 
-const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
+const Opt: React.FC<IViewProps> = ({ frame /*, history*/ }: IViewProps) => {
   if (!frame) {
     return (
       <div style={{ padding: "1em", fontSize: "1em", color: "#4f4f4f" }}>
@@ -31,7 +31,7 @@ const Opt: React.FC<IViewProps> = ({ frame, history }: IViewProps) => {
     frame.objFns.map(prettyPrintFn),
     evalFns(frame.objFns, frame),
     (name, fnEvaled) => {
-      const gradientNorm = ops.vnorm(fnEvaled.gradf);
+      const gradientNorm = normList(fnEvaled.gradf);
       return {
         name,
         gradientNorm,

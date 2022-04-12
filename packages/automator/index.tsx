@@ -2,13 +2,14 @@ require("global-jsdom/register");
 import {
   compileTrio,
   evalEnergy,
+  getListOfStagedStates,
   prepareState,
+  RenderStatic,
+  resample,
   showError,
   stepUntilConvergence,
-  PenroseState,
-  getListOfStagedStates,
-  RenderStatic,
 } from "@penrose/core";
+import { join, parse, resolve } from "path";
 import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
@@ -21,7 +22,7 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged]
+  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
   automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
 
@@ -31,6 +32,7 @@ Options:
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
   --staged Generate staged SVGs of the final diagram
+  --cross-energy compute the cross-instance energy
 `;
 
 const nonZeroConstraints = (
@@ -53,6 +55,7 @@ const toMs = (hr: any) => hr[1] / 1000000;
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
+  variation: string,
   sub: any,
   sty: any,
   dsl: string,
@@ -68,18 +71,24 @@ const singleProcess = async (
   },
   reference?,
   referenceState?,
-  extrameta?
+  extrameta?,
+  ciee?
 ) => {
   // Fetch Substance, Style, and Domain files
   const [subIn, styIn, dslIn] = [sub, sty, dsl].map((arg) =>
-    fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
+    fs.readFileSync(join(prefix, arg), "utf8").toString()
   );
 
   // Compilation
   console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = compileTrio(dslIn, subIn, styIn);
+  const compilerOutput = compileTrio({
+    substance: subIn,
+    style: styIn,
+    domain: dslIn,
+    variation,
+  });
   const compileEnd = process.hrtime(compileStart);
   let compiledState;
   if (compilerOutput.isOk()) {
@@ -90,7 +99,8 @@ const singleProcess = async (
   }
 
   const labelStart = process.hrtime();
-  const initialState = await prepareState(compiledState);
+  // resample because initial sampling did not use the special sampling seed
+  const initialState = resample(await prepareState(compiledState));
   const labelEnd = process.hrtime(labelStart);
 
   console.log(`Stepping for ${out} ...`);
@@ -108,14 +118,19 @@ const singleProcess = async (
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
   let listOfCanvasData, canvas;
+  const resolvePath = (filePath: string) => {
+    const parentDir = parse(join(prefix, sty)).dir;
+    const joined = resolve(parentDir, filePath);
+    return fs.readFileSync(joined, "utf8").toString();
+  };
   if (staged) {
     const listOfStagedStates = getListOfStagedStates(optimizedState);
-    listOfCanvasData = listOfStagedStates.map((state: PenroseState) => {
-      return RenderStatic(state).outerHTML;
-    });
+    for (const state of listOfStagedStates) {
+      listOfCanvasData.push((await RenderStatic(state, resolvePath)).outerHTML);
+    }
   } else {
     // if not staged, we just need one canvas data (for the final diagram)
-    canvas = RenderStatic(optimizedState).outerHTML;
+    canvas = (await RenderStatic(optimizedState, resolvePath)).outerHTML;
   }
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
@@ -133,22 +148,24 @@ const singleProcess = async (
     //   console.log("This instance has non-zero constraints: ");
     //   // return;
     // }
-    console.log(chalk.yellow(`Computing cross energy...`));
     let crossEnergy = undefined;
-    if (referenceState) {
-      const crossState = {
-        ...optimizedState,
-        constrFns: referenceState.constrFns,
-        objFns: referenceState.objFns,
-      };
-      try {
-        crossEnergy = evalEnergy(await prepareState(crossState));
-      } catch (e) {
-        console.warn(
-          chalk.yellow(
-            `Cross-instance energy failed. Returning infinity instead. \n${e}`
-          )
-        );
+    if (ciee) {
+      console.log(chalk.yellow(`Computing cross energy...`));
+      if (referenceState) {
+        const crossState = {
+          ...optimizedState,
+          constrFns: referenceState.constrFns,
+          objFns: referenceState.objFns,
+        };
+        try {
+          crossEnergy = evalEnergy(await prepareState(crossState));
+        } catch (e) {
+          console.warn(
+            chalk.yellow(
+              `Cross-instance energy failed. Returning infinity instead. \n${e}`
+            )
+          );
+        }
       }
     }
 
@@ -156,7 +173,7 @@ const singleProcess = async (
     let extraMetadata;
     if (extrameta) {
       extraMetadata = JSON.parse(
-        fs.readFileSync(`${prefix}/${extrameta}`, "utf8").toString()
+        fs.readFileSync(join(prefix, extrameta), "utf8").toString()
       );
     }
 
@@ -192,20 +209,20 @@ const singleProcess = async (
       const writeFileOut = (canvasData: any, index: number) => {
         // add an index num to the output filename so the user knows the order
         // and also to keep unique filenames
-        let filename = `${out}/output${index.toString()}.svg`;
+        let filename = join(out, `output${index.toString()}.svg`);
         fs.writeFileSync(filename, canvasData);
         console.log(chalk.green(`The diagram has been saved as ${filename}`));
       };
       listOfCanvasData.map(writeFileOut);
     } else {
       // not staged --> just need one diagram
-      fs.writeFileSync(`${out}/output.svg`, canvas);
+      fs.writeFileSync(join(out, "output.svg"), canvas);
     }
 
-    fs.writeFileSync(`${out}/substance.sub`, subIn);
-    fs.writeFileSync(`${out}/style.sty`, styIn);
-    fs.writeFileSync(`${out}/domain.dsl`, dslIn);
-    fs.writeFileSync(`${out}/meta.json`, JSON.stringify(metadata));
+    fs.writeFileSync(join(out, "substance.sub"), subIn);
+    fs.writeFileSync(join(out, "style.sty"), styIn);
+    fs.writeFileSync(join(out, "domain.dsl"), dslIn);
+    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata));
     console.log(
       chalk.green(`The diagram and metadata has been saved to ${out}`)
     );
@@ -228,7 +245,7 @@ const singleProcess = async (
     }
 
     // HACK: return empty metadata??
-    return null;
+    return undefined;
   }
 };
 
@@ -240,7 +257,7 @@ const batchProcess = async (
   prefix: string,
   staged: boolean
 ) => {
-  const registry = JSON.parse(fs.readFileSync(`${prefix}/${lib}`).toString());
+  const registry = JSON.parse(fs.readFileSync(join(prefix, lib)).toString());
   const substanceLibrary = registry["substances"];
   const styleLibrary = registry["styles"];
   const domainLibrary = registry["domains"];
@@ -254,7 +271,7 @@ const batchProcess = async (
   const finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
-  for (const { domain, style, substance, meta } of trioLibrary) {
+  for (const { domain, style, substance, variation, meta } of trioLibrary) {
     // try to render the diagram
     const id = uniqid("instance-");
     const name = `${substance}-${style}`;
@@ -274,11 +291,12 @@ const batchProcess = async (
 
       // Warning: will face id conflicts if parallelism used
       const res = await singleProcess(
+        variation,
         subURI,
         styURI,
         dslURI,
         folders,
-        `${out}/${name}-${id}${folders ? "" : ".svg"}`,
+        join(out, `${name}-${id}${folders ? "" : ".svg"}`),
         prefix,
         staged,
         {
@@ -310,7 +328,7 @@ const batchProcess = async (
 
   if (folders) {
     fs.writeFileSync(
-      `${out}/aggregateData.json`,
+      join(out, "aggregateData.json"),
       JSON.stringify(finalMetadata)
     );
     console.log(`The Aggregate metadata has been saved to ${out}.`);
@@ -324,8 +342,9 @@ const batchProcess = async (
 
   // Determine the output file path
   const folders = args["--folders"] || false;
+  const ciee = args["--cross-energy"] || false;
   const browserFolder = args["--render"];
-  const outFile = args["--outFile"] || `${args.OUTFOLDER}/output.svg`;
+  const outFile = args["--outFile"] || join(args.OUTFOLDER, "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
 
@@ -348,7 +367,8 @@ const batchProcess = async (
       folders,
       outFile,
       prefix,
-      staged
+      staged,
+      ciee
     );
   } else {
     throw new Error("Invalid command line argument");

@@ -1,11 +1,14 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { constOfIf, numOf, varOf } from "engine/Autodiff";
-import { findDef } from "renderer/ShapeDef";
+import { mapValues } from "lodash";
 import rfdc from "rfdc";
+import { ShapeDef, shapedefs } from "shapes/Shapes";
 import { IVarAD, VarAD } from "types/ad";
 import {
+  A,
   ASTNode,
+  C,
   ConcreteNode,
   Identifier,
   NodeType,
@@ -13,7 +16,7 @@ import {
   SyntheticNode,
 } from "types/ast";
 import { StyleError, Warning } from "types/errors";
-import { IPathCmd, ISubPath, Value } from "types/value";
+import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams } from "types/state";
 import {
   AnnoFloat,
@@ -35,14 +38,19 @@ import {
   ILListV,
   IMatrixV,
   IPaletteV,
+  IPathCmd,
   IPathDataV,
   IPtListV,
   IPtV,
+  ISubPath,
   ITrans,
   ITupV,
   IVectorV,
+  PropID,
+  ShapeTypeStr,
   TagExpr,
   Translation,
+  Value,
 } from "types/value";
 import { showError } from "utils/Error";
 const clone = rfdc({ proto: false, circles: false });
@@ -59,7 +67,7 @@ export const wrapErr = (s: string): StyleError => {
 
 // TODO(errors): should these kinds of errors be caught by block statics rather than failing at runtime?
 export const runtimeValueTypeError = (
-  path: Path,
+  path: Path<A>,
   expectedType: string,
   actualType: string
 ): StyleError => {
@@ -72,13 +80,7 @@ export const runtimeValueTypeError = (
 };
 // Generic utils for mapping over values
 export function mapTuple<T, S>(f: (arg: T) => S, t: T[]): S[] {
-  // TODO: Polygon seems to be getting through with null to the frontend with previously working set examples -- not sure why?
-  // TODO: Should do null checks more systematically across the translation
   return t.map((tup) => {
-    if (tup === null) {
-      return (varOf(0.0) as unknown) as S;
-    }
-
     return f(tup);
   });
 }
@@ -183,20 +185,13 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 }
 
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
-  if (v.tag === "RGBA") {
-    const rgb = v.contents;
-    return {
-      tag: "RGBA",
-      contents: mapTuple(f, rgb),
-    };
-  } else if (v.tag === "HSVA") {
-    const hsv = v.contents;
-    return {
-      tag: "HSVA",
-      contents: mapTuple(f, hsv),
-    };
-  } else {
-    throw Error("unexpected color tag");
+  switch (v.tag) {
+    case "RGBA":
+      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+    case "HSVA":
+      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+    case "NONE":
+      return { tag: v.tag };
   }
 }
 
@@ -261,6 +256,14 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     );
   }
 }
+
+export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
+  shapes.map((s: ShapeAD) => ({
+    ...s,
+    properties: mapValues(s.properties, (p: Value<VarAD>) =>
+      valueAutodiffToNumber(p)
+    ),
+  }));
 
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);
@@ -353,7 +356,7 @@ export const dummyASTNode = (o: any, nodeType: NodeType): SyntheticNode => {
   };
 };
 
-export const isConcrete = (node: ASTNode): node is ConcreteNode =>
+export const isConcrete = (node: ASTNode<A>): node is ConcreteNode =>
   node.nodeType === "Substance" ||
   node.nodeType === "Style" ||
   node.nodeType === "Domain";
@@ -362,7 +365,7 @@ export const isConcrete = (node: ASTNode): node is ConcreteNode =>
 export const dummyIdentifier = (
   name: string,
   nodeType: NodeType
-): Identifier => {
+): Identifier<A> => {
   return {
     nodeType,
     children: [],
@@ -372,7 +375,7 @@ export const dummyIdentifier = (
   };
 };
 
-const floatValToExpr = (e: Value<VarAD>): Expr => {
+const floatValToExpr = (e: Value<VarAD>): Expr<A> => {
   if (e.tag !== "FloatV") {
     throw Error("expected to insert vector elem of type float");
   }
@@ -386,7 +389,7 @@ const floatValToExpr = (e: Value<VarAD>): Expr => {
 };
 
 const mkPropertyDict = (
-  decls: PropertyDecl[]
+  decls: PropertyDecl<A>[]
 ): { [k: string]: TagExpr<VarAD> } => {
   const gpi = {};
 
@@ -408,7 +411,7 @@ const mkPropertyDict = (
 
 // TODO: Test this
 export const insertGPI = (
-  path: Path,
+  path: Path<A>,
   gpi: IFGPI<VarAD>,
   trans: Translation
 ): Translation => {
@@ -428,16 +431,16 @@ export const insertGPI = (
   }
 };
 
-const defaultVec2 = (): Expr => {
-  const e1: AnnoFloat = {
+const defaultVec2 = (): Expr<A> => {
+  const e1: AnnoFloat<A> = {
     ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
-  const e2: AnnoFloat = {
+  const e2: AnnoFloat<A> = {
     ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vary",
   };
-  const v2: IVector = {
+  const v2: IVector<A> = {
     ...dummyASTNode({}, "SyntheticStyle"),
     tag: "Vector",
     contents: [e1, e2],
@@ -445,12 +448,41 @@ const defaultVec2 = (): Expr => {
   return v2;
 };
 
+// Given 'propType' and 'shapeType', return all props of that ValueType
+// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
+export const propertiesOf = (
+  propType: string,
+  shapeType: ShapeTypeStr
+): PropID[] => {
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+    shapedef.propTags
+  );
+  return shapeInfo
+    .filter(([, tag]) => tag === propType)
+    .map(([pName]) => pName);
+};
+
+// Given 'propType' and 'shapeType', return all props NOT of that ValueType
+export const propertiesNotOf = (
+  propType: string,
+  shapeType: ShapeTypeStr
+): PropID[] => {
+  const shapedef: ShapeDef = shapedefs[shapeType];
+  const shapeInfo: [string, Value<VarAD>["tag"]][] = Object.entries(
+    shapedef.propTags
+  );
+  return shapeInfo
+    .filter(([, tag]) => tag !== propType)
+    .map(([pName]) => pName);
+};
+
 // This function is a combination of `addField` and `addProperty` from `Style.hs`
 // `inCompilePhase` = true = put errors and warnings in the translation, otherwise throw them at runtime
 // TODO(error/warn): Improve these warning/error messages (especially for overrides) and distinguish the fatal ones
 // TODO(error): rewrite to use the same pattern as `findExprSafe`
 export const insertExpr = (
-  path: Path,
+  path: Path<A>,
   expr: TagExpr<VarAD>,
   initTrans: Translation,
   compiling = false,
@@ -472,9 +504,9 @@ export const insertExpr = (
 
       // If it's a GPI, instantiate it (rule Line-Set-Ctor); otherwise put it in the translation as-is
       if (expr.tag === "OptEval") {
-        const gpi: Expr = expr.contents;
+        const gpi: Expr<A> = expr.contents;
         if (gpi.tag === "GPIDecl") {
-          const [nm, decls]: [Identifier, PropertyDecl[]] = [
+          const [nm, decls]: [Identifier<A>, PropertyDecl<A>[]] = [
             gpi.shapeName,
             gpi.properties,
           ];
@@ -612,7 +644,7 @@ export const insertExpr = (
 
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
-            const res3: Expr = res2.contents;
+            const res3: Expr<A> = res2.contents;
             if (res3.tag !== "Vector") {
               if (compiling) {
                 return addWarn(
@@ -623,7 +655,7 @@ export const insertExpr = (
               const err = "expected Vector";
               throw Error(err);
             }
-            const res4: Expr[] = res3.contents;
+            const res4: Expr<A>[] = res3.contents;
 
             if (expr.tag === "OptEval") {
               res4[exprToNumber(indices[0])] = expr.contents;
@@ -684,7 +716,7 @@ export const insertExpr = (
         }
 
         case "PropertyPath": {
-          const ip = innerPath as IPropertyPath;
+          const ip = innerPath as IPropertyPath<C>;
           // a.x.y[0] = e
           [name, field, prop] = [ip.name, ip.field, ip.property];
           const gpi = trans.trMap[name.contents.value][
@@ -694,21 +726,13 @@ export const insertExpr = (
 
           // Right now, a property may not have been initialized (e.g. during the Style interpretation phase, when we are creating a translation).
           // If the expected property is a non-vector type, throw an error, as we can't insert an expression into an uninitialized non-vector (list or other composite type).
-          const shapeDef = findDef(gpiType);
-          if (!(prop.value in shapeDef.properties)) {
+          const shapeProps = propertiesOf("VectorV", gpiType);
+          if (!shapeProps.includes(prop.value)) {
             return addWarn(trans, {
               tag: "InvalidGPIPropertyError",
               givenProperty: prop,
-              expectedProperties: Object.entries(shapeDef.properties).map(
-                (e) => e[0]
-              ),
+              expectedProperties: shapeProps,
             });
-          }
-
-          if (shapeDef.properties[prop.value][0] !== "VectorV") {
-            throw Error(
-              "internal error: Cannot insert expression into an uninitialized non-vector. this feature is currently not supported."
-            );
           }
 
           // Otherwise, it's a vector type, so if the value hasn't been set, initialize it with a default vector (?, ?)
@@ -801,7 +825,7 @@ export const insertExpr = (
 
 // Mutates translation
 export const insertExprs = (
-  ps: Path[],
+  ps: Path<A>[],
   es: TagExpr<VarAD>[],
   tr: Translation,
   compiling = false,
@@ -827,7 +851,7 @@ export const isTagExpr = (e: any): e is TagExpr<VarAD> => {
 // Version of findExpr if you expect to not encounter any errors (e.g., if it's being used after the translation has already been checked)
 export const findExprSafe = (
   trans: Translation,
-  path: Path
+  path: Path<A>
 ): TagExpr<VarAD> | IFGPI<VarAD> => {
   const res = findExpr(trans, path);
   if (res.tag !== "FGPI" && !isTagExpr(res)) {
@@ -848,7 +872,7 @@ export const findExprSafe = (
  */
 export const findExpr = (
   trans: Translation,
-  path: Path
+  path: Path<A>
 ): TagExpr<VarAD> | IFGPI<VarAD> | StyleError => {
   let name, field, prop;
 
@@ -873,6 +897,7 @@ export const findExpr = (
         case "FExpr":
           return fieldExpr.contents;
       }
+      break; // dead code to please ESLint
     }
 
     case "PropertyPath": {
@@ -911,6 +936,7 @@ export const findExpr = (
           return propRes;
         }
       }
+      break; // dead code to please ESLint
     }
 
     case "AccessPath": {
@@ -919,13 +945,13 @@ export const findExpr = (
       const i = exprToNumber(path.indices[0]); // COMBAK VECTORS: Currently only supports 1D vectors
 
       if (res.tag === "OptEval") {
-        const res2: Expr = res.contents;
+        const res2: Expr<A> = res.contents;
 
         if (res2.tag === "Vector") {
-          const inner: Expr = res2.contents[i];
+          const inner: Expr<A> = res2.contents[i];
           return { tag: "OptEval", contents: inner };
         } else if (res2.tag === "List") {
-          const inner: Expr = res2.contents[i];
+          const inner: Expr<A> = res2.contents[i];
           return { tag: "OptEval", contents: inner };
         } else if (res2.tag === "PropertyPath" || res2.tag === "FieldPath") {
           // COMBAK: This deals with accessing elements of path aliases. Maybe there is a nicer way to do it.
@@ -952,20 +978,20 @@ export const findExpr = (
 
 //#endregion
 
-export const isPath = (expr: Expr): expr is Path => {
+export const isPath = <T>(expr: Expr<T>): expr is Path<T> => {
   return ["FieldPath", "PropertyPath", "AccessPath", "LocalVar"].includes(
     expr.tag
   );
 };
 
-export const exprToNumber = (e: Expr): number => {
+export const exprToNumber = (e: Expr<A>): number => {
   if (e.tag === "Fix") {
     return e.contents;
   }
   throw Error("expecting expr to be number");
 };
 
-export const numToExpr = (n: number): Expr => {
+export const numToExpr = (n: number): Expr<A> => {
   return {
     nodeType: "SyntheticStyle",
     children: [],
@@ -992,8 +1018,8 @@ export const initConstraintWeight = 10e-3;
 const defaultLbfgsMemSize = 17;
 
 export const defaultLbfgsParams: LbfgsParams = {
-  lastState: { tag: "Nothing" },
-  lastGrad: { tag: "Nothing" },
+  lastState: undefined,
+  lastGrad: undefined,
   s_list: [],
   y_list: [],
   numUnconstrSteps: 0,

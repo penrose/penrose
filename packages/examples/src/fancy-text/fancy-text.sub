@@ -1,0 +1,15 @@
+Text t
+Label t "Hello, Penrose!"
+Point p1, p2, p3, p4, p5
+Point p6, p7, p8, p9, p10
+Label p1 $\alpha$
+Label p2 $\beta$
+Label p3 $\gamma$
+Label p4 $\delta$
+Label p5 $\epsilon$
+Label p6 $\zeta$
+Label p7 $\eta$
+Label p8 $\theta$
+Label p9 $\iota$
+Label p10 $\kappa$
+

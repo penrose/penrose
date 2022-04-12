@@ -1,9 +1,9 @@
+import { PenroseState, Value } from "@penrose/core";
 import makeViewBoxes from "inspector/makeViewBoxes";
 import * as React from "react";
 import IViewProps from "./IViewProps";
 import AttrPicker from "./mod/AttrPicker";
 import defmap from "./mod/defmap";
-import { PenroseState, Value } from "@penrose/core";
 
 interface IState {
   selectedShape: number;
@@ -37,7 +37,7 @@ class Mod extends React.Component<IViewProps, IState> {
   };
   public render() {
     const { frame } = this.props;
-    if (frame === null) {
+    if (frame === undefined) {
       return <div />;
     }
 

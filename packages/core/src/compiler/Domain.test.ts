@@ -1,9 +1,10 @@
+import { examples } from "@penrose/examples";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
-import { Env } from "types/domain";
 import * as nearley from "nearley";
 import grammar from "parser/DomainParser";
 import * as path from "path";
+import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
 import { Result, showError } from "utils/Error";
 
@@ -46,10 +47,9 @@ describe("Common", () => {
     const prog = `
   type A
   type B
-  type C
+  type C <: B
   type D
   type E
-  C <: B
   B <: A
   value varA: A
   value varB: B
@@ -82,11 +82,11 @@ type Real
 type Interval
 type OpenInterval
 type ClosedInterval
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateInterval: Real left * Real right -> Interval
-constructor CreateOpenInterval: Real left * Real right -> OpenInterval
-constructor CreateClosedInterval: Real left * Real right -> ClosedInterval
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateInterval(Real left, Real right) -> Interval
+constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
+constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
     `;
     const res = compileDomain(prog);
     const types = [
@@ -111,17 +111,17 @@ constructor CreateClosedInterval: Real left * Real right -> ClosedInterval
 type Map
 type Set
 type Point
-predicate Not : Prop p1
-predicate From : Map f * Set domain * Set codomain
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
-predicate PointIn : Set s * Point p
-predicate In : Point p * Set s
-predicate Injection : Map m
-predicate Surjection : Map m
-predicate Bijection : Map m
-predicate PairIn : Point * Point * Map
+predicate Not(Prop p1)
+predicate From(Map f, Set domain, Set codomain)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
+predicate PointIn(Set s, Point p)
+predicate In(Point p, Set s)
+predicate Injection(Map m)
+predicate Surjection(Map m)
+predicate Bijection(Map m)
+predicate PairIn(Point, Point, Map)
     `;
     const res = compileDomain(prog);
     const types = ["Map", "Set", "Point"];
@@ -168,13 +168,13 @@ type Set
   });
   test("Type not found", () => {
     const prog = `
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
     `;
     expectErrorOf(prog, "TypeNotFound");
   });
   test("type var not found", () => {
     const prog = `
-  constructor Cons ['X] : 'Z head * List('Y) tail -> List('X)
+  constructor Cons ['X] ('Z head, List('Y) tail) -> List('X)
     `;
     expectErrorOf(prog, "TypeVarNotFound");
   });
@@ -216,8 +216,9 @@ describe("Real Programs", () => {
   }
 
   domainPaths.map((examplePath) => {
-    const file = path.join("../../examples/", examplePath);
-    const prog = fs.readFileSync(file, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [part0, part1] = examplePath.split("/");
+    const prog = examples[part0][part1];
     test(examplePath, () => {
       const res = compileDomain(prog);
       expect(res.isOk()).toBe(true);

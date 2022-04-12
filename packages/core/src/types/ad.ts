@@ -1,6 +1,5 @@
 //#region Types for reverse-mode autodiff
 
-import { MaybeVal } from "./common";
 import { LbfgsParams } from "./state";
 
 // ----- Core types
@@ -21,7 +20,7 @@ export interface IEdgeAD {
 
   // Function "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
   // Aka how sensitive the output is to this input -- a function encoded as a computational graph fragment
-  sensitivityNode: MaybeVal<VarAD>;
+  sensitivityNode: VarAD | undefined;
 }
 
 export type EdgeAD = IEdgeAD;
@@ -29,20 +28,17 @@ export type EdgeAD = IEdgeAD;
 export interface IVarAD {
   val: number; // The value of this node at the time the computational graph was created. This is mostly unused, since most values are compiled out except for leaf nodes
 
-  valDone: boolean; // formerly used to cache energy values in the computational graph in evalEnergyOnGraph; TODO: can be removed if evalEnergyOnGraph is removed
-
-  tag: "custom";
   metadata: string; // Used for storing the kind of weight
   op: string;
   isCompNode: boolean; // comp node (normal computational graph) or grad node (node in computational graph for gradient)
   isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
-  parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
-  children: EdgeAD[];
-  parentsGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
-  childrenGrad: EdgeAD[];
-  gradVal: MaybeVal<number>;
-  gradNode: MaybeVal<VarAD>;
-  index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
+  parentsAD: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  childrenAD: EdgeAD[];
+  parentsADGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  childrenADGrad: EdgeAD[];
+  gradVal: number | undefined;
+  gradNode: VarAD | undefined;
+  index: number; // -100 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
 
   debug: boolean; // If true, this prints node debug info on evaluation
   debugInfo: string;
@@ -62,6 +58,8 @@ export type VecAD = VarAD[];
 
 export type Pt2 = [VarAD, VarAD];
 
+export const isPt2 = (vec: VarAD[]): vec is Pt2 => vec.length === 2;
+
 export type GradGraphs = IGradGraphs;
 
 export interface IGradGraphs {
@@ -69,7 +67,7 @@ export interface IGradGraphs {
   energyOutput: VarAD;
   // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
   gradOutputs: VarAD[];
-  weight: MaybeVal<VarAD>; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
+  weight: VarAD | undefined; // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }
 
 export type OptInfo = IOptInfo;

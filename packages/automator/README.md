@@ -35,7 +35,7 @@ Options:
 
 In addition to batch-processing Penrose programs, you can also use `automator` to generate a static site for viewing the diagrams and metadata (e.g. performance statistics). Here's an example:
 
-- Run `yarn start batch registry.json out/ --src-prefix=../../examples --folders` in this directory.
+- Run `yarn start batch registry.json out --src-prefix=../../examples --folders` in this directory.
   - Different from the example above, the `--folders` option asks `automator` to output metadata along with SVGs. `automator render` requires the output to have associated metadata.
 - Run `yarn start render out browser` to generate a static site.
 - Open `browser/index.html` to view the result.

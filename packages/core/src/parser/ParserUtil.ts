@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { compact, flatten } from "lodash";
 import * as moo from "moo";
-import { SourceLoc, Identifier, NodeType } from "types/ast";
+import { C, Identifier, NodeType, SourceLoc, SourceRange } from "types/ast";
 
 export const basicSymbols: moo.Rules = {
   ws: /[ \t]+/,
@@ -19,7 +19,11 @@ export const basicSymbols: moo.Rules = {
   apos: "'",
   comma: ",",
   string_literal: {
-    match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+    // match: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+    // Not sure why we were disallowing backslashes in string literals;
+    // these are needed to write TeX inline in Style (e.g., as the string
+    // field for an Equation shape).
+    match: /"(?:[^\n"]|\\["\\ntbfr])*"/,
     value: (s: string): string => s.slice(1, -1),
   },
   float_literal: /[+-]?(?:\d+(?:[.]\d*)?(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?)/,
@@ -49,32 +53,29 @@ export const basicSymbols: moo.Rules = {
   tick: "`",
 };
 
-const tokenStart = (token: any) => {
+const tokenStart = (token: moo.Token): SourceLoc => {
   return {
     line: token.line,
     col: token.col - 1,
   };
 };
 
-// TODO: test multiline range
-const tokenEnd = (token: any) => {
-  const { text } = token;
-  const nl = /\r\n|\r|\n/;
-  let newlines = 0;
-  let textLength = text.length;
-  if (token.lineBreaks) {
-    newlines = text.split(nl).length;
-    textLength = text.substring(text.lastIndexOf(nl) + 1);
+const tokenEnd = (token: moo.Token): SourceLoc => {
+  const { text, lineBreaks } = token;
+  let { line, col } = token;
+  col += text.length - 1;
+  if (lineBreaks) {
+    const lines = text.split(/\r\n|\r|\n/);
+    const last = lines.length - 1;
+    line += last;
+    col = lines[last].length;
   }
-  return {
-    line: token.line + newlines,
-    col: token.col + textLength - 1,
-  };
+  return { line, col };
 };
 
-export const rangeOf = (token: any) => {
+export const rangeOf = (token: moo.Token | SourceRange): SourceRange => {
   // if it's already converted, assume it's an AST Node
-  if (token.start && token.end) {
+  if ("start" in token && "end" in token) {
     return { start: token.start, end: token.end };
   }
   return {
@@ -107,8 +108,8 @@ const maxLoc = (...locs: SourceLoc[]) => {
   return maxLoc;
 };
 
-/** Given a list of tokens, find the range of tokens */
-export const rangeFrom = (children: any[]) => {
+/** Given a list of nodes, find the range of nodes */
+export const rangeFrom = (children: SourceRange[]): SourceRange => {
   // NOTE: this function is called in intermediate steps with empty lists, so will need to guard against empty lists.
   if (children.length === 0) {
     // console.trace(`No children ${JSON.stringify(children)}`);
@@ -128,8 +129,12 @@ export const rangeFrom = (children: any[]) => {
   };
 };
 
-export const rangeBetween = (beginToken: any, endToken: any) => {
-  // handle null cases for easier use in postprocessors
+export const rangeBetween = (
+  // alternatively, beginToken could be undefined if endToken isn't
+  beginToken: moo.Token | SourceRange,
+  endToken: moo.Token | SourceRange | undefined
+): SourceRange => {
+  // handle undefined cases for easier use in postprocessors
   if (!endToken) return rangeOf(beginToken);
   if (!beginToken) return rangeOf(endToken);
   const [beginRange, endRange] = [beginToken, endToken].map(rangeOf);
@@ -143,7 +148,9 @@ export const rangeBetween = (beginToken: any, endToken: any) => {
 // TODO: implement
 // }
 
-export const convertTokenId = ([token]: any) => {
+export const convertTokenId = ([token]: moo.Token[]): Partial<
+  Identifier<C>
+> => {
   return {
     ...rangeOf(token),
     value: token.text,
@@ -151,20 +158,21 @@ export const convertTokenId = ([token]: any) => {
   };
 };
 
-export const nth = (n: number) => {
-  return function (d: any[]) {
+export const nth = <T>(n: number) => {
+  return function (d: T[]): T {
     return d[n];
   };
 };
 
-export const optional = <T>(optionalValue: T | undefined, defaultValue: T) =>
+export const optional = <T>(optionalValue: T | undefined, defaultValue: T): T =>
   optionalValue ? optionalValue : defaultValue;
 // Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
-export const tokensIn = (tokenList: any[]): any[] =>
-  flatten(compact(tokenList));
+export const tokensIn = (
+  tokenList: (moo.Token | moo.Token[] | undefined)[]
+): moo.Token[] => flatten(compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
-export const idOf = (value: string, nodeType: NodeType): Identifier => ({
+export const idOf = (value: string, nodeType: NodeType): Identifier<C> => ({
   nodeType,
   children: [],
   start: { line: 1, col: 1 },

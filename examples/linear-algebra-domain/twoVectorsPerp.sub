@@ -1,7 +1,0 @@
-VectorSpace X
-Vector x1 ∈ X
-Vector x2 ∈ X
-Unit(x1)
-Orthogonal(x1, x2)
-Label x1 $x_1$
-Label x2 $x_2$

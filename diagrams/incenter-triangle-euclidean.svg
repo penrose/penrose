@@ -1,0 +1,684 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="PLM.RP-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="PLM.RP-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 579.6910624146915 395.76564596678344 L 592.1529528994083 317.84431564951825"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>PLM.RP</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="PLM.QR-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="PLM.QR-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 462.8165053575386 377.0740014194555 L 579.6910624146915 395.76564596678344"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>PLM.QR</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="PLM.PQ-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="PLM.PQ-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 592.1529528994083 317.84431564951825 L 462.8165053575386 377.0740014194555"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>PLM.PQ</title>
+  </g>
+  <circle
+    fill="none"
+    cx="592.1529528994083"
+    cy="317.84431564951825"
+    stroke="#8c90c1"
+    stroke-opacity="0.6"
+    stroke-width="1.75"
+    stroke-linecap="butt"
+    r="81.7378426302919"
+    ensureOnCanvas="true"
+  >
+    <title>JKL.icon</title>
+  </circle>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="JKL.RP-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="JKL.RP-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 462.8165053575386 377.0740014194555 L 631.8746183762261 88.03742800452312"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>JKL.RP</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="JKL.QR-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="JKL.QR-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 694.642011111618 419.89668601196746 L 462.8165053575386 377.0740014194555"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>JKL.QR</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="JKL.PQ-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="JKL.PQ-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 631.8746183762261 88.03742800452312 L 694.642011111618 419.89668601196746"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>JKL.PQ</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <filter id="PML.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="none"
+      stroke-width="2"
+      stroke-opacity="1"
+      d="M 582.8495073308575 376.01661752657316 L 563.1004788906472 372.85817261040717 L 559.9420330992568 392.6072011742325"
+    ></path>
+    <title>PML.mark</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="PML.side2-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <marker
+      id="PML.side2-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <path
+      d="M 579.6910624146915 395.76564596678344 L 462.8165053575386 377.0740014194555"
+      stroke-opacity="0.4"
+      stroke-width="1.75"
+      stroke="#8c90c1"
+      stroke-linecap="butt"
+    ></path>
+    <title>PML.side2</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="PML.side1-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <marker
+      id="PML.side1-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="0.4"
+      ></path>
+    </marker>
+    <path
+      d="M 592.1529528994083 317.84431564951825 L 579.6910624146915 395.76564596678344"
+      stroke-opacity="0.4"
+      stroke-width="1.75"
+      stroke="#8c90c1"
+      stroke-linecap="butt"
+    ></path>
+    <title>PML.side1</title>
+  </g>
+  <g
+    transform="rotate(0, 586.6910565750346, 389.006718760878)translate(586.6910565750346, 389.006718760878)"
+    string="m"
+    ensureOnCanvas="true"
+  >
+    <title>m.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16.82248"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 878 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D45A"
+                    d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="579.6910624146915"
+    cy="395.76564596678344"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+    ensureOnCanvas="true"
+  >
+    <title>m.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 589.9246434565501, 324.8443071150891)translate(589.9246434565501, 324.8443071150891)"
+    string="P"
+    ensureOnCanvas="true"
+  >
+    <title>P.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.38916"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 751 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D443"
+                    d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="592.1529528994083"
+    cy="317.84431564951825"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+    ensureOnCanvas="true"
+  >
+    <title>P.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 465.26246569415355, 383.6327616793559)translate(465.26246569415355, 383.6327616793559)"
+    string="L"
+    ensureOnCanvas="true"
+  >
+    <title>L.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.04796"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 681 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43F"
+                    d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="KL.icon-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="KL.icon-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 694.642011111618 419.89668601196746 L 462.8165053575386 377.0740014194555"
+      stroke-opacity="1"
+      stroke-width="1.75"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>KL.icon</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="462.8165053575386"
+    cy="377.0740014194555"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+    ensureOnCanvas="true"
+  >
+    <title>L.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 696.571946560225, 394.008001467213)translate(696.571946560225, 394.008001467213)"
+    string="K"
+    ensureOnCanvas="true"
+  >
+    <title>K.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.03324"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 889 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43E"
+                    d="M285 628Q285 635 228 637Q205 637 198 638T191 647Q191 649 193 661Q199 681 203 682Q205 683 214 683H219Q260 681 355 681Q389 681 418 681T463 682T483 682Q500 682 500 674Q500 669 497 660Q496 658 496 654T495 648T493 644T490 641T486 639T479 638T470 637T456 637Q416 636 405 634T387 623L306 305Q307 305 490 449T678 597Q692 611 692 620Q692 635 667 637Q651 637 651 648Q651 650 654 662T659 677Q662 682 676 682Q680 682 711 681T791 680Q814 680 839 681T869 682Q889 682 889 672Q889 650 881 642Q878 637 862 637Q787 632 726 586Q710 576 656 534T556 455L509 418L518 396Q527 374 546 329T581 244Q656 67 661 61Q663 59 666 57Q680 47 717 46H738Q744 38 744 37T741 19Q737 6 731 0H720Q680 3 625 3Q503 3 488 0H478Q472 6 472 9T474 27Q478 40 480 43T491 46H494Q544 46 544 71Q544 75 517 141T485 216L427 354L359 301L291 248L268 155Q245 63 245 58Q245 51 253 49T303 46H334Q340 37 340 35Q340 19 333 5Q328 0 317 0Q314 0 280 1T180 2Q118 2 85 2T49 1Q31 1 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="694.642011111618"
+    cy="419.89668601196746"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+    ensureOnCanvas="true"
+  >
+    <title>K.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 638.8502782944626, 88.62072576741504)translate(638.8502782944626, 88.62072576741504)"
+    string="J"
+    ensureOnCanvas="true"
+  >
+    <title>J.text</title>
+    <svg
+      style="font-size: 13.5px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.12828"
+      height="19.16"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 633 1000"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D43D"
+                    d="M447 625Q447 637 354 637H329Q323 642 323 645T325 664Q329 677 335 683H352Q393 681 498 681Q541 681 568 681T605 682T619 682Q633 682 633 672Q633 670 630 658Q626 642 623 640T604 637Q552 637 545 623Q541 610 483 376Q420 128 419 127Q397 64 333 21T195 -22Q137 -22 97 8T57 88Q57 130 80 152T132 174Q177 174 182 130Q182 98 164 80T123 56Q115 54 115 53T122 44Q148 15 197 15Q235 15 271 47T324 130Q328 142 387 380T447 625Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="631.8746183762261"
+    cy="88.03742800452312"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    r="4"
+    ensureOnCanvas="true"
+  >
+    <title>J.icon</title>
+  </circle>
+</svg>

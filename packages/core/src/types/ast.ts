@@ -4,9 +4,19 @@ export interface SourceLoc {
   col: number;
 }
 
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
+export interface SourceRange {
+  start: SourceLoc;
+  end: SourceLoc;
+}
 
-export type ASTNode = Optional<ConcreteNode, "start" | "end">;
+export type ASTNode<T> = T & {
+  tag: string;
+  nodeType: NodeType;
+  children: ASTNode<T>[];
+};
+
+export type A = unknown;
+export type AbstractNode = ASTNode<A>;
 
 export type NodeType =
   | "Substance"
@@ -15,30 +25,29 @@ export type NodeType =
   | "SyntheticSubstance"
   | "SyntheticStyle";
 
-export interface SyntheticNode extends ASTNode {
+export type SyntheticNode = AbstractNode & {
   nodeType: "SyntheticSubstance" | "SyntheticStyle";
-}
-export interface ConcreteNode {
-  tag: string;
-  start: SourceLoc;
-  end: SourceLoc;
-  nodeType: NodeType;
-  children: ASTNode[];
-  // TODO: add file source and node type
-  // sourceFile: FilePath
-  // Optionally for querying
-  // parent: ASTNode; // NOTE: pointer type; don't serialize this
-}
+};
 
-export const metaProps: string[] = ["nodeType", "children", "start", "end"];
+export type C = SourceRange;
+export type ConcreteNode = ASTNode<C>;
 
-export interface Identifier extends ASTNode {
+// metaObj causes TypeScript to enforce that metaProps is correct
+const metaObj: { [k in keyof Omit<ConcreteNode, "tag">]: undefined } = {
+  nodeType: undefined,
+  children: undefined,
+  start: undefined,
+  end: undefined,
+};
+export const metaProps: string[] = Object.keys(metaObj);
+
+export type Identifier<T> = ASTNode<T> & {
   tag: "Identifier";
   type: string; // meta-info: either `value` or `type-identifier` according to the parser
   value: string; // the actual value
-}
-export interface IStringLit extends ASTNode {
+};
+export type IStringLit<T> = ASTNode<T> & {
   tag: "StringLit";
   contents: string;
-}
+};
 //#endregion

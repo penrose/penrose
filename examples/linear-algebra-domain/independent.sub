@@ -1,9 +1,0 @@
-VectorSpace V
-Vector u
-Vector v
-In(u, V)
-In(v, V)
-Independent(u, v)
-AutoLabel All
-Label u $\vec{u}$
-Label v $\vec{v}$
