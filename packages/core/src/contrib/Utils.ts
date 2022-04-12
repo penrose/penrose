@@ -98,7 +98,6 @@ export const overlap1D = (
  * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
 export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
-  if (l.val > r.val) throw Error("invalid range"); // TODO do this range check better
   const fals = 0;
   const tru = 1;
   return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
