@@ -5,6 +5,7 @@ import {
   shapeCenter,
   shapeSize,
 } from "contrib/Queries";
+import { genCode, makeGraph } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -19,6 +20,7 @@ import {
   sampleBlack,
   VectorV,
 } from "shapes/Samplers";
+import { Pt2 } from "types/ad";
 
 const rng = seedrandom("Queries");
 const canvas = makeCanvas(800, 700);
@@ -94,47 +96,67 @@ const shapes: [string, any][] = [
 describe("simple queries", () => {
   it.each(shapes)("bboxFromShape for %p", (shapeType: string, shape: any) => {
     const bbox = bboxFromShape([shapeType, shape]);
-    expect(numOf(bbox.center[0])).toBeCloseTo(11, precisionDigits);
-    expect(numOf(bbox.center[1])).toBeCloseTo(22, precisionDigits);
-    expect(numOf(bbox.width)).toBeCloseTo(44, precisionDigits);
-    expect(numOf(bbox.height)).toBeCloseTo(44, precisionDigits);
+    const [x, y, w, h] = genCode(
+      makeGraph([bbox.center[0], bbox.center[1], bbox.width, bbox.height])
+    )(new Map());
+    expect(x).toBeCloseTo(11, precisionDigits);
+    expect(y).toBeCloseTo(22, precisionDigits);
+    expect(w).toBeCloseTo(44, precisionDigits);
+    expect(h).toBeCloseTo(44, precisionDigits);
   });
 
   it.each(shapes)("shapeCenter for %p", (shapeType: string, shape: any) => {
     const center = shapeCenter([shapeType, shape]);
-    expect(numOf(center[0])).toBeCloseTo(11, precisionDigits);
-    expect(numOf(center[1])).toBeCloseTo(22, precisionDigits);
+    const [x, y] = genCode(makeGraph([center[0], center[1]]))(new Map());
+    expect(x).toBeCloseTo(11, precisionDigits);
+    expect(y).toBeCloseTo(22, precisionDigits);
   });
 
   it.each(shapes)("shapeSize for %p", (shapeType: string, shape: any) => {
     const size = shapeSize([shapeType, shape]);
-    expect(numOf(size)).toBeCloseTo(44, precisionDigits);
+    const sizeNum = genCode(makeGraph([size]))(new Map());
+    expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
 
 describe("polygonLikePoints", () => {
+  const ptsToNums = (result: Pt2[]): [number, number][] => {
+    const outputs = [];
+    for (const pt of result) {
+      outputs.push(...pt);
+    }
+    const g = makeGraph(outputs);
+    const f = genCode(g);
+    const nums = f(new Map()); // no inputs, so, empty map
+    const pts: [number, number][] = [];
+    for (let i = 0; i < nums.length; i += 2) {
+      pts.push([nums[i], nums[i + 1]]);
+    }
+    return pts;
+  };
+
   test("Rectangle shape", async () => {
-    const result = polygonLikePoints(shapes[0]);
+    const result = ptsToNums(polygonLikePoints(shapes[0]));
     expect(result.length).toEqual(4);
-    expect(result[0].map(numOf)).toEqual([33, 44]);
-    expect(result[1].map(numOf)).toEqual([-11, 44]);
-    expect(result[2].map(numOf)).toEqual([-11, 0]);
-    expect(result[3].map(numOf)).toEqual([33, 0]);
+    expect(result[0]).toEqual([33, 44]);
+    expect(result[1]).toEqual([-11, 44]);
+    expect(result[2]).toEqual([-11, 0]);
+    expect(result[3]).toEqual([33, 0]);
   });
 
   test("Line shape", async () => {
-    const result = polygonLikePoints(shapes[4]);
+    const result = ptsToNums(polygonLikePoints(shapes[4]));
     expect(result.length).toEqual(2);
-    expect(result[0].map(numOf)).toEqual([-11, 0]);
-    expect(result[1].map(numOf)).toEqual([33, 44]);
+    expect(result[0]).toEqual([-11, 0]);
+    expect(result[1]).toEqual([33, 44]);
   });
 
   test("Polygon shape", async () => {
-    const result = polygonLikePoints(shapes[5]);
+    const result = ptsToNums(polygonLikePoints(shapes[5]));
     expect(result.length).toEqual(3);
-    expect(result[0].map(numOf)).toEqual([-11, 0]);
-    expect(result[1].map(numOf)).toEqual([33, 0]);
-    expect(result[2].map(numOf)).toEqual([33, 44]);
+    expect(result[0]).toEqual([-11, 0]);
+    expect(result[1]).toEqual([33, 0]);
+    expect(result[2]).toEqual([33, 44]);
   });
 
   it.each([shapes[1], shapes[2], shapes[3]])(
