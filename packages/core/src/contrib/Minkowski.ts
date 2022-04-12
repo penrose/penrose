@@ -1,4 +1,4 @@
-import { ops } from "engine/Autodiff";
+import { genCode, getInputs, makeGraph, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -150,13 +150,34 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
     return [p];
   }
 
+  // HACK (see also the note in types/ad): our autodiff engine isn't powerful
+  // enough to let us run a convex partitioning algorithm inside the optimizer
+  // loop, so instead, here we compile enough of the computation graph to
+  // compute the initial positions of the polygon vertices, evaluate that using
+  // the input values embedded in the children of the VarADs we were passed, run
+  // a convex partitioning algorithm on those vertex positions, and cross our
+  // fingers that this remains a valid convex partition as we optimize
+  const g = makeGraph(p.flat());
+  const nodes = new Map([...g.nodes].map(([v, id]) => [id, v]));
+  const coords = genCode(g)(
+    new Map(
+      getInputs(g.graph).map(({ id }) => {
+        const v = safe(nodes.get(id), `missing node for id ${id}`);
+        if (typeof v === "number" || v.tag !== "Input") {
+          throw Error("getInputs returned a non-input node");
+        }
+        return [v.name, v.val];
+      })
+    )
+  );
+
   // map each point back to its original VecAD object; note, this depends on the
   // fact that two points with the same contents are considered different as
   // keys in a JavaScript Map, very scary!
   const pointMap = new Map(
-    p.map((point) => {
-      const [x, y] = point;
-      return [{ x: numOf(x), y: numOf(y) }, point];
+    p.map((point, i) => {
+      const j = 2 * i;
+      return [{ x: coords[j], y: coords[j + 1] }, point];
     })
   );
 

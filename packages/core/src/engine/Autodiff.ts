@@ -315,7 +315,7 @@ export const makeGraph = (outputs: VarAD[]): ad.Graph => {
 };
 
 // graph is the graph field of some ad.Graph
-const getInputs = (
+export const getInputs = (
   graph: graphlib.Graph
 ): { id: string; label: ad.InputNode }[] => {
   const inputs = [];
