@@ -948,9 +948,6 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
       mul(constrEng, mul(constrWeightNode, epWeightNode))
     );
 
-    // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    log.info("overall eng from custom AD", overallEng, numOf(overallEng));
-
     return { energyGraph: overallEng, epWeightNode };
   };
 };
