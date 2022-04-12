@@ -1,7 +1,16 @@
 import { inDirection } from "contrib/ObjectivesUtils";
+import { genCode, makeGraph } from "engine/Autodiff";
+import { VarAD } from "types/ad";
 
 const testShape = { center: { contents: [0, 2] } };
 const testRefShape = { center: { contents: [1, 1] } };
+
+const numOf = (x: VarAD) => {
+  const g = makeGraph([x]);
+  const f = genCode(g);
+  const [y] = f(new Map()); // no inputs, so, empty map
+  return y;
+};
 
 describe("inDirection", () => {
   test("without padding", async () => {
