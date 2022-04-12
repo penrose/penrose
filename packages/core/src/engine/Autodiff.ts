@@ -310,6 +310,7 @@ export const makeGraph = (outputs: VarAD[]): ad.Graph => {
   }
 
   // this relies on the fact that the outputs were the first things in the queue
+  // TODO: handle the case where some outputs are the same
   return { graph, outputs: outputs.map((_, i) => indexToID(i)), nodes };
 };
 
