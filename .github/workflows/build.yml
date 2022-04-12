@@ -5,6 +5,24 @@ on:
     branches:
       - main
 jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        uses: ./.github/actions/packages
+      - name: Build @penrose/examples
+        run: yarn build
+        working-directory: packages/examples/
+      - name: Benchmark
+        run: yarn bench
+        working-directory: packages/core/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: benchmarks
+          path: packages/core/benchmarks/
+
   build:
     runs-on: ubuntu-latest
     env:
