@@ -44,8 +44,8 @@ const expectBbox = (
   const [width, height, x, y] = f(new Map()); // no inputs, so, empty map
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
-  expect(x).toEqual(expected.center[0]);
-  expect(y).toEqual(expected.center[1]);
+  expect(x).toBeCloseTo(expected.center[0]);
+  expect(y).toBeCloseTo(expected.center[1]);
 };
 
 const polyProps = (): IPoly & IScale => ({
