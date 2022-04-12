@@ -205,7 +205,7 @@ describe("convexPartitions", () => {
       [-91.23453778491817, -421.58123451418754],
       [-66.58844271068637, -378.07755653643574],
     ];
-    expect(convexPartitionsNum(p)).toEqual([
+    expect(convexPartitions(p)).toEqual([
       [p[3], p[4], p[5], p[0]],
       [p[0], p[1], p[2]],
       [p[0], p[2], p[3]],
