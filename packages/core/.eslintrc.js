@@ -40,6 +40,7 @@ module.exports = {
   ignorePatterns: [
     "**/*.test.ts",
     "**/*.test.tsx",
+    "**/*.bench.ts",
     "src/__testfixtures__/transformtest.input.ts",
     "src/__testfixtures__/transformtest.output.ts",
     "src/parser/DomainParser.ts",
