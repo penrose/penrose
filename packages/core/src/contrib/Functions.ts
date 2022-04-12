@@ -17,6 +17,7 @@ import {
   cos,
   cosh,
   div,
+  eq,
   exp,
   expm1,
   floor,
@@ -44,7 +45,7 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import * as _ from "lodash";
-import { maxBy, range } from "lodash";
+import { range } from "lodash";
 import { PathBuilder } from "renderer/PathBuilder";
 import seedrandom from "seedrandom";
 import { shapedefs } from "shapes/Shapes";
@@ -192,14 +193,6 @@ export const compDict = {
     };
   },
 
-  getVar: (_context: Context, xs: VarAD[], i: VarAD): IFloatV<any> => {
-    const res = xs[i.val];
-    return {
-      tag: "FloatV",
-      contents: res,
-    };
-  },
-
   /**
    * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
@@ -225,14 +218,23 @@ export const compDict = {
     color2: Color<VarAD>,
     level: VarAD
   ): IColorV<VarAD> => {
-    if (level.val % 2 == 0)
-      return {
-        tag: "ColorV",
-        contents: color1,
-      };
+    const half = div(level, 2);
+    const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
+    if (!(color1.tag === "RGBA" && color2.tag === "RGBA")) {
+      throw Error("selectColor only supports RGBA");
+    }
     return {
       tag: "ColorV",
-      contents: color2,
+      contents: {
+        tag: "RGBA",
+        // https://github.com/penrose/penrose/issues/561
+        contents: [
+          ifCond(even, color1.contents[0], color2.contents[0]),
+          ifCond(even, color1.contents[1], color2.contents[1]),
+          ifCond(even, color1.contents[2], color2.contents[2]),
+          ifCond(even, color1.contents[3], color2.contents[3]),
+        ],
+      },
     };
   },
 
@@ -940,6 +942,9 @@ export const compDict = {
     numTicks: VarAD,
     tickLength: VarAD
   ) => {
+    if (typeof numTicks !== "number") {
+      throw Error("numTicks must be a constant");
+    }
     const path = new PathBuilder();
     // calculate scalar multipliers to determine the placement of each tick mark
     const multipliers = tickPlacement(spacing, numTicks);
@@ -1527,38 +1532,15 @@ const rot90v = ([x, y]: VarAD[]): VarAD[] => {
   return [neg(y), x];
 };
 
-/**
- * Returns the point in `candidates` farthest from the points in `pts` (by sum).
- * Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation
- * Do not use this!
- */
-const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
-  if (!pts || pts.length === 0) {
-    throw Error("Expected nonempty point list");
-  }
-
-  const ptDists: [VarAD[], VarAD][] = pts.map((p: VarAD[]) => [
-    p,
-    ops.vsum(candidates.map((pt) => ops.vdistsq(p, pt))),
-  ]);
-  const res = maxBy(ptDists, ([p, d]: [VarAD[], VarAD]) => numOf(d));
-
-  if (!res || res.length < 2) {
-    throw Error("expected point");
-  }
-
-  return res[0] as VarAD[];
-};
-
 const tickPlacement = (
   padding: VarAD,
-  numPts: VarAD,
+  numPts: number,
   multiplier: VarAD = 1
 ): VarAD[] => {
-  if (numOf(numPts) <= 0) throw Error(`number of ticks must be greater than 0`);
-  const even = numOf(numPts) % 2 === 0;
+  if (numPts <= 0) throw Error(`number of ticks must be greater than 0`);
+  const even = numPts % 2 === 0;
   const pts: VarAD[] = even ? [div(padding, 2)] : [0];
-  for (let i = 1; i < numOf(numPts); i++) {
+  for (let i = 1; i < numPts; i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
       i % 2 == 0
