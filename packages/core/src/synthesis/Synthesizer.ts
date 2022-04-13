@@ -75,7 +75,7 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: LogLevel.Debug })
+  .create({ level: LogLevel.Info })
   .withScope("Substance Synthesizer");
 
 //#region Synthesizer setting types
