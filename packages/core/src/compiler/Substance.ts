@@ -215,11 +215,11 @@ export const disambiguateSubNode = (env: Env, stmt: ASTNode<A>): void => {
   const isPred = env.predicates.has(func.name.value);
 
   if (isCtor && !isFn && !isPred) {
-    (func as any as ApplyConstructor<C>).tag = "ApplyConstructor";
+    ((func as any) as ApplyConstructor<C>).tag = "ApplyConstructor";
   } else if (!isCtor && isFn && !isPred) {
-    (func as any as ApplyFunction<C>).tag = "ApplyFunction";
+    ((func as any) as ApplyFunction<C>).tag = "ApplyFunction";
   } else if (!isCtor && !isFn && isPred) {
-    (func as any as ApplyPredicate<C>).tag = "ApplyPredicate";
+    ((func as any) as ApplyPredicate<C>).tag = "ApplyPredicate";
   } else if (!isCtor && !isFn && !isPred) {
     throw Error(
       `Substance internal error: expected '${func.name.value}' of type Func to be disambiguable in env, but was not found`

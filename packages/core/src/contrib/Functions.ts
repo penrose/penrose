@@ -1469,8 +1469,10 @@ export const compDict = {
 // takes a Context as its first parameter
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _compDictVals: ((context: Context, ...rest: never[]) => unknown)[] =
-  Object.values(compDict);
+const _compDictVals: ((
+  context: Context,
+  ...rest: never[]
+) => unknown)[] = Object.values(compDict);
 
 // Ignore this
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {

@@ -165,16 +165,17 @@ export const resampleOnce = (rng: seedrandom.prng, state: State): State => {
   );
 
   // update the translation with all uninitialized values (converted to `Done` values)
-  const uninitMap: [Path<A>, TagExpr<VarAD>][] = uninitializedPaths.map(
-    (p: Path<A>) => [
-      p,
-      val2Expr(
-        valueNumberToAutodiff(
-          samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
-        )
-      ),
-    ]
-  );
+  const uninitMap: [
+    Path<A>,
+    TagExpr<VarAD>
+  ][] = uninitializedPaths.map((p: Path<A>) => [
+    p,
+    val2Expr(
+      valueNumberToAutodiff(
+        samplePath(rng, p, shapes, state.varyingInitInfo, state.canvas)
+      )
+    ),
+  ]);
 
   const translation: Translation = uninitMap.reduce(
     (tr: Translation, [p, e]: [Path<A>, TagExpr<VarAD>]) =>

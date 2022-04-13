@@ -72,9 +72,9 @@ export const ShapeDef = (shapedef: {
   const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
   const propTags = Object.fromEntries(
     // TODO: make this much less jank than first sampling an entire shape
-    Object.entries(sampler(seedrandom("propTags"), makeCanvas(size, size))).map(
-      ([x, y]) => [x, y.tag]
-    )
+    Object.entries(
+      sampler(seedrandom("propTags"), makeCanvas(size, size))
+    ).map(([x, y]) => [x, y.tag])
   );
 
   return {

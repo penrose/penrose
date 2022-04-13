@@ -27,11 +27,9 @@ import { FileSocket, FileSocketResult } from "ui/FileSocket";
 // TODO: maybe factor this code out into its own module
 
 // all one-word colors
-const colors: string[] = (
-  colorNameList as unknown as {
-    colorNameList: { name: string }[];
-  }
-).colorNameList // TypeScript is weird about this import so we must assert :(
+const colors: string[] = ((colorNameList as unknown) as {
+  colorNameList: { name: string }[];
+}).colorNameList // TypeScript is weird about this import so we must assert :(
   .map(({ name }) => name)
   .filter((color) => /^[A-Z][a-z]+$/.test(color));
 

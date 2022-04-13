@@ -2821,12 +2821,12 @@ const initShape = (
     const instantiatedGPIProps: GPIProps<VarAD> = {
       // start by sampling all properties for the shape according to its shapedef
       ...Object.fromEntries(
-        Object.entries(shapedef.sampler(rng, getCanvas(tr))).map(
-          ([propName, contents]) => [
-            propName,
-            { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
-          ]
-        )
+        Object.entries(
+          shapedef.sampler(rng, getCanvas(tr))
+        ).map(([propName, contents]) => [
+          propName,
+          { tag: isPending(stype, propName) ? "Pending" : "Done", contents },
+        ])
       ),
 
       // then for all properties actually set in the Style program, overwrite
@@ -2964,13 +2964,16 @@ const pseudoTopsort = (graph: Graph): string[] => {
 const computeShapeOrdering = (tr: Translation): string[] => {
   const layeringExprs = findLayeringExprs(tr);
   // Returns list of layering specifications [below, above]
-  const partialOrderings: [string, string][] = layeringExprs.map(
-    (e: ILayering<A>): [string, string] => findNames(e, tr)
+  const partialOrderings: [
+    string,
+    string
+  ][] = layeringExprs.map((e: ILayering<A>): [string, string] =>
+    findNames(e, tr)
   );
 
-  const allGPINames: string[] = findShapeNames(tr).map(
-    (e: [string, Field]): string => getShapeName(e[0], e[1])
-  );
+  const allGPINames: string[] = findShapeNames(
+    tr
+  ).map((e: [string, Field]): string => getShapeName(e[0], e[1]));
   const shapeOrdering = topSortLayering(allGPINames, partialOrderings);
 
   return shapeOrdering;
@@ -3082,13 +3085,13 @@ const genState = (
     constrFns,
 
     // `params` are initialized properly by optimization; the only thing it needs is the weight (for the objective function synthesis)
-    params: {
+    params: ({
       optStatus: "NewIter" as const,
       weight: initConstraintWeight,
       lbfgsInfo: defaultLbfgsParams,
       UOround: -1,
       EPround: -1,
-    } as unknown as Params,
+    } as unknown) as Params,
 
     labelCache: [],
     policyParams: undefined,
@@ -3320,12 +3323,10 @@ const canvasHeightPath: Path<A> = mkPath(["canvas", "height"]);
 
 /* Precondition: checkCanvas returns without error */
 export const getCanvas = (tr: Translation): Canvas => {
-  const width = (
-    (tr.trMap.canvas.width.contents as TagExpr<VarAD>).contents as Value<VarAD>
-  ).contents as number;
-  const height = (
-    (tr.trMap.canvas.height.contents as TagExpr<VarAD>).contents as Value<VarAD>
-  ).contents as number;
+  const width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
+    .contents as Value<VarAD>).contents as number;
+  const height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
+    .contents as Value<VarAD>).contents as number;
   return {
     width,
     height,

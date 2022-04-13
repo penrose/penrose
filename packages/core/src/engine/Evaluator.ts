@@ -87,12 +87,14 @@ export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
-  const [shapesEvaled, transEvaled]: [ShapeAD[], Translation] =
-    shapeExprs.reduce(
-      ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
-        evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
-      [[], trans]
-    );
+  const [shapesEvaled, transEvaled]: [
+    ShapeAD[],
+    Translation
+  ] = shapeExprs.reduce(
+    ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
+      evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
+    [[], trans]
+  );
 
   if (s.shapeOrdering.length < shapesEvaled.length) {
     console.error("Invalid shape layering of length", s.shapeOrdering.length);
@@ -193,30 +195,31 @@ export const evalShape = (
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
-  const props = mapValues(propExprs, (prop: TagExpr<VarAD>): Value<VarAD> => {
-    // TODO: Refactor these cases to be more concise
-    if (prop.tag === "OptEval") {
-      // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
-      // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-      const res: Value<VarAD> = (
-        evalExpr(
+  const props = mapValues(
+    propExprs,
+    (prop: TagExpr<VarAD>): Value<VarAD> => {
+      // TODO: Refactor these cases to be more concise
+      if (prop.tag === "OptEval") {
+        // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
+        // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
+        const res: Value<VarAD> = (evalExpr(
           rng,
           prop.contents,
           trans,
           varyingVars,
           optDebugInfo
-        ) as IVal<VarAD>
-      ).contents;
-      return res;
-    } else if (prop.tag === "Done") {
-      return prop.contents;
-    } else if (prop.tag === "Pending") {
-      // Pending expressions are just converted because they get converted back to numbers later
-      return prop.contents;
-    } else {
-      throw Error("unknown tag");
+        ) as IVal<VarAD>).contents;
+        return res;
+      } else if (prop.tag === "Done") {
+        return prop.contents;
+      } else if (prop.tag === "Pending") {
+        // Pending expressions are just converted because they get converted back to numbers later
+        return prop.contents;
+      } else {
+        throw Error("unknown tag");
+      }
     }
-  });
+  );
 
   const shape: ShapeAD = { shapeType, properties: props };
 
@@ -338,13 +341,8 @@ export const evalExpr = (
     case "UOp": {
       const [uOp, expr] = [e.op, e.arg];
       // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(
-        rng,
-        expr,
-        trans,
-        varyingVars,
-        optDebugInfo
-      ).contents;
+      const arg = evalExpr(rng, expr, trans, varyingVars, optDebugInfo)
+        .contents;
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -745,15 +743,13 @@ export const resolvePath = (
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
             const propertyPathExpr = propertyPath as Path<A>;
-            const val: Value<VarAD> = (
-              evalExpr(
-                rng,
-                propertyPathExpr,
-                trans,
-                varyingMap,
-                optDebugInfo
-              ) as IVal<VarAD>
-            ).contents;
+            const val: Value<VarAD> = (evalExpr(
+              rng,
+              propertyPathExpr,
+              trans,
+              varyingMap,
+              optDebugInfo
+            ) as IVal<VarAD>).contents;
             const transNew = insertExpr(
               propertyPath,
               { tag: "Done", contents: val },

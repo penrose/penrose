@@ -111,8 +111,9 @@ const CompGraph: React.FC<IViewProps> = ({
 
   const [value, setValue] = React.useState("none"); // init value of state to use
 
-  const graphRef: React.RefObject<HTMLDivElement> =
-    React.useRef<HTMLDivElement>(null);
+  const graphRef: React.RefObject<HTMLDivElement> = React.useRef<HTMLDivElement>(
+    null
+  );
 
   React.useEffect(() => {
     if (graphRef.current !== null) {
