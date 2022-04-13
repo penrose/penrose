@@ -507,9 +507,12 @@ export const evalExpr = (
       if (v2.contents.tag === "FloatV") {
         // COMBAK: (ISSUE): Indices should not have "Fix"
         const iObj: VarAD = v2.contents.contents;
+        if (typeof iObj !== "number") {
+          throw Error("only constant vector element indices are supported");
+        }
         v2.contents = {
           tag: "IntV",
-          contents: Math.floor(numOf(iObj)),
+          contents: Math.floor(iObj),
         };
       }
 
