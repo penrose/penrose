@@ -2627,14 +2627,20 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
         return e.contents.contents;
       }
       if (e.contents.tag === "VaryAD") {
-        return e.contents.contents.val;
+        if (typeof e.contents.contents !== "number") {
+          throw Error("varying value cannot be a computed expression");
+        }
+        return e.contents.contents;
       } else {
         throw Error("internal error: invalid varying path");
       }
     }
     case "Done": {
       if (e.contents.tag === "FloatV") {
-        return numOf(e.contents.contents);
+        if (typeof e.contents.contents !== "number") {
+          throw Error("varying value cannot be a computed expression");
+        }
+        return e.contents.contents;
       } else {
         throw Error("internal error: invalid varying path");
       }
