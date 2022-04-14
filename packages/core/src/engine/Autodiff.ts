@@ -39,20 +39,15 @@ export const logAD = consola
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 export const input = ({
-  name,
+  index,
   val,
 }: {
-  name: string;
+  index: number;
   val: number;
-}): ad.Input => ({
-  tag: "Input",
-  name,
-  val,
-});
+}): ad.Input => ({ tag: "Input", index, val });
 
 export const makeADInputVars = (xs: number[]): ad.Input[] =>
-  // TODO: is this naming scheme OK?
-  xs.map((x, i) => input({ name: `${i}`, val: x }));
+  xs.map((val, index) => input({ index, val }));
 
 // every VarAD is already an ad.Node, but this function removes all the children
 const makeNode = (x: VarAD): ad.Node => {
@@ -63,8 +58,8 @@ const makeNode = (x: VarAD): ad.Node => {
   const { tag } = node;
   switch (tag) {
     case "Input": {
-      const { name } = node;
-      return { tag, name };
+      const { index } = node;
+      return { tag, index };
     }
     case "Unary": {
       const { unop } = node;
@@ -228,6 +223,8 @@ interface Child {
   sensitivity: VarAD | undefined;
 }
 
+// note that this function constructs the sensitivities even when we don't need
+// them, such as for nodes in secondary outputs or the gradient
 const children = (x: VarAD): Child[] => {
   if (typeof x === "number") {
     return [];
@@ -277,78 +274,140 @@ const children = (x: VarAD): Child[] => {
   }
 };
 
-// make a graph node ID that could also be used as a JavaScript variable name
-const indexToID = (index: number) => `_${index}`;
+const indexToID = (index: number): ad.Id => `_${index}`;
 
-export const makeGraph = (outputs: VarAD[]): ad.Graph => {
+export const makeGraph = (
+  outputs: Omit<ad.Outputs<VarAD>, "gradient">
+): ad.Graph => {
   const graph = new graphlib.Graph({ multigraph: true });
-  const nodes = new Map<VarAD, string>();
-  const edges: [Child, VarAD][] = [];
+  const nodes = new Map<VarAD, ad.Id>();
 
-  // Queue constructor doesn't clone its argument, so we must
-  const queue = new Queue([...outputs]);
-  while (!queue.isEmpty()) {
-    const x = queue.dequeue();
-    if (!nodes.has(x)) {
-      const name = indexToID(graph.nodeCount());
-      graph.setNode(name, makeNode(x));
+  const queue = new Queue<VarAD>();
+  const edges = new Queue<[Child, VarAD]>();
+
+  const newNode = (node: ad.Node): ad.Id => {
+    const id = indexToID(graph.nodeCount());
+    graph.setNode(id, node);
+    return id;
+  };
+
+  const addNode = (x: VarAD): ad.Id => {
+    let name = nodes.get(x);
+    if (name === undefined) {
+      name = newNode(makeNode(x));
       nodes.set(x, name);
       for (const edge of children(x)) {
-        edges.push([edge, x]);
+        edges.enqueue([edge, x]);
         queue.enqueue(edge.child);
       }
     }
+    return name;
+  };
+
+  const addEdge = (
+    child: VarAD,
+    parent: VarAD,
+    name: ad.Edge
+  ): [ad.Id, ad.Id] => {
+    const v = safe(nodes.get(child), "missing child");
+    const w = safe(nodes.get(parent), "missing parent");
+    graph.setEdge(v, w, undefined, name);
+    return [v, w];
+  };
+
+  const primary = addNode(outputs.primary);
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
   }
 
-  for (const [{ child, name }, parent] of edges) {
-    graph.setEdge(
-      safe(nodes.get(child), "missing child"),
-      safe(nodes.get(parent), "missing parent"),
-      undefined,
-      name
-    );
-  }
-
-  // this relies on the fact that the outputs were the first things in the queue
-  // TODO: handle the case where some outputs are the same
-  return { graph, outputs: outputs.map((_, i) => indexToID(i)), nodes };
-};
-
-// graph is the graph field of some ad.Graph
-export const getInputs = (
-  graph: graphlib.Graph
-): { id: string; label: ad.InputNode }[] => {
-  const inputs = [];
-  // every input must be a source
-  for (const id of graph.sources()) {
-    const label: ad.Node = graph.node(id);
-    // other non-const sources include n-ary nodes with an empty params array
-    if (typeof label !== "number" && label.tag === "Input") {
-      inputs.push({ id, label });
+  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD>();
+  while (!edges.isEmpty()) {
+    const [{ child, name, sensitivity }, parent] = edges.dequeue();
+    const [v, w] = addEdge(child, parent, name);
+    if (sensitivity !== undefined) {
+      sensitivities.set(`${name}${v}${w}`, sensitivity);
     }
   }
-  return inputs;
-};
+  const primaryNodes = graphlib.alg.topsort(graph).reverse();
 
-/**
- * Mutate graph (but not any of the `VarAD`s used to construct it) to add, for
- * each input, an output for the partial derivative of graph.outputs[output]
- * with respect to that input.
- * @returns a map from each input name to the index of its partial derivative in
- * graph.outputs
- */
-export const addGradient = (
-  { graph, outputs }: ad.Graph,
-  output: number
-): Map<string, number> => {
-  const m = new Map<string, number>();
-  for (const { label } of getInputs(graph)) {
-    const derivativeID = indexToID(graph.nodeCount());
-    graph.setNode(derivativeID, 0); // TODO: put the actual derivative
-    m.set(label.name, outputs.length);
-    outputs.push(derivativeID);
+  for (const x of sensitivities.values()) {
+    addNode(x);
   }
-  return m;
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
+  }
+  while (!edges.isEmpty()) {
+    const [{ child, name }, parent] = edges.dequeue();
+    addEdge(child, parent, name);
+  }
+
+  const gradNodes = new Map<ad.Id, ad.Id>();
+  const gradient: ad.Id[] = [];
+  for (const idString of primaryNodes) {
+    const id = idString as ad.Id; // TODO: get rid of this typecast
+    if (id === primary) {
+      const grad: ad.ConstNode = 1;
+      gradNodes.set(id, newNode(grad));
+      continue;
+    }
+
+    const grad: ad.NaryNode = { tag: "Nary", op: "addN" };
+    const gradID = newNode(grad);
+    gradNodes.set(id, gradID);
+    const addends = [];
+
+    const edges = graph.outEdges(id);
+    // the type of outEdges says it can return void
+    if (!Array.isArray(edges)) {
+      throw Error("expected outEdges to be an array");
+    }
+    for (const { w, name } of edges) {
+      const parentID = w as ad.Id; // TODO: get rid of this typecast
+      const sensitivity = sensitivities.get(
+        `${name as ad.Edge}${id}${parentID}` // TODO: get rid of this typecast
+      );
+      if (sensitivity !== undefined) {
+        const sensitivityID = safe(
+          nodes.get(sensitivity),
+          "missing sensitivity"
+        );
+        const parentGradID = safe(
+          gradNodes.get(parentID),
+          "missing parent grad"
+        );
+
+        const addend: ad.BinaryNode = { tag: "Binary", binop: "*" };
+        const addendID = newNode(addend);
+
+        const left: ad.BinaryEdge = "left";
+        const right: ad.BinaryEdge = "right";
+        graph.setEdge(sensitivityID, addendID, undefined, left);
+        graph.setEdge(parentGradID, addendID, undefined, right);
+
+        addends.push(addendID);
+      }
+    }
+
+    addends.forEach((addendID, i) =>
+      graph.setEdge(addendID, gradID, undefined, `${i}`)
+    );
+
+    const node: ad.Node = graph.node(id);
+    if (typeof node !== "number" && node.tag === "Input") {
+      gradient[node.index] = gradID;
+    }
+  }
+
+  const secondary = outputs.secondary.map(addNode);
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
+  }
+  while (!edges.isEmpty()) {
+    const [{ child, name }, parent] = edges.dequeue();
+    addEdge(child, parent, name);
+  }
+
+  return { graph, nodes, gradient, primary, secondary };
 };
 
 // ------------ Meta / debug ops
@@ -620,7 +679,7 @@ export const fns = {
 
 // (Returns `3`)
 
-const compileUnary = ({ unop }: ad.UnaryNode, param: string): string => {
+const compileUnary = ({ unop }: ad.UnaryNode, param: ad.Id): string => {
   switch (unop) {
     case "neg": {
       return `-${param}`;
@@ -664,8 +723,8 @@ const compileUnary = ({ unop }: ad.UnaryNode, param: string): string => {
 
 const compileBinary = (
   { binop }: ad.BinaryNode,
-  left: string,
-  right: string
+  left: ad.Id,
+  right: ad.Id
 ): string => {
   switch (binop) {
     case "+":
@@ -688,7 +747,7 @@ const compileBinary = (
   }
 };
 
-const compileNary = ({ op }: ad.NaryNode, params: string[]): string => {
+const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
   switch (op) {
     case "addN": {
       return params.length > 0 ? params.join(" + ") : "0";
@@ -702,14 +761,14 @@ const compileNary = ({ op }: ad.NaryNode, params: string[]): string => {
   }
 };
 
-const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
+const compileNode = (
+  node: Exclude<ad.Node, ad.InputNode>,
+  preds: Map<ad.Edge, ad.Id>
+): string => {
   if (typeof node === "number") {
     return `${node}`;
   }
   switch (node.tag) {
-    case "Input": {
-      return node.name;
-    }
     case "Unary": {
       return compileUnary(node, safe(preds.get(undefined), "missing param"));
     }
@@ -727,7 +786,7 @@ const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
       return `${cond} ? ${then} : ${els}`;
     }
     case "Nary": {
-      const params = [];
+      const params: ad.Id[] = [];
       for (const [i, x] of preds.entries()) {
         // TODO: get rid of this typecast
         params[naryEdgeToIndex(i as ad.NaryEdge)] = x;
@@ -742,10 +801,30 @@ const compileNode = (node: ad.Node, preds: Map<ad.Edge, string>): string => {
   }
 };
 
-export const genCode = ({ graph, outputs }: ad.Graph): ad.Compiled => {
+// graph is the graph field of some ad.Graph
+const getInputs = (
+  graph: graphlib.Graph
+): { id: ad.Id; label: ad.InputNode }[] => {
+  const inputs = [];
+  // every input must be a source
+  for (const id of graph.sources()) {
+    const label: ad.Node = graph.node(id);
+    // other non-const sources include n-ary nodes with an empty params array
+    if (typeof label !== "number" && label.tag === "Input") {
+      inputs.push({ id: id as ad.Id, label }); // TODO: get rid of this typecast
+    }
+  }
+  return inputs;
+};
+
+export const genCode = ({
+  graph,
+  gradient,
+  primary,
+  secondary,
+}: ad.Graph): ad.Compiled => {
   const stmts = getInputs(graph).map(
-    ({ id, label: { name } }) =>
-      `const ${id} = inputs.get(${JSON.stringify(name)});`
+    ({ id, label: { index } }) => `const ${id} = inputs[${index}];`
   );
   for (const id of graphlib.alg.topsort(graph)) {
     const node: ad.Node = graph.node(id);
@@ -757,13 +836,18 @@ export const genCode = ({ graph, outputs }: ad.Graph): ad.Compiled => {
         throw Error("expected inEdges to be an array");
       }
       const preds = new Map(
-        // TODO: get rid of this typecast
-        edges.map(({ v, name }) => [name as ad.Edge, v])
+        // TODO: get rid of these typecasts
+        edges.map(({ v, name }) => [name as ad.Edge, v as ad.Id])
       );
       stmts.push(`const ${id} = ${compileNode(node, preds)};`);
     }
   }
-  stmts.push(`return [${outputs.join(", ")}];`);
+  const fields = [
+    `gradient: [${gradient.join(", ")}]`,
+    `primary: ${primary}`,
+    `secondary: [${secondary.join(", ")}]`,
+  ];
+  stmts.push(`return { ${fields.join(", ")} };`);
   const f = new Function("inputs", stmts.join("\n"));
   return (inputs) => f(inputs);
 };
@@ -798,18 +882,13 @@ export const energyAndGradCompiled = (
   setInputs(xsVars, xs);
 
   // Build an actual graph from the implicit VarAD structure
-  const explicitGraph = makeGraph([energyGraph]);
-
   // Build symbolic gradient of f at xs on the energy graph
-  const energyOutput = 0; // We only have one output, index 0
-  const gradOutputs = addGradient(explicitGraph, energyOutput);
+  const explicitGraph = makeGraph({ primary: energyGraph, secondary: [] });
 
   const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 
   const graphs: GradGraphs = {
     inputs: xsVars,
-    energyOutput,
-    gradOutputs,
     weight: epWeightNode,
   };
 
