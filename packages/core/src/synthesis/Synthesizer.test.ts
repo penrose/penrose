@@ -77,7 +77,8 @@ Set D`;
     const ctx = initContext(
       synth.env,
       defaultSetting.argOption,
-      defaultSetting.argReuse
+      defaultSetting.argReuse,
+      "test0"
     );
     const toDelete = synth.currentProg.statements[0] as Decl<A>;
     expect("Set A").toEqual(prettyStmt(toDelete));

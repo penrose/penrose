@@ -252,7 +252,7 @@ describe("Mutation recognition tests", () => {
     expect(fromSet).toHaveLength(1);
     // enumerate all mutations for the statement
     const swappedPred = fromSet[0];
-    const ctx = initContext(env, "existing", "distinct");
+    const ctx = initContext(env, "existing", "distinct", "test0");
     const mutations = enumerateStmtMutations(swappedPred, ast1, ctx);
     // apply each mutation and see how many of them match with the result
     const matchedMutations = mutations.filter((m) => {
@@ -291,7 +291,7 @@ describe("Mutation recognition tests", () => {
     const { res: ast2from1 } = executeMutations(
       mutationGroups[0],
       ast1,
-      initContext(env, "existing", "distinct")
+      initContext(env, "existing", "distinct", "test1")
     );
     expect(prettySubstance(sortStmts(ast2from1))).toEqual(
       prettySubstance(sortStmts(ast2))
@@ -311,7 +311,7 @@ describe("Mutation recognition tests", () => {
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const ctx = initContext(env, "existing", "distinct");
+    const ctx = initContext(env, "existing", "distinct", "test2");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 5);
     const shortestPath = minBy(paths, (p) => p.mutations.length);
     expect(shortestPath?.mutations).toHaveLength(3);
@@ -339,7 +339,7 @@ describe("Mutation recognition tests", () => {
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const ctx = initContext(env, "existing", "distinct");
+    const ctx = initContext(env, "existing", "distinct", "test3");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 10);
     const twoStepPaths = paths.filter((p) => p.mutations.length === 2);
     // since we use observational equivalence, there should be only one path

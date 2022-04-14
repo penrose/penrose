@@ -20,7 +20,6 @@ import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { Map } from "immutable";
 import { cloneDeep, compact, range, times, without } from "lodash";
-import { choice } from "pandemonium";
 import { createChoice } from "pandemonium/choice";
 import { createRandom } from "pandemonium/random";
 import seedrandom from "seedrandom";
@@ -111,6 +110,7 @@ export interface SynthesisContext {
   argOption: ArgOption;
   argReuse: ArgReuse;
   env: Env;
+  choice: <T>(array: Array<T>) => T;
 }
 export interface SynthesizedSubstance {
   prog: SubProg<A>;
@@ -124,14 +124,17 @@ interface IDList {
 export const initContext = (
   env: Env,
   argOption: ArgOption,
-  argReuse: ArgReuse
+  argReuse: ArgReuse,
+  randomSeed: string
 ): SynthesisContext => {
+  const rng: seedrandom.prng = seedrandom(randomSeed);
   const ctx: SynthesisContext = {
     generatedNames: Map<string, number>(),
     argOption,
     argReuse,
     names: Map<string, number>(),
     declaredIDs: Map<string, Identifier<A>[]>(),
+    choice: createChoice(rng),
     env,
   };
   return env.varIDs.reduce((c, id) => {
@@ -308,6 +311,7 @@ export class Synthesizer {
   // names: Map<string, number>;
   currentProg: SubProg<A>;
   currentMutations: Mutation[];
+  rng: seedrandom.prng;
   private choice: <T>(array: Array<T>) => T;
   private random: RandomFunction;
 
@@ -337,10 +341,9 @@ export class Synthesizer {
     this.setting = setting;
     this.currentMutations = [];
     // use the seed to create random generation functions
-    const rng = seedrandom(seed);
-    this.choice = createChoice(rng);
-    this.random = createRandom(rng);
-    // keep track of all generated names
+    this.rng = seedrandom(seed);
+    this.choice = createChoice(this.rng);
+    this.random = createRandom(this.rng);
   }
 
   reset = (): void => {
@@ -388,7 +391,12 @@ export class Synthesizer {
         );
         return newCtx;
       },
-      initContext(this.env, this.setting.argOption, this.setting.argReuse)
+      initContext(
+        this.env,
+        this.setting.argOption,
+        this.setting.argReuse,
+        this.rng().toString() // HACK: generate a new random seed deterministically per context
+      )
     );
     // add autolabel statement
     this.updateProg(autoLabel(this.currentProg));
@@ -903,7 +911,7 @@ const generateArg = (
           reuseOption === "distinct"
             ? findIDs(ctx, argType.name.value, usedIDs)
             : findIDs(ctx, argType.name.value);
-        const existingID = choice(possibleIDs);
+        const existingID = ctx.choice(possibleIDs);
         log.debug(
           `generating an argument with possbilities ${possibleIDs.map(
             (i) => i.value
@@ -942,7 +950,7 @@ const generateArg = (
         return generateArg(
           arg,
           ctx,
-          choice(["existing", "generated"]),
+          ctx.choice(["existing", "generated"]),
           reuseOption,
           usedIDs
         );
@@ -994,7 +1002,7 @@ const generatePredArg = (
 ): WithStmts<SubPredArg<A>> & IDList => {
   const argType: Type<A> = arg.type;
   if (argType.tag === "Prop") {
-    const pred = choice(ctx.env.predicates.toArray().map(([, b]) => b));
+    const pred = ctx.choice(ctx.env.predicates.toArray().map(([, b]) => b));
     const { res, stmts, ctx: newCtx } = generatePredicate(pred, ctx);
     return { res, stmts, ids: usedIDs, ctx: newCtx };
   } else {

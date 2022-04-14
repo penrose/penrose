@@ -370,7 +370,7 @@ export const findDiffs = (stmt: SubStmt<A>, diffs: StmtDiff[]): rdiffResult[] =>
 
 //#region Single-mutation search
 
-export const cartesianProduct = <T>(...sets: T[][]) =>
+export const cartesianProduct = <T>(...sets: T[][]): T[][] =>
   sets.reduce<T[][]>(
     (accSets, set) =>
       accSets.flatMap((accSet) => set.map((value) => [...accSet, value])),
@@ -397,7 +397,13 @@ export const findMutationPaths = (
   );
   // find all possible updates for each statement in the update set
   const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
-    const cxt = initContext(srcEnv, "existing", "distinct");
+    // COMBAK: check random seed
+    const cxt = initContext(
+      srcEnv,
+      "existing",
+      "distinct",
+      "findMutationPaths"
+    );
     const mutations = enumerateStmtMutations(d.source, src, cxt);
     d.source;
     const matchedMutations = mutations.filter((m) => {
@@ -437,7 +443,8 @@ export const enumerateAllPaths = (
     deleteMutation(a.source)
   );
   // find all possible updates for each statement in the update set
-  const cxt = initContext(srcEnv, "existing", "distinct");
+  // COMBAK: check random seed
+  const cxt = initContext(srcEnv, "existing", "distinct", "enumerateAllPaths");
   const possibleUpdates: MutationGroup[] = diffs.update.map((d) =>
     enumerateStmtMutations(d.source, src, cxt)
   );

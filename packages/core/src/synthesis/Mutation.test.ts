@@ -65,7 +65,7 @@ describe("Mutation enumeration", () => {
     const [subEnv, env] = getSubRes(domainSrc, subSrc);
     const pred1 = subEnv.ast.statements[3];
     expect(prettyStmt(pred1)).toEqual("Equal3(A, B, C)");
-    const cxt = initContext(env, "existing", "distinct");
+    const cxt = initContext(env, "existing", "distinct", "enumTest");
     const mutations1 = enumerateStmtMutations(pred1, subEnv.ast, cxt);
     // Equal3 should only have 3 swap mutations
     expect(
