@@ -1,4 +1,4 @@
-import { genCode, getInputs, makeGraph, ops } from "engine/Autodiff";
+import { genCode, makeGraph, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -159,13 +159,10 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   // fingers that this remains a valid convex partition as we optimize
   const g = makeGraph({ primary: 0, secondary: p.flat() });
   const inputs = [];
-  const nodes = new Map([...g.nodes].map(([v, id]) => [id, v]));
-  for (const { id } of getInputs(g.graph)) {
-    const v = safe(nodes.get(id), `missing node for id ${id}`);
-    if (typeof v === "number" || v.tag !== "Input") {
-      throw Error("getInputs returned a non-input node");
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.index] = v.val;
     }
-    inputs[v.index] = v.val;
   }
   const coords = genCode(g)(inputs).secondary;
 
