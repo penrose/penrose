@@ -276,21 +276,51 @@ const children = (x: VarAD): Child[] => {
 
 const indexToID = (index: number): ad.Id => `_${index}`;
 
+// graph is the graph field of some ad.Graph
+const getInputs = (
+  graph: graphlib.Graph
+): { id: ad.Id; label: ad.InputNode }[] => {
+  const inputs = [];
+  // every input must be a source
+  for (const id of graph.sources()) {
+    const label: ad.Node = graph.node(id);
+    // other non-const sources include n-ary nodes with an empty params array
+    if (typeof label !== "number" && label.tag === "Input") {
+      inputs.push({ id: id as ad.Id, label }); // TODO: get rid of this typecast
+    }
+  }
+  return inputs;
+};
+
 export const makeGraph = (
   outputs: Omit<ad.Outputs<VarAD>, "gradient">
 ): ad.Graph => {
   const graph = new graphlib.Graph({ multigraph: true });
   const nodes = new Map<VarAD, ad.Id>();
 
+  // we use this queue to essentially do a breadth-first search by following
+  // VarAD child pointers; it gets reused a few times because we add nodes in
+  // multiple stages
   const queue = new Queue<VarAD>();
+  // at each stage, we need to add the edges after adding all the nodes, because
+  // when we first look at a node and its in-edges, its children are not
+  // guaranteed to exist in the graph yet, so we fill this queue during the
+  // node-adding part and then go through it during the edge-adding part,
+  // leaving it empty in preparation for the next stage; so the first element
+  // every tuple in this queue stores information about the edge and child, and
+  // the second element of the tuple is the parent
   const edges = new Queue<[Child, VarAD]>();
 
+  // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
     const id = indexToID(graph.nodeCount());
     graph.setNode(id, node);
     return id;
   };
 
+  // ensure that x is represented in the graph we're building, and if it wasn't
+  // already there, enqueue its children and in-edges (so queue and edges,
+  // respectively, should both be emptied after calling this)
   const addNode = (x: VarAD): ad.Id => {
     let name = nodes.get(x);
     if (name === undefined) {
@@ -315,19 +345,39 @@ export const makeGraph = (
     return [v, w];
   };
 
+  // add all the nodes subtended by the primary output; we do these first, in a
+  // separate stage, because these are the only nodes for which we actually need
+  // to use the sensitivities of their in-edges, and then after we add the
+  // edges, we need to get a topological sort of just these nodes
   const primary = addNode(outputs.primary);
   while (!queue.isEmpty()) {
     addNode(queue.dequeue());
   }
 
+  // we need to keep track of these sensitivities so we can add them as nodes
+  // right after this, but we also need to know which edge each came from for
+  // when we construct the gradient nodes later; note that this simple string
+  // concatenation doesn't cause any problems, because no stringified Edge
+  // contains an underscore, and every Id starts with an underscore, so it's
+  // essentially just three components separated by underscores
   const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD>();
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
+    // this check for undefined isn't really necessary because we do a similar
+    // check later when we look up sensitivities in this map, but it slightly
+    // simplifies the value type for the map and also means we store a bit less
     if (sensitivity !== undefined) {
       sensitivities.set(`${name}${v}${w}`, sensitivity);
     }
   }
+  // the topsort function always constructs a new array so it's OK that we
+  // reverse it in-place; then we can use this reverse topological sort later
+  // when we construct all the gradient nodes, because it ensures that the
+  // gradients of a node's parents are always available before the node itself;
+  // note that we need to compute this right now, because we're just about to
+  // add the sensitivity nodes to the graph, and we don't want to try to compute
+  // the gradients of those sensitivities
   const primaryNodes = graphlib.alg.topsort(graph).reverse();
 
   for (const x of sensitivities.values()) {
@@ -341,8 +391,8 @@ export const makeGraph = (
     addEdge(child, parent, name);
   }
 
+  // map from each primary node ID to the ID of its gradient node
   const gradNodes = new Map<ad.Id, ad.Id>();
-  const gradient: ad.Id[] = [];
   for (const idString of primaryNodes) {
     const id = idString as ad.Id; // TODO: get rid of this typecast
     if (id === primary) {
@@ -389,15 +439,12 @@ export const makeGraph = (
     }
 
     addends.forEach((addendID, i) =>
-      graph.setEdge(addendID, gradID, undefined, `${i}`)
+      graph.setEdge(addendID, gradID, undefined, indexToNaryEdge(i))
     );
-
-    const node: ad.Node = graph.node(id);
-    if (typeof node !== "number" && node.tag === "Input") {
-      gradient[node.index] = gradID;
-    }
   }
 
+  // easiest case: final stage, just add all the nodes and edges for the
+  // secondary outputs
   const secondary = outputs.secondary.map(addNode);
   while (!queue.isEmpty()) {
     addNode(queue.dequeue());
@@ -405,6 +452,29 @@ export const makeGraph = (
   while (!edges.isEmpty()) {
     const [{ child, name }, parent] = edges.dequeue();
     addEdge(child, parent, name);
+  }
+
+  // we wait until after adding all the nodes before get the IDs for the input
+  // gradients, because some of the inputs may only be reachable from the
+  // secondary outputs instead of the primary output; this isn't really
+  // necessary, because the gradients for all those inputs are just zero, so the
+  // caller could just substitute zero whenever the gradient is missing a key,
+  // but it's probably a bit less surprising if we always include an array
+  // element for the gradient on any input that is reachable even from the
+  // secondary outputs
+  const gradient: ad.Id[] = [];
+  for (const {
+    id,
+    label: { index },
+  } of getInputs(graph)) {
+    if (index in gradient) {
+      throw Error(`duplicate Input index: ${index}`);
+    }
+    // note that it's very easy for the set of Input indices to not be
+    // contiguous, e.g. if some inputs end up not being used in any of the
+    // computations in the graph; but even if that happens, it's actually OK
+    // (see the comment in the implementation of genCode below)
+    gradient[index] = gradNodes.get(id) ?? addNode(0);
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -801,22 +871,6 @@ const compileNode = (
   }
 };
 
-// graph is the graph field of some ad.Graph
-const getInputs = (
-  graph: graphlib.Graph
-): { id: ad.Id; label: ad.InputNode }[] => {
-  const inputs = [];
-  // every input must be a source
-  for (const id of graph.sources()) {
-    const label: ad.Node = graph.node(id);
-    // other non-const sources include n-ary nodes with an empty params array
-    if (typeof label !== "number" && label.tag === "Input") {
-      inputs.push({ id: id as ad.Id, label }); // TODO: get rid of this typecast
-    }
-  }
-  return inputs;
-};
-
 export const genCode = ({
   graph,
   gradient,
@@ -843,6 +897,10 @@ export const genCode = ({
     }
   }
   const fields = [
+    // somehow this actually works! if the gradient array is not contiguous, any
+    // gaps will just be filled in by commas when we call join, and that is
+    // valid JavaScript syntax for array literals with gaps, so everything works
+    // out perfectly
     `gradient: [${gradient.join(", ")}]`,
     `primary: ${primary}`,
     `secondary: [${secondary.join(", ")}]`,
