@@ -1,15 +1,8 @@
-import {
-  addGradient,
-  fns,
-  genCode,
-  input,
-  logAD,
-  makeGraph,
-} from "engine/Autodiff";
+import { fns, genCode, input, logAD, makeGraph } from "engine/Autodiff";
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
-import { eqList, randList, safe, zip2 } from "utils/Util";
+import { eqList, randList } from "utils/Util";
 import {
   add,
   div,
@@ -23,30 +16,34 @@ import {
 } from "./AutodiffFunctions";
 
 describe("makeGraph tests", () => {
-  test("outputs", () => {
+  test("secondary outputs", () => {
     // the values 0 don't matter for this test
-    const x = input({ name: "x", val: 0 });
-    const y = input({ name: "y", val: 0 });
+    const x = input({ index: 0, val: 0 });
+    const y = input({ index: 1, val: 0 });
     const sum = add(x, y);
     const product = mul(x, y);
     const difference = sub(x, y);
 
-    const { graph, outputs } = makeGraph([sum, product, difference]);
-    expect(outputs.length).toBe(3);
-    expect(graph.node(outputs[0])).toEqual({ tag: "Binary", binop: "+" });
-    expect(graph.node(outputs[1])).toEqual({ tag: "Binary", binop: "*" });
-    expect(graph.node(outputs[2])).toEqual({ tag: "Binary", binop: "-" });
+    const { graph, gradient, primary, secondary } = makeGraph({
+      primary: 0,
+      secondary: [sum, product, difference],
+    });
+    expect(gradient.length).toBe(2);
+    expect(secondary.length).toBe(3);
+    expect(graph.node(secondary[0])).toEqual({ tag: "Binary", binop: "+" });
+    expect(graph.node(secondary[1])).toEqual({ tag: "Binary", binop: "*" });
+    expect(graph.node(secondary[2])).toEqual({ tag: "Binary", binop: "-" });
   });
 
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
-    const x1 = input({ name: "x1", val: 0 }); // 0, doesn't matter for this test
+    const x1 = input({ index: 0, val: 0 }); // 0, doesn't matter for this test
     const t1 = mul(x1, x1);
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
 
-    const { graph } = makeGraph([f]);
-    expect(graph.nodeCount()).toBe(4);
+    const { graph } = makeGraph({ primary: 0, secondary: [f] });
+    expect(graph.nodeCount()).toBe(5);
     expect(graph.edgeCount()).toBe(6);
   });
 });
@@ -139,166 +136,96 @@ const testGradFiniteDiff = () => {
   });
 };
 
-const gradGraph1 = (): SymbolicTest => {
-  // Build energy graph; vals are ignored, inputs map used instead
-  const x0 = input({ name: "x0", val: 0 });
-  const x1 = input({ name: "x1", val: 0 });
-  const inputs = new Map([
-    ["x0", -5],
-    ["x1", 6],
-  ]);
+const gradGraph1 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ index: 0, val: -5 });
+  const x1 = input({ index: 1, val: 6 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
   const z = mul(b, c);
-  const graph = makeGraph([z]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: z, secondary: [] });
 };
 
 // Test addition of consts to graph (`c`)
-const gradGraph2 = (): SymbolicTest => {
-  // Build energy graph
-  const x0 = input({ name: "x0", val: 0 });
-  const x1 = input({ name: "x1", val: 0 });
-  const inputs = new Map([
-    ["x0", -5],
-    ["x1", 6],
-  ]);
+const gradGraph2 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ index: 0, val: -5 });
+  const x1 = input({ index: 1, val: 6 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = add(a, 3);
   const z = mul(b, c);
-  const graph = makeGraph([z]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: z, secondary: [] });
 };
 
 // Test vars w/ no grad
-const gradGraph3 = (): SymbolicTest => {
-  // Build energy graph
-  const x0 = input({ name: "x0", val: 0 });
-  const x1 = input({ name: "x1", val: 0 });
-  const inputs = new Map([
-    ["x0", 100],
-    ["x1", -100],
-  ]);
+const gradGraph3 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ index: 0, val: 100 });
+  const x1 = input({ index: 1, val: -100 });
   const head = squared(x0);
-  const graph = makeGraph([head]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: head, secondary: [] });
 };
 
 // Test toPenalty
-const gradGraph4 = (): SymbolicTest => {
-  // Build energy graph
-  const x0 = input({ name: "x0", val: 0 });
-  const inputs = new Map([["x0", 100]]);
+const gradGraph4 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ index: 0, val: 100 });
   const head = fns.toPenalty(x0);
-  const graph = makeGraph([head]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: head, secondary: [] });
 };
 
 // Test ifCond
-const gradGraph5 = (): SymbolicTest => {
+const gradGraph5 = (): ad.Graph => {
   logAD.info("test ifCond");
 
-  // Build energy graph
-  const x0 = input({ name: "x0", val: 0 });
-  const x1 = input({ name: "x1", val: 0 });
-  const inputs = new Map([
-    ["x0", 100],
-    ["x1", -100],
-  ]);
+  // Build energy/gradient graph
+  const x0 = input({ index: 0, val: 100 });
+  const x1 = input({ index: 1, val: -100 });
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
-  const graph = makeGraph([head]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: head, secondary: [] });
 };
 
 // Test max
-const gradGraph6 = (): SymbolicTest => {
+const gradGraph6 = (): ad.Graph => {
   logAD.info("test max");
 
-  // Build energy graph
-  const x0 = input({ name: "x0", val: 0 });
-  const inputs = new Map([["x0", 100]]);
+  // Build energy/gradient graph
+  const x0 = input({ index: 0, val: 100 });
   const head = max(squared(x0), 0);
-  const graph = makeGraph([head]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: head, secondary: [] });
 };
 
 // Test div
 // TODO < Test all ops automatically
-const gradGraph7 = (): SymbolicTest => {
+const gradGraph7 = (): ad.Graph => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input({ name: "x0", val: 0 });
-  const x1 = input({ name: "x1", val: 0 });
-  const inputs = new Map([
-    ["x0", 100],
-    ["x1", -100],
-  ]);
+  const x0 = input({ index: 0, val: 100 });
+  const x1 = input({ index: 1, val: -100 });
   const head = div(x0, x1);
-  const graph = makeGraph([head]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
-
-  return { inputs, graph, dxs };
+  return makeGraph({ primary: head, secondary: [] });
 };
-
-interface SymbolicTest {
-  inputs: Map<string, number>;
-  graph: ad.Graph;
-  dxs: Map<string, number>;
-}
 
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
-const testGradSymbolic = (testNum: number, test: SymbolicTest): void => {
+const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f0 = genCode(test.graph);
+  const f0 = genCode(graph);
 
-  const inputNames = [...test.inputs.keys()];
-  // slightly hacky to assume that the energy output is always node 0
-  const f = (xs: number[]) => f0(new Map(zip2(inputNames, xs)))[0];
-  const gradGen = (xs: number[]) => {
-    const result = f0(new Map(zip2(inputNames, xs)));
-    return inputNames.map(
-      (name) => result[safe(test.dxs.get(name), "missing gradient index")]
-    );
-  };
+  const f = (xs: number[]) => f0(xs).primary;
+  const gradGen = (xs: number[]) => f0(xs).gradient;
 
   // Test the gradient at several points via evaluation
   const gradEst = _gradFiniteDiff(f);
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xsTest = randList(rng, test.inputs.size);
+    const xsTest = randList(rng, graph.gradient.length);
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
@@ -311,18 +238,14 @@ const testGradSymbolic = (testNum: number, test: SymbolicTest): void => {
   });
 };
 
-const gradGraph0 = (): SymbolicTest => {
-  // Build energy graph
+const gradGraph0 = (): ad.Graph => {
+  // Build energy/gradient graph
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input({ name: "ref", val: 0 });
-  const inputs = new Map([["ref", 100]]);
+  const ref = input({ index: 0, val: 100 });
   const head = squared(ref);
-  const graph = makeGraph([head]);
-
-  // Build gradient graph
-  const dxs = addGradient(graph, 0);
+  const graph = makeGraph({ primary: head, secondary: [] });
 
   // Print results
   logAD.trace(
@@ -331,5 +254,5 @@ const gradGraph0 = (): SymbolicTest => {
     head
   );
 
-  return { inputs, graph, dxs };
+  return graph;
 };

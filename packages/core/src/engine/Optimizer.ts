@@ -49,7 +49,6 @@ import {
   prettyPrintFns,
   prettyPrintPath,
   repeat,
-  safe,
   scalev,
   subv,
   zip2,
@@ -76,8 +75,6 @@ const weightGrowthFactor = 10;
 // weight for constraints
 const constraintWeight = 10e4; // HACK: constant constraint weight
 // const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
-
-const epWeightName = "epWeight";
 
 // EP method convergence criteria
 const epStop = 1e-3;
@@ -893,7 +890,7 @@ const minimize = (
  */
 export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
   return (
-    ...xsVars: VarAD[]
+    ...xsVars: ad.Input[]
   ): {
     energyGraph: VarAD;
     epWeightNode: ad.Input;
@@ -936,7 +933,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     // This changes with the EP round, gets bigger to weight the constraints
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
     const epWeightNode = input({
-      name: epWeightName,
+      index: 0, // xsVars indices must start at 1
       val: state.params.weight,
     });
 
@@ -965,7 +962,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   // When applied, it will interpret the energy via lookups on the computational graph
   // TODO: Could save the interpreted energy graph across amples
   const overallObjective = evalEnergyOnCustom(rng, state);
-  const xsVars: ad.Input[] = makeADInputVars(xs);
+  const xsVars: ad.Input[] = makeADInputVars(xs, 1); // ep weight is index 0
   const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
   // `energyGraph` is a VarAD that is a handle to the top of the graph
 
@@ -986,23 +983,8 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   );
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
-    const inputs = new Map([[epWeightName, epWeight]]);
-    for (const [{ name }, x] of zip2(xsVars, xs)) {
-      inputs.set(name, x);
-    }
-    const outputs = f(inputs);
-    return {
-      f: outputs[graphs.energyOutput],
-      gradf: xsVars.map(
-        ({ name }) =>
-          outputs[
-            safe(
-              graphs.gradOutputs.get(name),
-              `missing partial derivative for input ${name}`
-            )
-          ]
-      ),
-    };
+    const { primary, gradient } = f([epWeight, ...xs]);
+    return { f: primary, gradf: gradient };
   };
 
   eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
@@ -1038,7 +1020,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
 const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
   const dict = fn.optType === "ObjFn" ? objDict : constrDict;
 
-  return (...xsVars: VarAD[]): VarAD => {
+  return (...xsVars: ad.Input[]): VarAD => {
     const { varyingPaths } = s;
 
     const translationInit = clone(makeTranslationNumeric(s.translation));
@@ -1069,32 +1051,12 @@ const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
 
   const weightInfo: WeightInfo | undefined = undefined;
 
-  const { graphs, f } = energyAndGradCompiled(
-    xs,
-    xsVars,
-    energyGraph,
-    weightInfo
-  );
+  const { f } = energyAndGradCompiled(xs, xsVars, energyGraph, weightInfo);
 
   // Note this throws away the energy/gradient graphs (`VarAD`s). Presumably not needed?
   return (xs: number[]) => {
-    const inputs = new Map<string, number>();
-    for (const [{ name }, x] of zip2(xsVars, xs)) {
-      inputs.set(name, x);
-    }
-    const outputs = f(inputs);
-    return {
-      f: outputs[graphs.energyOutput],
-      gradf: xsVars.map(
-        ({ name }) =>
-          outputs[
-            safe(
-              graphs.gradOutputs.get(name),
-              `missing partial derivative for input ${name}`
-            )
-          ]
-      ),
-    };
+    const { primary, gradient } = f(xs);
+    return { f: primary, gradf: gradient };
   };
 };
 

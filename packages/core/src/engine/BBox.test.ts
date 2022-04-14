@@ -34,14 +34,17 @@ const expectBbox = (
   actual: BBox,
   expected: { width: number; height: number; center: [number, number] }
 ) => {
-  const g = makeGraph([
-    actual.width,
-    actual.height,
-    actual.center[0],
-    actual.center[1],
-  ]);
+  const g = makeGraph({
+    primary: 0,
+    secondary: [
+      actual.width,
+      actual.height,
+      actual.center[0],
+      actual.center[1],
+    ],
+  });
   const f = genCode(g);
-  const [width, height, x, y] = f(new Map()); // no inputs, so, empty map
+  const [width, height, x, y] = f([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
   expect(x).toBeCloseTo(expected.center[0]);

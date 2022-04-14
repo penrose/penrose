@@ -18,9 +18,9 @@ describe("overlappingAABBs should return the same value as overlappingPolygons",
         const result1 = overlappingAABBs([t, r1], [t, r2], padding);
         const result2 = overlappingPolygons([t, r1], [t, r2], padding);
 
-        const [result1num, result2num] = genCode(makeGraph([result1, result2]))(
-          new Map()
-        );
+        const [result1num, result2num] = genCode(
+          makeGraph({ primary: 0, secondary: [result1, result2] })
+        )([]).secondary;
 
         expect(result1num).toBeCloseTo(result2num, 4);
       }

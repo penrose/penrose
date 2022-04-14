@@ -16,14 +16,12 @@ describe("rectangleDifference", () => {
     result: [Pt2, Pt2],
     expected: [[number, number], [number, number]]
   ) => {
-    const g = makeGraph([
-      result[0][0],
-      result[0][1],
-      result[1][0],
-      result[1][1],
-    ]);
+    const g = makeGraph({
+      primary: 0,
+      secondary: [result[0][0], result[0][1], result[1][0], result[1][1]],
+    });
     const f = genCode(g);
-    const [result00, result01, result10, result11] = f(new Map());
+    const [result00, result01, result10, result11] = f([]).secondary;
     expect(result00).toEqual(expected[0][0]);
     expect(result01).toEqual(expected[0][1]);
     expect(result10).toEqual(expected[1][0]);
@@ -78,12 +76,15 @@ describe("outwardUnitNormal", () => {
     let result = outwardUnitNormal(lineSegment, point1);
 
     const [norm, dot, diff] = genCode(
-      makeGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
-      ])
-    )(new Map());
+      makeGraph({
+        primary: 0,
+        secondary: [
+          ops.vnorm(result),
+          ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+          sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
+        ],
+      })
+    )([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, digitPrecision);
@@ -97,12 +98,15 @@ describe("outwardUnitNormal", () => {
     let result = outwardUnitNormal(lineSegment, point2);
 
     const [norm, dot, diff] = genCode(
-      makeGraph([
-        ops.vnorm(result),
-        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
-        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
-      ])
-    )(new Map());
+      makeGraph({
+        primary: 0,
+        secondary: [
+          ops.vnorm(result),
+          ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+          sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
+        ],
+      })
+    )([]).secondary;
 
     // It is unit
     expect(norm).toBeCloseTo(1, digitPrecision);
@@ -115,9 +119,9 @@ describe("outwardUnitNormal", () => {
 
 describe("halfPlaneSDF", () => {
   const numOf = (x: VarAD) => {
-    const g = makeGraph([x]);
+    const g = makeGraph({ primary: 0, secondary: [x] });
     const f = genCode(g);
-    const [y] = f(new Map()); // no inputs, so, empty map
+    const [y] = f([]).secondary; // no inputs, so, empty array
     return y;
   };
 

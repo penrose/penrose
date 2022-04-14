@@ -46,8 +46,8 @@ export const input = ({
   val: number;
 }): ad.Input => ({ tag: "Input", index, val });
 
-export const makeADInputVars = (xs: number[]): ad.Input[] =>
-  xs.map((val, index) => input({ index, val }));
+export const makeADInputVars = (xs: number[], start = 0): ad.Input[] =>
+  xs.map((val, i) => input({ index: start + i, val }));
 
 // every VarAD is already an ad.Node, but this function removes all the children
 const makeNode = (x: VarAD): ad.Node => {

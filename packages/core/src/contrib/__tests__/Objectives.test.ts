@@ -3,9 +3,9 @@ import { genCode, makeGraph } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 
 const numOf = (x: VarAD) => {
-  const g = makeGraph([x]);
+  const g = makeGraph({ primary: 0, secondary: [x] });
   const f = genCode(g);
-  const [y] = f(new Map()); // no inputs, so, empty map
+  const [y] = f([]).secondary; // no inputs, so, empty array
   return y;
 };
 

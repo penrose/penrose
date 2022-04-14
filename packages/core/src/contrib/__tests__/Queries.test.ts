@@ -97,8 +97,11 @@ describe("simple queries", () => {
   it.each(shapes)("bboxFromShape for %p", (shapeType: string, shape: any) => {
     const bbox = bboxFromShape([shapeType, shape]);
     const [x, y, w, h] = genCode(
-      makeGraph([bbox.center[0], bbox.center[1], bbox.width, bbox.height])
-    )(new Map());
+      makeGraph({
+        primary: 0,
+        secondary: [bbox.center[0], bbox.center[1], bbox.width, bbox.height],
+      })
+    )([]).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
     expect(w).toBeCloseTo(44, precisionDigits);
@@ -107,14 +110,18 @@ describe("simple queries", () => {
 
   it.each(shapes)("shapeCenter for %p", (shapeType: string, shape: any) => {
     const center = shapeCenter([shapeType, shape]);
-    const [x, y] = genCode(makeGraph([center[0], center[1]]))(new Map());
+    const [x, y] = genCode(
+      makeGraph({ primary: 0, secondary: [center[0], center[1]] })
+    )([]).secondary;
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
   });
 
   it.each(shapes)("shapeSize for %p", (shapeType: string, shape: any) => {
     const size = shapeSize([shapeType, shape]);
-    const sizeNum = genCode(makeGraph([size]))(new Map());
+    const [sizeNum] = genCode(makeGraph({ primary: 0, secondary: [size] }))(
+      []
+    ).secondary;
     expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
@@ -125,9 +132,9 @@ describe("polygonLikePoints", () => {
     for (const pt of result) {
       outputs.push(...pt);
     }
-    const g = makeGraph(outputs);
+    const g = makeGraph({ primary: 0, secondary: outputs });
     const f = genCode(g);
-    const nums = f(new Map()); // no inputs, so, empty map
+    const nums = f([]).secondary; // no inputs, so, empty array
     const pts: [number, number][] = [];
     for (let i = 0; i < nums.length; i += 2) {
       pts.push([nums[i], nums[i + 1]]);

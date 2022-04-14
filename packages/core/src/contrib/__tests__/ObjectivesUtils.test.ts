@@ -6,9 +6,9 @@ const testShape = { center: { contents: [0, 2] } };
 const testRefShape = { center: { contents: [1, 1] } };
 
 const numOf = (x: VarAD) => {
-  const g = makeGraph([x]);
+  const g = makeGraph({ primary: 0, secondary: [x] });
   const f = genCode(g);
-  const [y] = f(new Map()); // no inputs, so, empty map
+  const [y] = f([]).secondary; // no inputs, so, empty array
   return y;
 };
 
