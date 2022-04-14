@@ -277,7 +277,7 @@ const children = (x: VarAD): Child[] => {
 const indexToID = (index: number): ad.Id => `_${index}`;
 
 // graph is the graph field of some ad.Graph
-const getInputs = (
+export const getInputs = (
   graph: graphlib.Graph
 ): { id: ad.Id; label: ad.InputNode }[] => {
   const inputs = [];

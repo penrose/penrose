@@ -157,19 +157,17 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   // the input values embedded in the children of the VarADs we were passed, run
   // a convex partitioning algorithm on those vertex positions, and cross our
   // fingers that this remains a valid convex partition as we optimize
-  const g = makeGraph(p.flat());
+  const g = makeGraph({ primary: 0, secondary: p.flat() });
+  const inputs = [];
   const nodes = new Map([...g.nodes].map(([v, id]) => [id, v]));
-  const coords = genCode(g)(
-    new Map(
-      getInputs(g.graph).map(({ id }) => {
-        const v = safe(nodes.get(id), `missing node for id ${id}`);
-        if (typeof v === "number" || v.tag !== "Input") {
-          throw Error("getInputs returned a non-input node");
-        }
-        return [v.name, v.val];
-      })
-    )
-  );
+  for (const { id } of getInputs(g.graph)) {
+    const v = safe(nodes.get(id), `missing node for id ${id}`);
+    if (typeof v === "number" || v.tag !== "Input") {
+      throw Error("getInputs returned a non-input node");
+    }
+    inputs[v.index] = v.val;
+  }
+  const coords = genCode(g)(inputs).secondary;
 
   // map each point back to its original VecAD object; note, this depends on the
   // fact that two points with the same contents are considered different as
