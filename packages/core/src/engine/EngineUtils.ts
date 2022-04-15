@@ -248,6 +248,15 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
+// HACK: trying this to figure out which places actually need deeper conversion
+const numOf = (x: VarAD): number => {
+  if (typeof x === "number") {
+    return x;
+  } else {
+    throw Error("tried to call numOf on a non-constant VarAD");
+  }
+};
+
 export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
   shapes.map((s: ShapeAD) => ({
     ...s,
