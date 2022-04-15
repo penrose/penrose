@@ -396,8 +396,8 @@ export const makeGraph = (
   for (const idString of primaryNodes) {
     const id = idString as ad.Id; // TODO: get rid of this typecast
     if (id === primary) {
-      const grad: ad.ConstNode = 1;
-      gradNodes.set(id, newNode(grad));
+      // use addNode instead of newNode in case there's already a 1 in the graph
+      gradNodes.set(id, addNode(1));
       continue;
     }
 
@@ -479,6 +479,22 @@ export const makeGraph = (
 
   return { graph, nodes, gradient, primary, secondary };
 };
+
+/**
+ * Construct a graph with a primary output but no secondary outputs.
+ */
+export const primaryGraph = (output: VarAD): ad.Graph =>
+  makeGraph({ primary: output, secondary: [] });
+
+/**
+ * Construct a graph from an array of only secondary outputs, for which we don't
+ * care about the gradient. The primary output is just the constant 1.
+ */
+export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
+  // use 1 because makeGraph always constructs a constant gradient node 1 for
+  // the primary output, and so if that's already present in the graph then we
+  // have one fewer node total
+  makeGraph({ primary: 1, secondary: outputs });
 
 // ------------ Meta / debug ops
 

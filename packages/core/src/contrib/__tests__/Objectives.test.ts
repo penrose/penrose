@@ -1,9 +1,9 @@
 import { objDict } from "contrib/Objectives";
-import { genCode, makeGraph } from "engine/Autodiff";
+import { genCode, secondaryGraph } from "engine/Autodiff";
 import { VarAD } from "types/ad";
 
 const numOf = (x: VarAD) => {
-  const g = makeGraph({ primary: 0, secondary: [x] });
+  const g = secondaryGraph([x]);
   const f = genCode(g);
   const [y] = f([]).secondary; // no inputs, so, empty array
   return y;

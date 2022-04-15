@@ -1,4 +1,11 @@
-import { fns, genCode, input, logAD, makeGraph } from "engine/Autodiff";
+import {
+  fns,
+  genCode,
+  input,
+  logAD,
+  primaryGraph,
+  secondaryGraph,
+} from "engine/Autodiff";
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
@@ -24,10 +31,11 @@ describe("makeGraph tests", () => {
     const product = mul(x, y);
     const difference = sub(x, y);
 
-    const { graph, gradient, primary, secondary } = makeGraph({
-      primary: 0,
-      secondary: [sum, product, difference],
-    });
+    const { graph, gradient, primary, secondary } = secondaryGraph([
+      sum,
+      product,
+      difference,
+    ]);
     expect(gradient.length).toBe(2);
     expect(secondary.length).toBe(3);
     expect(graph.node(secondary[0])).toEqual({ tag: "Binary", binop: "+" });
@@ -42,9 +50,12 @@ describe("makeGraph tests", () => {
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
 
-    const { graph } = makeGraph({ primary: 0, secondary: [f] });
-    // x1, t1, t2, f, the constant 0, and the derivative 1 of the primary node
-    // with respect to itself
+    const { graph } = secondaryGraph([f]);
+    for (const id of graph.nodes()) {
+      console.log(id, graph.node(id));
+    }
+    // x1, t1, t2, f, the constant primary node 1, and the derivative 0 of the
+    // primary node with respect to the input x1
     expect(graph.nodeCount()).toBe(6);
     expect(graph.edgeCount()).toBe(6); // the in-edges of the three mul nodes
   });
@@ -146,7 +157,7 @@ const gradGraph1 = (): ad.Graph => {
   const b = squared(a);
   const c = sin(a);
   const z = mul(b, c);
-  return makeGraph({ primary: z, secondary: [] });
+  return primaryGraph(z);
 };
 
 // Test addition of consts to graph (`c`)
@@ -158,7 +169,7 @@ const gradGraph2 = (): ad.Graph => {
   const b = squared(a);
   const c = add(a, 3);
   const z = mul(b, c);
-  return makeGraph({ primary: z, secondary: [] });
+  return primaryGraph(z);
 };
 
 // Test vars w/ no grad
@@ -167,7 +178,7 @@ const gradGraph3 = (): ad.Graph => {
   const x0 = input({ index: 0, val: 100 });
   const x1 = input({ index: 1, val: -100 });
   const head = squared(x0);
-  return makeGraph({ primary: head, secondary: [] });
+  return primaryGraph(head);
 };
 
 // Test toPenalty
@@ -175,7 +186,7 @@ const gradGraph4 = (): ad.Graph => {
   // Build energy/gradient graph
   const x0 = input({ index: 0, val: 100 });
   const head = fns.toPenalty(x0);
-  return makeGraph({ primary: head, secondary: [] });
+  return primaryGraph(head);
 };
 
 // Test ifCond
@@ -186,7 +197,7 @@ const gradGraph5 = (): ad.Graph => {
   const x0 = input({ index: 0, val: 100 });
   const x1 = input({ index: 1, val: -100 });
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
-  return makeGraph({ primary: head, secondary: [] });
+  return primaryGraph(head);
 };
 
 // Test max
@@ -196,7 +207,7 @@ const gradGraph6 = (): ad.Graph => {
   // Build energy/gradient graph
   const x0 = input({ index: 0, val: 100 });
   const head = max(squared(x0), 0);
-  return makeGraph({ primary: head, secondary: [] });
+  return primaryGraph(head);
 };
 
 // Test div
@@ -208,7 +219,7 @@ const gradGraph7 = (): ad.Graph => {
   const x0 = input({ index: 0, val: 100 });
   const x1 = input({ index: 1, val: -100 });
   const head = div(x0, x1);
-  return makeGraph({ primary: head, secondary: [] });
+  return primaryGraph(head);
 };
 
 // Compile the gradient and check it against numeric gradients
@@ -247,7 +258,7 @@ const gradGraph0 = (): ad.Graph => {
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
   const ref = input({ index: 0, val: 100 });
   const head = squared(ref);
-  const graph = makeGraph({ primary: head, secondary: [] });
+  const graph = primaryGraph(head);
 
   // Print results
   logAD.trace(

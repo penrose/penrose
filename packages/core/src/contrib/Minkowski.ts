@@ -1,4 +1,4 @@
-import { genCode, makeGraph, ops } from "engine/Autodiff";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -157,7 +157,7 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   // the input values embedded in the children of the VarADs we were passed, run
   // a convex partitioning algorithm on those vertex positions, and cross our
   // fingers that this remains a valid convex partition as we optimize
-  const g = makeGraph({ primary: 0, secondary: p.flat() });
+  const g = secondaryGraph(p.flat());
   const inputs = [];
   for (const v of g.nodes.keys()) {
     if (typeof v !== "number" && v.tag === "Input") {

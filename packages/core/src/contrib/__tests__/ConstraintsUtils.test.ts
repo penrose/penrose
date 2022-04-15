@@ -3,7 +3,7 @@ import {
   overlappingPolygons,
 } from "contrib/ConstraintsUtils";
 import { _rectangles } from "contrib/__testfixtures__/TestShapes.input";
-import { genCode, makeGraph } from "engine/Autodiff";
+import { genCode, secondaryGraph } from "engine/Autodiff";
 
 describe("overlappingAABBs should return the same value as overlappingPolygons", () => {
   it.each([0, 10, 100])("padding %p", (padding: number) => {
@@ -19,7 +19,7 @@ describe("overlappingAABBs should return the same value as overlappingPolygons",
         const result2 = overlappingPolygons([t, r1], [t, r2], padding);
 
         const [result1num, result2num] = genCode(
-          makeGraph({ primary: 0, secondary: [result1, result2] })
+          secondaryGraph([result1, result2])
         )([]).secondary;
 
         expect(result1num).toBeCloseTo(result2num, 4);

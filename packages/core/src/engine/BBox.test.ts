@@ -16,7 +16,7 @@ import {
   VectorV,
 } from "shapes/Samplers";
 import { IPoly, IScale } from "types/shapes";
-import { genCode, makeGraph } from "./Autodiff";
+import { genCode, secondaryGraph } from "./Autodiff";
 import {
   BBox,
   bboxFromCircle,
@@ -34,15 +34,12 @@ const expectBbox = (
   actual: BBox,
   expected: { width: number; height: number; center: [number, number] }
 ) => {
-  const g = makeGraph({
-    primary: 0,
-    secondary: [
-      actual.width,
-      actual.height,
-      actual.center[0],
-      actual.center[1],
-    ],
-  });
+  const g = secondaryGraph([
+    actual.width,
+    actual.height,
+    actual.center[0],
+    actual.center[1],
+  ]);
   const f = genCode(g);
   const [width, height, x, y] = f([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
