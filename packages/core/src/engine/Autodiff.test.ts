@@ -31,13 +31,15 @@ describe("makeGraph tests", () => {
     const product = mul(x, y);
     const difference = sub(x, y);
 
-    const { graph, gradient, primary, secondary } = secondaryGraph([
+    const { graph, gradient, secondary } = secondaryGraph([
       sum,
       product,
       difference,
     ]);
+
     expect(gradient.length).toBe(2);
     expect(secondary.length).toBe(3);
+
     expect(graph.node(secondary[0])).toEqual({ tag: "Binary", binop: "+" });
     expect(graph.node(secondary[1])).toEqual({ tag: "Binary", binop: "*" });
     expect(graph.node(secondary[2])).toEqual({ tag: "Binary", binop: "-" });
@@ -51,6 +53,7 @@ describe("makeGraph tests", () => {
     const f = mul(t2, t2);
 
     const { graph } = secondaryGraph([f]);
+
     // x1, t1, t2, f, the constant primary node 1, and the derivative 0 of the
     // primary node with respect to the input x1
     expect(graph.nodeCount()).toBe(6);
