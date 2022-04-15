@@ -52,6 +52,8 @@ import {
   Value,
 } from "types/value";
 import { showError } from "utils/Error";
+import { safe } from "utils/Util";
+import { genCode, secondaryGraph } from "./Autodiff";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -257,13 +259,85 @@ const numOf = (x: VarAD): number => {
   }
 };
 
-export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
-  shapes.map((s: ShapeAD) => ({
+export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
+  const vars = [];
+  for (const s of shapes) {
+    for (const v of Object.values(s.properties)) {
+      vars.push(...valueVarADs(v));
+    }
+  }
+  const g = secondaryGraph(vars);
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.index] = v.val;
+    }
+  }
+  const numbers = genCode(g)(inputs).secondary;
+  const m = new Map(g.secondary.map((id, i) => [id, numbers[i]]));
+  return shapes.map((s: ShapeAD) => ({
     ...s,
     properties: mapValues(s.properties, (p: Value<VarAD>) =>
-      valueAutodiffToNumber(p)
+      mapValueNumeric(
+        (x) =>
+          safe(m.get(safe(g.nodes.get(x), "missing node")), "missing output"),
+        p
+      )
     ),
   }));
+};
+
+const valueVarADs = (v: Value<VarAD>): VarAD[] => {
+  switch (v.tag) {
+    case "FloatV": {
+      return [v.contents];
+    }
+    case "IntV":
+    case "BoolV":
+    case "StrV":
+    case "FileV":
+    case "StyleV": {
+      return [];
+    }
+    case "PtV":
+    case "ListV":
+    case "VectorV":
+    case "TupV": {
+      return v.contents;
+    }
+    case "PathDataV": {
+      return v.contents.flatMap((pathCmd) =>
+        pathCmd.contents.flatMap((subPath) => subPath.contents)
+      );
+    }
+    case "PtListV":
+    case "MatrixV":
+    case "LListV": {
+      return v.contents.flat();
+    }
+    case "ColorV": {
+      return colorVarADs(v.contents);
+    }
+    case "PaletteV": {
+      return v.contents.flatMap(colorVarADs);
+    }
+    case "HMatrixV": {
+      return Object.values(v.contents);
+    }
+  }
+};
+
+const colorVarADs = (c: Color<VarAD>): VarAD[] => {
+  switch (c.tag) {
+    case "RGBA":
+    case "HSVA": {
+      return c.contents;
+    }
+    case "NONE": {
+      return [];
+    }
+  }
+};
 
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);
