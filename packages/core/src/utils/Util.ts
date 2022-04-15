@@ -364,7 +364,9 @@ export const addv = (xs: number[], ys: number[]): number[] => {
 export const subv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
-    throw Error("can't sub vectors of different length");
+    throw Error(
+      `can't sub vectors of different length: ${xs.length} vs ${ys.length}`
+    );
   }
 
   return _.zipWith(xs, ys, (x, y) => x - y);
@@ -375,7 +377,9 @@ export const negv = (xs: number[]): number[] => _.map(xs, (e) => -e);
 export const dot = (xs: number[], ys: number[]): number => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
-    throw Error("can't dot vectors of different length");
+    throw Error(
+      `can't dot vectors of different length: ${xs.length} vs ${ys.length}`
+    );
   }
 
   let acc = 0;
