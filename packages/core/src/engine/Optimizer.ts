@@ -984,7 +984,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
     const { primary, gradient } = f([epWeight, ...xs]);
-    return { f: primary, gradf: gradient };
+    return { f: primary, gradf: gradient.slice(1) };
   };
 
   eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params

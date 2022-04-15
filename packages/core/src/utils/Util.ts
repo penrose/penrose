@@ -353,7 +353,9 @@ export const scalev = (c: number, xs: number[]): number[] =>
 export const addv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
-    throw Error("can't add vectors of different length");
+    throw Error(
+      `can't add vectors of different length: ${xs.length} vs ${ys.length}`
+    );
   }
 
   return _.zipWith(xs, ys, (x, y) => x + y);
