@@ -237,7 +237,7 @@ describe("bbox", () => {
       ]),
     });
     expectBbox(bboxFromPath(shape), {
-      width: 200,
+      width: 250,
       height: 150,
       center: [75, -25],
     });
