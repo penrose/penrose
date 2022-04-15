@@ -306,7 +306,7 @@ export const makeGraph = (
   // when we first look at a node and its in-edges, its children are not
   // guaranteed to exist in the graph yet, so we fill this queue during the
   // node-adding part and then go through it during the edge-adding part,
-  // leaving it empty in preparation for the next stage; so the first element
+  // leaving it empty in preparation for the next stage; so the first element of
   // every tuple in this queue stores information about the edge and child, and
   // the second element of the tuple is the parent
   const edges = new Queue<[Child, VarAD]>();
