@@ -43,8 +43,10 @@ describe("makeGraph tests", () => {
     const f = mul(t2, t2);
 
     const { graph } = makeGraph({ primary: 0, secondary: [f] });
-    expect(graph.nodeCount()).toBe(5);
-    expect(graph.edgeCount()).toBe(6);
+    // x1, t1, t2, f, the constant 0, and the derivative 1 of the primary node
+    // with respect to itself
+    expect(graph.nodeCount()).toBe(6);
+    expect(graph.edgeCount()).toBe(6); // the in-edges of the three mul nodes
   });
 });
 
