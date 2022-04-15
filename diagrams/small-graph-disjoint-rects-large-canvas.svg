@@ -139,7 +139,7 @@
   </g>
   <rect
     x="1486.921711362723"
-    y="7.128019662921133"
+    y="7.128019662822453"
     width="100"
     height="160"
     fill="none"
@@ -148,13 +148,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 1486.921711362723, 7.128019662921133)"
+    transform="rotate(0, 1486.921711362723, 7.128019662822453)"
     ensureOnCanvas="true"
   >
     <title>v3.shape</title>
   </rect>
   <g
-    transform="rotate(0, 1528.224161362723, 78.29801966292113)translate(1528.224161362723, 78.29801966292113)"
+    transform="rotate(0, 1528.224161362723, 78.29801966282245)translate(1528.224161362723, 78.29801966282245)"
     string="v3"
     ensureOnCanvas="true"
   >
@@ -261,7 +261,7 @@
   </g>
   <rect
     x="136.20348711260567"
-    y="1036.611715814705"
+    y="1036.6117158152324"
     width="300"
     height="160"
     fill="none"
@@ -270,13 +270,13 @@
     stroke-width="2"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 136.20348711260567, 1036.611715814705)"
+    transform="rotate(0, 136.20348711260567, 1036.6117158152324)"
     ensureOnCanvas="true"
   >
     <title>v1.shape</title>
   </rect>
   <g
-    transform="rotate(0, 277.5059371126057, 1107.781715814705)translate(277.5059371126057, 1107.781715814705)"
+    transform="rotate(0, 277.5059371126057, 1107.7817158152325)translate(277.5059371126057, 1107.7817158152325)"
     string="v1"
     ensureOnCanvas="true"
   >
