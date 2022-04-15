@@ -930,6 +930,11 @@ export const genCode = ({
 // NOTE: the xsVars should already have been set as inputs via makeAdInputVars
 // NOTE: implicitly, the orders of the values need to match the order of variables
 const setInputs = (xsVars: ad.Input[], xs: number[]) => {
+  const l1 = xsVars.length;
+  const l2 = xs.length;
+  if (l1 !== l2) {
+    throw Error(`xsVars and xs shouldn't be different lengths: ${l1} vs ${l2}`);
+  }
   xsVars.forEach((v, i) => {
     v.val = xs[i];
   });
@@ -957,7 +962,7 @@ export const energyAndGradCompiled = (
 
   // Build an actual graph from the implicit VarAD structure
   // Build symbolic gradient of f at xs on the energy graph
-  const explicitGraph = makeGraph({ primary: energyGraph, secondary: [] });
+  const explicitGraph = primaryGraph(energyGraph);
 
   const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 
@@ -967,7 +972,21 @@ export const energyAndGradCompiled = (
   };
 
   // Synthesize energy and gradient code
-  const f = genCode(explicitGraph);
+  const f0 = genCode(explicitGraph);
+  if (epWeightNode !== undefined && epWeightNode.index !== 0) {
+    throw Error("epWeightNode must be the first input");
+  }
+  const allInputs =
+    epWeightNode === undefined ? xsVars : [epWeightNode, ...xsVars];
+  const f: ad.Compiled = (inputs) => {
+    const outputs = f0(inputs);
+    const { gradient } = outputs;
+    return {
+      ...outputs,
+      // fill in any gaps, in case some inputs weren't used in the graph
+      gradient: allInputs.map((v, i) => (i in gradient ? gradient[i] : 0)),
+    };
+  };
 
   // Return the energy and grad on the input, as well as updated energy graph
   return { graphs, f };
