@@ -51,9 +51,6 @@ describe("makeGraph tests", () => {
     const f = mul(t2, t2);
 
     const { graph } = secondaryGraph([f]);
-    for (const id of graph.nodes()) {
-      console.log(id, graph.node(id));
-    }
     // x1, t1, t2, f, the constant primary node 1, and the derivative 0 of the
     // primary node with respect to the input x1
     expect(graph.nodeCount()).toBe(6);
