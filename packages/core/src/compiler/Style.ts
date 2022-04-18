@@ -1,10 +1,5 @@
 import { CustomHeap } from "@datastructures-js/heap";
-import {
-  checkExpr,
-  checkPredicate,
-  checkVar,
-  disambiguateSubNode,
-} from "compiler/Substance";
+import { checkExpr, checkPredicate, checkVar } from "compiler/Substance";
 import consola, { LogLevel } from "consola";
 import { constrDict } from "contrib/Constraints";
 // Dicts (runtime data)
@@ -432,7 +427,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern<A>): StyleErrors => {
         return [{ tag: "TaggedSubstanceError", error: subErr1 }];
       }
 
-      const [vtype] = res1.value; // ignore env
+      const { type: vtype } = res1.value; // ignore env
 
       // G |- E : T2
       const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
@@ -444,7 +439,7 @@ const checkRelPattern = (varEnv: Env, rel: RelationPattern<A>): StyleErrors => {
         // return ["substance typecheck error in E"];
       }
 
-      const [etype] = res2.value; // ignore env
+      const { type: etype } = res2.value; // ignore env
 
       // T1 = T2
       const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
@@ -1081,14 +1076,23 @@ const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
       };
     }
     case "SEFuncOrValCons": {
+      let tag: "ApplyFunction" | "ApplyConstructor";
+      if (env.constructors.has(e.name.value)) {
+        tag = "ApplyConstructor";
+      } else if (env.functions.has(e.name.value)) {
+        tag = "ApplyFunction";
+      } else {
+        // TODO: return TypeNotFound instead
+        throw new Error(
+          `Style internal error: expected '${e.name.value}' to be either a constructor or function, but was not found`
+        );
+      }
       const res: SubExpr<T> = {
         ...e,
-        tag: "Func", // Use the generic Substance parse type so on conversion, it can be disambiguated by `disambiguateFunctions`
+        tag,
         name: e.name,
         args: e.args.map((e) => toSubExpr(env, e)),
       };
-
-      disambiguateSubNode(env, res); // mutates res
       return res;
     }
   }

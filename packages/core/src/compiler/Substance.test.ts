@@ -322,13 +322,23 @@ AutoLabel All
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DuplicateName");
   });
-  test("type not found", () => {
+  test("decl type not found", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
 List(Set) l
 Alien a
 NotExistentType b
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeNotFound");
+  });
+  test("func type not found", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+List(Set) l
+C := NotExistentFunc(A, B)
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
@@ -546,6 +556,8 @@ l := Cons(Z, nil)
 Empty(C)
 IsSubset(D, E)
 IsSubset(D, A)
+Not(IsSubset(D, A))
+Not(Intersecting(B, C))
 IsSubset(A, B) <-> IsSubset(B, C)
 Subset(A, B) = Subset(B, C)
 AutoLabel All
