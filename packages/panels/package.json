@@ -54,7 +54,7 @@
     "@types/react-panelgroup": "^1.0.1",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.7",
-    "estrella": "^1.3.0",
+    "estrella": "^1.4.1",
     "typescript": "^4.1.3",
     "web-vitals": "^0.2.4"
   }
