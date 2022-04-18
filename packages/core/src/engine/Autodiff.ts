@@ -411,6 +411,10 @@ export const makeGraph = (
     if (!Array.isArray(edges)) {
       throw Error("expected outEdges to be an array");
     }
+    // we call graph.setEdge in this loop, so it may seem like it would be
+    // possible for for those edges to get incorrectly included as addends in
+    // other gradient nodes; however, that is not the case, because none of
+    // those edges appear in our sensitivities map
     for (const { w, name } of edges) {
       const parentID = w as ad.Id; // TODO: get rid of this typecast
       const sensitivity = sensitivities.get(
