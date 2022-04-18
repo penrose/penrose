@@ -692,7 +692,7 @@ export const ops = {
    * Rotate a 2D point `[x, y]` by a degrees counterclockwise.
    */
   vrot: ([x, y]: VarAD[], a: VarAD): VarAD[] => {
-    const angle = mul(a, Math.PI / 180);
+    const angle = div(mul(a, Math.PI), 180);
     const x2 = sub(mul(cos(angle), x), mul(sin(angle), y));
     const y2 = add(mul(sin(angle), x), mul(cos(angle), y));
     return [x2, y2];
