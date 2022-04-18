@@ -112,7 +112,7 @@ export type ConstNode = number;
 
 export interface InputNode {
   tag: "Input";
-  index: number; // must be unique and contiguous within a computation graph
+  index: number;
 }
 
 export interface UnaryNode {

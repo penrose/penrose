@@ -250,7 +250,6 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-// HACK: trying this to figure out which places actually need deeper conversion
 const numOf = (x: VarAD): number => {
   if (typeof x === "number") {
     return x;
