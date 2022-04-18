@@ -15,12 +15,12 @@ import {
 } from "@penrose/core";
 import animalNameList from "animals";
 import colorNameList from "color-name-list";
-import Inspector from "inspector/Inspector";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import ButtonBar from "ui/ButtonBar";
-import { FileSocket, FileSocketResult } from "ui/FileSocket";
+import Inspector from "./inspector/Inspector";
+import ButtonBar from "./ui/ButtonBar";
+import { FileSocket, FileSocketResult } from "./ui/FileSocket";
 
 //#region variation generation
 
