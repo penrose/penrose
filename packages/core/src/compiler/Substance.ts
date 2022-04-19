@@ -379,8 +379,15 @@ const checkPredArg = (
   env: Env
 ): SubstitutionResult<SubPredArg<A>> => {
   // HACK: predicate-typed args are parsed into `Func` type first, explicitly check and change it to predicate if the func is actually a predicate in the context
-  if (arg.tag === "Func" && env.predicates.get(arg.name.value)) {
-    arg = { ...arg, tag: "ApplyPredicate" };
+  if (arg.tag === "Func") {
+    const name = arg.name.value;
+    if (env.predicates.get(name)) {
+      arg = { ...arg, tag: "ApplyPredicate" };
+    } else if (env.constructors.has(name)) {
+      arg = { ...arg, tag: "ApplyConstructor" };
+    } else if (env.functions.has(name)) {
+      arg = { ...arg, tag: "ApplyFunction" };
+    }
   }
   if (arg.tag === "ApplyPredicate") {
     // if the argument is a nested predicate, call checkPredicate again

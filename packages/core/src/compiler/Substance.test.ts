@@ -3,9 +3,10 @@ import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import * as path from "path";
+import { A } from "types/ast";
 import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
-import { SubstanceEnv } from "types/substance";
+import { ApplyPredicate, SubstanceEnv } from "types/substance";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
@@ -85,7 +86,7 @@ const envOrError = (prog: string): Env => {
 const compileOrError = (prog: string, env: Env) => {
   const res = compileSubstance(prog, env);
   if (res.isOk()) {
-    return;
+    return res;
   } else {
     fail(`unexpected error ${showError(res.error)}`);
   }
@@ -503,6 +504,28 @@ OpenSet A
 l := Cons(A, nil)
         `;
     compileOrError(prog, env);
+  });
+});
+describe("Ambiguous expressions", () => {
+  test("nested predicates and functions parsed as Func", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set A, B
+Point p
+Not(Intersecting(A, B))
+Empty(Subset(A, B))
+Empty(AddPoint(p, A))`;
+    const res = compileOrError(prog, env);
+    if (res.isOk()) {
+      expect(
+        (res.value[0].ast.statements[3] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyPredicate");
+      expect(
+        (res.value[0].ast.statements[4] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyConstructor");
+      expect(
+        (res.value[0].ast.statements[5] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyFunction");
+    }
   });
 });
 
