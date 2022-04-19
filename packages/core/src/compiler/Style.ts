@@ -108,11 +108,17 @@ import {
   selectorFieldNotSupported,
   toStyleErrors,
 } from "utils/Error";
-import { prettyPrintPath, randFloat, variationSeeds, zip2 } from "utils/Util";
+import {
+  prettyPrintFn,
+  prettyPrintPath,
+  randFloat,
+  variationSeeds,
+  zip2,
+} from "utils/Util";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain";
 
 const log = consola
-  .create({ level: LogLevel.Warn })
+  .create({ level: LogLevel.Info })
   .withScope("Style Compiler");
 const clone = rfdc({ proto: false, circles: false });
 
@@ -1435,7 +1441,6 @@ const typesMatched = (
   }
 
   // TODO(errors)
-  console.log(substanceType, styleType);
   throw Error(
     "internal error: expected two nullary types (parametrized types to be implemented)"
   );
@@ -2092,6 +2097,7 @@ const translatePair = (
         hb.header,
         selEnv,
       ]);
+      log.debug("Translating block", hb, "with substitutions", substs);
       return translateSubstsBlock(trans, numbered(substs), [
         hb.block,
         blockNum,
@@ -3057,6 +3063,8 @@ const genState = (
     objfnsDecl.concat(objfnsDefault),
     constrfnsDecl.concat(constrfnsDefault),
   ];
+  log.debug("Objectives", objFns.map(prettyPrintFn));
+  log.debug("Constraints", constrFns.map(prettyPrintFn));
 
   const [initialGPIs, transEvaled] = [[], transInitAll];
   const initVaryingState: number[] = lookupNumericPaths(

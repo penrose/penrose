@@ -358,7 +358,10 @@ export const checkPredicate = (
       ok({ substEnv, env, contents: [] as SubPredArg<A>[] })
     );
     // NOTE: throw away the substitution because this layer above doesn't need to typecheck
-    return andThen(({ env }) => ok({ env, contents: stmt }), argsOk);
+    return andThen(
+      ({ env, contents: args }) => ok({ env, contents: { ...stmt, args } }),
+      argsOk
+    );
   } else {
     return err(
       typeNotFound(
@@ -384,7 +387,8 @@ const checkPredArg = (
     const predOk = checkPredicate(arg, env);
     // NOTE: throw out the env from the check because it's not updating anything
     return andThen(
-      ({ env }) => ok({ substEnv: subst, env, contents: arg }),
+      ({ env, contents: predArg }) =>
+        ok({ substEnv: subst, env, contents: predArg }),
       predOk
     );
   } else {
@@ -756,7 +760,7 @@ export const prettySubNode = (
   }
 };
 
-const prettyPredicate = (pred: ApplyPredicate<A>): string => {
+export const prettyPredicate = (pred: ApplyPredicate<A>): string => {
   const { name, args } = pred;
   const argStr = args.map((a) => prettyPredArg(a)).join(", ");
   return `${prettyVar(name)}(${argStr})`;
