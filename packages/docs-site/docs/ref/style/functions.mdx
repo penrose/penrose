@@ -9,22 +9,22 @@ pagination_next: null
 
 ### collinear
 
-▸ **collinear**(`c1`, `c2`, `c3`): `VarAD`
+▸ **collinear**(`c1`, `c2`, `c3`): `IVarAD`
 
 Require that three points be collinear.
 Depends on the specific ordering of points.
 
 #### Parameters
 
-| Name | Type      |
-| :--- | :-------- |
-| `c1` | `VarAD`[] |
-| `c2` | `VarAD`[] |
-| `c3` | `VarAD`[] |
+| Name | Type       |
+| :--- | :--------- |
+| `c1` | `IVarAD`[] |
+| `c2` | `IVarAD`[] |
+| `c3` | `IVarAD`[] |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -34,22 +34,22 @@ Depends on the specific ordering of points.
 
 ### collinearUnordered
 
-▸ **collinearUnordered**(`c1`, `c2`, `c3`): `VarAD`
+▸ **collinearUnordered**(`c1`, `c2`, `c3`): `IVarAD`
 
 Require that three points be collinear.
 Does not enforce a specific ordering of points, instead it takes the arrangement of points that is most easily satisfiable.
 
 #### Parameters
 
-| Name | Type      |
-| :--- | :-------- |
-| `c1` | `VarAD`[] |
-| `c2` | `VarAD`[] |
-| `c3` | `VarAD`[] |
+| Name | Type       |
+| :--- | :--------- |
+| `c1` | `IVarAD`[] |
+| `c2` | `IVarAD`[] |
+| `c3` | `IVarAD`[] |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -59,7 +59,7 @@ Does not enforce a specific ordering of points, instead it takes the arrangement
 
 ### disjointScalar
 
-▸ **disjointScalar**(`c`, `left`, `right`): `VarAD`
+▸ **disjointScalar**(`c`, `left`, `right`): `IVarAD`
 
 Make scalar `c` disjoint from a range `left, right`.
 
@@ -73,7 +73,7 @@ Make scalar `c` disjoint from a range `left, right`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -83,21 +83,21 @@ Make scalar `c` disjoint from a range `left, right`.
 
 ### perpendicular
 
-▸ **perpendicular**(`q`, `p`, `r`): `VarAD`
+▸ **perpendicular**(`q`, `p`, `r`): `IVarAD`
 
 Require that the vector defined by `(q, p)` is perpendicular from the vector defined by `(r, p)`.
 
 #### Parameters
 
-| Name | Type      |
-| :--- | :-------- |
-| `q`  | `VarAD`[] |
-| `p`  | `VarAD`[] |
-| `r`  | `VarAD`[] |
+| Name | Type       |
+| :--- | :--------- |
+| `q`  | `IVarAD`[] |
+| `p`  | `IVarAD`[] |
+| `r`  | `IVarAD`[] |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -107,7 +107,7 @@ Require that the vector defined by `(q, p)` is perpendicular from the vector def
 
 ### atDist
 
-▸ `Static` **atDist**(`__namedParameters`, `__namedParameters`, `distance`): `VarAD`
+▸ `Static` **atDist**(`__namedParameters`, `__namedParameters`, `distance`): `IVarAD`
 
 Require that shape `s1` is at a distance of `distance` from shape `s2`.
 
@@ -121,7 +121,7 @@ Require that shape `s1` is at a distance of `distance` from shape `s2`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -131,7 +131,7 @@ Require that shape `s1` is at a distance of `distance` from shape `s2`.
 
 ### contains
 
-▸ `Static` **contains**(`__namedParameters`, `__namedParameters`, `padding?`): `VarAD`
+▸ `Static` **contains**(`__namedParameters`, `__namedParameters`, `padding?`): `IVarAD`
 
 Require that a shape `s1` contains another shape `s2`,
 based on the type of the shape, and with an optional `padding` between the sizes of the shapes
@@ -147,7 +147,7 @@ based on the type of the shape, and with an optional `padding` between the sizes
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -157,20 +157,20 @@ based on the type of the shape, and with an optional `padding` between the sizes
 
 ### contains1D
 
-▸ `Static` **contains1D**(`__namedParameters`, `__namedParameters`): `VarAD`
+▸ `Static` **contains1D**(`__namedParameters`, `__namedParameters`): `IVarAD`
 
 Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not possible, returns 0.
 
 #### Parameters
 
-| Name                | Type               |
-| :------------------ | :----------------- |
-| `__namedParameters` | [`VarAD`, `VarAD`] |
-| `__namedParameters` | [`VarAD`, `VarAD`] |
+| Name                | Type                 |
+| :------------------ | :------------------- |
+| `__namedParameters` | [`IVarAD`, `IVarAD`] |
+| `__namedParameters` | [`IVarAD`, `IVarAD`] |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -180,7 +180,7 @@ Require that an interval `[l1, r1]` contains another interval `[l2, r2]`. If not
 
 ### disjoint
 
-▸ `Static` **disjoint**(`__namedParameters`, `__namedParameters`, `padding?`): `VarAD`
+▸ `Static` **disjoint**(`__namedParameters`, `__namedParameters`, `padding?`): `IVarAD`
 
 Require that a shape `s1` is disjoint from shape `s2`,
 based on the type of the shape, and with an optional `padding` between them
@@ -196,7 +196,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -206,7 +206,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 ### disjointIntervals
 
-▸ `Static` **disjointIntervals**(`__namedParameters`, `__namedParameters`): `VarAD`
+▸ `Static` **disjointIntervals**(`__namedParameters`, `__namedParameters`): `IVarAD`
 
 Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharing a y-coordinate.
 
@@ -219,7 +219,7 @@ Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharin
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -229,20 +229,20 @@ Make two intervals disjoint. They must be 1D intervals (line-like shapes) sharin
 
 ### equal
 
-▸ `Static` **equal**(`x`, `y`): `VarAD`
+▸ `Static` **equal**(`x`, `y`): `IVarAD`
 
 Require that the value `x` is equal to the value `y`
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `y`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -252,7 +252,7 @@ Require that the value `x` is equal to the value `y`
 
 ### greaterThan
 
-▸ `Static` **greaterThan**(`x`, `y`, `padding?`): `VarAD`
+▸ `Static` **greaterThan**(`x`, `y`, `padding?`): `IVarAD`
 
 Require that the value `x` is greater than the value `y` with optional padding `padding`
 
@@ -260,13 +260,13 @@ Require that the value `x` is greater than the value `y` with optional padding `
 
 | Name      | Type     | Default value |
 | :-------- | :------- | :------------ |
-| `x`       | `VarAD`  | `undefined`   |
-| `y`       | `VarAD`  | `undefined`   |
+| `x`       | `IVarAD` | `undefined`   |
+| `y`       | `IVarAD` | `undefined`   |
 | `padding` | `number` | `0`           |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -276,20 +276,20 @@ Require that the value `x` is greater than the value `y` with optional padding `
 
 ### greaterThanSq
 
-▸ `Static` **greaterThanSq**(`x`, `y`): `VarAD`
+▸ `Static` **greaterThanSq**(`x`, `y`): `IVarAD`
 
 Require that the value `x` is greater than the value `y`, with steeper penalty
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `y`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -299,21 +299,21 @@ Require that the value `x` is greater than the value `y`, with steeper penalty
 
 ### inRange
 
-▸ `Static` **inRange**(`x`, `x0`, `x1`): `VarAD`
+▸ `Static` **inRange**(`x`, `x0`, `x1`): `IVarAD`
 
 Require that the value `x` is in the range defined by `[x0, x1]`.
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `x0` | `VarAD` |
-| `x1` | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `x0` | `IVarAD` |
+| `x1` | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -323,7 +323,7 @@ Require that the value `x` is in the range defined by `[x0, x1]`.
 
 ### lessThan
 
-▸ `Static` **lessThan**(`x`, `y`, `padding?`): `VarAD`
+▸ `Static` **lessThan**(`x`, `y`, `padding?`): `IVarAD`
 
 Require that the value `x` is less than the value `y` with optional padding `padding`
 
@@ -331,13 +331,13 @@ Require that the value `x` is less than the value `y` with optional padding `pad
 
 | Name      | Type     | Default value |
 | :-------- | :------- | :------------ |
-| `x`       | `VarAD`  | `undefined`   |
-| `y`       | `VarAD`  | `undefined`   |
+| `x`       | `IVarAD` | `undefined`   |
+| `y`       | `IVarAD` | `undefined`   |
 | `padding` | `number` | `0`           |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -347,20 +347,20 @@ Require that the value `x` is less than the value `y` with optional padding `pad
 
 ### lessThanSq
 
-▸ `Static` **lessThanSq**(`x`, `y`): `VarAD`
+▸ `Static` **lessThanSq**(`x`, `y`): `IVarAD`
 
 Require that the value `x` is less than the value `y`, with steeper penalty
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `y`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -370,20 +370,20 @@ Require that the value `x` is less than the value `y`, with steeper penalty
 
 ### maxSize
 
-▸ `Static` **maxSize**(`__namedParameters`, `limit`): `VarAD`
+▸ `Static` **maxSize**(`__namedParameters`, `limit`): `IVarAD`
 
 Require that a shape have a size less than some constant maximum, based on the type of the shape.
 
 #### Parameters
 
-| Name                | Type                |
-| :------------------ | :------------------ |
-| `__namedParameters` | [`string`, `any`]   |
-| `limit`             | `number` \| `VarAD` |
+| Name                | Type                 |
+| :------------------ | :------------------- |
+| `__namedParameters` | [`string`, `any`]    |
+| `limit`             | `number` \| `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -393,7 +393,7 @@ Require that a shape have a size less than some constant maximum, based on the t
 
 ### minSize
 
-▸ `Static` **minSize**(`__namedParameters`, `limit?`): `VarAD`
+▸ `Static` **minSize**(`__namedParameters`, `limit?`): `IVarAD`
 
 Require that a shape have a size greater than some constant minimum, based on the type of the shape.
 
@@ -406,7 +406,7 @@ Require that a shape have a size greater than some constant minimum, based on th
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -416,21 +416,21 @@ Require that a shape have a size greater than some constant minimum, based on th
 
 ### onCanvas
 
-▸ `Static` **onCanvas**(`__namedParameters`, `canvasWidth`, `canvasHeight`): `VarAD`
+▸ `Static` **onCanvas**(`__namedParameters`, `canvasWidth`, `canvasHeight`): `IVarAD`
 
 Require that `shape` is on the canvas
 
 #### Parameters
 
-| Name                | Type    |
-| :------------------ | :------ |
-| `__namedParameters` | `any`   |
-| `canvasWidth`       | `VarAD` |
-| `canvasHeight`      | `VarAD` |
+| Name                | Type     |
+| :------------------ | :------- |
+| `__namedParameters` | `any`    |
+| `canvasWidth`       | `IVarAD` |
+| `canvasHeight`      | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -440,7 +440,7 @@ Require that `shape` is on the canvas
 
 ### overlapping
 
-▸ `Static` **overlapping**(`__namedParameters`, `__namedParameters`, `padding?`): `VarAD`
+▸ `Static` **overlapping**(`__namedParameters`, `__namedParameters`, `padding?`): `IVarAD`
 
 Require that shape `s1` overlaps shape `s2` with some padding `padding`.
 based on the type of the shape, and with an optional `padding` between them
@@ -456,7 +456,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -466,18 +466,18 @@ based on the type of the shape, and with an optional `padding` between them
 
 ### ptCircleIntersect
 
-▸ `Static` **ptCircleIntersect**(`p`, `__namedParameters`): `VarAD`
+▸ `Static` **ptCircleIntersect**(`p`, `__namedParameters`): `IVarAD`
 
 #### Parameters
 
 | Name                | Type              |
 | :------------------ | :---------------- |
-| `p`                 | `VarAD`[]         |
+| `p`                 | `IVarAD`[]        |
 | `__namedParameters` | [`string`, `any`] |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -487,7 +487,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 ### smallerThan
 
-▸ `Static` **smallerThan**(`__namedParameters`, `__namedParameters`, `relativePadding?`): `VarAD`
+▸ `Static` **smallerThan**(`__namedParameters`, `__namedParameters`, `relativePadding?`): `IVarAD`
 
 Require that shape `s1` is smaller than `s2` with some relative padding `relativePadding`.
 
@@ -501,7 +501,7 @@ Require that shape `s1` is smaller than `s2` with some relative padding `relativ
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -511,7 +511,7 @@ Require that shape `s1` is smaller than `s2` with some relative padding `relativ
 
 ### touching
 
-▸ `Static` **touching**(`__namedParameters`, `__namedParameters`, `padding?`): `VarAD`
+▸ `Static` **touching**(`__namedParameters`, `__namedParameters`, `padding?`): `IVarAD`
 
 Require that shape `s1` is touching shape `s2`.
 based on the type of the shape, and with an optional `padding` between them
@@ -527,7 +527,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -537,7 +537,7 @@ based on the type of the shape, and with an optional `padding` between them
 
 ### above
 
-▸ `Static` **above**(`__namedParameters`, `__namedParameters`, `offset?`): `VarAD`
+▸ `Static` **above**(`__namedParameters`, `__namedParameters`, `offset?`): `IVarAD`
 
 Encourage the center of `sBottom` to be below the center of `sTop`.
 
@@ -551,7 +551,7 @@ Encourage the center of `sBottom` to be below the center of `sTop`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -561,7 +561,7 @@ Encourage the center of `sBottom` to be below the center of `sTop`.
 
 ### below
 
-▸ `Static` **below**(`__namedParameters`, `__namedParameters`, `offset?`): `VarAD`
+▸ `Static` **below**(`__namedParameters`, `__namedParameters`, `offset?`): `IVarAD`
 
 Encourage the center of `sTop` to be above the center of `sBottom`.
 Only works for shapes with property `center`.
@@ -576,7 +576,7 @@ Only works for shapes with property `center`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -586,7 +586,7 @@ Only works for shapes with property `center`.
 
 ### centerArrow
 
-▸ `Static` **centerArrow**(`__namedParameters`, `__namedParameters`, `__namedParameters`): `VarAD`
+▸ `Static` **centerArrow**(`__namedParameters`, `__namedParameters`, `__namedParameters`): `IVarAD`
 
 Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be any shapes with a center).
 
@@ -600,7 +600,7 @@ Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -610,7 +610,7 @@ Try to center the arrow `arr` between the shapes `s2` and `s3` (they can also be
 
 ### centerLabel
 
-▸ `Static` **centerLabel**(`__namedParameters`, `__namedParameters`, `w`, `padding?`): `VarAD`
+▸ `Static` **centerLabel**(`__namedParameters`, `__namedParameters`, `w`, `padding?`): `IVarAD`
 
 Try to center a label `s2` with respect to some shape `s1`.
 
@@ -625,7 +625,7 @@ Try to center a label `s2` with respect to some shape `s1`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -635,7 +635,7 @@ Try to center a label `s2` with respect to some shape `s1`.
 
 ### centerLabelAbove
 
-▸ `Static` **centerLabelAbove**(`__namedParameters`, `__namedParameters`, `w`): `VarAD`
+▸ `Static` **centerLabelAbove**(`__namedParameters`, `__namedParameters`, `w`): `IVarAD`
 
 #### Parameters
 
@@ -647,7 +647,7 @@ Try to center a label `s2` with respect to some shape `s1`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -657,20 +657,20 @@ Try to center a label `s2` with respect to some shape `s1`.
 
 ### equal
 
-▸ `Static` **equal**(`x`, `y`): `VarAD`
+▸ `Static` **equal**(`x`, `y`): `IVarAD`
 
 Encourage the inputs to have the same value: `(x - y)^2`
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `y`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -680,20 +680,20 @@ Encourage the inputs to have the same value: `(x - y)^2`
 
 ### greaterThan
 
-▸ `Static` **greaterThan**(`x`, `y`): `VarAD`
+▸ `Static` **greaterThan**(`x`, `y`): `IVarAD`
 
 Encourage x to be greater than or equal to y: `max(0,y - x)^2`
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `y`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -703,7 +703,7 @@ Encourage x to be greater than or equal to y: `max(0,y - x)^2`
 
 ### leftwards
 
-▸ `Static` **leftwards**(`__namedParameters`, `__namedParameters`, `offset?`): `VarAD`
+▸ `Static` **leftwards**(`__namedParameters`, `__namedParameters`, `offset?`): `IVarAD`
 
 Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
 
@@ -717,7 +717,7 @@ Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -727,20 +727,20 @@ Encourage the center of `sLeft` to be leftwards to the center of `sRight`.
 
 ### lessThan
 
-▸ `Static` **lessThan**(`x`, `y`): `VarAD`
+▸ `Static` **lessThan**(`x`, `y`): `IVarAD`
 
 Encourage x to be less than or equal to y: `max(0,x - y)^2`
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
-| `y`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
+| `y`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -750,19 +750,19 @@ Encourage x to be less than or equal to y: `max(0,x - y)^2`
 
 ### maximal
 
-▸ `Static` **maximal**(`x`): `VarAD`
+▸ `Static` **maximal**(`x`): `IVarAD`
 
 Encourage the input value to be close to infinity
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -772,19 +772,19 @@ Encourage the input value to be close to infinity
 
 ### minimal
 
-▸ `Static` **minimal**(`x`): `VarAD`
+▸ `Static` **minimal**(`x`): `IVarAD`
 
 Encourage the input value to be close to negative infinity
 
 #### Parameters
 
-| Name | Type    |
-| :--- | :------ |
-| `x`  | `VarAD` |
+| Name | Type     |
+| :--- | :------- |
+| `x`  | `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -794,7 +794,7 @@ Encourage the input value to be close to negative infinity
 
 ### near
 
-▸ `Static` **near**(`__namedParameters`, `__namedParameters`, `offset?`): `VarAD`
+▸ `Static` **near**(`__namedParameters`, `__namedParameters`, `offset?`): `IVarAD`
 
 Try to place shape `s1` near shape `s2` (putting their centers at the same place).
 
@@ -808,7 +808,7 @@ Try to place shape `s1` near shape `s2` (putting their centers at the same place
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -818,7 +818,7 @@ Try to place shape `s1` near shape `s2` (putting their centers at the same place
 
 ### nearPt
 
-▸ `Static` **nearPt**(`__namedParameters`, `x`, `y`): `VarAD`
+▸ `Static` **nearPt**(`__namedParameters`, `x`, `y`): `IVarAD`
 
 Try to place shape `s1` near a location `(x, y)`.
 
@@ -832,7 +832,7 @@ Try to place shape `s1` near a location `(x, y)`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -842,7 +842,7 @@ Try to place shape `s1` near a location `(x, y)`.
 
 ### nonDegenerateAngle
 
-▸ `Static` **nonDegenerateAngle**(`__namedParameters`, `__namedParameters`, `__namedParameters`, `strength?`, `range?`): `VarAD`
+▸ `Static` **nonDegenerateAngle**(`__namedParameters`, `__namedParameters`, `__namedParameters`, `strength?`, `range?`): `IVarAD`
 
 Repel the angle between the p1-p0 and p1-p2 away from 0 and 180 degrees.
 NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfied.
@@ -859,7 +859,7 @@ NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfie
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -869,7 +869,7 @@ NOTE: angles more than `range` degrees from 0 or 180 deg are considered satisfie
 
 ### pointLineDist
 
-▸ `Static` **pointLineDist**(`point`, `__namedParameters`, `padding`): `VarAD`
+▸ `Static` **pointLineDist**(`point`, `__namedParameters`, `padding`): `IVarAD`
 
 try to make distance between a point and a segment `s1` = padding.
 
@@ -877,13 +877,13 @@ try to make distance between a point and a segment `s1` = padding.
 
 | Name                | Type              |
 | :------------------ | :---------------- |
-| `point`             | `VarAD`[]         |
+| `point`             | `IVarAD`[]        |
 | `__namedParameters` | [`string`, `any`] |
-| `padding`           | `VarAD`           |
+| `padding`           | `IVarAD`          |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -893,7 +893,7 @@ try to make distance between a point and a segment `s1` = padding.
 
 ### repel
 
-▸ `Static` **repel**(`__namedParameters`, `__namedParameters`, `weight?`): `VarAD`
+▸ `Static` **repel**(`__namedParameters`, `__namedParameters`, `weight?`): `IVarAD`
 
 Try to repel shapes `s1` and `s2` with some weight.
 
@@ -907,7 +907,7 @@ Try to repel shapes `s1` and `s2` with some weight.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -917,21 +917,21 @@ Try to repel shapes `s1` and `s2` with some weight.
 
 ### repelPt
 
-▸ `Static` **repelPt**(`weight`, `a`, `b`): `VarAD`
+▸ `Static` **repelPt**(`weight`, `a`, `b`): `IVarAD`
 
 Repel point `a` from another scalar `b` with weight `weight`.
 
 #### Parameters
 
-| Name     | Type      |
-| :------- | :-------- |
-| `weight` | `VarAD`   |
-| `a`      | `VarAD`[] |
-| `b`      | `VarAD`[] |
+| Name     | Type       |
+| :------- | :--------- |
+| `weight` | `IVarAD`   |
+| `a`      | `IVarAD`[] |
+| `b`      | `IVarAD`[] |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -941,20 +941,20 @@ Repel point `a` from another scalar `b` with weight `weight`.
 
 ### repelScalar
 
-▸ `Static` **repelScalar**(`c`, `d`): `VarAD`
+▸ `Static` **repelScalar**(`c`, `d`): `IVarAD`
 
 Repel scalar `c` from another scalar `d`.
 
 #### Parameters
 
-| Name | Type                |
-| :--- | :------------------ |
-| `c`  | `number` \| `VarAD` |
-| `d`  | `number` \| `VarAD` |
+| Name | Type                 |
+| :--- | :------------------- |
+| `c`  | `number` \| `IVarAD` |
+| `d`  | `number` \| `IVarAD` |
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -964,7 +964,7 @@ Repel scalar `c` from another scalar `d`.
 
 ### rightwards
 
-▸ `Static` **rightwards**(`__namedParameters`, `__namedParameters`, `offset?`): `VarAD`
+▸ `Static` **rightwards**(`__namedParameters`, `__namedParameters`, `offset?`): `IVarAD`
 
 Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
 
@@ -978,7 +978,7 @@ Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -988,7 +988,7 @@ Encourage the center of `sRight` to be rightwards to the center of `sLeft`.
 
 ### sameCenter
 
-▸ `Static` **sameCenter**(`__namedParameters`, `__namedParameters`): `VarAD`
+▸ `Static` **sameCenter**(`__namedParameters`, `__namedParameters`): `IVarAD`
 
 Encourage shape `s1` to have the same center position as shape `s2`.
 
@@ -1001,7 +1001,7 @@ Encourage shape `s1` to have the same center position as shape `s2`.
 
 #### Returns
 
-`VarAD`
+`IVarAD`
 
 #### Defined in
 
@@ -1011,7 +1011,7 @@ Encourage shape `s1` to have the same center position as shape `s2`.
 
 ### MathE
 
-▸ `Static` **MathE**(`_context`): `IFloatV`<`VarAD`\>
+▸ `Static` **MathE**(`_context`): `IFloatV`<`IVarAD`\>
 
 Base e of the natural logarithm.
 
@@ -1023,7 +1023,7 @@ Base e of the natural logarithm.
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1033,7 +1033,7 @@ Base e of the natural logarithm.
 
 ### MathPI
 
-▸ `Static` **MathPI**(`_context`): `IFloatV`<`VarAD`\>
+▸ `Static` **MathPI**(`_context`): `IFloatV`<`IVarAD`\>
 
 Ratio of the circumference of a circle to its diameter.
 
@@ -1045,7 +1045,7 @@ Ratio of the circumference of a circle to its diameter.
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1055,7 +1055,7 @@ Ratio of the circumference of a circle to its diameter.
 
 ### abs
 
-▸ `Static` **abs**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **abs**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return the absolute value of the number `x`.
 
@@ -1064,11 +1064,11 @@ Return the absolute value of the number `x`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1078,7 +1078,7 @@ Return the absolute value of the number `x`.
 
 ### acos
 
-▸ `Static` **acos**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **acos**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `acos(x)`.
 
@@ -1087,11 +1087,11 @@ Return `acos(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1101,7 +1101,7 @@ Return `acos(x)`.
 
 ### acosh
 
-▸ `Static` **acosh**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **acosh**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `acosh(x)`.
 
@@ -1110,11 +1110,11 @@ Return `acosh(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1124,7 +1124,7 @@ Return `acosh(x)`.
 
 ### angleBetween
 
-▸ `Static` **angleBetween**(`_context`, `u`, `v`): `IFloatV`<`VarAD`\>
+▸ `Static` **angleBetween**(`_context`, `u`, `v`): `IFloatV`<`IVarAD`\>
 
 Return the unsigned angle between vectors `u, v`, in radians.
 Assumes that both u and v have nonzero magnitude.
@@ -1132,15 +1132,15 @@ The returned value will be in the range [0,pi].
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `u`        | `VarAD`[] |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `u`        | `IVarAD`[] |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1150,7 +1150,7 @@ The returned value will be in the range [0,pi].
 
 ### angleFrom
 
-▸ `Static` **angleFrom**(`_context`, `u`, `v`): `IFloatV`<`VarAD`\>
+▸ `Static` **angleFrom**(`_context`, `u`, `v`): `IFloatV`<`IVarAD`\>
 
 Return the signed angle from vector `u` to vector `v`, in radians.
 Assumes that both u and v are 2D vectors and have nonzero magnitude.
@@ -1158,15 +1158,15 @@ The returned value will be in the range [-pi,pi].
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `u`        | `VarAD`[] |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `u`        | `IVarAD`[] |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1176,20 +1176,20 @@ The returned value will be in the range [-pi,pi].
 
 ### angleOf
 
-▸ `Static` **angleOf**(`_context`, `v`): `IFloatV`<`VarAD`\>
+▸ `Static` **angleOf**(`_context`, `v`): `IFloatV`<`IVarAD`\>
 
 Return the angle made by the vector `v` with the positive x-axis.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1199,7 +1199,7 @@ Return the angle made by the vector `v` with the positive x-axis.
 
 ### arc
 
-▸ `Static` **arc**(`_context`, `pathType`, `start`, `end`, `radius`, `rotation`, `largeArc`, `arcSweep`): `IPathDataV`<`VarAD`\>
+▸ `Static` **arc**(`_context`, `pathType`, `start`, `end`, `radius`, `rotation`, `largeArc`, `arcSweep`): `IPathDataV`<`IVarAD`\>
 
 Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec.
 
@@ -1214,13 +1214,13 @@ Return series of elements that can render an arc SVG. See: https://css-tricks.co
 | `start`    | `Pt2`     |
 | `end`      | `Pt2`     |
 | `radius`   | `Pt2`     |
-| `rotation` | `VarAD`   |
-| `largeArc` | `VarAD`   |
-| `arcSweep` | `VarAD`   |
+| `rotation` | `IVarAD`  |
+| `largeArc` | `IVarAD`  |
+| `arcSweep` | `IVarAD`  |
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1230,7 +1230,7 @@ Return series of elements that can render an arc SVG. See: https://css-tricks.co
 
 ### arcSweepFlag
 
-▸ `Static` **arcSweepFlag**(`_context`, `__namedParameters`, `start`, `end`): `IFloatV`<`VarAD`\>
+▸ `Static` **arcSweepFlag**(`_context`, `__namedParameters`, `start`, `end`): `IFloatV`<`IVarAD`\>
 
 Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
 
@@ -1238,16 +1238,16 @@ Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
 
 #### Parameters
 
-| Name                | Type      |
-| :------------------ | :-------- |
-| `_context`          | `Context` |
-| `__namedParameters` | `VarAD`[] |
-| `start`             | `Pt2`     |
-| `end`               | `Pt2`     |
+| Name                | Type       |
+| :------------------ | :--------- |
+| `_context`          | `Context`  |
+| `__namedParameters` | `IVarAD`[] |
+| `start`             | `Pt2`      |
+| `end`               | `Pt2`      |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1257,7 +1257,7 @@ Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
 
 ### asin
 
-▸ `Static` **asin**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **asin**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `asin(x)`.
 
@@ -1266,11 +1266,11 @@ Return `asin(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1280,7 +1280,7 @@ Return `asin(x)`.
 
 ### asinh
 
-▸ `Static` **asinh**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **asinh**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `asinh(x)`.
 
@@ -1289,11 +1289,11 @@ Return `asinh(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1303,7 +1303,7 @@ Return `asinh(x)`.
 
 ### atan
 
-▸ `Static` **atan**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **atan**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `atan(x)`.
 
@@ -1312,11 +1312,11 @@ Return `atan(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1326,7 +1326,7 @@ Return `atan(x)`.
 
 ### atan2
 
-▸ `Static` **atan2**(`_context`, `x`, `y`): `IFloatV`<`VarAD`\>
+▸ `Static` **atan2**(`_context`, `x`, `y`): `IFloatV`<`IVarAD`\>
 
 Return `atan2(y,x)`.
 
@@ -1335,12 +1335,12 @@ Return `atan2(y,x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
-| `y`        | `VarAD`   |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1350,7 +1350,7 @@ Return `atan2(y,x)`.
 
 ### atanh
 
-▸ `Static` **atanh**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **atanh**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `atanh(x)`.
 
@@ -1359,11 +1359,11 @@ Return `atanh(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1373,20 +1373,20 @@ Return `atanh(x)`.
 
 ### average
 
-▸ `Static` **average**(`_context`, `xs`): `IFloatV`<`VarAD`\>
+▸ `Static` **average**(`_context`, `xs`): `IFloatV`<`IVarAD`\>
 
 Return the average of the floats in the list `xs`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `xs`       | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `xs`       | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1396,7 +1396,7 @@ Return the average of the floats in the list `xs`.
 
 ### average2
 
-▸ `Static` **average2**(`_context`, `x`, `y`): `IFloatV`<`VarAD`\>
+▸ `Static` **average2**(`_context`, `x`, `y`): `IFloatV`<`IVarAD`\>
 
 Return the average of floats `x` and `y`.
 
@@ -1405,12 +1405,12 @@ Return the average of floats `x` and `y`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
-| `y`        | `VarAD`   |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1420,22 +1420,22 @@ Return the average of floats `x` and `y`.
 
 ### barycenter
 
-▸ `Static` **barycenter**(`_context`, `a`, `b`, `c`): `IVectorV`<`VarAD`\>
+▸ `Static` **barycenter**(`_context`, `a`, `b`, `c`): `IVectorV`<`IVarAD`\>
 
 Return the barycenter of the triangle with vertices `a`, `b`, `c`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `a`        | `VarAD`[] |
-| `b`        | `VarAD`[] |
-| `c`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `a`        | `IVarAD`[] |
+| `b`        | `IVarAD`[] |
+| `c`        | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1445,7 +1445,7 @@ Return the barycenter of the triangle with vertices `a`, `b`, `c`.
 
 ### cbrt
 
-▸ `Static` **cbrt**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **cbrt**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `cbrt(x)`.
 
@@ -1454,11 +1454,11 @@ Return `cbrt(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1468,7 +1468,7 @@ Return `cbrt(x)`.
 
 ### ceil
 
-▸ `Static` **ceil**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **ceil**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `ceil(x)`.
 
@@ -1477,11 +1477,11 @@ Return `ceil(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1511,7 +1511,7 @@ Return `ceil(x)`.
 
 ### chevron
 
-▸ `Static` **chevron**(`_context`, `__namedParameters`, `padding`, `ticks`): `IPtListV`<`VarAD`\>
+▸ `Static` **chevron**(`_context`, `__namedParameters`, `padding`, `ticks`): `IPtListV`<`IVarAD`\>
 
 #### Parameters
 
@@ -1519,12 +1519,12 @@ Return `ceil(x)`.
 | :------------------ | :---------------- |
 | `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
-| `padding`           | `VarAD`           |
-| `ticks`             | `VarAD`           |
+| `padding`           | `IVarAD`          |
+| `ticks`             | `IVarAD`          |
 
 #### Returns
 
-`IPtListV`<`VarAD`\>
+`IPtListV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1534,22 +1534,22 @@ Return `ceil(x)`.
 
 ### circumcenter
 
-▸ `Static` **circumcenter**(`_context`, `p`, `q`, `r`): `IVectorV`<`VarAD`\>
+▸ `Static` **circumcenter**(`_context`, `p`, `q`, `r`): `IVectorV`<`IVarAD`\>
 
 Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `p`        | `VarAD`[] |
-| `q`        | `VarAD`[] |
-| `r`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1559,22 +1559,22 @@ Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
 
 ### circumradius
 
-▸ `Static` **circumradius**(`_context`, `p`, `q`, `r`): `IFloatV`<`VarAD`\>
+▸ `Static` **circumradius**(`_context`, `p`, `q`, `r`): `IFloatV`<`IVarAD`\>
 
 Return the circumradius of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `p`        | `VarAD`[] |
-| `q`        | `VarAD`[] |
-| `r`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1607,7 +1607,7 @@ Concatenate a list of strings
 
 ### cos
 
-▸ `Static` **cos**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **cos**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `cos(x)`.
 
@@ -1616,11 +1616,11 @@ Return `cos(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1630,7 +1630,7 @@ Return `cos(x)`.
 
 ### cosh
 
-▸ `Static` **cosh**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **cosh**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `cosh(x)`.
 
@@ -1639,11 +1639,11 @@ Return `cosh(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1653,21 +1653,21 @@ Return `cosh(x)`.
 
 ### cross2D
 
-▸ `Static` **cross2D**(`_context`, `u`, `v`): `IFloatV`<`VarAD`\>
+▸ `Static` **cross2D**(`_context`, `u`, `v`): `IFloatV`<`IVarAD`\>
 
 Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `u`        | `VarAD`[] |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `u`        | `IVarAD`[] |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1677,7 +1677,7 @@ Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 
 
 ### cubicCurveFromPoints
 
-▸ `Static` **cubicCurveFromPoints**(`_context`, `pathType`, `pts`): `IPathDataV`<`VarAD`\>
+▸ `Static` **cubicCurveFromPoints**(`_context`, `pathType`, `pts`): `IPathDataV`<`IVarAD`\>
 
 Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
 
@@ -1691,7 +1691,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1751,21 +1751,21 @@ NOTE: This is a special system function. Don't change it!
 
 ### dot
 
-▸ `Static` **dot**(`_context`, `v`, `w`): `IFloatV`<`VarAD`\>
+▸ `Static` **dot**(`_context`, `v`, `w`): `IFloatV`<`IVarAD`\>
 
 Return the dot product of `v` and `w`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
-| `w`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `w`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1775,7 +1775,7 @@ Return the dot product of `v` and `w`.
 
 ### exp
 
-▸ `Static` **exp**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **exp**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `exp(x)`.
 
@@ -1784,11 +1784,11 @@ Return `exp(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1798,7 +1798,7 @@ Return `exp(x)`.
 
 ### expm1
 
-▸ `Static` **expm1**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **expm1**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `expm1(x)`.
 
@@ -1807,11 +1807,11 @@ Return `expm1(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1821,7 +1821,7 @@ Return `expm1(x)`.
 
 ### floor
 
-▸ `Static` **floor**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **floor**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `floor(x)`.
 
@@ -1830,11 +1830,11 @@ Return `floor(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1844,7 +1844,7 @@ Return `floor(x)`.
 
 ### furthestFrom
 
-▸ `Static` **furthestFrom**(`pts`, `candidates`): `VarAD`[]
+▸ `Static` **furthestFrom**(`pts`, `candidates`): `IVarAD`[]
 
 Returns the point in `candidates` farthest from the points in `pts` (by sum).
 Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation
@@ -1852,14 +1852,14 @@ Do not use this!
 
 #### Parameters
 
-| Name         | Type        |
-| :----------- | :---------- |
-| `pts`        | `VarAD`[][] |
-| `candidates` | `VarAD`[][] |
+| Name         | Type         |
+| :----------- | :----------- |
+| `pts`        | `IVarAD`[][] |
+| `candidates` | `IVarAD`[][] |
 
 #### Returns
 
-`VarAD`[]
+`IVarAD`[]
 
 #### Defined in
 
@@ -1875,11 +1875,11 @@ Return `i`th element of list `xs, assuming lists only hold floats.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `xs`       | `VarAD`[] |
-| `i`        | `number`  |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `xs`       | `IVarAD`[] |
+| `i`        | `number`   |
 
 #### Returns
 
@@ -1897,11 +1897,11 @@ Return `i`th element of list `xs, assuming lists only hold floats.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `xs`       | `VarAD`[] |
-| `i`        | `VarAD`   |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `xs`       | `IVarAD`[] |
+| `i`        | `IVarAD`   |
 
 #### Returns
 
@@ -1915,7 +1915,7 @@ Return `i`th element of list `xs, assuming lists only hold floats.
 
 ### hsva
 
-▸ `Static` **hsva**(`_context`, `h`, `s`, `v`, `a`): `IColorV`<`VarAD`\>
+▸ `Static` **hsva**(`_context`, `h`, `s`, `v`, `a`): `IColorV`<`IVarAD`\>
 
 Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
 
@@ -1924,14 +1924,14 @@ Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opa
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `h`        | `VarAD`   |
-| `s`        | `VarAD`   |
-| `v`        | `VarAD`   |
-| `a`        | `VarAD`   |
+| `h`        | `IVarAD`  |
+| `s`        | `IVarAD`  |
+| `v`        | `IVarAD`  |
+| `a`        | `IVarAD`  |
 
 #### Returns
 
-`IColorV`<`VarAD`\>
+`IColorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1941,22 +1941,22 @@ Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opa
 
 ### incenter
 
-▸ `Static` **incenter**(`_context`, `p`, `q`, `r`): `IVectorV`<`VarAD`\>
+▸ `Static` **incenter**(`_context`, `p`, `q`, `r`): `IVectorV`<`IVarAD`\>
 
 Return the incenter of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `p`        | `VarAD`[] |
-| `q`        | `VarAD`[] |
-| `r`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1966,23 +1966,23 @@ Return the incenter of the triangle with vertices `p`, `q`, `r`.
 
 ### innerPointOffset
 
-▸ `Static` **innerPointOffset**(`_context`, `pt1`, `pt2`, `pt3`, `padding`): `IVectorV`<`VarAD`\>
+▸ `Static` **innerPointOffset**(`_context`, `pt1`, `pt2`, `pt3`, `padding`): `IVectorV`<`IVarAD`\>
 
 Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `pt1`      | `VarAD`[] |
-| `pt2`      | `VarAD`[] |
-| `pt3`      | `VarAD`[] |
-| `padding`  | `VarAD`   |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `pt1`      | `IVarAD`[] |
+| `pt2`      | `IVarAD`[] |
+| `pt3`      | `IVarAD`[] |
+| `padding`  | `IVarAD`   |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -1992,22 +1992,22 @@ Return a point located at `padding` of a line `s1` offset by `padding` in its no
 
 ### inradius
 
-▸ `Static` **inradius**(`_context`, `p`, `q`, `r`): `IFloatV`<`VarAD`\>
+▸ `Static` **inradius**(`_context`, `p`, `q`, `r`): `IFloatV`<`IVarAD`\>
 
 Return the inradius of the triangle with vertices `p`, `q`, `r`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `p`        | `VarAD`[] |
-| `q`        | `VarAD`[] |
-| `r`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p`        | `IVarAD`[] |
+| `q`        | `IVarAD`[] |
+| `r`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2017,7 +2017,7 @@ Return the inradius of the triangle with vertices `p`, `q`, `r`.
 
 ### intersectingSideSize
 
-▸ `Static` **intersectingSideSize**(`_context`, `start`, `end`, `__namedParameters`): `IFloatV`<`VarAD`\>
+▸ `Static` **intersectingSideSize**(`_context`, `start`, `end`, `__namedParameters`): `IFloatV`<`IVarAD`\>
 
 Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
 
@@ -2034,7 +2034,7 @@ Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitti
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2044,7 +2044,7 @@ Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitti
 
 ### len
 
-▸ `Static` **len**(`_context`, `__namedParameters`): `IFloatV`<`VarAD`\>
+▸ `Static` **len**(`_context`, `__namedParameters`): `IFloatV`<`IVarAD`\>
 
 Return the length of the line or arrow shape `[type, props]`.
 
@@ -2057,7 +2057,7 @@ Return the length of the line or arrow shape `[type, props]`.
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2067,7 +2067,7 @@ Return the length of the line or arrow shape `[type, props]`.
 
 ### lineLength
 
-▸ `Static` **lineLength**(`_context`, `__namedParameters`): `IFloatV`<`VarAD`\>
+▸ `Static` **lineLength**(`_context`, `__namedParameters`): `IFloatV`<`IVarAD`\>
 
 Return the length of the line or arrow shape `[type, props]`.
 
@@ -2080,7 +2080,7 @@ Return the length of the line or arrow shape `[type, props]`.
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2090,24 +2090,24 @@ Return the length of the line or arrow shape `[type, props]`.
 
 ### lineLineIntersection
 
-▸ `Static` **lineLineIntersection**(`_context`, `a0`, `a1`, `b0`, `b1`): `IVectorV`<`VarAD`\>
+▸ `Static` **lineLineIntersection**(`_context`, `a0`, `a1`, `b0`, `b1`): `IVectorV`<`IVarAD`\>
 
 Return the intersection of a line passing through
 `a0` and `a1` with a line passing through `b0` and `b1`
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `a0`       | `VarAD`[] |
-| `a1`       | `VarAD`[] |
-| `b0`       | `VarAD`[] |
-| `b1`       | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `a0`       | `IVarAD`[] |
+| `a1`       | `IVarAD`[] |
+| `b0`       | `IVarAD`[] |
+| `b1`       | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2117,7 +2117,7 @@ Return the intersection of a line passing through
 
 ### log
 
-▸ `Static` **log**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **log**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `log(x)`.
 
@@ -2126,11 +2126,11 @@ Return `log(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2140,7 +2140,7 @@ Return `log(x)`.
 
 ### log10
 
-▸ `Static` **log10**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **log10**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `log10(x)`.
 
@@ -2149,11 +2149,11 @@ Return `log10(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2163,7 +2163,7 @@ Return `log10(x)`.
 
 ### log1p
 
-▸ `Static` **log1p**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **log1p**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `log1p(x)`.
 
@@ -2172,11 +2172,11 @@ Return `log1p(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2186,7 +2186,7 @@ Return `log1p(x)`.
 
 ### log2
 
-▸ `Static` **log2**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **log2**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `log2(x)`.
 
@@ -2195,11 +2195,11 @@ Return `log2(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2209,21 +2209,21 @@ Return `log2(x)`.
 
 ### makePath
 
-▸ `Static` **makePath**(`_context`, `start`, `end`, `curveHeight`, `padding`): `IPathDataV`<`VarAD`\>
+▸ `Static` **makePath**(`_context`, `start`, `end`, `curveHeight`, `padding`): `IPathDataV`<`IVarAD`\>
 
 #### Parameters
 
-| Name          | Type               |
-| :------------ | :----------------- |
-| `_context`    | `Context`          |
-| `start`       | [`VarAD`, `VarAD`] |
-| `end`         | [`VarAD`, `VarAD`] |
-| `curveHeight` | `VarAD`            |
-| `padding`     | `VarAD`            |
+| Name          | Type                 |
+| :------------ | :------------------- |
+| `_context`    | `Context`            |
+| `start`       | [`IVarAD`, `IVarAD`] |
+| `end`         | [`IVarAD`, `IVarAD`] |
+| `curveHeight` | `IVarAD`             |
+| `padding`     | `IVarAD`             |
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2233,7 +2233,7 @@ Return `log2(x)`.
 
 ### max
 
-▸ `Static` **max**(`_context`, `x`, `y`): `IFloatV`<`VarAD`\>
+▸ `Static` **max**(`_context`, `x`, `y`): `IFloatV`<`IVarAD`\>
 
 Return the max of the numbers `x`, `y`.
 
@@ -2242,12 +2242,12 @@ Return the max of the numbers `x`, `y`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
-| `y`        | `VarAD`   |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2257,21 +2257,21 @@ Return the max of the numbers `x`, `y`.
 
 ### midpoint
 
-▸ `Static` **midpoint**(`_context`, `start`, `end`): `IVectorV`<`VarAD`\>
+▸ `Static` **midpoint**(`_context`, `start`, `end`): `IVectorV`<`IVarAD`\>
 
 Return a point located at the midpoint between pts `start` and `end`
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `start`    | `VarAD`[] |
-| `end`      | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `start`    | `IVarAD`[] |
+| `end`      | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2281,7 +2281,7 @@ Return a point located at the midpoint between pts `start` and `end`
 
 ### midpointOffset
 
-▸ `Static` **midpointOffset**(`_context`, `__namedParameters`, `padding`): `ITupV`<`VarAD`\>
+▸ `Static` **midpointOffset**(`_context`, `__namedParameters`, `padding`): `ITupV`<`IVarAD`\>
 
 Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
 
@@ -2291,11 +2291,11 @@ Return a point located at the midpoint of a line `s1` but offset by `padding` in
 | :------------------ | :---------------- |
 | `_context`          | `Context`         |
 | `__namedParameters` | [`string`, `any`] |
-| `padding`           | `VarAD`           |
+| `padding`           | `IVarAD`          |
 
 #### Returns
 
-`ITupV`<`VarAD`\>
+`ITupV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2305,7 +2305,7 @@ Return a point located at the midpoint of a line `s1` but offset by `padding` in
 
 ### min
 
-▸ `Static` **min**(`_context`, `x`, `y`): `IFloatV`<`VarAD`\>
+▸ `Static` **min**(`_context`, `x`, `y`): `IFloatV`<`IVarAD`\>
 
 Return the min of the numbers `x`, `y`.
 
@@ -2314,12 +2314,12 @@ Return the min of the numbers `x`, `y`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
-| `y`        | `VarAD`   |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2329,21 +2329,21 @@ Return the min of the numbers `x`, `y`.
 
 ### mul
 
-▸ `Static` **mul**(`_context`, `m`, `v`): `IVectorV`<`VarAD`\>
+▸ `Static` **mul**(`_context`, `m`, `v`): `IVectorV`<`IVarAD`\>
 
 Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
 
 #### Parameters
 
-| Name       | Type        |
-| :--------- | :---------- |
-| `_context` | `Context`   |
-| `m`        | `VarAD`[][] |
-| `v`        | `VarAD`[]   |
+| Name       | Type         |
+| :--------- | :----------- |
+| `_context` | `Context`    |
+| `m`        | `IVarAD`[][] |
+| `v`        | `IVarAD`[]   |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2375,20 +2375,20 @@ Return a paint of none (no paint)
 
 ### norm
 
-▸ `Static` **norm**(`_context`, `v`): `IFloatV`<`VarAD`\>
+▸ `Static` **norm**(`_context`, `v`): `IFloatV`<`IVarAD`\>
 
 Return the Euclidean norm of the vector `v`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2398,20 +2398,20 @@ Return the Euclidean norm of the vector `v`.
 
 ### normalize
 
-▸ `Static` **normalize**(`_context`, `v`): `IVectorV`<`VarAD`\>
+▸ `Static` **normalize**(`_context`, `v`): `IVectorV`<`IVarAD`\>
 
 Return the normalized version of vector `v`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2421,20 +2421,20 @@ Return the normalized version of vector `v`.
 
 ### normsq
 
-▸ `Static` **normsq**(`_context`, `v`): `IFloatV`<`VarAD`\>
+▸ `Static` **normsq**(`_context`, `v`): `IFloatV`<`IVarAD`\>
 
 Return the Euclidean norm squared of the vector `v`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2444,7 +2444,7 @@ Return the Euclidean norm squared of the vector `v`.
 
 ### orientedSquare
 
-▸ `Static` **orientedSquare**(`_context`, `__namedParameters`, `__namedParameters`, `intersection`, `len`): `IPathDataV`<`VarAD`\>
+▸ `Static` **orientedSquare**(`_context`, `__namedParameters`, `__namedParameters`, `intersection`, `len`): `IPathDataV`<`IVarAD`\>
 
 Given two orthogonal segments that intersect at `intersection`, and a size `len`
 return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
@@ -2457,11 +2457,11 @@ return a path comprised of three points that describe a perpendicular mark at th
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
 | `intersection`      | `Pt2`             |
-| `len`               | `VarAD`           |
+| `len`               | `IVarAD`          |
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2471,7 +2471,7 @@ return a path comprised of three points that describe a perpendicular mark at th
 
 ### pathFromPoints
 
-▸ `Static` **pathFromPoints**(`_context`, `pathType`, `pts`): `IPathDataV`<`VarAD`\>
+▸ `Static` **pathFromPoints**(`_context`, `pathType`, `pts`): `IPathDataV`<`IVarAD`\>
 
 Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
 
@@ -2485,7 +2485,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2503,7 +2503,7 @@ Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a 
 
 | Name                | Type               |
 | :------------------ | :----------------- |
-| `len`               | `VarAD`            |
+| `len`               | `IVarAD`           |
 | `__namedParameters` | [`VecAD`, `VecAD`] |
 | `__namedParameters` | [`VecAD`, `VecAD`] |
 
@@ -2519,7 +2519,7 @@ Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a 
 
 ### pow
 
-▸ `Static` **pow**(`_context`, `x`, `y`): `IFloatV`<`VarAD`\>
+▸ `Static` **pow**(`_context`, `x`, `y`): `IFloatV`<`IVarAD`\>
 
 Return `pow(x,y)`.
 
@@ -2528,12 +2528,12 @@ Return `pow(x,y)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
-| `y`        | `VarAD`   |
+| `x`        | `IVarAD`  |
+| `y`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2543,7 +2543,7 @@ Return `pow(x,y)`.
 
 ### ptOnLine
 
-▸ `Static` **ptOnLine**(`_context`, `p1`, `p2`, `r`): `IVectorV`<`VarAD`\>
+▸ `Static` **ptOnLine**(`_context`, `p1`, `p2`, `r`): `IVectorV`<`IVarAD`\>
 
 Find the point that is located at dist r along a line between p1 and p2.
 
@@ -2551,16 +2551,16 @@ Find the point that is located at dist r along a line between p1 and p2.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `p1`       | `VarAD`[] |
-| `p2`       | `VarAD`[] |
-| `r`        | `VarAD`   |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `p1`       | `IVarAD`[] |
+| `p2`       | `IVarAD`[] |
+| `r`        | `IVarAD`   |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2570,7 +2570,7 @@ Find the point that is located at dist r along a line between p1 and p2.
 
 ### quadraticCurveFromPoints
 
-▸ `Static` **quadraticCurveFromPoints**(`_context`, `pathType`, `pts`): `IPathDataV`<`VarAD`\>
+▸ `Static` **quadraticCurveFromPoints**(`_context`, `pathType`, `pts`): `IPathDataV`<`IVarAD`\>
 
 Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
 
@@ -2584,7 +2584,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2594,7 +2594,7 @@ Given a list of points `pts`, returns a `PathData` that can be used as input to 
 
 ### rgba
 
-▸ `Static` **rgba**(`_context`, `r`, `g`, `b`, `a`): `IColorV`<`VarAD`\>
+▸ `Static` **rgba**(`_context`, `r`, `g`, `b`, `a`): `IColorV`<`IVarAD`\>
 
 Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
 
@@ -2603,14 +2603,14 @@ Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `r`        | `VarAD`   |
-| `g`        | `VarAD`   |
-| `b`        | `VarAD`   |
-| `a`        | `VarAD`   |
+| `r`        | `IVarAD`  |
+| `g`        | `IVarAD`  |
+| `b`        | `IVarAD`  |
+| `a`        | `IVarAD`  |
 
 #### Returns
 
-`IColorV`<`VarAD`\>
+`IColorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2626,19 +2626,19 @@ Rotate a 2D vector `v` by 90 degrees counterclockwise.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
 `Object`
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `contents` | `VarAD`[] |
-| `tag`      | `string`  |
+| Name       | Type       |
+| :--------- | :--------- |
+| `contents` | `IVarAD`[] |
+| `tag`      | `string`   |
 
 #### Defined in
 
@@ -2648,19 +2648,19 @@ Rotate a 2D vector `v` by 90 degrees counterclockwise.
 
 ### rot90v
 
-▸ `Static` **rot90v**(`__namedParameters`): `VarAD`[]
+▸ `Static` **rot90v**(`__namedParameters`): `IVarAD`[]
 
 Rotate a 2D point `[x, y]` by 90 degrees clockwise.
 
 #### Parameters
 
-| Name                | Type      |
-| :------------------ | :-------- |
-| `__namedParameters` | `VarAD`[] |
+| Name                | Type       |
+| :------------------ | :--------- |
+| `__namedParameters` | `IVarAD`[] |
 
 #### Returns
 
-`VarAD`[]
+`IVarAD`[]
 
 #### Defined in
 
@@ -2676,20 +2676,20 @@ Rotate a 2D vector `v` by theta degrees counterclockwise.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
-| `theta`    | `VarAD`   |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `theta`    | `IVarAD`   |
 
 #### Returns
 
 `Object`
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `contents` | `VarAD`[] |
-| `tag`      | `string`  |
+| Name       | Type       |
+| :--------- | :--------- |
+| `contents` | `IVarAD`[] |
+| `tag`      | `string`   |
 
 #### Defined in
 
@@ -2699,7 +2699,7 @@ Rotate a 2D vector `v` by theta degrees counterclockwise.
 
 ### round
 
-▸ `Static` **round**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **round**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `round(x)`.
 
@@ -2708,11 +2708,11 @@ Return `round(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2722,7 +2722,7 @@ Return `round(x)`.
 
 ### sampleColor
 
-▸ `Static` **sampleColor**(`context`, `alpha`, `colorType`): `IColorV`<`VarAD`\>
+▸ `Static` **sampleColor**(`context`, `alpha`, `colorType`): `IColorV`<`IVarAD`\>
 
 Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
 
@@ -2731,12 +2731,12 @@ Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rg
 | Name        | Type      |
 | :---------- | :-------- |
 | `context`   | `Context` |
-| `alpha`     | `VarAD`   |
+| `alpha`     | `IVarAD`  |
 | `colorType` | `string`  |
 
 #### Returns
 
-`IColorV`<`VarAD`\>
+`IColorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2746,20 +2746,20 @@ Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rg
 
 ### selectColor
 
-▸ `Static` **selectColor**(`_context`, `color1`, `color2`, `level`): `IColorV`<`VarAD`\>
+▸ `Static` **selectColor**(`_context`, `color1`, `color2`, `level`): `IColorV`<`IVarAD`\>
 
 #### Parameters
 
-| Name       | Type              |
-| :--------- | :---------------- |
-| `_context` | `Context`         |
-| `color1`   | `Color`<`VarAD`\> |
-| `color2`   | `Color`<`VarAD`\> |
-| `level`    | `VarAD`           |
+| Name       | Type               |
+| :--------- | :----------------- |
+| `_context` | `Context`          |
+| `color1`   | `Color`<`IVarAD`\> |
+| `color2`   | `Color`<`IVarAD`\> |
+| `level`    | `IVarAD`           |
 
 #### Returns
 
-`IColorV`<`VarAD`\>
+`IColorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2769,21 +2769,21 @@ Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rg
 
 ### setOpacity
 
-▸ `Static` **setOpacity**(`_context`, `color`, `frac`): `IColorV`<`VarAD`\>
+▸ `Static` **setOpacity**(`_context`, `color`, `frac`): `IColorV`<`IVarAD`\>
 
 Set the opacity of a color `color` to `frac`.
 
 #### Parameters
 
-| Name       | Type              |
-| :--------- | :---------------- |
-| `_context` | `Context`         |
-| `color`    | `Color`<`VarAD`\> |
-| `frac`     | `VarAD`           |
+| Name       | Type               |
+| :--------- | :----------------- |
+| `_context` | `Context`          |
+| `color`    | `Color`<`IVarAD`\> |
+| `frac`     | `IVarAD`           |
 
 #### Returns
 
-`IColorV`<`VarAD`\>
+`IColorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2793,7 +2793,7 @@ Set the opacity of a color `color` to `frac`.
 
 ### sign
 
-▸ `Static` **sign**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **sign**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `sign(x)`.
 
@@ -2802,11 +2802,11 @@ Return `sign(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2816,7 +2816,7 @@ Return `sign(x)`.
 
 ### sin
 
-▸ `Static` **sin**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **sin**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `sin(x)`.
 
@@ -2825,11 +2825,11 @@ Return `sin(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2839,7 +2839,7 @@ Return `sin(x)`.
 
 ### sinh
 
-▸ `Static` **sinh**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **sinh**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `sinh(x)`.
 
@@ -2848,11 +2848,11 @@ Return `sinh(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2862,7 +2862,7 @@ Return `sinh(x)`.
 
 ### sqr
 
-▸ `Static` **sqr**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **sqr**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return the square of the number `x`.
 
@@ -2871,11 +2871,11 @@ Return the square of the number `x`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2885,7 +2885,7 @@ Return the square of the number `x`.
 
 ### sqrt
 
-▸ `Static` **sqrt**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **sqrt**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
 
@@ -2894,11 +2894,11 @@ Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2908,7 +2908,7 @@ Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
 
 ### tan
 
-▸ `Static` **tan**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **tan**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `tan(x)`.
 
@@ -2917,11 +2917,11 @@ Return `tan(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2931,7 +2931,7 @@ Return `tan(x)`.
 
 ### tanh
 
-▸ `Static` **tanh**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **tanh**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `tanh(x)`.
 
@@ -2940,11 +2940,11 @@ Return `tanh(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -2954,19 +2954,19 @@ Return `tanh(x)`.
 
 ### tickPlacement
 
-▸ `Static` **tickPlacement**(`padding`, `numPts`, `multiplier?`): `VarAD`[]
+▸ `Static` **tickPlacement**(`padding`, `numPts`, `multiplier?`): `IVarAD`[]
 
 #### Parameters
 
-| Name         | Type    |
-| :----------- | :------ |
-| `padding`    | `VarAD` |
-| `numPts`     | `VarAD` |
-| `multiplier` | `VarAD` |
+| Name         | Type     |
+| :----------- | :------- |
+| `padding`    | `IVarAD` |
+| `numPts`     | `IVarAD` |
+| `multiplier` | `IVarAD` |
 
 #### Returns
 
-`VarAD`[]
+`IVarAD`[]
 
 #### Defined in
 
@@ -2976,24 +2976,24 @@ Return `tanh(x)`.
 
 ### ticksOnLine
 
-▸ `Static` **ticksOnLine**(`_context`, `pt1`, `pt2`, `spacing`, `numTicks`, `tickLength`): `IPathDataV`<`VarAD`\>
+▸ `Static` **ticksOnLine**(`_context`, `pt1`, `pt2`, `spacing`, `numTicks`, `tickLength`): `IPathDataV`<`IVarAD`\>
 
 Create equally spaced tick marks centered at the midpoint of a line
 
 #### Parameters
 
-| Name         | Type      |
-| :----------- | :-------- |
-| `_context`   | `Context` |
-| `pt1`        | `VarAD`[] |
-| `pt2`        | `VarAD`[] |
-| `spacing`    | `VarAD`   |
-| `numTicks`   | `VarAD`   |
-| `tickLength` | `VarAD`   |
+| Name         | Type       |
+| :----------- | :--------- |
+| `_context`   | `Context`  |
+| `pt1`        | `IVarAD`[] |
+| `pt2`        | `IVarAD`[] |
+| `spacing`    | `IVarAD`   |
+| `numTicks`   | `IVarAD`   |
+| `tickLength` | `IVarAD`   |
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3003,7 +3003,7 @@ Create equally spaced tick marks centered at the midpoint of a line
 
 ### toDegrees
 
-▸ `Static` **toDegrees**(`_context`, `theta`): `IFloatV`<`VarAD`\>
+▸ `Static` **toDegrees**(`_context`, `theta`): `IFloatV`<`IVarAD`\>
 
 Convert the angle `theta` from radians to degrees.
 
@@ -3012,11 +3012,11 @@ Convert the angle `theta` from radians to degrees.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `theta`    | `VarAD`   |
+| `theta`    | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3046,7 +3046,7 @@ Convert the angle `theta` from radians to degrees.
 
 ### toRadians
 
-▸ `Static` **toRadians**(`_context`, `theta`): `IFloatV`<`VarAD`\>
+▸ `Static` **toRadians**(`_context`, `theta`): `IFloatV`<`IVarAD`\>
 
 Convert the angle `theta` from degrees to radians.
 
@@ -3055,11 +3055,11 @@ Convert the angle `theta` from degrees to radians.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `theta`    | `VarAD`   |
+| `theta`    | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3069,7 +3069,7 @@ Convert the angle `theta` from degrees to radians.
 
 ### triangle
 
-▸ `Static` **triangle**(`_context`, `__namedParameters`, `__namedParameters`, `__namedParameters`): `IPathDataV`<`VarAD`\>
+▸ `Static` **triangle**(`_context`, `__namedParameters`, `__namedParameters`, `__namedParameters`): `IPathDataV`<`IVarAD`\>
 
 Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
 
@@ -3084,7 +3084,7 @@ Given three lines `l1, l2, l3` that already form a triangle, return a path that 
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3094,7 +3094,7 @@ Given three lines `l1, l2, l3` that already form a triangle, return a path that 
 
 ### trunc
 
-▸ `Static` **trunc**(`_context`, `x`): `IFloatV`<`VarAD`\>
+▸ `Static` **trunc**(`_context`, `x`): `IFloatV`<`IVarAD`\>
 
 Return `trunc(x)`.
 
@@ -3103,11 +3103,11 @@ Return `trunc(x)`.
 | Name       | Type      |
 | :--------- | :-------- |
 | `_context` | `Context` |
-| `x`        | `VarAD`   |
+| `x`        | `IVarAD`  |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3117,20 +3117,20 @@ Return `trunc(x)`.
 
 ### unit
 
-▸ `Static` **unit**(`_context`, `v`): `IVectorV`<`VarAD`\>
+▸ `Static` **unit**(`_context`, `v`): `IVectorV`<`IVarAD`\>
 
 Return the normalized version of vector `v`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3140,7 +3140,7 @@ Return the normalized version of vector `v`.
 
 ### unitMark
 
-▸ `Static` **unitMark**(`_context`, `__namedParameters`, `__namedParameters`, `t`, `padding`, `barSize`): `IPtListV`<`VarAD`\>
+▸ `Static` **unitMark**(`_context`, `__namedParameters`, `__namedParameters`, `t`, `padding`, `barSize`): `IPtListV`<`IVarAD`\>
 
 Return two points parallel to line `s1` using its normal line `s2`.
 
@@ -3152,12 +3152,12 @@ Return two points parallel to line `s1` using its normal line `s2`.
 | `__namedParameters` | [`string`, `any`] |
 | `__namedParameters` | [`string`, `any`] |
 | `t`                 | `string`          |
-| `padding`           | `VarAD`           |
-| `barSize`           | `VarAD`           |
+| `padding`           | `IVarAD`          |
+| `barSize`           | `IVarAD`          |
 
 #### Returns
 
-`IPtListV`<`VarAD`\>
+`IPtListV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3167,7 +3167,7 @@ Return two points parallel to line `s1` using its normal line `s2`.
 
 ### unitMark2
 
-▸ `Static` **unitMark2**(`_context`, `__namedParameters`, `t`, `padding`, `size`): `IPtListV`<`VarAD`\>
+▸ `Static` **unitMark2**(`_context`, `__namedParameters`, `t`, `padding`, `size`): `IPtListV`<`IVarAD`\>
 
 Return two points to "cap off" the line made in `unitMark`.
 
@@ -3178,12 +3178,12 @@ Return two points to "cap off" the line made in `unitMark`.
 | `_context`          | `Context`      |
 | `__namedParameters` | [`Pt2`, `Pt2`] |
 | `t`                 | `string`       |
-| `padding`           | `VarAD`        |
-| `size`              | `VarAD`        |
+| `padding`           | `IVarAD`       |
+| `size`              | `IVarAD`       |
 
 #### Returns
 
-`IPtListV`<`VarAD`\>
+`IPtListV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3193,21 +3193,21 @@ Return two points to "cap off" the line made in `unitMark`.
 
 ### vdist
 
-▸ `Static` **vdist**(`_context`, `v`, `w`): `IFloatV`<`VarAD`\>
+▸ `Static` **vdist**(`_context`, `v`, `w`): `IFloatV`<`IVarAD`\>
 
 Return the Euclidean distance between the vectors `v` and `w`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
-| `w`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `w`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3217,21 +3217,21 @@ Return the Euclidean distance between the vectors `v` and `w`.
 
 ### vdistsq
 
-▸ `Static` **vdistsq**(`_context`, `v`, `w`): `IFloatV`<`VarAD`\>
+▸ `Static` **vdistsq**(`_context`, `v`, `w`): `IFloatV`<`IVarAD`\>
 
 Return the Euclidean distance squared between the vectors `v` and `w`.
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `v`        | `VarAD`[] |
-| `w`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `v`        | `IVarAD`[] |
+| `w`        | `IVarAD`[] |
 
 #### Returns
 
-`IFloatV`<`VarAD`\>
+`IFloatV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3241,19 +3241,19 @@ Return the Euclidean distance squared between the vectors `v` and `w`.
 
 ### vmul
 
-▸ `Static` **vmul**(`_context`, `s`, `v`): `IVectorV`<`VarAD`\>
+▸ `Static` **vmul**(`_context`, `s`, `v`): `IVectorV`<`IVarAD`\>
 
 #### Parameters
 
-| Name       | Type      |
-| :--------- | :-------- |
-| `_context` | `Context` |
-| `s`        | `VarAD`   |
-| `v`        | `VarAD`[] |
+| Name       | Type       |
+| :--------- | :--------- |
+| `_context` | `Context`  |
+| `s`        | `IVarAD`   |
+| `v`        | `IVarAD`[] |
 
 #### Returns
 
-`IVectorV`<`VarAD`\>
+`IVectorV`<`IVarAD`\>
 
 #### Defined in
 
@@ -3263,7 +3263,7 @@ Return the Euclidean distance squared between the vectors `v` and `w`.
 
 ### wedge
 
-▸ `Static` **wedge**(`_context`, `center`, `start`, `end`, `radius`, `rotation`, `largeArc`, `arcSweep`): `IPathDataV`<`VarAD`\>
+▸ `Static` **wedge**(`_context`, `center`, `start`, `end`, `radius`, `rotation`, `largeArc`, `arcSweep`): `IPathDataV`<`IVarAD`\>
 
 Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled
 
@@ -3278,13 +3278,13 @@ Return series of elements that render a "wedge", which is the same as the arc ab
 | `start`    | `Pt2`     |
 | `end`      | `Pt2`     |
 | `radius`   | `Pt2`     |
-| `rotation` | `VarAD`   |
-| `largeArc` | `VarAD`   |
-| `arcSweep` | `VarAD`   |
+| `rotation` | `IVarAD`  |
+| `largeArc` | `IVarAD`  |
+| `arcSweep` | `IVarAD`  |
 
 #### Returns
 
-`IPathDataV`<`VarAD`\>
+`IPathDataV`<`IVarAD`\>
 
 #### Defined in
 
