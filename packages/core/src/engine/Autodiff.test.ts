@@ -157,8 +157,8 @@ const testGradFiniteDiff = () => {
 
 const gradGraph1 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ index: 0, val: -5 });
-  const x1 = input({ index: 1, val: 6 });
+  const x0 = input({ val: -5, index: 0 });
+  const x1 = input({ val: 6, index: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
@@ -169,8 +169,8 @@ const gradGraph1 = (): ad.Graph => {
 // Test addition of consts to graph (`c`)
 const gradGraph2 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ index: 0, val: -5 });
-  const x1 = input({ index: 1, val: 6 });
+  const x0 = input({ val: -5, index: 0 });
+  const x1 = input({ val: 6, index: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = add(a, 3);
@@ -181,8 +181,8 @@ const gradGraph2 = (): ad.Graph => {
 // Test vars w/ no grad
 const gradGraph3 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ index: 0, val: 100 });
-  const x1 = input({ index: 1, val: -100 });
+  const x0 = input({ val: 100, index: 0 });
+  const x1 = input({ val: -100, index: 1 });
   const head = squared(x0);
   return primaryGraph(head);
 };
@@ -190,7 +190,7 @@ const gradGraph3 = (): ad.Graph => {
 // Test toPenalty
 const gradGraph4 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ index: 0, val: 100 });
+  const x0 = input({ val: 100, index: 0 });
   const head = fns.toPenalty(x0);
   return primaryGraph(head);
 };
@@ -200,8 +200,8 @@ const gradGraph5 = (): ad.Graph => {
   logAD.info("test ifCond");
 
   // Build energy/gradient graph
-  const x0 = input({ index: 0, val: 100 });
-  const x1 = input({ index: 1, val: -100 });
+  const x0 = input({ val: 100, index: 0 });
+  const x1 = input({ val: -100, index: 1 });
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
   return primaryGraph(head);
 };
@@ -211,7 +211,7 @@ const gradGraph6 = (): ad.Graph => {
   logAD.info("test max");
 
   // Build energy/gradient graph
-  const x0 = input({ index: 0, val: 100 });
+  const x0 = input({ val: 100, index: 0 });
   const head = max(squared(x0), 0);
   return primaryGraph(head);
 };
@@ -222,8 +222,8 @@ const gradGraph7 = (): ad.Graph => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input({ index: 0, val: 100 });
-  const x1 = input({ index: 1, val: -100 });
+  const x0 = input({ val: 100, index: 0 });
+  const x1 = input({ val: -100, index: 1 });
   const head = div(x0, x1);
   return primaryGraph(head);
 };
@@ -262,7 +262,7 @@ const gradGraph0 = (): ad.Graph => {
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input({ index: 0, val: 100 });
+  const ref = input({ val: 100, index: 0 });
   const head = squared(ref);
   const graph = primaryGraph(head);
 
