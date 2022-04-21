@@ -22,12 +22,23 @@ const binary = (binop: ad.Binary["binop"]) => (
   w: VarAD
 ): ad.Binary => ({ tag: "Binary", binop, i: count++, left: v, right: w });
 
-const nary = (op: ad.Nary["op"]) => (xs: VarAD[]): ad.Nary => ({
-  tag: "Nary",
-  i: count++,
-  op,
-  params: xs,
-});
+const nary = (op: ad.Nary["op"], bin: (v: VarAD, w: VarAD) => ad.Binary) => (
+  xs: VarAD[]
+): VarAD => {
+  // interestingly, special-casing 1 and 2 args like this actually affects the
+  // gradient by a nontrivial amount in some cases
+  switch (xs.length) {
+    case 1: {
+      return xs[0];
+    }
+    case 2: {
+      return bin(xs[0], xs[1]);
+    }
+    default: {
+      return { tag: "Nary", i: count++, op, params: xs };
+    }
+  }
+};
 
 /**
  * Return `v + w`.
@@ -37,7 +48,7 @@ export const add = binary("+");
 /**
  * Return the sum of elements in `xs`.
  */
-export const addN = nary("addN");
+export const addN = nary("addN", add);
 
 /**
  * Return `v * w`.
@@ -67,12 +78,12 @@ export const min = binary("min");
 /**
  * Return `maxN(xs)`.
  */
-export const maxN = nary("maxN");
+export const maxN = nary("maxN", max);
 
 /**
  * Return `minN(xs)`.
  */
-export const minN = nary("minN");
+export const minN = nary("minN", min);
 
 /**
  * Returns the two-argument arctangent `atan2(y, x)`, which
