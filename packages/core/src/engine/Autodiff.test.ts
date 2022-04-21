@@ -40,9 +40,15 @@ describe("makeGraph tests", () => {
     expect(gradient.length).toBe(2);
     expect(secondary.length).toBe(3);
 
-    expect(graph.node(secondary[0])).toEqual({ tag: "Binary", binop: "+" });
-    expect(graph.node(secondary[1])).toEqual({ tag: "Binary", binop: "*" });
-    expect(graph.node(secondary[2])).toEqual({ tag: "Binary", binop: "-" });
+    const nodes = secondary.map((id) => {
+      const node = graph.node(id);
+      delete node.i; // HACK: see comment on `count` in engine/AutodiffFunctions
+      return node;
+    });
+
+    expect(nodes[0]).toEqual({ tag: "Binary", binop: "+" });
+    expect(nodes[1]).toEqual({ tag: "Binary", binop: "*" });
+    expect(nodes[2]).toEqual({ tag: "Binary", binop: "-" });
   });
 
   test("no expression swell", () => {
