@@ -1,6 +1,6 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g
-    transform="rotate(0, 477.1304363545557, 287.81663547299456)translate(477.1304363545557, 287.81663547299456)"
+    transform="rotate(0, 477.1345747785384, 287.83727261560244)translate(477.1345747785384, 287.83727261560244)"
     string="f"
     ensureOnCanvas="true"
   >
@@ -72,7 +72,7 @@
       ></path>
     </marker>
     <path
-      d="M 418.65420107756233 316.0752232405864 L 529.080867744229 316.0752232405864"
+      d="M 418.65433249664994 316.0962664579411 L 529.0809991633166 316.0962664579411"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -82,8 +82,8 @@
     <title>f.icon</title>
   </g>
   <rect
-    x="565.3208677442291"
-    y="199.40855657391972"
+    x="565.3209991633166"
+    y="199.42959979127443"
     width="233.33333333333334"
     height="233.33333333333334"
     fill="#f2f5eb"
@@ -93,13 +93,13 @@
     stroke-width="1"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 565.3208677442291, 199.40855657391972)"
+    transform="rotate(0, 565.3209991633166, 199.42959979127443)"
     ensureOnCanvas="true"
   >
     <title>Rm.icon</title>
   </rect>
   <g
-    transform="rotate(0, 766.0643870775623, 210.57855657391977)translate(766.0643870775623, 210.57855657391977)"
+    transform="rotate(0, 766.0645184966498, 210.59959979127441)translate(766.0645184966498, 210.59959979127441)"
     string="\mathbb{R}^m"
     ensureOnCanvas="true"
   >
@@ -153,13 +153,13 @@
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="636.6205452054976"
-    cy="361.2826257569756"
+    cx="636.6213046436792"
+    cy="361.2958012860608"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     stroke-linecap="butt"
-    r="60.30856321891439"
+    r="60.312657283218996"
     ensureOnCanvas="true"
   >
     <title>B.icon</title>
@@ -167,20 +167,20 @@
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="626.8674825201851"
-    cy="373.3159570026194"
+    cx="626.8350759189717"
+    cy="373.3462960169592"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-dasharray="7,5"
     stroke-linecap="butt"
-    r="18.84417394152416"
+    r="18.800153374298784"
     ensureOnCanvas="true"
   >
     <title>V.icon</title>
   </circle>
   <g
-    transform="rotate(0, 620.883873713638, 365.181706718326)translate(620.883873713638, 365.181706718326)"
+    transform="rotate(0, 620.9063586103375, 365.1084528018229)translate(620.9063586103375, 365.1084528018229)"
     string="V"
     ensureOnCanvas="true"
   >
@@ -219,7 +219,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 630.4788757991851, 394.42518579615273)translate(630.4788757991851, 394.42518579615273)"
+    transform="rotate(0, 630.4888594290518, 394.40866689926565)translate(630.4888594290518, 394.40866689926565)"
     string="B"
     ensureOnCanvas="true"
   >
@@ -258,8 +258,8 @@
     </svg>
   </g>
   <rect
-    x="165.32086774422896"
-    y="199.40855657391972"
+    x="165.32099916331657"
+    y="199.42959979127443"
     width="233.33333333333334"
     height="233.33333333333334"
     fill="#f2f5eb"
@@ -269,13 +269,13 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 165.32086774422896, 199.40855657391972)"
+    transform="rotate(0, 165.32099916331657, 199.42959979127443)"
     ensureOnCanvas="true"
   >
     <title>Rn.icon</title>
   </rect>
   <g
-    transform="rotate(0, 367.79948207756235, 210.57855657391977)translate(367.79948207756235, 210.57855657391977)"
+    transform="rotate(0, 367.79961349664995, 210.59959979127441)translate(367.79961349664995, 210.59959979127441)"
     string="\mathbb{R}^n"
     ensureOnCanvas="true"
   >
@@ -329,13 +329,13 @@
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="281.81402137257186"
-    cy="316.0186485105676"
+    cx="281.793059969889"
+    cy="316.03221685866106"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     stroke-linecap="butt"
-    r="99.2956175583815"
+    r="99.29642009025325"
     ensureOnCanvas="true"
   >
     <title>A.icon</title>
@@ -343,20 +343,20 @@
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="302.4997707306905"
-    cy="335.84918567066205"
+    cx="302.51138714728074"
+    cy="335.85552248248473"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-dasharray="7,5"
     stroke-linecap="butt"
-    r="54.187781963541276"
+    r="54.17335266540089"
     ensureOnCanvas="true"
   >
     <title>U.icon</title>
   </circle>
   <g
-    transform="rotate(0, 276.22152286429366, 326.6358254335439)translate(276.22152286429366, 326.6358254335439)"
+    transform="rotate(0, 276.230479757649, 326.6218688139872)translate(276.230479757649, 326.6218688139872)"
     string="f^{-1}(V)"
     ensureOnCanvas="true"
   >
@@ -433,7 +433,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 252.90784972678887, 381.4616668148072)translate(252.90784972678887, 381.4616668148072)"
+    transform="rotate(0, 252.91123084155782, 381.4619253930231)translate(252.91123084155782, 381.4619253930231)"
     string="A"
     ensureOnCanvas="true"
   >

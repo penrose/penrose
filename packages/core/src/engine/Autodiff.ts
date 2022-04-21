@@ -62,23 +62,24 @@ const makeNode = (x: VarAD): ad.Node => {
       return { tag, index };
     }
     case "Unary": {
-      const { unop } = node;
-      return { tag, unop };
+      const { i, unop } = node;
+      return { tag, i, unop };
     }
     case "Binary": {
-      const { binop } = node;
-      return { tag, binop };
+      const { i, binop } = node;
+      return { tag, i, binop };
     }
     case "Ternary": {
-      return { tag };
+      const { i } = node;
+      return { tag, i };
     }
     case "Nary": {
-      const { op } = node;
-      return { tag, op };
+      const { i, op } = node;
+      return { tag, i, op };
     }
     case "Debug": {
-      const { info } = node;
-      return { tag, info };
+      const { i, info } = node;
+      return { tag, i, info };
     }
   }
 };
@@ -401,7 +402,7 @@ export const makeGraph = (
       continue;
     }
 
-    const grad: ad.NaryNode = { tag: "Nary", op: "addN" };
+    const grad: ad.NaryNode = { tag: "Nary", i: -1, op: "addN" };
     const gradID = newNode(grad);
     gradNodes.set(id, gradID);
     const addends = [];
@@ -411,6 +412,8 @@ export const makeGraph = (
     if (!Array.isArray(edges)) {
       throw Error("expected outEdges to be an array");
     }
+    // HACK: see comment on `count` in engine/AutodiffFunctions
+    edges.sort((a, b) => graph.node(a.w).i - graph.node(b.w).i);
     // we call graph.setEdge in this loop, so it may seem like it would be
     // possible for for those edges to get incorrectly included as addends in
     // other gradient nodes; however, that is not the case, because none of
@@ -430,7 +433,7 @@ export const makeGraph = (
           "missing parent grad"
         );
 
-        const addend: ad.BinaryNode = { tag: "Binary", binop: "*" };
+        const addend: ad.BinaryNode = { tag: "Binary", i: -1, binop: "*" };
         const addendID = newNode(addend);
 
         const left: ad.BinaryEdge = "left";
@@ -508,6 +511,7 @@ export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
  */
 export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
   tag: "Debug",
+  i: -1, // HACK: see comment on `count` in engine/AutodiffFunctions
   node: v,
   info,
 });
