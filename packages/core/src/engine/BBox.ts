@@ -451,10 +451,7 @@ export const bboxFromPath = ({ d }: IPath): BBox => {
             // mathematically this radicand can never be negative, but when
             // Lambda is greater than 1, the radicand becomes very close to 0
             // and sometimes negative, so we manually clamp it to a very small
-            // positive value in that case, because sqrt internally calls div on
-            // the radicand, and some testing shows that passing values smaller
-            // than this magic number to sqrt causes that internal call to div
-            // to throw an error
+            // positive value in that case
             max(
               1e-18,
               div(
