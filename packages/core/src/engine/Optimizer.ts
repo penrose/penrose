@@ -933,8 +933,8 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     // This changes with the EP round, gets bigger to weight the constraints
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
     const epWeightNode = input({
-      index: 0, // xsVars indices must start at 1
       val: state.params.weight,
+      index: 0, // xsVars indices must start at 1 to accommodate this
     });
 
     const objEng: VarAD = ops.vsum(objEngs);
@@ -984,7 +984,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
     const { primary, gradient } = f([epWeight, ...xs]);
-    return { f: primary, gradf: gradient.slice(1) };
+    return { f: primary, gradf: gradient.slice(1) }; // ignore epWeight gradient
   };
 
   eig.GC.flush(); // Clear allocated matrix, vector objects in L-BFGS params
