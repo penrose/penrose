@@ -367,7 +367,7 @@ const batchProcess = async (
       args.STYLE,
       args.DOMAIN,
       folders,
-      (folders ? args.OUTFOLDER : outFile),
+      folders ? args.OUTFOLDER : outFile,
       prefix,
       staged,
       {
