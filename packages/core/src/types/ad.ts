@@ -1,4 +1,4 @@
-import * as graphlib from "graphlib";
+import { Multidigraph } from "utils/Graph";
 import { LbfgsParams } from "./state";
 
 // The following three regions define the core types for our symbolic
@@ -196,13 +196,7 @@ export type DebugEdge = undefined;
 export type Id = `_${number}`; // subset of valid JavaScript identifiers
 
 export interface Graph extends Outputs<Id> {
-  // multigraph
-  // each node ID is of type Id
-  // each node label is of type Node
-  // edges point from children to parents
-  // each edge label is undefined
-  // each edge name is of type Edge
-  graph: graphlib.Graph;
+  graph: Multidigraph<Id, Node, Edge>; // edges point from children to parents
   nodes: Map<VarAD, Id>;
 }
 

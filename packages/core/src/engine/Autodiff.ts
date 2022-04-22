@@ -1,10 +1,10 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
-import * as graphlib from "graphlib";
 import * as _ from "lodash";
 import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
+import { Edge, Multidigraph } from "utils/Graph";
 import { safe } from "utils/Util";
 import {
   acos,
@@ -277,9 +277,8 @@ const children = (x: VarAD): Child[] => {
 
 const indexToID = (index: number): ad.Id => `_${index}`;
 
-// graph is the graph field of some ad.Graph
 const getInputs = (
-  graph: graphlib.Graph
+  graph: ad.Graph["graph"]
 ): { id: ad.Id; label: ad.InputNode }[] => {
   const inputs = [];
   // every input must be a source
@@ -287,7 +286,7 @@ const getInputs = (
     const label: ad.Node = graph.node(id);
     // other non-const sources include n-ary nodes with an empty params array
     if (typeof label !== "number" && label.tag === "Input") {
-      inputs.push({ id: id as ad.Id, label }); // TODO: get rid of this typecast
+      inputs.push({ id, label });
     }
   }
   return inputs;
@@ -296,7 +295,7 @@ const getInputs = (
 export const makeGraph = (
   outputs: Omit<ad.Outputs<VarAD>, "gradient">
 ): ad.Graph => {
-  const graph = new graphlib.Graph({ multigraph: true });
+  const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<VarAD, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
@@ -342,7 +341,7 @@ export const makeGraph = (
   ): [ad.Id, ad.Id] => {
     const v = safe(nodes.get(child), "missing child");
     const w = safe(nodes.get(parent), "missing parent");
-    graph.setEdge(v, w, undefined, name);
+    graph.setEdge({ v, w, name });
     return [v, w];
   };
 
@@ -372,14 +371,13 @@ export const makeGraph = (
       sensitivities.set(`${name}${v}${w}`, sensitivity);
     }
   }
-  // the topsort function always constructs a new array so it's OK that we
-  // reverse it in-place; then we can use this reverse topological sort later
-  // when we construct all the gradient nodes, because it ensures that the
-  // gradients of a node's parents are always available before the node itself;
-  // note that we need to compute this right now, because we're just about to
-  // add the sensitivity nodes to the graph, and we don't want to try to compute
-  // the gradients of those sensitivities
-  const primaryNodes = graphlib.alg.topsort(graph).reverse();
+  // we can use this reverse topological sort later when we construct all the
+  // gradient nodes, because it ensures that the gradients of a node's parents
+  // are always available before the node itself; note that we need to compute
+  // this right now, because we're just about to add the sensitivity nodes to
+  // the graph, and we don't want to try to compute the gradients of those
+  // sensitivities
+  const primaryNodes = [...graph.topsort()].reverse();
 
   for (const x of sensitivities.values()) {
     addNode(x);
@@ -392,61 +390,54 @@ export const makeGraph = (
     addEdge(child, parent, name);
   }
 
+  // HACK: see comment on `count` in engine/AutodiffFunctions
+  const rank = ({ w }: Edge<ad.Id, ad.Edge>): number => {
+    const node = graph.node(w);
+    if (typeof node === "number" || node.tag === "Input") {
+      return -1; // unreachable
+    }
+    return node.i;
+  };
+
   // map from each primary node ID to the ID of its gradient node
   const gradNodes = new Map<ad.Id, ad.Id>();
-  for (const idString of primaryNodes) {
-    const id = idString as ad.Id; // TODO: get rid of this typecast
+  for (const id of primaryNodes) {
     if (id === primary) {
       // use addNode instead of newNode in case there's already a 1 in the graph
       gradNodes.set(id, addNode(1));
       continue;
     }
 
-    const grad: ad.NaryNode = { tag: "Nary", i: -1, op: "addN" };
-    const gradID = newNode(grad);
+    const gradID = newNode({ tag: "Nary", i: -1, op: "addN" });
     gradNodes.set(id, gradID);
-    const addends = [];
+    const addends: ad.Id[] = [];
 
-    const edges = graph.outEdges(id);
-    // the type of outEdges says it can return void
-    if (!Array.isArray(edges)) {
-      throw Error("expected outEdges to be an array");
-    }
-    // HACK: see comment on `count` in engine/AutodiffFunctions
-    edges.sort((a, b) => graph.node(a.w).i - graph.node(b.w).i);
+    // control the order in which partial derivatives are added
+    const edges = [...graph.outEdges(id)].sort((a, b) => rank(a) - rank(b));
     // we call graph.setEdge in this loop, so it may seem like it would be
     // possible for for those edges to get incorrectly included as addends in
     // other gradient nodes; however, that is not the case, because none of
     // those edges appear in our sensitivities map
     for (const { w, name } of edges) {
-      const parentID = w as ad.Id; // TODO: get rid of this typecast
-      const sensitivity = sensitivities.get(
-        `${name as ad.Edge}${id}${parentID}` // TODO: get rid of this typecast
-      );
+      const sensitivity = sensitivities.get(`${name}${id}${w}`);
       if (sensitivity !== undefined) {
         const sensitivityID = safe(
           nodes.get(sensitivity),
           "missing sensitivity"
         );
-        const parentGradID = safe(
-          gradNodes.get(parentID),
-          "missing parent grad"
-        );
+        const parentGradID = safe(gradNodes.get(w), "missing parent grad");
 
-        const addend: ad.BinaryNode = { tag: "Binary", i: -1, binop: "*" };
-        const addendID = newNode(addend);
+        const addendID = newNode({ tag: "Binary", i: -1, binop: "*" });
 
-        const left: ad.BinaryEdge = "left";
-        const right: ad.BinaryEdge = "right";
-        graph.setEdge(sensitivityID, addendID, undefined, left);
-        graph.setEdge(parentGradID, addendID, undefined, right);
+        graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
+        graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
 
         addends.push(addendID);
       }
     }
 
     addends.forEach((addendID, i) =>
-      graph.setEdge(addendID, gradID, undefined, indexToNaryEdge(i))
+      graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
     );
   }
 
@@ -882,8 +873,17 @@ const compileNode = (
     case "Nary": {
       const params: ad.Id[] = [];
       for (const [i, x] of preds.entries()) {
-        // TODO: get rid of this typecast
-        params[naryEdgeToIndex(i as ad.NaryEdge)] = x;
+        if (
+          i === undefined ||
+          i === "left" ||
+          i === "right" ||
+          i === "cond" ||
+          i === "then" ||
+          i === "els"
+        ) {
+          throw Error("expected NaryEdge");
+        }
+        params[naryEdgeToIndex(i)] = x;
       }
       return compileNary(node, params);
     }
@@ -904,19 +904,11 @@ export const genCode = ({
   const stmts = getInputs(graph).map(
     ({ id, label: { index } }) => `const ${id} = inputs[${index}];`
   );
-  for (const id of graphlib.alg.topsort(graph)) {
-    const node: ad.Node = graph.node(id);
+  for (const id of graph.topsort()) {
+    const node = graph.node(id);
     // we already generated code for the inputs
     if (typeof node === "number" || node.tag !== "Input") {
-      const edges = graph.inEdges(id);
-      // the type of inEdges says it can return void
-      if (!Array.isArray(edges)) {
-        throw Error("expected inEdges to be an array");
-      }
-      const preds = new Map(
-        // TODO: get rid of these typecasts
-        edges.map(({ v, name }) => [name as ad.Edge, v as ad.Id])
-      );
+      const preds = new Map(graph.inEdges(id).map(({ v, name }) => [name, v]));
       stmts.push(`const ${id} = ${compileNode(node, preds)};`);
     }
   }
