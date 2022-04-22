@@ -428,10 +428,8 @@ export const makeGraph = (
         const parentGradID = safe(gradNodes.get(w), "missing parent grad");
 
         const addendID = newNode({ tag: "Binary", i: -1, binop: "*" });
-
         graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
         graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
-
         addends.push(addendID);
       }
     }
