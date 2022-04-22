@@ -16,7 +16,7 @@ Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
-  --repeat TIMES the number of instances 
+  --repeat TIMES the number of instances
   --staged Generate staged SVGs of the final diagram
   --cross-energy Compute the cross-instance energy
   --variation The variation to use
