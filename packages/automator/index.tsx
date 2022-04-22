@@ -9,7 +9,8 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
-import { join, parse, resolve } from "path";
+import { randomBytes } from "crypto";
+import { dirname, join, parse, resolve } from "path";
 import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
@@ -24,7 +25,7 @@ Penrose Automator.
 Usage:
   automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -228,6 +229,10 @@ const singleProcess = async (
     // returning metadata for aggregation
     return { metadata, state: optimizedState };
   } else {
+    const parentFolder = dirname(out);
+    if (!fs.existsSync(parentFolder)) {
+      fs.mkdirSync(parentFolder, { recursive: true });
+    }
     if (staged) {
       // write multiple svg files out
       const writeFileOut = (canvasData: any, index: number) => {
@@ -346,8 +351,8 @@ const batchProcess = async (
   const outFile = args["--outFile"] || join(args.OUTFOLDER, "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
-
   const staged = args["--staged"] || false;
+  const variation = args["--variation"] || randomBytes(20).toString("hex");
 
   if (args.batch) {
     for (let i = 0; i < times; i++) {
@@ -360,6 +365,7 @@ const batchProcess = async (
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else if (args.draw) {
     await singleProcess(
+      variation,
       args.SUBSTANCE,
       args.STYLE,
       args.DOMAIN,
