@@ -394,7 +394,7 @@ export const makeGraph = (
   const rank = ({ w }: Edge<ad.Id, ad.Edge>): number => {
     const node = graph.node(w);
     if (typeof node === "number" || node.tag === "Input") {
-      return -1; // unreachable
+      throw Error("edge unexpectedly pointing to source node");
     }
     return node.i;
   };
