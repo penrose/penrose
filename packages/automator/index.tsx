@@ -9,7 +9,8 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
-import { join, parse, resolve } from "path";
+import { randomBytes } from "crypto";
+import { dirname, join, parse, resolve } from "path";
 import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
@@ -229,6 +230,10 @@ const singleProcess = async (
     // returning metadata for aggregation
     return { metadata, state: optimizedState };
   } else {
+    const parentFolder = dirname(out);
+    if (!fs.existsSync(parentFolder)) {
+      fs.mkdirSync(parentFolder, { recursive: true });
+    }
     if (staged) {
       // write multiple svg files out
       const writeFileOut = (canvasData: any, index: number) => {
@@ -347,9 +352,8 @@ const batchProcess = async (
   const outFile = args["--outFile"] || join(args.OUTFOLDER, "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
-  const variation = args["--variation"] || "";
-
   const staged = args["--staged"] || false;
+  const variation = args["--variation"] || randomBytes(20).toString("hex");
 
   if (args.batch) {
     for (let i = 0; i < times; i++) {
