@@ -378,7 +378,7 @@ export const step = (
 
     newState.translation = insertVaryings(
       state.translation,
-      zip2(state.varyingPaths, [...varyingValues])
+      zip2(state.varyingPaths, varyingValues)
     );
 
     newState.varyingValues = varyingValues;
