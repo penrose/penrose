@@ -134,7 +134,12 @@ export class Content extends React.Component<ContentProps, ContentState> {
           );
         }
       }
-      const synth = new Synthesizer(env, setting, subResult);
+      const synth = new Synthesizer(
+        env,
+        setting,
+        subResult,
+        Math.random().toString()
+      );
       let progs = synth.generateSubstances(numPrograms);
       const template: SubProg<A> | undefined = synth.getTemplate();
       if (template) {
