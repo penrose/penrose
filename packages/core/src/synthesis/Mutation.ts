@@ -586,8 +586,8 @@ export const checkChangeExprType = (
 const pairs = <T>(list: T[]): [T, T][] => {
   const res: [T, T][] = [];
   for (let i = 0; i < list.length - 1; i++) {
-    for (let j = i; j < list.length - 1; j++) {
-      res.push([list[i], list[j + 1]]);
+    for (let j = i + 1; j < list.length; j++) {
+      res.push([list[i], list[j]]);
     }
   }
   return res;
