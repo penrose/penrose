@@ -8,7 +8,7 @@ export default {
   testEnvironmentOptions: {
     testEnvironment: "jest-environment-jsdom",
   },
-  testRegex: "(/__benchmarks__/.*|(\\.|/)bench)\\.[jt]sx?$",
+  testRegex: "\\.bench\\.[jt]sx?$",
   modulePaths: ["node_modules", "<rootDir>/src/"],
   testPathIgnorePatterns: ["build/dist/"],
   // coverageProvider: "v8",
