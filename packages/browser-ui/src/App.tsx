@@ -148,11 +148,15 @@ class App extends React.Component<unknown, ICanvasState> {
   };
   public downloadSVG = async (): Promise<void> => {
     if (this.state.fileSocket) {
-      const rendering = await RenderStatic(
-        this.state.currentState,
-        this.state.fileSocket.getFile
-      );
-      DownloadSVG(rendering);
+      if (this.state.currentState) {
+        const rendering = await RenderStatic(
+          this.state.currentState,
+          this.state.fileSocket.getFile
+        );
+        DownloadSVG(rendering);
+      } else {
+        console.error("current state is undefined");
+      }
     } else {
       console.error("File socket uninitialized");
     }

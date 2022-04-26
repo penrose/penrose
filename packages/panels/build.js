@@ -10,6 +10,8 @@ build({
   sourcemap: true,
   platform: "browser",
   external: ["path", "crypto", "fs"],
+  run: "tsc",
+  tslint: "off",
   define: {
     "process.env.NODE_ENV": cliopts.watch ? '"development"' : '"production"',
     global: "window",
