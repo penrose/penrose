@@ -60,8 +60,8 @@ const labelNode = (node: Node): string => {
  * TODO: Add type for graph and VarAD
  */
 export const traverseUnique = (par: VarAD): PGraph => {
+  // TODO: do not navigate graph outside core
   const { graph } = secondaryGraph([par]);
-
   return {
     nodes: graph
       .nodes()
