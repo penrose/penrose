@@ -8,9 +8,9 @@ Usage:
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER]
+  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--folders] [--src-prefix=PREFIX] [--staged]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION] [--folders] [--cross-energy]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -18,12 +18,14 @@ Options:
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances
   --staged Generate staged SVGs of the final diagram
+  --cross-energy Compute the cross-instance energy
+  --variation The variation to use
 ```
 
 ## Getting started
 
 - Follow the instruction in the [wiki page](https://github.com/penrose/penrose/wiki/Building-and-running) to install Penrose.
-- Run `yarn start batch registry.json out/ --src-prefix=../../examples` in this directory. The output SVGs will appear in `out`.
+- Run `yarn start batch registry.json out/ --src-prefix=../examples/src/` in this directory. The output SVGs will appear in `out`.
 
 ## Using `automator` for local development
 
@@ -35,7 +37,7 @@ Options:
 
 In addition to batch-processing Penrose programs, you can also use `automator` to generate a static site for viewing the diagrams and metadata (e.g. performance statistics). Here's an example:
 
-- Run `yarn start batch registry.json out --src-prefix=../../examples --folders` in this directory.
+- Run `yarn start batch registry.json out --src-prefix=../examples/src/ --folders` in this directory.
   - Different from the example above, the `--folders` option asks `automator` to output metadata along with SVGs. `automator render` requires the output to have associated metadata.
 - Run `yarn start render out browser` to generate a static site.
 - Open `browser/index.html` to view the result.
@@ -44,5 +46,5 @@ In addition to batch-processing Penrose programs, you can also use `automator` t
 
 ## Staged Diagram Generation
 
-- Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=../../examples/set-theory-domain` in this directory to generate an output SVG.
+- Run `yarn start draw tree.sub venn.sty setTheory.dsl out --src-prefix=/../examples/src/set-theory-domain` in this directory to generate an output SVG.
 - Add the `--staged` flag to the command to generate multiple staged SVGs for the sub/sty/dsl trio.

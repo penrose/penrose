@@ -9,7 +9,8 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
-import { join, parse, resolve } from "path";
+import { randomBytes } from "crypto";
+import { dirname, join, parse, resolve } from "path";
 import { renderArtifacts } from "./artifacts";
 
 const fs = require("fs");
@@ -22,9 +23,9 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
+  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION] [--folders] [--cross-energy]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -32,7 +33,8 @@ Options:
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
   --staged Generate staged SVGs of the final diagram
-  --cross-energy compute the cross-instance energy
+  --cross-energy Compute the cross-instance energy
+  --variation The variation to use
 `;
 
 const nonZeroConstraints = (
@@ -56,8 +58,8 @@ const toMs = (hr: any) => hr[1] / 1000000;
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
   variation: string,
-  sub: any,
-  sty: any,
+  sub: string,
+  sty: string,
   dsl: string,
   folders: boolean,
   out: string,
@@ -106,13 +108,16 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  // TODO: report runtime errors
-  const optimizedState = stepUntilConvergence(
-    initialState,
-    10000
-  ).unsafelyUnwrap();
+  let optimizedState;
+  const optimizedOutput = stepUntilConvergence(initialState, 10000);
+  if (optimizedOutput.isOk()) {
+    optimizedState = optimizedOutput.value;
+  } else {
+    throw new Error(
+      `Optimization failed:\n${showError(optimizedOutput.error)}`
+    );
+  }
   const convergeEnd = process.hrtime(convergeStart);
-
   const reactRenderStart = process.hrtime();
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
@@ -228,6 +233,10 @@ const singleProcess = async (
     // returning metadata for aggregation
     return { metadata, state: optimizedState };
   } else {
+    const parentFolder = dirname(out);
+    if (!fs.existsSync(parentFolder)) {
+      fs.mkdirSync(parentFolder, { recursive: true });
+    }
     if (staged) {
       // write multiple svg files out
       const writeFileOut = (canvasData: any, index: number) => {
@@ -317,7 +326,7 @@ const batchProcess = async (
         finalMetadata[id] = metadata;
       }
     } catch (e) {
-      console.log(
+      console.trace(
         chalk.red(
           `${id} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
         )
@@ -346,8 +355,8 @@ const batchProcess = async (
   const outFile = args["--outFile"] || join(args.OUTFOLDER, "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
-
   const staged = args["--staged"] || false;
+  const variation = args["--variation"] || randomBytes(20).toString("hex");
 
   if (args.batch) {
     for (let i = 0; i < times; i++) {
@@ -360,13 +369,23 @@ const batchProcess = async (
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else if (args.draw) {
     await singleProcess(
+      variation,
       args.SUBSTANCE,
       args.STYLE,
       args.DOMAIN,
       folders,
-      outFile,
+      folders ? args.OUTFOLDER : outFile,
       prefix,
       staged,
+      {
+        substanceName: args.SUBSTANCE,
+        styleName: args.STYLE,
+        domainName: args.DOMAIN,
+        id: uniqid("instance-"),
+      },
+      undefined, // reference
+      undefined, // referenceState
+      undefined, // extraMetadata
       ciee
     );
   } else {

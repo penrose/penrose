@@ -1,13 +1,19 @@
 import {
   appendStmt,
   ArgExpr,
+  argMatches,
+  ArgStmtDecl,
+  cascadingDelete,
   identicalTypeDecls,
+  matchSignatures,
   removeStmt,
   replaceStmt,
   stmtExists,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
+import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
+import { range, without } from "lodash";
 import { A, Identifier } from "types/ast";
 import {
   ApplyConstructor,
@@ -20,7 +26,17 @@ import {
   SubProg,
   SubStmt,
 } from "types/substance";
-import { addID, removeID, SynthesisContext, WithContext } from "./Synthesizer";
+import {
+  addID,
+  generateArgStmt,
+  removeID,
+  SynthesisContext,
+  WithContext,
+} from "./Synthesizer";
+
+const log = consola
+  .create({ level: LogLevel.Info })
+  .withScope("Substance mutation");
 
 //#region Mutation types
 
@@ -121,11 +137,13 @@ export const showMutations = (ops: Mutation[]): string => {
 export const showMutation = (op: Mutation): string => {
   switch (op.tag) {
     case "SwapStmtArgs":
-      return `Swap arguments of ${prettyStmt(op.stmt)}`;
-    case "SwapExprArgs":
-      return `Swap arguments of ${prettySubNode(op.expr)} in ${prettyStmt(
+      return `Swap arguments ${op.elem1} and ${op.elem2} of ${prettyStmt(
         op.stmt
       )}`;
+    case "SwapExprArgs":
+      return `Swap arguments ${op.elem1} and ${op.elem2} of ${prettySubNode(
+        op.expr
+      )} in ${prettyStmt(op.stmt)}`;
     case "SwapInStmtArgs":
       return `Swap in arguments of ${prettyStmt(op.stmt)}`;
     case "SwapInExprArgs":
@@ -165,7 +183,7 @@ export const executeMutations = (
     { res: prog, ctx }
   );
 
-const swap = (arr: any[], a: number, b: number) =>
+const swap = <T>(arr: T[], a: number, b: number): T[] =>
   arr.map((current, idx) => {
     if (idx === a) return arr[b];
     if (idx === b) return arr[a];
@@ -176,16 +194,28 @@ const swap = (arr: any[], a: number, b: number) =>
 
 //#region Mutation constructors
 
-export const deleteMutation = (stmt: SubStmt<A>): Delete => ({
+export const deleteMutation = (
+  stmt: SubStmt<A>,
+  newCtx?: SynthesisContext
+): Delete => ({
   tag: "Delete",
   stmt,
-  mutate: removeStmtCtx,
+  // if a new context is provided, use the new context. Otherwise automatically update the context
+  mutate: newCtx
+    ? ({ stmt }, p) => withCtx(removeStmt(p, stmt), newCtx)
+    : removeStmtCtx,
 });
 
-export const addMutation = (stmt: SubStmt<A>): Add => ({
+export const addMutation = (
+  stmt: SubStmt<A>,
+  newCtx?: SynthesisContext
+): Add => ({
   tag: "Add",
   stmt,
-  mutate: appendStmtCtx,
+  // if a new context is provided, use the new context. Otherwise automatically update the context
+  mutate: newCtx
+    ? ({ stmt }, p) => withCtx(appendStmt(p, stmt), newCtx)
+    : appendStmtCtx,
 });
 
 //#endregion
@@ -230,19 +260,19 @@ export const removeStmtCtx = (
 export const checkAddStmts = (
   prog: SubProg<A>,
   cxt: SynthesisContext,
-  newStmts: (cxt: SynthesisContext) => SubStmt<A>[]
+  newStmts: (cxt: SynthesisContext) => WithContext<SubStmt<A>[]>
 ): Add[] | undefined => {
-  const stmts: SubStmt<A>[] = newStmts(cxt);
-  return stmts.map((stmt: SubStmt<A>) => addMutation(stmt));
+  const { res: stmts, ctx: newCtx } = newStmts(cxt);
+  return stmts.map((stmt: SubStmt<A>) => addMutation(stmt, newCtx));
 };
 
 export const checkAddStmt = (
   prog: SubProg<A>,
   cxt: SynthesisContext,
-  newStmt: (cxt: SynthesisContext) => SubStmt<A>
+  newStmt: (cxt: SynthesisContext) => WithContext<SubStmt<A>>
 ): Add | undefined => {
-  const stmt: SubStmt<A> = newStmt(cxt);
-  return addMutation(stmt);
+  const { res: stmt, ctx: newCtx } = newStmt(cxt);
+  return addMutation(stmt, newCtx);
 };
 
 export const checkSwapStmtArgs = (
@@ -471,11 +501,12 @@ export const checkReplaceExprName = (
 
 export const checkDeleteStmt = (
   prog: SubProg<A>,
-  stmt: SubStmt<A>
+  stmt: SubStmt<A>,
+  newCtx?: SynthesisContext
 ): Delete | undefined => {
   const s = stmt;
   if (stmtExists(s, prog)) {
-    return deleteMutation(s);
+    return deleteMutation(s, newCtx);
   } else return undefined;
 };
 
@@ -546,5 +577,238 @@ export const checkChangeExprType = (
     } else return undefined;
   } else return undefined;
 };
+
+//#endregion
+
+//#region Mutation enumerators
+// TODO: factor out enumeration callbacks
+
+const pairs = <T>(list: T[]): [T, T][] => {
+  const res: [T, T][] = [];
+  for (let i = 0; i < list.length - 1; i++) {
+    for (let j = i + 1; j < list.length; j++) {
+      res.push([list[i], list[j]]);
+    }
+  }
+  return res;
+};
+
+export const enumSwapStmtArgs = (stmt: SubStmt<A>): SwapStmtArgs[] => {
+  if (stmt.tag === "ApplyPredicate" && stmt.args.length > 1) {
+    const indexPairs: [number, number][] = pairs(range(0, stmt.args.length));
+    return indexPairs.map(([elem1, elem2]: [number, number]) => ({
+      tag: "SwapStmtArgs",
+      stmt,
+      elem1,
+      elem2,
+      mutate: (
+        { stmt, elem1, elem2 }: SwapStmtArgs,
+        prog: SubProg<A>,
+        ctx: SynthesisContext
+      ): WithContext<SubProg<A>> => {
+        const newStmt: SubStmt<A> = {
+          ...stmt,
+          args: swap(stmt.args, elem1, elem2),
+        };
+        return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+      },
+    }));
+  } else return [];
+};
+
+export const enumSwapExprArgs = (stmt: SubStmt<A>): SwapExprArgs[] => {
+  if (stmt.tag === "Bind") {
+    const { expr } = stmt;
+    if (
+      (expr.tag === "ApplyConstructor" ||
+        expr.tag === "ApplyFunction" ||
+        expr.tag === "Func") &&
+      expr.args.length > 1
+    ) {
+      const indexPairs: [number, number][] = pairs(range(0, expr.args.length));
+      return indexPairs.map(([elem1, elem2]: [number, number]) => ({
+        tag: "SwapExprArgs",
+        stmt,
+        expr,
+        elem1,
+        elem2,
+        mutate: (
+          { stmt, expr, elem1, elem2 }: SwapExprArgs,
+          prog: SubProg<A>,
+          ctx: SynthesisContext
+        ): WithContext<SubProg<A>> => {
+          const newStmt: SubStmt<A> = {
+            ...stmt,
+            expr: {
+              ...expr,
+              args: swap(expr.args, elem1, elem2),
+            } as SubExpr<A>, // TODO: fix types to avoid casting
+          };
+          return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
+        },
+      }));
+    } else return [];
+  } else return [];
+};
+
+export const enumReplaceStmtName = (
+  stmt: SubStmt<A>,
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+): ReplaceStmtName[] => {
+  if (stmt.tag === "ApplyPredicate") {
+    const matchingNames: string[] = matchSignatures(stmt, cxt.env).map(
+      (decl) => decl.name.value
+    );
+    const options = without(matchingNames, stmt.name.value);
+    return options.map((name: string) => ({
+      tag: "ReplaceStmtName",
+      stmt,
+      newName: name,
+      mutate: ({ stmt, newName }: ReplaceStmtName, prog, ctx) => {
+        return withCtx(
+          replaceStmt(prog, stmt, {
+            ...stmt,
+            name: dummyIdentifier(newName, "SyntheticSubstance"),
+          }),
+          ctx
+        );
+      },
+    }));
+  } else return [];
+};
+
+export const enumReplaceExprName = (
+  stmt: SubStmt<A>,
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+): ReplaceExprName[] => {
+  if (stmt.tag === "Bind") {
+    const { expr } = stmt;
+    if (
+      expr.tag === "ApplyConstructor" ||
+      expr.tag === "ApplyFunction" ||
+      expr.tag === "Func"
+    ) {
+      const matchingNames: string[] = matchSignatures(expr, cxt.env).map(
+        (decl) => decl.name.value
+      );
+      const options = without(matchingNames, expr.name.value);
+      return options.map((name: string) => ({
+        tag: "ReplaceExprName",
+        stmt,
+        expr,
+        newName: name,
+        mutate: ({ stmt, expr, newName }: ReplaceExprName, prog, ctx) => {
+          return withCtx(
+            replaceStmt(prog, stmt, {
+              ...stmt,
+              expr: {
+                ...expr,
+                name: dummyIdentifier(newName, "SyntheticSubstance"),
+              },
+            }),
+            ctx
+          );
+        },
+      }));
+    } else return [];
+  } else return [];
+};
+
+export const enumChangeStmtType = (
+  stmt: SubStmt<A>,
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+): ChangeStmtType[] => {
+  if (stmt.tag === "ApplyPredicate") {
+    const options = argMatches(stmt, cxt.env);
+    return options.map((decl: ArgStmtDecl<A>) => {
+      const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt, stmt.args);
+      const deleteOp: Delete = deleteMutation(stmt, newCtx);
+      const addOps: Add[] = stmts.map((s: SubStmt<A>) =>
+        addMutation(s, newCtx)
+      );
+      return {
+        tag: "ChangeStmtType",
+        stmt,
+        newStmt: res,
+        additionalMutations: [deleteOp, ...addOps],
+        mutate: changeType,
+      };
+    });
+  } else return [];
+};
+
+export const enumChangeExprType = (
+  stmt: SubStmt<A>,
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+): ChangeExprType[] => {
+  if (stmt.tag === "Bind") {
+    const { expr } = stmt;
+    if (
+      expr.tag === "ApplyConstructor" ||
+      expr.tag === "ApplyFunction" ||
+      expr.tag === "Func"
+    ) {
+      const options = argMatches(stmt, cxt.env);
+      return options.map((decl: ArgStmtDecl<A>) => {
+        const { res, stmts, ctx: newCtx } = generateArgStmt(
+          decl,
+          cxt,
+          expr.args
+        );
+        let toDelete: SubStmt<A>[];
+        // remove old statement
+        if (res.tag === "Bind" && res.variable.type !== stmt.variable.type) {
+          // old bind was replaced by a bind with diff type
+          toDelete = cascadingDelete(stmt, prog); // remove refs to the old bind
+        } else {
+          toDelete = [stmt];
+        }
+        const deleteOps: Delete[] = toDelete.map((s) => deleteMutation(s));
+        const addOps: Add[] = stmts.map((s: SubStmt<A>) =>
+          addMutation(s, newCtx)
+        );
+        return {
+          tag: "ChangeExprType",
+          stmt,
+          expr,
+          newStmt: res,
+          additionalMutations: [...deleteOps, ...addOps],
+          mutate: changeType,
+        };
+      });
+    } else return [];
+  } else return [];
+};
+
+type MutationEnumerator = (
+  stmt: SubStmt<A>,
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+) => Mutation[];
+
+export const mutationEnumerators: MutationEnumerator[] = [
+  enumReplaceExprName,
+  enumReplaceStmtName,
+  enumSwapExprArgs,
+  enumSwapStmtArgs,
+  enumChangeExprType,
+  enumChangeStmtType,
+];
+
+export const enumerateStmtMutations = (
+  stmt: SubStmt<A>,
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+): Mutation[] => mutationEnumerators.map((fn) => fn(stmt, prog, cxt)).flat();
+
+export const enumerateProgMutations = (
+  prog: SubProg<A>,
+  cxt: SynthesisContext
+): Mutation[] =>
+  prog.statements.map((stmt) => enumerateStmtMutations(stmt, prog, cxt)).flat();
 
 //#endregion
