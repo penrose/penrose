@@ -33,7 +33,11 @@
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <div id="root"></div>
-    <script type="module" src="/src/App.tsx"></script>
+    <script type="text/javascript">
+      // HACK for eigen dep which uses `global`
+      window.global = window;
+    </script>
+    <script type="module" src="/src/index.tsx"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
