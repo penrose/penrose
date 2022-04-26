@@ -86,8 +86,6 @@ export const compileSubstance = (
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
-    // disambiguate statements in the AST
-    disambiguateFunctions(env, ast);
     // convert and append prelude values to the substance AST
     const preludeDecls = [...env.preludeValues.toArray()];
     const preludeValues: Decl<A>[] = preludeDecls.map(
