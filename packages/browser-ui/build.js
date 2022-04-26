@@ -8,8 +8,9 @@ build({
   bundle: true,
   sourcemap: "inline",
   keepNames: true,
-  debug: true,
   format: "iife",
+  run: "tsc",
+  tslint: "off",
   platform: "browser",
   external: ["path", "crypto", "fs"],
   define: {
