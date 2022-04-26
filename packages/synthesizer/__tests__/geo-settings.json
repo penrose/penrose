@@ -20,7 +20,7 @@
     "predicate": ["Collinear"]
   },
   "edit": {
-    "type": ["Point"],
+    "type": [],
     "function": [],
     "constructor": [
       "MkSegment",
@@ -29,6 +29,6 @@
       "InteriorAngle",
       "TriangleVertex"
     ],
-    "predicate": []
+    "predicate": ["Collinear"]
   }
 }
