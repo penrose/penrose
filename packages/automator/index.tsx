@@ -91,13 +91,11 @@ const singleProcess = async (
     variation,
   });
   const compileEnd = process.hrtime(compileStart);
-  let compiledState;
-  if (compilerOutput.isOk()) {
-    compiledState = compilerOutput.value;
-  } else {
+  if (compilerOutput.isErr()) {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
+  const compiledState = compilerOutput.value;
 
   const labelStart = process.hrtime();
   // resample because initial sampling did not use the special sampling seed
