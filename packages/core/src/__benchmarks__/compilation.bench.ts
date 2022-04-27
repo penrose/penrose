@@ -1,8 +1,15 @@
-import { registry } from "@penrose/examples";
+import { examples, registry } from "@penrose/examples";
 import { benchmarkSuite } from "jest-bench";
 import { SuiteDescription } from "jest-bench/dist/suite";
 import { compileTrio, readRegistry, showError } from "../index";
-import { exampleFromURI } from "./util";
+
+const exampleFromURI = (uri: string): string => {
+  let x = examples;
+  for (const part of uri.split("/")) {
+    x = x[part];
+  }
+  return (x as unknown) as string;
+};
 
 const compilationBenchmarks = (): SuiteDescription => {
   const tests: SuiteDescription = {};
