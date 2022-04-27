@@ -17,7 +17,6 @@
     "cytoscape-dagre": "^2.3.2",
     "debug": "^4.1.1",
     "fast-memoize": "^2.5.2",
-    "graphlib": "^2.1.8",
     "lodash": "^4.17.21",
     "node-pre-gyp": "^0.14.0",
     "react": "^16.13.1",
