@@ -9,15 +9,14 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
+import chalk from "chalk";
+import convertHrtime from "convert-hrtime";
 import { randomBytes } from "crypto";
+import * as fs from "fs";
+import neodoc from "neodoc";
 import { dirname, join, parse, resolve } from "path";
+import uniqid from "uniqid";
 import { renderArtifacts } from "./artifacts";
-
-const fs = require("fs");
-const chalk = require("chalk");
-const neodoc = require("neodoc");
-const uniqid = require("uniqid");
-const convertHrtime = require("convert-hrtime");
 
 const USAGE = `
 Penrose Automator.
@@ -119,7 +118,7 @@ const singleProcess = async (
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
   let listOfCanvasData, canvas;
-  const resolvePath = (filePath: string) => {
+  const resolvePath = async (filePath: string) => {
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
