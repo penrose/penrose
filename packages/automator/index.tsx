@@ -220,7 +220,7 @@ const singleProcess = async (
     fs.writeFileSync(join(out, "substance.sub"), subIn);
     fs.writeFileSync(join(out, "style.sty"), styIn);
     fs.writeFileSync(join(out, "domain.dsl"), dslIn);
-    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata));
+    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
     console.log(
       chalk.green(`The diagram and metadata has been saved to ${out}`)
     );
