@@ -16,15 +16,4 @@ export default defineConfig({
       plugins: [NodeModulesPolyfillPlugin()],
     },
   },
-  build: {
-    sourcemap: true,
-    rollupOptions: {
-      external: ["react", "react-dom"],
-      output: {
-        globals: {
-          react: "React",
-        },
-      },
-    },
-  },
 });

@@ -1,7 +1,6 @@
 {
   "name": "@penrose/panels",
   "version": "0.1.0",
-  "main": "public/app.js",
   "license": "MIT",
   "dependencies": {
     "@monaco-editor/react": "^4.0.11",
@@ -20,10 +19,10 @@
     "dev": "vite",
     "watch": "vite",
     "start": "vite",
-    "build": "node build.js",
+    "build": "vite build",
     "test": "echo NO TESTS",
     "prepack": "yarn build",
-    "clean": "rimraf public/app.js public/app.css public/app.js.map"
+    "clean": "rimraf dist"
   },
   "eslintConfig": {
     "extends": [
@@ -56,8 +55,9 @@
     "@types/react-panelgroup": "^1.0.1",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.7",
-    "estrella": "^1.4.1",
     "typescript": "^4.1.3",
-    "web-vitals": "^0.2.4"
+    "web-vitals": "^0.2.4",
+    "vite": "^2.8.0",
+    "@vitejs/plugin-react": "^1.0.7"
   }
 }
