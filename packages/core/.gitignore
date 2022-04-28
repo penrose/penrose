@@ -1,5 +1,4 @@
 /coverage/
-/benchmarks/
 /docs/
 /reports/
 src/parser/DomainParser.ts

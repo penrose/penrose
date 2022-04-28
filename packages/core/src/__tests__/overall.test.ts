@@ -1,13 +1,9 @@
 import { examples, registry } from "@penrose/examples";
-import * as fs from "fs";
-import * as path from "path";
-import * as prettier from "prettier";
 import {
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
-  readRegistry,
   RenderStatic,
   resample,
   showError,
@@ -15,9 +11,6 @@ import {
   variationSeeds,
 } from "../index";
 import { State } from "../types/state";
-
-const OUTPUT = "../../diagrams";
-const saveDiagrams = true;
 
 const exampleFromURI = (uri: string): string => {
   let x: any = examples;
@@ -29,52 +22,6 @@ const exampleFromURI = (uri: string): string => {
 
 const vennStyle = exampleFromURI(registry.styles["venn"].URI);
 const setDomain = exampleFromURI(registry.domains["set-theory"].URI);
-
-describe("End-to-end testing of existing diagrams", () => {
-  const trios = readRegistry(registry);
-  for (const trio of trios) {
-    const { name, substanceURI, domainURI, styleURI, variation } = trio;
-    const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map(
-      exampleFromURI
-    );
-
-    test(name, async () => {
-      if (saveDiagrams && !fs.existsSync(OUTPUT)) {
-        fs.mkdirSync(OUTPUT);
-      }
-      const res = compileTrio({
-        substance: sub,
-        style: sty,
-        domain: dsl,
-        variation,
-      });
-      if (res.isOk()) {
-        // resample because initial sampling did not use the special sampling seed
-        const state = resample(await prepareState(res.value));
-        const opt = stepUntilConvergence(state);
-        if (opt.isErr()) {
-          fail("optimization failed");
-        }
-        const optimized = opt.value;
-
-        const rendered = await RenderStatic(optimized, async (p: string) => {
-          const parts = styleURI.split("/");
-          parts.pop();
-          parts.push(p);
-          return exampleFromURI(parts.join("/")); // a bit hacky but meh
-        });
-        fs.writeFileSync(
-          path.join(OUTPUT, `${name}.svg`),
-          // format so each line isn't too long, nicer diffs
-          prettier.format(rendered.outerHTML, { parser: "html" }),
-          "utf8"
-        );
-      } else {
-        fail(showError(res.error));
-      }
-    });
-  }
-});
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>

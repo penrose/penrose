@@ -12,8 +12,6 @@
   ],
   "scripts": {
     "clean": "rimraf build src/parser/SubstanceParser.ts src/parser/StyleParser.ts src/parser/DomainParser.ts",
-    "prebench": "yarn build",
-    "bench": "jest --projects jest-bench.config.ts",
     "build:parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "prebuild": "yarn build:parsers",
     "build": "yarn build:esbuild",
@@ -80,7 +78,6 @@
     "estrella": "^1.4.1",
     "jest": "^27.5.1",
     "jest-junit": "^12.0.0",
-    "jest-bench": "^27.5.1",
     "jscodeshift": "^0.11.0",
     "rollup": "^2.40.0",
     "rollup-plugin-node-polyfills": "^0.2.1",

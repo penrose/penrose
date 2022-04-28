@@ -15,6 +15,7 @@ import { randomBytes } from "crypto";
 import * as fs from "fs";
 import neodoc from "neodoc";
 import { dirname, join, parse, resolve } from "path";
+import * as prettier from "prettier";
 import uniqid from "uniqid";
 import { renderArtifacts } from "./artifacts";
 
@@ -217,7 +218,10 @@ const singleProcess = async (
       listOfCanvasData.map(writeFileOut);
     } else {
       // not staged --> just need one diagram
-      fs.writeFileSync(join(out, "output.svg"), canvas);
+      fs.writeFileSync(
+        join(out, "output.svg"),
+        prettier.format(canvas, { parser: "html" })
+      );
     }
 
     fs.writeFileSync(join(out, "substance.sub"), subIn);
@@ -301,7 +305,7 @@ const batchProcess = async (
         styURI,
         dslURI,
         folders,
-        join(out, `${name}-${id}${folders ? "" : ".svg"}`),
+        join(out, `${name}${folders ? "" : ".svg"}`),
         prefix,
         staged,
         {
