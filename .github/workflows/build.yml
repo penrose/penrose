@@ -28,6 +28,8 @@ jobs:
           path: packages/automator/out/
       - name: Copy generated diagrams into diagrams/
         run: |
+          rm -r diagrams/
+          mkdir diagrams/
           for filename in packages/automator/out/*/output.svg; do
             dir=${filename#packages/automator/out/}
             name=${dir%/output.svg}
