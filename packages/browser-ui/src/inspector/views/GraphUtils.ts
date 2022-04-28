@@ -106,7 +106,7 @@ export const toGraphDOF = (p: Path<A>, allArgs: string[]): PGraph => {
   if (p.tag === "FieldPath") {
     return empty;
   } else if (p.tag === "PropertyPath") {
-    const fp = {
+    const fp: Path<A> = {
       ...p,
       tag: "FieldPath",
       name: p.name,

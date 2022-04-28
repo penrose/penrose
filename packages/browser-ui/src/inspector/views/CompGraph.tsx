@@ -2,7 +2,6 @@
 
 import { IState } from "@penrose/core/build/dist/types/state";
 import cytoscape from "cytoscape";
-import dagre from "cytoscape-dagre";
 import * as React from "react";
 import {
   convertSchema,
@@ -11,8 +10,6 @@ import {
   traverseUnique,
 } from "./GraphUtils";
 import IViewProps from "./IViewProps";
-
-cytoscape.use(dagre);
 
 // TODO: Style edges to DOF vs edges to constants differently
 
@@ -123,9 +120,7 @@ const CompGraph: React.FC<IViewProps> = ({
         style: style,
       });
 
-      cy.layout({
-        name: "dagre",
-      }).run();
+      cy.layout({ name: "breadthfirst" }).run();
 
       return () => {
         cy.destroy();

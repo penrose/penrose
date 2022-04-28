@@ -105,13 +105,16 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  // TODO: report runtime errors
-  const optimizedState = stepUntilConvergence(
-    initialState,
-    10000
-  ).unsafelyUnwrap();
+  let optimizedState;
+  const optimizedOutput = stepUntilConvergence(initialState, 10000);
+  if (optimizedOutput.isOk()) {
+    optimizedState = optimizedOutput.value;
+  } else {
+    throw new Error(
+      `Optimization failed:\n${showError(optimizedOutput.error)}`
+    );
+  }
   const convergeEnd = process.hrtime(convergeStart);
-
   const reactRenderStart = process.hrtime();
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
@@ -320,7 +323,7 @@ const batchProcess = async (
         finalMetadata[id] = metadata;
       }
     } catch (e) {
-      console.log(
+      console.trace(
         chalk.red(
           `${id} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
         )
