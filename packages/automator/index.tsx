@@ -338,7 +338,7 @@ const batchProcess = async (
   if (folders) {
     fs.writeFileSync(
       join(out, "aggregateData.json"),
-      JSON.stringify(finalMetadata)
+      JSON.stringify(finalMetadata, null, 2)
     );
     console.log(`The Aggregate metadata has been saved to ${out}.`);
   }
