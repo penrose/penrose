@@ -1,5 +1,5 @@
-import Errors from "inspector/views/Errors";
 //import Opt from "./Opt";
+import Errors from "../../inspector/views/Errors";
 import CompGraph from "./CompGraph";
 import Frames from "./Frames";
 import Settings from "./Settings";

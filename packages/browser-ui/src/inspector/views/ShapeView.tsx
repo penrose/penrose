@@ -1,6 +1,6 @@
-import makeViewBoxes from "inspector/makeViewBoxes";
 import * as React from "react";
 import { ObjectInspector } from "react-inspector";
+import makeViewBoxes from "../../inspector/makeViewBoxes";
 import IViewProps from "./IViewProps";
 
 interface IState {
