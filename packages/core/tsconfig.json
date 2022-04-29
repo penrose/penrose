@@ -68,7 +68,6 @@
     "dist",
     "src/__tests__",
     "src/__testfixtures__",
-    "src/__benchmarks__",
     "scripts",
     "acceptance-tests",
     "webpack"
