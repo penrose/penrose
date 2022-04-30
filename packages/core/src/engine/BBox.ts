@@ -5,7 +5,7 @@ import { IPath } from "shapes/Path";
 import { IRectangle } from "shapes/Rectangle";
 import { isPt2, Pt2, VarAD } from "types/ad";
 import { ICenter, IPoly, IRect, IRotate, IScale } from "types/shapes";
-import { constOf, ops } from "./Autodiff";
+import { ops } from "./Autodiff";
 import {
   absVal,
   add,
@@ -68,8 +68,8 @@ export const bbox = (width: VarAD, height: VarAD, center: Pt2): BBox => {
 };
 
 export const corners = (b: BBox): Corners => {
-  const halfWidth = div(b.width, constOf(2.0));
-  const halfHeight = div(b.height, constOf(2.0));
+  const halfWidth = div(b.width, 2);
+  const halfHeight = div(b.height, 2);
   const nhalfWidth = neg(halfWidth);
   const nhalfHeight = neg(halfHeight);
   const pts = <Pt2[]>[
@@ -171,7 +171,7 @@ export const bboxFromPoints = (points: Pt2[]): BBox => {
   ]);
   const w = sub(maxCorner[0], minCorner[0]);
   const h = sub(maxCorner[1], minCorner[1]);
-  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), constOf(2));
+  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), 2);
   if (!isPt2(center)) {
     throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
   }
@@ -186,7 +186,7 @@ export const bboxFromRotatedRect = (
   strokeWidth: VarAD
 ): BBox => {
   const counterclockwise = neg(clockwise);
-  const down = ops.vrot([constOf(0), constOf(-1)], counterclockwise);
+  const down = ops.vrot([0, -1], counterclockwise);
   const right = ops.rot90(down);
 
   const width = add(w, strokeWidth);
@@ -195,8 +195,8 @@ export const bboxFromRotatedRect = (
   const left = ops.vmul(height, down);
 
   const topLeft = ops.vsub(
-    [sub(center[0], div(w, constOf(2))), add(center[1], div(h, constOf(2)))],
-    ops.vmul(div(strokeWidth, constOf(2)), ops.vadd(down, right))
+    [sub(center[0], div(w, 2)), add(center[1], div(h, 2))],
+    ops.vmul(div(strokeWidth, 2), ops.vadd(down, right))
   );
   const topRight = ops.vadd(topLeft, top);
   const botLeft = ops.vadd(topLeft, left);
@@ -218,7 +218,7 @@ export const bboxFromCircle = ({ r, center, strokeWidth }: ICircle): BBox => {
     );
   }
 
-  const diameter = add(mul(constOf(2), r.contents), strokeWidth.contents);
+  const diameter = add(mul(2, r.contents), strokeWidth.contents);
   return bbox(diameter, diameter, center.contents);
 };
 
@@ -235,8 +235,8 @@ export const bboxFromEllipse = ({
     );
   }
 
-  const dx = mul(constOf(2), rx.contents);
-  const dy = mul(constOf(2), ry.contents);
+  const dx = mul(2, rx.contents);
+  const dy = mul(2, ry.contents);
   return bbox(
     add(dx, strokeWidth.contents),
     add(dy, strokeWidth.contents),
@@ -283,7 +283,7 @@ export const bboxFromRectlike = ({
     width.contents,
     height.contents,
     rotation.contents,
-    constOf(0)
+    0
   );
 };
 
@@ -316,7 +316,7 @@ export const bboxFromLinelike = ({ start, end, strokeWidth }: ILine): BBox => {
   }
 
   const d = ops.vmul(
-    div(strokeWidth.contents, constOf(2)),
+    div(strokeWidth.contents, 2),
     ops.rot90(ops.vnormalize(ops.vsub(end.contents, start.contents)))
   );
   return bboxFromPoints(
@@ -426,7 +426,7 @@ export const bboxFromPath = ({ d }: IPath): BBox => {
       // https://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
       // eq. 5.1
       const [x1Prime, y1Prime] = ops.vrot(
-        ops.vdiv(ops.vsub(cursor, next.contents), constOf(2)),
+        ops.vdiv(ops.vsub(cursor, next.contents), 2),
         neg(phi)
       );
 
@@ -437,7 +437,7 @@ export const bboxFromPath = ({ d }: IPath): BBox => {
       );
 
       // eq. 6.3
-      const replace = gt(lambda, constOf(1));
+      const replace = gt(lambda, 1);
       const rx = ifCond(replace, mul(sqrt(lambda), rxPos), rxPos);
       const ry = ifCond(replace, mul(sqrt(lambda), ryPos), ryPos);
 
@@ -446,17 +446,14 @@ export const bboxFromPath = ({ d }: IPath): BBox => {
         mul(
           // according to the linked doc it seems like this should be the other
           // way around, but Penrose seems to do it this way instead
-          ifCond(eq(largeArc, sweep), constOf(1), constOf(-1)),
+          ifCond(eq(largeArc, sweep), 1, -1),
           sqrt(
             // mathematically this radicand can never be negative, but when
             // Lambda is greater than 1, the radicand becomes very close to 0
             // and sometimes negative, so we manually clamp it to a very small
-            // positive value in that case, because sqrt internally calls div on
-            // the radicand, and some testing shows that passing values smaller
-            // than this magic number to sqrt causes that internal call to div
-            // to throw an error
+            // positive value in that case
             max(
-              constOf(1e-18),
+              1e-18,
               div(
                 sub(
                   sub(squared(mul(rx, ry)), squared(mul(rx, y1Prime))),
@@ -473,7 +470,7 @@ export const bboxFromPath = ({ d }: IPath): BBox => {
       // eq. 5.3
       const [cx, cy] = ops.vadd(
         ops.vrot(cPrime, phi),
-        ops.vdiv(ops.vadd(cursor, next.contents), constOf(2))
+        ops.vdiv(ops.vadd(cursor, next.contents), 2)
       );
 
       // very crude approach: we know that the ellipse is contained within a

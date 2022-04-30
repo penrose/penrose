@@ -6,7 +6,7 @@ import {
 } from "contrib/Minkowski";
 import { bboxFromShape, polygonLikePoints, shapeCenter } from "contrib/Queries";
 import { atDistOutside, noIntersectCircles, pointInBox } from "contrib/Utils";
-import { constOf, ops } from "engine/Autodiff";
+import { ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -40,7 +40,7 @@ import { VarAD } from "types/ad";
 export const overlappingCircles = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Circle],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   const o = [s1.r.contents, s2.r.contents, padding];
@@ -53,7 +53,7 @@ export const overlappingCircles = (
 export const overlappingPolygons = (
   [t1, s1]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
   [t2, s2]: [string, Polygon | Rectangle | Text | Equation | Image | Line],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   return overlappingPolygonPoints(
     polygonLikePoints([t1, s1]),
@@ -68,7 +68,7 @@ export const overlappingPolygons = (
 export const overlappingAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
@@ -85,7 +85,7 @@ export const overlappingAABBs = (
 export const overlappingRectlikeCircle = (
   [t1, s1]: [string, Rectangle | Text | Equation | Image],
   [t2, s2]: [string, Circle],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   // Prepare axis-aligned bounding boxes
   const box1 = bboxFromShape([t1, s1]);
@@ -104,7 +104,7 @@ export const overlappingRectlikeCircle = (
 export const overlappingCircleLine = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Line],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   // collect constants
   const c = s1.center.contents;
@@ -123,10 +123,7 @@ export const overlappingCircleLine = (
   const u = ops.vsub(c, a); // u = c-a
   const v = ops.vsub(b, a); // v - b-a
   // h = clamp( <u,v>/<v,v>, 0, 1 )
-  const h = max(
-    constOf(0),
-    min(constOf(1), div(ops.vdot(u, v), ops.vdot(v, v)))
-  );
+  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
   // d = | u - h*v |
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
@@ -156,7 +153,7 @@ export const atDistLabel = (
   return ifCond(
     pointInBox(pt, rect),
     // If the point is inside the box, push it outside w/ `noIntersect`
-    noIntersectCircles(rect.center, rect.width, pt, constOf(2.0)),
+    noIntersectCircles(rect.center, rect.width, pt, 2),
     // If the point is outside the box, try to get the distance from the point to equal the desired distance
     atDistOutside(pt, rect, distance)
   );
@@ -170,7 +167,7 @@ export const atDistLabel = (
 export const containsCircles = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Circle],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   const d = ops.vdist(shapeCenter([t1, s1]), shapeCenter([t2, s2]));
   const o = padding
@@ -186,7 +183,7 @@ export const containsCircles = (
 export const containsCircleRectlike = (
   [t1, s1]: [string, Circle],
   [t2, s2]: [string, Rectangle | Text | Equation | Image],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
   const s2BBox = bboxFromShape([t2, s2]);
@@ -201,13 +198,13 @@ export const containsCircleRectlike = (
 export const containsRectlikeCircle = (
   [, s1]: [string, Rectangle | Text | Equation | Image],
   [, s2]: [string, Circle],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
 
   // collect constants
-  const halfW = mul(constOf(0.5), s1.width.contents); // half rectangle width
-  const halfH = mul(constOf(0.5), s1.height.contents); // half rectangle height
+  const halfW = mul(0.5, s1.width.contents); // half rectangle width
+  const halfH = mul(0.5, s1.height.contents); // half rectangle height
   const [rx, ry] = s1.center.contents; // rectangle center
   const r = s2.r.contents; // circle radius
   const [cx, cy] = s2.center.contents; // circle center
@@ -231,7 +228,7 @@ export const containsRectlikeCircle = (
 export const containsAABBs = (
   [t1, s1]: [string, any],
   [t2, s2]: [string, any],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   // TODO: Remake using Minkowski penalties
   const box1 = bboxFromShape([t1, s1]);
@@ -239,10 +236,10 @@ export const containsAABBs = (
   const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
   const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
   return addN([
-    ifCond(lt(xl1, xl2), constOf(0), squared(sub(xl1, xl2))),
-    ifCond(lt(xr2, xr1), constOf(0), squared(sub(xr2, xr1))),
-    ifCond(lt(yl1, yl2), constOf(0), squared(sub(yl1, yl2))),
-    ifCond(lt(yr2, yr1), constOf(0), squared(sub(yr2, yr1))),
+    ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
+    ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
+    ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
+    ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
   ]);
 };
 
@@ -252,7 +249,7 @@ export const containsAABBs = (
 export const containsPolygonPolygon = (
   [, s1]: [string, Polygon],
   [, s2]: [string, Polygon],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   return maxN(
     s2.points.contents.map((x) =>
@@ -267,7 +264,7 @@ export const containsPolygonPolygon = (
 export const containsPolygonCircle = (
   [, s1]: [string, Polygon],
   [, s2]: [string, Circle],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   return containsPolygonPoints(
     s1.points.contents,
@@ -282,7 +279,7 @@ export const containsPolygonCircle = (
 export const containsCirclePolygon = (
   [, s1]: [string, Circle],
   [, s2]: [string, Polygon],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   return maxN(
     s2.points.contents.map((x) =>

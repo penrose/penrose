@@ -1,5 +1,6 @@
 import eig from "eigen";
 import { Canvas } from "shapes/Samplers";
+import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "./ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
@@ -120,6 +121,11 @@ export interface ILbfgsParams {
   memSize: number;
 }
 
+export interface FnEvaled {
+  f: number;
+  gradf: number[];
+}
+
 export type Params = IParams;
 
 export interface IParams {
@@ -150,36 +156,26 @@ export interface IParams {
   functionsCompiled: boolean;
 
   // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
-  objective: (epWeight: number) => (xs: number[]) => number;
-  gradient: (epWeight: number) => (xs: number[]) => number[];
+  objectiveAndGradient: (epWeight: number) => (xs: number[]) => FnEvaled;
 
   // Applied with weight (or hyperparameters in general) -- may change with the EP round
-  currObjective(xs: number[]): number;
-  currGradient(xs: number[]): number[];
+  currObjectiveAndGradient(xs: number[]): FnEvaled;
 
   // `xsVars` are all the leaves of the energy graph
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
-  constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
-  epWeightNode: VarAD; // similar to constrWeightNode
+  epWeightNode: VarAD; // Handle to node for EP weight (so it can be set as the weight changes)
 
   // Cached versions of compiling each objective and constraint into a function and gradient
   objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
   constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
 }
 
-export type FnCached = IFnCached;
-
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
-export interface IFnCached {
-  f(xs: number[]): number;
-  gradf(xs: number[]): number[];
-}
+export type FnCached = (xs: number[]) => FnEvaled;
 
 export type WeightInfo = IWeightInfo;
 
 export interface IWeightInfo {
-  constrWeightNode: VarAD; // Constant
-  epWeightNode: VarAD; // Changes (input in optimization, but we do NOT need the gradient WRT it)
-  constrWeight: number;
+  epWeightNode: ad.Input;
   epWeight: number;
 }

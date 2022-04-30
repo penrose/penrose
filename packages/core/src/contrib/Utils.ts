@@ -1,4 +1,4 @@
-import { constOf, constOfIf, EPS_DENOM, ops } from "engine/Autodiff";
+import { EPS_DENOM, ops } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -29,7 +29,7 @@ export const noIntersectCircles = (
   padding = 10
 ): VarAD => {
   // noIntersect [[x1, y1, s1], [x2, y2, s2]] = - dist (x1, y1) (x2, y2) + (s1 + s2 + 10)
-  const res = add(add(r1, r2), constOfIf(padding));
+  const res = add(add(r1, r2), padding);
   return sub(res, ops.vdist(center1, center2));
 };
 
@@ -56,7 +56,7 @@ export const atDistOutside = (
 ): VarAD => {
   const dsqRes = dsqBP(pt, rect);
   const WEIGHT = 1;
-  return mul(constOf(WEIGHT), absVal(sub(dsqRes, squared(offset))));
+  return mul(WEIGHT, absVal(sub(dsqRes, squared(offset))));
 };
 
 /**
@@ -66,11 +66,11 @@ export const atDistOutside = (
  */
 const dsqBP = (p: Pt2, rect: BBox.BBox): VarAD => {
   const dx = max(
-    max(sub(BBox.minX(rect), p[0]), constOf(0.0)),
+    max(sub(BBox.minX(rect), p[0]), 0),
     sub(p[0], BBox.maxX(rect))
   );
   const dy = max(
-    max(sub(BBox.minY(rect), p[1]), constOf(0.0)),
+    max(sub(BBox.minY(rect), p[1]), 0),
     sub(p[1], BBox.maxY(rect))
   );
   return add(squared(dx), squared(dy));
@@ -89,7 +89,7 @@ export const overlap1D = (
   // const d = (x: VarAD, y: VarAD) => squared(sub(x, y)); // Distance squared, if just the asymptotic behavior matters
   return ifCond(
     or(lt(r1, l2), lt(r2, l1)), // disjoint intervals => overlap is 0
-    constOf(0),
+    0,
     min(d(l2, r1), d(l1, r2))
   );
 };
@@ -98,9 +98,8 @@ export const overlap1D = (
  * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
 export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
-  if (l.val > r.val) throw Error("invalid range"); // TODO do this range check better
-  const fals = constOf(0);
-  const tru = constOf(1);
+  const fals = 0;
+  const tru = 1;
   return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
 };
 
@@ -109,7 +108,7 @@ export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
  */
 const lerp = (l: VarAD, r: VarAD, k: VarAD): VarAD => {
   // TODO: Rewrite the lerp code to be more concise
-  return add(mul(l, sub(constOf(1.0), k)), mul(r, k));
+  return add(mul(l, sub(1, k)), mul(r, k));
 };
 
 /**
@@ -124,10 +123,10 @@ const lerp2 = (l: VarAD[], r: VarAD[], k: VarAD): [VarAD, VarAD] => {
  */
 export const sampleSeg = (line: VarAD[][]) => {
   const NUM_SAMPLES = 15;
-  const NUM_SAMPLES2 = constOf(1 + NUM_SAMPLES);
+  const NUM_SAMPLES2 = 1 + NUM_SAMPLES;
   // TODO: Check that this covers the whole line, i.e. no off-by-one error
   const samples = _.range(1 + NUM_SAMPLES).map((i) => {
-    const k = div(constOf(i), NUM_SAMPLES2);
+    const k = div(i, NUM_SAMPLES2);
     return lerp2(line[0], line[1], k);
   });
 
@@ -138,7 +137,7 @@ export const sampleSeg = (line: VarAD[][]) => {
  * Repel a vector `a` from a vector `b` with weight `c`.
  */
 export const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
-  div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM)));
+  div(c, add(ops.vdistsq(a, b), EPS_DENOM));
 
 /**
  * Encourage that an arrow `arr` be centered between two shapes with centers `center1` and `center2`, and text size (?) `[o1, o2]`.
@@ -173,7 +172,7 @@ export const centerArrow2 = (
  * Clamp `x` in range `[l, r]`.
  */
 const clamp = ([l, r]: number[], x: VarAD): VarAD => {
-  return max(constOf(l), min(constOf(r), x));
+  return max(l, min(r, x));
 };
 
 /**
@@ -183,16 +182,13 @@ export const closestPt_PtSeg = (
   pt: VarAD[],
   [start, end]: VarAD[][]
 ): VarAD[] => {
-  const EPS0 = constOf(10e-3);
+  const EPS0 = 10e-3;
   const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
 
   // If line seg looks like a point, the calculation just returns (something close to) `v`
   const dir = ops.vsub(end, start);
   // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
-  const t = div(
-    ops.vdot(ops.vsub(pt, start), dir),
-    add(lensq, constOf(EPS_DENOM))
-  );
+  const t = div(ops.vdot(ops.vsub(pt, start), dir), add(lensq, EPS_DENOM));
   const t1 = clamp([0.0, 1.0], t);
 
   // v +: (t' *: dir) -- walk along vector of line seg

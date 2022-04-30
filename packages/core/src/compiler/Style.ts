@@ -5,7 +5,6 @@ import { constrDict } from "contrib/Constraints";
 // Dicts (runtime data)
 import { compDict } from "contrib/Functions";
 import { objDict } from "contrib/Objectives";
-import { constOf, numOf, varOf } from "engine/Autodiff";
 import {
   addWarn,
   defaultLbfgsParams,
@@ -2638,14 +2637,20 @@ const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
         return e.contents.contents;
       }
       if (e.contents.tag === "VaryAD") {
-        return e.contents.contents.val;
+        if (typeof e.contents.contents !== "number") {
+          throw Error("varying value cannot be a computed expression");
+        }
+        return e.contents.contents;
       } else {
         throw Error("internal error: invalid varying path");
       }
     }
     case "Done": {
       if (e.contents.tag === "FloatV") {
-        return numOf(e.contents.contents);
+        if (typeof e.contents.contents !== "number") {
+          throw Error("varying value cannot be a computed expression");
+        }
+        return e.contents.contents;
       } else {
         throw Error("internal error: invalid varying path");
       }
@@ -2744,7 +2749,7 @@ const initFieldsAndAccessPaths = (
         tag: "Done",
         contents: {
           tag: "FloatV",
-          contents: constOf(initVal),
+          contents: initVal,
         },
       };
     }
@@ -2783,7 +2788,7 @@ const initProperty = (
           tag: "Done",
           contents: {
             tag: "FloatV",
-            contents: varOf(styleSetting.contents.contents),
+            contents: styleSetting.contents.contents,
           },
         };
       } else if (styleSetting.contents.tag === "Vector") {

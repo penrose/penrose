@@ -1,20 +1,30 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
-import { GradGraphs, IVarAD, VarAD } from "types/ad";
+import * as ad from "types/ad";
+import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
+import { Edge, Multidigraph } from "utils/Graph";
 import { safe } from "utils/Util";
 import {
   acos,
   add,
-  addN,
   atan2,
   cos,
+  cosh,
   div,
+  exp,
+  gt,
+  ifCond,
+  inverse,
+  ln,
+  lt,
   max,
   mul,
   neg,
+  pow,
   sin,
+  sinh,
   sqrt,
   squared,
   sub,
@@ -28,245 +38,473 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-// Reverse-mode AD
-// Implementation adapted from https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation and https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
+export const input = ({
+  index,
+  val,
+}: {
+  index: number;
+  val: number;
+}): ad.Input => ({ tag: "Input", index, val });
 
-// NOTE: VARIABLES ARE MUTATED DURING AD CALCULATION
+export const makeADInputVars = (xs: number[], start = 0): ad.Input[] =>
+  xs.map((val, i) => input({ index: start + i, val }));
 
-// ----- Core AD code
-
-/**
- * Make a number into a `VarAD`.
- */
-export const varOf = (x: number, vname = "", metadata = ""): VarAD => {
-  if (typeof x !== "number") {
-    console.error("x", x);
-    throw Error("expected number");
-  }
-
-  return variableAD(x, vname, metadata);
-};
-
-/**
- * Return a new `VarAD` that's a constant.
- */
-export const constOf = (x: number): VarAD => {
-  if (typeof x !== "number") {
-    console.error("x", x);
-    throw Error("expected number");
-  }
-
-  return variableAD(x, String(x), "const");
-};
-
-export const constOfIf = (x: number | VarAD): VarAD => {
+// every VarAD is already an ad.Node, but this function returns a new object
+// with all the children removed
+const makeNode = (x: VarAD): ad.Node => {
   if (typeof x === "number") {
-    return variableAD(x, String(x), "const");
+    return x;
   }
-
-  return x;
+  const node: ad.Node = x; // get some typechecking by not using x after this
+  const { tag } = node;
+  switch (tag) {
+    case "Input": {
+      const { index } = node;
+      return { tag, index };
+    }
+    case "Unary": {
+      const { i, unop } = node;
+      return { tag, i, unop };
+    }
+    case "Binary": {
+      const { i, binop } = node;
+      return { tag, i, binop };
+    }
+    case "Ternary": {
+      const { i } = node;
+      return { tag, i };
+    }
+    case "Nary": {
+      const { i, op } = node;
+      return { tag, i, op };
+    }
+    case "Debug": {
+      const { i, info } = node;
+      return { tag, i, info };
+    }
+  }
 };
 
-/**
- * Return the numerical value held in a `VarAD`.
- */
-export const numOf = (x: VarAD): number => x.val;
-
-/**
- * Make a number into a `VarAD`.
- */
-export const differentiable = (e: number): VarAD => {
-  // log.trace("making it differentiable", e);
-  return varOf(e);
+const unarySensitivity = (z: ad.Unary): VarAD => {
+  const { unop, param: v } = z;
+  switch (unop) {
+    case "neg": {
+      return -1;
+    }
+    case "squared": {
+      return mul(2, v);
+    }
+    case "sqrt": {
+      // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
+      return div(1, mul(2, max(EPS_DENOM, z)));
+    }
+    case "inverse": {
+      // This takes care of the divide-by-zero gradient problem
+      return neg(inverse(add(squared(v), EPS_DENOM)));
+    }
+    case "abs": {
+      return div(v, add(z, EPS_DENOM));
+    }
+    case "acosh": {
+      return div(1, mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
+    }
+    case "acos": {
+      return neg(div(1, sqrt(sub(1, mul(v, v)))));
+    }
+    case "asin": {
+      return div(1, sqrt(sub(1, mul(v, v))));
+    }
+    case "asinh": {
+      return div(1, sqrt(add(1, mul(v, v))));
+    }
+    case "atan": {
+      return div(1, add(1, mul(v, v)));
+    }
+    case "atanh": {
+      return div(1, sub(1, mul(v, v)));
+    }
+    case "cbrt": {
+      return div(1, mul(3, squared(z)));
+    }
+    case "ceil":
+    case "floor":
+    case "round":
+    case "sign":
+    case "trunc": {
+      return 0;
+    }
+    case "cos": {
+      return neg(sin(v));
+    }
+    case "cosh": {
+      return sinh(v);
+    }
+    case "exp": {
+      return z;
+    }
+    case "expm1": {
+      return exp(v);
+    }
+    case "log": {
+      return div(1, v);
+    }
+    case "log2": {
+      return div(1, mul(v, 1 / Math.LOG2E));
+    }
+    case "log10": {
+      return div(1, mul(v, 1 / Math.LOG10E));
+    }
+    case "log1p": {
+      return div(1, add(1, v));
+    }
+    case "sin": {
+      return cos(v);
+    }
+    case "sinh": {
+      return cosh(v);
+    }
+    case "tan": {
+      return squared(div(1, cos(v)));
+    }
+    case "tanh": {
+      return squared(div(1, cosh(v)));
+    }
+  }
 };
 
-/**
- * Make a number into a `VarAD`. Don't use this!
- */
-export const variableAD = (
-  x: number,
-  vname = "",
-  metadata = "",
-  isCompNode = true
-): VarAD => {
-  const opName = vname ? vname : String(x);
+const binarySensitivities = (
+  z: ad.Binary
+): { left: VarAD | undefined; right: VarAD | undefined } => {
+  const { binop, left: v, right: w } = z;
+  switch (binop) {
+    case "+": {
+      return { left: 1, right: 1 };
+    }
+    case "*": {
+      return { left: w, right: v };
+    }
+    case "-": {
+      return { left: 1, right: -1 };
+    }
+    case "/": {
+      return { left: div(1, w), right: neg(div(v, squared(w))) };
+    }
+    case "max": {
+      const cond = gt(v, w);
+      return { left: ifCond(cond, 1, 0), right: ifCond(cond, 0, 1) };
+    }
+    case "min": {
+      const cond = lt(v, w);
+      return { left: ifCond(cond, 1, 0), right: ifCond(cond, 0, 1) };
+    }
+    case "atan2": {
+      const y = v;
+      const x = w;
+      const denom = add(squared(x), squared(y));
+      return { left: div(x, denom), right: div(neg(y), denom) };
+    }
+    case "pow": {
+      return { left: mul(pow(v, sub(w, 1)), w), right: mul(z, ln(v)) };
+    }
+    case ">":
+    case "<":
+    case "===":
+    case "&&":
+    case "||": {
+      return { left: undefined, right: undefined };
+    }
+  }
+};
 
-  return {
-    metadata,
-    op: opName,
-    isInput: false,
-    val: x,
-    isCompNode,
-    parentsAD: [],
-    childrenAD: [],
-    parentsADGrad: [],
-    childrenADGrad: [],
-    gradVal: undefined,
-    gradNode: undefined,
-    index: -100,
-    id: -1,
+const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
+const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
 
-    debug: false,
-    debugInfo: "",
+interface Child {
+  child: VarAD;
+  name: ad.Edge;
+  sensitivity: VarAD | undefined;
+}
 
-    nodeVisited: false,
-    name: "",
+// note that this function constructs the sensitivities even when we don't need
+// them, such as for nodes in secondary outputs or the gradient
+const children = (x: VarAD): Child[] => {
+  if (typeof x === "number") {
+    return [];
+  }
+  switch (x.tag) {
+    case "Input": {
+      return [];
+    }
+    case "Unary": {
+      return [
+        { child: x.param, name: undefined, sensitivity: unarySensitivity(x) },
+      ];
+    }
+    case "Binary": {
+      const { left, right } = binarySensitivities(x);
+      return [
+        { child: x.left, name: "left", sensitivity: left },
+        { child: x.right, name: "right", sensitivity: right },
+      ];
+    }
+    case "Ternary": {
+      return [
+        { child: x.cond, name: "cond", sensitivity: undefined },
+        { child: x.then, name: "then", sensitivity: ifCond(x.cond, 1, 0) },
+        { child: x.els, name: "els", sensitivity: ifCond(x.cond, 0, 1) },
+      ];
+    }
+    case "Nary": {
+      return x.params.map((child, i) => {
+        const c = { child, name: indexToNaryEdge(i) };
+        switch (x.op) {
+          case "addN": {
+            return { ...c, sensitivity: 1 };
+          }
+          case "maxN": {
+            return { ...c, sensitivity: ifCond(lt(child, x), 0, 1) };
+          }
+          case "minN": {
+            return { ...c, sensitivity: ifCond(gt(child, x), 0, 1) };
+          }
+        }
+      });
+    }
+    case "Debug": {
+      return [{ child: x.node, name: undefined, sensitivity: 1 }];
+    }
+  }
+};
+
+const indexToID = (index: number): ad.Id => `_${index}`;
+
+const getInputs = (
+  graph: ad.Graph["graph"]
+): { id: ad.Id; label: ad.InputNode }[] => {
+  const inputs = [];
+  // every input must be a source
+  for (const id of graph.sources()) {
+    const label: ad.Node = graph.node(id);
+    // other non-const sources include n-ary nodes with an empty params array
+    if (typeof label !== "number" && label.tag === "Input") {
+      inputs.push({ id, label });
+    }
+  }
+  return inputs;
+};
+
+export const makeGraph = (
+  outputs: Omit<ad.Outputs<VarAD>, "gradient">
+): ad.Graph => {
+  const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
+  const nodes = new Map<VarAD, ad.Id>();
+
+  // we use this queue to essentially do a breadth-first search by following
+  // VarAD child pointers; it gets reused a few times because we add nodes in
+  // multiple stages
+  const queue = new Queue<VarAD>();
+  // at each stage, we need to add the edges after adding all the nodes, because
+  // when we first look at a node and its in-edges, its children are not
+  // guaranteed to exist in the graph yet, so we fill this queue during the
+  // node-adding part and then go through it during the edge-adding part,
+  // leaving it empty in preparation for the next stage; so the first element of
+  // every tuple in this queue stores information about the edge and child, and
+  // the second element of the tuple is the parent
+  const edges = new Queue<[Child, VarAD]>();
+
+  // only call setNode in this one place, ensuring that we always use indexToID
+  const newNode = (node: ad.Node): ad.Id => {
+    const id = indexToID(graph.nodeCount());
+    graph.setNode(id, node);
+    return id;
   };
-};
 
-/**
- * Make a number into a gradient `VarAD`. Don't use this!
- */
-export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => {
-  if (typeof x !== "number") {
-    console.error("x", x);
-    throw Error("expected number");
+  // ensure that x is represented in the graph we're building, and if it wasn't
+  // already there, enqueue its children and in-edges (so queue and edges,
+  // respectively, should both be emptied after calling this)
+  const addNode = (x: VarAD): ad.Id => {
+    let name = nodes.get(x);
+    if (name === undefined) {
+      name = newNode(makeNode(x));
+      nodes.set(x, name);
+      for (const edge of children(x)) {
+        edges.enqueue([edge, x]);
+        queue.enqueue(edge.child);
+      }
+    }
+    return name;
+  };
+
+  const addEdge = (
+    child: VarAD,
+    parent: VarAD,
+    name: ad.Edge
+  ): [ad.Id, ad.Id] => {
+    const v = safe(nodes.get(child), "missing child");
+    const w = safe(nodes.get(parent), "missing parent");
+    graph.setEdge({ v, w, name });
+    return [v, w];
+  };
+
+  // add all the nodes subtended by the primary output; we do these first, in a
+  // separate stage, because these are the only nodes for which we actually need
+  // to use the sensitivities of their in-edges, and then after we add the
+  // edges, we need to get a topological sort of just these nodes
+  const primary = addNode(outputs.primary);
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
   }
 
-  // Grad var, level 1
-  return variableAD(x, vname, metadata, false);
-};
+  // we need to keep track of these sensitivities so we can add them as nodes
+  // right after this, but we also need to know which edge each came from for
+  // when we construct the gradient nodes later; note that this simple string
+  // concatenation doesn't cause any problems, because no stringified Edge
+  // contains an underscore, and every Id starts with an underscore, so it's
+  // essentially just three components separated by underscores
+  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD>();
+  while (!edges.isEmpty()) {
+    const [{ child, name, sensitivity }, parent] = edges.dequeue();
+    const [v, w] = addEdge(child, parent, name);
+    // this check for undefined isn't really necessary because we do a similar
+    // check later when we look up sensitivities in this map, but it slightly
+    // simplifies the value type for the map and also means we store a bit less
+    if (sensitivity !== undefined) {
+      sensitivities.set(`${name}${v}${w}`, sensitivity);
+    }
+  }
+  // we can use this reverse topological sort later when we construct all the
+  // gradient nodes, because it ensures that the gradients of a node's parents
+  // are always available before the node itself; note that we need to compute
+  // this right now, because we're just about to add the sensitivity nodes to
+  // the graph, and we don't want to try to compute the gradients of those
+  // sensitivities
+  const primaryNodes = [...graph.topsort()].reverse();
 
-/**
- * Return a variable with no gradient.
- */
-export const noGrad: VarAD = gvarOf(0.0, "noGrad");
-
-export const markInput = (v: VarAD, i: number): IVarAD => {
-  v.isInput = true;
-  v.index = i;
-  return v;
-};
-
-// Copies the input numbers and returns a new list of vars marked as inputs
-export const makeADInputVars = (xs: number[]): VarAD[] => {
-  const xsCopy = [...xs];
-  const xsVars = xsCopy.map((x, i) => markInput(variableAD(x), i));
-  // Need to mark these so we know what's special when generating the function code
-  return xsVars;
-};
-
-// This should only be applied to a leaf node
-// It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), caching each gradient value for an intermediate note
-// (However, it doesn't calculate gradient for any other leaf nodes, though they do use the cached intermediate values)
-
-//            (ds/ds = 1)
-//                s
-//               ^ ^
-//              /   \
-//               ...
-//        z1 = ...  z2 = ...
-//              ^   ^
-//  dz1/dv = ... \ / dz2/dv = ...
-//               (v) = ...
-//
-//  ds/dv = ds/sz1 * dz1/dv + ds/dz2 * dz2/dv + ...
-// The recursive parts are ds/dzi (the parents further up)
-
-// grad(v) means ds/dv (s is the single output seed)
-// do not use outside this file
-export const _gradADSymbolic = (v: VarAD): VarAD => {
-  // Already computed/cached the gradient
-  if (v.gradNode !== undefined) {
-    return v.gradNode;
+  for (const x of sensitivities.values()) {
+    addNode(x);
+  }
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
+  }
+  while (!edges.isEmpty()) {
+    const [{ child, name }, parent] = edges.dequeue();
+    addEdge(child, parent, name);
   }
 
-  // Build subgraph
-  let res;
-  if (v.parentsAD.length === 0) {
-    // node has no parents, so setting grad to 0 (it doesn't influence the output)
-    res = gvarOf(0, "0", "no gradient");
-  } else {
-    // normal reverse-mode AD chain rule
-    // The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
-    res = addN(
-      v.parentsAD.map((parent) =>
-        mul(
-          safe(parent.sensitivityNode, "expected VarAD but got undefined"),
-          _gradADSymbolic(parent.node),
-          false
-        )
-      ),
-      false
+  // HACK: see comment on `count` in engine/AutodiffFunctions
+  const rank = ({ w }: Edge<ad.Id, ad.Edge>): number => {
+    const node = graph.node(w);
+    if (typeof node === "number" || node.tag === "Input") {
+      throw Error("edge unexpectedly pointing to source node");
+    }
+    return node.i;
+  };
+
+  // map from each primary node ID to the ID of its gradient node
+  const gradNodes = new Map<ad.Id, ad.Id>();
+  for (const id of primaryNodes) {
+    if (id === primary) {
+      // use addNode instead of newNode in case there's already a 1 in the graph
+      gradNodes.set(id, addNode(1));
+      continue;
+    }
+
+    const gradID = newNode({ tag: "Nary", i: -1, op: "addN" });
+    gradNodes.set(id, gradID);
+    const addends: ad.Id[] = [];
+
+    // control the order in which partial derivatives are added
+    const edges = [...graph.outEdges(id)].sort((a, b) => rank(a) - rank(b));
+    // we call graph.setEdge in this loop, so it may seem like it would be
+    // possible for for those edges to get incorrectly included as addends in
+    // other gradient nodes; however, that is not the case, because none of
+    // those edges appear in our sensitivities map
+    for (const { w, name } of edges) {
+      const sensitivity = sensitivities.get(`${name}${id}${w}`);
+      if (sensitivity !== undefined) {
+        const sensitivityID = safe(
+          nodes.get(sensitivity),
+          "missing sensitivity"
+        );
+        const parentGradID = safe(gradNodes.get(w), "missing parent grad");
+
+        const addendID = newNode({ tag: "Binary", i: -1, binop: "*" });
+        graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
+        graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
+        addends.push(addendID);
+      }
+    }
+
+    addends.forEach((addendID, i) =>
+      graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
     );
   }
 
-  // Mark node as done
-  v.gradNode = res;
+  // easiest case: final stage, just add all the nodes and edges for the
+  // secondary outputs
+  const secondary = outputs.secondary.map(addNode);
+  while (!queue.isEmpty()) {
+    addNode(queue.dequeue());
+  }
+  while (!edges.isEmpty()) {
+    const [{ child, name }, parent] = edges.dequeue();
+    addEdge(child, parent, name);
+  }
 
-  // Result is a gradient
-  res.isCompNode = false;
+  // we wait until after adding all the nodes before get the IDs for the input
+  // gradients, because some of the inputs may only be reachable from the
+  // secondary outputs instead of the primary output; this isn't really
+  // necessary, because the gradients for all those inputs are just zero, so the
+  // caller could just substitute zero whenever the gradient is missing a key,
+  // but it's probably a bit less surprising if we always include an array
+  // element for the gradient on any input that is reachable even from the
+  // secondary outputs
+  const gradient: ad.Id[] = [];
+  for (const {
+    id,
+    label: { index },
+  } of getInputs(graph)) {
+    if (index in gradient) {
+      throw Error(`duplicate Input index: ${index}`);
+    }
+    // note that it's very easy for the set of Input indices to not be
+    // contiguous, e.g. if some inputs end up not being used in any of the
+    // computations in the graph; but even if that happens, it's actually OK
+    // (see the comment in the implementation of genCode below)
+    gradient[index] = gradNodes.get(id) ?? addNode(0);
+  }
 
-  // Note that it does not return v
-  return res;
+  return { graph, nodes, gradient, primary, secondary };
 };
 
-export const _gradAllSymbolic = (
-  energyGraph: VarAD,
-  xsVars: VarAD[]
-): VarAD[] => {
-  energyGraph.gradNode = variableAD(1.0);
-  const dxs = xsVars.map(_gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
-  const gradxs = xsVars.map((x: VarAD) =>
-    safe(x.gradNode, "expected VarAD but got undefined")
-  );
-  return gradxs;
-};
+/**
+ * Construct a graph with a primary output but no secondary outputs.
+ */
+export const primaryGraph = (output: VarAD): ad.Graph =>
+  makeGraph({ primary: output, secondary: [] });
 
-// ----- Ops (extensible)
-// NOTE: These all update the graph and return new variables that should be used to build the ops
-// NOTE: For the resulting var `z`, z's parents and grad are uninitialized
-// TODO: Factor out op helper to deal with graph-building boilerplate
-
-// --- Binary ops
-
-//                (+) (z := v + w)     -- parent
-//               ^   ^
-// dz/dv = 1    /     \    dz/dw = 1   -- sensitivities
-//             v       w               -- children
-
-// TODO: Put these in ops dict
-// NOTE: The names of these ops matter for opMap, don't change them
-
-// The point of making the sensitivity nodes here is that when the gradient is computed, each child needs to know what its partial derivative was, which depends on its position (e.g. either the first or second arg in x * y has a different sensitivity). This can't be looked up in, say, a dict
-// You have to build it inline bc it involves references to the variables
-
-const check = (
-  isCompNode: boolean,
-  sensitivityNode: VarAD
-): VarAD | undefined => {
-  return isCompNode ? sensitivityNode : undefined;
-};
+/**
+ * Construct a graph from an array of only secondary outputs, for which we don't
+ * care about the gradient. The primary output is just the constant 1.
+ */
+export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
+  // use 1 because makeGraph always constructs a constant gradient node 1 for
+  // the primary output, and so if that's already present in the graph then we
+  // have one fewer node total
+  makeGraph({ primary: 1, secondary: outputs });
 
 // ------------ Meta / debug ops
 
 /**
- * Mutates a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
+ * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
  * For more documentation on how to use this function, see the Penrose wiki page.
  */
-export const debug = (v: VarAD, debugInfo = "no additional info"): VarAD => {
-  v.debug = true;
-  v.debugInfo = debugInfo;
-  return v;
-};
-
-// Useful constants
-
-export const zero: VarAD = constOf(0);
-
-// to prevent 1/0 (infinity). put it in the denominator
-export const epsd: VarAD = constOf(10e-10);
-
-// Useful grad constants
-// TODO -- But it seems to be bad to use them...
-
-export const zeroG: VarAD = gvarOf(0.0);
-
-export const oneG: VarAD = gvarOf(1.0);
-
-export const negoneG: VarAD = gvarOf(1.0);
-
-export const epsdg: VarAD = gvarOf(10e-10);
+export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
+  tag: "Debug",
+  i: -1, // HACK: see comment on `count` in engine/AutodiffFunctions
+  node: v,
+  info,
+});
 
 // ----------------- Other ops
 
@@ -316,7 +554,7 @@ export const ops = {
    */
   vnormsq: (v: VarAD[]): VarAD => {
     const res = v.map((e) => squared(e));
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?
+    return _.reduce(res, (x: VarAD, y) => add(x, y), 0);
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
@@ -339,7 +577,7 @@ export const ops = {
    * Return the vector `v`, scaled by `-1`.
    */
   vneg: (v: VarAD[]): VarAD[] => {
-    return ops.vmul(constOf(-1.0), v);
+    return ops.vmul(-1, v);
   },
 
   /**
@@ -353,7 +591,7 @@ export const ops = {
    * Return the vector `v`, normalized.
    */
   vnormalize: (v: VarAD[]): VarAD[] => {
-    const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
+    const vsize = add(ops.vnorm(v), EPS_DENOM);
     return ops.vdiv(v, vsize);
   },
 
@@ -388,7 +626,7 @@ export const ops = {
     }
 
     const res = _.zipWith(v1, v2, mul);
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
+    return _.reduce(res, (x: VarAD, y) => add(x, y), 0);
   },
 
   /**
@@ -408,7 +646,7 @@ export const ops = {
     // of the dot product by a factor s slightly below 1.
     const s = 1 - 1e-10;
 
-    return acos(mul(varOf(s), ops.vdot(ops.vnormalize(u), ops.vnormalize(v))));
+    return acos(mul(s, ops.vdot(ops.vnormalize(u), ops.vnormalize(v))));
   },
 
   /**
@@ -431,7 +669,7 @@ export const ops = {
    * Return the sum of elements in vector `v`.
    */
   vsum: (v: VarAD[]): VarAD => {
-    return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
+    return _.reduce(v, (x: VarAD, y) => add(x, y), 0);
   },
 
   /**
@@ -452,7 +690,7 @@ export const ops = {
    * Rotate a 2D point `[x, y]` by a degrees counterclockwise.
    */
   vrot: ([x, y]: VarAD[], a: VarAD): VarAD[] => {
-    const angle = div(mul(a, varOf(Math.PI)), varOf(180));
+    const angle = div(mul(a, Math.PI), 180);
     const x2 = sub(mul(cos(angle), x), mul(sin(angle), y));
     const y2 = add(mul(sin(angle), x), mul(cos(angle), y));
     return [x2, y2];
@@ -501,7 +739,7 @@ export const fns = {
    * Return the penalty `max(x, 0)`.
    */
   toPenalty: (x: VarAD): VarAD => {
-    return squared(max(x, variableAD(0.0)));
+    return squared(max(x, 0));
   },
 
   /**
@@ -525,543 +763,194 @@ export const fns = {
 
 // (Returns `3`)
 
-// Wrapper since energy only has one output
+const compileUnary = ({ unop }: ad.UnaryNode, param: ad.Id): string => {
+  switch (unop) {
+    case "neg": {
+      return `-${param}`;
+    }
+    case "squared": {
+      return `${param} * ${param}`;
+    }
+    case "inverse": {
+      return `1 / (${param} + ${EPS_DENOM})`;
+    }
+    case "sqrt": // NOTE: Watch out for negative numbers in sqrt
+    case "abs":
+    case "acosh":
+    case "acos":
+    case "asin":
+    case "asinh":
+    case "atan":
+    case "atanh":
+    case "cbrt":
+    case "ceil":
+    case "cos":
+    case "cosh":
+    case "exp":
+    case "expm1":
+    case "floor":
+    case "log":
+    case "log2":
+    case "log10":
+    case "log1p":
+    case "round":
+    case "sign":
+    case "sin":
+    case "sinh":
+    case "tan":
+    case "tanh":
+    case "trunc": {
+      return `Math.${unop}(${param})`;
+    }
+  }
+};
 
-export const _genEnergyFn = (
-  xs: VarAD[],
-  z: IVarAD,
-  weight: VarAD | undefined
-): any => _genCode(xs, [z], "energy", weight);
+const compileBinary = (
+  { binop }: ad.BinaryNode,
+  left: ad.Id,
+  right: ad.Id
+): string => {
+  switch (binop) {
+    case "+":
+    case "*":
+    case "-":
+    case "/":
+    case ">":
+    case "<":
+    case "===":
+    case "&&":
+    case "||": {
+      return `${left} ${binop} ${right}`;
+    }
+    case "max":
+    case "min":
+    case "atan2":
+    case "pow": {
+      return `Math.${binop}(${left}, ${right})`;
+    }
+  }
+};
 
-// Generate code for multi-output function, given its computational graph and a setting for its outputs
-// NOTE: Generates a function that expects inputs to be passed in the same order as here, and the inputs should be sorted by their index
-// NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
-export const _genCode = (
-  inputs: VarAD[],
-  outputs: IVarAD[],
-  setting: string,
-  weightNode: VarAD | undefined
-): any => {
-  let counter = 0;
-  let progInputs: string[] = [];
-  let progStmts: string[] = [];
-  let progOutputs: string[] = [];
+const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
+  switch (op) {
+    case "addN": {
+      return params.length > 0 ? params.join(" + ") : "0";
+    }
+    case "maxN": {
+      return `Math.max(${params.join(", ")})`;
+    }
+    case "minN": {
+      return `Math.min(${params.join(", ")})`;
+    }
+  }
+};
 
-  logAD.trace(
-    "genCode inputs, outputs, weightNode, setting",
-    inputs,
-    outputs,
-    weightNode,
-    setting
+const compileNode = (
+  node: Exclude<ad.Node, ad.InputNode>,
+  preds: Map<ad.Edge, ad.Id>
+): string => {
+  if (typeof node === "number") {
+    return `${node}`;
+  }
+  switch (node.tag) {
+    case "Unary": {
+      return compileUnary(node, safe(preds.get(undefined), "missing param"));
+    }
+    case "Binary": {
+      return compileBinary(
+        node,
+        safe(preds.get("left"), "missing left"),
+        safe(preds.get("right"), "missing right")
+      );
+    }
+    case "Ternary": {
+      const cond = safe(preds.get("cond"), "missing cond");
+      const then = safe(preds.get("then"), "missing then");
+      const els = safe(preds.get("els"), "missing els");
+      return `${cond} ? ${then} : ${els}`;
+    }
+    case "Nary": {
+      const params: ad.Id[] = [];
+      for (const [i, x] of preds.entries()) {
+        if (
+          i === undefined ||
+          i === "left" ||
+          i === "right" ||
+          i === "cond" ||
+          i === "then" ||
+          i === "els"
+        ) {
+          throw Error("expected NaryEdge");
+        }
+        params[naryEdgeToIndex(i)] = x;
+      }
+      return compileNary(node, params);
+    }
+    case "Debug": {
+      const info = JSON.stringify(node.info);
+      const child = safe(preds.get(undefined), "missing node");
+      return `console.log(${info}, " | value: ", ${child}), ${child}`;
+    }
+  }
+};
+
+export const genCode = ({
+  graph,
+  gradient,
+  primary,
+  secondary,
+}: ad.Graph): ad.Compiled => {
+  const stmts = getInputs(graph).map(
+    ({ id, label: { index } }) => `const ${id} = inputs[${index}];`
   );
-
-  let inputsNew;
-  logAD.trace("has weight?", weightNode !== undefined);
-  if (weightNode === undefined) {
-    inputsNew = inputs;
-  } else {
-    inputsNew = [weightNode].concat(inputs);
+  for (const id of graph.topsort()) {
+    const node = graph.node(id);
+    // we already generated code for the inputs
+    if (typeof node === "number" || node.tag !== "Input") {
+      const preds = new Map(graph.inEdges(id).map(({ v, name }) => [name, v]));
+      stmts.push(`const ${id} = ${compileNode(node, preds)};`);
+    }
   }
-
-  // Just traverse + name the inputs first (they have no children, so the traversal stops there), then work backward from the outputs
-  // The inputs are the EP weight + original xsVars (if it's energy) or just the xsVars (if it's gradient)
-  for (const x of inputsNew) {
-    const res = traverseGraph(counter, x, setting);
-
-    if (res.inputs.length !== 1) {
-      throw Error("expected one input from an input var traversal");
-    }
-    progInputs = progInputs.concat(res.inputs.map((e: any) => e.name));
-    progStmts = progStmts.concat(res.prog);
-    progOutputs = progOutputs.concat(res.output);
-
-    // For any code generated for the next output, start on fresh index
-    counter = res.counter + 1;
-  }
-
-  // For each output, traverse the graph and combine the results sequentially
-  for (const z of outputs) {
-    const res = traverseGraph(counter, z, setting);
-    progStmts = progStmts.concat(res.prog);
-    progOutputs = progOutputs.concat(res.output);
-
-    // For any code generated for the next output, start on fresh index
-    counter = res.counter + 1;
-
-    // log.trace("output node traversed", z);
-    // log.trace("res stmts", res.prog);
-    // log.trace("res output", res.output);
-  }
-
-  let returnStmt = "";
-
-  if (setting === "energy") {
-    // Return single scalar
-    if (!progOutputs || !progOutputs[0]) {
-      throw Error("not enough energy outputs -- need exactly 1");
-    }
-    returnStmt = `return ${progOutputs[0]};`;
-  } else if (setting === "grad") {
-    // Return list of scalars
-    const outputNamesStr = progOutputs.join(", ");
-    returnStmt = `return [${outputNamesStr}];`;
-  }
-
-  const progStr = progStmts.concat([returnStmt]).join("\n");
-  // log.trace("progInputs", "progStr", progInputs, progStr);
-
-  const f = new Function(...progInputs, progStr);
-  logAD.trace("generated f with setting =", setting, "\n", f);
-
-  let g;
-  if (weightNode === undefined) {
-    // So you can call the function without spread
-    // hasWeight is for "normal" functions that aren't wrapped in the EP cycle (such as the symbolic gradient unit tests)
-    g = (xs: number[]) => f(...xs);
-  } else {
-    // Curry the function so it can be partially applied with the EP weight later, without regenerating the function
-    g = (weight: number[]) => {
-      return (xs: number[]) => {
-        const xs2 = [weight].concat(xs);
-        return f(...xs2);
-      };
-    };
-  }
-  logAD.trace("overall function generated (g):", g);
-  clearVisitedNodes(inputsNew.concat(outputs));
-
-  return g;
-};
-
-// NOTE: Mutates z to store that the node was visited, and what its name is
-// `i` is the counter, the initial parameter for generating var names
-// `i` starts with 0 for the first call, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
-const traverseGraph = (i: number, z: IVarAD, setting: string): any => {
-  const c = "x"; // Base character for var names
-  const childType = z.isCompNode ? "childrenAD" : "childrenADGrad";
-
-  // If this node was already visited, return its name (cached), and counter should not increment
-  if (z.nodeVisited) {
-    return {
-      counter: i,
-      prog: [],
-      inputs: [],
-      output: [],
-      references: [z.name],
-    };
-  }
-
-  // Parents do the work of incrementing
-  if (z[childType].length === 0) {
-    const leafName = c + String(i);
-
-    // Mark node as visited, with its name as reference for its computed/cached value
-    z.id = i;
-    z.nodeVisited = true;
-    z.name = leafName;
-
-    // Distinguish between inputs and constants
-    if (z.isInput) {
-      // Just return self name for function binding
-      return {
-        counter: i,
-        prog: [],
-        inputs: [{ name: leafName, index: z.index }],
-        output: [],
-        references: [],
-      };
-    }
-
-    const stmts = [];
-    let stmt;
-    // Otherwise bind const in body
-    if (z.op === "noGrad") {
-      stmt = `const ${leafName} = 0.0; // No grad`;
-    } else {
-      stmt = `const ${leafName} = ${z.op};`;
-    }
-
-    stmts.push(stmt);
-
-    if (z.debug) {
-      const stmt2 = `console.log("${z.debugInfo} (var ${leafName}) | value: ", ${leafName}, "during ${setting} evaluation");`;
-      stmts.push(stmt2);
-    }
-
-    return {
-      counter: i,
-      prog: stmts,
-      inputs: [],
-      output: leafName,
-      references: [],
-    };
-  } else if (z[childType].length === 1) {
-    // Unary op
-    // debugger;
-
-    const child = z[childType][0].node;
-    const res = traverseGraph(i, child, setting);
-
-    let childName;
-    let parCounter;
-    if (res.references[0]) {
-      // Just refer to child if the node was already visited
-      // And don't increment counter, since we just looked up a reference, didn't make a new child node
-      childName = res.references[0];
-      parCounter = res.counter;
-    } else {
-      childName = c + String(res.counter);
-      parCounter = res.counter + 1;
-    }
-
-    const parName = c + String(parCounter);
-
-    // Mark node as visited with name as reference
-    z.id = parCounter;
-    z.nodeVisited = true;
-    z.name = parName;
-
-    const op = z.op;
-
-    const stmts = [];
-    let stmt;
-
-    if (z.op === "squared") {
-      stmt = `const ${parName} = ${childName} * ${childName};`;
-    } else if (z.op === "sqrt") {
-      stmt = `const ${parName} = Math.sqrt(${childName});`;
-    } else if (z.op === "acosh") {
-      stmt = `const ${parName} = Math.acosh(${childName});`;
-    } else if (z.op === "acos") {
-      stmt = `const ${parName} = Math.acos(${childName});`;
-    } else if (z.op === "asin") {
-      stmt = `const ${parName} = Math.asin(${childName});`;
-    } else if (z.op === "asinh") {
-      stmt = `const ${parName} = Math.asinh(${childName});`;
-    } else if (z.op === "atan") {
-      stmt = `const ${parName} = Math.atan(${childName});`;
-    } else if (z.op === "atanh") {
-      stmt = `const ${parName} = Math.atanh(${childName});`;
-    } else if (z.op === "cbrt") {
-      stmt = `const ${parName} = Math.cbrt(${childName});`;
-    } else if (z.op === "ceil") {
-      stmt = `const ${parName} = Math.ceil(${childName});`;
-    } else if (z.op === "cos") {
-      stmt = `const ${parName} = Math.cos(${childName});`;
-    } else if (z.op === "cosh") {
-      stmt = `const ${parName} = Math.cosh(${childName});`;
-    } else if (z.op === "exp") {
-      stmt = `const ${parName} = Math.exp(${childName});`;
-    } else if (z.op === "expm1") {
-      stmt = `const ${parName} = Math.expm1(${childName});`;
-    } else if (z.op === "floor") {
-      stmt = `const ${parName} = Math.floor(${childName});`;
-    } else if (z.op === "log") {
-      stmt = `const ${parName} = Math.log(${childName});`;
-    } else if (z.op === "log2") {
-      stmt = `const ${parName} = Math.log2(${childName});`;
-    } else if (z.op === "log10") {
-      stmt = `const ${parName} = Math.log10(${childName});`;
-    } else if (z.op === "log1p") {
-      stmt = `const ${parName} = Math.log1p(${childName});`;
-    } else if (z.op === "round") {
-      stmt = `const ${parName} = Math.round(${childName});`;
-    } else if (z.op === "sign") {
-      stmt = `const ${parName} = Math.sign(${childName});`;
-    } else if (z.op === "sin") {
-      stmt = `const ${parName} = Math.sin(${childName});`;
-    } else if (z.op === "sinh") {
-      stmt = `const ${parName} = Math.sinh(${childName});`;
-    } else if (z.op === "tan") {
-      stmt = `const ${parName} = Math.tan(${childName});`;
-    } else if (z.op === "tanh") {
-      stmt = `const ${parName} = Math.tanh(${childName});`;
-    } else if (z.op === "trunc") {
-      stmt = `const ${parName} = Math.trunc(${childName});`;
-    } else if (z.op === "+ list") {
-      // TODO: Get rid of unary +
-      stmt = `const ${parName} = ${childName};`;
-    } else if (z.op === "min list") {
-      stmt = `const ${parName} = ${childName};`;
-    } else if (z.op === "max list") {
-      stmt = `const ${parName} = ${childName};`;
-    } else if (z.op === "inverse") {
-      stmt = `const ${parName} = 1.0 / (${childName} + ${EPS_DENOM});`;
-    } else if (z.op === "- (unary)") {
-      stmt = `const ${parName} = -${childName};`;
-    } else if (z.op === "abs") {
-      stmt = `const ${parName} = Math.abs(${childName});`;
-    } else {
-      stmt = `const ${parName} = (${op})(${childName});`;
-    }
-
-    stmts.push(stmt);
-
-    if (z.debug) {
-      const stmt2 = `console.log("${z.debugInfo} (var ${parName}) | value: ", ${parName}, "during ${setting} evaluation");`;
-      stmts.push(stmt2);
-    }
-
-    return {
-      counter: parCounter,
-      prog: res.prog.concat(stmts),
-      inputs: res.inputs,
-      output: parName,
-      references: [],
-    };
-  } else if (z[childType].length === 2) {
-    // Binary op
-    // TODO: refactor repeated code below into the for loop as in ternary
-    const child0 = z[childType][0].node;
-    const child1 = z[childType][1].node;
-
-    const res0 = traverseGraph(i, child0, setting);
-    let childName0;
-    let nextCounter;
-    if (res0.references[0]) {
-      childName0 = res0.references[0];
-      nextCounter = res0.counter;
-    } else {
-      childName0 = c + String(res0.counter);
-      nextCounter = res0.counter + 1;
-    }
-
-    const res1 = traverseGraph(nextCounter, child1, setting);
-    let childName1;
-    let parCounter;
-    if (res1.references[0]) {
-      // Just refer to child if the node was already visited
-      childName1 = res1.references[0];
-      parCounter = res1.counter;
-    } else {
-      childName1 = c + String(res1.counter);
-      parCounter = res1.counter + 1;
-    }
-
-    const parName = c + String(parCounter);
-
-    // Mark node as visited with name as reference
-    z.id = parCounter;
-    z.nodeVisited = true;
-    z.name = parName;
-
-    const op = z.op;
-    const stmts = [];
-    let stmt;
-    if (op === "max") {
-      stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
-    } else if (op === "min") {
-      stmt = `const ${parName} = Math.min(${childName0}, ${childName1});`;
-    } else if (z.op === "gt") {
-      stmt = `const ${parName} = ${childName0} > ${childName1};`;
-    } else if (z.op === "lt") {
-      stmt = `const ${parName} = ${childName0} < ${childName1};`;
-    } else if (z.op === "pow") {
-      stmt = `const ${parName} = Math.pow(${childName0},${childName1});`;
-    } else if (z.op === "and") {
-      stmt = `const ${parName} = ${childName0} && ${childName1};`;
-    } else if (z.op === "or") {
-      stmt = `const ${parName} = ${childName0} || ${childName1};`;
-    } else if (z.op === "eq") {
-      stmt = `const ${parName} = ${childName0} === ${childName1};`;
-    } else if (z.op === "+ list") {
-      stmt = `const ${parName} = ${childName0} + ${childName1};`;
-    } else if (z.op === "div") {
-      stmt = `const ${parName} = ${childName0} / (${childName1} + ${EPS_DENOM});`;
-    } else if (z.op === "atan2") {
-      stmt = `const ${parName} = Math.atan2(${childName0}, ${childName1});`;
-    } else {
-      stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
-    }
-
-    stmts.push(stmt);
-
-    if (z.debug) {
-      const stmt2 = `console.log("${z.debugInfo} (var ${parName}) | value: ", ${parName}, "during ${setting} evaluation");`;
-      stmts.push(stmt2);
-    }
-
-    // Array efficiency?
-    return {
-      counter: parCounter,
-      prog: res0.prog.concat(res1.prog).concat(stmts),
-      inputs: res0.inputs.concat(res1.inputs),
-      output: parName,
-      references: [],
-    };
-  } else {
-    // N-ary node
-    const childNodes = z[childType].map((e) => e.node);
-
-    const childNames = [];
-    let prog: string[] = [];
-    let inputs: string[] = [];
-    let counter = i;
-
-    // Evaluate each child and get its generated code, inputs, and name first
-    for (const childNode of childNodes) {
-      const res = traverseGraph(counter, childNode, setting);
-      prog = prog.concat(res.prog);
-      inputs = inputs.concat(res.inputs);
-
-      // Child was already visited; don't generate code again, just a reference
-      if (res.references[0]) {
-        childNames.push(res.references[0]);
-        counter = res.counter;
-      } else {
-        childNames.push(c + String(res.counter));
-        counter = res.counter + 1;
-      }
-    }
-
-    const parName = c + String(counter);
-
-    // Mark node as visited with name as reference
-    // TODO: factor out these 3 lines from all cases
-    z.id = counter;
-    z.nodeVisited = true;
-    z.name = parName;
-
-    const op = z.op;
-    const stmts = [];
-    let stmt;
-
-    // Deals with ifCond nodes (ternary)
-    // (eval c; eval d; eval e; const xNUM = c ? d : e;)
-    // codegen doesn't short-circuit -- it generates code for both branches of the `if` first
-    // TODO: Fix this so it doesn't *evaluate* both branches of the `if`, just the one that's relevant to the condition
-
-    if (op === "ifCond") {
-      if (childNames.length !== 3) {
-        logAD.trace("args", childNames);
-        throw Error("expected three args to if cond");
-      }
-
-      stmt = `const ${parName} = ${childNames[0]} ? ${childNames[1]} : ${childNames[2]};`;
-    } else if (op === "+ list") {
-      const childList = "[".concat(childNames.join(", ")).concat("]");
-      stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
-    } else if (op === "min list") {
-      const childList = "[".concat(childNames.join(", ")).concat("]");
-      stmt = `const ${parName} = ${childList}.reduce((x, y) => Math.min(x, y));`;
-    } else if (op === "max list") {
-      const childList = "[".concat(childNames.join(", ")).concat("]");
-      stmt = `const ${parName} = ${childList}.reduce((x, y) => Math.max(x, y));`;
-    } else {
-      logAD.trace("node", z, z.op);
-      throw Error("unknown n-ary operation");
-    }
-
-    stmts.push(stmt);
-
-    // TODO: Factor out this code, which is repeated 3 times
-    if (z.debug) {
-      const stmt2 = `console.log("${z.debugInfo} (var ${parName}) | value: ", ${parName}, "during ${setting} evaluation");`;
-      stmts.push(stmt2);
-    }
-
-    return {
-      counter,
-      prog: prog.concat(stmts),
-      inputs,
-      output: parName,
-      references: [],
-    };
-  }
-};
-
-// Use this function after synthesizing an energy function, if you want to
-// synthesize the gradient as well, since they both rely on mutating the
-// computational graph to mark the visited nodes and their generated names
-export const clearVisitedNodes = (nodeList: VarAD[]): void => {
-  const q = new Queue<IVarAD>();
-  const discoveredNodes = new Set<IVarAD>();
-  nodeList.forEach((z) => {
-    discoveredNodes.add(z);
-    z.nodeVisited = false;
-    q.enqueue(z);
-  });
-  while (q.size() > 0) {
-    const v = q.dequeue();
-    v.childrenAD.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-    v.childrenADGrad.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-    v.parentsAD.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-    v.parentsADGrad.forEach((e) => {
-      if (!discoveredNodes.has(e.node)) {
-        discoveredNodes.add(e.node);
-        e.node.nodeVisited = false;
-        q.enqueue(e.node);
-      }
-    });
-  }
-};
-
-// Mutates z (top node) to clear all vals and gradients of its children
-// NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
-export const clearGraphTopDown = (z: VarAD): void => {
-  z.val = 0;
-  z.gradVal = undefined;
-  z.childrenAD.forEach((e) => clearGraphTopDown(e.node));
-};
-
-const clearGraphBottomUp = (xs: VarAD[]) => {
-  xs.forEach((x) => {
-    x.val = 0;
-    x.gradVal = undefined;
-    clearGraphBottomUp(x.parentsAD.map((p) => p.node));
-  });
+  const fields = [
+    // somehow this actually works! if the gradient array is not contiguous, any
+    // gaps will just be filled in by commas when we call join, and that is
+    // valid JavaScript syntax for array literals with gaps, so everything works
+    // out perfectly
+    `gradient: [${gradient.join(", ")}]`,
+    `primary: ${primary}`,
+    `secondary: [${secondary.join(", ")}]`,
+  ];
+  stmts.push(`return { ${fields.join(", ")} };`);
+  const f = new Function("inputs", stmts.join("\n"));
+  return (inputs) => f(inputs);
 };
 
 // Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)
 // NOTE: the xsVars should already have been set as inputs via makeAdInputVars
 // NOTE: implicitly, the orders of the values need to match the order of variables
-const setInputs = (xsVars: VarAD[], xs: number[]) => {
+const setInputs = (xsVars: ad.Input[], xs: number[]) => {
+  const l1 = xsVars.length;
+  const l2 = xs.length;
+  if (l1 !== l2) {
+    throw Error(`xsVars and xs shouldn't be different lengths: ${l1} vs ${l2}`);
+  }
   xsVars.forEach((v, i) => {
-    const val = xs[i];
-    v.val = val;
-    v.op = String(val);
+    v.val = xs[i];
   });
 };
 
 const setWeights = (info: WeightInfo) => {
-  info.constrWeightNode.val = info.constrWeight;
-  info.constrWeightNode.op = String(info.constrWeight);
-
   info.epWeightNode.val = info.epWeight;
-  info.epWeightNode.op = String(info.epWeight);
 };
 
-// Given an energyGraph of f, clears the graph and returns the compiled energy and gradient of f as functions
+// Given an energyGraph of f, returns the compiled energy and gradient of f as functions
 // xsVars are the leaves, energyGraph is the topmost parent of the computational graph
 export const energyAndGradCompiled = (
   xs: number[],
-  xsVars: VarAD[],
+  xsVars: ad.Input[],
   energyGraph: VarAD,
-  weightInfo: WeightInfo | undefined,
-  debug = false
-) => {
-  // Zero xsvars vals, gradients, and caching setting
-  clearGraphBottomUp(xsVars);
-  clearVisitedNodes([energyGraph]);
-
+  weightInfo: WeightInfo | undefined
+): { graphs: GradGraphs; f: ad.Compiled } => {
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
   if (weightInfo !== undefined) {
     setWeights(weightInfo);
@@ -1070,32 +959,34 @@ export const energyAndGradCompiled = (
   // Set the leaves of the graph to have the new input values
   setInputs(xsVars, xs);
 
+  // Build an actual graph from the implicit VarAD structure
   // Build symbolic gradient of f at xs on the energy graph
-  // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom)
-  const gradGraph = _gradAllSymbolic(energyGraph, xsVars);
+  const explicitGraph = primaryGraph(energyGraph);
 
   const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 
   const graphs: GradGraphs = {
     inputs: xsVars,
-    energyOutput: energyGraph,
-    gradOutputs: gradGraph,
     weight: epWeightNode,
   };
 
   // Synthesize energy and gradient code
-  const f0 = _genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
-  const gradGen = _genCode(
-    graphs.inputs,
-    graphs.gradOutputs,
-    "grad",
-    graphs.weight
-  );
+  const f0 = genCode(explicitGraph);
+  if (epWeightNode !== undefined && epWeightNode.index !== 0) {
+    throw Error("epWeightNode must be the first input");
+  }
+  const allInputs =
+    epWeightNode === undefined ? xsVars : [epWeightNode, ...xsVars];
+  const f: ad.Compiled = (inputs) => {
+    const outputs = f0(inputs);
+    const { gradient } = outputs;
+    return {
+      ...outputs,
+      // fill in any gaps, in case some inputs weren't used in the graph
+      gradient: allInputs.map((v, i) => (i in gradient ? gradient[i] : 0)),
+    };
+  };
 
   // Return the energy and grad on the input, as well as updated energy graph
-  return {
-    graphs,
-    f: f0,
-    gradf: gradGen,
-  };
+  return { graphs, f };
 };

@@ -1,10 +1,9 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { constOfIf, numOf, varOf } from "engine/Autodiff";
 import { mapValues } from "lodash";
 import rfdc from "rfdc";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import { IVarAD, VarAD } from "types/ad";
+import { VarAD } from "types/ad";
 import {
   A,
   ASTNode,
@@ -53,6 +52,8 @@ import {
   Value,
 } from "types/value";
 import { showError } from "utils/Error";
+import { safe } from "utils/Util";
+import { genCode, secondaryGraph } from "./Autodiff";
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -214,89 +215,151 @@ function mapPalette<T, S>(f: (arg: T) => S, v: IPaletteV<T>): IPaletteV<S> {
 // Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
 export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
-  const nonnumericValueTypes = [
-    "BoolV",
-    "StrV",
-    "ColorV",
-    "PaletteV",
-    "FileV",
-    "StyleV",
-    "IntV",
-  ];
-
-  if (v.tag === "FloatV") {
-    return mapFloat(f, v);
-  } else if (v.tag === "PtV") {
-    return mapPt(f, v);
-  } else if (v.tag === "PtListV") {
-    return mapPtList(f, v);
-  } else if (v.tag === "ListV") {
-    return mapList(f, v);
-  } else if (v.tag === "VectorV") {
-    return mapVector(f, v);
-  } else if (v.tag === "MatrixV") {
-    return mapMatrix(f, v);
-  } else if (v.tag === "TupV") {
-    return mapTup(f, v);
-  } else if (v.tag === "LListV") {
-    return mapLList(f, v);
-  } else if (v.tag === "HMatrixV") {
-    return mapHMatrix(f, v);
-  } else if (v.tag === "ColorV") {
-    return mapColor(f, v);
-  } else if (v.tag === "PaletteV") {
-    return mapPalette(f, v);
-  } else if (v.tag === "PathDataV") {
-    return mapPathData(f, v);
-  } else if (nonnumericValueTypes.includes(v.tag)) {
-    return v as Value<S>;
-  } else {
-    throw Error(
-      `unimplemented conversion from autodiff types for numeric types for value type '${v.tag}'`
-    );
+  switch (v.tag) {
+    case "FloatV":
+      return mapFloat(f, v);
+    case "PtV":
+      return mapPt(f, v);
+    case "PtListV":
+      return mapPtList(f, v);
+    case "ListV":
+      return mapList(f, v);
+    case "VectorV":
+      return mapVector(f, v);
+    case "MatrixV":
+      return mapMatrix(f, v);
+    case "TupV":
+      return mapTup(f, v);
+    case "LListV":
+      return mapLList(f, v);
+    case "HMatrixV":
+      return mapHMatrix(f, v);
+    case "ColorV":
+      return mapColor(f, v);
+    case "PaletteV":
+      return mapPalette(f, v);
+    case "PathDataV":
+      return mapPathData(f, v);
+    // non-numeric Value types
+    case "BoolV":
+    case "StrV":
+    case "FileV":
+    case "StyleV":
+    case "IntV":
+      return v as Value<S>;
   }
 }
 
-export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] =>
-  shapes.map((s: ShapeAD) => ({
+const numOf = (x: VarAD): number => {
+  if (typeof x === "number") {
+    return x;
+  } else {
+    throw Error("tried to call numOf on a non-constant VarAD");
+  }
+};
+
+export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
+  const vars = [];
+  for (const s of shapes) {
+    for (const v of Object.values(s.properties)) {
+      vars.push(...valueVarADs(v));
+    }
+  }
+  const g = secondaryGraph(vars);
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.index] = v.val;
+    }
+  }
+  const numbers = genCode(g)(inputs).secondary;
+  const m = new Map(g.secondary.map((id, i) => [id, numbers[i]]));
+  return shapes.map((s: ShapeAD) => ({
     ...s,
     properties: mapValues(s.properties, (p: Value<VarAD>) =>
-      valueAutodiffToNumber(p)
+      mapValueNumeric(
+        (x) =>
+          safe(m.get(safe(g.nodes.get(x), "missing node")), "missing output"),
+        p
+      )
     ),
   }));
+};
+
+const valueVarADs = (v: Value<VarAD>): VarAD[] => {
+  switch (v.tag) {
+    case "FloatV": {
+      return [v.contents];
+    }
+    case "IntV":
+    case "BoolV":
+    case "StrV":
+    case "FileV":
+    case "StyleV": {
+      return [];
+    }
+    case "PtV":
+    case "ListV":
+    case "VectorV":
+    case "TupV": {
+      return v.contents;
+    }
+    case "PathDataV": {
+      return v.contents.flatMap((pathCmd) =>
+        pathCmd.contents.flatMap((subPath) => subPath.contents)
+      );
+    }
+    case "PtListV":
+    case "MatrixV":
+    case "LListV": {
+      return v.contents.flat();
+    }
+    case "ColorV": {
+      return colorVarADs(v.contents);
+    }
+    case "PaletteV": {
+      return v.contents.flatMap(colorVarADs);
+    }
+    case "HMatrixV": {
+      return Object.values(v.contents);
+    }
+  }
+};
+
+const colorVarADs = (c: Color<VarAD>): VarAD[] => {
+  switch (c.tag) {
+    case "RGBA":
+    case "HSVA": {
+      return c.contents;
+    }
+    case "NONE": {
+      return [];
+    }
+  }
+};
 
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);
-
-export const valueNumberToAutodiff = (v: Value<number>): Value<VarAD> =>
-  mapValueNumeric(varOf, v);
-
-export const valueNumberToAutodiffConst = (v: Value<number>): Value<VarAD> =>
-  mapValueNumeric(constOfIf, v); // COMBAK: Really this should be constOf... I don't know why some inputs are already converted to VarADs?
-
-export const tagExprNumberToAutodiff = (v: TagExpr<number>): TagExpr<VarAD> =>
-  mapTagExpr(constOfIf, v);
 
 // Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
 // (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
 
 export function mapTagExpr<T, S>(f: (arg: T) => S, e: TagExpr<T>): TagExpr<S> {
-  if (e.tag === "Done") {
-    return {
-      tag: "Done",
-      contents: mapValueNumeric(f, e.contents),
-    };
-  } else if (e.tag === "Pending") {
-    return {
-      tag: "Pending",
-      contents: mapValueNumeric(f, e.contents),
-    };
-  } else if (e.tag === "OptEval") {
-    // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
-    // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
-    return e;
-  } else {
-    throw Error("unrecognized tag");
+  switch (e.tag) {
+    case "Done":
+      return {
+        tag: "Done",
+        contents: mapValueNumeric(f, e.contents),
+      };
+    case "Pending":
+      return {
+        tag: "Pending",
+        contents: mapValueNumeric(f, e.contents),
+      };
+    case "OptEval":
+      // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
+      // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
+      return e;
   }
 }
 
@@ -313,17 +376,25 @@ export function mapTranslation<T, S>(
   f: (arg: T) => S,
   trans: ITrans<T>
 ): ITrans<S> {
-  const newTrMap = Object.entries(trans.trMap).map(([name, fdict]) => {
-    const fdict2 = Object.entries(fdict).map(([prop, val]) => {
-      if (val.tag === "FExpr") {
-        return [prop, { tag: "FExpr", contents: mapTagExpr(f, val.contents) }];
-      } else if (val.tag === "FGPI") {
-        return [prop, { tag: "FGPI", contents: mapGPIExpr(f, val.contents) }];
-      } else {
-        console.log(prop, val);
-        throw Error("unknown tag on field expr");
+  const newTrMap: [string, { [k: string]: FieldExpr<S> }][] = Object.entries(
+    trans.trMap
+  ).map(([name, fdict]) => {
+    const fdict2: [string, FieldExpr<S>][] = Object.entries(fdict).map(
+      ([prop, val]): [string, FieldExpr<S>] => {
+        switch (val.tag) {
+          case "FExpr":
+            return [
+              prop,
+              { tag: "FExpr", contents: mapTagExpr(f, val.contents) },
+            ];
+          case "FGPI":
+            return [
+              prop,
+              { tag: "FGPI", contents: mapGPIExpr(f, val.contents) },
+            ];
+        }
       }
-    });
+    );
 
     return [name, Object.fromEntries(fdict2)];
   });
@@ -333,11 +404,6 @@ export function mapTranslation<T, S>(
     trMap: Object.fromEntries(newTrMap),
   };
 }
-
-// TODO: Check the input type?
-export const makeTranslationDifferentiable = (trans: any): Translation => {
-  return mapTranslation(varOf, trans);
-};
 
 export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
   return mapTranslation(numOf, trans);
@@ -543,7 +609,7 @@ export const insertExpr = (
         trans.trMap[name.contents.value] = {};
       }
 
-      const fieldRes: FieldExpr<IVarAD> =
+      const fieldRes: FieldExpr<VarAD> =
         trans.trMap[name.contents.value][field.value];
 
       // TODO(errors): Catch error if SubObj, etc don't exist -- but should these kinds of errors be caught by block statics rather than failing at runtime?
@@ -640,7 +706,7 @@ export const insertExpr = (
             const err = "did not expect GPI in vector access";
             throw Error(err);
           }
-          const res2: TagExpr<IVarAD> = res.contents;
+          const res2: TagExpr<VarAD> = res.contents;
 
           // Deal with vector expressions
           if (res2.tag === "OptEval") {
@@ -675,7 +741,7 @@ export const insertExpr = (
             return trans;
           } else if (res2.tag === "Done") {
             // Deal with vector values
-            const res3: Value<IVarAD> = res2.contents;
+            const res3: Value<VarAD> = res2.contents;
             if (res3.tag !== "VectorV") {
               const err = "expected Vector";
               if (compiling) {
@@ -686,7 +752,7 @@ export const insertExpr = (
               }
               throw Error(err);
             }
-            const res4: IVarAD[] = res3.contents;
+            const res4: VarAD[] = res3.contents;
 
             if (expr.tag === "Done" && expr.contents.tag === "FloatV") {
               res4[exprToNumber(indices[0])] = expr.contents.contents;

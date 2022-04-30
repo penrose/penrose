@@ -11,7 +11,7 @@ import { mapValues } from "lodash";
 // Note: the translation should not have cycles! If it does, use the approach that `Optimizer` takes to `clone` (clearing the VarADs).
 import rfdc from "rfdc";
 import seedrandom from "seedrandom";
-import { IVarAD, OptDebugInfo, VarAD } from "types/ad";
+import { OptDebugInfo, VarAD } from "types/ad";
 import { A, SourceLoc } from "types/ast";
 import { ShapeAD } from "types/shape";
 import { Fn, FnDone, State, VaryMap } from "types/state";
@@ -30,7 +30,7 @@ import {
   Value,
 } from "types/value";
 import { floatVal, prettyPrintPath, zip2 } from "utils/Util";
-import { constOf, constOfIf, differentiable, numOf, ops } from "./Autodiff";
+import { ops } from "./Autodiff";
 import { add, div, mul, neg, sub } from "./AutodiffFunctions";
 
 const clone = rfdc({ proto: false, circles: false });
@@ -60,7 +60,7 @@ export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
 
-  const varyingValuesDiff = s.varyingValues.map(differentiable);
+  const varyingValuesDiff = [...s.varyingValues];
   s.varyingMap = genPathMap(s.varyingPaths, varyingValuesDiff);
 
   const varyingMapList = zip2(s.varyingPaths, varyingValuesDiff);
@@ -249,7 +249,7 @@ function toFloatVal(a: ArgVal<VarAD>): VarAD {
     if (res.tag === "FloatV") {
       return res.contents;
     } else if (res.tag === "IntV") {
-      return constOf(res.contents);
+      return res.contents;
     } else {
       console.log("res", res);
       throw Error("Expected floating type in list");
@@ -333,7 +333,7 @@ export const evalExpr = (
         // Fixed number is stored in translation as number, made differentiable when encountered
         contents: {
           tag: "FloatV",
-          contents: constOfIf(val),
+          contents: val,
         },
       };
     }
@@ -506,10 +506,13 @@ export const evalExpr = (
       // COMBAK: Do float to int conversion in a more principled way. For now, convert float to int on demand
       if (v2.contents.tag === "FloatV") {
         // COMBAK: (ISSUE): Indices should not have "Fix"
-        const iObj: IVarAD = v2.contents.contents;
+        const iObj: VarAD = v2.contents.contents;
+        if (typeof iObj !== "number") {
+          throw Error("only constant vector element indices are supported");
+        }
         v2.contents = {
           tag: "IntV",
-          contents: Math.floor(numOf(iObj)),
+          contents: Math.floor(iObj),
         };
       }
 
@@ -827,7 +830,7 @@ export const argValue = (e: ArgVal<VarAD>) => {
 };
 
 export const intToFloat = (v: IIntV): IFloatV<VarAD> => {
-  return { tag: "FloatV", contents: constOf(v.contents) };
+  return { tag: "FloatV", contents: v.contents };
 };
 
 /**
@@ -903,7 +906,7 @@ export const evalBinOp = (
 
       case "Divide": {
         res = v1.contents / v2.contents;
-        return { tag: "FloatV", contents: constOf(res) };
+        return { tag: "FloatV", contents: res };
       }
 
       case "Exp": {

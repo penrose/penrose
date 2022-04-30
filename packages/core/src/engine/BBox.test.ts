@@ -1,5 +1,4 @@
 import { compDict } from "contrib/Functions";
-import { constOf, numOf } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { makeCircle } from "shapes/Circle";
 import { makeEllipse } from "shapes/Ellipse";
@@ -17,7 +16,9 @@ import {
   VectorV,
 } from "shapes/Samplers";
 import { IPoly, IScale } from "types/shapes";
+import { genCode, secondaryGraph } from "./Autodiff";
 import {
+  BBox,
   bboxFromCircle,
   bboxFromEllipse,
   bboxFromLinelike,
@@ -28,6 +29,24 @@ import {
 } from "./BBox";
 
 const canvas = makeCanvas(800, 700);
+
+const expectBbox = (
+  actual: BBox,
+  expected: { width: number; height: number; center: [number, number] }
+) => {
+  const g = secondaryGraph([
+    actual.width,
+    actual.height,
+    actual.center[0],
+    actual.center[1],
+  ]);
+  const f = genCode(g);
+  const [width, height, x, y] = f([]).secondary; // no inputs, so, empty array
+  expect(width).toBeCloseTo(expected.width);
+  expect(height).toBeCloseTo(expected.height);
+  expect(x).toBeCloseTo(expected.center[0]);
+  expect(y).toBeCloseTo(expected.center[1]);
+};
 
 const polyProps = (): IPoly & IScale => ({
   points: PtListV(
@@ -45,79 +64,63 @@ const polyProps = (): IPoly & IScale => ({
       [701, 120],
       [591, 90],
       [528, 129],
-    ].map((p) => p.map(constOf))
+    ]
   ),
-  scale: FloatV(constOf(0.5)),
+  scale: FloatV(0.5),
 });
 
 describe("bbox", () => {
   test("Circle", () => {
     const shape = makeCircle(seedrandom("bbox Circle"), canvas, {
-      r: FloatV(constOf(100)),
-      center: VectorV([42, 121].map(constOf)),
-      strokeWidth: FloatV(constOf(50)),
+      r: FloatV(100),
+      center: VectorV([42, 121]),
+      strokeWidth: FloatV(50),
       strokeColor: sampleBlack(),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromCircle(shape);
-    expect(numOf(width)).toBeCloseTo(250);
-    expect(numOf(height)).toBeCloseTo(250);
-    expect(numOf(x)).toBeCloseTo(42);
-    expect(numOf(y)).toBeCloseTo(121);
+    expectBbox(bboxFromCircle(shape), {
+      width: 250,
+      height: 250,
+      center: [42, 121],
+    });
   });
 
   test("Ellipse", () => {
     const shape = makeEllipse(seedrandom("bbox Ellipse"), canvas, {
-      rx: FloatV(constOf(200)),
-      ry: FloatV(constOf(100)),
-      center: VectorV([42, 121].map(constOf)),
-      strokeWidth: FloatV(constOf(50)),
+      rx: FloatV(200),
+      ry: FloatV(100),
+      center: VectorV([42, 121]),
+      strokeWidth: FloatV(50),
       strokeColor: sampleBlack(),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromEllipse(shape);
-    expect(numOf(width)).toBeCloseTo(450);
-    expect(numOf(height)).toBeCloseTo(250);
-    expect(numOf(x)).toBeCloseTo(42);
-    expect(numOf(y)).toBeCloseTo(121);
+    expectBbox(bboxFromEllipse(shape), {
+      width: 450,
+      height: 250,
+      center: [42, 121],
+    });
   });
 
   test("Rectangle", () => {
     const shape = makeRectangle(seedrandom("bbox Rectangle"), canvas, {
-      center: VectorV([0, 0].map(constOf)),
-      width: FloatV(constOf(150)),
-      height: FloatV(constOf(200)),
-      strokeWidth: FloatV(constOf(50)),
+      center: VectorV([0, 0]),
+      width: FloatV(150),
+      height: FloatV(200),
+      strokeWidth: FloatV(50),
       strokeColor: sampleBlack(),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromRect(shape);
-    expect(numOf(width)).toBeCloseTo(200);
-    expect(numOf(height)).toBeCloseTo(250);
-    expect(numOf(x)).toBeCloseTo(0);
-    expect(numOf(y)).toBeCloseTo(0);
+    expectBbox(bboxFromRect(shape), {
+      width: 200,
+      height: 250,
+      center: [0, 0],
+    });
   });
 
   test("Polygon", () => {
     const shape = makePolygon(seedrandom("bbox Polygon"), canvas, polyProps());
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPolygon(shape);
-    expect(numOf(width)).toBeCloseTo(113.5);
-    expect(numOf(height)).toBeCloseTo(116.5);
-    expect(numOf(x)).toBeCloseTo(320.75);
-    expect(numOf(y)).toBeCloseTo(70.25);
+    expectBbox(bboxFromPolygon(shape), {
+      width: 113.5,
+      height: 116.5,
+      center: [320.75, 70.25],
+    });
   });
 
   test("Polyline", () => {
@@ -126,156 +129,118 @@ describe("bbox", () => {
       canvas,
       polyProps()
     );
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPolygon(shape);
-    expect(numOf(width)).toBeCloseTo(113.5);
-    expect(numOf(height)).toBeCloseTo(116.5);
-    expect(numOf(x)).toBeCloseTo(320.75);
-    expect(numOf(y)).toBeCloseTo(70.25);
+    expectBbox(bboxFromPolygon(shape), {
+      width: 113.5,
+      height: 116.5,
+      center: [320.75, 70.25],
+    });
   });
 
   test("Image", () => {
     const shape = makeImage(seedrandom("bbox Image"), canvas, {
-      center: VectorV([0, 0].map(constOf)),
-      width: FloatV(constOf(150)),
-      height: FloatV(constOf(200)),
+      center: VectorV([0, 0]),
+      width: FloatV(150),
+      height: FloatV(200),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromRectlike(shape);
-    expect(numOf(width)).toBeCloseTo(150);
-    expect(numOf(height)).toBeCloseTo(200);
-    expect(numOf(x)).toBeCloseTo(0);
-    expect(numOf(y)).toBeCloseTo(0);
+    expectBbox(bboxFromRectlike(shape), {
+      width: 150,
+      height: 200,
+      center: [0, 0],
+    });
   });
 
   test("Line", () => {
     const shape = makeLine(seedrandom("bbox Line"), canvas, {
-      start: VectorV([-300, 200].map(constOf)),
-      end: VectorV([100, -150].map(constOf)),
-      strokeWidth: FloatV(constOf(50)),
+      start: VectorV([-300, 200]),
+      end: VectorV([100, -150]),
+      strokeWidth: FloatV(50),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromLinelike(shape);
-    expect(numOf(width)).toBeCloseTo(432.925);
-    expect(numOf(height)).toBeCloseTo(387.629);
-    expect(numOf(x)).toBeCloseTo(-100);
-    expect(numOf(y)).toBeCloseTo(25);
+    expectBbox(bboxFromLinelike(shape), {
+      width: 432.925,
+      height: 387.629,
+      center: [-100, 25],
+    });
   });
 
   test("Path (lines)", () => {
     const rng = seedrandom("bbox Path (lines)");
     const shape = makePath(rng, canvas, {
       d: compDict.pathFromPoints({ rng }, "open", [
-        [constOf(-100), constOf(-100)],
-        [constOf(100), constOf(-50)],
-        [constOf(-50), constOf(100)],
+        [-100, -100],
+        [100, -50],
+        [-50, 100],
       ]),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(200);
-    expect(numOf(height)).toBeCloseTo(200);
-    expect(numOf(x)).toBeCloseTo(0);
-    expect(numOf(y)).toBeCloseTo(0);
+    expectBbox(bboxFromPath(shape), {
+      width: 200,
+      height: 200,
+      center: [0, 0],
+    });
   });
 
   test("Path (quadratic)", () => {
     const rng = seedrandom("bbox Path (quadratic)");
     const shape = makePath(rng, canvas, {
-      d: compDict.makePath(
-        { rng },
-        [constOf(-100), constOf(0)],
-        [constOf(100), constOf(0)],
-        constOf(50),
-        constOf(10)
-      ),
+      d: compDict.makePath({ rng }, [-100, 0], [100, 0], 50, 10),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(180);
-    expect(numOf(height)).toBeCloseTo(50);
-    expect(numOf(x)).toBeCloseTo(0);
-    expect(numOf(y)).toBeCloseTo(-25);
+    expectBbox(bboxFromPath(shape), {
+      width: 180,
+      height: 50,
+      center: [0, -25],
+    });
   });
 
   test("Path (cubic)", () => {
     const rng = seedrandom("bbox Path (cubic)");
     const shape = makePath(rng, canvas, {
       d: compDict.cubicCurveFromPoints({ rng }, "open", [
-        [constOf(0), constOf(0)],
-        [constOf(50), constOf(50)],
-        [constOf(200), constOf(0)],
-        [constOf(75), constOf(-25)],
+        [0, 0],
+        [50, 50],
+        [200, 0],
+        [75, -25],
       ]),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(200);
-    expect(numOf(height)).toBeCloseTo(75);
-    expect(numOf(x)).toBeCloseTo(100);
-    expect(numOf(y)).toBeCloseTo(12.5);
+    expectBbox(bboxFromPath(shape), {
+      width: 200,
+      height: 75,
+      center: [100, 12.5],
+    });
   });
 
   test("Path (quadratic join)", () => {
     const rng = seedrandom("bbox Path (quadratic join)");
     const shape = makePath(rng, canvas, {
       d: compDict.quadraticCurveFromPoints({ rng }, "open", [
-        [constOf(0), constOf(0)],
-        [constOf(50), constOf(50)],
-        [constOf(75), constOf(-25)],
-        [constOf(200), constOf(0)],
+        [0, 0],
+        [50, 50],
+        [75, -25],
+        [200, 0],
       ]),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(200);
-    expect(numOf(height)).toBeCloseTo(150);
-    expect(numOf(x)).toBeCloseTo(100);
-    expect(numOf(y)).toBeCloseTo(-25);
+    expectBbox(bboxFromPath(shape), {
+      width: 200,
+      height: 150,
+      center: [100, -25],
+    });
   });
 
   test("Path (cubic join)", () => {
     const rng = seedrandom("bbox Path (cubic join)");
     const shape = makePath(rng, canvas, {
       d: compDict.cubicCurveFromPoints({ rng }, "open", [
-        [constOf(0), constOf(0)],
-        [constOf(50), constOf(50)],
-        [constOf(200), constOf(0)],
-        [constOf(75), constOf(-25)],
-        [constOf(0), constOf(-100)],
-        [constOf(100), constOf(-75)],
+        [0, 0],
+        [50, 50],
+        [200, 0],
+        [75, -25],
+        [0, -100],
+        [100, -75],
       ]),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(250);
-    expect(numOf(height)).toBeCloseTo(150);
-    expect(numOf(x)).toBeCloseTo(75);
-    expect(numOf(y)).toBeCloseTo(-25);
+    expectBbox(bboxFromPath(shape), {
+      width: 250,
+      height: 150,
+      center: [75, -25],
+    });
   });
 
   test("Path (arc unscaled)", () => {
@@ -284,23 +249,19 @@ describe("bbox", () => {
       d: compDict.arc(
         { rng },
         "open",
-        [constOf(-50), constOf(50)],
-        [constOf(100), constOf(-25)],
-        [constOf(200), constOf(100)],
-        constOf(30),
-        constOf(1),
-        constOf(0)
+        [-50, 50],
+        [100, -25],
+        [200, 100],
+        30,
+        1,
+        0
       ),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(400);
-    expect(numOf(height)).toBeCloseTo(400);
-    expect(numOf(x)).toBeCloseTo(-1.297);
-    expect(numOf(y)).toBeCloseTo(-76.281);
+    expectBbox(bboxFromPath(shape), {
+      width: 400,
+      height: 400,
+      center: [-1.297, -76.281],
+    });
   });
 
   test("Path (arc small)", () => {
@@ -309,23 +270,19 @@ describe("bbox", () => {
       d: compDict.arc(
         { rng },
         "open",
-        [constOf(-50), constOf(50)],
-        [constOf(100), constOf(-25)],
-        [constOf(200), constOf(100)],
-        constOf(30),
-        constOf(0),
-        constOf(0)
+        [-50, 50],
+        [100, -25],
+        [200, 100],
+        30,
+        0,
+        0
       ),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(400);
-    expect(numOf(height)).toBeCloseTo(400);
-    expect(numOf(x)).toBeCloseTo(51.297);
-    expect(numOf(y)).toBeCloseTo(101.282);
+    expectBbox(bboxFromPath(shape), {
+      width: 400,
+      height: 400,
+      center: [51.297, 101.282],
+    });
   });
 
   test("Path (arc scaled)", () => {
@@ -334,22 +291,18 @@ describe("bbox", () => {
       d: compDict.arc(
         { rng },
         "open",
-        [constOf(-75), constOf(-50)],
-        [constOf(200), constOf(25)],
-        [constOf(25), constOf(50)],
-        constOf(60),
-        constOf(0),
-        constOf(0)
+        [-75, -50],
+        [200, 25],
+        [25, 50],
+        60,
+        0,
+        0
       ),
     });
-    const {
-      width,
-      height,
-      center: [x, y],
-    } = bboxFromPath(shape);
-    expect(numOf(width)).toBeCloseTo(311.512);
-    expect(numOf(height)).toBeCloseTo(311.512);
-    expect(numOf(x)).toBeCloseTo(62.5);
-    expect(numOf(y)).toBeCloseTo(-12.5);
+    expectBbox(bboxFromPath(shape), {
+      width: 311.512,
+      height: 311.512,
+      center: [62.5, -12.5],
+    });
   });
 });

@@ -1,8 +1,4 @@
-import {
-  exprToNumber,
-  insertExpr,
-  valueNumberToAutodiff,
-} from "engine/EngineUtils";
+import { exprToNumber, insertExpr } from "engine/EngineUtils";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
@@ -123,11 +119,7 @@ export const insertPending = (state: State): State => {
       .map((p: Path<A>) => [p, findLabelValue(p, state.labelCache)])
       .reduce(
         (trans: Translation, [path, v]: any) =>
-          insertExpr(
-            path,
-            { tag: "Done", contents: valueNumberToAutodiff(v) },
-            trans
-          ),
+          insertExpr(path, { tag: "Done", contents: v }, trans),
         state.translation
       ),
   };
