@@ -1,6 +1,7 @@
 import consola, { LogLevel } from "consola";
 import { shapeAutodiffToNumber } from "engine/EngineUtils";
 import seedrandom from "seedrandom";
+import { Debugger } from "utils/Debugger";
 import { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
 import { compileStyle } from "./compiler/Style";
 import {
@@ -182,6 +183,9 @@ export const compileTrio = (prog: {
   domain: string;
   variation: string;
 }): Result<State, PenroseError> => {
+  // Ensure we have a clean debugger instance (in case we are running in batch)
+  Debugger.newInstance();
+
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(

@@ -33,6 +33,7 @@ import {
   SubStmt,
   TypeConsApp,
 } from "types/substance";
+import { Debugger } from "utils/Debugger";
 import {
   and,
   andThen,
@@ -97,6 +98,12 @@ export const compileSubstance = (
     };
     // check the substance ast and produce an env or report errors
     const checkerOk = checkSubstance(astWithPrelude, env);
+
+    // Load the Substance source and AST into the debugger
+    const dbg = Debugger.getInstance();
+    dbg.setSubAst(astWithPrelude);
+    dbg.setSubSrc(prog);
+
     return checkerOk.match({
       Ok: ({ env, contents: ast }) => ok([postprocessSubstance(ast, env), env]),
       Err: (e) => err({ ...e, errorType: "SubstanceError" }),

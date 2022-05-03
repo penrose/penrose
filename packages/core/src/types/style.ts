@@ -3,6 +3,7 @@
 
 import { VarAD } from "./ad";
 import { ASTNode, Identifier, IStringLit } from "./ast";
+import { Subst } from "./styleSemantics";
 import { LabelType } from "./substance";
 
 /** Top level type for Style AST */
@@ -63,6 +64,16 @@ export type RelField<T> = ASTNode<T> & {
 export type RelationPatterns<T> = ASTNode<T> & {
   tag: "RelationPatterns";
   contents: RelationPattern<T>[];
+};
+
+// A relation pattern in three parts:
+//  1. The variable substitution
+//  1. An original relation pattern with its original Style variables
+//  2. A substituted relation pattern with its substituted Substance variables
+export type RelationPatternSubst<T> = {
+  subst: Subst; // The substitution that was applied to the pattern
+  preRel: RelationPattern<T>; // Original Relation Pattern
+  subRel: RelationPattern<T>; // Substituted Relation Pattern
 };
 
 export type RelBind<T> = ASTNode<T> & {

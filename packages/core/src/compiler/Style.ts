@@ -61,6 +61,7 @@ import {
   PredArg,
   PropertyDecl,
   RelationPattern,
+  RelationPatternSubst,
   RelBind,
   RelField,
   RelPred,
@@ -98,6 +99,12 @@ import {
   Translation,
   Value,
 } from "types/value";
+import {
+  Debugger,
+  DebugProgramType,
+  DebugReasonCodes,
+  DebugStyleBlock,
+} from "utils/Debugger";
 import {
   err,
   isErr,
@@ -763,11 +770,16 @@ export const substituteRel = (
 // Applies a substitution to a list of relational statement theta([|S_r])
 // TODO: assumes a full substitution
 const substituteRels = (
-  subst: Subst,
-  rels: RelationPattern<A>[]
-): RelationPattern<A>[] => {
-  const res = rels.map((rel) => substituteRel(subst, rel));
-  return res;
+  subst: Subst, // one set of substitution variables
+  rels: RelationPattern<A>[] // many rels to check
+): RelationPatternSubst<A>[] => {
+  return rels.map((rel) => {
+    return {
+      subst: subst,
+      preRel: rel,
+      subRel: substituteRel(subst, rel),
+    };
+  });
 };
 
 //#endregion (subregion? TODO fix)
@@ -1347,12 +1359,13 @@ const relMatchesProg = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
-  rel: RelationPattern<A>
+  rel: RelationPatternSubst<A>,
+  dbgStyBlock: DebugStyleBlock<A>
 ): boolean => {
-  if (rel.tag === "RelField") {
+  if (rel.subRel.tag === "RelField") {
     // the current pattern matches on a Style field
-    const subName = rel.name.contents.value;
-    const fieldDesc = rel.fieldDescriptor;
+    const subName = rel.subRel.name.contents.value;
+    const fieldDesc = rel.subRel.fieldDescriptor;
     const label = subEnv.labels.get(subName);
 
     if (label) {
@@ -1365,9 +1378,32 @@ const relMatchesProg = (
       return false;
     }
   } else {
-    return subProg.statements.some((line) =>
-      relMatchesLine(typeEnv, subEnv, line, rel)
-    );
+    const result = subProg.statements.some((line) => {
+      const result = relMatchesLine(typeEnv, subEnv, line, rel.subRel);
+      return result;
+    });
+
+    // Record the match result for the debugger
+    (result ? dbgStyBlock.sats : dbgStyBlock.unsats).push({
+      rel: rel,
+      reasons: [
+        {
+          code: result
+            ? DebugReasonCodes.MATCHING_SUB_STATEMENTS_FOUND
+            : DebugReasonCodes.NO_MATCHING_SUB_STATEMENTS,
+          srcRef: [
+            {
+              origin: DebugProgramType.STYLE,
+              lineStart: rel.preRel["start"].line,
+              lineEnd: rel.preRel["end"].line,
+              colStart: rel.preRel["start"].col,
+              colEnd: rel.preRel["end"].col,
+            },
+          ],
+        },
+      ],
+    });
+    return result;
   }
 };
 
@@ -1376,9 +1412,12 @@ const allRelsMatch = (
   typeEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
-  rels: RelationPattern<A>[]
+  rels: RelationPatternSubst<A>[],
+  dbgStyBlock: DebugStyleBlock<A>
 ): boolean => {
-  return rels.every((rel) => relMatchesProg(typeEnv, subEnv, subProg, rel));
+  return rels.every((rel) =>
+    relMatchesProg(typeEnv, subEnv, subProg, rel, dbgStyBlock)
+  );
 };
 
 // Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
@@ -1388,7 +1427,8 @@ const filterRels = (
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
-  substs: Subst[]
+  substs: Subst[],
+  dbgStyBlock: DebugStyleBlock<A>
 ): Subst[] => {
   const subProgFiltered: SubProg<A> = {
     ...subProg,
@@ -1397,9 +1437,15 @@ const filterRels = (
     ),
   };
 
-  return substs.filter((subst) =>
-    allRelsMatch(typeEnv, subEnv, subProgFiltered, substituteRels(subst, rels))
-  );
+  return substs.filter((subst) => {
+    return allRelsMatch(
+      typeEnv,
+      subEnv,
+      subProgFiltered,
+      substituteRels(subst, rels),
+      dbgStyBlock
+    );
+  });
 };
 
 // // Match declaration statements
@@ -1541,14 +1587,31 @@ const findSubstsSel = (
       const substCandidates = rawSubsts.filter((subst) =>
         fullSubst(selEnv, subst)
       );
+
+      // Track which substitutions matched the selection block for debugging
+      const dbgStyBlock: DebugStyleBlock<A> = {
+        sel: sel,
+        hasWhereClause: !(rels.length == 0),
+        substs: [],
+        sats: [],
+        unsats: [],
+      };
+
+      // Eliminate substitutions that don't satisfy the where clause
       const filteredSubsts = filterRels(
         varEnv,
         subEnv,
         subProg,
         rels,
-        substCandidates
+        substCandidates,
+        dbgStyBlock
       );
       const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+
+      // Update the debugger
+      dbgStyBlock.substs = correctSubsts;
+      Debugger.getInstance().addBlock(dbgStyBlock);
+
       return correctSubsts;
     }
     case "Namespace": {
@@ -3375,6 +3438,11 @@ export const compileStyle = (
 
   log.info("old prog", styProgInit);
   log.info("new prog, with named anon statements", styProg);
+
+  // Load the Style source and AST into the debugger
+  const dbg = Debugger.getInstance();
+  dbg.setStyAst(styProg);
+  dbg.setStySrc(stySource);
 
   // Check selectors; return list of selector environments (`checkSels`)
   const selEnvs = checkSelsAndMakeEnv(varEnv, styProg.blocks);

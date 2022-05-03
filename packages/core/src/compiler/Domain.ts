@@ -26,6 +26,7 @@ import {
   TypeVarNotFound,
 } from "types/errors";
 import { ApplyConstructor, TypeConsApp } from "types/substance";
+import { Debugger } from "utils/Debugger";
 import {
   and,
   andThen,
@@ -70,6 +71,12 @@ export const compileDomain = (prog: string): Result<Env, PenroseError> => {
   const astOk = parseDomain(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
+
+    // Load the Domain source and AST into the debugger
+    const dbg = Debugger.getInstance();
+    dbg.setDomAst(astOk.value);
+    dbg.setDomSrc(prog);
+
     return checkDomain(ast).match({
       Ok: (env) => ok(env),
       Err: (e) => err({ ...e, errorType: "DomainError" }),
