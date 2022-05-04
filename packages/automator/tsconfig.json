@@ -23,10 +23,10 @@
     "declaration": true,
     "declarationMap": true,
     "noImplicitThis": true,
-    "strictNullChecks": true,
+    "strictNullChecks": true
   },
   "COMBAK-leftOffForNowDueToErrors": {
     "noImplicitAny": true,
-    "strict": true,
-  },
+    "strict": true
+  }
 }

@@ -60,9 +60,9 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
       delta = 2,
       left = current - delta,
       right = current + delta + 1,
-      range:number[] = [],
+      range: number[] = [],
       rangeWithDots: any[] = [],
-      l:number = -1;
+      l: number = -1;
 
     for (let i = 1; i <= last; i++) {
       if (i == 1 || i == last || (i >= left && i < right)) {
