@@ -58,7 +58,7 @@ export class Debugger {
 
   public addBlock(block: DebugStyleBlock): void {
     this.moveToListeningState();
-    this.rep.push(JSON.parse(JSON.stringify(block)));
+    this.rep.push(block);
   }
   public getBlocks(): DebugStyleBlock[] {
     return JSON.parse(JSON.stringify(this.rep));
@@ -77,15 +77,15 @@ export class Debugger {
   }
   public setDomAst(domAst: DomainProg<A>): void {
     this.moveToListeningState();
-    this.domAst = JSON.parse(JSON.stringify(domAst)); // Protect the rep
+    this.domAst = domAst;
   }
   public setSubAst(subAst: SubProg<A>): void {
     this.moveToListeningState();
-    this.subAst = JSON.parse(JSON.stringify(subAst)); // Protect the rep
+    this.subAst = subAst;
   }
   public setStyAst(styAst: StyProg<A>): void {
     this.moveToListeningState();
-    this.styAst = JSON.parse(JSON.stringify(styAst)); // Protect the rep
+    this.styAst = styAst;
   }
 
   // ----------------------------- Queries ---------------------------------//
