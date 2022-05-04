@@ -119,7 +119,8 @@ const singleProcess = async (
   const reactRenderStart = process.hrtime();
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
-  let listOfCanvasData, canvas;
+  const listOfCanvasData: string[] = [];
+  let canvas;
   const resolvePath = async (filePath: string) => {
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
