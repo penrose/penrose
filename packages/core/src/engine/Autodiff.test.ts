@@ -40,40 +40,7 @@ describe("makeGraph tests", () => {
     expect(gradient.length).toBe(2);
     expect(secondary.length).toBe(3);
 
-    // HACK: see comment on `count` in engine/AutodiffFunctions
-    const nodes: Omit<ad.Node, "i">[] = secondary.map((id) => {
-      const x = graph.node(id);
-      if (typeof x === "number") {
-        return x;
-      }
-      const { tag } = x;
-      switch (tag) {
-        case "Input": {
-          const { index } = x;
-          return { tag, index };
-        }
-        case "Unary": {
-          const { unop } = x;
-          return { tag, unop };
-        }
-        case "Binary": {
-          const { binop } = x;
-          return { tag, binop };
-        }
-        case "Ternary": {
-          return { tag };
-        }
-        case "Nary": {
-          const { op } = x;
-          return { tag, op };
-        }
-        case "Debug": {
-          const { info } = x;
-          return { tag, info };
-        }
-      }
-    });
-
+    const nodes: ad.Node[] = secondary.map((id) => graph.node(id));
     expect(nodes[0]).toEqual({ tag: "Binary", binop: "+" });
     expect(nodes[1]).toEqual({ tag: "Binary", binop: "*" });
     expect(nodes[2]).toEqual({ tag: "Binary", binop: "-" });

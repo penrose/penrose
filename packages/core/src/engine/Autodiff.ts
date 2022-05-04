@@ -4,7 +4,7 @@ import * as _ from "lodash";
 import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
-import { Edge, Multidigraph } from "utils/Graph";
+import { Multidigraph } from "utils/Graph";
 import { safe } from "utils/Util";
 import {
   acos,
@@ -63,24 +63,23 @@ const makeNode = (x: VarAD): ad.Node => {
       return { tag, index };
     }
     case "Unary": {
-      const { i, unop } = node;
-      return { tag, i, unop };
+      const { unop } = node;
+      return { tag, unop };
     }
     case "Binary": {
-      const { i, binop } = node;
-      return { tag, i, binop };
+      const { binop } = node;
+      return { tag, binop };
     }
     case "Ternary": {
-      const { i } = node;
-      return { tag, i };
+      return { tag };
     }
     case "Nary": {
-      const { i, op } = node;
-      return { tag, i, op };
+      const { op } = node;
+      return { tag, op };
     }
     case "Debug": {
-      const { i, info } = node;
-      return { tag, i, info };
+      const { info } = node;
+      return { tag, info };
     }
   }
 };
@@ -219,6 +218,28 @@ const binarySensitivities = (
 const indexToNaryEdge = (index: number): ad.NaryEdge => `${index}`;
 const naryEdgeToIndex = (name: ad.NaryEdge) => parseInt(name, 10);
 
+// return the index at which `edge` appeared when returned from the `children`
+// function defined below
+const rankEdge = (edge: ad.Edge): number => {
+  switch (edge) {
+    case undefined:
+    case "left":
+    case "cond": {
+      return 0;
+    }
+    case "right":
+    case "then": {
+      return 1;
+    }
+    case "els": {
+      return 2;
+    }
+    default: {
+      return naryEdgeToIndex(edge);
+    }
+  }
+};
+
 interface Child {
   child: VarAD;
   name: ad.Edge;
@@ -277,6 +298,7 @@ const children = (x: VarAD): Child[] => {
 };
 
 const indexToID = (index: number): ad.Id => `_${index}`;
+const idToIndex = (id: ad.Id): number => parseInt(id.slice(1), 10);
 
 const getInputs = (
   graph: ad.Graph["graph"]
@@ -293,6 +315,15 @@ const getInputs = (
   return inputs;
 };
 
+/**
+ * Construct an explicit graph from a primary output and array of secondary
+ * outputs. All out-edges relevant to computing the gradient can be considered
+ * totally ordered, first by the node the edge points to (where the nodes are
+ * numbered by doing a breadth-first search from the primary output using the
+ * `children` function) and then by the name of the edge (again according to the
+ * order given by the `children` function). The partial derivatives contributing
+ * to any given gradient node are added up according to that total order.
+ */
 export const makeGraph = (
   outputs: Omit<ad.Outputs<VarAD>, "gradient">
 ): ad.Graph => {
@@ -391,15 +422,6 @@ export const makeGraph = (
     addEdge(child, parent, name);
   }
 
-  // HACK: see comment on `count` in engine/AutodiffFunctions
-  const rank = ({ w }: Edge<ad.Id, ad.Edge>): number => {
-    const node = graph.node(w);
-    if (typeof node === "number" || node.tag === "Input") {
-      throw Error("edge unexpectedly pointing to source node");
-    }
-    return node.i;
-  };
-
   // map from each primary node ID to the ID of its gradient node
   const gradNodes = new Map<ad.Id, ad.Id>();
   for (const id of primaryNodes) {
@@ -409,12 +431,17 @@ export const makeGraph = (
       continue;
     }
 
-    const gradID = newNode({ tag: "Nary", i: -1, op: "addN" });
+    const gradID = newNode({ tag: "Nary", op: "addN" });
     gradNodes.set(id, gradID);
     const addends: ad.Id[] = [];
 
     // control the order in which partial derivatives are added
-    const edges = [...graph.outEdges(id)].sort((a, b) => rank(a) - rank(b));
+    const edges = [...graph.outEdges(id)].sort((a, b) =>
+      a.w === b.w
+        ? rankEdge(a.name) - rankEdge(b.name)
+        : idToIndex(a.w) - idToIndex(b.w)
+    );
+
     // we call graph.setEdge in this loop, so it may seem like it would be
     // possible for for those edges to get incorrectly included as addends in
     // other gradient nodes; however, that is not the case, because none of
@@ -428,7 +455,7 @@ export const makeGraph = (
         );
         const parentGradID = safe(gradNodes.get(w), "missing parent grad");
 
-        const addendID = newNode({ tag: "Binary", i: -1, binop: "*" });
+        const addendID = newNode({ tag: "Binary", binop: "*" });
         graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
         graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
         addends.push(addendID);
@@ -501,7 +528,6 @@ export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
  */
 export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
   tag: "Debug",
-  i: -1, // HACK: see comment on `count` in engine/AutodiffFunctions
   node: v,
   info,
 });

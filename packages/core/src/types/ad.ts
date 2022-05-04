@@ -117,7 +117,6 @@ export interface InputNode {
 
 export interface UnaryNode {
   tag: "Unary";
-  i: number; // HACK: see comment on `count` in engine/AutodiffFunctions
   unop:
     | "neg"
     | "squared"
@@ -152,7 +151,6 @@ export interface UnaryNode {
 
 export interface BinaryNode {
   tag: "Binary";
-  i: number; // HACK: see comment on `count` in engine/AutodiffFunctions
   binop:
     | "+"
     | "*"
@@ -171,18 +169,15 @@ export interface BinaryNode {
 
 export interface TernaryNode {
   tag: "Ternary";
-  i: number; // HACK: see comment on `count` in engine/AutodiffFunctions
 }
 
 export interface NaryNode {
   tag: "Nary";
-  i: number; // HACK: see comment on `count` in engine/AutodiffFunctions
   op: "addN" | "maxN" | "minN";
 }
 
 export interface DebugNode {
   tag: "Debug";
-  i: number; // HACK: see comment on `count` in engine/AutodiffFunctions
   info: string;
 }
 

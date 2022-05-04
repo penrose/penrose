@@ -249,7 +249,7 @@ const singleProcess = async (
       listOfCanvasData.map(writeFileOut);
     } else {
       // just the final diagram
-      fs.writeFileSync(out, canvas);
+      fs.writeFileSync(out, prettier.format(canvas, { parser: "html" }));
       console.log(chalk.green(`The diagram has been saved as ${out}`));
     }
 
