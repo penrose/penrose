@@ -3,7 +3,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import * as React from "react";
-import DemoWrapper from "../components/DemoWrapper";
+//import DemoWrapper from "../components/DemoWrapper";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
@@ -22,7 +22,7 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button button--tertiary button--lg"
-            to="https://panes.penrose.ink"
+            to="pathname:///try/"
           >
             Try
           </Link>
@@ -62,7 +62,32 @@ export default function Home() {
       description="Create beautiful diagrams just by typing math notation in plain text."
     >
       <HomepageHeader />
-      <main style={{ padding: "1em", width: "1000px", margin: "auto" }}>
+      <main style={{ padding: "3em 1em 3em", width: "80%", margin: "auto" }}>
+        <p>
+          Penrose is a platform that enables people to{" "}
+          <b>
+            create beautiful diagrams just by typing mathematical notation in
+            plain text.
+          </b>{" "}
+          The goal is to make it easy for non-experts to create and explore
+          high-quality diagrams and provide deeper insight into challenging
+          technical concepts. We aim to democratize the process of creating
+          visual intuition.
+        </p>
+        <p>
+          <b>
+            Check out our <a href="/siggraph20.html">SIGGRAPH '20 paper</a> and{" "}
+            <a href="https://vimeo.com/416822487">video</a> on Penrose!
+          </b>
+        </p>
+        <p>
+          <b>
+            Penrose is an early-stage system that is actively in development.
+          </b>{" "}
+          Feel free to <a href="mailto:team@penrose.ink">get in touch</a>.
+        </p>
+
+        {/* Temporarily commented out & will re-visit
         <h1>Example</h1>
         <p>Here's Penrose running in your browser:</p>
         <DemoWrapper
@@ -70,6 +95,7 @@ export default function Home() {
           examples={examples}
           width="400px"
         />
+        */}
       </main>
     </Layout>
   );

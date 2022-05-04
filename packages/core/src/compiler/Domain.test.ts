@@ -1,3 +1,4 @@
+import { examples } from "@penrose/examples";
 import { compileDomain, isSubtype } from "compiler/Domain";
 import * as fs from "fs";
 import * as nearley from "nearley";
@@ -215,8 +216,9 @@ describe("Real Programs", () => {
   }
 
   domainPaths.map((examplePath) => {
-    const file = path.join("../../examples/", examplePath);
-    const prog = fs.readFileSync(file, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [part0, part1] = examplePath.split("/");
+    const prog = examples[part0][part1];
     test(examplePath, () => {
       const res = compileDomain(prog);
       expect(res.isOk()).toBe(true);

@@ -1,0 +1,22 @@
+Graph G1
+Vertex v1, v2, v3, v4
+
+Edge e1 := MkEdge(v1, v2)
+Edge e2 := MkEdge(v1, v3)
+Edge e3 := MkEdge(v3, v4)
+-- Edge e4 := MkEdge(v3, v2) -- No cycle
+Edge e4 := MkEdge(v2, v3) -- Cycle
+
+AutoLabel All
+Label v1 $\text{this is another very long label}$
+-- TODO: The longer labels won't work until the arrow positioning is fixed
+-- Label v1 $\text{another label}$
+Label v2 $\int_0^\infty x^2$
+Label v3 $\text{this is}\\\text{a tall label}\\\text{many lines}\\\text{so many}\\\text{lines}$
+Label v4 $v_4$
+
+Label e1 $\text{this is a really long label}$
+-- Label e1 $\text{it's a label}$
+Label e2 $\frac{1}{e^x}$
+Label e3 $\text{another} \\ \text{very tall} \\ \text{label here}$
+Label e4 $e_4$

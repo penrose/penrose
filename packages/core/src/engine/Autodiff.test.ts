@@ -1,20 +1,14 @@
 import {
-  clearVisitedNodes,
-  constOf,
   fns,
-  gvarOf,
+  genCode,
+  input,
   logAD,
-  markInput,
-  variableAD,
-  varOf,
-  _genCode,
-  _genEnergyFn,
-  _gradADSymbolic,
-  _gradAllSymbolic,
+  primaryGraph,
+  secondaryGraph,
 } from "engine/Autodiff";
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
-import { GradGraphs } from "types/ad";
+import * as ad from "types/ad";
 import { eqList, randList } from "utils/Util";
 import {
   add,
@@ -29,6 +23,46 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions";
+
+describe("makeGraph tests", () => {
+  test("secondary outputs", () => {
+    // the values 0 don't matter for this test
+    const x = input({ index: 0, val: 0 });
+    const y = input({ index: 1, val: 0 });
+    const sum = add(x, y);
+    const product = mul(x, y);
+    const difference = sub(x, y);
+
+    const { graph, gradient, secondary } = secondaryGraph([
+      sum,
+      product,
+      difference,
+    ]);
+
+    expect(gradient.length).toBe(2);
+    expect(secondary.length).toBe(3);
+
+    const nodes: ad.Node[] = secondary.map((id) => graph.node(id));
+    expect(nodes[0]).toEqual({ tag: "Binary", binop: "+" });
+    expect(nodes[1]).toEqual({ tag: "Binary", binop: "*" });
+    expect(nodes[2]).toEqual({ tag: "Binary", binop: "-" });
+  });
+
+  test("no expression swell", () => {
+    // https://arxiv.org/pdf/1904.02990.pdf Figure 2
+    const x1 = input({ index: 0, val: 0 }); // 0, doesn't matter for this test
+    const t1 = mul(x1, x1);
+    const t2 = mul(t1, t1);
+    const f = mul(t2, t2);
+
+    const { graph } = secondaryGraph([f]);
+
+    // x1, t1, t2, f, the constant primary node 1, and the derivative 0 of the
+    // primary node with respect to the input x1
+    expect(graph.nodeCount()).toBe(6);
+    expect(graph.edgeCount()).toBe(6); // the in-edges of the three mul nodes
+  });
+});
 
 // df/f[x] with finite differences about xi
 const _gradFiniteDiff = (f: (args: number[]) => number) => {
@@ -51,26 +85,6 @@ const _gradFiniteDiff = (f: (args: number[]) => number) => {
 };
 
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
-
-describe("clearVisitedNodeInput tests", () => {
-  test("clears one node graph", () => {
-    const var1 = varOf(1);
-    var1.nodeVisited = true;
-    clearVisitedNodes([var1]);
-    expect(var1.nodeVisited).toEqual(false);
-  });
-  test("clears addition of two numbers graph", () => {
-    const var1 = varOf(1);
-    const var2 = varOf(2);
-    const addVar = add(var1, var2);
-    addVar.nodeVisited = true;
-    var1.nodeVisited = true;
-    clearVisitedNodes([addVar]);
-    expect(var1.nodeVisited).toEqual(false);
-    expect(var2.nodeVisited).toEqual(false);
-    expect(addVar.nodeVisited).toEqual(false);
-  });
-});
 
 describe("symbolic differentiation tests", () => {
   test("grad finite diff", () => {
@@ -142,213 +156,112 @@ const testGradFiniteDiff = () => {
   });
 };
 
-// See codegen-results.md for description
-const gradGraph1 = (): GradGraphs => {
-  // Build energy graph
-  const x0 = markInput(variableAD(-5.0), 0);
-  const x1 = markInput(variableAD(6.0), 1);
+const gradGraph1 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ val: -5, index: 0 });
+  const x1 = input({ val: 6, index: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
-  // const c = add(a, variableAD(3.0)); // const?
   const z = mul(b, c);
-
-  // Build gradient graph
-  z.gradNode = gvarOf(1.0);
-  const dx0 = _gradADSymbolic(x0);
-  const dx1 = _gradADSymbolic(x1);
-
-  return {
-    inputs: [x0, x1],
-    energyOutput: z,
-    gradOutputs: [dx0, dx1],
-    weight: undefined,
-  };
+  return primaryGraph(z);
 };
 
 // Test addition of consts to graph (`c`)
-const gradGraph2 = (): GradGraphs => {
-  // Build energy graph
-  const x0 = markInput(variableAD(-5.0), 0);
-  const x1 = markInput(variableAD(6.0), 1);
+const gradGraph2 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ val: -5, index: 0 });
+  const x1 = input({ val: 6, index: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
-  const c = add(a, variableAD(3.0));
+  const c = add(a, 3);
   const z = mul(b, c);
-
-  // Build gradient graph
-  z.gradNode = gvarOf(1.0);
-  const dx0 = _gradADSymbolic(x0);
-  const dx1 = _gradADSymbolic(x1);
-
-  return {
-    inputs: [x0, x1],
-    energyOutput: z,
-    gradOutputs: [dx0, dx1],
-    weight: undefined,
-  };
+  return primaryGraph(z);
 };
 
 // Test vars w/ no grad
-const gradGraph3 = (): GradGraphs => {
-  // Build energy graph
-
-  const x0 = markInput(variableAD(100.0), 0);
-  const x1 = markInput(variableAD(-100.0), 0);
-  const inputs = [x0, x1];
+const gradGraph3 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ val: 100, index: 0 });
+  const x1 = input({ val: -100, index: 1 });
   const head = squared(x0);
-
-  // Build gradient graph
-  const dxs = _gradAllSymbolic(head, inputs);
-
-  return {
-    inputs,
-    energyOutput: head,
-    gradOutputs: dxs,
-    weight: undefined,
-  };
+  return primaryGraph(head);
 };
 
 // Test toPenalty
-const gradGraph4 = (): GradGraphs => {
-  // Build energy graph
-
-  const x0 = markInput(variableAD(100.0), 0);
-  const inputs = [x0];
+const gradGraph4 = (): ad.Graph => {
+  // Build energy/gradient graph
+  const x0 = input({ val: 100, index: 0 });
   const head = fns.toPenalty(x0);
-
-  // Build gradient graph
-  const dxs = _gradAllSymbolic(head, inputs);
-
-  return {
-    inputs,
-    energyOutput: head,
-    gradOutputs: dxs,
-    weight: undefined,
-  };
+  return primaryGraph(head);
 };
 
 // Test ifCond
-const gradGraph5 = (): GradGraphs => {
-  // Build energy graph
+const gradGraph5 = (): ad.Graph => {
   logAD.info("test ifCond");
-  const [tru, fals] = [constOf(500), constOf(-500)];
 
-  const x0 = markInput(variableAD(100.0), 0);
-  const x1 = markInput(variableAD(-100.0), 0);
-  const inputs = [x0, x1];
-
-  const head = ifCond(lt(x0, constOf(33)), squared(x1), squared(x0));
-
-  // Build gradient graph
-  const dxs = _gradAllSymbolic(head, inputs);
-
-  return {
-    inputs,
-    energyOutput: head,
-    gradOutputs: dxs,
-    weight: undefined,
-  };
+  // Build energy/gradient graph
+  const x0 = input({ val: 100, index: 0 });
+  const x1 = input({ val: -100, index: 1 });
+  const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
+  return primaryGraph(head);
 };
 
 // Test max
-const gradGraph6 = (): GradGraphs => {
-  // Build energy graph
+const gradGraph6 = (): ad.Graph => {
   logAD.info("test max");
 
-  const x0 = markInput(variableAD(100.0), 0);
-  const inputs = [x0];
-  const head = max(squared(x0), constOf(0));
-
-  // Build gradient graph
-  const dxs = _gradAllSymbolic(head, inputs);
-
-  return {
-    inputs,
-    energyOutput: head,
-    gradOutputs: dxs,
-    weight: undefined,
-  };
+  // Build energy/gradient graph
+  const x0 = input({ val: 100, index: 0 });
+  const head = max(squared(x0), 0);
+  return primaryGraph(head);
 };
 
 // Test div
 // TODO < Test all ops automatically
-const gradGraph7 = (): GradGraphs => {
-  // Build energy graph
+const gradGraph7 = (): ad.Graph => {
   logAD.info("test div");
 
-  const x0 = markInput(variableAD(100.0), 0);
-  const x1 = markInput(variableAD(-100.0), 0);
-  const inputs = [x0, x1];
+  // Build energy graph
+  const x0 = input({ val: 100, index: 0 });
+  const x1 = input({ val: -100, index: 1 });
   const head = div(x0, x1);
-
-  // Build gradient graph
-  const dxs = _gradAllSymbolic(head, inputs);
-
-  return {
-    inputs,
-    energyOutput: head,
-    gradOutputs: dxs,
-    weight: undefined,
-  };
+  return primaryGraph(head);
 };
 
 // Test polyRoots
-const gradGraph8 = (): GradGraphs => {
-  // Build energy graph
+const gradGraph8 = (): ad.Graph => {
   logAD.info("test polyRoots");
 
+  // Build energy/gradient graph
   // coefficients of (x-1)(x-2)(x-3)(x-4)(x-5)
-  const x0 = markInput(variableAD(-120), 0);
-  const x1 = markInput(variableAD(274), 1);
-  const x2 = markInput(variableAD(-225), 2);
-  const x3 = markInput(variableAD(85), 3);
-  const x4 = markInput(variableAD(-15), 4);
-  const inputs = [x0, x1, x2, x3, x4];
+  const x0 = input({ val: -120, index: 0 });
+  const x1 = input({ val: 274, index: 1 });
+  const x2 = input({ val: -225, index: 2 });
+  const x3 = input({ val: 85, index: 3 });
+  const x4 = input({ val: -15, index: 4 });
   const roots = polyRoots([x0, x1, x2, x3, x4]);
   const head = addN(roots);
-
-  // Build gradient graph
-  const dxs = _gradAllSymbolic(head, inputs);
-
-  return { inputs, energyOutput: head, gradOutputs: dxs, weight: undefined };
+  return primaryGraph(head);
 };
 
-// Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
-const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
+const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
   const rng = seedrandom(`testGradSymbolic graph ${testNum}`);
 
   // Synthesize energy and gradient code
-  const f0 = _genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
-  const gradGen0 = _genCode(
-    graphs.inputs,
-    graphs.gradOutputs,
-    "grad",
-    graphs.weight
-  );
+  const f0 = genCode(graph);
 
-  const weight = 1; // TODO: Test with several weights
-  let f;
-  let gradGen;
-
-  if (graphs.weight !== undefined) {
-    // Partially apply with weight
-    f = f0(weight);
-    gradGen = gradGen0(weight);
-  } else {
-    f = f0;
-    gradGen = gradGen0;
-  }
+  const f = (xs: number[]) => f0(xs).primary;
+  const gradGen = (xs: number[]) => f0(xs).gradient;
 
   // Test the gradient at several points via evaluation
   const gradEst = _gradFiniteDiff(f);
   const testResults = [];
 
   for (let i = 0; i < NUM_SAMPLES; i++) {
-    const xsTest = randList(rng, graphs.inputs.length);
-    const energyRes = f(xsTest);
+    const xsTest = randList(rng, graph.gradient.length);
     const gradEstRes = gradEst(xsTest);
     const gradGenRes = gradGen(xsTest);
 
@@ -361,30 +274,21 @@ const testGradSymbolic = (testNum: number, graphs: GradGraphs): void => {
   });
 };
 
-const gradGraph0 = (): GradGraphs => {
-  // Build energy graph
+const gradGraph0 = (): ad.Graph => {
+  // Build energy/gradient graph
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = markInput(variableAD(100.0), 0); // TODO: Should use makeADInputVars
+  const ref = input({ val: 100, index: 0 });
   const head = squared(ref);
-
-  // Build gradient graph
-  head.gradNode = gvarOf(1.0);
-  const dRef = _gradADSymbolic(ref);
+  const graph = primaryGraph(head);
 
   // Print results
   logAD.trace(
     "computational graphs for test 1 (input, output, gradient)",
     ref,
-    head,
-    dRef
+    head
   );
 
-  return {
-    inputs: [ref],
-    energyOutput: head,
-    gradOutputs: [dRef],
-    weight: undefined,
-  };
+  return graph;
 };

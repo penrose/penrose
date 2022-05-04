@@ -1,18 +1,47 @@
 import {
   cleanNode,
+  findTypes,
   getStmt,
   intersection,
+  mergeKindMaps,
   nodesEqual,
+  progsEqual,
   sortStmts,
+  subProg,
 } from "analysis/SubstanceAnalysis";
-import { prettyStmt } from "compiler/Substance";
-import { cloneDeep, difference, get, intersectionWith, sortBy } from "lodash";
+import { prettyStmt, prettySubstance } from "compiler/Substance";
+import {
+  cloneDeep,
+  difference,
+  get,
+  intersectionWith,
+  sortBy,
+  uniqBy,
+  zipWith,
+} from "lodash";
 import { applyDiff, getDiff, rdiffResult } from "recursive-diff";
-import { Mutation } from "synthesis/Mutation";
+import {
+  Add,
+  addMutation,
+  Delete,
+  deleteMutation,
+  enumerateProgMutations,
+  enumerateStmtMutations,
+  executeMutation,
+  Mutation,
+  MutationGroup,
+} from "synthesis/Mutation";
 import { A, AbstractNode, Identifier, metaProps } from "types/ast";
+import { Env } from "types/domain";
 import { SubProg, SubStmt } from "types/substance";
+import {
+  filterContext,
+  initContext,
+  SynthesisContext,
+  WithContext,
+} from "./Synthesizer";
 
-//#region Generalized edits
+//#region Fine-grained diffs
 
 type Edit = Mutation;
 type DiffType = AbstractNode["tag"];
@@ -46,17 +75,6 @@ export interface DeleteDiff {
   diffType: "Delete";
   source: SubStmt<A>;
 }
-
-const generalizedEdits = (
-  original: SubProg<A>,
-  editedProgs: SubProg<A>[],
-  mode: "exact"
-): Edit => {
-  switch (mode) {
-    case "exact":
-      return {} as any; // COMBAK: complete the function
-  }
-};
 
 /**
  * Compute the exact diffs between two Substance ASTs.
@@ -171,7 +189,7 @@ export const subProgDiffs = (left: SubProg<A>, right: SubProg<A>): DiffSet => {
   return { update, add, delete: deleted };
 };
 
-export const showSubDiff = (d: SubDiff) => {
+export const showSubDiff = (d: SubDiff): string => {
   switch (d.diffType) {
     case "Add":
     case "Delete":
@@ -350,54 +368,237 @@ export const findDiffs = (stmt: SubStmt<A>, diffs: StmtDiff[]): rdiffResult[] =>
 
 //#endregion
 
-//#region Specification synthesis
-// interface TaggedMutationSet {
-//   tag: Mutation["tag"];
-//   stmts: SubStmt[];
-// }
+//#region Single-mutation search
 
-// export const synthesizeConfig = (examples: SynthesizedSubstance[]) => {
-//   // ): SynthesizerSetting => {
-//   const ops: Mutation[] = examples
-//     .map((ex: SynthesizedSubstance) => ex.ops)
-//     .flat();
+export const cartesianProduct = <T>(...sets: T[][]): T[][] =>
+  sets.reduce<T[][]>(
+    (accSets, set) =>
+      accSets.flatMap((accSet) => set.map((value) => [...accSet, value])),
+    [[]]
+  );
 
-//   const grouped = groupBy(ops, "tag");
+/**
+ * Given two Substance programs, find possible mutation paths that transform from `src` to `dest`.
+ *
+ * @param src The source Substance program
+ * @param dest The changed Substance program
+ * @param srcEnv The environment for the source Substance program
+ */
+export const findMutationPaths = (
+  src: SubProg<A>,
+  dest: SubProg<A>,
+  srcEnv: Env
+): MutationGroup[] => {
+  const diffs: DiffSet = subProgDiffs(src, dest);
+  // pack add and delete mutations
+  const addMutations: Add[] = diffs.add.map((a) => addMutation(a.source));
+  const deleteMutations: Delete[] = diffs.delete.map((a) =>
+    deleteMutation(a.source)
+  );
+  // find all possible updates for each statement in the update set
+  const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
+    // COMBAK: check random seed
+    const cxt = initContext(
+      srcEnv,
+      "existing",
+      "distinct",
+      "findMutationPaths"
+    );
+    const mutations = enumerateStmtMutations(d.source, src, cxt);
+    d.source;
+    const matchedMutations = mutations.filter((m) => {
+      // HACK: assumes each update pair is connected by only one mutation. Therefore packing the source and result stmts into individual programs
+      const prog1 = subProg([d.source]);
+      const prog2 = subProg([d.result]);
+      const { res: mutatedAST } = executeMutation(m, prog1, cxt);
+      return (
+        prettySubstance(sortStmts(prog2)) ===
+        prettySubstance(sortStmts(mutatedAST))
+      );
+    });
+    return matchedMutations;
+  });
 
-//   const taggedMutations: TaggedMutationSet[] = map(
-//     grouped,
-//     (value: Mutation[], key: Mutation["tag"]): TaggedMutationSet => {
-//       const set: TaggedMutationSet = {
-//         tag: key,
-//         stmts: value.map(editedStmt),
-//       };
-//       return set;
-//     }
-//   ) as any; // TODO: resolve types: why is it `boolean[]`?
+  // any combination of candidate mutations for each stmt will be a valid mutation group
+  const updateGroups: MutationGroup[] = cartesianProduct(...matchingUpdates);
+  // for each update group, combine it with add and delete to get each of the candidate mutation group
+  if (updateGroups.length > 0) {
+    return updateGroups.map((updateGroup: MutationGroup) => [
+      ...updateGroup,
+      ...addMutations,
+      ...deleteMutations,
+    ]);
+  } else return [[...addMutations, ...deleteMutations]];
+};
 
-//   // console.log(showMutationSets(taggedMutations));
+export const enumerateAllPaths = (
+  src: SubProg<A>,
+  dest: SubProg<A>,
+  srcEnv: Env
+): MutationGroup[] => {
+  const diffs: DiffSet = subProgDiffs(src, dest);
+  // pack add and delete mutations
+  const addMutations: Add[] = diffs.add.map((a) => addMutation(a.source));
+  const deleteMutations: Delete[] = diffs.delete.map((a) =>
+    deleteMutation(a.source)
+  );
+  // find all possible updates for each statement in the update set
+  // COMBAK: check random seed
+  const cxt = initContext(srcEnv, "existing", "distinct", "enumerateAllPaths");
+  const possibleUpdates: MutationGroup[] = diffs.update.map((d) =>
+    enumerateStmtMutations(d.source, src, cxt)
+  );
 
-//   // TODO: finish this function
-//   return {} as any;
-// };
+  // any combination of candidate mutations for each stmt will be a valid mutation group
+  const updateGroups: MutationGroup[] = cartesianProduct(...possibleUpdates);
+  // for each update group, combine it with add and delete to get each of the candidate mutation group
+  if (updateGroups.length > 0) {
+    return updateGroups.map((updateGroup: MutationGroup) => [
+      ...updateGroup,
+      ...addMutations,
+      ...deleteMutations,
+    ]);
+  } else return [[...addMutations, ...deleteMutations]];
+};
+//#endregion
 
-// const showMutationSets = (sets: TaggedMutationSet[]): string =>
-//   sets.map(showMutationSet).join("\n\n");
+//#region Enumerative search with observational equivalence
 
-// const showMutationSet = (set: TaggedMutationSet): string =>
-//   `${set.tag}:\n${set.stmts.map(prettyStmt).join("\n")}`;
+interface MutatedSubProg {
+  prog: SubProg<A>;
+  cxt: SynthesisContext;
+  mutations: Mutation[];
+}
 
-// const editedStmt = (mutation: Mutation): SubStmt => {
-//   switch (mutation.tag) {
-//     case "Replace":
-//       return mutation.old;
-//     case "Add":
-//     case "Delete":
-//     // case "Swap":
-//     // case "ReplaceName":
-//     case "TypeChange":
-//       return mutation.stmt;
-//   }
-// };
+/**
+ * @param srcProg the source Substance program
+ * @param destStmt the result Substance program
+ * @param initCxt the current synthesis context
+ * @param maxDepth maximum number of mutations per path
+ * @returns a list of mutation paths that tranform from `srcStmt` to `destStmt`, up to `maxDepth`
+ */
+export const enumerateMutationPaths = (
+  srcProg: SubProg<A>,
+  destProg: SubProg<A>,
+  initCxt: SynthesisContext,
+  maxDepth: number
+): MutatedSubProg[] => {
+  // optimization: pre-filter the environment by the source and target program
+  // NOTE: we need both the source and target programs because the synthesizer config includes __both__ types to match and candidate types
+  const srcAndDestTypes = mergeKindMaps(
+    findTypes(srcProg),
+    findTypes(destProg)
+  );
+  const filteredCxt = filterContext(initCxt, srcAndDestTypes);
+  // console.log(showEnv(initCxt.env));
+  // console.log(showEnv(filteredCxt.env));
+  const startProg: MutatedSubProg = {
+    prog: srcProg,
+    mutations: [],
+    // cxt: initCxt,
+    cxt: filteredCxt,
+  };
+  // a list of _unique_ Substance programs so far
+  let candidates: MutatedSubProg[] = [startProg];
+  // all correct paths up to `maxDepth`
+  let matchedCandidates: MutatedSubProg[] = [];
+  let currentDepth = 0;
+  while (currentDepth < maxDepth) {
+    // grow all candidates by one
+    candidates = candidates
+      .map(
+        ({ prog: progToGrow, mutations: pathToGrow, cxt }: MutatedSubProg) => {
+          // enumerate all mutations for this candidate
+          const possibleMutations: Mutation[] = enumerateProgMutations(
+            progToGrow,
+            cxt
+          );
+          // execute all mutations and get resulting programs
+          const resultProgs: WithContext<
+            SubProg<A>
+          >[] = possibleMutations.map((m) =>
+            executeMutation(m, progToGrow, cxt)
+          );
+          // pack the resulting programs with their updated mutation path
+          return zipWith(
+            resultProgs,
+            possibleMutations,
+            (p, mutation): MutatedSubProg => ({
+              prog: p.res,
+              cxt: p.ctx,
+              mutations: [...pathToGrow, mutation],
+            })
+          );
+        }
+      )
+      .flat();
+    // "Observational equivalence": remove all candidates that lead to the same output
+    candidates = uniqBy(candidates, (c) => prettySubstance(c.prog));
+    // HACK: using string-based check instead of AST check
+    const matches = candidates.filter(
+      (p) => prettySubstance(p.prog) === prettySubstance(destProg)
+    );
+    // collect all the correct paths at this depth
+    if (matches.length > 0) {
+      matchedCandidates = [...matchedCandidates, ...matches];
+    }
+    currentDepth++;
+  }
+  return matchedCandidates;
+};
+
+/**
+ *  recursive version that has performance issues
+ * call `_enumerateAllProgPathsHelper(srcProg, destProg, cxt, [], 0, maxDepth);` to use
+ * @deprecated
+ */
+const _enumerateAllProgPathsHelper = (
+  srcProg: SubProg<A>,
+  destProg: SubProg<A>,
+  cxt: SynthesisContext,
+  mutationPath: MutationGroup,
+  depth: number,
+  maxDepth: number
+): [SubProg<A>, MutationGroup][] => {
+  // if depth limit is up or we already reached the resulting program, return
+  if (depth > maxDepth) {
+    return [];
+  } else if (progsEqual(srcProg, destProg)) {
+    return [[destProg, mutationPath]];
+  } else {
+    // find all mutations for each statement
+    const possibleMutations: Mutation[] = enumerateProgMutations(srcProg, cxt);
+    // execute all of them and find the next
+    const resultProgs: [
+      WithContext<SubProg<A>>,
+      Mutation
+    ][] = possibleMutations.map((m) => [executeMutation(m, srcProg, cxt), m]);
+    // "Observational equivalence": removing all mutations that lead to the same expression
+    // TODO: this doesn't work because the other candidates are out of scope
+    // const uniqueProgs: [WithContext<SubProg>, Mutation][] = uniqBy(
+    //   resultProgs,
+    //   ([p, m]) => prettySubstance(p.res)
+    // );
+
+    // recurse and find the next mutations
+    // ][] = uniqueProgs
+    const nextPaths: [
+      SubProg<A>,
+      MutationGroup
+    ][] = resultProgs
+      .map(([{ res: p, ctx }, m]: [WithContext<SubProg<A>>, Mutation]) =>
+        _enumerateAllProgPathsHelper(
+          p,
+          destProg,
+          ctx,
+          [...mutationPath, m],
+          depth + 1,
+          maxDepth
+        )
+      )
+      .flat(); // NOTE: the `flat` will effectively trim all failed paths
+    return nextPaths;
+  }
+};
 
 //#endregion

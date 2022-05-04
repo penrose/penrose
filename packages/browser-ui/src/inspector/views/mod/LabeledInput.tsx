@@ -409,7 +409,7 @@ class LabeledInput extends React.Component<IProps> {
           <input
             type="color"
             id={cid}
-            value={toSvgPaintProperty(this.props.eValue)}
+            value={toSvgPaintProperty(this.props.eValue.contents)}
             onChange={(e) => this.handleColor(eAttr, e)}
           />
           {this.makeSubLabel(
@@ -453,7 +453,8 @@ class LabeledInput extends React.Component<IProps> {
   // todo refactor to take params
   public getSpan = () => {
     const { inputType } = this.props.inputProps;
-    if (inputType === "color") return toSvgPaintProperty(this.state.eValue);
+    if (inputType === "color")
+      return toSvgPaintProperty(this.state.eValue.contents);
     else if (inputType === "range") return round(this.state.eValue.contents);
     else return this.state.eValue.contents.toString();
   };

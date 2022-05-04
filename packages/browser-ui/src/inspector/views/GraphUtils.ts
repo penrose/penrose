@@ -3,13 +3,13 @@ import {
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
+  secondaryGraph,
 } from "@penrose/core";
-import { VarAD } from "@penrose/core/build/dist/types/ad";
+import { Node, VarAD } from "@penrose/core/build/dist/types/ad";
 import { A } from "@penrose/core/build/dist/types/ast";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
 import { EdgeDefinition, ElementsDefinition, NodeDefinition } from "cytoscape";
-import { uniqBy } from "lodash";
 
 // TODO: The nodes and edges are left untyped for now because adding new keys to them (e.g. `DOF: true`) is used to style their CSS - not sure how to accommodate this as a TS type
 
@@ -27,46 +27,48 @@ export type PGraph = ElementsDefinition;
  */
 const merge = <T>(arr: T[][]): T[] => ([] as T[]).concat(...arr);
 
-/**
- * Given a parent node, returns the graph corresponding to nodes and edges of children
- * May contain duplicate nodes
- * TODO: Add type for graph and VarAD
- */
-const traverseGraphTopDown = (par: VarAD): PGraph => {
-  const parNode: NodeDefinition = {
-    data: { id: par.id.toString(), label: par.op },
-  };
-
-  //TODO: do not navigate graph outside core
-  const edges: EdgeDefinition[] = par.childrenAD.map(
-    (edge): EdgeDefinition => ({
-      data: {
-        source: parNode.data.id as string, // traversing child nodes
-        target: edge.node.id.toString(),
-      },
-    })
-  );
-
-  const subgraphs = par.childrenAD.map((edge) =>
-    traverseGraphTopDown(edge.node)
-  );
-  const subnodes = merge(subgraphs.map((g) => g.nodes));
-  const subedges = merge(subgraphs.map((g) => g.edges));
-
-  return {
-    nodes: [parNode].concat(subnodes),
-    edges: edges.concat(subedges),
-  };
+const labelNode = (node: Node): string => {
+  if (typeof node === "number") {
+    return `${node}`;
+  }
+  switch (node.tag) {
+    case "Input": {
+      return `x${node.index}`;
+    }
+    case "Unary": {
+      return node.unop;
+    }
+    case "Binary": {
+      return node.binop;
+    }
+    case "Ternary": {
+      return "?:";
+    }
+    case "Nary": {
+      return node.op;
+    }
+    case "Debug": {
+      return JSON.stringify(node.info);
+    }
+  }
 };
 
 /**
- * For building atomic op graph. Returns unique nodes after all nodes are merged
+ * For building atomic op graph.
+ * Given a parent node, returns the graph corresponding to nodes and edges of children
+ * Returns unique nodes after all nodes are merged
+ * TODO: Add type for graph and VarAD
  */
 export const traverseUnique = (par: VarAD): PGraph => {
-  const g = traverseGraphTopDown(par);
+  // TODO: do not navigate graph outside core
+  const { graph } = secondaryGraph([par]);
   return {
-    ...g,
-    nodes: uniqBy(g.nodes, (e: NodeDefinition) => e.data.id),
+    nodes: graph
+      .nodes()
+      .map((id) => ({ data: { id, label: labelNode(graph.node(id)) } })),
+    edges: graph
+      .edges()
+      .map(({ v, w }) => ({ data: { source: w, target: v } })), // note: flipped
   };
 };
 
@@ -106,7 +108,7 @@ export const toGraphDOF = (p: Path<A>, allArgs: string[]): PGraph => {
   if (p.tag === "FieldPath") {
     return empty;
   } else if (p.tag === "PropertyPath") {
-    const fp = {
+    const fp: Path<A> = {
       ...p,
       tag: "FieldPath",
       name: p.name,

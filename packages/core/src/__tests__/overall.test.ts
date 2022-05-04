@@ -1,12 +1,9 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as prettier from "prettier";
+import { examples, registry } from "@penrose/examples";
 import {
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
-  readRegistry,
   RenderStatic,
   resample,
   showError,
@@ -15,63 +12,16 @@ import {
 } from "../index";
 import { State } from "../types/state";
 
-const OUTPUT = "../../diagrams";
-const EXAMPLES = "../../examples";
-const registryPath = path.join(EXAMPLES, "registry.json");
-const saveDiagrams = true;
-const registry = JSON.parse(fs.readFileSync(registryPath).toString());
-const vennStyle = fs
-  .readFileSync(path.join(EXAMPLES, registry.styles["venn"].URI))
-  .toString();
-const setDomain = fs
-  .readFileSync(path.join(EXAMPLES, registry.domains["set-theory"].URI))
-  .toString();
-
-describe("End-to-end testing of existing diagrams", () => {
-  const trios = readRegistry(registry);
-  for (const trio of trios) {
-    const { name, substanceURI, domainURI, styleURI, variation } = trio;
-    const [sub, sty, dsl] = [substanceURI, styleURI, domainURI].map((uri) =>
-      fs.readFileSync(path.join(EXAMPLES, uri)).toString()
-    );
-
-    test(name, async () => {
-      if (saveDiagrams && !fs.existsSync(OUTPUT)) {
-        fs.mkdirSync(OUTPUT);
-      }
-      const res = compileTrio({
-        substance: sub,
-        style: sty,
-        domain: dsl,
-        variation,
-      });
-      if (res.isOk()) {
-        // resample because initial sampling did not use the special sampling seed
-        const state = resample(await prepareState(res.value));
-        const opt = stepUntilConvergence(state);
-        if (opt.isErr()) {
-          fail("optimization failed");
-        }
-        const optimized = opt.value;
-
-        const rendered = await RenderStatic(optimized, async (p: string) => {
-          const parentDir = path.parse(path.join(EXAMPLES, styleURI)).dir;
-          const actualPath = path.resolve(parentDir, p);
-          const res = fs.readFileSync(actualPath, "utf-8").toString();
-          return res;
-        });
-        fs.writeFileSync(
-          path.join(OUTPUT, `${name}.svg`),
-          // format so each line isn't too long, nicer diffs
-          prettier.format(rendered.outerHTML, { parser: "html" }),
-          "utf8"
-        );
-      } else {
-        fail(showError(res.error));
-      }
-    });
+const exampleFromURI = (uri: string): string => {
+  let x: any = examples;
+  for (const part of uri.split("/")) {
+    x = x[part];
   }
-});
+  return x;
+};
+
+const vennStyle = exampleFromURI(registry.styles["venn"].URI);
+const setDomain = exampleFromURI(registry.domains["set-theory"].URI);
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>

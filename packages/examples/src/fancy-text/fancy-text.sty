@@ -1,0 +1,93 @@
+canvas {
+   scalar width  = 533.
+   scalar height = 300.
+}
+
+Global {
+
+   shape bbox = Rectangle {
+      center: (0.,0.)
+      width: canvas.width
+      height: canvas.height
+      fillColor: rgba( .8,.95,.9,1. )
+      strokeColor: rgba(0.,0.,0.,1.)
+      strokeWidth: 2.
+   }
+
+}
+
+-- Make some fun-looking text by
+-- layering it on top of a couple
+-- stroked copies
+forall Text t {
+
+   string t.titleString = t.label
+   vec2 t.titleCenter = (0.,0.)
+
+   shape t.text = Text {
+      string: t.titleString
+      center: t.titleCenter
+      fillColor: rgba(1.,1.,1.,1.)
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "38px"
+   }
+   shape t.innerStroke = Text {
+      string: t.titleString
+      center: t.titleCenter
+      fillColor: rgba(0.,0.,0.,1.)
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "38px"
+      style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
+   }
+   shape t.outerStroke = Text {
+      string: t.titleString
+      center: t.titleCenter
+      fillColor: rgba(0.,0.,0.,1.)
+      fontFamily: "Palatino"
+      fontStyle: "italic"
+      fontSize: "38px"
+      style: "stroke:#FF6603;stroke-width:8;stroke-miterlimit:2;"
+   }
+
+   -- make sure the text and strokes
+   -- appear in the right order
+   layer t.text above t.innerStroke
+   layer t.innerStroke above t.outerStroke
+   layer t.outerStroke above Global.bbox
+}
+
+
+-- draw each point as a circular disk,
+-- whose size is allowed to vary
+forall Point p {
+   shape p.icon = Circle {
+      center: (?,?)
+      r: ?
+      fillColor: rgba(0.,0.,1.,.15)
+   }
+   layer p.icon above Global.bbox
+
+   shape p.text = Equation {
+      center: p.icon.center
+      string: p.label
+      fillColor: rgba(.25,.5,1.,.5)
+      fontSize: "28px"
+   }
+   layer p.text above Global.bbox
+
+   ensure inRange( p.icon.r, 30., 60. )
+
+   -- keep all disks on the canvas
+   ensure contains( Global.bbox, p.icon )
+}
+
+-- repel all pairs of points
+forall Point p; Point q {
+   vec2 x = p.icon.center
+   vec2 y = q.icon.center
+   Δ = x-y
+   encourage equal( 200000./normsq(Δ), 0. )
+}
+

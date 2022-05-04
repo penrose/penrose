@@ -1,9 +1,0 @@
--- right triangle
-Point A, B, C
-Triangle ABC
-ABC := MkTriangle(A, B, C) 
-
-Angle CAB
-CAB := InteriorAngle(C, A, B)
-
-AutoLabel All

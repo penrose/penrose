@@ -4,124 +4,143 @@ import {
   outwardUnitNormal,
   rectangleDifference,
 } from "contrib/Minkowski";
-import { constOf, numOf, ops } from "engine/Autodiff";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
+import { Pt2, VarAD } from "types/ad";
 
 const digitPrecision = 4;
 
 describe("rectangleDifference", () => {
-  let testBBox1 = BBox.bbox(constOf(2.0), constOf(2.0), [
-    constOf(0.0),
-    constOf(0.0),
-  ]);
-  let testBBox2 = BBox.bbox(constOf(3.0), constOf(1.0), [
-    constOf(0.5),
-    constOf(1.5),
-  ]);
+  const expectRectDiff = (
+    result: [Pt2, Pt2],
+    expected: [[number, number], [number, number]]
+  ) => {
+    const g = secondaryGraph([
+      result[0][0],
+      result[0][1],
+      result[1][0],
+      result[1][1],
+    ]);
+    const f = genCode(g);
+    const [result00, result01, result10, result11] = f([]).secondary;
+    expect(result00).toEqual(expected[0][0]);
+    expect(result01).toEqual(expected[0][1]);
+    expect(result10).toEqual(expected[1][0]);
+    expect(result11).toEqual(expected[1][1]);
+  };
+
+  let testBBox1 = BBox.bbox(2, 2, [0, 0]);
+  let testBBox2 = BBox.bbox(3, 1, [0.5, 1.5]);
 
   test("without padding", async () => {
-    let result = rectangleDifference(testBBox1, testBBox2, constOf(0.0));
-    expect(numOf(result[0][0])).toEqual(-3);
-    expect(numOf(result[0][1])).toEqual(-3);
-    expect(numOf(result[1][0])).toEqual(2);
-    expect(numOf(result[1][1])).toEqual(0);
+    let result = rectangleDifference(testBBox1, testBBox2, 0);
+    expectRectDiff(result, [
+      [-3, -3],
+      [2, 0],
+    ]);
   });
 
   test("with padding", async () => {
-    let result = rectangleDifference(testBBox1, testBBox2, constOf(10.0));
-    expect(numOf(result[0][0])).toEqual(-13);
-    expect(numOf(result[0][1])).toEqual(-13);
-    expect(numOf(result[1][0])).toEqual(12);
-    expect(numOf(result[1][1])).toEqual(10);
+    let result = rectangleDifference(testBBox1, testBBox2, 10);
+    expectRectDiff(result, [
+      [-13, -13],
+      [12, 10],
+    ]);
   });
 
   test("reversed order", async () => {
-    let result = rectangleDifference(testBBox2, testBBox1, constOf(0.0));
-    expect(numOf(result[0][0])).toEqual(-2);
-    expect(numOf(result[0][1])).toEqual(0);
-    expect(numOf(result[1][0])).toEqual(3);
-    expect(numOf(result[1][1])).toEqual(3);
+    let result = rectangleDifference(testBBox2, testBBox1, 0);
+    expectRectDiff(result, [
+      [-2, 0],
+      [3, 3],
+    ]);
   });
 
   test("same bounding box", async () => {
-    let result = rectangleDifference(testBBox1, testBBox1, constOf(0.0));
-    expect(numOf(result[0][0])).toEqual(-2);
-    expect(numOf(result[0][1])).toEqual(-2);
-    expect(numOf(result[1][0])).toEqual(2);
-    expect(numOf(result[1][1])).toEqual(2);
+    let result = rectangleDifference(testBBox1, testBBox1, 0);
+    expectRectDiff(result, [
+      [-2, -2],
+      [2, 2],
+    ]);
   });
 });
 
-let point1 = [constOf(2), constOf(3)];
-let point2 = [constOf(1), constOf(2)];
-let point3 = [constOf(1), constOf(4)];
-let point4 = [constOf(2), constOf(2)];
-let point5 = [constOf(0), constOf(0)];
+let point1 = [2, 3];
+let point2 = [1, 2];
+let point3 = [1, 4];
+let point4 = [2, 2];
+let point5 = [0, 0];
 let lineSegment = [point3, point4];
 
 describe("outwardUnitNormal", () => {
   test("inside point above", async () => {
     let result = outwardUnitNormal(lineSegment, point1);
+
+    const [norm, dot, diff] = genCode(
+      secondaryGraph([
+        ops.vnorm(result),
+        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+        sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])),
+      ])
+    )([]).secondary;
+
     // It is unit
-    expect(numOf(ops.vnorm(result))).toBeCloseTo(1, digitPrecision);
+    expect(norm).toBeCloseTo(1, digitPrecision);
     // It is orthogonal to the line segment
-    expect(
-      numOf(ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])))
-    ).toBeCloseTo(0, digitPrecision);
+    expect(dot).toBeCloseTo(0, digitPrecision);
     // `insidePoint1` is inside
-    expect(
-      numOf(sub(ops.vdot(result, point1), ops.vdot(result, lineSegment[0])))
-    ).toBeLessThan(0);
+    expect(diff).toBeLessThan(0);
   });
 
   test("inside point below", async () => {
     let result = outwardUnitNormal(lineSegment, point2);
+
+    const [norm, dot, diff] = genCode(
+      secondaryGraph([
+        ops.vnorm(result),
+        ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])),
+        sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])),
+      ])
+    )([]).secondary;
+
     // It is unit
-    expect(numOf(ops.vnorm(result))).toBeCloseTo(1, digitPrecision);
+    expect(norm).toBeCloseTo(1, digitPrecision);
     // It is orthogonal to the line segment
-    expect(
-      numOf(ops.vdot(result, ops.vsub(lineSegment[1], lineSegment[0])))
-    ).toBeCloseTo(0, digitPrecision);
+    expect(dot).toBeCloseTo(0, digitPrecision);
     // `insidePoint2` is inside
-    expect(
-      numOf(sub(ops.vdot(result, point2), ops.vdot(result, lineSegment[0])))
-    ).toBeLessThan(0);
+    expect(diff).toBeLessThan(0);
   });
 });
 
 describe("halfPlaneSDF", () => {
+  const numOf = (x: VarAD) => {
+    const g = secondaryGraph([x]);
+    const f = genCode(g);
+    const [y] = f([]).secondary; // no inputs, so, empty array
+    return y;
+  };
+
   test("without padding", async () => {
-    let result = halfPlaneSDF(
-      [point2, point3],
-      [point2, point4],
-      point5,
-      constOf(0.0)
-    );
+    let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
     expect(numOf(result)).toBeCloseTo(-3, digitPrecision);
   });
 
   test("with padding", async () => {
-    let result = halfPlaneSDF(
-      [point2, point3],
-      [point2, point4],
-      point5,
-      constOf(10.0)
-    );
+    let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
     expect(numOf(result)).toBeCloseTo(-13, digitPrecision);
   });
 
   test("zero outside", async () => {
-    let result = halfPlaneSDF([point2, point3], [point5], point1, constOf(0.0));
+    let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
     expect(numOf(result)).toBeCloseTo(1, digitPrecision);
   });
 });
 
 describe("convexPartitions", () => {
-  const convexPartitionsNum = (p: number[][]): number[][][] =>
-    convexPartitions(p.map(([x, y]) => [constOf(x), constOf(y)])).map((poly) =>
-      poly.map((point) => point.map(numOf))
-    );
+  // note: in each of these examples, we don't need to do anything special to
+  // convert VarADs to numbers because all the VarADs we're using happen to
+  // already be constants
 
   // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
   // point locations approximated by tracing in Inkscape; also note, this
@@ -151,7 +170,7 @@ describe("convexPartitions", () => {
 
   test("Figure 1 from [HM83], unflipped", () => {
     const p = hm83;
-    expect(convexPartitionsNum(p)).toEqual([
+    expect(convexPartitions(p)).toEqual([
       [p[10], p[9], p[8]],
       [p[10], p[8], p[7]],
       [p[10], p[7], p[6], p[13], p[12], p[11]],
@@ -165,7 +184,7 @@ describe("convexPartitions", () => {
 
   test("Figure 1 from [HM83], flipped", () => {
     const p = hm83.map(([x, y]) => [x, -y]);
-    expect(convexPartitionsNum(p)).toEqual([
+    expect(convexPartitions(p)).toEqual([
       [p[8], p[9], p[10]],
       [p[7], p[8], p[10]],
       [p[12], p[13], p[6], p[7], p[10], p[11]],
@@ -186,7 +205,7 @@ describe("convexPartitions", () => {
       [-91.23453778491817, -421.58123451418754],
       [-66.58844271068637, -378.07755653643574],
     ];
-    expect(convexPartitionsNum(p)).toEqual([
+    expect(convexPartitions(p)).toEqual([
       [p[3], p[4], p[5], p[0]],
       [p[0], p[1], p[2]],
       [p[0], p[2], p[3]],

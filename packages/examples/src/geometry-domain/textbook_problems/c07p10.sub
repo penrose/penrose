@@ -1,0 +1,21 @@
+Point F, G, H, J, K, L
+Triangle FGH := MkTriangle(F, G, H)
+Angle aFGH := InteriorAngle(F, G, H)
+Segment KH := MkSegment(K, H)
+Segment FL := MkSegment(F, L)
+Collinear(F, J, L)
+Collinear(K, J, H)
+Collinear(F, K, G)
+Collinear(G, L, H)
+RightMarked(aFGH)
+
+-- should be angle bisectors
+Angle GFL := InteriorAngle(G, F, L)
+Angle LFH := InteriorAngle(L, F, H)
+Angle GHK := InteriorAngle(G, H, K)
+Angle KHF := InteriorAngle(K, H, F)
+EqualAngleMarker1(GHK, KHF)
+EqualAngle(GHK, KHF)
+EqualAngleMarker2(GFL, LFH)
+EqualAngle(GFL, LFH)
+AutoLabel All

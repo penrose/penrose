@@ -1,7 +1,0 @@
-Vertex i, j, k, l, m
-Edge ij := MakeEdge( i, j )
-Edge jk := MakeEdge( j, k )
-Edge il := MakeEdge( i, l )
-Edge im := MakeEdge( i, m )
-
-AutoLabel All

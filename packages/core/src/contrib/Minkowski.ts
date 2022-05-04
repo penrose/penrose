@@ -1,4 +1,4 @@
-import { constOf, numOf, ops, varOf } from "engine/Autodiff";
+import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import {
   absVal,
   add,
@@ -59,8 +59,8 @@ export const rectangleDifference = (
  * Return -1.0 for negative number, +1.0 otherwise.
  */
 const signOf = (x: VarAD): VarAD => {
-  const negative = lt(x, constOf(0.0));
-  return ifCond(negative, constOf(-1.0), constOf(1.0));
+  const negative = lt(x, 0);
+  return ifCond(negative, -1, 1);
 };
 
 /**
@@ -110,7 +110,7 @@ const convexPolygonMinkowskiSDFOneSided = (
   p2: VarAD[][],
   padding: VarAD
 ): VarAD => {
-  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
@@ -150,13 +150,29 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
     return [p];
   }
 
+  // HACK (see also the note in types/ad): our autodiff engine isn't powerful
+  // enough to let us run a convex partitioning algorithm inside the optimizer
+  // loop, so instead, here we compile enough of the computation graph to
+  // compute the initial positions of the polygon vertices, evaluate that using
+  // the input values embedded in the children of the VarADs we were passed, run
+  // a convex partitioning algorithm on those vertex positions, and cross our
+  // fingers that this remains a valid convex partition as we optimize
+  const g = secondaryGraph(p.flat());
+  const inputs = [];
+  for (const v of g.nodes.keys()) {
+    if (typeof v !== "number" && v.tag === "Input") {
+      inputs[v.index] = v.val;
+    }
+  }
+  const coords = genCode(g)(inputs).secondary;
+
   // map each point back to its original VecAD object; note, this depends on the
   // fact that two points with the same contents are considered different as
   // keys in a JavaScript Map, very scary!
   const pointMap = new Map(
-    p.map((point) => {
-      const [x, y] = point;
-      return [{ x: numOf(x), y: numOf(y) }, point];
+    p.map((point, i) => {
+      const j = 2 * i;
+      return [{ x: coords[j], y: coords[j + 1] }, point];
     })
   );
 
@@ -185,7 +201,7 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
 export const overlappingPolygonPoints = (
   polygonPoints1: VarAD[][],
   polygonPoints2: VarAD[][],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = convexPartitions(polygonPoints2.map((p: VarAD[]) => ops.vneg(p)));
@@ -205,19 +221,16 @@ export const rectangleSignedDistance = (
 ): VarAD => {
   // Calculate relative coordinates for rectangle signed distance
   const [xp, yp] = ops
-    .vmul(constOf(0.5), ops.vadd(bottomLeft, topRight))
+    .vmul(0.5, ops.vadd(bottomLeft, topRight))
     .map((x) => absVal(x));
-  const [xr, yr] = ops.vmul(constOf(0.5), ops.vsub(topRight, bottomLeft));
+  const [xr, yr] = ops.vmul(0.5, ops.vsub(topRight, bottomLeft));
   const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
   // Positive distance (nonzero when the rectangle does not contain the origin)
   const e1 = sqrt(
-    add(
-      squared(max(sub(xp, xr), constOf(0.0))),
-      squared(max(sub(yp, yr), constOf(0.0)))
-    )
+    add(squared(max(sub(xp, xr), 0)), squared(max(sub(yp, yr), 0)))
   );
   // Negative distance (nonzero when the rectangle does contain the origin)
-  const ne2 = min(max(xq, yq), constOf(0.0));
+  const ne2 = min(max(xq, yq), 0);
   // Return the signed distance
   return add(e1, ne2);
 };
@@ -233,7 +246,7 @@ const containsConvexPolygonPoints = (
   p2: VarAD[],
   padding: VarAD
 ): VarAD => {
-  const center = ops.vdiv(p1.reduce(ops.vadd), varOf(p1.length));
+  const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
@@ -254,7 +267,7 @@ const containsConvexPolygonPoints = (
 export const containsPolygonPoints = (
   polygonPoints: VarAD[][],
   point: VarAD[],
-  padding: VarAD = constOf(0.0)
+  padding: VarAD = 0
 ): VarAD => {
   const cp1 = convexPartitions(polygonPoints);
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));

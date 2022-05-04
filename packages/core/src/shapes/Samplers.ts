@@ -1,4 +1,3 @@
-import { constOf } from "engine/Autodiff";
 import seedrandom from "seedrandom";
 import { VarAD } from "types/ad";
 import {
@@ -112,27 +111,23 @@ export const sampleFloatIn = (
   rng: seedrandom.prng,
   min: number,
   max: number
-): IFloatV<VarAD> => FloatV(constOf(randFloat(rng, min, max)));
+): IFloatV<VarAD> => FloatV(randFloat(rng, min, max));
 export const sampleVector = (
   rng: seedrandom.prng,
   canvas: Canvas
 ): IVectorV<VarAD> =>
-  VectorV(
-    [randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)].map(
-      constOf
-    )
-  );
+  VectorV([randFloat(rng, ...canvas.xRange), randFloat(rng, ...canvas.yRange)]);
 export const sampleWidth = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IFloatV<VarAD> => FloatV(constOf(randFloat(rng, 3, canvas.width / 6)));
-export const sampleZero = (): IFloatV<VarAD> => FloatV(constOf(0));
+): IFloatV<VarAD> => FloatV(randFloat(rng, 3, canvas.width / 6));
+export const sampleZero = (): IFloatV<VarAD> => FloatV(0);
 export const sampleHeight = (
   rng: seedrandom.prng,
   canvas: Canvas
-): IFloatV<VarAD> => FloatV(constOf(randFloat(rng, 3, canvas.height / 6)));
+): IFloatV<VarAD> => FloatV(randFloat(rng, 3, canvas.height / 6));
 export const sampleStroke = (rng: seedrandom.prng): IFloatV<VarAD> =>
-  FloatV(constOf(randFloat(rng, 0.5, 3)));
+  FloatV(randFloat(rng, 0.5, 3));
 export const sampleColor = (rng: seedrandom.prng): IColorV<VarAD> => {
   const [min, max] = [0.1, 0.9];
   return ColorV({
@@ -142,9 +137,9 @@ export const sampleColor = (rng: seedrandom.prng): IColorV<VarAD> => {
       randFloat(rng, min, max),
       randFloat(rng, min, max),
       0.5,
-    ].map(constOf),
+    ],
   });
 };
 export const sampleBlack = (): IColorV<VarAD> =>
-  ColorV({ tag: "RGBA", contents: [0, 0, 0, 1].map(constOf) });
+  ColorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
 export const sampleNoPaint = (): IColorV<VarAD> => ColorV({ tag: "NONE" });

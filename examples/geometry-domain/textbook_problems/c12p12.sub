@@ -1,8 +1,0 @@
-Point T, V, S, P
-Circle c := MkCircleR(P, V)
-Segment PV := Radius(c, V)
-Segment PT := Radius(c, T)
-Segment ST := Chord(c, S, T)
-Segment SV := Chord(c, V, S)
-Segment TV := Chord(c, T, V)
-AutoLabel All

@@ -9,22 +9,23 @@ import {
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
-import { join, parse, resolve } from "path";
+import chalk from "chalk";
+import convertHrtime from "convert-hrtime";
+import { randomBytes } from "crypto";
+import * as fs from "fs";
+import neodoc from "neodoc";
+import { dirname, join, parse, resolve } from "path";
+import * as prettier from "prettier";
+import uniqid from "uniqid";
 import { renderArtifacts } from "./artifacts";
-
-const fs = require("fs");
-const chalk = require("chalk");
-const neodoc = require("neodoc");
-const uniqid = require("uniqid");
-const convertHrtime = require("convert-hrtime");
 
 const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator batch LIB OUTFOLDER [--folders]  [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
+  automator batch LIB OUTFOLDER [--folders] [--src-prefix=PREFIX] [--repeat=TIMES] [--render=OUTFOLDER] [--staged] [--cross-energy]
   automator render ARTIFACTSFOLDER OUTFOLDER
-  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged]
+  automator draw SUBSTANCE STYLE DOMAIN OUTFOLDER [--src-prefix=PREFIX] [--staged] [--variation=VARIATION] [--folders] [--cross-energy]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
@@ -32,7 +33,8 @@ Options:
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: .]
   --repeat TIMES the number of instances 
   --staged Generate staged SVGs of the final diagram
-  --cross-energy compute the cross-instance energy
+  --cross-energy Compute the cross-instance energy
+  --variation The variation to use
 `;
 
 const nonZeroConstraints = (
@@ -56,8 +58,8 @@ const toMs = (hr: any) => hr[1] / 1000000;
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
   variation: string,
-  sub: any,
-  sty: any,
+  sub: string,
+  sty: string,
   dsl: string,
   folders: boolean,
   out: string,
@@ -90,13 +92,11 @@ const singleProcess = async (
     variation,
   });
   const compileEnd = process.hrtime(compileStart);
-  let compiledState;
-  if (compilerOutput.isOk()) {
-    compiledState = compilerOutput.value;
-  } else {
+  if (compilerOutput.isErr()) {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
+  const compiledState = compilerOutput.value;
 
   const labelStart = process.hrtime();
   // resample because initial sampling did not use the special sampling seed
@@ -106,18 +106,22 @@ const singleProcess = async (
   console.log(`Stepping for ${out} ...`);
 
   const convergeStart = process.hrtime();
-  // TODO: report runtime errors
-  const optimizedState = stepUntilConvergence(
-    initialState,
-    10000
-  ).unsafelyUnwrap();
+  let optimizedState;
+  const optimizedOutput = stepUntilConvergence(initialState, 10000);
+  if (optimizedOutput.isOk()) {
+    optimizedState = optimizedOutput.value;
+  } else {
+    throw new Error(
+      `Optimization failed:\n${showError(optimizedOutput.error)}`
+    );
+  }
   const convergeEnd = process.hrtime(convergeStart);
-
   const reactRenderStart = process.hrtime();
 
   // make a list of canvas data if staged (prepare to generate multiple SVGs)
-  let listOfCanvasData, canvas;
-  const resolvePath = (filePath: string) => {
+  const listOfCanvasData: string[] = [];
+  let canvas;
+  const resolvePath = async (filePath: string) => {
     const parentDir = parse(join(prefix, sty)).dir;
     const joined = resolve(parentDir, filePath);
     return fs.readFileSync(joined, "utf8").toString();
@@ -215,19 +219,26 @@ const singleProcess = async (
       listOfCanvasData.map(writeFileOut);
     } else {
       // not staged --> just need one diagram
-      fs.writeFileSync(join(out, "output.svg"), canvas);
+      fs.writeFileSync(
+        join(out, "output.svg"),
+        prettier.format(canvas, { parser: "html" })
+      );
     }
 
     fs.writeFileSync(join(out, "substance.sub"), subIn);
     fs.writeFileSync(join(out, "style.sty"), styIn);
     fs.writeFileSync(join(out, "domain.dsl"), dslIn);
-    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata));
+    fs.writeFileSync(join(out, "meta.json"), JSON.stringify(metadata, null, 2));
     console.log(
       chalk.green(`The diagram and metadata has been saved to ${out}`)
     );
     // returning metadata for aggregation
     return { metadata, state: optimizedState };
   } else {
+    const parentFolder = dirname(out);
+    if (!fs.existsSync(parentFolder)) {
+      fs.mkdirSync(parentFolder, { recursive: true });
+    }
     if (staged) {
       // write multiple svg files out
       const writeFileOut = (canvasData: any, index: number) => {
@@ -239,7 +250,7 @@ const singleProcess = async (
       listOfCanvasData.map(writeFileOut);
     } else {
       // just the final diagram
-      fs.writeFileSync(out, canvas);
+      fs.writeFileSync(out, prettier.format(canvas, { parser: "html" }));
       console.log(chalk.green(`The diagram has been saved as ${out}`));
     }
 
@@ -295,7 +306,7 @@ const batchProcess = async (
         styURI,
         dslURI,
         folders,
-        join(out, `${name}-${id}${folders ? "" : ".svg"}`),
+        join(out, `${name}${folders ? "" : ".svg"}`),
         prefix,
         staged,
         {
@@ -317,7 +328,7 @@ const batchProcess = async (
         finalMetadata[id] = metadata;
       }
     } catch (e) {
-      console.log(
+      console.trace(
         chalk.red(
           `${id} exited with an error. The Substance program ID is ${substance}. The error message is:\n${e}`
         )
@@ -328,7 +339,7 @@ const batchProcess = async (
   if (folders) {
     fs.writeFileSync(
       join(out, "aggregateData.json"),
-      JSON.stringify(finalMetadata)
+      JSON.stringify(finalMetadata, null, 2)
     );
     console.log(`The Aggregate metadata has been saved to ${out}.`);
   }
@@ -346,8 +357,8 @@ const batchProcess = async (
   const outFile = args["--outFile"] || join(args.OUTFOLDER, "output.svg");
   const times = args["--repeat"] || 1;
   const prefix = args["--src-prefix"];
-
   const staged = args["--staged"] || false;
+  const variation = args["--variation"] || randomBytes(20).toString("hex");
 
   if (args.batch) {
     for (let i = 0; i < times; i++) {
@@ -360,13 +371,23 @@ const batchProcess = async (
     renderArtifacts(args.ARTIFACTSFOLDER, args.OUTFOLDER);
   } else if (args.draw) {
     await singleProcess(
+      variation,
       args.SUBSTANCE,
       args.STYLE,
       args.DOMAIN,
       folders,
-      outFile,
+      folders ? args.OUTFOLDER : outFile,
       prefix,
       staged,
+      {
+        substanceName: args.SUBSTANCE,
+        styleName: args.STYLE,
+        domainName: args.DOMAIN,
+        id: uniqid("instance-"),
+      },
+      undefined, // reference
+      undefined, // referenceState
+      undefined, // extraMetadata
       ciee
     );
   } else {

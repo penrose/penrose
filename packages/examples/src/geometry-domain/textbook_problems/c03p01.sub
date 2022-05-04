@@ -1,0 +1,11 @@
+-- name in registry: parallel-lines
+Point J, K, L, M, N
+Line JK := MkLine(J, K)
+Line NL := MkLine(N, L)
+Line KM := MkLine(K, M)
+ParallelMarker1(JK, NL)
+Parallel(JK, NL)
+Collinear(L, M, N)
+Angle JKM := InteriorAngle(J, K, M)
+-- Supplementary(JKM) -- < 90 degree requirement
+AutoLabel All

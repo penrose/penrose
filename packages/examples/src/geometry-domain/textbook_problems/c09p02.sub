@@ -1,0 +1,5 @@
+Point J, K, L
+Triangle JKL := MkTriangle(J, K, L)
+Segment KL := MkSegment(K, L)
+Segment j := PerpendicularBisector(KL, J)
+AutoLabel All

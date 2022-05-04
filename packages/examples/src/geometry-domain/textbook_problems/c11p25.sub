@@ -1,0 +1,11 @@
+Point A, B, C, D
+Circle c
+Segment AB := Chord(c, A, B)
+Segment CD := Chord(c, C, D)
+Segment DB := Chord(c, D, B)
+Segment AC := Chord(c, A, C)
+Segment CB := Chord(c, B, C)
+Segment DA := Chord(c, D, A)
+ParallelMarker1(AB, CD)
+Parallel(AB, CD)
+AutoLabel All
