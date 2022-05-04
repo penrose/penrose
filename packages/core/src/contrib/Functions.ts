@@ -105,6 +105,21 @@ export const compDict = {
   },
 
   /**
+   * Orthonormalize two vectors
+   */
+  gramSchmidt: (a: IVectorV<VarAD>, b: IVectorV<VarAD>): IVectorV<VarAD> => {
+    const proj_b_a = ops.vmul(
+      div(ops.vdot(a.contents, b.contents), ops.vdot(a.contents, a.contents)),
+      a.contents
+    );
+    const basis = ops.vsub(b, proj_b_a);
+    return {
+      tag: "VectorV",
+      contents: ops.vnormalize(basis),
+    };
+  },
+
+  /**
    * Return the derivative of `varName`.
    * NOTE: This is a special system function. Don't change it!
    */

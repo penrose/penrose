@@ -1,3 +1,6 @@
+-- Original Style: https://github.com/penrose/penrose/blob/90e88c5a075d6a75698c49c2feb101275ae64af8/examples/geometry-domain/euclidean.sty
+-- Original comp. functions: https://github.com/penrose/penrose/blob/90e88c5a075d6a75698c49c2feb101275ae64af8/src/Penrose/Functions.hs
+
 canvas {
   width = 800
   height = 700
@@ -49,7 +52,7 @@ const {
     repelWeight2 = 0.5
     fontSize = "22pt"
     containPadding = 50.0
-    rayLength = 200.0
+    rayLength = 50.0
     pointSize = 4.0
     pointStroke = 0.0
     thetaRadius = 30.0
@@ -60,22 +63,21 @@ const {
 --Plane
 Plane p {
   dim = 700.0
-  p.text = Text {
+  p.text = Equation {
     center : ((dim / 2.0) - const.textPadding2, (dim / 2.0) - const.textPadding2)
-    string : p.label
+    string : "E^2"
     fontSize : const.fontSize
   }
 
   -- inner: #f3f4f9, outer: #8e93c4
   p.icon = Rectangle {
-    -- angle : 0.0
-    -- color : Colors.purple2
-    color : Colors.none -- TODO: arrange angle markers so plane can be opaque
+    -- fillColor : Colors.none -- TODO: arrange angle markers so plane can be opaque
+    fillColor : Colors.verylightpurple
     strokeColor : Colors.purple3
     strokeWidth : 2.0
     center : (0.0, 0.0)
-    w : dim
-    h : dim
+    width : dim
+    height : dim
   }
 
   p.text above p.icon
@@ -86,23 +88,22 @@ Point p {
   p.x = ?
   p.y = ?
   p.vec = (p.x, p.y)
-  p.color = Colors.black
 
-    p.icon = Circle {
-      center: p.vec
-      r : const.pointSize
-      color : Colors.black
-      strokeWidth : 0.0
-      strokeColor : Colors.black
-    }
+  p.icon = Circle {
+    center: p.vec
+    r : const.pointSize
+    fillColor : Colors.black
+    strokeWidth : 0.0
+    strokeColor : Colors.black
+  }
 
-    p.text = Text {
-      string : p.label
-      rotation : 0.0
-      color : Colors.black
-      fontSize : const.fontSize
-    }
-    ensure atDist(p.icon, p.text, const.textPadding)
+  p.text = Equation {
+    string : p.label
+    rotation : 0.0
+    color : Colors.black
+    fontSize : const.fontSize
+  }
+  ensure atDist(p.icon, p.text, const.textPadding)
 }
 
 Point p
@@ -210,7 +211,7 @@ with Point p; Point q {
   override e.icon = Line {
     start : p.icon.center
     end : q.icon.center
-    stroke : e.color
+    strokeColor : e.color
     thickness : const.strokeWidth
     style : "solid"
   }
@@ -236,24 +237,30 @@ Segment s
 where s := PerpendicularBisector(s2, p)
 with Segment s2; Point p {
   override s.icon = Line {
-    start : p.icon.center
-    end : midpoint(s2.icon.start, s2.icon.end)
-    stroke : s.color
-    thickness : const.strokeWidth
+    -- start : midpoint(s2.icon.start, s2.icon.end)
+    -- end : p.icon.center
+    end : p.icon.center
+    startArrowhead: true
+    arrowheadSize: const.arrowheadSize
+    strokeColor : Colors.darkpurple
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   startA = ptOnLine(s.icon.end, s.icon.start, const.thetaRadius)
   endA = ptOnLine(s.icon.end, s2.icon.end, const.thetaRadius)
   sweepA = arcSweepFlag(s.icon.end, startA, endA)
 
+  markSize = 10
   s.mark = Path {
-    pathData : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, 20.), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, 20.), ptOnLine(s.icon.end, s2.icon.end, 20.)])
+    d : pathFromPoints("open", [ptOnLine(s.icon.end, s.icon.start, markSize), innerPointOffset(s.icon.end, s.icon.start, s2.icon.end, markSize), ptOnLine(s.icon.end, s2.icon.end, markSize)])
     strokeWidth : 2.0
-    color : Colors.black
-    fill : Colors.none
+    strokeColor : Colors.black
+    fillColor : setOpacity(Colors.white, 0.5)
   }
 
+  ensure disjoint(p.text, s.icon)
   ensure perpendicular(s.icon.start, s.icon.end, s2.icon.end)
+  ensure equal(norm(s.icon.end - s.icon.start), const.rayLength)
 }
 
 Segment s
@@ -347,23 +354,32 @@ with Point p; Point q; Point r {
   theta.p = p.vec
   theta.q = q.vec
   theta.r = r.vec
-  theta.color = setOpacity(Colors.darkpurple, 0.4)
+  theta.color = Colors.darkpurple
   theta.side1 = Line {
     start : p.icon.center
     end : q.icon.center
-    stroke : theta.color
-    thickness : const.strokeWidth
+    strokeColor : theta.color
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   theta.side2 = Line {
     start : q.icon.center
     end : r.icon.center
-    stroke : theta.color
-    thickness : const.strokeWidth
+    strokeColor : theta.color
+    strokeWidth : const.strokeWidth
     style : "solid"
   }
   theta.radius = const.thetaRadius
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
+  startA = ptOnLine(theta.q, theta.p, theta.radius)
+  endA = ptOnLine(theta.q, theta.r, theta.radius)
+  sweepA = arcSweepFlag(theta.q, startA, endA)
+  -- TODO: fill color
+  override theta.mark = Path {
+    d : arc("open", startA, endA, (theta.radius, theta.radius), 0, 0, sweepA)
+    strokeWidth : 2.0
+    strokeColor : theta.color
+ }
 }
 
 -- NOTE: Get rid of repetition
@@ -549,21 +565,21 @@ with Point p; Point q; Point r {
   t.PQ = Line {
     start : p.icon.center
     end : q.icon.center
-    thickness : t.strokeWidth
+    strokeWidth : t.strokeWidth
   }
   t.QR = Line {
     start : q.icon.center
     end : r.icon.center
-    thickness : t.strokeWidth
+    strokeWidth : t.strokeWidth
   }
   t.RP = Line {
     start : r.icon.center
     end : p.icon.center
-    thickness : t.strokeWidth
+    strokeWidth : t.strokeWidth
   }
   t.icon = Path {
-    pathData : pathFromPoints("closed", [p.icon.center, r.icon.center, q.icon.center])
-    fill: Colors.purple2
+    d : pathFromPoints("closed", [p.icon.center, r.icon.center, q.icon.center])
+    fillColor: Colors.purple2
     strokeWidth: 0.0
   }
   encourage nonDegenerateAngle(p.icon, q.icon, r.icon)
@@ -684,7 +700,7 @@ with Triangle T {
   }
 
   -- TODO make it so that predicates can reference other predicates. 3/4 of these are copy-pasted from the Collinear predicate
-  ensure collinear(T.PQ.start, T.icon.start, T.PQ.end)
+  ensure collinear(T.PQ.start, T.icon.start, T.PQ.endendArrowhead)
   ensure collinear(T.QR.start, T.icon2.start, T.QR.end)  
   ensure collinear(T.RP.start, T.icon3.start, T.RP.end)
 
@@ -805,6 +821,10 @@ Point p
 where p := MkMidpoint(l)
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
+  override p.icon.fillColor = Colors.white
+  override p.icon.strokeColor = Colors.black
+  override p.icon.strokeWidth = 1
+  layer p.icon above l.icon
 }
 
 Point p
@@ -929,48 +949,50 @@ Ray r {
 Ray r
 with Angle theta; Point x; Point y; Point z
 where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
-    -- find the vector for the bisector ray
-    xy = normalize(y.vec - x.vec)
-    xz = normalize(z.vec - x.vec)
-    r_vec = xy + xz
-    -- change from generic `Linelike` shape to a specific shape for `Ray`
-    override r.icon = Line {
-        start: x.vec
-        end:  (r.length * r_vec) + x.vec
-        thickness : const.strokeWidth
-        stroke : Colors.black
-        rightArrowhead : true
-        arrowheadSize : const.arrowheadSize
-    }
+  -- find the vector for the bisector ray
+  xy = normalize(y.vec - x.vec)
+  xz = normalize(z.vec - x.vec)
+  r_vec = xy + xz
+  -- change from generic `Linelike` shape to a specific shape for `Ray`
+  override r.icon = Line {
+    start: x.vec
+    end:  (r.length * r_vec) + x.vec
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.darkpurple
+    endArrowhead : true
+    arrowheadSize : const.arrowheadSize
+  }
 
-    --   -- Bisect the arc twice more to get the bisector mark locations
-    --   -- Throw away z coordinate for each
-    --   theta.bisectpt1 = angleBisectorEuclidean(x.vec, y.vec, r.head, theta.radius)
-    --   theta.bisectpt2 = angleBisectorEuclidean(x.vec, z.vec, r.head, theta.radius)
-    --   theta.markLen = 10.0
+  -- Bisect the arc twice more to get the bisector mark locations
+  -- Throw away z coordinate for each
+  -- e1 = normalize(y.vec - x.vec)
+  -- e2 = gramSchmidt(e1, r.head - x.vec)
+  -- theta.bisectpt1 = 
+  -- theta.bisectpt2 = 
+  -- theta.markLen = 10.0
 
-    --   -- Angle bisector marks: two tick marks
-    --   theta.bisectMark1 = Curve {
-    --     pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
-    --     strokeWidth : const.strokeWidth
-    --     fill : Colors.none
-    --     color : Colors.darkpurple
-    --     rotation : 0.0
-    --     rightArrowhead : False
-    --     arrowheadSize : 0.0
-    --   }
+  --   -- Angle bisector marks: two tick marks
+  --   theta.bisectMark1 = Curve {
+  --     pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
+  --     strokeWidth : const.strokeWidth
+  --     fill : Colors.none
+  --     color : Colors.darkpurple
+  --     rotation : 0.0
+  --     rightArrowhead : False
+  --     arrowheadSize : 0.0
+  --   }
 
-    --   theta.bisectMark2 = Curve {
-    --     pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
-    --     strokeWidth : const.strokeWidth
-    --     fill : Colors.none
-    --     color : Colors.darkpurple
-    --     rotation : 0.0
-    --     rightArrowhead : False
-    --     arrowheadSize : 0.0
-    --   }
+  --   theta.bisectMark2 = Curve {
+  --     pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
+  --     strokeWidth : const.strokeWidth
+  --     fill : Colors.none
+  --     color : Colors.darkpurple
+  --     rotation : 0.0
+  --     rightArrowhead : False
+  --     arrowheadSize : 0.0
+  --   }
 
-    --   theta.layeringMark1 = theta.bisectMark1 above theta.shape
-    --   theta.layeringMark2 = theta.bisectMark2 above theta.shape
-    --   r.layering = r.shape above const.plane
+  --   theta.layeringMark1 = theta.bisectMark1 above theta.shape
+  --   theta.layeringMark2 = theta.bisectMark2 above theta.shape
+  --   r.layering = r.shape above const.plane
 }

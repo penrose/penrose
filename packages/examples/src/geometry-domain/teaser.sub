@@ -10,5 +10,5 @@ Point m := MkMidpoint(a)
 Angle theta := InteriorAngle(q, p, r)
 Triangle t := MkTriangle(p, r, s)
 Ray w := Bisector(theta)
--- Segment h := PerpendicularBisector(a, m)
+Segment h := PerpendicularBisector(a, m)
 AutoLabel All

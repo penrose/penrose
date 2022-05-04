@@ -127,10 +127,10 @@ const Line = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
   elem.appendChild(
-    arrowHead(leftArrowId, stroke, opacity, arrowheadStyle, arrowheadSize)
+    arrowHead(leftArrowId, color, opacity, arrowheadStyle, arrowheadSize)
   );
   elem.appendChild(
-    arrowHead(rightArrowId, stroke, opacity, arrowheadStyle, arrowheadSize)
+    arrowHead(rightArrowId, color, opacity, arrowheadStyle, arrowheadSize)
   );
   attrToNotAutoMap.push(
     "strokeColor",
