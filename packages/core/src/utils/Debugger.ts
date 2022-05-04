@@ -1,6 +1,6 @@
-import { A } from "types/ast";
+import { A, ASTNode } from "types/ast";
 import { DomainProg } from "types/domain";
-import { RelationPatternSubst, Selector, StyProg } from "types/style";
+import { StyProg } from "types/style";
 import { Subst } from "types/styleSemantics";
 import { SubProg } from "types/substance";
 
@@ -18,16 +18,16 @@ import { SubProg } from "types/substance";
  * Debugger.newInstance() before compiling each trio.  This may
  * be seen in penrose/core/compileTrio().
  */
-export class Debugger<T> {
+export class Debugger {
   private state = 0; // 0=listening, 1=answering
-  private static theInstance: Debugger<A>;
-  private rep: DebugStyleBlock<T>[] = [];
+  private static theInstance: Debugger;
+  private rep: DebugStyleBlock[] = [];
   private domSrc = "";
   private subSrc = "";
   private stySrc = "";
-  private domAst?: DomainProg<T>;
-  private subAst?: SubProg<T>;
-  private styAst?: StyProg<T>;
+  private domAst?: DomainProg<A>;
+  private subAst?: SubProg<A>;
+  private styAst?: StyProg<A>;
 
   // ------------------------- Singleton Impl. -----------------------------//
 
@@ -37,7 +37,7 @@ export class Debugger<T> {
    *
    * @returns A new instance of the debugger
    */
-  public static newInstance(): Debugger<A> {
+  public static newInstance(): Debugger {
     this.theInstance = new Debugger();
     return this.theInstance;
   }
@@ -46,7 +46,7 @@ export class Debugger<T> {
    *
    * @returns The current instance of the debugger
    */
-  public static getInstance(): Debugger<A> {
+  public static getInstance(): Debugger {
     if (this.theInstance == undefined) {
       return Debugger.newInstance();
     } else {
@@ -56,11 +56,11 @@ export class Debugger<T> {
 
   // ------------------------ Setters / Getters ----------------------------//
 
-  public addBlock(block: DebugStyleBlock<T>): void {
+  public addBlock(block: DebugStyleBlock): void {
     this.moveToListeningState();
     this.rep.push(JSON.parse(JSON.stringify(block)));
   }
-  public getBlocks(): DebugStyleBlock<T>[] {
+  public getBlocks(): DebugStyleBlock[] {
     return JSON.parse(JSON.stringify(this.rep));
   }
   public setDomSrc(domSrc: string): void {
@@ -75,15 +75,15 @@ export class Debugger<T> {
     this.moveToListeningState();
     this.stySrc = stySrc;
   }
-  public setDomAst(domAst: DomainProg<T>): void {
+  public setDomAst(domAst: DomainProg<A>): void {
     this.moveToListeningState();
     this.domAst = JSON.parse(JSON.stringify(domAst)); // Protect the rep
   }
-  public setSubAst(subAst: SubProg<T>): void {
+  public setSubAst(subAst: SubProg<A>): void {
     this.moveToListeningState();
     this.subAst = JSON.parse(JSON.stringify(subAst)); // Protect the rep
   }
-  public setStyAst(styAst: StyProg<T>): void {
+  public setStyAst(styAst: StyProg<A>): void {
     this.moveToListeningState();
     this.styAst = JSON.parse(JSON.stringify(styAst)); // Protect the rep
   }
@@ -168,7 +168,7 @@ export class Debugger<T> {
   public queryExplainStyleBlockApplication(
     styLine: number,
     relVars: Subst
-  ): DebugStyleBlockRel<T>[] {
+  ): DebugStyleBlockRel[] {
     // Ensure we are in a suitable state to answer questions
     this.moveToAnsweringState();
 
@@ -191,7 +191,7 @@ export class Debugger<T> {
           conds.filter((rel) =>
             this.hasMatchingSubstitution(
               rel,
-              theBlock as DebugStyleBlock<unknown>,
+              theBlock as DebugStyleBlock,
               relVars
             )
           )
@@ -236,34 +236,27 @@ export class Debugger<T> {
       //  - Add source text to reasons
       // (Might want to consider lazy-evaluating this)
       this.state = 1; // Answering
-      /*
-      this.srcMap = mapShapesToSource(
-        this.domAst,
-        this.domSrc,
-        this.subAst,
-        this.subSrc,
-        this.styAst,
-        this.stySrc
-      );
-      */
-      this.addSourceToReasons();
+      this.addSourceToRefs();
     }
   }
 
   // ------------------------- Helper Functions ----------------------------//
 
-  private addSourceToReasons() {
+  private addSourceToRefs() {
     this.moveToAnsweringState();
     this.rep.forEach((block) => {
-      // Resolve source refs to source text
-      block.unsats.concat(block.sats).forEach((unsat) => {
-        unsat.reasons.forEach((reason) => {
+      // Resolve Block Ref
+      block.blockRef.srcText = this.getSourceText(this.stySrc, block.blockRef);
+
+      // Loop over each relation in the block
+      block.unsats.concat(block.sats).forEach((sat) => {
+        // Resolve source for the relation
+        sat.relRef.srcText = this.getSourceText(this.stySrc, sat.relRef);
+
+        // Resolve source for each reason
+        sat.reasons.forEach((reason) => {
           reason.srcRef.forEach((srcRef) => {
-            srcRef.srcText = this.getSource(
-              this.stySrc,
-              { line: srcRef.lineStart, col: srcRef.colStart },
-              { line: srcRef.lineEnd, col: srcRef.colEnd }
-            );
+            srcRef.srcText = this.getSourceText(this.stySrc, srcRef);
           });
         });
       });
@@ -279,8 +272,8 @@ export class Debugger<T> {
    * @returns true if the relation matches the query, otherwise false
    */
   private hasMatchingSubstitution = (
-    rel: DebugStyleBlockRel<unknown>,
-    block: DebugStyleBlock<unknown>,
+    rel: DebugStyleBlockRel,
+    block: DebugStyleBlock,
     relVars: Subst
   ): boolean => {
     // Throw an exception if provided an empty query
@@ -291,15 +284,15 @@ export class Debugger<T> {
     // Loop over the substitution pairs in the query
     for (const k in relVars) {
       // If the queried style variable exists in the block...
-      if (k in rel.rel.subst) {
+      if (k in rel.subst) {
         // ... and the bound Substance variables do not match, return false
-        if (relVars[k] !== rel.rel.subst[k]) {
+        if (relVars[k] !== rel.subst[k]) {
           return false;
         }
       } else {
         // ... otherwise throw an exception if the style variable does not exist
         throw new Error(
-          `Style variable '${relVars[k]}' not found in Style block at lines ${block.sel["start"].line}-${block.sel["end"].line}`
+          `Style variable '${relVars[k]}' not found in Style block at lines ${block.blockRef["start"].line}-${block.blockRef["end"].line}`
         );
       }
     }
@@ -314,16 +307,14 @@ export class Debugger<T> {
    * @param line The line number of the style block
    * @returns The style block at that line number, otherwise undefined
    */
-  private getBlockAtLineNumber(
-    styLine: number
-  ): DebugStyleBlock<T> | undefined {
+  private getBlockAtLineNumber(styLine: number): DebugStyleBlock | undefined {
     // Loop over each style block to find the one specified on input
     for (const i in this.rep) {
       const block = this.rep[i];
       // Find the block specified by the line number; ignore the rest
       if (
-        block.sel["start"].line <= styLine &&
-        block.sel["end"].line >= styLine
+        block.blockRef["start"].line <= styLine &&
+        block.blockRef["end"].line >= styLine
       ) {
         return block;
       }
@@ -333,61 +324,106 @@ export class Debugger<T> {
 
   /**
    * Returns source text for the given start and end positions
+   *
    * @param pgmSrc Program source
-   * @param start Start line and column {line: number, col: number}
-   * @param end End line and column {line: number, col: number}
+   * @param srcRef Reference to lines and columns to return from source
    * @returns Source text
    */
-  private getSource(
-    pgmSrc: string,
-    start?: { line: number; col: number },
-    end?: { line: number; col: number }
-  ): string[] {
-    if (start && end) {
-      start.line = start.line - 1;
-      end.line = end.line - 1;
-      end.col = end.col + 1;
-    }
+  private getSourceText(pgmSrc: string, srcRef: DebugSourceRef): string[] {
+    // Locally adjust the lines and columns from the AST for processing here
+    const startLine: number = srcRef.lineStart - 1;
+    const startCol: number = srcRef.colStart;
+    const endLine: number = srcRef.lineEnd - 1;
+    const endCol: number = srcRef.colEnd + 1;
 
+    // Split the source into lines
     const lines = pgmSrc.split(/\r?\n/);
     const outLines: string[] = [];
-    const startLine = start ? start.line : 0;
-    const endLine = end ? end.line : lines.length - 1;
 
+    // Loop over the lines in the source to find the source Text
     for (let i = startLine; i < endLine + 1; i++) {
-      if (start && end) {
-        if (i >= start.line && i <= end.line) {
-          if (start.line == end.line) {
-            if (start.col <= end.col) {
-              outLines.push(lines[i].substring(start.col, end.col));
-            } else {
-              outLines.push(lines[i].substring(start.col));
-            }
-          } else if (i == start.line) {
-            outLines.push(lines[i].substring(start.col));
-          } else if (i == end.line) {
-            outLines.push(lines[i].substring(0, end.col));
+      if (i >= startLine && i <= endLine) {
+        if (startLine == endLine) {
+          if (startCol <= endCol) {
+            outLines.push(lines[i].substring(startCol, endCol));
           } else {
-            outLines.push(lines[i]);
+            outLines.push(lines[i].substring(startCol));
           }
+        } else if (i == startLine) {
+          outLines.push(lines[i].substring(startCol));
+        } else if (i == endLine) {
+          outLines.push(lines[i].substring(0, endCol));
+        } else {
+          outLines.push(lines[i]);
         }
-      } else {
-        outLines.push(lines[i]);
       }
     }
     return outLines;
   }
+
+  /**
+   * Returns a DebugSourceRef that corresponds to the AST Source Node.
+   * Note: This routine does not resolve the source text.
+   * @param node AST Source Node
+   * @returns DebugSourceRef
+   */
+  public static getSourceRefFromAstNode(node: ASTNode<A>): DebugSourceRef {
+    // First check that the node has a set of source references
+    if (
+      "start" in node &&
+      "line" in node["start"] &&
+      "col" in node["start"] &&
+      "end" in node &&
+      "line" in node["end"] &&
+      "col" in node["end"]
+    ) {
+      // Do nothing
+    } else {
+      throw new Error(`Invalid AST Node lacks start/end source refs: ${node}`);
+    }
+
+    // Determine the origin program of the node based on its type
+    let origin: DebugProgramType;
+    switch (node.nodeType) {
+      case "Domain": {
+        origin = DebugProgramType.DOMAIN;
+        break;
+      }
+      case "SyntheticStyle":
+      case "Style": {
+        origin = DebugProgramType.STYLE;
+        break;
+      }
+      case "SyntheticSubstance":
+      case "Substance": {
+        origin = DebugProgramType.SUBSTANCE;
+        break;
+      }
+      default:
+        throw new Error(`Unexpected AST node type: ${node.nodeType}`);
+    }
+
+    // Return the source reference
+    return {
+      origin: origin,
+      lineStart: node["start"].line,
+      lineEnd: node["end"].line,
+      colStart: node["start"].col,
+      colEnd: node["end"].col,
+    };
+  }
 }
 
-export type DebugStyleBlock<T> = {
-  sel: Selector<unknown>; // Selection Block
+export type DebugStyleBlock = {
+  blockRef: DebugSourceRef; // Selection Block Reference
   substs: Subst[]; // List of substitutions tried
   hasWhereClause: boolean; // true = Where clause present, false otherwise
-  sats: DebugStyleBlockRel<T>[]; // List of satisfied relations (if not a match-all block)
-  unsats: DebugStyleBlockRel<T>[]; // List of unsatisfied relations (if not a match-all block)
+  sats: DebugStyleBlockRel[]; // List of satisfied relations (if not a match-all block)
+  unsats: DebugStyleBlockRel[]; // List of unsatisfied relations (if not a match-all block)
 };
-export type DebugStyleBlockRel<T> = {
-  rel: RelationPatternSubst<T>;
+export type DebugStyleBlockRel = {
+  subst: Subst;
+  relRef: DebugSourceRef;
   reasons: DebugReason[];
 };
 export type DebugReason = {
@@ -404,11 +440,11 @@ export type DebugSourceRef = {
   srcText?: string[]; // Source text of the entity
 };
 export enum DebugProgramType {
-  DOMAIN = "DOM",
-  SUBSTANCE = "SUB",
-  STYLE = "STY",
+  DOMAIN = "Domain",
+  SUBSTANCE = "Substance",
+  STYLE = "Style",
 }
 export enum DebugReasonCodes {
   MATCHING_SUB_STATEMENTS_FOUND = "MATCHING_SUB_STATEMENTS_FOUND",
-  NO_MATCHING_SUB_STATEMENTS = "NO_MATCHING_SUB_STATEMENTS",
+  NO_MATCHING_SUB_STATEMENTS_FOUND = "NO_MATCHING_SUB_STATEMENTS_FOUND",
 }

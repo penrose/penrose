@@ -101,9 +101,11 @@ import {
 } from "types/value";
 import {
   Debugger,
-  DebugProgramType,
+  DebugReason,
   DebugReasonCodes,
+  DebugSourceRef,
   DebugStyleBlock,
+  DebugStyleBlockRel,
 } from "utils/Debugger";
 import {
   err,
@@ -1360,7 +1362,7 @@ const relMatchesProg = (
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rel: RelationPatternSubst<A>,
-  dbgStyBlock: DebugStyleBlock<A>
+  dbgStyBlock: DebugStyleBlock
 ): boolean => {
   if (rel.subRel.tag === "RelField") {
     // the current pattern matches on a Style field
@@ -1378,32 +1380,40 @@ const relMatchesProg = (
       return false;
     }
   } else {
-    const result = subProg.statements.some((line) => {
-      const result = relMatchesLine(typeEnv, subEnv, line, rel.subRel);
-      return result;
+    // Check if the relation matches a Substance statement
+    const linesMatched: DebugSourceRef[] = [];
+    const substanceMatchFound = subProg.statements.some((line) => {
+      if(relMatchesLine(typeEnv, subEnv, line, rel.subRel)) {
+        linesMatched.push(Debugger.getSourceRefFromAstNode(line));
+        return true;
+      } else {
+        return false;
+      }
     });
 
-    // Record the match result for the debugger
-    (result ? dbgStyBlock.sats : dbgStyBlock.unsats).push({
-      rel: rel,
-      reasons: [
-        {
-          code: result
-            ? DebugReasonCodes.MATCHING_SUB_STATEMENTS_FOUND
-            : DebugReasonCodes.NO_MATCHING_SUB_STATEMENTS,
-          srcRef: [
-            {
-              origin: DebugProgramType.STYLE,
-              lineStart: rel.preRel["start"].line,
-              lineEnd: rel.preRel["end"].line,
-              colStart: rel.preRel["start"].col,
-              colEnd: rel.preRel["end"].col,
-            },
-          ],
-        },
-      ],
-    });
-    return result;
+    // Record the match (or lack thereof) for the debugger
+    const relRef: DebugSourceRef = Debugger.getSourceRefFromAstNode(rel.preRel);
+    const reasons: DebugReason[] = [];
+    const relResult: DebugStyleBlockRel = {
+      subst: rel.subst,
+      relRef: relRef,
+      reasons: reasons,
+    }
+    if(substanceMatchFound) {
+      reasons.push({
+        code: DebugReasonCodes.MATCHING_SUB_STATEMENTS_FOUND,
+        srcRef: [...linesMatched],
+      });
+      dbgStyBlock.sats.push(relResult);
+    } else {
+      reasons.push({
+        code: DebugReasonCodes.NO_MATCHING_SUB_STATEMENTS_FOUND,
+        srcRef: [],
+      });
+      dbgStyBlock.unsats.push(relResult);
+    }
+    
+    return substanceMatchFound;
   }
 };
 
@@ -1413,7 +1423,7 @@ const allRelsMatch = (
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPatternSubst<A>[],
-  dbgStyBlock: DebugStyleBlock<A>
+  dbgStyBlock: DebugStyleBlock
 ): boolean => {
   return rels.every((rel) =>
     relMatchesProg(typeEnv, subEnv, subProg, rel, dbgStyBlock)
@@ -1428,7 +1438,7 @@ const filterRels = (
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
   substs: Subst[],
-  dbgStyBlock: DebugStyleBlock<A>
+  dbgStyBlock: DebugStyleBlock
 ): Subst[] => {
   const subProgFiltered: SubProg<A> = {
     ...subProg,
@@ -1589,8 +1599,8 @@ const findSubstsSel = (
       );
 
       // Track which substitutions matched the selection block for debugging
-      const dbgStyBlock: DebugStyleBlock<A> = {
-        sel: sel,
+      const dbgStyBlock: DebugStyleBlock = {
+        blockRef: Debugger.getSourceRefFromAstNode(sel),
         hasWhereClause: !(rels.length == 0),
         substs: [],
         sats: [],
