@@ -2,10 +2,10 @@
   <circle
     fill="#95733e"
     fill-opacity="0.5"
-    cx="281.01359911666293"
-    cy="351.88442318318516"
+    cx="274.58551144528076"
+    cy="342.1122421909071"
     stroke="none"
-    r="276.5893319299191"
+    r="273.94241756380666"
     ensureOnCanvas="true"
   >
     <title>A.icon</title>
@@ -13,10 +13,10 @@
   <circle
     fill="#6cbcaf"
     fill-opacity="0.5"
-    cx="347.8093741982165"
-    cy="240.1864313173371"
+    cx="366.32572588686037"
+    cy="233.41756277054463"
     stroke="none"
-    r="93.97209177650409"
+    r="91.57958414630986"
     ensureOnCanvas="true"
   >
     <title>C.icon</title>
@@ -24,16 +24,16 @@
   <circle
     fill="#82be8b"
     fill-opacity="0.5"
-    cx="402.4040350798255"
-    cy="242.72853040799532"
+    cx="419.91147544266886"
+    cy="241.7739807007867"
     stroke="none"
-    r="31.538595228172206"
+    r="30.986987101083034"
     ensureOnCanvas="true"
   >
     <title>G.icon</title>
   </circle>
   <g
-    transform="rotate(0, 390.35797316362596, 227.39407046658002)translate(390.35797316362596, 227.39407046658002)"
+    transform="rotate(0, 407.7781403428464, 226.4392152872532)translate(407.7781403428464, 226.4392152872532)"
     string="G"
     ensureOnCanvas="true"
   >
@@ -74,16 +74,16 @@
   <circle
     fill="#73bb38"
     fill-opacity="0.5"
-    cx="364.11486213430595"
-    cy="296.16328030416247"
+    cx="365.44522560001815"
+    cy="289.33054391430016"
     stroke="none"
-    r="30.66448560238772"
+    r="30.6597903342567"
     ensureOnCanvas="true"
   >
     <title>F.icon</title>
   </circle>
   <g
-    transform="rotate(0, 352.6311091799116, 280.83069157857943)translate(352.6311091799116, 280.83069157857943)"
+    transform="rotate(0, 353.9630402096641, 274.0005632551683)translate(353.9630402096641, 274.0005632551683)"
     string="F"
     ensureOnCanvas="true"
   >
@@ -124,10 +124,10 @@
   <circle
     fill="#b7cca4"
     fill-opacity="0.5"
-    cx="449.36813785945975"
-    cy="394.1658067791069"
+    cx="446.9680139553842"
+    cy="394.5641043754817"
     stroke="none"
-    r="90.41528921480848"
+    r="88.61866578591939"
     ensureOnCanvas="true"
   >
     <title>B.icon</title>
@@ -135,16 +135,16 @@
   <circle
     fill="#b34f2d"
     fill-opacity="0.5"
-    cx="396.33202131390914"
-    cy="382.9743850603042"
+    cx="394.8311506119726"
+    cy="385.5318457939021"
     stroke="none"
-    r="30.79103575717029"
+    r="30.66420081701346"
     ensureOnCanvas="true"
   >
     <title>E.icon</title>
   </circle>
   <g
-    transform="rotate(0, 384.5318068712256, 367.6263504298017)translate(384.5318068712256, 367.6263504298017)"
+    transform="rotate(0, 383.1176201933508, 370.20397921352816)translate(383.1176201933508, 370.20397921352816)"
     string="E"
     ensureOnCanvas="true"
   >
@@ -185,16 +185,16 @@
   <circle
     fill="#a3632f"
     fill-opacity="0.5"
-    cx="503.3613553662887"
-    cy="390.6991885691952"
+    cx="499.48849770067807"
+    cy="389.6835264558348"
     stroke="none"
-    r="31.23912288058404"
+    r="30.681366133675976"
     ensureOnCanvas="true"
   >
     <title>D.icon</title>
   </circle>
   <g
-    transform="rotate(0, 490.69122487077584, 375.3651159385121)translate(490.69122487077584, 375.3651159385121)"
+    transform="rotate(0, 486.7896010498523, 374.37384726527904)translate(486.7896010498523, 374.37384726527904)"
     string="D"
     ensureOnCanvas="true"
   >
@@ -233,7 +233,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 336.1324653621591, 224.83874718948456)translate(336.1324653621591, 224.83874718948456)"
+    transform="rotate(0, 354.5010394881115, 218.0108733990727)translate(354.5010394881115, 218.0108733990727)"
     string="C"
     ensureOnCanvas="true"
   >
@@ -272,7 +272,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 437.7075237104364, 378.85805664614423)translate(437.7075237104364, 378.85805664614423)"
+    transform="rotate(0, 435.5271129993225, 378.88083727297106)translate(435.5271129993225, 378.88083727297106)"
     string="B"
     ensureOnCanvas="true"
   >
@@ -311,7 +311,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 269.533817258693, 336.5604386713073)translate(269.533817258693, 336.5604386713073)"
+    transform="rotate(0, 263.40324365410225, 326.81932868370194)translate(263.40324365410225, 326.81932868370194)"
     string="A"
     ensureOnCanvas="true"
   >

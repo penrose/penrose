@@ -1,26 +1,10 @@
 import * as ad from "types/ad";
 import { VarAD } from "types/ad";
 
-// HACK: The previous implementation of the symbolic differentiation engine gave
-// each VarAD a `parentsAD` array, which determined the order in which the
-// partial derivatives for that node would be added together. This matters
-// because floating-point addition is not associative. On creation, each VarAD
-// would append itself to the `parentsAD` of each of its children, so each
-// `parentsAD` was sorted by node creation time. Therefore, in order to give the
-// exact same results as the previous engine, this new engine uses a global
-// counter to give (almost) every VarAD a unique index `i`, to use for sorting
-// edges while constructing gradient nodes. Obviously this is bad because it
-// means that the result of the optimizer depends not just on the structure of
-// the computation graph but also on the exact order in which its parts are
-// constructed. This should be immediately removed after the new engine is
-// merged into `main`, but for bookkeeping, it is nice for the initial rewrite
-// to produce diagrams identical to those produced by the previous engine.
-let count = 0;
-
 const binary = (binop: ad.Binary["binop"]) => (
   v: VarAD,
   w: VarAD
-): ad.Binary => ({ tag: "Binary", binop, i: count++, left: v, right: w });
+): ad.Binary => ({ tag: "Binary", binop, left: v, right: w });
 
 const nary = (op: ad.Nary["op"], bin: (v: VarAD, w: VarAD) => ad.Binary) => (
   xs: VarAD[]
@@ -35,7 +19,7 @@ const nary = (op: ad.Nary["op"], bin: (v: VarAD, w: VarAD) => ad.Binary) => (
       return bin(xs[0], xs[1]);
     }
     default: {
-      return { tag: "Nary", i: count++, op, params: xs };
+      return { tag: "Nary", op, params: xs };
     }
   }
 };
@@ -92,7 +76,6 @@ export const minN = nary("minN", min);
  */
 export const atan2 = (y: VarAD, x: VarAD): ad.Binary => ({
   tag: "Binary",
-  i: count++,
   binop: "atan2",
   left: y,
   right: x,
@@ -107,7 +90,6 @@ export const pow = binary("pow");
 
 const unary = (unop: ad.Unary["unop"]) => (v: VarAD): ad.Unary => ({
   tag: "Unary",
-  i: count++,
   unop,
   param: v,
 });
@@ -289,7 +271,6 @@ export const or = binary("||");
  */
 export const ifCond = (cond: VarAD, v: VarAD, w: VarAD): ad.Ternary => ({
   tag: "Ternary",
-  i: count++,
   cond,
   then: v,
   els: w,
