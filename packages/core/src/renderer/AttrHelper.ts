@@ -1,113 +1,164 @@
-import {
-  IColorV,
-  IFloatV,
-  IVectorV,
-  IStrV,
-  IPtListV,
-  ILListV,
-  Value,
-} from "types/value";
+/**
+ * Provides an assortment of utility functions shared across shapes that computes
+ * output SVG properties using the optimized shape properties as input.
+ */
+
 import { Shape } from "types/shape";
-import { toHex, toScreen } from "utils/Util";
+import { IColorV, IFloatV, IPtListV, IStrV, IVectorV } from "types/value";
+import { toFontRule } from "utils/CollectLabels";
+import { toScreen, toSvgOpacityProperty, toSvgPaintProperty } from "utils/Util";
+import { attrMapSvg } from "./AttrMapSvg";
 
-export const attrFill = ({ properties }: Shape, elem: SVGElement) => {
-  const color = properties.color as IColorV<number>;
-  const alpha = color.contents.contents[3];
-  elem.setAttribute("fill", toHex(color.contents));
-  elem.setAttribute("fill-opacity", alpha.toString());
+/**
+ * Auto-map to SVG any input properties for which we lack specific logic.
+ *
+ * Apply a map, AttrMapSvg, to perform any target-specific property name translation,
+ * i.e., map from Penrose camel case formal to SVG mixed-case/kebab format.  Property names
+ * not found in the map are mapped straight across.
+ *
+ * Note: Right now we are neither validating the SVG property names nor its contents.  The
+ * thinking is to add an optional validator to the end of the pipeline at some point rather
+ * than implement validation for all passthrough SVG properties inside Penrose.
+ *
+ * Note: This is an "escape hatch" for "passthrough" SVG properties we don't currently support.
+ *
+ * Note: SVG property names are case sensitive.
+ */
+export const attrAutoFillSvg = (
+  { properties }: Shape,
+  elem: SVGElement,
+  attrAlreadyMapped: string[]
+): void => {
+  // Internal properties to never auto-map to SVG
+  const attrToNeverAutoMap: string[] = ["strokeStyle"];
+
+  // Merge the mapped and never-map properties.  Convert to Set
+  const attrToNotAutoMap = new Set<string>(
+    attrAlreadyMapped.concat(attrToNeverAutoMap)
+  );
+
+  // Map unknown/unseen attributes with values to SVG output.
+  // This is the "escape hatch" for properties we don't support.
+  // NOTE: `style` is handled as a special case, because some of the built-in properties will write to it __and__ the user should be able to append to it. Therefore, we check if there's an existing value in `style` and append to it if true.
+  for (const propName in properties) {
+    const propValue: string = properties[propName].contents.toString();
+
+    // Only map properties with values and that we have not previously mapped
+    if (propValue !== "" && !attrToNotAutoMap.has(propName)) {
+      // If a mapping rule exists, apply it; otherwise, map straight across
+      if (propName in attrMapSvg) {
+        const mappedPropName: string = attrMapSvg[propName];
+        if (!elem.hasAttribute(mappedPropName)) {
+          elem.setAttribute(mappedPropName, propValue);
+        }
+      } else if (propName === "style" && propValue !== "") {
+        const style = elem.getAttribute(propName);
+        if (style === null) {
+          elem.setAttribute(propName, propValue);
+        } else {
+          elem.setAttribute(propName, `${style}${propValue}`);
+        }
+      } else {
+        if (!elem.hasAttribute(propName)) {
+          elem.setAttribute(propName, propValue);
+        }
+      }
+    }
+  }
 };
 
-export const attrNoFill = ({ properties }: Shape, elem: SVGElement) => {
-  elem.setAttribute("fill", "none");
+/**
+ * Maps fillColor --> fill, fill-opacity
+ */
+export const attrFill = ({ properties }: Shape, elem: SVGElement): string[] => {
+  const color = properties.fillColor as IColorV<number>;
+  const alpha = toSvgOpacityProperty(color.contents);
+
+  elem.setAttribute("fill", toSvgPaintProperty(color.contents));
+
+  // Fill opacity only relevant if fill is present
+  if (color.contents.tag !== "NONE") {
+    elem.setAttribute("fill-opacity", alpha.toString());
+  }
+
+  return ["fillColor"]; // Return array of input properties programatically mapped
 };
 
-export const attrOpacity = ({ properties }: Shape, elem: SVGElement) => {
-  const opacity = (properties.opacity as IFloatV<number>).contents;
-  elem.setAttribute("opacity", opacity.toString());
-};
-
+/**
+ * Maps center --> cx, cy
+ */
 export const attrCenter = (
   { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
-) => {
+): string[] => {
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   elem.setAttribute("cx", x.toString());
   elem.setAttribute("cy", y.toString());
+  return ["center"]; // Return array of input properties programatically mapped
 };
 
-export const attrPolyCenter = (
+/**
+ * Maps scale --> transform
+ */
+export const attrScale = (
   { properties }: Shape,
-  canvasSize: [number, number],
   elem: SVGElement
-) => {
-  if (properties.center) {
-    const [x, y] = toScreen(
-      properties.center.contents as [number, number],
-      canvasSize
-    );
-    elem.setAttribute("cx", x.toString());
-    elem.setAttribute("cy", y.toString());
-  } else {
-    const points = properties.points as IPtListV<number>;
-    const xs = points.contents.map((xy) => xy[0]);
-    const ys = points.contents.map((xy) => xy[1]);
-
-    const minX = Math.min(...xs),
-      minY = Math.min(...ys),
-      maxX = Math.max(...xs),
-      maxY = Math.max(...ys);
-
-    const cx = (minX + maxX) / 2,
-      cy = (minY + maxY) / 2;
-
-    const [x, y] = toScreen([cx, cy] as [number, number], canvasSize);
-    elem.setAttribute("cx", x.toString());
-    elem.setAttribute("cy", y.toString());
-  }
-};
-
-export const attrScale = ({ properties }: Shape, elem: SVGElement) => {
+): string[] => {
   let scale = properties.scale.contents;
   scale = scale || 1;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
   elem.setAttribute("transform", transform);
+
+  return ["scale"]; // Return array of input properties programatically mapped
 };
 
+/**
+ * Maps center, width, height --> transform
+ */
 export const attrTransformCoords = (
   { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
-) => {
+): string[] => {
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   let transform = elem.getAttribute("transform");
   transform =
     transform == null
       ? `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
       : transform + `translate(${x - w.contents / 2}, ${y - h.contents / 2})`;
   elem.setAttribute("transform", transform);
+
+  return ["center", "width", "height"]; // Return array of input properties programatically mapped
 };
 
+/**
+ * Maps center, width, height --> x, y
+ */
 export const attrXY = (
   { properties }: Shape,
   canvasSize: [number, number],
   elem: SVGElement
-) => {
+): string[] => {
   const center = properties.center as IVectorV<number>;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   elem.setAttribute("x", (x - w.contents / 2).toString());
   elem.setAttribute("y", (y - h.contents / 2).toString());
+
+  return ["center", "width", "height"]; // Return array of input properties programatically mapped
 };
 
 /**
+ * Maps center, width, height, rotation --> transform
+ *
  * Rotates a GPI by n degrees about a center
  * Note: elem must be `transform`able
  * NOTE: must be called before transform translate coords (matrix rules)
@@ -115,119 +166,188 @@ export const attrXY = (
  */
 export const attrRotation = (
   { properties }: Shape,
-  center: Value<number>,
-  w: Value<number>,
-  h: Value<number>,
   canvasSize: [number, number],
   elem: SVGElement
-): void => {
+): string[] => {
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
+  const center = properties.center;
   const rotation = (properties.rotation as IFloatV<number>).contents;
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   let transform = elem.getAttribute("transform");
   transform =
     transform == null
-      ? `rotate(${rotation}, ${x - (w.contents as number) / 2}, ${
-          y - (h.contents as number) / 2
-        })`
+      ? `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`
       : transform +
-        `rotate(${rotation}, ${x - (w.contents as number) / 2}, ${
-          y - (h.contents as number) / 2
-        })`;
+        `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`;
   elem.setAttribute("transform", transform);
+
+  return ["rotation", "center", "width", "height"]; // Return array of input properties programatically mapped
 };
 
-export const attrSideCoords = (
-  { properties }: Shape,
-  canvasSize: [number, number],
-  elem: SVGElement
-) => {
-  const center = properties.center as IVectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
-  const side = properties.side as IFloatV<number>;
-  let transform = elem.getAttribute("transform");
-  transform =
-    transform == null
-      ? `translate(${x - side.contents / 2}, ${y - side.contents / 2})`
-      : transform +
-        `translate(${x - side.contents / 2}, ${y - side.contents / 2})`;
-  elem.setAttribute("transform", transform);
-};
-
-export const attrRadius = ({ properties }: Shape, elem: SVGElement) => {
-  const r = properties.r as IFloatV<number>;
-  elem.setAttribute("r", r.contents.toString());
-};
-
-export const attrPathLength = ({ properties }: Shape, elem: SVGElement) => {
-  const pathLength = properties.pathLength as IFloatV<number>;
-  elem.setAttribute("pathLength", pathLength.contents.toString());
-};
-
-export const attrRadiusX = ({ properties }: Shape, elem: SVGElement) => {
-  const rx = properties.rx as IFloatV<number>;
-  elem.setAttribute("rx", rx.contents.toString());
-};
-
-export const attrRadiusY = ({ properties }: Shape, elem: SVGElement) => {
-  const ry = properties.ry as IFloatV<number>;
-  elem.setAttribute("ry", ry.contents.toString());
-};
-
-export const attrRadii = ({ properties }: Shape, elem: SVGElement) => {
-  const rx = properties.rx as IFloatV<number>;
-  const ry = properties.ry as IFloatV<number>;
-  elem.setAttribute("rx", rx.contents.toString());
-  elem.setAttribute("ry", rx.contents.toString());
-};
-
-export const attrWH = ({ properties }: Shape, elem: SVGElement) => {
-  const w = properties.w as IFloatV<number>;
-  const h = properties.h as IFloatV<number>;
+/**
+ * Maps width, height --> width, height
+ */
+export const attrWH = ({ properties }: Shape, elem: SVGElement): string[] => {
+  const w = properties.width as IFloatV<number>;
+  const h = properties.height as IFloatV<number>;
   elem.setAttribute("width", w.contents.toString());
   elem.setAttribute("height", h.contents.toString());
+
+  return ["width", "height"]; // Return array of input properties programatically mapped
 };
 
-export const attrPoints = ({ properties }: Shape, elem: SVGElement) => {
-  const points = properties.points as IPtListV<number>;
-  elem.setAttribute("points", points.contents.toString());
+/**
+ * Maps cornerRadius --> rx
+ */
+export const attrCornerRadius = (
+  { properties }: Shape,
+  elem: SVGElement
+): string[] => {
+  const rx = properties.cornerRadius as IFloatV<number>;
+  elem.setAttribute("rx", rx.contents.toString());
+
+  return ["cornerRadius"]; // Return array of input properties programatically mapped
 };
 
-export const attrSide = ({ properties }: Shape, elem: SVGElement) => {
-  const side = properties.side as IFloatV<number>;
-  elem.setAttribute("width", side.contents.toString());
-  elem.setAttribute("height", side.contents.toString());
-};
-
-export const attrPathData = ({ properties }: Shape, elem: SVGElement) => {
+/**
+ * Maps data --> d
+ */
+export const attrPathData = (
+  { properties }: Shape,
+  elem: SVGElement
+): string[] => {
   const d = properties.data as IStrV;
   elem.setAttribute("d", d.contents.toString());
+
+  return ["data"]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps string --> new TextNode
+ */
+export const attrString = (
+  { properties }: Shape,
+  elem: SVGElement
+): string[] => {
+  const str = properties.string as IStrV;
+  const text = document.createTextNode(str.contents.toString());
+  elem.appendChild(text);
+
+  return ["string"]; // Return array of input properties programatically mapped
 };
 
 export const DASH_ARRAY = "7,5";
 
-export const attrStroke = ({ properties }: Shape, elem: SVGElement) => {
+/**
+ * Maps strokeColor --> stroke, stroke-opacity
+ *      strokeWidth --> stroke-width
+ *      strokeDasharray, strokeStyle --> stroke-dasharray
+ *      strokeLinecap --> stroke-linecap
+ */
+export const attrStroke = (
+  { properties }: Shape,
+  elem: SVGElement
+): string[] => {
+  // Keep a list of which input properties we programatically mapped
+  const attrMapped: string[] = [];
+
   const strokeColor = properties.strokeColor as IColorV<number>;
-  const strokeAlpha = strokeColor.contents.contents[3];
+  const strokeAlpha = toSvgOpacityProperty(strokeColor.contents);
   const thickness = properties.strokeWidth.contents;
-  elem.setAttribute("stroke", toHex(strokeColor.contents));
-  elem.setAttribute("stroke-opacity", strokeAlpha.toString());
-  elem.setAttribute("stroke-width", thickness.toString());
-  if (
-    "strokeDashArray" in properties &&
-    properties.strokeDashArray.contents !== ""
-  ) {
-    elem.setAttribute(
-      "stroke-dasharray",
-      (properties.strokeDashArray as IStrV).contents
-    );
-  } else if (properties.strokeStyle.contents === "dashed") {
-    elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+  elem.setAttribute("stroke", toSvgPaintProperty(strokeColor.contents));
+  attrMapped.push("strokeColor", "strokeWidth");
+
+  // Stroke opacity, width, and dashiness only relevant if stroke is present
+  if (strokeColor.contents.tag !== "NONE") {
+    elem.setAttribute("stroke-opacity", strokeAlpha.toString());
+    elem.setAttribute("stroke-width", thickness.toString());
+
+    if (
+      "strokeDasharray" in properties &&
+      properties.strokeDasharray.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-dasharray",
+        (properties.strokeDasharray as IStrV).contents
+      );
+    } else if (
+      "strokeStyle" in properties &&
+      properties.strokeStyle.contents === "dashed"
+    ) {
+      elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
+      attrMapped.push("strokeDasharray", "strokeStyle");
+    }
+
+    if (
+      "strokeLinecap" in properties &&
+      properties.strokeLinecap.contents !== ""
+    ) {
+      elem.setAttribute(
+        "stroke-linecap",
+        (properties.strokeLinecap as IStrV).contents
+      );
+    } else {
+      elem.setAttribute("stroke-linecap", "butt");
+    }
+    attrMapped.push("strokeLinecap");
   }
+
+  return attrMapped; // Return array of input properties programatically mapped
 };
 
-export const attrTitle = ({ properties }: Shape, elem: SVGElement) => {
+/**
+ * Maps name --> new Title
+ */
+export const attrTitle = (
+  { properties }: Shape,
+  elem: SVGElement
+): string[] => {
   const name = properties.name as IStrV;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;
   elem.appendChild(title);
+
+  return ["name"]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps fontFamily, fontSize, fontStretch, fontStyle, fontVariant, fontWeight, lineHeight -> font
+ */
+export const attrFont = (shape: Shape, elem: SVGElement): string[] => {
+  const fontString: string = toFontRule(shape);
+  const existingStyle: string | null = elem.getAttribute("style");
+
+  // TODO: check if `lineHeight` is valid
+  elem.setAttribute(
+    "style",
+    existingStyle
+      ? `${existingStyle}; font: ${fontString};`
+      : `font: ${fontString};`
+  );
+  return [
+    "fontFamily",
+    "fontSize",
+    "fontStretch",
+    "fontStyle",
+    "fontVariant",
+    "fontWeight",
+    "lineHeigh",
+  ]; // Return array of input properties programatically mapped
+};
+
+/**
+ * Maps points -> points
+ */
+export const attrPolyPoints = (
+  shape: Shape,
+  canvasSize: [number, number],
+  elem: SVGElement
+): string[] => {
+  const points = shape.properties.points as IPtListV<number>;
+  const pointsTransformed = points.contents.map((p: number[]) =>
+    toScreen(p as [number, number], canvasSize)
+  );
+  elem.setAttribute("points", pointsTransformed.toString());
+  return ["points"];
 };

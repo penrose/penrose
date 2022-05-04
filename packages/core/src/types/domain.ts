@@ -1,106 +1,107 @@
 //#region Domain AST
 
 import { Graph } from "graphlib";
-import { IStringLit, ASTNode, Identifier } from "./ast";
-import { ApplyConstructor, TypeConsApp } from "./substance";
 import { Map } from "immutable";
+import { A, ASTNode, C, Identifier, IStringLit } from "./ast";
+import { ApplyConstructor, TypeConsApp } from "./substance";
 
-export type Var = Identifier;
+export type Var<T> = Identifier<T>;
 
-export interface DomainProg extends ASTNode {
+export type DomainProg<T> = ASTNode<T> & {
   tag: "DomainProg";
-  statements: DomainStmt[];
-}
+  statements: DomainStmt<T>[];
+};
 
-export type Type = TypeVar | TypeConstructor | Prop;
-export interface Arg extends ASTNode {
+export type Type<T> = TypeVar<T> | TypeConstructor<T> | Prop<T>;
+export type Arg<T> = ASTNode<T> & {
   tag: "Arg";
-  variable: Identifier | undefined;
-  type: Type;
-}
-export interface NamedArg extends Arg {
-  variable: Identifier;
-}
-export interface TypeVar extends ASTNode {
+  variable: Identifier<T> | undefined;
+  type: Type<T>;
+};
+export type NamedArg<T> = Arg<T> & {
+  variable: Identifier<T>;
+};
+export type TypeVar<T> = ASTNode<T> & {
   tag: "TypeVar";
-  name: Identifier;
-}
-export interface TypeConstructor {
+  name: Identifier<T>;
+};
+export type TypeConstructor<T> = ASTNode<T> & {
   tag: "TypeConstructor";
-  name: Identifier;
-  args: Type[];
-}
-export interface Prop extends ASTNode {
+  name: Identifier<T>;
+  args: Type<T>[];
+};
+export type Prop<T> = ASTNode<T> & {
   tag: "Prop";
-}
+};
 
-export type DomainStmt =
-  | TypeDecl
-  | PredicateDecl
-  | FunctionDecl
-  | ConstructorDecl
-  | PreludeDecl
-  | NotationDecl
-  | SubTypeDecl;
+export type DomainStmt<T> =
+  | TypeDecl<T>
+  | PredicateDecl<T>
+  | FunctionDecl<T>
+  | ConstructorDecl<T>
+  | PreludeDecl<T>
+  | NotationDecl<T>
+  | SubTypeDecl<T>;
 
-export interface TypeDecl extends ASTNode {
+export type TypeDecl<T> = ASTNode<T> & {
   tag: "TypeDecl";
-  name: Identifier;
-  params: TypeVar[];
-}
+  name: Identifier<T>;
+  params: TypeVar<T>[];
+  superTypes: Type<T>[];
+};
 
-export interface PredicateDecl extends ASTNode {
+export type PredicateDecl<T> = ASTNode<T> & {
   tag: "PredicateDecl";
-  name: Identifier;
-  params: TypeVar[];
-  args: Arg[];
-}
+  name: Identifier<T>;
+  params: TypeVar<T>[];
+  args: Arg<T>[];
+};
 
-export interface FunctionDecl extends ASTNode {
+export type FunctionDecl<T> = ASTNode<T> & {
   tag: "FunctionDecl";
-  name: Identifier;
-  params: TypeVar[];
-  args: Arg[];
-  output: Arg;
-}
-export interface ConstructorDecl extends ASTNode {
+  name: Identifier<T>;
+  params: TypeVar<T>[];
+  args: Arg<T>[];
+  output: Arg<T>;
+};
+export type ConstructorDecl<T> = ASTNode<T> & {
   tag: "ConstructorDecl";
-  name: Identifier;
-  params: TypeVar[];
-  args: NamedArg[];
-  output: Arg;
-}
-export interface PreludeDecl extends ASTNode {
+  name: Identifier<T>;
+  params: TypeVar<T>[];
+  args: NamedArg<T>[];
+  output: Arg<T>;
+};
+export type PreludeDecl<T> = ASTNode<T> & {
   tag: "PreludeDecl";
-  name: Var;
-  type: Type;
-}
+  name: Var<T>;
+  type: Type<T>;
+};
 // TODO: check if string type is enough
-export interface NotationDecl extends ASTNode {
+export type NotationDecl<T> = ASTNode<T> & {
   tag: "NotationDecl";
-  from: IStringLit;
-  to: IStringLit;
-}
-export interface SubTypeDecl extends ASTNode {
+  from: IStringLit<T>;
+  to: IStringLit<T>;
+};
+export type SubTypeDecl<T> = ASTNode<T> & {
   tag: "SubTypeDecl";
-  subType: Type;
-  superType: Type;
-}
+  subType: Type<T>;
+  superType: Type<T>;
+};
 
 //#endregion
 
 //#region Domain context
 export interface Env {
-  types: Map<string, TypeDecl>;
-  functions: Map<string, FunctionDecl>;
-  predicates: Map<string, PredicateDecl>;
-  constructors: Map<string, ConstructorDecl>;
-  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>; // constructors ordered by bindings
-  vars: Map<string, TypeConsApp>;
-  varIDs: Identifier[];
-  typeVars: Map<string, TypeVar>;
-  preludeValues: Map<string, TypeConstructor>; // TODO: store as Substance values?
-  subTypes: [TypeConstructor, TypeConstructor][];
+  types: Map<string, TypeDecl<C>>;
+  functions: Map<string, FunctionDecl<C>>;
+  predicates: Map<string, PredicateDecl<C>>;
+  constructors: Map<string, ConstructorDecl<C>>;
+  constructorsBindings: Map<string, [ApplyConstructor<A>, ConstructorDecl<C>]>; // constructors ordered by bindings
+  vars: Map<string, TypeConsApp<A>>;
+  varIDs: Identifier<A>[];
+  typeVars: Map<string, TypeVar<C>>;
+  preludeValues: Map<string, TypeConstructor<C>>; // TODO: store as Substance values?
+  subTypes: [TypeConstructor<C>, TypeConstructor<C>][];
   typeGraph: Graph;
 }
 //#endregion

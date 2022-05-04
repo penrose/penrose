@@ -1,31 +1,33 @@
 import {
+  Box,
+  Button,
+  Card,
+  Checkbox,
+  Chip,
+  styled,
+  Typography,
+} from "@material-ui/core";
+import { fetchResolver } from "@penrose/components";
+import {
   compileTrio,
   evalEnergy,
-  prepareState,
-  RenderStatic,
-  prettySubstance,
-  stepUntilConvergence,
-  resample,
-  SynthesizedSubstance,
-  showMutations,
   PenroseState,
+  prepareState,
+  prettySubstance,
+  RenderStatic,
+  resample,
   showError,
+  showMutations,
+  stepUntilConvergence,
+  SynthesizedSubstance,
 } from "@penrose/core";
 import React from "react";
-import {
-  styled,
-  Box,
-  Checkbox,
-  Card,
-  Typography,
-  Chip,
-  Button,
-} from "@material-ui/core";
 
 export interface GridboxProps {
   domain: string;
   style: string;
   substance: SynthesizedSubstance;
+  variation: string;
   progNumber: number;
   srcState: PenroseState | undefined;
   updateSrcProg: (newState: PenroseState) => void;
@@ -126,6 +128,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       };
 
       try {
+        // resample because initial sampling did not use the special sampling seed
         const energy = evalEnergy(await prepareState(crossState));
         this.setState({
           energy: Math.round(energy),
@@ -141,11 +144,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
   // TODO: this should really be put in a web worker, it blocks browser interaction
   async update() {
-    const res = compileTrio(
-      this.props.domain,
-      prettySubstance(this.props.substance.prog),
-      this.props.style
-    );
+    const res = compileTrio({
+      substance: prettySubstance(this.props.substance.prog),
+      style: this.props.style,
+      domain: this.props.domain,
+      variation: this.props.variation,
+    });
     if (res.isOk()) {
       try {
         // https://stackoverflow.com/a/19626821
@@ -153,15 +157,17 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         // component is rendered in an array, we want to delay ALL componentDidMount calls until
         // after ALL gridboxes have been initially rendered.
         await new Promise((r) => setTimeout(r, 1));
-        let state = await prepareState(res.value);
-        state = resample(state, 1);
+        // resample because initial sampling did not use the special sampling seed
+        let state = resample(await prepareState(res.value));
+        state = resample(state);
         const opt = stepUntilConvergence(state);
         if (opt.isErr()) {
           console.log(showError(opt.error));
           throw Error("optimization failed");
         }
         const optimized = opt.value;
-        this.setState({ diagramSVG: RenderStatic(optimized).outerHTML });
+        const rendered = await RenderStatic(optimized, fetchResolver);
+        this.setState({ diagramSVG: rendered.outerHTML });
         if (this.props.progNumber === 0) {
           // original program is cached by parent component to be used for CIEE with mutated progs
           this.props.updateSrcProg(optimized);

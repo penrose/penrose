@@ -5,14 +5,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.3.0](https://github.com/penrose/penrose/compare/v1.2.0...v1.3.0) (2021-06-24)
 
-
 ### Features
 
-* Style-Controlled Canvas Dimensions ([#589](https://github.com/penrose/penrose/issues/589)) ([9bf6901](https://github.com/penrose/penrose/commit/9bf6901c3e246bd00f2cab470aa17088595fbf77))
-
-
-
-
+- Style-Controlled Canvas Dimensions ([#589](https://github.com/penrose/penrose/issues/589)) ([9bf6901](https://github.com/penrose/penrose/commit/9bf6901c3e246bd00f2cab470aa17088595fbf77))
 
 # [1.2.0](https://github.com/penrose/penrose/compare/v1.1.0...v1.2.0) (2021-05-24)
 

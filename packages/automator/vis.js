@@ -6,7 +6,7 @@ module.exports = {
       const timeTypes = [
         // "overall",
         ["compilation", "compilation"],
-        ["labelling", "label generation"],
+        ["labelling", "state preparation"],
         ["optimization", "optimization"],
         ["rendering", "rendering"],
       ];

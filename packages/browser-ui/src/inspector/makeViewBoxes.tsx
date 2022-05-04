@@ -1,15 +1,15 @@
 import { bBoxDims, RenderShape, Shape } from "@penrose/core";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 // styling for shape inside viewbox - see ShapeView or Mod
-export const ShapeItem = styled.li<any>`
+export const ShapeItem = styled.li<React.OptionHTMLAttributes<never>>`
   display: block;
   padding: 1em;
   margin-top: -1px;
   border: 1px solid #d1d1d1;
-  background-color: ${({ selected }: any) =>
-    selected ? "#F9F9F9" : "#f0f0f0"};
+  background-color: ${(selected): string => (selected ? "#F9F9F9" : "#f0f0f0")};
   color: rgba(0, 0, 0, 0.5);
   font-family: monospace;
   display: flex;
@@ -22,7 +22,7 @@ const makeViewBoxes = (
   shapes: Shape[],
   selectedShape: number,
   setSelectedShape: (key: number) => void
-) => {
+): JSX.Element => {
   return (
     <div style={{ overflowY: "auto", height: "100%" }}>
       <ul
@@ -39,6 +39,20 @@ const makeViewBoxes = (
           // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
           // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
           const [w, h] = bBoxDims(properties, shapeType);
+
+          // HACK: stateful due to asynchronicity (could probably do it another way)
+          const [shapeHTML, setShapeHTML] = useState("");
+          useEffect(() => {
+            (async () => {
+              const shape = await RenderShape({
+                shape: { properties, shapeType },
+                labels: [],
+                canvasSize: [w, h],
+                pathResolver: async () => undefined,
+              });
+              setShapeHTML(shape.outerHTML);
+            })();
+          }, []);
           return (
             <ShapeItem
               key={`shapePreview-${key}`}
@@ -51,11 +65,7 @@ const makeViewBoxes = (
                   width="50"
                   height="50"
                   dangerouslySetInnerHTML={{
-                    __html: RenderShape({
-                      shape: { properties, shapeType },
-                      labels: [],
-                      canvasSize: [w, h],
-                    }).outerHTML,
+                    __html: shapeHTML,
                   }}
                 />
               </div>

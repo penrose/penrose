@@ -11,13 +11,48 @@ import {
   stateInitial,
   stepState,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
-import Inspector from "inspector/Inspector";
+import animalNameList from "animals";
+import colorNameList from "color-name-list/dist/colornames.json";
 import { isEqual } from "lodash";
 import * as React from "react";
 import SplitPane from "react-split-pane";
-import ButtonBar from "ui/ButtonBar";
-import { FileSocket, FileSocketResult } from "ui/FileSocket";
+import Inspector from "./inspector/Inspector";
+import ButtonBar from "./ui/ButtonBar";
+import { FileSocket, FileSocketResult } from "./ui/FileSocket";
+
+//#region variation generation
+
+// TODO: maybe factor this code out into its own module
+
+// all one-word colors
+const colors: string[] = colorNameList
+  .map(({ name }) => name)
+  .filter((color) => /^[A-Z][a-z]+$/.test(color));
+
+// all one-word animals, with first letter capitalized
+const animals: string[] = animalNameList.words
+  .filter((animal: string) => /^[a-z]+$/.test(animal))
+  .map((animal: string) => animal.charAt(0).toUpperCase() + animal.slice(1));
+
+// min and max are both inclusive
+const randInt = (min: number, max: number) =>
+  Math.floor(Math.random() * (max + 1 - min)) + min;
+
+const choose = (list: string[]) =>
+  list[Math.floor(Math.random() * list.length)];
+
+const generateVariation = () => {
+  const numDigits = randInt(3, 5);
+  const digits: number[] = [];
+  for (let i = 0; i < numDigits; i++) {
+    digits.push(randInt(0, 9));
+  }
+  return `${choose(colors)}${choose(animals)}${digits.join("")}`;
+};
+
+//#endregion
 
 /**
  * (browser-only) Downloads any given exported SVG to the user's computer
@@ -46,73 +81,89 @@ export interface ISettings {
   showInspector: boolean;
   autostep: boolean;
   autoStepSize: number;
+  variation: string;
 }
 
 interface ICanvasState {
-  data: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
-  error: PenroseError | null;
+  currentState: PenroseState | undefined; // NOTE: if the backend is not connected, data will be undefined
+  error: PenroseError | undefined;
   processedInitial: boolean;
   penroseVersion: string;
   history: PenroseState[];
-  files: FileSocketResult | null;
+  files: FileSocketResult | undefined;
   connected: boolean;
   settings: ISettings;
+  fileSocket: FileSocket | undefined;
 }
 
 const socketAddress = "ws://localhost:9160";
-class App extends React.Component<any, ICanvasState> {
+class App extends React.Component<unknown, ICanvasState> {
   public readonly state: ICanvasState = {
-    data: undefined,
-    error: null,
+    currentState: undefined,
+    fileSocket: undefined,
+    error: undefined,
     history: [],
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
-    files: null,
+    files: undefined,
     connected: false,
     settings: {
       autostep: false,
       showInspector: true,
-      autoStepSize: 10000,
+      autoStepSize: 50,
+      variation: "ChartreuseEchidna7291",
     },
   };
   public readonly buttons = React.createRef<ButtonBar>();
   public readonly canvasRef = React.createRef<HTMLDivElement>();
 
   // same as onCanvasState but doesn't alter timeline or involve optimization
-  public modCanvas = async (canvasState: PenroseState) => {
+  public modCanvas = async (canvasState: PenroseState): Promise<void> => {
     await new Promise((r) => setTimeout(r, 1));
 
     this.setState({
-      data: canvasState,
+      currentState: canvasState,
       processedInitial: true,
     });
     this.renderCanvas(canvasState);
   };
   // TODO: reset history on resample/got stuff
-  public onCanvasState = async (canvasState: PenroseState) => {
+  public onCanvasState = async (canvasState: PenroseState): Promise<void> => {
     // HACK: this will enable the "animation" that we normally expect
     await new Promise((r) => setTimeout(r, 1));
 
     this.setState({
-      data: canvasState,
-      history: [...this.state.history, canvasState],
+      currentState: canvasState,
+      // history: [...this.state.history, canvasState],
       processedInitial: true,
-      error: null,
+      error: undefined,
     });
     this.renderCanvas(canvasState);
     const { settings } = this.state;
     if (settings.autostep && !stateConverged(canvasState)) {
-      await this.stepUntilConvergence();
+      await this.step(this.state.settings.autoStepSize);
     }
   };
-  public downloadSVG = (): void => {
-    DownloadSVG(RenderStatic(this.state.data));
+  public downloadSVG = async (): Promise<void> => {
+    if (this.state.fileSocket) {
+      if (this.state.currentState) {
+        const rendering = await RenderStatic(
+          this.state.currentState,
+          this.state.fileSocket.getFile
+        );
+        DownloadSVG(rendering);
+      } else {
+        console.error("current state is undefined");
+      }
+    } else {
+      console.error("File socket uninitialized");
+    }
   };
   public downloadPDF = (): void => {
     console.error("PDF download not implemented");
   };
   public downloadState = (): void => {
-    const state = this.state.data;
+    const state = this.state.currentState;
     if (state) {
       const params = {
         ...state.params,
@@ -139,11 +190,11 @@ class App extends React.Component<any, ICanvasState> {
       );
     }
   };
-  public setSettings = (settings: ISettings) => {
+  public setSettings = (settings: ISettings): void => {
     this.setState({ settings });
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
   };
-  public autoStepToggle = async () => {
+  public autoStepToggle = async (): Promise<void> => {
     const newSettings = {
       ...this.state.settings,
       autostep: !this.state.settings.autostep,
@@ -157,10 +208,10 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
 
-  public step = (): void => {
-    if (this.state.data) {
+  public step = (numSteps: number): void => {
+    if (this.state.currentState) {
       try {
-        const stepped = stepState(this.state.data, 1);
+        const stepped = stepState(this.state.currentState, numSteps);
         void this.onCanvasState(stepped);
       } catch (e) {
         const error: PenroseError = {
@@ -169,7 +220,7 @@ class App extends React.Component<any, ICanvasState> {
           message: `Runtime error encountered: '${e}' Check console for more information.`,
         };
 
-        const errorWrapper = { error, data: undefined };
+        const errorWrapper = { error };
         this.setState(errorWrapper);
         throw e;
       }
@@ -179,17 +230,13 @@ class App extends React.Component<any, ICanvasState> {
   };
 
   public stepUntilConvergence = (): void => {
-    if (this.state.data) {
+    if (this.state.currentState) {
       const stepped = stepUntilConvergence(
-        this.state.data,
+        this.state.currentState,
         this.state.settings.autoStepSize
       );
       if (stepped.isErr()) {
-        const runtimeError: PenroseError = {
-          ...stepped.error,
-          errorType: "RuntimeError",
-        };
-        this.setState({ error: runtimeError, data: undefined });
+        this.setState({ error: stepped.error });
       } else {
         void this.onCanvasState(stepped.value);
       }
@@ -198,55 +245,76 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
 
-  public resample = async () => {
-    const NUM_SAMPLES = 1;
-    const oldState = this.state.data;
+  public reset = async (): Promise<void> => {
+    const oldState = this.state.currentState;
     if (oldState) {
       this.setState({ processedInitial: false });
-      const resampled = resample(oldState, NUM_SAMPLES);
+      oldState.seeds = variationSeeds(this.state.settings.variation).seeds;
+      const resampled = resample(oldState);
       void this.onCanvasState(resampled);
     }
   };
 
-  connectToSocket = () => {
-    FileSocket(
-      socketAddress,
-      async (files) => {
-        const { domain, substance, style } = files;
-        this.setState({ files, connected: true });
+  public resample = async (): Promise<void> => {
+    const variation = generateVariation();
+    const newSettings = { ...this.state.settings, variation };
+    this.setSettings(newSettings);
+    const oldState = this.state.currentState;
+    if (oldState) {
+      this.setState({ processedInitial: false });
+      oldState.seeds = variationSeeds(variation).seeds;
+      const resampled = resample(oldState);
+      void this.onCanvasState(resampled);
+    }
+  };
 
-        // TODO: does `processedInitial` need to be set?
-        this.setState({ processedInitial: false });
-        const compileRes = compileTrio(
-          domain.contents,
-          substance.contents,
-          style.contents
+  onFilesReceived = async (files: FileSocketResult): Promise<void> => {
+    const { domain, substance, style } = files;
+    this.setState({ files, connected: true });
+
+    // TODO: does `processedInitial` need to be set?
+    this.setState({ processedInitial: false });
+    const compileRes = compileTrio({
+      substance: substance.contents,
+      style: style.contents,
+      domain: domain.contents,
+      variation: this.state.settings.variation,
+    });
+    if (compileRes.isOk()) {
+      try {
+        // resample because initial sampling did not use the special sampling seed
+        const initState: PenroseState = resample(
+          await prepareState(compileRes.value)
         );
-        if (compileRes.isOk()) {
-          try {
-            const initState: PenroseState = await prepareState(
-              compileRes.value
-            );
-            void this.onCanvasState(initState);
-          } catch (e) {
-            const error: PenroseError = {
-              errorType: "RuntimeError",
-              tag: "RuntimeError",
-              message: `Runtime error encountered: '${e}' Check console for more information.`,
-            };
+        void this.onCanvasState(initState);
+      } catch (e) {
+        const error: PenroseError = {
+          errorType: "RuntimeError",
+          tag: "RuntimeError",
+          message: `Runtime error encountered: '${e}' Check console for more information.`,
+        };
 
-            const errorWrapper = { error, data: undefined };
-            this.setState(errorWrapper);
-            throw e;
-          }
-        } else {
-          this.setState({ error: compileRes.error, data: undefined });
-        }
-      },
-      () => {
-        this.setState({ connected: false });
+        const errorWrapper = { error, currentState: undefined };
+        this.setState(errorWrapper);
+        throw e;
       }
-    );
+    } else {
+      this.setState({ error: compileRes.error, currentState: undefined });
+    }
+  };
+
+  onSocketDisconnect = (): void => {
+    this.setState({ connected: false });
+  };
+
+  connectToSocket = (): void => {
+    this.setState({
+      fileSocket: new FileSocket(
+        socketAddress,
+        this.onFilesReceived,
+        this.onSocketDisconnect
+      ),
+    });
   };
 
   public componentDidMount(): void {
@@ -270,8 +338,8 @@ class App extends React.Component<any, ICanvasState> {
     this.connectToSocket();
   }
 
-  public updateData = async (data: PenroseState) => {
-    this.setState({ data: { ...data } });
+  public updateData = async (data: PenroseState): Promise<void> => {
+    this.setState({ currentState: { ...data } });
     if (this.state.settings.autostep) {
       const stepped = stepState(data);
       this.onCanvasState(stepped);
@@ -279,24 +347,28 @@ class App extends React.Component<any, ICanvasState> {
       this.renderCanvas(data);
     }
   };
-  public setInspector = async (showInspector: boolean) => {
+  public setInspector = async (showInspector: boolean): Promise<void> => {
     const newSettings = { ...this.state.settings, showInspector };
     this.setSettings(newSettings);
   };
-  public toggleInspector = async () => {
+  public toggleInspector = async (): Promise<void> => {
     await this.setInspector(!this.state.settings.showInspector);
   };
-  public hideInspector = async () => {
+  public hideInspector = async (): Promise<void> => {
     await this.setInspector(false);
   };
 
-  public renderCanvas = (state: PenroseState) => {
-    if (this.canvasRef.current !== null) {
+  public renderCanvas = async (state: PenroseState): Promise<void> => {
+    if (
+      this.canvasRef.current !== null &&
+      this.state.fileSocket !== undefined
+    ) {
       const current = this.canvasRef.current;
-      const rendered =
-        stateConverged(state) || stateInitial(state)
-          ? RenderInteractive(state, this.updateData)
-          : RenderStatic(state);
+      const rendered = await RenderInteractive(
+        state,
+        this.updateData,
+        this.state.fileSocket.getFile
+      );
       if (current.firstChild !== null) {
         current.replaceChild(rendered, current.firstChild);
       } else {
@@ -307,9 +379,8 @@ class App extends React.Component<any, ICanvasState> {
 
   private renderApp() {
     const {
-      data,
+      currentState: data,
       settings,
-      penroseVersion,
       history,
       files,
       error,
@@ -334,7 +405,9 @@ class App extends React.Component<any, ICanvasState> {
             autostep={settings.autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}
+            reset={this.reset}
             resample={this.resample}
+            error={error !== undefined}
             converged={data ? stateConverged(data) : false}
             initial={data ? stateInitial(data) : false}
             toggleInspector={this.toggleInspector}
@@ -354,7 +427,7 @@ class App extends React.Component<any, ICanvasState> {
             pane2Style={{ overflow: "hidden" }}
           >
             <div style={{ width: "100%", height: "100%" }}>
-              {data && (
+              {data && !error && (
                 <div
                   style={{ width: "100%", height: "100%" }}
                   ref={this.canvasRef}
@@ -364,12 +437,14 @@ class App extends React.Component<any, ICanvasState> {
             </div>
             {settings.showInspector ? (
               <Inspector
+                currentState={data}
                 history={history}
                 error={error}
                 onClose={this.toggleInspector}
                 modCanvas={this.modCanvas}
                 settings={settings}
                 setSettings={this.setSettings}
+                reset={this.reset}
               />
             ) : (
               <div />
@@ -380,7 +455,7 @@ class App extends React.Component<any, ICanvasState> {
     );
   }
 
-  public render() {
+  public render(): JSX.Element {
     return this.renderApp();
   }
 }

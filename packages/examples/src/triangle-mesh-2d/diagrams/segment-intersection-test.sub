@@ -1,0 +1,4 @@
+Vertex a, b, c, d
+Edge ab := MakeEdge(a,b)
+Edge cd := MakeEdge(c,d)
+Point p := Intersection(ab,cd)

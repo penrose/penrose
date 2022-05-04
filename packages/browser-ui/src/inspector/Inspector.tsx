@@ -1,19 +1,21 @@
+import { PenroseError, PenroseState } from "@penrose/core";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 import "@reach/tabs/styles.css";
+import { ISettings } from "App";
 import * as React from "react";
 import ErrorBoundary from "./ErrorBoundary";
-import Timeline from "./views/Timeline";
+import IViewProps from "./views/IViewProps";
 import viewMap from "./views/viewMap";
-import { PenroseError, PenroseState } from "@penrose/core";
-import { ISettings } from "App";
 
 interface IProps {
+  currentState: PenroseState | undefined;
   history: PenroseState[];
-  error: PenroseError | null;
+  error: PenroseError | undefined;
   onClose(): void;
   modCanvas(state: PenroseState): void;
   settings: ISettings;
   setSettings(ISettings): void;
+  reset(): void;
 }
 
 export interface IInspectState {
@@ -31,7 +33,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
   // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
-  public selectFrame = (frame: number) => {
+  public selectFrame = (frame: number): void => {
     this.setState({
       selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
     });
@@ -43,24 +45,28 @@ class Inspector extends React.Component<IProps, IInspectState> {
       ]
     );
   };
-  public render() {
+  public render(): JSX.Element {
     const { selectedFrame, selectedView } = this.state;
-    const { history, modCanvas, error, settings, setSettings } = this.props;
-    const currentFrame =
-      history.length === 0
-        ? null
-        : selectedFrame === -1
-        ? history[history.length - 1]
-        : history[selectedFrame];
-    const commonProps = {
+    const {
+      currentState,
+      history,
+      modCanvas,
+      error,
+      settings,
+      setSettings,
+      reset,
+    } = this.props;
+    const commonProps: IViewProps = {
       selectFrame: this.selectFrame,
-      frame: currentFrame,
+      // frame: currentFrame,
+      frame: currentState, // HACK: since history is disabled, we pass in the current state so the tab always shows the current state
       frameIndex: selectedFrame,
       history,
       modShapes: modCanvas,
       error,
       settings,
       setSettings,
+      reset,
     };
     return (
       <div
@@ -73,7 +79,6 @@ class Inspector extends React.Component<IProps, IInspectState> {
           marginBottom: "1em",
         }}
       >
-        <Timeline {...commonProps} />
         <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
           <Tabs
             index={selectedView}

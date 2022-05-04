@@ -1,0 +1,43 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+global {
+       nodeR = 6.
+}
+
+colors {
+       black = rgba(0., 0., 0., 1.)
+       gray = rgba(0.8, 0.8, 0.8, 1.)
+       red = rgba(1., 0., 0., 1.)
+       green = rgba(0., 1., 0., 1.)
+       blue = rgba(0., 0., 1., 1.)
+       none = none()
+}
+
+Node n {
+     n.shape = Circle { 
+             r: global.nodeR
+             strokeWidth: 0.
+             fillColor: colors.black
+     }
+
+     n.text = Equation {
+            string: n.label
+     }
+
+--      n.callout = Callout {
+--              anchor: n.shape.center
+--              center: n.text.center
+--              w: n.text.width
+--              h: n.text.height
+--              color: colors.gray
+--              padding: 30.
+--              strokeWidth: 2.
+--              strokeColor: colors.black
+--      }
+
+     dist = norm(n.callout.center - n.shape.center)
+     ensure lessThan(dist, 300.)
+}

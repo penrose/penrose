@@ -1,0 +1,111 @@
+{
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "folke.vscode-monorepo-workspace",
+      "karyfoundation.nearley",
+      "penrose.penrose-vs",
+      "silvenon.mdx"
+    ]
+  },
+  "folders": [
+    {
+      "name": "✨ penrose",
+      "path": "."
+    },
+    {
+      "name": "📦 @penrose/automator",
+      "path": "packages/automator"
+    },
+    {
+      "name": "📦 @penrose/browser-ui",
+      "path": "packages/browser-ui"
+    },
+    {
+      "name": "📦 @penrose/components",
+      "path": "packages/components"
+    },
+    {
+      "name": "📦 @penrose/core",
+      "path": "packages/core"
+    },
+    {
+      "name": "📦 @penrose/docs-site",
+      "path": "packages/docs-site"
+    },
+    {
+      "name": "📦 @penrose/examples",
+      "path": "packages/examples"
+    },
+    {
+      "name": "📦 @penrose/panels",
+      "path": "packages/panels"
+    },
+    {
+      "name": "📦 @penrose/roger",
+      "path": "packages/roger"
+    },
+    {
+      "name": "📦 @penrose/synthesizer",
+      "path": "packages/synthesizer"
+    },
+    {
+      "name": "📦 @penrose/synthesizer-ui",
+      "path": "packages/synthesizer-ui"
+    }
+  ],
+  "settings": {
+    // https://prettier.io/docs/en/index.html
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[graphql]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[less]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[mdx]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[scss]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yaml]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false,
+    "files.trimTrailingWhitespace": false,
+    "search.useParentIgnoreFiles": true
+  }
+}

@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword subKeywords label
+syn keyword subKeywords Label AutoLabel NoLabel All None
 
 " Comments
 syn keyword subTodo TODO FIXME XXX NOTE
@@ -16,6 +16,7 @@ syn match subComment "--.*$" contains=subTodo,@Spell
 
 " Types and values
 syn match subString "\$[^$]*\$"
+syn match subString "\"[^$]*\""
 
 let b:current_syntax = "sub"
 

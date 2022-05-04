@@ -1,6 +1,6 @@
 import { PenroseState, RenderStatic } from "@penrose/core";
 import * as React from "react";
-
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import IViewProps from "./IViewProps";
 
@@ -36,32 +36,38 @@ const TimelineItem = styled.li<any>`
   box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 3px 0px;
 `;
 
-class Timeline extends React.Component<IViewProps> {
-  public timelineRef = React.createRef<any>();
-  public componentDidUpdate = ({ history }: IViewProps) => {
-    if (history.length !== this.props.history.length) {
-      this.timelineRef.current.scrollLeft = this.timelineRef.current.scrollWidth;
+function Timeline({ frameIndex, history, selectFrame }: IViewProps) {
+  const ref = useRef<any>(null);
+  useEffect(() => {
+    if (history.length !== history.length && ref.current !== null) {
+      ref.current.scrollLeft = ref.current.scrollWidth;
     }
-  };
-  public render() {
-    const { frameIndex, history } = this.props;
-    return (
-      <TimelineStyled ref={this.timelineRef}>
-        {history.map((frame: PenroseState, k: number) => {
-          return (
-            <TimelineItem
-              selected={k === frameIndex}
-              key={k}
-              onClick={() => this.props.selectFrame(k)}
-              dangerouslySetInnerHTML={{
-                __html: RenderStatic(frame).outerHTML,
-              }}
-            />
-          );
-        })}
-      </TimelineStyled>
-    );
-  }
+  }, [history]);
+  // HACK: stateful due to asynchronicity (could probably do it another way)
+
+  return (
+    <TimelineStyled ref={ref}>
+      {history.map((frame: PenroseState, k: number) => {
+        const [shapeHTML, setShapeHTML] = useState("");
+        useEffect(() => {
+          (async () => {
+            const shape = await RenderStatic(frame, async () => undefined);
+            setShapeHTML(shape.outerHTML);
+          })();
+        }, []);
+        return (
+          <TimelineItem
+            selected={k === frameIndex}
+            key={k}
+            onClick={() => selectFrame(k)}
+            dangerouslySetInnerHTML={{
+              __html: shapeHTML,
+            }}
+          />
+        );
+      })}
+    </TimelineStyled>
+  );
 }
 
 export default Timeline;

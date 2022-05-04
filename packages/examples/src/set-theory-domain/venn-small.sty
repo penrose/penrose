@@ -1,0 +1,58 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Set x {
+    x.icon = Circle {
+        -- center : (?, ?)
+        r : ?
+        -- r : 100.0
+        strokeWidth : 0.0
+    }
+
+    x.text = Equation {
+        string : x.label
+    }
+
+    c = 20.0
+
+    x.debugShape = Line {
+        start: x.text.center
+        end: (x.text.center[0] + c * derivative(x.text.center[0]), x.text.center[1] + c * derivative(x.text.center[1]))
+        strokeColor: rgba(1.0, 0.0, 0.0, 0.5)
+        endArrowhead: true
+        arrowheadSize: 0.5
+        strokeWidth: 3.0
+        style: "dashed"
+    }
+
+    d = 20.0
+
+    x.debugShape2 = Line {
+        start: x.text.center
+        end: (x.text.center[0] + c * derivativePreconditioned(x.text.center[0]), x.text.center[1] + c * derivativePreconditioned(x.text.center[1]))
+        strokeColor: rgba(0.0, 0.0, 1.0, 0.5)
+        endArrowhead: true
+        arrowheadSize: 0.5
+        strokeWidth: 3.0
+        style: "dashed"
+    }
+
+    x.containFn = ensure contains(x.icon, x.text)
+    ensure contains(x.icon, x.text)
+    encourage sameCenter(x.text, x.icon)
+
+    ensure lessThan(20, x.icon.r)
+
+    layer x.text above x.icon
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+    ensure smallerThan(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon)
+
+    ensure contains(y.icon, x.icon, 5.0)
+    layer x.icon above y.icon
+}

@@ -1,14 +1,3 @@
-export interface Nothing<T> {
-  tag: "Nothing";
-}
-
-export interface Just<T> {
-  tag: "Just";
-  contents: T;
-}
-
-export type MaybeVal<T> = Nothing<T> | Just<T>;
-
 export interface Left<A> {
   tag: "Left";
   contents: A;

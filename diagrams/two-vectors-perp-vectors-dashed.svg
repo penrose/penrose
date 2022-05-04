@@ -1,0 +1,341 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+  <g ensureOnCanvas="true">
+    <filter
+      id="$LOCAL_block6_subst0.perpMark-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
+      <feGaussianBlur
+        result="blurOut"
+        in="offOut"
+        stdDeviation="4"
+      ></feGaussianBlur>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"></feFuncA>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <path
+      stroke="#000000"
+      fill="#ffffff"
+      stroke-width="1"
+      stroke-opacity="1"
+      fill-opacity="1"
+      d="M 400 350 L 418.88785521023186 343.42361199357714 L 412.31148067994286 324.5357520100994 L 393.42362546971106 331.11214001652223 Z "
+    ></path>
+    <title>$LOCAL_block6_subst0.perpMark</title>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="v.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="v.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 400 350 L 344.8298943001197 191.54715840260704"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#1a1ae6"
+      stroke-dasharray="4 1 2"
+      stroke-linecap="butt"
+      marker-end="url(#v.arrow-rightArrowhead)"
+    ></path>
+    <title>v.arrow</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="V.yAxis-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="V.yAxis-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 400 513.6320000000001 L 400 186.368"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#999999"
+      stroke-linecap="butt"
+      marker-start="url(#V.yAxis-leftArrowhead)"
+      marker-end="url(#V.yAxis-rightArrowhead)"
+    ></path>
+    <title>V.yAxis</title>
+  </g>
+  <g style="solid" ensureOnCanvas="true">
+    <marker
+      id="V.xAxis-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="V.xAxis-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 236.368 350 L 563.6320000000001 350"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke="#999999"
+      stroke-linecap="butt"
+      marker-start="url(#V.xAxis-leftArrowhead)"
+      marker-end="url(#V.xAxis-rightArrowhead)"
+    ></path>
+    <title>V.xAxis</title>
+  </g>
+  <g
+    transform="rotate(0, 315.8480181055203, 177.82476132436477)translate(315.8480181055203, 177.82476132436477)"
+    string="v"
+    ensureOnCanvas="true"
+  >
+    <title>v.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="8.5651"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 485 1000"
+    >
+      <g
+        stroke="none"
+        fill="#1a1ae6"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D463"
+                    d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g ensureOnCanvas="true">
+    <marker
+      id="u.arrow-leftArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <marker
+      id="u.arrow-rightArrowhead"
+      markerUnits="strokeWidth"
+      markerWidth="6.97"
+      markerHeight="5.68"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#1a1ae6"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 400 350 L 546.9112239455126 298.84833664751966"
+      stroke-opacity="1"
+      stroke-width="3"
+      stroke="#1a1ae6"
+      stroke-dasharray="4 1 2"
+      stroke-linecap="butt"
+      marker-end="url(#u.arrow-rightArrowhead)"
+    ></path>
+    <title>u.arrow</title>
+  </g>
+  <g
+    transform="rotate(0, 562.7175224286766, 260.581308008806)translate(562.7175224286766, 260.581308008806)"
+    string="u"
+    ensureOnCanvas="true"
+  >
+    <title>u.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="10.101519999999999"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 572 1000"
+    >
+      <g
+        stroke="none"
+        fill="#1a1ae6"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D462"
+                    d="M21 287Q21 295 30 318T55 370T99 420T158 442Q204 442 227 417T250 358Q250 340 216 246T182 105Q182 62 196 45T238 27T291 44T328 78L339 95Q341 99 377 247Q407 367 413 387T427 416Q444 431 463 431Q480 431 488 421T496 402L420 84Q419 79 419 68Q419 43 426 35T447 26Q469 29 482 57T512 145Q514 153 532 153Q551 153 551 144Q550 139 549 130T540 98T523 55T498 17T462 -8Q454 -10 438 -10Q372 -10 347 46Q345 45 336 36T318 21T296 6T267 -6T233 -11Q189 -11 155 7Q103 38 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 218.20973, 166.17)translate(218.20973, 166.17)"
+    string="V"
+    ensureOnCanvas="true"
+  >
+    <title>V.text</title>
+    <svg
+      style="font-size: 12pt"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.58054"
+      height="17.66"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 769 1000"
+    >
+      <g
+        stroke="none"
+        fill="#999999"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mtable">
+            <g data-mml-node="mtr">
+              <g data-mml-node="mtd">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D449"
+                    d="M52 648Q52 670 65 683H76Q118 680 181 680Q299 680 320 683H330Q336 677 336 674T334 656Q329 641 325 637H304Q282 635 274 635Q245 630 242 620Q242 618 271 369T301 118L374 235Q447 352 520 471T595 594Q599 601 599 609Q599 633 555 637Q537 637 537 648Q537 649 539 661Q542 675 545 679T558 683Q560 683 570 683T604 682T668 681Q737 681 755 683H762Q769 676 769 672Q769 655 760 640Q757 637 743 637Q730 636 719 635T698 630T682 623T670 615T660 608T652 599T645 592L452 282Q272 -9 266 -16Q263 -18 259 -21L241 -22H234Q216 -22 216 -15Q213 -9 177 305Q139 623 138 626Q133 637 76 637H59Q52 642 52 648Z"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <rect
+    x="225"
+    y="175"
+    width="350"
+    height="350"
+    fill="none"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 225, 175)"
+    ensureOnCanvas="true"
+  >
+    <title>V.background</title>
+  </rect>
+</svg>

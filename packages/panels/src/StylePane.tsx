@@ -1,14 +1,14 @@
-import * as React from "react";
-import { Dispatcher } from "./reducer";
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
-import { monacoOptions } from "./Util";
+import { IRange } from "monaco-editor";
+import * as React from "react";
 import { useEffect } from "react";
 import {
   StyleCompletions,
   StyleConfig,
   StyleLanguageTokens,
 } from "./languages/StyleConfig";
-import { IRange } from "monaco-editor";
+import { Dispatcher } from "./reducer";
+import { monacoOptions } from "./Util";
 
 const StylePane = ({
   value,

@@ -7,12 +7,13 @@ export interface IViewProps {
   // Gives access to the full history of frames
   history: PenroseState[];
   // Quick access to the frame being shown
-  frame: PenroseState | null;
+  frame: PenroseState | undefined;
   // Either a valid index in History
   frameIndex: number;
   modShapes(state: PenroseState): void; // todo - null check
-  error: PenroseError | null;
+  error: PenroseError | undefined;
   settings: ISettings;
   setSettings(settings: ISettings): void;
+  reset(): void;
 }
 export default IViewProps;

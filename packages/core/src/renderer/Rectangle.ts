@@ -1,7 +1,8 @@
 import {
+  attrAutoFillSvg,
+  attrCornerRadius,
   attrFill,
-  attrRadiusX,
-  attrRadiusY,
+  attrRotation,
   attrStroke,
   attrTitle,
   attrWH,
@@ -9,15 +10,23 @@ import {
 } from "./AttrHelper";
 import { ShapeProps } from "./Renderer";
 
-const Rectangle = ({ shape, canvasSize }: ShapeProps) => {
+const Rectangle = ({ shape, canvasSize }: ShapeProps): SVGRectElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  attrXY(shape, canvasSize, elem);
-  attrWH(shape, elem);
-  attrFill(shape, elem);
-  attrStroke(shape, elem);
-  attrTitle(shape, elem);
 
-  attrRadiusX(shape, elem);
+  // Keep track of which input properties we programatically mapped
+  const attrToNotAutoMap: string[] = [];
+
+  // Map/Fill the shape attributes while keeping track of input properties mapped
+  attrToNotAutoMap.push(...attrXY(shape, canvasSize, elem));
+  attrToNotAutoMap.push(...attrWH(shape, elem));
+  attrToNotAutoMap.push(...attrFill(shape, elem));
+  attrToNotAutoMap.push(...attrStroke(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrCornerRadius(shape, elem));
+  attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
+
+  // Directrly Map across any "unknown" SVG properties
+  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;
 };

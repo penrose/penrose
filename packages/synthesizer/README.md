@@ -19,7 +19,7 @@ Options:
                        [default: registry.json]
   --num-programs=NUM   The number of programs to generate
                        [default: 1]
-  --synth-setting=SET  A JSON file containing parameters for the synthesizerI
+  --synth-setting=SET  A JSON file containing parameters for the synthesizer
 ```
 
 ## Getting started

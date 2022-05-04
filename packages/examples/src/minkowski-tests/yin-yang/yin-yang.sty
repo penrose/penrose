@@ -1,0 +1,39 @@
+
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Shape x {
+  x.x = ?
+  x.y = ?
+  x.angle = ?
+  
+  x.c = cos(x.angle)
+  x.s = sin(x.angle)
+
+  x.aa1 = (-50.0, 0.0)
+  x.aa2 = (100.0, 100.0)
+  x.aa3 = (-100.0, 100.0)
+  x.aa4 = (-100.0, -100.0)
+  x.aa5 = (50.0, 0.0)
+  x.aa6 = (0.0, 0.0)
+
+  x.a1 = (x.c * x.aa1[0] - x.s * x.aa1[1] + x.x, x.s * x.aa1[0] + x.c * x.aa1[1] + x.y)
+  x.a2 = (x.c * x.aa2[0] - x.s * x.aa2[1] + x.x, x.s * x.aa2[0] + x.c * x.aa2[1] + x.y)
+  x.a3 = (x.c * x.aa3[0] - x.s * x.aa3[1] + x.x, x.s * x.aa3[0] + x.c * x.aa3[1] + x.y)
+  x.a4 = (x.c * x.aa4[0] - x.s * x.aa4[1] + x.x, x.s * x.aa4[0] + x.c * x.aa4[1] + x.y)
+  x.a5 = (x.c * x.aa5[0] - x.s * x.aa5[1] + x.x, x.s * x.aa5[0] + x.c * x.aa5[1] + x.y)
+  x.a6 = (x.c * x.aa6[0] - x.s * x.aa6[1] + x.x, x.s * x.aa6[0] + x.c * x.aa6[1] + x.y)
+
+  x.icon = Polygon {
+    points: [x.a1, x.a2, x.a3, x.a4, x.a5, x.a6]
+  }
+
+  encourage equal(0.0, x.a6[0])
+  encourage equal(0.0, x.a6[1])
+}
+
+forall Shape x; Shape y {
+  ensure disjoint(x.icon, y.icon)
+}

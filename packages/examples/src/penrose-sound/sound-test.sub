@@ -1,0 +1,12 @@
+Point p, q, r
+Segment e := MakeSegment(p,q)
+Segment f := MakeSegment(q,r)
+
+Point a, b, c, d
+Segment g := MakeSegment(a,b)
+Segment h := MakeSegment(b,c)
+Segment i := MakeSegment(c,a)
+Segment j := MakeSegment(c,d)
+
+Point x, y, z
+Point X

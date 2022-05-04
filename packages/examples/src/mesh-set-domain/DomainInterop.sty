@@ -1,0 +1,465 @@
+-- Random seeds; first seed controls the vertex selection, second seed controls the mesh topology
+-- plugin "ddgjs" (11.0, 9.0)
+
+-- | Set Style program
+
+canvas {
+  width = 800
+  height = 700
+}
+
+const {
+      subsetColor = sampleColor(0.2, "rgb")
+      repelWeight = 0.0
+}
+
+Set x {
+    x.icon = Circle {
+        strokeWidth : 0.0
+    }
+
+    x.text = Equation {
+        string : x.label
+	fillCcolor : setOpacity(x.icon.fillColor, 1.0)
+    }
+
+    ensure contains(x.icon, x.text)
+    ensure contains(x.icon, x.text)
+    ensure lessThan(20, x.icon.r)
+    -- encourage sameCenter(x.text, x.icon)
+    x.icon below x.text
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    ensure contains(y.icon, x.icon, 5.0)
+    ensure smallerThan(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon) -- Is this not working?
+    x.icon above y.icon
+    -- layering1  = y.text below x.icon
+}
+
+Set x; Set y
+where NotIntersecting(x, y) {
+    ensure disjoint(x.icon, y.icon)
+}
+
+Set x; Set y
+where Intersect(x, y) {
+    ensure overlapping(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon)
+    ensure disjoint(x.text, y.icon)
+}
+
+Point p {
+    p.offset = 10.0
+    p.icon = Circle {
+        strokeWidth : 0.0
+        fillColor : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
+
+    p.text = Equation {
+        string : p.label
+        center : p.icon.center + (p.offset, p.offset)
+    }
+}
+
+Point p
+with Set A
+where PointIn(A, p) {
+    ensure contains(A.icon, p.icon, 0.3 * A.icon.r)
+    p.icon above A.icon
+    p.text above A.icon
+}
+
+Point p
+with Set A
+where PointNotIn(A, p) {
+-- where Not(PointIn(A, p)) {
+    ensure disjoint(A.icon, p.icon)
+}
+
+-- Put all the text on top of everything
+Set x; Set y {
+    encourage repel(x.text, y.text, const.repelWeight)
+    x.icon below y.text
+}
+
+Point p; Point q {
+     -- encourage repel(p.icon, q.icon, G.repelWeight2)
+     encourage repel(p.text, q.text, const.repelWeight)
+}
+
+Set x; Point p {
+    p.icon above x.icon
+    p.text above x.icon
+
+     encourage repel(p.text, x.text, const.repelWeight)
+}
+
+--------------------------------------
+-- | Mesh Style program
+
+global {
+    -- TODO: Behaves badly w/ padding=0.0, 1.0
+    global.labelPadding2 = 10.0
+    global.padding = 20.0
+    global.stroke = 2.0
+    global.spacing = 150.0
+
+    global.sc_rect_stroke = 2.0
+    global.edgeStroke = 1.5
+    global.selectedEdgeStroke = 3.0
+
+    global.selectedFaceColor = global.selectedColor
+
+    global.selectedRadius = 3.6
+    global.selectedThickness = 3.1
+
+    global.selectedColor = Colors.midnightblue
+    global.selectedColor2 = Colors.lightslategray
+
+    global.starColor = global.selectedColor
+    global.starColor2 = global.selectedColor2
+
+    global.closureColor = global.selectedColor
+    global.closureColor2 = global.selectedColor2
+
+    global.linkColor = global.selectedColor
+    global.linkColor2 = global.selectedColor2
+
+    global.setminusColor = global.selectedColor
+    global.setminusColor2 = global.selectedColor2
+
+    global.boundaryColor = global.selectedColor
+    global.boundaryColor2 = global.selectedColor2
+
+    -- For conversion from math space to screen space
+    -- TODO: compute these more automatically
+    -- These numbers (weights on inRange and the range itself) have been heavily tweaked
+    -- And it makes convergence hard
+    -- global.scaleFactor = ?
+    ensure inRange(global.scaleFactor, 75.0, 150.0)
+    global.scaleFactor = 70.0
+    -- global.offset = 150.0
+}
+
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = none()
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+-- TODO: this is going to match Subcomplex too... how to fix that?
+SimplicialComplex K {
+       -- No longer necessary, as box size is being computed
+       -- K.x_offset = ?
+       -- K.y_offset = ?
+
+       -- Plugin computes mesh's bbox center and dimensions; Style scales it and adds padding
+       -- K.box_padding = 50.0
+       K.center_x = -200.0
+       K.center_y = 0.0
+       K.size_x = 250.0
+       K.size_y = 300.0
+
+       -- K.center_x = ddg[K.name]["center_x"] * global.scaleFactor
+       -- K.center_y = ddg[K.name]["center_y"] * global.scaleFactor
+       -- K.size_x = ddg[K.name]["size_x"] * global.scaleFactor + K.box_padding
+       -- K.size_y = ddg[K.name]["size_y"] * global.scaleFactor + K.box_padding
+
+       K.icon = Rectangle {
+           center : (K.center_x, K.center_y)
+	       width : K.size_x
+	       height : K.size_y
+	       -- rotation : 0.0
+	       fillColor : setOpacity(Colors.gainsboro, 0.2)
+	       strokeColor : Colors.black
+	       strokeWidth : global.sc_rect_stroke
+       }
+
+       K.padding = 25.0
+
+       K.text = Equation {
+         center : (K.icon.center[0] - K.icon.width / 2.0 + K.padding, K.icon.center[1] - K.icon.height / 2.0 + K.padding)
+         string : K.label
+         -- rotation : 0.0
+         fillColor : Colors.black
+       }
+
+     encourage centerLabel(K.icon, K.text)
+
+       K.text above K.icon
+
+       -- Expression label
+       K.expr_padding = 25.0
+
+       K.const_text = Equation {
+       	 center : (K.icon.center[0], K.icon.center[1] - (K.size_y / 2.0) - K.expr_padding)
+       	 string : "\text{ }"
+       	 -- rotation : 0.0
+       	 fillColor : global.starColor
+       }
+
+       K.const_text above K.icon
+}
+
+-- TODO: this generates a (K1, K2) and (K2, K1) match
+SimplicialComplex K1; SimplicialComplex K2 {
+	 padding = 30.0
+
+	 -- TODO: improve this for rectangles by not just using the x size
+	 ensure disjoint(K1.icon, K2.icon, padding)
+         -- COMBAK: Put `sameHeight` back in?
+	 -- ensure sameHeight(K1.icon, K2.icon)
+
+	 -- distFn = ensure distBetween(K1.icon, K2.icon, padding)
+}
+
+Vertex v 
+where InVS(v, K)
+with SimplicialComplex K {
+     v.xpos = ?
+     v.ypos = ?
+       -- v.xpos = ddg[v.name]["x"] * global.scaleFactor
+       -- v.ypos = ddg[v.name]["y"] * global.scaleFactor
+
+       v.icon = Circle { 
+         center : (v.xpos, v.ypos) -- avoid "x <- f(x)" in override
+         r : global.selectedRadius
+	 fillColor : Colors.black
+	 strokeWidth : 0.0
+       }
+
+       -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
+       v.text = Equation {
+	 center : (?, ?) -- v.icon.x + global.padding
+	                 -- v.icon.y + global.padding
+	 string : v.label
+	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
+	 -- rotation : 0.0
+	 fillColor : v.icon.fillColor
+       }
+
+       v.icon above K.icon
+       v.text above K.icon
+
+     ensure contains(K.icon, v.icon, v.icon.r) -- padding
+
+     ensure atDist(v.icon, v.text, global.labelPadding2)
+     ensure contains(K.icon, v.text, 0.0)
+}
+
+-- Style a distinguished vertex (only if it's a result)
+Vertex v
+where DeclaredV(v); InVS(v, K); Result(v)
+with SimplicialComplex K {
+      -- Don't label the vertex because then we need to position it...
+      -- override v.text.string = v.label
+
+      override v.icon.r = global.selectedRadius
+      override v.icon.fillColor = global.closureColor
+
+      v.offset = 10.0
+     encourage near(v.text, v.icon, v.offset)
+
+      /*
+       -- Optimize the label padding, only for the distinguished vertex
+      v.padding_x = ?
+      v.padding_y = ?
+      override v.text.x = v.icon.x + v.padding_x
+      override v.text.y = v.icon.y + v.padding_y
+
+      v.offset = 30.0
+      -- This is trying to place the labels but it's very slow, goes from 40s to 3min
+     ensure contains(K.icon, v.text)
+      -- Label's color might need to be programmatically set depending on its location
+
+      v.padding_range = 20.0
+     ensure inRange(v.padding_x, v.icon.x - v.padding_range, v.icon.x + v.padding_range)
+     ensure inRange(v.padding_y, v.icon.y - v.padding_range, v.icon.y + v.padding_range) */
+}
+
+Vertex v; Edge e
+where InVS(v, K); InES(e, K)
+with SimplicialComplex K {
+     offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     ensure disjoint(v.text, e.icon, offset)
+}
+
+Vertex v; Edge e
+where DeclaredV(v); InVS(v, K); InES(e, K)
+with SimplicialComplex K {
+     offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     ensure disjoint(v.text, e.icon, offset)
+}
+
+Edge e
+where e := MkEdge(v1, v2); InES(e, K)
+with Vertex v1; Vertex v2; SimplicialComplex K {
+     e.icon = Line { 
+     	     start : v1.icon.center
+     	     end : v2.icon.center
+	     strokeColor : Colors.black
+	     strokeWidth : global.edgeStroke
+     }
+
+     e.text = Equation {
+       center : (?, ?)
+       string : e.label
+       -- rotation : 0.0
+       strokeColor : Colors.black
+     }
+
+     encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
+     ensure disjoint(e.text, e.icon, 5.0)
+
+     v1.icon above e.icon
+     v2.icon above e.icon
+     e.icon above K.icon
+}
+
+-- Style a distinguished edge (only if it's declared to be a result)
+Edge e
+where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
+with Vertex v1; Vertex v2; SimplicialComplex K {
+     override e.icon.strokeWidth = global.selectedEdgeStroke
+     override e.icon.strokeColor = global.closureColor
+
+     e.text = Equation {
+     -- TODO: Vectorize this
+       center : (average2(e.icon.start[0], e.icon.end[0]) + global.padding, average2(e.icon.start[1], e.icon.end[1]) + global.padding)
+       -- string : e.label
+       string : "\\text{ }" 
+       -- rotation : 0.0
+       fillColor : e.icon.strokeColor
+     }
+
+     e.text above K.icon
+}
+
+Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
+where f := MkFace(e1, e2, e3); InFS(f, K)
+with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
+     f.color = Colors.silver
+
+     f.icon = Path { 
+        -- As temp hack around furthestFrom, web-runtime assumes triangle is drawn in a consistent order (first point of each line)
+     	     d : triangle(e1.icon, e2.icon, e3.icon)
+	     strokeWidth : 0.0
+	     fillColor : setOpacity(f.color, 0.8)
+	     strokeColor : setOpacity(f.color, 0.8)
+	     -- rotation : 0.0
+     }
+
+     f.text = Equation {
+       -- Makes assumptions about vertex order in constructor
+       center : (average([e1.icon.start[0], e2.icon.start[0], e3.icon.start[0]]), average([e1.icon.start[1], e2.icon.start[1], e3.icon.start[1]]))
+       string : f.label
+       -- rotation : 0.0
+       fillColor : Colors.black
+     }
+
+     f.text above K.icon
+
+     f.icon above K.icon
+}
+
+-- Style and label a distinguished face
+Face f
+where DeclaredF(f); InFS(f, K)
+with SimplicialComplex K {
+     -- Need to pick a color that doesn't "override" the selected edges and vertices!
+     override f.icon.fillColor = global.selectedFaceColor
+     override f.icon.strokeColor = global.selectedFaceColor
+}
+
+-- Relative layerings within a simplicial complex
+Vertex v; Edge e; Face f
+where InVS(v, K); InES(e, K); InFS(f, K)
+with SimplicialComplex K {
+      v.text above f.icon 
+      v.text above e.icon
+}
+
+-- Only label the (last) result of an operation
+Object e
+with SimplicialComplex K
+where Result(e) {
+      override K.const_text.string = e.label
+}
+
+Edge e; Face f {
+     e.icon above f.icon
+     e.text above f.icon
+}
+
+Vertex v; Vertex w {
+     encourage repel(v.icon, w.icon, 1.0)
+}
+
+--------------------------------------
+-- | above this line, concatenate the two .sty files for Sets and Meshes
+
+forall Point p; Vertex v
+where Identified(p, v) {
+
+   icon = Line {
+      start : p.icon.center
+      end : v.icon.center
+      strokeColor: setOpacity(Colors.black, 0.25)
+      strokeWidth : 2.0
+      style : "dashed"
+   }
+
+   layer icon above p.icon
+   layer icon above v.icon
+   
+   -- rather than worry about the two diagrams colliding, just add some penalty that tries to make all the connecting lines fairly long
+   -- p.vector = (p.icon.x, p.icon.y)
+   -- v.vector = (v.icon.x, v.icon.y)
+   vec = p.icon.center - v.icon.center
+
+   -- TODO: encourage or ensure?
+   -- TODO: make this better
+   -- lenFn = encourage equal(norm_(p.icon.x - v.icon.x, p.icon.y - v.icon.y), 100.0)
+}
+
+Set s; Edge e
+where Identified(e, s) {
+      -- Make all edge subsets the same random color
+      s.icon.fillColor = setOpacity(Colors.purple, 0.2) -- const.subsetColor
+}
+
+-- TODO: hack for position; assuming there's only one face
+Set s; Face f
+where Identified(f, s) {
+    s.icon.center = (200.0, 0.0)
+}

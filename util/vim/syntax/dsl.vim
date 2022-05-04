@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword dslKeywords type predicate constructor notation
+syn keyword dslKeywords type predicate constructor function notation
 
 " Comments
 syn keyword dslTodo TODO FIXME XXX NOTE

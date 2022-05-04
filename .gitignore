@@ -32,9 +32,7 @@ node_modules/
 build/
 .tmp/
 _region_.tex
-/.vscode/*
-!/.vscode/extensions.json
-!/.vscode/settings.json
+.vscode/
 out*.txt
 penrose-ide/
 *.prof
@@ -51,3 +49,4 @@ examples/plugins/alloy/__temp.als__
 temp.als
 .*.sw*
 packages/panels/public/app.js.map
+.npmrc

@@ -3,403 +3,403 @@
 
 import { VarAD } from "./ad";
 import { ASTNode, Identifier, IStringLit } from "./ast";
+import { LabelType } from "./substance";
 
 /** Top level type for Style AST */
-export interface StyProg extends ASTNode {
+export type StyProg<T> = ASTNode<T> & {
   tag: "StyProg";
-  blocks: HeaderBlock[];
-}
+  blocks: HeaderBlock<T>[];
+};
 
 // type HeaderBlock = [Header, Block];
-export interface HeaderBlock extends ASTNode {
+export type HeaderBlock<T> = ASTNode<T> & {
   tag: "HeaderBlock";
-  header: Header;
-  block: Block;
-}
+  header: Header<T>;
+  block: Block<T>;
+};
 
-export interface Block extends ASTNode {
+export type Block<T> = ASTNode<T> & {
   tag: "Block";
-  statements: Stmt[];
-}
+  statements: Stmt<T>[];
+};
 
-export type Header = Selector | Namespace;
+export type Header<T> = Selector<T> | Namespace<T>;
 
-export interface Selector extends ASTNode {
+export type Selector<T> = ASTNode<T> & {
   tag: "Selector";
-  head: DeclPatterns;
-  with?: DeclPatterns;
-  where?: RelationPatterns;
-  namespace?: Namespace;
-}
+  head: DeclPatterns<T>;
+  with?: DeclPatterns<T>;
+  where?: RelationPatterns<T>;
+  namespace?: Namespace<T>;
+};
 
 // NOTE: Instead of a js array typed child. I explicitly wrap them in an ASTNode so location and ancestry info can be better preserved.
 // TODO: consider dropping the suffix pattern. It's a bit confusing, and DeclList would have been clearer.
-export interface DeclPatterns extends ASTNode {
+export type DeclPatterns<T> = ASTNode<T> & {
   tag: "DeclPatterns";
-  contents: DeclPattern[];
-}
+  contents: DeclPattern<T>[];
+};
 
-export interface Namespace extends ASTNode {
+export type Namespace<T> = ASTNode<T> & {
   tag: "Namespace";
-  contents: StyVar;
-}
+  contents: StyVar<T>;
+};
 
-export interface DeclPattern extends ASTNode {
+export type DeclPattern<T> = ASTNode<T> & {
   tag: "DeclPattern";
-  type: StyT;
-  id: BindingForm;
-}
+  type: StyT<T>;
+  id: BindingForm<T>;
+};
 
-export type RelationPattern = RelBind | RelPred;
+export type RelationPattern<T> = RelBind<T> | RelPred<T> | RelField<T>;
 
-export interface RelationPatterns extends ASTNode {
+export type RelField<T> = ASTNode<T> & {
+  tag: "RelField";
+  name: BindingForm<T>;
+  field: Identifier<T>;
+  fieldDescriptor?: LabelType;
+};
+
+export type RelationPatterns<T> = ASTNode<T> & {
   tag: "RelationPatterns";
-  contents: RelationPattern[];
-}
+  contents: RelationPattern<T>[];
+};
 
-export interface RelBind extends ASTNode {
+export type RelBind<T> = ASTNode<T> & {
   tag: "RelBind";
-  id: BindingForm;
-  expr: SelExpr;
-}
+  id: BindingForm<T>;
+  expr: SelExpr<T>;
+};
 
-export interface RelPred extends ASTNode {
+export type RelPred<T> = ASTNode<T> & {
   tag: "RelPred";
-  name: Identifier;
-  args: PredArg[];
-}
+  name: Identifier<T>;
+  args: PredArg<T>[];
+};
 
-export type PredArg = SEBind | RelPred;
+export type PredArg<T> = SEBind<T> | RelPred<T>;
 
 // NOTE: the original type is unnecessarily nested and contain type constructor, which is deprecated.
-export type StyT = Identifier;
+export type StyT<T> = Identifier<T>;
 // type StyT = ISTTypeVar | ISTCtor;
 
-export interface ISTTypeVar {
+export type ISTTypeVar<T> = ASTNode<T> & {
   tag: "STTypeVar";
-  contents: STypeVar;
-}
+  contents: STypeVar<T>;
+};
 
-export interface ISTCtor {
+export type ISTCtor<T> = ASTNode<T> & {
   tag: "STCtor";
-  contents: STypeCtor;
-}
+  contents: STypeCtor<T>;
+};
 
-export type STypeVar = ISTypeVar;
+export type STypeVar<T> = ISTypeVar<T>;
 
-export interface ISTypeVar {
+export type ISTypeVar<T> = ASTNode<T> & {
+  tag: "STypeVar";
   typeVarNameS: string;
-  typeVarPosS: SourcePos;
-}
+};
 
-export type STypeCtor = ISTypeCtor;
+export type STypeCtor<T> = ISTypeCtor<T>;
 
-export interface ISTypeCtor {
+export type ISTypeCtor<T> = ASTNode<T> & {
+  tag: "STypeCtor";
   nameConsS: string;
-  argConsS: SArg[];
-  posConsS: SourcePos;
-}
+  argConsS: SArg<T>[];
+};
 
-export type SArg = ISAVar | ISAT;
+export type SArg<T> = ISAVar<T> | ISAT<T>;
 
-export interface ISAVar {
+export type ISAVar<T> = ASTNode<T> & {
   tag: "SAVar";
-  contents: BindingForm;
-}
+  contents: BindingForm<T>;
+};
 
-export interface ISAT {
+export type ISAT<T> = ASTNode<T> & {
   tag: "SAT";
-  contents: StyT;
-}
+  contents: StyT<T>;
+};
 
-export type SelExpr = SEBind | SEFunc | SEValCons | SEFuncOrValCons;
+export type SelExpr<T> =
+  | SEBind<T>
+  | SEFunc<T>
+  | SEValCons<T>
+  | SEFuncOrValCons<T>;
 
-export interface SEBind extends ASTNode {
+export type SEBind<T> = ASTNode<T> & {
   tag: "SEBind";
-  contents: BindingForm;
-}
+  contents: BindingForm<T>;
+};
 
-export interface SEFunc extends ASTNode {
+export type SEFunc<T> = ASTNode<T> & {
   tag: "SEFunc";
-  name: Identifier;
-  args: SelExpr[];
-}
+  name: Identifier<T>;
+  args: SelExpr<T>[];
+};
 
-export interface SEValCons extends ASTNode {
+export type SEValCons<T> = ASTNode<T> & {
   tag: "SEValCons";
-  name: Identifier;
-  args: SelExpr[];
-}
+  name: Identifier<T>;
+  args: SelExpr<T>[];
+};
 // NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
-export interface SEFuncOrValCons extends ASTNode {
+export type SEFuncOrValCons<T> = ASTNode<T> & {
   tag: "SEFuncOrValCons";
-  name: Identifier;
-  args: SelExpr[];
-}
+  name: Identifier<T>;
+  args: SelExpr<T>[];
+};
 
-export type SourcePos = ISourcePos;
+export type Stmt<T> = PathAssign<T> | IOverride<T> | Delete<T> | IAnonAssign<T>;
 
-export interface ISourcePos {
-  sourceName: string;
-  sourceLine: Pos;
-  sourceColumn: Pos;
-}
-
-export type Pos = IPos;
-
-export type IPos = number;
-
-export type Stmt = PathAssign | IOverride | Delete | IAnonAssign;
-
-export interface PathAssign extends ASTNode {
+export type PathAssign<T> = ASTNode<T> & {
   tag: "PathAssign";
-  type: StyType;
-  path: Path;
-  value: Expr;
-}
+  type: StyType<T>;
+  path: Path<T>;
+  value: Expr<T>;
+};
 
-export interface IOverride extends ASTNode {
+export type IOverride<T> = ASTNode<T> & {
   tag: "Override";
-  path: Path;
-  value: Expr;
-}
+  path: Path<T>;
+  value: Expr<T>;
+};
 
-export interface Delete extends ASTNode {
+export type Delete<T> = ASTNode<T> & {
   tag: "Delete";
-  contents: Path;
-}
+  contents: Path<T>;
+};
 
-export interface IAnonAssign extends ASTNode {
+export type IAnonAssign<T> = ASTNode<T> & {
   tag: "AnonAssign";
-  contents: Expr;
-}
+  contents: Expr<T>;
+};
 
-export type StyType = ITypeOf | IListOf;
+export type StyType<T> = ITypeOf<T> | IListOf<T>;
 
-export interface ITypeOf {
+export type ITypeOf<T> = ASTNode<T> & {
   tag: "TypeOf";
   contents: string;
-}
+};
 
-export interface IListOf {
+export type IListOf<T> = ASTNode<T> & {
   tag: "ListOf";
   contents: string;
-}
+};
 
-export type BindingForm = SubVar | StyVar;
+export type BindingForm<T> = SubVar<T> | StyVar<T>;
 
-export interface SubVar extends ASTNode {
+export type SubVar<T> = ASTNode<T> & {
   tag: "SubVar";
-  contents: Identifier;
-}
+  contents: Identifier<T>;
+};
 
-export interface StyVar extends ASTNode {
+export type StyVar<T> = ASTNode<T> & {
   tag: "StyVar";
-  contents: Identifier;
-}
+  contents: Identifier<T>;
+};
 
-export type Expr =
-  // | IIntLit
-  | AnnoFloat
-  | IStringLit
-  | IBoolLit
-  | Path // NOTE: changed from EPath
-  | ICompApp
-  | IObjFn
-  | IConstrFn
-  // | IAvoidFn // TODO: unimplemented
-  | IBinOp
-  | IUOp
-  | IList
-  | ITuple
-  | IVector
-  | IMatrix
-  | IVectorAccess
-  | IMatrixAccess
-  | IListAccess
-  | GPIDecl
-  | ILayering
-  | IPluginAccess;
-// | IThenOp; // TODO: deprecated transformation exprs
+export type Expr<T> =
+  // | IIntLit<T>
+  | AnnoFloat<T>
+  | IStringLit<T>
+  | IBoolLit<T>
+  | Path<T> // NOTE: changed from EPath
+  | ICompApp<T>
+  | IObjFn<T>
+  | IConstrFn<T>
+  // | IAvoidFn<T> // TODO: unimplemented
+  | IBinOp<T>
+  | IUOp<T>
+  | IList<T>
+  | ITuple<T>
+  | IVector<T>
+  | IMatrix<T>
+  | IVectorAccess<T>
+  | IMatrixAccess<T>
+  | IListAccess<T>
+  | GPIDecl<T>
+  | ILayering<T>
+  | IPluginAccess<T>;
+// | IThenOp<T>; // TODO: deprecated transformation exprs
 
-export interface IIntLit {
+export type IIntLit<T> = ASTNode<T> & {
   tag: "IntLit";
   contents: number;
-}
+};
 
-// interface IAFloat {
+// export type IAFloat<T> = ASTNode<T> & {
 //     tag: "AFloat";
-//     contents: AnnoFloat;
-// }
+//     contents: AnnoFloat<T>;
+// };
 
-export interface IBoolLit extends ASTNode {
+export type IBoolLit<T> = ASTNode<T> & {
   tag: "BoolLit";
   contents: boolean;
-}
+};
 
-export interface ICompApp extends ASTNode {
+export type ICompApp<T> = ASTNode<T> & {
   tag: "CompApp";
-  name: Identifier;
-  args: Expr[];
-}
+  name: Identifier<T>;
+  args: Expr<T>[];
+};
 
-export interface IObjFn extends ASTNode {
+export type IObjFn<T> = ASTNode<T> & {
   tag: "ObjFn";
-  name: Identifier;
-  args: Expr[];
-}
+  name: Identifier<T>;
+  args: Expr<T>[];
+};
 
-export interface IConstrFn extends ASTNode {
+export type IConstrFn<T> = ASTNode<T> & {
   tag: "ConstrFn";
-  name: Identifier;
-  args: Expr[];
-}
+  name: Identifier<T>;
+  args: Expr<T>[];
+};
 
-export interface IAvoidFn {
+export type IAvoidFn<T> = ASTNode<T> & {
   tag: "AvoidFn";
-  contents: [string, Expr[]];
-}
+  contents: [string, Expr<T>[]];
+};
 
 export type BinaryOp = "BPlus" | "BMinus" | "Multiply" | "Divide" | "Exp";
 
 // NOTE: unary + operator not parsed, as they don't change values
 export type UnaryOp = "UMinus";
-export interface IBinOp extends ASTNode {
+export type IBinOp<T> = ASTNode<T> & {
   tag: "BinOp";
   op: BinaryOp;
-  left: Expr;
-  right: Expr;
-}
-export interface IUOp extends ASTNode {
+  left: Expr<T>;
+  right: Expr<T>;
+};
+export type IUOp<T> = ASTNode<T> & {
   tag: "UOp";
   op: UnaryOp;
-  arg: Expr;
-}
+  arg: Expr<T>;
+};
 
-export interface IList extends ASTNode {
+export type IList<T> = ASTNode<T> & {
   tag: "List";
-  contents: Expr[];
-}
+  contents: Expr<T>[];
+};
 
-export interface ITuple extends ASTNode {
+export type ITuple<T> = ASTNode<T> & {
   tag: "Tuple";
-  contents: [Expr, Expr];
-}
+  contents: [Expr<T>, Expr<T>];
+};
 
-export interface IVector extends ASTNode {
+export type IVector<T> = ASTNode<T> & {
   tag: "Vector";
-  contents: Expr[];
-}
+  contents: Expr<T>[];
+};
 
-export interface IMatrix extends ASTNode {
+export type IMatrix<T> = ASTNode<T> & {
   tag: "Matrix";
-  contents: Expr[];
-}
+  contents: Expr<T>[];
+};
 
-export interface IVectorAccess extends ASTNode {
+export type IVectorAccess<T> = ASTNode<T> & {
   tag: "VectorAccess";
-  contents: [Path, Expr];
-}
+  contents: [Path<T>, Expr<T>];
+};
 
-export interface IMatrixAccess extends ASTNode {
+export type IMatrixAccess<T> = ASTNode<T> & {
   tag: "MatrixAccess";
-  contents: [Path, Expr[]];
-}
+  contents: [Path<T>, Expr<T>[]];
+};
 
-export interface IListAccess extends ASTNode {
+export type IListAccess<T> = ASTNode<T> & {
   tag: "ListAccess";
-  contents: [Path, number];
-}
+  contents: [Path<T>, number];
+};
 
-export interface GPIDecl extends ASTNode {
+export type GPIDecl<T> = ASTNode<T> & {
   tag: "GPIDecl";
-  shapeName: Identifier;
-  properties: PropertyDecl[];
-}
+  shapeName: Identifier<T>;
+  properties: PropertyDecl<T>[];
+};
 
-export interface ILayering extends ASTNode {
+export type ILayering<T> = ASTNode<T> & {
   tag: "Layering";
-  below: Path;
-  above: Path;
-}
+  below: Path<T>;
+  above: Path<T>;
+};
 
-export interface IPluginAccess extends ASTNode {
+export type IPluginAccess<T> = ASTNode<T> & {
   tag: "PluginAccess";
-  contents: [string, Expr, Expr];
-}
+  contents: [string, Expr<T>, Expr<T>];
+};
 
-export interface IThenOp {
+export type IThenOp<T> = ASTNode<T> & {
   tag: "ThenOp";
-  contents: [Expr, Expr];
-}
+  contents: [Expr<T>, Expr<T>];
+};
 
-export type AnnoFloat = IFix | IVary | IVaryInit | IVaryAD;
+export type AnnoFloat<T> = IFix<T> | IVary<T> | IVaryInit<T> | IVaryAD<T>;
 
-export interface IFix extends ASTNode {
+export type IFix<T> = ASTNode<T> & {
   tag: "Fix";
   contents: number;
-}
+};
 
-export interface IVary extends ASTNode {
+export type IVary<T> = ASTNode<T> & {
   tag: "Vary";
-}
+};
 
 // Varying float that is initialized at some number as specified by the style-writer
-export interface IVaryInit extends ASTNode {
+export type IVaryInit<T> = ASTNode<T> & {
   tag: "VaryInit";
   contents: number;
-}
+};
 
-export interface IVaryAD extends ASTNode {
+export type IVaryAD<T> = ASTNode<T> & {
   tag: "VaryAD";
   contents: VarAD;
-}
+};
 
-export interface PropertyDecl extends ASTNode {
+export type PropertyDecl<T> = ASTNode<T> & {
   tag: "PropertyDecl";
-  name: Identifier;
-  value: Expr;
-}
+  name: Identifier<T>;
+  value: Expr<T>;
+};
 
 // TODO: check how the evaluator/compiler should interact with ASTNode
-export type Path =
-  | IFieldPath
-  | IPropertyPath
-  | IAccessPath
-  | LocalVar
-  | IInternalLocalVar;
+export type Path<T> =
+  | IFieldPath<T>
+  | IPropertyPath<T>
+  | IAccessPath<T>
+  | LocalVar<T>
+  | IInternalLocalVar<T>;
 // LocalVar is only used internally by the compiler
 // Unused
-// | ITypePropertyPath;
+// | ITypePropertyPath<T>;
 
-export interface IFieldPath extends ASTNode {
+export type IFieldPath<T> = ASTNode<T> & {
   tag: "FieldPath";
-  name: BindingForm;
-  field: Identifier;
-}
+  name: BindingForm<T>;
+  field: Identifier<T>;
+};
 
-export interface IPropertyPath extends ASTNode {
+export type IPropertyPath<T> = ASTNode<T> & {
   tag: "PropertyPath";
-  name: BindingForm;
-  field: Identifier;
-  property: Identifier;
-}
+  name: BindingForm<T>;
+  field: Identifier<T>;
+  property: Identifier<T>;
+};
 
-export interface IAccessPath extends ASTNode {
+export type IAccessPath<T> = ASTNode<T> & {
   tag: "AccessPath";
-  path: Path;
-  indices: Expr[];
-}
+  path: Path<T>;
+  indices: Expr<T>[];
+};
 
 // COMBAK: This is named inconsistently since the parser calls it `LocalVar`, should be ILocalVar
-export interface LocalVar extends ASTNode {
+export type LocalVar<T> = ASTNode<T> & {
   tag: "LocalVar";
-  contents: Identifier;
-}
+  contents: Identifier<T>;
+};
 
-export interface IInternalLocalVar extends ASTNode {
+export type IInternalLocalVar<T> = ASTNode<T> & {
   // Note, better to not extend ASTNode as it's only used internally by compiler, but breaks parser otherwise
   tag: "InternalLocalVar";
   contents: string;
-}
+};
 //#endregion

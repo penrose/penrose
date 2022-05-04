@@ -1,12 +1,4 @@
-import * as React from "react";
-import { useCallback, useEffect, useReducer, useRef } from "react";
-import styled from "styled-components";
-import { toast, ToastContainer } from "react-toastify";
-import MonacoEditor from "@monaco-editor/react";
-import "react-toastify/dist/ReactToastify.css";
-import reducer, { debouncedSave, initialState } from "./reducer";
 import {
-  compileDomain,
   compileTrio,
   PenroseState,
   prepareState,
@@ -15,20 +7,31 @@ import {
   resample,
   showError,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
+import * as React from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import styled from "styled-components";
+import AuthorshipTitle from "./components/AuthorshipTitle";
+import BlueButton from "./components/BlueButton";
+import DomainPane from "./DomainPane";
+import reducer, { debouncedSave, initialState } from "./reducer";
+import StylePane from "./StylePane";
+import SubstancePane from "./SubstancePane";
 import {
   DownloadSVG,
-  monacoOptions,
   retrieveGist,
   tryDomainHighlight,
   usePublishGist,
 } from "./Util";
-import AuthorshipTitle from "./components/AuthorshipTitle";
-import BlueButton from "./components/BlueButton";
-import { useParams } from "react-router-dom";
-import StylePane from "./StylePane";
-import SubstancePane from "./SubstancePane";
-import DomainPane from "./DomainPane";
+
+// currently there's no way to view or set the variation in panes, so we just
+// generate an ugly variation instead of the pretty ones we use in browser-ui;
+// TODO: use the same generateVariation everywhere
+const generateVariation = () => Math.random().toString();
 
 const TabButton = styled.a<{ open: boolean }>`
   outline: none;
@@ -107,8 +110,8 @@ function App({ location }: any) {
               authorship: {
                 name: sub,
                 madeBy: "github repo",
-                gistID: null,
-                avatar: null,
+                gistID: undefined,
+                avatar: undefined,
               },
             });
             tryDomainHighlight(dslContent, dispatch);
@@ -132,17 +135,23 @@ function App({ location }: any) {
       dispatch({ kind: "CHANGE_CANVAS_STATE", content: state });
       const stepResult = stepUntilConvergence(state);
       if (stepResult.isOk()) {
-        const convergedState = stepResult.value;
-        dispatch({ kind: "CHANGE_CANVAS_STATE", content: convergedState });
-        const cur = canvasRef.current;
-        const rendered = RenderInteractive(convergedState, convergeRenderState);
-        if (cur) {
-          if (cur.firstChild) {
-            cur.replaceChild(rendered, cur.firstChild);
-          } else {
-            cur.appendChild(rendered);
+        (async () => {
+          const convergedState = stepResult.value;
+          dispatch({ kind: "CHANGE_CANVAS_STATE", content: convergedState });
+          const cur = canvasRef.current;
+          const rendered = await RenderInteractive(
+            convergedState,
+            convergeRenderState,
+            async () => ""
+          );
+          if (cur) {
+            if (cur.firstChild) {
+              cur.replaceChild(rendered, cur.firstChild);
+            } else {
+              cur.appendChild(rendered);
+            }
           }
-        }
+        })();
       } else {
         dispatch({ kind: "CHANGE_ERROR", content: stepResult.error });
       }
@@ -153,12 +162,18 @@ function App({ location }: any) {
   const compile = useCallback(() => {
     try {
       const { sub, sty, dsl } = state.currentInstance;
-      const compileRes = compileTrio(dsl, sub, sty);
+      const compileRes = compileTrio({
+        substance: sub,
+        style: sty,
+        domain: dsl,
+        variation: generateVariation(),
+      });
       tryDomainHighlight(dsl, dispatch);
       if (compileRes.isOk()) {
-        dispatch({ kind: "CHANGE_ERROR", content: null });
+        dispatch({ kind: "CHANGE_ERROR", content: undefined });
         (async () => {
-          const initState = await prepareState(compileRes.value);
+          // resample because initial sampling did not use the special sampling seed
+          const initState = resample(await prepareState(compileRes.value));
           convergeRenderState(initState);
         })();
       } else {
@@ -173,16 +188,20 @@ function App({ location }: any) {
   }, [state, convergeRenderState]);
 
   const onResample = useCallback(() => {
-    const NUM_SAMPLES = 1;
-    if (state.currentInstance.state) {
-      const resampled = resample(state.currentInstance.state, NUM_SAMPLES);
+    const oldState = state.currentInstance.state;
+    if (oldState) {
+      oldState.seeds = variationSeeds(generateVariation()).seeds;
+      const resampled = resample(oldState);
       convergeRenderState(resampled);
     }
   }, [state, convergeRenderState]);
 
-  const svg = useCallback(() => {
+  const svg = useCallback(async () => {
     if (state.currentInstance.state) {
-      const rendered = RenderStatic(state.currentInstance.state);
+      const rendered = await RenderStatic(
+        state.currentInstance.state,
+        async () => ""
+      );
       DownloadSVG(rendered);
     }
   }, [state]);

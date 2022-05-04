@@ -1,6 +1,6 @@
+import { Canvas, Shape, Value } from "@penrose/core";
 import * as React from "react";
 import LabeledInput from "./LabeledInput";
-import { Canvas, Value, Shape } from "@penrose/core";
 
 interface IProps {
   shape: Shape;

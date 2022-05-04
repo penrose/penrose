@@ -1,4 +1,5 @@
 import { VarAD } from "./ad";
+import { A } from "./ast";
 import { StyleError } from "./errors";
 import { Expr } from "./style";
 
@@ -31,7 +32,7 @@ export type PropID = string;
 export type GPIMap = { [k: string]: TagExpr<VarAD> };
 export type FieldDict = { [k: string]: FieldExpr<VarAD> };
 
-export type StyleOptFn = [string, Expr[]]; // Objective or constraint
+export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
 
 // NOTE: To make a deep clone, use `clone` from `rfdc`
 /**
@@ -68,7 +69,7 @@ export type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;
 
 export interface IOptEval<T> {
   tag: "OptEval";
-  contents: Expr;
+  contents: Expr<A>;
 }
 
 export interface IDone<T> {
@@ -223,7 +224,7 @@ export interface IHMatrix<T> {
   dy: T;
 }
 
-export type Color<T> = IRGBA<T> | IHSVA<T>;
+export type Color<T> = IRGBA<T> | IHSVA<T> | INoPaint;
 
 export interface IRGBA<T> {
   tag: "RGBA";
@@ -233,6 +234,10 @@ export interface IRGBA<T> {
 export interface IHSVA<T> {
   tag: "HSVA";
   contents: T[];
+}
+
+export interface INoPaint {
+  tag: "NONE";
 }
 
 // SVG spec types

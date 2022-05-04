@@ -12,9 +12,9 @@ export interface PaneState {
 
 export interface AuthorshipInfo {
   name: string;
-  madeBy: string | null;
-  gistID: string | null;
-  avatar: string | null;
+  madeBy: string | undefined;
+  gistID: string | undefined;
+  avatar: string | undefined;
 }
 
 export interface CurrentInstance {
@@ -22,10 +22,10 @@ export interface CurrentInstance {
   sub: string;
   sty: string;
   dsl: string;
-  state: PenroseState | null;
+  state: PenroseState | undefined;
   /* For syntax highlighting */
-  domainCache: any | null;
-  err: PenroseError | null;
+  domainCache: any | undefined;
+  err: PenroseError | undefined;
 }
 export interface GithubUser {
   username: string;
@@ -33,7 +33,7 @@ export interface GithubUser {
   avatar: string;
 }
 export interface ISettings {
-  githubUser: GithubUser | null;
+  githubUser: GithubUser | undefined;
   vimMode: boolean;
 }
 
@@ -59,29 +59,29 @@ export const initialState = (): State => {
       sub: "",
       sty: "",
       dsl: "",
-      state: null,
-      err: null,
-      domainCache: null,
+      state: undefined,
+      err: undefined,
+      domainCache: undefined,
       authorship: {
         name: "untitled",
-        madeBy: null,
-        avatar: null,
-        gistID: null,
+        madeBy: undefined,
+        avatar: undefined,
+        gistID: undefined,
       },
     },
-    settings: { githubUser: null, vimMode: false },
+    settings: { githubUser: undefined, vimMode: false },
   };
 };
 
 export const debouncedSave = debounce((state: State) => {
-  if (state.currentInstance.authorship.gistID !== null) {
+  if (state.currentInstance.authorship.gistID !== undefined) {
     // don't save if already gist
     return;
   }
   const modifiedState = cloneDeep(state);
-  modifiedState.currentInstance.state = null;
-  modifiedState.currentInstance.domainCache = null;
-  modifiedState.currentInstance.err = null;
+  modifiedState.currentInstance.state = undefined;
+  modifiedState.currentInstance.domainCache = undefined;
+  modifiedState.currentInstance.err = undefined;
 
   window.localStorage.setItem("state", JSON.stringify(modifiedState));
 }, 250);
@@ -93,10 +93,10 @@ export type Action =
   | { kind: "TOGGLE_PREVIEW_PANE" }
   | { kind: "CHANGE_CODE"; lang: "sub" | "sty" | "dsl"; content: string }
   | { kind: "SET_TRIO"; sub: string; sty: string; dsl: string }
-  | { kind: "SET_DOMAIN_CACHE"; domainCache: any | null }
+  | { kind: "SET_DOMAIN_CACHE"; domainCache: any | undefined }
   | { kind: "SET_AUTHORSHIP"; authorship: AuthorshipInfo }
-  | { kind: "CHANGE_CANVAS_STATE"; content: PenroseState | null }
-  | { kind: "CHANGE_ERROR"; content: PenroseError | null }
+  | { kind: "CHANGE_CANVAS_STATE"; content: PenroseState | undefined }
+  | { kind: "CHANGE_ERROR"; content: PenroseError | undefined }
   | { kind: "CHANGE_TITLE"; name: string }
   | { kind: "CHANGE_GH_USER"; user: GithubUser };
 
@@ -134,9 +134,8 @@ const reducer = (state: State, action: Action): State => {
             ...state.currentInstance.authorship,
             madeBy: state.settings.githubUser
               ? state.settings.githubUser.username
-              : null,
-            // null out so we can save another
-            gistID: null,
+              : undefined,
+            gistID: undefined, // so we can save another
           },
         },
       };

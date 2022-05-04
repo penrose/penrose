@@ -1,7 +1,7 @@
 import * as React from "react";
-import IViewProps from "./IViewProps";
 import { ObjectInspector } from "react-inspector";
-import makeViewBoxes from "inspector/makeViewBoxes";
+import makeViewBoxes from "../../inspector/makeViewBoxes";
+import IViewProps from "./IViewProps";
 
 interface IState {
   selectedShape: number;
@@ -9,12 +9,12 @@ interface IState {
 
 class ShapeView extends React.Component<IViewProps, IState> {
   public readonly state = { selectedShape: -1 };
-  public setSelectedShape = (key: number) => {
+  public setSelectedShape = (key: number): void => {
     this.setState({ selectedShape: key });
   };
-  public render() {
+  public render(): JSX.Element {
     const { frame } = this.props;
-    if (frame === null) {
+    if (frame === undefined) {
       return <div />;
     }
 
@@ -25,7 +25,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
           display: "flex",
           width: "100%",
           height: "100%",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         {makeViewBoxes(frame.shapes, selectedShape, this.setSelectedShape)}
@@ -36,7 +36,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
             overflow: "auto",
             height: "100%",
             flexGrow: 1,
-            boxSizing: "border-box"
+            boxSizing: "border-box",
           }}
         >
           {frame.shapes[selectedShape] && (

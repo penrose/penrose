@@ -14,7 +14,7 @@ The `../App.tsx` is the source of truth for the history. Every new state is appe
 
 The inspector has an internal state to track which `frame` has been "selected". This is so you can go back in time and see prior `frame`s in `history` if you want. This is tracked by index; but there is a second possible value for the current `frame`: `-1`. The value `-1` corresponds to "most recent `frame` in history", so you can see the _current_ frame all the time, dynamically updating. In the timeline, clicking a frame and clicking it again corresponds to whether you're tracking the most recent frame or clamping to the selected frame (blue outline in the thumbnail).
 
-This interaction model is handy but annoying to deal with when you're implementing a new view. Thus the prop `frame` is provided which always gives the frame that should be inspected in the view, and `null` if none such exist (if the history is empty). You should handle both states with separate empty and populated views, as seen in existing views.
+This interaction model is handy but annoying to deal with when you're implementing a new view. Thus the prop `frame` is provided which always gives the frame that should be inspected in the view, and `undefined` if none such exist (if the history is empty). You should handle both states with separate empty and populated views, as seen in existing views.
 
 ## Adding a view
 

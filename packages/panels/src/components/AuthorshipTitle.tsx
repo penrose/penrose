@@ -11,7 +11,7 @@ const AuthorshipTitle = ({
 }: {
   authorship: AuthorshipInfo;
   onChangeTitle(name: string): void;
-  myUser: GithubUser | null;
+  myUser: GithubUser | undefined;
   onPublish(): void;
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
@@ -56,8 +56,8 @@ const AuthorshipTitle = ({
       {" - "}
       <span style={{ color: "#7d7d7d" }}>
         {authorship.madeBy ?? "anonymous"}
-        {authorship.gistID === null &&
-          (myUser === null ? (
+        {authorship.gistID === undefined &&
+          (myUser === undefined ? (
             <BlueButton onClick={onSignIn}>sign in</BlueButton>
           ) : (
             <BlueButton onClick={onPublish}>publish</BlueButton>

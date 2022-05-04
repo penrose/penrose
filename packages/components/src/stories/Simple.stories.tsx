@@ -1,5 +1,4 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-
+import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Simple } from "../Simple";
 import { continuousMap, oneSet } from "./PenrosePrograms";
 

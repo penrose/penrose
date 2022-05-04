@@ -1,76 +1,126 @@
-import React from "react";
 import {
   compileTrio,
   PenroseState,
   prepareState,
   RenderInteractive,
+  RenderStatic,
   resample,
   showError,
+  stateConverged,
+  stepState,
   stepUntilConvergence,
+  variationSeeds,
 } from "@penrose/core";
+import React from "react";
+import fetchResolver from "./fetchPathResolver";
 
 export interface ISimpleProps {
-  domainString: string;
-  substanceString: string;
-  styleString: string;
-  initState?: PenroseState;
+  domain: string;
+  substance: string;
+  style: string;
+  variation: string;
+  interactive?: boolean; // considered true by default
+  animate?: boolean; // considered false by default
 }
 
-interface ISimpleState {
-  state?: PenroseState;
-}
+class Simple extends React.Component<ISimpleProps> {
+  readonly canvasRef = React.createRef<HTMLDivElement>();
+  penroseState: PenroseState | undefined = undefined;
+  timerID: number | undefined = undefined; // for animation
 
-class Simple extends React.Component<ISimpleProps, ISimpleState> {
-  public readonly canvasRef = React.createRef<HTMLDivElement>();
-  constructor(props: ISimpleProps) {
-    super(props);
-    this.state = { state: undefined };
-  }
-  getInitState = async (
-    dsl: string,
-    sub: string,
-    sty: string
-  ): Promise<PenroseState | undefined> => {
-    const compilerResult = compileTrio(dsl, sub, sty);
+  compile = async (): Promise<void> => {
+    this.penroseState = undefined;
+    const compilerResult = compileTrio(this.props);
     if (compilerResult.isOk()) {
-      const initState: PenroseState = await prepareState(compilerResult.value);
-      const stepped = stepUntilConvergence(initState);
-      if (stepped.isOk()) {
-        return stepped.value;
-      } else {
-        console.log(showError(stepped.error));
-      }
+      // resample because initial sampling did not use the special sampling seed
+      this.penroseState = resample(await prepareState(compilerResult.value));
     } else {
       console.log(showError(compilerResult.error));
     }
   };
-  componentDidMount = async () => {
-    const { substanceString, styleString, domainString } = this.props;
-    const state: PenroseState | undefined = await this.getInitState(
-      domainString,
-      substanceString,
-      styleString
-    );
-    this.setState({ state });
-    this.renderCanvas(state);
+
+  converge = async (): Promise<void> => {
+    if (this.penroseState) {
+      const stepped = stepUntilConvergence(this.penroseState);
+      if (stepped.isOk()) {
+        this.penroseState = stepped.value;
+      } else {
+        console.log(showError(stepped.error));
+      }
+    }
   };
 
-  renderCanvas = (state: PenroseState | undefined) => {
+  tick = () => {
+    if (
+      this.props.animate &&
+      this.penroseState &&
+      !stateConverged(this.penroseState)
+    ) {
+      this.penroseState = stepState(this.penroseState, 1);
+      this.renderCanvas();
+    }
+  };
+
+  componentDidMount = async () => {
+    await this.compile();
+    if (!this.props.animate) {
+      await this.converge();
+    }
+    this.renderCanvas();
+    this.timerID = window.setInterval(() => this.tick(), 1000 / 60);
+  };
+
+  componentDidUpdate = async (prevProps: ISimpleProps) => {
+    if (
+      this.props.domain !== prevProps.domain ||
+      this.props.substance !== prevProps.substance ||
+      this.props.style !== prevProps.style ||
+      !this.penroseState
+    ) {
+      await this.compile();
+      if (!this.props.animate) {
+        await this.converge();
+      }
+      this.renderCanvas();
+    } else if (
+      this.props.variation !== prevProps.variation ||
+      this.props.animate !== prevProps.animate
+    ) {
+      this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
+      this.penroseState = resample(this.penroseState);
+      if (!this.props.animate) {
+        await this.converge();
+      }
+      this.renderCanvas();
+    } else if (this.props.interactive !== prevProps.interactive) {
+      this.renderCanvas();
+    }
+  };
+
+  componentWillUnmount = () => {
+    clearInterval(this.timerID);
+  };
+
+  renderCanvas = async () => {
     if (this.canvasRef.current === null) {
       return <div>rendering...</div>;
     } else {
       const node = this.canvasRef.current;
-      if (state) {
-        // if (!stateConverged(state)) {
-        const newState = stepUntilConvergence(state).unsafelyUnwrap();
-        this.setState({
-          state: newState,
-        });
-        // }
-        const renderedState: SVGSVGElement = RenderInteractive(
-          newState,
-          this.updateState
-        );
+      if (this.penroseState) {
+        const renderedState: SVGSVGElement = await (this.props.interactive ===
+        false
+          ? RenderStatic(this.penroseState, fetchResolver)
+          : RenderInteractive(
+              this.penroseState,
+              async (newState) => {
+                this.penroseState = newState;
+                if (!this.props.animate) {
+                  await this.converge();
+                }
+                this.renderCanvas();
+              },
+              fetchResolver
+            ));
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {
@@ -79,23 +129,6 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
       } else {
         console.log("state is undefined");
       }
-    }
-  };
-
-  updateState = (state: PenroseState): void => {
-    this.setState({ state });
-    this.renderCanvas(state);
-  };
-
-  resampleState = (): void => {
-    const NUM_SAMPLES = 1;
-    const { state: oldState } = this.state;
-    if (oldState) {
-      const resampled = resample(oldState, NUM_SAMPLES);
-      const converged = stepUntilConvergence(resampled);
-      const newState = converged.unsafelyUnwrap();
-      this.setState({ state: newState });
-      this.renderCanvas(newState);
     }
   };
 

@@ -1,9 +1,9 @@
-// const grammar = require("./Style.ne");
+import { examples } from "@penrose/examples";
 import { parseStyle } from "compiler/Style";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import * as path from "path";
-import { ASTNode } from "types/ast";
+import { C, ConcreteNode } from "types/ast";
 import { StyProg } from "types/style";
 import grammar from "./StyleParser";
 
@@ -22,7 +22,7 @@ const printAST = (ast: any) => {
   console.log(JSON.stringify(ast));
 };
 
-export const traverseTree = (root: ASTNode) => {
+export const traverseTree = (root: ConcreteNode) => {
   const { nodeType, children } = root;
   if (!nodeType) console.log(root);
   expect(nodeType).toEqual("Style");
@@ -91,7 +91,7 @@ describe("Selector Grammar", () => {
   test("empty selector block", () => {
     const { results } = parser.feed("forall Set A{}");
     sameASTs(results);
-    const ast: StyProg = results[0] as StyProg;
+    const ast: StyProg<C> = results[0] as StyProg<C>;
   });
 
   test("comment and empty blocks", () => {
@@ -154,6 +154,24 @@ as Const
 { }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
+  });
+
+  test("label field check", () => {
+    const prog = `
+forall Set A, B
+where IsSubset(A, B); A has math label; B has text label {
+
+}
+    `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+    const whereClauses = results[0].blocks[0].header.where.contents;
+    expect(whereClauses[1].name.contents.value).toEqual("A");
+    expect(whereClauses[1].field.value).toEqual("label");
+    expect(whereClauses[1].fieldDescriptor).toEqual("MathLabel");
+    expect(whereClauses[2].name.contents.value).toEqual("B");
+    expect(whereClauses[2].field.value).toEqual("label");
+    expect(whereClauses[2].fieldDescriptor).toEqual("TextLabel");
   });
 });
 
@@ -260,7 +278,7 @@ const {
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    const ast = results[0] as StyProg;
+    const ast = results[0] as StyProg<C>;
     const stringAssign = ast.blocks[0].block.statements[0];
     if (
       stringAssign.tag === "PathAssign" &&
@@ -443,8 +461,9 @@ describe("Real Programs", () => {
   }
 
   styPaths.map((examplePath) => {
-    const file = path.join("../../examples/", examplePath);
-    const prog = fs.readFileSync(file, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [part0, part1] = examplePath.split("/");
+    const prog = examples[part0][part1];
     test(examplePath, () => {
       const { results } = parser.feed(prog);
       sameASTs(results);

@@ -1,6 +1,6 @@
 import * as React from "react";
-import IViewProps from "./IViewProps";
 import styled from "styled-components";
+import IViewProps from "./IViewProps";
 
 const LogLine = styled.li`
   list-style-type: none;

@@ -1,8 +1,5 @@
 {
-  "mutationCount": [
-    1,
-    20
-  ],
+  "mutationCount": [1, 20],
   "argOption": "existing",
   "argReuse": "distinct",
   "weights": {
@@ -11,16 +8,8 @@
     "constructor": 0.0
   },
   "add": {
-    "type": [
-      "Point",
-      "Segment",
-      "Angle",
-      "Arc",
-      "Plane"
-    ],
-    "function": [
-      "Sum"
-    ],
+    "type": ["Point", "Segment", "Angle", "Arc", "Plane"],
+    "function": ["Sum"],
     "constructor": [],
     "predicate": []
   },

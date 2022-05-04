@@ -1,13 +1,15 @@
+import { examples } from "@penrose/examples";
 import * as fs from "fs";
 import * as nearley from "nearley";
 import grammar from "parser/SubstanceParser";
 import * as path from "path";
+import { A } from "types/ast";
+import { Env } from "types/domain";
 import { PenroseError } from "types/errors";
+import { ApplyPredicate, SubstanceEnv } from "types/substance";
 import { Result, showError, showType } from "utils/Error";
 import { compileDomain } from "./Domain";
 import { compileSubstance, prettySubstance } from "./Substance";
-import { SubstanceEnv } from "types/substance";
-import { Env } from "types/domain";
 
 const printError = false;
 const saveContexts = false;
@@ -40,17 +42,17 @@ type List('T)
 type Tuple('T, 'U)
 type Point
 OpenSet <: Set
-constructor Subset: Set A * Set B -> Set
-constructor Intersection: Set A * Set B -> Set
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function AddPoint : Point p * Set s1 -> Set
-predicate Not : Prop p1
-predicate Both : Prop p1 * Prop p2
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
+constructor Subset(Set A, Set B) -> Set
+constructor Intersection(Set A, Set B) -> Set
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddPoint(Point p, Set s1) -> Set
+predicate Not(Prop p1)
+predicate Both(Prop p1, Prop p2)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
 `;
 
 const domainProgWithPrelude = `
@@ -61,17 +63,17 @@ type List('T)
 type Tuple('T, 'U)
 type Point
 OpenSet <: Set
-constructor Subset: Set A * Set B -> Set
-constructor Intersection: Set A * Set B -> Set
-constructor Cons ['X] : 'X head * List('X) tail -> List('X)
-constructor Nil['X] -> List('X)
-constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
-function AddPoint : Point p * Set s1 -> Set
-predicate Not : Prop p1
-predicate Both : Prop p1 * Prop p2
-predicate Empty : Set s
-predicate Intersecting : Set s1 * Set s2
-predicate IsSubset : Set s1 * Set s2
+constructor Subset(Set A, Set B) -> Set
+constructor Intersection(Set A, Set B) -> Set
+constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Nil['X]() -> List('X)
+constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddPoint(Point p, Set s1) -> Set
+predicate Not(Prop p1)
+predicate Both(Prop p1, Prop p2)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
 value X: Set
 `;
 
@@ -84,7 +86,7 @@ const envOrError = (prog: string): Env => {
 const compileOrError = (prog: string, env: Env) => {
   const res = compileSubstance(prog, env);
   if (res.isOk()) {
-    return;
+    return res;
   } else {
     fail(`unexpected error ${showError(res.error)}`);
   }
@@ -140,23 +142,25 @@ describe("Postprocess", () => {
 Set A, B, C, D, E
 AutoLabel All
 Label A $\\vec{A}$
-Label B $B_1$
+Label B "B_1"
 NoLabel D, E
     `;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
       const expected = [
-        ["A", "\\vec{A}"],
-        ["B", "B_1"],
-        ["C", "C"],
-        ["D", ""],
-        ["E", ""],
+        ["A", "\\vec{A}", "MathLabel"],
+        ["B", "B_1", "TextLabel"],
+        ["C", "C", "MathLabel"],
+        ["D", "", "NoLabel"],
+        ["E", "", "NoLabel"],
       ];
       const labelMap = res.value[0].labels;
-      expected.map(([id, value]) =>
-        expect(labelMap.get(id)!.unwrapOr("")).toEqual(value)
-      );
+      expected.map(([id, value, type]) => {
+        const label = labelMap.get(id)!;
+        expect(label.value).toEqual(value);
+        expect(label.type).toEqual(type);
+      });
     } else {
       fail("Unexpected error when processing labels: " + showError(res.error));
     }
@@ -319,13 +323,23 @@ AutoLabel All
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DuplicateName");
   });
-  test("type not found", () => {
+  test("decl type not found", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
 List(Set) l
 Alien a
 NotExistentType b
+    `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "TypeNotFound");
+  });
+  test("func type not found", () => {
+    const env = envOrError(domainProg);
+    const prog = `
+Set A, B, C
+List(Set) l
+C := NotExistentFunc(A, B)
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
@@ -386,7 +400,7 @@ v := Subset(A, B) -- error
     const env = envOrError(domainProg);
     const prog = `
 -- type Tuple('T, 'U)
--- constructor CreateTuple['T, 'U] : 'T fst * 'U snd -> Tuple('T, 'U)
+-- constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
 List(Set) nil
 Tuple(Set, Set) t -- Maybe an error?
 t := CreateTuple(nil, nil) -- Definitely an error
@@ -492,6 +506,28 @@ l := Cons(A, nil)
     compileOrError(prog, env);
   });
 });
+describe("Ambiguous expressions", () => {
+  test("nested predicates and functions parsed as Func", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set A, B
+Point p
+Not(Intersecting(A, B))
+Empty(Subset(A, B))
+Empty(AddPoint(p, A))`;
+    const res = compileOrError(prog, env);
+    if (res.isOk()) {
+      expect(
+        (res.value[0].ast.statements[3] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyPredicate");
+      expect(
+        (res.value[0].ast.statements[4] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyConstructor");
+      expect(
+        (res.value[0].ast.statements[5] as ApplyPredicate<A>).args[0].tag
+      ).toEqual("ApplyFunction");
+    }
+  });
+});
 
 describe("Real Programs", () => {
   // create output folder
@@ -500,10 +536,11 @@ describe("Real Programs", () => {
   }
 
   subPaths.map(([domainPath, examplePath]) => {
-    const domFile = path.join("../../examples/", domainPath);
-    const subFile = path.join("../../examples/", examplePath);
-    const domProg = fs.readFileSync(domFile, "utf8");
-    const subProg = fs.readFileSync(subFile, "utf8");
+    // a bit hacky, only works with 2-part paths
+    const [domPart0, domPart1] = domainPath.split("/");
+    const [subPart0, subPart1] = examplePath.split("/");
+    const domProg = examples[domPart0][domPart1];
+    const subProg = examples[subPart0][subPart1];
     test(examplePath, () => {
       // do testing
       const env = envOrError(domProg);
@@ -542,6 +579,8 @@ l := Cons(Z, nil)
 Empty(C)
 IsSubset(D, E)
 IsSubset(D, A)
+Not(IsSubset(D, A))
+Not(Intersecting(B, C))
 IsSubset(A, B) <-> IsSubset(B, C)
 Subset(A, B) = Subset(B, C)
 AutoLabel All

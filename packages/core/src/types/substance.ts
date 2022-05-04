@@ -1,123 +1,138 @@
-import { Maybe } from "utils/Error";
-import { IStringLit, ASTNode, Identifier } from "./ast";
-import { Env, TypeConstructor } from "./domain";
 import { Map } from "immutable";
+import { A, ASTNode, Identifier, IStringLit } from "./ast";
+import { Env, TypeConstructor } from "./domain";
 
 export type SubRes = [SubstanceEnv, Env];
-export type LabelMap = Map<string, Maybe<string>>;
+export type LabelMap = Map<string, LabelValue>;
 export interface SubstanceEnv {
-  exprEqualities: [SubExpr, SubExpr][];
-  predEqualities: [ApplyPredicate, ApplyPredicate][];
-  bindings: Map<string, SubExpr>;
+  exprEqualities: [SubExpr<A>, SubExpr<A>][];
+  // predEqualities is not used; the original proposal was to allow equivalent
+  // predicates; it was left in here in case we decide to revive it in the
+  // future
+  predEqualities: [ApplyPredicate<A>, ApplyPredicate<A>][];
+  bindings: Map<string, SubExpr<A>>;
   labels: LabelMap;
-  predicates: ApplyPredicate[];
-  ast: SubProg;
+  predicates: ApplyPredicate<A>[];
+  ast: SubProg<A>;
 }
 
 //#region Substance AST
-export interface SubProg extends ASTNode {
+export type SubProg<T> = ASTNode<T> & {
   tag: "SubProg";
-  statements: SubStmt[];
+  statements: SubStmt<T>[];
+};
+
+export type SubStmt<T> =
+  | Decl<T>
+  | Bind<T>
+  | EqualExprs<T>
+  | EqualPredicates<T>
+  | ApplyPredicate<T>
+  | LabelDecl<T>
+  | AutoLabel<T>
+  | NoLabel<T>;
+
+export interface LabelValue {
+  value: string;
+  type: LabelType;
 }
 
-export type SubStmt =
-  | Decl
-  | Bind
-  | EqualExprs
-  | EqualPredicates
-  | ApplyPredicate
-  | LabelDecl
-  | AutoLabel
-  | NoLabel;
-
-export interface LabelDecl extends ASTNode {
+export type LabelDecl<T> = ASTNode<T> & {
   tag: "LabelDecl";
-  variable: Identifier;
-  label: IStringLit;
-}
-export interface AutoLabel extends ASTNode {
+  variable: Identifier<T>;
+  label: IStringLit<T>;
+  labelType: LabelType;
+};
+
+export type LabelType = "MathLabel" | "TextLabel" | "NoLabel";
+export type AutoLabel<T> = ASTNode<T> & {
   tag: "AutoLabel";
-  option: LabelOption;
-}
+  option: LabelOption<T>;
+};
 
-export type LabelOption = DefaultLabels | LabelIDs;
+export type LabelOption<T> = DefaultLabels<T> | LabelIDs<T>;
 
-export interface DefaultLabels extends ASTNode {
+export type DefaultLabels<T> = ASTNode<T> & {
   tag: "DefaultLabels";
-}
-export interface LabelIDs extends ASTNode {
+};
+export type LabelIDs<T> = ASTNode<T> & {
   tag: "LabelIDs";
-  variables: Identifier[];
-}
+  variables: Identifier<T>[];
+};
 
-export interface NoLabel extends ASTNode {
+export type NoLabel<T> = ASTNode<T> & {
   tag: "NoLabel";
-  args: Identifier[];
-}
+  args: Identifier<T>[];
+};
 
-export interface Decl extends ASTNode {
+export type Decl<T> = ASTNode<T> & {
   tag: "Decl";
-  type: TypeConsApp;
-  name: Identifier;
-}
+  type: TypeConsApp<T>;
+  name: Identifier<T>;
+};
 
-export interface TypeConsApp extends TypeConstructor {
-  args: TypeConsApp[];
-}
+type TypeConsAppArgs<T> = {
+  args: TypeConsApp<T>[];
+};
+export type TypeConsApp<T> = Omit<
+  TypeConstructor<T>,
+  keyof TypeConsAppArgs<T>
+> &
+  TypeConsAppArgs<T>;
 
-export interface Bind extends ASTNode {
+export type Bind<T> = ASTNode<T> & {
   tag: "Bind";
-  variable: Identifier;
-  expr: SubExpr;
-}
+  variable: Identifier<T>;
+  expr: SubExpr<T>;
+};
 
-export type SubExpr =
-  | Identifier
-  | ApplyFunction
-  | ApplyConstructor
-  | Func // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
-  | Deconstructor
-  | IStringLit;
+export type SubExpr<T> =
+  | Identifier<T>
+  | ApplyFunction<T>
+  | ApplyConstructor<T>
+  | Func<T> // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
+  | Deconstructor<T>
+  | IStringLit<T>;
 
-export interface Func extends ASTNode {
+export type Func<T> = ASTNode<T> & {
   tag: "Func";
-  name: Identifier;
-  args: SubExpr[];
-}
-export interface ApplyFunction extends ASTNode {
+  name: Identifier<T>;
+  args: SubExpr<T>[];
+};
+export type ApplyFunction<T> = ASTNode<T> & {
   tag: "ApplyFunction";
-  name: Identifier;
-  args: SubExpr[];
-}
-export interface ApplyConstructor extends ASTNode {
+  name: Identifier<T>;
+  args: SubExpr<T>[];
+};
+export type ApplyConstructor<T> = ASTNode<T> & {
   tag: "ApplyConstructor";
-  name: Identifier;
-  args: SubExpr[];
-}
-export interface Deconstructor extends ASTNode {
+  name: Identifier<T>;
+  args: SubExpr<T>[];
+};
+export type Deconstructor<T> = ASTNode<T> & {
   tag: "Deconstructor";
-  variable: Identifier;
-  field: Identifier;
-}
+  variable: Identifier<T>;
+  field: Identifier<T>;
+};
 
-export interface EqualExprs extends ASTNode {
+export type EqualExprs<T> = ASTNode<T> & {
   tag: "EqualExprs";
-  left: SubExpr;
-  right: SubExpr;
-}
+  left: SubExpr<T>;
+  right: SubExpr<T>;
+};
 
-export interface EqualPredicates extends ASTNode {
+export type EqualPredicates<T> = ASTNode<T> & {
   tag: "EqualPredicates";
-  left: ApplyPredicate;
-  right: ApplyPredicate;
-}
-export interface ApplyPredicate extends ASTNode {
+  left: ApplyPredicate<T>;
+  right: ApplyPredicate<T>;
+};
+export type ApplyPredicate<T> = ASTNode<T> & {
   tag: "ApplyPredicate";
-  name: Identifier;
-  args: SubPredArg[];
-}
+  name: Identifier<T>;
+  args: SubPredArg<T>[];
+};
 
-export type SubPredArg = SubExpr | ApplyPredicate; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
+export type SubPredArg<T> = SubExpr<T> | ApplyPredicate<T>; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
 
 //#endregion
 //#region Substance context

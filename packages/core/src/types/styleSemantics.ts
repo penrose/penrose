@@ -1,8 +1,8 @@
 //#region Style semantics
 
-import { MaybeVal } from "./common";
+import { A } from "./ast";
 import { StyleErrors } from "./errors";
-import { StyT, Header, BindingForm } from "./style";
+import { BindingForm, Header, StyT } from "./style";
 
 // Style static semantics for selectors
 
@@ -28,11 +28,11 @@ export interface IStyProgT {
 export interface ISelEnv {
   // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
   // Variable => Type
-  sTypeVarMap: { [k: string]: StyT }; // B : |T
-  varProgTypeMap: { [k: string]: [ProgType, BindingForm] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
+  sTypeVarMap: { [k: string]: StyT<A> }; // B : |T
+  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
   // Variable => [Substance or Style variable, original data structure with program locs etc]
   skipBlock: boolean;
-  header: MaybeVal<Header>; // Just for debugging
+  header: Header<A> | undefined; // Just for debugging
   warnings: StyleErrors;
   errors: StyleErrors;
 }

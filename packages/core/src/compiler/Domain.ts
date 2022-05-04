@@ -4,6 +4,7 @@ import { every, keyBy, zipWith } from "lodash";
 import nearley from "nearley";
 import domainGrammar from "parser/DomainParser";
 import { idOf, lastLocation } from "parser/ParserUtil";
+import { A, C } from "types/ast";
 import {
   Arg,
   ConstructorDecl,
@@ -41,20 +42,22 @@ import {
   typeNotFound,
 } from "utils/Error";
 
-export const parseDomain = (prog: string): Result<DomainProg, ParseError> => {
+export const parseDomain = (
+  prog: string
+): Result<DomainProg<C>, ParseError> => {
   const parser = new nearley.Parser(
     nearley.Grammar.fromCompiled(domainGrammar)
   );
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
     if (results.length > 0) {
-      const ast: DomainProg = results[0] as DomainProg;
+      const ast: DomainProg<C> = results[0] as DomainProg<C>;
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
     }
   } catch (e) {
-    return err(parseError(e, lastLocation(parser)));
+    return err(parseError(<string>e, lastLocation(parser)));
   }
 };
 
@@ -79,7 +82,7 @@ export const compileDomain = (prog: string): Result<Env, PenroseError> => {
 export type CheckerResult = Result<Env, DomainError>;
 
 /* Built in types for all Domain programs */
-const builtinTypes: [string, TypeDecl][] = [
+const builtinTypes: [string, TypeDecl<C>][] = [
   [
     "String",
     {
@@ -90,19 +93,23 @@ const builtinTypes: [string, TypeDecl][] = [
       tag: "TypeDecl",
       name: idOf("String", "Domain"),
       params: [],
+      superTypes: [],
     },
   ],
 ];
 const initEnv = (): Env => ({
   types: Map(builtinTypes),
-  typeVars: Map<string, TypeVar>(),
+  typeVars: Map<string, TypeVar<C>>(),
   varIDs: [],
-  vars: Map<string, TypeConsApp>(),
-  constructors: Map<string, ConstructorDecl>(),
-  constructorsBindings: Map<string, [ApplyConstructor, ConstructorDecl]>(),
-  predicates: Map<string, PredicateDecl>(),
-  functions: Map<string, FunctionDecl>(),
-  preludeValues: Map<string, TypeConstructor>(),
+  vars: Map<string, TypeConsApp<C>>(),
+  constructors: Map<string, ConstructorDecl<C>>(),
+  constructorsBindings: Map<
+    string,
+    [ApplyConstructor<C>, ConstructorDecl<C>]
+  >(),
+  predicates: Map<string, PredicateDecl<C>>(),
+  functions: Map<string, FunctionDecl<C>>(),
+  preludeValues: Map<string, TypeConstructor<C>>(),
   subTypes: [],
   typeGraph: new Graph(),
 });
@@ -111,7 +118,7 @@ const initEnv = (): Env => ({
  * Top-level function for the Domain semantic checker. Given a Domain AST, it outputs either a `DomainError` or a `DomainEnv` context.
  * @param prog compiled AST of a Domain program
  */
-export const checkDomain = (prog: DomainProg): CheckerResult => {
+export const checkDomain = (prog: DomainProg<C>): CheckerResult => {
   const { statements } = prog;
   // load built-in types
   const env: Env = initEnv();
@@ -121,16 +128,34 @@ export const checkDomain = (prog: DomainProg): CheckerResult => {
   return andThen(computeTypeGraph, stmtsOk);
 };
 
-const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
+const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
       // NOTE: params are not reused, so no need to check
-      const { name } = stmt;
+      const { name, superTypes } = stmt;
       // check name duplicate
       if (env.types.has(name.value))
         return err(duplicateName(name, stmt, env.types.get(name.value)!));
       // insert type into env
-      return ok({ ...env, types: env.types.set(name.value, stmt) });
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        types: env.types.set(name.value, stmt),
+      });
+      // register any subtyping relations
+      const subType: TypeConstructor<C> = {
+        tag: "TypeConstructor",
+        nodeType: "Substance",
+        children: [name],
+        start: stmt.start,
+        end: stmt.end,
+        name,
+        args: [],
+      };
+      return safeChain(
+        superTypes,
+        (superType, env) => addSubtype(subType, superType, env),
+        updatedEnv
+      );
     }
     case "ConstructorDecl": {
       const { name, params, args, output } = stmt;
@@ -216,15 +241,9 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
       // make sure only type cons are involved in the subtyping relation
       if (subType.tag !== "TypeConstructor")
         return err(notTypeConsInSubtype(subType));
-      if (superType.tag !== "TypeConstructor")
-        return err(notTypeConsInSubtype(superType));
       const subOk = checkType(subType, env);
-      const superOk = checkType(superType, env);
-      const updatedEnv: CheckerResult = ok({
-        ...env,
-        subTypes: [...env.subTypes, [subType, superType]],
-      });
-      return everyResult(subOk, superOk, updatedEnv);
+      const updatedEnv = addSubtype(subType, superType, env);
+      return everyResult(subOk, updatedEnv);
     }
   }
 };
@@ -235,7 +254,7 @@ const checkStmt = (stmt: DomainStmt, env: Env): CheckerResult => {
  * @param env  the Domain environment
  */
 export const checkType = (
-  type: Type,
+  type: Type<A>,
   env: Env
 ): Result<Env, TypeNotFound | TypeVarNotFound> => {
   switch (type.tag) {
@@ -257,7 +276,7 @@ export const checkType = (
  * @param env  the Domain environment
  */
 export const checkTypeConstructor = (
-  type: TypeConstructor,
+  type: TypeConstructor<A>,
   env: Env
 ): Result<Env, TypeNotFound | TypeVarNotFound> => {
   const { name, args } = type;
@@ -267,7 +286,7 @@ export const checkTypeConstructor = (
     return err(
       typeNotFound(
         name,
-        suggestions.map((t: TypeDecl) => t.name)
+        suggestions.map((t: TypeDecl<C>) => t.name)
       )
     );
   }
@@ -276,16 +295,33 @@ export const checkTypeConstructor = (
   return and(ok(env), argsOk);
 };
 
-const checkArg = (arg: Arg, env: Env): CheckerResult =>
+const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
   checkType(arg.type, env);
+
+const addSubtype = (
+  subType: TypeConstructor<C>, // assume already checked
+  superType: Type<C>,
+  env: Env
+): CheckerResult => {
+  // make sure only type cons are involved in the subtyping relation
+  if (superType.tag !== "TypeConstructor")
+    return err(notTypeConsInSubtype(superType));
+  const superOk = checkType(superType, env);
+  const updatedEnv: CheckerResult = ok({
+    ...env,
+    subTypes: [...env.subTypes, [subType, superType]],
+  });
+  return everyResult(superOk, updatedEnv);
+};
 
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
   typeNames.map((t: string) => typeGraph.setNode(t, t));
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
-  subTypes.map(([subType, superType]: [TypeConstructor, TypeConstructor]) =>
-    typeGraph.setEdge(subType.name.value, superType.name.value)
+  subTypes.map(
+    ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) =>
+      typeGraph.setEdge(subType.name.value, superType.name.value)
   );
   if (!alg.isAcyclic(typeGraph))
     return err(cyclicSubtypes(alg.findCycles(typeGraph)));
@@ -300,8 +336,8 @@ const computeTypeGraph = (env: Env): CheckerResult => {
  * @param env
  */
 export const isDeclaredSubtype = (
-  subType: TypeConstructor,
-  superType: TypeConstructor,
+  subType: TypeConstructor<A>,
+  superType: TypeConstructor<A>,
   env: Env
 ): boolean => {
   // HACK: subtyping among parametrized types is not handled and assumed to be false
@@ -323,17 +359,17 @@ export const isDeclaredSubtype = (
 };
 
 export const isSubtype = (
-  subType: Type,
-  superType: Type,
+  subType: Type<A>,
+  superType: Type<A>,
   env: Env
 ): boolean => {
   if (
     subType.tag === "TypeConstructor" &&
     superType.tag === "TypeConstructor"
   ) {
-    const argsMatch = (args1: Type[], args2: Type[]): boolean =>
+    const argsMatch = (args1: Type<A>[], args2: Type<A>[]): boolean =>
       every(
-        zipWith(args1, args2, (sub: Type, sup: Type): boolean =>
+        zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
           isSubtype(sub, sup, env)
         )
       );
@@ -348,15 +384,21 @@ export const isSubtype = (
   } else return false;
 };
 
-export const topType: TypeConsApp = {
+const topName = idOf("type", "Domain");
+export const topType: TypeConsApp<A> = {
   tag: "TypeConstructor",
-  name: idOf("type", "Domain"),
+  nodeType: "Domain",
+  children: [topName],
+  name: topName,
   args: [],
 };
 
-export const bottomType: TypeConsApp = {
+const bottomName = idOf("void", "Domain");
+export const bottomType: TypeConsApp<A> = {
   tag: "TypeConstructor",
-  name: idOf("void", "Domain"),
+  nodeType: "Domain",
+  children: [bottomName],
+  name: bottomName,
   args: [],
 };
 
@@ -364,7 +406,7 @@ export const bottomType: TypeConsApp = {
  * Type pretty printing function.
  * @param t Type to be printed
  */
-export const showType = (t: Type): string => {
+export const showType = (t: Type<C>): string => {
   if (t.tag === "Prop") {
     return "Prop";
   } else if (t.tag === "TypeVar") {

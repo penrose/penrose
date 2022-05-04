@@ -3,91 +3,93 @@ import {
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
+  secondaryGraph,
 } from "@penrose/core";
+import { Node, VarAD } from "@penrose/core/build/dist/types/ad";
+import { A } from "@penrose/core/build/dist/types/ast";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
-import { flatMap, uniqBy } from "lodash";
-import { VarAD } from "../../../../core/build/dist/types/ad";
+import { EdgeDefinition, ElementsDefinition, NodeDefinition } from "cytoscape";
 
 // TODO: The nodes and edges are left untyped for now because adding new keys to them (e.g. `DOF: true`) is used to style their CSS - not sure how to accommodate this as a TS type
 
-export interface PGraph {
+export type PGraph = ElementsDefinition;
+/*{
   // Graph for cytoscape (see `graph1` for example + schema)
   nodes: any;
   edges: any;
 }
+*/
 
-// Example graph schema: 2 nodes, 1 edge between them; `selectorName` can be styled, for example
-const graph1 = [
-  { data: { id: "a" } },
-  { data: { id: "b" } },
-  {
-    data: {
-      id: "ab",
-      source: "a",
-      target: "b",
-      selectorName: true,
-    },
-  },
-];
+/**
+ * Flatten an array of arrays into a single array of elements
+ * I.e., merge<string>( string[][] ): string[]
+ */
+const merge = <T>(arr: T[][]): T[] => ([] as T[]).concat(...arr);
 
-// Flatten a list of lists into a single list of elements
-const merge = (arr: any) => [].concat(...arr);
-
-const flatGraph = (es: PGraph[]): PGraph => {
-  return {
-    nodes: flatMap(es, (e) => e.nodes),
-    edges: flatMap(es, (e) => e.edges),
-  };
+const labelNode = (node: Node): string => {
+  if (typeof node === "number") {
+    return `${node}`;
+  }
+  switch (node.tag) {
+    case "Input": {
+      return `x${node.index}`;
+    }
+    case "Unary": {
+      return node.unop;
+    }
+    case "Binary": {
+      return node.binop;
+    }
+    case "Ternary": {
+      return "?:";
+    }
+    case "Nary": {
+      return node.op;
+    }
+    case "Debug": {
+      return JSON.stringify(node.info);
+    }
+  }
 };
 
-// ---------
-
-// Given a parent node, returns the graph corresponding to nodes and edges of children
-// May contain duplicate nodes
-// TODO: Add type for graph and VarAD
-const traverseGraphTopDown = (par: VarAD): PGraph => {
-  const parNode = { id: par.id, label: par.op };
-  const edges = par.children.map((edge) => ({
-    from: parNode.id,
-    to: edge.node.id,
-  }));
-
-  const subgraphs = par.children.map((edge) => traverseGraphTopDown(edge.node));
-  const subnodes = merge(subgraphs.map((g) => g.nodes));
-  const subedges = merge(subgraphs.map((g) => g.edges));
-
-  return {
-    nodes: [parNode].concat(subnodes),
-    edges: edges.concat(subedges),
-  };
-};
-
-// For building atomic op graph. Returns unique nodes after all nodes are merged
+/**
+ * For building atomic op graph.
+ * Given a parent node, returns the graph corresponding to nodes and edges of children
+ * Returns unique nodes after all nodes are merged
+ * TODO: Add type for graph and VarAD
+ */
 export const traverseUnique = (par: VarAD): PGraph => {
-  const g = traverseGraphTopDown(par);
+  // TODO: do not navigate graph outside core
+  const { graph } = secondaryGraph([par]);
   return {
-    ...g,
-    nodes: uniqBy(g.nodes, (e: any) => e.id),
+    nodes: graph
+      .nodes()
+      .map((id) => ({ data: { id, label: labelNode(graph.node(id)) } })),
+    edges: graph
+      .edges()
+      .map(({ v, w }) => ({ data: { source: w, target: v } })), // note: flipped
   };
 };
 
-// Convert from `traverseUnique` schema to cytoscape schema
+/**
+ * Convert from `traverseUnique` schema to cytoscape schema
+ */
 export const convertSchema = (graph: PGraph): PGraph => {
   const { nodes, edges } = graph;
 
   const nodes2 = nodes.map((e) => ({
     data: {
-      id: String(e.id), // this needs to be unique
-      label: e.label,
+      id: String(e.data.id), // this needs to be unique
+      label: e.data.label,
     },
   }));
 
   const edges2 = edges.map((e) => ({
     data: {
-      id: String(e.from) + " -> " + String(e.to), // NOTE: No duplicate edges
-      source: String(e.from),
-      target: String(e.to),
+      id: String(e.data.source) + " -> " + String(e.data.target), // NOTE: No duplicate edges
+      source: String(e.data.source),
+      target: String(e.data.target),
       // No label
     },
   }));
@@ -97,14 +99,16 @@ export const convertSchema = (graph: PGraph): PGraph => {
 
 // -----
 
-// Make nodes and edges related to showing one DOF node (p is a varying path)
-export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
+/**
+ * Make nodes and edges related to showing one DOF node (p is a varying path)
+ */
+export const toGraphDOF = (p: Path<A>, allArgs: string[]): PGraph => {
   const empty = { nodes: [], edges: [] };
 
   if (p.tag === "FieldPath") {
     return empty;
   } else if (p.tag === "PropertyPath") {
-    const fp = {
+    const fp: Path<A> = {
       ...p,
       tag: "FieldPath",
       name: p.name,
@@ -159,10 +163,12 @@ export const toGraphDOF = (p: Path, allArgs: string[]): PGraph => {
   return empty;
 };
 
-// Make nodes and edges related to showing DOF nodes
-
+/**
+ * Make nodes and edges related to showing DOF (degrees of
+ * freedom) nodes
+ */
 export const toGraphDOFs = (
-  varyingPaths: Path[],
+  varyingPaths: Path<A>[],
   allFns: Fn[],
   allArgs: string[]
 ): PGraph => {
@@ -181,14 +187,14 @@ export const toGraphDOFs = (
   // The edges connecting it are: one additional edge for each layer of nesting, plus a node
   // e.g. A.shape -> A.shape.center -> A.shape.center[0]
 
-  let intermediateNodes: any[] = [];
-  let intermediateEdges: any[] = [];
+  let intermediateNodes: NodeDefinition[] = [];
+  let intermediateEdges: EdgeDefinition[] = [];
 
   for (const p of varyingPaths) {
     // If the varying path is a shape arg AND its shape arg appears in the function arguments, then make intermediate nodes to connect the varying path with the shape arg
     const pGraph = toGraphDOF(p, allArgs);
-    intermediateNodes = intermediateNodes.concat(pGraph!.nodes);
-    intermediateEdges = intermediateEdges.concat(pGraph!.edges);
+    intermediateNodes = intermediateNodes.concat(pGraph?.nodes);
+    intermediateEdges = intermediateEdges.concat(pGraph?.edges);
   }
 
   return {
@@ -203,7 +209,7 @@ export const toGraphDOFs = (
 export const toGraphOpt = (
   objfns: PenroseFn[],
   constrfns: PenroseFn[],
-  varyingPaths: any[]
+  varyingPaths: Path<A>[]
 ): PGraph => {
   // One node for each unique path, id = path name, name = path name
   // One node for each unique obj/constr application, id = the function w/ its args, name = function name
