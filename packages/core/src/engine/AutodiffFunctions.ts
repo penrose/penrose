@@ -86,8 +86,9 @@ export const atan2 = (y: VarAD, x: VarAD): ad.Binary => ({
  */
 export const pow = binary("pow");
 
-export const polyRoots = (coeffs: VarAD[]): VarAD[] => {
-  return [...coeffs]; // TODO
+export const polyRoots = (coeffs: VarAD[]): ad.PolyRoot[] => {
+  const nexus: ad.Nary = { tag: "Nary", op: "polyRoots", params: coeffs };
+  return coeffs.map((coeff, index) => ({ tag: "PolyRoot", index, nexus }));
 };
 
 // --- Unary ops

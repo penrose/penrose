@@ -77,6 +77,10 @@ const makeNode = (x: VarAD): ad.Node => {
       const { op } = node;
       return { tag, op };
     }
+    case "PolyRoot": {
+      const { index } = node;
+      return { tag, index };
+    }
     case "Debug": {
       const { info } = node;
       return { tag, info };
@@ -288,8 +292,14 @@ const children = (x: VarAD): Child[] => {
           case "minN": {
             return { ...c, sensitivity: ifCond(gt(child, x), 0, 1) };
           }
+          case "polyRoots": {
+            throw Error(); // TODO
+          }
         }
       });
+    }
+    case "PolyRoot": {
+      throw Error(); // TODO
     }
     case "Debug": {
       return [{ child: x.node, name: undefined, sensitivity: 1 }];
@@ -868,6 +878,9 @@ const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
     case "minN": {
       return `Math.min(${params.join(", ")})`;
     }
+    case "polyRoots": {
+      throw Error();
+    }
   }
 };
 
@@ -911,6 +924,9 @@ const compileNode = (
         params[naryEdgeToIndex(i)] = x;
       }
       return compileNary(node, params);
+    }
+    case "PolyRoot": {
+      throw Error();
     }
     case "Debug": {
       const info = JSON.stringify(node.info);

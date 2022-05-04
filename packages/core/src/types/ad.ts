@@ -39,7 +39,15 @@ import { LbfgsParams } from "./state";
 
 //#region Types for implicit autodiff graph
 
-export type VarAD = Const | Input | Unary | Binary | Ternary | Nary | Debug;
+export type VarAD =
+  | Const
+  | Input
+  | Unary
+  | Binary
+  | Ternary
+  | Nary
+  | PolyRoot
+  | Debug;
 
 export type Const = ConstNode;
 
@@ -91,6 +99,10 @@ export interface Nary extends NaryNode {
   params: VarAD[];
 }
 
+export interface PolyRoot extends PolyRootNode {
+  nexus: VarAD; // must be an NaryNode with op = "polyRoots"
+}
+
 export interface Debug extends DebugNode {
   node: VarAD;
 }
@@ -106,6 +118,7 @@ export type Node =
   | BinaryNode
   | TernaryNode
   | NaryNode
+  | PolyRootNode
   | DebugNode;
 
 export type ConstNode = number;
@@ -173,7 +186,12 @@ export interface TernaryNode {
 
 export interface NaryNode {
   tag: "Nary";
-  op: "addN" | "maxN" | "minN";
+  op: "addN" | "maxN" | "minN" | "polyRoots";
+}
+
+export interface PolyRootNode {
+  tag: "PolyRoot";
+  index: number; // TODO: name something besides `index`
 }
 
 export interface DebugNode {
@@ -186,6 +204,7 @@ export type UnaryEdge = undefined;
 export type BinaryEdge = "left" | "right";
 export type TernaryEdge = "cond" | "then" | "els";
 export type NaryEdge = `${number}`;
+export type PolyRootEdge = undefined;
 export type DebugEdge = undefined;
 
 export type Id = `_${number}`; // subset of valid JavaScript identifiers
