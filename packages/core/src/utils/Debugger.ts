@@ -19,15 +19,15 @@ import { SubProg } from "types/substance";
  * be seen in penrose/core/compileTrio().
  */
 export class Debugger {
-  private state = 0; // 0=listening, 1=answering
-  private static theInstance: Debugger;
-  private rep: DebugStyleBlock[] = [];
-  private domSrc = "";
-  private subSrc = "";
-  private stySrc = "";
-  private domAst?: DomainProg<A>;
-  private subAst?: SubProg<A>;
-  private styAst?: StyProg<A>;
+  private state = 0; // 0=Listening, 1=Answering
+  private static theInstance: Debugger; // The singleton instance is created lazily
+  private rep: DebugStyleBlock[] = []; // Style blocks
+  private domSrc = ""; // Source code of the Domain program
+  private subSrc = ""; // Source code of the Substance program
+  private stySrc = ""; // Source code of the Style program
+  private domAst?: DomainProg<A>; // AST of the Domain program
+  private subAst?: SubProg<A>; // AST of the Substance program
+  private styAst?: StyProg<A>; // AST of the Style program
 
   // ------------------------- Singleton Impl. -----------------------------//
 
@@ -54,38 +54,78 @@ export class Debugger {
     }
   }
 
-  // ------------------------ Setters / Getters ----------------------------//
+  // ----------------------- Accessors / Mutators --------------------------//
 
+  /**
+   * Adds a style block to the Debugger, including sat/unsat reasons
+   * 
+   * @param block The Style block to add
+   */
   public addBlock(block: DebugStyleBlock): void {
     this.moveToListeningState();
-    this.rep.push(block);
+    this.rep.push(block); // We do not clone the block here for performance reasons
   }
+  /**
+   * Returns a copy of the Style blocks currently in the debugger
+   * 
+   * @returns A copy of the Style blocks currently in the debugger
+   */
   public getBlocks(): DebugStyleBlock[] {
     return JSON.parse(JSON.stringify(this.rep));
   }
+  /**
+   * Loads the source code of the Domain program into the Debugger
+   * 
+   * @param domSrc The source code of the Domain program
+   */
   public setDomSrc(domSrc: string): void {
     this.moveToListeningState();
     this.domSrc = domSrc;
   }
+  /**
+   * Loads the source code of the Substance program into the Debugger
+   * 
+   * @param subSrc The source code of the Substance program
+   */
   public setSubSrc(subSrc: string): void {
     this.moveToListeningState();
     this.subSrc = subSrc;
   }
+  /**
+   * Loads the source code of the Style program into the Debugger
+   * 
+   * @param stySrc The source code of the Style program
+   */
   public setStySrc(stySrc: string): void {
     this.moveToListeningState();
     this.stySrc = stySrc;
   }
+  /**
+   * Loads the AST of the Domain program into the Debugger
+   * 
+   * @param domAst The AST of the Domain program
+   */
   public setDomAst(domAst: DomainProg<A>): void {
     this.moveToListeningState();
-    this.domAst = domAst;
+    this.domAst = domAst;  // We do not clone the AST here for performance reasons
   }
+  /**
+   * Loads the AST of the Substance program into the Debugger
+   * 
+   * @param subAst The AST of the Substance program
+   */
   public setSubAst(subAst: SubProg<A>): void {
     this.moveToListeningState();
-    this.subAst = subAst;
+    this.subAst = subAst; // We do not clone the AST here for performance reasons
   }
+  /**
+   * Loads the AST of the Style program into the Debugger
+   * 
+   * @param styAst The AST of the Style program
+   */
   public setStyAst(styAst: StyProg<A>): void {
     this.moveToListeningState();
-    this.styAst = styAst;
+    this.styAst = styAst; // We do not clone the AST here for performance reasons
   }
 
   // ----------------------------- Queries ---------------------------------//
@@ -98,7 +138,7 @@ export class Debugger {
    *
    * @param styLine The line number of the style block
    * @param relVars Mapping of Style variables to Substance objects for the style block
-   * @returns True if the style block applied to the substance object, false otherwise
+   * @returns True if the style block applied to the substance object; false, otherwise
    */
   public queryDidStyleBlockApply(styLine: number, relVars: Subst): boolean {
     // Ensure we are in a suitable state to answer questions
@@ -138,7 +178,7 @@ export class Debugger {
    * Exception thrown if no style block is present at styLine.
    *
    * @param styLine The line number of the style block
-   * @returns True if the style block has a where clause, false otherwise
+   * @returns True if the style block has a where clause; false, otherwise
    */
   public queryDoesStyleBlockHaveWhereClause(styLine: number): boolean {
     // Ensure we are in a suitable state to answer questions
@@ -202,12 +242,20 @@ export class Debugger {
 
   // -------------------------- State Control ------------------------------//
 
+  /**
+   * Moves the Debugger to the Listening state.
+   */
   private moveToListeningState(): void {
     this.state = 0;
   }
+
+  /**
+   * Moves the Debugger to the Answering state.  Raises an exception if the
+   * ASTs and source core are not loaded.
+   */
   private moveToAnsweringState(): void {
     if (this.state >= 1) {
-      return; // No state change required
+      // Do nothing: no state change required
     } else {
       if (this.domAst === undefined)
         throw new Error("Unable to accept debug queries: no Domain AST loaded");
@@ -230,33 +278,40 @@ export class Debugger {
           "Unable to accept debug queries: no Style Source File loaded"
         );
 
-      // Transition to listening state:
-      //  - Set the state to answering state
-      //  - Generate the source map
-      //  - Add source text to reasons
-      // (Might want to consider lazy-evaluating this)
+      // Transition to answering state:
       this.state = 1; // Answering
+
+      // Resolve source text references (alt. approach: do this lazily)
       this.addSourceToRefs();
     }
   }
 
   // ------------------------- Helper Functions ----------------------------//
 
-  private addSourceToRefs() {
+  /**
+   * Finds source code references without source text and adds source text.
+   */
+  private addSourceToRefs(): void {
     this.moveToAnsweringState();
     this.rep.forEach((block) => {
       // Resolve Block Ref
-      block.blockRef.srcText = this.getSourceText(this.stySrc, block.blockRef);
+      if(block.blockRef.srcText === undefined) {
+        block.blockRef.srcText = this.getSourceText(this.stySrc, block.blockRef);
+      }
 
       // Loop over each relation in the block
       block.unsats.concat(block.sats).forEach((sat) => {
         // Resolve source for the relation
-        sat.relRef.srcText = this.getSourceText(this.stySrc, sat.relRef);
+        if(sat.relRef.srcText === undefined) {
+          sat.relRef.srcText = this.getSourceText(this.stySrc, sat.relRef);
+        }
 
         // Resolve source for each reason
         sat.reasons.forEach((reason) => {
           reason.srcRef.forEach((srcRef) => {
-            srcRef.srcText = this.getSourceText(this.stySrc, srcRef);
+            if(srcRef.srcText === undefined) {
+              srcRef.srcText = this.getSourceText(this.stySrc, srcRef);
+            }
           });
         });
       });
@@ -313,8 +368,8 @@ export class Debugger {
       const block = this.rep[i];
       // Find the block specified by the line number; ignore the rest
       if (
-        block.blockRef["start"].line <= styLine &&
-        block.blockRef["end"].line >= styLine
+        block.blockRef.lineStart <= styLine &&
+        block.blockRef.lineEnd >= styLine
       ) {
         return block;
       }
@@ -414,6 +469,7 @@ export class Debugger {
   }
 }
 
+// Represents a single Style block
 export type DebugStyleBlock = {
   blockRef: DebugSourceRef; // Selection Block Reference
   substs: Subst[]; // List of substitutions tried
@@ -421,29 +477,38 @@ export type DebugStyleBlock = {
   sats: DebugStyleBlockRel[]; // List of satisfied relations (if not a match-all block)
   unsats: DebugStyleBlockRel[]; // List of unsatisfied relations (if not a match-all block)
 };
+
+// Represents a single Style block relation from a where clause
 export type DebugStyleBlockRel = {
-  subst: Subst;
-  relRef: DebugSourceRef;
-  reasons: DebugReason[];
+  subst: Subst; // Variable substitution mapping (style variable -> substance variable)
+  relRef: DebugSourceRef; // Source reference to a where clause relation
+  reasons: DebugReason[]; // Reasons the relation is satisfied or unsatisfied
 };
+
+// Explanation of why a relation is satisfied or unsatisfied
 export type DebugReason = {
-  code: DebugReasonCodes;
-  srcRef: DebugSourceRef[];
-  srcTxt?: string[];
+  code: DebugReasonCodes; // Reason code (see below)
+  srcRef: DebugSourceRef[]; // Source code references providing context for the reason
 };
+
+// A reference to a specific section of a source program
 export type DebugSourceRef = {
   origin: DebugProgramType; // e.g. DOMAIN, SUBSTANCE, STYLE
-  lineStart: number;
-  lineEnd: number;
-  colStart: number;
-  colEnd: number;
+  lineStart: number; // Start line number of the source reference
+  lineEnd: number; // Ending line number of the source reference
+  colStart: number; // Start column number of the source reference
+  colEnd: number; // Ending column number of the source reference
   srcText?: string[]; // Source text of the entity
 };
+
+// One of the three types of programs 
 export enum DebugProgramType {
   DOMAIN = "Domain",
   SUBSTANCE = "Substance",
   STYLE = "Style",
 }
+
+// Reasons codes used by the Debugger to provide explanations in queries
 export enum DebugReasonCodes {
   MATCHING_SUB_STATEMENTS_FOUND = "MATCHING_SUB_STATEMENTS_FOUND",
   NO_MATCHING_SUB_STATEMENTS_FOUND = "NO_MATCHING_SUB_STATEMENTS_FOUND",
