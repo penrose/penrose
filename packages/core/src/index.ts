@@ -365,6 +365,7 @@ export {
   compileSubstance,
   checkDomain,
   checkSubstance,
+  Debugger,
   parseSubstance,
   parseDomain,
   Synthesizer,
