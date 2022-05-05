@@ -62,7 +62,7 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
       right = current + delta + 1,
       range: number[] = [],
       rangeWithDots: (number | string)[] = [],
-      l: number = -1;
+      l: number | undefined = undefined;
 
     for (let i = 1; i <= last; i++) {
       if (i == 1 || i == last || (i >= left && i < right)) {
@@ -71,7 +71,7 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
     }
 
     for (let i of range) {
-      if (l >= 0) {
+      if (l !== undefined && l) {
         if (i - l === 2) {
           rangeWithDots.push(l + 1);
         } else if (i - l !== 1) {
