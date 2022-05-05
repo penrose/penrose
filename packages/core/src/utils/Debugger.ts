@@ -58,7 +58,7 @@ export class Debugger {
 
   /**
    * Adds a style block to the Debugger, including sat/unsat reasons
-   * 
+   *
    * @param block The Style block to add
    */
   public addBlock(block: DebugStyleBlock): void {
@@ -67,7 +67,7 @@ export class Debugger {
   }
   /**
    * Returns a copy of the Style blocks currently in the debugger
-   * 
+   *
    * @returns A copy of the Style blocks currently in the debugger
    */
   public getBlocks(): DebugStyleBlock[] {
@@ -75,7 +75,7 @@ export class Debugger {
   }
   /**
    * Loads the source code of the Domain program into the Debugger
-   * 
+   *
    * @param domSrc The source code of the Domain program
    */
   public setDomSrc(domSrc: string): void {
@@ -84,7 +84,7 @@ export class Debugger {
   }
   /**
    * Loads the source code of the Substance program into the Debugger
-   * 
+   *
    * @param subSrc The source code of the Substance program
    */
   public setSubSrc(subSrc: string): void {
@@ -93,7 +93,7 @@ export class Debugger {
   }
   /**
    * Loads the source code of the Style program into the Debugger
-   * 
+   *
    * @param stySrc The source code of the Style program
    */
   public setStySrc(stySrc: string): void {
@@ -102,16 +102,16 @@ export class Debugger {
   }
   /**
    * Loads the AST of the Domain program into the Debugger
-   * 
+   *
    * @param domAst The AST of the Domain program
    */
   public setDomAst(domAst: DomainProg<A>): void {
     this.moveToListeningState();
-    this.domAst = domAst;  // We do not clone the AST here for performance reasons
+    this.domAst = domAst; // We do not clone the AST here for performance reasons
   }
   /**
    * Loads the AST of the Substance program into the Debugger
-   * 
+   *
    * @param subAst The AST of the Substance program
    */
   public setSubAst(subAst: SubProg<A>): void {
@@ -120,7 +120,7 @@ export class Debugger {
   }
   /**
    * Loads the AST of the Style program into the Debugger
-   * 
+   *
    * @param styAst The AST of the Style program
    */
   public setStyAst(styAst: StyProg<A>): void {
@@ -132,7 +132,7 @@ export class Debugger {
 
   /**
    * This query returns true if the style block at styLine with style variable
-   * styVar bound to substance object subObj satisfied the style block's requirements.
+   * and object mapping relVars satisfied the style block's requirements.
    *
    * Exception thrown if no style block is present at styLine.
    *
@@ -295,21 +295,24 @@ export class Debugger {
     this.moveToAnsweringState();
     this.rep.forEach((block) => {
       // Resolve Block Ref
-      if(block.blockRef.srcText === undefined) {
-        block.blockRef.srcText = this.getSourceText(this.stySrc, block.blockRef);
+      if (block.blockRef.srcText === undefined) {
+        block.blockRef.srcText = this.getSourceText(
+          this.stySrc,
+          block.blockRef
+        );
       }
 
       // Loop over each relation in the block
       block.unsats.concat(block.sats).forEach((sat) => {
         // Resolve source for the relation
-        if(sat.relRef.srcText === undefined) {
+        if (sat.relRef.srcText === undefined) {
           sat.relRef.srcText = this.getSourceText(this.stySrc, sat.relRef);
         }
 
         // Resolve source for each reason
         sat.reasons.forEach((reason) => {
           reason.srcRef.forEach((srcRef) => {
-            if(srcRef.srcText === undefined) {
+            if (srcRef.srcText === undefined) {
               srcRef.srcText = this.getSourceText(this.stySrc, srcRef);
             }
           });
@@ -501,7 +504,7 @@ export type DebugSourceRef = {
   srcText?: string[]; // Source text of the entity
 };
 
-// One of the three types of programs 
+// One of the three types of programs
 export enum DebugProgramType {
   DOMAIN = "Domain",
   SUBSTANCE = "Substance",

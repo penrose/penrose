@@ -1383,7 +1383,7 @@ const relMatchesProg = (
     // Check if the relation matches a Substance statement
     const linesMatched: DebugSourceRef[] = [];
     const substanceMatchFound = subProg.statements.some((line) => {
-      if(relMatchesLine(typeEnv, subEnv, line, rel.subRel)) {
+      if (relMatchesLine(typeEnv, subEnv, line, rel.subRel)) {
         linesMatched.push(Debugger.getSourceRefFromAstNode(line));
         return true;
       } else {
@@ -1398,8 +1398,8 @@ const relMatchesProg = (
       subst: rel.subst,
       relRef: relRef,
       reasons: reasons,
-    }
-    if(substanceMatchFound) {
+    };
+    if (substanceMatchFound) {
       reasons.push({
         code: DebugReasonCodes.MATCHING_SUB_STATEMENTS_FOUND,
         srcRef: [...linesMatched],
@@ -1412,7 +1412,7 @@ const relMatchesProg = (
       });
       dbgStyBlock.unsats.push(relResult);
     }
-    
+
     return substanceMatchFound;
   }
 };
