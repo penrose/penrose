@@ -140,7 +140,7 @@ export class Debugger {
    * @param relVars Mapping of Style variables to Substance objects for the style block
    * @returns True if the style block applied to the substance object; false, otherwise
    */
-  public queryDidStyleBlockApply(styLine: number, relVars: Subst): boolean {
+  public queryDoesStyleBlockApply(styLine: number, relVars: Subst): boolean {
     // Ensure we are in a suitable state to answer questions
     this.moveToAnsweringState();
 
@@ -223,7 +223,7 @@ export class Debugger {
       if (!theBlock.hasWhereClause) return [];
 
       // Return the matching sats/unsat conditions.  Protect the rep.
-      const conds = this.queryDidStyleBlockApply(styLine, relVars)
+      const conds = this.queryDoesStyleBlockApply(styLine, relVars)
         ? theBlock.sats
         : theBlock.unsats;
       return JSON.parse(
