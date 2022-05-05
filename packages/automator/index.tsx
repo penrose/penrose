@@ -151,7 +151,7 @@ const singleProcess = async (
     //   console.log("This instance has non-zero constraints: ");
     //   // return;
     // }
-    let crossEnergy = undefined;
+    let crossEnergy: number = Infinity;
     if (ciee) {
       console.log(chalk.yellow(`Computing cross energy...`));
       if (referenceState) {
@@ -319,7 +319,7 @@ const batchProcess = async (
         referenceState,
         meta
       );
-      if (folders) {
+      if (folders && res !== undefined) {
         const { metadata, state } = res;
         if (referenceFlag) {
           referenceState = state;
