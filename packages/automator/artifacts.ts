@@ -61,7 +61,7 @@ export const renderArtifacts = (artifactsDir: string, outDir: string) => {
       left = current - delta,
       right = current + delta + 1,
       range: number[] = [],
-      rangeWithDots: any[] = [],
+      rangeWithDots: (number | string)[] = [],
       l: number = -1;
 
     for (let i = 1; i <= last; i++) {
