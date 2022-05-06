@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
     "watch": "NODE_OPTIONS='--max-old-space-size=8192' docusaurus start",
-    "build": "rimraf ./static/try/*; cp -R ../panels/dist/* ./static/try/;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
+    "build": "rimraf ./static/try; mkdir ./static/try; cp -R ../panels/dist/* ./static/try/;NODE_OPTIONS='--max-old-space-size=8192' docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
