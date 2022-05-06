@@ -107,7 +107,11 @@ export const compDict = {
   /**
    * Orthonormalize two vectors
    */
-  gramSchmidt: (a: IVectorV<VarAD>, b: IVectorV<VarAD>): IVectorV<VarAD> => {
+  gramSchmidt: (
+    _context: Context,
+    a: IVectorV<VarAD>,
+    b: IVectorV<VarAD>
+  ): IVectorV<VarAD> => {
     const proj_b_a = ops.vmul(
       div(ops.vdot(a.contents, b.contents), ops.vdot(a.contents, a.contents)),
       a.contents
