@@ -116,7 +116,7 @@ export const compDict = {
       div(ops.vdot(a.contents, b.contents), ops.vdot(a.contents, a.contents)),
       a.contents
     );
-    const basis = ops.vsub(b, proj_b_a);
+    const basis = ops.vsub(b.contents, proj_b_a);
     return {
       tag: "VectorV",
       contents: ops.vnormalize(basis),
