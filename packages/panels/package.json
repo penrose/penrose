@@ -1,5 +1,6 @@
 {
   "name": "@penrose/panels",
+  "homepage": "/try/",
   "version": "0.1.0",
   "license": "MIT",
   "dependencies": {
