@@ -313,7 +313,7 @@ export class Debugger {
         sat.reasons.forEach((reason) => {
           reason.srcRef.forEach((srcRef) => {
             if (srcRef.srcText === undefined) {
-              srcRef.srcText = this.getSourceText(this.stySrc, srcRef);
+              srcRef.srcText = this.getSourceText(this.subSrc, srcRef);
             }
           });
         });
