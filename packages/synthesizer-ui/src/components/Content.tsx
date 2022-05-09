@@ -137,7 +137,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       const synth = new Synthesizer(
         env,
         setting,
-        subResult
+        subResult,
         Math.random().toString()
       );
       let progs = synth.generateSubstances(numPrograms);
