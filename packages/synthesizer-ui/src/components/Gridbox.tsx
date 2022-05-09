@@ -97,7 +97,7 @@ const ResampleBtn = styled(Button)({
 });
 
 interface GridboxState {
-  showDiagram: boolean;
+  showDiagramInfo: boolean;
   isSelected: boolean;
   diagramSVG: string;
   energy: number;
@@ -108,7 +108,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   constructor(props: GridboxProps) {
     super(props);
     this.state = {
-      showDiagram: true,
+      showDiagramInfo: false,
       isSelected: false,
       diagramSVG: "",
       energy: 0,
@@ -140,7 +140,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   toggleView = () => {
-    this.setState({ showDiagram: !this.state.showDiagram });
+    this.setState({ showDiagramInfo: !this.state.showDiagramInfo });
   };
 
   checkboxClick = () => {
@@ -195,15 +195,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
         </Header>
 
         <div onClick={this.toggleView}>
-          {this.state.showDiagram ? (
-            <Simple
-              domain={this.props.domain}
-              substance={prettySubstance(this.props.substance.prog)}
-              style={this.props.style}
-              variation={this.state.variation}
-              interactive={false}
-            />
-          ) : (
+          {this.state.showDiagramInfo && (
             <Body>
               <H2>Mutations</H2>
               {this.props.progNumber === 0
@@ -213,6 +205,13 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               {`${stmts}`}
             </Body>
           )}
+          <Simple
+            domain={this.props.domain}
+            substance={prettySubstance(this.props.substance.prog)}
+            style={this.props.style}
+            variation={this.state.variation}
+            interactive={false}
+          />
         </div>
       </Section>
     );
