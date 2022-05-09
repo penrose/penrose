@@ -7,18 +7,13 @@ import {
   styled,
   Typography,
 } from "@material-ui/core";
-import { fetchResolver } from "@penrose/components";
+import { Simple } from "@penrose/components";
 import {
-  compileTrio,
   evalEnergy,
   PenroseState,
   prepareState,
   prettySubstance,
-  RenderStatic,
-  resample,
-  showError,
   showMutations,
-  stepUntilConvergence,
   SynthesizedSubstance,
 } from "@penrose/core";
 import React from "react";
@@ -106,6 +101,7 @@ interface GridboxState {
   isSelected: boolean;
   diagramSVG: string;
   energy: number;
+  variation: string;
 }
 
 export class Gridbox extends React.Component<GridboxProps, GridboxState> {
@@ -116,6 +112,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       isSelected: false,
       diagramSVG: "",
       energy: 0,
+      variation: props.variation,
     };
   }
 
@@ -142,56 +139,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     }
   };
 
-  // TODO: this should really be put in a web worker, it blocks browser interaction
-  async update() {
-    const res = compileTrio({
-      substance: prettySubstance(this.props.substance.prog),
-      style: this.props.style,
-      domain: this.props.domain,
-      variation: this.props.variation,
-    });
-    if (res.isOk()) {
-      try {
-        // https://stackoverflow.com/a/19626821
-        // setTimeout causes this function to be pushed to bottom of call stack. Since Gridbox
-        // component is rendered in an array, we want to delay ALL componentDidMount calls until
-        // after ALL gridboxes have been initially rendered.
-        await new Promise((r) => setTimeout(r, 1));
-        // resample because initial sampling did not use the special sampling seed
-        let state = resample(await prepareState(res.value));
-        state = resample(state);
-        const opt = stepUntilConvergence(state);
-        if (opt.isErr()) {
-          console.log(showError(opt.error));
-          throw Error("optimization failed");
-        }
-        const optimized = opt.value;
-        const rendered = await RenderStatic(optimized, fetchResolver);
-        this.setState({ diagramSVG: rendered.outerHTML });
-        if (this.props.progNumber === 0) {
-          // original program is cached by parent component to be used for CIEE with mutated progs
-          this.props.updateSrcProg(optimized);
-        } else {
-          this.computeEnergy(optimized);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
-      throw res.error;
-    }
-  }
-
-  async componentDidMount() {
-    await this.update();
-  }
-
-  async componentDidUpdate(prevProps: GridboxProps) {
-    if (this.props.substance.prog !== prevProps.substance.prog) {
-      await this.update();
-    }
-  }
-
   toggleView = () => {
     this.setState({ showDiagram: !this.state.showDiagram });
   };
@@ -199,10 +146,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   checkboxClick = () => {
     this.setState({ isSelected: !this.state.isSelected });
     this.props.onStaged(this.props.progNumber, this.state.diagramSVG);
-  };
-
-  resample = () => {
-    this.update();
   };
 
   // NOTE: not rendered by default, uncomment in render function to see
@@ -217,6 +160,10 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     ) : (
       <LowEnergy label={`energy: ${this.state.energy}`} size="small" />
     );
+  };
+
+  resample = () => {
+    this.setState({ variation: Math.random().toString() });
   };
 
   render() {
@@ -249,11 +196,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
         <div onClick={this.toggleView}>
           {this.state.showDiagram ? (
-            <div
-              style={{ width: "100%", height: "100%" }}
-              dangerouslySetInnerHTML={{
-                __html: this.state.diagramSVG,
-              }}
+            <Simple
+              domain={this.props.domain}
+              substance={prettySubstance(this.props.substance.prog)}
+              style={this.props.style}
+              variation={this.state.variation}
+              interactive={false}
             />
           ) : (
             <Body>
