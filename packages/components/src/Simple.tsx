@@ -83,29 +83,33 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   };
 
   componentDidUpdate = async (prevProps: ISimpleProps) => {
-    if (
-      this.props.domain !== prevProps.domain ||
-      this.props.substance !== prevProps.substance ||
-      this.props.style !== prevProps.style ||
-      !this.penroseState
-    ) {
-      await this.compile();
-      if (!this.props.animate) {
-        await this.converge();
+    // update the component only if there's no error
+    // in the case of an error, they component should not attempt to re-render
+    if (!this.state.error) {
+      if (
+        this.props.domain !== prevProps.domain ||
+        this.props.substance !== prevProps.substance ||
+        this.props.style !== prevProps.style ||
+        !this.penroseState
+      ) {
+        await this.compile();
+        if (!this.props.animate) {
+          await this.converge();
+        }
+        this.renderCanvas();
+      } else if (
+        this.props.variation !== prevProps.variation ||
+        this.props.animate !== prevProps.animate
+      ) {
+        this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
+        this.penroseState = resample(this.penroseState);
+        if (!this.props.animate) {
+          await this.converge();
+        }
+        this.renderCanvas();
+      } else if (this.props.interactive !== prevProps.interactive) {
+        this.renderCanvas();
       }
-      this.renderCanvas();
-    } else if (
-      this.props.variation !== prevProps.variation ||
-      this.props.animate !== prevProps.animate
-    ) {
-      this.penroseState.seeds = variationSeeds(this.props.variation).seeds;
-      this.penroseState = resample(this.penroseState);
-      if (!this.props.animate) {
-        await this.converge();
-      }
-      this.renderCanvas();
-    } else if (this.props.interactive !== prevProps.interactive) {
-      this.renderCanvas();
     }
   };
 
@@ -152,7 +156,7 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
           <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
         )}
         {error && (
-          <div style={{ padding: "1em" }}>
+          <div style={{ padding: "1em", height: "100%" }}>
             <div style={{ fontWeight: 700 }}>1 error:</div>
             <div style={{ fontFamily: "monospace" }}>
               {showError(error)
