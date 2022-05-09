@@ -269,7 +269,7 @@ export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
   const inputs = [];
   for (const v of g.nodes.keys()) {
     if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.index] = v.val;
+      inputs[v.key] = v.val;
     }
   }
   const numbers = genCode(g)(inputs).secondary;

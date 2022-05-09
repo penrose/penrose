@@ -934,7 +934,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
     const epWeightNode = input({
       val: state.params.weight,
-      index: 0, // xsVars indices must start at 1 to accommodate this
+      key: 0, // xsVars keys must start at 1 to accommodate this
     });
 
     const objEng: VarAD = ops.vsum(objEngs);

@@ -27,8 +27,8 @@ import {
 describe("makeGraph tests", () => {
   test("secondary outputs", () => {
     // the values 0 don't matter for this test
-    const x = input({ index: 0, val: 0 });
-    const y = input({ index: 1, val: 0 });
+    const x = input({ key: 0, val: 0 });
+    const y = input({ key: 1, val: 0 });
     const sum = add(x, y);
     const product = mul(x, y);
     const difference = sub(x, y);
@@ -50,7 +50,7 @@ describe("makeGraph tests", () => {
 
   test("no expression swell", () => {
     // https://arxiv.org/pdf/1904.02990.pdf Figure 2
-    const x1 = input({ index: 0, val: 0 }); // 0, doesn't matter for this test
+    const x1 = input({ key: 0, val: 0 }); // 0, doesn't matter for this test
     const t1 = mul(x1, x1);
     const t2 = mul(t1, t1);
     const f = mul(t2, t2);
@@ -158,8 +158,8 @@ const testGradFiniteDiff = () => {
 
 const gradGraph1 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: -5, index: 0 });
-  const x1 = input({ val: 6, index: 1 });
+  const x0 = input({ val: -5, key: 0 });
+  const x1 = input({ val: 6, key: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = sin(a);
@@ -170,8 +170,8 @@ const gradGraph1 = (): ad.Graph => {
 // Test addition of consts to graph (`c`)
 const gradGraph2 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: -5, index: 0 });
-  const x1 = input({ val: 6, index: 1 });
+  const x0 = input({ val: -5, key: 0 });
+  const x1 = input({ val: 6, key: 1 });
   const a = sub(x0, x1);
   const b = squared(a);
   const c = add(a, 3);
@@ -182,8 +182,8 @@ const gradGraph2 = (): ad.Graph => {
 // Test vars w/ no grad
 const gradGraph3 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
-  const x1 = input({ val: -100, index: 1 });
+  const x0 = input({ val: 100, key: 0 });
+  const x1 = input({ val: -100, key: 1 });
   const head = squared(x0);
   return primaryGraph(head);
 };
@@ -191,7 +191,7 @@ const gradGraph3 = (): ad.Graph => {
 // Test toPenalty
 const gradGraph4 = (): ad.Graph => {
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
+  const x0 = input({ val: 100, key: 0 });
   const head = fns.toPenalty(x0);
   return primaryGraph(head);
 };
@@ -201,8 +201,8 @@ const gradGraph5 = (): ad.Graph => {
   logAD.info("test ifCond");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
-  const x1 = input({ val: -100, index: 1 });
+  const x0 = input({ val: 100, key: 0 });
+  const x1 = input({ val: -100, key: 1 });
   const head = ifCond(lt(x0, 33), squared(x1), squared(x0));
   return primaryGraph(head);
 };
@@ -212,7 +212,7 @@ const gradGraph6 = (): ad.Graph => {
   logAD.info("test max");
 
   // Build energy/gradient graph
-  const x0 = input({ val: 100, index: 0 });
+  const x0 = input({ val: 100, key: 0 });
   const head = max(squared(x0), 0);
   return primaryGraph(head);
 };
@@ -223,8 +223,8 @@ const gradGraph7 = (): ad.Graph => {
   logAD.info("test div");
 
   // Build energy graph
-  const x0 = input({ val: 100, index: 0 });
-  const x1 = input({ val: -100, index: 1 });
+  const x0 = input({ val: 100, key: 0 });
+  const x1 = input({ val: -100, key: 1 });
   const head = div(x0, x1);
   return primaryGraph(head);
 };
@@ -235,11 +235,11 @@ const gradGraph8 = (): ad.Graph => {
 
   // Build energy/gradient graph
   // coefficients of (x-1)(x-2)(x-3)(x-4)(x-5)
-  const x0 = input({ val: -120, index: 0 });
-  const x1 = input({ val: 274, index: 1 });
-  const x2 = input({ val: -225, index: 2 });
-  const x3 = input({ val: 85, index: 3 });
-  const x4 = input({ val: -15, index: 4 });
+  const x0 = input({ val: -120, key: 0 });
+  const x1 = input({ val: 274, key: 1 });
+  const x2 = input({ val: -225, key: 2 });
+  const x3 = input({ val: 85, key: 3 });
+  const x4 = input({ val: -15, key: 4 });
   const roots = polyRoots([x0, x1, x2, x3, x4]);
   const head = addN(roots);
   return primaryGraph(head);
@@ -279,7 +279,7 @@ const gradGraph0 = (): ad.Graph => {
 
   // f(x) = x^2, where x is 100
   // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-  const ref = input({ val: 100, index: 0 });
+  const ref = input({ val: 100, key: 0 });
   const head = squared(ref);
   const graph = primaryGraph(head);
 

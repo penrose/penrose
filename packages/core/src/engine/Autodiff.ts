@@ -38,20 +38,18 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-export const input = ({
-  index,
+export const input = ({ key, val }: Omit<ad.Input, "tag">): ad.Input => ({
+  tag: "Input",
+  key,
   val,
-}: {
-  index: number;
-  val: number;
-}): ad.Input => ({ tag: "Input", index, val });
+});
 
 export const makeADInputVars = (xs: number[], start = 0): ad.Input[] =>
-  xs.map((val, i) => input({ index: start + i, val }));
+  xs.map((val, i) => input({ key: start + i, val }));
 
 // every VarAD is already an ad.Node, but this function returns a new object
 // with all the children removed
-const makeNode = (x: VarAD): ad.Node => {
+const makeNode = (x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
     return x;
   }
@@ -59,14 +57,22 @@ const makeNode = (x: VarAD): ad.Node => {
   const { tag } = node;
   switch (tag) {
     case "Input": {
-      const { index } = node;
-      return { tag, index };
+      const { key } = node;
+      return { tag, key };
     }
     case "Unary": {
       const { unop } = node;
       return { tag, unop };
     }
     case "Binary": {
+      const { binop } = node;
+      return { tag, binop };
+    }
+    case "Comp": {
+      const { binop } = node;
+      return { tag, binop };
+    }
+    case "Logic": {
       const { binop } = node;
       return { tag, binop };
     }
@@ -77,7 +83,10 @@ const makeNode = (x: VarAD): ad.Node => {
       const { op } = node;
       return { tag, op };
     }
-    case "PolyRoot": {
+    case "PolyRoots": {
+      return { tag };
+    }
+    case "Index": {
       const { index } = node;
       return { tag, index };
     }
@@ -175,9 +184,7 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
   }
 };
 
-const binarySensitivities = (
-  z: ad.Binary
-): { left: VarAD | undefined; right: VarAD | undefined } => {
+const binarySensitivities = (z: ad.Binary): { left: VarAD; right: VarAD } => {
   const { binop, left: v, right: w } = z;
   switch (binop) {
     case "+": {
@@ -209,13 +216,6 @@ const binarySensitivities = (
     case "pow": {
       return { left: mul(pow(v, sub(w, 1)), w), right: mul(z, ln(v)) };
     }
-    case ">":
-    case "<":
-    case "===":
-    case "&&":
-    case "||": {
-      return { left: undefined, right: undefined };
-    }
   }
 };
 
@@ -245,14 +245,14 @@ const rankEdge = (edge: ad.Edge): number => {
 };
 
 interface Child {
-  child: VarAD;
+  child: ad.Expr;
   name: ad.Edge;
   sensitivity: VarAD | undefined;
 }
 
 // note that this function constructs the sensitivities even when we don't need
 // them, such as for nodes in secondary outputs or the gradient
-const children = (x: VarAD): Child[] => {
+const children = (x: ad.Expr): Child[] => {
   if (typeof x === "number") {
     return [];
   }
@@ -270,6 +270,13 @@ const children = (x: VarAD): Child[] => {
       return [
         { child: x.left, name: "left", sensitivity: left },
         { child: x.right, name: "right", sensitivity: right },
+      ];
+    }
+    case "Comp":
+    case "Logic": {
+      return [
+        { child: x.left, name: "left", sensitivity: undefined },
+        { child: x.right, name: "right", sensitivity: undefined },
       ];
     }
     case "Ternary": {
@@ -292,13 +299,13 @@ const children = (x: VarAD): Child[] => {
           case "minN": {
             return { ...c, sensitivity: ifCond(gt(child, x), 0, 1) };
           }
-          case "polyRoots": {
-            throw Error(); // TODO
-          }
         }
       });
     }
-    case "PolyRoot": {
+    case "PolyRoots": {
+      throw Error(); // TODO
+    }
+    case "Index": {
       throw Error(); // TODO
     }
     case "Debug": {
@@ -338,12 +345,12 @@ export const makeGraph = (
   outputs: Omit<ad.Outputs<VarAD>, "gradient">
 ): ad.Graph => {
   const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
-  const nodes = new Map<VarAD, ad.Id>();
+  const nodes = new Map<ad.Expr, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
-  // VarAD child pointers; it gets reused a few times because we add nodes in
-  // multiple stages
-  const queue = new Queue<VarAD>();
+  // `ad.Expr` child pointers; it gets reused a few times because we add nodes
+  // in multiple stages
+  const queue = new Queue<ad.Expr>();
   // at each stage, we need to add the edges after adding all the nodes, because
   // when we first look at a node and its in-edges, its children are not
   // guaranteed to exist in the graph yet, so we fill this queue during the
@@ -351,7 +358,7 @@ export const makeGraph = (
   // leaving it empty in preparation for the next stage; so the first element of
   // every tuple in this queue stores information about the edge and child, and
   // the second element of the tuple is the parent
-  const edges = new Queue<[Child, VarAD]>();
+  const edges = new Queue<[Child, ad.Expr]>();
 
   // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
@@ -363,7 +370,7 @@ export const makeGraph = (
   // ensure that x is represented in the graph we're building, and if it wasn't
   // already there, enqueue its children and in-edges (so queue and edges,
   // respectively, should both be emptied after calling this)
-  const addNode = (x: VarAD): ad.Id => {
+  const addNode = (x: ad.Expr): ad.Id => {
     let name = nodes.get(x);
     if (name === undefined) {
       name = newNode(makeNode(x));
@@ -377,8 +384,8 @@ export const makeGraph = (
   };
 
   const addEdge = (
-    child: VarAD,
-    parent: VarAD,
+    child: ad.Expr,
+    parent: ad.Expr,
     name: ad.Edge
   ): [ad.Id, ad.Id] => {
     const v = safe(nodes.get(child), "missing child");
@@ -402,7 +409,7 @@ export const makeGraph = (
   // concatenation doesn't cause any problems, because no stringified Edge
   // contains an underscore, and every Id starts with an underscore, so it's
   // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD>();
+  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, ad.Expr>();
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
@@ -499,16 +506,16 @@ export const makeGraph = (
   const gradient: ad.Id[] = [];
   for (const {
     id,
-    label: { index },
+    label: { key },
   } of getInputs(graph)) {
-    if (index in gradient) {
-      throw Error(`duplicate Input index: ${index}`);
+    if (key in gradient) {
+      throw Error(`duplicate Input key: ${key}`);
     }
     // note that it's very easy for the set of Input indices to not be
     // contiguous, e.g. if some inputs end up not being used in any of the
     // computations in the graph; but even if that happens, it's actually OK
     // (see the comment in the implementation of genCode below)
-    gradient[index] = gradNodes.get(id) ?? addNode(0);
+    gradient[key] = gradNodes.get(id) ?? addNode(0);
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -536,7 +543,10 @@ export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
  * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
  * For more documentation on how to use this function, see the Penrose wiki page.
  */
-export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
+export const debug = <T extends ad.Expr>(
+  v: T,
+  info = "no additional info"
+): ad.Debug<T> => ({
   tag: "Debug",
   node: v,
   info,
@@ -842,7 +852,7 @@ const compileUnary = ({ unop }: ad.UnaryNode, param: ad.Id): string => {
 };
 
 const compileBinary = (
-  { binop }: ad.BinaryNode,
+  { binop }: ad.BinaryNode | ad.CompNode | ad.LogicNode,
   left: ad.Id,
   right: ad.Id
 ): string => {
@@ -878,9 +888,6 @@ const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
     case "minN": {
       return `Math.min(${params.join(", ")})`;
     }
-    case "polyRoots": {
-      throw Error();
-    }
   }
 };
 
@@ -895,7 +902,9 @@ const compileNode = (
     case "Unary": {
       return compileUnary(node, safe(preds.get(undefined), "missing param"));
     }
-    case "Binary": {
+    case "Binary":
+    case "Comp":
+    case "Logic": {
       return compileBinary(
         node,
         safe(preds.get("left"), "missing left"),
@@ -925,8 +934,11 @@ const compileNode = (
       }
       return compileNary(node, params);
     }
-    case "PolyRoot": {
-      throw Error();
+    case "PolyRoots": {
+      throw Error(); // TODO
+    }
+    case "Index": {
+      throw Error(); // TODO
     }
     case "Debug": {
       const info = JSON.stringify(node.info);
@@ -943,7 +955,7 @@ export const genCode = ({
   secondary,
 }: ad.Graph): ad.Compiled => {
   const stmts = getInputs(graph).map(
-    ({ id, label: { index } }) => `const ${id} = inputs[${index}];`
+    ({ id, label: { key } }) => `const ${id} = inputs[${key}];`
   );
   for (const id of graph.topsort()) {
     const node = graph.node(id);
@@ -1014,7 +1026,7 @@ export const energyAndGradCompiled = (
 
   // Synthesize energy and gradient code
   const f0 = genCode(explicitGraph);
-  if (epWeightNode !== undefined && epWeightNode.index !== 0) {
+  if (epWeightNode !== undefined && epWeightNode.key !== 0) {
     throw Error("epWeightNode must be the first input");
   }
   const allInputs =

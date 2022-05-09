@@ -161,7 +161,7 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
   const inputs = [];
   for (const v of g.nodes.keys()) {
     if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.index] = v.val;
+      inputs[v.key] = v.val;
     }
   }
   const coords = genCode(g)(inputs).secondary;
