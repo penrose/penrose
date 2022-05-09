@@ -23,7 +23,7 @@ const Redirector = () => {
 
 const Routing = () => {
   return (
-    <Router>
+    <Router basename="/try">
       <Switch>
         <Route path="/authed" component={Redirector} />
         <Route path="/repo" component={App} />

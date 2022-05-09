@@ -44,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
@@ -56,9 +57,9 @@
     "@types/react-panelgroup": "^1.0.1",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.7",
+    "@vitejs/plugin-react": "^1.0.7",
     "typescript": "^4.1.3",
-    "web-vitals": "^0.2.4",
     "vite": "^2.8.0",
-    "@vitejs/plugin-react": "^1.0.7"
+    "web-vitals": "^0.2.4"
   }
 }
