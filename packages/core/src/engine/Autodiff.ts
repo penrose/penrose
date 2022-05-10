@@ -1027,6 +1027,8 @@ const polyRoots = (coeffs: number[]): number[] => {
   return zip2(
     decomp.realEigenvalues,
     decomp.imaginaryEigenvalues
+    // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`,
+    // we discard any non-real root and replace with `NaN`
   ).map(([r, i]) => (i === 0 ? r : NaN));
 };
 
