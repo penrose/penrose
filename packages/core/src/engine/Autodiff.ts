@@ -452,12 +452,7 @@ export const makeGraph = (
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
-    // this check for undefined isn't really necessary because we do a similar
-    // check later when we look up sensitivities in this map, but it slightly
-    // simplifies the value type for the map and also means we store a bit less
-    if (sensitivity !== undefined) {
-      sensitivities.set(`${name}${v}${w}`, sensitivity);
-    }
+    sensitivities.set(`${name}${v}${w}`, sensitivity);
   }
   // we can use this reverse topological sort later when we construct all the
   // gradient nodes, because it ensures that the gradients of a node's parents
@@ -468,11 +463,8 @@ export const makeGraph = (
   const primaryNodes = [...graph.topsort()].reverse();
 
   for (const matrix of sensitivities.values()) {
-    for (const row of matrix) {
-      for (const x of row) {
-        addNode(x);
-      }
-    }
+    // `forEach` ignores holes
+    matrix.forEach((row) => row.forEach(addNode));
   }
   while (!queue.isEmpty()) {
     addNode(queue.dequeue());
@@ -482,18 +474,22 @@ export const makeGraph = (
     addEdge(child, parent, name);
   }
 
-  // map from each primary node ID to the ID of its gradient node
-  const gradNodes = new Map<ad.Id, ad.Id>();
+  // map from each primary node ID to the IDs of its gradient nodes
+  const gradNodes = new Map<ad.Id, ad.Id[]>();
   for (const id of primaryNodes) {
     if (id === primary) {
       // use addNode instead of newNode in case there's already a 1 in the graph
-      gradNodes.set(id, addNode(1));
+      gradNodes.set(id, [addNode(1)]);
       continue;
     }
 
-    const gradID = newNode({ tag: "Nary", op: "addN" });
-    gradNodes.set(id, gradID);
-    const addends: ad.Id[] = [];
+    // our node needs to have some number of gradient nodes, depending on its
+    // type, so we assemble an array of the addends for each gradient node; we
+    // don't need to know the length of this array ahead of time, because
+    // JavaScript allows holes in arrays, so instead of actually looking at the
+    // node to see what type it is, we just accumulate into whatever slots are
+    // mentioned by the sensitivities of our out-edges, and let all else be zero
+    const grad: ad.Id[][] = [];
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
@@ -503,27 +499,43 @@ export const makeGraph = (
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
-    // possible for for those edges to get incorrectly included as addends in
-    // other gradient nodes; however, that is not the case, because none of
-    // those edges appear in our sensitivities map
+    // possible for those edges to get incorrectly included as addends in other
+    // gradient nodes; however, that is not the case, because none of those
+    // edges appear in our sensitivities map
     for (const { w, name } of edges) {
-      const sensitivity = sensitivities.get(`${name}${id}${w}`);
-      if (sensitivity !== undefined) {
-        const sensitivityID = safe(
-          nodes.get(sensitivity),
-          "missing sensitivity"
-        );
-        const parentGradID = safe(gradNodes.get(w), "missing parent grad");
+      const matrix = sensitivities.get(`${name}${id}${w}`);
+      if (matrix !== undefined) {
+        // `forEach` ignores holes
+        matrix.forEach((row, i) =>
+          row.forEach((x, j) => {
+            const sensitivityID = safe(nodes.get(x), "missing sensitivity");
+            const parentGradIDs = safe(gradNodes.get(w), "missing parent grad");
+            if (i in parentGradIDs) {
+              const parentGradID = parentGradIDs[i];
 
-        const addendID = newNode({ tag: "Binary", binop: "*" });
-        graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
-        graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
-        addends.push(addendID);
+              const addendID = newNode({ tag: "Binary", binop: "*" });
+              graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
+              graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
+              if (!(j in grad)) {
+                grad[j] = [];
+              }
+              grad[j].push(addendID);
+            }
+          })
+        );
       }
     }
 
-    addends.forEach((addendID, i) =>
-      graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
+    gradNodes.set(
+      id,
+      // `map` skips holes but also preserves indices
+      grad.map((addends) => {
+        const gradID = newNode({ tag: "Nary", op: "addN" });
+        addends.forEach((addendID, i) =>
+          graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
+        );
+        return gradID;
+      })
     );
   }
 
@@ -558,7 +570,7 @@ export const makeGraph = (
     // contiguous, e.g. if some inputs end up not being used in any of the
     // computations in the graph; but even if that happens, it's actually OK
     // (see the comment in the implementation of genCode below)
-    gradient[key] = gradNodes.get(id) ?? addNode(0);
+    gradient[key] = (gradNodes.get(id) ?? [addNode(0)])[0];
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -979,7 +991,7 @@ const compileNode = (
       return compileNary(node, naryParams(preds));
     }
     case "PolyRoots": {
-      throw `polyRoots([${naryParams(preds).join(", ")}])`;
+      return `polyRoots([${naryParams(preds).join(", ")}])`;
     }
     case "Index": {
       const vec = safe(preds.get(undefined), "missing vec");
@@ -1025,9 +1037,9 @@ export const genCode = ({
   }
   const fields = [
     // somehow this actually works! if the gradient array is not contiguous, any
-    // gaps will just be filled in by commas when we call join, and that is
-    // valid JavaScript syntax for array literals with gaps, so everything works
-    // out perfectly
+    // holes will just be filled in by commas when we call join, and that is
+    // valid JavaScript syntax for array literals with holes, so everything
+    // works out perfectly
     `gradient: [${gradient.join(", ")}]`,
     `primary: ${primary}`,
     `secondary: [${secondary.join(", ")}]`,
@@ -1094,7 +1106,7 @@ export const energyAndGradCompiled = (
     const { gradient } = outputs;
     return {
       ...outputs,
-      // fill in any gaps, in case some inputs weren't used in the graph
+      // fill in any holes, in case some inputs weren't used in the graph
       gradient: allInputs.map((v, i) => (i in gradient ? gradient[i] : 0)),
     };
   };
