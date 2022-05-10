@@ -334,7 +334,8 @@ const children = (x: ad.Expr): Child[] => {
         );
 
         // if the root is `NaN` then it doesn't contribute to the gradient
-        return powers.map((p) => ifCond(eq(t, t), div(p, minusDerivative), 0));
+        const real = eq(t, t);
+        return powers.map((p) => ifCond(real, div(p, minusDerivative), 0));
       });
 
       return x.coeffs.map((child, i) => ({
