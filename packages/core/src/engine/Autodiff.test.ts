@@ -310,6 +310,8 @@ describe("polyRoots tests", () => {
 
   type F = (v: VarAD, w: VarAD) => VarAD;
 
+  // check that `polyRoots` gives the same answer as just doing symbolic
+  // differentiation on the quadratic formula
   const testQuadratic = (f1: F, f2: F) => {
     const a = 1;
     const b = input({ key: 1, val: 0 });
@@ -317,11 +319,12 @@ describe("polyRoots tests", () => {
 
     const closedForm = genCode(
       primaryGraph(
+        // c + bx + ax²
         div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a))
       )
     );
 
-    const [r1, r2] = polyRoots([c, b]);
+    const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1
     const implicit = genCode(primaryGraph(f2(r1, r2)));
 
     const x1 = Math.PI;
