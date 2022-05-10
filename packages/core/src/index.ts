@@ -10,7 +10,7 @@ import {
   prettySubstance,
 } from "./compiler/Substance";
 import { evalShapes } from "./engine/Evaluator";
-import { genFns, genOptProblem, initializeMat, step } from "./engine/Optimizer";
+import { genFns, genOptProblem, step } from "./engine/Optimizer";
 import { insertPending } from "./engine/PropagateUpdate";
 import {
   PathResolver,
@@ -204,8 +204,6 @@ export const compileTrio = (prog: {
 export const prepareState = async (state: State): Promise<State> => {
   const rng = seedrandom(state.seeds.prepare);
 
-  await initializeMat();
-
   // TODO: errors
   const stateAD = {
     ...state,
@@ -370,7 +368,6 @@ export {
   RenderStatic,
   bBoxDims,
   prettySubstance,
-  initializeMat,
   showError,
   prettyPrintFn,
   prettyPrintPath,

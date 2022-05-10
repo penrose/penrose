@@ -1,4 +1,4 @@
-import eig from "eigen";
+import { Matrix } from "ml-matrix";
 import { Canvas } from "shapes/Samplers";
 import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "./ad";
@@ -113,10 +113,10 @@ export type LbfgsParams = ILbfgsParams;
 
 // `n` is the size of the varying state
 export interface ILbfgsParams {
-  lastState: eig.Matrix | undefined; // nx1 (col vec)
-  lastGrad: eig.Matrix | undefined; // nx1 (col vec)
-  s_list: eig.Matrix[]; // list of nx1 col vecs
-  y_list: eig.Matrix[]; // list of nx1 col vecs
+  lastState: Matrix | undefined; // nx1 (col vec)
+  lastGrad: Matrix | undefined; // nx1 (col vec)
+  s_list: Matrix[]; // list of nx1 col vecs
+  y_list: Matrix[]; // list of nx1 col vecs
   numUnconstrSteps: number;
   memSize: number;
 }
