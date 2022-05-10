@@ -83,21 +83,23 @@ class Simple extends React.Component<ISimpleProps, ISimpleState> {
   };
 
   componentDidUpdate = async (prevProps: ISimpleProps) => {
+    // re-compile if the programs change
+    if (
+      this.props.domain !== prevProps.domain ||
+      this.props.substance !== prevProps.substance ||
+      this.props.style !== prevProps.style
+    ) {
+      await this.compile();
+      if (!this.props.animate) {
+        await this.converge();
+      }
+      this.renderCanvas();
+    }
+
     // update the component only if there's no error
     // in the case of an error, they component should not attempt to re-render
-    if (!this.state.error) {
+    if (this.penroseState && !this.state.error) {
       if (
-        this.props.domain !== prevProps.domain ||
-        this.props.substance !== prevProps.substance ||
-        this.props.style !== prevProps.style ||
-        !this.penroseState
-      ) {
-        await this.compile();
-        if (!this.props.animate) {
-          await this.converge();
-        }
-        this.renderCanvas();
-      } else if (
         this.props.variation !== prevProps.variation ||
         this.props.animate !== prevProps.animate
       ) {
