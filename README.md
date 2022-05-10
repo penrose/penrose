@@ -21,7 +21,7 @@ reference-style information, take a look at our
 
 Here's a simple Penrose visualization in the domain of set theory.
 
-<img src="illustration.svg" width=500>
+<img src="diagrams/tree-venn.svg" width=500>
 
 It's specified by the following trio of Domain, Substance, and Style programs
 (with variation `CasalViper643`):
