@@ -14,6 +14,7 @@ import { VarAD } from "types/ad";
 import { eqList, randList } from "utils/Util";
 import {
   add,
+  addN,
   div,
   eq,
   ifCond,
@@ -124,6 +125,10 @@ describe("symbolic differentiation tests", () => {
   test("graph 7", () => {
     testGradSymbolic(7, gradGraph7());
   });
+
+  test("graph 8", () => {
+    testGradSymbolic(8, gradGraph8());
+  });
 });
 
 //#region Functions for testing numeric and symbolic gradients
@@ -226,6 +231,22 @@ const gradGraph7 = (): ad.Graph => {
   const x0 = input({ val: 100, key: 0 });
   const x1 = input({ val: -100, key: 1 });
   const head = div(x0, x1);
+  return primaryGraph(head);
+};
+
+// Test polyRoots
+const gradGraph8 = (): ad.Graph => {
+  logAD.info("test polyRoots");
+
+  // Build energy/gradient graph
+  // coefficients of (x-1)(x-2)(x-3)(x-4)(x-5), but of course these aren't used
+  const x0 = input({ val: -120, key: 0 });
+  const x1 = input({ val: 274, key: 1 });
+  const x2 = input({ val: -225, key: 2 });
+  const x3 = input({ val: 85, key: 3 });
+  const x4 = input({ val: -15, key: 4 });
+  const roots = polyRoots([x0, x1, x2, x3, x4]);
+  const head = addN(roots.map((r) => ifCond(eq(r, r), r, 0)));
   return primaryGraph(head);
 };
 
