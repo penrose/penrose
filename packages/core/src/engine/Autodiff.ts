@@ -15,6 +15,7 @@ import {
   cos,
   cosh,
   div,
+  eq,
   exp,
   gt,
   ifCond,
@@ -332,7 +333,8 @@ const children = (x: ad.Expr): Child[] => {
           addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p)))
         );
 
-        return powers.map((p) => div(p, minusDerivative));
+        // if the root is `NaN` then it doesn't contribute to the gradient
+        return powers.map((p) => ifCond(eq(t, t), div(p, minusDerivative), 0));
       });
 
       return x.coeffs.map((child, i) => ({

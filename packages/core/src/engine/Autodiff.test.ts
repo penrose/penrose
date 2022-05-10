@@ -3,6 +3,7 @@ import {
   genCode,
   input,
   logAD,
+  makeGraph,
   primaryGraph,
   secondaryGraph,
 } from "engine/Autodiff";
@@ -14,6 +15,7 @@ import { eqList, randList } from "utils/Util";
 import {
   add,
   div,
+  eq,
   ifCond,
   lt,
   max,
@@ -323,12 +325,26 @@ describe("polyRoots tests", () => {
   });
 
   test("cubic with only one real root", () => {
-    const f = genCode(secondaryGraph(polyRoots([1, 0, 0])));
-    const { secondary } = f([]);
+    const [c0, c1, c2] = [0, 1, 2].map((key) => input({ key, val: 0 }));
+    const [r1, r2, r3] = polyRoots([c0, c1, c2]);
+
+    // get the first real root we can find
+    const z = ifCond(eq(r1, r1), r1, ifCond(eq(r2, r2), r2, r3));
+
+    const f = genCode(makeGraph({ primary: z, secondary: [r1, r2, r3] }));
+
+    const { gradient, primary, secondary } = f([8, 0, 0]);
+
     expect(secondary.filter(isNaN).length).toBe(2);
     const realRoots = secondary.filter((x) => !isNaN(x));
     expect(realRoots.length).toBe(1);
     const [x] = realRoots;
-    expect(x).toBeCloseTo(-1);
+    expect(x).toBeCloseTo(-2);
+
+    expect(primary).toBeCloseTo(-2);
+
+    expect(gradient[0]).toBeCloseTo(-1 / 12);
+    expect(gradient[1]).toBeCloseTo(1 / 6);
+    expect(gradient[2]).toBeCloseTo(-1 / 3);
   });
 });
