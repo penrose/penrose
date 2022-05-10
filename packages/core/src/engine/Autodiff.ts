@@ -1019,6 +1019,10 @@ const polyRoots = (coeffs: number[]): number[] => {
   }
   companion.set(n - 1, n - 1, -coeffs[n - 1]);
 
+  // the characteristic polynomial of the companion matrix is equal to the
+  // original polynomial, so by finding the eigenvalues of the companion matrix,
+  // we get the roots of its characteristic polynomial and thus of the original
+  // polynomial
   const decomp = new EigenvalueDecomposition(companion);
   return zip2(
     decomp.realEigenvalues,
