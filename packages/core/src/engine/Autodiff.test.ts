@@ -239,12 +239,11 @@ const gradGraph8 = (): ad.Graph => {
   logAD.info("test polyRoots");
 
   // Build energy/gradient graph
-  // coefficients of (x-1)(x-2)(x-3)(x-4)(x-5), but of course these aren't used
-  const x0 = input({ val: -120, key: 0 });
-  const x1 = input({ val: 274, key: 1 });
-  const x2 = input({ val: -225, key: 2 });
-  const x3 = input({ val: 85, key: 3 });
-  const x4 = input({ val: -15, key: 4 });
+  const x0 = input({ val: 0, key: 0 });
+  const x1 = input({ val: 0, key: 1 });
+  const x2 = input({ val: 0, key: 2 });
+  const x3 = input({ val: 0, key: 3 });
+  const x4 = input({ val: 0, key: 4 });
   const roots = polyRoots([x0, x1, x2, x3, x4]);
   const head = addN(roots.map((r) => ifCond(eq(r, r), r, 0)));
   return primaryGraph(head);
@@ -367,5 +366,19 @@ describe("polyRoots tests", () => {
     expect(gradient[0]).toBeCloseTo(-1 / 12);
     expect(gradient[1]).toBeCloseTo(1 / 6);
     expect(gradient[2]).toBeCloseTo(-1 / 3);
+  });
+
+  test("quintic", () => {
+    const [c0, c1, c2, c3, c4] = [0, 1, 2, 3, 4].map((key) =>
+      input({ key, val: 0 })
+    );
+    const f = genCode(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
+    const { secondary } = f([-120, 274, -225, 85, -15]);
+    const roots = [...secondary].sort((a, b) => a - b);
+    expect(roots[0]).toBeCloseTo(1);
+    expect(roots[1]).toBeCloseTo(2);
+    expect(roots[2]).toBeCloseTo(3);
+    expect(roots[3]).toBeCloseTo(4);
+    expect(roots[4]).toBeCloseTo(5);
   });
 });
