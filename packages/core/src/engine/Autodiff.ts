@@ -1,14 +1,16 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
+import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
 import { Multidigraph } from "utils/Graph";
-import { safe } from "utils/Util";
+import { safe, zip2 } from "utils/Util";
 import {
   acos,
   add,
+  addN,
   atan2,
   cos,
   cosh,
@@ -307,7 +309,36 @@ const children = (x: ad.Expr): Child[] => {
       });
     }
     case "PolyRoots": {
-      throw Error(); // TODO
+      // https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
+
+      const n = x.coeffs.length;
+      const derivCoeffs: VarAD[] = x.coeffs.slice(1).map((c, i) => mul(i, c));
+      // the polynomial is assumed monic, so `x.coeffs` doesn't include the
+      // coefficient 1 on the highest-degree term
+      derivCoeffs.push(n);
+
+      const sensitivities: VarAD[][] = x.coeffs.map((_, index) => {
+        const t: VarAD = { tag: "Index", index, vec: x }; // a root
+
+        let power: VarAD = 1;
+        const powers = [];
+        for (let i = 0; i < n; i++) {
+          powers.push(power);
+          power = mul(power, t);
+        }
+
+        const minusDerivative = neg(
+          addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p)))
+        );
+
+        return powers.map((p) => div(p, minusDerivative));
+      });
+
+      return x.coeffs.map((child, i) => ({
+        child,
+        name: indexToNaryEdge(i),
+        sensitivity: sensitivities.map((row) => [row[i]]),
+      }));
     }
     case "Index": {
       // this node doesn't know how many elements are in `vec`, so here we just
@@ -900,6 +931,24 @@ const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
   }
 };
 
+const naryParams = (preds: Map<ad.Edge, ad.Id>): ad.Id[] => {
+  const params: ad.Id[] = [];
+  for (const [i, x] of preds.entries()) {
+    if (
+      i === undefined ||
+      i === "left" ||
+      i === "right" ||
+      i === "cond" ||
+      i === "then" ||
+      i === "els"
+    ) {
+      throw Error("expected NaryEdge");
+    }
+    params[naryEdgeToIndex(i)] = x;
+  }
+  return params;
+};
+
 const compileNode = (
   node: Exclude<ad.Node, ad.InputNode>,
   preds: Map<ad.Edge, ad.Id>
@@ -927,24 +976,10 @@ const compileNode = (
       return `${cond} ? ${then} : ${els}`;
     }
     case "Nary": {
-      const params: ad.Id[] = [];
-      for (const [i, x] of preds.entries()) {
-        if (
-          i === undefined ||
-          i === "left" ||
-          i === "right" ||
-          i === "cond" ||
-          i === "then" ||
-          i === "els"
-        ) {
-          throw Error("expected NaryEdge");
-        }
-        params[naryEdgeToIndex(i)] = x;
-      }
-      return compileNary(node, params);
+      return compileNary(node, naryParams(preds));
     }
     case "PolyRoots": {
-      throw Error(); // TODO
+      throw `polyRoots([${naryParams(preds).join(", ")}])`;
     }
     case "Index": {
       const vec = safe(preds.get(undefined), "missing vec");
@@ -956,6 +991,19 @@ const compileNode = (
       return `console.log(${info}, " | value: ", ${child}), ${child}`;
     }
   }
+};
+
+const polyRoots = (coeffs: number[]): number[] => {
+  const n = coeffs.length;
+  // https://en.wikipedia.org/wiki/Companion_matrix
+  const companion = Matrix.zeros(n, n);
+  for (let i = 0; i + 1 < n; i++) {
+    companion.set(i + 1, i, 1);
+    companion.set(i, n - 1, -coeffs[i]);
+  }
+  companion.set(n - 1, n - 1, -coeffs[n - 1]);
+  // note that this is incorrect if not all roots are real
+  return new EigenvalueDecomposition(companion).realEigenvalues;
 };
 
 export const genCode = ({
@@ -985,8 +1033,8 @@ export const genCode = ({
     `secondary: [${secondary.join(", ")}]`,
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
-  const f = new Function("inputs", stmts.join("\n"));
-  return (inputs) => f(inputs);
+  const f = new Function("polyRoots", "inputs", stmts.join("\n"));
+  return (inputs) => f(polyRoots, inputs);
 };
 
 // Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)

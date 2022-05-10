@@ -115,6 +115,7 @@ export interface Nary extends NaryNode {
 }
 
 export interface PolyRoots extends PolyRootsNode {
+  // coefficients of a monic polynomial with degree `coeffs.length`
   coeffs: VarAD[];
 }
 
