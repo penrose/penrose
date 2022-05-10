@@ -290,6 +290,11 @@ export const ifCond = (cond: ad.Bool, v: VarAD, w: VarAD): ad.Ternary => ({
 
 // --- Vector ops
 
+/**
+ * Return the roots of the monic polynomial with degree `coeffs.length` where
+ * the coefficient on the term with degree `i` is `coeffs[i]`. Any root with a
+ * nonzero imaginary component is replaced with `NaN`.
+ */
 export const polyRoots = (coeffs: VarAD[]): VarAD[] => {
   const nexus: ad.PolyRoots = { tag: "PolyRoots", coeffs };
   return coeffs.map((coeff, index) => ({ tag: "Index", index, vec: nexus }));

@@ -9,17 +9,20 @@ import {
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
+import { VarAD } from "types/ad";
 import { eqList, randList } from "utils/Util";
 import {
   add,
-  addN,
   div,
   ifCond,
   lt,
   max,
+  min,
   mul,
+  neg,
   polyRoots,
   sin,
+  sqrt,
   squared,
   sub,
 } from "./AutodiffFunctions";
@@ -119,14 +122,9 @@ describe("symbolic differentiation tests", () => {
   test("graph 7", () => {
     testGradSymbolic(7, gradGraph7());
   });
-
-  test("graph 8", () => {
-    testGradSymbolic(8, gradGraph8());
-  });
 });
 
-/// TESTING CODE FROM HERE OUT
-// ----- Functions for testing numeric and symbolic gradients
+//#region Functions for testing numeric and symbolic gradients
 
 const assert = (b: boolean, s: any[]) => {
   const res = b ? "passed" : "failed";
@@ -229,22 +227,6 @@ const gradGraph7 = (): ad.Graph => {
   return primaryGraph(head);
 };
 
-// Test polyRoots
-const gradGraph8 = (): ad.Graph => {
-  logAD.info("test polyRoots");
-
-  // Build energy/gradient graph
-  // coefficients of (x-1)(x-2)(x-3)(x-4)(x-5)
-  const x0 = input({ val: -120, key: 0 });
-  const x1 = input({ val: 274, key: 1 });
-  const x2 = input({ val: -225, key: 2 });
-  const x3 = input({ val: 85, key: 3 });
-  const x4 = input({ val: -15, key: 4 });
-  const roots = polyRoots([x0, x1, x2, x3, x4]);
-  const head = addN(roots);
-  return primaryGraph(head);
-};
-
 // Compile the gradient and check it against numeric gradients
 // TODO: Currently the tests will "fail" if the magnitude is greater than `eqList`'s sensitivity. Fix this.
 const testGradSymbolic = (testNum: number, graph: ad.Graph): void => {
@@ -292,3 +274,45 @@ const gradGraph0 = (): ad.Graph => {
 
   return graph;
 };
+
+//#endregion
+
+describe("polyRoots tests", () => {
+  test("degree 1", () => {
+    const [z] = polyRoots([input({ key: 0, val: 0 })]);
+    const g = primaryGraph(z);
+    const f = genCode(g);
+    const x = 42;
+    expect(f([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
+  });
+
+  type F = (v: VarAD, w: VarAD) => VarAD;
+
+  const testQuadratic = (f1: F, f2: F) => {
+    const a = 1;
+    const b = input({ key: 1, val: 0 });
+    const c = input({ key: 0, val: 0 });
+
+    const closedForm = genCode(
+      primaryGraph(
+        div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a))
+      )
+    );
+
+    const [r1, r2] = polyRoots([c, b]);
+    const implicit = genCode(primaryGraph(f2(r1, r2)));
+
+    const x1 = Math.PI;
+    const x2 = Math.E;
+    const inputs = [x1 * x2, -(x1 + x2)];
+    expect(implicit(inputs)).toEqual(closedForm(inputs));
+  };
+
+  test("quadratic formula min root", () => {
+    testQuadratic(sub, min);
+  });
+
+  test("quadratic formula max root", () => {
+    testQuadratic(add, max);
+  });
+});
