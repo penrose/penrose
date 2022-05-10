@@ -573,7 +573,7 @@ const lbfgsInner = (grad_fx_k: Matrix, ss: Matrix[], ys: Matrix[]): Matrix => {
     const [rho_i, s_i, y_i] = curr;
 
     const alpha_i: number = rho_i * s_i.dot(q_i_plus_1);
-    const q_i: Matrix = q_i_plus_1.sub(y_i.mul(alpha_i));
+    const q_i: Matrix = Matrix.sub(q_i_plus_1, Matrix.mul(y_i, alpha_i));
 
     return [q_i, alphas2.concat([alpha_i])]; // alphas, left to right
   };
@@ -592,7 +592,7 @@ const lbfgsInner = (grad_fx_k: Matrix, ss: Matrix[], ys: Matrix[]): Matrix => {
   ): Matrix => {
     const [[rho_i, alpha_i], [s_i, y_i]] = curr;
     const beta_i: number = rho_i * y_i.dot(r_i);
-    const r_i_plus_1 = r_i.add(s_i.mul(alpha_i - beta_i));
+    const r_i_plus_1 = Matrix.add(r_i, Matrix.mul(s_i, alpha_i - beta_i));
     return r_i_plus_1;
   };
 
@@ -682,8 +682,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
     // Newest vectors added to front
 
-    const s_km1 = x_k.sub(x_km1);
-    const y_km1 = grad_fx_k.sub(grad_fx_km1);
+    const s_km1 = Matrix.sub(x_k, x_km1);
+    const y_km1 = Matrix.sub(grad_fx_k, grad_fx_km1);
 
     // The limited-memory part: drop stale vectors
     // Haskell `ss` -> JS `ss_km2`; Haskell `ss'` -> JS `ss_km1`
