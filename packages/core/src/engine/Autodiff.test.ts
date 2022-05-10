@@ -321,4 +321,14 @@ describe("polyRoots tests", () => {
   test("quadratic formula max root", () => {
     testQuadratic(add, max);
   });
+
+  test("cubic with only one real root", () => {
+    const f = genCode(secondaryGraph(polyRoots([1, 0, 0])));
+    const { secondary } = f([]);
+    expect(secondary.filter(isNaN).length).toBe(2);
+    const realRoots = secondary.filter((x) => !isNaN(x));
+    expect(realRoots.length).toBe(1);
+    const [x] = realRoots;
+    expect(x).toBeCloseTo(-1);
+  });
 });
