@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Simple } from "../Simple";
-import { continuousMap, oneSet } from "./PenrosePrograms";
+import { continuousMap, error, oneSet } from "./PenrosePrograms";
 
 // const diagram = await getDiagram();
 
@@ -26,3 +26,6 @@ ContinuousMap.args = continuousMap;
 
 export const OneSet = Template.bind({});
 OneSet.args = oneSet;
+
+export const Error = Template.bind({});
+Error.args = error;
