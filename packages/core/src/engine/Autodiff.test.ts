@@ -335,8 +335,8 @@ describe("polyRoots tests", () => {
 
     const { gradient, primary, secondary } = f([8, 0, 0]);
 
-    expect(secondary.filter(isNaN).length).toBe(2);
-    const realRoots = secondary.filter((x) => !isNaN(x));
+    expect(secondary.filter(Number.isNaN).length).toBe(2);
+    const realRoots = secondary.filter((x) => !Number.isNaN(x));
     expect(realRoots.length).toBe(1);
     const [x] = realRoots;
     expect(x).toBeCloseTo(-2);
