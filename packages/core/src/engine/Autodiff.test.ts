@@ -345,7 +345,7 @@ describe("polyRoots tests", () => {
   });
 
   test("cubic with only one real root", () => {
-    const [c0, c1, c2] = [0, 1, 2].map((key) => input({ key, val: 0 }));
+    const [c0, c1, c2] = _.range(3).map((key) => input({ key, val: 0 }));
     const [r1, r2, r3] = polyRoots([c0, c1, c2]);
 
     // get the first real root we can find
@@ -369,7 +369,7 @@ describe("polyRoots tests", () => {
   });
 
   test("quintic", () => {
-    const [c0, c1, c2, c3, c4] = [0, 1, 2, 3, 4].map((key) =>
+    const [c0, c1, c2, c3, c4] = _.range(5).map((key) =>
       input({ key, val: 0 })
     );
     const f = genCode(secondaryGraph(polyRoots([c0, c1, c2, c3, c4])));
