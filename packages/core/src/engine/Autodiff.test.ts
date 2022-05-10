@@ -305,7 +305,13 @@ describe("polyRoots tests", () => {
     const x1 = Math.PI;
     const x2 = Math.E;
     const inputs = [x1 * x2, -(x1 + x2)];
-    expect(implicit(inputs)).toEqual(closedForm(inputs));
+
+    const received = implicit(inputs);
+    const expected = closedForm(inputs);
+
+    expect(received.primary).toBeCloseTo(expected.primary);
+    expect(received.gradient[0]).toBeCloseTo(expected.gradient[0]);
+    expect(received.gradient[1]).toBeCloseTo(expected.gradient[1]);
   };
 
   test("quadratic formula min root", () => {

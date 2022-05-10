@@ -312,7 +312,8 @@ const children = (x: ad.Expr): Child[] => {
       // https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
 
       const n = x.coeffs.length;
-      const derivCoeffs: VarAD[] = x.coeffs.slice(1).map((c, i) => mul(i, c));
+      const derivCoeffs: VarAD[] = x.coeffs.map((c, i) => mul(i, c));
+      derivCoeffs.shift();
       // the polynomial is assumed monic, so `x.coeffs` doesn't include the
       // coefficient 1 on the highest-degree term
       derivCoeffs.push(n);
