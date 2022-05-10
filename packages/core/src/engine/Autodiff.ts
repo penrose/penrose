@@ -247,7 +247,7 @@ const rankEdge = (edge: ad.Edge): number => {
 interface Child {
   child: ad.Expr;
   name: ad.Edge;
-  sensitivity: VarAD | undefined;
+  sensitivity: VarAD[][]; // rows for parent, columns for child
 }
 
 // note that this function constructs the sensitivities even when we don't need
@@ -262,28 +262,32 @@ const children = (x: ad.Expr): Child[] => {
     }
     case "Unary": {
       return [
-        { child: x.param, name: undefined, sensitivity: unarySensitivity(x) },
+        {
+          child: x.param,
+          name: undefined,
+          sensitivity: [[unarySensitivity(x)]],
+        },
       ];
     }
     case "Binary": {
       const { left, right } = binarySensitivities(x);
       return [
-        { child: x.left, name: "left", sensitivity: left },
-        { child: x.right, name: "right", sensitivity: right },
+        { child: x.left, name: "left", sensitivity: [[left]] },
+        { child: x.right, name: "right", sensitivity: [[right]] },
       ];
     }
     case "Comp":
     case "Logic": {
       return [
-        { child: x.left, name: "left", sensitivity: undefined },
-        { child: x.right, name: "right", sensitivity: undefined },
+        { child: x.left, name: "left", sensitivity: [] },
+        { child: x.right, name: "right", sensitivity: [] },
       ];
     }
     case "Ternary": {
       return [
-        { child: x.cond, name: "cond", sensitivity: undefined },
-        { child: x.then, name: "then", sensitivity: ifCond(x.cond, 1, 0) },
-        { child: x.els, name: "els", sensitivity: ifCond(x.cond, 0, 1) },
+        { child: x.cond, name: "cond", sensitivity: [[]] },
+        { child: x.then, name: "then", sensitivity: [[ifCond(x.cond, 1, 0)]] },
+        { child: x.els, name: "els", sensitivity: [[ifCond(x.cond, 0, 1)]] },
       ];
     }
     case "Nary": {
@@ -291,13 +295,13 @@ const children = (x: ad.Expr): Child[] => {
         const c = { child, name: indexToNaryEdge(i) };
         switch (x.op) {
           case "addN": {
-            return { ...c, sensitivity: 1 };
+            return { ...c, sensitivity: [[1]] };
           }
           case "maxN": {
-            return { ...c, sensitivity: ifCond(lt(child, x), 0, 1) };
+            return { ...c, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
           }
           case "minN": {
-            return { ...c, sensitivity: ifCond(gt(child, x), 0, 1) };
+            return { ...c, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
           }
         }
       });
@@ -306,10 +310,14 @@ const children = (x: ad.Expr): Child[] => {
       throw Error(); // TODO
     }
     case "Index": {
-      throw Error(); // TODO
+      // this node doesn't know how many elements are in `vec`, so here we just
+      // leave everything else undefined, to be treated as zeroes later
+      const row = [];
+      row[x.index] = 1;
+      return [{ child: x.vec, name: undefined, sensitivity: [row] }];
     }
     case "Debug": {
-      return [{ child: x.node, name: undefined, sensitivity: 1 }];
+      return [{ child: x.node, name: undefined, sensitivity: [[1]] }];
     }
   }
 };
@@ -409,7 +417,7 @@ export const makeGraph = (
   // concatenation doesn't cause any problems, because no stringified Edge
   // contains an underscore, and every Id starts with an underscore, so it's
   // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, ad.Expr>();
+  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD[][]>();
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
@@ -428,8 +436,12 @@ export const makeGraph = (
   // sensitivities
   const primaryNodes = [...graph.topsort()].reverse();
 
-  for (const x of sensitivities.values()) {
-    addNode(x);
+  for (const matrix of sensitivities.values()) {
+    for (const row of matrix) {
+      for (const x of row) {
+        addNode(x);
+      }
+    }
   }
   while (!queue.isEmpty()) {
     addNode(queue.dequeue());
@@ -543,10 +555,7 @@ export const secondaryGraph = (outputs: VarAD[]): ad.Graph =>
  * Creates a wrapper node around a node `v` to store log info. Dumps node value (during evaluation) to the console. You must use the node that `debug` returns, otherwise the debug information will not appear.
  * For more documentation on how to use this function, see the Penrose wiki page.
  */
-export const debug = <T extends ad.Expr>(
-  v: T,
-  info = "no additional info"
-): ad.Debug<T> => ({
+export const debug = (v: VarAD, info = "no additional info"): ad.Debug => ({
   tag: "Debug",
   node: v,
   info,
@@ -938,7 +947,8 @@ const compileNode = (
       throw Error(); // TODO
     }
     case "Index": {
-      throw Error(); // TODO
+      const vec = safe(preds.get(undefined), "missing vec");
+      return `${vec}[${node.index}]`;
     }
     case "Debug": {
       const info = JSON.stringify(node.info);

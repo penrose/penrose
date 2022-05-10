@@ -41,7 +41,7 @@ import { LbfgsParams } from "./state";
 
 export type Expr = Bool | VarAD | Vec;
 
-export type Bool = Comp | Logic | Debug<Bool>;
+export type Bool = Comp | Logic;
 
 // this type name is a relic, doesn't follow our current convention
 export type VarAD =
@@ -52,7 +52,7 @@ export type VarAD =
   | Ternary
   | Nary
   | Index
-  | Debug<VarAD>;
+  | Debug;
 
 export type Vec = PolyRoots;
 
@@ -122,8 +122,8 @@ export interface Index extends IndexNode {
   vec: Vec;
 }
 
-export interface Debug<T extends Expr> extends DebugNode {
-  node: T;
+export interface Debug extends DebugNode {
+  node: VarAD;
 }
 
 //#endregion
