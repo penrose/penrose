@@ -22,7 +22,7 @@ import {
   propertiesOf,
 } from "engine/EngineUtils";
 import { alg, Edge, Graph } from "graphlib";
-import _ from "lodash";
+import _, { range } from "lodash";
 import nearley from "nearley";
 import { lastLocation } from "parser/ParserUtil";
 import styleGrammar from "parser/StyleParser";
@@ -124,9 +124,7 @@ const clone = rfdc({ proto: false, circles: false });
 //#region consts
 const ANON_KEYWORD = "ANON";
 const LOCAL_KEYWORD = "$LOCAL";
-
 const LABEL_FIELD = "label";
-
 const VARYING_INIT_FN_NAME = "VARYING_INIT";
 
 // For statically checking existence
@@ -149,22 +147,8 @@ const FN_ERR_TYPE = {
 const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
-// numbers from 0 to r-1 w/ increment of 1
-const numbers = (r: number): number[] => {
-  const l = 0;
-  if (l > r) {
-    throw Error("invalid range");
-  }
-  const arr = [];
-  for (let i = l; i < r; i++) {
-    arr.push(i);
-  }
-  return arr;
-};
-
 export function numbered<A>(xs: A[]): [A, number][] {
-  if (!xs) throw Error("fail");
-  return zip2(xs, numbers(xs.length));
+  return zip2(xs, range(xs.length));
 }
 
 // TODO move to util
