@@ -540,17 +540,6 @@ const printVec = (xs: Matrix) => {
   log.info("xs (matrix)", xs.to1DArray());
 };
 
-const colVec = (xs: number[]): Matrix => {
-  // Return a col vector (nx1)
-  // TODO: What is the performance of this?
-  const m = Matrix.zeros(xs.length, 1); // rows x cols
-  xs.forEach((e, i) => m.set(i, 0, e));
-
-  // log.info("original xs", xs);
-  // printVec(m);
-  return m;
-};
-
 // Precondition the gradient:
 // Approximate the inverse of the Hessian times the gradient
 // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
@@ -656,8 +645,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       gradfxsPreconditioned: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: colVec(xs),
-        lastGrad: colVec(gradfxs),
+        lastState: Matrix.columnVector(xs),
+        lastGrad: Matrix.columnVector(gradfxs),
         s_list: [],
         y_list: [],
         numUnconstrSteps: 1,
@@ -668,8 +657,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     lbfgsInfo.lastGrad !== undefined
   ) {
     // Our current step is k; the last step is km1 (k_minus_1)
-    const x_k = colVec(xs);
-    const grad_fx_k = colVec(gradfxs);
+    const x_k = Matrix.columnVector(xs);
+    const grad_fx_k = Matrix.columnVector(gradfxs);
 
     const km1 = lbfgsInfo.numUnconstrSteps;
     const x_km1 = lbfgsInfo.lastState;
