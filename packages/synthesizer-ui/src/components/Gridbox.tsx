@@ -38,6 +38,8 @@ const Section = styled(Card)(({ theme }) => ({
   borderStyle: "outset",
   color: theme.palette.primary.main,
   borderRadius: "5px",
+  display: "flex",
+  flexDirection: "column",
 }));
 
 const LowEnergy = styled(Chip)(({ theme }) => ({
@@ -194,7 +196,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           </Box>
         </Header>
 
-        <div onClick={this.toggleView}>
+        <div onClick={this.toggleView} style={{ height: "100%" }}>
           {this.state.showDiagramInfo && (
             <Body>
               <H2>Mutations</H2>
