@@ -1008,7 +1008,6 @@ const compileNode = (
 
 const polyRoots = (coeffs: number[]): number[] => {
   const n = coeffs.length;
-
   // https://en.wikipedia.org/wiki/Companion_matrix
   const companion = Matrix.zeros(n, n);
   for (let i = 0; i + 1 < n; i++) {
@@ -1017,7 +1016,6 @@ const polyRoots = (coeffs: number[]): number[] => {
   }
   companion.set(n - 1, n - 1, -coeffs[n - 1]);
 
-  // note that this is incorrect if not all roots are real
   const decomp = new EigenvalueDecomposition(companion);
   return zip2(
     decomp.realEigenvalues,
