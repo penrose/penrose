@@ -1,4 +1,3 @@
-import memoize from "fast-memoize";
 import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
@@ -64,37 +63,32 @@ type Output = {
 
 /**
  * Call MathJax to render __non-empty__ labels.
- * NOTE: this function is memoized.
  */
-const tex2svg = memoize(
-  async (
-    contents: string,
-    name: string,
-    fontSize: string
-  ): Promise<Result<Output, string>> =>
-    new Promise((resolve) => {
-      const output = convert(contents, fontSize);
-      if (output.isErr()) {
-        resolve(
-          err(`MathJax could not render \$${contents}\$: ${output.error}`)
-        );
-        return;
-      }
-      const body = output.value;
-      // console.log(output);
-      // console.log(output.viewBox.baseVal);
-      const viewBox = body.getAttribute("viewBox")!.split(" ");
-      const width = parseFloat(viewBox[2]);
-      const height = parseFloat(viewBox[3]);
+const tex2svg = async (
+  contents: string,
+  name: string,
+  fontSize: string
+): Promise<Result<Output, string>> =>
+  new Promise((resolve) => {
+    const output = convert(contents, fontSize);
+    if (output.isErr()) {
+      resolve(err(`MathJax could not render \$${contents}\$: ${output.error}`));
+      return;
+    }
+    const body = output.value;
+    // console.log(output);
+    // console.log(output.viewBox.baseVal);
+    const viewBox = body.getAttribute("viewBox")!.split(" ");
+    const width = parseFloat(viewBox[2]);
+    const height = parseFloat(viewBox[3]);
 
-      // rescaling according to
-      // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-      const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
-      const constHeight = parseFloat(fontSize) - vAlignFloat;
-      const scaledWidth = (constHeight / height) * width;
-      resolve(ok({ body, width: scaledWidth, height: constHeight }));
-    })
-);
+    // rescaling according to
+    // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
+    const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
+    const constHeight = parseFloat(fontSize) - vAlignFloat;
+    const scaledWidth = (constHeight / height) * width;
+    resolve(ok({ body, width: scaledWidth, height: constHeight }));
+  });
 
 export const retrieveLabel = (
   shapeName: string,

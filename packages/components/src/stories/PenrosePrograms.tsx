@@ -1,3 +1,12 @@
+export const error = {
+  domain: `typeppp Set`,
+  substancce: `Set A + B`,
+  style: `
+  Set a {
+
+  }
+  `,
+};
 export const oneSet = {
   domain: `
 type Set
