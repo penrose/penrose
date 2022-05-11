@@ -26,7 +26,7 @@ jobs:
         with:
           name: diagrams
           path: packages/automator/out/
-      - name: Copy generated diagrams into diagrams/
+      - name: Check that the generated diagrams/ are all up to date
         run: |
           rm -r diagrams/
           mkdir diagrams/
@@ -35,9 +35,7 @@ jobs:
             name=${dir%/output.svg}
             cp "$filename" "diagrams/$name.svg"
           done
-      - name: Ensure no generated diagrams have changed
-        run: |
-          "$GITHUB_WORKSPACE/.github/report_git_status.sh"
+          .github/report_git_status.sh
 
   build:
     runs-on: ubuntu-latest
@@ -99,8 +97,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Install packages
         uses: ./.github/actions/packages
-      - name: Check README
-        run: .github/readme.js
+      - name: Check that the generated README is up to date
+        run: |
+          .github/gen_readme.js
+          .github/report_git_status.sh
 
   storybook:
     runs-on: ubuntu-latest
