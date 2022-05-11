@@ -29,6 +29,7 @@
     "diff": "lerna diff"
   },
   "devDependencies": {
+    "commonmark": "^0.30.0",
     "cross-env": "^7.0.3",
     "lerna": "^3.22.1",
     "prettier": "2.2.1",

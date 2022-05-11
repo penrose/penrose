@@ -92,6 +92,16 @@ jobs:
       - name: Lint
         run: yarn lint
 
+  readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        uses: ./.github/actions/packages
+      - name: Check README
+        run: .github/readme.js
+
   storybook:
     runs-on: ubuntu-latest
     defaults:
