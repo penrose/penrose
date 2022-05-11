@@ -116,7 +116,12 @@ export const diffSubStmts = (
   return exactDiffs.map((d) => toStmtDiff(d, leftSorted));
 };
 
-type SubNode<T> = LabelOption<T> | SubExpr<T> | SubStmt<T> | Type<T>;
+export type SubNode<T> =
+  | LabelOption<T>
+  | SubExpr<T>
+  | SubProg<T>
+  | SubStmt<T>
+  | Type<T>;
 
 const children = <T>(node: SubNode<T>): SubNode<T>[] => {
   switch (node.tag) {
@@ -157,6 +162,9 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
     }
     case "NoLabel": {
       return [...node.args];
+    }
+    case "SubProg": {
+      return [...node.statements];
     }
     case "TypeVar": {
       return [node.name];

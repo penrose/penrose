@@ -6,8 +6,8 @@ import {
 } from "compiler/Substance";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { intersectionWith } from "lodash";
-import { similarMappings, similarNodes } from "synthesis/Search";
-import { A, ASTNode } from "types/ast";
+import { similarMappings, similarNodes, SubNode } from "synthesis/Search";
+import { A } from "types/ast";
 import { Env } from "types/domain";
 import { SubProg, SubStmt } from "types/substance";
 import {
@@ -33,8 +33,8 @@ const compile = (src: string): SubProg<A> =>
 
 describe("Substance AST queries", () => {
   test("Similar AST nodes", () => {
-    let node1: ASTNode<A>;
-    let node2: ASTNode<A>;
+    let node1: SubNode<A>;
+    let node2: SubNode<A>;
     node1 = compile("Set A");
     node2 = compile("Set B");
     expect(similarNodes(node1, node2)).toBe(true);
