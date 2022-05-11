@@ -32,8 +32,8 @@ import {
   MutationGroup,
 } from "synthesis/Mutation";
 import { A, AbstractNode, Identifier, metaProps } from "types/ast";
-import { Env } from "types/domain";
-import { SubProg, SubStmt } from "types/substance";
+import { Env, Type } from "types/domain";
+import { LabelOption, SubExpr, SubProg, SubStmt } from "types/substance";
 import {
   filterContext,
   initContext,
@@ -116,6 +116,54 @@ export const diffSubStmts = (
   return exactDiffs.map((d) => toStmtDiff(d, leftSorted));
 };
 
+type SubNode<T> = LabelOption<T> | SubExpr<T> | SubStmt<T> | Type<T>;
+
+const children = <T>(node: SubNode<T>): SubNode<T>[] => {
+  switch (node.tag) {
+    case "ApplyConstructor":
+    case "ApplyFunction":
+    case "ApplyPredicate":
+    case "Func":
+    case "TypeConstructor": {
+      return [node.name, ...node.args];
+    }
+    case "AutoLabel": {
+      return [node.option];
+    }
+    case "Bind": {
+      return [node.variable, node.expr];
+    }
+    case "Decl": {
+      return [node.type, node.name];
+    }
+    case "Deconstructor": {
+      return [node.variable, node.field];
+    }
+    case "DefaultLabels":
+    case "Identifier":
+    case "Prop":
+    case "StringLit": {
+      return [];
+    }
+    case "EqualExprs":
+    case "EqualPredicates": {
+      return [node.left, node.right];
+    }
+    case "LabelDecl": {
+      return [node.variable, node.label];
+    }
+    case "LabelIDs": {
+      return [...node.variables];
+    }
+    case "NoLabel": {
+      return [...node.args];
+    }
+    case "TypeVar": {
+      return [node.name];
+    }
+  }
+};
+
 /**
  * Determine if two Substance AST nodes are similar. The metric is whether the nodes have common descendents or are equal themselves.
  *
@@ -123,19 +171,16 @@ export const diffSubStmts = (
  * @param right a node in the Substance AST
  * @returns if the nodes have common descendents
  */
-export const similarNodes = (
-  left: AbstractNode,
-  right: AbstractNode
-): boolean => {
+export const similarNodes = (left: SubNode<A>, right: SubNode<A>): boolean => {
   const equalNodes = nodesEqual(left, right);
   const similarChildren = intersectionWith(
-    left.children,
-    right.children,
+    children(left),
+    children(right),
     similarNodes
   );
 
-  const similarLeft = intersectionWith([left], right.children, similarNodes);
-  const similarRight = intersectionWith(left.children, [right], similarNodes);
+  const similarLeft = intersectionWith([left], children(right), similarNodes);
+  const similarRight = intersectionWith(children(left), [right], similarNodes);
 
   // console.log(
   //   prettySubNode(left as any),
