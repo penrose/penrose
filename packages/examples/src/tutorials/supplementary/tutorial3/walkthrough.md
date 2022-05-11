@@ -1,20 +1,24 @@
 # Starter Code Walk Through
+
 This is a supplementary document to tutorial 3, which teaches functions in Penrose. This document goes through the given starter code for the tutorial in detail.
 
 ## :runner: Starter Code Diagram
+
 ![starter code image](vectorspace_wg.png)
 Download the [starter code here](../../code/tutorial3).
 
-
 ## :runner: Domain
+
 ```
 type VectorSpace
 type Vector
 predicate In(Vector, VectorSpace V)
 ```
+
 Here we have 2 types, 1 predicate. Together we will define a new function. Furthermore, we have implemented drawing a vector space for you, and together we will draw a vector in a vector space, and add two vectors.
 
 ## :runner: Substance
+
 ```
 VectorSpace U
 Vector v
@@ -22,11 +26,12 @@ Vector w
 In(v, U)
 In(w, U)
 ```
+
 The substance file contains the lines for putting two vectors in the same vector space `U`. Later we will compose a new vector as the sum of the two existing vectors.
 
 ## :runner: Style
 
-The style file is a bit more involved, therefore we provide a very detailed step through of the code. __Again, feel free to [skip to the example](https://penrose-saurus.netlify.app/docs/tutorial/functions/#task-1-vectors-in-vector-space) if you feel confident reading and comprehending the code by yourself__.
+The style file is a bit more involved, therefore we provide a very detailed step through of the code. **Again, feel free to [skip to the example](https://penrose-saurus.netlify.app/docs/tutorial/functions/#task-1-vectors-in-vector-space) if you feel confident reading and comprehending the code by yourself**.
 
 On the very top of the file, you see this block of code.
 
@@ -56,6 +61,7 @@ const {
   color none = rgba(0., 0., 0., 0.)
 }
 ```
+
 There's nothing special about the name `const`, but using a namespace is good practice for
 organizing your constants in Style programs. Here we have some constants that helps with drawing out the vector
 space. Feel free to add more useful constants in here for your explorations. Also note how Penrose
@@ -63,7 +69,8 @@ has built-in `scalar` and `color` types for `.sty` programs for your readability
 
 The real fun starts! 🥁 To draw a vector space, we have a background, an origin, x-axis and y-aixs.
 
-* __Background__
+- **Background**
+
   ```
   U.background = Rectangle {
       center : U.origin
@@ -73,18 +80,21 @@ The real fun starts! 🥁 To draw a vector space, we have a background, an origi
       strokeColor : const.none
   }
   ```
+
   The background is a simple square :white_large_square:. Feel free to add a new constant to the `const` object and assign a new color to the background.
 
-* __Origin__
+- **Origin**
+
   ```
   scalar axisSize = const.vectorSpaceSize / 2.0
   vec2 U.origin = (0., 0.)
   vec2 o = U.origin /* just so we don't need to type U.origin everytime */
   U.axisColor = const.gray
   ```
+
   For any vector space, we need an origin, and everything else will be centered on the origin.
 
-* __Axis__
+- **Axis**
 
   The x-axis and y-axis have each of their center on the origin of the vector space, and extends out to opposing directions. It follows that their length is half of the length of vector space (which is a square).
 
@@ -105,7 +115,7 @@ The real fun starts! 🥁 To draw a vector space, we have a background, an origi
 
   Refer to [here](https://penrose-saurus.netlify.app/docs/api/shapes/line) for more information on the line shape.
 
-* __Label__
+- **Label**
   ```
   U.text = Equation {
       string : U.label

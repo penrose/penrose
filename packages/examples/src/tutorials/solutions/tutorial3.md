@@ -1,6 +1,9 @@
 # Tutorial 3 Solutions
+
 ## Task 1
+
 `vector.sty`
+
 ```
 /**************DO NOT TOUCH ZONE - START**************/
 /* here are some useful constants that we use to draw
@@ -100,9 +103,11 @@ where In(u,U) {
 }
 /**************YOUR CODE - END**********************/
 ```
+
 ## Task 2
 
 `linearAlgebra`
+
 ```
 type VectorSpace
 type Vector
@@ -112,6 +117,7 @@ function addV(Vector, Vector) -> Vector
 ```
 
 `vector.sub`
+
 ```
 VectorSpace U
 Vector v
@@ -124,6 +130,7 @@ AutoLabel All
 ```
 
 `vector.sty`
+
 ```
 /* ... same as starter code */
 /**************DO NOT TOUCH ZONE - END**************/
@@ -165,7 +172,9 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 ```
 
 ## Exercise 1
+
 `linearAlgebra.dsl`
+
 ```
 type VectorSpace
 type Vector
@@ -175,6 +184,7 @@ function subV(Vector, Vector) -> Vector
 ```
 
 `vector.sub`
+
 ```
 VectorSpace U
 Vector v
@@ -187,6 +197,7 @@ AutoLabel All
 ```
 
 `vector.sty`
+
 ```
 /**************YOUR CODE - START********************/
 forall Vector u; VectorSpace U
@@ -205,7 +216,9 @@ where u := subV(v,w); In(u, U); In(v, U); In(w, U){
 ```
 
 ## Exercise 2
+
 `linearAlgebra.dsl`
+
 ```
 type VectorSpace
 type Vector
@@ -215,6 +228,7 @@ function scalarMult(Scalar, Vector) -> Vector
 ```
 
 `vector.sub`
+
 ```
 VectorSpace U
 Vector v
@@ -226,6 +240,7 @@ AutoLabel All
 ```
 
 `vector.sty`
+
 ```
 /**************YOUR CODE - START********************/
 forall Vector u; VectorSpace U
@@ -248,8 +263,11 @@ where u := scalarMult(a, v); In(u, U); In(v, U){
 }
 /**************YOUR CODE - END**********************************/
 ```
+
 ## Exercise 3
+
 `linearAlgebra.dsl`
+
 ```
 /* This is the same as Tutorial Part 2 */
 type VectorSpace
@@ -260,6 +278,7 @@ function addV(Vector, Vector) -> Vector
 ```
 
 `vector.sub`
+
 ```
 /* This is the same as Tutorial Part 2 */
 VectorSpace U
@@ -273,6 +292,7 @@ AutoLabel All
 ```
 
 `vector.sty`
+
 ```
 where In(u,U) {
  /* ...concatenated, this is the same as Tutorial Part 1 */

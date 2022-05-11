@@ -1,12 +1,15 @@
 # Challenge 1:
+
 Add another `Set` to the diagram. So you should have 3 circles on your screen.
 
 `.dsl`
+
 ```
 type Set
 ```
 
 `.sty`
+
 ```
 canvas {
   width = 800
@@ -22,6 +25,7 @@ forall Set x {
 
 _With changes:_
 `.sub`
+
 ```
 Set A
 Set B
@@ -29,9 +33,11 @@ Set C
 ```
 
 # Challenge 2:
+
 Keep 3 sets. Represent `Set` as squares with side length equal to `50.0`.
 
 `.sub`
+
 ```
 Set A
 Set B
@@ -39,12 +45,14 @@ Set C
 ```
 
 `.dsl`
+
 ```
 type Set
 ```
 
 _With changes:_
 `.sty`
+
 ```
 canvas {
   width = 800
@@ -60,9 +68,11 @@ forall Set x {
 ```
 
 # Challenge 3:
+
 Keep 3 sets. Represent `Set` as rectangles with `strokeWidth` equal to 15.
 
 `.sub`
+
 ```
 Set A
 Set B
@@ -70,12 +80,14 @@ Set C
 ```
 
 `.dsl`
+
 ```
 type Set
 ```
 
 _With changes:_
 `.sty`
+
 ```
 canvas {
   width = 800
@@ -91,9 +103,11 @@ forall Set x {
 ```
 
 # Challenge 4
+
 Keep 3 sets. For each set, represent `Set` as both a `Circle` and a square.
 
 `.sub`
+
 ```
 Set A
 Set B
@@ -101,12 +115,14 @@ Set C
 ```
 
 `.dsl`
+
 ```
 type Set
 ```
 
 _With changes:_
 `.sty`
+
 ```
 canvas {
   width = 800
