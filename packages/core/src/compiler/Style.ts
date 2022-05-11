@@ -503,7 +503,6 @@ const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
   return {
     tag: "TypeConstructor",
     nodeType: "Substance",
-    children: [styT],
     name: styT,
     args: [],
   };
@@ -809,10 +808,8 @@ const substitutePath = (
     case "LocalVar": {
       return {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "FieldPath",
         name: {
-          children: [],
           nodeType: "SyntheticStyle",
           tag: "SubVar",
           contents: {
@@ -830,11 +827,9 @@ const substitutePath = (
       // COMBAK / HACK: Is there some way to get rid of all these dummy values?
       return {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "FieldPath",
         name: {
           nodeType: "SyntheticStyle",
-          children: [],
           tag: "SubVar",
           contents: {
             ...dummyId(mkLocalVarName(lv)),
@@ -1577,14 +1572,12 @@ const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
       type: {
         tag: "TypeOf",
         nodeType: "SyntheticStyle",
-        children: [],
         contents: "Nothing",
       }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar",
         contents: `\$${ANON_KEYWORD}_${i}`,
         nodeType: "SyntheticStyle",
-        children: [], // Unused bc compiler internal
       },
       value: s.contents,
     };
@@ -2265,10 +2258,8 @@ const mkPath = (strs: string[]): Path<A> => {
     return {
       tag: "FieldPath",
       nodeType: "SyntheticStyle",
-      children: [],
       name: {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "SubVar",
         contents: {
           ...dummyId(name),
@@ -2281,10 +2272,8 @@ const mkPath = (strs: string[]): Path<A> => {
     return {
       tag: "PropertyPath",
       nodeType: "SyntheticStyle",
-      children: [],
       name: {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "SubVar",
         contents: {
           ...dummyId(name),
@@ -2332,7 +2321,6 @@ const findPropertyVarying = (
         tag: "OptEval",
         contents: {
           nodeType: "SyntheticStyle",
-          children: [],
           tag: "Vector",
           contents: [
             dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr<A>,
@@ -2366,16 +2354,12 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
         .map((e: Expr<A>, i): [Expr<A>, number] => [e, i])
         .filter((e: [Expr<A>, number]): boolean => isVarying(e[0]))
         .map(
-          ([, i]: [Expr<A>, number]): IAccessPath<A> =>
-            ({
-              nodeType: "SyntheticStyle",
-              children: [],
-              tag: "AccessPath",
-              path: p,
-              indices: [
-                dummyASTNode({ tag: "Fix", contents: i }, "SyntheticStyle"),
-              ],
-            } as IAccessPath<A>)
+          ([, i]: [Expr<A>, number]): IAccessPath<A> => ({
+            nodeType: "SyntheticStyle",
+            tag: "AccessPath",
+            path: p,
+            indices: [{ tag: "Fix", nodeType: "SyntheticStyle", contents: i }],
+          })
         );
 
       return indices;

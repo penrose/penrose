@@ -89,7 +89,6 @@ const builtinTypes: [string, TypeDecl<C>][] = [
       start: { line: 1, col: 1 },
       end: { line: 1, col: 1 },
       nodeType: "Substance",
-      children: [],
       tag: "TypeDecl",
       name: idOf("String", "Domain"),
       params: [],
@@ -145,7 +144,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       const subType: TypeConstructor<C> = {
         tag: "TypeConstructor",
         nodeType: "Substance",
-        children: [name],
         start: stmt.start,
         end: stmt.end,
         name,
@@ -388,7 +386,6 @@ const topName = idOf("type", "Domain");
 export const topType: TypeConsApp<A> = {
   tag: "TypeConstructor",
   nodeType: "Domain",
-  children: [topName],
   name: topName,
   args: [],
 };
@@ -397,7 +394,6 @@ const bottomName = idOf("void", "Domain");
 export const bottomType: TypeConsApp<A> = {
   tag: "TypeConstructor",
   nodeType: "Domain",
-  children: [bottomName],
   name: bottomName,
   args: [],
 };

@@ -380,7 +380,6 @@ export const applyConstructor = (
     tag: "ApplyConstructor",
     name,
     nodeType: "SyntheticSubstance",
-    children: [],
     args,
   };
 };
@@ -394,7 +393,6 @@ export const applyFunction = (
     tag: "ApplyFunction",
     name,
     nodeType: "SyntheticSubstance",
-    children: [],
     args,
   };
 };
@@ -408,7 +406,6 @@ export const applyPredicate = (
     tag: "ApplyPredicate",
     name,
     nodeType: "SyntheticSubstance",
-    children: [],
     args,
   };
 };
@@ -416,7 +413,6 @@ export const applyPredicate = (
 export const subProg = (statements: SubStmt<A>[]): SubProg<A> => ({
   tag: "SubProg",
   statements,
-  children: statements,
   nodeType: "SyntheticSubstance",
 });
 
@@ -431,7 +427,6 @@ export const applyBind = (
   expr: SubExpr<A>
 ): Bind<A> => ({
   tag: "Bind",
-  children: [],
   nodeType: "SyntheticSubstance",
   variable,
   expr,
@@ -440,7 +435,6 @@ export const applyBind = (
 export const nullaryTypeCons = (name: Identifier<A>): TypeConsApp<A> => ({
   tag: "TypeConstructor",
   nodeType: "SyntheticSubstance",
-  children: [],
   name,
   args: [],
 });
@@ -450,14 +444,12 @@ export const autoLabelStmt: AutoLabel<A> = {
   option: {
     tag: "DefaultLabels",
     nodeType: "SyntheticSubstance",
-    children: [],
   },
   nodeType: "SyntheticSubstance",
-  children: [],
 };
 
 /**
- * Compare two AST nodes by their contents, ignoring structural properties such as `children` and positional properties like `start` and `end`.
+ * Compare two AST nodes by their contents, ignoring structural properties such as `nodeType` and positional properties like `start` and `end`.
  *
  * @param node1 the first AST node
  * @param node2 the second AST node
@@ -469,7 +461,7 @@ export const nodesEqual = (node1: AbstractNode, node2: AbstractNode): boolean =>
   });
 
 /**
- * Compare all statements of two ASTs by their contents, ignoring structural properties such as `children` and positional properties like `start` and `end`.
+ * Compare all statements of two ASTs by their contents, ignoring structural properties such as `nodeType` and positional properties like `start` and `end`.
  *
  * @param left the first Substance program
  * @param right the second Substance program

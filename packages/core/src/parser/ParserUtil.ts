@@ -174,7 +174,6 @@ export const tokensIn = (
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.
 export const idOf = (value: string, nodeType: NodeType): Identifier<C> => ({
   nodeType,
-  children: [],
   start: { line: 1, col: 1 },
   end: { line: 1, col: 1 },
   tag: "Identifier",
