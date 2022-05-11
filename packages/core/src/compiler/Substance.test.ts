@@ -18,7 +18,7 @@ const outputDir = "/tmp/contexts";
 const subPaths = [
   // "linear-algebra-domain/twoVectorsPerp.sub",
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/tree.sub"],
-  ["set-theory-domain/setTheory.dsl", "set-theory-domain/continuousmap.sub"],
+  ["set-theory-domain/functions.dsl", "set-theory-domain/continuousmap.sub"],
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/twosets-simple.sub"],
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/multisets.sub"],
   ["set-theory-domain/setTheory.dsl", "set-theory-domain/nested.sub"],

@@ -5,7 +5,7 @@
       "substance": "tree",
       "style": "venn",
       "domain": "set-theory",
-      "variation": ""
+      "variation": "CasalViper643"
     },
     {
       "substance": "tree",
@@ -16,7 +16,7 @@
     {
       "substance": "continuousmap",
       "style": "continuousmap",
-      "domain": "set-theory",
+      "domain": "functions",
       "variation": ""
     },
     {
@@ -102,6 +102,10 @@
     "set-theory": {
       "name": "Set Theory",
       "URI": "set-theory-domain/setTheory.dsl"
+    },
+    "functions": {
+      "name": "Functions",
+      "URI": "set-theory-domain/functions.dsl"
     },
     "linear-algebra": {
       "name": "Linear Algebra",

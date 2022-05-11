@@ -1,3 +1,4 @@
+**/*.hbs
 **/build/
 **/coverage/
 **/dist/
@@ -14,3 +15,4 @@ packages/core/src/parser/SubstanceParser.ts
 packages/core/src/renderer/not_found.json
 packages/docs-site/.docusaurus/
 packages/roger/oclif.manifest.json
+README.md

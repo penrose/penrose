@@ -21,80 +21,25 @@ reference-style information, take a look at our
 
 Here's a simple Penrose visualization in the domain of set theory.
 
-<img src="diagrams/tree-venn.svg" width=500>
+<img src="{{svg}}" width=500>
 
 It's specified by the following trio of Domain, Substance, and Style programs
-(with variation `CasalViper643`):
+(with variation `{{variation}}`):
 
-- `setTheory.dsl`:
-
-  ```
-  type Set
-  
-  predicate Not(Prop p1)
-  predicate Intersecting(Set s1, Set s2)
-  predicate IsSubset(Set s1, Set s2)
-  ```
-
-- `tree.sub`:
+- `{{dsl}}`:
 
   ```
-  Set A, B, C, D, E, F, G
-  
-  IsSubset(B, A)
-  IsSubset(C, A)
-  IsSubset(D, B)
-  IsSubset(E, B)
-  IsSubset(F, C)
-  IsSubset(G, C)
-  
-  Not(Intersecting(E, D))
-  Not(Intersecting(F, G))
-  Not(Intersecting(B, C))
-  
-  AutoLabel All
+  {{> domain }}
   ```
 
-- `venn.sty`:
+- `{{sub}}`:
 
   ```
-  canvas {
-    width = 800
-    height = 700
-  }
-  
-  forall Set x {
-    x.icon = Circle {
-      strokeWidth : 0
-    }
-  
-    x.text = Equation {
-      string : x.label
-      fontSize : "25px"
-    }
-  
-    ensure contains(x.icon, x.text)
-    encourage sameCenter(x.text, x.icon)
-    x.textLayering = x.text above x.icon
-  }
-  
-  forall Set x; Set y
-  where IsSubset(x, y) {
-    ensure smallerThan(x.icon, y.icon)
-    ensure disjoint(y.text, x.icon, 10)
-    ensure contains(y.icon, x.icon, 5)
-    x.icon above y.icon
-  }
-  
-  forall Set x; Set y
-  where Not(Intersecting(x, y)) {
-    ensure disjoint(x.icon, y.icon)
-  }
-  
-  forall Set x; Set y
-  where Intersecting(x, y) {
-    ensure overlapping(x.icon, y.icon)
-    ensure disjoint(y.text, x.icon)
-    ensure disjoint(x.text, y.icon)
-  }
+  {{> substance }}
+  ```
+
+- `{{sty}}`:
+
+  ```
+  {{> style }}
   ```
