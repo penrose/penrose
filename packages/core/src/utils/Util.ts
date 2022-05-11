@@ -4,6 +4,7 @@ import seedrandom from "seedrandom";
 import { ILine } from "shapes/Line";
 import { VarAD } from "types/ad";
 import { A } from "types/ast";
+import { Either, Left, Right } from "types/common";
 import { Properties } from "types/shape";
 import { Fn, Seeds, State } from "types/state";
 import { Expr, Path } from "types/style";
@@ -505,5 +506,54 @@ export const linePts = ({ start, end }: ILine): [VarAD[], VarAD[]] => [
 export const getStart = ({ start }: ILine): VarAD[] => start.contents;
 
 export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
+
+//#endregion
+
+//#region either monad
+
+export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
+  if ((val as Left<A>).tag === "Left") return true;
+  return false;
+}
+
+export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
+  if ((val as Right<B>).tag === "Right") return true;
+  return false;
+}
+
+export function toLeft<A>(val: A): Left<A> {
+  return { contents: val, tag: "Left" };
+}
+
+export function toRight<B>(val: B): Right<B> {
+  return { contents: val, tag: "Right" };
+}
+
+export function ToLeft<A, B>(val: A): Either<A, B> {
+  return { contents: val, tag: "Left" };
+}
+
+export function ToRight<A, B>(val: B): Either<A, B> {
+  return { contents: val, tag: "Right" };
+}
+
+export function foldM<A, B, C>(
+  xs: A[],
+  f: (acc: B, curr: A, i: number) => Either<C, B>,
+  init: B
+): Either<C, B> {
+  let res = init;
+  let resW: Either<C, B> = toRight(init); // wrapped
+
+  for (let i = 0; i < xs.length; i++) {
+    resW = f(res, xs[i], i);
+    if (resW.tag === "Left") {
+      return resW;
+    } // Stop fold early on first error and return it
+    res = resW.contents;
+  }
+
+  return resW;
+}
 
 //#endregion

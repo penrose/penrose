@@ -15,17 +15,13 @@ export interface IState {
   varyingPaths: Path<A>[];
   varyingInitInfo: { [pathStr: string]: number }; // These are the values the style writer set initially
   shapePaths: Path<A>[];
-  shapeProperties: any; // TODO: types
   uninitializedPaths: Path<A>[];
   params: Params;
   objFns: Fn[];
   constrFns: Fn[];
-  policyParams: any; // TODO: types
-  oConfig: any; // TODO: types
   pendingPaths: Path<A>[];
   varyingValues: number[];
   translation: Translation;
-  originalTranslation: Translation;
   shapeOrdering: string[];
   labelCache: LabelCache;
   shapes: Shape[];

@@ -204,17 +204,11 @@ export const compileTrio = (prog: {
 export const prepareState = async (state: State): Promise<State> => {
   const rng = seedrandom(state.seeds.prepare);
 
-  // TODO: errors
-  const stateAD = {
-    ...state,
-    originalTranslation: state.originalTranslation,
-  };
-
   // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
   // The results of the pending values are then stored back in the translation as autodiff types
   const stateEvaled: State = {
-    ...stateAD,
-    shapes: shapeAutodiffToNumber(evalShapes(rng, stateAD)),
+    ...state,
+    shapes: shapeAutodiffToNumber(evalShapes(rng, state)),
   };
 
   const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
