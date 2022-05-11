@@ -135,7 +135,6 @@ export const postprocessSubstance = (
 
 const toSubDecl = (idString: string, decl: TypeConstructor<C>): Decl<A> => ({
   nodeType: "SyntheticSubstance",
-  children: [],
   tag: "Decl",
   type: {
     ...decl,
@@ -216,7 +215,6 @@ const stringName = idOf("String", "Substance");
 const stringType: TypeConsApp<A> = {
   tag: "TypeConstructor",
   nodeType: "SyntheticSubstance",
-  children: [stringName],
   name: stringName,
   args: [],
 };

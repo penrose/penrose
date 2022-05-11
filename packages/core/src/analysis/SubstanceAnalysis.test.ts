@@ -104,16 +104,14 @@ describe("Substance AST queries", () => {
   //   const id2 = dummyIdentifier("B", "SyntheticSubstance");
   //   expect(nodesEqual(id1, id2)).toBe(false);
   //   expect(nodesEqual(id2, id2)).toBe(true);
-  //   // create two SubStmts with different source locs and children and the equality check should still return true
+  //   // create two SubStmts with different source locs and the equality check should still return true
   //   const prog1: DefaultLabels = {
-  //     children: [],
   //     tag: "DefaultLabels",
   //     nodeType: "Substance",
   //     start: { line: 0, col: 0 },
   //     end: { line: 0, col: 0 },
   //   };
   //   const prog2: DefaultLabels = {
-  //     children: [prog1],
   //     tag: "DefaultLabels",
   //     nodeType: "Substance",
   //     start: { line: 5, col: 0 },
@@ -156,13 +154,11 @@ Set C`;
     const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
     const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
-      children: [],
       tag: "Decl",
       name: dummyIdentifier("C", "SyntheticSubstance"),
       type: {
         tag: "TypeConstructor",
         nodeType: "SyntheticSubstance",
-        children: [],
         args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
@@ -190,13 +186,11 @@ Set ZZZ`;
     const toReplace = originalAST.statements[1];
     const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
-      children: [],
       tag: "Decl",
       name: dummyIdentifier("ZZZ", "SyntheticSubstance"),
       type: {
         tag: "TypeConstructor",
         nodeType: "SyntheticSubstance",
-        children: [],
         args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },

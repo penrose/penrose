@@ -332,7 +332,6 @@ export class Synthesizer {
       this.template = {
         tag: "SubProg",
         statements: [],
-        children: [],
         nodeType: "SyntheticSubstance",
       };
     }
@@ -761,7 +760,6 @@ const generateDecl = (
   const stmt: Decl<A> = {
     tag: "Decl",
     nodeType: "SyntheticSubstance",
-    children: [],
     type: typeCons,
     name,
   };
@@ -779,7 +777,6 @@ const generateDeclFromType = (
   const stmt: Decl<A> = {
     tag: "Decl",
     nodeType: "SyntheticSubstance",
-    children: [],
     type: typeCons,
     name,
   };

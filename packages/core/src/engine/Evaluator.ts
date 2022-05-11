@@ -615,7 +615,6 @@ export const evalExpr = (
           p = {
             // convert to AccessPath schema
             nodeType: "SyntheticStyle",
-            children: [],
             tag: "AccessPath",
             // contents: [p.contents[0], [p.contents[1].contents]],
             path: p.contents[0],
@@ -625,7 +624,6 @@ export const evalExpr = (
           p = {
             // convert to AccessPath schema
             nodeType: "SyntheticStyle",
-            children: [],
             tag: "AccessPath",
             path: p.contents[0],
             indices: p.contents[1],

@@ -434,7 +434,6 @@ export const dummyIdentifier = (
 ): Identifier<A> => {
   return {
     nodeType,
-    children: [],
     type: "value",
     value: name,
     tag: "Identifier",
@@ -448,7 +447,6 @@ const floatValToExpr = (e: Value<VarAD>): Expr<A> => {
 
   return {
     nodeType: "SyntheticStyle",
-    children: [],
     tag: "VaryAD",
     contents: e.contents,
   };
@@ -1060,7 +1058,6 @@ export const exprToNumber = (e: Expr<A>): number => {
 export const numToExpr = (n: number): Expr<A> => {
   return {
     nodeType: "SyntheticStyle",
-    children: [],
     tag: "Fix",
     contents: n,
   };
