@@ -323,10 +323,10 @@ const children = (x: ad.Expr): Child[] => {
         const t: VarAD = { tag: "Index", index, vec: x }; // a root
 
         let power: VarAD = 1;
-        const powers = [];
-        for (let i = 0; i < n; i++) {
-          powers.push(power);
+        const powers: VarAD[] = [power];
+        for (let i = 1; i < n; i++) {
           power = mul(power, t);
+          powers.push(power);
         }
 
         const minusDerivative = neg(
