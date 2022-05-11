@@ -1,9 +1,10 @@
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import { examples } from "@penrose/examples";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import * as React from "react";
-//import DemoWrapper from "../components/DemoWrapper";
+import DemoWrapper from "../components/DemoWrapper";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
@@ -36,21 +37,11 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
 
   const trio = {
-    dsl: "type Set",
-    sub: "Set A\nAutoLabel All",
-    sty: `canvas {
-  width = 500
-  height = 500
-}
-  Set X {
-  X.shape = Circle { strokeWidth : 0 }
-  X.text  = Equation { string: X.label }
-  ensure contains(X.shape, X.text)
-  ensure maxSize(X.shape, canvas.width / 2)
-}
-`,
+    dsl: examples["set-theory-domain"]["setTheory.dsl"],
+    sub: examples["set-theory-domain"]["tree.sub"],
+    sty: examples["set-theory-domain"]["venn.sty"],
   };
-  const examples = [
+  const demo = [
     { variation: "foo", ...trio },
     { variation: "bar", ...trio },
     { variation: "baz", ...trio },
@@ -87,15 +78,9 @@ export default function Home() {
           Feel free to <a href="mailto:team@penrose.ink">get in touch</a>.
         </p>
 
-        {/* Temporarily commented out & will re-visit
         <h1>Example</h1>
         <p>Here's Penrose running in your browser:</p>
-        <DemoWrapper
-          style={{ margin: "auto" }}
-          examples={examples}
-          width="400px"
-        />
-        */}
+        <DemoWrapper style={{ margin: "auto" }} examples={demo} width="400px" />
       </main>
     </Layout>
   );
