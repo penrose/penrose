@@ -12,7 +12,6 @@ import {
   FatalError,
   NaNError,
   NotTypeConsInPrelude,
-  NotTypeConsInSubtype,
   ParseError,
   PenroseError,
   RuntimeError,
@@ -118,17 +117,6 @@ export const showError = (
       return `Name ${name.value} (at ${loc(
         location
       )}) already exists, first declared at ${loc(firstDefined)}.`;
-    }
-    case "NotTypeConsInSubtype": {
-      if (error.type.tag === "Prop") {
-        return `Prop (at ${loc(
-          error.type
-        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
-      } else {
-        return `${error.type.name.value} (at ${loc(
-          error.type
-        )}) is not a type constructor. Only type constructors are allowed in subtyping relations.`;
-      }
     }
     case "CyclicSubtypes": {
       return `Subtyping relations in this program form a cycle. Cycles of types are:\n${showCycles(
@@ -417,13 +405,6 @@ export const notTypeConsInPrelude = (
   type: Prop<A> | TypeVar<A>
 ): NotTypeConsInPrelude => ({
   tag: "NotTypeConsInPrelude",
-  type,
-});
-
-export const notTypeConsInSubtype = (
-  type: Prop<A> | TypeVar<A>
-): NotTypeConsInSubtype => ({
-  tag: "NotTypeConsInSubtype",
   type,
 });
 

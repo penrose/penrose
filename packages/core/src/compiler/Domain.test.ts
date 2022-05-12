@@ -183,13 +183,13 @@ constructor Cons ['X] ('X head, List('X) tail) -> List('X)
   type Set
   Prop <: Set
     `;
-    expectErrorOf(prog, "NotTypeConsInSubtype");
+    expectErrorOf(prog, "ParseError");
   });
   test("type var in subtyping relation", () => {
     const prog = `
   'T <: 'V
     `;
-    expectErrorOf(prog, "NotTypeConsInSubtype");
+    expectErrorOf(prog, "ParseError");
   });
   test("subtype cycle", () => {
     const prog = `

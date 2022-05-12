@@ -70,7 +70,7 @@ statement
   |  subtype     {% id %}
 
 # not to be confused with `type`, defined below
-type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type, ","]):? {%
+type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type_constructor, ","]):? {%
   ([typ, , name, ps, sub]): TypeDecl<C> => {
     const params = ps ? ps[3] : [];
     const superTypes = sub ? sub[3] : [];
@@ -135,7 +135,7 @@ notation -> "notation" _  string_lit  _ "~" _ string_lit {%
   })
 %} 
 
-subtype -> type _ "<:" _ type {%
+subtype -> type_constructor _ "<:" _ type_constructor {%
   ([subType, , , , superType]): SubTypeDecl<C> => ({
     ...nodeData,
     ...rangeBetween(subType, superType),

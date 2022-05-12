@@ -51,7 +51,6 @@ export type DomainError =
   | TypeNotFound
   | DuplicateName
   | CyclicSubtypes
-  | NotTypeConsInSubtype
   | NotTypeConsInPrelude;
 
 export interface UnexpectedExprForNestedPred {
@@ -70,10 +69,6 @@ export interface NotTypeConsInPrelude {
   type: Prop<A> | TypeVar<A>;
 }
 
-export interface NotTypeConsInSubtype {
-  tag: "NotTypeConsInSubtype";
-  type: Prop<A> | TypeVar<A>;
-}
 export interface TypeDeclared {
   tag: "TypeDeclared";
   typeName: Identifier<A>;
