@@ -36,7 +36,7 @@
     "@datastructures-js/queue": "^4.1.3",
     "consola": "^2.15.2",
     "fast-memoize": "^2.5.2",
-    "graphlib": "^2.1.8",
+    "graphlib": "dagrejs/graphlib#e864ad6ba2619ad9f40984c9d938ed2e7eec9b63",
     "heap-js": "^2.1.6",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
