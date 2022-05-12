@@ -1,3 +1,4 @@
+import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
@@ -16,6 +17,12 @@ export default defineConfig({
     },
     rollupOptions: {
       plugins: [visualizer()],
+    },
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      // Enable esbuild polyfill plugins
+      plugins: [NodeModulesPolyfillPlugin()],
     },
   },
 });
