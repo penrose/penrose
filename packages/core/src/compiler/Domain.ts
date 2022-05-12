@@ -280,7 +280,7 @@ export const checkTypeConstructor = (
   const { name, args } = type;
   // check if name of the type exists
   if (!env.types.has(name.value)) {
-    const suggestions = Array.from(env.types.values());
+    const [...suggestions] = env.types.values();
     return err(
       typeNotFound(
         name,
@@ -314,7 +314,7 @@ const addSubtype = (
 
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
-  const typeNames = Array.from(types.keys());
+  const [...typeNames] = types.keys();
   typeNames.map((t: string) => typeGraph.setNode(t, t));
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
   subTypes.map(
