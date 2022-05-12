@@ -31,11 +31,11 @@ export const SubstanceLanguageTokens = (
   domainCache: Env
 ): languages.IMonarchLanguage => {
   const refs = {
-    types: [...domainCache.types.keys()],
+    types: Array.from(domainCache.types.keys()),
     functionLikes: [
-      ...domainCache.constructors.keys(),
-      ...domainCache.functions.keys(),
-      ...domainCache.predicates.keys(),
+      ...Array.from(domainCache.constructors.keys()),
+      ...Array.from(domainCache.functions.keys()),
+      ...Array.from(domainCache.predicates.keys()),
     ],
     control: ["AutoLabel", "Label", "NoLabel", "All"],
   };
