@@ -68,7 +68,7 @@ export const SubstanceCompletions = (
   range: IRange,
   domainCache: any
 ): languages.CompletionItem[] => {
-  const types = [...domainCache.types.keys()].map((type) => ({
+  const types = Array.from(domainCache.types.keys()).map((type: any) => ({
     label: type,
     insertText: type + " $0",
     insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -76,7 +76,7 @@ export const SubstanceCompletions = (
     detail: "type",
     range,
   }));
-  const predicates = [...domainCache.predicates.keys()].map((type) => ({
+  const predicates = Array.from(domainCache.predicates.keys()).map((type) => ({
     label: type,
     insertText: type + "($0)",
     insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -84,14 +84,16 @@ export const SubstanceCompletions = (
     detail: "predicate",
     range,
   }));
-  const constructors = [...domainCache.constructors.keys()].map((type) => ({
-    label: type,
-    insertText: type + "($0)",
-    insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
-    kind: languages.CompletionItemKind.Constructor,
-    detail: "constructor",
-    range,
-  }));
+  const constructors = Array.from(domainCache.constructors.keys()).map(
+    (type) => ({
+      label: type,
+      insertText: type + "($0)",
+      insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      kind: languages.CompletionItemKind.Constructor,
+      detail: "constructor",
+      range,
+    })
+  );
   const labeling = ["AutoLabel", "Label", "NoLabel", "All"].map((type) => ({
     label: type,
     insertText: type,
@@ -100,21 +102,23 @@ export const SubstanceCompletions = (
     range,
   }));
 
-  const fns = [...domainCache.functions.entries()].map(([name, fn]) => ({
-    label: name,
-    insertText: `${name}($0)`,
-    insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
-    kind: languages.CompletionItemKind.Function,
-    detail: `function -> ${fn.output.type.name.value}`,
-    documentation: {
-      value: `${fn.args
-        .map((arg: any) => {
-          return arg.type.name.value + " " + arg.variable.value;
-        })
-        .join(" * ")} -> ${fn.output.type.name.value}`,
-    },
-    range,
-  }));
+  const fns = Array.from(domainCache.functions.entries()).map(
+    ([name, fn]: any) => ({
+      label: name,
+      insertText: `${name}($0)`,
+      insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      kind: languages.CompletionItemKind.Function,
+      detail: `function -> ${fn.output.type.name.value}`,
+      documentation: {
+        value: `${fn.args
+          .map((arg: any) => {
+            return arg.type.name.value + " " + arg.variable.value;
+          })
+          .join(" * ")} -> ${fn.output.type.name.value}`,
+      },
+      range,
+    })
+  );
 
   return [...types, ...fns, ...predicates, ...constructors, ...labeling];
 };

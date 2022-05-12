@@ -162,10 +162,10 @@ export const filterContext = (
 
 export const showEnv = (env: Env): string =>
   [
-    `types: ${[...env.types.keys()]}`,
-    `predicates: ${[...env.predicates.keys()]}`,
-    `functions: ${[...env.functions.keys()]}`,
-    `constructors: ${[...env.constructors.keys()]}`,
+    `types: ${Array.from(env.types.keys())}`,
+    `predicates: ${Array.from(env.predicates.keys())}`,
+    `functions: ${Array.from(env.functions.keys())}`,
+    `constructors: ${Array.from(env.constructors.keys())}`,
   ].join("\n");
 
 const getDecls = (
@@ -484,7 +484,7 @@ export class Synthesizer {
         (
           options: Immutable.Map<string, Identifier<A>[]>
         ): Identifier<A> | undefined => {
-          const varId = this.choice([...options.keys()]);
+          const varId = this.choice(Array.from(options.keys()));
           const swapOptions = options.get(varId);
           return swapOptions ? this.choice(swapOptions) : undefined;
         },
@@ -499,7 +499,7 @@ export class Synthesizer {
         (
           options: Immutable.Map<string, Identifier<A>[]>
         ): Identifier<A> | undefined => {
-          const varId = this.choice([...options.keys()]);
+          const varId = this.choice(Array.from(options.keys()));
           const swapOptions = options.get(varId);
           return swapOptions ? this.choice(swapOptions) : undefined;
         },
@@ -580,7 +580,7 @@ export class Synthesizer {
     // pick a kind of statement to edit
     const chosenType = this.choice(nonEmptyDecls(ctx));
     // get all possible types within this kind
-    const candidates = [...getDecls(ctx, chosenType).keys()];
+    const candidates = Array.from(getDecls(ctx, chosenType).keys());
     // choose a name
     const chosenName = this.choice(candidates);
     log.debug(
@@ -678,7 +678,7 @@ export class Synthesizer {
   enumerateDelete = (ctx: SynthesisContext): MutationGroup => {
     log.debug("Deleting statement");
     const chosenType = this.choice(nonEmptyDecls(ctx));
-    const candidates = [...getDecls(ctx, chosenType).keys()];
+    const candidates = Array.from(getDecls(ctx, chosenType).keys());
     const chosenName = this.choice(candidates);
     const stmt = this.findStmt(chosenType, chosenName);
     let possibleOps: Mutation[] = [];

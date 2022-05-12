@@ -153,7 +153,7 @@ export const matchDecls = <T>(
 ): ArgStmtDecl<T>[] => {
   //generate signature for the original statement
   const origSignature = getSignature(stmt);
-  const decls: ArgStmtDecl<T>[] = [...opts.values()];
+  const decls: ArgStmtDecl<T>[] = Array.from(opts.values());
   return decls.filter((d) => {
     // does not add original statement to list of matches
     return stmt !== d && matchFunc(origSignature, getSignature(d));
@@ -273,13 +273,13 @@ export const identicalTypeDecls = (
 
     // a match is any var of the same type as the current identifier
     // which is not already being used in the statement
-    const matchedObjs = [
-      ...env.vars
+    const matchedObjs = Array.from(
+      env.vars
         .filter(
           (t, id) => !idSet.includes(id) && typeStr && t.name.value === typeStr
         )
-        .keys(),
-    ];
+        .keys()
+    );
 
     const matches = matchedObjs.flatMap((id) =>
       env.varIDs.filter((v) => v.value === id)
@@ -336,7 +336,7 @@ export const cascadingDelete = <T>(
       removedStmts.add(stmt);
     });
   }
-  return [...removedStmts.values()];
+  return Array.from(removedStmts.values());
 };
 
 export const printStmts = (
