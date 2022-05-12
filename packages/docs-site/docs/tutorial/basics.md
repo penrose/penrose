@@ -13,11 +13,11 @@ This is the first diagram we will make together. This is the equivalent of the `
 
 This is what you will achieve at the end of this tutorial. If you are familiar with set theory you may recognize that circles are commonly used to represent sets, and that's exactly what we have here. We have 2 sets without names (we will get to labeling later 😬).
 
-## Cloning the Tutorial Repo
+## Cloning the Repo
 
-Before we dive in, make a fork of [this repo](https://github.com/penrose/tutorials) which contains the starter code for all of the tutorials, as well as solutions for checking your work. Save it somewhere easy to access, like your Home directory or Desktop!
+Before we dive in, make a fork of [the Penrose repo](https://github.com/penrose/penrose), which contains the starter code for all of the tutorials (as well as solutions for checking your work) in the subdirectory `packages/examples/src/tutorials/`. Save it somewhere easy to access, like your Home directory or Desktop!
 
-We will be editing the files provided in the `./code/tutorial1` subfolder of this repo.
+We will be editing the files provided in the `./packages/examples/src/tutorials/code/tutorial1` subfolder of this repo.
 
 ## 📄 Domain
 
@@ -39,7 +39,7 @@ type Set
 
 And that is all we need for this exercise in `.dsl` 🎉. Now Penrose knows that there are objects of type `Set`.
 
-If you look closely at the repository, we have a [domain file](https://github.com/penrose/penrose/blob/main/examples/set-theory-domain/setTheory.dsl) that contains more extensive operations common in Set Theory such as `Intersection`, `Union`, `Subset`, and more.
+If you look closely at the repository, we have a [domain file](https://github.com/penrose/penrose/blob/main/packages/examples/src/set-theory-domain/functions.dsl) that contains more extensive operations common in Set Theory such as `Intersection`, `Union`, `Subset`, and more.
 
 ## 📄 Substance
 
@@ -108,7 +108,7 @@ Now it's time to see all of our hard work (drumroll please 🥁)! To compile you
 - Open two terminals at the Penrose root directory.
 - In the first terminal, run `yarn start` to launch Penrose on your computer and get the browser window to show up.
 - The pattern for sending the three files we edited (otherwise known as a **triple**) to the Penrose server that we just launched in the previous step is as follows: `npx roger watch <path-to-sub> <path-to-sty> <path-to-dsl>`
-  - So we need to replace each of the `<path-to>` with the actual path to the triple in the `tutorial1` directory. For example, if I had saved the `tutorials` repo at `~/repos/`, then I would run: `npx roger watch ~/repos/tutorials/code/tutorial1/twoSets.sub ~/repos/tutorials/code/tutorial1/twoSets.sty ~/repos/tutorials/code/tutorial1/setTheory.dsl`
+  - So we need to replace each of the `<path-to>` with the actual path to the triple in the `tutorial1` directory. For example, if I had saved the `tutorials` repo at `~/repos/`, then I would run: `npx roger watch ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.sub ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.sty ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/setTheory.dsl`
 - Refresh your Penrose window!
 
 ## Exercise
@@ -133,7 +133,7 @@ _Since we are not defining all the properties that control how the shape will lo
 
 ![](/img/tutorial/tutorial1c4.png)
 
-After you are done, you can double-check your work with the sample [solutions](https://github.com/penrose/tutorials/blob/main/solutions/tutorial1.md).
+After you are done, you can double-check your work with the sample [solutions](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial1.md).
 
 ## Takeaways
 

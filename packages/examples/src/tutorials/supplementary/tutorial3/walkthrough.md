@@ -31,7 +31,7 @@ The substance file contains the lines for putting two vectors in the same vector
 
 ## :runner: Style
 
-The style file is a bit more involved, therefore we provide a very detailed step through of the code. **Again, feel free to [skip to the example](https://penrose-saurus.netlify.app/docs/tutorial/functions/#task-1-vectors-in-vector-space) if you feel confident reading and comprehending the code by yourself**.
+The style file is a bit more involved, therefore we provide a very detailed step through of the code. **Again, feel free to [skip to the example](https://penrose.cs.cmu.edu/docs/tutorial/functions#task-1-vectors-in-vector-space) if you feel confident reading and comprehending the code by yourself**.
 
 On the very top of the file, you see this block of code.
 
@@ -113,7 +113,7 @@ The real fun starts! 🥁 To draw a vector space, we have a background, an origi
   }
   ```
 
-  Refer to [here](https://penrose-saurus.netlify.app/docs/api/shapes/line) for more information on the line shape.
+  Refer to [here](https://penrose.cs.cmu.edu/docs/ref/style/shapes/line) for more information on the line shape.
 
 - **Label**
   ```
@@ -125,4 +125,4 @@ The real fun starts! 🥁 To draw a vector space, we have a background, an origi
   ```
   Lastly we just have some styling on the label. That's it! :cartwheeling:
 
-Now you are ready to add and draw some vectors. [Continue with the tutorial here.](https://penrose-saurus.netlify.app/docs/tutorial/functions/#task-1-vectors-in-vector-space)
+Now you are ready to add and draw some vectors. [Continue with the tutorial here.](https://penrose.cs.cmu.edu/docs/tutorial/functions#task-1-vectors-in-vector-space)
