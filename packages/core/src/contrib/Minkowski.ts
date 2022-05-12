@@ -176,7 +176,7 @@ export const convexPartitions = (p: VarAD[][]): VarAD[][][] => {
     })
   );
 
-  const contour = [...pointMap.keys()];
+  const contour = Array.from(pointMap.keys());
   if (isClockwise(contour)) {
     contour.reverse();
   }

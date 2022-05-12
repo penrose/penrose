@@ -11,6 +11,7 @@ const Demo = (props: {
   }[];
   width: string; // the width of each half; total width is twice this
   // height must be equal to width (including in the passed Style canvas!)
+  darkMode: boolean;
 }) => {
   const [index, setIndex] = useState(0);
 
@@ -38,6 +39,7 @@ const Demo = (props: {
         substance={example.sub}
         width={props.width}
         height={props.width}
+        monacoOptions={{ theme: props.darkMode ? "vs-dark" : "vs" }}
       />
       <div style={{ width: props.width, height: props.width }}>
         <Simple

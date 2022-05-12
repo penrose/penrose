@@ -111,7 +111,7 @@ const initEnv = (ast: SubProg<A>, env: Env): SubstanceEnv => ({
   predEqualities: [],
   bindings: Map<string, SubExpr<C>>(),
   labels: Map<string, LabelValue>(
-    [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL])
+    Array.from(env.vars.keys()).map((id: string) => [id, EMPTY_LABEL])
   ),
   predicates: [],
   ast,
@@ -151,7 +151,7 @@ const processLabelStmt = (
   switch (stmt.tag) {
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
-        const [...ids] = env.vars.keys();
+        const ids = Array.from(env.vars.keys());
         const newLabels: LabelMap = Map(
           ids.map((id) => [id, { value: id, type: "MathLabel" }])
         );
@@ -607,8 +607,8 @@ const checkFunc = (
   } else {
     return err(
       typeNotFound(func.name, [
-        ...[...env.constructors.values()].map((c) => c.name),
-        ...[...env.functions.values()].map((c) => c.name),
+        ...Array.from(env.constructors.values()).map((c) => c.name),
+        ...Array.from(env.functions.values()).map((c) => c.name),
       ])
     );
   }
