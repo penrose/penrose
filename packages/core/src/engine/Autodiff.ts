@@ -1,18 +1,21 @@
 import { Queue } from "@datastructures-js/queue";
 import consola, { LogLevel } from "consola";
 import * as _ from "lodash";
+import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "types/ad";
 import { GradGraphs, VarAD } from "types/ad";
 import { WeightInfo } from "types/state";
 import { Multidigraph } from "utils/Graph";
-import { safe } from "utils/Util";
+import { safe, zip2 } from "utils/Util";
 import {
   acos,
   add,
+  addN,
   atan2,
   cos,
   cosh,
   div,
+  eq,
   exp,
   gt,
   ifCond,
@@ -38,20 +41,18 @@ export const logAD = consola
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-export const input = ({
-  index,
+export const input = ({ key, val }: Omit<ad.Input, "tag">): ad.Input => ({
+  tag: "Input",
+  key,
   val,
-}: {
-  index: number;
-  val: number;
-}): ad.Input => ({ tag: "Input", index, val });
+});
 
 export const makeADInputVars = (xs: number[], start = 0): ad.Input[] =>
-  xs.map((val, i) => input({ index: start + i, val }));
+  xs.map((val, i) => input({ key: start + i, val }));
 
 // every VarAD is already an ad.Node, but this function returns a new object
 // with all the children removed
-const makeNode = (x: VarAD): ad.Node => {
+const makeNode = (x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
     return x;
   }
@@ -59,8 +60,8 @@ const makeNode = (x: VarAD): ad.Node => {
   const { tag } = node;
   switch (tag) {
     case "Input": {
-      const { index } = node;
-      return { tag, index };
+      const { key } = node;
+      return { tag, key };
     }
     case "Unary": {
       const { unop } = node;
@@ -70,12 +71,27 @@ const makeNode = (x: VarAD): ad.Node => {
       const { binop } = node;
       return { tag, binop };
     }
+    case "Comp": {
+      const { binop } = node;
+      return { tag, binop };
+    }
+    case "Logic": {
+      const { binop } = node;
+      return { tag, binop };
+    }
     case "Ternary": {
       return { tag };
     }
     case "Nary": {
       const { op } = node;
       return { tag, op };
+    }
+    case "PolyRoots": {
+      return { tag };
+    }
+    case "Index": {
+      const { index } = node;
+      return { tag, index };
     }
     case "Debug": {
       const { info } = node;
@@ -171,9 +187,7 @@ const unarySensitivity = (z: ad.Unary): VarAD => {
   }
 };
 
-const binarySensitivities = (
-  z: ad.Binary
-): { left: VarAD | undefined; right: VarAD | undefined } => {
+const binarySensitivities = (z: ad.Binary): { left: VarAD; right: VarAD } => {
   const { binop, left: v, right: w } = z;
   switch (binop) {
     case "+": {
@@ -205,13 +219,6 @@ const binarySensitivities = (
     case "pow": {
       return { left: mul(pow(v, sub(w, 1)), w), right: mul(z, ln(v)) };
     }
-    case ">":
-    case "<":
-    case "===":
-    case "&&":
-    case "||": {
-      return { left: undefined, right: undefined };
-    }
   }
 };
 
@@ -241,14 +248,14 @@ const rankEdge = (edge: ad.Edge): number => {
 };
 
 interface Child {
-  child: VarAD;
+  child: ad.Expr;
   name: ad.Edge;
-  sensitivity: VarAD | undefined;
+  sensitivity: VarAD[][]; // rows for parent, columns for child
 }
 
 // note that this function constructs the sensitivities even when we don't need
 // them, such as for nodes in secondary outputs or the gradient
-const children = (x: VarAD): Child[] => {
+const children = (x: ad.Expr): Child[] => {
   if (typeof x === "number") {
     return [];
   }
@@ -258,21 +265,32 @@ const children = (x: VarAD): Child[] => {
     }
     case "Unary": {
       return [
-        { child: x.param, name: undefined, sensitivity: unarySensitivity(x) },
+        {
+          child: x.param,
+          name: undefined,
+          sensitivity: [[unarySensitivity(x)]],
+        },
       ];
     }
     case "Binary": {
       const { left, right } = binarySensitivities(x);
       return [
-        { child: x.left, name: "left", sensitivity: left },
-        { child: x.right, name: "right", sensitivity: right },
+        { child: x.left, name: "left", sensitivity: [[left]] },
+        { child: x.right, name: "right", sensitivity: [[right]] },
+      ];
+    }
+    case "Comp":
+    case "Logic": {
+      return [
+        { child: x.left, name: "left", sensitivity: [] },
+        { child: x.right, name: "right", sensitivity: [] },
       ];
     }
     case "Ternary": {
       return [
-        { child: x.cond, name: "cond", sensitivity: undefined },
-        { child: x.then, name: "then", sensitivity: ifCond(x.cond, 1, 0) },
-        { child: x.els, name: "els", sensitivity: ifCond(x.cond, 0, 1) },
+        { child: x.cond, name: "cond", sensitivity: [[]] },
+        { child: x.then, name: "then", sensitivity: [[ifCond(x.cond, 1, 0)]] },
+        { child: x.els, name: "els", sensitivity: [[ifCond(x.cond, 0, 1)]] },
       ];
     }
     case "Nary": {
@@ -280,19 +298,61 @@ const children = (x: VarAD): Child[] => {
         const c = { child, name: indexToNaryEdge(i) };
         switch (x.op) {
           case "addN": {
-            return { ...c, sensitivity: 1 };
+            return { ...c, sensitivity: [[1]] };
           }
           case "maxN": {
-            return { ...c, sensitivity: ifCond(lt(child, x), 0, 1) };
+            return { ...c, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
           }
           case "minN": {
-            return { ...c, sensitivity: ifCond(gt(child, x), 0, 1) };
+            return { ...c, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
           }
         }
       });
     }
+    case "PolyRoots": {
+      // https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
+
+      const n = x.coeffs.length;
+      const derivCoeffs: VarAD[] = x.coeffs.map((c, i) => mul(i, c));
+      derivCoeffs.shift();
+      // the polynomial is assumed monic, so `x.coeffs` doesn't include the
+      // coefficient 1 on the highest-degree term
+      derivCoeffs.push(n);
+
+      const sensitivities: VarAD[][] = x.coeffs.map((_, index) => {
+        const t: VarAD = { tag: "Index", index, vec: x }; // a root
+
+        let power: VarAD = 1;
+        const powers: VarAD[] = [power];
+        for (let i = 1; i < n; i++) {
+          power = mul(power, t);
+          powers.push(power);
+        }
+
+        const minusDerivative = neg(
+          addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p)))
+        );
+
+        // if the root is `NaN` then it doesn't contribute to the gradient
+        const real = eq(t, t);
+        return powers.map((p) => ifCond(real, div(p, minusDerivative), 0));
+      });
+
+      return x.coeffs.map((child, i) => ({
+        child,
+        name: indexToNaryEdge(i),
+        sensitivity: sensitivities.map((row) => [row[i]]),
+      }));
+    }
+    case "Index": {
+      // this node doesn't know how many elements are in `vec`, so here we just
+      // leave everything else undefined, to be treated as zeroes later
+      const row = [];
+      row[x.index] = 1;
+      return [{ child: x.vec, name: undefined, sensitivity: [row] }];
+    }
     case "Debug": {
-      return [{ child: x.node, name: undefined, sensitivity: 1 }];
+      return [{ child: x.node, name: undefined, sensitivity: [[1]] }];
     }
   }
 };
@@ -328,12 +388,12 @@ export const makeGraph = (
   outputs: Omit<ad.Outputs<VarAD>, "gradient">
 ): ad.Graph => {
   const graph = new Multidigraph<ad.Id, ad.Node, ad.Edge>();
-  const nodes = new Map<VarAD, ad.Id>();
+  const nodes = new Map<ad.Expr, ad.Id>();
 
   // we use this queue to essentially do a breadth-first search by following
-  // VarAD child pointers; it gets reused a few times because we add nodes in
-  // multiple stages
-  const queue = new Queue<VarAD>();
+  // `ad.Expr` child pointers; it gets reused a few times because we add nodes
+  // in multiple stages
+  const queue = new Queue<ad.Expr>();
   // at each stage, we need to add the edges after adding all the nodes, because
   // when we first look at a node and its in-edges, its children are not
   // guaranteed to exist in the graph yet, so we fill this queue during the
@@ -341,7 +401,7 @@ export const makeGraph = (
   // leaving it empty in preparation for the next stage; so the first element of
   // every tuple in this queue stores information about the edge and child, and
   // the second element of the tuple is the parent
-  const edges = new Queue<[Child, VarAD]>();
+  const edges = new Queue<[Child, ad.Expr]>();
 
   // only call setNode in this one place, ensuring that we always use indexToID
   const newNode = (node: ad.Node): ad.Id => {
@@ -353,7 +413,7 @@ export const makeGraph = (
   // ensure that x is represented in the graph we're building, and if it wasn't
   // already there, enqueue its children and in-edges (so queue and edges,
   // respectively, should both be emptied after calling this)
-  const addNode = (x: VarAD): ad.Id => {
+  const addNode = (x: ad.Expr): ad.Id => {
     let name = nodes.get(x);
     if (name === undefined) {
       name = newNode(makeNode(x));
@@ -367,8 +427,8 @@ export const makeGraph = (
   };
 
   const addEdge = (
-    child: VarAD,
-    parent: VarAD,
+    child: ad.Expr,
+    parent: ad.Expr,
     name: ad.Edge
   ): [ad.Id, ad.Id] => {
     const v = safe(nodes.get(child), "missing child");
@@ -392,16 +452,11 @@ export const makeGraph = (
   // concatenation doesn't cause any problems, because no stringified Edge
   // contains an underscore, and every Id starts with an underscore, so it's
   // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD>();
+  const sensitivities = new Map<`${ad.Edge}${ad.Id}${ad.Id}`, VarAD[][]>();
   while (!edges.isEmpty()) {
     const [{ child, name, sensitivity }, parent] = edges.dequeue();
     const [v, w] = addEdge(child, parent, name);
-    // this check for undefined isn't really necessary because we do a similar
-    // check later when we look up sensitivities in this map, but it slightly
-    // simplifies the value type for the map and also means we store a bit less
-    if (sensitivity !== undefined) {
-      sensitivities.set(`${name}${v}${w}`, sensitivity);
-    }
+    sensitivities.set(`${name}${v}${w}`, sensitivity);
   }
   // we can use this reverse topological sort later when we construct all the
   // gradient nodes, because it ensures that the gradients of a node's parents
@@ -411,8 +466,9 @@ export const makeGraph = (
   // sensitivities
   const primaryNodes = [...graph.topsort()].reverse();
 
-  for (const x of sensitivities.values()) {
-    addNode(x);
+  for (const matrix of sensitivities.values()) {
+    // `forEach` ignores holes
+    matrix.forEach((row) => row.forEach(addNode));
   }
   while (!queue.isEmpty()) {
     addNode(queue.dequeue());
@@ -422,18 +478,22 @@ export const makeGraph = (
     addEdge(child, parent, name);
   }
 
-  // map from each primary node ID to the ID of its gradient node
-  const gradNodes = new Map<ad.Id, ad.Id>();
+  // map from each primary node ID to the IDs of its gradient nodes
+  const gradNodes = new Map<ad.Id, ad.Id[]>();
   for (const id of primaryNodes) {
     if (id === primary) {
       // use addNode instead of newNode in case there's already a 1 in the graph
-      gradNodes.set(id, addNode(1));
+      gradNodes.set(id, [addNode(1)]);
       continue;
     }
 
-    const gradID = newNode({ tag: "Nary", op: "addN" });
-    gradNodes.set(id, gradID);
-    const addends: ad.Id[] = [];
+    // our node needs to have some number of gradient nodes, depending on its
+    // type, so we assemble an array of the addends for each gradient node; we
+    // don't need to know the length of this array ahead of time, because
+    // JavaScript allows holes in arrays, so instead of actually looking at the
+    // node to see what type it is, we just accumulate into whatever slots are
+    // mentioned by the sensitivities of our out-edges, and let all else be zero
+    const grad: ad.Id[][] = [];
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
@@ -443,27 +503,43 @@ export const makeGraph = (
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
-    // possible for for those edges to get incorrectly included as addends in
-    // other gradient nodes; however, that is not the case, because none of
-    // those edges appear in our sensitivities map
+    // possible for those edges to get incorrectly included as addends in other
+    // gradient nodes; however, that is not the case, because none of those
+    // edges appear in our sensitivities map
     for (const { w, name } of edges) {
-      const sensitivity = sensitivities.get(`${name}${id}${w}`);
-      if (sensitivity !== undefined) {
-        const sensitivityID = safe(
-          nodes.get(sensitivity),
-          "missing sensitivity"
-        );
-        const parentGradID = safe(gradNodes.get(w), "missing parent grad");
+      const matrix = sensitivities.get(`${name}${id}${w}`);
+      if (matrix !== undefined) {
+        // `forEach` ignores holes
+        matrix.forEach((row, i) =>
+          row.forEach((x, j) => {
+            const sensitivityID = safe(nodes.get(x), "missing sensitivity");
+            const parentGradIDs = safe(gradNodes.get(w), "missing parent grad");
+            if (i in parentGradIDs) {
+              const parentGradID = parentGradIDs[i];
 
-        const addendID = newNode({ tag: "Binary", binop: "*" });
-        graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
-        graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
-        addends.push(addendID);
+              const addendID = newNode({ tag: "Binary", binop: "*" });
+              graph.setEdge({ v: sensitivityID, w: addendID, name: "left" });
+              graph.setEdge({ v: parentGradID, w: addendID, name: "right" });
+              if (!(j in grad)) {
+                grad[j] = [];
+              }
+              grad[j].push(addendID);
+            }
+          })
+        );
       }
     }
 
-    addends.forEach((addendID, i) =>
-      graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
+    gradNodes.set(
+      id,
+      // `map` skips holes but also preserves indices
+      grad.map((addends) => {
+        const gradID = newNode({ tag: "Nary", op: "addN" });
+        addends.forEach((addendID, i) =>
+          graph.setEdge({ v: addendID, w: gradID, name: indexToNaryEdge(i) })
+        );
+        return gradID;
+      })
     );
   }
 
@@ -489,16 +565,16 @@ export const makeGraph = (
   const gradient: ad.Id[] = [];
   for (const {
     id,
-    label: { index },
+    label: { key },
   } of getInputs(graph)) {
-    if (index in gradient) {
-      throw Error(`duplicate Input index: ${index}`);
+    if (key in gradient) {
+      throw Error(`duplicate Input key: ${key}`);
     }
     // note that it's very easy for the set of Input indices to not be
     // contiguous, e.g. if some inputs end up not being used in any of the
     // computations in the graph; but even if that happens, it's actually OK
     // (see the comment in the implementation of genCode below)
-    gradient[index] = gradNodes.get(id) ?? addNode(0);
+    gradient[key] = (gradNodes.get(id) ?? [addNode(0)])[0];
   }
 
   return { graph, nodes, gradient, primary, secondary };
@@ -832,7 +908,7 @@ const compileUnary = ({ unop }: ad.UnaryNode, param: ad.Id): string => {
 };
 
 const compileBinary = (
-  { binop }: ad.BinaryNode,
+  { binop }: ad.BinaryNode | ad.CompNode | ad.LogicNode,
   left: ad.Id,
   right: ad.Id
 ): string => {
@@ -871,6 +947,24 @@ const compileNary = ({ op }: ad.NaryNode, params: ad.Id[]): string => {
   }
 };
 
+const naryParams = (preds: Map<ad.Edge, ad.Id>): ad.Id[] => {
+  const params: ad.Id[] = [];
+  for (const [i, x] of preds.entries()) {
+    if (
+      i === undefined ||
+      i === "left" ||
+      i === "right" ||
+      i === "cond" ||
+      i === "then" ||
+      i === "els"
+    ) {
+      throw Error("expected NaryEdge");
+    }
+    params[naryEdgeToIndex(i)] = x;
+  }
+  return params;
+};
+
 const compileNode = (
   node: Exclude<ad.Node, ad.InputNode>,
   preds: Map<ad.Edge, ad.Id>
@@ -882,7 +976,9 @@ const compileNode = (
     case "Unary": {
       return compileUnary(node, safe(preds.get(undefined), "missing param"));
     }
-    case "Binary": {
+    case "Binary":
+    case "Comp":
+    case "Logic": {
       return compileBinary(
         node,
         safe(preds.get("left"), "missing left"),
@@ -896,21 +992,14 @@ const compileNode = (
       return `${cond} ? ${then} : ${els}`;
     }
     case "Nary": {
-      const params: ad.Id[] = [];
-      for (const [i, x] of preds.entries()) {
-        if (
-          i === undefined ||
-          i === "left" ||
-          i === "right" ||
-          i === "cond" ||
-          i === "then" ||
-          i === "els"
-        ) {
-          throw Error("expected NaryEdge");
-        }
-        params[naryEdgeToIndex(i)] = x;
-      }
-      return compileNary(node, params);
+      return compileNary(node, naryParams(preds));
+    }
+    case "PolyRoots": {
+      return `polyRoots([${naryParams(preds).join(", ")}])`;
+    }
+    case "Index": {
+      const vec = safe(preds.get(undefined), "missing vec");
+      return `${vec}[${node.index}]`;
     }
     case "Debug": {
       const info = JSON.stringify(node.info);
@@ -920,6 +1009,29 @@ const compileNode = (
   }
 };
 
+const polyRoots = (coeffs: number[]): number[] => {
+  const n = coeffs.length;
+  // https://en.wikipedia.org/wiki/Companion_matrix
+  const companion = Matrix.zeros(n, n);
+  for (let i = 0; i + 1 < n; i++) {
+    companion.set(i + 1, i, 1);
+    companion.set(i, n - 1, -coeffs[i]);
+  }
+  companion.set(n - 1, n - 1, -coeffs[n - 1]);
+
+  // the characteristic polynomial of the companion matrix is equal to the
+  // original polynomial, so by finding the eigenvalues of the companion matrix,
+  // we get the roots of its characteristic polynomial and thus of the original
+  // polynomial
+  const decomp = new EigenvalueDecomposition(companion);
+  return zip2(
+    decomp.realEigenvalues,
+    decomp.imaginaryEigenvalues
+    // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`,
+    // we discard any non-real root and replace with `NaN`
+  ).map(([r, i]) => (i === 0 ? r : NaN));
+};
+
 export const genCode = ({
   graph,
   gradient,
@@ -927,7 +1039,7 @@ export const genCode = ({
   secondary,
 }: ad.Graph): ad.Compiled => {
   const stmts = getInputs(graph).map(
-    ({ id, label: { index } }) => `const ${id} = inputs[${index}];`
+    ({ id, label: { key } }) => `const ${id} = inputs[${key}];`
   );
   for (const id of graph.topsort()) {
     const node = graph.node(id);
@@ -939,16 +1051,16 @@ export const genCode = ({
   }
   const fields = [
     // somehow this actually works! if the gradient array is not contiguous, any
-    // gaps will just be filled in by commas when we call join, and that is
-    // valid JavaScript syntax for array literals with gaps, so everything works
-    // out perfectly
+    // holes will just be filled in by commas when we call join, and that is
+    // valid JavaScript syntax for array literals with holes, so everything
+    // works out perfectly
     `gradient: [${gradient.join(", ")}]`,
     `primary: ${primary}`,
     `secondary: [${secondary.join(", ")}]`,
   ];
   stmts.push(`return { ${fields.join(", ")} };`);
-  const f = new Function("inputs", stmts.join("\n"));
-  return (inputs) => f(inputs);
+  const f = new Function("polyRoots", "inputs", stmts.join("\n"));
+  return (inputs) => f(polyRoots, inputs);
 };
 
 // Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)
@@ -998,7 +1110,7 @@ export const energyAndGradCompiled = (
 
   // Synthesize energy and gradient code
   const f0 = genCode(explicitGraph);
-  if (epWeightNode !== undefined && epWeightNode.index !== 0) {
+  if (epWeightNode !== undefined && epWeightNode.key !== 0) {
     throw Error("epWeightNode must be the first input");
   }
   const allInputs =
@@ -1008,7 +1120,7 @@ export const energyAndGradCompiled = (
     const { gradient } = outputs;
     return {
       ...outputs,
-      // fill in any gaps, in case some inputs weren't used in the graph
+      // fill in any holes, in case some inputs weren't used in the graph
       gradient: allInputs.map((v, i) => (i in gradient ? gradient[i] : 0)),
     };
   };

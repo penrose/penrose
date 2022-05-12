@@ -39,9 +39,22 @@ import { LbfgsParams } from "./state";
 
 //#region Types for implicit autodiff graph
 
-export type VarAD = Const | Input | Unary | Binary | Ternary | Nary | Debug;
+export type Expr = Bool | VarAD | Vec;
 
-export type Const = ConstNode;
+export type Bool = Comp | Logic;
+
+// this type name is a relic, doesn't follow our current convention
+export type VarAD =
+  | number
+  | Input
+  | Unary
+  | Binary
+  | Ternary
+  | Nary
+  | Index
+  | Debug;
+
+export type Vec = PolyRoots;
 
 export interface Input extends InputNode {
   // HACK: Historically, every VarAD contained a `val` field which would hold
@@ -81,14 +94,33 @@ export interface Binary extends BinaryNode {
   right: VarAD;
 }
 
+export interface Comp extends CompNode {
+  left: VarAD;
+  right: VarAD;
+}
+
+export interface Logic extends LogicNode {
+  left: Bool;
+  right: Bool;
+}
+
 export interface Ternary extends TernaryNode {
-  cond: VarAD;
+  cond: Bool;
   then: VarAD;
   els: VarAD;
 }
 
 export interface Nary extends NaryNode {
   params: VarAD[];
+}
+
+export interface PolyRoots extends PolyRootsNode {
+  // coefficients of a monic polynomial with degree `coeffs.length`
+  coeffs: VarAD[];
+}
+
+export interface Index extends IndexNode {
+  vec: Vec;
 }
 
 export interface Debug extends DebugNode {
@@ -100,19 +132,21 @@ export interface Debug extends DebugNode {
 //#region Types for explicit autodiff graph
 
 export type Node =
-  | ConstNode
+  | number
   | InputNode
   | UnaryNode
   | BinaryNode
+  | CompNode
+  | LogicNode
   | TernaryNode
   | NaryNode
+  | PolyRootsNode
+  | IndexNode
   | DebugNode;
-
-export type ConstNode = number;
 
 export interface InputNode {
   tag: "Input";
-  index: number;
+  key: number;
 }
 
 export interface UnaryNode {
@@ -151,20 +185,17 @@ export interface UnaryNode {
 
 export interface BinaryNode {
   tag: "Binary";
-  binop:
-    | "+"
-    | "*"
-    | "-"
-    | "/"
-    | "max"
-    | "min"
-    | "atan2"
-    | "pow"
-    | ">"
-    | "<"
-    | "==="
-    | "&&"
-    | "||";
+  binop: "+" | "*" | "-" | "/" | "max" | "min" | "atan2" | "pow";
+}
+
+export interface CompNode {
+  tag: "Comp";
+  binop: ">" | "<" | "===";
+}
+
+export interface LogicNode {
+  tag: "Logic";
+  binop: "&&" | "||";
 }
 
 export interface TernaryNode {
@@ -176,23 +207,46 @@ export interface NaryNode {
   op: "addN" | "maxN" | "minN";
 }
 
+export interface PolyRootsNode {
+  tag: "PolyRoots";
+}
+
+export interface IndexNode {
+  tag: "Index";
+  index: number;
+}
+
 export interface DebugNode {
   tag: "Debug";
   info: string;
 }
 
-export type Edge = UnaryEdge | BinaryEdge | TernaryEdge | NaryEdge | DebugEdge;
+export type Edge =
+  | UnaryEdge
+  | BinaryEdge
+  | CompEdge
+  | LogicEdge
+  | TernaryEdge
+  | NaryEdge
+  | PolyRootsEdge
+  | IndexEdge
+  | DebugEdge;
+
 export type UnaryEdge = undefined;
 export type BinaryEdge = "left" | "right";
+export type CompEdge = BinaryEdge;
+export type LogicEdge = BinaryEdge;
 export type TernaryEdge = "cond" | "then" | "els";
 export type NaryEdge = `${number}`;
-export type DebugEdge = undefined;
+export type PolyRootsEdge = NaryEdge;
+export type IndexEdge = UnaryEdge;
+export type DebugEdge = UnaryEdge;
 
 export type Id = `_${number}`; // subset of valid JavaScript identifiers
 
 export interface Graph extends Outputs<Id> {
   graph: Multidigraph<Id, Node, Edge>; // edges point from children to parents
-  nodes: Map<VarAD, Id>;
+  nodes: Map<Expr, Id>;
 }
 
 //#endregion

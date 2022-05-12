@@ -16,6 +16,7 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import * as _ from "lodash";
+import * as ad from "types/ad";
 import { Pt2, VarAD } from "types/ad";
 
 /**
@@ -38,7 +39,7 @@ export const noIntersectCircles = (
 /**
  * Return true iff `p` is in rect `b`.
  */
-export const pointInBox = (p: Pt2, rect: BBox.BBox): VarAD => {
+export const pointInBox = (p: Pt2, rect: BBox.BBox): ad.Bool => {
   return and(
     and(lt(BBox.minX(rect), p[0]), lt(p[0], BBox.maxX(rect))),
     and(lt(BBox.minY(rect), p[1]), lt(p[1], BBox.maxY(rect)))
@@ -97,10 +98,8 @@ export const overlap1D = (
 /**
  * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
-export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
-  const fals = 0;
-  const tru = 1;
-  return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
+export const inRange = (x: VarAD, l: VarAD, r: VarAD): ad.Bool => {
+  return and(gt(x, l), lt(x, r));
 };
 
 /**
