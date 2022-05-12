@@ -119,7 +119,7 @@ constructor_decl
     }
   %}
 
-prelude -> "value" __ var _ ":" _ type {%
+prelude -> "value" __ var _ ":" _ type_constructor {%
   ([kw, , name, , , , type]): PreludeDecl<C> => ({
     ...nodeData,
     ...rangeBetween(rangeOf(kw), type),

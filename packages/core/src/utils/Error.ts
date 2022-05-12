@@ -2,7 +2,7 @@ import { isConcrete } from "engine/EngineUtils";
 import { shapedefs } from "shapes/Shapes";
 import { Result } from "true-myth";
 import { A, AbstractNode, Identifier, SourceLoc } from "types/ast";
-import { Arg, Prop, Type, TypeConstructor, TypeVar } from "types/domain";
+import { Arg, Type, TypeConstructor } from "types/domain";
 import {
   ArgLengthMismatch,
   CyclicSubtypes,
@@ -11,7 +11,6 @@ import {
   DuplicateName,
   FatalError,
   NaNError,
-  NotTypeConsInPrelude,
   ParseError,
   PenroseError,
   RuntimeError,
@@ -122,17 +121,6 @@ export const showError = (
       return `Subtyping relations in this program form a cycle. Cycles of types are:\n${showCycles(
         error.cycles
       )}`;
-    }
-    case "NotTypeConsInPrelude": {
-      if (error.type.tag === "Prop") {
-        return `Prop (at ${loc(
-          error.type
-        )}) is not a type constructor. Only type constructors are allowed for prelude values.`;
-      } else {
-        return `${error.type.name.value} (at ${loc(
-          error.type
-        )}) is not a type constructor. Only type constructors are allowed in prelude values.`;
-      }
     }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
@@ -399,13 +387,6 @@ const showCycles = (cycles: string[][]) => {
 export const cyclicSubtypes = (cycles: string[][]): CyclicSubtypes => ({
   tag: "CyclicSubtypes",
   cycles,
-});
-
-export const notTypeConsInPrelude = (
-  type: Prop<A> | TypeVar<A>
-): NotTypeConsInPrelude => ({
-  tag: "NotTypeConsInPrelude",
-  type,
 });
 
 // action constructors for error

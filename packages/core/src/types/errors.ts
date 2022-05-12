@@ -1,6 +1,6 @@
 //#region ErrorTypes
 import { A, AbstractNode, Identifier, SourceLoc } from "./ast";
-import { Arg, Prop, TypeConstructor, TypeVar } from "./domain";
+import { Arg, TypeConstructor, TypeVar } from "./domain";
 import { State } from "./state";
 import { BindingForm, Path } from "./style";
 import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
@@ -50,8 +50,7 @@ export type DomainError =
   | TypeVarNotFound
   | TypeNotFound
   | DuplicateName
-  | CyclicSubtypes
-  | NotTypeConsInPrelude;
+  | CyclicSubtypes;
 
 export interface UnexpectedExprForNestedPred {
   tag: "UnexpectedExprForNestedPred";
@@ -63,10 +62,6 @@ export interface UnexpectedExprForNestedPred {
 export interface CyclicSubtypes {
   tag: "CyclicSubtypes";
   cycles: string[][];
-}
-export interface NotTypeConsInPrelude {
-  tag: "NotTypeConsInPrelude";
-  type: Prop<A> | TypeVar<A>;
 }
 
 export interface TypeDeclared {

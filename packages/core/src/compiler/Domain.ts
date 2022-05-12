@@ -33,7 +33,6 @@ import {
   duplicateName,
   err,
   every as everyResult,
-  notTypeConsInPrelude,
   ok,
   parseError,
   Result,
@@ -224,9 +223,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     case "PreludeDecl": {
       const { name, type } = stmt;
       const typeOk = checkType(type, env);
-      // make sure only type cons are involved in the prelude decl
-      if (type.tag !== "TypeConstructor")
-        return err(notTypeConsInPrelude(type));
       const updatedEnv: CheckerResult = ok({
         ...env,
         preludeValues: env.preludeValues.set(name.value, type),

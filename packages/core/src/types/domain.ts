@@ -74,7 +74,7 @@ export type ConstructorDecl<T> = ASTNode<T> & {
 export type PreludeDecl<T> = ASTNode<T> & {
   tag: "PreludeDecl";
   name: Var<T>;
-  type: Type<T>;
+  type: TypeConstructor<T>;
 };
 // TODO: check if string type is enough
 export type NotationDecl<T> = ASTNode<T> & {
