@@ -152,7 +152,7 @@ const processLabelStmt = (
   switch (stmt.tag) {
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
-        const [...ids] = env.vars.keys();
+        const ids = [...env.vars.keys()];
         const newLabels: LabelMap = Map(
           ids.map((id) => [id, { value: id, type: "MathLabel" }])
         );
