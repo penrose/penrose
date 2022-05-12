@@ -33,8 +33,6 @@ import {
   duplicateName,
   err,
   every as everyResult,
-  notTypeConsInPrelude,
-  notTypeConsInSubtype,
   ok,
   parseError,
   Result,
@@ -225,9 +223,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     case "PreludeDecl": {
       const { name, type } = stmt;
       const typeOk = checkType(type, env);
-      // make sure only type cons are involved in the prelude decl
-      if (type.tag !== "TypeConstructor")
-        return err(notTypeConsInPrelude(type));
       const updatedEnv: CheckerResult = ok({
         ...env,
         preludeValues: env.preludeValues.set(name.value, type),
@@ -236,9 +231,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
-      // make sure only type cons are involved in the subtyping relation
-      if (subType.tag !== "TypeConstructor")
-        return err(notTypeConsInSubtype(subType));
       const subOk = checkType(subType, env);
       const updatedEnv = addSubtype(subType, superType, env);
       return everyResult(subOk, updatedEnv);
@@ -298,12 +290,9 @@ const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
 
 const addSubtype = (
   subType: TypeConstructor<C>, // assume already checked
-  superType: Type<C>,
+  superType: TypeConstructor<C>,
   env: Env
 ): CheckerResult => {
-  // make sure only type cons are involved in the subtyping relation
-  if (superType.tag !== "TypeConstructor")
-    return err(notTypeConsInSubtype(superType));
   const superOk = checkType(superType, env);
   const updatedEnv: CheckerResult = ok({
     ...env,
