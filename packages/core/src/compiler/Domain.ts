@@ -144,8 +144,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       const subType: TypeConstructor<C> = {
         tag: "TypeConstructor",
         nodeType: "Substance",
-        start: stmt.start,
-        end: stmt.end,
+        start: name.start,
+        end: name.end,
         name,
         args: [],
       };
