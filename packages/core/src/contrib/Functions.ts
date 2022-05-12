@@ -595,7 +595,7 @@ export const compDict = {
     const path = new PathBuilder();
     const [start, ...tailpts] = pts;
     path.moveTo(start);
-    tailpts.map((pt: Pt2) => path.lineTo(pt));
+    tailpts.forEach((pt: Pt2) => path.lineTo(pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -612,7 +612,7 @@ export const compDict = {
     const [start, cp, second, ...tailpts] = pts;
     path.moveTo(start);
     path.quadraticCurveTo(cp, second);
-    tailpts.map((pt: Pt2) => path.quadraticCurveJoin(pt));
+    tailpts.forEach((pt: Pt2) => path.quadraticCurveJoin(pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -629,7 +629,7 @@ export const compDict = {
     const [start, cp1, cp2, second, ...tailpts] = pts;
     path.moveTo(start);
     path.bezierCurveTo(cp1, cp2, second);
-    _.chunk(tailpts, 2).map(([cp, pt]) => path.cubicCurveJoin(cp, pt));
+    _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
     if (pathType === "closed") path.closePath();
     return path.getPath();
   },
@@ -958,7 +958,7 @@ export const compDict = {
     const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
     const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
 
-    multipliers.map((multiplier) => {
+    multipliers.forEach((multiplier) => {
       const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
       const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
       path.moveTo([sx, sy]).lineTo([ex, ey]);

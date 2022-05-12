@@ -28,7 +28,7 @@ const subPaths = [
 ];
 
 const hasVars = (env: Env, vars: [string, string][]) => {
-  vars.map(([name, type]: [string, string]) => {
+  vars.forEach(([name, type]: [string, string]) => {
     expect(env.vars.has(name)).toBe(true);
     expect(showType(env.vars.get(name)!)).toEqual(type);
   });
@@ -156,7 +156,7 @@ NoLabel D, E
         ["E", "", "NoLabel"],
       ];
       const labelMap = res.value[0].labels;
-      expected.map(([id, value, type]) => {
+      expected.forEach(([id, value, type]) => {
         const label = labelMap.get(id)!;
         expect(label.value).toEqual(value);
         expect(label.type).toEqual(type);
@@ -535,7 +535,7 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  subPaths.map(([domainPath, examplePath]) => {
+  subPaths.forEach(([domainPath, examplePath]) => {
     // a bit hacky, only works with 2-part paths
     const [domPart0, domPart1] = domainPath.split("/");
     const [subPart0, subPart1] = examplePath.split("/");

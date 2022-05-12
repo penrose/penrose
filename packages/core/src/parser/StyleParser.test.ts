@@ -448,7 +448,7 @@ describe("Real Programs", () => {
     fs.mkdirSync(outputDir);
   }
 
-  styPaths.map((examplePath) => {
+  styPaths.forEach((examplePath) => {
     // a bit hacky, only works with 2-part paths
     const [part0, part1] = examplePath.split("/");
     const prog = examples[part0][part1];

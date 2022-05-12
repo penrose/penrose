@@ -2910,9 +2910,9 @@ export const topSortLayering = (
   partialOrderings: [string, string][]
 ): string[] => {
   const layerGraph: Graph = new Graph();
-  allGPINames.map((name: string) => layerGraph.setNode(name));
+  allGPINames.forEach((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.map(([below, above]: [string, string]) =>
+  partialOrderings.forEach(([below, above]: [string, string]) =>
     layerGraph.setEdge(below, above)
   );
 
@@ -2945,7 +2945,7 @@ const pseudoTopsort = (graph: Graph): string[] => {
     else return aIn.length - bIn.length;
   });
   const res: string[] = [];
-  graph.nodes().map((n: string) => toVisit.insert(n));
+  graph.nodes().forEach((n: string) => toVisit.insert(n));
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
     const node: string = toVisit.extractRoot() as string;

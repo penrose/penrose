@@ -315,9 +315,9 @@ const addSubtype = (
 const computeTypeGraph = (env: Env): CheckerResult => {
   const { subTypes, types, typeGraph } = env;
   const [...typeNames] = types.keys();
-  typeNames.map((t: string) => typeGraph.setNode(t, t));
+  typeNames.forEach((t: string) => typeGraph.setNode(t, t));
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
-  subTypes.map(
+  subTypes.forEach(
     ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) =>
       typeGraph.setEdge(subType.name.value, superType.name.value)
   );
