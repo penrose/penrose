@@ -743,6 +743,7 @@ export const resolvePath = (
               varyingMap,
               optDebugInfo
             ) as IVal<VarAD>).contents;
+            insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
@@ -780,6 +781,7 @@ export const resolvePath = (
           );
 
           if (res.tag === "Val") {
+            insertExpr(path, { tag: "Done", contents: res.contents }, trans);
             return res;
           } else if (res.tag === "GPI") {
             throw Error(
