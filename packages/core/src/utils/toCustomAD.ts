@@ -33,7 +33,7 @@ interface Transform {
 
 // jscodeshift tests.ts -t toCustomAD.ts -p -d
 
-export default function (fileInfo: FileInfo, api: API) {
+export default function (fileInfo: FileInfo, api: API): string {
   const j = api.jscodeshift; // DO NOT REMOVE
 
   const KWTYPS: string[] = [
@@ -93,11 +93,6 @@ export default function (fileInfo: FileInfo, api: API) {
   // member expression to id
   const ME2ID = (target: string, node: any): Identifier => {
     node.type = "Identifier";
-    node.name = target;
-    return node;
-  };
-  // identifier to identifier
-  const ID2ID = (target: string, node: any): Identifier => {
     node.name = target;
     return node;
   };

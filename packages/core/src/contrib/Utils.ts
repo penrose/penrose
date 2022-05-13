@@ -120,7 +120,7 @@ const lerp2 = (l: VarAD[], r: VarAD[], k: VarAD): [VarAD, VarAD] => {
 /**
  * Sample a line `line` at `NUM_SAMPLES` points uniformly.
  */
-export const sampleSeg = (line: VarAD[][]) => {
+export const sampleSeg = (line: VarAD[][]): Pt2[] => {
   const NUM_SAMPLES = 15;
   const NUM_SAMPLES2 = 1 + NUM_SAMPLES;
   // TODO: Check that this covers the whole line, i.e. no off-by-one error
@@ -135,7 +135,7 @@ export const sampleSeg = (line: VarAD[][]) => {
 /**
  * Repel a vector `a` from a vector `b` with weight `c`.
  */
-export const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]) =>
+export const repelPoint = (c: VarAD, a: VarAD[], b: VarAD[]): VarAD =>
   div(c, add(ops.vdistsq(a, b), EPS_DENOM));
 
 /**

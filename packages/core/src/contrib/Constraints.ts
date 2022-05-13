@@ -94,7 +94,7 @@ const constrDictSimple = {
   /**
    * Make scalar `c` disjoint from a range `left, right`.
    */
-  disjointScalar: (c: any, left: any, right: any) => {
+  disjointScalar: (c: VarAD, left: VarAD, right: VarAD) => {
     const d = (x: VarAD, y: VarAD) => absVal(sub(x, y));
 
     // if (x \in [l, r]) then min(d(x,l), d(x,r)) else 0

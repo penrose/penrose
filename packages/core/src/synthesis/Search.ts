@@ -5,7 +5,6 @@ import {
   intersection,
   mergeKindMaps,
   nodesEqual,
-  progsEqual,
   sortStmts,
   subProg,
 } from "analysis/SubstanceAnalysis";
@@ -43,7 +42,6 @@ import {
 
 //#region Fine-grained diffs
 
-type Edit = Mutation;
 type DiffType = AbstractNode["tag"];
 
 export interface StmtDiff {
@@ -318,10 +316,6 @@ export const rawToStmtDiff = (
 ): StmtDiff => {
   const { path } = diff;
   const originalValue = get(source, path);
-  const stmtDiff = {
-    ...diff,
-    path,
-  };
   return {
     diff,
     stmt: source,
@@ -407,8 +401,7 @@ export const swapDiffID = (d: StmtDiff, id: Identifier<A>): StmtDiff => {
  */
 export const applyStmtDiffs = (
   prog: SubProg<A>,
-  diffs: StmtDiff[],
-  generalize?: (originalDiff: StmtDiff) => StmtDiff
+  diffs: StmtDiff[]
 ): SubProg<A> => ({
   ...prog,
   statements: prog.statements.map((stmt: SubStmt<A>) =>
@@ -598,60 +591,6 @@ export const enumerateMutationPaths = (
     currentDepth++;
   }
   return matchedCandidates;
-};
-
-/**
- *  recursive version that has performance issues
- * call `_enumerateAllProgPathsHelper(srcProg, destProg, cxt, [], 0, maxDepth);` to use
- * @deprecated
- */
-const _enumerateAllProgPathsHelper = (
-  srcProg: SubProg<A>,
-  destProg: SubProg<A>,
-  cxt: SynthesisContext,
-  mutationPath: MutationGroup,
-  depth: number,
-  maxDepth: number
-): [SubProg<A>, MutationGroup][] => {
-  // if depth limit is up or we already reached the resulting program, return
-  if (depth > maxDepth) {
-    return [];
-  } else if (progsEqual(srcProg, destProg)) {
-    return [[destProg, mutationPath]];
-  } else {
-    // find all mutations for each statement
-    const possibleMutations: Mutation[] = enumerateProgMutations(srcProg, cxt);
-    // execute all of them and find the next
-    const resultProgs: [
-      WithContext<SubProg<A>>,
-      Mutation
-    ][] = possibleMutations.map((m) => [executeMutation(m, srcProg, cxt), m]);
-    // "Observational equivalence": removing all mutations that lead to the same expression
-    // TODO: this doesn't work because the other candidates are out of scope
-    // const uniqueProgs: [WithContext<SubProg>, Mutation][] = uniqBy(
-    //   resultProgs,
-    //   ([p, m]) => prettySubstance(p.res)
-    // );
-
-    // recurse and find the next mutations
-    // ][] = uniqueProgs
-    const nextPaths: [
-      SubProg<A>,
-      MutationGroup
-    ][] = resultProgs
-      .map(([{ res: p, ctx }, m]: [WithContext<SubProg<A>>, Mutation]) =>
-        _enumerateAllProgPathsHelper(
-          p,
-          destProg,
-          ctx,
-          [...mutationPath, m],
-          depth + 1,
-          maxDepth
-        )
-      )
-      .flat(); // NOTE: the `flat` will effectively trim all failed paths
-    return nextPaths;
-  }
 };
 
 //#endregion

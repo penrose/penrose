@@ -188,9 +188,9 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   switch (v.tag) {
     case "RGBA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "HSVA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "NONE":
       return { tag: v.tag };
   }
@@ -908,7 +908,9 @@ export const insertExprs = (
   return tr2;
 };
 
-export const isTagExpr = (e: any): e is TagExpr<VarAD> => {
+export const isTagExpr = (
+  e: TagExpr<VarAD> | StyleError
+): e is TagExpr<VarAD> => {
   return e.tag === "OptEval" || e.tag === "Done" || e.tag === "Pending";
 };
 

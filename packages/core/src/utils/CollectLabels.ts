@@ -13,7 +13,7 @@ import { err, ok, Result } from "./Error";
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
 const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor as any);
+RegisterHTMLHandler(adaptor);
 const tex = new TeX({
   packages: AllPackages,
   macros: {

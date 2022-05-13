@@ -11,7 +11,6 @@ import {
   stmtExists,
 } from "analysis/SubstanceAnalysis";
 import { prettyStmt, prettySubNode } from "compiler/Substance";
-import consola, { LogLevel } from "consola";
 import { dummyIdentifier } from "engine/EngineUtils";
 import { range, without } from "lodash";
 import { A, Identifier } from "types/ast";
@@ -33,10 +32,6 @@ import {
   SynthesisContext,
   WithContext,
 } from "./Synthesizer";
-
-const log = consola
-  .create({ level: LogLevel.Info })
-  .withScope("Substance mutation");
 
 //#region Mutation types
 
@@ -511,7 +506,7 @@ export const checkDeleteStmt = (
 };
 
 const changeType = (
-  { stmt, newStmt, additionalMutations }: ChangeStmtType | ChangeExprType,
+  { newStmt, additionalMutations }: ChangeStmtType | ChangeExprType,
   prog: SubProg<A>,
   ctx: SynthesisContext
 ) => {
