@@ -18,12 +18,13 @@ const toPathString = (
       }
       const pathStr = flatten(
         contents.map((c: ISubPath<number>) => {
-          if (c.tag === "CoordV")
-            return toScreen(c.contents as [number, number], canvasSize);
-          else if (c.tag === "ValueV") return c.contents;
-          else {
-            console.error("WARNING: improperly formed pathData");
-            return;
+          switch (c.tag) {
+            case "CoordV": {
+              return toScreen(c.contents as [number, number], canvasSize);
+            }
+            case "ValueV": {
+              return c.contents;
+            }
           }
         })
       ).join(" ");

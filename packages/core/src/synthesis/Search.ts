@@ -262,10 +262,8 @@ export const updateDiffs = (mappings: SimilarMapping[]): UpdateDiff[] => {
   const diffs = [];
   for (const m of mappings) {
     const diff = toUpdateDiff(picked, m);
-    if (diff) {
-      diffs.push(diff);
-      picked.push(diff.result);
-    }
+    diffs.push(diff);
+    picked.push(diff.result);
   }
   return diffs;
 };
@@ -273,9 +271,8 @@ export const updateDiffs = (mappings: SimilarMapping[]): UpdateDiff[] => {
 const toUpdateDiff = (
   picked: SubStmt<A>[],
   { similarStmts, source }: SimilarMapping
-): UpdateDiff | undefined => {
+): UpdateDiff => {
   const result = difference(similarStmts, picked)[0]; // TODO: insert ranking algorithm here
-  if (result === undefined) return undefined;
   const rawDiffs = getDiff(cleanNode(source), cleanNode(result));
   return {
     diffType: "Update",

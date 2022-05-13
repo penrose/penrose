@@ -94,14 +94,12 @@ export const retrieveLabel = (
   shapeName: string,
   labels: LabelCache
 ): LabelData | undefined => {
-  if (labels) {
-    const res = labels.find(([name]) => name === shapeName);
-    if (res) {
-      return res[1];
-    } else {
-      return undefined;
-    }
-  } else return undefined;
+  const res = labels.find(([name]) => name === shapeName);
+  if (res) {
+    return res[1];
+  } else {
+    return undefined;
+  }
 };
 
 const floatV = (contents: number): IFloatV<number> => ({

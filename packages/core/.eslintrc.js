@@ -34,6 +34,11 @@ module.exports = {
     "eslint-plugin-import",
   ],
   rules: {
+    "@typescript-eslint/no-base-to-string": 1,
+    "@typescript-eslint/no-confusing-void-expression": 2,
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": 2,
+    "@typescript-eslint/no-unnecessary-condition": 1,
+    "@typescript-eslint/prefer-ts-expect-error": 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,
   },

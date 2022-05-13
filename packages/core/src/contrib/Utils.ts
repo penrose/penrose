@@ -150,16 +150,12 @@ export const centerArrow2 = (
   const vec = ops.vsub(center2, center1); // direction the arrow should point to
   const dir = ops.vnormalize(vec);
 
-  let start = center1;
-  let end = center2;
+  // TODO: add abs; also, unless `gt(ops.vnorm(vec), add(o1, absVal(o2)))`,
+  // should just set `start` to `center1` and `end` to `center2`
+  const start = ops.vadd(center1, ops.vmul(o1, dir));
+  const end = ops.vadd(center2, ops.vmul(o2, dir));
 
   // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
-
-  // TODO: add abs
-  if (gt(ops.vnorm(vec), add(o1, absVal(o2)))) {
-    start = ops.vadd(center1, ops.vmul(o1, dir));
-    end = ops.vadd(center2, ops.vmul(o2, dir));
-  }
 
   const fromPt = arr.start.contents;
   const toPt = arr.end.contents;
