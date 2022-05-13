@@ -216,9 +216,8 @@ export const getSignature = (decl: ArgStmtDecl<A>): Signature => {
     });
   }
   // see if there is an output field:
-  const d = decl as ConstructorDecl<A>;
-  if (d.output && d.output.type.tag === "TypeConstructor") {
-    outType = d.output.type.name.value;
+  if ("output" in decl && decl.output.type.tag === "TypeConstructor") {
+    outType = decl.output.type.name.value;
   }
   return {
     args: argTypes,
@@ -343,8 +342,7 @@ export const printStmts = (
   stmts: PredicateDecl<A>[] | ConstructorDecl<A>[] | FunctionDecl<A>[]
 ): void => {
   let outStr = "";
-  const s = stmts as PredicateDecl<A>[];
-  s.forEach((stmt) => {
+  stmts.forEach((stmt) => {
     outStr += stmt.name.value + " ";
   });
   console.log(`[${outStr}]`);

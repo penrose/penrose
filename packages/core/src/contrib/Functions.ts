@@ -130,7 +130,7 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: optDebugInfo.gradient.get(varName) as number,
+        contents: optDebugInfo.gradient.get(varName)!,
       };
     }
 
@@ -169,7 +169,7 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: optDebugInfo.gradientPreconditioned.get(varName) as number,
+        contents: optDebugInfo.gradientPreconditioned.get(varName)!,
       };
     }
 
@@ -991,7 +991,7 @@ export const compDict = {
         .closePath()
         .getPath();
     } else {
-      throw Error("orientedSquare undefined for types ${t1}, ${t2}");
+      throw Error(`orientedSquare undefined for types ${t1}, ${t2}`);
     }
   },
 
@@ -1469,7 +1469,6 @@ export const compDict = {
 // _compDictVals causes TypeScript to enforce that every function in compDict
 // takes a Context as its first parameter
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _compDictVals: ((
   context: Context,
   ...rest: never[]
@@ -1543,7 +1542,7 @@ const tickPlacement = (
   for (let i = 1; i < numPts; i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
-      i % 2 == 0
+      i % 2 === 0
         ? mul(padding, mul(neg(i), multiplier))
         : mul(padding, mul(i, multiplier));
     pts.push(add(pts[i - 1], shift));

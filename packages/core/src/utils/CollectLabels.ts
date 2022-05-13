@@ -13,7 +13,7 @@ import { err, ok, Result } from "./Error";
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
 const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor as any);
+RegisterHTMLHandler(adaptor);
 const tex = new TeX({
   packages: AllPackages,
   macros: {
@@ -49,7 +49,7 @@ const convert = (
     // Not sure if this call does anything:
     // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
     adaptor.setStyle(node, "font-size", fontSize);
-    return ok(node.firstChild as HTMLElement);
+    return ok(node.firstChild);
   } catch (error: any) {
     return err(error.message);
   }
@@ -72,7 +72,7 @@ const tex2svg = async (
   new Promise((resolve) => {
     const output = convert(contents, fontSize);
     if (output.isErr()) {
-      resolve(err(`MathJax could not render \$${contents}\$: ${output.error}`));
+      resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
     }
     const body = output.value;
@@ -231,6 +231,9 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
+const measureTextElement = document.createElement("canvas");
+const measureTextContext = measureTextElement.getContext("2d")!;
+
 /**
  *
  * @param text the content of the text
@@ -240,9 +243,9 @@ export type TextMeasurement = {
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
 export function measureText(text: string, font: string): TextMeasurement {
-  measureText.context.textBaseline = "alphabetic";
-  measureText.context.font = font;
-  const measurements = measureText.context.measureText(text);
+  measureTextContext.textBaseline = "alphabetic";
+  measureTextContext.font = font;
+  const measurements = measureTextContext.measureText(text);
   return {
     width:
       Math.abs(measurements.actualBoundingBoxLeft) +
@@ -253,13 +256,6 @@ export function measureText(text: string, font: string): TextMeasurement {
     actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
     actualAscent: Math.abs(measurements.actualBoundingBoxAscent),
   };
-}
-// static variable
-// eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace measureText {
-  export const element = document.createElement("canvas");
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  export const context = element.getContext("2d")!;
 }
 
 //#endregion

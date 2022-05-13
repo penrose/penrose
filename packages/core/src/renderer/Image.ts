@@ -27,7 +27,7 @@ const Image = async ({
   attrToNotAutoMap.push("href");
   elem.innerHTML = rawSVG;
   // We assume the first svg element in the file is the one to display
-  const svg = elem.querySelector("svg") as SVGSVGElement;
+  const svg = elem.querySelector("svg")!;
   const defs = svg.getElementsByTagName("defs");
   /**
    * HACK:

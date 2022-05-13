@@ -153,10 +153,10 @@ export const yRange = (b: BBox): [VarAD, VarAD] => {
  */
 export const edges = (b: BBox): Edges => {
   return {
-    top: <[Pt2, Pt2]>[corners(b).topLeft, corners(b).topRight],
-    bot: <[Pt2, Pt2]>[corners(b).bottomLeft, corners(b).bottomRight],
-    left: <[Pt2, Pt2]>[corners(b).bottomLeft, corners(b).topLeft],
-    right: <[Pt2, Pt2]>[corners(b).bottomRight, corners(b).topRight],
+    top: [corners(b).topLeft, corners(b).topRight],
+    bot: [corners(b).bottomLeft, corners(b).bottomRight],
+    left: [corners(b).bottomLeft, corners(b).topLeft],
+    right: [corners(b).bottomRight, corners(b).topRight],
   };
 };
 
