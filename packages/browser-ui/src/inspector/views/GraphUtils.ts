@@ -33,12 +33,14 @@ const labelNode = (node: Node): string => {
   }
   switch (node.tag) {
     case "Input": {
-      return `x${node.index}`;
+      return `x${node.key}`;
     }
     case "Unary": {
       return node.unop;
     }
-    case "Binary": {
+    case "Binary":
+    case "Comp":
+    case "Logic": {
       return node.binop;
     }
     case "Ternary": {
@@ -46,6 +48,12 @@ const labelNode = (node: Node): string => {
     }
     case "Nary": {
       return node.op;
+    }
+    case "PolyRoots": {
+      return "polyRoots";
+    }
+    case "Index": {
+      return `[${node.index}]`;
     }
     case "Debug": {
       return JSON.stringify(node.info);
