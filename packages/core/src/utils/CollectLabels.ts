@@ -233,6 +233,9 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
+const measureTextElement = document.createElement("canvas");
+const measureTextContext = measureTextElement.getContext("2d")!;
+
 /**
  *
  * @param text the content of the text
@@ -242,9 +245,9 @@ export type TextMeasurement = {
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
 export function measureText(text: string, font: string): TextMeasurement {
-  measureText.context.textBaseline = "alphabetic";
-  measureText.context.font = font;
-  const measurements = measureText.context.measureText(text);
+  measureTextContext.textBaseline = "alphabetic";
+  measureTextContext.font = font;
+  const measurements = measureTextContext.measureText(text);
   return {
     width:
       Math.abs(measurements.actualBoundingBoxLeft) +
@@ -255,13 +258,6 @@ export function measureText(text: string, font: string): TextMeasurement {
     actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
     actualAscent: Math.abs(measurements.actualBoundingBoxAscent),
   };
-}
-// static variable
-// eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace measureText {
-  export const element = document.createElement("canvas");
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  export const context = element.getContext("2d")!;
 }
 
 //#endregion

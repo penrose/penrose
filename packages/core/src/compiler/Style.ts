@@ -636,11 +636,8 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rels: RelationPattern<A>[],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stmt: SubStmt<A>
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
@@ -1979,7 +1976,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleResults => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
@@ -2173,7 +2169,6 @@ const translateStyProg = (
   subProg: SubProg<A>,
   styProg: StyProg<A>,
   labelMap: LabelMap,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
@@ -2558,13 +2553,9 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: Field,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fexpr: FieldExpr<VarAD>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FGPI") {
@@ -2904,7 +2895,6 @@ const findLayeringExprs = (tr: Translation): ILayering<A>[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lookupGPIName = (p: Path<A>, tr: Translation): string => {
   if (p.tag === "FieldPath") {
     // COMBAK: Deal with path synonyms / aliases by looking them up?
