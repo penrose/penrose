@@ -928,7 +928,7 @@ const generateArg = (
           };
         }
       }
-      case "generated":
+      case "generated": {
         const argTypeDecl = ctx.env.types.get(argType.name.value);
         if (argTypeDecl) {
           const { res: decl, ctx: newCtx } = generateDecl(argTypeDecl, ctx);
@@ -943,6 +943,7 @@ const generateArg = (
             `${argType.name.value} not found in the candidate list`
           );
         }
+      }
       case "mixed":
         return generateArg(
           arg,
