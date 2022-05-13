@@ -41,9 +41,11 @@ module.exports = {
       { assertionStyle: "never" },
     ],
     "@typescript-eslint/non-nullable-type-assertion-style": 2,
+    eqeqeq: 2,
     "eslint-comments/no-use": 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,
+    "no-template-curly-in-string": 2,
   },
   ignorePatterns: [
     "**/*.test.ts",
