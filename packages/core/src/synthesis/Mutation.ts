@@ -21,8 +21,6 @@ import {
   ApplyPredicate,
   Bind,
   Func,
-  SubExpr,
-  SubPredArg,
   SubProg,
   SubStmt,
 } from "types/substance";
@@ -331,7 +329,7 @@ export const checkSwapExprArgs = (
             expr: {
               ...expr,
               args: swap(expr.args, elem1, elem2),
-            } as SubExpr<A>, // TODO: fix types to avoid casting
+            },
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },
@@ -372,7 +370,7 @@ export const checkSwapInStmtArgs = (
           const newStmt: SubStmt<A> = {
             ...stmt,
             args: stmt.args.map((arg, idx) => {
-              return (idx === elem ? swap : arg) as SubPredArg<A>;
+              return idx === elem ? swap : arg;
             }),
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
@@ -426,7 +424,7 @@ export const checkSwapInExprArgs = (
               expr: {
                 ...expr,
                 args: expr.args.map((arg, idx) => {
-                  return (idx === elem ? swap : arg) as SubExpr<A>;
+                  return idx === elem ? swap : arg;
                 }),
               },
             };
@@ -642,7 +640,7 @@ export const enumSwapExprArgs = (stmt: SubStmt<A>): SwapExprArgs[] => {
             expr: {
               ...expr,
               args: swap(expr.args, elem1, elem2),
-            } as SubExpr<A>, // TODO: fix types to avoid casting
+            },
           };
           return withCtx(replaceStmt(prog, stmt, newStmt), ctx);
         },

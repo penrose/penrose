@@ -22,7 +22,6 @@ import {
   IFGPI,
   IFloatV,
   IIntV,
-  ILListV,
   IVal,
   IVectorV,
   TagExpr,
@@ -411,7 +410,7 @@ export const evalExpr = (
           tag: "Val",
           contents: {
             tag: "ListV",
-            contents: [] as VarAD[],
+            contents: [],
           },
         };
       }
@@ -433,7 +432,7 @@ export const evalExpr = (
             contents: {
               tag: "LListV", // NOTE: The type has changed from ListV to LListV! That's because ListV's `T` is "not parametric enough" to represent a list of elements
               contents: argVals.map(toVecVal),
-            } as ILListV<VarAD>,
+            },
           };
         } else {
           throw Error("unknown tag");
@@ -634,7 +633,7 @@ export const evalExpr = (
           tag: "Val",
           contents: compDict[fnName](
             { rng },
-            optDebugInfo as OptDebugInfo,
+            optDebugInfo!,
             prettyPrintPath(p) // COMBAK: Test that derivatives still work
           ),
         };
@@ -743,10 +742,9 @@ export const resolvePath = (
             // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const propertyPathExpr = propertyPath as Path<A>;
             const val: Value<VarAD> = (evalExpr(
               rng,
-              propertyPathExpr,
+              propertyPath,
               trans,
               varyingMap,
               optDebugInfo
@@ -915,7 +913,7 @@ export const evalBinOp = (
 
     return { tag: "IntV", contents: res };
   } else if (v1.tag === "VectorV" && v2.tag === "VectorV") {
-    let res;
+    let res: VarAD[] | undefined;
 
     switch (op) {
       case "BPlus": {
@@ -929,9 +927,9 @@ export const evalBinOp = (
       }
     }
 
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "FloatV" && v2.tag === "VectorV") {
-    let res;
+    let res: VarAD[] | undefined;
 
     switch (op) {
       case "Multiply": {
@@ -939,9 +937,9 @@ export const evalBinOp = (
         break;
       }
     }
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "VectorV" && v2.tag === "FloatV") {
-    let res;
+    let res: VarAD[] | undefined;
 
     switch (op) {
       case "Divide": {
@@ -955,7 +953,7 @@ export const evalBinOp = (
       }
     }
 
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "StrV" && v2.tag === "StrV") {
     switch (op) {
       case "BPlus":

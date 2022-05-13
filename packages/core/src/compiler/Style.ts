@@ -170,12 +170,12 @@ export function numbered<A>(xs: A[]): [A, number][] {
 // TODO move to util
 
 export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  if ((val as Left<A>).tag === "Left") return true;
+  if (val.tag === "Left") return true;
   return false;
 }
 
 export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  if ((val as Right<B>).tag === "Right") return true;
+  if (val.tag === "Right") return true;
   return false;
 }
 
@@ -1676,7 +1676,12 @@ const deleteProperty = (
             // TODO(error)
             return addWarn(trans, {
               tag: "CircularPathAlias",
-              path: { tag: "FieldPath", name, field } as Path<A>,
+              path: {
+                tag: "FieldPath",
+                nodeType: "SyntheticStyle",
+                name,
+                field,
+              },
             });
           }
           return deleteProperty(trans, p, p.name, p.field, property);
@@ -2467,7 +2472,8 @@ const findGPIName = (
 ): [string, Field][] => {
   switch (fexpr.tag) {
     case "FGPI": {
-      return ([[name, field]] as [string, Field][]).concat(acc);
+      const head: [string, Field] = [name, field];
+      return [head].concat(acc);
     }
     case "FExpr": {
       return acc;
@@ -2490,9 +2496,11 @@ const findShapeProperties = (
   switch (fexpr.tag) {
     case "FGPI": {
       const properties = fexpr.contents[1];
-      const paths = Object.keys(properties).map(
-        (property) => [name, field, property] as [string, Field, Property]
-      );
+      const paths = Object.keys(properties).map((property): [
+        string,
+        Field,
+        Property
+      ] => [name, field, property]);
       return paths.concat(acc);
     }
     case "FExpr": {
@@ -2593,10 +2601,16 @@ const toFns = ([objfns, constrfns]: [StyleOptFn[], StyleOptFn[]]): [
 
 // COMBAK: Move this to utils
 function partitionEithers<A, B>(es: Either<A, B>[]): [A[], B[]] {
-  return [
-    es.filter((e) => e.tag === "Left").map((e) => e.contents as A),
-    es.filter((e) => e.tag === "Right").map((e) => e.contents as B),
-  ];
+  const a: A[] = [];
+  const b: B[] = [];
+  for (const e of es) {
+    if (e.tag === "Left") {
+      a.push(e.contents);
+    } else {
+      b.push(e.contents);
+    }
+  }
+  return [a, b];
 }
 
 const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
@@ -3102,7 +3116,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
   try {
     const { results } = parser.feed(p).feed("\n");
     if (results.length > 0) {
-      const ast: StyProg<C> = results[0] as StyProg<C>;
+      const ast: StyProg<C> = results[0];
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));

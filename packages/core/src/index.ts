@@ -150,7 +150,7 @@ export const interactiveDiagram = async (
       updateData,
       pathResolver
     );
-    node.replaceChild(rendering, node.firstChild as Node);
+    node.replaceChild(rendering, node.firstChild!);
   };
   const res = compileTrio(prog);
   if (res.isOk()) {

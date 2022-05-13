@@ -36,6 +36,11 @@ module.exports = {
     "eslint-plugin-import",
   ],
   rules: {
+    "@typescript-eslint/consistent-type-assertions": [
+      1,
+      { assertionStyle: "never" },
+    ],
+    "@typescript-eslint/non-nullable-type-assertion-style": 2,
     "eslint-comments/no-use": 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,

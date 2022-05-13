@@ -49,7 +49,7 @@ export const parseDomain = (
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
     if (results.length > 0) {
-      const ast: DomainProg<C> = results[0] as DomainProg<C>;
+      const ast: DomainProg<C> = results[0];
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));

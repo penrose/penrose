@@ -13,7 +13,7 @@ import { err, ok, Result } from "./Error";
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 // const adaptor = chooseAdaptor();
 const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor as any);
+RegisterHTMLHandler(adaptor);
 const tex = new TeX({
   packages: AllPackages,
   macros: {
@@ -49,7 +49,7 @@ const convert = (
     // Not sure if this call does anything:
     // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
     adaptor.setStyle(node, "font-size", fontSize);
-    return ok(node.firstChild as HTMLElement);
+    return ok(node.firstChild);
   } catch (error: any) {
     return err(error.message);
   }

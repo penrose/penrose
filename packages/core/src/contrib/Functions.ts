@@ -130,7 +130,7 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: optDebugInfo.gradient.get(varName) as number,
+        contents: optDebugInfo.gradient.get(varName)!,
       };
     }
 
@@ -169,7 +169,7 @@ export const compDict = {
       return {
         tag: "FloatV",
         // TODO: Improve error if varName is not in map
-        contents: optDebugInfo.gradientPreconditioned.get(varName) as number,
+        contents: optDebugInfo.gradientPreconditioned.get(varName)!,
       };
     }
 

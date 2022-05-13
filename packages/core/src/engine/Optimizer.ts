@@ -849,7 +849,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     const translation = insertVaryings(translationInit, varyingMapList);
 
     // construct a new varying map
-    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+    const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(rng, objFns, translation, varyingMap);
@@ -967,7 +967,7 @@ const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
     const translationInit = clone(makeTranslationNumeric(s.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     const translation = insertVaryings(translationInit, varyingMapList);
-    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+    const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
     const fnArgsEvaled: FnDone<VarAD> = evalFn(

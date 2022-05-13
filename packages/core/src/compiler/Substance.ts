@@ -63,7 +63,7 @@ export const parseSubstance = (
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
     if (results.length > 0) {
-      const ast: SubProg<C> = results[0] as SubProg<C>;
+      const ast: SubProg<C> = results[0];
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));
@@ -231,6 +231,7 @@ export const checkSubstance = (
 ): CheckerResult<SubProg<A>> => {
   const { statements } = prog;
   // check all statements
+  const contents: SubStmt<A>[] = [];
   const stmtsOk: CheckerResult<SubStmt<A>[]> = safeChain(
     statements,
     (stmt, { env, contents: stmts }) =>
@@ -239,7 +240,7 @@ export const checkSubstance = (
           ok({ env, contents: [...stmts, checkedStmt] }),
         checkStmt(stmt, env)
       ),
-    ok({ env, contents: [] as SubStmt<A>[] })
+    ok({ env, contents })
   );
   return andThen(
     ({ env, contents }) =>
@@ -347,6 +348,7 @@ export const checkPredicate = (
     // initialize substitution environment
     const substEnv: SubstitutionEnv = Map<string, TypeConsApp<C>>();
     const argPairs = zip2(args, predDecl.args);
+    const contents: SubPredArg<A>[] = [];
     const argsOk: SubstitutionResult<SubPredArg<A>[]> = safeChain(
       argPairs,
       ([expr, arg], { substEnv: cxt, env: e, contents: args }) =>
@@ -354,7 +356,7 @@ export const checkPredicate = (
           (res) => ok({ ...res, contents: [...args, res.contents] }),
           checkPredArg(expr, arg, cxt, e)
         ),
-      ok({ substEnv, env, contents: [] as SubPredArg<A>[] })
+      ok({ substEnv, env, contents })
     );
     // NOTE: throw away the substitution because this layer above doesn't need to typecheck
     return andThen(
