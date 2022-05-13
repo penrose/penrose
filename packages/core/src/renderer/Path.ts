@@ -17,7 +17,9 @@ const toPathString = (
         return "";
       }
       const pathStr = flatten(
-        contents.map((c: ISubPath<number>) => {
+        // the `number[]` type annotation is necessary to ensure that a compile
+        // error occurs here if more `ISubPath` subtypes are added in the future
+        contents.map((c: ISubPath<number>): number[] => {
           switch (c.tag) {
             case "CoordV": {
               return toScreen(c.contents as [number, number], canvasSize);
