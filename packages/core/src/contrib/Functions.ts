@@ -991,7 +991,7 @@ export const compDict = {
         .closePath()
         .getPath();
     } else {
-      throw Error("orientedSquare undefined for types ${t1}, ${t2}");
+      throw Error(`orientedSquare undefined for types ${t1}, ${t2}`);
     }
   },
 
@@ -1543,7 +1543,7 @@ const tickPlacement = (
   for (let i = 1; i < numPts; i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
-      i % 2 == 0
+      i % 2 === 0
         ? mul(padding, mul(neg(i), multiplier))
         : mul(padding, mul(i, multiplier));
     pts.push(add(pts[i - 1], shift));

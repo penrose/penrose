@@ -15,7 +15,7 @@ import { OptDebugInfo, VarAD } from "types/ad";
 import { A, SourceLoc } from "types/ast";
 import { ShapeAD } from "types/shape";
 import { Fn, FnDone, State, VaryMap } from "types/state";
-import { BinaryOp, Expr, IPropertyPath, Path, UnaryOp } from "types/style";
+import { BinaryOp, Expr, IPropertyPath, Path } from "types/style";
 import {
   ArgVal,
   GPI,
@@ -977,26 +977,19 @@ export const evalBinOp = (
  * @param arg the argument, must be float or int
  */
 export const evalUOp = (
-  op: UnaryOp,
+  op: "UMinus", // this line will cause a type error if the UnaryOp type changes
   arg: IFloatV<VarAD> | IIntV | IVectorV<VarAD>
 ): Value<VarAD> => {
-  if (arg.tag === "FloatV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: neg(arg.contents) };
+  switch (arg.tag) {
+    case "FloatV": {
+      return { ...arg, contents: neg(arg.contents) };
     }
-  } else if (arg.tag === "IntV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: -arg.contents };
+    case "IntV": {
+      return { ...arg, contents: -arg.contents };
     }
-  } else if (arg.tag === "VectorV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: ops.vneg(arg.contents) };
+    case "VectorV": {
+      return { ...arg, contents: ops.vneg(arg.contents) };
     }
-  } else {
-    throw Error("unary op undefined on type ${arg.tag}, op ${op}");
   }
 };
 

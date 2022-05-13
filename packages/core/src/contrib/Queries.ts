@@ -30,7 +30,7 @@ export const shapeCenter = ([t, s]: [string, any]): Pt2 => {
  * - `sqrt( w * h )`, where `w` and `h` are the width and height of the bounding box, for all other shapes.
  */
 export const shapeSize = ([t, s]: [string, any]): VarAD => {
-  if (t == "Circle") {
+  if (t === "Circle") {
     return mul(2, s.r.contents);
   } else {
     const bbox = bboxFromShape([t, s]);
@@ -42,7 +42,7 @@ export const shapeSize = ([t, s]: [string, any]): VarAD => {
  * Return vertices of polygon-like shapes.
  */
 export const polygonLikePoints = ([t, s]: [string, any]): Pt2[] => {
-  if (t == "Polygon") return s.points.contents;
+  if (t === "Polygon") return s.points.contents;
   else if (shapedefs[t].isLinelike) return [s.start.contents, s.end.contents];
   else if (shapedefs[t].isRectlike) {
     // TODO: add support for rotated rectangles

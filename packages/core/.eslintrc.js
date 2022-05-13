@@ -34,8 +34,10 @@ module.exports = {
     "eslint-plugin-import",
   ],
   rules: {
+    eqeqeq: 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,
+    "no-template-curly-in-string": 2,
   },
   ignorePatterns: [
     "**/*.test.ts",
