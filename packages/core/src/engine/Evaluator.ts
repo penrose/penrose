@@ -12,7 +12,7 @@ import { mapValues } from "lodash";
 import rfdc from "rfdc";
 import seedrandom from "seedrandom";
 import { OptDebugInfo, VarAD } from "types/ad";
-import { A, SourceLoc } from "types/ast";
+import { A } from "types/ast";
 import { ShapeAD } from "types/shape";
 import { Fn, FnDone, State, VaryMap } from "types/state";
 import { BinaryOp, Expr, IPropertyPath, Path } from "types/style";
@@ -42,11 +42,6 @@ const log = consola.create({ level: LogLevel.Warn }).withScope("Evaluator");
  * NOTE: possible eval optimization:
  * - Analyze the comp graph first and mark all non-varying props or fields (including those that don't depend on varying vals) permanantly "Done".
  */
-
-// COMBAK: Import the dummy functions from Style -> EngineUtils
-const dummySourceLoc = (): SourceLoc => {
-  return { line: -1, col: -1 };
-};
 
 /**
  * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
@@ -86,10 +81,7 @@ export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
-  const [shapesEvaled, transEvaled]: [
-    ShapeAD[],
-    Translation
-  ] = shapeExprs.reduce(
+  const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
     ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
       evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]
@@ -751,11 +743,7 @@ export const resolvePath = (
               varyingMap,
               optDebugInfo
             ) as IVal<VarAD>).contents;
-            const transNew = insertExpr(
-              propertyPath,
-              { tag: "Done", contents: val },
-              trans
-            );
+            insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
             return val;
           } else {
             // Look up in varyingMap to see if there is a fresh value
@@ -793,11 +781,7 @@ export const resolvePath = (
           );
 
           if (res.tag === "Val") {
-            const transNew = insertExpr(
-              path,
-              { tag: "Done", contents: res.contents },
-              trans
-            );
+            insertExpr(path, { tag: "Done", contents: res.contents }, trans);
             return res;
           } else if (res.tag === "GPI") {
             throw Error(
@@ -883,7 +867,6 @@ export const evalBinOp = (
 
     return { tag: "FloatV", contents: res };
   } else if (v1.tag === "IntV" && v2.tag === "IntV") {
-    const returnType = "IntV";
     let res;
 
     switch (op) {
