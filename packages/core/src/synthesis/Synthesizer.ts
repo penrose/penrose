@@ -695,7 +695,9 @@ export class Synthesizer {
         possibleOps = del ? [del] : [];
       }
     }
-    log.debug(`Found mutations for delete:\n${showMutations(possibleOps)}`);
+    if (possibleOps.length > 0) {
+      log.debug(`Found mutations for delete:\n${showMutations(possibleOps)}`);
+    }
     return possibleOps;
   };
 
