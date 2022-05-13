@@ -1089,6 +1089,7 @@ export const energyAndGradCompiled = (
   xs: number[],
   xsVars: ad.Input[],
   energyGraph: VarAD,
+  individualEnergies: VarAD[],
   weightInfo: WeightInfo | undefined
 ): { graphs: GradGraphs; f: ad.Compiled } => {
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
@@ -1101,7 +1102,10 @@ export const energyAndGradCompiled = (
 
   // Build an actual graph from the implicit VarAD structure
   // Build symbolic gradient of f at xs on the energy graph
-  const explicitGraph = primaryGraph(energyGraph);
+  const explicitGraph = makeGraph({
+    primary: energyGraph,
+    secondary: individualEnergies,
+  });
 
   const epWeightNode: VarAD | undefined = weightInfo?.epWeightNode; // Generate energy and gradient without weight
 

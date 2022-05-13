@@ -44,7 +44,6 @@ import {
   dot,
   negv,
   normList,
-  prettyPrintFn,
   prettyPrintFns,
   prettyPrintPath,
   repeat,
@@ -233,6 +232,8 @@ export const step = (
         gradient,
         gradientPreconditioned,
         failed,
+        objEngs,
+        constrEngs,
       } = res;
 
       optParams.lastUOstate = xs;
@@ -241,6 +242,8 @@ export const step = (
       optParams.lbfgsInfo = newLbfgsInfo;
       optParams.lastGradient = gradient;
       optParams.lastGradientPreconditioned = gradientPreconditioned;
+      optParams.lastConstrEnergies = constrEngs;
+      optParams.lastObjEnergies = objEngs;
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
@@ -710,6 +713,11 @@ const minimize = (
   log.info("-------------------------------------");
   log.info("minimize, num steps", numSteps);
 
+  const MIN_STEPS = 1;
+  if (numSteps < MIN_STEPS) {
+    throw Error(`must step at least ${MIN_STEPS} times in the optimizer`);
+  }
+
   // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
 
@@ -722,6 +730,10 @@ const minimize = (
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
   let failed = false;
 
+  // these will be overwritten so it's OK that they're the wrong length at first
+  let objEngs: number[] = [];
+  let constrEngs: number[] = [];
+
   let newLbfgsInfo = { ...lbfgsInfo };
 
   while (i < numSteps) {
@@ -729,7 +741,7 @@ const minimize = (
       log.info("xs", xs);
       throw Error("NaN in xs");
     }
-    ({ f: fxs, gradf: gradfxs } = f(xs));
+    ({ f: fxs, gradf: gradfxs, objEngs, constrEngs } = f(xs));
     if (containsNaN(gradfxs)) {
       log.info("gradfxs", gradfxs);
       throw Error("NaN in gradfxs");
@@ -814,6 +826,8 @@ const minimize = (
     gradient: gradfxs,
     gradientPreconditioned,
     failed: failed,
+    objEngs,
+    constrEngs,
   };
 };
 
@@ -828,16 +842,18 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     ...xsVars: ad.Input[]
   ): {
     energyGraph: VarAD;
+    objEngs: VarAD[];
+    constrEngs: VarAD[];
     epWeightNode: ad.Input;
   } => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
-    // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
     const varyingMapList = zip2(varyingPaths, xsVars);
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
     const translation = insertVaryings(
+      // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
       clone(state.translation),
       varyingMapList
     );
@@ -881,7 +897,12 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
       mul(constrEng, mul(constrWeightNode, epWeightNode))
     );
 
-    return { energyGraph: overallEng, epWeightNode };
+    return {
+      energyGraph: overallEng,
+      objEngs,
+      constrEngs,
+      epWeightNode,
+    };
   };
 };
 
@@ -911,16 +932,23 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
     epWeight: initConstraintWeight,
   };
 
+  const individualEnergies = [...res.objEngs, ...res.constrEngs];
   const { graphs, f } = energyAndGradCompiled(
     xs,
     xsVars,
     res.energyGraph,
+    individualEnergies,
     weightInfo
   );
 
   const objectiveAndGradient = (epWeight: number) => (xs: number[]) => {
-    const { primary, gradient } = f([epWeight, ...xs]);
-    return { f: primary, gradf: gradient.slice(1) }; // ignore epWeight gradient
+    const { primary, gradient, secondary } = f([epWeight, ...xs]);
+    return {
+      f: primary,
+      gradf: gradient.slice(1), // ignore epWeight gradient
+      objEngs: secondary.slice(0, res.objEngs.length),
+      constrEngs: secondary.slice(res.objEngs.length),
+    };
   };
 
   const newParams: Params = {
@@ -972,45 +1000,6 @@ const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
 
     return fnEnergy;
   };
-};
-
-// For a given objective or constraint, precompile it and its gradient, without any weights. (variation on `genOptProblem`)
-const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
-  const xs: number[] = clone(s.varyingValues);
-
-  const overallObjective = evalFnOn(rng, fn, s);
-  const xsVars: ad.Input[] = makeADInputVars(xs);
-  const energyGraph: VarAD = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
-
-  const weightInfo: WeightInfo | undefined = undefined;
-
-  const { f } = energyAndGradCompiled(xs, xsVars, energyGraph, weightInfo);
-
-  // Note this throws away the energy/gradient graphs (`VarAD`s). Presumably not needed?
-  return (xs: number[]) => {
-    const { primary, gradient } = f(xs);
-    return { f: primary, gradf: gradient };
-  };
-};
-
-// For each objective and constraint, precompile it and its gradient and cache it in the state.
-export const genFns = (rng: seedrandom.prng, s: State): State => {
-  const p = s.params;
-  const objCache = {};
-  const constrCache = {};
-
-  for (const f of s.objFns) {
-    objCache[prettyPrintFn(f)] = genFn(rng, f, s);
-  }
-
-  for (const f of s.constrFns) {
-    constrCache[prettyPrintFn(f)] = genFn(rng, f, s);
-  }
-
-  p.objFnCache = objCache;
-  p.constrFnCache = constrCache;
-
-  return s;
 };
 
 const containsNaN = (numberList: number[]): boolean => {

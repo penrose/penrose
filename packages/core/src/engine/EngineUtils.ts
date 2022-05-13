@@ -44,6 +44,8 @@ import {
 import { showError } from "utils/Error";
 import { safe } from "utils/Util";
 import { genCode, secondaryGraph } from "./Autodiff";
+
+// For deep-cloning the translation
 const clone = rfdc({ proto: false, circles: false });
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?

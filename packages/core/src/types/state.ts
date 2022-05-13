@@ -120,6 +120,8 @@ export interface ILbfgsParams {
 export interface FnEvaled {
   f: number;
   gradf: number[];
+  objEngs: number[];
+  constrEngs: number[];
 }
 
 export type Params = IParams;
@@ -132,6 +134,9 @@ export interface IParams {
   UOround: number;
   lastUOstate: number[];
   lastUOenergy: number;
+  lastObjEnergies: number[];
+  lastConstrEnergies: number[];
+
   /** Info for exterior point method **/
   EPround: number;
   lastEPstate: number[];
@@ -160,10 +165,6 @@ export interface IParams {
   // `xsVars` are all the leaves of the energy graph
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
   epWeightNode: VarAD; // Handle to node for EP weight (so it can be set as the weight changes)
-
-  // Cached versions of compiling each objective and constraint into a function and gradient
-  objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
-  constrFnCache: { [k: string]: FnCached }; // This is kept separate from objfns because objs/constrs may have the same names (=> clashing keys if in same dict)
 }
 
 // Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.

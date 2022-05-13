@@ -232,34 +232,40 @@ describe("Run individual functions", () => {
       // console.log("# objectives", stateEvaled.objFns.length);
       // console.log("# constraints", stateEvaled.constrFns.length);
 
+      const initialEnergies = stateEvaled.params.currObjectiveAndGradient(
+        stateEvaled.varyingValues
+      );
+      stateEvaled.params.lastConstrEnergies = initialEnergies.constrEngs;
+      stateEvaled.params.lastObjEnergies = initialEnergies.objEngs;
+
       // Test objectives
-      const initEngsObj = evalFns(stateEvaled.objFns, stateEvaled);
-      const optedEngsObj = evalFns(stateEvaled.objFns, stateOptimizedValue);
-
-      for (let i = 0; i < initEngsObj.length; i++) {
-        // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);
-        expect(initEngsObj[i].f).toBeGreaterThanOrEqual(optedEngsObj[i].f);
-        expect(optedEngsObj[i].f).toBeLessThanOrEqual(EPS);
-      }
-
-      // Test constraints
-      const initEngsConstr = evalFns(stateEvaled.constrFns, stateEvaled);
-      const optedEngsConstr = evalFns(
-        stateEvaled.constrFns,
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
+        stateEvaled
+      );
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
         stateOptimizedValue
       );
 
-      for (let i = 0; i < initEngsConstr.length; i++) {
+      for (const k of initEngsObj.keys()) {
+        // console.log("obj energies", initEngsObj[i], optedEngsObj[i]);
+        expect(initEngsObj.get(k)!).toBeGreaterThanOrEqual(
+          optedEngsObj.get(k)!
+        );
+        expect(optedEngsObj.get(k)!).toBeLessThanOrEqual(EPS);
+      }
+
+      // Test constraints
+      for (const k of initEngsConstr.keys()) {
         // console.log("constr energies", initEngsConstr[i], optedEngsConstr[i]);
-        if (initEngsConstr[i].f < 0 && optedEngsConstr[i].f < 0) {
+        if (initEngsConstr.get(k)! < 0 && optedEngsConstr.get(k)! < 0) {
           // If it was already satisfied and stays satisfied, the magnitude of the constraint doesn't matter (i.e. both are negative)
           expect(true).toEqual(true);
         } else {
-          expect(initEngsConstr[i].f).toBeGreaterThanOrEqual(
-            optedEngsConstr[i].f
+          expect(initEngsConstr.get(k)!).toBeGreaterThanOrEqual(
+            optedEngsConstr.get(k)!
           );
           // Check constraint satisfaction (< 0)
-          expect(optedEngsConstr[i].f).toBeLessThanOrEqual(0);
+          expect(optedEngsConstr.get(k)!).toBeLessThanOrEqual(0);
         }
       }
     } else {

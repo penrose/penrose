@@ -48,7 +48,9 @@ export const all = (xs: boolean[]): boolean =>
 export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
   const l = a1.length;
   if (l !== a2.length) {
-    throw Error("expected same # elements in both arrays");
+    throw Error(
+      `can't zip2 vectors of different length: ${a1.length} vs ${a2.length}`
+    );
   }
   const a: [T1, T2][] = [];
   for (let i = 0; i < l; i++) {
@@ -67,7 +69,9 @@ export const zip3 = <T1, T2, T3>(
 ): [T1, T2, T3][] => {
   const l = a1.length;
   if (l !== a2.length || l !== a3.length) {
-    throw Error("expected same # elements in all three arrays");
+    throw Error(
+      `can't zip3 vectors of different length: ${a1.length} vs ${a2.length} vs ${a3.length}`
+    );
   }
   const a: [T1, T2, T3][] = [];
   for (let i = 0; i < l; i++) {

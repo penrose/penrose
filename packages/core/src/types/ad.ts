@@ -284,6 +284,8 @@ export type OptInfo = IOptInfo;
 export interface IOptInfo {
   xs: number[];
   energyVal: number;
+  objEngs: number[];
+  constrEngs: number[];
   normGrad: number;
   newLbfgsInfo: LbfgsParams;
   gradient: number[];
