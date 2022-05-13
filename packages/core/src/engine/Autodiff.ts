@@ -468,7 +468,9 @@ export const makeGraph = (
 
   for (const matrix of sensitivities.values()) {
     // `forEach` ignores holes
-    matrix.forEach((row) => row.forEach(addNode));
+    matrix.forEach((row) => {
+      row.forEach(addNode);
+    });
   }
   while (!queue.isEmpty()) {
     addNode(queue.dequeue());
@@ -510,7 +512,7 @@ export const makeGraph = (
       const matrix = sensitivities.get(`${name}${id}${w}`);
       if (matrix !== undefined) {
         // `forEach` ignores holes
-        matrix.forEach((row, i) =>
+        matrix.forEach((row, i) => {
           row.forEach((x, j) => {
             const sensitivityID = safe(nodes.get(x), "missing sensitivity");
             const parentGradIDs = safe(gradNodes.get(w), "missing parent grad");
@@ -525,8 +527,8 @@ export const makeGraph = (
               }
               grad[j].push(addendID);
             }
-          })
-        );
+          });
+        });
       }
     }
 

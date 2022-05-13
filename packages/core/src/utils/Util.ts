@@ -256,10 +256,6 @@ export const round2 = (n: number): number => roundTo(n, 2);
 export const roundTo = (n: number, digits: number): number => {
   let negative = false;
 
-  if (digits === undefined) {
-    digits = 0;
-  }
-
   if (n < 0) {
     negative = true;
     n = n * -1;
@@ -336,7 +332,7 @@ export const bBoxDims = (
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
   } else if (shapeType === "Polyline") {
     [w, h] = [20, 20]; // TODO: find a better measure for this... check with max?
-  } else if (properties.width && properties.height) {
+  } else if ("width" in properties && "height" in properties) {
     [w, h] = [
       properties.width.contents as number,
       properties.height.contents as number,

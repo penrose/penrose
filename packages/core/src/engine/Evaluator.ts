@@ -198,24 +198,26 @@ export const evalShape = (
     propExprs,
     (prop: TagExpr<VarAD>): Value<VarAD> => {
       // TODO: Refactor these cases to be more concise
-      if (prop.tag === "OptEval") {
-        // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
-        // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-        const res: Value<VarAD> = (evalExpr(
-          rng,
-          prop.contents,
-          trans,
-          varyingVars,
-          optDebugInfo
-        ) as IVal<VarAD>).contents;
-        return res;
-      } else if (prop.tag === "Done") {
-        return prop.contents;
-      } else if (prop.tag === "Pending") {
-        // Pending expressions are just converted because they get converted back to numbers later
-        return prop.contents;
-      } else {
-        throw Error("unknown tag");
+      switch (prop.tag) {
+        case "OptEval": {
+          // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
+          // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
+          const res: Value<VarAD> = (evalExpr(
+            rng,
+            prop.contents,
+            trans,
+            varyingVars,
+            optDebugInfo
+          ) as IVal<VarAD>).contents;
+          return res;
+        }
+        case "Done": {
+          return prop.contents;
+        }
+        case "Pending": {
+          // Pending expressions are just converted because they get converted back to numbers later
+          return prop.contents;
+        }
       }
     }
   );

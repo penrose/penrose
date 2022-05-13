@@ -695,10 +695,10 @@ export class Synthesizer {
         possibleOps = del ? [del] : [];
       }
     }
-    if (possibleOps) {
+    if (possibleOps.length > 0) {
       log.debug(`Found mutations for delete:\n${showMutations(possibleOps)}`);
-      return possibleOps;
-    } else return [];
+    }
+    return possibleOps;
   };
 
   // TODO: add an option to distinguish between edited vs original statements?

@@ -163,7 +163,6 @@ const numbers = (r: number): number[] => {
 };
 
 export function numbered<A>(xs: A[]): [A, number][] {
-  if (!xs) throw Error("fail");
   return zip2(xs, numbers(xs.length));
 }
 
@@ -1423,10 +1422,7 @@ const typesMatched = (
   substanceType: TypeConsApp<A>,
   styleType: StyT<A>
 ): boolean => {
-  if (
-    substanceType.tag === "TypeConstructor" &&
-    substanceType.args.length === 0
-  ) {
+  if (substanceType.args.length === 0) {
     // Style type needs to be more generic than Style type
     return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
   }
@@ -2565,7 +2561,7 @@ const findFieldDefaultFns = (
     if (
       onCanvasProp &&
       onCanvasProp.contents.tag === "BoolV" &&
-      onCanvasProp.contents.contents === true
+      onCanvasProp.contents.contents
     ) {
       const onCanvasFn: StyleOptFn = [
         "onCanvas",

@@ -552,7 +552,7 @@ export const insertExpr = (
       [name, field] = [path.name, path.field];
 
       // Initialize the field dict if it hasn't been initialized
-      if (!trans.trMap[name.contents.value]) {
+      if (!(name.contents.value in trans.trMap)) {
         trans.trMap[name.contents.value] = {};
       }
 
@@ -598,7 +598,7 @@ export const insertExpr = (
     case "PropertyPath": {
       [name, field, prop] = [path.name, path.field, path.property];
 
-      if (!trans.trMap[name.contents.value]) {
+      if (!(name.contents.value in trans.trMap)) {
         trans.trMap[name.contents.value] = {};
       }
 
