@@ -15,7 +15,6 @@ import {
   initConstraintWeight,
   insertExpr,
   insertExprs,
-  insertGPI,
   isPath,
   isTagExpr,
   propertiesNotOf,
@@ -2760,7 +2759,12 @@ const initShape = (
       tag: "FGPI",
       contents: [stype, instantiatedGPIProps],
     };
-    return insertGPI(path, gpi, tr);
+    if (path.tag === "FieldPath") {
+      const [name, field] = [path.name, path.field];
+      // TODO: warning / error here
+      tr.trMap[name.contents.value][field.value] = gpi;
+      return tr;
+    } else throw Error("expected GPI");
   } else throw Error("expected GPI but got field");
 };
 

@@ -20,7 +20,6 @@ import { AnnoFloat, Expr, IVector, Path, PropertyDecl } from "types/style";
 import {
   Color,
   FieldExpr,
-  GPIExpr,
   IColorV,
   IFGPI,
   IFloatV,
@@ -34,7 +33,6 @@ import {
   IPtListV,
   IPtV,
   ISubPath,
-  ITrans,
   ITupV,
   IVectorV,
   PropID,
@@ -333,74 +331,6 @@ const colorVarADs = (c: Color<VarAD>): VarAD[] => {
 export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> =>
   mapValueNumeric(numOf, v);
 
-// Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
-// (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
-
-export function mapTagExpr<T, S>(f: (arg: T) => S, e: TagExpr<T>): TagExpr<S> {
-  switch (e.tag) {
-    case "Done":
-      return {
-        tag: "Done",
-        contents: mapValueNumeric(f, e.contents),
-      };
-    case "Pending":
-      return {
-        tag: "Pending",
-        contents: mapValueNumeric(f, e.contents),
-      };
-    case "OptEval":
-      // We don't convert expressions because any numbers encountered in them will be converted by the evaluator (to VarAD) as needed
-      // TODO: Need to convert expressions to numbers, or back to varying? I guess `varyingPaths` is the source of truth
-      return e;
-  }
-}
-
-export function mapGPIExpr<T, S>(f: (arg: T) => S, e: GPIExpr<T>): GPIExpr<S> {
-  const propDict = Object.entries(e[1]).map(([prop, val]) => [
-    prop,
-    mapTagExpr(f, val),
-  ]);
-
-  return [e[0], Object.fromEntries(propDict)];
-}
-
-export function mapTranslation<T, S>(
-  f: (arg: T) => S,
-  trans: ITrans<T>
-): ITrans<S> {
-  const newTrMap: [string, { [k: string]: FieldExpr<S> }][] = Object.entries(
-    trans.trMap
-  ).map(([name, fdict]) => {
-    const fdict2: [string, FieldExpr<S>][] = Object.entries(fdict).map(
-      ([prop, val]): [string, FieldExpr<S>] => {
-        switch (val.tag) {
-          case "FExpr":
-            return [
-              prop,
-              { tag: "FExpr", contents: mapTagExpr(f, val.contents) },
-            ];
-          case "FGPI":
-            return [
-              prop,
-              { tag: "FGPI", contents: mapGPIExpr(f, val.contents) },
-            ];
-        }
-      }
-    );
-
-    return [name, Object.fromEntries(fdict2)];
-  });
-
-  return {
-    ...trans,
-    trMap: Object.fromEntries(newTrMap),
-  };
-}
-
-export const makeTranslationNumeric = (trans: Translation): ITrans<number> => {
-  return mapTranslation(numOf, trans);
-};
-
 //#region translation operations
 
 export const dummySourceLoc = (): SourceLoc => {
@@ -455,36 +385,6 @@ const mkPropertyDict = (
   }
 
   return gpi;
-};
-
-/**
- * Insert an expression into the translation (mutating it), returning a reference to the mutated translation for convenience
- * @param path path to a field or property
- * @param expr new expression
- * @param initTrans initial translation
- *
- */
-
-// TODO: Test this
-export const insertGPI = (
-  path: Path<A>,
-  gpi: IFGPI<VarAD>,
-  trans: Translation
-): Translation => {
-  let name, field;
-
-  switch (path.tag) {
-    case "FieldPath": {
-      [name, field] = [path.name, path.field];
-      // TODO: warning / error here
-      trans.trMap[name.contents.value][field.value] = gpi;
-      return trans;
-    }
-
-    default: {
-      throw Error("expected GPI");
-    }
-  }
 };
 
 const defaultVec2 = (): Expr<A> => {
@@ -1056,14 +956,6 @@ export const exprToNumber = (e: Expr<A>): number => {
   throw Error("expecting expr to be number");
 };
 
-export const numToExpr = (n: number): Expr<A> => {
-  return {
-    nodeType: "SyntheticStyle",
-    tag: "Fix",
-    contents: n,
-  };
-};
-
 // Add warning to the end of the existing list
 export const addWarn = (tr: Translation, warn: Warning): Translation => {
   return {
@@ -1071,8 +963,6 @@ export const addWarn = (tr: Translation, warn: Warning): Translation => {
     warnings: tr.warnings.concat(warn),
   };
 };
-
-// COMBAK: consolidate prettyprinting code
 
 //#region Constants/helpers for the optimization initialization (used by both the compiler and the optimizer)
 

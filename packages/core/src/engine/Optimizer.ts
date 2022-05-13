@@ -11,7 +11,6 @@ import {
 import {
   defaultLbfgsParams,
   initConstraintWeight,
-  makeTranslationNumeric,
   shapeAutodiffToNumber,
 } from "engine/EngineUtils";
 import {
@@ -836,10 +835,12 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
 
     // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
     // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
-    const translationInit = clone(makeTranslationNumeric(state.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
-    const translation = insertVaryings(translationInit, varyingMapList);
+    const translation = insertVaryings(
+      clone(state.translation),
+      varyingMapList
+    );
 
     // construct a new varying map
     const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
@@ -858,8 +859,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     // log.info("objEngs", objFns, objEngs);
     // log.info("vars", varyingValuesTF);
 
-    // TODO make this check more robust to empty lists of objectives/constraints
-    if (!objEngs[0] && !constrEngs[0]) {
+    if (objEngs.length === 0 && constrEngs.length === 0) {
       log.info("WARNING: no objectives and no constraints");
     }
 
@@ -957,9 +957,8 @@ const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
   return (...xsVars: ad.Input[]): VarAD => {
     const { varyingPaths } = s;
 
-    const translationInit = clone(makeTranslationNumeric(s.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
-    const translation = insertVaryings(translationInit, varyingMapList);
+    const translation = insertVaryings(clone(s.translation), varyingMapList);
     const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
