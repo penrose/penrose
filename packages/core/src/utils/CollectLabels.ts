@@ -72,7 +72,7 @@ const tex2svg = async (
   new Promise((resolve) => {
     const output = convert(contents, fontSize);
     if (output.isErr()) {
-      resolve(err(`MathJax could not render \$${contents}\$: ${output.error}`));
+      resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
     }
     const body = output.value;

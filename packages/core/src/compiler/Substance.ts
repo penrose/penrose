@@ -329,9 +329,10 @@ const checkStmt = (stmt: SubStmt<A>, env: Env): CheckerResult<SubStmt<A>> => {
         ({ env }) => ok({ env, contents: stmt }),
         checkVar(stmt.variable, env)
       );
-    case "NoLabel":
+    case "NoLabel": {
       const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
       return andThen(({ env }) => ok({ env, contents: stmt }), argsOk);
+    }
   }
 };
 
@@ -733,7 +734,7 @@ export const prettyStmt = (stmt: SubStmt<A>): string => {
     case "NoLabel":
       return `NoLabel ${stmt.args.map((a) => prettyVar(a)).join(", ")}`;
     case "LabelDecl":
-      return `Label ${prettyVar(stmt.variable)} \$${stmt.label.contents}\$`;
+      return `Label ${prettyVar(stmt.variable)} $${stmt.label.contents}$`;
     case "ApplyPredicate":
       return prettyPredicate(stmt);
     case "EqualExprs":

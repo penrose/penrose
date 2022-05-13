@@ -1573,7 +1573,7 @@ const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
       }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar",
-        contents: `\$${ANON_KEYWORD}_${i}`,
+        contents: `$${ANON_KEYWORD}_${i}`,
         nodeType: "SyntheticStyle",
       },
       value: s.contents,
