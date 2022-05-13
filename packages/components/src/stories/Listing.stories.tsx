@@ -29,6 +29,17 @@ ContinuousMap.args = {
   height: "300px",
 };
 
+export const ContinuousMapDark = Template.bind({});
+ContinuousMapDark.args = {
+  domain: continuousMap.domain,
+  substance: continuousMap.substance,
+  width: "400px",
+  height: "300px",
+  monacoOptions: {
+    theme: "vs-dark",
+  },
+};
+
 export const OneSet = Template.bind({});
 OneSet.args = {
   domain: continuousMap.domain,

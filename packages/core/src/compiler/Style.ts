@@ -440,7 +440,6 @@ const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
   return {
     tag: "TypeConstructor",
     nodeType: "Substance",
-    children: [styT],
     name: styT,
     args: [],
   };
@@ -574,11 +573,8 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rels: RelationPattern<A>[],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stmt: SubStmt<A>
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
@@ -746,10 +742,8 @@ const substitutePath = (
     case "LocalVar": {
       return {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "FieldPath",
         name: {
-          children: [],
           nodeType: "SyntheticStyle",
           tag: "SubVar",
           contents: {
@@ -767,11 +761,9 @@ const substitutePath = (
       // COMBAK / HACK: Is there some way to get rid of all these dummy values?
       return {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "FieldPath",
         name: {
           nodeType: "SyntheticStyle",
-          children: [],
           tag: "SubVar",
           contents: {
             ...dummyId(mkLocalVarName(lv)),
@@ -1368,10 +1360,7 @@ const typesMatched = (
   substanceType: TypeConsApp<A>,
   styleType: StyT<A>
 ): boolean => {
-  if (
-    substanceType.tag === "TypeConstructor" &&
-    substanceType.args.length === 0
-  ) {
+  if (substanceType.args.length === 0) {
     // Style type needs to be more generic than Style type
     return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
   }
@@ -1514,14 +1503,12 @@ const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
       type: {
         tag: "TypeOf",
         nodeType: "SyntheticStyle",
-        children: [],
         contents: "Nothing",
       }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar",
-        contents: `\$${ANON_KEYWORD}_${i}`,
+        contents: `$${ANON_KEYWORD}_${i}`,
         nodeType: "SyntheticStyle",
-        children: [], // Unused bc compiler internal
       },
       value: s.contents,
     };
@@ -1623,7 +1610,12 @@ const deleteProperty = (
             // TODO(error)
             return addWarn(trans, {
               tag: "CircularPathAlias",
-              path: { tag: "FieldPath", name, field } as Path<A>,
+              path: {
+                tag: "FieldPath",
+                nodeType: "SyntheticStyle",
+                name,
+                field,
+              },
             });
           }
           return deleteProperty(trans, p, p.name, p.field, property);
@@ -1918,7 +1910,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleResults => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
@@ -2112,7 +2103,6 @@ const translateStyProg = (
   subProg: SubProg<A>,
   styProg: StyProg<A>,
   labelMap: LabelMap,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
@@ -2200,10 +2190,8 @@ const mkPath = (strs: string[]): Path<A> => {
     return {
       tag: "FieldPath",
       nodeType: "SyntheticStyle",
-      children: [],
       name: {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "SubVar",
         contents: {
           ...dummyId(name),
@@ -2216,10 +2204,8 @@ const mkPath = (strs: string[]): Path<A> => {
     return {
       tag: "PropertyPath",
       nodeType: "SyntheticStyle",
-      children: [],
       name: {
         nodeType: "SyntheticStyle",
-        children: [],
         tag: "SubVar",
         contents: {
           ...dummyId(name),
@@ -2267,7 +2253,6 @@ const findPropertyVarying = (
         tag: "OptEval",
         contents: {
           nodeType: "SyntheticStyle",
-          children: [],
           tag: "Vector",
           contents: [
             dummyASTNode({ tag: "Vary" }, "SyntheticStyle") as Expr<A>,
@@ -2301,16 +2286,12 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
         .map((e: Expr<A>, i): [Expr<A>, number] => [e, i])
         .filter((e: [Expr<A>, number]): boolean => isVarying(e[0]))
         .map(
-          ([, i]: [Expr<A>, number]): IAccessPath<A> =>
-            ({
-              nodeType: "SyntheticStyle",
-              children: [],
-              tag: "AccessPath",
-              path: p,
-              indices: [
-                dummyASTNode({ tag: "Fix", contents: i }, "SyntheticStyle"),
-              ],
-            } as IAccessPath<A>)
+          ([, i]: [Expr<A>, number]): IAccessPath<A> => ({
+            nodeType: "SyntheticStyle",
+            tag: "AccessPath",
+            path: p,
+            indices: [{ tag: "Fix", nodeType: "SyntheticStyle", contents: i }],
+          })
         );
 
       return indices;
@@ -2423,7 +2404,8 @@ const findGPIName = (
 ): [string, Field][] => {
   switch (fexpr.tag) {
     case "FGPI": {
-      return ([[name, field]] as [string, Field][]).concat(acc);
+      const head: [string, Field] = [name, field];
+      return [head].concat(acc);
     }
     case "FExpr": {
       return acc;
@@ -2475,13 +2457,9 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: Field,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fexpr: FieldExpr<VarAD>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FGPI") {
@@ -2491,7 +2469,7 @@ const findFieldDefaultFns = (
     if (
       onCanvasProp &&
       onCanvasProp.contents.tag === "BoolV" &&
-      onCanvasProp.contents.contents === true
+      onCanvasProp.contents.contents
     ) {
       const onCanvasFn: StyleOptFn = [
         "onCanvas",
@@ -2527,10 +2505,16 @@ const toFns = ([objfns, constrfns]: [StyleOptFn[], StyleOptFn[]]): [
 
 // COMBAK: Move this to utils
 function partitionEithers<A, B>(es: Either<A, B>[]): [A[], B[]] {
-  return [
-    es.filter((e) => e.tag === "Left").map((e) => e.contents as A),
-    es.filter((e) => e.tag === "Right").map((e) => e.contents as B),
-  ];
+  const a: A[] = [];
+  const b: B[] = [];
+  for (const e of es) {
+    if (e.tag === "Left") {
+      a.push(e.contents);
+    } else {
+      b.push(e.contents);
+    }
+  }
+  return [a, b];
 }
 
 const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
@@ -2832,9 +2816,9 @@ export const topSortLayering = (
   partialOrderings: [string, string][]
 ): string[] => {
   const layerGraph: Graph = new Graph();
-  allGPINames.map((name: string) => layerGraph.setNode(name));
+  allGPINames.forEach((name: string) => layerGraph.setNode(name));
   // topsort will return the most upstream node first. Since `shapeOrdering` is consistent with the SVG drawing order, we assign edges as "below => above".
-  partialOrderings.map(([below, above]: [string, string]) =>
+  partialOrderings.forEach(([below, above]: [string, string]) =>
     layerGraph.setEdge(below, above)
   );
 
@@ -2867,7 +2851,7 @@ const pseudoTopsort = (graph: Graph): string[] => {
     else return aIn.length - bIn.length;
   });
   const res: string[] = [];
-  graph.nodes().map((n: string) => toVisit.insert(n));
+  graph.nodes().forEach((n: string) => toVisit.insert(n));
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
     const node: string = toVisit.extractRoot() as string;

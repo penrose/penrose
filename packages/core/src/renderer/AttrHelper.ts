@@ -110,7 +110,7 @@ export const attrScale = (
   scale = scale || 1;
   let transform = elem.getAttribute("transform");
   transform =
-    transform == null ? `scale(${scale})` : transform + `scale{${scale}}`;
+    transform === null ? `scale(${scale})` : transform + `scale{${scale}}`;
   elem.setAttribute("transform", transform);
 
   return ["scale"]; // Return array of input properties programatically mapped
@@ -130,7 +130,7 @@ export const attrTransformCoords = (
   const h = properties.height as IFloatV<number>;
   let transform = elem.getAttribute("transform");
   transform =
-    transform == null
+    transform === null
       ? `translate(${x - w.contents / 2}, ${y - h.contents / 2})`
       : transform + `translate(${x - w.contents / 2}, ${y - h.contents / 2})`;
   elem.setAttribute("transform", transform);
@@ -176,7 +176,7 @@ export const attrRotation = (
   const [x, y] = toScreen(center.contents as [number, number], canvasSize);
   let transform = elem.getAttribute("transform");
   transform =
-    transform == null
+    transform === null
       ? `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`
       : transform +
         `rotate(${rotation}, ${x - w.contents / 2}, ${y - h.contents / 2})`;

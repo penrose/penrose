@@ -7,7 +7,6 @@ import { VarAD } from "types/ad";
 import {
   A,
   ASTNode,
-  C,
   ConcreteNode,
   Identifier,
   NodeType,
@@ -17,14 +16,7 @@ import {
 import { StyleError, Warning } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams } from "types/state";
-import {
-  AnnoFloat,
-  Expr,
-  IPropertyPath,
-  IVector,
-  Path,
-  PropertyDecl,
-} from "types/style";
+import { AnnoFloat, Expr, IVector, Path, PropertyDecl } from "types/style";
 import {
   Color,
   FieldExpr,
@@ -188,9 +180,9 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   switch (v.tag) {
     case "RGBA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "HSVA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "NONE":
       return { tag: v.tag };
   }
@@ -246,7 +238,7 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     case "FileV":
     case "StyleV":
     case "IntV":
-      return v as Value<S>;
+      return v;
   }
 }
 
@@ -269,7 +261,7 @@ export const shapeAutodiffToNumber = (shapes: ShapeAD[]): Shape[] => {
   const inputs = [];
   for (const v of g.nodes.keys()) {
     if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.index] = v.val;
+      inputs[v.key] = v.val;
     }
   }
   const numbers = genCode(g)(inputs).secondary;
@@ -434,7 +426,6 @@ export const dummyIdentifier = (
 ): Identifier<A> => {
   return {
     nodeType,
-    children: [],
     type: "value",
     value: name,
     tag: "Identifier",
@@ -448,7 +439,6 @@ const floatValToExpr = (e: Value<VarAD>): Expr<A> => {
 
   return {
     nodeType: "SyntheticStyle",
-    children: [],
     tag: "VaryAD",
     contents: e.contents,
   };
@@ -562,7 +552,7 @@ export const insertExpr = (
       [name, field] = [path.name, path.field];
 
       // Initialize the field dict if it hasn't been initialized
-      if (!trans.trMap[name.contents.value]) {
+      if (!(name.contents.value in trans.trMap)) {
         trans.trMap[name.contents.value] = {};
       }
 
@@ -588,7 +578,10 @@ export const insertExpr = (
       if (
         compiling &&
         !override &&
-        trans.trMap[name.contents.value].hasOwnProperty(field.value)
+        Object.prototype.hasOwnProperty.call(
+          trans.trMap[name.contents.value],
+          field.value
+        )
       ) {
         trans = addWarn(trans, {
           tag: "InsertedPathWithoutOverrideError",
@@ -605,7 +598,7 @@ export const insertExpr = (
     case "PropertyPath": {
       [name, field, prop] = [path.name, path.field, path.property];
 
-      if (!trans.trMap[name.contents.value]) {
+      if (!(name.contents.value in trans.trMap)) {
         trans.trMap[name.contents.value] = {};
       }
 
@@ -673,7 +666,11 @@ export const insertExpr = (
 
         // TODO(error): check for field/property overrides of paths that don't already exist
         // TODO(error): if there are multiple matches, override errors behave oddly...
-        if (compiling && !override && properties.hasOwnProperty(prop.value)) {
+        if (
+          compiling &&
+          !override &&
+          Object.prototype.hasOwnProperty.call(properties, prop.value)
+        ) {
           trans = addWarn(trans, {
             tag: "InsertedPathWithoutOverrideError",
             path,
@@ -782,7 +779,7 @@ export const insertExpr = (
         }
 
         case "PropertyPath": {
-          const ip = innerPath as IPropertyPath<C>;
+          const ip = innerPath;
           // a.x.y[0] = e
           [name, field, prop] = [ip.name, ip.field, ip.property];
           const gpi = trans.trMap[name.contents.value][
@@ -1060,7 +1057,6 @@ export const exprToNumber = (e: Expr<A>): number => {
 export const numToExpr = (n: number): Expr<A> => {
   return {
     nodeType: "SyntheticStyle",
-    children: [],
     tag: "Fix",
     contents: n,
   };

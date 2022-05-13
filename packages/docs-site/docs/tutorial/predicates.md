@@ -7,7 +7,7 @@ description: How to Use Predicates & Constraints
 
 In Penrose, we are not only given the power to represent mathematical objects with shapes, but we are also able to represent complicated relationships between the objects. In this tutorial, we will learn about defining **predicates**, and visually representing them with the constraint keyword `ensure`. After this tutorial, you should be equipped to create diagrams with relationships between objects in Penrose.
 
-The starter code for this tutorial can be found in the `./code/tutorial2` folder of the `tutorials` you cloned in part 1.
+The starter code for this tutorial can be found in the `./packages/examples/src/tutorials/code/tutorial2` folder of the `penrose` repo you cloned in part 1.
 
 ## Goal
 
@@ -140,7 +140,7 @@ Complete the following exercises to practice implementing predicates in Penrose!
 
 ![](/img/tutorial/e1c2.png)
 
-[Reference solutions](https://github.com/penrose/tutorials/blob/main/solutions/tutorial2.md)
+[Reference solutions](https://github.com/penrose/penrose/blob/main/packages/examples/src/tutorials/solutions/tutorial2.md)
 
 ## Take-aways
 

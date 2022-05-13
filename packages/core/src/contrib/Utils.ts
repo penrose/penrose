@@ -16,6 +16,7 @@ import {
 } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
 import * as _ from "lodash";
+import * as ad from "types/ad";
 import { Pt2, VarAD } from "types/ad";
 
 /**
@@ -38,7 +39,7 @@ export const noIntersectCircles = (
 /**
  * Return true iff `p` is in rect `b`.
  */
-export const pointInBox = (p: Pt2, rect: BBox.BBox): VarAD => {
+export const pointInBox = (p: Pt2, rect: BBox.BBox): ad.Bool => {
   return and(
     and(lt(BBox.minX(rect), p[0]), lt(p[0], BBox.maxX(rect))),
     and(lt(BBox.minY(rect), p[1]), lt(p[1], BBox.maxY(rect)))
@@ -97,10 +98,8 @@ export const overlap1D = (
 /**
  * Return numerically-encoded boolean indicating whether `x \in [l, r]`.
  */
-export const inRange = (x: VarAD, l: VarAD, r: VarAD): VarAD => {
-  const fals = 0;
-  const tru = 1;
-  return ifCond(and(gt(x, l), lt(x, r)), tru, fals);
+export const inRange = (x: VarAD, l: VarAD, r: VarAD): ad.Bool => {
+  return and(gt(x, l), lt(x, r));
 };
 
 /**
@@ -151,16 +150,12 @@ export const centerArrow2 = (
   const vec = ops.vsub(center2, center1); // direction the arrow should point to
   const dir = ops.vnormalize(vec);
 
-  let start = center1;
-  let end = center2;
+  // TODO: add abs; also, unless `gt(ops.vnorm(vec), add(o1, absVal(o2)))`,
+  // should just set `start` to `center1` and `end` to `center2`
+  const start = ops.vadd(center1, ops.vmul(o1, dir));
+  const end = ops.vadd(center2, ops.vmul(o2, dir));
 
   // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
-
-  // TODO: add abs
-  if (gt(ops.vnorm(vec), add(o1, absVal(o2)))) {
-    start = ops.vadd(center1, ops.vmul(o1, dir));
-    end = ops.vadd(center2, ops.vmul(o2, dir));
-  }
 
   const fromPt = arr.start.contents;
   const toPt = arr.end.contents;

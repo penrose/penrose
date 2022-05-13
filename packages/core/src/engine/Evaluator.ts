@@ -15,14 +15,13 @@ import { OptDebugInfo, VarAD } from "types/ad";
 import { A } from "types/ast";
 import { ShapeAD } from "types/shape";
 import { Fn, FnDone, State, VaryMap } from "types/state";
-import { BinaryOp, Expr, IPropertyPath, Path, UnaryOp } from "types/style";
+import { BinaryOp, Expr, IPropertyPath, Path } from "types/style";
 import {
   ArgVal,
   GPI,
   IFGPI,
   IFloatV,
   IIntV,
-  ILListV,
   IVal,
   IVectorV,
   TagExpr,
@@ -194,24 +193,26 @@ export const evalShape = (
     propExprs,
     (prop: TagExpr<VarAD>): Value<VarAD> => {
       // TODO: Refactor these cases to be more concise
-      if (prop.tag === "OptEval") {
-        // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
-        // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-        const res: Value<VarAD> = (evalExpr(
-          rng,
-          prop.contents,
-          trans,
-          varyingVars,
-          optDebugInfo
-        ) as IVal<VarAD>).contents;
-        return res;
-      } else if (prop.tag === "Done") {
-        return prop.contents;
-      } else if (prop.tag === "Pending") {
-        // Pending expressions are just converted because they get converted back to numbers later
-        return prop.contents;
-      } else {
-        throw Error("unknown tag");
+      switch (prop.tag) {
+        case "OptEval": {
+          // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
+          // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
+          const res: Value<VarAD> = (evalExpr(
+            rng,
+            prop.contents,
+            trans,
+            varyingVars,
+            optDebugInfo
+          ) as IVal<VarAD>).contents;
+          return res;
+        }
+        case "Done": {
+          return prop.contents;
+        }
+        case "Pending": {
+          // Pending expressions are just converted because they get converted back to numbers later
+          return prop.contents;
+        }
       }
     }
   );
@@ -406,7 +407,7 @@ export const evalExpr = (
           tag: "Val",
           contents: {
             tag: "ListV",
-            contents: [] as VarAD[],
+            contents: [],
           },
         };
       }
@@ -428,7 +429,7 @@ export const evalExpr = (
             contents: {
               tag: "LListV", // NOTE: The type has changed from ListV to LListV! That's because ListV's `T` is "not parametric enough" to represent a list of elements
               contents: argVals.map(toVecVal),
-            } as ILListV<VarAD>,
+            },
           };
         } else {
           throw Error("unknown tag");
@@ -610,7 +611,6 @@ export const evalExpr = (
           p = {
             // convert to AccessPath schema
             nodeType: "SyntheticStyle",
-            children: [],
             tag: "AccessPath",
             // contents: [p.contents[0], [p.contents[1].contents]],
             path: p.contents[0],
@@ -620,7 +620,6 @@ export const evalExpr = (
           p = {
             // convert to AccessPath schema
             nodeType: "SyntheticStyle",
-            children: [],
             tag: "AccessPath",
             path: p.contents[0],
             indices: p.contents[1],
@@ -631,7 +630,7 @@ export const evalExpr = (
           tag: "Val",
           contents: compDict[fnName](
             { rng },
-            optDebugInfo as OptDebugInfo,
+            optDebugInfo!,
             prettyPrintPath(p) // COMBAK: Test that derivatives still work
           ),
         };
@@ -740,10 +739,9 @@ export const resolvePath = (
             // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
             // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===>
             // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
-            const propertyPathExpr = propertyPath as Path<A>;
             const val: Value<VarAD> = (evalExpr(
               rng,
-              propertyPathExpr,
+              propertyPath,
               trans,
               varyingMap,
               optDebugInfo
@@ -903,7 +901,7 @@ export const evalBinOp = (
 
     return { tag: "IntV", contents: res };
   } else if (v1.tag === "VectorV" && v2.tag === "VectorV") {
-    let res;
+    let res: VarAD[] | undefined;
 
     switch (op) {
       case "BPlus": {
@@ -917,9 +915,9 @@ export const evalBinOp = (
       }
     }
 
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "FloatV" && v2.tag === "VectorV") {
-    let res;
+    let res: VarAD[] | undefined;
 
     switch (op) {
       case "Multiply": {
@@ -927,9 +925,9 @@ export const evalBinOp = (
         break;
       }
     }
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "VectorV" && v2.tag === "FloatV") {
-    let res;
+    let res: VarAD[] | undefined;
 
     switch (op) {
       case "Divide": {
@@ -943,7 +941,7 @@ export const evalBinOp = (
       }
     }
 
-    return { tag: "VectorV", contents: res as VarAD[] };
+    return { tag: "VectorV", contents: res! };
   } else if (v1.tag === "StrV" && v2.tag === "StrV") {
     switch (op) {
       case "BPlus":
@@ -965,26 +963,19 @@ export const evalBinOp = (
  * @param arg the argument, must be float or int
  */
 export const evalUOp = (
-  op: UnaryOp,
+  op: "UMinus", // this line will cause a type error if the UnaryOp type changes
   arg: IFloatV<VarAD> | IIntV | IVectorV<VarAD>
 ): Value<VarAD> => {
-  if (arg.tag === "FloatV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: neg(arg.contents) };
+  switch (arg.tag) {
+    case "FloatV": {
+      return { ...arg, contents: neg(arg.contents) };
     }
-  } else if (arg.tag === "IntV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: -arg.contents };
+    case "IntV": {
+      return { ...arg, contents: -arg.contents };
     }
-  } else if (arg.tag === "VectorV") {
-    switch (op) {
-      case "UMinus":
-        return { ...arg, contents: ops.vneg(arg.contents) };
+    case "VectorV": {
+      return { ...arg, contents: ops.vneg(arg.contents) };
     }
-  } else {
-    throw Error("unary op undefined on type ${arg.tag}, op ${op}");
   }
 };
 

@@ -375,7 +375,7 @@ describe("Compiler", () => {
 
   describe("Expected Style errors", () => {
     const subProg = loadFile("set-theory-domain/twosets-simple.sub");
-    const domainProg = loadFile("set-theory-domain/setTheory.dsl");
+    const domainProg = loadFile("set-theory-domain/functions.dsl");
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.sty";
 

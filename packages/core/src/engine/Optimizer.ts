@@ -193,48 +193,24 @@ export const step = (
 
       // if (!state.params.functionsCompiled) {
       // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
-      if (true) {
-        const { objectiveAndGradient } = state.params;
-        if (!objectiveAndGradient) {
-          return genOptProblem(rng, state);
-        } else {
-          return {
-            ...state,
-            params: {
-              ...state.params,
-              currObjectiveAndGradient: objectiveAndGradient(
-                initConstraintWeight
-              ),
-              weight: initConstraintWeight,
-              UOround: 0,
-              EPround: 0,
-              optStatus: "UnconstrainedRunning" as const,
-              lbfgsInfo: defaultLbfgsParams,
-            },
-          };
-        }
+      const { objectiveAndGradient } = state.params;
+      if (!objectiveAndGradient) {
+        return genOptProblem(rng, state);
       } else {
-        // Reuse compiled functions for resample; set other initialization params accordingly
-        // The computational graph gets destroyed in resample (just for now, because it can't get serialized)
-        // But it's not needed for the optimization
-        log.info("Reusing compiled objective and gradients");
-        const params = state.params;
-
-        const newParams: Params = {
-          ...params,
-          lastGradient: repeat(xs.length, 0),
-          lastGradientPreconditioned: repeat(xs.length, 0),
-          currObjectiveAndGradient: params.objectiveAndGradient(
-            initConstraintWeight
-          ),
-          weight: initConstraintWeight,
-          UOround: 0,
-          EPround: 0,
-          optStatus: "UnconstrainedRunning",
-          lbfgsInfo: defaultLbfgsParams,
+        return {
+          ...state,
+          params: {
+            ...state.params,
+            currObjectiveAndGradient: objectiveAndGradient(
+              initConstraintWeight
+            ),
+            weight: initConstraintWeight,
+            UOround: 0,
+            EPround: 0,
+            optStatus: "UnconstrainedRunning" as const,
+            lbfgsInfo: defaultLbfgsParams,
+          },
         };
-
-        return { ...state, params: newParams };
       }
     }
 
@@ -451,7 +427,12 @@ const awLineSearch2 = (
   const wolfe = weakWolfe; // Set this if using strongWolfe instead
 
   // Interval check
-  const shouldStop = (numUpdates: number, ai: number, bi: number) => {
+  const shouldStop = (
+    numUpdates: number,
+    ai: number,
+    bi: number,
+    t: number
+  ) => {
     const intervalTooSmall = Math.abs(bi - ai) < minInterval;
     const tooManySteps = numUpdates > maxSteps;
 
@@ -462,7 +443,12 @@ const awLineSearch2 = (
       log.info("line search stopping: step count exceeded");
     }
 
-    return intervalTooSmall || tooManySteps;
+    const needToStop = intervalTooSmall || tooManySteps;
+
+    if (needToStop && DEBUG_LINE_SEARCH) {
+      log.info("stopping early: (i, a, b, t) = ", numUpdates, ai, bi, t);
+    }
+    return needToStop;
   };
 
   // Consts / initial values
@@ -482,16 +468,7 @@ const awLineSearch2 = (
   }
 
   // Main loop + update check
-  while (true) {
-    const needToStop = shouldStop(i, a, b);
-
-    if (needToStop) {
-      if (DEBUG_LINE_SEARCH) {
-        log.info("stopping early: (i, a, b, t) = ", i, a, b, t);
-      }
-      break;
-    }
-
+  while (!shouldStop(i, a, b, t)) {
     const { f: obj, gradf: grad } = f(addv(xs0, scalev(t, descentDir)));
     const isArmijo = armijo(t, obj);
     const isWolfe = wolfe(t, grad);
@@ -872,7 +849,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     const translation = insertVaryings(translationInit, varyingMapList);
 
     // construct a new varying map
-    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+    const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(rng, objFns, translation, varyingMap);
@@ -900,7 +877,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
     const epWeightNode = input({
       val: state.params.weight,
-      index: 0, // xsVars indices must start at 1 to accommodate this
+      key: 0, // xsVars keys must start at 1 to accommodate this
     });
 
     const objEng: VarAD = ops.vsum(objEngs);
@@ -990,7 +967,7 @@ const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
     const translationInit = clone(makeTranslationNumeric(s.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     const translation = insertVaryings(translationInit, varyingMapList);
-    const varyingMap = genPathMap(varyingPaths, xsVars) as VaryMap<VarAD>;
+    const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
     const fnArgsEvaled: FnDone<VarAD> = evalFn(
