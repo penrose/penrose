@@ -38,6 +38,7 @@ module.exports = {
       1,
       { assertionStyle: "never" },
     ],
+    "@typescript-eslint/non-nullable-type-assertion-style": 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,
   },
