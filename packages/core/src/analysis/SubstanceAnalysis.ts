@@ -80,8 +80,8 @@ export const argMatches = (
     | Bind<A>,
   env: Env
 ): ArgStmtDecl<C>[] => {
-  const options = (s: any) => {
-    const [st] = findDecl(s.name.value, env);
+  const options = (s: SubExpr<A> | ApplyPredicate<A>) => {
+    const [st] = "name" in s ? findDecl(s.name.value, env) : [undefined];
     return st
       ? [
           matchDecls(st, env.constructors, signatureArgsEqual),
@@ -519,7 +519,7 @@ export const cleanNode = (prog: AbstractNode): AbstractNode =>
  * @returns
  */
 export const typeOf = (id: string, env: Env): string | undefined =>
-  env.vars.get(id)!.name.value;
+  env.vars.get(id)?.name.value;
 
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {

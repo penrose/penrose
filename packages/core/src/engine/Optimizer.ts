@@ -97,8 +97,6 @@ const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
 
-const EPS = uoStop;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 const unconstrainedConverged2 = (normGrad: number): boolean => {
@@ -510,11 +508,6 @@ const awLineSearch2 = (
   }
 
   return t;
-};
-
-const printVec = (xs: Matrix) => {
-  // Prints a col vector (nx1)
-  log.info("xs (matrix)", xs.to1DArray());
 };
 
 // Precondition the gradient:

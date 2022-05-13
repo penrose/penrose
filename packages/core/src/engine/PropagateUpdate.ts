@@ -113,9 +113,12 @@ export const insertPending = (state: State): State => {
     pendingPaths: [],
     // for each of the pending paths, update the translation using the updated shapes with new label dimensions etc.
     translation: state.pendingPaths
-      .map((p: Path<A>) => [p, findLabelValue(p, state.labelCache)])
+      .map((p: Path<A>): [Path<A>, Value<number>] => [
+        p,
+        findLabelValue(p, state.labelCache),
+      ])
       .reduce(
-        (trans: Translation, [path, v]: any) =>
+        (trans: Translation, [path, v]) =>
           insertExpr(path, { tag: "Done", contents: v }, trans),
         state.translation
       ),

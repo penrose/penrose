@@ -81,10 +81,7 @@ export const evalShapes = (rng: seedrandom.prng, s: State): ShapeAD[] => {
   log.info("shapePaths", s.shapePaths.map(prettyPrintPath));
 
   // Evaluate each of the shapes (note: the translation is mutated, not returned)
-  const [shapesEvaled, transEvaled]: [
-    ShapeAD[],
-    Translation
-  ] = shapeExprs.reduce(
+  const [shapesEvaled]: [ShapeAD[], Translation] = shapeExprs.reduce(
     ([currShapes, tr]: [ShapeAD[], Translation], e: IFGPI<VarAD>) =>
       evalShape(rng, e, tr, s.varyingMap, currShapes, optDebugInfo),
     [[], trans]

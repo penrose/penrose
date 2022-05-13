@@ -131,8 +131,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       // NOTE: params are not reused, so no need to check
       const { name, superTypes } = stmt;
       // check name duplicate
-      if (env.types.has(name.value))
-        return err(duplicateName(name, stmt, env.types.get(name.value)!));
+      const existing = env.types.get(name.value);
+      if (existing !== undefined)
+        return err(duplicateName(name, stmt, existing));
       // insert type into env
       const updatedEnv: CheckerResult = ok({
         ...env,
@@ -161,10 +162,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.constructors.has(name.value))
-        return err(
-          duplicateName(name, stmt, env.constructors.get(name.value)!)
-        );
+      const existing = env.constructors.get(name.value);
+      if (existing !== undefined)
+        return err(duplicateName(name, stmt, existing));
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
@@ -184,8 +184,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.functions.has(name.value))
-        return err(duplicateName(name, stmt, env.functions.get(name.value)!));
+      const existing = env.functions.get(name.value);
+      if (existing !== undefined)
+        return err(duplicateName(name, stmt, existing));
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
@@ -205,8 +206,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         typeVars: Map(keyBy(params, "name.value")),
       };
       // check name duplicate
-      if (env.predicates.has(name.value))
-        return err(duplicateName(name, stmt, env.predicates.get(name.value)!));
+      const existing = env.predicates.get(name.value);
+      if (existing) return err(duplicateName(name, stmt, existing));
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // insert predicate into env

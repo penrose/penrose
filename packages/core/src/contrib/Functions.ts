@@ -112,7 +112,7 @@ export const compDict = {
     _context: Context,
     optDebugInfo: OptDebugInfo,
     varName: string
-  ): IFloatV<any> => {
+  ): IFloatV<VarAD> => {
     if (
       !optDebugInfo ||
       !("gradient" in optDebugInfo) ||
@@ -151,7 +151,7 @@ export const compDict = {
     _context: Context,
     optDebugInfo: OptDebugInfo,
     varName: string
-  ): IFloatV<any> => {
+  ): IFloatV<VarAD> => {
     if (
       !optDebugInfo ||
       !("gradientPreconditioned" in optDebugInfo) ||
@@ -185,7 +185,7 @@ export const compDict = {
   /**
    * Return `i`th element of list `xs, assuming lists only hold floats.
    */
-  get: (_context: Context, xs: VarAD[], i: number): IFloatV<any> => {
+  get: (_context: Context, xs: VarAD[], i: number): IFloatV<VarAD> => {
     const res = xs[i];
     return {
       tag: "FloatV",
@@ -260,7 +260,7 @@ export const compDict = {
   /**
    * Return a paint of none (no paint)
    */
-  none: (_context: Context): IColorV<any> => {
+  none: (_context: Context): IColorV<VarAD> => {
     return {
       tag: "ColorV",
       contents: {
@@ -542,10 +542,7 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  lineLength: (
-    _context: Context,
-    [type, props]: [string, any]
-  ): IFloatV<VarAD> => {
+  lineLength: (_context: Context, [, props]: [string, any]): IFloatV<VarAD> => {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
@@ -556,7 +553,7 @@ export const compDict = {
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  len: (_context: Context, [type, props]: [string, any]): IFloatV<VarAD> => {
+  len: (_context: Context, [, props]: [string, any]): IFloatV<VarAD> => {
     const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
@@ -639,8 +636,8 @@ export const compDict = {
    */
   unitMark: (
     _context: Context,
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
+    [, s1]: [string, any],
+    [, s2]: [string, any],
     t: string,
     padding: VarAD,
     barSize: VarAD
@@ -941,7 +938,7 @@ export const compDict = {
     spacing: VarAD,
     numTicks: VarAD,
     tickLength: VarAD
-  ) => {
+  ): IPathDataV<VarAD> => {
     if (typeof numTicks !== "number") {
       throw Error("numTicks must be a constant");
     }
@@ -980,7 +977,7 @@ export const compDict = {
       (t1 === "Arrow" || t1 === "Line") &&
       (t2 === "Arrow" || t2 === "Line")
     ) {
-      const [seg1, seg2]: any = [linePts(s1), linePts(s2)];
+      const [seg1, seg2] = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
       const path = new PathBuilder();
       return path
@@ -1097,10 +1094,8 @@ export const compDict = {
     alpha: VarAD,
     colorType: string
   ): IColorV<VarAD> => {
-    checkFloat(alpha);
-
     if (colorType === "rgb") {
-      const rgb = range(3).map((_) => randFloat(context.rng, 0.1, 0.9));
+      const rgb = range(3).map(() => randFloat(context.rng, 0.1, 0.9));
 
       return {
         tag: "ColorV",
@@ -1444,7 +1439,7 @@ export const compDict = {
   /**
    * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
-  rot90: (_context: Context, v: VarAD[]) => {
+  rot90: (_context: Context, v: VarAD[]): IVectorV<VarAD> => {
     if (v.length !== 2) {
       throw Error("expected 2D vector in `rot90`");
     }
@@ -1455,7 +1450,7 @@ export const compDict = {
   /**
    * Rotate a 2D vector `v` by theta degrees counterclockwise.
    */
-  rotateBy: (_context: Context, v: VarAD[], theta: VarAD) => {
+  rotateBy: (_context: Context, v: VarAD[], theta: VarAD): IVectorV<VarAD> => {
     if (v.length !== 2) {
       throw Error("expected 2D vector in `rotateBy`");
     }
@@ -1475,15 +1470,8 @@ const _compDictVals: ((
 ) => unknown)[] = Object.values(compDict);
 
 // Ignore this
-export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
+export const checkComp = (fn: string, args: ArgVal<VarAD>[]): void => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
-};
-
-// Make sure all arguments are not numbers (they should be VarADs if floats)
-const checkFloat = (x: any) => {
-  if (typeof x === "number") {
-    throw Error("expected float converted to VarAD; got number (int?)");
-  }
 };
 
 const toPt = (v: VecAD): Pt2 => {

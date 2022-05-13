@@ -31,38 +31,38 @@ export const objDictSimple = {
   /**
    * Encourage the input value to be close to negative infinity
    */
-  minimal: (x: VarAD) => x,
+  minimal: (x: VarAD): VarAD => x,
 
   /**
    * Encourage the input value to be close to infinity
    */
-  maximal: (x: VarAD) => neg(x),
+  maximal: (x: VarAD): VarAD => neg(x),
 
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    */
-  equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+  equal: (x: VarAD, y: VarAD): VarAD => squared(sub(x, y)),
 
   /**
    * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
    */
-  greaterThan: (x: VarAD, y: VarAD) => squared(max(0, sub(y, x))),
+  greaterThan: (x: VarAD, y: VarAD): VarAD => squared(max(0, sub(y, x))),
 
   /**
    * Encourage x to be less than or equal to y: `max(0,x - y)^2`
    */
-  lessThan: (x: VarAD, y: VarAD) => squared(max(0, sub(x, y))),
+  lessThan: (x: VarAD, y: VarAD): VarAD => squared(max(0, sub(x, y))),
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
    */
-  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]) =>
+  repelPt: (weight: VarAD, a: VarAD[], b: VarAD[]): VarAD =>
     mul(weight, inverse(ops.vdistsq(a, b))),
 
   /**
    * Repel scalar `c` from another scalar `d`.
    */
-  repelScalar: (c: VarAD, d: VarAD) => {
+  repelScalar: (c: VarAD, d: VarAD): VarAD => {
     // 1/(c-d)^2
     return inverse(squared(sub(c, d)));
   },
@@ -79,7 +79,7 @@ export const objDictGeneral = {
     [tBottom, sBottom]: [string, any],
     [tTop, sTop]: [string, any],
     offset = 100
-  ) => {
+  ): VarAD => {
     return inDirection([tBottom, sBottom], [tTop, sTop], [0, 1], offset);
   },
 
@@ -90,7 +90,7 @@ export const objDictGeneral = {
     [tTop, sTop]: [string, any],
     [tBottom, sBottom]: [string, any],
     offset = 100
-  ) => {
+  ): VarAD => {
     return inDirection([tTop, sTop], [tBottom, sBottom], [0, 1], offset);
   },
 
@@ -101,7 +101,7 @@ export const objDictGeneral = {
     [tLeft, sLeft]: [string, any],
     [tRight, sRight]: [string, any],
     offset = 100
-  ) => {
+  ): VarAD => {
     return inDirection([tLeft, sLeft], [tRight, sRight], [1, 0], offset);
   },
 
@@ -112,14 +112,14 @@ export const objDictGeneral = {
     [tRight, sRight]: [string, any],
     [tLeft, sLeft]: [string, any],
     offset = 100
-  ) => {
+  ): VarAD => {
     return inDirection([tRight, sRight], [tLeft, sLeft], [1, 0], offset);
   },
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.
    */
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]): VarAD => {
     const center1 = shapeCenter([t1, s1]);
     const center2 = shapeCenter([t2, s2]);
     return ops.vdistsq(center1, center2);
@@ -128,7 +128,11 @@ export const objDictGeneral = {
   /**
    * Try to repel shapes `s1` and `s2` with some weight.
    */
-  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
+  repel: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    weight = 10.0
+  ): VarAD => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
     const repelWeight = 10e6;
@@ -156,7 +160,11 @@ export const objDictGeneral = {
   /**
    * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
    */
-  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
+  near: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    offset = 10.0
+  ): VarAD => {
     const res = absVal(
       ops.vdistsq(shapeCenter([t1, s1]), shapeCenter([t2, s2]))
     );
@@ -166,7 +174,7 @@ export const objDictGeneral = {
   /**
    * Try to place shape `s1` near a location `(x, y)`.
    */
-  nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
+  nearPt: ([t1, s1]: [string, any], x: any, y: any): VarAD => {
     return ops.vdistsq(shapeCenter([t1, s1]), [x, y]);
   },
 
@@ -180,7 +188,7 @@ export const objDictGeneral = {
     [t2, p2]: [string, any],
     strength = 20,
     range = 10
-  ) => {
+  ): VarAD => {
     const c0 = shapeCenter([t0, p0]);
     const c1 = shapeCenter([t1, p1]);
     const c2 = shapeCenter([t2, p2]);
@@ -275,7 +283,11 @@ export const objDictSpecific = {
   /**
    * try to make distance between a point and a segment `s1` = padding.
    */
-  pointLineDist: (point: VarAD[], [t1, s1]: [string, any], padding: VarAD) => {
+  pointLineDist: (
+    point: VarAD[],
+    [t1, s1]: [string, any],
+    padding: VarAD
+  ): VarAD => {
     if (!shapedefs[t1].isLinelike) {
       throw new Error(`pointLineDist: expected a point and a line, got ${t1}`);
     }

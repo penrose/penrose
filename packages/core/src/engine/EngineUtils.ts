@@ -907,7 +907,9 @@ export const insertExprs = (
   return tr2;
 };
 
-export const isTagExpr = (e: any): e is TagExpr<VarAD> => {
+export const isTagExpr = (
+  e: TagExpr<VarAD> | StyleError
+): e is TagExpr<VarAD> => {
   return e.tag === "OptEval" || e.tag === "Done" || e.tag === "Pending";
 };
 
