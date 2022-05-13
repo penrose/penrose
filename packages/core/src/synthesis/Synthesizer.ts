@@ -743,7 +743,7 @@ export const generateArgStmt = (
   // NOTE: if arguments are supplied explicitly, the caller must have the right types for the arguments.
   switch (decl.tag) {
     case "PredicateDecl":
-      return generatePredicate(decl, ctx, args as SubPredArg<A>[]);
+      return generatePredicate(decl, ctx, args);
     case "FunctionDecl":
       return generateFunction(decl, ctx, args as SubExpr<A>[]);
     case "ConstructorDecl":
@@ -928,7 +928,7 @@ const generateArg = (
           };
         }
       }
-      case "generated":
+      case "generated": {
         const argTypeDecl = ctx.env.types.get(argType.name.value);
         if (argTypeDecl) {
           const { res: decl, ctx: newCtx } = generateDecl(argTypeDecl, ctx);
@@ -943,6 +943,7 @@ const generateArg = (
             `${argType.name.value} not found in the candidate list`
           );
         }
+      }
       case "mixed":
         return generateArg(
           arg,

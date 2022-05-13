@@ -103,7 +103,7 @@ export default function (fileInfo: FileInfo, api: API) {
   };
   // ternary to call expression
   const TERN2CE = (target: string, node: any): CallExpression => {
-    const ternNode = node as ConditionalExpression;
+    const ternNode: ConditionalExpression = node;
     const test = ternNode.test;
     const consequent = ternNode.consequent;
     const alternate = ternNode.alternate;
@@ -377,7 +377,7 @@ export default function (fileInfo: FileInfo, api: API) {
     // todo the next line excludes qualified types e.g. Foo.Bar as a type. fix this
     else if (node.type === "TSTypeReference") {
       // transform custom types
-      const matchKey = hasMatch(node as TSTypeReference, TYPS);
+      const matchKey = hasMatch(node, TYPS);
       return matchKey ? TYPS[matchKey] : false;
     } else if (node.type in TYPS) return TYPS[node.type];
     // keyword types //todo doublecheck

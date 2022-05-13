@@ -170,12 +170,12 @@ export function numbered<A>(xs: A[]): [A, number][] {
 // TODO move to util
 
 export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  if ((val as Left<A>).tag === "Left") return true;
+  if (val.tag === "Left") return true;
   return false;
 }
 
 export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  if ((val as Right<B>).tag === "Right") return true;
+  if (val.tag === "Right") return true;
   return false;
 }
 
@@ -636,11 +636,8 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
 
 // Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
 const couldMatchRels = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   typeEnv: Env,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rels: RelationPattern<A>[],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stmt: SubStmt<A>
 ): boolean => {
   // TODO < (this is an optimization; will only implement if needed)
@@ -1576,7 +1573,7 @@ const nameAnonStatement = (i: number, s: Stmt<A>): [number, Stmt<A>] => {
       }, // TODO: Why is it parsed like this?
       path: {
         tag: "InternalLocalVar",
-        contents: `\$${ANON_KEYWORD}_${i}`,
+        contents: `$${ANON_KEYWORD}_${i}`,
         nodeType: "SyntheticStyle",
       },
       value: s.contents,
@@ -1679,7 +1676,12 @@ const deleteProperty = (
             // TODO(error)
             return addWarn(trans, {
               tag: "CircularPathAlias",
-              path: { tag: "FieldPath", name, field } as Path<A>,
+              path: {
+                tag: "FieldPath",
+                nodeType: "SyntheticStyle",
+                name,
+                field,
+              },
             });
           }
           return deleteProperty(trans, p, p.name, p.field, property);
@@ -1974,7 +1976,6 @@ const checkBlockExpr = (selEnv: SelEnv, expr: Expr<A>): StyleResults => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkBlockPath = (selEnv: SelEnv, path: Path<A>): StyleResults => {
   // TODO(errors) / Block statics
   // Currently there is nothing to check for paths
@@ -2168,7 +2169,6 @@ const translateStyProg = (
   subProg: SubProg<A>,
   styProg: StyProg<A>,
   labelMap: LabelMap,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   styVals: number[]
 ): Either<StyleErrors, Translation> => {
   // COMBAK: Deal with styVals
@@ -2472,7 +2472,8 @@ const findGPIName = (
 ): [string, Field][] => {
   switch (fexpr.tag) {
     case "FGPI": {
-      return ([[name, field]] as [string, Field][]).concat(acc);
+      const head: [string, Field] = [name, field];
+      return [head].concat(acc);
     }
     case "FExpr": {
       return acc;
@@ -2495,9 +2496,11 @@ const findShapeProperties = (
   switch (fexpr.tag) {
     case "FGPI": {
       const properties = fexpr.contents[1];
-      const paths = Object.keys(properties).map(
-        (property) => [name, field, property] as [string, Field, Property]
-      );
+      const paths = Object.keys(properties).map((property): [
+        string,
+        Field,
+        Property
+      ] => [name, field, property]);
       return paths.concat(acc);
     }
     case "FExpr": {
@@ -2550,13 +2553,9 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 };
 
 const findFieldDefaultFns = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: Field,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fexpr: FieldExpr<VarAD>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FGPI") {
@@ -2602,10 +2601,16 @@ const toFns = ([objfns, constrfns]: [StyleOptFn[], StyleOptFn[]]): [
 
 // COMBAK: Move this to utils
 function partitionEithers<A, B>(es: Either<A, B>[]): [A[], B[]] {
-  return [
-    es.filter((e) => e.tag === "Left").map((e) => e.contents as A),
-    es.filter((e) => e.tag === "Right").map((e) => e.contents as B),
-  ];
+  const a: A[] = [];
+  const b: B[] = [];
+  for (const e of es) {
+    if (e.tag === "Left") {
+      a.push(e.contents);
+    } else {
+      b.push(e.contents);
+    }
+  }
+  return [a, b];
 }
 
 const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
@@ -2890,7 +2895,6 @@ const findLayeringExprs = (tr: Translation): ILayering<A>[] => {
   return foldSubObjs(findLayeringExpr, tr);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lookupGPIName = (p: Path<A>, tr: Translation): string => {
   if (p.tag === "FieldPath") {
     // COMBAK: Deal with path synonyms / aliases by looking them up?
@@ -3112,7 +3116,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
   try {
     const { results } = parser.feed(p).feed("\n");
     if (results.length > 0) {
-      const ast: StyProg<C> = results[0] as StyProg<C>;
+      const ast: StyProg<C> = results[0];
       return ok(ast);
     } else {
       return err(parseError(`Unexpected end of input`, lastLocation(parser)));

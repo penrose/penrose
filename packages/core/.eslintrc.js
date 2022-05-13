@@ -17,6 +17,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "prettier",
@@ -28,13 +29,20 @@ module.exports = {
     sourceType: "module",
   },
   plugins: [
+    "eslint-comments",
     "eslint-plugin-import",
     "eslint-plugin-jsdoc",
     "eslint-plugin-react",
     "eslint-plugin-import",
   ],
   rules: {
+    "@typescript-eslint/consistent-type-assertions": [
+      1,
+      { assertionStyle: "never" },
+    ],
+    "@typescript-eslint/non-nullable-type-assertion-style": 2,
     eqeqeq: 2,
+    "eslint-comments/no-use": 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,
     "no-template-curly-in-string": 2,
