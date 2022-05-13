@@ -586,10 +586,7 @@ export const insertExpr = (
       if (
         compiling &&
         !override &&
-        Object.prototype.hasOwnProperty.call(
-          trans.trMap[name.contents.value],
-          field.value
-        )
+        Object.hasOwn(trans.trMap[name.contents.value], field.value)
       ) {
         trans = addWarn(trans, {
           tag: "InsertedPathWithoutOverrideError",
@@ -674,11 +671,7 @@ export const insertExpr = (
 
         // TODO(error): check for field/property overrides of paths that don't already exist
         // TODO(error): if there are multiple matches, override errors behave oddly...
-        if (
-          compiling &&
-          !override &&
-          Object.prototype.hasOwnProperty.call(properties, prop.value)
-        ) {
+        if (compiling && !override && Object.hasOwn(properties, prop.value)) {
           trans = addWarn(trans, {
             tag: "InsertedPathWithoutOverrideError",
             path,
