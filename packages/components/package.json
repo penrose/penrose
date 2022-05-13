@@ -8,8 +8,7 @@
   "scripts": {
     "dev": "vite",
     "watch": "vite build --watch",
-    "prebuild": "tsc --noEmit",
-    "build": "cross-env vite build",
+    "build": "cross-env vite build && tsc",
     "preview": "vite preview",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
