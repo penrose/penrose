@@ -7,7 +7,6 @@ import { VarAD } from "types/ad";
 import {
   A,
   ASTNode,
-  C,
   ConcreteNode,
   Identifier,
   NodeType,
@@ -17,14 +16,7 @@ import {
 import { StyleError, Warning } from "types/errors";
 import { Shape, ShapeAD } from "types/shape";
 import { LbfgsParams } from "types/state";
-import {
-  AnnoFloat,
-  Expr,
-  IPropertyPath,
-  IVector,
-  Path,
-  PropertyDecl,
-} from "types/style";
+import { AnnoFloat, Expr, IVector, Path, PropertyDecl } from "types/style";
 import {
   Color,
   FieldExpr,
@@ -188,9 +180,9 @@ function mapPathData<T, S>(f: (arg: T) => S, v: IPathDataV<T>): IPathDataV<S> {
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   switch (v.tag) {
     case "RGBA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "HSVA":
-      return { tag: v.tag, contents: mapTuple(f, (v as any).contents) };
+      return { tag: v.tag, contents: mapTuple(f, v.contents) };
     case "NONE":
       return { tag: v.tag };
   }
@@ -246,7 +238,7 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     case "FileV":
     case "StyleV":
     case "IntV":
-      return v as Value<S>;
+      return v;
   }
 }
 
@@ -780,7 +772,7 @@ export const insertExpr = (
         }
 
         case "PropertyPath": {
-          const ip = innerPath as IPropertyPath<C>;
+          const ip = innerPath;
           // a.x.y[0] = e
           [name, field, prop] = [ip.name, ip.field, ip.property];
           const gpi = trans.trMap[name.contents.value][

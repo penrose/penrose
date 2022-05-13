@@ -2,7 +2,7 @@ import { exprToNumber, insertExpr } from "engine/EngineUtils";
 import { A } from "types/ast";
 import { Shape } from "types/shape";
 import { LabelCache, State } from "types/state";
-import { IAccessPath, IPropertyPath, Path } from "types/style";
+import { IPropertyPath, Path } from "types/style";
 import { Translation, Value } from "types/value";
 import { retrieveLabel } from "utils/CollectLabels";
 
@@ -16,7 +16,7 @@ import { retrieveLabel } from "utils/CollectLabels";
 const findShapeProperty = (shapes: any, path: Path<A>): Value<number> | any => {
   const getProperty = (path: IPropertyPath<A>) => {
     const [subName, field, prop]: [string, string, string] = [
-      (path as IPropertyPath<A>).name.contents.value,
+      path.name.contents.value,
       path.field.value,
       path.property.value,
     ];
@@ -46,10 +46,7 @@ const findShapeProperty = (shapes: any, path: Path<A>): Value<number> | any => {
       return getProperty(path);
     }
     case "AccessPath": {
-      const [propertyPath, indices] = [
-        (path as IAccessPath<A>).path,
-        path.indices,
-      ];
+      const { path: propertyPath, indices } = path;
       if (propertyPath.tag === "PropertyPath") {
         const property = getProperty(propertyPath);
         // walk the structure to access all indices

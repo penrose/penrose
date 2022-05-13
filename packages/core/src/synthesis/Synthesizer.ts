@@ -743,7 +743,7 @@ export const generateArgStmt = (
   // NOTE: if arguments are supplied explicitly, the caller must have the right types for the arguments.
   switch (decl.tag) {
     case "PredicateDecl":
-      return generatePredicate(decl, ctx, args as SubPredArg<A>[]);
+      return generatePredicate(decl, ctx, args);
     case "FunctionDecl":
       return generateFunction(decl, ctx, args as SubExpr<A>[]);
     case "ConstructorDecl":
