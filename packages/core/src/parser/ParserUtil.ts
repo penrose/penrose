@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { compact, flatten } from "lodash";
 import * as moo from "moo";
 import { C, Identifier, NodeType, SourceLoc, SourceRange } from "types/ast";

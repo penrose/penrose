@@ -28,12 +28,14 @@ module.exports = {
     sourceType: "module",
   },
   plugins: [
+    "eslint-comments",
     "eslint-plugin-import",
     "eslint-plugin-jsdoc",
     "eslint-plugin-react",
     "eslint-plugin-import",
   ],
   rules: {
+    "eslint-comments/no-use": 2,
     "import/no-cycle": 2,
     "no-fallthrough": 2,
   },
