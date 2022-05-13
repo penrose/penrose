@@ -508,13 +508,11 @@ export const getEnd = ({ end }: ILine): VarAD[] => end.contents;
 //#region either monad
 
 export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  if ((val as Left<A>).tag === "Left") return true;
-  return false;
+  return val.tag === "Left";
 }
 
 export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  if ((val as Right<B>).tag === "Right") return true;
-  return false;
+  return val.tag === "Right";
 }
 
 export function toLeft<A>(val: A): Left<A> {
