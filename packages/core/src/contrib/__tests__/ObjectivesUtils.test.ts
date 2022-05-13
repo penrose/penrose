@@ -1,11 +1,11 @@
 import { inDirection } from "contrib/ObjectivesUtils";
 import { genCode, secondaryGraph } from "engine/Autodiff";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 const testShape = { center: { contents: [0, 2] } };
 const testRefShape = { center: { contents: [1, 1] } };
 
-const numOf = (x: VarAD) => {
+const numOf = (x: ad.Num) => {
   const g = secondaryGraph([x]);
   const f = genCode(g);
   const [y] = f([]).secondary; // no inputs, so, empty array

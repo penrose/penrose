@@ -7,13 +7,13 @@ import {
 import { genCode, ops, secondaryGraph } from "engine/Autodiff";
 import { sub } from "engine/AutodiffFunctions";
 import * as BBox from "engine/BBox";
-import { Pt2, VarAD } from "types/ad";
+import * as ad from "types/ad";
 
 const digitPrecision = 4;
 
 describe("rectangleDifference", () => {
   const expectRectDiff = (
-    result: [Pt2, Pt2],
+    result: [ad.Pt2, ad.Pt2],
     expected: [[number, number], [number, number]]
   ) => {
     const g = secondaryGraph([
@@ -114,7 +114,7 @@ describe("outwardUnitNormal", () => {
 });
 
 describe("halfPlaneSDF", () => {
-  const numOf = (x: VarAD) => {
+  const numOf = (x: ad.Num) => {
     const g = secondaryGraph([x]);
     const f = genCode(g);
     const [y] = f([]).secondary; // no inputs, so, empty array
@@ -139,8 +139,8 @@ describe("halfPlaneSDF", () => {
 
 describe("convexPartitions", () => {
   // note: in each of these examples, we don't need to do anything special to
-  // convert VarADs to numbers because all the VarADs we're using happen to
-  // already be constants
+  // convert `ad.Num`s to numbers because all the `ad.Num`s we're using happen
+  // to already be constants
 
   // https://link.springer.com/content/pdf/10.1007/3-540-12689-9_105.pdf
   // point locations approximated by tracing in Inkscape; also note, this

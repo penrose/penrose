@@ -27,7 +27,6 @@ import { Matrix } from "ml-matrix";
 import rfdc from "rfdc";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
-import { OptInfo, VarAD } from "types/ad";
 import { A } from "types/ast";
 import {
   Fn,
@@ -125,7 +124,7 @@ const epConverged2 = (
   return stateChange < epStop || energyChange < epStop;
 };
 
-const applyFn = (f: FnDone<VarAD>, dict: any) => {
+const applyFn = (f: FnDone<ad.Num>, dict: any) => {
   if (dict[f.name]) {
     return dict[f.name](...f.args.map(argValue));
   } else {
@@ -705,7 +704,7 @@ const minimize = (
   lbfgsInfo: LbfgsParams,
   varyingPaths: string[],
   numSteps: number
-): OptInfo => {
+): ad.OptInfo => {
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
   log.info("-------------------------------------");
@@ -819,37 +818,37 @@ const minimize = (
 };
 
 /**
- * Generate an energy function from the current state (using VarADs only)
+ * Generate an energy function from the current state (using `ad.Num`s only)
  *
  * @param {State} state
- * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
+ * @returns a function that takes in a list of `ad.Num`s and return a `Scalar`
  */
 export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
   return (
     ...xsVars: ad.Input[]
   ): {
-    energyGraph: VarAD;
+    energyGraph: ad.Num;
     epWeightNode: ad.Input;
   } => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, varyingPaths } = state;
 
-    // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
-    // Note that we have to do a "round trip" on the translation types, from VarAD to number to VarAD, to clear the computational graph of the VarADs. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the VarADs, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the VarADs should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
+    // Clone the translation to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse ad.Num (computation) results
+    // Note that we have to do a "round trip" on the translation types, from ad.Num to number to ad.Num, to clear the computational graph of the `ad.Num`s. Otherwise, there may be cycles in the translation (since 1) we run `evalShapes` in `processData`, which mutates the `ad.Num`s, and 2) the computational graph contains DAGs and stores both parent and child pointers). Cycles in the translation cause `clone` to be very slow, and anyway, the `ad.Num`s should be "fresh" since the point of this function is to build the comp graph from scratch by interpreting the translation.
     const translationInit = clone(makeTranslationNumeric(state.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     // Insert varying vals into translation (e.g. VectorAccesses of varying vals are found in the translation, although I guess in practice they should use varyingMap)
     const translation = insertVaryings(translationInit, varyingMapList);
 
     // construct a new varying map
-    const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
+    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(rng, objFns, translation, varyingMap);
     const constrEvaled = evalFns(rng, constrFns, translation, varyingMap);
 
-    const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: VarAD[] = constrEvaled.map((c) =>
+    const objEngs: ad.Num[] = objEvaled.map((o) => applyFn(o, objDict));
+    const constrEngs: ad.Num[] = constrEvaled.map((c) =>
       fns.toPenalty(applyFn(c, constrDict))
     );
 
@@ -864,7 +863,7 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
     }
 
     // This is fixed during the whole optimization
-    const constrWeightNode: VarAD = constraintWeight;
+    const constrWeightNode: ad.Num = constraintWeight;
 
     // This changes with the EP round, gets bigger to weight the constraints
     // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
@@ -873,10 +872,10 @@ export const evalEnergyOnCustom = (rng: seedrandom.prng, state: State) => {
       key: 0, // xsVars keys must start at 1 to accommodate this
     });
 
-    const objEng: VarAD = ops.vsum(objEngs);
-    const constrEng: VarAD = ops.vsum(constrEngs);
+    const objEng: ad.Num = ops.vsum(objEngs);
+    const constrEng: ad.Num = ops.vsum(constrEngs);
     // F(x) = o(x) + c0 * penalty * c(x)
-    const overallEng: VarAD = add(
+    const overallEng: ad.Num = add(
       objEng,
       mul(constrEng, mul(constrWeightNode, epWeightNode))
     );
@@ -900,7 +899,7 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   const overallObjective = evalEnergyOnCustom(rng, state);
   const xsVars: ad.Input[] = makeADInputVars(xs, 1); // ep weight is index 0
   const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
-  // `energyGraph` is a VarAD that is a handle to the top of the graph
+  // `energyGraph` is a ad.Num that is a handle to the top of the graph
 
   log.info("interpreted energy graph", res.energyGraph);
   log.info("input vars", xsVars);
@@ -950,26 +949,26 @@ export const genOptProblem = (rng: seedrandom.prng, state: State): State => {
   return { ...state, params: newParams };
 };
 
-// Eval a single function on the state (using VarADs). Based off of `evalEnergyOfCustom` -- see that function for comments.
+// Eval a single function on the state (using `ad.Num`s). Based off of `evalEnergyOfCustom` -- see that function for comments.
 const evalFnOn = (rng: seedrandom.prng, fn: Fn, s: State) => {
   const dict = fn.optType === "ObjFn" ? objDict : constrDict;
 
-  return (...xsVars: ad.Input[]): VarAD => {
+  return (...xsVars: ad.Input[]): ad.Num => {
     const { varyingPaths } = s;
 
     const translationInit = clone(makeTranslationNumeric(s.translation));
     const varyingMapList = zip2(varyingPaths, xsVars);
     const translation = insertVaryings(translationInit, varyingMapList);
-    const varyingMap: VaryMap<VarAD> = genPathMap(varyingPaths, xsVars);
+    const varyingMap: VaryMap<ad.Num> = genPathMap(varyingPaths, xsVars);
 
     // NOTE: This will mutate the var inputs
-    const fnArgsEvaled: FnDone<VarAD> = evalFn(
+    const fnArgsEvaled: FnDone<ad.Num> = evalFn(
       rng,
       fn,
       translation,
       varyingMap
     );
-    const fnEnergy: VarAD = applyFn(fnArgsEvaled, dict);
+    const fnEnergy: ad.Num = applyFn(fnArgsEvaled, dict);
 
     return fnEnergy;
   };
@@ -981,13 +980,13 @@ const genFn = (rng: seedrandom.prng, fn: Fn, s: State): FnCached => {
 
   const overallObjective = evalFnOn(rng, fn, s);
   const xsVars: ad.Input[] = makeADInputVars(xs);
-  const energyGraph: VarAD = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+  const energyGraph: ad.Num = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
 
   const weightInfo: WeightInfo | undefined = undefined;
 
   const { f } = energyAndGradCompiled(xs, xsVars, energyGraph, weightInfo);
 
-  // Note this throws away the energy/gradient graphs (`VarAD`s). Presumably not needed?
+  // Note this throws away the energy/gradient graphs (`ad.Num`s). Presumably not needed?
   return (xs: number[]) => {
     const { primary, gradient } = f(xs);
     return { f: primary, gradf: gradient };

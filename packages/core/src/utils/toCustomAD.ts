@@ -244,7 +244,7 @@ export default function (fileInfo: FileInfo, api: API): string {
   };
   const TYPS: { [k: string]: Transform } = {
     TSNumberKeyword: {
-      newName: "VarAD",
+      newName: "ad.Num",
       transformMethod: TYPSUB, // TYPSUB - method to perform type substitution. This will practically always be the method used to transform any type.
       matchTargetFn: getTypeRefName,
     },

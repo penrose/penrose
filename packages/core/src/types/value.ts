@@ -1,4 +1,4 @@
-import { VarAD } from "./ad";
+import * as ad from "./ad";
 import { A } from "./ast";
 import { StyleError } from "./errors";
 import { Expr } from "./style";
@@ -26,11 +26,11 @@ export interface IVal<T> {
 export type Field = string;
 export type Name = string;
 export type Property = string;
-export type FExpr = FieldExpr<VarAD>;
+export type FExpr = FieldExpr<ad.Num>;
 export type ShapeTypeStr = string;
 export type PropID = string;
-export type GPIMap = { [k: string]: TagExpr<VarAD> };
-export type FieldDict = { [k: string]: FieldExpr<VarAD> };
+export type GPIMap = { [k: string]: TagExpr<ad.Num> };
+export type FieldDict = { [k: string]: FieldExpr<ad.Num> };
 
 export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
 
@@ -38,9 +38,9 @@ export type StyleOptFn = [string, Expr<A>[]]; // Objective or constraint
 /**
  * Translation represents the computational graph compiled from a trio of Penrose programs.
  */
-export type Translation = ITrans<VarAD>;
+export type Translation = ITrans<ad.Num>;
 
-export type Trans = TrMap<VarAD>;
+export type Trans = TrMap<ad.Num>;
 
 export type TrMap<T> = { [k: string]: { [k: string]: FieldExpr<T> } };
 
