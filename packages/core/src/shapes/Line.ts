@@ -1,4 +1,4 @@
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { IArrow, INamed, IShape, IStroke } from "types/shapes";
 import { IStrV, IVectorV } from "types/value";
 import {
@@ -11,8 +11,8 @@ import {
 } from "./Samplers";
 
 export interface ILine extends INamed, IStroke, IArrow {
-  start: IVectorV<VarAD>;
-  end: IVectorV<VarAD>;
+  start: IVectorV<ad.Num>;
+  end: IVectorV<ad.Num>;
   strokeLinecap: IStrV;
 }
 

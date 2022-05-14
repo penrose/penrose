@@ -1,4 +1,4 @@
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { IArrow, IFill, INamed, IShape, IStroke } from "types/shapes";
 import { IPathDataV } from "types/value";
 import {
@@ -12,7 +12,7 @@ import {
 } from "./Samplers";
 
 export interface IPath extends INamed, IStroke, IFill, IArrow {
-  d: IPathDataV<VarAD>;
+  d: IPathDataV<ad.Num>;
 }
 
 export const samplePath = (rng: seedrandom.prng, _canvas: Canvas): IPath => ({

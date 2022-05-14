@@ -51,7 +51,7 @@ Currently the following transforms will occur (you can see this in more detail i
 | x \* y         | mul(x, y)       |
 | x / y          | div(x, y)       |
 | -x             | neg(x)          |
-| x: number      | x: VarAD        |
+| x: number      | x: ad.Num       |
 | Math.pow(x, y) | pow(x, y)       |
 | Math.pow(x, 2) | squared(x)      |
 | x ? y : z      | ifCond(x, y, z) |
@@ -90,7 +90,7 @@ JSCodeshift will modify your input file in place. If this is undesirable behavio
 
     export const objDict = {
         // autodiff
-        equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+        equal: (x: ad.Num, y: ad.Num) => squared(sub(x, y)),
 
         // autodiff
         above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>

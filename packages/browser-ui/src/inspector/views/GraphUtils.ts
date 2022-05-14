@@ -5,7 +5,7 @@ import {
   prettyPrintPath,
   secondaryGraph,
 } from "@penrose/core";
-import { Node, VarAD } from "@penrose/core/build/dist/types/ad";
+import * as ad from "@penrose/core/build/dist/types/ad";
 import { A } from "@penrose/core/build/dist/types/ast";
 import { Fn } from "@penrose/core/build/dist/types/state";
 import { Path } from "@penrose/core/build/dist/types/style";
@@ -27,7 +27,7 @@ export type PGraph = ElementsDefinition;
  */
 const merge = <T>(arr: T[][]): T[] => ([] as T[]).concat(...arr);
 
-const labelNode = (node: Node): string => {
+const labelNode = (node: ad.Node): string => {
   if (typeof node === "number") {
     return `${node}`;
   }
@@ -65,9 +65,9 @@ const labelNode = (node: Node): string => {
  * For building atomic op graph.
  * Given a parent node, returns the graph corresponding to nodes and edges of children
  * Returns unique nodes after all nodes are merged
- * TODO: Add type for graph and VarAD
+ * TODO: Add type for graph and ad.Num
  */
-export const traverseUnique = (par: VarAD): PGraph => {
+export const traverseUnique = (par: ad.Num): PGraph => {
   // TODO: do not navigate graph outside core
   const { graph } = secondaryGraph([par]);
   return {

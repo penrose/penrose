@@ -10,7 +10,6 @@ import {
 import * as _ from "lodash";
 import seedrandom from "seedrandom";
 import * as ad from "types/ad";
-import { VarAD } from "types/ad";
 import { eqList, randList } from "utils/Util";
 import {
   add,
@@ -308,7 +307,7 @@ describe("polyRoots tests", () => {
     expect(f([x])).toEqual({ gradient: [-1], primary: -x, secondary: [] });
   });
 
-  type F = (v: VarAD, w: VarAD) => VarAD;
+  type F = (v: ad.Num, w: ad.Num) => ad.Num;
 
   // check that `polyRoots` gives the same answer as just doing symbolic
   // differentiation on the quadratic formula

@@ -1,6 +1,6 @@
 import * as BBox from "engine/BBox";
 import seedrandom from "seedrandom";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { Value } from "types/value";
 import { Circle, makeCircle, sampleCircle } from "./Circle";
 import { Ellipse, makeEllipse, sampleEllipse } from "./Ellipse";
@@ -18,7 +18,7 @@ import { makeText, sampleText, Text } from "./Text";
 
 // TODO: fix this type, it's too restrictive
 export interface Properties {
-  [k: string]: Value<VarAD>;
+  [k: string]: Value<ad.Num>;
 }
 
 export type Shape =
@@ -44,7 +44,7 @@ export interface ShapeDef {
   ) => Shape;
 
   // TODO: maybe get rid of this?
-  propTags: { [prop: string]: Value<VarAD>["tag"] };
+  propTags: { [prop: string]: Value<ad.Num>["tag"] };
 
   // TODO: make these methods
   bbox: (properties: Properties) => BBox.BBox;

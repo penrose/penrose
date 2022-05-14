@@ -30,7 +30,7 @@ import rfdc from "rfdc";
 import seedrandom from "seedrandom";
 import { Canvas } from "shapes/Samplers";
 import { ShapeDef, shapedefs } from "shapes/Shapes";
-import { VarAD } from "types/ad";
+import * as ad from "types/ad";
 import { A, C, Identifier } from "types/ast";
 import { Either, Left, Right } from "types/common";
 import { ConstructorDecl, Env, TypeConstructor } from "types/domain";
@@ -1644,7 +1644,7 @@ const deleteProperty = (
     });
   }
 
-  const prop: FieldExpr<VarAD> = fieldDict[fld];
+  const prop: FieldExpr<ad.Num> = fieldDict[fld];
 
   if (!prop) {
     // TODO(errors / warnings): Should this be fatal?
@@ -1779,7 +1779,7 @@ const addPath = (
   override: boolean,
   trans: Translation,
   path: Path<A>,
-  expr: TagExpr<VarAD>
+  expr: TagExpr<ad.Num>
 ): Either<StyleErrors, Translation> => {
   // Extended `insertExpr` with an optional flag to deal with errors and warnings
   // `insertExpr` replaces the old .hs functions `addField` and `addProperty`
@@ -2137,14 +2137,14 @@ const insertNames = (trans: Translation): Translation => {
 const insertLabels = (trans: Translation, labels: LabelMap): void => {
   for (const labelData of labels) {
     const [name, label] = labelData;
-    const labelValue: TagExpr<VarAD> = {
+    const labelValue: TagExpr<ad.Num> = {
       tag: "Done",
       contents: {
         tag: "StrV",
         contents: label.value,
       },
     };
-    const labelExpr: FieldExpr<VarAD> = {
+    const labelExpr: FieldExpr<ad.Num> = {
       tag: "FExpr",
       contents: labelValue,
     };
@@ -2197,8 +2197,8 @@ const translateStyProg = (
 //#region Translation utilities -- TODO move to EngineUtils
 
 function foldFields<T>(
-  f: (s: string, field: Field, fexpr: FieldExpr<VarAD>, acc: T[]) => T[],
-  [name, fieldDict]: [string, { [k: string]: FieldExpr<VarAD> }],
+  f: (s: string, field: Field, fexpr: FieldExpr<ad.Num>, acc: T[]) => T[],
+  [name, fieldDict]: [string, { [k: string]: FieldExpr<ad.Num> }],
   acc: T[]
 ): T[] {
   const res: T[] = Object.entries(fieldDict).reduce(
@@ -2209,7 +2209,7 @@ function foldFields<T>(
 }
 
 function foldSubObjs<T>(
-  f: (s: string, f: Field, fexpr: FieldExpr<VarAD>, acc: T[]) => T[],
+  f: (s: string, f: Field, fexpr: FieldExpr<ad.Num>, acc: T[]) => T[],
   tr: Translation
 ): T[] {
   return Object.entries(tr.trMap).reduce(
@@ -2240,7 +2240,7 @@ const unoptimizedFloatProperties: string[] = [
 
 const optimizedVectorProperties: string[] = ["start", "end", "center"];
 
-const declaredVarying = (t: TagExpr<VarAD>): boolean => {
+const declaredVarying = (t: TagExpr<ad.Num>): boolean => {
   if (t.tag === "OptEval") {
     return isVarying(t.contents);
   }
@@ -2300,7 +2300,7 @@ const isPending = (s: ShapeTypeStr, p: PropID): boolean => {
 const findPropertyVarying = (
   name: string,
   field: Field,
-  properties: { [k: string]: TagExpr<VarAD> },
+  properties: { [k: string]: TagExpr<ad.Num> },
   floatProperty: string,
   acc: Path<A>[]
 ): Path<A>[] => {
@@ -2313,7 +2313,7 @@ const findPropertyVarying = (
     }
 
     if (optimizedVectorProperties.includes(floatProperty)) {
-      const defaultVec2: TagExpr<VarAD> = {
+      const defaultVec2: TagExpr<ad.Num> = {
         tag: "OptEval",
         contents: {
           nodeType: "SyntheticStyle",
@@ -2341,7 +2341,7 @@ const findPropertyVarying = (
 };
 
 // Look for nested varying variables, given the path to its parent var (e.g. `x.r` => (-1.2, ?)) => `x.r`[1] is varying
-const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
+const findNestedVarying = (e: TagExpr<ad.Num>, p: Path<A>): Path<A>[] => {
   if (e.tag === "OptEval") {
     const res = e.contents;
     if (res.tag === "Vector") {
@@ -2376,7 +2376,7 @@ const findNestedVarying = (e: TagExpr<VarAD>, p: Path<A>): Path<A>[] => {
 const findFieldVarying = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
   switch (fexpr.tag) {
@@ -2430,7 +2430,7 @@ const findPropertyUninitialized = (
 const findFieldUninitialized = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
   // NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
@@ -2463,7 +2463,7 @@ const findUninitialized = (tr: Translation): Path<A>[] => {
 const findGPIName = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: [string, Field][]
 ): [string, Field][] => {
   switch (fexpr.tag) {
@@ -2486,7 +2486,7 @@ const findShapeNames = (tr: Translation): [string, string][] => {
 const findShapeProperties = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: [string, Field, Property][]
 ): [string, Field, Property][] => {
   switch (fexpr.tag) {
@@ -2514,7 +2514,7 @@ const findShapesProperties = (tr: Translation): [string, string, string][] => {
 const findFieldFns = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FExpr") {
@@ -2551,7 +2551,7 @@ const findUserAppliedFns = (tr: Translation): [Fn[], Fn[]] => {
 const findFieldDefaultFns = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Either<StyleOptFn, StyleOptFn>[]
 ): Either<StyleOptFn, StyleOptFn>[] => {
   if (fexpr.tag === "FGPI") {
@@ -2615,7 +2615,7 @@ const convertFns = (fns: Either<StyleOptFn, StyleOptFn>[]): [Fn[], Fn[]] => {
 
 // Extract number from a more complicated type
 // also ported from `lookupPaths`
-const getNum = (e: TagExpr<VarAD> | IFGPI<VarAD>): number => {
+const getNum = (e: TagExpr<ad.Num> | IFGPI<ad.Num>): number => {
   switch (e.tag) {
     case "OptEval": {
       if (e.contents.tag === "Fix") {
@@ -2661,7 +2661,7 @@ export const lookupNumericPaths = (
 const findFieldPending = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
   switch (fexpr.tag) {
@@ -2672,7 +2672,7 @@ const findFieldPending = (
       const properties = fexpr.contents[1];
       const pendingProps = Object.entries(properties)
         .filter(([, v]) => v.tag === "Pending")
-        .map((e: [string, TagExpr<VarAD>]) => e[0]);
+        .map((e: [string, TagExpr<ad.Num>]) => e[0]);
 
       // TODO: Pending properties currently don't support AccessPaths
       return pendingProps
@@ -2717,7 +2717,7 @@ const initFieldsAndAccessPaths = (
   const canvas = getCanvas(tr);
 
   const initVals = varyingFieldsAndAccessPaths.map(
-    (p: Path<A>): TagExpr<VarAD> => {
+    (p: Path<A>): TagExpr<ad.Num> => {
       // by default, sample randomly in canvas X range
       let initVal = randFloat(rng, ...canvas.xRange);
 
@@ -2760,8 +2760,8 @@ const initFieldsAndAccessPaths = (
 const initProperty = (
   shapeType: ShapeTypeStr,
   propName: string,
-  styleSetting: TagExpr<VarAD>
-): TagExpr<VarAD> | undefined => {
+  styleSetting: TagExpr<ad.Num>
+): TagExpr<ad.Num> | undefined => {
   // Property set in Style
   switch (styleSetting.tag) {
     case "OptEval": {
@@ -2818,7 +2818,7 @@ const initShape = (
   if (res.tag === "FGPI") {
     const [stype, props] = res.contents;
     const shapedef: ShapeDef = shapedefs[stype];
-    const instantiatedGPIProps: GPIProps<VarAD> = {
+    const instantiatedGPIProps: GPIProps<ad.Num> = {
       // start by sampling all properties for the shape according to its shapedef
       ...Object.fromEntries(
         Object.entries(
@@ -2852,7 +2852,7 @@ const initShape = (
         contents: shapeName,
       },
     };
-    const gpi: IFGPI<VarAD> = {
+    const gpi: IFGPI<ad.Num> = {
       tag: "FGPI",
       contents: [stype, instantiatedGPIProps],
     };
@@ -2873,7 +2873,7 @@ const initShapes = (
 const findLayeringExpr = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: ILayering<A>[]
 ): ILayering<A>[] => {
   if (fexpr.tag === "FExpr") {
@@ -3124,7 +3124,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 
 //#region Checking translation
 
-const isStyErr = (res: TagExpr<VarAD> | IFGPI<VarAD> | StyleError): boolean =>
+const isStyErr = (res: TagExpr<ad.Num> | IFGPI<ad.Num> | StyleError): boolean =>
   res.tag !== "FGPI" && !isTagExpr(res);
 
 const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
@@ -3192,7 +3192,7 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
 const findPathsField = (
   name: string,
   field: Field,
-  fexpr: FieldExpr<VarAD>,
+  fexpr: FieldExpr<ad.Num>,
   acc: Path<A>[]
 ): Path<A>[] => {
   switch (fexpr.tag) {
@@ -3209,9 +3209,9 @@ const findPathsField = (
       // Get any exprs that the properties are set to
       const propExprs: Expr<A>[] = Object.entries(fexpr.contents[1])
         .map((e) => e[1])
-        .filter((e: TagExpr<VarAD>): boolean => e.tag === "OptEval")
-        .map((e) => e as IOptEval<VarAD>) // Have to cast because TypeScript doesn't know the type changed from the filter above
-        .map((e: IOptEval<VarAD>): Expr<A> => e.contents);
+        .filter((e: TagExpr<ad.Num>): boolean => e.tag === "OptEval")
+        .map((e) => e as IOptEval<ad.Num>) // Have to cast because TypeScript doesn't know the type changed from the filter above
+        .map((e: IOptEval<ad.Num>): Expr<A> => e.contents);
       const res: Path<A>[] = _.flatMap(propExprs, findPathsExpr);
       return acc.concat(res);
     }
@@ -3324,10 +3324,10 @@ const canvasHeightPath: Path<A> = mkPath(["canvas", "height"]);
 
 /* Precondition: checkCanvas returns without error */
 export const getCanvas = (tr: Translation): Canvas => {
-  const width = ((tr.trMap.canvas.width.contents as TagExpr<VarAD>)
-    .contents as Value<VarAD>).contents as number;
-  const height = ((tr.trMap.canvas.height.contents as TagExpr<VarAD>)
-    .contents as Value<VarAD>).contents as number;
+  const width = ((tr.trMap.canvas.width.contents as TagExpr<ad.Num>)
+    .contents as Value<ad.Num>).contents as number;
+  const height = ((tr.trMap.canvas.height.contents as TagExpr<ad.Num>)
+    .contents as Value<ad.Num>).contents as number;
   return {
     width,
     height,

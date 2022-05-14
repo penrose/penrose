@@ -1,7 +1,6 @@
 import { Matrix } from "ml-matrix";
 import { Canvas } from "shapes/Samplers";
 import * as ad from "types/ad";
-import { GradGraphs, VarAD } from "./ad";
 import { A } from "./ast";
 import { Shape } from "./shape";
 import { Expr, Path } from "./style";
@@ -81,7 +80,7 @@ export interface TextData {
 
 export type LabelCache = [string, LabelData][];
 
-export type VaryMap<T = VarAD> = Map<string, T>;
+export type VaryMap<T = ad.Num> = Map<string, T>;
 
 export type FnDone<T> = IFnDone<T>;
 export interface IFnDone<T> {
@@ -148,10 +147,10 @@ export interface IParams {
   // For L-BFGS
   lbfgsInfo: LbfgsParams;
 
-  xsVars: VarAD[]; // Computational graph (leaf vars), from the bottom up
+  xsVars: ad.Num[]; // Computational graph (leaf vars), from the bottom up
 
   // For energy/gradient compilation
-  graphs: GradGraphs;
+  graphs: ad.GradGraphs;
 
   functionsCompiled: boolean;
 
@@ -162,8 +161,8 @@ export interface IParams {
   currObjectiveAndGradient(xs: number[]): FnEvaled;
 
   // `xsVars` are all the leaves of the energy graph
-  energyGraph: VarAD; // This is the top of the energy graph (parent node)
-  epWeightNode: VarAD; // Handle to node for EP weight (so it can be set as the weight changes)
+  energyGraph: ad.Num; // This is the top of the energy graph (parent node)
+  epWeightNode: ad.Num; // Handle to node for EP weight (so it can be set as the weight changes)
 
   // Cached versions of compiling each objective and constraint into a function and gradient
   objFnCache: { [k: string]: FnCached }; // Key is the serialized function name, e.g. `contains(A.shape, B.shape)`
