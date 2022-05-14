@@ -1497,7 +1497,7 @@ const perpPathFlat = (
   [startR, endR]: [ad.Num[], ad.Num[]],
   [startL, endL]: [ad.Num[], ad.Num[]]
 ): [ad.Num[], ad.Num[], ad.Num[]] => {
-  // perpPathFlat :: Autofloat a => a -> (ad.Pt2 a, ad.Pt2 a) -> (ad.Pt2 a, ad.Pt2 a) -> (ad.Pt2 a, ad.Pt2 a, ad.Pt2 a)
+  // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
   // perpPathFlat size (startR, endR) (startL, endL) =
   //   let dirR = normalize' $ endR -: startR
   //       dirL = normalize' $ endL -: startL
