@@ -2,7 +2,7 @@
 
 import { Graph } from "graphlib";
 import { Map } from "immutable";
-import { A, ASTNode, C, Identifier, IStringLit } from "./ast";
+import { A, ASTNode, C, Identifier, StringLit } from "./ast";
 import { ApplyConstructor, TypeConsApp } from "./substance";
 
 export type Var<T> = Identifier<T>;
@@ -79,8 +79,8 @@ export type PreludeDecl<T> = ASTNode<T> & {
 // TODO: check if string type is enough
 export type NotationDecl<T> = ASTNode<T> & {
   tag: "NotationDecl";
-  from: IStringLit<T>;
-  to: IStringLit<T>;
+  from: StringLit<T>;
+  to: StringLit<T>;
 };
 export type SubTypeDecl<T> = ASTNode<T> & {
   tag: "SubTypeDecl";

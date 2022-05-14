@@ -8,7 +8,7 @@
 import * as moo from "moo";
 import { concat, compact, flatten, last } from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from 'parser/ParserUtil'
-import { C, ConcreteNode, Identifier, IStringLit } from "types/ast";
+import { C, ConcreteNode, Identifier, StringLit } from "types/ast";
 import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "types/substance";
 
 
@@ -219,7 +219,7 @@ type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {%
 # Common 
 
 string_lit -> %string_literal {%
-  ([d]): IStringLit<C> => ({
+  ([d]): StringLit<C> => ({
     ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',
@@ -228,7 +228,7 @@ string_lit -> %string_literal {%
 %}
 
 tex_literal -> %tex_literal {% 
-  ([d]): IStringLit<C> => ({
+  ([d]): StringLit<C> => ({
     ...nodeData,
     ...rangeOf(d),
     tag: 'StringLit',

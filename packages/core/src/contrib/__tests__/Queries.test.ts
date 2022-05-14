@@ -14,11 +14,11 @@ import { makePath } from "shapes/Path";
 import { makePolygon } from "shapes/Polygon";
 import { makeRectangle } from "shapes/Rectangle";
 import {
-  FloatV,
+  floatV,
   makeCanvas,
-  PtListV,
+  ptListV,
   sampleBlack,
-  VectorV,
+  vectorV,
 } from "shapes/Samplers";
 import { Pt2 } from "types/ad";
 
@@ -31,10 +31,10 @@ const shapes: [string, any][] = [
   [
     "Rectangle",
     makeRectangle(rng, canvas, {
-      center: VectorV([11, 22]),
-      width: FloatV(44),
-      height: FloatV(44),
-      strokeWidth: FloatV(0),
+      center: vectorV([11, 22]),
+      width: floatV(44),
+      height: floatV(44),
+      strokeWidth: floatV(0),
       strokeColor: sampleBlack(),
     }),
   ],
@@ -42,9 +42,9 @@ const shapes: [string, any][] = [
   [
     "Circle",
     makeCircle(rng, canvas, {
-      r: FloatV(22),
-      center: VectorV([11, 22]),
-      strokeWidth: FloatV(0),
+      r: floatV(22),
+      center: vectorV([11, 22]),
+      strokeWidth: floatV(0),
       strokeColor: sampleBlack(),
     }),
   ],
@@ -52,10 +52,10 @@ const shapes: [string, any][] = [
   [
     "Ellipse",
     makeEllipse(rng, canvas, {
-      rx: FloatV(22),
-      ry: FloatV(22),
-      center: VectorV([11, 22]),
-      strokeWidth: FloatV(0),
+      rx: floatV(22),
+      ry: floatV(22),
+      center: vectorV([11, 22]),
+      strokeWidth: floatV(0),
       strokeColor: sampleBlack(),
     }),
   ],
@@ -74,21 +74,21 @@ const shapes: [string, any][] = [
   [
     "Line",
     makeLine(rng, canvas, {
-      start: VectorV([-11, 0]),
-      end: VectorV([33, 44]),
-      strokeWidth: FloatV(0),
+      start: vectorV([-11, 0]),
+      end: vectorV([33, 44]),
+      strokeWidth: floatV(0),
     }),
   ],
   // shapes[5]
   [
     "Polygon",
     makePolygon(rng, canvas, {
-      points: PtListV([
+      points: ptListV([
         [-11, 0],
         [33, 0],
         [33, 44],
       ]),
-      scale: FloatV(1),
+      scale: floatV(1),
     }),
   ],
 ];
